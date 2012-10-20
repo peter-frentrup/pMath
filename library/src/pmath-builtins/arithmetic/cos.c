@@ -84,15 +84,32 @@ PMATH_PRIVATE void _pmath_sin_cos(
       PMATH_AS_MP_VALUE(x),
       MPFR_RNDN);
     
-    mpfr_set_d(err_x, -min_prec, MPFR_RNDN);
-    
+    mpfr_set_d(min_sin, -min_prec, MPFR_RNDN);
     mpfr_ui_pow(
-      PMATH_AS_MP_ERROR(*co),
-      2,
       err_x,
+      2,
+      min_sin,
       MPFR_RNDU);
       
-    mpfr_set(PMATH_AS_MP_ERROR(*si), PMATH_AS_MP_ERROR(*co), MPFR_RNDN);
+    mpfr_mul(
+      PMATH_AS_MP_ERROR(*si), 
+      PMATH_AS_MP_VALUE(*si), 
+      err_x,
+      MPFR_RNDA);
+    mpfr_abs(
+      PMATH_AS_MP_ERROR(*si),
+      PMATH_AS_MP_ERROR(*si),
+      MPFR_RNDU);
+      
+    mpfr_mul(
+      PMATH_AS_MP_ERROR(*co), 
+      PMATH_AS_MP_VALUE(*co), 
+      err_x,
+      MPFR_RNDA);
+    mpfr_abs(
+      PMATH_AS_MP_ERROR(*co),
+      PMATH_AS_MP_ERROR(*co),
+      MPFR_RNDU);
       
     pmath_unref(x);
     return;
@@ -221,7 +238,14 @@ PMATH_PRIVATE void _pmath_sin_cos(
     
     _pmath_mp_float_include_error(*si, one);
   }
+  
   pmath_unref(x);
+  
+  _pmath_mp_float_clip_error(*si, min_prec, max_prec);
+  _pmath_mp_float_clip_error(*co, min_prec, max_prec);
+  
+  //*si = _pmath_float_exceptions(*si);
+  //*co = _pmath_float_exceptions(*co);
 }
 
 PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
@@ -253,7 +277,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
     _pmath_sin_cos(x, &si, &co);
     pmath_unref(si);
     
-    return co;
+    return _pmath_float_exceptions(co);
   }
   
   if(pmath_is_number(x)) {

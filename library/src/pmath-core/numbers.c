@@ -545,6 +545,18 @@ PMATH_API pmath_integer_t pmath_rational_denominator(
 //} ============================================================================
 //{ float constructors and exception handling ...
 
+static double mp_log2abs(mpfr_t x) {
+  mpfr_exp_t accexp;
+  double accmant;
+  
+  if(mpfr_zero_p(x))
+    return -HUGE_VAL;
+  
+  // accuracy = -Log(2, dx)
+  accmant = mpfr_get_d_2exp(&accexp, x, MPFR_RNDN);
+  return log2(fabs(accmant)) + accexp;
+}
+
 PMATH_API
 pmath_number_t pmath_float_new_str(
   const char               *str, // digits.digits
@@ -800,6 +812,96 @@ void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f) {
     PMATH_AS_MP_ERROR(f),
     diff,
     MPFR_RNDU);
+}
+
+PMATH_PRIVATE
+void _pmath_mp_float_clip_error(
+  pmath_mpfloat_t f,
+  double          min_prec, 
+  double          max_prec
+) {
+  MPFR_DECL_INIT(exp,    PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(relerr, PMATH_MP_ERROR_PREC);
+  double log_valf, log_errf, prec_f;
+  
+  assert(pmath_is_mpfloat(f));
+  assert(pmath_refcount(f) == 1);
+  
+  if(!(min_prec >= 0))
+    min_prec = 0;
+  
+  if(!(max_prec <= PMATH_MP_PREC_MAX))
+    max_prec = PMATH_MP_PREC_MAX;
+  
+  if(!(min_prec <= max_prec))
+    max_prec = min_prec;
+  
+  if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_ERROR(f)) <= 0) {
+    return;
+  }
+  
+  log_valf = mp_log2abs(PMATH_AS_MP_VALUE(f));
+  log_errf = mp_log2abs(PMATH_AS_MP_ERROR(f));
+  
+  prec_f = log_valf - log_errf;
+  
+  if(prec_f < min_prec) {
+    mpfr_prec_t prec = (mpfr_prec_t)ceil(min_prec);
+    if(prec < MPFR_PREC_MIN)
+      prec  = MPFR_PREC_MIN;
+    
+    pmath_debug_print("[precision %f < %f bits]\n", prec_f, min_prec);
+    
+    mpfr_prec_round(PMATH_AS_MP_VALUE(f), prec, MPFR_RNDN);
+    
+    mpfr_set_d(exp, -min_prec, MPFR_RNDN);
+    mpfr_ui_pow(
+      relerr,
+      2,
+      exp,
+      MPFR_RNDU);
+      
+    mpfr_mul(
+      PMATH_AS_MP_ERROR(f), 
+      PMATH_AS_MP_VALUE(f), 
+      relerr,
+      MPFR_RNDA);
+    mpfr_abs(
+      PMATH_AS_MP_ERROR(f),
+      PMATH_AS_MP_ERROR(f),
+      MPFR_RNDU);
+    
+    return;
+  }
+  
+  if(prec_f > max_prec) {
+    mpfr_prec_t prec = (mpfr_prec_t)ceil(max_prec);
+    if(prec < MPFR_PREC_MIN)
+      prec  = MPFR_PREC_MIN;
+    
+    pmath_debug_print("[precision %f > %f bits]\n", prec_f, max_prec);
+    
+    mpfr_prec_round(PMATH_AS_MP_VALUE(f), prec, MPFR_RNDN);
+    
+    mpfr_set_d(exp, -max_prec, MPFR_RNDN);
+    mpfr_ui_pow(
+      relerr,
+      2,
+      exp,
+      MPFR_RNDU);
+      
+    mpfr_mul(
+      PMATH_AS_MP_ERROR(f), 
+      PMATH_AS_MP_VALUE(f), 
+      relerr,
+      MPFR_RNDA);
+    mpfr_abs(
+      PMATH_AS_MP_ERROR(f),
+      PMATH_AS_MP_ERROR(f),
+      MPFR_RNDU);
+    
+    return;
+  }
 }
 
 PMATH_PRIVATE

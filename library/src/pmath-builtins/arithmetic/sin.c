@@ -40,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr) {
     _pmath_sin_cos(x, &si, &co);
     pmath_unref(co);
     
-    return si;
+    return _pmath_float_exceptions(si);
   }
   
   if(pmath_is_number(x)) {

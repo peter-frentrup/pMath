@@ -153,6 +153,13 @@ pmath_t _pmath_float_exceptions(
 PMATH_PRIVATE
 void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f);
 
+// should call _pmath_float_exceptions afterwards:
+PMATH_PRIVATE
+void _pmath_mp_float_clip_error(
+  pmath_mpfloat_t f, 
+  double          min_prec, 
+  double          max_prec);
+
 PMATH_PRIVATE
 void _pmath_mp_float_normalize(pmath_mpfloat_t f);
 

@@ -6,6 +6,8 @@
 
 - complex equality tests: 2I = 2 currently returns unevaluated 
 
+- add $MinPrecision, $MaxPrecision to access pmath_thread_t::min_precision, pmath_thread_t::max_precision
+
 - support FontSlant->Toggle, FontWeight->Toggle, FontSize->Larger, FontSize->Smaller
 
 - add "GraphicsOriginalSize" (make standard size)

@@ -70,12 +70,21 @@ static pmath_mpfloat_t mp_sinh(pmath_mpfloat_t x) {
       PMATH_AS_MP_VALUE(x),
       MPFR_RNDN);
     
-    mpfr_set_d(err_x, -min_prec, MPFR_RNDN);
-    
+    mpfr_set_d(min_val, -min_prec, MPFR_RNDN);
     mpfr_ui_pow(
-      PMATH_AS_MP_ERROR(val),
-      2,
       err_x,
+      2,
+      min_val,
+      MPFR_RNDU);
+      
+    mpfr_mul(
+      PMATH_AS_MP_ERROR(val), 
+      PMATH_AS_MP_VALUE(val), 
+      err_x,
+      MPFR_RNDA);
+    mpfr_abs(
+      PMATH_AS_MP_ERROR(val),
+      PMATH_AS_MP_ERROR(val),
       MPFR_RNDU);
       
     pmath_unref(x);
@@ -143,6 +152,9 @@ static pmath_mpfloat_t mp_sinh(pmath_mpfloat_t x) {
   _pmath_mp_float_include_error(val, min_val);
   
   pmath_unref(x);
+  
+  _pmath_mp_float_clip_error(val, min_prec, max_prec);
+  val = _pmath_float_exceptions(val);
   return val;
 }
 
