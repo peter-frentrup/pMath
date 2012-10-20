@@ -258,7 +258,7 @@ static pmath_mpfloat_t _mul_ff(
   else if(fprec > max_prec)
     fprec = max_prec;
   
-  fprec = (mpfr_prec_t)ceil(fprec);
+  prec = (mpfr_prec_t)ceil(fprec);
     
   result = _pmath_create_mp_float(prec);
   
