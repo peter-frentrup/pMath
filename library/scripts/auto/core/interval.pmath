@@ -191,24 +191,34 @@ IntervalUnequal(~a, ~b)::= (
 	)
 
 
-/* IntervalSinCos */
-Interval/: Sin(~i:Interval ? IsInterval)::= IntervalSinCos(i, Sin)
-Interval/: Cos(~i:Interval ? IsInterval)::= IntervalSinCos(i, Cos)
-Interval/: Tan(~i:Interval ? IsInterval)::= IntervalSinCos(i, Sin) / IntervalSinCos(i, Cos)
-Interval/: Cot(~i:Interval ? IsInterval)::= IntervalSinCos(i, Cos) / IntervalSinCos(i, Sin)
-Interval/: Csc(~i:Interval ? IsInterval)::= 1 / IntervalSinCos(i, Sin)
-Interval/: Sec(~i:Interval ? IsInterval)::= 1 / IntervalSinCos(i, Cos)
+/* IntervalSin, IntervalCos */
+Interval/: Sin(~i:Interval ? IsInterval)::= IntervalSin(i)
+Interval/: Cos(~i:Interval ? IsInterval)::= IntervalCos(i)
+Interval/: Tan(~i:Interval ? IsInterval)::= IntervalSin(i) / IntervalCos(i)
+Interval/: Cot(~i:Interval ? IsInterval)::= IntervalCos(i) / IntervalSin(i)
+Interval/: Csc(~i:Interval ? IsInterval)::= 1 / IntervalSin(i)
+Interval/: Sec(~i:Interval ? IsInterval)::= 1 / IntervalCos(i)
 
-IntervalSinCos(~i, ~f)::= Interval @@ (List @@ i).Map(IntervalSinCosRange(f))
-
-IntervalSinCosRange(~f)(~)::= -1 .. 1
-IntervalSinCosRange(~f)(~a?IsReal .. ~b?IsReal)::= 
-	With({x:= Ceiling(a - Pi/2, Pi) + Pi/2},
-		If(b >= x + Pi,
+IntervalSin(~i)::= Interval @@ (List @@ i).Map(IntervalSinRange(f))
+IntervalSinRange(~)::= -1 .. 1
+IntervalSinRange(~a?IsReal .. ~b?IsReal)::= 
+	With({nextExtremumA:= Ceiling(a - Pi/2, Pi) + Pi/2},
+		If(b >= nextExtremumA + Pi,
 			Return(-1 .. 1));
-		If(b <= x,
-			Return(f(a) .. f(b)));
-		Return(MinMax({f(a), f(b), f(x)}))
+		If(b <= nextExtremumA,
+			Return(Sin(a) .. Sin(b)));
+		Return(MinMax({Sin(a), Sin(b), Sin(nextExtremumA)}))
+		)
+
+IntervalCos(~i)::= Interval @@ (List @@ i).Map(IntervalCosRange(f))
+IntervalCosRange(~)::= -1 .. 1
+IntervalCosRange(~a?IsReal .. ~b?IsReal)::= 
+	With({nextExtremumA:= Ceiling(a, Pi)},
+		If(b >= nextExtremumA + Pi,
+			Return(-1 .. 1));
+		If(b <= nextExtremumA,
+			Return(Cos(a) .. Cos(b)));
+		Return(MinMax({Cos(a), Cos(b), Cos(nextExtremumA)}))
 		)
 
 /* IntervalMonotone */
