@@ -221,6 +221,36 @@ IntervalCosRange(~a?IsReal .. ~b?IsReal)::=
 		Return(MinMax({Cos(a), Cos(b), Cos(nextExtremumA)}))
 		)
 
+/* IntervalArcTan(y,x) */
+Interval/: ArcTan(~y:Interval ? IsInterval, ~x:Interval ? IsInterval)::= IntervalArcTan(y, x)
+Interval/: ArcTan(~y:Interval ? IsInterval, ~x ? IsRealOrInfinity)   ::= IntervalArcTan(y, Interval(x..x))
+Interval/: ArcTan(~y ? IsRealOrInfinity,    ~x:Interval ? IsInterval)::= IntervalArcTan(Interval(y..y), x)
+
+IntervalArcTan(~y, ~x)::= Union @@ (List @@ x).Map(IntervalArcTanRange(y, #) &)
+
+IntervalArcTanRange(~y, ~x)::= y.Map(IntervalRangesArcTan(#, x) &)
+
+IntervalRangesArcTan(~y1 .. ~y2, ~x1 .. ~x2)::= (
+	If(0 <= y1,
+		If(0 <= x1,
+			Return(ArcTan(y1, x2) .. ArcTan(y2, x1)));
+		If(x2 <= 0,
+			Return(ArcTan(y2, x2) .. ArcTan(y1, x1)));
+		Return(ArcTan(y1, x2) .. ArcTan(y1, x1));
+		);
+	If(y2 <= 0,
+		If(0 <= x1,
+			Return(ArcTan(y1, x1) .. ArcTan(y2, x2)));
+		If(x2 <= 0,
+			Return(ArcTan(y2, x1) .. ArcTan(y1, x2)));
+		Return(ArcTan(y2, x1) .. ArcTan(y2, x2));
+		);
+	If(0 <= x1,
+		Return(ArcTan(y1, x1) .. ArcTan(y2, x1)));
+	Return(-Pi .. Pi);
+	)
+
+
 /* IntervalMonotone */
 Interval/: ArcCot(~i:Interval ? IsInterval)::= IntervalMonotone(i, ArcCot) /* arccot is pi/2 - arctan */
 Interval/: ArcTan(~i:Interval ? IsInterval)::= IntervalMonotone(i, ArcTan)
@@ -252,7 +282,7 @@ IntervalCoshRange(~a ? IsRealOrInfinity .. ~b ? IsRealOrInfinity)::= (
 	If(a <= 0 <= b,
 		Return(MinMax({Cosh(a), Cosh(0), Cosh(b)})));
 	Return(Cosh(a) .. Cosh(b))
-)
+	)
 
 
 /* IntervalPlus */
@@ -305,13 +335,13 @@ IntervalRangesPower(~a1 .. ~a2, ~b .. ~b)::= (
 	)
 
 IntervalRangesPower(~a1 .. ~a2, ~b1 .. ~b2)::= (
-		If(a1 <= 0 <= a2,
-			If(b1 < 0,
-				Return($Failed));
-			Return(MinMax({0, Try(a1^b1), Try(a1^b2), Try(a2^b1), Try(a2^b2)}.Select(IsRealOrInfinity)));
-			);
-		Return(MinMax({a1^b1, a1^b2, a2^b1, a2^b2}));
-		)
+	If(a1 <= 0 <= a2,
+		If(b1 < 0,
+			Return($Failed));
+		Return(MinMax({0, Try(a1^b1), Try(a1^b2), Try(a2^b1), Try(a2^b2)}.Select(IsRealOrInfinity)));
+		);
+	Return(MinMax({a1^b1, a1^b2, a2^b1, a2^b2}));
+	)
 
 Protect(Interval);
 
