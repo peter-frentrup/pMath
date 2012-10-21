@@ -7,6 +7,20 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 
+/* A value x with uncertainity u is realy any value in [x-u/2, x+u/2]
+   An approximate number with accuracy acc_b (in base b) by definition has
+   uncertainity u = b^-acc_b. So acc_b = -Log(b, u).
+   A non-zero approximate number with precision prec_b (in base b) by definition
+   has uncertainity u = |x| b^-prec_b.
+   So prec_b = -Log(b, u / |x|) = Log(b, |x|) + acc_b
+
+   Note that PMATH_AS_MP_ERROR(x) =: dx = u/2.
+   So acc_2 = -Log(2, u) = -Log(2, 2 dx) = -(1 + Log(2, dx)).
+   And dx = 1/2 * 2^-acc_2 = 2^-(acc_2 + 1)
+          = 1/2 * |x| * 2^-prec_2 = |x| * 2^-(prec_2 + 1)
+
+   Internally, we use base b = 2.
+ */
 
 PMATH_API
 double pmath_accuracy(pmath_t obj) { // will be freed
@@ -31,7 +45,7 @@ double pmath_accuracy(pmath_t obj) { // will be freed
     //acc = dex_get_d_log2(PMATH_AS_MP_ERROR(obj));
     pmath_unref(obj);
     //return - acc;
-    return - exp - log2(fabs(d));
+    return -(log2(d) + exp + 1);
   }
   
   acc = HUGE_VAL;
@@ -75,7 +89,7 @@ double pmath_precision(pmath_t obj) { // will be freed
     err_d = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
     
     pmath_unref(obj);
-    return log2(fabs(val_d)) - log2(err_d) + val_exp - err_exp;
+    return log2(fabs(val_d)) + val_exp - (log2(err_d) + err_exp + 1);
   }
   
   prec = HUGE_VAL;
@@ -121,34 +135,39 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
   
   if(pmath_is_double(obj)) {
     pmath_float_t result;
-    double prec = 0.0;
     
     if(PMATH_AS_DOUBLE(obj) == 0) {
-      pmath_unref(obj);
-      return PMATH_FROM_INT32(0);
-    }
-    
-    prec = log2(fabs(PMATH_AS_DOUBLE(obj))) + acc;
-    if(prec >= PMATH_MP_PREC_MAX) {
-      pmath_unref(obj);
-      return PMATH_NULL; // overflow message?
-    }
-    
-    result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mpfr_prec_t)ceil(prec) : MPFR_PREC_MIN);
-    if(pmath_is_null(result)) {
-      pmath_unref(obj);
-      return PMATH_NULL;
-    }
-    
-    mpfr_set_d(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_DOUBLE(obj),
-      MPFR_RNDN);
+      if(acc >= PMATH_MP_PREC_MAX)
+        return pmath_ref(_pmath_object_underflow); // underflow message?
+        
+      result = _pmath_create_mp_float(acc >= MPFR_PREC_MIN ? (mpfr_prec_t)ceil(acc) : MPFR_PREC_MIN);
       
-    mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDN);
+      if(pmath_is_null(result))
+        return PMATH_NULL;
+        
+      mpfr_set_ui(
+        PMATH_AS_MP_VALUE(result),
+        0,
+        MPFR_RNDN);
+    }
+    else {
+      double prec = log2(fabs(PMATH_AS_DOUBLE(obj))) + acc;
+      if(prec >= PMATH_MP_PREC_MAX)
+        return pmath_ref(_pmath_object_overflow); // overflow message?
+        
+      result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mpfr_prec_t)ceil(prec) : MPFR_PREC_MIN);
+      if(pmath_is_null(result))
+        return PMATH_NULL;
+        
+      mpfr_set_d(
+        PMATH_AS_MP_VALUE(result),
+        PMATH_AS_DOUBLE(obj),
+        MPFR_RNDN);
+    }
+    
+    mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc - 1, MPFR_RNDN);
     mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDN);
     
-    pmath_unref(obj);
     return result;
   }
   
@@ -158,7 +177,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
     
     if(pmath_is_int32(obj)) {
       if(PMATH_AS_INT32(obj) == 0) {
-        prec = 0;
+        prec = acc;
       }
       else {
         int exp;
@@ -174,19 +193,19 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
       assert(PMATH_AS_PTR(obj) != NULL);
       
       switch(PMATH_AS_PTR(obj)->type_shift) {
-        case PMATH_TYPE_SHIFT_MP_INT: {
-            if(mpz_sgn(PMATH_AS_MPZ(obj)) == 0) {
-              prec = 0;
-            }
-            else {
-              long exp;
-              double d;
-              
-              d = mpz_get_d_2exp(&exp, PMATH_AS_MPZ(obj));
-              
-              prec = log2(fabs(d)) + exp + acc;
-            }
-          } break;
+        case PMATH_TYPE_SHIFT_MP_INT:
+          if(mpz_sgn(PMATH_AS_MPZ(obj)) == 0) {
+            prec = acc;
+          }
+          else {
+            long exp;
+            double d;
+            
+            d = mpz_get_d_2exp(&exp, PMATH_AS_MPZ(obj));
+            
+            prec = log2(fabs(d)) + exp + acc;
+          }
+          break;
           
         case PMATH_TYPE_SHIFT_QUOTIENT: {
             long numexp, denexp;
@@ -211,12 +230,17 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
             prec = log2(fabs(numd)) - log2(fabs(dend)) + numexp - denexp + acc;
           } break;
           
-        case PMATH_TYPE_SHIFT_MP_FLOAT: {
+        case PMATH_TYPE_SHIFT_MP_FLOAT:
+          if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))) {
+            prec = acc;
+          }
+          else {
             long exp;
             double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
             
             prec = log2(fabs(d)) + exp + acc;
-          } break;
+          }
+          break;
           
         default:
           assert("unknown number type" && 0);
@@ -225,7 +249,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
     
     if(prec >= PMATH_MP_PREC_MAX) {
       pmath_unref(obj);
-      return PMATH_NULL; // overflow message?
+      return pmath_ref(_pmath_object_overflow); // overflow message?
     }
     
     result = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? (mpfr_prec_t)ceil(prec) : MPFR_PREC_MIN);
@@ -287,10 +311,23 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
               PMATH_AS_MP_VALUE(result),
               PMATH_AS_MP_VALUE(obj),
               MPFR_RNDN);
+              
+            if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))) {
+              mpfr_set_ui(
+                PMATH_AS_MP_VALUE(result),
+                +0,
+                MPFR_RNDN);
+            }
+            else {
+              mpfr_set(
+                PMATH_AS_MP_VALUE(result),
+                PMATH_AS_MP_VALUE(obj),
+                MPFR_RNDN);
+            }
           } break;
       }
       
-    mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDN);
+    mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc - 1, MPFR_RNDN);
     mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDN);
     
     pmath_unref(obj);
@@ -457,8 +494,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
           } break;
       }
       
-    // error = |value| * 2 ^ -bits
-    mpfr_set_d(PMATH_AS_MP_ERROR(result), -prec, MPFR_RNDU);
+    mpfr_set_d(PMATH_AS_MP_ERROR(result), -prec - 1, MPFR_RNDU);
     
     mpfr_ui_pow(
       PMATH_AS_MP_ERROR(result),
@@ -493,7 +529,7 @@ PMATH_API pmath_t pmath_approximate(
   
   if(!me)
     return obj;
-  
+    
   if(aborted)
     *aborted = FALSE;
     

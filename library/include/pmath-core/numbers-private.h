@@ -142,10 +142,6 @@ pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numB);
 
 PMATH_PRIVATE
-mpfr_prec_t _pmath_float_precision( // 0 = MachinePrecision
-  pmath_float_t x); // wont be freed
-
-PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.

@@ -653,7 +653,8 @@ pmath_number_t pmath_float_new_str(
       };
       
     case PMATH_PREC_CTRL_GIVEN_PREC: {
-        pmath_float_t tmp_err;
+        MPFR_DECL_INIT(err_exp, PMATH_MP_ERROR_PREC);
+        MPFR_DECL_INIT(rel_err, PMATH_MP_ERROR_PREC);
         double bits = base_precision_accuracy * log2_base;
         mpfr_prec_t prec;
         
@@ -668,12 +669,6 @@ pmath_number_t pmath_float_new_str(
         f = _pmath_create_mp_float(prec >= MPFR_PREC_MIN ? prec : MPFR_PREC_MIN);
         if(pmath_is_null(f))
           return PMATH_NULL;
-          
-        tmp_err = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-        if(pmath_is_null(tmp_err)) {
-          pmath_unref(f);
-          return PMATH_NULL;
-        }
         
         mpfr_set_str(PMATH_AS_MP_VALUE(f), str, base, MPFR_RNDN);
         
@@ -684,17 +679,16 @@ pmath_number_t pmath_float_new_str(
           return PMATH_FROM_INT32(0);
         }
         
-        // error = |value| * 2 ^ -bits
-        mpfr_abs(PMATH_AS_MP_ERROR(f), PMATH_AS_MP_VALUE(f), MPFR_RNDU);
-        mpfr_set_d(PMATH_AS_MP_VALUE(tmp_err), -bits, MPFR_RNDN);
-        mpfr_ui_pow(PMATH_AS_MP_ERROR(tmp_err), 2, PMATH_AS_MP_VALUE(tmp_err), MPFR_RNDN);
+        // error/2 = |value| * 2 ^ (-bits-1)
+        mpfr_set_d(err_exp, -bits-1, MPFR_RNDN);
+        mpfr_ui_pow(rel_err, 2, err_exp, MPFR_RNDN);
         mpfr_mul(
           PMATH_AS_MP_ERROR(f),
-          PMATH_AS_MP_ERROR(f),
-          PMATH_AS_MP_ERROR(tmp_err),
-          MPFR_RNDU);
-          
-        pmath_unref(tmp_err);
+          PMATH_AS_MP_VALUE(f),
+          rel_err,
+          MPFR_RNDA);
+        mpfr_abs(PMATH_AS_MP_ERROR(f), PMATH_AS_MP_ERROR(f), MPFR_RNDU);
+        
         _pmath_mp_float_normalize(f);
         return f;
       };
@@ -717,9 +711,10 @@ pmath_number_t pmath_float_new_str(
           
         mpfr_set_str(PMATH_AS_MP_VALUE(f), str, base, MPFR_RNDN);
         
-        // error = base ^ -accuracy
+        // error/2 = 1/2 * base ^ -accuracy
         mpfr_set_d(PMATH_AS_MP_ERROR(f), -base_precision_accuracy, MPFR_RNDD);
         mpfr_ui_pow(PMATH_AS_MP_ERROR(f), base, PMATH_AS_MP_ERROR(f), MPFR_RNDU);
+        mpfr_mul_2si(PMATH_AS_MP_ERROR(f), PMATH_AS_MP_ERROR(f), -1, MPFR_RNDU);
         
         _pmath_mp_float_normalize(f);
         return f;
@@ -729,16 +724,6 @@ pmath_number_t pmath_float_new_str(
   }
   
   return PMATH_NULL;
-}
-
-PMATH_PRIVATE
-mpfr_prec_t _pmath_float_precision( // 0 = MachinePrecision
-  pmath_float_t x // wont be freed
-) {
-  if(pmath_is_mpfloat(x))
-    return mpfr_get_prec(PMATH_AS_MP_VALUE(x));
-    
-  return 0;
 }
 
 PMATH_PRIVATE
@@ -1499,32 +1484,26 @@ static void write_mp_float_ex(
   mp_exp_t exp;
   size_t digits, size;
   char *str;
-  double prec10 = pmath_precision(pmath_ref(f));
-  //double acc10  = pmath_accuracy(pmath_ref(f));
+  double prec2 = pmath_precision(pmath_ref(f)); // it is a prec2 here
   double base_prec;
-  //double base_acc;
   
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
     base = thread->numberbase;
     
   if(base == 2) {
-    base_prec = prec10;
-    //base_acc  = acc10;
+    base_prec = prec2;
   }
   else if(base == 10) {
-    base_prec = LOG10_2 * prec10;
-    //base_acc  = LOG10_2 * acc10;
+    base_prec = LOG10_2 * prec2;
   }
   else {
-    base_prec = prec10 * LOGE_2 / log(base);
-    //base_acc  = acc10  * LOGE_2 / log(base);
+    base_prec = prec2 / log2(base);
   }
-  prec10 *= LOG10_2;
-  //acc10 *= LOG10_2;
   
-  if(mpfr_zero_p(PMATH_AS_MP_VALUE(f)) || prec10 == 0) {
-    long exp;
-    double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(f), MPFR_RNDN);
+  if(mpfr_zero_p(PMATH_AS_MP_VALUE(f)) || prec2 <= 0) {
+    mp_exp_t uncertainity_exp;
+    double uncertainity_mant = mpfr_get_d_2exp(&uncertainity_exp, PMATH_AS_MP_ERROR(f), MPFR_RNDN);
+    uncertainity_exp+= 1; // uncertainity = dx / 2
     
     if(base != 10) {
       snprintf(basestr, sizeof(basestr), "%d^^", base);
@@ -1538,29 +1517,24 @@ static void write_mp_float_ex(
         write_cstr("0.0", info->write, info->user);
     }
     else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
-      d = exp * LOG10_2 + log10(d);
+      // acc_b = -Log(b, u)
+      double base_acc = -(uncertainity_exp + log2(uncertainity_mant)) / log2(base);
       
       write_cstr("0``", info->write, info->user);
-      write_short_double(-d, info->write, info->user);
+      write_short_double(base_acc, info->write, info->user);
     }
     else {
       char s[30];
       
-      if(base == 10)
-        d = exp * LOG10_2 + log10(d);
-      else if(base == 2)
-        d = exp + log(d) / LOGE_2;
-      else
-        d = (exp * LOGE_2 + log(d)) / log(base);
-        
-      snprintf(s, sizeof(s), "0.0*^%"PRIdMAX, (intmax_t)d);
+      double base_acc = -(uncertainity_exp + log2(uncertainity_mant)) / log2(base);
+      
+      snprintf(s, sizeof(s), "0.0*^%"PRIdMAX, (intmax_t)floor(-base_acc));
       write_cstr(s, info->write, info->user);
     }
     
     return;
   }
   
-  //digits = 1 + (size_t)(floor(base_prec - base_acc) + base_acc);
   digits = 1 + (size_t)ceil(base_prec);
   if(digits < 2)
     digits = 2;
@@ -1609,7 +1583,7 @@ static void write_mp_float_ex(
       write_cstr("`", info->write, info->user);
       
       if(!for_machine_float)
-        write_short_double(prec10, info->write, info->user);
+        write_short_double(base_prec, info->write, info->user);
     }
   }
   else if(exp > 0 && exp <= 6 && (size_t)exp < strlen(str)) {
@@ -1622,7 +1596,7 @@ static void write_mp_float_ex(
       if(*str == '-') {
         snprintf(basestr, sizeof(basestr), "-%d^^", base);
         write_cstr(basestr, info->write, info->user);
-        write_cstr(str + 1,   info->write, info->user);
+        write_cstr(str + 1, info->write, info->user);
       }
       else {
         snprintf(basestr, sizeof(basestr), "%d^^", base);
@@ -1645,7 +1619,7 @@ static void write_mp_float_ex(
       write_cstr("`", info->write, info->user);
       
       if(!for_machine_float)
-        write_short_double(prec10, info->write, info->user);
+        write_short_double(base_prec, info->write, info->user);
     }
   }
   else if(exp < 0 && exp > -5) {
@@ -1684,7 +1658,7 @@ static void write_mp_float_ex(
       write_cstr("`", info->write, info->user);
       
       if(!for_machine_float)
-        write_short_double(prec10, info->write, info->user);
+        write_short_double(base_prec, info->write, info->user);
     }
   }
   else {
@@ -1733,7 +1707,7 @@ static void write_mp_float_ex(
       write_cstr("`", info->write, info->user);
       
       if(!for_machine_float)
-        write_short_double(prec10, info->write, info->user);
+        write_short_double(base_prec, info->write, info->user);
     }
     
     if(exp != 0) {

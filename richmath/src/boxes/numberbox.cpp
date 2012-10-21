@@ -2,11 +2,17 @@
 
 #include <cfloat>
 #include <cmath>
+#include <cstdio>
 
 #include <boxes/mathsequence.h>
 #include <boxes/subsuperscriptbox.h>
 #include <eval/binding.h>
 #include <graphics/context.h>
+
+#ifdef _MSC_VER
+#  define snprintf sprintf_s
+#endif
+
 
 using namespace richmath;
 
@@ -41,7 +47,7 @@ bool NumberBox::try_load_from_object(Expr expr, int opts) {
 
 bool NumberBox::edit_selection(Context *context) {
   if(Box::edit_selection(context)) {
-    MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
+    MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
     
     if(!seq)
       return false;
@@ -251,7 +257,7 @@ static String round_digits(String number, int maxdigits, int base) { // xxx.xxx,
   
   int i;
   for(i = decimal_point + 1; i < len && pmath_char_is_36digit(buf[i]); ++i)
-    newbuf[i-1] = buf[i];
+    newbuf[i - 1] = buf[i];
     
   if(i != len || len <= maxdigits + 1)
     return number;
@@ -274,7 +280,7 @@ static String round_digits(String number, int maxdigits, int base) { // xxx.xxx,
     }
   }
   
-  while(maxdigits > decimal_point + 1 && newbuf[maxdigits-1] == '0')
+  while(maxdigits > decimal_point + 1 && newbuf[maxdigits - 1] == '0')
     --maxdigits;
     
   String num;
@@ -288,18 +294,56 @@ static String round_digits(String number, int maxdigits, int base) { // xxx.xxx,
   return num;
 }
 
+static double parse_double(const uint16_t *buf, int len) {
+  int i = 0;
+  double value = 0.0;
+  double div = 1.0;
+  int sign = 1;
+  
+  if(i == len)
+    return 0.0;
+    
+  if(buf[i] == '-') {
+    sign = -1;
+    ++i;
+  }
+  else if(buf[i] == '+')
+    ++i;
+  
+  while(i < len && pmath_char_is_digit(buf[i])) {
+    value = 10 * value + (buf[i] - '0');
+    ++i;
+  }
+  
+  if(i == len)
+    return sign * value;
+    
+  if(buf[i] == '.') {
+    ++i;
+    while(i < len && pmath_char_is_digit(buf[i])) {
+      value = 10 * value + (buf[i] - '0');
+      div = 10 * div;
+      ++i;
+    }
+    
+    value /= div;
+  }
+  
+  return sign * value;
+}
+
 void NumberBox::set_number(String n) {
   _number = n;
   _base     = 0;
   _exponent = 0;
-  int numbase = 0;
+  unsigned numbase = 0;
   
   const uint16_t *buf = _number.buffer();
   const int       len = _number.length();
   
   _numstart = 0;
   while(_numstart < len && pmath_char_is_digit(buf[_numstart])) {
-    numbase = 10 * numbase + (int)(buf[_numstart] - '0');
+    numbase = 10 * numbase + (unsigned)(buf[_numstart] - '0');
     ++_numstart;
   }
   
@@ -318,14 +362,65 @@ void NumberBox::set_number(String n) {
   while(_numend < len && buf[_numend] != '`')
     ++_numend;
     
-  _expstart = _numend;
   _content->remove(0, _content->length());
   
+  _expstart = _numend;
+  while(_expstart < len && buf[_expstart] != '^')
+    ++_expstart;
+    
   if(numbase >= 2 && numbase <= 36) {
-    if((_numend + 1 == len ||
-       (_numend + 1 < len &&
-        buf[_numend + 1] != '`' &&
-        !pmath_char_is_digit(buf[_numend + 1]))))
+    if(_numend + 2 < len && buf[_numend + 1] == '`') { // 1.2``3   1.2``3*^4
+      if(_expstart == len) {
+        double accuracy = parse_double(buf + (_numend + 2), len - (_numend + 2));
+        
+        if(fabs(accuracy) < 1e9) {
+          int i = _content->insert(0, _number.part(_numstart, _numend - _numstart));
+          
+          if(_numstart > 2) {
+            SubsuperscriptBox *bas = new SubsuperscriptBox(new MathSequence, 0);
+            _base = bas->subscript();
+            
+            _base->insert(0, _number.part(0, _numstart - 2));
+            _content->insert(i, bas);
+          }
+          
+          SubsuperscriptBox *exp = new SubsuperscriptBox(0, new MathSequence);
+          _exponent = exp->superscript();
+          
+          _expstart = _numend + 2;
+          
+          char s[20];
+          snprintf(s, sizeof(s), "%d", (int)-ceil(accuracy));
+          _exponent->insert(_exponent->length(), s);
+          
+          i = _content->insert(i, 0x2006);
+          i = _content->insert(i, 0x00D7);
+          i = _content->insert(i, 0x2006);
+          if(_numstart > 2) {
+            _content->insert(i, _number.part(0, _numstart - 2));
+            _content->insert(i + _numstart - 2, exp);
+          }
+          else {
+            _content->insert(i, "10");
+            _content->insert(i + 2, exp);
+          }
+          
+          return;
+        }
+        else {
+          _numend = _expstart;
+          _content->insert(0, _number.part(_numstart, _numend - _numstart));
+        }
+      }
+      else {
+        _numend = _expstart;
+        _content->insert(0, _number.part(_numstart, _numend - _numstart));
+      }
+    }
+    else if((_numend + 1 == len ||
+             (_numend + 1 < len &&
+              buf[_numend + 1] != '`' &&
+              !pmath_char_is_digit(buf[_numend + 1])))) // 1.2`3   1.2`3*^4
     {
       // machine number: do not show all digits
       int digits = 6;
@@ -334,9 +429,9 @@ void NumberBox::set_number(String n) {
         digits = (int)ceil(digits * log(10.0) / log((double)numbase));
       }
       
-      _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, numbase));
+      _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, (int)numbase));
     }
-    else if(_numend + 1 < len && pmath_char_is_digit(buf[_numend + 1])){
+    else if(_numend + 1 < len && pmath_char_is_digit(buf[_numend + 1])) {
       int digits = 0;
       
       int i = _numend + 1;
@@ -345,7 +440,7 @@ void NumberBox::set_number(String n) {
         ++i;
       }
       
-      if(numbase != 10){
+      if(numbase != 10) {
         digits = (int)ceil(digits * log(10.0) / log((double)numbase));
       }
 //      else if(i < len && buf[i] == '.') {
@@ -355,14 +450,14 @@ void NumberBox::set_number(String n) {
 //            ++digits;
 //            break;
 //          }
-//          
+//
 //          if(buf[i] != '0')
 //            break;
-//          
+//
 //          ++i;
 //        }
 //      }
-      
+
       if(_numend - _numstart - 1 >= digits) {
         _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, numbase));
       }
@@ -370,7 +465,7 @@ void NumberBox::set_number(String n) {
         _content->insert(0, _number.part(_numstart, _numend - _numstart));
         
         i = digits - (_numend - _numstart - 1);
-        while(i-- > 0) 
+        while(i-- > 0)
           _content->insert(_content->length(), '0');
       }
     }
@@ -388,9 +483,6 @@ void NumberBox::set_number(String n) {
     _content->insert(_content->length(), bas);
   }
   
-  while(_expstart < len && buf[_expstart] != '^')
-    ++_expstart;
-    
   if(_expstart + 1 < len && buf[_expstart] == '^') {
     _expstart++;
     

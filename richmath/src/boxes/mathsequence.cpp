@@ -1987,6 +1987,9 @@ void MathSequence::group_number_digits(Context *context, int start, int end) {
       }
       
       if(buf[i] == '`') { // precision control
+        if(i < decimal_point)
+          decimal_point = i;
+        
         end = i - 1;
         break;
       }
