@@ -52,66 +52,35 @@ static pmath_integer_t logii(pmath_integer_t base, pmath_integer_t z) {
   return PMATH_NULL;
 }
 
-static pmath_integer_t logrr(pmath_rational_t base, pmath_rational_t z) {
+// assuming base, z > 0
+// does not free base, z
+static pmath_t logrr(pmath_rational_t base, pmath_rational_t z) {
   pmath_integer_t bn = pmath_rational_numerator(base);
   pmath_integer_t bd = pmath_rational_denominator(base);
   pmath_integer_t zn = pmath_rational_numerator(z);
   pmath_integer_t zd = pmath_rational_denominator(z);
   pmath_integer_t result;
   pmath_integer_t res2;
+  int sign = 1;
   
-  if(pmath_equals(bn, PMATH_FROM_INT32(1))) {
-    if(pmath_equals(zn, PMATH_FROM_INT32(1))) {
-      result = logii(bd, zd);
-      
-      if(!pmath_is_null(result)) {
-        pmath_unref(bn);
-        pmath_unref(bd);
-        pmath_unref(zn);
-        pmath_unref(zd);
-        return result;
-      }
-      
-      pmath_unref(result);
-    }
+  if(pmath_compare(bn, bd) < 1) {
+    pmath_t tmp = bn;
+    bn = bd;
+    bd = tmp;
     
-    if(pmath_equals(zd, PMATH_FROM_INT32(1))) {
-      result = logii(bd, zn);
-      
-      if(!pmath_is_null(result)) {
-        pmath_unref(bn);
-        pmath_unref(bd);
-        pmath_unref(zn);
-        pmath_unref(zd);
-        return pmath_number_neg(result);
-      }
-      
-      pmath_unref(result);
-    }
-    
-    pmath_unref(bn);
-    pmath_unref(bd);
-    pmath_unref(zn);
-    pmath_unref(zd);
-    return PMATH_NULL;
+    sign = -sign;
   }
   
-  if(pmath_equals(bd, PMATH_FROM_INT32(1))) {
-    if(pmath_equals(zn, PMATH_FROM_INT32(1))) {
-      result = logii(bn, zd);
-      
-      if(!pmath_is_null(result)) {
-        pmath_unref(bn);
-        pmath_unref(bd);
-        pmath_unref(zn);
-        pmath_unref(zd);
-        return pmath_number_neg(result);
-      }
-      
-      pmath_unref(result);
-    }
+  if(pmath_compare(zn, zd) < 1) {
+    pmath_t tmp = zn;
+    zn = zd;
+    zd = tmp;
     
-    if(pmath_equals(zd, PMATH_FROM_INT32(1))) {
+    sign = -sign;
+  }
+  
+  if(pmath_same(bd, INT(1))) {
+    if(pmath_same(zd, INT(1))) {
       result = logii(bn, zn);
       
       if(!pmath_is_null(result)) {
@@ -119,6 +88,9 @@ static pmath_integer_t logrr(pmath_rational_t base, pmath_rational_t z) {
         pmath_unref(bd);
         pmath_unref(zn);
         pmath_unref(zd);
+        
+        if(sign < 0)
+          result = pmath_number_neg(result);
         return result;
       }
       
@@ -140,6 +112,9 @@ static pmath_integer_t logrr(pmath_rational_t base, pmath_rational_t z) {
     pmath_unref(bd);
     pmath_unref(zn);
     pmath_unref(zd);
+    
+    if(sign < 0)
+      result = pmath_number_neg(result);
     return result;
   }
   
@@ -149,12 +124,16 @@ static pmath_integer_t logrr(pmath_rational_t base, pmath_rational_t z) {
   result = logii(bd, zn);
   res2   = logii(bn, zd);
   if(pmath_equals(result, res2)) {
+    sign = -sign;
     pmath_unref(res2);
     pmath_unref(bn);
     pmath_unref(bd);
     pmath_unref(zn);
     pmath_unref(zd);
-    return pmath_number_neg(result);
+    
+    if(sign < 0)
+      result = pmath_number_neg(result);
+    return result;
   }
   
   pmath_unref(result);

@@ -113,8 +113,8 @@ static int _simple_real_class(pmath_t obj) {
       }
       
       if(PMATH_AS_INT32(num) < 0)
-        return PMATH_CLASS_NEGBIG;
-      return PMATH_CLASS_POSBIG;
+        return PMATH_CLASS_NEGSMALL;
+      return PMATH_CLASS_POSSMALL;
     }
     
     assert(pmath_is_mpint(num));
@@ -127,7 +127,7 @@ static int _simple_real_class(pmath_t obj) {
     
     assert(pmath_is_mpint(den));
     
-    if(0 > mpz_cmpabs(PMATH_AS_MPZ(num), PMATH_AS_MPZ(den))) {
+    if(mpz_cmpabs(PMATH_AS_MPZ(num), PMATH_AS_MPZ(den)) < 0) {
       if(mpz_sgn(PMATH_AS_MPZ(num)) < 0)
         return PMATH_CLASS_NEGSMALL;
       return PMATH_CLASS_POSSMALL;
