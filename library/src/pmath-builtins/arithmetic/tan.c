@@ -26,16 +26,20 @@ static double log2abs(mpfr_t x) {
 // x will be freed, x may be PMATH_NULL
 static pmath_t mp_tan(pmath_mpfloat_t x) {
   pmath_thread_t thread = pmath_thread_get_current();
-  double min_prec, max_prec, prec1, prec2;
-  pmath_mpfloat_t val, err_x;
+  double min_prec, max_prec, prec;
+  pmath_mpfloat_t val;
   
-  MPFR_DECL_INIT(left_val,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(right_val, PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(diff_val,  PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(err, PMATH_MP_ERROR_PREC);
+  MPFR_DECL_INIT(test_tan, PMATH_MP_ERROR_PREC);
   
-  if(pmath_is_null(x))
-    return PMATH_NULL;
-    
+  assert(pmath_is_mpfloat(x));
+  
+  // give up when error is >= 1
+  if(mpfr_cmp_ui(PMATH_AS_MP_ERROR(x), 1) >= 1) {
+    pmath_unref(x);
+    return CINFTY;
+  }
+  
   if(!thread) {
     pmath_unref(x);
     return PMATH_NULL;
@@ -56,8 +60,6 @@ static pmath_t mp_tan(pmath_mpfloat_t x) {
   if(max_prec < min_prec)
     max_prec  = min_prec;
     
-  assert(pmath_is_mpfloat(x));
-  
   if(min_prec == max_prec) {
     val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(min_prec));
     
@@ -78,112 +80,147 @@ static pmath_t mp_tan(pmath_mpfloat_t x) {
       return CINFTY;
     }
     
-    mpfr_set_d(left_val, -min_prec, MPFR_RNDN);
-    mpfr_ui_pow(
-      right_val,
-      2,
-      left_val,
-      MPFR_RNDU);
-      
-    mpfr_mul(
-      PMATH_AS_MP_ERROR(val), 
-      PMATH_AS_MP_VALUE(val), 
-      right_val,
-      MPFR_RNDA);
-    mpfr_abs(
-      PMATH_AS_MP_ERROR(val),
-      PMATH_AS_MP_ERROR(val),
-      MPFR_RNDU);
+    if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(val), PMATH_AS_MP_ERROR(x)) <= 0) { // Tan is nearly 0
+      mpfr_set(
+        PMATH_AS_MP_ERROR(val), 
+        PMATH_AS_MP_ERROR(x), 
+        MPFR_RNDN);
+    }
+    else{
+      mpfr_set_d(test_tan, -min_prec, MPFR_RNDN);
+      mpfr_ui_pow(
+        err,
+        2,
+        test_tan,
+        MPFR_RNDU);
+        
+      mpfr_mul(
+        PMATH_AS_MP_ERROR(val), 
+        PMATH_AS_MP_VALUE(val), 
+        err,
+        MPFR_RNDA);
+      mpfr_abs(
+        PMATH_AS_MP_ERROR(val),
+        PMATH_AS_MP_ERROR(val),
+        MPFR_RNDU);
+    }
       
     pmath_unref(x);
     return val;
   }
   
-  // give up when error is > Pi / 2
-  if(mpfr_cmp_d(PMATH_AS_MP_ERROR(x), M_PI / 2) >= 0) {
-    pmath_unref(x);
-    return CINFTY;
-  }
-  
-  err_x = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-  if(pmath_is_null(err_x)) {
-    pmath_unref(x);
-    return PMATH_NULL;
-  }
-  
-  mpfr_add(
-    PMATH_AS_MP_VALUE(err_x),
-    PMATH_AS_MP_VALUE(x),
-    PMATH_AS_MP_ERROR(x),
-    MPFR_RNDU);
-    
   mpfr_tan(
-    right_val,
-    PMATH_AS_MP_VALUE(err_x),
-    MPFR_RNDU);
-    
-  mpfr_sub(
-    PMATH_AS_MP_VALUE(err_x),
+    test_tan,
     PMATH_AS_MP_VALUE(x),
-    PMATH_AS_MP_ERROR(x),
-    MPFR_RNDD);
+    MPFR_RNDZ);
+  
+  if(mpfr_cmp_abs(test_tan, PMATH_AS_MP_ERROR(x)) <= 0) { // Tan is nearly 0
+    pmath_bool_t changed_prec = FALSE;
+    prec = -log2abs(PMATH_AS_MP_ERROR(x));
     
-  mpfr_tan(
-    left_val,
-    PMATH_AS_MP_VALUE(err_x),
-    MPFR_RNDD);
-  
-  pmath_unref(err_x); err_x = PMATH_NULL;
-  
-  if(mpfr_lessequal_p(right_val, left_val)) { // Tan is increasing, so we must have passed a pole
+    if(prec < min_prec) {
+      prec = min_prec;
+      changed_prec = TRUE;
+    }
+    else if(prec > max_prec) {
+      prec = max_prec;
+      changed_prec = TRUE;
+    }
+    
+    val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
+    if(pmath_is_null(val)) {
+      pmath_unref(x);
+      return PMATH_NULL;
+    }
+    
+    mpfr_tan(
+      PMATH_AS_MP_VALUE(val),
+      PMATH_AS_MP_VALUE(x),
+      MPFR_RNDN);
+    
+    if(changed_prec) {
+      mpfr_set_d(err, -prec, MPFR_RNDU);
+      
+      mpfr_ui_pow(
+        PMATH_AS_MP_ERROR(val),
+        2,
+        err,
+        MPFR_RNDU);
+    }
+    else{
+      mpfr_set(
+        PMATH_AS_MP_ERROR(val),
+        PMATH_AS_MP_ERROR(x),
+        MPFR_RNDN);
+    }
+    
     pmath_unref(x);
-    return CINFTY;
-  }
     
-  mpfr_sub(
-    diff_val,
-    right_val,
-    left_val,
+    return val;
+  }
+  
+  // error(Tan(x)) ~= Tan'(x) error(x) = Sec(x)^2 error(x)
+  // We give up whenever Abs(Tan(x)) <= Sec(x)^2 error(x)/2, because then whe 
+  // are near a pole (or near 0, but that was handled above)
+  
+  mpfr_sec(
+    err,
+    PMATH_AS_MP_VALUE(x),
     MPFR_RNDA);
   
-  if(!mpfr_number_p(diff_val)) {
+  mpfr_mul(err, err, err, MPFR_RNDU);
+  mpfr_mul(err, err, PMATH_AS_MP_ERROR(x), MPFR_RNDU);
+  
+  mpfr_mul_2ui(test_tan, test_tan, 1, MPFR_RNDZ);
+  if( !mpfr_regular_p(test_tan) || 
+      !mpfr_regular_p(err) || 
+      mpfr_cmp_abs(test_tan, err) <= 0) 
+  { // error too large, give up
     pmath_unref(x);
-    return pmath_ref(_pmath_object_overflow);
+    return CINFTY;
   }
   
-  // precision === Log(2, |y|) + accuracy
-  // accuracy = -Log(2, dy)
-  prec1 = log2abs(left_val);
-  prec2 = log2abs(right_val);
+  prec = log2abs(test_tan) + 1 - log2abs(err); // +1 because test_tan = 2 Tan(x)
   
-  if(prec1 < prec2)
-    prec1 = prec2;
+  if(prec < min_prec) {
+    prec = min_prec;
+    
+    mpfr_set_d(err, -prec, MPFR_RNDU);
+    mpfr_ui_pow(
+      err,
+      2,
+      err,
+      MPFR_RNDU);
+  }
+  else if(prec > max_prec) {
+    prec = max_prec;
+    
+    mpfr_set_d(err, -prec, MPFR_RNDU);
+    mpfr_ui_pow(
+      err,
+      2,
+      err,
+      MPFR_RNDU);
+  }
   
-  prec1-= log2abs(diff_val);
-  
-  if(prec1 > max_prec)
-    prec1  = max_prec;
-  else if(!(prec1 > min_prec))
-    prec1         = min_prec;
-  
-  val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec1));
-  
+  val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
   if(pmath_is_null(val)) {
     pmath_unref(x);
-    return val;
+    return PMATH_NULL;
   }
   
   mpfr_tan(
     PMATH_AS_MP_VALUE(val),
     PMATH_AS_MP_VALUE(x),
     MPFR_RNDN);
-    
-  _pmath_mp_float_include_error(val, right_val);
-  _pmath_mp_float_include_error(val, left_val);
+  
+  mpfr_set(
+    PMATH_AS_MP_ERROR(val),
+    err,
+    MPFR_RNDU);
   
   pmath_unref(x);
   
-  _pmath_mp_float_clip_error(val, min_prec, max_prec);
   val = _pmath_float_exceptions(val);
   return val;
 }
