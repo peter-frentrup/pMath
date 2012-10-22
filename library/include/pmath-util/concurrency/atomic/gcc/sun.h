@@ -11,15 +11,16 @@
 
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
-  membar_enter();
-  return atom->_data;
+  intptr_t data = atom->_data;
+  membar_enter(); // all reads or writes below this line keep below it
+  return data;
 }
 
 
 PMATH_FORCE_INLINE
 void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
+  membar_exit(); // all reads or writes above this line keep above it
   atom->data = value;
-  membar_exit();
 }
 
 

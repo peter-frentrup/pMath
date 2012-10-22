@@ -16,15 +16,16 @@ void pmath_atomic_barrier(void){
 
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
-  pmath_atomic_barrier();
-  return atom->_data;
+  intptr_t data = atom->_data;
+  pmath_atomic_barrier(); // all reads or writes below this line keep below it (pmath_atomic_barrier() is even a full barrier)
+  return data;
 }
 
 
 PMATH_FORCE_INLINE
 void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
+  pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
   atom->_data = value;
-  pmath_atomic_barrier();
 }
 
 
