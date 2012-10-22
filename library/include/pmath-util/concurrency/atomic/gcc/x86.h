@@ -10,7 +10,8 @@
 
 PMATH_FORCE_INLINE
 void pmath_atomic_barrier(void){
-  __asm __volatile("mfence":::"memory"); // mfence needs SSE2
+  // __asm __volatile("lock; addl $0,0(%%esp)":::"memory");
+  __asm __volatile("mfence":::"memory"); // needs SSE2 (Pentium4 and later), but prefreable to the above according to http://g.oswego.edu/dl/jmm/cookbook.html
 }
 
 
