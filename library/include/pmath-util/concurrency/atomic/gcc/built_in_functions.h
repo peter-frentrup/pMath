@@ -14,9 +14,14 @@ void pmath_atomic_barrier(void){
   __sync_synchronize();
 }
 
-
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
+//#if PMATH_BITSIZE == 64
+//  return (intptr_t)__atomic_load_8(&atom->_data, __ATOMIC_ACQUIRE); // all reads or writes below this line keep below it
+//#elif PMATH_BITSIZE == 32
+//  return (intptr_t)__atomic_load_4(&atom->_data, __ATOMIC_ACQUIRE);
+//#endif
+
   intptr_t data = atom->_data;
   __sync_synchronize(); // all reads or writes below this line keep below it (__sync_synchronize() is even a full barrier)
   return data;
@@ -25,6 +30,12 @@ intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
 
 PMATH_FORCE_INLINE
 void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
+//#if PMATH_BITSIZE == 64
+//  __atomic_store_8(&atom->_data, value, __ATOMIC_RELEASE); // all reads or writes above this line keep above it
+//#elif PMATH_BITSIZE == 32
+//  __atomic_store_4(&atom->_data, value, __ATOMIC_RELEASE);
+//#endif
+
   __sync_synchronize(); // all reads or writes above this line keep above it (__sync_synchronize() is even a full barrier)
   atom->_data = value;
 }
