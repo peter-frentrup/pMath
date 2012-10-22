@@ -11,50 +11,25 @@
 #include <pmath-builtins/lists-private.h>
 
 
-static double dx_to_accuracy(mpfr_t dx) {
-  mpfr_exp_t accexp;
-  double accmant;
-  
-  // accuracy = -Log(2, dx)
-  accmant = mpfr_get_d_2exp(&accexp, dx, MPFR_RNDN);
-  return -log2(fabs(accmant)) - accexp;
-}
-
-static double double_max(double a, double b) {
-  if(a < b)
-    return a;
-  return b;
-}
-/*
-static mpfr_prec_t get_accprec(pmath_mpfloat_t x) {
-  mpfr_exp_t err_exp, val_exp;
-  mpfr_prec_t prec;
-  
-  assert(pmath_is_mpfloat(x));
-  
-  err_exp = mpfr_get_exp(PMATH_AS_MP_ERROR(x)) - 1;
-  
-  if(mpfr_regular_p(PMATH_AS_MP_VALUE(x))) {
-    val_exp = mpfr_get_exp(PMATH_AS_MP_VALUE(x));
-    if(val_exp < 0)
-      val_exp = 0;
-  }
-  else
-    val_exp = 0;
-  
-  prec = val_exp - err_exp;
-  if(prec < MPFR_PREC_MIN)
-    return MPFR_PREC_MIN;
-  
-  return prec;
-}
-
 static pmath_t mp_cos(pmath_mpfloat_t x) {
-  mpfr_prec_t     xprec;
-  pmath_thread_t  thread = pmath_thread_get_current();
+  MPFR_DECL_INIT(err, PMATH_MP_ERROR_PREC);
+  pmath_thread_t thread = pmath_thread_get_current();
   pmath_mpfloat_t val;
+  double min_prec, max_prec;
+  mpfr_prec_t prec_bits;
   
   assert(pmath_is_mpfloat(x));
+  
+  if(mpfr_cmp_ui(PMATH_AS_MP_ERROR(x), 1) >= 1) {
+    pmath_unref(x);
+    val = _pmath_create_mp_float(0);
+    
+    if(pmath_is_null(val)) 
+      return val;
+    
+    mpfr_set_ui(PMATH_AS_MP_VALUE(val), 0, MPFR_RNDN);
+    return val;
+  }
   
   if(!thread) {
     pmath_unref(x);
@@ -79,7 +54,7 @@ static pmath_t mp_cos(pmath_mpfloat_t x) {
   if(min_prec == max_prec) {
     MPFR_DECL_INIT(err_exp, PMATH_MP_ERROR_PREC);
     
-    val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(min_prec));
     
     if(pmath_is_null(val)) {
       pmath_unref(x);
@@ -91,8 +66,8 @@ static pmath_t mp_cos(pmath_mpfloat_t x) {
       PMATH_AS_MP_VALUE(x),
       MPFR_RNDN);
     
-    mpfr_set_d(err_exp, -min_prec, MPFR_RNDU);
-    if(mpfr_zero_p(val)) {
+    mpfr_set_d(err_exp, -min_prec - 1, MPFR_RNDU);
+    if(mpfr_zero_p(PMATH_AS_MP_VALUE(val))) {
       mpfr_ui_pow(
         PMATH_AS_MP_ERROR(val),
         2,
@@ -101,13 +76,14 @@ static pmath_t mp_cos(pmath_mpfloat_t x) {
     }
     else {
       mpfr_ui_pow(
-        PMATH_AS_MP_ERROR(val),
+        err,
         2,
         err_exp,
         MPFR_RNDU);
         
       mpfr_mul(
         PMATH_AS_MP_ERROR(val),
+        err,
         PMATH_AS_MP_VALUE(val),
         MPFR_RNDA);
       
@@ -118,301 +94,58 @@ static pmath_t mp_cos(pmath_mpfloat_t x) {
     return val;
   }
   
-  xprec = get_accprec(x);
+// We use dy:= Sin(x) dx, which is not really correct: 
+// It should be dy >= Max(Abs(Cos(Interval(x-dx .. x+dx)) - Cos(x))),
+// but Mathematica has the same bug.
+  mpfr_sin(
+    err,
+    PMATH_AS_MP_VALUE(x),
+    MPFR_RNDA);
   
-  half_pi = 
-  
-}*/
-
-// x will be freed, x may be PMATH_NULL
-PMATH_PRIVATE void _pmath_sin_cos(
-  pmath_mpfloat_t  x,
-  pmath_mpfloat_t *sin_val,
-  pmath_mpfloat_t *cos_val
-) {
-  pmath_thread_t thread = pmath_thread_get_current();
-  double min_prec, max_prec;
-  double sin_prec, cos_prec;
-  pmath_mpfloat_t err_x;
-  
-  MPFR_DECL_INIT(left_sin,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(left_cos,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(right_sin, PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(right_cos, PMATH_MP_ERROR_PREC);
-
-
-  *sin_val = PMATH_NULL;
-  *cos_val = PMATH_NULL;
-  
-  if(pmath_is_null(x))
-    return;
-    
-  if(!thread) {
-    pmath_unref(x);
-    return;
+  if(mpfr_cmp_abs(err, PMATH_AS_MP_ERROR(x)) < 0) {
+    // dy <= dx ^ 2
+    prec_bits = 3 - 2 * mpfr_get_exp(PMATH_AS_MP_ERROR(x));
+  }
+  else {
+    prec_bits = 3 - mpfr_get_exp(err) - mpfr_get_exp(PMATH_AS_MP_ERROR(x));
   }
   
-  min_prec = thread->min_precision;
-  max_prec = thread->max_precision;
+  if(prec_bits < min_prec)
+    prec_bits = (mpfr_prec_t)ceil(min_prec);
+  else if(prec_bits > max_prec)
+    prec_bits = (mpfr_prec_t)ceil(max_prec);
   
-  if(min_prec < 0)
-    min_prec  = 0;
-    
-  if(min_prec > PMATH_MP_PREC_MAX)
-    min_prec  = PMATH_MP_PREC_MAX;
-    
-  if(max_prec > PMATH_MP_PREC_MAX)
-    max_prec  = PMATH_MP_PREC_MAX;
-    
-  if(max_prec < min_prec)
-    max_prec  = min_prec;
-    
-  assert(pmath_is_mpfloat(x));
+  val = _pmath_create_mp_float(prec_bits);
+  if(pmath_is_null(val)) {
+    pmath_unref(x);
+    return val;
+  }
   
-  if(min_prec == max_prec) {
-    MPFR_DECL_INIT(err, PMATH_MP_ERROR_PREC);
-    
-    *sin_val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
-    *cos_val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
-    
-    if(pmath_is_null(*sin_val) || pmath_is_null(*cos_val)) {
-      pmath_unref(*sin_val); *sin_val = PMATH_NULL;
-      pmath_unref(*cos_val); *cos_val = PMATH_NULL;
-      pmath_unref(x);
-      return;
-    }
-    
-    mpfr_sin_cos(
-      PMATH_AS_MP_VALUE(*sin_val),
-      PMATH_AS_MP_VALUE(*cos_val),
-      PMATH_AS_MP_VALUE(x),
-      MPFR_RNDN);
-      
-    mpfr_set_d(err, -min_prec, MPFR_RNDN);
-    mpfr_ui_pow(
-      err,
-      2,
-      err,
+  mpfr_cos(
+    PMATH_AS_MP_VALUE(val),
+    PMATH_AS_MP_VALUE(x),
+    MPFR_RNDN);
+  
+  if(mpfr_cmp_abs(err, PMATH_AS_MP_ERROR(x)) < 0) {
+    // dy <= dx ^ 2
+    mpfr_mul(
+      PMATH_AS_MP_ERROR(val),
+      PMATH_AS_MP_ERROR(x),
+      PMATH_AS_MP_ERROR(x),
       MPFR_RNDU);
-      
-    if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(*sin_val), err) < 0) {
-      mpfr_set(
-        PMATH_AS_MP_ERROR(*sin_val),
-        err,
-        MPFR_RNDU);
-    }
-    else {
-      mpfr_mul(
-        PMATH_AS_MP_ERROR(*sin_val),
-        PMATH_AS_MP_VALUE(*sin_val),
-        err,
-        MPFR_RNDA);
-      mpfr_abs(
-        PMATH_AS_MP_ERROR(*sin_val),
-        PMATH_AS_MP_ERROR(*sin_val),
-        MPFR_RNDU);
-    }
-    
-    if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(*cos_val), err) < 0) {
-      mpfr_set(
-        PMATH_AS_MP_ERROR(*cos_val),
-        err,
-        MPFR_RNDU);
-    }
-    else {
-      mpfr_mul(
-        PMATH_AS_MP_ERROR(*cos_val),
-        PMATH_AS_MP_VALUE(*cos_val),
-        err,
-        MPFR_RNDA);
-      mpfr_abs(
-        PMATH_AS_MP_ERROR(*cos_val),
-        PMATH_AS_MP_ERROR(*cos_val),
-        MPFR_RNDU);
-    }
-    
-    pmath_unref(x);
-    return;
-  }
-  
-  // give up when error is > 1.0 (= some arbitaray threshold < Pi)
-  if(mpfr_cmp_d(PMATH_AS_MP_ERROR(x), 1.0) >= 0) {
-    *sin_val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
-    *cos_val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
-    
-    if(pmath_is_null(*sin_val) || pmath_is_null(*cos_val)) {
-      pmath_unref(*sin_val); *sin_val = PMATH_NULL;
-      pmath_unref(*cos_val); *cos_val = PMATH_NULL;
-      pmath_unref(x);
-      return;
-    }
-    
-    mpfr_set_ui(PMATH_AS_MP_VALUE(*sin_val), 0, MPFR_RNDN);
-    mpfr_set_ui(PMATH_AS_MP_ERROR(*sin_val), 1, MPFR_RNDN);
-    
-    mpfr_set_ui(PMATH_AS_MP_VALUE(*cos_val), 0, MPFR_RNDN);
-    mpfr_set_ui(PMATH_AS_MP_ERROR(*cos_val), 1, MPFR_RNDN);
-    
-    pmath_unref(x);
-    return;
-  }
-  
-  err_x = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-  if(pmath_is_null(err_x)) {
-    pmath_unref(x);
-    return;
-  }
-  
-  mpfr_add(
-    PMATH_AS_MP_VALUE(err_x),
-    PMATH_AS_MP_VALUE(x),
-    PMATH_AS_MP_ERROR(x),
-    MPFR_RNDU);
-    
-  mpfr_sin_cos(
-    right_sin,
-    right_cos,
-    PMATH_AS_MP_VALUE(err_x),
-    MPFR_RNDN);
-    
-  mpfr_sub(
-    PMATH_AS_MP_VALUE(err_x),
-    PMATH_AS_MP_VALUE(x),
-    PMATH_AS_MP_ERROR(x),
-    MPFR_RNDD);
-    
-  mpfr_sin_cos(
-    left_sin,
-    left_cos,
-    PMATH_AS_MP_VALUE(err_x),
-    MPFR_RNDN);
-    
-  pmath_unref(err_x); err_x = PMATH_NULL;
-  
-  // -1 <= Sin(x), Cos(x) <= 1  => precision === Log(2, |y|) + accuracy <= accuracy
-  // accuracy = -Log(2, dx)
-  if(mpfr_sgn(left_sin) < 0 && 0 < mpfr_sgn(right_sin)) {
-    double left_cos_d  = mpfr_get_d(left_cos,  MPFR_RNDN);
-    double right_cos_d = mpfr_get_d(right_cos, MPFR_RNDN);
-    
-    // Cos(x) ~= +1
-    cos_prec = -log2(double_max(fabs(+1 - left_cos_d), fabs(+1 - right_cos_d)));
-  }
-  else if(mpfr_sgn(left_sin) > 0 && 0 > mpfr_sgn(right_sin)) {
-    double left_cos_d  = mpfr_get_d(left_cos,  MPFR_RNDN);
-    double right_cos_d = mpfr_get_d(right_cos, MPFR_RNDN);
-    
-    // Cos(x) ~= -1
-    cos_prec = -log2(double_max(fabs(-1 - left_cos_d), fabs(-1 - right_cos_d)));
   }
   else {
-    MPFR_DECL_INIT(diff_cos, PMATH_MP_ERROR_PREC);
-    
-    mpfr_sub(
-      diff_cos,
-      right_cos,
-      left_cos,
+    mpfr_mul(
+      PMATH_AS_MP_ERROR(val),
+      err,
+      PMATH_AS_MP_ERROR(x),
       MPFR_RNDA);
-      
-    cos_prec = dx_to_accuracy(diff_cos);
-  }
-  
-  if(mpfr_sgn(left_cos) < 0 && 0 < mpfr_sgn(right_cos)) {
-    double left_sin_d  = mpfr_get_d(left_sin,  MPFR_RNDN);
-    double right_sin_d = mpfr_get_d(right_sin, MPFR_RNDN);
-    
-    // Sin(x) ~= -1
-    sin_prec = -log2(double_max(fabs(-1 - left_sin_d), fabs(-1 - right_sin_d)));
-  }
-  else if(mpfr_sgn(left_cos) > 0 && 0 > mpfr_sgn(right_cos)) {
-    double left_sin_d  = mpfr_get_d(left_sin,  MPFR_RNDN);
-    double right_sin_d = mpfr_get_d(right_sin, MPFR_RNDN);
-    
-    // Sin(x) ~= +1
-    sin_prec = -log2(double_max(fabs(+1 - left_sin_d), fabs(+1 - right_sin_d)));
-  }
-  else {
-    MPFR_DECL_INIT(diff_sin, PMATH_MP_ERROR_PREC);
-    
-    mpfr_sub(
-      diff_sin,
-      right_sin,
-      left_sin,
-      MPFR_RNDA);
-      
-    sin_prec = dx_to_accuracy(diff_sin);
-  }
-  
-  
-  if(sin_prec < min_prec)
-    sin_prec  = min_prec;
-  else if(sin_prec > max_prec)
-    sin_prec       = max_prec;
-    
-  if(cos_prec < min_prec)
-    cos_prec  = min_prec;
-  else if(cos_prec > max_prec)
-    cos_prec       = max_prec;
-    
-  *sin_val = _pmath_create_mp_float((mpfr_prec_t)ceil(sin_prec));
-  *cos_val = _pmath_create_mp_float((mpfr_prec_t)ceil(cos_prec));
-  
-  if(pmath_is_null(*sin_val) || pmath_is_null(*cos_val)) {
-    pmath_unref(*sin_val); *sin_val = PMATH_NULL;
-    pmath_unref(*cos_val); *cos_val = PMATH_NULL;
-    pmath_unref(x);
-    return;
-  }
-  
-  mpfr_sin_cos(
-    PMATH_AS_MP_VALUE(*sin_val),
-    PMATH_AS_MP_VALUE(*cos_val),
-    PMATH_AS_MP_VALUE(x),
-    MPFR_RNDN);
-    
-  _pmath_mp_float_include_error(*sin_val, left_sin);
-  _pmath_mp_float_include_error(*sin_val, right_sin);
-  
-  _pmath_mp_float_include_error(*cos_val, left_cos);
-  _pmath_mp_float_include_error(*cos_val, right_cos);
-  
-  if(mpfr_sgn(left_sin) < 0 && 0 < mpfr_sgn(right_sin)) {
-    // Cos(x) ~= +1
-    MPFR_DECL_INIT(one, PMATH_MP_ERROR_PREC);
-    mpfr_set_si(one, 1, MPFR_RNDN);
-    
-    _pmath_mp_float_include_error(*cos_val, one);
-  }
-  else if(mpfr_sgn(left_sin) > 0 && 0 > mpfr_sgn(right_sin)) {
-    // Cos(x) ~= -1
-    MPFR_DECL_INIT(neg_one, PMATH_MP_ERROR_PREC);
-    mpfr_set_si(neg_one, -1, MPFR_RNDN);
-    
-    _pmath_mp_float_include_error(*cos_val, neg_one);
-  }
-  
-  if(mpfr_sgn(left_cos) < 0 && 0 < mpfr_sgn(right_cos)) {
-    // Sin(x) ~= -1
-    MPFR_DECL_INIT(neg_one, PMATH_MP_ERROR_PREC);
-    mpfr_set_si(neg_one, -1, MPFR_RNDN);
-    
-    _pmath_mp_float_include_error(*sin_val, neg_one);
-  }
-  else if(mpfr_sgn(left_cos) > 0 && 0 > mpfr_sgn(right_cos)) {
-    // Sin(x) ~= +1
-    MPFR_DECL_INIT(one, PMATH_MP_ERROR_PREC);
-    mpfr_set_si(one, 1, MPFR_RNDN);
-    
-    _pmath_mp_float_include_error(*sin_val, one);
+    mpfr_abs(PMATH_AS_MP_ERROR(val), PMATH_AS_MP_ERROR(val), MPFR_RNDU);
   }
   
   pmath_unref(x);
-  
-  _pmath_mp_float_clip_error(*sin_val, min_prec, max_prec);
-  _pmath_mp_float_clip_error(*cos_val, min_prec, max_prec);
-  
-  //*si = _pmath_float_exceptions(*si);
-  //*co = _pmath_float_exceptions(*co);
+  _pmath_mp_float_clip_error(val, min_prec, max_prec);
+  return val;
 }
 
 PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
@@ -438,13 +171,9 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
   }
   
   if(pmath_is_mpfloat(x)) {
-    pmath_mpfloat_t si, co;
-    
     pmath_unref(expr);
-    _pmath_sin_cos(x, &si, &co);
-    pmath_unref(si);
-    
-    return _pmath_float_exceptions(co);
+    x = mp_cos(x);
+    return x;
   }
   
   if(pmath_is_number(x)) {

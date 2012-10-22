@@ -72,6 +72,9 @@ struct _pmath_quotient_t {
   pmath_integer_t  denominator;
 };
 
+/* A number with absolute uncertainty "error". So this represents 
+   value +/- 1/2 error
+ */
 struct _pmath_mp_float_t {
   struct _pmath_t  inherited;
   mpfr_t           value;

@@ -63,8 +63,14 @@ pmath_t builtin_setaccuracy(pmath_expr_t expr) {
   }
   else {
     if(!pmath_is_number(acc_obj)) {
-      pmath_message(PMATH_NULL, "invacc", 1, acc_obj);
-      return expr;
+      acc_obj = pmath_approximate(acc_obj, -HUGE_VAL, -HUGE_VAL, NULL);
+      
+      if(!pmath_is_number(acc_obj)){
+        pmath_unref(acc_obj);
+        acc_obj = pmath_expr_get_item(expr, 2);
+        pmath_message(PMATH_NULL, "invacc", 1, acc_obj);
+        return expr;
+      }
     }
     
     acc = LOG2_10 * pmath_number_get_d(acc_obj);
@@ -103,8 +109,14 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
   }
   else {
     if(!pmath_is_number(prec_obj)) {
-      pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
-      return expr;
+      prec_obj = pmath_approximate(prec_obj, -HUGE_VAL, -HUGE_VAL, NULL);
+      
+      if(!pmath_is_number(prec_obj)){
+        pmath_unref(prec_obj);
+        prec_obj = pmath_expr_get_item(expr, 2);
+        pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
+        return expr;
+      }
     }
     
     prec = LOG2_10 * pmath_number_get_d(prec_obj);

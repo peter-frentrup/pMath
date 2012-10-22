@@ -316,7 +316,7 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     else if(dprec > PMATH_MP_PREC_MAX)
       dprec = PMATH_MP_PREC_MAX; // ovfl/unfl error?
       
-    result = _pmath_create_mp_float((mpfr_prec_t)ceil(dprec));
+    result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(dprec));
     err    = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
     if(pmath_is_null(result) || pmath_is_null(err)) {
       pmath_unref(result);
@@ -1399,8 +1399,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       if(pmath_is_mpfloat(exponent)) {
         // dy = d(e^x) = e^x dx
         pmath_mpfloat_t result;
-        long prec;
-        long exp;
+        mpfr_prec_t prec;
+        mpfr_exp_t exp;
         
         // Precision(y) = -Log(base, dy/y) = -Log(base, dx)
         mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(exponent), MPFR_RNDU);
@@ -1411,7 +1411,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
         else if(prec > PMATH_MP_PREC_MAX)
           prec = PMATH_MP_PREC_MAX;
           
-        result = _pmath_create_mp_float((mpfr_prec_t)prec);
+        result = _pmath_create_mp_float(prec);
         if(!pmath_is_null(result)) {
           mpfr_exp(
             PMATH_AS_MP_VALUE(result),
@@ -1520,136 +1520,124 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
         /* dz = d(x^y) = x^y * (y/x dx + Log(x) dy)
          */
         pmath_mpfloat_t result;
-        pmath_mpfloat_t a;
-        pmath_mpfloat_t b;
+        MPFR_DECL_INIT(err_a, PMATH_MP_ERROR_PREC);
+        MPFR_DECL_INIT(err_b, PMATH_MP_ERROR_PREC);
+        MPFR_DECL_INIT(err_c, PMATH_MP_ERROR_PREC);
         double dprec;
-        long exp;
+        mpfr_exp_t exp;
         
-        a = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-        b = _pmath_create_mp_float(PMATH_MP_ERROR_PREC);
-        
-        if(!pmath_is_null(a) && !pmath_is_null(b)) {
-          // a.error = abs(x)
-          mpfr_abs(
-            PMATH_AS_MP_ERROR(a),
-            PMATH_AS_MP_VALUE(base),
-            MPFR_RNDU);
-            
-          // b.error = log(abs(x))
-          mpfr_log(
-            PMATH_AS_MP_ERROR(b),
-            PMATH_AS_MP_ERROR(a),
-            MPFR_RNDN);
-            
-          // a.error = log(abs(x)) * dy
-          mpfr_mul(
-            PMATH_AS_MP_ERROR(a),
-            PMATH_AS_MP_ERROR(b),
-            PMATH_AS_MP_ERROR(exponent),
-            MPFR_RNDU);
-            
-          // a.error = abs(log(abs(x)) * dy)
-          mpfr_abs(
-            PMATH_AS_MP_ERROR(a),
-            PMATH_AS_MP_ERROR(a),
-            MPFR_RNDU);
-            
-          // b.value = y/x
-          mpfr_div(
-            PMATH_AS_MP_VALUE(b),
-            PMATH_AS_MP_VALUE(exponent),
-            PMATH_AS_MP_VALUE(base),
-            MPFR_RNDN);
-            
-          // b.error = y/x * dx
-          mpfr_mul(
-            PMATH_AS_MP_ERROR(b),
-            PMATH_AS_MP_VALUE(b),
-            PMATH_AS_MP_ERROR(base),
-            MPFR_RNDN);
-            
-          // b->error = abs(y/x * dx)
-          mpfr_abs(
-            PMATH_AS_MP_ERROR(b),
-            PMATH_AS_MP_ERROR(b),
-            MPFR_RNDU);
-            
-          // b->value = abs(y/x * dx) + abs(log(abs(x)) * dy)
-          mpfr_add(
-            PMATH_AS_MP_VALUE(b),
-            PMATH_AS_MP_ERROR(b),
-            PMATH_AS_MP_ERROR(a),
-            MPFR_RNDU);
-            
-          // a->value = x^y
-          mpfr_pow(
-            PMATH_AS_MP_VALUE(a),
-            PMATH_AS_MP_VALUE(base),
-            PMATH_AS_MP_VALUE(exponent),
-            MPFR_RNDN);
-            
-          // a->value = abs(x^y)
-          mpfr_abs(
-            PMATH_AS_MP_VALUE(a),
-            PMATH_AS_MP_VALUE(a),
-            MPFR_RNDU);
-            
-          // precision: -log(2, dz/z)
-          dprec = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(b), MPFR_RNDU);
-          dprec = -dprec - exp;
+        // err_a = abs(x)
+        mpfr_abs(
+          err_a,
+          PMATH_AS_MP_VALUE(base),
+          MPFR_RNDU);
           
-          if(dprec < MPFR_PREC_MIN)
-            dprec = MPFR_PREC_MIN;
-          else if(dprec > PMATH_MP_PREC_MAX)
-            dprec = PMATH_MP_PREC_MAX;
+        // err_b = log(abs(x))
+        mpfr_log(
+          err_b,
+          err_a,
+          MPFR_RNDA);
+        
+        // err_a = log(abs(x)) * dy
+        mpfr_mul(
+          err_a,
+          err_b,
+          PMATH_AS_MP_ERROR(exponent),
+          MPFR_RNDA);
+          
+        // err_a = abs(log(abs(x)) * dy)
+        mpfr_abs(
+          err_a,
+          err_a,
+          MPFR_RNDU);
+        
+        // err_b = y/x
+        mpfr_div(
+          err_b,
+          PMATH_AS_MP_VALUE(exponent),
+          PMATH_AS_MP_VALUE(base),
+          MPFR_RNDA);
+          
+        // err_c = y/x * dx
+        mpfr_mul(
+          err_c,
+          err_b,
+          PMATH_AS_MP_ERROR(base),
+          MPFR_RNDA);
+        
+        // err_c = abs(y/x * dx)
+        mpfr_abs(
+          err_c,
+          err_c,
+          MPFR_RNDU);
+        
+        // err_b = abs(y/x * dx) + abs(log(abs(x)) * dy)
+        mpfr_add(
+          err_b,
+          err_c,
+          err_a,
+          MPFR_RNDU);
+        
+        // err_c = x^y
+        mpfr_pow(
+          err_c,
+          PMATH_AS_MP_VALUE(base),
+          PMATH_AS_MP_VALUE(exponent),
+          MPFR_RNDA);
+        
+        // a.value = abs(x^y)
+        mpfr_abs(
+          err_c,
+          err_c,
+          MPFR_RNDU);
+        
+        // precision: -log(2, dz/z)
+        mpfr_get_d_2exp(&exp, err_b, MPFR_RNDU);
+        dprec = 2 - exp;
+        
+        if(dprec < MPFR_PREC_MIN)
+          dprec = MPFR_PREC_MIN;
+        else if(dprec > PMATH_MP_PREC_MAX)
+          dprec = PMATH_MP_PREC_MAX;
+        
+        result = _pmath_create_mp_float((mpfr_prec_t)ceil(dprec));
+        if(!pmath_is_null(result)) {
+          mpfr_mul(
+            PMATH_AS_MP_ERROR(result),
+            err_c,
+            err_b,
+            MPFR_RNDU);
             
-          result = _pmath_create_mp_float((mpfr_prec_t)ceil(dprec));
-          if(!pmath_is_null(result)) {
-            mpfr_mul(
-              PMATH_AS_MP_ERROR(result),
-              PMATH_AS_MP_VALUE(a),
-              PMATH_AS_MP_VALUE(b),
-              MPFR_RNDU);
-              
-            if(mpfr_zero_p(PMATH_AS_MP_ERROR(result))) {
-              pmath_unref(result);
-              pmath_unref(a);
-              pmath_unref(b);
-              pmath_unref(exponent);
-              pmath_unref(base);
-              pmath_unref(expr);
-              pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-              return pmath_ref(_pmath_object_underflow);
-            }
-            
-            if(!mpfr_number_p(PMATH_AS_MP_ERROR(result))) {
-              pmath_unref(result);
-              pmath_unref(a);
-              pmath_unref(b);
-              pmath_unref(exponent);
-              pmath_unref(base);
-              pmath_unref(expr);
-              pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-              return pmath_ref(_pmath_object_overflow);
-            }
-            
-            mpfr_pow(
-              PMATH_AS_MP_VALUE(result),
-              PMATH_AS_MP_VALUE(base),
-              PMATH_AS_MP_VALUE(exponent),
-              MPFR_RNDN);
-              
-            pmath_unref(a);
-            pmath_unref(b);
+          if(mpfr_zero_p(PMATH_AS_MP_ERROR(result))) {
+            pmath_unref(result);
             pmath_unref(exponent);
             pmath_unref(base);
             pmath_unref(expr);
-            return result;
+            pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
+            return pmath_ref(_pmath_object_underflow);
           }
+          
+          if(!mpfr_number_p(PMATH_AS_MP_ERROR(result))) {
+            pmath_unref(result);
+            pmath_unref(exponent);
+            pmath_unref(base);
+            pmath_unref(expr);
+            pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
+            return pmath_ref(_pmath_object_overflow);
+          }
+          
+          mpfr_pow(
+            PMATH_AS_MP_VALUE(result),
+            PMATH_AS_MP_VALUE(base),
+            PMATH_AS_MP_VALUE(exponent),
+            MPFR_RNDN);
+            
+          pmath_unref(exponent);
+          pmath_unref(base);
+          pmath_unref(expr);
+          return result;
         }
         
-        pmath_unref(a);
-        pmath_unref(b);
       }
     }
     

@@ -74,10 +74,10 @@ static pmath_mpfloat_t _mul_fi(
   
   if(fprec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
-  else if(fprec > PMATH_MP_PREC_MAX)
+  else if(fprec >= PMATH_MP_PREC_MAX)
     prec = PMATH_MP_PREC_MAX;
   else
-    prec = (mpfr_prec_t)ceil(fprec);
+    prec = 1 + (mpfr_prec_t)ceil(fprec);
     
   result = _pmath_create_mp_float(prec);
   
@@ -87,7 +87,9 @@ static pmath_mpfloat_t _mul_fi(
     return PMATH_NULL;
   }
   
-  // dxy = y dx + x dy + dx dy = y dx   (dy = 0)
+  // (x +/- ux/2) (y +/- uy/2) = x y +/- x uy/2 +/- y ux/2 +/- ux uy/4
+  //
+  // => uxy:= uncertainty(x*y) = x uy + y ux + ux uy / 2 = y ux (uy = 0)
   mpfr_mul_z(
     PMATH_AS_MP_ERROR(result),
     PMATH_AS_MP_ERROR(floatA),
@@ -121,6 +123,10 @@ static pmath_mpfloat_t _div_fi(
     pmath_unref(floatA);
     return PMATH_NULL;
   }
+  
+  // (x +/- ux/2) (y +/- uy/2) = x y +/- x uy/2 +/- y ux/2 +/- ux uy/4
+  //
+  // => uxy:= uncertainty(x*y) = x uy + y ux + ux uy / 2 = y ux (uy = 0)
   
   // d(x/y) = 1/y dx + x d(1/y) + dx d(1/y) = 1/y dx   (d(1/y) = 0)
   if(pmath_is_int32(intB)) {
@@ -211,7 +217,7 @@ static pmath_mpfloat_t _mul_ff(
   assert(pmath_is_mpfloat(floatB));
   
   if(min_prec == max_prec) {
-    result = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(min_prec));
     
     if(pmath_is_null(result)) {
       pmath_unref(floatA);
@@ -269,7 +275,9 @@ static pmath_mpfloat_t _mul_ff(
     return PMATH_NULL;
   }
   
-  // dxy = y dx + x dy + dx dy
+  // (x +/- ux/2) (y +/- uy/2) = x y +/- x uy/2 +/- y ux/2 +/- ux uy/4
+  //
+  // => uxy:= uncertainty(x*y) = x uy + y ux + ux uy / 2
   
   mpfr_mul(
     err1,
@@ -287,10 +295,12 @@ static pmath_mpfloat_t _mul_ff(
   
   mpfr_add(err1, err1, err2, MPFR_RNDU);
   
+  mpfr_mul_2si(err2, PMATH_AS_MP_ERROR(floatB), -1, MPFR_RNDU);
+  
   mpfr_fma(
     PMATH_AS_MP_ERROR(result),
+    err2,
     PMATH_AS_MP_ERROR(floatA),
-    PMATH_AS_MP_ERROR(floatB),
     err1,
     MPFR_RNDU);
     

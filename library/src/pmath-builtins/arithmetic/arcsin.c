@@ -69,7 +69,7 @@ static pmath_mpfloat_t mp_arcsin(pmath_mpfloat_t x) {
   }
   
   if(min_prec == max_prec) {
-    val = _pmath_create_mp_float((mpfr_prec_t)ceil(min_prec));
+    val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(min_prec));
     
     if(pmath_is_null(val)) {
       pmath_unref(x);
@@ -151,7 +151,7 @@ static pmath_mpfloat_t mp_arcsin(pmath_mpfloat_t x) {
   else if(!(prec1 > min_prec))
     prec1         = min_prec;
   
-  val = _pmath_create_mp_float((mpfr_prec_t)ceil(prec1));
+  val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec1));
   
   if(pmath_is_null(val)) {
     pmath_unref(x);

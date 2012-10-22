@@ -307,7 +307,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
     
-  result = _pmath_create_mp_float((mpfr_prec_t)prec);
+  result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
   if(pmath_is_null(result))
     return PMATH_NULL;
     
@@ -349,7 +349,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, d
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
     
-  result = _pmath_create_mp_float((mpfr_prec_t)prec);
+  result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
   if(pmath_is_null(result))
     return PMATH_NULL;
     
@@ -390,7 +390,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
     
-  result = _pmath_create_mp_float((mpfr_prec_t)prec);
+  result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
   if(pmath_is_null(result))
     return PMATH_NULL;
     
@@ -434,7 +434,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double ac
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
     
-  result = _pmath_create_mp_float((mpfr_prec_t)prec);
+  result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
   if(pmath_is_null(result))
     return PMATH_NULL;
     
