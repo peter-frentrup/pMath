@@ -142,6 +142,13 @@ namespace richmath {
       
       uint16_t char_to_glyph(uint32_t ch);
       
+      uint16_t substitute_glyph(
+        uint16_t original_glyph,
+        uint32_t language_tag,
+        uint32_t script_tag,
+        uint32_t feature_tag,
+        int      feature_parameter);
+      
       size_t get_truetype_table(
         uint32_t  name,
         size_t    offset,

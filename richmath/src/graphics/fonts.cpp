@@ -8,6 +8,8 @@
 #  include <cairo-win32.h>
 #elif defined(RICHMATH_USE_FT_FONT)
 #  include <pango/pangocairo.h>
+#  define PANGO_ENABLE_ENGINE
+#  include <pango/pango-ot.h>
 #  include <cairo-ft.h>
 #  include FT_TRUETYPE_TABLES_H
 #  include <cstdio>
@@ -120,6 +122,8 @@ class PangoSettings {
       surface = cairo_surface_reference(static_canvas.surface);
       cr      = cairo_reference(static_canvas.cr);
       context = pango_cairo_create_context(cr);
+      
+      dummy_ot_buffer = pango_ot_buffer_new(NULL);
     }
     
     ~PangoSettings() {
@@ -127,6 +131,7 @@ class PangoSettings {
       g_object_unref(context);
       cairo_destroy(cr);
       cairo_surface_destroy(surface);
+      pango_ot_buffer_destroy(dummy_ot_buffer);
     }
     
   public:
@@ -135,6 +140,7 @@ class PangoSettings {
     PangoFontMap  *font_map;
     PangoContext  *context;
     
+    PangoOTBuffer *dummy_ot_buffer; // has no PangoFcFont!, so cannot do all
 };
 
 static PangoSettings pango_settings;
@@ -224,16 +230,17 @@ FontFace::FontFace(
     int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
     char *family = pmath_string_to_utf8(name.get(), NULL);
   
-    FcPattern *pattern = FcPatternBuild(NULL,
-    FC_FAMILY,     FcTypeString,  family,
-    FC_SLANT,      FcTypeInteger, fcslant,
-    FC_WEIGHT,     FcTypeInteger, fcweight,
-    FC_DPI,        FcTypeDouble,  96.0,
-    FC_SCALE,      FcTypeDouble,  0.75,
-    FC_SIZE,       FcTypeDouble,  1024.0,
-    FC_PIXEL_SIZE, FcTypeDouble,  1024.0 * 0.75,
-    FC_SCALABLE,   FcTypeBool,    FcTrue,
-    NULL);
+    FcPattern *pattern = FcPatternBuild(
+      NULL,
+      FC_FAMILY,     FcTypeString,  family,
+      FC_SLANT,      FcTypeInteger, fcslant,
+      FC_WEIGHT,     FcTypeInteger, fcweight,
+      FC_DPI,        FcTypeDouble,  96.0,
+      FC_SCALE,      FcTypeDouble,  0.75,
+      FC_SIZE,       FcTypeDouble,  1024.0,
+      FC_PIXEL_SIZE, FcTypeDouble,  1024.0 * 0.75,
+      FC_SCALABLE,   FcTypeBool,    FcTrue,
+      NULL);
   
 //    FcResult result;
 //    pmath_debug_print("fontset for %s:\n", family);
@@ -432,7 +439,7 @@ static int CALLBACK search_font(
 bool FontInfo::font_exists(String name) {
   if(name.length() == 0)
     return false;
-  
+    
 #ifdef RICHMATH_USE_WIN32_FONT
   {
     name += String::FromChar(0);
@@ -491,9 +498,9 @@ bool FontInfo::font_exists(String name) {
     char *family = pmath_string_to_utf8(name.get(), NULL);
     
     FcPattern *pattern = FcPatternBuild(NULL,
-    FC_FAMILY, FcTypeString, family,
-    NULL);
-    
+                                        FC_FAMILY, FcTypeString, family,
+                                        NULL);
+                                        
     FcResult result = FcResultMatch;
     FcConfigSubstitute(NULL, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
@@ -508,9 +515,9 @@ bool FontInfo::font_exists(String name) {
     
     char *str = 0;
     
-    if( FcResultTypeMismatch == FcPatternGetString(resolved, FC_FAMILY, 0, (FcChar8 **)&str) 
-    || !str 
-    || 0 != strcmp(str, family))
+    if( FcResultTypeMismatch == FcPatternGetString(resolved, FC_FAMILY, 0, (FcChar8 **)&str)
+        || !str
+        || 0 != strcmp(str, family))
     {
       FcPatternDestroy(resolved);
       pmath_mem_free(family);
@@ -616,10 +623,125 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch) {
   return 0;
 }
 
+uint16_t FontInfo::substitute_glyph(
+  uint16_t original_glyph,
+  uint32_t language_tag,
+  uint32_t script_tag,
+  uint32_t feature_tag,
+  int      feature_parameter
+) {
+  if(feature_parameter == 0)
+    return original_glyph;
+  
+  switch(priv->font_type()) {
+#ifdef RICHMATH_USE_WIN32_FONT
+    case CAIRO_FONT_TYPE_WIN32: {
+        static SCRIPT_CACHE script_cache = NULL;
+        
+        uint16_t new_glyph; 
+        
+        HRESULT result = ScriptSubstituteSingleGlyph(
+          dc.handle,
+          &script_cache,
+          NULL,
+          script_tag,
+          language_tag,
+          feature_tag,
+          feature_parameter,
+          original_glyph,
+          &new_glyph);
+        
+        if(result == 0)
+          return new_glyph;
+        
+        return original_glyph;
+      }
+#endif
+      
+#ifdef RICHMATH_USE_FT_FONT
+    case CAIRO_FONT_TYPE_FT: {
+        /* The Pango API seems too high level. Maybe we should include HarfBuzz
+           or do all the lookups/substitution on our own.
+           
+           Note that I abuse the API, because I have no PangoFcFont at hand,
+           only the bare FT_Font. 
+           
+           Pango/Harfbuzz has currently no way to specify the alternate glyph
+           index. So it is almost useless for 'ssty' table.
+         */
+        
+        FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font);
+        if(face) {
+          PangoOTInfo    *ot_info  = pango_ot_info_get(face);
+          PangoOTRuleset *rule_set = pango_ot_ruleset_new(ot_info);
+          
+          unsigned script_index;
+          pango_ot_info_find_script(
+            ot_info, 
+            PANGO_OT_TABLE_GSUB,
+            script_tag,
+            &script_index);
+          
+          unsigned language_index;
+          pango_ot_info_find_language(
+            ot_info,
+            PANGO_OT_TABLE_GSUB,
+            script_index,
+            language_tag,
+            &language_index,
+            NULL /* &required_feature_index*/);
+          
+          unsigned feature_index;
+          pango_ot_info_find_feature(
+            ot_info,
+            PANGO_OT_TABLE_GSUB,
+            feature_tag,
+            script_index,
+            language_index,
+            &feature_index);
+          
+          pango_ot_ruleset_add_feature(
+            rule_set,
+            PANGO_OT_TABLE_GSUB,
+            feature_index,
+            PANGO_OT_ALL_GLYPHS);
+          
+          pango_ot_buffer_clear(pango_settings.dummy_ot_buffer);
+          pango_ot_buffer_add_glyph(
+            pango_settings.dummy_ot_buffer,
+            original_glyph,
+            PANGO_OT_ALL_GLYPHS,
+            0);
+          
+          int           n_glyphs;
+          PangoOTGlyph *glyphs;
+          pango_ot_buffer_get_glyphs(
+            pango_settings.dummy_ot_buffer,
+            &glyphs,
+            &n_glyphs);
+          
+          g_object_unref(rule_set);
+          
+          if(n_glyphs == 1) {
+            return glyphs[0].glyph;
+          }
+        }
+        
+        return original_glyph;
+      }
+#endif
+
+    default:
+      break;
+  }
+  
+  return original_glyph;
+}
+
 size_t FontInfo::get_truetype_table(
   uint32_t  name,
   size_t    offset,
-  void     *buffer,
+  void      *buffer,
   size_t    length
 ) {
   switch(priv->font_type()) {

@@ -357,18 +357,18 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
     db->fi->get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, data.items(), size);
     const uint8_t *table = data.items();
 
-    const MathTableHeader *header = (const MathTableHeader *)table;
+    const MathTableHeader *math_header = (const MathTableHeader *)table;
 
     {
       uint16_t       *db_consts = (uint16_t *)&db->consts;
-      const uint16_t *consts    = (const uint16_t *)(table + big_endian(header->constants_offset));
+      const uint16_t *consts    = (const uint16_t *)(table + big_endian(math_header->constants_offset));
       for(size_t i = 0; i < sizeof(MathConstants) / 2; ++i)
         db_consts[i] = big_endian(consts[i]);
     }
 
-    if(header->glyphinfo_offset) {
+    if(math_header->glyphinfo_offset) {
       const MathGlyphInfo *glyphinfo = (const MathGlyphInfo *)
-                                       (table + big_endian(header->glyphinfo_offset));
+                                       (table + big_endian(math_header->glyphinfo_offset));
 
       if(glyphinfo->kern_info_offset) {
         const MathKernInfo *kern_info = (const MathKernInfo *)
@@ -505,12 +505,12 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
       }
     }
 
-    if(header->variants_offset) {
+    if(math_header->variants_offset) {
       static Array<MathGlyphVariantRecord> variant_array;
       static Array<MathGlyphPartRecord>    assambly_array;
 
       const MathVariants *variants = (const MathVariants *)
-                                     (table + big_endian(header->variants_offset));
+                                     (table + big_endian(math_header->variants_offset));
 
       db->min_connector_overlap = big_endian(variants->min_connector_overlap);
 
@@ -597,8 +597,8 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
       }
 
     }
-
-    if(db->fi->char_to_glyph(PMATH_CHAR_ASSIGNDELAYED) == 0) { // ::= (its needed, but not in Cambria Math)
+    
+    if(db->fi->char_to_glyph(PMATH_CHAR_ASSIGNDELAYED) == 0) { // ::= (it is needed, but not in Cambria Math)
       Array<MathGlyphPartRecord> lig;
 
       lig.length(3);
@@ -623,8 +623,8 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
 
       db->private_ligatures.set(PMATH_CHAR_ASSIGNDELAYED, lig);
     }
-
-    if(db->fi->char_to_glyph(PMATH_CHAR_RULEDELAYED) == 0) { // :-> (its needed, but not in Cambria Math)
+    
+    if(db->fi->char_to_glyph(PMATH_CHAR_RULEDELAYED) == 0) { // :-> (it is needed, but not in Cambria Math)
       Array<MathGlyphPartRecord> lig;
 
       lig.length(2);
@@ -650,7 +650,7 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
 
       db->private_ligatures.set(PMATH_CHAR_RULEDELAYED, lig);
     }
-
+    
     registered.set(name, db);
     return db->shapers[(int)style];
   }

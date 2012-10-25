@@ -167,8 +167,6 @@ namespace richmath {
     uint16_t start_index;
   } GlyphRangeRecord;
   
-  
-  
   class DeviceAdjustment {
     public:
       DeviceAdjustment(): start_size(0) {}

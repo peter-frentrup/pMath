@@ -83,15 +83,21 @@ void RadicalBox::resize(Context *context) {
     
   if(_exponent) {
     float old_fs = context->canvas->get_font_size();
+    int old_script_indent = context->script_indent;
     
-    context->script_indent++;
+    /* http://www.ntg.nl/maps/38/04.pdf: LuaTeX sets the radical degree in 
+       \scriptscriptstyle 
+       Microsoft's Math Input Panel seems to do the same.
+     */
+    context->script_indent+= 2;
+    
     small_em = context->get_script_size(old_fs);
-    context->script_indent--;
     context->canvas->set_font_size(small_em);
     
     _exponent->resize(context);
     
     context->canvas->set_font_size(old_fs);
+    context->script_indent = old_script_indent;
     
     if(_extents.ascent < _exponent->extents().height() - ey)
       _extents.ascent = _exponent->extents().height() - ey;

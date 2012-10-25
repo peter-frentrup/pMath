@@ -2,6 +2,11 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
+- richmath: (esp. Cambria Math font): use "ssty" opentype table for sub-/superscript and 
+	superscriptscript, ... from of \[Prime]. 
+	Maybe (?) use it always (also in script level 0) for \[Prime], \[DoublePrime], ... outside of 
+	strings to be consistent with Asana Math, MathematicaMono, ... ?
+	
 ? add InputDocument(): Palettes may be the SelectedDocument(), but never the InputDocument()
 
 - complex equality tests: 2I = 2 currently returns unevaluated 
