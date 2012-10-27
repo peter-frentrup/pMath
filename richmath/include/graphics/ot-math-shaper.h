@@ -2,6 +2,7 @@
 #define __GRAPHICS__OT_MATH_SHAPER_H__
 
 #include <graphics/shapers.h>
+#include <graphics/ot-font-reshaper.h>
 
 #include <util/array.h>
 #include <util/pmath-extra.h>

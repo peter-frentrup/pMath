@@ -1,4 +1,5 @@
 #define _WIN32_WINNT 0x501
+#define UNISCRIBE_OPENTYPE  0x0100 /* <- need usp10.dll redistributable for XP */
 
 #include <graphics/fonts.h>
 

@@ -15,24 +15,6 @@ using namespace richmath;
 
 static uint16_t SqrtChar = 0x221A;
 
-static uint16_t big_endian(uint16_t value) {
-  const uint8_t *p = (const uint8_t *)&value;
-
-  return (p[0] << 8) + p[1];
-}
-
-static int16_t big_endian(int16_t value) {
-  const uint8_t *p = (const uint8_t *)&value;
-
-  return (int16_t)((p[0] << 8) + p[1]);
-}
-
-/*static uint32_t big_endian(uint32_t value){
-  const uint8_t *p = (const uint8_t*)&value;
-
-  return (p[0] << 24) + (p[1] << 16) + (p[2] << 8) + p[3];
-}*/
-
 class StaticCanvas: public Base {
   public:
     StaticCanvas() {
@@ -62,10 +44,10 @@ static StaticCanvas static_canvas;
 DeviceAdjustment::DeviceAdjustment(const uint16_t *data)
   : start_size(0)
 {
-  start_size = big_endian(data[0]);
-  values.length(big_endian(data[1]) - start_size + 1);
+  start_size = BigEndian::read(data[0]);
+  values.length(BigEndian::read(data[1]) - start_size + 1);
 
-  switch(big_endian(data[2])) {
+  switch(BigEndian::read(data[2])) {
     case 1: {
         union {
           uint16_t big;
@@ -185,10 +167,10 @@ int DeviceAdjustment::adjustment(int fontsize) {
 //{ class KernVertexObject ...
 
 KernVertexObject::KernVertexObject(const MathKernVertex *v) {
-  values.length(1 + 2 * big_endian(v->heigth_count));
+  values.length(1 + 2 * BigEndian::read(v->heigth_count));
 
   for(uint16_t i = 0; i < values.length(); ++i)
-    values[i] = big_endian(v->values[i].value);
+    values[i] = BigEndian::read(v->values[i].value);
 }
 
 int16_t KernVertexObject::height_to_kern(int16_t height, bool above) {
@@ -351,7 +333,7 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
 
     db->units_per_em = 1024;
     db->fi->get_truetype_table(FONT_TABLE_NAME('h', 'e', 'a', 'd'), 18, &db->units_per_em, 2);
-    db->units_per_em = big_endian(db->units_per_em);
+    db->units_per_em = BigEndian::read(db->units_per_em);
 
     Array<uint8_t> data(size);
     db->fi->get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, data.items(), size);
@@ -361,37 +343,37 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
 
     {
       uint16_t       *db_consts = (uint16_t *)&db->consts;
-      const uint16_t *consts    = (const uint16_t *)(table + big_endian(math_header->constants_offset));
+      const uint16_t *consts    = (const uint16_t *)(table + BigEndian::read(math_header->constants_offset));
       for(size_t i = 0; i < sizeof(MathConstants) / 2; ++i)
-        db_consts[i] = big_endian(consts[i]);
+        db_consts[i] = BigEndian::read(consts[i]);
     }
 
     if(math_header->glyphinfo_offset) {
       const MathGlyphInfo *glyphinfo = (const MathGlyphInfo *)
-                                       (table + big_endian(math_header->glyphinfo_offset));
+                                       (table + BigEndian::read(math_header->glyphinfo_offset));
 
       if(glyphinfo->kern_info_offset) {
         const MathKernInfo *kern_info = (const MathKernInfo *)
-                                        (((const char *)glyphinfo) + big_endian(glyphinfo->kern_info_offset));
+                                        (((const char *)glyphinfo) + BigEndian::read(glyphinfo->kern_info_offset));
 
         const uint16_t *coverage = (const uint16_t *)
-                                   (((const char *)kern_info) + big_endian(kern_info->coverage_offset));
+                                   (((const char *)kern_info) + BigEndian::read(kern_info->coverage_offset));
 
-        switch(big_endian(coverage[0])) { // coverage format
+        switch(BigEndian::read(coverage[0])) { // coverage format
           case 1: {
               const uint16_t *glyphs = (const uint16_t *)
                                        (((const char *)coverage) + 4); // skip format, count
 
-              for(uint16_t i = 0; i < big_endian(kern_info->count); ++i) {
+              for(uint16_t i = 0; i < BigEndian::read(kern_info->count); ++i) {
                 const MathKernVertex *vertex;
 
                 for(int edge = 0; edge < 4; ++edge) {
                   if(kern_info->offsets[i][edge]) {
                     vertex = (const MathKernVertex *)
-                             (((const char *)kern_info) + big_endian(kern_info->offsets[i][edge]));
+                             (((const char *)kern_info) + BigEndian::read(kern_info->offsets[i][edge]));
 
                     db->math_kern[edge].set(
-                      big_endian(glyphs[i]),
+                      BigEndian::read(glyphs[i]),
                       KernVertexObject(vertex));
                   }
                 }
@@ -402,10 +384,10 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
               const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
                                                (((const char *)coverage) + 4);
 
-              for(uint16_t r = 0; r < big_endian(coverage[1]); ++r) {
-                uint16_t start_glyph = big_endian(ranges[r].start_glyph);
-                uint16_t end_glyph   = big_endian(ranges[r].end_glyph);
-                uint16_t start_index = big_endian(ranges[r].start_index);
+              for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
+                uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
+                uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
+                uint16_t start_index = BigEndian::read(ranges[r].start_index);
 
                 for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
                   const MathKernVertex *vertex;
@@ -415,7 +397,7 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
                   for(int edge = 0; edge < 4; ++edge) {
                     if(kern_info->offsets[i][edge]) {
                       vertex = (const MathKernVertex *)
-                               (((const char *)kern_info) + big_endian(kern_info->offsets[i][edge]));
+                               (((const char *)kern_info) + BigEndian::read(kern_info->offsets[i][edge]));
 
                       db->math_kern[edge].set(g, KernVertexObject(vertex));
                     }
@@ -428,20 +410,20 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
 
       if(glyphinfo->italics_correction_info_offset) {
         const MathItalicsCorrectionInfo *ital_corr_info = (const MathItalicsCorrectionInfo *)
-            (((const char *)glyphinfo) + big_endian(glyphinfo->italics_correction_info_offset));
+            (((const char *)glyphinfo) + BigEndian::read(glyphinfo->italics_correction_info_offset));
 
         const uint16_t *coverage = (const uint16_t *)
-                                   (((const char *)ital_corr_info) + big_endian(ital_corr_info->coverage_offset));
+                                   (((const char *)ital_corr_info) + BigEndian::read(ital_corr_info->coverage_offset));
 
-        switch(big_endian(coverage[0])) { // coverage format
+        switch(BigEndian::read(coverage[0])) { // coverage format
           case 1: {
               const uint16_t *glyphs = (const uint16_t *)
                                        (((const char *)coverage) + 4); // skip format, count
 
-              for(uint16_t i = 0; i < big_endian(ital_corr_info->count); ++i) {
+              for(uint16_t i = 0; i < BigEndian::read(ital_corr_info->count); ++i) {
                 db->italics_correction.set(
-                  big_endian(glyphs[i]),
-                  big_endian(ital_corr_info->italics_corrections[i].value));
+                  BigEndian::read(glyphs[i]),
+                  BigEndian::read(ital_corr_info->italics_corrections[i].value));
               }
             } break;
 
@@ -449,13 +431,13 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
               const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
                                                (((const char *)coverage) + 4);
 
-              for(uint16_t r = 0; r < big_endian(coverage[1]); ++r) {
-                uint16_t start_glyph = big_endian(ranges[r].start_glyph);
-                uint16_t end_glyph   = big_endian(ranges[r].end_glyph);
-                uint16_t start_index = big_endian(ranges[r].start_index);
+              for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
+                uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
+                uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
+                uint16_t start_index = BigEndian::read(ranges[r].start_index);
 
                 for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
-                  int16_t value = big_endian(
+                  int16_t value = BigEndian::read(
                                     ital_corr_info->italics_corrections[start_index + g - start_glyph].value);
 
                   db->italics_correction.set(g, value);
@@ -467,20 +449,20 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
 
       if(glyphinfo->top_accent_attachment_offset) {
         const MathTopAccentAttachment *top_acc = (const MathTopAccentAttachment *)
-            (((const char *)glyphinfo) + big_endian(glyphinfo->top_accent_attachment_offset));
+            (((const char *)glyphinfo) + BigEndian::read(glyphinfo->top_accent_attachment_offset));
 
         const uint16_t *coverage = (const uint16_t *)
-                                   (((const char *)top_acc) + big_endian(top_acc->coverage_offset));
+                                   (((const char *)top_acc) + BigEndian::read(top_acc->coverage_offset));
 
-        switch(big_endian(coverage[0])) { // coverage format
+        switch(BigEndian::read(coverage[0])) { // coverage format
           case 1: {
               const uint16_t *glyphs = (const uint16_t *)
                                        (((const char *)coverage) + 4); // skip format, count
 
-              for(uint16_t i = 0; i < big_endian(top_acc->count); ++i) {
+              for(uint16_t i = 0; i < BigEndian::read(top_acc->count); ++i) {
                 db->top_accents.set(
-                  big_endian(glyphs[i]),
-                  big_endian(top_acc->top_accent_attachment[i].value));
+                  BigEndian::read(glyphs[i]),
+                  BigEndian::read(top_acc->top_accent_attachment[i].value));
               }
             } break;
 
@@ -488,13 +470,13 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
               const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
                                                (((const char *)coverage) + 4);
 
-              for(uint16_t r = 0; r < big_endian(coverage[1]); ++r) {
-                uint16_t start_glyph = big_endian(ranges[r].start_glyph);
-                uint16_t end_glyph   = big_endian(ranges[r].end_glyph);
-                uint16_t start_index = big_endian(ranges[r].start_index);
+              for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
+                uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
+                uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
+                uint16_t start_index = BigEndian::read(ranges[r].start_index);
 
                 for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
-                  int16_t value = big_endian(
+                  int16_t value = BigEndian::read(
                                     top_acc->top_accent_attachment[start_index + g - start_glyph].value);
 
                   db->top_accents.set(g, value);
@@ -510,87 +492,87 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
       static Array<MathGlyphPartRecord>    assambly_array;
 
       const MathVariants *variants = (const MathVariants *)
-                                     (table + big_endian(math_header->variants_offset));
+                                     (table + BigEndian::read(math_header->variants_offset));
 
-      db->min_connector_overlap = big_endian(variants->min_connector_overlap);
+      db->min_connector_overlap = BigEndian::read(variants->min_connector_overlap);
 
-      uint16_t vert_count = big_endian(variants->vert_glyph_count);
+      uint16_t vert_count = BigEndian::read(variants->vert_glyph_count);
       for(uint16_t i = 0; i < vert_count; ++i) {
         const MathGlyphConstruction *construction = (const MathGlyphConstruction *)
-            (((const char *)variants) + big_endian(variants->glyph_construction_offsets[i]));
+            (((const char *)variants) + BigEndian::read(variants->glyph_construction_offsets[i]));
 
         if(construction->count) {
           if(construction->assembly_offset) {
             const MathGlyphAssembly *assambly = (const MathGlyphAssembly *)
-                                                (((const char *)construction) + big_endian(construction->assembly_offset));
+                                                (((const char *)construction) + BigEndian::read(construction->assembly_offset));
 
             if(assambly->count) {
-              assambly_array.length(big_endian(assambly->count));
+              assambly_array.length(BigEndian::read(assambly->count));
 
               for(int j = 0; j < assambly_array.length(); ++j) {
                 const uint16_t *src = (const uint16_t *)&assambly->parts[j];
                 uint16_t       *dst = (uint16_t *)&assambly_array[j];
 
                 for(size_t k = 0; k < sizeof(MathGlyphPartRecord) / 2; ++k)
-                  dst[k] = big_endian(src[k]);
+                  dst[k] = BigEndian::read(src[k]);
               }
 
               db->vert_assembly.set(
-                big_endian(construction->variants[0].glyph),
+                BigEndian::read(construction->variants[0].glyph),
                 assambly_array);
             }
           }
 
-          variant_array.length(big_endian(construction->count));
+          variant_array.length(BigEndian::read(construction->count));
           if(variant_array.length() > 1) {
             for(int j = 0; j < variant_array.length(); ++j) {
-              variant_array[j].glyph   = big_endian(construction->variants[j].glyph);
-              variant_array[j].advance = big_endian(construction->variants[j].advance);
+              variant_array[j].glyph   = BigEndian::read(construction->variants[j].glyph);
+              variant_array[j].advance = BigEndian::read(construction->variants[j].advance);
             }
 
             db->vert_variants.set(
-              big_endian(construction->variants[0].glyph),
+              BigEndian::read(construction->variants[0].glyph),
               variant_array);
           }
         }
       }
 
-      uint16_t horz_count = big_endian(variants->horz_glyph_count);
+      uint16_t horz_count = BigEndian::read(variants->horz_glyph_count);
       for(uint16_t i = 0; i < horz_count; ++i) {
         const MathGlyphConstruction *construction = (const MathGlyphConstruction *)
-            (((const char *)variants) + big_endian(variants->glyph_construction_offsets[vert_count + i]));
+            (((const char *)variants) + BigEndian::read(variants->glyph_construction_offsets[vert_count + i]));
 
         if(construction->count) {
           if(construction->assembly_offset) {
             const MathGlyphAssembly *assambly = (const MathGlyphAssembly *)
-                                                (((const char *)construction) + big_endian(construction->assembly_offset));
+                                                (((const char *)construction) + BigEndian::read(construction->assembly_offset));
 
             if(assambly->count) {
-              assambly_array.length(big_endian(assambly->count));
+              assambly_array.length(BigEndian::read(assambly->count));
 
               for(int j = 0; j < assambly_array.length(); ++j) {
                 const uint16_t *src = (const uint16_t *)&assambly->parts[j];
                 uint16_t       *dst = (uint16_t *)&assambly_array[j];
 
                 for(size_t k = 0; k < sizeof(MathGlyphPartRecord) / 2; ++k)
-                  dst[k] = big_endian(src[k]);
+                  dst[k] = BigEndian::read(src[k]);
               }
 
               db->horz_assembly.set(
-                big_endian(construction->variants[0].glyph),
+                BigEndian::read(construction->variants[0].glyph),
                 assambly_array);
             }
           }
 
-          variant_array.length(big_endian(construction->count));
+          variant_array.length(BigEndian::read(construction->count));
           if(variant_array.length() > 1) {
             for(int j = 0; j < variant_array.length(); ++j) {
-              variant_array[j].glyph   = big_endian(construction->variants[j].glyph);
-              variant_array[j].advance = big_endian(construction->variants[j].advance);
+              variant_array[j].glyph   = BigEndian::read(construction->variants[j].glyph);
+              variant_array[j].advance = BigEndian::read(construction->variants[j].advance);
             }
 
             db->horz_variants.set(
-              big_endian(construction->variants[0].glyph),
+              BigEndian::read(construction->variants[0].glyph),
               variant_array);
           }
         }
