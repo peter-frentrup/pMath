@@ -839,5 +839,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_ISOPTION                               PMATH_SYMBOL_BUILTIN(747)
 #define PMATH_SYMBOL_DOCUMENTSAVE                           PMATH_SYMBOL_BUILTIN(748)
 #define PMATH_SYMBOL_STREAMPOSITION                         PMATH_SYMBOL_BUILTIN(749)
+#define PMATH_SYMBOL_BRACKETINGBAR                          PMATH_SYMBOL_BUILTIN(750)
+#define PMATH_SYMBOL_DOUBLEBRACKETINGBAR                    PMATH_SYMBOL_BUILTIN(751)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

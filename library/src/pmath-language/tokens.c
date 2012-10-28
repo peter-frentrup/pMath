@@ -12,6 +12,7 @@ struct char_info_t {
 #define ARG  {PMATH_PREC_PRIM,    PMATH_TOK_SLOT}
 #define ID   {PMATH_PREC_PRIM,    PMATH_TOK_NAME}
 #define ID2  {PMATH_PREC_PRIM,    PMATH_TOK_NAME2}
+#define PW   {PMATH_PREC_PRIM,    PMATH_TOK_PREFIX}
 #define FUN  {PMATH_PREC_FUNC,    PMATH_TOK_POSTFIX}
 #define DIF  {PMATH_PREC_DIFF,    PMATH_TOK_POSTFIX}
 #define LCL  {PMATH_PREC_CALL,    PMATH_TOK_LEFTCALL}
@@ -165,6 +166,16 @@ static const struct char_info_t u2900_u2aff[512] = {
   /* 2AF */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL
 };
 
+static const struct char_info_t uf360_uf36f[16] = {
+  /*         0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F  */
+  /* F36 */ ID,  PW,  LEF, RI1, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID
+};
+
+static const struct char_info_t uf600_uf60f[16] = {
+  /*         0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F  */
+  /* F60 */ ID,  ID,  ID,  LEF, RI1, LEF, RI1, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID
+};
+
 static const struct char_info_t *find_char_info(uint16_t ch) {
   static const struct char_info_t id  = ID;
   static const struct char_info_t id2 = ID2;
@@ -184,17 +195,13 @@ static const struct char_info_t *find_char_info(uint16_t ch) {
   if(ch >= 0x2900 && ch <= 0x2AFF)
     return &u2900_u2aff[ch - 0x2900];
     
+  if(ch >= 0xF360 && ch <= 0xF36F)
+    return &uf360_uf36f[ch - 0xF360];
+    
+  if(ch >= 0xF600 && ch <= 0xF60F)
+    return &uf600_uf60f[ch - 0xF600];
+    
   switch(ch) {
-    case PMATH_CHAR_INVISIBLECALL: {
-        static const struct char_info_t apl = APL;
-        return &apl;
-      }
-      
-    case PMATH_CHAR_PIECEWISE: {
-        static const struct char_info_t pw = {PMATH_PREC_PRIM, PMATH_TOK_PREFIX};
-        return &pw;
-      }
-      
     case PMATH_CHAR_BOX:
     case PMATH_CHAR_LEFT_BOX:
     case PMATH_CHAR_RIGHT_BOX: 

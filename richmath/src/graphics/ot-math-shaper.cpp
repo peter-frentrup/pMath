@@ -274,7 +274,13 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
 //    db->private_characters.set(0x2061, 0); // function application
     db->set_private_char(0x2061, ' ');
 
-    db->set_private_char(PMATH_CHAR_PIECEWISE,   '{');
+    db->set_private_char(PMATH_CHAR_LEFTINVISIBLEBRACKET,     0x200B);
+    db->set_private_char(PMATH_CHAR_RIGHTINVISIBLEBRACKET,    0x200B);
+    db->set_private_char(PMATH_CHAR_LEFTBRACKETINGBAR,        0x2223);
+    db->set_private_char(PMATH_CHAR_RIGHTBRACKETINGBAR,       0x2223);
+    db->set_private_char(PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR,  0x2225);
+    db->set_private_char(PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR, 0x2225);
+    db->set_private_char(PMATH_CHAR_PIECEWISE, '{');
     db->set_private_char(PMATH_CHAR_ALIASDELIMITER, 0x21E9);
     db->set_private_char(PMATH_CHAR_ALIASINDICATOR, 0x21E9);
     db->set_private_char(CHAR_REPLACEMENT,       0x220E);

@@ -7,8 +7,11 @@
 	Maybe (?) use it always (also in script level 0) for \[Prime], \[DoublePrime], ... outside of 
 	strings to be consistent with Asana Math, MathematicaMono, ... ?
 
-- richmath: add Usp10.dll (redistributable) to the depencies for Win2k, WinXP
+- richmath: add glyphs for \[LeftBracketingBar], \[LeftDoubleBracketingBar], \[LeftInvisibleBracket], ...
+	to pMathFallback.ttf font: Text alongside Mathematica shapers would otherwise show invalid glyph.
 	
+- richmath: add Usp10.dll (redistributable) to the depencies for Win2k, WinXP
+
 ? add InputDocument(): Palettes may be the SelectedDocument(), but never the InputDocument()
 
 - complex equality tests: 2I = 2 currently returns unevaluated 

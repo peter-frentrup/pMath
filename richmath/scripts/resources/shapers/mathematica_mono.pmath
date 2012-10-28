@@ -85,6 +85,10 @@
 		"\u22BC" -> {{"LogicalNand", 5}, {"Nand2", 5}, {"Nand3", 5}}, /* logical nand */
 		"\u22BD" -> {{"LogicalNor", 5}, {"Nor2", 5}, {"Nor3", 5}}, /* logical nor */
 		"\uF361" -> {{"Piecewise" | "greaterequal", 5}, {"Piecewise2" | "yen", 5}, {"Piecewise3" | "mu", 5}, {"Piecewise4" | "partialdiff", 5}}, /* piecewise */
+		"\uF603" -> {{"dagger", 2}, {"degree", 2}, {"cent", 2}, {"sterling", 2}}, /* left | */
+		"\uF604" -> {{"section", 2}, {"bullet", 2}, {"paragraph", 2}, {"germandbls", 2}}, /* right | */
+		"\uF605" -> {{"infinity", 2}, {"plusminus", 2}, {"lessequal", 2}, {"greaterequal", 2}}, /* left || */
+		"\uF606" -> {{"yen", 2}, {"mu", 2}, {"partialdiff", 2}, {"summation", 2}}, /* right || */
 		"(" -> {{"H", 2}, {"I", 2}, {"J", 2}, {"K", 2}},
 		")" -> {{"L", 2}, {"M", 2}, {"N", 2}, {"O", 2}},
 		"[" -> {{"at", 2}, {"A", 2}, {"B", 2}, {"C", 2}},
@@ -98,6 +102,10 @@
 		"\u230A" -> {{"bracketleftex",  "bracketleftbt",  "bracketleftex"},  {}, 1, 1}, /* left floor */
 		"\u230B" -> {{"bracketrightex", "bracketrightbt", "bracketrightex"}, {}, 1, 1}, /* right floor */
 		"\uF361" -> {{"PiecewiseTop" | "Oslash", "PiecewiseBottom" | "plusminus", "PiecewiseExt" | "lessequal", "PiecewiseMiddle" | "infinity"}, {}, 5, 5}, /* piecewise */
+		"\uF603" -> {{"florin", "florin", "florin", "dagger"}, {}, 2, 2}, /* left | */
+		"\uF604" -> {{"florin", "florin", "florin", "section"}, {}, 2, 2}, /* right | */
+		"\uF605" -> {{"approxequal", "approxequal", "approxequal", "infinity"}, {}, 2, 2}, /* left || */
+		"\uF606" -> {{"approxequal", "approxequal", "approxequal", "yen"}, {}, 2, 2}, /* right || */
 		"(" -> {{"parenlefttp", "parenleftbt", "parenleftex"}, {}, 1, 1},
 		")" -> {{"parenrighttp", "parenrightbt", "parenrightex"}, {}, 1, 1},
 		"[" -> {{"bracketlefttp", "bracketleftbt", "bracketleftex"}, {}, 1, 1},

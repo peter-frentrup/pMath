@@ -692,18 +692,26 @@ static struct named_char_t named_char_array[] = {
   { 0x23DF, "UnderBrace"},
   
   { 0x001A, "SelectionPlaceholder"},
+  { 0xFFFD, "Placeholder"},
   { 0x2192, "Rule"},
   { 0x21A6, "Function"},
   { 0x2254, "Assign"},
   { 0x29F4, "RuleDelayed"},
   { 0x2A74, "AssignDelayed"},
+  
+  // Private Use Area:
   { 0xF3BA, "SpanFromLeft"},
   { 0xF3BB, "SpanFromAbove"},
   { 0xF3BC, "SpanFromBoth"},
   { 0xF361, "Piecewise"},
+  { 0xF362, "LeftInvisibleBracket"},
+  { 0xF363, "RightInvisibleBracket"},
+  { 0xF603, "LeftBracketingBar"},
+  { 0xF604, "RightBracketingBar"},
+  { 0xF605, "LeftDoubleBracketingBar"},
+  { 0xF606, "RightDoubleBracketingBar"},
   { 0xF764, "AliasDelimiter"},
-  { 0xF768, "AliasIndicator"},
-  { 0xFFFD, "Placeholder"}
+  { 0xF768, "AliasIndicator"}
 };
 
 //{ hashtable functions ...

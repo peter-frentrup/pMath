@@ -1,0 +1,30 @@
+/* Parsing Ceiling/Floor/... in traditional form
+ */
+
+Begin("System`Private`")
+
+Unprotect(MakeExpression)
+
+MakeExpression({"\[LeftCeiling]", ~x, "\[RightCeiling]"})::= MakeExpression({"Ceiling", "(", x, ")"})
+MakeExpression({"\[LeftFloor]", ~x, "\[RightFloor]"})::= MakeExpression({"Floor", "(", x, ")"})
+MakeExpression({"\[LeftBracketingBar]", ~x, "\[RightBracketingBar]"})::= MakeExpression({"BracketingBar", "(", x, ")"})
+MakeExpression({"\[LeftDoubleBracketingBar]", ~x, "\[RightDoubleBracketingBar]"})::= MakeExpression({"DoubleBracketingBar", "(", x, ")"})
+
+MakeExpression({"{", ~x, "\[RightInvisibleBracket]"})::= MakeExpression({"Piecewise", "(", x, ")"})
+
+Protect(MakeExpression)
+
+
+Unprotect(Ceiling, Floor, BracketingBar, DoubleBracketingBar)
+
+MakeBoxes(Ceiling(~x))::= {"\[LeftCeiling]", MakeBoxes(x), "\[RightCeiling]"}
+MakeBoxes(Floor(~x))::= {"\[LeftFloor]", MakeBoxes(x), "\[RightFloor]"}
+MakeBoxes(BracketingBar(~~~x))::= {"\[LeftBracketingBar]", MakeBoxes({x})[2], "\[RightBracketingBar]"}
+MakeBoxes(DoubleBracketingBar(~~~x))::= {"\[LeftDoubleBracketingBar]", MakeBoxes({x})[2], "\[RightDoubleBracketingBar]"}
+
+Attributes(Ceiling):= {Protected, ReadProtected};
+Attributes(Floor):= {Protected, ReadProtected};
+Attributes(BracketingBar):= {Protected, ReadProtected};
+Attributes(DoubleBracketingBar):= {Protected, ReadProtected};
+
+End()

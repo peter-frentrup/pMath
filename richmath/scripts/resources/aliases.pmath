@@ -30,6 +30,11 @@
 		"dt" -> {"\[PartialD]", SubscriptBox("\[Placeholder]"), "\[SelectionPlaceholder]"},
 		"sumt" -> {UnderoverscriptBox("\[Sum]", {"\[SelectionPlaceholder]", "=", "\[Placeholder]"}, "\[Placeholder]"), "\[Placeholder]"},
 		"prodt" -> {UnderoverscriptBox("\[Product]", {"\[SelectionPlaceholder]", "=", "\[Placeholder]"}, "\[Placeholder]"), "\[Placeholder]"},
+		"abs" -> {"\[LeftBracketingBar]", "\[SelectionPlaceholder]", "\[RightBracketingBar]"},
+		"norm" -> {"\[LeftDoubleBracketingBar]", "\[SelectionPlaceholder]", "\[RightDoubleBracketingBar]"},
+		"ceil"    -> {"\[LeftCeiling]", "\[SelectionPlaceholder]", "\[RightCeiling]"},
+		"ceiling" -> {"\[LeftCeiling]", "\[SelectionPlaceholder]", "\[RightCeiling]"},
+		"floor" -> {"\[LeftFloor]", "\[SelectionPlaceholder]", "\[RightFloor]"},
 		
 		"input" -> InputFieldBox("\[SelectionPlaceholder]", String),
 		"rot" -> RotationBox("\[SelectionPlaceholder]", BoxRotation->Pi/4),
@@ -538,6 +543,16 @@
 		"rf" -> "\[RightFloor]",
 		"<" -> "\[LeftAngleBracket]",
 		">" -> "\[RightAngleBracket]",
+		
+		"l."    -> "\[LeftInvisibleBracket]",
+		"left." -> "\[LeftInvisibleBracket]",
+		"r."     -> "\[RightInvisibleBracket]",
+		"right." -> "\[RightInvisibleBracket]",
+		
+		"l|" -> "\[LeftBracketingBar]",
+		"r|" -> "\[RightBracketingBar]",
+		"l||" -> "\[LeftDoubleBracketingBar]",
+		"r||" -> "\[RightDoubleBracketingBar]",
 		
 		"t[" -> "\[OverBracket]",
 		"b[" -> "\[UnderBracket]",

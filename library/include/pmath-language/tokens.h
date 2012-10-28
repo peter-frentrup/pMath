@@ -91,20 +91,26 @@ enum {
   PMATH_PREC_PRIM =   1000
 };
 
-#define PMATH_CHAR_INVISIBLECALL  0x2061 ///< The Function application character
-#define PMATH_CHAR_VECTOR         0x21C0 ///< The arrow above names to indicate a vector
-#define PMATH_CHAR_RULE           0x2192 ///< The "->" operator
-#define PMATH_CHAR_RULEDELAYED    0x29F4 ///< The ":>" operator
-#define PMATH_CHAR_ASSIGN         0x2254 ///< The ":=" operator
-#define PMATH_CHAR_ASSIGNDELAYED  0x2A74 ///< The "::=" operator
-#define PMATH_CHAR_INTEGRAL_D     0x2146 ///< The integral "d"
-#define PMATH_CHAR_PIECEWISE      0xF361 ///< The left curly bracket for cases
-#define PMATH_CHAR_ALIASDELIMITER 0xF764 ///< The character inserted by Richmath with ESCAPE or CAPSLOCK
-#define PMATH_CHAR_ALIASINDICATOR 0xF768 ///< A character that looks like PMATH_CHAR_ALIASDELIMITER but has no effect
-#define PMATH_CHAR_LEFT_BOX       0xFFF9 ///< Start of box code inside a string.
-#define PMATH_CHAR_RIGHT_BOX      0xFFFB ///< End of box code inside a string.
-#define PMATH_CHAR_BOX            0xFDD0 ///< Represents a box.
-#define PMATH_CHAR_PLACEHOLDER    0xFFFD ///< The Placeholder character. In richmath, type CAPSLOCK pl CAPSLOCK to insert it.
+#define PMATH_CHAR_INVISIBLECALL             0x2061 ///< The Function application character
+#define PMATH_CHAR_VECTOR                    0x21C0 ///< The arrow above names to indicate a vector
+#define PMATH_CHAR_RULE                      0x2192 ///< The "->" operator
+#define PMATH_CHAR_RULEDELAYED               0x29F4 ///< The ":>" operator
+#define PMATH_CHAR_ASSIGN                    0x2254 ///< The ":=" operator
+#define PMATH_CHAR_ASSIGNDELAYED             0x2A74 ///< The "::=" operator
+#define PMATH_CHAR_INTEGRAL_D                0x2146 ///< The integral "d"
+#define PMATH_CHAR_PIECEWISE                 0xF361 ///< The left curly bracket for cases
+#define PMATH_CHAR_LEFTINVISIBLEBRACKET      0xF362 ///< TeX's "\left."
+#define PMATH_CHAR_RIGHTINVISIBLEBRACKET     0xF363 ///< TeX's "\right."
+#define PMATH_CHAR_LEFTBRACKETINGBAR         0xF603 ///< TeX's "\left|"
+#define PMATH_CHAR_RIGHTBRACKETINGBAR        0xF604 ///< TeX's "\right|"
+#define PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR   0xF605 ///< TeX's "\left\|"
+#define PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR  0xF606 ///< TeX's "\right\|"
+#define PMATH_CHAR_ALIASDELIMITER            0xF764 ///< The character inserted by Richmath with ESCAPE or CAPSLOCK
+#define PMATH_CHAR_ALIASINDICATOR            0xF768 ///< A character that looks like PMATH_CHAR_ALIASDELIMITER but has no effect
+#define PMATH_CHAR_LEFT_BOX                  0xFFF9 ///< Start of box code inside a string.
+#define PMATH_CHAR_RIGHT_BOX                 0xFFFB ///< End of box code inside a string.
+#define PMATH_CHAR_BOX                       0xFDD0 ///< Represents a box.
+#define PMATH_CHAR_PLACEHOLDER               0xFFFD ///< The Placeholder character. In richmath, type CAPSLOCK pl CAPSLOCK to insert it.
 
 /**\brief Analyse a token.
    \param str A UTF16-string.
