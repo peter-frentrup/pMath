@@ -6,6 +6,7 @@
 #endif
 
 #include <windows.h>
+#include <usp10.h>
 
 #include <util/base.h>
 
@@ -200,6 +201,9 @@ namespace richmath {
       static BOOL (WINAPI *IsCompositionActive)(void);
       static BOOL (WINAPI *IsThemeActive)(void);
       
+      // usp10.dll >= Vista
+      static HRESULT(WINAPI *ScriptSubstituteSingleGlyph)(HDC,SCRIPT_CACHE*,SCRIPT_ANALYSIS*,OPENTYPE_TAG,OPENTYPE_TAG,OPENTYPE_TAG,LONG,WORD,WORD*);
+      
       static void init();
       static bool current_theme_is_aero();
       static bool check_osversion(int min_major, int min_minor);
@@ -207,6 +211,7 @@ namespace richmath {
     private:
       static HMODULE dwmapi;
       static HMODULE uxtheme;
+      static HMODULE usp10dll;
       
     protected:
       Win32Themes();

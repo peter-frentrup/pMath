@@ -1,50 +1,54 @@
 #include <gui/win32/win32-themes.h>
 
+#include <cstdio>
 #include <cwchar>
 
 #include <util/array.h>
 
 using namespace richmath;
 
-HRESULT(WINAPI *Win32Themes::DwmEnableComposition)(UINT) = 0;
-HRESULT(WINAPI *Win32Themes::DwmExtendFrameIntoClientArea)(HWND, const MARGINS*) = 0;
-HRESULT(WINAPI *Win32Themes::DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD) = 0;
-HRESULT(WINAPI *Win32Themes::DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO*) = 0;
-HRESULT(WINAPI *Win32Themes::DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT*) = 0;
+HRESULT(WINAPI * Win32Themes::DwmEnableComposition)(UINT) = 0;
+HRESULT(WINAPI * Win32Themes::DwmExtendFrameIntoClientArea)(HWND, const MARGINS *) = 0;
+HRESULT(WINAPI * Win32Themes::DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD) = 0;
+HRESULT(WINAPI * Win32Themes::DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO *) = 0;
+HRESULT(WINAPI * Win32Themes::DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT *) = 0;
 
-HANDLE(WINAPI *Win32Themes::OpenThemeData)(HWND, LPCWSTR) = 0;
-HRESULT(WINAPI *Win32Themes::CloseThemeData)(HANDLE) = 0;
-HRESULT(WINAPI *Win32Themes::DrawThemeBackground)(HANDLE, HDC, int, int, const RECT*, const RECT*) = 0;
-HRESULT(WINAPI *Win32Themes::DrawThemeEdge)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT) = 0;
-HRESULT(WINAPI *Win32Themes::DrawThemeTextEx)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeSysFont)(HANDLE, int, LOGFONTW*) = 0;
-COLORREF(WINAPI *Win32Themes::GetThemeSysColor)(HANDLE, int) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeBackgroundExtent)(HANDLE, HDC, int, int, LPCRECT, LPRECT) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeBackgroundContentRect)(HANDLE, HDC hdc, int, int, LPCRECT, LPRECT) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeBool)(HANDLE, int, int, int, BOOL*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeColor)(HANDLE, int, int, int, COLORREF*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeMargins)(HANDLE, HDC, int, int, int, LPRECT, MARGINS*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeMetric)(HANDLE, HDC, int, int, int, int*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeInt)(HANDLE, int, int, int, int*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeIntList)(HANDLE, int, int, int, INTLIST*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemePartSize)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemePosition)(HANDLE, int, int, int, POINT*) = 0;
-HRESULT(WINAPI *Win32Themes::GetThemeTransitionDuration)(HANDLE, int, int, int, int, DWORD*) = 0;
-HRESULT(WINAPI *Win32Themes::GetCurrentThemeName)(LPWSTR, int, LPWSTR, int, LPWSTR, int) = 0;
-BOOL (WINAPI *Win32Themes::IsThemePartDefined)(HANDLE, int, int) = 0;
-int (WINAPI *Win32Themes::GetThemeSysSize)(HANDLE, int) = 0;
-HRESULT(WINAPI *Win32Themes::SetWindowTheme)(HWND, LPCWSTR, LPCWSTR) = 0;
+HANDLE(WINAPI * Win32Themes::OpenThemeData)(HWND, LPCWSTR) = 0;
+HRESULT(WINAPI * Win32Themes::CloseThemeData)(HANDLE) = 0;
+HRESULT(WINAPI * Win32Themes::DrawThemeBackground)(HANDLE, HDC, int, int, const RECT *, const RECT *) = 0;
+HRESULT(WINAPI * Win32Themes::DrawThemeEdge)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT) = 0;
+HRESULT(WINAPI * Win32Themes::DrawThemeTextEx)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeSysFont)(HANDLE, int, LOGFONTW *) = 0;
+COLORREF(WINAPI * Win32Themes::GetThemeSysColor)(HANDLE, int) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeBackgroundExtent)(HANDLE, HDC, int, int, LPCRECT, LPRECT) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeBackgroundContentRect)(HANDLE, HDC hdc, int, int, LPCRECT, LPRECT) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeBool)(HANDLE, int, int, int, BOOL *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeColor)(HANDLE, int, int, int, COLORREF *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeMargins)(HANDLE, HDC, int, int, int, LPRECT, MARGINS *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeMetric)(HANDLE, HDC, int, int, int, int *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeInt)(HANDLE, int, int, int, int *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeIntList)(HANDLE, int, int, int, INTLIST *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemePartSize)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemePosition)(HANDLE, int, int, int, POINT *) = 0;
+HRESULT(WINAPI * Win32Themes::GetThemeTransitionDuration)(HANDLE, int, int, int, int, DWORD *) = 0;
+HRESULT(WINAPI * Win32Themes::GetCurrentThemeName)(LPWSTR, int, LPWSTR, int, LPWSTR, int) = 0;
+BOOL (WINAPI * Win32Themes::IsThemePartDefined)(HANDLE, int, int) = 0;
+int (WINAPI * Win32Themes::GetThemeSysSize)(HANDLE, int) = 0;
+HRESULT(WINAPI * Win32Themes::SetWindowTheme)(HWND, LPCWSTR, LPCWSTR) = 0;
 
-HRESULT(WINAPI *Win32Themes::BufferedPaintInit)(void) = 0;
-HRESULT(WINAPI *Win32Themes::BufferedPaintUnInit)(void) = 0;
-HRESULT(WINAPI *Win32Themes::BufferedPaintStopAllAnimations)(HWND) = 0;
-HANDLE(WINAPI *Win32Themes::BeginBufferedPaint)(HDC, const RECT*, BP_BUFFERFORMAT, BP_PAINTPARAMS*, HDC*) = 0;
-HANDLE(WINAPI *Win32Themes::EndBufferedPaint)(HANDLE, BOOL) = 0;
-BOOL (WINAPI *Win32Themes::IsCompositionActive)(void) = 0;
-BOOL (WINAPI *Win32Themes::IsThemeActive)(void) = 0;
+HRESULT(WINAPI * Win32Themes::BufferedPaintInit)(void) = 0;
+HRESULT(WINAPI * Win32Themes::BufferedPaintUnInit)(void) = 0;
+HRESULT(WINAPI * Win32Themes::BufferedPaintStopAllAnimations)(HWND) = 0;
+HANDLE(WINAPI * Win32Themes::BeginBufferedPaint)(HDC, const RECT *, BP_BUFFERFORMAT, BP_PAINTPARAMS *, HDC *) = 0;
+HANDLE(WINAPI * Win32Themes::EndBufferedPaint)(HANDLE, BOOL) = 0;
+BOOL (WINAPI * Win32Themes::IsCompositionActive)(void) = 0;
+BOOL (WINAPI * Win32Themes::IsThemeActive)(void) = 0;
+
+HRESULT(WINAPI * Win32Themes::ScriptSubstituteSingleGlyph)(HDC, SCRIPT_CACHE *, SCRIPT_ANALYSIS *, OPENTYPE_TAG, OPENTYPE_TAG, OPENTYPE_TAG, LONG, WORD, WORD *) = 0;
 
 HMODULE Win32Themes::dwmapi = 0;
 HMODULE Win32Themes::uxtheme = 0;
+HMODULE Win32Themes::usp10dll = 0;
 
 void Win32Themes::init() {
   static Win32Themes w;
@@ -57,16 +61,16 @@ Win32Themes::Win32Themes(): Base() {
     DwmEnableComposition = (HRESULT(WINAPI *)(UINT))
                            GetProcAddress(dwmapi, "DwmEnableComposition");
                            
-    DwmExtendFrameIntoClientArea = (HRESULT(WINAPI *)(HWND, const MARGINS*))
+    DwmExtendFrameIntoClientArea = (HRESULT(WINAPI *)(HWND, const MARGINS *))
                                    GetProcAddress(dwmapi, "DwmExtendFrameIntoClientArea");
                                    
     DwmSetWindowAttribute = (HRESULT(WINAPI *)(HWND, DWORD, LPCVOID, DWORD))
                             GetProcAddress(dwmapi, "DwmSetWindowAttribute");
                             
-    DwmGetCompositionTimingInfo = (HRESULT(WINAPI *)(HWND, DWM_TIMING_INFO*))
+    DwmGetCompositionTimingInfo = (HRESULT(WINAPI *)(HWND, DWM_TIMING_INFO *))
                                   GetProcAddress(dwmapi, "DwmGetCompositionTimingInfo");
                                   
-    DwmDefWindowProc = (HRESULT(WINAPI *)(HWND, UINT, WPARAM, LPARAM, LRESULT*))
+    DwmDefWindowProc = (HRESULT(WINAPI *)(HWND, UINT, WPARAM, LPARAM, LRESULT *))
                        GetProcAddress(dwmapi, "DwmDefWindowProc");
   }
   
@@ -78,16 +82,16 @@ Win32Themes::Win32Themes(): Base() {
     CloseThemeData = (HRESULT(WINAPI *)(HANDLE))
                      GetProcAddress(uxtheme, "CloseThemeData");
                      
-    DrawThemeBackground = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, const RECT*, const RECT*))
+    DrawThemeBackground = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, const RECT *, const RECT *))
                           GetProcAddress(uxtheme, "DrawThemeBackground");
                           
     DrawThemeEdge = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT))
                     GetProcAddress(uxtheme, "DrawThemeEdge");
                     
-    DrawThemeTextEx = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS*))
+    DrawThemeTextEx = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS *))
                       GetProcAddress(uxtheme, "DrawThemeTextEx");
                       
-    GetThemeSysFont = (HRESULT(WINAPI *)(HANDLE, int, LOGFONTW*))
+    GetThemeSysFont = (HRESULT(WINAPI *)(HANDLE, int, LOGFONTW *))
                       GetProcAddress(uxtheme, "GetThemeSysFont");
                       
     GetThemeSysColor = (COLORREF(WINAPI *)(HANDLE, int))
@@ -99,31 +103,31 @@ Win32Themes::Win32Themes(): Base() {
     GetThemeBackgroundContentRect = (HRESULT(WINAPI *)(HANDLE, HDC hdc, int, int, LPCRECT, LPRECT))
                                     GetProcAddress(uxtheme, "GetThemeBackgroundContentRect");
                                     
-    GetThemeBool = (HRESULT(WINAPI *)(HANDLE, int, int, int, BOOL*))
+    GetThemeBool = (HRESULT(WINAPI *)(HANDLE, int, int, int, BOOL *))
                    GetProcAddress(uxtheme, "GetThemeBool");
                    
-    GetThemeColor = (HRESULT(WINAPI *)(HANDLE, int, int, int, COLORREF*))
+    GetThemeColor = (HRESULT(WINAPI *)(HANDLE, int, int, int, COLORREF *))
                     GetProcAddress(uxtheme, "GetThemeColor");
                     
-    GetThemeMargins = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, int, LPRECT, MARGINS*))
+    GetThemeMargins = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, int, LPRECT, MARGINS *))
                       GetProcAddress(uxtheme, "GetThemeMargins");
                       
-    GetThemeMetric = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, int, int*))
+    GetThemeMetric = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, int, int *))
                      GetProcAddress(uxtheme, "GetThemeMetric");
                      
-    GetThemeInt = (HRESULT(WINAPI *)(HANDLE, int, int, int, int*))
+    GetThemeInt = (HRESULT(WINAPI *)(HANDLE, int, int, int, int *))
                   GetProcAddress(uxtheme, "GetThemeInt");
                   
-    GetThemeIntList = (HRESULT(WINAPI *)(HANDLE, int, int, int, INTLIST*))
+    GetThemeIntList = (HRESULT(WINAPI *)(HANDLE, int, int, int, INTLIST *))
                       GetProcAddress(uxtheme, "GetThemeIntList");
                       
-    GetThemePartSize = (HRESULT(WINAPI *)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE*))
+    GetThemePartSize = (HRESULT(WINAPI *)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE *))
                        GetProcAddress(uxtheme, "GetThemePartSize");
                        
-    GetThemePosition = (HRESULT(WINAPI *)(HANDLE, int, int, int, POINT*))
+    GetThemePosition = (HRESULT(WINAPI *)(HANDLE, int, int, int, POINT *))
                        GetProcAddress(uxtheme, "GetThemePosition");
                        
-    GetThemeTransitionDuration = (HRESULT(WINAPI *)(HANDLE, int, int, int, int, DWORD*))
+    GetThemeTransitionDuration = (HRESULT(WINAPI *)(HANDLE, int, int, int, int, DWORD *))
                                  GetProcAddress(uxtheme, "GetThemeTransitionDuration");
                                  
     GetCurrentThemeName = (HRESULT(WINAPI *)(LPWSTR, int, LPWSTR, int, LPWSTR, int))
@@ -149,7 +153,7 @@ Win32Themes::Win32Themes(): Base() {
     BufferedPaintStopAllAnimations = (HRESULT(WINAPI *)(HWND))
                                      GetProcAddress(uxtheme, "BufferedPaintStopAllAnimations");
                                      
-    BeginBufferedPaint = (HANDLE(WINAPI *)(HDC, const RECT*, BP_BUFFERFORMAT, BP_PAINTPARAMS*, HDC*))
+    BeginBufferedPaint = (HANDLE(WINAPI *)(HDC, const RECT *, BP_BUFFERFORMAT, BP_PAINTPARAMS *, HDC *))
                          GetProcAddress(uxtheme, "BeginBufferedPaint");
                          
     EndBufferedPaint = (HANDLE(WINAPI *)(HANDLE, BOOL))
@@ -164,6 +168,15 @@ Win32Themes::Win32Themes(): Base() {
     if(BufferedPaintInit)
       BufferedPaintInit();
   }
+  
+  usp10dll = LoadLibrary("usp10.dll");
+  if(usp10dll) {
+    ScriptSubstituteSingleGlyph = (HRESULT(WINAPI *)(HDC, SCRIPT_CACHE *, SCRIPT_ANALYSIS *, OPENTYPE_TAG, OPENTYPE_TAG, OPENTYPE_TAG, LONG, WORD, WORD *))
+                                  GetProcAddress(dwmapi, "ScriptSubstituteSingleGlyph");
+                                  
+    if(!ScriptSubstituteSingleGlyph)
+      fprintf(stderr, "no ScriptSubstituteSingleGlyph() in usp10.dll\n");
+  }
 }
 
 Win32Themes::~Win32Themes() {
@@ -172,6 +185,7 @@ Win32Themes::~Win32Themes() {
     
   FreeLibrary(dwmapi);   dwmapi = 0;
   FreeLibrary(uxtheme);  uxtheme = 0;
+  FreeLibrary(usp10dll); usp10dll = 0;
   
   DwmEnableComposition = 0;
   DwmExtendFrameIntoClientArea = 0;
@@ -209,6 +223,8 @@ Win32Themes::~Win32Themes() {
   EndBufferedPaint = 0;
   IsCompositionActive = 0;
   IsThemeActive = 0;
+  
+  ScriptSubstituteSingleGlyph = 0;
 }
 
 bool Win32Themes::current_theme_is_aero() {
@@ -251,6 +267,6 @@ bool Win32Themes::check_osversion(int min_major, int min_minor) {
   
   if((int)osvi.dwMajorVersion > min_major)
     return true;
-  
+    
   return (int)osvi.dwMajorVersion == min_major && (int)osvi.dwMinorVersion >= min_minor;
 }

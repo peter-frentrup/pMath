@@ -1,11 +1,10 @@
 #define _WIN32_WINNT 0x501
-#define UNISCRIBE_OPENTYPE  0x0100 /* <- need usp10.dll redistributable for XP */
+//#define UNISCRIBE_OPENTYPE  0x0100 /* <- need usp10.dll redistributable for XP */
 
 #include <graphics/fonts.h>
 
 #ifdef RICHMATH_USE_WIN32_FONT
-#  include <windows.h>
-#  include <usp10.h>
+#  include <gui/win32/win32-themes.h>
 #  include <cairo-win32.h>
 #elif defined(RICHMATH_USE_FT_FONT)
 #  include <pango/pangocairo.h>
@@ -633,40 +632,40 @@ uint16_t FontInfo::substitute_glyph(
 ) {
   if(feature_parameter == 0)
     return original_glyph;
-  
+    
   switch(priv->font_type()) {
 #ifdef RICHMATH_USE_WIN32_FONT
-    case CAIRO_FONT_TYPE_WIN32: {
+    case CAIRO_FONT_TYPE_WIN32:
+      if(Win32Themes::ScriptSubstituteSingleGlyph) {
         static SCRIPT_CACHE script_cache = NULL;
         
-        uint16_t new_glyph; 
+        uint16_t new_glyph;
         
-        HRESULT result = ScriptSubstituteSingleGlyph(
-          dc.handle,
-          &script_cache,
-          NULL,
-          script_tag,
-          language_tag,
-          feature_tag,
-          feature_parameter,
-          original_glyph,
-          &new_glyph);
-        
+        HRESULT result = Win32Themes::ScriptSubstituteSingleGlyph(
+                           dc.handle,
+                           &script_cache,
+                           NULL,
+                           script_tag,
+                           language_tag,
+                           feature_tag,
+                           feature_parameter,
+                           original_glyph,
+                           &new_glyph);
+                           
         if(result == 0)
           return new_glyph;
-        
-        return original_glyph;
       }
+      return original_glyph;
 #endif
       
 #ifdef RICHMATH_USE_FT_FONT
     case CAIRO_FONT_TYPE_FT: {
         /* The Pango API seems too high level. Maybe we should include HarfBuzz
            or do all the lookups/substitution on our own.
-           
+        
            Note that I abuse the API, because I have no PangoFcFont at hand,
-           only the bare FT_Font. 
-           
+           only the bare FT_Font.
+        
            Pango/Harfbuzz has currently no way to specify the alternate glyph
            index. So it is almost useless for 'ssty' table.
          */
@@ -678,11 +677,11 @@ uint16_t FontInfo::substitute_glyph(
           
           unsigned script_index;
           pango_ot_info_find_script(
-            ot_info, 
+            ot_info,
             PANGO_OT_TABLE_GSUB,
             script_tag,
             &script_index);
-          
+            
           unsigned language_index;
           pango_ot_info_find_language(
             ot_info,
@@ -691,7 +690,7 @@ uint16_t FontInfo::substitute_glyph(
             language_tag,
             &language_index,
             NULL /* &required_feature_index*/);
-          
+            
           unsigned feature_index;
           pango_ot_info_find_feature(
             ot_info,
@@ -700,27 +699,27 @@ uint16_t FontInfo::substitute_glyph(
             script_index,
             language_index,
             &feature_index);
-          
+            
           pango_ot_ruleset_add_feature(
             rule_set,
             PANGO_OT_TABLE_GSUB,
             feature_index,
             PANGO_OT_ALL_GLYPHS);
-          
+            
           pango_ot_buffer_clear(pango_settings.dummy_ot_buffer);
           pango_ot_buffer_add_glyph(
             pango_settings.dummy_ot_buffer,
             original_glyph,
             PANGO_OT_ALL_GLYPHS,
             0);
-          
+            
           int           n_glyphs;
           PangoOTGlyph *glyphs;
           pango_ot_buffer_get_glyphs(
             pango_settings.dummy_ot_buffer,
             &glyphs,
             &n_glyphs);
-          
+            
           g_object_unref(rule_set);
           
           if(n_glyphs == 1) {
@@ -731,7 +730,7 @@ uint16_t FontInfo::substitute_glyph(
         return original_glyph;
       }
 #endif
-
+      
     default:
       break;
   }
