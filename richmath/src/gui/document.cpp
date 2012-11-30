@@ -273,21 +273,21 @@ static void selection_path(
   }
 }
 
-static int index_of_replacement(const String &s){
+static int index_of_replacement(const String &s) {
   const uint16_t *buf = s.buffer();
   int             len = s.length();
   
   if(len <= 1)
     return -1;
-  
-  for(int i = 0;i < len;++i)
+    
+  for(int i = 0; i < len; ++i)
     if(buf[i] == CHAR_REPLACEMENT)
       return i;
-  
-  for(int i = 0;i < len;++i)
+      
+  for(int i = 0; i < len; ++i)
     if(buf[i] == PMATH_CHAR_PLACEHOLDER)
       return i;
-  
+      
   return -1;
 }
 
@@ -1437,7 +1437,7 @@ void Document::on_key_press(uint32_t unichar) {
             if(ins.is_valid()) {
               int repl_index = index_of_replacement(ins);
               
-              if(repl_index >= 0){
+              if(repl_index >= 0) {
                 int new_sel_start = seq->insert(alias_end, ins.part(0, repl_index));
                 int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
                 seq->insert(new_sel_end, ins.part(repl_index + 1));
@@ -1445,7 +1445,7 @@ void Document::on_key_press(uint32_t unichar) {
                 
                 select(seq, new_sel_start - (alias_end - alias_pos), new_sel_end - (alias_end - alias_pos));
               }
-              else{
+              else {
                 int i = seq->insert(alias_end, ins);
                 seq->remove(alias_pos, alias_end);
                 move_to(seq, i - (alias_end - alias_pos));
@@ -2085,8 +2085,8 @@ bool Document::is_tabkey_only_moving() {
     
   if(!dynamic_cast<Section *>(selbox->parent()))
     return true;
-  
-  if(MathSequence *seq = dynamic_cast<MathSequence *>(selbox)){
+    
+  if(MathSequence *seq = dynamic_cast<MathSequence *>(selbox)) {
     const uint16_t *buf = seq->text().buffer();
     
     for(int i = context.selection.start - 1; i >= 0; ++i) {
@@ -2100,9 +2100,9 @@ bool Document::is_tabkey_only_moving() {
     return false;
   }
   
-  if(TextSequence *seq = dynamic_cast<TextSequence *>(selbox)){
+  if(TextSequence *seq = dynamic_cast<TextSequence *>(selbox)) {
     const char *buf = seq->text_buffer().buffer();
-        
+    
     for(int i = context.selection.start - 1; i >= 0; ++i) {
       if(buf[i] == '\n')
         return false;
@@ -2391,10 +2391,10 @@ void Document::paste_from_boxes(Expr boxes) {
     int options = BoxOptionDefault;
     if(graphics->get_style(AutoNumberFormating))
       options |= BoxOptionFormatNumbers;
-        
-    if(graphics->try_load_from_object(boxes, options)) 
+      
+    if(graphics->try_load_from_object(boxes, options))
       return;
-    
+      
     //select(graphics->parent(), graphics->index(), graphics->index() + 1);
   }
   
@@ -2803,7 +2803,7 @@ void Document::insert_string(String text, bool autoformat) {
       int last = 0;
       int pos = 0;
       while(pos < len) {
-        if(buf[pos] == '"'){
+        if(buf[pos] == '"') {
           do {
             if(buf[pos] == '\\') {
               if(pos + 1 < len)
@@ -2875,7 +2875,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
   {
     handle_macros();
   }
-    
+  
   if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
     Box *new_sel_box = 0;
     int new_sel_start = 0;
@@ -3715,146 +3715,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   }
   
   if(!resize_only) {
-    // paint cursor (as a horizontal line) at end of document:
-    if( context.selection.id == this->id() &&
-        context.selection.start == context.selection.end)
-    {
-      float y;
-      if(context.selection.start < length())
-        y = section(context.selection.start)->y_offset;
-      else
-        y = _extents.descent;
-        
-      float x1 = 0;
-      float y1 = y + 0.5;
-      float x2 = _extents.width;
-      float y2 = y + 0.5;
-      
-      context.canvas->align_point(&x1, &y1, true);
-      context.canvas->align_point(&x2, &y2, true);
-      context.canvas->move_to(x1, y1);
-      context.canvas->line_to(x2, y2);
-      
-      context.canvas->set_color(0xC0C0C0);
-      context.canvas->hair_stroke();
-      
-      if(context.selection.start < count()) {
-        x1 = section(context.selection.start)->get_style(SectionMarginLeft);
-      }
-      else if(count() > 0) {
-        x1 = section(context.selection.start - 1)->get_style(SectionMarginLeft);
-      }
-      else
-        x1 = 20 * 0.75;
-      
-      x1+= _scrollx;
-      x2 = x1 + 40 * 0.75;
-      
-      context.canvas->align_point(&x1, &y1, true);
-      context.canvas->align_point(&x2, &y2, true);
-      context.canvas->move_to(x1, y1);
-      context.canvas->line_to(x2, y2);
-      
-      context.draw_selection_path();
-    }
-    
-    // highlight the current selected word in the whole document:
-    if(selection_length() > 0) {
-      MathSequence *seq = dynamic_cast<MathSequence *>(selection_box());
-      int start = selection_start();
-      int end   = selection_end();
-      int len   = selection_length();
-      
-      if( seq &&
-          !seq->is_placeholder(start) &&
-          (start == 0 || seq->span_array().is_token_end(start - 1)) &&
-          seq->span_array().is_token_end(end - 1))
-      {
-        if(selection_is_name(this)) {
-          String s = seq->text().part(start, len);
-          
-          if(s.length() > 0) {
-            Box *find = this;
-            int index = first_visible_section;
-            
-            int count_occurences = 0;
-            
-            while(0 != (find = search_string(
-                                 find, &index, this, last_visible_section + 1, s, true))
-                 ) {
-              int s = index - len;
-              int e = index;
-              Box *b = find->get_highlight_child(find, &s, &e);
-              
-              if(b == find) {
-                ::selection_path(context.canvas, b, s, e);
-              }
-              ++count_occurences;
-            }
-            
-            bool do_fill = false;
-            
-            if(count_occurences == 1) {
-              if( sel_sect >= first_visible_section &&
-                  sel_sect <= last_visible_section)
-              {
-                // The one found occurency is the selection. Search for more
-                // occurencies outside the visible range.
-                find = this;
-                index = 0;
-                
-                while(0 != (find = search_string(
-                                     find, &index, this, first_visible_section, s, true))
-                     ) {
-                  do_fill = true;
-                  break;
-                }
-                
-                if(!do_fill) {
-                  find = this;
-                  index = last_visible_section + 1;
-                  
-                  while(0 != (find = search_string(
-                                       find, &index, this, length(), s, true))) 
-                  {
-                    do_fill = true;
-                    break;
-                  }
-                  
-                }
-              }
-              else
-                do_fill = true;
-            }
-            else
-              do_fill = (count_occurences > 1);
-              
-            if(do_fill) {
-              cairo_push_group(context.canvas->cairo());
-              {
-                context.canvas->save();
-                {
-                  cairo_matrix_t idmat;
-                  cairo_matrix_init_identity(&idmat);
-                  cairo_set_matrix(context.canvas->cairo(), &idmat);
-                  cairo_set_line_width(context.canvas->cairo(), 2.0);
-                  context.canvas->set_color(0xFF0000);
-                  context.canvas->stroke_preserve();
-                }
-                context.canvas->restore();
-                
-                context.canvas->set_color(0xFF9933); //ControlPainter::std->selection_color()
-                context.canvas->fill();
-              }
-              cairo_pop_group_to_source(canvas->cairo());
-              canvas->paint_with_alpha(0.3);
-            }
-            else
-              context.canvas->new_path();
-          }
-        }
-      }
-    }
+    paint_document_cursor();
+    paint_selected_word_highlight(first_visible_section, last_visible_section);
+    paint_flashing_cursor_if_needed();
     
     if(drag_source != context.selection && drag_status == DragStatusCurrentlyDragging) {
       if(Box *drag_src = drag_source.get()) {
@@ -3881,79 +3744,6 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
         box->scroll_to(canvas, box, sel_last.start, sel_last.end);
     }
     
-    if(prev_sel_line >= 0) {
-      AbstractSequence *seq = dynamic_cast<AbstractSequence *>(selection_box());
-      
-      if(seq && seq->id() == prev_sel_box_id) {
-        int line = seq->get_line(selection_end(), prev_sel_line);
-        
-        if(line != prev_sel_line) {
-          flashing_cursor_circle = new BoxRepaintEvent(this->id()/*prev_sel_box_id*/, 0);
-        }
-      }
-      
-      prev_sel_line = -1;
-      prev_sel_box_id = 0;
-    }
-    
-    if(flashing_cursor_circle) {
-      double t = flashing_cursor_circle->timer();
-      Box *box = selection_box();
-      
-      if( !box ||
-          t >= MaxFlashingCursorTime ||
-          !flashing_cursor_circle->register_event())
-      {
-        flashing_cursor_circle = 0;
-      }
-      
-      t = t / MaxFlashingCursorTime;
-      
-      if(flashing_cursor_circle) {
-        double r = MaxFlashingCursorRadius * (1 - t);
-        float x1 = context.last_cursor_x[0];
-        float y1 = context.last_cursor_y[0];
-        float x2 = context.last_cursor_x[1];
-        float y2 = context.last_cursor_y[1];
-        
-        r = MaxFlashingCursorRadius * (1 - t);
-        
-        context.canvas->save();
-        {
-          context.canvas->user_to_device(&x1, &y1);
-          context.canvas->user_to_device(&x2, &y2);
-          
-          cairo_matrix_t mat;
-          cairo_matrix_init_identity(&mat);
-          cairo_set_matrix(context.canvas->cairo(), &mat);
-          
-          double dx = x2 - x1;
-          double dy = y2 - y1;
-          double h = sqrt(dx * dx + dy * dy);
-          double c = dx / h;
-          double s = dy / h;
-          double x = (x1 + x2) / 2;
-          double y = (y1 + y2) / 2;
-          mat.xx = c;
-          mat.yx = s;
-          mat.xy = -s;
-          mat.yy = c;
-          mat.x0 = x - c * x + s * y;
-          mat.y0 = y - s * x - c * y;
-          context.canvas->transform(mat);
-          context.canvas->translate(x, y);
-          context.canvas->scale(r + h / 2, r);
-          
-          context.canvas->arc(0, 0, 1, 0, 2 * M_PI, false);
-          
-          cairo_set_operator(context.canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
-          context.canvas->set_color(0xffffff);
-          context.canvas->fill();
-        }
-        context.canvas->restore();
-      }
-    }
-    
     if(selection_length() == 1 && best_index_rel_x == 0) {
       MathSequence *seq = dynamic_cast<MathSequence *>(selection_box());
       if(seq) {
@@ -3970,6 +3760,234 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   
   context.canvas = 0;
   must_resize_min = 0;
+}
+
+void Document::paint_document_cursor() {
+  // paint cursor (as a horizontal line) at end of document:
+  if( context.selection.id == this->id() &&
+      context.selection.start == context.selection.end)
+  {
+    float y;
+    if(context.selection.start < length())
+      y = section(context.selection.start)->y_offset;
+    else
+      y = _extents.descent;
+      
+    float x1 = 0;
+    float y1 = y + 0.5;
+    float x2 = _extents.width;
+    float y2 = y + 0.5;
+    
+    context.canvas->align_point(&x1, &y1, true);
+    context.canvas->align_point(&x2, &y2, true);
+    context.canvas->move_to(x1, y1);
+    context.canvas->line_to(x2, y2);
+    
+    context.canvas->set_color(0xC0C0C0);
+    context.canvas->hair_stroke();
+    
+    if(context.selection.start < count()) {
+      x1 = section(context.selection.start)->get_style(SectionMarginLeft);
+    }
+    else if(count() > 0) {
+      x1 = section(context.selection.start - 1)->get_style(SectionMarginLeft);
+    }
+    else
+      x1 = 20 * 0.75;
+      
+    x1 += _scrollx;
+    x2 = x1 + 40 * 0.75;
+    
+    context.canvas->align_point(&x1, &y1, true);
+    context.canvas->align_point(&x2, &y2, true);
+    context.canvas->move_to(x1, y1);
+    context.canvas->line_to(x2, y2);
+    
+    context.draw_selection_path();
+  }
+}
+
+void Document::paint_selected_word_highlight(int first_visible_section, int last_visible_section) {
+  // highlight the current selected word in the whole document:
+  if(selection_length() > 0) {
+    MathSequence *seq = dynamic_cast<MathSequence *>(selection_box());
+    int start = selection_start();
+    int end   = selection_end();
+    int len   = selection_length();
+    
+    if( seq &&
+        !seq->is_placeholder(start) &&
+        (start == 0 || seq->span_array().is_token_end(start - 1)) &&
+        seq->span_array().is_token_end(end - 1))
+    {
+      if(selection_is_name(this)) {
+        String s = seq->text().part(start, len);
+        
+        if(s.length() > 0) {
+          Box *find = this;
+          int index = first_visible_section;
+          
+          int count_occurences = 0;
+          
+          while(0 != (find = search_string(
+                               find, &index, this, last_visible_section + 1, s, true)))
+          {
+            int s = index - len;
+            int e = index;
+            Box *b = find->get_highlight_child(find, &s, &e);
+            
+            if(b == find) {
+              ::selection_path(context.canvas, b, s, e);
+            }
+            ++count_occurences;
+          }
+          
+          bool do_fill = false;
+          
+          if(count_occurences == 1) {
+            int sel_sect = -1;
+            Box *b = context.selection.get();
+            while(b && b != this) {
+              sel_sect = b->index();
+              b = b->parent();
+            }
+            
+            if( sel_sect >= first_visible_section &&
+                sel_sect <= last_visible_section)
+            {
+              // The one found occurency is the selection. Search for more
+              // occurencies outside the visible range.
+              find = this;
+              index = 0;
+              
+              while(0 != (find = search_string(
+                                   find, &index, this, first_visible_section, s, true))
+                   ) {
+                do_fill = true;
+                break;
+              }
+              
+              if(!do_fill) {
+                find = this;
+                index = last_visible_section + 1;
+                
+                while(0 != (find = search_string(
+                                     find, &index, this, length(), s, true)))
+                {
+                  do_fill = true;
+                  break;
+                }
+                
+              }
+            }
+            else
+              do_fill = true;
+          }
+          else
+            do_fill = (count_occurences > 1);
+            
+          if(do_fill) {
+            cairo_push_group(context.canvas->cairo());
+            {
+              context.canvas->save();
+              {
+                cairo_matrix_t idmat;
+                cairo_matrix_init_identity(&idmat);
+                cairo_set_matrix(context.canvas->cairo(), &idmat);
+                cairo_set_line_width(context.canvas->cairo(), 2.0);
+                context.canvas->set_color(0xFF0000);
+                context.canvas->stroke_preserve();
+              }
+              context.canvas->restore();
+              
+              context.canvas->set_color(0xFF9933); //ControlPainter::std->selection_color()
+              context.canvas->fill();
+            }
+            cairo_pop_group_to_source(context.canvas->cairo());
+            context.canvas->paint_with_alpha(0.3);
+          }
+          else
+            context.canvas->new_path();
+        }
+      }
+    }
+  }
+}
+
+void Document::paint_flashing_cursor_if_needed() {
+
+  if(prev_sel_line >= 0) {
+    AbstractSequence *seq = dynamic_cast<AbstractSequence *>(selection_box());
+    
+    if(seq && seq->id() == prev_sel_box_id) {
+      int line = seq->get_line(selection_end(), prev_sel_line);
+      
+      if(line != prev_sel_line) {
+        flashing_cursor_circle = new BoxRepaintEvent(this->id()/*prev_sel_box_id*/, 0);
+      }
+    }
+    
+    prev_sel_line = -1;
+    prev_sel_box_id = 0;
+  }
+  
+  if(flashing_cursor_circle) {
+    double t = flashing_cursor_circle->timer();
+    Box *box = selection_box();
+    
+    if( !box ||
+        t >= MaxFlashingCursorTime ||
+        !flashing_cursor_circle->register_event())
+    {
+      flashing_cursor_circle = 0;
+    }
+    
+    t = t / MaxFlashingCursorTime;
+    
+    if(flashing_cursor_circle) {
+      double r = MaxFlashingCursorRadius * (1 - t);
+      float x1 = context.last_cursor_x[0];
+      float y1 = context.last_cursor_y[0];
+      float x2 = context.last_cursor_x[1];
+      float y2 = context.last_cursor_y[1];
+      
+      r = MaxFlashingCursorRadius * (1 - t);
+      
+      context.canvas->save();
+      {
+        context.canvas->user_to_device(&x1, &y1);
+        context.canvas->user_to_device(&x2, &y2);
+        
+        cairo_matrix_t mat;
+        cairo_matrix_init_identity(&mat);
+        cairo_set_matrix(context.canvas->cairo(), &mat);
+        
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double h = sqrt(dx * dx + dy * dy);
+        double c = dx / h;
+        double s = dy / h;
+        double x = (x1 + x2) / 2;
+        double y = (y1 + y2) / 2;
+        mat.xx = c;
+        mat.yx = s;
+        mat.xy = -s;
+        mat.yy = c;
+        mat.x0 = x - c * x + s * y;
+        mat.y0 = y - s * x - c * y;
+        context.canvas->transform(mat);
+        context.canvas->translate(x, y);
+        context.canvas->scale(r + h / 2, r);
+        
+        context.canvas->arc(0, 0, 1, 0, 2 * M_PI, false);
+        
+        cairo_set_operator(context.canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
+        context.canvas->set_color(0xffffff);
+        context.canvas->fill();
+      }
+      context.canvas->restore();
+    }
+  }
 }
 
 Expr Document::to_pmath(int flags) {
@@ -4098,7 +4116,7 @@ bool Document::handle_immediate_macros(
     ++i;
     
     int e = selection_start();
-      
+    
     Expr repl = table[seq->text().part(i, e - i)];
     
     if(!repl.is_null()) {
@@ -4115,7 +4133,7 @@ bool Document::handle_immediate_macros(
       }
       else {
         int repl_index = index_of_replacement(s);
-        if(repl_index >= 0){
+        if(repl_index >= 0) {
           int new_sel_start = seq->insert(e, s.part(0, repl_index));
           int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
           seq->insert(new_sel_end, s.part(repl_index + 1));
@@ -4123,7 +4141,7 @@ bool Document::handle_immediate_macros(
           
           select(seq, new_sel_start - (e - i), new_sel_end - (e - i));
         }
-        else{
+        else {
           seq->insert(e, s);
           seq->remove(i, e);
           move_to(selection_box(), i + s.length());
@@ -4187,7 +4205,7 @@ bool Document::handle_macros(
             
             select(seq, new_sel_start - (e - i), new_sel_end - (e - i));
           }
-          else{
+          else {
             seq->insert(e, s);
             seq->remove(i, e);
             move_to(selection_box(), i + s.length());

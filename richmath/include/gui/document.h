@@ -155,6 +155,10 @@ namespace richmath {
     protected:
       void raw_select(Box *box, int start, int end);
       
+      void paint_document_cursor(); // paint to context.canvas
+      void paint_selected_word_highlight(int first_visible_section, int last_visible_section); // paint to context.canvas
+      void paint_flashing_cursor_if_needed(); // paint to context.canvas
+      
       void set_prev_sel_line();
       bool prepare_insert();
       bool prepare_insert_math(bool include_previous_word);
