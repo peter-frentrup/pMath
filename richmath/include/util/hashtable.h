@@ -261,7 +261,7 @@ namespace richmath {
       }
       
       template <typename K2, typename V2, unsigned int (*h2)(const K2 &)>
-      void merge(Hashtable<K2, V2, h2> &other) {
+      void merge(const Hashtable<K2, V2, h2> &other) {
         for(unsigned int i = 0; i < other.capacity; ++i) {
           if(is_used(other.table[i]))
             set(other.table[i]->key, other.table[i]->value);

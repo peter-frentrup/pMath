@@ -347,6 +347,7 @@ void TextSequence::paint(Context *context) {
   context->canvas->current_pos(&x0, &y0);
   ensure_text_valid();
   
+  AutoCallPaintHooks auto_hooks(this, context);
   GlobalPangoContext::update(context);
   
   y0 -= _extents.ascent;

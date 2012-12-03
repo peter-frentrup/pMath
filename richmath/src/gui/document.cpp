@@ -17,6 +17,8 @@
 #include <eval/application.h>
 #include <gui/clipboard.h>
 #include <gui/native-widget.h>
+#include <util/spanexpr.h>
+
 
 using namespace richmath;
 
@@ -3578,6 +3580,26 @@ void Document::reset_style() {
   style->set(BaseStyleName, "Document");
 }
 
+void Document::after_resize_section(int i) {
+  section(i)->y_offset = _extents.descent;
+  if(section(i)->visible) {
+    _extents.descent += section(i)->extents().descent;
+    
+    float w  = section(i)->extents().width;
+    float uw = section(i)->unfilled_width;
+    if(get_own_style(ShowSectionBracket, true)) {
+      w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+      uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
+    }
+    
+    if(_extents.width < w)
+      _extents.width = w;
+      
+    if(unfilled_width < uw)
+      unfilled_width = uw;
+  }
+}
+
 void Document::paint_resize(Canvas *canvas, bool resize_only) {
   style->update_dynamic(this);
   
@@ -3611,68 +3633,26 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   }
   
   int i = 0;
-  
-  while(i < length()) {
+  while(i < length() && _extents.descent <= sy) {
     if(section(i)->must_resize) // || i == sel_sect)
       resize_section(&context, i);
       
-    if(_extents.descent + section(i)->extents().height() >= sy && !resize_only)
-      break;
-      
-    section(i)->y_offset = _extents.descent;
-    if(section(i)->visible) {
-      _extents.descent += section(i)->extents().descent;
-      
-      float w  = section(i)->extents().width;
-      float uw = section(i)->unfilled_width;
-      if(get_own_style(ShowSectionBracket, true)) {
-        w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-        uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-      }
-      
-      if(_extents.width < w)
-        _extents.width = w;
-        
-      if(unfilled_width < uw)
-        unfilled_width = uw;
-    }
+    after_resize_section(i);
     
     ++i;
   }
   
-  {
-    float y = 0;
-    if(i < length())
-      y += section(i)->y_offset;
-    canvas->move_to(0, y);
-  }
-  
-  int first_visible_section = i;
-  
-  if(!resize_only) {
-    while(i < length() && _extents.descent <= sy + h) {
-      paint_section(&context, i);
+  int first_visible_section = i - 1;
+  if(first_visible_section < 0)
+    first_visible_section = 0;
+    
+  while(i < length() && _extents.descent <= sy + h) {
+    if(section(i)->must_resize) // || i == sel_sect)
+      resize_section(&context, i);
       
-      section(i)->y_offset = _extents.descent;
-      if(section(i)->visible) {
-        _extents.descent += section(i)->extents().descent;
-        
-        float w  = section(i)->extents().width;
-        float uw = section(i)->unfilled_width;
-        if(get_own_style(ShowSectionBracket, true)) {
-          w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-          uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-        }
-        
-        if(_extents.width < w)
-          _extents.width = w;
-          
-        if(unfilled_width < uw)
-          unfilled_width = uw;
-      }
-      
-      ++i;
-    }
+    after_resize_section(i);
+    
+    ++i;
   }
   
   int last_visible_section = i - 1;
@@ -3693,30 +3673,30 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       }
     }
     
-    section(i)->y_offset = _extents.descent;
-    if(section(i)->visible) {
-      _extents.descent += section(i)->extents().descent;
-      
-      float w  = section(i)->extents().width;
-      float uw = section(i)->unfilled_width;
-      if(get_own_style(ShowSectionBracket, true)) {
-        w +=  section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-        uw += section_bracket_right_margin + section_bracket_width * group_info(i).nesting;
-      }
-      
-      if(_extents.width < w)
-        _extents.width = w;
-        
-      if(unfilled_width < uw)
-        unfilled_width = uw;
-    }
+    after_resize_section(i);
     
     ++i;
   }
   
   if(!resize_only) {
+    add_matching_bracket_hook();
+    add_selected_word_highlight_hooks(first_visible_section, last_visible_section);
+    
+    {
+      float y = 0;
+      if(first_visible_section < length())
+        y += section(first_visible_section)->y_offset;
+      canvas->move_to(0, y);
+    }
+    
+    for(i = first_visible_section; i <= last_visible_section; ++i) {
+      paint_section(&context, i);
+    }
+    
+    context.pre_paint_hooks.clear();
+    context.post_paint_hooks.clear();
+    
     paint_document_cursor();
-    paint_selected_word_highlight(first_visible_section, last_visible_section);
     paint_flashing_cursor_if_needed();
     
     if(drag_source != context.selection && drag_status == DragStatusCurrentlyDragging) {
@@ -3762,6 +3742,138 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   must_resize_min = 0;
 }
 
+void Document::add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section) {
+  // highlight the current selected word in the whole document:
+  if(selection_length() > 0) {
+    MathSequence *seq = dynamic_cast<MathSequence *>(selection_box());
+    int start = selection_start();
+    int end   = selection_end();
+    int len   = selection_length();
+    
+    if( seq &&
+        !seq->is_placeholder(start) &&
+        (start == 0 || seq->span_array().is_token_end(start - 1)) &&
+        seq->span_array().is_token_end(end - 1))
+    {
+      if(selection_is_name(this)) {
+        String s = seq->text().part(start, len);
+        
+        if(s.length() > 0) {
+          Box *find = this;
+          int index = first_visible_section;
+          
+          PaintHookManager temp_hooks;
+          int num_occurencies = 0;
+          
+          while(0 != (find = search_string(
+                               find, &index, this, last_visible_section + 1, s, true)))
+          {
+            int s = index - len;
+            int e = index;
+            Box *b = find->get_highlight_child(find, &s, &e);
+            
+            if(b == find) {
+              temp_hooks.add(b, new SelectionFillHook(s, e, 0xFF9933));
+              ++num_occurencies;
+            }
+          }
+          
+          bool do_fill = false;
+          
+          if(num_occurencies == 1) {
+            int sel_sect = -1;
+            Box *b = context.selection.get();
+            while(b && b != this) {
+              sel_sect = b->index();
+              b = b->parent();
+            }
+            
+            if( sel_sect >= first_visible_section &&
+                sel_sect <= last_visible_section)
+            {
+              // The one found occurency is the selection. Search for more
+              // occurencies outside the visible range.
+              find = this;
+              index = 0;
+              
+              while(0 != (find = search_string(
+                                   find, &index, this, first_visible_section, s, true)))
+              {
+                do_fill = true;
+                break;
+              }
+              
+              if(!do_fill) {
+                find = this;
+                index = last_visible_section + 1;
+                
+                while(0 != (find = search_string(
+                                     find, &index, this, length(), s, true)))
+                {
+                  do_fill = true;
+                  break;
+                }
+                
+              }
+            }
+            else
+              do_fill = true;
+          }
+          else
+            do_fill = (num_occurencies > 1);
+            
+          if(do_fill)
+            temp_hooks.move_into(context.pre_paint_hooks);
+        }
+      }
+    }
+  }
+}
+
+void Document::add_matching_bracket_hook() {
+  MathSequence *seq = dynamic_cast<MathSequence *>(selection_box());
+  int start = selection_start();
+  int len   = selection_length();
+  
+  if(seq && len <= 1) {
+    int pos = start;
+    int other_bracket = seq->matching_fence(pos);
+    
+    if(other_bracket < 0 && len == 0 && pos > 0) {
+      pos -= 1;
+      other_bracket = seq->matching_fence(pos);
+    }
+    
+    if(other_bracket >= 0) {
+      context.pre_paint_hooks.add(seq, new SelectionFillHook(pos,           pos           + 1, 0x00FF00, 0.5));
+      context.pre_paint_hooks.add(seq, new SelectionFillHook(other_bracket, other_bracket + 1, 0x00FF00, 0.5));
+      
+      SpanExpr *span = new SpanExpr(pos, seq);
+      
+      while(span) {
+        if( span->start() <= pos           && pos           <= span->end() &&
+            span->start() <= other_bracket && other_bracket <= span->end())
+        {
+          break;
+        }
+        
+        span = span->expand(true);
+      }
+      
+      if(FunctionCallSpan::is_simple_call(span)) {
+        FunctionCallSpan call(span);
+        
+        SpanExpr *head = call.function_head();
+        if(head->as_token() == PMATH_TOK_NAME) {
+          context.pre_paint_hooks.add(seq, new SelectionFillHook(head->start(), head->end() + 1, 0x00FF00, 0.5));
+        }
+      }
+      
+      delete span;
+    }
+  }
+}
+
 void Document::paint_document_cursor() {
   // paint cursor (as a horizontal line) at end of document:
   if( context.selection.id == this->id() &&
@@ -3804,113 +3916,6 @@ void Document::paint_document_cursor() {
     context.canvas->line_to(x2, y2);
     
     context.draw_selection_path();
-  }
-}
-
-void Document::paint_selected_word_highlight(int first_visible_section, int last_visible_section) {
-  // highlight the current selected word in the whole document:
-  if(selection_length() > 0) {
-    MathSequence *seq = dynamic_cast<MathSequence *>(selection_box());
-    int start = selection_start();
-    int end   = selection_end();
-    int len   = selection_length();
-    
-    if( seq &&
-        !seq->is_placeholder(start) &&
-        (start == 0 || seq->span_array().is_token_end(start - 1)) &&
-        seq->span_array().is_token_end(end - 1))
-    {
-      if(selection_is_name(this)) {
-        String s = seq->text().part(start, len);
-        
-        if(s.length() > 0) {
-          Box *find = this;
-          int index = first_visible_section;
-          
-          int count_occurences = 0;
-          
-          while(0 != (find = search_string(
-                               find, &index, this, last_visible_section + 1, s, true)))
-          {
-            int s = index - len;
-            int e = index;
-            Box *b = find->get_highlight_child(find, &s, &e);
-            
-            if(b == find) {
-              ::selection_path(context.canvas, b, s, e);
-            }
-            ++count_occurences;
-          }
-          
-          bool do_fill = false;
-          
-          if(count_occurences == 1) {
-            int sel_sect = -1;
-            Box *b = context.selection.get();
-            while(b && b != this) {
-              sel_sect = b->index();
-              b = b->parent();
-            }
-            
-            if( sel_sect >= first_visible_section &&
-                sel_sect <= last_visible_section)
-            {
-              // The one found occurency is the selection. Search for more
-              // occurencies outside the visible range.
-              find = this;
-              index = 0;
-              
-              while(0 != (find = search_string(
-                                   find, &index, this, first_visible_section, s, true))
-                   ) {
-                do_fill = true;
-                break;
-              }
-              
-              if(!do_fill) {
-                find = this;
-                index = last_visible_section + 1;
-                
-                while(0 != (find = search_string(
-                                     find, &index, this, length(), s, true)))
-                {
-                  do_fill = true;
-                  break;
-                }
-                
-              }
-            }
-            else
-              do_fill = true;
-          }
-          else
-            do_fill = (count_occurences > 1);
-            
-          if(do_fill) {
-            cairo_push_group(context.canvas->cairo());
-            {
-              context.canvas->save();
-              {
-                cairo_matrix_t idmat;
-                cairo_matrix_init_identity(&idmat);
-                cairo_set_matrix(context.canvas->cairo(), &idmat);
-                cairo_set_line_width(context.canvas->cairo(), 2.0);
-                context.canvas->set_color(0xFF0000);
-                context.canvas->stroke_preserve();
-              }
-              context.canvas->restore();
-              
-              context.canvas->set_color(0xFF9933); //ControlPainter::std->selection_color()
-              context.canvas->fill();
-            }
-            cairo_pop_group_to_source(context.canvas->cairo());
-            context.canvas->paint_with_alpha(0.3);
-          }
-          else
-            context.canvas->new_path();
-        }
-      }
-    }
   }
 }
 

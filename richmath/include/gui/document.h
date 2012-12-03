@@ -155,8 +155,11 @@ namespace richmath {
     protected:
       void raw_select(Box *box, int start, int end);
       
+      void after_resize_section(int i);
+      void add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section); // paint to context.canvas
+      void add_matching_bracket_hook();
+      
       void paint_document_cursor(); // paint to context.canvas
-      void paint_selected_word_highlight(int first_visible_section, int last_visible_section); // paint to context.canvas
       void paint_flashing_cursor_if_needed(); // paint to context.canvas
       
       void set_prev_sel_line();

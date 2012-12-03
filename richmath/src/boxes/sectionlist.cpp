@@ -766,6 +766,9 @@ float SectionList::get_content_scroll_correction_x(int i){
 }
 
 void SectionList::paint_section(Context *context, int i) {
+  if(_sections[i]->must_resize)
+    _sections[i]->resize(context);
+  
   float old_w    = context->width;
   float old_scww = context->section_content_window_width;
   //_scrollx = scrollx;
@@ -774,9 +777,6 @@ void SectionList::paint_section(Context *context, int i) {
     context->width                        -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
     context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
   }
-  
-  if(_sections[i]->must_resize)
-    _sections[i]->resize(context);
   
   context->width                        = old_w;
   context->section_content_window_width = old_scww;

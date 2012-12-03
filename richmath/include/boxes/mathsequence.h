@@ -39,6 +39,7 @@ namespace richmath {
       virtual void paint(Context *context);
       
       virtual void selection_path(Canvas *canvas, int start, int end);
+      void selection_path(Context *opt_context, Canvas *canvas, int start, int end);
       
       virtual Expr to_pmath_symbol() { return Expr(); }
       virtual Expr to_pmath(int flags);
@@ -86,8 +87,6 @@ namespace richmath {
       void boxes_size(Context *context, int start, int end, float *a, float *d);
       void box_size(  Context *context, int pos, int box, float *a, float *d);
       void caret_size(Context *context, int pos, int box, float *a, float *d);
-      
-      void selection_path(Context *opt_context, Canvas *canvas, int start, int end);
       
       void resize_span(
         Context *context,

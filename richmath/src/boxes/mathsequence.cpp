@@ -59,34 +59,34 @@ static inline bool char_is_white(uint16_t ch) {
 
 static pmath_token_t get_box_start_token(Box *box) {
   while(box) {
-    if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox*>(box)) {
+    if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox *>(box)) {
       box = asb->content();
       continue;
     }
-  
-    if(UnderoverscriptBox *uob = dynamic_cast<UnderoverscriptBox*>(box)) {
+    
+    if(UnderoverscriptBox *uob = dynamic_cast<UnderoverscriptBox *>(box)) {
       box = uob->base();
       continue;
     }
-  
-    if(NumberBox *nb = dynamic_cast<NumberBox*>(box)) {
+    
+    if(NumberBox *nb = dynamic_cast<NumberBox *>(box)) {
       box = nb->content();
       continue;
     }
-  
-    if(MathSequence *seq = dynamic_cast<MathSequence*>(box)) {
+    
+    if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
       if(seq->length() == 0)
         break;
-      
+        
       const uint16_t *buf = seq->text().buffer();
       if(buf[0] == PMATH_CHAR_BOX) {
         box = seq->item(0);
         continue;
       }
-        
+      
       return pmath_token_analyse(buf, 1, NULL);
     }
-  
+    
     if(dynamic_cast<FractionBox *>(box))
       return PMATH_TOK_DIGIT;
       
@@ -387,194 +387,197 @@ void MathSequence::paint(Context *context) {
   int default_color = context->canvas->get_color();
   SharedPtr<MathShaper> default_math_shaper = context->math_shaper;
   
-  context->syntax->glyph_style_colors[GlyphStyleNone] = default_color;
-  
-  float y = y0;
-  if(lines.length() > 0)
-    y -= lines[0].ascent;
-  
-  const uint16_t *buf = str.buffer();
-  
-  double clip_x1, clip_y1, clip_x2, clip_y2;
-  cairo_clip_extents(
-    context->canvas->cairo(),
-    &clip_x1, &clip_y1,
-    &clip_x2,  &clip_y2);
+  {
+    context->syntax->glyph_style_colors[GlyphStyleNone] = default_color;
+    AutoCallPaintHooks auto_hooks(this, context);
     
-  int line = 0;
-  // skip invisible lines:
-  while(line < lines.length()) {
-    float h = lines[line].ascent + lines[line].descent;
-    if(y + h >= clip_y1)
-      break;
+    float y = y0;
+    if(lines.length() > 0)
+      y -= lines[0].ascent;
       
-    y += h + line_spacing();
-    ++line;
-  }
-  
-  if(line < lines.length()) {
-    float glyph_left = 0;
-    int box = 0;
-    int pos = 0;
+    const uint16_t *buf = str.buffer();
     
-    if(line > 0)
-      pos = lines[line - 1].end;
+    double clip_x1, clip_y1, clip_x2, clip_y2;
+    cairo_clip_extents(
+      context->canvas->cairo(),
+      &clip_x1, &clip_y1,
+      &clip_x2,  &clip_y2);
       
-    if(pos > 0)
-      glyph_left = glyphs[pos - 1].right;
-      
-    bool have_style = false;
-    bool have_slant = false;
-    for(; line < lines.length() && y < clip_y2; ++line) {
-      float x_extra = x0 + indention_width(lines[line].indent);
-      
-      if(pos > 0)
-        x_extra -= glyphs[pos - 1].right;
+    int line = 0;
+    // skip invisible lines:
+    while(line < lines.length()) {
+      float h = lines[line].ascent + lines[line].descent;
+      if(y + h >= clip_y1)
+        break;
         
-      if(pos < glyphs.length())
-        x_extra -= glyphs[pos].x_offset;
-        
-      y += lines[line].ascent;
-      
-      for(; pos < lines[line].end; ++pos) {
-        if(buf[pos] == '\n') {
-          glyph_left = glyphs[pos].right;
-          continue;
-        }
-        
-        if(have_style || glyphs[pos].style) {
-          int color = context->syntax->glyph_style_colors[glyphs[pos].style];
-          
-          context->canvas->set_color(color);
-          have_style = color != default_color;
-        }
-        
-        if(have_slant || glyphs[pos].slant) {
-          if(glyphs[pos].slant == FontSlantItalic) {
-            context->math_shaper = default_math_shaper->set_style(
-                                     default_math_shaper->get_style() + Italic);
-            have_slant = true;
-          }
-          else if(glyphs[pos].slant == FontSlantPlain) {
-            context->math_shaper = default_math_shaper->set_style(
-                                     default_math_shaper->get_style() - Italic);
-            have_slant = true;
-          }
-          else {
-            context->math_shaper = default_math_shaper;
-            have_slant = false;
-          }
-        }
-        
-        //#ifndef NDEBUG
-        //if(spans.is_operand_start(pos)){
-        //  context->canvas->save();
-        //
-        //  context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
-        //  context->canvas->rel_line_to(0, 3);
-        //  context->canvas->rel_line_to(3, 0);
-        //
-        //  context->canvas->set_color(0x008000);
-        //  context->canvas->hair_stroke();
-        //
-        //  context->canvas->set_color(default_color);
-        //  context->canvas->restore();
-        //}
-        //#endif
-        
-        
-        if(buf[pos] == PMATH_CHAR_BOX) {
-          while(boxes[box]->index() < pos)
-            ++box;
-            
-          context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y);
-          
-          boxes[box]->paint(context);
-          
-          context->syntax->glyph_style_colors[GlyphStyleNone] = default_color;
-          ++box;
-        }
-        else if(glyphs[pos].index ||
-                glyphs[pos].composed ||
-                glyphs[pos].horizontal_stretch)
-        {
-          if(glyphs[pos].is_normal_text) {
-            context->text_shaper->show_glyph(
-              context,
-              glyph_left + x_extra,
-              y,
-              buf[pos],
-              glyphs[pos]);
-          }
-          else {
-            context->math_shaper->show_glyph(
-              context,
-              glyph_left + x_extra,
-              y,
-              buf[pos],
-              glyphs[pos]);
-          }
-        }
-        
-        if(glyphs[pos].missing_after) {
-          float d = em * RefErrorIndictorHeight * 2 / 3.0f;
-          float dd = d / 4;
-          
-          context->canvas->move_to(glyphs[pos].right + x_extra, y + em / 8);
-          if(pos + 1 < glyphs.length())
-            context->canvas->rel_move_to(glyphs[pos + 1].x_offset / 2, 0);
-            
-          context->canvas->rel_line_to(-d, d);
-          context->canvas->rel_line_to(dd, dd);
-          context->canvas->rel_line_to(d - dd, dd - d);
-          context->canvas->rel_line_to(d - dd, d - dd);
-          context->canvas->rel_line_to(dd, -dd);
-          context->canvas->rel_line_to(-d, -d);
-          
-          context->canvas->close_path();
-          context->canvas->set_color(
-            context->syntax->glyph_style_colors[GlyphStyleMissingArg]);
-          context->canvas->fill();
-          
-          have_style = true;
-        }
-        
-        glyph_left = glyphs[pos].right;
-      }
-      
-      if(lines[line].continuation) {
-        GlyphInfo gi;
-        memset(&gi, 0, sizeof(GlyphInfo));
-        uint16_t cont = CHAR_LINE_CONTINUATION;
-        context->math_shaper->decode_token(
-          context,
-          1,
-          &cont,
-          &gi);
-          
-        context->math_shaper->show_glyph(
-          context,
-          glyph_left + x_extra,
-          y,
-          cont,
-          gi);
-      }
-      
-      y += lines[line].descent + line_spacing();
+      y += h + line_spacing();
+      ++line;
     }
     
-  }
-  
-  if(context->selection.get() == this && !context->canvas->show_only_text) {
-    context->canvas->move_to(x0, y0);
-    
-    selection_path(
-      context,
-      context->canvas,
-      context->selection.start,
-      context->selection.end);
+    if(line < lines.length()) {
+      float glyph_left = 0;
+      int box = 0;
+      int pos = 0;
       
-    context->draw_selection_path();
+      if(line > 0)
+        pos = lines[line - 1].end;
+        
+      if(pos > 0)
+        glyph_left = glyphs[pos - 1].right;
+        
+      bool have_style = false;
+      bool have_slant = false;
+      for(; line < lines.length() && y < clip_y2; ++line) {
+        float x_extra = x0 + indention_width(lines[line].indent);
+        
+        if(pos > 0)
+          x_extra -= glyphs[pos - 1].right;
+          
+        if(pos < glyphs.length())
+          x_extra -= glyphs[pos].x_offset;
+          
+        y += lines[line].ascent;
+        
+        for(; pos < lines[line].end; ++pos) {
+          if(buf[pos] == '\n') {
+            glyph_left = glyphs[pos].right;
+            continue;
+          }
+          
+          if(have_style || glyphs[pos].style) {
+            int color = context->syntax->glyph_style_colors[glyphs[pos].style];
+            
+            context->canvas->set_color(color);
+            have_style = color != default_color;
+          }
+          
+          if(have_slant || glyphs[pos].slant) {
+            if(glyphs[pos].slant == FontSlantItalic) {
+              context->math_shaper = default_math_shaper->set_style(
+                                       default_math_shaper->get_style() + Italic);
+              have_slant = true;
+            }
+            else if(glyphs[pos].slant == FontSlantPlain) {
+              context->math_shaper = default_math_shaper->set_style(
+                                       default_math_shaper->get_style() - Italic);
+              have_slant = true;
+            }
+            else {
+              context->math_shaper = default_math_shaper;
+              have_slant = false;
+            }
+          }
+          
+          //#ifndef NDEBUG
+          //if(spans.is_operand_start(pos)){
+          //  context->canvas->save();
+          //
+          //  context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
+          //  context->canvas->rel_line_to(0, 3);
+          //  context->canvas->rel_line_to(3, 0);
+          //
+          //  context->canvas->set_color(0x008000);
+          //  context->canvas->hair_stroke();
+          //
+          //  context->canvas->set_color(default_color);
+          //  context->canvas->restore();
+          //}
+          //#endif
+          
+          
+          if(buf[pos] == PMATH_CHAR_BOX) {
+            while(boxes[box]->index() < pos)
+              ++box;
+              
+            context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y);
+            
+            boxes[box]->paint(context);
+            
+            context->syntax->glyph_style_colors[GlyphStyleNone] = default_color;
+            ++box;
+          }
+          else if(glyphs[pos].index ||
+                  glyphs[pos].composed ||
+                  glyphs[pos].horizontal_stretch)
+          {
+            if(glyphs[pos].is_normal_text) {
+              context->text_shaper->show_glyph(
+                context,
+                glyph_left + x_extra,
+                y,
+                buf[pos],
+                glyphs[pos]);
+            }
+            else {
+              context->math_shaper->show_glyph(
+                context,
+                glyph_left + x_extra,
+                y,
+                buf[pos],
+                glyphs[pos]);
+            }
+          }
+          
+          if(glyphs[pos].missing_after) {
+            float d = em * RefErrorIndictorHeight * 2 / 3.0f;
+            float dd = d / 4;
+            
+            context->canvas->move_to(glyphs[pos].right + x_extra, y + em / 8);
+            if(pos + 1 < glyphs.length())
+              context->canvas->rel_move_to(glyphs[pos + 1].x_offset / 2, 0);
+              
+            context->canvas->rel_line_to(-d, d);
+            context->canvas->rel_line_to(dd, dd);
+            context->canvas->rel_line_to(d - dd, dd - d);
+            context->canvas->rel_line_to(d - dd, d - dd);
+            context->canvas->rel_line_to(dd, -dd);
+            context->canvas->rel_line_to(-d, -d);
+            
+            context->canvas->close_path();
+            context->canvas->set_color(
+              context->syntax->glyph_style_colors[GlyphStyleMissingArg]);
+            context->canvas->fill();
+            
+            have_style = true;
+          }
+          
+          glyph_left = glyphs[pos].right;
+        }
+        
+        if(lines[line].continuation) {
+          GlyphInfo gi;
+          memset(&gi, 0, sizeof(GlyphInfo));
+          uint16_t cont = CHAR_LINE_CONTINUATION;
+          context->math_shaper->decode_token(
+            context,
+            1,
+            &cont,
+            &gi);
+            
+          context->math_shaper->show_glyph(
+            context,
+            glyph_left + x_extra,
+            y,
+            cont,
+            gi);
+        }
+        
+        y += lines[line].descent + line_spacing();
+      }
+      
+    }
+    
+    if(context->selection.get() == this && !context->canvas->show_only_text) {
+      context->canvas->move_to(x0, y0);
+      
+      selection_path(
+        context,
+        context->canvas,
+        context->selection.start,
+        context->selection.end);
+        
+      context->draw_selection_path();
+    }
   }
   
   context->canvas->set_color(default_color);
@@ -1989,7 +1992,7 @@ void MathSequence::group_number_digits(Context *context, int start, int end) {
       if(buf[i] == '`') { // precision control
         if(i < decimal_point)
           decimal_point = i;
-        
+          
         end = i - 1;
         break;
       }
@@ -2123,13 +2126,13 @@ void MathSequence::enlarge_space(Context *context) {
         
       if(box < boxes.length()) {
         Box *tmp = boxes[box];
-        while(tmp){
-          if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox*>(tmp)) {
+        while(tmp) {
+          if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox *>(tmp)) {
             tmp = asb->content();
             continue;
           }
           
-          if(MathSequence *seq = dynamic_cast<MathSequence*>(tmp)) {
+          if(MathSequence *seq = dynamic_cast<MathSequence *>(tmp)) {
             if(seq->length() == 1 && seq->count() == 1) {
               tmp = seq->item(0);
               continue;
@@ -2144,7 +2147,7 @@ void MathSequence::enlarge_space(Context *context) {
               ++ee;
             }
             
-            if(ee != seq->length() - 1){
+            if(ee != seq->length() - 1) {
               op = buf;
               ii = i;
               ee = e;
@@ -2160,10 +2163,10 @@ void MathSequence::enlarge_space(Context *context) {
           
 //          if(FractionBox *fb = dynamic_cast<FractionBox *>(tmp)) {
 //            if(i > 0 && pmath_char_is_digit(buf[i - 1])) {
-//              
+//
 //            }
 //          }
-          
+
           break;
         }
         
@@ -2177,7 +2180,7 @@ void MathSequence::enlarge_space(Context *context) {
 //          {
 //            ++ee;
 //          }
-//          
+//
 //          if(ee != underover->base()->length() - 1) {
 //            op = buf;
 //            ii = i;

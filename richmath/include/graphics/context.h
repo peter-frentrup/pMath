@@ -5,6 +5,7 @@
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
+#include <graphics/paint-hook.h>
 #include <graphics/shapers.h>
 
 
@@ -69,6 +70,9 @@ namespace richmath {
       
     public:
       Canvas *canvas; // not owned
+      
+      PaintHookManager pre_paint_hooks;
+      PaintHookManager post_paint_hooks;
       
       float width;
       float section_content_window_width;
@@ -136,6 +140,28 @@ namespace richmath {
       // not always set:
       cairo_antialias_t     old_antialiasing;
       Array<float>          old_script_size_multis;
+  };
+  
+  class AutoCallPaintHooks: public Base {
+    public:
+      AutoCallPaintHooks(Box *box, Context *context)
+        : Base(),
+          _box(box),
+          _context(context)
+      {
+        _context->canvas->current_pos(&_x0, &_y0);
+        _context->pre_paint_hooks.run(_box, _context);
+      }
+      
+      ~AutoCallPaintHooks(){
+        _context->canvas->move_to(_x0, _y0);
+        _context->post_paint_hooks.run(_box, _context);
+      }
+    
+    private:
+      float _x0, _y0;
+      Box     *_box;
+      Context *_context;
   };
 }
 
