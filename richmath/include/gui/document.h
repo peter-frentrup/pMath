@@ -197,9 +197,12 @@ namespace richmath {
       double mouse_down_time;
       float mouse_down_x;
       float mouse_down_y;
-      SelectionReference mouse_down_sel;
       
+      SelectionReference mouse_down_sel;
       SelectionReference mouse_move_sel;
+      
+      Array<SelectionReference> additional_selection;
+      SelectionReference        last_paint_sel;
   };
   
   extern Hashtable<String, Expr, object_hash> global_immediate_macros;

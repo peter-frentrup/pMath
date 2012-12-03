@@ -1618,7 +1618,14 @@ void Document::raw_select(Box *box, int start, int end) {
     
     if(selection_box())
       selection_box()->request_repaint_range(selection_start(), selection_end());
-      
+    
+    for(int i = 0;i < additional_selection.length();++i) {
+      b = additional_selection[i].get();
+      if(b)
+        b->request_repaint_range(additional_selection[i].start, additional_selection[i].end);
+    }
+    
+    additional_selection.length(0);
     context.selection.set_raw(box, start, end);
     
     if(box) {
@@ -3602,6 +3609,7 @@ void Document::after_resize_section(int i) {
 
 void Document::paint_resize(Canvas *canvas, bool resize_only) {
   style->update_dynamic(this);
+  additional_selection.length(0);
   
   context.canvas = canvas;
   
@@ -3736,6 +3744,19 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     }
     
     canvas->translate(_scrollx, sy);
+    
+    if(last_paint_sel != context.selection){
+      last_paint_sel = context.selection;
+      
+      for(int i = 0;i < additional_selection.length();++i) {
+        Box *b = additional_selection[i].get();
+        
+        if(b)
+          b->request_repaint_range(additional_selection[i].start, additional_selection[i].end);
+      }
+      
+      additional_selection.length(0);
+    }
   }
   
   context.canvas = 0;
@@ -3764,6 +3785,7 @@ void Document::add_selected_word_highlight_hooks(int first_visible_section, int 
           
           PaintHookManager temp_hooks;
           int num_occurencies = 0;
+          int oldlen = additional_selection.length();
           
           while(0 != (find = search_string(
                                find, &index, this, last_visible_section + 1, s, true)))
@@ -3775,6 +3797,10 @@ void Document::add_selected_word_highlight_hooks(int first_visible_section, int 
             if(b == find) {
               temp_hooks.add(b, new SelectionFillHook(s, e, 0xFF9933));
               ++num_occurencies;
+              
+              SelectionReference ref;
+              ref.set(b, s, e);
+              additional_selection.add(ref);
             }
           }
           
@@ -3824,6 +3850,8 @@ void Document::add_selected_word_highlight_hooks(int first_visible_section, int 
             
           if(do_fill)
             temp_hooks.move_into(context.pre_paint_hooks);
+          else
+            additional_selection.length(oldlen);
         }
       }
     }
@@ -3848,8 +3876,14 @@ void Document::add_matching_bracket_hook() {
       context.pre_paint_hooks.add(seq, new SelectionFillHook(pos,           pos           + 1, 0x00FF00, 0.5));
       context.pre_paint_hooks.add(seq, new SelectionFillHook(other_bracket, other_bracket + 1, 0x00FF00, 0.5));
       
-      SpanExpr *span = new SpanExpr(pos, seq);
+      SelectionReference ref;
+      ref.set(seq, pos, pos + 1);
+      additional_selection.add(ref);
       
+      ref.set(seq, other_bracket, other_bracket + 1);
+      additional_selection.add(ref);
+      
+      SpanExpr *span = new SpanExpr(pos, seq);
       while(span) {
         if( span->start() <= pos           && pos           <= span->end() &&
             span->start() <= other_bracket && other_bracket <= span->end())
@@ -3866,6 +3900,10 @@ void Document::add_matching_bracket_hook() {
         SpanExpr *head = call.function_head();
         if(head->as_token() == PMATH_TOK_NAME) {
           context.pre_paint_hooks.add(seq, new SelectionFillHook(head->start(), head->end() + 1, 0x00FF00, 0.5));
+          
+          ref.set(seq, head->start(), head->end() + 1);
+          additional_selection.add(ref);
+          
         }
       }
       
