@@ -851,11 +851,11 @@ static bool find_matching_fence_cmd(Expr cmd) {
   MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
   
   if(seq) {
-    int pos = doc->selection_end() - 1;
+    int pos = doc->selection_start();
     int match = seq->matching_fence(pos);
     
-    if(match < 0 && doc->selection_start() == doc->selection_end()) {
-      ++pos;
+    if(match < 0 && doc->selection_length() == 0 && pos > 0) {
+      --pos;
       match = seq->matching_fence(pos);
     }
     

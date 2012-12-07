@@ -1222,62 +1222,92 @@ int MathSequence::matching_fence(int pos) {
     return -1;
     
   const uint16_t *buf = str.buffer();
-  if(pmath_char_is_left(buf[pos])) {
-    ensure_spans_valid();
+  if(pmath_char_is_left(buf[pos]) || pmath_char_is_right(buf[pos])) {
+    SpanExpr *span = new SpanExpr(pos, this);
     
-    uint16_t ch = pmath_right_fence(buf[pos]);
-    
-    if(!ch)
-      return -1;
+    while(span){
+      if(span->start() <= pos && span->end() >= pos && span->length() > 1)
+        break;
       
-    ++pos;
-    while(pos < len && buf[pos] != ch) {
-      if(spans[pos]) {
-        pos = spans[pos].end() + 1;
-      }
-      else
-        ++pos;
+      span = span->expand(true);
     }
     
-    if(pos < len && buf[pos] == ch)
-      return pos;
-  }
-  else if(pmath_char_is_right(buf[pos])) {
-    ensure_spans_valid();
-    
-    int right = pos;
-    do {
-      --pos;
-    } while(pos >= 0 && char_is_white(buf[pos]));
-    
-    if(pos >= 0 && pmath_right_fence(buf[pos]) == buf[right])
-      return pos;
-      
-    for(; pos >= 0; --pos) {
-      Span span = spans[pos];
-      if(span && span.end() >= right) {
-        while(span.next() && span.next().end() >= right)
-          span = span.next();
+    if(span){
+      for(int i = 0;i < span->count();++i) {
+        int tok_pos = span->item_pos(i);
+        if(tok_pos != pos) {
+          pmath_token_t tok = span->item(i)->as_token();
           
-        if(pmath_right_fence(buf[pos]) == buf[right])
-          return pos;
-          
-        ++pos;
-        while(pos < right
-              && pmath_right_fence(buf[pos]) != buf[right]) {
-          if(spans[pos])
-            pos = spans[pos].end() + 1;
-          else
-            ++pos;
+          if(tok == PMATH_TOK_LEFT || 
+          tok == PMATH_TOK_LEFTCALL || 
+          tok == PMATH_TOK_RIGHT) 
+          {
+            delete span;
+            return tok_pos;
+          }
         }
-        
-        if(pos < right)
-          return pos;
-          
-        return -1;
       }
+      
+      delete span;
     }
   }
+  
+//  if(pmath_char_is_left(buf[pos])) {
+//    ensure_spans_valid();
+//    
+//    uint16_t ch = pmath_right_fence(buf[pos]);
+//    
+//    if(!ch)
+//      return -1;
+//      
+//    ++pos;
+//    while(pos < len && /*buf[pos] != ch*/ !pmath_char_is_right(buf[pos])) {
+//      if(spans[pos]) {
+//        pos = spans[pos].end() + 1;
+//      }
+//      else
+//        ++pos;
+//    }
+//    
+//    if(pos < len && buf[pos] == ch)
+//      return pos;
+//  }
+//  else if(pmath_char_is_right(buf[pos])) {
+//    ensure_spans_valid();
+//    
+//    int right = pos;
+//    do {
+//      --pos;
+//    } while(pos >= 0 && char_is_white(buf[pos]));
+//    
+//    if(pos >= 0 && pmath_right_fence(buf[pos]) == buf[right])
+//      return pos;
+//      
+//    for(; pos >= 0; --pos) {
+//      Span span = spans[pos];
+//      if(span && span.end() >= right) {
+//        while(span.next() && span.next().end() >= right)
+//          span = span.next();
+//          
+//        if(pmath_right_fence(buf[pos]) == buf[right])
+//          return pos;
+//          
+//        ++pos;
+//        while(pos < right
+//              && pmath_right_fence(buf[pos]) != buf[right]) {
+//          if(spans[pos])
+//            pos = spans[pos].end() + 1;
+//          else
+//            ++pos;
+//        }
+//        
+//        if(pos < right)
+//          return pos;
+//          
+//        return -1;
+//      }
+//    }
+//  }
   
   return -1;
 }
