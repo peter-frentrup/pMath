@@ -9,6 +9,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
 
+#include <string.h> // for memset()
+
 
 #ifdef MIN
 #  undef MIN

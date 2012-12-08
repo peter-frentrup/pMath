@@ -1,6 +1,7 @@
 #include <gui/gtk/mgtk-fontdialog.h>
 
 #include <eval/application.h>
+#include <eval/binding.h>
 #include <gui/gtk/mgtk-widget.h>
 
 
@@ -44,14 +45,25 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
     char                 *utf8_name = 0;
 
     desc = pango_font_description_new();
-
-    String family;
-    if(initial_style->get(FontFamily, &family)) {
+    
+    Expr families;
+    if(initial_style->get(FontFamilies, &families)) {
+      String family(families);
+      
+      if(families[0] == PMATH_SYMBOL_LIST){
+        for(size_t i = 1;i <= families.expr_length();++i){
+          family = String(families[i]);
+          
+          if(FontInfo::font_exists(family))
+            break;
+        }
+      }
+      
       char *utf8_name = pmath_string_to_utf8(family.get_as_string(), NULL);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
     }
-
+    
     float size = 0;
     if(initial_style->get(FontSize, &size) && size >= 1) {
       pango_font_description_set_absolute_size(desc, size * PANGO_SCALE);
@@ -88,7 +100,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
 
           const char *utf8_name = pango_font_description_get_family(desc);
           if(utf8_name)
-            result_style->set(FontFamily, String::FromUtf8(utf8_name));
+            result_style->set(FontFamilies, String::FromUtf8(utf8_name));
 
           if(set_fields & PANGO_FONT_MASK_WEIGHT) {
             PangoWeight weight = pango_font_description_get_weight(desc);

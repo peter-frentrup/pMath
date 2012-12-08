@@ -6,6 +6,7 @@
 #endif
 
 #include <pmath-util/concurrency/threadmsg.h>
+#include <pmath-util/concurrency/threads.h>
 
 #ifdef PMATH_OS_UNIX
 #  include <sys/time.h>

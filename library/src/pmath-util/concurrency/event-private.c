@@ -1,5 +1,5 @@
 #include <pmath-util/concurrency/event-private.h>
-#include <pmath-util/concurrency/threadmsg.h>
+#include <pmath-util/concurrency/threadmsg-private.h>
 
 #ifdef PMATH_OS_WIN32
 

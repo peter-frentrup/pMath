@@ -307,7 +307,7 @@ void MathGtkControlPainter::system_font_style(Style *style) {
   const PangoFontDescription *desc = gtk_style_context_get_font(context, GTK_STATE_FLAG_NORMAL);
   const char *family = pango_font_description_get_family(desc);
   if(family)
-    style->set(FontFamily, String::FromUtf8(family));
+    style->set(FontFamilies, String::FromUtf8(family));
     
   PangoWeight weight = pango_font_description_get_weight(desc);
   if(weight >= PANGO_WEIGHT_BOLD)

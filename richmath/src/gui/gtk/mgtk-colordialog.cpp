@@ -1,6 +1,7 @@
 #include <gui/gtk/mgtk-colordialog.h>
 
 #include <eval/application.h>
+#include <eval/binding.h>
 #include <gui/gtk/mgtk-widget.h>
 
 
