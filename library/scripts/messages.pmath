@@ -279,6 +279,19 @@ RegularExpression::msg61:= "Number is too big in `1`."
 RegularExpression::msg62:= "Subpattern name expected in `1`."
 RegularExpression::msg63:= "Digit expected after (?+ in `1`."
 RegularExpression::msg64:= "] is an invalid data character in JavaScript compatibility mode (in `1`)."
+RegularExpression::msg65:= "different names for subpatterns of the same number are not allowed"
+RegularExpression::msg66:= "(*MARK) must have an argument"
+RegularExpression::msg67:= "this version of PCRE is not compiled with Unicode property support"
+RegularExpression::msg68:= "\\c must be followed by an ASCII character"
+RegularExpression::msg69:= "\\k is not followed by a braced, angle-bracketed, or quoted name"
+RegularExpression::msg70:= "internal error: unknown opcode in find_fixedlength()"
+RegularExpression::msg71:= "\\N is not supported in a class"
+RegularExpression::msg72:= "too many forward references"
+RegularExpression::msg73:= "disallowed Unicode code point (>= 0xd800 && <= 0xdfff)"
+RegularExpression::msg74:= "invalid UTF-16 string (specifically UTF-16)"
+RegularExpression::msg75:= "name is too long in (*MARK), (*PRUNE), (*SKIP), or (*THEN)"
+RegularExpression::msg76:= "character value in \\u.... sequence is too large"
+RegularExpression::msg77:= "invalid UTF-32 string (specifically UTF-32)"
 
 Remove::rmptc:= "Symbol `1` is Protected and cannot be removed."
 
@@ -309,7 +322,7 @@ Transpose::perm2:= "Entry `1` is out of bounds for permutation `2`."
 
 Try::nomsgs:= "`1` is neither a valid message name nor a list of valid message names."
 
-Uncompress::corrupt: "Compressed data `1` is corrupt and does not represent an expression."
+Uncompress::corrupt:= "Compressed data `1` is corrupt and does not represent an expression."
 
 UnitVector::dir:= "There is no `1` dimensional unit vector in direction `2`."
 
