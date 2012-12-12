@@ -44,7 +44,7 @@ HANDLE(WINAPI * Win32Themes::EndBufferedPaint)(HANDLE, BOOL) = 0;
 BOOL (WINAPI * Win32Themes::IsCompositionActive)(void) = 0;
 BOOL (WINAPI * Win32Themes::IsThemeActive)(void) = 0;
 
-HRESULT(WINAPI * Win32Themes::ScriptSubstituteSingleGlyph)(HDC, SCRIPT_CACHE *, SCRIPT_ANALYSIS *, OPENTYPE_TAG, OPENTYPE_TAG, OPENTYPE_TAG, LONG, WORD, WORD *) = 0;
+HRESULT(WINAPI * Win32Themes::ScriptSubstituteSingleGlyph)(HDC, SCRIPT_CACHE *, SCRIPT_ANALYSIS *, /*OPENTYPE_TAG*/ULONG, /*OPENTYPE_TAG*/ULONG, /*OPENTYPE_TAG*/ULONG, LONG, WORD, WORD *) = 0;
 
 HMODULE Win32Themes::dwmapi = 0;
 HMODULE Win32Themes::uxtheme = 0;
@@ -171,7 +171,7 @@ Win32Themes::Win32Themes(): Base() {
   
   usp10dll = LoadLibrary("usp10.dll");
   if(usp10dll) {
-    ScriptSubstituteSingleGlyph = (HRESULT(WINAPI *)(HDC, SCRIPT_CACHE *, SCRIPT_ANALYSIS *, OPENTYPE_TAG, OPENTYPE_TAG, OPENTYPE_TAG, LONG, WORD, WORD *))
+    ScriptSubstituteSingleGlyph = (HRESULT(WINAPI *)(HDC, SCRIPT_CACHE *, SCRIPT_ANALYSIS *, /*OPENTYPE_TAG*/ULONG, /*OPENTYPE_TAG*/ULONG, /*OPENTYPE_TAG*/ULONG, LONG, WORD, WORD *))
                                   GetProcAddress(dwmapi, "ScriptSubstituteSingleGlyph");
                                   
     if(!ScriptSubstituteSingleGlyph)

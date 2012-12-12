@@ -202,7 +202,7 @@ namespace richmath {
       static BOOL (WINAPI *IsThemeActive)(void);
       
       // usp10.dll >= Vista
-      static HRESULT(WINAPI *ScriptSubstituteSingleGlyph)(HDC,SCRIPT_CACHE*,SCRIPT_ANALYSIS*,OPENTYPE_TAG,OPENTYPE_TAG,OPENTYPE_TAG,LONG,WORD,WORD*);
+      static HRESULT(WINAPI *ScriptSubstituteSingleGlyph)(HDC,SCRIPT_CACHE*,SCRIPT_ANALYSIS*,/*OPENTYPE_TAG*/ULONG,/*OPENTYPE_TAG*/ULONG,/*OPENTYPE_TAG*/ULONG,LONG,WORD,WORD*);
       
       static void init();
       static bool current_theme_is_aero();
