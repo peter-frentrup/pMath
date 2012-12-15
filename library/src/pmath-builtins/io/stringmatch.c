@@ -64,26 +64,27 @@ static pmath_t stringmatch(
 
 PMATH_PRIVATE pmath_t builtin_stringmatch(pmath_expr_t expr) {
   /* StringMatch(string, pattern)
+     
+     The pattern is embraced in StartOfString ++ ... ++ EndOfString.
    */
   pmath_expr_t options;
   pmath_t obj;
   struct _regex_t *regex;
-  int regex_options;
+  int pcre_options;
   
   if(pmath_expr_length(expr) < 2) {
     pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
     return expr;
   }
   
-  
   options = pmath_options_extract(expr, 2);
   if(pmath_is_null(options))
     return expr;
     
-  regex_options = 0;
+  pcre_options = 0;
   obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
-    regex_options |= PCRE_CASELESS;
+    pcre_options |= PCRE_CASELESS;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
     pmath_message(
@@ -96,8 +97,14 @@ PMATH_PRIVATE pmath_t builtin_stringmatch(pmath_expr_t expr) {
   pmath_unref(obj);
   pmath_unref(options);
   
+  obj = pmath_expr_get_item(expr, 2);
+  obj = pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION), 3,
+          pmath_ref(PMATH_SYMBOL_STARTOFSTRING), 
+          obj,
+          pmath_ref(PMATH_SYMBOL_ENDOFSTRING));
   
-  regex = _pmath_regex_compile(pmath_expr_get_item(expr, 2), regex_options);
+  regex = _pmath_regex_compile(obj, pcre_options);
   if(!regex)
     return expr;
     

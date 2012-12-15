@@ -343,42 +343,6 @@ static void store_regex(struct _regex_t *re) {
 
 /*----------------------------------------------------------------------------*/
 
-/*struct concat_t {
-  char *buf;
-  int len;
-  int capacity;
-};
-
-static void concat_utf8(struct concat_t *cc, const char *str) {
-  int len = strlen(str);
-
-  if(len + cc->len >= cc->capacity) {
-    size_t new_capacity = 256;
-    char *newbuf;
-
-    while((int)new_capacity <= len + cc->len && (int)new_capacity > 0)
-      new_capacity *= 2;
-
-    if((int)new_capacity <= 0)
-      return;
-
-    newbuf = pmath_mem_realloc_no_failfree(cc->buf, new_capacity);
-
-    if(!newbuf)
-      return;
-
-    cc->buf = newbuf;
-    cc->capacity = (int)new_capacity;
-  }
-
-  memcpy(cc->buf + cc->len, str, len);
-  cc->len += len;
-  cc->buf[cc->len] = '\0';
-}
-*/
-
-/*----------------------------------------------------------------------------*/
-
 static pmath_bool_t is_pcre_metachar(uint16_t ch) {
   return ch == '\\' ||
          ch == '^'  ||

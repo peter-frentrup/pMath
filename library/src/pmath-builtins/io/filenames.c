@@ -230,7 +230,7 @@ static pmath_t prepare_filename_form(pmath_t obj) {
   if(pmath_is_string(obj)) {
     return pmath_evaluate(
              pmath_parse_string_args(
-               "StartOfString ++ StringReplace(`1`, \"*\"->~~~) ++ EndOfString",
+               "StringReplace(`1`, \"*\"->~~~)",
                "(o)", obj));
   }
   
@@ -239,9 +239,7 @@ static pmath_t prepare_filename_form(pmath_t obj) {
     
     if(pmath_is_string(s)) {
       pmath_unref(obj);
-      return pmath_parse_string_args(
-               "StartOfString ++ `1` ++ EndOfString",
-               "(o)", s);
+      return s;
     }
     
     pmath_unref(s);
@@ -268,7 +266,8 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
      FileNames({dir1, dir2, ...}, form) ... search in directories dir_i
   
      form can be StringExpression(...), RegularExpression(...), Literal("text")
-     or "string". If it is "string", "*" stands for a sequence of any characters.
+     or "string". If it is "string", "*" stands for a sequence of any 
+     characters. The pattern is embraced in StartOfString ++ ... ++ EndOfString.
   
      Options:
       IgnoreCase->Automatic
@@ -334,7 +333,15 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
     form = PMATH_C_STRING("*");
     
   pmath_unref(expr);
-  regex = _pmath_regex_compile(prepare_filename_form(form), pcre_options);
+  
+  form = prepare_filename_form(form);
+  form = pmath_expr_new_extended(
+    pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION), 3,
+    pmath_ref(PMATH_SYMBOL_STARTOFSTRING),
+    form,
+    pmath_ref(PMATH_SYMBOL_ENDOFSTRING));
+  
+  regex = _pmath_regex_compile(form, pcre_options);
   
   if(!regex) {
     pmath_unref(directory);
