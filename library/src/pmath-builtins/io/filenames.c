@@ -63,9 +63,7 @@ static void emit_directory_entries(
           
         if(h != INVALID_HANDLE_VALUE) {
           do {
-            pmath_string_t  s;
-            int             utf8_length;
-            char           *utf8;
+            pmath_string_t subject, fullname;
             
             if( data.cFileName[0] == '.' &&
             data.cFileName[1] == '\0')
@@ -80,11 +78,10 @@ static void emit_directory_entries(
               continue;
             }
             
-            s    = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cFileName, -1);
-            utf8 = pmath_string_to_utf8(s, &utf8_length);
+            fullname = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cFileName, -1);
             
             if(!is_default)
-              s = pmath_string_concat(pmath_ref(directory), s);
+              fullname = pmath_string_concat(pmath_ref(directory), fullname);
               
             /* If we cannot access the file through its normal name, we use the
                alternate name (DOS 8.3 name).
@@ -94,11 +91,11 @@ static void emit_directory_entries(
                Maybe I should just buy a new memory card or phone... :D
              */
             if(data.cAlternateFileName[0] != '\0') {
-              s = pmath_string_insert_latin1(s, INT_MAX, "", 1); // zero terminate
+              fullname = pmath_string_insert_latin1(fullname, INT_MAX, "", 1); // zero terminate
               
-              if(!pmath_is_null(s)) {
+              if(!pmath_is_null(fullname)) {
                 HANDLE hfile = CreateFileW(
-                                 (const wchar_t *)pmath_string_buffer(&s),
+                                 (const wchar_t *)pmath_string_buffer(&fullname),
                                  0,
                                  FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                                  NULL,
@@ -107,20 +104,18 @@ static void emit_directory_entries(
                                  NULL);
                                  
                 if(hfile == INVALID_HANDLE_VALUE) { // normal file name does not work
-                  pmath_unref(s);
-                  pmath_mem_free(utf8);
+                  pmath_unref(fullname);
                   
-                  s = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cAlternateFileName, -1);
-                  utf8 = pmath_string_to_utf8(s, &utf8_length);
+                  fullname = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cAlternateFileName, -1);
                   
                   if(!is_default)
-                    s = pmath_string_concat(pmath_ref(directory), s);
+                    fullname = pmath_string_concat(pmath_ref(directory), fullname);
                     
-                  s = pmath_string_insert_latin1(s, INT_MAX, "", 1); // zero terminate
+                  fullname = pmath_string_insert_latin1(fullname, INT_MAX, "", 1); // zero terminate
                   
-                  if(!pmath_is_null(s)) {
+                  if(!pmath_is_null(fullname)) {
                     hfile = CreateFileW(
-                              (const wchar_t *)pmath_string_buffer(&s),
+                              (const wchar_t *)pmath_string_buffer(&fullname),
                               0,
                               FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
                               NULL,
@@ -128,45 +123,41 @@ static void emit_directory_entries(
                               FILE_ATTRIBUTE_NORMAL,
                               NULL);
                               
-                    if(hfile == INVALID_HANDLE_VALUE) { // alternate name does not work either
-                      pmath_unref(s);
-                      pmath_mem_free(utf8);
+                    if(hfile == INVALID_HANDLE_VALUE) { // alternate name does not work either !?!
+                      pmath_unref(fullname);
                       
-                      s = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cFileName, -1);
-                      utf8 = pmath_string_to_utf8(s, &utf8_length);
+                      fullname = pmath_string_insert_ucs2(PMATH_NULL, 0, data.cFileName, -1);
                       
                       if(!is_default)
-                        s = pmath_string_concat(pmath_ref(directory), s);
+                        fullname = pmath_string_concat(pmath_ref(directory), fullname);
                     }
                     else {
-                      s = pmath_string_part(s, 0, pmath_string_length(s) - 1); // remove terminating zero
+                      fullname = pmath_string_part(fullname, 0, pmath_string_length(fullname) - 1); // remove terminating zero
                       CloseHandle(hfile);
                     }
                   }
-                  else {
-                    pmath_mem_free(utf8);
+                  else 
                     continue;
-                  }
                 }
                 else {
-                  s = pmath_string_part(s, 0, pmath_string_length(s) - 1); // remove terminating zero
+                  fullname = pmath_string_part(fullname, 0, pmath_string_length(fullname) - 1); // remove terminating zero
                   CloseHandle(hfile);
                 }
               }
             }
             
-            if(utf8) {
-              if(_pmath_regex_match(regex, utf8, utf8_length, 0, 0, capture, NULL)) {
-//                if(!is_default)
-//                  s = pmath_string_concat(pmath_ref(directory), s);
-
-                pmath_emit(s, PMATH_NULL);
-                s = PMATH_NULL;
-              }
-              pmath_mem_free(utf8);
+            if(is_default)
+              subject = pmath_ref(fullname);
+            else
+              subject = pmath_string_part(pmath_ref(fullname), pmath_string_length(directory), -1);
+              
+            if(_pmath_regex_match(regex, subject, 0, 0, capture, NULL)) {
+              pmath_emit(fullname, PMATH_NULL);
             }
-            
-            pmath_unref(s);
+            else
+              pmath_unref(fullname);
+              
+            pmath_unref(subject);
           } while(FindNextFileW(h, &data) && !pmath_aborting());
           
           {
@@ -202,47 +193,20 @@ static void emit_directory_entries(
       }
     
       if(dir) {
-        if(_pmath_native_encoding_is_utf8) {
-          while(0 != (entry = readdir(dir))) {
-            const char *utf8 = entry->d_name;
-            int         len  = strlen(utf8);
+        while(0 != (entry = readdir(dir))) {
+          pmath_string_t str = pmath_string_from_native(entry->d_name, -1);
     
-            if( strcmp(utf8, ".") != 0 &&
-            strcmp(utf8, "..") != 0 &&
-            _pmath_regex_match(regex, utf8, len, 0, 0, capture, NULL))
-            {
-              pmath_string_t name = pmath_string_from_utf8(utf8, len);
+          if( !pmath_string_equals_latin1(str, ".") &&
+          !pmath_string_equals_latin1(str, "..") &&
+          _pmath_regex_match(regex, str, 0, 0, capture, NULL))
+          {
+            if(!pmath_same(directory, PMATH_UNDEFINED))
+              str = pmath_string_concat(pmath_ref(directory), str);
     
-              if(!pmath_same(directory, PMATH_UNDEFINED))
-                name = pmath_string_concat(pmath_ref(directory), name);
-    
-              pmath_emit(name, PMATH_NULL);
-            }
+            pmath_emit(str, PMATH_NULL);
           }
-        }
-        else {
-          while(0 != (entry = readdir(dir))) {
-            pmath_string_t s = pmath_string_from_native(entry->d_name, -1);
-            int length;
-            char *utf8 = pmath_string_to_utf8(s, &length);
-            if(utf8) {
-              if( strcmp(utf8, ".")  != 0 &&
-                  strcmp(utf8, "..") != 0 &&
-                  _pmath_regex_match(regex, utf8, length, 0, 0, capture, NULL))
-              {
-                pmath_string_t name = pmath_ref(s);//pmath_string_from_utf8(utf8, length);
-    
-                if(!pmath_same(directory, PMATH_UNDEFINED))
-                  name = pmath_string_concat(pmath_ref(directory), name);
-    
-                pmath_emit(name, PMATH_NULL);
-              }
-    
-              pmath_mem_free(utf8);
-            }
-    
-            pmath_unref(s);
-          }
+          else
+            pmath_unref(str);
         }
     
         closedir(dir);

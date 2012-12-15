@@ -21,30 +21,21 @@ static pmath_t stringmatch(
   if(pmath_is_string(obj)) {
     pmath_bool_t result = FALSE;
     struct _capture_t capture;
-    int length;
-    char *subject = pmath_string_to_utf8(obj, &length);
-    
-    if(!subject) {
-      pmath_unref(obj);
-      return PMATH_UNDEFINED;
-    }
     
     _pmath_regex_init_capture(regex, &capture);
     
     if(capture.ovector) {
       result = _pmath_regex_match(
                  regex,
-                 subject,
-                 length,
+                 obj,
                  0,
-                 PCRE_NO_UTF8_CHECK,
+                 PCRE_NO_UTF16_CHECK,
                  &capture,
                  NULL);
     }
     
     pmath_unref(obj);
     _pmath_regex_free_capture(&capture);
-    pmath_mem_free(subject);
     return pmath_ref(result ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);
   }
   

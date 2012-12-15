@@ -21,27 +21,21 @@ static pmath_t stringcount(
   pmath_bool_t       overlaps
 ) {
   if(pmath_is_string(obj)) {
-    int length, offset;
-    char *subject = pmath_string_to_utf8(obj, &length);
+    int offset = 0;
     size_t count = 0;
     
-    if(!subject) {
-      pmath_unref(obj);
-      return PMATH_UNDEFINED;
-    }
-    
-    offset = 0;
-    
-    while( !pmath_aborting() &&
-           _pmath_regex_match(
-             regex,
-             subject,
-             length,
-             offset,
-             PCRE_NO_UTF8_CHECK,
-             capture,
-             NULL))
-    {
+    while(!pmath_aborting()) {
+      if(!_pmath_regex_match(
+            regex,
+            obj,
+            offset,
+            PCRE_NO_UTF16_CHECK,
+            capture,
+            NULL))
+      {
+        break;
+      }
+      
       ++count;
       
       if(overlaps || capture->ovector[0] == capture->ovector[1])
@@ -51,7 +45,6 @@ static pmath_t stringcount(
     }
     
     pmath_unref(obj);
-    pmath_mem_free(subject);
     return pmath_integer_new_uiptr(count);
   }
   

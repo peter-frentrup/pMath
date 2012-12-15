@@ -30,13 +30,7 @@ static pmath_t stringreplace(
   if(pmath_is_string(obj)) {
     pmath_bool_t more;
     size_t i, count;
-    int length, offset, last;
-    char *subject = pmath_string_to_utf8(obj, &length);
-    
-    if(!subject) {
-      pmath_unref(obj);
-      return PMATH_UNDEFINED;
-    }
+    int offset, last;
     
     pmath_gather_begin(PMATH_NULL);
     offset = last = 0;
@@ -54,10 +48,9 @@ static pmath_t stringreplace(
         
         if( _pmath_regex_match(
               regex_list[i - 1],
-              subject,
-              length,
+              obj,
               offset,
-              PCRE_NO_UTF8_CHECK,
+              PCRE_NO_UTF16_CHECK,
               &capture_list[i - 1],
               &rhs))
         {
@@ -83,8 +76,9 @@ static pmath_t stringreplace(
             (last > 0 && (options & SR_EMIT_EMPTY)))
         {
           pmath_emit(
-            pmath_string_from_utf8(
-              subject + last,
+            pmath_string_part(
+              pmath_ref(obj), 
+              last, 
               capture_list[next_match_rule].ovector[0] - last),
             PMATH_NULL);
         }
@@ -108,11 +102,9 @@ static pmath_t stringreplace(
       pmath_unref(first_rhs);
     }
     
-    if(last < length || (options & SR_EMIT_EMPTY_BOUNDS)) {
+    if((options & SR_EMIT_EMPTY_BOUNDS) || last < pmath_string_length(obj)) {
       pmath_emit(
-        pmath_string_from_utf8(
-          subject + last,
-          length - last),
+        pmath_string_part(pmath_ref(obj), last, -1),
         PMATH_NULL);
     }
     
@@ -123,7 +115,6 @@ static pmath_t stringreplace(
                                 pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION));
     }
     
-    pmath_mem_free(subject);
     return obj;
   }
   

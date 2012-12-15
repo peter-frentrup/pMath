@@ -1,7 +1,7 @@
 #ifndef __PMATH_LANGUAGE__REGEX_PRIVATE_H__
 #define __PMATH_LANGUAGE__REGEX_PRIVATE_H__
 
-#include <pmath-core/objects-inline.h>
+#include <pmath-core/strings.h>
 
 struct _capture_t {
   int *ovector;
@@ -33,8 +33,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
 /* Match a regular expression to a UTF-8 subject string. The subject
    string is subject_length bytes long and matching starts at subject_offset.
 
-   Additional pcre_options can be given for pcre_exec. PCRE_NO_UTF8_CHECK is
-   very useful if you know the UTF-8-validity of the subject.
+   Additional pcre_options can be given for pcre_exec.
 
    If the regex matches, capture->ovector[0] contains the (byte) offset of the
    match and capture->ovector[1] the length (in bytes) of the match.
@@ -44,8 +43,7 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
  */
 PMATH_PRIVATE pmath_bool_t _pmath_regex_match(
   struct _regex_t    *regex,
-  const char         *subject,
-  int                 subject_length,
+  pmath_string_t      subject,        // wont be freed
   int                 subject_offset,
   int                 pcre_options,
   struct _capture_t  *capture,        // must be initialized with _pmath_regex_init_capture()

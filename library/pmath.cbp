@@ -43,7 +43,7 @@
 					<Add library="mpfr" />
 					<Add library="gmp" />
 					<Add library="iconv" />
-					<Add library="pcre" />
+					<Add library="pcre16" />
 					<Add library="shell32" />
 					<Add library="zdll" />
 				</Linker>
@@ -84,7 +84,7 @@
 					<Add library="mpfr" />
 					<Add library="gmp" />
 					<Add library="iconv" />
-					<Add library="pcre" />
+					<Add library="pcre16" />
 					<Add library="shell32" />
 					<Add library="zdll" />
 				</Linker>
@@ -121,7 +121,7 @@
 					<Add library="gmp.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="iconv.lib" />
-					<Add library="pcre.lib" />
+					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
 					<Add library="zdll.lib" />
 					<Add library="gcc.lib" />
@@ -163,7 +163,7 @@
 					<Add library="mpfr" />
 					<Add library="gmp" />
 					<Add library="iconv" />
-					<Add library="pcre" />
+					<Add library="pcre16" />
 					<Add library="shell32" />
 					<Add library="zdll" />
 				</Linker>

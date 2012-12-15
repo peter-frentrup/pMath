@@ -15,41 +15,6 @@
 #include <pcre.h>
 
 
-static int utf8_to_utf16_offset(
-  const char     *utf8,
-  const uint16_t *utf16,
-  int             utf16len,
-  int             offset
-) {
-  int result = 0;
-  
-  while(offset > 0 && result < utf16len) {
-    if((*utf8 & 0xE0) == 0xC0) {
-      utf8 += 2;
-      offset -= 2;
-    }
-    else if((*utf8 & 0xF0) == 0xE0) {
-      utf8 += 3;
-      offset -= 3;
-    }
-    else if((*utf8 & 0xF8) == 0xF0) {
-      utf8 += 4;
-      offset -= 4;
-    }
-    else {
-      ++utf8;
-      --offset;
-    }
-    
-    if((*utf16 & 0xFC00) == 0xD800)
-      result += 2;
-    else
-      ++result;
-  }
-  
-  return result < utf16len ? result + 1 : utf16len + 1;
-}
-
 static pmath_t stringposition(
   pmath_t            obj,      // will be freed
   struct _regex_t   *regex,
@@ -58,37 +23,27 @@ static pmath_t stringposition(
   size_t             max_matches
 ) {
   if(pmath_is_string(obj)) {
-    int length, offset;
-    const uint16_t *buf = pmath_string_buffer(&obj);
-    int buflen          = pmath_string_length(obj);
-    char *subject = pmath_string_to_utf8(obj, &length);
-    
-    if(!subject) {
-      pmath_unref(obj);
-      return PMATH_UNDEFINED;
-    }
+    int offset = 0;
     
     pmath_gather_begin(PMATH_NULL);
-    offset = 0;
     
-    while( max_matches > 0 &&
-           _pmath_regex_match(
-             regex,
-             subject,
-             length,
-             offset,
-             PCRE_NO_UTF8_CHECK,
-             capture,
-             NULL))
-    {
-      int off1 = utf8_to_utf16_offset(subject, buf, buflen, capture->ovector[0]);
-      int off2 = utf8_to_utf16_offset(subject, buf, buflen, capture->ovector[1]);
+    while(max_matches > 0) {
+      if(!_pmath_regex_match(
+            regex,
+            obj,
+            offset,
+            PCRE_NO_UTF16_CHECK,
+            capture,
+            NULL))
+      {
+        break;
+      }
       
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RANGE), 2,
-          PMATH_FROM_INT32(off1),
-          PMATH_FROM_INT32(off2 - 1)),
+          PMATH_FROM_INT32(offset + capture->ovector[0]),
+          PMATH_FROM_INT32(offset + capture->ovector[1] - 1)),
         PMATH_NULL);
         
       --max_matches;
@@ -100,7 +55,6 @@ static pmath_t stringposition(
     }
     
     pmath_unref(obj);
-    pmath_mem_free(subject);
     return pmath_gather_end();
   }
   

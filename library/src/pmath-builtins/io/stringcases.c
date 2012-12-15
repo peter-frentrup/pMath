@@ -24,37 +24,33 @@ static pmath_t stringcases(
   size_t             max_matches
 ) {
   if(pmath_is_string(obj)) {
-    int length, offset;
-    char *subject = pmath_string_to_utf8(obj, &length);
+    int offset = 0;
     pmath_t tmprhs;
     
-    if(!subject) {
-      pmath_unref(obj);
-      return PMATH_UNDEFINED;
-    }
-    
     pmath_gather_begin(PMATH_NULL);
-    offset = 0;
     tmprhs = pmath_ref(rhs);
     
-    while( max_matches > 0 &&
-           _pmath_regex_match(
-             regex,
-             subject,
-             length,
-             offset,
-             PCRE_NO_UTF8_CHECK,
-             capture,
-             &tmprhs))
-    {
+    while(max_matches > 0) {
+      if(!_pmath_regex_match(
+            regex,
+            obj,
+            offset,
+            PCRE_NO_UTF16_CHECK,
+            capture,
+            &tmprhs))
+      {
+        break;
+      }
+      
       if(!pmath_same(tmprhs, PMATH_UNDEFINED)) {
         pmath_emit(tmprhs, PMATH_NULL);
         tmprhs = pmath_ref(rhs);
       }
       else {
         pmath_emit(
-          pmath_string_from_utf8(
-            subject + capture->ovector[0],
+          pmath_string_part(
+            pmath_ref(obj),
+            capture->ovector[0],
             capture->ovector[1] - capture->ovector[0]),
           PMATH_NULL);
       }
@@ -69,7 +65,6 @@ static pmath_t stringcases(
     
     pmath_unref(tmprhs);
     pmath_unref(obj);
-    pmath_mem_free(subject);
     return pmath_gather_end();
   }
   
