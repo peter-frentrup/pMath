@@ -28,9 +28,9 @@ pmath_number_t _mul_nn(
 
 PMATH_PRIVATE
 pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
-  pmath_float_t base,  // will be freed. not PMATH_NULL!
-  long          exponent,
-  pmath_bool_t  null_on_errors);
+  pmath_mpfloat_t base,  // will be freed. not PMATH_NULL!
+  long            exponent,
+  pmath_bool_t    null_on_errors);
   
 PMATH_PRIVATE
 pmath_integer_t _pmath_factor_gcd_int(

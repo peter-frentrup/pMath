@@ -23,6 +23,7 @@ struct _pmath_t { // do not access members
 #define pmath_is_ministr(obj) (pmath_is_str0(obj) || pmath_is_str1(obj) || pmath_is_str2(obj))
 
 PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_PURE
 struct _pmath_t *PMATH_AS_PTR(pmath_t obj) {
 #ifndef NDEBUG
   if(!pmath_is_pointer(obj)) {
@@ -38,6 +39,7 @@ struct _pmath_t *PMATH_AS_PTR(pmath_t obj) {
 }
 
 PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_PURE
 double PMATH_AS_DOUBLE(pmath_t obj) {
 #ifndef NDEBUG
   if(!pmath_is_double(obj)) {
@@ -55,6 +57,7 @@ double PMATH_AS_DOUBLE(pmath_t obj) {
 #define pmath_is_null(obj)      (pmath_same(obj, PMATH_NULL))
 
 PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
   return pmath_is_pointer(obj)     &&
          PMATH_AS_PTR(obj) != NULL &&
@@ -76,6 +79,7 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
 #define pmath_is_symbol(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_SYMBOL))
 
 PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_evaluatable(pmath_t obj) {
   return pmath_is_null(obj)   ||
          pmath_is_number(obj) ||
@@ -85,6 +89,7 @@ pmath_bool_t pmath_is_evaluatable(pmath_t obj) {
 }
 
 PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_PURE
 pmath_t PMATH_FROM_DOUBLE(double d) {
   pmath_t r;
   

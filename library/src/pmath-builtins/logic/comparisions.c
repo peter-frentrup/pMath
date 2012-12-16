@@ -1,12 +1,14 @@
 #include <pmath-util/approximate.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
+#include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
 
@@ -14,121 +16,166 @@
 #define DIRECTION_EQUAL     (1<<1)
 #define DIRECTION_GREATER   (1<<2)
 
-#define TOLERANCE_FACTOR 64
+#define TOLERANCE_EXPONENT   6
+#define TOLERANCE_FACTOR     (1 << TOLERANCE_EXPONENT)
 
-static pmath_bool_t almost_equal_machine(double a, double b) {
-  if(a == b)
-    return TRUE;
+/* Two positive numbers X, Y are "almost equal" if
+      Max(X,Y) / Min(X,Y) <= (1 + TOLERANCE_FACTOR * epsilon)
+   where epsilon = DBL_EPSILON if one of X,Y is a machine float, and
+   epsilon = Max(error(X), error(Y)) otherwise.
+
+   A number X is "almost equal" zero if Abs(X) <= error(X).
+
+   Two numbers with opposite sign are never "almost equal".
+
+   To negative numbers are "almost equal" if their absolute values are so.
+
+   "almost equal" is of course not transitive.
+ */
+
+static pmath_number_t inverse(pmath_number_t x) { // x will be freed
+  if(pmath_is_integer(x))
+    return pmath_rational_new(INT(1), x);
     
-  if((a < 0) != (b < 0))
-    return FALSE;
-    
-  if(a < 0) a = -a;
-  if(b < 0) b = -b;
-  
-  if(a < b) {
-    double tmp = a;
-    a = b;
-    b = tmp;
+  if(pmath_is_rational(x)) {
+    pmath_number_t y = pmath_rational_new(
+                         pmath_rational_denominator(x),
+                         pmath_rational_numerator(x));
+    pmath_unref(x);
+    return y;
   }
   
-  return a <= b * (1 + TOLERANCE_FACTOR * DBL_EPSILON);
+  if(pmath_is_double(x)) {
+    double dx = PMATH_AS_DOUBLE(x);
+    if(dx == 0.0)
+      return PMATH_NULL;
+      
+    dx = 1 / dx;
+    if(isfinite(dx))
+      return PMATH_FROM_DOUBLE(dx);
+      
+    x = _pmath_create_mp_float_from_d(PMATH_AS_DOUBLE(x));
+  }
+  
+  if(pmath_is_mpfloat(x))
+    return _pow_fi(x, -1, TRUE);
+    
+  pmath_unref(x);
+  return PMATH_NULL;
 }
 
-static pmath_bool_t almost_zero_mp(pmath_float_t x) {
-  assert(pmath_is_mpfloat(x));
+static pmath_bool_t slow_almost_zero_number(pmath_number_t x) {
+  assert(pmath_is_number(x));
   
-  if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_ERROR(x)) <= 0)
-    return TRUE;
-  
-  return FALSE;
+  if(pmath_is_double(x))
+    return fabs(PMATH_AS_DOUBLE(x)) <= DBL_EPSILON;
+    
+  if(pmath_is_mpfloat(x))
+    return mpfr_cmpabs(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_ERROR(x)) <= 0;
+    
+  return pmath_same(x, INT(0));
 }
 
-static pmath_bool_t almost_equal_mp(
-  pmath_float_t a,
-  pmath_float_t b
-) {
-  pmath_number_t test;
-  pmath_number_t err;
+// reference implementation without fast paths:
+static pmath_bool_t slow_almost_equal_numbers(pmath_number_t x, pmath_number_t y) {
+  int sign_x, sign_y;
+  pmath_bool_t is_mp_x, is_mp_y;
   
-  assert(pmath_is_mpfloat(a));
-  assert(pmath_is_mpfloat(b));
+  assert(pmath_is_number(x));
+  assert(pmath_is_number(y));
   
-  if(mpfr_equal_p(PMATH_AS_MP_VALUE(a), PMATH_AS_MP_VALUE(b)))
-    return TRUE;
+  sign_x = pmath_number_sign(x);
+  if(sign_x == 0)
+    return slow_almost_zero_number(y);
     
-  if(mpfr_zero_p(PMATH_AS_MP_VALUE(a)) || mpfr_zero_p(PMATH_AS_MP_VALUE(b)))
+  sign_y = pmath_number_sign(y);
+  if(sign_y == 0)
+    return slow_almost_zero_number(x);
+    
+  if(sign_x != sign_y)
     return FALSE;
     
-  if(mpfr_cmpabs(PMATH_AS_MP_VALUE(a), PMATH_AS_MP_VALUE(b)) < 0) {
-    test = _mul_nn(
-             pmath_ref(b),
-             _pow_fi(
-               pmath_ref(a),
-               -1,
-               TRUE));
-  }
-  else {
-    test = _mul_nn(
-             pmath_ref(a),
-             _pow_fi(
-               pmath_ref(b),
-               -1,
-               TRUE));
+  if(pmath_is_double(x) || pmath_is_double(y)) {
+    double dx = fabs(pmath_number_get_d(x));
+    double dy = fabs(pmath_number_get_d(y));
+    
+    if(dx < dy)
+      return dy <= dx * (1 + TOLERANCE_FACTOR * DBL_EPSILON);
+      
+    return dx <= dy * (1 + TOLERANCE_FACTOR * DBL_EPSILON);
   }
   
-  if(pmath_is_mpfloat(test) && pmath_number_sign(test) < 0) {
-    pmath_unref(test);
-    return FALSE;
-  }
-  
-  err = pmath_ref(test);
-  test = _mul_nn(
-           pmath_rational_new(
-             PMATH_FROM_INT32(1),
-             PMATH_FROM_INT32(TOLERANCE_FACTOR)),
-           _add_nn(test, PMATH_FROM_INT32(-1)));
-           
-  if(pmath_is_mpfloat(err) && pmath_is_mpfloat(test)) {
-    // Max(a,b)/Min(a,b) <= 1 + TOLERANCE_FACTOR * epsilon
-    if(mpfr_lessequal_p(PMATH_AS_MP_VALUE(test), PMATH_AS_MP_ERROR(err))) {
-      pmath_unref(err);
-      pmath_unref(test);
+  is_mp_x = pmath_is_mpfloat(x);
+  is_mp_y = pmath_is_mpfloat(y);
+  if(is_mp_x || is_mp_y) {
+    mpfr_ptr err = NULL;
+    MPFR_DECL_INIT(rhs, PMATH_MP_ERROR_PREC);
+    pmath_number_t absmin_xy, absmax_xy, lhs;
+    
+    if(is_mp_x && is_mp_y) {
+      if(mpfr_less_p(PMATH_AS_MP_ERROR(x), PMATH_AS_MP_ERROR(y)))
+        err = PMATH_AS_MP_ERROR(y);
+      else
+        err = PMATH_AS_MP_ERROR(x);
+    }
+    else if(is_mp_x)
+      err = PMATH_AS_MP_ERROR(x);
+    else
+      err = PMATH_AS_MP_ERROR(y);
+      
+    if(sign_x > 0) {
+      if(pmath_compare(x, y) < 0) {
+        absmin_xy = pmath_ref(x);
+        absmax_xy = pmath_ref(y);
+      }
+      else {
+        absmin_xy = pmath_ref(y);
+        absmax_xy = pmath_ref(x);
+      }
+    }
+    else {
+      if(pmath_compare(x, y) < 0) {
+        absmin_xy = pmath_ref(x);
+        absmax_xy = pmath_ref(y);
+      }
+      else {
+        absmin_xy = pmath_ref(y);
+        absmax_xy = pmath_ref(x);
+      }
+    }
+    
+    lhs = _mul_nn(absmax_xy, inverse(absmin_xy));
+    if(!pmath_is_mpfloat(lhs)) {
+      pmath_debug_print_object("[almost_equal: mpfloat expected, but ", lhs, " found]\n");
+      pmath_unref(lhs);
+      return pmath_equals(x, y);
+    }
+    
+    mpfr_mul_2exp(rhs, err, TOLERANCE_EXPONENT, MPFR_RNDN);
+    mpfr_add_ui(rhs, rhs, 1, MPFR_RNDN);
+    if(mpfr_lessequal_p(PMATH_AS_MP_VALUE(lhs), rhs)) {
+      pmath_unref(lhs);
       return TRUE;
     }
+    
+    pmath_unref(lhs);
+    return FALSE;
   }
   
-  pmath_unref(err);
-  pmath_unref(test);
-  return FALSE;
+  return pmath_equals(x, y);
 }
 
 #define UNKNOWN (-1)
 
 // TRUE, FALSE or UNKNOWN
 static int test_almost_equal(pmath_t a, pmath_t b) {
-  if(pmath_is_double(a)) {
-    if(pmath_is_double(b))
-      return almost_equal_machine(
-               PMATH_AS_DOUBLE(a),
-               PMATH_AS_DOUBLE(b)) ? TRUE : FALSE;
-  }
-  else if(pmath_is_mpfloat(a)) {
-    if(pmath_is_mpfloat(b))
-      return almost_equal_mp(a, b) ? TRUE : FALSE;
+  if(pmath_is_number(a) && pmath_is_number(b))
+    return slow_almost_equal_numbers(a, b) ? TRUE : FALSE;
     
-    if(pmath_same(b, PMATH_FROM_INT32(0)))
-      return almost_zero_mp(a) ? TRUE : FALSE;
-  }
-  else if(pmath_is_mpfloat(b)) {
-    if(pmath_same(a, PMATH_FROM_INT32(0)))
-      return almost_zero_mp(b) ? TRUE : FALSE;
-  }
-  
-  if(pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2) ||
-          pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2))
+  if( pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2) ||
+      pmath_is_expr_of_len(b, PMATH_SYMBOL_COMPLEX, 2))
   {
-    pmath_t re_a, im_a, re_b, im_b;
+    pmath_t re_a, re_b, im_a, im_b;
     
     if( _pmath_re_im(pmath_ref(a), &re_a, &im_a) &&
         _pmath_re_im(pmath_ref(b), &re_b, &im_b) &&
@@ -151,10 +198,10 @@ static int test_almost_equal(pmath_t a, pmath_t b) {
       
       if(eq_im == FALSE)
         return FALSE;
-      
+        
       if(eq_im == TRUE && eq_re == TRUE)
         return TRUE;
-      
+        
       return UNKNOWN;
     }
     
