@@ -22,9 +22,9 @@ MakeBoxes(Floor(~x))::= {"\[LeftFloor]", MakeBoxes(x), "\[RightFloor]"}
 MakeBoxes(BracketingBar(~~~x))::= {"\[LeftBracketingBar]", MakeBoxes({x})[2], "\[RightBracketingBar]"}
 MakeBoxes(DoubleBracketingBar(~~~x))::= {"\[LeftDoubleBracketingBar]", MakeBoxes({x})[2], "\[RightDoubleBracketingBar]"}
 
-Attributes(Ceiling):= {Protected, ReadProtected};
-Attributes(Floor):= {Protected, ReadProtected};
-Attributes(BracketingBar):= {Protected, ReadProtected};
-Attributes(DoubleBracketingBar):= {Protected, ReadProtected};
+Attributes(Ceiling):=             Attributes(Ceiling).Join({Protected, ReadProtected});
+Attributes(Floor):=               Attributes(Floor).Join({Protected, ReadProtected});
+Attributes(BracketingBar):=       Attributes(BracketingBar).Join({Protected, ReadProtected});
+Attributes(DoubleBracketingBar):= Attributes(DoubleBracketingBar).Join({Protected, ReadProtected});
 
 End()

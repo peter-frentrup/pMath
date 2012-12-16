@@ -402,7 +402,7 @@
 		<Unit filename="include\boxes\graphics\colorbox.h" />
 		<Unit filename="include\boxes\graphics\graphicsbox.h" />
 		<Unit filename="include\boxes\graphics\graphicselement.h" />
-		<Unit filename="include\boxes\graphics\linebox.h" />
+		<Unit filename="include\boxes\graphics\pointsetbox.h" />
 		<Unit filename="include\boxes\gridbox.h" />
 		<Unit filename="include\boxes\inputfieldbox.h" />
 		<Unit filename="include\boxes\interpretationbox.h" />
@@ -651,7 +651,7 @@
 		<Unit filename="src\boxes\graphics\colorbox.cpp" />
 		<Unit filename="src\boxes\graphics\graphicsbox.cpp" />
 		<Unit filename="src\boxes\graphics\graphicselement.cpp" />
-		<Unit filename="src\boxes\graphics\linebox.cpp" />
+		<Unit filename="src\boxes\graphics\pointsetbox.cpp" />
 		<Unit filename="src\boxes\gridbox.cpp" />
 		<Unit filename="src\boxes\inputfieldbox.cpp" />
 		<Unit filename="src\boxes\interpretationbox.cpp" />

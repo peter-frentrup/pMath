@@ -1170,6 +1170,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_PLOTSTYLE                        = NEW_SYSTEM_SYMBOL("PlotStyle"))
   VERIFY(   PMATH_SYMBOL_PLUS                             = NEW_SYSTEM_SYMBOL("Plus"))
   VERIFY(   PMATH_SYMBOL_PLUSMINUS                        = NEW_SYSTEM_SYMBOL("PlusMinus"))
+  VERIFY(   PMATH_SYMBOL_POINT                            = NEW_SYSTEM_SYMBOL("Point"))
+  VERIFY(   PMATH_SYMBOL_POINTBOX                         = NEW_SYSTEM_SYMBOL("PointBox"))
   VERIFY(   PMATH_SYMBOL_POLYGAMMA                        = NEW_SYSTEM_SYMBOL("PolyGamma"))
   VERIFY(   PMATH_SYMBOL_POSITION                         = NEW_SYSTEM_SYMBOL("Position"))
   VERIFY(   PMATH_SYMBOL_POSTDECREMENT                    = NEW_SYSTEM_SYMBOL("PostDecrement"))
@@ -2000,6 +2002,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_PATTERNSEQUENCE,                  ASSOCIATIVE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_PIECEWISE,                        HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_PLUS,                             ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
+  SET_ATTRIB( PMATH_SYMBOL_POINTBOX,                         HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_POLYGAMMA,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_POSTDECREMENT,                    HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_POSTINCREMENT,                    HOLDFIRST);

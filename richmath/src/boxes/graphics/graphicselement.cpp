@@ -1,7 +1,7 @@
 #include <boxes/graphics/graphicselement.h>
 
 #include <boxes/graphics/colorbox.h>
-#include <boxes/graphics/linebox.h>
+#include <boxes/graphics/pointsetbox.h>
 
 #include <graphics/context.h>
 
@@ -95,8 +95,10 @@ GraphicsElement::~GraphicsElement() {
 GraphicsElement *GraphicsElement::create(Expr expr, int opts) {
   Expr head = expr[0];
   
-  if(head == PMATH_SYMBOL_LINEBOX) {
-    GraphicsElement *ge = LineBox::create(expr, opts);
+  if( head == PMATH_SYMBOL_LINEBOX || 
+      head == PMATH_SYMBOL_POINTBOX) 
+  {
+    GraphicsElement *ge = PointSetBox::create(expr, opts);
     
     if(ge)
       return ge;

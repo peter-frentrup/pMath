@@ -19,7 +19,7 @@ Unprotect(Sum, Product)
 MakeBoxes(Sum(    ~body, ~i->~a..~b))::= {UnderoverscriptBox("\[Sum]",     MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
 MakeBoxes(Product(~body, ~i->~a..~b))::= {UnderoverscriptBox("\[Product]", MakeBoxes(i=a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(body), Plus, "Prefix")}
 
-Attributes(Sum):=     Union(Attributes(Sum), {Protected, ReadProtected})
-Attributes(Product):= Union(Attributes(Product), {Protected, ReadProtected})
+Attributes(Sum):=     Attributes(Sum).Join({Protected, ReadProtected})
+Attributes(Product):= Attributes(Product).Join({Protected, ReadProtected})
 
 End()

@@ -10,6 +10,7 @@ MakeGraphicsExpression(~x)               ::= HoldComplete(x);
 
 MakeGraphicsExpression(~multi: List)     ::= HoldComplete @@ List @ HoldComplete(multi).Map(MakeGraphicsExpression, 2).ReleaseHold.Replace(HoldComplete(~~~x) :> x, 1)
 MakeGraphicsExpression(LineBox(~~~args)) ::= HoldComplete(Line(args))
+MakeGraphicsExpression(PointBox(~~~args))::= HoldComplete(Point(args))
 MakeGraphicsExpression(~c: RGBColor)     ::= HoldComplete(c);
 MakeGraphicsExpression(~c: Hue)          ::= HoldComplete(c);
 MakeGraphicsExpression(~c: GrayLevel)    ::= HoldComplete(c);

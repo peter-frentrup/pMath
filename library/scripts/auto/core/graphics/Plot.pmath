@@ -35,8 +35,6 @@ Protect(Plot)
 Attributes(isNotHeldOption):= {HoldAll}
 isNotHeldOption(~x)::= !IsOption(Unevaluated(x))
 
-isRealNumber(~x)::= IsNumber(x) && IsReal(x)
-
 getPlotRange(~xys, ~xmin .. ~xmax)::=
 	Local({ymin, ymax, ndxs, ndys, tans, is, mi, ma},
 		With({xs:= xys[All, 1], ys:= xys[All, 2], maxTan:= Tan(80.0 Degree)}, 
@@ -59,7 +57,7 @@ getPlotRange(~xys, ~xmin .. ~xmax)::=
 			If(mi < ma,
 				Return(mi .. ma));
 			
-			If(isRealNumber(mi),
+			If(IsNumber(mi) && IsReal(mi),
 				Return(mi - 1 .. mi + 1));
 			
 			Return(-1 .. 1);
@@ -67,7 +65,7 @@ getPlotRange(~xys, ~xmin .. ~xmax)::=
 		)
 
 getRangeList(~ys)::= 
-	With({nys:= Select(ys, isRealNumber)},
+	With({nys:= ys.Cases(Except(Undefined))},
 		If(nys === {},
 			Return({-1, 1}));
 		If(Length(nys) = 1,
@@ -97,7 +95,7 @@ calcCosines(~xys, ~xmin .. ~xmax)::=
 			tans:= ndys / ndxs;
 			With({tas:= Most(tans), tbs:= Rest(tans)}, 
 				cos2s:= (1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2));
-				cos2s:= cos2s.Replace(~?(!isRealNumber(#) &) -> -1 /* Cos(180 Degree) */, 1..1);
+				cos2s:= cos2s.Replace(Undefined -> -1 /* Cos(180 Degree) */, 1..1);
 				Return(cos2s);
 				);
 			)
@@ -120,6 +118,15 @@ refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber)::=
 			If(Length(is) = 0,
 				Return({}));
 			
+			/*Print(StringForm("step `1`: cos: `2`..`3`, actual: `4`..`5`, marks: `6` of `7` (`8`%)", 
+				stepNumber, 
+				cosMin, 
+				cosMax, 
+				Min(cosines),
+				Max(cosines),
+				Length(is), 
+				Length(cosines), 
+				100.0 Length(is) / Length(cosines)));*/
 			is:= Union(is, is + 1);
 			
 			newxs:= N(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec);
