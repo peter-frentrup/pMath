@@ -486,7 +486,7 @@ static void append_str_part(pmath_string_t *str, pmath_string_t s, int start, in
   else {
     const uint16_t *buf = pmath_string_buffer(&s);
     
-    *str = pmath_string_insert_ucs2(*str, INT_MAX, buf, len);
+    *str = pmath_string_insert_ucs2(*str, INT_MAX, buf + start, len);
   }
 }
 
