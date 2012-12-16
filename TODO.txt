@@ -2,8 +2,6 @@
 	Button("italic", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "TI"))),
 	Button("Arg Style", DocumentApply(SelectedDocument(), StyleBox("\[SelectionPlaceholder]", "Arg")))})
 
-- complex equality tests: 2I = 2 currently returns unevaluated 
-
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
 
 - richmath: (esp. Cambria Math font): use "ssty" opentype table for sub-/superscript and 

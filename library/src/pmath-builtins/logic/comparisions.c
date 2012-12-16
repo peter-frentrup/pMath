@@ -35,6 +35,15 @@ static pmath_bool_t almost_equal_machine(double a, double b) {
   return a <= b * (1 + TOLERANCE_FACTOR * DBL_EPSILON);
 }
 
+static pmath_bool_t almost_zero_mp(pmath_float_t x) {
+  assert(pmath_is_mpfloat(x));
+  
+  if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_ERROR(x)) <= 0)
+    return TRUE;
+  
+  return FALSE;
+}
+
 static pmath_bool_t almost_equal_mp(
   pmath_float_t a,
   pmath_float_t b
@@ -94,17 +103,29 @@ static pmath_bool_t almost_equal_mp(
   return FALSE;
 }
 
-static pmath_bool_t almost_equal(pmath_t a, pmath_t b) {
+#define UNKNOWN (-1)
+
+// TRUE, FALSE or UNKNOWN
+static int test_almost_equal(pmath_t a, pmath_t b) {
   if(pmath_is_double(a)) {
     if(pmath_is_double(b))
       return almost_equal_machine(
                PMATH_AS_DOUBLE(a),
-               PMATH_AS_DOUBLE(b));
+               PMATH_AS_DOUBLE(b)) ? TRUE : FALSE;
   }
-  else if(pmath_is_mpfloat(a) && pmath_is_mpfloat(b)) {
-    return almost_equal_mp(a, b);
+  else if(pmath_is_mpfloat(a)) {
+    if(pmath_is_mpfloat(b))
+      return almost_equal_mp(a, b) ? TRUE : FALSE;
+    
+    if(pmath_same(b, PMATH_FROM_INT32(0)))
+      return almost_zero_mp(a) ? TRUE : FALSE;
   }
-  else if(pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2) ||
+  else if(pmath_is_mpfloat(b)) {
+    if(pmath_same(a, PMATH_FROM_INT32(0)))
+      return almost_zero_mp(b) ? TRUE : FALSE;
+  }
+  
+  if(pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2) ||
           pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2))
   {
     pmath_t re_a, im_a, re_b, im_b;
@@ -113,13 +134,28 @@ static pmath_bool_t almost_equal(pmath_t a, pmath_t b) {
         _pmath_re_im(pmath_ref(b), &re_b, &im_b) &&
         (!pmath_is_null(im_a) || !pmath_is_null(im_b)))
     {
-      pmath_bool_t eq = almost_equal(re_a, re_b) && almost_equal(im_a, im_b);
-      
+      int eq_re, eq_im;
+      eq_re = test_almost_equal(re_a, re_b);
       pmath_unref(re_a);
-      pmath_unref(im_a);
       pmath_unref(re_b);
+      
+      if(eq_re == FALSE) {
+        pmath_unref(im_a);
+        pmath_unref(im_b);
+        return FALSE;
+      }
+      
+      eq_im = test_almost_equal(im_a, im_b);
+      pmath_unref(im_a);
       pmath_unref(im_b);
-      return eq;
+      
+      if(eq_im == FALSE)
+        return FALSE;
+      
+      if(eq_im == TRUE && eq_re == TRUE)
+        return TRUE;
+      
+      return UNKNOWN;
     }
     
     pmath_unref(re_a);
@@ -128,7 +164,14 @@ static pmath_bool_t almost_equal(pmath_t a, pmath_t b) {
     pmath_unref(im_b);
   }
   
-  return pmath_equals(a, b);
+  return pmath_equals(a, b) ? TRUE : UNKNOWN;
+}
+
+static pmath_bool_t almost_equal(pmath_t a, pmath_t b) {
+  int test = test_almost_equal(a, b);
+  if(test > 0)
+    return TRUE;
+  return FALSE;
 }
 
 static int pmath_fuzzy_compare(pmath_t a, pmath_t b) {
@@ -138,8 +181,6 @@ static int pmath_fuzzy_compare(pmath_t a, pmath_t b) {
   return pmath_compare(a, b);
 }
 
-#define UNKNOWN (-1)
-
 // TRUE, FALSE or UNKNOWN
 static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   if(pmath_is_double(prev) && pmath_is_numeric(next)) {
@@ -147,7 +188,27 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
     int c;
     
     if(!pmath_is_number(n)) {
+      c = test_almost_equal(prev, n);
       pmath_unref(n);
+      
+      if(c == FALSE) {
+        if(directions == DIRECTION_EQUAL)
+          return FALSE;
+          
+        if(directions == 0) // no < or >
+          return TRUE;
+          
+        return UNKNOWN;
+      }
+      
+      if(c == TRUE) {
+        if(directions == DIRECTION_EQUAL)
+          return TRUE;
+          
+        if(directions == 0) // no < or >
+          return FALSE;
+      }
+      
       return UNKNOWN;
     }
     
@@ -169,7 +230,27 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
     int c;
     
     if(!pmath_is_number(p)) {
+      c = test_almost_equal(p, next);
       pmath_unref(p);
+      
+      if(c == FALSE) {
+        if(directions == DIRECTION_EQUAL)
+          return FALSE;
+          
+        if(directions == 0) // no < or >
+          return TRUE;
+          
+        return UNKNOWN;
+      }
+      
+      if(c == TRUE) {
+        if(directions == DIRECTION_EQUAL)
+          return TRUE;
+          
+        if(directions == 0) // no < or >
+          return FALSE;
+      }
+      
       return UNKNOWN;
     }
     
@@ -409,8 +490,28 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       
       // TODO: check complex values for equality...
       if(!pmath_is_number(p) || !pmath_is_number(n)) {
+        c = test_almost_equal(p, n);
         pmath_unref(p);
         pmath_unref(n);
+        
+        if(c == FALSE) {
+          if(directions == DIRECTION_EQUAL)
+            return FALSE;
+            
+          if(directions == 0) // no < or >
+            return TRUE;
+            
+          return UNKNOWN;
+        }
+        
+        if(c == TRUE) {
+          if(directions == DIRECTION_EQUAL)
+            return TRUE;
+            
+          if(directions == 0) // no < or >
+            return FALSE;
+        }
+        
         return UNKNOWN;
       }
       
