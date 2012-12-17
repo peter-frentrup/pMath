@@ -74,8 +74,7 @@ void FractionBox::resize(Context *context) {
   _denominator->resize(context);
   context->width = old_width;
   
-  if(context->smaller_fraction_parts)
-    context->canvas->set_font_size(old_fs);
+  context->canvas->set_font_size(old_fs);
     
   context->math_shaper->shape_fraction(
     context,
