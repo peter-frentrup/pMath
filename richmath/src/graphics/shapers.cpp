@@ -28,7 +28,7 @@ class FontKey {
       const String &name,
       FontStyle     style)
       : _name(name),
-      _style(style)
+        _style(style)
     {
     }
     
@@ -281,7 +281,7 @@ void FallbackTextShaper::add(SharedPtr<TextShaper> fallback) {
   
   int own_num = num_fonts();
   if(own_num + fallback->num_fonts() > FontsPerGlyphCount) {
-    FallbackTextShaper *fts = dynamic_cast<FallbackTextShaper*>(fallback.ptr());
+    FallbackTextShaper *fts = dynamic_cast<FallbackTextShaper *>(fallback.ptr());
     
     if(fts) {
       for(int i = 0; i < fts->_shapers.length(); ++i)
@@ -496,13 +496,13 @@ void CharBoxTextShaper::decode_token(
   for(int i = 0; i < len; ++i) {
     if( i + 1 < len &&
         is_utf16_high(str[i]) &&
-        is_utf16_low(str[i+1]))
+        is_utf16_low(str[i + 1]))
     {
-      result[i].index = str[i+1];
+      result[i].index = str[i + 1];
       result[i].right = em;
       
-      result[i+1].index = IgnoreGlyph;
-      result[i+1].right = 0.0;
+      result[i + 1].index = IgnoreGlyph;
+      result[i + 1].right = 0.0;
       ++i;
     }
     else if(is_utf16_low(str[i]) || is_utf16_high(str[i])) {
@@ -645,7 +645,7 @@ Hashtable<String, SharedPtr<MathShaper> > MathShaper::available_shapers;
 
 SharedPtr<MathShaper> MathShaper::math_set_style(FontStyle style) {
   SharedPtr<TextShaper> ts = set_style(style);
-  SharedPtr<MathShaper> ms(static_cast<MathShaper*>(ts.release()));
+  SharedPtr<MathShaper> ms(static_cast<MathShaper *>(ts.release()));
   
   return ms;
 }
@@ -656,7 +656,7 @@ SharedPtr<MathShaper> MathShaper::math_set_style(FontStyle style) {
 
 SimpleMathShaper::SimpleMathShaper(int radical_font)
   : MathShaper(),
-  _radical_font(radical_font)
+    _radical_font(radical_font)
 {
 }
 
@@ -1267,7 +1267,7 @@ void SimpleMathShaper::accent_positions(
     base_char = base->text()[0];
     
   bool is_integral = pmath_char_is_integral(base_char);
-    
+  
   if(context->script_indent > 0 && is_integral) {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
@@ -1317,12 +1317,12 @@ void SimpleMathShaper::accent_positions(
       context, base_char, base->glyph_array()[0],
       under, over, dummy_uy, dummy_oy,
       under_x, over_x);
-    
+      
     float diff = *over_x - *under_x;
     
     if(under)
       *under_x = (w + *over_x - diff - under->extents().width) / 2;
-    
+      
     if(over)
       *over_x = (w + *over_x + diff - over->extents().width) / 2;
       

@@ -736,7 +736,6 @@ int main(int argc, char **argv) {
   if(main_doc) {
     write_text_section(main_doc, "Title", "Welcome");
     write_text_section(main_doc, "Section", "Todo-List");
-    todo(main_doc, "Support macros/DocumentApply in TextSequence");
     todo(main_doc, "CTRL-9 to insert inline text/math section into math/text sequence.");
     todo(main_doc, "Implement Interrupt().");
     todo(main_doc, "Leave caret at end of line at automatic line breaks.");
@@ -745,7 +744,6 @@ int main(int argc, char **argv) {
     todo(main_doc, "Add option to allways show menu bar.");
     todo(main_doc, "CTRL-R to refactor local variable names.");
     todo(main_doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
-    todo(main_doc, "Implement Options(FrontEndObject(id), option).");
     main_doc->select(main_doc, 0, 0);
     main_doc->move_horizontal(Forward,  true);
     main_doc->move_horizontal(Backward, false);

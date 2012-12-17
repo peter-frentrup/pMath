@@ -3877,11 +3877,11 @@ void Document::add_matching_bracket_hook() {
       
       ref.set(seq, pos, pos + 1);
       additional_selection.add(ref);
-      context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0x00FF00, 0.5));
+      context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
       
       ref.set(seq, other_bracket, other_bracket + 1);
       additional_selection.add(ref);
-      context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0x00FF00, 0.5));
+      context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
       
       SpanExpr *span = new SpanExpr(pos, seq);
       while(span) {
@@ -3899,7 +3899,7 @@ void Document::add_matching_bracket_hook() {
         
         SpanExpr *head = call.function_head();
         if(head->as_token() == PMATH_TOK_NAME) {
-          context.pre_paint_hooks.add(seq, new SelectionFillHook(head->start(), head->end() + 1, 0x00FF00, 0.5));
+          context.pre_paint_hooks.add(seq, new SelectionFillHook(head->start(), head->end() + 1, 0xFFFF00, 0.5));
           
           ref.set(seq, head->start(), head->end() + 1);
           additional_selection.add(ref);
@@ -3911,7 +3911,7 @@ void Document::add_matching_bracket_hook() {
         
         SpanExpr *head = call.function_head();
         if(head->as_token() == PMATH_TOK_NAME) {
-          context.pre_paint_hooks.add(seq, new SelectionFillHook(head->start(), head->end() + 1, 0x00FF00, 0.5));
+          context.pre_paint_hooks.add(seq, new SelectionFillHook(head->start(), head->end() + 1, 0xFFFF00, 0.5));
           
           ref.set(seq, head->start(), head->end() + 1);
           additional_selection.add(ref);
@@ -3921,7 +3921,7 @@ void Document::add_matching_bracket_hook() {
         // the dot:
         ref.set(seq, span->item_pos(1), span->item_pos(1) + 1);
         additional_selection.add(ref);
-        context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0x00FF00, 0.5));
+        context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
       }
       
       delete span;
