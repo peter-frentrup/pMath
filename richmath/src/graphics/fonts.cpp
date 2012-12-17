@@ -18,6 +18,7 @@
 #endif
 
 #include <graphics/canvas.h>
+#include <graphics/ot-font-reshaper.h>
 
 #include <util/array.h>
 #include <util/sharedptr.h>
@@ -291,7 +292,8 @@ class richmath::FontInfoPrivate: public Shareable {
   public:
     FontInfoPrivate(FontFace font)
       : Shareable(),
-        scaled_font(0)
+        scaled_font(0),
+        gsub_table_data(0)
     {
       static_canvas.canvas->set_font_face(font.cairo());
       scaled_font = cairo_scaled_font_reference(
@@ -301,6 +303,7 @@ class richmath::FontInfoPrivate: public Shareable {
     
     ~FontInfoPrivate() {
       cairo_scaled_font_destroy(scaled_font);
+      free(gsub_table_data);
     }
     
     cairo_font_type_t font_type() {
@@ -309,6 +312,7 @@ class richmath::FontInfoPrivate: public Shareable {
     
   public:
     cairo_scaled_font_t *scaled_font;
+    void *gsub_table_data;
 };
 
 FontInfo::FontInfo(FontFace font)
@@ -623,120 +627,145 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch) {
   return 0;
 }
 
-uint16_t FontInfo::substitute_glyph(
-  uint16_t original_glyph,
-  uint32_t language_tag,
-  uint32_t script_tag,
-  uint32_t feature_tag,
-  int      feature_parameter
+void FontInfo::add_gsub_required_feature_lookups(
+  uint32_t    script_tag,
+  uint32_t    language_tag,
+  Array<int> *lookup_indices
 ) {
-  if(feature_parameter == 0)
+  const GlyphSubstitutions *gsub = get_gsub_table();
+  if(!gsub)
+    return;
+    
+  const ScriptList  *script_list  = gsub->script_list();
+  const FeatureList *feature_list = gsub->feature_list();
+  
+  const Script *script = script_list->search_script(script_tag);
+  if(!script)
+    return;
+    
+  const LangSys *lang_sys = script->search_lang_sys(language_tag);
+  if(!lang_sys)
+    lang_sys = script->search_default_lang_sys();
+    
+  if(!lang_sys)
+    return;
+    
+  int feature_index = lang_sys->requied_feature_index();
+  if(0 <= feature_index && feature_index < feature_list->count()) {
+    const Feature *feature = feature_list->feature(feature_index);
+    
+    int len = lookup_indices->length();
+    lookup_indices->length(len + feature->lookup_count());
+    
+    for(int li = 0; li < feature->lookup_count(); ++li) {
+      int lookup_index = feature->lookup_index(li);
+      
+      lookup_indices->set(len + li, lookup_index);
+    }
+  }
+}
+
+void FontInfo::add_gsub_feature_lookups(
+  uint32_t    script_tag,
+  uint32_t    language_tag,
+  uint32_t    feature_tag,
+  Array<int> *lookup_indices
+) {
+  const GlyphSubstitutions *gsub = get_gsub_table();
+  if(!gsub)
+    return;
+    
+  const ScriptList  *script_list  = gsub->script_list();
+  const FeatureList *feature_list = gsub->feature_list();
+  
+  const Script *script = script_list->search_script(script_tag);
+  if(!script)
+    return;
+    
+  const LangSys *lang_sys = script->search_lang_sys(language_tag);
+  if(!lang_sys)
+    lang_sys = script->search_default_lang_sys();
+    
+  if(!lang_sys)
+    return;
+    
+  for(int fi = 0; fi < lang_sys->feature_count(); ++fi) {
+    int feature_index = lang_sys->feature_index(fi);
+    
+    if(0 <= feature_index && feature_index < feature_list->count()) {
+      uint32_t tag = feature_list->feature_tag(feature_index);
+      
+      if(tag == feature_tag) {
+        const Feature *feature = feature_list->feature(feature_index);
+        
+        int len = lookup_indices->length();
+        lookup_indices->length(len + feature->lookup_count());
+        
+        for(int li = 0; li < feature->lookup_count(); ++li) {
+          int lookup_index = feature->lookup_index(li);
+          
+          lookup_indices->set(len + li, lookup_index);
+        }
+      }
+    }
+  }
+}
+
+
+uint16_t FontInfo::substitute_single_glyph(
+  uint16_t          original_glyph,
+  const Array<int> &lookup_indices,
+  int               alternate_index // = feature value, used for alternates, > 0
+) {
+  if(alternate_index <= 0)
     return original_glyph;
     
-  switch(priv->font_type()) {
-#ifdef RICHMATH_USE_WIN32_FONT
-    case CAIRO_FONT_TYPE_WIN32:
-      if(Win32Themes::ScriptSubstituteSingleGlyph) {
-        static SCRIPT_CACHE script_cache = NULL;
-        
-        uint16_t new_glyph;
-        
-        HRESULT result = Win32Themes::ScriptSubstituteSingleGlyph(
-                           dc.handle,
-                           &script_cache,
-                           NULL,
-                           script_tag,
-                           language_tag,
-                           feature_tag,
-                           feature_parameter,
-                           original_glyph,
-                           &new_glyph);
-                           
-        if(result == 0)
-          return new_glyph;
-      }
-      return original_glyph;
-#endif
+  const GlyphSubstitutions *gsub = get_gsub_table();
+  if(!gsub)
+    return original_glyph;
+    
+  const LookupList *lookup_list = gsub->lookup_list();
+  
+  for(int i = 0; i < lookup_indices.length(); ++i) {
+    int lookup_index = lookup_indices[i];
+    
+    if(0 <= lookup_index && lookup_index < lookup_list->count()) {
+      const Lookup *lookup = lookup_list->lookup(lookup_index);
       
-#ifdef RICHMATH_USE_FT_FONT
-    case CAIRO_FONT_TYPE_FT: {
-        /* The Pango API seems too high level. Maybe we should include HarfBuzz
-           or do all the lookups/substitution on our own.
-        
-           Note that I abuse the API, because I have no PangoFcFont at hand,
-           only the bare FT_Font.
-        
-           Pango/Harfbuzz has currently no way to specify the alternate glyph
-           index. So it is almost useless for 'ssty' table.
-         */
-        
-        FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font);
-        if(face) {
-          PangoOTInfo    *ot_info  = pango_ot_info_get(face);
-          PangoOTRuleset *rule_set = pango_ot_ruleset_new(ot_info);
-          
-          unsigned script_index;
-          pango_ot_info_find_script(
-            ot_info,
-            PANGO_OT_TABLE_GSUB,
-            script_tag,
-            &script_index);
-            
-          unsigned language_index;
-          pango_ot_info_find_language(
-            ot_info,
-            PANGO_OT_TABLE_GSUB,
-            script_index,
-            language_tag,
-            &language_index,
-            NULL /* &required_feature_index*/);
-            
-          unsigned feature_index;
-          pango_ot_info_find_feature(
-            ot_info,
-            PANGO_OT_TABLE_GSUB,
-            feature_tag,
-            script_index,
-            language_index,
-            &feature_index);
-            
-          pango_ot_ruleset_add_feature(
-            rule_set,
-            PANGO_OT_TABLE_GSUB,
-            feature_index,
-            PANGO_OT_ALL_GLYPHS);
-            
-          pango_ot_buffer_clear(pango_settings.dummy_ot_buffer);
-          pango_ot_buffer_add_glyph(
-            pango_settings.dummy_ot_buffer,
-            original_glyph,
-            PANGO_OT_ALL_GLYPHS,
-            0);
-            
-          int           n_glyphs;
-          PangoOTGlyph *glyphs;
-          pango_ot_buffer_get_glyphs(
-            pango_settings.dummy_ot_buffer,
-            &glyphs,
-            &n_glyphs);
-            
-          g_object_unref(rule_set);
-          
-          if(n_glyphs == 1) {
-            return glyphs[0].glyph;
+      switch(lookup->type()) {
+        case GlyphSubstitutions::GSUBLookupTypeSingle: {
+            for(int sub = 0;sub < lookup->sub_table_count();++sub) {
+              const SingleSubstitution *singsub = (const SingleSubstitution*)lookup->sub_table(sub);
+              
+              original_glyph = singsub->apply(original_glyph);
+            }
           }
-        }
+          break;
+          
+        case GlyphSubstitutions::GSUBLookupTypeAlternate: {
+            for(int sub = 0;sub < lookup->sub_table_count();++sub) {
+              const AlternateSubstitute *altsub = (const AlternateSubstitute*)lookup->sub_table(sub);
+              
+              const AlternateGlyphSet *altset = altsub->search(original_glyph);
+              if(altset) {
+                if(alternate_index < altset->count())
+                  original_glyph = altset->glyph(alternate_index);
+                else if(altset->count() > 0)
+                  original_glyph = altset->glyph(altset->count() - 1);
+              }
+            }
+          }
+          break;
         
-        return original_glyph;
+        default:
+          pmath_debug_print("[substitute_single_glyph() cannot handle lookup type %d]\n", lookup->type());
       }
-#endif
-      
-    default:
-      break;
+    }
   }
   
   return original_glyph;
 }
+
 
 size_t FontInfo::get_truetype_table(
   uint32_t  name,
@@ -1154,6 +1183,21 @@ void FontInfo::get_postscript_names(
         }
       } return;
   }
+}
+
+const GlyphSubstitutions *FontInfo::get_gsub_table() {
+  if(priv->gsub_table_data == 0) {
+    size_t size = get_truetype_table(FONT_TABLE_NAME('G', 'S', 'U', 'B'), 0, 0, 0);
+    
+    if(size) {
+      priv->gsub_table_data = malloc(size);
+      
+      if(priv->gsub_table_data)
+        get_truetype_table(FONT_TABLE_NAME('G', 'S', 'U', 'B'), 0, priv->gsub_table_data, size);
+    }
+  }
+  
+  return (const GlyphSubstitutions *)priv->gsub_table_data;
 }
 
 //} ... class FontInfo

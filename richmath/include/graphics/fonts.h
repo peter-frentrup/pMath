@@ -3,6 +3,7 @@
 
 #include <cairo.h>
 
+#include <util/array.h>
 #include <util/pmath-extra.h>
 #include <util/hashtable.h>
 
@@ -122,6 +123,7 @@ namespace richmath {
   };
   
   class FontInfoPrivate;
+  class GlyphSubstitutions;
   
 #define FONT_TABLE_NAME(a,b,c,d) \
   ( ((uint32_t)(d) << 24) \
@@ -142,12 +144,22 @@ namespace richmath {
       
       uint16_t char_to_glyph(uint32_t ch);
       
-      uint16_t substitute_glyph(
-        uint16_t original_glyph,
-        uint32_t language_tag,
-        uint32_t script_tag,
-        uint32_t feature_tag,
-        int      feature_parameter);
+      void add_gsub_required_feature_lookups(
+        uint32_t    script_tag, 
+        uint32_t    language_tag, 
+        Array<int> *lookup_indices);
+      
+      void add_gsub_feature_lookups(
+        uint32_t    script_tag, 
+        uint32_t    language_tag, 
+        uint32_t    feature_tag,
+        Array<int> *lookup_indices);
+      
+      uint16_t substitute_single_glyph(
+        uint16_t          original_glyph,
+        const Array<int> &lookup_indices,
+        int               alternate_index // = feature value, used for alternates, > 0
+        );
       
       size_t get_truetype_table(
         uint32_t  name,
@@ -159,6 +171,8 @@ namespace richmath {
         Hashtable<String, uint16_t>            *name2glyph,
         Hashtable<uint16_t, String, cast_hash> *glyph2name);
         
+      const GlyphSubstitutions *get_gsub_table();
+      
     private:
       FontInfoPrivate *priv;
   };

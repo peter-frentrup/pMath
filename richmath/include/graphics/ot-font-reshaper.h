@@ -5,12 +5,27 @@
 
 
 namespace richmath {
+  typedef struct  {
+    uint16_t hi;
+    uint16_t lo;
+  } UnalignedBEUint32;
+  
+#define FONT_TAG_NAME(a,b,c,d) \
+  ( ((uint32_t)(a) << 24) \
+    | ((uint32_t)(b) << 16) \
+    | ((uint32_t)(c) << 8) \
+    |  (uint32_t)(d))
+  
   class BigEndian {
     public:
-      static uint32_t read(uint32_t value) {
-        const uint8_t *p = (const uint8_t *)&value;
-        
-        return ((uint32_t)p[0] << 24) + ((uint32_t)p[1] << 16) + ((uint32_t)p[2] << 8) + (uint32_t)p[4];
+//      static uint32_t read(uint32_t value) {
+//        const uint8_t *p = (const uint8_t *)&value;
+//
+//        return ((uint32_t)p[0] << 24) + ((uint32_t)p[1] << 16) + ((uint32_t)p[2] << 8) + (uint32_t)p[3];
+//      }
+      
+      static uint32_t read(UnalignedBEUint32 value) {
+        return ((uint32_t)read(value.hi) << 16) + (uint32_t)read(value.lo);
       }
       
       static uint16_t read(uint16_t value) {
@@ -108,8 +123,8 @@ namespace richmath {
     private:
       uint16_t _count;
       struct {
-        uint32_t script_tag;
-        uint16_t script_offset; // from beginning of ScriptList
+        UnalignedBEUint32 script_tag;
+        uint16_t          script_offset; // from beginning of ScriptList
       } _records[1]; // [count]
   };
   
@@ -126,8 +141,8 @@ namespace richmath {
       uint16_t _default_lang_sys_offset; // may be NULL
       uint16_t _count;
       struct {
-        uint32_t lang_sys_tag;
-        uint16_t lang_sys_offset;// from beginning of Script table
+        UnalignedBEUint32 lang_sys_tag;
+        uint16_t          lang_sys_offset;// from beginning of Script table
       } _records[1]; // [count]
   };
   
@@ -139,7 +154,8 @@ namespace richmath {
       int feature_index(int i) const; // exclusing required, result is uint16_t
       
     private:
-      uint16_t _req_feature_index; // 0xFFFF if ther is no required for this language system
+      uint16_t _lookup_order_offset; // = NULL
+      uint16_t _req_feature_index; // 0xFFFF if there is no required feature for this language system
       uint16_t _feature_count;
       uint16_t _feature_indices[1]; // [feature_count]
   };
@@ -153,8 +169,8 @@ namespace richmath {
     public:
       uint16_t _count;
       struct {
-        uint32_t feature_tag;
-        uint16_t feature_offset;
+        UnalignedBEUint32 feature_tag;
+        uint16_t          feature_offset;
       } _records[1]; // [count]
   };
   
@@ -227,10 +243,10 @@ namespace richmath {
       };
       
     private:
-      uint32_t _version; // 16.16 fixed-point number
-      uint16_t _script_list_offset;
-      uint16_t _feature_list_offset;
-      uint16_t _lookup_list_offset;
+      UnalignedBEUint32 _version; // 16.16 fixed-point number
+      uint16_t          _script_list_offset;
+      uint16_t          _feature_list_offset;
+      uint16_t          _lookup_list_offset;
   };
   
   class GlyphSequence;
