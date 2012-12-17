@@ -33,6 +33,7 @@
 #include <eval/application.h>
 
 #include <graphics/context.h>
+#include <graphics/ot-font-reshaper.h>
 #include <graphics/scope-colorizer.h>
 
 #include <util/spanexpr.h>
@@ -189,6 +190,17 @@ void MathSequence::resize(Context *context) {
   while(pos < glyphs.length())
     resize_span(context, spans[pos], &pos, &box);
     
+  if(context->script_indent > 0) {
+    substitute_glyphs(
+      context,
+      0,
+      glyphs.length(),
+      FONT_TAG_NAME('m', 'a', 't', 'h'),
+      FONT_TAG_NAME('d', 'f', 'l', 't'),
+      FONT_TAG_NAME('s', 's', 't', 'y'),
+      context->script_indent);
+  }
+  
   if(context->show_auto_styles) {
     ScopeColorizer colorizer(this);
     
@@ -609,7 +621,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   
   y2 = y1;
   int endline = startline;
-  while(endline < lines.length() && end >= lines[endline].end) {
+  while(endline < lines.length() && end > lines[endline].end) {
     y2 += lines[endline].ascent + lines[endline].descent + line_spacing();
     ++endline;
   }
@@ -1225,22 +1237,22 @@ int MathSequence::matching_fence(int pos) {
   if(pmath_char_is_left(buf[pos]) || pmath_char_is_right(buf[pos])) {
     SpanExpr *span = new SpanExpr(pos, this);
     
-    while(span){
+    while(span) {
       if(span->start() <= pos && span->end() >= pos && span->length() > 1)
         break;
-      
+        
       span = span->expand(true);
     }
     
-    if(span){
-      for(int i = 0;i < span->count();++i) {
+    if(span) {
+      for(int i = 0; i < span->count(); ++i) {
         int tok_pos = span->item_pos(i);
         if(tok_pos != pos) {
           pmath_token_t tok = span->item(i)->as_token();
           
-          if(tok == PMATH_TOK_LEFT || 
-          tok == PMATH_TOK_LEFTCALL || 
-          tok == PMATH_TOK_RIGHT) 
+          if(tok == PMATH_TOK_LEFT ||
+              tok == PMATH_TOK_LEFTCALL ||
+              tok == PMATH_TOK_RIGHT)
           {
             delete span;
             return tok_pos;
@@ -1254,12 +1266,12 @@ int MathSequence::matching_fence(int pos) {
   
 //  if(pmath_char_is_left(buf[pos])) {
 //    ensure_spans_valid();
-//    
+//
 //    uint16_t ch = pmath_right_fence(buf[pos]);
-//    
+//
 //    if(!ch)
 //      return -1;
-//      
+//
 //    ++pos;
 //    while(pos < len && /*buf[pos] != ch*/ !pmath_char_is_right(buf[pos])) {
 //      if(spans[pos]) {
@@ -1268,30 +1280,30 @@ int MathSequence::matching_fence(int pos) {
 //      else
 //        ++pos;
 //    }
-//    
+//
 //    if(pos < len && buf[pos] == ch)
 //      return pos;
 //  }
 //  else if(pmath_char_is_right(buf[pos])) {
 //    ensure_spans_valid();
-//    
+//
 //    int right = pos;
 //    do {
 //      --pos;
 //    } while(pos >= 0 && char_is_white(buf[pos]));
-//    
+//
 //    if(pos >= 0 && pmath_right_fence(buf[pos]) == buf[right])
 //      return pos;
-//      
+//
 //    for(; pos >= 0; --pos) {
 //      Span span = spans[pos];
 //      if(span && span.end() >= right) {
 //        while(span.next() && span.next().end() >= right)
 //          span = span.next();
-//          
+//
 //        if(pmath_right_fence(buf[pos]) == buf[right])
 //          return pos;
-//          
+//
 //        ++pos;
 //        while(pos < right
 //              && pmath_right_fence(buf[pos]) != buf[right]) {
@@ -1300,15 +1312,15 @@ int MathSequence::matching_fence(int pos) {
 //          else
 //            ++pos;
 //        }
-//        
+//
 //        if(pos < right)
 //          return pos;
-//          
+//
 //        return -1;
 //      }
 //    }
 //  }
-  
+
   return -1;
 }
 
@@ -1997,6 +2009,110 @@ void MathSequence::stretch_span(
   if(*descent < *core_descent)
     *descent = *core_descent;
 }
+
+void MathSequence::substitute_glyphs(
+  Context    *context,
+  int         start,
+  int         end,
+  uint32_t    script_tag,
+  uint32_t    language_tag,
+  uint32_t    feature_tag,
+  int         feature_parameter
+) {
+  if(feature_parameter == 0)
+    return;
+  
+  cairo_text_extents_t cte;
+  cairo_glyph_t        cg;
+  cg.x = cg.y = 0;
+  
+  int run_start = start;
+  while(run_start < end) {
+    if( glyphs[run_start].composed              ||
+        glyphs[run_start].index == UnknownGlyph)
+    {
+      ++run_start;
+      continue;
+    }
+    
+    int next_run = run_start + 1;
+    for(; next_run < end; ++next_run) {
+      if(glyphs[next_run].composed || glyphs[next_run].index == UnknownGlyph)
+        break;
+        
+      if(glyphs[run_start].fontinfo != glyphs[next_run].fontinfo)
+        break;
+      if(glyphs[run_start].slant != glyphs[next_run].slant)
+        break;
+      if(glyphs[run_start].is_normal_text != glyphs[next_run].is_normal_text)
+        break;
+    }
+    
+    SharedPtr<TextShaper> shaper;
+    if(glyphs[run_start].is_normal_text)
+      shaper = context->text_shaper;
+    else
+      shaper = context->math_shaper;
+      
+    FontFace face = shaper->font(glyphs[run_start].fontinfo);
+    FontInfo info(face);
+    static Array<int> lookup_indices;
+    
+    lookup_indices.length(0);
+    
+//    info.add_gsub_required_feature_lookups(
+//      script_tag,
+//      language_tag,
+//      &lookup_indices);
+
+    info.add_gsub_feature_lookups(
+      script_tag,
+      language_tag,
+      feature_tag,
+      &lookup_indices);
+      
+    if(lookup_indices.length() > 0) {
+      context->canvas->set_font_face(face);
+      
+      for(int i = run_start; i < next_run; ++i) {
+        uint16_t index = glyphs[i].index;
+        
+        index = info.substitute_single_glyph(
+                  index,
+                  lookup_indices,
+                  feature_parameter);
+                  
+        if(glyphs[i].index != index) {
+          glyphs[i].index = index;
+          cg.index = index;
+          
+          context->canvas->glyph_extents(&cg, 1, &cte);
+          glyphs[i].right = cte.x_advance;
+//          // for debugging:
+//          context->pre_paint_hooks.add(
+//            this,
+//            new SelectionFillHook(i, i + 1, 0x0080FF, 0.5));
+        }
+      }
+    }
+    
+    run_start = next_run;
+  }
+}
+
+/*void MathSequence::apply_ot_features(Context *context) {
+
+  if(context->script_indent > 0) {
+    context->math_shaper->substitute_glyphs(
+      context,
+      next - *pos,
+      glyphs.items() + *pos,
+      FONT_TAG_NAME('m', 'a', 't', 'h'),
+      FONT_TAG_NAME('d', 'f', 'l', 't'),
+      FONT_TAG_NAME('s', 's', 't', 'y'),
+      context->script_indent);
+  }
+}*/
 
 void MathSequence::group_number_digits(Context *context, int start, int end) {
   static const int min_int_digits  = 5;

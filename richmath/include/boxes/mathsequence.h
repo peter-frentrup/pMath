@@ -93,7 +93,7 @@ namespace richmath {
         Span     span,
         int     *pos,
         int     *box);
-        
+      
       void stretch_span(
         Context *context,
         Span     span,
@@ -103,6 +103,15 @@ namespace richmath {
         float   *core_descent,
         float   *ascent,
         float   *descent);
+        
+      void substitute_glyphs(
+        Context    *context,
+        int         start,
+        int         end,
+        uint32_t    script_tag,
+        uint32_t    language_tag,
+        uint32_t    feature_tag,
+        int         feature_parameter);
         
       void group_number_digits(Context *context, int start, int end);
       void enlarge_space(Context *context);

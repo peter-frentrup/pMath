@@ -4,17 +4,16 @@
 
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
 
-- richmath: (esp. Cambria Math font): use "ssty" opentype table for sub-/superscript and 
-	superscriptscript, ... from of \[Prime]. 
-	Maybe (?) use it always (also in script level 0) for \[Prime], \[DoublePrime], ... outside of 
-	strings to be consistent with Asana Math, MathematicaMono, ... ?
+- richmath: add FontFeatures -> {"liga", "ssty"->2, ...} style/option
+
+? richmath: Maybe always use the ssty=1 variant (also in script level 0) for \[Prime], 
+	\[DoublePrime], ... outside of strings to make Cambria Math consistent with Asana Math, 
+	MathematicaMono, ... ?
 
 - richmath: add glyphs for \[LeftBracketingBar], \[LeftDoubleBracketingBar], \[LeftInvisibleBracket], ...
 	to pMathFallback.ttf font: Text alongside Mathematica shapers would otherwise show invalid glyph.
 
 - pmath: add SetStreamPosition() for binary streams
-	
-- richmath: add Usp10.dll (redistributable) to the depencies for Win2k, WinXP
 
 ? add InputDocument(): Palettes may be the SelectedDocument(), but never the InputDocument()
 
