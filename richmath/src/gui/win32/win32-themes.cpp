@@ -44,8 +44,6 @@ HANDLE(WINAPI * Win32Themes::EndBufferedPaint)(HANDLE, BOOL) = 0;
 BOOL (WINAPI * Win32Themes::IsCompositionActive)(void) = 0;
 BOOL (WINAPI * Win32Themes::IsThemeActive)(void) = 0;
 
-HRESULT(WINAPI * Win32Themes::ScriptSubstituteSingleGlyph)(HDC, SCRIPT_CACHE *, SCRIPT_ANALYSIS *, /*OPENTYPE_TAG*/ULONG, /*OPENTYPE_TAG*/ULONG, /*OPENTYPE_TAG*/ULONG, LONG, WORD, WORD *) = 0;
-
 HMODULE Win32Themes::dwmapi = 0;
 HMODULE Win32Themes::uxtheme = 0;
 HMODULE Win32Themes::usp10dll = 0;
@@ -168,15 +166,6 @@ Win32Themes::Win32Themes(): Base() {
     if(BufferedPaintInit)
       BufferedPaintInit();
   }
-  
-  usp10dll = LoadLibrary("usp10.dll");
-  if(usp10dll) {
-    ScriptSubstituteSingleGlyph = (HRESULT(WINAPI *)(HDC, SCRIPT_CACHE *, SCRIPT_ANALYSIS *, /*OPENTYPE_TAG*/ULONG, /*OPENTYPE_TAG*/ULONG, /*OPENTYPE_TAG*/ULONG, LONG, WORD, WORD *))
-                                  GetProcAddress(dwmapi, "ScriptSubstituteSingleGlyph");
-                                  
-    if(!ScriptSubstituteSingleGlyph)
-      fprintf(stderr, "no ScriptSubstituteSingleGlyph() in usp10.dll\n");
-  }
 }
 
 Win32Themes::~Win32Themes() {
@@ -223,8 +212,6 @@ Win32Themes::~Win32Themes() {
   EndBufferedPaint = 0;
   IsCompositionActive = 0;
   IsThemeActive = 0;
-  
-  ScriptSubstituteSingleGlyph = 0;
 }
 
 bool Win32Themes::current_theme_is_aero() {

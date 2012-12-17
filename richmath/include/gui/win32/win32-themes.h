@@ -201,9 +201,6 @@ namespace richmath {
       static BOOL (WINAPI *IsCompositionActive)(void);
       static BOOL (WINAPI *IsThemeActive)(void);
       
-      // usp10.dll >= Vista
-      static HRESULT(WINAPI *ScriptSubstituteSingleGlyph)(HDC,SCRIPT_CACHE*,SCRIPT_ANALYSIS*,/*OPENTYPE_TAG*/ULONG,/*OPENTYPE_TAG*/ULONG,/*OPENTYPE_TAG*/ULONG,LONG,WORD,WORD*);
-      
       static void init();
       static bool current_theme_is_aero();
       static bool check_osversion(int min_major, int min_minor);
