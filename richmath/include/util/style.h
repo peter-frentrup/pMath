@@ -113,6 +113,7 @@ namespace richmath {
     ScriptSizeMultipliers,
     TextShadow,
     FontFamilies,
+    FontFeatures,
     UnknownOptions,
     
     BoxRotation,

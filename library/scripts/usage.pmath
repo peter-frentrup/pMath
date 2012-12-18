@@ -245,6 +245,7 @@ Fold::usage:= "Fold(\(StyleBox(\"list\", \"Arg\")\), \(StyleBox(\"f\", \"Arg\")\
 FoldList::usage:= "FoldList({\(StyleBox(\"a\", \"Arg\")\), \(StyleBox(\"b\", \"Arg\")\), \[Ellipsis]}, \(StyleBox(\"f\", \"Arg\")\), \(StyleBox(\"x\", \"Arg\")\)) gives {\(StyleBox(\"x\", \"Arg\")\), \(StyleBox(\"f\", \"Arg\")\)(\(StyleBox(\"x\", \"Arg\")\), \(StyleBox(\"a\", \"Arg\")\)), \(StyleBox(\"f\", \"Arg\")\)(\(StyleBox(\"f\", \"Arg\")\)(\(StyleBox(\"x\", \"Arg\")\), \(StyleBox(\"a\", \"Arg\")\)), \(StyleBox(\"b\", \"Arg\")\)), \[Ellipsis]}."
 FontColor::usage:= "FontColor is an option for Section, Style and related constructs which specifies the default color in which to render text."
 FontFamily::usage:= "FontFamily is an option for Section, Style and related constructs which specifies the font family in which text should be rendered."
+FontFeatures:usage:= "FontFeatures is an option for Section, Style and related constructs which specifies OpenType font features to apply to text."
 FontSize::usage:= "FontSize is an option for Section, Style and related constructs which specifies the default font size in which to render text."
 FontSlant::usage:= "FontSlant is an option for Section, Style and related constructs which specifies how slanted characters in text should be."
 FontWeight::usage:= "FontWeight is an option for Style, Section and related constructs which specifies how heavy characters in a font should be."

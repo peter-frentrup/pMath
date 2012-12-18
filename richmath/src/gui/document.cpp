@@ -1618,8 +1618,8 @@ void Document::raw_select(Box *box, int start, int end) {
     
     if(selection_box())
       selection_box()->request_repaint_range(selection_start(), selection_end());
-    
-    for(int i = 0;i < additional_selection.length();++i) {
+      
+    for(int i = 0; i < additional_selection.length(); ++i) {
       b = additional_selection[i].get();
       if(b)
         b->request_repaint_range(additional_selection[i].start, additional_selection[i].end);
@@ -3618,6 +3618,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   native()->page_size(&_page_width, &h);
   native()->scroll_pos(&_scrollx, &sy);
   
+  context.fontfeatures.clear();
+  context.fontfeatures.add(context.stylesheet->get_with_base(style, FontFeatures));
+  
   context.width = _page_width;
   context.section_content_window_width = _window_width;
   
@@ -3745,10 +3748,10 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     
     canvas->translate(_scrollx, sy);
     
-    if(last_paint_sel != context.selection){
+    if(last_paint_sel != context.selection) {
       last_paint_sel = context.selection;
       
-      for(int i = 0;i < additional_selection.length();++i) {
+      for(int i = 0; i < additional_selection.length(); ++i) {
         Box *b = additional_selection[i].get();
         
         if(b)

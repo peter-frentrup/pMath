@@ -892,6 +892,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_FOLDLIST                         = NEW_SYSTEM_SYMBOL("FoldList"))
   VERIFY(   PMATH_SYMBOL_FONTCOLOR                        = NEW_SYSTEM_SYMBOL("FontColor"))
   VERIFY(   PMATH_SYMBOL_FONTFAMILY                       = NEW_SYSTEM_SYMBOL("FontFamily"))
+  VERIFY(   PMATH_SYMBOL_FONTFEATURES                     = NEW_SYSTEM_SYMBOL("FontFeatures"))
   VERIFY(   PMATH_SYMBOL_FONTSIZE                         = NEW_SYSTEM_SYMBOL("FontSize"))
   VERIFY(   PMATH_SYMBOL_FONTSLANT                        = NEW_SYSTEM_SYMBOL("FontSlant"))
   VERIFY(   PMATH_SYMBOL_FONTWEIGHT                       = NEW_SYSTEM_SYMBOL("FontWeight"))

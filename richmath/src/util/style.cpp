@@ -300,6 +300,7 @@ namespace {
           add(StyleTypeAny,             ScriptSizeMultipliers,            Symbol( PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS));
           add(StyleTypeAny,             TextShadow,                       Symbol( PMATH_SYMBOL_TEXTSHADOW));
           add(StyleTypeAny,             FontFamilies,                     Symbol( PMATH_SYMBOL_FONTFAMILY));
+          add(StyleTypeAny,             FontFeatures,                     Symbol( PMATH_SYMBOL_FONTFEATURES));
           add(StyleTypeAny,             BoxRotation,                      Symbol( PMATH_SYMBOL_BOXROTATION));
           add(StyleTypeAny,             BoxTransformation,                Symbol( PMATH_SYMBOL_BOXTRANSFORMATION));
           add(StyleTypeAny,             PlotRange,                        Symbol( PMATH_SYMBOL_PLOTRANGE));
@@ -1430,6 +1431,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(Evaluatable);
   emit_pmath(FontColor);
   emit_pmath(FontFamilies);
+  emit_pmath(FontFeatures);
   emit_pmath(FontSize);
   emit_pmath(FontSlant);
   emit_pmath(FontWeight);

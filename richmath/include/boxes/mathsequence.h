@@ -7,6 +7,7 @@
 
 
 namespace richmath {
+  class FontFeatureSet;
   class SpanExpr;
   
   class Line {
@@ -103,15 +104,18 @@ namespace richmath {
         float   *core_descent,
         float   *ascent,
         float   *descent);
+      
+      void apply_glyph_substitutions(Context *context);
         
       void substitute_glyphs(
-        Context    *context,
-        int         start,
-        int         end,
-        uint32_t    script_tag,
-        uint32_t    language_tag,
-        uint32_t    feature_tag,
-        int         feature_parameter);
+        Context              *context,
+        int                   start,
+        int                   end,
+        uint32_t              math_script_tag,
+        uint32_t              math_language_tag,
+        uint32_t              text_script_tag,
+        uint32_t              text_language_tag,
+        const FontFeatureSet &features);
         
       void group_number_digits(Context *context, int start, int end);
       void enlarge_space(Context *context);

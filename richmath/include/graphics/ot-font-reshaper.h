@@ -1,6 +1,8 @@
 #ifndef __GRAPHICS__OT_FONT_RESHAPER_H__
 #define __GRAPHICS__OT_FONT_RESHAPER_H__
 
+#include <graphics/shapers.h>
+
 #include <stdint.h>
 
 
@@ -10,12 +12,6 @@ namespace richmath {
     uint16_t lo;
   } UnalignedBEUint32;
   
-#define FONT_TAG_NAME(a,b,c,d) \
-  ( ((uint32_t)(a) << 24) \
-    | ((uint32_t)(b) << 16) \
-    | ((uint32_t)(c) << 8) \
-    |  (uint32_t)(d))
-  
   class BigEndian {
     public:
 //      static uint32_t read(uint32_t value) {
@@ -23,7 +19,7 @@ namespace richmath {
 //
 //        return ((uint32_t)p[0] << 24) + ((uint32_t)p[1] << 16) + ((uint32_t)p[2] << 8) + (uint32_t)p[3];
 //      }
-      
+
       static uint32_t read(UnalignedBEUint32 value) {
         return ((uint32_t)read(value.hi) << 16) + (uint32_t)read(value.lo);
       }
@@ -39,6 +35,138 @@ namespace richmath {
         
         return (int16_t)(((uint16_t)p[0] << 8) + (uint16_t)p[1]);
       }
+  };
+  
+  class GlyphSubstitutions;
+  class Lookup;
+  class LookupSubTable;
+  class SingleSubstitution;
+  class MultipleSubstitution;
+  class AlternateSubstitution;
+  class LigatureSubstitution;
+  class ContextSubstitution;
+  class ChainingContextSubstitution {};
+  class ExtensionSubstitution;
+  class ReverseChainingContextSubstitution {};
+  
+#define FONT_TAG_NAME(a,b,c,d) \
+  ( ((uint32_t)(a) << 24) \
+    | ((uint32_t)(b) << 16) \
+    | ((uint32_t)(c) << 8) \
+    |  (uint32_t)(d))
+  
+  class FontFeatureSet: public Base {
+    public:
+      FontFeatureSet();
+      
+      static uint32_t tag_from_name(const String &s);
+      static uint32_t tag_from_name(const char *s);
+      
+      bool empty() const { return _tag_to_value.size() == 0; }
+      
+      bool has_feature( uint32_t tag) const { return _tag_to_value[tag] != 0; }
+      int feature_value(uint32_t tag) const { return _tag_to_value[tag]; }
+      
+      void set_feature(uint32_t tag, int value) {
+        if(!value)
+          _tag_to_value.remove(tag);
+        else
+          _tag_to_value.set(tag, value);
+      }
+      
+      void clear() { _tag_to_value.clear(); }
+      void add(const FontFeatureSet &other);
+      void add(Expr features);
+      
+    public:
+      static const uint32_t TAG_ssty = FONT_TAG_NAME('s', 's', 't', 'y');
+      
+    private:
+      Hashtable<uint32_t, int, cast_hash> _tag_to_value;
+  };
+  
+  class OTFontReshaper {
+    public:
+      class IndexAndValue {
+        public:
+          IndexAndValue() : index(0), value(0) {}
+          IndexAndValue(int i, int v) : index(i), value(v) {}
+          
+          int index;
+          int value;
+      };
+      
+    public:
+      Array<uint16_t> glyphs;
+      Array<int>      glyph_info;
+      
+    public:
+      // also adds langsys-required lookups
+      static void get_lookups(
+        const GlyphSubstitutions *gsub_table,
+        uint32_t                  script_tag,
+        uint32_t                  language_tag,
+        const FontFeatureSet     &features,
+        Array<IndexAndValue>     *lookups);
+        
+      static uint16_t substitute_single_glyph(
+        const GlyphSubstitutions   *gsub_table,
+        uint16_t                    original_glyph,
+        const Array<IndexAndValue> &lookups);
+        
+      void apply_lookups(
+        const GlyphSubstitutions   *gsub_table,
+        const Array<IndexAndValue> &lookups);
+        
+      
+      void apply_lookup(
+        const Lookup               *lookup,
+        int                         value,
+        int                         position);
+        
+      void apply_single_substitution(
+        const SingleSubstitution *singsub,
+        int                       position);
+        
+      void apply_multiple_substitution(
+        const MultipleSubstitution *multisub,
+        int                         position);
+        
+      void apply_alternate_substitution(
+        const AlternateSubstitution *altsub,
+        int                          alternative,
+        int                          position);
+        
+      void apply_ligature_substitution(
+        const LigatureSubstitution *ligsub,
+        int                         position);
+        
+      void apply_context_substitution(
+        const ContextSubstitution *ctxsub,
+        int                        value,
+        int                        position);
+        
+      void apply_chaining_context_substitution(
+        const ChainingContextSubstitution *ctxsub,
+        int                                value,
+        int                                position);
+        
+      void apply_extension_substitution(
+        const ExtensionSubstitution *extsub,
+        int                          value,
+        int                          position);
+        
+//      void apply_reverse_chaining_context_substitution(
+//        const ReverseChainingContextSubstitution *rccsub,
+//        int                                       value,
+//        int                                       position);
+
+    public:
+      static const uint32_t SCRIPT_DFLT = FONT_TAG_NAME('D', 'F', 'L', 'T');
+      static const uint32_t SCRIPT_latn = FONT_TAG_NAME('l', 'a', 't', 'n');
+      static const uint32_t SCRIPT_math = FONT_TAG_NAME('m', 'a', 't', 'h');
+      
+      static const uint32_t LANG_dflt = FONT_TAG_NAME('d', 'f', 'l', 't');
   };
   
   class GlyphCoverage {
@@ -109,8 +237,6 @@ namespace richmath {
   class FeatureList;
   class Feature;
   class LookupList;
-  class Lookup;
-  class LookupSubTable;
   
   class ScriptList {
     public:
@@ -253,6 +379,10 @@ namespace richmath {
   class AlternateGlyphSet;
   class LigatureSet;
   class Ligature;
+  class SubRuleSet;
+  class SubRule;
+  class SubClassSet;
+  class SubClassRule;
   
   class SingleSubstitution: public LookupSubTable {
     public:
@@ -295,7 +425,7 @@ namespace richmath {
       };
   };
   
-  class AlternateSubstitute: public LookupSubTable {
+  class AlternateSubstitution: public LookupSubTable {
     public:
       const AlternateGlyphSet *search(uint16_t glyph) const;
       
@@ -315,7 +445,7 @@ namespace richmath {
       
   };
   
-  class LigatureSubstitute: public LookupSubTable {
+  class LigatureSubstitution: public LookupSubTable {
     public:
       const LigatureSet *search(uint16_t glyph) const;
       
@@ -329,6 +459,58 @@ namespace richmath {
           uint16_t coverage_offset;
           uint16_t count;
           uint16_t ligature_set_offsets[1]; // [count]
+      };
+      
+  };
+  
+  class ContextSubstitution: public LookupSubTable {
+    public:
+    
+    private:
+      uint16_t _format;
+      
+    private:
+      class Format1 {
+        public:
+          uint16_t format;
+          uint16_t coverage_offset;
+          uint16_t count;
+          uint16_t sub_rule_set_offsets[1]; // [count]
+      };
+      
+      class Format2 {
+        public:
+          uint16_t format;
+          uint16_t coverage_offset;
+          uint16_t classdef_offset;
+          uint16_t count;
+          uint16_t sub_class_set_offsets[1]; // [count]
+      };
+      
+      class Format3 {
+        public:
+          uint16_t format;
+          uint16_t glyph_count;
+          uint16_t subst_count;
+          uint16_t coverage_offsets[1]; // [glyph_count]
+          //SubstLookupRecord subst_lookup_offsets[1]; // [subst_count]
+      };
+  };
+  
+  class ExtensionSubstitution: public LookupSubTable {
+    public:
+      int                   extension_type() const;
+      const LookupSubTable *extension_sub_table() const;
+      
+    private:
+      uint16_t _format;
+      
+    private:
+      class Format1 {
+        public:
+          uint16_t          format;
+          uint16_t          extension_lookup_type;
+          UnalignedBEUint32 extension_offset;
       };
       
   };
@@ -375,6 +557,65 @@ namespace richmath {
       uint16_t _rest_components[1]; // [_count - 1]
   };
   
+  class SubstLookupRecord {
+    public:
+      int sequence_index() const;
+      int lookup_list_index() const;
+      
+    private:
+      uint16_t _sequence_index;
+      uint16_t _lookup_list_index;
+  };
+  
+  class SubRuleSet {
+    public:
+      int            count() const;
+      const SubRule *rule(int i) const;
+      
+    private:
+      uint16_t _count;
+      uint16_t _rule_offsets[1]; // [_count]
+  };
+  
+  class SubRule {
+    public:
+      int glyph_count() const;
+      int subst_count() const;
+      
+      uint16_t                 rest_glyph(int i) const; // must be >= 1 and < glyph_count
+      const SubstLookupRecord *lookup_record(int i) const;
+      
+    private:
+      uint16_t _glyph_count;
+      uint16_t _subst_count;
+      uint16_t _rest_glyphs[1]; // [_glyph_count - 1]
+      //SubstLookupRecord _subst_lookup_records[_subst_count]
+  };
+  
+  class SubClassSet {
+    public:
+      int                 count() const;
+      const SubClassRule *class_rule(int i) const;
+      
+    private:
+      uint16_t _count;
+      uint16_t _class_rule_offsets[1]; // [_count]
+  };
+  
+  class SubClassRule {
+    public:
+      int glyph_count() const;
+      int subst_count() const;
+      
+      const ClassDef          *rest_glyph_class(int i) const; // must be >= 1 and < glyph_count
+      const SubstLookupRecord *lookup_record(int i) const;
+      
+    private:
+      uint16_t _glyph_count;
+      uint16_t _subst_count;
+      uint16_t _rest_glyph_class_offsets[1]; // [_glyph_count - 1]
+      //SubstLookupRecord _subst_lookup_records[_subst_count]
+  };
 }
 
 #endif // __GRAPHICS__OT_FONT_RESHAPER_H__

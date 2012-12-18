@@ -331,7 +331,10 @@ static void init_stylesheet() {
                                         PMATH_SYMBOL_BUTTONBOX,
                                         PMATH_SYMBOL_BUTTONFUNCTION,
                                         PMATH_UNDEFINED)));
-                                        
+  
+//  Stylesheet::Default->base->set(FontFeatures,
+//                                 List(Rule(String("ssty"), Symbol(PMATH_SYMBOL_AUTOMATIC))));
+  
 //  Stylesheet::Default->base->set(GeneratedSectionStyles,
 //                                 Parse("{~FE`Private`style :> FE`Private`style}"));
 
@@ -343,6 +346,7 @@ static void init_stylesheet() {
   s->set(WindowTitle,                      String()); // === Automatic
   s->set(DefaultNewSectionStyle,           String("Input"));
   s->set(DefaultReturnCreatedSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
+  s->set(FontFeatures,                     List(Rule(String("ssty"), Symbol(PMATH_SYMBOL_AUTOMATIC))));
   Stylesheet::Default->styles.set("Document", s);
   
   s = new Style;

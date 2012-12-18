@@ -337,6 +337,7 @@ void ContextState::begin(SharedPtr<Style> style) {
   old_math_spacing           = ctx->math_spacing;
   old_show_auto_styles       = ctx->show_auto_styles;
   old_show_string_characters = ctx->show_string_characters;
+  have_font_feature_set      = false;
   
   old_antialiasing           = (cairo_antialias_t) - 1;
   old_script_size_multis.length(0);
@@ -370,6 +371,10 @@ void ContextState::begin(SharedPtr<Style> style) {
       }
     }
     
+    if(ctx->stylesheet->get(style, AutoSpacing, &i)) {
+      ctx->math_spacing = i;
+      //show_auto_styles = i;
+    }
     
     FontStyle fs = ctx->text_shaper->get_style();
     if(ctx->stylesheet->get(style, FontSlant, &i)) {
@@ -431,19 +436,25 @@ void ContextState::begin(SharedPtr<Style> style) {
     else
       ctx->text_shaper = ctx->text_shaper->set_style(fs);
       
-    if(ctx->stylesheet->get(style, ScriptSizeMultipliers, &expr)) {
-      old_script_size_multis.swap(ctx->script_size_multis);
-      ctx->set_script_size_multis(expr);
+    if(ctx->stylesheet->get(style, FontFeatures, &expr)) {
+      have_font_feature_set = true;
+      old_font_feature_set.clear();
+      old_font_feature_set.add(ctx->fontfeatures);
+      
+      ctx->fontfeatures.add(expr);
     }
-    
     
     if(ctx->stylesheet->get(style, FontSize, &f)) {
       ctx->canvas->set_font_size(f);
     }
     
-    if(ctx->stylesheet->get(style, AutoSpacing, &i)) {
-      ctx->math_spacing = i;
-      //show_auto_styles = i;
+    if(ctx->stylesheet->get(style, LineBreakWithin, &i) && !i) {
+      ctx->width = Infinity;
+    }
+    
+    if(ctx->stylesheet->get(style, ScriptSizeMultipliers, &expr)) {
+      old_script_size_multis.swap(ctx->script_size_multis);
+      ctx->set_script_size_multis(expr);
     }
     
     if(ctx->stylesheet->get(style, ShowAutoStyles, &i)) {
@@ -453,10 +464,6 @@ void ContextState::begin(SharedPtr<Style> style) {
     
     if(ctx->stylesheet->get(style, ShowStringCharacters, &i)) {
       ctx->show_string_characters = i;
-    }
-    
-    if(ctx->stylesheet->get(style, LineBreakWithin, &i) && !i) {
-      ctx->width = Infinity;
     }
   }
 }
@@ -477,6 +484,11 @@ void ContextState::end() {
     
   if(old_script_size_multis.length() > 0)
     old_script_size_multis.swap(ctx->script_size_multis);
+  
+  if(have_font_feature_set){
+    ctx->fontfeatures.clear();
+    ctx->fontfeatures.add(old_font_feature_set);
+  }
 }
 
 //} ... class ContextState

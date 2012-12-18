@@ -709,6 +709,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "Editable->Inherited,"
                 "FontColor->Inherited,"
                 "FontFamily->Inherited,"
+                "FontFeatures->Inherited,"
                 "FontSize->Inherited,"
                 "FontSlant->Inherited,"
                 "FontWeight->Inherited,"
@@ -844,6 +845,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "Editable->Inherited,"
                 "FontColor->Inherited,"
                 "FontFamily->Inherited,"
+                "FontFeatures->Inherited,"
                 "FontSize->Inherited,"
                 "FontSlant->Inherited,"
                 "FontWeight->Inherited,"
@@ -875,6 +877,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "Evaluatable->False,"
                 "FontColor->GrayLevel(0),"
                 "FontFamily->\"Times\","
+                "FontFeatures->Inherited," // FontFeatures -> {"ssty" -> Automatic}
                 "FontSize->10,"
                 "FontSlant->Plain,"
                 "FontWeight->Plain,"

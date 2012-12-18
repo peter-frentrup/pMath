@@ -6,7 +6,7 @@
 #include <util/sharedptr.h>
 
 #include <graphics/paint-hook.h>
-#include <graphics/shapers.h>
+#include <graphics/ot-font-reshaper.h>
 
 
 namespace richmath {
@@ -81,8 +81,9 @@ namespace richmath {
       float last_cursor_x[2];
       float last_cursor_y[2];
       
-      String    fontname;
-      FontStyle fontstyle;
+      String         fontname;
+      FontStyle      fontstyle;
+      FontFeatureSet fontfeatures;
       
       SharedPtr<TextShaper> text_shaper;
       SharedPtr<MathShaper> math_shaper;
@@ -137,9 +138,12 @@ namespace richmath {
       bool                  old_show_auto_styles;
       bool                  old_show_string_characters;
       
+      bool                  have_font_feature_set;
+      
       // not always set:
       cairo_antialias_t     old_antialiasing;
       Array<float>          old_script_size_multis;
+      FontFeatureSet        old_font_feature_set;
   };
   
   class AutoCallPaintHooks: public Base {

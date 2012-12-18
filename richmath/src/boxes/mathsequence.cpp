@@ -190,16 +190,7 @@ void MathSequence::resize(Context *context) {
   while(pos < glyphs.length())
     resize_span(context, spans[pos], &pos, &box);
     
-  if(context->script_indent > 0) {
-    substitute_glyphs(
-      context,
-      0,
-      glyphs.length(),
-      FONT_TAG_NAME('m', 'a', 't', 'h'),
-      FONT_TAG_NAME('d', 'f', 'l', 't'),
-      FONT_TAG_NAME('s', 's', 't', 'y'),
-      context->script_indent);
-  }
+  apply_glyph_substitutions(context);
   
   if(context->show_auto_styles) {
     ScopeColorizer colorizer(this);
@@ -2010,26 +2001,72 @@ void MathSequence::stretch_span(
     *descent = *core_descent;
 }
 
-void MathSequence::substitute_glyphs(
-  Context    *context,
-  int         start,
-  int         end,
-  uint32_t    script_tag,
-  uint32_t    language_tag,
-  uint32_t    feature_tag,
-  int         feature_parameter
-) {
-  if(feature_parameter == 0)
+void MathSequence::apply_glyph_substitutions(Context *context) {
+  if(context->fontfeatures.empty())
     return;
   
+  int old_ssty_feature_value = context->fontfeatures.feature_value(FontFeatureSet::TAG_ssty);
+  if(old_ssty_feature_value < 0)
+    context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, context->script_indent);
+    
+  /* TODO: infer script ("math") and language ("dflt") from style/context.
+   */
+  
+//  substitute_glyphs(
+//    context,
+//    0,
+//    glyphs.length(),
+//    OTFontReshaper::SCRIPT_math,
+//    OTFontReshaper::LANG_dflt,
+//    OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
+//    OTFontReshaper::LANG_dflt,
+//    context->fontfeatures);
+    
+  substitute_glyphs(
+    context,
+    0,
+    glyphs.length(),
+    OTFontReshaper::SCRIPT_math,
+    OTFontReshaper::LANG_dflt,
+    OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
+    OTFontReshaper::LANG_dflt,
+    context->fontfeatures);
+
+  substitute_glyphs(
+    context,
+    0,
+    glyphs.length(),
+    OTFontReshaper::SCRIPT_latn,
+    OTFontReshaper::LANG_dflt,
+    OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
+    OTFontReshaper::LANG_dflt,
+    context->fontfeatures);
+    
+  context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, old_ssty_feature_value);
+}
+
+void MathSequence::substitute_glyphs(
+  Context              *context,
+  int                   start,
+  int                   end,
+  uint32_t              math_script_tag,
+  uint32_t              math_language_tag,
+  uint32_t              text_script_tag,
+  uint32_t              text_language_tag,
+  const FontFeatureSet &features
+) {
+  if(features.empty())
+    return;
+    
+  const uint16_t *buf = str.buffer();
   cairo_text_extents_t cte;
   cairo_glyph_t        cg;
   cg.x = cg.y = 0;
   
   int run_start = start;
   while(run_start < end) {
-    if( glyphs[run_start].composed              ||
-        glyphs[run_start].index == UnknownGlyph)
+    if( glyphs[run_start].composed ||
+        buf[run_start] == PMATH_CHAR_BOX)
     {
       ++run_start;
       continue;
@@ -2037,7 +2074,7 @@ void MathSequence::substitute_glyphs(
     
     int next_run = run_start + 1;
     for(; next_run < end; ++next_run) {
-      if(glyphs[next_run].composed || glyphs[next_run].index == UnknownGlyph)
+      if(glyphs[next_run].composed || buf[run_start] == PMATH_CHAR_BOX)
         break;
         
       if(glyphs[run_start].fontinfo != glyphs[next_run].fontinfo)
@@ -2048,71 +2085,123 @@ void MathSequence::substitute_glyphs(
         break;
     }
     
+    uint32_t script_tag, language_tag;
     SharedPtr<TextShaper> shaper;
-    if(glyphs[run_start].is_normal_text)
+    
+    if(glyphs[run_start].is_normal_text) {
       shaper = context->text_shaper;
-    else
+      script_tag   = text_script_tag;
+      language_tag = text_language_tag;
+    }
+    else {
       shaper = context->math_shaper;
-      
-    FontFace face = shaper->font(glyphs[run_start].fontinfo);
-    FontInfo info(face);
-    static Array<int> lookup_indices;
-    
-    lookup_indices.length(0);
-    
-//    info.add_gsub_required_feature_lookups(
-//      script_tag,
-//      language_tag,
-//      &lookup_indices);
-
-    info.add_gsub_feature_lookups(
-      script_tag,
-      language_tag,
-      feature_tag,
-      &lookup_indices);
-      
-    if(lookup_indices.length() > 0) {
-      context->canvas->set_font_face(face);
-      
-      for(int i = run_start; i < next_run; ++i) {
-        uint16_t index = glyphs[i].index;
-        
-        index = info.substitute_single_glyph(
-                  index,
-                  lookup_indices,
-                  feature_parameter);
-                  
-        if(glyphs[i].index != index) {
-          glyphs[i].index = index;
-          cg.index = index;
-          
-          context->canvas->glyph_extents(&cg, 1, &cte);
-          glyphs[i].right = cte.x_advance;
-//          // for debugging:
-//          context->pre_paint_hooks.add(
-//            this,
-//            new SelectionFillHook(i, i + 1, 0x0080FF, 0.5));
-        }
-      }
+      script_tag   = math_script_tag;
+      language_tag = math_language_tag;
     }
     
+    FontFace face = shaper->font(glyphs[run_start].fontinfo);
+    FontInfo info(face);
+    const GlyphSubstitutions *gsub = info.get_gsub_table();
+    
+    if(gsub){
+      static Array<OTFontReshaper::IndexAndValue> lookups;
+      lookups.length(0);
+      
+      OTFontReshaper::get_lookups(
+        gsub,
+        script_tag,
+        language_tag,
+        features,
+        &lookups);
+        
+      if(lookups.length() > 0) {
+        context->canvas->set_font_face(face);
+        
+        static OTFontReshaper reshaper;
+        
+        reshaper.glyphs.length(    next_run - run_start);
+        reshaper.glyph_info.length(next_run - run_start);
+        
+        reshaper.glyphs.length(0);
+        reshaper.glyph_info.length(0);
+        
+        for(int i = run_start; i < next_run; ++i) {
+          if(glyphs[i].index == IgnoreGlyph) 
+            continue;
+          
+          reshaper.glyphs.add(glyphs[i].index);
+          reshaper.glyph_info.add(i);
+        }
+        
+        reshaper.apply_lookups(gsub, lookups);
+        
+        assert(reshaper.glyphs.length() == reshaper.glyph_info.length());
+        
+        int len = reshaper.glyphs.length();
+        int i = 0;
+        while(i < len) {
+          int i2 = i + 1;
+          
+          int pos = reshaper.glyph_info[i];
+          
+          if(i2 < len && reshaper.glyph_info[i2] == pos) {
+            // no room for "one to many" substitution 
+            
+            ++i2;
+            while(i2 < len && reshaper.glyph_info[i2] == pos)
+              ++i2;
+            
+            i = i2;
+            continue;
+          }
+          
+          int next;
+          if(i2 < len)
+            next = reshaper.glyph_info[i2];
+          else
+            next = next_run;
+          
+          assert(pos < next);
+          
+          if(glyphs[pos].index != reshaper.glyphs[i]){
+            cg.index = glyphs[pos].index = reshaper.glyphs[i];
+            
+            context->canvas->glyph_extents(&cg, 1, &cte);
+            cte.x_advance /= (next - pos);
+            glyphs[pos].right = cte.x_advance;
+            
+            for(int j = pos + 1;j < next;++j) {
+              glyphs[j].right = cte.x_advance;
+              glyphs[j].index = IgnoreGlyph;
+            }
+          }
+          
+          i = i2;
+        }
+        
+        
+//        for(int i = run_start; i < next_run; ++i) {
+//          uint16_t glyph_index = glyphs[i].index;
+//          
+//          glyph_index = OTFontReshaper::substitute_single_glyph(gsub, glyph_index, lookups);
+//          
+//          if(glyphs[i].index != glyph_index) {
+//            glyphs[i].index = glyph_index;
+//            cg.index = glyph_index;
+//            
+//            context->canvas->glyph_extents(&cg, 1, &cte);
+//            glyphs[i].right = cte.x_advance;
+//  //          // for debugging:
+//  //          context->pre_paint_hooks.add(
+//  //            this,
+//  //            new SelectionFillHook(i, i + 1, 0x0080FF, 0.5));
+//          }
+//        }
+      }
+    }
     run_start = next_run;
   }
 }
-
-/*void MathSequence::apply_ot_features(Context *context) {
-
-  if(context->script_indent > 0) {
-    context->math_shaper->substitute_glyphs(
-      context,
-      next - *pos,
-      glyphs.items() + *pos,
-      FONT_TAG_NAME('m', 'a', 't', 'h'),
-      FONT_TAG_NAME('d', 'f', 'l', 't'),
-      FONT_TAG_NAME('s', 's', 't', 'y'),
-      context->script_indent);
-  }
-}*/
 
 void MathSequence::group_number_digits(Context *context, int start, int end) {
   static const int min_int_digits  = 5;

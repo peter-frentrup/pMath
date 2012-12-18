@@ -13,12 +13,12 @@ namespace richmath {
     public:
       FontStyle()
         : italic(0),
-        bold(0)
+          bold(0)
       {}
       
       FontStyle(bool i, bool b)
         : italic(i),
-        bold(b)
+          bold(b)
       {}
       
       FontStyle &operator|=(const FontStyle &other) {
@@ -144,22 +144,9 @@ namespace richmath {
       
       uint16_t char_to_glyph(uint32_t ch);
       
-      void add_gsub_required_feature_lookups(
-        uint32_t    script_tag, 
-        uint32_t    language_tag, 
-        Array<int> *lookup_indices);
-      
-      void add_gsub_feature_lookups(
-        uint32_t    script_tag, 
-        uint32_t    language_tag, 
-        uint32_t    feature_tag,
-        Array<int> *lookup_indices);
-      
-      uint16_t substitute_single_glyph(
-        uint16_t          original_glyph,
-        const Array<int> &lookup_indices,
-        int               alternate_index // = feature value, used for alternates, > 0
-        );
+//      uint16_t substitute_single_glyph(
+//        uint16_t                    original_glyph,
+//        const Array<IndexAndValue> &lookups);
       
       size_t get_truetype_table(
         uint32_t  name,
