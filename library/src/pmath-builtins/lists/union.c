@@ -127,7 +127,7 @@ PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr) {
       for(j = i + 1; j <= exprlen; ++j) {
         current = list_items[j - 1];
         
-        if(pmath_same(current, item)) {
+        if(pmath_equals(current, item)) {
           have_duplicates = TRUE;
           
           list       = pmath_expr_set_item(list, j, PMATH_UNDEFINED);
