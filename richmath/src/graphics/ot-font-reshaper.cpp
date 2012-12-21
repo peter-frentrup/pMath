@@ -126,7 +126,8 @@ void FontFeatureSet::add(Expr features) {
 //{ class OTFontReshaper ...
 
 OTFontReshaper::OTFontReshaper()
-  : current_lookup_list(0)
+  : current_lookup_list(0),
+    next_position(0)
 {
 }
 
@@ -141,7 +142,6 @@ void OTFontReshaper::get_lookups(
     return;
     
   const ScriptList  *script_list  = gsub_table->script_list();
-  const FeatureList *feature_list = gsub_table->feature_list();
   
   const Script *script = script_list->search_script(script_tag);
   if(!script) {
@@ -158,17 +158,25 @@ void OTFontReshaper::get_lookups(
   if(!lang_sys)
     return;
     
+  const FeatureList *feature_list = gsub_table->feature_list();
+  const LookupList  *lookup_list  = gsub_table->lookup_list();
+  
+  static Array<int> lookup_values;
+  lookup_values.length(lookup_list->count());
+  lookup_values.zeromem();
+  
   int feature_index = lang_sys->requied_feature_index();
   if(0 <= feature_index && feature_index < feature_list->count()) {
     const Feature *feature = feature_list->feature(feature_index);
     
-    int len = lookups->length();
-    lookups->length(len + feature->lookup_count());
-    
+//    int len = lookups->length();
+//    lookups->length(len + feature->lookup_count());
+
     for(int li = 0; li < feature->lookup_count(); ++li) {
       int lookup_index = feature->lookup_index(li);
       
-      lookups->set(len + li, IndexAndValue(lookup_index, 1));
+      lookup_values.set(lookup_index, 1);
+//      lookups->set(len + li, IndexAndValue(lookup_index, 1));
     }
   }
   
@@ -183,17 +191,28 @@ void OTFontReshaper::get_lookups(
       if(feature_value) {
         const Feature *feature = feature_list->feature(feature_index);
         
-        int len = lookups->length();
-        lookups->length(len + feature->lookup_count());
-        
+//        int len = lookups->length();
+//        lookups->length(len + feature->lookup_count());
+
         for(int li = 0; li < feature->lookup_count(); ++li) {
           int lookup_index = feature->lookup_index(li);
           
-          lookups->set(len + li, IndexAndValue(lookup_index, feature_value));
+          lookup_values.set(lookup_index, feature_value);
+//          lookups->set(len + li, IndexAndValue(lookup_index, feature_value));
         }
       }
     }
   }
+  
+  int count = 0;
+  for(int li = 0; li < lookup_values.length(); ++li)
+    if(lookup_values[li])
+      ++count;
+      
+  lookups->length(count);
+  for(int li = 0, i = 0; li < lookup_values.length(); ++li)
+    if(lookup_values[li])
+      lookups->set(i++, IndexAndValue(li, lookup_values[li]));
 }
 
 
@@ -232,10 +251,15 @@ void OTFontReshaper::apply_lookups(
   if(lookups.length() == 0)
     return;
     
-  const LookupList *old_lookup_list = current_lookup_list;
+  const LookupList *old_lookup_list   = current_lookup_list;
+  int               old_next_position = next_position;
+  
   current_lookup_list = gsub_table->lookup_list();
   
-  for(int pos = 0; pos < glyphs.length(); ++pos) {
+  int pos = 0;
+  while(pos < glyphs.length()) {
+    next_position = pos + 1;
+    
     for(int i = 0; i < lookups.length(); ++i) {
       const IndexAndValue iav = lookups[i];
       
@@ -246,9 +270,12 @@ void OTFontReshaper::apply_lookups(
           pos);
       }
     }
+    
+    pos = next_position;
   }
   
   current_lookup_list = old_lookup_list;
+  next_position       = old_next_position;
 }
 
 void OTFontReshaper::apply_lookup(
@@ -350,6 +377,9 @@ void OTFontReshaper::apply_multiple_substitution(
   glyphs.insert(    position + 1, seq->count() - 1);
   glyph_info.insert(position + 1, seq->count() - 1);
   
+  if(next_position > position)
+    next_position += seq->count() - 1;
+    
   glyphs[position] = seq->glyph(0);
   
   for(int i = 1; i < seq->count() ; ++i) {
@@ -402,6 +432,11 @@ void OTFontReshaper::apply_ligature_substitution(
         glyphs[position] = lig->ligature_glyph();
         glyphs.remove(    position + 1, liglen - 1);
         glyph_info.remove(position + 1, liglen - 1);
+        if(next_position > position) {
+          next_position -= liglen - 1;
+          if(next_position <= position)
+            next_position = position + 1;
+        }
         return;
       }
     }
@@ -435,6 +470,9 @@ void OTFontReshaper::apply_context_substitution(
           }
           
           if(found) {
+            if(next_position > position)
+              next_position += rule_len - 1;
+              
             apply_lookups_at(
               rule->subst_records(),
               rule->subst_count(),
@@ -483,6 +521,9 @@ void OTFontReshaper::apply_context_substitution(
           }
           
           if(found) {
+            if(next_position > position)
+              next_position += rule_len - 1;
+              
             apply_lookups_at(
               rule->subst_records(),
               rule->subst_count(),
@@ -508,6 +549,9 @@ void OTFontReshaper::apply_context_substitution(
             return;
         }
         
+        if(next_position > position)
+          next_position += length - 1;
+          
         apply_lookups_at(
           ctxsub->format3_subst_records(),
           ctxsub->format3_subst_count(),
@@ -570,6 +614,9 @@ void OTFontReshaper::apply_chaining_context_substitution(
           }
           
           if(found) {
+            if(next_position > position)
+              next_position += ilen - 1;
+              
             apply_lookups_at(
               rule->subst_records(),
               rule->subst_count(),
@@ -665,6 +712,9 @@ void OTFontReshaper::apply_chaining_context_substitution(
           }
           
           if(found) {
+            if(next_position > position)
+              next_position += ilen - 1;
+              
             apply_lookups_at(
               rule->subst_records(),
               rule->subst_count(),
@@ -674,6 +724,46 @@ void OTFontReshaper::apply_chaining_context_substitution(
             return;
           }
         }
+      }
+      return;
+      
+    case 3:
+      {
+        int blen, ilen, llen;
+        ctxsub->format3_get_glyph_counts(&blen, &ilen, &llen);
+        
+        if(position < blen)
+          return;
+          
+        if(position + ilen + llen > glyphs.length())
+          return;
+          
+        for(int b = 0; b < blen; ++b) {
+          if(ctxsub->format3_backtrack_glyph_coverage(b)->find_glyph(glyphs[position - 1 - b]) < 0)
+            return;
+        }
+        
+        for(int i = 0; i < ilen; ++i) {
+          if(ctxsub->format3_input_glyph_coverage(i)->find_glyph(glyphs[position + i]) < 0)
+            return;
+        }
+        
+        for(int l = 0; l < llen; ++l) {
+          if(ctxsub->format3_lookahead_glyph_coverage(l)->find_glyph(glyphs[position + ilen + l]) < 0)
+            return;
+        }
+        
+        int subst_count;
+        const SubstLookupRecord *subst_records = ctxsub->format3_subst_records(&subst_count);
+        
+        if(next_position > position)
+          next_position += ilen - 1;
+          
+        apply_lookups_at(
+          subst_records,
+          subst_count,
+          value,
+          position);
       }
       return;
   }

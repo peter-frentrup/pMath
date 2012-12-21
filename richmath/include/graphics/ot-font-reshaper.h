@@ -104,6 +104,7 @@ namespace richmath {
       
     public:
       const LookupList *current_lookup_list; // tempoarily set by apply_lookups()
+      int               next_position; // tempoarily set by apply_lookups() 
       
     public:
       OTFontReshaper();
