@@ -125,6 +125,11 @@ void FontFeatureSet::add(Expr features) {
 
 //{ class OTFontReshaper ...
 
+OTFontReshaper::OTFontReshaper()
+  : current_lookup_list(0)
+{
+}
+
 void OTFontReshaper::get_lookups(
   const GlyphSubstitutions *gsub_table,
   uint32_t                  script_tag,
@@ -214,82 +219,7 @@ uint16_t OTFontReshaper::substitute_single_glyph(
   
   if(reshaper.glyphs.length() == 1)
     return reshaper.glyphs[0];
-  
-  return original_glyph;
-  
-//  const LookupList *lookup_list = gsub_table->lookup_list();
-//  
-//  for(int i = 0; i < lookups.length(); ++i) {
-//    const IndexAndValue iav = lookups[i];
-//    
-//    if(iav.value > 0 && 0 <= iav.index && iav.index < lookup_list->count()) {
-//      const Lookup *lookup = lookup_list->lookup(iav.index);
-//      
-//      switch(lookup->type()) {
-//        case GlyphSubstitutions::GSUBLookupTypeSingle: {
-//            for(int sub = 0; sub < lookup->sub_table_count(); ++sub) {
-//              const SingleSubstitution *singsub = (const SingleSubstitution *)lookup->sub_table(sub);
-//              
-//              original_glyph = singsub->apply(original_glyph);
-//            }
-//          }
-//          break;
-//          
-//        case GlyphSubstitutions::GSUBLookupTypeAlternate: {
-//            for(int sub = 0; sub < lookup->sub_table_count(); ++sub) {
-//              const AlternateSubstitute *altsub = (const AlternateSubstitute *)lookup->sub_table(sub);
-//              
-//              const AlternateGlyphSet *altset = altsub->search(original_glyph);
-//              if(altset) {
-//                if(iav.value < altset->count())
-//                  original_glyph = altset->glyph(iav.value);
-//                else if(altset->count() > 0)
-//                  original_glyph = altset->glyph(altset->count() - 1);
-//              }
-//            }
-//          }
-//          break;
-//          
-//        case GlyphSubstitutions::GSUBLookupTypeExtensionSubstitution: {
-//            for(int sub = 0; sub < lookup->sub_table_count(); ++sub) {
-//              const ExtensionSubstitution *extsub = (const ExtensionSubstitution *)lookup->sub_table(sub);
-//              
-//              switch(extsub->extension_type()) {
-//                case GlyphSubstitutions::GSUBLookupTypeSingle: {
-//                    const SingleSubstitution *singsub = (const SingleSubstitution *)extsub->extension_sub_table();
-//                    
-//                    original_glyph = singsub->apply(original_glyph);
-//                  }
-//                  break;
-//                  
-//                case GlyphSubstitutions::GSUBLookupTypeAlternate: {
-//                    const AlternateSubstitute *altsub = (const AlternateSubstitute *)extsub->extension_sub_table();
-//                    
-//                    const AlternateGlyphSet *altset = altsub->search(original_glyph);
-//                    if(altset) {
-//                      if(iav.value < altset->count())
-//                        original_glyph = altset->glyph(iav.value);
-//                      else if(altset->count() > 0)
-//                        original_glyph = altset->glyph(altset->count() - 1);
-//                    }
-//                  }
-//                  break;
-//          
-//                default:
-//                  //pmath_debug_print("[substitute_single_glyph() cannot handle extension lookup type %d]\n", lookup->type());
-//                  break;
-//              }
-//            }
-//          }
-//          break;
-//          
-//        default:
-//          //pmath_debug_print("[substitute_single_glyph() cannot handle lookup type %d]\n", lookup->type());
-//          break;
-//      }
-//    }
-//  }
-  
+    
   return original_glyph;
 }
 
@@ -302,20 +232,23 @@ void OTFontReshaper::apply_lookups(
   if(lookups.length() == 0)
     return;
     
-  const LookupList *lookup_list = gsub_table->lookup_list();
+  const LookupList *old_lookup_list = current_lookup_list;
+  current_lookup_list = gsub_table->lookup_list();
   
   for(int pos = 0; pos < glyphs.length(); ++pos) {
     for(int i = 0; i < lookups.length(); ++i) {
       const IndexAndValue iav = lookups[i];
       
-      if(iav.value > 0 && 0 <= iav.index && iav.index < lookup_list->count()) {
+      if(iav.value > 0 && 0 <= iav.index && iav.index < current_lookup_list->count()) {
         apply_lookup(
-          lookup_list->lookup(iav.index),
+          current_lookup_list->lookup(iav.index),
           iav.value,
           pos);
       }
     }
   }
+  
+  current_lookup_list = old_lookup_list;
 }
 
 void OTFontReshaper::apply_lookup(
@@ -480,6 +413,109 @@ void OTFontReshaper::apply_context_substitution(
   int                        value,
   int                        position
 ) {
+  if(!current_lookup_list)
+    return;
+    
+  switch(ctxsub->format()) {
+    case 1:
+      if(const SubRuleSet *rule_set = ctxsub->format1_search_rule_set(glyphs[position])) {
+        for(int r = 0; r < rule_set->count(); ++r) {
+          const SubRule *rule = rule_set->rule(r);
+          
+          int rule_len = rule->glyph_count();
+          if(position + rule_len > glyphs.length())
+            continue;
+            
+          bool found = true;
+          for(int g = 1; g < rule_len; ++g) {
+            if(rule->rest_glyph(g) != glyphs[position + g]) {
+              found = false;
+              break;
+            }
+          }
+          
+          if(found) {
+            apply_lookups_at(
+              rule->subst_records(),
+              rule->subst_count(),
+              value,
+              position);
+              
+            return;
+          }
+        }
+      }
+      return;
+      
+    case 2:
+      if(const SubClassSet *class_set = ctxsub->format2_search_class_set(glyphs[position])) {
+        const ClassDef *classdef = ctxsub->format2_get_classdef();
+        
+        OT_ASSERT(classdef != NULL);
+        
+        static Array<int> rest_glyph_classes;
+        rest_glyph_classes.length(0);
+        for(int r = 0; r < class_set->count(); ++r) {
+          const SubClassRule *rule = class_set->class_rule(r);
+          
+          int rule_len = rule->glyph_count();
+          
+          if(position + rule_len > glyphs.length())
+            continue;
+            
+          for(int g = 1 + rest_glyph_classes.length(); g < rule_len; ++g)
+            rest_glyph_classes.add(classdef->get_glyph_class(glyphs[position + g]));
+        }
+        
+        for(int r = 0; r < class_set->count(); ++r) {
+          const SubClassRule *rule = class_set->class_rule(r);
+          
+          int rule_len = rule->glyph_count();
+          if(position + rule_len > glyphs.length())
+            continue;
+            
+          bool found = true;
+          for(int g = 1; g < rule_len; ++g) {
+            if(rule->rest_glyph_class(g) != rest_glyph_classes[g - 1]) {
+              found = false;
+              break;
+            }
+          }
+          
+          if(found) {
+            apply_lookups_at(
+              rule->subst_records(),
+              rule->subst_count(),
+              value,
+              position);
+              
+            return;
+          }
+        }
+      }
+      return;
+      
+    case 3:
+      {
+        int length = ctxsub->format3_glyph_count();
+        
+        if(position + length > glyphs.length())
+          return;
+          
+        for(int pos = 0; pos < length; ++pos) {
+          const GlyphCoverage *coverage = ctxsub->format3_glyph_coverage(pos);
+          if(coverage->find_glyph(glyphs[position + pos]) < 0)
+            return;
+        }
+        
+        apply_lookups_at(
+          ctxsub->format3_subst_records(),
+          ctxsub->format3_subst_count(),
+          value,
+          position);
+      }
+      return;
+  }
 }
 
 void OTFontReshaper::apply_chaining_context_substitution(
@@ -487,6 +523,160 @@ void OTFontReshaper::apply_chaining_context_substitution(
   int                                value,
   int                                position
 ) {
+  if(!current_lookup_list)
+    return;
+    
+  switch(ctxsub->format()) {
+    case 1:
+      if(const ChainSubRuleSet *rule_set = ctxsub->format1_search_chain_rule_set(glyphs[position])) {
+        for(int r = 0; r < rule_set->count(); ++r) {
+          const ChainSubRule *rule = rule_set->rule(r);
+          
+          int blen = rule->backtrack_glyph_count();
+          if(position < blen)
+            continue;
+            
+          int ilen = rule->input_glyph_count();
+          int llen = rule->lookahead_glyph_count();
+          if(position + ilen + llen > glyphs.length())
+            continue;
+            
+          bool found = true;
+          for(int b = 0; b < blen; ++b) {
+            if(rule->backtrack_glyph(b) != glyphs[position - b - 1]) {
+              found = false;
+              break;
+            }
+          }
+          
+          if(!found)
+            continue;
+            
+          for(int i = 1; i < ilen; ++i) {
+            if(rule->rest_input_glyph(i) != glyphs[position + i]) {
+              found = false;
+              break;
+            }
+          }
+          
+          if(!found)
+            continue;
+            
+          for(int l = 1; l < llen; ++l) {
+            if(rule->lookahead_glyph(l) != glyphs[position + ilen + l]) {
+              found = false;
+              break;
+            }
+          }
+          
+          if(found) {
+            apply_lookups_at(
+              rule->subst_records(),
+              rule->subst_count(),
+              value,
+              position);
+              
+            return;
+          }
+        }
+      }
+      return;
+      
+    case 2:
+      if(const ChainSubClassRuleSet *class_set = ctxsub->format2_search_class_set(glyphs[position])) {
+        const ClassDef *b_classdef = ctxsub->format2_get_backtrack_classdef();
+        const ClassDef *i_classdef = ctxsub->format2_get_input_classdef();
+        const ClassDef *l_classdef = ctxsub->format2_get_lookahead_classdef();
+        
+        OT_ASSERT(b_classdef != NULL);
+        OT_ASSERT(i_classdef != NULL);
+        OT_ASSERT(l_classdef != NULL);
+        
+        static Array<int> backward_glyph_classes;
+        backward_glyph_classes.length(0);
+        
+        static Array<int> rest_glyph_classes;
+        rest_glyph_classes.length(0);
+        
+        for(int r = 0; r < class_set->count(); ++r) {
+          const ChainSubClassRule *rule = class_set->rule(r);
+          
+          int blen = rule->backtrack_glyph_count();
+          
+          if(position < blen)
+            continue;
+            
+          int ilen = rule->input_glyph_count();
+          int llen = rule->lookahead_glyph_count();
+          
+          if(position + ilen + llen > glyphs.length())
+            continue;
+            
+          for(int b = backward_glyph_classes.length(); b < blen; ++b)
+            backward_glyph_classes.add(b_classdef->get_glyph_class(glyphs[position - b - 1]));
+            
+          for(int i = 1 + rest_glyph_classes.length(); i < ilen; ++i)
+            rest_glyph_classes.add(i_classdef->get_glyph_class(glyphs[position + i]));
+            
+          for(int l = 1 + rest_glyph_classes.length(); l < ilen + llen; ++l)
+            rest_glyph_classes.add(l_classdef->get_glyph_class(glyphs[position + l]));
+        }
+        
+        for(int r = 0; r < class_set->count(); ++r) {
+          const ChainSubClassRule *rule = class_set->rule(r);
+          
+          int blen = rule->backtrack_glyph_count();
+          
+          if(position < blen)
+            continue;
+            
+          int ilen = rule->input_glyph_count();
+          int llen = rule->lookahead_glyph_count();
+          
+          if(position + ilen + llen > glyphs.length())
+            continue;
+            
+          bool found = true;
+          for(int b = 0; b < blen; ++b) {
+            if(rule->backtrack_glyph_class(b) != backward_glyph_classes[b]) {
+              found = false;
+              break;
+            }
+          }
+          
+          if(!found)
+            continue;
+            
+          for(int i = 1; i < ilen; ++i) {
+            if(rule->rest_input_glyph_class(i) != rest_glyph_classes[i - 1]) {
+              found = false;
+              break;
+            }
+          }
+          
+          if(!found)
+            continue;
+            
+          for(int l = 1; l < llen; ++l) {
+            if(rule->lookahead_glyph_class(l) != rest_glyph_classes[ilen - 1 + l]) {
+              found = false;
+              break;
+            }
+          }
+          
+          if(found) {
+            apply_lookups_at(
+              rule->subst_records(),
+              rule->subst_count(),
+              value,
+              position);
+              
+            return;
+          }
+        }
+      }
+      return;
+  }
 }
 
 void OTFontReshaper::apply_extension_substitution(
@@ -551,6 +741,30 @@ void OTFontReshaper::apply_extension_substitution(
   }
 }
 
+void OTFontReshaper::apply_lookups_at(
+  const SubstLookupRecord *lookups,
+  int                      count,
+  int                      value,
+  int                      position
+) {
+  if(!current_lookup_list)
+    return;
+    
+  for(int i = 0; i < count; ++i) {
+    int rel_pos      = lookups[i].sequence_index();
+    int lookup_index = lookups[i].lookup_list_index();
+    
+    OT_ASSERT(0 <= rel_pos);
+    OT_ASSERT(position + rel_pos < glyphs.length());
+    OT_ASSERT(0 <= lookup_index);
+    OT_ASSERT(lookup_index < current_lookup_list->count());
+    
+    const Lookup *lookup = current_lookup_list->lookup(lookup_index);
+    
+    apply_lookup(lookup, value, position + rel_pos);
+  }
+}
+
 //} ... class OTFontReshaper
 
 //{ class GlyphCoverage ...
@@ -596,7 +810,7 @@ int GlyphCoverage::find_glyph(uint16_t glyph) const {
 
 //{ class ClassDef ...
 
-uint16_t ClassDef::find_glyph_class(uint16_t glyph) const {
+int ClassDef::get_glyph_class(uint16_t glyph) const {
   uint16_t format = BigEndian::read(*(const uint16_t *)&_format);
   
   switch(format) {
@@ -606,7 +820,7 @@ uint16_t ClassDef::find_glyph_class(uint16_t glyph) const {
         uint16_t start_glyph = BigEndian::read(table->start_glyph);
         uint16_t count       = BigEndian::read(table->glyph_count);
         if(start_glyph <= glyph && glyph < start_glyph + count) {
-          return BigEndian::read(table->class_values[glyph - start_glyph]);
+          return (int)BigEndian::read(table->class_values[glyph - start_glyph]);
         }
         
         return 0;
@@ -621,7 +835,7 @@ uint16_t ClassDef::find_glyph_class(uint16_t glyph) const {
           uint16_t end   = BigEndian::read(table->ranges[i].end_glyph);
           
           if(start <= glyph && glyph <= end) {
-            return BigEndian::read(table->ranges[i].glyph_class);
+            return (int)BigEndian::read(table->ranges[i].glyph_class);
           }
         }
         
@@ -1035,6 +1249,285 @@ const LigatureSet *LigatureSubstitution::search(uint16_t glyph) const {
 
 //} ... class LigatureSubstitution
 
+//{ class ContextSubstitution ...
+
+const SubRuleSet *ContextSubstitution::format1_search_rule_set( uint16_t first_glyph) const {
+  OT_ASSERT(format() == 1);
+  
+  const Format1 *table = (const Format1 *)this;
+  
+  uint16_t coverage_offset = BigEndian::read(table->coverage_offset);
+  
+  const GlyphCoverage *coverage = (const GlyphCoverage *)((const uint8_t *)table + coverage_offset);
+  
+  int i = coverage->find_glyph(first_glyph);
+  if(i < 0)
+    return NULL;
+    
+  OT_ASSERT(i < (int)BigEndian::read(table->count));
+  
+  uint16_t offset = BigEndian::read(table->sub_rule_set_offsets[i]);
+  
+  return (const SubRuleSet *)((const uint8_t *)table + offset);
+}
+
+const ClassDef *ContextSubstitution::format2_get_classdef() const {
+  OT_ASSERT(format() == 2);
+  
+  const Format2 *table = (const Format2 *)this;
+  
+  uint16_t classdef_offset = BigEndian::read(table->classdef_offset);
+  
+  return (const ClassDef *)((const uint8_t *)table + classdef_offset);
+}
+
+const SubClassSet *ContextSubstitution::format2_search_class_set(uint16_t first_glyph) const {
+  OT_ASSERT(format() == 2);
+  
+  const Format2 *table = (const Format2 *)this;
+  
+  uint16_t coverage_offset = BigEndian::read(table->coverage_offset);
+  
+  const GlyphCoverage *coverage = (const GlyphCoverage *)((const uint8_t *)table + coverage_offset);
+  
+  int i = coverage->find_glyph(first_glyph);
+  if(i < 0)
+    return NULL;
+    
+  uint16_t classdef_offset = BigEndian::read(table->classdef_offset);
+  
+  const ClassDef *classdef = (const ClassDef *)((const uint8_t *)table + classdef_offset);
+  
+  i = classdef->get_glyph_class(first_glyph);
+  
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < (int)BigEndian::read(table->count));
+  
+  uint16_t offset = BigEndian::read(table->sub_class_set_offsets[i]);
+  
+  return (const SubClassSet *)((const uint8_t *)table + offset);
+}
+
+int ContextSubstitution::format3_glyph_count() const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  return (int)BigEndian::read(table->glyph_count);
+}
+
+const GlyphCoverage *ContextSubstitution::format3_glyph_coverage(int i) const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < (int)BigEndian::read(table->glyph_count));
+  
+  uint16_t offset = BigEndian::read(table->coverage_offsets[i]);
+  
+  return (const GlyphCoverage *)((const uint8_t *)table + offset);
+}
+
+int ContextSubstitution::format3_subst_count() const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  return (int)BigEndian::read(table->subst_count);
+}
+
+const SubstLookupRecord *ContextSubstitution::format3_subst_records() const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  int glyph_count = (int)BigEndian::read(table->glyph_count);
+  
+  return (const SubstLookupRecord *)&table->coverage_offsets[glyph_count];
+}
+
+//} ... class ContextSubstitution
+
+//{ class ChainContextSubstitution ...
+
+const ChainSubRuleSet *ChainingContextSubstitution::format1_search_chain_rule_set(uint16_t first_glyph) const {
+  OT_ASSERT(format() == 1);
+  
+  const Format1 *table = (const Format1 *)this;
+  
+  uint16_t coverage_offset = BigEndian::read(table->coverage_offset);
+  
+  const GlyphCoverage *coverage = (const GlyphCoverage *)((const uint8_t *)table + coverage_offset);
+  
+  int i = coverage->find_glyph(first_glyph);
+  if(i < 0)
+    return NULL;
+    
+  OT_ASSERT(i < (int)BigEndian::read(table->count));
+  
+  uint16_t offset = BigEndian::read(table->chain_sub_rule_set_offsets[i]);
+  
+  return (const ChainSubRuleSet *)((const uint8_t *)table + offset);
+}
+
+const ClassDef *ChainingContextSubstitution::format2_get_backtrack_classdef() const {
+  OT_ASSERT(format() == 2);
+  
+  const Format2 *table = (const Format2 *)this;
+  
+  uint16_t backtrack_classdef_offset = BigEndian::read(table->backtrack_classdef_offset);
+  
+  return (const ClassDef *)((const uint8_t *)table + backtrack_classdef_offset);
+}
+
+const ClassDef *ChainingContextSubstitution::format2_get_input_classdef() const {
+  OT_ASSERT(format() == 2);
+  
+  const Format2 *table = (const Format2 *)this;
+  
+  uint16_t input_classdef_offset = BigEndian::read(table->input_classdef_offset);
+  
+  return (const ClassDef *)((const uint8_t *)table + input_classdef_offset);
+}
+
+const ClassDef *ChainingContextSubstitution::format2_get_lookahead_classdef() const {
+  OT_ASSERT(format() == 2);
+  
+  const Format2 *table = (const Format2 *)this;
+  
+  uint16_t lookahead_classdef_offset = BigEndian::read(table->lookahead_classdef_offset);
+  
+  return (const ClassDef *)((const uint8_t *)table + lookahead_classdef_offset);
+}
+
+const ChainSubClassRuleSet *ChainingContextSubstitution::format2_search_class_set(uint16_t first_glyph) const {
+  OT_ASSERT(format() == 2);
+  
+  const Format2 *table = (const Format2 *)this;
+  
+  uint16_t coverage_offset = BigEndian::read(table->coverage_offset);
+  
+  const GlyphCoverage *coverage = (const GlyphCoverage *)((const uint8_t *)table + coverage_offset);
+  
+  int i = coverage->find_glyph(first_glyph);
+  if(i < 0)
+    return NULL;
+    
+  uint16_t input_classdef_offset = BigEndian::read(table->input_classdef_offset);
+  
+  const ClassDef *input_classdef = (const ClassDef *)((const uint8_t *)table + input_classdef_offset);
+  
+  i = input_classdef->get_glyph_class(first_glyph);
+  
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < (int)BigEndian::read(table->count));
+  
+  uint16_t offset = BigEndian::read(table->chain_sub_class_set_offsets[i]);
+  
+  return (const ChainSubClassRuleSet *)((const uint8_t *)table + offset);
+}
+
+void ChainingContextSubstitution::format3_get_glyph_counts(
+  int *backtrack,
+  int *input,
+  int *lookahead
+) const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  *backtrack = (int)BigEndian::read(table->backtrack_glyph_count);
+  
+  const Format3::Part2 *part2 = (const Format3::Part2 *)&table->backtrack_coverage_offsets[*backtrack];
+  
+  *input = (int)BigEndian::read(part2->input_glyph_count);
+  
+  const Format3::Part3 *part3 = (const Format3::Part3 *)&part2->input_coverage_offsets[*input];
+  
+  *lookahead = (int)BigEndian::read(part3->lookahead_glyph_count);
+}
+
+const GlyphCoverage *ChainingContextSubstitution::format3_backtrack_glyph_coverage(int i) const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  int bgc = (int)BigEndian::read(table->backtrack_glyph_count);
+  
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < bgc);
+  
+  uint16_t offset = BigEndian::read(table->backtrack_coverage_offsets[i]);
+  
+  return (const GlyphCoverage *)((const uint8_t *)table + offset);
+}
+
+const GlyphCoverage *ChainingContextSubstitution::format3_input_glyph_coverage(int i) const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  int bgc = (int)BigEndian::read(table->backtrack_glyph_count);
+  
+  const Format3::Part2 *part2 = (const Format3::Part2 *)&table->backtrack_coverage_offsets[bgc];
+  
+  int igc = (int)BigEndian::read(part2->input_glyph_count);
+  
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < igc);
+  
+  uint16_t offset = BigEndian::read(part2->input_coverage_offsets[i]);
+  
+  return (const GlyphCoverage *)((const uint8_t *)table + offset);
+}
+
+const GlyphCoverage *ChainingContextSubstitution::format3_lookahead_glyph_coverage(int i) const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  int bgc = (int)BigEndian::read(table->backtrack_glyph_count);
+  
+  const Format3::Part2 *part2 = (const Format3::Part2 *)&table->backtrack_coverage_offsets[bgc];
+  
+  int igc = (int)BigEndian::read(part2->input_glyph_count);
+  
+  const Format3::Part3 *part3 = (const Format3::Part3 *)&part2->input_coverage_offsets[igc];
+  
+  int lgc = (int)BigEndian::read(part3->lookahead_glyph_count);
+  
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < lgc);
+  
+  uint16_t offset = BigEndian::read(part3->lookahead_coverage_offsets[i]);
+  
+  return (const GlyphCoverage *)((const uint8_t *)table + offset);
+}
+
+const SubstLookupRecord *ChainingContextSubstitution::format3_subst_records(int *count) const {
+  OT_ASSERT(format() == 3);
+  
+  const Format3 *table = (const Format3 *)this;
+  
+  int bgc = (int)BigEndian::read(table->backtrack_glyph_count);
+  
+  const Format3::Part2 *part2 = (const Format3::Part2 *)&table->backtrack_coverage_offsets[bgc];
+  
+  int igc = (int)BigEndian::read(part2->input_glyph_count);
+  
+  const Format3::Part3 *part3 = (const Format3::Part3 *)&part2->input_coverage_offsets[igc];
+  
+  int lgc = (int)BigEndian::read(part3->lookahead_glyph_count);
+  
+  const Format3::Part4 *part4 = (const Format3::Part4 *)&part3->lookahead_coverage_offsets[lgc];
+  
+  *count = (int)BigEndian::read(part4->subst_count);
+  
+  return part4->subst_lookup_records;
+}
+
+//} ... class ChainingContextSubstitution
 
 //{ class GlyphSequence ...
 
@@ -1094,8 +1587,8 @@ int Ligature::components_count() const { // always >= 1
 }
 
 uint16_t Ligature::rest_component_glyph(int i) const { // must be >= 1 and < components_count
-  assert(1 <= i);
-  assert(i < components_count());
+  OT_ASSERT(1 <= i);
+  OT_ASSERT(i < components_count());
   
   return BigEndian::read(_rest_components[i - 1]);
 }
@@ -1142,19 +1635,14 @@ int SubRule::subst_count() const {
 }
 
 uint16_t SubRule::rest_glyph(int i) const {// must be >= 1 and < glyph_count
-  assert(1 <= i);
-  assert(i < glyph_count());
+  OT_ASSERT(1 <= i);
+  OT_ASSERT(i < glyph_count());
   
   return BigEndian::read(_rest_glyphs[i - 1]);
 }
 
-const SubstLookupRecord *SubRule::lookup_record(int i) const {
-  assert(0 <= i);
-  assert(i < subst_count());
-  
-  const void *first = &this->_rest_glyphs[glyph_count() - 1];
-  
-  return (const SubstLookupRecord *)((const uint8_t *)first + i);
+const SubstLookupRecord *SubRule::subst_records() const {
+  return (const SubstLookupRecord *)&this->_rest_glyphs[glyph_count() - 1];
 }
 
 //} ... class SubRule
@@ -1186,22 +1674,235 @@ int SubClassRule::subst_count() const {
   return BigEndian::read(_subst_count);
 }
 
-const ClassDef *SubClassRule::rest_glyph_class(int i) const {// must be >= 1 and < glyph_count
-  assert(1 <= i);
-  assert(i < glyph_count());
+int SubClassRule::rest_glyph_class(int i) const {// i must be >= 1 and < glyph_count
+  OT_ASSERT(1 <= i);
+  OT_ASSERT(i < glyph_count());
   
-  uint16_t offset = BigEndian::read(_rest_glyph_class_offsets[i]);
-  
-  return (const ClassDef *)((const uint8_t *)this + offset);
+  return (int)BigEndian::read(_rest_glyph_classes[i - 1]);
 }
 
-const SubstLookupRecord *SubClassRule::lookup_record(int i) const {
-  assert(0 <= i);
-  assert(i < subst_count());
-  
-  const void *first = &this->_rest_glyph_class_offsets[glyph_count() - 1];
-  
-  return (const SubstLookupRecord *)((const uint8_t *)first + i);
+const SubstLookupRecord *SubClassRule::subst_records() const {
+  return (const SubstLookupRecord *)&this->_rest_glyph_classes[glyph_count() - 1];
 }
 
 //} ... class SubClassRule
+
+//{ class ChainSubRuleSet ...
+
+int ChainSubRuleSet::count() const {
+  return BigEndian::read(_count);
+}
+
+const ChainSubRule *ChainSubRuleSet::rule(int i) const {
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < count());
+  
+  uint16_t offset = BigEndian::read(_rule_offsets[i]);
+  
+  return (const ChainSubRule *)((const uint8_t *)this + offset);
+}
+
+//} ... class ChainSubRuleSet
+
+//{ class ChainSubRule ...
+
+int ChainSubRule::backtrack_glyph_count() const {
+  return BigEndian::read(_backtrack_glyph_count);
+}
+
+int ChainSubRule::input_glyph_count() const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubRulePart2 *part2 = (const ChainSubRulePart2 *)&_backtrack_glyphs[bgc];
+  
+  return BigEndian::read(part2->_input_glyph_count);
+}
+
+int ChainSubRule::lookahead_glyph_count() const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubRulePart2 *part2 = (const ChainSubRulePart2 *)&_backtrack_glyphs[bgc];
+  
+  int igc = BigEndian::read(part2->_input_glyph_count);
+  
+  const ChainSubRulePart3 *part3 = (const ChainSubRulePart3 *)&part2->_rest_input_glyphs[igc - 1];
+  
+  return BigEndian::read(part3->_lookahead_glyph_count);
+}
+
+int ChainSubRule::subst_count() const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubRulePart2 *part2 = (const ChainSubRulePart2 *)&_backtrack_glyphs[bgc];
+  
+  int igc = BigEndian::read(part2->_input_glyph_count);
+  
+  const ChainSubRulePart3 *part3 = (const ChainSubRulePart3 *)&part2->_rest_input_glyphs[igc - 1];
+  
+  int lgc = BigEndian::read(part3->_lookahead_glyph_count);
+  
+  const ChainSubRulePart4 *part4 = (const ChainSubRulePart4 *)&part3->_lookahead_glyphs[lgc];
+  
+  return BigEndian::read(part4->_subst_count);
+}
+
+uint16_t ChainSubRule::backtrack_glyph(int i) const {
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < backtrack_glyph_count());
+  
+  return BigEndian::read(_backtrack_glyphs[i]);
+}
+
+uint16_t ChainSubRule::rest_input_glyph(int i) const { // i must be >= 1 and < input_glyph_count
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubRulePart2 *part2 = (const ChainSubRulePart2 *)&_backtrack_glyphs[bgc];
+  
+  OT_ASSERT(1 <= i);
+  OT_ASSERT(i < (int)BigEndian::read(part2->_input_glyph_count));
+  
+  return BigEndian::read(part2->_rest_input_glyphs[i - 1]);
+}
+
+uint16_t ChainSubRule::lookahead_glyph(int i) const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubRulePart2 *part2 = (const ChainSubRulePart2 *)&_backtrack_glyphs[bgc];
+  
+  int igc = BigEndian::read(part2->_input_glyph_count);
+  
+  const ChainSubRulePart3 *part3 = (const ChainSubRulePart3 *)&part2->_rest_input_glyphs[igc - 1];
+  
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < (int)BigEndian::read(part3->_lookahead_glyph_count));
+  
+  return BigEndian::read(part3->_lookahead_glyphs[i]);
+}
+
+const SubstLookupRecord *ChainSubRule::subst_records() const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubRulePart2 *part2 = (const ChainSubRulePart2 *)&_backtrack_glyphs[bgc];
+  
+  int igc = BigEndian::read(part2->_input_glyph_count);
+  
+  const ChainSubRulePart3 *part3 = (const ChainSubRulePart3 *)&part2->_rest_input_glyphs[igc - 1];
+  
+  int lgc = BigEndian::read(part3->_lookahead_glyph_count);
+  
+  const ChainSubRulePart4 *part4 = (const ChainSubRulePart4 *)&part3->_lookahead_glyphs[lgc];
+  
+  return &part4->_subst_lookup_records[0];
+}
+
+//} ... class ChainSubRule
+
+//{ class ChainSubClassRuleSet ...
+
+int ChainSubClassRuleSet::count() const {
+  return BigEndian::read(_count);
+}
+
+const ChainSubClassRule *ChainSubClassRuleSet::rule(int i) const {
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < count());
+  
+  uint16_t offset = BigEndian::read(_rule_offsets[i]);
+  
+  return (const ChainSubClassRule *)((const uint8_t *)this + offset);
+}
+
+//} ... class ChainSubClassRuleSet
+
+//{ class ChainSubClassRule ...
+
+int ChainSubClassRule::backtrack_glyph_count() const {
+  return BigEndian::read(_backtrack_glyph_count);
+}
+
+int ChainSubClassRule::input_glyph_count() const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubClassRulePart2 *part2 = (const ChainSubClassRulePart2 *)&_backtrack_glyph_classes[bgc];
+  
+  return BigEndian::read(part2->_input_glyph_count);
+}
+
+int ChainSubClassRule::lookahead_glyph_count() const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubClassRulePart2 *part2 = (const ChainSubClassRulePart2 *)&_backtrack_glyph_classes[bgc];
+  
+  int igc = BigEndian::read(part2->_input_glyph_count);
+  
+  const ChainSubClassRulePart3 *part3 = (const ChainSubClassRulePart3 *)&part2->_rest_input_glyph_classes[igc - 1];
+  
+  return BigEndian::read(part3->_lookahead_glyph_count);
+}
+
+int ChainSubClassRule::subst_count() const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubClassRulePart2 *part2 = (const ChainSubClassRulePart2 *)&_backtrack_glyph_classes[bgc];
+  
+  int igc = BigEndian::read(part2->_input_glyph_count);
+  
+  const ChainSubClassRulePart3 *part3 = (const ChainSubClassRulePart3 *)&part2->_rest_input_glyph_classes[igc - 1];
+  
+  int lgc = BigEndian::read(part3->_lookahead_glyph_count);
+  
+  const ChainSubClassRulePart4 *part4 = (const ChainSubClassRulePart4 *)&part3->_lookahead_glyph_classes[lgc];
+  
+  return BigEndian::read(part4->_subst_count);
+}
+
+int ChainSubClassRule::backtrack_glyph_class(int i) const {
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < backtrack_glyph_count());
+  
+  return BigEndian::read(_backtrack_glyph_classes[i]);
+}
+
+int ChainSubClassRule::rest_input_glyph_class(int i) const { // i must be >= 1 and < input_glyph_count
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubClassRulePart2 *part2 = (const ChainSubClassRulePart2 *)&_backtrack_glyph_classes[bgc];
+  
+  OT_ASSERT(1 <= i);
+  OT_ASSERT(i < (int)BigEndian::read(part2->_input_glyph_count));
+  
+  return BigEndian::read(part2->_rest_input_glyph_classes[i - 1]);
+}
+
+int ChainSubClassRule::lookahead_glyph_class(int i) const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubClassRulePart2 *part2 = (const ChainSubClassRulePart2 *)&_backtrack_glyph_classes[bgc];
+  
+  int igc = BigEndian::read(part2->_input_glyph_count);
+  
+  const ChainSubClassRulePart3 *part3 = (const ChainSubClassRulePart3 *)&part2->_rest_input_glyph_classes[igc - 1];
+  
+  OT_ASSERT(0 <= i);
+  OT_ASSERT(i < (int)BigEndian::read(part3->_lookahead_glyph_count));
+  
+  return BigEndian::read(part3->_lookahead_glyph_classes[i]);
+}
+
+const SubstLookupRecord *ChainSubClassRule::subst_records() const {
+  int bgc = BigEndian::read(_backtrack_glyph_count);
+  
+  const ChainSubClassRulePart2 *part2 = (const ChainSubClassRulePart2 *)&_backtrack_glyph_classes[bgc];
+  
+  int igc = BigEndian::read(part2->_input_glyph_count);
+  
+  const ChainSubClassRulePart3 *part3 = (const ChainSubClassRulePart3 *)&part2->_rest_input_glyph_classes[igc - 1];
+  
+  int lgc = BigEndian::read(part3->_lookahead_glyph_count);
+  
+  const ChainSubClassRulePart4 *part4 = (const ChainSubClassRulePart4 *)&part3->_lookahead_glyph_classes[lgc];
+  
+  return &part4->_subst_lookup_records[0];
+}
+
+//} ... class ChainSubClassRule

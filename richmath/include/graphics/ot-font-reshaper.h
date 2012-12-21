@@ -38,6 +38,7 @@ namespace richmath {
   };
   
   class GlyphSubstitutions;
+  class LookupList;
   class Lookup;
   class LookupSubTable;
   class SingleSubstitution;
@@ -45,9 +46,10 @@ namespace richmath {
   class AlternateSubstitution;
   class LigatureSubstitution;
   class ContextSubstitution;
-  class ChainingContextSubstitution {};
+  class ChainingContextSubstitution;
   class ExtensionSubstitution;
   class ReverseChainingContextSubstitution {};
+  class SubstLookupRecord;
   
 #define FONT_TAG_NAME(a,b,c,d) \
   ( ((uint32_t)(a) << 24) \
@@ -101,6 +103,11 @@ namespace richmath {
       Array<int>      glyph_info;
       
     public:
+      const LookupList *current_lookup_list; // tempoarily set by apply_lookups()
+      
+    public:
+      OTFontReshaper();
+      
       // also adds langsys-required lookups
       static void get_lookups(
         const GlyphSubstitutions *gsub_table,
@@ -118,7 +125,7 @@ namespace richmath {
         const GlyphSubstitutions   *gsub_table,
         const Array<IndexAndValue> &lookups);
         
-      
+        
       void apply_lookup(
         const Lookup               *lookup,
         int                         value,
@@ -155,6 +162,12 @@ namespace richmath {
         const ExtensionSubstitution *extsub,
         int                          value,
         int                          position);
+        
+      void apply_lookups_at(
+        const SubstLookupRecord *lookups,
+        int                      count,
+        int                      value,
+        int                      position);
         
 //      void apply_reverse_chaining_context_substitution(
 //        const ReverseChainingContextSubstitution *rccsub,
@@ -205,7 +218,7 @@ namespace richmath {
       uint16_t _format;
       
     public:
-      uint16_t find_glyph_class(uint16_t glyph) const;
+      int get_glyph_class(uint16_t glyph) const; // always fits info uint16_t
       
     private:
       class Format1 {
@@ -236,7 +249,6 @@ namespace richmath {
   class LangSys;
   class FeatureList;
   class Feature;
-  class LookupList;
   
   class ScriptList {
     public:
@@ -383,6 +395,20 @@ namespace richmath {
   class SubRule;
   class SubClassSet;
   class SubClassRule;
+  class ChainSubRuleSet;
+  class ChainSubRule;
+  class ChainSubClassRuleSet;
+  class ChainSubClassRule;
+  
+  class SubstLookupRecord {
+    public:
+      int sequence_index() const;
+      int lookup_list_index() const;
+      
+    private:
+      uint16_t _sequence_index;
+      uint16_t _lookup_list_index;
+  };
   
   class SingleSubstitution: public LookupSubTable {
     public:
@@ -465,7 +491,22 @@ namespace richmath {
   
   class ContextSubstitution: public LookupSubTable {
     public:
-    
+      const uint16_t format() const { return BigEndian::read(_format); }
+      
+      // Format 1:
+      const SubRuleSet *format1_search_rule_set(uint16_t first_glyph) const;
+      
+      // Format 2:
+      const ClassDef    *format2_get_classdef() const;
+      const SubClassSet *format2_search_class_set(uint16_t first_glyph) const;
+      
+      // Format 3:
+      int                      format3_glyph_count() const;
+      const GlyphCoverage     *format3_glyph_coverage(int i) const;
+      
+      int                      format3_subst_count() const;
+      const SubstLookupRecord *format3_subst_records() const;
+      
     private:
       uint16_t _format;
       
@@ -493,7 +534,78 @@ namespace richmath {
           uint16_t glyph_count;
           uint16_t subst_count;
           uint16_t coverage_offsets[1]; // [glyph_count]
-          //SubstLookupRecord subst_lookup_offsets[1]; // [subst_count]
+          //SubstLookupRecord subst_lookup_records[1]; // [subst_count]
+      };
+  };
+  
+  class ChainingContextSubstitution: public LookupSubTable {
+    public:
+      const uint16_t format() const { return BigEndian::read(_format); }
+      
+      // Format 1:
+      const ChainSubRuleSet *format1_search_chain_rule_set(uint16_t first_glyph) const;
+      
+      // Format 2:
+      const ClassDef             *format2_get_backtrack_classdef() const;
+      const ClassDef             *format2_get_input_classdef() const;
+      const ClassDef             *format2_get_lookahead_classdef() const;
+      const ChainSubClassRuleSet *format2_search_class_set(uint16_t first_glyph) const;
+      
+      // Format 3:
+      void                 format3_get_glyph_counts(int *backtrack, int *input, int *lookahead) const;
+      const GlyphCoverage *format3_backtrack_glyph_coverage(int i) const;
+      const GlyphCoverage *format3_input_glyph_coverage(    int i) const;
+      const GlyphCoverage *format3_lookahead_glyph_coverage(int i) const;
+      
+      const SubstLookupRecord *format3_subst_records(int *count) const;
+      
+    private:
+      uint16_t _format;
+      
+    private:
+      class Format1 {
+        public:
+          uint16_t format;
+          uint16_t coverage_offset;
+          uint16_t count;
+          uint16_t chain_sub_rule_set_offsets[1]; // [count]
+      };
+      
+      class Format2 {
+        public:
+          uint16_t format;
+          uint16_t coverage_offset;
+          uint16_t backtrack_classdef_offset;
+          uint16_t input_classdef_offset;
+          uint16_t lookahead_classdef_offset;
+          uint16_t count;
+          uint16_t chain_sub_class_set_offsets[1]; // [count]
+      };
+      
+      class Format3 {
+        public:
+          uint16_t format;
+          uint16_t backtrack_glyph_count;
+          uint16_t backtrack_coverage_offsets[1]; // [backtrack_glyph_count]
+          
+        public:
+          class Part2 {
+            public:
+              uint16_t input_glyph_count;
+              uint16_t input_coverage_offsets[1]; // [input_glyph_count]
+          };
+          
+          class Part3 {
+            public:
+              uint16_t lookahead_glyph_count;
+              uint16_t lookahead_coverage_offsets[1]; // [lookahead_glyph_count]
+          };
+          
+          class Part4 {
+            public:
+              uint16_t          subst_count;
+              SubstLookupRecord subst_lookup_records[1]; // [subst_count]
+          };
       };
   };
   
@@ -557,16 +669,6 @@ namespace richmath {
       uint16_t _rest_components[1]; // [_count - 1]
   };
   
-  class SubstLookupRecord {
-    public:
-      int sequence_index() const;
-      int lookup_list_index() const;
-      
-    private:
-      uint16_t _sequence_index;
-      uint16_t _lookup_list_index;
-  };
-  
   class SubRuleSet {
     public:
       int            count() const;
@@ -582,8 +684,9 @@ namespace richmath {
       int glyph_count() const;
       int subst_count() const;
       
-      uint16_t                 rest_glyph(int i) const; // must be >= 1 and < glyph_count
-      const SubstLookupRecord *lookup_record(int i) const;
+      uint16_t rest_glyph(int i) const; // must be >= 1 and < glyph_count
+      
+      const SubstLookupRecord *subst_records() const;
       
     private:
       uint16_t _glyph_count;
@@ -607,14 +710,113 @@ namespace richmath {
       int glyph_count() const;
       int subst_count() const;
       
-      const ClassDef          *rest_glyph_class(int i) const; // must be >= 1 and < glyph_count
-      const SubstLookupRecord *lookup_record(int i) const;
+      int rest_glyph_class(int i) const; // i must be >= 1 and < glyph_count
+      
+      const SubstLookupRecord *subst_records() const;
       
     private:
       uint16_t _glyph_count;
       uint16_t _subst_count;
-      uint16_t _rest_glyph_class_offsets[1]; // [_glyph_count - 1]
+      uint16_t _rest_glyph_classes[1]; // [_glyph_count - 1]
       //SubstLookupRecord _subst_lookup_records[_subst_count]
+  };
+  
+  class ChainSubRule;
+  
+  class ChainSubRuleSet {
+    public:
+      int                 count() const;
+      const ChainSubRule *rule(int i) const;
+      
+    private:
+      uint16_t _count;
+      uint16_t _rule_offsets[1]; // [_count]
+  };
+  
+  class ChainSubRule {
+    public:
+      int backtrack_glyph_count() const;
+      int input_glyph_count() const;
+      int lookahead_glyph_count() const;
+      int subst_count() const;
+      
+      uint16_t backtrack_glyph(int i) const;
+      uint16_t rest_input_glyph(int i) const; // i must be >= 1 and < input_glyph_count
+      uint16_t lookahead_glyph(int i) const;
+      
+      const SubstLookupRecord *subst_records() const;
+      
+    private:
+      uint16_t _backtrack_glyph_count;
+      uint16_t _backtrack_glyphs[1]; // [_backtrack_glyph_count]
+      
+    private:
+      class ChainSubRulePart2 {
+        public:
+          uint16_t _input_glyph_count;
+          uint16_t _rest_input_glyphs[1]; // [_input_glyph_count - 1]
+      };
+      
+      class ChainSubRulePart3 {
+        public:
+          uint16_t _lookahead_glyph_count;
+          uint16_t _lookahead_glyphs[1]; // [_lookahead_glyph_count]
+      };
+      
+      class ChainSubRulePart4 {
+        public:
+          uint16_t _subst_count;
+          SubstLookupRecord _subst_lookup_records[1]; // [_subst_count]
+      };
+  };
+  
+  class ChainSubClassRule;
+  
+  class ChainSubClassRuleSet {
+    public:
+      int                      count() const;
+      const ChainSubClassRule *rule(int i) const;
+      
+    private:
+      uint16_t _count;
+      uint16_t _rule_offsets[1]; // [_count]
+  };
+  
+  class ChainSubClassRule {
+    public:
+      int backtrack_glyph_count() const;
+      int input_glyph_count() const;
+      int lookahead_glyph_count() const;
+      int subst_count() const;
+      
+      int backtrack_glyph_class(int i) const;
+      int rest_input_glyph_class(int i) const; // i must be >= 1 and < input_glyph_count
+      int lookahead_glyph_class(int i) const;
+      
+      const SubstLookupRecord *subst_records() const;
+      
+    private:
+      uint16_t _backtrack_glyph_count;
+      uint16_t _backtrack_glyph_classes[1]; // [_backtrack_glyph_count]
+      
+    private:
+      class ChainSubClassRulePart2 {
+        public:
+          uint16_t _input_glyph_count;
+          uint16_t _rest_input_glyph_classes[1]; // [_input_glyph_count - 1]
+      };
+      
+      class ChainSubClassRulePart3 {
+        public:
+          uint16_t _lookahead_glyph_count;
+          uint16_t _lookahead_glyph_classes[1]; // [_lookahead_glyph_count]
+      };
+      
+      class ChainSubClassRulePart4 {
+        public:
+          uint16_t _subst_count;
+          SubstLookupRecord _subst_lookup_records[1]; // [_subst_count]
+      };
   };
 }
 
