@@ -152,7 +152,7 @@ void PointSetBox::paint(GraphicsBoxContext *context) {
               pt.x, pt.y,
               2,
               0.0,
-              M_PI);
+              2 * M_PI);
           }
         }
       }

@@ -401,7 +401,7 @@ Box *SectionList::normalize_selection(int *start, int *end) {
     return this;
   }
   
-  while(*start > 0 && !_sections[*start - 1]->visible)
+  while(*start > 0 && !_sections[*start]->visible)
     --*start;
     
   return this;

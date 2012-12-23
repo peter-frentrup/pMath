@@ -154,6 +154,12 @@ pmath_t _pmath_options_from_expr(pmath_t expr) {
     }
     
     item = pmath_expr_get_item(expr, 0);
+    if(pmath_same(item, PMATH_SYMBOL_LIST)) {
+      if(pmath_is_set_of_options(expr)) {
+        pmath_unref(item);
+        return pmath_ref(expr);
+      }
+    }
     def = get_default_options(item);
     pmath_unref(item);
     
