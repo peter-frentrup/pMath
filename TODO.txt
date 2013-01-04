@@ -12,8 +12,6 @@
 - richmath: add glyphs for \[LeftBracketingBar], \[LeftDoubleBracketingBar], \[LeftInvisibleBracket], ...
 	to pMathFallback.ttf font: Text alongside Mathematica shapers would otherwise show invalid glyph.
 
-- pmath: add SetStreamPosition() for binary streams
-
 ? add InputDocument(): Palettes may be the SelectedDocument(), but never the InputDocument()
 
 - add $MinPrecision, $MaxPrecision to access pmath_thread_t::min_precision, pmath_thread_t::max_precision

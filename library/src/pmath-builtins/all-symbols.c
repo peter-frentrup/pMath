@@ -289,6 +289,7 @@ PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_resetdirectory(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sectionprint(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setdirectory(                  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_setstreamposition(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_streamposition(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringcases(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringcount(                   pmath_expr_t expr);
@@ -1269,6 +1270,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_SETDIRECTORY                     = NEW_SYSTEM_SYMBOL("SetDirectory"))
   VERIFY(   PMATH_SYMBOL_SETOPTIONS                       = NEW_SYSTEM_SYMBOL("SetOptions"))
   VERIFY(   PMATH_SYMBOL_SETPRECISION                     = NEW_SYSTEM_SYMBOL("SetPrecision"))
+  VERIFY(   PMATH_SYMBOL_SETSTREAMPOSITION                = NEW_SYSTEM_SYMBOL("SetStreamPosition"))
   VERIFY(   PMATH_SYMBOL_SETTER                           = NEW_SYSTEM_SYMBOL("Setter"))
   VERIFY(   PMATH_SYMBOL_SETTERBAR                        = NEW_SYSTEM_SYMBOL("SetterBar"))
   VERIFY(   PMATH_SYMBOL_SETTERBOX                        = NEW_SYSTEM_SYMBOL("SetterBox"))
@@ -1763,6 +1765,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_SETDIRECTORY,                builtin_setdirectory)
   BIND_DOWN(   PMATH_SYMBOL_SETOPTIONS,                  builtin_setoptions)
   BIND_DOWN(   PMATH_SYMBOL_SETPRECISION,                builtin_setprecision)
+  BIND_DOWN(   PMATH_SYMBOL_SETSTREAMPOSITION,           builtin_setstreamposition)
   BIND_DOWN(   PMATH_SYMBOL_SHOWDEFINITION,              builtin_showdefinition)
   BIND_DOWN(   PMATH_SYMBOL_SIGN,                        builtin_sign)
   BIND_DOWN(   PMATH_SYMBOL_SIN,                         builtin_sin)

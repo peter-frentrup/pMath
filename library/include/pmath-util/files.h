@@ -131,6 +131,21 @@ PMATH_API void pmath_file_flush(pmath_t file);
  */
 PMATH_API int64_t pmath_file_get_position(pmath_t file);
 
+/**\brief An optional callback function for setting (seeking) the current stream 
+   position. 
+   
+   \param file   A file object. It wont be freed.
+   \param offset The distance by which the file pointer should be moved
+   \param origin Whether \a offset is relative to the beginning of the file
+                 (SEEK_SET), to the current position (SEEK_CUR) or the end
+                 (SEEK_END).
+   \return Whether the position was changed successfully.
+ */
+PMATH_API pmath_bool_t pmath_file_set_position(
+  pmath_t file, 
+  int64_t offset, 
+  int     origin);
+  
 /**\brief Write an object to a text file.
    \param file A writeable text file object. It wont be freed.
    \param obj An object. It wont be freed.
@@ -230,6 +245,11 @@ typedef struct {
    */
   int64_t (*get_pos_function)(void *extra);
   
+  /**\brief An optional callback function for setting the current stream 
+     position. origin can be any of SEEK_SET (0), SEEK_CUR (1) or SEEK_END (2).
+   */
+  pmath_bool_t (*set_pos_function)(void *extra, int64_t offset, int origin);
+  
 } pmath_binary_file_api_t;
 
 /**\brief Create a binary file object.
@@ -279,11 +299,6 @@ typedef struct {
   /**\brief An optional callback function for flushing an output buffer.
    */
   void (*flush_function)(void *extra);
-  
-  /**\brief An optional callback function for retrieving the current stream 
-     position.
-   */
-  int64_t (*get_pos_function)(void *extra);
   
 } pmath_text_file_api_t;
 

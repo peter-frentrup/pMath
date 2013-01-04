@@ -844,5 +844,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_POINT                                  PMATH_SYMBOL_BUILTIN(752)
 #define PMATH_SYMBOL_POINTBOX                               PMATH_SYMBOL_BUILTIN(753)
 #define PMATH_SYMBOL_FONTFEATURES                           PMATH_SYMBOL_BUILTIN(754)
+#define PMATH_SYMBOL_SETSTREAMPOSITION                      PMATH_SYMBOL_BUILTIN(755)
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

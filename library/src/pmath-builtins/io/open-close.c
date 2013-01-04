@@ -114,6 +114,16 @@ static int64_t bin_file_get_pos(void *h) {
 #endif
 }
 
+static pmath_bool_t bin_file_set_pos(void *h, int64_t offset, int origin) {
+  FILE *file = h;
+  
+#ifdef _MSC_VER
+  return 0 == _fseeki64_nolock(file, offset, origin);
+#else
+  return 0 == fseeko64(file, offset, origin);
+#endif
+}
+
 static pmath_t open_bin_file(
   pmath_string_t name, // will be freed
   enum open_kind kind
@@ -129,6 +139,7 @@ static pmath_t open_bin_file(
       api.status_function  = bin_file_status;
       api.read_function    = bin_file_read;
       api.get_pos_function = bin_file_get_pos;
+      api.set_pos_function = bin_file_set_pos;
       break;
       
     case OPEN_WRITE:
@@ -136,6 +147,7 @@ static pmath_t open_bin_file(
       api.write_function   = bin_file_write;
       api.flush_function   = bin_file_flush;
       api.get_pos_function = bin_file_get_pos;
+      api.set_pos_function = bin_file_set_pos;
       break;
   }
   
