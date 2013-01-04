@@ -348,11 +348,11 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
           break;
           
         case InsideList:
-          w = 20 * em;
+          w = 18 * em;
           break;
           
         case InsideOther:
-          w = 15 * em;
+          w = 12 * em;
           break;
       }
     }

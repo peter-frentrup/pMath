@@ -20,8 +20,6 @@
 
 - support FontSlant->Toggle, FontWeight->Toggle, FontSize->Larger, FontSize->Smaller
 
-- add "GraphicsOriginalSize" (make standard size)
-
 - pause all EvaluateDelayed() or only abortion times durin GUI operations, delay abort-actions 
   during Finally() and internal cleanup of Block(), Get(), ...
 

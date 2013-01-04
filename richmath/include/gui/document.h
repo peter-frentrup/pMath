@@ -113,6 +113,8 @@ namespace richmath {
       bool split_section( bool do_it = true);
       bool merge_sections(bool do_it = true);
       
+      void graphics_original_size();
+      void graphics_original_size(Box *box);
       void insert_string(String text, bool autoformat = true);
       void insert_box(Box *box, bool handle_placeholder = false); // deletes the box
       void insert_fraction();

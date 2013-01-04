@@ -2624,6 +2624,43 @@ bool Document::merge_sections(bool do_it) {
   return true;
 }
 
+void Document::graphics_original_size() {
+  Box *selbox = selection_box();
+  
+  if(dynamic_cast<GraphicsBox *>(selbox)) {
+    graphics_original_size(selbox);
+    return;
+  }
+  
+  if(!selbox || selection_length() == 0)
+    return;
+    
+  for(int i = 0; i < selbox->count(); ++i) {
+    Box *sub = selbox->item(i);
+    
+    int idx = sub->index();
+    if(idx < selection_start())
+      continue;
+      
+    if(idx >= selection_end())
+      break;
+      
+    graphics_original_size(sub);
+  }
+}
+
+void Document::graphics_original_size(Box *box) {
+  if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(box)) {
+    gb->style->remove(ImageSizeHorizontal);
+    gb->style->remove(ImageSizeVertical);
+    gb->invalidate();
+    return;
+  }
+  
+  for(int i = 0; i < box->count(); ++i)
+    graphics_original_size(box->item(i));
+}
+
 void Document::insert_string(String text, bool autoformat) {
   const uint16_t *buf = text.buffer();
   int             len = text.length();

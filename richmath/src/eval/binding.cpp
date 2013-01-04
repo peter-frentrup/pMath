@@ -1,5 +1,6 @@
 #include <eval/binding.h>
 
+#include <boxes/graphics/graphicsbox.h>
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
 #include <boxes/textsequence.h>
@@ -436,6 +437,18 @@ static bool can_find_matching_fence(Expr cmd) {
   return false;
 }
 
+static bool can_graphics_original_size(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  if(dynamic_cast<GraphicsBox *>(doc->selection_box()))
+    return true;
+  
+  return doc->selection_length() > 0;
+}
+
 static bool can_remove_from_evaluation_queue(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -867,6 +880,16 @@ static bool find_matching_fence_cmd(Expr cmd) {
   return true;
 }
 
+static bool graphics_original_size_cmd(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+  
+  doc->graphics_original_size();
+  return true;
+}
+
 static bool insert_column_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -1222,6 +1245,7 @@ bool richmath::init_bindings() {
   Application::register_menucommand(String("Cut"),                        cut_cmd,                             can_copy_cut);
   Application::register_menucommand(String("OpenCloseGroup"),             open_close_group_cmd,                can_open_close_group);
   Application::register_menucommand(String("Paste"),                      paste_cmd,                           can_document_write);
+  Application::register_menucommand(String("GraphicsOriginalSize"),       graphics_original_size_cmd,          can_graphics_original_size);
   Application::register_menucommand(String("EditBoxes"),                  edit_boxes_cmd,                      can_edit_boxes);
   Application::register_menucommand(String("ExpandSelection"),            expand_selection_cmd,                can_expand_selection);
   Application::register_menucommand(String("FindMatchingFence"),          find_matching_fence_cmd,             can_find_matching_fence);
