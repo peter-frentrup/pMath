@@ -5,6 +5,11 @@
 
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
 
+- richmath/pmath: add ControlActive()
+
+- pmath: automatically load pmath-eigen.dll when Inverse()/LUDecomposition()/Eigenvalues()/... is 
+	called; let those wrap the Eigen`-exported functions
+
 ? richmath: Maybe always use the ssty=1 variant (also in script level 0) for \[Prime], 
 	\[DoublePrime], ... outside of strings to make Cambria Math consistent with Asana Math, 
 	MathematicaMono, ... ?

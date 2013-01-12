@@ -26,12 +26,12 @@ ListLinePlot(~~~args)::= With({g:= Catch(tryListLinePlot(args), $Failed)}, g /? 
 ListLinePlot::lpn:= "`1` is neither a list of numbers nor a list of pairs of numbers."
 
 $defaultListLinePlotStyle:= {
-	RGBColor(0, 0.5, 0), 
-	RGBColor(0, 0, 0.5), 
-	RGBColor(0.5, 0, 0),
-	RGBColor(0, 0.5, 0.5), 
-	RGBColor(0.5, 0.5, 0), 
-	RGBColor(0.5, 0, 0.5)}
+	RGBColor(0.75,0,0),
+	RGBColor(0,0,0.75),
+	RGBColor(0.67,0.67,0),
+	RGBColor(0,0.67,0),
+	RGBColor(0.5,0,0.5),
+	RGBColor(0,0.5,0.5)}
 
 getPlotStyle(~i, ~plotStyle)::=
 	With({def:= $defaultListLinePlotStyle[1 + Mod(i - 1, Length($defaultListLinePlotStyle))]},
