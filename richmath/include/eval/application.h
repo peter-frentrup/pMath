@@ -53,6 +53,10 @@ namespace richmath {
         bool (*test)(Expr cmd) = 0);
         
       static void gui_print_section(Expr expr);
+      //static void update_control_active(bool value);
+      static void activated_control(Box *box);
+      static void deactivated_control(Box *box);
+      static void deactivated_all_controls();
       
       static void init();
       static void doevents();

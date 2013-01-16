@@ -597,6 +597,8 @@ void Document::mouse_exit() {
 void Document::mouse_down(MouseEvent &event) {
   Box *receiver = 0;
   
+  //Application::update_control_active(native()->is_mouse_down());
+  
   Application::delay_dynamic_updates(true);
   if(++mouse_down_counter == 1) {
     event.set_source(this);
@@ -639,6 +641,8 @@ void Document::mouse_up(MouseEvent &event) {
     receiver->on_mouse_up(event);
     
   context.clicked_box_id = next_clicked_box_id;
+  
+  //Application::update_control_active(native()->is_mouse_down());
 }
 
 void Document::finish_editing(Box *except_box) {
@@ -3613,6 +3617,9 @@ void Document::complete_box() {
 void Document::reset_mouse() {
   mouse_down_counter = 0;
   Application::delay_dynamic_updates(false);
+  
+  Application::deactivated_all_controls();
+  //Application::update_control_active(native()->is_mouse_down());
 }
 
 void Document::reset_style() {

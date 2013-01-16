@@ -15,6 +15,6 @@ Unprotect(Transpose)
 /* this is also defined/redefined in linalg.pmath */
 MakeBoxes(Transpose(~x))::= {ParenthesizeBoxes(MakeBoxes(x), Power, "Postfix"), SuperscriptBox("\[DownTee]")}
 
-Attributes(Transpose):= Attributes(Transpose).Join({Protected, ReadProtected});
+SetAttributes(Transpose, {Protected, ReadProtected});
 
 End()

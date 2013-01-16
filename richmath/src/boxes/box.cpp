@@ -1,5 +1,7 @@
 #include <boxes/box.h>
 
+#include <eval/application.h>
+
 #include <graphics/context.h>
 #include <gui/native-widget.h>
 
@@ -54,6 +56,7 @@ Box::Box()
 }
 
 Box::~Box() {
+  Application::deactivated_control(this);
 }
 
 bool Box::is_parent_of(Box *child) {

@@ -517,6 +517,9 @@
 		<Unit filename="src\pmath-builtins\control\definitions\clear.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src\pmath-builtins\control\definitions\clearattributes.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src\pmath-builtins\control\definitions\default.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -530,6 +533,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\control\definitions\protect-and-unprotect.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src\pmath-builtins\control\definitions\setattributes.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src\pmath-builtins\control\definitions\showdefinition.c">

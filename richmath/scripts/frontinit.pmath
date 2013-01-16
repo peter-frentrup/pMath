@@ -10,6 +10,7 @@ BoxesToText;
 SectionsToBoxes;
 FileOpenDialog;
 FileSaveDialog;
+$ControlActive;
 
 Begin("FE`Private`")
 
@@ -74,6 +75,11 @@ $NamespacePath:= oldNamespacePath
 If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ".png" ++ EndOfString),
 	FE`$WindowFrameImage:= $CommandLine[2];
 	)
+
+Unprotect($ControlActiveSetting);
+FE`$ControlActive:= False
+$ControlActiveSetting::= Refresh(FE`$ControlActive === True, None)
+Protect($ControlActiveSetting)
 
 End()
 

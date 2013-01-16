@@ -49,7 +49,7 @@ AutoLoad(~o:Hold, ~f)::= Local(
 	{p},
 	(
 		p:= Unprotect @@ o;
-		o.Scan(Function(s, s ::= AutoLoad(Hold(s), o, f); Attributes(s):= Attributes(s).Append(ReadProtected), {HoldAll}));
+		o.Scan(Function(s, s ::= AutoLoad(Hold(s), o, f); SetAttributes(s, ReadProtected), {HoldAll}));
 	).Finally(Protect @@ p))
 Attributes(Autoload):= {Protected, ReadProtected}
 
@@ -82,7 +82,15 @@ Unprotect(Setting, System`Setting`$Rules);
 System`Setting`$Rules:= {}
 Setting(~expr, ~level)::= ReplaceRepeated(expr, System`Setting`$Rules, level);
 Setting(~expr        )::= ReplaceRepeated(expr, System`Setting`$Rules);
-Protect(Setting, System`Setting`$Rules);
+SetAttributes(Setting, {Protected, ReadProtected});
+Protect(System`Setting`$Rules);
+
+
+Unprotect(ControlActive, $ControlActiveSetting);
+$ControlActiveSetting:= False
+ControlActive()::= $ControlActiveSetting
+ControlActive(~t, ~f)::= If($ControlActiveSetting, t, f, f)
+SetAttributes({ControlActive, $ControlActiveSetting}, {Protected, ReadProtected});
 
 
 End()

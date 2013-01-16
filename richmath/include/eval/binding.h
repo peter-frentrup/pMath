@@ -25,6 +25,7 @@ namespace richmath {
     FileSaveDialog,
     ColorDialog,
     FontDialog,
+    ControlActive,
     
     FrontEndSymbolsCount
   } FrontEndSymbolIndex;

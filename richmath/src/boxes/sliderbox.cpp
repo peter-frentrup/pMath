@@ -430,6 +430,9 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
   if(mouse_left_down) {
     event.set_source(this);
     
+    if(dynamic.is_dynamic())
+      Application::activated_control(this);
+    
     double val = mouse_to_val(event.x);
     
     if(val != range_value && get_own_style(ContinuousAction, true))
@@ -477,6 +480,8 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
     {
       assign_dynamic_value(val);
     }
+    
+    Application::deactivated_control(this);
   }
   
   EmptyWidgetBox::on_mouse_up(event);

@@ -40,7 +40,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
     return TRUE;
   }
   
-  if(pmath_same(obj, PMATH_SYMBOL_NHOLDALL))             *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDALL;
+  if(     pmath_same(obj, PMATH_SYMBOL_NHOLDALL))             *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDALL;
   else if(pmath_same(obj, PMATH_SYMBOL_NHOLDFIRST))           *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST;
   else if(pmath_same(obj, PMATH_SYMBOL_NHOLDREST))            *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDREST;
   else if(pmath_same(obj, PMATH_SYMBOL_ASSOCIATIVE))          *attr = PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE;

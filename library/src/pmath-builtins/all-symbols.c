@@ -171,6 +171,8 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_attributes(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_clearattributes(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_setattributes(    pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_protect_or_unprotect(pmath_expr_t expr);
 
@@ -764,6 +766,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_CIRCLETIMES                      = NEW_SYSTEM_SYMBOL("CircleTimes"))
   VERIFY(   PMATH_SYMBOL_CLEAR                            = NEW_SYSTEM_SYMBOL("Clear"))
   VERIFY(   PMATH_SYMBOL_CLEARALL                         = NEW_SYSTEM_SYMBOL("ClearAll"))
+  VERIFY(   PMATH_SYMBOL_CLEARATTRIBUTES                  = NEW_SYSTEM_SYMBOL("ClearAttributes"))
   VERIFY(   PMATH_SYMBOL_CLIP                             = NEW_SYSTEM_SYMBOL("Clip"))
   VERIFY(   PMATH_SYMBOL_CLOCK                            = NEW_SYSTEM_SYMBOL("Clock"))
   VERIFY(   PMATH_SYMBOL_CLOSE                            = NEW_SYSTEM_SYMBOL("Close"))
@@ -783,6 +786,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_CONSTANTARRAY                    = NEW_SYSTEM_SYMBOL("ConstantArray"))
   VERIFY(   PMATH_SYMBOL_CONTINUOUSACTION                 = NEW_SYSTEM_SYMBOL("ContinuousAction"))
   VERIFY(   PMATH_SYMBOL_CONTINUE                         = NEW_SYSTEM_SYMBOL("Continue"))
+  VERIFY(   PMATH_SYMBOL_CONTROLACTIVE                    = NEW_SYSTEM_SYMBOL("ControlActive"))
+  VERIFY(   PMATH_SYMBOL_CONTROLACTIVESETTING             = NEW_SYSTEM_SYMBOL("$ControlActiveSetting"))
   VERIFY(   PMATH_SYMBOL_COPYDIRECTORY                    = NEW_SYSTEM_SYMBOL("CopyDirectory"))
   VERIFY(   PMATH_SYMBOL_COPYFILE                         = NEW_SYSTEM_SYMBOL("CopyFile"))
   VERIFY(   PMATH_SYMBOL_COS                              = NEW_SYSTEM_SYMBOL("Cos"))
@@ -1267,6 +1272,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_SEQUENCE                         = NEW_SYSTEM_SYMBOL("Sequence"))
   VERIFY(   PMATH_SYMBOL_SEQUENCEHOLD                     = NEW_SYSTEM_SYMBOL("SequenceHold"))
   VERIFY(   PMATH_SYMBOL_SETACCURACY                      = NEW_SYSTEM_SYMBOL("SetAccuracy"))
+  VERIFY(   PMATH_SYMBOL_SETATTRIBUTES                    = NEW_SYSTEM_SYMBOL("SetAttributes"))
   VERIFY(   PMATH_SYMBOL_SETDIRECTORY                     = NEW_SYSTEM_SYMBOL("SetDirectory"))
   VERIFY(   PMATH_SYMBOL_SETOPTIONS                       = NEW_SYSTEM_SYMBOL("SetOptions"))
   VERIFY(   PMATH_SYMBOL_SETPRECISION                     = NEW_SYSTEM_SYMBOL("SetPrecision"))
@@ -1522,6 +1528,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_CHOP,                        builtin_chop)
   BIND_DOWN(   PMATH_SYMBOL_CLEAR,                       builtin_clear)
   BIND_DOWN(   PMATH_SYMBOL_CLEARALL,                    builtin_clear)
+  BIND_DOWN(   PMATH_SYMBOL_CLEARATTRIBUTES,             builtin_clearattributes)
   BIND_DOWN(   PMATH_SYMBOL_CLIP,                        builtin_clip)
   BIND_DOWN(   PMATH_SYMBOL_CLOCK,                       builtin_clock)
   BIND_DOWN(   PMATH_SYMBOL_CLOSE,                       builtin_close)
@@ -1762,6 +1769,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_SELECT,                      builtin_select)
   BIND_DOWN(   PMATH_SYMBOL_SELECTEDDOCUMENT,            general_builtin_nofront);
   BIND_DOWN(   PMATH_SYMBOL_SETACCURACY,                 builtin_setaccuracy)
+  BIND_DOWN(   PMATH_SYMBOL_SETATTRIBUTES,               builtin_setattributes)
   BIND_DOWN(   PMATH_SYMBOL_SETDIRECTORY,                builtin_setdirectory)
   BIND_DOWN(   PMATH_SYMBOL_SETOPTIONS,                  builtin_setoptions)
   BIND_DOWN(   PMATH_SYMBOL_SETPRECISION,                builtin_setprecision)
@@ -1915,11 +1923,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_CHARACTERS,                       LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_CLEAR,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CLEARALL,                         HOLDALL);
+  SET_ATTRIB( PMATH_SYMBOL_CLEARATTRIBUTES,                  HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_CLOSE,                            LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_COMPLEX,                          DEFINITEFUNCTION | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CONDITION,                        HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CONJUGATE,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_COS,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  SET_ATTRIB( PMATH_SYMBOL_CONTROLACTIVE,                    HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_COSH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_COT,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_COTH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
@@ -2027,6 +2037,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_SECH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_SEQUENCE,                         ASSOCIATIVE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_SHOWDEFINITION,                   HOLDFIRST);
+  SET_ATTRIB( PMATH_SYMBOL_SETATTRIBUTES,                    HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_SIGN,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_SIN,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_SINH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);

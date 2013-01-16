@@ -218,7 +218,7 @@ static pthread_t main_thread = 0;
 double Application::edit_interrupt_timeout      = 2.0;
 double Application::interrupt_timeout           = 0.3;
 double Application::button_timeout              = 4.0;
-double Application::dynamic_timeout             = 4.0;
+double Application::dynamic_timeout             = 24*60*60;//4.0;
 double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
 String Application::application_directory;
@@ -475,6 +475,53 @@ void Application::gui_print_section(Expr expr) {
     pmath_write(expr.get(), 0, write_data, stdout);
     printf("\n");
   }
+}
+
+static void update_control_active(bool value) {
+  static bool original_value = false;
+  
+  if(value == original_value)
+    return;
+    
+  original_value = value;
+  if(value) {
+    Application::interrupt(
+      /*Parse("FE`$ControlActive:= True; Print(FE`$ControlActive)")*/
+      Call(Symbol(PMATH_SYMBOL_ASSIGN),
+           GetSymbol(ControlActive),
+           Symbol(PMATH_SYMBOL_TRUE)));
+  }
+  else {
+    Application::interrupt(
+      /*Parse("FE`$ControlActive:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActive)")*/
+      Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
+           Call(Symbol(PMATH_SYMBOL_ASSIGN),
+                GetSymbol(ControlActive),
+                Symbol(PMATH_SYMBOL_FALSE)),
+           Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
+                Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),
+                List())));
+  }
+}
+
+static Hashtable<int, Void, cast_hash> active_controls;
+
+void Application::activated_control(Box *box) {
+  active_controls.set(box->id(), Void());
+  
+  update_control_active(true);
+}
+
+void Application::deactivated_control(Box *box) {
+  active_controls.remove(box->id());
+  
+  if(active_controls.size() == 0)
+    update_control_active(false);
+}
+
+void Application::deactivated_all_controls() {
+  active_controls.clear();
+  update_control_active(false);
 }
 
 void Application::init() {

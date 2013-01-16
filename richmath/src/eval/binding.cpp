@@ -1301,6 +1301,7 @@ bool richmath::init_bindings() {
   VERIFY(fe_symbols[FileSaveDialog]           = NEW_SYMBOL("FE`FileSaveDialog"))
   VERIFY(fe_symbols[ColorDialog]              = NEW_SYMBOL("FE`ColorDialog"))
   VERIFY(fe_symbols[FontDialog]               = NEW_SYMBOL("FE`FontDialog"))
+  VERIFY(fe_symbols[ControlActive]            = NEW_SYMBOL("FE`$ControlActive"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
   
