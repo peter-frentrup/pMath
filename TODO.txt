@@ -5,6 +5,8 @@
 
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
 
+- richmath: graphcis tick length should depend on Max(width, height) for all axes
+
 - richmath: Add PlotRangePadding option and Scaled(...) corordinates in graphics
 
 - richmath: Add Polygon, VertexColors, Opacity

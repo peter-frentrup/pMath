@@ -37,14 +37,19 @@ $NewMessage:= Function({symbol, tag},
 Protect($NewMessage)
 
 
-AutoLoad(Hold(~s), ~o:Hold, ~f)::= Local(
+/* WARNING: Be aware that the 3 argument version of AutoLoad might be called by concurring threads. 
+	So it must be possible to load the file "f" multiple times in a row. "all" symbols will then be 
+	unprotected and cleared before each Get(f).
+ */
+AutoLoad(Hold(~s), Hold(~~~all), ~f)::= Local(
 	{p},
-	(
-		p:= Unprotect @@ o;
-		Clear @@ o;
-		Get(f);
-		s
-	).Finally(Protect @@ p))
+	Synchronize({all},
+		(
+			p:= Unprotect(all);
+			Clear(all);
+			Get(f);
+			s
+		).Finally(Protect @@ p)))
 AutoLoad(~o:Hold, ~f)::= Local(
 	{p},
 	(

@@ -3,9 +3,11 @@
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+
 
 static void synchronize_callback(void *block) {
   *(pmath_t*)block = pmath_evaluate(*(pmath_t*)block);
@@ -85,7 +87,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr) {
   sync = pmath_expr_get_item(expr, 1);
   block = pmath_expr_get_item(expr, 2);
   
-  if(pmath_is_expr(sync)) {
+  if(pmath_is_expr_of(sync, PMATH_SYMBOL_LIST)) {
     multi_syncronize_data_t data;
     size_t i;
     
@@ -121,6 +123,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr) {
     
     multi_synchronize_callback(&data);
     
+    pmath_unref(data.sync_list);
     return data.block;
   }
   
