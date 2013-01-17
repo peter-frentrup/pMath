@@ -23,8 +23,12 @@ namespace richmath {
       
       void append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id);
       
+      static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *dummy);
+      static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *dummy);
+      
     public:
       static MathGtkMenuBuilder main_menu;
+      static MathGtkMenuBuilder popup_menu;
       
     private:
       Expr expr;

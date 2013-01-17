@@ -625,18 +625,21 @@ int main(int argc, char **argv) {
   
 #define SHORTCUTS_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shortcuts.pmath\"))"
 #define MAIN_MENU_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"mainmenu.pmath\"))"
+#define POPUP_MENU_CMD "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"popupmenu.pmath\"))"
   
 #ifdef RICHMATH_USE_WIN32_GUI
   Win32Themes::init();
   Win32Clipboard::init();
   Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(SHORTCUTS_CMD)));
-  Win32Menu::main_menu              = new Win32Menu(Evaluate(Parse(MAIN_MENU_CMD)));
+  Win32Menu::main_menu              = new Win32Menu(Evaluate(Parse(MAIN_MENU_CMD)),  false);
+  Win32Menu::popup_menu             = new Win32Menu(Evaluate(Parse(POPUP_MENU_CMD)), true);
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
   Clipboard::std = &MathGtkClipboard::obj;
   MathGtkAccelerators::load(Evaluate(Parse(SHORTCUTS_CMD)));
-  MathGtkMenuBuilder::main_menu = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
+  MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
+  MathGtkMenuBuilder::popup_menu = MathGtkMenuBuilder(Evaluate(Parse(POPUP_MENU_CMD)));
 #endif
   
   load_fonts();
@@ -924,11 +927,13 @@ QUIT:
 #ifdef RICHMATH_USE_WIN32_GUI
   Win32Clipboard::done();
   Win32Menu::main_menu              = 0;
+  Win32Menu::popup_menu             = 0;
   Win32AcceleratorTable::main_table = 0;
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  MathGtkMenuBuilder::main_menu = MathGtkMenuBuilder();
+  MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder();
+  MathGtkMenuBuilder::popup_menu = MathGtkMenuBuilder();
   MathGtkAccelerators::done();
 #endif
   

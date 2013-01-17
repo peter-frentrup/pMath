@@ -345,10 +345,10 @@ void Win32Widget::running_state_changed() {
 }
 
 bool Win32Widget::is_mouse_down() {
-  return GetKeyState(VK_LBUTTON)  < 0 || 
-         GetKeyState(VK_RBUTTON)  < 0 || 
-         GetKeyState(VK_MBUTTON)  < 0 || 
-         GetKeyState(VK_XBUTTON1) < 0 || 
+  return GetKeyState(VK_LBUTTON)  < 0 ||
+         GetKeyState(VK_RBUTTON)  < 0 ||
+         GetKeyState(VK_MBUTTON)  < 0 ||
+         GetKeyState(VK_XBUTTON1) < 0 ||
          GetKeyState(VK_XBUTTON2) < 0;
 }
 
@@ -699,13 +699,13 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
     SetFocus(_hwnd);
   }
   else {
-    SetWindowPos(GetAncestor(_hwnd, GA_ROOT), HWND_TOP, 0,0,1,1,SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+    SetWindowPos(GetAncestor(_hwnd, GA_ROOT), HWND_TOP, 0, 0, 1, 1, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
   }
 //  else {
 //    Document *cur = get_current_document();
 //    if(cur && cur != document()) {
 //      Win32Widget *wig = dynamic_cast<Win32Widget *>(cur->native());
-//      
+//
 //      if(wig && wig->hwnd() != GetFocus()) {
 //        SetFocus(wig->hwnd());
 //      }
@@ -762,6 +762,23 @@ void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
   }
 }
 
+void Win32Widget::on_popupmenu(POINT screen_pt) {
+  UINT flags = 0;
+  
+  if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
+    flags |= TPM_LEFTALIGN;
+  else
+    flags |= TPM_RIGHTALIGN;
+    
+  TrackPopupMenuEx(
+    Win32Menu::popup_menu->hmenu(),
+    flags,
+    screen_pt.x,
+    screen_pt.y,
+    _hwnd,
+    NULL);
+}
+
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
     case WM_SIZE: {
@@ -807,6 +824,47 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             invalidate();
           }
           is_painting = false;
+        } return 0;
+        
+      case WM_CONTEXTMENU:  {
+          POINT pt;
+          if(lParam == -1) {
+          
+            if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
+              pt.x = 0;
+              pt.y = 0;
+            }
+            else {
+              RECT rect;
+              
+              GetClientRect(_hwnd, &rect);
+              pt.x = rect.right;
+              pt.y = 0;
+            }
+            
+            ClientToScreen(_hwnd, &pt);
+          }
+          else {
+            pt.x = (int16_t)( lParam & 0xFFFF);
+            pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
+          }
+          on_popupmenu(pt);
+        } return 0;
+        
+      case WM_INITMENUPOPUP: {
+          HMENU sub = (HMENU)wParam;
+          
+          for(int i = GetMenuItemCount(sub) - 1; i >= 0; --i) {
+            UINT flags = MF_BYPOSITION;
+            
+            int id = GetMenuItemID(sub, i);
+            if(Application::is_menucommand_runnable(Win32Menu::command_id_to_string(id)))
+              flags |= MF_ENABLED;
+            else
+              flags |= MF_GRAYED;
+              
+            EnableMenuItem(sub, i, flags);
+          }
         } return 0;
         
       case WM_HSCROLL: {
@@ -881,7 +939,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.middle = message == WM_MBUTTONDOWN;
           event.right  = message == WM_RBUTTONDOWN;
           
-          event.x = (int16_t)(lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
+          event.x = (int16_t)( lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
           event.y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
           
           event.x /= scale_factor();
@@ -899,13 +957,22 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.middle = message == WM_MBUTTONUP;
           event.right  = message == WM_RBUTTONUP;
           
-          event.x = (int16_t)(lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
-          event.y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
+          POINT pt;
+          pt.x = (int16_t)( lParam & 0xFFFF);
+          pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
+          
+          event.x = pt.x + GetScrollPos(_hwnd, SB_HORZ);
+          event.y = pt.y + GetScrollPos(_hwnd, SB_VERT);
           
           event.x /= scale_factor();
           event.y /= scale_factor();
           
           on_mouseup(event);
+          
+          if(message == WM_RBUTTONUP) {
+            ClientToScreen(_hwnd, &pt);
+            on_popupmenu(pt);
+          }
         } return 0;
         
       case WM_MOUSEMOVE: {

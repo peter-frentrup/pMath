@@ -17,7 +17,7 @@ namespace richmath {
   
   class Win32Menu: public Shareable {
     public:
-      explicit Win32Menu(Expr expr);
+      explicit Win32Menu(Expr expr, bool is_popup);
       virtual ~Win32Menu();
       
       static String command_id_to_string(DWORD  id);
@@ -27,6 +27,7 @@ namespace richmath {
       
     public:
       static SharedPtr<Win32Menu>  main_menu;
+      static SharedPtr<Win32Menu>  popup_menu;
       
     private:
       HMENU _hmenu;

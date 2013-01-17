@@ -68,24 +68,10 @@ static void on_unmap_menu_callback(GtkWidget *item, void *data) {
   }
 }
 
-static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *user_data) {
-  // todo: handle tearoff menus
-  Application::delay_dynamic_updates(true);
-
-  gtk_container_foreach(GTK_CONTAINER(menu), on_map_menu_callback, NULL);
-  return FALSE;
-}
-
-static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *user_data) {
-  Application::delay_dynamic_updates(false);
-
-  gtk_container_foreach(GTK_CONTAINER(menu), on_unmap_menu_callback, NULL);
-  return FALSE;
-}
-
 //{ class MathGtkMenuBuilder ...
 
 MathGtkMenuBuilder MathGtkMenuBuilder::main_menu;
+MathGtkMenuBuilder MathGtkMenuBuilder::popup_menu;
 
 MathGtkMenuBuilder::MathGtkMenuBuilder() {
 }
@@ -98,9 +84,24 @@ MathGtkMenuBuilder::MathGtkMenuBuilder(Expr _expr)
 MathGtkMenuBuilder::~MathGtkMenuBuilder() {
 }
 
+
+gboolean MathGtkMenuBuilder::on_map_menu(GtkWidget *menu, GdkEventAny *event, void *dummy) {
+  // todo: handle tearoff menus
+  Application::delay_dynamic_updates(true);
+
+  gtk_container_foreach(GTK_CONTAINER(menu), on_map_menu_callback, NULL);
+  return FALSE;
+}
+
+gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *dummy) {
+  Application::delay_dynamic_updates(false);
+
+  gtk_container_foreach(GTK_CONTAINER(menu), on_unmap_menu_callback, NULL);
+  return FALSE;
+}
+
 void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id) {
-  if(expr[0] != GetSymbol(MenuSymbol)
-      || expr.expr_length() != 2)
+  if(expr[0] != GetSymbol(MenuSymbol) || expr.expr_length() != 2)
     return;
 
   String name(expr[1]);
@@ -144,6 +145,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
 
         g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_activate), (void*)for_document_window_id);
 
+        gtk_widget_show(menu_item);
         gtk_menu_shell_append(menu, menu_item);
       }
 
@@ -153,6 +155,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
     if(item == GetSymbol(DelimiterSymbol)) {
       GtkWidget *menu_item = gtk_separator_menu_item_new();
 
+      gtk_widget_show(menu_item);
       gtk_menu_shell_append(menu, menu_item);
       continue;
     }
@@ -197,6 +200,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
           for_document_window_id);
 
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
+        gtk_widget_show(menu_item);
         gtk_menu_shell_append(menu, menu_item);
       }
       continue;

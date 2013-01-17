@@ -50,7 +50,7 @@ static void add_remove_menu(int delta) {
 
 //{ class Win32Menu ...
 
-static HMENU create_menu(Expr expr) {
+static HMENU create_menu(Expr expr, bool is_popup) {
   if(expr[0] != GetSymbol(MenuSymbol) || expr.expr_length() != 2)
     return NULL;
     
@@ -62,7 +62,7 @@ static HMENU create_menu(Expr expr) {
   if(expr[0] != PMATH_SYMBOL_LIST)
     return NULL;
     
-  HMENU menu = CreateMenu();
+  HMENU menu = is_popup ? CreatePopupMenu() : CreateMenu();
   if(menu) {
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
@@ -111,7 +111,7 @@ static HMENU create_menu(Expr expr) {
         String name(item[1]);
         
         if(name.length() > 0) {
-          HMENU submenu = create_menu(item);
+          HMENU submenu = create_menu(item, true);
           
           if(submenu) {
             name += String::FromChar(0);
@@ -131,12 +131,13 @@ static HMENU create_menu(Expr expr) {
 }
 
 SharedPtr<Win32Menu>  Win32Menu::main_menu;
+SharedPtr<Win32Menu>  Win32Menu::popup_menu;
 
-Win32Menu::Win32Menu(Expr expr)
+Win32Menu::Win32Menu(Expr expr, bool is_popup)
   : Shareable()
 {
   add_remove_menu(1);
-  _hmenu = create_menu(expr);
+  _hmenu = create_menu(expr, is_popup);
 }
 
 Win32Menu::~Win32Menu() {

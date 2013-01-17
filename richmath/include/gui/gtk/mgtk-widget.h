@@ -62,6 +62,7 @@ namespace richmath {
       virtual String filename(){ return String(); }
       virtual void filename(String new_filename) {}
       
+      GtkMenu *popup_menu();
       GtkAdjustment *hadjustment() { return _hadjustment; }
       GtkAdjustment *vadjustment() { return _vadjustment; }
       void hadjustment(GtkAdjustment *ha);
@@ -87,6 +88,7 @@ namespace richmath {
       
       MathGtkCursors cursors;
       
+      GtkWidget     *_popup_menu;
       GtkAdjustment *_hadjustment;
       GtkAdjustment *_vadjustment;
       GtkIMContext  *_im_context;
@@ -170,6 +172,8 @@ namespace richmath {
         return self->on_drag_drop(drag_context, x, y, time);
       }
       
+      static void popup_detached(GtkWidget *attach_widget, GtkMenu *menu);
+      
     protected:
       virtual void update_im_cursor_location();
       
@@ -186,6 +190,8 @@ namespace richmath {
       virtual void paint_background(Canvas *canvas);
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
       virtual void handle_mouse_move(MouseEvent &event);
+      
+      virtual bool on_popup_menu(); 
       
       virtual bool on_map(GdkEvent *e);
       virtual bool on_unmap(GdkEvent *e);

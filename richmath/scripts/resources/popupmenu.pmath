@@ -1,0 +1,32 @@
+
+Begin("FE`")
+
+
+FE`Menu
+FE`Item
+FE`Delimiter
+FE`$MathShapers
+
+
+Begin("FE`Private`")
+
+
+If(HoldComplete(FE`Private`mainmenu) === HoldComplete @@@ {FE`Private`mainmenu},
+	FE`Private`mainmenu:= Get(ToFileName(DirectoryName($Input), "mainmenu.pmath")))
+
+FE`Private`popupmenu:= Menu("Popup", {
+	Item("Cu&t",   "Cut"),
+	Item("&Copy",  "Copy"),
+	Item("&Paste", "Paste"),
+	Delimiter,
+	FE`Private`mainmenu.Replace(Menu(~, ~items) :> Menu("All Commands", items))
+	});
+
+
+End()
+
+
+End()
+
+
+FE`Private`popupmenu

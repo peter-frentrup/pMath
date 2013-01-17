@@ -11,8 +11,6 @@
 
 - richmath: Add Polygon, VertexColors, Opacity
 
-- richmath: add a popup menu
-
 - pmath: automatically load pmath-eigen.dll when Inverse()/LUDecomposition()/Eigenvalues()/... is 
 	called; let those wrap the Eigen`-exported functions
 

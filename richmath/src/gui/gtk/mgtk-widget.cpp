@@ -2,6 +2,7 @@
 
 #include <eval/binding.h>
 #include <gui/gtk/mgtk-clipboard.h>
+#include <gui/gtk/mgtk-menu-builder.h>
 #include <gui/gtk/mgtk-tooltip-window.h>
 
 #include <glib.h>
@@ -132,8 +133,12 @@ MathGtkWidget::~MathGtkWidget() {
 void MathGtkWidget::after_construction() {
   BasicGtkWidget::after_construction();
   
+  _popup_menu = NULL;
+  
   gtk_widget_set_events(_widget, GDK_ALL_EVENTS_MASK);
   gtk_widget_set_can_focus(_widget, TRUE);
+  
+  signal_connect<MathGtkWidget, &MathGtkWidget::on_popup_menu>("popup-menu");
   
 #if GTK_MAJOR_VERSION >= 3
   signal_connect<MathGtkWidget, cairo_t *, &MathGtkWidget::on_draw>("draw");
@@ -141,17 +146,17 @@ void MathGtkWidget::after_construction() {
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_expose>("expose-event");
 #endif
   
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_button_press>("button-press-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_button_press>(  "button-press-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_button_release>("button-release-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_focus_in>("focus-in-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_focus_out>("focus-out-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_key_press>("key-press-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_key_release>("key-release-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_motion_notify>("motion-notify-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_leave_notify>("leave-notify-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_scroll>("scroll-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_map>("map-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_unmap>("unmap-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_focus_in>(      "focus-in-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_focus_out>(     "focus-out-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_key_press>(     "key-press-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_key_release>(   "key-release-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_motion_notify>( "motion-notify-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_leave_notify>(  "leave-notify-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_scroll>(        "scroll-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_map>(           "map-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_unmap>(         "unmap-event");
   
   g_signal_connect(_widget, "drag-data-delete",   G_CALLBACK(drag_data_delete_callback),   this);
   g_signal_connect(_widget, "drag-data-get",      G_CALLBACK(drag_data_get_callback),      this);
@@ -412,6 +417,33 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
   }
   
   return true;
+}
+
+void MathGtkWidget::popup_detached(GtkWidget *attach_widget, GtkMenu *menu) {
+  MathGtkWidget *wid = dynamic_cast<MathGtkWidget *>(BasicGtkWidget::from_widget(attach_widget));
+  
+  if(wid && wid->_popup_menu != NULL && GTK_MENU(wid->_popup_menu) == menu)
+    wid->_popup_menu = NULL;
+}
+
+GtkMenu *MathGtkWidget::popup_menu() {
+  if(!_popup_menu) {
+    _popup_menu = gtk_menu_new();
+    gtk_menu_attach_to_widget(GTK_MENU(_popup_menu), _widget, MathGtkWidget::popup_detached);
+    
+    GtkAccelGroup *accel_group = gtk_accel_group_new();
+    MathGtkMenuBuilder::popup_menu.append_to(GTK_MENU_SHELL(_popup_menu), accel_group, document()->id());
+    //MathGtkAccelerators::connect_all(accel_group, document()->id());
+    g_object_unref(accel_group);
+    
+    gtk_widget_add_events(GTK_WIDGET(_popup_menu), GDK_STRUCTURE_MASK);
+    
+    g_signal_connect(GTK_WIDGET(_popup_menu), "map-event",   G_CALLBACK(MathGtkMenuBuilder::on_map_menu),   NULL);
+    g_signal_connect(GTK_WIDGET(_popup_menu), "unmap-event", G_CALLBACK(MathGtkMenuBuilder::on_unmap_menu), NULL);
+    
+  }
+  
+  return GTK_MENU(_popup_menu);
 }
 
 static void adjustment_value_changed(
@@ -820,6 +852,12 @@ void MathGtkWidget::handle_mouse_move(MouseEvent &event) {
   set_cursor(cursor);
 }
 
+bool MathGtkWidget::on_popup_menu() {
+  gtk_menu_popup(
+    popup_menu(), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time());
+  return true;
+}
+
 bool MathGtkWidget::on_map(GdkEvent *e) {
   gtk_im_context_set_client_window(_im_context, gtk_widget_get_window(_widget));
   return false;
@@ -1033,6 +1071,10 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     return true;
   }
   
+  if(event->keyval == GDK_Menu || (event->keyval == GDK_F10 && (mod & GDK_SHIFT_MASK)))
+    gtk_menu_popup(
+      popup_menu(), NULL, NULL, NULL, NULL, 0, event->time);
+  
   if(ske.ctrl || (ske.alt && !ske.shift))
     return false;
     
@@ -1041,10 +1083,11 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     unichar = '\n';
     
   if(unichar) {
-    if((unichar == ' ' || unichar == '\r' || unichar == '\n')
-        && (ske.ctrl || ske.alt || ske.shift))
+    if((unichar == ' ' || unichar == '\r' || unichar == '\n') &&
+        (ske.ctrl || ske.alt || ske.shift))
+    {
       return false;
-      
+    }
     if(unichar == '\t')
       return false;
       
@@ -1131,6 +1174,11 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
 //    }
 //  }
 
+  if(me.right) {
+    gtk_menu_popup(
+      popup_menu(), NULL, NULL, NULL, NULL, event->button, event->time);
+  }
+  
   return true;
 }
 
@@ -1221,13 +1269,13 @@ bool MathGtkWidget::on_scroll(GdkEvent *e) {
       case GDK_SCROLL_RIGHT: break;
       
 #if GTK_MAJOR_VERSION >= 3
-    case GDK_SCROLL_SMOOTH:
-      {
-        double ddx, ddy;
-        gdk_event_get_scroll_deltas(e, &ddx, &ddy);
-        scale_by(pow(2, -0.5 * ddy));
-      }
-      break;
+      case GDK_SCROLL_SMOOTH:
+        {
+          double ddx, ddy;
+          gdk_event_get_scroll_deltas(e, &ddx, &ddy);
+          scale_by(pow(2, -0.5 * ddy));
+        }
+        break;
 #endif
     }
     
