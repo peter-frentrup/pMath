@@ -2464,10 +2464,15 @@ void Document::paste_from_text(String mimetype, String data) {
   }
   
   if(mimetype.equals(Clipboard::PlainText)) {
+    bool doc_was_selected = selection_box() == this;
+    
     if(prepare_insert()) {
       remove_selection(false);
       
-      // todo: replace \r\n by \n
+      data = String(Evaluate(Parse("`1`.StringReplace(\"\r\n\"->\"\n\")", data)));
+      
+      if (doc_was_selected && data.length() > 0 && data[data.length() - 1] == '\n')
+        data = data.part(0, data.length() - 1);
       
       insert_string(data);
       

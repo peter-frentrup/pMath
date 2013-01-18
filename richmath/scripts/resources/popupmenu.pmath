@@ -19,6 +19,8 @@ FE`Private`popupmenu:= Menu("Popup", {
 	Item("&Copy",  "Copy"),
 	Item("&Paste", "Paste"),
 	Delimiter,
+	Item("Reset &Graphics Size", "GraphicsOriginalSize"),
+	Delimiter,
 	FE`Private`mainmenu.Replace(Menu(~, ~items) :> Menu("All Commands", items))
 	});
 
