@@ -257,15 +257,15 @@ static pmath_mpfloat_t _mul_ff(
   
   fprec = pmath_precision(pmath_ref(floatA)) +
           pmath_precision(pmath_ref(floatB));
-  
+          
           
   if(fprec < min_prec)
     fprec  = min_prec;
   else if(fprec > max_prec)
     fprec = max_prec;
-  
-  prec = (mpfr_prec_t)ceil(fprec);
     
+  prec = (mpfr_prec_t)ceil(fprec);
+  
   result = _pmath_create_mp_float(prec);
   
   if(pmath_is_null(result)) {
@@ -499,6 +499,8 @@ static void split_factor(
   *out_rest_power = PMATH_UNDEFINED;
 }
 
+static pmath_bool_t times_2_arg(pmath_t *a, pmath_t *b);
+
 static pmath_bool_t times_2_arg_num(pmath_t *a, pmath_t *b) {
   if(pmath_is_number(*a)) {
     if(pmath_is_number(*b)) {
@@ -662,6 +664,33 @@ static pmath_bool_t times_2_arg_inf(pmath_t *a, pmath_t *b) {
   return FALSE;
 }
 
+// base wont be freed
+// exponent wont be freed
+static pmath_t expand_product_power(pmath_t base, pmath_t exponent) {
+  if(pmath_same(exponent, INT(1))) {
+    if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES))
+      return pmath_ref(base);
+      
+    return FUNC(pmath_ref(PMATH_SYMBOL_TIMES), pmath_ref(base));
+  }
+  
+  if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) {
+    pmath_t result = pmath_ref(base);
+    size_t i;
+    
+    for(i = 1; i <= pmath_expr_length(base); ++i) {
+      pmath_t factor = pmath_expr_get_item(base, i);
+      factor = POW(factor, pmath_ref(exponent));
+      result = pmath_expr_set_item(result, i, factor);
+    }
+    
+    return result;
+  }
+  
+  return FUNC(pmath_ref(PMATH_SYMBOL_TIMES),
+              POW(pmath_ref(base), pmath_ref(exponent)));
+}
+
 static pmath_bool_t times_2_arg_pow(pmath_t *a, pmath_t *b) {
   pmath_t baseA;
   pmath_t baseB;
@@ -703,6 +732,55 @@ static pmath_bool_t times_2_arg_pow(pmath_t *a, pmath_t *b) {
   split_factor(*b, &baseB, &numPowerB, &restPowerB);
   
   if(pmath_equals(restPowerA, restPowerB)) {
+    if( pmath_same(restPowerA, PMATH_UNDEFINED) &&
+        pmath_is_integer(numPowerA) &&
+        pmath_is_integer(numPowerB) &&
+        (!pmath_same(numPowerA, INT(1)) || !pmath_same(numPowerB, INT(1))))
+    {
+      pmath_bool_t a_is_product = pmath_is_expr_of(baseA, PMATH_SYMBOL_TIMES);
+      pmath_bool_t b_is_product = pmath_is_expr_of(baseB, PMATH_SYMBOL_TIMES);
+      
+      if(a_is_product || b_is_product) {
+        pmath_t expanded_a = expand_product_power(baseA, numPowerA);
+        pmath_t expanded_b = expand_product_power(baseB, numPowerB);
+        size_t ia, ib;
+        pmath_bool_t any_simplification = FALSE;
+        
+        for(ib = 1;ib <= pmath_expr_length(expanded_b);++ib) {
+          pmath_t fac_b = pmath_expr_extract_item(expanded_b, ib);
+          
+          for(ia = 1;ia <= pmath_expr_length(expanded_a);++ia) {
+            pmath_t fac_a = pmath_expr_extract_item(expanded_a, ia);
+            
+            pmath_bool_t success = times_2_arg(&fac_a, &fac_b);
+            any_simplification = success || any_simplification;
+            
+            expanded_a = pmath_expr_set_item(expanded_a, ia, fac_a);
+            if(success)
+              break;
+          }
+          
+          expanded_b = pmath_expr_set_item(expanded_b, ib, fac_b);
+        }
+        
+        if(any_simplification) {
+          pmath_unref(baseA);
+          pmath_unref(baseB);
+          pmath_unref(numPowerA);
+          pmath_unref(numPowerB);
+          //pmath_unref(restPowerA); // those are PMATH_UNDEFINED
+          //pmath_unref(restPowerB); // those are PMATH_UNDEFINED
+          
+          *a = _pmath_expr_shrink_associative(expanded_a, PMATH_UNDEFINED);
+          *b = _pmath_expr_shrink_associative(expanded_b, PMATH_UNDEFINED);
+          return TRUE;
+        }
+        
+        pmath_unref(expanded_a);
+        pmath_unref(expanded_b);
+      }
+    }
+    
     if(pmath_equals(baseA, baseB)) {
       if( !pmath_same(restPowerA, PMATH_UNDEFINED) ||
           !pmath_is_number(baseA))

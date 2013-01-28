@@ -684,7 +684,7 @@ PMATH_API pmath_bool_t pmath_file_write_object(
   data.success = TRUE;
   
   pagewidth_obj = pmath_evaluate(
-                    pmath_parse_string_args("Try(OptionValue(`1`,PageWidth))", "(o)", pmath_ref(file)));
+                    pmath_parse_string_args("System`Try(System`OptionValue(`1`,System`PageWidth))", "(o)", pmath_ref(file)));
                     
   if(pmath_is_int32(pagewidth_obj))
     page_width = PMATH_AS_INT32(pagewidth_obj);

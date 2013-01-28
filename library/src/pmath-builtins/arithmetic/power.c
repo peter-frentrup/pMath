@@ -976,7 +976,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       pmath_unref(im);
     }
     
-    if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) { // (x * y) ^ n
+    if( PMATH_AS_INT32(exponent) > 0 &&
+        pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) 
+    { // (x * y) ^ n
       size_t i;
       
       pmath_unref(expr);
