@@ -1,57 +1,59 @@
 
 Begin("FE`Private`")
 
-parenthesize(~x:String)::= x
-parenthesize({~x})::= parenthesize(x)
-parenthesize(~x)::= "(" ++ FE`BoxesToText(x) ++ ")"
-
 FE`BoxesToText(~s:String)::= s
 
-FE`BoxesToText("\u2192"):= "->";
-FE`BoxesToText("\u2254"):= ":=";
-FE`BoxesToText("\u29F4"):= ":>";
-FE`BoxesToText("\u2A74"):= "::=";
-FE`BoxesToText("\u2260"):= "!=";
-FE`BoxesToText("\u2264"):= "<=";
-FE`BoxesToText("\u2265"):= ">=";
-FE`BoxesToText("\u27E6"):= "[[";
-FE`BoxesToText("\u27E7"):= "]]";
+FE`BoxesToText(~boxes)::= innerBoxesToText(boxes)
+
+parenthesize(~x:String)::= x
+parenthesize({~x})::= parenthesize(x)
+parenthesize(~x)::= "(" ++ innerBoxesToText(x) ++ ")"
+
+innerBoxesToText("\u2192"):= "->";
+innerBoxesToText("\u2254"):= ":=";
+innerBoxesToText("\u29F4"):= ":>";
+innerBoxesToText("\u2A74"):= "::=";
+innerBoxesToText("\u2260"):= "!=";
+innerBoxesToText("\u2264"):= "<=";
+innerBoxesToText("\u2265"):= ">=";
+innerBoxesToText("\u27E6"):= "[[";
+innerBoxesToText("\u27E7"):= "]]";
 
 /*  TODO: {"a1", "b"}  becomes  "a1b"  but should be "a1 b" */
-FE`BoxesToText(~b:List)::= StringExpression @@ b.Map(FE`BoxesToText)
-FE`BoxesToText(~b:/\/)::= StringExpression @@ b.Map(FE`BoxesToText)
-FE`BoxesToText({"\[Piecewise]", ~~b})::= "Piecewise(" ++ FE`BoxesToText({b}) ++ ")"
+innerBoxesToText(~b:List)::= StringExpression @@ b.Map(innerBoxesToText)
+innerBoxesToText(~b:/\/)::= StringExpression @@ b.Map(innerBoxesToText)
+innerBoxesToText({"\[Piecewise]", ~~b})::= "Piecewise(" ++ innerBoxesToText({b}) ++ ")"
 
-FE`BoxesToText(SqrtBox(~x))::= "Sqrt(" ++ FE`BoxesToText(x) ++ ")"
-FE`BoxesToText(RadicalBox(~x,~y))::= FE`BoxesToText({x, SuperscriptBox(FractionBox("1", y))})
+innerBoxesToText(SqrtBox(~x))::= "Sqrt(" ++ innerBoxesToText(x) ++ ")"
+innerBoxesToText(RadicalBox(~x,~y))::= innerBoxesToText({x, SuperscriptBox(FractionBox("1", y))})
 
-FE`BoxesToText(SuperscriptBox(~x))::= "^" ++ parenthesize(x)
-FE`BoxesToText({~x, SubscriptBox(~y)})::= "Subscript(" ++ x ++ ", " ++ y ++ ")"
-FE`BoxesToText(SubscriptBox(~y))::= "Subscript(\"\", " ++ y ++ ")"
-FE`BoxesToText({~x, SubsuperscriptBox(~y,~z)})::= "Subscript(" ++ x ++ ", " ++ y ++ ")^" ++ parenthesize(z)
-FE`BoxesToText(SubsuperscriptBox(~y,~z))::= "Subscript(\"\", " ++ y ++ ")^" ++ parenthesize(z)
+innerBoxesToText(SuperscriptBox(~x))::= "^" ++ parenthesize(x)
+innerBoxesToText({~x, SubscriptBox(~y)})::= "Subscript(" ++ x ++ ", " ++ y ++ ")"
+innerBoxesToText(SubscriptBox(~y))::= "Subscript(\"\", " ++ y ++ ")"
+innerBoxesToText({~x, SubsuperscriptBox(~y,~z)})::= "Subscript(" ++ x ++ ", " ++ y ++ ")^" ++ parenthesize(z)
+innerBoxesToText(SubsuperscriptBox(~y,~z))::= "Subscript(\"\", " ++ y ++ ")^" ++ parenthesize(z)
 
-FE`BoxesToText(FractionBox(~x,~y))::= parenthesize(x) ++ "/" ++ parenthesize(y)
+innerBoxesToText(FractionBox(~x,~y))::= parenthesize(x) ++ "/" ++ parenthesize(y)
 
-FE`BoxesToText(UnderscriptBox(~x,~y))::= "Underscript(" ++ FE`BoxesToText(x) ++ ", " ++ FE`BoxesToText(y) ++ ")"
-FE`BoxesToText(OverscriptBox(~x,~y))::= "Overscript(" ++ FE`BoxesToText(x) ++ ", " ++ FE`BoxesToText(y) ++ ")"
-FE`BoxesToText(UnderoverscriptBox(~x,~y,~z))::= FE`BoxesToText(OverscriptBox(UnderscriptBox(x, y), z))
+innerBoxesToText(UnderscriptBox(~x,~y))::= "Underscript(" ++ innerBoxesToText(x) ++ ", " ++ innerBoxesToText(y) ++ ")"
+innerBoxesToText(OverscriptBox(~x,~y))::= "Overscript(" ++ innerBoxesToText(x) ++ ", " ++ innerBoxesToText(y) ++ ")"
+innerBoxesToText(UnderoverscriptBox(~x,~y,~z))::= innerBoxesToText(OverscriptBox(UnderscriptBox(x, y), z))
 
-FE`BoxesToText(FrameBox(~x,~~~))::= "Framed(" ++ FE`BoxesToText(x) ++ ")"
-FE`BoxesToText(StyleBox(~x,~~~))::= FE`BoxesToText(x)
-FE`BoxesToText(TagBox(~x,~~~))::= FE`BoxesToText(x)
-FE`BoxesToText(InterpretationBox(~x,~~~))::= FE`BoxesToText(x)
+innerBoxesToText(FrameBox(~x,~~~))::= "Framed(" ++ innerBoxesToText(x) ++ ")"
+innerBoxesToText(StyleBox(~x,~~~))::= innerBoxesToText(x)
+innerBoxesToText(TagBox(~x,~~~))::= innerBoxesToText(x)
+innerBoxesToText(InterpretationBox(~x,~~~))::= innerBoxesToText(x)
 
-FE`BoxesToText(GridBox(~m,~~~))::= "{" ++ m.Map(
+innerBoxesToText(GridBox(~m,~~~))::= "{" ++ m.Map(
 	Function({row}, 
 		"{" ++ row.Map(Function({x}, 
-			FE`BoxesToText(x))).Row(", ").ToString ++ "}")).Row(",\n").ToString ++ "}"
+			innerBoxesToText(x))).Row(", ").ToString ++ "}")).Row(",\n").ToString ++ "}"
 
-FE`BoxesToText(Section(BoxData(~x),~~~))::= FE`BoxesToText(x)
-FE`BoxesToText(Section(~x,~~~))::= FE`BoxesToText(x)
+innerBoxesToText(Section(BoxData(~x),~~~))::= innerBoxesToText(x)
+innerBoxesToText(Section(~x,~~~))::= innerBoxesToText(x)
 
-FE`BoxesToText(SectionGroup(~s:List,~~~))::= s.Map(FE`BoxesToText).Row("\n\n").ToString
+innerBoxesToText(SectionGroup(~s:List,~~~))::= s.Map(innerBoxesToText).Row("\n\n").ToString
 
-FE`BoxesToText(~x)::= x.RawBoxes.ToString /*"[$Failed : " ++ x.ToString ++ "]"*/
+innerBoxesToText(~x)::= x.RawBoxes.ToString /*"[$Failed : " ++ x.ToString ++ "]"*/
 
 End()
