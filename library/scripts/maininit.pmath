@@ -37,26 +37,26 @@ $NewMessage:= Function({symbol, tag},
 Protect($NewMessage)
 
 
-/* WARNING: Be aware that the 3 argument version of AutoLoad might be called by concurring threads. 
-	So it must be possible to load the file "f" multiple times in a row. "all" symbols will then be 
-	unprotected and cleared before each Get(f).
- */
-AutoLoad(Hold(~s), Hold(~~~all), ~f)::= Local(
-	{p},
-	Synchronize({all},
+AutoLoad(~heldall:Hold, ~file)::= 
+	Local({p},
 		(
-			p:= Unprotect(all);
-			Clear(all);
-			Get(f);
-			s
-		).Finally(Protect @@ p)))
-AutoLoad(~o:Hold, ~f)::= Local(
-	{p},
-	(
-		p:= Unprotect @@ o;
-		o.Scan(Function(s, s ::= AutoLoad(Hold(s), o, f); SetAttributes(s, ReadProtected), {HoldAll}));
-	).Finally(Protect @@ p))
+			p:= Unprotect @@ heldall;
+			AutoLoadContinue(heldall, ~heldsymbol)::= (AutoLoadContinue(heldall, ~hs):=.; AutoLoadFinish(heldall, heldsymbol, file));
+			heldall.Scan(
+				Function(s, s ::= AutoLoadStart(Hold(s), heldall); SetAttributes(s, ReadProtected), {HoldAll}));
+		).Finally(Protect @@ p))
 Attributes(Autoload):= {Protected, ReadProtected}
+
+AutoLoadStart(~heldsymbol, heldall: Hold(~~~all))::= Synchronize({all}, AutoLoadContinue(heldall, heldsymbol))
+AutoLoadContinue(~heldall, Hold(~sym))::= sym
+AutoLoadFinish(heldall: Hold(~~~all), Hold(~sym), ~file)::= 
+	Local({protections:= {}},
+		(
+			protections:= Unprotect(all);
+			Clear(all);
+			Get(file);
+			sym
+		).Finally(Protect @@ protections))
 
 
 Unprotect(System`Utilities`GetSystemSyntaxInformation)
