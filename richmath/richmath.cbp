@@ -873,6 +873,9 @@
 			<envvars />
 			<debugger>
 				<search_path add="../library/src" />
+				<remote_debugging>
+					<options conn_type="-1" additional_cmds="python import sys&#x0A;python sys.path.insert(0, &apos;../gdb&apos;)&#x0A;python import pmath_gdb.printers&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+				</remote_debugging>
 			</debugger>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />
