@@ -8,7 +8,7 @@ class static:
     def __init__(self, function):
         self.__call__ = function
 
-# from pmath-core/objects.h:
+# from pmath-core/objects.h and pmath-core/objects-private.h:
 PMATH_TAGMASK_NONDOUBLE = 0x7FF00000
 PMATH_TAGMASK_POINTER   = 0xFFF00000
 PMATH_TAG_MAGIC         = (PMATH_TAGMASK_NONDOUBLE | 0x10000)
@@ -24,7 +24,7 @@ PMATH_TYPE_SHIFT_BIGSTRING               = 3
 PMATH_TYPE_SHIFT_SYMBOL                  = 4
 PMATH_TYPE_SHIFT_EXPRESSION_GENERAL      = 5
 PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART = 6
-PMATH_TYPE_SHIFT_RESERVED_1              = 7
+PMATH_TYPE_SHIFT_MULTIRULE               = 7
 PMATH_TYPE_SHIFT_CUSTOM                  = 8
 
 PMATH_TYPE_MP_INT                  = 1 << PMATH_TYPE_SHIFT_MP_INT
@@ -35,6 +35,7 @@ PMATH_TYPE_SYMBOL                  = 1 << PMATH_TYPE_SHIFT_SYMBOL
 PMATH_TYPE_EXPRESSION_GENERAL      = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL
 PMATH_TYPE_EXPRESSION_GENERAL_PART = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART
 PMATH_TYPE_EXPRESSION              = PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART
+PMATH_TYPE_MULTIRULE               = 1 << PMATH_TYPE_SHIFT_MULTIRULE
 PMATH_TYPE_CUSTOM                  = 1 << PMATH_TYPE_SHIFT_CUSTOM
 
 def types_equal_flat(type1, type2):
@@ -60,11 +61,34 @@ def types_equal_flat(type1, type2):
                 return False
 
     return True
-    
+
 
 class ExprVal:
     _string_header_size = None
     _system_symbol = re.compile('^System`([^`]+)$')
+    _type_shift_names = {
+        PMATH_TYPE_SHIFT_MP_FLOAT:                'mp float',
+        PMATH_TYPE_SHIFT_MP_INT:                  'mp int',
+        PMATH_TYPE_SHIFT_QUOTIENT:                'quotient',
+        PMATH_TYPE_SHIFT_BIGSTRING:               'string',
+        PMATH_TYPE_SHIFT_SYMBOL:                  'symbol',
+        PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:      'expression',
+        PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: 'expression part',
+        PMATH_TYPE_SHIFT_MULTIRULE:               'multirule',
+        PMATH_TYPE_SHIFT_CUSTOM:                  'custom'}
+    _tag_names = {
+        PMATH_TAG_MAGIC: 'magic',
+        PMATH_TAG_INT32: 'int32',
+        PMATH_TAG_STR0:  'str0',
+        PMATH_TAG_STR1:  'str1',
+        PMATH_TAG_STR2:  'str2'}
+    
+    @static
+    def type_is_pmath(type):
+        try:
+            return types_equal_flat(type, gdb.lookup_type('pmath_t'))
+        except gdb.error:
+            return False
     
     @static
     def string_header_size():
@@ -74,7 +98,7 @@ class ExprVal:
         
     def __init__(self, val):
         self._val = val
-        self._is_pmath = val != None and types_equal_flat(val.type, gdb.lookup_type('pmath_t'))
+        self._is_pmath = val != None and ExprVal.type_is_pmath(val.type)
         self._tag        = None
         self._type_shift = None
 
@@ -151,6 +175,9 @@ class ExprVal:
     
     def is_mpfloat(self):
         return self.is_pointer_of(PMATH_TYPE_MP_FLOAT)
+    
+    def is_multirule(obj):
+        return self.is_pointer_of(PMATH_TYPE_MULTIRULE)
     
     def is_custom(self):
         return self.is_pointer_of(PMATH_TYPE_CUSTOM)
@@ -240,6 +267,9 @@ class ExprVal:
             return unichr(self._val['s']['u']['as_chars'][0]) + unichr(self._val['s']['u']['as_chars'][1])
 
         if self._type_shift == PMATH_TYPE_SHIFT_BIGSTRING:
+            if self.get_refcount() < 1:
+                return errorval
+            
             string_data = self.dereference().cast(gdb.lookup_type('struct _pmath_string_t'))
             length = int(string_data['length'])
             if length < 0:
@@ -278,6 +308,53 @@ class ExprVal:
         
         symbol_data = self.dereference().cast(gdb.lookup_type('struct _pmath_symbol_t'))
         return ExprVal(symbol_data['name']).get_string_data()
+    
+    def get_multirule_pattern(self):
+        if not self.is_multirule():
+            return ExprVal(None)
+        
+        if self.get_refcount() <= 0:
+            return ExprVal(None)
+        
+        multirule_data = self.dereference().cast(gdb.lookup_type('struct _pmath_multirule_t'))
+        
+        return ExprVal(multirule_data['pattern']['_data'])
+        
+    def get_multirule_body(self):
+        if not self.is_multirule():
+            return ExprVal(None)
+        
+        if self.get_refcount() <= 0:
+            return ExprVal(None)
+        
+        multirule_data = self.dereference().cast(gdb.lookup_type('struct _pmath_multirule_t'))
+        
+        return ExprVal(multirule_data['body']['_data'])
+        
+    def get_multirule_next(self):
+        if not self.is_multirule():
+            return ExprVal(None)
+        
+        if self.get_refcount() <= 0:
+            return ExprVal(None)
+        
+        multirule_data = self.dereference().cast(gdb.lookup_type('struct _pmath_multirule_t'))
+        
+        return ExprVal(multirule_data['next']['_data'])
+    
+    def get_custom_data_and_destructor(self):
+        if not self.is_custom():
+            return None
+        
+        if self.get_refcount() <= 0:
+            return None
+        
+        try:
+            custom_data = self.dereference().cast(gdb.lookup_type('struct _pmath_custom_t'))
+            return (custom_data['data'], custom_data['destructor'])
+        except gdb.error:
+            return None
+        
     
     def to_string(self, max_recursion = 3, max_arg_count = 10):
         f = StringIO()
@@ -339,13 +416,29 @@ class ExprVal:
                 self.get_expr_item(length).write_to_file(f, max_recursion - 1, max_arg_count)
             f.write(')')
             return
-
+        
+        if self.is_custom():
+            dd = self.get_custom_data_and_destructor()
+            if dd != None:
+                f.write('[custom {0} for {1}]'.format(dd[0], dd[1]))
+                return
+        
         if self.is_pointer():
             if self.get_pointer() == 0:
                 f.write('/\\/')
                 return
             
-            f.write('[{0} at {1}]'.format(self._type_shift, self.get_pointer()))
+            if ExprVal._type_shift_names.has_key(self._type_shift):
+                typename = ExprVal._type_shift_names[self._type_shift]
+            else:
+                typename = 'type {0}'.format(self._type_shift)
+            
+            f.write('[{0} at {1}]'.format(typename, self.get_pointer()))
             return
-
-        f.write('[tag {0} data {1:x}]'.format(self._tag, self._val['s']['u']['as_int32']))
+           
+        if ExprVal._tag_names.has_key(self._tag):
+            tagname = ExprVal._tag_names[self._tag]
+        else:
+            tagname = 'tag {0}:'.format(self._tag)
+        
+        f.write('[{0} {1}]'.format(tagname, self._val['s']['u']['as_int32']))

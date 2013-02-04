@@ -17,29 +17,41 @@ def register_pretty_printer(pretty_printer):
 
 @register_pretty_printer
 class ExprPrinter:
-    regex = re.compile('^pmath::(Expr|String)$')
+    _regex = re.compile('^pmath(_string_t|_expr_t|_symbol_t|_t|::(Expr|String))$')
+    max_recursion = 1
+    max_arg_count = 10
     
     @static
-    def supports(typename):
-        return ExprPrinter.regex.search(typename)
+    def supports(type):
+        ##try:
+        ##    if ExprVal.type_is_pmath(type):
+        ##        return True
+        ##except:
+        ##    return False
+        if type.tag != None:
+            return ExprPrinter._regex.search(type.tag)
+        return ExprPrinter._regex.search(str(type))
     
 ##    @static
 ##    def is_undefine(val):
 ##        return not ExprVal(val['_obj']).is_pmath()
 
     def __init__(self, val):
-        self.expr = ExprVal(val['_obj'])
+        try:
+            self.expr = ExprVal(val['_obj'])
+        except gdb.error:
+            self.expr = ExprVal(val)
 
     def to_string(self):
-        return self.expr.to_string(max_recursion=1)
+        return self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count)
 
 @register_pretty_printer
 class VoidPrinter:
     """print a richmath::Void"""
     
     @static
-    def supports(typename):
-        return typename == 'richmath::Void'
+    def supports(type):
+        return type.tag == 'richmath::Void'
 
     def __init__(self, val):
         pass
@@ -54,8 +66,8 @@ class HashtablePrinter:
     regex = re.compile('^richmath::Hashtable<.*>$')
 
     @static
-    def supports(typename):
-        return HashtablePrinter.regex.search(typename)
+    def supports(type):
+        return type.tag != None and HashtablePrinter.regex.search(type.tag)
 
     def __init__(self, val):
         self.val = val
@@ -111,11 +123,8 @@ def register_pmath_printers(obj):
 # The function looking up the pretty-printer to use for the given value.
 def lookup_function(val):
     type = val.type
-    type = type.unqualified().strip_typedefs()
-    typename = type.tag
-    if typename == None:
-        return None
+    type = type.unqualified() #.strip_typedefs()
     for pp in pmath_pretty_printers:
-        if pp.supports(typename):
+        if pp.supports(type):
             return pp(val)
     return None

@@ -101,6 +101,7 @@ PMATH_API void pmath_debug_print_object(
       (void(*)(void*, const uint16_t*, int))write_data,
       debuglog);
     fputs(post, debuglog);
+    fflush(debuglog);
     
     funlockfile(debuglog);
     

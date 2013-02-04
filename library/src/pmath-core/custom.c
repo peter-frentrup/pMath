@@ -5,7 +5,7 @@
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
 
-struct custom_t {
+struct _pmath_custom_t {
   struct _pmath_t    inherited;
   void              *data;
   pmath_callback_t   destructor;
@@ -15,14 +15,14 @@ PMATH_API pmath_custom_t pmath_custom_new(
   void              *data,
   pmath_callback_t   destructor
 ) {
-  struct custom_t *custom;
+  struct _pmath_custom_t *custom;
   
   if(PMATH_UNLIKELY(!destructor))
     return PMATH_NULL;
     
-  custom = (struct custom_t*)PMATH_AS_PTR(_pmath_create_stub(
+  custom = (struct _pmath_custom_t*)PMATH_AS_PTR(_pmath_create_stub(
       PMATH_TYPE_SHIFT_CUSTOM,
-      sizeof(struct custom_t)));
+      sizeof(struct _pmath_custom_t)));
       
   if(PMATH_UNLIKELY(!custom)) {
     destructor(data);
@@ -40,7 +40,7 @@ PMATH_API void *pmath_custom_get_data(pmath_custom_t custom) {
     
   assert(pmath_is_custom(custom));
   
-  return ((struct custom_t*)PMATH_AS_PTR(custom))->data;
+  return ((struct _pmath_custom_t*)PMATH_AS_PTR(custom))->data;
 }
 
 PMATH_API pmath_bool_t pmath_custom_has_destructor(
@@ -52,7 +52,7 @@ PMATH_API pmath_bool_t pmath_custom_has_destructor(
     
   assert(pmath_is_custom(custom));
   
-  return ((struct custom_t*)PMATH_AS_PTR(custom))->destructor == dtor;
+  return ((struct _pmath_custom_t*)PMATH_AS_PTR(custom))->destructor == dtor;
 }
 
 //{ pMath object functions ...
@@ -66,7 +66,7 @@ static unsigned int hash_custom(pmath_t a) {
 }
 
 static void destroy_custom(pmath_t a) {
-  struct custom_t *custom = (struct custom_t*)PMATH_AS_PTR(a);
+  struct _pmath_custom_t *custom = (struct _pmath_custom_t*)PMATH_AS_PTR(a);
   
   custom->destructor(custom->data);
   pmath_mem_free(custom);

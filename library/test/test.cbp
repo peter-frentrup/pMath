@@ -8,8 +8,8 @@
 		<Build>
 			<Target title="Windows-Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\debug\test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\debug\" />
+				<Option output="bin/windows/debug/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -25,13 +25,13 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="..\bin\windows\debug" />
+					<Add directory="../bin/windows/debug" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\release\test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\release\" />
+				<Option output="bin/windows/release/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -50,13 +50,13 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="..\bin\windows\release" />
+					<Add directory="../bin/windows/release" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\msvc\test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\msvc\" />
+				<Option output="bin/windows/msvc/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc/" />
 				<Option type="1" />
 				<Option compiler="msvc8" />
 				<Compiler>
@@ -68,17 +68,17 @@
 					<Add option="/Ox" />
 					<Add option="/W3" />
 					<Add option="/DNDEBUG" />
-					<Add directory="..\..\msvc-c99" />
+					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add library="pmath.lib" />
-					<Add directory="..\bin\windows\msvc" />
+					<Add directory="../bin/windows/msvc" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Clang">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\clang\test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\clang\" />
+				<Option output="bin/windows/clang/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/clang/" />
 				<Option type="1" />
 				<Option compiler="clang" />
 				<Compiler>
@@ -97,13 +97,13 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="..\bin\windows\release" />
+					<Add directory="../bin/windows/release" />
 				</Linker>
 			</Target>
 			<Target title="Linux-Release-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin\linux\release\test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\linux\release\" />
+				<Option output="bin/linux/release/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -115,13 +115,13 @@
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
-					<Add directory="\usr\include" />
+					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add library="librt" />
-					<Add directory="bin\linux\release" />
+					<Add directory="bin/linux/release" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh release" />
@@ -129,8 +129,8 @@
 			</Target>
 			<Target title="Linux-Debug-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin\linux\debug\test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\linux\debug\" />
+				<Option output="bin/linux/debug/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -143,13 +143,13 @@
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
-					<Add directory="\usr\include" />
+					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add library="librt" />
-					<Add directory="bin\linux\debug" />
+					<Add directory="bin/linux/debug" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh debug" />
@@ -157,8 +157,8 @@
 			</Target>
 			<Target title="Linux-Debug-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin\linux\debug-x64\test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\linux\debug-x64\" />
+				<Option output="bin/linux/debug-x64/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/debug-x64/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -171,13 +171,13 @@
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
 					<Add option="-DNDEBUG" />
-					<Add directory="\usr\include" />
+					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add library="librt" />
-					<Add directory="bin\linux\debug-x64" />
+					<Add directory="bin/linux/debug-x64" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh debug-x64" />
@@ -185,7 +185,7 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="..\include" />
+			<Add directory="../include" />
 		</Compiler>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
@@ -193,7 +193,11 @@
 		<Extensions>
 			<code_completion />
 			<envvars />
-			<debugger />
+			<debugger>
+				<remote_debugging>
+					<options conn_type="-1" additional_cmds="python import sys&#x0A;python sys.path.insert(0, &apos;../../gdb&apos;)&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+				</remote_debugging>
+			</debugger>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />
 				<doxyfile_project />
