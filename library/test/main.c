@@ -52,8 +52,8 @@ static void os_init(void) {
   // remove current directory from dll search path:
   kernel32 = GetModuleHandleW(L"Kernel32");
   if(kernel32) {
-    BOOL (WINAPI * SetDllDirectoryW_ptr)(const WCHAR*);
-    SetDllDirectoryW_ptr = (BOOL (WINAPI*)(const WCHAR*))
+    BOOL (WINAPI * SetDllDirectoryW_ptr)(const WCHAR *);
+    SetDllDirectoryW_ptr = (BOOL (WINAPI *)(const WCHAR *))
                            GetProcAddress(kernel32, "SetDllDirectoryW");
                            
     if(SetDllDirectoryW_ptr)
@@ -99,7 +99,7 @@ static pmath_string_t read_line(FILE *file) {
   while(fgets(buf, sizeof(buf), file) != NULL) {
     int len = strlen(buf);
     
-    if(buf[len-1] == '\n') {
+    if(buf[len - 1] == '\n') {
       if(len == 1)
         return pmath_string_new(0);
         
@@ -127,8 +127,8 @@ static void write_cstr(FILE *file, const char *cstr) {
       bytes_since_last_abortcheck = 0;
   }
   else
-    bytes_since_last_abortcheck+= len;
-  
+    bytes_since_last_abortcheck += len;
+    
   fwrite(cstr, 1, len, file);
 }
 
@@ -136,11 +136,11 @@ static pmath_threadlock_t print_lock = NULL;
 
 static void write_output_locked_callback(void *_obj) {
   pmath_cstr_writer_info_t info;
-  pmath_t obj = *(pmath_t*)_obj;
+  pmath_t obj = *(pmath_t *)_obj;
   int i;
   
   info.user = stdout;
-  info.write_cstr = (void (*)(void*, const char*))write_cstr;
+  info.write_cstr = (void ( *)(void *, const char *))write_cstr;
   
   i = dialog_depth;
   while(i-- > 0)
@@ -159,7 +159,7 @@ static void write_output_locked_callback(void *_obj) {
 }
 
 static void write_line_locked_callback(void *s) {
-  printf("%s", (const char*)s);
+  printf("%s", (const char *)s);
   fflush(stdout);
 }
 
@@ -167,7 +167,7 @@ static void indent_locked_callback(void *s) {
   int i = dialog_depth;
   while(i-- > 0)
     printf(" ");
-  printf("%s", (const char*)s);
+  printf("%s", (const char *)s);
   fflush(stdout);
 }
 
@@ -182,14 +182,14 @@ static void write_line(const char *s) {
   pmath_thread_call_locked(
     &print_lock,
     write_line_locked_callback,
-    (void*)s);
+    (void *)s);
 }
 
 static void write_indent(const char *s) {
   pmath_thread_call_locked(
     &print_lock,
     indent_locked_callback,
-    (void*)s);
+    (void *)s);
 }
 
 static void signal_dummy(int sig) {
@@ -259,7 +259,7 @@ static void scanner_error(pmath_string_t code, int pos, void *flag, pmath_bool_t
   
   if(!*have_critical)
     pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
-  
+    
   if(critical)
     *have_critical = TRUE;
 }
@@ -321,6 +321,57 @@ static pmath_t check_dialog_return(pmath_t result) { // result wont be freed
   return PMATH_UNDEFINED;
 }
 
+struct parse_data_t {
+  pmath_t code;
+  pmath_t filename;
+};
+
+static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_data) {
+  pmath_t debug_info;
+  struct parse_data_t *data = _data;
+  const uint16_t *code_buf;
+  int start_line, end_line, start_column, end_column, i;
+  
+  assert(0 <= start);
+  assert(start <= end);
+  assert(end <= pmath_string_length(data->code));
+  
+  if(!pmath_is_expr(token_or_span))
+    return token_or_span;
+    
+  code_buf = pmath_string_buffer(&data->code);
+  
+  start_line = 1;
+  start_column = start;
+  i = 0;
+  while(i < start) {
+    if(code_buf[i++] == '\n') {
+      ++start_line;
+      start_column = start - i;
+    }
+  }
+  
+  end_line = start_line;
+  end_line = start_line;
+  end_column = end;
+  while(i < end) {
+    if(code_buf[i++] == '\n') {
+      ++end_line;
+      end_column = start - i;
+    }
+  }
+  
+  debug_info = pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE), 2,
+                 pmath_ref(data->filename),
+                 pmath_expr_new_extended(
+                   pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                   pmath_build_value("(ii)", start_line, start_column),
+                   pmath_build_value("(ii)", end_line,   end_column)));
+                   
+  return pmath_try_set_debug_info(token_or_span, debug_info);
+}
+
 static pmath_t dialog(pmath_t first_eval) {
   pmath_t result = PMATH_NULL;
   pmath_t old_dialog = pmath_session_start();
@@ -332,9 +383,19 @@ static pmath_t dialog(pmath_t first_eval) {
   PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth));
   
   if(pmath_same(result, PMATH_UNDEFINED)) {
+    struct pmath_boxes_from_spans_ex_t parse_settings;
+    struct parse_data_t                parse_data;
+    
+    memset(&parse_settings, 0, sizeof(parse_settings));
+    parse_settings.size           = sizeof(parse_settings);
+    parse_settings.flags          = PMATH_BFS_PARSEABLE;
+    parse_settings.data           = &parse_data;
+    parse_settings.add_debug_info = add_debug_info;
+    
+    parse_data.filename = PMATH_C_STRING("<input>");
+    
     result = PMATH_NULL;
     while(!quitting) {
-      pmath_string_t code;
       pmath_bool_t err = FALSE;
       pmath_span_array_t *spans;
       
@@ -343,15 +404,15 @@ static pmath_t dialog(pmath_t first_eval) {
       write_line("\n");
       write_indent("pmath> ");
       
-      code = read_line(stdin);
+      parse_data.code = read_line(stdin);
       
       if(dialog_depth > 0 && pmath_aborting()) {
-        pmath_unref(code);
+        pmath_unref(parse_data.code);
         break;
       }
       
       spans = pmath_spans_from_string(
-                &code,
+                &parse_data.code,
                 scanner_read,
                 NULL,
                 NULL,
@@ -359,16 +420,16 @@ static pmath_t dialog(pmath_t first_eval) {
                 &err);
                 
       if(!err) {
-        pmath_t obj = pmath_evaluate(
-                        pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                          pmath_boxes_from_spans(
-                            spans,
-                            code,
-                            TRUE,
-                            NULL,
-                            NULL)));
-                            
+        pmath_t obj = pmath_boxes_from_spans_ex(
+                        spans,
+                        parse_data.code,
+                        &parse_settings);
+                        
+        obj = pmath_evaluate(
+                pmath_expr_new_extended(
+                  pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+                  obj));
+                  
         if(pmath_is_expr_of(obj, PMATH_SYMBOL_HOLDCOMPLETE)) {
           if(pmath_expr_length(obj) == 1) {
             pmath_t tmp = obj;
@@ -389,7 +450,7 @@ static pmath_t dialog(pmath_t first_eval) {
             
             if(!pmath_same(result, PMATH_UNDEFINED)) {
               pmath_unref(obj);
-              pmath_unref(code);
+              pmath_unref(parse_data.code);
               pmath_span_array_free(spans);
               
               break;
@@ -404,9 +465,11 @@ static pmath_t dialog(pmath_t first_eval) {
         pmath_unref(obj);
       }
       
-      pmath_unref(code);
+      pmath_unref(parse_data.code);
       pmath_span_array_free(spans);
     }
+    
+    pmath_unref(parse_data.filename);
   }
   
   PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth - 1));
@@ -423,7 +486,7 @@ struct dialog_callback_info_t {
 };
 
 static void dialog_callback(void *_info) {
-  struct dialog_callback_info_t *info = (struct dialog_callback_info_t*)_info;
+  struct dialog_callback_info_t *info = (struct dialog_callback_info_t *)_info;
   
   ++dialog_depth;
   

@@ -283,6 +283,7 @@ namespace pmath {
       static Expr deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) throw();
       
     protected:
+      /**\internal */                                         
       pmath_t _obj;
       
     protected:

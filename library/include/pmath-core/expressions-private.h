@@ -13,6 +13,7 @@
 struct _pmath_expr_t {
   struct _pmath_gc_t   inherited;
   size_t               length;
+  struct _pmath_t     *debug_ptr;
   pmath_t              items[1];
 };
 
@@ -66,6 +67,17 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_expr_shrink_associative(
   pmath_expr_t  expr,
   pmath_t       magic_rem);
+  
+  
+PMATH_PRIVATE 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr);
+
+
+PMATH_PRIVATE 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info);
+
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_expr_is_updated(pmath_expr_t expr);

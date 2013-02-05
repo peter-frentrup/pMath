@@ -389,6 +389,22 @@ pmath_bool_t pmath_is_evaluated(pmath_t obj) {
   return TRUE;
 }
 
+PMATH_API
+pmath_t pmath_get_debug_info(pmath_t obj) {
+  if(pmath_is_expr(obj))
+    return _pmath_expr_get_debug_info(obj);
+  
+  return PMATH_NULL;
+}
+
+PMATH_API
+pmath_t pmath_try_set_debug_info(pmath_t obj, pmath_t debug_info) {
+  if(pmath_is_expr(obj))
+    return _pmath_expr_set_debug_info(obj, debug_info);
+  
+  return obj;
+}
+
 /*============================================================================*/
 
 PMATH_PRIVATE pmath_t _pmath_create_stub(unsigned int type_shift, size_t size) {

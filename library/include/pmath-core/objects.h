@@ -67,7 +67,7 @@
    8 bytes is called NaN-boxing. See
    http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation
  */
-typedef union {
+typedef union pmath_t {
   uint64_t as_bits;                        ///< \internal
   double   as_double;                      ///< \internal
   
@@ -369,6 +369,7 @@ PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_evaluated(pmath_t obj);
 
 /**\brief Get the byte count of an object 
+   \memberof pmath_t
    \param obj The object. It wont be freed
    \return An estimate for the memory usage of this object. Symbols count as 0.
            Any elements that reference to the same object are treated as 
@@ -377,6 +378,30 @@ pmath_bool_t pmath_is_evaluated(pmath_t obj);
 PMATH_API
 size_t pmath_object_bytecount(pmath_t obj); // implemented in bytecount.c
 
+/**\brief Get debug information for an object.
+   \memberof pmath_t
+   \param obj A pMath object. It wont be freed.
+   \return The debug information for the object or PMATH_NULL. You have to 
+           destroy it when it is no longer used.
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_get_debug_info(pmath_t obj);
+
+/**\brief Set debug information for an object.
+   \memberof pmath_t
+   \param obj        A pMath object. It will be freed.
+   \param debug_info A pMath object. It will be freed. 
+   \return A copy of \a obj with changed debug information.
+   
+   \note Not all object types can store debug all kind of information. When 
+   storing is not possible, this function is a no-op. \a debug_info hould 
+   satisfy pmath_is_pointer()
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_try_set_debug_info(pmath_t obj, pmath_t debug_info);
+  
 
 /** @} */
 

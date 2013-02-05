@@ -1816,13 +1816,11 @@ static void parse_textline(struct parser_t *parser) {
 //{ group spans ...
 
 struct group_t {
-  pmath_span_array_t   *spans;
-  pmath_string_t        string;
-  const uint16_t       *str;
-  int                   pos;
-  pmath_bool_t          parseable;
-  pmath_t             (*box_at_index)(int, void *);
-  void                 *data;
+  pmath_span_array_t                 *spans;
+  pmath_string_t                      string;
+  const uint16_t                     *str;
+  int                                 pos;
+  struct pmath_boxes_from_spans_ex_t  settings;
 };
 
 static void skip_whitespace(struct group_t *group) {
@@ -1875,18 +1873,20 @@ static void write_to_str(pmath_string_t *result, const uint16_t *data, int len) 
 }
 
 static void emit_span(pmath_span_t *span, struct group_t *group) {
+  const int span_start = group->pos;
+  
   if(!span) {
     if(group->str[group->pos] == PMATH_CHAR_BOX) {
-      if(group->box_at_index)
+      if(group->settings.box_at_index)
         pmath_emit(
-          group->box_at_index(group->pos, group->data),
+          group->settings.box_at_index(group->pos, group->settings.data),
           PMATH_NULL);
       else
         pmath_emit(PMATH_NULL, PMATH_NULL);
       ++group->pos;
     }
     else {
-      int start = group->pos;
+      pmath_t result;
       
       while( group->pos < group->spans->length &&
              !SPAN_TOK(group->spans->items[group->pos]))
@@ -1896,25 +1896,35 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
       
       ++group->pos;
       
-      pmath_emit(
-        pmath_string_part(
-          pmath_ref(group->string),
-          start,
-          group->pos - start),
-        PMATH_NULL);
+      result = pmath_string_part(
+                 pmath_ref(group->string),
+                 span_start,
+                 group->pos - span_start);
+                 
+      if(group->settings.add_debug_info) {
+        result = group->settings.add_debug_info(
+                   result,
+                   span_start,
+                   group->pos,
+                   group->settings.data);
+      }
+      
+      pmath_emit(result, PMATH_NULL);
     }
     
-    if(group->parseable)
+    if(group->settings.flags & PMATH_BFS_PARSEABLE)
       skip_whitespace(group);
+      
     return;
   }
   
-  if( /*group->parseable && */
+  if( /*(group->flags & PMATH_BFS_PARSEABLE) && */
     !span->next &&
     group->str[group->pos] == '"')
   {
     pmath_string_t result = PMATH_NULL;
     int start = group->pos;
+    
     while(group->pos <= span->end) {
       if(group->str[group->pos] == PMATH_CHAR_BOX) {
         static const uint16_t left_box_char  = PMATH_CHAR_LEFT_BOX;
@@ -1943,8 +1953,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
                    &left_box_char,
                    1);
                    
-        if(group->box_at_index)
-          box = group->box_at_index(group->pos, group->data);
+        if(group->settings.box_at_index)
+          box = group->settings.box_at_index(group->pos, group->settings.data);
         else
           box = PMATH_NULL;
           
@@ -1982,22 +1992,43 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
                  group->pos - start);
     }
     
+    if(group->settings.add_debug_info) {
+      result = group->settings.add_debug_info(
+                 result,
+                 span_start,
+                 span->end + 1,
+                 group->settings.data);
+    }
+    
     pmath_emit(
       result,
       PMATH_NULL);
     group->pos = span->end + 1;
     
-    if(group->parseable)
+    if(group->settings.flags & PMATH_BFS_PARSEABLE)
       skip_whitespace(group);
+      
     return;
   }
-  
-  pmath_gather_begin(PMATH_NULL);
-  emit_span(span->next, group);
-  while(group->pos <= span->end)
-    emit_span(SPAN_PTR(group->spans->items[group->pos]), group);
+  else {
+    pmath_t expr;
     
-  pmath_emit(pmath_gather_end(), PMATH_NULL);
+    pmath_gather_begin(PMATH_NULL);
+    emit_span(span->next, group);
+    while(group->pos <= span->end)
+      emit_span(SPAN_PTR(group->spans->items[group->pos]), group);
+      
+    expr = pmath_gather_end();
+    if(group->settings.add_debug_info) {
+      expr = group->settings.add_debug_info(
+               expr,
+               span_start,
+               span->end + 1,
+               group->settings.data);
+    }
+    
+    pmath_emit(expr, PMATH_NULL);
+  }
 }
 
 PMATH_API pmath_t pmath_boxes_from_spans(
@@ -2007,23 +2038,48 @@ PMATH_API pmath_t pmath_boxes_from_spans(
   pmath_t             (*box_at_index)(int, void *),
   void                 *data
 ) {
+  struct pmath_boxes_from_spans_ex_t settings;
+  
+  memset(&settings, 0, sizeof(settings));
+  settings.size         = sizeof(settings);
+  settings.data         = data;
+  settings.box_at_index = box_at_index;
+  
+  if(parseable)
+    settings.flags = PMATH_BFS_PARSEABLE;
+    
+  return pmath_boxes_from_spans_ex(spans, string, &settings);
+}
+
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_boxes_from_spans_ex(
+  pmath_span_array_t                 *spans,
+  pmath_string_t                      string, // wont be freed
+  struct pmath_boxes_from_spans_ex_t *settings
+) {
   struct group_t group;
   pmath_expr_t result;
   
   if(!spans || spans->length != pmath_string_length(string))
     return PMATH_C_STRING("");//pmath_ref(_pmath_object_emptylist);
     
-  group.spans        = spans;
-  group.string       = string;
-  group.str          = pmath_string_buffer(&string);
-  group.pos          = 0;
-  group.parseable    = parseable;
-  group.box_at_index = box_at_index;
-  group.data         = data;
+  group.spans                 = spans;
+  group.string                = string;
+  group.str                   = pmath_string_buffer(&string);
+  group.pos                   = 0;
+  memset(&group.settings, 0, sizeof(group.settings));
+  if(settings) {
+    group.settings.size = settings->size;
+    if(group.settings.size > sizeof(group.settings))
+      group.settings.size  = sizeof(group.settings);
+      
+    memcpy(&group.settings, settings, group.settings.size);
+  }
   
   pmath_gather_begin(PMATH_NULL);
   
-  if(parseable)
+  if(group.settings.flags & PMATH_BFS_PARSEABLE)
     skip_whitespace(&group);
     
   while(group.pos < spans->length)

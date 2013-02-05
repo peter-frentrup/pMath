@@ -62,7 +62,7 @@ static struct _pmath_expr_t *expr_cache_swap(
   uintptr_t                      i,
   struct _pmath_expr_t *value
 ) {
-  i = i &CACHE_MASK;
+  i = i & CACHE_MASK;
   
   assert(length < CACHES_MAX);
   assert(!value || value->length == length);
@@ -119,6 +119,7 @@ struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length) {
       touch_expr(expr);
       expr->inherited.gc_refcount = 0;
       expr->length                = length;
+      expr->debug_ptr             = NULL;
       
       return expr;
     }
@@ -130,7 +131,7 @@ struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length) {
   
   expr = (struct _pmath_expr_t *)PMATH_AS_PTR(_pmath_create_stub(
            PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
-           sizeof(struct _pmath_expr_t) + length *sizeof(pmath_t)));
+           sizeof(struct _pmath_expr_t) + length * sizeof(pmath_t)));
            
   if(PMATH_UNLIKELY(!expr))
     return NULL;
@@ -138,6 +139,7 @@ struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length) {
   touch_expr(expr);
   expr->inherited.gc_refcount = 0;
   expr->length                = length;
+  expr->debug_ptr             = NULL;
   
   return expr;
 }
@@ -160,12 +162,18 @@ static void destroy_general_expression(pmath_t expr) {
   for(i = 0; i <= _expr->length; i++)
     pmath_unref(_expr->items[i]);
     
+  if(_expr->debug_ptr)
+    pmath_unref(PMATH_FROM_PTR(_expr->debug_ptr));
+    
   end_destroy_general_expression(_expr);
 }
 
 static void destroy_part_expression(pmath_t expr) {
   struct _pmath_expr_part_t *_expr = (void *)PMATH_AS_PTR(expr);
   
+  if(_expr->inherited.debug_ptr)
+    pmath_unref(PMATH_FROM_PTR(_expr->inherited.debug_ptr));
+    
   pmath_unref(_expr->inherited.items[0]);
   pmath_unref(PMATH_FROM_PTR(_expr->buffer));
   
@@ -493,8 +501,9 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
           
         touch_expr(&new_expr_part->inherited);
         new_expr_part->inherited.inherited.gc_refcount = 0;
-        new_expr_part->inherited.length   = length;
-        new_expr_part->inherited.items[0] = pmath_ref(old_expr->items[0]);
+        new_expr_part->inherited.length                = length;
+        new_expr_part->inherited.debug_ptr             = NULL;
+        new_expr_part->inherited.items[0]              = pmath_ref(old_expr->items[0]);
         
         new_expr_part->start  = start;
         new_expr_part->buffer = old_expr;
@@ -541,8 +550,9 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
           
         touch_expr(&new_expr_part->inherited);
         new_expr_part->inherited.inherited.gc_refcount = 0;
-        new_expr_part->inherited.length   = length;
-        new_expr_part->inherited.items[0] = pmath_ref(old_expr->items[0]);
+        new_expr_part->inherited.length                = length;
+        new_expr_part->inherited.debug_ptr             = NULL;
+        new_expr_part->inherited.items[0]              = pmath_ref(old_expr->items[0]);
         
         new_expr_part->start  = start + old_expr_part->start - 1;
         new_expr_part->buffer = old_expr_part->buffer;
@@ -614,8 +624,14 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
         if(_pmath_refcount_ptr((void *)old_expr) == 1) {
           pmath_unref(old_expr->items[index]);
           
+          if(old_expr->debug_ptr){
+            _pmath_unref_ptr(old_expr->debug_ptr);
+            old_expr->debug_ptr = NULL;
+          }
+          
           old_expr->items[index] = item;
           touch_expr(old_expr);
+          
           return expr;
         }
         
@@ -674,9 +690,10 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           }
           
           touch_expr(&new_expr_part->inherited);
-          new_expr_part->inherited.inherited.gc_refcount           = 0;
-          new_expr_part->inherited.length                          = old_expr->length;
-          new_expr_part->inherited.items[0]                        = pmath_ref(item);
+          new_expr_part->inherited.inherited.gc_refcount = 0;
+          new_expr_part->inherited.length                = old_expr->length;
+          new_expr_part->inherited.debug_ptr             = NULL;
+          new_expr_part->inherited.items[0]              = pmath_ref(item);
           
           new_expr_part->start  = old_expr_part->start;
           new_expr_part->buffer = old_expr_part->buffer;
@@ -902,7 +919,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   }
   else
     pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
-  
+    
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
@@ -984,7 +1001,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   }
   else
     pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
-  
+    
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
@@ -1427,6 +1444,115 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
 
 /*----------------------------------------------------------------------------*/
 
+PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
+  struct _pmath_expr_t *_expr;
+  
+  if(pmath_is_null(expr))
+    return PMATH_NULL;
+    
+  assert(pmath_is_expr(expr));
+  
+  _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
+  if(!_expr->debug_ptr)
+    return PMATH_NULL;
+    
+  return pmath_ref(PMATH_FROM_PTR(_expr->debug_ptr));
+}
+
+PMATH_PRIVATE
+pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
+  struct _pmath_expr_t *_expr;
+  
+  if(!pmath_is_pointer(info))
+    return expr;
+    
+  if(pmath_is_null(expr)) {
+    pmath_unref(info);
+    return expr;
+  }
+  
+  assert(pmath_is_expr(expr));
+  
+  _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
+  if(_expr->debug_ptr == PMATH_AS_PTR(info))
+    return expr;
+    
+  if(pmath_refcount(expr) == 1) {
+    _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
+    
+    if(_expr->debug_ptr)
+      _pmath_unref_ptr(_expr->debug_ptr);
+      
+    _expr->debug_ptr = PMATH_AS_PTR(info);
+    return expr;
+  }
+  
+  switch(_expr->inherited.inherited.inherited.type_shift) {
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
+        struct _pmath_expr_t *new_expr;
+        size_t i;
+        
+        new_expr = _pmath_expr_new_noinit(_expr->length);
+        if(!new_expr) {
+          pmath_unref(info);
+          return expr;
+        }
+        
+        new_expr->inherited.inherited.inherited.flags8  = _expr->inherited.inherited.inherited.flags8;
+        new_expr->inherited.inherited.inherited.flags16 = _expr->inherited.inherited.inherited.flags16;
+        new_expr->inherited.inherited.last_change       = _expr->inherited.inherited.last_change;
+        new_expr->debug_ptr = PMATH_AS_PTR(info);
+        
+        for(i = 0;i <= _expr->length; ++i)
+          new_expr->items[i] = pmath_ref(_expr->items[i]);
+          
+        pmath_unref(expr);
+        return PMATH_FROM_PTR(new_expr);
+      }
+      
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+        struct _pmath_expr_part_t *new_expr_part;
+        struct _pmath_expr_part_t *old_expr_part;
+        
+        new_expr_part = (void *)PMATH_AS_PTR(
+                          _pmath_create_stub(
+                            PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
+                            sizeof(struct _pmath_expr_part_t)));
+                            
+        if(!new_expr_part) {
+          pmath_unref(info);
+          return expr;
+        }
+        
+        old_expr_part = (void *)_expr;
+        
+        new_expr_part->inherited.inherited.inherited.inherited.flags8  = _expr->inherited.inherited.inherited.flags8;
+        new_expr_part->inherited.inherited.inherited.inherited.flags16 = _expr->inherited.inherited.inherited.flags16;
+        new_expr_part->inherited.inherited.inherited.last_change       = _expr->inherited.inherited.last_change;
+        
+        new_expr_part->inherited.inherited.gc_refcount = 0;
+        new_expr_part->inherited.length                = _expr->length;
+        new_expr_part->inherited.debug_ptr             = PMATH_AS_PTR(info);
+        new_expr_part->inherited.items[0]              = pmath_ref(_expr->items[0]);
+        
+        new_expr_part->start  = old_expr_part->start;
+        new_expr_part->buffer = old_expr_part->buffer;
+        _pmath_ref_ptr((void *) old_expr_part->buffer);
+        
+        pmath_unref(expr);
+        
+        return PMATH_FROM_PTR(new_expr_part);
+      }
+  }
+  
+  pmath_unref(info);
+  return expr;
+}
+
+
+
+/*----------------------------------------------------------------------------*/
+
 struct thread_one_arg_t {
   size_t       arg_index;
   pmath_t      expr;
@@ -1439,7 +1565,7 @@ static pmath_t thread_one_arg_callback(pmath_t obj, size_t i, void *data) {
   obj = pmath_expr_set_item(pmath_ref(context->expr), context->arg_index, obj);
   if(context->can_eval)
     obj = pmath_evaluate(obj);
-  
+    
   return obj;
 }
 
@@ -1508,7 +1634,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
     return expr;
     
   can_eval = FALSE;
-  if(pmath_is_symbol(head)){
+  if(pmath_is_symbol(head)) {
     pmath_symbol_attributes_t att = pmath_symbol_get_attributes(head);
     
     can_eval = !(att & (PMATH_SYMBOL_ATTRIBUTE_HOLDALL | PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE));
@@ -1566,12 +1692,12 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
     
     if(can_eval)
       f = pmath_evaluate(f);
-    
+      
     result->items[i] = f;
   }
   
   pmath_unref(expr);
-  expr = PMATH_FROM_PTR((void*)result);
+  expr = PMATH_FROM_PTR((void *)result);
   
   if(can_eval) {
     if(pmath_same(head, PMATH_SYMBOL_LIST))

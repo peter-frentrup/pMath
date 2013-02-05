@@ -17,20 +17,18 @@ def register_pretty_printer(pretty_printer):
 
 @register_pretty_printer
 class ExprPrinter:
-    _regex = re.compile('^pmath(_string_t|_expr_t|_symbol_t|_t|::(Expr|String))$')
+    _regex = re.compile('^pmath::(Expr|String)$')
     max_recursion = 1
     max_arg_count = 10
     
     @static
     def supports(type):
-        ##try:
-        ##    if ExprVal.type_is_pmath(type):
-        ##        return True
-        ##except:
-        ##    return False
-        if type.tag != None:
-            return ExprPrinter._regex.search(type.tag)
-        return ExprPrinter._regex.search(str(type))
+        if ExprVal.type_is_pmath(type):
+            return True
+            
+        if type.tag == None:
+            return False
+        return ExprPrinter._regex.search(type.tag)
     
 ##    @static
 ##    def is_undefine(val):
@@ -45,6 +43,16 @@ class ExprPrinter:
     def to_string(self):
         return self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count)
 
+    def children(self):
+        ch = {}
+        try:
+            debug_info = self.expr.get_debug_info()
+            if debug_info.is_pmath() and not debug_info.is_null():
+                ch['debug info'] = debug_info._val
+        except:
+            pass
+        return ch.items()
+    
 @register_pretty_printer
 class VoidPrinter:
     """print a richmath::Void"""

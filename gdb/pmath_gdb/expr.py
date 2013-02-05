@@ -38,30 +38,6 @@ PMATH_TYPE_EXPRESSION              = PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_
 PMATH_TYPE_MULTIRULE               = 1 << PMATH_TYPE_SHIFT_MULTIRULE
 PMATH_TYPE_CUSTOM                  = 1 << PMATH_TYPE_SHIFT_CUSTOM
 
-def types_equal_flat(type1, type2):
-    type1 = type1.strip_typedefs()
-    type2 = type1.strip_typedefs()
-    if type1.code != type2.code:
-        return False
-
-    if type1.sizeof != type2.sizeof:
-        return False
-
-    if type1.code in [gdb.TYPE_CODE_STRUCT, gdb.TYPE_CODE_UNION]:
-        fields1 = type1.fields()
-        fields2 = type2.fields()
-        if len(fields1) != len(fields2):
-            return False
-
-        for i in range(len(fields1)):
-            if fields1[i].name != fields2[i].name:
-                return False
-
-            if not types_equal_flat(fields1[i].type, fields2[i].type):
-                return False
-
-    return True
-
 
 class ExprVal:
     _string_header_size = None
@@ -85,16 +61,27 @@ class ExprVal:
     
     @static
     def type_is_pmath(type):
-        try:
-            return types_equal_flat(type, gdb.lookup_type('pmath_t'))
-        except gdb.error:
-            return False
+        type = type.strip_typedefs()
+        return type.code == gdb.TYPE_CODE_UNION and type.tag == 'pmath_t'
     
     @static
     def string_header_size():
         if ExprVal._string_header_size == None:
             ExprVal._string_header_size = int(gdb.parse_and_eval('((sizeof(struct _pmath_string_t) + sizeof(size_t) - 1) / sizeof(size_t)) * sizeof(size_t)'))
         return ExprVal._string_header_size
+    
+    @static
+    def from_pointer(ptrval):
+        if ptrval.type.code != gdb.TYPE_CODE_PTR:
+            return ExprVal(None)
+        
+        pmath_t = gdb.lookup_type('pmath_t')
+        uint64_t = gdb.lookup_type('uint64_t')
+        ptrval = ptrval.reinterpret_cast(gdb.lookup_type('size_t')).cast(uint64_t)
+        tagval = gdb.Value(PMATH_TAGMASK_POINTER).cast(uint64_t)
+        val = (tagval << 32) | ptrval
+        val = val.cast(pmath_t)
+        return ExprVal(val)
         
     def __init__(self, val):
         self._val = val
@@ -127,6 +114,9 @@ class ExprVal:
 
     def is_pointer(self):
         return self._is_pmath and ((self._tag & PMATH_TAGMASK_POINTER) == PMATH_TAGMASK_POINTER)
+
+    def is_null(self):
+        return self._is_pmath and self._as_pointer == 0
 
     def is_magic(self):
         return self._is_pmath and (self._tag == PMATH_TAG_MAGIC)
@@ -254,6 +244,17 @@ class ExprVal:
 
             return ExprVal(buffer_data['items'][index])
         
+        return ExprVal(None)
+    
+    def get_debug_info(self):
+        if self.get_refcount() <= 0:
+            return ExprVal(None)
+        
+        if self._type_shift in [PMATH_TYPE_SHIFT_EXPRESSION_GENERAL, PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART]:
+            expr_data = self.dereference().cast(gdb.lookup_type('struct _pmath_expr_t'))
+            if expr_data.type.has_key('debug_ptr'):
+                return ExprVal.from_pointer(expr_data['debug_ptr'])
+                
         return ExprVal(None)
 
     def get_string_data(self, errorval = u''):

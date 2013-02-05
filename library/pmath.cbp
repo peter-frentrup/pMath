@@ -781,6 +781,9 @@
 		<Unit filename="src/pmath-builtins/language/begin-and-end.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/language/debuginfo.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/language/is-object-type.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1219,11 +1222,11 @@
 				<Code header_guard="__PMATH_UTIL__VERSION_PRIVATE_H__" namespace="AutoVersion" prefix="_PMATH_VERSION" />
 			</AutoVersioning>
 			<DoxyBlocks>
-				<comment_style block="0" line="0" />
-				<doxyfile_project />
+				<comment_style block="0" line="2" />
+				<doxyfile_project project_number="0.2.190" use_auto_version="1" />
 				<doxyfile_build />
 				<doxyfile_warnings />
-				<doxyfile_output />
+				<doxyfile_output html_help="1" xml="1" />
 				<doxyfile_dot />
 				<general />
 			</DoxyBlocks>

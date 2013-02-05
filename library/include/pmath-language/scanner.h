@@ -184,8 +184,10 @@ pmath_span_array_t *pmath_spans_from_string(
                         \a box_at_index.
    \return A pMath object representing the boxed form. It must be freed.
 
+   \deprecated Use pmath_boxes_from_spans_ex(...) instead.
  */
 PMATH_API
+PMATH_DEPRECATED
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_boxes_from_spans(
   pmath_span_array_t   *spans,
@@ -193,6 +195,76 @@ pmath_t pmath_boxes_from_spans(
   pmath_bool_t          parseable,
   pmath_t             (*box_at_index)(int, void*),
   void                 *data);
+  
+/**\class pmath_boxes_from_spans_ex_t
+   \brief Settings for pmath_boxes_from_spans_ex()
+   
+   \see pmath_boxes_from_spans_ex
+ */
+struct pmath_boxes_from_spans_ex_t{
+  /**\brief The structure size.
+     Allways initialize this with \c sizeof(pmath_boxes_from_spans_ex_t).
+   */
+  size_t size;
+  
+  /**\brief Flags to control the processing.
+    
+     This may be zero or more of the following values:
+      - \c PMATH_BFS_PARSEABLE If whitespace and comments should be skipped.
+   */
+  int flags;
+  
+  /**\brief A pointer that will be provided as the last argument to callbacks
+   */
+  void *data;
+  
+  /**\brief An optional function that returns the box at a given position.
+     
+     \param index The position of the box (i.e. of a PMATH_CHAR_BOX character)
+     \param data  The \a data member.
+     \return A new pMath object representing the box.
+     
+     This function is called to turn PMATH_CHAR_BOX characters into boxes.
+     It will be called (at most) one time for every box and in their order of 
+     apperance.
+   */
+  pmath_t (*box_at_index)(int index, void *data);
+  
+  /**\brief An optional function that adds debug information to a box.
+     
+     \param token_or_span A pMath object that should be enriched with debug 
+                          information. The callback takes ownership of this.
+     \param start The start index of the token or span.
+     \param end   The index of the first character after the token or span. 
+                  I.e. the exclusive end.
+     \param data  The \a data member
+     \return The modified token_or_span. 
+     
+     \see pmath_expr_get_debug_info
+   */
+  pmath_t (*add_debug_info)(pmath_t token_or_span, int start, int end, void *data);
+};
+
+/**\internal */
+enum {
+  PMATH_BFS_PARSEABLE = 1
+};
+
+/**\brief Convert a span-array with the according code to boxed form.
+   \param spans     A span-array. It can be obtained by 
+                    pmath_spans_from_string() or pmath_spans_from_boxes().
+   \param string    The corresponding code to \a span. It wont be freed.
+   \param settings  Optional additional settings.
+   
+   \return A pMath object representing the boxed form. It must be freed.
+   
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_boxes_from_spans_ex(
+  pmath_span_array_t                 *spans,
+  pmath_string_t                      string, // wont be freed
+  struct pmath_boxes_from_spans_ex_t *settings);
 
 /**\brief Convert boxed form back to span-array and code.
    \param boxes          A pMath object representing the boxed form.
