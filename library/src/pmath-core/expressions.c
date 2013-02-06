@@ -699,6 +699,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           new_expr_part->buffer = old_expr_part->buffer;
           _pmath_ref_ptr((void *)  old_expr_part->buffer);
           
+          pmath_unref(expr);
           return PMATH_FROM_PTR(new_expr_part);
         }
         

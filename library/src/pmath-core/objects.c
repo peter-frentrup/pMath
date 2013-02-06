@@ -402,6 +402,7 @@ pmath_t pmath_try_set_debug_info(pmath_t obj, pmath_t debug_info) {
   if(pmath_is_expr(obj))
     return _pmath_expr_set_debug_info(obj, debug_info);
   
+  pmath_unref(debug_info);
   return obj;
 }
 

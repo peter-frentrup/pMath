@@ -353,7 +353,7 @@ static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_
   
   end_line = start_line;
   end_line = start_line;
-  end_column = end;
+  end_column = end - start_column;
   while(i < end) {
     if(code_buf[i++] == '\n') {
       ++end_line;
@@ -420,11 +420,14 @@ static pmath_t dialog(pmath_t first_eval) {
                 &err);
                 
       if(!err) {
+        pmath_t debug_info;
         pmath_t obj = pmath_boxes_from_spans_ex(
                         spans,
                         parse_data.code,
                         &parse_settings);
                         
+        debug_info = pmath_get_debug_info(obj);
+        
         obj = pmath_evaluate(
                 pmath_expr_new_extended(
                   pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
@@ -441,9 +444,12 @@ static pmath_t dialog(pmath_t first_eval) {
                     obj, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
           }
           
+          obj = pmath_try_set_debug_info(obj, debug_info);
           obj = pmath_session_execute(obj, NULL);
         }
-        
+        else
+          pmath_unref(debug_info);
+          
         if(!quitting && !pmath_is_null(obj)) {
           if(dialog_depth > 0) {
             result = check_dialog_return(obj);
