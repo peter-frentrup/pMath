@@ -13,7 +13,13 @@
 
 struct _pmath_stack_info_t {
   struct _pmath_stack_info_t  *next;
-  pmath_t                      value;
+  pmath_t                      head;
+  pmath_t                      debug_info;
+};
+
+struct _pmath_gather_emit_info_t {
+  struct _pmath_gather_emit_info_t  *next;
+  pmath_t                            value;
 };
 
 struct _pmath_gather_info_t {
@@ -22,7 +28,7 @@ struct _pmath_gather_info_t {
   
   pmath_atomic_t value_count;
   
-  // struct _pmath_stack_info_t
+  // struct _pmath_gather_emit_info_t
   pmath_atomic_t emitted_values;
 };
 

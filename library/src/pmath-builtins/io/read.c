@@ -104,11 +104,8 @@ static pmath_t read_expression(pmath_t file) {
   pmath_unref(code);
   pmath_span_array_free(spans);
   
-  result = pmath_evaluate(
-             pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-               result));
-               
+  result = _pmath_makeexpression_with_debuginfo(result);
+  
   if(!pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE))
     return result;
     
@@ -117,10 +114,14 @@ static pmath_t read_expression(pmath_t file) {
     pmath_unref(result);
     return item;
   }
-  
-  return pmath_expr_set_item(
-           result, 0,
-           pmath_ref(PMATH_SYMBOL_SEQUENCE));
+  else {
+    pmath_t debug_info = pmath_get_debug_info(result);
+    result = pmath_expr_set_item(
+               result, 0,
+               pmath_ref(PMATH_SYMBOL_SEQUENCE));
+    result = pmath_try_set_debug_info(result, debug_info);
+    return result;
+  }
 }
 
 static pmath_string_t read_word(pmath_t file, pmath_bool_t *eol) {

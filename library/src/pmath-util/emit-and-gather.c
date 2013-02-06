@@ -40,8 +40,8 @@ PMATH_API void pmath_gather_begin(pmath_t pattern) {
 }
 
 PMATH_API pmath_expr_t pmath_gather_end(void) {
-  struct _pmath_gather_info_t *info;
-  struct _pmath_stack_info_t  *item;
+  struct _pmath_gather_info_t       *info;
+  struct _pmath_gather_emit_info_t  *item;
   pmath_thread_t thread = pmath_thread_get_current();
   pmath_expr_t result;
   size_t i;
@@ -79,8 +79,8 @@ PMATH_API pmath_expr_t pmath_gather_end(void) {
 PMATH_API void pmath_emit(pmath_t object, pmath_t tag) {
   pmath_bool_t at_least_one_gather = FALSE;
   pmath_thread_t thread = pmath_thread_get_current();
-  struct _pmath_gather_info_t *info;
-  struct _pmath_stack_info_t  *item = pmath_mem_alloc(sizeof(struct _pmath_stack_info_t));
+  struct _pmath_gather_info_t       *info;
+  struct _pmath_gather_emit_info_t  *item = pmath_mem_alloc(sizeof(struct _pmath_gather_emit_info_t));
   
   if(!thread || !item) {
     pmath_unref(object);

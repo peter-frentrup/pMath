@@ -2491,6 +2491,8 @@ PMATH_API pmath_t pmath_parse_string(
   pmath_bool_t error_flag = FALSE;
   pmath_t result;
   
+  // TODO: in debug build, add the C stack trace as debug info to the expression
+  
   pmath_span_array_t *spans = pmath_spans_from_string(
                                 &code,
                                 NULL,

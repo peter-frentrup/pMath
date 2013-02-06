@@ -315,7 +315,7 @@ PMATH_API pmath_t pmath_current_head(void) {
   if(!thread || !thread->stack_info)
     return PMATH_NULL;
     
-  return pmath_ref(thread->stack_info->value);
+  return pmath_ref(thread->stack_info->head);
 }
 
 PMATH_API void pmath_walk_stack(pmath_stack_walker_t walker, void *closure) {
@@ -324,7 +324,26 @@ PMATH_API void pmath_walk_stack(pmath_stack_walker_t walker, void *closure) {
   while(thread) {
     struct _pmath_stack_info_t *stack_info = thread->stack_info;
     while(stack_info) {
-      if(!walker(stack_info->value, closure))
+      if(!walker(stack_info->head, closure))
+        return;
+      stack_info = stack_info->next;
+    }
+    
+    thread = thread->parent;
+  }
+}
+
+PMATH_API 
+void pmath_walk_stack_2(
+  pmath_bool_t (*walker)(pmath_t head, pmath_t debug_info, void *closure), 
+  void *closure
+) {
+  pmath_thread_t thread = pmath_thread_get_current();
+  
+  while(thread) {
+    struct _pmath_stack_info_t *stack_info = thread->stack_info;
+    while(stack_info) {
+      if(!walker(stack_info->head, stack_info->debug_info, closure))
         return;
       stack_info = stack_info->next;
     }

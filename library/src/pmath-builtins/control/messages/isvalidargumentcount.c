@@ -36,12 +36,12 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr) {
         pmath_thread_t thread = pmath_thread_get_current();
         
         if(thread && thread->stack_info) {
-          pmath_t old_head = thread->stack_info->value;
-          thread->stack_info->value = head;
+          pmath_t old_head = thread->stack_info->head;
+          thread->stack_info->head = head;
           
           pmath_message_argxxx(z_len, z_min, z_max);
           
-          thread->stack_info->value = old_head;
+          thread->stack_info->head = old_head;
         }
         
         pmath_unref(expr);
@@ -56,12 +56,12 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr) {
       else {
         pmath_thread_t thread = pmath_thread_get_current();
         if(thread && thread->stack_info) {
-          pmath_t old_head = thread->stack_info->value;
-          thread->stack_info->value = head;
+          pmath_t old_head = thread->stack_info->head;
+          thread->stack_info->head = head;
           
           pmath_message_argxxx(z_len, z_min, SIZE_MAX);
           
-          thread->stack_info->value = old_head;
+          thread->stack_info->head = old_head;
         }
         
         pmath_unref(expr);

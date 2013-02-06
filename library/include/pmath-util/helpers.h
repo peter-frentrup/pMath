@@ -148,6 +148,17 @@ pmath_t pmath_current_head(void);
 PMATH_API 
 void pmath_walk_stack(pmath_stack_walker_t walker, void *closure);
 
+/**\brief Walk up the current thread's and its parents' stack.
+   \param walker  A callback function. It should return TRUE when walking may 
+                  continue. It may not destroy its arguments.
+   \param closure A pointer that will be provided to walker as the last argument.
+ */
+PMATH_API 
+void pmath_walk_stack_2(
+  pmath_bool_t (*walker)(pmath_t head, pmath_t debug_info, void *closure), 
+  void *closure);
+
+
 /*============================================================================*/
 
 /**\brief Execute an expression and change $History and $Line appropriately

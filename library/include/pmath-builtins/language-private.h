@@ -15,6 +15,9 @@
 PMATH_PRIVATE pmath_t _pmath_parse_number(
   pmath_string_t  string, // will be freed
   pmath_bool_t    alternative);
+  
+// evaluates MakeExpression(box) but also retains debug information
+PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box);
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_machinenumber(pmath_t x);
 

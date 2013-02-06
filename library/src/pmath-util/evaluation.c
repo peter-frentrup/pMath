@@ -217,15 +217,16 @@ static pmath_t evaluate_expression(
   }
   
   (*thread_ptr)->evaldepth++;
-  stack_frame.value         = PMATH_NULL;
+  stack_frame.head          = PMATH_NULL;
+  stack_frame.debug_info    = pmath_get_debug_info(expr);
   stack_frame.next          = (*thread_ptr)->stack_info;
   (*thread_ptr)->stack_info = &stack_frame;
   
-  head              = evaluate(pmath_expr_get_item(expr, 0), thread_ptr);
-  expr              = pmath_expr_set_item(expr, 0, pmath_ref(head));
-  stack_frame.value = pmath_ref(head);
-  head_sym          = _pmath_topmost_symbol(head);
-  attr              = pmath_symbol_get_attributes(head_sym);
+  head             = evaluate(pmath_expr_get_item(expr, 0), thread_ptr);
+  expr             = pmath_expr_set_item(expr, 0, pmath_ref(head));
+  stack_frame.head = pmath_ref(head);
+  head_sym         = _pmath_topmost_symbol(head);
+  attr             = pmath_symbol_get_attributes(head_sym);
   
   exprlen               = pmath_expr_length(expr);
   expr_with_unevaluated = PMATH_NULL;
@@ -408,8 +409,8 @@ static pmath_t evaluate_expression(
           rules = _pmath_symbol_get_rules(sym, RULES_READ);
           
           if(rules) {
-            pmath_unref(stack_frame.value);
-            stack_frame.value = pmath_ref(sym);
+            pmath_unref(stack_frame.head);
+            stack_frame.head = pmath_ref(sym);
             if(_pmath_rulecache_find(&rules->up_rules, &expr)) {
               expr = handle_explicit_return(expr);
               pmath_unref(sym);
@@ -427,8 +428,8 @@ static pmath_t evaluate_expression(
     if(!pmath_is_null(head_sym)) { // down/sub rules ...
       rules = _pmath_symbol_get_rules(head_sym, RULES_READ);
       if(rules) {
-        pmath_unref(stack_frame.value);
-        stack_frame.value = pmath_ref(head_sym);
+        pmath_unref(stack_frame.head);
+        stack_frame.head = pmath_ref(head_sym);
         if(pmath_same(head_sym, head)) {
           if(_pmath_rulecache_find(&rules->down_rules, &expr)) {
             expr = handle_explicit_return(expr);
@@ -453,8 +454,8 @@ static pmath_t evaluate_expression(
         pmath_unref(item);
         
         if(!pmath_is_null(sym)) {
-          pmath_unref(stack_frame.value);
-          stack_frame.value = pmath_ref(sym);
+          pmath_unref(stack_frame.head);
+          stack_frame.head = pmath_ref(sym);
           
           if(_pmath_run_code(sym, PMATH_CODE_USAGE_UPCALL, &expr)) {
             if(!pmath_is_expr(expr) ||
@@ -471,8 +472,8 @@ static pmath_t evaluate_expression(
     }
     
     if(pmath_same(head_sym, head)) { // down code
-      pmath_unref(stack_frame.value);
-      stack_frame.value = pmath_ref(head_sym);
+      pmath_unref(stack_frame.head);
+      stack_frame.head = pmath_ref(head_sym);
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)) {
         if( !pmath_is_expr(expr) ||
@@ -483,8 +484,8 @@ static pmath_t evaluate_expression(
       }
     }
     else { // sub code
-      pmath_unref(stack_frame.value);
-      stack_frame.value = pmath_ref(head_sym);
+      pmath_unref(stack_frame.head);
+      stack_frame.head = pmath_ref(head_sym);
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)) {
         if( !pmath_is_expr(expr) ||
@@ -512,7 +513,8 @@ static pmath_t evaluate_expression(
   
 FINISH:
   (*thread_ptr)->stack_info = stack_frame.next;
-  pmath_unref(stack_frame.value);
+  pmath_unref(stack_frame.head);
+  pmath_unref(stack_frame.debug_info);
   pmath_unref(head_sym);
   pmath_unref(head);
   (*thread_ptr)->evaldepth--;

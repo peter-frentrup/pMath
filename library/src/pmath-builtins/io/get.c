@@ -43,9 +43,10 @@ struct _get_file_info {
   pmath_t ns;
   pmath_t nspath;
   pmath_t file;
-  pmath_string_t name;
+  pmath_string_t filename;
   int startline;
   int codelines;
+  pmath_t current_code;
   pmath_bool_t err;
 };
 
@@ -78,10 +79,56 @@ static void scanner_error(
   struct _get_file_info *info = data;
   
   if(!info->err)
-    pmath_message_syntax_error(code, pos, pmath_ref(info->name), info->startline);
+    pmath_message_syntax_error(code, pos, pmath_ref(info->filename), info->startline);
     
   if(critical)
     info->err = TRUE;
+}
+
+static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_data) {
+  pmath_t debug_info;
+  struct _get_file_info *data = _data;
+  const uint16_t *code_buf;
+  int start_line, end_line, start_column, end_column, i;
+  
+  assert(0 <= start);
+  assert(start <= end);
+  assert(end <= pmath_string_length(data->current_code));
+  
+  if(!pmath_is_expr(token_or_span))
+    return token_or_span;
+    
+  code_buf = pmath_string_buffer(&data->current_code);
+  
+  start_line = data->startline;
+  start_column = start;
+  i = 0;
+  while(i < start) {
+    if(code_buf[i++] == '\n') {
+      ++start_line;
+      start_column = start - i;
+    }
+  }
+  
+  end_line = start_line;
+  end_line = start_line;
+  end_column = end;
+  while(i < end) {
+    if(code_buf[i++] == '\n') {
+      ++end_line;
+      end_column = end - i;
+    }
+  }
+  
+  debug_info = pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE), 2,
+                 pmath_ref(data->filename),
+                 pmath_expr_new_extended(
+                   pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                   pmath_build_value("(ii)", start_line, start_column),
+                   pmath_build_value("(ii)", end_line,   end_column)));
+                   
+  return pmath_try_set_debug_info(token_or_span, debug_info);
 }
 
 static pmath_t get_file(
@@ -89,11 +136,11 @@ static pmath_t get_file(
   pmath_string_t name,          // will be freed
   pmath_t        head           // will be freed
 ) {
-  struct _get_file_info  info;
+  struct _get_file_info              info;
+  struct pmath_boxes_from_spans_ex_t parse_settings;
   
   pmath_span_array_t *spans;
   pmath_t old_input;
-  pmath_string_t code;
   pmath_t result = PMATH_NULL;
   
   pmath_message(PMATH_SYMBOL_GET, "load", 1, pmath_ref(name));
@@ -103,21 +150,28 @@ static pmath_t get_file(
                 PMATH_SYMBOL_INPUT,
                 _pmath_canonical_file_name(pmath_ref(name))));
                 
-  info.ns     = pmath_evaluate(pmath_ref(PMATH_SYMBOL_CURRENTNAMESPACE));
-  info.nspath = pmath_evaluate(pmath_ref(PMATH_SYMBOL_NAMESPACEPATH));
-  info.file = file;
-  info.name = name;
-  info.startline = 1;
-  info.codelines = 0;
-  info.err = FALSE;
+  info.ns           = pmath_evaluate(pmath_ref(PMATH_SYMBOL_CURRENTNAMESPACE));
+  info.nspath       = pmath_evaluate(pmath_ref(PMATH_SYMBOL_NAMESPACEPATH));
+  info.file         = file;
+  info.filename     = name;
+  info.startline    = 1;
+  info.codelines    = 0;
+  info.current_code = PMATH_NULL;
+  info.err          = FALSE;
+  
+  memset(&parse_settings, 0, sizeof(parse_settings));
+  parse_settings.size           = sizeof(parse_settings);
+  parse_settings.flags          = PMATH_BFS_PARSEABLE;
+  parse_settings.data           = &info;
+  parse_settings.add_debug_info = add_debug_info;
   
   do {
     pmath_unref(result);
     result = PMATH_NULL;
     
-    code = scanner_read(&info);
+    info.current_code = scanner_read(&info);
     spans = pmath_spans_from_string(
-              &code,
+              &info.current_code,
               scanner_read,
               NULL,
               NULL,
@@ -125,38 +179,40 @@ static pmath_t get_file(
               &info);
               
     if(!info.err) {
-      result = pmath_evaluate(
-                 pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                   pmath_boxes_from_spans(
-                     spans,
-                     code,
-                     TRUE,
-                     NULL,
-                     NULL)));
-                     
+      result = pmath_boxes_from_spans_ex(
+                 spans,
+                 info.current_code,
+                 &parse_settings);
+                 
+      result = _pmath_makeexpression_with_debuginfo(result);
+      
       if(pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE)) {
         if(pmath_expr_length(result) == 1) {
           pmath_t tmp = result;
           result = pmath_expr_get_item(tmp, 1);
           pmath_unref(tmp);
         }
-        else
+        else {
+          pmath_t debug_info = pmath_get_debug_info(result);
           result = pmath_expr_set_item(
                      result, 0,
                      pmath_ref(PMATH_SYMBOL_SEQUENCE));
+          result = pmath_try_set_debug_info(result, debug_info);
+        }
       }
       
       if(!pmath_same(head, PMATH_SYMBOL_IDENTITY)) {
+        pmath_t debug_info = pmath_get_debug_info(result);
         result = pmath_expr_new_extended(
                    pmath_ref(head), 1,
                    result);
+        result = pmath_try_set_debug_info(result, debug_info);
       }
       
       result = pmath_evaluate(result);
     }
     
-    pmath_unref(code);
+    pmath_unref(info.current_code); info.current_code = PMATH_NULL;
     pmath_span_array_free(spans);
     
     info.startline += info.codelines;

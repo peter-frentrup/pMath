@@ -357,7 +357,7 @@ static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_
   while(i < end) {
     if(code_buf[i++] == '\n') {
       ++end_line;
-      end_column = start - i;
+      end_column = end - i;
     }
   }
   

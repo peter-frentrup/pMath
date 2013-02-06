@@ -9,8 +9,21 @@
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
+static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes);
 
 static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
+  pmath_t debug_info = pmath_get_debug_info(boxes);
+  
+  if(pmath_is_null(debug_info))
+    return remove_whitespace_from_boxes_raw(boxes);
+    
+  boxes = remove_whitespace_from_boxes_raw(boxes);
+  
+  return pmath_try_set_debug_info(boxes, debug_info);
+}
+
+
+static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
   pmath_t head;
   size_t max_boxes;
   
@@ -144,8 +157,8 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
   else if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX))      max_boxes = 2;
   else if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX))  max_boxes = 3;
   
-  if( pmath_same(head, PMATH_SYMBOL_STYLEBOX) || 
-      pmath_same(head, PMATH_SYMBOL_TOOLTIPBOX)) 
+  if( pmath_same(head, PMATH_SYMBOL_STYLEBOX) ||
+      pmath_same(head, PMATH_SYMBOL_TOOLTIPBOX))
   {
     pmath_expr_t options = pmath_options_extract(boxes, max_boxes);
     
@@ -183,7 +196,7 @@ static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
 
 
 pmath_t builtin_toexpression(pmath_expr_t expr) {
-  pmath_t code, head;
+  pmath_t code, head, debug_info;
   size_t exprlen = pmath_expr_length(expr);
   
   if(exprlen < 1) {
@@ -210,6 +223,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
   }
   
   code = pmath_expr_get_item(expr, 1);
+  debug_info = pmath_get_debug_info(code);
   if(pmath_is_string(code)) {
     code = pmath_expr_new_extended(
              pmath_ref(PMATH_SYMBOL_STRINGTOBOXES), 1,
@@ -238,18 +252,30 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
   }
   
   if(pmath_is_expr_of(expr, PMATH_SYMBOL_HOLDCOMPLETE)) {
-    if(!pmath_same(head, PMATH_UNDEFINED))
-      return pmath_expr_set_item(expr, 0, head);
-      
     if(pmath_expr_length(expr) == 1) {
-      pmath_unref(head);
-      head = pmath_expr_get_item(expr, 1);
+      pmath_t content = pmath_expr_get_item(expr, 1);
       pmath_unref(expr);
-      return head;
+      
+      content = pmath_try_set_debug_info(content, pmath_ref(debug_info));
+      
+      if(pmath_same(head, PMATH_UNDEFINED)) {
+        pmath_unref(debug_info);
+        return content;
+      }
+      
+      expr = pmath_expr_new_extended(head, 1, content);
+      expr = pmath_try_set_debug_info(expr, debug_info);
+      return expr;
     }
     
-    expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+    if(pmath_same(head, PMATH_UNDEFINED))
+      head = pmath_ref(PMATH_SYMBOL_SEQUENCE);
+      
+    expr = pmath_expr_set_item(expr, 0, head);
   }
+  else
+    pmath_unref(head);
   
+  expr = pmath_try_set_debug_info(expr, debug_info);
   return expr;
 }

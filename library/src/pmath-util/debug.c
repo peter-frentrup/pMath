@@ -7,38 +7,38 @@
 
 #ifdef pmath_debug_print
 
-  #undef pmath_debug_print
-  #undef pmath_debug_print_object
-  #undef pmath_debug_print_stack
+#undef pmath_debug_print
+#undef pmath_debug_print_object
+#undef pmath_debug_print_stack
 
 #endif
 
 #ifdef PMATH_OS_WIN32
 /* no flockfile()/funlockfile() on windows/mingw -> do it your self */
-  #if PMATH_USE_PTHREAD
+#if PMATH_USE_PTHREAD
 
-    #include <pthread.h>
-    static pthread_mutex_t  debuglog_mutex;
+#include <pthread.h>
+static pthread_mutex_t  debuglog_mutex;
 
-    #define flockfile(  file)  ((void)pthread_mutex_lock(  &debuglog_mutex))
-    #define funlockfile(file)  ((void)pthread_mutex_unlock(&debuglog_mutex))
+#define flockfile(  file)  ((void)pthread_mutex_lock(  &debuglog_mutex))
+#define funlockfile(file)  ((void)pthread_mutex_unlock(&debuglog_mutex))
 
-    #elif PMATH_USE_WINDOWS_THREADS
+#elif PMATH_USE_WINDOWS_THREADS
 
-    #define NOGDI
-    #define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
-    static CRITICAL_SECTION  debuglog_critical_section;
+#define NOGDI
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+static CRITICAL_SECTION  debuglog_critical_section;
 
-    #define flockfile(  file)  ((void)EnterCriticalSection(&debuglog_critical_section))
-    #define funlockfile(file)  ((void)LeaveCriticalSection(&debuglog_critical_section))
+#define flockfile(  file)  ((void)EnterCriticalSection(&debuglog_critical_section))
+#define funlockfile(file)  ((void)LeaveCriticalSection(&debuglog_critical_section))
 
-  #else
+#else
 
-    #error Either PThread or Windows Threads must be used
+#error Either PThread or Windows Threads must be used
 
-  #endif
-  
+#endif
+
 #endif
 
 static FILE *debuglog = NULL;
@@ -85,7 +85,7 @@ static void write_data(FILE *file, const uint16_t *data, int len) {
 
 PMATH_API void pmath_debug_print_object(
   const char *pre,
-  pmath_t obj,
+  pmath_t     obj,
   const char *post
 ) {
   if(debugging_output) {
@@ -98,7 +98,7 @@ PMATH_API void pmath_debug_print_object(
       obj,
       PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR
       | PMATH_WRITE_OPTIONS_FULLNAME,
-      (void(*)(void*, const uint16_t*, int))write_data,
+      (void( *)(void *, const uint16_t *, int))write_data,
       debuglog);
     fputs(post, debuglog);
     fflush(debuglog);
@@ -119,6 +119,21 @@ PMATH_API void pmath_debug_print_stack(void) {
   pmath_debug_print("pMath stack:\n");
   pmath_walk_stack(stack_walker, NULL);
 }
+
+PMATH_API
+void pmath_debug_print_debug_info(
+  const char *pre,
+  pmath_t     obj,
+  const char *post
+) {
+  pmath_t info = pmath_get_debug_info(obj);
+  
+  pmath_debug_print_object(pre, obj, post);
+  
+  pmath_unref(info);
+}
+
+/*============================================================================*/
 
 PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void) {
 #ifdef PMATH_OS_WIN32

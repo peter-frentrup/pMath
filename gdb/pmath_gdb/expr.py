@@ -293,12 +293,13 @@ class ExprVal:
                 if length > cap_or_start:
                     return errorval
                 chars_ptr = self.get_pointer().cast(gdb.lookup_type('void').pointer()) + ExprVal.string_header_size()
+                chars_ptr = chars_ptr.cast(gdb.lookup_type('uint16_t').pointer())
             else:
                 if buffer_data['length'] < cap_or_start + length:
                     return errorval
                 chars_ptr = string_data['buffer'].cast(gdb.lookup_type('void').pointer()) + ExprVal.string_header_size()
+                chars_ptr = chars_ptr.cast(gdb.lookup_type('uint16_t').pointer())
                 chars_ptr = chars_ptr + cap_or_start
-            chars_ptr = chars_ptr.cast(gdb.lookup_type('uint16_t').pointer())
             return u''.join([unichr(int(chars_ptr[i])) for i in range(length)])
 
         return errorval
@@ -404,6 +405,12 @@ class ExprVal:
             
             length = self.get_expr_length()
             head.write_to_file(f, max_recursion - 1, max_arg_count)
+            
+            debug_info = self.get_debug_info()
+            if debug_info.is_pmath() and not debug_info.is_null():
+                #f.write('\xA8') # DIAERESIS
+                f.write('/*D*/')
+            
             f.write('(')
             if length > 0:
                 until = length

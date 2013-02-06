@@ -39,11 +39,25 @@ void pmath_debug_print_object(
 PMATH_API
 void pmath_debug_print_stack(void);
 
+/**\brief Print the debug info of a pMath object if available.
+   \param pre A string that should be printed before the object.
+   \param obj A pMath object. It wont be freed.
+   \param post A string that should be printed after the object.
+   
+   \see pmath_get_debug_info
+ */
+PMATH_API
+void pmath_debug_print_debug_info(
+  const char *pre,
+  pmath_t     obj,
+  const char *post);
+
 #ifndef PMATH_DOXYGEN
   #ifndef PMATH_DEBUG_LOG
-    #define pmath_debug_print(...)                    ((void)0)
-    #define pmath_debug_print_object(PRE, OBJ, POST)  ((void)0)
-    #define pmath_debug_print_stack()                 ((void)0)
+    #define pmath_debug_print(...)                        ((void)0)
+    #define pmath_debug_print_object(PRE, OBJ, POST)      ((void)0)
+    #define pmath_debug_print_stack()                     ((void)0)
+    #define pmath_debug_print_debug_info(PRE, OBJ, POST)  ((void)0)
   #endif /* PMATH_DEBUG_LOG */
 #endif /* PMATH_DOXYGEN */
 

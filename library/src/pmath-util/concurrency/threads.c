@@ -531,14 +531,14 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   return thread;
 }
 
-static void free_stack(struct _pmath_stack_info_t *s) {
-  while(s) {
-    struct _pmath_stack_info_t *n = s->next;
+static void free_gather_emit_info(struct _pmath_gather_emit_info_t *info) {
+  while(info) {
+    struct _pmath_gather_emit_info_t *n = info->next;
     
-    pmath_unref(s->value);
-    pmath_mem_free(s);
+    pmath_unref(info->value);
+    pmath_mem_free(info);
     
-    s = n;
+    info = n;
   }
 }
 
@@ -563,17 +563,20 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final) {
     
     while(thread->gather_info) {
       struct _pmath_gather_info_t *next_gather = thread->gather_info->next;
-      struct _pmath_stack_info_t *emitted;
+      struct _pmath_gather_emit_info_t *emitted;
       
       emitted = (void *)pmath_atomic_read_aquire(&thread->gather_info->emitted_values);
-      free_stack(emitted);
+      free_gather_emit_info(emitted);
       pmath_unref(thread->gather_info->pattern);
       pmath_mem_free(thread->gather_info);
       
       thread->gather_info = next_gather;
     }
     
-    free_stack(thread->stack_info);
+    //free_stack(thread->stack_info);
+    if(thread->stack_info) {
+      pmath_debug_print("[WARNING: stack_info non-NULL in _pmath_thread_clean]\n");
+    }
     thread->stack_info = NULL;
     thread->evaldepth = 0;
     
@@ -609,10 +612,10 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread) {
   
   while(thread->gather_info) {
     struct _pmath_gather_info_t *next_gather = thread->gather_info->next;
-    struct _pmath_stack_info_t *emitted;
+    struct _pmath_gather_emit_info_t *emitted;
     
     emitted = (void *)pmath_atomic_read_aquire(&thread->gather_info->emitted_values);
-    free_stack(emitted);
+    free_gather_emit_info(emitted);
     pmath_unref(thread->gather_info->pattern);
     pmath_mem_free(thread->gather_info);
     
@@ -624,7 +627,10 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread) {
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, -1);
   }
   
-  free_stack(thread->stack_info);
+  //free_stack(thread->stack_info);
+  if(thread->stack_info) {
+    pmath_debug_print("[WARNING: stack_info non-NULL in _pmath_thread_free]\n");
+  }
 //  pmath_unref(thread->messenger);
   pmath_mem_free(thread);
 }

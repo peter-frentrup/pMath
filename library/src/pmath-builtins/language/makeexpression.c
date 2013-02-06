@@ -9,6 +9,7 @@
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -100,9 +101,43 @@ static pmath_bool_t is_string_at(
 #define HOLDCOMPLETE(result) pmath_expr_new_extended(\
     pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 1, result)
 
+// evaluates MakeExpression(box) but also retains debug information
+PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
+  pmath_t debug_info = pmath_get_debug_info(box);
+  
+  box = pmath_evaluate(
+           pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, box));
+  
+  if(pmath_is_null(debug_info))
+    return box;
+  
+  if(!pmath_is_expr_of(box, PMATH_SYMBOL_HOLDCOMPLETE)) {
+    pmath_unref(debug_info);
+    return box;
+  }
+  
+  if(pmath_expr_length(box) == 1) {
+    pmath_t content = pmath_expr_get_item(box, 1);
+    
+    if(pmath_refcount(content) == 2) {
+      // one reference here and one in "box"
+      
+      content = pmath_try_set_debug_info(content, pmath_ref(debug_info));
+      
+      box = pmath_expr_set_item(box, 1, content);
+    }
+    else
+      pmath_unref(content);
+  }
+  
+  return pmath_try_set_debug_info(box, debug_info);
+}
+
 static pmath_bool_t parse(pmath_t *box) {
 // *box = PMATH_NULL if result is FALSE
   pmath_t obj;
+  pmath_t debug_info = pmath_get_debug_info(*box);
   
   *box = pmath_evaluate(
            pmath_expr_new_extended(
@@ -110,6 +145,7 @@ static pmath_bool_t parse(pmath_t *box) {
              
   if(!pmath_is_expr(*box)) {
     pmath_unref(*box);
+    pmath_unref(debug_info);
     *box = PMATH_NULL;
     return FALSE;
   }
@@ -119,18 +155,26 @@ static pmath_bool_t parse(pmath_t *box) {
   
   if(!pmath_same(obj, PMATH_SYMBOL_HOLDCOMPLETE)) {
     pmath_message(PMATH_NULL, "inv", 1, *box);
+    pmath_unref(debug_info);
     *box = PMATH_NULL;
     return FALSE;
   }
   
   if(pmath_expr_length(*box) != 1) {
     *box = pmath_expr_set_item(*box, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+    *box = pmath_try_set_debug_info(*box, debug_info);
     return TRUE;
   }
   
   obj = *box;
   *box = pmath_expr_get_item(*box, 1);
   pmath_unref(obj);
+  
+  if(pmath_refcount(*box) == 1)
+    *box = pmath_try_set_debug_info(*box, debug_info);
+  else
+    pmath_unref(debug_info);
+  
   return TRUE;
 }
 
@@ -645,11 +689,7 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
     
     box = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
-    expr = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-             box);
-             
-    expr = pmath_evaluate(expr);
+    expr = _pmath_makeexpression_with_debuginfo(box);
     
     pmath_unref(options);
     if(!pmath_same(args, PMATH_SYMBOL_AUTOMATIC)) {
@@ -2171,6 +2211,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
           return HOLDCOMPLETE(pmath_expr_new(box, 0));
         }
         
+        pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
@@ -2844,44 +2885,6 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         pmath_unref(args);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
-      
-//      // l[[x]]
-//      if( (secondchar == 0x27E6        && unichar_at(expr, 4) == 0x27E7) ||
-//          (is_string_at(expr, 2, "[[") && is_string_at(expr, 4, "]]")))
-//      {
-//        pmath_t args, list;
-//        
-//        list = parse_at(expr, 1);
-//        if(is_parse_error(list)) {
-//          pmath_unref(expr);
-//          return pmath_ref(PMATH_SYMBOL_FAILED);
-//        }
-//        
-//        args = pmath_evaluate(
-//                 pmath_expr_new_extended(
-//                   pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-//                   pmath_expr_get_item(expr, 3)));
-//        pmath_unref(expr);
-//        
-//        if(pmath_is_expr(args)) {
-//          size_t i, argslen;
-//          argslen = pmath_expr_length(args);
-//          
-//          for(i = 1; i <= argslen; ++i) {
-//            list = pmath_expr_new_extended(
-//                     pmath_ref(PMATH_SYMBOL_OPTIONVALUE), 2,
-//                     list,
-//                     pmath_expr_get_item(args, i));
-//          }
-//          
-//          pmath_unref(args);
-//          return HOLDCOMPLETE(list);
-//        }
-//        
-//        pmath_unref(list);
-//        pmath_unref(args);
-//        return pmath_ref(PMATH_SYMBOL_FAILED);
-//      }
     }
     
     // a.f()
