@@ -123,8 +123,7 @@ bool InputJob::start() {
   section->style->set(SectionLabel, label + line.to_string() + String("]:"));
   section->invalidate();
   
-  Server::local_server->run_boxes(
-    Expr(section->content()->to_pmath(BoxFlagParseable)));
+  Server::local_server->run_boxes(section->content()->to_pmath(BoxFlagParseable));
     
   doc->native()->running_state_changed();
   

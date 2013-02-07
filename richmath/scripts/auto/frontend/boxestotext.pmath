@@ -24,6 +24,8 @@ innerBoxesToText(~b:List)::= StringExpression @@ b.Map(innerBoxesToText)
 innerBoxesToText(~b:/\/)::= StringExpression @@ b.Map(innerBoxesToText)
 innerBoxesToText({"\[Piecewise]", ~~b})::= "Piecewise(" ++ innerBoxesToText({b}) ++ ")"
 
+innerBoxesToText(~csb:ComplexStringBox)::= Join @@ csb.Map(If(IsString(#), #, "\\(" ++ ToString(InputForm(#)).StringReplace({"\\" -> "\\\\", "\"" -> "\\\""}) ++ "\\)")&)
+
 innerBoxesToText(SqrtBox(~x))::= "Sqrt(" ++ innerBoxesToText(x) ++ ")"
 innerBoxesToText(RadicalBox(~x,~y))::= innerBoxesToText({x, SuperscriptBox(FractionBox("1", y))})
 

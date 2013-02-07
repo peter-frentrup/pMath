@@ -84,6 +84,7 @@ namespace richmath {
       static pmath_string_t underoverscriptbox_at_index(int i, void *_data);
       static void syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err);
       static pmath_t box_at_index(int i, void *_data);
+      static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_data);
       
       void boxes_size(Context *context, int start, int end, float *a, float *d);
       void box_size(  Context *context, int pos, int box, float *a, float *d);

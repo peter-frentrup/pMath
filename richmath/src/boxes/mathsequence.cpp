@@ -100,8 +100,10 @@ static pmath_token_t get_box_start_token(Box *box) {
 class ScanData {
   public:
     MathSequence *sequence;
-    int current_box;
+    int current_box; // for box_at_index
     int flags;
+    int start;
+    int end;
 };
 
 //{ class MathSequence ...
@@ -756,53 +758,84 @@ Expr MathSequence::to_pmath(int flags) {
   data.sequence    = this;
   data.current_box = 0;
   data.flags       = flags;
+  data.start       = 0;
+  data.end         = str.length();
+  
+  struct pmath_boxes_from_spans_ex_t settings;
+  memset(&settings, 0, sizeof(settings));
+  settings.size           = sizeof(settings);
+  settings.data           = &data;
+  settings.box_at_index   = box_at_index;
+  settings.add_debug_info = add_debug_info;
+  
+  if(flags & BoxFlagParseable)
+    settings.flags|= PMATH_BFS_PARSEABLE;
+  
+  settings.flags|= PMATH_BFS_USECOMPLEXSTRINGBOX;
   
   ensure_spans_valid();
   
-  return Expr(pmath_boxes_from_spans(
-                spans.array(),
-                str.get(),
-                flags & BoxFlagParseable,
-                box_at_index,
-                &data));
+  return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
 }
 
 Expr MathSequence::to_pmath(int flags, int start, int end) {
-  if(start == 0 && end >= length())
-    return to_pmath(flags);
-    
-  const uint16_t *buf = str.buffer();
-  int firstbox = 0;
+  ScanData data;
+  data.sequence    = this;
+  data.current_box = 0;
+  data.flags       = flags;
+  data.start       = start;
+  data.end         = end;
   
-  for(int i = 0; i < start; ++i)
-    if(buf[i] == PMATH_CHAR_BOX)
-      ++firstbox;
-      
-  MathSequence *tmp = new MathSequence();
-  tmp->insert(0, this, start, end);
-  tmp->ensure_spans_valid();
-  tmp->ensure_boxes_valid();
+  struct pmath_boxes_from_spans_ex_t settings;
+  memset(&settings, 0, sizeof(settings));
+  settings.size           = sizeof(settings);
+  settings.data           = &data;
+  settings.box_at_index   = box_at_index;
+  settings.add_debug_info = add_debug_info;
   
-  Expr result = tmp->to_pmath(flags);
+  if(flags & BoxFlagParseable)
+    settings.flags|= PMATH_BFS_PARSEABLE;
   
-  for(int i = 0; i < tmp->boxes.length(); ++i) {
-    Box *box          = boxes[firstbox + i];
-    Box *tmp_box      = tmp->boxes[i];
-    int box_index     = box->index();
-    int tmp_box_index = tmp_box->index();
-    
-    abandon(box);
-    tmp->abandon(tmp_box);
-    
-    adopt(tmp_box, box_index);
-    tmp->adopt(box, tmp_box_index);
-    
-    boxes[firstbox + i] = tmp_box;
-    tmp->boxes[i] = box;
-  }
+  settings.flags|= PMATH_BFS_USECOMPLEXSTRINGBOX;
   
-  delete tmp;
-  return result;
+  ensure_spans_valid();
+  
+  return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
+//  if(start == 0 && end >= length())
+//    return to_pmath(flags);
+//    
+//  const uint16_t *buf = str.buffer();
+//  int firstbox = 0;
+//  
+//  for(int i = 0; i < start; ++i)
+//    if(buf[i] == PMATH_CHAR_BOX)
+//      ++firstbox;
+//      
+//  MathSequence *tmp = new MathSequence();
+//  tmp->insert(0, this, start, end);
+//  tmp->ensure_spans_valid();
+//  tmp->ensure_boxes_valid();
+//  
+//  Expr result = tmp->to_pmath(flags);
+//  
+//  for(int i = 0; i < tmp->boxes.length(); ++i) {
+//    Box *box          = boxes[firstbox + i];
+//    Box *tmp_box      = tmp->boxes[i];
+//    int box_index     = box->index();
+//    int tmp_box_index = tmp_box->index();
+//    
+//    abandon(box);
+//    tmp->abandon(tmp_box);
+//    
+//    adopt(tmp_box, box_index);
+//    tmp->adopt(box, tmp_box_index);
+//    
+//    boxes[firstbox + i] = tmp_box;
+//    tmp->boxes[i] = box;
+//  }
+//  
+//  delete tmp;
+//  return result;
 }
 
 Box *MathSequence::move_logical(
@@ -1184,6 +1217,8 @@ void MathSequence::ensure_spans_valid() {
   data.sequence    = this;
   data.current_box = 0;
   data.flags       = 0;
+  data.start       = 0;
+  data.end         = str.length();
   
   pmath_string_t code = str.get_as_string();
   spans = pmath_spans_from_string(
@@ -1404,6 +1439,9 @@ pmath_t MathSequence::box_at_index(int i, void *_data) {
     flags &= ~BoxFlagParseable;
   }
   
+  if(i < data->start || data->end <= i)
+    return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
+  
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()) {
     if(data->sequence->boxes[data->current_box]->index() == i)
@@ -1419,6 +1457,59 @@ pmath_t MathSequence::box_at_index(int i, void *_data) {
   }
   
   return PMATH_NULL;
+}
+
+pmath_t MathSequence::add_debug_info(pmath_t token_or_span, int start, int end, void *_data) {
+  ScanData *data = (ScanData *)_data;
+  
+  if(data->end <= start || end <= data->start) {
+    pmath_unref(token_or_span);
+    return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
+  }
+  
+  if(pmath_is_string(token_or_span)) {
+    if(data->start <= start && end <= data->end)
+      return token_or_span;
+    
+    /* does not work with string tokens containing boxes */
+    
+    if(start <= data->start && data->end <= end) {
+      return pmath_string_part(
+        token_or_span, 
+        data->start - start, 
+        data->end - data->start);
+    }
+    
+    if(data->start <= start && start <= data->end) {
+      return pmath_string_part(
+        token_or_span, 
+        0, 
+        data->end - start);
+    }
+    
+    if(data->start <= end && end <= data->end) {
+      return pmath_string_part(
+        token_or_span, 
+        data->start - start, 
+        end - data->start);
+    }
+    
+    return token_or_span;
+  }
+  
+  if(!pmath_is_expr(token_or_span))
+    return token_or_span;
+    
+  Expr debug_info = Call(
+    Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
+    Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), data->sequence->id()),
+    Call(Symbol(PMATH_SYMBOL_RANGE), start, end));
+  
+  token_or_span = pmath_try_set_debug_info(
+    token_or_span,
+    debug_info.release());
+  
+  return token_or_span;
 }
 
 void MathSequence::boxes_size(

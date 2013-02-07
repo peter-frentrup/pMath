@@ -2875,7 +2875,7 @@ void Document::insert_string(String text, bool autoformat) {
         }
         
         int next = pos;
-        while(!spans.is_token_end(next))
+        while(next + 1 < len && !spans.is_token_end(next))
           ++next;
         ++next;
         
