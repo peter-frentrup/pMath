@@ -41,7 +41,16 @@ class ExprPrinter:
             self.expr = ExprVal(val)
 
     def to_string(self):
-        return self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count)
+        #if self.expr.is_string():
+        #    return self.expr.get_string_data()
+        string = self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count)
+        #string = string.replace('\\', u'\xA6').replace('\"', '\xA8')
+        return string
+
+    def display_hint (self):
+        #if self.expr.is_string():
+        return 'string'
+        #return 'expression'
 
     def children(self):
         ch = {}
@@ -51,6 +60,10 @@ class ExprPrinter:
                 ch['debug info'] = debug_info._val
         except:
             pass
+        if self.expr.is_pointer():
+            ch['pointer'] = self.expr.get_pointer()
+            ch['refcount'] = gdb.Value(self.expr.get_refcount()).cast(gdb.lookup_type('intptr_t'))
+            
         return ch.items()
     
 @register_pretty_printer

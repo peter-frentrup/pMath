@@ -67,7 +67,9 @@ class ExprVal:
     @static
     def string_header_size():
         if ExprVal._string_header_size == None:
-            ExprVal._string_header_size = int(gdb.parse_and_eval('((sizeof(struct _pmath_string_t) + sizeof(size_t) - 1) / sizeof(size_t)) * sizeof(size_t)'))
+            _pmath_string_t = gdb.lookup_type('struct _pmath_string_t')
+            size_t          = gdb.lookup_type('size_t')
+            ExprVal._string_header_size = ((_pmath_string_t.sizeof + size_t.sizeof - 1) // size_t.sizeof) * size_t.sizeof
         return ExprVal._string_header_size
     
     @static
@@ -104,7 +106,7 @@ class ExprVal:
             except gdb.MemoryError:
                 self._type_shift = None
         else:
-            self._as_pointer = gdb.parse_and_eval('(struct _pmath_t*)0x0')
+            self._as_pointer = gdb.Value(0).cast(gdb.lookup_type('struct _pmath_t').pointer())
             
     def is_pmath(self):
         return self._is_pmath
