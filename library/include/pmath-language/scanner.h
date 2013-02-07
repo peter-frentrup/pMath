@@ -247,7 +247,8 @@ struct pmath_boxes_from_spans_ex_t{
 
 /**\internal */
 enum {
-  PMATH_BFS_PARSEABLE = 1
+  PMATH_BFS_PARSEABLE           = 1 << 0,
+  PMATH_BFS_USECOMPLEXSTRINGBOX = 1 << 1
 };
 
 /**\brief Convert a span-array with the according code to boxed form.

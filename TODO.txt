@@ -3,6 +3,14 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
+? ToBoxes("a\(SqrtBox(\"b\")\)") should generate ComplexStringBox("\"a", SqrtBox("b"), "\"") instead of "\"a\(SqrtBox(\"b\")\)\""
+
+- retain debug info in ToBoxes/MakeBoxes
+
+- add Developer`StackInformation() to get {{Head -> symbol, Developer`DebugInfoSource -> info, ...}, ...}
+
+- Message(...) should print a stack trace
+
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
 
 - richmath: graphcis tick length should depend on Max(width, height) for all axes

@@ -219,7 +219,6 @@ enum {
    These options can be one or more of the following:
    - PMATH_WRITE_OPTIONS_FULLEXPR All expressions are written in the form
      f(a, b, ...) without any syntactic sugar.
-
      Supersedes PMATH_WRITE_OPTIONS_INPUTEXPR.
 
    - PMATH_WRITE_OPTIONS_FULLSTR Strings are written with quotes and escape
@@ -230,7 +229,6 @@ enum {
 
    - PMATH_WRITE_OPTIONS_INPUTEXPR Expressions are written in a
      form that is valid pMath input.
-
      Note that this does not automatically imply PMATH_WRITE_OPTIONS_FULLSTR.
  */
 

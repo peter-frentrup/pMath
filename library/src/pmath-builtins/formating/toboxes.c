@@ -402,7 +402,7 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length) {
         boxes = pmath_expr_set_item(
                   boxes, len,
                   _pmath_shorten_boxes(
-                    pmath_expr_get_item(boxes, len),
+                    pmath_expr_extract_item(boxes, len),
                     length));
       }
       

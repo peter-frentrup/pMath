@@ -624,7 +624,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
         if(_pmath_refcount_ptr((void *)old_expr) == 1) {
           pmath_unref(old_expr->items[index]);
           
-          if(old_expr->debug_ptr){
+          if(old_expr->debug_ptr) {
             _pmath_unref_ptr(old_expr->debug_ptr);
             old_expr->debug_ptr = NULL;
           }
@@ -1475,9 +1475,14 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
   assert(pmath_is_expr(expr));
   
   _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
-  if(_expr->debug_ptr == PMATH_AS_PTR(info))
+  if(_expr->debug_ptr == PMATH_AS_PTR(info)) {
+    if(_expr->debug_ptr) {
+      assert(_pmath_refcount_ptr(_expr->debug_ptr) >= 2);
+      _pmath_unref_ptr(_expr->debug_ptr);
+    }
     return expr;
-    
+  }
+  
   if(pmath_refcount(expr) == 1) {
     _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
     
@@ -1504,7 +1509,7 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
         new_expr->inherited.inherited.last_change       = _expr->inherited.inherited.last_change;
         new_expr->debug_ptr = PMATH_AS_PTR(info);
         
-        for(i = 0;i <= _expr->length; ++i)
+        for(i = 0; i <= _expr->length; ++i)
           new_expr->items[i] = pmath_ref(_expr->items[i]);
           
         pmath_unref(expr);

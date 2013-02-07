@@ -20,6 +20,7 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/control-private.h>
+#include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
 #include <limits.h>
@@ -1062,6 +1063,37 @@ static pmath_string_t box_as_string(pmath_t box) {
   return PMATH_NULL;
 }
 
+static pmath_t make_expression_from_complexstringbox(pmath_expr_t box) {
+  size_t i, len;
+  pmath_string_t string = PMATH_C_STRING("");
+  static const uint16_t left_box_char  = PMATH_CHAR_LEFT_BOX;
+  static const uint16_t right_box_char = PMATH_CHAR_RIGHT_BOX;
+  
+  len = pmath_expr_length(box);
+  for(i = 1;i <= len;++i) {
+    pmath_t part = pmath_expr_get_item(box, i);
+    
+    if(pmath_is_string(part)) {
+      string = pmath_string_concat(string, part);
+      continue;
+    }
+    
+    string = pmath_string_insert_ucs2(string, INT_MAX, &left_box_char, 1);
+    
+    pmath_write(
+      part, 
+      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR, 
+      (void( *)(void *, const uint16_t *, int))_pmath_write_to_string, 
+      &string);
+    
+    pmath_unref(part);
+    string = pmath_string_insert_ucs2(string, INT_MAX, &right_box_char, 1);
+  }
+  
+  pmath_unref(box);
+  return make_expression_from_string(string);
+}
+
 static pmath_t make_expression_from_fractionbox(pmath_expr_t box) {
   size_t len = pmath_expr_length(box);
   
@@ -1505,6 +1537,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     exprlen = pmath_expr_length(expr);
     
     if(!pmath_is_null(head) && !pmath_same(head, PMATH_SYMBOL_LIST)) {
+      if(pmath_same(head, PMATH_SYMBOL_COMPLEXSTRINGBOX))
+        return make_expression_from_complexstringbox(expr);
+        
       if(pmath_same(head, PMATH_SYMBOL_FRACTIONBOX))
         return make_expression_from_fractionbox(expr);
         

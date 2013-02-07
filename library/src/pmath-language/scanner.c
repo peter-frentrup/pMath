@@ -6,6 +6,7 @@
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -1925,84 +1926,157 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
     pmath_string_t result = PMATH_NULL;
     int start = group->pos;
     
-    while(group->pos <= span->end) {
-      if(group->str[group->pos] == PMATH_CHAR_BOX) {
-        static const uint16_t left_box_char  = PMATH_CHAR_LEFT_BOX;
-        static const uint16_t right_box_char = PMATH_CHAR_RIGHT_BOX;
-        pmath_t box;
-        
-        if(start < group->pos) {
-          if(!pmath_is_null(result)) {
-            result = pmath_string_insert_ucs2(
-                       result,
-                       pmath_string_length(result),
-                       group->str + start,
-                       group->pos - start);
+    if(group->settings.flags & PMATH_BFS_USECOMPLEXSTRINGBOX) {
+      pmath_t all;
+      pmath_gather_begin(PMATH_NULL);
+      
+      while(group->pos <= span->end) {
+        if(group->str[group->pos] == PMATH_CHAR_BOX) {
+          pmath_t box;
+          
+          if(start < group->pos) {
+            pmath_t pre = pmath_string_part(
+                            pmath_ref(group->string),
+                            start,
+                            group->pos - start);
+                            
+            if(group->settings.add_debug_info) {
+              pre = group->settings.add_debug_info(
+                      pre,
+                      start,
+                      group->pos,
+                      group->settings.data);
+            }
+            
+            pmath_emit(pre, PMATH_NULL);
           }
-          else {
-            result = pmath_string_part(
-                       pmath_ref(group->string),
-                       start,
-                       group->pos - start);
-          }
+          
+          if(group->settings.box_at_index)
+            box = group->settings.box_at_index(group->pos, group->settings.data);
+          else
+            box = PMATH_NULL;
+            
+          pmath_emit(box, PMATH_NULL);
+          
+          start = ++group->pos;
+        }
+        else
+          ++group->pos;
+      }
+      
+      if(start < group->pos) {
+        pmath_t rest = pmath_string_part(
+                         pmath_ref(group->string),
+                         start,
+                         group->pos - start);
+                         
+        if(group->settings.add_debug_info) {
+          rest = group->settings.add_debug_info(
+                   rest,
+                   start,
+                   group->pos,
+                   group->settings.data);
         }
         
-        result = pmath_string_insert_ucs2(
-                   result,
-                   pmath_string_length(result),
-                   &left_box_char,
-                   1);
-                   
-        if(group->settings.box_at_index)
-          box = group->settings.box_at_index(group->pos, group->settings.data);
-        else
-          box = PMATH_NULL;
-          
-        pmath_write(
-          box,
-          PMATH_WRITE_OPTIONS_FULLSTR,
-          (void( *)(void *, const uint16_t *, int))write_to_str,
-          &result);
-          
-        pmath_unref(box);
-        
-        result = pmath_string_insert_ucs2(
-                   result,
-                   pmath_string_length(result),
-                   &right_box_char,
-                   1);
-                   
-        start = ++group->pos;
+        pmath_emit(rest, PMATH_NULL);
       }
-      else
-        ++group->pos;
+      
+      all = pmath_gather_end();
+      all = pmath_expr_set_item(all, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
+      
+      if(group->settings.add_debug_info) {
+        all = group->settings.add_debug_info(
+                all,
+                span_start,
+                span->end + 1,
+                group->settings.data);
+      }
+      
+      pmath_emit(
+        all,
+        PMATH_NULL);
+    }
+    else {
+      while(group->pos <= span->end) {
+        if(group->str[group->pos] == PMATH_CHAR_BOX) {
+          static const uint16_t left_box_char  = PMATH_CHAR_LEFT_BOX;
+          static const uint16_t right_box_char = PMATH_CHAR_RIGHT_BOX;
+          pmath_t box;
+          
+          if(start < group->pos) {
+            if(!pmath_is_null(result)) {
+              result = pmath_string_insert_ucs2(
+                         result,
+                         pmath_string_length(result),
+                         group->str + start,
+                         group->pos - start);
+            }
+            else {
+              result = pmath_string_part(
+                         pmath_ref(group->string),
+                         start,
+                         group->pos - start);
+            }
+          }
+          
+          result = pmath_string_insert_ucs2(
+                     result,
+                     pmath_string_length(result),
+                     &left_box_char,
+                     1);
+                     
+          if(group->settings.box_at_index)
+            box = group->settings.box_at_index(group->pos, group->settings.data);
+          else
+            box = PMATH_NULL;
+            
+          pmath_write(
+            box,
+            PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR,
+            (void( *)(void *, const uint16_t *, int))write_to_str,
+            &result);
+            
+          pmath_unref(box);
+          
+          result = pmath_string_insert_ucs2(
+                     result,
+                     pmath_string_length(result),
+                     &right_box_char,
+                     1);
+                     
+          start = ++group->pos;
+        }
+        else
+          ++group->pos;
+      }
+      
+      if(pmath_is_null(result)) {
+        result = pmath_string_part(
+                   pmath_ref(group->string),
+                   start,
+                   group->pos - start);
+      }
+      else if(start < group->pos) {
+        result = pmath_string_insert_ucs2(
+                   result,
+                   pmath_string_length(result),
+                   group->str + start,
+                   group->pos - start);
+      }
+      
+      if(group->settings.add_debug_info) {
+        result = group->settings.add_debug_info(
+                   result,
+                   span_start,
+                   span->end + 1,
+                   group->settings.data);
+      }
+      
+      pmath_emit(
+        result,
+        PMATH_NULL);
     }
     
-    if(pmath_is_null(result)) {
-      result = pmath_string_part(
-                 pmath_ref(group->string),
-                 start,
-                 group->pos - start);
-    }
-    else if(start < group->pos) {
-      result = pmath_string_insert_ucs2(
-                 result,
-                 pmath_string_length(result),
-                 group->str + start,
-                 group->pos - start);
-    }
-    
-    if(group->settings.add_debug_info) {
-      result = group->settings.add_debug_info(
-                 result,
-                 span_start,
-                 span->end + 1,
-                 group->settings.data);
-    }
-    
-    pmath_emit(
-      result,
-      PMATH_NULL);
     group->pos = span->end + 1;
     
     if(group->settings.flags & PMATH_BFS_PARSEABLE)
@@ -2147,15 +2221,32 @@ static int ungrouped_string_length(pmath_t box) { // box wont be freed
     size_t i;
     pmath_t head = pmath_expr_get_item(box, 0);
     pmath_unref(head);
-    if(!pmath_is_null(head) && !pmath_same(head, PMATH_SYMBOL_LIST))
-      return 1;
-      
-    for(i = pmath_expr_length(box); i > 0; --i) {
-      pmath_t boxi = pmath_expr_get_item(box, i);
-      result += ungrouped_string_length(boxi);
-      pmath_unref(boxi);
+    
+    if(pmath_is_null(head) || pmath_same(head, PMATH_SYMBOL_LIST)) {
+      for(i = pmath_expr_length(box); i > 0; --i) {
+        pmath_t boxi = pmath_expr_get_item(box, i);
+        
+        result += ungrouped_string_length(boxi);
+        
+        pmath_unref(boxi);
+      }
+      return result;
     }
-    return result;
+    
+    if(pmath_same(head, PMATH_SYMBOL_COMPLEXSTRINGBOX)) {
+      for(i = pmath_expr_length(box); i > 0; --i) {
+        pmath_t boxi = pmath_expr_get_item(box, i);
+        
+        
+        if(pmath_is_string(boxi))
+          result += ungrouped_string_length(boxi);
+        else
+          result += 1;
+          
+        pmath_unref(boxi);
+      }
+      return result;
+    }
   }
   
   return 1;
@@ -2244,8 +2335,8 @@ static void ungroup(
   if(pmath_is_expr(box)) {
     pmath_t head = pmath_expr_get_item(box, 0);
     pmath_unref(head);
-    if( pmath_same(head, PMATH_SYMBOL_LIST) ||
-        pmath_is_null(head))
+    if( pmath_is_null(head) ||
+        pmath_same(head, PMATH_SYMBOL_LIST))
     {
       size_t i, len;
       int start = g->pos;
@@ -2336,6 +2427,49 @@ static void ungroup(
         }
       }
       
+      pmath_unref(box);
+      return;
+    }
+    
+    if(pmath_same(head, PMATH_SYMBOL_COMPLEXSTRINGBOX)) {
+      size_t i, len;
+      int start = g->pos;
+      pmath_span_t *s;
+      pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
+      
+      if(old) {
+        pmath_debug_print("[ungroup(): unexpected span in ComplexStringBox]\n");
+      }
+      
+      len = pmath_expr_length(box);
+      
+      for(i = 1; i <= len; ++i) {
+        pmath_t boxi = pmath_expr_get_item(box, i);
+        
+        if(pmath_is_string(boxi)) {
+          ungroup(g, boxi);
+          continue;
+        }
+        
+        if(g->make_box)
+          g->make_box(g->pos, boxi, g->data);
+          
+        if(g->pos > 0)
+          g->spans->items[g->pos - 1] |= 1; // token end
+        g->spans->items[g->pos] |= 1; // token end
+        g->str[g->pos++] = PMATH_CHAR_BOX;
+      }
+      
+      if(g->pos > start) {
+        s = pmath_mem_alloc(sizeof(pmath_span_t));
+        if(s) {
+          s->next = old;
+          s->end = g->pos - 1;
+          g->spans->items[start] = (uintptr_t)s | 2; // operand start
+        }
+        
+        g->spans->items[g->pos - 1] |= 1; // token end
+      }
       pmath_unref(box);
       return;
     }
