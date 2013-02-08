@@ -10,6 +10,7 @@
 #undef pmath_debug_print
 #undef pmath_debug_print_object
 #undef pmath_debug_print_stack
+#undef pmath_debug_print_debug_info
 
 #endif
 

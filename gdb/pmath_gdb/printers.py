@@ -135,6 +135,46 @@ class HashtablePrinter:
         return self.Iterator(self.val['table'], self.val['used_count'], self.val['capacity'])
     
 
+@register_pretty_printer
+class ArrayPrinter:
+    """print a richmath::Array<...>"""
+    regex = re.compile('^richmath::Array<.*>$')
+    
+    @static
+    def supports(type):
+        return type.tag != None and ArrayPrinter.regex.search(type.tag)
+
+    def __init__(self, val):
+        self.val = val
+
+    def display_hint (self):
+        return 'array'
+
+    def to_string(self):
+        return 'richmath::Array of {0} elements'.format(self.val['_length'])
+    
+    class Iterator:
+        def __init__(self, items, length):
+            self.items = items
+            self.index = 0
+            self.length = length
+
+        def __iter__(self):
+            return self
+        
+        def next(self):
+            if self.index >= self.length:
+                raise StopIteration
+            
+            result = self.items[self.index]
+            self.index+= 1
+            return (str(self.index), result)
+    
+    def children(self):
+        return self.Iterator(self.val['_items'], self.val['_length'])
+    
+
+
 def register_pmath_printers(obj):
     if obj == None:
         obj = gdb
