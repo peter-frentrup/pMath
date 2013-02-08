@@ -3176,18 +3176,21 @@ static pmath_bool_t user_make_boxes(pmath_t *obj) {
       rules = _pmath_symbol_get_rules(head, RULES_READ);
       
       if(rules) {
-        pmath_t result = pmath_expr_new_extended(
-                           pmath_ref(PMATH_SYMBOL_MAKEBOXES), 1,
-                           pmath_ref(*obj));
-                           
+        pmath_t debug_info = pmath_get_debug_info(*obj);
+        pmath_t result     = pmath_expr_new_extended(
+                               pmath_ref(PMATH_SYMBOL_MAKEBOXES), 1,
+                               pmath_ref(*obj));
+                               
         if(_pmath_rulecache_find(&rules->format_rules, &result)) {
           pmath_unref(head);
           pmath_unref(*obj);
           *obj = pmath_evaluate(result);
+          *obj = pmath_try_set_debug_info(*obj, debug_info);
           return TRUE;
         }
         
         pmath_unref(result);
+        pmath_unref(debug_info);
       }
       
       pmath_unref(head);
@@ -3292,7 +3295,10 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
       
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-        return expr_to_boxes(thread, obj);
+        pmath_t debug_info = pmath_get_debug_info(obj);
+        obj = expr_to_boxes(thread, obj);
+        obj = pmath_try_set_debug_info(obj, debug_info);
+        return obj;
       }
       
     case PMATH_TYPE_SHIFT_MP_FLOAT:

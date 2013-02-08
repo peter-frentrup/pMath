@@ -5,9 +5,7 @@
 
 ? ToBoxes("a\(SqrtBox(\"b\")\)") should generate ComplexStringBox("\"a", SqrtBox("b"), "\"") instead of "\"a\(SqrtBox(\"b\")\)\""
 
-- retain debug info in ToBoxes/MakeBoxes
-
-- add Developer`StackInformation() to get {{Head -> symbol, Developer`DebugInfoSource -> info, ...}, ...}
+- add Developer`StackInformation() to get {{"Head" -> symbol, "Location" -> debuginfo, ...}, ...}
 
 - Message(...) should print a stack trace
 
