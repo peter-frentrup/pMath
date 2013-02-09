@@ -3,8 +3,6 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
-? ToBoxes("a\(SqrtBox(\"b\")\)") should generate ComplexStringBox("\"a", SqrtBox("b"), "\"") instead of "\"a\(SqrtBox(\"b\")\)\""
-
 - add Developer`StackInformation() to get {{"Head" -> symbol, "Location" -> debuginfo, ...}, ...}
 
 - Message(...) should print a stack trace
@@ -33,7 +31,7 @@
 
 - support FontSlant->Toggle, FontWeight->Toggle, FontSize->Larger, FontSize->Smaller
 
-- pause all EvaluateDelayed() or only abortion times durin GUI operations, delay abort-actions 
+? pause all EvaluateDelayed() or only abortion times durin GUI operations, delay abort-actions 
   during Finally() and internal cleanup of Block(), Get(), ...
 
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})

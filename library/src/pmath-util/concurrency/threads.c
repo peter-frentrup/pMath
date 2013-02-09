@@ -416,13 +416,16 @@ PMATH_API pmath_bool_t pmath_thread_aborting(pmath_thread_t thread) {
       (thread->ignore_older_aborts <= pmath_atomic_read_aquire(&_pmath_abort_timer) ||
        !pmath_same(thread->exception, PMATH_UNDEFINED)))
   {
+    pmath_debug_print("[Abort]\n");
     return TRUE;
   }
   
   while(thread && thread->ignore_older_aborts <= pmath_atomic_read_aquire(&_pmath_abort_timer)) {
-    if(!pmath_same(thread->exception, PMATH_UNDEFINED))
+    if(!pmath_same(thread->exception, PMATH_UNDEFINED)) {
+      pmath_debug_print_object("[Ex: ", thread->exception ,"]\n");
       return TRUE;
-      
+    }
+    
     thread = thread->parent;
   }
   

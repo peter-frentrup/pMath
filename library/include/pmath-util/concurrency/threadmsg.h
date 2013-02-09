@@ -142,8 +142,11 @@ void pmath_thread_send(pmath_messages_t mq, pmath_t msg);
    \param msg The message. It will be freed.
    \param timeout_seconds The maximum number of seconds tho wait for the answer.
                           Use HUGE_VAL if you do not want a timeout.
-   \param idle_function An optional function that will be called any time the
-                        waiting thread wakes up but there is no answer yet.
+   \param idle_function An optional function that will be called continuously 
+                        until the evaluation finished or timed out. It should 
+                        return TRUE when it needs to be called again as soon as 
+                        possible, otherwise <tt>pmath_thread_send_wait</tt> will 
+                        do a pmath_thread_sleep_timeout(...)
    \param idle_data Argument for \arg idle_function.
    \return The result of pmath_evaluate(message) called by the receiver or
            PMATH_UNDEFINED in case of an error.
@@ -170,7 +173,7 @@ pmath_t pmath_thread_send_wait(
   pmath_messages_t mq,
   pmath_t          msg,
   double           timeout_seconds,
-  void           (*idle_function)(void*),
+  pmath_bool_t   (*idle_function)(void*),
   void            *idle_data);
 
 /**\brief Asynchronously send a message to a thread sometime in the future.

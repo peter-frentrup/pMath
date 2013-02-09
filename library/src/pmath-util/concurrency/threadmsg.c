@@ -696,7 +696,7 @@ pmath_t pmath_thread_send_wait(
   pmath_messages_t mq,
   pmath_t          msg,
   double           timeout_seconds,
-  void           (*idle_function)(void *),
+  pmath_bool_t   (*idle_function)(void *),
   void            *idle_data
 ) {
   struct msg_queue_t                *my_mq_data;
@@ -766,16 +766,19 @@ pmath_t pmath_thread_send_wait(
     assert(my_mq_data != NULL);
     
     while(!pmath_thread_aborting(me) && pmath_tickcount() < end_time) {
-      msg_queue_sleep_timeout(my_mq_data, end_time);
+      pmath_bool_t is_busy = FALSE;
+      
+      if(idle_function)
+        is_busy = idle_function(idle_data);
+        
+      if(!is_busy)
+        msg_queue_sleep_timeout(my_mq_data, end_time);
       
       pmath_unref(answer);
       answer = _pmath_object_atomic_read(&result_data->_value);
       
       if(!pmath_same(answer, PMATH_UNDEFINED))
         goto SUCCESS;
-        
-      if(idle_function)
-        idle_function(idle_data);
     }
     
     if(pmath_tickcount() >= end_time)

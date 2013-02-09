@@ -1125,13 +1125,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
       fprintf(stderr, "[- process threadid=%u]\n", (unsigned)GetCurrentThreadId());
       break;
 
-    case DLL_THREAD_ATTACH:
-      fprintf(stderr, "[+ thread id=%u]\n", (unsigned)GetCurrentThreadId());
-      break;
-
-    case DLL_THREAD_DETACH:
-      fprintf(stderr, "[- thread id=%u]\n", (unsigned)GetCurrentThreadId());
-      break;
+//    case DLL_THREAD_ATTACH:
+//      fprintf(stderr, "[+ thread id=%u]\n", (unsigned)GetCurrentThreadId());
+//      break;
+//
+//    case DLL_THREAD_DETACH:
+//      fprintf(stderr, "[- thread id=%u]\n", (unsigned)GetCurrentThreadId());
+//      break;
   }
 #  endif
 
@@ -1150,4 +1150,3 @@ void shared_object_pmath_done(void) {
   fprintf(stderr, "[- process]\n");
 }
 #endif
-
