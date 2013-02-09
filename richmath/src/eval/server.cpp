@@ -199,7 +199,7 @@ class LocalServer: public Server {
     virtual Expr interrupt_wait(
       Expr           expr,
       double         timeout_seconds,
-      pmath_bool_t (*idle_function)(void *),
+      pmath_bool_t (*idle_function)(double *end_tick,void *idle_data),
       void          *idle_data
     ) {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {

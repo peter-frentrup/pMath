@@ -1679,7 +1679,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               }
               
               if(popup_info.popup != 0) {
-                pmath_debug_print("[popup_info.popup = %p]\n", popup_info.popup);
+                //pmath_debug_print("[popup_info.popup = %p]\n", popup_info.popup);
                 hdwp = tryDeferWindowPos(
                          hdwp,
                          popup_info.popup, HWND_TOP, 0, 0, 0, 0,

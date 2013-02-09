@@ -146,7 +146,8 @@ void pmath_thread_send(pmath_messages_t mq, pmath_t msg);
                         until the evaluation finished or timed out. It should 
                         return TRUE when it needs to be called again as soon as 
                         possible, otherwise <tt>pmath_thread_send_wait</tt> will 
-                        do a pmath_thread_sleep_timeout(...)
+                        do a pmath_thread_sleep_timeout(...).
+                        You may change \a *end_tick to wait longer for a result. 
    \param idle_data Argument for \arg idle_function.
    \return The result of pmath_evaluate(message) called by the receiver or
            PMATH_UNDEFINED in case of an error.
@@ -173,7 +174,7 @@ pmath_t pmath_thread_send_wait(
   pmath_messages_t mq,
   pmath_t          msg,
   double           timeout_seconds,
-  pmath_bool_t   (*idle_function)(void*),
+  pmath_bool_t   (*idle_function)(double *end_tick,void *idle_data),
   void            *idle_data);
 
 /**\brief Asynchronously send a message to a thread sometime in the future.

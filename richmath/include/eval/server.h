@@ -18,7 +18,7 @@ namespace richmath {
       virtual Expr interrupt_wait(
         Expr           expr, 
         double         timeout_seconds, 
-        pmath_bool_t (*idle_function)(void*), 
+        pmath_bool_t (*idle_function)(double *end_tick,void *idle_data), 
         void          *idle_data) = 0;
       virtual void interrupt(Expr expr) = 0;
       

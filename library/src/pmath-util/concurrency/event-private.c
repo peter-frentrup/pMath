@@ -22,8 +22,14 @@ void _pmath_event_wait(pmath_event_t *event) {
 PMATH_PRIVATE
 void _pmath_event_timedwait(pmath_event_t *event, double timeout_tick) {
   double now = pmath_tickcount();
-  if(timeout_tick - now >= 0)
-    WaitForSingleObject(*event, (long)((timeout_tick - now) * 1000));
+  if(timeout_tick - now >= 0) {
+    double t = (timeout_tick - now) * 1000;
+    
+    if(t >= INFINITE)
+      WaitForSingleObject(*event, INFINITE);
+    else
+      WaitForSingleObject(*event, (DWORD)t);
+  }
 }
 
 PMATH_PRIVATE
@@ -79,7 +85,12 @@ void _pmath_event_wait(pmath_event_t *event) {
 PMATH_PRIVATE
 void _pmath_event_timedwait(pmath_event_t *event, double timeout_tick) {
   struct timespec ts;
-
+  
+  if(timeout_tick > INT_MAX) {
+    _pmath_event_wait(event);
+    return;
+  }
+  
   ts.tv_sec  = (time_t)floor(timeout_tick);
   ts.tv_nsec = (long)((timeout_tick - ts.tv_sec) * 1e9);//(long)fmod(timeout_tick * 1.0e9, 1.0e9);
 

@@ -127,6 +127,7 @@ static pmath_atomic_t     print_pos_lock = PMATH_ATOMIC_STATIC_INIT;
 static EvaluationPosition print_pos;
 static EvaluationPosition old_job;
 static Expr               main_message_queue;
+static double total_time_waited_for_gui = 0.0;
 
 // also a GSourceFunc, must return 0
 static int on_client_notify(void *data) {
@@ -220,7 +221,7 @@ static pthread_t main_thread = 0;
 double Application::edit_interrupt_timeout      = 2.0;
 double Application::interrupt_timeout           = 0.3;
 double Application::button_timeout              = 4.0;
-double Application::dynamic_timeout             = 24*60*60;//4.0;
+double Application::dynamic_timeout             = 24 * 60 * 60; //4.0;
 double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
 String Application::application_directory;
@@ -550,6 +551,8 @@ void Application::init() {
     application_directory = application_filename.part(0, i);
   else
     application_directory = application_filename;
+    
+  total_time_waited_for_gui = 0.0;
 }
 
 void Application::doevents() {
@@ -933,23 +936,30 @@ Expr Application::run_filedialog(Expr data) {
     }
   }
   
+  Expr result = Symbol(PMATH_SYMBOL_FAILED);
+  double gui_start_time = pmath_tickcount();
+  
 #if RICHMATH_USE_WIN32_GUI
-  return Win32FileDialog::show(
-           head == GetSymbol(FileSaveDialog),
-           filename,
-           filter,
-           title);
+  result = Win32FileDialog::show(
+             head == GetSymbol(FileSaveDialog),
+             filename,
+             filter,
+             title);
 #endif
-           
+             
 #ifdef RICHMATH_USE_GTK_GUI
-  return MathGtkFileDialog::show(
-           head == GetSymbol(FileSaveDialog),
-           filename,
-           filter,
-           title);
+  result = MathGtkFileDialog::show(
+             head == GetSymbol(FileSaveDialog),
+             filename,
+             filter,
+             title);
 #endif
-           
-  return Symbol(PMATH_SYMBOL_FAILED);
+             
+  double gui_end_time = pmath_tickcount();
+  if(gui_start_time < gui_end_time)
+    total_time_waited_for_gui += gui_end_time - gui_start_time;
+    
+  return result;
 }
 
 bool Application::is_idle() {
@@ -986,8 +996,9 @@ bool Application::is_running_job_for(Box *box) {
   return false;
 }
 
-static pmath_bool_t interrupt_wait_idle(void *data) {
-  pmath_debug_print("[idle ");
+static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
+  double gui_start_time = total_time_waited_for_gui;
+  
   ConcurrentQueue<ClientNotification> *suppressed_notifications;
   suppressed_notifications = (ConcurrentQueue<ClientNotification> *)data;
   
@@ -1004,12 +1015,12 @@ static pmath_bool_t interrupt_wait_idle(void *data) {
     /* We must filter out CNT_DYNAMICUPDATE because that could update a parent
        DynamicBox of the DynamicBox that is currently updated during its
        paint() event. That would cause a memory corruption/crash.
-       
+    
        We must filter out CNT_EXECUTEFOR because the point of CNT_EXECUTEFOR is
        to be executed by the main message loop.
      */
     if( cn.type == CNT_DYNAMICUPDATE ||
-        cn.type == CNT_EXECUTEFOR) 
+        cn.type == CNT_EXECUTEFOR)
     {
       suppressed_notifications->put_front(cn);
       continue;
@@ -1017,6 +1028,13 @@ static pmath_bool_t interrupt_wait_idle(void *data) {
     
     execute(cn);
   }
+  
+  double gui_end_time = total_time_waited_for_gui;
+  if(gui_start_time < gui_end_time) {
+    pmath_debug_print("[interrupt_wait_idle: delay timeout by %f sec]\n", gui_end_time - gui_start_time);
+    *end_tick += gui_end_time - gui_start_time;
+  }
+  
   pmath_debug_print(" idle]\n");
   
   return FALSE; // not busy
@@ -1078,18 +1096,18 @@ void Application::execute_for(Expr expr, Box *box, double seconds) {
   EvaluationPosition pos(box);
   
   expr = Call(
-    GetSymbol(InternalExecuteForSymbol), 
-    expr, 
-    pos.document_id, 
-    pos.section_id, 
-    pos.box_id);
-  
+           GetSymbol(InternalExecuteForSymbol),
+           expr,
+           pos.document_id,
+           pos.section_id,
+           pos.box_id);
+           
   if(seconds < Infinity) {
     notify(CNT_EXECUTEFOR, List(expr, Number(seconds)));
   }
   else
     Server::local_server->interrupt(expr);
-  
+    
 }
 
 void Application::execute_for(Expr expr, Box *box) {
@@ -1261,8 +1279,17 @@ static void cnt_end(Expr data) {
   Application::eval_cache.clear();
 }
 
-static pmath_bool_t execute_for_idle(void *closure) {
+static pmath_bool_t execute_for_idle(double *end_tick, void *closure) {
+  double gui_start_time = total_time_waited_for_gui;
+  
   Application::doevents();
+  
+  double gui_end_time = total_time_waited_for_gui;
+  if(gui_start_time < gui_end_time) {
+    pmath_debug_print("[execute_for_idle: delay timeout by %f sec]\n", gui_end_time - gui_start_time);
+    *end_tick += gui_end_time - gui_start_time;
+  }
+  
   return TRUE;
 }
 
@@ -1273,7 +1300,7 @@ static void cnt_executefor(Expr data) {
   
   pmath_debug_print("[execute %f ...\n", seconds);
   
-  if(seconds < Infinity){
+  if(seconds < Infinity) {
     bool old_is_executing_for_sth = is_executing_for_sth;
     
     Server::local_server->interrupt_wait(
@@ -1281,7 +1308,7 @@ static void cnt_executefor(Expr data) {
       seconds,
       execute_for_idle,
       NULL);
-    
+      
     is_executing_for_sth = old_is_executing_for_sth;
   }
   else
@@ -1580,15 +1607,22 @@ static Expr cnt_colordialog(Expr data) {
   if(data.expr_length() >= 1)
     initcolor = pmath_to_color(data[1]);
     
+  Expr result = Symbol(PMATH_SYMBOL_FAILED);
+  double gui_start_time = pmath_tickcount();
+  
 #if RICHMATH_USE_WIN32_GUI
-  return Win32ColorDialog::show(initcolor);
+  result = Win32ColorDialog::show(initcolor);
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  return MathGtkColorDialog::show(initcolor);
+  result = MathGtkColorDialog::show(initcolor);
 #endif
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  double gui_end_time = pmath_tickcount();
+  if(gui_start_time < gui_end_time)
+    total_time_waited_for_gui += gui_end_time - gui_start_time;
+    
+  return result;
 }
 
 static Expr cnt_fontdialog(Expr data) {
@@ -1597,15 +1631,22 @@ static Expr cnt_fontdialog(Expr data) {
   if(data.expr_length() > 0)
     initial_style = new Style(data);
     
+  Expr result = Symbol(PMATH_SYMBOL_FAILED);
+  double gui_start_time = pmath_tickcount();
+  
 #if RICHMATH_USE_WIN32_GUI
-  return Win32FontDialog::show(initial_style);
+  result = Win32FontDialog::show(initial_style);
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  return MathGtkFontDialog::show(initial_style);
+  result = MathGtkFontDialog::show(initial_style);
 #endif
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  double gui_end_time = pmath_tickcount();
+  if(gui_start_time < gui_end_time)
+    total_time_waited_for_gui += gui_end_time - gui_start_time;
+    
+  return result;
 }
 
 static Expr cnt_save(Expr data) {
