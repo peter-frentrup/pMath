@@ -429,7 +429,7 @@ void MathGtkDocumentWindow::title(String text) {
       text = "untitled";
   }
   
-  if(!Application::is_idle(document()))
+  if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
     
   char *str = pmath_string_to_utf8(text.get(), NULL);

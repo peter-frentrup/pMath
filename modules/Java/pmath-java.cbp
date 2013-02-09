@@ -5,14 +5,20 @@
 		<Option title="pmath-java" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
+		<Option show_notes="0">
+			<notes>
+				<![CDATA[The targets "Windows-Debug Richmath Host" and "Windows-Debug Java Host" only differ in their "Set Program's arguments..." setting.]]>
+			</notes>
+		</Option>
 		<Build>
 			<Target title="Windows-Debug Richmath Host">
 				<Option platforms="Windows;" />
-				<Option output="bin\Windows\pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Windows\debug\" />
+				<Option output="bin/Windows/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="..\..\richmath\bin\windows\debug\richmath.exe" />
+				<Option host_application="../../richmath/bin/windows/debug/richmath.exe" />
+				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wundef" />
@@ -22,23 +28,24 @@
 					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
-					<Add directory="$(#jdk.include)\win32" />
+					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="..\..\library\bin\windows\debug" />
+					<Add directory="../../library/bin/windows/debug" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Debug Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin\Windows\pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Windows\debug\" />
+				<Option output="bin/Windows/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option parameters="-Dpmath.core.dll=..\..\library\bin\windows\debug\pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\windows\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
 				<Option host_application="java" />
+				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wundef" />
@@ -48,22 +55,23 @@
 					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
-					<Add directory="$(#jdk.include)\win32" />
+					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="..\..\library\bin\windows\debug" />
+					<Add directory="../../library/bin/windows/debug" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
-				<Option output="bin\Windows\pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Windows\release\" />
+				<Option output="bin/Windows/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/release/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="..\..\richmath\bin\windows\debug\richmath.exe" />
+				<Option host_application="../../richmath/bin/windows/debug/richmath.exe" />
+				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O2" />
@@ -72,14 +80,14 @@
 					<Add option="-fno-exceptions" />
 					<Add option="-DBUILD_DLL" />
 					<Add option="-DNDEBUG" />
-					<Add directory="$(#jdk.include)\win32" />
+					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="..\..\library\bin\windows\release" />
+					<Add directory="../../library/bin/windows/release" />
 				</Linker>
 			</Target>
 			<Target title="Linux-Debug">
@@ -90,6 +98,7 @@
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="../../../../library/test/bin/linux/debug/test" />
+				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wundef" />
@@ -117,6 +126,7 @@
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="../../../../richmath/bin/linux/debug/richmath" />
+				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-O2" />

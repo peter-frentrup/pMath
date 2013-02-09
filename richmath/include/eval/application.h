@@ -14,6 +14,7 @@ namespace richmath {
     CNT_RETURNBOX,
     CNT_STARTSESSION,
     CNT_ENDSESSION,
+    CNT_EXECUTEFOR,
     
     CNT_GETDOCUMENTS,
     CNT_MENUCOMMAND,
@@ -79,7 +80,7 @@ namespace richmath {
       static Document *create_document(Expr data);
       
       static bool is_idle();
-      static bool is_idle(Box *box);
+      static bool is_running_job_for(Box *box);
       
       static Expr interrupt(Expr expr, double seconds);
       static Expr interrupt(Expr expr);

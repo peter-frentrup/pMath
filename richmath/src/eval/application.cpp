@@ -119,6 +119,8 @@ static bool dynamic_update_delay = false;
 static bool dynamic_update_delay_timer_active = false;
 static double last_dynamic_evaluation = 0.0;
 
+static bool is_executing_for_sth = false;
+
 static void execute(ClientNotification &cn);
 
 static pmath_atomic_t     print_pos_lock = PMATH_ATOMIC_STATIC_INIT;
@@ -951,12 +953,12 @@ Expr Application::run_filedialog(Expr data) {
 }
 
 bool Application::is_idle() {
-  return !session->current_job.is_valid();
+  return !is_executing_for_sth && !session->current_job.is_valid();
 }
 
-bool Application::is_idle(Box *box) {
+bool Application::is_running_job_for(Box *box) {
   if(!box)
-    return true;
+    return false;
     
   Section *sect = box->find_parent<Section>(true);
   
@@ -965,26 +967,26 @@ bool Application::is_idle(Box *box) {
     while(s) {
       SharedPtr<Job> job = s->current_job;
       if(job && job->position().section_id == box->id())
-        return false;
+        return true;
         
       s = s->next;
     }
     
-    return true;
+    return false;
   }
   
   while(s) {
     SharedPtr<Job> job = s->current_job;
     if(job && job->position().document_id == box->id())
-      return false;
+      return true;
       
     s = s->next;
   }
   
-  return true;
+  return false;
 }
 
-static void interrupt_wait_idle(void *data) {
+static pmath_bool_t interrupt_wait_idle(void *data) {
   pmath_debug_print("[idle ");
   ConcurrentQueue<ClientNotification> *suppressed_notifications;
   suppressed_notifications = (ConcurrentQueue<ClientNotification> *)data;
@@ -1002,8 +1004,13 @@ static void interrupt_wait_idle(void *data) {
     /* We must filter out CNT_DYNAMICUPDATE because that could update a parent
        DynamicBox of the DynamicBox that is currently updated during its
        paint() event. That would cause a memory corruption/crash.
+       
+       We must filter out CNT_EXECUTEFOR because the point of CNT_EXECUTEFOR is
+       to be executed by the main message loop.
      */
-    if(cn.type == CNT_DYNAMICUPDATE) {
+    if( cn.type == CNT_DYNAMICUPDATE ||
+        cn.type == CNT_EXECUTEFOR) 
+    {
       suppressed_notifications->put_front(cn);
       continue;
     }
@@ -1011,6 +1018,8 @@ static void interrupt_wait_idle(void *data) {
     execute(cn);
   }
   pmath_debug_print(" idle]\n");
+  
+  return FALSE; // not busy
 }
 
 Expr Application::interrupt(Expr expr, double seconds) {
@@ -1068,9 +1077,19 @@ void Application::execute_for(Expr expr, Box *box, double seconds) {
 
   EvaluationPosition pos(box);
   
-  Server::local_server->interrupt(
-    Call(GetSymbol(InternalExecuteForSymbol), expr, pos.document_id, pos.section_id, pos.box_id),
-    seconds);
+  expr = Call(
+    GetSymbol(InternalExecuteForSymbol), 
+    expr, 
+    pos.document_id, 
+    pos.section_id, 
+    pos.box_id);
+  
+  if(seconds < Infinity) {
+    notify(CNT_EXECUTEFOR, List(expr, Number(seconds)));
+  }
+  else
+    Server::local_server->interrupt(expr);
+  
 }
 
 void Application::execute_for(Expr expr, Box *box) {
@@ -1240,6 +1259,35 @@ static void cnt_end(Expr data) {
   }
   
   Application::eval_cache.clear();
+}
+
+static pmath_bool_t execute_for_idle(void *closure) {
+  Application::doevents();
+  return TRUE;
+}
+
+static void cnt_executefor(Expr data) {
+  double seconds = data[2].to_double(Infinity);
+  Expr expr = data[1];
+  data = Expr();
+  
+  pmath_debug_print("[execute %f ...\n", seconds);
+  
+  if(seconds < Infinity){
+    bool old_is_executing_for_sth = is_executing_for_sth;
+    
+    Server::local_server->interrupt_wait(
+      expr,
+      seconds,
+      execute_for_idle,
+      NULL);
+    
+    is_executing_for_sth = old_is_executing_for_sth;
+  }
+  else
+    Server::local_server->interrupt(expr);
+    
+  pmath_debug_print("...exec]\n");
 }
 
 static void cnt_return(Expr data) {
@@ -1639,6 +1687,10 @@ static void execute(ClientNotification &cn) {
       
     case CNT_END:
       cnt_end(cn.data);
+      break;
+      
+    case CNT_EXECUTEFOR:
+      cnt_executefor(cn.data);
       break;
       
     case CNT_RETURN:

@@ -894,7 +894,7 @@ void Win32DocumentWindow::title(String text) {
       text = "untitled";
   }
   
-  if(!Application::is_idle(document()))
+  if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
     
   String tmp = text + String::FromChar(0);

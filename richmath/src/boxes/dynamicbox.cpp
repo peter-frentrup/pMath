@@ -51,7 +51,10 @@ DynamicBox::DynamicBox()
 }
 
 DynamicBox::~DynamicBox() {
-  Application::execute_for(Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 0);
+  Application::execute_for(
+    Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 
+    0,
+    Application::interrupt_timeout);
 }
 
 bool DynamicBox::try_load_from_object(Expr expr, int opts) {

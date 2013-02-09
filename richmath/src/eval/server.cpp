@@ -64,7 +64,7 @@ class LocalServer: public Server {
           ResultKind rkind = Normal;
           
           pmath_debug_print("\n[Start token]\n");
-            
+          
           pmath_resume_all();
           
           if(boxes) {
@@ -77,10 +77,10 @@ class LocalServer: public Server {
                                     pmath_ref(object[i].get())),
                                   &aborted));
                                   
-                if( return_from_dialog               && 
-                    !aborted                         && 
-                    result[0] == PMATH_SYMBOL_RETURN && 
-                    result.expr_length() <= 1) 
+                if( return_from_dialog               &&
+                    !aborted                         &&
+                    result[0] == PMATH_SYMBOL_RETURN &&
+                    result.expr_length() <= 1)
                 {
                   *return_from_dialog = result[1];
                   rkind = Returned;
@@ -98,10 +98,10 @@ class LocalServer: public Server {
                                   pmath_ref(object.get())),
                                 &aborted));
                                 
-              if( return_from_dialog               && 
-                  !aborted                         && 
-                  result[0] == PMATH_SYMBOL_RETURN && 
-                  result.expr_length() <= 1) 
+              if( return_from_dialog               &&
+                  !aborted                         &&
+                  result[0] == PMATH_SYMBOL_RETURN &&
+                  result.expr_length() <= 1)
               {
                 *return_from_dialog = result[1];
                 rkind = Returned;
@@ -115,13 +115,13 @@ class LocalServer: public Server {
                             pmath_session_execute(
                               pmath_ref(object.get()),
                               &aborted));
-            
+                              
             pmath_debug_print_object("\n[token result=", result.get(), "]\n");
             
-            if( return_from_dialog               && 
-                !aborted                         && 
-                result[0] == PMATH_SYMBOL_RETURN && 
-                result.expr_length() <= 1) 
+            if( return_from_dialog               &&
+                !aborted                         &&
+                result[0] == PMATH_SYMBOL_RETURN &&
+                result.expr_length() <= 1)
             {
               *return_from_dialog = result[1];
               rkind = Returned;
@@ -196,7 +196,12 @@ class LocalServer: public Server {
       }
     }
     
-    virtual Expr interrupt_wait(Expr expr, double timeout_seconds, void (*idle_function)(void*), void *idle_data) {
+    virtual Expr interrupt_wait(
+      Expr           expr,
+      double         timeout_seconds,
+      pmath_bool_t (*idle_function)(void *),
+      void          *idle_data
+    ) {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {
         return Expr(pmath_thread_send_wait(
                       message_queue.get(),
@@ -209,14 +214,8 @@ class LocalServer: public Server {
         return Expr();
     }
     
-    virtual void interrupt(Expr expr, double timeout_seconds) {
+    virtual void interrupt(Expr expr) {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {
-        if(timeout_seconds < Infinity) {
-          expr = Call(Symbol(PMATH_SYMBOL_TIMECONSTRAINED),
-                      expr,
-                      timeout_seconds);
-        }
-        
         pmath_thread_send(message_queue.get(), expr.release());
       }
     }
@@ -259,10 +258,10 @@ class LocalServer: public Server {
     Data *data;
     
     static void kill(void *arg) {
-      Data *me = (Data*)arg;
+      Data *me = (Data *)arg;
       pmath_atomic_write_release(&me->do_quit, TRUE);
       
-      LocalServer *ls = dynamic_cast<LocalServer*>(local_server.ptr());
+      LocalServer *ls = dynamic_cast<LocalServer *>(local_server.ptr());
       
       if(ls)
         pmath_thread_wakeup(ls->message_queue.get());
@@ -274,7 +273,7 @@ class LocalServer: public Server {
         return expr;
       }
       
-      LocalServer *ls = dynamic_cast<LocalServer*>(local_server.ptr());
+      LocalServer *ls = dynamic_cast<LocalServer *>(local_server.ptr());
       
       if(!ls || !ls->is_accessable())
         return expr;
@@ -305,8 +304,8 @@ class LocalServer: public Server {
         Application::notify(CNT_STARTSESSION, Expr());
         
         firsteval = Expr(pmath_evaluate(firsteval.release()));
-        if( firsteval[0] == PMATH_SYMBOL_RETURN && 
-            firsteval.expr_length() <= 1) 
+        if( firsteval[0] == PMATH_SYMBOL_RETURN &&
+            firsteval.expr_length() <= 1)
         {
           result = firsteval[1];
           goto FINISH;
@@ -349,7 +348,7 @@ class LocalServer: public Server {
     
     static void thread_proc(void *arg)
     {
-      Data *me = (Data*)arg;
+      Data *me = (Data *)arg;
       
       pmath_register_code(PMATH_SYMBOL_DIALOG, builtin_dialog, PMATH_CODE_USAGE_DOWNCALL);
       
