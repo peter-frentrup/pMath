@@ -42,9 +42,8 @@ class ExprPrinter:
 
     def to_string(self):
         #if self.expr.is_string():
-        #    return self.expr.get_string_data()
-        string = self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count)
-        #string = string.replace('\\', u'\xA6').replace('\"', '\xA8')
+        #    return self.expr.get_string_data().encode('unicode-escape')
+        string = self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count).encode('unicode-escape')
         return string
 
     def display_hint (self):
