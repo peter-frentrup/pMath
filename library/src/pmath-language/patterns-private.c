@@ -1,4 +1,5 @@
 #include <pmath-core/numbers.h>
+#include <pmath-core/expressions-private.h>
 
 #include <pmath-language/patterns-private.h>
 
@@ -30,21 +31,21 @@ PMATH_PRIVATE pmath_t _pmath_object_zeromultimatch; /* readonly */
 
 //{ compare patterns ...
 
-typedef struct {
+typedef struct pattern_compare_status_t {
   pmath_hashtable_t pat1_counts; // entries: object_count_entry_t
   pmath_hashtable_t pat2_counts; // entries: object_count_entry_t
-} _pmath_pattern_compare_status_t;
+} pattern_compare_status_t;
 
 static int pattern_compare(
   pmath_t                    pat1,
   pmath_t                    pat2,
-  _pmath_pattern_compare_status_t  *status);
+  pattern_compare_status_t  *status);
 
 PMATH_PRIVATE int _pmath_pattern_compare(
   pmath_t pat1,
   pmath_t pat2
 ) {
-  _pmath_pattern_compare_status_t status;
+  pattern_compare_status_t status;
   int result;
   
   status.pat1_counts = pmath_ht_create(&pmath_ht_obj_int_class, 0);
@@ -133,7 +134,7 @@ static size_t inc_object_count(pmath_hashtable_t table, pmath_t key) {
 static int pattern_compare(
   pmath_t                    pat1,
   pmath_t                    pat2,
-  _pmath_pattern_compare_status_t  *status
+  pattern_compare_status_t  *status
 ) {
   /* result: -1 == "pat1 < pat2", 0 == "pat1 == pat2", 1 == "pat1 > pat2"
   
@@ -691,7 +692,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_is_const(
 }
 
 //{ match patterns ...
-typedef struct {
+typedef struct pattern_info_t {
   pmath_t       current_head;
   pmath_t       pattern;
   pmath_t       func;
@@ -713,13 +714,13 @@ typedef struct {
   pmath_bool_t  symmetric;
 } pattern_info_t;
 
-typedef enum {
+typedef enum match_kind_t {
   PMATH_MATCH_KIND_NONE,
   PMATH_MATCH_KIND_LOCAL,
   PMATH_MATCH_KIND_GLOBAL
 } match_kind_t;
 
-typedef struct {
+typedef struct match_func_data_t {
   pattern_info_t  *info;
   pmath_expr_t     pat;       // wont be freed
   pmath_expr_t     func;      // wont be freed
@@ -762,11 +763,13 @@ static pmath_bool_t replace_exact_once(
   pmath_t  _old,
   pmath_t  _new);
 
+// retains debug-info
 static pmath_t replace_option_value(
   pmath_t      body,          // will be freed
   pmath_t      default_head,
   pmath_expr_t optionvaluerules);  // form: <T> = <Function>(<OptionValueRules>,<T>)
 
+// retains debug-info
 static pmath_t replace_multiple(
   pmath_t           object,        // will be freed
   pmath_hashtable_t replacements); // entries are struct _pmath_object_entry_t*
@@ -2212,7 +2215,7 @@ static pmath_t replace_pattern_var(
     pattern = pmath_expr_set_item(
                 pattern, 1,
                 replace_pattern_var(
-                  pmath_expr_get_item(pattern, 1),
+                  pmath_expr_extract_item(pattern, 1),
                   invoking_pattern,
                   name,
                   value));
@@ -2220,7 +2223,7 @@ static pmath_t replace_pattern_var(
     pattern = pmath_expr_set_item(
                 pattern, 2,
                 _pmath_replace_local(
-                  pmath_expr_get_item(pattern, 2),
+                  pmath_expr_extract_item(pattern, 2),
                   name,
                   value));
                   
@@ -2267,19 +2270,21 @@ static pmath_bool_t replace_exact_once(
   return FALSE;
 }
 
+// retains debug-info
 static pmath_t replace_option_value(
   pmath_t      body,            // will be freed
   pmath_t      default_head,
   pmath_expr_t optionvaluerules // form: <T> = <Function>(<OptionValueRules>,<T>)
 ) {
-  pmath_t head;
+  pmath_t head, debug_info;
   size_t i, len;
   
   if(!pmath_is_expr(body) || pmath_is_null(optionvaluerules))
     return body;
     
-  len  = pmath_expr_length(body);
-  head = pmath_expr_get_item(body, 0);
+  len        = pmath_expr_length(body);
+  head       = pmath_expr_get_item(body, 0);
+  debug_info = _pmath_expr_get_debug_info(body);
   
   if(pmath_same(head, PMATH_SYMBOL_OPTIONVALUE) && (len == 1 || len == 2 || len == 4)) {
     pmath_t current_fn;
@@ -2337,6 +2342,8 @@ static pmath_t replace_option_value(
             pmath_unref(tmp);
           }
           
+          body = _pmath_expr_set_debug_info(body, debug_info);
+          
           pmath_unref(fn);
           pmath_unref(iter_optionvaluerules);
           pmath_unref(head);
@@ -2350,6 +2357,7 @@ static pmath_t replace_option_value(
       iter_optionvaluerules = pmath_expr_get_item(tmp, 2);
       pmath_unref(tmp);
     } while(!pmath_is_null(iter_optionvaluerules));
+    
     pmath_unref(current_fn);
   }
   
@@ -2365,6 +2373,8 @@ static pmath_t replace_option_value(
                default_head,
                optionvaluerules));
   }
+
+  body = _pmath_expr_set_debug_info(body, debug_info);
   
   return body;
 }
@@ -2420,6 +2430,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
   return FALSE;
 }
 
+// retains debug-info
 static void preprocess_local_one(
   pmath_expr_t *local_expr,
   pmath_t      *def
@@ -2446,6 +2457,7 @@ static void preprocess_local_one(
       obj = pmath_expr_get_item(*def, 1);
       
       if(pmath_is_symbol(obj)) {
+        pmath_t debug_info = _pmath_expr_get_debug_info(*def);
         pmath_symbol_t newsym = pmath_symbol_create_temporary(
                                   pmath_symbol_name(obj),
                                   FALSE);
@@ -2453,6 +2465,7 @@ static void preprocess_local_one(
         *local_expr = _pmath_replace_local(*local_expr, obj, newsym);
         
         *def = pmath_expr_set_item(*def, 1, newsym);
+        *def = _pmath_expr_set_debug_info(*def, debug_info);
       }
       
       pmath_unref(obj);
@@ -2460,38 +2473,43 @@ static void preprocess_local_one(
   }
 }
 
+// retains debug-info
 PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   pmath_expr_t local_expr // will be freed.
 ) {
-  pmath_expr_t defs = pmath_expr_get_item(local_expr, 1);
-  pmath_t def;
+  pmath_expr_t defs = pmath_expr_extract_item(local_expr, 1);
+  pmath_t debug_info;
   size_t i;
   
-  local_expr = pmath_expr_set_item(local_expr, 1, PMATH_NULL);
-  
-  if(!pmath_is_expr_of(defs, PMATH_SYMBOL_LIST)) {
-    preprocess_local_one(&local_expr, &defs);
-    return pmath_expr_set_item(local_expr, 1, defs);
-  }
-  
-  for(i = pmath_expr_length(defs); i > 0; --i) {
-    def = pmath_expr_get_item(defs, i);
+  if(pmath_is_expr_of(defs, PMATH_SYMBOL_LIST)) {
+    debug_info = _pmath_expr_get_debug_info(defs);
     
-    defs = pmath_expr_set_item(defs, i, PMATH_NULL);
-    preprocess_local_one(&local_expr, &def);
-    defs = pmath_expr_set_item(defs, i, def);
+    for(i = pmath_expr_length(defs); i > 0; --i) {
+      pmath_t def = pmath_expr_extract_item(defs, i);
+      preprocess_local_one(&local_expr, &def);
+      defs = pmath_expr_set_item(defs, i, def);
+    }
+    
+    defs = _pmath_expr_set_debug_info(defs, debug_info);
   }
+  else
+    preprocess_local_one(&local_expr, &defs);
+    
+  debug_info = _pmath_expr_get_debug_info(local_expr);
+  local_expr = pmath_expr_set_item(local_expr, 1, defs);
+  local_expr = _pmath_expr_set_debug_info(local_expr, debug_info);
   
-  return pmath_expr_set_item(local_expr, 1, defs);
+  return local_expr;
 }
 
+// retains debug-info
 PMATH_PRIVATE pmath_t _pmath_replace_local(
   pmath_t  object, // will be freed
   pmath_t  name,
   pmath_t  value
 ) {
   pmath_bool_t do_flatten;
-  pmath_t item;
+  pmath_t item, debug_info;
   size_t i, len;
   
   if(pmath_equals(object, name)) {
@@ -2502,6 +2520,8 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
   if(!pmath_is_expr(object))
     return object;
     
+  debug_info = _pmath_expr_get_debug_info(object);
+  
   item = pmath_expr_get_item(object, 0);
   
   if( (pmath_same(item, PMATH_SYMBOL_FUNCTION) ||
@@ -2535,18 +2555,21 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
   }
   
   if(do_flatten)
-    return pmath_expr_flatten(object, MAGIC_PATTERN_SEQUENCE, 1);
+    object = pmath_expr_flatten(object, MAGIC_PATTERN_SEQUENCE, 1);
     
+  object = _pmath_expr_set_debug_info(object, debug_info);
+  
   return object;
 }
 
+// retains debug-info
 static pmath_t replace_multiple(
   pmath_t           object,        // will be freed
   pmath_hashtable_t replacements   // entries are pmath_ht_obj_entry_t*
 ) {
   struct _pmath_object_entry_t *entry = pmath_ht_search(replacements, &object);
   pmath_bool_t do_flatten;
-  pmath_t item;
+  pmath_t item, debug_info;
   size_t i, len;
   
   if(entry) {
@@ -2557,7 +2580,8 @@ static pmath_t replace_multiple(
   if(!pmath_is_expr(object))
     return object;
     
-  item = pmath_expr_get_item(object, 0);
+  debug_info = _pmath_expr_get_debug_info(object);
+  item       = pmath_expr_get_item(object, 0);
   
   if( (pmath_same(item, PMATH_SYMBOL_FUNCTION) ||
        pmath_same(item, PMATH_SYMBOL_LOCAL)    ||
@@ -2593,8 +2617,9 @@ static pmath_t replace_multiple(
   }
   
   if(do_flatten)
-    return pmath_expr_flatten(object, MAGIC_PATTERN_SEQUENCE, 1);
+    object = pmath_expr_flatten(object, MAGIC_PATTERN_SEQUENCE, 1);
     
+  object = _pmath_expr_set_debug_info(object, debug_info);
   return object;
 }
 

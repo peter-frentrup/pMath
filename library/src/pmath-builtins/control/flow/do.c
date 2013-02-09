@@ -28,12 +28,12 @@ static void set_value_untracked(pmath_symbol_t sym, pmath_t value) {
 
 PMATH_PRIVATE void _pmath_iterate(
   pmath_t             iter, // will be freed
-  void (*init)(size_t, pmath_symbol_t, void*),
-  pmath_bool_t (*next)(void*),
+  void              (*init)(size_t, pmath_symbol_t, void *),
+  pmath_bool_t      (*next)(void *),
   void               *data
 ) {
   pmath_thread_t thread = pmath_thread_get_current();
-  size_t count;
+  size_t         count;
   
   if(!thread) {
     pmath_unref(iter);
@@ -189,7 +189,7 @@ PMATH_PRIVATE pmath_t builtin_do(pmath_expr_t expr) {
        General::iter
        General::iterb
    */
-  pmath_t            iter;
+  pmath_t                   iter;
   struct iterate_do_data_t  data;
   
   if(pmath_expr_length(expr) != 2) {
@@ -205,8 +205,8 @@ PMATH_PRIVATE pmath_t builtin_do(pmath_expr_t expr) {
   
   _pmath_iterate(
     iter,
-    (void(*)(size_t, pmath_symbol_t, void*)) init_do,
-    (pmath_bool_t(*)(void*))               do_next,
+    (void( *)(size_t, pmath_symbol_t, void *)) init_do,
+    (pmath_bool_t( *)(void *))                 do_next,
     &data);
     
   pmath_unref(data.body);

@@ -1222,7 +1222,7 @@
 			</AutoVersioning>
 			<DoxyBlocks>
 				<comment_style block="0" line="2" />
-				<doxyfile_project project_number="0.2.192" use_auto_version="1" />
+				<doxyfile_project project_number="0.2.194" use_auto_version="1" />
 				<doxyfile_build />
 				<doxyfile_warnings />
 				<doxyfile_output html_help="1" xml="1" />

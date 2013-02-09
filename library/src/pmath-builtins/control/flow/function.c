@@ -10,30 +10,36 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
 
+// retains debug-info
 static pmath_t replace_purearg(
   pmath_t      function,  // will be freed
   pmath_expr_t arguments  // wont be freed
 ) {
   pmath_bool_t do_flatten = FALSE;
-  pmath_t head;
+  pmath_t head, debug_info;
   size_t i, len;
   
   if(!pmath_is_expr(function))
     return function;
     
-  head = pmath_expr_get_item(function, 0);
-  len = pmath_expr_length(function);
+  debug_info = _pmath_expr_get_debug_info(function);
+  head       = pmath_expr_get_item(function, 0);
+  len        = pmath_expr_length(function);
   
   if(pmath_same(head, PMATH_SYMBOL_FUNCTION)) {
     pmath_unref(head);
-    if(len == 1)
+    if(len == 1) {
+      pmath_unref(debug_info);
       return function;
-      
+    }
+    
     head = pmath_expr_get_item(function, 1);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_NULL))
+    if(pmath_same(head, PMATH_NULL)) {
+      pmath_unref(debug_info);
       return function;
+    }
   }
   else if(len == 1 && pmath_same(head, PMATH_SYMBOL_PUREARGUMENT)) {
     pmath_bool_t reverse;
@@ -46,9 +52,11 @@ static pmath_t replace_purearg(
     if(extract_range(pos, &min, &max, TRUE)) {
       pmath_unref(pos);
       pmath_unref(function);
-      if(min == max)
+      if(min == max) {
+        pmath_unref(debug_info);
         return pmath_expr_get_item(arguments, min);
-        
+      }
+      
       reverse = max < min;
       if(reverse) {
         len = min - max + 1;
@@ -70,6 +78,7 @@ static pmath_t replace_purearg(
         }
       }
       
+      function = _pmath_expr_set_debug_info(function, debug_info);
       return function;
     }
     
@@ -93,12 +102,13 @@ static pmath_t replace_purearg(
   }
   
   if(do_flatten) {
-    return pmath_expr_flatten(
-             function,
-             PMATH_UNDEFINED,
-             1);
+    function = pmath_expr_flatten(
+                 function,
+                 PMATH_UNDEFINED,
+                 1);
   }
   
+  function = _pmath_expr_set_debug_info(function, debug_info);
   return function;
 }
 

@@ -58,9 +58,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
   pmath_t           object,         // wont be freed
   pmath_hashtable_t replacements);  // entries are pmath_ht_obj_[int_]entry_t*
 
+// retains debug-info
 PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   pmath_expr_t local_expr); // will be freed.
 
+// retains debug-info
 PMATH_PRIVATE pmath_t _pmath_replace_local(
   pmath_t  object, // will be freed
   pmath_t  name,
