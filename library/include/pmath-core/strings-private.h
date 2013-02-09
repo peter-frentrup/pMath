@@ -65,7 +65,7 @@ PMATH_PRIVATE
 int _pmath_strings_compare(
   pmath_t strA,
   pmath_t strB);
-
+  
 PMATH_PRIVATE
 void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str);
 

@@ -290,8 +290,8 @@ pmath_span_array_t *pmath_spans_from_boxes(
 /**\brief Expand a string that contains boxes to a list of Strings and Boxes
    \relates pmath_string_t
    \param s  The string to be expanded. It will be freed.
-   \return A string if there is nothing to expand or an expression representing
-           s as boxes.
+   \return A string if there is nothing to expand or an expression with head 
+           ComplexStringBox representing s as boxes.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT

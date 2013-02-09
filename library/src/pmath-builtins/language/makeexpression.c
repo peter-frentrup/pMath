@@ -724,11 +724,14 @@ static pmath_t get_parser_argument_from_string(pmath_string_t string) { // will 
       argi = 10 * argi + str[i] - '0';
   }
   
-  pmath_unref(string);
   args = pmath_thread_local_load(PMATH_THREAD_KEY_PARSERARGUMENTS);
-  if(!pmath_is_expr(args))
-    return HOLDCOMPLETE(args);
-    
+  if(!pmath_is_expr(args)) {
+    pmath_message(PMATH_NULL, "inv", 1, string);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+    //return HOLDCOMPLETE(args);
+  }
+  
+  pmath_unref(string);
   result = pmath_expr_get_item(args, argi);
   pmath_unref(args);
   return HOLDCOMPLETE(result);

@@ -3,99 +3,18 @@
 #include <pmath-language/scanner.h>
 #include <pmath-language/tokens.h>
 
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/formating-private.h>
+#include <pmath-builtins/language-private.h>
 
+#include <limits.h>
 #include <string.h>
 
-PMATH_PRIVATE
-pmath_t _pmath_expand_string( // result is string or expression
-  pmath_string_t string // will be freed
-) {
-  const uint16_t *buf = pmath_string_buffer(&string);
-  int len = pmath_string_length(string);
-  
-  while(len-- > 0)
-    if(*buf++ == PMATH_CHAR_LEFT_BOX)
-      goto HAVE_STH_TO_EXPAND;
-      
-  return string;
-  
-HAVE_STH_TO_EXPAND:
-  {
-    int start, i;
-    buf = pmath_string_buffer(&string);
-    len = pmath_string_length(string);
-    
-    start = i = 0;
-    
-    pmath_gather_begin(PMATH_NULL);
-    
-    while(i < len) {
-      if(buf[i] == PMATH_CHAR_LEFT_BOX) {
-        int k;
-        
-        if(i > start) {
-          pmath_emit(
-            pmath_string_part(pmath_ref(string), start, i - start),
-            PMATH_NULL);
-        }
-        
-        start = ++i;
-        k = 1;
-        while(i < len) {
-          if(buf[i] == PMATH_CHAR_LEFT_BOX) {
-            ++k;
-          }
-          else if(buf[i] == PMATH_CHAR_RIGHT_BOX) {
-            if(--k == 0)
-              break;
-          }
-          ++i;
-        }
-        
-        pmath_emit(
-          pmath_parse_string(
-            pmath_string_part(
-              pmath_ref(string),
-              start,
-              i - start)),
-          PMATH_NULL);
-          
-        if(i < len)
-          ++i;
-          
-        start = i;
-      }
-      else
-        ++i;
-    }
-    
-    if(start < len) {
-      pmath_emit(
-        pmath_string_part(pmath_ref(string), start, len - start),
-        PMATH_NULL);
-    }
-    
-    pmath_unref(string);
-    
-    {
-      pmath_expr_t result = pmath_gather_end();
-      
-      if(pmath_expr_length(result) == 1) {
-        string = pmath_expr_get_item(result, 1);
-        pmath_unref(result);
-        return string;
-      }
-      
-      return result;
-    }
-  }
-}
 
 static pmath_bool_t has_param_placeholders(
   pmath_t box // wont be freed
@@ -132,7 +51,7 @@ static pmath_bool_t has_param_placeholders(
 
 typedef struct {
   pmath_expr_t formated_params;
-  size_t             current_param;
+  size_t       current_param;
 } _format_data_t;
 
 static pmath_t string_form(
@@ -251,7 +170,7 @@ static pmath_t string_form(
   
   if(pmath_is_expr(format)) {
     size_t i;
-    for(i = 1; i < pmath_expr_length(format); ++i)
+    for(i = 1; i <= pmath_expr_length(format); ++i)
       format = pmath_expr_set_item(
                  format, i,
                  string_form(
@@ -268,7 +187,7 @@ static pmath_t string_form(
 PMATH_PRIVATE
 pmath_bool_t _pmath_stringform_write(
   struct pmath_write_ex_t *info,
-  pmath_expr_t              stringform // wont be freed
+  pmath_expr_t             stringform // wont be freed
 ) {
   _format_data_t  data;
   pmath_t  result;
@@ -335,10 +254,11 @@ pmath_bool_t _pmath_stringform_write(
 
 PMATH_PRIVATE
 pmath_t _pmath_stringform_to_boxes(
-  pmath_expr_t  stringform // wont be freed
+  pmath_thread_t thread,
+  pmath_expr_t   stringform // wont be freed
 ) {
   _format_data_t  data;
-  pmath_t  result;
+  pmath_t         result;
   pmath_string_t  format;
   size_t i;
   
@@ -377,175 +297,65 @@ pmath_t _pmath_stringform_to_boxes(
   
   pmath_unref(data.formated_params);
   
-  if(pmath_is_expr(result)) {
-    struct _pmath_string_t *all;
-    uint16_t *buf;
-    int rlen = 2;
+  if(pmath_is_expr(result)){
+    size_t len;
+    pmath_t part;
     
-    for(i = 1; i <= pmath_expr_length(result); ++i) {
-      pmath_t item = pmath_expr_get_item(result, i);
-      pmath_string_t nitem = PMATH_NULL;
+    len = pmath_expr_length(result);
+    for(i = len; i > 0; --i) {
+      part = pmath_expr_extract_item(result, i);
       
-      if(pmath_is_string(item)) {
-        nitem = _pmath_string_escape(PMATH_NULL, item, PMATH_NULL, FALSE);
-      }
-      else {
-        static const uint16_t left  = PMATH_CHAR_LEFT_BOX;
-        static const uint16_t right = PMATH_CHAR_RIGHT_BOX;
-        nitem = pmath_string_insert_ucs2(PMATH_NULL, 0, &left, 1);
-        
-        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 1)) {
-          pmath_expr_t tmp = item;
-          item = pmath_expr_get_item(tmp, 1);
-          pmath_unref(tmp);
-        }
-        
-        pmath_write(
-          item,
-          PMATH_WRITE_OPTIONS_FULLSTR
-          | PMATH_WRITE_OPTIONS_INPUTEXPR,
-          (void(*)(void*, const uint16_t*, int))_pmath_write_to_string,
-          &nitem);
-          
-        nitem = pmath_string_insert_ucs2(
-                  nitem,
-                  pmath_string_length(nitem),
-                  &right,
-                  1);
-                  
-        pmath_unref(item);
+      if(pmath_is_string(part)) {
+        part = _pmath_escape_string(
+                 PMATH_NULL, 
+                 part, 
+                 PMATH_NULL, 
+                 thread->boxform >= BOXFORM_INPUT);
       }
       
-      rlen += pmath_string_length(nitem);
-      result = pmath_expr_set_item(result, i, nitem);
+      result = pmath_expr_set_item(result, i, part);
     }
     
-    all = _pmath_new_string_buffer(rlen);
-    if(all) {
-      buf = AFTER_STRING(all);
-      buf[0] = '"';
-      
-      rlen = 1;
-      for(i = 1; i <= pmath_expr_length(result); ++i) {
-        pmath_string_t si = pmath_expr_get_item(result, i);
-        
-        memcpy(
-          buf + rlen,
-          pmath_string_buffer(&si),
-          sizeof(uint16_t) * pmath_string_length(si));
-          
-        rlen += pmath_string_length(si);
-        
-        pmath_unref(si);
-      }
-      
-      assert(rlen + 1 == all->length);
-      
-      buf[rlen] = '"';
-      pmath_unref(result);
-      result = _pmath_from_buffer(all);
+    part = pmath_expr_extract_item(result, len);
+    if(pmath_is_string(part)) {
+      part = pmath_string_insert_latin1(part, INT_MAX, "\"", 1);
+      result = pmath_expr_set_item(result, len, part);
     }
+    else{
+      result = pmath_expr_set_item(result, len, part);
+      result = pmath_expr_append(result, 1, PMATH_C_STRING("\""));
+    }
+    
+    
+    part = pmath_expr_extract_item(result, 1);
+    if(pmath_is_string(part)) {
+      part = pmath_string_insert_latin1(part, 0, "\"", 1);
+      result = pmath_expr_set_item(result, 1, part);
+    }
+    else{
+      pmath_t tmp;
+      result = pmath_expr_set_item(result, 1, part);
+      tmp = pmath_expr_set_item(result, 0, PMATH_C_STRING("\""));
+      result = pmath_expr_get_item_range(tmp, 0, len + 1);
+      pmath_unref(tmp);
+    }
+    
+    result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
   }
   else if(pmath_is_string(result)) {
-    pmath_string_t quote = PMATH_C_STRING("\"");
-    
-    result = _pmath_string_escape(
-               pmath_ref(quote),
-               result,
-               pmath_ref(quote),
-               FALSE);
-               
-    pmath_unref(quote);
+    result = _pmath_escape_string(
+      PMATH_C_STRING("\""), 
+      result, 
+      PMATH_C_STRING("\""), 
+      thread->boxform >= BOXFORM_INPUT);
+      
+    result = pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX), 1,
+             result);
   }
   
   return pmath_expr_new_extended(
            pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
            result,
            pmath_ref(stringform));
-}
-
-PMATH_PRIVATE
-pmath_string_t _pmath_string_escape(
-  pmath_string_t  prefix,   // will be freed
-  pmath_string_t  string,   // will be freed
-  pmath_string_t  postfix,  // will be freed
-  pmath_bool_t    two_times
-) {
-  struct _pmath_string_t *result;
-  const uint16_t *buf;
-  uint16_t *rbuf;
-  int len, rlen, i, k;
-  
-  buf = pmath_string_buffer(&string);
-  len = pmath_string_length(string);
-  
-  rlen = 0;
-  k = 0;
-  for(i = 0; i < len; ++i) {
-    if(k == 0 && (buf[i] == '"' || buf[i] == '\\')) {
-      rlen += two_times ? 4 : 2;
-    }
-    else {
-      ++rlen;
-      
-      if(buf[i] == PMATH_CHAR_LEFT_BOX)
-        ++k;
-      else if(buf[i] == PMATH_CHAR_RIGHT_BOX)
-        --k;
-    }
-  }
-  
-  if(rlen == len)
-    return pmath_string_concat(pmath_string_concat(prefix, string), postfix);
-    
-  result = _pmath_new_string_buffer(
-             rlen +
-             pmath_string_length(prefix) +
-             pmath_string_length(postfix));
-             
-  if(!result) {
-    pmath_unref(string);
-    pmath_unref(prefix);
-    pmath_unref(postfix);
-    return PMATH_NULL;
-  }
-  
-  rlen = pmath_string_length(prefix);
-  
-  rbuf = AFTER_STRING(result);
-  memcpy(
-    rbuf,
-    pmath_string_buffer(&postfix),
-    sizeof(uint16_t) * rlen);
-  pmath_unref(prefix);
-  
-  k = 0;
-  for(i = 0; i < len; ++i) {
-    if(k == 0 && (buf[i] == '"' || buf[i] == '\\')) {
-      rbuf[rlen++] = '\\';
-      
-      if(two_times) {
-        rbuf[rlen++] = '\\';
-        rbuf[rlen++] = '\\';
-      }
-    }
-    else if(buf[i] == PMATH_CHAR_LEFT_BOX)
-      ++k;
-    else if(buf[i] == PMATH_CHAR_RIGHT_BOX)
-      --k;
-      
-    rbuf[rlen++] = buf[i];
-  }
-  
-  pmath_unref(string);
-  
-  assert(rlen + pmath_string_length(postfix) == result->length);
-  
-  memcpy(
-    rbuf + rlen,
-    pmath_string_buffer(&postfix),
-    sizeof(uint16_t) * pmath_string_length(postfix));
-  pmath_unref(postfix);
-  
-  return _pmath_from_buffer(result);
 }

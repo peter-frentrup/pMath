@@ -8,6 +8,8 @@
 #include <pmath-core/expressions.h>
 #include <pmath-core/strings.h>
 
+#include <pmath-util/concurrency/threads.h>
+
 /* This header exports all definitions of the sources in
    src/pmath-builtins/formating/
  */
@@ -28,21 +30,32 @@ pmath_bool_t _pmath_stringform_write(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_stringform_to_boxes(
-  pmath_expr_t  stringform); // stringform wont be freed
+  pmath_thread_t thread,
+  pmath_expr_t   stringform); // stringform wont be freed
 
 /* actually in pmath-core/string.c Should move to own file or stringform.c */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box);
 
+/* actually in pmath-core/string.c Should move to own file or stringform.c */
+// does not add enclosing \" or
+PMATH_PRIVATE
+void _pmath_string_write_escaped( 
+  pmath_string_t   str,     // wont be freed
+  pmath_bool_t     only_ascii,
+  void           (*write)(void *user, const uint16_t *data, int len),
+  void            *user);
+
+/* actually in pmath-core/string.c Should move to own file or stringform.c */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_string_t _pmath_string_escape(
-  pmath_string_t  prefix,   // will be freed
-  pmath_string_t  string,   // will be freed
-  pmath_string_t  postfix,  // will be freed
-  pmath_bool_t    two_times);
-
+pmath_t _pmath_escape_string(
+  pmath_string_t prefix, // will be freed
+  pmath_string_t string, // will be freed
+  pmath_string_t suffix, // will be freed
+  pmath_bool_t   only_ascii);
+  
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_prepare_shallow(

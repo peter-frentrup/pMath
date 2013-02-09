@@ -2435,12 +2435,6 @@ static void ungroup(
       size_t i, len;
       int start = g->pos;
       pmath_span_t *s;
-      pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
-      
-      if(old) {
-        pmath_debug_print("[ungroup(): unexpected span in ComplexStringBox]\n");
-      }
-      
       len = pmath_expr_length(box);
       
       for(i = 1; i <= len; ++i) {
@@ -2463,7 +2457,15 @@ static void ungroup(
       if(g->pos > start) {
         s = pmath_mem_alloc(sizeof(pmath_span_t));
         if(s) {
-          s->next = old;
+          pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
+          
+          while(old) {
+            pmath_span_t *s = old->next;
+            pmath_mem_free(old);
+            old = s;
+          }
+          
+          s->next = NULL;
           s->end = g->pos - 1;
           g->spans->items[start] = (uintptr_t)s | 2; // operand start
         }
@@ -2524,6 +2526,76 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
 
 //} ... ungroup spans
 
+static void quiet_syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
+  pmath_bool_t *have_critical = flag;
+  
+  if(critical)
+    *have_critical = TRUE;
+}
+
+static pmath_t quiet_parse(pmath_t str) {
+  pmath_bool_t error_flag = FALSE;
+  pmath_t result;
+  pmath_span_array_t *spans;
+  struct pmath_boxes_from_spans_ex_t settings;
+  pmath_t message_name;
+  pmath_t on_off;
+  
+  spans = pmath_spans_from_string(
+            &str,
+            NULL,
+            NULL,
+            NULL,
+            quiet_syntax_error,
+            &error_flag);
+  
+  if(error_flag) {
+    pmath_span_array_free(spans);
+    pmath_unref(str);
+    return PMATH_UNDEFINED;
+  }
+            
+  memset(&settings, 0, sizeof(settings));
+  settings.size  = sizeof(settings);
+  settings.flags = PMATH_BFS_PARSEABLE;
+  
+  result = pmath_boxes_from_spans_ex(spans, str, &settings);
+             
+  pmath_span_array_free(spans);
+  pmath_unref(str);
+  
+  message_name = pmath_expr_new_extended(
+                   pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+                   pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION),
+                   PMATH_C_STRING("inv"));
+                   
+  // Off(MakeExpression::inv)
+  on_off = pmath_thread_local_save(
+             message_name,
+             pmath_ref(PMATH_SYMBOL_OFF));
+             
+  result = pmath_evaluate(
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+               result));
+              
+  pmath_unref(
+    pmath_thread_local_save(
+      message_name,
+      on_off));
+      
+  pmath_unref(message_name);
+   
+  if(pmath_is_expr_of_len(result, PMATH_SYMBOL_HOLDCOMPLETE, 1)) {
+    pmath_t value = pmath_expr_get_item(result, 1);
+    pmath_unref(result);
+    return value;
+  }
+  
+  pmath_unref(result);
+  return PMATH_UNDEFINED;
+}
+
 PMATH_API
 pmath_t pmath_string_expand_boxes(
   pmath_string_t  s
@@ -2550,12 +2622,8 @@ HAVE_STH_TO_EXPAND:
     while(i < len) {
       if(buf[i] == PMATH_CHAR_LEFT_BOX) {
         int k;
-        
-        if(i > start) {
-          pmath_emit(
-            pmath_string_part(pmath_ref(s), start, i - start),
-            PMATH_NULL);
-        }
+        int pre_start = start;
+        int pre_end   = i;
         
         start = ++i;
         k = 1;
@@ -2564,24 +2632,29 @@ HAVE_STH_TO_EXPAND:
             ++k;
           }
           else if(buf[i] == PMATH_CHAR_RIGHT_BOX) {
-            if(--k == 0)
+            if(--k == 0) {
+              pmath_t box = pmath_string_part(pmath_ref(s), start, i - start);
+              
+              box = quiet_parse(box);
+              
+              if(!pmath_same(box, PMATH_UNDEFINED)) {
+              
+                if(pre_end > pre_start) {
+                  pmath_emit(
+                    pmath_string_part(pmath_ref(s), pre_start, pre_end - pre_start),
+                    PMATH_NULL);
+                }
+                
+                pmath_emit(box, PMATH_NULL); box = PMATH_NULL;
+                
+                start = ++i;
+              }
+              
               break;
+            }
           }
           ++i;
         }
-        
-        pmath_emit(
-          pmath_parse_string(
-            pmath_string_part(
-              pmath_ref(s),
-              start,
-              i - start)),
-          PMATH_NULL);
-          
-        if(i < len)
-          ++i;
-          
-        start = i;
       }
       else
         ++i;
@@ -2604,6 +2677,7 @@ HAVE_STH_TO_EXPAND:
         return s;
       }
       
+      result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
       return result;
     }
   }

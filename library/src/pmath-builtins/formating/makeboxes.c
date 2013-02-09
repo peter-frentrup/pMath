@@ -1,7 +1,9 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/strings-private.h>
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-language/patterns-private.h>
+#include <pmath-language/scanner.h>
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads-private.h>
@@ -19,6 +21,7 @@
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -3104,7 +3107,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
         return skeleton_to_boxes(thread, expr);
         
       if(pmath_same(head, PMATH_SYMBOL_STRINGFORM)) {
-        pmath_t res = _pmath_stringform_to_boxes(expr);
+        pmath_t res = _pmath_stringform_to_boxes(thread, expr);
         
         if(!pmath_is_null(res)) {
           pmath_unref(expr);
@@ -3200,6 +3203,68 @@ static pmath_bool_t user_make_boxes(pmath_t *obj) {
   return FALSE;
 }
 
+static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
+  size_t i, len;
+  pmath_t part;
+  
+  obj = pmath_string_expand_boxes(obj);
+  
+  if(pmath_is_string(obj)) {
+    obj = _pmath_escape_string(
+      PMATH_C_STRING("\""), 
+      obj, 
+      PMATH_C_STRING("\""), 
+      thread->boxform >= BOXFORM_INPUT);
+      
+    return pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX), 1,
+             obj);
+  }
+  
+  len = pmath_expr_length(obj);
+  for(i = len; i > 0; --i) {
+    part = pmath_expr_extract_item(obj, i);
+    
+    if(pmath_is_string(part)) {
+      part = _pmath_escape_string(
+               PMATH_NULL, 
+               part, 
+               PMATH_NULL, 
+               thread->boxform >= BOXFORM_INPUT);
+    }
+    
+    obj = pmath_expr_set_item(obj, i, part);
+  }
+  
+  part = pmath_expr_extract_item(obj, len);
+  if(pmath_is_string(part)) {
+    part = pmath_string_insert_latin1(part, INT_MAX, "\"", 1);
+    obj = pmath_expr_set_item(obj, len, part);
+  }
+  else{
+    obj = pmath_expr_set_item(obj, len, part);
+    obj = pmath_expr_append(obj, 1, PMATH_C_STRING("\""));
+  }
+  
+  
+  part = pmath_expr_extract_item(obj, 1);
+  if(pmath_is_string(part)) {
+    part = pmath_string_insert_latin1(part, 0, "\"", 1);
+    obj = pmath_expr_set_item(obj, 1, part);
+  }
+  else{
+    pmath_t tmp;
+    obj = pmath_expr_set_item(obj, 1, part);
+    tmp = pmath_expr_set_item(obj, 0, PMATH_C_STRING("\""));
+    obj = pmath_expr_get_item_range(tmp, 0, len + 1);
+    pmath_unref(tmp);
+  }
+  
+  obj = pmath_expr_set_item(obj, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
+  
+  return obj;
+}
+
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
   if(pmath_is_double(obj) || pmath_is_int32(obj)) {
     pmath_string_t s = PMATH_NULL;
@@ -3221,16 +3286,17 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
   }
   
   if(pmath_is_ministr(obj)) {
-    pmath_string_t quote = PMATH_C_STRING("\"");
-    
-    obj = _pmath_string_escape(
-            pmath_ref(quote),
-            obj,
-            pmath_ref(quote),
-            thread->boxform >= BOXFORM_INPUT);
-            
-    pmath_unref(quote);
-    return obj;
+    return string_to_complexstringbox(thread, obj);
+//    pmath_string_t quote = PMATH_C_STRING("\"");
+//
+//    obj = _pmath_string_escape(
+//            pmath_ref(quote),
+//            obj,
+//            pmath_ref(quote),
+//            FALSE/*thread->boxform >= BOXFORM_INPUT*/);
+//
+//    pmath_unref(quote);
+//    return obj;
   }
   
   if(!pmath_is_pointer(obj)) {
@@ -3369,16 +3435,17 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
       }
       
     case PMATH_TYPE_SHIFT_BIGSTRING: {
-        pmath_string_t quote = PMATH_C_STRING("\"");
-        
-        obj = _pmath_string_escape(
-                pmath_ref(quote),
-                obj,
-                pmath_ref(quote),
-                thread->boxform >= BOXFORM_INPUT);
-                
-        pmath_unref(quote);
-        return obj;
+        return string_to_complexstringbox(thread, obj);
+//        pmath_string_t quote = PMATH_C_STRING("\"");
+//
+//        obj = _pmath_string_escape(
+//                pmath_ref(quote),
+//                obj,
+//                pmath_ref(quote),
+//                FALSE/*thread->boxform >= BOXFORM_INPUT*/);
+//
+//        pmath_unref(quote);
+//        return obj;
       }
   }
   
