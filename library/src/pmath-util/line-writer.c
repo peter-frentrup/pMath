@@ -4,6 +4,7 @@
 #include <pmath-core/strings-private.h>
 
 #include <pmath-util/evaluation.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -38,6 +39,7 @@ struct linewriter_t {
   
   int                    indentation_width;
   pmath_write_options_t  next_options;
+  pmath_bool_t           is_inside_rawboxes;
   
   void  *user;
   void (*write)(void *, const uint16_t *, int);
@@ -484,9 +486,21 @@ static void pre_write(void *user, pmath_t item, pmath_write_options_t options) {
   struct linewriter_t *lw = user;
   struct write_pos_t  *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
   
-  if(!pmath_is_string(item))
-    lw->expr_depth++;
+  if(!pmath_is_string(item)) {
+    if( 0 == (options & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
+        pmath_is_expr_of_len(item, PMATH_SYMBOL_RAWBOXES, 1))
+    {
+      lw->is_inside_rawboxes = TRUE;
+    }
     
+    if(lw->is_inside_rawboxes) {
+      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST))
+        lw->expr_depth++;
+    }
+    else
+      lw->expr_depth++;
+  }
+  
   lw->next_options = options;
   
   if(wp) {
@@ -503,9 +517,21 @@ static void post_write(void *user, pmath_t item, pmath_write_options_t options) 
   struct linewriter_t *lw = user;
   struct write_pos_t  *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
   
-  if(!pmath_is_string(item))
-    lw->expr_depth--;
+  if(!pmath_is_string(item)) {
+    if(lw->is_inside_rawboxes) {
+      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST))
+        lw->expr_depth--;
+    }
+    else
+      lw->expr_depth--;
     
+    if( 0 == (options & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
+        pmath_is_expr_of_len(item, PMATH_SYMBOL_RAWBOXES, 1))
+    {
+      lw->is_inside_rawboxes = FALSE;
+    }
+  }
+  
   if(lw->prev_depth > lw->expr_depth)
     lw->prev_depth = lw->expr_depth;
     
@@ -580,6 +606,7 @@ void pmath_write_with_pagewidth(
   lw.prev_depth           = 0;
   lw.indentation_width    = indentation_width;
   lw.next_options         = 0;
+  lw.is_inside_rawboxes   = FALSE;
   lw.write                = write;
   lw.user                 = user;
   

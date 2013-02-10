@@ -436,28 +436,80 @@ static void call_old_pre_write(void *user, pmath_t obj, pmath_write_options_t op
   old_info->pre_write(old_info->user, obj, options);
 }
 
+static void get_token_spacing(pmath_string_t token, const char **pre, const char **post) {
+  pmath_token_t tok;
+  int prec;
+  
+  *pre  = "";
+  *post = "";
+  
+  tok = pmath_token_analyse(pmath_string_buffer(&token), pmath_string_length(token), &prec);
+  
+  if(prec <= PMATH_PREC_ANY) {
+  }
+  else if(prec <= PMATH_PREC_MODY) {
+    *post = " ";
+  }
+  else if(prec == PMATH_PREC_FUNC) {
+    *pre  = " ";
+  }
+  else if(prec <= PMATH_PREC_PLUMI) {
+    *pre  = " ";
+    *post = " ";
+  }
+}
+
 static void call_old_post_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct pmath_write_ex_t *old_info = user;
   
   old_info->post_write(old_info->user, obj, options);
 }
 
-PMATH_PRIVATE
-void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
+static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
   if(pmath_is_string(box)) {
+    const char *pre;
+    const char *post;
+    
+    get_token_spacing(box, &pre, &post);
+    
+    if(*pre)
+      write_cstr(pre, info->write, info->user);
+    
     info->write(info->user, pmath_string_buffer(&box), pmath_string_length(box));
+    
+    if(*post)
+      write_cstr(post, info->write, info->user);
+    
     return;
   }
   
   if( pmath_is_expr_of(box, PMATH_SYMBOL_LIST) ||
-      pmath_is_expr_of(box, PMATH_NULL) ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_COMPLEXSTRINGBOX))
+      pmath_is_expr_of(box, PMATH_NULL))
   {
     size_t i;
     
     for(i = 1; i <= pmath_expr_length(box); ++i) {
       pmath_t part = pmath_expr_get_item(box, i);
+      
       _pmath_write_boxes(info, part);
+        
+      pmath_unref(part);
+    }
+    
+    return;
+  }
+  
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_COMPLEXSTRINGBOX)) {
+    size_t i;
+    
+    for(i = 1; i <= pmath_expr_length(box); ++i) {
+      pmath_t part = pmath_expr_get_item(box, i);
+      
+      if(pmath_is_string(part))
+        info->write(info->user, pmath_string_buffer(&part), pmath_string_length(part));
+      else
+        _pmath_write_boxes(info, part);
+        
       pmath_unref(part);
     }
     
@@ -509,7 +561,8 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
   
-  if( pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)   ||
+  if( pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)       ||
+      pmath_is_expr_of(box, PMATH_SYMBOL_TOOLTIPBOX)   ||
       pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
   {
     pmath_t part = pmath_expr_get_item(box, 1);
@@ -619,6 +672,17 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
   }
   
   pmath_write_ex(info, box);
+}
+
+PMATH_PRIVATE
+void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
+  if(info->pre_write)
+    info->pre_write(info->user, box, info->options);
+    
+  write_boxes_impl(info, box);
+  
+  if(info->post_write)
+    info->post_write(info->user, box, info->options);
 }
 
 PMATH_PRIVATE
