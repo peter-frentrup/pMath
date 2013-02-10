@@ -1,6 +1,8 @@
 #include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
 
+#include <pmath-builtins/all-symbols-private.h>
+
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -110,15 +112,31 @@ PMATH_API void pmath_debug_print_object(
   }
 }
 
-static pmath_bool_t stack_walker(pmath_t head, void *p) {
-  pmath_debug_print_object("  in ", head, "\n");
+static pmath_bool_t stack_walker(pmath_t head, pmath_t debug_info, void *p) {
+  pmath_debug_print_object("\n  in ", head, "");
+  
+  if(!pmath_is_null(debug_info)){
+    if(pmath_is_expr_of_len(debug_info, PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE, 2)) {
+      pmath_t file = pmath_expr_get_item(debug_info, 1);
+      pmath_t pos = pmath_expr_get_item(debug_info, 2);
+      
+      pmath_debug_print_object(" from ", file, ", ");
+      pmath_debug_print_object("", pos, "");
+      
+      pmath_unref(file);
+      pmath_unref(pos);
+    }
+    else
+      pmath_debug_print_object(" from ", debug_info, "");
+  }
   
   return TRUE;
 }
 
 PMATH_API void pmath_debug_print_stack(void) {
-  pmath_debug_print("pMath stack:\n");
-  pmath_walk_stack(stack_walker, NULL);
+  pmath_debug_print("pMath stack:");
+  pmath_walk_stack_2(stack_walker, NULL);
+  pmath_debug_print("\n");
 }
 
 PMATH_API

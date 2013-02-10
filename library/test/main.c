@@ -8,6 +8,10 @@
 
 #include <pmath.h>
 
+#ifdef pmath_debug_print_stack
+#  undef pmath_debug_print_stack
+#endif
+
 static void os_init(void);
 
 #ifdef PMATH_OS_WIN32
@@ -552,7 +556,7 @@ static void interrupt_callback(void *dummy) {
   
   pmath_suspend_all_please();
   
-  while(!quitting && !pmath_aborting()) {
+  while(!quitting/* && !pmath_aborting()*/) {
     pmath_unref(line);
     pmath_unref(word);
     
@@ -567,6 +571,13 @@ static void interrupt_callback(void *dummy) {
       write_line("aborting...\n");
       pmath_abort_please();
       break;
+    }
+    
+    if( pmath_string_equals_latin1(word, "bt") ||
+        pmath_string_equals_latin1(word, "backtrace"))
+    {
+      pmath_debug_print_stack();
+      continue;
     }
     
     if( pmath_string_equals_latin1(word, "c") ||
@@ -598,9 +609,10 @@ static void interrupt_callback(void *dummy) {
     
     write_line(
       "possible commands are:\n"
-      "  a, abort     Abort the current evaluation.\n"
-      "  c, continue  Continue the current evaluation.\n"
-      "  i, inspect   Enter an interactive dialog.\n");
+      "  a, abort       Abort the current evaluation.\n"
+      "  bt, backtrace  Show the current evaluation stack.\n"
+      "  c, continue    Continue the current evaluation.\n"
+      "  i, inspect     Enter an interactive dialog and continue afterwards.\n");
   }
   
   pmath_unref(line);
