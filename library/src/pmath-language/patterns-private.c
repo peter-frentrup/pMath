@@ -2477,15 +2477,19 @@ static void preprocess_local_one(
 PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   pmath_expr_t local_expr // will be freed.
 ) {
-  pmath_expr_t defs = pmath_expr_extract_item(local_expr, 1);
+  pmath_expr_t defs = pmath_expr_get_item(local_expr, 1);
   pmath_t debug_info;
   size_t i;
+  
+  local_expr = pmath_expr_set_item(local_expr, 1, PMATH_NULL);
   
   if(pmath_is_expr_of(defs, PMATH_SYMBOL_LIST)) {
     debug_info = _pmath_expr_get_debug_info(defs);
     
     for(i = pmath_expr_length(defs); i > 0; --i) {
-      pmath_t def = pmath_expr_extract_item(defs, i);
+      pmath_t def = pmath_expr_get_item(defs, i);
+    
+      defs = pmath_expr_set_item(defs, i, PMATH_NULL);
       preprocess_local_one(&local_expr, &def);
       defs = pmath_expr_set_item(defs, i, def);
     }

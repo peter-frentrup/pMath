@@ -178,7 +178,7 @@ static pmath_t get_file(
               scanner_error,
               &info);
               
-    if(!info.err) {
+    if(!info.err && pmath_string_length(info.current_code) > 0) {
       result = pmath_boxes_from_spans_ex(
                  spans,
                  info.current_code,
