@@ -341,7 +341,7 @@ static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_
     
   code_buf = pmath_string_buffer(&data->code);
   
-  start_line = 1;
+  start_line   = 1;
   start_column = start;
   i = 0;
   while(i < start) {
@@ -351,9 +351,8 @@ static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_
     }
   }
   
-  end_line = start_line;
-  end_line = start_line;
-  end_column = end - start_column;
+  end_line   = start_line;
+  end_column = end - start + start_column;
   while(i < end) {
     if(code_buf[i++] == '\n') {
       ++end_line;

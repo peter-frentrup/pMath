@@ -1,0 +1,659 @@
+/* pMath Document */
+
+System`Document({
+  System`SectionGroup({System`Section("Developer`InspectBoxes", "Title"), 
+    System`SectionGroup({
+      System`Section(System`BoxData({
+         "Block", "(", {
+          {"{", {"$NamespacePath", "\[Assign]", {
+             "{", {System`ComplexStringBox("\"System`\""), ",", 
+              System`ComplexStringBox("\"System`Private`\"")}, "}"}}, "}"}, 
+          ",", {{{"$NewMessage", ".", "ToBoxes"}, ".", 
+            "Developer`InspectBoxes"}, ".", "RawBoxes"}}, ")"}), "Input", 
+       System`SectionLabel -> "in [48]:"), 
+      System`Section(System`BoxData({
+         System`TooltipBox(System`StyleBox("Function", 
+           System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+           {"Function", "(", "\[Ellipsis]", ")"}, "\n", 
+           System`InterpretationBox({
+             System`ComplexStringBox(
+              "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\
+              \\maininit.pmath\""), ",", {
+              {"(", {"21", "\[Colon]", "14"}, ")"}, "..", {
+               "(", {"36", "\[Colon]", "9"}, ")"}}}, 
+            System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pma\
+              th", System`Colon(21, 14) .. System`Colon(36, 9)}, ","))}), 
+         System`TooltipBox(System`StyleBox("(", 
+           System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+           {"Function", "(", "\[Ellipsis]", ")"}, "\n", 
+           System`InterpretationBox({
+             System`ComplexStringBox(
+              "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\
+              \\maininit.pmath\""), ",", {
+              {"(", {"21", "\[Colon]", "14"}, ")"}, "..", {
+               "(", {"36", "\[Colon]", "9"}, ")"}}}, 
+            System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pma\
+              th", System`Colon(21, 14) .. System`Colon(36, 9)}, ","))}), {
+          {System`TooltipBox(System`StyleBox("{", 
+             System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+             {"{", "\[Ellipsis]", "}"}, "\n", 
+             System`InterpretationBox({
+               System`ComplexStringBox(
+                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
+                \\\\maininit.pmath\""), ",", {
+                {"(", {"21", "\[Colon]", "23"}, ")"}, "..", {
+                 "(", {"21", "\[Colon]", "13"}, ")"}}}, 
+              System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.p\
+                math", System`Colon(21, 23) .. System`Colon(21, 13)}, ","))}), 
+           {"symbol", ",", "tag"}, System`TooltipBox(
+            System`StyleBox("}", System`FontColor -> System`RGBColor(1, 0.5`, 
+              0)), {{"{", "\[Ellipsis]", "}"}, "\n", 
+             System`InterpretationBox({
+               System`ComplexStringBox(
+                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
+                \\\\maininit.pmath\""), ",", {
+                {"(", {"21", "\[Colon]", "23"}, ")"}, "..", {
+                 "(", {"21", "\[Colon]", "13"}, ")"}}}, 
+              System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.p\
+                math", System`Colon(21, 23) .. System`Colon(21, 13)}, 
+               ","))})}, ",", {
+           System`TooltipBox(System`StyleBox("Local", 
+             System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+             {"Local", "(", "\[Ellipsis]", ")"}, "\n", 
+             System`InterpretationBox({
+               System`ComplexStringBox(
+                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
+                \\\\maininit.pmath\""), ",", {
+                {"(", {"22", "\[Colon]", "1"}, ")"}, "..", {
+                 "(", {"35", "\[Colon]", "3"}, ")"}}}, 
+              System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.p\
+                math", System`Colon(22, 1) .. System`Colon(35, 3)}, ","))}), 
+           System`TooltipBox(System`StyleBox("(", 
+             System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+             {"Local", "(", "\[Ellipsis]", ")"}, "\n", 
+             System`InterpretationBox({
+               System`ComplexStringBox(
+                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
+                \\\\maininit.pmath\""), ",", {
+                {"(", {"22", "\[Colon]", "1"}, ")"}, "..", {
+                 "(", {"35", "\[Colon]", "3"}, ")"}}}, 
+              System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.p\
+                math", System`Colon(22, 1) .. System`Colon(35, 3)}, ","))}), {
+            {System`TooltipBox(System`StyleBox("{", 
+               System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+               {"{", "\[Ellipsis]", "}"}, "\n", 
+               System`InterpretationBox({
+                 System`ComplexStringBox(
+                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
+                  ts\\\\maininit.pmath\""), ",", {
+                  {"(", {"22", "\[Colon]", "7"}, ")"}, "..", {
+                   "(", {"22", "\[Colon]", "73"}, ")"}}}, 
+                System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
+                  .pmath", System`Colon(22, 7) .. System`Colon(22, 73)}, 
+                 ","))}), {"namespace", ",", "name", ",", "pattern", ",", 
+              "matches"}, System`TooltipBox(
+              System`StyleBox("}", System`FontColor -> System`RGBColor(1, 
+                0.5`, 0)), {{"{", "\[Ellipsis]", "}"}, "\n", 
+               System`InterpretationBox({
+                 System`ComplexStringBox(
+                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
+                  ts\\\\maininit.pmath\""), ",", {
+                  {"(", {"22", "\[Colon]", "7"}, ")"}, "..", {
+                   "(", {"22", "\[Colon]", "73"}, ")"}}}, 
+                System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
+                  .pmath", System`Colon(22, 7) .. System`Colon(22, 73)}, 
+                 ","))})}, ",", {
+             System`TooltipBox(System`StyleBox("Try", 
+               System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+               {"Try", "(", "\[Ellipsis]", ")"}, "\n", 
+               System`InterpretationBox({
+                 System`ComplexStringBox(
+                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
+                  ts\\\\maininit.pmath\""), ",", {
+                  {"(", {"23", "\[Colon]", "2"}, ")"}, "..", {
+                   "(", {"34", "\[Colon]", "4"}, ")"}}}, 
+                System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
+                  .pmath", System`Colon(23, 2) .. System`Colon(34, 4)}, 
+                 ","))}), System`TooltipBox(System`StyleBox("(", 
+               System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+               {"Try", "(", "\[Ellipsis]", ")"}, "\n", 
+               System`InterpretationBox({
+                 System`ComplexStringBox(
+                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
+                  ts\\\\maininit.pmath\""), ",", {
+                  {"(", {"23", "\[Colon]", "2"}, ")"}, "..", {
+                   "(", {"34", "\[Colon]", "4"}, ")"}}}, 
+                System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
+                  .pmath", System`Colon(23, 2) .. System`Colon(34, 4)}, 
+                 ","))}), {{"namespace", System`TooltipBox(System`StyleBox("\[Assign]", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"24", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"24", "\[Colon]", "118"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(24, 3) .. System`Colon(24, 118)}, 
+                   ","))}), {System`TooltipBox(System`StyleBox("Namespace", 
+                  System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                  {"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"24", "\[Colon]", "15"}, ")"}, "..", {
+                      "(", {"24", "\[Colon]", "106"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(24, 15) .. System`Colon(24, 
+                      106)}, ","))}), System`TooltipBox(
+                 System`StyleBox("(", System`FontColor -> System`RGBColor(1, 
+                   0.5`, 0)), {{"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"24", "\[Colon]", "15"}, ")"}, "..", {
+                      "(", {"24", "\[Colon]", "106"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(24, 15) .. System`Colon(24, 
+                      106)}, ","))}), "symbol", 
+                System`TooltipBox(System`StyleBox(")", 
+                  System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                  {"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"24", "\[Colon]", "15"}, ")"}, "..", {
+                      "(", {"24", "\[Colon]", "106"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(24, 15) .. System`Colon(24, 
+                      106)}, ","))})}}, {";", "\n"}, {
+               "name", System`TooltipBox(System`StyleBox("\[Assign]", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"25", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"25", "\[Colon]", "148"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(25, 3) .. System`Colon(25, 148)}, 
+                   ","))}), {System`TooltipBox(System`StyleBox("SymbolName", 
+                  System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                  {"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"25", "\[Colon]", "10"}, ")"}, "..", {
+                      "(", {"25", "\[Colon]", "141"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(25, 10) .. System`Colon(25, 
+                      141)}, ","))}), System`TooltipBox(
+                 System`StyleBox("(", System`FontColor -> System`RGBColor(1, 
+                   0.5`, 0)), {{"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"25", "\[Colon]", "10"}, ")"}, "..", {
+                      "(", {"25", "\[Colon]", "141"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(25, 10) .. System`Colon(25, 
+                      141)}, ","))}), "symbol", 
+                System`TooltipBox(System`StyleBox(")", 
+                  System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                  {"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"25", "\[Colon]", "10"}, ")"}, "..", {
+                      "(", {"25", "\[Colon]", "141"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(25, 10) .. System`Colon(25, 
+                      141)}, ","))})}}, {";", "\n"}, {
+               System`TooltipBox(System`StyleBox("If", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"26", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"26", "\[Colon]", "206"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(26, 3) .. System`Colon(26, 206)}, 
+                   ","))}), System`TooltipBox(System`StyleBox("(", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"26", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"26", "\[Colon]", "206"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(26, 3) .. System`Colon(26, 206)}, 
+                   ","))}), {{"namespace", System`TooltipBox(
+                  System`StyleBox("=!=", System`FontColor -> System`RGBColor(
+                    1, 0.5`, 0)), {{"\[Ellipsis]", "=!=", "\[Ellipsis]"}, 
+                   "\n", System`InterpretationBox({
+                     System`ComplexStringBox(
+                      "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\s\
+                      cripts\\\\maininit.pmath\""), ",", {
+                      {"(", {"26", "\[Colon]", "6"}, ")"}, "..", {
+                       "(", {"26", "\[Colon]", "176"}, ")"}}}, 
+                    System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\main\
+                      init.pmath", System`Colon(26, 6) .. System`Colon(26, 
+                       176)}, ","))}), System`StyleBox(
+                  System`ComplexStringBox("\"System`\""), 
+                  System`FontColor -> System`GrayLevel(0.5`))}, ",", {
+                 "name", System`TooltipBox(System`StyleBox("\[Assign]", 
+                   System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                   {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                   System`InterpretationBox({
+                     System`ComplexStringBox(
+                      "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\s\
+                      cripts\\\\maininit.pmath\""), ",", {
+                      {"(", {"26", "\[Colon]", "31"}, ")"}, "..", {
+                       "(", {"26", "\[Colon]", "177"}, ")"}}}, 
+                    System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\main\
+                      init.pmath", System`Colon(26, 31) .. System`Colon(26, 
+                       177)}, ","))}), {"namespace", 
+                  System`TooltipBox(System`StyleBox("++", 
+                    System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
+                    System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"26", "\[Colon]", "38"}, ")"}, "..", {
+                        "(", {"26", "\[Colon]", "170"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(26, 38) .. System`Colon(26, 
+                        170)}, ","))}), "name"}}}, 
+               System`TooltipBox(System`StyleBox(")", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"26", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"26", "\[Colon]", "206"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(26, 3) .. System`Colon(26, 206)}, 
+                   ","))})}, {";", "\n"}, {
+               System`TooltipBox(System`StyleBox("If", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"27", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"31", "\[Colon]", "5"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(27, 3) .. System`Colon(31, 5)}, 
+                   ","))}), System`TooltipBox(System`StyleBox("(", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"27", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"31", "\[Colon]", "5"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(27, 3) .. System`Colon(31, 5)}, 
+                   ","))}), {{"name", System`TooltipBox(System`StyleBox("===", 
+                   System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                   {"\[Ellipsis]", "===", "\[Ellipsis]"}, "\n", 
+                   System`InterpretationBox({
+                     System`ComplexStringBox(
+                      "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\s\
+                      cripts\\\\maininit.pmath\""), ",", {
+                      {"(", {"27", "\[Colon]", "6"}, ")"}, "..", {
+                       "(", {"27", "\[Colon]", "229"}, ")"}}}, 
+                    System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\main\
+                      init.pmath", System`Colon(27, 6) .. System`Colon(27, 
+                       229)}, ","))}), System`StyleBox(
+                  System`ComplexStringBox("\"General\""), 
+                  System`FontColor -> System`GrayLevel(0.5`))}, ",", {
+                 "pattern", System`TooltipBox(System`StyleBox("\[Assign]", 
+                   System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                   {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                   System`InterpretationBox({
+                     System`ComplexStringBox(
+                      "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\s\
+                      cripts\\\\maininit.pmath\""), ",", {
+                      {"(", {"28", "\[Colon]", "4"}, ")"}, "..", {
+                       "(", {"28", "\[Colon]", "283"}, ")"}}}, 
+                    System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\main\
+                      init.pmath", System`Colon(28, 4) .. System`Colon(28, 
+                       283)}, ","))}), {"name", System`TooltipBox(System`StyleBox("++", 
+                    System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"28", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"28", "\[Colon]", "273"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(28, 14) .. System`Colon(28, 
+                        273)}, ","))}), System`StyleBox(
+                   System`ComplexStringBox("\"::\""), 
+                   System`FontColor -> System`GrayLevel(0.5`)), 
+                  System`TooltipBox(System`StyleBox("++", 
+                    System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"28", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"28", "\[Colon]", "273"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(28, 14) .. System`Colon(28, 
+                        273)}, ","))}), "tag", System`TooltipBox(
+                   System`StyleBox("++", System`FontColor -> System`RGBColor(
+                     1, 0.5`, 0)), {{"\[Ellipsis]", "++", "\[Ellipsis]", "++", 
+                     "\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
+                    System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"28", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"28", "\[Colon]", "273"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(28, 14) .. System`Colon(28, 
+                        273)}, ","))}), "WordBoundary"}}, ",", {
+                 "pattern", System`TooltipBox(System`StyleBox("\[Assign]", 
+                   System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                   {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                   System`InterpretationBox({
+                     System`ComplexStringBox(
+                      "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\s\
+                      cripts\\\\maininit.pmath\""), ",", {
+                      {"(", {"30", "\[Colon]", "4"}, ")"}, "..", {
+                       "(", {"30", "\[Colon]", "352"}, ")"}}}, 
+                    System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\main\
+                      init.pmath", System`Colon(30, 4) .. System`Colon(30, 
+                       352)}, ","))}), {{System`TooltipBox(System`StyleBox("{", 
+                     System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                     {"{", "\[Ellipsis]", "}"}, "\n", 
+                     System`InterpretationBox({
+                       System`ComplexStringBox("\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\
+                        \\scripts\\\\maininit.pmath\""), ",", {
+                        {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
+                         "(", {"30", "\[Colon]", "311"}, ")"}}}, 
+                      System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\ma\
+                        ininit.pmath", System`Colon(30, 14) .. System`Colon(
+                         30, 311)}, ","))}), {
+                    System`StyleBox(System`ComplexStringBox("\"General\""), 
+                     System`FontColor -> System`GrayLevel(0.5`)), ",", 
+                    "name"}, System`TooltipBox(System`StyleBox("}", 
+                     System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                     {"{", "\[Ellipsis]", "}"}, "\n", 
+                     System`InterpretationBox({
+                       System`ComplexStringBox("\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\
+                        \\scripts\\\\maininit.pmath\""), ",", {
+                        {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
+                         "(", {"30", "\[Colon]", "311"}, ")"}}}, 
+                      System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\ma\
+                        ininit.pmath", System`Colon(30, 14) .. System`Colon(
+                         30, 311)}, ","))})}, System`TooltipBox(
+                   System`StyleBox("++", System`FontColor -> System`RGBColor(
+                     1, 0.5`, 0)), {{"\[Ellipsis]", "++", "\[Ellipsis]", "++", 
+                     "\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
+                    System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"30", "\[Colon]", "342"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(30, 14) .. System`Colon(30, 
+                        342)}, ","))}), System`StyleBox(
+                   System`ComplexStringBox("\"::\""), 
+                   System`FontColor -> System`GrayLevel(0.5`)), 
+                  System`TooltipBox(System`StyleBox("++", 
+                    System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"30", "\[Colon]", "342"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(30, 14) .. System`Colon(30, 
+                        342)}, ","))}), "tag", System`TooltipBox(
+                   System`StyleBox("++", System`FontColor -> System`RGBColor(
+                     1, 0.5`, 0)), {{"\[Ellipsis]", "++", "\[Ellipsis]", "++", 
+                     "\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
+                    System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"30", "\[Colon]", "342"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(30, 14) .. System`Colon(30, 
+                        342)}, ","))}), "WordBoundary"}}}, 
+               System`TooltipBox(System`StyleBox(")", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"27", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"31", "\[Colon]", "5"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(27, 3) .. System`Colon(31, 5)}, 
+                   ","))})}, {";", "\n"}, {
+               "matches", System`TooltipBox(System`StyleBox("\[Assign]", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"32", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"32", "\[Colon]", "473"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(32, 3) .. System`Colon(32, 473)}, 
+                   ","))}), {System`TooltipBox(System`StyleBox("FindList", 
+                  System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                  {"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"32", "\[Colon]", "13"}, ")"}, "..", {
+                      "(", {"32", "\[Colon]", "463"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(32, 13) .. System`Colon(32, 
+                      463)}, ","))}), System`TooltipBox(
+                 System`StyleBox("(", System`FontColor -> System`RGBColor(1, 
+                   0.5`, 0)), {{"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"32", "\[Colon]", "13"}, ")"}, "..", {
+                      "(", {"32", "\[Colon]", "463"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(32, 13) .. System`Colon(32, 
+                      463)}, ","))}), {{System`TooltipBox(System`StyleBox("ToFileName", 
+                    System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                    {"ToFileName", "(", "\[Ellipsis]", ")"}, "\n", 
+                    System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"32", "\[Colon]", "22"}, ")"}, "..", {
+                        "(", {"32", "\[Colon]", "444"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(32, 22) .. System`Colon(32, 
+                        444)}, ","))}), System`TooltipBox(
+                   System`StyleBox("(", System`FontColor -> System`RGBColor(1, 
+                     0.5`, 0)), {{"ToFileName", "(", "\[Ellipsis]", ")"}, 
+                    "\n", System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"32", "\[Colon]", "22"}, ")"}, "..", {
+                        "(", {"32", "\[Colon]", "444"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(32, 22) .. System`Colon(32, 
+                        444)}, ","))}), {"$BaseDirectory", ",", {
+                    System`TooltipBox(System`StyleBox("If", 
+                      System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                      {"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                      System`InterpretationBox({
+                        System`ComplexStringBox("\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\
+                         \\scripts\\\\maininit.pmath\""), ",", {
+                         {"(", {"32", "\[Colon]", "49"}, ")"}, "..", {
+                          "(", {"32", "\[Colon]", "416"}, ")"}}}, 
+                       System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\m\
+                         aininit.pmath", System`Colon(32, 49) .. System`Colon(
+                          32, 416)}, ","))}), System`TooltipBox(
+                     System`StyleBox("(", System`FontColor -> System`RGBColor(
+                       1, 0.5`, 0)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                      System`InterpretationBox({
+                        System`ComplexStringBox("\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\
+                         \\scripts\\\\maininit.pmath\""), ",", {
+                         {"(", {"32", "\[Colon]", "49"}, ")"}, "..", {
+                          "(", {"32", "\[Colon]", "416"}, ")"}}}, 
+                       System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\m\
+                         aininit.pmath", System`Colon(32, 49) .. System`Colon(
+                          32, 416)}, ","))}), {{"tag", System`TooltipBox(System`StyleBox("===", 
+                        System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                        {"\[Ellipsis]", "===", "\[Ellipsis]"}, "\n", 
+                        System`InterpretationBox({System`ComplexStringBox("\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\
+                           \\\\scripts\\\\maininit.pmath\""), ",", {
+                           {"(", {"32", "\[Colon]", "52"}, ")"}, "..", {
+                            "(", {"32", "\[Colon]", "379"}, ")"}}}, 
+                         System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\
+                           \\maininit.pmath", System`Colon(32, 52) .. 
+                            System`Colon(32, 379)}, ","))}), 
+                      System`StyleBox(System`ComplexStringBox("\"usage\""), 
+                       System`FontColor -> System`GrayLevel(0.5`))}, ",", 
+                     System`StyleBox(System`ComplexStringBox(
+                       "\"usage.pmath\""), System`FontColor -> 
+                       System`GrayLevel(0.5`)), ",", 
+                     System`StyleBox(System`ComplexStringBox(
+                       "\"messages.pmath\""), System`FontColor -> 
+                       System`GrayLevel(0.5`))}, 
+                    System`TooltipBox(System`StyleBox(")", 
+                      System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                      {"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                      System`InterpretationBox({
+                        System`ComplexStringBox("\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\
+                         \\scripts\\\\maininit.pmath\""), ",", {
+                         {"(", {"32", "\[Colon]", "49"}, ")"}, "..", {
+                          "(", {"32", "\[Colon]", "416"}, ")"}}}, 
+                       System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\m\
+                         aininit.pmath", System`Colon(32, 49) .. System`Colon(
+                          32, 416)}, ","))})}}, System`TooltipBox(
+                   System`StyleBox(")", System`FontColor -> System`RGBColor(1, 
+                     0.5`, 0)), {{"ToFileName", "(", "\[Ellipsis]", ")"}, 
+                    "\n", System`InterpretationBox({
+                      System`ComplexStringBox(
+                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
+                       scripts\\\\maininit.pmath\""), ",", {
+                       {"(", {"32", "\[Colon]", "22"}, ")"}, "..", {
+                        "(", {"32", "\[Colon]", "444"}, ")"}}}, 
+                     System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mai\
+                       ninit.pmath", System`Colon(32, 22) .. System`Colon(32, 
+                        444)}, ","))})}, ",", "pattern"}, 
+                System`TooltipBox(System`StyleBox(")", 
+                  System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                  {"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
+                  System`InterpretationBox({
+                    System`ComplexStringBox(
+                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
+                     ripts\\\\maininit.pmath\""), ",", {
+                     {"(", {"32", "\[Colon]", "13"}, ")"}, "..", {
+                      "(", {"32", "\[Colon]", "463"}, ")"}}}, 
+                   System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
+                     nit.pmath", System`Colon(32, 13) .. System`Colon(32, 
+                      463)}, ","))})}}, {";", "\n"}, {
+               System`TooltipBox(System`StyleBox("Scan", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"Scan", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"33", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"33", "\[Colon]", "504"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(33, 3) .. System`Colon(33, 504)}, 
+                   ","))}), System`TooltipBox(System`StyleBox("(", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"Scan", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"33", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"33", "\[Colon]", "504"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(33, 3) .. System`Colon(33, 504)}, 
+                   ","))}), {"matches", ",", "ToExpression"}, 
+               System`TooltipBox(System`StyleBox(")", 
+                 System`FontColor -> System`RGBColor(1, 0.5`, 0)), {
+                 {"Scan", "(", "\[Ellipsis]", ")"}, "\n", 
+                 System`InterpretationBox({
+                   System`ComplexStringBox(
+                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
+                    ipts\\\\maininit.pmath\""), ",", {
+                    {"(", {"33", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"33", "\[Colon]", "504"}, ")"}}}, 
+                  System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
+                    it.pmath", System`Colon(33, 3) .. System`Colon(33, 504)}, 
+                   ","))})}}, System`TooltipBox(
+              System`StyleBox(")", System`FontColor -> System`RGBColor(1, 
+                0.5`, 0)), {{"Try", "(", "\[Ellipsis]", ")"}, "\n", 
+               System`InterpretationBox({
+                 System`ComplexStringBox(
+                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
+                  ts\\\\maininit.pmath\""), ",", {
+                  {"(", {"23", "\[Colon]", "2"}, ")"}, "..", {
+                   "(", {"34", "\[Colon]", "4"}, ")"}}}, 
+                System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
+                  .pmath", System`Colon(23, 2) .. System`Colon(34, 4)}, 
+                 ","))})}}, System`TooltipBox(
+            System`StyleBox(")", System`FontColor -> System`RGBColor(1, 0.5`, 
+              0)), {{"Local", "(", "\[Ellipsis]", ")"}, "\n", 
+             System`InterpretationBox({
+               System`ComplexStringBox(
+                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
+                \\\\maininit.pmath\""), ",", {
+                {"(", {"22", "\[Colon]", "1"}, ")"}, "..", {
+                 "(", {"35", "\[Colon]", "3"}, ")"}}}, 
+              System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.p\
+                math", System`Colon(22, 1) .. System`Colon(35, 3)}, ","))})}, 
+          ",", "HoldAll"}, System`TooltipBox(
+          System`StyleBox(")", System`FontColor -> System`RGBColor(1, 0.5`, 
+            0)), {{"Function", "(", "\[Ellipsis]", ")"}, "\n", 
+           System`InterpretationBox({
+             System`ComplexStringBox(
+              "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\
+              \\maininit.pmath\""), ",", {
+              {"(", {"21", "\[Colon]", "14"}, ")"}, "..", {
+               "(", {"36", "\[Colon]", "9"}, ")"}}}, 
+            System`Row({"D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pma\
+              th", System`Colon(21, 14) .. System`Colon(36, 9)}, ","))})}), 
+       "Output", System`SectionGenerated -> System`True, 
+       System`SectionLabel -> "out [48]:")}, System`All)}, System`All)}, 
+ System`Visible -> System`True)

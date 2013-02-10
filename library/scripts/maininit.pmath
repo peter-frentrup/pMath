@@ -110,6 +110,8 @@ AutoLoad(Hold(Cross, Transpose, QRDecomposition),
 	ToFileName({$BaseDirectory, "auto", "core"}, "linalg.pmath"))
 AutoLoad(Hold(Interval), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "interval.pmath"))
+AutoLoad(Hold(Developer`InspectBoxes), 
+	ToFileName({$BaseDirectory, "auto", "core"}, "Developer.pmath"))
 AutoLoad(Hold(System`Util`latexToBoxes), 
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "latextoboxes.pmath"))
 

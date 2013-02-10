@@ -1,0 +1,94 @@
+
+BeginPackage("Developer`")
+
+Developer`InspectBoxes
+
+Begin("Developer`Private`")
+
+colorDebugInfoAvailable:= RGBColor(1, 0.5, 0)
+colorString:= GrayLevel(0.5)
+
+toNiceInfo(DebugInfoSource(~file, {~l1, ~c1} .. {~l2, ~c2}))::=
+	Row({file, Colon(l1,c1)..Colon(l2,c2)}, ",")
+toNiceInfo(DebugInfoSource(~file, ~s .. ~e))::=
+	Row({file, s..e}, ",")
+toNiceInfo(~x)::= x
+
+isOperatorToken(";"):= True
+isOperatorToken(","):= True
+isOperatorToken(~s:String)::= Try(StringToBoxes(s)) === $Failed
+isOperatorToken(~):= False
+
+Developer`InspectBoxes(call: {~head:String, "(", ~args, ")"})::=
+	With({debugInfo:= Developer`GetDebugInfo(call)},
+		With({debugInfoBoxes:= {{head, "(", "\[Ellipsis]", ")"}, "\n", ToBoxes(toNiceInfo(debugInfo))}},
+			{TooltipBox(StyleBox(head, FontColor->colorDebugInfoAvailable), debugInfoBoxes), 
+				TooltipBox(StyleBox("(", FontColor->colorDebugInfoAvailable), debugInfoBoxes), 
+				Developer`InspectBoxes(args), 
+				TooltipBox(StyleBox(")", FontColor->colorDebugInfoAvailable), debugInfoBoxes)}) /? debugInfo =!= /\/
+		)
+
+Developer`InspectBoxes(~span:List)::= 
+	With({debugInfo:= Developer`GetDebugInfo(span),
+			newSpan:= span.Map(Developer`InspectBoxes)},
+		If(debugInfo =!= /\/,
+			With({debugInfoBoxes:= {span.Map(If(isOperatorToken(#), #, "\[Ellipsis]")&), "\n", ToBoxes(toNiceInfo(debugInfo))}},
+				Return(
+					newSpan.Map(
+						If(isOperatorToken(#), 
+							TooltipBox(StyleBox(#, FontColor->colorDebugInfoAvailable), debugInfoBoxes),
+							#) &))
+				));
+		Return(newSpan)
+		)
+		
+Developer`InspectBoxes(~str:ComplexStringBox)::= 
+	StyleBox(str.Map(Developer`InspectBoxes), FontColor->colorString)
+
+Developer`InspectBoxes(";")::= {";", "\n"}
+Developer`InspectBoxes(~other)::= 
+	With({debugInfo:= Developer`GetDebugInfo(other)},
+		If(debugInfo =!= /\/,
+			Return(TooltipBox(other, ToBoxes(toNiceInfo(debugInfo)))));
+		Return(other)
+		)
+
+Developer`InspectBoxes(box: (head: ButtonBox|FrameBox|SqrtBox|StyleBox|TagBox|InterpretationBox|RotationBox|SubscriptBox|SuperscriptBox)(~content, ~~~opts))::=
+	With({debugInfo:= Developer`GetDebugInfo(box)},
+		With({newBox:= head(Developer`InspectBoxes(content), opts)},
+			If(debugInfo =!= /\/,
+				Return(TooltipBox(newBox, ToBoxes(toNiceInfo(debugInfo)))));
+			Return(newBox);
+			)
+		)
+
+Developer`InspectBoxes(box: (head: UnderscriptBox|OverscriptBox|SubsuperscriptBox,RadicalBox)(~content1, ~content2, ~~~opts))::=
+	With({debugInfo:= Developer`GetDebugInfo(box)},
+		With({newBox:= head(Developer`InspectBoxes(content1), Developer`InspectBoxes(content2), opts)},
+			If(debugInfo =!= /\/,
+				Return(TooltipBox(newBox, ToBoxes(toNiceInfo(debugInfo)))));
+			Return(newBox);
+			)
+		)
+
+Developer`InspectBoxes(box: (head: UnderoverscriptBox)(~content1, ~content2, ~content3, ~~~opts))::=
+	With({debugInfo:= Developer`GetDebugInfo(box)},
+		With({newBox:= head(Developer`InspectBoxes(content1), Developer`InspectBoxes(content2), Developer`InspectBoxes(content3), opts)},
+			If(debugInfo =!= /\/,
+				Return(TooltipBox(newBox, ToBoxes(toNiceInfo(debugInfo)))));
+			Return(newBox);
+			)
+		)
+
+Developer`InspectBoxes(box: GridBox(~matrix, ~~~opts))::=
+	With({debugInfo:= Developer`GetDebugInfo(box)},
+		With({newBox:= GridBox(matrix.Map(Developer`InspectBoxes, 2), opts)},
+			If(debugInfo =!= /\/,
+				Return(TooltipBox(newBox, ToBoxes(toNiceInfo(debugInfo)))));
+			Return(newBox);
+			)
+		)
+		
+End()
+
+EndPackage()

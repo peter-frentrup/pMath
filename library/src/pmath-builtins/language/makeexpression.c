@@ -1716,10 +1716,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       if(exprlen != 3)
         goto FAILED;
         
-      args = pmath_evaluate(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                 pmath_expr_get_item(expr, 2)));
+      args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(expr, 2));
                  
       pmath_unref(expr);
       if(pmath_is_expr(args)) {
@@ -2134,10 +2131,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
             pmath_t idx = pmath_expr_get_item(box, 1);
             pmath_unref(box);
             
-            idx = pmath_evaluate(
-                    pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                      idx));
+            idx = _pmath_makeexpression_with_debuginfo(idx);
                       
             if(pmath_is_expr(idx)) {
               pmath_t head = pmath_expr_get_item(idx, 0);
@@ -2862,11 +2856,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(exprlen == 4) {
       // f(x)
       if(secondchar == '(' && unichar_at(expr, 4) == ')') {
-        pmath_t args = pmath_evaluate(
-                         pmath_expr_new_extended(
-                           pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                           pmath_expr_get_item(expr, 3)));
-                           
+        pmath_t args = _pmath_makeexpression_with_debuginfo(
+                         pmath_expr_get_item(expr, 3));
+        
         if(pmath_is_expr(args)) {
           pmath_t f = parse_at(expr, 1);
           
@@ -2895,10 +2887,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
           return pmath_ref(PMATH_SYMBOL_FAILED);
         }
         
-        args = pmath_evaluate(
-                 pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                   pmath_expr_get_item(expr, 3)));
+        args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(expr, 3));
         pmath_unref(expr);
         
         if(pmath_is_expr(args)) {
@@ -2969,10 +2958,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
-      args = pmath_evaluate(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                 pmath_expr_get_item(expr, 5)));
+      args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(expr, 5));
                  
       if(pmath_is_expr(args)) {
         size_t argslen = pmath_expr_length(args);
