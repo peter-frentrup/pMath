@@ -3415,7 +3415,9 @@ static Box *create_box(Expr expr, int options) {
   if(!expr.is_expr())
     return new ErrorBox(expr);
     
-  if(expr[0] == PMATH_SYMBOL_LIST) {
+  Expr head = expr[0];
+  
+  if(head == PMATH_SYMBOL_LIST || head == PMATH_SYMBOL_COMPLEXSTRINGBOX) {
     if(expr.expr_length() == 1) {
       expr = expr[1];
       return create_box(expr, options);
@@ -3426,91 +3428,91 @@ static Box *create_box(Expr expr, int options) {
     return box;
   }
   
-  if(expr[0] == PMATH_SYMBOL_BUTTONBOX)
+  if(head == PMATH_SYMBOL_BUTTONBOX)
     return create_or_error<  ButtonBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_CHECKBOXBOX)
+  if(head == PMATH_SYMBOL_CHECKBOXBOX)
     return create_or_error<  CheckboxBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_DYNAMICBOX)
+  if(head == PMATH_SYMBOL_DYNAMICBOX)
     return create_or_error<  DynamicBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_DYNAMICLOCALBOX)
+  if(head == PMATH_SYMBOL_DYNAMICLOCALBOX)
     return create_or_error<  DynamicLocalBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_FILLBOX)
+  if(head == PMATH_SYMBOL_FILLBOX)
     return create_or_error<  FillBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_FRACTIONBOX)
+  if(head == PMATH_SYMBOL_FRACTIONBOX)
     return create_or_error<  FractionBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_FRAMEBOX)
+  if(head == PMATH_SYMBOL_FRAMEBOX)
     return create_or_error<  FrameBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_GRAPHICSBOX)
+  if(head == PMATH_SYMBOL_GRAPHICSBOX)
     return create_or_error<  GraphicsBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_GRIDBOX)
+  if(head == PMATH_SYMBOL_GRIDBOX)
     return create_or_error<  GridBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_INPUTFIELDBOX)
+  if(head == PMATH_SYMBOL_INPUTFIELDBOX)
     return create_or_error<  InputFieldBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_INTERPRETATIONBOX)
+  if(head == PMATH_SYMBOL_INTERPRETATIONBOX)
     return create_or_error<  InterpretationBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_PROGRESSINDICATORBOX)
+  if(head == PMATH_SYMBOL_PROGRESSINDICATORBOX)
     return create_or_error<  ProgressIndicatorBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_RADICALBOX)
+  if(head == PMATH_SYMBOL_RADICALBOX)
     return create_or_error<  RadicalBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_RADIOBUTTONBOX)
+  if(head == PMATH_SYMBOL_RADIOBUTTONBOX)
     return create_or_error<  RadioButtonBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_ROTATIONBOX)
+  if(head == PMATH_SYMBOL_ROTATIONBOX)
     return create_or_error<  RotationBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_SETTERBOX)
+  if(head == PMATH_SYMBOL_SETTERBOX)
     return create_or_error<  SetterBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_SLIDERBOX)
+  if(head == PMATH_SYMBOL_SLIDERBOX)
     return create_or_error<  SliderBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_SUBSCRIPTBOX)
+  if(head == PMATH_SYMBOL_SUBSCRIPTBOX)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_SUPERSCRIPTBOX)
+  if(head == PMATH_SYMBOL_SUPERSCRIPTBOX)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
+  if(head == PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_SQRTBOX)
+  if(head == PMATH_SYMBOL_SQRTBOX)
     return create_or_error<  RadicalBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_STYLEBOX)
+  if(head == PMATH_SYMBOL_STYLEBOX)
     return create_or_error<  StyleBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_TAGBOX)
+  if(head == PMATH_SYMBOL_TAGBOX)
     return create_or_error<  TagBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_TOOLTIPBOX)
+  if(head == PMATH_SYMBOL_TOOLTIPBOX)
     return create_or_error<  TooltipBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_TRANSFORMATIONBOX)
+  if(head == PMATH_SYMBOL_TRANSFORMATIONBOX)
     return create_or_error<  TransformationBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_UNDERSCRIPTBOX)
+  if(head == PMATH_SYMBOL_UNDERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_OVERSCRIPTBOX)
+  if(head == PMATH_SYMBOL_OVERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(expr[0] == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
+  if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(expr[0] == GetSymbol( NumberBoxSymbol))
+  if(head == GetSymbol( NumberBoxSymbol))
     return create_or_error<NumberBox>(expr, options);
     
   return new ErrorBox(expr);
