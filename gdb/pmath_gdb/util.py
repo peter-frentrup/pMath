@@ -1,6 +1,6 @@
 import sys
 import gdb
-from pmath_gdb.expr import ExprVal
+from pmath_gdb.expr import ExprVal, ExprFormatting
 
 class static:
     "Creates a 'static' method"
@@ -10,12 +10,23 @@ class static:
 class ManagedStackFrame:
     def __init__(self, stack_info, thread):
         self.stack_info = stack_info
-        self.head       = ExprVal(stack_info['value'])
+        self.head       = ExprVal(stack_info['head'])
+        self.debug_info = ExprVal(stack_info['debug_info'])
         self.thread     = thread
         self.native_frame = None
         
     def __str__(self):
-        return 'thread {0:<10} in {1}'.format(self.thread.address, self.head.to_string(max_recursion=1))
+        s = 'thread {0:<10} in {1}'.format(self.thread.address, self.head.to_string(max_recursion=1))
+        
+        file_pos = ExprFormatting.debug_source_info_to_pair(self.debug_info)
+        
+        if file_pos[0] != None:
+            s+= ' from ' + file_pos[0]
+            
+            if file_pos[1] != None:
+                s+= ' line ' + file_pos[1]
+            
+        return s
 
 class ManagedStack:
     def __init__(self):

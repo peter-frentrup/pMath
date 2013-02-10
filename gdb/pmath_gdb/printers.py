@@ -1,7 +1,7 @@
 import sys
 import gdb
 import re
-from pmath_gdb.expr import ExprVal
+from pmath_gdb.expr import ExprVal, ExprFormatting
 
 class static:
     "Creates a 'static' method"
@@ -43,20 +43,22 @@ class ExprPrinter:
     def to_string(self):
         #if self.expr.is_string():
         #    return self.expr.get_string_data().encode('unicode-escape')
-        string = self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count).encode('unicode-escape')
+        string = self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count)
+        #string = string.replace('\\', '/')
+        string = string.encode('unicode-escape').replace('\\\\', '\\')
         return string
 
     def display_hint (self):
         #if self.expr.is_string():
-        return 'string'
-        #return 'expression'
-
+        #return 'string'
+        return 'expression'
+    
     def children(self):
         ch = {}
         try:
             debug_info = self.expr.get_debug_info()
             if debug_info.is_pmath() and not debug_info.is_null():
-                ch['debug info'] = debug_info._val
+                ch['debug info'] = ExprFormatting.debug_source_info_to_string(debug_info)
         except:
             pass
         if self.expr.is_pointer():

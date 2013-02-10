@@ -200,7 +200,21 @@ class ExprVal:
     
     def is_symbol(self):
         return self.is_pointer_of(PMATH_TYPE_SYMBOL)
-
+    
+    def is_expr_of(self, name, length = []):
+        if not self.is_expr():
+            return False
+        
+        l = self.get_expr_length()
+        if l != length and l not in length:
+            return False
+        
+        head = self.get_expr_item(0)
+        if not head.is_symbol():
+            return False
+        
+        return head.get_symbol_name() == name
+    
     def get_expr_length(self):
         if self.get_refcount() <= 0:
             return 0L
@@ -358,7 +372,7 @@ class ExprVal:
             return (custom_data['data'], custom_data['destructor'])
         except gdb.error:
             return None
-        
+    
     
     def to_string(self, max_recursion = 3, max_arg_count = 10):
         f = StringIO()
@@ -452,3 +466,55 @@ class ExprVal:
             tagname = 'tag {0}:'.format(self._tag)
         
         f.write('[{0} {1}]'.format(tagname, self._val['s']['u']['as_int32']))
+    
+class ExprFormatting:
+    @static
+    def expr_to_file_location(r):
+        if r.is_int32():
+            return str(line.get_int32())
+        elif r.is_expr_of('System`List', 2):
+            line = r.get_expr_item(1)
+            col  = r.get_expr_item(2)
+            
+            if line.is_int32() and col.is_int32():
+                return '{0}:{1}'.format(line.get_int32(), col.get_int32())
+        
+        return r.to_string()
+        
+    @static
+    def range_to_file_location(r):
+        if r.is_expr_of('System`Range', 2):
+            start = r.get_expr_item(1)
+            end   = r.get_expr_item(2)
+            
+            return '{0}..{1}'.format(
+                ExprFormatting.expr_to_file_location(start), 
+                ExprFormatting.expr_to_file_location(end))
+        return r.expr_to_file_location()
+    
+    @static
+    def debug_source_info_to_pair(src):
+        if src.is_expr_of('Developer`DebugInfoSource', 2):
+            name = src.get_expr_item(1)
+            pos  = src.get_expr_item(2)
+            
+            if name.is_string():
+                name = name.get_string_data().replace('\\', '/')
+            else:
+                name = name.to_string()
+            
+            pos = ExprFormatting.range_to_file_location(pos)
+            return (name, pos)
+            
+        if src.is_pmath() and not src.is_null():
+            return (src.to_string(), None)
+            
+        return (None, None)
+        
+    @static
+    def debug_source_info_to_string(src):
+        pair = ExprFormatting.debug_source_info_to_pair(src)
+        if pair[1] == None:
+            return pair[0]
+        return pair[0].split('/')[-1] + ' (' + pair[1] + ') = {file = ' + pair[0] + ', location = ' + pair[1] + '}'
+        
