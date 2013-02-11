@@ -620,8 +620,7 @@ void Canvas::new_path() {
 }
 
 void Canvas::clip() {
-  cairo_new_path(_cr);
-  //cairo_clip(_cr);
+  cairo_clip(_cr);
 }
 
 void Canvas::clip_preserve() {
