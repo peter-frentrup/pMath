@@ -467,24 +467,12 @@ static void call_old_post_write(void *user, pmath_t obj, pmath_write_options_t o
 
 static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
   if(pmath_is_string(box)) {
-    const char *pre;
-    const char *post;
-    
-    get_token_spacing(box, &pre, &post);
-    
-    if(*pre)
-      write_cstr(pre, info->write, info->user);
-    
     info->write(info->user, pmath_string_buffer(&box), pmath_string_length(box));
-    
-    if(*post)
-      write_cstr(post, info->write, info->user);
-    
     return;
   }
   
-  if( pmath_is_expr_of(box, PMATH_SYMBOL_LIST) ||
-      pmath_is_expr_of(box, PMATH_NULL))
+  if( pmath_is_expr_of(box, PMATH_SYMBOL_COMPLEXSTRINGBOX) ||
+      pmath_is_expr_of(box, PMATH_NULL)) 
   {
     size_t i;
     
@@ -499,14 +487,40 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
   
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_COMPLEXSTRINGBOX)) {
+  if(pmath_is_expr_of(box, PMATH_SYMBOL_LIST)) {
     size_t i;
+    size_t boxlen = pmath_expr_length(box);
     
-    for(i = 1; i <= pmath_expr_length(box); ++i) {
+    for(i = 1; i <= boxlen; ++i) {
       pmath_t part = pmath_expr_get_item(box, i);
       
-      if(pmath_is_string(part))
+      if(pmath_is_string(part)) {
+        const char *pre;
+        const char *post;
+        
+        get_token_spacing(part, &pre, &post);
+        
+        if(*pre && i > 1)
+          write_cstr(pre, info->write, info->user);
+        
         info->write(info->user, pmath_string_buffer(&part), pmath_string_length(part));
+        
+        if(*post && i < boxlen) {
+          pmath_t next = pmath_expr_get_item(box, i + 1);
+          if( pmath_is_expr_of(next, PMATH_SYMBOL_SUBSCRIPTBOX)     ||
+              pmath_is_expr_of(next, PMATH_SYMBOL_SUPERSCRIPTBOX)   ||
+              pmath_is_expr_of(next, PMATH_SYMBOL_SUBSUPERSCRIPTBOX))
+          {
+             _pmath_write_boxes(info, next);
+             ++i;
+          }
+          
+          pmath_unref(next);
+          
+          if(i < boxlen)
+            write_cstr(post, info->write, info->user);
+        }
+      }
       else
         _pmath_write_boxes(info, part);
         
