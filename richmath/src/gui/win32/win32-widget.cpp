@@ -1180,8 +1180,18 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           }
         } return 0;
         
-      case WM_SYSKEYDOWN:
       case WM_SYSKEYUP: {
+          if( wParam == VK_F10                &&
+              ( GetKeyState(VK_SHIFT)   & ~1) &&
+              !(GetKeyState(VK_MENU)    & ~1) &&
+              !(GetKeyState(VK_CONTROL) & ~1))
+          {
+            SendMessage(_hwnd, WM_CONTEXTMENU, 0, -1);
+            return 0;
+          }
+        }
+        /* fall through */
+      case WM_SYSKEYDOWN: {
           HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWL_HWNDPARENT);
           if(parent) {
             return SendMessageW(parent, message, wParam, lParam);
