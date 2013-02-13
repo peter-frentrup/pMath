@@ -138,14 +138,41 @@ void SectionList::selection_path(Canvas *canvas, int start, int end) {
     canvas->close_path();
   }
   else {
-    float x1 = x;
-    float y1 = y + _sections[start]->y_offset;
-    float x2 = x + _extents.width;
-    float y2 = y1;
-    float x3 = x2;
-    float y3 = y + yend;
-    float x4 = x1;
-    float y4 = y3;
+    //float left   = x;
+    float top    = y + _sections[start]->y_offset;
+    //float right  = x + _extents.width;
+    float bottom = y + yend;
+    
+    float left  = _extents.width;
+    float right = 0;
+    for(int i = start;i < end;++i) {
+      Section *sect = section(i);
+      
+      float r = sect->unfilled_width;
+      if(right < r)
+        right = r;
+        
+      float l = sect->get_style(SectionMarginLeft);
+      l-= sect->label_width();
+      l-= 3; // label distance
+      if(left > l)
+        left = l;
+    }
+    
+    left += x;
+    right+= x;
+    
+    top   += section(start)->top_margin;
+    bottom-= section(end - 1)->bottom_margin;
+    
+    float x1 = left;
+    float y1 = top;
+    float x2 = right;
+    float y3 = bottom;
+    float y2 = top;
+    float x3 = right;
+    float x4 = left;
+    float y4 = bottom;
     
     canvas->align_point(&x1, &y1, false);
     canvas->align_point(&x2, &y2, false);

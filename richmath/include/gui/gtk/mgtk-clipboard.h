@@ -25,6 +25,7 @@ namespace richmath {
       virtual String             read_as_text(String mimetype);
       
       virtual SharedPtr<OpenedClipboard> open_write();
+      virtual cairo_surface_t *create_image(String mimetype, double width, double height);
       
       static GdkAtom mimetype_to_atom(String mimetype);
       static void add_to_target_list(GtkTargetList *targets, String mimetype, int info);

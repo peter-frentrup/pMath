@@ -3,6 +3,8 @@
 #include <util/array.h>
 
 #include <assert.h>
+#include <cairo.h>
+#include <cmath>
 
 
 using namespace richmath;
@@ -12,6 +14,12 @@ namespace {
     public:
       ClipboardData(): Base()
       {
+        pixbuf = 0;
+      }
+      
+      virtual ~ClipboardData() {
+        if(pixbuf)
+          gdk_pixbuf_unref(pixbuf);
       }
       
       unsigned add(const char *data, int size) {
@@ -26,9 +34,15 @@ namespace {
         guint             info,
         gpointer          user_data
       ) {
-        ClipboardData *self = (ClipboardData*)user_data;
+        ClipboardData *self = (ClipboardData *)user_data;
         
         assert(self != NULL);
+        
+        if(info == PixbufInfoIndex) {
+          gtk_selection_data_set_pixbuf(selection_data, self->pixbuf);
+          return;
+        }
+        
         assert(info >= 0);
         assert(info < (unsigned)self->end_pointers.length());
         
@@ -39,21 +53,26 @@ namespace {
           selection_data,
           gtk_selection_data_get_data_type(selection_data),
           8,
-          (const guchar*)(self->all_data.items() + start),
+          (const guchar *)(self->all_data.items() + start),
           end - start);
+        
+        //gtk_selection_data_set_pixbuf()
       }
       
       static void clear_callback(
         GtkClipboard *clipboard,
         gpointer      user_data
       ) {
-        ClipboardData *self = (ClipboardData*)user_data;
+        ClipboardData *self = (ClipboardData *)user_data;
         delete self;
       }
       
     public:
-      Array<int>  end_pointers;
-      Array<char> all_data;
+      Array<int>   end_pointers;
+      Array<char>  all_data;
+      GdkPixbuf   *pixbuf;
+      
+      static const guint PixbufInfoIndex = (guint)-1;
   };
   
   class OpenedGtkClipboard: public OpenedClipboard {
@@ -65,9 +84,9 @@ namespace {
     public:
       OpenedGtkClipboard(GtkClipboard *_clipboard)
         : OpenedClipboard(),
-        clipboard(_clipboard),
-        clipboard_data(new ClipboardData),
-        targets(gtk_target_list_new(NULL, 0))
+          clipboard(_clipboard),
+          clipboard_data(new ClipboardData),
+          targets(gtk_target_list_new(NULL, 0))
       {
       }
       
@@ -94,7 +113,7 @@ namespace {
       virtual bool add_binary(String mimetype, void *data, size_t size) {
         if(size >= INT_MAX / 2)
           return false;
-        unsigned info = clipboard_data->add((const char*)data, (int)size);
+        unsigned info = clipboard_data->add((const char *)data, (int)size);
         
         MathGtkClipboard::add_to_target_list(targets, mimetype, info);
         
@@ -108,6 +127,52 @@ namespace {
         pmath_mem_free(str);
         return result;
       }
+      
+      virtual bool add_image(cairo_surface_t *image) {
+        if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_IMAGE) {
+          int width  = cairo_image_surface_get_width( image);
+          int height = cairo_image_surface_get_height(image);
+          
+          GdkPixbuf *pixbuf;
+          
+#if GTK_MAJOR_VERSION >= 3
+          {
+            pixbuf = gdk_pixbuf_get_from_surface(image, 0, 0, width, height);
+          }
+#else
+          {
+            GdkPixmap *pixmap = gdk_pixmap_new(NULL, width, height,
+                                               gdk_visual_get_best_depth());
+          
+            cairo_t *cr = gdk_cairo_create(pixmap);
+            cairo_set_source_surface(cr, image, 0, 0);
+            cairo_paint(cr);
+            cairo_destroy(cr);
+          
+            pixbuf = gdk_pixbuf_get_from_drawable(
+                       NULL,
+                       GDK_PIXMAP(pixmap),
+                       gdk_colormap_get_system(),
+                       0, 0,
+                       0, 0,
+                       width,
+                       height);
+          
+            gdk_pixmap_unref(pixmap);
+          }
+#endif
+          
+          MathGtkClipboard::add_to_target_list(targets, Clipboard::BitmapImage, ClipboardData::PixbufInfoIndex);
+          
+          if(clipboard_data->pixbuf)
+            gdk_pixbuf_unref(clipboard_data->pixbuf);
+          
+          clipboard_data->pixbuf = pixbuf;
+          return true;
+        }
+        
+        return OpenedClipboard::add_image(image);
+      }
   };
 };
 
@@ -117,7 +182,7 @@ MathGtkClipboard MathGtkClipboard::obj;
 
 MathGtkClipboard::MathGtkClipboard()
   : Clipboard(),
-  _clipboard(0)
+    _clipboard(0)
 {
 }
 
@@ -186,9 +251,9 @@ String MathGtkClipboard::read_as_text(String mimetype) {
     return String();
     
   int length      =              gtk_selection_data_get_length(data);
-  const char *str = (const char*)gtk_selection_data_get_data(data);
+  const char *str = (const char *)gtk_selection_data_get_data(data);
   
-  if(str[length-1] == '\0')
+  if(str[length - 1] == '\0')
     --length;
     
   String result = String::FromUtf8(str, length);
@@ -199,6 +264,22 @@ String MathGtkClipboard::read_as_text(String mimetype) {
 
 SharedPtr<OpenedClipboard> MathGtkClipboard::open_write() {
   return new OpenedGtkClipboard(clipboard());
+}
+
+cairo_surface_t *MathGtkClipboard::create_image(String mimetype, double width, double height) {
+  if(mimetype.equals(Clipboard::BitmapImage)) {
+    int w = (int)ceil(width);
+    int h = (int)ceil(height);
+    
+    if(w < 1)
+      w = 1;
+    if(h < 1)
+      h = 1;
+      
+    return cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+  }
+  
+  return Clipboard::create_image(mimetype, width, height);
 }
 
 GdkAtom MathGtkClipboard::mimetype_to_atom(String mimetype) {
@@ -215,7 +296,10 @@ void MathGtkClipboard::add_to_target_list(GtkTargetList *targets, String mimetyp
   if(mimetype.equals(Clipboard::PlainText)) {
     gtk_target_list_add_text_targets(targets, info);
   }
-  else {
+  else if(mimetype.equals(Clipboard::BitmapImage)) {
+    gtk_target_list_add_image_targets(targets, info, TRUE);
+  }
+  else{
     gtk_target_list_add(targets, mimetype_to_atom(mimetype), 0, info);
   }
 }

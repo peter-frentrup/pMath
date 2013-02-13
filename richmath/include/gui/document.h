@@ -12,6 +12,7 @@ namespace richmath {
   class SpecialKeyEvent;
   
   extern bool DebugFollowMouse;
+  extern bool DebugSelectionBounds;
   
   typedef enum {
     DragStatusIdle,
@@ -102,6 +103,7 @@ namespace richmath {
       bool can_copy();
       String copy_to_text(String mimetype);
       void copy_to_binary(String mimetype, Expr file);
+      void copy_to_image(cairo_surface_t *target, bool calc_size_only, double *device_width, double *device_height);
       void copy_to_clipboard();
       void cut_to_clipboard();
       

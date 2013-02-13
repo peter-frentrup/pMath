@@ -22,7 +22,8 @@
 
 using namespace richmath;
 
-bool richmath::DebugFollowMouse = false;
+bool richmath::DebugFollowMouse     = false;
+bool richmath::DebugSelectionBounds = false;
 
 static double MaxFlashingCursorRadius = 9;  /* pixels */
 static double MaxFlashingCursorTime = 0.15; /* seconds */
@@ -2280,6 +2281,97 @@ void Document::copy_to_binary(String mimetype, Expr file) {
   pmath_file_writetext(file.get(), text.buffer(), text.length());
 }
 
+void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, double *device_width, double *device_height) {
+  *device_width  = 0;
+  *device_height = 0;
+  
+  SelectionReference copysel = context.selection;
+  Box *selbox = copysel.get();
+  if(!selbox)
+    return;
+    
+  if(dynamic_cast<GraphicsBox *>(selbox)) {
+    copysel.set(selbox->parent(), selbox->index(), selbox->index() + 1);
+    
+    selbox = copysel.get();
+    if(!selbox)
+      return;
+  }
+  
+  SelectionReference oldsel = context.selection;
+  context.selection = SelectionReference();
+  
+  selbox->invalidate();
+  cairo_t *cr = cairo_create(target);
+  {
+    Canvas canvas(cr);
+    
+    float sf = native()->scale_factor();
+    canvas.scale(sf, sf);
+    
+    switch(cairo_surface_get_type(target)) {
+      case CAIRO_SURFACE_TYPE_IMAGE:
+      case CAIRO_SURFACE_TYPE_WIN32:
+        canvas.pixel_device = true;
+        break;
+        
+      default:
+        canvas.pixel_device = false;
+        break;
+    }
+    
+    cairo_set_line_width(cr, 1);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
+    canvas.set_font_size(10);// 10 * 4/3.
+    
+    paint_resize(&canvas, true);
+    
+    selbox = oldsel.get();
+    ::selection_path(&canvas, selbox, oldsel.start, oldsel.end);
+    
+    double x1, y1, x2, y2;
+    cairo_path_extents(
+      canvas.cairo(),
+      &x1,
+      &y1,
+      &x2,
+      &y2);
+    canvas.new_path();
+    
+    *device_width  = (x2 - x1) * sf;
+    *device_height = (y2 - y1) * sf;
+    
+    if(!calc_size_only) {
+      float sx, sy;
+      native()->scroll_pos(&sx, &sy);
+      canvas.translate(sx, sy);
+      canvas.translate(-x1, -y1);
+      
+      int color = get_style(Background, -1);
+      if(color >= 0) {
+        canvas.set_color(color);
+        canvas.paint();
+      }
+      else {
+        canvas.set_color(0xFFFFFF);
+        canvas.paint();
+      }
+      
+      ::selection_path(&canvas, selbox, oldsel.start, oldsel.end);
+      canvas.clip();
+      
+      canvas.set_color(get_style(FontColor, 0));
+      
+      canvas.translate(sx, sy);
+      paint_resize(&canvas, false);
+    }
+  }
+  cairo_destroy(cr);
+  cairo_surface_flush(target);
+  
+  context.selection = oldsel;
+}
+
 void Document::copy_to_clipboard() {
   SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
   if(!cb) {
@@ -2293,6 +2385,22 @@ void Document::copy_to_clipboard() {
   
   //cb->add_text(Clipboard::BoxesText, copy_to_text(Clipboard::BoxesText));
   cb->add_text(Clipboard::PlainText, copy_to_text(Clipboard::PlainText));
+  
+//  cairo_surface_t *image = Clipboard::std->create_image(Clipboard::BitmapImage, 1, 1);
+//  if(image) {
+//    double dw, dh;
+//    copy_to_image(image, true, &dw, &dh);
+//    
+//    cairo_surface_destroy(image);
+//    image = Clipboard::std->create_image(Clipboard::BitmapImage, dw, dh);
+//    
+//    if(image) {
+//      copy_to_image(image, false, &dw, &dh);
+//      bool success = cb->add_image(image);
+//      pmath_debug_print("[cb->add_image -> %d]\n", (int)success);
+//      cairo_surface_destroy(image);
+//    }
+//  }
 }
 
 void Document::cut_to_clipboard() {
@@ -2473,7 +2581,7 @@ void Document::paste_from_text(String mimetype, String data) {
       
       if (doc_was_selected && data.length() > 0 && data[data.length() - 1] == '\n')
         data = data.part(0, data.length() - 1);
-      
+        
       insert_string(data);
       
       return;
@@ -3662,10 +3770,10 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   
   context.canvas = canvas;
   
-  float sy, h;
-  native()->window_size(&_window_width, &h);
-  native()->page_size(&_page_width, &h);
-  native()->scroll_pos(&_scrollx, &sy);
+  float scrolly, page_height;
+  native()->window_size(&_window_width, &page_height);
+  native()->page_size(&_page_width, &page_height);
+  native()->scroll_pos(&_scrollx, &scrolly);
   
   context.fontfeatures.clear();
   context.fontfeatures.add(context.stylesheet->get_with_base(style, FontFeatures));
@@ -3681,7 +3789,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   unfilled_width = 0;
   _extents.ascent = _extents.descent = 0;
   
-  canvas->translate(-_scrollx, -sy);
+  canvas->translate(-_scrollx, -scrolly);
   
   init_section_bracket_sizes(&context);
   
@@ -3693,7 +3801,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   }
   
   int i = 0;
-  while(i < length() && _extents.descent <= sy) {
+  while(i < length() && _extents.descent <= scrolly) {
     if(section(i)->must_resize) // || i == sel_sect)
       resize_section(&context, i);
       
@@ -3706,7 +3814,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   if(first_visible_section < 0)
     first_visible_section = 0;
     
-  while(i < length() && _extents.descent <= sy + h) {
+  while(i < length() && _extents.descent <= scrolly + page_height) {
     if(section(i)->must_resize) // || i == sel_sect)
       resize_section(&context, i);
       
@@ -3778,6 +3886,59 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       }
     }
     
+    if(DebugSelectionBounds) {
+      Box *b = selection_box();
+      if(b) {
+      
+        canvas->save();
+        {
+          ::selection_path(canvas, b, selection_start(), selection_end());
+          
+          static const double dashes[] = {1.0, 2.0};
+          
+          double x1, y1, x2, y2;
+          cairo_path_extents(
+            canvas->cairo(),
+            &x1,
+            &y1,
+            &x2,
+            &y2);
+          canvas->new_path();
+          
+          if(canvas->pixel_device) {
+            cairo_user_to_device(canvas->cairo(), &x1, &y1);
+            cairo_user_to_device(canvas->cairo(), &x2, &y2);
+            
+            x2 = floor(x2 + 0.5) - 0.5;
+            y2 = floor(y2 + 0.5) - 0.5;
+            x1 = ceil(x1 - 0.5) + 0.5;
+            y1 = ceil(y1 - 0.5) + 0.5;
+            
+            cairo_device_to_user(canvas->cairo(), &x1, &y1);
+            cairo_device_to_user(canvas->cairo(), &x2, &y2);
+          }
+          
+          canvas->move_to(x1, scrolly);
+          canvas->line_to(x1, scrolly + page_height);
+          
+          canvas->move_to(x2, scrolly);
+          canvas->line_to(x2, scrolly + page_height);
+          
+          canvas->move_to(_scrollx,               y1);
+          canvas->line_to(_scrollx + _page_width, y1);
+          
+          canvas->move_to(_scrollx,               y2);
+          canvas->line_to(_scrollx + _page_width, y2);
+          canvas->close_path();
+          
+          canvas->set_color(0x808080);
+          cairo_set_dash(canvas->cairo(), dashes, sizeof(dashes) / sizeof(double), 0.5);
+          canvas->hair_stroke();
+        }
+        canvas->restore();
+      }
+    }
+    
     if(auto_scroll) {
       auto_scroll = false;
       if(Box *box = sel_last.get())
@@ -3795,7 +3956,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       }
     }
     
-    canvas->translate(_scrollx, sy);
+    canvas->translate(_scrollx, scrolly);
     
     if(last_paint_sel != context.selection) {
       last_paint_sel = context.selection;

@@ -23,6 +23,7 @@ namespace richmath {
       virtual String             read_as_text(String mimetype);
       
       virtual SharedPtr<OpenedClipboard> open_write();
+      virtual cairo_surface_t *create_image(String mimetype, double width, double height);
       
     public:
       static Hashtable<String, unsigned int> mime_to_win32cbformat;

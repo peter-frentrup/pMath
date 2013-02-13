@@ -29,6 +29,7 @@ Clipboard *Clipboard::std   = &dummy_cb;
 const char *const Clipboard::PlainText   = "text/plain";
 const char *const Clipboard::BoxesText   = "text/x-pmath-boxes";
 const char *const Clipboard::BoxesBinary = "application/x-pmath-boxes";
+const char *const Clipboard::BitmapImage = "image/bmp";
 
 struct abf_info_t {
   OpenedClipboard *self;
@@ -50,6 +51,10 @@ static void abf_flush(
                     (size_t) * writable - (size_t)readable);
 }
 
+bool OpenedClipboard::add_image(cairo_surface_t *image) {
+  return false;
+}
+      
 bool OpenedClipboard::add_binary_buffer(String mimetype, Expr binbuffer) {
   struct abf_info_t info;
   info.self     = this;
@@ -59,4 +64,8 @@ bool OpenedClipboard::add_binary_buffer(String mimetype, Expr binbuffer) {
   pmath_file_binary_buffer_manipulate(binbuffer.get(), abf_flush, &info);
   
   return info.success;
+}
+
+cairo_surface_t *Clipboard::create_image(String mimetype, double width, double height) {
+  return 0;
 }
