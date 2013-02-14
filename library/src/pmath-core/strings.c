@@ -472,7 +472,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
   }
   
   if( pmath_is_expr_of(box, PMATH_SYMBOL_COMPLEXSTRINGBOX) ||
-      pmath_is_expr_of(box, PMATH_NULL)) 
+      pmath_is_expr_of(box, PMATH_NULL))
   {
     size_t i;
     
@@ -480,7 +480,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
       pmath_t part = pmath_expr_get_item(box, i);
       
       _pmath_write_boxes(info, part);
-        
+      
       pmath_unref(part);
     }
     
@@ -502,7 +502,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
         
         if(*pre && i > 1)
           write_cstr(pre, info->write, info->user);
-        
+          
         info->write(info->user, pmath_string_buffer(&part), pmath_string_length(part));
         
         if(*post && i < boxlen) {
@@ -511,8 +511,8 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
               pmath_is_expr_of(next, PMATH_SYMBOL_SUPERSCRIPTBOX)   ||
               pmath_is_expr_of(next, PMATH_SYMBOL_SUBSUPERSCRIPTBOX))
           {
-             _pmath_write_boxes(info, next);
-             ++i;
+            _pmath_write_boxes(info, next);
+            ++i;
           }
           
           pmath_unref(next);
@@ -712,93 +712,118 @@ void _pmath_string_write_escaped(
   const uint16_t *end    = buffer + pmath_string_length(str);
   const uint16_t *s      = buffer;
   
-  while(s != end) {
-    const uint16_t *start = s;
-    int len = 0;
-    while( s != end   &&
-           *s >= ' '  &&
-           *s != '\"' &&
-           *s != '\\' &&
-           *s <= 0x7F &&
-           *s >= ' ')
-    {
-      ++s;
-      ++len;
-    }
-    
-    if(start != s)
-      write(user, start, len);
-      
-    if(s != end) {
-      uint16_t special[10];
-      special[0] = '\\';
-      switch(*s) {
-        case '\"': special[1] = '\"'; write(user, special, 2); break;
-        case '\\': special[1] = '\\'; write(user, special, 2); break;
-        case '\n': special[1] = 'n';  write(user, special, 2); break;
-        case '\r': special[1] = 'r';  write(user, special, 2); break;
-        case PMATH_CHAR_LEFT_BOX:
-          special[1] = '(';
-          write(user, special, 2);
-          break;
-        case PMATH_CHAR_RIGHT_BOX:
-          special[1] = ')';
-          write(user, special, 2);
-          break;
-          
-        default: {
-            if( s + 1 != end              &&
-                (s[0] & 0xFC00) == 0xD800 &&
-                (s[1] & 0xFC00) == 0xDC00)
-            {
-              uint32_t u = 0x10000 | (((uint32_t)s[0] & 0x03FF) << 10) | (s[1] & 0x03FF);
-              const char *name = pmath_char_to_name(u);
-              
-              ++s;
-              if(name) {
-                write_cstr("\\[", write, user);
-                write_cstr(name,  write, user);
-                write_cstr("]",   write, user);
-              }
-              else {
-                special[1] = 'U';
-                special[2] = hex_digits[(u & 0xF0000000U) >> 28];
-                special[3] = hex_digits[(u & 0x0F000000U) >> 24];
-                special[4] = hex_digits[(u & 0x00F00000U) >> 20];
-                special[5] = hex_digits[(u & 0x000F0000U) >> 16];
-                special[6] = hex_digits[(u & 0x0000F000U) >> 12];
-                special[7] = hex_digits[(u & 0x00000F00U) >> 8];
-                special[8] = hex_digits[(u & 0x000000F0U) >> 4];
-                special[9] = hex_digits[ u & 0x0000000FU];
-                write(user, special, 10);
-              }
-            }
-            else {
-              const char *name = pmath_char_to_name(*s);
-              
-              if(name) {
-                write_cstr("\\[", write, user);
-                write_cstr(name,  write, user);
-                write_cstr("]",   write, user);
-              }
-              else if(*s <= 0xFF) {
-                special[1] = 'x';
-                special[2] = hex_digits[((*s) & 0xF0) >> 4];
-                special[3] = hex_digits[(*s) & 0x0F];
-                write(user, special, 4);
-              }
-              else {
-                special[1] = 'u';
-                special[2] = hex_digits[((*s) & 0xF000) >> 12];
-                special[3] = hex_digits[((*s) & 0x0F00) >>  8];
-                special[4] = hex_digits[((*s) & 0x00F0) >>  4];
-                special[5] = hex_digits[(*s) & 0x000F];
-                write(user, special, 6);
-              }
-            }
-          }
+  if(only_ascii) {
+    while(s != end) {
+      const uint16_t *start = s;
+      int len = 0;
+      while( s != end   &&
+             *s >= ' '  &&
+             *s != '\"' &&
+             *s != '\\' &&
+             *s <= 0x7F)
+      {
+        ++s;
+        ++len;
       }
-      ++s;
+      
+      if(start != s)
+        write(user, start, len);
+        
+      if(s != end) {
+        uint16_t special[10];
+        special[0] = '\\';
+        switch(*s) {
+          case '\"': special[1] = '\"'; write(user, special, 2); break;
+          case '\\': special[1] = '\\'; write(user, special, 2); break;
+          case '\n': special[1] = 'n';  write(user, special, 2); break;
+          case '\r': special[1] = 'r';  write(user, special, 2); break;
+          case PMATH_CHAR_LEFT_BOX:
+            special[1] = '(';
+            write(user, special, 2);
+            break;
+          case PMATH_CHAR_RIGHT_BOX:
+            special[1] = ')';
+            write(user, special, 2);
+            break;
+            
+          default: {
+              if( s + 1 != end              &&
+                  (s[0] & 0xFC00) == 0xD800 &&
+                  (s[1] & 0xFC00) == 0xDC00)
+              {
+                uint32_t u = 0x10000 | (((uint32_t)s[0] & 0x03FF) << 10) | (s[1] & 0x03FF);
+                const char *name = pmath_char_to_name(u);
+                
+                ++s;
+                if(name) {
+                  write_cstr("\\[", write, user);
+                  write_cstr(name,  write, user);
+                  write_cstr("]",   write, user);
+                }
+                else {
+                  special[1] = 'U';
+                  special[2] = hex_digits[(u & 0xF0000000U) >> 28];
+                  special[3] = hex_digits[(u & 0x0F000000U) >> 24];
+                  special[4] = hex_digits[(u & 0x00F00000U) >> 20];
+                  special[5] = hex_digits[(u & 0x000F0000U) >> 16];
+                  special[6] = hex_digits[(u & 0x0000F000U) >> 12];
+                  special[7] = hex_digits[(u & 0x00000F00U) >> 8];
+                  special[8] = hex_digits[(u & 0x000000F0U) >> 4];
+                  special[9] = hex_digits[ u & 0x0000000FU];
+                  write(user, special, 10);
+                }
+              }
+              else {
+                const char *name = pmath_char_to_name(*s);
+                
+                if(name) {
+                  write_cstr("\\[", write, user);
+                  write_cstr(name,  write, user);
+                  write_cstr("]",   write, user);
+                }
+                else if(*s <= 0xFF) {
+                  special[1] = 'x';
+                  special[2] = hex_digits[((*s) & 0xF0) >> 4];
+                  special[3] = hex_digits[(*s) & 0x0F];
+                  write(user, special, 4);
+                }
+                else {
+                  special[1] = 'u';
+                  special[2] = hex_digits[((*s) & 0xF000) >> 12];
+                  special[3] = hex_digits[((*s) & 0x0F00) >>  8];
+                  special[4] = hex_digits[((*s) & 0x00F0) >>  4];
+                  special[5] = hex_digits[(*s) & 0x000F];
+                  write(user, special, 6);
+                }
+              }
+            }
+        }
+        ++s;
+      }
+    }
+  }
+  else {
+    while(s != end) {
+      const uint16_t *start = s;
+      int len = 0;
+      while(s != end && *s != '\"' && *s != '\\')
+      {
+        ++s;
+        ++len;
+      }
+      
+      if(start != s)
+        write(user, start, len);
+        
+      if(s != end) {
+        uint16_t special[10];
+        special[0] = '\\';
+        switch(*s) {
+          case '\"': special[1] = '\"'; write(user, special, 2); break;
+          case '\\': special[1] = '\\'; write(user, special, 2); break;
+        }
+        ++s;
+      }
     }
   }
 }
