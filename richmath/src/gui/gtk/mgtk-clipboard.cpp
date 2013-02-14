@@ -55,7 +55,7 @@ namespace {
           8,
           (const guchar *)(self->all_data.items() + start),
           end - start);
-        
+          
         //gtk_selection_data_set_pixbuf()
       }
       
@@ -72,7 +72,7 @@ namespace {
       Array<char>  all_data;
       GdkPixbuf   *pixbuf;
       
-      static const guint PixbufInfoIndex = (guint)-1;
+      static const guint PixbufInfoIndex = (guint) - 1;
   };
   
   class OpenedGtkClipboard: public OpenedClipboard {
@@ -128,7 +128,7 @@ namespace {
         return result;
       }
       
-      virtual bool add_image(cairo_surface_t *image) {
+      virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) {
         if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_IMAGE) {
           int width  = cairo_image_surface_get_width( image);
           int height = cairo_image_surface_get_height(image);
@@ -162,16 +162,16 @@ namespace {
           }
 #endif
           
-          MathGtkClipboard::add_to_target_list(targets, Clipboard::BitmapImage, ClipboardData::PixbufInfoIndex);
+          MathGtkClipboard::add_to_target_list(targets, Clipboard::PlatformBitmapImage, ClipboardData::PixbufInfoIndex);
           
           if(clipboard_data->pixbuf)
             gdk_pixbuf_unref(clipboard_data->pixbuf);
-          
+            
           clipboard_data->pixbuf = pixbuf;
           return true;
         }
         
-        return OpenedClipboard::add_image(image);
+        return OpenedClipboard::add_image(suggested_mimetype, image);
       }
   };
 };
@@ -250,7 +250,7 @@ String MathGtkClipboard::read_as_text(String mimetype) {
   if(!data)
     return String();
     
-  int length      =              gtk_selection_data_get_length(data);
+  int length      =               gtk_selection_data_get_length(data);
   const char *str = (const char *)gtk_selection_data_get_data(data);
   
   if(str[length - 1] == '\0')
@@ -267,7 +267,7 @@ SharedPtr<OpenedClipboard> MathGtkClipboard::open_write() {
 }
 
 cairo_surface_t *MathGtkClipboard::create_image(String mimetype, double width, double height) {
-  if(mimetype.equals(Clipboard::BitmapImage)) {
+  if(mimetype.equals(Clipboard::PlatformBitmapImage)) {
     int w = (int)ceil(width);
     int h = (int)ceil(height);
     
@@ -276,7 +276,7 @@ cairo_surface_t *MathGtkClipboard::create_image(String mimetype, double width, d
     if(h < 1)
       h = 1;
       
-    return cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+    return cairo_image_surface_create(CAIRO_FORMAT_RGB32, w, h);
   }
   
   return Clipboard::create_image(mimetype, width, height);
@@ -296,10 +296,10 @@ void MathGtkClipboard::add_to_target_list(GtkTargetList *targets, String mimetyp
   if(mimetype.equals(Clipboard::PlainText)) {
     gtk_target_list_add_text_targets(targets, info);
   }
-  else if(mimetype.equals(Clipboard::BitmapImage)) {
+  else if(mimetype.equals(Clipboard::PlatformBitmapImage)) {
     gtk_target_list_add_image_targets(targets, info, TRUE);
   }
-  else{
+  else {
     gtk_target_list_add(targets, mimetype_to_atom(mimetype), 0, info);
   }
 }

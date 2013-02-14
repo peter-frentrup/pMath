@@ -694,7 +694,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
           UINT flags = MF_BYPOSITION;
           
           int id = GetMenuItemID(sub, i);
-          if(Application::is_menucommand_runnable(Win32Menu::command_id_to_string(id)))
+          if(Application::is_menucommand_runnable(Win32Menu::id_to_command(id)))
             flags |= MF_ENABLED;
           else
             flags |= MF_GRAYED;

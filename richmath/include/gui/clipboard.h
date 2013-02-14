@@ -13,7 +13,7 @@ namespace richmath {
       virtual bool add_binary(String mimetype, void *data, size_t size) = 0;
       virtual bool add_text(String mimetype, String data) = 0;
       
-      virtual bool add_image(cairo_surface_t *image);
+      virtual bool add_image(String suggested_mimetype, cairo_surface_t *image);
       virtual bool add_binary_buffer(String mimetype, Expr binbuffer);
   };
   
@@ -26,7 +26,8 @@ namespace richmath {
       static const char *const PlainText;
       static const char *const BoxesText;
       static const char *const BoxesBinary;
-      static const char *const BitmapImage;
+      static const char *const PlatformBitmapImage;
+      static const char *const SvgImage;
       
     public:
       virtual ~Clipboard() {}

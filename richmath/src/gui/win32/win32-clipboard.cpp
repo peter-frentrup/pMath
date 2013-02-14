@@ -61,7 +61,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
       if(!hglb)
         return false;
         
-      uint16_t *dst = (uint16_t*)GlobalLock(hglb);
+      uint16_t *dst = (uint16_t *)GlobalLock(hglb);
       memcpy(dst, data.buffer(), len * sizeof(uint16_t));
       for(int i = 0; i < len; ++i) {
         if(dst[i] == '\0')
@@ -73,102 +73,101 @@ class OpenedWin32Clipboard: public OpenedClipboard {
       return NULL != SetClipboardData(id, hglb);
     }
     
-    virtual bool add_image(cairo_surface_t *image) {
+    virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) {
       if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_WIN32) {
         cairo_surface_t *img = cairo_win32_surface_get_image(image);
         if(!img)
           return false;
-        
+          
 //        HDC dc = cairo_win32_surface_get_dc(image);
 //        if(dc) {
 //          cairo_surface_flush(image);
-//          
+//
 //          int width  = cairo_image_surface_get_width( img);
 //          int height = cairo_image_surface_get_height(img);
-//          
+//
 //          HDC memDC     = CreateCompatibleDC(dc);
 //          HBITMAP memBM = CreateCompatibleBitmap(dc, width, height);
 //          SelectObject(memDC, memBM);
-//          
+//
 //          BitBlt(memDC, 0, 0, width, height, dc, 0, 0, SRCCOPY);
-//          
+//
 //          bool success = NULL != SetClipboardData(CF_BITMAP, memBM);
-//          
+//
 //          DeleteDC(memDC);
-//          
+//
 //          return success;
 //
 ////          HBITMAP dummy_bmp = CreateCompatibleBitmap(dc, 1, 1);
-////          if(!dummy_bmp) 
+////          if(!dummy_bmp)
 ////            return false;
-////            
+////
 ////          HBITMAP bmp = (HBITMAP)SelectObject(dc, (HGDIOBJ)dummy_bmp);
-////          
+////
 ////          return NULL != SetClipboardData(CF_BITMAP, bmp);
 //        }
 
-        image = img;
-      }
-      
-      if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_IMAGE) {
-        if(image) {
-          int height = cairo_image_surface_get_height(image);
-          int width  = cairo_image_surface_get_width(image);
-          int stride = cairo_image_surface_get_stride(image);
-          
-          BITMAPINFOHEADER bmi;
-          memset(&bmi, 0, sizeof(bmi));
-          bmi.biSize = sizeof(bmi);
-          bmi.biWidth  = width;
-          bmi.biHeight = height; /* upside down */
-          bmi.biPlanes = 1;
-          bmi.biXPelsPerMeter = (LONG)((double)96 * 100 / 2.54 + 0.5);
-          bmi.biYPelsPerMeter = (LONG)((double)96 * 100 / 2.54 + 0.5);
-          
-          cairo_format_t format = cairo_image_surface_get_format(image);
-          switch(format){
-            case CAIRO_FORMAT_RGB24:
-            case CAIRO_FORMAT_ARGB32:
-              bmi.biBitCount     = 32;
-              bmi.biCompression  = BI_RGB;
-              bmi.biClrUsed      = 0;
-              bmi.biClrImportant = 0;
-              if(stride != 4 * width)
-                return false;
-              break;
-
-            default:
-              return false;
-          }
-          
-          cairo_surface_flush(image);
-          const uint8_t *bits = cairo_image_surface_get_data(image);
-          if(!bits)
-            return false;
-          
-          HANDLE hglb = GlobalAlloc(GMEM_MOVEABLE, sizeof(bmi) + stride * height);
-          if(!hglb)
-            return false;
+        if(cairo_surface_get_type(img) == CAIRO_SURFACE_TYPE_IMAGE) {
+          if(img) {
+            int height = cairo_image_surface_get_height(img);
+            int width  = cairo_image_surface_get_width(img);
+            int stride = cairo_image_surface_get_stride(img);
             
-          uint8_t *dst = (uint8_t*)GlobalLock(hglb);
-          memcpy(dst, &bmi, sizeof(bmi));
-          //memcpy(dst + sizeof(bmi), bits, stride * height);
-          
-          bits = bits + stride * (height - 1);
-          dst = dst + sizeof(bmi);
-          for(int row = 0;row < height;++row) {
-            memcpy(dst, bits, stride);
-            dst+= stride;
-            bits-= stride;
+            BITMAPINFOHEADER bmi;
+            memset(&bmi, 0, sizeof(bmi));
+            bmi.biSize = sizeof(bmi);
+            bmi.biWidth  = width;
+            bmi.biHeight = height; /* upside down */
+            bmi.biPlanes = 1;
+            bmi.biXPelsPerMeter = (LONG)((double)96 * 100 / 2.54 + 0.5);
+            bmi.biYPelsPerMeter = (LONG)((double)96 * 100 / 2.54 + 0.5);
+            
+            cairo_format_t format = cairo_image_surface_get_format(img);
+            switch(format) {
+              case CAIRO_FORMAT_RGB24:
+              case CAIRO_FORMAT_ARGB32:
+                bmi.biBitCount     = 32;
+                bmi.biCompression  = BI_RGB;
+                bmi.biClrUsed      = 0;
+                bmi.biClrImportant = 0;
+                if(stride != 4 * width)
+                  return false;
+                break;
+                
+              default:
+                return false;
+            }
+            
+            cairo_surface_flush(img);
+            const uint8_t *bits = cairo_image_surface_get_data(img);
+            if(!bits)
+              return false;
+              
+            HANDLE hglb = GlobalAlloc(GMEM_MOVEABLE, sizeof(bmi) + stride * height);
+            if(!hglb)
+              return false;
+              
+            uint8_t *dst = (uint8_t *)GlobalLock(hglb);
+            memcpy(dst, &bmi, sizeof(bmi));
+            //memcpy(dst + sizeof(bmi), bits, stride * height);
+            
+            bits = bits + stride * (height - 1);
+            dst = dst + sizeof(bmi);
+            for(int row = 0; row < height; ++row) {
+              memcpy(dst, bits, stride);
+              dst += stride;
+              bits -= stride;
+            }
+            
+            GlobalUnlock(hglb);
+            
+            return NULL != SetClipboardData(CF_DIB, hglb);
           }
-          
-          GlobalUnlock(hglb);
-          
-          return NULL != SetClipboardData(CF_DIB, hglb);
         }
       }
       
-      return OpenedClipboard::add_image(image);
+      
+      return OpenedClipboard::add_image(suggested_mimetype, image);
     }
 };
 
@@ -236,7 +235,7 @@ String Win32Clipboard::read_as_text(String mimetype) {
   String result;
   HANDLE hglb = GetClipboardData(id);
   if(hglb) {
-    uint16_t *data = (uint16_t*)GlobalLock(hglb);
+    uint16_t *data = (uint16_t *)GlobalLock(hglb);
     if(data) {
       size_t size = GlobalSize(hglb);
       
@@ -259,17 +258,19 @@ SharedPtr<OpenedClipboard> Win32Clipboard::open_write() {
 }
 
 void Win32Clipboard::init() {
-  mime_to_win32cbformat.set(Clipboard::PlainText,   CF_UNICODETEXT);
-  mime_to_win32cbformat.set(Clipboard::BitmapImage, CF_DIB);
+  mime_to_win32cbformat.set(Clipboard::PlainText,           CF_UNICODETEXT);
+  mime_to_win32cbformat.set(Clipboard::PlatformBitmapImage, CF_DIB);
   
   mime_to_win32cbformat.set(Clipboard::BoxesText,
                             RegisterClipboardFormatA(Clipboard::BoxesText));
   mime_to_win32cbformat.set(Clipboard::BoxesBinary,
                             RegisterClipboardFormatA(Clipboard::BoxesBinary));
+  mime_to_win32cbformat.set(Clipboard::SvgImage,
+                            RegisterClipboardFormatA(Clipboard::SvgImage));
 }
 
 cairo_surface_t *Win32Clipboard::create_image(String mimetype, double width, double height) {
-  if(mimetype.equals(Clipboard::BitmapImage)) {
+  if(mimetype.equals(Clipboard::PlatformBitmapImage)) {
     int w = (int)ceil(width);
     int h = (int)ceil(height);
     
@@ -277,8 +278,8 @@ cairo_surface_t *Win32Clipboard::create_image(String mimetype, double width, dou
       w = 1;
     if(h < 1)
       h = 1;
-    
-    return cairo_win32_surface_create_with_dib(CAIRO_FORMAT_ARGB32, w, h);
+      
+    return cairo_win32_surface_create_with_dib(CAIRO_FORMAT_RGB24, w, h);
   }
   
   return Clipboard::create_image(mimetype, width, height);

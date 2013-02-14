@@ -26,6 +26,7 @@ namespace richmath {
     ColorDialog,
     FontDialog,
     ControlActive,
+    CopySpecial,
     
     FrontEndSymbolsCount
   } FrontEndSymbolIndex;

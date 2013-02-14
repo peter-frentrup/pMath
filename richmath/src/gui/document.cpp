@@ -2247,13 +2247,23 @@ String Document::copy_to_text(String mimetype) {
   if(mimetype.equals(Clipboard::BoxesText))
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
     
-  if(mimetype.equals(Clipboard::PlainText)) {
+  if(mimetype.equals("InputText"/*Clipboard::PlainText*/) ||
+     mimetype.equals("PlainText")) 
+  {
     Expr text = Application::interrupt(
-                  Parse("FE`BoxesToText(`1`)", boxes),
+                  Parse("FE`BoxesToText(`1`, `2`)", boxes, mimetype),
                   Application::edit_interrupt_timeout);
                   
     return text.to_string();
   }
+  
+//  // plaintext:
+//  if( mimetype.equals(Clipboard::PlainText) ||
+//      mimetype.equals("PlainText"))
+//  {
+//    boxes = Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes);
+//    return boxes.to_string(0);
+//  }
   
   native()->beep();
   return String();
@@ -2326,8 +2336,8 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
     
     paint_resize(&canvas, true);
     
-    selbox = oldsel.get();
-    ::selection_path(&canvas, selbox, oldsel.start, oldsel.end);
+    selbox = copysel.get();
+    ::selection_path(&canvas, selbox, copysel.start, copysel.end);
     
     double x1, y1, x2, y2;
     cairo_path_extents(
@@ -2347,17 +2357,19 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
       canvas.translate(sx, sy);
       canvas.translate(-x1, -y1);
       
-      int color = get_style(Background, -1);
-      if(color >= 0) {
-        canvas.set_color(color);
-        canvas.paint();
-      }
-      else {
-        canvas.set_color(0xFFFFFF);
-        canvas.paint();
+      if(0 == (CAIRO_CONTENT_ALPHA & cairo_surface_get_content(target))) {
+        int color = get_style(Background, -1);
+        if(color >= 0) {
+          canvas.set_color(color);
+          canvas.paint();
+        }
+        else {
+          canvas.set_color(0xFFFFFF);
+          canvas.paint();
+        }
       }
       
-      ::selection_path(&canvas, selbox, oldsel.start, oldsel.end);
+      ::selection_path(&canvas, selbox, copysel.start, copysel.end);
       canvas.clip();
       
       canvas.set_color(get_style(FontColor, 0));
@@ -2372,6 +2384,57 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
   context.selection = oldsel;
 }
 
+void Document::copy_to_clipboard(String mimetype) {
+  if(mimetype.equals(Clipboard::BoxesBinary)) {
+    SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
+    if(!cb) {
+      native()->beep();
+      return;
+    }
+    
+    Expr file = Expr(pmath_file_create_binary_buffer(0));
+    copy_to_binary(Clipboard::BoxesBinary, file);
+    cb->add_binary_buffer(Clipboard::BoxesBinary, file);
+    return;
+  }
+  
+  if( mimetype.equals(Clipboard::BoxesText) ||
+      mimetype.equals(Clipboard::PlainText) ||
+      mimetype.equals("BoxesExpression") ||
+      mimetype.equals("PlainText")) 
+  {
+    SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
+    if(!cb) {
+      native()->beep();
+      return;
+    }
+    
+    cb->add_text(Clipboard::PlainText, copy_to_text(mimetype));
+    return;
+  }
+  
+  cairo_surface_t *image = Clipboard::std->create_image(mimetype, 1, 1);
+  if(image) {
+    SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
+    if(!cb) {
+      native()->beep();
+      return;
+    }
+    
+    double dw, dh;
+    copy_to_image(image, true, &dw, &dh);
+    
+    cairo_surface_destroy(image);
+    image = Clipboard::std->create_image(mimetype, dw, dh);
+    
+    if(image) {
+      copy_to_image(image, false, &dw, &dh);
+      cb->add_image(mimetype, image);
+      cairo_surface_destroy(image);
+    }
+  }
+}
+
 void Document::copy_to_clipboard() {
   SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
   if(!cb) {
@@ -2384,23 +2447,7 @@ void Document::copy_to_clipboard() {
   cb->add_binary_buffer(Clipboard::BoxesBinary, file);
   
   //cb->add_text(Clipboard::BoxesText, copy_to_text(Clipboard::BoxesText));
-  cb->add_text(Clipboard::PlainText, copy_to_text(Clipboard::PlainText));
-  
-//  cairo_surface_t *image = Clipboard::std->create_image(Clipboard::BitmapImage, 1, 1);
-//  if(image) {
-//    double dw, dh;
-//    copy_to_image(image, true, &dw, &dh);
-//    
-//    cairo_surface_destroy(image);
-//    image = Clipboard::std->create_image(Clipboard::BitmapImage, dw, dh);
-//    
-//    if(image) {
-//      copy_to_image(image, false, &dw, &dh);
-//      bool success = cb->add_image(image);
-//      pmath_debug_print("[cb->add_image -> %d]\n", (int)success);
-//      cairo_surface_destroy(image);
-//    }
-//  }
+  cb->add_text(Clipboard::PlainText, copy_to_text("InputText"/*Clipboard::PlainText*/));
 }
 
 void Document::cut_to_clipboard() {

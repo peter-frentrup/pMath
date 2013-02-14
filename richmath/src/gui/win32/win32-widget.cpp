@@ -858,7 +858,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             UINT flags = MF_BYPOSITION;
             
             int id = GetMenuItemID(sub, i);
-            if(Application::is_menucommand_runnable(Win32Menu::command_id_to_string(id)))
+            if(Application::is_menucommand_runnable(Win32Menu::id_to_command(id)))
               flags |= MF_ENABLED;
             else
               flags |= MF_GRAYED;
@@ -1199,7 +1199,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
         
       case WM_COMMAND: {
-          String cmd = Win32Menu::command_id_to_string(LOWORD(wParam));
+          Expr cmd = Win32Menu::id_to_command(LOWORD(wParam));
           if(cmd.is_null())
             break;
             

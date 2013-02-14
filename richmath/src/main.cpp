@@ -655,7 +655,6 @@ int main(int argc, char **argv) {
   
   PMATH_RUN("EndPackage()"); /* FE` */
   
-  //Document *palette_doc = 0;
   Document *main_doc    = 0;
   int result = 0;
   
@@ -705,19 +704,6 @@ int main(int argc, char **argv) {
         x, y, w, h,
         SWP_NOZORDER | SWP_NOACTIVATE);
     }
-  
-    
-    
-    /*Win32DocumentWindow *wndPalette = new Win32DocumentWindow(
-      new Document,
-      0, WS_OVERLAPPEDWINDOW,
-      0,//CW_USEDEFAULT,
-      0,//CW_USEDEFAULT,
-      0,
-      0);
-    wndPalette->init();
-    
-    palette_doc = wndPalette->document();*/
   }
 #endif
   
@@ -729,14 +715,6 @@ int main(int argc, char **argv) {
     main_doc = wndMain->document();
     
     wndMain->set_initial_rect(200, 50, 580, 600);
-    
-    
-    /*MathGtkDocumentWindow *wndPalette = new MathGtkDocumentWindow();
-    wndPalette->init();
-    
-    wndPalette->set_initial_rect(784, 50, 100, 100);
-    
-    palette_doc = wndPalette->document();*/
   }
 #endif
   
@@ -757,137 +735,6 @@ int main(int argc, char **argv) {
     
     main_doc->invalidate_options();
   }
-  
-  /*if(palette_doc) {
-    palette_doc->style->set(Editable,    false);
-    palette_doc->style->set(Selectable,  false);
-    palette_doc->style->set(WindowFrame, WindowFramePalette);
-    palette_doc->style->set(WindowTitle, "Math Input");
-    palette_doc->select(0, 0, 0);
-    
-    write_section(
-      palette_doc,
-      Evaluate(
-        Parse(
-          "Section(BoxData("
-          " GridBox({"
-          "  {ButtonBox({\"\\[SelectionPlaceholder]\",SuperscriptBox(\"\\[Placeholder]\")}),"
-          "   \"\\[SpanFromLeft]\","
-          "   \"\\[SpanFromLeft]\","
-          "   ButtonBox(FractionBox(\"\\[SelectionPlaceholder]\", \"\\[Placeholder]\")),"
-          "   \"\\[SpanFromLeft]\"},"
-          "  {ButtonBox(SqrtBox(\"\\[SelectionPlaceholder]\")),"
-          "   \"\\[SpanFromLeft]\","
-          "   \"\\[SpanFromLeft]\","
-          "   ButtonBox(RadicalBox(\"\\[SelectionPlaceholder]\", \"\\[Placeholder]\")),"
-          "   \"\\[SpanFromLeft]\"},"
-          "  {ButtonBox({\"\\[Integral]\", \"\\[SelectionPlaceholder]\", \"\\[DifferentialD]\", \"\\[Placeholder]\"}),"
-          "   \"\\[SpanFromLeft]\","
-          "   \"\\[SpanFromLeft]\","
-          "   ButtonBox({\"\\[PartialD]\", SubscriptBox(\"\\[Placeholder]\"), \"\\[SelectionPlaceholder]\"}),"
-          "   \"\\[SpanFromLeft]\"},"
-          "  {ButtonBox({\"\\[Integral]\", SubsuperscriptBox(\"\\[SelectionPlaceholder]\", \"\\[Placeholder]\"), \"\\[Placeholder]\", \"\\[DifferentialD]\", \"\\[Placeholder]\"}),"
-          "   \"\\[SpanFromLeft]\","
-          "   \"\\[SpanFromLeft]\","
-          "   ButtonBox({\"\\[PartialD]\", SubscriptBox({\"\\[Placeholder]\", \",\", \"\\[Placeholder]\"}), \"\\[SelectionPlaceholder]\"}),"
-          "   \"\\[SpanFromLeft]\"},"
-          "  {ButtonBox({UnderoverscriptBox(\"\\[Sum]\", {\"\\[SelectionPlaceholder]\", \"=\", \"\\[Placeholder]\"}, \"\\[Placeholder]\"), \"\\[Placeholder]\"}),"
-          "   \"\\[SpanFromLeft]\","
-          "   \"\\[SpanFromLeft]\","
-          "   ButtonBox({UnderoverscriptBox(\"\\[Product]\", {\"\\[SelectionPlaceholder]\", \"=\", \"\\[Placeholder]\"}, \"\\[Placeholder]\"), \"\\[Placeholder]\"}),"
-          "   \"\\[SpanFromLeft]\"},"
-          "  {StyleBox("
-          "    ButtonBox({\"(\",GridBox({{\"\\[Placeholder]\", \"\\[Placeholder]\"}, {\"\\[Placeholder]\", \"\\[Placeholder]\"}}),\")\"}),"
-          "    GridBoxColumnSpacing->0.2,"
-          "    GridBoxRowSpacing->0.25),"
-          "   \"\\[SpanFromLeft]\","
-          "   \"\\[SpanFromLeft]\","
-          "   StyleBox("
-          "    ButtonBox({\"\\[Piecewise]\",GridBox({{\"\\[Placeholder]\", \"\\[Placeholder]\"}, {\"\\[Placeholder]\", \"\\[Placeholder]\"}})}),"
-          "    GridBoxColumnSpacing->0.2,"
-          "    GridBoxRowSpacing->0.25),\"\\[SpanFromLeft]\"},"
-          //"ButtonBox({\"\\[SelectionPlaceholder]\", SubscriptBox({\"[\", \"\\[Placeholder]\", \"]\"})}),\"\\[SpanFromLeft]\"},"
-          "  {TooltipBox(ButtonBox(\"\\[Pi]\"),           \"\\\"\\[AliasDelimiter]p\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[ExponentialE]\"), \"\\\"\\[AliasDelimiter]ee\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[ImaginaryI]\"),   \"\\\"\\[AliasDelimiter]ii\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Infinity]\"),     \"\\\"\\[AliasDelimiter]inf\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Degree]\"),       \"\\\"\\[AliasDelimiter]deg\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[Times]\"),        \"\\\"\\[AliasDelimiter]*\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Dot]\"),          \"\\\"\\[AliasDelimiter].\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Divide]\"),       \"\\\"\\[AliasDelimiter]/\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Cross]\"),        \"\\\"\\[AliasDelimiter]cross\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[PlusMinus]\"),    \"\\\"\\[AliasDelimiter]+-\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[Rule]\"),         \"\\\"\\[AliasDelimiter]->\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[RuleDelayed]\"),  \"\\\"\\[AliasDelimiter]:>\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Function]\"),     \"\\\"\\[AliasDelimiter]mt\\[AliasDelimiter]\\\"\"),"
-          //"ButtonBox(\"\\[Assign]\"),"
-          //"ButtonBox(\"\\[AssignDelayed]\")},"
-          "   TooltipBox(ButtonBox(\"\\u21D2\"),          \"\\\"\\[AliasDelimiter]=>\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\u21D4\"),          \"\\\"\\[AliasDelimiter]<=>\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[NotEqual]\"),     \"\\\"\\[AliasDelimiter]!=\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[LessEqual]\"),    \"\\\"\\[AliasDelimiter]<=\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[GreaterEqual]\"), \"\\\"\\[AliasDelimiter]>=\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Element]\"),      \"\\\"\\[AliasDelimiter]elem\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[NotElement]\"),   \"\\\"\\[AliasDelimiter]!elem\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[Not]\"),          \"\\\"\\[AliasDelimiter]!\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[And]\"),          \"\\\"\\[AliasDelimiter]and\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Or]\"),           \"\\\"\\[AliasDelimiter]or\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Intersection]\"), \"\\\"\\[AliasDelimiter]inter\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Union]\"),        \"\\\"\\[AliasDelimiter]un\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[Alpha]\"),        \"\\\"\\[AliasDelimiter]a\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Beta]\"),         \"\\\"\\[AliasDelimiter]b\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Gamma]\"),        \"\\\"\\[AliasDelimiter]g\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Delta]\"),        \"\\\"\\[AliasDelimiter]d\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CurlyEpsilon]\"), \"\\\"\\[AliasDelimiter]ce\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[Zeta]\"),         \"\\\"\\[AliasDelimiter]z\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Eta]\"),          \"\\\"\\[AliasDelimiter]h\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Theta]\"),        \"\\\"\\[AliasDelimiter]q\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CurlyTheta]\"),   \"\\\"\\[AliasDelimiter]cq\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Iota]\"),         \"\\\"\\[AliasDelimiter]i\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[Kappa]\"),        \"\\\"\\[AliasDelimiter]k\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Lambda]\"),       \"\\\"\\[AliasDelimiter]l\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Mu]\"),           \"\\\"\\[AliasDelimiter]m\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Nu]\"),           \"\\\"\\[AliasDelimiter]n\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Xi]\"),           \"\\\"\\[AliasDelimiter]x\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[Pi]\"),           \"\\\"\\[AliasDelimiter]p\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Rho]\"),          \"\\\"\\[AliasDelimiter]r\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Sigma]\"),        \"\\\"\\[AliasDelimiter]s\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[FinalSigma]\"),   \"\\\"\\[AliasDelimiter]varsigma\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Upsilon]\"),      \"\\\"\\[AliasDelimiter]u\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[CurlyPhi]\"),     \"\\\"\\[AliasDelimiter]j\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Phi]\"),          \"\\\"\\[AliasDelimiter]f\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Chi]\"),          \"\\\"\\[AliasDelimiter]c\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Psi]\"),          \"\\\"\\[AliasDelimiter]y\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[Omega]\"),        \"\\\"\\[AliasDelimiter]w\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[CapitalGamma]\"), \"\\\"\\[AliasDelimiter]G\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CapitalDelta]\"), \"\\\"\\[AliasDelimiter]D\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CapitalTheta]\"), \"\\\"\\[AliasDelimiter]Q\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CapitalLambda]\"),\"\\\"\\[AliasDelimiter]L\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CapitalXi]\"),    \"\\\"\\[AliasDelimiter]X\\[AliasDelimiter]\\\"\")},"
-          "  {TooltipBox(ButtonBox(\"\\[CapitalPi]\"),    \"\\\"\\[AliasDelimiter]P\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CapitalSigma]\"), \"\\\"\\[AliasDelimiter]S\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CapitalPhi]\"),   \"\\\"\\[AliasDelimiter]F\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CapitalPsi]\"),   \"\\\"\\[AliasDelimiter]Y\\[AliasDelimiter]\\\"\"),"
-          "   TooltipBox(ButtonBox(\"\\[CapitalOmega]\"), \"\\\"\\[AliasDelimiter]W\\[AliasDelimiter]\\\"\")},"
-          "  {ButtonBox({\"\\[SelectionPlaceholder]\",SubscriptBox(\"\\[Placeholder]\")}),"
-          "   ButtonBox({\"\\[SelectionPlaceholder]\",SubsuperscriptBox(\"\\[Placeholder]\",\"\\[Placeholder]\")}),"
-          "   ButtonBox(UnderscriptBox(\"\\[SelectionPlaceholder]\", \"\\[Placeholder]\")),"
-          "   ButtonBox(OverscriptBox(\"\\[SelectionPlaceholder]\", \"\\[Placeholder]\")),"
-          "   ButtonBox(UnderoverscriptBox(\"\\[SelectionPlaceholder]\", \"\\[Placeholder]\", \"\\[Placeholder]\"))}})),"
-          "  \"Output\","
-          "  FontSize->9,"
-          "  ButtonFrame->\"Palette\","
-          "  ButtonFunction->(DocumentApply(SelectedDocument(), #)&),"
-          "  GridBoxColumnSpacing->0,"
-          "  GridBoxRowSpacing->0,"
-          "  SectionMargins->0,"
-          "  ShowSectionBracket->False)"
-          //".Replace(TooltipBox(~FE`Private`x,~) :> FE`Private`x)"
-        )));
-        
-    palette_doc->invalidate();
-    palette_doc->invalidate_options();
-  }*/
   
   if(main_doc) {
     main_doc->native()->bring_to_front();
@@ -934,6 +781,7 @@ QUIT:
 #ifdef RICHMATH_USE_GTK_GUI
   MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder();
   MathGtkMenuBuilder::popup_menu = MathGtkMenuBuilder();
+  MathGtkMenuBuilder::done();
   MathGtkAccelerators::done();
 #endif
   

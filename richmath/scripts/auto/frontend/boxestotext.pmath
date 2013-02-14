@@ -1,61 +1,66 @@
 
 Begin("FE`Private`")
 
-FE`BoxesToText(~s:String)::= s
+FE`BoxesToText(~s:String, ~format)::= s
 
-FE`BoxesToText(~boxes)::= innerBoxesToText(boxes)
+/* format: "InputText" or "PlainText" */
+FE`BoxesToText(~boxes, ~format)::= innerBoxesToText(boxes, format)
 
-parenthesize(~x:String)::= x
-parenthesize({~x})::= parenthesize(x)
-parenthesize(~x)::= "(" ++ innerBoxesToText(x) ++ ")"
+parenthesize(~x:String, ~format)::= x
+parenthesize({~x}, ~format)::= parenthesize(x, format)
+parenthesize(~x, ~format)::= "(" ++ innerBoxesToText(x, format) ++ ")"
 
-innerBoxesToText("\u2192"):= "->";
-innerBoxesToText("\u2254"):= ":=";
-innerBoxesToText("\u29F4"):= ":>";
-innerBoxesToText("\u2A74"):= "::=";
-innerBoxesToText("\u2260"):= "!=";
-innerBoxesToText("\u2264"):= "<=";
-innerBoxesToText("\u2265"):= ">=";
-innerBoxesToText("\u27E6"):= "[[";
-innerBoxesToText("\u27E7"):= "]]";
+innerBoxesToText("\u2192", "InputText"):= "->";
+innerBoxesToText("\u2254", "InputText"):= ":=";
+innerBoxesToText("\u29F4", "InputText"):= ":>";
+innerBoxesToText("\u2A74", "InputText"):= "::=";
+innerBoxesToText("\u2260", "InputText"):= "!=";
+innerBoxesToText("\u2264", "InputText"):= "<=";
+innerBoxesToText("\u2265", "InputText"):= ">=";
+innerBoxesToText("\u27E6", "InputText"):= "[[";
+innerBoxesToText("\u27E7", "InputText"):= "]]";
 
 /*  TODO: {"a1", "b"}  becomes  "a1b"  but should be "a1 b" */
-innerBoxesToText(~b:List)::= StringExpression @@ b.Map(innerBoxesToText)
-innerBoxesToText(~b:/\/)::= StringExpression @@ b.Map(innerBoxesToText)
-innerBoxesToText({"\[Piecewise]", ~~b})::= "Piecewise(" ++ innerBoxesToText({b}) ++ ")"
+innerBoxesToText(~b:List, ~format)::= StringExpression @@ b.Map(innerBoxesToText(#, format)&)
+innerBoxesToText(~b:/\/, ~format)::= StringExpression @@ b.Map(innerBoxesToText(#, format)&)
+innerBoxesToText({"\[Piecewise]", ~~b}, ~format)::= "Piecewise(" ++ innerBoxesToText({b}, format) ++ ")"
 
-innerBoxesToText(~csb:ComplexStringBox)::= Join @@ csb.Map(If(IsString(#), #, "\\(" ++ ToString(InputForm(#)).StringReplace({"\\" -> "\\\\", "\"" -> "\\\""}) ++ "\\)")&)
+innerBoxesToText(~csb:ComplexStringBox, ~format)::= Join @@ csb.Map(If(IsString(#), #, "\\(" ++ ToString(InputForm(#)).StringReplace({"\\" -> "\\\\", "\"" -> "\\\""}) ++ "\\)")&)
 
-innerBoxesToText(SqrtBox(~x))::= "Sqrt(" ++ innerBoxesToText(x) ++ ")"
-innerBoxesToText(RadicalBox(~x,~y))::= innerBoxesToText({x, SuperscriptBox(FractionBox("1", y))})
+innerBoxesToText(SqrtBox(~x), ~format)::= "Sqrt(" ++ innerBoxesToText(x, format) ++ ")"
+innerBoxesToText(RadicalBox(~x,~y), ~format)::= innerBoxesToText({x, SuperscriptBox(FractionBox("1", y))}, format)
 
-innerBoxesToText(SuperscriptBox(~x))::= "^" ++ parenthesize(x)
-innerBoxesToText({~x, SubscriptBox(~y)})::= "Subscript(" ++ x ++ ", " ++ y ++ ")"
-innerBoxesToText(SubscriptBox(~y))::= "Subscript(\"\", " ++ y ++ ")"
-innerBoxesToText({~x, SubsuperscriptBox(~y,~z)})::= "Subscript(" ++ x ++ ", " ++ y ++ ")^" ++ parenthesize(z)
-innerBoxesToText(SubsuperscriptBox(~y,~z))::= "Subscript(\"\", " ++ y ++ ")^" ++ parenthesize(z)
+innerBoxesToText(SuperscriptBox(~x), ~format)::= "^" ++ parenthesize(x, format)
+innerBoxesToText({~x, SubscriptBox(~y)}, ~format)::= "Subscript(" ++ x ++ ", " ++ y ++ ")"
+innerBoxesToText(SubscriptBox(~y), ~format)::= "Subscript(\"\", " ++ y ++ ")"
+innerBoxesToText({~x, SubsuperscriptBox(~y,~z)}, ~format)::= "Subscript(" ++ x ++ ", " ++ y ++ ")^" ++ parenthesize(z, format)
+innerBoxesToText(SubsuperscriptBox(~y,~z), ~format)::= "Subscript(\"\", " ++ y ++ ")^" ++ parenthesize(z, format)
 
-innerBoxesToText(FractionBox(~x,~y))::= parenthesize(x) ++ "/" ++ parenthesize(y)
+innerBoxesToText(FractionBox(~x,~y), ~format)::= parenthesize(x, format) ++ "/" ++ parenthesize(y, format)
 
-innerBoxesToText(UnderscriptBox(~x,~y))::= "Underscript(" ++ innerBoxesToText(x) ++ ", " ++ innerBoxesToText(y) ++ ")"
-innerBoxesToText(OverscriptBox(~x,~y))::= "Overscript(" ++ innerBoxesToText(x) ++ ", " ++ innerBoxesToText(y) ++ ")"
-innerBoxesToText(UnderoverscriptBox(~x,~y,~z))::= innerBoxesToText(OverscriptBox(UnderscriptBox(x, y), z))
+innerBoxesToText(UnderscriptBox(~x,~y), ~format)::= "Underscript(" ++ innerBoxesToText(x, format) ++ ", " ++ innerBoxesToText(y, format) ++ ")"
+innerBoxesToText(OverscriptBox(~x,~y), ~format)::= "Overscript(" ++ innerBoxesToText(x, format) ++ ", " ++ innerBoxesToText(y, format) ++ ")"
+innerBoxesToText(UnderoverscriptBox(~x,~y,~z), ~format)::= innerBoxesToText(OverscriptBox(UnderscriptBox(x, y), z), format)
 
-innerBoxesToText(FrameBox(~x,~~~))::= "Framed(" ++ innerBoxesToText(x) ++ ")"
-innerBoxesToText(StyleBox(~x,~~~))::= innerBoxesToText(x)
-innerBoxesToText(TagBox(~x,~~~))::= innerBoxesToText(x)
-innerBoxesToText(InterpretationBox(~x,~~~))::= innerBoxesToText(x)
+innerBoxesToText(FrameBox(~x,~~~), ~format)::= "Framed(" ++ innerBoxesToText(x, format) ++ ")"
+innerBoxesToText((StyleBox|TagBox|InterpretationBox|TooltipBox)(~x,~~~), ~format)::= innerBoxesToText(x, format)
+innerBoxesToText(ButtonBox(~x,~~~), "PlainText")::= innerBoxesToText(x, "PlainText")
 
-innerBoxesToText(GridBox(~m,~~~))::= "{" ++ m.Map(
+innerBoxesToText(GridBox(~m,~~~), "InputText")::= "{" ++ m.Map(
 	Function({row}, 
 		"{" ++ row.Map(Function({x}, 
-			innerBoxesToText(x))).Row(", ").ToString ++ "}")).Row(",\n").ToString ++ "}"
+			innerBoxesToText(x, "InputText"))).Row(", ").ToString ++ "}")).Row(",\n").ToString ++ "}"
+			
+innerBoxesToText(GridBox(~m,~~~), "PlainText")::= m.Map(
+	Function({row}, 
+		row.Map(Function({x}, 
+			innerBoxesToText(x, "PlainText"))).Row("\t").ToString)).Row("\n").ToString
 
-innerBoxesToText(Section(BoxData(~x),~~~))::= innerBoxesToText(x)
-innerBoxesToText(Section(~x,~~~))::= innerBoxesToText(x)
+innerBoxesToText(Section(BoxData(~x),~~~), ~format)::= innerBoxesToText(x, format)
+innerBoxesToText(Section(~x,~~~), ~format)::= innerBoxesToText(x, format)
 
-innerBoxesToText(SectionGroup(~s:List,~~~))::= s.Map(innerBoxesToText).Row("\n\n").ToString
+innerBoxesToText(SectionGroup(~s:List,~~~), ~format)::= s.Map(innerBoxesToText(#, format)&).Row("\n\n").ToString
 
-innerBoxesToText(~x)::= x.RawBoxes.ToString /*"[$Failed : " ++ x.ToString ++ "]"*/
+innerBoxesToText(~x, ~format)::= x.RawBoxes.ToString /*"[$Failed : " ++ x.ToString ++ "]"*/
 
 End()

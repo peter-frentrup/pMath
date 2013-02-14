@@ -124,7 +124,6 @@ class PangoSettings {
       cr      = cairo_reference(static_canvas.cr);
       context = pango_cairo_create_context(cr);
       
-      dummy_ot_buffer = pango_ot_buffer_new(NULL);
     }
     
     ~PangoSettings() {
@@ -132,7 +131,6 @@ class PangoSettings {
       g_object_unref(context);
       cairo_destroy(cr);
       cairo_surface_destroy(surface);
-      pango_ot_buffer_destroy(dummy_ot_buffer);
     }
     
   public:
@@ -140,8 +138,6 @@ class PangoSettings {
     cairo_t       *cr;
     PangoFontMap  *font_map;
     PangoContext  *context;
-    
-    PangoOTBuffer *dummy_ot_buffer; // has no PangoFcFont!, so cannot do all
 };
 
 static PangoSettings pango_settings;

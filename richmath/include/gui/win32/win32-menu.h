@@ -20,8 +20,8 @@ namespace richmath {
       explicit Win32Menu(Expr expr, bool is_popup);
       virtual ~Win32Menu();
       
-      static String command_id_to_string(DWORD  id);
-      static DWORD  command_string_to_id(String str);
+      static Expr   id_to_command(DWORD  id);
+      static DWORD  command_to_id(Expr cmd);
       
       HMENU hmenu() { return _hmenu; }
       

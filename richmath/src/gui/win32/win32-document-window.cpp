@@ -94,7 +94,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       if(_parent)
         _parent->invalidate_options();
     }
-  
+    
     virtual String filename() { return _parent->filename(); }
     virtual void filename(String new_filename) { _parent->filename(new_filename); }
     
@@ -887,7 +887,7 @@ void Win32DocumentWindow::title(String text) {
       const uint16_t *buf = _filename.buffer();
       while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
         --c;
-      
+        
       text = _filename.part(c + 1);
     }
     else
@@ -987,11 +987,11 @@ bool Win32DocumentWindow::is_closed() {
   return BasicWin32Window::is_closed();
 }
 
-void Win32DocumentWindow::filename(String new_filename) { 
+void Win32DocumentWindow::filename(String new_filename) {
   _filename = new_filename;
   reset_title();
 }
-    
+
 
 void Win32DocumentWindow::on_theme_changed() {
   BasicWin32Window::on_theme_changed();
@@ -1155,34 +1155,38 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           break;
         /* no break */
       case WM_COMMAND: {
-          String cmd = Win32Menu::command_id_to_string(LOWORD(wParam));
+          Expr cmd = Win32Menu::id_to_command(LOWORD(wParam));
           
-          cmd = cmd.trim();
-          
-          if(cmd.starts_with("@shaper=")) {
-            cmd = cmd.part(sizeof("@shaper=") - 1, -1);
+          if(cmd.is_string()) {
+            String cmd_string = String(cmd).trim();
             
-            SharedPtr<MathShaper> *ms = MathShaper::available_shapers.search(cmd);
-            
-            if(ms) {
-              _top_glass_area->document_context()->math_shaper    = *ms;
-              _top_area->document_context()->math_shaper          = *ms;
-              _bottom_area->document_context()->math_shaper       = *ms;
-              _bottom_glass_area->document_context()->math_shaper = *ms;
-              _working_area->document_context()->math_shaper      = *ms;
+            if(cmd_string.starts_with("@shaper=")) {
+              cmd_string = cmd_string.part(sizeof("@shaper=") - 1, -1);
               
-              _top_glass_area->document()->invalidate_all();
-              _top_area->document()->invalidate_all();
-              _bottom_area->document()->invalidate_all();
-              _bottom_glass_area->document()->invalidate_all();
-              _working_area->document()->invalidate_all();
+              SharedPtr<MathShaper> *ms = MathShaper::available_shapers.search(cmd_string);
+              
+              if(ms) {
+                _top_glass_area->document_context()->math_shaper    = *ms;
+                _top_area->document_context()->math_shaper          = *ms;
+                _bottom_area->document_context()->math_shaper       = *ms;
+                _bottom_glass_area->document_context()->math_shaper = *ms;
+                _working_area->document_context()->math_shaper      = *ms;
+                
+                _top_glass_area->document()->invalidate_all();
+                _top_area->document()->invalidate_all();
+                _bottom_area->document()->invalidate_all();
+                _bottom_glass_area->document()->invalidate_all();
+                _working_area->document()->invalidate_all();
+              }
+              else
+                MessageBeep(0);
+                
+              return 0;
             }
-            else
-              MessageBeep(0);
-          }
-          else
-            Application::run_menucommand(cmd);
             
+          }
+          
+          Application::run_menucommand(cmd);
         } return 0;
         
       case WM_KEYDOWN:

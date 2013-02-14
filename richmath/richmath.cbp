@@ -431,6 +431,7 @@
 		<Unit filename="include/eval/server.h" />
 		<Unit filename="include/graphics/animation.h" />
 		<Unit filename="include/graphics/buffer.h" />
+		<Unit filename="include/graphics/cairostream.h" />
 		<Unit filename="include/graphics/canvas.h" />
 		<Unit filename="include/graphics/config-shaper.h" />
 		<Unit filename="include/graphics/context.h" />
@@ -678,6 +679,7 @@
 		<Unit filename="src/eval/server.cpp" />
 		<Unit filename="src/graphics/animation.cpp" />
 		<Unit filename="src/graphics/buffer.cpp" />
+		<Unit filename="src/graphics/cairostream.cpp" />
 		<Unit filename="src/graphics/canvas.cpp" />
 		<Unit filename="src/graphics/config-shaper.cpp" />
 		<Unit filename="src/graphics/context.cpp" />

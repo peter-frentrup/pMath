@@ -13,50 +13,74 @@
 #  include <gdk/gdkkeysyms.h>
 #endif
 
-static const char accel_path_prefix[] = "<Richmath>/";
 
 using namespace richmath;
 
+static const char accel_path_prefix[] = "<Richmath>/";
+static Hashtable<String,  Expr> accel_path_to_cmd;
+static Hashtable<Expr, String>  cmd_to_accel_path;
+
+
+static String add_command(Expr cmd) {
+  String *ap_ptr = cmd_to_accel_path.search(cmd);
+  
+  if(ap_ptr)
+    return *ap_ptr;
+    
+  String ap;
+  
+  if(cmd.is_string()) {
+    ap = String(accel_path_prefix) + cmd;
+  }
+  else {
+    static int cmd_id = 0;
+    int id = ++cmd_id;
+    
+    ap = String(accel_path_prefix) + Expr(id).to_string();
+  }
+  
+  cmd_to_accel_path.set(cmd, ap);
+  accel_path_to_cmd.set(ap, cmd);
+  
+  return ap;
+}
+
 static void on_menu_item_activate(GtkMenuItem *menuitem, void *id_ptr) {
-  const char *accel_path_str = (const char*)gtk_menu_item_get_accel_path(menuitem);
+  const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menuitem);
   if(!accel_path_str)
     return;
-
-  String cmd(accel_path_str);
-  if(cmd.starts_with(accel_path_prefix)) {
-    cmd = cmd.part(sizeof(accel_path_prefix) - 1, -1);
-
-    Document *doc = dynamic_cast<Document*>(Box::find((int)(uintptr_t)id_ptr));
+    
+  Expr cmd = accel_path_to_cmd[String(accel_path_str)];
+  if(!cmd.is_null()) {
+    Document *doc = dynamic_cast<Document *>(Box::find((int)(uintptr_t)id_ptr));
     if(doc) {
-      BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget*>(doc->native());
-
+      BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget *>(doc->native());
+      
       while(wid) {
-        MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow*>(wid);
+        MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow *>(wid);
         if(win) {
           win->run_menucommand(cmd);
           return;
         }
-
+        
         wid = wid->parent();
       }
     }
-
+    
     g_warning("no MathGtkDocumentWindow parent found.");
-
+    
     Application::run_menucommand(cmd);
   }
 }
 
 static void on_map_menu_callback(GtkWidget *item, void *data) {
   if(GTK_IS_MENU_ITEM(item)) {
-    const char *accel_path_str = (const char*)gtk_menu_item_get_accel_path(GTK_MENU_ITEM(item));
+    const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(GTK_MENU_ITEM(item));
     if(!accel_path_str)
       return;
-
-    String cmd(accel_path_str);
-    if(cmd.starts_with(accel_path_prefix)) {
-      cmd = cmd.part(sizeof(accel_path_prefix) - 1, -1);
-
+      
+    Expr cmd = accel_path_to_cmd[String(accel_path_str)];
+    if(!cmd.is_null()) {
       gtk_widget_set_sensitive(item, Application::is_menucommand_runnable(cmd));
     }
   }
@@ -81,21 +105,23 @@ MathGtkMenuBuilder::MathGtkMenuBuilder(Expr _expr)
 {
 }
 
-MathGtkMenuBuilder::~MathGtkMenuBuilder() {
+void MathGtkMenuBuilder::done() {
+  accel_path_to_cmd.clear();
+  cmd_to_accel_path.clear();
 }
 
 
 gboolean MathGtkMenuBuilder::on_map_menu(GtkWidget *menu, GdkEventAny *event, void *dummy) {
   // todo: handle tearoff menus
   Application::delay_dynamic_updates(true);
-
+  
   gtk_container_foreach(GTK_CONTAINER(menu), on_map_menu_callback, NULL);
   return FALSE;
 }
 
 gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *dummy) {
   Application::delay_dynamic_updates(false);
-
+  
   gtk_container_foreach(GTK_CONTAINER(menu), on_unmap_menu_callback, NULL);
   return FALSE;
 }
@@ -103,27 +129,27 @@ gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, 
 void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id) {
   if(expr[0] != GetSymbol(MenuSymbol) || expr.expr_length() != 2)
     return;
-
+    
   String name(expr[1]);
   if(name.is_null())
     return;
-
+    
   Expr list = expr[2];
   if(list[0] != PMATH_SYMBOL_LIST)
     return;
-
+    
   for(size_t i = 1; i <= list.expr_length(); ++i) {
     Expr item = list[i];
-
+    
     if( item[0] == GetSymbol(ItemSymbol) &&
         item.expr_length() == 2)
     {
       String name(item[1]);
-      String cmd(item[2]);
-
+      Expr cmd(item[2]);
+      
       if(name.length() > 0 && cmd.is_valid()) {
         GtkWidget *menu_item;
-
+        
         int len;
         char *label = pmath_string_to_utf8(name.get(), &len);
         if(label) {
@@ -134,40 +160,39 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
           menu_item = gtk_menu_item_new_with_mnemonic(label);
           pmath_mem_free(label);
         }
-
-        String accel_path(accel_path_prefix);
-        accel_path += cmd;
+        
+        String accel_path = add_command(cmd);
         char *accel_path_str = pmath_string_to_utf8(accel_path.get(), NULL);
         if(accel_path_str) {
           gtk_menu_item_set_accel_path(GTK_MENU_ITEM(menu_item), accel_path_str);
           pmath_mem_free(accel_path_str);
         }
-
-        g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_activate), (void*)for_document_window_id);
-
+        
+        g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_activate), (void *)for_document_window_id);
+        
         gtk_widget_show(menu_item);
         gtk_menu_shell_append(menu, menu_item);
       }
-
+      
       continue;
     }
-
+    
     if(item == GetSymbol(DelimiterSymbol)) {
       GtkWidget *menu_item = gtk_separator_menu_item_new();
-
+      
       gtk_widget_show(menu_item);
       gtk_menu_shell_append(menu, menu_item);
       continue;
     }
-
+    
     if( item[0] == GetSymbol(MenuSymbol) &&
         item.expr_length() == 2)
     {
       String name(item[1]);
-
+      
       if(name.length() > 0) {
         GtkWidget *menu_item;
-
+        
         int len;
         char *label = pmath_string_to_utf8(name.get(), &len);
         if(label) {
@@ -178,27 +203,27 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
           menu_item = gtk_menu_item_new_with_mnemonic(label);
           pmath_mem_free(label);
         }
-
+        
         //g_signal_connect(menu_item, "activate-item", G_CALLBACK(on_show_menu), NULL);
-
+        
         GtkWidget *submenu = gtk_menu_new();
-
+        
         gtk_widget_add_events(GTK_WIDGET(submenu), GDK_STRUCTURE_MASK);
-
+        
         g_signal_connect(GTK_WIDGET(submenu), "map-event",   G_CALLBACK(on_map_menu),   NULL);
         g_signal_connect(GTK_WIDGET(submenu), "unmap-event", G_CALLBACK(on_unmap_menu), NULL);
-
+        
         gtk_menu_set_accel_group(
           GTK_MENU(submenu),
           GTK_ACCEL_GROUP(accel_group));
-
+          
 //        gtk_menu_shell_append(GTK_MENU_SHELL(submenu), gtk_tearoff_menu_item_new());
 
         MathGtkMenuBuilder(item).append_to(
           GTK_MENU_SHELL(submenu),
           accel_group,
           for_document_window_id);
-
+          
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
         gtk_widget_show(menu_item);
         gtk_menu_shell_append(menu, menu_item);
@@ -217,15 +242,15 @@ Array<String> MathGtkAccelerators::all_accelerators;
 static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mods) {
   if(expr[0] != GetSymbol(KeyEventSymbol) || expr.expr_length() != 2)
     return false;
-
+    
   Expr modifiers = expr[2];
   if(modifiers[0] != PMATH_SYMBOL_LIST)
     return false;
-
+    
   int mods = 0;
   for(size_t i = modifiers.expr_length(); i > 0; --i) {
     Expr item = modifiers[i];
-
+    
     if(item == GetSymbol(KeyAltSymbol))
       mods |= GDK_MOD1_MASK;
     else if(item == GetSymbol(KeyControlSymbol))
@@ -235,23 +260,23 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
     else
       return false;
   }
-
+  
   *accel_mods = (GdkModifierType)mods;
-
+  
   String key(expr[1]);
   if(key.length() == 0)
     return false;
-
+    
   if(key.length() == 1) {
     uint16_t ch = key.buffer()[0];
-
+    
     if(ch >= 'A' && ch <= 'Z')
       ch -= 'A' - 'a';
-
+      
     *accel_key = gdk_unicode_to_keyval(ch);
     return true;
   }
-
+  
   if(key.equals("F1"))                      *accel_key = GDK_F1;
   else if(key.equals("F2"))                 *accel_key = GDK_F2;
   else if(key.equals("F3"))                 *accel_key = GDK_F3;
@@ -306,35 +331,33 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   else if(key.equals("Play"))               *accel_key = GDK_AudioPlay;
   else if(key.equals("Zoom"))               *accel_key = GDK_ZoomIn;
   else                                      return false;
-
+  
   return true;
 }
 
 void MathGtkAccelerators::load(Expr expr) {
   if(expr[0] != PMATH_SYMBOL_LIST)
     return;
-
+    
   for(size_t i = 1; i <= expr.expr_length(); ++i) {
     Expr item = expr[i];
-    String cmd(item[2]);
-
+    Expr cmd(item[2]);
+    
     guint           accel_key;
     GdkModifierType accel_mod;
-
+    
     if( item[0] == GetSymbol(ItemSymbol)               &&
         item.expr_length() == 2                        &&
-        cmd.length() > 0                               &&
         set_accel_key(item[1], &accel_key, &accel_mod) &&
         gtk_accelerator_valid(accel_key, accel_mod))
     {
-      String accel_path(accel_path_prefix);
-      accel_path += cmd;
-
+      String accel_path = add_command(cmd);
+      
       while(true) {
         char *str = pmath_string_to_utf8(accel_path.get(), NULL);
         if(!str)
           break;
-
+          
         if(gtk_accel_map_lookup_entry(str, 0)) {
           pmath_mem_free(str);
           accel_path += " ";
@@ -342,6 +365,7 @@ void MathGtkAccelerators::load(Expr expr) {
         else {
           gtk_accel_map_add_entry(str, accel_key, accel_mod);
           all_accelerators.add(accel_path);
+          accel_path_to_cmd.set(accel_path, cmd);
           //gtk_accel_group_connect_by_path(str, str, 0);
           pmath_mem_free(str);
           break;
@@ -353,16 +377,16 @@ void MathGtkAccelerators::load(Expr expr) {
   }
 }
 
-struct accel_data {
-  char *path;
-  int   document_id;
+class AccelData {
+  public:
+    Expr  cmd;
+    int   document_id;
 };
 
 static void accel_data_destroy(void *data, GClosure *closure) {
-  struct accel_data *accel_data = (struct accel_data*)data;
-
-  pmath_mem_free(accel_data->path);
-  pmath_mem_free(accel_data);
+  AccelData *accel_data = (AccelData *)data;
+  
+  delete accel_data;
 }
 
 static gboolean closure_callback(
@@ -372,44 +396,39 @@ static gboolean closure_callback(
   GdkModifierType  modifier,
   void            *user_data
 ) {
-  struct accel_data *accel_data = (struct accel_data*)user_data;
-
-  String cmd(accel_data->path);
-  if(cmd.starts_with(accel_path_prefix)) {
-    cmd = cmd.part(sizeof(accel_path_prefix) - 1, -1);
-
-    Document *doc = dynamic_cast<Document*>(Box::find(accel_data->document_id));
-    if(doc) {
-      BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget*>(doc->native());
-
-      while(wid) {
-        MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow*>(wid);
-        if(win) {
-          win->run_menucommand(cmd);
-          return TRUE;
-        }
-
-        wid = wid->parent();
+  AccelData *accel_data = (AccelData *)user_data;
+  
+  Document *doc = dynamic_cast<Document *>(Box::find(accel_data->document_id));
+  if(doc) {
+    BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget *>(doc->native());
+    
+    while(wid) {
+      MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow *>(wid);
+      if(win) {
+        win->run_menucommand(accel_data->cmd);
+        return TRUE;
       }
+      
+      wid = wid->parent();
     }
-
-    g_warning("no MathGtkDocumentWindow parent found.");
-
-    Application::run_menucommand(cmd);
   }
-
+  
+  g_warning("no MathGtkDocumentWindow parent found.");
+  
+  Application::run_menucommand(accel_data->cmd);
+  
   return TRUE;
 }
 
 void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, int document_id) {
   for(int i = 0; i < all_accelerators.length(); ++i) {
     char *path = pmath_string_to_utf8(all_accelerators[i].get_as_string(), 0);
-    struct accel_data *accel_data = (struct accel_data*)pmath_mem_alloc(sizeof(struct accel_data));
-
+    AccelData *accel_data = new AccelData;
+    
     if(path && accel_data) {
       accel_data->document_id = document_id;
-      accel_data->path = path;
-
+      accel_data->cmd = accel_path_to_cmd[path];
+      
       gtk_accel_group_connect_by_path(
         accel_group,
         path,
@@ -418,10 +437,10 @@ void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, int document_i
           accel_data,
           accel_data_destroy));
     }
-    else {
-      pmath_mem_free(path);
-      pmath_mem_free(accel_data);
-    }
+    else 
+      delete accel_data;
+    
+    pmath_mem_free(path);
   }
 }
 

@@ -294,6 +294,7 @@ static bool can_copy_cut(Expr cmd) {
   return true;
 }
 
+
 static bool can_open_close_group(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -555,6 +556,20 @@ static bool copy_cmd(Expr cmd) {
     return false;
     
   doc->copy_to_clipboard();
+  return true;
+}
+
+static bool copy_special_cmd(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc || !doc->can_copy())
+    return false;
+    
+  String format(cmd[1]);
+  if(!format.is_valid())
+    return false;
+  
+  doc->copy_to_clipboard(format);
   return true;
 }
 
@@ -1306,6 +1321,7 @@ bool richmath::init_bindings() {
   VERIFY(fe_symbols[ColorDialog]              = NEW_SYMBOL("FE`ColorDialog"))
   VERIFY(fe_symbols[FontDialog]               = NEW_SYMBOL("FE`FontDialog"))
   VERIFY(fe_symbols[ControlActive]            = NEW_SYMBOL("FE`$ControlActive"))
+  VERIFY(fe_symbols[CopySpecial]              = NEW_SYMBOL("FE`CopySpecial"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
   
@@ -1336,7 +1352,9 @@ bool richmath::init_bindings() {
     fe_symbols[InternalExecuteForSymbol],
     pmath_symbol_get_attributes(
       fe_symbols[InternalExecuteForSymbol]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
-      
+  
+  Application::register_menucommand(GetSymbol(CopySpecial), copy_special_cmd, can_copy_cut);
+  
   return true;
   
 FAIL_SYMBOLS:

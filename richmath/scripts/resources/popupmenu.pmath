@@ -18,6 +18,14 @@ FE`Private`popupmenu:= Menu("Popup", {
 	Item("Cu&t",   "Cut"),
 	Item("&Copy",  "Copy"),
 	Item("&Paste", "Paste"),
+	Menu("Cop&y As", {
+		Item("Plain &Text",        CopySpecial("PlainText")),
+		Item("&Input Text",        CopySpecial("InputText")),
+		Item("Boxes &Expression",  CopySpecial("BoxesExpression")),
+		Delimiter,
+		Item("&Bitmap",            CopySpecial("Bitmap")),
+		Item("&SVG",               CopySpecial("image/svg+xml"))
+		}),
 	Delimiter,
 	Item("Reset &Graphics Size", "GraphicsOriginalSize"),
 	Delimiter,

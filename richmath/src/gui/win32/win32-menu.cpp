@@ -23,9 +23,9 @@ static Hashtable<Expr,  DWORD>             cmd_to_id;
 static Hashtable<DWORD, Expr,   cast_hash> id_to_cmd;
 static Hashtable<DWORD, String, cast_hash> id_to_shortcut_text;
 
-static void add_command(DWORD id, String str) {
-  cmd_to_id.set(str, id);
-  id_to_cmd.set(id,  str);
+static void add_command(DWORD id, Expr cmd) {
+  cmd_to_id.set(cmd, id);
+  id_to_cmd.set(id,  cmd);
 }
 
 static void add_remove_menu(int delta) {
@@ -36,7 +36,7 @@ static void add_remove_menu(int delta) {
     
     cmd_to_id.default_value = 0;
     
-    add_command(SC_CLOSE, "Close");
+    add_command(SC_CLOSE, String("Close"));
   }
   
   num_menus += delta;
@@ -71,28 +71,26 @@ static HMENU create_menu(Expr expr, bool is_popup) {
           item.expr_length() == 2)
       {
         String name(item[1]);
-        String cmd(item[2]);
+        Expr   cmd( item[2]);
         
-        if(name.length() > 0 && cmd.is_valid()) {
-          DWORD id = cmd_to_id[cmd];
-          
-          if(!id) {
-            id = next_id++;
-            add_command(id, cmd);
-          }
-          
-          String shortcut = id_to_shortcut_text[id];
-          if(shortcut.length() > 0)
-            name += String::FromChar('\t') + shortcut;
-            
-          name += String::FromChar(0);
-          AppendMenuW(
-            menu,
-            MF_STRING | MF_ENABLED,
-            id,
-            (const wchar_t *)name.buffer());
+        DWORD id = cmd_to_id[cmd];
+        
+        if(!id) {
+          id = next_id++;
+          add_command(id, cmd);
         }
         
+        String shortcut = id_to_shortcut_text[id];
+        if(shortcut.length() > 0)
+          name += String::FromChar('\t') + shortcut;
+          
+        name += String::FromChar(0);
+        AppendMenuW(
+          menu,
+          MF_STRING | MF_ENABLED,
+          id,
+          (const wchar_t *)name.buffer());
+          
         continue;
       }
       
@@ -145,12 +143,12 @@ Win32Menu::~Win32Menu() {
   DestroyMenu(_hmenu);
 }
 
-String Win32Menu::command_id_to_string(DWORD  id) {
-  return String(id_to_cmd[id]);
+Expr Win32Menu::id_to_command(DWORD  id) {
+  return id_to_cmd[id];
 }
 
-DWORD  Win32Menu::command_string_to_id(String str) {
-  return cmd_to_id[str];
+DWORD  Win32Menu::command_to_id(Expr cmd) {
+  return cmd_to_id[cmd];
 }
 
 //} ... class Win32Menu
@@ -387,13 +385,12 @@ static HACCEL create_accel(Expr expr) {
   int j = 0;
   
   for(size_t i = 1; i <= expr.expr_length(); ++i) {
-    Expr item = expr[i];
-    String cmd(item[2]);
+    Expr item(expr[i]);
+    Expr cmd( item[2]);
     
-    if( item[0] == GetSymbol(ItemSymbol) && 
-        item.expr_length() == 2          && 
-        cmd.length() > 0                 && 
-        set_accel_key(item[1], &accel[j])) 
+    if( item[0] == GetSymbol(ItemSymbol) &&
+        item.expr_length() == 2          &&
+        set_accel_key(item[1], &accel[j]))
     {
       DWORD id = cmd_to_id[cmd];
       
