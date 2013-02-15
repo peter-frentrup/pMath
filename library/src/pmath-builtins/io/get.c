@@ -119,10 +119,6 @@ static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_
     }
   }
   
-  if(end_column > 400) {
-    pmath_debug_print("[very long line]\n");
-  }
-  
   debug_info = pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE), 2,
                  pmath_ref(data->filename),
