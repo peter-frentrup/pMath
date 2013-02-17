@@ -256,29 +256,31 @@ void OTFontReshaper::apply_lookups(
   
   current_lookup_list = gsub_table->lookup_list();
   
-  int pos = 0;
-  while(pos < glyphs.length()) {
-    next_position = pos + 1;
+  for(int i = 0; i < lookups.length(); ++i) {
+    const IndexAndValue iav = lookups[i];
     
-    for(int i = 0; i < lookups.length(); ++i) {
-      const IndexAndValue iav = lookups[i];
+    if(iav.value > 0 && 0 <= iav.index && iav.index < current_lookup_list->count()) {
+      const Lookup *lookup = current_lookup_list->lookup(iav.index);
       
-      if(iav.value > 0 && 0 <= iav.index && iav.index < current_lookup_list->count()) {
-        apply_lookup(
-          current_lookup_list->lookup(iav.index),
+      int pos = 0;
+      while(pos < glyphs.length()) {
+        next_position = pos + 1;
+        
+        apply_lookup_at(
+          lookup,
           iav.value,
           pos);
+          
+        pos = next_position;
       }
     }
-    
-    pos = next_position;
   }
   
   current_lookup_list = old_lookup_list;
   next_position       = old_next_position;
 }
 
-void OTFontReshaper::apply_lookup(
+void OTFontReshaper::apply_lookup_at(
   const Lookup               *lookup,
   int                         value,
   int                         position
@@ -354,7 +356,7 @@ void OTFontReshaper::apply_lookup(
       break;
       
     default:
-      pmath_debug_print("[apply_lookup() unknown type %d]\n", lookup->type());
+      pmath_debug_print("[apply_lookup_at() unknown type %d]\n", lookup->type());
       break;
   }
 }
@@ -473,7 +475,7 @@ void OTFontReshaper::apply_context_substitution(
             if(next_position > position)
               next_position += rule_len - 1;
               
-            apply_lookups_at(
+            apply_multiple_lookups_at(
               rule->subst_records(),
               rule->subst_count(),
               value,
@@ -524,7 +526,7 @@ void OTFontReshaper::apply_context_substitution(
             if(next_position > position)
               next_position += rule_len - 1;
               
-            apply_lookups_at(
+            apply_multiple_lookups_at(
               rule->subst_records(),
               rule->subst_count(),
               value,
@@ -552,7 +554,7 @@ void OTFontReshaper::apply_context_substitution(
         if(next_position > position)
           next_position += length - 1;
           
-        apply_lookups_at(
+        apply_multiple_lookups_at(
           ctxsub->format3_subst_records(),
           ctxsub->format3_subst_count(),
           value,
@@ -617,7 +619,7 @@ void OTFontReshaper::apply_chaining_context_substitution(
             if(next_position > position)
               next_position += ilen - 1;
               
-            apply_lookups_at(
+            apply_multiple_lookups_at(
               rule->subst_records(),
               rule->subst_count(),
               value,
@@ -715,7 +717,7 @@ void OTFontReshaper::apply_chaining_context_substitution(
             if(next_position > position)
               next_position += ilen - 1;
               
-            apply_lookups_at(
+            apply_multiple_lookups_at(
               rule->subst_records(),
               rule->subst_count(),
               value,
@@ -759,7 +761,7 @@ void OTFontReshaper::apply_chaining_context_substitution(
         if(next_position > position)
           next_position += ilen - 1;
           
-        apply_lookups_at(
+        apply_multiple_lookups_at(
           subst_records,
           subst_count,
           value,
@@ -831,7 +833,7 @@ void OTFontReshaper::apply_extension_substitution(
   }
 }
 
-void OTFontReshaper::apply_lookups_at(
+void OTFontReshaper::apply_multiple_lookups_at(
   const SubstLookupRecord *lookups,
   int                      count,
   int                      value,
@@ -851,7 +853,7 @@ void OTFontReshaper::apply_lookups_at(
     
     const Lookup *lookup = current_lookup_list->lookup(lookup_index);
     
-    apply_lookup(lookup, value, position + rel_pos);
+    apply_lookup_at(lookup, value, position + rel_pos);
   }
 }
 

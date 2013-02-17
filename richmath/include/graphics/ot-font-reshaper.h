@@ -127,10 +127,10 @@ namespace richmath {
         const Array<IndexAndValue> &lookups);
         
         
-      void apply_lookup(
-        const Lookup               *lookup,
-        int                         value,
-        int                         position);
+      void apply_lookup_at(
+        const Lookup *lookup,
+        int           value,
+        int           position);
         
       void apply_single_substitution(
         const SingleSubstitution *singsub,
@@ -164,7 +164,7 @@ namespace richmath {
         int                          value,
         int                          position);
         
-      void apply_lookups_at(
+      void apply_multiple_lookups_at(
         const SubstLookupRecord *lookups,
         int                      count,
         int                      value,
