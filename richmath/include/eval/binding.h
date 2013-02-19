@@ -21,12 +21,13 @@ namespace richmath {
     KeyControlSymbol,
     KeyShiftSymbol,
     SymbolDefinitionsSymbol,
-    FileOpenDialog,
-    FileSaveDialog,
-    ColorDialog,
-    FontDialog,
-    ControlActive,
-    CopySpecial,
+    FileOpenDialogSymbol,
+    FileSaveDialogSymbol,
+    ColorDialogSymbol,
+    FontDialogSymbol,
+    ControlActiveSymbol,
+    CopySpecialSymbol,
+    AutoCompleteNameSymbol,
     
     FrontEndSymbolsCount
   } FrontEndSymbolIndex;

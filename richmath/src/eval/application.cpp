@@ -221,7 +221,7 @@ static pthread_t main_thread = 0;
 double Application::edit_interrupt_timeout      = 2.0;
 double Application::interrupt_timeout           = 0.3;
 double Application::button_timeout              = 4.0;
-double Application::dynamic_timeout             = 24 * 60 * 60; //4.0;
+double Application::dynamic_timeout             = 4.0;
 double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
 String Application::application_directory;
@@ -489,17 +489,17 @@ static void update_control_active(bool value) {
   original_value = value;
   if(value) {
     Application::interrupt(
-      /*Parse("FE`$ControlActive:= True; Print(FE`$ControlActive)")*/
+      /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_ASSIGN),
-           GetSymbol(ControlActive),
+           GetSymbol(ControlActiveSymbol),
            Symbol(PMATH_SYMBOL_TRUE)));
   }
   else {
     Application::interrupt(
-      /*Parse("FE`$ControlActive:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActive)")*/
+      /*Parse("FE`$ControlActiveSymbol:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
            Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                GetSymbol(ControlActive),
+                GetSymbol(ControlActiveSymbol),
                 Symbol(PMATH_SYMBOL_FALSE)),
            Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
                 Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),
@@ -903,8 +903,8 @@ Document *Application::create_document(Expr data) {
 }
 
 Expr Application::run_filedialog(Expr data) {
-// FE`FileOpenDialog("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
-// FE`FileSaveDialog("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
+// FE`FileOpenDialogSymbol("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
+// FE`FileSaveDialogSymbol("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
   String title;
   String filename;
   Expr   filter;
@@ -941,7 +941,7 @@ Expr Application::run_filedialog(Expr data) {
   
 #if RICHMATH_USE_WIN32_GUI
   result = Win32FileDialog::show(
-             head == GetSymbol(FileSaveDialog),
+             head == GetSymbol(FileSaveDialogSymbol),
              filename,
              filter,
              title);
@@ -949,7 +949,7 @@ Expr Application::run_filedialog(Expr data) {
              
 #ifdef RICHMATH_USE_GTK_GUI
   result = MathGtkFileDialog::show(
-             head == GetSymbol(FileSaveDialog),
+             head == GetSymbol(FileSaveDialogSymbol),
              filename,
              filter,
              title);
@@ -1686,7 +1686,7 @@ static Expr cnt_save(Expr data) {
 
     filename = Application::run_filedialog(
                  Call(
-                   GetSymbol(FileSaveDialog),
+                   GetSymbol(FileSaveDialogSymbol),
                    filter));
   }
   

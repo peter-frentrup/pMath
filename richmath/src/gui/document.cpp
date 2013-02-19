@@ -460,6 +460,7 @@ Document::Document()
     must_resize_min(0),
     drag_status(DragStatusIdle),
     auto_scroll(false),
+    auto_completion_index(0),
     _native(NativeWidget::dummy),
     mouse_down_counter(0),
     mouse_down_time(0),
@@ -1112,8 +1113,10 @@ void Document::on_key_down(SpecialKeyEvent &event) {
           
           move_tab(event.shift ? Backward : Forward);
           
-          if(oldpos == context.selection)
-            native()->beep();
+          if(oldpos == context.selection) {
+            autocomplete_next(event.shift ? Backward : Forward);
+            //native()->beep();
+          }
         }
         else
           key_press('\t');
@@ -1139,6 +1142,7 @@ void Document::on_key_down(SpecialKeyEvent &event) {
           selbox = selbox->parent()->remove(&index);
           
           move_to(selbox, index);
+          auto_completion_range.reset();
         }
         else if(event.ctrl || selbox != this) {
           int old = context.selection.id;
@@ -1637,6 +1641,17 @@ void Document::raw_select(Box *box, int start, int end) {
     }
     
     additional_selection.length(0);
+    
+    if(auto_completion_range.id) {
+      if( !box ||
+          box->id() != auto_completion_range.id ||
+          end < auto_completion_range.start ||
+          start > auto_completion_range.end)
+      {
+        auto_completion_range.reset();
+      }
+    }
+    
     context.selection.set_raw(box, start, end);
     
     if(box) {
@@ -2254,7 +2269,7 @@ String Document::copy_to_text(String mimetype) {
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
     
   if(mimetype.equals("InputText"/*Clipboard::PlainText*/) ||
-     mimetype.equals("PlainText")) 
+      mimetype.equals("PlainText"))
   {
     Expr text = Application::interrupt(
                   Parse("FE`BoxesToText(`1`, `2`)", boxes, mimetype),
@@ -2270,7 +2285,7 @@ String Document::copy_to_text(String mimetype) {
 //    boxes = Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes);
 //    return boxes.to_string(0);
 //  }
-  
+
   native()->beep();
   return String();
 }
@@ -2407,7 +2422,7 @@ void Document::copy_to_clipboard(String mimetype) {
   if( mimetype.equals(Clipboard::BoxesText) ||
       mimetype.equals(Clipboard::PlainText) ||
       mimetype.equals("BoxesExpression") ||
-      mimetype.equals("PlainText")) 
+      mimetype.equals("PlainText"))
   {
     SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
     if(!cb) {
@@ -3635,6 +3650,8 @@ bool Document::remove_selection(bool insert_default) {
   if(selection_box() && !selection_box()->edit_selection(&context))
     return false;
     
+  auto_completion_range.reset();
+  
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get());
   if(seq) {
     if(MathSequence *mseq = dynamic_cast<MathSequence *>(seq)) {
@@ -3780,6 +3797,100 @@ void Document::complete_box() {
   native()->beep();
 }
 
+void Document::autocomplete_next(LogicalDirection direction) {
+  if(!auto_completion_range.id) {
+    if(MathSequence *seq = dynamic_cast<MathSequence *>(selection_box())) {
+      if(!seq->get_style(Editable)) {
+        native()->beep();
+        return;
+      }
+      
+      SpanExpr *span = SpanExpr::find(seq, selection_end(), true);
+      
+      if(span) {
+        pmath_token_t tok = span->as_token();
+        
+        if(tok == PMATH_TOK_NAME) {
+          String text = span->as_text();
+          auto_completion_list = Application::interrupt_cached(
+                                   Call(
+                                     GetSymbol(AutoCompleteNameSymbol),
+                                     text),
+                                    Application::button_timeout);
+                                     
+          if(auto_completion_list[0] == PMATH_SYMBOL_LIST && auto_completion_list.expr_length() > 0) {
+            move_to(span->sequence(), span->end() + 1, false);
+            auto_completion_range = SelectionReference(span->sequence()->id(), span->start(), span->end() + 1);
+            
+            //pmath_debug_print_object("[completions: ", auto_completion_list.get(), "]\n");
+            
+            if(text == auto_completion_list[1]) {
+              if(direction == Forward)
+                auto_completion_index = 1;
+              else
+                auto_completion_index = auto_completion_list.expr_length() + 1;
+            }
+            else {
+              auto_completion_list.append(text);
+              
+              if(direction == Forward)
+                auto_completion_index = 0;
+              else
+                auto_completion_index = auto_completion_list.expr_length();
+            }
+          }
+          else
+            auto_completion_list = Expr();
+        }
+        
+        delete span;
+      }
+    }
+  }
+  
+  if(auto_completion_range.id) {
+    if(direction == Forward) {
+      ++auto_completion_index;
+      if((size_t)auto_completion_index > auto_completion_list.expr_length())
+        auto_completion_index = 1;
+    }
+    else {
+      --auto_completion_index;
+      if(auto_completion_index < 1)
+        auto_completion_index = auto_completion_list.expr_length();
+    }
+    
+    Expr boxes = auto_completion_list[(size_t)auto_completion_index];
+    
+    if(MathSequence *seq = dynamic_cast<MathSequence *>(auto_completion_range.get())) {
+      if(!seq->get_style(Editable)) {
+        native()->beep();
+        return;
+      }
+      
+      SelectionReference range = auto_completion_range;
+      
+      int options = BoxOptionDefault;
+      if(seq->get_style(AutoNumberFormating))
+        options |= BoxOptionFormatNumbers;
+        
+      MathSequence *tmp = new MathSequence;
+      tmp->load_from_object(boxes, options);
+      
+      seq->remove(range.start, range.end);
+      int end = seq->insert(range.start, tmp);
+      
+      move_to(seq, end);
+      auto_completion_range = SelectionReference(seq->id(), range.start, end);
+      
+      return;
+    }
+  }
+  
+  native()->beep();
+  return;
+}
+
 void Document::reset_mouse() {
   mouse_down_counter = 0;
   Application::delay_dynamic_updates(false);
@@ -3902,6 +4013,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   if(!resize_only) {
     add_matching_bracket_hook();
     add_selected_word_highlight_hooks(first_visible_section, last_visible_section);
+    add_autocompletion_hook();
     
     {
       float y = 0;
@@ -4193,6 +4305,22 @@ void Document::add_matching_bracket_hook() {
       delete span;
     }
   }
+}
+
+void Document::add_autocompletion_hook() {
+  Box *box = auto_completion_range.get();
+  
+  if(!box)
+    return;
+    
+  additional_selection.add(auto_completion_range);
+  context.pre_paint_hooks.add(
+    box,
+    new SelectionFillHook(
+      auto_completion_range.start,
+      auto_completion_range.end,
+      0x00FF00,
+      0.5));
 }
 
 void Document::paint_document_cursor() {

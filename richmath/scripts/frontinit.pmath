@@ -11,6 +11,7 @@ SectionsToBoxes;
 FileOpenDialog;
 FileSaveDialog;
 $ControlActive;
+AutoCompleteName;
 
 Begin("FE`Private`")
 
@@ -69,6 +70,30 @@ SymbolDefinitions(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
 	)[2])
 
 SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
+
+AutoCompleteName(~part)::= 
+	Names(part ++ ~~~).Map(
+		#.StringReplace(long: ~~~ ++ "`" ++ (short:part ++ ~~~) :> 
+			{short, 
+				If(Names(short).Length===1, 
+					short
+				,
+					long
+				)}
+			)&
+		).Sort()[All,2]
+	/*Names(part ++ ~~~).Map(
+		#.StringReplace(long: ~~~ ++ "`" ++ (short:part ++ ~~~) :> 
+			{short, 
+				If(Names(short).Length===1, 
+					short
+				,
+					If(ToBoxes(LongForm(HoldForm @@ MakeExpression(part))) === long,
+						long,
+						{short, long})
+				)}
+			)&
+		).Sort()[All,2].Flatten*/
 
 $NamespacePath:= oldNamespacePath
 

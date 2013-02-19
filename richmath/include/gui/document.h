@@ -132,6 +132,7 @@ namespace richmath {
       void toggle_open_close_current_group();
       
       void complete_box();
+      void autocomplete_next(LogicalDirection direction);
       
       Box *selection_box() {   return context.selection.get();   }
       int selection_start() {  return context.selection.start; }
@@ -163,6 +164,7 @@ namespace richmath {
       void after_resize_section(int i);
       void add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section); // paint to context.canvas
       void add_matching_bracket_hook();
+      void add_autocompletion_hook();
       
       void paint_document_cursor(); // paint to context.canvas
       void paint_flashing_cursor_if_needed(); // paint to context.canvas
@@ -194,6 +196,10 @@ namespace richmath {
       SelectionReference sel_last;
       
       SelectionReference drag_source;
+      
+      SelectionReference auto_completion_range;
+      Expr auto_completion_list;
+      int auto_completion_index;
       
     private:
       NativeWidget *_native;

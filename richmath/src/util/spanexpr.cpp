@@ -125,7 +125,7 @@ SpanExpr::~SpanExpr() {
     }
 }
 
-SpanExpr *find(MathSequence *sequence, int pos, bool before) {
+SpanExpr *SpanExpr::find(MathSequence *sequence, int pos, bool before) {
   assert(sequence != 0);
   
   sequence->ensure_spans_valid();
@@ -135,11 +135,9 @@ SpanExpr *find(MathSequence *sequence, int pos, bool before) {
     
   int start = pos;
   if(pos > 0 && before) {
-    start = pos - 1;
-    while(start >= 0 && !sequence->span_array().is_token_end(start))
+    --start;
+    while(start > 0 && !sequence->span_array().is_token_end(start-1))
       --start;
-      
-    ++start;
   }
   
   if(start == sequence->length())
@@ -148,6 +146,18 @@ SpanExpr *find(MathSequence *sequence, int pos, bool before) {
   Span span = sequence->span_array()[start];
   while(span && span.next() && span.next().end() >= pos - 1)
     span = span.next();
+  
+  if(span && !span.next()) {
+    int tokend = start;
+    while(tokend < span.end()) {
+      if(sequence->span_array().is_token_end(tokend))
+        break;
+      ++tokend;
+    }
+    
+    if(tokend < span.end() && pos <= tokend + 1)
+      span = Span(0);
+  }
     
   return new SpanExpr(start, span, sequence);
 }

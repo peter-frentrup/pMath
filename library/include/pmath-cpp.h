@@ -235,6 +235,15 @@ namespace pmath {
         }
       }
       
+      /**\brief Append an item to an expression.
+         \param e The new element.
+        */
+      void append(Expr e) throw() {
+        if(is_expr()) {
+          _obj = pmath_expr_append(_obj, 1, e.release());
+        }
+      }
+      
       /**\brief Convert to a double.
          \param def Optional default value.
          \return the double value if the object is a numeric object and \a def

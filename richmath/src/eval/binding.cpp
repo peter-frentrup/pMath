@@ -1019,7 +1019,7 @@ static bool open_cmd(Expr cmd) {
                   
   Expr filenames = Application::run_filedialog(
                      Call(
-                       GetSymbol(FileOpenDialog),
+                       GetSymbol(FileOpenDialogSymbol),
                        filter));
                        
   if(filenames.is_string())
@@ -1316,12 +1316,13 @@ bool richmath::init_bindings() {
   VERIFY(fe_symbols[MenuSymbol]               = NEW_SYMBOL("FE`Menu"))
   VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteFor"))
   VERIFY(fe_symbols[SymbolDefinitionsSymbol]  = NEW_SYMBOL("FE`SymbolDefinitions"))
-  VERIFY(fe_symbols[FileOpenDialog]           = NEW_SYMBOL("FE`FileOpenDialog"))
-  VERIFY(fe_symbols[FileSaveDialog]           = NEW_SYMBOL("FE`FileSaveDialog"))
-  VERIFY(fe_symbols[ColorDialog]              = NEW_SYMBOL("FE`ColorDialog"))
-  VERIFY(fe_symbols[FontDialog]               = NEW_SYMBOL("FE`FontDialog"))
-  VERIFY(fe_symbols[ControlActive]            = NEW_SYMBOL("FE`$ControlActive"))
-  VERIFY(fe_symbols[CopySpecial]              = NEW_SYMBOL("FE`CopySpecial"))
+  VERIFY(fe_symbols[FileOpenDialogSymbol]     = NEW_SYMBOL("FE`FileOpenDialogSymbol"))
+  VERIFY(fe_symbols[FileSaveDialogSymbol]     = NEW_SYMBOL("FE`FileSaveDialogSymbol"))
+  VERIFY(fe_symbols[ColorDialogSymbol]        = NEW_SYMBOL("FE`ColorDialogSymbol"))
+  VERIFY(fe_symbols[FontDialogSymbol]         = NEW_SYMBOL("FE`FontDialogSymbol"))
+  VERIFY(fe_symbols[ControlActiveSymbol]      = NEW_SYMBOL("FE`$ControlActiveSymbol"))
+  VERIFY(fe_symbols[CopySpecialSymbol]        = NEW_SYMBOL("FE`CopySpecialSymbol"))
+  VERIFY(fe_symbols[AutoCompleteNameSymbol]   = NEW_SYMBOL("FE`AutoCompleteName"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
   
@@ -1343,17 +1344,17 @@ bool richmath::init_bindings() {
   
   VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol],     builtin_addconfigshaper))
   VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],  builtin_internalexecutefor))
-  VERIFY(BIND_DOWN(fe_symbols[ColorDialog],               builtin_colordialog))
-  VERIFY(BIND_DOWN(fe_symbols[FileOpenDialog],            builtin_filedialog))
-  VERIFY(BIND_DOWN(fe_symbols[FileSaveDialog],            builtin_filedialog))
-  VERIFY(BIND_DOWN(fe_symbols[FontDialog],                builtin_fontdialog))
+  VERIFY(BIND_DOWN(fe_symbols[ColorDialogSymbol],               builtin_colordialog))
+  VERIFY(BIND_DOWN(fe_symbols[FileOpenDialogSymbol],            builtin_filedialog))
+  VERIFY(BIND_DOWN(fe_symbols[FileSaveDialogSymbol],            builtin_filedialog))
+  VERIFY(BIND_DOWN(fe_symbols[FontDialogSymbol],                builtin_fontdialog))
   
   pmath_symbol_set_attributes(
     fe_symbols[InternalExecuteForSymbol],
     pmath_symbol_get_attributes(
       fe_symbols[InternalExecuteForSymbol]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
   
-  Application::register_menucommand(GetSymbol(CopySpecial), copy_special_cmd, can_copy_cut);
+  Application::register_menucommand(GetSymbol(CopySpecialSymbol), copy_special_cmd, can_copy_cut);
   
   return true;
   
