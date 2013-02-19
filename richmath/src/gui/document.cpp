@@ -1107,8 +1107,14 @@ void Document::on_key_down(SpecialKeyEvent &event) {
       } return;
       
     case KeyTab: {
-        if(is_tabkey_only_moving())
+        if(is_tabkey_only_moving()) {
+          SelectionReference oldpos = context.selection;
+          
           move_tab(event.shift ? Backward : Forward);
+          
+          if(oldpos == context.selection)
+            native()->beep();
+        }
         else
           key_press('\t');
         event.key = KeyUnknown;
@@ -2103,7 +2109,7 @@ bool Document::is_tabkey_only_moving() {
   if(MathSequence *seq = dynamic_cast<MathSequence *>(selbox)) {
     const uint16_t *buf = seq->text().buffer();
     
-    for(int i = context.selection.start - 1; i >= 0; ++i) {
+    for(int i = context.selection.start - 1; i >= 0; --i) {
       if(buf[i] == '\n')
         return false;
         
@@ -2117,7 +2123,7 @@ bool Document::is_tabkey_only_moving() {
   if(TextSequence *seq = dynamic_cast<TextSequence *>(selbox)) {
     const char *buf = seq->text_buffer().buffer();
     
-    for(int i = context.selection.start - 1; i >= 0; ++i) {
+    for(int i = context.selection.start - 1; i >= 0; --i) {
       if(buf[i] == '\n')
         return false;
         
