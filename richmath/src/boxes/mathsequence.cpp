@@ -438,9 +438,10 @@ void MathSequence::paint(Context *context) {
         if(pos > 0)
           x_extra -= glyphs[pos - 1].right;
           
-        if(pos < glyphs.length())
-          x_extra -= glyphs[pos].x_offset;
-          
+//        if(pos < glyphs.length()) {
+//          if(pos > 0 && buf[pos-1] != '\n')
+//            x_extra -= glyphs[pos].x_offset;
+//        }
         y += lines[line].ascent;
         
         for(; pos < lines[line].end; ++pos) {
@@ -595,6 +596,7 @@ void MathSequence::selection_path(Canvas *canvas, int start, int end) {
 
 void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int start, int end) {
   float x0, y0, x1, y1, x2, y2;
+//  const uint16_t *buf = str.buffer();
   
   canvas->current_pos(&x0, &y0);
   
@@ -628,21 +630,24 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   if(start > 0)
     x1 += glyphs[start - 1].right;
     
+  int pos;
   if(startline > 0) {
     x1 -= glyphs[lines[startline - 1].end - 1].right;
+    pos = lines[startline - 1].end;
     
-    if(start > lines[startline - 1].end) {
-      x1 -= glyphs[lines[startline - 1].end].x_offset;
-      
-      if(start < glyphs.length())
-        x1 += glyphs[start].x_offset / 2;
-    }
+//    if(start > lines[startline - 1].end) {
+//      x1 -= glyphs[lines[startline - 1].end].x_offset;
+//    }
   }
-  else if(start < glyphs.length())
-    x1 += glyphs[start].x_offset / 2;
+  else
+    pos = 0;
     
   x1 += indention_width(lines[startline].indent);
+//  if(pos < glyphs.length() && pos > 0 && buf[pos-1] != '\n')
+//      x1 -= glyphs[pos].x_offset;
   
+//  if(start < glyphs.length())
+//    x1 += glyphs[start].x_offset / 2;
   
   x2 = x0;
   if(end > 0)
@@ -650,19 +655,21 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
     
   if(endline > 0) {
     x2 -= glyphs[lines[endline - 1].end - 1].right;
+    pos = lines[endline - 1].end;
     
-    if(end > lines[endline - 1].end) {
-      x2 -= glyphs[lines[endline - 1].end].x_offset;
-      
-      if(end < glyphs.length())
-        x2 += glyphs[end].x_offset / 2;
-    }
+//    if(end > lines[endline - 1].end) {
+//      x2 -= glyphs[lines[endline - 1].end].x_offset;
+//    }
   }
-  else if(end < glyphs.length())
-    x2 += glyphs[end].x_offset / 2;
+  else
+    pos = 0;
     
   x2 += indention_width(lines[endline].indent);
-  
+//  if(pos < glyphs.length() && pos > 0 && buf[pos-1] != '\n')
+//    x2 -= glyphs[pos].x_offset;
+
+//  if(end < glyphs.length())
+//    x2 += glyphs[end].x_offset / 2;
   
   if(endline == startline) {
     float a = 0.5 * em;
@@ -1037,8 +1044,8 @@ Box *MathSequence::mouse_selection(
   const uint16_t *buf = str.buffer();
   
   x -= indention_width(lines[line].indent);
-  if(line > 0 && lines[line - 1].end < glyphs.length())
-    x += glyphs[lines[line - 1].end].x_offset;
+//  if(line > 0 && lines[line - 1].end < glyphs.length())
+//    x += glyphs[lines[line - 1].end].x_offset;
     
   if(x < 0) {
     *was_inside_start = false;
@@ -1139,17 +1146,19 @@ void MathSequence::child_transformation(
   
   x += indention_width(lines[l].indent);
   
-  if(index < glyphs.length())
-    x += glyphs[index].x_offset;
-    
+  if(index < glyphs.length()) {
+    if(str[index] == PMATH_CHAR_BOX)
+      x += glyphs[index].x_offset;
+  }
+  
   if(index > 0) {
     x += glyphs[index - 1].right;
     
     if(l > 0 && lines[l - 1].end > 0) {
       x -= glyphs[lines[l - 1].end - 1].right;
       
-      if(lines[l - 1].end < glyphs.length())
-        x -= glyphs[lines[l - 1].end].x_offset;
+//      if(lines[l - 1].end < glyphs.length())
+//        x -= glyphs[lines[l - 1].end].x_offset;
     }
   }
   
