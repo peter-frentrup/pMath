@@ -72,16 +72,22 @@ SymbolDefinitions(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
 SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
 
 AutoCompleteName(~part)::= 
-	Names(part ++ ~~~, IgnoreCase -> True).Map(
-		#.StringReplace(
-			long: ~~~ ++ "`" ++ (short:part ++ ~~~) :> 
-				{short, 
-					If(Names(short).Length===1, 
-						short
-					,
-						long
-					)},
-			IgnoreCase -> True)&).Sort()[All,2]
+	Join(
+		Names(part ++ ~~~, IgnoreCase -> True).Map(
+			#.StringReplace({
+					long: ~~~ ++ "`" ++ (short:part ++ ~~~) :> 
+						{short, 
+							If(Names(short).Length===1, 
+								short
+							,
+								long
+							)}
+					~long :> {long, long}
+				},
+				IgnoreCase -> True)&
+			).Sort()[All,2],
+		Names(StartOfString ++ part ++ (~|"`")***, IgnoreCase -> True).Map(Namespace@@MakeExpression(#)&).Union
+		)
 
 $NamespacePath:= oldNamespacePath
 
