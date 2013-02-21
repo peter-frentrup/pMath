@@ -3799,12 +3799,82 @@ void Document::complete_box() {
 
 void Document::autocomplete_next(LogicalDirection direction) {
   if(!auto_completion_range.id) {
-    if(MathSequence *seq = dynamic_cast<MathSequence *>(selection_box())) {
-      if(!seq->get_style(Editable)) {
-        native()->beep();
-        return;
+    Box *selbox = selection_box();
+    if(!selbox || !selbox->get_style(Editable)) {
+      native()->beep();
+      return;
+    }
+    
+    if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(selbox)) {
+      int alias_end = selection_end();
+      int alias_pos = alias_end - 1;
+      
+      uint32_t ch = 0;
+      while(alias_pos >= 0) {
+        ch = seq->char_at(alias_pos);
+        
+        if(ch == PMATH_CHAR_ALIASDELIMITER || ch < ' ')
+          break;
+          
+        --alias_pos;
       }
       
+      if(ch == PMATH_CHAR_ALIASDELIMITER && alias_pos + 1 < alias_end) {
+        String alias = seq->raw_substring(alias_pos, alias_end - alias_pos).part(1);
+        
+        Gather g;
+        
+        for(unsigned i = 0, rest = global_macros.size();rest > 0;++i) {
+          Entry<String,Expr> *e = global_macros.entry(i);
+          
+          if(e) {
+            --rest;
+            
+            // TODO: case-insensitive
+            if(e->key.starts_with(alias)) {
+              Gather::emit(e->key);
+            }
+          }
+        }
+        
+        for(unsigned i = 0, rest = global_immediate_macros.size();rest > 0;++i) {
+          Entry<String,Expr> *e = global_immediate_macros.entry(i);
+          
+          if(e) {
+            --rest;
+            
+            // TODO: case-insensitive
+            if(e->key.starts_with(alias)) {
+              Gather::emit(e->key);
+            }
+          }
+        }
+        
+        auto_completion_list = g.end();
+        auto_completion_list.sort();
+        
+        auto_completion_range = SelectionReference(seq->id(), alias_pos + 1, alias_end);
+        
+        if(alias == auto_completion_list[1]) {
+          if(direction == Forward)
+            auto_completion_index = 1;
+          else
+            auto_completion_index = auto_completion_list.expr_length() + 1;
+        }
+        else {
+          auto_completion_list.append(alias);
+          
+          if(direction == Forward)
+            auto_completion_index = 0;
+          else
+            auto_completion_index = auto_completion_list.expr_length();
+        }
+        
+        goto CONTINUE_COMPLETION;
+      }
+    }
+    
+    if(MathSequence *seq = dynamic_cast<MathSequence *>(selbox)) {
       SpanExpr *span = SpanExpr::find(seq, selection_end(), true);
       
       if(span) {
@@ -3816,8 +3886,8 @@ void Document::autocomplete_next(LogicalDirection direction) {
                                    Call(
                                      GetSymbol(AutoCompleteNameSymbol),
                                      text),
-                                    Application::button_timeout);
-                                     
+                                   Application::button_timeout);
+                                   
           if(auto_completion_list[0] == PMATH_SYMBOL_LIST && auto_completion_list.expr_length() > 0) {
             move_to(span->sequence(), span->end() + 1, false);
             auto_completion_range = SelectionReference(span->sequence()->id(), span->start(), span->end() + 1);
@@ -3848,6 +3918,7 @@ void Document::autocomplete_next(LogicalDirection direction) {
     }
   }
   
+CONTINUE_COMPLETION:
   if(auto_completion_range.id) {
     if(direction == Forward) {
       ++auto_completion_index;

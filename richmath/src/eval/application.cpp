@@ -1068,8 +1068,9 @@ Expr Application::interrupt_cached(Expr expr, double seconds) {
     return *cached;
     
   Expr result = interrupt(expr, seconds);
-  if(result != PMATH_SYMBOL_ABORTED
-      && result != PMATH_SYMBOL_FAILED) {
+  if( result != PMATH_SYMBOL_ABORTED && 
+      result != PMATH_SYMBOL_FAILED)
+  {
     eval_cache.set(expr, result);
   }
   else if(result == PMATH_SYMBOL_ABORTED) {

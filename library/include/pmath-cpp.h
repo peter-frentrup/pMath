@@ -244,6 +244,14 @@ namespace pmath {
         }
       }
       
+      /**\brief Sort the expression
+        */
+      void sort() throw() {
+        if(is_expr()) {
+          _obj = pmath_expr_sort(_obj);
+        }
+      }
+      
       /**\brief Convert to a double.
          \param def Optional default value.
          \return the double value if the object is a numeric object and \a def
