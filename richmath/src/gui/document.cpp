@@ -4390,7 +4390,7 @@ void Document::add_autocompletion_hook() {
     new SelectionFillHook(
       auto_completion_range.start,
       auto_completion_range.end,
-      0x00FF00,
+      0x80FF80,
       0.5));
 }
 

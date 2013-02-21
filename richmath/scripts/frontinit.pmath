@@ -75,18 +75,18 @@ AutoCompleteName(~part)::=
 	Join(
 		Names(part ++ ~~~, IgnoreCase -> True).Map(
 			#.StringReplace({
-					long: ~~~ ++ "`" ++ (short:part ++ ~~~) :> 
+					long: ~~~ ++ "`" ++ (short: part ++ ~~~) :> 
 						{short, 
 							If(Names(short).Length===1, 
 								short
 							,
 								long
-							)}
-					~long :> {long, long}
+							)},
+					~~long :> {long, long}
 				},
 				IgnoreCase -> True)&
 			).Sort()[All,2],
-		Names(StartOfString ++ part ++ (~|"`")***, IgnoreCase -> True).Map(Namespace@@MakeExpression(#)&).Union
+		Names(StartOfString ++ part ++ (~ | "`")***, IgnoreCase -> True).Map(Namespace @@ MakeExpression(#) &).Union
 		)
 
 $NamespacePath:= oldNamespacePath
