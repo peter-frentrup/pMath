@@ -5,6 +5,7 @@
 #include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/option-helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
@@ -102,10 +103,33 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr) {
      Names()
    */
   struct _regex_t *regex = NULL;
-  int regex_options = 0;
+  int pcre_options = 0;
   
-  if(pmath_expr_length(expr) == 1) {
-    pmath_string_t pattern = pmath_expr_get_item(expr, 1);
+  if(pmath_expr_length(expr) >= 1) {
+    pmath_expr_t options;
+    pmath_string_t pattern;
+    pmath_t obj;
+    
+    options = pmath_options_extract(expr, 1);
+    if(pmath_is_null(options))
+      return expr;
+    
+    obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
+    if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+      pcre_options |= PCRE_CASELESS;
+    }
+    else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+      pmath_message(
+        PMATH_NULL, "opttf", 2,
+        pmath_ref(PMATH_SYMBOL_IGNORECASE),
+        obj);
+      pmath_unref(options);
+      return expr;
+    }
+    pmath_unref(obj);
+    pmath_unref(options);
+    
+    pattern = pmath_expr_get_item(expr, 1);
     
     if(pmath_is_string(pattern)) {
       pattern = pmath_parse_string_args(
@@ -117,15 +141,6 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr) {
                   "  StartOfString ++ System`Private`p ++ EndOfString))",
                   "(o)", pattern);
       pattern = pmath_evaluate(pattern);
-      
-//      expr = pmath_parse_string_args(
-//               "Local("
-//               "{System`Private`p:= StringReplace(`1`, {\"*\" -> Except(\"`\")***, \"@\" -> RegularExpression(\"\\\\p{Ll}+\")})},"
-//               "If(StringPosition(`1`,\"`\") === {},"
-//               "System`Private`p:= Prepend($NamespacePath, $Namespace) ++ System`Private`p);"
-//               "Names().Select(StringMatch(#, StartOfString ++ System`Private`p ++ EndOfString)&)"
-//               ")",
-//               "(o)", pattern);
     }
     else {
       if(!has_namespace_tick(pattern)) {
@@ -143,11 +158,7 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr) {
       }
     }
     
-    regex = _pmath_regex_compile(pattern, regex_options);
-  }
-  else if(pmath_expr_length(expr) != 0) {
-    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
-    return expr;
+    regex = _pmath_regex_compile(pattern, pcre_options);
   }
   
   pmath_unref(expr);

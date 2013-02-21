@@ -757,6 +757,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN(
         "Options(Find):="
         "Options(FindList):="
+        "Options(Names):="
         "Options(StringMatch):="
         "Options(StringReplace):="
         "Options(StringSplit):={IgnoreCase->False}");

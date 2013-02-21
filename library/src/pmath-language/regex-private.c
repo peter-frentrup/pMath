@@ -328,6 +328,8 @@ static void store_regex(struct _regex_t *re) {
     arr_re = regex_cache_array[regex_cache_array_next];
     regex_cache_array[regex_cache_array_next] = _pmath_regex_ref(re);
     ++regex_cache_array_next;
+    if(regex_cache_array_next >= REGEX_CACHE_ARRAY_SIZE)
+      regex_cache_array_next = 0;
     
     if(arr_re)
       rem_re = (struct _regex_t *)pmath_ht_remove(table, &arr_re->key);

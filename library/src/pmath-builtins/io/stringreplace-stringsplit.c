@@ -251,7 +251,6 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr) {
     
     if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
       max_matches = (size_t)PMATH_AS_INT32(obj);
-      pmath_unref(obj);
       last_nonoption = 3;
     }
     else if(!pmath_is_set_of_options(obj)) {
@@ -259,6 +258,8 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr) {
       pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
       return expr;
     }
+    
+    pmath_unref(obj);
   }
   else if(pmath_expr_length(expr) < 2) {
     pmath_message_argxxx(pmath_expr_length(expr), 2, 3);
@@ -315,11 +316,9 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr) {
     
     if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) > 0) {
       max_matches = PMATH_AS_INT32(obj) - 1;
-      pmath_unref(obj);
       last_nonoption = 3;
     }
     else if(pmath_same(obj, PMATH_SYMBOL_ALL)) {
-      pmath_unref(obj);
       sr_options |= SR_EMIT_EMPTY_BOUNDS;
       last_nonoption = 3;
     }
@@ -328,6 +327,8 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr) {
       pmath_message(PMATH_NULL, "intpm", 2, pmath_ref(expr), PMATH_FROM_INT32(3));
       return expr;
     }
+    
+    pmath_unref(obj);
   }
   else if(pmath_expr_length(expr) == 1) {
     last_nonoption = 1;
