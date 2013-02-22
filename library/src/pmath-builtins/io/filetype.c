@@ -9,11 +9,11 @@
 #include <limits.h>
 
 #ifdef PMATH_OS_WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOGDI
-#include <Windows.h>
+#  define WIN32_LEAN_AND_MEAN
+#  define NOGDI
+#  include <Windows.h>
 #else
-#include <sys/stat.h>
+#  include <sys/stat.h>
 #endif
 
 

@@ -16,33 +16,17 @@
 #endif
 
 
-PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr) {
-  /* FileByteCount(file)
-   */
-  pmath_t file;
-
-  if(pmath_expr_length(expr) != 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-    return expr;
-  }
-
-  file = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_string(file) || pmath_string_length(file) == 0) {
-    pmath_message(PMATH_NULL, "fstr", 1, file);
-    return expr;
-  }
-  pmath_unref(expr);
-
+static pmath_t file_to_bytecount(pmath_string_t name){ // name will be freed
 #ifdef PMATH_OS_WIN32
   {
     const uint16_t zero = 0;
     HANDLE h;
 
-    file = pmath_string_insert_ucs2(file, INT_MAX, &zero, 1);
+    name = pmath_string_insert_ucs2(name, INT_MAX, &zero, 1);
 
     // use CreateFile() instead of GetFileAttributes() to follow symbolic links.
     h = CreateFileW(
-          (const wchar_t*)pmath_string_buffer(&file),
+          (const wchar_t*)pmath_string_buffer(&name),
           0,
           FILE_SHARE_READ | FILE_SHARE_WRITE,
           NULL,
@@ -55,7 +39,7 @@ PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr) {
 
       if(GetFileInformationByHandle(h, &info)) {
         DWORD size[2];
-        pmath_unref(file);
+        pmath_unref(name);
         CloseHandle(h);
 
         size[0] = info.nFileSizeLow;
@@ -69,14 +53,14 @@ PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr) {
   }
 #else
   {
-    char *str = pmath_string_to_native(file, NULL);
+    char *str = pmath_string_to_native(name, NULL);
 
     if(str) {
       struct stat buf;
 
       if(stat(str, &buf) == 0) {
         pmath_mem_free(str);
-        pmath_unref(file);
+        pmath_unref(name);
 
         return pmath_integer_new_data(1, -1, sizeof(off_t), 0, 0, &buf.st_size);
       }
@@ -86,6 +70,33 @@ PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr) {
   }
 #endif
 
-  pmath_unref(file);
-  return PMATH_FROM_INT32(0);
+  pmath_unref(name);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+
+PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr) {
+  /* FileByteCount(file)
+   */
+  pmath_t obj;
+
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+
+  obj = pmath_expr_get_item(expr, 1);
+  if(!pmath_is_string(obj) || pmath_string_length(obj) == 0) {
+    pmath_message(PMATH_NULL, "fstr", 1, obj);
+    return expr;
+  }
+  
+  obj = file_to_bytecount(obj);
+  
+  if(pmath_same(obj, PMATH_SYMBOL_FAILED)) {
+    pmath_message(PMATH_NULL, "nffil", 1, pmath_ref(expr));
+  }
+  
+  pmath_unref(expr);
+  return obj;
 }

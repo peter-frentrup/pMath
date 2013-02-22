@@ -714,6 +714,9 @@
 		<Unit filename="src/pmath-builtins/io/filebytecount.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/io/fileinformation.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/io/filenames.c">
 			<Option compilerVar="CC" />
 		</Unit>

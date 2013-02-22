@@ -261,6 +261,8 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr
 PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(          pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/io/ ...
+PMATH_PRIVATE pmath_t builtin_developer_fileinformation(pmath_expr_t expr);
+
 PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_binaryread(                    pmath_expr_t expr);
@@ -682,9 +684,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
   
-  VERIFY(   PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE = NEW_SYMBOL("Developer`DebugInfoSource"))
-  VERIFY(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO    = NEW_SYMBOL("Developer`GetDebugInfo"))
-  VERIFY(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT  = NEW_SYMBOL("Developer`SetDebugInfoAt"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE     = NEW_SYMBOL("Developer`DebugInfoSource"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION     = NEW_SYMBOL("Developer`FileInformation"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO        = NEW_SYMBOL("Developer`GetDebugInfo"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT      = NEW_SYMBOL("Developer`SetDebugInfoAt"))
   
   VERIFY(   PMATH_SYMBOL_ABORTED                          = NEW_SYSTEM_SYMBOL("$Aborted"))
   VERIFY(   PMATH_SYMBOL_ABORT                            = NEW_SYSTEM_SYMBOL("Abort"))
@@ -1495,8 +1498,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,       builtin_iscriticalmessage)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
   
-  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO,   builtin_developer_getdebuginfo);
-  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT, builtin_developer_setdebuginfoat);
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION,     builtin_developer_fileinformation);
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO,        builtin_developer_getdebuginfo);
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT,      builtin_developer_setdebuginfoat);
   
   BIND_DOWN(   PMATH_SYMBOL_ABORT,                       builtin_abort)
   BIND_DOWN(   PMATH_SYMBOL_ABS,                         builtin_abs)

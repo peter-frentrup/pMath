@@ -127,12 +127,13 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname) {
 
     result = _pmath_new_string_buffer(reslen);
     if(result) {
-      GetFullPathNameW(
+      reslen = GetFullPathNameW(
         pmath_string_buffer(&relname),
         reslen,
         (wchar_t *)AFTER_STRING(result),
         NULL);
-      result->length = reslen - 1;
+      
+      result->length = reslen;
     }
 
     pmath_unref(relname);

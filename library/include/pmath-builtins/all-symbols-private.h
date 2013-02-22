@@ -2,7 +2,7 @@
 #define __PMATH_BUILTINS__SYMBOLS_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-#error This header file is not part of the public pMath API
+#  error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-builtins/all-symbols.h>
@@ -48,6 +48,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_done(void);
 
-#define PMATH_BUILTIN_SYMBOL_COUNT  764
+#define PMATH_BUILTIN_SYMBOL_COUNT  765
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_PRIVATE_H__ */
