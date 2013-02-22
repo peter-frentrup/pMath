@@ -59,7 +59,7 @@ PMATH_PRIVATE pmath_t builtin_developer_fileinformation(pmath_expr_t expr) {
           FILE_SHARE_READ | FILE_SHARE_WRITE,
           NULL,
           OPEN_EXISTING,
-          0,
+          FILE_FLAG_BACKUP_SEMANTICS, // needed to open handles to dicretories
           NULL);
 
     if(h != INVALID_HANDLE_VALUE) {
@@ -88,9 +88,6 @@ PMATH_PRIVATE pmath_t builtin_developer_fileinformation(pmath_expr_t expr) {
       }
 
       CloseHandle(h);
-    }
-    else {
-      pmath_debug_print("[GetLastError: %x]", (unsigned)GetLastError());
     }
   }
 #else

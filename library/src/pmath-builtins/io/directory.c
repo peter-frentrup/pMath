@@ -120,7 +120,7 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname) {
       return PMATH_NULL;
 
     reslen = GetFullPathNameW(pmath_string_buffer(&relname), 0, NULL, NULL);
-    if((int)reslen * sizeof(uint16_t) <= 0) {
+    if((int)reslen <= 0) {
       pmath_unref(relname);
       return PMATH_NULL;
     }
