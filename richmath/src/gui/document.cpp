@@ -1407,6 +1407,8 @@ void Document::on_key_press(uint32_t unichar) {
     }
   }
   
+  bool had_empty_selection = (context.selection.start == context.selection.end);
+  
   remove_selection(false);
   
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get());
@@ -1550,6 +1552,12 @@ void Document::on_key_press(uint32_t unichar) {
         
         if(!handle_macros())
           move_to(mseq, start);
+      }
+    }
+    else if(had_empty_selection && mseq && was_inside_string && !was_inside_alias) {
+      if(unichar == '\\') {
+        int newpos = seq->insert(context.selection.start, '\\');
+        select(seq, context.selection.start, newpos);
       }
     }
   }
