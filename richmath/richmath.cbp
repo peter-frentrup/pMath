@@ -226,7 +226,7 @@
 				<Option object_output="obj/windows/msvc/" />
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="0" />
-				<Option compiler="msvc8" />
+				<Option compiler="msvc10" />
 				<Compiler>
 					<Add option="/MT" />
 					<Add option="/arch:SSE2" />
