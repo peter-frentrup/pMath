@@ -1316,13 +1316,14 @@ bool richmath::init_bindings() {
   VERIFY(fe_symbols[MenuSymbol]               = NEW_SYMBOL("FE`Menu"))
   VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteFor"))
   VERIFY(fe_symbols[SymbolDefinitionsSymbol]  = NEW_SYMBOL("FE`SymbolDefinitions"))
-  VERIFY(fe_symbols[FileOpenDialogSymbol]     = NEW_SYMBOL("FE`FileOpenDialogSymbol"))
-  VERIFY(fe_symbols[FileSaveDialogSymbol]     = NEW_SYMBOL("FE`FileSaveDialogSymbol"))
-  VERIFY(fe_symbols[ColorDialogSymbol]        = NEW_SYMBOL("FE`ColorDialogSymbol"))
-  VERIFY(fe_symbols[FontDialogSymbol]         = NEW_SYMBOL("FE`FontDialogSymbol"))
-  VERIFY(fe_symbols[ControlActiveSymbol]      = NEW_SYMBOL("FE`$ControlActiveSymbol"))
-  VERIFY(fe_symbols[CopySpecialSymbol]        = NEW_SYMBOL("FE`CopySpecialSymbol"))
+  VERIFY(fe_symbols[FileOpenDialogSymbol]     = NEW_SYMBOL("FE`FileOpenDialog"))
+  VERIFY(fe_symbols[FileSaveDialogSymbol]     = NEW_SYMBOL("FE`FileSaveDialog"))
+  VERIFY(fe_symbols[ColorDialogSymbol]        = NEW_SYMBOL("FE`ColorDialog"))
+  VERIFY(fe_symbols[FontDialogSymbol]         = NEW_SYMBOL("FE`FontDialog"))
+  VERIFY(fe_symbols[ControlActiveSymbol]      = NEW_SYMBOL("FE`$ControlActive"))
+  VERIFY(fe_symbols[CopySpecialSymbol]        = NEW_SYMBOL("FE`CopySpecial"))
   VERIFY(fe_symbols[AutoCompleteNameSymbol]   = NEW_SYMBOL("FE`AutoCompleteName"))
+  VERIFY(fe_symbols[AutoCompleteFileSymbol]   = NEW_SYMBOL("FE`AutoCompleteFile"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
   
@@ -1344,10 +1345,10 @@ bool richmath::init_bindings() {
   
   VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol],     builtin_addconfigshaper))
   VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],  builtin_internalexecutefor))
-  VERIFY(BIND_DOWN(fe_symbols[ColorDialogSymbol],               builtin_colordialog))
-  VERIFY(BIND_DOWN(fe_symbols[FileOpenDialogSymbol],            builtin_filedialog))
-  VERIFY(BIND_DOWN(fe_symbols[FileSaveDialogSymbol],            builtin_filedialog))
-  VERIFY(BIND_DOWN(fe_symbols[FontDialogSymbol],                builtin_fontdialog))
+  VERIFY(BIND_DOWN(fe_symbols[ColorDialogSymbol],         builtin_colordialog))
+  VERIFY(BIND_DOWN(fe_symbols[FileOpenDialogSymbol],      builtin_filedialog))
+  VERIFY(BIND_DOWN(fe_symbols[FileSaveDialogSymbol],      builtin_filedialog))
+  VERIFY(BIND_DOWN(fe_symbols[FontDialogSymbol],          builtin_fontdialog))
   
   pmath_symbol_set_attributes(
     fe_symbols[InternalExecuteForSymbol],

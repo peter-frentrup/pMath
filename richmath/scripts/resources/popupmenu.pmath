@@ -21,7 +21,7 @@ FE`Private`popupmenu:= Menu("Popup", {
 	Menu("Cop&y As", {
 		Item("Plain &Text",        CopySpecial("PlainText")),
 		Item("&Input Text",        CopySpecial("InputText")),
-		Item("Boxes &Expression",  CopySpecial("BoxesExpression")),
+		Item("Boxes &Expression",  CopySpecial("BoxesText")),
 		Delimiter,
 		Item("&Bitmap",            CopySpecial("Bitmap")),
 		Item("&SVG",               CopySpecial("image/svg+xml"))

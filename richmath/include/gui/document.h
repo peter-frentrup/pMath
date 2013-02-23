@@ -132,7 +132,11 @@ namespace richmath {
       void toggle_open_close_current_group();
       
       void complete_box();
-      void autocomplete_next(LogicalDirection direction);
+      bool start_autocomplete_alias(LogicalDirection direction);
+      bool start_autocomplete_filename(LogicalDirection direction);
+      bool start_autocomplete_symbol(LogicalDirection direction);
+      bool autocomplete_next(LogicalDirection direction);
+      void stop_autocomplete();
       
       Box *selection_box() {   return context.selection.get();   }
       int selection_start() {  return context.selection.start; }

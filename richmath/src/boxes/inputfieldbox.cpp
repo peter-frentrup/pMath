@@ -426,9 +426,9 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
       event.key = KeyUnknown;
       return;
       
-    case KeyTab:
-      event.key = KeyUnknown;
-      return;
+//    case KeyTab:
+//      event.key = KeyUnknown;
+//      return;
       
     case KeyUp: {
         Document *doc = find_parent<Document>(false);
@@ -469,7 +469,7 @@ bool InputFieldBox::assign_dynamic() {
                       Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes),
                       Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
                       
-    value = Expr(pmath_evaluate(value.release()));
+    value = Evaluate(value);
     
     if(value[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
       if(input_type[0] == PMATH_SYMBOL_HOLD) {
@@ -493,7 +493,7 @@ bool InputFieldBox::assign_dynamic() {
     Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
                       Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes));
                       
-    value = Expr(pmath_evaluate(value.release()));
+    value = Evaluate(value);
     
     if( value[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
         value.expr_length() == 1              &&
@@ -520,7 +520,7 @@ bool InputFieldBox::assign_dynamic() {
       Expr value = Call(Symbol(PMATH_SYMBOL_TOSTRING),
                         Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
                         
-      value = Expr(pmath_evaluate(value.release()));
+      value = Evaluate(value);
       
       dynamic.assign(value);
       if(!dynamic.is_dynamic())

@@ -52,7 +52,6 @@ namespace richmath {
       virtual void on_key_down(SpecialKeyEvent &event);
       virtual void on_key_press(uint32_t unichar);
       
-    protected:
       bool assign_dynamic();
       
     protected:
@@ -64,6 +63,7 @@ namespace richmath {
       float last_click_global_y;
       float frame_x;
       
+    public:
       Dynamic dynamic;
       Expr input_type;
   };

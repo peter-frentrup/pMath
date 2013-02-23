@@ -28,6 +28,7 @@ namespace richmath {
     ControlActiveSymbol,
     CopySpecialSymbol,
     AutoCompleteNameSymbol,
+    AutoCompleteFileSymbol,
     
     FrontEndSymbolsCount
   } FrontEndSymbolIndex;

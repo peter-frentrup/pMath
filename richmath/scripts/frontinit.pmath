@@ -12,6 +12,7 @@ FileOpenDialog;
 FileSaveDialog;
 $ControlActive;
 AutoCompleteName;
+AutoCompleteFile;
 
 Begin("FE`Private`")
 
@@ -71,7 +72,7 @@ SymbolDefinitions(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
 
 SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
 
-AutoCompleteName(~part)::= 
+AutoCompleteName(~part:String)::= 
 	Join(
 		Names(part ++ ~~~, IgnoreCase -> True).Map(
 			#.StringReplace({
@@ -88,6 +89,14 @@ AutoCompleteName(~part)::=
 			).Sort()[All,2],
 		Names(StartOfString ++ part ++ (~ | "`")***, IgnoreCase -> True).Map(Namespace @@ MakeExpression(#) &).Union
 		)
+
+AutoCompleteFile(~part:String)::=
+	With({split:= part.StringCases(~~~dir ++ ("/"|$PathnameSeparator) ++ (file:Except("/"|$PathnameSeparator)***) :> {dir,file})},
+		If(split.Length =!= 1,
+			Return({}));
+		
+		Return(FileNames(split[1,1], split[1,2] ++ "*"));
+	)
 
 $NamespacePath:= oldNamespacePath
 

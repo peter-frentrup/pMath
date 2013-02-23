@@ -597,7 +597,7 @@ void MathSequence::selection_path(Canvas *canvas, int start, int end) {
 void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int start, int end) {
   float x0, y0, x1, y1, x2, y2;
 //  const uint16_t *buf = str.buffer();
-  
+
   canvas->current_pos(&x0, &y0);
   
   y0 -= lines[0].ascent;
@@ -645,10 +645,10 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   x1 += indention_width(lines[startline].indent);
 //  if(pos < glyphs.length() && pos > 0 && buf[pos-1] != '\n')
 //      x1 -= glyphs[pos].x_offset;
-  
+
 //  if(start < glyphs.length())
 //    x1 += glyphs[start].x_offset / 2;
-  
+
   x2 = x0;
   if(end > 0)
     x2 += glyphs[end - 1].right;
@@ -670,7 +670,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
 
 //  if(end < glyphs.length())
 //    x2 += glyphs[end].x_offset / 2;
-  
+
   if(endline == startline) {
     float a = 0.5 * em;
     float d = 0;
@@ -776,9 +776,9 @@ Expr MathSequence::to_pmath(int flags) {
   settings.add_debug_info = add_debug_info;
   
   if(flags & BoxFlagParseable)
-    settings.flags|= PMATH_BFS_PARSEABLE;
-  
-  settings.flags|= PMATH_BFS_USECOMPLEXSTRINGBOX;
+    settings.flags |= PMATH_BFS_PARSEABLE;
+    
+  settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
   
   ensure_spans_valid();
   
@@ -801,46 +801,46 @@ Expr MathSequence::to_pmath(int flags, int start, int end) {
   settings.add_debug_info = add_debug_info;
   
   if(flags & BoxFlagParseable)
-    settings.flags|= PMATH_BFS_PARSEABLE;
-  
-  settings.flags|= PMATH_BFS_USECOMPLEXSTRINGBOX;
+    settings.flags |= PMATH_BFS_PARSEABLE;
+    
+  settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
   
   ensure_spans_valid();
   
   return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
 //  if(start == 0 && end >= length())
 //    return to_pmath(flags);
-//    
+//
 //  const uint16_t *buf = str.buffer();
 //  int firstbox = 0;
-//  
+//
 //  for(int i = 0; i < start; ++i)
 //    if(buf[i] == PMATH_CHAR_BOX)
 //      ++firstbox;
-//      
+//
 //  MathSequence *tmp = new MathSequence();
 //  tmp->insert(0, this, start, end);
 //  tmp->ensure_spans_valid();
 //  tmp->ensure_boxes_valid();
-//  
+//
 //  Expr result = tmp->to_pmath(flags);
-//  
+//
 //  for(int i = 0; i < tmp->boxes.length(); ++i) {
 //    Box *box          = boxes[firstbox + i];
 //    Box *tmp_box      = tmp->boxes[i];
 //    int box_index     = box->index();
 //    int tmp_box_index = tmp_box->index();
-//    
+//
 //    abandon(box);
 //    tmp->abandon(tmp_box);
-//    
+//
 //    adopt(tmp_box, box_index);
 //    tmp->adopt(box, tmp_box_index);
-//    
+//
 //    boxes[firstbox + i] = tmp_box;
 //    tmp->boxes[i] = box;
 //  }
-//  
+//
 //  delete tmp;
 //  return result;
 }
@@ -1046,7 +1046,7 @@ Box *MathSequence::mouse_selection(
   x -= indention_width(lines[line].indent);
 //  if(line > 0 && lines[line - 1].end < glyphs.length())
 //    x += glyphs[lines[line - 1].end].x_offset;
-    
+
   if(x < 0) {
     *was_inside_start = false;
     *end = *start;
@@ -1175,13 +1175,17 @@ Box *MathSequence::normalize_selection(int *start, int *end) {
   return this;
 }
 
-bool MathSequence::is_inside_string(int pos) {
+int MathSequence::find_string_start(int pos_inside_string, int *next_afer_string) {
   ensure_spans_valid();
   
+  if(next_afer_string)
+    *next_afer_string = -1;
+    
   const uint16_t *buf = str.buffer();
   int i = 0;
-  while(i < pos) {
+  while(i < pos_inside_string) {
     if(buf[i] == '"') {
+      int start = i;
       Span span = spans[i];
       
       while(span.next()) {
@@ -1190,8 +1194,11 @@ bool MathSequence::is_inside_string(int pos) {
       
       if(span) {
         i = span.end() + 1;
-        if(i >= pos && buf[i - 1] != '"')
-          return true;
+        if(i > pos_inside_string || (i == pos_inside_string && buf[i - 1] != '"')) {
+          if(next_afer_string)
+            *next_afer_string = i;
+          return start;
+        }
       }
       else
         ++i;
@@ -1200,7 +1207,7 @@ bool MathSequence::is_inside_string(int pos) {
       ++i;
   }
   
-  return i > pos;
+  return -1;
 }
 
 void MathSequence::ensure_boxes_valid() {
@@ -1450,7 +1457,7 @@ pmath_t MathSequence::box_at_index(int i, void *_data) {
   
   if(i < data->start || data->end <= i)
     return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
-  
+    
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()) {
     if(data->sequence->boxes[data->current_box]->index() == i)
@@ -1479,28 +1486,28 @@ pmath_t MathSequence::add_debug_info(pmath_t token_or_span, int start, int end, 
   if(pmath_is_string(token_or_span)) {
     if(data->start <= start && end <= data->end)
       return token_or_span;
-    
+      
     /* does not work with string tokens containing boxes */
     
     if(start <= data->start && data->end <= end) {
       return pmath_string_part(
-        token_or_span, 
-        data->start - start, 
-        data->end - data->start);
+               token_or_span,
+               data->start - start,
+               data->end - data->start);
     }
     
     if(data->start <= start && start <= data->end) {
       return pmath_string_part(
-        token_or_span, 
-        0, 
-        data->end - start);
+               token_or_span,
+               0,
+               data->end - start);
     }
     
     if(data->start <= end && end <= data->end) {
       return pmath_string_part(
-        token_or_span, 
-        data->start - start, 
-        end - data->start);
+               token_or_span,
+               data->start - start,
+               end - data->start);
     }
     
     return token_or_span;
@@ -1510,14 +1517,14 @@ pmath_t MathSequence::add_debug_info(pmath_t token_or_span, int start, int end, 
     return token_or_span;
     
   Expr debug_info = Call(
-    Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
-    Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), data->sequence->id()),
-    Call(Symbol(PMATH_SYMBOL_RANGE), start, end));
-  
+                      Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
+                      Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), data->sequence->id()),
+                      Call(Symbol(PMATH_SYMBOL_RANGE), start, end));
+                      
   token_or_span = pmath_try_set_debug_info(
-    token_or_span,
-    debug_info.release());
-  
+                    token_or_span,
+                    debug_info.release());
+                    
   return token_or_span;
 }
 
@@ -2104,7 +2111,7 @@ void MathSequence::stretch_span(
 void MathSequence::apply_glyph_substitutions(Context *context) {
   if(context->fontfeatures.empty())
     return;
-  
+    
   int old_ssty_feature_value = context->fontfeatures.feature_value(FontFeatureSet::TAG_ssty);
   if(old_ssty_feature_value < 0)
     context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, context->script_indent);
@@ -2121,7 +2128,7 @@ void MathSequence::apply_glyph_substitutions(Context *context) {
 //    OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
 //    OTFontReshaper::LANG_dflt,
 //    context->fontfeatures);
-    
+
   substitute_glyphs(
     context,
     0,
@@ -2131,7 +2138,7 @@ void MathSequence::apply_glyph_substitutions(Context *context) {
     OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
     OTFontReshaper::LANG_dflt,
     context->fontfeatures);
-
+    
   substitute_glyphs(
     context,
     0,
@@ -2203,7 +2210,7 @@ void MathSequence::substitute_glyphs(
     FontInfo info(face);
     const GlyphSubstitutions *gsub = info.get_gsub_table();
     
-    if(gsub){
+    if(gsub) {
       static Array<OTFontReshaper::IndexAndValue> lookups;
       lookups.length(0);
       
@@ -2226,9 +2233,9 @@ void MathSequence::substitute_glyphs(
         reshaper.glyph_info.length(0);
         
         for(int i = run_start; i < next_run; ++i) {
-          if(glyphs[i].index == IgnoreGlyph) 
+          if(glyphs[i].index == IgnoreGlyph)
             continue;
-          
+            
           reshaper.glyphs.add(glyphs[i].index);
           reshaper.glyph_info.add(i);
         }
@@ -2245,12 +2252,12 @@ void MathSequence::substitute_glyphs(
           int pos = reshaper.glyph_info[i];
           
           if(i2 < len && reshaper.glyph_info[i2] == pos) {
-            // no room for "one to many" substitution 
+            // no room for "one to many" substitution
             
             ++i2;
             while(i2 < len && reshaper.glyph_info[i2] == pos)
               ++i2;
-            
+              
             i = i2;
             continue;
           }
@@ -2260,17 +2267,17 @@ void MathSequence::substitute_glyphs(
             next = reshaper.glyph_info[i2];
           else
             next = next_run;
-          
+            
           assert(pos < next);
           
-          if(glyphs[pos].index != reshaper.glyphs[i]){
+          if(glyphs[pos].index != reshaper.glyphs[i]) {
             cg.index = glyphs[pos].index = reshaper.glyphs[i];
             
             context->canvas->glyph_extents(&cg, 1, &cte);
             cte.x_advance /= (next - pos);
             glyphs[pos].right = cte.x_advance;
             
-            for(int j = pos + 1;j < next;++j) {
+            for(int j = pos + 1; j < next; ++j) {
               glyphs[j].right = cte.x_advance;
               glyphs[j].index = IgnoreGlyph;
             }
@@ -2282,13 +2289,13 @@ void MathSequence::substitute_glyphs(
         
 //        for(int i = run_start; i < next_run; ++i) {
 //          uint16_t glyph_index = glyphs[i].index;
-//          
+//
 //          glyph_index = OTFontReshaper::substitute_single_glyph(gsub, glyph_index, lookups);
-//          
+//
 //          if(glyphs[i].index != glyph_index) {
 //            glyphs[i].index = glyph_index;
 //            cg.index = glyph_index;
-//            
+//
 //            context->canvas->glyph_extents(&cg, 1, &cte);
 //            glyphs[i].right = cte.x_advance;
 //  //          // for debugging:
