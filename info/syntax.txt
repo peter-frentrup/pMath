@@ -1,4 +1,4 @@
-??a                ShowDefinition(a)
+??a                ShowDefinition("a")
 a && b             And(a,b)
 a || b             Or(a,b)
 !a                 Not(a)
@@ -13,8 +13,8 @@ a.f                f(a)
 a.f(...)           f(a, ...)
 a:= b              Assign(a,b)
 a::= b             AssignDelayed(a,b)
-a/: b:= c          AssignTag(a,b,c)
-a/: b::= c         AssignTagDelayed(a,b,c)
+a/: b:= c          TagAssign(a,b,c)
+a/: b::= c         TagAssignDelayed(a,b,c)
 a; b               EvaluationSequence(a,b)
 sym::tag           MessageName(sym, "tag")
 a++                PostIncrement(a)
@@ -50,16 +50,23 @@ a:p                Pattern(a,p)
 ?a                 Optional(a)
 ?a:prod            Optional(a,prod)
 ~                  SingleMatch()
-~~                 RepeatedPattern(~,1..)      [ ~~x  ==  x:~** ]
-~~~                RepeatedPattern(~,0..)      [~~~x  ==  x:~***]
+~~                 Repeated(~,1..)      [ ~~x  ==  x:~** ]
+~~~                Repeated(~,0..)      [~~~x  ==  x:~***]
 ~a                 Pattern(a,~)
 ~~a                Pattern(a,~~)
 ~~~a               Pattern(a,~~~)
-p**                RepeatedPattern(p,1..)
-p***               RepeatedPattern(p,0..)
+~:t                SingleMatch(t)
+~~:t               Repeated(~:t,1..)
+~~~:t              Repeated(~:t,0..)
+~a:t               Pattern(a,~:t)
+~~a:t              Pattern(a,~~:t)
+~~~a:t             Pattern(a,~~~:t)
+p**                Repeated(p,1..)
+p***               Repeated(p,0..)
 p/?f                TestPattern(p,f)
 p//cond            Condition(p,cond)
-f @ g(...)         Apply(f,g(...))     ---> f(...)
+f @ g              f(g)
+f @@ g(...)        Apply(f,g(...))     ---> f(...)
 
 Late Binding (old idea; if we would not use `::=`):
    Functions:
@@ -87,6 +94,7 @@ Late Binding (old idea; if we would not use `::=`):
 Namespaces:
   ContinuedFractions`Round()
   
+  old ideas:
   ContinuedFractions::Round()
   ContinuedFractions'Round()
   ContinuedFractions#Round()
