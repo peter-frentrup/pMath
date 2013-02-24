@@ -125,7 +125,7 @@ char *pmath_string_to_native(
           pmath_native_writer().
  */
 typedef struct {
-  void (*write_cstr)(void *user, const char *cstr);
+  void (*_pmath_write_cstr)(void *user, const char *cstr);
   void *user;
 } pmath_cstr_writer_info_t;
 
@@ -144,7 +144,7 @@ void my_utf8_output(FILE *f, const char *str){
 ...
 
 pmath_cstr_writer_info_t info;
-info.write_cstr = (void(*)(void*,const char*))my_utf8_output;
+info._pmath_write_cstr = (void(*)(void*,const char*))my_utf8_output;
 info.user = stdout; // will be first argument of my_utf8_output
 
 pmath_print(some_object, some_options, pmath_utf8_writer, &info);

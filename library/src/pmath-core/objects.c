@@ -284,7 +284,7 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
     
   if(pmath_is_pointer(obj)) {
     if(PMATH_AS_PTR(obj) == NULL) {
-      write_cstr("/\\/", info->write, info->user);
+      _pmath_write_cstr("/\\/", info->write, info->user);
       
       if(info->post_write)
         info->post_write(info->user, obj, info->options);
@@ -294,10 +294,10 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
     
 #ifdef PMATH_DEBUG_MEMORY
     if(pmath_refcount(obj) == 0) {
-      write_cstr("[NOREF: ", info->write, info->user);
+      _pmath_write_cstr("[NOREF: ", info->write, info->user);
     }
     else if(pmath_refcount(obj) < 0) {
-      write_cstr("\a[INVREF: ", info->write, info->user);
+      _pmath_write_cstr("\a[INVREF: ", info->write, info->user);
     }
 #endif
     
@@ -305,20 +305,15 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
     
     if(!pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write) {
       char s[100];
-      snprintf(s, sizeof(s), "<<\? 0x%"PRIxPTR" \?>>", (uintptr_t)PMATH_AS_PTR(obj));
-      write_cstr(s, info->write, info->user);
-      
-      if(info->post_write)
-        info->post_write(info->user, obj, info->options);
-        
-      return;
+      snprintf(s, sizeof(s), "(/\\/ /* 16^^%"PRIxPTR" */)", (uintptr_t)PMATH_AS_PTR(obj));
+      _pmath_write_cstr(s, info->write, info->user);
     }
     else
       pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].write(info, obj);
       
 #ifdef PMATH_DEBUG_MEMORY
     if(pmath_refcount(obj) <= 0) {
-      write_cstr("]", info->write, info->user);
+      _pmath_write_cstr("]", info->write, info->user);
     }
 #endif
     
@@ -358,11 +353,11 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
   {
     char s[40];
     
-    snprintf(s, sizeof(s), "(/\\/ /* 0x%x, 0x%x */)",
+    snprintf(s, sizeof(s), "(/\\/ /* 16^^%x, 16^^%x */)",
              (int)PMATH_AS_TAG(obj),
              (int)PMATH_AS_INT32(obj));
              
-    write_cstr(s, info->write, info->user);
+    _pmath_write_cstr(s, info->write, info->user);
   }
   
   if(info->post_write)

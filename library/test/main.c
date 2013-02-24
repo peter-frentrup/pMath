@@ -119,7 +119,7 @@ static pmath_string_t read_line(FILE *file) {
 
 static size_t bytes_since_last_abortcheck = 0;
 
-static void write_cstr(FILE *file, const char *cstr) {
+static void _pmath_write_cstr(FILE *file, const char *cstr) {
   size_t len = strlen(cstr);
   
   if(bytes_since_last_abortcheck + len > 100) {
@@ -144,7 +144,7 @@ static void write_output_locked_callback(void *_obj) {
   int i;
   
   info.user = stdout;
-  info.write_cstr = (void ( *)(void *, const char *))write_cstr;
+  info._pmath_write_cstr = (void ( *)(void *, const char *))_pmath_write_cstr;
   
   i = dialog_depth;
   while(i-- > 0)

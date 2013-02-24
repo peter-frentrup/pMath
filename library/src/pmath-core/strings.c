@@ -322,7 +322,7 @@ static unsigned int hash_string(pmath_t str) {
 }
 
 PMATH_PRIVATE
-void write_cstr(
+void _pmath_write_cstr(
   const char          *str,
   void (*write_ucs2)(void *, const uint16_t *, int),
   void                *user
@@ -387,9 +387,9 @@ static void write_single_token_box(struct pmath_write_ex_t *info, pmath_t box) {
     _pmath_write_boxes(info, box);
   }
   else {
-    write_cstr("(", info->write, info->user);
+    _pmath_write_cstr("(", info->write, info->user);
     _pmath_write_boxes(info, box);
-    write_cstr(")", info->write, info->user);
+    _pmath_write_cstr(")", info->write, info->user);
   }
 }
 
@@ -501,7 +501,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
         get_token_spacing(part, &pre, &post);
         
         if(*pre && i > 1)
-          write_cstr(pre, info->write, info->user);
+          _pmath_write_cstr(pre, info->write, info->user);
           
         info->write(info->user, pmath_string_buffer(&part), pmath_string_length(part));
         
@@ -518,7 +518,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
           pmath_unref(next);
           
           if(i < boxlen)
-            write_cstr(post, info->write, info->user);
+            _pmath_write_cstr(post, info->write, info->user);
         }
       }
       else
@@ -588,7 +588,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
   
   if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_cstr("_", info->write, info->user);
+    _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
     
@@ -597,7 +597,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
   
   if(pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_cstr("^", info->write, info->user);
+    _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
     
@@ -606,12 +606,12 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
   
   if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
-    write_cstr("_", info->write, info->user);
+    _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 2);
-    write_cstr("^", info->write, info->user);
+    _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
     
@@ -624,7 +624,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 2);
-    write_cstr("_", info->write, info->user);
+    _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
     
@@ -637,7 +637,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 2);
-    write_cstr("^", info->write, info->user);
+    _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
     
@@ -650,12 +650,12 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 2);
-    write_cstr("_", info->write, info->user);
+    _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
     
     part = pmath_expr_get_item(box, 3);
-    write_cstr("^", info->write, info->user);
+    _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
     
@@ -670,17 +670,17 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     pmath_write_ex(info, part);
     pmath_unref(part);
     
-    write_cstr("(", info->write, info->user);
+    _pmath_write_cstr("(", info->write, info->user);
     for(i = 1; i <= pmath_expr_length(box); ++i) {
       if(i > 1)
-        write_cstr(", ", info->write, info->user);
+        _pmath_write_cstr(", ", info->write, info->user);
         
       part = pmath_expr_get_item(box, i);
       _pmath_write_boxes(info, part);
       pmath_unref(part);
       
     }
-    write_cstr(")", info->write, info->user);
+    _pmath_write_cstr(")", info->write, info->user);
     
     return;
   }
@@ -756,9 +756,9 @@ void _pmath_string_write_escaped(
                 
                 ++s;
                 if(name) {
-                  write_cstr("\\[", write, user);
-                  write_cstr(name,  write, user);
-                  write_cstr("]",   write, user);
+                  _pmath_write_cstr("\\[", write, user);
+                  _pmath_write_cstr(name,  write, user);
+                  _pmath_write_cstr("]",   write, user);
                 }
                 else {
                   special[1] = 'U';
@@ -777,9 +777,9 @@ void _pmath_string_write_escaped(
                 const char *name = pmath_char_to_name(*s);
                 
                 if(name) {
-                  write_cstr("\\[", write, user);
-                  write_cstr(name,  write, user);
-                  write_cstr("]",   write, user);
+                  _pmath_write_cstr("\\[", write, user);
+                  _pmath_write_cstr(name,  write, user);
+                  _pmath_write_cstr("]",   write, user);
                 }
                 else if(*s <= 0xFF) {
                   special[1] = 'x';
@@ -854,7 +854,7 @@ pmath_t _pmath_escape_string(
 PMATH_PRIVATE
 void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str) {
   if(info->options & PMATH_WRITE_OPTIONS_FULLSTR)  {
-    write_cstr("\"", info->write, info->user);
+    _pmath_write_cstr("\"", info->write, info->user);
     
     _pmath_string_write_escaped(
       str,
@@ -862,7 +862,7 @@ void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str) {
       info->write,
       info->user);
       
-    write_cstr("\"", info->write, info->user);
+    _pmath_write_cstr("\"", info->write, info->user);
   }
   else {
     pmath_t expanded = pmath_string_expand_boxes(pmath_ref(str));
@@ -1040,13 +1040,13 @@ static void write_with_nulls(pmath_cstr_writer_info_t *info, const char *str, co
   while(len > 0) {
     int sublen = strlen(str) + 1;
     
-    info->write_cstr(info->user, str);
+    info->_pmath_write_cstr(info->user, str);
     
     str += sublen;
     len -= sublen;
     
     if(len > 0) {
-      info->write_cstr(info->user, "\\x00");
+      info->_pmath_write_cstr(info->user, "\\x00");
     }
   }
 }
@@ -1126,17 +1126,17 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
         }
         
         switch(ch) {
-          case PMATH_CHAR_ASSIGN:        info->write_cstr(info->user, ":="); break;
-          case PMATH_CHAR_ASSIGNDELAYED: info->write_cstr(info->user, "::="); break;
-          case PMATH_CHAR_RULE:          info->write_cstr(info->user, "->"); break;
-          case PMATH_CHAR_RULEDELAYED:   info->write_cstr(info->user, ":>"); break;
+          case PMATH_CHAR_ASSIGN:        info->_pmath_write_cstr(info->user, ":="); break;
+          case PMATH_CHAR_ASSIGNDELAYED: info->_pmath_write_cstr(info->user, "::="); break;
+          case PMATH_CHAR_RULE:          info->_pmath_write_cstr(info->user, "->"); break;
+          case PMATH_CHAR_RULEDELAYED:   info->_pmath_write_cstr(info->user, ":>"); break;
           
           default:
             name = pmath_char_to_name(ch);
             if(name) {
-              info->write_cstr(info->user, "\\[");
-              info->write_cstr(info->user, name);
-              info->write_cstr(info->user, "]");
+              info->_pmath_write_cstr(info->user, "\\[");
+              info->_pmath_write_cstr(info->user, name);
+              info->_pmath_write_cstr(info->user, "]");
             }
         }
       }

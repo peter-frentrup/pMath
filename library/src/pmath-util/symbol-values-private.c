@@ -913,7 +913,7 @@ void _pmath_symbol_value_emit(
   if(pmath_is_multirule(value)) {
     _pmath_multirules_emit(value);
   }
-  else {
+  else if(!pmath_same(value, PMATH_UNDEFINED)){
     pmath_emit(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_RULEDELAYED), 2,

@@ -336,7 +336,7 @@ static void flush_line(struct linewriter_t *lw) {
         depth = get_expr_indention_depth(lw);
         i     = lw->indentation_width + depth;
         while(i-- > 0)
-          write_cstr(" ", lw->write, lw->user);
+          _pmath_write_cstr(" ", lw->write, lw->user);
         return;
       }
     }
@@ -360,7 +360,7 @@ static void flush_line(struct linewriter_t *lw) {
       depth = get_expr_indention_depth(lw);
       i     = lw->indentation_width + depth;
       while(i-- > 0)
-        write_cstr(" ", lw->write, lw->user);
+        _pmath_write_cstr(" ", lw->write, lw->user);
       return;
     }
   }
@@ -406,7 +406,7 @@ static void flush_line(struct linewriter_t *lw) {
     return;
     
   if(hyphenate) {
-    write_cstr("\\\n", lw->write, lw->user);
+    _pmath_write_cstr("\\\n", lw->write, lw->user);
     
     if(is_inside_string) {
       if( lw->pos > 0                         &&
@@ -432,11 +432,11 @@ static void flush_line(struct linewriter_t *lw) {
     }
   }
   else
-    write_cstr("\n", lw->write, lw->user);
+    _pmath_write_cstr("\n", lw->write, lw->user);
     
   i     = lw->indentation_width + depth;
   while(i-- > 0)
-    write_cstr(" ", lw->write, lw->user);
+    _pmath_write_cstr(" ", lw->write, lw->user);
 }
 
 static void line_write(void *user, const uint16_t *data, int len) {

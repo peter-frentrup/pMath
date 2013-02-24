@@ -1,9 +1,17 @@
 #include <pmath-core/custom-private.h>
 #include <pmath-core/custom.h>
 #include <pmath-core/objects-private.h>
+#include <pmath-core/strings-private.h>
 
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
+
+#include <stdio.h>
+
+#ifdef _MSC_VER
+#  define snprintf sprintf_s
+#endif
+
 
 struct _pmath_custom_t {
   struct _pmath_t    inherited;
@@ -20,10 +28,10 @@ PMATH_API pmath_custom_t pmath_custom_new(
   if(PMATH_UNLIKELY(!destructor))
     return PMATH_NULL;
     
-  custom = (struct _pmath_custom_t*)PMATH_AS_PTR(_pmath_create_stub(
-      PMATH_TYPE_SHIFT_CUSTOM,
-      sizeof(struct _pmath_custom_t)));
-      
+  custom = (struct _pmath_custom_t *)PMATH_AS_PTR(_pmath_create_stub(
+             PMATH_TYPE_SHIFT_CUSTOM,
+             sizeof(struct _pmath_custom_t)));
+             
   if(PMATH_UNLIKELY(!custom)) {
     destructor(data);
     return PMATH_NULL;
@@ -40,7 +48,7 @@ PMATH_API void *pmath_custom_get_data(pmath_custom_t custom) {
     
   assert(pmath_is_custom(custom));
   
-  return ((struct _pmath_custom_t*)PMATH_AS_PTR(custom))->data;
+  return ((struct _pmath_custom_t *)PMATH_AS_PTR(custom))->data;
 }
 
 PMATH_API pmath_bool_t pmath_custom_has_destructor(
@@ -52,7 +60,7 @@ PMATH_API pmath_bool_t pmath_custom_has_destructor(
     
   assert(pmath_is_custom(custom));
   
-  return ((struct _pmath_custom_t*)PMATH_AS_PTR(custom))->destructor == dtor;
+  return ((struct _pmath_custom_t *)PMATH_AS_PTR(custom))->destructor == dtor;
 }
 
 //{ pMath object functions ...
@@ -66,10 +74,21 @@ static unsigned int hash_custom(pmath_t a) {
 }
 
 static void destroy_custom(pmath_t a) {
-  struct _pmath_custom_t *custom = (struct _pmath_custom_t*)PMATH_AS_PTR(a);
+  struct _pmath_custom_t *custom = (struct _pmath_custom_t *)PMATH_AS_PTR(a);
   
   custom->destructor(custom->data);
   pmath_mem_free(custom);
+}
+
+static void write_custom(struct pmath_write_ex_t *info, pmath_t a) {
+  struct _pmath_custom_t *custom = (void *)PMATH_AS_PTR(a);
+  char s[100];
+  
+  snprintf(s, sizeof(s), "(/\\/ /* custom 16^^%"PRIxPTR" 16^^%"PRIxPTR" */)",
+           (uintptr_t)custom->destructor,
+           (uintptr_t)custom->data);
+           
+  _pmath_write_cstr(s, info->write, info->user);
 }
 
 //} ... pMath object functions
@@ -83,7 +102,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_custom_objects_init(void) {
     hash_custom,
     destroy_custom,
     NULL,
-    NULL);
+    write_custom);
     
   return TRUE;
 }

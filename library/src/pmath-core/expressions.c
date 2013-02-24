@@ -1931,7 +1931,7 @@ static unsigned int hash_expression(
 #define PRIO_CALL              170 // f(...)
 #define PRIO_SYMBOL            180
 
-#define WRITE_CSTR(str) write_cstr((str), info->write, info->user)
+#define WRITE_CSTR(str) _pmath_write_cstr((str), info->write, info->user)
 
 static void write_expr_ex(
   struct pmath_write_ex_t *info,
@@ -2010,7 +2010,7 @@ static void division_writer(
     hook->prefix_status = 1;
     
     if(data[0] == '?')
-      write_cstr(" ", hook->next->write, hook->next->user);
+      _pmath_write_cstr(" ", hook->next->write, hook->next->user);
   }
   
   hook->next->write(hook->next->user, data, len);
@@ -2037,7 +2037,7 @@ static void product_writer(
     
   if(hook->prefix_status == 1) {
     if(i < len && data[i] == '/')
-      write_cstr("1", hook->next->write, hook->next->user);
+      _pmath_write_cstr("1", hook->next->write, hook->next->user);
     hook->prefix_status = 2;
   }
   else if(hook->prefix_status == 0) {
@@ -2047,14 +2047,14 @@ static void product_writer(
          data[i] == '[' ||
          data[i] == '.'))
     {
-      write_cstr("*", hook->next->write, hook->next->user);
+      _pmath_write_cstr("*", hook->next->write, hook->next->user);
     }
     else if(len >= 2 && data[0] == '1' && data[1] == '/') {
       --len;
       ++data;
     }
     else if(i < len && data[i] != '/')
-      write_cstr(" ", hook->next->write, hook->next->user);
+      _pmath_write_cstr(" ", hook->next->write, hook->next->user);
   }
   //hook->prefix_status = hook->prefix_status && i >= len;
   i = len;
@@ -2085,13 +2085,13 @@ static void sum_writer(
       i++;
     hook->prefix_status = i < len;
     if(i < len && data[i] == '-') {
-      write_cstr(" - ", hook->next->write, hook->next->user);
+      _pmath_write_cstr(" - ", hook->next->write, hook->next->user);
       data += i + 1;
       len -= i + 1;
       hook->prefix_status = TRUE;
     }
     else if(i < len) {
-      write_cstr(" + ", hook->next->write, hook->next->user);
+      _pmath_write_cstr(" + ", hook->next->write, hook->next->user);
       hook->prefix_status = TRUE;
     }
   }
@@ -2890,7 +2890,7 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
     
     item = pmath_expr_get_item(expr, 1);
     if(pmath_same(item, PMATH_FROM_INT32(-1))) {
-      write_cstr("-", info->write, info->user);
+      _pmath_write_cstr("-", info->write, info->user);
       skip_star = TRUE;
     }
     else {
@@ -2909,7 +2909,7 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
           skip_star = FALSE;
         }
         else {
-          write_cstr("*", info->write, info->user);
+          _pmath_write_cstr("*", info->write, info->user);
           product_writer_data.prefix_status = 1;
         }
       }

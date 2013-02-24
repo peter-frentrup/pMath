@@ -22,7 +22,7 @@ static void sectionprint_locked_callback(void *p) {
   size_t i;
   
   info.user = stdout;
-  info.write_cstr = write_to_file;
+  info._pmath_write_cstr = write_to_file;
   
   for(i = 2; i <= pmath_expr_length(expr); i++) {
     pmath_t item = pmath_expr_get_item(expr, i);

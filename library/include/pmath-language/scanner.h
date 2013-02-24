@@ -187,7 +187,6 @@ pmath_span_array_t *pmath_spans_from_string(
    \deprecated Use pmath_boxes_from_spans_ex(...) instead.
  */
 PMATH_API
-PMATH_DEPRECATED
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_boxes_from_spans(
   pmath_span_array_t   *spans,

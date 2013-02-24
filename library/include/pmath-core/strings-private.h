@@ -69,18 +69,10 @@ int _pmath_strings_compare(
 PMATH_PRIVATE
 void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str);
 
-PMATH_PRIVATE void write_cstr(
+PMATH_PRIVATE void _pmath_write_cstr(
   const char  *str,
   void (*write_ucs2)(void*, const uint16_t*, int),
   void        *user);
-
-static PMATH_INLINE void write_unichar(
-  uint16_t   ch,
-  void (*write_ucs2)(void*, const uint16_t*, int),
-  void      *user
-) {
-  write_ucs2(user, &ch, 1);
-}
 
 PMATH_PRIVATE pmath_bool_t _pmath_strings_init(void);
 PMATH_PRIVATE void         _pmath_strings_done(void);

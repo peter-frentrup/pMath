@@ -1,3 +1,4 @@
+#include <pmath-core/custom-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/strings-private.h>
 #include <pmath-core/symbols-private.h>
@@ -3211,11 +3212,11 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
   
   if(pmath_is_string(obj)) {
     obj = _pmath_escape_string(
-      PMATH_C_STRING("\""), 
-      obj, 
-      PMATH_C_STRING("\""), 
-      thread->boxform >= BOXFORM_INPUT);
-      
+            PMATH_C_STRING("\""),
+            obj,
+            PMATH_C_STRING("\""),
+            thread->boxform >= BOXFORM_INPUT);
+            
     return pmath_expr_new_extended(
              pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX), 1,
              obj);
@@ -3227,9 +3228,9 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
     
     if(pmath_is_string(part)) {
       part = _pmath_escape_string(
-               PMATH_NULL, 
-               part, 
-               PMATH_NULL, 
+               PMATH_NULL,
+               part,
+               PMATH_NULL,
                thread->boxform >= BOXFORM_INPUT);
     }
     
@@ -3241,7 +3242,7 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
     part = pmath_string_insert_latin1(part, INT_MAX, "\"", 1);
     obj = pmath_expr_set_item(obj, len, part);
   }
-  else{
+  else {
     obj = pmath_expr_set_item(obj, len, part);
     obj = pmath_expr_append(obj, 1, PMATH_C_STRING("\""));
   }
@@ -3252,7 +3253,7 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
     part = pmath_string_insert_latin1(part, 0, "\"", 1);
     obj = pmath_expr_set_item(obj, 1, part);
   }
-  else{
+  else {
     pmath_t tmp;
     obj = pmath_expr_set_item(obj, 1, part);
     tmp = pmath_expr_set_item(obj, 0, PMATH_C_STRING("\""));
@@ -3299,143 +3300,123 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
 //    return obj;
   }
   
-  if(!pmath_is_pointer(obj)) {
-    char s[80];
-    
-    if(thread->boxform <= BOXFORM_OUTPUTEXPONENT) {
-      snprintf(s, sizeof(s), "<<\? %d,%x \?>>",
-               (int)PMATH_AS_TAG(obj),
-               (int)PMATH_AS_INT32(obj));
-      return PMATH_C_STRING(s);
+  if(pmath_is_pointer(obj)) {
+    if(PMATH_AS_PTR(obj) == NULL)
+      return PMATH_C_STRING("/\\/");
+      
+    if( thread->boxform < BOXFORM_OUTPUT &&
+        user_make_boxes(&obj))
+    {
+      return obj;
     }
     
-    snprintf(s, sizeof(s), "/* %d,%x */",
-             (int)PMATH_AS_TAG(obj),
-             (int)PMATH_AS_INT32(obj));
-    return pmath_build_value("sss", "/\\/", " ", s);
-  }
-  
-  if(PMATH_AS_PTR(obj) == NULL)
-    return PMATH_C_STRING("/\\/");
-    
-  if( thread->boxform < BOXFORM_OUTPUT &&
-      user_make_boxes(&obj))
-  {
-    return obj;
-  }
-  
-  if(!pmath_is_pointer(obj) || PMATH_AS_PTR(obj) == NULL) {
-    pmath_debug_print("makeboxes: unexpected\n");
-    return PMATH_C_STRING("/\\/");
-  }
-  
-  switch(PMATH_AS_PTR(obj)->type_shift) {
-    case PMATH_TYPE_SHIFT_SYMBOL: {
-        pmath_string_t s = PMATH_NULL;
-        
-        if(thread->boxform < BOXFORM_OUTPUT) {
-          if(pmath_same(obj, PMATH_SYMBOL_PI)) {
-            pmath_unref(obj);
-            return pmath_build_value("c", 0x03C0);
+    switch(PMATH_AS_PTR(obj)->type_shift) {
+      case PMATH_TYPE_SHIFT_SYMBOL: {
+          pmath_string_t s = PMATH_NULL;
+          
+          if(thread->boxform < BOXFORM_OUTPUT) {
+            if(pmath_same(obj, PMATH_SYMBOL_PI)) {
+              pmath_unref(obj);
+              return pmath_build_value("c", 0x03C0);
+            }
+            
+            if(pmath_same(obj, PMATH_SYMBOL_E)) {
+              pmath_unref(obj);
+              return pmath_build_value("c", 0x2147);
+            }
+            
+            if(pmath_same(obj, PMATH_SYMBOL_INFINITY)) {
+              pmath_unref(obj);
+              return pmath_build_value("c", 0x221E);
+            }
           }
           
-          if(pmath_same(obj, PMATH_SYMBOL_E)) {
-            pmath_unref(obj);
-            return pmath_build_value("c", 0x2147);
+          pmath_write(
+            obj,
+            thread->longform ? PMATH_WRITE_OPTIONS_FULLNAME : 0,
+            (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+            &s);
+          pmath_unref(obj);
+          return s;
+        }
+        
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+          pmath_t debug_info = pmath_get_debug_info(obj);
+          obj = expr_to_boxes(thread, obj);
+          obj = pmath_try_set_debug_info(obj, debug_info);
+          return obj;
+        }
+        
+      case PMATH_TYPE_SHIFT_MP_FLOAT:
+      case PMATH_TYPE_SHIFT_MP_INT: {
+          pmath_string_t s = PMATH_NULL;
+          pmath_write(
+            obj,
+            PMATH_WRITE_OPTIONS_INPUTEXPR,
+            (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+            &s);
+          pmath_unref(obj);
+          
+          if( pmath_string_length(s) > 0 &&
+              *pmath_string_buffer(&s) == '-')
+          {
+            pmath_string_t minus = pmath_string_part(pmath_ref(s), 0, 1);
+            return pmath_build_value("(oo)", minus, pmath_string_part(s, 1, -1));
           }
           
-          if(pmath_same(obj, PMATH_SYMBOL_INFINITY)) {
-            pmath_unref(obj);
-            return pmath_build_value("c", 0x221E);
+          return s;
+        }
+        
+      case PMATH_TYPE_SHIFT_QUOTIENT: {
+          pmath_string_t s, n, d;
+          pmath_t result;
+          s = n = d = PMATH_NULL;
+          
+          pmath_write(
+            PMATH_QUOT_NUM(obj),
+            PMATH_WRITE_OPTIONS_INPUTEXPR,
+            (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+            &n);
+            
+          pmath_write(
+            PMATH_QUOT_DEN(obj),
+            PMATH_WRITE_OPTIONS_INPUTEXPR,
+            (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+            &d);
+            
+          if(pmath_string_length(n) > 0 && *pmath_string_buffer(&n) == '-') {
+            s = pmath_string_part(pmath_ref(n), 0, 1);
+            n = pmath_string_part(n, 1, -1);
           }
-        }
-        
-        pmath_write(
-          obj,
-          thread->longform ? PMATH_WRITE_OPTIONS_FULLNAME : 0,
-          (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
-          &s);
-        pmath_unref(obj);
-        return s;
-      }
-      
-    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
-    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-        pmath_t debug_info = pmath_get_debug_info(obj);
-        obj = expr_to_boxes(thread, obj);
-        obj = pmath_try_set_debug_info(obj, debug_info);
-        return obj;
-      }
-      
-    case PMATH_TYPE_SHIFT_MP_FLOAT:
-    case PMATH_TYPE_SHIFT_MP_INT: {
-        pmath_string_t s = PMATH_NULL;
-        pmath_write(
-          obj,
-          PMATH_WRITE_OPTIONS_INPUTEXPR,
-          (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
-          &s);
-        pmath_unref(obj);
-        
-        if( pmath_string_length(s) > 0 &&
-            *pmath_string_buffer(&s) == '-')
-        {
-          pmath_string_t minus = pmath_string_part(pmath_ref(s), 0, 1);
-          return pmath_build_value("(oo)", minus, pmath_string_part(s, 1, -1));
-        }
-        
-        return s;
-      }
-      
-    case PMATH_TYPE_SHIFT_QUOTIENT: {
-        pmath_string_t s, n, d;
-        pmath_t result;
-        s = n = d = PMATH_NULL;
-        
-        pmath_write(
-          PMATH_QUOT_NUM(obj),
-          PMATH_WRITE_OPTIONS_INPUTEXPR,
-          (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
-          &n);
           
-        pmath_write(
-          PMATH_QUOT_DEN(obj),
-          PMATH_WRITE_OPTIONS_INPUTEXPR,
-          (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
-          &d);
+          pmath_unref(obj);
           
-        if(pmath_string_length(n) > 0 && *pmath_string_buffer(&n) == '-') {
-          s = pmath_string_part(pmath_ref(n), 0, 1);
-          n = pmath_string_part(n, 1, -1);
-        }
-        
-        pmath_unref(obj);
-        
-        if( thread->boxform != BOXFORM_STANDARDEXPONENT &&
-            thread->boxform != BOXFORM_OUTPUTEXPONENT   &&
-            thread->boxform <= BOXFORM_OUTPUT)
-        {
-          result = pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
-                     n,
-                     d);
-        }
-        else {
-          result = pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_LIST), 3,
-                     n,
-                     PMATH_C_STRING("/"),
-                     d);
-        }
-        
-        if(!pmath_is_null(s))
-          return pmath_build_value("(oo)", s, result);
+          if( thread->boxform != BOXFORM_STANDARDEXPONENT &&
+              thread->boxform != BOXFORM_OUTPUTEXPONENT   &&
+              thread->boxform <= BOXFORM_OUTPUT)
+          {
+            result = pmath_expr_new_extended(
+                       pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
+                       n,
+                       d);
+          }
+          else {
+            result = pmath_expr_new_extended(
+                       pmath_ref(PMATH_SYMBOL_LIST), 3,
+                       n,
+                       PMATH_C_STRING("/"),
+                       d);
+          }
           
-        return result;
-      }
-      
-    case PMATH_TYPE_SHIFT_BIGSTRING: {
-        return string_to_complexstringbox(thread, obj);
+          if(!pmath_is_null(s))
+            return pmath_build_value("(oo)", s, result);
+            
+          return result;
+        }
+        
+      case PMATH_TYPE_SHIFT_BIGSTRING: {
+          return string_to_complexstringbox(thread, obj);
 //        pmath_string_t quote = PMATH_C_STRING("\"");
 //
 //        obj = _pmath_string_escape(
@@ -3446,15 +3427,26 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
 //
 //        pmath_unref(quote);
 //        return obj;
-      }
+        }
+    }
   }
   
-  pmath_unref(obj);
-  if(thread->boxform < BOXFORM_OUTPUT) {
-    return PMATH_C_STRING("\"<<\? unprintable \?>>\"");
-  }
-  else {
-    return PMATH_C_STRING("\"\xAB\? unprintable \?\xBB\"");
+  {
+    pmath_string_t str = PMATH_NULL;
+    pmath_t boxes;
+    pmath_span_array_t *spans;
+    
+    pmath_write(obj, 0, (void( *)(void *, const uint16_t *, int))_pmath_write_to_string, &str);
+    
+    spans = pmath_spans_from_string(&str, NULL, NULL, NULL, NULL, NULL);
+    boxes = pmath_boxes_from_spans(spans, str, FALSE, NULL, NULL);
+    pmath_span_array_free(spans);
+    pmath_unref(str);
+    
+    return pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+             boxes,
+             obj);
   }
 }
 

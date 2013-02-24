@@ -575,7 +575,7 @@ static pmath_bool_t compile_regex_part(
     
 //    pmath_cstr_writer_info_t u8info;
 //
-//    u8info.write_cstr = (void( *)(void *, const char *))concat_utf8;
+//    u8info._pmath_write_cstr = (void( *)(void *, const char *))concat_utf8;
 //    u8info.user = &(info->pattern);
 
     buf = pmath_string_buffer(&part);
@@ -863,7 +863,7 @@ static pmath_bool_t compile_regex_part(
       if(pmath_is_string(str)) {
 //        pmath_cstr_writer_info_t u8info;
 //
-//        u8info.write_cstr = (void( *)(void *, const char *))concat_utf8;
+//        u8info._pmath_write_cstr = (void( *)(void *, const char *))concat_utf8;
 //        u8info.user = &(info->pattern);
 
         append_latin1(&info->pattern, "(?:");
