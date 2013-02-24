@@ -132,6 +132,8 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/ ...
+PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr);
+
 PMATH_PRIVATE pmath_t builtin_isheld(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_call_isheld(     pmath_expr_t expr);
 
@@ -687,6 +689,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE     = NEW_SYMBOL("Developer`DebugInfoSource"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION     = NEW_SYMBOL("Developer`FileInformation"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO        = NEW_SYMBOL("Developer`GetDebugInfo"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE      = NEW_SYMBOL("Developer`HasBuiltinCode"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT      = NEW_SYMBOL("Developer`SetDebugInfoAt"))
   
   VERIFY(   PMATH_SYMBOL_ABORTED                          = NEW_SYSTEM_SYMBOL("$Aborted"))
@@ -1500,6 +1503,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION,     builtin_developer_fileinformation);
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO,        builtin_developer_getdebuginfo);
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE,      builtin_developer_hasbuiltincode)
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT,      builtin_developer_setdebuginfoat);
   
   BIND_DOWN(   PMATH_SYMBOL_ABORT,                       builtin_abort)
@@ -1896,6 +1900,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,  HOLDALL | THREADLOCAL);
   
   SET_ATTRIB( PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION,  HOLDALL);
+  
+  SET_ATTRIB( PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO,   HOLDFIRST);
+  SET_ATTRIB( PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE, HOLDFIRST);
   
   SET_ATTRIB( PMATH_SYMBOL_ABORT,                            LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_ABS,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);

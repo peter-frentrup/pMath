@@ -149,6 +149,8 @@ CopyFile::fdir:= DeleteFile::fdir:= RenameFile::fdir:= "`1` is a directory; a fi
 
 DefaultRules::vlist:= DownRules::vlist:= OwnRules::vlist:= SubRules::vlist:= UpRules::vlist:= "Cannot set `1` to `2`; value must be a list of rules."
 
+Developer`HasBuiltinCode::norul:= "Unknown code type `1`. It must be one of {DownRules, NRules, SubRules, UpRules}."
+
 Dot::shape:= "The tensors `3` and `5` have incompatible shapes."
 
 Drop::drop:= StringDrop::drop:= "Cannot drop positions `1` through `2` in `3`.";

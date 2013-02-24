@@ -80,6 +80,7 @@ int ScopeColorizer::symbol_colorize(
         style = GlyphStyleShadowError;
       else if(syminfo == PMATH_SYMBOL_SYNTAX)
         style = GlyphStyleSyntaxError;
+      // True, Function
     }
   }
   else if(info) {

@@ -525,6 +525,12 @@
 {"Xor", {"ArgumentCount" -> 2..}},
 {"Zeta", {"ArgumentCount" -> 1}}
 }},
+{"Developer`",{
+{"FileInformation", {"ArgumentCount" -> 1}},
+{"GetDebugInfo", {"ArgumentCount" -> 1..}},
+{"HasBuiltinCode", {"ArgumentCount" -> 1..2}},
+{"SetDebugInfoAt", {"ArgumentCount" -> 2..}}
+}},
 {"System`Util`",{
 {"latexToBoxes", {"ArgumentCount" -> 1}}
 }},

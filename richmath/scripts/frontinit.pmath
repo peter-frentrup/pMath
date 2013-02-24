@@ -48,8 +48,9 @@ SymbolInfo(~name:String)::= Try(
 			Return(True)); /* name parses to something not a symbol */
 		
 		If(Union($NamespacePath, {$Namespace}).Map(MakeExpression(# ++ name, ParseSymbols -> False)&).Cases(HoldComplete(Except(Symbol(~)))).Length() > 1,
-			Return(Alternatives));
+			Return(Alternatives)); /* multiple symbols with the same name */
 		
+		/* todo: use Developer`HasBuiltinCode to distinguish functions from other symbols */
 		Return(Namespace @@ sym =!= "Global`"
 			|| Attributes @@ sym =!= {} 
 			|| DownRules @@ sym =!= {} 

@@ -525,6 +525,9 @@
 		<Unit filename="src/pmath-builtins/control/definitions/divideby-and-timesby.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/control/definitions/hasbuiltincode.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/control/definitions/inc-and-dec.c">
 			<Option compilerVar="CC" />
 		</Unit>
