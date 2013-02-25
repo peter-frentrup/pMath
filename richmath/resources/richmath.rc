@@ -5,6 +5,11 @@
 
 1 24 "Windows.manifest"
 
+
+ICO_APP_MAIN ICON "app-icon.ico"
+ICO_FILE     ICON "file-icon.ico"
+
+
 CUR_TEXT_N   CURSOR "text_beam_n.cur"
 CUR_TEXT_NW  CURSOR "text_beam_nw.cur"
 CUR_TEXT_W   CURSOR "text_beam_w.cur"

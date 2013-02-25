@@ -79,8 +79,9 @@ static void remove_basic_window() {
   
   background_image_cache.clear();
   
-  if(composition_window_theme
-      && Win32Themes::CloseThemeData) {
+  if(composition_window_theme &&
+      Win32Themes::CloseThemeData)
+  {
     Win32Themes::CloseThemeData(composition_window_theme);
     composition_window_theme = 0;
   }
@@ -1049,7 +1050,7 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
   }
   
   if(Win32Themes::DwmExtendFrameIntoClientArea) {
-    
+  
     if( margins->cxLeftWidth    == -1 &&
         margins->cxRightWidth   == -1 &&
         margins->cyTopHeight    == -1 &&
@@ -1057,7 +1058,7 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
     {
       Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, margins);
     }
-    else{
+    else {
       Win32Themes::MARGINS nc;
       memset(&nc, 0, sizeof(nc));
       if(_themed_frame)

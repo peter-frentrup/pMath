@@ -41,11 +41,11 @@ BasicWin32Widget::BasicWin32Widget(
   int height,
   HWND *parent)
   : Base(),
-  _hwnd(0),
-  _allow_drop(true),
-  _is_dragging_over(false),
-  init_data(new InitData),
-  _initializing(true)
+    _hwnd(0),
+    _allow_drop(true),
+    _is_dragging_over(false),
+    init_data(new InitData),
+    _initializing(true)
 {
   init_window_class();
   add_remove_window(+1);
@@ -119,7 +119,7 @@ STDMETHODIMP_(ULONG) BasicWin32Widget::Release(void) {
 STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject) {
   if(iid == IID_IDropTarget || iid == IID_IUnknown) {
     AddRef();
-    *ppvObject = static_cast<IDropTarget*>(this);
+    *ppvObject = static_cast<IDropTarget *>(this);
     return S_OK;
   }
   
@@ -192,7 +192,7 @@ BasicWin32Widget *BasicWin32Widget::parent() {
   HWND p = GetParent(_hwnd);
   
   if(p)
-    return (BasicWin32Widget*)GetWindowLongPtrW(p, GWLP_USERDATA);
+    return (BasicWin32Widget *)GetWindowLongPtrW(p, GWLP_USERDATA);
     
   return 0;
 }
@@ -200,18 +200,20 @@ BasicWin32Widget *BasicWin32Widget::parent() {
 BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
   DWORD pid = 0;
   
-  if(!hwnd
-      || GetCurrentThreadId()  != GetWindowThreadProcessId(hwnd, &pid)
-      || GetCurrentProcessId() != pid)
+  if(!hwnd ||
+      GetCurrentThreadId()  != GetWindowThreadProcessId(hwnd, &pid) ||
+      GetCurrentProcessId() != pid)
+  {
     return 0;
-    
+  }
+  
   WINDOWINFO info;
   memset(&info, 0, sizeof(info));
   info.cbSize = sizeof(info);
   
   if(GetWindowInfo(hwnd, &info)
       && info.atomWindowType == win32_widget_class) {
-    return (BasicWin32Widget*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+    return (BasicWin32Widget *)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   }
   
   return 0;
@@ -221,7 +223,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
     case WM_CREATE: {
         SetMenu(_hwnd, 0);
-        RegisterDragDrop(_hwnd, static_cast<IDropTarget*>(this));
+        RegisterDragDrop(_hwnd, static_cast<IDropTarget *>(this));
       } break;
       
     case WM_CLOSE: {
@@ -277,12 +279,18 @@ void BasicWin32Widget::init_window_class() {
   
   wincl.cbSize = sizeof(wincl);
   wincl.hInstance = GetModuleHandle(0);
-  wincl.hIcon     = LoadIcon(NULL, IDI_APPLICATION);
-  wincl.hIconSm   = (HICON)LoadImage(NULL, IDI_APPLICATION,
+  wincl.hIcon = LoadIcon(wincl.hInstance, MAKEINTRESOURCE(ICO_APP_MAIN));
+  wincl.hIconSm   = (HICON)LoadImage(wincl.hInstance, MAKEINTRESOURCE(ICO_APP_MAIN),
                                      IMAGE_ICON,
                                      GetSystemMetrics(SM_CXSMICON),
                                      GetSystemMetrics(SM_CYSMICON),
                                      LR_DEFAULTCOLOR);
+//  wincl.hIcon     = LoadIcon(NULL, IDI_APPLICATION);
+//  wincl.hIconSm   = (HICON)LoadImage(NULL, IDI_APPLICATION,
+//                                     IMAGE_ICON,
+//                                     GetSystemMetrics(SM_CXSMICON),
+//                                     GetSystemMetrics(SM_CYSMICON),
+//                                     LR_DEFAULTCOLOR);
   wincl.lpszClassName = win32_widget_class_name;
   wincl.lpfnWndProc = window_proc;
   wincl.style = 0;//CS_DROPSHADOW;
@@ -297,10 +305,10 @@ void BasicWin32Widget::init_window_class() {
 }
 
 LRESULT CALLBACK BasicWin32Widget::window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-  BasicWin32Widget *widget = (BasicWin32Widget*)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
+  BasicWin32Widget *widget = (BasicWin32Widget *)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   
   if(!widget && message == WM_NCCREATE) {
-    widget = (BasicWin32Widget*)(((CREATESTRUCT*)lParam)->lpCreateParams);
+    widget = (BasicWin32Widget *)(((CREATESTRUCT *)lParam)->lpCreateParams);
     
     if(!widget)
       return FALSE;
