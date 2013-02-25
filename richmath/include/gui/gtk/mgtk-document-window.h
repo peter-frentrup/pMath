@@ -6,6 +6,7 @@
 #endif
 
 #include <gui/gtk/basic-gtk-widget.h>
+#include <gui/gtk/mgtk-icons.h>
 #include <gui/gtk/mgtk-widget.h>
 
 
@@ -99,6 +100,8 @@ namespace richmath {
       
       MathGtkDocumentWindow *_prev_window;
       MathGtkDocumentWindow *_next_window;
+      
+      MathGtkIcons icons;
       
       GtkWidget *_menu_bar;
       GtkAdjustment *_hadjustment;

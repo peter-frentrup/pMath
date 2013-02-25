@@ -262,6 +262,8 @@ void MathGtkDocumentWindow::after_construction() {
     
   BasicGtkWidget::after_construction();
   
+  gtk_window_set_icon_list(GTK_WINDOW(_widget), icons.get_app_icon_list());
+  
   _working_area->init();
   _top_area->init();
   _bottom_area->init();

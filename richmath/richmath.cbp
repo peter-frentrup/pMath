@@ -498,6 +498,12 @@
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
 		</Unit>
+		<Unit filename="include/gui/gtk/mgtk-icons.h">
+			<Option target="Windows-Debug-Gtk" />
+			<Option target="Linux-Debug-x86" />
+			<Option target="Linux-Debug-x64" />
+			<Option target="Linux-Debug-Gtk3" />
+		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-menu-builder.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
@@ -749,6 +755,12 @@
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+		</Unit>
+		<Unit filename="src/gui/gtk/mgtk-icons.cpp">
+			<Option target="Windows-Debug-Gtk" />
+			<Option target="Linux-Debug-x86" />
+			<Option target="Linux-Debug-x64" />
+			<Option target="Linux-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-menu-builder.cpp">
 			<Option target="Windows-Debug-Gtk" />

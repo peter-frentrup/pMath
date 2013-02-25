@@ -276,7 +276,7 @@ cairo_surface_t *MathGtkClipboard::create_image(String mimetype, double width, d
     if(h < 1)
       h = 1;
       
-    return cairo_image_surface_create(CAIRO_FORMAT_RGB32, w, h);
+    return cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
   }
   
   return Clipboard::create_image(mimetype, width, height);
