@@ -1035,8 +1035,6 @@ static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
     *end_tick += gui_end_time - gui_start_time;
   }
   
-  pmath_debug_print(" idle]\n");
-  
   return FALSE; // not busy
 }
 
