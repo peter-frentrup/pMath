@@ -221,7 +221,7 @@ static pmath_bool_t convert_lengths(
           pmath_t item = pmath_expr_get_item(dims, i);
           
           if(pmath_is_int32(item) && PMATH_AS_INT32(item) >= 0) {
-            *lengths[i] = (size_t)PMATH_AS_INT32(item);
+            (*lengths)[i - 1] = (size_t)PMATH_AS_INT32(item);
             continue;
           }
           
@@ -232,6 +232,9 @@ static pmath_bool_t convert_lengths(
           pmath_unref(dims);
           return FALSE;
         }
+        
+        pmath_unref(dims);
+        return TRUE;
       }
     }
     
