@@ -7,6 +7,10 @@
 
 - richmath: closed section group: double click group bracket selects one section too much (above)
 	and inserting above a closed section group (with invisible first section) does not insert at the right position 
+
+- pmath: make /* comments */ nestable; allways treat "*/" as one token
+
+- richmath: mark modified documents and ask to save before closing
 	
 - richmath: Why is the end column of debug-info so large?? See "InspectBoxes - Test.pmathdoc"
 	This does not occur in test.exe ?!?

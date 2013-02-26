@@ -11,18 +11,64 @@ System`Document({
              "~", "b"}}, ")"}, "\[AssignDelayed]", {
            "Sign", "(", {"Chop", "(", {
              "Det", "(", {"{", {{"p", "-", "a"}, ",", {"b", "-", "a"}}, "}"}, 
-             ")"}, ")"}, ")"}})), "Input", System`SectionLabel -> "in [57]:"), 
+             ")"}, ")"}, ")"}})), "Input"), 
       System`Section(System`BoxData({
          {{"sideOfTriangle", "(", {{"~", "p"}, ",", {"~", "a"}, ",", {
              "~", "b"}, ",", {"~", "c"}}, ")"}, "\[AssignDelayed]", {
            "Max", "(", {{"sideOfLine", "(", {"p", ",", "a", ",", "b"}, ")"}, 
             ",", {"sideOfLine", "(", {"p", ",", "b", ",", "c"}, ")"}, ",", {
              "sideOfLine", "(", {"p", ",", "c", ",", "a"}, ")"}}, ")"}}, 
-         ";"}), "Input", System`SectionLabel -> "in [35]:"), 
+         ";"}), "Input", System`SectionLabel -> "in [5]:"), 
+      System`Section(System`BoxData({
+         {"convexHull", "\[Assign]", "convexHullMonotoneChain"}, ";"}), 
+       "Input"), System`Section(
+       System`BoxData(
+        /\/({"/*", {{"Andrew", "'"}, "s", " ", "monotone", " ", "chain", " ", 
+           "convex", " ", "hull", " ", "algorithm"}, "*/"}, "\n", {
+          {"convexHullMonotoneChain", "(", {"~", "points"}, ")"}, 
+          "\[AssignDelayed]", "\n", {
+           "With", "(", {
+            {"{", {{"n", "\[Assign]", {"Length", "(", "points", ")"}}, ",", {
+               "xyData", "\[Assign]", {"N", "(", "points", ")"}}}, "}"}, ",", 
+            "\n", {"With", "(", {
+              {"{", {"sortedIndices", "\[Assign]", {
+                 {"Array", "(", "n", ")"}, ".", "SortBy", "(", {
+                  {"xyData", "[", "#", "]"}, "&"}, ")"}}, "}"}, ",", "\n", {
+               "Local", "(", {{"{", {"L", ",", "U", ",", "i", ",", "tos"}, 
+                 "}"}, ",", "\n", {
+                 {"L", "\[Assign]", {"ConstantArray", "(", {"0", ",", "n"}, 
+                   ")"}}, ";", {"tos", "\[Assign]", "0"}, ";", "\n", {
+                  "Do", "(", "\n", {{{"While", "(", {{{"tos", "\[GreaterEqual]", "2"}, "&&", {
+                        {"sideOfLine", "(", {{"xyData", "[", "i", "]"}, ",", {
+                           "xyData", "[", {"L", "[", {"tos", "-", "1"}, "]"}, 
+                           "]"}, ",", {"xyData", "[", {"L", "[", "tos", "]"}, 
+                           "]"}}, ")"}, "\[GreaterEqual]", "0"}}, ",", "\n", {
+                       {"--", "tos"}, ";"}}, "\n", ")"}, ";", "\n", {
+                     {"L", "[", {"++", "tos"}, "]"}, "\[Assign]", "i"}, ";"}, 
+                   "\n", ",", "\n", {"i", "\[Rule]", "sortedIndices"}}, ")"}, 
+                 ";", "\n", {"L", "\[Assign]", {
+                   "L", "[", {"1", "..", {"tos", "-", "1"}}, "]"}}, ";", "\n", 
+                 "\n", {"U", "\[Assign]", {"ConstantArray", "(", {
+                    "0", ",", "n"}, ")"}}, ";", {
+                  "tos", "\[Assign]", {"n", "+", "1"}}, ";", "\n", {
+                  "Do", "(", "\n", {{{"While", "(", {{{"tos", "\[LessEqual]", {"n", "-", "1"}}, 
+                       "&&", {{"sideOfLine", "(", {
+                          {"xyData", "[", "i", "]"}, ",", {
+                           "xyData", "[", {"U", "[", {"tos", "+", "1"}, "]"}, 
+                           "]"}, ",", {"xyData", "[", {"U", "[", "tos", "]"}, 
+                           "]"}}, ")"}, "\[LessEqual]", "0"}}, ",", "\n", {
+                       {"++", "tos"}, ";"}}, "\n", ")"}, ";", "\n", {
+                     {"U", "[", {"--", "tos"}, "]"}, "\[Assign]", "i"}, ";"}, 
+                   "\n", ",", "\n", {"i", "\[Rule]", "sortedIndices"}}, ")"}, 
+                 ";", "\n", "\n", {"U", "\[Assign]", {
+                   "U", "[", {"tos", "..", {"-", "2"}}, "]"}}, ";", "\n", {
+                  "Return", "(", {"Join", "(", {"L", ",", "U"}, ")"}, ")"}}}, 
+               "\n", ")"}}, ")"}}, ")"}})), "Input"), 
       System`Section(System`BoxData(
         /\/({"/*", " ", {"Graham", " ", "Scan"}, " ", "*/"}, "\n", {
-          {"convexHull", "(", {"~", "points"}, ")"}, "\[AssignDelayed]", "\n", 
-          {"With", "(", {
+          {"convexHullGrahamScan", "(", {"~", "points"}, ")"}, 
+          "\[AssignDelayed]", "\n", {
+           "With", "(", {
             {"{", {"xyData", "\[Assign]", {"N", "(", "points", ")"}}, "}"}, 
             ",", "\n", {"With", "(", {
               {"{", {"startPos", "\[Assign]", {
@@ -68,8 +114,8 @@ System`Document({
                          "Rest", "(", "angSortedIndices", ")"}}}, ")"}, ";", 
                      "\n", {"Return", "(", {"Flatten", "(", "stack", ")"}, 
                       ")"}, ";"}}, "\n", ")"}}, "\n", ")"}}, ")"}}, ")"}}, 
-           ")"}})), "Input")}, 1), System`SectionGroup({
-      System`Section("Testing", "Section"), 
+           ")"}})), "Input")}, System`All), 
+    System`SectionGroup({System`Section("Testing", "Section"), 
       System`SectionGroup({
         System`Section(System`BoxData(
           /\/({{"sample", "\[Assign]", {
@@ -78,48 +124,45 @@ System`Document({
                {{"Dot", "(", {"#", ",", "#"}, ")"}, "<", "1"}, "&"}, ")"}}, 
             ";"}, "\n", {"Graphics", "(", {
              {"{", {"Blue", ",", {"Point", "(", "sample", ")"}}, "}"}, ",", {
-              "ImageSize", "\[Rule]", "100"}, ",", {
-              "Frame", "\[Rule]", "True"}, ",", {
-              "FrameTicks", "\[Rule]", "False"}}, ")"})), "Input", 
-         System`SectionLabel -> "in [332]:"), 
+              "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
+         System`SectionLabel -> "in [43]:"), 
         System`Section(System`BoxData(
           System`GraphicsBox({System`RGBColor(0, 0, 1), 
             System`PointBox(System`Uncompress(
-              "c${6;YdDly8]}{CM8>I17byy(MiEV#sK_DG2uX#?cE7AjCAqfy^i(d<4WqKpb{R\
-              >n&_-Bg<tUPBW4cnxD7QhT(aN?@i#<M,_x*6byuatX=l$OfXwXO3i!K0k(E&[mYU\
-              }TwRm_3#?Rz$P?>rC=TEl4gjpi^y;;RyA!j2w{<R9xtq<a-$&[PBmkAcU2QWRhmc\
-              iyILqDMW35iD>S{rfs}rzaSV*0XPq3uq;v!-A9,C)Y$[J3-3hK8qFR_Xy]+piI^O\
-              >u2p2f{aq-XOu%V7)G)n}9zjLM^lc,?cHfwMB_0AJr=a]-3YNcPC-_##jeP]76Lp\
-              LR9wmR%f__?g$f0Gf=<f,=yO1}ajJUTHH?A[tS<<PZN-3C5L&ZHeo&_pBjKR?-n{\
-              Hi0;5=95*>BpvG;3?zI-!E5!fj)jAp@d;zqI#wqO);Q9WtK;^!E]uwZh?d!J(S4v\
-              f@U=jRB,?h,OzK]vIzd5Nr<pb$Sl)vWq=1o$i{,WND?L=6]?+[,i8$hRBASPtmEm\
-              @NFM9iwQEadYat9[^hIg64d_,siTEa6RnYcYef20^?brA;]}VQB8qn<jL9buT&T&\
-              uwcVX$0>%3TM5z-#NWNWE)Ihs3!KwbuGcE*Z@TaU4YI6CFid1YM#{7D*yd7#qEjt\
-              44_J0$Fk*pO^*)JW{!NT{<rB_Mb^DBA5@&]G{]LUV%NU7P}L9mB+=5{;3v>oEldP\
-              9?6I4-eEcp^]lYlV,LU_;Gnp&D@E*b}TtwpsMOjt10c+{<cD4NYpYnC7BjDLt>3J\
-              cEZe%W_xHw}^s;i2SfgRe16WkFR{@q_)N8fj;B?hB5MpocVNf&75MKhN(L5OjD&?\
-              }y&RKM9zzVA,h](^,,@T2XfO=}Kif7}dC)B0=,tvyJxVj3&2!QQT7k0v6PW6Z?(Y\
-              =??ONt<]WvZ!uVKcG#7CtgOC{AkmQdL}N+{4AVH^?H,)5k{1MNn,NsrooMS#XF+s\
-              P<e,9fZ!wbCx5mG?RZBp]0?8?}t@YF^j2gNs9cvcSGgxvaj9c%,B5?*ri8,J?q)F\
-              )jnZc=tn>_L5ggT5W>Z)>1JbQ&<CJT_<wCL_5I$^}osbDjo2Fi+a20_R8!W??Y!-\
-              uRb%?[o1u;z@x(_gz9L(^%}E(tCz-1-c}EEa6)*Gf![%_S(<W#!(nCuvREa1OaE&\
-              v@,$B}(]7E]^?u9RzGyFl+6FRAI6Lqwvb(<4^rf!EDY58VHo?SydDCI&2Tm!iR=h\
-              #QDV5w^sTFPieAbq$4IXpTHaz1Y4gNS}40NkW}+<#X{Cbz>Wo?7AvE{qK5=+;#H_\
-              (meWYiWkJ{&!!u(v=m;,8+dKA--BS!=7Km5wh%+21C&(6(nio0HL(XHtCkKJXYdu\
-              ;p2}o99zF+AgV9$aJ3-i$KOFeYTr8zk-3wVLSfdvWTa^-Bn2io0#4G1qxRuGuaNt\
-              R7b=c9Y^7?m503}rUp0mA[Ly2DoYrpaj[@7McIRkYDKEM!5&625!F?PiRmQX5w(p\
-              <]dI1=;0I2_indal(=U?;SDdz]ID!EiLcs?D9JZQb#N[wzZmISj2*&y{g#*4_Yz$\
-              WsTqds=^uq&Ya&YL0yR^Z3MY%U2QZ](E9>&LjBovPw4)a^v+t{D+[E]CyWaVE_IZ\
-              89s1r$vkCUAa%FVdyRtxS66*Yp}AZFIcK@ShVp=eZIrX4a3,oifF,8Dj#xyyQ-u,\
-              YZPzth*US6-ISF@M0T=eY$0e4PKX7us?<CkL8ypwEEul)_f5*9QF?@Y8@PsgBeY3\
-              7D)G0hk[Sn%_PsIr>lZ)k7oKVRN,wE@FYPG8hanrFT90Y<gLzTy}z?HD91xc,-[z\
-              OjyGlNaMZf0nSDfF[#,JdIRZX$=H<M{H@d2vT5J#sYhbH,dyXG#7oL9UE=+8VPu@\
-              Kx3KP8;}L<<fIc)cPvPvpYZ1F@XB[Y^{5X7IS2XoJLI+#@Zp4-Y!u5%=zMT0vb]U\
-              (Bgg*(=6sEX"))}, System`Frame -> System`True, 
-           System`FrameTicks -> System`HoldComplete(System`False), 
+              "c${68X;{r!9LMiZ8#$;emC[MXMOsX1N]e;D##0kgmgz}vLV9#(N}Pp[vOQW+F2W\
+              >BlL,sdNs(NoMH}X(-&{2hS?aOO@$#Je;=H+^=lp-m_xn8{pg$!KdH]Qv5hl=6el\
+              k70_lAkK?(+B89wq}0AJC6]Cj5ZV=Y5{Ci2NrQ)tyit4LeXrK%NBzs^L*u-dO[$G\
+              )2_+$oCOYV1aG-R!Y}Ie?(AG++CX+-zcES0wEDDIy(wS2y%LqmYkP$8iNuGv^8Hd\
+              Twl?K(G^dtyU_{V1SYb;F_G_Yt{<Lb6twfGctrXJ!z32S$&PGaT,MK1LHb&D+,5B\
+              +G7DH(2a5!=ZxW<mbkcZ8T!vvX3m9]kKWKB4(m9kE9uGQFP5,lh$gHs^U(}uoqKV\
+              Rx2R%{(Q&=Ez,llJnsx27JAH3+0y{-epR2FEwoNKTzyoDh2XF-qWkro2eSYYBu@%\
+              iB}jTjxvR5U3!e?dTn+eM@$Jl+&akpGDV-_O}&6HsLV#[B4PDKEM(l5J2QxuV]VL\
+              C6A5JLDENRaIh?IXlA9)Vh(tbQTD;+MQi_x}*N_FSXo00qsJK1%ky_,,z^3VD$N}\
+              f[zslDhxAN;FfM)PGCnrMjgRI,QoGk4C>q*9tdJnw)7KZpj6&mo>5Ogg9TPt&rB>\
+              CqeaT=i>uEj^bpYGwmCaKy,W%#772+GVQ&}PnJjQx<D1-?q6&<v4%CU$D<uT9IN)\
+              mHv6*KZFcQn-v,uG*Fle)Y%*e]JLDqy(nMVJ?Ng-!2%whpai;+O7gtn>gB^Z{PT*\
+              IKl0%g8o154*zC#X*7uHcZAk3p9O5+dVj8iOPR1!#O88r}84L5]IGEoR2Z&+DM7U\
+              UZoB7t<p3Ss>5E<nMD9Pcagl8>wkscM-#EZWn^UwI6]835p5qT<qjmhhYv26g!LR\
+              9E_;5W{I4,rLKbn=5k#GkJ=60NF]VX)M&EQpE[Ec1vbueF&oS6BWR9U$f(ZRUJQm\
+              T;Ay8;_)wD?XPvi$VapG18gZ)D8]g,tI7(F=7FzslS{4Rl&RNYh(aq[52rB*NZk9\
+              GgRc*ooeo3#xpFHWM#?cOpT,8-_FpmYQ?!Srult$g{6f(XfJtGf;DYuKnN_DUORC\
+              2,*H[6!c(HqQIAZA%#OsDh_Mya2*JYJq@#4w-hV!@R5xysiFnic;&KHwECasijLE\
+              ,@HcuGE,t?*Hj@UT!B]&H_cDe%0AG>j;vy,IM-73=vq!0{-GQ-^iFkDwqbR%^lst\
+              7%W&Ix-{mXNe&fE*]j;]g_gwxEID^S7jDQJDJ5uN<CcKTv(GVDac%baG)-I;L(nZ\
+              %<H{+1beq;(fNYLX(UD{m6eq}cT,LAKEMkFy3(j78!j]9njz={)%GD6]iBr^G%ba\
+              }j,vh%^ZoTWOMnlYoyP;%_Qs#[P1QjS4_7rcW_Fv2b<H0JnNpoaW_8#[Ti&B2aV9\
+              OO*<Sw2id,?hoC8_k?H$cFSYjf$>*Tbz;FlsT44cARuF#OB{J1-yfcz>^%&LOprx\
+              M)+ro-@v!0O9<@^b-fNCEnT%ofsTA>)B]08;{XByc_cgoN$vqYD+l5c%3u;noK1(\
+              UQ+fh*_2Mwk?Ug3*jAO36!6cxJ@r?,w*)XJnB_qkmsH;p6m>o=qav<>fD;R[8dwG\
+              H3Z+RKqNF)_,B)bLXD&!j>D0QVQ2Xb!U%09jCBxvt0;0J-hhF?aNA2&D{8(4}FM*\
+              [pB$MTK9nE-%QD]6%mrMEO7+g8]Pq4F(GN<{l$hg(s{82A]Wh]Hf$Y#yi,c8sUch\
+              *{(>h@!BV*yE3h4*lEA2qLVdWwc3tzkI[=sSUuuMSO^%=5czY}?3)E4U!d@X^[-7\
+              k#q?cDIASAEr6!&Mhl4D#-a&8;zj1^Lt)K<q[xQ0kxXZzNNH_TlP;sKG;Kzvx?j1\
+              l@iUAfN)xaC]NI?+dKjuT*B0<hV1d9umAe}Qa@SH69T_*H;jvOH&xVNB(Yx?HdUR\
+              b{c5gFOMy}WK,Ta{;%8%rzLt>x0pvuWJL~~~"))}, 
            System`ImageSize -> System`NCache(100, 100.0`))), "Output", 
          System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [333]:")}, System`All), 
+         System`SectionLabel -> "out [44]:")}, System`All), 
       System`SectionGroup({
         System`Section(System`BoxData(
           /\/({{"grid", "\[Assign]", {
@@ -131,10 +174,8 @@ System`Document({
                  "&"}, ",", {"{", {"15", ",", "10"}, "}"}}, ")"}}}, ";"}, 
            "\n", {"Graphics", "(", {
              {"{", {"Blue", ",", {"Point", "(", "grid", ")"}}, "}"}, ",", {
-              "ImageSize", "\[Rule]", "100"}, ",", {
-              "Frame", "\[Rule]", "True"}, ",", {
-              "FrameTicks", "\[Rule]", "False"}}, ")"})), "Input", 
-         System`SectionLabel -> "in [317]:"), 
+              "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
+         System`SectionLabel -> "in [41]:"), 
         System`Section(System`BoxData(
           System`GraphicsBox({System`RGBColor(0, 0, 1), 
             System`PointBox(System`Uncompress(
@@ -160,11 +201,36 @@ System`Document({
               7]VZ37Vz#Rv4D3Ui3Pm-Ni5(!Kw<&!D}uywNA6V;t2LbpN>(gWdCeU#XVv08==*(\
               Wj^RDz4w#4*?_m-PcwZ;6fcFg&3wV!^Sit)xi3PlGkyya{Hi;D-m]bcGaR<!bE#5\
               JAz$CDE$K3&Q+AZF9Ni5)fkHiArqa+sazE5HS?*xejydRKQz<Z3u,ts9N?Z1t*>i\
-              ^?Ppk{~~"))}, System`Frame -> System`True, 
-           System`FrameTicks -> System`HoldComplete(System`False), 
-           System`ImageSize -> System`NCache(100, 100.0`))), "Output", 
-         System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [318]:")}, System`All), 
+              ^?Ppk{~~"))}, System`ImageSize -> System`NCache(100, 100.0`))), 
+         "Output", System`SectionGenerated -> System`True, 
+         System`SectionLabel -> "out [42]:")}, System`All), 
+      System`SectionGroup({
+        System`Section(System`BoxData(
+          /\/({{"grid2", "\[Assign]", {
+              "Join", "@@", {"Array", "(", {
+                "List", ",", {"{", {"15", ",", "10"}, "}"}}, ")"}}}, ";"}, 
+           "\n", {"Graphics", "(", {
+             {"{", {"Blue", ",", {"Point", "(", "grid2", ")"}}, "}"}, ",", {
+              "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
+         System`SectionLabel -> "in [39]:"), 
+        System`Section(System`BoxData(
+          System`GraphicsBox({System`RGBColor(0, 0, 1), 
+            System`PointBox(System`Uncompress(
+              "c${s}Wp9*07)D{HvfFkmxVyW%71yH0wMc;i#deY6?k<I&%g*^Q$t36f@FZ,p$(@\
+              ,qp!ya2t0#o&DTJEptt(YeXJ5I[-P_gCQ?7*C_$W$EeAJLms1u04p<W=agn]d^2[\
+              Oap5*h^JN@x^_E1^jsu7r}6TnWtraV50mP?O4A1t@P5pnRYJ<%0w$A1pxm5CO,E3\
+              Q#^wfb!u2l#j@vHkFSQpnQ[7<)Z]CA0t5dSOLn%2]a*>fbt0flus0(d{Pc}seG]k\
+              <x>PGpDIB4Gy%$}3s62ofby9Fl+O]Ne6}4Pb8@Ip<#PonpC>^1d;!WA2vELIfbvB\
+              GlrI*be2D<%O9d!jmO]+xFBhPEg#hI%1t?!7K>2C,%GU@,zE*(pbpn*H7ofa7hhi\
+              $<AVB#>0m?TCP,+7!@+}_CZxx_?n*in81t{MkK>5xb8dCW#0m^p^P]IUx,5pnv_X\
+              <$HPk{3M0+b&Rp![c!<()Y+rt(7qlphwL{D=VMM+GQ9CP4Xd0m@GZP<]Q?@>2qop\
+              U$Bvm7fuy{Hy@wT>_M!6QKOO0Oc11D8DE,dA9)Nmjo!koI@#<UlE}ZM[YFH0+e49\
+              p!]W3<-G!w-w>eurU2!)1Sr3qLvt#>BS3jsfbxm[<#z=rzb8QXeF4fJ2vFW9K>0%\
+              f${*#>lFA<oQ2s=K@[]lnKNFz*xd7!a1So$gK=]^H%3ljm{w9akRQ^_g@^=E1zZa\
+              nVg8=0p1t}X{K>23@%D)Iu{#AhTZ#lH3^6vta{[7=3rvT-@1StP4K=]g5%KHT<}0\
+              _WGKY>{OA4s=Lrr~~~"))}, System`ImageSize -> System`NCache(100, 
+            100.0`))), "Output", System`SectionGenerated -> System`True, 
+         System`SectionLabel -> "out [40]:")}, System`All), 
       System`SectionGroup({System`Section("Convex Hull", "Subsection"), 
         System`Section(System`BoxData({
            {"testConvexHull", "(", {"~", "xyData"}, ")"}, "\[AssignDelayed]", {
@@ -176,81 +242,81 @@ System`Document({
                   "Orange", ",", {"Line", "(", {
                     "xyData", "[", {"ch", ".", "Append", "(", {
                       "First", "(", "ch", ")"}, ")"}, "]"}, ")"}}, "}"}, ",", {
-                 "ImageSize", "\[Rule]", "200"}, ",", {
-                 "Frame", "\[Rule]", "True"}, ",", {
-                 "FrameTicks", "\[Rule]", "False"}}, ")"}}}, ")"}}), "Input", 
-         System`SectionLabel -> "in [324]:"), 
+                 "ImageSize", "\[Rule]", "200"}}, ")"}}}, ")"}}), "Input", 
+         System`SectionLabel -> "in [38]:"), 
         System`SectionGroup({
           System`Section(System`BoxData({"testConvexHull", "(", "sample", 
-             ")"}), "Input", System`SectionLabel -> "in [325]:"), 
+             ")"}), "Input", System`SectionLabel -> "in [57]:"), 
           System`Section(System`BoxData(System`InterpretationBox({
-              "{", {"36", ",", "7", ",", "25", ",", "20", ",", "73", ",", 
-               "70", ",", "41", ",", "26", ",", "17", ",", "54", ",", "46", 
-               ",", "47", ",", "33"}, "}"}, 
-             System`Row({{36, 7, 25, 20, 73, 70, 41, 26, 17, 54, 46, 47, 
-                33}}))), "Print", System`SectionGenerated -> System`True), 
+              "{", {"4", ",", "61", ",", "66", ",", "51", ",", "14", ",", 
+               "60", ",", "32", ",", "69", ",", "64", ",", "53", ",", "18", 
+               ",", "15", ",", "63", ",", "45", ",", "29", ",", "34", ",", 
+               "22"}, "}"}, System`Row({
+               {4, 61, 66, 51, 14, 60, 32, 69, 64, 53, 18, 15, 63, 45, 29, 34, 
+                22}}))), "Print", System`SectionGenerated -> System`True), 
           System`Section(System`BoxData(
             System`GraphicsBox({System`RGBColor(0, 0, 1), 
               System`PointBox(System`Uncompress(
-                "c${6<Ydq9h7zgk<mJCj%v^82nL>Fqx=tdpQ5}vPF=_Z!KmMGn%X=hW?G}5MnT\
-                +_{,O$tS&%dxeXri)?F4NYk@CT57WNVUhy^Pd<0H[n0>}2gORo#zZ-k&nI)c>q\
-                8jBY+Nh>Kc)UUu?}oEs;T95iz^L55s8q8=YYUD@--T0^J7)mTVd8#8;{@(4}3F\
-                *XH><L{%6nvesvKreDNBj}ROKd(mIsY6Ls1rH9,1HDEA;2A<noY,mYhAei^XJ]\
-                c3+2m^f@Tyd7Yt9kknL7B#GVv&0V0&E&o*$01ru2o{l5i3^@I@BXzKm*=^++@9\
-                sP7EbZNBjD3JjTF]1_uH},nzu{5p0rZZ-pOxjerpi*zN;o&E1}L*e[Z35OSdr1\
-                4x6Q>vykurQSzS8e^wg7W^KAku*@W&M_+JR$+J$&9VG@Pdx^sXrMc-Wmklx6]V\
-                w0!JgG$l?aTc!I@>B)0%me2wKKmKK@EbYA]ij@{t!w{18&4@Q%-;g66vzjG=+0\
-                V1LwT&JzsR9F;sRT=x!vu{02-*4iG}Hee_;2ur,dG7$q48vK@L?6[i}Y?Kh5b_\
-                $sJ5rJ,xz)1Y{-x,x<bqOl6wkT>b_>s{IL3OT)*((H-j[3%oa&BWVo{@*T$G)Z\
-                ?Nex]6HWQ5wiQEJlbhP,aL%+U3kkcPLGOe--0S*l&ogWNq5Gyd8Tdb@!)hZA$r\
-                GdChXUtwTDboJsETdW0q[>x4TdmdK?&S6y!P]Xx,uDllA@CCoSnA]lYYjhPXvX\
-                QQdssrcX+{Gx6Zhz<Z5jkC%Jjva}Kwv[PJ{VoB43xNb_4_XnVo4?6&OsSflSCQ\
-                *t$wZGO2R+Tf]!NV8Q4no}k^!EFVKlaa?fStZN8Z(jeT!?a_}Gw-]arRLyrYV-\
-                c,oWRiQcd$6q*LEYHu_ws$@Y))p>a5MLJyRyd!W?TDRaTsjEz?ug8S*1A%E3_C\
-                !mtQeIG3qV?HjEnLb$Y(dsX&k=;btdadx^mm8Wg=StQYOQgCOtZ&e>kcq!+d{S\
-                UNBREPX&;QL)6ErDmVQz>WrzQ,ZMIH3}gX;+,3_yO2]*r9s-6_IQot9XWa%jh*\
-                jlWe7[TMDFdB#58Fmf?Vgw<}A9>2u!DeYqQ4eQXDCAdQEtt#o}vG%%H)>B5Pz5\
-                Pr8}%v&kynwG{(<8te[JFtk?vjtr20S6,Hm_<(=}4Sb#R<yi}JlWuzV!Bm3_2+\
-                X8Gz))V#nqX2SyE<xJdu%HLvuKbPQZ^tkCd&-nlf;iqRbarSL9,&jw{hn^lBnt\
-                3U$1>pBQTp$WR-a6$+[k<w*Bg7*EF*efjKnj^U5z>zu_a9v}lZ{Gpt,B;7Ehq)\
-                }[LY1#K99kku[@FrVxskFiWegdSKTMKGv2,-Zuo1pz0<AayCplkSor__9]Voys\
-                GTn@a=l;]T$071?T5LQUo=,5_GE(ZD$9QkjNdM%ta;$TrGTAuyi?y;GOJP6;8C\
-                _G)a]CewWcETBQcf0Gi{mv@j<pPsPX?je]l3uz$wJg;F@?(i6lY9A-AY(T)71,\
-                DgP{}#F*f-Vc#u0a#YoOGc9J2oRtZ_^,EWPq-f,]{hEix?9o<#x,}>OaXceF}F\
-                I-=}=(m]l2cZzLYpBg4FRXi&P=k=z%Eak[@HH6^j$ldIY3q($WbIo+-_NIY5UA\
-                0I$^5!%?fx_<;Y7fWa,elr#[ZEHi&_^IEq$i3tj_%x7aeEY7xNnYXR=dil?Y6[\
-                KGGcwsD+um41hB;^3yq;0[o?zfc18%g5PIe&qgCTlmVP4uuLhDY0{Fv-VMUmwH\
-                gUw_I&Bbhzhoy,$7?z[vS2rOjDUh>0{mCjkXmDhO+%QB{N5&wl*pn+fi-0E$I!\
-                ^0#_>)@z+B>7T(HSZXmeIhlo+Gp2YB0=u))N?(Q-Hy88u046%2^_^QN5-I),aP\
-                it9b<@lQ]Q8w[?wI{Kn7hT^p^zz>5arX5P?>4}NDC#vhKo5Lbx7N=6>6M1{v>L\
-                UJWlif{dqC,G,Vu?hz(nd=)eAI5D3k!OA(k@KNJ_?BB4j_0KqE-ZKCeU2iL^QF\
-                N(ZOYgk$_51e%XeT8TO}goXi!wVs(!0c34+j3p36O}!v6zh><,n~")), 
+                "c${68X;{r!9LMiZ8#$;emC[MXMOsX1N]e;D##0kgmgz}vLV9#(N}Pp[vOQW+F\
+                2W>BlL,sdNs(NoMH}X(-&{2hS?aOO@$#Je;=H+^=lp-m_xn8{pg$!KdH]Qv5hl\
+                =6elk70_lAkK?(+B89wq}0AJC6]Cj5ZV=Y5{Ci2NrQ)tyit4LeXrK%NBzs^L*u\
+                -dO[$G)2_+$oCOYV1aG-R!Y}Ie?(AG++CX+-zcES0wEDDIy(wS2y%LqmYkP$8i\
+                NuGv^8HdTwl?K(G^dtyU_{V1SYb;F_G_Yt{<Lb6twfGctrXJ!z32S$&PGaT,MK\
+                1LHb&D+,5B+G7DH(2a5!=ZxW<mbkcZ8T!vvX3m9]kKWKB4(m9kE9uGQFP5,lh$\
+                gHs^U(}uoqKVRx2R%{(Q&=Ez,llJnsx27JAH3+0y{-epR2FEwoNKTzyoDh2XF-\
+                qWkro2eSYYBu@%iB}jTjxvR5U3!e?dTn+eM@$Jl+&akpGDV-_O}&6HsLV#[B4P\
+                DKEM(l5J2QxuV]VLC6A5JLDENRaIh?IXlA9)Vh(tbQTD;+MQi_x}*N_FSXo00q\
+                sJK1%ky_,,z^3VD$N}f[zslDhxAN;FfM)PGCnrMjgRI,QoGk4C>q*9tdJnw)7K\
+                Zpj6&mo>5Ogg9TPt&rB>CqeaT=i>uEj^bpYGwmCaKy,W%#772+GVQ&}PnJjQx<\
+                D1-?q6&<v4%CU$D<uT9IN)mHv6*KZFcQn-v,uG*Fle)Y%*e]JLDqy(nMVJ?Ng-\
+                !2%whpai;+O7gtn>gB^Z{PT*IKl0%g8o154*zC#X*7uHcZAk3p9O5+dVj8iOPR\
+                1!#O88r}84L5]IGEoR2Z&+DM7UUZoB7t<p3Ss>5E<nMD9Pcagl8>wkscM-#EZW\
+                n^UwI6]835p5qT<qjmhhYv26g!LR9E_;5W{I4,rLKbn=5k#GkJ=60NF]VX)M&E\
+                QpE[Ec1vbueF&oS6BWR9U$f(ZRUJQmT;Ay8;_)wD?XPvi$VapG18gZ)D8]g,tI\
+                7(F=7FzslS{4Rl&RNYh(aq[52rB*NZk9GgRc*ooeo3#xpFHWM#?cOpT,8-_Fpm\
+                YQ?!Srult$g{6f(XfJtGf;DYuKnN_DUORC2,*H[6!c(HqQIAZA%#OsDh_Mya2*\
+                JYJq@#4w-hV!@R5xysiFnic;&KHwECasijLE,@HcuGE,t?*Hj@UT!B]&H_cDe%\
+                0AG>j;vy,IM-73=vq!0{-GQ-^iFkDwqbR%^lst7%W&Ix-{mXNe&fE*]j;]g_gw\
+                xEID^S7jDQJDJ5uN<CcKTv(GVDac%baG)-I;L(nZ%<H{+1beq;(fNYLX(UD{m6\
+                eq}cT,LAKEMkFy3(j78!j]9njz={)%GD6]iBr^G%ba}j,vh%^ZoTWOMnlYoyP;\
+                %_Qs#[P1QjS4_7rcW_Fv2b<H0JnNpoaW_8#[Ti&B2aV9OO*<Sw2id,?hoC8_k?\
+                H$cFSYjf$>*Tbz;FlsT44cARuF#OB{J1-yfcz>^%&LOprxM)+ro-@v!0O9<@^b\
+                -fNCEnT%ofsTA>)B]08;{XByc_cgoN$vqYD+l5c%3u;noK1(UQ+fh*_2Mwk?Ug\
+                3*jAO36!6cxJ@r?,w*)XJnB_qkmsH;p6m>o=qav<>fD;R[8dwGH3Z+RKqNF)_,\
+                B)bLXD&!j>D0QVQ2Xb!U%09jCBxvt0;0J-hhF?aNA2&D{8(4}FM*[pB$MTK9nE\
+                -%QD]6%mrMEO7+g8]Pq4F(GN<{l$hg(s{82A]Wh]Hf$Y#yi,c8sUch*{(>h@!B\
+                V*yE3h4*lEA2qLVdWwc3tzkI[=sSUuuMSO^%=5czY}?3)E4U!d@X^[-7k#q?cD\
+                IASAEr6!&Mhl4D#-a&8;zj1^Lt)K<q[xQ0kxXZzNNH_TlP;sKG;Kzvx?j1l@iU\
+                AfN)xaC]NI?+dKjuT*B0<hV1d9umAe}Qa@SH69T_*H;jvOH&xVNB(Yx?HdURb{\
+                c5gFOMy}WK,Ta{;%8%rzLt>x0pvuWJL~~~")), 
               System`RGBColor(1, 0.5`, 0), 
-              System`LineBox({{-0.99197674015867032`, -0.03327113393527581`}, {
-                 -0.92492941137226703`, -0.200804825183168`}, {
-                 -0.84501220526664156`, -0.32341070748987177`}, {
-                 -0.34223015679825552`, -0.81285766493428291`}, {
-                 -0.084180756769104415`, -0.95121381544058159`}, {
-                 0.40840647744181413`, -0.7686841399352935`}, {
-                 0.79725849468151067`, -0.60162502781615812`}, {
-                 0.95065614631366513`, -0.044466273396989831`}, {
-                 0.66497096990225413`, 0.72440729583503582`}, {
-                 0.60590498575882501`, 0.76453846301938233`}, {
-                 0.11111201730681386`, 0.84322309110697402`}, {
-                 -0.39610576308323364`, 0.91197021179968085`}, {
-                 -0.9779694633689493`, 0.1056906649998639`}, {
-                 -0.99197674015867032`, -0.03327113393527581`}})}, 
-             System`Frame -> System`True, System`FrameTicks -> 
-              System`HoldComplete(System`False), 
+              System`LineBox({{-0.99101787295127308`, 0.024069556185570606`}, {
+                 -0.90840320736082614`, -0.28947534652842655`}, {
+                 -0.6931744724934763`, -0.68031989754056221`}, {
+                 -0.10592184499680624`, -0.93997417734130995`}, {
+                 -0.0039956830615595074`, -0.9444117530770022`}, {
+                 0.17645459155269982`, -0.90702154992096595`}, {
+                 0.2992088351902813`, -0.78965733806728933`}, {
+                 0.50358249061719462`, -0.58120288967346667`}, {
+                 0.88938594859165088`, -0.058342897283300443`}, {
+                 0.87921963644052359`, 0.0028780566334005719`}, {
+                 0.84756798979368608`, 0.1891793185021553`}, {
+                 0.58905942396783195`, 0.59773680397745244`}, {
+                 0.30586405016070994`, 0.89014943248087297`}, {
+                 -0.087897917689234273`, 0.96531694802122225`}, {
+                 -0.50500702876297554`, 0.83555972489707586`}, {
+                 -0.7088590474025227`, 0.66664026012708555`}, {
+                 -0.77181367860706551`, 0.59046306193344922`}, {
+                 -0.99101787295127308`, 0.024069556185570606`}})}, 
              System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
            System`SectionGenerated -> System`True, 
-           System`SectionLabel -> "out [325]:")}, System`All), 
+           System`SectionLabel -> "out [57]:")}, System`All), 
         System`SectionGroup({
           System`Section(System`BoxData({"testConvexHull", "(", "grid", ")"}), 
-           "Input", System`SectionLabel -> "in [326]:"), 
+           "Input", System`SectionLabel -> "in [58]:"), 
           System`Section(System`BoxData(System`InterpretationBox({
-              "{", {"10", ",", "1", ",", "141", ",", "150", ",", "140"}, "}"}, 
-             System`Row({{10, 1, 141, 150, 140}}))), "Print", 
+              "{", {"10", ",", "1", ",", "141", ",", "150"}, "}"}, 
+             System`Row({{10, 1, 141, 150}}))), "Print", 
            System`SectionGenerated -> System`True), 
           System`Section(System`BoxData(
             System`GraphicsBox({System`RGBColor(0, 0, 1), 
@@ -283,13 +349,38 @@ System`Document({
                  0.63245553203367588`, 1.2649110640673518`}, {
                  13.91402170474087`, 5.6920997883030831`}, {
                  11.067971810589327`, 14.230249470757707`}, {
-                 10.119288512538814`, 13.91402170474087`}, {
                  -2.2135943621178655`, 9.803060746521977`}})}, 
-             System`Frame -> System`True, System`FrameTicks -> 
-              System`HoldComplete(System`False), 
              System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
            System`SectionGenerated -> System`True, 
-           System`SectionLabel -> "out [326]:")}, System`All)}, System`All)}, 
+           System`SectionLabel -> "out [58]:")}, System`All), 
+        System`SectionGroup({
+          System`Section(System`BoxData({"testConvexHull", "(", "grid2", 
+             ")"}), "Input", System`SectionLabel -> "in [59]:"), 
+          System`Section(System`BoxData(System`InterpretationBox({
+              "{", {"1", ",", "141", ",", "150", ",", "10"}, "}"}, 
+             System`Row({{1, 141, 150, 10}}))), "Print", 
+           System`SectionGenerated -> System`True), 
+          System`Section(System`BoxData(
+            System`GraphicsBox({System`RGBColor(0, 0, 1), 
+              System`PointBox(System`Uncompress(
+                "c${s}Wp9*07)D{HvfFkmxVyW%71yH0wMc;i#deY6?k<I&%g*^Q$t36f@FZ,p$\
+                (@,qp!ya2t0#o&DTJEptt(YeXJ5I[-P_gCQ?7*C_$W$EeAJLms1u04p<W=agn]\
+                d^2[Oap5*h^JN@x^_E1^jsu7r}6TnWtraV50mP?O4A1t@P5pnRYJ<%0w$A1pxm\
+                5CO,E3Q#^wfb!u2l#j@vHkFSQpnQ[7<)Z]CA0t5dSOLn%2]a*>fbt0flus0(d{\
+                Pc}seG]k<x>PGpDIB4Gy%$}3s62ofby9Fl+O]Ne6}4Pb8@Ip<#PonpC>^1d;!W\
+                A2vELIfbvBGlrI*be2D<%O9d!jmO]+xFBhPEg#hI%1t?!7K>2C,%GU@,zE*(pb\
+                pn*H7ofa7hhi$<AVB#>0m?TCP,+7!@+}_CZxx_?n*in81t{MkK>5xb8dCW#0m^\
+                p^P]IUx,5pnv_X<$HPk{3M0+b&Rp![c!<()Y+rt(7qlphwL{D=VMM+GQ9CP4Xd\
+                0m@GZP<]Q?@>2qopU$Bvm7fuy{Hy@wT>_M!6QKOO0Oc11D8DE,dA9)Nmjo!koI\
+                @#<UlE}ZM[YFH0+e49p!]W3<-G!w-w>eurU2!)1Sr3qLvt#>BS3jsfbxm[<#z=\
+                rzb8QXeF4fJ2vFW9K>0%f${*#>lFA<oQ2s=K@[]lnKNFz*xd7!a1So$gK=]^H%\
+                3ljm{w9akRQ^_g@^=E1zZanVg8=0p1t}X{K>23@%D)Iu{#AhTZ#lH3^6vta{[7\
+                =3rvT-@1StP4K=]g5%KHT<}0_WGKY>{OA4s=Lrr~~~")), 
+              System`RGBColor(1, 0.5`, 0), 
+              System`LineBox({{1, 1}, {15, 1}, {15, 10}, {1, 10}, {1, 1}})}, 
+             System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
+           System`SectionGenerated -> System`True, 
+           System`SectionLabel -> "out [59]:")}, System`All)}, System`All)}, 
      System`All), System`SectionGroup({System`Section("Old Ideas", "Section"), 
       System`SectionGroup({
         System`Section(System`BoxData({
@@ -616,7 +707,7 @@ System`Document({
          System`SectionLabel -> "out [331]:")}, System`All)}, 1), 
     System`SectionGroup({System`Section("Debug", "Section"), 
       System`Section(System`BoxData({
-         {"debugConvexHull", "(", {"~", "points"}, ")"}, "\[AssignDelayed]", 
+         {"debugGrahamScan", "(", {"~", "points"}, ")"}, "\[AssignDelayed]", 
          "\n", {"With", "(", {
            {"{", {"xyData", "\[Assign]", {"N", "(", "points", ")"}}, "}"}, 
            ",", "\n", {"With", "(", {
@@ -685,8 +776,7 @@ System`Document({
                          "Rest", "(", "angSortedIndices", ")"}}}, ")"}, ";", 
                      "\n", {"Return", "(", {"Flatten", "(", "stack", ")"}, 
                       ")"}, ";"}}, "\n", ")"}}}, "\n", ")"}}, ")"}}, ")"}}, 
-          ")"}}), "Input", System`SectionLabel -> "in [320]:"), 
-      System`SectionGroup({
+          ")"}}), "Input"), System`SectionGroup({
         System`Section(System`BoxData({"debugConvexHull", "(", {
             "Join", "@@", {"Array", "(", {
               {{{{"{", {{"Re", "(", "#", ")"}, ",", {"Im", "(", "#", ")"}}, 
