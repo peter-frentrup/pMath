@@ -779,7 +779,7 @@ static void emit_num_den(pmath_expr_t product) { // product will be freed
       pmath_t num = pmath_rational_numerator(factor);
       pmath_t den = pmath_rational_denominator(factor);
       
-      if(pmath_equals(num, PMATH_FROM_INT32(-1)))
+      if(pmath_equals(num, PMATH_FROM_INT32(1)))
         pmath_unref(num);
       else
         pmath_emit(num, NUM_TAG);

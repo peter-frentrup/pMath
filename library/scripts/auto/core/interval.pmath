@@ -172,7 +172,7 @@ IntervalLessEqual2(~, ~)::= Undefined
 
 
 /* IntervalEqual */
-Interval/:  ~a:Interval =  ~b:Interval /? IntervalDisjoint(a, b) ::= False
+Interval/:  ~a:Interval                            =  ~b:Interval /? IntervalDisjoint(a, b)  ::= False
 Interval/:  ~a:Interval ? IsInterval               = (~b ? IsNumeric /? !IsInexactNumber(b)) ::= With({r:=          a  = Interval(b)}, r /? r === True || r === False)
 Interval/: (~a ? IsNumeric /? !IsInexactNumber(b)) =  ~b:Interval ? IsInterval               ::= With({r:= Interval(a) =          b }, r /? r === True || r === False)
 
@@ -286,7 +286,7 @@ IntervalCoshRange(~a ? IsRealOrInfinity .. ~b ? IsRealOrInfinity)::= (
 
 
 /* IntervalPlus */
-Interval/: (h:Plus)(~a:Interval ? IsInterval, ~b:Interval ? IsInterval)           ::= IntervalPlus(a, b)
+Interval/: (h:Plus)(~a:Interval ? IsInterval, ~b:Interval ? IsInterval)       ::= IntervalPlus(a, b)
 Interval/: (h:Plus)(~a:Interval ? IsInterval, ~b          ? IsRealOrInfinity) ::= IntervalPlus(a, Interval(b))
 
 IntervalPlus(~i1, ~i2)::= Union @@ (List @@ i2).Map(IntervalPlusRange(i1, #) &)
@@ -297,7 +297,7 @@ IntervalRangesPlus(~a1 .. ~a2, ~b1 .. ~b2)::= a1 + b1 .. a2 + b2
 
 
 /* IntervalTimes */
-Interval/: (h:Times)(~a:Interval ? IsInterval, ~b:Interval ? IsInterval)           ::= IntervalTimes(a, b)
+Interval/: (h:Times)(~a:Interval ? IsInterval, ~b:Interval ? IsInterval)       ::= IntervalTimes(a, b)
 Interval/: (h:Times)(~a:Interval ? IsInterval, ~b          ? IsRealOrInfinity) ::= IntervalTimes(a, Interval(b))
 
 IntervalTimes(~i1, ~i2)::= Union @@ (List @@ i2).Map(IntervalTimesRange(i1, #) &)
@@ -310,7 +310,7 @@ IntervalRangesTimes(~a1 .. ~a2, ~b1 .. ~b2)::=
 
 
 /* IntervalPower */
-Interval/: (h: Power)(~a:Interval ? IsInterval,           ~b:Interval ? IsInterval)           ::= IntervalPower(         a,          b )
+Interval/: (h: Power)(~a:Interval ? IsInterval,           ~b:Interval ? IsInterval)       ::= IntervalPower(         a,          b )
 Interval/: (h: Power)(~a:Interval ? IsInterval,           ~b          ? IsRealOrInfinity) ::= IntervalPower(         a, Interval(b))
 Interval/: (h: Power)(~a          ? IsRealOrInfinity, ~b:Interval ? IsInterval)           ::= IntervalPower(Interval(a),         b )
 
