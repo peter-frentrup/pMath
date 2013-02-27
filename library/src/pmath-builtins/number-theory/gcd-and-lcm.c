@@ -27,8 +27,11 @@ static pmath_t nest_integer(
       expr = pmath_expr_set_item(expr, i, item);
       if(pmath_is_null(expr))
         return expr;
+      
+      continue;
     }
-    else if(!pmath_is_mpint(item)) {
+    
+    if(!pmath_is_mpint(item)) {
       if( pmath_equals(item, _pmath_object_overflow) ||
           pmath_equals(item, _pmath_object_underflow))
       {
