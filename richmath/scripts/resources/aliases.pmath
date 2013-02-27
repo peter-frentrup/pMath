@@ -18,6 +18,7 @@
 		"framed" -> FrameBox("\[SelectionPlaceholder]"),
 		"graphics" -> GraphicsBox({}),
 		"lorem" -> "Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+		"stylebuttons" -> StyleBox(GridBox({{ButtonBox(ComplexStringBox("\"Math in Text\""),ButtonFunction-> (DocumentApply(SelectedDocument(),"\({\"\[SelectionPlaceholder]\"}\)")&)),ButtonBox(ComplexStringBox("\"italic\""),ButtonFunction-> (DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","TI"))&)),ButtonBox(ComplexStringBox("\"Arg Style\""),ButtonFunction-> (DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))&)),ButtonBox(ComplexStringBox("\"Small Caps\""),ButtonFunction-> (DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"}))&))}}), "ControlStyle"),
 		
 		"LaTeX" -> StyleBox({{"L",SuperscriptBox("A")},StyleBox({"T",SubscriptBox("E")},ScriptSizeMultipliers->{1}),"X"},AutoSpacing->False,ShowAutoStyles->False),
 		"TeX" -> StyleBox({StyleBox({"T",SubscriptBox("E")},ScriptSizeMultipliers->{1}),"X"},AutoSpacing->False,ShowAutoStyles->False),

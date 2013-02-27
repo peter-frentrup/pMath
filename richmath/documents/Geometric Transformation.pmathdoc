@@ -2,234 +2,76 @@
 
 System`Document({
   System`SectionGroup({System`Section("Geometric Transformations", "Title"), 
-    System`SectionGroup({System`Section("Code", "Section"), 
-      System`Section(System`BoxData(/\/({"Clear", "(", "isScalar", ")"}, "\n", 
-         {{"isScalar", "(", {"~", "s"}, ")"}, "\[AssignDelayed]", {
-           "!", {"Match", "(", {"s", ",", {"~", ":", "List"}}, ")"}}})), 
-       "Input", System`SectionLabel -> "in [3]:"), 
-      System`Section(System`BoxData(/\/({"Clear", "(", "normalize", ")"}, 
-         "\n", {{"normalize", "(", {{"~", "v"}, "?", "IsVector"}, ")"}, 
-          "\[AssignDelayed]", {
-           "With", "(", {{"{", {"n", "\[Assign]", {"Norm", "(", "v", ")"}}, 
-             "}"}, ",", "\n", {
-             "If", "(", {{{"(", {"n", "=", "0"}, ")"}, "===", "True"}, ",", 
-              "v", ",", {"v", "/", "n"}}, ")"}}, ")"}}, "\n", {
-          {"normalize", "(", {{"~", "s"}, "?", "isScalar"}, ")"}, 
-          "\[AssignDelayed]", {
-           "With", "(", {{"{", {"n", "\[Assign]", {"Norm", "(", "s", ")"}}, 
-             "}"}, ",", "\n", {
-             "If", "(", {{{"(", {"n", "=", "0"}, ")"}, "===", "True"}, ",", 
-              "s", ",", {"s", "/", "n"}}, ")"}}, ")"}})), "Input", 
-       System`SectionLabel -> "in [5]:"), 
-      System`Section(System`BoxData(/\/({"Clear", "(", "rotationMatrix", ")"}, 
-         "\n", {{"rotationMatrix", "(", {"~", "\[Theta]"}, ")"}, 
-          "\[AssignDelayed]", {
-           "With", "(", {
-            {"{", {{"c", "\[Assign]", {"Cos", "(", "\[Theta]", ")"}}, ",", {
-               "s", "\[Assign]", {"Sin", "(", "\[Theta]", ")"}}}, "}"}, ",", 
-            "\n", {"(", System`GridBox({{"c", {"-", "s"}}, {"s", "c"}}), 
-             ")"}}, ")"}}, "\n", {
-          {"rotationMatrix", "(", {{"~", "\[Theta]"}, ",", {
-             "vector", ":", {"{", {"~", ",", "~", ",", "~"}, "}"}}}, ")"}, 
-          "\[AssignDelayed]", {
-           "With", "(", {
-            {"{", {{"c", "\[Assign]", {"Cos", "(", "\[Theta]", ")"}}, ",", {
-               "s", "\[Assign]", {"Sin", "(", "\[Theta]", ")"}}, ",", {
-               "nvec", "\[Assign]", {"normalize", "(", "vector", ")"}}}, "}"}, 
-            ",", "\n", {"Local", "(", {{"{", "i", "}"}, ",", "\n", {
-               {{"(", {"1", "-", "c"}, ")"}, {
-                 {{"{", "nvec", "}"}, System`SuperscriptBox("\[DownTee]")}, 
-                 "\[Dot]", {"{", "nvec", "}"}}}, "+", {
-                "c", " ", {"IdentityMatrix", "(", "3", ")"}}, "+", {
-                "s", {System`UnderoverscriptBox("\[Sum]", {"i", "=", "1"}, 
-                  "3"), {{{"{", {"Cross", "(", {
-                      "nvec", ",", {"UnitVector", "(", {"3", ",", "i"}, ")"}}, 
-                     ")"}, "}"}, System`SuperscriptBox("\[DownTee]")}, 
-                  "\[Dot]", {"{", {"UnitVector", "(", {"3", ",", "i"}, ")"}, 
-                   "}"}}}}}}, "\n", ")"}}, ")"}})), "Input", 
-       System`SectionLabel -> "in [8]:"), 
-      System`Section(System`BoxData(/\/({"Clear", "(", "scalingMatrix", ")"}, 
-         "\n", {{"scalingMatrix", "(", {{"~", "s"}, "?", "IsVector"}, ")"}, 
-          "\[AssignDelayed]", {"DiagonalMatrix", "(", "s", ")"}}, "\n", {
-          {"scalingMatrix", "(", {{{"~", "s"}, "?", "isScalar"}, ",", {
-             {"~", "v"}, "?", "IsVector"}}, ")"}, "\[AssignDelayed]", "\n", {
-           "With", "(", {
-            {"{", {"nv", "\[Assign]", {"normalize", "(", "v", ")"}}, "}"}, 
-            ",", "\n", {{"s", " ", {{{"{", "nv", "}"}, System`SuperscriptBox("\[DownTee]")}, 
-               "\[Dot]", {"Conjugate", "(", {"{", "nv", "}"}, ")"}}}, "+", {
-              "(", {{"IdentityMatrix", "(", {"Length", "(", "nv", ")"}, ")"}, 
-               "-", {{{"{", "nv", "}"}, System`SuperscriptBox("\[DownTee]")}, 
-                "\[Dot]", {"Conjugate", "(", {"{", "nv", "}"}, ")"}}}, ")", {
-               "/*", " ", {"//", "Together"}, " ", "*", "/"}}}}, "\n", 
-           ")"}})), "Input", System`SectionLabel -> "in [11]:"), 
+    System`SectionGroup({System`Section(System`BoxData({"??", "*Transform*"}), 
+       "Input", System`SectionLabel -> "in [1]:"), 
       System`Section(System`BoxData(
-        /\/({"Clear", "(", "reflectionMatrix", ")"}, "\n", {
-          {"reflectionMatrix", "(", {{"~", "v"}, "?", "IsVector"}, ")"}, 
-          "\[AssignDelayed]", {"scalingMatrix", "(", {{"-", "1"}, ",", "v"}, 
-           ")"}})), "Input", System`SectionLabel -> "in [14]:"), 
-      System`Section(System`BoxData(/\/({"Clear", "(", "shearingMatrix", ")"}, 
-         "\n", {{{"shearingMatrix", "(", {{{"~", "\[Theta]"}, "?", "isScalar"}, ",", 
-             {"~", "v"}, ",", {"~", "n"}}, ")"}, "/?", {
-            "IsMatrix", "(", {"{", {"v", ",", "n"}, "}"}, ")"}}, 
-          "\[AssignDelayed]", "\n", {
-           "With", "(", {
-            {"{", {{"nv", "\[Assign]", {"normalize", "(", "v", ")"}}, ",", {
-               "nn", "\[Assign]", {"normalize", "(", "n", ")"}}}, "}"}, ",", 
-            "\n", {"With", "(", {
-              {"{", {"e", "\[Assign]", {"normalize", "(", {
-                  "nv", "-", {{{"Conjugate", "(", "nv", ")"}, "\[Dot]", "nn"}, 
-                   " ", "nn"}}, ")"}}, "}"}, ",", "\n", {
-               {"IdentityMatrix", "(", {"Length", "(", "nn", ")"}, ")"}, "+", {
-                {"Tan", "(", "\[Theta]", ")"}, {
-                 {{"{", "e", "}"}, System`SuperscriptBox("\[DownTee]")}, 
-                 "\[Dot]", {"Conjugate", "(", {"{", "nn", "}"}, ")"}}}}}, 
-             "\n", ")"}}, ")"}})), "Input", 
-       System`SectionLabel -> "in [16]:"), 
+        System`StyleBox(System`TagBox(
+          System`GridBox({
+            {/\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`AffineTransform\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`ShearingTransform\"")), " ")}, {
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`BoxTransformation\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`TransformationBox\"")), " ")}, {
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`LinearFractionalTransform\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`TransformationFunction\"")), " ")}, {
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`ReflectionTransform\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`TransformationMatrix\"")), " ")}, {
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`RotationTransform\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`TranslationTransform\"")), " ")}, {
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`ScalingTransform\"")), " "), 
+             System`ComplexStringBox("\"\"")}}), "Grid"), 
+         System`ButtonFrame -> "Frameless", 
+         System`ButtonFunction -> (System`With({
+           FE`Private`s$:= System`ToExpression(System`First(#1))}, 
+          System`ShowDefinition(FE`Private`s$)) &), 
+         System`GridBoxColumnSpacing -> 2, System`GridBoxRowSpacing -> 
+          0.20000000298023224`, System`StripOnInput -> System`False)), 
+       "PrintUsage", System`SectionGenerated -> System`True)}, System`All), 
+    System`SectionGroup({System`Section(System`BoxData({"??", "*Matrix"}), 
+       "Input", System`SectionLabel -> "in [5]:"), 
       System`Section(System`BoxData(
-        /\/({"Clear", "(", "transformationFunction", ")"}, "\n", {
-          {{{"transformationFunction", "(", {{"~", "m"}, "?", "IsMatrix"}, 
-             ")"}, "(", {{"~", "x"}, "?", "IsVector"}, ")"}, "/?", {
-            {{"Length", "(", "x", ")"}, "+", "1"}, "=", {
-             {"Dimensions", "(", "m", ")"}, "[", "2", "]"}}}, 
-          "\[AssignDelayed]", "\n", {
-           "With", "(", {
-            {"{", {"r", "\[Assign]", {
-               "m", "\[Dot]", {"x", ".", "Append", "(", {
-                 "SetPrecision", "(", {
-                  "1", ",", {"Precision", "(", "x", ")"}}, ")"}, ")"}}}, "}"}, 
-            ",", {{"Most", "(", "r", ")"}, "/", {"Last", "(", "r", ")"}}}, 
-           ")"}}, "\n", "\n", {
-          {{{"transformationFunction", "(", {{"~", "m"}, "?", "IsMatrix"}, 
-             ")"}, "(", {{"~", "xs"}, "?", "IsMatrix"}, ")"}, "/?", {
-            {{"Length", "(", "xs", ")"}, "+", "1"}, "=", {
-             {"Dimensions", "(", "m", ")"}, "[", "2", "]"}}}, 
-          "\[AssignDelayed]", "\n", {
-           "With", "(", {
-            {"{", {"r", "\[Assign]", {
-               "m", "\[Dot]", {"PadRight", "(", {
-                 "xs", ",", {{"Dimensions", "(", "xs", ")"}, "+", {
-                   "{", {"0", ",", "1"}, "}"}}, ",", {
-                  "SetPrecision", "(", {
-                   "1", ",", {"Precision", "(", "xs", ")"}}, ")"}}, ")"}}}, 
-             "}"}, ",", {{"Most", "(", "r", ")"}, "/", {
-              "Last", "(", "r", ")"}}}, ")"}}, "\n", "\n", {
-          "transformationFunction", "/:", {
-           "Dot", "(", {{"~~~", "a"}, ",", {"transformationFunction", "(", {
-              {"~", "m1"}, "?", "IsMatrix"}, ")"}, ",", {
-             "transformationFunction", "(", {{"~", "m2"}, "?", "IsMatrix"}, 
-             ")"}, ",", {"~~~", "b"}}, ")"}, "\[AssignDelayed]", {
-           "a", "\[Dot]", {"transformationFunction", "(", {
-             "m1", "\[Dot]", "m2"}, ")"}, "\[Dot]", "b"}}, "\n", "\n", {
-          "transformationFunction", "/:", {
-           "MakeBoxes", "(", {"transformationFunction", "(", {"~", "m"}, ")"}, 
-           ")"}, "\[AssignDelayed]", {
-           "{", {{"MakeBoxes", "(", "transformationFunction", ")"}, ",", 
-            System`ComplexStringBox("\"(\""), ",", {
-             "MakeBoxes", "(", {"MatrixForm", "(", "m", ")"}, ")"}, ",", 
-            System`ComplexStringBox("\")\"")}, "}"}})), "Input", 
-       System`SectionLabel -> "in [18]:"), 
-      System`Section(System`BoxData(
-        /\/({"Clear", "(", "linearFractionalTransform", ")"}, "\n", {
-          {"linearFractionalTransform", "(", {
-            "{", {{{"~", "A"}, "?", "IsMatrix"}, ",", {
-              {"~", "b"}, "?", "IsVector"}, ",", {
-              {"~", "c"}, "?", "IsVector"}, ",", {
-              {"~", "d"}, "?", "isScalar"}}, "}"}, ")"}, "\[AssignDelayed]", 
-          "\n", {"With", "(", {
-            {"{", {"dims", "\[Assign]", {"Dimensions", "(", "A", ")"}}, "}"}, 
-            ",", "\n", {"transformationFunction", "(", {
-              {"A", ".", "PadRight", "(", {
-                {"dims", "+", {"{", {"0", ",", "1"}, "}"}}, ",", "b"}, ")"}, 
-              ".", "Append", "(", {"c", ".", "Append", "(", "d", ")"}, ")"}, 
-             "\n", ")"}}, ")"}}, "\n", {
-          {"linearFractionalTransform", "(", {
-            "{", {{{"~", "A"}, "?", "IsMatrix"}, ",", {
-              {"~", "b"}, "?", "IsVector"}, ",", {
-              {"~", "c"}, "?", "IsVector"}}, "}"}, ")"}, "\[AssignDelayed]", {
-           "linearFractionalTransform", "(", {
-            "{", {"A", ",", "b", ",", "c", ",", "1"}, "}"}, ")"}}, "\n", {
-          {"linearFractionalTransform", "(", {
-            "{", {{{"~", "A"}, "?", "IsMatrix"}, ",", {
-              {"~", "b"}, "?", "IsVector"}}, "}"}, ")"}, "\[AssignDelayed]", 
-          "\n", {"With", "(", {
-            {"{", {"dims", "\[Assign]", {"Dimensions", "(", "A", ")"}}, "}"}, 
-            ",", "\n", {"transformationFunction", "(", {
-              {"A", ".", "PadRight", "(", {
-                {"dims", "+", {"{", {"0", ",", "1"}, "}"}}, ",", "b"}, ")"}, 
-              ".", "Append", "(", {"UnitVector", "(", {
-                {{"dims", "[", "2", "]"}, "+", "1"}, ",", {
-                 {"dims", "[", "2", "]"}, "+", "1"}}, ")"}, ")"}, ")"}}, "\n", 
-           ")"}}, "\n", {{"linearFractionalTransform", "(", {
-            "{", {{"~", "A"}, "?", "IsMatrix"}, "}"}, ")"}, 
-          "\[AssignDelayed]", "\n", {
-           "With", "(", {
-            {"{", {"dims", "\[Assign]", {"Dimensions", "(", "A", ")"}}, "}"}, 
-            ",", "\n", {"transformationFunction", "(", {
-              {"A", ".", "PadRight", "(", {
-                "dims", "+", {"{", {"0", ",", "1"}, "}"}}, ")"}, ".", 
-              "Append", "(", {"UnitVector", "(", {
-                {{"dims", "[", "2", "]"}, "+", "1"}, ",", {
-                 {"dims", "[", "2", "]"}, "+", "1"}}, ")"}, ")"}, ")"}}, "\n", 
-           ")"}})), "Input", System`SectionLabel -> "in [54]:"), 
-      System`Section(System`BoxData(
-        /\/({"Clear", "(", "rotationTransform", ")"}, "\n", {
-          {"rotationTransform", "(", {{"~", "\[Theta]"}, ",", {
-             "w", ":", {"{", {"~", ",", "~", ",", "~"}, "}"}}, ",", {
-             "p", ":", {"{", {"~", ",", "~", ",", "~"}, "}"}}}, ")"}, 
-          "\[AssignDelayed]", {"linearFractionalTransform", "(", {
-            "{", {{"rotationMatrix", "(", {"\[Theta]", ",", "w"}, ")"}, ",", 
-             "p"}, "}"}, ")"}}, "\n", {
-          {"rotationTransform", "(", {{"~", "\[Theta]"}, ",", {
-             "w", ":", {"{", {"~", ",", "~", ",", "~"}, "}"}}}, ")"}, 
-          "\[AssignDelayed]", {"linearFractionalTransform", "(", {
-            "{", {"rotationMatrix", "(", {"\[Theta]", ",", "w"}, ")"}, "}"}, 
-           ")"}})), "Input", System`SectionLabel -> "in [39]:"), 
-      System`Section(System`BoxData(
-        /\/({"Clear", "(", "affineTransform", ")"}, "\n", {
-          {{"affineTransform", "(", {{"~", "m"}, "?", "IsMatrix"}, ")"}, "/?", 
-           {{"Length", "(", {"Union", "(", {"Dimensions", "(", "m", ")"}, 
-              ")"}, ")"}, "=", "1"}}, "\[AssignDelayed]", {
-           "linearFractionalTransform", "(", {"{", "m", "}"}, ")"}}, "\n", {
-          {"affineTransform", "(", {{{"~", "m"}, "?", "IsMatrix"}, ",", {
-             {"~", "b"}, "?", "IsVector"}}, ")"}, "\[AssignDelayed]", {
-           "With", "(", {
-            {"{", {"dims", "\[Assign]", {"Dimensions", "(", "m", ")"}}, "}"}, 
-            ",", "\n", {{"Return", "(", {"linearFractionalTransform", "(", {
-                "{", {"m", ",", "b"}, "}"}, ")"}, ")"}, "/?", {
-              {"{", {"Length", "(", "b", ")"}, "}"}, "=", {
-               "Union", "(", "dims", ")"}}}}, "\n", ")"}})), "Input", 
-       System`SectionLabel -> "in [36]:"), 
-      System`Section(System`BoxData(
-        /\/({"Clear", "(", "translationTransform", ")"}, "\n", {
-          {"translationTransform", "(", {{"~", "v"}, "?", "IsVector"}, ")"}, 
-          "\[AssignDelayed]", {"linearFractionalTransform", "(", {
-            "{", {{"IdentityMatrix", "(", {"Length", "(", "v", ")"}, ")"}, 
-             ",", "v"}, "}"}, ")"}})), "Input", 
-       System`SectionLabel -> "in [66]:"), 
-      System`Section(System`BoxData(
-        /\/({"Clear", "(", "shearingTransform", ")"}, "\n", {
-          {{"shearingTransform", "(", {{{"~", "\[Theta]"}, "?", "isScalar"}, 
-             ",", {"~", "v"}, ",", {"~", "n"}}, ")"}, "/?", {
-            "IsMatrix", "(", {"{", {"v", ",", "n"}, "}"}, ")"}}, 
-          "\[AssignDelayed]", {"linearFractionalTransform", "(", {
-            "{", {"shearingMatrix", "(", {"\[Theta]", ",", "v", ",", "n"}, 
-             ")"}, "}"}, ")"}}, "\n", {
-          {{"shearingTransform", "(", {{{"~", "\[Theta]"}, "?", "isScalar"}, 
-             ",", {"~", "v"}, ",", {"~", "n"}, ",", {"~", "p"}}, ")"}, "/?", {
-            "IsMatrix", "(", {"{", {"v", ",", "n"}, "}"}, ")"}}, 
-          "\[AssignDelayed]", {{"translationTransform", "(", "p", ")"}, 
-           "\[Dot]", {"linearFractionalTransform", "(", {
-             "{", {"shearingMatrix", "(", {"\[Theta]", ",", "v", ",", "n"}, 
-              ")"}, "}"}, ")"}, "\[Dot]", {"translationTransform", "(", {
-             "-", "p"}, ")"}}})), "Input", System`SectionLabel -> 
-        "in [68]:")}, System`All), System`SectionGroup({
-      System`Section("Test", "Section"), 
+        System`StyleBox(System`TagBox(
+          System`GridBox({
+            {/\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`DiagonalMatrix\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`RotationMatrix\"")), " ")}, {
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`IdentityMatrix\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`ScalingMatrix\"")), " ")}, {
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`IsMatrix\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`ShearingMatrix\"")), " ")}, {
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`ReflectionMatrix\"")), " "), 
+             /\/(System`ButtonBox(System`ComplexStringBox(
+                "\"System`TransformationMatrix\"")), " ")}}), "Grid"), 
+         System`ButtonFrame -> "Frameless", 
+         System`ButtonFunction -> (System`With({
+           FE`Private`s$:= System`ToExpression(System`First(#1))}, 
+          System`ShowDefinition(FE`Private`s$)) &), 
+         System`GridBoxColumnSpacing -> 2, System`GridBoxRowSpacing -> 
+          0.20000000298023224`, System`StripOnInput -> System`False)), 
+       "PrintUsage", System`SectionGenerated -> System`True)}, System`All), 
+    System`SectionGroup({System`Section("Test", "Section"), 
       System`SectionGroup({
         System`Section(System`BoxData({
-           "r", "\[Assign]", {"rotationTransform", "(", {
+           "r", "\[Assign]", {"RotationTransform", "(", {
              "\[Theta]", ",", {"{", {"0", ",", "1", ",", "1"}, "}"}}, ")"}}), 
-         "Input", System`SectionLabel -> "in [59]:"), 
-        System`Section(System`BoxData({"transformationFunction", "(", {
+         "Input", System`SectionLabel -> "in [2]:"), 
+        System`Section(System`BoxData({"TransformationFunction", "(", {
             "(", System`GridBox({
               {{"Cos", "(", "\[Theta]", ")"}, {
                 "-", System`FractionBox({"Sin", "(", "\[Theta]", ")"}, 
@@ -247,11 +89,11 @@ System`Document({
                 System`FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, 
                  "2")}, "0"}, {"0", "0", "0", "1"}}), ")"}, ")"}), "Output", 
          System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [59]:")}, System`All), 
+         System`SectionLabel -> "out [2]:")}, System`All), 
       System`SectionGroup({
         System`Section(System`BoxData({
            {"r", "(", {"{", {"x", ",", "y", ",", "z"}, "}"}, ")"}, "//", 
-           "MatrixForm"}), "Input", System`SectionLabel -> "in [61]:"), 
+           "MatrixForm"}), "Input", System`SectionLabel -> "in [3]:"), 
         System`Section(System`BoxData({
            "(", System`TagBox(System`GridBox({
               {{{"x", " ", {"Cos", "(", "\[Theta]", ")"}}, "+", 
@@ -274,18 +116,18 @@ System`Document({
                   "x", " ", {"Sin", "(", "\[Theta]", ")"}}, 
                  System`SqrtBox("2"))}}}), System`Column), ")"}), "Output", 
          System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [61]:")}, System`All), 
+         System`SectionLabel -> "out [3]:")}, System`All), 
       System`SectionGroup({
-        System`Section(System`BoxData({"shearingTransform", "(", {
+        System`Section(System`BoxData({"ShearingTransform", "(", {
             "\[Theta]", ",", {"{", {"1", ",", "0", ",", "0"}, "}"}, ",", {
              "{", {"0", ",", "0", ",", "1"}, "}"}, ",", {
              "{", {"0", ",", "0", ",", "1"}, "}"}}, ")"}), "Input", 
-         System`SectionLabel -> "in [72]:"), 
-        System`Section(System`BoxData({"transformationFunction", "(", {
+         System`SectionLabel -> "in [4]:"), 
+        System`Section(System`BoxData({"TransformationFunction", "(", {
             "(", System`GridBox({
               {"1", "0", {"Tan", "(", "\[Theta]", ")"}, {
                 "-", {"Tan", "(", "\[Theta]", ")"}}}, {"0", "1", "0", "0"}, {
                "0", "0", "1", "0"}, {"0", "0", "0", "1"}}), ")"}, ")"}), 
          "Output", System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [72]:")}, System`All)}, System`All)}, 
+         System`SectionLabel -> "out [4]:")}, System`All)}, System`All)}, 
    System`All)}, System`Visible -> System`True)
