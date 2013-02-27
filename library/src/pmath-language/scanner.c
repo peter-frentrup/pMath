@@ -112,8 +112,18 @@ PMATH_API pmath_bool_t pmath_span_array_is_token_end(
   pmath_span_array_t *spans,
   int pos
 ) {
-  if(!spans || pos < 0 || pos >= spans->length)
-    return FALSE;
+  if(!spans || pos < 0 || pos >= spans->length) {
+    pmath_debug_print("[pmath_span_array_is_token_end: out of bounds]\n");
+    return TRUE;
+  }
+    
+  if(pos + 1 == spans->length) {
+    if(1 != SPAN_TOK(spans->items[pos])){
+      pmath_debug_print("[missing token_end flag at end of span array]\n");
+    }
+    
+    return TRUE;
+  }
     
   return 1 == SPAN_TOK(spans->items[pos]);
 }
@@ -947,7 +957,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
             ++tokens->pos;
           }
           
-          if(pmath_char_is_digit(tokens->str[tokens->pos])) {
+          if(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos])) {
             ++tokens->pos;
             while(tokens->pos < tokens->len &&
                   pmath_char_is_digit(tokens->str[tokens->pos]))
