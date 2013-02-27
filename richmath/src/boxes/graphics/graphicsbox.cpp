@@ -599,10 +599,14 @@ GraphicsBounds GraphicsBox::calculate_plotrange() {
     
     auto_bounds.add_point(ox, oy);
     
-    if(!isfinite(bounds.xmin)) bounds.xmin = auto_bounds.xmin;
-    if(!isfinite(bounds.xmax)) bounds.xmax = auto_bounds.xmax;
-    if(!isfinite(bounds.ymin)) bounds.ymin = auto_bounds.ymin;
-    if(!isfinite(bounds.ymax)) bounds.ymax = auto_bounds.ymax;
+    /* Add plot range padding of 2% where no explicit range was given
+       TODO: make this controlable trough a PlotRangePadding option, but that
+       would need Scaled({x,y}) coordinate specifications.
+    */
+    if(!isfinite(bounds.xmin)) bounds.xmin = auto_bounds.xmin - 0.02 * (auto_bounds.xmax - auto_bounds.xmin);
+    if(!isfinite(bounds.xmax)) bounds.xmax = auto_bounds.xmax + 0.02 * (auto_bounds.xmax - auto_bounds.xmin);
+    if(!isfinite(bounds.ymin)) bounds.ymin = auto_bounds.ymin - 0.02 * (auto_bounds.ymax - auto_bounds.ymin);
+    if(!isfinite(bounds.ymax)) bounds.ymax = auto_bounds.ymax + 0.02 * (auto_bounds.ymax - auto_bounds.ymin);
   }
   
   if( !isfinite(bounds.xmin) ||

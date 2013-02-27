@@ -379,6 +379,7 @@ static void init_stylesheet() {
   s->set(Evaluatable,         true);
   s->set(FontSize,            11.0);
   s->set(LanguageCategory,    "pMath");
+  s->set(SectionLabel,        "in:");
   s->set(SectionMarginLeft,   56.0);
   s->set(SectionMarginTop,    10.0);
   s->set(SectionMarginBottom,  5.0);
@@ -392,6 +393,7 @@ static void init_stylesheet() {
   s->set(Evaluatable,                  false);
   s->set(ShowAutoStyles,               false);
   s->set(ShowStringCharacters,         false);
+  s->set(SectionLabel,                 "");
   s->set(SectionGroupPrecedence,       10);
   s->set(SectionMarginTop,              5.0);
   s->set(SectionEditDuplicate,         true);
