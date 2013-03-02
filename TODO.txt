@@ -3,8 +3,6 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
-- pmath: simplify Re((2+4I)/Sqrt(10)) and Im(...)
-
 - pmath: implement Together(...) 
 
 - richmath: closed section group: double click group bracket selects one section too much (above)

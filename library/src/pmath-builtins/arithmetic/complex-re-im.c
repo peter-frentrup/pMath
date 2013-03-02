@@ -1,13 +1,16 @@
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
+#include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(
@@ -87,36 +90,36 @@ pmath_bool_t _pmath_is_imaginary(
   return FALSE;
 }
 
-static pmath_expr_t extract_complex(
+/*static pmath_expr_t extract_complex(
   pmath_expr_t *expr
 ) { // returns PMATH_NULL if there is no nonreal complex
   size_t i, len;
-  
+
   len = pmath_expr_length(*expr);
-  
+
   for(i = len; i > 0; --i) {
     pmath_t item = pmath_expr_get_item(*expr, i);
-    
+
     if(_pmath_is_nonreal_complex(item)) {
       pmath_expr_t tmp = *expr;
-      
+
       for(; i < len; ++i) {
         tmp = pmath_expr_set_item(tmp, i,
                                   pmath_expr_get_item(tmp, i + 1));
       }
-      
+
       *expr = pmath_expr_get_item_range(tmp, 1, len - 1);
-      
+
       pmath_unref(tmp);
-      
+
       return item;
     }
-    
+
     pmath_unref(item);
   }
-  
+
   return PMATH_NULL;
-}
+}*/
 
 PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   pmath_t  z,   // will be freed
@@ -168,7 +171,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
         if( _pmath_re_im(pmath_expr_get_item(z, i), &re2, &im2) &&
             !_pmath_contains_symbol(re2, PMATH_SYMBOL_RE) &&
             !_pmath_contains_symbol(re2, PMATH_SYMBOL_IM) &&
-            !_pmath_contains_symbol(im2, PMATH_SYMBOL_IM) &&
+            !_pmath_contains_symbol(im2, PMATH_SYMBOL_RE) &&
             !_pmath_contains_symbol(im2, PMATH_SYMBOL_IM))
         {
           z = pmath_expr_set_item(z, i, PMATH_UNDEFINED);
@@ -201,12 +204,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
           
           pmath_unref(*re);
           
-          *re = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_PLUS), 2,
-                  z2,
-                  pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_RE), 1,
-                    pmath_ref(z)));
+          *re = PLUS(z2, FUNC(pmath_ref(PMATH_SYMBOL_RE), pmath_ref(z)));
         }
         
         if(im) {
@@ -214,12 +212,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
           
           pmath_unref(*im);
           
-          *im = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_PLUS), 2,
-                  z2,
-                  pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_IM), 1,
-                    pmath_ref(z)));
+          *im = PLUS(z2, FUNC(pmath_ref(PMATH_SYMBOL_IM), pmath_ref(z)));
         }
         
         pmath_unref(z);
@@ -233,112 +226,98 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       return FALSE;
     }
     
-    if(pmath_same(zhead, PMATH_SYMBOL_TIMES)) {
-      z2 = pmath_expr_get_item(z, 1);
+    if(pmath_same(zhead, PMATH_SYMBOL_TIMES) && pmath_expr_length(z) > 0) {
+      pmath_t re2 = INT(1);
+      pmath_t im2 = INT(0);
+      size_t i;
+      size_t zlen = pmath_expr_length(z);
       
-      if(pmath_expr_length(z) == 1) {
-        pmath_unref(z);
-        return _pmath_re_im(z2, re, im);
-      }
-      
-      if(pmath_is_number(z2)) {
-        pmath_t tmp = pmath_expr_get_item_range(z, 2, SIZE_MAX);
+      for(i = 1; i <= zlen; ++i) {
+        pmath_t zi = pmath_expr_get_item(z, i);
+        pmath_t re_zi, im_zi;
+        pmath_t tmp_re, tmp_im;
         
-        pmath_unref(z);
-        z = pmath_ref(tmp);
-        
-        if(_pmath_re_im(tmp, re, im)) {
-          if(re) {
-            *re = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_TIMES), 2,
-                    pmath_ref(z2),
-                    *re);
+        if(!_pmath_re_im(zi, &re_zi, &im_zi) ||
+            _pmath_contains_symbol(re_zi, PMATH_SYMBOL_RE) ||
+            _pmath_contains_symbol(re_zi, PMATH_SYMBOL_IM) ||
+            _pmath_contains_symbol(im_zi, PMATH_SYMBOL_RE) ||
+            _pmath_contains_symbol(im_zi, PMATH_SYMBOL_IM))
+        {
+          pmath_unref(re_zi);
+          pmath_unref(im_zi);
+          
+          if(i > 1) {
+            if(pmath_equals(re2, INT(0))) {
+              // Re(a I * z) = -a Im(z)
+              // Im(a I * z) =  a Re(z)
+              
+              if(re) {
+                *re = TIMES3(
+                        INT(-1),
+                        pmath_ref(im2),
+                        FUNC(pmath_ref(PMATH_SYMBOL_IM), pmath_expr_get_item_range(z, i, SIZE_MAX)));
+              }
+              
+              if(im) {
+                *im = TIMES(
+                        pmath_ref(im2),
+                        FUNC(pmath_ref(PMATH_SYMBOL_RE), pmath_expr_get_item_range(z, i, SIZE_MAX)));
+              }
+              
+              pmath_unref(re2);
+              pmath_unref(im2);
+              pmath_unref(z);
+              return TRUE;
+            }
+            
+            if(pmath_equals(im2, INT(0))) {
+              // Re(a * z) = a Re(z)
+              // Im(a * z) = a Im(z)
+              
+              if(re) {
+                *re = TIMES(
+                        pmath_ref(re2),
+                        FUNC(pmath_ref(PMATH_SYMBOL_RE), pmath_expr_get_item_range(z, i, SIZE_MAX)));
+              }
+              
+              if(im) {
+                *im = TIMES(
+                        pmath_ref(re2),
+                        FUNC(pmath_ref(PMATH_SYMBOL_IM), pmath_expr_get_item_range(z, i, SIZE_MAX)));
+              }
+              
+              pmath_unref(re2);
+              pmath_unref(im2);
+              pmath_unref(z);
+              return TRUE;
+            }
           }
           
-          if(im) {
-            *im = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_TIMES), 2,
-                    pmath_ref(z2),
-                    *im);
-          }
-        }
-        else {
-          if(re) {
-            *re = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_TIMES), 2,
-                    pmath_ref(z2),
-                    pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_RE), 1,
-                      pmath_ref(z)));
-          }
-          
-          if(im) {
-            *im = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_TIMES), 2,
-                    pmath_ref(z2),
-                    pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_IM), 1,
-                      pmath_ref(z)));
-          }
-        }
-        
-        pmath_unref(z);
-        pmath_unref(z2);
-        
-        return TRUE;
-      }
-      
-      pmath_unref(z2);
-      
-      z2 = extract_complex((pmath_expr_t *)&z);
-      
-      if(!pmath_is_null(z2)) {
-        pmath_number_t re2, im2, re3, im3;
-        
-        re2 = pmath_expr_get_item(z2, 1);
-        im2 = pmath_expr_get_item(z2, 2);
-        
-        pmath_unref(z2);
-        
-        if(pmath_number_sign(re2) != 0) {
           pmath_unref(re2);
           pmath_unref(im2);
           pmath_unref(z);
           return FALSE;
         }
         
-        if(!_pmath_re_im(pmath_ref(z), &re3, &im3)) {
-          re3 = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_RE), 1,
-                  pmath_ref(z));
-                  
-          im3 = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_IM), 1,
-                  pmath_ref(z));
-        }
-        
-        if(re) {
-          *re = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_TIMES), 3,
-                  PMATH_FROM_INT32(-1),
-                  pmath_ref(im2),
-                  pmath_ref(im3));
-        }
-        
-        if(im) {
-          *im = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_TIMES), 2,
-                  pmath_ref(im2),
-                  pmath_ref(re3));
-        }
+        tmp_re = MINUS(TIMES(pmath_ref(re2), pmath_ref(re_zi)), TIMES(pmath_ref(im2), pmath_ref(im_zi)));
+        tmp_im = PLUS( TIMES(pmath_ref(re2), pmath_ref(im_zi)), TIMES(pmath_ref(im2), pmath_ref(re_zi)));
         
         pmath_unref(re2);
         pmath_unref(im2);
-        pmath_unref(re3);
-        pmath_unref(im3);
-        pmath_unref(z);
-        return TRUE;
+        pmath_unref(re_zi);
+        pmath_unref(im_zi);
+        
+        re2 = pmath_evaluate(tmp_re);
+        im2 = pmath_evaluate(tmp_im);
       }
+      
+      if(re) *re = pmath_ref(re2);
+      if(im) *im = pmath_ref(im2);
+      
+      pmath_unref(re2);
+      pmath_unref(im2);
+      pmath_unref(z);
+      return TRUE;
     }
     
     {
