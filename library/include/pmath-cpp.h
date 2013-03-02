@@ -244,6 +244,12 @@ namespace pmath {
         }
       }
       
+      void expr_remove_all(Expr rem) throw() {
+        if(is_expr()) {
+          _obj = pmath_expr_remove_all(_obj, rem.get());
+        }
+      }
+      
       /**\brief Sort the expression
         */
       void sort() throw() {

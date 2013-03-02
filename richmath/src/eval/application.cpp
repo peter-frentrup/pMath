@@ -11,7 +11,9 @@
 #include <stdint.h>
 #include <cstdio>
 
+#include <boxes/graphics/graphicsbox.h>
 #include <boxes/section.h>
+#include <boxes/mathsequence.h>
 
 #include <graphics/config-shaper.h>
 
@@ -125,6 +127,7 @@ static void execute(ClientNotification &cn);
 
 static pmath_atomic_t     print_pos_lock = PMATH_ATOMIC_STATIC_INIT;
 static EvaluationPosition print_pos;
+
 static EvaluationPosition old_job;
 static Expr               main_message_queue;
 static double total_time_waited_for_gui = 0.0;
@@ -144,10 +147,18 @@ static int on_add_job(void *data) {
   if(session && !session->current_job) {
     while(session->jobs.get(&session->current_job)) {
       if(session->current_job) {
-        old_job = print_pos;
+        pmath_atomic_lock(&print_pos_lock);
+        {
+          old_job = print_pos;
+        }
+        pmath_atomic_unlock(&print_pos_lock);
         
         if(session->current_job->start()) {
-          print_pos = session->current_job->position();
+          pmath_atomic_lock(&print_pos_lock);
+          {
+            print_pos = session->current_job->position();
+          }
+          pmath_atomic_unlock(&print_pos_lock);
           
           break;
         }
@@ -378,8 +389,16 @@ static void write_data(void *user, const uint16_t *data, int len) {
 }
 
 void Application::gui_print_section(Expr expr) {
-  Document *doc = FrontEndObject::find_cast<Document>(print_pos.document_id);
-  Section *sect = FrontEndObject::find_cast<Section>(print_pos.section_id);
+  EvaluationPosition pos;
+  
+  pmath_atomic_lock(&print_pos_lock);
+  {
+    pos = print_pos;
+  }
+  pmath_atomic_unlock(&print_pos_lock);
+  
+  Document *doc = FrontEndObject::find_cast<Document>(pos.document_id);
+  Section *sect = FrontEndObject::find_cast<Section>( pos.section_id);
   
   if(doc && doc->get_own_style(Editable)) {
     int index;
@@ -391,14 +410,26 @@ void Application::gui_print_section(Expr expr) {
         if(!s || !s->get_style(SectionGenerated))
           break;
           
+        if(session && session->current_job && session->current_job->default_graphics_options.is_null()) {
+          if(MathSection *msect = dynamic_cast<MathSection *>(s)) {
+            if( msect->content()->length() == 1 &&
+                msect->content()->count()  == 1)
+            {
+              if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(msect->content()->item(0))) {
+                session->current_job->default_graphics_options = gb->get_user_options();
+              }
+            }
+          }
+        }
+        
         if(doc->selection_box() == doc) {
-          int s = doc->selection_start();
-          int e = doc->selection_end();
+          int start = doc->selection_start();
+          int end   = doc->selection_end();
           
-          if(s > index) --s;
-          if(e > index) --e;
+          if(start > index) --start;
+          if(end > index)   --end;
           
-          doc->select(doc, s, e);
+          doc->select(doc, start, end);
         }
         
         doc->remove(index, index + 1);
@@ -411,48 +442,61 @@ void Application::gui_print_section(Expr expr) {
     if(sect) {
       String base_style_name;
       
-      if( session &&
-          session->current_job &&
-          sect->style &&
-          sect->style->get(BaseStyleName, &base_style_name))
-      {
-        Section *eval_sect = FrontEndObject::find_cast<Section>(session->current_job->position().section_id);
-        
-        if(eval_sect) {
-          Gather g;
-          Expr   rules;
-          
-          SharedPtr<Stylesheet> all   = eval_sect->stylesheet();
-          SharedPtr<Style>      style = eval_sect->style;
-          
-          for(int count = 20; count && style; --count) {
-            if(style->get(GeneratedSectionStyles, &rules))
-              Gather::emit(rules);
-              
-            String inherited;
-            if(all && style->get(BaseStyleName, &inherited))
-              style = all->styles[inherited];
-            else
-              break;
+      if(session && session->current_job) {
+        if(MathSection *msect = dynamic_cast<MathSection *>(sect)) {
+          if( msect->content()->length() == 1 &&
+              msect->content()->count()  == 1)
+          {
+            if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(msect->content()->item(0))) {
+              gb->set_user_default_options(session->current_job->default_graphics_options);
+            }
           }
+        }
+        
+        if(sect->style && sect->style->get(BaseStyleName, &base_style_name)) {
+          Section *eval_sect = FrontEndObject::find_cast<Section>(session->current_job->position().section_id);
           
-          rules = g.end();
-          Expr base_style = Evaluate(
-                              Parse(
-                                "Try(Replace(`1`, Flatten(`2`)))",
-                                base_style_name,
-                                rules));
-                                
-          if(base_style != PMATH_SYMBOL_FAILED) {
-            sect->style->remove(BaseStyleName);
-            sect->style->add_pmath(base_style);
+          if(eval_sect) {
+            Gather g;
+            Expr   rules;
+            
+            SharedPtr<Stylesheet> all   = eval_sect->stylesheet();
+            SharedPtr<Style>      style = eval_sect->style;
+            
+            for(int count = 20; count && style; --count) {
+              if(style->get(GeneratedSectionStyles, &rules))
+                Gather::emit(rules);
+                
+              String inherited;
+              if(all && style->get(BaseStyleName, &inherited))
+                style = all->styles[inherited];
+              else
+                break;
+            }
+            
+            rules = g.end();
+            Expr base_style = Evaluate(
+                                Parse(
+                                  "Try(Replace(`1`, Flatten(`2`)))",
+                                  base_style_name,
+                                  rules));
+                                  
+            if(base_style != PMATH_SYMBOL_FAILED) {
+              sect->style->remove(BaseStyleName);
+              sect->style->add_pmath(base_style);
+            }
           }
         }
       }
       
       doc->insert(index, sect);
       
-      print_pos = EvaluationPosition(sect);
+      pos = EvaluationPosition(sect);
+      pmath_atomic_lock(&print_pos_lock);
+      {
+        print_pos = pos;
+      }
+      pmath_atomic_unlock(&print_pos_lock);
       
       if(doc->selection_box() == doc) {
         int s = doc->selection_start();
@@ -765,7 +809,6 @@ Box *Application::get_evaluation_box() {
     return box;
     
   EvaluationPosition pos;
-  
   pmath_atomic_lock(&print_pos_lock);
   {
     pos = print_pos;
@@ -1066,7 +1109,7 @@ Expr Application::interrupt_cached(Expr expr, double seconds) {
     return *cached;
     
   Expr result = interrupt(expr, seconds);
-  if( result != PMATH_SYMBOL_ABORTED && 
+  if( result != PMATH_SYMBOL_ABORTED &&
       result != PMATH_SYMBOL_FAILED)
   {
     eval_cache.set(expr, result);
@@ -1202,9 +1245,15 @@ static void cnt_end(Expr data) {
     job->dequeued();
     
     {
-      Document *doc = FrontEndObject::find_cast<Document>(print_pos.document_id);
+      EvaluationPosition pos;
+      pmath_atomic_lock(&print_pos_lock);
+      {
+        pos = print_pos;
+      }
+      pmath_atomic_unlock(&print_pos_lock);
       
-      Section *sect = FrontEndObject::find_cast<Section>(print_pos.section_id);
+      Document *doc = FrontEndObject::find_cast<Document>(pos.document_id);
+      Section *sect = FrontEndObject::find_cast<Section>( pos.section_id);
       
       if(doc) {
         if(sect && sect->parent() == doc) {
@@ -1227,7 +1276,11 @@ static void cnt_end(Expr data) {
       }
     }
     
-    print_pos = old_job;
+    pmath_atomic_lock(&print_pos_lock);
+    {
+      print_pos = old_job;
+    }
+    pmath_atomic_unlock(&print_pos_lock);
   }
   
   bool more = false;
@@ -1242,10 +1295,18 @@ static void cnt_end(Expr data) {
   
   while(session->jobs.get(&session->current_job)) {
     if(session->current_job) {
-      old_job = print_pos;
+      pmath_atomic_lock(&print_pos_lock);
+      {
+        old_job = print_pos;
+      }
+      pmath_atomic_unlock(&print_pos_lock);
       
       if(session->current_job->start()) {
-        print_pos = session->current_job->position();
+        pmath_atomic_lock(&print_pos_lock);
+        {
+          print_pos = session->current_job->position();
+        }
+        pmath_atomic_unlock(&print_pos_lock);
         
         more = true;
         break;

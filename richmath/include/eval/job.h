@@ -37,6 +37,9 @@ namespace richmath {
       
       const EvaluationPosition &position() { return _position; }
       
+    public:
+      Expr default_graphics_options;
+      
     protected:
       EvaluationPosition _position;
       bool have_printed;

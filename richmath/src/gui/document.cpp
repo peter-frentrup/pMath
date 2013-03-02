@@ -2857,9 +2857,7 @@ void Document::graphics_original_size() {
 
 void Document::graphics_original_size(Box *box) {
   if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(box)) {
-    gb->style->remove(ImageSizeHorizontal);
-    gb->style->remove(ImageSizeVertical);
-    gb->invalidate();
+    gb->reset_user_options();
     return;
   }
   

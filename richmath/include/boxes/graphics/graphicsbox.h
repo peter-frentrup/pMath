@@ -32,6 +32,10 @@ namespace richmath {
       // Box::try_create<GraphicsBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, int opts);
       
+      void reset_user_options();
+      void set_user_default_options(Expr rules);
+      Expr get_user_options();
+      
       virtual Box *item(int i);
       virtual int count();
       

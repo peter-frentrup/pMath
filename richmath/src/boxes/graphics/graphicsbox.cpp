@@ -180,25 +180,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
   
   /* now success is guaranteed */
   
-  Expr user_options;
-  if(user_has_changed_size) {
-    Gather g;
-    
-    style->emit_to_pmath(false);
-    
-    user_options = g.end();
-    for(size_t i = user_options.expr_length(); i > 0; --i) {
-      Expr rule = user_options[i];
-      
-      if(rule[1] == PMATH_SYMBOL_ASPECTRATIO)
-        continue;
-        
-      if(rule[1] == PMATH_SYMBOL_IMAGESIZE)
-        continue;
-        
-      user_options.set(0, Expr());
-    }
-  }
+  Expr user_options = get_user_options();
   
   reset_style();
   style->add_pmath(options);
@@ -208,6 +190,39 @@ bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
   invalidate();
   
   return true;
+}
+
+void GraphicsBox::reset_user_options() {
+  user_has_changed_size = false;
+  if(style) {
+    style->remove(ImageSizeHorizontal);
+    style->remove(ImageSizeVertical);
+    invalidate();
+  }
+}
+
+void GraphicsBox::set_user_default_options(Expr rules) {
+  if(rules.expr_length() > 0) {
+    user_has_changed_size = true;
+    
+    SharedPtr<Style> old_style = style;
+    style = new Style();
+    reset_style();
+    style->add_pmath(rules);
+    style->merge(old_style);
+  }
+}
+
+Expr GraphicsBox::get_user_options() {
+  if(!user_has_changed_size)
+    return List();
+    
+  Gather g;
+  
+  style->emit_pmath(AspectRatio);
+  style->emit_pmath(ImageSizeCommon);
+  
+  return g.end();
 }
 
 Box *GraphicsBox::item(int i) {
@@ -245,7 +260,7 @@ void GraphicsBox::invalidate() {
 bool GraphicsBox::request_repaint(float x, float y, float w, float h) {
   if(is_currently_resizing)
     return false;
-  
+    
   cached_bitmap = 0;
   return Box::request_repaint(x, y, w, h);
 }
