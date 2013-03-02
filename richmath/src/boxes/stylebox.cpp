@@ -119,9 +119,10 @@ Box *AbstractStyleBox::move_logical(
 Box *AbstractStyleBox::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
-  if(style && *index < 0) {
+  if(style && *index < 0) { // called from parent
     if(!get_own_style(Selectable, true)) {
       if(*index_rel_x <= _extents.width)
         *index = _index;
@@ -132,7 +133,7 @@ Box *AbstractStyleBox::move_vertical(
     }
   }
   
-  return OwnerBox::move_vertical(direction, index_rel_x, index);
+  return OwnerBox::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
 Box *AbstractStyleBox::mouse_selection(

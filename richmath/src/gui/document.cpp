@@ -1676,6 +1676,9 @@ void Document::raw_select(Box *box, int start, int end) {
     if(box) {
       box->request_repaint_range(start, end);
     }
+    
+    if(box == this)
+    pmath_debug_print("[select document %d .. %d]\n", start, end);
   }
   
   best_index_rel_x = 0;
@@ -1920,7 +1923,7 @@ void Document::move_vertical(
   else
     i = sel_last.start;
     
-  box = box->move_vertical(direction, &best_index_rel_x, &i);
+  box = box->move_vertical(direction, &best_index_rel_x, &i, false);
   
   j = i;
   MathSequence *seq = dynamic_cast<MathSequence *>(box);

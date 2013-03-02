@@ -42,8 +42,8 @@ namespace richmath {
       
       float precedence;
       int nesting;
-      int first;     // allways < section index, may be -1
-      int end;       // allways >= section index
+      int first;     // always < section index, may be -1
+      int end;       // index of last section of the group that starts here
       int close_rel; // group closed => rel. index of the only open section, else: -1
   };
   
@@ -76,7 +76,8 @@ namespace richmath {
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
-        int              *index);
+        int              *index,
+        bool              called_from_child);
         
       virtual Box *mouse_selection(
         float  x,

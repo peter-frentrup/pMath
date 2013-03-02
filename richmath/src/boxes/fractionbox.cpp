@@ -148,7 +148,8 @@ Expr FractionBox::to_pmath(int flags) {
 Box *FractionBox::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   MathSequence *dst = 0;
   
@@ -174,7 +175,7 @@ Box *FractionBox::move_vertical(
   if(!dst) {
     if(_parent) {
       *index = _index;
-      return _parent->move_vertical(direction, index_rel_x, index);
+      return _parent->move_vertical(direction, index_rel_x, index, true);
     }
     
     return this;
@@ -182,7 +183,7 @@ Box *FractionBox::move_vertical(
   
   *index_rel_x -= (_extents.width - dst->extents().width) / 2;
   *index = -1;
-  return dst->move_vertical(direction, index_rel_x, index);
+  return dst->move_vertical(direction, index_rel_x, index, false);
 }
 
 Box *FractionBox::mouse_selection(

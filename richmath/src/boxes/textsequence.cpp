@@ -922,7 +922,8 @@ Box *TextSequence::move_logical(
 Box *TextSequence::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   ensure_text_valid();
   
@@ -970,7 +971,7 @@ Box *TextSequence::move_vertical(
         
       *index_rel_x = x - lx - pango_units_to_double(px);
       *index = -1;
-      return boxes[b]->move_vertical(direction, index_rel_x, index);
+      return boxes[b]->move_vertical(direction, index_rel_x, index, false);
     }
     
     int px;
@@ -993,7 +994,7 @@ Box *TextSequence::move_vertical(
   if(_parent) {
     *index_rel_x = x;
     *index = _index;
-    return _parent->move_vertical(direction, index_rel_x, index);
+    return _parent->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;

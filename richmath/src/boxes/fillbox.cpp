@@ -80,15 +80,16 @@ Expr FillBox::to_pmath(int flags) {
 Box *FillBox::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   if(_content->extents().width > 0 && *index < 0) {
     *index_rel_x -= cx;
     *index_rel_x = fmodf(*index_rel_x, _content->extents().width);
-    return _content->move_vertical(direction, index_rel_x, index);
+    return _content->move_vertical(direction, index_rel_x, index, false);
   }
   
-  return OwnerBox::move_vertical(direction, index_rel_x, index);
+  return OwnerBox::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
 Box *FillBox::mouse_selection(

@@ -229,11 +229,12 @@ Box *Box::move_logical(
 Box *Box::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   if(_parent) {
     *index = _index;
-    return _parent->move_vertical(direction, index_rel_x, index);
+    return _parent->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;

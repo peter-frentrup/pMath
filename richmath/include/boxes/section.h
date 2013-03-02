@@ -23,7 +23,8 @@ namespace richmath {
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
-        int              *index);
+        int              *index,
+        bool              called_from_child);
         
       virtual bool exitable() { return false; }
       virtual bool remove_inserts_placeholder() { return false; }
@@ -102,7 +103,8 @@ namespace richmath {
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
-        int              *index);
+        int              *index,
+        bool              called_from_child);
         
       virtual Box *mouse_selection(
         float  x,

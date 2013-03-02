@@ -72,14 +72,15 @@ Expr OwnerBox::to_pmath(int flags) {
 Box *OwnerBox::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   if(*index < 0) {
     *index_rel_x -= cx;
-    return _content->move_vertical(direction, index_rel_x, index);
+    return _content->move_vertical(direction, index_rel_x, index, false);
   }
   
-  return Box::move_vertical(direction, index_rel_x, index);
+  return Box::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
 Box *OwnerBox::mouse_selection(

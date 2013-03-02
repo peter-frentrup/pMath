@@ -209,7 +209,8 @@ Expr RadicalBox::to_pmath(int flags) {
 Box *RadicalBox::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   if(*index < 0) {
     if(_exponent) {
@@ -220,12 +221,12 @@ Box *RadicalBox::move_vertical(
         er = ex;
         
       if(*index_rel_x < (er + rx) / 2)
-        return _exponent->move_vertical(direction, index_rel_x, index);
+        return _exponent->move_vertical(direction, index_rel_x, index, false);
         
     }
     
     *index_rel_x -= rx;
-    return _radicand->move_vertical(direction, index_rel_x, index);
+    return _radicand->move_vertical(direction, index_rel_x, index, false);
   }
   
   if(!_parent)
@@ -235,7 +236,7 @@ Box *RadicalBox::move_vertical(
     *index_rel_x += rx;
     
   *index = _index;
-  return _parent->move_vertical(direction, index_rel_x, index);
+  return _parent->move_vertical(direction, index_rel_x, index, true);
 }
 
 Box *RadicalBox::mouse_selection(

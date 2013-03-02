@@ -145,7 +145,7 @@ void SectionList::selection_path(Canvas *canvas, int start, int end) {
     
     float left  = _extents.width;
     float right = 0;
-    for(int i = start;i < end;++i) {
+    for(int i = start; i < end; ++i) {
       Section *sect = section(i);
       
       float r = sect->unfilled_width;
@@ -153,17 +153,17 @@ void SectionList::selection_path(Canvas *canvas, int start, int end) {
         right = r;
         
       float l = sect->get_style(SectionMarginLeft);
-      l-= sect->label_width();
-      l-= 3; // label distance
+      l -= sect->label_width();
+      l -= 3; // label distance
       if(left > l)
         left = l;
     }
     
     left += x;
-    right+= x;
+    right += x;
     
     top   += section(start)->top_margin;
-    bottom-= section(end - 1)->bottom_margin;
+    bottom -= section(end - 1)->bottom_margin;
     
     float x1 = left;
     float y1 = top;
@@ -286,26 +286,78 @@ Box *SectionList::move_logical(
 Box *SectionList::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   int s = *index;
   
-  if(direction == Backward) {
-    do {
-      --s;
-    } while(s >= 0 && s < _sections.length() && !_sections[s]->visible);
-  }
-  else {
-    while(s >= 0 && s < _sections.length() && !_sections[s]->visible) {
-      ++s;
-    }
+  if(s < 0) {
+    if(direction == Backward)
+      *index = _sections.length();
+    else
+      *index = 0;
+    return this;
   }
   
-  if(s < 0 || s >= _sections.length())
-    return this;
+  if(direction == Backward) {
+    if(s == 0) {
+      *index = s;
+      return this;
+    }
     
+    if(!called_from_child)
+      --s;
+      
+    int next_group = s;
+    while(next_group >= 0) {
+      int group_start = next_group;
+      next_group =  _group_info[group_start].first;
+      
+      assert(next_group < group_start);
+      
+      if(_group_info[group_start].close_rel >= 0) { // group is closed
+        if(called_from_child) // step out of group
+          s = group_start;
+        else
+          s = group_start + _group_info[group_start].close_rel;
+      }
+    }
+  }
+  else {
+    if(s == _sections.length()) {
+      *index = s;
+      return this;
+    }
+    
+    int next_group = s;
+    while(next_group >= 0) {
+      int group_start = next_group;
+      next_group =  _group_info[group_start].first;
+      
+      assert(next_group < group_start);
+      
+      if(_group_info[group_start].close_rel >= 0) { // group is closed
+        if(called_from_child) // step out of group
+          s = _group_info[group_start].end;
+        else // step into group
+          s = group_start + _group_info[group_start].close_rel;
+      }
+    }
+    
+    if(called_from_child)
+      ++s;
+  }
+  
+  if(called_from_child || s == _sections.length()) {
+    *index = s;
+    return this;
+  }
+  
+  assert(s >= 0);
+  assert(s < _sections.length());
+  
   *index = -1;
-  return _sections[s]->move_vertical(direction, index_rel_x, index);
+  return _sections[s]->move_vertical(direction, index_rel_x, index, false);
 }
 
 Box *SectionList::mouse_selection(
@@ -330,8 +382,16 @@ Box *SectionList::mouse_selection(
   while(*start < _sections.length()) {
     if(_sections[*start]->visible) {
       if(y <= _sections[*start]->y_offset + _sections[*start]->top_margin) {
+        int group_start = 0;
+        if(_group_info[*start].end > *start) { // this starts a group
+          group_start = *start;
+        }
+        else if(_group_info[*start].first >= 0) {
+          group_start = _group_info[*start].first;
+        }
+        
         int lastvis = *start - 1;
-        while(lastvis >= 0 && !_sections[lastvis]->visible)
+        while(lastvis >= group_start && !_sections[lastvis]->visible)
           --lastvis;
           
         *end = *start = lastvis + 1;
@@ -384,7 +444,7 @@ Box *SectionList::mouse_selection(
         }
         
         y -= _sections[*start]->y_offset;
-        x+= get_content_scroll_correction_x(*start);
+        x += get_content_scroll_correction_x(*start);
         return _sections[*start]->mouse_selection(x, y, start, end, was_inside_start);
       }
     }
@@ -402,48 +462,56 @@ void SectionList::child_transformation(
 ) {
   if(index < _sections.length()) {
     cairo_matrix_translate(
-      matrix, 
-      - get_content_scroll_correction_x(index), 
+      matrix,
+      - get_content_scroll_correction_x(index),
       _sections[index]->y_offset);
   }
   else {
     cairo_matrix_translate(
-      matrix, 
-      0, 
+      matrix,
+      0,
       _extents.height());
   }
 }
 
 Box *SectionList::normalize_selection(int *start, int *end) {
-  bool equal_start_end = *start == *end;
-  
-  if(*end < 0)
-    *end = 0;
-    
-  while(*end < length() && !_sections[*end]->visible)
-    ++*end;
-    
-  if(equal_start_end) {
-    *start = *end;
-    return this;
-  }
-  
-  while(*start > 0 && !_sections[*start]->visible)
-    --*start;
-    
+//  bool equal_start_end = *start == *end;
+//
+//  if(*end < 0)
+//    *end = 0;
+//
+//  while(*end < length() && !_sections[*end]->visible)
+//    ++*end;
+//
+//  if(equal_start_end) {
+//    *start = *end;
+//    return this;
+//  }
+//
+//  while(*start > 0 && !_sections[*start]->visible)
+//    --*start;
+
   return this;
 }
 
 void SectionList::set_open_close_group(int i, bool open) {
+  if(open) {
+    while(i >= 0) {
+      _group_info[i].close_rel = -1;
+      i = _group_info[i].first;
+    }
+    
+    update_section_visibility();
+    return;
+  }
+  
   if(_group_info[i].end > i) {
-    _group_info[i].close_rel = open ? -1 : 0;
+    _group_info[i].close_rel = 0;
+      
     update_section_visibility();
   }
   else if(_group_info[i].first >= 0) {
-    if(open)
-      _group_info[_group_info[i].first].close_rel = -1;
-    else
-      _group_info[_group_info[i].first].close_rel = i - _group_info[i].first;
+    _group_info[_group_info[i].first].close_rel = i - _group_info[i].first;
       
     update_section_visibility();
   }
@@ -734,16 +802,20 @@ bool SectionList::request_repaint_range(int start, int end) {
     
   if(start < _sections.length())
     y1 = _sections[start]->y_offset;
-  else if(start > 0)
-    y1 = _sections[start - 1]->y_offset + _sections[start - 1]->extents().height();
-    
+  else
+    y1 = _extents.descent;
+//  else if(start > 0)
+//    y1 = _sections[start - 1]->y_offset + _sections[start - 1]->extents().height();
+
   float y2 = y1;
   
   if(end < _sections.length())
     y2 = _sections[end]->y_offset;
-  else if(end > 0)
-    y2 = _sections[end - 1]->y_offset + _sections[end - 1]->extents().height();
-    
+  else
+    y2 = _extents.descent;
+//  else if(end > 0)
+//    y2 = _sections[end - 1]->y_offset + _sections[end - 1]->extents().height();
+
   return request_repaint(0, y1, _extents.width, y2 - y1);
   
 }
@@ -774,13 +846,13 @@ void SectionList::resize_section(Context *context, int i) {
   context->section_content_window_width = old_scww;
 }
 
-float SectionList::get_content_scroll_correction_x(int i){
+float SectionList::get_content_scroll_correction_x(int i) {
   float ssx = _scrollx;
   
   float content_window_width = _window_width;
   
   if(get_own_style(ShowSectionBracket, true)) {
-    content_window_width-= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
   }
   
   if(ssx > _sections[i]->extents().width - content_window_width)
@@ -788,14 +860,14 @@ float SectionList::get_content_scroll_correction_x(int i){
     
   if(ssx < 0)
     ssx =  0;
-  
+    
   return ssx - _scrollx;
 }
 
 void SectionList::paint_section(Context *context, int i) {
   if(_sections[i]->must_resize)
     _sections[i]->resize(context);
-  
+    
   float old_w    = context->width;
   float old_scww = context->section_content_window_width;
   //_scrollx = scrollx;

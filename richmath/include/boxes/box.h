@@ -149,8 +149,9 @@ namespace richmath {
         
       virtual Box *move_vertical(
         LogicalDirection  direction,
-        float            *index_rel_x,
-        int              *index);
+        float            *index_rel_x,  // [in/out]
+        int              *index,        // [in/out], -1 if called from parent
+        bool              called_from_child);
         
       virtual Box *mouse_selection(
         float  x,

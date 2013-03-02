@@ -924,7 +924,8 @@ Box *MathSequence::move_logical(
 Box *MathSequence::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   int line, dstline;
   float x = *index_rel_x;
@@ -1000,7 +1001,7 @@ Box *MathSequence::move_vertical(
       while(boxes[b]->index() < i)
         ++b;
       *index = -1;
-      return boxes[b]->move_vertical(direction, index_rel_x, index);
+      return boxes[b]->move_vertical(direction, index_rel_x, index, false);
     }
     
     *index = i;
@@ -1010,7 +1011,7 @@ Box *MathSequence::move_vertical(
   if(_parent) {
     *index_rel_x = x;
     *index = _index;
-    return _parent->move_vertical(direction, index_rel_x, index);
+    return _parent->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;

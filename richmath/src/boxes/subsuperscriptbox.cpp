@@ -285,7 +285,8 @@ Expr SubsuperscriptBox::to_pmath(int flags) {
 Box *SubsuperscriptBox::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   MathSequence *dst = 0;
   
@@ -318,14 +319,14 @@ Box *SubsuperscriptBox::move_vertical(
   if(!dst) {
     if(_parent) {
       *index = _index;
-      return _parent->move_vertical(direction, index_rel_x, index);
+      return _parent->move_vertical(direction, index_rel_x, index, true);
     }
     
     return this;
   }
   
   *index = -1;
-  return dst->move_vertical(direction, index_rel_x, index);
+  return dst->move_vertical(direction, index_rel_x, index, false);
 }
 
 Box *SubsuperscriptBox::mouse_selection(

@@ -941,7 +941,8 @@ Expr GridBox::to_pmath(int flags, int start, int end) {
 Box *GridBox::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   int row, col;
   need_pos_vectors();
@@ -970,14 +971,14 @@ Box *GridBox::move_vertical(
     if(_parent) {
       *index_rel_x += xpos[col];
       *index = _index;
-      return _parent->move_vertical(direction, index_rel_x, index);
+      return _parent->move_vertical(direction, index_rel_x, index, true);
     }
     
     return this;
   }
   
   *index = -1;
-  return item(row, col)->move_vertical(direction, index_rel_x, index);
+  return item(row, col)->move_vertical(direction, index_rel_x, index, false);
 }
 
 Box *GridBox::mouse_selection(

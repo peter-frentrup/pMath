@@ -62,7 +62,7 @@ void Section::resize_label(Context *context) {
     return;
     
   label_string = lbl;
-    
+  
   SharedPtr<TextShaper> shaper = TextShaper::find("Arial", NoStyle);
   
   float fs = context->canvas->get_font_size();
@@ -121,14 +121,19 @@ void Section::paint_label(Context *context) {
 Box *Section::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   if(_parent) {
-    if(direction == Forward)
-      *index = _index + 1;
-    else
-      *index = _index;
-    return _parent;
+    if(index < 0) { // called from parent
+      if(direction == Forward)
+        *index = _index + 1;
+      else
+        *index = _index;
+      return _parent;
+    }
+    *index = _index;
+    return _parent->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;
@@ -401,12 +406,12 @@ void AbstractSequenceSection::paint(Context *context) {
   float b = get_style(SectionFrameBottom);
   
   if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0) {
-    /* Cairo 1.12.2 bug: 
+    /* Cairo 1.12.2 bug:
       With BorderRadius->0, and one of l,r,t,b != 0, e.g. SectionFrame->{0,0,1,0}
       The whole section is filled, not only the frame. Another BorderRadius
       fixes that
      */
-  
+    
     BoxRadius radii;
     Expr expr;
     if(context->stylesheet->get(style, BorderRadius, &expr))
@@ -508,20 +513,23 @@ Expr AbstractSequenceSection::to_pmath(int flags) {
 Box *AbstractSequenceSection::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
-  int              *index
+  int              *index,
+  bool              called_from_child
 ) {
   if(*index < 0) {
     *index_rel_x -= cx;
-    return _content->move_vertical(direction, index_rel_x, index);
+    return _content->move_vertical(direction, index_rel_x, index, false);
   }
   
   if(_parent) {
     *index_rel_x += cx;
-    if(direction == Forward)
-      *index = _index + 1;
-    else
-      *index = _index;
-    return _parent;
+//    if(direction == Forward)
+//      *index = _index + 1;
+//    else
+//      *index = _index;
+//    return _parent;
+    *index = _index;
+    return _parent->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;
