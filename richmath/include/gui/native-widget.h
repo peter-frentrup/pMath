@@ -89,6 +89,9 @@ namespace richmath {
       virtual String filename() = 0;
       virtual void filename(String new_filename) = 0;
       
+      virtual void on_editing() = 0;
+      virtual void on_saved() = 0;
+      
       Document *document() { return _document; }
       float custom_scale_factor() { return _custom_scale_factor; }
       float scale_factor() {        return _custom_scale_factor * _dpi / 72; }

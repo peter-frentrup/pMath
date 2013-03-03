@@ -5,9 +5,10 @@
 
 - pmath: implement Together(...) 
 
-- pmath: make /* comments */ nestable; allways treat "*/" as one token
+? pmath: make /* comments */ nestable; allways treat "*/" as one token. Problem: "...a***/b"
+	maybe change to (* ... *), but still problem with "...a***)"
 
-- richmath: mark modified documents and ask to save before closing
+- richmath: ask to save before closing
 	
 - richmath: Why is the end column of debug-info so large?? See "InspectBoxes - Test.pmathdoc"
 	This does not occur in test.exe ?!?
@@ -15,12 +16,13 @@
 - add Developer`StackInformation() to get {{"Head" -> symbol, "Location" -> debuginfo, ...}, ...}
 
 - Message(...) should print a stack trace
+- add Assert(...)
 
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
 
 - richmath: graphcis tick length should depend on Max(width, height) for all axes
 
-- richmath: Add PlotRangePadding option and Scaled(...) corordinates in graphics
+- richmath: Add PlotRangePadding option and Scaled(...) coordinates in graphics
 
 - richmath: Add Polygon, VertexColors, Opacity
 

@@ -51,6 +51,9 @@ namespace richmath {
       virtual String filename() { return _filename; }
       virtual void filename(String new_filename);
       
+      virtual void on_editing();
+      virtual void on_saved();
+      
       Win32Widget *top_glass_area() {    return (Win32Widget*)_top_glass_area;    }
       Win32Widget *top_area() {          return (Win32Widget*)_top_area;          }
       Win32Widget *working_area() {      return (Win32Widget*)_working_area;      }
@@ -66,6 +69,7 @@ namespace richmath {
       
       Win32Menubar *menubar;
       bool creation;
+      bool _has_unsaved_changes;
       
       String          _title;
       WindowFrameType _window_frame;

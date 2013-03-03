@@ -62,6 +62,9 @@ namespace richmath {
       virtual String filename(){ return String(); }
       virtual void filename(String new_filename) {}
       
+      virtual void on_editing() {}
+      virtual void on_saved() {}
+      
       GtkMenu *popup_menu();
       GtkAdjustment *hadjustment() { return _hadjustment; }
       GtkAdjustment *vadjustment() { return _vadjustment; }

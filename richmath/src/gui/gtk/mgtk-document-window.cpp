@@ -67,6 +67,9 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     virtual String filename() { return _parent->filename(); }
     virtual void filename(String new_filename) { _parent->filename(new_filename); }
     
+    virtual void on_editing() { _parent->on_editing(); }
+    virtual void on_saved() {   _parent->on_saved(); }
+    
   protected:
     virtual void paint_background(Canvas *canvas) {
       if(!_parent->is_palette())
@@ -173,6 +176,9 @@ class richmath::MathGtkDock: public MathGtkWidget {
     virtual String filename() { return _parent->filename(); }
     virtual void filename(String new_filename) { _parent->filename(new_filename); }
     
+    virtual void on_editing() { _parent->on_editing(); }
+    virtual void on_saved() {   _parent->on_saved(); }
+    
   protected:
     virtual void after_construction() {
       MathGtkWidget::after_construction();
@@ -232,7 +238,8 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _vadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
     _hscrollbar(0),
     _vscrollbar(0),
-    _table(0)
+    _table(0),
+    _has_unsaved_changes(false)
 {
   _previous_rect.x = 0;
   _previous_rect.y = 0;
@@ -430,6 +437,9 @@ void MathGtkDocumentWindow::title(String text) {
     else
       text = "untitled";
   }
+  
+  if(_has_unsaved_changes)
+    text = String("*") + text;
   
   if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
@@ -740,6 +750,20 @@ void MathGtkDocumentWindow::move_palettes() {
 void MathGtkDocumentWindow::filename(String new_filename) { 
   _filename = new_filename; 
   reset_title();
+}
+
+void MathGtkDocumentWindow::on_editing() {
+  if(!_has_unsaved_changes) {
+    _has_unsaved_changes = true;
+    reset_title();
+  }
+}
+
+void MathGtkDocumentWindow::on_saved() {
+  if(_has_unsaved_changes) {
+    _has_unsaved_changes = false;
+    reset_title();
+  }
 }
 
 bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {

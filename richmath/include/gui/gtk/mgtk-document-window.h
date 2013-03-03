@@ -76,6 +76,9 @@ namespace richmath {
       String filename(){ return _filename; }
       void filename(String new_filename);
       
+      virtual void on_editing();
+      virtual void on_saved();
+
     protected:
       void title(       String          text);
       void window_frame(WindowFrameType type);
@@ -109,6 +112,8 @@ namespace richmath {
       GtkWidget *_hscrollbar;
       GtkWidget *_vscrollbar;
       GtkWidget *_table;
+      
+      bool _has_unsaved_changes;
   };
 }
 

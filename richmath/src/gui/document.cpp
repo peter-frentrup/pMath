@@ -531,7 +531,7 @@ void Document::invalidate_options() {
     native()->invalidate_options();
   }
   
-  Box::invalidate_options();
+  //Box::invalidate_options();
 }
 
 void Document::invalidate_all() {
@@ -3673,6 +3673,8 @@ bool Document::remove_selection(bool insert_default) {
   
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get());
   if(seq) {
+    native()->on_editing();
+    
     if(MathSequence *mseq = dynamic_cast<MathSequence *>(seq)) {
       bool was_empty = mseq->length() == 0 ||
                        (mseq->length() == 1 &&
@@ -4863,6 +4865,7 @@ bool Document::prepare_insert() {
   }
   else {
     if(selection_box() && selection_box()->edit_selection(&context)) {
+      native()->on_editing();
       set_prev_sel_line();
       return true;
     }

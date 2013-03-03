@@ -1773,6 +1773,7 @@ static Expr cnt_save(Expr data) {
   
   file.close();
   doc->native()->filename(filename);
+  doc->native()->on_saved();
   return filename;
 }
 

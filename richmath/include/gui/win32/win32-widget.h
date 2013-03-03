@@ -69,6 +69,9 @@ namespace richmath {
       virtual String filename(){ return String(); }
       virtual void filename(String new_filename) {}
       
+      virtual void on_editing() {}
+      virtual void on_saved() {}
+      
     public:
       STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect);
       STDMETHODIMP DragLeave(void);

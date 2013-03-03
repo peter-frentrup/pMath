@@ -98,6 +98,9 @@ class richmath::Win32WorkingArea: public Win32Widget {
     virtual String filename() { return _parent->filename(); }
     virtual void filename(String new_filename) { _parent->filename(new_filename); }
     
+    virtual void on_editing() { _parent->on_editing(); }
+    virtual void on_saved() {   _parent->on_saved(); }
+    
   private:
     Win32DocumentWindow *_parent;
     
@@ -247,6 +250,9 @@ class richmath::Win32Dock: public Win32Widget {
     
     virtual String filename() { return _parent->filename(); }
     virtual void filename(String new_filename) { _parent->filename(new_filename); }
+    
+    virtual void on_editing() { _parent->on_editing(); }
+    virtual void on_saved() {   _parent->on_saved(); }
     
     void resize() {
       HDC dc = GetDC(_hwnd);
@@ -524,6 +530,7 @@ Win32DocumentWindow::Win32DocumentWindow(
   _bottom_glass_area(0),
   menubar(0),
   creation(true),
+  _has_unsaved_changes(false),
   _window_frame(WindowFrameNormal)
 {
   _working_area = new Win32WorkingArea(
@@ -894,6 +901,9 @@ void Win32DocumentWindow::title(String text) {
       text = "untitled";
   }
   
+  if(_has_unsaved_changes)
+    text = String("*") + text;
+  
   if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
     
@@ -992,6 +1002,19 @@ void Win32DocumentWindow::filename(String new_filename) {
   reset_title();
 }
 
+void Win32DocumentWindow::on_editing() {
+  if(!_has_unsaved_changes) {
+    _has_unsaved_changes = true;
+    reset_title();
+  }
+}
+
+void Win32DocumentWindow::on_saved() {
+  if(_has_unsaved_changes) {
+    _has_unsaved_changes = false;
+    reset_title();
+  }
+}
 
 void Win32DocumentWindow::on_theme_changed() {
   BasicWin32Window::on_theme_changed();
