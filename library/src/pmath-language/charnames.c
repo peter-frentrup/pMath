@@ -519,6 +519,28 @@ static struct named_char_t named_char_array[] = {
   { 0x017E, "ZHacek"},
   { 0x017F, "LongS"},
   
+  { 0x2190, "LeftArrow" },
+  { 0x2191, "UpArrow" },
+  //{ 0x2192, "RightArrow" }, // Rule
+  { 0x2193, "DownArrow" },
+  { 0x2194, "LeftRightArrow" },
+  { 0x2195, "UpDownArrow" },
+  { 0x2196, "UpperLeftArrow" },
+  { 0x2197, "UpperRightArrow" },
+  { 0x2198, "LowerRightArrow" },
+  { 0x2199, "LowerLeftArrow" },
+  
+  { 0x21D0, "DoubleLeftArrow" },
+  { 0x21D1, "DoubleUpArrow" },
+  { 0x21D2, "DoubleRightArrow" },
+  { 0x21D3, "DoubleDownArrow" },
+  { 0x21D4, "DoubleLeftRightArrow" },
+  { 0x21D5, "DoubleUpDownArrow" },
+  { 0x21D6, "DoubleUpperLeftArrow" },
+  { 0x21D7, "DoubleUpperRightArrow" },
+  { 0x21D8, "DoubleLowerRightArrow" },
+  { 0x21D9, "DoubleLowerLeftArrow" },
+  
   { 0x2010, "Hyphen"},
   { 0x2013, "Dash"},
   { 0x2014, "LongDash"},

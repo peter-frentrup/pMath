@@ -414,16 +414,39 @@ static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // hea
   if(pmath_same(head, PMATH_SYMBOL_ALTERNATIVES))        RET_CH('|',  PMATH_PREC_ALT);
   
   if(boxform < BOXFORM_OUTPUT) {
-    if(pmath_same(head, PMATH_SYMBOL_AND))    RET_CH(0x2227, PMATH_PREC_AND);
-    if(pmath_same(head, PMATH_SYMBOL_OR))     RET_CH(0x2228, PMATH_PREC_AND);
-    
-    if(pmath_same(head, PMATH_SYMBOL_CIRCLEPLUS))   RET_CH(0x2A2F, PMATH_PREC_CIRCADD);
-    if(pmath_same(head, PMATH_SYMBOL_CIRCLETIMES))  RET_CH(0x2A2F, PMATH_PREC_CIRCMUL);
-    if(pmath_same(head, PMATH_SYMBOL_PLUSMINUS))    RET_CH(0x00B1, PMATH_PREC_PLUMI);
-    if(pmath_same(head, PMATH_SYMBOL_MINUSPLUS))    RET_CH(0x2213, PMATH_PREC_PLUMI);
-    
-    if(pmath_same(head, PMATH_SYMBOL_DOT))    RET_CH(0x22C5, PMATH_PREC_MIDDOT);  //0x00B7
-    if(pmath_same(head, PMATH_SYMBOL_CROSS))  RET_CH(0x2A2F, PMATH_PREC_CROSS);
+    if(pmath_same(head, PMATH_SYMBOL_AND))                   RET_CH(0x2227, PMATH_PREC_AND);
+    if(pmath_same(head, PMATH_SYMBOL_OR))                    RET_CH(0x2228, PMATH_PREC_AND);
+
+    if(pmath_same(head, PMATH_SYMBOL_CIRCLEPLUS))            RET_CH(0x2A2F, PMATH_PREC_CIRCADD);
+    if(pmath_same(head, PMATH_SYMBOL_CIRCLETIMES))           RET_CH(0x2A2F, PMATH_PREC_CIRCMUL);
+    if(pmath_same(head, PMATH_SYMBOL_PLUSMINUS))             RET_CH(0x00B1, PMATH_PREC_PLUMI);
+    if(pmath_same(head, PMATH_SYMBOL_MINUSPLUS))             RET_CH(0x2213, PMATH_PREC_PLUMI);
+
+    if(pmath_same(head, PMATH_SYMBOL_DOT))                   RET_CH(0x22C5, PMATH_PREC_MIDDOT);  //0x00B7
+    if(pmath_same(head, PMATH_SYMBOL_CROSS))                 RET_CH(0x2A2F, PMATH_PREC_CROSS);
+
+    if(pmath_same(head, PMATH_SYMBOL_LEFTARROW))             RET_CH(0x2190, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_UPARROW))               RET_CH(0x2191, PMATH_PREC_ARROW);
+    //if(pmath_same(head, PMATH_SYMBOL_RIGHTARROW))            RET_CH(0x2192, PMATH_PREC_ARROW); // Rule
+    if(pmath_same(head, PMATH_SYMBOL_DOWNARROW))             RET_CH(0x2193, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_LEFTRIGHTARROW))        RET_CH(0x2194, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_UPDOWNARROW))           RET_CH(0x2195, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_UPPERLEFTARROW))        RET_CH(0x2196, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_UPPERRIGHTARROW))       RET_CH(0x2197, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_LOWERRIGHTARROW))       RET_CH(0x2198, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_LOWERLEFTARROW))        RET_CH(0x2199, PMATH_PREC_ARROW);
+
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLELEFTARROW))       RET_CH(0x21D0, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPARROW))         RET_CH(0x21D1, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLERIGHTARROW))      RET_CH(0x21D2, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLEDOWNARROW))       RET_CH(0x21D3, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLELEFTRIGHTARROW))  RET_CH(0x21D4, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPDOWNARROW))     RET_CH(0x21D5, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPPERLEFTARROW))  RET_CH(0x21D6, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPPERRIGHTARROW)) RET_CH(0x21D7, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLELOWERRIGHTARROW)) RET_CH(0x21D8, PMATH_PREC_ARROW);
+    if(pmath_same(head, PMATH_SYMBOL_DOUBLELOWERLEFTARROW))  RET_CH(0x21D9, PMATH_PREC_ARROW);
+  
   }
   else {
     if(pmath_same(head, PMATH_SYMBOL_AND))  RET_ST("&&", PMATH_PREC_AND);
