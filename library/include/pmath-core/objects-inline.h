@@ -54,7 +54,7 @@ double PMATH_AS_DOUBLE(pmath_t obj) {
 #define PMATH_AS_INT32(obj)   ((obj).s.u.as_int32)
 
 #define pmath_same(objA, objB)  ((objA).as_bits == (objB).as_bits)
-#define pmath_is_null(obj)      (pmath_same(obj, PMATH_NULL))
+#define pmath_is_null(obj)      (pmath_same((obj), PMATH_NULL))
 
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_PURE
@@ -64,19 +64,21 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
          ((1 << (PMATH_AS_PTR(obj)->type_shift)) & type) != 0;
 }
 
-#define pmath_is_mpint(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_MP_INT))
-#define pmath_is_mpfloat(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_MP_FLOAT))
+#define pmath_is_mpint(obj)   (pmath_is_pointer_of((obj), PMATH_TYPE_MP_INT))
+#define pmath_is_mpfloat(obj) (pmath_is_pointer_of((obj), PMATH_TYPE_MP_FLOAT))
 
-#define pmath_is_custom(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_CUSTOM))
-#define pmath_is_expr(obj)     (pmath_is_pointer_of(obj, PMATH_TYPE_EXPRESSION))
-#define pmath_is_float(obj)    (pmath_is_double(obj) || pmath_is_mpfloat(obj))
-#define pmath_is_integer(obj)  (pmath_is_int32(obj) || pmath_is_mpint(obj))
-#define pmath_is_number(obj)   (pmath_is_float(obj) || pmath_is_rational(obj))
-#define pmath_is_quotient(obj) (pmath_is_pointer_of(obj, PMATH_TYPE_QUOTIENT))
-#define pmath_is_rational(obj) (pmath_is_integer(obj) || pmath_is_quotient(obj))
-#define pmath_is_bigstr(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_BIGSTRING))
-#define pmath_is_string(obj)   (pmath_is_ministr(obj) || pmath_is_bigstr(obj))
-#define pmath_is_symbol(obj)   (pmath_is_pointer_of(obj, PMATH_TYPE_SYMBOL))
+#define pmath_is_custom(obj)        (pmath_is_pointer_of((obj), PMATH_TYPE_CUSTOM))
+#define pmath_is_expr(obj)          (pmath_is_pointer_of((obj), PMATH_TYPE_EXPRESSION))
+#define pmath_is_float(obj)         (pmath_is_double(obj) || pmath_is_mpfloat(obj))
+#define pmath_is_integer(obj)       (pmath_is_int32(obj) || pmath_is_mpint(obj))
+#define pmath_is_number(obj)        (pmath_is_float(obj) || pmath_is_rational(obj))
+#define pmath_is_quotient(obj)      (pmath_is_pointer_of((obj), PMATH_TYPE_QUOTIENT))
+#define pmath_is_rational(obj)      (pmath_is_integer(obj) || pmath_is_quotient(obj))
+#define pmath_is_bigstr(obj)        (pmath_is_pointer_of((obj), PMATH_TYPE_BIGSTRING))
+#define pmath_is_string(obj)        (pmath_is_ministr(obj) || pmath_is_bigstr(obj))
+#define pmath_is_symbol(obj)        (pmath_is_pointer_of((obj), PMATH_TYPE_SYMBOL))
+#define pmath_is_blob(obj)          (pmath_is_pointer_of((obj), PMATH_TYPE_BLOB))
+#define pmath_is_packed_array(obj)  (pmath_is_pointer_of((obj), PMATH_TYPE_PACKED_ARRAY))
 
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_PURE

@@ -40,7 +40,9 @@ static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
   "expression (general)",
   "expression (part)",
   "symbol rule",
-  "custom"
+  "custom",
+  "memory blob",
+  "packed array"
 };
 #endif
 
