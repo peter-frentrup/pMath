@@ -95,7 +95,8 @@ extern PMATH_PRIVATE pmath_quotient_t _pmath_one_half; /* readonly */
 // initialization in pmath.c:
 extern PMATH_PRIVATE pmath_t _pmath_object_overflow;         /* readonly */
 extern PMATH_PRIVATE pmath_t _pmath_object_underflow;        /* readonly */
-extern PMATH_PRIVATE pmath_t _pmath_object_infinity;         /* readonly */
+extern PMATH_PRIVATE pmath_t _pmath_object_pos_infinity;     /* readonly */
+extern PMATH_PRIVATE pmath_t _pmath_object_neg_infinity;     /* readonly */
 extern PMATH_PRIVATE pmath_t _pmath_object_complex_infinity; /* readonly */
 
 extern PMATH_PRIVATE gmp_randstate_t  _pmath_randstate;

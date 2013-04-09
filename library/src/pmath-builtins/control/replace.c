@@ -286,7 +286,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr) {
     }
     else if( (!pmath_is_integer(n) ||
               pmath_number_sign(n) < 0) &&
-             !pmath_equals(n, _pmath_object_infinity))
+             !pmath_equals(n, _pmath_object_pos_infinity))
     {
       pmath_message(PMATH_NULL, "innf", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
       pmath_unref(n);
@@ -294,7 +294,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr) {
     }
   }
   else
-    n = pmath_ref(_pmath_object_infinity);
+    n = pmath_ref(_pmath_object_pos_infinity);
     
   rules = pmath_expr_get_item(expr, 2);
   if(!_pmath_is_list_of_rules(rules)) {

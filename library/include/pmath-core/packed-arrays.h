@@ -241,4 +241,20 @@ const void *pmath_packed_array_read(
   pmath_packed_array_t  array,
   const size_t         *indices);
 
+/**\brief Get the writeable data address of an array element.
+   \memberof pmath_packed_array_t
+   \param array    Pointer to a packed array. 
+   \param indices  An array of 1-based indices. Its length is the array 
+                   dimension. Every entry must satisfy 1 <= indices[k] <= sizes[k]
+   \return The (writeable) address of the element or NULL on error.
+   
+   This funcition duplicates *array if needed (if the underlying blob is not 
+   writeable or *array has refcount > 1). Then it clears all chaches in the new
+   *array (i.e. cached hash value) and finally returns the requested location.
+ */  
+PMATH_API
+void *pmath_packed_array_begin_write(
+  pmath_packed_array_t *array,
+  const size_t         *indices);
+
 #endif // __PMATH_CORE__PACKED_ARRAYS_H__

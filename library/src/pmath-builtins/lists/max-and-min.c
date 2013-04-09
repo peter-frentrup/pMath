@@ -91,7 +91,7 @@ PMATH_PRIVATE pmath_t builtin_max(pmath_expr_t expr) {
   
   if(pmath_expr_length(expr) == 0) {
     pmath_unref(expr);
-    return NEG(pmath_ref(_pmath_object_infinity));
+    return pmath_ref(_pmath_object_neg_infinity);
   }
   
   if(pmath_expr_length(expr) == 1) {
@@ -110,7 +110,7 @@ PMATH_PRIVATE pmath_t builtin_min(pmath_expr_t expr) {
   
   if(pmath_expr_length(expr) == 0) {
     pmath_unref(expr);
-    return pmath_ref(_pmath_object_infinity);
+    return pmath_ref(_pmath_object_pos_infinity);
   }
   
   if(pmath_expr_length(expr) == 1) {

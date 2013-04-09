@@ -180,7 +180,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr) {
       if(pmath_is_int32(tmp) && PMATH_AS_INT32(tmp) >= 0) {
         m = PMATH_AS_INT32(tmp);
       }
-      else if(!pmath_equals(tmp, _pmath_object_infinity)) {
+      else if(!pmath_equals(tmp, _pmath_object_pos_infinity)) {
         // TODO: appropriate message
         pmath_unref(tmp);
         pmath_unref(obj);
@@ -206,7 +206,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr) {
     if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) > 0) {
       mmin = m = PMATH_AS_INT32(obj);
     }
-    else if(!pmath_equals(obj, _pmath_object_infinity)) {
+    else if(!pmath_equals(obj, _pmath_object_pos_infinity)) {
       // TODO: appropriate message
       pmath_unref(obj);
       pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(5), pmath_ref(expr));
@@ -289,7 +289,7 @@ PMATH_PRIVATE pmath_t builtin_fixedpoint_and_fixedpointlist(pmath_expr_t expr) {
       max = PMATH_AS_INT32(x);
       last_nonoption = 3;
     }
-    else if(pmath_same(x, _pmath_object_infinity)) {
+    else if(pmath_equals(x, _pmath_object_pos_infinity)) {
       last_nonoption = 3;
     }
     

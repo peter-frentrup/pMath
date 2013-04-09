@@ -52,7 +52,7 @@ PMATH_PRIVATE pmath_t builtin_setstreamposition(pmath_expr_t expr) {
   
   posobj = pmath_expr_get_item(expr, 2);
   
-  if(pmath_equals(posobj, _pmath_object_infinity)) {
+  if(pmath_equals(posobj, _pmath_object_pos_infinity)) {
     success = pmath_file_set_position(
                 file,
                 0,

@@ -200,7 +200,7 @@ PMATH_PRIVATE pmath_t builtin_dimensions(pmath_expr_t expr) {
       if(pmath_is_int32(obj))
         maxdepth = (size_t)PMATH_AS_INT32(obj);
     }
-    else if(!pmath_equals(obj, _pmath_object_infinity)) {
+    else if(!pmath_equals(obj, _pmath_object_pos_infinity)) {
       pmath_unref(obj);
       
       pmath_message(PMATH_NULL, "innf", 2,

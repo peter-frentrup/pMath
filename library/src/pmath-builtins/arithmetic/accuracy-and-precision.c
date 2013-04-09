@@ -23,7 +23,7 @@ pmath_t builtin_accuracy(pmath_expr_t expr) {
   if(isfinite(acc))
     return PMATH_FROM_DOUBLE(acc * LOG10_2);
     
-  return pmath_ref(_pmath_object_infinity);
+  return pmath_ref(_pmath_object_pos_infinity);
 }
 
 PMATH_PRIVATE
@@ -43,7 +43,7 @@ pmath_t builtin_precision(pmath_expr_t expr) {
   if(prec < 0)
     return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
     
-  return pmath_ref(_pmath_object_infinity);
+  return pmath_ref(_pmath_object_pos_infinity);
 }
 
 
@@ -171,7 +171,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
              PMATH_FROM_INT32(50));
   }
   
-  if(pmath_equals(rhs, _pmath_object_infinity)) {
+  if(pmath_equals(rhs, _pmath_object_pos_infinity)) {
     me->max_extra_precision = HUGE_VAL;
     
     pmath_unref(tag);

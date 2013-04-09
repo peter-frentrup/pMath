@@ -420,6 +420,9 @@ PMATH_API pmath_t pmath_expr_get_item(
     return PMATH_NULL;
     
   assert(pmath_is_expr(expr));
+  
+  if(....)
+  
   expr_part_ptr = (struct _pmath_expr_part_t *)PMATH_AS_PTR(expr);
   
   if(index > expr_part_ptr->inherited.length)
@@ -2342,7 +2345,7 @@ static void write_expr_ex(
       if(pmath_is_int32(item) && PMATH_AS_INT32(item) >= 0) {
         maxdepth = (unsigned)PMATH_AS_INT32(item);
       }
-      else if(pmath_equals(item, _pmath_object_infinity)) {
+      else if(pmath_equals(item, _pmath_object_pos_infinity)) {
         maxdepth = SIZE_MAX;
       }
       else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 2)) {
@@ -2351,7 +2354,7 @@ static void write_expr_ex(
         if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
           maxdepth = (unsigned)PMATH_AS_INT32(obj);
         }
-        else if(pmath_equals(obj, _pmath_object_infinity)) {
+        else if(pmath_equals(obj, _pmath_object_pos_infinity)) {
           maxdepth = SIZE_MAX;
         }
         else {
@@ -2366,7 +2369,7 @@ static void write_expr_ex(
         if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
           maxlength = (unsigned)PMATH_AS_INT32(obj);
         }
-        else if(pmath_equals(obj, _pmath_object_infinity)) {
+        else if(pmath_equals(obj, _pmath_object_pos_infinity)) {
           maxlength = SIZE_MAX;
         }
         else {
@@ -2403,7 +2406,7 @@ static void write_expr_ex(
     if(pmath_expr_length(expr) == 2) {
       item = pmath_expr_get_item(expr, 2);
       
-      if(pmath_equals(item, _pmath_object_infinity)) {
+      if(pmath_equals(item, _pmath_object_pos_infinity)) {
         lines = HUGE_VAL;
       }
       else if(pmath_is_number(item)) {
@@ -2423,7 +2426,7 @@ static void write_expr_ex(
     }
     
     item = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
-    if(pmath_equals(item, _pmath_object_infinity)) {
+    if(pmath_equals(item, _pmath_object_pos_infinity)) {
       pagewidth = HUGE_VAL;
     }
     else if(pmath_is_number(item) && pmath_number_sign(item) > 0) {

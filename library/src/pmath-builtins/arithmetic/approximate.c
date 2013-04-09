@@ -18,7 +18,7 @@ static pmath_t prec_to_obj(double binprec) {
     return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
     
   if(binprec == HUGE_VAL)
-    return pmath_ref(_pmath_object_infinity);
+    return pmath_ref(_pmath_object_pos_infinity);
     
   return PMATH_FROM_DOUBLE(LOG10_2 * binprec);
 }
@@ -142,7 +142,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
     return isfinite(*result);
   }
   
-  if(pmath_equals(obj, _pmath_object_infinity)) {
+  if(pmath_equals(obj, _pmath_object_pos_infinity)) {
     *result = HUGE_VAL;
     return TRUE;
   }

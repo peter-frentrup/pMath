@@ -430,15 +430,13 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     if(xclass & PMATH_CLASS_INF) {
       pmath_unref(expr);
       pmath_unref(x);
-      return pmath_ref(_pmath_object_infinity);
+      return pmath_ref(_pmath_object_pos_infinity);
     }
     
     if(xclass & PMATH_CLASS_ZERO) {
       pmath_unref(expr);
       pmath_unref(x);
-      return pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-               INT(-1));
+      return pmath_ref(_pmath_object_neg_infinity);
     }
     
     if(xclass & PMATH_CLASS_POSSMALL) {

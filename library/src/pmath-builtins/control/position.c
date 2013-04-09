@@ -288,7 +288,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
           else
             info.max = SIZE_MAX;
         }
-        else if(pmath_equals(obj, _pmath_object_infinity)) {
+        else if(pmath_equals(obj, _pmath_object_pos_infinity)) {
           last_nonoption = 4;
           info.max = SIZE_MAX;
         }

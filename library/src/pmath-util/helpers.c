@@ -116,12 +116,10 @@ static pmath_t next_value(const char **format, va_list *args) {
           return PMATH_FROM_DOUBLE(d == 0 ? +0.0 : d); // convert -0.0 to +0.0
           
         if(d > 0)
-          return pmath_ref(_pmath_object_infinity);
+          return pmath_ref(_pmath_object_pos_infinity);
           
         if(d < 0)
-          return pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                   PMATH_FROM_INT32(-1));
+          return pmath_ref(_pmath_object_neg_infinity);
                    
       } return pmath_ref(PMATH_SYMBOL_UNDEFINED);
       

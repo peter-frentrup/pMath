@@ -2407,7 +2407,7 @@ static pmath_t shallow_to_boxes(
     if(pmath_is_int32(item) && PMATH_AS_INT32(item) >= 0) {
       maxdepth = (size_t)PMATH_AS_INT32(item);
     }
-    else if(pmath_equals(item, _pmath_object_infinity)) {
+    else if(pmath_equals(item, _pmath_object_pos_infinity)) {
       maxdepth = SIZE_MAX;
     }
     else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 2)) {
@@ -2417,7 +2417,7 @@ static pmath_t shallow_to_boxes(
       if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
         maxdepth = (size_t)PMATH_AS_INT32(obj);
       }
-      else if(pmath_equals(obj, _pmath_object_infinity)) {
+      else if(pmath_equals(obj, _pmath_object_pos_infinity)) {
         maxdepth = SIZE_MAX;
       }
       else {
@@ -2432,7 +2432,7 @@ static pmath_t shallow_to_boxes(
       if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
         maxlength = (size_t)PMATH_AS_INT32(obj);
       }
-      else if(pmath_equals(obj, _pmath_object_infinity)) {
+      else if(pmath_equals(obj, _pmath_object_pos_infinity)) {
         maxlength = SIZE_MAX;
       }
       else {
@@ -2472,7 +2472,7 @@ static pmath_t short_to_boxes(
   if(pmath_expr_length(expr) == 2) {
     item = pmath_expr_get_item(expr, 2);
     
-    if(pmath_equals(item, _pmath_object_infinity)) {
+    if(pmath_equals(item, _pmath_object_pos_infinity)) {
       pmath_unref(item);
       item = pmath_expr_get_item(expr, 1);
       pmath_unref(expr);
@@ -2498,7 +2498,7 @@ static pmath_t short_to_boxes(
     return call_to_boxes(thread, expr);
     
   item = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
-  if(pmath_equals(item, _pmath_object_infinity)) {
+  if(pmath_equals(item, _pmath_object_pos_infinity)) {
     pmath_unref(item);
     item = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);

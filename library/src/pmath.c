@@ -343,7 +343,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     _pmath_object_complex_infinity         = PMATH_NULL;
     _pmath_object_emptylist                = PMATH_NULL;
     _pmath_object_get_load_message         = PMATH_NULL;
-    _pmath_object_infinity                 = PMATH_NULL;
+    _pmath_object_pos_infinity             = PMATH_NULL;
+    _pmath_object_neg_infinity             = PMATH_NULL;
     _pmath_object_loadlibrary_load_message = PMATH_NULL;
     _pmath_object_memory_exception         = PMATH_NULL;
     _pmath_object_multimatch               = PMATH_NULL;
@@ -400,9 +401,14 @@ PMATH_API pmath_bool_t pmath_init(void) {
                                   pmath_ref(PMATH_SYMBOL_UNDERFLOW), 0);
 
       // DirectedInfinity(1)
-      _pmath_object_infinity = pmath_expr_new_extended(
+      _pmath_object_pos_infinity = pmath_expr_new_extended(
                                  pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
                                  PMATH_FROM_INT32(1));
+
+      // DirectedInfinity(-1)
+      _pmath_object_neg_infinity = pmath_expr_new_extended(
+                                 pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+                                 PMATH_FROM_INT32(-1));
 
       // DirectedInfinity()
       _pmath_object_complex_infinity = pmath_expr_new(
@@ -467,7 +473,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
       if( pmath_is_null(_pmath_object_complex_infinity)         ||
           pmath_is_null(_pmath_object_emptylist)                ||
           pmath_is_null(_pmath_object_get_load_message)         ||
-          pmath_is_null(_pmath_object_infinity)                 ||
+          pmath_is_null(_pmath_object_pos_infinity)                 ||
+          pmath_is_null(_pmath_object_neg_infinity)                 ||
           pmath_is_null(_pmath_object_loadlibrary_load_message) ||
           pmath_is_null(_pmath_object_memory_exception)         ||
           pmath_is_null(_pmath_object_multimatch)               ||
@@ -971,7 +978,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     pmath_unref(_pmath_object_complex_infinity);         _pmath_object_complex_infinity =         PMATH_NULL;
     pmath_unref(_pmath_object_emptylist);                _pmath_object_emptylist =                PMATH_NULL;
     pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         PMATH_NULL;
-    pmath_unref(_pmath_object_infinity);                 _pmath_object_infinity =                 PMATH_NULL;
+    pmath_unref(_pmath_object_pos_infinity);             _pmath_object_pos_infinity =             PMATH_NULL;
+    pmath_unref(_pmath_object_neg_infinity);             _pmath_object_neg_infinity =             PMATH_NULL;
     pmath_unref(_pmath_object_loadlibrary_load_message); _pmath_object_loadlibrary_load_message = PMATH_NULL;
     pmath_unref(_pmath_object_memory_exception);         _pmath_object_memory_exception =         PMATH_NULL;
     pmath_unref(_pmath_object_multimatch);               _pmath_object_multimatch =               PMATH_NULL;
@@ -1060,7 +1068,8 @@ PMATH_API void pmath_done(void) {
     pmath_unref(_pmath_object_complex_infinity);         _pmath_object_complex_infinity =         PMATH_NULL;
     pmath_unref(_pmath_object_emptylist);                _pmath_object_emptylist =                PMATH_NULL;
     pmath_unref(_pmath_object_get_load_message);         _pmath_object_get_load_message =         PMATH_NULL;
-    pmath_unref(_pmath_object_infinity);                 _pmath_object_infinity =                 PMATH_NULL;
+    pmath_unref(_pmath_object_pos_infinity);             _pmath_object_pos_infinity =             PMATH_NULL;
+    pmath_unref(_pmath_object_neg_infinity);             _pmath_object_neg_infinity =             PMATH_NULL;
     pmath_unref(_pmath_object_loadlibrary_load_message); _pmath_object_loadlibrary_load_message = PMATH_NULL;
     pmath_unref(_pmath_object_memory_exception);         _pmath_object_memory_exception =         PMATH_NULL;
     pmath_unref(_pmath_object_multimatch);               _pmath_object_multimatch =               PMATH_NULL;
