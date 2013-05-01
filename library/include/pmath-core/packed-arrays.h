@@ -219,42 +219,54 @@ for(i1 = 1;i1 <= sizes[0];++i1)
   for(i2 = 1;i2 <= sizes[1];++i2)
     ...
     for(iK = 1;iK <= sizes[K-1];++iK) {
-      T *ptr = address(array[i1, i2, ..., iK, 1, 1, ..., 1])
+      T *ptr = address(array, [i1, i2, ..., iK], K)
       for(j = 0;j < sizes[K] * steps[K];++j)
         some_operation(ptr[j]);
     }
     \endcode
-    where <tt>T</tt> is the element type (double/int32_t/...).
+    where <tt>T</tt> is the element type (double/int32_t/...) and 
+    <tt>address</tt> is either <tt>pmath_packed_array_read</tt> or
+    <tt>pmath_packed_array_begin_write</tt>.
  */
 PMATH_API
 size_t pmath_packed_array_get_non_continuous_dimensions(pmath_packed_array_t array);
 
 /**\brief Get the data address of an array element.
    \memberof pmath_packed_array_t
-   \param array    A packed array. It wont be freed.
-   \param indices  An array of 1-based indices. Its length is the array 
-                   dimension. Every entry must satisfy 1 <= indices[k] <= sizes[k]
+   \param array       A packed array. It wont be freed.
+   \param indices     An array of 1-based indices. Its length is the array 
+                      dimension. Every entry must satisfy 
+                      1 <= indices[k] <= sizes[k]
+   \param num_indices The number of indices given. Tis must not exceeed the 
+                      array's dimension. A value of 1 is assumed for the 
+                      remaining indices.
    \return The (readonly) address of the element.
  */
 PMATH_API
 const void *pmath_packed_array_read(
   pmath_packed_array_t  array,
-  const size_t         *indices);
+  const size_t         *indices,
+  size_t                num_indices);
 
 /**\brief Get the writeable data address of an array element.
    \memberof pmath_packed_array_t
-   \param array    Pointer to a packed array. 
-   \param indices  An array of 1-based indices. Its length is the array 
-                   dimension. Every entry must satisfy 1 <= indices[k] <= sizes[k]
+   \param array       Pointer to a packed array. 
+   \param indices     An array of 1-based indices. Its length is the array 
+                      dimension. Every entry must satisfy 
+                      1 <= indices[k] <= sizes[k]
+   \param num_indices The number of indices given. Tis must not exceeed the 
+                      array's dimension. A value of 1 is assumed for the 
+                      remaining indices.
    \return The (writeable) address of the element or NULL on error.
    
    This funcition duplicates *array if needed (if the underlying blob is not 
-   writeable or *array has refcount > 1). Then it clears all chaches in the new
+   writeable or *array has refcount > 1). Then it clears all caches in the new
    *array (i.e. cached hash value) and finally returns the requested location.
  */  
 PMATH_API
 void *pmath_packed_array_begin_write(
   pmath_packed_array_t *array,
-  const size_t         *indices);
+  const size_t         *indices,
+  size_t                num_indices);
 
 #endif // __PMATH_CORE__PACKED_ARRAYS_H__

@@ -639,7 +639,8 @@ enum pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_
 PMATH_API
 const void *pmath_packed_array_read(
   pmath_packed_array_t  array,
-  const size_t         *indices
+  const size_t         *indices,
+  size_t                num_indices
 ) {
   struct _pmath_packed_array_t *_array;
   size_t k, offset;
@@ -654,8 +655,10 @@ const void *pmath_packed_array_read(
   sizes = ARRAY_SIZES(_array);
   steps = ARRAY_STEPS(_array);
   
+  assert(num_indices <= _array->dimensions);
+  
   offset = _array->offset;
-  for(k = 0; k < _array->dimensions; ++k) {
+  for(k = 0; k < num_indices; ++k) {
     size_t i = indices[k];
     
     if(i < 1 || i > sizes[k])
@@ -670,7 +673,8 @@ const void *pmath_packed_array_read(
 PMATH_API
 void *pmath_packed_array_begin_write(
   pmath_packed_array_t *array,
-  const size_t         *indices
+  const size_t         *indices,
+  size_t                num_indices
 ) {
   struct _pmath_packed_array_t *_array;
   size_t k, offset;
@@ -688,8 +692,10 @@ void *pmath_packed_array_begin_write(
   sizes = ARRAY_SIZES(_array);
   steps = ARRAY_STEPS(_array);
   
+  assert(num_indices <= _array->dimensions);
+  
   offset = _array->offset;
-  for(k = 0; k < _array->dimensions; ++k) {
+  for(k = 0; k < num_indices; ++k) {
     size_t i = indices[k];
     
     if(i < 1 || i > sizes[k])
@@ -916,12 +922,6 @@ pmath_expr_t _pmath_packed_array_set_item(
   const size_t *sizes;
   const size_t *steps;
   const void *old_data;
-  void *new_data;
-  
-  union{
-    double  d;
-    int32_t i;
-  } new_data_store;
   
   if(PMATH_UNLIKELY(pmath_is_null(array)))
     return array;
@@ -933,7 +933,7 @@ pmath_expr_t _pmath_packed_array_set_item(
       return array;
     }
     
-    pmath_debug_print("[unpack array (new head != List)]\n");
+    pmath_debug_print("[unpack array: new head != List]\n");
     
     return pmath_expr_set_item(
              _pmath_expr_unpack_array(array),
@@ -944,125 +944,182 @@ pmath_expr_t _pmath_packed_array_set_item(
   sizes = ARRAY_SIZES(_array);
   steps = ARRAY_STEPS(_array);
   
-  old_data = (const uint8_t*)_array->blob->data + _array->offset + (index - 1) * steps[0];
+  old_data = (const uint8_t *)_array->blob->data + _array->offset + (index - 1) * steps[0];
   
   if(index > _array->sizes[0]) {
     pmath_unref(item);
     return array;
   }
   
-  new_data = NULL;
-  
-  if(_array->dimensions == 1){
-    switch(_array->element_type){
+  if(_array->dimensions == 1) {
+    void *new_data;
+    
+    switch(_array->element_type) {
+    
+      case PMATH_PACKED_DOUBLE: {
+          double as_double;
+          void *new_data;
+          
+          if(pmath_is_double(item)) {
+            as_double = PMATH_AS_DOUBLE(item);
+          }
+          else if(pmath_same(item, PMATH_SYMBOL_UNDEFINED)) {
+            as_double = NAN;
+          }
+          else if(pmath_equals(item, _pmath_object_pos_infinity)) {
+            as_double = HUGE_VAL;
+            pmath_unref(item);
+            item = PMATH_NULL;
+          }
+          else if(pmath_equals(item, _pmath_object_neg_infinity)) {
+            as_double = -HUGE_VAL;
+            pmath_unref(item);
+            item = PMATH_NULL;
+          }
+          else {
+            pmath_debug_print_object("[unpack array: DOUBLE expected, but ", item, " given]\n");
+            return pmath_expr_set_item(
+                     _pmath_expr_unpack_array(array),
+                     index,
+                     item);
+          }
+          
+          if(memcmp(old_data, &as_double, sizeof(as_double)) == 0)
+            return array;
+            
+          new_data = pmath_packed_array_begin_write(&array, &index, 1);
+          if(new_data == NULL) {
+            pmath_unref(array);
+            return PMATH_NULL;
+          }
+          
+          memcpy(new_data, &as_double, sizeof(as_double));
+        }
+        return array;
         
-      case PMATH_PACKED_DOUBLE:
-        new_data = &new_data_store.d;
-        if(pmath_is_double(item)) {
-          new_data_store.d = PMATH_AS_DOUBLE(item);
+      case PMATH_PACKED_INT32: {
+          int32_t as_int32;
+          void *new_data;
+          
+          if(pmath_is_int32(item)) {
+            as_int32 = PMATH_AS_INT32(item);
+          }
+          else {
+            pmath_debug_print_object("[unpack array: INT32 expected, but ", item, " given]\n");
+            return pmath_expr_set_item(
+                     _pmath_expr_unpack_array(array),
+                     index,
+                     item);
+          }
+          
+          if(memcmp(old_data, &as_int32, sizeof(as_int32)) == 0)
+            return array;
+            
+          new_data = pmath_packed_array_begin_write(&array, &index, 1);
+          if(new_data == NULL) {
+            pmath_unref(array);
+            return PMATH_NULL;
+          }
+          
+          memcpy(new_data, &as_int32, sizeof(as_int32));
         }
-        else if(pmath_same(item, PMATH_SYMBOL_UNDEFINED)) {
-          new_data_store.d = NAN;
-        }
-        else if(pmath_equals(item, _pmath_object_pos_infinity)) {
-          new_data_store.d = HUGE_VAL;
-        }
-        else if(pmath_equals(item, _pmath_object_neg_infinity)) {
-          new_data_store.d = -HUGE_VAL;
-        }
-        else{
-          return pmath_expr_set_item(
-                   _pmath_expr_unpack_array(array),
-                   index,
-                   item);
-        }
-        break;
-        
-      case PMATH_PACKED_INT32:
-        new_data = &new_data_store.i;
-        if(pmath_is_int32(item)) {
-          new_data_store.i = PMATH_AS_INT32(item);
-        }
-        else{
-          return pmath_expr_set_item(
-                   _pmath_expr_unpack_array(array),
-                   index,
-                   item);
-        }
-        break;
+        return array;
     }
+    
+    assert(!"bad element type");
   }
-  else if(pmath_is_packed_array(item)){
+  
+  if(!pmath_is_packed_array(item) &&
+      pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, sizes[0]))
+  {
+    item = _pmath_expr_pack_array(item);
+  }
+  
+  if(pmath_is_packed_array(item)) {
     struct _pmath_packed_array_t *item_array;
+    const void *item_data;
+    void *new_data;
     
-    item_array = (void*)PMATH_AS_PTR(item);
+    item_array = (void *)PMATH_AS_PTR(item);
     
-    if(item_array->element_type != _array->element_type){
+    if(item_array->element_type != _array->element_type) {
+      pmath_debug_print("[unpack array: incompatible packed arrays]\n");
       return pmath_expr_set_item(
                _pmath_expr_unpack_array(array),
                index,
                item);
     }
     
-    if(item_array->blob == _array->blob){
-      new_data = (const uint8_t*)item_array->blob->data + item_array->offset;
+    if(item_array->dimensions != _array->dimensions + 1) {
+      pmath_debug_print("[unpack array: incompatible packed array depths]\n");
+      return pmath_expr_set_item(
+               _pmath_expr_unpack_array(array),
+               index,
+               item);
+    }
+    
+    if(0 != memcmp(sizes + 1, ARRAY_SIZES(item_array), item_array->dimensions)) {
+      pmath_debug_print("[unpack array: incompatible packed array sizes]\n");
+      return pmath_expr_set_item(
+               _pmath_expr_unpack_array(array),
+               index,
+               item);
+    }
+    
+    item_data = (const uint8_t *)item_array->blob->data + item_array->offset;
+    
+    if(0 == memcmp(steps + 1, ARRAY_STEPS(item_array), item_array->dimensions)) {
+    
+      assert(item_array->total_size <= steps[0]);
       
-      if(new_data == old_data){
+      if(item_data == old_data) {
         pmath_unref(item);
         return array;
       }
       
-      ....
+      // Same blob, referenced nowhere else? Try inplace copying
+      if( item_array->blob == _array->blob &&
+          !item_array->blob->is_readonly &&
+          1 == _pmath_refcount_ptr((void *)item_array) &&
+          2 == _pmath_refcount_ptr((void *)item_array->blob))
+      {
+        _pmath_unref_ptr((void *)item_array->blob);
+        item_array->blob = NULL;
+      }
+      
+      new_data = pmath_packed_array_begin_write(&array, &index, 1);
+      if(new_data == NULL) {
+        pmath_unref(array);
+        pmath_unref(item);
+        return PMATH_NULL;
+      }
+      
+      memcpy(new_data, item_data, item_array->total_size);
+      pmath_unref(item);
+      return array;
     }
     
-  }
-  else if(pmath_is_expr_of(item)){
-  }
-  else {
-    return pmath_expr_set_item(
-             _pmath_expr_unpack_array(array),
-             index,
-             item);
-  }
-  
-  ......
-  
-  if(_array->dimensions > 1) {
-    struct _pmath_packed_array_t *new_array;
-    size_t size;
+    pmath_debug_print("[incompatiple steps]\n");
     
-    size = sizeof(struct _pmath_packed_array_t) - sizeof(size_t) + 2 * (_array->dimensions - 1) * sizeof(size_t);
-    
-    new_array = (void *)PMATH_AS_PTR(_pmath_create_stub(
-                                       PMATH_TYPE_SHIFT_PACKED_ARRAY,
-                                       size));
-                                       
-    if(new_array == NULL)
+    new_data = pmath_packed_array_begin_write(&array, &index, 1);
+    if(new_data == NULL) {
+      pmath_unref(array);
+      pmath_unref(item);
       return PMATH_NULL;
-      
-    new_array->offset                          = _array->offset + (index - 1) * steps[0];
-    new_array->total_size                      = _array->total_size / sizes[0];
-    new_array->element_type                    = _array->element_type;
-    new_array->dimensions                      = _array->dimensions - 1;
-    new_array->cached_hash                     = 0;
+    }
     
-    if(_array->non_continuous_dimensions_count == 0)
-      new_array->non_continuous_dimensions_count = 0;
-    else
-      new_array->non_continuous_dimensions_count = _array->non_continuous_dimensions_count - 1;
-      
-    memcpy(ARRAY_SIZES(new_array), sizes + 1, new_array->dimensions * sizeof(size_t));
-    memcpy(ARRAY_STEPS(new_array), steps + 1, new_array->dimensions * sizeof(size_t));
+    _pmath_packed_array_copy(new_data, steps + 1, item_array);
     
-    _pmath_ref_ptr(_array->blob);
-    new_array->blob = _array->blob;
-    
-    return PMATH_FROM_PTR((void *)new_array);
+    pmath_unref(item);
+    return array;
   }
   
-  return _pmath_packed_element_unbox(
-           (const uint8_t *)_array->blob->data + _array->offset + (index - 1) * steps[0],
-           _array->element_type);
+  pmath_debug_print_object("[unpack array: List expected, but ", item, " given]\n");
+  
+  return pmath_expr_set_item(
+           _pmath_expr_unpack_array(array),
+           index,
+           item);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1098,10 +1155,10 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array) {
 /* -------------------------------------------------------------------------- */
 
 static int packable_element_type(pmath_t expr) {
-  if(pmath_is_packed_array(expr)){
+  if(pmath_is_packed_array(expr)) {
     struct _pmath_packed_array_t *_array;
     
-    _array = (void*)PMATH_AS_PTR(expr);
+    _array = (void *)PMATH_AS_PTR(expr);
     
     return _array->element_type;
   }
@@ -1156,22 +1213,22 @@ static int packable_element_type(pmath_t expr) {
   return -1;
 }
 
-static size_t packable_dimensions(pmath_t expr){
-  if(pmath_is_packed_array(expr)){
+static size_t packable_dimensions(pmath_t expr) {
+  if(pmath_is_packed_array(expr)) {
     struct _pmath_packed_array_t *_array;
     
-    _array = (void*)PMATH_AS_PTR(expr);
+    _array = (void *)PMATH_AS_PTR(expr);
     
     return _array->dimensions;
   }
   
-  if(pmath_is_expr(expr)){
+  if(pmath_is_expr(expr)) {
     pmath_t item;
     size_t result;
     
     if(pmath_expr_length(expr) == 0)
       return 1;
-    
+      
     item = pmath_expr_get_item(expr, 1);
     result = 1 + packable_dimensions(item);
     pmath_unref(item);
@@ -1183,12 +1240,12 @@ static size_t packable_dimensions(pmath_t expr){
 }
 
 static void pack_array(
-  struct _pmath_packed_array_t  *array, 
-  size_t                         level, 
+  struct _pmath_packed_array_t  *array,
+  size_t                         level,
   const void                    *array_data,
   void                         **location,
   size_t                         elem_size
-){
+) {
   size_t ncdc = array->non_continuous_dimensions_count;
   size_t i;
   size_t *sizes = ARRAY_SIZES(array);
@@ -1196,31 +1253,31 @@ static void pack_array(
   
   if(level == array->dimensions) {
     memcpy(*location, array_data, elem_size);
-    *location = (uint8_t*)location + elem_size;
+    *location = (uint8_t *)location + elem_size;
     return;
   }
   
-  if(level == ncdc){
+  if(level == ncdc) {
     size_t size = sizes[ncdc] * steps[ncdc];
     
     memcpy(*location, array_data, size);
-    *location = (uint8_t*)location + size;
+    *location = (uint8_t *)location + size;
     return;
   }
   
   assert(level < ncdc);
   
-  for(i = 0;i < sizes[level];++i){
+  for(i = 0; i < sizes[level]; ++i) {
     pack_array(array, level + 1, array_data, location, elem_size);
-    array_data = (uint8_t*)array_data + steps[level];
+    array_data = (uint8_t *)array_data + steps[level];
   }
 }
 
-static void pack_and_free_int32(pmath_t expr, int32_t **location){
+static void pack_and_free_int32(pmath_t expr, int32_t **location) {
   if(pmath_is_packed_array(expr)) {
     struct _pmath_packed_array_t *_array;
     
-    _array = (void*)PMATH_AS_PTR(expr);
+    _array = (void *)PMATH_AS_PTR(expr);
     
     assert(_array->element_type == PMATH_PACKED_INT32);
     
@@ -1229,11 +1286,11 @@ static void pack_and_free_int32(pmath_t expr, int32_t **location){
     return;
   }
   
-  if(pmath_is_expr(expr)){
+  if(pmath_is_expr(expr)) {
     size_t len = pmath_expr_length(expr);
     size_t i;
     
-    for(i = 1;i <= len;++i) {
+    for(i = 1; i <= len; ++i) {
       pmath_t item = pmath_expr_get_item(expr, i);
       pack_and_free_int32(item, location);
     }
@@ -1248,11 +1305,11 @@ static void pack_and_free_int32(pmath_t expr, int32_t **location){
   ++*location;
 }
 
-static void pack_and_free_double(pmath_t expr, double **location){
+static void pack_and_free_double(pmath_t expr, double **location) {
   if(pmath_is_packed_array(expr)) {
     struct _pmath_packed_array_t *_array;
     
-    _array = (void*)PMATH_AS_PTR(expr);
+    _array = (void *)PMATH_AS_PTR(expr);
     
     assert(_array->element_type == PMATH_PACKED_DOUBLE);
     
@@ -1261,11 +1318,11 @@ static void pack_and_free_double(pmath_t expr, double **location){
     return;
   }
   
-  if(pmath_is_expr(expr)){
+  if(pmath_is_expr(expr)) {
     size_t len = pmath_expr_length(expr);
     size_t i;
     
-    for(i = 1;i <= len;++i) {
+    for(i = 1; i <= len; ++i) {
       pmath_t item = pmath_expr_get_item(expr, i);
       pack_and_free_double(item, location);
     }
@@ -1274,20 +1331,20 @@ static void pack_and_free_double(pmath_t expr, double **location){
     return;
   }
   
-  if(pmath_is_double(expr)){
+  if(pmath_is_double(expr)) {
     **location = PMATH_AS_DOUBLE(expr);
     ++*location;
     return;
   }
   
-  if(pmath_same(expr, PMATH_SYMBOL_UNDEFINED)){
+  if(pmath_same(expr, PMATH_SYMBOL_UNDEFINED)) {
     **location = NAN;
     ++*location;
     pmath_unref(expr);
     return;
   }
   
-  if(pmath_equals(expr, _pmath_object_pos_infinity)){
+  if(pmath_equals(expr, _pmath_object_pos_infinity)) {
     **location = HUGE_VAL;
     ++*location;
     pmath_unref(expr);
@@ -1325,13 +1382,13 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
   elem_type = packable_element_type(expr);
   if(elem_type < 0)
     return expr;
-  
+    
   if(elem_type == 0)
     elem_type = PMATH_PACKED_INT32;
-  
+    
   dims = packable_dimensions(expr);
   dims_expr = _pmath_dimensions(expr, dims);
-  if(pmath_expr_length(dims_expr) != dims){
+  if(pmath_expr_length(dims_expr) != dims) {
     pmath_unref(dims_expr);
     return expr;
   }
@@ -1340,12 +1397,12 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
   total_size = elem_size;
   
   sizes = pmath_mem_alloc(dims * sizeof(size_t));
-  if(!sizes){
+  if(!sizes) {
     pmath_unref(dims_expr);
     return expr;
   }
   
-  for(i = 0;i < dims;++i){
+  for(i = 0; i < dims; ++i) {
     pmath_t n_expr = pmath_expr_get_item(dims_expr, i + 1);
     
     sizes[i] = pmath_integer_get_uiptr(n_expr);
@@ -1357,7 +1414,7 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
       return expr;
     }
     
-    total_size*= sizes[i];
+    total_size *= sizes[i];
   }
   
   pmath_unref(dims_expr);
@@ -1368,19 +1425,19 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
     return expr;
   }
   
-  _blob = (void*)PMATH_AS_PTR(blob);
+  _blob = (void *)PMATH_AS_PTR(blob);
   data = _blob->data;
-  switch(elem_type){
-    case PMATH_PACKED_DOUBLE: 
-      pack_and_free_double(expr, (double**)&data);
+  switch(elem_type) {
+    case PMATH_PACKED_DOUBLE:
+      pack_and_free_double(expr, (double **)&data);
       break;
       
-    case PMATH_PACKED_INT32: 
-      pack_and_free_int32(expr, (int32_t**)&data);
+    case PMATH_PACKED_INT32:
+      pack_and_free_int32(expr, (int32_t **)&data);
       break;
   }
   
-  assert(data == (uint8_t*)_blob->data + _blob->data_size);
+  assert(data == (uint8_t *)_blob->data + _blob->data_size);
   
   array = pmath_packed_array_new(blob, elem_type, dims, sizes, NULL, 0);
   
@@ -1398,23 +1455,23 @@ static void copy_array(
   const size_t *src_sizes,
   size_t        depth,
   size_t        end_size
-){
+) {
   size_t i;
   
-  if(depth == 0){
+  if(depth == 0) {
     memcpy(dst_data, src_data, end_size);
     return;
   }
   
-  for(i = 0;i < *src_sizes;++i){
+  for(i = 0; i < *src_sizes; ++i) {
     copy_array(dst_data, dst_steps + 1, src_data, src_steps + 1, src_sizes + 1, depth - 1, end_size);
     
-    dst_data+= *dst_steps;
-    src_data+= *src_steps;
+    dst_data += *dst_steps;
+    src_data += *src_steps;
   }
 }
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 void _pmath_packed_array_copy(
   void                         *dst,
   const size_t                 *dst_steps,
@@ -1432,19 +1489,19 @@ void _pmath_packed_array_copy(
   const size_t *src_steps = ARRAY_STEPS(src);
   
   cont_level = src->dimensions;
-  while(cont_level > 0 && dst_steps[cont_level-1] == src->src_steps[cont_level-1])
+  while(cont_level > 0 && dst_steps[cont_level - 1] == src->src_steps[cont_level - 1])
     --cont_level;
-  
-  if(cont_level < src->dimensions){
+    
+  if(cont_level < src->dimensions) {
     end_size = src_steps[cont_level] * src_sizes[cont_level];
   }
   else
     end_size = pmath_packed_element_size(src->element_type);
-  
+    
   copy_array(
     dst,
     dst_steps,
-    (const uint8_t*)src->blob->data + src->offset,
+    (const uint8_t *)src->blob->data + src->offset,
     src_steps,
     src_sizes,
     cont_level,
