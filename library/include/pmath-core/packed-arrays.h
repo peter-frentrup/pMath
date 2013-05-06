@@ -144,9 +144,8 @@ size_t pmath_packed_element_size(enum pmath_packed_type_t element_type);
                                                + steps[N - 1] * (iN - 1).
    </tt>
    
-   Additionally, steps[i] >= steps[i+1] * sizes[i+1] for i < N-1 and steps[N-1]
-   is at least the element size. (in contrast to e.g. OpenCV, where it is 
-   exactly the element size).
+   Additionally, steps[i] >= steps[i+1] * sizes[i+1] for i < N-1 and 
+   steps[N-1] must exactly equal the element size. (as in e.g. OpenCV).
    
    When you specify NULL for steps, pMath will use steps[N-1] = element size
    and steps[i-1] = steps[i] * sizes[i] for i < N.
@@ -199,10 +198,11 @@ enum pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_
 /**\brief Get the number of dimensions that contain holes.
    \memberof pmath_packed_array_t
    \param array  A packed array. It wont be freed.
-   \return A number between 0 and pmath_packed_array_get_dimensions(array).
+   \return A number between 0 and pmath_packed_array_get_dimensions(array)-1 
+           (inclusive).
    
    Let <tt>K</tt> be the returned number and <tt>N</tt> the number of 
-   dimensions. If K < N, then memberwise operations can be speed up. Instead of:
+   dimensions. Then memberwise operations can be speed up. Instead of:
    \code
 for(i1 = 1;i1 <= sizes[0];++i1)
   for(i2 = 1;i2 <= sizes[1];++i2)

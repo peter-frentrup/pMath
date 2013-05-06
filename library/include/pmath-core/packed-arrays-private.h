@@ -50,7 +50,45 @@ void _pmath_packed_array_copy(
   const size_t                 *dst_steps,
   struct _pmath_packed_array_t *src);
 
+#define PMATH_ARRAYS_INCOMPATIBLE_CMP  (2)
+PMATH_PRIVATE
+int _pmath_packed_array_compare(pmath_packed_array_t a, pmath_packed_array_t b);
 
+PMATH_PRIVATE 
+pmath_bool_t _pmath_packed_array_equal(
+  pmath_packed_array_t a,
+  pmath_packed_array_t b);
+
+PMATH_PRIVATE
+size_t _pmath_packed_array_find_sorted(
+  pmath_packed_array_t sorted_array, // wont be freed
+  pmath_t              item);        // wont be freed
+  
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_packed_array_t _pmath_packed_array_resize(
+  pmath_packed_array_t array,
+  size_t               new_length);
+
+PMATH_PRIVATE 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_packed_array_sort(pmath_packed_array_t array); // will be freed
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_packed_array_map(
+  pmath_packed_array_t  array, // will be freed
+  size_t                start,
+  size_t                end,
+  pmath_t             (*func)(pmath_t, size_t, void*),
+  void                 *context);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_packed_array_t _pmath_packed_array_flatten(
+  pmath_expr_t  expr,
+  size_t        depth); ....
+  
 PMATH_PRIVATE pmath_bool_t _pmath_packed_arrays_init(void);
 PMATH_PRIVATE void         _pmath_packed_arrays_done(void);
 

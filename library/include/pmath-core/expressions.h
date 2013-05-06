@@ -71,10 +71,10 @@ pmath_expr_t pmath_expr_new_extended(
            with pmath_unref().
    
    If expr's length is less than or equals to new_length, all items at 
-   1..(expr's length) are be copied and the rest is initialized with PMATH_NULL. 
-   Otherwise, all items at 1..new_length are copied, those at 
-   (new_length+1)..(expr's length) are be freed and the rest is initialized with
-   PMATH_NULL.
+   1..(expr's length) are be copied and the rest is initialized with some 
+   appropriate constant. 
+   Otherwise, all items at 1..new_length are copied and those at 
+   (new_length+1)..(expr's length) are freed.
  */
 PMATH_API 
 PMATH_ATTRIBUTE_USE_RESULT
