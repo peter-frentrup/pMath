@@ -86,8 +86,8 @@ pmath_expr_t _pmath_packed_array_map(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_packed_array_t _pmath_packed_array_flatten(
-  pmath_expr_t  expr,
-  size_t        depth); ....
+  pmath_packed_array_t  array,
+  size_t                depth);
   
 PMATH_PRIVATE pmath_bool_t _pmath_packed_arrays_init(void);
 PMATH_PRIVATE void         _pmath_packed_arrays_done(void);

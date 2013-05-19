@@ -176,17 +176,6 @@ size_t pmath_packed_array_get_dimensions(pmath_packed_array_t array);
 PMATH_API
 const size_t *pmath_packed_array_get_sizes(pmath_packed_array_t array);
 
-/**\brief Get The number of elements of a sub-array.
-   \memberof pmath_packed_array_t
-   \param array  A packed array. It wont be freed.
-   \param array  A packed array. It wont be freed.
-   \return The total number of elements in a sub-array array[i1, ..., iK].
- */
-PMATH_API
-size_t pmath_packed_array_get_subarray_length(
-  pmath_packed_array_t array,
-  size_t               after_dimension);
-
 /**\brief Get the element data type of a packed array.
    \memberof pmath_packed_array_t
    \param array  A packed array. It wont be freed.
@@ -268,5 +257,22 @@ void *pmath_packed_array_begin_write(
   pmath_packed_array_t *array,
   const size_t         *indices,
   size_t                num_indices);
+
+/**\brief change the shape of an array.
+   \memberof pmath_packed_array_t
+   \param array           A packed array. It will be freed.
+   \param new_dimensions  The new number of dimensions.
+   \param new_sizes       An array of new lengths for each of the \a new_dimensions
+                          dimensions. 
+   \return The reshaped array of PMATH_NULL on error.
+   
+   The product of all new sizes must equal the product of all old sizes of the 
+   array.
+ */
+PMATH_API
+pmath_packed_array_t pmath_packed_array_reshape(
+  pmath_packed_array_t  array,
+  size_t                new_dimensions,
+  const size_t         *new_sizes);
 
 #endif // __PMATH_CORE__PACKED_ARRAYS_H__

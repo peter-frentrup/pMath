@@ -1416,7 +1416,6 @@ static pmath_bool_t flatten_calc_newlen(
   }
   
   expr = pmath_ref(expr);
-  //PUSH(expr, srci);
   for(;;) {
     size_t exprlen;
     
@@ -1424,11 +1423,32 @@ static pmath_bool_t flatten_calc_newlen(
   
     exprlen = pmath_expr_length(expr);
     if(stack_pos == depth) {
+      // TODO: what happens here (and why)?
       (*newlen) += exprlen - srci + 1;
       pmath_unref(expr);
       POP(expr, srci);
       continue;
     }
+    
+//    if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)) {
+//      size_t        dims  = pmath_packed_array_get_dimensions(expr);
+//      const size_t *sizes = pmath_packed_array_get_sizes();
+//      
+//      size_t count = 1;
+//      size_t i;
+//      for(i = 0;i < dims && stack_pos + i < depth;++i)
+//        count *= sizes[i];
+//      
+//      any_change = TRUE;
+//      (*newlen) += count - 1;
+//      
+//      pmath_unref(expr);
+//      if(stack_pos == 0)
+//        return any_change;
+//      POP(expr, srci);  
+//      continue;
+//    }
+    
     for(; srci <= exprlen; srci++) {
       pmath_t item = pmath_expr_get_item(expr, srci);
       
@@ -1456,7 +1476,8 @@ static pmath_bool_t flatten_calc_newlen(
             continue;
           }
         }
-        pmath_unref(this_head);
+        else
+          pmath_unref(this_head);
       }
       (*newlen)++;
       pmath_unref(item);
@@ -1559,6 +1580,11 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
     return expr;
   }
   
+  if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)){
+    pmath_unref(head);
+    return _pmath_packed_array_flatten(expr, depth);
+  }
+  
   if(!flatten_calc_newlen(&newlen, expr, head, depth)) {
     pmath_unref(head);
     return expr;
@@ -1593,6 +1619,9 @@ PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
     
   assert(pmath_is_expr(expr));
   
+  if(pmath_is_packed_array(expr))
+    return PMATH_NULL;
+  
   _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
   if(!_expr->debug_ptr)
     return PMATH_NULL;
@@ -1607,7 +1636,9 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
   if(!pmath_is_pointer(info))
     return expr;
     
-  if(pmath_is_null(expr)) {
+  if( pmath_is_null(expr) ||
+      pmath_is_packed_array(expr)) 
+  {
     pmath_unref(info);
     return expr;
   }
