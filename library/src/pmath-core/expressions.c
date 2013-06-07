@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-language/patterns-private.h>
@@ -265,7 +266,7 @@ pmath_expr_t pmath_expr_resize(
   
   if(pmath_is_packed_array(expr))
     return _pmath_packed_array_resize(expr, new_length);
-  
+    
   if(PMATH_UNLIKELY(new_length >= UINTPTR_MAX / sizeof(pmath_t) - sizeof(struct _pmath_expr_t))) {
     pmath_unref(expr);
     pmath_abort_please();
@@ -409,7 +410,7 @@ PMATH_API pmath_expr_t pmath_expr_append(
     for(i = old_length + 1; i <= old_length + count; i++)
       expr = pmath_expr_set_item(expr, i, va_arg(items, pmath_t));
   }
-    
+  
   va_end(items);
   return expr;
 }
@@ -420,7 +421,7 @@ PMATH_API size_t pmath_expr_length(pmath_expr_t expr) {
     
   if(pmath_is_packed_array(expr))
     return *pmath_packed_array_get_sizes(expr);
-  
+    
   assert(pmath_is_expr(expr));
   
   return ((struct _pmath_expr_t *)PMATH_AS_PTR(expr))->length;
@@ -628,7 +629,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
   
   if(pmath_is_packed_array(expr))
     return _pmath_packed_array_set_item(expr, index, item);
-  
+    
   old_expr = (void *)PMATH_AS_PTR(expr);
   if(PMATH_UNLIKELY(!old_expr)) {
     pmath_unref(item);
@@ -834,8 +835,6 @@ static pmath_expr_t remove_all_fast(
   size_t srci0 = 0;
   size_t dsti = 1;
   
-  const pmath_t *items;
-  
   while(srci0 < len) {
     const pmath_t *items;
     
@@ -843,7 +842,7 @@ static pmath_expr_t remove_all_fast(
     if(!items)
       pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
       
-    assert(items != PMATH_NULL);
+    assert(items != NULL);
     
     while(srci0 <= len && pmath_equals(items[srci0], rem))
       ++srci0;
@@ -889,7 +888,7 @@ static pmath_expr_t remove_all_slow(
     }
     
     expr = pmath_expr_set_item(expr, dsti++, item);
-    srci;
+    ++srci;
   }
   
   return pmath_expr_resize(expr, dsti - 1);
@@ -954,7 +953,7 @@ size_t _pmath_expr_find_sorted(
   switch(PMATH_AS_PTR(sorted_expr)->type_shift) {
     case PMATH_TYPE_SHIFT_PACKED_ARRAY:
       return _pmath_packed_array_find_sorted(sorted_expr, item);
-    
+      
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
         struct _pmath_expr_t *ge;
         void *found_elem;
@@ -1022,7 +1021,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   
   if(pmath_is_packed_array(expr))
     expr = _pmath_expr_unpack_array(expr);
-  
+    
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
     
@@ -1107,7 +1106,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   
   if(pmath_is_packed_array(expr))
     expr = _pmath_expr_unpack_array(expr);
-  
+    
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
     
@@ -1261,7 +1260,7 @@ static pmath_expr_t expr_map_fast(
   assert(old_expr != NULL);
   
   if(start > old_expr->length || end < start)
-    return PMATH_FROM_PTR((void*)old_expr);
+    return PMATH_FROM_PTR((void *)old_expr);
     
   if(end > old_expr->length)
     end = old_expr->length;
@@ -1317,7 +1316,7 @@ static pmath_expr_t expr_map_fast(
             new_expr = _pmath_expr_new_noinit(old_expr->length);
             if(!new_expr) {
               pmath_unref(item);
-              _pmath_unref_ptr((void*)old_expr);
+              _pmath_unref_ptr((void *)old_expr);
               return PMATH_NULL;
             }
             
@@ -1335,7 +1334,7 @@ static pmath_expr_t expr_map_fast(
             new_expr = _pmath_expr_new_noinit(old_expr->length);
             if(!new_expr) {
               pmath_unref(item);
-               _pmath_unref_ptr((void*)old_expr);
+              _pmath_unref_ptr((void *)old_expr);
               return PMATH_NULL;
             }
             
@@ -1359,7 +1358,7 @@ static pmath_expr_t expr_map_fast(
         new_expr->items[start] = item;
       }
       
-      _pmath_unref_ptr((void*)old_expr);
+      _pmath_unref_ptr((void *)old_expr);
       return PMATH_FROM_PTR(new_expr);
     }
   }
@@ -1376,18 +1375,16 @@ pmath_expr_t _pmath_expr_map(
   pmath_t     (*func)(pmath_t, size_t, void *),
   void         *context
 ) {
-  const pmath_t        *old_items;
   struct _pmath_expr_t *old_expr;
-  pmath_t item;
   
   if(pmath_is_packed_array(expr))
-    return _pmath_packed_array_map(expr, start, end, function_table_class, context);
-  
+    return _pmath_packed_array_map(expr, start, end, func, context);
+    
   old_expr = (void *)PMATH_AS_PTR(expr);
   if(!old_expr)
     return expr;
     
-  return expr_map_fast(old_expr);
+  return expr_map_fast(old_expr, start, end, func, context);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1433,22 +1430,22 @@ static pmath_bool_t flatten_calc_newlen(
 //    if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)) {
 //      size_t        dims  = pmath_packed_array_get_dimensions(expr);
 //      const size_t *sizes = pmath_packed_array_get_sizes();
-//      
+//
 //      size_t count = 1;
 //      size_t i;
 //      for(i = 0;i < dims && stack_pos + i < depth;++i)
 //        count *= sizes[i];
-//      
+//
 //      any_change = TRUE;
 //      (*newlen) += count - 1;
-//      
+//
 //      pmath_unref(expr);
 //      if(stack_pos == 0)
 //        return any_change;
-//      POP(expr, srci);  
+//      POP(expr, srci);
 //      continue;
 //    }
-    
+
     for(; srci <= exprlen; srci++) {
       pmath_t item = pmath_expr_get_item(expr, srci);
       
@@ -1580,7 +1577,7 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
     return expr;
   }
   
-  if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)){
+  if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)) {
     pmath_unref(head);
     return _pmath_packed_array_flatten(expr, depth);
   }
@@ -1621,7 +1618,7 @@ PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
   
   if(pmath_is_packed_array(expr))
     return PMATH_NULL;
-  
+    
   _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
   if(!_expr->debug_ptr)
     return PMATH_NULL;
@@ -1637,7 +1634,7 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
     return expr;
     
   if( pmath_is_null(expr) ||
-      pmath_is_packed_array(expr)) 
+      pmath_is_packed_array(expr))
   {
     pmath_unref(info);
     return expr;
@@ -2002,7 +1999,7 @@ static int compare_expr_general(pmath_expr_t a, pmath_expr_t b) {
         return cmp;
     }
   }
-  else
+  else {
     for(i = 0; i <= ua->length; ++i) {
       pmath_t itema = pmath_expr_get_item(a, i);
       pmath_t itemb = pmath_expr_get_item(b, i);
@@ -2014,9 +2011,9 @@ static int compare_expr_general(pmath_expr_t a, pmath_expr_t b) {
       if(cmp != 0)
         return cmp;
     }
-}
-
-return 0;
+  }
+  
+  return 0;
 }
 
 // Complex(...) < symbols < other expr
@@ -3695,7 +3692,8 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
   pmath_unref(head);
 }
 
-static void _pmath_expr_write(struct pmath_write_ex_t *info, pmath_t expr) {
+PMATH_PRIVATE
+void _pmath_expr_write(struct pmath_write_ex_t *info, pmath_t expr) {
   write_expr_ex(info, PRIO_ANY, expr);
 }
 

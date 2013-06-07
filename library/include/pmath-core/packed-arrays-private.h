@@ -44,11 +44,6 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr);
 
-PMATH_PRIVATE 
-void _pmath_packed_array_copy(
-  void                         *dst,
-  const size_t                 *dst_steps,
-  struct _pmath_packed_array_t *src);
 
 #define PMATH_ARRAYS_INCOMPATIBLE_CMP  (2)
 PMATH_PRIVATE
