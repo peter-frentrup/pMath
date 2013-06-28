@@ -791,6 +791,9 @@
 		<Unit filename="src/pmath-builtins/language/debuginfo.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/language/frompackedarray.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/language/is-object-type.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -813,6 +816,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/language/toexpression.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-builtins/language/topackedarray.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/lists/append.c">

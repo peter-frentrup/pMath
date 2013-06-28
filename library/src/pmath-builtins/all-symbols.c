@@ -314,8 +314,11 @@ PMATH_PRIVATE pmath_t builtin_write(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_writestring(                   pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/language/ ...
-PMATH_PRIVATE pmath_t builtin_developer_getdebuginfo(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_developer_setdebuginfoat(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_frompackedarray(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_getdebuginfo(   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_setdebuginfoat( pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_topackedarray(  pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_assign_namespace(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
@@ -688,9 +691,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   VERIFY(   PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE     = NEW_SYMBOL("Developer`DebugInfoSource"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION     = NEW_SYMBOL("Developer`FileInformation"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY     = NEW_SYMBOL("Developer`FromPackedArray"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO        = NEW_SYMBOL("Developer`GetDebugInfo"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE      = NEW_SYMBOL("Developer`HasBuiltinCode"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_ISPACKEDARRAY       = NEW_SYMBOL("Developer`IsPackedArray"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT      = NEW_SYMBOL("Developer`SetDebugInfoAt"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_TOPACKEDARRAY       = NEW_SYMBOL("Developer`ToPackedArray"))
   
   VERIFY(   PMATH_SYMBOL_ABORTED                          = NEW_SYSTEM_SYMBOL("$Aborted"))
   VERIFY(   PMATH_SYMBOL_ABORT                            = NEW_SYSTEM_SYMBOL("Abort"))
@@ -1520,10 +1526,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,       builtin_iscriticalmessage)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
   
-  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION,     builtin_developer_fileinformation);
-  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO,        builtin_developer_getdebuginfo);
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION,     builtin_developer_fileinformation)
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY,     builtin_developer_frompackedarray)
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO,        builtin_developer_getdebuginfo)
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE,      builtin_developer_hasbuiltincode)
-  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT,      builtin_developer_setdebuginfoat);
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_ISPACKEDARRAY,       builtin_developer_ispackedarray)
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT,      builtin_developer_setdebuginfoat)
+  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_TOPACKEDARRAY,       builtin_developer_topackedarray)
   
   BIND_DOWN(   PMATH_SYMBOL_ABORT,                       builtin_abort)
   BIND_DOWN(   PMATH_SYMBOL_ABS,                         builtin_abs)

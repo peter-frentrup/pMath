@@ -742,7 +742,7 @@ pmath_packed_array_t pmath_packed_array_new(
   _array->dimensions   = dimensions;
   _array->cached_hash  = 0;
   
-  memcpy(ARRAY_SIZES(_array), sizes, dimensions);
+  memcpy(ARRAY_SIZES(_array), sizes, dimensions * sizeof(size_t));
   
   if(steps) {
     if(!check_steps(element_type, dimensions, sizes, steps, &_array->total_size)) {
@@ -750,7 +750,7 @@ pmath_packed_array_t pmath_packed_array_new(
       return PMATH_NULL;
     }
     
-    memcpy(ARRAY_STEPS(_array), steps, dimensions);
+    memcpy(ARRAY_STEPS(_array), steps, dimensions * sizeof(size_t));
     
     _array->non_continuous_dimensions_count = count_non_continuous_dimensions(
           dimensions,
@@ -1426,7 +1426,7 @@ static int packable_element_type(pmath_t expr) {
     if(result < 0)
       return -1;
       
-    for(; len > 0; --len) {
+    for(--len; len > 0; --len) {
       int typ;
       
       item = pmath_expr_get_item(expr, len);

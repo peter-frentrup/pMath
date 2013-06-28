@@ -432,3 +432,23 @@ PMATH_PRIVATE pmath_t builtin_issymbol(pmath_expr_t expr) {
   pmath_unref(obj);
   return pmath_ref(PMATH_SYMBOL_FALSE);
 }
+
+PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(pmath_expr_t expr) {
+  pmath_t obj;
+  
+  if(pmath_expr_length(expr) != 1) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+    return expr;
+  }
+  
+  obj = pmath_expr_get_item(expr, 1);
+  pmath_unref(expr);
+  
+  if(pmath_is_packed_array(obj)) {
+    pmath_unref(obj);
+    return pmath_ref(PMATH_SYMBOL_TRUE);
+  }
+  
+  pmath_unref(obj);
+  return pmath_ref(PMATH_SYMBOL_FALSE);
+}
