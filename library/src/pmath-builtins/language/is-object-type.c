@@ -1,3 +1,5 @@
+#include <pmath-core/packed-arrays-private.h>
+
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -457,7 +459,7 @@ PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(pmath_expr_t expr) {
   if(exprlen == 2) {
     enum pmath_packed_type_t type = pmath_packed_array_get_element_type(obj);
     
-    pmath_t type_expr = pmath_expr_get_item(EXPR_EVAL, 2);
+    pmath_t type_expr = pmath_expr_get_item(expr, 2);
     pmath_unref(type_expr);
     
     if(pmath_same(type_expr, PMATH_SYMBOL_INTEGER)) {

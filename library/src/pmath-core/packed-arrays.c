@@ -2232,6 +2232,18 @@ pmath_packed_array_t _pmath_packed_array_flatten(
   return array;
 }
 
+PMATH_PRIVATE
+size_t _pmath_packed_array_bytecount(pmath_packed_array_t array) {
+  struct _pmath_packed_array_t *_array;
+  
+  assert(pmath_is_packed_array(array));
+  
+  _array = (void *)PMATH_AS_PTR(array);
+  return sizeof(struct _pmath_packed_array_t) - sizeof(size_t) + sizeof(size_t) * 2 * _array->dimensions
+    + _array->total_size 
+    + sizeof(struct _pmath_blob_t);
+}
+
 /* -------------------------------------------------------------------------- */
 
 PMATH_PRIVATE pmath_bool_t _pmath_packed_arrays_init(void) {

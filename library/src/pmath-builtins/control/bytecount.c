@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-util/messages.h>
@@ -48,6 +49,9 @@ size_t pmath_object_bytecount(pmath_t obj) {
       
       return result;
     }
+    
+    case PMATH_TYPE_SHIFT_PACKED_ARRAY: 
+      return _pmath_packed_array_bytecount(obj);
   }
   
   return 0;
