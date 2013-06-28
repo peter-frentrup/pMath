@@ -434,21 +434,63 @@ PMATH_PRIVATE pmath_t builtin_issymbol(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(pmath_expr_t expr) {
+/* Developer`IsPackedArray(expr)
+   Developer`IsPackedArray(expr, type)
+ */
   pmath_t obj;
+  size_t exprlen;
   
-  if(pmath_expr_length(expr) != 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
+  exprlen = pmath_expr_length(expr);
+  
+  if(exprlen < 1 || exprlen > 2) {
+    pmath_message_argxxx(pmath_expr_length(expr), 1, 2);
     return expr;
   }
   
   obj = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
-  
-  if(pmath_is_packed_array(obj)) {
+  if(!pmath_is_packed_array(obj)) {
     pmath_unref(obj);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    pmath_unref(expr);
+    return pmath_ref(PMATH_SYMBOL_FALSE);
   }
   
+  if(exprlen == 2) {
+    enum pmath_packed_type_t type = pmath_packed_array_get_element_type(obj);
+    
+    pmath_t type_expr = pmath_expr_get_item(EXPR_EVAL, 2);
+    pmath_unref(type_expr);
+    
+    if(pmath_same(type_expr, PMATH_SYMBOL_INTEGER)) {
+      if(type != PMATH_PACKED_INT32) {
+        pmath_unref(expr);
+        pmath_unref(obj);
+        return pmath_ref(PMATH_SYMBOL_FALSE);
+      }
+    }
+    else if(pmath_same(type_expr, PMATH_SYMBOL_REAL)) {
+      if(type != PMATH_PACKED_DOUBLE) {
+        pmath_unref(expr);
+        pmath_unref(obj);
+        return pmath_ref(PMATH_SYMBOL_FALSE);
+      }
+    }
+    else{
+      pmath_t allowed = pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_LIST), 2,
+        pmath_ref(PMATH_SYMBOL_INTEGER),
+        pmath_ref(PMATH_SYMBOL_REAL));
+      
+      pmath_unref(obj);
+      pmath_message(PMATH_NULL, "mbrpos", 3, 
+        PMATH_FROM_INT32(2),
+        pmath_ref(expr),
+        allowed);
+      
+      return expr;
+    }
+  }
+  
+  pmath_unref(expr);
   pmath_unref(obj);
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(PMATH_SYMBOL_TRUE);
 }
