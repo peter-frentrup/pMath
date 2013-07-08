@@ -16,6 +16,11 @@
 
 #ifdef _MSC_VER
 #  define snprintf sprintf_s
+
+#  ifndef NAN
+    static const uint64_t nan_as_uint64 = 0x7fffffffffffffff;
+#    define NAN (*(const double*)nan_as_uint64)
+#  endif
 #endif
 
 
