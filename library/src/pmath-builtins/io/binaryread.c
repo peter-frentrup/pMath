@@ -406,12 +406,10 @@ static pmath_bool_t binary_read(
                   pmath_unref(mant);
 
                   if(neg) {
-                    *type_value = pmath_expr_new_extended(
-                                    pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                                    PMATH_FROM_INT32(-1));
+                    *type_value = pmath_ref(_pmath_object_neg_infinity);
                   }
                   else
-                    *type_value = pmath_ref(_pmath_object_infinity);
+                    *type_value = pmath_ref(_pmath_object_pos_infinity);
                 }
                 else {
                   pmath_unref(f);
@@ -481,12 +479,10 @@ static pmath_bool_t binary_read(
             else if(uexp == 0x1F) {
               if(mant == 0) {
                 if(neg) {
-                  *type_value = pmath_expr_new_extended(
-                                  pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                                  PMATH_FROM_INT32(-1));
+                  *type_value = pmath_ref(_pmath_object_neg_infinity);
                 }
                 else
-                  *type_value = pmath_ref(_pmath_object_infinity);
+                  *type_value = pmath_ref(_pmath_object_pos_infinity);
               }
               else {
                 *type_value = pmath_ref(PMATH_SYMBOL_UNDEFINED);
@@ -512,12 +508,10 @@ static pmath_bool_t binary_read(
               d = data.f;
 
             if(d == HUGE_VAL) {
-              *type_value = pmath_ref(_pmath_object_infinity);
+              *type_value = pmath_ref(_pmath_object_pos_infinity);
             }
             else if(d == -HUGE_VAL) {
-              *type_value = pmath_expr_new_extended(
-                              pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-                              PMATH_FROM_INT32(-1));
+              *type_value = pmath_ref(_pmath_object_neg_infinity);
             }
             else if(isnan(d)) {
               *type_value = pmath_ref(PMATH_SYMBOL_UNDEFINED);

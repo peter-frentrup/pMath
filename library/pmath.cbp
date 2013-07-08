@@ -357,6 +357,8 @@
 		<Unit filename="include/pmath-core/objects-inline.h" />
 		<Unit filename="include/pmath-core/objects-private.h" />
 		<Unit filename="include/pmath-core/objects.h" />
+		<Unit filename="include/pmath-core/packed-arrays-private.h" />
+		<Unit filename="include/pmath-core/packed-arrays.h" />
 		<Unit filename="include/pmath-core/strings-private.h" />
 		<Unit filename="include/pmath-core/strings.h" />
 		<Unit filename="include/pmath-core/symbols-private.h" />
@@ -789,6 +791,9 @@
 		<Unit filename="src/pmath-builtins/language/debuginfo.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/language/frompackedarray.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/language/is-object-type.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -811,6 +816,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/language/toexpression.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-builtins/language/topackedarray.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/lists/append.c">
@@ -1107,6 +1115,9 @@
 		<Unit filename="src/pmath-core/objects.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-core/packed-arrays.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-core/strings.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1228,7 +1239,7 @@
 			</AutoVersioning>
 			<DoxyBlocks>
 				<comment_style block="0" line="2" />
-				<doxyfile_project project_number="0.2.194" use_auto_version="1" />
+				<doxyfile_project project_number="0.5.218" use_auto_version="1" />
 				<doxyfile_build />
 				<doxyfile_warnings />
 				<doxyfile_output html_help="1" xml="1" />

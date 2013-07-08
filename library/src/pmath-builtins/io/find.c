@@ -114,7 +114,7 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr) {
       if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0) {
         count = (size_t)PMATH_AS_INT32(n);
       }
-      else if(!pmath_equals(n, _pmath_object_infinity)) {
+      else if(!pmath_equals(n, _pmath_object_pos_infinity)) {
         pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
         
         pmath_unref(n);

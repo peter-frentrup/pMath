@@ -48,7 +48,7 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr) {
         expr = pmath_ref(PMATH_SYMBOL_FALSE);
       }
     }
-    else if(pmath_equals(max, _pmath_object_infinity)) {
+    else if(pmath_equals(max, _pmath_object_pos_infinity)) {
       if(z_min <= z_len) {
         pmath_unref(expr);
         expr = pmath_ref(PMATH_SYMBOL_TRUE);

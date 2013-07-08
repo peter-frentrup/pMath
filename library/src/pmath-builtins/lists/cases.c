@@ -115,7 +115,7 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr) {
           if(pmath_is_int32(n))
             info.count = (unsigned)PMATH_AS_INT32(n);
         }
-        else if ( !pmath_equals(n, _pmath_object_infinity) &&
+        else if ( !pmath_equals(n, _pmath_object_pos_infinity) &&
                   !pmath_is_set_of_options(n))
         {
           pmath_unref(n);

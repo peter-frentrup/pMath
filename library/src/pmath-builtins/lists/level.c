@@ -81,7 +81,7 @@ pmath_bool_t _pmath_extract_levels(
       *levelmax = PMATH_AS_INT32(obj);
     }
     else if( pmath_same(obj, PMATH_SYMBOL_AUTOMATIC) ||
-             pmath_equals(obj, _pmath_object_infinity))
+             pmath_equals(obj, _pmath_object_pos_infinity))
     {
       *levelmax = LONG_MAX;
     }

@@ -177,7 +177,7 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
   if(clazz & PMATH_CLASS_INF) {
     pmath_unref(expr);
     pmath_unref(x);
-    return pmath_ref(_pmath_object_infinity);
+    return pmath_ref(_pmath_object_pos_infinity);
   }
   
   if(clazz & PMATH_CLASS_IMAGINARY) {

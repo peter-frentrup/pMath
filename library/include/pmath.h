@@ -29,6 +29,7 @@
 
 #include <pmath-core/custom.h>
 #include <pmath-core/expressions.h>
+#include <pmath-core/packed-arrays.h>
 #include <pmath-core/numbers.h>
 #include <pmath-core/symbols.h>
 

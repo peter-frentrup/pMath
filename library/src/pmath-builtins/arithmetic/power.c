@@ -1849,7 +1849,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_unref(expr);
-      return pmath_ref(_pmath_object_infinity);
+      return pmath_ref(_pmath_object_pos_infinity);
     }
     
     pmath_unref(base);

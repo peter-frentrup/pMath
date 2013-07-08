@@ -28,7 +28,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr) {
   }
   
   obj = pmath_evaluate(pmath_expr_get_item(expr, 2));
-  if(pmath_equals(obj, _pmath_object_infinity)) {
+  if(pmath_equals(obj, _pmath_object_pos_infinity)) {
     pmath_unref(obj);
     obj = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);

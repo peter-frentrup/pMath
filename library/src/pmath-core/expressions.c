@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-language/patterns-private.h>
@@ -263,6 +264,9 @@ pmath_expr_t pmath_expr_resize(
   struct _pmath_expr_t *new_expr;
   size_t old_length;
   
+  if(pmath_is_packed_array(expr))
+    return _pmath_packed_array_resize(expr, new_length);
+    
   if(PMATH_UNLIKELY(new_length >= UINTPTR_MAX / sizeof(pmath_t) - sizeof(struct _pmath_expr_t))) {
     pmath_unref(expr);
     pmath_abort_please();
@@ -366,7 +370,6 @@ PMATH_API pmath_expr_t pmath_expr_append(
   size_t       count,
   ...
 ) {
-  struct _pmath_expr_t *new_expr;
   size_t i, old_length, new_length;
   va_list items;
   va_start(items, count);
@@ -385,9 +388,9 @@ PMATH_API pmath_expr_t pmath_expr_append(
     return PMATH_NULL;
   }
   
-  new_expr = (void *)PMATH_AS_PTR(pmath_expr_resize(expr, new_length));
+  expr = pmath_expr_resize(expr, new_length);
   
-  if(!new_expr) {
+  if(pmath_is_null(expr)) {
     for(i = 1; i <= count; i++)
       pmath_unref(va_arg(items, pmath_t));
       
@@ -395,16 +398,29 @@ PMATH_API pmath_expr_t pmath_expr_append(
     return PMATH_NULL;
   }
   
-  for(i = old_length + 1; i <= old_length + count; i++)
-    new_expr->items[i] = va_arg(items, pmath_t);
+  if(PMATH_AS_PTR(expr)->type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL) {
+    struct _pmath_expr_t *new_expr;
     
+    new_expr = (void *)PMATH_AS_PTR(expr);
+    
+    for(i = old_length + 1; i <= old_length + count; i++)
+      new_expr->items[i] = va_arg(items, pmath_t);
+  }
+  else {
+    for(i = old_length + 1; i <= old_length + count; i++)
+      expr = pmath_expr_set_item(expr, i, va_arg(items, pmath_t));
+  }
+  
   va_end(items);
-  return PMATH_FROM_PTR(new_expr);
+  return expr;
 }
 
 PMATH_API size_t pmath_expr_length(pmath_expr_t expr) {
   if(pmath_is_null(expr))
     return 0;
+    
+  if(pmath_is_packed_array(expr))
+    return *pmath_packed_array_get_sizes(expr);
     
   assert(pmath_is_expr(expr));
   
@@ -418,6 +434,9 @@ PMATH_API pmath_t pmath_expr_get_item(
   struct _pmath_expr_part_t *expr_part_ptr;
   if(pmath_is_null(expr))
     return PMATH_NULL;
+    
+  if(pmath_is_packed_array(expr))
+    return _pmath_packed_array_get_item(expr, index);
     
   assert(pmath_is_expr(expr));
   expr_part_ptr = (struct _pmath_expr_part_t *)PMATH_AS_PTR(expr);
@@ -441,6 +460,9 @@ PMATH_API pmath_t pmath_expr_extract_item(
   
   if(pmath_is_null(expr))
     return PMATH_NULL;
+    
+  if(pmath_is_packed_array(expr))
+    return _pmath_packed_array_get_item(expr, index);
     
   assert(pmath_is_expr(expr));
   expr_part_ptr = (struct _pmath_expr_part_t *)PMATH_AS_PTR(expr);
@@ -475,6 +497,9 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
   
   if(PMATH_UNLIKELY(!old_expr))
     return PMATH_NULL;
+    
+  if(pmath_is_packed_array(expr))
+    return _pmath_packed_array_get_item_range(expr, start, length);
     
   assert(pmath_is_expr(expr));
   
@@ -573,8 +598,10 @@ const pmath_t *pmath_expr_read_item_data(pmath_expr_t expr) {
   if(pmath_is_null(expr))
     return NULL;
     
+  if(pmath_is_packed_array(expr))
+    return NULL;
+    
   assert(pmath_is_expr(expr));
-  
   ptr = (void *)PMATH_AS_PTR(expr);
   
   switch(ptr->inherited.inherited.inherited.type_shift) {
@@ -600,6 +627,9 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
 ) {
   struct _pmath_expr_t *old_expr;
   
+  if(pmath_is_packed_array(expr))
+    return _pmath_packed_array_set_item(expr, index, item);
+    
   old_expr = (void *)PMATH_AS_PTR(expr);
   if(PMATH_UNLIKELY(!old_expr)) {
     pmath_unref(item);
@@ -751,35 +781,53 @@ PMATH_PRIVATE pmath_t _pmath_expr_shrink_associative(
   if(pmath_is_null(expr))
     return expr;
     
-  while(srci0 < len) {
-    const pmath_t *items;
-    
-    items = pmath_expr_read_item_data(expr);
-    if(!items)
-      pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+  switch(PMATH_AS_PTR(expr)->type_shift) {
+    case PMATH_TYPE_SHIFT_PACKED_ARRAY:
+      /* magic_rem should ge a symbol or magic number and thus cannot be inside a
+       * packed array.
+       */
+      return expr;
       
-    assert(items != NULL);
-    
-    while(srci0 <= len && pmath_same(items[srci0], magic_rem))
-      ++srci0;
-      
-    if(srci0 >= len)
-      break;
-      
-    expr = pmath_expr_set_item(expr, dsti++, pmath_ref(items[srci0]));
-    ++srci0;
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+        while(srci0 < len) {
+          const pmath_t *items;
+          
+          items = pmath_expr_read_item_data(expr);
+          if(!items) {
+            pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+            pmath_unref(expr);
+            return PMATH_NULL;
+          }
+          
+          assert(items != NULL);
+          
+          while(srci0 <= len && pmath_same(items[srci0], magic_rem))
+            ++srci0;
+            
+          if(srci0 >= len)
+            break;
+            
+          expr = pmath_expr_set_item(expr, dsti++, pmath_ref(items[srci0]));
+          ++srci0;
+        }
+        
+        if(dsti == 2) {
+          pmath_t item = pmath_expr_get_item(expr, 1);
+          pmath_unref(expr);
+          return item;
+        }
+        
+        return pmath_expr_resize(expr, dsti - 1);
+      } break;
   }
   
-  if(dsti == 2) {
-    pmath_t item = pmath_expr_get_item(expr, 1);
-    pmath_unref(expr);
-    return item;
-  }
+  assert("invalid expression type" && 0);
   
-  return pmath_expr_resize(expr, dsti - 1);
+  return expr;
 }
 
-PMATH_API pmath_expr_t pmath_expr_remove_all(
+static pmath_expr_t remove_all_fast(
   pmath_expr_t expr,
   pmath_t      rem
 ) {
@@ -787,15 +835,13 @@ PMATH_API pmath_expr_t pmath_expr_remove_all(
   size_t srci0 = 0;
   size_t dsti = 1;
   
-  if(pmath_is_null(expr))
-    return expr;
-    
   while(srci0 < len) {
     const pmath_t *items;
     
     items = pmath_expr_read_item_data(expr);
     if(!items)
       pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
+      
     assert(items != NULL);
     
     while(srci0 <= len && pmath_equals(items[srci0], rem))
@@ -806,15 +852,92 @@ PMATH_API pmath_expr_t pmath_expr_remove_all(
       
     expr = pmath_expr_set_item(expr, dsti++, pmath_ref(items[srci0]));
     ++srci0;
+    
+    if(pmath_is_null(expr))
+      return expr;
   }
   
   return pmath_expr_resize(expr, dsti - 1);
 }
 
+
+static pmath_expr_t remove_all_slow(
+  pmath_expr_t expr,
+  pmath_t      rem
+) {
+  size_t len = pmath_expr_length(expr);
+  size_t srci = 1;
+  size_t dsti = 1;
+  
+  while(srci <= len) {
+    pmath_t item = PMATH_UNDEFINED;
+    
+    while(srci <= len) {
+      pmath_unref(item);
+      item = pmath_expr_get_item(expr, srci);
+      
+      if(!pmath_equals(item, rem))
+        break;
+        
+      ++srci;
+    }
+    
+    if(srci > len) {
+      pmath_unref(item);
+      break;
+    }
+    
+    expr = pmath_expr_set_item(expr, dsti++, item);
+    ++srci;
+  }
+  
+  return pmath_expr_resize(expr, dsti - 1);
+}
+
+PMATH_API pmath_expr_t pmath_expr_remove_all(
+  pmath_expr_t expr,
+  pmath_t      rem
+) {
+  const pmath_t *items;
+  
+  if(pmath_is_null(expr))
+    return expr;
+    
+  items = pmath_expr_read_item_data(expr);
+  if(items != NULL)
+    return remove_all_fast(expr, rem);
+    
+  if(pmath_is_packed_array(expr)) {
+    enum pmath_packed_type_t element_type;
+    
+    element_type = pmath_packed_array_get_element_type(expr);
+    
+    switch(element_type) {
+      case PMATH_PACKED_DOUBLE:
+        if(pmath_is_double(rem))
+          break;
+        if(pmath_same(rem, PMATH_SYMBOL_UNDEFINED))
+          break;
+        if(pmath_equals(rem, _pmath_object_pos_infinity))
+          break;
+        if(pmath_equals(rem, _pmath_object_neg_infinity))
+          break;
+        return expr;
+        
+      case PMATH_PACKED_INT32:
+        if(pmath_is_int32(rem))
+          break;
+        return expr;
+    }
+  }
+  
+  return remove_all_slow(expr, rem);
+}
+
 /*----------------------------------------------------------------------------*/
 
-static int cmp_objs(const void *a, const void *b) {
-  return pmath_compare(*(pmath_t *)a, *(pmath_t *)b);
+static int cmp_objs(const void *key, const void *elem) {
+  return pmath_compare(*(pmath_t *)key, *(pmath_t *)elem);
 }
 
 /* returns 0 on failure and index of found item otherwise */
@@ -828,6 +951,9 @@ size_t _pmath_expr_find_sorted(
     return FALSE;
     
   switch(PMATH_AS_PTR(sorted_expr)->type_shift) {
+    case PMATH_TYPE_SHIFT_PACKED_ARRAY:
+      return _pmath_packed_array_find_sorted(sorted_expr, item);
+      
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
         struct _pmath_expr_t *ge;
         void *found_elem;
@@ -893,6 +1019,9 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   struct _pmath_expr_part_t *expr_part_ptr;
   const pmath_t *initial_items;
   
+  if(pmath_is_packed_array(expr))
+    expr = _pmath_expr_unpack_array(expr);
+    
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
     
@@ -975,6 +1104,9 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   struct _pmath_expr_part_t *expr_part_ptr;
   const pmath_t *initial_items;
   
+  if(pmath_is_packed_array(expr))
+    expr = _pmath_expr_unpack_array(expr);
+    
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
     
@@ -1109,48 +1241,30 @@ static int stable_sort_cmp_objs(const pmath_t *a, const pmath_t *b) {
 PMATH_API pmath_expr_t pmath_expr_sort(
   pmath_expr_t expr
 ) {
+  if(pmath_is_packed_array(expr))
+    return _pmath_packed_array_sort(expr);
+    
   return _pmath_expr_sort_ex(expr, stable_sort_cmp_objs);
 }
 
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_map(
-  pmath_expr_t  expr, // will be freed
-  size_t        start,
-  size_t        end,
-  pmath_t     (*func)(pmath_t, size_t, void *),
-  void         *context
+static pmath_expr_t expr_map_fast(
+  struct _pmath_expr_t *old_expr, // will be freed
+  size_t                start,
+  size_t                end,
+  pmath_t             (*func)(pmath_t, size_t, void *),
+  void                 *context
 ) {
-  const pmath_t        *old_items;
-  struct _pmath_expr_t *old_expr;
+  const pmath_t *old_items;
   pmath_t item;
   
-  old_expr = (void *)PMATH_AS_PTR(expr);
-  if(!old_expr)
-    return expr;
-    
+  assert(old_expr != NULL);
+  
   if(start > old_expr->length || end < start)
-    return expr;
+    return PMATH_FROM_PTR((void *)old_expr);
     
   if(end > old_expr->length)
     end = old_expr->length;
     
-  if(start == 0) {
-    /* Special case for start = 0, because expr could be an
-       EXPRESSION_GENERAL_PART and those have their head stored apart from the
-       other items.
-     */
-    start = 1;
-    
-    item = old_expr->items[0];
-    item = (*func)(pmath_ref(item), 0, context);
-    expr = pmath_expr_set_item(expr, 0, item);
-    if(pmath_is_null(expr))
-      return expr;
-      
-    old_expr = (void *)PMATH_AS_PTR(expr);
-  }
-  
   switch(old_expr->inherited.inherited.inherited.type_shift) {
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
       old_items = &old_expr->items[0];
@@ -1166,6 +1280,8 @@ pmath_expr_t _pmath_expr_map(
       assert("invalid expression type" && 0);
       return PMATH_NULL;
   }
+  
+  assert(old_items != NULL);
   
   for(; start <= end; ++start) {
     item = (*func)(pmath_ref(old_items[start]), start, context);
@@ -1200,7 +1316,7 @@ pmath_expr_t _pmath_expr_map(
             new_expr = _pmath_expr_new_noinit(old_expr->length);
             if(!new_expr) {
               pmath_unref(item);
-              pmath_unref(expr);
+              _pmath_unref_ptr((void *)old_expr);
               return PMATH_NULL;
             }
             
@@ -1218,7 +1334,7 @@ pmath_expr_t _pmath_expr_map(
             new_expr = _pmath_expr_new_noinit(old_expr->length);
             if(!new_expr) {
               pmath_unref(item);
-              pmath_unref(expr);
+              _pmath_unref_ptr((void *)old_expr);
               return PMATH_NULL;
             }
             
@@ -1242,12 +1358,33 @@ pmath_expr_t _pmath_expr_map(
         new_expr->items[start] = item;
       }
       
-      pmath_unref(expr);
+      _pmath_unref_ptr((void *)old_expr);
       return PMATH_FROM_PTR(new_expr);
     }
   }
   
-  return expr;
+  return PMATH_FROM_PTR(old_expr);
+}
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_expr_map(
+  pmath_expr_t  expr, // will be freed
+  size_t        start,
+  size_t        end,
+  pmath_t     (*func)(pmath_t, size_t, void *),
+  void         *context
+) {
+  struct _pmath_expr_t *old_expr;
+  
+  if(pmath_is_packed_array(expr))
+    return _pmath_packed_array_map(expr, start, end, func, context);
+    
+  old_expr = (void *)PMATH_AS_PTR(expr);
+  if(!old_expr)
+    return expr;
+    
+  return expr_map_fast(old_expr, start, end, func, context);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -1276,7 +1413,6 @@ static pmath_bool_t flatten_calc_newlen(
   }
   
   expr = pmath_ref(expr);
-  //PUSH(expr, srci);
   for(;;) {
     size_t exprlen;
     
@@ -1284,11 +1420,32 @@ static pmath_bool_t flatten_calc_newlen(
   
     exprlen = pmath_expr_length(expr);
     if(stack_pos == depth) {
+      // TODO: what happens here (and why)?
       (*newlen) += exprlen - srci + 1;
       pmath_unref(expr);
       POP(expr, srci);
       continue;
     }
+    
+//    if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)) {
+//      size_t        dims  = pmath_packed_array_get_dimensions(expr);
+//      const size_t *sizes = pmath_packed_array_get_sizes();
+//
+//      size_t count = 1;
+//      size_t i;
+//      for(i = 0;i < dims && stack_pos + i < depth;++i)
+//        count *= sizes[i];
+//
+//      any_change = TRUE;
+//      (*newlen) += count - 1;
+//
+//      pmath_unref(expr);
+//      if(stack_pos == 0)
+//        return any_change;
+//      POP(expr, srci);
+//      continue;
+//    }
+
     for(; srci <= exprlen; srci++) {
       pmath_t item = pmath_expr_get_item(expr, srci);
       
@@ -1316,7 +1473,8 @@ static pmath_bool_t flatten_calc_newlen(
             continue;
           }
         }
-        pmath_unref(this_head);
+        else
+          pmath_unref(this_head);
       }
       (*newlen)++;
       pmath_unref(item);
@@ -1419,6 +1577,11 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
     return expr;
   }
   
+  if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)) {
+    pmath_unref(head);
+    return _pmath_packed_array_flatten(expr, depth);
+  }
+  
   if(!flatten_calc_newlen(&newlen, expr, head, depth)) {
     pmath_unref(head);
     return expr;
@@ -1453,6 +1616,9 @@ PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
     
   assert(pmath_is_expr(expr));
   
+  if(pmath_is_packed_array(expr))
+    return PMATH_NULL;
+    
   _expr = (struct _pmath_expr_t *)PMATH_AS_PTR(expr);
   if(!_expr->debug_ptr)
     return PMATH_NULL;
@@ -1467,7 +1633,9 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
   if(!pmath_is_pointer(info))
     return expr;
     
-  if(pmath_is_null(expr)) {
+  if( pmath_is_null(expr) ||
+      pmath_is_packed_array(expr))
+  {
     pmath_unref(info);
     return expr;
   }
@@ -1795,45 +1963,99 @@ _pmath_timer_t _pmath_expr_last_change(pmath_expr_t expr) {
 /*============================================================================*/
 /* pMath object functions ... */
 
+static int compare_expr_general(pmath_expr_t a, pmath_expr_t b) {
+  struct _pmath_expr_t *ua = (void *)PMATH_AS_PTR(a);
+  struct _pmath_expr_t *ub = (void *)PMATH_AS_PTR(b);
+  size_t i;
+  const pmath_t *a_items;
+  const pmath_t *b_items;
+  
+  if(pmath_same(ua->items[0], PMATH_SYMBOL_COMPLEX)) {
+    if(!pmath_same(ub->items[0], PMATH_SYMBOL_COMPLEX))
+      return -1;
+  }
+  else if(pmath_same(ub->items[0], PMATH_SYMBOL_COMPLEX))
+    return +1;
+    
+  if(ua->length < ub->length)  return -1;
+  if(ua->length > ub->length)  return +1;
+  
+  a_items = pmath_expr_read_item_data(a);
+  b_items = pmath_expr_read_item_data(b);
+  
+  if(a_items != NULL && b_items != NULL) {
+    int cmp;
+    
+    // compare heads
+    cmp = pmath_compare(ua->items[0], ub->items[0]);
+    if(cmp != 0)
+      return cmp;
+      
+    // compare arguments
+    for(i = 0; i < ua->length; ++i) {
+      cmp = pmath_compare(a_items[i], b_items[i]);
+      
+      if(cmp != 0)
+        return cmp;
+    }
+  }
+  else {
+    for(i = 0; i <= ua->length; ++i) {
+      pmath_t itema = pmath_expr_get_item(a, i);
+      pmath_t itemb = pmath_expr_get_item(b, i);
+      
+      int cmp = pmath_compare(itema, itemb);
+      
+      pmath_unref(itema);
+      pmath_unref(itemb);
+      if(cmp != 0)
+        return cmp;
+    }
+  }
+  
+  return 0;
+}
+
+// Complex(...) < symbols < other expr
 PMATH_PRIVATE
 int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
   switch(PMATH_AS_PTR(a)->type_shift) {
-    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
-    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-        struct _pmath_expr_t *ua = (void *)PMATH_AS_PTR(a);
-        
+  
+    case PMATH_TYPE_SHIFT_PACKED_ARRAY: {
+    
         switch(PMATH_AS_PTR(b)->type_shift) {
-          case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
-          case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-              struct _pmath_expr_t *ub = (void *)PMATH_AS_PTR(b);
-              size_t i;
-              
-              if(pmath_same(ua->items[0], PMATH_SYMBOL_COMPLEX)) {
-                if(!pmath_same(ub->items[0], PMATH_SYMBOL_COMPLEX))
-                  return -1;
-              }
-              else if(pmath_same(ub->items[0], PMATH_SYMBOL_COMPLEX))
-                return +1;
+          case PMATH_TYPE_SHIFT_PACKED_ARRAY: {
+          
+              int cmp = _pmath_packed_array_compare(a, b);
+              if(cmp == PMATH_ARRAYS_INCOMPATIBLE_CMP)
+                return compare_expr_general(a, b);
                 
-              if(ua->length < ub->length)  return -1;
-              if(ua->length > ub->length)  return +1;
-              
-              for(i = 0; i <= ua->length; ++i) {
-                pmath_t itema = pmath_expr_get_item(a, i);
-                pmath_t itemb = pmath_expr_get_item(b, i);
-                
-                int cmp = pmath_compare(itema, itemb);
-                
-                pmath_unref(itema);
-                pmath_unref(itemb);
-                if(cmp != 0)
-                  return cmp;
-              }
-              
-              return 0;
+              return cmp;
             } break;
             
+          case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+          case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+            return compare_expr_general(a, b);
+            
+          case PMATH_TYPE_SHIFT_SYMBOL:
+            return +1;
+            
+        } break;
+        
+      } break;
+      
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
+    
+        switch(PMATH_AS_PTR(b)->type_shift) {
+          case PMATH_TYPE_SHIFT_PACKED_ARRAY:
+          case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+          case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+            return compare_expr_general(a, b);
+            
           case PMATH_TYPE_SHIFT_SYMBOL: {
+              struct _pmath_expr_t *ua = (void *)PMATH_AS_PTR(a);
+              
               if(pmath_same(ua->items[0], PMATH_SYMBOL_COMPLEX))
                 return -1;
                 
@@ -1846,6 +2068,9 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
     case PMATH_TYPE_SHIFT_SYMBOL: {
     
         switch(PMATH_AS_PTR(b)->type_shift) {
+          case PMATH_TYPE_SHIFT_PACKED_ARRAY:
+            return -1;
+            
           case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
           case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
             return -_pmath_compare_exprsym(b, a);
@@ -1868,12 +2093,15 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
   return 0;
 }
 
-static pmath_bool_t equal_expressions(
+PMATH_PRIVATE pmath_bool_t _pmath_expr_equal(
   pmath_expr_t exprA,
   pmath_expr_t exprB
 ) {
   size_t i, lenA;
   
+  if(pmath_is_packed_array(exprA) && pmath_is_packed_array(exprB))
+    return _pmath_packed_array_equal(exprA, exprB);
+    
   lenA = pmath_expr_length(exprA);
   
   if(lenA != pmath_expr_length(exprB))
@@ -2342,7 +2570,7 @@ static void write_expr_ex(
       if(pmath_is_int32(item) && PMATH_AS_INT32(item) >= 0) {
         maxdepth = (unsigned)PMATH_AS_INT32(item);
       }
-      else if(pmath_equals(item, _pmath_object_infinity)) {
+      else if(pmath_equals(item, _pmath_object_pos_infinity)) {
         maxdepth = SIZE_MAX;
       }
       else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 2)) {
@@ -2351,7 +2579,7 @@ static void write_expr_ex(
         if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
           maxdepth = (unsigned)PMATH_AS_INT32(obj);
         }
-        else if(pmath_equals(obj, _pmath_object_infinity)) {
+        else if(pmath_equals(obj, _pmath_object_pos_infinity)) {
           maxdepth = SIZE_MAX;
         }
         else {
@@ -2366,7 +2594,7 @@ static void write_expr_ex(
         if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
           maxlength = (unsigned)PMATH_AS_INT32(obj);
         }
-        else if(pmath_equals(obj, _pmath_object_infinity)) {
+        else if(pmath_equals(obj, _pmath_object_pos_infinity)) {
           maxlength = SIZE_MAX;
         }
         else {
@@ -2403,7 +2631,7 @@ static void write_expr_ex(
     if(pmath_expr_length(expr) == 2) {
       item = pmath_expr_get_item(expr, 2);
       
-      if(pmath_equals(item, _pmath_object_infinity)) {
+      if(pmath_equals(item, _pmath_object_pos_infinity)) {
         lines = HUGE_VAL;
       }
       else if(pmath_is_number(item)) {
@@ -2423,7 +2651,7 @@ static void write_expr_ex(
     }
     
     item = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
-    if(pmath_equals(item, _pmath_object_infinity)) {
+    if(pmath_equals(item, _pmath_object_pos_infinity)) {
       pagewidth = HUGE_VAL;
     }
     else if(pmath_is_number(item) && pmath_number_sign(item) > 0) {
@@ -3464,7 +3692,8 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
   pmath_unref(head);
 }
 
-static void write_expression(struct pmath_write_ex_t *info, pmath_t expr) {
+PMATH_PRIVATE
+void _pmath_expr_write(struct pmath_write_ex_t *info, pmath_t expr) {
   write_expr_ex(info, PRIO_ANY, expr);
 }
 
@@ -3488,16 +3717,16 @@ PMATH_PRIVATE pmath_bool_t _pmath_expressions_init(void) {
     _pmath_compare_exprsym,
     hash_expression,
     destroy_general_expression,
-    equal_expressions,
-    write_expression);
+    _pmath_expr_equal,
+    _pmath_expr_write);
     
   _pmath_init_special_type(
     PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
     _pmath_compare_exprsym,
     hash_expression,
     destroy_part_expression,
-    equal_expressions,
-    write_expression);
+    _pmath_expr_equal,
+    _pmath_expr_write);
     
   return TRUE;
   

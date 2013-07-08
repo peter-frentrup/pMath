@@ -15,7 +15,7 @@ PMATH_PRIVATE pmath_bool_t extract_number(
   size_t  max,
   size_t *num
 ) {
-  if(pmath_equals(number, _pmath_object_infinity)) {
+  if(pmath_equals(number, _pmath_object_pos_infinity)) {
     *num = max;
     return TRUE;
   }

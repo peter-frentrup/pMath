@@ -5,6 +5,8 @@
 
 - pmath: implement Together(...) 
 
+- pmath: generate a message when unpacking a packed array
+
 ? pmath: make /* comments */ nestable; allways treat "*/" as one token. Problem: "...a***/b"
 	maybe change to (* ... *), but still problem with "...a***)"
 

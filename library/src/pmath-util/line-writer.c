@@ -564,7 +564,7 @@ void pmath_write_with_pagewidth(
     
     if(pmath_is_int32(tmp))
       page_width = PMATH_AS_INT32(tmp);
-    else if(pmath_equals(tmp, _pmath_object_infinity))
+    else if(pmath_equals(tmp, _pmath_object_pos_infinity))
       page_width = 0xFFFFFF;
     else
       page_width = 72;

@@ -2,7 +2,7 @@
 #define __PMATH_CORE__EXPRESSIONS_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-#error This header file is not part of the public pMath API
+#  error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-core/objects-private.h>
@@ -90,6 +90,14 @@ void _pmath_expr_update(pmath_expr_t expr);
 
 PMATH_PRIVATE
 int _pmath_compare_exprsym(pmath_t a, pmath_t b);
+
+PMATH_PRIVATE 
+pmath_bool_t _pmath_expr_equal(
+  pmath_expr_t exprA,
+  pmath_expr_t exprB);
+  
+PMATH_PRIVATE
+void _pmath_expr_write(struct pmath_write_ex_t *info, pmath_t expr);
 
 extern PMATH_PRIVATE pmath_expr_t _pmath_object_memory_exception; // read-only
 extern PMATH_PRIVATE pmath_expr_t _pmath_object_emptylist;        // read-only
