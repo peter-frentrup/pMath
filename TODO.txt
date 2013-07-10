@@ -7,7 +7,7 @@
 
 - pmath: generate a message when unpacking a packed array
 
-? pmath: make /* comments */ nestable; allways treat "*/" as one token. Problem: "...a***/b"
+? pmath: make /* comments */ nestable; always treat "*/" as one token. Problem: "...a***/b"
 	maybe change to (* ... *), but still problem with "...a***)"
 
 - richmath: ask to save before closing
@@ -22,7 +22,7 @@
 
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
 
-- richmath: graphcis tick length should depend on Max(width, height) for all axes
+- richmath: graphics tick length should depend on Max(width, height) for all axes
 
 - richmath: Add PlotRangePadding option and Scaled(...) coordinates in graphics
 
@@ -44,7 +44,7 @@
 
 - support FontSlant->Toggle, FontWeight->Toggle, FontSize->Larger, FontSize->Smaller
 
-? pause all EvaluateDelayed() or only abortion times durin GUI operations, delay abort-actions 
+? pause all EvaluateDelayed() or only abortion times during GUI operations, delay abort-actions 
   during Finally() and internal cleanup of Block(), Get(), ...
 
 - richmath: line heights jump up and down in Column({Dynamic(x),Slider(Dynamic(x),0..9..1)})
@@ -59,7 +59,7 @@
 
 - add InverseFunction
 
-- produce syntax error when in "\U12345678", i.e. when the character is not in the unicode range.
+- produce syntax error when in "\U12345678", i.e. when the character is not in the Unicode range.
 
 - add ArrayPad(), ArrayFlatten()
 
@@ -85,13 +85,13 @@
    " after a space or the beginning of the text gives left double quotation mark
    " after a number gives prime (or only after a digit?)
    " after anything else gives right quotation mark
-   analoguous for '
+   analogous for '
 
 - richmath: support Interrupt()
 
 - richmath: add DocumentEventActions
 
-- support euclidian integers in GCD/ExtendedGCD
+- support euclidean integers in GCD/ExtendedGCD
 
 - implement NumberForm
 
@@ -148,7 +148,7 @@
 
 - add InterpretTemplate(), see Mathematica's ToBoxes[Superscript[1,2]]
 
-- add option to write a BOM to unicode files. currently, it is added for "UTF-16" and "UTF-32"
+- add option to write a BOM to Unicode files. currently, it is added for "UTF-16" and "UTF-32"
   add the BOM automatically for UTF-8 on Windows but not on UNIX
 
 ? Test what happens, when a thread-message is send to a parent thread (which waits for its children to finish).
@@ -198,7 +198,7 @@
 
 - optimize pmath_expr_t for (multidimensional) rectangular arrays of intptr_t/double with List as head of all sublists
 
-- add support for file io in richmath (graphical frontend) and write help files for every symbol
+- add support for file io in richmath (graphical front-end) and write help files for every symbol
 
 - builtin_power: handle approximate complex arguments (real or imaginary part is pmath_float_t)
 - builtin_power: handle special complex values (E^(I Pi) = -1, ...).
