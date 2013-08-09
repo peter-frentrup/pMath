@@ -211,20 +211,18 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end) {
     
   HRESULT res = DoDragDrop(data_object, drop_source, effect, &effect);
   
+  Document *doc = src->find_parent<Document>(true);
+  
   if(res == DRAGDROP_S_DROP) {
     if(effect & DROPEFFECT_MOVE) {
       src   = drag_source_reference().get();
       start = drag_source_reference().start;
       end   = drag_source_reference().end;
       
-      if(src && end <= src->length()) {
-        Document *doc = src->find_parent<Document>(true);
-        
-        if(doc) {
-          doc->select(src, start, end);
-          if(!doc->remove_selection(false))
-            beep();
-        }
+      if(src && end <= src->length() && doc) {
+        doc->select(src, start, end);
+        if(!doc->remove_selection(false))
+          beep();
       }
     }
   }
@@ -234,6 +232,9 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end) {
   
   drag_source_reference().reset();
   is_dragging = false;
+  
+  if(doc)
+    doc->reset_mouse(); // DoDragDrop eats the mouse-up message
 }
 
 bool Win32Widget::cursor_position(float *x, float *y) {

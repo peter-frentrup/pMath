@@ -1009,7 +1009,7 @@ void Document::on_mouse_up(MouseEvent &event) {
 }
 
 void Document::on_mouse_cancel() {
-
+  drag_status = DragStatusIdle;
 }
 
 void Document::on_key_down(SpecialKeyEvent &event) {
@@ -2291,6 +2291,7 @@ String Document::copy_to_text(String mimetype) {
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
     
   if( mimetype.equals("InputText"/*Clipboard::PlainText*/) ||
+      mimetype.equals(Clipboard::PlainText) ||
       mimetype.equals("PlainText"))
   {
     Expr text = Application::interrupt(
@@ -4246,6 +4247,8 @@ void Document::stop_autocomplete() {
 }
 
 void Document::reset_mouse() {
+  drag_status = DragStatusIdle;
+  
   mouse_down_counter = 0;
   Application::delay_dynamic_updates(false);
   
