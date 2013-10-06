@@ -28,7 +28,7 @@ namespace richmath {
     GlyphStyleExcessArg,
     GlyphStyleMissingArg,
     GlyphStyleInvalidOption,
-    GlyphStyleUnused1,
+    GlyphStyleSpecialStringPart,
     GlyphStyleUnused2
   };
   

@@ -758,8 +758,25 @@ void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
   
   if(se->first_char() == '"') {
     if(se->count() == 0 || se->item_pos(0) > se->start()) {
-      for(int i = 1 + se->start(); i < se->end(); ++i)
+      for(int i = 1 + se->start(); i < se->end(); ++i) {
+      
+        if(se->sequence()->text()[i] == '\\') {
+          const uint16_t *buf = se->sequence()->text().buffer() + i;
+          int maxlen = se->end() - i;
+          uint32_t encoded_char;
+          const uint16_t *next = pmath_char_parse(buf, maxlen, &encoded_char);
+          
+          int len = next - buf;
+          for(int j = 0;j < len;++j)
+            glyphs[i + j].style = GlyphStyleSpecialStringPart;
+          
+          i+= len - 1;
+          
+          continue;
+        }
+        
         glyphs[i].style = GlyphStyleString;
+      }
         
       if(se->sequence()->text()[se->end()] != '"')
         glyphs[se->end()].style = GlyphStyleString;
@@ -797,6 +814,13 @@ void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
       glyphs[se->start()].style = GlyphStyleSyntaxError;
       return;
     }
+    
+//    if(se->first_char() == '\\') { /* outside a string or in a box in a string */
+//      for(int i = se->start(); i <= se->end(); ++i)
+//        glyphs[i].style = GlyphStyleSpecialStringPart;
+//      
+//      return;
+//    }
     
     return;
   }
