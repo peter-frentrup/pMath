@@ -2189,6 +2189,8 @@ typedef struct {
   void               (*make_box)(int, pmath_t, void *);
   void                *data;
   pmath_bool_t         split_tokens;
+  
+  pmath_bool_t         in_comment;
 } _pmath_ungroup_t;
 
 static int ungrouped_string_length(pmath_t box) { // box wont be freed
@@ -2330,8 +2332,11 @@ static void ungroup(
       tokens.span_items = g->spans->items;
       tokens.pos        = start;
       tokens.len        = g->pos;
+      tokens.in_comment = g->in_comment;
       while(tokens.pos < tokens.len)
         scan_next(&tokens, NULL);
+      
+      g->in_comment = tokens.in_comment;
     }
     else {
       g->spans->items[start]      |= 2; // operand start
@@ -2350,6 +2355,7 @@ static void ungroup(
     {
       size_t i, len;
       int start = g->pos;
+      pmath_bool_t old_in_comment = g->in_comment;
       
       len = pmath_expr_length(box);
       
@@ -2381,6 +2387,8 @@ static void ungroup(
         
     AFTER_UNGROUP:
       g->spans->items[start] |= 2; // operand start
+      
+      g->in_comment = old_in_comment;
       
       if( len >= 1 &&
           start < g->pos &&
@@ -2524,6 +2532,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
   g.make_box     = make_box;
   g.data         = data;
   g.split_tokens = TRUE;
+  g.in_comment   = FALSE;
   
   ungroup(&g, boxes);
   
