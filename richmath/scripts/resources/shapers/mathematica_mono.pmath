@@ -11,84 +11,84 @@
 		{"ampersand", "quotesingle", 0.75, 0.5, -0.15}},
 	"BigRadical" -> {"parenleft", "parenright", "asterisk", "plus", 0.5, 0.55},
 	"Ligatures" -> {
-		"\u200B" -> {}, /* zero-width space */
-		"\u222C" -> {{"integral", 1}, {"integral", 1}}, /* double integral */
-		"\u222D" -> {{"integral", 1}, {"integral", 1}, {"integral", 1}}, /* triple integral */
-		"\u2A74" -> {{"colon", 1}, {"colon", 1}, {"equal", 1}} /* ::= */},
+		"\[U+200B]" -> {}, /* zero-width space */
+		"\[U+222C]" -> {{"integral", 1}, {"integral", 1}}, /* double integral */
+		"\[U+222D]" -> {{"integral", 1}, {"integral", 1}, {"integral", 1}}, /* triple integral */
+		"\[U+2A74]" -> {{"colon", 1}, {"colon", 1}, {"equal", 1}} /* ::= */},
 	"HorizontalStretchedGlyphes" -> {
-		"\u02C7" -> {{"guillemotleft", 2}, {"questiondown", 4}, {"exclamdown", 4}, {"logicalnot", 4}, {"radical", 4}}, /* caron */
-		"\u23B4" -> {{"p", 4}, {"q", 4}, {"r", 4}, {"s", 4}}, /* top [ */
-		"\u23B5" -> {{"Adieresis", 4}, {"Aring", 4}, {"Ccedilla", 4}, {"Eacute", 4}}, /* bottom [ */
-		"\u23DC" -> {{"ecircumflex", 4}, {"edieresis", 4}, {"iacute", 4}, {"igrave", 4}}, /* top ( */
-		"\u23DD" -> {{"dagger", 4}, {"degree", 4}, {"cent", 4}, {"sterling", 4}}, /* bottom ( */
-		"\u23DE" -> {{"oacute", 4}, {"ograve", 4}, {"ocircumflex", 4}, {"odieresis", 4}}, /* top { */
-		"\u23DF" -> {{"germandbls", 4}, {"registered", 4}, {"copyright", 4}, {"trademark", 4}}, /* bottom { */
+		"\[U+02C7]" -> {{"guillemotleft", 2}, {"questiondown", 4}, {"exclamdown", 4}, {"logicalnot", 4}, {"radical", 4}}, /* caron */
+		"\[U+23B4]" -> {{"p", 4}, {"q", 4}, {"r", 4}, {"s", 4}}, /* top [ */
+		"\[U+23B5]" -> {{"Adieresis", 4}, {"Aring", 4}, {"Ccedilla", 4}, {"Eacute", 4}}, /* bottom [ */
+		"\[U+23DC]" -> {{"ecircumflex", 4}, {"edieresis", 4}, {"iacute", 4}, {"igrave", 4}}, /* top ( */
+		"\[U+23DD]" -> {{"dagger", 4}, {"degree", 4}, {"cent", 4}, {"sterling", 4}}, /* bottom ( */
+		"\[U+23DE]" -> {{"oacute", 4}, {"ograve", 4}, {"ocircumflex", 4}, {"odieresis", 4}}, /* top { */
+		"\[U+23DF]" -> {{"germandbls", 4}, {"registered", 4}, {"copyright", 4}, {"trademark", 4}}, /* bottom { */
 		"~" -> {{"overtilde", 1}, {"Ucircumflex", 2}, {"Ugrave", 2}, {"dotlessi", 2}, {"circumflex", 2}},
 		"^" -> {{"circumflex", 1}, {"infinity", 4}, {"plusminus", 4}, {"lessequal", 4}, {"greaterequal", 4}}},
 	"HorizontalComposedGlyphs" -> {
-		"\u27F5" -> {{"arrowleft", 0, "fractionbar"}, 1}, /* <-- */
-		"\u27F6" -> {{0, "arrowright", "fractionbar"}, 1}, /* --> */
-		"\u27F7" -> {{"arrowleft", "arrowright", "fractionbar"}, 1}, /* <--> */
-		"\u27F8" -> {{"arrowdblleft", 0, "sum2"}, 1}, /* <== */
-		"\u27F9" -> {{0, "arrowdblright", "sum2"}, 1}, /* ==> */
-		"\u27FA" -> {{"arrowdblleft", "arrowdblright", "sum2"}, 1}, /* <==> */
-		"\u21CC" -> {{"H", "I", "o"}, 4}, /* right harpoon right harpoon */
-		"\u21CB" -> {{"J", "K", "o"}, 4}, /* left harpoon left harpoon */
-		"\u27FB" -> {{"y", "R", "Q"}, 4}, /* <--| */
-		"\u27FC" -> {{"S", "z", "Q"}, 4}, /* |--> */
-		"\u23B4" -> {{"t", "v", "u"}, 4}, /* top [ */
-		"\u23B5" -> {{"Ntilde", "Udieresis", "Odieresis"}, 4}, /* bottom [ */
-		"\u23DC" -> {{"icircumflex", "ntilde", "idieresis"}, 4}, /* top ( */
-		"\u23DD" -> {{"section", "paragraph", "bullet"}, 4}, /* bottom ( */
-		"\u23DE" -> {{"otilde", "ucircumflex", "uacute", "ugrave"}, 4}, /* top { */
-		"\u23DF" -> {{"acute", "AE", "dieresis", "notequal"}, 4}, /* bottom { */
-		"\u23AF" -> {{"fractionbar"}, 1}, /* fraction line */
+		"\[U+27F5]" -> {{"arrowleft", 0, "fractionbar"}, 1}, /* <-- */
+		"\[U+27F6]" -> {{0, "arrowright", "fractionbar"}, 1}, /* --> */
+		"\[U+27F7]" -> {{"arrowleft", "arrowright", "fractionbar"}, 1}, /* <--> */
+		"\[U+27F8]" -> {{"arrowdblleft", 0, "sum2"}, 1}, /* <== */
+		"\[U+27F9]" -> {{0, "arrowdblright", "sum2"}, 1}, /* ==> */
+		"\[U+27FA]" -> {{"arrowdblleft", "arrowdblright", "sum2"}, 1}, /* <==> */
+		"\[U+21CC]" -> {{"H", "I", "o"}, 4}, /* right harpoon right harpoon */
+		"\[U+21CB]" -> {{"J", "K", "o"}, 4}, /* left harpoon left harpoon */
+		"\[U+27FB]" -> {{"y", "R", "Q"}, 4}, /* <--| */
+		"\[U+27FC]" -> {{"S", "z", "Q"}, 4}, /* |--> */
+		"\[U+23B4]" -> {{"t", "v", "u"}, 4}, /* top [ */
+		"\[U+23B5]" -> {{"Ntilde", "Udieresis", "Odieresis"}, 4}, /* bottom [ */
+		"\[U+23DC]" -> {{"icircumflex", "ntilde", "idieresis"}, 4}, /* top ( */
+		"\[U+23DD]" -> {{"section", "paragraph", "bullet"}, 4}, /* bottom ( */
+		"\[U+23DE]" -> {{"otilde", "ucircumflex", "uacute", "ugrave"}, 4}, /* top { */
+		"\[U+23DF]" -> {{"acute", "AE", "dieresis", "notequal"}, 4}, /* bottom { */
+		"\[U+23AF]" -> {{"fractionbar"}, 1}, /* fraction line */
 		"_" -> {{"fractionbar"}, 1}},
 	"VerticalStretchedGlyphes" -> {
-		"\u27E6" -> {{"P", 2}, {"Q", 2}, {"R", 2}, {"S", 2}}, /* [[ */
-		"\u27E7" -> {{"T", 2}, {"U", 2}, {"V", 2}, {"W", 2}}, /* ]] */
-		"\u2329" -> {{"X", 2}, {"Y", 2}, {"Z", 2}, {"bracketleft", 2}}, /* < */
-		"\u27E8" -> {{"X", 2}, {"Y", 2}, {"Z", 2}, {"bracketleft", 2}}, /* < */
-		"\u232A" -> {{"backslash", 2}, {"bracketright", 2}, {"asciicircum", 2}, {"underscore", 2}}, /* > */
-		"\u27E9" -> {{"backslash", 2}, {"bracketright", 2}, {"asciicircum", 2}, {"underscore", 2}}, /* > */
-		"\u2308" -> {{"grave", 2}, {"a", 2}, {"b", 2}, {"c", 2}}, /* left ceiling */
-		"\u2309" -> {{"p", 2}, {"q", 2}, {"r", 2}, {"s", 2}}, /* right ceiling */
-		"\u230A" -> {{"d", 2}, {"e", 2}, {"f", 2}, {"g", 2}}, /* left floor */
-		"\u230B" -> {{"t", 2}, {"u", 2}, {"v", 2}, {"w", 2}}, /* right floor */
-		"\u2211" -> {{"fraction", 2}, {"quotesinglbase", 2}, {"quotedblbase", 2}}, /* sum */
-		"\u220F" -> {{"currency", 2}, {"perthousand", 2}, {"Acircumflex", 2}}, /* product */
-		"\u2210" -> {{"caron", 2}}, /* coproduct */
-		"\u222B" -> {{"Ydieresis", 2}, {"daggerdbl", 2}, {"periodcentered", 2}}, /* integral */
-		"\u222E" -> {{"ograve", 2}, {"registered", 2}, {"product", 2}}, /* contour integral */
-		"\u222F" -> {{"ocircumflex", 2}, {"copyright", 2}, {"pi", 2}}, /* double contour integral */
-		"\u2232" -> {{"otilde", 2}, {"acute", 2}, {"ordfeminine", 2}}, /* clockwise contour integral */
-		"\u2233" -> {{"odieresis", 2}, {"trademark", 2}, {"integral", 2}}, /* anticlockwise contour integral */
-		"\u2A0F" -> {{"Otilde", 2}, {"OE", 2}, {"oe", 2}}, /* integral average with slash */
-		"\u2A16" -> {{"uacute", 2}, {"dieresis", 2}, {"ordmasculine", 2}}, /* quaternion integral */
-		"\u228E" -> {{"ugrave", 2}, {"notequal", 2}, {"Omega", 2}}, /* multiset union / union with plus */
-		"\u2A04" -> {{"ugrave", 2}, {"notequal", 2}, {"Omega", 2}}, /* multiset union / union with plus */
-		"\u2293" -> {{"ucircumflex", 2}, {"AE", 2}, {"ae", 2}}, /* square cap */
-		"\u2A05" -> {{"ucircumflex", 2}, {"AE", 2}, {"ae", 2}}, /* square cap */
-		"\u2294" -> {{"udieresis", 2}, {"Oslash", 2}, {"oslash", 2}}, /* square cup */
-		"\u2A06" -> {{"udieresis", 2}, {"Oslash", 2}, {"oslash", 2}}, /* square cup */
-		"\u2227" -> {{"fl", 2}, {"Idieresis", 2}, {"Igrave", 2}}, /* logical and */
-		"\u22C0" -> {{"fl", 2}, {"Idieresis", 2}, {"Igrave", 2}}, /* logical and */
-		"\u22CF" -> {{"CurlyWedge", 5}, {"CurlyWedge2", 5}, {"CurlyWedge3", 5}}, /* curly logical and */
-		"\u2228" -> {{"fi", 2}, {"Iacute", 2}, {"Icircumflex", 2}}, /* logical or */
-		"\u22C1" -> {{"fi", 2}, {"Iacute", 2}, {"Icircumflex", 2}}, /* logical or */
-		"\u22CE" -> {{"CurlyVee", 5}, {"CurlyVee2", 5}, {"CurlyVee3", 5}}, /* curly logical or */
-		"\u2229" -> {{"union", 1}, {"guilsinglright", 2}, {"Edieresis", 2}, {"Egrave", 2}}, /* intersect */
-		"\u22C3" -> {{"union", 1}, {"guilsinglright", 2}, {"Edieresis", 2}, {"Egrave", 2}}, /* intersect */
-		"\u222A" -> {{"intersection", 1}, {"guilsinglleft", 2}, {"Ecircumflex", 2}, {"Aacute", 2}}, /* union */
-		"\u22C4" -> {{"intersection", 1}, {"guilsinglleft", 2}, {"Ecircumflex", 2}, {"Aacute", 2}}, /* union */
-		"\u22BB" -> {{"LogicalXor", 5}, {"Xor2", 5}, {"Xor3", 5}}, /* logical xor */
-		"\u22BC" -> {{"LogicalNand", 5}, {"Nand2", 5}, {"Nand3", 5}}, /* logical nand */
-		"\u22BD" -> {{"LogicalNor", 5}, {"Nor2", 5}, {"Nor3", 5}}, /* logical nor */
-		"\uF361" -> {{"Piecewise" | "greaterequal", 5}, {"Piecewise2" | "yen", 5}, {"Piecewise3" | "mu", 5}, {"Piecewise4" | "partialdiff", 5}}, /* piecewise */
-		"\uF603" -> {{"dagger", 2}, {"degree", 2}, {"cent", 2}, {"sterling", 2}}, /* left | */
-		"\uF604" -> {{"section", 2}, {"bullet", 2}, {"paragraph", 2}, {"germandbls", 2}}, /* right | */
-		"\uF605" -> {{"infinity", 2}, {"plusminus", 2}, {"lessequal", 2}, {"greaterequal", 2}}, /* left || */
-		"\uF606" -> {{"yen", 2}, {"mu", 2}, {"partialdiff", 2}, {"summation", 2}}, /* right || */
+		"\[U+27E6]" -> {{"P", 2}, {"Q", 2}, {"R", 2}, {"S", 2}}, /* [[ */
+		"\[U+27E7]" -> {{"T", 2}, {"U", 2}, {"V", 2}, {"W", 2}}, /* ]] */
+		"\[U+2329]" -> {{"X", 2}, {"Y", 2}, {"Z", 2}, {"bracketleft", 2}}, /* < */
+		"\[U+27E8]" -> {{"X", 2}, {"Y", 2}, {"Z", 2}, {"bracketleft", 2}}, /* < */
+		"\[U+232A]" -> {{"backslash", 2}, {"bracketright", 2}, {"asciicircum", 2}, {"underscore", 2}}, /* > */
+		"\[U+27E9]" -> {{"backslash", 2}, {"bracketright", 2}, {"asciicircum", 2}, {"underscore", 2}}, /* > */
+		"\[U+2308]" -> {{"grave", 2}, {"a", 2}, {"b", 2}, {"c", 2}}, /* left ceiling */
+		"\[U+2309]" -> {{"p", 2}, {"q", 2}, {"r", 2}, {"s", 2}}, /* right ceiling */
+		"\[U+230A]" -> {{"d", 2}, {"e", 2}, {"f", 2}, {"g", 2}}, /* left floor */
+		"\[U+230B]" -> {{"t", 2}, {"u", 2}, {"v", 2}, {"w", 2}}, /* right floor */
+		"\[U+2211]" -> {{"fraction", 2}, {"quotesinglbase", 2}, {"quotedblbase", 2}}, /* sum */
+		"\[U+220F]" -> {{"currency", 2}, {"perthousand", 2}, {"Acircumflex", 2}}, /* product */
+		"\[U+2210]" -> {{"caron", 2}}, /* coproduct */
+		"\[U+222B]" -> {{"Ydieresis", 2}, {"daggerdbl", 2}, {"periodcentered", 2}}, /* integral */
+		"\[U+222E]" -> {{"ograve", 2}, {"registered", 2}, {"product", 2}}, /* contour integral */
+		"\[U+222F]" -> {{"ocircumflex", 2}, {"copyright", 2}, {"pi", 2}}, /* double contour integral */
+		"\[U+2232]" -> {{"otilde", 2}, {"acute", 2}, {"ordfeminine", 2}}, /* clockwise contour integral */
+		"\[U+2233]" -> {{"odieresis", 2}, {"trademark", 2}, {"integral", 2}}, /* anticlockwise contour integral */
+		"\[U+2A0F]" -> {{"Otilde", 2}, {"OE", 2}, {"oe", 2}}, /* integral average with slash */
+		"\[U+2A16]" -> {{"uacute", 2}, {"dieresis", 2}, {"ordmasculine", 2}}, /* quaternion integral */
+		"\[U+228E]" -> {{"ugrave", 2}, {"notequal", 2}, {"Omega", 2}}, /* multiset union / union with plus */
+		"\[U+2A04]" -> {{"ugrave", 2}, {"notequal", 2}, {"Omega", 2}}, /* multiset union / union with plus */
+		"\[U+2293]" -> {{"ucircumflex", 2}, {"AE", 2}, {"ae", 2}}, /* square cap */
+		"\[U+2A05]" -> {{"ucircumflex", 2}, {"AE", 2}, {"ae", 2}}, /* square cap */
+		"\[U+2294]" -> {{"udieresis", 2}, {"Oslash", 2}, {"oslash", 2}}, /* square cup */
+		"\[U+2A06]" -> {{"udieresis", 2}, {"Oslash", 2}, {"oslash", 2}}, /* square cup */
+		"\[U+2227]" -> {{"fl", 2}, {"Idieresis", 2}, {"Igrave", 2}}, /* logical and */
+		"\[U+22C0]" -> {{"fl", 2}, {"Idieresis", 2}, {"Igrave", 2}}, /* logical and */
+		"\[U+22CF]" -> {{"CurlyWedge", 5}, {"CurlyWedge2", 5}, {"CurlyWedge3", 5}}, /* curly logical and */
+		"\[U+2228]" -> {{"fi", 2}, {"Iacute", 2}, {"Icircumflex", 2}}, /* logical or */
+		"\[U+22C1]" -> {{"fi", 2}, {"Iacute", 2}, {"Icircumflex", 2}}, /* logical or */
+		"\[U+22CE]" -> {{"CurlyVee", 5}, {"CurlyVee2", 5}, {"CurlyVee3", 5}}, /* curly logical or */
+		"\[U+2229]" -> {{"union", 1}, {"guilsinglright", 2}, {"Edieresis", 2}, {"Egrave", 2}}, /* intersect */
+		"\[U+22C3]" -> {{"union", 1}, {"guilsinglright", 2}, {"Edieresis", 2}, {"Egrave", 2}}, /* intersect */
+		"\[U+222A]" -> {{"intersection", 1}, {"guilsinglleft", 2}, {"Ecircumflex", 2}, {"Aacute", 2}}, /* union */
+		"\[U+22C4]" -> {{"intersection", 1}, {"guilsinglleft", 2}, {"Ecircumflex", 2}, {"Aacute", 2}}, /* union */
+		"\[U+22BB]" -> {{"LogicalXor", 5}, {"Xor2", 5}, {"Xor3", 5}}, /* logical xor */
+		"\[U+22BC]" -> {{"LogicalNand", 5}, {"Nand2", 5}, {"Nand3", 5}}, /* logical nand */
+		"\[U+22BD]" -> {{"LogicalNor", 5}, {"Nor2", 5}, {"Nor3", 5}}, /* logical nor */
+		"\[U+F361]" -> {{"Piecewise" | "greaterequal", 5}, {"Piecewise2" | "yen", 5}, {"Piecewise3" | "mu", 5}, {"Piecewise4" | "partialdiff", 5}}, /* piecewise */
+		"\[U+F603]" -> {{"dagger", 2}, {"degree", 2}, {"cent", 2}, {"sterling", 2}}, /* left | */
+		"\[U+F604]" -> {{"section", 2}, {"bullet", 2}, {"paragraph", 2}, {"germandbls", 2}}, /* right | */
+		"\[U+F605]" -> {{"infinity", 2}, {"plusminus", 2}, {"lessequal", 2}, {"greaterequal", 2}}, /* left || */
+		"\[U+F606]" -> {{"yen", 2}, {"mu", 2}, {"partialdiff", 2}, {"summation", 2}}, /* right || */
 		"(" -> {{"H", 2}, {"I", 2}, {"J", 2}, {"K", 2}},
 		")" -> {{"L", 2}, {"M", 2}, {"N", 2}, {"O", 2}},
 		"[" -> {{"at", 2}, {"A", 2}, {"B", 2}, {"C", 2}},
@@ -97,15 +97,15 @@
 		"}" -> {{"less", 2}, {"equal", 2}, {"greater", 2}, {"question", 2}},
 		"/" -> {{"ecircumflex", 2}, {"edieresis", 2}, {"iacute", 2}, {"igrave", 2}}},
 	"VerticalComposedGlyphs" -> {
-		"\u2308" -> {{"bracketlefttp",  "bracketleftex",  "bracketleftex"},  {}, 1, 1}, /* left ceiling */
-		"\u2309" -> {{"bracketrighttp", "bracketrightex", "bracketrightex"}, {}, 1, 1}, /* right ceiling */
-		"\u230A" -> {{"bracketleftex",  "bracketleftbt",  "bracketleftex"},  {}, 1, 1}, /* left floor */
-		"\u230B" -> {{"bracketrightex", "bracketrightbt", "bracketrightex"}, {}, 1, 1}, /* right floor */
-		"\uF361" -> {{"PiecewiseTop" | "Oslash", "PiecewiseBottom" | "plusminus", "PiecewiseExt" | "lessequal", "PiecewiseMiddle" | "infinity"}, {}, 5, 5}, /* piecewise */
-		"\uF603" -> {{"florin", "florin", "florin", "dagger"}, {}, 2, 2}, /* left | */
-		"\uF604" -> {{"florin", "florin", "florin", "section"}, {}, 2, 2}, /* right | */
-		"\uF605" -> {{"approxequal", "approxequal", "approxequal", "infinity"}, {}, 2, 2}, /* left || */
-		"\uF606" -> {{"approxequal", "approxequal", "approxequal", "yen"}, {}, 2, 2}, /* right || */
+		"\[U+2308]" -> {{"bracketlefttp",  "bracketleftex",  "bracketleftex"},  {}, 1, 1}, /* left ceiling */
+		"\[U+2309]" -> {{"bracketrighttp", "bracketrightex", "bracketrightex"}, {}, 1, 1}, /* right ceiling */
+		"\[U+230A]" -> {{"bracketleftex",  "bracketleftbt",  "bracketleftex"},  {}, 1, 1}, /* left floor */
+		"\[U+230B]" -> {{"bracketrightex", "bracketrightbt", "bracketrightex"}, {}, 1, 1}, /* right floor */
+		"\[U+F361]" -> {{"PiecewiseTop" | "Oslash", "PiecewiseBottom" | "plusminus", "PiecewiseExt" | "lessequal", "PiecewiseMiddle" | "infinity"}, {}, 5, 5}, /* piecewise */
+		"\[U+F603]" -> {{"florin", "florin", "florin", "dagger"}, {}, 2, 2}, /* left | */
+		"\[U+F604]" -> {{"florin", "florin", "florin", "section"}, {}, 2, 2}, /* right | */
+		"\[U+F605]" -> {{"approxequal", "approxequal", "approxequal", "infinity"}, {}, 2, 2}, /* left || */
+		"\[U+F606]" -> {{"approxequal", "approxequal", "approxequal", "yen"}, {}, 2, 2}, /* right || */
 		"(" -> {{"parenlefttp", "parenleftbt", "parenleftex"}, {}, 1, 1},
 		")" -> {{"parenrighttp", "parenrightbt", "parenrightex"}, {}, 1, 1},
 		"[" -> {{"bracketlefttp", "bracketleftbt", "bracketleftex"}, {}, 1, 1},
@@ -139,13 +139,13 @@
 	
 		"Italic" -> {2/18, 0, 1/18}},
 	"Glyphs" -> {
-		"\uFEFF" -> {".null", 1}, /* zero width non-breaking space*/
+		"\[U+FEFF]" -> {".null", 1}, /* zero width non-breaking space*/
 		"!" -> {"exclam", 1},
-		"\u2200" -> {"universal", 1}, /* for all */
-		"\u2203" -> {"existential", 1}, /* exists */
+		"\[U+2200]" -> {"universal", 1}, /* for all */
+		"\[U+2203]" -> {"existential", 1}, /* exists */
 		"%" -> {"percent", 1},
 		"&" -> {"ampersand", 1},
-		"\u220D" -> {"suchthat", 1}, /* small contains as member */
+		"\[U+220D]" -> {"suchthat", 1}, /* small contains as member */
 		"(" -> {"parenleft", 1},
 		")" -> {"parenright", 1},
 		"*" -> {"asteriskmath", 1},
@@ -164,727 +164,727 @@
 		"7" -> {"seven", 1},
 		"8" -> {"eight", 1},
 		"9" -> {"nine", 1},
-		"\u2236" -> {"colon", 1}, /* colon */
+		"\[U+2236]" -> {"colon", 1}, /* colon */
 		":" -> {"colon", 1}, /* colon */
 		";" -> {"semicolon", 1},
 		"<" -> {"less", 1},
 		"=" -> {"equal", 1},
 		">" -> {"greater", 1},
 		"?" -> {"question", 1},
-		"\u2245" -> {"congruent", 1}, /* approximately equal */
-		"\u0391" -> {"Alpha", 1}, /* Alpha */
-		"\u0392" -> {"Beta", 1}, /* Beta */
-		"\u03A7" -> {"Chi", 1}, /* Chi */
-		"\u0394" -> {"Delta", 1}, /* Delta */
-		"\u0395" -> {"Epsilon", 1}, /* Epsilon */
-		"\u03A6" -> {"Phi", 1}, /* Phi */
-		"\u0393" -> {"Gamma", 1}, /* Gamma */
-		"\u0397" -> {"Eta", 1}, /* Eta */
-		"\u0399" -> {"Iota", 1}, /* Iota */
-		"\u03D1" -> {"theta1", 1}, /* theta symbol */
-		"\u039A" -> {"Kappa", 1}, /* Kappa */
-		"\u039B" -> {"Lambda", 1}, /* Lambda */
-		"\u039C" -> {"Mu", 1}, /* Mu */
-		"\u039D" -> {"Nu", 1}, /* Nu */
-		"\u039F" -> {"Omicron", 1}, /* Omicron */
-		"\u03A0" -> {"Pi", 1}, /* Pi */
-		"\u0398" -> {"Theta", 1}, /* Theta */
-		"\u03A1" -> {"Rho", 1}, /* Rho */
-		"\u03A3" -> {"Sigma", 1}, /* Sigma */
-		"\u03A4" -> {"Tau", 1}, /* Tau */
-		"\u03A5" -> {"Upsilon", 1}, /* Upsilon */
-		"\u03C2" -> {"sigma1", 1}, /* final sigma */
-		"\u03A9" -> {"Omega", 1}, /* Omega */
-		"\u039E" -> {"Xi", 1}, /* Xi */
-		"\u03A8" -> {"Psi", 1}, /* Psi */
-		"\u0396" -> {"Zeta", 1}, /* Zeta */
+		"\[U+2245]" -> {"congruent", 1}, /* approximately equal */
+		"\[U+0391]" -> {"Alpha", 1}, /* Alpha */
+		"\[U+0392]" -> {"Beta", 1}, /* Beta */
+		"\[U+03A7]" -> {"Chi", 1}, /* Chi */
+		"\[U+0394]" -> {"Delta", 1}, /* Delta */
+		"\[U+0395]" -> {"Epsilon", 1}, /* Epsilon */
+		"\[U+03A6]" -> {"Phi", 1}, /* Phi */
+		"\[U+0393]" -> {"Gamma", 1}, /* Gamma */
+		"\[U+0397]" -> {"Eta", 1}, /* Eta */
+		"\[U+0399]" -> {"Iota", 1}, /* Iota */
+		"\[U+03D1]" -> {"theta1", 1}, /* theta symbol */
+		"\[U+039A]" -> {"Kappa", 1}, /* Kappa */
+		"\[U+039B]" -> {"Lambda", 1}, /* Lambda */
+		"\[U+039C]" -> {"Mu", 1}, /* Mu */
+		"\[U+039D]" -> {"Nu", 1}, /* Nu */
+		"\[U+039F]" -> {"Omicron", 1}, /* Omicron */
+		"\[U+03A0]" -> {"Pi", 1}, /* Pi */
+		"\[U+0398]" -> {"Theta", 1}, /* Theta */
+		"\[U+03A1]" -> {"Rho", 1}, /* Rho */
+		"\[U+03A3]" -> {"Sigma", 1}, /* Sigma */
+		"\[U+03A4]" -> {"Tau", 1}, /* Tau */
+		"\[U+03A5]" -> {"Upsilon", 1}, /* Upsilon */
+		"\[U+03C2]" -> {"sigma1", 1}, /* final sigma */
+		"\[U+03A9]" -> {"Omega", 1}, /* Omega */
+		"\[U+039E]" -> {"Xi", 1}, /* Xi */
+		"\[U+03A8]" -> {"Psi", 1}, /* Psi */
+		"\[U+0396]" -> {"Zeta", 1}, /* Zeta */
 		"[" -> {"bracketleft", 1},
-		"\u2234" -> {"therefore", 1}, /* therefor */
+		"\[U+2234]" -> {"therefore", 1}, /* therefor */
 		"]" -> {"bracketright", 1},
-		"\u27C2" -> {"perpendicular", 1}, /* prependicular */
+		"\[U+27C2]" -> {"perpendicular", 1}, /* prependicular */
 		"_" -> {"underscore", 1},
-		"\u03B1" -> {"alpha", 1}, /* alpha */
-		"\u03B2" -> {"beta", 1}, /* beta */
-		"\u03C7" -> {"chi", 1}, /* chi */
-		"\u03B4" -> {"delta", 1}, /* delta */
-		"\u03F5" -> {"epsilon", 1}, /* lunate epsilon symbol */
-		"\u03D5" -> {"phi", 1}, /* phi symbol */
-		"\u03B3" -> {"gamma", 1}, /* gamma */
-		"\u03B7" -> {"eta", 1}, /* eta */
-		"\u03B9" -> {"iota", 1}, /* iota */
-		"\u03C6" -> {"phi1", 1}, /* phi */
-		"\u03BA" -> {"kappa", 1}, /* kappa */
-		"\u03BB" -> {"lambda", 1}, /* lambda */
-		"\u03BC" -> {"mu", 1}, /* mu */
-		"\u03BD" -> {"nu", 1}, /* nu */
-		"\u03BF" -> {"omicron", 1}, /* omicron */
-		"\u03C0" -> {"pi", 1}, /* pi */
-		"\u03B8" -> {"theta", 1}, /* theta */
-		"\u03C1" -> {"rho", 1}, /* rho */
-		"\u03C3" -> {"sigma", 1}, /* sigma */
-		"\u03C4" -> {"tau", 1}, /* tau */
-		"\u03C5" -> {"upsilon", 1}, /* upsilon */
-		"\u03D6" -> {"omega1", 1}, /* pi symbol */
-		"\u03C9" -> {"omega", 1}, /* omega */
-		"\u03BE" -> {"xi", 1}, /* xi */
-		"\u03C8" -> {"psi", 1}, /* psi */
-		"\u03B6" -> {"zeta", 1}, /* zeta */
+		"\[U+03B1]" -> {"alpha", 1}, /* alpha */
+		"\[U+03B2]" -> {"beta", 1}, /* beta */
+		"\[U+03C7]" -> {"chi", 1}, /* chi */
+		"\[U+03B4]" -> {"delta", 1}, /* delta */
+		"\[U+03F5]" -> {"epsilon", 1}, /* lunate epsilon symbol */
+		"\[U+03D5]" -> {"phi", 1}, /* phi symbol */
+		"\[U+03B3]" -> {"gamma", 1}, /* gamma */
+		"\[U+03B7]" -> {"eta", 1}, /* eta */
+		"\[U+03B9]" -> {"iota", 1}, /* iota */
+		"\[U+03C6]" -> {"phi1", 1}, /* phi */
+		"\[U+03BA]" -> {"kappa", 1}, /* kappa */
+		"\[U+03BB]" -> {"lambda", 1}, /* lambda */
+		"\[U+03BC]" -> {"mu", 1}, /* mu */
+		"\[U+03BD]" -> {"nu", 1}, /* nu */
+		"\[U+03BF]" -> {"omicron", 1}, /* omicron */
+		"\[U+03C0]" -> {"pi", 1}, /* pi */
+		"\[U+03B8]" -> {"theta", 1}, /* theta */
+		"\[U+03C1]" -> {"rho", 1}, /* rho */
+		"\[U+03C3]" -> {"sigma", 1}, /* sigma */
+		"\[U+03C4]" -> {"tau", 1}, /* tau */
+		"\[U+03C5]" -> {"upsilon", 1}, /* upsilon */
+		"\[U+03D6]" -> {"omega1", 1}, /* pi symbol */
+		"\[U+03C9]" -> {"omega", 1}, /* omega */
+		"\[U+03BE]" -> {"xi", 1}, /* xi */
+		"\[U+03C8]" -> {"psi", 1}, /* psi */
+		"\[U+03B6]" -> {"zeta", 1}, /* zeta */
 		"{" -> {"braceleft", 1},
 		"|" -> {"bar", 1},
 		"}" -> {"braceright", 1},
-		"\u223C" -> {"similar", 1}, /* similar / tilde */
+		"\[U+223C]" -> {"similar", 1}, /* similar / tilde */
 		"~" -> {"similar", 1},
-		"\u23AF" -> {"fractionbar", 1}, /* fraction line */
-		/* "\uF764" -> {"alias", 1}, alias */
-		"\u001A" -> {"solidplacer", 1}, /* replacement */
-		"\u220E" -> {"solidplacer", 1}, /* end of proof */
-		"\uFFFD" -> {"placer", 1}, /* placeholder */
-		"\uF3B1" -> {"continuation", 1}, /* line continuation */
-		"\u2423" -> {"spacer", 1}, /* open box */
-		"\u2A2F" -> {"cross", 1}, /* cross */
-		"\u2A75" -> {"equal1", 1}, /* == */
-		"\u21D5" -> {"integral1", 1}, /* up down double arrow */
-		"\u27F8" -> {"sum1", 1}, /* <== */
-		"\u27F9" -> {"product1", 1}, /* ==> */
-		"\u21D4" -> {"product2", 1}, /* <=> */
-		"\u27FA" -> {"union1", 1}, /* <==> */
-		"\u2195" -> {"union2", 1}, /* up down arrow */
-		"\u27F5" -> {"intersect1", 1}, /* <-- */
-		"\u27F6" -> {"intersect2", 1}, /* --> */
-		"\u27F7" -> {"or1", 1}, /* <--> */
-		"\u2254" -> {"or2", 1}, /* := */
-		"\u22C4" -> {"and1", 1}, /* diamond operator */
-		"\u2287" -> {"and2", 1}, /* superset equal */
+		"\[U+23AF]" -> {"fractionbar", 1}, /* fraction line */
+		/* "\[U+F764]" -> {"alias", 1}, alias */
+		"\[U+001A]" -> {"solidplacer", 1}, /* replacement */
+		"\[U+220E]" -> {"solidplacer", 1}, /* end of proof */
+		"\[U+FFFD]" -> {"placer", 1}, /* placeholder */
+		"\[U+F3B1]" -> {"continuation", 1}, /* line continuation */
+		"\[U+2423]" -> {"spacer", 1}, /* open box */
+		"\[U+2A2F]" -> {"cross", 1}, /* cross */
+		"\[U+2A75]" -> {"equal1", 1}, /* == */
+		"\[U+21D5]" -> {"integral1", 1}, /* up down double arrow */
+		"\[U+27F8]" -> {"sum1", 1}, /* <== */
+		"\[U+27F9]" -> {"product1", 1}, /* ==> */
+		"\[U+21D4]" -> {"product2", 1}, /* <=> */
+		"\[U+27FA]" -> {"union1", 1}, /* <==> */
+		"\[U+2195]" -> {"union2", 1}, /* up down arrow */
+		"\[U+27F5]" -> {"intersect1", 1}, /* <-- */
+		"\[U+27F6]" -> {"intersect2", 1}, /* --> */
+		"\[U+27F7]" -> {"or1", 1}, /* <--> */
+		"\[U+2254]" -> {"or2", 1}, /* := */
+		"\[U+22C4]" -> {"and1", 1}, /* diamond operator */
+		"\[U+2287]" -> {"and2", 1}, /* superset equal */
 		"@" -> {"at", 1},
-		"\u03D2" -> {"Upsilon1", 1}, /* Upsilon with hook */
-		"\u2032" -> {"prime", 1}, /* prime */
-		"\u2264" -> {"lessequal", 1}, /* less equal */
-		"\u2215" -> {"fraction", 1}, /* division slash */
-		"\u221E" -> {"infinity", 1}, /* infinity */
-		"\u29F4" -> {"ruledelayed", 1}, /* :-> */
-		"\u2663" -> {"club", 1}, /* club suit */
-		"\u2662" -> {"diamond", 1}, /* diamond suit */
-		"\u2661" -> {"heart", 1}, /* heart suit */
-		"\u2660" -> {"spade", 1}, /* spade suit */
-		"\u2194" -> {"arrowboth", 1}, /* <-> */
-		"\u2190" -> {"arrowleft", 1}, /* <- */
-		"\u2191" -> {"arrowup", 1}, /* up arrow */
-		"\u2192" -> {"arrowright", 1}, /* -> */
-		"\u2193" -> {"arrowdown", 1}, /* down arrow */
-		"\u00B0" -> {"degree", 1}, /* degree */
-		"\u00B1" -> {"plusminus", 1}, /* plus minus */
-		"\u2033" -> {"doubleprime", 1}, /* double prime */
-		"\u2265" -> {"greaterequal", 1}, /* greather equal */
-		"\u00D7" -> {"multiply", 1}, /* multiplication sign */
-		"\u221D" -> {"proportional", 1}, /* proportional */
-		"\u2202" -> {"partialdiff", 1}, /* partial differential */
-		"\u2219" -> {"bullet", 1}, /* bullet operator */
-		"\u00F7" -> {"divide", 1}, /* division sign */
-		"\u2260" -> {"notequal", 1}, /* not equal */
-		"\u2261" -> {"equivalence", 1}, /* conguent */
-		"\u2248" -> {"approxequal", 1}, /* tilde tilde / almost equal to  */
-		"\u2026" -> {"ellipsis", 1}, /* ellipsis */
-		"\u21B2" -> {"carriagereturn", 1}, /* down tip left arrow */
-		"\u2135" -> {"aleph", 1}, /* Aleph */
-		"\u2111" -> {"Ifraktur", 1}, /* black-letter I */
-		"\u211C" -> {"Rfraktur", 1}, /* black-letter R */
-		"\u2118" -> {"weierstrass", 1}, /* script P */
-		"\u2297" -> {"circlemultiply", 1}, /* circled times */
-		"\u2295" -> {"circleplus", 1}, /* circled plus */
-		"\u2205" -> {"emptyset", 1}, /* empty set */
-		"\u2283" -> {"propersuperset", 1}, /* superset */
-		"\u2284" -> {"notsubset", 1}, /* not subset */
-		"\u2282" -> {"propersubset", 1}, /* subset */
-		"\u2286" -> {"reflexsubset", 1}, /* subset equal */
-		"\u2208" -> {"element", 1}, /* element */
-		"\u2209" -> {"notelement", 1}, /* not element */
-		"\u2220" -> {"angle", 1}, /* angle */
-		"\u2207" -> {"gradient", 1}, /* nabla */
-		"\u00AE" -> {"registerserif", 1}, /* register sign */
-		"\u00A9" -> {"copyrightserif", 1}, /* copyright sign */
-		"\u0099" -> {"trademarkserif", 1}, /* trademark sign */
-		"\u220F" -> {"product", 1}, /* product */
-		"\u221A" -> {"radical", 1}, /* sqrt */
-		"\u00B7" -> {"dotmath", 1}, /* middle dot */
-		"\u22C5" -> {"dotmath", 1}, /* dot operator */
-		"\u00AC" -> {"logicalnot", 1}, /* logical not */
-		"\u21D0" -> {"arrowdblleft", 1}, /* <= */
-		"\u21D1" -> {"arrowdblup", 1}, /* up double arrow */
-		"\u21D2" -> {"arrowdblright", 1}, /* => */
-		"\u21D3" -> {"arrowdbldown", 1}, /* down double arrow */
-		"\u25CA" -> {"lozenge", 1}, /* lozenge */
-		"\u2329" -> {"angleleft", 1}, /* left angle */
-		"\u27E8" -> {"angleleft", 1}, /* left angle */
-		"\u2146" -> {"diffd", 1}, /* double-struck italic d */
-		"\u2147" -> {"expe", 1}, /* double-struck italic e */
-		"\u2148" -> {"imagi", 1}, /* double-struck italic i */
-		"\u2211" -> {"summation", 1}, /* sum */
+		"\[U+03D2]" -> {"Upsilon1", 1}, /* Upsilon with hook */
+		"\[U+2032]" -> {"prime", 1}, /* prime */
+		"\[U+2264]" -> {"lessequal", 1}, /* less equal */
+		"\[U+2215]" -> {"fraction", 1}, /* division slash */
+		"\[U+221E]" -> {"infinity", 1}, /* infinity */
+		"\[U+29F4]" -> {"ruledelayed", 1}, /* :-> */
+		"\[U+2663]" -> {"club", 1}, /* club suit */
+		"\[U+2662]" -> {"diamond", 1}, /* diamond suit */
+		"\[U+2661]" -> {"heart", 1}, /* heart suit */
+		"\[U+2660]" -> {"spade", 1}, /* spade suit */
+		"\[U+2194]" -> {"arrowboth", 1}, /* <-> */
+		"\[U+2190]" -> {"arrowleft", 1}, /* <- */
+		"\[U+2191]" -> {"arrowup", 1}, /* up arrow */
+		"\[U+2192]" -> {"arrowright", 1}, /* -> */
+		"\[U+2193]" -> {"arrowdown", 1}, /* down arrow */
+		"\[U+00B0]" -> {"degree", 1}, /* degree */
+		"\[U+00B1]" -> {"plusminus", 1}, /* plus minus */
+		"\[U+2033]" -> {"doubleprime", 1}, /* double prime */
+		"\[U+2265]" -> {"greaterequal", 1}, /* greather equal */
+		"\[U+00D7]" -> {"multiply", 1}, /* multiplication sign */
+		"\[U+221D]" -> {"proportional", 1}, /* proportional */
+		"\[U+2202]" -> {"partialdiff", 1}, /* partial differential */
+		"\[U+2219]" -> {"bullet", 1}, /* bullet operator */
+		"\[U+00F7]" -> {"divide", 1}, /* division sign */
+		"\[U+2260]" -> {"notequal", 1}, /* not equal */
+		"\[U+2261]" -> {"equivalence", 1}, /* conguent */
+		"\[U+2248]" -> {"approxequal", 1}, /* tilde tilde / almost equal to  */
+		"\[U+2026]" -> {"ellipsis", 1}, /* ellipsis */
+		"\[U+21B2]" -> {"carriagereturn", 1}, /* down tip left arrow */
+		"\[U+2135]" -> {"aleph", 1}, /* Aleph */
+		"\[U+2111]" -> {"Ifraktur", 1}, /* black-letter I */
+		"\[U+211C]" -> {"Rfraktur", 1}, /* black-letter R */
+		"\[U+2118]" -> {"weierstrass", 1}, /* script P */
+		"\[U+2297]" -> {"circlemultiply", 1}, /* circled times */
+		"\[U+2295]" -> {"circleplus", 1}, /* circled plus */
+		"\[U+2205]" -> {"emptyset", 1}, /* empty set */
+		"\[U+2283]" -> {"propersuperset", 1}, /* superset */
+		"\[U+2284]" -> {"notsubset", 1}, /* not subset */
+		"\[U+2282]" -> {"propersubset", 1}, /* subset */
+		"\[U+2286]" -> {"reflexsubset", 1}, /* subset equal */
+		"\[U+2208]" -> {"element", 1}, /* element */
+		"\[U+2209]" -> {"notelement", 1}, /* not element */
+		"\[U+2220]" -> {"angle", 1}, /* angle */
+		"\[U+2207]" -> {"gradient", 1}, /* nabla */
+		"\[U+00AE]" -> {"registerserif", 1}, /* register sign */
+		"\[U+00A9]" -> {"copyrightserif", 1}, /* copyright sign */
+		"\[U+0099]" -> {"trademarkserif", 1}, /* trademark sign */
+		"\[U+220F]" -> {"product", 1}, /* product */
+		"\[U+221A]" -> {"radical", 1}, /* sqrt */
+		"\[U+00B7]" -> {"dotmath", 1}, /* middle dot */
+		"\[U+22C5]" -> {"dotmath", 1}, /* dot operator */
+		"\[U+00AC]" -> {"logicalnot", 1}, /* logical not */
+		"\[U+21D0]" -> {"arrowdblleft", 1}, /* <= */
+		"\[U+21D1]" -> {"arrowdblup", 1}, /* up double arrow */
+		"\[U+21D2]" -> {"arrowdblright", 1}, /* => */
+		"\[U+21D3]" -> {"arrowdbldown", 1}, /* down double arrow */
+		"\[U+25CA]" -> {"lozenge", 1}, /* lozenge */
+		"\[U+2329]" -> {"angleleft", 1}, /* left angle */
+		"\[U+27E8]" -> {"angleleft", 1}, /* left angle */
+		"\[U+2146]" -> {"diffd", 1}, /* double-struck italic d */
+		"\[U+2147]" -> {"expe", 1}, /* double-struck italic e */
+		"\[U+2148]" -> {"imagi", 1}, /* double-struck italic i */
+		"\[U+2211]" -> {"summation", 1}, /* sum */
 		"#" -> {"slot", 1},
-		"\u232A" -> {"angleright", 1}, /* right angle */
-		"\u27E9" -> {"angleright", 1}, /* right angle */
+		"\[U+232A]" -> {"angleright", 1}, /* right angle */
+		"\[U+27E9]" -> {"angleright", 1}, /* right angle */
 		
-		"\u27E6" -> {"P", 2}, /* [[ */
-		"\u27E7" -> {"T", 2}, /* ]] */
-		"\u2308" -> {"grave", 2}, /* left ceiling */
-		"\u230A" -> {"d", 2}, /* left floor */
-		"\u2309" -> {"p", 2}, /* right ceiling */
-		"\u230B" -> {"t", 2}, /* right floor */
-		"\u222E" -> {"ograve", 2}, /* contour integral */
-		"\u222F" -> {"ocircumflex", 2}, /* surface integral */
-		"\u2232" -> {"otilde", 2}, /* clockwise contour integral */
-		"\u2233" -> {"odieresis", 2}, /* anticlockwise contour integral */
-		"\u2A16" -> {"uacute", 2}, /* quaternion integral */
-		"\u2A04" -> {"ugrave", 2}, /* n-ary union with plus */
-		"\u2A05" -> {"ucircumflex", 2}, /* n-ary square intersect */
-		"\u2A06" -> {"udieresis", 2}, /* n-ary square union */
-		"\u2016" -> {"cedilla", 2}, /* double vertical bar */
-		"\u222B" -> {"Ydieresis", 2}, /* integral */
-		"\u2210" -> {"caron", 2}, /* coproduct */
+		"\[U+27E6]" -> {"P", 2}, /* [[ */
+		"\[U+27E7]" -> {"T", 2}, /* ]] */
+		"\[U+2308]" -> {"grave", 2}, /* left ceiling */
+		"\[U+230A]" -> {"d", 2}, /* left floor */
+		"\[U+2309]" -> {"p", 2}, /* right ceiling */
+		"\[U+230B]" -> {"t", 2}, /* right floor */
+		"\[U+222E]" -> {"ograve", 2}, /* contour integral */
+		"\[U+222F]" -> {"ocircumflex", 2}, /* surface integral */
+		"\[U+2232]" -> {"otilde", 2}, /* clockwise contour integral */
+		"\[U+2233]" -> {"odieresis", 2}, /* anticlockwise contour integral */
+		"\[U+2A16]" -> {"uacute", 2}, /* quaternion integral */
+		"\[U+2A04]" -> {"ugrave", 2}, /* n-ary union with plus */
+		"\[U+2A05]" -> {"ucircumflex", 2}, /* n-ary square intersect */
+		"\[U+2A06]" -> {"udieresis", 2}, /* n-ary square union */
+		"\[U+2016]" -> {"cedilla", 2}, /* double vertical bar */
+		"\[U+222B]" -> {"Ydieresis", 2}, /* integral */
+		"\[U+2210]" -> {"caron", 2}, /* coproduct */
 
-		"\u2229" -> {"quotesingle", 3}, /* intersect */
-		"\u222A" -> {"parenleft", 3}, /* union */
-		"\u228E" -> {"parenright", 3}, /* multiset union */
-		"\u2293" -> {"asterisk", 3}, /* cap */
-		"\u2294" -> {"plus", 3}, /* cup */
-		"\u2227" -> {"hyphen", 3}, /* and */
-		"\u2228" -> {"slash", 3}, /* or */
-		"\u22B2" -> {"zero", 3}, /* left triangle */
-		"\u22B4" -> {"one", 3}, /* left triangle equal */
-		"\u29CF" -> {"two", 3}, /* left triangle bar */
-		"\u22EA" -> {"three", 3}, /* not left triangle */
-		"\u22EC" -> {"four", 3}, /* not left triangle equal */
-		"\uF412" -> {"five", 3}, /* not left triangle bar */
-		"\u2223" -> {"six", 3}, /* divides */
-		"\u2225" -> {"seven", 3}, /* parallel */
-		"\u2980" -> {"eight", 3}, /* triple vertical bar */
-		"\u2AF4" -> {"eight", 3}, /* triple vertical bar relation */
-		"\u2AFD" -> {"less", 3}, /* double solidus */
-		"\u2247" -> {"equal", 3}, /* not tilde full equal */
-		"\u2243" -> {"greater", 3}, /* tilde equal */
-		"\u2242" -> {"question", 3}, /* equal tilde */
-		"\u22B3" -> {"at", 3}, /* right triangle */
-		"\u22B5" -> {"A", 3}, /* right triangle equal */
-		"\u29D0" -> {"B", 3}, /* right triangle bar */
-		"\u22EB" -> {"C", 3}, /* not right triangle */
-		"\u22ED" -> {"D", 3}, /* not right triangle equal */
-		"\uF413" -> {"E", 3}, /* not right triangle bar */
-		"\u2224" -> {"F", 3}, /* not divides */
-		"\u2226" -> {"G", 3}, /* not parallel */
-		"\u2241" -> {"L", 3}, /* not tilde */
-		"\u2249" -> {"M", 3}, /* not tilde tilde */
-		"\u2244" -> {"N", 3}, /* not tilde equal */
-		"\uF400" -> {"O", 3}, /* not equal tilde  */
-		"\u224F" -> {"P", 3}, /* hump equal */
-		"\u224E" -> {"Q", 3}, /* hump hump */
-		"\uF401" -> {"R", 3}, /* not hump equal */
-		"\uF402" -> {"S", 3}, /* not hump hump */
-		"\u2262" -> {"T", 3}, /* not congruent */
-		"\u2250" -> {"U", 3}, /* dot equal */
-		"\u2970" -> {"V", 3}, /* long round headed double arrow */
-		"\u2A76" -> {"X", 3}, /* === */
-		"\u2322" -> {"bracketleft", 3}, /* frown */
-		"\u2323" -> {"backslash", 3}, /* smile */
-		"\u226A" -> {"grave", 3}, /*  less less*/
-		"\u2AA1" -> {"a", 3}, /* nested less less */
-		"\u2A7D" -> {"b", 3}, /* less slant equal */
-		"\u2266" -> {"c", 3}, /* less full equal */
-		"\u2272" -> {"d", 3}, /* less tilde */
-		"\u226E" -> {"e", 3}, /* not less */
-		"\uF422" -> {"f", 3}, /* not less less */
-		"\uF423" -> {"g", 3}, /* not nested less less */
-		"\u2270" -> {"h", 3}, /* not less equal */
-		"\uF424" -> {"i", 3}, /* not less slant equal */
-		/*"\u2268" -> {"j", 3}, /* not less full equal */
-		"\u2274" -> {"k", 3}, /* not less tilde */
-		"\u228F" -> {"l", 3}, /* square subset */
-		"\u2291" -> {"m", 3}, /* square subset equal */
-		"\uF42E" -> {"n", 3}, /* not square subset */
-		"\u22E2" -> {"o", 3}, /* not square subset equal */
-		"\u226B" -> {"p", 3}, /* greather greather */
-		"\u2AA2" -> {"q", 3}, /* nested greather greather */
-		"\u2A7E" -> {"r", 3}, /* greather slant equal */
-		"\u2267" -> {"s", 3}, /* greather full equal */
-		"\u2273" -> {"t", 3}, /* greather tilde */
-		"\u226F" -> {"u", 3}, /* not greather */
-		"\uF427" -> {"v", 3}, /* not greather greather */
-		"\uF428" -> {"w", 3}, /* not nested greather greather */
-		"\u2271" -> {"x", 3}, /* not greather equal */
-		"\uF429" -> {"y", 3}, /* not greather slant equal */
-		/*"\u2269" -> {"z", 3}, /* not greather full equal */
-		"\u2275" -> {"braceleft", 3}, /* not greather tilde */
-		"\u2290" -> {"bar", 3}, /* square superset */
-		"\u2292" -> {"braceright", 3}, /* square superset equal */
-		"\uF42F" -> {"asciitilde", 3}, /* not square superset */
-		"\u227A" -> {"Adieresis", 3}, /* precedes */
-		"\u2AAF" -> {"Aring", 3}, /* precedes equal */
-		"\u227C" -> {"Ccedilla", 3}, /* precedes slant equal */
-		"\u227E" -> {"Eacute", 3}, /* precedes tilde */
-		"\u2280" -> {"Ntilde", 3}, /* not precedes */
-		"\uF42B" -> {"Odieresis", 3}, /* not precedes equal */
-		"\u22E0" -> {"Udieresis", 3}, /* not precedes slant equal */
-		/*"\u22E8" -> {"aacute", 3}, /* not precedes tilde */
-		"\u2276" -> {"agrave", 3}, /* less greather */
-		"\u2278" -> {"acircumflex", 3}, /* not less greather */
-		"\u22DA" -> {"adieresis", 3}, /* less equal greather */
-		"\u2235" -> {"atilde", 3}, /* because */
-		"\u22E3" -> {"aring", 3}, /* not square superset equal */
-		"\u2288" -> {"ccedilla", 3}, /* not subset equal */
-		"\u2285" -> {"eacute", 3}, /* not superset */
-		"\u2289" -> {"egrave", 3}, /* not superset equal */
-		"\u227B" -> {"ecircumflex", 3}, /* succeeds */
-		"\u2AB0" -> {"edieresis", 3}, /* succeeds equal */
-		"\u227D" -> {"iacute", 3}, /* succeeds slant equal */
-		"\u227F" -> {"igrave", 3}, /* succeeds tilde */
-		"\u2281" -> {"icircumflex", 3}, /* not succeeds */
-		"\uF42D" -> {"idieresis", 3}, /* not succeeds equal */
-		"\u22E1" -> {"ntilde", 3}, /* not succeeds slant equal */
-		/*"\u22E9" -> {"oacute", 3}, /* not succeeds tilde */
-		"\u2277" -> {"ograve", 3}, /* greather less */
-		"\u2279" -> {"ocircumflex", 3}, /* not greather less */
-		"\u22DB" -> {"odieresis", 3}, /* greather equal less */
-		"\u2237" -> {"otilde", 3}, /* proportion */
-		"\u220B" -> {"uacute", 3}, /* reverse element */
-		"\u220C" -> {"ugrave", 3}, /* not reverse element */
-		"\u2296" -> {"ucircumflex", 3}, /* circled minus */
-		"\u2299" -> {"udieresis", 3}, /* circled dot */
-		"\u2213" -> {"degree", 3}, /* minus plus */
-		"\u22A2" -> {"cent", 3}, /* right tee */
-		"\u22A8" -> {"sterling", 3}, /* double right tee */
-		"\u22A3" -> {"section", 3}, /* left tee */
-		"\u2AE4" -> {"bullet", 3}, /* double left tee */
-		"\u22A5" -> {"paragraph", 3}, /* up tee */
-		"\u22A4" -> {"germandbls", 3}, /* down tee */
-		"\u27D9" -> {"registered", 3}, /* long down tee */
-		"\u226C" -> {"copyright", 3}, /* between */
-		"\u2240" -> {"trademark", 3}, /* vertical tilde */
-		"\u2A1D" -> {"acute", 3}, /* join */
-		"\u221F" -> {"dieresis", 3}, /* right angle */
-		"\u2221" -> {"notequal", 3}, /* measured angle */
-		"\u2222" -> {"AE", 3}, /* spherical angle */
-		"\u2300" -> {"Oslash", 3}, /* diameter */
-		"\u2127" -> {"infinity", 3}, /* inverted ohm */
-		"\u2204" -> {"plusminus", 3}, /* not exists */
-		"\u03DC" -> {"lessequal", 3}, /* Digamma */
-		"\u03DA" -> {"greaterequal", 3}, /* Stigma */
-		"\u03DE" -> {"yen", 3}, /* Koppa */
-		"\u03E0" -> {"mu", 3}, /* Sampi */
-		"\u03B5" -> {"partialdiff", 3}, /* epsilon */
-		"\u03F1" -> {"summation", 3}, /* rho symbol */
-		"\u03DD" -> {"product", 3}, /* digamma */
-		"\u03DB" -> {"pi", 3}, /* stigma */
-		"\u03DF" -> {"integral", 3}, /* koppa */
-		"\u03E1" -> {"ordfeminine", 3}, /* sampi */
-		"\u2136" -> {"ordmasculine", 3}, /* Bet */
-		"\u2137" -> {"Omega", 3}, /* Gimmel */
-		"\u2138" -> {"ae", 3}, /* Dalet */
-		"\u00DD" -> {"questiondown", 3}, /* Y acute */
-		"\u00FD" -> {"exclamdown", 3}, /* y acute */
-		"\u00D0" -> {"logicalnot", 3}, /* Eth */
-		"\u00F0" -> {"radical", 3}, /* eth */
-		"\u00DE" -> {"florin", 3}, /* Thorn */
-		"\u00FE" -> {"approxequal", 3}, /* thorn */
-		"\u00BF" -> {"guillemotright", 3}, /* inverted question */
-		"\u00A2" -> {"ellipsis", 3}, /* cent */
-		"\u00A3" -> {"Agrave", 3}, /* pound */
-		"\u00A1" -> {"Atilde", 3}, /* inverted exclamation mark */
-		"\u00A7" -> {"Otilde", 3}, /* section */
-		"\u00B6" -> {"OE", 3}, /* pilcrow */
-		"\u00A5" -> {"oe", 3}, /* yen */
-		"\u00B5" -> {"endash", 3}, /* micro */
-		"\u210F" -> {"emdash", 3}, /* h bar */
-		"\u0131" -> {"quotedblleft", 3}, /* dotless i */
-		"\uF730" -> {"quotedblright", 3}, /* script dotless i */
-		"\u0237" -> {"quoteleft", 3}, /* dotless j */
-		"\uF731" -> {"quoteright", 3}, /* script dotless j */
-		"\u2020" -> {"divide", 3}, /* dagger */
-		"\u2021" -> {"lozenge", 3}, /* double dagger */
-		"\u266D" -> {"Ydieresis", 3}, /* music flat */
-		"\u266E" -> {"fraction", 3}, /* music natural */
-		"\u266F" -> {"currency", 3}, /* music sharp */
-		"\u2370" -> {"guilsinglleft", 3}, /* quad question */
-		"\u2353" -> {"guilsinglright", 3}, /* quad caret */
-		"\u212B" -> {"fi", 3}, /* Angstrom */
-		"\u019B" -> {"fl", 3}, /* lambda bar */
-		"\u25A0" -> {"daggerdbl", 3}, /* filled square */
-		"\u25A1" -> {"periodcentered", 3}, /* empty square */
-		"\u25FC" -> {"quotesinglbase", 3}, /* filled medium square */
-		"\u25FB" -> {"quotedblbase", 3}, /* empty medium square */
-		"\u25AA" -> {"perthousand", 3}, /* filled small square */
-		"\u25AB" -> {"Acircumflex", 3}, /* empty small square */
-		"\u25CF" -> {"Ecircumflex", 3}, /* filled circle */
-		"\u25CB" -> {"Aacute", 3}, /* empty circle */
-		"\u26AB" -> {"Edieresis", 3}, /* filled medium circle */
-		"\u26AA" -> {"Egrave", 3}, /* empty medium circle */
-		"\u2022" -> {"Iacute", 3}, /* filled small circle / bullet */
-		"\u2218" -> {"Icircumflex", 3}, /* empty small circle */
-		"\u26AC" -> {"Icircumflex", 3}, /* empty small circle */
-		"\u25C6" -> {"Idieresis", 3}, /* filled diamond */
-		"\u25C7" -> {"Igrave", 3}, /* empty diamond */
-		"\u2B25" -> {"Oacute", 3}, /* filled medium diamond */
-		"\u2B26" -> {"Ocircumflex", 3}, /* empty medium diamond */
-		"\u25AE" -> {"apple", 3}, /* filled rectangle */
-		"\u25AF" -> {"Ograve", 3}, /* empty rectangle */
-		"\u25B2" -> {"Uacute", 3}, /* filled up triangle */
-		"\u25B3" -> {"Ucircumflex", 3}, /* empty up triangle */
-		"\u25BC" -> {"Ugrave", 3}, /* filled down triangle */
-		"\u25BD" -> {"dotlessi", 3}, /* empty down triangle */
-		"\u2666" -> {"circumflex", 3}, /* filled diamond suit */
-		"\u2736" -> {"tilde", 3}, /* 6 pointed star */
-		"\u2605" -> {"macron", 3}, /* 5 pointed star */
-		"\u2130" -> {"ring", 3}, /* script E */
-		"\u2149" -> {"cedilla", 3}, /* double-struck j */
-		"\u213D" -> {"hungarumlaut", 3}, /* double-struck gamma */
-		"\u213C" -> {"ogonek", 3}, /* double-struck pi */
-		"\u2145" -> {"caron", 3}, /* double-struck D */
+		"\[U+2229]" -> {"quotesingle", 3}, /* intersect */
+		"\[U+222A]" -> {"parenleft", 3}, /* union */
+		"\[U+228E]" -> {"parenright", 3}, /* multiset union */
+		"\[U+2293]" -> {"asterisk", 3}, /* cap */
+		"\[U+2294]" -> {"plus", 3}, /* cup */
+		"\[U+2227]" -> {"hyphen", 3}, /* and */
+		"\[U+2228]" -> {"slash", 3}, /* or */
+		"\[U+22B2]" -> {"zero", 3}, /* left triangle */
+		"\[U+22B4]" -> {"one", 3}, /* left triangle equal */
+		"\[U+29CF]" -> {"two", 3}, /* left triangle bar */
+		"\[U+22EA]" -> {"three", 3}, /* not left triangle */
+		"\[U+22EC]" -> {"four", 3}, /* not left triangle equal */
+		"\[U+F412]" -> {"five", 3}, /* not left triangle bar */
+		"\[U+2223]" -> {"six", 3}, /* divides */
+		"\[U+2225]" -> {"seven", 3}, /* parallel */
+		"\[U+2980]" -> {"eight", 3}, /* triple vertical bar */
+		"\[U+2AF4]" -> {"eight", 3}, /* triple vertical bar relation */
+		"\[U+2AFD]" -> {"less", 3}, /* double solidus */
+		"\[U+2247]" -> {"equal", 3}, /* not tilde full equal */
+		"\[U+2243]" -> {"greater", 3}, /* tilde equal */
+		"\[U+2242]" -> {"question", 3}, /* equal tilde */
+		"\[U+22B3]" -> {"at", 3}, /* right triangle */
+		"\[U+22B5]" -> {"A", 3}, /* right triangle equal */
+		"\[U+29D0]" -> {"B", 3}, /* right triangle bar */
+		"\[U+22EB]" -> {"C", 3}, /* not right triangle */
+		"\[U+22ED]" -> {"D", 3}, /* not right triangle equal */
+		"\[U+F413]" -> {"E", 3}, /* not right triangle bar */
+		"\[U+2224]" -> {"F", 3}, /* not divides */
+		"\[U+2226]" -> {"G", 3}, /* not parallel */
+		"\[U+2241]" -> {"L", 3}, /* not tilde */
+		"\[U+2249]" -> {"M", 3}, /* not tilde tilde */
+		"\[U+2244]" -> {"N", 3}, /* not tilde equal */
+		"\[U+F400]" -> {"O", 3}, /* not equal tilde  */
+		"\[U+224F]" -> {"P", 3}, /* hump equal */
+		"\[U+224E]" -> {"Q", 3}, /* hump hump */
+		"\[U+F401]" -> {"R", 3}, /* not hump equal */
+		"\[U+F402]" -> {"S", 3}, /* not hump hump */
+		"\[U+2262]" -> {"T", 3}, /* not congruent */
+		"\[U+2250]" -> {"U", 3}, /* dot equal */
+		"\[U+2970]" -> {"V", 3}, /* long round headed double arrow */
+		"\[U+2A76]" -> {"X", 3}, /* === */
+		"\[U+2322]" -> {"bracketleft", 3}, /* frown */
+		"\[U+2323]" -> {"backslash", 3}, /* smile */
+		"\[U+226A]" -> {"grave", 3}, /*  less less*/
+		"\[U+2AA1]" -> {"a", 3}, /* nested less less */
+		"\[U+2A7D]" -> {"b", 3}, /* less slant equal */
+		"\[U+2266]" -> {"c", 3}, /* less full equal */
+		"\[U+2272]" -> {"d", 3}, /* less tilde */
+		"\[U+226E]" -> {"e", 3}, /* not less */
+		"\[U+F422]" -> {"f", 3}, /* not less less */
+		"\[U+F423]" -> {"g", 3}, /* not nested less less */
+		"\[U+2270]" -> {"h", 3}, /* not less equal */
+		"\[U+F424]" -> {"i", 3}, /* not less slant equal */
+		/*"\[U+2268]" -> {"j", 3}, /* not less full equal */
+		"\[U+2274]" -> {"k", 3}, /* not less tilde */
+		"\[U+228F]" -> {"l", 3}, /* square subset */
+		"\[U+2291]" -> {"m", 3}, /* square subset equal */
+		"\[U+F42E]" -> {"n", 3}, /* not square subset */
+		"\[U+22E2]" -> {"o", 3}, /* not square subset equal */
+		"\[U+226B]" -> {"p", 3}, /* greather greather */
+		"\[U+2AA2]" -> {"q", 3}, /* nested greather greather */
+		"\[U+2A7E]" -> {"r", 3}, /* greather slant equal */
+		"\[U+2267]" -> {"s", 3}, /* greather full equal */
+		"\[U+2273]" -> {"t", 3}, /* greather tilde */
+		"\[U+226F]" -> {"u", 3}, /* not greather */
+		"\[U+F427]" -> {"v", 3}, /* not greather greather */
+		"\[U+F428]" -> {"w", 3}, /* not nested greather greather */
+		"\[U+2271]" -> {"x", 3}, /* not greather equal */
+		"\[U+F429]" -> {"y", 3}, /* not greather slant equal */
+		/*"\[U+2269]" -> {"z", 3}, /* not greather full equal */
+		"\[U+2275]" -> {"braceleft", 3}, /* not greather tilde */
+		"\[U+2290]" -> {"bar", 3}, /* square superset */
+		"\[U+2292]" -> {"braceright", 3}, /* square superset equal */
+		"\[U+F42F]" -> {"asciitilde", 3}, /* not square superset */
+		"\[U+227A]" -> {"Adieresis", 3}, /* precedes */
+		"\[U+2AAF]" -> {"Aring", 3}, /* precedes equal */
+		"\[U+227C]" -> {"Ccedilla", 3}, /* precedes slant equal */
+		"\[U+227E]" -> {"Eacute", 3}, /* precedes tilde */
+		"\[U+2280]" -> {"Ntilde", 3}, /* not precedes */
+		"\[U+F42B]" -> {"Odieresis", 3}, /* not precedes equal */
+		"\[U+22E0]" -> {"Udieresis", 3}, /* not precedes slant equal */
+		/*"\[U+22E8]" -> {"aacute", 3}, /* not precedes tilde */
+		"\[U+2276]" -> {"agrave", 3}, /* less greather */
+		"\[U+2278]" -> {"acircumflex", 3}, /* not less greather */
+		"\[U+22DA]" -> {"adieresis", 3}, /* less equal greather */
+		"\[U+2235]" -> {"atilde", 3}, /* because */
+		"\[U+22E3]" -> {"aring", 3}, /* not square superset equal */
+		"\[U+2288]" -> {"ccedilla", 3}, /* not subset equal */
+		"\[U+2285]" -> {"eacute", 3}, /* not superset */
+		"\[U+2289]" -> {"egrave", 3}, /* not superset equal */
+		"\[U+227B]" -> {"ecircumflex", 3}, /* succeeds */
+		"\[U+2AB0]" -> {"edieresis", 3}, /* succeeds equal */
+		"\[U+227D]" -> {"iacute", 3}, /* succeeds slant equal */
+		"\[U+227F]" -> {"igrave", 3}, /* succeeds tilde */
+		"\[U+2281]" -> {"icircumflex", 3}, /* not succeeds */
+		"\[U+F42D]" -> {"idieresis", 3}, /* not succeeds equal */
+		"\[U+22E1]" -> {"ntilde", 3}, /* not succeeds slant equal */
+		/*"\[U+22E9]" -> {"oacute", 3}, /* not succeeds tilde */
+		"\[U+2277]" -> {"ograve", 3}, /* greather less */
+		"\[U+2279]" -> {"ocircumflex", 3}, /* not greather less */
+		"\[U+22DB]" -> {"odieresis", 3}, /* greather equal less */
+		"\[U+2237]" -> {"otilde", 3}, /* proportion */
+		"\[U+220B]" -> {"uacute", 3}, /* reverse element */
+		"\[U+220C]" -> {"ugrave", 3}, /* not reverse element */
+		"\[U+2296]" -> {"ucircumflex", 3}, /* circled minus */
+		"\[U+2299]" -> {"udieresis", 3}, /* circled dot */
+		"\[U+2213]" -> {"degree", 3}, /* minus plus */
+		"\[U+22A2]" -> {"cent", 3}, /* right tee */
+		"\[U+22A8]" -> {"sterling", 3}, /* double right tee */
+		"\[U+22A3]" -> {"section", 3}, /* left tee */
+		"\[U+2AE4]" -> {"bullet", 3}, /* double left tee */
+		"\[U+22A5]" -> {"paragraph", 3}, /* up tee */
+		"\[U+22A4]" -> {"germandbls", 3}, /* down tee */
+		"\[U+27D9]" -> {"registered", 3}, /* long down tee */
+		"\[U+226C]" -> {"copyright", 3}, /* between */
+		"\[U+2240]" -> {"trademark", 3}, /* vertical tilde */
+		"\[U+2A1D]" -> {"acute", 3}, /* join */
+		"\[U+221F]" -> {"dieresis", 3}, /* right angle */
+		"\[U+2221]" -> {"notequal", 3}, /* measured angle */
+		"\[U+2222]" -> {"AE", 3}, /* spherical angle */
+		"\[U+2300]" -> {"Oslash", 3}, /* diameter */
+		"\[U+2127]" -> {"infinity", 3}, /* inverted ohm */
+		"\[U+2204]" -> {"plusminus", 3}, /* not exists */
+		"\[U+03DC]" -> {"lessequal", 3}, /* Digamma */
+		"\[U+03DA]" -> {"greaterequal", 3}, /* Stigma */
+		"\[U+03DE]" -> {"yen", 3}, /* Koppa */
+		"\[U+03E0]" -> {"mu", 3}, /* Sampi */
+		"\[U+03B5]" -> {"partialdiff", 3}, /* epsilon */
+		"\[U+03F1]" -> {"summation", 3}, /* rho symbol */
+		"\[U+03DD]" -> {"product", 3}, /* digamma */
+		"\[U+03DB]" -> {"pi", 3}, /* stigma */
+		"\[U+03DF]" -> {"integral", 3}, /* koppa */
+		"\[U+03E1]" -> {"ordfeminine", 3}, /* sampi */
+		"\[U+2136]" -> {"ordmasculine", 3}, /* Bet */
+		"\[U+2137]" -> {"Omega", 3}, /* Gimmel */
+		"\[U+2138]" -> {"ae", 3}, /* Dalet */
+		"\[U+00DD]" -> {"questiondown", 3}, /* Y acute */
+		"\[U+00FD]" -> {"exclamdown", 3}, /* y acute */
+		"\[U+00D0]" -> {"logicalnot", 3}, /* Eth */
+		"\[U+00F0]" -> {"radical", 3}, /* eth */
+		"\[U+00DE]" -> {"florin", 3}, /* Thorn */
+		"\[U+00FE]" -> {"approxequal", 3}, /* thorn */
+		"\[U+00BF]" -> {"guillemotright", 3}, /* inverted question */
+		"\[U+00A2]" -> {"ellipsis", 3}, /* cent */
+		"\[U+00A3]" -> {"Agrave", 3}, /* pound */
+		"\[U+00A1]" -> {"Atilde", 3}, /* inverted exclamation mark */
+		"\[U+00A7]" -> {"Otilde", 3}, /* section */
+		"\[U+00B6]" -> {"OE", 3}, /* pilcrow */
+		"\[U+00A5]" -> {"oe", 3}, /* yen */
+		"\[U+00B5]" -> {"endash", 3}, /* micro */
+		"\[U+210F]" -> {"emdash", 3}, /* h bar */
+		"\[U+0131]" -> {"quotedblleft", 3}, /* dotless i */
+		"\[U+F730]" -> {"quotedblright", 3}, /* script dotless i */
+		"\[U+0237]" -> {"quoteleft", 3}, /* dotless j */
+		"\[U+F731]" -> {"quoteright", 3}, /* script dotless j */
+		"\[U+2020]" -> {"divide", 3}, /* dagger */
+		"\[U+2021]" -> {"lozenge", 3}, /* double dagger */
+		"\[U+266D]" -> {"Ydieresis", 3}, /* music flat */
+		"\[U+266E]" -> {"fraction", 3}, /* music natural */
+		"\[U+266F]" -> {"currency", 3}, /* music sharp */
+		"\[U+2370]" -> {"guilsinglleft", 3}, /* quad question */
+		"\[U+2353]" -> {"guilsinglright", 3}, /* quad caret */
+		"\[U+212B]" -> {"fi", 3}, /* Angstrom */
+		"\[U+019B]" -> {"fl", 3}, /* lambda bar */
+		"\[U+25A0]" -> {"daggerdbl", 3}, /* filled square */
+		"\[U+25A1]" -> {"periodcentered", 3}, /* empty square */
+		"\[U+25FC]" -> {"quotesinglbase", 3}, /* filled medium square */
+		"\[U+25FB]" -> {"quotedblbase", 3}, /* empty medium square */
+		"\[U+25AA]" -> {"perthousand", 3}, /* filled small square */
+		"\[U+25AB]" -> {"Acircumflex", 3}, /* empty small square */
+		"\[U+25CF]" -> {"Ecircumflex", 3}, /* filled circle */
+		"\[U+25CB]" -> {"Aacute", 3}, /* empty circle */
+		"\[U+26AB]" -> {"Edieresis", 3}, /* filled medium circle */
+		"\[U+26AA]" -> {"Egrave", 3}, /* empty medium circle */
+		"\[U+2022]" -> {"Iacute", 3}, /* filled small circle / bullet */
+		"\[U+2218]" -> {"Icircumflex", 3}, /* empty small circle */
+		"\[U+26AC]" -> {"Icircumflex", 3}, /* empty small circle */
+		"\[U+25C6]" -> {"Idieresis", 3}, /* filled diamond */
+		"\[U+25C7]" -> {"Igrave", 3}, /* empty diamond */
+		"\[U+2B25]" -> {"Oacute", 3}, /* filled medium diamond */
+		"\[U+2B26]" -> {"Ocircumflex", 3}, /* empty medium diamond */
+		"\[U+25AE]" -> {"apple", 3}, /* filled rectangle */
+		"\[U+25AF]" -> {"Ograve", 3}, /* empty rectangle */
+		"\[U+25B2]" -> {"Uacute", 3}, /* filled up triangle */
+		"\[U+25B3]" -> {"Ucircumflex", 3}, /* empty up triangle */
+		"\[U+25BC]" -> {"Ugrave", 3}, /* filled down triangle */
+		"\[U+25BD]" -> {"dotlessi", 3}, /* empty down triangle */
+		"\[U+2666]" -> {"circumflex", 3}, /* filled diamond suit */
+		"\[U+2736]" -> {"tilde", 3}, /* 6 pointed star */
+		"\[U+2605]" -> {"macron", 3}, /* 5 pointed star */
+		"\[U+2130]" -> {"ring", 3}, /* script E */
+		"\[U+2149]" -> {"cedilla", 3}, /* double-struck j */
+		"\[U+213D]" -> {"hungarumlaut", 3}, /* double-struck gamma */
+		"\[U+213C]" -> {"ogonek", 3}, /* double-struck pi */
+		"\[U+2145]" -> {"caron", 3}, /* double-struck D */
 		
-		"\u21E5" -> {"exclam", 4}, /* right arrow bar */
-		"\u21A4" -> {"quotedbl", 4}, /* left tee arrow */
-		"\u21A6" -> {"numbersign", 4}, /* right tee arrow */
-		"\u2912" -> {"dollar", 4}, /* up arrow bar */
-		"\u2913" -> {"percent", 4}, /* down arrow bar */
-		"\u21A5" -> {"ampersand", 4}, /* up tee arrow */
-		"\u21A7" -> {"quotesingle", 4}, /* down tee arrow */
-		"\u2952" -> {"parenleft", 4}, /* left harpoon bar (barb up) */
-		"\u2953" -> {"parenright", 4}, /* right harpoon bar (barb up) */
-		"\u2956" -> {"asterisk", 4}, /* left harpoon bar (barb down) */
-		"\u2957" -> {"plus", 4}, /* right harpoon bar (barb down) */
-		"\u295A" -> {"comma", 4}, /* left tee harpoon (barb up) */
-		"\u295B" -> {"hyphen", 4}, /* right tee harpoon (barb up) */
-		"\u295E" -> {"period", 4}, /* left tee harpoon (barb down) */
-		"\u295F" -> {"slash", 4}, /* right tee harpoon (barb down) */
-		"\u21BC" -> {"zero", 4}, /* left harpoon (barb up) */
-		"\u21C0" -> {"one", 4}, /* right harpoon (barb up) */
-		"\u294E" -> {"two", 4}, /* left right harpoon (barbs up) */
-		"\u21BD" -> {"three", 4}, /* left harpoon (barb down) */
-		"\u21C1" -> {"four", 4}, /* right harpoon (barb down) */
-		"\u2950" -> {"five", 4}, /* left right harpoon (barbs down) */
-		"\u2951" -> {"six", 4}, /* up down harpoon (barbs left) */
-		"\u294F" -> {"seven", 4}, /* up down harpoon (barbs right) */
-		"\u2958" -> {"eight", 4}, /* up harpoon bar (barb left) */
-		"\u2959" -> {"nine", 4}, /* down harpoon bar (barb left) */
-		"\u2954" -> {"colon", 4}, /* up harpoon bar (barb right) */
-		"\u2955" -> {"semicolon", 4}, /* down harpoon bar (barb right) */
-		"\u2960" -> {"less", 4}, /* up tee harpoon (barb left) */
-		"\u2961" -> {"equal", 4}, /* down tee harpoon (barb left) */
-		"\u295C" -> {"greater", 4}, /* up tee harpoon (barb right) */
-		"\u295D" -> {"question", 4}, /* down tee harpoon (barb right) */
-		"\u21BF" -> {"at", 4}, /* up harpoon (barb left) */
-		"\u21C3" -> {"B", 4}, /* down harpoon (barb left) */
-		"\u21BE" -> {"C", 4}, /* up harpoon (barb right) */
-		"\u21C2" -> {"E", 4}, /* down harpoon (barb right) */
-		"\u21CC" -> {"F", 4}, /* right harpoon left harpoon */
-		"\u21CB" -> {"G", 4}, /* left harpoon right harpoon */
-		"\u296E" -> {"L", 4}, /* up harpoon down harpoon */
-		"\u296F" -> {"M", 4}, /* down harpoon up harpoon */
-		"\u21A9" -> {"N", 4}, /* left arrow hook */
-		"\u21AA" -> {"O", 4}, /* right arrow hook */
-		"\u21C4" -> {"V", 4}, /* right arrow left arrow */
-		"\u21C6" -> {"W", 4}, /* left arrow right arrow */
-		"\u21C5" -> {"backslash", 4}, /* up arrow down arrow */
-		"\u21F7" -> {"bracketright", 4}, /* down arrow up arrow */
-		"\u23B4" -> {"p", 4}, /* over bracket */
-		"\u23B5" -> {"Adieresis", 4}, /* under bracket */
-		"\u2199" -> {"aacute", 4}, /* lower left arrow */
-		"\u2196" -> {"agrave", 4}, /* upper left arrow */
-		"\u2197" -> {"acircumflex", 4}, /* upper right arrow */
-		"\u2198" -> {"adieresis", 4}, /* lower right arrow */
-		"\u23DC" -> {"ecircumflex", 4}, /* over parenthesis */
-		"\u23DE" -> {"oacute", 4}, /* over brace */
-		"\u23DD" -> {"dagger", 4}, /* under parenthesis */
-		"\u23DF" -> {"germandbls", 4}, /* under brace */
-		"\u22EF" -> {"mu", 4}, /* center ellipsis */
-		"\u22EE" -> {"partialdiff", 4}, /* vertical ellipsis */
-		"\u22F0" -> {"summation", 4}, /* ascending ellipsis */
-		"\u22F1" -> {"product", 4}, /* descending ellipsis */
-		"\u2035" -> {"ae", 4}, /* reversed prime */
-		"\u2036" -> {"oslash", 4}, /* reversed double prime */
-		"\u263A" -> {"Atilde", 4}, /* happy face */
-		"\uF722" -> {"Otilde", 4}, /* neutral face */
-		"\u2639" -> {"OE", 4}, /* sad face */
-		"\u231A" -> {"guilsinglright", 4}, /* watch */
-		"\u00B8" -> {"fi", 4}, /* cedilla */
-		"\u02DB" -> {"fl", 4}, /* ogonek */
-		"\u2318" -> {"Igrave", 4}, /* place of interest */
-		"\u2B1A" -> {"Oacute", 4}, /* dotted square */
-		"\u02D8" -> {"Ocircumflex", 4}, /* breve */
+		"\[U+21E5]" -> {"exclam", 4}, /* right arrow bar */
+		"\[U+21A4]" -> {"quotedbl", 4}, /* left tee arrow */
+		"\[U+21A6]" -> {"numbersign", 4}, /* right tee arrow */
+		"\[U+2912]" -> {"dollar", 4}, /* up arrow bar */
+		"\[U+2913]" -> {"percent", 4}, /* down arrow bar */
+		"\[U+21A5]" -> {"ampersand", 4}, /* up tee arrow */
+		"\[U+21A7]" -> {"quotesingle", 4}, /* down tee arrow */
+		"\[U+2952]" -> {"parenleft", 4}, /* left harpoon bar (barb up) */
+		"\[U+2953]" -> {"parenright", 4}, /* right harpoon bar (barb up) */
+		"\[U+2956]" -> {"asterisk", 4}, /* left harpoon bar (barb down) */
+		"\[U+2957]" -> {"plus", 4}, /* right harpoon bar (barb down) */
+		"\[U+295A]" -> {"comma", 4}, /* left tee harpoon (barb up) */
+		"\[U+295B]" -> {"hyphen", 4}, /* right tee harpoon (barb up) */
+		"\[U+295E]" -> {"period", 4}, /* left tee harpoon (barb down) */
+		"\[U+295F]" -> {"slash", 4}, /* right tee harpoon (barb down) */
+		"\[U+21BC]" -> {"zero", 4}, /* left harpoon (barb up) */
+		"\[U+21C0]" -> {"one", 4}, /* right harpoon (barb up) */
+		"\[U+294E]" -> {"two", 4}, /* left right harpoon (barbs up) */
+		"\[U+21BD]" -> {"three", 4}, /* left harpoon (barb down) */
+		"\[U+21C1]" -> {"four", 4}, /* right harpoon (barb down) */
+		"\[U+2950]" -> {"five", 4}, /* left right harpoon (barbs down) */
+		"\[U+2951]" -> {"six", 4}, /* up down harpoon (barbs left) */
+		"\[U+294F]" -> {"seven", 4}, /* up down harpoon (barbs right) */
+		"\[U+2958]" -> {"eight", 4}, /* up harpoon bar (barb left) */
+		"\[U+2959]" -> {"nine", 4}, /* down harpoon bar (barb left) */
+		"\[U+2954]" -> {"colon", 4}, /* up harpoon bar (barb right) */
+		"\[U+2955]" -> {"semicolon", 4}, /* down harpoon bar (barb right) */
+		"\[U+2960]" -> {"less", 4}, /* up tee harpoon (barb left) */
+		"\[U+2961]" -> {"equal", 4}, /* down tee harpoon (barb left) */
+		"\[U+295C]" -> {"greater", 4}, /* up tee harpoon (barb right) */
+		"\[U+295D]" -> {"question", 4}, /* down tee harpoon (barb right) */
+		"\[U+21BF]" -> {"at", 4}, /* up harpoon (barb left) */
+		"\[U+21C3]" -> {"B", 4}, /* down harpoon (barb left) */
+		"\[U+21BE]" -> {"C", 4}, /* up harpoon (barb right) */
+		"\[U+21C2]" -> {"E", 4}, /* down harpoon (barb right) */
+		"\[U+21CC]" -> {"F", 4}, /* right harpoon left harpoon */
+		"\[U+21CB]" -> {"G", 4}, /* left harpoon right harpoon */
+		"\[U+296E]" -> {"L", 4}, /* up harpoon down harpoon */
+		"\[U+296F]" -> {"M", 4}, /* down harpoon up harpoon */
+		"\[U+21A9]" -> {"N", 4}, /* left arrow hook */
+		"\[U+21AA]" -> {"O", 4}, /* right arrow hook */
+		"\[U+21C4]" -> {"V", 4}, /* right arrow left arrow */
+		"\[U+21C6]" -> {"W", 4}, /* left arrow right arrow */
+		"\[U+21C5]" -> {"backslash", 4}, /* up arrow down arrow */
+		"\[U+21F7]" -> {"bracketright", 4}, /* down arrow up arrow */
+		"\[U+23B4]" -> {"p", 4}, /* over bracket */
+		"\[U+23B5]" -> {"Adieresis", 4}, /* under bracket */
+		"\[U+2199]" -> {"aacute", 4}, /* lower left arrow */
+		"\[U+2196]" -> {"agrave", 4}, /* upper left arrow */
+		"\[U+2197]" -> {"acircumflex", 4}, /* upper right arrow */
+		"\[U+2198]" -> {"adieresis", 4}, /* lower right arrow */
+		"\[U+23DC]" -> {"ecircumflex", 4}, /* over parenthesis */
+		"\[U+23DE]" -> {"oacute", 4}, /* over brace */
+		"\[U+23DD]" -> {"dagger", 4}, /* under parenthesis */
+		"\[U+23DF]" -> {"germandbls", 4}, /* under brace */
+		"\[U+22EF]" -> {"mu", 4}, /* center ellipsis */
+		"\[U+22EE]" -> {"partialdiff", 4}, /* vertical ellipsis */
+		"\[U+22F0]" -> {"summation", 4}, /* ascending ellipsis */
+		"\[U+22F1]" -> {"product", 4}, /* descending ellipsis */
+		"\[U+2035]" -> {"ae", 4}, /* reversed prime */
+		"\[U+2036]" -> {"oslash", 4}, /* reversed double prime */
+		"\[U+263A]" -> {"Atilde", 4}, /* happy face */
+		"\[U+F722]" -> {"Otilde", 4}, /* neutral face */
+		"\[U+2639]" -> {"OE", 4}, /* sad face */
+		"\[U+231A]" -> {"guilsinglright", 4}, /* watch */
+		"\[U+00B8]" -> {"fi", 4}, /* cedilla */
+		"\[U+02DB]" -> {"fl", 4}, /* ogonek */
+		"\[U+2318]" -> {"Igrave", 4}, /* place of interest */
+		"\[U+2B1A]" -> {"Oacute", 4}, /* dotted square */
+		"\[U+02D8]" -> {"Ocircumflex", 4}, /* breve */
 		
-		"\u2665" -> {"FilledHeart", 5}, /* black heart */
-		"\u20AC" -> {"MEuro" | "Euro", 5}, /* euro */
-		"\u20B9" -> {"MRupee", 5}, /* indian rupee */
-		"\u0152" -> {"CapitalOE", 5}, /* OE */
-		"\u0153" -> {"OE", 5}, /* oe */
-		"\u0101" -> {"ABar", 5}, /* a bar */
-		"\u0103" -> {"ACup", 5}, /* a breve */
-		"\u0100" -> {"CapitalABar", 5}, /* A bar */
-		"\u0102" -> {"CapitalACup", 5}, /* A breve */
-		"\u0107" -> {"CAcute", 5}, /* c acute */
-		"\u010D" -> {"CHacek", 5}, /* c caron */
-		"\uf7f0" -> {"ScriptZero", 5}, /* script 0 */
-		"\uf7f1" -> {"ScriptOne", 5}, /* script 1 */
-		"\uf7f2" -> {"ScriptTwo", 5}, /* script 2 */
-		"\uf7f3" -> {"ScriptThree", 5}, /* script 3 */
-		"\uf7f4" -> {"ScriptFour", 5}, /* script 4 */
-		"\uf7f5" -> {"ScriptFive", 5}, /* script 5 */
-		"\uf7f6" -> {"ScriptSix", 5}, /* script 6 */
-		"\uf7f7" -> {"ScriptSeven", 5}, /* script 7 */
-		"\uf7f8" -> {"ScriptEight", 5}, /* script 8 */
-		"\uf7f9" -> {"ScriptNine", 5}, /* script 9 */
-		"\u0151" -> {"ODoubleAcute", 5}, /* o double acute */
-		"\u0150" -> {"CapitalODoubleAcute", 5}, /* O double acute */
-		"\u0161" -> {"SHacek", 5}, /* s caron */
-		"\u0160" -> {"CapitalSHacek", 5}, /* S caron */
-		"\u0171" -> {"UDoubleAcute", 5}, /* u double acute */
-		"\u0170" -> {"CapitalUDoubleAcute", 5}, /* U double acute */
-		"\u0127" -> {"HSlash", 5}, /* h stroke */
-		"\U0001D49C" -> {"ScriptCapA", 5}, /* script A */
-		"\u212C" -> {"ScriptCapB", 5}, /* script B */
-		"\U0001D49E" -> {"ScriptCapC", 5}, /* script C */
-		"\U0001D49F" -> {"ScriptCapD", 5}, /* script D */
-		"\u2130" -> {"ScriptCapE", 5}, /* script E */
-		"\u2131" -> {"ScriptCapF", 5}, /* script F */
-		"\U0001D4A2" -> {"ScriptCapG", 5}, /* script G */
-		"\u210B" -> {"ScriptCapH", 5}, /* script H */
-		"\u2110" -> {"ScriptCapI", 5}, /* script I */
-		"\U0001D4A5" -> {"ScriptCapJ", 5}, /* script J */
-		"\U0001D4A6" -> {"ScriptCapK", 5}, /* script K */
-		"\u2112" -> {"ScriptCapL", 5}, /* script L */
-		"\u2133" -> {"ScriptCapM", 5}, /* script M */
-		"\U0001D4A9" -> {"ScriptCapN", 5}, /* script N */
-		"\U0001D4AA" -> {"ScriptCapO", 5}, /* script O */
-		"\U0001D4AB" -> {"ScriptCapP", 5}, /* script P */
-		"\U0001D4AC" -> {"ScriptCapQ", 5}, /* script Q */
-		"\u211B" -> {"ScriptCapR", 5}, /* script R */
-		"\U0001D4AE" -> {"ScriptCapS", 5}, /* script S */
-		"\U0001D4AF" -> {"ScriptCapT", 5}, /* script T */
-		"\U0001D4B0" -> {"ScriptCapU", 5}, /* script U */
-		"\U0001D4B1" -> {"ScriptCapV", 5}, /* script V */
-		"\U0001D4B2" -> {"ScriptCapW", 5}, /* script W */
-		"\U0001D4B3" -> {"ScriptCapX", 5}, /* script X */
-		"\U0001D4B4" -> {"ScriptCapY", 5}, /* script Y */
-		"\U0001D4B5" -> {"ScriptCapZ", 5}, /* script Z */
-		"\u2654" -> {"wKing", 5}, /* white chess king */
-		"\u2655" -> {"wQueen", 5}, /* white chess queen */
-		"\u2656" -> {"wRook", 5}, /* white chess rook */
-		"\u2657" -> {"wBishop", 5}, /* white chess bishop */
-		"\u2658" -> {"wKnight", 5}, /* white chess knight */
-		"\u2659" -> {"wPawn", 5}, /* white chess knight */
-		"\u2252" -> {"NearlyEquals", 5}, /* nearly equal */
-		"\U0001D4B6" -> {"ScriptA", 5}, /* script a */
-		"\U0001D4B7" -> {"ScriptB", 5}, /* script b */
-		"\U0001D4B8" -> {"ScriptC", 5}, /* script c */
-		"\U0001D4B9" -> {"ScriptD", 5}, /* script d */
-		"\u212F" -> {"ScriptE", 5}, /* script e */
-		"\U0001D4BB" -> {"ScriptF", 5}, /* script f */
-		"\u210A" -> {"ScriptG", 5}, /* script g */
-		"\U0001D4BD" -> {"ScriptH", 5}, /* script h */
-		"\U0001D4BE" -> {"ScriptI", 5}, /* script i */
-		"\U0001D4BF" -> {"ScriptJ", 5}, /* script j */
-		"\U0001D4C0" -> {"ScriptK", 5}, /* script k */
-		"\u2113" -> {"ScriptAltL", 5}, /* script l */
-		"\U0001D4C2" -> {"ScriptM", 5}, /* script m */
-		"\U0001D4C3" -> {"ScriptN", 5}, /* script n */
-		"\u2134" -> {"ScriptO", 5}, /* script o */
-		"\U0001D4C5" -> {"ScriptP", 5}, /* script p */
-		"\U0001D4C6" -> {"ScriptQ", 5}, /* script q */
-		"\U0001D4C7" -> {"ScriptR", 5}, /* script r */
-		"\U0001D4C8" -> {"ScriptS", 5}, /* script s */
-		"\U0001D4C9" -> {"ScriptT", 5}, /* script t */
-		"\U0001D4CA" -> {"ScriptU", 5}, /* script u */
-		"\U0001D4CB" -> {"ScriptV", 5}, /* script v */
-		"\U0001D4CC" -> {"ScriptW", 5}, /* script w */
-		"\U0001D4CD" -> {"ScriptX", 5}, /* script x */
-		"\U0001D4CE" -> {"ScriptY", 5}, /* script y */
-		"\U0001D4CF" -> {"ScriptZ", 5}, /* script z */
-		"\u22BC" -> {"LogicalNand", 5}, /* logical nand */
-		"\u22BD" -> {"LogicalNor", 5}, /* logical nor */
-		"\u22BB" -> {"LogicalXor", 5}, /* logical xor */
-		"\u0106" -> {"CapitalCAcute", 5}, /* C acute */
-		"\u010C" -> {"CapitalCHacek", 5}, /* C caron */
-		"\u0113" -> {"EBar", 5}, /* e bar */
-		"\u0115" -> {"ECup", 5}, /* e breve */
-		"\u0112" -> {"CapitalEBar", 5}, /* E bar */
-		"\u0114" -> {"CapitalECup", 5}, /* E breve */
-		"\u012D" -> {"ICup", 5}, /* i breve */
-		"\u012C" -> {"CapitalICup", 5}, /* I breve */
-		"\u0141" -> {"CapitalLSlash", 5}, /* L stroke */
-		"\u0142" -> {"LSlash", 5}, /* l stroke */
-		"\u263F" -> {"Mercury", 5}, /* mercury */
-		"\u2640" -> {"Venus", 5}, /* venus */
-		"\u2641" -> {"Earth", 5}, /* earth */
-		"\u2642" -> {"Mars", 5}, /* mars */
-		"\u2643" -> {"Jupiter", 5}, /* jupiter */
-		"\u2644" -> {"Saturn", 5}, /* saturn */
-		"\u2645" -> {"Uranus", 5}, /* uranus */
-		"\u2646" -> {"Neptune", 5}, /* neptune */
-		"\u2647" -> {"Pluto", 5}, /* pluto */
-		"\uF7FA" -> {"FirstPage", 5}, /* first page */
-		"\uF7FB" -> {"LastPage", 5}, /* last page */
-		"\u25c0" -> {"SolidLeftTriangle", 5}, /* filled left triangle */
-		"\u25B6" -> {"SolidRightTriangle", 5}, /* filled right triangle */
-		"\u2669" -> {"QuarterNote", 5}, /* quarter note */
-		"\u266A" -> {"EighthNote", 5}, /* eights note */
-		"\u266B" -> {"BeamedEighthNote", 5}, /* beamed eights note */
-		"\u266C" -> {"BeamedSixteenthNote", 5}, /* beamed sixteenth note */
-		"\u2713" -> {"CheckMark", 5}, /* check mark */
-		"\u2611" -> {"CheckedMarkBox", 5}, /* check mark box */
-		"\uF361" -> {"Piecewise" | "greaterequal", 5}, /* piecewise */
-		"\u265A" -> {"bKing", 5}, /* black chess king */
-		"\u265B" -> {"bQueen", 5}, /* black chess queen */
-		"\u265C" -> {"bRook", 5}, /* black chess rook */
-		"\u265D" -> {"bBishop", 5}, /* black chess bishop */
-		"\u265E" -> {"bKnight", 5}, /* black chess knight */
-		"\u265F" -> {"bPawn", 5}, /* black chess knight */
-		"\u21E0" -> {"summation", 5}, /* left dashed arrow */
-		"\u21E1" -> {"product", 5}, /* up dashed arrow */
-		"\u21E2" -> {"pi", 5}, /* right dashed arrow */
-		"\u21E3" -> {"integral", 5}, /* down dashed arrow */
-		"\uF3BA" -> {"ordfeminine", 5}, /* span from left */
-		"\uF3BB" -> {"ordmasculine", 5}, /* span from above */
-		"\uF3BC" -> {"Omega", 5}, /* span from both */
-		"\u22CE" -> {"CurlyVee", 5}, /* curle logical or */
-		"\u22CF" -> {"CurlyWedge", 5}, /* curle logical and */
-		"\u229E" -> {"SquarePlus", 5}, /* square plus */
-		"\u229F" -> {"SquareMinus", 5}, /* square minus */
-		"\u22A0" -> {"SquaredTimes", 5}, /* square times */
-		"\u22A1" -> {"SquareDot", 5}, /* square dot */
-		"\u2019" -> {"CurlyBackQuote", 5}, /* right single quote */
-		"\u201D" -> {"CurlyQuote", 5}, /* right double quote */
-		"\u2018" -> {"CurlyDblBackQuote", 5}, /* left single quote */
-		"\u201C" -> {"CurlyDblQuote", 5}, /* left double quote */
+		"\[U+2665]" -> {"FilledHeart", 5}, /* black heart */
+		"\[U+20AC]" -> {"MEuro" | "Euro", 5}, /* euro */
+		"\[U+20B9]" -> {"MRupee", 5}, /* indian rupee */
+		"\[U+0152]" -> {"CapitalOE", 5}, /* OE */
+		"\[U+0153]" -> {"OE", 5}, /* oe */
+		"\[U+0101]" -> {"ABar", 5}, /* a bar */
+		"\[U+0103]" -> {"ACup", 5}, /* a breve */
+		"\[U+0100]" -> {"CapitalABar", 5}, /* A bar */
+		"\[U+0102]" -> {"CapitalACup", 5}, /* A breve */
+		"\[U+0107]" -> {"CAcute", 5}, /* c acute */
+		"\[U+010D]" -> {"CHacek", 5}, /* c caron */
+		"\[U+f7f0]" -> {"ScriptZero", 5}, /* script 0 */
+		"\[U+f7f1]" -> {"ScriptOne", 5}, /* script 1 */
+		"\[U+f7f2]" -> {"ScriptTwo", 5}, /* script 2 */
+		"\[U+f7f3]" -> {"ScriptThree", 5}, /* script 3 */
+		"\[U+f7f4]" -> {"ScriptFour", 5}, /* script 4 */
+		"\[U+f7f5]" -> {"ScriptFive", 5}, /* script 5 */
+		"\[U+f7f6]" -> {"ScriptSix", 5}, /* script 6 */
+		"\[U+f7f7]" -> {"ScriptSeven", 5}, /* script 7 */
+		"\[U+f7f8]" -> {"ScriptEight", 5}, /* script 8 */
+		"\[U+f7f9]" -> {"ScriptNine", 5}, /* script 9 */
+		"\[U+0151]" -> {"ODoubleAcute", 5}, /* o double acute */
+		"\[U+0150]" -> {"CapitalODoubleAcute", 5}, /* O double acute */
+		"\[U+0161]" -> {"SHacek", 5}, /* s caron */
+		"\[U+0160]" -> {"CapitalSHacek", 5}, /* S caron */
+		"\[U+0171]" -> {"UDoubleAcute", 5}, /* u double acute */
+		"\[U+0170]" -> {"CapitalUDoubleAcute", 5}, /* U double acute */
+		"\[U+0127]" -> {"HSlash", 5}, /* h stroke */
+		"\[U+1D49C]" -> {"ScriptCapA", 5}, /* script A */
+		"\[U+212C]" -> {"ScriptCapB", 5}, /* script B */
+		"\[U+1D49E]" -> {"ScriptCapC", 5}, /* script C */
+		"\[U+1D49F]" -> {"ScriptCapD", 5}, /* script D */
+		"\[U+2130]" -> {"ScriptCapE", 5}, /* script E */
+		"\[U+2131]" -> {"ScriptCapF", 5}, /* script F */
+		"\[U+1D4A2]" -> {"ScriptCapG", 5}, /* script G */
+		"\[U+210B]" -> {"ScriptCapH", 5}, /* script H */
+		"\[U+2110]" -> {"ScriptCapI", 5}, /* script I */
+		"\[U+1D4A5]" -> {"ScriptCapJ", 5}, /* script J */
+		"\[U+1D4A6]" -> {"ScriptCapK", 5}, /* script K */
+		"\[U+2112]" -> {"ScriptCapL", 5}, /* script L */
+		"\[U+2133]" -> {"ScriptCapM", 5}, /* script M */
+		"\[U+1D4A9]" -> {"ScriptCapN", 5}, /* script N */
+		"\[U+1D4AA]" -> {"ScriptCapO", 5}, /* script O */
+		"\[U+1D4AB]" -> {"ScriptCapP", 5}, /* script P */
+		"\[U+1D4AC]" -> {"ScriptCapQ", 5}, /* script Q */
+		"\[U+211B]" -> {"ScriptCapR", 5}, /* script R */
+		"\[U+1D4AE]" -> {"ScriptCapS", 5}, /* script S */
+		"\[U+1D4AF]" -> {"ScriptCapT", 5}, /* script T */
+		"\[U+1D4B0]" -> {"ScriptCapU", 5}, /* script U */
+		"\[U+1D4B1]" -> {"ScriptCapV", 5}, /* script V */
+		"\[U+1D4B2]" -> {"ScriptCapW", 5}, /* script W */
+		"\[U+1D4B3]" -> {"ScriptCapX", 5}, /* script X */
+		"\[U+1D4B4]" -> {"ScriptCapY", 5}, /* script Y */
+		"\[U+1D4B5]" -> {"ScriptCapZ", 5}, /* script Z */
+		"\[U+2654]" -> {"wKing", 5}, /* white chess king */
+		"\[U+2655]" -> {"wQueen", 5}, /* white chess queen */
+		"\[U+2656]" -> {"wRook", 5}, /* white chess rook */
+		"\[U+2657]" -> {"wBishop", 5}, /* white chess bishop */
+		"\[U+2658]" -> {"wKnight", 5}, /* white chess knight */
+		"\[U+2659]" -> {"wPawn", 5}, /* white chess knight */
+		"\[U+2252]" -> {"NearlyEquals", 5}, /* nearly equal */
+		"\[U+1D4B6]" -> {"ScriptA", 5}, /* script a */
+		"\[U+1D4B7]" -> {"ScriptB", 5}, /* script b */
+		"\[U+1D4B8]" -> {"ScriptC", 5}, /* script c */
+		"\[U+1D4B9]" -> {"ScriptD", 5}, /* script d */
+		"\[U+212F]" -> {"ScriptE", 5}, /* script e */
+		"\[U+1D4BB]" -> {"ScriptF", 5}, /* script f */
+		"\[U+210A]" -> {"ScriptG", 5}, /* script g */
+		"\[U+1D4BD]" -> {"ScriptH", 5}, /* script h */
+		"\[U+1D4BE]" -> {"ScriptI", 5}, /* script i */
+		"\[U+1D4BF]" -> {"ScriptJ", 5}, /* script j */
+		"\[U+1D4C0]" -> {"ScriptK", 5}, /* script k */
+		"\[U+2113]" -> {"ScriptAltL", 5}, /* script l */
+		"\[U+1D4C2]" -> {"ScriptM", 5}, /* script m */
+		"\[U+1D4C3]" -> {"ScriptN", 5}, /* script n */
+		"\[U+2134]" -> {"ScriptO", 5}, /* script o */
+		"\[U+1D4C5]" -> {"ScriptP", 5}, /* script p */
+		"\[U+1D4C6]" -> {"ScriptQ", 5}, /* script q */
+		"\[U+1D4C7]" -> {"ScriptR", 5}, /* script r */
+		"\[U+1D4C8]" -> {"ScriptS", 5}, /* script s */
+		"\[U+1D4C9]" -> {"ScriptT", 5}, /* script t */
+		"\[U+1D4CA]" -> {"ScriptU", 5}, /* script u */
+		"\[U+1D4CB]" -> {"ScriptV", 5}, /* script v */
+		"\[U+1D4CC]" -> {"ScriptW", 5}, /* script w */
+		"\[U+1D4CD]" -> {"ScriptX", 5}, /* script x */
+		"\[U+1D4CE]" -> {"ScriptY", 5}, /* script y */
+		"\[U+1D4CF]" -> {"ScriptZ", 5}, /* script z */
+		"\[U+22BC]" -> {"LogicalNand", 5}, /* logical nand */
+		"\[U+22BD]" -> {"LogicalNor", 5}, /* logical nor */
+		"\[U+22BB]" -> {"LogicalXor", 5}, /* logical xor */
+		"\[U+0106]" -> {"CapitalCAcute", 5}, /* C acute */
+		"\[U+010C]" -> {"CapitalCHacek", 5}, /* C caron */
+		"\[U+0113]" -> {"EBar", 5}, /* e bar */
+		"\[U+0115]" -> {"ECup", 5}, /* e breve */
+		"\[U+0112]" -> {"CapitalEBar", 5}, /* E bar */
+		"\[U+0114]" -> {"CapitalECup", 5}, /* E breve */
+		"\[U+012D]" -> {"ICup", 5}, /* i breve */
+		"\[U+012C]" -> {"CapitalICup", 5}, /* I breve */
+		"\[U+0141]" -> {"CapitalLSlash", 5}, /* L stroke */
+		"\[U+0142]" -> {"LSlash", 5}, /* l stroke */
+		"\[U+263F]" -> {"Mercury", 5}, /* mercury */
+		"\[U+2640]" -> {"Venus", 5}, /* venus */
+		"\[U+2641]" -> {"Earth", 5}, /* earth */
+		"\[U+2642]" -> {"Mars", 5}, /* mars */
+		"\[U+2643]" -> {"Jupiter", 5}, /* jupiter */
+		"\[U+2644]" -> {"Saturn", 5}, /* saturn */
+		"\[U+2645]" -> {"Uranus", 5}, /* uranus */
+		"\[U+2646]" -> {"Neptune", 5}, /* neptune */
+		"\[U+2647]" -> {"Pluto", 5}, /* pluto */
+		"\[U+F7FA]" -> {"FirstPage", 5}, /* first page */
+		"\[U+F7FB]" -> {"LastPage", 5}, /* last page */
+		"\[U+25c0]" -> {"SolidLeftTriangle", 5}, /* filled left triangle */
+		"\[U+25B6]" -> {"SolidRightTriangle", 5}, /* filled right triangle */
+		"\[U+2669]" -> {"QuarterNote", 5}, /* quarter note */
+		"\[U+266A]" -> {"EighthNote", 5}, /* eights note */
+		"\[U+266B]" -> {"BeamedEighthNote", 5}, /* beamed eights note */
+		"\[U+266C]" -> {"BeamedSixteenthNote", 5}, /* beamed sixteenth note */
+		"\[U+2713]" -> {"CheckMark", 5}, /* check mark */
+		"\[U+2611]" -> {"CheckedMarkBox", 5}, /* check mark box */
+		"\[U+F361]" -> {"Piecewise" | "greaterequal", 5}, /* piecewise */
+		"\[U+265A]" -> {"bKing", 5}, /* black chess king */
+		"\[U+265B]" -> {"bQueen", 5}, /* black chess queen */
+		"\[U+265C]" -> {"bRook", 5}, /* black chess rook */
+		"\[U+265D]" -> {"bBishop", 5}, /* black chess bishop */
+		"\[U+265E]" -> {"bKnight", 5}, /* black chess knight */
+		"\[U+265F]" -> {"bPawn", 5}, /* black chess knight */
+		"\[U+21E0]" -> {"summation", 5}, /* left dashed arrow */
+		"\[U+21E1]" -> {"product", 5}, /* up dashed arrow */
+		"\[U+21E2]" -> {"pi", 5}, /* right dashed arrow */
+		"\[U+21E3]" -> {"integral", 5}, /* down dashed arrow */
+		"\[U+F3BA]" -> {"ordfeminine", 5}, /* span from left */
+		"\[U+F3BB]" -> {"ordmasculine", 5}, /* span from above */
+		"\[U+F3BC]" -> {"Omega", 5}, /* span from both */
+		"\[U+22CE]" -> {"CurlyVee", 5}, /* curle logical or */
+		"\[U+22CF]" -> {"CurlyWedge", 5}, /* curle logical and */
+		"\[U+229E]" -> {"SquarePlus", 5}, /* square plus */
+		"\[U+229F]" -> {"SquareMinus", 5}, /* square minus */
+		"\[U+22A0]" -> {"SquaredTimes", 5}, /* square times */
+		"\[U+22A1]" -> {"SquareDot", 5}, /* square dot */
+		"\[U+2019]" -> {"CurlyBackQuote", 5}, /* right single quote */
+		"\[U+201D]" -> {"CurlyQuote", 5}, /* right double quote */
+		"\[U+2018]" -> {"CurlyDblBackQuote", 5}, /* left single quote */
+		"\[U+201C]" -> {"CurlyDblQuote", 5}, /* left double quote */
 		
-		"\uF7E5" -> {"GothicZero", 6}, /* caligraphic 0 */
-		"\uF7E6" -> {"GothicOne", 6}, /* caligraphic 1 */
-		"\uF7E7" -> {"GothicTwo", 6}, /* caligraphic 2 */
-		"\uF7E8" -> {"GothicThree", 6}, /* caligraphic 3 */
-		"\uF7E9" -> {"GothicFour", 6}, /* caligraphic 4 */
-		"\uF7EA" -> {"GothicFive", 6}, /* caligraphic 5 */
-		"\uF7EB" -> {"GothicSix", 6}, /* caligraphic 6 */
-		"\uF7EC" -> {"GothicSeven", 6}, /* caligraphic 7 */
-		"\uF7ED" -> {"GothicEight", 6}, /* caligraphic 8 */
-		"\uF7EE" -> {"GothicNine", 6}, /* caligraphic 9 */
-		"\U0001D56C" -> {"GothicCapA", 6}, /* caligraphic A */
-		"\U0001D56D" -> {"GothicCapB", 6}, /* caligraphic B */
-		"\U0001D56E" -> {"GothicCapC", 6}, /* caligraphic C */
-		"\u212D" -> {"GothicCapC", 6}, /* black-letter C */
-		"\U0001D56F" -> {"GothicCapD", 6}, /* caligraphic D */
-		"\U0001D570" -> {"GothicCapE", 6}, /* caligraphic E */
-		"\U0001D571" -> {"GothicCapF", 6}, /* caligraphic F */
-		"\U0001D572" -> {"GothicCapG", 6}, /* caligraphic G */
-		"\U0001D573" -> {"GothicCapH", 6}, /* caligraphic H */
-		"\u210C" -> {"GothicCapH", 6}, /* black-letter H */
-		"\U0001D574" -> {"GothicCapI", 6}, /* caligraphic I */
-		"\U0001D575" -> {"GothicCapJ", 6}, /* caligraphic J */
-		"\U0001D576" -> {"GothicCapK", 6}, /* caligraphic K */
-		"\U0001D577" -> {"GothicCapL", 6}, /* caligraphic L */
-		"\U0001D578" -> {"GothicCapM", 6}, /* caligraphic M */
-		"\U0001D579" -> {"GothicCapN", 6}, /* caligraphic N */
-		"\U0001D57A" -> {"GothicCapO", 6}, /* caligraphic O */
-		"\U0001D57B" -> {"GothicCapP", 6}, /* caligraphic P */
-		"\U0001D57C" -> {"GothicCapQ", 6}, /* caligraphic Q */
-		"\U0001D57D" -> {"GothicCapR", 6}, /* caligraphic R */
-		"\U0001D57E" -> {"GothicCapS", 6}, /* caligraphic S */
-		"\U0001D57F" -> {"GothicCapT", 6}, /* caligraphic T */
-		"\U0001D580" -> {"GothicCapU", 6}, /* caligraphic U */
-		"\U0001D581" -> {"GothicCapV", 6}, /* caligraphic V */
-		"\U0001D582" -> {"GothicCapW", 6}, /* caligraphic W */
-		"\U0001D583" -> {"GothicCapX", 6}, /* caligraphic X */
-		"\U0001D584" -> {"GothicCapY", 6}, /* caligraphic Y */
-		"\U0001D585" -> {"GothicCapZ", 6}, /* caligraphic Z */
-		"\u2128" -> {"GothicCapZ", 6}, /* black-letter Z */
-		"\U0001D586" -> {"GothicA", 6}, /* caligraphic a */
-		"\U0001D587" -> {"GothicB", 6}, /* caligraphic b */
-		"\U0001D588" -> {"GothicC", 6}, /* caligraphic c */
-		"\U0001D589" -> {"GothicD", 6}, /* caligraphic d */
-		"\U0001D58A" -> {"GothicE", 6}, /* caligraphic e */
-		"\U0001D58B" -> {"GothicF", 6}, /* caligraphic f */
-		"\U0001D58C" -> {"GothicG", 6}, /* caligraphic g */
-		"\U0001D58D" -> {"GothicH", 6}, /* caligraphic h */
-		"\U0001D58E" -> {"GothicI", 6}, /* caligraphic i */
-		"\U0001D58F" -> {"GothicJ", 6}, /* caligraphic j */
-		"\U0001D590" -> {"GothicK", 6}, /* caligraphic k */
-		"\U0001D591" -> {"GothicL", 6}, /* caligraphic l */
-		"\U0001D592" -> {"GothicM", 6}, /* caligraphic m */
-		"\U0001D593" -> {"GothicN", 6}, /* caligraphic n */
-		"\U0001D594" -> {"GothicO", 6}, /* caligraphic o */
-		"\U0001D595" -> {"GothicP", 6}, /* caligraphic p */
-		"\U0001D596" -> {"GothicQ", 6}, /* caligraphic q */
-		"\U0001D597" -> {"GothicR", 6}, /* caligraphic r */
-		"\U0001D598" -> {"GothicS", 6}, /* caligraphic s */
-		"\U0001D599" -> {"GothicT", 6}, /* caligraphic t */
-		"\U0001D59A" -> {"GothicU", 6}, /* caligraphic u */
-		"\U0001D59B" -> {"GothicV", 6}, /* caligraphic v */
-		"\U0001D59C" -> {"GothicW", 6}, /* caligraphic w */
-		"\U0001D59D" -> {"GothicX", 6}, /* caligraphic x */
-		"\U0001D59E" -> {"GothicY", 6}, /* caligraphic y */
-		"\U0001D59F" -> {"GothicZ", 6}, /* caligraphic z */
+		"\[U+F7E5]" -> {"GothicZero", 6}, /* caligraphic 0 */
+		"\[U+F7E6]" -> {"GothicOne", 6}, /* caligraphic 1 */
+		"\[U+F7E7]" -> {"GothicTwo", 6}, /* caligraphic 2 */
+		"\[U+F7E8]" -> {"GothicThree", 6}, /* caligraphic 3 */
+		"\[U+F7E9]" -> {"GothicFour", 6}, /* caligraphic 4 */
+		"\[U+F7EA]" -> {"GothicFive", 6}, /* caligraphic 5 */
+		"\[U+F7EB]" -> {"GothicSix", 6}, /* caligraphic 6 */
+		"\[U+F7EC]" -> {"GothicSeven", 6}, /* caligraphic 7 */
+		"\[U+F7ED]" -> {"GothicEight", 6}, /* caligraphic 8 */
+		"\[U+F7EE]" -> {"GothicNine", 6}, /* caligraphic 9 */
+		"\[U+1D56C]" -> {"GothicCapA", 6}, /* caligraphic A */
+		"\[U+1D56D]" -> {"GothicCapB", 6}, /* caligraphic B */
+		"\[U+1D56E]" -> {"GothicCapC", 6}, /* caligraphic C */
+		"\[U+212D]" -> {"GothicCapC", 6}, /* black-letter C */
+		"\[U+1D56F]" -> {"GothicCapD", 6}, /* caligraphic D */
+		"\[U+1D570]" -> {"GothicCapE", 6}, /* caligraphic E */
+		"\[U+1D571]" -> {"GothicCapF", 6}, /* caligraphic F */
+		"\[U+1D572]" -> {"GothicCapG", 6}, /* caligraphic G */
+		"\[U+1D573]" -> {"GothicCapH", 6}, /* caligraphic H */
+		"\[U+210C]" -> {"GothicCapH", 6}, /* black-letter H */
+		"\[U+1D574]" -> {"GothicCapI", 6}, /* caligraphic I */
+		"\[U+1D575]" -> {"GothicCapJ", 6}, /* caligraphic J */
+		"\[U+1D576]" -> {"GothicCapK", 6}, /* caligraphic K */
+		"\[U+1D577]" -> {"GothicCapL", 6}, /* caligraphic L */
+		"\[U+1D578]" -> {"GothicCapM", 6}, /* caligraphic M */
+		"\[U+1D579]" -> {"GothicCapN", 6}, /* caligraphic N */
+		"\[U+1D57A]" -> {"GothicCapO", 6}, /* caligraphic O */
+		"\[U+1D57B]" -> {"GothicCapP", 6}, /* caligraphic P */
+		"\[U+1D57C]" -> {"GothicCapQ", 6}, /* caligraphic Q */
+		"\[U+1D57D]" -> {"GothicCapR", 6}, /* caligraphic R */
+		"\[U+1D57E]" -> {"GothicCapS", 6}, /* caligraphic S */
+		"\[U+1D57F]" -> {"GothicCapT", 6}, /* caligraphic T */
+		"\[U+1D580]" -> {"GothicCapU", 6}, /* caligraphic U */
+		"\[U+1D581]" -> {"GothicCapV", 6}, /* caligraphic V */
+		"\[U+1D582]" -> {"GothicCapW", 6}, /* caligraphic W */
+		"\[U+1D583]" -> {"GothicCapX", 6}, /* caligraphic X */
+		"\[U+1D584]" -> {"GothicCapY", 6}, /* caligraphic Y */
+		"\[U+1D585]" -> {"GothicCapZ", 6}, /* caligraphic Z */
+		"\[U+2128]" -> {"GothicCapZ", 6}, /* black-letter Z */
+		"\[U+1D586]" -> {"GothicA", 6}, /* caligraphic a */
+		"\[U+1D587]" -> {"GothicB", 6}, /* caligraphic b */
+		"\[U+1D588]" -> {"GothicC", 6}, /* caligraphic c */
+		"\[U+1D589]" -> {"GothicD", 6}, /* caligraphic d */
+		"\[U+1D58A]" -> {"GothicE", 6}, /* caligraphic e */
+		"\[U+1D58B]" -> {"GothicF", 6}, /* caligraphic f */
+		"\[U+1D58C]" -> {"GothicG", 6}, /* caligraphic g */
+		"\[U+1D58D]" -> {"GothicH", 6}, /* caligraphic h */
+		"\[U+1D58E]" -> {"GothicI", 6}, /* caligraphic i */
+		"\[U+1D58F]" -> {"GothicJ", 6}, /* caligraphic j */
+		"\[U+1D590]" -> {"GothicK", 6}, /* caligraphic k */
+		"\[U+1D591]" -> {"GothicL", 6}, /* caligraphic l */
+		"\[U+1D592]" -> {"GothicM", 6}, /* caligraphic m */
+		"\[U+1D593]" -> {"GothicN", 6}, /* caligraphic n */
+		"\[U+1D594]" -> {"GothicO", 6}, /* caligraphic o */
+		"\[U+1D595]" -> {"GothicP", 6}, /* caligraphic p */
+		"\[U+1D596]" -> {"GothicQ", 6}, /* caligraphic q */
+		"\[U+1D597]" -> {"GothicR", 6}, /* caligraphic r */
+		"\[U+1D598]" -> {"GothicS", 6}, /* caligraphic s */
+		"\[U+1D599]" -> {"GothicT", 6}, /* caligraphic t */
+		"\[U+1D59A]" -> {"GothicU", 6}, /* caligraphic u */
+		"\[U+1D59B]" -> {"GothicV", 6}, /* caligraphic v */
+		"\[U+1D59C]" -> {"GothicW", 6}, /* caligraphic w */
+		"\[U+1D59D]" -> {"GothicX", 6}, /* caligraphic x */
+		"\[U+1D59E]" -> {"GothicY", 6}, /* caligraphic y */
+		"\[U+1D59F]" -> {"GothicZ", 6}, /* caligraphic z */
 		
-		"\U0001D7D8" -> {"DoubleZero", 7}, /* double-struck 0 */
-		"\U0001D7D9" -> {"DoubleOne", 7}, /* double-struck 1 */
-		"\U0001D7DA" -> {"DoubleTwo", 7}, /* double-struck 2 */
-		"\U0001D7DB" -> {"DoubleThree", 7}, /* double-struck 3 */
-		"\U0001D7DC" -> {"DoubleFour", 7}, /* double-struck 4 */
-		"\U0001D7DD" -> {"DoubleFive", 7}, /* double-struck 5 */
-		"\U0001D7DE" -> {"DoubleSix", 7}, /* double-struck 6 */
-		"\U0001D7DF" -> {"DoubleSeven", 7}, /* double-struck 7 */
-		"\U0001D7E0" -> {"DoubleEight", 7}, /* double-struck 8 */
-		"\U0001D7E1" -> {"DoubleNine", 7}, /* double-struck 9 */
-		"\U0001D538" -> {"DoubleCapA", 7}, /* double-struck A */
-		"\U0001D539" -> {"DoubleCapB", 7}, /* double-struck B */
-		"\U0001D53A" -> {"DoubleCapC", 7}, /* double-struck C */
-		"\u2102" -> {"DoubleCapC", 7}, /* double-struck C */
-		"\U0001D53B" -> {"DoubleCapD", 7}, /* double-struck D */
-		"\U0001D53C" -> {"DoubleCapE", 7}, /* double-struck E */
-		"\U0001D53D" -> {"DoubleCapF", 7}, /* double-struck F */
-		"\U0001D53E" -> {"DoubleCapG", 7}, /* double-struck G */
-		"\U0001D53F" -> {"DoubleCapH", 7}, /* double-struck H */
-		"\u210D" -> {"DoubleCapH", 7}, /* double-struck H */
-		"\U0001D540" -> {"DoubleCapI", 7}, /* double-struck I */
-		"\U0001D541" -> {"DoubleCapJ", 7}, /* double-struck J */
-		"\U0001D542" -> {"DoubleCapK", 7}, /* double-struck K */
-		"\U0001D543" -> {"DoubleCapL", 7}, /* double-struck L */
-		"\U0001D544" -> {"DoubleCapM", 7}, /* double-struck M */
-		"\U0001D545" -> {"DoubleCapN", 7}, /* double-struck N */
-		"\u2115" -> {"DoubleCapN", 7}, /* double-struck N */
-		"\U0001D546" -> {"DoubleCapO", 7}, /* double-struck O */
-		"\U0001D547" -> {"DoubleCapP", 7}, /* double-struck P */
-		"\u2119" -> {"DoubleCapP", 7}, /* double-struck P */
-		"\U0001D548" -> {"DoubleCapQ", 7}, /* double-struck Q */
-		"\u211A" -> {"DoubleCapQ", 7}, /* double-struck Q */
-		"\U0001D549" -> {"DoubleCapR", 7}, /* double-struck R */
-		"\u211D" -> {"DoubleCapR", 7}, /* double-struck R */
-		"\U0001D54A" -> {"DoubleCapS", 7}, /* double-struck S */
-		"\U0001D54B" -> {"DoubleCapT", 7}, /* double-struck T */
-		"\U0001D54C" -> {"DoubleCapU", 7}, /* double-struck U */
-		"\U0001D54D" -> {"DoubleCapV", 7}, /* double-struck V */
-		"\U0001D54E" -> {"DoubleCapW", 7}, /* double-struck W */
-		"\U0001D54F" -> {"DoubleCapX", 7}, /* double-struck X */
-		"\U0001D550" -> {"DoubleCapY", 7}, /* double-struck Y */
-		"\U0001D551" -> {"DoubleCapZ", 7}, /* double-struck Z */
-		"\u2124" -> {"DoubleCapZ", 7}, /* double-struck Z */
-		"\U0001D552" -> {"DoubleA", 7}, /* double-struck a */
-		"\U0001D553" -> {"DoubleB", 7}, /* double-struck b */
-		"\U0001D554" -> {"DoubleC", 7}, /* double-struck c */
-		"\U0001D555" -> {"DoubleD", 7}, /* double-struck d */
-		"\U0001D556" -> {"DoubleE", 7}, /* double-struck e */
-		"\U0001D557" -> {"DoubleF", 7}, /* double-struck f */
-		"\U0001D558" -> {"DoubleG", 7}, /* double-struck g */
-		"\U0001D559" -> {"DoubleH", 7}, /* double-struck h */
-		"\U0001D55A" -> {"DoubleI", 7}, /* double-struck i */
-		"\U0001D55B" -> {"DoubleJ", 7}, /* double-struck j */
-		"\U0001D55C" -> {"DoubleK", 7}, /* double-struck k */
-		"\U0001D55D" -> {"DoubleL", 7}, /* double-struck l */
-		"\U0001D55E" -> {"DoubleM", 7}, /* double-struck m */
-		"\U0001D55F" -> {"DoubleN", 7}, /* double-struck n */
-		"\U0001D560" -> {"DoubleO", 7}, /* double-struck o */
-		"\U0001D561" -> {"DoubleP", 7}, /* double-struck p */
-		"\U0001D562" -> {"DoubleQ", 7}, /* double-struck q */
-		"\U0001D563" -> {"DoubleR", 7}, /* double-struck r */
-		"\U0001D564" -> {"DoubleS", 7}, /* double-struck s */
-		"\U0001D565" -> {"DoubleT", 7}, /* double-struck t */
-		"\U0001D566" -> {"DoubleU", 7}, /* double-struck u */
-		"\U0001D567" -> {"DoubleV", 7}, /* double-struck v */
-		"\U0001D568" -> {"DoubleW", 7}, /* double-struck w */
-		"\U0001D569" -> {"DoubleX", 7}, /* double-struck x */
-		"\U0001D56A" -> {"DoubleY", 7}, /* double-struck y */
-		"\U0001D56B" -> {"DoubleZ", 7}  /* double-struck z */}
+		"\[U+1D7D8]" -> {"DoubleZero", 7}, /* double-struck 0 */
+		"\[U+1D7D9]" -> {"DoubleOne", 7}, /* double-struck 1 */
+		"\[U+1D7DA]" -> {"DoubleTwo", 7}, /* double-struck 2 */
+		"\[U+1D7DB]" -> {"DoubleThree", 7}, /* double-struck 3 */
+		"\[U+1D7DC]" -> {"DoubleFour", 7}, /* double-struck 4 */
+		"\[U+1D7DD]" -> {"DoubleFive", 7}, /* double-struck 5 */
+		"\[U+1D7DE]" -> {"DoubleSix", 7}, /* double-struck 6 */
+		"\[U+1D7DF]" -> {"DoubleSeven", 7}, /* double-struck 7 */
+		"\[U+1D7E0]" -> {"DoubleEight", 7}, /* double-struck 8 */
+		"\[U+1D7E1]" -> {"DoubleNine", 7}, /* double-struck 9 */
+		"\[U+1D538]" -> {"DoubleCapA", 7}, /* double-struck A */
+		"\[U+1D539]" -> {"DoubleCapB", 7}, /* double-struck B */
+		"\[U+1D53A]" -> {"DoubleCapC", 7}, /* double-struck C */
+		"\[U+2102]" -> {"DoubleCapC", 7}, /* double-struck C */
+		"\[U+1D53B]" -> {"DoubleCapD", 7}, /* double-struck D */
+		"\[U+1D53C]" -> {"DoubleCapE", 7}, /* double-struck E */
+		"\[U+1D53D]" -> {"DoubleCapF", 7}, /* double-struck F */
+		"\[U+1D53E]" -> {"DoubleCapG", 7}, /* double-struck G */
+		"\[U+1D53F]" -> {"DoubleCapH", 7}, /* double-struck H */
+		"\[U+210D]" -> {"DoubleCapH", 7}, /* double-struck H */
+		"\[U+1D540]" -> {"DoubleCapI", 7}, /* double-struck I */
+		"\[U+1D541]" -> {"DoubleCapJ", 7}, /* double-struck J */
+		"\[U+1D542]" -> {"DoubleCapK", 7}, /* double-struck K */
+		"\[U+1D543]" -> {"DoubleCapL", 7}, /* double-struck L */
+		"\[U+1D544]" -> {"DoubleCapM", 7}, /* double-struck M */
+		"\[U+1D545]" -> {"DoubleCapN", 7}, /* double-struck N */
+		"\[U+2115]" -> {"DoubleCapN", 7}, /* double-struck N */
+		"\[U+1D546]" -> {"DoubleCapO", 7}, /* double-struck O */
+		"\[U+1D547]" -> {"DoubleCapP", 7}, /* double-struck P */
+		"\[U+2119]" -> {"DoubleCapP", 7}, /* double-struck P */
+		"\[U+1D548]" -> {"DoubleCapQ", 7}, /* double-struck Q */
+		"\[U+211A]" -> {"DoubleCapQ", 7}, /* double-struck Q */
+		"\[U+1D549]" -> {"DoubleCapR", 7}, /* double-struck R */
+		"\[U+211D]" -> {"DoubleCapR", 7}, /* double-struck R */
+		"\[U+1D54A]" -> {"DoubleCapS", 7}, /* double-struck S */
+		"\[U+1D54B]" -> {"DoubleCapT", 7}, /* double-struck T */
+		"\[U+1D54C]" -> {"DoubleCapU", 7}, /* double-struck U */
+		"\[U+1D54D]" -> {"DoubleCapV", 7}, /* double-struck V */
+		"\[U+1D54E]" -> {"DoubleCapW", 7}, /* double-struck W */
+		"\[U+1D54F]" -> {"DoubleCapX", 7}, /* double-struck X */
+		"\[U+1D550]" -> {"DoubleCapY", 7}, /* double-struck Y */
+		"\[U+1D551]" -> {"DoubleCapZ", 7}, /* double-struck Z */
+		"\[U+2124]" -> {"DoubleCapZ", 7}, /* double-struck Z */
+		"\[U+1D552]" -> {"DoubleA", 7}, /* double-struck a */
+		"\[U+1D553]" -> {"DoubleB", 7}, /* double-struck b */
+		"\[U+1D554]" -> {"DoubleC", 7}, /* double-struck c */
+		"\[U+1D555]" -> {"DoubleD", 7}, /* double-struck d */
+		"\[U+1D556]" -> {"DoubleE", 7}, /* double-struck e */
+		"\[U+1D557]" -> {"DoubleF", 7}, /* double-struck f */
+		"\[U+1D558]" -> {"DoubleG", 7}, /* double-struck g */
+		"\[U+1D559]" -> {"DoubleH", 7}, /* double-struck h */
+		"\[U+1D55A]" -> {"DoubleI", 7}, /* double-struck i */
+		"\[U+1D55B]" -> {"DoubleJ", 7}, /* double-struck j */
+		"\[U+1D55C]" -> {"DoubleK", 7}, /* double-struck k */
+		"\[U+1D55D]" -> {"DoubleL", 7}, /* double-struck l */
+		"\[U+1D55E]" -> {"DoubleM", 7}, /* double-struck m */
+		"\[U+1D55F]" -> {"DoubleN", 7}, /* double-struck n */
+		"\[U+1D560]" -> {"DoubleO", 7}, /* double-struck o */
+		"\[U+1D561]" -> {"DoubleP", 7}, /* double-struck p */
+		"\[U+1D562]" -> {"DoubleQ", 7}, /* double-struck q */
+		"\[U+1D563]" -> {"DoubleR", 7}, /* double-struck r */
+		"\[U+1D564]" -> {"DoubleS", 7}, /* double-struck s */
+		"\[U+1D565]" -> {"DoubleT", 7}, /* double-struck t */
+		"\[U+1D566]" -> {"DoubleU", 7}, /* double-struck u */
+		"\[U+1D567]" -> {"DoubleV", 7}, /* double-struck v */
+		"\[U+1D568]" -> {"DoubleW", 7}, /* double-struck w */
+		"\[U+1D569]" -> {"DoubleX", 7}, /* double-struck x */
+		"\[U+1D56A]" -> {"DoubleY", 7}, /* double-struck y */
+		"\[U+1D56B]" -> {"DoubleZ", 7}  /* double-struck z */}
 	}

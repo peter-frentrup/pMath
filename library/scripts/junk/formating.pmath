@@ -20,18 +20,18 @@ Protect(ShowDefinition, showdef);
 
 Unprotect(RunParser);
 
-RunParser({~a, "\u21A6", ~b})::= RunParser({"Function", "(", {{"{", a, "}"}, ",", b}, ")"})
+RunParser({~a, "\[U+21A6]", ~b})::= RunParser({"Function", "(", {{"{", a, "}"}, ",", b}, ")"})
 
-RunParser({UnderoverscriptBox("\u220F", {~i, "=", ~a}, ~b), ~c})::= 
+RunParser({UnderoverscriptBox("\[U+220F]", {~i, "=", ~a}, ~b), ~c})::= 
   RunParser({"Product", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
 
-RunParser({"\u220F", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
+RunParser({"\[U+220F]", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
   RunParser({"Product", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
 
-RunParser({UnderoverscriptBox("\u2211", {~i, "=", ~a}, ~b), ~c})::= 
+RunParser({UnderoverscriptBox("\[u+2211]", {~i, "=", ~a}, ~b), ~c})::= 
   RunParser({"Sum", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
 
-RunParser({"\u2211", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
+RunParser({"\[u+2211]", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
   RunParser({"Sum", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
 
 RunParser({~x, SubscriptBox("+")})::= RunParser("SubPlus", "(", x, ")")
@@ -53,12 +53,12 @@ Protect(RunParser);
 
 MakeBoxes(Sum(~c, ~i -> ~a..~b))::= 
   ParenthesizeBoxes(
-    {UnderoverscriptBox("\u2211", MakeBoxes(i = a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(c), Times)},
+    {UnderoverscriptBox("\[u+2211]", MakeBoxes(i = a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(c), Times)},
 	Times)
   
 MakeBoxes(Product(~c, ~i -> ~a..~b))::= 
   PrecedenceBoxForm(
-    {UnderoverscriptBox("\u220F", MakeBoxes(i = a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(c), Times)},
+    {UnderoverscriptBox("\[U+220F]", MakeBoxes(i = a), MakeBoxes(b)), ParenthesizeBoxes(MakeBoxes(c), Times)},
 	Times)
 
 MakeBoxes(SubPlus(~x))::= {ParenthesizeBoxes(MakeBoxes(c), Power), SubscriptBox("+")}

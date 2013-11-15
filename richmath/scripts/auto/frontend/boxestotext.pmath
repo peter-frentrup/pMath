@@ -10,15 +10,15 @@ parenthesize(~x:String, ~format)::= x
 parenthesize({~x}, ~format)::= parenthesize(x, format)
 parenthesize(~x, ~format)::= "(" ++ innerBoxesToText(x, format) ++ ")"
 
-innerBoxesToText("\u2192", "InputText"):= "->";
-innerBoxesToText("\u2254", "InputText"):= ":=";
-innerBoxesToText("\u29F4", "InputText"):= ":>";
-innerBoxesToText("\u2A74", "InputText"):= "::=";
-innerBoxesToText("\u2260", "InputText"):= "!=";
-innerBoxesToText("\u2264", "InputText"):= "<=";
-innerBoxesToText("\u2265", "InputText"):= ">=";
-innerBoxesToText("\u27E6", "InputText"):= "[[";
-innerBoxesToText("\u27E7", "InputText"):= "]]";
+innerBoxesToText("\[u+2192]", "InputText"):= "->";
+innerBoxesToText("\[u+2254]", "InputText"):= ":=";
+innerBoxesToText("\[U+29F4]", "InputText"):= ":>";
+innerBoxesToText("\[U+2A74]", "InputText"):= "::=";
+innerBoxesToText("\[u+2260]", "InputText"):= "!=";
+innerBoxesToText("\[u+2264]", "InputText"):= "<=";
+innerBoxesToText("\[u+2265]", "InputText"):= ">=";
+innerBoxesToText("\[U+27E6]", "InputText"):= "[[";
+innerBoxesToText("\[U+27E7]", "InputText"):= "]]";
 
 /*  TODO: {"a1", "b"}  becomes  "a1b"  but should be "a1 b" */
 innerBoxesToText(~b:List, ~format)::= StringExpression @@ b.Map(innerBoxesToText(#, format)&)

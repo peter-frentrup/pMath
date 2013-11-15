@@ -115,10 +115,10 @@ firstIsName({~s, ~~~})::= firstIsName(s)
 lastIsOpening({~~~,~s})::= lastIsOpening(s)
 lastIsDigit({~~~,~s})::= firstIsDigit(s)
 lastIsName({~~~,~s})::= firstIsName(s)
-firstIsOpening(~s:String)::= StringMatch(s, StartOfString ++ ("(" | "[" | "\u27E6"));
+firstIsOpening(~s:String)::= StringMatch(s, StartOfString ++ ("(" | "[" | "\[U+27E6]"));
 firstIsDigit(~s:String)::= StringMatch(s, StartOfString ++ "0".."9");
 firstIsName(~s:String)::= StringMatch(s, RegularExpression("^[$_\\p{L}\\p{N}]"))
-lastIsOpening(~s:String)::= StringMatch(s, ("(" | "[" | "\u27E6") ++ EndOfString);
+lastIsOpening(~s:String)::= StringMatch(s, ("(" | "[" | "\[U+27E6]") ++ EndOfString);
 lastIsDigit(~s:String)::= StringMatch(s, "0".."9" ++ EndOfString);
 lastIsName(~s:String)::= StringMatch(s, RegularExpression("[$_\\p{L}\\p{N}]$"))
 
@@ -217,39 +217,39 @@ $fnaliases:= Join($fnaliases, {
 	"tan" -> Tan,
 	"tanh" -> Tanh});
 $aliases:= Join($aliases, {
-	"sum" -> "\u2211",
-	"int" -> "\u222B",
+	"sum" -> "\[U+2211]",
+	"int" -> "\[U+222B]",
 	
-	"alpha" -> "\u03B1", 
-	"beta" -> "\u03B2", 
-	"gamma" -> "\u03B3",
-	"delta" -> "\u03B4",
-	"varepsilon" -> "\u03B5",
-	"epsilon" -> "\u03F5",
-	"zeta" -> "\u03B6",
-	"eta" -> "\u03B7",
-	"theta" -> "\u03B8",
-	"vartheta" -> "\u03D1",
-	"iota" -> "\u03B9",
-	"kappa" -> "\u03BA",
-	"lambda" -> "\u03BB",
-	"mu" -> "\u03BC",
-	"nu" -> "\u03BD",
-	"xi" -> "\u03BE",
-	"pi" -> "\u03C0",
-	"varpi" -> "\u03D6",
-	"rho" -> "\u03C1",
-	"varrho" -> "\u03F1",
-	"sigma" -> "\u03C3",
-	"varsigma" -> "\u03C2",
-	"tau" -> "\u03C4",
-	"upsilon" -> "\u03C5",
-	"phi" -> "\u03D5",
-	"varphi" -> "\u03C6",
-	"chi" -> "\u03C7",
-	"psi" -> "\u03C8",
-	"omega" -> "\u03C9"});
-$autoLimits:= Join($autoLimits, {"\u2211"});
+	"alpha" -> "\[U+03B1]", 
+	"beta" -> "\[U+03B2]", 
+	"gamma" -> "\[U+03B3]",
+	"delta" -> "\[U+03B4]",
+	"varepsilon" -> "\[U+03B5]",
+	"epsilon" -> "\[U+03F5]",
+	"zeta" -> "\[U+03B6]",
+	"eta" -> "\[U+03B7]",
+	"theta" -> "\[U+03B8]",
+	"vartheta" -> "\[U+03D1]",
+	"iota" -> "\[U+03B9]",
+	"kappa" -> "\[U+03BA]",
+	"lambda" -> "\[U+03BB]",
+	"mu" -> "\[U+03BC]",
+	"nu" -> "\[U+03BD]",
+	"xi" -> "\[U+03BE]",
+	"pi" -> "\[U+03C0]",
+	"varpi" -> "\[U+03D6]",
+	"rho" -> "\[U+03C1]",
+	"varrho" -> "\[U+03F1]",
+	"sigma" -> "\[U+03C3]",
+	"varsigma" -> "\[U+03C2]",
+	"tau" -> "\[U+03C4]",
+	"upsilon" -> "\[U+03C5]",
+	"phi" -> "\[U+03D5]",
+	"varphi" -> "\[U+03C6]",
+	"chi" -> "\[U+03C7]",
+	"psi" -> "\[U+03C8]",
+	"omega" -> "\[U+03C9]"});
+$autoLimits:= Join($autoLimits, {"\[u+2211]"});
 
 doAutoLimit(~x)::= $autoLimits.Position(x) =!= {}
 
@@ -259,7 +259,7 @@ row(~x)::= x
 row2(~~~x)::= spaces({x},{})
 spaces({}, ~done)::= done
 spaces({~x}, {~~~done})::= {done,x}
-spaces({x:InterpretationBox(~,~), ~y, ~~~rest}, {~~~done})::= spaces({y,rest},{done,x,"\u2061"})
+spaces({x:InterpretationBox(~,~), ~y, ~~~rest}, {~~~done})::= spaces({y,rest},{done,x,"\[u+2061]"})
 spaces({~x,~y,~~~rest}, {~~~done})::= (
 	If(firstIsName(y) && lastIsName(x) && !lastIsDigit(x),
 		spaces({y,rest},{done,x,"  "})
@@ -287,8 +287,8 @@ box2("sqrt", {}, {~r})::= SqrtBox(row(r))
 box2("sqrt", {~e}, {~r})::= RadicalBox(row(r), row(e))
 box2("frac", {}, {~n, ~d})::= FractionBox(row(n), row(d))
 box2("text", {}, {~t})::= StyleBox(row(t), "Text")
-box2("xrightarrow", {}, {~over})::= OverscriptBox("\u2192", row(over))
-box2("xrightarrow", {~under}, {~over})::= UnderoverscriptBox("\u2192", row(under), row(over))
+box2("xrightarrow", {}, {~over})::= OverscriptBox("\[u+2192]", row(over))
+box2("xrightarrow", {~under}, {~over})::= UnderoverscriptBox("\[u+2192]", row(under), row(over))
 
 closedgroup2(box("left",{},{"."}), ~a, box("right", {}, {"."}))::=    row(a)
 closedgroup2(box("left",{},{"."}), ~a, box("right", {}, {~r}))::=     row(a, r)

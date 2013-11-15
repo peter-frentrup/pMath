@@ -506,7 +506,7 @@ static void skip_to(struct parser_t *parser, int span_start, int next, pmath_boo
   skip_space(parser, span_start, optional);
 }
 
-// like pmath_token_analyze(,,NULL), but can handle \[NNN], \xHH, \uHHHH, ...
+// like pmath_token_analyze(,,NULL), but can handle \[NNN], \[U+HHHH], \n, \\, ...
 static pmath_token_t scan_next_escaped_char(struct scanner_t *tokens, struct parser_t *parser, uint32_t *chr) {
   uint32_t u;
   const uint16_t *endstr;
