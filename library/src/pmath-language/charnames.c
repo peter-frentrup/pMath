@@ -884,65 +884,6 @@ const char *pmath_char_to_name(uint32_t unichar) {
   return NULL;
 }
 
-static int hex(uint16_t ch) {
-  if(ch >= '0' && ch <= '9')
-    return ch - '0';
-  if(ch >= 'a' && ch <= 'f')
-    return ch - 'a' + 10;
-  if(ch >= 'A' && ch <= 'F')
-    return ch - 'A' + 10;
-  return -1;
-}
-
-static uint16_t next_char(const uint16_t **str, const uint16_t *end, pmath_bool_t *err) {
-  size_t maxlen = end - *str;
-  uint16_t ch;
-  
-  if(maxlen == 0) {
-    *err = TRUE;
-    return 0;
-  }
-  
-  ch = (*str)[0];
-  if(ch == '\\') {
-    if(1 < maxlen && (*str)[1] == '\n') {
-      size_t i = 1;
-      while(i < maxlen && (*str)[i] <= ' ')
-        ++i;
-        
-      if(i < maxlen) {
-        ch = (*str)[i];
-        *str += i + 1;
-        return ch;
-      }
-    }
-    
-    ++*str;
-    *err = TRUE;
-    return 0;
-  }
-  
-  ++*str;
-  return ch;
-}
-
-static const uint16_t *skip_all_hex(const uint16_t *str, int maxlen) {
-  const uint16_t *end = str + maxlen;
-  pmath_bool_t err = FALSE;
-  
-  while(str != end && !err) {
-    const uint16_t *next_str = str;
-    uint16_t ch = next_char(&next_str, end, &err);
-    
-    if(!pmath_char_is_hexdigit(ch))
-      break;
-      
-    str = next_str;
-  }
-  
-  return str;
-}
-
 PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint32_t *result) {
   assert(str    != NULL);
   assert(result != NULL);
@@ -992,72 +933,6 @@ PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint
     case ')':
       *result = PMATH_CHAR_RIGHT_BOX;
       return str + 2;
-      
-    case 'x': {
-        pmath_bool_t err = FALSE;
-        const uint16_t *end = str + maxlen;
-        const uint16_t *s = str + 2;
-        
-        int h1 = hex(next_char(&s, end, &err));
-        int h2 = hex(next_char(&s, end, &err));
-        if(!err && h1 >= 0 && h2 >= 0) {
-          *result = (uint32_t)((h1 << 4) | h2);
-          return s;
-        }
-      }
-      return skip_all_hex(str + 2, maxlen - 2);
-      
-    case 'u': {
-        pmath_bool_t err = FALSE;
-        const uint16_t *end = str + maxlen;
-        const uint16_t *s = str + 2;
-        
-        int h1 = hex(next_char(&s, end, &err));
-        int h2 = hex(next_char(&s, end, &err));
-        int h3 = hex(next_char(&s, end, &err));
-        int h4 = hex(next_char(&s, end, &err));
-        
-        if(!err && h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0) {
-          *result = (uint32_t)((h1 << 12) | (h2 << 8) | (h3 << 4) | h4);
-          return str + 6;
-        }
-      }
-      return skip_all_hex(str + 2, maxlen - 2);
-      
-    case 'U': {
-        pmath_bool_t err = FALSE;
-        const uint16_t *end = str + maxlen;
-        const uint16_t *s = str + 2;
-        
-        int h1 = hex(next_char(&s, end, &err));
-        int h2 = hex(next_char(&s, end, &err));
-        int h3 = hex(next_char(&s, end, &err));
-        int h4 = hex(next_char(&s, end, &err));
-        int h5 = hex(next_char(&s, end, &err));
-        int h6 = hex(next_char(&s, end, &err));
-        int h7 = hex(next_char(&s, end, &err));
-        int h8 = hex(next_char(&s, end, &err));
-        
-        if( !err &&
-            h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0 &&
-            h5 >= 0 && h6 >= 0 && h7 >= 0 && h8 >= 0)
-        {
-          uint32_t u = ((uint32_t)h1) << 28;
-          u |= h2 << 24;
-          u |= h3 << 20;
-          u |= h4 << 16;
-          u |= h5 << 12;
-          u |= h6 <<  8;
-          u |= h7 <<  4;
-          u |= h8;
-          
-          if(u <= 0x10FFFF) {
-            *result = u;
-            return str + 10;
-          }
-        }
-      }
-      return skip_all_hex(str + 2, maxlen - 2);
       
     case '[': {
         char s[64];
