@@ -808,14 +808,65 @@ static const pmath_ht_class_t char2name_ht_class = { // key is a (uint32_t*)
   nc_char_key_equal
 };
 
+// takes "U+XXXX" and so on
+static uint32_t char_from_unicode_hexname(const char *name) {
+  uint32_t unichar = 0;
+  const char *hex;
+  int i;
+  
+  if(name[0] != 'U' && name[0] != 'u')
+    return 0xFFFFFFFFU;
+    
+  if(name[1] != '+')
+    return 0xFFFFFFFFU;
+    
+  hex = name + 2;
+  for(i = 0; i < 6; ++i) {
+    if(hex[i] == '\0')
+      break;
+      
+    if(hex[i] >= '0' && hex[i] <= '9') {
+      unichar = unichar * 16 + (hex[i] - '0');
+      continue;
+    }
+    
+    if(hex[i] >= 'A' && hex[i] <= 'F') {
+      unichar = unichar * 16 + (10 + hex[i] - 'A');
+      continue;
+    }
+    
+    if(hex[i] >= 'a' && hex[i] <= 'f') {
+      unichar = unichar * 16 + (10 + hex[i] - 'a');
+      continue;
+    }
+    
+    return 0xFFFFFFFFU;
+  }
+  
+  if(hex[i] != '\0')
+    return 0xFFFFFFFFU;
+    
+  if(i < 4)
+    return 0xFFFFFFFFU;
+    
+  if(unichar > 0x10FFFF)
+    return 0xFFFFFFFFU;
+    
+  return unichar;
+}
+
 PMATH_API
 uint32_t pmath_char_from_name(const char *name) {
-  struct named_char_t *entry = pmath_ht_search(name2char_ht, (void *)name);
+  uint32_t unichar = char_from_unicode_hexname(name);
   
-  if(entry)
-    return entry->unichar;
+  if(unichar == 0xFFFFFFFFU) {
+    struct named_char_t *entry = pmath_ht_search(name2char_ht, (void *)name);
     
-  return 0xFFFFFFFFU;
+    if(entry)
+      return entry->unichar;
+  }
+  
+  return unichar;
 }
 
 PMATH_API
