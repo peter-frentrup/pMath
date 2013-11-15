@@ -747,55 +747,98 @@ void _pmath_string_write_escaped(
             break;
             
           default: {
+              uint32_t unichar;
+              const char *charname;
+              
               if( s + 1 != end              &&
                   (s[0] & 0xFC00) == 0xD800 &&
                   (s[1] & 0xFC00) == 0xDC00)
               {
-                uint32_t u = 0x10000 | (((uint32_t)s[0] & 0x03FF) << 10) | (s[1] & 0x03FF);
-                const char *name = pmath_char_to_name(u);
+                unichar = 0x10000 + ((((uint32_t)s[0] & 0x03FF) << 10) | (s[1] & 0x03FF));
                 
                 ++s;
-                if(name) {
-                  _pmath_write_cstr("\\[", write, user);
-                  _pmath_write_cstr(name,  write, user);
-                  _pmath_write_cstr("]",   write, user);
-                }
-                else {
-                  special[1] = 'U';
-                  special[2] = hex_digits[(u & 0xF0000000U) >> 28];
-                  special[3] = hex_digits[(u & 0x0F000000U) >> 24];
-                  special[4] = hex_digits[(u & 0x00F00000U) >> 20];
-                  special[5] = hex_digits[(u & 0x000F0000U) >> 16];
-                  special[6] = hex_digits[(u & 0x0000F000U) >> 12];
-                  special[7] = hex_digits[(u & 0x00000F00U) >> 8];
-                  special[8] = hex_digits[(u & 0x000000F0U) >> 4];
-                  special[9] = hex_digits[ u & 0x0000000FU];
-                  write(user, special, 10);
-                }
+              }
+              else
+                unichar = *s;
+              
+              charname = pmath_char_to_name(unichar);
+              _pmath_write_cstr("\\[", write, user);
+                
+              if(charname) {
+                _pmath_write_cstr(charname, write, user);
               }
               else {
-                const char *name = pmath_char_to_name(*s);
+                int i;
+                _pmath_write_cstr("U+", write, user);
                 
-                if(name) {
-                  _pmath_write_cstr("\\[", write, user);
-                  _pmath_write_cstr(name,  write, user);
-                  _pmath_write_cstr("]",   write, user);
-                }
-                else if(*s <= 0xFF) {
-                  special[1] = 'x';
-                  special[2] = hex_digits[((*s) & 0xF0) >> 4];
-                  special[3] = hex_digits[(*s) & 0x0F];
-                  write(user, special, 4);
-                }
-                else {
-                  special[1] = 'u';
-                  special[2] = hex_digits[((*s) & 0xF000) >> 12];
-                  special[3] = hex_digits[((*s) & 0x0F00) >>  8];
-                  special[4] = hex_digits[((*s) & 0x00F0) >>  4];
-                  special[5] = hex_digits[(*s) & 0x000F];
-                  write(user, special, 6);
-                }
+                special[0] = hex_digits[(unichar & 0xF0000000U) >> 28];
+                special[1] = hex_digits[(unichar & 0x0F000000U) >> 24];
+                special[2] = hex_digits[(unichar & 0x00F00000U) >> 20];
+                special[3] = hex_digits[(unichar & 0x000F0000U) >> 16];
+                special[4] = hex_digits[(unichar & 0x0000F000U) >> 12];
+                special[5] = hex_digits[(unichar & 0x00000F00U) >> 8];
+                special[6] = hex_digits[(unichar & 0x000000F0U) >> 4];
+                special[7] = hex_digits[ unichar & 0x0000000FU];
+                
+                for(i = 0;i <= 3;++i)
+                  if(special[i] != '0')
+                    break;
+                  
+                write(user, special + i, 8 - i);
               }
+              
+              _pmath_write_cstr("]",   write, user);
+              
+              
+//              if( s + 1 != end              &&
+//                  (s[0] & 0xFC00) == 0xD800 &&
+//                  (s[1] & 0xFC00) == 0xDC00)
+//              {
+//                uint32_t u = 0x10000 + ((((uint32_t)s[0] & 0x03FF) << 10) | (s[1] & 0x03FF));
+//                const char *name = pmath_char_to_name(u);
+//                
+//                ++s;
+//                if(name) {
+//                  _pmath_write_cstr("\\[", write, user);
+//                  _pmath_write_cstr(name,  write, user);
+//                  _pmath_write_cstr("]",   write, user);
+//                }
+//                else {
+//                  special[1] = 'U';
+//                  special[2] = hex_digits[(u & 0xF0000000U) >> 28];
+//                  special[3] = hex_digits[(u & 0x0F000000U) >> 24];
+//                  special[4] = hex_digits[(u & 0x00F00000U) >> 20];
+//                  special[5] = hex_digits[(u & 0x000F0000U) >> 16];
+//                  special[6] = hex_digits[(u & 0x0000F000U) >> 12];
+//                  special[7] = hex_digits[(u & 0x00000F00U) >> 8];
+//                  special[8] = hex_digits[(u & 0x000000F0U) >> 4];
+//                  special[9] = hex_digits[ u & 0x0000000FU];
+//                  write(user, special, 10);
+//                }
+//              }
+//              else {
+//                const char *name = pmath_char_to_name(*s);
+//                
+//                if(name) {
+//                  _pmath_write_cstr("\\[", write, user);
+//                  _pmath_write_cstr(name,  write, user);
+//                  _pmath_write_cstr("]",   write, user);
+//                }
+//                else if(*s <= 0xFF) {
+//                  special[1] = 'x';
+//                  special[2] = hex_digits[((*s) & 0xF0) >> 4];
+//                  special[3] = hex_digits[(*s) & 0x0F];
+//                  write(user, special, 4);
+//                }
+//                else {
+//                  special[1] = 'u';
+//                  special[2] = hex_digits[((*s) & 0xF000) >> 12];
+//                  special[3] = hex_digits[((*s) & 0x0F00) >>  8];
+//                  special[4] = hex_digits[((*s) & 0x00F0) >>  4];
+//                  special[5] = hex_digits[(*s) & 0x000F];
+//                  write(user, special, 6);
+//                }
+//              }
             }
         }
         ++s;

@@ -821,7 +821,7 @@ static uint32_t char_from_unicode_hexname(const char *name) {
     return 0xFFFFFFFFU;
     
   hex = name + 2;
-  for(i = 0; i < 6; ++i) {
+  for(i = 0; i < 8; ++i) {
     if(hex[i] == '\0')
       break;
       
@@ -855,18 +855,23 @@ static uint32_t char_from_unicode_hexname(const char *name) {
   return unichar;
 }
 
+static uint32_t char_from_descriptive_name(const char *name) {
+  struct named_char_t *entry = pmath_ht_search(name2char_ht, (void *)name);
+  
+  if(entry)
+    return entry->unichar;
+    
+  return 0xFFFFFFFFU;
+}
+
 PMATH_API
 uint32_t pmath_char_from_name(const char *name) {
   uint32_t unichar = char_from_unicode_hexname(name);
   
-  if(unichar == 0xFFFFFFFFU) {
-    struct named_char_t *entry = pmath_ht_search(name2char_ht, (void *)name);
-    
-    if(entry)
-      return entry->unichar;
-  }
+  if(unichar != 0xFFFFFFFFU) 
+    return unichar;
   
-  return unichar;
+  return char_from_descriptive_name(name);
 }
 
 PMATH_API
@@ -951,7 +956,7 @@ PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint
       if(maxlen == 1 || (str[1] & 0xFC00) != 0xDC00)
         return str + 1;
         
-      *result = 0x10000 | (((uint32_t)str[0] & 0x03FF) << 10) | (str[1] & 0x03FF);
+      *result = 0x10000 + ((((uint32_t)str[0] & 0x03FF) << 10) | (str[1] & 0x03FF));
       return str + 2;
     }
     
