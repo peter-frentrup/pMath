@@ -30,13 +30,13 @@ Document({
        Section(BoxData({"Grid", "(", {
            "{", {{"{", {"\"last chosen image:\"", "++", {
                "StringExpression", "@@", {"ConstantArray", "(", {
-                 "\"\\u2003\"", ",", "20"}, ")"}}}, "}"}, ",", "\n", {
+                 "\"\\[U+2003]\"", ",", "20"}, ")"}}}, "}"}, ",", "\n", {
              "{", {"InputField", "(", {
                {"Dynamic", "(", "lastChosenImage", ")"}, ",", "String"}, ")"}, 
              "}"}}, "}"}, ")"}), "Input"), 
        Section(BoxData(TagBox(GridBox({{"\"last chosen \
-             image:\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\
-			 \u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\u2003\""}, {InputFieldBox(Dynamic(lastChosenImage), String)}}), "Grid")), 
+             image:\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\
+			 \[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\""}, {InputFieldBox(Dynamic(lastChosenImage), String)}}), "Grid")), 
         "Output", SectionGenerated -> True)}, 2), 
      SectionGroup({
        Section(BoxData({"Button", "(", {"\"+\"", ",", "\n", {

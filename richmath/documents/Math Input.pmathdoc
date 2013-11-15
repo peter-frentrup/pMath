@@ -62,9 +62,9 @@ Document({
          "\"\[AliasDelimiter]:>\[AliasDelimiter]\""), 
         TooltipBox(ButtonBox("\[Function]"), 
          "\"\[AliasDelimiter]mt\[AliasDelimiter]\""), 
-        TooltipBox(ButtonBox("\u21D2"), 
+        TooltipBox(ButtonBox("\[DoubleRightArrow]"), 
          "\"\[AliasDelimiter]=>\[AliasDelimiter]\""), 
-        TooltipBox(ButtonBox("\u21D4"), 
+        TooltipBox(ButtonBox("\[DoubleLeftRightArrow]"), 
          "\"\[AliasDelimiter]<=>\[AliasDelimiter]\"")}, {
         TooltipBox(ButtonBox("\[NotEqual]"), 
          "\"\[AliasDelimiter]!=\[AliasDelimiter]\""), 

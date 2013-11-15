@@ -84,7 +84,7 @@ Document({
          value of ", {"px", "\[Assign]", "0.75"}, 
          " comes from a default resulution of 96 pixels per inch, and 1 inch \
          is 72 printers points ", {
-          "\u21D2", {{"96", "px"}, "=", {"72", "pt"}}, "\u21D2", {
+          "\[DoubleRightArrow]", {{"96", "px"}, "=", {"72", "pt"}}, "\[DoubleRightArrow]", {
            {"1", "px"}, "=", {{"72", "/", "96"}, "pt"}, "=", {"0.75", "pt"}}}, 
          "."}, "Text"), 
        Section(".blue3d textarea {\r\n    resize:none;\r\n    width:800px;\r\n    \

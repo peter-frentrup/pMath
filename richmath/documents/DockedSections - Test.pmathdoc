@@ -6,7 +6,7 @@ Document({
             "{", {"\"TopGlass\"", "\[Rule]", {
               "Section", "(", {
                {"BoxData", "@", {
-                 "{", {{"ButtonBox", "(", {{"{", {{"StyleBox", "(", {{"FrameBox", "(", {"\"\\\"\u2190\\\"\"", ",", {
+                 "{", {{"ButtonBox", "(", {{"{", {{"StyleBox", "(", {{"FrameBox", "(", {"\"\\\"\[LeftArrow]\\\"\"", ",", {
                            "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
                          "Background", "\[Rule]", "White"}, ",", {
                          "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", 
@@ -22,7 +22,7 @@ Document({
                    "FillBox", "(", {"InputFieldBox", "(", {
                      {"Dynamic", "(", "searchString", ")"}, ",", "String"}, 
                     ")"}, ")"}, ",", {"ButtonBox", "(", {
-                    {"StyleBox", "(", {{"FrameBox", "(", {"\"\\\"\[VeryThinSpace]\u21B2\[VeryThinSpace]\\\"\"", 
+                    {"StyleBox", "(", {{"FrameBox", "(", {"\"\\\"\[VeryThinSpace]\[U+21B2]\[VeryThinSpace]\\\"\"", 
                         ",", {"BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
                        "Background", "\[Rule]", "White"}, ",", {
                        "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
@@ -40,7 +40,7 @@ Document({
         SectionGenerated -> True, SectionLabel -> "out [29]:")}, All)}, All)}, 
   DockedSections -> {"Top" -> {}, "TopGlass" -> Section(
     BoxData({
-      ButtonBox({StyleBox(FrameBox("\"\u2190\"", BorderRadius -> 100), 
+      ButtonBox({StyleBox(FrameBox("\"\[LeftArrow]\"", BorderRadius -> 100), 
          Background -> GrayLevel(1), BorderRadius -> 100), " "}, 
        ButtonFrame -> "Frameless"), "\[InvisibleSpace]", 
       ButtonBox({StyleBox(FrameBox("\"\[Rule]\"", BorderRadius -> 100), 
@@ -48,7 +48,7 @@ Document({
        ButtonFrame -> "Frameless"), 
       FillBox(InputFieldBox(Dynamic(searchString), String)), 
       ButtonBox(
-       StyleBox(FrameBox("\"\[VeryThinSpace]\u21B2\[VeryThinSpace]\"", 
+       StyleBox(FrameBox("\"\[VeryThinSpace]\[U+21B2]\[VeryThinSpace]\"", 
          BorderRadius -> 100), Background -> GrayLevel(1), 
         BorderRadius -> 100), ButtonFrame -> "Frameless", 
        ButtonFunction -> ((searchString:= ToString({
