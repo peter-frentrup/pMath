@@ -262,11 +262,13 @@ static void handle_newline_multiplication(struct parser_t *parser) {
 }
 
 static pmath_bool_t enter(struct parser_t *parser) {
-  if(parser->stack_error)
-    return FALSE;
   if(++parser->stack_size > 256) { // 4096
-    --parser->stack_size;// TODO print message
-    //parser->have_error = 1;
+    --parser->stack_size;
+    
+    parser->stack_error = TRUE;
+    
+    // TODO generate message
+    pmath_debug_print("parser: stack overflow");
     return FALSE;
   }
   return TRUE;
@@ -1187,15 +1189,50 @@ static pmath_bool_t plusplus_is_infix(struct parser_t *parser, int next) {
   return result;
 }
 
+static void parse_skip_until_rightfence(struct parser_t *parser) {
+  pmath_token_t tok;
+  int start;
+  int next;
+  int fences;
+  
+  start = parser->tokens.pos;
+  next  = next_token_pos(parser);
+  fences = 0;
+  
+  while(next != parser->tokens.pos) {
+    tok = token_analyse(parser, next, NULL);
+    
+    if(tok == PMATH_TOK_RIGHT) {
+      --fences;
+      if(fences < 0)
+        break;
+    }
+    
+    if( tok == PMATH_TOK_LEFT || 
+        tok == PMATH_TOK_LEFTCALL) 
+    {
+      ++fences;
+    }
+    
+    skip_to(parser, -1, next, TRUE);
+    
+    next = next_token_pos(parser);
+  }
+  
+  span(&parser->tokens, start);
+}
+
 static void parse_sequence(struct parser_t *parser) {
   pmath_token_t tok;
   int last;
   int start;
   int next;
   
-  if(!enter(parser))
+  if(!enter(parser)) {
+    parse_skip_until_rightfence(parser);
     return;
-    
+  }
+  
   start = last = parser->tokens.pos;
   next  = next_token_pos(parser);
   
@@ -1239,9 +1276,11 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
     return;
   }
   
-  if(!enter(parser))
+  if(!enter(parser)) {
+    parse_skip_until_rightfence(parser);
     return;
-    
+  }
+   
   tok = token_analyse(parser, next, &prec);
   
   switch(tok) {
@@ -1408,9 +1447,11 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
   int rhs;
   int next;
   
-  if(!enter(parser))
+  if(!enter(parser)) {
+    parse_skip_until_rightfence(parser);
     return;
-    
+  }
+   
   next = next_token_pos(parser);
   while(next != parser->tokens.pos) {
     tok = token_analyse(parser, next, &cur_prec);
