@@ -122,22 +122,11 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
     }
     
     pmath_unref(obj);
-    
-//    obj = sym;
-//    sym = pmath_symbol_find(pmath_ref(obj), FALSE);
-//
-//    if(!sym){
-//      pmath_message(PMATH_NULL, "notfound", 1, obj);
-//      return PMATH_NULL;
-//    }
-//
-//    pmath_unref(obj);
   }
   else if(!pmath_is_symbol(sym)) {
     pmath_message(PMATH_NULL, "ssym", 1, sym);
     return PMATH_NULL;
   }
-  
   
   obj = EVAL_CODE_ARGS("`1`::usage", "(o)", pmath_ref(sym));
   if(pmath_is_string(obj)) {
@@ -154,8 +143,15 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
       pmath_ref(sym));
   }
   
+  /* We use Attributes("Global`a"), UpRules("Global`a"), ... instead of 
+     Attributes(a), UpRules(a), ..., to prevent unfriendly definitions like
+     
+       a/: ~h(~~~, a, ~~~)::= (Print("a fired in ", h);)
+     
+     from disturbing us.
+   */
   
-  obj = EVAL_CODE_ARGS("Attributes(`1`)", "(o)", pmath_ref(sym));
+  obj = EVAL_CODE_ARGS("Attributes(`1`)", "(o)", pmath_symbol_name(sym));
   if(!pmath_is_expr_of_len(obj, PMATH_SYMBOL_LIST, 0)) {
     PMATH_RUN_ARGS(
       "SectionPrint(\"Print\", HoldForm(Attributes(`1`):= `2`))",
@@ -166,23 +162,23 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
   else
     pmath_unref(obj);
     
-  obj = EVAL_CODE_ARGS("DefaultRules(`1`)", "(o)", pmath_ref(sym));
+  obj = EVAL_CODE_ARGS("DefaultRules(`1`)", "(o)", pmath_symbol_name(sym));
   print_rule_defs(sym, obj, FALSE);
   
   if((pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED) == 0) {
-    obj = EVAL_CODE_ARGS("NRules(`1`)", "(o)", pmath_ref(sym));
+    obj = EVAL_CODE_ARGS("NRules(`1`)", "(o)", pmath_symbol_name(sym));
     print_rule_defs(sym, obj, FALSE);
     
-    obj = EVAL_CODE_ARGS("DownRules(`1`)", "(o)", pmath_ref(sym));
+    obj = EVAL_CODE_ARGS("DownRules(`1`)", "(o)", pmath_symbol_name(sym));
     print_rule_defs(sym, obj, FALSE);
     
-    obj = EVAL_CODE_ARGS("SubRules(`1`)", "(o)", pmath_ref(sym));
+    obj = EVAL_CODE_ARGS("SubRules(`1`)", "(o)", pmath_symbol_name(sym));
     print_rule_defs(sym, obj, FALSE);
     
-    obj = EVAL_CODE_ARGS("UpRules(`1`)", "(o)", pmath_ref(sym));
+    obj = EVAL_CODE_ARGS("UpRules(`1`)", "(o)", pmath_symbol_name(sym));
     print_rule_defs(sym, obj, TRUE);
     
-    obj = EVAL_CODE_ARGS("FormatRules(`1`)", "(o)", pmath_ref(sym));
+    obj = EVAL_CODE_ARGS("FormatRules(`1`)", "(o)", pmath_symbol_name(sym));
     print_rule_defs(sym, obj, FALSE);
     
     obj = pmath_symbol_get_value(sym);
@@ -206,7 +202,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
       else {
         pmath_unref(obj);
         
-        obj = EVAL_CODE_ARGS("OwnRules(`1`)", "(o)", pmath_ref(sym));
+        obj = EVAL_CODE_ARGS("OwnRules(`1`)", "(o)", pmath_symbol_name(sym));
         print_rule_defs(sym, obj, FALSE);
       }
     }
