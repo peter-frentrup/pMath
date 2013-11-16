@@ -27,10 +27,10 @@
                 <Description>Constant</Description>
                 <BuildIn>false</BuildIn>
                 <RegexPatterns>
-                  <string>/^([$A-Z_a-z]?[A-Z_a-z0-9]*)(\(.*\))[[:blank:]]*:=/\1&#x2;signature:\2/c/e</string>
+                  <string>/^([$A-Z_a-z][A-Z_a-z0-9]*)(\(.*\))[[:blank:]]*:=/\1&#x2;signature:\2/c/e</string>
                 </RegexPatterns>
                 <Show>true</Show>
-                <TrackCaret>false</TrackCaret>
+                <TrackCaret>true</TrackCaret>
                 <IconFilename>c_field.png</IconFilename>
                 <ForeColor>-16777088</ForeColor>
               </TagType>
@@ -48,7 +48,7 @@
                   <string>/^([A-Z_a-z]?[A-Z_a-z0-9]*)(\(.*\).*)[[:blank:]]*::=/\1&#x2;signature:\2/f/e</string>
                 </RegexPatterns>
                 <Show>true</Show>
-                <TrackCaret>false</TrackCaret>
+                <TrackCaret>true</TrackCaret>
                 <IconFilename>c_method.png</IconFilename>
                 <ForeColor>-10944441</ForeColor>
               </TagType>
@@ -66,9 +66,27 @@
                   <string>~^([A-Z_a-z]?[A-Z_a-z0-9]*)([[:blank:]]*/:.*)[[:blank:]]*::=~\1&#x2;signature:\2~u~e</string>
                 </RegexPatterns>
                 <Show>true</Show>
-                <TrackCaret>false</TrackCaret>
+                <TrackCaret>true</TrackCaret>
                 <IconFilename>c_method.png</IconFilename>
                 <ForeColor>-10944441</ForeColor>
+              </TagType>
+            </value>
+          </item>
+          <item>
+            <key>
+              <string>v</string>
+            </key>
+            <value>
+              <TagType>
+                <Description>New TagType [v]</Description>
+                <BuildIn>false</BuildIn>
+                <RegexPatterns>
+                  <string>/^([$A-Z_a-z]?[A-Z_a-z0-9]*)::usage[[:blank:]]*:=/\1&#x2;signature:::usage/v/e</string>
+                </RegexPatterns>
+                <Show>true</Show>
+                <TrackCaret>true</TrackCaret>
+                <IconFilename>c_event.png</IconFilename>
+                <ForeColor>-16744448</ForeColor>
               </TagType>
             </value>
           </item>
