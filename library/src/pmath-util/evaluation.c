@@ -13,6 +13,8 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
+#include <pmath-builtins/control/flow-private.h>
 #include <pmath-builtins/lists-private.h>
 
 
@@ -151,6 +153,168 @@ static pmath_t handle_explicit_return(pmath_t expr) {
   return expr;
 }
 
+static pmath_expr_t evaluate_arguments(
+  pmath_expr_t     expr,
+  pmath_thread_t  *thread_ptr,
+  pmath_bool_t     hold_first,
+  pmath_bool_t     hold_rest
+) {
+  pmath_t item;
+  size_t i;
+  size_t exprlen = pmath_expr_length(expr);
+  
+  item = pmath_expr_get_item(expr, 1);
+  
+  if(!hold_first || pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
+    item = evaluate(item, thread_ptr);
+    expr = pmath_expr_set_item(expr, 1, item);
+  }
+  else
+    pmath_unref(item);
+    
+  if(hold_rest) {
+    for(i = 2; i <= exprlen; ++i) {
+      item = pmath_expr_get_item(expr, i);
+      
+      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
+        item = evaluate(item, thread_ptr);
+        expr = pmath_expr_set_item(expr, i, item);
+      }
+      else
+        pmath_unref(item);
+    }
+  }
+  else {
+    for(i = 2; i <= exprlen; ++i) {
+      item = pmath_expr_get_item(expr, i);
+      item = evaluate(item, thread_ptr);
+      expr = pmath_expr_set_item(expr, i, item);
+    }
+  }
+  
+  return expr;
+}
+
+static pmath_bool_t evaluator_thread_list_arguments(pmath_expr_t *expr)
+{
+  size_t i;
+  size_t exprlen = pmath_expr_length(*expr);
+  pmath_t item;
+  
+  for(i = exprlen; i > 0; --i) {
+    item = pmath_expr_get_item(*expr, i);
+    
+    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+      pmath_bool_t error_message = TRUE;
+      pmath_unref(item);
+      
+      *expr = _pmath_expr_thread(
+                *expr, PMATH_SYMBOL_LIST, 1, i, &error_message);
+                
+      if(error_message)
+        _pmath_expr_update(*expr);
+        
+      return TRUE;
+    }
+    
+    pmath_unref(item);
+  }
+  
+  return FALSE;
+}
+
+static pmath_expr_t evaluator_flatten_sequences(
+  pmath_expr_t expr,
+  pmath_t      head_if_associative,
+  pmath_bool_t associative
+) {
+  size_t i;
+  size_t exprlen = pmath_expr_length(expr);
+  
+  pmath_bool_t more = TRUE;
+  
+  while(more) {
+    more = FALSE;
+    
+    for(i = 1; i <= exprlen; ++i) {
+      pmath_t item = pmath_expr_get_item(expr, i);
+      
+      if(pmath_is_expr_of(item, PMATH_SYMBOL_SEQUENCE)) {
+        pmath_unref(item);
+        expr = pmath_expr_flatten(
+                 expr,
+                 pmath_ref(PMATH_SYMBOL_SEQUENCE),
+                 PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+                 
+        more = associative;
+        break;
+      }
+      
+      if(associative && pmath_is_expr_of(item, head_if_associative)) {
+        pmath_unref(item);
+        expr = pmath_expr_flatten(
+                 expr,
+                 pmath_ref(head_if_associative),
+                 PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+                 
+        more = TRUE;
+        break;
+      }
+      
+      pmath_unref(item);
+    }
+  }
+  
+  return expr;
+}
+
+static pmath_expr_t evaluator_strip_unevaluated(
+  pmath_expr_t expr,
+  pmath_expr_t *out_orig_expr_if_changed
+) {
+  size_t i;
+  size_t exprlen = pmath_expr_length(expr);
+  pmath_t item;
+  
+  if(out_orig_expr_if_changed)
+    *out_orig_expr_if_changed = PMATH_NULL;
+    
+  for(i = 1; i <= exprlen; ++i) {
+    item = pmath_expr_get_item(expr, i);
+    
+    if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
+      if(out_orig_expr_if_changed)
+        *out_orig_expr_if_changed = pmath_ref(expr);
+        
+      expr = pmath_expr_set_item(
+               expr, i,
+               pmath_expr_get_item(
+                 item, 1));
+                 
+      pmath_unref(item);
+      
+      for(++i; i <= exprlen; ++i) {
+        item = pmath_expr_get_item(expr, i);
+        
+        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
+          expr = pmath_expr_set_item(
+                   expr, i,
+                   pmath_expr_get_item(
+                     item, 1));
+        }
+        
+        pmath_unref(item);
+      }
+      
+      return expr;
+    }
+    
+    pmath_unref(item);
+  }
+  
+  return expr;
+}
+
 static pmath_t evaluate_expression(
   pmath_expr_t     expr,
   pmath_thread_t  *thread_ptr,
@@ -161,13 +325,7 @@ static pmath_t evaluate_expression(
   pmath_symbol_t                 head;
   pmath_symbol_t                 head_sym;
   pmath_symbol_attributes_t      attr;
-  pmath_bool_t                   hold_first;
-  pmath_bool_t                   hold_rest;
   pmath_bool_t                   hold_complete;
-  pmath_bool_t                   listable;
-  pmath_bool_t                   associative;
-  pmath_bool_t                   sequence_hold;
-  pmath_bool_t                   symmetric;
   pmath_t                        item;
   pmath_expr_t                   expr_with_unevaluated;
   size_t                         i;
@@ -226,64 +384,27 @@ static pmath_t evaluate_expression(
   expr             = pmath_expr_set_item(expr, 0, pmath_ref(head));
   stack_frame.head = pmath_ref(head);
   head_sym         = _pmath_topmost_symbol(head);
-  attr             = pmath_symbol_get_attributes(head_sym);
   
   exprlen               = pmath_expr_length(expr);
   expr_with_unevaluated = PMATH_NULL;
-
-  hold_first            = FALSE;
-  hold_rest             = FALSE;
-  hold_complete         = FALSE;
-  listable              = FALSE;
-  associative           = FALSE;
-  sequence_hold         = FALSE;
-  symmetric             = FALSE;
-  if(pmath_same(head_sym, head)) {
-    hold_complete = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
-    if(!hold_complete) {
-      hold_first    = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) != 0;
-      hold_rest     = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)  != 0;
-      listable      = (attr & PMATH_SYMBOL_ATTRIBUTE_LISTABLE) != 0;
-      associative   = (attr & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE) != 0;
-      sequence_hold = (attr & PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD) != 0;
-      symmetric     = (attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC) != 0;
-    }
-  }
-  else {
-    hold_first = hold_rest =      (attr & PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL) != 0;
-    hold_complete = hold_first && (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
-  }
+  
+  attr = _pmath_get_function_attributes(head);
+  hold_complete = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
   
   if(!hold_complete) {
-    item = pmath_expr_get_item(expr, 1);
+    pmath_bool_t hold_first    = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST)    != 0;
+    pmath_bool_t hold_rest     = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)     != 0;
+    pmath_bool_t listable      = (attr & PMATH_SYMBOL_ATTRIBUTE_LISTABLE)     != 0;
+    pmath_bool_t associative   = (attr & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE)  != 0;
+    pmath_bool_t sequence_hold = (attr & PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD) != 0;
+    pmath_bool_t symmetric     = (attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)    != 0;
     
-    if(!hold_first || pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
-      item = evaluate(item, thread_ptr);
-      expr = pmath_expr_set_item(expr, 1, item);
-    }
-    else
-      pmath_unref(item);
-      
-    if(hold_rest) {
-      for(i = 2; i <= exprlen; ++i) {
-        item = pmath_expr_get_item(expr, i);
-        
-        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
-          item = evaluate(item, thread_ptr);
-          expr = pmath_expr_set_item(expr, i, item);
-        }
-        else
-          pmath_unref(item);
-      }
-    }
-    else {
-      for(i = 2; i <= exprlen; ++i) {
-        item = pmath_expr_get_item(expr, i);
-        item = evaluate(item, thread_ptr);
-        expr = pmath_expr_set_item(expr, i, item);
-      }
-    }
-    
+    expr = evaluate_arguments(
+             expr,
+             thread_ptr,
+             hold_first,
+             hold_rest);
+             
     if(apply_rules) {
       if(_pmath_have_code(head, PMATH_CODE_USAGE_EARLYCALL)) {
         expr_changes = _pmath_expr_last_change(expr);
@@ -299,24 +420,8 @@ static pmath_t evaluate_expression(
     }
     
     if(listable) {
-      for(i = exprlen; i > 0; --i) {
-        item = pmath_expr_get_item(expr, i);
-        
-        if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
-          pmath_bool_t error_message = TRUE;
-          pmath_unref(item);
-          
-          expr = _pmath_expr_thread(
-                   expr, PMATH_SYMBOL_LIST, 1, i, &error_message);
-                   
-          if(error_message)
-            _pmath_expr_update(expr);
-            
-          goto FINISH;
-        }
-        
-        pmath_unref(item);
-      }
+      if(evaluator_thread_list_arguments(&expr)) 
+        goto FINISH;
     }
     
     if(associative) {
@@ -324,80 +429,24 @@ static pmath_t evaluate_expression(
                expr,
                pmath_ref(head),
                PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
+               
+      exprlen = pmath_expr_length(expr);
     }
     
     if(!sequence_hold) {
-      pmath_bool_t more = TRUE;
+      expr = evaluator_flatten_sequences(expr, head, associative);
       
-      while(more) {
-        more = FALSE;
-        
-        for(i = 1; i <= exprlen; ++i) {
-          item = pmath_expr_get_item(expr, i);
-          
-          if(pmath_is_expr_of(item, PMATH_SYMBOL_SEQUENCE)) {
-            pmath_unref(item);
-            expr = pmath_expr_flatten(
-                     expr,
-                     pmath_ref(PMATH_SYMBOL_SEQUENCE),
-                     PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
-                     
-            more = associative;
-            break;
-          }
-          
-          if(associative && pmath_is_expr_of(item, head)) {
-            pmath_unref(item);
-            expr = pmath_expr_flatten(
-                     expr,
-                     pmath_ref(head),
-                     PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
-                     
-            more = TRUE;
-            break;
-          }
-          
-          pmath_unref(item);
-        }
-      }
+      exprlen = pmath_expr_length(expr);
     }
     
     if(symmetric)
       expr = pmath_expr_sort(expr);
       
     if(apply_rules) {
-      for(i = 1; i <= exprlen; ++i) { // Unevaluated(...) items
-        item = pmath_expr_get_item(expr, i);
-        
-        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-          expr_with_unevaluated = pmath_ref(expr);
-          
-          expr = pmath_expr_set_item(
-                   expr, i,
-                   pmath_expr_get_item(
-                     item, 1));
-                     
-          pmath_unref(item);
-          
-          for(++i; i <= exprlen; ++i) {
-            item = pmath_expr_get_item(expr, i);
-            
-            if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-              expr = pmath_expr_set_item(
-                       expr, i,
-                       pmath_expr_get_item(
-                         item, 1));
-            }
-            
-            pmath_unref(item);
-          }
-          
-          break;
-        }
-        
-        pmath_unref(item);
-      }
-      
+      expr = evaluator_strip_unevaluated(
+               expr,
+               &expr_with_unevaluated);
+               
       for(i = 1; i <= exprlen; ++i) { // up rules
         pmath_symbol_t sym;
         
@@ -477,7 +526,7 @@ static pmath_t evaluate_expression(
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)) {
         if( !pmath_is_expr(expr) ||
-            expr_changes != _pmath_expr_last_change(expr)) 
+            expr_changes != _pmath_expr_last_change(expr))
         {
           goto FINISH;
         }
@@ -489,7 +538,7 @@ static pmath_t evaluate_expression(
       
       if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)) {
         if( !pmath_is_expr(expr) ||
-            expr_changes != _pmath_expr_last_change(expr)) 
+            expr_changes != _pmath_expr_last_change(expr))
         {
           goto FINISH;
         }

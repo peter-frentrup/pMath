@@ -141,28 +141,10 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr) {
   headlen = pmath_expr_length(head);
   
   if(headlen == 1) {
-    pmath_t body;
-    size_t  i;
-    
-    body = pmath_expr_get_item(head, 1);
+    pmath_t body = pmath_expr_get_item(head, 1);
     pmath_unref(head);
     
-    for(i = 1; i <= exprlen; ++i) {
-      pmath_t item = pmath_evaluate(
-                       pmath_expr_get_item(expr, i));
-                       
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-        pmath_expr_t item_expr = item;
-        item = pmath_expr_get_item(item_expr, 1);
-        pmath_unref(item_expr);
-      }
-      
-      expr = pmath_expr_set_item(expr, i, item);
-    }
-    
-    body = replace_purearg(
-             body,
-             expr);
+    body = replace_purearg(body, expr);
              
     pmath_unref(expr);
     return body;
@@ -172,92 +154,11 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr) {
     pmath_t params = pmath_expr_get_item(head, 1);
     pmath_t body   = pmath_expr_get_item(head, 2);
     
-    if(exprlen > 0) {
-      pmath_bool_t eval_first   = TRUE;
-      pmath_bool_t eval_rest    = TRUE;
-      pmath_bool_t sort_args    = FALSE;
-      pmath_bool_t thread_args  = FALSE;
-      
-      if(headlen == 3) {
-        pmath_t attrib_obj = pmath_expr_get_item(head, 3);
-        pmath_symbol_attributes_t attrib;
-        
-        if(!_pmath_get_attributes(&attrib, attrib_obj)) {
-          pmath_unref(attrib_obj);
-          pmath_unref(params);
-          pmath_unref(body);
-          pmath_unref(head);
-          return expr;
-        }
-        
-        pmath_unref(attrib_obj);
-        
-        if(attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) {
-          eval_first = FALSE;
-          eval_rest  = FALSE;
-        }
-        else {
-          eval_first   = (attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST)   == 0;
-          eval_rest    = (attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)    == 0;
-          sort_args    = (attrib & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)   != 0;
-          thread_args  = (attrib & PMATH_SYMBOL_ATTRIBUTE_LISTABLE)    != 0;
-        }
-      }
-      
-      if(eval_first) {
-        pmath_t item = pmath_evaluate(
-                         pmath_expr_extract_item(expr, 1));
-                         
-        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-          pmath_expr_t item_expr = item;
-          item = pmath_expr_get_item(item_expr, 1);
-          pmath_unref(item_expr);
-        }
-        
-        expr = pmath_expr_set_item(expr, 1, item);
-      }
-      
-      if(eval_rest) {
-        size_t i;
-        
-        for(i = 2; i <= exprlen; ++i) {
-          pmath_t item = pmath_evaluate(
-                           pmath_expr_extract_item(expr, i));
-                           
-          if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
-            pmath_expr_t item_expr = item;
-            item = pmath_expr_get_item(item_expr, 1);
-            pmath_unref(item_expr);
-          }
-          
-          expr = pmath_expr_set_item(expr, i, item);
-        }
-      }
-      
-      if(sort_args)
-        expr = pmath_expr_sort(expr);
-        
-      if(thread_args) {
-        size_t i;
-        
-        for(i = 1; i <= exprlen; ++i) {
-          pmath_t arg = pmath_expr_get_item(expr, i);
-          
-          if(pmath_is_expr_of(arg, PMATH_SYMBOL_LIST)) {
-            pmath_bool_t error_message = TRUE;
-            pmath_unref(arg);
-            pmath_unref(params);
-            pmath_unref(body);
-            pmath_unref(head);
-            
-            return _pmath_expr_thread(
-                     expr, PMATH_SYMBOL_LIST, 1, SIZE_MAX, &error_message);
-          }
-          
-          pmath_unref(arg);
-        }
-      }
-    }
+    /* The evaluator has already handled function attributes for us, because it 
+       has special knowledge about Function(...)(...).
+       More precisely, it uses _pmath_get_function_attributes(), which
+       extracts Function(...) attributes.
+     */
     
     if(pmath_is_null(params)) {
       pmath_unref(head);

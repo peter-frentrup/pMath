@@ -9,6 +9,8 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
+#include <pmath-builtins/lists-private.h>
+
 
 PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   pmath_symbol_attributes_t *attr,
@@ -65,6 +67,38 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   }
   
   return TRUE;
+}
+
+PMATH_PRIVATE
+pmath_symbol_attributes_t _pmath_get_function_attributes(pmath_t head) 
+{
+  pmath_symbol_t head_sym;
+  pmath_symbol_attributes_t attrib;
+  
+  if(pmath_is_symbol(head))
+    return pmath_symbol_get_attributes(head);
+  
+  if(pmath_is_expr_of_len(head, PMATH_SYMBOL_FUNCTION, 3)) {
+    pmath_t attrib_obj = pmath_expr_get_item(head, 3);
+        
+    if(_pmath_get_attributes(&attrib, attrib_obj)) {
+      pmath_unref(attrib_obj);
+      return attrib;
+    }
+  }
+  
+  head_sym = _pmath_topmost_symbol(head);
+  attrib = pmath_symbol_get_attributes(head_sym);
+  pmath_unref(head_sym);
+  
+  if(attrib & PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL) {
+    if(attrib & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE)
+      return PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE;
+      
+    return PMATH_SYMBOL_ATTRIBUTE_HOLDALL;
+  }
+  
+  return 0;
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr) {

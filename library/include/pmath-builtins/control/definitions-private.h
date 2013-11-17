@@ -21,6 +21,9 @@ pmath_bool_t _pmath_get_attributes(
   pmath_t                    obj); // wont be freed
 
 PMATH_PRIVATE
+pmath_symbol_attributes_t _pmath_get_function_attributes(pmath_t head);
+ 
+PMATH_PRIVATE
 pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all); // wont be freed
 
 
