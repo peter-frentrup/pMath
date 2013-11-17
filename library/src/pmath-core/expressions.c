@@ -2503,6 +2503,11 @@ static void write_expr_ex(
     if(exprlen != 1)
       goto FULLFORM;
       
+    item = pmath_symbol_get_value(PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING);
+    pmath_unref(item);
+    if(pmath_same(item, PMATH_SYMBOL_TRUE))  
+      goto FULLFORM;
+    
     item = pmath_expr_get_item(expr, 1);
     _pmath_write_boxes(info, item);
     pmath_unref(item);

@@ -1,0 +1,32 @@
+/* RawBoxes
+   System`BoxForm`$UseTextFormatting
+   System`BoxForm`MakeCallBoxes
+ */
+
+Begin("System`BoxForm`Private`")
+
+System`BoxForm`$UseTextFormatting:= False
+Attributes(System`BoxForm`$UseTextFormatting):= {ThreadLocal}
+
+
+SetAttributes(System`BoxForm`MakeCallBoxes, {HoldAllComplete});
+
+System`BoxForm`MakeCallBoxes(~h())::= {MakeBoxes(h), "(", ")"}
+System`BoxForm`MakeCallBoxes(~h(~x))::= {MakeBoxes(h), "(", MakeBoxes(x), ")"}
+System`BoxForm`MakeCallBoxes(~h(~~xs))::= {MakeBoxes(h), "(", {xs}.Unevaluated.Map(MakeBoxes).Riffle(","), ")"}
+
+Protect(System`BoxForm`MakeCallBoxes)
+
+
+Unprotect(RawBoxes)
+
+MakeBoxes(r: RawBoxes(~x))::= 
+   If(Refresh(System`BoxForm`$UseTextFormatting === True, None), 
+      System`BoxForm`MakeCallBoxes(r)
+   ,
+      x
+   )
+
+SetAttributes(RawBoxes, {Protected, ReadProtected});
+
+End()

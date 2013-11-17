@@ -122,6 +122,7 @@ AutoLoad(Hold(System`Util`latexToBoxes),
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "latextoboxes.pmath"))
 
 Get(ToFileName({$BaseDirectory, "auto", "core"}, "colors.pmath"));
+Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "rawboxes.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "accents.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "brackets.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "sumprod.pmath"));

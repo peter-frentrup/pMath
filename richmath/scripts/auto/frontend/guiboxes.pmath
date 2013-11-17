@@ -2,11 +2,15 @@
 
 Begin("System`Private`GuiBoxes`")
 
+Attributes(isDynamic):= Attributes(isNumberOrDynamic):= Attributes(isStringOrDynamic):= {HoldAllComplete}
 isDynamic(~):= False
 isDynamic(Dynamic(~)):= True
 isDynamic(Dynamic(~,~)):= True
-isNumberOrDynamic(~x)::= IsNumber(x) || isDynamic(x)
-isStringOrDynamic(~x)::= IsString(x) || isDynamic(x)
+isNumberOrDynamic(~x)::= IsNumber(Unevaluated(x)) || isDynamic(x)
+isStringOrDynamic(~x)::= IsString(Unevaluated(x)) || isDynamic(x)
+
+allowGuiBoxes::= Refresh(System`BoxForm`$UseTextFormatting =!= True, None)
+Protect(allowGuiBoxes)
 
 toBeProtected:= Unprotect(
 	System`Setting`$Rules,
@@ -28,38 +32,38 @@ toBeProtected:= Unprotect(
 	Tooltip,
 	TooltipBox)
 
-MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
+MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options) /? allowGuiBoxes
 
-MakeBoxes(Checkbox())::=                                               CheckboxBox(False)
-MakeBoxes(Checkbox(~state,               options:OptionsPattern()))::= CheckboxBox(state, options)
-MakeBoxes(Checkbox(~state, values:{~,~}, options:OptionsPattern()))::= CheckboxBox(state, values, options)
+MakeBoxes(Checkbox())::=                                               CheckboxBox(False) /? allowGuiBoxes
+MakeBoxes(Checkbox(~state,               options:OptionsPattern()))::= CheckboxBox(state, options) /? allowGuiBoxes
+MakeBoxes(Checkbox(~state, values:{~,~}, options:OptionsPattern()))::= CheckboxBox(state, values, options) /? allowGuiBoxes
 
-MakeBoxes(Dynamic(~var, options:OptionsPattern()))::= DynamicBox(ToBoxes(var), options)
+MakeBoxes(Dynamic(~var, options:OptionsPattern())) ::= DynamicBox(ToBoxes(var), options) /? allowGuiBoxes
 
-MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting)
+MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting) /? allowGuiBoxes
 
-MakeBoxes(InputField())::=                                                                                                   InputFieldBox(,      Expression)
-MakeBoxes(InputField(~value,                                                                   options:OptionsPattern()))::= InputFieldBox(value, Expression, options)
-MakeBoxes(InputField(~value?isStringOrDynamic, String,                                         options:OptionsPattern()))::= InputFieldBox(value, String,     options)
-MakeBoxes(InputField(~value?isNumberOrDynamic, Number,                                         options:OptionsPattern()))::= InputFieldBox(value, Number,     options)
-MakeBoxes(InputField(~value,                   type: Expression | RawBoxes | Hold(Expression), options:OptionsPattern()))::= InputFieldBox(value, type,       options)
+MakeBoxes(InputField())::=                                                                                                   InputFieldBox(,      Expression) /? allowGuiBoxes
+MakeBoxes(InputField(~value,                                                                   options:OptionsPattern()))::= InputFieldBox(value, Expression, options) /? allowGuiBoxes
+MakeBoxes(InputField(~value?isStringOrDynamic, String,                                         options:OptionsPattern()))::= InputFieldBox(value, String,     options) /? allowGuiBoxes
+MakeBoxes(InputField(~value?isNumberOrDynamic, Number,                                         options:OptionsPattern()))::= InputFieldBox(value, Number,     options) /? allowGuiBoxes
+MakeBoxes(InputField(~value,                   type: Expression | RawBoxes | Hold(Expression), options:OptionsPattern()))::= InputFieldBox(value, type,       options) /? allowGuiBoxes
 
-MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1)
-MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1)
-MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max)
+MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1) /? allowGuiBoxes
+MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1) /? allowGuiBoxes
+MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max) /? allowGuiBoxes
 
-MakeBoxes(RadioButton())::=                                         RadioButtonBox(False)
-MakeBoxes(RadioButton(~state))::=                                   RadioButtonBox(state)
-MakeBoxes(RadioButton(~state, ~value, options:OptionsPattern()))::= RadioButtonBox(state, value, options)
+MakeBoxes(RadioButton())::=                                         RadioButtonBox(False) /? allowGuiBoxes
+MakeBoxes(RadioButton(~state))::=                                   RadioButtonBox(state) /? allowGuiBoxes
+MakeBoxes(RadioButton(~state, ~value, options:OptionsPattern()))::= RadioButtonBox(state, value, options) /? allowGuiBoxes
 
 
 MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= 
 	With({boxes:= ToBoxes(Grid({values.Map(Setter(var, #[1], Row({RadioButton(var, #[1]), #[2]}, "\[InvisibleSpace]"), ButtonFrame->None)&)}))},
-		InterpretationBox(boxes, rb))
+		InterpretationBox(boxes, rb)) /? allowGuiBoxes
 
 MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{~~}, options:OptionsPattern()))::= 
 	With({boxes:= ToBoxes(Grid({values.Map(Setter(var, #, Row({RadioButton(var, #), #}, "\[InvisibleSpace]"), ButtonFrame->None)&)}))},
-		InterpretationBox(boxes, rb))
+		InterpretationBox(boxes, rb)) /? allowGuiBoxes
 
 MakeBoxes(RadioButtonBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern()))::=
 	TagBox(
@@ -68,19 +72,19 @@ MakeBoxes(RadioButtonBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPat
 				RadioButtonBar(Dynamic(var), values, options), 
 				RadioButtonBar(var, values, options))), 
 			DynamicLocalValues :> {var:= val}),
-		Setting(#, 0) &);
+		Setting(#, 0) &) /? allowGuiBoxes
 
-MakeBoxes(Setter(~var, ~value,                                    options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(value), options)
-MakeBoxes(Setter(~var, ~value, label:Except((~ -> ~) | (~ :> ~)), options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options)
+MakeBoxes(Setter(~var, ~value,                                    options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(value), options) /? allowGuiBoxes
+MakeBoxes(Setter(~var, ~value, label:Except((~ -> ~) | (~ :> ~)), options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options) /? allowGuiBoxes
 
 
 MakeBoxes(sb: SetterBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern(SetterBar)))::= 
 	With({boxes:= Riffle(values.Map(ToBoxes(Setter(var, #[1], #[2], options))&), "\[InvisibleSpace]")},
-		InterpretationBox(boxes, sb))
+		InterpretationBox(boxes, sb)) /? allowGuiBoxes
 
 MakeBoxes(sb: SetterBar(~var:Dynamic, values:{~~}, options:OptionsPattern(SetterBar)))::= 
 	With({boxes:= Riffle(values.Map(ToBoxes(Setter(var, #, options))&), "\[InvisibleSpace]")},
-		InterpretationBox(boxes, sb))
+		InterpretationBox(boxes, sb)) /? allowGuiBoxes
 
 MakeBoxes(SetterBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern(SetterBar)))::=
 	TagBox(
@@ -89,16 +93,16 @@ MakeBoxes(SetterBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern(
 				SetterBar(Dynamic(var), values, options), 
 				SetterBar(var, values, options))), 
 			DynamicLocalValues :> {var:= val}),
-		Setting(#, 0) &);
+		Setting(#, 0) &) /? allowGuiBoxes
 
-MakeBoxes(Slider(                                                  options:OptionsPattern()))::= SliderBox(0.5, 0..1, options)
-MakeBoxes(Slider(~val ? isNumberOrDynamic,                         options:OptionsPattern()))::= SliderBox(val, 0..1, options)
-MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max,             options:OptionsPattern()))::= SliderBox(val, min..max, options)
-MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max..~step,      options:OptionsPattern()))::= SliderBox(val, min..max..step, options)
-MakeBoxes(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List), options:OptionsPattern()))::= SliderBox(val, vals, options)
+MakeBoxes(Slider(                                                  options:OptionsPattern()))::= SliderBox(0.5, 0..1, options) /? allowGuiBoxes
+MakeBoxes(Slider(~val ? isNumberOrDynamic,                         options:OptionsPattern()))::= SliderBox(val, 0..1, options) /? allowGuiBoxes
+MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max,             options:OptionsPattern()))::= SliderBox(val, min..max, options) /? allowGuiBoxes
+MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max..~step,      options:OptionsPattern()))::= SliderBox(val, min..max..step, options) /? allowGuiBoxes
+MakeBoxes(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List), options:OptionsPattern()))::= SliderBox(val, vals, options) /? allowGuiBoxes
 
 
-MakeBoxes(Tooltip(~content, ~tooltip, options:OptionsPattern()))::= TooltipBox(MakeBoxes(content), MakeBoxes(tooltip), options)
+MakeBoxes(Tooltip(~content, ~tooltip, options:OptionsPattern()))::= TooltipBox(MakeBoxes(content), MakeBoxes(tooltip), options) /? allowGuiBoxes
 
 
 

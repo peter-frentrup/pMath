@@ -530,6 +530,11 @@ PMATH_API pmath_bool_t pmath_init(void) {
       _pmath_symbol_set_global_value(
         PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,
         pmath_ref(_pmath_object_emptylist));
+        
+      // System`BoxForm`$UseTextFormatting:= False
+      _pmath_symbol_set_global_value(
+        PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING,
+        pmath_ref(PMATH_SYMBOL_FALSE));
     }
 
     { // initialize runs ...

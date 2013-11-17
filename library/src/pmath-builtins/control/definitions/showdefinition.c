@@ -3,12 +3,14 @@
 
 #include <pmath-language/scanner.h>
 
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
+
 
 #define EVAL_CODE_ARGS(code, format, ...) \
   pmath_evaluate( \
@@ -166,6 +168,11 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
   print_rule_defs(sym, obj, FALSE);
   
   if((pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED) == 0) {
+  
+    pmath_t old_use_text_formatting = pmath_thread_local_save(
+      PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING, 
+      pmath_ref(PMATH_SYMBOL_TRUE));
+    
     obj = EVAL_CODE_ARGS("NRules(`1`)", "(o)", pmath_symbol_name(sym));
     print_rule_defs(sym, obj, FALSE);
     
@@ -206,6 +213,10 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
         print_rule_defs(sym, obj, FALSE);
       }
     }
+    
+    pmath_unref(pmath_thread_local_save(
+      PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING, 
+      old_use_text_formatting));
   }
   
   pmath_unref(sym);

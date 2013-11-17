@@ -416,15 +416,15 @@ static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // hea
   if(boxform < BOXFORM_OUTPUT) {
     if(pmath_same(head, PMATH_SYMBOL_AND))                   RET_CH(0x2227, PMATH_PREC_AND);
     if(pmath_same(head, PMATH_SYMBOL_OR))                    RET_CH(0x2228, PMATH_PREC_AND);
-
+    
     if(pmath_same(head, PMATH_SYMBOL_CIRCLEPLUS))            RET_CH(0x2A2F, PMATH_PREC_CIRCADD);
     if(pmath_same(head, PMATH_SYMBOL_CIRCLETIMES))           RET_CH(0x2A2F, PMATH_PREC_CIRCMUL);
     if(pmath_same(head, PMATH_SYMBOL_PLUSMINUS))             RET_CH(0x00B1, PMATH_PREC_PLUMI);
     if(pmath_same(head, PMATH_SYMBOL_MINUSPLUS))             RET_CH(0x2213, PMATH_PREC_PLUMI);
-
+    
     if(pmath_same(head, PMATH_SYMBOL_DOT))                   RET_CH(0x22C5, PMATH_PREC_MIDDOT);  //0x00B7
     if(pmath_same(head, PMATH_SYMBOL_CROSS))                 RET_CH(0x2A2F, PMATH_PREC_CROSS);
-
+    
     if(pmath_same(head, PMATH_SYMBOL_LEFTARROW))             RET_CH(0x2190, PMATH_PREC_ARROW);
     if(pmath_same(head, PMATH_SYMBOL_UPARROW))               RET_CH(0x2191, PMATH_PREC_ARROW);
     //if(pmath_same(head, PMATH_SYMBOL_RIGHTARROW))            RET_CH(0x2192, PMATH_PREC_ARROW); // Rule
@@ -435,7 +435,7 @@ static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // hea
     if(pmath_same(head, PMATH_SYMBOL_UPPERRIGHTARROW))       RET_CH(0x2197, PMATH_PREC_ARROW);
     if(pmath_same(head, PMATH_SYMBOL_LOWERRIGHTARROW))       RET_CH(0x2198, PMATH_PREC_ARROW);
     if(pmath_same(head, PMATH_SYMBOL_LOWERLEFTARROW))        RET_CH(0x2199, PMATH_PREC_ARROW);
-
+    
     if(pmath_same(head, PMATH_SYMBOL_DOUBLELEFTARROW))       RET_CH(0x21D0, PMATH_PREC_ARROW);
     if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPARROW))         RET_CH(0x21D1, PMATH_PREC_ARROW);
     if(pmath_same(head, PMATH_SYMBOL_DOUBLERIGHTARROW))      RET_CH(0x21D2, PMATH_PREC_ARROW);
@@ -446,7 +446,7 @@ static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // hea
     if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPPERRIGHTARROW)) RET_CH(0x21D7, PMATH_PREC_ARROW);
     if(pmath_same(head, PMATH_SYMBOL_DOUBLELOWERRIGHTARROW)) RET_CH(0x21D8, PMATH_PREC_ARROW);
     if(pmath_same(head, PMATH_SYMBOL_DOUBLELOWERLEFTARROW))  RET_CH(0x21D9, PMATH_PREC_ARROW);
-  
+    
   }
   else {
     if(pmath_same(head, PMATH_SYMBOL_AND))  RET_ST("&&", PMATH_PREC_AND);
@@ -2839,22 +2839,6 @@ static pmath_t rotate_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t rawboxes_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
-  if(pmath_expr_length(expr) == 1) {
-    pmath_t obj;
-    
-    obj = pmath_expr_get_item(expr, 1);
-    pmath_unref(expr);
-    
-    return obj;
-  }
-  
-  return call_to_boxes(thread, expr);
-}
-
 static pmath_t standardform_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
@@ -3172,9 +3156,6 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
           
         if(pmath_same(head, PMATH_SYMBOL_ROTATE))
           return rotate_to_boxes(thread, expr);
-          
-        if(pmath_same(head, PMATH_SYMBOL_RAWBOXES))
-          return rawboxes_to_boxes(thread, expr);
           
         if(pmath_same(head, PMATH_SYMBOL_STANDARDFORM))
           return standardform_to_boxes(thread, expr);
@@ -3499,6 +3480,24 @@ PMATH_PRIVATE pmath_t builtin_makeboxes(pmath_expr_t expr) {
   return object_to_boxes(thread, obj);
 }
 
+static pmath_t strip_pattern_condition(pmath_t expr) {
+  for(;;) {
+    if( pmath_is_expr_of_len(expr, PMATH_SYMBOL_CONDITION, 2) ||
+        pmath_is_expr_of_len(expr, PMATH_SYMBOL_TESTPATTERN, 2))
+    {
+      pmath_t arg = pmath_expr_get_item(expr, 1);
+      
+      pmath_unref(expr);
+      expr = arg;
+      continue;
+    }
+    
+    break;
+  }
+  
+  return expr;
+}
+
 PMATH_PRIVATE pmath_t builtin_assign_makeboxes(pmath_expr_t expr) {
   struct _pmath_symbol_rules_t *rules;
   pmath_t        tag;
@@ -3520,6 +3519,7 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes(pmath_expr_t expr) {
   }
   
   arg = pmath_expr_get_item(lhs, 1);
+  arg = strip_pattern_condition(arg);
   out_tag = PMATH_NULL;
   error = _pmath_find_tag(arg, tag, &out_tag, &kind_of_lhs, FALSE);
   pmath_unref(arg);
