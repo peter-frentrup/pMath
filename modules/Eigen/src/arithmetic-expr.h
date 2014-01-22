@@ -7,12 +7,10 @@
 
 namespace pmath4eigen {
   class ArithmeticExpr;
-}
-
-namespace std {
-#define P4E_DECL_FUNC(NAME)                            \
-  inline const pmath4eigen::ArithmeticExpr             \
-  NAME(const pmath4eigen::ArithmeticExpr &x);          \
+  
+#define P4E_DECL_FUNC(NAME)       \
+  inline const ArithmeticExpr     \
+  NAME(const ArithmeticExpr &x);  
    
   P4E_DECL_FUNC( abs  )
   P4E_DECL_FUNC( acos )
@@ -27,8 +25,8 @@ namespace std {
   P4E_DECL_FUNC( sqrt )
   P4E_DECL_FUNC( tan  )
   
-  inline const pmath4eigen::ArithmeticExpr
-  pow(const pmath4eigen::ArithmeticExpr &a, const pmath4eigen::ArithmeticExpr &b);
+  inline const ArithmeticExpr
+  pow(const ArithmeticExpr &a, const ArithmeticExpr &b);
 }
 
 #include <Eigen/Core>
@@ -239,16 +237,12 @@ namespace pmath4eigen {
     return *this = *this / other;
   }
   
-}
-
-namespace std {
-
-#define P4E_IMPL_FUNC(NAME, PMCPP_NAME)                   \
-  inline const pmath4eigen::ArithmeticExpr                \
-  NAME(const pmath4eigen::ArithmeticExpr &x)              \
-  {                                                       \
-    return pmath4eigen::ArithmeticExpr(                   \
-           pmath::Evaluate( PMCPP_NAME(x) ) );               \
+#define P4E_IMPL_FUNC(NAME, PMCPP_NAME)         \
+  inline const ArithmeticExpr                   \
+  NAME(const ArithmeticExpr &x)                 \
+  {                                             \
+    return ArithmeticExpr(                      \
+           pmath::Evaluate( PMCPP_NAME(x) ) );  \
   }
 
   P4E_IMPL_FUNC( abs,  pmath::Abs    )
@@ -263,20 +257,20 @@ namespace std {
   P4E_IMPL_FUNC( sqrt, pmath::Sqrt   )
   P4E_IMPL_FUNC( tan,  pmath::Tan    )
   
-  inline const pmath4eigen::ArithmeticExpr
-  conj(const pmath4eigen::ArithmeticExpr &x)
+  inline const ArithmeticExpr
+  conj(const ArithmeticExpr &x)
   {
-    return pmath4eigen::ArithmeticExpr(
+    return ArithmeticExpr(
              pmath::Evaluate(
                pmath::Call(
                  pmath::Symbol(PMATH_SYMBOL_CONJUGATE),
                  x)));
   }
   
-  inline const pmath4eigen::ArithmeticExpr
-  pow(const pmath4eigen::ArithmeticExpr &x, const pmath4eigen::ArithmeticExpr &y)
+  inline const ArithmeticExpr
+  pow(const ArithmeticExpr &x, const ArithmeticExpr &y)
   {
-    return pmath4eigen::ArithmeticExpr(
+    return ArithmeticExpr(
              pmath::Evaluate(
                pmath::Power(
                  x,
