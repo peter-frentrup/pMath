@@ -36,7 +36,7 @@ namespace richmath {
       
     public:
       DataObject();
-      ~DataObject();
+      virtual ~DataObject();
       
     public:
       int lookup_format_etc(FORMATETC *pFormatEtc);

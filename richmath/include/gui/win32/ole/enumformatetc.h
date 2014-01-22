@@ -29,7 +29,7 @@ namespace richmath {
       
     public:
       EnumFormatEtc(DataObject *_src);
-      ~EnumFormatEtc();
+      virtual ~EnumFormatEtc();
       
     private:
       LONG        refcount;

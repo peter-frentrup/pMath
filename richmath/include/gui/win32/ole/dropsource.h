@@ -26,7 +26,7 @@ namespace richmath {
       
     public:
       DropSource();
-      ~DropSource();
+      virtual ~DropSource();
       
     private:
       LONG m_lRefCount;
