@@ -1678,7 +1678,7 @@ void Document::raw_select(Box *box, int start, int end) {
     }
     
     if(box == this)
-    pmath_debug_print("[select document %d .. %d]\n", start, end);
+      pmath_debug_print("[select document %d .. %d]\n", start, end);
   }
   
   best_index_rel_x = 0;
@@ -3831,7 +3831,7 @@ bool Document::start_autocomplete_alias(LogicalDirection direction) {
   while(alias_pos >= 0) {
     ch = seq->char_at(alias_pos);
     
-    if(ch == PMATH_CHAR_ALIASDELIMITER || ch < ' ')
+    if(ch == PMATH_CHAR_ALIASDELIMITER || (0 < ch && ch < ' '))
       break;
       
     --alias_pos;
@@ -3871,10 +3871,30 @@ bool Document::start_autocomplete_alias(LogicalDirection direction) {
     }
   }
   
+  if(alias[0] == '\\' && (alias[1] == 0 || alias[1] == '[')) {
+    size_t count;
+    const struct pmath_named_char_t *all_names = pmath_get_char_names(&count);
+    
+    String prefix = String("\\[");
+    for(size_t i = 0; i < count; ++i) {
+      String name = (prefix + all_names[i].name) + "]";
+      
+      if(name.starts_with(alias))
+        Gather::emit(name);
+    }
+  }
+  
   auto_completion_list = g.end();
   auto_completion_list.sort();
   
-  auto_completion_range = SelectionReference(seq->id(), alias_pos + 1, alias_end);
+  SelectionReference first_char_range;
+  first_char_range.set(seq, alias_pos, alias_pos + 1); // normalizes the selection
+  
+  if(first_char_range.id != seq->id()) { // should not happen?
+    first_char_range.set_raw(seq, alias_pos, alias_pos + 1);
+  }
+  
+  auto_completion_range = SelectionReference(first_char_range.id, first_char_range.end, alias_end);
   
   if(alias == auto_completion_list[1]) {
     if(direction == Forward)
@@ -4215,10 +4235,9 @@ CONTINUE_COMPLETION:
     
     Expr boxes = auto_completion_list[(size_t)auto_completion_index];
     
-    if(MathSequence *seq = dynamic_cast<MathSequence *>(auto_completion_range.get())) {
+    if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(auto_completion_range.get())) {
       if(!seq->get_style(Editable))
         return false;
-        
         
       SelectionReference range = auto_completion_range;
       
@@ -4226,7 +4245,7 @@ CONTINUE_COMPLETION:
       if(seq->get_style(AutoNumberFormating))
         options |= BoxOptionFormatNumbers;
         
-      MathSequence *tmp = new MathSequence;
+      AbstractSequence *tmp = seq->create_similar();
       tmp->load_from_object(boxes, options);
       
       seq->remove(range.start, range.end);

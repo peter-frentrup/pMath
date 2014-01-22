@@ -9,13 +9,8 @@
 #include <string.h>
 
 
-struct named_char_t {
-  uint32_t unichar;
-  const char *name;
-};
-
 #define NAMED_CHAR_ARR_COUNT  (sizeof(named_char_array)/sizeof(named_char_array[0]))
-static struct named_char_t named_char_array[] = {
+static const struct pmath_named_char_t named_char_array[] = {
 
   {0x1D7D8, "DoubleStruckZero"},
   {0x1D7D9, "DoubleStruckOne"},
@@ -743,33 +738,33 @@ static void destroy_nc(void *entry) {
 }
 
 static unsigned int hash_nc_char(void *_entry) {
-  struct named_char_t *entry = (struct named_char_t *)_entry;
+  const struct pmath_named_char_t *entry = (const struct pmath_named_char_t *)_entry;
   
   return entry->unichar;
 }
 
 static unsigned int hash_nc_name(void *_entry) {
-  struct named_char_t *entry = (struct named_char_t *)_entry;
+  const struct pmath_named_char_t *entry = (const struct pmath_named_char_t *)_entry;
   
   return incremental_hash(entry->name, strlen(entry->name), 0);
 }
 
 static pmath_bool_t nc_nc_equal_chars(void *_entry1, void *_entry2) {
-  struct named_char_t *entry1 = (struct named_char_t *)_entry1;
-  struct named_char_t *entry2 = (struct named_char_t *)_entry2;
+  const struct pmath_named_char_t *entry1 = (const struct pmath_named_char_t *)_entry1;
+  const struct pmath_named_char_t *entry2 = (const struct pmath_named_char_t *)_entry2;
   
   return entry1->unichar == entry2->unichar;
 }
 
 static pmath_bool_t nc_nc_equal_names(void *_entry1, void *_entry2) {
-  struct named_char_t *entry1 = (struct named_char_t *)_entry1;
-  struct named_char_t *entry2 = (struct named_char_t *)_entry2;
+  const struct pmath_named_char_t *entry1 = (const struct pmath_named_char_t *)_entry1;
+  const struct pmath_named_char_t *entry2 = (const struct pmath_named_char_t *)_entry2;
   
   return strcmp(entry1->name, entry2->name) == 0;
 }
 
 static unsigned int nc_char_hash(void *key) {
-  return *(uint32_t *)key;
+  return *(const uint32_t *)key;
 }
 
 static unsigned int nc_name_hash(void *_key) {
@@ -778,13 +773,13 @@ static unsigned int nc_name_hash(void *_key) {
 }
 
 static pmath_bool_t nc_char_key_equal(void *_entry, void *key) {
-  struct named_char_t *entry = (struct named_char_t *)_entry;
+  const struct pmath_named_char_t *entry = (const struct pmath_named_char_t *)_entry;
   
-  return entry->unichar == *(uint32_t *)key;
+  return entry->unichar == *(const uint32_t *)key;
 }
 
 static pmath_bool_t nc_name_key_equal(void *_entry, void *key) {
-  struct named_char_t *entry = (struct named_char_t *)_entry;
+  const struct pmath_named_char_t *entry = (const struct pmath_named_char_t *)_entry;
   
   return strcmp(entry->name, (const char *)key) == 0;
 }
@@ -856,7 +851,7 @@ static uint32_t char_from_unicode_hexname(const char *name) {
 }
 
 static uint32_t char_from_descriptive_name(const char *name) {
-  struct named_char_t *entry = pmath_ht_search(name2char_ht, (void *)name);
+  struct pmath_named_char_t *entry = pmath_ht_search(name2char_ht, (void *)name);
   
   if(entry)
     return entry->unichar;
@@ -876,7 +871,7 @@ uint32_t pmath_char_from_name(const char *name) {
 
 PMATH_API
 const char *pmath_char_to_name(uint32_t unichar) {
-  struct named_char_t *entry = pmath_ht_search(char2name_ht, &unichar);
+  struct pmath_named_char_t *entry = pmath_ht_search(char2name_ht, &unichar);
   
   if(entry)
     return entry->name;
@@ -976,6 +971,11 @@ PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint
   return str + 1;
 }
 
+PMATH_API const struct pmath_named_char_t *pmath_get_char_names(size_t *length) {
+  *length = NAMED_CHAR_ARR_COUNT;
+  return named_char_array;
+}
+
 PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void) {
   size_t i;
   
@@ -989,21 +989,21 @@ PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void) {
   
   for(i = 0; i < NAMED_CHAR_ARR_COUNT; ++i) {
     void *dummy;
-    dummy = pmath_ht_insert(name2char_ht, &named_char_array[i]);
+    dummy = pmath_ht_insert(name2char_ht, (void*)&named_char_array[i]);
     if(dummy && dummy != &named_char_array[i]) {
       pmath_debug_print("name used for multipe chars: \[%s] for U+%04X and U+%04X\n",
                         named_char_array[i].name,
                         (unsigned int)named_char_array[i].unichar,
-                        ((struct named_char_t *)dummy)->unichar);
+                        ((struct pmath_named_char_t *)dummy)->unichar);
     }
     
-    dummy = pmath_ht_insert(char2name_ht, &named_char_array[i]);
+    dummy = pmath_ht_insert(char2name_ht, (void*)&named_char_array[i]);
     
     if(dummy && dummy != &named_char_array[i]) {
       pmath_debug_print("duplicate character: U+%04X = \\[%s] = \\[%s]\n",
                         (unsigned int)named_char_array[i].unichar,
                         named_char_array[i].name,
-                        ((struct named_char_t *)dummy)->name);
+                        ((struct pmath_named_char_t *)dummy)->name);
     }
   }
   

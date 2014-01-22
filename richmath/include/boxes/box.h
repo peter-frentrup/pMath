@@ -266,6 +266,8 @@ namespace richmath {
       AbstractSequence();
       virtual ~AbstractSequence();
       
+      virtual AbstractSequence *create_similar() = 0;
+      
       virtual String raw_substring(int start, int length) = 0;
       virtual uint32_t char_at(int pos) = 0; // return 0 on Out-Of-Range
       virtual bool is_placeholder(int i) = 0;

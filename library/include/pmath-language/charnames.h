@@ -1,6 +1,7 @@
 #ifndef __PMATH_LANGUAGE__CHARNAMES_H__
 #define __PMATH_LANGUAGE__CHARNAMES_H__
 
+#include <stddef.h>
 #include <pmath-config.h>
 #include <pmath-types.h>
 
@@ -30,6 +31,18 @@ const char *pmath_char_to_name(uint32_t unichar);
    \return The end of the parsed character or the error position.
  */
 PMATH_API const uint16_t *pmath_char_parse(const uint16_t *str, int maxlen, uint32_t *result);
+
+
+struct pmath_named_char_t {
+  uint32_t unichar;
+  const char *name;
+};
+
+/**\brief Get an array of all known character names.
+   \param length Set to the array length on return.
+   \return An internal array of character and name entires.
+ */
+PMATH_API const struct pmath_named_char_t *pmath_get_char_names(size_t *length);
 
 
 /** @} */

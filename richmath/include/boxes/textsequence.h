@@ -42,6 +42,8 @@ namespace richmath {
       TextSequence();
       virtual ~TextSequence();
       
+      virtual AbstractSequence *create_similar(){ return new TextSequence(); }
+      
       virtual Box *item(int i) { return boxes[i]; }
       virtual int count() {      return boxes.length(); }
       virtual int length() {     return text.length(); }
