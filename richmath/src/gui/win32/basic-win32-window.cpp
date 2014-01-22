@@ -1384,7 +1384,7 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   GetWindowRect(_hwnd, &rcWindow);
   
   RECT rcFrame = { 0, 0, 0, 0 };
-  AdjustWindowRectEx(&rcFrame, WS_OVERLAPPEDWINDOW & ~WS_CAPTION, FALSE, NULL);
+  AdjustWindowRectEx(&rcFrame, WS_OVERLAPPEDWINDOW & ~WS_CAPTION, FALSE, 0);
   
   USHORT uRow = 1;
   USHORT uCol = 1;
@@ -1796,9 +1796,9 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               tpm.rcExclude.right -= GetSystemMetrics(SM_CXSIZEFRAME);
               tpm.rcExclude.bottom = tpm.rcExclude.top  + GetSystemMetrics(SM_CYCAPTION);
               
-              POINT pt;
-              pt.x = (short)LOWORD(lParam);
-              pt.y = (short)HIWORD(lParam);
+              //POINT pt;
+              //pt.x = (short)LOWORD(lParam);
+              //pt.y = (short)HIWORD(lParam);
               
               int x;
               UINT align;
@@ -1813,7 +1813,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               
               int cmd = TrackPopupMenuEx(
                           menu,
-                          GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD | TPM_NONOTIFY,
+                          align | TPM_RETURNCMD | TPM_NONOTIFY,
                           x,
                           tpm.rcExclude.bottom,
                           _hwnd,

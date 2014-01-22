@@ -451,7 +451,7 @@ bool FontInfo::font_exists(String name) {
     logfont.lfCharSet = DEFAULT_CHARSET;
     memcpy(logfont.lfFaceName, name.buffer(), 2 * name.length());
     
-    bool *found = false;
+    bool found = false;
     
     EnumFontFamiliesExW(
       dc.handle,

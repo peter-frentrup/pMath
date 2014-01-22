@@ -59,7 +59,7 @@ static unsigned int lookup(
 }
 
 static pmath_bool_t resize(pmath_hashtable_t ht, unsigned int minused) {
-  unsigned int newsize, oldsize, i;
+  unsigned int newsize, i;
   void **entry_ptr;
   void **oldtable;
 
@@ -94,7 +94,7 @@ static pmath_bool_t resize(pmath_hashtable_t ht, unsigned int minused) {
 
   assert(ht->table != oldtable);
 
-  oldsize      = ht->capacity;
+//  oldsize      = ht->capacity;
   ht->capacity = newsize;
 //  ht->mask     = newsize - 1;
   memset(ht->table, 0, newsize * sizeof(void*));

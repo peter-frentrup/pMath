@@ -772,14 +772,11 @@ static void run_gc(void) {
     if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
       uintptr_t gc_refs = get_gc_refs(sym);
       uintptr_t actual_refs = (uintptr_t)pmath_refcount(sym);
-      pmath_bool_t checked_code_tables = FALSE;
       
       // one reference is held by sym
       ++gc_refs;
       
       if(gc_refs < actual_refs && actual_refs <= gc_refs + 3) {
-        checked_code_tables = TRUE;
-        
         if(_pmath_have_code(sym, PMATH_CODE_USAGE_DOWNCALL))
           ++gc_refs;
           
@@ -820,13 +817,9 @@ static void run_gc(void) {
                 _pmath_symbol_rules_clear(rules);
             }
             
-//            if(checked_code_tables) {
-              pmath_register_code(sym, NULL, PMATH_CODE_USAGE_DOWNCALL);
-              
-              pmath_register_code(sym, NULL, PMATH_CODE_USAGE_UPCALL);
-              
-              pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
-//            }
+            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_DOWNCALL);
+            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_UPCALL);
+            pmath_register_code(sym, NULL, PMATH_CODE_USAGE_SUBCALL);
 
 #          ifdef PMATH_DEBUG_LOG
             pmath_atomic_write_release(&_pmath_debug_current_gc_symbol, 0);
@@ -894,8 +887,6 @@ static void timer_thread_proc(void *dummy) {
   double now;
   double next_event;
   
-  pmath_bool_t noop = FALSE;
-  
   //(void)pmath_atomic_fetch_add(&init_threads_counter, -1);
   
 #ifdef PMATH_OS_WIN32
@@ -911,8 +902,6 @@ static void timer_thread_proc(void *dummy) {
     if(stop_threadpool)
       break;
       
-    noop = TRUE;
-    
     umsg = pmath_stack_pop(&unsorted_msgs);
     while(umsg) {
       struct _pmath_timed_message_t **prev = &sorted_msgs;
@@ -926,8 +915,6 @@ static void timer_thread_proc(void *dummy) {
       umsg->_reserved_next = msg;
       
       umsg = pmath_stack_pop(&unsorted_msgs);
-      
-      noop = FALSE;
     }
     
     now = pmath_tickcount() + 0.001;
@@ -940,8 +927,6 @@ static void timer_thread_proc(void *dummy) {
         pmath_thread_send(msg->message_queue, msg->subject);
         pmath_unref(msg->message_queue);
         pmath_mem_free(msg);
-        
-        noop = FALSE;
       }
       else
         break;
@@ -950,8 +935,6 @@ static void timer_thread_proc(void *dummy) {
     if(last_gc_time + GC_WAIT_SEC <= now) {
       run_gc();
       last_gc_time = now;
-      
-      noop = FALSE;
     }
     
     next_event = last_gc_time + GC_WAIT_SEC;

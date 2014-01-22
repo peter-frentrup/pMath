@@ -932,18 +932,18 @@ bool FunctionCallSpan::is_sequence(SpanExpr *span) {
   if(!span)
     return false;
     
-  bool prev_was_operand = false;
+  //bool prev_was_operand = false;
   
   for(int i = 0; i < span->count(); ++i) {
     if(span->item_equals(i, ",")) {
-      prev_was_operand = false;
+      //prev_was_operand = false;
       continue;
     }
     
     if(!span->item_is_operand(i))
       return false;
       
-    prev_was_operand = true;
+    //prev_was_operand = true;
   }
   
   return true;

@@ -630,46 +630,19 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   if(start > 0)
     x1 += glyphs[start - 1].right;
     
-  int pos;
-  if(startline > 0) {
+  if(startline > 0) 
     x1 -= glyphs[lines[startline - 1].end - 1].right;
-    pos = lines[startline - 1].end;
-    
-//    if(start > lines[startline - 1].end) {
-//      x1 -= glyphs[lines[startline - 1].end].x_offset;
-//    }
-  }
-  else
-    pos = 0;
     
   x1 += indention_width(lines[startline].indent);
-//  if(pos < glyphs.length() && pos > 0 && buf[pos-1] != '\n')
-//      x1 -= glyphs[pos].x_offset;
-
-//  if(start < glyphs.length())
-//    x1 += glyphs[start].x_offset / 2;
 
   x2 = x0;
   if(end > 0)
     x2 += glyphs[end - 1].right;
     
-  if(endline > 0) {
+  if(endline > 0) 
     x2 -= glyphs[lines[endline - 1].end - 1].right;
-    pos = lines[endline - 1].end;
-    
-//    if(end > lines[endline - 1].end) {
-//      x2 -= glyphs[lines[endline - 1].end].x_offset;
-//    }
-  }
-  else
-    pos = 0;
     
   x2 += indention_width(lines[endline].indent);
-//  if(pos < glyphs.length() && pos > 0 && buf[pos-1] != '\n')
-//    x2 -= glyphs[pos].x_offset;
-
-//  if(end < glyphs.length())
-//    x2 += glyphs[end].x_offset / 2;
 
   if(endline == startline) {
     float a = 0.5 * em;
@@ -2377,7 +2350,7 @@ void MathSequence::enlarge_space(Context *context) {
   const uint16_t *buf = str.buffer();
   int i;
   bool last_was_factor = false;
-  bool last_was_number = false;
+  //bool last_was_number = false;
   bool last_was_space  = false;
   bool last_was_left   = false;
   
@@ -2765,7 +2738,7 @@ void MathSequence::enlarge_space(Context *context) {
         break;
     }
     
-    last_was_number = tok == PMATH_TOK_DIGIT;
+    //last_was_number = tok == PMATH_TOK_DIGIT;
     last_was_factor = lwf;
     last_was_left   = lwl;
     
