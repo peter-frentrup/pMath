@@ -3,6 +3,9 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
+- pmath: support C++11 rvalue references for pmath::Expr and derived bindings (e.g. Eigen module)
+	to get rid of numerous pmath_ref/unref() calls
+	
 - pmath: implement Together(...) 
 
 - pmath: generate a message when unpacking a packed array
