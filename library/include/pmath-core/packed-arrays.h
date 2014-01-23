@@ -176,6 +176,15 @@ size_t pmath_packed_array_get_dimensions(pmath_packed_array_t array);
 PMATH_API
 const size_t *pmath_packed_array_get_sizes(pmath_packed_array_t array);
 
+/**\brief Get the steps of a packed array.
+   \memberof pmath_packed_array_t
+   \param array  A packed array. It wont be freed.
+   \return The array of steps for computing an element address. Its length it 
+           the array dimension.
+ */
+PMATH_API
+const size_t *pmath_packed_array_get_steps(pmath_packed_array_t array);
+
 /**\brief Get the element data type of a packed array.
    \memberof pmath_packed_array_t
    \param array  A packed array. It wont be freed.

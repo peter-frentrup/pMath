@@ -102,21 +102,23 @@ namespace pmath {
       }
 #endif
       
-      bool is_custom()   const throw() { return pmath_is_custom(_obj); }
-      bool is_double()   const throw() { return pmath_is_double(_obj); }
-      bool is_expr()     const throw() { return pmath_is_expr(_obj); }
-      bool is_float()    const throw() { return pmath_is_float(_obj); }
-      bool is_integer()  const throw() { return pmath_is_integer(_obj); }
-      bool is_int32()    const throw() { return pmath_is_int32(_obj); }
-      bool is_magic()    const throw() { return pmath_is_magic(_obj); }
-      bool is_mpfloat()  const throw() { return pmath_is_mpfloat(_obj); }
-      bool is_null()     const throw() { return pmath_is_null(_obj); }
-      bool is_number()   const throw() { return pmath_is_number(_obj); }
-      bool is_pointer()  const throw() { return pmath_is_pointer(_obj); }
-      bool is_quotient() const throw() { return pmath_is_quotient(_obj); }
-      bool is_rational() const throw() { return pmath_is_rational(_obj); }
-      bool is_string()   const throw() { return pmath_is_string(_obj); }
-      bool is_symbol()   const throw() { return pmath_is_symbol(_obj); }
+      bool is_custom()       const throw() { return pmath_is_custom(_obj); }
+      bool is_double()       const throw() { return pmath_is_double(_obj); }
+      bool is_expr()         const throw() { return pmath_is_expr(_obj); }
+      bool is_float()        const throw() { return pmath_is_float(_obj); }
+      bool is_integer()      const throw() { return pmath_is_integer(_obj); }
+      bool is_int32()        const throw() { return pmath_is_int32(_obj); }
+      bool is_magic()        const throw() { return pmath_is_magic(_obj); }
+      bool is_mpfloat()      const throw() { return pmath_is_mpfloat(_obj); }
+      bool is_null()         const throw() { return pmath_is_null(_obj); }
+      bool is_number()       const throw() { return pmath_is_number(_obj); }
+      bool is_pointer()      const throw() { return pmath_is_pointer(_obj); }
+      bool is_quotient()     const throw() { return pmath_is_quotient(_obj); }
+      bool is_rational()     const throw() { return pmath_is_rational(_obj); }
+      bool is_string()       const throw() { return pmath_is_string(_obj); }
+      bool is_symbol()       const throw() { return pmath_is_symbol(_obj); }
+      bool is_blob()         const throw() { return pmath_is_blob(_obj); }
+      bool is_packed_array() const throw() { return pmath_is_packed_array(_obj); }
       
       bool is_pointer_of(pmath_type_t type) const throw() {
         return pmath_is_pointer_of(_obj, type);
