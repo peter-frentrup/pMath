@@ -46,7 +46,7 @@ namespace pmath4eigen {
       static pmath::Expr list_from_vector(const Eigen::MatrixBase<Derived> &vec);
       
       template<typename Derived>
-      static size_t diagonalSize(const Eigen::EigenBase<Derived> &matrix){
+      static size_t diagonalSize(const Eigen::EigenBase<Derived> &matrix) {
         return std::min(matrix.rows(), matrix.cols());
       }
       
@@ -58,11 +58,41 @@ namespace pmath4eigen {
       };
   };
   
+  template<typename Scalar>
+  struct PackedArrays{
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
+    
+    typedef Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic> StrideType;
+    
+    typedef Eigen::Map<const MatrixType, Eigen::Unaligned, StrideType> MapTypeConst;
+    
+    // precondition: expr is a packed array of Scalar type and 2 dimensions
+    static MapTypeConst make_const_map(pmath_packed_array_t array){
+      const Scalar *data  = (const Scalar*)pmath_packed_array_read(array, 0, 0);
+      const size_t *sizes = pmath_packed_array_get_sizes(array);
+      const size_t *steps = pmath_packed_array_get_steps(array);
+      
+      return MapTypeConst(data, sizes[0], sizes[1], StrideType(steps[0] / steps[1], steps[1] / sizeof(Scalar)));
+    }
+  };
   
   template<typename Derived>
-  inline void Converter::to_eigen(Eigen::MatrixBase<Derived> const &matrix, const pmath::Expr &expr)
-  {
+  inline void Converter::to_eigen(Eigen::MatrixBase<Derived> const &matrix, const pmath::Expr &expr) {
     Eigen::MatrixBase<Derived> &matrix_ = const_cast< Eigen::MatrixBase<Derived>& >(matrix);
+    
+    if(expr.is_packed_array() && pmath_packed_array_get_dimensions(expr.get()) == 2){
+      switch(pmath_packed_array_get_element_type(expr.get())) {
+        case PMATH_PACKED_DOUBLE:
+          matrix_ = PackedArrays<double>::make_const_map(expr.get()).cast<typename Derived::Scalar>();
+          return;
+        
+        case PMATH_PACKED_INT32:
+          matrix_ = PackedArrays<int32_t>::make_const_map(expr.get()).cast<typename Derived::Scalar>();
+          break;
+        
+        default: break;
+      }
+    }
     
     for(size_t r = matrix_.rows(); r > 0; --r) {
       pmath::Expr row_expr = expr[r];
