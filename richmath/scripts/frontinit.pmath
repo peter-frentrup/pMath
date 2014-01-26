@@ -27,7 +27,15 @@ Protect($FrontEndDirectory)
 Options(FileOpenDialog):= Options(FileSaveDialog):= {WindowTitle -> Automatic}
 
 
-$MathShapers:= {"Cambria Math", "Asana Math", "Neo Euler", /*"STIX Math", */"XITS Math", "Latin Modern Math"}
+$MathShapers:= {
+   "Cambria Math", 
+   "Asana Math", 
+   "Neo Euler", 
+   /*"STIX Math", */"XITS Math", 
+   "Latin Modern Math", 
+   "TeX Gyre Bonum Math", 
+   "TeX Gyre Pagella Math", 
+   "TeX Gyre Termes Math"}
 Protect($MathShapers)
 
 
