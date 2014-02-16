@@ -3,9 +3,33 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
+- richmath: add undo/redo stack
+
+- richmath: automatically insert closing bracket, 
+	allow overtyping these auto-inserted bracket (but not manually inserted brackets!)
+	remove the auto-inserted-but-not-yet-overtyped bracket when deleting the opening bracket via backspace
+
+- richmath: add code refactoring (introduce variable, extract function, rename variable, ...)
+
+- richmath: add code navigation (goto definition, find all references), also into external *.pmath files 
+	or via Java Decompiler into *.class files for Java-bindings (same with ILSpy for later .Net-binding)
+
+- richmath: improve autocompletion: 
+	use drop-down-list, 
+	suggest local variables, 
+	suggest option names, 
+	suggest results for aliases,
+	provide extensible auto-completion framework...
+	suggest Java/.Net methods (when using "@"-syntax),
+	suggest special string values,
+
+- pmath/modules: add a .Net-binding similar to the Java-binging
+	
 - pmath: support C++11 rvalue references for pmath::Expr and derived bindings (e.g. Eigen module)
 	to get rid of numerous pmath_ref/unref() calls
 	
+- pmath: rename pmath_message_queue_t to pmath_message_heap_t, because it is not realy a queue
+
 - pmath: implement Together(...) 
 
 - pmath: generate a message when unpacking a packed array
