@@ -514,8 +514,11 @@ void MathGtkDocumentWindow::run_menucommand(Expr cmd) {
     
     if(ms) {
       _top_area->document_context()->math_shaper     = *ms;
+      _top_area->document_context()->text_shaper     = *ms;
       _bottom_area->document_context()->math_shaper  = *ms;
+      _bottom_area->document_context()->text_shaper  = *ms;
       _working_area->document_context()->math_shaper = *ms;
+      _working_area->document_context()->text_shaper = *ms;
       
       _top_area->document()->invalidate_all();
       _bottom_area->document()->invalidate_all();

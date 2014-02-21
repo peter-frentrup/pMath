@@ -1190,10 +1190,15 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
               
               if(ms) {
                 _top_glass_area->document_context()->math_shaper    = *ms;
+                _top_glass_area->document_context()->text_shaper    = *ms;
                 _top_area->document_context()->math_shaper          = *ms;
+                _top_area->document_context()->text_shaper          = *ms;
                 _bottom_area->document_context()->math_shaper       = *ms;
+                _bottom_area->document_context()->text_shaper       = *ms;
                 _bottom_glass_area->document_context()->math_shaper = *ms;
+                _bottom_glass_area->document_context()->text_shaper = *ms;
                 _working_area->document_context()->math_shaper      = *ms;
+                _working_area->document_context()->text_shaper      = *ms;
                 
                 _top_glass_area->document()->invalidate_all();
                 _top_area->document()->invalidate_all();

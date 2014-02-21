@@ -315,7 +315,7 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base->set(SectionGroupPrecedence,    0);
   
-  //Stylesheet::Default->base->set(FontFamilies,   List("Veranda", "Arial"));
+  Stylesheet::Default->base->set(FontFamilies,   List());
   Stylesheet::Default->base->set(SectionLabel, "");
   
   Stylesheet::Default->base->set_pmath(Method,
