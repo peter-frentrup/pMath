@@ -2,7 +2,7 @@
 #define __GUI__DOCUMENT_H__
 
 #include <boxes/sectionlist.h>
-#include <graphics/context.h>
+#include <util/autocompletion.h>
 
 
 namespace richmath {
@@ -132,11 +132,6 @@ namespace richmath {
       void toggle_open_close_current_group();
       
       void complete_box();
-      bool start_autocomplete_alias(LogicalDirection direction);
-      bool start_autocomplete_filename(LogicalDirection direction);
-      bool start_autocomplete_symbol(LogicalDirection direction);
-      bool autocomplete_next(LogicalDirection direction);
-      void stop_autocomplete();
       
       Box *selection_box() {   return context.selection.get();   }
       int selection_start() {  return context.selection.start; }
@@ -201,10 +196,6 @@ namespace richmath {
       
       SelectionReference drag_source;
       
-      SelectionReference auto_completion_range;
-      Expr auto_completion_list;
-      int auto_completion_index;
-      
     private:
       NativeWidget *_native;
       
@@ -218,6 +209,8 @@ namespace richmath {
       
       Array<SelectionReference> additional_selection;
       SelectionReference        last_paint_sel;
+      
+      AutoCompletion auto_completion;
   };
   
   extern Hashtable<String, Expr, object_hash> global_immediate_macros;
