@@ -107,12 +107,12 @@ PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
   pmath_t debug_info = pmath_get_debug_info(box);
   
   box = pmath_evaluate(
-           pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, box));
-  
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, box));
+            
   if(pmath_is_null(debug_info))
     return box;
-  
+    
   if(!pmath_is_expr_of(box, PMATH_SYMBOL_HOLDCOMPLETE)) {
     pmath_unref(debug_info);
     return box;
@@ -175,7 +175,7 @@ static pmath_bool_t parse(pmath_t *box) {
     *box = pmath_try_set_debug_info(*box, debug_info);
   else
     pmath_unref(debug_info);
-  
+    
   return TRUE;
 }
 
@@ -243,7 +243,7 @@ static pmath_symbol_t inset_operator(uint16_t ch) { // do not free result!
     case 0x2197: return PMATH_SYMBOL_UPPERRIGHTARROW;
     case 0x2198: return PMATH_SYMBOL_LOWERRIGHTARROW;
     case 0x2199: return PMATH_SYMBOL_LOWERLEFTARROW;
-
+    
     case 0x21D0: return PMATH_SYMBOL_DOUBLELEFTARROW;
     case 0x21D1: return PMATH_SYMBOL_DOUBLEUPARROW;
     case 0x21D2: return PMATH_SYMBOL_DOUBLERIGHTARROW;
@@ -254,7 +254,7 @@ static pmath_symbol_t inset_operator(uint16_t ch) { // do not free result!
     case 0x21D7: return PMATH_SYMBOL_DOUBLEUPPERRIGHTARROW;
     case 0x21D8: return PMATH_SYMBOL_DOUBLELOWERRIGHTARROW;
     case 0x21D9: return PMATH_SYMBOL_DOUBLELOWERLEFTARROW;
-  
+    
     case 0x00B1: return PMATH_SYMBOL_PLUSMINUS;
     
     case 0x2213: return PMATH_SYMBOL_MINUSPLUS;
@@ -1097,7 +1097,7 @@ static pmath_t make_expression_from_complexstringbox(pmath_expr_t box) {
   static const uint16_t right_box_char = PMATH_CHAR_RIGHT_BOX;
   
   len = pmath_expr_length(box);
-  for(i = 1;i <= len;++i) {
+  for(i = 1; i <= len; ++i) {
     pmath_t part = pmath_expr_get_item(box, i);
     
     if(pmath_is_string(part)) {
@@ -1108,11 +1108,11 @@ static pmath_t make_expression_from_complexstringbox(pmath_expr_t box) {
     string = pmath_string_insert_ucs2(string, INT_MAX, &left_box_char, 1);
     
     pmath_write(
-      part, 
-      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR, 
-      (void( *)(void *, const uint16_t *, int))_pmath_write_to_string, 
+      part,
+      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR,
+      (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
       &string);
-    
+      
     pmath_unref(part);
     string = pmath_string_insert_ucs2(string, INT_MAX, &right_box_char, 1);
   }
@@ -1741,7 +1741,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         goto FAILED;
         
       args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(expr, 2));
-                 
+      
       pmath_unref(expr);
       if(pmath_is_expr(args)) {
         return HOLDCOMPLETE(
@@ -1754,21 +1754,23 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     
     // ?x  and  ?x:v
     if(firstchar == '?') {
-      if(exprlen == 2) {
-        box = parse_at(expr, 2);
-        
-        if(!is_parse_error(box)) {
+      box = parse_at(expr, 2);
+      
+      if(!is_parse_error(box)) {
+        box = pmath_expr_new_extended(
+                pmath_ref(PMATH_SYMBOL_PATTERN), 2,
+                box,
+                pmath_ref(_pmath_object_singlematch));
+                
+        if(exprlen == 2) {
           pmath_unref(expr);
           return HOLDCOMPLETE(
                    pmath_expr_new_extended(
                      pmath_ref(PMATH_SYMBOL_OPTIONAL), 1,
                      box));
         }
-      }
-      else if(exprlen == 4 && unichar_at(expr, 3) == ':') {
-        box = parse_at(expr, 2);
         
-        if(!is_parse_error(box)) {
+        if(exprlen == 4 && unichar_at(expr, 3) == ':') {
           pmath_t value = parse_at(expr, 4);
           
           if(!is_parse_error(value)) {
@@ -1779,9 +1781,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
                        box,
                        value));
           }
-          
-          pmath_unref(box);
         }
+        
+        pmath_unref(box);
       }
       
       pmath_unref(expr);
@@ -2156,7 +2158,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
             pmath_unref(box);
             
             idx = _pmath_makeexpression_with_debuginfo(idx);
-                      
+            
             if(pmath_is_expr(idx)) {
               pmath_t head = pmath_expr_get_item(idx, 0);
               pmath_unref(head);
@@ -2882,7 +2884,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       if(secondchar == '(' && unichar_at(expr, 4) == ')') {
         pmath_t args = _pmath_makeexpression_with_debuginfo(
                          pmath_expr_get_item(expr, 3));
-        
+                         
         if(pmath_is_expr(args)) {
           pmath_t f = parse_at(expr, 1);
           
@@ -2983,7 +2985,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       }
       
       args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(expr, 5));
-                 
+      
       if(pmath_is_expr(args)) {
         size_t argslen = pmath_expr_length(args);
         

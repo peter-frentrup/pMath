@@ -3647,12 +3647,28 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
   }
   else if(pmath_same(head, PMATH_SYMBOL_OPTIONAL)) {
     pmath_t item;
+    pmath_t sub_item;
     
     if(exprlen < 1 || exprlen > 2)
       goto FULLFORM;
       
     item = pmath_expr_get_item(expr, 1);
-    if(!pmath_is_symbol(item)) {
+    if(!pmath_is_expr_of_len(item, PMATH_SYMBOL_PATTERN, 2)) {
+      pmath_unref(item);
+      goto FULLFORM;
+    }
+    
+    sub_item = pmath_expr_get_item(item, 2);
+    if(!pmath_equals(sub_item, _pmath_object_singlematch)) {
+      pmath_unref(sub_item);
+      pmath_unref(item);
+      goto FULLFORM;
+    }
+    
+    pmath_unref(sub_item);
+    sub_item = pmath_expr_get_item(item, 1);
+    if(!pmath_is_symbol(sub_item)) {
+      pmath_unref(sub_item);
       pmath_unref(item);
       goto FULLFORM;
     }
@@ -3660,7 +3676,8 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
     if(exprlen == 2 && priority > PRIO_TIMES)  WRITE_CSTR("(?");
     else                                       WRITE_CSTR("?");
     
-    pmath_write_ex(info, item);
+    pmath_write_ex(info, sub_item);
+    pmath_unref(sub_item);
     pmath_unref(item);
     
     if(exprlen == 2) {

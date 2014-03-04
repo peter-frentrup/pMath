@@ -1071,35 +1071,57 @@ static pmath_t optional_to_boxes(
   pmath_expr_t   expr    // will be freed
 ) {
   if(pmath_expr_length(expr) == 1) {
-    pmath_t name = pmath_expr_get_item(expr, 1);
+    pmath_t pattern = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_symbol(name)) {
-      pmath_unref(expr);
+    if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_PATTERN, 2)) {
+      pmath_t name = pmath_expr_get_item(pattern, 1);
+      pmath_t sub  = pmath_expr_get_item(pattern, 2);
       
-      name = object_to_boxes(thread, name);
-      name = ensure_min_precedence(name, PMATH_PREC_PRIM, 0);
+      if(pmath_is_symbol(name) && pmath_equals(sub, _pmath_object_singlematch)) {
+        pmath_unref(expr);
+        pmath_unref(pattern);
+        pmath_unref(sub);
+        
+        name = object_to_boxes(thread, name);
+        name = ensure_min_precedence(name, PMATH_PREC_PRIM, 0);
+        
+        return pmath_build_value("so", "?", name);
+      }
       
-      return pmath_build_value("so", "?", name);
+      pmath_unref(name);
+      pmath_unref(sub);
     }
+    
+    pmath_unref(pattern);
   }
   else if(pmath_expr_length(expr) == 2) {
-    pmath_t name = pmath_expr_get_item(expr, 1);
-    pmath_t value =  pmath_expr_get_item(expr, 2);
+    pmath_t pattern = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_symbol(name)) {
-      pmath_unref(expr);
+    if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_PATTERN, 2)) {
+      pmath_t name = pmath_expr_get_item(pattern, 1);
+      pmath_t sub  = pmath_expr_get_item(pattern, 2);
+      pmath_t value = pmath_expr_get_item(expr, 2);
       
-      name = object_to_boxes(thread, name);
-      name = ensure_min_precedence(name, PMATH_PREC_PRIM, 0);
-      
-      value = object_to_boxes(thread, value);
-      value = ensure_min_precedence(value, PMATH_PREC_CIRCMUL + 1, +1);
-      
-      return pmath_build_value("soso", "?", name, ":", value);
+      if(pmath_is_symbol(name) && pmath_equals(sub, _pmath_object_singlematch)) {
+        pmath_unref(expr);
+        pmath_unref(pattern);
+        pmath_unref(sub);
+        
+        name = object_to_boxes(thread, name);
+        name = ensure_min_precedence(name, PMATH_PREC_PRIM, 0);
+        
+        value = object_to_boxes(thread, value);
+        value = ensure_min_precedence(value, PMATH_PREC_CIRCMUL + 1, +1);
+        
+        return pmath_build_value("soso", "?", name, ":", value);
+      }
+    
+      pmath_unref(name);
+      pmath_unref(sub);
+      pmath_unref(value);
     }
     
-    pmath_unref(name);
-    pmath_unref(value);
+    pmath_unref(pattern);
   }
   
   return call_to_boxes(thread, expr);
