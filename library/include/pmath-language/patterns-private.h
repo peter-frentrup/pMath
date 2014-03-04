@@ -2,11 +2,15 @@
 #define __PMATH_LANGUAGE__PATTERNS_PRIVATE_H__
 
 #ifndef BUILDING_PMATH
-#error This header file is not part of the public pMath API
+#  error This header file is not part of the public pMath API
 #endif
 
 #include <pmath-core/expressions.h>
 #include <pmath-util/hashtables.h>
+
+
+#define PMATH_MAGIC_PATTERN_SEQUENCE  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 2)
+
 
 // initialized in pmath_init():
 extern PMATH_PRIVATE pmath_t _pmath_object_range_from_one; /* Range(1,()) readonly */
@@ -14,6 +18,7 @@ extern PMATH_PRIVATE pmath_t _pmath_object_range_from_zero; /* Range(0,()) reado
 extern PMATH_PRIVATE pmath_t _pmath_object_singlematch; /* SingleMatch() readonly */
 extern PMATH_PRIVATE pmath_t _pmath_object_multimatch; /* Repeated(SingleMatch(),1..) readonly */
 extern PMATH_PRIVATE pmath_t _pmath_object_zeromultimatch; /* Repeated(SingleMatch(),0..) readonly */
+extern PMATH_PRIVATE pmath_t _pmath_object_empty_pattern_sequence; /* MPS()   where MPS = PMATH_MAGIC_PATTERN_SEQUENCE */
 
 PMATH_PRIVATE
 int _pmath_pattern_compare(
@@ -22,7 +27,7 @@ int _pmath_pattern_compare(
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_rhs_has_condition(
-  pmath_t  *rhs,
+  pmath_t      *rhs,
   pmath_bool_t  adjust);
 
 PMATH_PRIVATE
@@ -31,6 +36,8 @@ pmath_bool_t _pmath_pattern_is_const(pmath_t pattern);
 typedef struct {
   pmath_t parent_pat_head; // wont be freed
   pmath_t pat;             // wont be freed
+  
+  pmath_hashtable_t pattern_variables; // should be NULL or a ht_pattern_variable_class (private)
   
   uint8_t associative;
 } _pmath_pattern_analyse_input_t;
@@ -41,6 +48,7 @@ typedef struct {
   
   uint8_t no_sequence; // can only be TRUE if input.associative is TRUE
   uint8_t longest;
+  uint8_t prefer_nonempty;
 } _pmath_pattern_analyse_output_t;
 
 PMATH_PRIVATE

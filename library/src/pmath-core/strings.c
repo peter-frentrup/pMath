@@ -437,7 +437,7 @@ static void call_old_pre_write(void *user, pmath_t obj, pmath_write_options_t op
 }
 
 static void get_token_spacing(pmath_string_t token, const char **pre, const char **post) {
-  pmath_token_t tok;
+  PMATH_ATTRIBUTE_UNUSED pmath_token_t tok;
   int prec;
   
   *pre  = "";

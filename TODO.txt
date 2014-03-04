@@ -3,11 +3,6 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
-- pmath: BUG:
-	f(x:((y:A)|(z:B)))::=g({x},{y},{z})
-	f(A)                                  gives g({A},{A},{z})  but should give  g({A},{A},{})
-	f(B)                                  gives g({B},{y},{B})  but should give  g({B},{},{B})
-
 - richmath: add undo/redo stack
 
 - richmath: automatically insert closing bracket, 

@@ -340,7 +340,8 @@ PMATH_API void *pmath_ht_insert(pmath_hashtable_t ht, void *entry) {
 
 /*============================================================================*/
 
-static void object_entry_destructor(void *e) {
+PMATH_PRIVATE 
+void pmath_ht_obj_class__entry_destructor(void *e) {
   struct _pmath_object_entry_t *entry = (struct _pmath_object_entry_t*)e;
 
   pmath_unref(entry->value);
@@ -348,24 +349,28 @@ static void object_entry_destructor(void *e) {
   pmath_mem_free(entry);
 }
 
-static unsigned int object_entry_hash(void *e) {
+PMATH_PRIVATE
+unsigned int pmath_ht_obj_class__entry_hash(void *e) {
   struct _pmath_object_entry_t *entry = (struct _pmath_object_entry_t*)e;
 
   return pmath_hash(entry->key);
 }
 
-static pmath_bool_t object_entries_equal(void *e1, void *e2) {
+PMATH_PRIVATE
+pmath_bool_t pmath_ht_obj_class__entry_keys_equal(void *e1, void *e2) {
   struct _pmath_object_entry_t *entry1 = (struct _pmath_object_entry_t*)e1;
   struct _pmath_object_entry_t *entry2 = (struct _pmath_object_entry_t*)e2;
 
   return pmath_equals(entry1->key, entry2->key);
 }
 
-static unsigned int object_key_hash(void *k) {
+PMATH_PRIVATE
+unsigned int pmath_ht_obj_class__key_hash(void *k) {
   return pmath_hash(*(pmath_t*)k);
 }
 
-static pmath_bool_t object_entry_equals_key(void *e, void *k) {
+PMATH_PRIVATE
+pmath_bool_t pmath_ht_obj_class__entry_equals_key(void *e, void *k) {
   struct _pmath_object_entry_t *entry = (struct _pmath_object_entry_t*)e;
   pmath_t                       key   = *(pmath_t*)k;
   return pmath_equals(entry->key, key);
@@ -373,11 +378,11 @@ static pmath_bool_t object_entry_equals_key(void *e, void *k) {
 
 PMATH_PRIVATE
 const pmath_ht_class_t pmath_ht_obj_class = {
-  object_entry_destructor,
-  object_entry_hash,
-  object_entries_equal,
-  object_key_hash,
-  object_entry_equals_key
+  pmath_ht_obj_class__entry_destructor,
+  pmath_ht_obj_class__entry_hash,
+  pmath_ht_obj_class__entry_keys_equal,
+  pmath_ht_obj_class__key_hash,
+  pmath_ht_obj_class__entry_equals_key
 };
 
 PMATH_PRIVATE
@@ -404,10 +409,10 @@ static void object_int_entry_destructor(void *e) {
 PMATH_PRIVATE
 const pmath_ht_class_t pmath_ht_obj_int_class = {
   object_int_entry_destructor,
-  object_entry_hash,
-  object_entries_equal,
-  object_key_hash,
-  object_entry_equals_key
+  pmath_ht_obj_class__entry_hash,
+  pmath_ht_obj_class__entry_keys_equal,
+  pmath_ht_obj_class__key_hash,
+  pmath_ht_obj_class__entry_equals_key
 };
 
 PMATH_PRIVATE

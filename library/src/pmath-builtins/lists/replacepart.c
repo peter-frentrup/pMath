@@ -149,10 +149,13 @@ static pmath_bool_t prepare_pattern_len_index( // stop?
   else {
     _pmath_pattern_analyse_input_t  input;
     _pmath_pattern_analyse_output_t output;
+    
+    memset(&input, 0, sizeof(input));
     input.parent_pat_head = PMATH_NULL;
     input.pat = *pos;
-    input.associative = 0;
+    
     _pmath_pattern_analyse(&input, &output);
+    
     return output.min != 1 || output.max != 1;
   }
 }

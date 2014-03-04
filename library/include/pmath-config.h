@@ -24,11 +24,18 @@
 
 /* PMATH_ATTRIBUTE_PURE: A function without side effects. */
 #if PMATH_NEED_GNUC(2, 96)
-#  define PMATH_ATTRIBUTE_PURE  __attribute__((__pure__))
+#  define PMATH_ATTRIBUTE_PURE    __attribute__((__pure__))
 #elif defined(_MSC_VER)
 #  define PMATH_ATTRIBUTE_PURE  __declspec(noalias)
 #else
 #  define PMATH_ATTRIBUTE_PURE
+#endif
+
+/* PMATH_ATTRIBUTE_UNUSED: No warning for a local variable that is never used. */
+#if PMATH_NEED_GNUC(2, 96)
+#  define PMATH_ATTRIBUTE_UNUSED  __attribute__((__unused__))
+#else
+#  define PMATH_ATTRIBUTE_UNUSED
 #endif
 
 #ifdef _MSC_VER
