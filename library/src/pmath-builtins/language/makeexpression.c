@@ -1005,8 +1005,10 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   
   if(len == 1 && str[0] == ',') {
     pmath_unref(string);
-    return pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 2);
+    return pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 2,
+             PMATH_NULL,
+             PMATH_NULL);
   }
   
   if(len == 1 && str[0] == '~') {
