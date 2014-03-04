@@ -521,7 +521,7 @@ static pmath_bool_t _pmath_multirule_find(
           _pmath_object_atomic_read(&_rule->pattern),
           &rule_body))
     {
-      if(_pmath_rhs_condition(&rule_body, TRUE)) {
+      if(_pmath_rhs_has_condition(&rule_body, TRUE)) {
         rule_body = pmath_evaluate(rule_body);
         
         if(pmath_is_expr_of_len(rule_body, PMATH_SYMBOL_INTERNAL_CONDITION, 2)) {
@@ -616,7 +616,7 @@ static pmath_bool_t _pmath_multirule_change_ex(
     if(cmp == 0) { // rhs coditions? (pattern :> value//condition)
       rule_member = _pmath_object_atomic_read(&_rule->body);
       
-      if(_pmath_rhs_condition(&rule_member, FALSE)) {
+      if(_pmath_rhs_has_condition(&rule_member, FALSE)) {
         cmp = 1;
         
         if(pmath_same(body, PMATH_UNDEFINED)) { // remove this rule and go on
@@ -644,7 +644,7 @@ static pmath_bool_t _pmath_multirule_change_ex(
           continue;
         }
       }
-      else if(_pmath_rhs_condition(&body, FALSE))
+      else if(_pmath_rhs_has_condition(&body, FALSE))
         cmp = -1;
         
       pmath_unref(rule_member);
@@ -775,7 +775,7 @@ void _pmath_rulecache_change(
   
   assert(rc != NULL);
   
-  body_has_condition = _pmath_rhs_condition(&body, FALSE);
+  body_has_condition = _pmath_rhs_has_condition(&body, FALSE);
   
   table = rulecache_table_lock(rc);
   
@@ -1012,7 +1012,7 @@ void _pmath_symbol_define_value_pos(
     return;
   }
   
-  if(_pmath_rhs_condition(&body, FALSE)) {
+  if(_pmath_rhs_has_condition(&body, FALSE)) {
     _pmath_object_atomic_write(value_position, PMATH_NULL);
     
     while(!_pmath_multirule_change_ex(value_position, PMATH_NULL, pattern, body)) {

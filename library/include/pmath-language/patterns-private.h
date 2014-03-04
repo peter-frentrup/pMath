@@ -21,7 +21,7 @@ int _pmath_pattern_compare(
   pmath_t pat2); // wont be freed
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_rhs_condition(
+pmath_bool_t _pmath_rhs_has_condition(
   pmath_t  *rhs,
   pmath_bool_t  adjust);
 

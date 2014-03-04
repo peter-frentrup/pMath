@@ -63,7 +63,7 @@ PMATH_PRIVATE int _pmath_pattern_compare(
 }
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_rhs_condition(
+pmath_bool_t _pmath_rhs_has_condition(
   pmath_t  *rhs,
   pmath_bool_t  adjust
 ) {
@@ -96,7 +96,7 @@ pmath_bool_t _pmath_rhs_condition(
             *rhs,
             pmath_expr_length(*rhs));
             
-    if(_pmath_rhs_condition(&obj, adjust)) {
+    if(_pmath_rhs_has_condition(&obj, adjust)) {
       *rhs = pmath_expr_set_item(
                *rhs,
                pmath_expr_length(*rhs),
@@ -895,7 +895,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
           pmath_unref(default_head);
         }
         
-        if(_pmath_rhs_condition(rhs, TRUE)) {
+        if(_pmath_rhs_has_condition(rhs, TRUE)) {
           *rhs = pmath_evaluate(*rhs);
           
           if(pmath_is_expr_of_len(*rhs, PMATH_SYMBOL_INTERNAL_CONDITION, 2)) {
