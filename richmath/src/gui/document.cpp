@@ -3861,9 +3861,6 @@ void Document::after_resize_section(int i) {
 }
 
 void Document::paint_resize(Canvas *canvas, bool resize_only) {
-  pmath_debug_print_object("(t=", context.text_shaper->font_name(0).get(), "");
-  pmath_debug_print_object(", m=", context.math_shaper->font_name(0).get(), ")\n");
-  
   style->update_dynamic(this);
   additional_selection.length(0);
   
