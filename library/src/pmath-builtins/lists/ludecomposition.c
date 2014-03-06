@@ -233,7 +233,7 @@ void _pmath_matrix_is_triangular( // in ludecomposition
     }
   }
   
-  return expr_matrix_is_triangular(
+  expr_matrix_is_triangular(
            m,
            lower_has_nonzeros,
            diagonal_has_nonzeros,
