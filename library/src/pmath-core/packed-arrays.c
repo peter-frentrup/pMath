@@ -1328,7 +1328,7 @@ pmath_expr_t _pmath_packed_array_set_item(
   if(!pmath_is_packed_array(item) &&
       pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, sizes[0]))
   {
-    item = _pmath_expr_pack_array(item);
+    item = _pmath_expr_pack_array(item, PMATH_PACKED_INT32);
   }
   
   if(pmath_is_packed_array(item)) {
@@ -1457,13 +1457,37 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t r
 
 /* -------------------------------------------------------------------------- */
 
-static int packable_element_type(pmath_t expr) {
+static enum pmath_packed_type_t combine_types(
+  enum pmath_packed_type_t type,
+  enum pmath_packed_type_t expected_type
+) {
+  switch(type) {
+    case PMATH_PACKED_INT32:
+      switch(expected_type) {
+        case PMATH_PACKED_INT32:
+          break;
+          
+        case PMATH_PACKED_DOUBLE:
+          return PMATH_PACKED_DOUBLE;
+      }
+      break;
+    
+    case PMATH_PACKED_DOUBLE:
+      break;
+  }
+  
+  return type;
+}
+
+// -1 = INVALID
+// PMATH_PACKED_XXX otherwise 
+static int packable_element_type(pmath_t expr, int expected_type) {
   if(pmath_is_packed_array(expr)) {
     struct _pmath_packed_array_t *_array;
     
     _array = (void *)PMATH_AS_PTR(expr);
     
-    return _array->element_type;
+    return combine_types(_array->element_type, expected_type);
   }
   
   if(pmath_is_expr(expr)) {
@@ -1471,18 +1495,18 @@ static int packable_element_type(pmath_t expr) {
     size_t len;
     int result;
     
+    len = pmath_expr_length(expr);
+    if(len == 0)
+      return -1;
+      
     item = pmath_expr_get_item(expr, 0);
     pmath_unref(item);
     
     if(!pmath_same(item, PMATH_SYMBOL_LIST))
       return -1;
       
-    len = pmath_expr_length(expr);
-    if(len == 0)
-      return 0;
-      
     item = pmath_expr_get_item(expr, len);
-    result = packable_element_type(item);
+    result = packable_element_type(item, expected_type);
     pmath_unref(item);
     
     if(result < 0)
@@ -1492,7 +1516,7 @@ static int packable_element_type(pmath_t expr) {
       int typ;
       
       item = pmath_expr_get_item(expr, len);
-      typ = packable_element_type(item);
+      typ = packable_element_type(item, expected_type);
       pmath_unref(item);
       
       if(typ != result)
@@ -1503,14 +1527,14 @@ static int packable_element_type(pmath_t expr) {
   }
   
   if(pmath_is_int32(expr))
-    return PMATH_PACKED_INT32;
+    return combine_types(PMATH_PACKED_INT32, expected_type);
     
   if(pmath_is_double(expr) ||
       pmath_same(expr, PMATH_SYMBOL_UNDEFINED) ||
       pmath_equals(expr, _pmath_object_pos_infinity) ||
       pmath_equals(expr, _pmath_object_neg_infinity))
   {
-    return PMATH_PACKED_DOUBLE;
+    return combine_types(PMATH_PACKED_DOUBLE, expected_type);
   }
   
   return -1;
@@ -1542,122 +1566,99 @@ static size_t packable_dimensions(pmath_t expr) {
   return 0;
 }
 
-static void pack_array(
-  struct _pmath_packed_array_t  *array,
-  size_t                         level,
-  const void                    *array_data,
-  void                         **location
-) {
-  size_t ncdc = array->non_continuous_dimensions_count;
-  size_t i;
-  size_t *sizes = ARRAY_SIZES(array);
-  size_t *steps = ARRAY_STEPS(array);
+
+/* Template Function
+ *
+ *   pack_array_A_to_B(array, level, array_data, location_ptr) 
+ */
+
+#define NAME_pack_array_from_to(FROM_TYPE, TO_TYPE)  NAME_pack_array_from_to2(FROM_TYPE, TO_TYPE)
+#define NAME_pack_array_from_to2(FROM_TYPE, TO_TYPE)      pack_array_ ## FROM_TYPE ## _to_ ## TO_TYPE
+
+#define FROM_TYPE int32_t
+#define TO_TYPE   int32_t
+#  include "packed-arrays-define-pack_from_to.inc"
+#undef FROM_TYPE
+#undef TO_TYPE
+
+#define FROM_TYPE int32_t
+#define TO_TYPE   double
+#  include "packed-arrays-define-pack_from_to.inc"
+#undef FROM_TYPE
+#undef TO_TYPE
+
+#define FROM_TYPE double
+#define TO_TYPE   double
+#  include "packed-arrays-define-pack_from_to.inc"
+#undef FROM_TYPE
+#undef TO_TYPE
+
+#define FROM_TYPE double
+#define TO_TYPE   int32_t
+#  include "packed-arrays-errdef-pack_from_to.inc"
+#undef FROM_TYPE
+#undef TO_TYPE
+
+
+
+/* Template Function
+ *
+ *   NAME_pack_and_free_element_to_A(expr, location) 
+ */
+
+#define NAME_pack_and_free_element_to(TO_TYPE)  NAME_pack_and_free_element_to2(TO_TYPE)
+#define NAME_pack_and_free_element_to2(TO_TYPE)      pack_and_free_element_to_ ## TO_TYPE
+
+static void NAME_pack_and_free_element_to(int32_t)(pmath_t expr, int32_t *location) {
+  assert(pmath_is_int32(expr));
   
-  if(level == ncdc) {
-    size_t size = sizes[ncdc] * steps[ncdc];
-    
-    memcpy(*location, array_data, size);
-    *location = (uint8_t *)location + size;
-    return;
-  }
-  
-  assert(level < ncdc);
-  assert(ncdc < array->dimensions);
-  
-  for(i = 0; i < sizes[level]; ++i) {
-    pack_array(array, level + 1, array_data, location);
-    array_data = (uint8_t *)array_data + steps[level];
-  }
+  *location = PMATH_AS_INT32(expr);
 }
 
-static void pack_and_free_int32(pmath_t expr, int32_t **location) {
-  if(pmath_is_packed_array(expr)) {
-    struct _pmath_packed_array_t *_array;
-    
-    _array = (void *)PMATH_AS_PTR(expr);
-    
-    assert(_array->element_type == PMATH_PACKED_INT32);
-    
-    pack_array(_array, 0, _array->blob->data, (void **)location);
-    _pmath_unref_ptr((void *)_array);
+static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location) {
+  if(pmath_is_double(expr)) {
+    *location = PMATH_AS_DOUBLE(expr);
     return;
   }
   
-  if(pmath_is_expr(expr)) {
-    size_t len = pmath_expr_length(expr);
-    size_t i;
-    
-    for(i = 1; i <= len; ++i) {
-      pmath_t item = pmath_expr_get_item(expr, i);
-      pack_and_free_int32(item, location);
-    }
-    
+  if(pmath_same(expr, PMATH_SYMBOL_UNDEFINED)) {
+    *location = NAN;
+    pmath_unref(expr);
+    return;
+  }
+  
+  if(pmath_equals(expr, _pmath_object_pos_infinity)) {
+    *location = HUGE_VAL;
     pmath_unref(expr);
     return;
   }
   
   assert(pmath_is_int32(expr));
   
-  **location = PMATH_AS_INT32(expr);
-  ++*location;
+  *location = (double)PMATH_AS_INT32(expr);
 }
 
-static void pack_and_free_double(pmath_t expr, double **location) {
-  if(pmath_is_packed_array(expr)) {
-    struct _pmath_packed_array_t *_array;
-    
-    _array = (void *)PMATH_AS_PTR(expr);
-    
-    assert(_array->element_type == PMATH_PACKED_DOUBLE);
-    
-    pack_array(_array, 0, _array->blob->data, (void **)location);
-    _pmath_unref_ptr((void *)_array);
-    return;
-  }
-  
-  if(pmath_is_expr(expr)) {
-    size_t len = pmath_expr_length(expr);
-    size_t i;
-    
-    for(i = 1; i <= len; ++i) {
-      pmath_t item = pmath_expr_get_item(expr, i);
-      pack_and_free_double(item, location);
-    }
-    
-    pmath_unref(expr);
-    return;
-  }
-  
-  if(pmath_is_double(expr)) {
-    **location = PMATH_AS_DOUBLE(expr);
-    ++*location;
-    return;
-  }
-  
-  if(pmath_same(expr, PMATH_SYMBOL_UNDEFINED)) {
-    **location = NAN;
-    ++*location;
-    pmath_unref(expr);
-    return;
-  }
-  
-  if(pmath_equals(expr, _pmath_object_pos_infinity)) {
-    **location = HUGE_VAL;
-    ++*location;
-    pmath_unref(expr);
-    return;
-  }
-  
-  assert(pmath_equals(expr, _pmath_object_neg_infinity));
-  
-  **location = -HUGE_VAL;
-  ++*location;
-  pmath_unref(expr);
-}
+
+/* Template Function
+ *
+ *   pack_and_free_to_A(expr, location_ptr) 
+ */
+
+#define NAME_pack_and_free_to(TO_TYPE)  NAME_pack_and_free_to2(TO_TYPE)
+#define NAME_pack_and_free_to2(TO_TYPE)  pack_and_free_to_ ## TO_TYPE
+
+#define TO_TYPE   int32_t
+#  include "packed-arrays-define-pack_and_free_to.inc"
+#undef TO_TYPE
+
+#define TO_TYPE   double
+#  include "packed-arrays-define-pack_and_free_to.inc"
+#undef TO_TYPE
+
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
+pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, enum pmath_packed_type_t expected_type) {
   int                   elem_type;
   pmath_t               dims_expr;
   size_t                dims;
@@ -1678,15 +1679,9 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
     
   assert(pmath_is_expr(expr));
   
-  if(pmath_expr_length(expr) == 0)
+  elem_type = packable_element_type(expr, expected_type);
+  if(elem_type <= 0)
     return expr;
-    
-  elem_type = packable_element_type(expr);
-  if(elem_type < 0)
-    return expr;
-    
-  if(elem_type == 0)
-    elem_type = PMATH_PACKED_INT32;
     
   dims = packable_dimensions(expr);
   dims_expr = _pmath_dimensions(expr, dims);
@@ -1731,11 +1726,11 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
   data = _blob->data;
   switch(elem_type) {
     case PMATH_PACKED_DOUBLE:
-      pack_and_free_double(expr, (double **)&data);
+      NAME_pack_and_free_to(double)(expr, (double **)&data);
       break;
       
     case PMATH_PACKED_INT32:
-      pack_and_free_int32(expr, (int32_t **)&data);
+      NAME_pack_and_free_to(int32_t)(expr, (int32_t **)&data);
       break;
   }
   

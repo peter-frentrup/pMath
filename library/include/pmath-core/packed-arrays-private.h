@@ -42,7 +42,7 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t r
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr);
+pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, enum pmath_packed_type_t expected_type);
 
 
 #define PMATH_ARRAYS_INCOMPATIBLE_CMP  (2)
