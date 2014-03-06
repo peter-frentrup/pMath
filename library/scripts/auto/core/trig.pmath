@@ -6,6 +6,20 @@ BeginPackage("System`")
 
 Begin("System`Trigonometry`Private`")
 
+Cos /: Cos(~x)^(~n?IsInteger /? n < 0)::= Sec(x)^-n
+Cot /: Cot(~x)^(~n?IsInteger /? n < 0)::= Tan(x)^-n
+Csc /: Csc(~x)^(~n?IsInteger /? n < 0)::= Sin(x)^-n
+Sec /: Sec(~x)^(~n?IsInteger /? n < 0)::= Cos(x)^-n
+Sin /: Sin(~x)^(~n?IsInteger /? n < 0)::= Csc(x)^-n
+Tan /: Tan(~x)^(~n?IsInteger /? n < 0)::= Cot(x)^-n
+
+Cosh /: Cosh(~x)^(~n?IsInteger /? n < 0)::= Sech(x)^-n
+Coth /: Coth(~x)^(~n?IsInteger /? n < 0)::= Tanh(x)^-n
+Csch /: Csch(~x)^(~n?IsInteger /? n < 0)::= Sinh(x)^-n
+Sech /: Sech(~x)^(~n?IsInteger /? n < 0)::= Cosh(x)^-n
+Sinh /: Sinh(~x)^(~n?IsInteger /? n < 0)::= Csch(x)^-n
+Tanh /: Tanh(~x)^(~n?IsInteger /? n < 0)::= Coth(x)^-n
+
 (Pi*{1/3,1/4,1/5,2/5,1/6,1/10,3/10,1/12,5/12}).Scan((ArcSin(Sin(#)):= #)&)
 (Pi*{1/3,1/4,1/5,2/5,1/6,1/10,3/10,1/12,5/12}).Scan((ArcTan(Tan(#)):= #)&)
 
@@ -27,21 +41,6 @@ Sec(~x)::= With({y:= Cos(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeO
 Coth(~x)::= With({y:= Tanh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Tanh))
 Csch(~x)::= With({y:= Sinh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Sinh))
 Sech(~x)::= With({y:= Cosh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Cosh))
-
-Cos /: Cos(~x)^(~n?IsInteger /? n < 0)::= Sec(x)^-n
-Cot /: Cot(~x)^(~n?IsInteger /? n < 0)::= Tan(x)^-n
-Csc /: Csc(~x)^(~n?IsInteger /? n < 0)::= Sin(x)^-n
-Sec /: Sec(~x)^(~n?IsInteger /? n < 0)::= Cos(x)^-n
-Sin /: Sin(~x)^(~n?IsInteger /? n < 0)::= Csc(x)^-n
-Tan /: Tan(~x)^(~n?IsInteger /? n < 0)::= Cot(x)^-n
-
-Cosh /: Cosh(~x)^(~n?IsInteger /? n < 0)::= Sech(x)^-n
-Coth /: Coth(~x)^(~n?IsInteger /? n < 0)::= Tanh(x)^-n
-Csch /: Csch(~x)^(~n?IsInteger /? n < 0)::= Sinh(x)^-n
-Sech /: Sech(~x)^(~n?IsInteger /? n < 0)::= Cosh(x)^-n
-Sinh /: Sinh(~x)^(~n?IsInteger /? n < 0)::= Csch(x)^-n
-Tanh /: Tanh(~x)^(~n?IsInteger /? n < 0)::= Coth(x)^-n
-
 
 Cos(Infinity)::= Interval(-1..1)
 Cos(-Infinity)::= Interval(-1..1)
