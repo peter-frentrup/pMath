@@ -26,6 +26,8 @@ PMATH_TYPE_SHIFT_EXPRESSION_GENERAL      = 5
 PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART = 6
 PMATH_TYPE_SHIFT_MULTIRULE               = 7
 PMATH_TYPE_SHIFT_CUSTOM                  = 8
+PMATH_TYPE_SHIFT_BLOB                    = 9
+PMATH_TYPE_SHIFT_PACKED_ARRAY            = 10
 
 PMATH_TYPE_MP_INT                  = 1 << PMATH_TYPE_SHIFT_MP_INT
 PMATH_TYPE_QUOTIENT                = 1 << PMATH_TYPE_SHIFT_QUOTIENT
@@ -34,9 +36,14 @@ PMATH_TYPE_BIGSTRING               = 1 << PMATH_TYPE_SHIFT_BIGSTRING
 PMATH_TYPE_SYMBOL                  = 1 << PMATH_TYPE_SHIFT_SYMBOL
 PMATH_TYPE_EXPRESSION_GENERAL      = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL
 PMATH_TYPE_EXPRESSION_GENERAL_PART = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART
-PMATH_TYPE_EXPRESSION              = PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART
+PMATH_TYPE_PACKED_ARRAY            = 1 << PMATH_TYPE_SHIFT_PACKED_ARRAY
+PMATH_TYPE_EXPRESSION              = PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART | PMATH_TYPE_PACKED_ARRAY
 PMATH_TYPE_MULTIRULE               = 1 << PMATH_TYPE_SHIFT_MULTIRULE
 PMATH_TYPE_CUSTOM                  = 1 << PMATH_TYPE_SHIFT_CUSTOM
+PMATH_TYPE_BLOB                    = 1 << PMATH_TYPE_SHIFT_BLOB
+
+PMATH_PACKED_DOUBLE = 1
+PMATH_PACKED_INT32  = 2
 
 
 class ExprVal:
@@ -51,13 +58,17 @@ class ExprVal:
         PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:      'expression',
         PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: 'expression part',
         PMATH_TYPE_SHIFT_MULTIRULE:               'multirule',
-        PMATH_TYPE_SHIFT_CUSTOM:                  'custom'}
+        PMATH_TYPE_SHIFT_CUSTOM:                  'custom',
+        PMATH_TYPE_SHIFT_BLOB:                    'blob',
+        PMATH_TYPE_SHIFT_PACKED_ARRAY:            'packed array'}
     _tag_names = {
         PMATH_TAG_MAGIC: 'magic',
         PMATH_TAG_INT32: 'int32',
         PMATH_TAG_STR0:  'str0',
         PMATH_TAG_STR1:  'str1',
         PMATH_TAG_STR2:  'str2'}
+    _known_symbol_indices = {
+        'System`List': 1}
     
     @static
     def type_is_pmath(type):
@@ -77,6 +88,7 @@ class ExprVal:
         if ptrval.type.code != gdb.TYPE_CODE_PTR:
             return ExprVal(None)
         
+        # currently only 32bit little endian code:
         pmath_t = gdb.lookup_type('pmath_t')
         uint64_t = gdb.lookup_type('uint64_t')
         ptrval = ptrval.reinterpret_cast(gdb.lookup_type('size_t')).cast(uint64_t)
@@ -84,6 +96,16 @@ class ExprVal:
         val = (tagval << 32) | ptrval
         val = val.cast(pmath_t)
         return ExprVal(val)
+    
+    @static
+    def get_builtin_symbol(indexOrKnownName):
+        if isinstance(indexOrKnownName, str):
+            if ExprVal._known_symbol_indices.has_key(indexOrKnownName):
+                indexOrKnownName = ExprVal._known_symbol_indices[indexOrKnownName]
+            else:
+                return ExprVal(None)
+        
+        return ExprVal(gdb.lookup_global_symbol('_pmath_builtin_symbol_array').value()[indexOrKnownName])
         
     def __init__(self, val):
         self._val = val
@@ -174,6 +196,12 @@ class ExprVal:
     def is_custom(self):
         return self.is_pointer_of(PMATH_TYPE_CUSTOM)
     
+    def is_blob(self):
+        return self.is_pointer_of(PMATH_TYPE_BLOB)
+
+    def is_packed_array(self):
+        return self.is_pointer_of(PMATH_TYPE_PACKED_ARRAY)
+
     def is_expr(self):
         return self.is_pointer_of(PMATH_TYPE_EXPRESSION)
 
@@ -189,7 +217,7 @@ class ExprVal:
     def is_rational(self):
         return self.is_int32() or self.is_pointer_of(PMATH_TYPE_MP_INT | PMATH_TYPE_QUOTIENT)
 
-    def pmath_is_number(self):
+    def is_number(self):
         return self.is_int32() or self.is_double() or self.is_pointer_of(PMATH_TYPE_MP_INT | PMATH_TYPE_QUOTIENT | PMATH_TYPE_MP_FLOAT)
     
     def is_bigstr(self):
@@ -222,8 +250,12 @@ class ExprVal:
         if self._type_shift in [PMATH_TYPE_SHIFT_EXPRESSION_GENERAL, PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART]:
             expr_data = self.dereference().cast(gdb.lookup_type('struct _pmath_expr_t'))
             return long(expr_data['length'])
+        
+        if self._type_shift == PMATH_TYPE_SHIFT_PACKED_ARRAY:
+            return self.get_packed_array_sizes()[0]
     
     def get_expr_item(self, index):
+        # packed arrays not yet supported.
         if index < 0:
             return ExprVal(None)
 
@@ -259,6 +291,11 @@ class ExprVal:
                 return ExprVal(None)
 
             return ExprVal(buffer_data['items'][index])
+        
+        if self._type_shift == PMATH_TYPE_SHIFT_PACKED_ARRAY:
+            if index == 0:
+                return ExprVal.get_builtin_symbol('System`List')
+            return ExprVal(None)
         
         return ExprVal(None)
     
@@ -319,6 +356,22 @@ class ExprVal:
             return u''.join([unichr(int(chars_ptr[i])) for i in range(length)])
 
         return errorval
+    
+    def get_pack_array_element_type(self):
+        if not self.is_packed_array():
+            return None
+        
+        packed_array_data = self.dereference().cast(gdb.lookup_type('struct _pmath_packed_array_t'))
+        return int(packed_array_data['element_type'])
+
+    def get_pack_array_sizes(self):
+        if not self.is_packed_array():
+            return []
+        
+        packed_array_data = self.dereference().cast(gdb.lookup_type('struct _pmath_packed_array_t'))
+        length            = int(packed_array_data['dimensions'])
+        sizes_and_steps   = packed_array_data['sizes_and_steps']
+        return [long(sizes_and_steps[i]) for i in range(length)]
 
     def get_symbol_name(self):
         if not self.is_symbol():
@@ -412,7 +465,23 @@ class ExprVal:
         if self.is_double():
             f.write(str(self.get_double()))
             return
+        
+        if self.is_packed_array():
+            elem_type = self.get_pack_array_element_type()
             
+            if elem_type == PMATH_PACKED_DOUBLE:
+                elem_type_string = 'Real'
+            elif elem_type == PMATH_PACKED_INT32:
+                elem_type_string = 'Integer'
+            else:
+                elem_type_string = 'Undefined'
+            
+            sizes = self.get_pack_array_sizes()
+            dim_string = ','.join([s.__str__() for s in sizes])
+            
+            f.write('PackedArray({0}, <<{1}>>)'.format(elem_type_string, dim_string))
+            return
+        
         if self.is_expr():
             if max_recursion <= 0:
                 f.write('...')
