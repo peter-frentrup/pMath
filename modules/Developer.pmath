@@ -1,0 +1,3 @@
+
+If(IsFreeOf($NamespacePath, "Developer`"),
+   $NamespacePath:= Prepend($NamespacePath, "Developer`"))
