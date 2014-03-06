@@ -1,4 +1,5 @@
 #include <pmath-core/numbers.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/messages.h>
 
@@ -7,6 +8,9 @@
 
 // ignores head of expressions
 PMATH_PRIVATE long _pmath_object_depth(pmath_t obj) {
+  if(pmath_is_packed_array(obj)) 
+    return 1 + (long)pmath_packed_array_get_dimensions(obj);
+  
   if(pmath_is_expr(obj)) {
     long result = 1;
     size_t i;
