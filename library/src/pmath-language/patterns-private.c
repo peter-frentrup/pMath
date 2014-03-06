@@ -1044,9 +1044,9 @@ static match_kind_t match_atom(
   size_t           index_of_arg,
   size_t           count_of_arg
 ) {
-  if(pmath_equals(pat, arg))
+  if(pmath_equals(pat, arg) && _pmath_pattern_is_const(pat))
     return PMATH_MATCH_KIND_LOCAL;
-    
+  
   if(pmath_is_expr(pat)) {
     const size_t              len  = pmath_expr_length(pat);
     pmath_t                   head = pmath_expr_get_item(pat, 0);
