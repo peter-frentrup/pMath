@@ -48,6 +48,15 @@ pmath_expr_t _pmath_expr_map(
   pmath_t     (*func)(pmath_t, size_t, void*),
   void         *context);
 
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_expr_map_slow(
+  pmath_expr_t  expr, // will be freed
+  size_t        start,
+  size_t        end,
+  pmath_t     (*func)(pmath_t, size_t, void*),
+  void         *context);
+
 /* expr=f(args): thread f over any expression with given head in the range 
                  start .. end 
  */

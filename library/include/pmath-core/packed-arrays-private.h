@@ -38,7 +38,7 @@ pmath_expr_t _pmath_packed_array_set_item(
   
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array);
+pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t recursive);
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT

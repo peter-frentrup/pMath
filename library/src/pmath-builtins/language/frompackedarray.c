@@ -21,7 +21,7 @@ PMATH_PRIVATE pmath_t builtin_developer_frompackedarray(pmath_expr_t expr) {
   if(!pmath_is_packed_array(array))
     return array;
   
-  array = _pmath_expr_unpack_array(array);
+  array = _pmath_expr_unpack_array(array, TRUE);
   
   return array;
 }

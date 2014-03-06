@@ -1019,8 +1019,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   struct _pmath_expr_part_t *expr_part_ptr;
   const pmath_t *initial_items;
   
-  if(pmath_is_packed_array(expr))
-    expr = _pmath_expr_unpack_array(expr);
+  if(pmath_is_packed_array(expr)) {
+    pmath_debug_print("[unpack array: _pmath_expr_sort_ex]\n");
+    
+    expr = _pmath_expr_unpack_array(expr, FALSE);
+  }
     
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
@@ -1104,8 +1107,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   struct _pmath_expr_part_t *expr_part_ptr;
   const pmath_t *initial_items;
   
-  if(pmath_is_packed_array(expr))
-    expr = _pmath_expr_unpack_array(expr);
+  if(pmath_is_packed_array(expr)) {
+    pmath_debug_print("[unpack array: _pmath_expr_sort_ex_context]\n");
+    
+    expr = _pmath_expr_unpack_array(expr, FALSE);
+  }
     
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
@@ -1385,6 +1391,37 @@ pmath_expr_t _pmath_expr_map(
     return expr;
     
   return expr_map_fast(old_expr, start, end, func, context);
+}
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_expr_map_slow(
+  pmath_expr_t  expr, // will be freed
+  size_t        start,
+  size_t        end,
+  pmath_t     (*func)(pmath_t, size_t, void *),
+  void         *context
+) {
+  size_t i;
+  
+  assert(pmath_is_expr(expr));
+  
+  i = pmath_expr_length(expr);
+  if(start > i || end < start)
+    return expr;
+    
+  if(end > i)
+    end = i;
+    
+  for(i = start;i <= end;++i) {
+    pmath_t item = pmath_expr_extract_item(expr, i);
+    
+    item = func(item, i, context);
+    
+    expr = pmath_expr_set_item(expr, i, item);
+  }
+  
+  return expr;
 }
 
 /*----------------------------------------------------------------------------*/

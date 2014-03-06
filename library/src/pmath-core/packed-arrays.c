@@ -977,7 +977,7 @@ void *pmath_packed_array_begin_write(
   size_t                num_indices
 ) {
   struct _pmath_packed_array_t *_array;
-  size_t k, offset;
+  size_t k, index_offset;
   const size_t *sizes;
   const size_t *steps;
   void *data;
@@ -994,14 +994,14 @@ void *pmath_packed_array_begin_write(
   
   assert(num_indices <= _array->dimensions);
   
-  offset = _array->offset;
+  index_offset = 0;
   for(k = 0; k < num_indices; ++k) {
     size_t i = indices[k];
     
     if(i < 1 || i > sizes[k])
       return NULL;
       
-    offset += (i - 1) * steps[k];
+    index_offset += (i - 1) * steps[k];
   }
   
   if(pmath_refcount(*array) == 1) {
@@ -1024,7 +1024,6 @@ void *pmath_packed_array_begin_write(
       _array->blob = _newblob;
       _array->offset = 0;
       
-      offset -= _array->offset;
       data = _newblob->data;
     }
   }
@@ -1037,13 +1036,12 @@ void *pmath_packed_array_begin_write(
     pmath_unref(*array);
     *array = PMATH_FROM_PTR(_array);
     
-    offset -= _array->offset;
     data = _array->blob->data;
   }
   
   _array->cached_hash = 0;
   
-  return (void *)((uint8_t *)data + offset);
+  return (void *)((uint8_t *)data + index_offset + _array->offset);
 }
 
 PMATH_PRIVATE
@@ -1236,7 +1234,7 @@ pmath_expr_t _pmath_packed_array_set_item(
     pmath_debug_print("[unpack array: new head != List]\n");
     
     return pmath_expr_set_item(
-             _pmath_expr_unpack_array(array),
+             _pmath_expr_unpack_array(array, FALSE),
              index,
              item);
   }
@@ -1277,7 +1275,7 @@ pmath_expr_t _pmath_packed_array_set_item(
           else {
             pmath_debug_print_object("[unpack array: DOUBLE expected, but ", item, " given]\n");
             return pmath_expr_set_item(
-                     _pmath_expr_unpack_array(array),
+                     _pmath_expr_unpack_array(array, FALSE),
                      index,
                      item);
           }
@@ -1305,7 +1303,7 @@ pmath_expr_t _pmath_packed_array_set_item(
           else {
             pmath_debug_print_object("[unpack array: INT32 expected, but ", item, " given]\n");
             return pmath_expr_set_item(
-                     _pmath_expr_unpack_array(array),
+                     _pmath_expr_unpack_array(array, FALSE),
                      index,
                      item);
           }
@@ -1343,30 +1341,30 @@ pmath_expr_t _pmath_packed_array_set_item(
     if(item_array->element_type != _array->element_type) {
       pmath_debug_print("[unpack array: incompatible packed arrays]\n");
       return pmath_expr_set_item(
-               _pmath_expr_unpack_array(array),
+               _pmath_expr_unpack_array(array, FALSE),
                index,
                item);
     }
     
-    if(item_array->dimensions != _array->dimensions + 1) {
+    if(item_array->dimensions + 1 != _array->dimensions) {
       pmath_debug_print("[unpack array: incompatible packed array depths]\n");
       return pmath_expr_set_item(
-               _pmath_expr_unpack_array(array),
+               _pmath_expr_unpack_array(array, FALSE),
                index,
                item);
     }
     
-    if(0 != memcmp(sizes + 1, ARRAY_SIZES(item_array), item_array->dimensions)) {
+    if(0 != memcmp(sizes + 1, ARRAY_SIZES(item_array), item_array->dimensions * sizeof(size_t))) {
       pmath_debug_print("[unpack array: incompatible packed array sizes]\n");
       return pmath_expr_set_item(
-               _pmath_expr_unpack_array(array),
+               _pmath_expr_unpack_array(array, FALSE),
                index,
                item);
     }
     
     item_data = (const uint8_t *)item_array->blob->data + item_array->offset;
     
-    if(0 == memcmp(steps + 1, ARRAY_STEPS(item_array), item_array->dimensions)) {
+    if(0 == memcmp(steps + 1, ARRAY_STEPS(item_array), item_array->dimensions * sizeof(size_t))) {
     
       assert(item_array->total_size <= steps[0]);
       
@@ -1415,7 +1413,7 @@ pmath_expr_t _pmath_packed_array_set_item(
   pmath_debug_print_object("[unpack array: List expected, but ", item, " given]\n");
   
   return pmath_expr_set_item(
-           _pmath_expr_unpack_array(array),
+           _pmath_expr_unpack_array(array, FALSE),
            index,
            item);
 }
@@ -1424,7 +1422,7 @@ pmath_expr_t _pmath_packed_array_set_item(
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array) {
+pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t recursive) {
   struct _pmath_packed_array_t *_array;
   struct _pmath_expr_t *expr;
   size_t i, length;
@@ -1445,7 +1443,14 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array) {
   expr->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
   for(i = 1; i <= length; ++i)
     expr->items[i] = _pmath_packed_array_get_item(array, i);
+  
+  if(recursive && _array->dimensions > 1) {
+    // items are all packed arrays (or PMATH_NULL on error)
     
+    for(i = 1; i <= length; ++i)
+      expr->items[i] = _pmath_expr_unpack_array(expr->items[i], TRUE);
+  }
+  
   pmath_unref(array);
   return PMATH_FROM_PTR(expr);
 }
@@ -1675,7 +1680,7 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
   
   if(pmath_expr_length(expr) == 0)
     return expr;
-  
+    
   elem_type = packable_element_type(expr);
   if(elem_type < 0)
     return expr;
@@ -1992,7 +1997,9 @@ PMATH_PRIVATE pmath_expr_t _pmath_packed_array_sort(pmath_packed_array_t array) 
     return array;
   }
   
-  return pmath_expr_sort(_pmath_expr_unpack_array(array));
+  pmath_debug_print("[unpack array: _pmath_packed_array_sort]\n");
+  
+  return pmath_expr_sort(_pmath_expr_unpack_array(array, FALSE));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2014,58 +2021,62 @@ pmath_expr_t _pmath_packed_array_map(
   
   _array = (void *)PMATH_AS_PTR(array);
   
-  if(end > *ARRAY_SIZES(_array))
-    end  = *ARRAY_SIZES(_array);
-    
-  if(start == 0) {
-    pmath_t item;
-    
-    start = 1;
-    
-    item = (*func)(pmath_ref(PMATH_SYMBOL_LIST), 0, context);
-    if(!pmath_same(item, PMATH_SYMBOL_LIST)) {
-      pmath_t expr = pmath_expr_set_item(array, 0, item);
+  if(_array->dimensions == 1) {
+    if(end > *ARRAY_SIZES(_array))
+      end  = *ARRAY_SIZES(_array);
       
-      return _pmath_expr_map(expr, start, end, func, context);
+    if(start == 0) {
+      pmath_t item;
+      
+      start = 1;
+      
+      item = (*func)(pmath_ref(PMATH_SYMBOL_LIST), 0, context);
+      if(!pmath_same(item, PMATH_SYMBOL_LIST)) {
+        pmath_t expr = pmath_expr_set_item(array, 0, item);
+        
+        return _pmath_expr_map(expr, start, end, func, context);
+      }
+      
+      pmath_unref(item);
     }
     
-    pmath_unref(item);
+    elem_size = ARRAY_STEPS(_array)[_array->dimensions - 1];
+    old_data = pmath_packed_array_read(array, &start, 1);
+    
+    for(; start <= end; ++start, old_data += elem_size) {
+      pmath_t old_item;
+      pmath_t new_item;
+      pmath_t expr;
+      
+      old_item = _pmath_packed_element_unbox(old_data, _array->element_type);
+      new_item = func(old_item, start, context); // frees old_item
+      
+      if(pmath_same(new_item, old_item)) {
+        pmath_unref(new_item);
+        continue;
+      }
+      
+      expr = pmath_expr_set_item(array, start, new_item);
+      
+      if(pmath_is_packed_array(expr)) {
+        array = expr;
+        _array = (void *)PMATH_AS_PTR(array);
+        old_data = pmath_packed_array_read(array, &start, 1);
+        continue;
+      }
+      
+      return _pmath_expr_map(
+               expr,
+               start,
+               end,
+               func,
+               context);
+    }
+    
+    return array;
   }
   
-  elem_size = ARRAY_STEPS(_array)[_array->dimensions - 1];
-  old_data = pmath_packed_array_read(array, &start, 1);
-  
-  for(; start <= end; ++start, old_data += elem_size) {
-    pmath_t old_item;
-    pmath_t new_item;
-    pmath_t expr;
-    
-    old_item = _pmath_packed_element_unbox(old_data, _array->element_type);
-    new_item = func(old_item, start, context); // frees old_item
-    
-    if(pmath_same(new_item, old_item)) {
-      pmath_unref(new_item);
-      continue;
-    }
-    
-    expr = pmath_expr_set_item(array, start, new_item);
-    
-    if(pmath_is_packed_array(expr)) {
-      array = expr;
-      _array = (void *)PMATH_AS_PTR(array);
-      old_data = pmath_packed_array_read(array, &start, 1);
-      continue;
-    }
-    
-    return _pmath_expr_map(
-             expr,
-             start,
-             end,
-             func,
-             context);
-  }
-  
-  return array;
+  return _pmath_expr_map_slow(array, start, end, func, context);
 }
 
 /* -------------------------------------------------------------------------- */
