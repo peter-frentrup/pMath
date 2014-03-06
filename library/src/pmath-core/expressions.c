@@ -1947,16 +1947,36 @@ PMATH_PRIVATE pmath_bool_t _pmath_expr_is_updated(
 
 PMATH_PRIVATE
 void _pmath_expr_update(pmath_expr_t expr) {
-  if(PMATH_LIKELY(!pmath_is_null(expr))) {
-    ((struct _pmath_timed_t *)PMATH_AS_PTR(expr))->last_change = _pmath_timer_get();
+  struct _pmath_timed_t *tt;
+  
+  if(PMATH_UNLIKELY(pmath_is_null(expr)))
+    return;
+    
+  tt = (struct _pmath_timed_t*)PMATH_AS_PTR(expr);
+    
+  switch(tt->inherited.type_shift) {
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+      tt->last_change = _pmath_timer_get();
+      break;
   }
 }
 
 PMATH_PRIVATE
 _pmath_timer_t _pmath_expr_last_change(pmath_expr_t expr) {
-  if(PMATH_LIKELY(!pmath_is_null(expr)))
-    return ((struct _pmath_timed_t *)PMATH_AS_PTR(expr))->last_change;
+  struct _pmath_timed_t *tt;
+  
+  if(PMATH_UNLIKELY(pmath_is_null(expr)))
+    return 0;
     
+  tt = (struct _pmath_timed_t*)PMATH_AS_PTR(expr);
+    
+  switch(tt->inherited.type_shift) {
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
+    case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+      return tt->last_change;
+  }
+  
   return 0;
 }
 
