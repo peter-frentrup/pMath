@@ -1,5 +1,7 @@
 #include <pmath-util/approximate.h>
 
+#include <pmath-core/packed-arrays-private.h>
+
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
@@ -85,6 +87,18 @@ double pmath_precision(pmath_t obj) { // will be freed
     
     pmath_unref(obj);
     return log2(fabs(val_d)) + val_exp - (log2(err_d) + err_exp);
+  }
+  
+  if(pmath_is_packed_array(obj)) {
+    switch(pmath_packed_array_get_element_type(obj)) {
+      case PMATH_PACKED_INT32:
+        pmath_unref(obj);
+        return HUGE_VAL;
+        
+      case PMATH_PACKED_DOUBLE:
+        pmath_unref(obj);
+        return -HUGE_VAL;
+    }
   }
   
   prec = HUGE_VAL;
@@ -336,6 +350,26 @@ PMATH_API
 pmath_t pmath_set_precision(pmath_t obj, double prec) {
   if(pmath_is_expr(obj)) {
     size_t i;
+    
+    if(pmath_is_packed_array(obj)) {
+      switch(pmath_packed_array_get_element_type(obj)) {
+        case PMATH_PACKED_INT32:
+          if(prec == HUGE_VAL)
+            return obj;
+          
+          if(prec == -HUGE_VAL)
+            return _pmath_expr_pack_array(obj, PMATH_PACKED_DOUBLE);
+          
+          break;
+          
+        case PMATH_PACKED_DOUBLE:
+          if(prec == -HUGE_VAL)
+            return obj;
+            
+          break;
+      }
+    }
+    
     for(i = 0; i < pmath_expr_length(obj); ++i) {
       obj = pmath_expr_set_item(
               obj, i,
@@ -519,7 +553,7 @@ PMATH_API pmath_t pmath_approximate(
   double        accuracy_goal,  // -inf = MachinePrecision
   pmath_bool_t *aborted
 ) {
-  double prec, acc, prec2, acc2;
+  double prec, acc, prec2;
   pmath_thread_t me = pmath_thread_get_current();
   
   if(!me)
@@ -527,29 +561,42 @@ PMATH_API pmath_t pmath_approximate(
     
   if(aborted)
     *aborted = FALSE;
-    
+  
   prec = precision_goal;
   acc  = accuracy_goal;
+  
+  if(prec == -HUGE_VAL || acc == -HUGE_VAL) 
+    return pmath_evaluate(_pmath_approximate_step(obj, prec, acc));
   
   while(!pmath_aborting()) {
     pmath_t res = pmath_evaluate(_pmath_approximate_step(
                                    pmath_ref(obj), prec, acc));
-                                   
-    prec2 = pmath_precision(pmath_ref(res));
-    acc2  = pmath_accuracy( pmath_ref(res));
     
-    if( prec2 >= precision_goal ||
-        acc2  >= accuracy_goal ||
-        pmath_equals(res, obj))
-    {
+    if(pmath_equals(res, obj)) {
       pmath_unref(obj);
       return res;
     }
     
+    prec2 = pmath_precision(pmath_ref(res));
+    if(prec2 >= precision_goal) {
+      pmath_unref(obj);
+      return res;
+    }
+    
+    if(accuracy_goal < HUGE_VAL) {
+      double acc2 = pmath_accuracy( pmath_ref(res));
+      
+      if(acc2 >= accuracy_goal) {
+        pmath_unref(obj);
+        return res;
+      }
+      
+      if(acc2 < acc)
+        acc = 2 * acc - acc2 + 2;
+    }
+    
     if(prec2 < prec)
       prec = 2 * prec - prec2 + 2;
-    if(acc2 < acc)
-      acc = 2 * acc - acc2 + 2;
       
     pmath_unref(res);
     if( prec > precision_goal + me->max_extra_precision ||

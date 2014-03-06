@@ -2,6 +2,7 @@
 
 #include <pmath-core/symbols-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays-private.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -90,9 +91,27 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
   }
   
   if(pmath_is_expr(obj)) {
-    size_t len = pmath_expr_length(obj);
-    pmath_symbol_attributes_t attr = 0;
+    size_t len;
+    pmath_symbol_attributes_t attr;
     
+    if(pmath_is_packed_array(obj)) {
+      switch(pmath_packed_array_get_element_type(obj)) {
+        case PMATH_PACKED_INT32:
+          if(prec == -HUGE_VAL || acc == -HUGE_VAL)
+            return _pmath_expr_pack_array(obj, PMATH_PACKED_DOUBLE);
+            
+          if(prec == HUGE_VAL && acc == HUGE_VAL)
+            return obj;
+            
+          break;
+          
+        case PMATH_PACKED_DOUBLE:
+          return obj;
+      }
+    }
+    
+    len = pmath_expr_length(obj);
+    attr = 0;
     sym = pmath_expr_get_item(obj, 0);
     if(pmath_is_symbol(sym)) {
       attr = pmath_symbol_get_attributes(sym);

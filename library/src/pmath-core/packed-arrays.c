@@ -1674,13 +1674,13 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, enum pmath_packed_type_t 
   if(pmath_is_null(expr))
     return expr;
     
-  if(pmath_is_packed_array(expr))
-    return expr;
-    
   assert(pmath_is_expr(expr));
   
   elem_type = packable_element_type(expr, expected_type);
   if(elem_type <= 0)
+    return expr;
+    
+  if(pmath_is_packed_array(expr) && pmath_packed_array_get_element_type(expr) == expected_type)
     return expr;
     
   dims = packable_dimensions(expr);
