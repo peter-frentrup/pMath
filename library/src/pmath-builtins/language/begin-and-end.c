@@ -317,7 +317,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr) {
     "$Namespace:= `1`;"
     "$NamespacePath:= Join({`1`}, `2`, {\"System`\"});"
     "Synchronize($Packages,"
-    "  If(Length(Position($Packages, `1`)) === 0,"
+    "  If(IsFreeOf($Packages, `1`),"
     "    Unprotect($Packages);"
     "    $Packages:= Append($Packages, `1`);"
     "    Protect($Packages)));"
