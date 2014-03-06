@@ -1,3 +1,5 @@
+/* Add Developer` to the $NamespacePath
+ */
 
 If(IsFreeOf($NamespacePath, "Developer`"),
-   $NamespacePath:= Prepend($NamespacePath, "Developer`"))
+   $NamespacePath:= Prepend($NamespacePath, "Developer`"));
