@@ -1,5 +1,6 @@
 #include <pmath-core/custom-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/strings-private.h>
 #include <pmath-core/symbols-private.h>
 
@@ -1115,7 +1116,7 @@ static pmath_t optional_to_boxes(
         
         return pmath_build_value("soso", "?", name, ":", value);
       }
-    
+      
       pmath_unref(name);
       pmath_unref(sub);
       pmath_unref(value);
@@ -2353,6 +2354,25 @@ static pmath_t outputform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
+static pmath_t packedarrayform_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+) {
+  if(pmath_expr_length(expr) == 1) {
+    pmath_t obj = pmath_expr_get_item(expr, 1);
+    pmath_bool_t old_paf = thread->use_packedarrayform_boxes;
+    thread->use_packedarrayform_boxes = TRUE;
+    
+    pmath_unref(expr);
+    expr = object_to_boxes(thread, obj);
+    
+    thread->use_packedarrayform_boxes = old_paf;
+    return expr;
+  }
+  
+  return call_to_boxes(thread, expr);
+}
+
 static pmath_t row_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
@@ -3124,6 +3144,9 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, PMATH_SYMBOL_OUTPUTFORM))
         return outputform_to_boxes(thread, expr);
         
+      if(pmath_same(head, PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM))
+        return packedarrayform_to_boxes(thread, expr);
+        
       if(pmath_same(head, PMATH_SYMBOL_ROW))
         return row_to_boxes(thread, expr);
         
@@ -3194,6 +3217,19 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
     pmath_unref(head);
     
   return call_to_boxes(thread, expr);
+}
+
+static pmath_t packed_array_to_boxes(pmath_thread_t thread, pmath_packed_array_t packed_array) {
+  assert(pmath_is_packed_array(packed_array));
+  
+  if(thread->use_packedarrayform_boxes) {
+    pmath_t obj = _pmath_packed_array_form(packed_array);
+    pmath_unref(packed_array);
+    
+    return expr_to_boxes(thread, obj);
+  }
+  
+  return expr_to_boxes(thread, packed_array);
 }
 
 static pmath_bool_t user_make_boxes(pmath_t *obj) {
@@ -3373,6 +3409,9 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
           obj = pmath_try_set_debug_info(obj, debug_info);
           return obj;
         }
+        
+      case PMATH_TYPE_SHIFT_PACKED_ARRAY:
+        return packed_array_to_boxes(thread, obj);
         
       case PMATH_TYPE_SHIFT_MP_FLOAT:
       case PMATH_TYPE_SHIFT_MP_INT: {

@@ -234,14 +234,18 @@ enum {
    - PMATH_WRITE_OPTIONS_INPUTEXPR Expressions are written in a
      form that is valid pMath input.
      Note that this does not automatically imply PMATH_WRITE_OPTIONS_FULLSTR.
+   
+   - PMATH_WRITE_OPTIONS_PACKEDARRAYFORM Packed Arrays are written in the form
+     "PackedArray"(type, <<dimensions>>) instead of nested lists.
  */
 
 typedef int pmath_write_options_t;
 enum {
-  PMATH_WRITE_OPTIONS_FULLEXPR  = 1 << 0,
-  PMATH_WRITE_OPTIONS_FULLSTR   = 1 << 1,
-  PMATH_WRITE_OPTIONS_FULLNAME  = 1 << 2,
-  PMATH_WRITE_OPTIONS_INPUTEXPR = 1 << 3
+  PMATH_WRITE_OPTIONS_FULLEXPR        = 1 << 0,
+  PMATH_WRITE_OPTIONS_FULLSTR         = 1 << 1,
+  PMATH_WRITE_OPTIONS_FULLNAME        = 1 << 2,
+  PMATH_WRITE_OPTIONS_INPUTEXPR       = 1 << 3,
+  PMATH_WRITE_OPTIONS_PACKEDARRAYFORM = 1 << 4
 };
 
 /**\brief A simple procedure operating on an object.

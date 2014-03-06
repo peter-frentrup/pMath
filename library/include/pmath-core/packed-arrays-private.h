@@ -86,6 +86,10 @@ pmath_packed_array_t _pmath_packed_array_flatten(
 
 PMATH_PRIVATE
 size_t _pmath_packed_array_bytecount(pmath_packed_array_t array);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_packed_array_form(pmath_packed_array_t array);
   
 PMATH_PRIVATE pmath_bool_t _pmath_packed_arrays_init(void);
 PMATH_PRIVATE void         _pmath_packed_arrays_done(void);

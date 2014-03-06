@@ -422,7 +422,7 @@ PMATH_API pmath_bool_t pmath_thread_aborting(pmath_thread_t thread) {
   
   while(thread && thread->ignore_older_aborts <= pmath_atomic_read_aquire(&_pmath_abort_timer)) {
     if(!pmath_same(thread->exception, PMATH_UNDEFINED)) {
-      pmath_debug_print_object("[Ex: ", thread->exception ,"]\n");
+      pmath_debug_print_object("[Ex: ", thread->exception , "]\n");
       return TRUE;
     }
     
@@ -504,27 +504,28 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   if(!thread)
     return NULL;
     
-  thread->parent                = parent;
-  thread->waiting_lock          = NULL;
-  thread->ignore_older_aborts   = parent ? parent->ignore_older_aborts : 0;
-  thread->gather_failed         = 0;
-  thread->gather_info           = NULL;
-  thread->local_values          = NULL;
-  thread->local_rules           = NULL;
-  thread->stack_info            = NULL;
-  thread->evaldepth             = 0;
-  thread->exception             = PMATH_UNDEFINED;
-  thread->message_queue         = _pmath_msg_queue_create();
-  thread->abortable_messages    = parent ? pmath_ref(parent->abortable_messages) : PMATH_NULL;
-  thread->max_extra_precision   = 50 * LOG2_10;
-  thread->min_precision         = 0.0;
-  thread->max_precision         = HUGE_VAL;
-  thread->current_dynamic_id    = parent ? parent->current_dynamic_id            : 0;
-  thread->critical_messages     = parent ? parent->critical_messages             : FALSE;
-  thread->is_daemon             = FALSE;
-  thread->boxform               = parent ? parent->boxform                       : BOXFORM_STANDARD;
-  thread->longform              = parent ? parent->longform                      : FALSE;
-  thread->numberbase            = parent ? parent->numberbase                    : 10;
+  thread->parent                    = parent;
+  thread->waiting_lock              = NULL;
+  thread->ignore_older_aborts       = parent ? parent->ignore_older_aborts : 0;
+  thread->gather_failed             = 0;
+  thread->gather_info               = NULL;
+  thread->local_values              = NULL;
+  thread->local_rules               = NULL;
+  thread->stack_info                = NULL;
+  thread->evaldepth                 = 0;
+  thread->exception                 = PMATH_UNDEFINED;
+  thread->message_queue             = _pmath_msg_queue_create();
+  thread->abortable_messages        = parent ? pmath_ref(parent->abortable_messages) : PMATH_NULL;
+  thread->max_extra_precision       = 50 * LOG2_10;
+  thread->min_precision             = 0.0;
+  thread->max_precision             = HUGE_VAL;
+  thread->current_dynamic_id        = parent ? parent->current_dynamic_id            : 0;
+  thread->critical_messages         = parent ? parent->critical_messages             : FALSE;
+  thread->is_daemon                 = FALSE;
+  thread->boxform                   = parent ? parent->boxform                       : BOXFORM_STANDARD;
+  thread->longform                  = parent ? parent->longform                      : FALSE;
+  thread->numberbase                = parent ? parent->numberbase                    : 10;
+  thread->use_packedarrayform_boxes = parent ? parent->use_packedarrayform_boxes     : FALSE;
   
   if(pmath_is_null(thread->message_queue)) {
     _pmath_thread_free(thread);

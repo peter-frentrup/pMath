@@ -2467,6 +2467,19 @@ static void write_expr_ex(
     info->options = old_options;
     pmath_unref(item);
   }
+  else if(pmath_same(head, PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM)) {
+    pmath_t item;
+    int old_options = info->options;
+    
+    if(exprlen != 1)
+      goto FULLFORM;
+      
+    item = pmath_expr_get_item(expr, 1);
+    info->options |= PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
+    pmath_write_ex(info, item);
+    info->options = old_options;
+    pmath_unref(item);
+  }
   else if(pmath_same(head, PMATH_SYMBOL_STRINGFORM)) {
     if(!_pmath_stringform_write(info, expr)) {
       goto FULLFORM;

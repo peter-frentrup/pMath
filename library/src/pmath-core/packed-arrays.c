@@ -18,7 +18,7 @@
 #  define snprintf sprintf_s
 
 #  ifndef NAN
-    static const uint64_t nan_as_uint64 = 0x7fffffffffffffff;
+static const uint64_t nan_as_uint64 = 0x7fffffffffffffff;
 #    define NAN (*(const double*)nan_as_uint64)
 #  endif
 #endif
@@ -523,6 +523,58 @@ PMATH_PRIVATE pmath_bool_t _pmath_packed_array_equal(
   int cmp = _pmath_packed_array_compare(a, b);
   
   return cmp == 0;
+}
+
+PMATH_PRIVATE
+pmath_t _pmath_packed_array_form(pmath_packed_array_t packed_array) {
+  pmath_t type_expr;
+  pmath_t dim_expr;
+  
+  switch(pmath_packed_array_get_element_type(packed_array)) {
+    case PMATH_PACKED_DOUBLE:
+      type_expr = pmath_ref(PMATH_SYMBOL_REAL);
+      break;
+      
+    case PMATH_PACKED_INT32:
+      type_expr = pmath_ref(PMATH_SYMBOL_INTEGER);
+      break;
+      
+    default:
+      type_expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      break;
+  }
+  
+  dim_expr = _pmath_dimensions(packed_array, SIZE_MAX);
+  dim_expr = pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_ROW), 2,
+               dim_expr,
+               PMATH_C_STRING(","));
+  dim_expr = pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+               dim_expr);
+               
+  return pmath_expr_new_extended(
+           PMATH_C_STRING("PackedArray"), 2,
+           type_expr,
+           dim_expr);
+}
+
+static void write_packed_array(struct pmath_write_ex_t *info, pmath_t packed_array) {
+  assert(pmath_is_packed_array(packed_array));
+  
+  if( ( info->options & PMATH_WRITE_OPTIONS_PACKEDARRAYFORM) &&
+      !(info->options & PMATH_WRITE_OPTIONS_FULLEXPR) &&
+      !(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR))
+  {
+    pmath_t tmp_expr = _pmath_packed_array_form(packed_array);
+    
+    pmath_write_ex(info, tmp_expr);
+    
+    pmath_unref(tmp_expr);
+    return;
+  }
+  
+  _pmath_expr_write(info, packed_array);
 }
 
 static pmath_bool_t check_sizes(
@@ -2245,8 +2297,8 @@ size_t _pmath_packed_array_bytecount(pmath_packed_array_t array) {
   
   _array = (void *)PMATH_AS_PTR(array);
   return sizeof(struct _pmath_packed_array_t) - sizeof(size_t) + sizeof(size_t) * 2 * _array->dimensions
-    + _array->total_size 
-    + sizeof(struct _pmath_blob_t);
+         + _array->total_size
+         + sizeof(struct _pmath_blob_t);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2266,7 +2318,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_packed_arrays_init(void) {
     hash_packed_array,
     destroy_packed_array,
     _pmath_expr_equal,
-    _pmath_expr_write);
+    write_packed_array);
     
   return TRUE;
 }

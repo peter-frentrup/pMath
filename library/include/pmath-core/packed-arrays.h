@@ -148,7 +148,7 @@ size_t pmath_packed_element_size(enum pmath_packed_type_t element_type);
    steps[N-1] must exactly equal the element size. (as in e.g. OpenCV).
    
    When you specify NULL for steps, pMath will use steps[N-1] = element size
-   and steps[i-1] = steps[i] * sizes[i] for i < N.
+   and steps[i-1] = steps[i] * sizes[i] for i < N. That is dense packing.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT

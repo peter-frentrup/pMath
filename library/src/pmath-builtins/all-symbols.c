@@ -697,6 +697,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO        = NEW_SYMBOL("Developer`GetDebugInfo"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE      = NEW_SYMBOL("Developer`HasBuiltinCode"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_ISPACKEDARRAY       = NEW_SYMBOL("Developer`IsPackedArray"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM     = NEW_SYMBOL("Developer`PackedArrayForm"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT      = NEW_SYMBOL("Developer`SetDebugInfoAt"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_TOPACKEDARRAY       = NEW_SYMBOL("Developer`ToPackedArray"))
   
