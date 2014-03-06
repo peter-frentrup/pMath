@@ -111,6 +111,10 @@ void _pmath_matrix_is_triangular( // in ludecomposition
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_sizes_to_expr(const size_t *sizes, size_t length);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_dimensions(
   pmath_t obj,           // wont be freed
   size_t  maxdepth);

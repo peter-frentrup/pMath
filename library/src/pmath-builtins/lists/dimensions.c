@@ -1,4 +1,6 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/expressions-private.h>
+#include <pmath-core/packed-arrays-private.h>
 
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
@@ -11,6 +13,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_vector(pmath_t v) {
   pmath_t item;
   size_t i;
   
+  if(pmath_is_packed_array(v))
+    return pmath_packed_array_get_dimensions(v) == 1;
+    
   if(!pmath_is_expr_of(v, PMATH_SYMBOL_LIST))
     return FALSE;
     
@@ -37,6 +42,25 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
 ) {
   pmath_expr_t row;
   size_t i;
+  
+  if(pmath_is_packed_array(m)) {
+    const size_t *sizes;
+    
+    if(check_non_list_entries) {
+      if(pmath_packed_array_get_dimensions(m) != 2)
+        return FALSE;
+    }
+    else {
+      if(pmath_packed_array_get_dimensions(m) < 2)
+        return FALSE;
+    }
+    
+    sizes = pmath_packed_array_get_sizes(m);
+    *rows = sizes[0];
+    *cols = sizes[1];
+    
+    return TRUE;
+  }
   
   *cols = *rows = 0;
   if(!pmath_is_expr_of(m, PMATH_SYMBOL_LIST))
@@ -111,6 +135,52 @@ static void check_rest_dims(
   }
 }
 
+static pmath_bool_t sizes_fit_int32(const size_t *sizes, size_t length) {
+  size_t i;
+  
+  for(i = 0; i < length; ++i) {
+    if(sizes[i] > INT32_MAX)
+      return FALSE;
+  }
+  
+  return TRUE;
+}
+
+PMATH_PRIVATE
+pmath_expr_t _pmath_sizes_to_expr(const size_t *sizes, size_t length) {
+  size_t i;
+  
+  if(sizes_fit_int32(sizes, length)) {
+    pmath_blob_t blob = pmath_blob_new(length * sizeof(int32_t), FALSE);
+    
+    int32_t *data = pmath_blob_try_write(blob);
+    if(data) {
+      for(i = 0; i < length; ++i)
+        data[i] = (int32_t)sizes[i];
+    }
+    
+    return pmath_packed_array_new(
+             blob,
+             PMATH_PACKED_INT32,
+             1,
+             &length,
+             NULL,
+             0);
+  }
+  else {
+    pmath_expr_t list;
+    pmath_t item;
+    
+    list = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), length);
+    for(i = 0; i < length;) {
+      item = pmath_integer_new_uiptr(sizes[i++]);
+      list = pmath_expr_set_item(list, i, item);
+    }
+    
+    return list;
+  }
+}
+
 PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   pmath_t obj, // wont be freed
   size_t maxdepth
@@ -120,8 +190,17 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   pmath_t tmp, item;
   
   if(!pmath_is_expr(obj) || maxdepth == 0)
-    return pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+    return pmath_ref(_pmath_object_emptylist);
     
+  if(pmath_is_packed_array(obj)) {
+    data.maxdim = pmath_packed_array_get_dimensions(obj);
+    
+    if(data.maxdim > maxdepth)
+      data.maxdim = maxdepth;
+    
+    return _pmath_sizes_to_expr(pmath_packed_array_get_sizes(obj), data.maxdim);
+  }
+  
   data.head = pmath_expr_get_item(obj, 0);
   
   dims = 1;
@@ -165,11 +244,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_dimensions(
   
   check_rest_dims(&data, obj, 0);
   
-  tmp = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), data.maxdim);
-  for(i = 0; i < data.maxdim;) {
-    item = pmath_integer_new_uiptr(data.dim_arr[i++]);
-    tmp = pmath_expr_set_item(tmp, i, item);
-  }
+  tmp = _pmath_sizes_to_expr(data.dim_arr, data.maxdim);
   
   pmath_mem_free(data.dim_arr);
   pmath_unref(data.head);
