@@ -23,13 +23,12 @@ static void NAME_pack_array_from_to(FROM_TYPE, TO_TYPE)
   size_t *steps = ARRAY_STEPS(array);
   
   if(level == ncdc) {
-    size_t size = sizes[ncdc] * steps[ncdc];
-    size_t count = size / sizeof(TO_TYPE);
+    size_t count = sizes[ncdc] * steps[ncdc] / sizeof(FROM_TYPE);
     
     for(i = 0; i < count; ++i)
       (*location)[i] = (TO_TYPE)array_data[i];
       
-    *location = (void *)((uint8_t *)location + size);
+    *location += count;
     return;
   }
   
