@@ -1673,6 +1673,9 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr) {
     
   assert(pmath_is_expr(expr));
   
+  if(pmath_expr_length(expr) == 0)
+    return expr;
+  
   elem_type = packable_element_type(expr);
   if(elem_type < 0)
     return expr;

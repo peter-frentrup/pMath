@@ -150,6 +150,9 @@ PMATH_PRIVATE
 pmath_expr_t _pmath_sizes_to_expr(const size_t *sizes, size_t length) {
   size_t i;
   
+  if(length==0)
+    return pmath_ref(_pmath_object_emptylist);
+  
   if(sizes_fit_int32(sizes, length)) {
     pmath_blob_t blob = pmath_blob_new(length * sizeof(int32_t), FALSE);
     
