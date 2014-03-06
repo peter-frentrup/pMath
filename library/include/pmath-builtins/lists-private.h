@@ -103,7 +103,7 @@ pmath_bool_t _pmath_is_vector( // in dimensions.c
 
 PMATH_PRIVATE
 void _pmath_matrix_is_triangular( // in ludecomposition
-  pmath_expr_t  m, // wont be freed, mjst be a square matrix!
+  pmath_expr_t  m, // wont be freed, must be a square matrix!
   pmath_bool_t *lower_has_nonzeros,
   pmath_bool_t *diagonal_has_nonzeros,
   pmath_bool_t *diagonal_has_zeros,

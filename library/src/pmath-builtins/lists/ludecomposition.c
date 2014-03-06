@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/evaluation.h>
@@ -15,8 +16,7 @@ static pmath_bool_t is_zero(pmath_t x) {
   return pmath_is_number(x) && pmath_number_sign(x) == 0;
 }
 
-PMATH_PRIVATE
-void _pmath_matrix_is_triangular( // in ludecomposition
+static void expr_matrix_is_triangular(
   pmath_expr_t  m, // wont be freed
   pmath_bool_t *lower_has_nonzeros,
   pmath_bool_t *diagonal_has_nonzeros,
@@ -90,6 +90,158 @@ UPPER:
 }
 
 
+#define NAME_elem_type_double   PMATH_PACKED_DOUBLE
+#define NAME_elem_type_int32_t  PMATH_PACKED_INT32
+
+#define NAME_elem_type_(elem_type)  NAME_elem_type_ ## elem_type
+
+#define NAME_diag_of_packed_array_of_(elem_type)                diag_of_packed_array_of_ ## elem_type
+#define NAME_lower_has_nonzeros_packed_array_of_(elem_type)     lower_has_nonzeros_packed_array_of_ ## elem_type
+#define NAME_upper_has_nonzeros_packed_array_of_(elem_type)     upper_has_nonzeros_packed_array_of_ ## elem_type
+#define NAME_matrix_is_triangiular_packed_array_of_(elem_type)  matrix_is_triangiular_packed_array_of_ ## elem_type
+
+
+#define DEF_diag_of_packed_array_of_(elem_type) \
+  static void NAME_diag_of_packed_array_of_(elem_type)  \
+  ( pmath_packed_array_t m,  /* wont be freed */                      \
+    size_t               N,                                           \
+    pmath_bool_t        *diagonal_has_nonzeros,                       \
+    pmath_bool_t        *diagonal_has_zeros                           \
+  ) {                                                                 \
+    const elem_type *data;                                            \
+    size_t i;                                                         \
+    int diag;                                                         \
+    \
+    diag = 0;                                                         \
+    \
+    for(i = N; i > 0; --i) {                                          \
+      size_t ii[2] = {i, i};                                          \
+      \
+      data = pmath_packed_array_read(m, ii, 2);                       \
+      \
+      if(*data == 0)                                                  \
+        diag |= 2;                                                    \
+      else                                                            \
+        diag |= 1;                                                    \
+      \
+      if(diag == 3)                                                   \
+        break;                                                        \
+    }                                                                 \
+    \
+    *diagonal_has_nonzeros = diag & 1;                                \
+    *diagonal_has_zeros    = diag & 2;                                \
+  }
+
+
+#define DEF_lower_has_nonzeros_packed_array_of_(elem_type) \
+  static pmath_bool_t NAME_lower_has_nonzeros_packed_array_of_(elem_type) \
+  ( pmath_packed_array_t m,  /* wont be freed */                          \
+    size_t               N                                                \
+  ) {                                                                     \
+    size_t i, j;                                                          \
+    const elem_type *data;                                                \
+    \
+    for(i = N; i > 1; --i) {                                              \
+      data = pmath_packed_array_read(m, &i, 1);                           \
+      \
+      for(j = 1; j < i; ++j) {                                            \
+        if(data[j - 1] != 0)                                              \
+          return TRUE;                                                    \
+      }                                                                   \
+    }                                                                     \
+    \
+    return FALSE;                                                         \
+  }
+
+#define DEF_upper_has_nonzeros_packed_array_of_(elem_type) \
+  static pmath_bool_t NAME_upper_has_nonzeros_packed_array_of_(elem_type) \
+  ( pmath_packed_array_t m,  /* wont be freed */                          \
+    size_t               N                                                \
+  ) {                                                                     \
+    size_t i, j;                                                          \
+    const elem_type *data;                                                \
+    \
+    for(i = N; i > 1; --i) {                                              \
+      data = pmath_packed_array_read(m, &i, 1);                           \
+      \
+      for(j = i + 1; j <= N; ++j) {                                       \
+        if(data[j - 1] != 0)                                              \
+          return TRUE;                                                    \
+      }                                                                   \
+    }                                                                     \
+    \
+    return FALSE;                                                         \
+  }
+
+#define DEF_matrix_is_triangiular_packed_array_of_(elem_type) \
+  static void NAME_matrix_is_triangiular_packed_array_of_(elem_type)                           \
+  ( pmath_packed_array_t  m, /* wont be freed */                                               \
+    pmath_bool_t         *lower_has_nonzeros,                                                  \
+    pmath_bool_t         *diagonal_has_nonzeros,                                               \
+    pmath_bool_t         *diagonal_has_zeros,                                                  \
+    pmath_bool_t         *upper_has_nonzeros                                                   \
+  ) {                                                                                          \
+    const size_t *sizes;                                                                       \
+    size_t N;                                                                                  \
+    \
+    assert(pmath_packed_array_get_dimensions(m) == 2);                                         \
+    assert(pmath_packed_array_get_element_type(m) == NAME_elem_type_(elem_type));              \
+    \
+    sizes = pmath_packed_array_get_sizes(m);                                                   \
+    N = sizes[0];                                                                              \
+    assert(sizes[1] == N);                                                                     \
+    \
+    NAME_diag_of_packed_array_of_(elem_type)(m, N, diagonal_has_nonzeros, diagonal_has_zeros); \
+    *lower_has_nonzeros = NAME_lower_has_nonzeros_packed_array_of_(elem_type)(m, N);           \
+    *upper_has_nonzeros = NAME_upper_has_nonzeros_packed_array_of_(elem_type)(m, N);           \
+  }
+
+DEF_diag_of_packed_array_of_(double)
+DEF_diag_of_packed_array_of_(int32_t)
+
+DEF_lower_has_nonzeros_packed_array_of_(double)
+DEF_lower_has_nonzeros_packed_array_of_(int32_t)
+
+DEF_upper_has_nonzeros_packed_array_of_(double)
+DEF_upper_has_nonzeros_packed_array_of_(int32_t)
+
+DEF_matrix_is_triangiular_packed_array_of_(double)
+DEF_matrix_is_triangiular_packed_array_of_(int32_t)
+
+#define HANDLE_case_packed_array_of_(elem_type) \
+  case NAME_elem_type_(elem_type):                          \
+  NAME_matrix_is_triangiular_packed_array_of_(elem_type)( \
+      m,                                                    \
+      lower_has_nonzeros,                                   \
+      diagonal_has_nonzeros,                                \
+      diagonal_has_zeros,                                   \
+      upper_has_nonzeros);                                  \
+  return;
+
+PMATH_PRIVATE
+void _pmath_matrix_is_triangular( // in ludecomposition
+  pmath_expr_t  m, // wont be freed
+  pmath_bool_t *lower_has_nonzeros,
+  pmath_bool_t *diagonal_has_nonzeros,
+  pmath_bool_t *diagonal_has_zeros,
+  pmath_bool_t *upper_has_nonzeros
+) {
+  if(pmath_is_packed_array(m)) {
+    switch(pmath_packed_array_get_element_type(m)) {
+        HANDLE_case_packed_array_of_(double)
+        HANDLE_case_packed_array_of_(int32_t)
+    }
+  }
+  
+  return expr_matrix_is_triangular(
+           m,
+           lower_has_nonzeros,
+           diagonal_has_nonzeros,
+           diagonal_has_zeros,
+           upper_has_nonzeros);
+}
+
+
 static pmath_bool_t greater(pmath_t a, pmath_t b) {
   pmath_t tmp;
   
@@ -142,14 +294,14 @@ pmath_expr_t _pmath_matrix_set( // return: new matrix
      NUMERICAL RECIPES IN C
      pp 40-47
    with adapted permutation vector.
-   
-   @param [in/out] matrix          Combined LU decomposition of input value on 
+
+   @param [in/out] matrix          Combined LU decomposition of input value on
                                    exit.
    @param [out]    indx            Permutaion vector.
    @param [in]     sing_fast_exit  Whether to stop when matrix is found to be
                                    (almost) singular.
-   @param [in]     tiny            A small positive constant used in a 
-                                   divide-by-zero scenario (through numeric 
+   @param [in]     tiny            A small positive constant used in a
+                                   divide-by-zero scenario (through numeric
                                    roundoff)
  */
 static int numeric_ludecomp(
