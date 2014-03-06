@@ -30,6 +30,9 @@ PMATH_PRIVATE pmath_t _pmath_object_head(pmath_t obj) { // obj wont be freed
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
       return pmath_expr_get_item(obj, 0);
+    
+    case PMATH_TYPE_SHIFT_PACKED_ARRAY:
+      return pmath_ref(PMATH_SYMBOL_LIST);
   }
   
   return pmath_ref(PMATH_SYMBOL_UNDEFINED);
