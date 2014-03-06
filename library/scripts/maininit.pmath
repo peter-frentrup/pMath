@@ -16,6 +16,10 @@ Protect(Normalize, RotationMatrix, ScalingMatrix, ReflectionMatrix, ShearingMatr
 End()
 
 
+BeginPackage("Developer`")
+EndPackage()
+
+
 System`Util`latexToBoxes;
 
 Begin("System`Private`")
