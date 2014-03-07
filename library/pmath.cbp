@@ -168,7 +168,7 @@
 					<Add library="gcc.lib" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat msvc" />
+					<Add after="post-build-windows.bat msvc-debug" />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
