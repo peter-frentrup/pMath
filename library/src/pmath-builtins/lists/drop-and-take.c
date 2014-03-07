@@ -1,11 +1,13 @@
 #include <pmath-core/numbers.h>
 
+#include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
+
 
 struct sequence_t {
   long start;
@@ -67,18 +69,18 @@ static pmath_bool_t convert_start_end_step(
   else if(pos->start <= 0 && len >= (size_t) - pos->start) {
     *start = len + 1 - (size_t) - pos->start;
   }
-  else
+  else 
     return FALSE;
-    
+  
   if(0 <= pos->end && (size_t)pos->end <= len) {
     *end = (size_t)pos->end;
   }
   else if(pos->end <= 0 && len + 1 >= (size_t) - pos->end) {
     *end = len + 1 - (size_t) - pos->end;
   }
-  else
+  else 
     return FALSE;
-    
+  
   if(0 < pos->step) {
     *step = (size_t)pos->step;
   }
@@ -90,7 +92,7 @@ static pmath_bool_t convert_start_end_step(
     *step = (size_t) - pos->step;
   }
   
-  if(*step == 1 && start == end + 1)
+  if(*step == 1 && *start == *end + 1)
     return TRUE;
     
   return (*start <= *end) && *step > 0;
@@ -214,7 +216,7 @@ pmath_bool_t _pmath_expr_try_take(
     else if(pos.step == 1 && u_start <= u_end && u_start > 0) {
       result = pmath_expr_get_item_range(*list, u_start, u_end - u_start + 1);
     }
-    else{
+    else {
       result = pmath_expr_new(pmath_expr_get_item(*list, 0), len);
       
       for(i = 1; u_start <= u_end; u_start += u_step, ++i) {

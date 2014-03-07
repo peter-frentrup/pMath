@@ -1,6 +1,7 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
 
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -9,6 +10,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
+
 
 static pmath_bool_t part(
   pmath_expr_t  *list,
