@@ -65,7 +65,6 @@
 				<Compiler>
 					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />
-					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
@@ -79,8 +78,10 @@
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
 				</Compiler>
 				<Linker>
-					<Add option="-s" />
 					<Add option="-static-libgcc" />
+					<Add option="-flto" />
+					<Add option="-O3" />
+					<Add option="-s" />
 					<Add library="mpfr" />
 					<Add library="gmp" />
 					<Add library="iconv" />
