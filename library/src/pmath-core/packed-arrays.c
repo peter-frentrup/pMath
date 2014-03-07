@@ -258,6 +258,8 @@ static unsigned int hash_packed_array_of_double(
   
   unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
   
+  hash = incremental_hash(&hash, sizeof(hash), 0);
+  
   for(; nums > 0; --nums, ptr += step) {
     unsigned h = hash_double(*(double *)ptr);
     
@@ -278,6 +280,8 @@ static unsigned int hash_packed_array_of_int32(
   
   unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
   pmath_t dummy = PMATH_FROM_INT32(0);
+  
+  hash = incremental_hash(&hash, sizeof(hash), 0);
   
   for(; nums > 0; --nums, ptr += step) {
     unsigned h;
@@ -303,7 +307,8 @@ static unsigned int hash_packed_array_part(
     const uint8_t *ptr = data;
     
     unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
-    
+    hash = incremental_hash(&hash, sizeof(hash), 0);
+  
     for(; nums > 0; --nums, ptr += step) {
       unsigned h = hash_packed_array_part(array, ptr, level + 1);
       
