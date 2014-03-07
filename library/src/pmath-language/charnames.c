@@ -991,7 +991,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_charnames_init(void) {
     void *dummy;
     dummy = pmath_ht_insert(name2char_ht, (void*)&named_char_array[i]);
     if(dummy && dummy != &named_char_array[i]) {
-      pmath_debug_print("name used for multipe chars: \[%s] for U+%04X and U+%04X\n",
+      pmath_debug_print("name used for multipe chars: \\[%s] for U+%04X and U+%04X\n",
                         named_char_array[i].name,
                         (unsigned int)named_char_array[i].unichar,
                         ((struct pmath_named_char_t *)dummy)->unichar);

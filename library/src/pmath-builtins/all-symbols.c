@@ -552,7 +552,7 @@ pmath_bool_t _pmath_run_code(
   pmath_hashtable_t     table;
   pmath_builtin_func_t  result = NULL;
   
-  assert((unsigned)usage <= PMATH_CODE_USAGE_EARLYCALL);
+  assert((unsigned)usage <= (unsigned)PMATH_CODE_USAGE_EARLYCALL);
   
   table = LOCK_CODE_TABLE(usage);
   
