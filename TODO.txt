@@ -3,6 +3,8 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
+- pmath: (BUG)  {}[All] does not work in MSVC build, but in GCC build!
+	
 - richmath: add undo/redo stack
 
 - richmath: automatically insert closing bracket, 
