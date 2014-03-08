@@ -30,7 +30,7 @@ static void NAME_pack_and_free_to(TO_TYPE)(pmath_t expr, TO_TYPE **location) {
     return;                                                                                 
   }                                                                                         
                                                                                             
-  if(pmath_is_expr(expr)) {                                                                 
+  if(pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {                                                                 
     size_t len = pmath_expr_length(expr);                                                   
     size_t i;                                                                               
                                                                                             
