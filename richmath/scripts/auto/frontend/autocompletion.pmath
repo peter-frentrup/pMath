@@ -31,7 +31,7 @@ makeCamelCasePattern(~str:String)::=
 			{
 				s: ~~~ ++ "`" :> s,
 				s: "A".."Z" ++ Except("A".."Z")*** :> s ++ Except("A".."Z")***,
-				(StartOfString | RegularExpression("(?<=`)")) ++ (char: "a".."z") :> (char|upperCaseChar(char)) ++ Except("A".."Z")***,
+				(StartOfString | RegularExpression("(?<=[^A-Z])")) ++ (char: "a".."z") :> (char|upperCaseChar(char)) ++ Except("A".."Z")***,
 				char: "a".."z" :> upperCaseChar(char) ++ Except("A".."Z")***})
 	++ ~~~)
 
