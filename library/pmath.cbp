@@ -878,6 +878,9 @@
 		<Unit filename="src/pmath-builtins/lists/complement.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/lists/constantarray.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/lists/depth.c">
 			<Option compilerVar="CC" />
 		</Unit>
