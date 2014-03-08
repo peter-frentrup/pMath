@@ -42,8 +42,8 @@ static pmath_t stringposition(
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RANGE), 2,
-          PMATH_FROM_INT32(offset + capture->ovector[0]),
-          PMATH_FROM_INT32(offset + capture->ovector[1] - 1)),
+          PMATH_FROM_INT32(/* offset + */ capture->ovector[0] + 1),
+          PMATH_FROM_INT32(/* offset + */ capture->ovector[1])),
         PMATH_NULL);
         
       --max_matches;
