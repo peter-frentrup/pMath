@@ -128,7 +128,7 @@ pmath_bool_t pmath_atomic_compare_and_set(
 }
 
 /**\brief Exchange two values value if they equal another two values.
-   \param *atom An atomic variable of size 2 * sizeof(void*).
+   \param atom An atomic variable of size 2 * sizeof(void*).
    \param old_value_fst The first old value.
    \param old_value_snd The second old value.
    \param new_value_fst The possible new value of \c atom[0].

@@ -117,8 +117,15 @@ void *pmath_blob_try_write(pmath_blob_t blob);
    More types may be added in the future.
  */
 typedef enum {
-  PMATH_PACKED_DOUBLE = 1, //< A <tt>double</tt>
-  PMATH_PACKED_INT32  = 2  //< An <tt>int32_t</tt>
+  /**\hideinitializer
+     A `double`.
+   */
+  PMATH_PACKED_DOUBLE = 1,
+  
+  /**\hideinitializer
+     An `int32_t`.
+   */
+  PMATH_PACKED_INT32  = 2
 } pmath_packed_type_t;
 
 /**\brief Get the size in bytes of an element type.
@@ -138,23 +145,21 @@ size_t pmath_packed_element_size(pmath_packed_type_t element_type);
    \return A new packed array or PMATH_NULL on error.
    
    The data must be properly aligned.
-   Let <tt>M</tt> be the new array. The address of <tt>M[i1,i2,...,iN]</tt> for 
-   <tt>N = dimensions</tt> and <tt>1 <= ik <= sizes[k-1], k=1,...,N</tt>
+   Let `M` be the new array. The address of `M[i1,i2,...,iN]` for 
+   `N = dimensions` and `1 &le; ik &le; sizes[k-1]`, `k=1,...,N`
    is computed as
-   <tt>
-    address(M[i1,...,iN]) = blob.data + offset + steps[0] * (i1 - 1)
-                                               + steps[1] * (i2 - 1)
-                                               + ... 
-                                               + steps[N - 1] * (iN - 1).
-   </tt>
    
-   Additionally, <tt>steps[i] >= steps[i+1] * sizes[i+1]</tt> for 
-   <tt>i < N-1</tt> and <tt>steps[N-1]</tt> must exactly equal the element size
-   (as in e.g. OpenCV).
+       address(M[i1,...,iN]) = blob.data + offset + steps[0] * (i1 - 1)
+                                                  + steps[1] * (i2 - 1)
+                                                  + ... 
+                                                  + steps[N - 1] * (iN - 1).
+   
+   Additionally, `steps[i] &ge; steps[i+1] * sizes[i+1]` for `i < N-1` and 
+   `steps[N-1]` must exactly equal the element size (as in e.g. OpenCV).
    
    When you specify NULL for \a steps, pMath will use dense packing:
-   <tt>steps[N-1] = element size</tt> and 
-   <tt>steps[i-1] = steps[i] * sizes[i]</tt> for <tt>i < N</tt>.
+   `steps[N-1] = element size` and `steps[i-1] = steps[i] * sizes[i]` for 
+   `i < N`.
    
    If \a blob is PMATH_NULL, a sufficiently sized blob inizialized with zeros
    will be created.
@@ -208,32 +213,31 @@ pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_t arr
    \return A number between 0 and pmath_packed_array_get_dimensions(array)-1 
            (inclusive).
    
-   Let <tt>K</tt> be the returned number and <tt>N</tt> the number of 
-   dimensions. Then memberwise operations can be speed up. Instead of:
-   \code
-for(i1 = 1;i1 <= sizes[0];++i1)
-  for(i2 = 1;i2 <= sizes[1];++i2)
-    ...
-    for(iK = 1;iK <= sizes[K-1];++iK)
-      ...
-      for(iN = 1;iN <= sizes[N-1];++iN)
-        some_operation(array[i1, i2, ..., iK, ... iN])
-    \endcode
-    you can use a single for loop and C pointer arithmetic for all dimensions
-    above K:
-    \code
-for(i1 = 1;i1 <= sizes[0];++i1)
-  for(i2 = 1;i2 <= sizes[1];++i2)
-    ...
-    for(iK = 1;iK <= sizes[K-1];++iK) {
-      T *ptr = address(array, [i1, i2, ..., iK], K)
-      for(j = 0;j < sizes[K] * steps[K];++j)
-        some_operation(ptr[j]);
-    }
-    \endcode
-    where <tt>T</tt> is the element type (double/int32_t/...) and 
-    <tt>address</tt> is either <tt>pmath_packed_array_read</tt> or
-    <tt>pmath_packed_array_begin_write</tt>.
+   Let `K` be the returned number and `N` the number of dimensions. Then 
+   memberwise operations can be speed up. Instead of:
+   
+       for(i1 = 1;i1 <= sizes[0];++i1)
+         for(i2 = 1;i2 <= sizes[1];++i2)
+           ...
+           for(iK = 1;iK <= sizes[K-1];++iK)
+             ...
+             for(iN = 1;iN <= sizes[N-1];++iN)
+               some_operation(array[i1, i2, ..., iK, ... iN])
+               
+   you can use a single for loop and C pointer arithmetic for all dimensions
+   above `K`:
+    
+       for(i1 = 1;i1 <= sizes[0];++i1)
+         for(i2 = 1;i2 <= sizes[1];++i2)
+           ...
+           for(iK = 1;iK <= sizes[K-1];++iK) {
+             T *ptr = address(array, [i1, i2, ..., iK], K)
+             for(j = 0;j < sizes[K] * steps[K];++j)
+               some_operation(ptr[j]);
+           }
+    
+   where `T` is the element type (double/int32_t/...) and `address` is either 
+   pmath_packed_array_read or pmath_packed_array_begin_write.
  */
 PMATH_API
 size_t pmath_packed_array_get_non_continuous_dimensions(pmath_packed_array_t array);
@@ -243,7 +247,7 @@ size_t pmath_packed_array_get_non_continuous_dimensions(pmath_packed_array_t arr
    \param array       A packed array. It wont be freed.
    \param indices     An array of 1-based indices. Its length is the array 
                       dimension. Every entry must satisfy 
-                      1 <= indices[k] <= sizes[k]
+                      1 &le; indices[k] &le; sizes[k]
    \param num_indices The number of indices given. Tis must not exceeed the 
                       array's dimension. A value of 1 is assumed for the 
                       remaining indices.
@@ -260,7 +264,7 @@ const void *pmath_packed_array_read(
    \param array       Pointer to a packed array. 
    \param indices     An array of 1-based indices. Its length is the array 
                       dimension. Every entry must satisfy 
-                      1 <= indices[k] <= sizes[k]
+                      1 &le; indices[k] &le; sizes[k]
    \param num_indices The number of indices given. Tis must not exceeed the 
                       array's dimension. A value of 1 is assumed for the 
                       remaining indices.

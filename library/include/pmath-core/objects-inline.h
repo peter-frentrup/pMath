@@ -1,3 +1,4 @@
+
 #ifndef __PMATH_CORE__OBJECTS_INLINE_H__
 #define __PMATH_CORE__OBJECTS_INLINE_H__
 
@@ -13,10 +14,34 @@ struct _pmath_t { // do not access members
 
 /*============================================================================*/
 
+/**\brief Check for an (inlined) machine-precision float.
+   \hideinitializer
+   \memberof pmath_float_t
+ */
 #define pmath_is_double(obj)  (((obj).s.tag & PMATH_TAGMASK_NONDOUBLE) != PMATH_TAGMASK_NONDOUBLE)
+
+/**\brief Check for a non-inlined object.
+   \hideinitializer
+   \memberof pmath_t
+   
+   Non-inlined objects are reference counted with pmath_ref/pmath_unref.
+ */
 #define pmath_is_pointer(obj) (((obj).s.tag & PMATH_TAGMASK_POINTER)   == PMATH_TAGMASK_POINTER)
+
+/**\brief Check for a magic number.
+   \hideinitializer
+   \memberof pmath_t
+   
+   Magic numbers are inlined and non-evaluatable.
+ */
 #define pmath_is_magic(obj)   ((obj).s.tag == PMATH_TAG_MAGIC)
+
+/**\brief Check for an inlined 32-bit number.
+   \hideinitializer
+   \memberof pmath_integer_t
+ */
 #define pmath_is_int32(obj)   ((obj).s.tag == PMATH_TAG_INT32)
+
 #define pmath_is_str0(obj)    ((obj).s.tag == PMATH_TAG_STR0)
 #define pmath_is_str1(obj)    ((obj).s.tag == PMATH_TAG_STR1)
 #define pmath_is_str2(obj)    ((obj).s.tag == PMATH_TAG_STR2)
@@ -53,9 +78,30 @@ double PMATH_AS_DOUBLE(pmath_t obj) {
 #define PMATH_AS_TAG(obj)     ((obj).s.tag)
 #define PMATH_AS_INT32(obj)   ((obj).s.u.as_int32)
 
+/**\brief Check for reference equality.
+   \hideinitializer
+   \memberof pmath_t
+   
+   \param objA The first object. It wont be freed.
+   \param objB The second object. It wont be freed.
+   \return TRUE if both arguments have the same bit pattern.
+ */
 #define pmath_same(objA, objB)  ((objA).as_bits == (objB).as_bits)
+
+/**\brief Check for equality to PMATH_NULL.
+   \hideinitializer
+   \memberof pmath_t
+   
+   \param obj A pMath object. It wont be freed.
+   \return TRUE if the argument equals PMATH_NULL.
+ */
 #define pmath_is_null(obj)      (pmath_same((obj), PMATH_NULL))
 
+/**\brief Check for a non-inlined object of some type.
+   \memberof pmath_t
+   \param obj The object to test. It wont be freed.
+   \param type A mask of allowed types.
+ */
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
@@ -64,22 +110,95 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
          ((1 << (PMATH_AS_PTR(obj)->type_shift)) & type) != 0;
 }
 
+/**\brief Check for a multi-precision integer.
+   \hideinitializer
+   \memberof pmath_integer_t
+ */
 #define pmath_is_mpint(obj)   (pmath_is_pointer_of((obj), PMATH_TYPE_MP_INT))
+
+/**\brief Check for a multi-precision floating point number.
+   \hideinitializer
+   \memberof pmath_float_t
+ */
 #define pmath_is_mpfloat(obj) (pmath_is_pointer_of((obj), PMATH_TYPE_MP_FLOAT))
 
+/**\brief Check for a custom object.
+   \hideinitializer
+   \memberof pmath_custom_t
+ */
 #define pmath_is_custom(obj)        (pmath_is_pointer_of((obj), PMATH_TYPE_CUSTOM))
+
+/**\brief Check for a pMath expression.
+   \hideinitializer
+   \memberof pmath_expr_t
+ */
 #define pmath_is_expr(obj)          (pmath_is_pointer_of((obj), PMATH_TYPE_EXPRESSION))
+
+/**\brief Check for a floating point number.
+   \hideinitializer
+   \memberof pmath_float_t
+ */
 #define pmath_is_float(obj)         (pmath_is_double(obj) || pmath_is_mpfloat(obj))
+
+/**\brief Check for an integer.
+   \hideinitializer
+   \memberof pmath_integer_t
+ */
 #define pmath_is_integer(obj)       (pmath_is_int32(obj) || pmath_is_mpint(obj))
+
+/**\brief Check for a number.
+   \hideinitializer
+   \memberof pmath_number_t
+ */
 #define pmath_is_number(obj)        (pmath_is_float(obj) || pmath_is_rational(obj))
+
+/**\brief Check for a quotient.
+   \hideinitializer
+   \memberof pmath_quotient_t
+ */
 #define pmath_is_quotient(obj)      (pmath_is_pointer_of((obj), PMATH_TYPE_QUOTIENT))
+
+/**\brief Check for a rational number.
+   \hideinitializer
+   \memberof pmath_rational_t
+ */
 #define pmath_is_rational(obj)      (pmath_is_integer(obj) || pmath_is_quotient(obj))
+
 #define pmath_is_bigstr(obj)        (pmath_is_pointer_of((obj), PMATH_TYPE_BIGSTRING))
+
+/**\brief Check for a string.
+   \hideinitializer
+   \memberof pmath_string_t
+ */
 #define pmath_is_string(obj)        (pmath_is_ministr(obj) || pmath_is_bigstr(obj))
+
+/**\brief Check for a symbol.
+   \hideinitializer
+   \memberof pmath_symbol_t
+ */
 #define pmath_is_symbol(obj)        (pmath_is_pointer_of((obj), PMATH_TYPE_SYMBOL))
+
+/**\brief Check for a blob object.
+   \hideinitializer
+   \memberof pmath_blob_t
+ */
 #define pmath_is_blob(obj)          (pmath_is_pointer_of((obj), PMATH_TYPE_BLOB))
+
+/**\brief Check for a packed array expression.
+   \hideinitializer
+   \memberof pmath_packed_array_t
+ */
 #define pmath_is_packed_array(obj)  (pmath_is_pointer_of((obj), PMATH_TYPE_PACKED_ARRAY))
 
+/**\brief Check if an object is evaluatable.
+   \memberof pmath_t
+   \param obj A pMath object. It wont be freed.
+   \return FALSE if evaluating the object yields PMATH_NULL.
+   
+   Evaluatebale objects are [numbers](@ref pmath_number_t), 
+   [strings](@ref pmath_string_t), [symbols](@ref pmath_symbol_t) and all
+   [expressions](@ref pmath_expr_t).
+ */
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_evaluatable(pmath_t obj) {
@@ -104,6 +223,11 @@ pmath_t PMATH_FROM_DOUBLE(double d) {
 
 /*============================================================================*/
 
+/**\brief Get the current reference count.
+   \memberof pmath_t
+   \param obj A pMath object. It wont be freed.
+   \return The reference count or 0 if \a obj is an inlined object.
+ */
 PMATH_FORCE_INLINE
 intptr_t pmath_refcount(pmath_t obj) {
   if(pmath_is_pointer(obj) && !pmath_is_null(obj))
@@ -119,11 +243,10 @@ intptr_t pmath_refcount(pmath_t obj) {
    \param objB The second one.
    \return TRUE iff both objects are identical.
 
-   `identity` means, that X != Y is possible, even if X and Y evaluate to the
+   `identity` means, that X &ne; Y is possible, even if X and Y evaluate to the
    same value.
 
-   If objA and objB are symbols, the result is identical to testing
-   objA == objB.
+   If objA and objB are symbols, the result is identical to pmath_same(objA,objB).
 
    \note pmath_equals(A, B) might return FALSE although pmath_compare(A, B) == 0
    e.g. for an integer A and a floating point value B.
