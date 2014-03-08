@@ -14,16 +14,20 @@
    external libraries such as Euler (linear algebra) or OpenCV 
    (image processing).
    
-   
+   @{
  */
 
-/**\brief Internal representation of a flat array of bytes.
+/**\class pmath_blob_t
+   \extends pmath_t
+   \brief Internal representation of a flat array of bytes.
    
    These objects are non-evaluatable (like pmath_custom_t). 
  */
 typedef pmath_t pmath_blob_t;
 
-/**\brief A packed array.
+/**\class pmath_packed_array_t
+   \extends pmath_expr_t
+   \brief A packed array.
    
    This can be used anywhere, where a pmath_expr_t is needed. But their internal 
    representations differ radically.
@@ -112,19 +116,19 @@ void *pmath_blob_try_write(pmath_blob_t blob);
    
    More types may be added in the future.
  */
-enum pmath_packed_type_t {
+typedef enum {
   PMATH_PACKED_DOUBLE = 1, //< A <tt>double</tt>
   PMATH_PACKED_INT32  = 2  //< An <tt>int32_t</tt>
-};
+} pmath_packed_type_t;
 
 /**\brief Get the size in bytes of an element type.
  */
 PMATH_API
-size_t pmath_packed_element_size(enum pmath_packed_type_t element_type);
+size_t pmath_packed_element_size(pmath_packed_type_t element_type);
 
 /**\brief Create a packed array.
    \memberof pmath_packed_array_t
-   \param blob          The actual data. It will be freed.
+   \param blob          The actual data. It will be freed. Can be PMATH_NULL.
    \param element_type  The element type.
    \param dimensions    The number of dimensions.
    \param sizes         The number of elements in each dimension. An array of 
@@ -134,8 +138,8 @@ size_t pmath_packed_element_size(enum pmath_packed_type_t element_type);
    \return A new packed array or PMATH_NULL on error.
    
    The data must be properly aligned.
-   Let M be the new array. The address of M[i1,i2,...,iN] for N = dimensions
-   and 1 <= ik <= sizes[k-1], k=1...,N
+   Let <tt>M</tt> be the new array. The address of <tt>M[i1,i2,...,iN]</tt> for 
+   <tt>N = dimensions</tt> and <tt>1 <= ik <= sizes[k-1], k=1,...,N</tt>
    is computed as
    <tt>
     address(M[i1,...,iN]) = blob.data + offset + steps[0] * (i1 - 1)
@@ -144,21 +148,26 @@ size_t pmath_packed_element_size(enum pmath_packed_type_t element_type);
                                                + steps[N - 1] * (iN - 1).
    </tt>
    
-   Additionally, steps[i] >= steps[i+1] * sizes[i+1] for i < N-1 and 
-   steps[N-1] must exactly equal the element size. (as in e.g. OpenCV).
+   Additionally, <tt>steps[i] >= steps[i+1] * sizes[i+1]</tt> for 
+   <tt>i < N-1</tt> and <tt>steps[N-1]</tt> must exactly equal the element size
+   (as in e.g. OpenCV).
    
-   When you specify NULL for steps, pMath will use steps[N-1] = element size
-   and steps[i-1] = steps[i] * sizes[i] for i < N. That is dense packing.
+   When you specify NULL for \a steps, pMath will use dense packing:
+   <tt>steps[N-1] = element size</tt> and 
+   <tt>steps[i-1] = steps[i] * sizes[i]</tt> for <tt>i < N</tt>.
+   
+   If \a blob is PMATH_NULL, a sufficiently sized blob inizialized with zeros
+   will be created.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_packed_array_t pmath_packed_array_new(
-  pmath_blob_t               blob,
-  enum pmath_packed_type_t   element_type,
-  size_t                     dimensions,
-  const size_t              *sizes,
-  const size_t              *steps,
-  size_t                     offset);
+  pmath_blob_t          blob,
+  pmath_packed_type_t   element_type,
+  size_t                dimensions,
+  const size_t         *sizes,
+  const size_t         *steps,
+  size_t                offset);
 
 /**\brief Get the number of dimensions of a packed array.
    \memberof pmath_packed_array_t
@@ -191,7 +200,7 @@ const size_t *pmath_packed_array_get_steps(pmath_packed_array_t array);
    \return The array element data type.
  */
 PMATH_API
-enum pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_t array);
+pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_t array);
 
 /**\brief Get the number of dimensions that contain holes.
    \memberof pmath_packed_array_t
@@ -283,5 +292,7 @@ pmath_packed_array_t pmath_packed_array_reshape(
   pmath_packed_array_t  array,
   size_t                new_dimensions,
   const size_t         *new_sizes);
+
+/* @} */
 
 #endif // __PMATH_CORE__PACKED_ARRAYS_H__

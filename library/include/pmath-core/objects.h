@@ -236,7 +236,7 @@ enum {
      Note that this does not automatically imply PMATH_WRITE_OPTIONS_FULLSTR.
    
    - PMATH_WRITE_OPTIONS_PACKEDARRAYFORM Packed Arrays are written in the form
-     "PackedArray"(type, <<dimensions>>) instead of nested lists.
+     "PackedArray"(type, \<\<dimensions\>\>) instead of nested lists.
  */
 
 typedef int pmath_write_options_t;

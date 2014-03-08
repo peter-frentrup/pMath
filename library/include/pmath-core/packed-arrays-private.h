@@ -10,7 +10,7 @@
 
 
 PMATH_PRIVATE
-pmath_t _pmath_packed_element_unbox(const void *data, enum pmath_packed_type_t type);
+pmath_t _pmath_packed_element_unbox(const void *data, pmath_packed_type_t type);
 
 
 PMATH_PRIVATE 
@@ -42,7 +42,7 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t r
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, enum pmath_packed_type_t expected_type);
+pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, pmath_packed_type_t expected_type);
 
 PMATH_PRIVATE 
 void *_pmath_packed_array_repack_to(pmath_packed_array_t array, void *buffer);

@@ -3,7 +3,7 @@
 
 /**\mainpage The pMath Computer Algebra System Library
    \author Peter Frentrup
-   \date 2013
+   \date 2014
 
    \par Introduction
    pMath is a free CAS for Windows and Unix like systems. The whole CAS consists

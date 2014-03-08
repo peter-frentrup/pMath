@@ -161,11 +161,9 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
       memcpy(sizes + nlen, c_sizes, (dimensions - nlen) * sizeof(size_t));
     }
     
+    // overflow is ok. It will be detected by pmath_packed_array_new().
     total_size = pmath_packed_element_size(elem_type);
     for(i = 0;i < dimensions;++i) {
-      if(total_size > SIZE_MAX / sizes[i]) 
-        goto FALLBACK;
-        
       total_size*= sizes[i];
     }
     
@@ -198,9 +196,6 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
     pmath_unref(expr);
     pmath_mem_free(sizes);
     return result;
-    
-   FALLBACK:
-    pmath_mem_free(sizes);
   }
   
   pmath_unref(c);

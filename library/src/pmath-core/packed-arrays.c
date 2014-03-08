@@ -435,13 +435,13 @@ static int compare_arrays_of_int32(const int32_t *a, const int32_t *b, size_t le
 }
 
 static int compare_array_parts(
-  const size_t             *sizes,
-  const size_t             *steps_a,
-  const size_t             *steps_b,
-  size_t                    dims,
-  const void               *data_a,
-  const void               *data_b,
-  enum pmath_packed_type_t  element_type
+  const size_t        *sizes,
+  const size_t        *steps_a,
+  const size_t        *steps_b,
+  size_t               dims,
+  const void          *data_a,
+  const void          *data_b,
+  pmath_packed_type_t  element_type
 ) {
   --dims;
   
@@ -598,11 +598,11 @@ static pmath_bool_t check_sizes(
 }
 
 static pmath_bool_t check_steps(
-  enum pmath_packed_type_t  element_type,
-  size_t                    dimensions,
-  const size_t             *sizes,
-  const size_t             *steps,
-  size_t                   *total_size
+  pmath_packed_type_t  element_type,
+  size_t               dimensions,
+  const size_t        *sizes,
+  const size_t        *steps,
+  size_t              *total_size
 ) {
   size_t elem_size = pmath_packed_element_size(element_type);
   size_t i;
@@ -640,11 +640,11 @@ static pmath_bool_t check_steps(
 }
 
 static pmath_bool_t init_default_steps(
-  enum pmath_packed_type_t  element_type,
-  size_t                    dimensions,
-  const size_t             *sizes,
-  size_t                   *steps,
-  size_t                   *total_size
+  pmath_packed_type_t  element_type,
+  size_t               dimensions,
+  const size_t        *sizes,
+  size_t              *steps,
+  size_t              *total_size
 ) {
   size_t elem_size = pmath_packed_element_size(element_type);
   size_t i;
@@ -754,7 +754,7 @@ static void packed_array_copy(
 }
 
 PMATH_API
-size_t pmath_packed_element_size(enum pmath_packed_type_t element_type) {
+size_t pmath_packed_element_size(pmath_packed_type_t element_type) {
 
   switch(element_type) {
     case PMATH_PACKED_DOUBLE: return sizeof(double);
@@ -765,22 +765,18 @@ size_t pmath_packed_element_size(enum pmath_packed_type_t element_type) {
 }
 
 PMATH_API
-PMATH_ATTRIBUTE_USE_RESULT
 pmath_packed_array_t pmath_packed_array_new(
-  pmath_blob_t               blob,
-  enum pmath_packed_type_t   element_type,
-  size_t                     dimensions,
-  const size_t              *sizes,
-  const size_t              *steps,
-  size_t                     offset
+  pmath_blob_t          blob,
+  pmath_packed_type_t   element_type,
+  size_t                dimensions,
+  const size_t         *sizes,
+  const size_t         *steps,
+  size_t                offset
 ) {
   struct _pmath_packed_array_t *_array;
   size_t size;
   
-  if(PMATH_UNLIKELY(pmath_is_null(blob)))
-    return PMATH_NULL;
-    
-  assert(pmath_is_blob(blob));
+  assert(pmath_is_blob(blob) || pmath_is_null(blob));
   
   if(!check_sizes(dimensions, sizes)) {
     pmath_unref(blob);
@@ -798,7 +794,6 @@ pmath_packed_array_t pmath_packed_array_new(
     return PMATH_NULL;
   }
   
-  _array->blob         = (void *)PMATH_AS_PTR(blob);
   _array->offset       = offset;
   _array->element_type = element_type;
   _array->dimensions   = dimensions;
@@ -829,18 +824,32 @@ pmath_packed_array_t pmath_packed_array_new(
     _array->non_continuous_dimensions_count = 0;
   }
   
+  if(pmath_is_null(blob)) {
+    blob = pmath_blob_new(_array->total_size + offset, TRUE);
+    
+    if(pmath_is_null(blob)) {
+      _pmath_unref_ptr((void *)_array);
+      return PMATH_NULL;
+    }
+  }
+  
+  _array->blob = (void *)PMATH_AS_PTR(blob);
+  
   if(_array->blob->data_size < offset) {
+    pmath_debug_print("[offset outside blob]\n");
     _pmath_unref_ptr((void *)_array);
     return PMATH_NULL;
   }
   
   if(_array->blob->data_size - offset < _array->total_size) {
+    pmath_debug_print("[blob too small]\n");
     _pmath_unref_ptr((void *)_array);
     return PMATH_NULL;
   }
   
   // check alignment
   if((((size_t)_array->blob->data + offset) % pmath_packed_element_size(element_type)) != 0) {
+    pmath_debug_print("[invalid alignment]\n");
     _pmath_unref_ptr((void *)_array);
     return PMATH_NULL;
   }
@@ -929,7 +938,7 @@ const size_t *pmath_packed_array_get_steps(pmath_packed_array_t array) {
 }
 
 PMATH_API
-enum pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_t array) {
+pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_t array) {
   struct _pmath_packed_array_t *_array;
   
   if(PMATH_UNLIKELY(pmath_is_null(array)))
@@ -1050,7 +1059,7 @@ void *pmath_packed_array_begin_write(
 }
 
 PMATH_PRIVATE
-pmath_t _pmath_packed_element_unbox(const void *data, enum pmath_packed_type_t type) {
+pmath_t _pmath_packed_element_unbox(const void *data, pmath_packed_type_t type) {
   double d;
   
   switch(type) {
@@ -1462,9 +1471,9 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t r
 
 /* -------------------------------------------------------------------------- */
 
-static enum pmath_packed_type_t combine_types(
-  enum pmath_packed_type_t type,
-  enum pmath_packed_type_t expected_type
+static pmath_packed_type_t combine_types(
+  pmath_packed_type_t type,
+  pmath_packed_type_t expected_type
 ) {
   switch(type) {
     case PMATH_PACKED_INT32:
@@ -1670,7 +1679,7 @@ static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, enum pmath_packed_type_t expected_type) {
+pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, pmath_packed_type_t expected_type) {
   int                   elem_type;
   pmath_t               dims_expr;
   size_t                dims;

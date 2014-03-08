@@ -457,7 +457,7 @@ PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(pmath_expr_t expr) {
   }
   
   if(exprlen == 2) {
-    enum pmath_packed_type_t type = pmath_packed_array_get_element_type(obj);
+    pmath_packed_type_t type = pmath_packed_array_get_element_type(obj);
     
     pmath_t type_expr = pmath_expr_get_item(expr, 2);
     pmath_unref(type_expr);
