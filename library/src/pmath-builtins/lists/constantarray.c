@@ -67,6 +67,30 @@ static pmath_t slow_const_array(pmath_expr_t expr, pmath_t c, pmath_expr_t n) {
   return c;
 }
 
+static pmath_bool_t read_sizes(pmath_expr_t expr, pmath_expr_t n, size_t *sizes) {
+  size_t nlen = pmath_expr_length(n);
+  size_t i;
+
+  for(i = 0; i < nlen; ++i) {
+    pmath_t ni = pmath_expr_get_item(n, i + 1);
+    
+    if(pmath_is_int32(ni) && PMATH_AS_INT32(ni) >= 0) {
+      sizes[i] = (size_t)PMATH_AS_INT32(ni);
+      continue;
+    }
+    
+    pmath_unref(ni);
+    
+    pmath_message(
+      PMATH_NULL, "ilsmn", 2,
+      PMATH_FROM_INT32(2),
+      pmath_ref(expr));
+    return FALSE;
+  }
+  
+  return TRUE;
+}
+
 PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
   /* ConstantArray(c, n)
      ConstantArray(c, {n1, n2, ...})
@@ -117,29 +141,17 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
     if(!ignore_array_elem)
       dimensions += pmath_packed_array_get_dimensions(c);
       
-    sizes = pmath_mem_alloc((dimensions + 1) * sizeof(size_t));
+    sizes = pmath_mem_alloc(dimensions * sizeof(size_t));
     if(!sizes) {
       pmath_unref(c);
       pmath_unref(n);
       return expr;
     }
     
-    for(i = 0; i < nlen; ++i) {
-      pmath_t ni = pmath_expr_get_item(n, i + 1);
-      
-      if(pmath_is_int32(ni) && PMATH_AS_INT32(ni) >= 0) {
-        sizes[i] = (size_t)PMATH_AS_INT32(ni);
-        continue;
-      }
-      
-      pmath_unref(ni);
+    if(!read_sizes(expr, n, sizes)) {
       pmath_unref(n);
       pmath_unref(c);
       pmath_mem_free(sizes);
-      pmath_message(
-        PMATH_NULL, "ilsmn", 2,
-        PMATH_FROM_INT32(2),
-        pmath_ref(expr));
       return expr;
     }
     
@@ -149,7 +161,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
       memcpy(sizes + nlen, c_sizes, (dimensions - nlen) * sizeof(size_t));
     }
     
-    sizes[dimensions] = total_size = pmath_packed_element_size(elem_type);
+    total_size = pmath_packed_element_size(elem_type);
     for(i = 0;i < dimensions;++i) {
       if(total_size > SIZE_MAX / sizes[i]) 
         goto FALLBACK;
@@ -195,44 +207,4 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
   c = pmath_expr_get_item(expr, 1);
   
   return slow_const_array(expr, c, n);
-  /*
-  if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0) {
-    pmath_unref(expr);
-    return const_list(c, (size_t)PMATH_AS_INT32(n));
-  }
-  
-  if(pmath_is_expr_of(n, PMATH_SYMBOL_LIST)) {
-    size_t depth = pmath_expr_length(n);
-    size_t i;
-  
-    for(i = depth; i > 0 && !pmath_aborting(); --i) {
-      pmath_t ni = pmath_expr_get_item(n, i);
-  
-      if(pmath_is_int32(ni) && PMATH_AS_INT32(ni) >= 0) {
-        c = const_list(c, (size_t)PMATH_AS_INT32(ni));
-        continue;
-      }
-  
-      pmath_unref(ni);
-      pmath_unref(n);
-      pmath_unref(c);
-      pmath_message(
-        PMATH_NULL, "ilsmn", 2,
-        PMATH_FROM_INT32(2),
-        pmath_ref(expr));
-      return expr;
-    }
-  
-    pmath_unref(n);
-    pmath_unref(expr);
-    return c;
-  }
-  
-  pmath_unref(c);
-  pmath_unref(n);
-  pmath_message(
-    PMATH_NULL, "ilsmn", 2,
-    PMATH_FROM_INT32(2),
-    pmath_ref(expr));
-  return expr;*/
 }
