@@ -1383,7 +1383,8 @@ void Document::on_key_press(uint32_t unichar) {
     }
     
     if(can_surround && selstr.length() == 1) {
-      can_surround = !pmath_char_is_left( *selstr.buffer()) &&
+      can_surround = '\\' != *selstr.buffer() &&
+                     !pmath_char_is_left( *selstr.buffer()) &&
                      !pmath_char_is_right(*selstr.buffer());
     }
     
