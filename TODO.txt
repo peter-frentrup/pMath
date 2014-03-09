@@ -32,9 +32,6 @@
 
 - pmath: generate a message when unpacking a packed array
 
-? pmath: make /* comments */ nestable; always treat "*/" as one token. Problem: "...a***/b"
-	maybe change to (* ... *), but still problem with "...a***)"
-
 - richmath: ask to save before closing
 	
 - richmath: Why is the end column of debug-info so large?? See "InspectBoxes - Test.pmathdoc"
