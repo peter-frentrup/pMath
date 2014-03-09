@@ -1120,11 +1120,18 @@ void Document::on_key_down(SpecialKeyEvent &event) {
         if(is_tabkey_only_moving()) {
           SelectionReference oldpos = context.selection;
           
+          if(!event.ctrl) {
+            if(auto_completion.next(event.shift ? Backward : Forward)) {
+              event.key = KeyUnknown;
+              return;
+            }
+          }
+          
           move_tab(event.shift ? Backward : Forward);
           
           if(oldpos == context.selection) {
-            if(!auto_completion.next(event.shift ? Backward : Forward))
-              native()->beep();
+            //if(!auto_completion.next(event.shift ? Backward : Forward))
+            native()->beep();
           }
         }
         else

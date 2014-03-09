@@ -29,6 +29,7 @@ namespace richmath {
     CopySpecialSymbol,
     AutoCompleteNameSymbol,
     AutoCompleteFileSymbol,
+    AutoCompleteOtherSymbol,
     
     FrontEndSymbolsCount
   } FrontEndSymbolIndex;

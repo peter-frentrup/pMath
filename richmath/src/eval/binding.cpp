@@ -1324,6 +1324,7 @@ bool richmath::init_bindings() {
   VERIFY(fe_symbols[CopySpecialSymbol]        = NEW_SYMBOL("FE`CopySpecial"))
   VERIFY(fe_symbols[AutoCompleteNameSymbol]   = NEW_SYMBOL("FE`AutoCompleteName"))
   VERIFY(fe_symbols[AutoCompleteFileSymbol]   = NEW_SYMBOL("FE`AutoCompleteFile"))
+  VERIFY(fe_symbols[AutoCompleteOtherSymbol]  = NEW_SYMBOL("FE`AutoCompleteOther"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
   

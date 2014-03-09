@@ -28,6 +28,14 @@ FE`AutoCompleteFile(~part:String)::=
 		Return(FileNames(split[1,1], split[1,2] ++ "*"));
 	)
 
+FE`AutoCompleteOther(~list:List, ~part:String)::= (
+	list.StringCases(
+			StartOfString ++ part ++ ~~~, 
+			1, IgnoreCase -> True)
+		.Apply(Join)
+		.Sort
+	)
+
 namespacePattern(~part:String)::= 
 	If(part.containsSubstring("`"), 
 		StartOfString
