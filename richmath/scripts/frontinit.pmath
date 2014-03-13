@@ -28,14 +28,14 @@ Options(FileOpenDialog):= Options(FileSaveDialog):= {WindowTitle -> Automatic}
 
 
 $MathShapers:= {
-   "Cambria Math", 
-   "Asana Math", 
-   "Neo Euler", 
-   /*"STIX Math", */"XITS Math", 
-   "Latin Modern Math", 
-   "TeX Gyre Bonum Math", 
-   "TeX Gyre Pagella Math", 
-   "TeX Gyre Termes Math"}
+	"Cambria Math", 
+	"Asana Math", 
+	"Neo Euler", 
+	/*"STIX Math", */"XITS Math", 
+	"Latin Modern Math", 
+	"TeX Gyre Bonum Math", 
+	"TeX Gyre Pagella Math", 
+	"TeX Gyre Termes Math"}
 Protect($MathShapers)
 
 
@@ -81,32 +81,6 @@ SymbolDefinitions(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
 
 SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
 
-AutoCompleteName(~part:String)::= 
-	Join(
-		Names(part ++ ~~~, IgnoreCase -> True).Map(
-			#.StringReplace({
-					long: ~~~ ++ "`" ++ (short: part ++ ~~~) :> 
-						{short, 
-							If(Names(short).Length===1, 
-								short
-							,
-								long
-							)},
-					~~long :> {long, long}
-				},
-				IgnoreCase -> True)&
-			).Sort()[All,2],
-		Names(StartOfString ++ part ++ (~ | "`")***, IgnoreCase -> True).Map(Namespace @@ MakeExpression(#) &).Union
-		)
-
-AutoCompleteFile(~part:String)::=
-	With({split:= part.StringCases(~~~dir ++ ("/"|$PathnameSeparator) ++ (file:Except("/"|$PathnameSeparator)***) :> {dir,file})},
-		If(split.Length =!= 1,
-			Return({}));
-		
-		Return(FileNames(split[1,1], split[1,2] ++ "*"));
-	)
-
 $NamespacePath:= oldNamespacePath
 
 If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ".png" ++ EndOfString),
@@ -131,4 +105,6 @@ AutoLoad(Hold(ShowDefinition),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "showdefinition.pmath"));
 AutoLoad(Hold(FE`Graphics`DefaultAxesOrigin, FE`Graphics`DefaultTickBoxes), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "graphics.pmath"));
+
+Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "autocompletion.pmath"))
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "boxestotext.pmath"))

@@ -2,7 +2,10 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="library/pmath.cbp" />
-		<Project filename="library/test/test.cbp" active="1">
+		<Project filename="library/test/test.cbp">
+			<Depends filename="library/pmath.cbp" />
+		</Project>
+		<Project filename="library/console/console.cbp">
 			<Depends filename="library/pmath.cbp" />
 		</Project>
 	</Workspace>

@@ -94,7 +94,7 @@
 				<Linker>
 					<Add option="/DEBUG" />
 					<Add library="pmath.lib" />
-					<Add directory="../bin/windows/msvc" />
+					<Add directory="../bin/windows/msvc-debug" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Clang">

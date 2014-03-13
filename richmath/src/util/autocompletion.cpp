@@ -13,39 +13,38 @@
 
 using namespace richmath;
 
-//{ class AutoCompletion ...
+//{ class AutoCompletion::Private ...
 
-AutoCompletion::AutoCompletion(Document *_document)
-  : document(_document),
+class AutoCompletion::Private {
+  public:
+    Private(AutoCompletion *_pub, Document *_document);
+    
+    bool continue_completion(LogicalDirection direction);
+    
+    bool start_alias(LogicalDirection direction);
+    bool start_filename(LogicalDirection direction);
+    bool start_symbol(LogicalDirection direction);
+    
+  private:
+    AutoCompletion *pub;
+    
+    void add_completion_if_needed(const Expr &input, LogicalDirection direction);
+    
+  public:
+    Document *document;
+    Expr current_boxes_list;
+    int current_index;
+};
+
+AutoCompletion::Private::Private(AutoCompletion *_pub, Document *_document)
+  : pub(_pub),
+    document(_document),
     current_index(0)
 {
 }
 
-bool AutoCompletion::next(LogicalDirection direction) {
-  if(!range.id) {
-    Box *selbox = document->selection_box();
-    if(!selbox || !selbox->get_style(Editable))
-      return false;
-      
-    if(start_alias(direction))
-      return continue_completion(direction);
-      
-    if(start_filename(direction))
-      return continue_completion(direction);
-      
-    if(start_symbol(direction))
-      return continue_completion(direction);
-  }
-  
-  return continue_completion(direction);
-}
-
-void AutoCompletion::stop() {
-  range.reset();
-}
-
-bool AutoCompletion::continue_completion(LogicalDirection direction) {
-  if(!range.id)
+bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
+  if(!pub->range.id)
     return false;
     
   if(direction == Forward) {
@@ -61,7 +60,7 @@ bool AutoCompletion::continue_completion(LogicalDirection direction) {
   
   Expr boxes = current_boxes_list[(size_t)current_index];
   
-  if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(range.get())) {
+  if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(pub->range.get())) {
     if(!seq->get_style(Editable))
       return false;
       
@@ -72,11 +71,11 @@ bool AutoCompletion::continue_completion(LogicalDirection direction) {
     AbstractSequence *tmp = seq->create_similar();
     tmp->load_from_object(boxes, options);
     
-    seq->remove(range.start, range.end);
-    int end = seq->insert(range.start, tmp);
+    seq->remove(pub->range.start, pub->range.end);
+    int end = seq->insert(pub->range.start, tmp);
     
     document->move_to(seq, end);
-    range = SelectionReference(seq->id(), range.start, end);
+    pub->range = SelectionReference(seq->id(), pub->range.start, end);
     
     return true;
   }
@@ -84,7 +83,7 @@ bool AutoCompletion::continue_completion(LogicalDirection direction) {
   return false;
 }
 
-bool AutoCompletion::start_alias(LogicalDirection direction) {
+bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(document->selection_box());
   if(!seq)
     return false;
@@ -108,78 +107,113 @@ bool AutoCompletion::start_alias(LogicalDirection direction) {
     
   String alias = seq->raw_substring(alias_pos, alias_end - alias_pos).part(1);
   
-  Gather g;
-  
-  for(unsigned i = 0, rest = global_macros.size(); rest > 0; ++i) {
-    Entry<String, Expr> *e = global_macros.entry(i);
+  Expr expr;
+  {
+    Gather g;
     
-    if(e) {
-      --rest;
+    for(unsigned i = 0, rest = global_macros.size(); rest > 0; ++i) {
+      Entry<String, Expr> *e = global_macros.entry(i);
       
-      // TODO: case-insensitive
-      if(e->key.starts_with(alias)) {
+      if(e) {
+        --rest;
+        
         Gather::emit(e->key);
       }
     }
-  }
-  
-  for(unsigned i = 0, rest = global_immediate_macros.size(); rest > 0; ++i) {
-    Entry<String, Expr> *e = global_immediate_macros.entry(i);
     
-    if(e) {
-      --rest;
+    for(unsigned i = 0, rest = global_immediate_macros.size(); rest > 0; ++i) {
+      Entry<String, Expr> *e = global_immediate_macros.entry(i);
       
-      // TODO: case-insensitive
-      if(e->key.starts_with(alias)) {
+      if(e) {
+        --rest;
+        
         Gather::emit(e->key);
       }
     }
-  }
-  
-  if(alias[0] == '\\' && (alias[1] == 0 || alias[1] == '[')) {
-    size_t count;
-    const struct pmath_named_char_t *all_names = pmath_get_char_names(&count);
     
-    String prefix = String("\\[");
-    for(size_t i = 0; i < count; ++i) {
-      String name = (prefix + all_names[i].name) + "]";
+    if(alias[0] == '\\' && (alias[1] == 0 || alias[1] == '[')) {
+      size_t count;
+      const struct pmath_named_char_t *all_names = pmath_get_char_names(&count);
       
-      if(name.starts_with(alias))
+      String prefix = String("\\[");
+      for(size_t i = 0; i < count; ++i) {
+        String name = (prefix + all_names[i].name) + "]";
+        
         Gather::emit(name);
+      }
     }
+    
+    expr = g.end();
   }
   
-  current_boxes_list = g.end();
-  current_boxes_list.sort();
+  expr = Application::interrupt_cached(
+           Call(
+             GetSymbol(AutoCompleteOtherSymbol),
+             expr,
+             alias),
+           Application::button_timeout);
+           
+  if(expr[0] != PMATH_SYMBOL_LIST || expr.expr_length() == 0)
+    return false;
+    
+  {
+    Gather g;
+    String alias_prefix = String::FromChar(PMATH_CHAR_ALIASDELIMITER);
+    alias = alias_prefix + alias;
+    
+    Hashtable<Expr, Void> used;
+    
+    for(size_t i = 1; i <= expr.expr_length(); ++i) {
+      Expr item = expr[i];
+      
+      if(!item.is_string())
+        continue;
+        
+      if(Expr *macro = global_immediate_macros.search(item)) {
+        if(!used.search(*macro)) {
+          used.set(*macro, Void());
+          Gather::emit(*macro);
+        }
+        continue;
+      }
+      
+      if(Expr *macro = global_macros.search(item)) {
+        if(!used.search(*macro)) {
+          used.set(*macro, Void());
+          Gather::emit(*macro);
+        }
+        continue;
+      }
+      
+      // todo: expand \[...] characters
+      
+      Gather::emit(alias_prefix + item);
+      
+    }
+    
+    expr = g.end();
+  }
+  
+  if(expr[0] != PMATH_SYMBOL_LIST || expr.expr_length() == 0)
+    return false;
+    
+  current_boxes_list = expr;
   
   SelectionReference first_char_range;
-  first_char_range.set(seq, alias_pos, alias_pos + 1); // normalizes the selection
+  first_char_range.set(seq, alias_pos, alias_pos/* + 1*/); // normalizes the selection
   
   if(first_char_range.id != seq->id()) { // should not happen?
-    first_char_range.set_raw(seq, alias_pos, alias_pos + 1);
+    first_char_range.set_raw(seq, alias_pos, alias_pos/* + 1*/);
   }
   
-  range = SelectionReference(first_char_range.id, first_char_range.end, alias_end);
+  pub->range = SelectionReference(first_char_range.id, first_char_range.end, alias_end);
   
-  if(alias == current_boxes_list[1]) {
-    if(direction == Forward)
-      current_index = 1;
-    else
-      current_index = current_boxes_list.expr_length() + 1;
-  }
-  else {
-    current_boxes_list.append(alias);
-    
-    if(direction == Forward)
-      current_index = 0;
-    else
-      current_index = current_boxes_list.expr_length();
-  }
+  add_completion_if_needed(alias, direction);
   
   return true;
 }
 
-bool AutoCompletion::start_filename(LogicalDirection direction) {
+bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
   MathSequence *seq = dynamic_cast<MathSequence *>(document->selection_box());
   if(!seq)
     return false;
@@ -247,7 +281,7 @@ bool AutoCompletion::start_filename(LogicalDirection direction) {
         return false;
         
       document->move_to(seq, seq->length(), false);
-      range = SelectionReference(seq->id(), 0, string_end);
+      pub->range = SelectionReference(seq->id(), 0, string_end);
       current_boxes_list = expr;
       
       if(str == current_boxes_list[1]) {
@@ -395,28 +429,15 @@ bool AutoCompletion::start_filename(LogicalDirection direction) {
   str = seq->raw_substring(string_start, string_end - string_start);
   
   document->move_to(seq, string_end, false);
-  range = SelectionReference(seq->id(), string_start, string_end);
+  pub->range = SelectionReference(seq->id(), string_start, string_end);
   current_boxes_list = expr;
   
-  if(str == current_boxes_list[1]) {
-    if(direction == Forward)
-      current_index = 1;
-    else
-      current_index = current_boxes_list.expr_length() + 1;
-  }
-  else {
-    current_boxes_list.append(str);
-    
-    if(direction == Forward)
-      current_index = 0;
-    else
-      current_index = current_boxes_list.expr_length();
-  }
+  add_completion_if_needed(str, direction);
   
   return true;
 }
 
-bool AutoCompletion::start_symbol(LogicalDirection direction) {
+bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
   MathSequence *seq = dynamic_cast<MathSequence *>(document->selection_box());
   if(!seq)
     return false;
@@ -434,11 +455,11 @@ bool AutoCompletion::start_symbol(LogicalDirection direction) {
   
   String text = span->as_text();
   current_boxes_list = Application::interrupt_cached(
-                   Call(
-                     GetSymbol(AutoCompleteNameSymbol),
-                     text),
-                   Application::button_timeout);
-                   
+                         Call(
+                           GetSymbol(AutoCompleteNameSymbol),
+                           text),
+                         Application::button_timeout);
+                         
   if(current_boxes_list[0] != PMATH_SYMBOL_LIST || current_boxes_list.expr_length() == 0) {
     current_boxes_list = Expr();
     delete span;
@@ -446,27 +467,67 @@ bool AutoCompletion::start_symbol(LogicalDirection direction) {
   }
   
   document->move_to(span->sequence(), span->end() + 1, false);
-  range = SelectionReference(span->sequence()->id(), span->start(), span->end() + 1);
+  pub->range = SelectionReference(span->sequence()->id(), span->start(), span->end() + 1);
   
   //pmath_debug_print_object("[completions: ", current_boxes_list.get(), "]\n");
   
-  if(text == current_boxes_list[1]) {
+  add_completion_if_needed(text, direction);
+  
+  delete span;
+  return true;
+}
+
+void AutoCompletion::Private::add_completion_if_needed(const Expr &input, LogicalDirection direction) {
+  if(input == current_boxes_list[1]) {
     if(direction == Forward)
       current_index = 1;
     else
       current_index = current_boxes_list.expr_length() + 1;
   }
   else {
-    current_boxes_list.append(text);
+    current_boxes_list.append(input);
     
     if(direction == Forward)
       current_index = 0;
     else
       current_index = current_boxes_list.expr_length();
   }
+}
+
+//} ... class AutoCompletion::Private
+
+//{ class AutoCompletion ...
+
+AutoCompletion::AutoCompletion(Document *_document)
+  : priv(new AutoCompletion::Private(this, _document))
+{
+}
+
+AutoCompletion::~AutoCompletion() {
+  delete priv;
+}
+
+bool AutoCompletion::next(LogicalDirection direction) {
+  if(!range.id) {
+    Box *selbox = priv->document->selection_box();
+    if(!selbox || !selbox->get_style(Editable))
+      return false;
+      
+    if(priv->start_alias(direction))
+      return priv->continue_completion(direction);
+      
+    if(priv->start_filename(direction))
+      return priv->continue_completion(direction);
+      
+    if(priv->start_symbol(direction))
+      return priv->continue_completion(direction);
+  }
   
-  delete span;
-  return true;
+  return priv->continue_completion(direction);
+}
+
+void AutoCompletion::stop() {
+  range.reset();
 }
 
 //} ... class AutoCompletion

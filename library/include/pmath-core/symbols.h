@@ -32,110 +32,135 @@ typedef pmath_t pmath_symbol_t;
 
 /**\brief The (bitset) type of symbol attributes.
 
-   A pMath symbol (here called `sym`) can have one or more of the following
-   values (concatenated with "|"):
-   <ul>
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_PROTECTED \n
-       Any assignment to sym will fail.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST \n
-       When evaluating `sym(a,b,...)`, the first argument (a) will not be
-       evaluated automatically.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_HOLDREST \n
-       When evaluating `sym(a,b,...)` all the arguments b,... will not be
-       evaluated automatically.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_HOLDALL \n
-       combines HOLDFIRST and HOLDREST.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC \n
-       An expression `sym(a,b,...)` will be sorted automatically and thus
-       sym(a,b) = sym(b,a).
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE \n
-       An expression `sym(...,sym(a,...,z),...)` will be flattened automatically
-       to sym(...,a,...,z,...).
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST \n
-       The first argument (a) of `sym(a,b,...)` will not be affected by
-       Approximate(sym(a,b,...)).
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_NHOLDREST \n
-       All the argument `b,...` in `sym(a,b,...)` will not be affected by
-       Approximate(sym(a,b,...)).
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_NHOLDALL \n
-       combines NHOLDFIRST and NHOLDREST.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_TEMPORARY \n
-       The symbol sym will be deleted immediately when it is no longer
-       referenced. It will be freed automatically (but not immediately), when
-       there is no external reference to the symbol (just the symbol's own
-       function definitions/...).
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_LISTABLE \n
-       Any expression sym(...) will be threaded automatically over lists.
-       (e.g. {a,b} + {c,d} becomes {a+c, b+d}).
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL The arguments `a,...` in an
-       expression `sym(...)(a,...)` will not be evaluated automatically.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE \n
-       Like HOLDALL, but in an expression `sym(a,b,...)` all arguments
-       (a,b,...) wont be touched even if they have the form `eval(...)`.
-       Additionally, rules for sym defined in one of its arguments
-       (e.g. `a: sym(a):= "hi"`) wont be used.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY \n
-       Used for pattern matching (in combination with ASSOCIATIVE) to say that
-       `sym(x)` matches x. Note that it does not automatically evaluate `sym(x)`
-       to x.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL \n
-       The symbol's value is local to the current thread. That means, an
-       assignment to sym in one thread wont affect it in another thread.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION \n
-       `sym(x,...)` is numeric if all the arguments are numeric.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_READPROTECTED
-       `??sym` wont print out the value/function definitions for sym.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD
-       Sequence(...) wont be sliced when it appears as an argument to `sym(...)`
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_REMOVED
-       The symbol was removed, but there are pending references to it.
-
-     <li> \c PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION
-       `sym(ConditionalExpression(arg, cond))` becomes
-       `ConditionalExpression(sym(arg), cond)`
-
-   </ul>
+   A pMath symbol `sym` can have one or more of the 
+   \ref PMATH_SYMBOL_ATTRIBUTE_XXX attribute values (concatenated with "|").
  */
 typedef int pmath_symbol_attributes_t;
+
+/**\anchor PMATH_SYMBOL_ATTRIBUTE_XXX
+   \see pmath_symbol_attributes_t
+ */
 enum {
-  PMATH_SYMBOL_ATTRIBUTE_PROTECTED             = 1 << 0,
-  PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST             = 1 << 1,
-  PMATH_SYMBOL_ATTRIBUTE_HOLDREST              = 1 << 2,
-  PMATH_SYMBOL_ATTRIBUTE_HOLDALL               = PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST | PMATH_SYMBOL_ATTRIBUTE_HOLDREST,
-  PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC             = 1 << 3,
-  PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE           = 1 << 4,
-  PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST            = 1 << 5,
-  PMATH_SYMBOL_ATTRIBUTE_NHOLDREST             = 1 << 6,
-  PMATH_SYMBOL_ATTRIBUTE_NHOLDALL              = PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST | PMATH_SYMBOL_ATTRIBUTE_NHOLDREST,
-  PMATH_SYMBOL_ATTRIBUTE_TEMPORARY             = 1 << 7,
-  PMATH_SYMBOL_ATTRIBUTE_LISTABLE              = 1 << 8,
-  PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL           = 1 << 9,
-  PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE       = 1 << 10,
-  PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY           = 1 << 11,
-  PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL           = 1 << 12,
-  PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION       = 1 << 13,
-  PMATH_SYMBOL_ATTRIBUTE_READPROTECTED         = 1 << 14,
-  PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD          = 1 << 15,
-  PMATH_SYMBOL_ATTRIBUTE_REMOVED               = 1 << 16,
-  PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION      = 1 << 17
+  /**\hideinitializer
+     Any assignment to `sym` will fail.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_PROTECTED = 1 << 0,
+  
+  /**\hideinitializer
+     When evaluating `sym(a,b,...)`, the first argument (a) will not be 
+     evaluated automatically.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST = 1 << 1,
+  
+  /**\hideinitializer
+     When evaluating `sym(a,b,...)` all the arguments b,... will not be 
+     evaluated automatically.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_HOLDREST = 1 << 2,
+  
+  /**\hideinitializer
+     Combines [HOLDFIRST](@ref PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) and 
+     [HOLDREST](@ref PMATH_SYMBOL_ATTRIBUTE_HOLDREST).
+   */
+  PMATH_SYMBOL_ATTRIBUTE_HOLDALL = PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST | PMATH_SYMBOL_ATTRIBUTE_HOLDREST,
+  
+  /**\hideinitializer
+     An expression `sym(a,b,...)` will be sorted automatically and thus
+     `sym(a,b) = sym(b,a)`.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC = 1 << 3,
+  
+  /**\hideinitializer
+     An expression `sym(...,sym(a,...,z),...)` will be flattened automatically
+     to `sym(...,a,...,z,...)`.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE = 1 << 4,
+  
+  /**\hideinitializer
+     The first argument (a) of `sym(a,b,...)` will not be affected by
+     `Approximate(sym(a,b,...))`.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST = 1 << 5,
+  
+  /**\hideinitializer
+     All the arguments b,... in `sym(a,b,...)` will not be affected by
+     `Approximate(sym(a,b,...))`.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_NHOLDREST = 1 << 6,
+  
+  /**\hideinitializer
+     Combines [NHOLDFIRST](@ref PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST) and 
+     [NHOLDREST](@ref PMATH_SYMBOL_ATTRIBUTE_NHOLDREST).
+   */
+  PMATH_SYMBOL_ATTRIBUTE_NHOLDALL = PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST | PMATH_SYMBOL_ATTRIBUTE_NHOLDREST,
+  
+  /**\hideinitializer
+     The symbol `sym` will be deleted immediately when its reference count drops
+     to zero. It will be freed automatically (but not immediately), when
+     there is no external reference to the symbol and just the symbol's own
+     function definitions/...).
+   */
+  PMATH_SYMBOL_ATTRIBUTE_TEMPORARY = 1 << 7,
+  
+  /**\hideinitializer
+     Any expression `sym(...)` will be threaded automatically over lists.
+     (e.g. {a,b} + {c,d} becomes {a+c, b+d}).
+   */
+  PMATH_SYMBOL_ATTRIBUTE_LISTABLE = 1 << 8,
+  
+  /**\hideinitializer
+     The arguments `a,...` in an expression `sym(...)(a,...)` will not be 
+     evaluated automatically.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL = 1 << 9,
+  
+  /**\hideinitializer
+     Like [HOLDALL](@ref PMATH_SYMBOL_ATTRIBUTE_HOLDALL), but in an expression 
+     `sym(a,b,...)` all arguments (a,b,...) wont be touched even if they have 
+     the form `Evaluate(...)`. Additionally, rules for `sym` defined in one of 
+     its arguments (e.g. `a/: sym(a):= "hi"`) wont be used.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE = 1 << 10,
+  
+  /**\hideinitializer
+     Used for pattern matching (in combination with 
+     [ASSOCIATIVE](@ref PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE)) to say that 
+     `sym(x)` matches `x`. Note that it does not automatically evaluate `sym(x)`
+     to `x`.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY = 1 << 11,
+  
+  /**\hideinitializer
+     The symbol's value is local to the current thread. That means, an 
+     assignment to `sym` in one thread wont affect it in another thread.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL = 1 << 12,
+  
+  /**\hideinitializer
+     Treat `sym(x,...)` as numeric if all the arguments are numeric.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION = 1 << 13,
+  
+  /**\hideinitializer
+     `??sym` wont print out the value/function definitions for `sym`.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_READPROTECTED = 1 << 14,
+  
+  /**\hideinitializer
+     `Sequence(...)` wont be sliced when it appears as an argument to `sym(...)`
+   */
+  PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD = 1 << 15,
+  
+  /**\hideinitializer
+     The symbol was removed, but there are pending references to it.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_REMOVED = 1 << 16,
+  
+  /**\hideinitializer
+     Let `sym(ConditionalExpression(arg, cond))` evaluate to 
+     `ConditionalExpression(sym(arg), cond)`.
+   */
+  PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION = 1 << 17
 };
 
 /**\brief Get a symbol by its fully qualified name.
@@ -158,14 +183,15 @@ pmath_symbol_t pmath_symbol_get(
    \return A new pMath Symbol. You must destroy it with pmath_unref().
            It has the Temporary attribute.
 
-           the name of the returned symbol is of the form name$nnn (or name$ if
-           unique is false)
+           the name of the returned symbol is of the form `name$nnn` (or `name$`
+           if \a unique is false)
 
-           If name already has the form "sym$nnn" or "sym$", the function acts
-           as if name would be simply "sym".
+           If \a name already has the form `sym$nnn` or `sym$`, the function 
+           acts as if \a name would be simply `sym`.
 
            If there already exists a symbol with the generated name, that symbol
-           will be returned and its attributes will be set to Temporary before.
+           will be returned and its attributes will be set to 
+           [Temporary](@ref PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) before.
   */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
@@ -177,7 +203,7 @@ pmath_symbol_t pmath_symbol_create_temporary(
    \memberof pmath_symbol_t
    \param name The symbol's name. It will be freed.
    \param create Whether to create a new symbol, if none was found.
-   \return PMATH_NULL or a symbol called \c name that must be destroyed with
+   \return PMATH_NULL or a symbol called \a name that must be destroyed with
            pmath_unref().
  */
 PMATH_API
@@ -261,8 +287,8 @@ void pmath_symbol_synchronized(
 
    You normally do not have to call this, since every change in a symbol yields
    an update. But there are some situations where you might to update it
-   manually. The update mechanism is an optimization. Any expresseion or symbol,
-   that is up to date while evaluation, wont be evaluated again. After an
+   manually. The update mechanism is an optimization. Any expression or symbol
+   that is up to date while evaluation wont be evaluated again. After an
    evaluation, expressions are updated automatically.
  */
 PMATH_API
@@ -295,16 +321,15 @@ void pmath_symbol_remove(pmath_symbol_t symbol);
    \return The next symbol.
 
    To actually iterate through the whole list, use the following pattern:
-   \code
-pmath_symbol_t iter = pmath_ref(PMATH_SYMBOL_LIST);
-do{
-
-  ... loop body here ...
-
-  iter = pmath_symbol_iter_next(iter);
-}while(iter && !pmath_same(iter, PMATH_SYMBOL_LIST));
-pmath_unref(iter);
-   \endcode
+   
+       pmath_symbol_t iter = pmath_ref(PMATH_SYMBOL_LIST);
+       do{
+       
+         ... loop body here ...
+       
+         iter = pmath_symbol_iter_next(iter);
+       }while(iter && !pmath_same(iter, PMATH_SYMBOL_LIST));
+       pmath_unref(iter);
  */
 PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old);
 

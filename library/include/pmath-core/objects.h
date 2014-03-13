@@ -33,25 +33,18 @@
 
   I assume same endianness for double and integer.
  */
-
-/**\internal */
-#define PMATH_TAGMASK_BITCOUNT   12           /* |||||||| |||| */
-/**\internal */
-#define PMATH_TAGMASK_NONDOUBLE  0x7FF00000U  /* 01111111_11110000_00000000_00000000 0...0 : ieee double NaN or Inf */
-/**\internal */
-#define PMATH_TAGMASK_POINTER    0xFFF00000U  /* 11111111_11110000_00000000_00000000 0...0 */
-/**\internal */
-#define PMATH_TAG_INVALID        (PMATH_TAGMASK_NONDOUBLE | 0xFFFFF)
-/**\internal */
-#define PMATH_TAG_MAGIC          (PMATH_TAGMASK_NONDOUBLE | 0x10000)
-/**\internal */
-#define PMATH_TAG_INT32          (PMATH_TAGMASK_NONDOUBLE | 0x20000)
-/**\internal */
-#define PMATH_TAG_STR0           (PMATH_TAGMASK_NONDOUBLE | 0x30000)
-/**\internal */
-#define PMATH_TAG_STR1           (PMATH_TAGMASK_NONDOUBLE | 0x40000)
-/**\internal */
-#define PMATH_TAG_STR2           (PMATH_TAGMASK_NONDOUBLE | 0x50000)
+ 
+#ifndef PMATH_DOXYGEN
+#  define PMATH_TAGMASK_BITCOUNT   12           /* |||||||| |||| */
+#  define PMATH_TAGMASK_NONDOUBLE  0x7FF00000U  /* 01111111_11110000_00000000_00000000 0...0 : ieee double NaN or Inf */
+#  define PMATH_TAGMASK_POINTER    0xFFF00000U  /* 11111111_11110000_00000000_00000000 0...0 */
+#  define PMATH_TAG_INVALID        (PMATH_TAGMASK_NONDOUBLE | 0xFFFFF)
+#  define PMATH_TAG_MAGIC          (PMATH_TAGMASK_NONDOUBLE | 0x10000)
+#  define PMATH_TAG_INT32          (PMATH_TAGMASK_NONDOUBLE | 0x20000)
+#  define PMATH_TAG_STR0           (PMATH_TAGMASK_NONDOUBLE | 0x30000)
+#  define PMATH_TAG_STR1           (PMATH_TAGMASK_NONDOUBLE | 0x40000)
+#  define PMATH_TAG_STR2           (PMATH_TAGMASK_NONDOUBLE | 0x50000)
+#endif // PMATH_DOXYGEN
 
 /**\class pmath_t
    \brief The basic type of all pMath objects.
@@ -68,36 +61,39 @@
    http://blog.mozilla.com/rob-sayre/2010/08/02/mozillas-new-javascript-value-representation
  */
 typedef union pmath_t {
-  uint64_t as_bits;                        ///< \internal
-  double   as_double;                      ///< \internal
+/**\privatesection
+ */
+
+  uint64_t as_bits;
+  double   as_double;
   
 #if PMATH_BITSIZE == 64
-  struct _pmath_t *as_pointer_64;          ///< \internal
+  struct _pmath_t *as_pointer_64;
 #endif
   
   struct {
 #if PMATH_BYTE_ORDER < 0 // little endian 
     union {
-      int32_t  as_int32;                   ///< \internal
-      uint16_t as_chars[2];                ///< \internal
+      int32_t  as_int32;
+      uint16_t as_chars[2];
 #if PMATH_BITSIZE == 32
-      struct _pmath_t *as_pointer_32;      ///< \internal
+      struct _pmath_t *as_pointer_32;
 #endif
     } u;
-    uint32_t  tag;                         ///< \internal
+    uint32_t  tag;
 #endif
-
+    
 #if PMATH_BYTE_ORDER > 0 // big endian:
-    uint32_t  tag;                         ///< \internal
+    uint32_t  tag;
     union {
-      int32_t  as_int32;                   ///< \internal
-      uint16_t as_chars[2];                ///< \internal
+      int32_t  as_int32;
+      uint16_t as_chars[2];
 #if PMATH_BITSIZE == 32
-      struct _pmath_t *as_pointer_32;      ///< \internal
+      struct _pmath_t *as_pointer_32;
 #endif
-    } u;                                   ///< \internal
+    } u;
 #endif
-  } s;                                     ///< \internal
+  } s;
 } pmath_t;
 
 PMATH_FORCE_INLINE
@@ -126,13 +122,13 @@ pmath_t PMATH_FROM_PTR(void *p) {
   pmath_t r;
   
 #if PMATH_BITSIZE == 64
-  r.as_pointer_64 = (struct _pmath_t*)p;
+  r.as_pointer_64 = (struct _pmath_t *)p;
   r.s.tag |= PMATH_TAGMASK_POINTER;
 #elif PMATH_BITSIZE == 32
   r.s.tag = PMATH_TAGMASK_POINTER;
-  r.s.u.as_pointer_32 = (struct _pmath_t*)p;
+  r.s.u.as_pointer_32 = (struct _pmath_t *)p;
 #endif
-
+  
   return r;
 }
 
@@ -140,11 +136,10 @@ pmath_t PMATH_FROM_PTR(void *p) {
 #define PMATH_THREAD_KEY_PARSERARGUMENTS  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 253)
 #define PMATH_ABORT_EXCEPTION             PMATH_FROM_TAG(PMATH_TAG_MAGIC, 254)
 
-/**\internal */
-#define PMATH_STATIC_UNDEFINED            { (((uint64_t)PMATH_TAG_MAGIC) << 32) | 255 }
-
-/**\internal */
-#define PMATH_STATIC_NULL                 { ((uint64_t)PMATH_TAGMASK_POINTER) << 32 }
+#ifndef PMATH_DOXYGEN
+#  define PMATH_STATIC_UNDEFINED            { (((uint64_t)PMATH_TAG_MAGIC) << 32) | 255 }
+#  define PMATH_STATIC_NULL                 { ((uint64_t)PMATH_TAGMASK_POINTER) << 32 }
+#endif // PMATH_DOXYGEN
 
 /**\brief Magic value to indicate unset variable values/...
    \hideinitializer
@@ -159,33 +154,16 @@ PMATH_UNUSED
 static const pmath_t PMATH_NULL      = PMATH_STATIC_NULL;
 
 
-/**\brief The type or class of a pMath object.
+/**\brief The type or class of a non-inlined pMath object.
 
-   This is a bitset of the \c PMATH_TYPE_XXX constants:
-
-   - \c PMATH_TYPE_MP_FLOAT: The object is a floating point number with
-     arbitrary precision. You can cast it to \ref pmath_float_t and
-     pmath_number_t.
-
-   - \c PMATH_TYPE_INTEGER: The object is an integer value. You can cast it
-     to \ref pmath_integer_t, \ref pmath_rational_t and \ref pmath_number_t.
-
-   - \c PMATH_TYPE_QUOTIENT: The object is a reduced quotient of two
-     integer values, where the denominator is never 0 or 1. You can cast
-     quotient objects to pmath_rational_t and thus to pmath_number_t too.
-
-   - \c PMATH_TYPE_BIGSTRING: The object is a string. You can cast it to
-     \ref pmath_string_t.
-
-   - \c PMATH_TYPE_SYMBOL: The object is a symbol. You can cast it to
-     \ref pmath_symbol_t.
-
-   - \c PMATH_TYPE_CUSTOM: The object is a custom object. You can cast it to
-     \ref pmath_custom_t.
+   This is a bitset of the \ref PMATH_TYPE_XXX constants. Note that inlined pMath
+   objects (double, int32_t, short strings) have not type code. 
+   
+   \see pmath_is_pointer_of
  */
 typedef int pmath_type_t;
 
-/**\internal */
+#ifndef PMATH_DOXYGEN
 enum {
   PMATH_TYPE_SHIFT_MP_FLOAT = 0,
   PMATH_TYPE_SHIFT_MP_INT,
@@ -201,50 +179,104 @@ enum {
   
   PMATH_TYPE_SHIFT_COUNT
 };
+#endif
 
-/**\hideinitializer */
+/**\anchor PMATH_TYPE_XXX
+   \see pmath_type_t
+ */
 enum {
+  /**\hideinitializer
+     A pmath_integer_t that is not not fit into \c int32_t.
+   */
   PMATH_TYPE_MP_INT                  = 1 << PMATH_TYPE_SHIFT_MP_INT,
+  
+  /**\hideinitializer
+     A pmath_quotient_t.
+   */
   PMATH_TYPE_QUOTIENT                = 1 << PMATH_TYPE_SHIFT_QUOTIENT,
+  
+  /**\hideinitializer
+     A multi-precision pmath_float_t.
+   */
   PMATH_TYPE_MP_FLOAT                = 1 << PMATH_TYPE_SHIFT_MP_FLOAT,
+  
+  /**\hideinitializer
+     A pmath_string_t that is not inlined.
+   */
   PMATH_TYPE_BIGSTRING               = 1 << PMATH_TYPE_SHIFT_BIGSTRING,
+  
+  /**\hideinitializer
+     A pmath_symbol_t.
+   */
   PMATH_TYPE_SYMBOL                  = 1 << PMATH_TYPE_SHIFT_SYMBOL,
+  
+  /**\hideinitializer
+     A general pmath_expr_t that is not one of the special representations.
+   */
   PMATH_TYPE_EXPRESSION_GENERAL      = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL,
+  
+  /**\hideinitializer
+     A part of another pmath_expr_t.
+   */
   PMATH_TYPE_EXPRESSION_GENERAL_PART = 1 << PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART,
+  
+  /**\hideinitializer
+     A pmath_packed_array_t.
+   */
   PMATH_TYPE_PACKED_ARRAY            = 1 << PMATH_TYPE_SHIFT_PACKED_ARRAY,
+  
+  /** Any pmath_expr_t.
+   */
   PMATH_TYPE_EXPRESSION              = PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART | PMATH_TYPE_PACKED_ARRAY,
+  
+  /**\hideinitializer
+     A pmath_custom_t.
+   */
   PMATH_TYPE_CUSTOM                  = 1 << PMATH_TYPE_SHIFT_CUSTOM,
+  
+  /**\hideinitializer
+     A pmath_blob_t.
+   */
   PMATH_TYPE_BLOB                    = 1 << PMATH_TYPE_SHIFT_BLOB
 };
 
 
 /**\brief Options for pmath_write().
 
-   These options can be one or more of the following:
-   - PMATH_WRITE_OPTIONS_FULLEXPR All expressions are written in the form
-     f(a, b, ...) without any syntactic sugar.
-     Supersedes PMATH_WRITE_OPTIONS_INPUTEXPR.
-
-   - PMATH_WRITE_OPTIONS_FULLSTR Strings are written with quotes and escape
-     sequences.
-
-   - PMATH_WRITE_OPTIONS_FULLNAME Names are written with their full namespace
-     path.
-
-   - PMATH_WRITE_OPTIONS_INPUTEXPR Expressions are written in a
-     form that is valid pMath input.
-     Note that this does not automatically imply PMATH_WRITE_OPTIONS_FULLSTR.
-   
-   - PMATH_WRITE_OPTIONS_PACKEDARRAYFORM Packed Arrays are written in the form
-     "PackedArray"(type, <<dimensions>>) instead of nested lists.
+   These options can be one or more of the \ref PMATH_WRITE_OPTIONS_XXX flags.
  */
-
 typedef int pmath_write_options_t;
+
+/**\anchor PMATH_WRITE_OPTIONS_XXX
+   \see pmath_write_options_t
+ */
 enum {
+  /**\hideinitializer
+     All expressions are written in the form `f(a, b, ...)` without any syntactic 
+     sugar. Supersedes PMATH_WRITE_OPTIONS_INPUTEXPR.
+   */
   PMATH_WRITE_OPTIONS_FULLEXPR        = 1 << 0,
+  
+  /**\hideinitializer
+     Strings are written with quotes and escape sequences.
+   */
   PMATH_WRITE_OPTIONS_FULLSTR         = 1 << 1,
+  
+  /**\hideinitializer
+     Names are written with their full namespace path.
+   */
   PMATH_WRITE_OPTIONS_FULLNAME        = 1 << 2,
+  
+  /**\hideinitializer
+     Expressions are written in a form that is valid pMath input, except that 
+     this does not automatically imply PMATH_WRITE_OPTIONS_FULLSTR.
+   */
   PMATH_WRITE_OPTIONS_INPUTEXPR       = 1 << 3,
+  
+  /**\hideinitializer
+     Packed Arrays are written in the form 
+     `"PackedArray"(type, \<\<dimensions\>\>)` instead of nested lists.
+   */
   PMATH_WRITE_OPTIONS_PACKEDARRAYFORM = 1 << 4
 };
 
@@ -260,7 +292,7 @@ typedef void (*pmath_proc_t)(pmath_t);
    It depends on the context whether the (second) argument is destroyed by the
    procedure or not.
  */
-typedef void (*pmath_param_proc_t)(void*, pmath_t);
+typedef void (*pmath_param_proc_t)(void *, pmath_t);
 
 /**\brief A simple function operating on an object and returning one.
 
@@ -292,17 +324,38 @@ typedef pmath_bool_t (*pmath_equal_func_t)(pmath_t, pmath_t);
 typedef int (*pmath_compare_func_t)(pmath_t, pmath_t);
 
 /**\brief Command structure for pmath_write_ex().
+
    This should be inistialized with
    <tt>memset(&ex, 0, sizeof(ex)); ex.size = sizeof(ex); ... </tt>
  */
 struct pmath_write_ex_t {
-  size_t                  size;                                              ///< must be initialized with sizeof(struct pmath_write_ex_t), for version control
-  pmath_write_options_t   options;
-  void                  (*write)(void *user, const uint16_t *data, int len); ///< mandatory, write callback
-  void                   *user;                                              ///< first parameter of the callbacks
+  /**\brief The structure's size in bytes.
+     This must be initialized with sizeof(struct pmath_write_ex_t), for version 
+     control.
+   */
+  size_t size;
   
-  void (*pre_write)( void *user, pmath_t obj, pmath_write_options_t options);  ///< optional, called before the pmath_t is written
-  void (*post_write)(void *user, pmath_t obj, pmath_write_options_t options);  ///< optional, called after the pmath_t is written
+  /**\brief The output options.
+   */
+  pmath_write_options_t   options;
+  
+  /**\brief Write callback.
+     
+     This is mandatory.
+   */
+  void (*write)(void *user, const uint16_t *data, int len);
+  
+  /**\brief First parameter of the callbacks
+   */
+  void *user;
+  
+  /**\brief Optional, called before an object is written.
+   */
+  void (*pre_write)( void *user, pmath_t obj, pmath_write_options_t options);
+  
+  /**\brief Optional, called after an object is written.
+   */
+  void (*post_write)(void *user, pmath_t obj, pmath_write_options_t options);
 };
 
 /*============================================================================*/
@@ -374,11 +427,11 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_evaluated(pmath_t obj);
 
-/**\brief Get the byte count of an object 
+/**\brief Get the byte count of an object
    \memberof pmath_t
    \param obj The object. It wont be freed
    \return An estimate for the memory usage of this object. Symbols count as 0.
-           Any elements that reference to the same object are treated as 
+           Any elements that reference to the same object are treated as
            distinct.
  */
 PMATH_API
@@ -387,7 +440,7 @@ size_t pmath_object_bytecount(pmath_t obj); // implemented in bytecount.c
 /**\brief Get debug information for an object.
    \memberof pmath_t
    \param obj A pMath object. It wont be freed.
-   \return The debug information for the object or PMATH_NULL. You have to 
+   \return The debug information for the object or PMATH_NULL. You have to
            destroy it when it is no longer used.
  */
 PMATH_API
@@ -397,17 +450,17 @@ pmath_t pmath_get_debug_info(pmath_t obj);
 /**\brief Set debug information for an object.
    \memberof pmath_t
    \param obj        A pMath object. It will be freed.
-   \param debug_info A pMath object. It will be freed. 
+   \param debug_info A pMath object. It will be freed.
    \return A copy of \a obj with changed debug information.
-   
-   \note Not all object types can store debug all kind of information. When 
-   storing is not possible, this function is a no-op. \a debug_info hould 
+
+   \note Not all object types can store debug all kind of information. When
+   storing is not possible, this function is a no-op. \a debug_info hould
    satisfy pmath_is_pointer()
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_try_set_debug_info(pmath_t obj, pmath_t debug_info);
-  
+
 
 /** @} */
 

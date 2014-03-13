@@ -165,7 +165,9 @@ struct scanner_t {
   int              pos;
   uintptr_t       *span_items;
   
-  pmath_bool_t in_comment;
+  int comment_level;
+  
+  //pmath_bool_t in_comment;
   pmath_bool_t in_string;
   pmath_bool_t have_error;
 };
@@ -240,7 +242,7 @@ HAVE_MULTIPLE_TOKENS: ;
 }
 
 static void handle_error(struct parser_t *parser) {
-  if(/*parser->tokens.have_error || */ parser->tokens.in_comment)
+  if(/*parser->tokens.have_error || */ parser->tokens.comment_level > 0)
     return;
     
   parser->tokens.have_error = TRUE;
@@ -251,7 +253,7 @@ static void handle_error(struct parser_t *parser) {
 static void handle_newline_multiplication(struct parser_t *parser) {
   int i;
   
-  if(!parser->error || parser->tokens.in_comment)
+  if(!parser->error || parser->tokens.comment_level > 0)
     return;
     
   i = parser->tokens.pos - 1;
@@ -437,7 +439,7 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
     }
     
     if( parser->tokens.pos + 1 < parser->tokens.len       &&
-        !parser->tokens.in_comment                        &&
+        //!parser->tokens.in_comment                        &&
         parser->tokens.str[parser->tokens.pos]     == '/' &&
         parser->tokens.str[parser->tokens.pos + 1] == '*')
     {
@@ -447,7 +449,7 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       int start = parser->tokens.pos;
       
       skip_to(parser, -1, next_token_pos(parser), FALSE);
-      parser->tokens.in_comment = TRUE;
+      parser->tokens.comment_level++;
       ++parser->fencelevel;
       while(parser->tokens.pos < parser->tokens.len) {
         int tmp;
@@ -468,7 +470,7 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       
       span(&parser->tokens, start);
       --parser->fencelevel;
-      parser->tokens.in_comment = FALSE;
+      parser->tokens.comment_level--;
       
       parser->last_was_newline = last_was_newline;
       parser->last_space_start = last_space_start;
@@ -482,21 +484,21 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
         break;
         
       if(!parser->tokenizing) {
-        int          old_pos        = parser->tokens.pos;
-        pmath_bool_t old_in_comment = parser->tokens.in_comment;
-        pmath_bool_t old_in_string  = parser->tokens.in_string;
+        int          old_pos           = parser->tokens.pos;
+        int          old_comment_level = parser->tokens.comment_level;
+        pmath_bool_t old_in_string     = parser->tokens.in_string;
         
-        parser->stack_error = FALSE;
+        parser->stack_error       = FALSE;
         parser->tokens.have_error = FALSE;
-        parser->tokenizing = TRUE;
+        parser->tokenizing        = TRUE;
         
         while(parser->tokens.pos < parser->tokens.len)
           scan_next(&parser->tokens, parser);
           
-        parser->tokens.pos        = old_pos;
-        parser->tokens.in_comment = old_in_comment;
-        parser->tokens.in_string  = old_in_string;
-        parser->tokenizing = FALSE;
+        parser->tokens.pos           = old_pos;
+        parser->tokens.comment_level = old_comment_level;
+        parser->tokens.in_string     = old_in_string;
+        parser->tokenizing           = FALSE;
       }
     }
     else break;
@@ -557,7 +559,7 @@ START:
   
   tokens->pos = endpos;
   
-  if(parser && !tokens->in_comment)
+  if(parser && tokens->comment_level == 0)
     handle_error(parser);
     
   return PMATH_TOK_NONE;
@@ -632,11 +634,11 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
           if(tokens->str[tokens->pos] == '*') {
             ++tokens->pos;
             
-            if( tokens->in_comment        &&
+            if( tokens->comment_level > 0  &&
                 tokens->pos < tokens->len &&
                 tokens->str[tokens->pos] == '/') // ***/   ===   ** */
             {
-              tokens->in_comment = 0;
+              tokens->comment_level--;
               if(tokens->span_items)
                 tokens->span_items[tokens->pos - 2] = 1;
               ++tokens->pos;
@@ -646,10 +648,10 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
             break; // ***
           }
           
-          if( tokens->in_comment &&
+          if( tokens->comment_level > 0 &&
               tokens->str[tokens->pos] == '/') // **/   ===   * */
           {
-            tokens->in_comment = 0;
+            tokens->comment_level--;
             if(tokens->span_items)
               tokens->span_items[tokens->pos - 2] = 1;
             ++tokens->pos;
@@ -659,10 +661,10 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
           break; // **
         }
         
-        if( tokens->in_comment &&
+        if( tokens->comment_level > 0 &&
             tokens->str[tokens->pos] == '/') // */
         {
-          tokens->in_comment = 0;
+          tokens->comment_level--;
           ++tokens->pos;
           break;
         }
@@ -675,11 +677,11 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         if(tokens->pos == tokens->len)
           break;
           
-        if( !tokens->in_comment &&
+        if( //!tokens->in_comment &&
             !tokens->in_string &&
             tokens->str[tokens->pos] == '*') // /*
         {
-          tokens->in_comment = 1;
+          tokens->comment_level++;
           ++tokens->pos;
           break;
         }
@@ -1057,7 +1059,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   parser.error                       = error;
   parser.data                        = data;
   parser.tokens.span_items           = parser.spans->items;
-  parser.tokens.in_comment           = FALSE;
+  parser.tokens.comment_level        = 0;
   parser.tokens.in_string            = FALSE;
   parser.tokens.have_error           = FALSE;
   parser.stack_error                 = FALSE;
@@ -1072,7 +1074,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   while(parser.tokens.pos < parser.tokens.len)
     scan_next(&parser.tokens, &parser);
   parser.tokens.pos = 0;
-  parser.tokens.in_comment = FALSE;
+  parser.tokens.comment_level = 0;
   parser.tokens.in_string  = FALSE;
   parser.tokenizing = FALSE;
   
@@ -2231,7 +2233,7 @@ typedef struct {
   void                *data;
   pmath_bool_t         split_tokens;
   
-  pmath_bool_t         in_comment;
+  int comment_level;
 } _pmath_ungroup_t;
 
 static int ungrouped_string_length(pmath_t box) { // box wont be freed
@@ -2369,15 +2371,15 @@ static void ungroup(
     
     if(g->split_tokens) {
       memset(&tokens, 0, sizeof(tokens));
-      tokens.str        = g->str;
-      tokens.span_items = g->spans->items;
-      tokens.pos        = start;
-      tokens.len        = g->pos;
-      tokens.in_comment = g->in_comment;
+      tokens.str           = g->str;
+      tokens.span_items    = g->spans->items;
+      tokens.pos           = start;
+      tokens.len           = g->pos;
+      tokens.comment_level = g->comment_level;
       while(tokens.pos < tokens.len)
         scan_next(&tokens, NULL);
       
-      g->in_comment = tokens.in_comment;
+      g->comment_level = tokens.comment_level;
     }
     else {
       g->spans->items[start]      |= 2; // operand start
@@ -2396,7 +2398,7 @@ static void ungroup(
     {
       size_t i, len;
       int start = g->pos;
-      pmath_bool_t old_in_comment = g->in_comment;
+      int old_comment_level = g->comment_level;
       
       len = pmath_expr_length(box);
       
@@ -2429,7 +2431,7 @@ static void ungroup(
     AFTER_UNGROUP:
       g->spans->items[start] |= 2; // operand start
       
-      g->in_comment = old_in_comment;
+      g->comment_level = old_comment_level;
       
       if( len >= 1 &&
           start < g->pos &&
@@ -2568,12 +2570,12 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
     return NULL;
   }
   
-  g.str          = (uint16_t *)pmath_string_buffer(result_string);
-  g.pos          = 0;
-  g.make_box     = make_box;
-  g.data         = data;
-  g.split_tokens = TRUE;
-  g.in_comment   = FALSE;
+  g.str           = (uint16_t *)pmath_string_buffer(result_string);
+  g.pos           = 0;
+  g.make_box      = make_box;
+  g.data          = data;
+  g.split_tokens  = TRUE;
+  g.comment_level = 0;
   
   ungroup(&g, boxes);
   

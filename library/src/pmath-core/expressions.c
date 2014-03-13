@@ -908,7 +908,7 @@ PMATH_API pmath_expr_t pmath_expr_remove_all(
     return remove_all_fast(expr, rem);
     
   if(pmath_is_packed_array(expr)) {
-    enum pmath_packed_type_t element_type;
+    pmath_packed_type_t element_type;
     
     element_type = pmath_packed_array_get_element_type(expr);
     

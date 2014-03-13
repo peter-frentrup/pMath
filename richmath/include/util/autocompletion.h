@@ -11,24 +11,17 @@ namespace richmath {
   class AutoCompletion {
     public:
       AutoCompletion(Document *_document);
+      ~AutoCompletion();
       
       bool next(LogicalDirection direction);
       void stop();
     
-    protected:
-      bool continue_completion(LogicalDirection direction);
-      
-      bool start_alias(LogicalDirection direction);
-      bool start_filename(LogicalDirection direction);
-      bool start_symbol(LogicalDirection direction);
-    
-    protected:
-      Document *document;
-      Expr current_boxes_list;
-      int current_index;
-    
     public:
       SelectionReference range;
+    
+    private:
+      class Private;
+      Private *priv;
   };
 }
 

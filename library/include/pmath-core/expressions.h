@@ -7,7 +7,8 @@
    \brief Expression objects in pMath.
    
    Any pMath language-level expression (lists, terms, function calls, ...) is 
-   stored in a pmath_expr_t -- an array of pMath objects.
+   stored in a pmath_expr_t -- an array of pMath objects. One special case
+   of expressions are \ref packed_arrays.
    
    \see helpers
    @{

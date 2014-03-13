@@ -13,7 +13,7 @@ PMATH_PRIVATE pmath_t builtin_developer_topackedarray(pmath_expr_t expr) {
          specifying tolerance setting for conversion
  */
   pmath_t list;
-  enum pmath_packed_type_t expected_type = PMATH_PACKED_INT32;
+  pmath_packed_type_t expected_type = PMATH_PACKED_INT32;
   
   if(pmath_expr_length(expr) < 1 || pmath_expr_length(expr) > 2){
     pmath_message_argxxx(pmath_expr_length(expr), 1, 2);

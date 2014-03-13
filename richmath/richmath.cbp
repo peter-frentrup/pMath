@@ -178,7 +178,6 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-O2" />
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
@@ -195,7 +194,10 @@
 					<Add directory="$(#pango.include)" />
 				</Compiler>
 				<Linker>
+					<Add option="-s" />
 					<Add option="-static-libgcc" />
+					<Add option="-flto" />
+					<Add option="-O3" />
 					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />

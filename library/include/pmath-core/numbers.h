@@ -13,7 +13,7 @@
 
    Note that in might be more convinient to use pmath_build_value() than the
    specialized constructors represented here, because the former supports
-   Infinity and Undefined (NaN) values for C <tt>double</tt>s.
+   Infinity and Undefined (NaN) values for C `double`s.
 
    The GNU Multiple Precision Library (http://gmplib.org/) is used for
    integer and rational arithmetic and the MPFR library (http://www.mpfr.org/)
@@ -42,6 +42,8 @@ typedef pmath_t pmath_number_t;
 
    Because pmath_rational_t is derived from pmath_number_t, you can use pMath
    integers wherever a pmath_number_t is accepted.
+
+   Use pmath_is_rational() to check for rationals.
  */
 typedef pmath_number_t pmath_rational_t;
 
@@ -52,7 +54,7 @@ typedef pmath_number_t pmath_rational_t;
    Because pmath_integer_t is derived from pmath_rational_t, you can use pMath
    integers wherever a pmath_rational_t is accepted.
 
-   The \ref pmath_type_t of integers is \c PMATH_TYPE_INTEGER.
+   Use pmath_is_integer() to check for integers.
  */
 typedef pmath_rational_t pmath_integer_t;
 
@@ -65,7 +67,7 @@ typedef pmath_rational_t pmath_mpint_t;
    Because pmath_quotient_t is derived from pmath_rational_t, you can use pMath
    integers wherever a pmath_rational_t is accepted.
 
-   The \ref pmath_type_t of quotients is \c PMATH_TYPE_QUOTIENT.
+   Use pmath_is_quotient() to check for quotients.
  */
 typedef pmath_rational_t pmath_quotient_t;
 
@@ -76,7 +78,7 @@ typedef pmath_rational_t pmath_quotient_t;
    Because pmath_float_t is derived from pmath_number_t, you can use pMath
    integers wherever a pmath_number_t is accepted.
 
-   The \ref pmath_type_t of floats is \c PMATH_TYPE_FLOAT.
+   Use pmath_is_float() to check for floating point numbers.
 
    There are two hidden implementations of floating point numbers in pMath. One
    operates on \c double values. The other uses MPFR for multiple precision
@@ -175,7 +177,7 @@ pmath_integer_t pmath_integer_new_ui64(uint64_t ui);
    \param data The buffer to read from.
    \return A non-negative integer.
 
-   \see GMP's mpz_import()
+   \see GMPs mpz_import()
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
@@ -253,7 +255,7 @@ typedef enum {
    \relates pmath_float_t
    \param str A C-string representing the value in a given \a base. It should
           have the form "ddd.ddd" or simply "ddd". An exponent can be appended
-          with "ennn" or if \a base != 10 "@nnn".
+          with "ennn" or if \a base &ne; 10 with "@nnn".
    \param base The base between 2 and 36.
    \param precision_control flag for controling the precision.
    \param base_precision_accuracy given precision or accuracy. depending on the
@@ -262,40 +264,33 @@ typedef enum {
            integer 0 (see below when this happens).
 
    \remarks
-     \a precision_control may have one of the following values:
-      <ul>
-       <li> \c PMATH_PREC_CTRL_AUTO: \n
-         The precision is specified by the number of digits given in str. It may
-         result in a pMath machine float, mulit-precision float or integer. \n
-         The value of \a base_precision_accuracy will be ignored.
+    \a precision_control may have one of the following values:
+    - \c PMATH_PREC_CTRL_AUTO: \n
+      The precision is specified by the number of digits given in str. It may
+      result in a pMath machine float, mulit-precision float or integer. \n
+      The value of \a base_precision_accuracy will be ignored.
 
+    - \c PMATH_PREC_CTRL_MACHINE_PREC: \n
+      The result is a pMath machine float. \n
+      The value of \a base_precision_accuracy will be ignored.
 
-       <li> \c PMATH_PREC_CTRL_MACHINE_PREC: \n
-         The result is a pMath machine float. \n
-         The value of \a base_precision_accuracy will be ignored.
+    - \c PMATH_PREC_CTRL_GIVEN_PREC: \n
+      If the number's value is 0, the \em integer 0 will be returned. \n
+      The precision is given by \a base_precision_accuracy (interpreted in
+      the given base).
 
+    - \c PMATH_PREC_CTRL_GIVEN_ACC: \n
+      \a base_precision_accuracy specifies the accuracy (the number of known
+      \a base -digits after the point). The precision is calculated
+      appropriately.
 
-       <li> \c PMATH_PREC_CTRL_GIVEN_PREC: \n
-         If the number's value is 0, the \em integer 0 will be returned. \n
-         The precision is given by \a base_precision_accuracy (interpreted in
-         the given base).
+    For a multiprecision float `x &ne; 0` with absolute error `dx`, `accuracy` and 
+    `precision`  are:
 
+        accuracy  = -Log(base, dx)
+        precision = -Log(base, dx / Abs(x))
 
-       <li> \c PMATH_PREC_CTRL_GIVEN_ACC: \n
-         \a base_precision_accuracy specifies the accuracy (the number of known
-         \a base -digits after the point). The precision is calculated
-         appropriately.
-      </ul>
-
-     For a multiprecision float <tt> x != 0 </tt> with absolute error \c dx,
-     \c accuracy and \c precision  are:
-
-     \code
-accuracy  = -Log(base, dx)
-precision = -Log(base, dx / Abs(x))
-     \endcode
-
-     So <tt>precision = accuracy + Log(base, Abs(x))</tt>.
+    So `precision = accuracy + Log(base, Abs(x))`.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT

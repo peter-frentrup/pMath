@@ -16,40 +16,65 @@
  */
 
 /**\brief The status of a file.
-   \see pmath_file_status()
+   \see pmath_file_status
  */
 typedef enum {
-  PMATH_FILE_OK = 0,         ///< No error
-  PMATH_FILE_INVALID = 1,    ///< The object is no readable file
-  PMATH_FILE_ENDOFFILE = 2,  ///< The (readable) file position is at the end
-  PMATH_FILE_OTHERERROR = 3, ///< There is another problem with the file.
-  PMATH_FILE_RECURSIVE = 4   ///< The file is already locked by the current thread.
+  /**\hideinitializer
+     No error.
+   */
+  PMATH_FILE_OK = 0,
+  
+  /**\hideinitializer
+     The object is no readable file.
+   */
+  PMATH_FILE_INVALID = 1,
+  
+  /**\hideinitializer
+     The (readable) file position is at the end.
+   */
+  PMATH_FILE_ENDOFFILE = 2,
+  
+  /**\hideinitializer
+     There is another problem with the file.
+   */
+  PMATH_FILE_OTHERERROR = 3,
+  
+  /**\hideinitializer
+     The file is already locked by the current thread.
+   */
+  PMATH_FILE_RECURSIVE = 4
 } pmath_files_status_t;
 
-enum _pmath_file_properties_t {
-  PMATH_FILE_PROP_READ  = 0x01,
+/**\anchor PMATH_FILE_PROP_XXX
+   \see pmath_file_test
+ */
+enum {
+  /**\hideinitializer
+     The file is readable.
+   */
+  PMATH_FILE_PROP_READ = 0x01,
+  
+  /**\hideinitializer
+     The file is writeable.
+   */
   PMATH_FILE_PROP_WRITE = 0x02,
   
+  /**\hideinitializer
+     It is a binary file.
+   */
   PMATH_FILE_PROP_BINARY = 0x04,
-  PMATH_FILE_PROP_TEXT   = 0x08
+  
+  /**\hideinitializer
+     It is a text file.
+   */
+  PMATH_FILE_PROP_TEXT = 0x08
 };
 
 /**\brief Check whether a file supports a set of properties.
    \param file A file object. It wont be freed.
-   \param properties File properties. See remarks section.
+   \param properties File properties. One or more of the 
+                     \ref PMATH_FILE_PROP_XXX values.
    \return TRUE iff the file supports all of the requested properties.
-
-   \remarks
-    \a properties can be zero or more of the following values:
-      <ul>
-        <li> \c PMATH_FILE_PROP_READ: The file is readable.
-
-        <li> \c PMATH_FILE_PROP_WRITE: The file is writeable.
-
-        <li> \c PMATH_FILE_PROP_BINARY: It is a binary file.
-
-        <li> \c PMATH_FILE_PROP_TEXT: It is a text file.
-      </ul>
 
    Lists of writeable files are writeable, too. Only Symbols can be readable
    files.
@@ -60,7 +85,7 @@ PMATH_API pmath_bool_t pmath_file_test(
 
 /**\brief Get the current status of a readable file.
    \param file A readable file object. It wont be freed.
-   \return pmath_files_status_t The current file status.
+   \return The current file status.
  */
 PMATH_API pmath_files_status_t pmath_file_status(pmath_t file);
 

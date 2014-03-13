@@ -258,6 +258,8 @@ static unsigned int hash_packed_array_of_double(
   
   unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
   
+  hash = incremental_hash(&hash, sizeof(hash), 0);
+  
   for(; nums > 0; --nums, ptr += step) {
     unsigned h = hash_double(*(double *)ptr);
     
@@ -278,6 +280,8 @@ static unsigned int hash_packed_array_of_int32(
   
   unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
   pmath_t dummy = PMATH_FROM_INT32(0);
+  
+  hash = incremental_hash(&hash, sizeof(hash), 0);
   
   for(; nums > 0; --nums, ptr += step) {
     unsigned h;
@@ -303,6 +307,7 @@ static unsigned int hash_packed_array_part(
     const uint8_t *ptr = data;
     
     unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
+    hash = incremental_hash(&hash, sizeof(hash), 0);
     
     for(; nums > 0; --nums, ptr += step) {
       unsigned h = hash_packed_array_part(array, ptr, level + 1);
@@ -430,13 +435,13 @@ static int compare_arrays_of_int32(const int32_t *a, const int32_t *b, size_t le
 }
 
 static int compare_array_parts(
-  const size_t             *sizes,
-  const size_t             *steps_a,
-  const size_t             *steps_b,
-  size_t                    dims,
-  const void               *data_a,
-  const void               *data_b,
-  enum pmath_packed_type_t  element_type
+  const size_t        *sizes,
+  const size_t        *steps_a,
+  const size_t        *steps_b,
+  size_t               dims,
+  const void          *data_a,
+  const void          *data_b,
+  pmath_packed_type_t  element_type
 ) {
   --dims;
   
@@ -593,11 +598,11 @@ static pmath_bool_t check_sizes(
 }
 
 static pmath_bool_t check_steps(
-  enum pmath_packed_type_t  element_type,
-  size_t                    dimensions,
-  const size_t             *sizes,
-  const size_t             *steps,
-  size_t                   *total_size
+  pmath_packed_type_t  element_type,
+  size_t               dimensions,
+  const size_t        *sizes,
+  const size_t        *steps,
+  size_t              *total_size
 ) {
   size_t elem_size = pmath_packed_element_size(element_type);
   size_t i;
@@ -635,11 +640,11 @@ static pmath_bool_t check_steps(
 }
 
 static pmath_bool_t init_default_steps(
-  enum pmath_packed_type_t  element_type,
-  size_t                    dimensions,
-  const size_t             *sizes,
-  size_t                   *steps,
-  size_t                   *total_size
+  pmath_packed_type_t  element_type,
+  size_t               dimensions,
+  const size_t        *sizes,
+  size_t              *steps,
+  size_t              *total_size
 ) {
   size_t elem_size = pmath_packed_element_size(element_type);
   size_t i;
@@ -749,7 +754,7 @@ static void packed_array_copy(
 }
 
 PMATH_API
-size_t pmath_packed_element_size(enum pmath_packed_type_t element_type) {
+size_t pmath_packed_element_size(pmath_packed_type_t element_type) {
 
   switch(element_type) {
     case PMATH_PACKED_DOUBLE: return sizeof(double);
@@ -760,22 +765,18 @@ size_t pmath_packed_element_size(enum pmath_packed_type_t element_type) {
 }
 
 PMATH_API
-PMATH_ATTRIBUTE_USE_RESULT
 pmath_packed_array_t pmath_packed_array_new(
-  pmath_blob_t               blob,
-  enum pmath_packed_type_t   element_type,
-  size_t                     dimensions,
-  const size_t              *sizes,
-  const size_t              *steps,
-  size_t                     offset
+  pmath_blob_t          blob,
+  pmath_packed_type_t   element_type,
+  size_t                dimensions,
+  const size_t         *sizes,
+  const size_t         *steps,
+  size_t                offset
 ) {
   struct _pmath_packed_array_t *_array;
   size_t size;
   
-  if(PMATH_UNLIKELY(pmath_is_null(blob)))
-    return PMATH_NULL;
-    
-  assert(pmath_is_blob(blob));
+  assert(pmath_is_blob(blob) || pmath_is_null(blob));
   
   if(!check_sizes(dimensions, sizes)) {
     pmath_unref(blob);
@@ -793,7 +794,6 @@ pmath_packed_array_t pmath_packed_array_new(
     return PMATH_NULL;
   }
   
-  _array->blob         = (void *)PMATH_AS_PTR(blob);
   _array->offset       = offset;
   _array->element_type = element_type;
   _array->dimensions   = dimensions;
@@ -824,18 +824,32 @@ pmath_packed_array_t pmath_packed_array_new(
     _array->non_continuous_dimensions_count = 0;
   }
   
+  if(pmath_is_null(blob)) {
+    blob = pmath_blob_new(_array->total_size + offset, TRUE);
+    
+    if(pmath_is_null(blob)) {
+      _pmath_unref_ptr((void *)_array);
+      return PMATH_NULL;
+    }
+  }
+  
+  _array->blob = (void *)PMATH_AS_PTR(blob);
+  
   if(_array->blob->data_size < offset) {
+    pmath_debug_print("[offset outside blob]\n");
     _pmath_unref_ptr((void *)_array);
     return PMATH_NULL;
   }
   
   if(_array->blob->data_size - offset < _array->total_size) {
+    pmath_debug_print("[blob too small]\n");
     _pmath_unref_ptr((void *)_array);
     return PMATH_NULL;
   }
   
   // check alignment
   if((((size_t)_array->blob->data + offset) % pmath_packed_element_size(element_type)) != 0) {
+    pmath_debug_print("[invalid alignment]\n");
     _pmath_unref_ptr((void *)_array);
     return PMATH_NULL;
   }
@@ -924,7 +938,7 @@ const size_t *pmath_packed_array_get_steps(pmath_packed_array_t array) {
 }
 
 PMATH_API
-enum pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_t array) {
+pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_t array) {
   struct _pmath_packed_array_t *_array;
   
   if(PMATH_UNLIKELY(pmath_is_null(array)))
@@ -1045,7 +1059,7 @@ void *pmath_packed_array_begin_write(
 }
 
 PMATH_PRIVATE
-pmath_t _pmath_packed_element_unbox(const void *data, enum pmath_packed_type_t type) {
+pmath_t _pmath_packed_element_unbox(const void *data, pmath_packed_type_t type) {
   double d;
   
   switch(type) {
@@ -1443,7 +1457,7 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t r
   expr->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
   for(i = 1; i <= length; ++i)
     expr->items[i] = _pmath_packed_array_get_item(array, i);
-  
+    
   if(recursive && _array->dimensions > 1) {
     // items are all packed arrays (or PMATH_NULL on error)
     
@@ -1457,21 +1471,21 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t r
 
 /* -------------------------------------------------------------------------- */
 
-static enum pmath_packed_type_t combine_types(
-  enum pmath_packed_type_t type,
-  enum pmath_packed_type_t expected_type
+static pmath_packed_type_t combine_types(
+  pmath_packed_type_t type,
+  pmath_packed_type_t expected_type
 ) {
   switch(type) {
     case PMATH_PACKED_INT32:
-      switch(expected_type) {
-        case PMATH_PACKED_INT32:
-          break;
-          
-        case PMATH_PACKED_DOUBLE:
-          return PMATH_PACKED_DOUBLE;
-      }
+        switch(expected_type) {
+          case PMATH_PACKED_INT32:
+              break;
+              
+          case PMATH_PACKED_DOUBLE:
+            return PMATH_PACKED_DOUBLE;
+        }
       break;
-    
+      
     case PMATH_PACKED_DOUBLE:
       break;
   }
@@ -1480,8 +1494,20 @@ static enum pmath_packed_type_t combine_types(
 }
 
 // -1 = INVALID
-// PMATH_PACKED_XXX otherwise 
+// PMATH_PACKED_XXX otherwise
 static int packable_element_type(pmath_t expr, int expected_type) {
+
+  if(pmath_is_int32(expr))
+    return combine_types(PMATH_PACKED_INT32, expected_type);
+    
+  if(pmath_is_double(expr) ||
+      pmath_same(expr, PMATH_SYMBOL_UNDEFINED) ||
+      pmath_equals(expr, _pmath_object_pos_infinity) ||
+      pmath_equals(expr, _pmath_object_neg_infinity))
+  {
+    return combine_types(PMATH_PACKED_DOUBLE, expected_type);
+  }
+  
   if(pmath_is_packed_array(expr)) {
     struct _pmath_packed_array_t *_array;
     
@@ -1502,9 +1528,9 @@ static int packable_element_type(pmath_t expr, int expected_type) {
     item = pmath_expr_get_item(expr, 0);
     pmath_unref(item);
     
-    if(!pmath_same(item, PMATH_SYMBOL_LIST))
+    if(!pmath_same(item, PMATH_SYMBOL_LIST)) 
       return -1;
-      
+    
     item = pmath_expr_get_item(expr, len);
     result = packable_element_type(item, expected_type);
     pmath_unref(item);
@@ -1526,17 +1552,6 @@ static int packable_element_type(pmath_t expr, int expected_type) {
     return result;
   }
   
-  if(pmath_is_int32(expr))
-    return combine_types(PMATH_PACKED_INT32, expected_type);
-    
-  if(pmath_is_double(expr) ||
-      pmath_same(expr, PMATH_SYMBOL_UNDEFINED) ||
-      pmath_equals(expr, _pmath_object_pos_infinity) ||
-      pmath_equals(expr, _pmath_object_neg_infinity))
-  {
-    return combine_types(PMATH_PACKED_DOUBLE, expected_type);
-  }
-  
   return -1;
 }
 
@@ -1549,7 +1564,7 @@ static size_t packable_dimensions(pmath_t expr) {
     return _array->dimensions;
   }
   
-  if(pmath_is_expr(expr)) {
+  if(pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {
     pmath_t item;
     size_t result;
     
@@ -1569,7 +1584,7 @@ static size_t packable_dimensions(pmath_t expr) {
 
 /* Template Function
  *
- *   pack_array_A_to_B(array, level, array_data, location_ptr) 
+ *   pack_array_A_to_B(array, level, array_data, location_ptr)
  */
 
 #define NAME_pack_array_from_to(FROM_TYPE, TO_TYPE)  NAME_pack_array_from_to2(FROM_TYPE, TO_TYPE)
@@ -1603,7 +1618,7 @@ static size_t packable_dimensions(pmath_t expr) {
 
 /* Template Function
  *
- *   NAME_pack_and_free_element_to_A(expr, location) 
+ *   NAME_pack_and_free_element_to_A(expr, location)
  */
 
 #define NAME_pack_and_free_element_to(TO_TYPE)  NAME_pack_and_free_element_to2(TO_TYPE)
@@ -1633,6 +1648,12 @@ static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location
     return;
   }
   
+  if(pmath_equals(expr, _pmath_object_neg_infinity)) {
+    *location = -HUGE_VAL;
+    pmath_unref(expr);
+    return;
+  }
+  
   assert(pmath_is_int32(expr));
   
   *location = (double)PMATH_AS_INT32(expr);
@@ -1641,7 +1662,7 @@ static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location
 
 /* Template Function
  *
- *   pack_and_free_to_A(expr, location_ptr) 
+ *   pack_and_free_to_A(expr, location_ptr)
  */
 
 #define NAME_pack_and_free_to(TO_TYPE)  NAME_pack_and_free_to2(TO_TYPE)
@@ -1658,7 +1679,7 @@ static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, enum pmath_packed_type_t expected_type) {
+pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, pmath_packed_type_t expected_type) {
   int                   elem_type;
   pmath_t               dims_expr;
   size_t                dims;
@@ -1740,6 +1761,26 @@ pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, enum pmath_packed_type_t 
   
   pmath_mem_free(sizes);
   return array;
+}
+
+PMATH_PRIVATE
+void *_pmath_packed_array_repack_to(pmath_packed_array_t array, void *buffer) {
+
+  assert(pmath_is_packed_array(array));
+  
+  switch(pmath_packed_array_get_element_type(array)) {
+    case PMATH_PACKED_DOUBLE:
+      NAME_pack_and_free_to(double)(pmath_ref(array), (double **)&buffer);
+      return buffer;
+      
+    case PMATH_PACKED_INT32:
+      NAME_pack_and_free_to(int32_t)(pmath_ref(array), (int32_t **)&buffer);
+      return buffer;
+  }
+  
+  assert(0 && "bad element type");
+  
+  return buffer;
 }
 
 /* -------------------------------------------------------------------------- */
