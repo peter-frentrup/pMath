@@ -23,7 +23,6 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add library="$(#editline.bin)/libedit.dll.a" />
 					<Add directory="../bin/windows/debug" />
 				</Linker>
 			</Target>
@@ -46,7 +45,6 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add library="$(#editline.bin)/libedit.dll.a" />
 					<Add directory="../bin/windows/release" />
 				</Linker>
 			</Target>
@@ -82,7 +80,11 @@
 		<Linker>
 			<Add directory="$(#editline.lib)" />
 		</Linker>
-		<Unit filename="main.c">
+		<Unit filename="src/console.h" />
+		<Unit filename="src/input.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/main.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

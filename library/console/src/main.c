@@ -1,4 +1,4 @@
-#include <editline/readline.h>
+#include "console.h"
 
 #include <errno.h>
 #include <inttypes.h>
@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <pmath.h>
 
 #ifdef pmath_debug_print_stack
 #  undef pmath_debug_print_stack
@@ -86,6 +84,8 @@ static sem_t interrupt_semaphore;
 static volatile pmath_messages_t main_mq;
 static pmath_atomic_t main_mq_lock = PMATH_ATOMIC_STATIC_INIT;
 
+static pmath_threadlock_t print_lock = NULL;
+
 static void signal_dummy(int sig);
 static void signal_handler(int sig);
 
@@ -99,66 +99,6 @@ static pmath_messages_t get_main_mq(void) {
   pmath_atomic_unlock(&main_mq_lock);
   
   return mq;
-}
-
-static pmath_string_t readline_pmath(const char *prompt, int indent) {
-  char *p;
-  char *s;
-  pmath_string_t result;
-  
-  p = NULL;
-  if(indent > 0) {
-    int len = strlen(prompt);
-    p = pmath_mem_alloc(indent + len + 1);
-    
-    if(p) {
-      memset(p, ' ', indent);
-      memcpy(p + indent, prompt, len + 1);
-    }
-  }
-  
-  //signal(SIGINT, signal_dummy);
-  s = readline(p ? p : prompt);
-  //signal(SIGINT, signal_handler);
-  
-  pmath_mem_free(p);
-  
-  if(!s)
-    return PMATH_NULL;
-  
-  result = pmath_string_from_utf8(s, -1);
-  
-  if(*s) {
-    add_history(s);
-  }
-  
-  rl_free(s);
-  
-  return result;
-}
-
-
-// Reads a line from stdin without the ending "\n".
-static pmath_string_t fallback_readline_pmath(const char *prompt, int indent) {
-  pmath_string_t result = PMATH_NULL;
-  char buf[512];
-  
-  printf("%s", prompt);
-  
-  while(fgets(buf, sizeof(buf), stdin) != NULL) {
-    int len = strlen(buf);
-    
-    if(buf[len - 1] == '\n') {
-      if(len == 1)
-        return pmath_string_new(0);
-        
-      return pmath_string_concat(result, pmath_string_from_native(buf, len - 1));
-    }
-    
-    result = pmath_string_concat(result, pmath_string_from_native(buf, len));
-  }
-  
-  return result;
 }
 
 
@@ -180,8 +120,6 @@ static void _pmath_write_cstr(FILE *file, const char *cstr) {
     
   fwrite(cstr, 1, len, file);
 }
-
-static pmath_threadlock_t print_lock = NULL;
 
 static void write_output_locked_callback(void *_obj) {
   pmath_cstr_writer_info_t info;
@@ -272,31 +210,6 @@ static void kill_interrupt_daemon(void *dummy) {
   sem_post(&interrupt_semaphore);
 }
 
-static pmath_string_t scanner_read(void *dummy) {
-  pmath_string_t result;
-  
-  if(pmath_aborting())
-    return PMATH_NULL;
-    
-  result = readline_pmath("     > ", dialog_depth);
-
-  if(pmath_string_length(result) == 0) {
-    pmath_unref(result);
-    return PMATH_NULL;
-  }
-  return result;
-}
-
-static void scanner_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
-  pmath_bool_t *have_critical = flag;
-  
-  if(!*have_critical)
-    pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
-    
-  if(critical)
-    *have_critical = TRUE;
-}
-
 static void handle_options(int argc, const char **argv) {
   --argc;
   ++argv;
@@ -354,10 +267,57 @@ static pmath_t check_dialog_return(pmath_t result) { // result wont be freed
   return PMATH_UNDEFINED;
 }
 
+static char *indent_prompt(const char *prompt, int indent) {
+  
+  if(indent > 0) {
+    char *p = NULL;
+    int len = strlen(prompt);
+    
+    p = pmath_mem_alloc(indent + len + 1);
+    
+    if(p) {
+      memset(p, ' ', indent);
+      memcpy(p + indent, prompt, len + 1);
+      return p;
+    }
+  }
+  
+  return NULL;
+}
+
 struct parse_data_t {
   pmath_t code;
   pmath_t filename;
 };
+
+static pmath_string_t scanner_read(void *_data) {
+  struct parse_data_t *data = _data;
+  pmath_string_t result;
+  char *iprompt;
+  
+  if(pmath_aborting())
+    return PMATH_NULL;
+    
+  iprompt = indent_prompt("     > ", dialog_depth);
+  result = readline_pmath(iprompt ? iprompt : "     > ", TRUE);
+  pmath_mem_free(iprompt);
+
+  if(pmath_string_length(result) == 0) {
+    pmath_unref(result);
+    return PMATH_NULL;
+  }
+  return result;
+}
+
+static void scanner_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
+  pmath_bool_t *have_critical = flag;
+  
+  if(!*have_critical)
+    pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
+    
+  if(critical)
+    *have_critical = TRUE;
+}
 
 static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_data) {
   pmath_t debug_info;
@@ -407,6 +367,8 @@ static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_
 static pmath_t dialog(pmath_t first_eval) {
   pmath_t result = PMATH_NULL;
   pmath_t old_dialog = pmath_session_start();
+  const char *prompt = "pmath> ";
+  char *iprompt = indent_prompt(prompt, dialog_depth);
   
   first_eval = pmath_evaluate(first_eval);
   result = check_dialog_return(first_eval);
@@ -435,7 +397,7 @@ static pmath_t dialog(pmath_t first_eval) {
       
       write_line("\n");
       
-      parse_data.code = readline_pmath("pmath> ", dialog_depth);
+      parse_data.code = readline_pmath(iprompt ? iprompt : prompt, TRUE);
       
       if(dialog_depth > 0 && pmath_aborting()) {
         pmath_unref(parse_data.code);
@@ -511,6 +473,7 @@ static pmath_t dialog(pmath_t first_eval) {
   
   PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth - 1));
   
+  pmath_mem_free(iprompt);
   pmath_session_end(old_dialog);
   return result;
 }
@@ -590,7 +553,7 @@ static void interrupt_callback(void *dummy) {
     
     write_line("\n");
     
-    line = fallback_readline_pmath("interrupt: ", 0);
+    line = readline_pmath("interrupt: ", FALSE);
     word = next_word(&line);
     
     if( pmath_string_equals_latin1(word, "a") ||
@@ -813,6 +776,7 @@ int main(int argc, const char **argv) {
   }
   
   sem_destroy(&interrupt_semaphore);
+  cleanup_input();
   
   return quit_result;
 }
