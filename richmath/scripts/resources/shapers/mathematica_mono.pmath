@@ -394,7 +394,7 @@
 		"\[U+F423]" -> {"g", 3}, /* not nested less less */
 		"\[U+2270]" -> {"h", 3}, /* not less equal */
 		"\[U+F424]" -> {"i", 3}, /* not less slant equal */
-		/*"\[U+2268]" -> {"j", 3}, /* not less full equal */
+		/*"\[U+2268]" -> {"j", 3}, not less full equal */
 		"\[U+2274]" -> {"k", 3}, /* not less tilde */
 		"\[U+228F]" -> {"l", 3}, /* square subset */
 		"\[U+2291]" -> {"m", 3}, /* square subset equal */
@@ -410,7 +410,7 @@
 		"\[U+F428]" -> {"w", 3}, /* not nested greather greather */
 		"\[U+2271]" -> {"x", 3}, /* not greather equal */
 		"\[U+F429]" -> {"y", 3}, /* not greather slant equal */
-		/*"\[U+2269]" -> {"z", 3}, /* not greather full equal */
+		/*"\[U+2269]" -> {"z", 3},  not greather full equal */
 		"\[U+2275]" -> {"braceleft", 3}, /* not greather tilde */
 		"\[U+2290]" -> {"bar", 3}, /* square superset */
 		"\[U+2292]" -> {"braceright", 3}, /* square superset equal */
@@ -422,7 +422,7 @@
 		"\[U+2280]" -> {"Ntilde", 3}, /* not precedes */
 		"\[U+F42B]" -> {"Odieresis", 3}, /* not precedes equal */
 		"\[U+22E0]" -> {"Udieresis", 3}, /* not precedes slant equal */
-		/*"\[U+22E8]" -> {"aacute", 3}, /* not precedes tilde */
+		/*"\[U+22E8]" -> {"aacute", 3}, not precedes tilde */
 		"\[U+2276]" -> {"agrave", 3}, /* less greather */
 		"\[U+2278]" -> {"acircumflex", 3}, /* not less greather */
 		"\[U+22DA]" -> {"adieresis", 3}, /* less equal greather */
@@ -438,7 +438,7 @@
 		"\[U+2281]" -> {"icircumflex", 3}, /* not succeeds */
 		"\[U+F42D]" -> {"idieresis", 3}, /* not succeeds equal */
 		"\[U+22E1]" -> {"ntilde", 3}, /* not succeeds slant equal */
-		/*"\[U+22E9]" -> {"oacute", 3}, /* not succeeds tilde */
+		/*"\[U+22E9]" -> {"oacute", 3}, not succeeds tilde */
 		"\[U+2277]" -> {"ograve", 3}, /* greather less */
 		"\[U+2279]" -> {"ocircumflex", 3}, /* not greather less */
 		"\[U+22DB]" -> {"odieresis", 3}, /* greather equal less */

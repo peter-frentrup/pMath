@@ -396,7 +396,7 @@
 		"\[U+F423]" -> {74, 3}, /* not nested less less */
 		"\[U+2270]" -> {75, 3}, /* not less equal */
 		"\[U+F424]" -> {76, 3}, /* not less slant equal */
-		/*"\[U+2268]" -> {77, 3}, /* not less full equal */
+		/*"\[U+2268]" -> {77, 3}, not less full equal */
 		"\[U+2274]" -> {78, 3}, /* not less tilde */
 		"\[U+228F]" -> {79, 3}, /* square subset */
 		"\[U+2291]" -> {80, 3}, /* square subset equal */
@@ -412,7 +412,7 @@
 		"\[U+F428]" -> {90, 3}, /* not nested greather greather */
 		"\[U+2271]" -> {91, 3}, /* not greather equal */
 		"\[U+F429]" -> {92, 3}, /* not greather slant equal */
-		/*"\[U+2269]" -> {93, 3}, /* not greather full equal */
+		/*"\[U+2269]" -> {93, 3}, not greather full equal */
 		"\[U+2275]" -> {94, 3}, /* not greather tilde */
 		"\[U+2290]" -> {95, 3}, /* square superset */
 		"\[U+2292]" -> {96, 3}, /* square superset equal */
@@ -424,7 +424,7 @@
 		"\[U+2280]" -> {102, 3}, /* not precedes */
 		"\[U+F42B]" -> {103, 3}, /* not precedes equal */
 		"\[U+22E0]" -> {104, 3}, /* not precedes slant equal */
-		/*"\[U+22E8]" -> {105, 3}, /* not precedes tilde */
+		/*"\[U+22E8]" -> {105, 3}, not precedes tilde */
 		"\[U+2276]" -> {106, 3}, /* less greather */
 		"\[U+2278]" -> {107, 3}, /* not less greather */
 		"\[U+22DA]" -> {108, 3}, /* less equal greather */
@@ -440,7 +440,7 @@
 		"\[U+2281]" -> {118, 3}, /* not succeeds */
 		"\[U+F42D]" -> {119, 3}, /* not succeeds equal */
 		"\[U+22E1]" -> {120, 3}, /* not succeeds slant equal */
-		/*"\[U+22E9]" -> {121, 3}, /* not succeeds tilde */
+		/*"\[U+22E9]" -> {121, 3}, not succeeds tilde */
 		"\[U+2277]" -> {122, 3}, /* greather less */
 		"\[U+2279]" -> {123, 3}, /* not greather less */
 		"\[U+22DB]" -> {124, 3}, /* greather equal less */
