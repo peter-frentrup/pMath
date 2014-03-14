@@ -319,11 +319,11 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(SectionLabel, "");
   
   Stylesheet::Default->base->set_pmath(Method,
-      Expr(pmath_option_value(
-             PMATH_SYMBOL_BUTTONBOX,
-             PMATH_SYMBOL_METHOD,
-             PMATH_UNDEFINED)));
-             
+                                       Expr(pmath_option_value(
+                                           PMATH_SYMBOL_BUTTONBOX,
+                                           PMATH_SYMBOL_METHOD,
+                                           PMATH_UNDEFINED)));
+                                           
   Stylesheet::Default->base->set(LanguageCategory, "NaturalLanguage");
   
   Stylesheet::Default->base->set(ButtonFunction,
@@ -331,10 +331,10 @@ static void init_stylesheet() {
                                         PMATH_SYMBOL_BUTTONBOX,
                                         PMATH_SYMBOL_BUTTONFUNCTION,
                                         PMATH_UNDEFINED)));
-  
+                                        
 //  Stylesheet::Default->base->set(FontFeatures,
 //                                 List(Rule(String("ssty"), Symbol(PMATH_SYMBOL_AUTOMATIC))));
-  
+
 //  Stylesheet::Default->base->set(GeneratedSectionStyles,
 //                                 Parse("{~FE`Private`style :> FE`Private`style}"));
 
@@ -625,24 +625,32 @@ int main(int argc, char **argv) {
   
   PMATH_RUN("BeginPackage(\"FE`\")");
   
+  {
+    double start = pmath_tickcount();
+    
 #define SHORTCUTS_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shortcuts.pmath\"))"
 #define MAIN_MENU_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"mainmenu.pmath\"))"
 #define POPUP_MENU_CMD "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"popupmenu.pmath\"))"
-  
+    
 #ifdef RICHMATH_USE_WIN32_GUI
-  Win32Themes::init();
-  Win32Clipboard::init();
-  Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(SHORTCUTS_CMD)));
-  Win32Menu::main_menu              = new Win32Menu(Evaluate(Parse(MAIN_MENU_CMD)),  false);
-  Win32Menu::popup_menu             = new Win32Menu(Evaluate(Parse(POPUP_MENU_CMD)), true);
+    Win32Themes::init();
+    Win32Clipboard::init();
+    Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(SHORTCUTS_CMD)));
+    Win32Menu::main_menu              = new Win32Menu(Evaluate(Parse(MAIN_MENU_CMD)),  false);
+    Win32Menu::popup_menu             = new Win32Menu(Evaluate(Parse(POPUP_MENU_CMD)), true);
 #endif
-  
+    
 #ifdef RICHMATH_USE_GTK_GUI
-  Clipboard::std = &MathGtkClipboard::obj;
-  MathGtkAccelerators::load(Evaluate(Parse(SHORTCUTS_CMD)));
-  MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
-  MathGtkMenuBuilder::popup_menu = MathGtkMenuBuilder(Evaluate(Parse(POPUP_MENU_CMD)));
+    Clipboard::std = &MathGtkClipboard::obj;
+    MathGtkAccelerators::load(Evaluate(Parse(SHORTCUTS_CMD)));
+    MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
+    MathGtkMenuBuilder::popup_menu = MathGtkMenuBuilder(Evaluate(Parse(POPUP_MENU_CMD)));
 #endif
+
+    double end = pmath_tickcount();
+    
+    pmath_debug_print("[%f sec reading menus]\n", end - start);
+  }
   
   load_fonts();
   load_math_shapers();
@@ -688,16 +696,16 @@ int main(int argc, char **argv) {
     if(GetMonitorInfo(hmon, &monitor_info)) {
       RECT rect;
       GetWindowRect(wndMain->hwnd(), &rect);
-    
+      
       int w = rect.right  - rect.left;
       int h = rect.bottom - rect.top;
       
       if(w > monitor_info.rcWork.right - monitor_info.rcWork.left)
         w  = monitor_info.rcWork.right - monitor_info.rcWork.left;
-      
+        
       if(h > monitor_info.rcWork.bottom - monitor_info.rcWork.top)
         h  = monitor_info.rcWork.bottom - monitor_info.rcWork.top;
-      
+        
       int x = monitor_info.rcWork.left + (monitor_info.rcWork.right - monitor_info.rcWork.left - w) / 2;
       int y = monitor_info.rcWork.top  + (monitor_info.rcWork.bottom - monitor_info.rcWork.top - h) / 3;
       
