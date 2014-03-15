@@ -5,10 +5,12 @@
 
 extern pmath_threadlock_t read_lock;
 
-pmath_bool_t search_editline(void);
-void cleanup_input(void);
+pmath_string_t readline_pmath(
+  const char     *prompt, 
+  pmath_bool_t    with_completion,
+  pmath_string_t  previous_input); 
 
-pmath_string_t readline_pmath(const char *prompt, pmath_bool_t  with_completion);
+void cleanup_input_cache(void);
 
 
 #endif // __CONSOLE_H__

@@ -80,6 +80,8 @@ static volatile int quit_result = 0;
 static volatile pmath_bool_t quitting = FALSE;
 static volatile pmath_bool_t show_mem_stats = TRUE;
 
+static pmath_bool_t batch_mode = FALSE;
+
 static sem_t interrupt_semaphore;
 static volatile pmath_messages_t main_mq;
 static pmath_atomic_t main_mq_lock = PMATH_ATOMIC_STATIC_INIT;
@@ -214,9 +216,8 @@ static void handle_options(int argc, const char **argv) {
   --argc;
   ++argv;
   while(argc > 0) {
-    if(strcmp(*argv, "-q") == 0 || strcmp(*argv, "--quit") == 0) {
-      quitting = TRUE;
-      show_mem_stats = FALSE;
+    if(strcmp(*argv, "-b") == 0 || strcmp(*argv, "--batch") == 0) {
+      batch_mode = TRUE;
     }
     else if((strcmp(*argv, "-l") == 0 || strcmp(*argv, "--load") == 0) &&
             argc > 1)
@@ -225,6 +226,10 @@ static void handle_options(int argc, const char **argv) {
       ++argv;
       
       PMATH_RUN_ARGS("Get(`1`)", "(o)", pmath_string_from_native(*argv, -1));
+    }
+    else if(strcmp(*argv, "-q") == 0 || strcmp(*argv, "--quit") == 0) {
+      quitting = TRUE;
+      show_mem_stats = FALSE;
     }
     else if((strcmp(*argv, "-x") == 0 || strcmp(*argv, "--exec") == 0) &&
             argc > 1)
@@ -244,6 +249,7 @@ static void handle_options(int argc, const char **argv) {
       }
       
       fprintf(stderr, "\nPossible options are:\n"
+              "    -b, --batch          Run in batch mode, without auto-completion.\n"
               "    -l, --load FILENAME  Load a pMath script and execute it.\n"
               "    -q, --quit           Exit after processing the command line options.\n"
               "    -x, --exec CMD       Evaluate a pMath expression\n\n");
@@ -299,7 +305,7 @@ static pmath_string_t scanner_read(void *_data) {
     return PMATH_NULL;
     
   iprompt = indent_prompt("     > ", dialog_depth);
-  result = readline_pmath(iprompt ? iprompt : "     > ", TRUE);
+  result = readline_pmath(iprompt ? iprompt : "     > ", !batch_mode, data->code);
   pmath_mem_free(iprompt);
 
   if(pmath_string_length(result) == 0) {
@@ -397,7 +403,7 @@ static pmath_t dialog(pmath_t first_eval) {
       
       write_line("\n");
       
-      parse_data.code = readline_pmath(iprompt ? iprompt : prompt, TRUE);
+      parse_data.code = readline_pmath(iprompt ? iprompt : prompt, !batch_mode, PMATH_NULL);
       
       if(dialog_depth > 0 && pmath_aborting()) {
         pmath_unref(parse_data.code);
@@ -553,7 +559,7 @@ static void interrupt_callback(void *dummy) {
     
     write_line("\n");
     
-    line = readline_pmath("interrupt: ", FALSE);
+    line = readline_pmath("interrupt: ", FALSE, PMATH_NULL);
     word = next_word(&line);
     
     if( pmath_string_equals_latin1(word, "a") ||
@@ -749,6 +755,8 @@ int main(int argc, const char **argv) {
   pmath_unref(dialog(PMATH_NULL));
   pmath_continue_after_abort();
   
+  cleanup_input_cache();
+  
   { // freeing main_mq
     pmath_t mq;
     
@@ -776,7 +784,6 @@ int main(int argc, const char **argv) {
   }
   
   sem_destroy(&interrupt_semaphore);
-  cleanup_input();
   
   return quit_result;
 }

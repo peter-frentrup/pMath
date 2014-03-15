@@ -23,6 +23,7 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
+					<Add library="edit_static" />
 					<Add directory="../bin/windows/debug" />
 				</Linker>
 			</Target>
@@ -45,6 +46,7 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
+					<Add library="edit_static" />
 					<Add directory="../bin/windows/release" />
 				</Linker>
 			</Target>
@@ -62,12 +64,14 @@
 					<Add option="/GF" />
 					<Add option="/Ox" />
 					<Add option="/W3" />
-					<Add option="/wd4711" />
+					<Add option="/wd4711 /wd4996" />
 					<Add option="/DNDEBUG" />
 					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
-					<Add library="pmath.lib" />
+					<Add library="pmath" />
+					<Add library="edit_static" />
+					<Add library="user32" />
 					<Add directory="../bin/windows/msvc" />
 				</Linker>
 			</Target>
