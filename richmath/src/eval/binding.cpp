@@ -18,13 +18,22 @@ static int current_document_id = 0;
 //{ pmath functions ...
 
 static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
+  double start = pmath_tickcount();
+  
+  Expr filename(pmath_expr_get_item(expr, 1));
+  
   Expr data = Expr(
                 pmath_evaluate(
                   pmath_expr_new_extended(
                     pmath_ref(PMATH_SYMBOL_GET), 1,
-                    pmath_expr_get_item(expr, 1))));
+                    pmath_ref(filename.get()))));
                     
   pmath_unref(expr);
+  
+  double end = pmath_tickcount();
+  
+  pmath_debug_print("[%f sec reading ", end - start);
+  pmath_debug_print_object("", filename.get(), "]\n");
   
   Application::notify(CNT_ADDCONFIGSHAPER, data);
   return PMATH_NULL;

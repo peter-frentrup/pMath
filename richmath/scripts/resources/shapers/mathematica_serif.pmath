@@ -1,892 +1,211 @@
-{
-	"Name" -> "Mathematica Serif",
-	"MathFonts" -> {"Mathematica1", "Mathematica2", "Mathematica3", "Mathematica4", "Mathematica5", "Mathematica6", "Mathematica7"},
-	"TextFonts" -> {"Times New Roman" | "<serif>"},
-	"PostScriptNames" -> {1,2,3,4,5,6,7},
-	"RadicalFont" -> 2,
-	"SmallRadical" -> {
-		{"egrave",    "exclam",      0.8,  0.5, -0.5},
-		{"quotedbl",  "numbersign",  0.8,  0.5, -0.36},
-		{"dollar",    "percent",     0.75, 0.5, -0.17},
-		{"ampersand", "quotesingle", 0.75, 0.5, -0.15}},
-	"BigRadical" -> {"parenleft", "parenright", "asterisk", "plus", 0.5, 0.55},
-	"Ligatures" -> {
-		"\[U+200B]" -> {}, /* zero-width space */
-		"\[U+222C]" -> {{"integral", 1}, {"integral", 1}}, /* double integral */
-		"\[U+222D]" -> {{"integral", 1}, {"integral", 1}, {"integral", 1}}, /* triple integral */
-		"\[U+2A74]" -> {{"colon", 1}, {"colon", 1}, {"equal", 1}} /* ::= */},
-	"HorizontalStretchedGlyphes" -> {
-		"\[U+02C7]" -> {{"guillemotleft", 2}, {"questiondown", 4}, {"exclamdown", 4}, {"logicalnot", 4}, {"radical", 4}}, /* caron */
-		"\[U+23B4]" -> {{"p", 4}, {"q", 4}, {"r", 4}, {"s", 4}}, /* top [ */
-		"\[U+23B5]" -> {{"Adieresis", 4}, {"Aring", 4}, {"Ccedilla", 4}, {"Eacute", 4}}, /* bottom [ */
-		"\[U+23DC]" -> {{"ecircumflex", 4}, {"edieresis", 4}, {"iacute", 4}, {"igrave", 4}}, /* top ( */
-		"\[U+23DD]" -> {{"dagger", 4}, {"degree", 4}, {"cent", 4}, {"sterling", 4}}, /* bottom ( */
-		"\[U+23DE]" -> {{"oacute", 4}, {"ograve", 4}, {"ocircumflex", 4}, {"odieresis", 4}}, /* top { */
-		"\[U+23DF]" -> {{"germandbls", 4}, {"registered", 4}, {"copyright", 4}, {"trademark", 4}}, /* bottom { */
-		"~" -> {{113, 1}, {"Ucircumflex", 2}, {"Ugrave", 2}, {"dotlessi", 2}, {"circumflex", 2}},
-		"^" -> {{"circumflex", 1}, {"infinity", 4}, {"plusminus", 4}, {"lessequal", 4}, {"greaterequal", 4}}},
-	"HorizontalComposedGlyphs" -> {
-		"\[U+27F5]" -> {{143, 0, 99}, 1}, /* <-- */
-		"\[U+27F6]" -> {{0, 145, 99}, 1}, /* --> */
-		"\[U+27F7]" -> {{143, 145, 99}, 1}, /* <--> */
-		"\[U+27F8]" -> {{191, 0, 118}, 1}, /* <== */
-		"\[U+27F9]" -> {{0, 193, 118}, 1}, /* ==> */
-		"\[U+27FA]" -> {{191, 193, 118}, 1}, /* <==> */
-		"\[U+21CC]" -> {{"H", "I", "o"}, 4}, /* right harpoon right harpoon */
-		"\[U+21CB]" -> {{"J", "K", "o"}, 4}, /* left harpoon left harpoon */
-		"\[U+27FB]" -> {{"y", "R", "Q"}, 4}, /* <--| */
-		"\[U+27FC]" -> {{"S", "z", "Q"}, 4}, /* |--> */
-		"\[U+23B4]" -> {{"t", "v", "u"}, 4}, /* top [ */
-		"\[U+23B5]" -> {{"Ntilde", "Udieresis", "Odieresis"}, 4}, /* bottom [ */
-		"\[U+23DC]" -> {{"icircumflex", "ntilde", "idieresis"}, 4}, /* top ( */
-		"\[U+23DD]" -> {{"section", "paragraph", "bullet"}, 4}, /* bottom ( */
-		"\[U+23DE]" -> {{"otilde", "ucircumflex", "uacute", "ugrave"}, 4}, /* top { */
-		"\[U+23DF]" -> {{"acute", "AE", "dieresis", "notequal"}, 4}, /* bottom { */
-		"\[U+23AF]" -> {{99 /*"fractionbar"*/}, 1}, /* fraction line */
-		"_" -> {{99 /*"fractionbar"*/}, 1}},
-	"VerticalStretchedGlyphes" -> {
-		"\[U+27E6]" -> {{"P", 2}, {"Q", 2}, {"R", 2}, {"S", 2}}, /* [[ */
-		"\[U+27E7]" -> {{"T", 2}, {"U", 2}, {"V", 2}, {"W", 2}}, /* ]] */
-		"\[U+2329]" -> {{"X", 2}, {"Y", 2}, {"Z", 2}, {"bracketleft", 2}}, /* < */
-		"\[U+27E8]" -> {{"X", 2}, {"Y", 2}, {"Z", 2}, {"bracketleft", 2}}, /* < */
-		"\[U+232A]" -> {{"backslash", 2}, {"bracketright", 2}, {"asciicircum", 2}, {"underscore", 2}}, /* > */
-		"\[U+27E9]" -> {{"backslash", 2}, {"bracketright", 2}, {"asciicircum", 2}, {"underscore", 2}}, /* > */
-		"\[U+2308]" -> {{"grave", 2}, {"a", 2}, {"b", 2}, {"c", 2}}, /* left ceiling */
-		"\[U+2309]" -> {{"p", 2}, {"q", 2}, {"r", 2}, {"s", 2}}, /* right ceiling */
-		"\[U+230A]" -> {{"d", 2}, {"e", 2}, {"f", 2}, {"g", 2}}, /* left floor */
-		"\[U+230B]" -> {{"t", 2}, {"u", 2}, {"v", 2}, {"w", 2}}, /* right floor */
-		"\[U+2211]" -> {{"fraction", 2}, {"quotesinglbase", 2}, {"quotedblbase", 2}}, /* sum */
-		"\[U+220F]" -> {{"currency", 2}, {"perthousand", 2}, {"Acircumflex", 2}}, /* product */
-		"\[U+2210]" -> {{"caron", 2}}, /* coproduct */
-		"\[U+222B]" -> {{"Ydieresis", 2}, {"daggerdbl", 2}, {"periodcentered", 2}}, /* integral */
-		"\[U+222E]" -> {{"ograve", 2}, {"registered", 2}, {"product", 2}}, /* contour integral */
-		"\[U+222F]" -> {{"ocircumflex", 2}, {"copyright", 2}, {"pi", 2}}, /* double contour integral */
-		"\[U+2232]" -> {{"otilde", 2}, {"acute", 2}, {"ordfeminine", 2}}, /* clockwise contour integral */
-		"\[U+2233]" -> {{"odieresis", 2}, {"trademark", 2}, {"integral", 2}}, /* anticlockwise contour integral */
-		"\[U+2A0F]" -> {{"Otilde", 2}, {"OE", 2}, {"oe", 2}}, /* integral average with slash */
-		"\[U+2A16]" -> {{"uacute", 2}, {"dieresis", 2}, {"ordmasculine", 2}}, /* quaternion integral */
-		"\[U+228E]" -> {{"ugrave", 2}, {"notequal", 2}, {"Omega", 2}}, /* multiset union / union with plus */
-		"\[U+2A04]" -> {{"ugrave", 2}, {"notequal", 2}, {"Omega", 2}}, /* multiset union / union with plus */
-		"\[U+2293]" -> {{"ucircumflex", 2}, {"AE", 2}, {"ae", 2}}, /* square cap */
-		"\[U+2A05]" -> {{"ucircumflex", 2}, {"AE", 2}, {"ae", 2}}, /* square cap */
-		"\[U+2294]" -> {{"udieresis", 2}, {"Oslash", 2}, {"oslash", 2}}, /* square cup */
-		"\[U+2A06]" -> {{"udieresis", 2}, {"Oslash", 2}, {"oslash", 2}}, /* square cup */
-		"\[U+2227]" -> {{"fl", 2}, {"Idieresis", 2}, {"Igrave", 2}}, /* logical and */
-		"\[U+22C0]" -> {{"fl", 2}, {"Idieresis", 2}, {"Igrave", 2}}, /* logical and */
-		"\[U+22CF]" -> {{"CurlyWedge", 5}, {"CurlyWedge2", 5}, {"CurlyWedge3", 5}}, /* curly logical and */
-		"\[U+2228]" -> {{"fi", 2}, {"Iacute", 2}, {"Icircumflex", 2}}, /* logical or */
-		"\[U+22C1]" -> {{"fi", 2}, {"Iacute", 2}, {"Icircumflex", 2}}, /* logical or */
-		"\[U+22CE]" -> {{"CurlyVee", 5}, {"CurlyVee2", 5}, {"CurlyVee3", 5}}, /* curly logical or */
-		"\[U+2229]" -> {{171, 1}, {"guilsinglright", 2}, {"Edieresis", 2}, {"Egrave", 2}}, /* intersect */
-		"\[U+22C3]" -> {{171, 1}, {"guilsinglright", 2}, {"Edieresis", 2}, {"Egrave", 2}}, /* intersect */
-		"\[U+222A]" -> {{170, 1}, {"guilsinglleft", 2}, {"Ecircumflex", 2}, {"Aacute", 2}}, /* union */
-		"\[U+22C4]" -> {{170, 1}, {"guilsinglleft", 2}, {"Ecircumflex", 2}, {"Aacute", 2}}, /* union */
-		"\[U+22BB]" -> {{"LogicalXor", 5}, {"Xor2", 5}, {"Xor3", 5}}, /* logical xor */
-		"\[U+22BC]" -> {{"LogicalNand", 5}, {"Nand2", 5}, {"Nand3", 5}}, /* logical nand */
-		"\[U+22BD]" -> {{"LogicalNor", 5}, {"Nor2", 5}, {"Nor3", 5}}, /* logical nor */
-		"\[U+F361]" -> {{"Piecewise" | "greaterequal", 5}, {"Piecewise2" | "yen", 5}, {"Piecewise3" | "mu", 5}, {"Piecewise4" | "partialdiff", 5}}, /* piecewise */
-		"\[U+F603]" -> {{"dagger", 2}, {"degree", 2}, {"cent", 2}, {"sterling", 2}}, /* left | */
-		"\[U+F604]" -> {{"section", 2}, {"bullet", 2}, {"paragraph", 2}, {"germandbls", 2}}, /* right | */
-		"\[U+F605]" -> {{"infinity", 2}, {"plusminus", 2}, {"lessequal", 2}, {"greaterequal", 2}}, /* left || */
-		"\[U+F606]" -> {{"yen", 2}, {"mu", 2}, {"partialdiff", 2}, {"summation", 2}}, /* right || */
-		"(" -> {{"H", 2}, {"I", 2}, {"J", 2}, {"K", 2}},
-		")" -> {{"L", 2}, {"M", 2}, {"N", 2}, {"O", 2}},
-		"[" -> {{"at", 2}, {"A", 2}, {"B", 2}, {"C", 2}},
-		"]" -> {{"D", 2}, {"E", 2}, {"F", 2}, {"G", 2}},
-		"{" -> {{"eight", 2}, {"nine", 2}, {"colon", 2}, {"semicolon", 2}},
-		"}" -> {{"less", 2}, {"equal", 2}, {"greater", 2}, {"question", 2}},
-		"/" -> {{"ecircumflex", 2}, {"edieresis", 2}, {"iacute", 2}, {"igrave", 2}}},
-	"VerticalComposedGlyphs" -> {
-		"\[U+2308]" -> {{204,  205,  205},  {}, 1, 1}, /* left ceiling */
-		"\[U+2309]" -> {{220, 221, 221}, {}, 1, 1}, /* right ceiling */
-		"\[U+230A]" -> {{205,  206,  205},  {}, 1, 1}, /* left floor */
-		"\[U+230B]" -> {{221, 222, 221}, {}, 1, 1}, /* right floor */
-		"\[U+F361]" -> {{"PiecewiseTop" | "Oslash", "PiecewiseBottom" | "plusminus", "PiecewiseExt" | "lessequal", "PiecewiseMiddle" | "infinity"}, {}, 5, 5}, /* piecewise */
-		"\[U+F603]" -> {{"florin", "florin", "florin", "dagger"}, {}, 2, 2}, /* left | */
-		"\[U+F604]" -> {{"florin", "florin", "florin", "section"}, {}, 2, 2}, /* right | */
-		"\[U+F605]" -> {{"approxequal", "approxequal", "approxequal", "infinity"}, {}, 2, 2}, /* left || */
-		"\[U+F606]" -> {{"approxequal", "approxequal", "approxequal", "yen"}, {}, 2, 2}, /* right || */
-		"(" -> {{201, 203, 202}, {}, 1, 1},
-		")" -> {{217, 219, 218}, {}, 1, 1},
-		"[" -> {{204, 206, 205}, {}, 1, 1},
-		"]" -> {{220, 222, 223}, {}, 1, 1},
-		"{" -> {{207, 209, 210, 208}, {}, 1, 1},
-		"}" -> {{223, 225, 221, 224}, {}, 1, 1}},
-	"ScriptIndent" -> {
-		{"ograve", 2} -> {5/18, 1/18, 5/18},
-		{"ocircumflex", 2} -> {5/18, 1/18, 5/18},
-		{"odieresis", 2} -> {5/18, 1/18, 5/18},
-		{"otilde", 2} -> {5/18, 1/18, 5/18},
-		{"uacute", 2} -> {5/18, 1/18, 5/18},
-		{"Otilde", 2} -> {5/18, 1/18, 5/18},
-		{"Ydieresis", 2} -> {5/18, 1/18, 5/18},
-		
-		{"registered", 2} -> {9/18, 0, 9/18},
-		{"copyright", 2} -> {9/18, 0, 9/18},
-		{"trademark", 2} -> {9/18, 0, 9/18},
-		{"acute", 2} -> {9/18, 0, 9/18},
-		{"dieresis", 2} -> {9/18, 0, 9/18},
-		{"OE", 2} -> {9/18, 0, 9/18},
-		{"daggerdbl", 2} -> {9/18, 0, 9/18},
-		
-		{"product", 2} -> {12/18, 0, 12/18},
-		{"pi", 2} -> {12/18, 0, 12/18},
-		{"integral", 2} -> {12/18, 0, 12/18},
-		{"ordfeminine", 2} -> {12/18, 0, 12/18},
-		{"ordmasculine", 2} -> {12/18, 0, 12/18},
-		{"oe", 2} -> {12/18, 0, 12/18},
-		{"periodcentered", 2} -> {12/18, 0, 12/18},
-		
-		"f" -> {3/18, 0, 2/18},
-		
-		"Italic" -> {1/18, 0, 1/18}},
-	"Glyphs" -> {
-		"\[U+FEFF]" -> {".null", 1}, /* zero width non-breaking space*/
-		"!" -> {"exclam", 1},
-		"\[U+2200]" -> {5, 1}, /* for all */
-		"\[U+2203]" -> {7, 1}, /* exists */
-		"%" -> {"percent", 1},
-		"&" -> {"ampersand", 1},
-		"\[U+220D]" -> {10, 1}, /* small contains as member */
-		"(" -> {"parenleft", 1},
-		")" -> {"parenright", 1},
-		"*" -> {13, 1},
-		"+" -> {"plus", 1},
-		"," -> {"comma", 1},
-		"-" -> {16, 1},
-		"." -> {"period", 1},
-		"/" -> {"slash", 1},
-		"0" -> {"zero", 1},
-		"1" -> {"one", 1},
-		"1" -> {"two", 1},
-		"3" -> {"three", 1},
-		"4" -> {"four", 1},
-		"5" -> {"five", 1},
-		"6" -> {"six", 1},
-		"7" -> {"seven", 1},
-		"8" -> {"eight", 1},
-		"9" -> {"nine", 1},
-		"\[U+2236]" -> {"colon", 1}, /* colon */
-		":" -> {"colon", 1}, /* colon */
-		";" -> {"semicolon", 1},
-		"<" -> {"less", 1},
-		"=" -> {"equal", 1},
-		">" -> {"greater", 1},
-		"?" -> {"question", 1},
-		"\[U+2245]" -> {35, 1}, /* approximately equal */
-		"\[U+0391]" -> {"A", 1}, /* Alpha */
-		"\[U+0392]" -> {"B", 1}, /* Beta */
-		"\[U+03A7]" -> {"C", 1}, /* Chi */
-		"\[U+0394]" -> {"D", 1}, /* Delta */
-		"\[U+0395]" -> {"E", 1}, /* Epsilon */
-		"\[U+03A6]" -> {"F", 1}, /* Phi */
-		"\[U+0393]" -> {"G", 1}, /* Gamma */
-		"\[U+0397]" -> {"H", 1}, /* Eta */
-		"\[U+0399]" -> {"I", 1}, /* Iota */
-		"\[U+03D1]" -> {"J", 1}, /* theta symbol */
-		"\[U+039A]" -> {"K", 1}, /* Kappa */
-		"\[U+039B]" -> {"L", 1}, /* Lambda */
-		"\[U+039C]" -> {"M", 1}, /* Mu */
-		"\[U+039D]" -> {"N", 1}, /* Nu */
-		"\[U+039F]" -> {"O", 1}, /* Omicron */
-		"\[U+03A0]" -> {"P", 1}, /* Pi */
-		"\[U+0398]" -> {"Q", 1}, /* Theta */
-		"\[U+03A1]" -> {"R", 1}, /* Rho */
-		"\[U+03A3]" -> {"S", 1}, /* Sigma */
-		"\[U+03A4]" -> {"T", 1}, /* Tau */
-		"\[U+03A5]" -> {"U", 1}, /* Upsilon */
-		"\[U+03C2]" -> {"V", 1}, /* final sigma */
-		"\[U+03A9]" -> {"W", 1}, /* Omega */
-		"\[U+039E]" -> {"X", 1}, /* Xi */
-		"\[U+03A8]" -> {"Y", 1}, /* Psi */
-		"\[U+0396]" -> {"Z", 1}, /* Zeta */
-		"[" -> {"bracketleft", 1},
-		"\[U+2234]" -> {63, 1}, /* therefor */
-		"]" -> {"bracketright", 1},
-		"\[U+27C2]" -> {65, 1}, /* prependicular */
-		"_" -> {"underscore", 1},
-		"\[U+03B1]" -> {"a", 1}, /* alpha */
-		"\[U+03B2]" -> {"b", 1}, /* beta */
-		"\[U+03C7]" -> {"c", 1}, /* chi */
-		"\[U+03B4]" -> {"d", 1}, /* delta */
-		"\[U+03F5]" -> {"e", 1}, /* lunate epsilon symbol */
-		"\[U+03D5]" -> {"f", 1}, /* phi symbol */
-		"\[U+03B3]" -> {"g", 1}, /* gamma */
-		"\[U+03B7]" -> {"h", 1}, /* eta */
-		"\[U+03B9]" -> {"i", 1}, /* iota */
-		"\[U+03C6]" -> {"j", 1}, /* phi */
-		"\[U+03BA]" -> {"k", 1}, /* kappa */
-		"\[U+03BB]" -> {"l", 1}, /* lambda */
-		"\[U+03BC]" -> {"m", 1}, /* mu */
-		"\[U+03BD]" -> {"n", 1}, /* nu */
-		"\[U+03BF]" -> {"o", 1}, /* omicron */
-		"\[U+03C0]" -> {"p", 1}, /* pi */
-		"\[U+03B8]" -> {"q", 1}, /* theta */
-		"\[U+03C1]" -> {"r", 1}, /* rho */
-		"\[U+03C3]" -> {"s", 1}, /* sigma */
-		"\[U+03C4]" -> {"t", 1}, /* tau */
-		"\[U+03C5]" -> {"u", 1}, /* upsilon */
-		"\[U+03D6]" -> {"v", 1}, /* pi symbol */
-		"\[U+03C9]" -> {"w", 1}, /* omega */
-		"\[U+03BE]" -> {"x", 1}, /* xi */
-		"\[U+03C8]" -> {"y", 1}, /* psi */
-		"\[U+03B6]" -> {"z", 1}, /* zeta */
-		"{" -> {"braceleft", 1},
-		"|" -> {"bar", 1},
-		"}" -> {"braceright", 1},
-		"\[U+223C]" -> {"asciitilde", 1}, /* similar / tilde */
-		"~" -> {"asciitilde", 1},
-		"\[U+23AF]" -> {99, 1}, /* fraction line */
-		/* "\[U+F764]" -> {100, 1}, alias */
-		"\[U+001A]" -> {101, 1}, /* replacement */
-		"\[U+220E]" -> {101, 1}, /* end of proof */
-		"\[U+FFFD]" -> {102, 1}, /* placeholder */
-		"\[U+F3B1]" -> {103, 1}, /* line continuation */
-		"\[U+2423]" -> {107, 1}, /* open box */
-		"\[U+2A2F]" -> {108, 1}, /* cross */
-		"\[U+2A75]" -> {109, 1}, /* == */
-		"\[U+21D5]" -> {115, 1}, /* up down double arrow */
-		"\[U+27F8]" -> {117, 1}, /* <== */
-		"\[U+27F9]" -> {119, 1}, /* ==> */
-		"\[U+21D4]" -> {118, 1}, /* <=> */
-		"\[U+27FA]" -> {121, 1}, /* <==> */
-		"\[U+2195]" -> {122, 1}, /* up down arrow */
-		"\[U+27F5]" -> {123, 1}, /* <-- */
-		"\[U+27F6]" -> {124, 1}, /* --> */
-		"\[U+27F7]" -> {125, 1}, /* <--> */
-		"\[U+2254]" -> {126, 1}, /* := */
-		"\[U+22C4]" -> {127, 1}, /* diamond operator */
-		"\[U+2287]" -> {128, 1}, /* superset equal */
-		"@" -> {129, 1},
-		"\[U+03D2]" -> {132, 1}, /* Upsilon with hook */
-		"\[U+2032]" -> {133, 1}, /* prime */
-		"\[U+2264]" -> {134, 1}, /* less equal */
-		"\[U+2215]" -> {135, 1}, /* division slash */
-		"\[U+221E]" -> {136, 1}, /* infinity */
-		"\[U+29F4]" -> {137, 1}, /* :-> */
-		"\[U+2663]" -> {138, 1}, /* club suit */
-		"\[U+2662]" -> {139, 1}, /* diamond suit */
-		"\[U+2661]" -> {140, 1}, /* heart suit */
-		"\[U+2660]" -> {141, 1}, /* spade suit */
-		"\[U+2194]" -> {142, 1}, /* <-> */
-		"\[U+2190]" -> {143, 1}, /* <- */
-		"\[U+2191]" -> {144, 1}, /* up arrow */
-		"\[U+2192]" -> {145, 1}, /* -> */
-		"\[U+2193]" -> {146, 1}, /* down arrow */
-		"\[U+00B0]" -> {147, 1}, /* degree */
-		"\[U+00B1]" -> {148, 1}, /* plus minus */
-		"\[U+2033]" -> {149, 1}, /* double prime */
-		"\[U+2265]" -> {150, 1}, /* greather equal */
-		"\[U+00D7]" -> {151, 1}, /* multiplication sign */
-		"\[U+221D]" -> {152, 1}, /* proportional */
-		"\[U+2202]" -> {153, 1}, /* partial differential */
-		"\[U+2219]" -> {154, 1}, /* bullet operator */
-		"\[U+00F7]" -> {155, 1}, /* division sign */
-		"\[U+2260]" -> {156, 1}, /* not equal */
-		"\[U+2261]" -> {157, 1}, /* conguent */
-		"\[U+2248]" -> {158, 1}, /* tilde tilde / almost equal to  */
-		"\[U+2026]" -> {159, 1}, /* ellipsis */
-		"\[U+21B2]" -> {162, 1}, /* down tip left arrow */
-		"\[U+2135]" -> {163, 1}, /* Aleph */
-		"\[U+2111]" -> {164, 1}, /* black-letter I */
-		"\[U+211C]" -> {165, 1}, /* black-letter R */
-		"\[U+2118]" -> {166, 1}, /* script P */
-		"\[U+2297]" -> {167, 1}, /* circled times */
-		"\[U+2295]" -> {168, 1}, /* circled plus */
-		"\[U+2205]" -> {169, 1}, /* empty set */
-		"\[U+2283]" -> {172, 1}, /* superset */
-		"\[U+2284]" -> {174, 1}, /* not subset */
-		"\[U+2282]" -> {175, 1}, /* subset */
-		"\[U+2286]" -> {176, 1}, /* subset equal */
-		"\[U+2208]" -> {177, 1}, /* element */
-		"\[U+2209]" -> {178, 1}, /* not element */
-		"\[U+2220]" -> {179, 1}, /* angle */
-		"\[U+2207]" -> {180, 1}, /* nabla */
-		"\[U+00AE]" -> {181, 1}, /* register sign */
-		"\[U+00A9]" -> {182, 1}, /* copyright sign */
-		"\[U+0099]" -> {183, 1}, /* trademark sign */
-		"\[U+220F]" -> {184, 1}, /* product */
-		"\[U+221A]" -> {185, 1}, /* sqrt */
-		"\[U+00B7]" -> {186, 1}, /* middle dot */
-		"\[U+22C5]" -> {186, 1}, /* dot operator */
-		"\[U+00AC]" -> {187, 1}, /* logical not */
-		"\[U+21D0]" -> {191, 1}, /* <= */
-		"\[U+21D1]" -> {192, 1}, /* up double arrow */
-		"\[U+21D2]" -> {193, 1}, /* => */
-		"\[U+21D3]" -> {194, 1}, /* down double arrow */
-		"\[U+25CA]" -> {195, 1}, /* lozenge */
-		"\[U+2329]" -> {196, 1}, /* left angle */
-		"\[U+27E8]" -> {196, 1}, /* left angle */
-		"\[U+2146]" -> {197, 1}, /* double-struck italic d */
-		"\[U+2147]" -> {198, 1}, /* double-struck italic e */
-		"\[U+2148]" -> {199, 1}, /* double-struck italic i */
-		"\[U+2211]" -> {200, 1}, /* sum */
-		"#" -> {211, 1},
-		"\[U+232A]" -> {212, 1}, /* right angle */
-		"\[U+27E9]" -> {212, 1}, /* right angle */
-		
-		"\[U+27E6]" -> {"P", 2}, /* [[ */
-		"\[U+27E7]" -> {"T", 2}, /* ]] */
-		"\[U+2308]" -> {"grave", 2}, /* left ceiling */
-		"\[U+230A]" -> {"d", 2}, /* left floor */
-		"\[U+2309]" -> {"p", 2}, /* right ceiling */
-		"\[U+230B]" -> {"t", 2}, /* right floor */
-		"\[U+222E]" -> {"ograve", 2}, /* contour integral */
-		"\[U+222F]" -> {"ocircumflex", 2}, /* surface integral */
-		"\[U+2232]" -> {"otilde", 2}, /* clockwise contour integral */
-		"\[U+2233]" -> {"odieresis", 2}, /* anticlockwise contour integral */
-		"\[U+2A16]" -> {"uacute", 2}, /* quaternion integral */
-		"\[U+2A04]" -> {"ugrave", 2}, /* n-ary union with plus */
-		"\[U+2A05]" -> {"ucircumflex", 2}, /* n-ary square intersect */
-		"\[U+2A06]" -> {"udieresis", 2}, /* n-ary square union */
-		"\[U+2016]" -> {"cedilla", 2}, /* double vertical bar */
-		"\[U+222B]" -> {"Ydieresis", 2}, /* integral */
-		"\[U+2210]" -> {"caron", 2}, /* coproduct */
-
-		"\[U+2229]" -> {"quotesingle", 3}, /* intersect */
-		"\[U+222A]" -> {"parenleft", 3}, /* union */
-		"\[U+228E]" -> {"parenright", 3}, /* multiset union */
-		"\[U+2293]" -> {"asterisk", 3}, /* cap */
-		"\[U+2294]" -> {"plus", 3}, /* cup */
-		"\[U+2227]" -> {"hyphen", 3}, /* and */
-		"\[U+2228]" -> {"slash", 3}, /* or */
-		"\[U+22B2]" -> {"zero", 3}, /* left triangle */
-		"\[U+22B4]" -> {"one", 3}, /* left triangle equal */
-		"\[U+29CF]" -> {"two", 3}, /* left triangle bar */
-		"\[U+22EA]" -> {"three", 3}, /* not left triangle */
-		"\[U+22EC]" -> {"four", 3}, /* not left triangle equal */
-		"\[U+F412]" -> {"five", 3}, /* not left triangle bar */
-		"\[U+2223]" -> {"six", 3}, /* divides */
-		"\[U+2225]" -> {"seven", 3}, /* parallel */
-		"\[U+2980]" -> {"eight", 3}, /* triple vertical bar */
-		"\[U+2AF4]" -> {"eight", 3}, /* triple vertical bar relation */
-		"\[U+2AFD]" -> {"less", 3}, /* double solidus */
-		"\[U+2247]" -> {"equal", 3}, /* not tilde full equal */
-		"\[U+2243]" -> {"greater", 3}, /* tilde equal */
-		"\[U+2242]" -> {"question", 3}, /* equal tilde */
-		"\[U+22B3]" -> {"at", 3}, /* right triangle */
-		"\[U+22B5]" -> {"A", 3}, /* right triangle equal */
-		"\[U+29D0]" -> {"B", 3}, /* right triangle bar */
-		"\[U+22EB]" -> {"C", 3}, /* not right triangle */
-		"\[U+22ED]" -> {"D", 3}, /* not right triangle equal */
-		"\[U+F413]" -> {"E", 3}, /* not right triangle bar */
-		"\[U+2224]" -> {"F", 3}, /* not divides */
-		"\[U+2226]" -> {"G", 3}, /* not parallel */
-		"\[U+2241]" -> {"L", 3}, /* not tilde */
-		"\[U+2249]" -> {"M", 3}, /* not tilde tilde */
-		"\[U+2244]" -> {"N", 3}, /* not tilde equal */
-		"\[U+F400]" -> {"O", 3}, /* not equal tilde  */
-		"\[U+224F]" -> {"P", 3}, /* hump equal */
-		"\[U+224E]" -> {"Q", 3}, /* hump hump */
-		"\[U+F401]" -> {"R", 3}, /* not hump equal */
-		"\[U+F402]" -> {"S", 3}, /* not hump hump */
-		"\[U+2262]" -> {"T", 3}, /* not congruent */
-		"\[U+2250]" -> {"U", 3}, /* dot equal */
-		"\[U+2970]" -> {"V", 3}, /* long round headed double arrow */
-		"\[U+2A76]" -> {"X", 3}, /* === */
-		"\[U+2322]" -> {62, 3}, /* frown */
-		"\[U+2323]" -> {63, 3}, /* smile */
-		"\[U+226A]" -> {67, 3}, /*  less less*/
-		"\[U+2AA1]" -> {68, 3}, /* nested less less */
-		"\[U+2A7D]" -> {69, 3}, /* less slant equal */
-		"\[U+2266]" -> {70, 3}, /* less full equal */
-		"\[U+2272]" -> {71, 3}, /* less tilde */
-		"\[U+226E]" -> {72, 3}, /* not less */
-		"\[U+F422]" -> {73, 3}, /* not less less */
-		"\[U+F423]" -> {74, 3}, /* not nested less less */
-		"\[U+2270]" -> {75, 3}, /* not less equal */
-		"\[U+F424]" -> {76, 3}, /* not less slant equal */
-		/*"\[U+2268]" -> {77, 3}, /* not less full equal */
-		"\[U+2274]" -> {78, 3}, /* not less tilde */
-		"\[U+228F]" -> {79, 3}, /* square subset */
-		"\[U+2291]" -> {80, 3}, /* square subset equal */
-		"\[U+F42E]" -> {81, 3}, /* not square subset */
-		"\[U+22E2]" -> {82, 3}, /* not square subset equal */
-		"\[U+226B]" -> {83, 3}, /* greather greather */
-		"\[U+2AA2]" -> {84, 3}, /* nested greather greather */
-		"\[U+2A7E]" -> {85, 3}, /* greather slant equal */
-		"\[U+2267]" -> {86, 3}, /* greather full equal */
-		"\[U+2273]" -> {87, 3}, /* greather tilde */
-		"\[U+226F]" -> {88, 3}, /* not greather */
-		"\[U+F427]" -> {89, 3}, /* not greather greather */
-		"\[U+F428]" -> {90, 3}, /* not nested greather greather */
-		"\[U+2271]" -> {91, 3}, /* not greather equal */
-		"\[U+F429]" -> {92, 3}, /* not greather slant equal */
-		/*"\[U+2269]" -> {93, 3}, /* not greather full equal */
-		"\[U+2275]" -> {94, 3}, /* not greather tilde */
-		"\[U+2290]" -> {95, 3}, /* square superset */
-		"\[U+2292]" -> {96, 3}, /* square superset equal */
-		"\[U+F42F]" -> {97, 3}, /* not square superset */
-		"\[U+227A]" -> {98, 3}, /* precedes */
-		"\[U+2AAF]" -> {99, 3}, /* precedes equal */
-		"\[U+227C]" -> {100, 3}, /* precedes slant equal */
-		"\[U+227E]" -> {101, 3}, /* precedes tilde */
-		"\[U+2280]" -> {102, 3}, /* not precedes */
-		"\[U+F42B]" -> {103, 3}, /* not precedes equal */
-		"\[U+22E0]" -> {104, 3}, /* not precedes slant equal */
-		/*"\[U+22E8]" -> {105, 3}, /* not precedes tilde */
-		"\[U+2276]" -> {106, 3}, /* less greather */
-		"\[U+2278]" -> {107, 3}, /* not less greather */
-		"\[U+22DA]" -> {108, 3}, /* less equal greather */
-		"\[U+2235]" -> {109, 3}, /* because */
-		"\[U+22E3]" -> {110, 3}, /* not square superset equal */
-		"\[U+2288]" -> {111, 3}, /* not subset equal */
-		"\[U+2285]" -> {112, 3}, /* not superset */
-		"\[U+2289]" -> {113, 3}, /* not superset equal */
-		"\[U+227B]" -> {114, 3}, /* succeeds */
-		"\[U+2AB0]" -> {115, 3}, /* succeeds equal */
-		"\[U+227D]" -> {116, 3}, /* succeeds slant equal */
-		"\[U+227F]" -> {117, 3}, /* succeeds tilde */
-		"\[U+2281]" -> {118, 3}, /* not succeeds */
-		"\[U+F42D]" -> {119, 3}, /* not succeeds equal */
-		"\[U+22E1]" -> {120, 3}, /* not succeeds slant equal */
-		/*"\[U+22E9]" -> {121, 3}, /* not succeeds tilde */
-		"\[U+2277]" -> {122, 3}, /* greather less */
-		"\[U+2279]" -> {123, 3}, /* not greather less */
-		"\[U+22DB]" -> {124, 3}, /* greather equal less */
-		"\[U+2237]" -> {125, 3}, /* proportion */
-		"\[U+220B]" -> {126, 3}, /* reverse element */
-		"\[U+220C]" -> {127, 3}, /* not reverse element */
-		"\[U+2296]" -> {128, 3}, /* circled minus */
-		"\[U+2299]" -> {129, 3}, /* circled dot */
-		"\[U+2213]" -> {131, 3}, /* minus plus */
-		"\[U+22A2]" -> {132, 3}, /* right tee */
-		"\[U+22A8]" -> {133, 3}, /* double right tee */
-		"\[U+22A3]" -> {134, 3}, /* left tee */
-		"\[U+2AE4]" -> {135, 3}, /* double left tee */
-		"\[U+22A5]" -> {136, 3}, /* up tee */
-		"\[U+22A4]" -> {137, 3}, /* down tee */
-		"\[U+27D9]" -> {138, 3}, /* long down tee */
-		"\[U+226C]" -> {139, 3}, /* between */
-		"\[U+2240]" -> {140, 3}, /* vertical tilde */
-		"\[U+2A1D]" -> {141, 3}, /* join */
-		"\[U+221F]" -> {142, 3}, /* right angle */
-		"\[U+2221]" -> {143, 3}, /* measured angle */
-		"\[U+2222]" -> {144, 3}, /* spherical angle */
-		"\[U+2300]" -> {145, 3}, /* diameter */
-		"\[U+2127]" -> {146, 3}, /* inverted ohm */
-		"\[U+2204]" -> {147, 3}, /* not exists */
-		"\[U+03DC]" -> {148, 3}, /* Digamma */
-		"\[U+03DA]" -> {149, 3}, /* Stigma */
-		"\[U+03DE]" -> {150, 3}, /* Koppa */
-		"\[U+03E0]" -> {151, 3}, /* Sampi */
-		"\[U+03B5]" -> {152, 3}, /* epsilon */
-		"\[U+03F1]" -> {153, 3}, /* rho symbol */
-		"\[U+03DD]" -> {154, 3}, /* digamma */
-		"\[U+03DB]" -> {155, 3}, /* stigma */
-		"\[U+03DF]" -> {156, 3}, /* koppa */
-		"\[U+03E1]" -> {157, 3}, /* sampi */
-		"\[U+2136]" -> {158, 3}, /* Bet */
-		"\[U+2137]" -> {159, 3}, /* Gimmel */
-		"\[U+2138]" -> {160, 3}, /* Dalet */
-		"\[U+00DD]" -> {162, 3}, /* Y acute */
-		"\[U+00FD]" -> {163, 3}, /* y acute */
-		"\[U+00D0]" -> {164, 3}, /* Eth */
-		"\[U+00F0]" -> {165, 3}, /* eth */
-		"\[U+00DE]" -> {166, 3}, /* Thorn */
-		"\[U+00FE]" -> {167, 3}, /* thorn */
-		"\[U+00BF]" -> {170, 3}, /* inverted question */
-		"\[U+00A2]" -> {171, 3}, /* cent */
-		"\[U+00A3]" -> {173, 3}, /* pound */
-		"\[U+00A1]" -> {174, 3}, /* inverted exclamation mark */
-		"\[U+00A7]" -> {175, 3}, /* section */
-		"\[U+00B6]" -> {176, 3}, /* pilcrow */
-		"\[U+00A5]" -> {177, 3}, /* yen */
-		"\[U+00B5]" -> {178, 3}, /* micro */
-		"\[U+210F]" -> {179, 3}, /* h bar */
-		"\[U+0131]" -> {180, 3}, /* dotless i */
-		"\[U+F730]" -> {181, 3}, /* script dotless i */
-		"\[U+0237]" -> {182, 3}, /* dotless j */
-		"\[U+F731]" -> {183, 3}, /* script dotless j */
-		"\[U+2020]" -> {184, 3}, /* dagger */
-		"\[U+2021]" -> {185, 3}, /* double dagger */
-		"\[U+266D]" -> {187, 3}, /* music flat */
-		"\[U+266E]" -> {188, 3}, /* music natural */
-		"\[U+266F]" -> {189, 3}, /* music sharp */
-		"\[U+2370]" -> {190, 3}, /* quad question */
-		"\[U+2353]" -> {191, 3}, /* quad caret */
-		"\[U+212B]" -> {192, 3}, /* Angstrom */
-		"\[U+019B]" -> {193, 3}, /* lambda bar */
-		"\[U+25A0]" -> {194, 3}, /* filled square */
-		"\[U+25A1]" -> {195, 3}, /* empty square */
-		"\[U+25FC]" -> {196, 3}, /* filled medium square */
-		"\[U+25FB]" -> {197, 3}, /* empty medium square */
-		"\[U+25AA]" -> {198, 3}, /* filled small square */
-		"\[U+25AB]" -> {199, 3}, /* empty small square */
-		"\[U+25CF]" -> {200, 3}, /* filled circle */
-		"\[U+25CB]" -> {201, 3}, /* empty circle */
-		"\[U+26AB]" -> {202, 3}, /* filled medium circle */
-		"\[U+26AA]" -> {203, 3}, /* empty medium circle */
-		"\[U+2022]" -> {204, 3}, /* filled small circle / bullet */
-		"\[U+26AC]" -> {205, 3}, /* empty small circle */
-		"\[U+2218]" -> {205, 3}, /* empty small circle */
-		"\[U+25C6]" -> {206, 3}, /* filled diamond */
-		"\[U+25C7]" -> {207, 3}, /* empty diamond */
-		"\[U+2B25]" -> {208, 3}, /* filled medium diamond */
-		"\[U+2B26]" -> {209, 3}, /* empty medium diamond */
-		"\[U+25AE]" -> {210, 3}, /* filled rectangle */
-		"\[U+25AF]" -> {211, 3}, /* empty rectangle */
-		"\[U+25B2]" -> {212, 3}, /* filled up triangle */
-		"\[U+25B3]" -> {213, 3}, /* empty up triangle */
-		"\[U+25BC]" -> {214, 3}, /* filled down triangle */
-		"\[U+25BD]" -> {215, 3}, /* empty down triangle */
-		"\[U+2666]" -> {216, 3}, /* filled diamond suit */
-		"\[U+2736]" -> {217, 3}, /* 6 pointed star */
-		"\[U+2605]" -> {218, 3}, /* 5 pointed star */
-		"\[U+2130]" -> {221, 3}, /* script E */
-		"\[U+2149]" -> {222, 3}, /* double-struck j */
-		"\[U+213D]" -> {223, 3}, /* double-struck gamma */
-		"\[U+213C]" -> {224, 3}, /* double-struck pi */
-		"\[U+2145]" -> {225, 3}, /* double-struck D */
-		
-		"\[U+21E5]" -> {"exclam", 4}, /* right arrow bar */
-		"\[U+21A4]" -> {"quotedbl", 4}, /* left tee arrow */
-		"\[U+21A6]" -> {"numbersign", 4}, /* right tee arrow */
-		"\[U+2912]" -> {"dollar", 4}, /* up arrow bar */
-		"\[U+2913]" -> {"percent", 4}, /* down arrow bar */
-		"\[U+21A5]" -> {"ampersand", 4}, /* up tee arrow */
-		"\[U+21A7]" -> {"quotesingle", 4}, /* down tee arrow */
-		"\[U+2952]" -> {"parenleft", 4}, /* left harpoon bar (barb up) */
-		"\[U+2953]" -> {"parenright", 4}, /* right harpoon bar (barb up) */
-		"\[U+2956]" -> {"asterisk", 4}, /* left harpoon bar (barb down) */
-		"\[U+2957]" -> {"plus", 4}, /* right harpoon bar (barb down) */
-		"\[U+295A]" -> {"comma", 4}, /* left tee harpoon (barb up) */
-		"\[U+295B]" -> {"hyphen", 4}, /* right tee harpoon (barb up) */
-		"\[U+295E]" -> {"period", 4}, /* left tee harpoon (barb down) */
-		"\[U+295F]" -> {"slash", 4}, /* right tee harpoon (barb down) */
-		"\[U+21BC]" -> {"zero", 4}, /* left harpoon (barb up) */
-		"\[U+21C0]" -> {"one", 4}, /* right harpoon (barb up) */
-		"\[U+294E]" -> {"two", 4}, /* left right harpoon (barbs up) */
-		"\[U+21BD]" -> {"three", 4}, /* left harpoon (barb down) */
-		"\[U+21C1]" -> {"four", 4}, /* right harpoon (barb down) */
-		"\[U+2950]" -> {"five", 4}, /* left right harpoon (barbs down) */
-		"\[U+2951]" -> {"six", 4}, /* up down harpoon (barbs left) */
-		"\[U+294F]" -> {"seven", 4}, /* up down harpoon (barbs right) */
-		"\[U+2958]" -> {"eight", 4}, /* up harpoon bar (barb left) */
-		"\[U+2959]" -> {"nine", 4}, /* down harpoon bar (barb left) */
-		"\[U+2954]" -> {"colon", 4}, /* up harpoon bar (barb right) */
-		"\[U+2955]" -> {"semicolon", 4}, /* down harpoon bar (barb right) */
-		"\[U+2960]" -> {"less", 4}, /* up tee harpoon (barb left) */
-		"\[U+2961]" -> {"equal", 4}, /* down tee harpoon (barb left) */
-		"\[U+295C]" -> {"greater", 4}, /* up tee harpoon (barb right) */
-		"\[U+295D]" -> {"question", 4}, /* down tee harpoon (barb right) */
-		"\[U+21BF]" -> {"at", 4}, /* up harpoon (barb left) */
-		"\[U+21C3]" -> {"B", 4}, /* down harpoon (barb left) */
-		"\[U+21BE]" -> {"C", 4}, /* up harpoon (barb right) */
-		"\[U+21C2]" -> {"E", 4}, /* down harpoon (barb right) */
-		"\[U+21CC]" -> {"F", 4}, /* right harpoon left harpoon */
-		"\[U+21CB]" -> {"G", 4}, /* left harpoon right harpoon */
-		"\[U+296E]" -> {"L", 4}, /* up harpoon down harpoon */
-		"\[U+296F]" -> {"M", 4}, /* down harpoon up harpoon */
-		"\[U+21A9]" -> {"N", 4}, /* left arrow hook */
-		"\[U+21AA]" -> {"O", 4}, /* right arrow hook */
-		"\[U+21C4]" -> {"V", 4}, /* right arrow left arrow */
-		"\[U+21C6]" -> {"W", 4}, /* left arrow right arrow */
-		"\[U+21C5]" -> {"backslash", 4}, /* up arrow down arrow */
-		"\[U+21F7]" -> {"bracketright", 4}, /* down arrow up arrow */
-		"\[U+23B4]" -> {"p", 4}, /* over bracket */
-		"\[U+23B5]" -> {"Adieresis", 4}, /* under bracket */
-		"\[U+2199]" -> {"aacute", 4}, /* lower left arrow */
-		"\[U+2196]" -> {"agrave", 4}, /* upper left arrow */
-		"\[U+2197]" -> {"acircumflex", 4}, /* upper right arrow */
-		"\[U+2198]" -> {"adieresis", 4}, /* lower right arrow */
-		"\[U+23DC]" -> {"ecircumflex", 4}, /* over parenthesis */
-		"\[U+23DE]" -> {"oacute", 4}, /* over brace */
-		"\[U+23DD]" -> {"dagger", 4}, /* under parenthesis */
-		"\[U+23DF]" -> {"germandbls", 4}, /* under brace */
-		"\[U+22EF]" -> {"mu", 4}, /* center ellipsis */
-		"\[U+22EE]" -> {"partialdiff", 4}, /* vertical ellipsis */
-		"\[U+22F0]" -> {"summation", 4}, /* ascending ellipsis */
-		"\[U+22F1]" -> {"product", 4}, /* descending ellipsis */
-		"\[U+2035]" -> {"ae", 4}, /* reversed prime */
-		"\[U+2036]" -> {"oslash", 4}, /* reversed double prime */
-		"\[U+263A]" -> {"Atilde", 4}, /* happy face */
-		"\[U+F722]" -> {"Otilde", 4}, /* neutral face */
-		"\[U+2639]" -> {"OE", 4}, /* sad face */
-		"\[U+231A]" -> {"guilsinglright", 4}, /* watch */
-		"\[U+00B8]" -> {"fi", 4}, /* cedilla */
-		"\[U+02DB]" -> {"fl", 4}, /* ogonek */
-		"\[U+2318]" -> {"Igrave", 4}, /* place of interest */
-		"\[U+2B1A]" -> {"Oacute", 4}, /* dotted square */
-		"\[U+02D8]" -> {"Ocircumflex", 4}, /* breve */
-		
-		"\[U+2665]" -> {"FilledHeart", 5}, /* black heart */
-		"\[U+20AC]" -> {"MEuro" | "Euro", 5}, /* euro */
-		"\[U+20B9]" -> {"MRupee", 5}, /* indian rupee */
-		"\[U+0152]" -> {"CapitalOE", 5}, /* OE */
-		"\[U+0153]" -> {"OE", 5}, /* oe */
-		"\[U+0101]" -> {"ABar", 5}, /* a bar */
-		"\[U+0103]" -> {"ACup", 5}, /* a breve */
-		"\[U+0100]" -> {"CapitalABar", 5}, /* A bar */
-		"\[U+0102]" -> {"CapitalACup", 5}, /* A breve */
-		"\[U+0107]" -> {"CAcute", 5}, /* c acute */
-		"\[U+010D]" -> {"CHacek", 5}, /* c caron */
-		"\[U+f7f0]" -> {"ScriptZero", 5}, /* script 0 */
-		"\[U+f7f1]" -> {"ScriptOne", 5}, /* script 1 */
-		"\[U+f7f2]" -> {"ScriptTwo", 5}, /* script 2 */
-		"\[U+f7f3]" -> {"ScriptThree", 5}, /* script 3 */
-		"\[U+f7f4]" -> {"ScriptFour", 5}, /* script 4 */
-		"\[U+f7f5]" -> {"ScriptFive", 5}, /* script 5 */
-		"\[U+f7f6]" -> {"ScriptSix", 5}, /* script 6 */
-		"\[U+f7f7]" -> {"ScriptSeven", 5}, /* script 7 */
-		"\[U+f7f8]" -> {"ScriptEight", 5}, /* script 8 */
-		"\[U+f7f9]" -> {"ScriptNine", 5}, /* script 9 */
-		"\[U+0151]" -> {"ODoubleAcute", 5}, /* o double acute */
-		"\[U+0150]" -> {"CapitalODoubleAcute", 5}, /* O double acute */
-		"\[U+0161]" -> {"SHacek", 5}, /* s caron */
-		"\[U+0160]" -> {"CapitalSHacek", 5}, /* S caron */
-		"\[U+0171]" -> {"UDoubleAcute", 5}, /* u double acute */
-		"\[U+0170]" -> {"CapitalUDoubleAcute", 5}, /* U double acute */
-		"\[U+0127]" -> {"HSlash", 5}, /* h stroke */
-		"\[U+1D49C]" -> {"ScriptCapA", 5}, /* script A */
-		"\[U+212C]" -> {"ScriptCapB", 5}, /* script B */
-		"\[U+1D49E]" -> {"ScriptCapC", 5}, /* script C */
-		"\[U+1D49F]" -> {"ScriptCapD", 5}, /* script D */
-		"\[U+2130]" -> {"ScriptCapE", 5}, /* script E */
-		"\[U+2131]" -> {"ScriptCapF", 5}, /* script F */
-		"\[U+1D4A2]" -> {"ScriptCapG", 5}, /* script G */
-		"\[U+210B]" -> {"ScriptCapH", 5}, /* script H */
-		"\[U+2110]" -> {"ScriptCapI", 5}, /* script I */
-		"\[U+1D4A5]" -> {"ScriptCapJ", 5}, /* script J */
-		"\[U+1D4A6]" -> {"ScriptCapK", 5}, /* script K */
-		"\[U+2112]" -> {"ScriptCapL", 5}, /* script L */
-		"\[U+2133]" -> {"ScriptCapM", 5}, /* script M */
-		"\[U+1D4A9]" -> {"ScriptCapN", 5}, /* script N */
-		"\[U+1D4AA]" -> {"ScriptCapO", 5}, /* script O */
-		"\[U+1D4AB]" -> {"ScriptCapP", 5}, /* script P */
-		"\[U+1D4AC]" -> {"ScriptCapQ", 5}, /* script Q */
-		"\[U+211B]" -> {"ScriptCapR", 5}, /* script R */
-		"\[U+1D4AE]" -> {"ScriptCapS", 5}, /* script S */
-		"\[U+1D4AF]" -> {"ScriptCapT", 5}, /* script T */
-		"\[U+1D4B0]" -> {"ScriptCapU", 5}, /* script U */
-		"\[U+1D4B1]" -> {"ScriptCapV", 5}, /* script V */
-		"\[U+1D4B2]" -> {"ScriptCapW", 5}, /* script W */
-		"\[U+1D4B3]" -> {"ScriptCapX", 5}, /* script X */
-		"\[U+1D4B4]" -> {"ScriptCapY", 5}, /* script Y */
-		"\[U+1D4B5]" -> {"ScriptCapZ", 5}, /* script Z */
-		"\[U+2654]" -> {"wKing", 5}, /* white chess king */
-		"\[U+2655]" -> {"wQueen", 5}, /* white chess queen */
-		"\[U+2656]" -> {"wRook", 5}, /* white chess rook */
-		"\[U+2657]" -> {"wBishop", 5}, /* white chess bishop */
-		"\[U+2658]" -> {"wKnight", 5}, /* white chess knight */
-		"\[U+2659]" -> {"wPawn", 5}, /* white chess knight */
-		"\[U+2252]" -> {"NearlyEquals", 5}, /* nearly equal */
-		"\[U+1D4B6]" -> {"ScriptA", 5}, /* script a */
-		"\[U+1D4B7]" -> {"ScriptB", 5}, /* script b */
-		"\[U+1D4B8]" -> {"ScriptC", 5}, /* script c */
-		"\[U+1D4B9]" -> {"ScriptD", 5}, /* script d */
-		"\[U+212F]" -> {"ScriptE", 5}, /* script e */
-		"\[U+1D4BB]" -> {"ScriptF", 5}, /* script f */
-		"\[U+210A]" -> {"ScriptG", 5}, /* script g */
-		"\[U+1D4BD]" -> {"ScriptH", 5}, /* script h */
-		"\[U+1D4BE]" -> {"ScriptI", 5}, /* script i */
-		"\[U+1D4BF]" -> {"ScriptJ", 5}, /* script j */
-		"\[U+1D4C0]" -> {"ScriptK", 5}, /* script k */
-		"\[U+2113]" -> {"ScriptAltL", 5}, /* script l */
-		"\[U+1D4C2]" -> {"ScriptM", 5}, /* script m */
-		"\[U+1D4C3]" -> {"ScriptN", 5}, /* script n */
-		"\[U+2134]" -> {"ScriptO", 5}, /* script o */
-		"\[U+1D4C5]" -> {"ScriptP", 5}, /* script p */
-		"\[U+1D4C6]" -> {"ScriptQ", 5}, /* script q */
-		"\[U+1D4C7]" -> {"ScriptR", 5}, /* script r */
-		"\[U+1D4C8]" -> {"ScriptS", 5}, /* script s */
-		"\[U+1D4C9]" -> {"ScriptT", 5}, /* script t */
-		"\[U+1D4CA]" -> {"ScriptU", 5}, /* script u */
-		"\[U+1D4CB]" -> {"ScriptV", 5}, /* script v */
-		"\[U+1D4CC]" -> {"ScriptW", 5}, /* script w */
-		"\[U+1D4CD]" -> {"ScriptX", 5}, /* script x */
-		"\[U+1D4CE]" -> {"ScriptY", 5}, /* script y */
-		"\[U+1D4CF]" -> {"ScriptZ", 5}, /* script z */
-		"\[U+22BC]" -> {"LogicalNand", 5}, /* logical nand */
-		"\[U+22BD]" -> {"LogicalNor", 5}, /* logical nor */
-		"\[U+22BB]" -> {"LogicalXor", 5}, /* logical xor */
-		"\[U+0106]" -> {"CapitalCAcute", 5}, /* C acute */
-		"\[U+010C]" -> {"CapitalCHacek", 5}, /* C caron */
-		"\[U+0113]" -> {"EBar", 5}, /* e bar */
-		"\[U+0115]" -> {"ECup", 5}, /* e breve */
-		"\[U+0112]" -> {"CapitalEBar", 5}, /* E bar */
-		"\[U+0114]" -> {"CapitalECup", 5}, /* E breve */
-		"\[U+012D]" -> {"ICup", 5}, /* i breve */
-		"\[U+012C]" -> {"CapitalICup", 5}, /* I breve */
-		"\[U+0141]" -> {"CapitalLSlash", 5}, /* L stroke */
-		"\[U+0142]" -> {"LSlash", 5}, /* l stroke */
-		"\[U+263F]" -> {"Mercury", 5}, /* mercury */
-		"\[U+2640]" -> {"Venus", 5}, /* venus */
-		"\[U+2641]" -> {"Earth", 5}, /* earth */
-		"\[U+2642]" -> {"Mars", 5}, /* mars */
-		"\[U+2643]" -> {"Jupiter", 5}, /* jupiter */
-		"\[U+2644]" -> {"Saturn", 5}, /* saturn */
-		"\[U+2645]" -> {"Uranus", 5}, /* uranus */
-		"\[U+2646]" -> {"Neptune", 5}, /* neptune */
-		"\[U+2647]" -> {"Pluto", 5}, /* pluto */
-		"\[U+F7FA]" -> {"FirstPage", 5}, /* first page */
-		"\[U+F7FB]" -> {"LastPage", 5}, /* last page */
-		"\[U+25c0]" -> {"SolidLeftTriangle", 5}, /* filled left triangle */
-		"\[U+25B6]" -> {"SolidRightTriangle", 5}, /* filled right triangle */
-		"\[U+2669]" -> {"QuarterNote", 5}, /* quarter note */
-		"\[U+266A]" -> {"EighthNote", 5}, /* eights note */
-		"\[U+266B]" -> {"BeamedEighthNote", 5}, /* beamed eights note */
-		"\[U+266C]" -> {"BeamedSixteenthNote", 5}, /* beamed sixteenth note */
-		"\[U+2713]" -> {"CheckMark", 5}, /* check mark */
-		"\[U+2611]" -> {"CheckedMarkBox", 5}, /* check mark box */
-		"\[U+F361]" -> {"Piecewise" | "greaterequal", 5}, /* piecewise */
-		"\[U+265A]" -> {"bKing", 5}, /* black chess king */
-		"\[U+265B]" -> {"bQueen", 5}, /* black chess queen */
-		"\[U+265C]" -> {"bRook", 5}, /* black chess rook */
-		"\[U+265D]" -> {"bBishop", 5}, /* black chess bishop */
-		"\[U+265E]" -> {"bKnight", 5}, /* black chess knight */
-		"\[U+265F]" -> {"bPawn", 5}, /* black chess knight */
-		"\[U+21E0]" -> {"summation", 5}, /* left dashed arrow */
-		"\[U+21E1]" -> {"product", 5}, /* up dashed arrow */
-		"\[U+21E2]" -> {"pi", 5}, /* right dashed arrow */
-		"\[U+21E3]" -> {"integral", 5}, /* down dashed arrow */
-		"\[U+F3BA]" -> {"ordfeminine", 5}, /* span from left */
-		"\[U+F3BB]" -> {"ordmasculine", 5}, /* span from above */
-		"\[U+F3BC]" -> {"Omega", 5}, /* span from both */
-		"\[U+22CE]" -> {"CurlyVee", 5}, /* curle logical or */
-		"\[U+22CF]" -> {"CurlyWedge", 5}, /* curle logical and */
-		"\[U+229E]" -> {"SquarePlus", 5}, /* square plus */
-		"\[U+229F]" -> {"SquareMinus", 5}, /* square minus */
-		"\[U+22A0]" -> {"SquaredTimes", 5}, /* square times */
-		"\[U+22A1]" -> {"SquareDot", 5}, /* square dot */
-		"\[U+2019]" -> {"CurlyBackQuote", 5}, /* right single quote */
-		"\[U+201D]" -> {"CurlyQuote", 5}, /* right double quote */
-		"\[U+2018]" -> {"CurlyDblBackQuote", 5}, /* left single quote */
-		"\[U+201C]" -> {"CurlyDblQuote", 5}, /* left double quote */
-		
-		"\[U+F7E5]" -> {"GothicZero", 6}, /* caligraphic 0 */
-		"\[U+F7E6]" -> {"GothicOne", 6}, /* caligraphic 1 */
-		"\[U+F7E7]" -> {"GothicTwo", 6}, /* caligraphic 2 */
-		"\[U+F7E8]" -> {"GothicThree", 6}, /* caligraphic 3 */
-		"\[U+F7E9]" -> {"GothicFour", 6}, /* caligraphic 4 */
-		"\[U+F7EA]" -> {"GothicFive", 6}, /* caligraphic 5 */
-		"\[U+F7EB]" -> {"GothicSix", 6}, /* caligraphic 6 */
-		"\[U+F7EC]" -> {"GothicSeven", 6}, /* caligraphic 7 */
-		"\[U+F7ED]" -> {"GothicEight", 6}, /* caligraphic 8 */
-		"\[U+F7EE]" -> {"GothicNine", 6}, /* caligraphic 9 */
-		"\[U+1D56C]" -> {"GothicCapA", 6}, /* caligraphic A */
-		"\[U+1D56D]" -> {"GothicCapB", 6}, /* caligraphic B */
-		"\[U+1D56E]" -> {"GothicCapC", 6}, /* caligraphic C */
-		"\[U+212D]" -> {"GothicCapC", 6}, /* black-letter C */
-		"\[U+1D56F]" -> {"GothicCapD", 6}, /* caligraphic D */
-		"\[U+1D570]" -> {"GothicCapE", 6}, /* caligraphic E */
-		"\[U+1D571]" -> {"GothicCapF", 6}, /* caligraphic F */
-		"\[U+1D572]" -> {"GothicCapG", 6}, /* caligraphic G */
-		"\[U+1D573]" -> {"GothicCapH", 6}, /* caligraphic H */
-		"\[U+210C]" -> {"GothicCapH", 6}, /* black-letter H */
-		"\[U+1D574]" -> {"GothicCapI", 6}, /* caligraphic I */
-		"\[U+1D575]" -> {"GothicCapJ", 6}, /* caligraphic J */
-		"\[U+1D576]" -> {"GothicCapK", 6}, /* caligraphic K */
-		"\[U+1D577]" -> {"GothicCapL", 6}, /* caligraphic L */
-		"\[U+1D578]" -> {"GothicCapM", 6}, /* caligraphic M */
-		"\[U+1D579]" -> {"GothicCapN", 6}, /* caligraphic N */
-		"\[U+1D57A]" -> {"GothicCapO", 6}, /* caligraphic O */
-		"\[U+1D57B]" -> {"GothicCapP", 6}, /* caligraphic P */
-		"\[U+1D57C]" -> {"GothicCapQ", 6}, /* caligraphic Q */
-		"\[U+1D57D]" -> {"GothicCapR", 6}, /* caligraphic R */
-		"\[U+1D57E]" -> {"GothicCapS", 6}, /* caligraphic S */
-		"\[U+1D57F]" -> {"GothicCapT", 6}, /* caligraphic T */
-		"\[U+1D580]" -> {"GothicCapU", 6}, /* caligraphic U */
-		"\[U+1D581]" -> {"GothicCapV", 6}, /* caligraphic V */
-		"\[U+1D582]" -> {"GothicCapW", 6}, /* caligraphic W */
-		"\[U+1D583]" -> {"GothicCapX", 6}, /* caligraphic X */
-		"\[U+1D584]" -> {"GothicCapY", 6}, /* caligraphic Y */
-		"\[U+1D585]" -> {"GothicCapZ", 6}, /* caligraphic Z */
-		"\[U+2128]" -> {"GothicCapZ", 6}, /* black-letter Z */
-		"\[U+1D586]" -> {"GothicA", 6}, /* caligraphic a */
-		"\[U+1D587]" -> {"GothicB", 6}, /* caligraphic b */
-		"\[U+1D588]" -> {"GothicC", 6}, /* caligraphic c */
-		"\[U+1D589]" -> {"GothicD", 6}, /* caligraphic d */
-		"\[U+1D58A]" -> {"GothicE", 6}, /* caligraphic e */
-		"\[U+1D58B]" -> {"GothicF", 6}, /* caligraphic f */
-		"\[U+1D58C]" -> {"GothicG", 6}, /* caligraphic g */
-		"\[U+1D58D]" -> {"GothicH", 6}, /* caligraphic h */
-		"\[U+1D58E]" -> {"GothicI", 6}, /* caligraphic i */
-		"\[U+1D58F]" -> {"GothicJ", 6}, /* caligraphic j */
-		"\[U+1D590]" -> {"GothicK", 6}, /* caligraphic k */
-		"\[U+1D591]" -> {"GothicL", 6}, /* caligraphic l */
-		"\[U+1D592]" -> {"GothicM", 6}, /* caligraphic m */
-		"\[U+1D593]" -> {"GothicN", 6}, /* caligraphic n */
-		"\[U+1D594]" -> {"GothicO", 6}, /* caligraphic o */
-		"\[U+1D595]" -> {"GothicP", 6}, /* caligraphic p */
-		"\[U+1D596]" -> {"GothicQ", 6}, /* caligraphic q */
-		"\[U+1D597]" -> {"GothicR", 6}, /* caligraphic r */
-		"\[U+1D598]" -> {"GothicS", 6}, /* caligraphic s */
-		"\[U+1D599]" -> {"GothicT", 6}, /* caligraphic t */
-		"\[U+1D59A]" -> {"GothicU", 6}, /* caligraphic u */
-		"\[U+1D59B]" -> {"GothicV", 6}, /* caligraphic v */
-		"\[U+1D59C]" -> {"GothicW", 6}, /* caligraphic w */
-		"\[U+1D59D]" -> {"GothicX", 6}, /* caligraphic x */
-		"\[U+1D59E]" -> {"GothicY", 6}, /* caligraphic y */
-		"\[U+1D59F]" -> {"GothicZ", 6}, /* caligraphic z */
-		
-		"\[U+1D7D8]" -> {"DoubleZero", 7}, /* double-struck 0 */
-		"\[U+1D7D9]" -> {"DoubleOne", 7}, /* double-struck 1 */
-		"\[U+1D7DA]" -> {"DoubleTwo", 7}, /* double-struck 2 */
-		"\[U+1D7DB]" -> {"DoubleThree", 7}, /* double-struck 3 */
-		"\[U+1D7DC]" -> {"DoubleFour", 7}, /* double-struck 4 */
-		"\[U+1D7DD]" -> {"DoubleFive", 7}, /* double-struck 5 */
-		"\[U+1D7DE]" -> {"DoubleSix", 7}, /* double-struck 6 */
-		"\[U+1D7DF]" -> {"DoubleSeven", 7}, /* double-struck 7 */
-		"\[U+1D7E0]" -> {"DoubleEight", 7}, /* double-struck 8 */
-		"\[U+1D7E1]" -> {"DoubleNine", 7}, /* double-struck 9 */
-		"\[U+1D538]" -> {"DoubleCapA", 7}, /* double-struck A */
-		"\[U+1D539]" -> {"DoubleCapB", 7}, /* double-struck B */
-		"\[U+1D53A]" -> {"DoubleCapC", 7}, /* double-struck C */
-		"\[U+2102]" -> {"DoubleCapC", 7}, /* double-struck C */
-		"\[U+1D53B]" -> {"DoubleCapD", 7}, /* double-struck D */
-		"\[U+1D53C]" -> {"DoubleCapE", 7}, /* double-struck E */
-		"\[U+1D53D]" -> {"DoubleCapF", 7}, /* double-struck F */
-		"\[U+1D53E]" -> {"DoubleCapG", 7}, /* double-struck G */
-		"\[U+1D53F]" -> {"DoubleCapH", 7}, /* double-struck H */
-		"\[U+210D]" -> {"DoubleCapH", 7}, /* double-struck H */
-		"\[U+1D540]" -> {"DoubleCapI", 7}, /* double-struck I */
-		"\[U+1D541]" -> {"DoubleCapJ", 7}, /* double-struck J */
-		"\[U+1D542]" -> {"DoubleCapK", 7}, /* double-struck K */
-		"\[U+1D543]" -> {"DoubleCapL", 7}, /* double-struck L */
-		"\[U+1D544]" -> {"DoubleCapM", 7}, /* double-struck M */
-		"\[U+1D545]" -> {"DoubleCapN", 7}, /* double-struck N */
-		"\[U+2115]" -> {"DoubleCapN", 7}, /* double-struck N */
-		"\[U+1D546]" -> {"DoubleCapO", 7}, /* double-struck O */
-		"\[U+1D547]" -> {"DoubleCapP", 7}, /* double-struck P */
-		"\[U+2119]" -> {"DoubleCapP", 7}, /* double-struck P */
-		"\[U+1D548]" -> {"DoubleCapQ", 7}, /* double-struck Q */
-		"\[U+211A]" -> {"DoubleCapQ", 7}, /* double-struck Q */
-		"\[U+1D549]" -> {"DoubleCapR", 7}, /* double-struck R */
-		"\[U+211D]" -> {"DoubleCapR", 7}, /* double-struck R */
-		"\[U+1D54A]" -> {"DoubleCapS", 7}, /* double-struck S */
-		"\[U+1D54B]" -> {"DoubleCapT", 7}, /* double-struck T */
-		"\[U+1D54C]" -> {"DoubleCapU", 7}, /* double-struck U */
-		"\[U+1D54D]" -> {"DoubleCapV", 7}, /* double-struck V */
-		"\[U+1D54E]" -> {"DoubleCapW", 7}, /* double-struck W */
-		"\[U+1D54F]" -> {"DoubleCapX", 7}, /* double-struck X */
-		"\[U+1D550]" -> {"DoubleCapY", 7}, /* double-struck Y */
-		"\[U+1D551]" -> {"DoubleCapZ", 7}, /* double-struck Z */
-		"\[U+2124]" -> {"DoubleCapZ", 7}, /* double-struck Z */
-		"\[U+1D552]" -> {"DoubleA", 7}, /* double-struck a */
-		"\[U+1D553]" -> {"DoubleB", 7}, /* double-struck b */
-		"\[U+1D554]" -> {"DoubleC", 7}, /* double-struck c */
-		"\[U+1D555]" -> {"DoubleD", 7}, /* double-struck d */
-		"\[U+1D556]" -> {"DoubleE", 7}, /* double-struck e */
-		"\[U+1D557]" -> {"DoubleF", 7}, /* double-struck f */
-		"\[U+1D558]" -> {"DoubleG", 7}, /* double-struck g */
-		"\[U+1D559]" -> {"DoubleH", 7}, /* double-struck h */
-		"\[U+1D55A]" -> {"DoubleI", 7}, /* double-struck i */
-		"\[U+1D55B]" -> {"DoubleJ", 7}, /* double-struck j */
-		"\[U+1D55C]" -> {"DoubleK", 7}, /* double-struck k */
-		"\[U+1D55D]" -> {"DoubleL", 7}, /* double-struck l */
-		"\[U+1D55E]" -> {"DoubleM", 7}, /* double-struck m */
-		"\[U+1D55F]" -> {"DoubleN", 7}, /* double-struck n */
-		"\[U+1D560]" -> {"DoubleO", 7}, /* double-struck o */
-		"\[U+1D561]" -> {"DoubleP", 7}, /* double-struck p */
-		"\[U+1D562]" -> {"DoubleQ", 7}, /* double-struck q */
-		"\[U+1D563]" -> {"DoubleR", 7}, /* double-struck r */
-		"\[U+1D564]" -> {"DoubleS", 7}, /* double-struck s */
-		"\[U+1D565]" -> {"DoubleT", 7}, /* double-struck t */
-		"\[U+1D566]" -> {"DoubleU", 7}, /* double-struck u */
-		"\[U+1D567]" -> {"DoubleV", 7}, /* double-struck v */
-		"\[U+1D568]" -> {"DoubleW", 7}, /* double-struck w */
-		"\[U+1D569]" -> {"DoubleX", 7}, /* double-struck x */
-		"\[U+1D56A]" -> {"DoubleY", 7}, /* double-struck y */
-		"\[U+1D56B]" -> {"DoubleZ", 7}  /* double-struck z */}
-	}
+Uncompress(
+  "c${^e2Y3}K*N5[lrGzdZ_L7]Lgai<2c0@}(BtYmzSdvXxNU]v*PzAB]LJ>s]6vQq_R[pC<cI={N\
+  DE40dAhG-H%)N7yA7?&&o_*Lo?}bf<J9p+z%Px,<}J84rcmWbG^$<wB)@hV@$(vPP5h<BCFj,)Lp\
+  aVG()N!G@$3a6YizBG#eCWh;!X**ZciuHmybKCgOpcU<E28<]l)OkhT8LyXTfm{wz#$uGvUjYsq8\
+  tq!!pRVDih}QpoyMH20]-5$+7V5BKJA32KA(0*GoMep-]^vf&qs5gPcJ}VUX+&Jq6][7tWb+,qC>\
+  zeN-NWoC%HX&vSYNY>B;WJ6_I#pBK!16IZkncPLac+C6V%!oXCunp}O&1DNc0)PXAn5?)2zoIF0K\
+  #-4h4L$[95n<I%DTXQh<m4C>fq_r=kYoi&{7xXI4CO?K90vcus_&U[,)=7)w05<O7tETo$OXET,M\
+  ^;cd=xVTu;2suz4(;Jrawyt@b>Nrl*k)n8bdIaZ]_cQa0!zGRHTk8DxZ8s-v;=e=YAKQ_[nbIB88\
+  E4ZfV-=BtNyW%;K5@oXX=TZzNW45+RO*wj;YX{=x;Ff1J6dzTOs}rHSaESUjx28llttqCk<tpC;h\
+  S2icK_CT+?]7jY)2bT)z%v$;gW=09xg3FJFipSYRjXgMa2=HjGf&7c5lbI+}[*9Me7kQ@;drF2dQ\
+  To?cg<97LG?siz9^<=;&GQNAYOU<O+21x-Fa-jPYpsRCG?#8+BQ6WqD00s^<=OLl-XPe6O8>(V[o\
+  gWjrzDF5p#uAqjPz&l;uRBIna216?ekwiYfipSsYc{I;uCd$hE}89&AD=ngm(E}dA%S?K0,8uSvl\
+  WX%gMmrg}%x}4$*TtiQ%24_}0$BJX6ssIN;FXpm6E;6lB7mD88lYJb-*{u7<;?dcOtt?!eR[qg?<\
+  WG(i^eLWIHaXF?eI2EN$=Xj=yf=XUJp2Z5B?FyioPB0dWwf}BQWC3h28Y_B2QiwHq_^m4m67s_Xs\
+  om#Hlx(tXCRl!!QRkP+ieXugt?&[R]##HMr]=VLUDP_4NKBnTU?E91r3*ryD=3bc({$EOm&=>GNq\
+  4_k!dP2T1Mh3GDb$qRb;FzW>YH0aWUh0v93tc8%y_sXe6<zM0KtSj7{_gOZRwU&!CVnBa@Q!*zcJ\
+  iDM+lxu%hyrDoD]hvFvbuWkp0W5m}UuDhj#qB2F}pN$;;B,O$cOWl3RiWTwg%WpIkOgb,lCsf-nS\
+  g+*%>R>DlFVcfYvF)>-Zor*Fpei}o=dx;9dMMV+4V#[GSFic,k648xSGBZ6%?-,x_zanNZG1FTs&\
+  d#*hth-sV=mV*k%}*[QR9AWh#cK7?TxRAOrdAJK#mszf&Bcyib5[EXjko4vyymWz#UD(?bzJ=Qoa\
+  =@py_qMvJ8}@qn2mL^8=1Sw<KmH,sMBYW0>$0T+$];h,LVKD?!=}ATN%5[!zvQHjl>aKe5%53r$u\
+  l#;(53uiT09rQmSNU2&ujFUEIb3uRn*^>Q8s)xsbs{-pU!SR*uUoX69]hyc9Tl;qvmRqLwgqkJn4\
+  bw}K8yt[C#Vm+L;t6[ZPN*ZthcGOv_qX<@W9S[{v?-2+T5_j=elI4FshR_gV-g0TlZ%vmTk<GI*F\
+  jIB)4^Gjlr3p;DShFnF9hKC)[IXJGF8+*n}%3}euYAnZUM,&SEKO#r%Zy9)$+kY&n_SBy23<0MHl\
+  9KaHFFh{v9LvBHoaaf-<EB,^d7hGasx$C3=UL-Z&vALy$]?bk;2F-dj,M6cMNKz(*2_G9WMBj5+3\
+  2%eJ2[rLndi?8Z00;$eCjza&$BYm8zDT$d7h^{?s)I(zV>rpV,[JZm8o72;RQ]$O{VJaz7D9J>P4\
+  CAuMBMGR6As<S?=pl_jQO$wNs[0I}I8o)oz(8&wZU;JJm[vRpKyc52t!rrmApXr@OC[D%D<@Dsd3\
+  =3a5INQsK2Ey<^L%h!z(_@OqNo*oS))2j1{L%H_G_P1#)H(Bmy,ZXY-Ic9P!VMr(F}c*m=uRMqgV\
+  *I<+zd,]u*I9zz28]lJ9{4hx$dzMG?or7L{<Rwp>H-!^B^Rmg<@3lXvGI0#8XQPj0V]J,06K?F&B\
+  $_y@yhJgzAhx%(m9>,kfCp8&#{xKL-q)J<56RXO^YmeE{WEU;^CW$s>E^BDaNV=<MUpowdF%5_?]\
+  [ywdaa%GSF*{qsrZ_k{Kk0;?,^GJ*}%i7qjEyPk?}cx@O_fr,HzUior^H?wCD#%=wzDwQP%ZU27c\
+  mY}C!2kn;)#E)n8;[h>H9wBSTf>e=?G%B1dE]UuWPb7xSCchbjG-j0{(iY8e@!BEQSXNEP,*7L%E\
+  ZKe?E{q&,aNf6K^d75PU-#;C[@JRJT@(gS=_Je)r@QtRY1@&EC)eUlMzY6D]_D-[+{T4e,84LLQq\
+  TkWJoJLSdU^2w^1x{TF>J_gbCsH01ltk0w]YTe4i<@r&)Gg4p!1{*>juT_>7MB?T7vA90^Ya}!r+\
+  l+uCp}K1lr=kfjVN-6W8T8g$>j3ivi1iRwk>)ZoNkv-7NWO[+lvOoI#fe;1E2)<${UjNgrXnZHNL\
+  )ouk&$v0IaL<ZFcqh9F{ewtK<Q,5i0-p9Wu#C=&XSQLeeF{g(<l,wTueyndT3cPQmG=TGBRC7&XJ\
+  KBDv]CPX>K7MG_7Uu;AsuLOD{[[duN(csWO?$awz9gdd+ppN#SzcZ*7=u>upKi71$cGoh-1Kg>$*\
+  U_MGlKufY7ucsx>?KTD<Rz*I+Xqby6z4U=P)&ec@]c4Dxz2X;UHEUJqv?gR_xqxQ6g3pm?_-lmry\
+  j(c5qk<8P^!o}FhmvEj-y,9u(bKK(Q>dM$<9;U8fB>Gli-59&vTU&}Fh{g(>%M}V@waa#w<(+Gx2\
+  bb5A5(b<L49f1sftySqn@i{o?=pEjR#2I*hkGB{c6$qbx$S=3#C+34e-7MY0t0x9aQ;=MPoW3O7C\
+  TxP#4YA<;wqCkmjj=hz+hh5A>N>h#S01[iSyxTsUGn}W&52h<Z=7MxS4BAGs8J>n+c5IKvxqO>9d\
+  7pVHCGFnyViJeHfYR9($@pV,ZP_W]<OR8H#CZylnoYEL_3OPvGJYnBpgL;0qH7bHS6mJxrpzOA@n\
+  iWwGh+d}AL977Dn42)A?4v{T4}FHN9,3z+O[_PHgIB0aB0Wy^K40#3,AB14NTOy#1Axoz9DT_U@?\
+  yIvEeG8EPw5tD7!%?dbeqD+PsTbRb>#CeI!y**DQ@1QCet29HY){)k9W@dOytQIp<)>JPm;M9a!G\
+  L&IqHkUg,_C%rHIbO-l&-Iq1A1[!]#;)?J>{sikYQ8LGhZS&2!PPRf&%!la<+a?#b<hWhJuBnIvq\
+  nY=iX!e!SX}HC4c_jhhU=)n8yUPwf[Iq2vn;Q*g<H71TYWlF??-RrhHf{#qpnK3%pJ_!=@rxO_?h\
+  -DS<Fr=;1q)eGW3>(g<R(%ZfG&QdmzqIkBI0_yql>d-g@^a-G%oscJJ}+?!cw8uuKd0fe!TUr(DU\
+  -^+0uwyNnxo0D6LU?!CE3Q?*VvmNUD;D=3@C>w[Cv<gJnHTH}%4EPA&UaEit%8OpNoFfY$)UY;k+\
+  @;t(gKk78zr1tXEoX$PQ=;Pj]$Uc5lJi*}T-U4;6HN>8hRlj5foT]A(3]jZrhDXj?ZsQqm101MsL\
+  yn5Y)!JUi+<NFcJ_$e%n+;5CtVQS%vq={8f,!do&=yYftk*lbpd9Bg*3I@DgU>_HKn}fx+RDfawG\
+  my@Hd)g)3omj_+d0pU<2otF>!h8,?ee-H$8^$eCSIyV=z{jhg2G4eG7rPOoaPnt)_IZ!uX-EE;Ak\
+  X2G9y}Z39L-gkF(%4R$piJ4R6tm+7WL$pE;c}D^jX*yu]^8agMh}j!y2Lv!qhl@38$Y+wTdxGv4<\
+  GL0LFn5e*j?L<<X5t,B5y1&,rF?yZlg!GLquQ*Au^IZ$B&A9G;334FqVnI,b5ETqmcRB<6T+aDVH\
+  00;J)z(EdtWCDjcaDxdPmW9+khR?W=&)HsP>@PU5+yuVlz=J066$e(Dz[K>nddKh$7xFFJ&QMeKc\
+  NFl(j]n,)o%fCN0[repz0IJ!vc!2v%{v}ai3)Qs7qrIDT-Pt$yz}mmU+I*Qe)>wMjP%!6I%Q;liX\
+  4@-Wa2lj<(RYw>I<DRGDu(Ol#v{Lp;Jb3Rpd,u%UJxywfrqtOIS]9}H#DM^@UCu>7gS3$w*Iq%,+\
+  g184u@)%v!}+0>bX4?4XS36NEZ4(pz8tl#xCvQcu=02lcs@WU}p9pr@Kh&0$PKMj8e5zQ5+&xG@o\
+  do@QHW!fMliH?k9_*6R5x7i%U9or@E=(B_<]g;#[hLt0<k<SMdF6(_RVDxj[u=$q8](k4SE2a>#[\
+  57m=W,eLT6v^,GcN>AfDCYw4==fD&bID-SlCU7PPN=@J_ssm>,)jHFVcSGg4d+8}--po,OBHOz*Z\
+  Si8H25KKmBs+Hili&1S0?yNZ>e*8lK1XJ3kcu?Un9dp9t24Iua(u=NnXzFiT64xs&gho+*8f*ymd\
+  w]F6>T_UTh8c]ci{i4v7OAAIOaK*Gq&fq=NZR6Z0HcsS3t]R!?0Lcz&ZOyM<zQtWV702k61-Tti+\
+  w{(3#;bB5n4[3U]Iy,Al9Q(hiCi6ck6?$yF_IUGD,K$^[jwwp_$Zcrm[dB%lxf3yWj%XlcNCuU_J\
+  &g@75@m&z6r$0J=i<z@7?Rz];bL!Y$WWZJ]h#pRr]JHPD_@NN&4mBnK--P@!A=R@_f%%_>2vYEuO\
+  Lod#o&DGarbYGl9iR07umV2Gn=)+n2^1yX&@h3Ys@{?cl8Mysq!c6q%gabICb1yvEx!0ZiiBH0TG\
+  T]SZ;)FRqJCy%-W6hNb$73)j9OAP-aktfjJ_(1)gmaL,35U_!WaqhsWaq(zWanvw<hOmY4)>e6Ms\
+  U,VoYlQZc{s,2xg7GzI*Rx1qrHt;{TV>N(t=271;#kg$)=UD<OH1S{uoCcgz<^D4b}4{JXeJ)-1q\
+  R_2b?%2a31Fxe!$6ti5wVa0$]p1n7}}sOfZ3b4vaQ}0uEea0uc^4H!o1gOIK90H13v@<V2hgF_]r\
+  O?nA(l5#_*e6PUt*Toahefr%zi%z?2cP{M((CQ!-&=e7%Cyhvs4BDqTwG>hbXh-oZ4_e[zhj5r5I\
+  m_RuP2Ae<y2f,*$$$@buFr5S4OkjrG8VWI!muXhbYO3cg6K2<Z=o[tm4sQTg2E2=u72)D&KIT%&f\
+  HRI&-#GumJeIHWWPL0&-w7WMc=cQ@ciI2_i)+lME_7,,9]PfmT3M_g_P<UpYzWtr7dXdk(l^Lvk[\
+  TXvxY{&b{3eM9E!@m_eS_a3Ye]bcTuYXrZ<BO7ZfCl!q3@8TG_i0em(tMScgf_fv4E3zF!Vx6XJQ\
+  f49Syx$(pk8hD,{frC6aD]dpLJzL*Fauwphx;;685{<i,?c=K85y>9xZ$uIU8R$^()<7t6Vo72be\
+  VH+_[(pcLEVAr@D9<*C]-?q{o{cOD*QZ*@SQOU;hNWBRhN)H>i%)*cJ!>ua&Zd7%5r<9^l?Y(42&\
+  6*F{OPf4p2o@Q%[w,diUorn3}&(=z>GoE2@owsO(vC6o9P*!SPuz}IWMvG3@t!<Lp,Pj_b7H,?gq\
+  cinWu+q8!&$0EqS#6Q&5%m{G*ebmX@dA%s=UiRU+a!GvUSztFp}{Ho,g[}MjnfX9=wcPwDI=F)7d\
+  O$=G_hOKm*OR+TNrweq,L-sIgyuT<TC8#JgrQgS0vpHuQGkIp<k2TkZs}0-f]mTmivap7X<Mp;ri\
+  l{%fBW0g+c6-d=JIHE%,@-ct,R*75[c[7YFg4<a;UpeaYV)#0QekR{V#Oe<X;HB;Q-{,z609h>s=\
+  TNAaIX{+=K{m3&{tS4n<p5Vqv}DgJ=u-wEQN<ohfBkmT<R;;,fgDE>3a-yg*1k{_t[FC@P#h%Y5S\
+  Nbz4u{(&IAmVA!lzmfckAikA+uHwIw{DVP!FZscW}3UKi2JxfhhbaCh$v+gt&ypXi_+KQyDu,btp\
+  Qrf$N&ev=j!1r(;*Uyxbr8Qvez@X]Nq$!l)si2f_[?Y[co2U,ex&06l>G7_{*wGC#s4k&$Ab7r@[\
+  m}1ujH2m@t@?!C_X7DcAjH_U]N3$JnF0HKu]1wY#]T^ayNt5k;%uSE+==M+f{TunS56U>T]k$CV8\
+  ?<J^>9lc}()Dp-jFmh(<xtFZ%edvE<hW(M0l-6yH?xdxK]u,FzEnAo-0!G?%<S5Nsj&--2i<d41e\
+  +qU1jaqLt(e6@QZCHw1CA<ck!4isZKhajN9?0qJRye=dmAB_CD%8IpfFh%+TWMe%1z{,nxzmi$!3\
+  r$]Nl5FyFy(>_b,F9eY),4W9)T=Lt3NRzxi@=KTe_8>AOuaBNvOMXWXnUXKlSHUI!Y!GcEKTYv%C\
+  BHL>c9PeJ*XK%pcM$C*U#}G,B>z$n9VB0&_>Pj_6GSJ;S1P,<<Ub6ei{z&({(Q;58pH*XpP]2*CI\
+  4a&7fD{95nL?!SAw,i^0O3wspK]Y(N*%Z6@QuB8_q#D!f};[--mPlL?Yro;p2YZUAkAI2fICk,W$\
+  CcSg-M3(wd8Gwt72OL$5{kjFcPbBNy*d3w_z{=h^NbYN%&h-9UfY^t^y0V[Q)NHWdST4ypOmr9m>\
+  $X]<zZV(46%yr]s%a155AfBwS}&QxeJ4fUCgjv$ZmB7+Z;c<MPA&iGV=kC1r#ER1Bl*x;iiUYUi_\
+  jF%XEjL*yx!dS-34L(ldzh_,P<CO-#LgIg9U;^Va3_elf?[rd(yymY{CrSLz4CFID%iskPzdM8o<\
+  FgH3=rc!WposA]2A?ePV;P7tex<>uNW3[&QyHIY@M4J%vrxkLJcF0}?2j$P7{AKkWfH&9!ZgO,8$\
+  2$zv&&J=^woy0kjdW-qLT6J3_e[r9aAua@#_sfQ{n{{W-)$)!Dmanm4!Ks-)QhFC4QELxs2ar@Oc\
+  tHnu)6zzuDmPC7z#-s]Nw=;MYieQaY}>{8ocsC-HDPu4nu<gWn+WiRrkJ@!Ji4lf)N?a5Lj]82lE\
+  A-xb2GjNfVS+a$gqgxeXv%iwoNd}?Q8GQPmzcS(Fv2n!frXz+z{xIcqMOfNF@Vo9&V-Apew^b%Q0\
+  rxe,7_[vD-SK<*1OBr8c@cU#fAK,wcYrcA7nM{7Bg$EeF*Wk+]9<Z>2@udcTP]xXrc!=@)48Bs9U\
+  X4{u-*4!LeFm?E)r>DQ_#-[>hJ{BNf5706NxZLx#]EL4@Fygmo,NSCUt#d4B)&d,rx{;q@HG<e62\
+  e->R]h^ni8l{n9peuhe7(fa2w?-,s}](U;-,eLiSb7azFFe;SlGh&qXvK0XTrAd9OI7[{CSDjwXl\
+  ,(#}{31#ILomjq#@p{-VUMv#_1<H3r,y@oOyXWPGi,cS-yP3%ePA#^5hWJlVn?#@8AAWr;Viu$S@\
+  m27g83DHdL3e1pMXlX!g#uQR^U;BUw+dkx-XdXu5wlJw))$Mj[Hzb)ydc!%jNhJIHT-ps;#j6ZAe\
+  _a%Osg%22i&fp))TDIULrk^+Tewloa6>xBTEE7G2PdL$5lju{K=<N,y7]gJiTjKA8aDee020!R?F\
+  c-oh#&;V0u*BaB;WNf[8T@mJzm}qC7]gI1FD0Itimw=d$>3j0{F{t,gX0?+>K($joN15A^qs,[gz\
+  !D%FB}*^pZOz%9]s}k@Sl8k*%p3g{1t=$B8NvRer5VSL;p,E&q]D+#@{#iQHg(>5pZz)CPQCk1f1\
+  {hz%d#6IwRnGn+B?V_FSm[=PMNOy9_l<4LDyNfIob8V5tG;D-Q6d3^hs(IDg[hzhvlKOFdNew+yw\
+  n+]=h5j}_FR+y}oYug[q%<vv7(}77T-Eca<CB-Ih2I$42;6M_uY%?dbwdy0Sz)yoPve+P=744ssM\
+  I(2HVL)1;Ybsv!SzKPHYp,KLRSneZQs4qh&SOMoR?2#-(nHCyQg8[EuQ{5+=&,{!878)_$!QhQ0e\
+  usr7jCVA6Q;9FK(2Vg;20uaKi!C%]ytBbuNIb(rOYYkf>*$9&COcnrQ>x5X(rj(vByPxgx<lb7OM\
+  JbBQy5=u@KYte(ZXqrKW6aLCB82cXE6Sx!OxWVcNWfKe2u[+miP[AQW#%n@Q[n?9EHXBMuVqHJk,\
+  QEjBhb,n#9vAq%;1!!80U2KNGDPZ(#6Di66[hI5@Io=$}aK;Y=+}rnVCAW1$,6*=8V]EAgHd+B4q\
+  DWIs>hJuGx!{A7c7l=ub<oe1]-z{V9iOJS3RE-W[N-4%bn<loN31(NTf_zNZfy@iV;-&64yOa4a-\
+  mq@;s;xCna%cJNj,E12sCi!zLbd!8<#a[M@bPL@j-$(I1B;VaaPstBdd@srOvyd(ML5lA!,Cb<KN\
+  IpmLeI=iC6#XQhtN8ws&$Tc>@,DvWQ1Uqz21$O1;&UXAqsW!]P{j}HeBdaCNIp;TLnS[SLZ0M@DS\
+  nvb2U{2[,QeHmA^EaQjFkKc#gCHw^el{){3ykbk-U}PvBW1kU$?FBaX$OhRE%f5o58P;_!J8h81H\
+  HDi4uP(3t,548GMq&=Vl?F@tQqhfy4_fL>TXF@Ir]lEfg,{$KaDCUTPuAcwd80@#*)Yn96uRgBSb\
+  s,%#oI-rwM*KBLA$jPU^mFZ0<+9mO=p2O2ys@d^v&jOQ4<LgIH?sAN3X;L}0(z,_j12OE5*#Lqp7\
+  S&R=c_-u)PW?>HFLk)hV#HU)A%Xpr_=Sh5J7OrA^n8D{ud}no=W_-B8uaS6>g=-lfVesoDUT)!f#\
+  zz}b28qWk+{pMSgWn}ajH9@j@zDmqMdGcG;#S7T82mPgPqT14<6{kehr]0F;!eiL8T>AZS6W!W_!\
+  S0UDDk^2EMk0u!52$>p@q8{pJ?zU5^sML_b?td_,MRJZDA?nlMH^J#Mfrwe#Y}+zD(j*T6lo*0)s\
+  F28Ne1+Fdi[ZgA$)_;UUHg4Zc$1ZH{6U<3$F4SmK8)tY&<&!5{INDJ?w8_!NUbCh?gT9%p>2!Jm-\
+  $Cl;P$yx8DRNxX[Nrx,CX_!^0SZecCsr3QaS;x[1X$9T-(>m,1@g$<0C8GNI[Z?>?B@o5I%Eb%!O\
+  wlE$y__Gp!CJWCoUT*N,B}g,[R>ms]{({7>vapTuN,t>B@vALtXMDQBcSyY5QS4-VhQW79{IG@Hj\
+  L$UqOA?=9VGrZ84gRvkXIa?G_#A,3BJocxyvq2M27gWB7g%_m@wo<nL*k7ryvg,HgTE#5#uoN5ew\
+  D%BmiQ72?=U{!;O}O&sfG6#zuMsMOT49p4;a7J;2%nSrG<}ezs[(MCH}O&j]Tz-;Gal*m4#0kzro\
+  ;D68}C#Hsd!M{D8z)TR6!0O$I+C@rNxOX8dM@e<tydGw?a%w;22ji5FY=lJQ#&{*[Zpx9]ONw;B8\
+  !iJzH;ZyCSc;NMC7YzyBreuu$-ka)<#kBr[G@Sh[ZS@@apyA1w}#GPyRj4v?w}0JFf!V$(78vLll\
+  >sa,W@kItdCh@8usu^Ew@ZWtV${_w={BDE)De(hA{KfbZga0k@LqYt*_&o;ySK^z3_>b{>4W3k2;\
+  J*fex,Zz^ctGNI5JAT8Gk6_}e;Pzx#_u<HJ&7L-qCVrx44y3U!$CA),]ibEl=%4[G-7<Y!5d5bf)\
+  JW8zQW*5C4OND%@[{s;3p97Ue2)5oavQ@ZXxM^(30s@hCWf!Z=)5{4;%U<N&kYAnO<$^QzU%=r!x\
+  JBp-+?azc,)gM-6?3q_^Wtrk^nMS(09fvzdO<&?%B$g%HzE8,_feLr7(MjiJwx^rJ{)daa?;CA[F\
+  LOh04j){<V0Os3ZvI!n@<(1z*thHfi}Y_kyBF[[gz=SsW-(4O&)20u^Y=T)Nv<C_fL(PwiDpcCVp\
+  4c^(Om[+!ke2c-)mv]AFE@1pwgI_4}Pzo+${5gYPEb)?bT*CNPgI_A](sXoX,],zwCh=H0x-q,Z;\
+  Fn9hEEU[uf6?GQB%YUwo{VodcrS^!2_c*D9R[}$@%w>3jPEpfUx,1MhJK9iGI)Q9Ka_?6jPEx1K#\
+  BjIhCz(KWbhn,}CNSZ#,hR[u*9E8!w}+_HuzA9KbeL+#,hY0n8f#,VL0Qj7<,1pUr)nG#$Pq]D4$\
+  [}F,Dt$3_iwZQPVM&@z)JLPU2Py#xwqg!LN},Q}Xw%_?rfwDDhLQfP*6[LocUc5@&kLWXhNL-ZT_\
+  2zR%zhiKn$eA>(fwyh!5dZ7,YfcMKkt_?k3KVf<Z#PnG!EG!!%bp215bzCI15jK6R2n8Y,vp^Whl\
+  3_eZbFQg&P_=g5Bm-x0cR51RL!7C+Rn2za;?>G1ipToWk%w+sygU^z9-E_=m{1b!E@tNg9xRP<(;\
+  BzJ3FNArFA29e;67L$qe8vwN{A!6,8p1V<A2Rs063-6dI>rwh{CbIh8Nv;Ot8a*L;<!=b4]K9Q<L\
+  L&!S>lg,a0[xZ2ESF[Ei!Q%<CzA(UE(b>aR=jB2ES9{t3$Yp@wNtEAn,{-Sjc!ggD;Z!&,d05yo1\
+  5-_L-qGv4ruC2ERw*BQkL><DCq?RN^BuaUbKI4Sv7G$7Es}<IeZW=wD[)_[EM=XWV&)NdHQs#IMN\
+  2gN&]**&mYlgiNete5Jux,RtZLc$o3k245[l9U(lz_+titRN^_Ac#QEU4gR>#PA,Nf7++)XCndf!\
+  gr^u^XYi*bJ]$I=7]g2{wGtnaiDww!V(@hm&&}Yo#-BI%28oZ##74#&7<,k&M,vO)<BbfyMdHIU@\
+  hsy#%>aH*;=?oXJmXDG_N@[1n28q{Z(;Cl5)WtMMaHvDG210RE)zQ#Z)LLYl=%2e>}*?6gYTC3_7\
+  Gko+<UUg74[GBcL*=D;JozEKh7xm7ejbO@;w#*s^oWt@S5ba75[>A-w5Fi$@kX3-sp4G8^T+X@1y\
+  vAk[u7]+maus_;(]9%f!2qAEbZWQSy(6@V?[86#s$GadikEN<LTdA4&eD5cW%cg#P_UpX1>WK9T%\
+  L#eXXKJt0)_cyk1W+Y+x1;Q-_H41Q4J8&d<$-FzI9p-rg)=eNpnScaB{@EJ9N&+F=^Qp2@=oB9iB\
+  E(zgFHor1vtzWMETAKHS@C[>aI;Q*es>lD1^><RgH-zt5}Dmq_8[=]&K<JNBu1XC!w]X<V3>,=fI\
+  QPHsvkcj(0p},TevzSrse$XA(62J}vxWc39Y%@%b=D(N_{qXiUgPhZHU68#f3a}k@gEIdE%9G1{L\
+  Xl9ga0A%E-CoaXLqMp>t9khKLvkt{uw6!KN7z<9slxb{LdRd-PND<yJk{7VOrHdJ!)u-X(%A^i_#\
+  ISCl([E?<ea>;j]oL<@^tr{PhTTH]42!U#2gNDn41J}1^LGK7#())rL}yB^8aho]ukfjeW{*gC>N\
+  dX+7PsxwSUwX42drzzJ+NuctT6+]YUQ7E+I-qb2JndV23@adD)eZzLSAP]RTiO6pIg;3U>hHgDap\
+  r#{8W=GcR>E8{Vo>b!Mq=bg%Wn#[rK3Qp&&XL!9aXlP[b_q#%8N^>Z17Mo}+)BBm8;j(B&xHvI[T\
+  scL,c}gc_(7A#o1puks+Bx3xb?*_@KhBaSy&#azUWV]{R+cHRwe%7VX0n&%tt,ECHO;n>dH,t4db\
+  {Iw)B3qmuMf0m{XB22^z81AQP=Ds%_cxcHai)!Z#X}PRhgZo,Aapruz7wx{aqsJ%aq4Nym54aw12\
+  I[g=[BsjRs[smg=G[mh%6qaS6+pvOH{tZn>+Jk5uC_mb-aft!4LnFkSs[sUNLIch-CGV)u5w4%4-\
+  JO8d8J^kO^vINSMFOxNx$?PJyG!**X@?!4$sCHIqZbv634Jb;%w&;5=[S05<#->Wf*^&Hl--EW?8\
+  ^<1g{QH{Z@58(yRiFzx1sI-Rwd2A1JZ0C!+b9==qClyC(jq>5r9[J9Of28BLtl7L}no%-M7#PiI#\
+  &{b,UagH]tTZPA<JcVUm,!R5sGZ;nnP3_)ffG#hdSJLHJuLk)U=sWJ$Mt}rQy}l101-[8==DI]Jo\
+  l?{U9*Ty=U-j+FRQ}2cB4E55,[bE{uJ4A+YqL*T,cS#$[aJ1eR&m1*^ddor[E4E{1sK0#(rG*y_8\
+  =rt3NM<3breSttYeT((Vw#47O(qySK7u,PII%3bWatBm6$fzf!i}D1^Ce&l7fEWnU%j6GE8J_SM4\
+  fr}fI}YF[N2YuUd[,2F=SLi+iSRN)5pZxsFj<=-T$ZxO=HY]Ld6fy%yB+MPnUjqTfoJxJMi_}^V+\
+  74BsJF5%[We[SL>L=_gYzexDG%3ti]KUsyl*<T}3!TJ{>{rsn@a4-8yg+E03_sQNnJ%sz&UMB3J%\
+  6,DF^)*#k&i)GF=PCa}KYwi%9%6r,@P{dXm7o7i6&_[PweW{4{[DfbT@@Z>}1sf@Q2yh7{,x9B!T\
+  yuNAF2GO{QM17c$)n+!XKslwSNA_Dm=sfI^mC2{(3)uQx!I_zft&O^v_7j(K9R^o7vt{PoMA17!W\
+  NjQsT2x9G;HnSbW[_;${q]jChAgTctT79WSuC%,,bQ7Sogai&7k!j_oY&sHgu<d,6FG,Q(^B^4[@\
+  dQR&#l>TaVBD6Kgpdr7LJ)3Jxumrc2Y!!z,9?v>(D3$L*Fs&_1slQ<<Uo}WzVo=>^{aY?^bySWOl\
+  bA]s(s@1C1#{qBp$y=)M7R&os),tOa,^nE%;T@LWWmz8syyquBSB3Xk{(xnD0Pvygv-Tl;#Oi)l_\
+  3Zz#U%OkY@CnPGvaBcnD%ozs5NuWtu&U?%gMRI9tHL3c53{VN{m=a57pw3&%U,gpXZ<hz<n2[Xis\
+  i3a)>HmBe)5hge9Q88EbICHd)ZwrL->K!A9<hCy}_Zp_doeHy{ig8v;PY>t*856{p8(M_#ewhSk,\
+  m>QCWBA5PoCz7^,[kul8$qPZfS=,45)$9RH,E{BjlkV)<{D^#uQqpS-sU}FZla%X)rKs_!GeQU%l\
+  [IZ&TuJ-G+{<X5Xuhvm8]>zTctpZr=C>a(28vYyr(_{pzVp&,qSSk,lTV?X(gDl[oaDa(37Z{{bz\
+  S%ni=ZqBlv&0F[%Z&jfs%O}p}r[9>Q^1dpZ#PZ23>v{Z?,eJ0iU<I7tf5xdYw9N,QKf{dEWN51ua\
+  DK)br^,@1;0&(i%=&yPUi*^SSu#Om;A]Eia(seX=kg($pe0]&g4FunwO4bI@Eqy20@Bz^H=emVm?\
+  6CuKx_6g>+{9Mnr5@4ej?C@^}r_BruBAGZwH*qdV8<xe#SdbdToIY>]%b@*&4l*)Vl+nS?_Y(S{h\
+  jEg2nkVK@Z>pPH<s;eH>WZyhxhe(s41Hmw2OnP$ZsT8K0%pOQm{wI=ZrYS$%y>HX>45sgJ3;,7CZ\
+  aE@!d3CuWD^6[s3SK8u--o-FqAR?nbtTsN34y,Jgl&0ZgGA^TS*,ZuBnR9]s]N=H9d,+Gf,7p}y,\
+  >m$zr(#%fBKsE<?=J0sf^iPg7d#59p&B0!}Igzr8O7G(15UKV_$52-DysjNwTv?&7G!K*FpVb)7;\
+  )weCa&7Nuyu4y?xJb7;Qp$f-V-(Ay9ohLYwt?Z=?ilIrNW)lm$2o3ur-Ng](Sm,I!ir(>Xt=bfSS\
+  J[TlWb1I6,W*(lca^0WT<m;!C5BCEYWm?Im;w(D;,pr7?_cGPR!fa=1YA_Ito]i)Yr#j?)B!$HFl\
+  x2r>3Kb?a7Yq{AO5>NVp_YaD0xa%u$?<DV$?!eSP6n<;aW9tVo;{)=pFGv(L{!38yLb#zN1@k^HH\
+  NZB0)YF)24sM;Xi09J#3{M+zLhM@(P*kIM}<BZ0lnd{{0+W71K<$t%6#J*nnIdAbzGreg++Grf&*\
+  Qmqr^S<)Prj@fL^F-_K-C}@bX@#&b$;yiCFo>cop,6{Vik&gMSUTxIcC(74IbwWC>W%W8!Zq14E^\
+  -??(!VM&<CkkBrMu{H};U>m=8]kR8e-^?mguC[d%cA;nq!d06;Wp0SHOb3=yTqSAf;$)=V#>MG=a\
+  B0N?qYnB!58=(*B!w^#wQzmk;LD!0*jmhyjX_zS%GVv(A_e$+,<xGbN6_=kGyG#-A^R31J,rLz0z\
+  J,VJX[9dHXJ94]m*8=YFX_Xki)a57gI[Nt9kNELsxL{&ML*WMKvS4}=-{<@bu}G5e5}Pffu[mRFf\
+  wMrFKsR*!K0)FG8-kM*$3aApctbB0H[zH>9wvLBW9DJgi2?Z>?-$hCV-Dn71+CuEW{Qt%,vdCDBa\
+  =_IuhJS,J^S&cQEV6C?dePR,pqxtSVYG;pyXQcgAHP*4c-dh36cJ5KT@&+k?U5$+_Z(,ZGNA1d+r\
+  Tk4bwy^xHH[bUX-lKN)=cN8^HJ)dED=)TtkJ,0gkoI@g*v9sY$Jx$3YS-Q_?eD9xgYBKX+}E5[SK\
+  cM%AF8pN<(GK5)jeug-y,)OtMM[Hds$cas9pUPssB,sS6P3J7u>x^?b@%i?fk3D{$d+%u>U6e?hQ\
+  ,Yf6LD=v9XW+w[szB,S1Aor8eGW}2^UNRQ]&N>Dz?@j*SoeQpaq3$f-XPse7r^,]Cbf8y]a(iSV<\
+  P}EZrp%};dbw(xr^}A3z#w{ejDL&EQ){KI]JxsA,*}6KTemH&n8+Qy-PW8+J})D<?q;?!S@)csWI\
+  Z]Xj98{e[3o$&iB}9d[wx{V*$}55k@l>d{TKf[h)?EfPCfy)2Y&!1,If9xL-{vhQa_48-h_>KKz!\
+  p]8DwVyxR#_#O^A^cqB}LNz?vGEuCe+z%G^8fMkue9+m,]L[li1MAE;uii]8%QQUkbJy9RQW+af1\
+  Zsx?AH]3p7QJY,B&Mf&wjG-hbg]-pFiJ5L-rd9f4K4+,[tSfXu^I};g3*$Ge7?t8z->eT=*lE-@?\
+  zo)<#SAPZa(r<+t+lud{Iy,zH&3wDM2!^RKsYD*LAie]j,^XWxNahXRg,GyGEDVB<_qeO9tQXHu#\
+  4Y<9Mve4]vNmP0J-sm$_}Z?cif@;NN)c,VIOzS%[P%NZ=}nX0v)e2a[tma}ya(^MNj,BockS#HO&\
+  o[<q7lW()pp5^mc))Q0*KlyeW9a-+gvYwqf,^k6M=)&^(EbIB_0zdgq8yB*C5zBh=x!6y>%f=-vU\
+  &^wcdAj<^3v67*ayORsv]#(iywFB>mV2<Q=bWB?@**3(Sk7iyPdL5(<i$4nu-unrJ=^s2lkc}CpX\
+  C88>#1g-pS;AzAeM7j*7HoRpL]yv!7LA9Sx+)U{p5RX<gq-AWj(_T_mh{[7{T&Lmi6>9%1^$[#%P\
+  wuu&n2nv3]OXHpa0$o@G6;T;V4#voV3?i7e},CG00ZU[F-?,7G-xrNB>KZX?2SA<KF,De{w7*qF?\
+  6lx01cO!1TVAH-Cai@nK6Jznaba67qB;^%*S5T)$LlJ(i6@}{y}S1<F^KRJkLtjAe*PP$#a+)w[X\
+  ASzg}OxEX*T6a&o-2]J95>y?;3{EhU7vDYccKum?zI_n0*,ITq@0@zO{*,}IfrFUK{ybiO=j7Yfu\
+  kzCm9>jdsujb,fr{8XZYy1)%I*4mI!F8NKoq)RuuJ=oD_#kfJ1UGUAxToN*f0Lhop^cl_zlDAG6x\
+  {W1_46;XaU1)$3%,f*@9^_4ws9x>cL]3z@)yX1u}O!,*jVV7,Vt$9IQ3$Yx}d3Qx1WEhjV0{gBm8\
+  XT-}OdhwXu[_,-I<H,S<(zm)Tgx{sY4Aqx}K5em5H{*nd#?eU<-^?Aj)wfMa8&U+T+ktm4!Ui,4y\
+  8>eYUJcN>qe}ETc$EB,S+zlV*-*?&U#1C;-ypWoBQQ}v!2{DI0[<LCFXv6lU3gg;36>-_v}8}&HM\
+  Ap9KVZ<MR1RVd)t*yNYGw]fu5dW%S%t5QGf=l8Mk9Q)4;f3Whm%F<2^1soeM_@(Y^V;iS_QKTNCQ\
+  g4^3PYVSc8$0},_p,B+Q}[U]hpN=OW$H6S0msHmeyRK0*u$w,7OC@8>b-vc02{Bc}ElnZDgQM;f1\
+  r)m*?&X$!<GN0pFhaPTkP)>{s,s2?dRv%c!&LWg+EgH@A>(;Hr{9d1L2QS{)c[4U>hH?zhC&HmH)\
+  AyKg7l-?0+i!G0Lx!L*txKz_DTbr5<YI0H;3a9r@}M4N,dz,N?@U4zv6j%X-@U+)o]6;}rF*WLeL\
+  dU-,+yZG6r0H!SN[@moK6gpKc5{+?w$CH]+ikF@b4%RjNK=fj,<<WV+$Vfj]<^<?-zKY6r,BP<_f\
+  S<i&O,N?B!9AmkfWj)vZ?kA76@dwL)vaBb%zx?EJHvVS$AC]nj_phHk-o[3{Cp92hPjP7ABVS=7(\
+  17G1%X)sR<0ntBQJ3X<EbGawzMnkNMl#C{Sk[{5Lq9oeqY=xES=Mt,6F+&9jixL&V_DBmC-[+vHk\
+  z]Cf@MAbwDgk;Y@En)E0*;PbCRDNv2ilXr?9N2ms9=ZLK];Cd^*c}ZaKqGF0yeZ%V)8yCziAQ<jF\
+  QtSPrqQXBEp&j@n3N,5cz@l#=ErPqC5Cat6zKK56YIPqmTBau&;KGWkEJ-T*6~")
