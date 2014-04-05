@@ -1435,18 +1435,6 @@ static match_kind_t match_atom(
       return PMATH_MATCH_KIND_NONE;
     }
     
-    if(len == 1 && pmath_same(head, PMATH_SYMBOL_LITERAL)) {
-      pmath_t p = pmath_expr_get_item(pat, 1);
-      
-      if(pmath_equals(p, arg)) {
-        pmath_unref(p);
-        return PMATH_MATCH_KIND_LOCAL;
-      }
-      
-      pmath_unref(p);
-      return PMATH_MATCH_KIND_NONE;
-    }
-    
     if(pmath_same(head, PMATH_SYMBOL_PATTERNSEQUENCE)) {
       match_func_data_t data;
       match_kind_t kind;
