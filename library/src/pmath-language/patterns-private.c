@@ -739,11 +739,14 @@ typedef enum match_kind_t {
 } match_kind_t;
 
 typedef struct match_func_data_t {
-  pattern_info_t  *info;
   pmath_expr_t     pat;       // wont be freed
   pmath_expr_t     func;      // wont be freed
   
-  _pmath_pattern_analyse_output_t *pat_infos; // zero based index: ifo for pat[1] is pat_infos[0]
+  pattern_info_t  *info;
+  
+  // initialized by init_analyse_match_func()
+  // zero based index: ifo for pat[1] is pat_infos[0]
+  _pmath_pattern_analyse_output_t *pat_infos;
   
   pmath_bool_t associative;
   pmath_bool_t one_identity;
@@ -766,8 +769,8 @@ static match_kind_t match_repeated(
   pmath_t          pat,   // wont be freed
   pmath_expr_t     arg);  // wont be freed
 
-static pmath_bool_t init_analyse_match_func(
-  match_func_data_t  *data);
+static pmath_bool_t init_analyse_match_func(match_func_data_t  *data);
+static void         done_analyse_match_func(match_func_data_t  *data);
 
 static match_kind_t match_func_left( // for non-symmetric functions
   match_func_data_t  *data,
@@ -1463,7 +1466,7 @@ static match_kind_t match_atom(
       if(init_analyse_match_func(&data)) {
         kind = match_func_left(&data, 1, 1);
         
-        pmath_mem_free(data.pat_infos);
+        done_analyse_match_func(&data);
       }
       else
         kind = PMATH_MATCH_KIND_NONE;
@@ -1529,11 +1532,11 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
   _pmath_pattern_analyse_input_t  *input,
   _pmath_pattern_analyse_output_t *output
 ) {
-  output->min = 1;
-  output->max = 1;
-  output->no_sequence = FALSE;
-  output->longest = TRUE;
-  output->prefer_nonempty = FALSE;
+  output->size.min = 1;
+  output->size.max = 1;
+  output->options.no_sequence = FALSE;
+  output->options.longest = TRUE;
+  output->options.prefer_nonempty = FALSE;
   
   if(pmath_is_expr(input->pat)) {
     size_t len = pmath_expr_length(input->pat);
@@ -1559,20 +1562,20 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       pmath_unref(obj);
       
       
-      m = output->min * min2;
-      if(min2 && m / min2 != output->min)
-        output->min = SIZE_MAX;
+      m = output->size.min * min2;
+      if(min2 && m / min2 != output->size.min)
+        output->size.min = SIZE_MAX;
       else
-        output->min = m;
+        output->size.min = m;
         
         
-      m = output->max * max2;
-      if(max2 && m / max2 != output->max)
-        output->max = SIZE_MAX;
+      m = output->size.max * max2;
+      if(max2 && m / max2 != output->size.max)
+        output->size.max = SIZE_MAX;
       else
-        output->max = m;
+        output->size.max = m;
         
-      output->no_sequence = FALSE;
+      output->options.no_sequence = FALSE;
     }
     else if(len == 2 && pmath_same(head, PMATH_SYMBOL_PATTERN)) { // name: pat
       struct pattern_variable_entry_t *entry;
@@ -1599,12 +1602,12 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
           pmath_unref(head);
           
           if(input->associative && pmath_same(head, input->parent_pat_head)) {
-            output->no_sequence = TRUE;
-            output->min = output->max = pmath_expr_length(entry->inherited.value);
+            output->options.no_sequence = TRUE;
+            output->size.min = output->size.max = pmath_expr_length(entry->inherited.value);
           }
           else if(pmath_same(head, PMATH_MAGIC_PATTERN_SEQUENCE)) {
-            output->min =
-              output->max = pmath_expr_length(entry->inherited.value);
+            output->size.min =
+              output->size.max = pmath_expr_length(entry->inherited.value);
           }
         }
       }
@@ -1637,39 +1640,39 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
         
         _pmath_pattern_analyse(input, output);
         
-        if(output->min < res_min)
-          res_min = output->min;
-        if(output->max > res_max)
-          res_max = output->max;
+        if(output->size.min < res_min)
+          res_min = output->size.min;
+        if(output->size.max > res_max)
+          res_max = output->size.max;
           
         pmath_unref(input->pat);
       }
       input->pat = tmppat;
-      output->min = res_min;
-      output->max = res_max;
+      output->size.min = res_min;
+      output->size.max = res_max;
     }
     else if(pmath_same(head, PMATH_SYMBOL_PATTERNSEQUENCE)) { // PatternSequence(...)
       _pmath_pattern_analyse_output_t  out2;
       pmath_t tmppat = input->pat;
       size_t i;
       
-      output->min = 0;
-      output->max = 0;
+      output->size.min = 0;
+      output->size.max = 0;
       
       for(i = pmath_expr_length(input->pat); i > 0; --i) {
         input->pat = pmath_expr_get_item(tmppat, i);
         
         _pmath_pattern_analyse(input, &out2);
         
-        if(output->min <= SIZE_MAX - out2.min)
-          output->min += out2.min;
+        if(output->size.min <= SIZE_MAX - out2.size.min)
+          output->size.min += out2.size.min;
         else
-          output->min = SIZE_MAX;
+          output->size.min = SIZE_MAX;
           
-        if(output->max <= SIZE_MAX - out2.max)
-          output->max += out2.max;
+        if(output->size.max <= SIZE_MAX - out2.size.max)
+          output->size.max += out2.size.max;
         else
-          output->max = SIZE_MAX;
+          output->size.max = SIZE_MAX;
           
         pmath_unref(input->pat);
       }
@@ -1677,19 +1680,19 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       input->pat = tmppat;
     }
     else if(pmath_same(head, PMATH_SYMBOL_LITERAL)) { // Literal(...)
-      output->min = output->max = pmath_expr_length(input->pat);
+      output->size.min = output->size.max = pmath_expr_length(input->pat);
     }
     else if(len <= 1 && pmath_same(head, PMATH_SYMBOL_OPTIONSPATTERN)) { // OptionsPattern() or OptionsPattern(fn)
-      output->min = 0;
-      output->max = SIZE_MAX;
+      output->size.min = 0;
+      output->size.max = SIZE_MAX;
     }
     else if( input->associative &&
              len <= 1           &&
              pmath_same(head, PMATH_SYMBOL_SINGLEMATCH))  // ~ or ~:type
     {
-      output->max = SIZE_MAX;
-      output->no_sequence = TRUE;
-      output->longest = FALSE;
+      output->size.max = SIZE_MAX;
+      output->options.no_sequence = TRUE;
+      output->options.longest = FALSE;
     }
     else if(pmath_same(head, PMATH_SYMBOL_OPTIONAL) && (len == 1 || len == 2)) { // Optional(pattern), Optional(pattern, value)
       pmath_t tmppat = input->pat;
@@ -1700,32 +1703,38 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       pmath_unref(input->pat);
       input->pat = tmppat;
       
-      output->min = 0;
+      output->size.min = 0;
       
-      output->prefer_nonempty = TRUE;
+      output->options.prefer_nonempty = TRUE;
     }
     else if(len == 1 && pmath_same(head, PMATH_SYMBOL_LONGEST)) { // Longest(pat)
       pmath_t tmppat = input->pat;
       input->pat = pmath_expr_get_item(tmppat, 1);
+      
       _pmath_pattern_analyse(input, output);
+      
       pmath_unref(input->pat);
       input->pat = tmppat;
       
-      output->longest = TRUE;
+      output->options.longest = TRUE;
     }
     else if(len == 1 && pmath_same(head, PMATH_SYMBOL_SHORTEST)) { // Shortest(pat)
       pmath_t tmppat = input->pat;
       input->pat = pmath_expr_get_item(tmppat, 1);
+      
       _pmath_pattern_analyse(input, output);
+      
       pmath_unref(input->pat);
       input->pat = tmppat;
       
-      output->longest = FALSE;
+      output->options.longest = FALSE;
     }
     else if(len == 2 && pmath_same(head, PMATH_SYMBOL_EXCEPT)) { // Except(no, pat)
       pmath_t tmppat = input->pat;
       input->pat = pmath_expr_get_item(tmppat, 2);
+      
       _pmath_pattern_analyse(input, output);
+      
       pmath_unref(input->pat);
       input->pat = tmppat;
     }
@@ -1734,17 +1743,17 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
 
 #define MATCH_MULTI_ARGS_LOOP(n, last_flag, ANALYSE_OUTPUT, BODY) \
   do {                                                                                               \
-    if((ANALYSE_OUTPUT).min <= (ANALYSE_OUTPUT).max) {                                               \
+    if((ANALYSE_OUTPUT).size.min <= (ANALYSE_OUTPUT).size.max) {                                     \
       last_flag = FALSE;                                                                             \
-      if((ANALYSE_OUTPUT).longest) {                                                                 \
-        for(n = (ANALYSE_OUTPUT).max; n > (ANALYSE_OUTPUT).min; --n) {                               \
+      if((ANALYSE_OUTPUT).options.longest) {                                                         \
+        for(n = (ANALYSE_OUTPUT).size.max; n > (ANALYSE_OUTPUT).size.min; --n) {                     \
           BODY                                                                                       \
         }                                                                                            \
         last_flag = TRUE;                                                                            \
         BODY                                                                                         \
       }                                                                                              \
-      else if((ANALYSE_OUTPUT).prefer_nonempty && (ANALYSE_OUTPUT).min == 0) {                       \
-        for(n = 1; n < (ANALYSE_OUTPUT).max; ++n) {                                                  \
+      else if((ANALYSE_OUTPUT).options.prefer_nonempty && (ANALYSE_OUTPUT).size.min == 0) {          \
+        for(n = 1; n < (ANALYSE_OUTPUT).size.max; ++n) {                                             \
           BODY                                                                                       \
         }                                                                                            \
         last_flag = TRUE;                                                                            \
@@ -1752,7 +1761,7 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
         BODY                                                                                         \
       }                                                                                              \
       else {                                                                                         \
-        for(n = (ANALYSE_OUTPUT).min; n < (ANALYSE_OUTPUT).max; ++n) {                               \
+        for(n = (ANALYSE_OUTPUT).size.min; n < (ANALYSE_OUTPUT).size.max; ++n) {                     \
           BODY                                                                                       \
         }                                                                                            \
         last_flag = TRUE;                                                                            \
@@ -1783,8 +1792,8 @@ static match_kind_t match_repeated_left( // for non-symmetric functions
   
   while(func_start <= flen) {
   NEXT_ARG:
-    if(data->analysed.max > flen - func_start + 1)
-      data->analysed.max = flen - func_start + 1;
+    if(data->analysed.size.max > flen - func_start + 1)
+      data->analysed.size.max = flen - func_start + 1;
       
     MATCH_MULTI_ARGS_LOOP(n, is_last_iter, data->analysed,
     {
@@ -1846,15 +1855,15 @@ static match_kind_t match_repeated(
   
   _pmath_pattern_analyse(&analyse_in, &data.analysed);
   
-  if(data.analysed.max == 0) {
+  if(data.analysed.size.max == 0) {
     if(pmath_expr_length(arg) == 0)
       return PMATH_MATCH_KIND_LOCAL;
       
     return PMATH_MATCH_KIND_NONE;
   }
   
-  if(data.analysed.min == 0)
-    data.analysed.min = 1;
+  if(data.analysed.size.min == 0)
+    data.analysed.size.min = 1;
     
 #ifdef DEBUG_LOG_MATCH
   debug_indent(); pmath_debug_print("match_repeated ...\n");
@@ -1875,33 +1884,64 @@ static match_kind_t match_repeated(
 /*============================================================================*/
 
 static pmath_bool_t init_analyse_match_func(match_func_data_t *data) {
-  _pmath_pattern_analyse_input_t  input;
   size_t i;
+  _pmath_pattern_size_t total_sizes;
   
   assert(data->pat_infos == NULL);
   
-  i = pmath_expr_length(data->pat);
-  if(i == 0)
-    return TRUE;
-    
-  data->pat_infos = pmath_mem_alloc(sizeof(data->pat_infos[0]) * i);
-  if(!data->pat_infos)
-    return FALSE;
-    
-  memset(&input, 0, sizeof(input));
-  input.parent_pat_head   = data->info->current_head;
-  input.pattern_variables = data->info->pattern_variables;
-  input.associative       = data->associative;
+  total_sizes.min = 0;
+  total_sizes.max = 0;
   
-  for(; i > 0; i--) {
-    input.pat = pmath_expr_get_item(data->pat, i);
+  i = pmath_expr_length(data->pat);
+  if(i > 0) {
+    _pmath_pattern_analyse_input_t   input;
+  
+    data->pat_infos = pmath_mem_alloc(sizeof(data->pat_infos[0]) * i);
+    if(!data->pat_infos)
+      return FALSE;
+      
+    memset(&input, 0, sizeof(input));
+    input.parent_pat_head   = data->info->current_head;
+    input.pattern_variables = data->info->pattern_variables;
+    input.associative       = data->associative;
     
-    _pmath_pattern_analyse(&input, &data->pat_infos[i - 1]);
+    for(; i > 0; i--) {
+      _pmath_pattern_analyse_output_t *output;
     
-    pmath_unref(input.pat);
+      input.pat = pmath_expr_get_item(data->pat, i);
+      
+      output = &data->pat_infos[i - 1];
+      _pmath_pattern_analyse(&input, output);
+      
+      if(total_sizes.min <= SIZE_MAX - output->size.min)
+        total_sizes.min += output->size.min;
+      else
+        total_sizes.min = SIZE_MAX;
+        
+      if(total_sizes.max <= SIZE_MAX - output->size.max)
+        total_sizes.max += output->size.max;
+      else
+        total_sizes.max = SIZE_MAX;
+        
+      pmath_unref(input.pat);
+    }
+  }
+  
+  if(!data->associative) {
+    size_t flen = pmath_expr_length(data->func);
+    
+    if(total_sizes.max < flen || total_sizes.min > flen) {
+      done_analyse_match_func(data);
+      return FALSE;
+    }
   }
   
   return TRUE;
+}
+
+static void done_analyse_match_func(match_func_data_t *data) {
+  pmath_mem_free(data->pat_infos);
+  data->pat_infos = NULL;
 }
 
 static match_kind_t match_func_left( // for non-symmetric functions
@@ -1960,9 +2000,9 @@ FIRST_PATARG: ;
 #endif
                                       
     if(func_start > flen)
-      patarg_out.max = 0;
-    else if(patarg_out.max > flen - func_start + 1)
-      patarg_out.max = flen - func_start + 1;
+      patarg_out.size.max = 0;
+    else if(patarg_out.size.max > flen - func_start + 1)
+      patarg_out.size.max = flen - func_start + 1;
       
       
     MATCH_MULTI_ARGS_LOOP(n, is_last_iter, patarg_out,
@@ -1970,7 +2010,7 @@ FIRST_PATARG: ;
       pmath_t arg = PMATH_NULL;
       match_kind_t kind;
       
-      if(patarg_out.no_sequence) {
+      if(patarg_out.options.no_sequence) {
         if(n == 1 && data->one_identity)
           arg = pmath_expr_get_item(data->func, func_start);
         else
@@ -2010,7 +2050,7 @@ FIRST_PATARG: ;
     
     if( data->info->associative                  &&
         pmath_same(data->func, data->info->func) &&
-        func_start + patarg_out.min - 1 <= flen)
+        func_start + patarg_out.size.min - 1 <= flen)
     {
       if(pat_start == 1) {
         data->info->assoc_start = first_pat_func_start = ++func_start;
@@ -2128,8 +2168,8 @@ static match_kind_t match_func_symmetric(
     debug_indent(); pmath_debug_print("next pat arg (%"PRIuPTR")\n", i);
 #endif
     
-    if(patarg_out.max > flen)
-      patarg_out.max = flen;
+    if(patarg_out.size.max > flen)
+      patarg_out.size.max = flen;
       
     MATCH_MULTI_ARGS_LOOP(n, is_last_iter, patarg_out,
     {
@@ -2139,11 +2179,11 @@ static match_kind_t match_func_symmetric(
         do {
           pmath_t arg = PMATH_NULL;
           
-          if(n == 1 && (!patarg_out.no_sequence || data->one_identity)) {
+          if(n == 1 && (!patarg_out.options.no_sequence || data->one_identity)) {
             arg = pmath_expr_get_item(data->func, *indices);
           }
           else {
-            if(patarg_out.no_sequence) {
+            if(patarg_out.options.no_sequence) {
               arg = pmath_expr_new(pmath_ref(data->info->current_head), n);
             }
             else {
@@ -2187,8 +2227,8 @@ static match_kind_t match_func_symmetric(
     
     if( data->associative  &&
         data->one_identity &&
-        patarg_out.min > 1 &&
-        patarg_out.max >= patarg_out.min)
+        patarg_out.size.min > 1 &&
+        patarg_out.size.max >= patarg_out.size.min)
     {
 #ifdef DEBUG_LOG_MATCH
       debug_indent(); pmath_debug_print("... retry with n = 1 ...\n");
@@ -2306,8 +2346,8 @@ static match_kind_t match_func(
         kind = match_func_symmetric(&data);
       else
         kind = match_func_left(&data, 1, 1);
-      
-      pmath_mem_free(data.pat_infos);
+        
+      done_analyse_match_func(&data);
     }
     else
       kind = PMATH_MATCH_KIND_NONE;

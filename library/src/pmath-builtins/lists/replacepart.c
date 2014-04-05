@@ -156,7 +156,7 @@ static pmath_bool_t prepare_pattern_len_index( // stop?
     
     _pmath_pattern_analyse(&input, &output);
     
-    return output.min != 1 || output.max != 1;
+    return output.size.min != 1 || output.size.max != 1;
   }
 }
 

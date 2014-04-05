@@ -36,128 +36,19 @@ System`Document({
               "}"}}, ")"}, ";", "\n", "True"}, ")"}}, "\[AssignDelayed]", {
          "{", {{"{", "x", "}"}, ",", {"{", "a", "}"}, ",", {"{", "b", "}"}, 
           ",", {"{", "c", "}"}, ",", {"{", "d", "}"}}, "}"}})), "Input", 
-     System`SectionLabel -> "in [2]:"), 
+     System`SectionLabel -> "in [1]:"), 
     System`SectionGroup({
       System`Section(System`BoxData({
          "f5", "(", {{"h", "(", {"1", ",", "2"}, ")"}, ",", "3"}, ")"}), 
-       "Input", System`SectionLabel -> "in [14]:"), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.1: \""), {
-           "{", {{"{", "}"}, ",", {"{", "1", "}"}, ",", {"{", "}"}, ",", {
-             "{", "}"}, ",", {"{", "}"}}, "}"}}, 
-         System`Row({"1.1.1: ", {{}, {1}, {}, {}, {}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.1: \""), {
-           "{", {{"{", "}"}, ",", {"{", "1", "}"}, ",", {"{", "2", "}"}, ",", {
-             "{", "}"}, ",", {"{", "}"}}, "}"}}, 
-         System`Row({"1.1.1: ", {{}, {1}, {2}, {}, {}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.2: \""), {
-           "{", {{"{", "}"}, ",", {"{", "1", "}"}, ",", {"{", "2", "}"}, ",", {
-             "{", "}"}, ",", {"{", "}"}}, "}"}}, 
-         System`Row({"1.1.2: ", {{}, {1}, {2}, {}, {}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1:   \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "}"}, ",", {
-             "{", "}"}}, "}"}}, 
-         System`Row({"1.1:   ", {{h(1, 2)}, {1}, {2}, {}, {}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.1: \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
-             "{", "}"}}, "}"}}, 
-         System`Row({"1.1.1: ", {{h(1, 2)}, {1}, {2}, {3}, {}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.2: \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
-             "{", "}"}}, "}"}}, 
-         System`Row({"1.1.2: ", {{h(1, 2)}, {1}, {2}, {3}, {}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1:   \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
-             "{", "}"}}, "}"}}, 
-         System`Row({"1.1:   ", {{h(1, 2)}, {1}, {2}, {3}, {}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.2:   \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
-             "{", "}"}}, "}"}}, 
-         System`Row({"1.2:   ", {{h(1, 2)}, {1}, {2}, {3}, {}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.1: \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "}"}, ",", {
-             "{", "3", "}"}}, "}"}}, 
-         System`Row({"1.1.1: ", {{h(1, 2)}, {1}, {2}, {}, {3}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.2: \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "}"}, ",", {
-             "{", "3", "}"}}, "}"}}, 
-         System`Row({"1.1.2: ", {{h(1, 2)}, {1}, {2}, {}, {3}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1:   \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "}"}, ",", {
-             "{", "3", "}"}}, "}"}}, 
-         System`Row({"1.1:   ", {{h(1, 2)}, {1}, {2}, {}, {3}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.1: \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
-             "{", "3", "}"}}, "}"}}, 
-         System`Row({"1.1.1: ", {{h(1, 2)}, {1}, {2}, {3}, {3}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1.2: \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
-             "{", "3", "}"}}, "}"}}, 
-         System`Row({"1.1.2: ", {{h(1, 2)}, {1}, {2}, {3}, {3}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.1:   \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
-             "{", "3", "}"}}, "}"}}, 
-         System`Row({"1.1:   ", {{h(1, 2)}, {1}, {2}, {3}, {3}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.2:   \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
-             "{", "3", "}"}}, "}"}}, 
-         System`Row({"1.2:   ", {{h(1, 2)}, {1}, {2}, {3}, {3}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
-      System`Section(System`BoxData(System`InterpretationBox({
-          System`ComplexStringBox("\"1.2:   \""), {
-           "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
-             "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "}"}, ",", {
-             "{", "3", "}"}}, "}"}}, 
-         System`Row({"1.2:   ", {{h(1, 2)}, {1}, {2}, {}, {3}}}))), "Print", 
-       System`SectionGenerated -> System`True), 
+       "Input", System`SectionLabel -> "in [3]:"), 
       System`Section(System`BoxData({
          "f5", "(", {{"h", "(", {"1", ",", "2"}, ")"}, ",", "3"}, ")"}), 
        "Output", System`SectionGenerated -> System`True, 
-       System`SectionLabel -> "out [14]:")}, System`All), 
+       System`SectionLabel -> "out [3]:")}, System`All), 
     System`SectionGroup({
       System`Section(System`BoxData({
          "f5", "(", {{"h", "(", {"1", ",", "2"}, ")"}, ",", "3", ",", "2"}, 
-         ")"}), "Input", System`SectionLabel -> "in [15]:"), 
+         ")"}), "Input", System`SectionLabel -> "in [4]:"), 
       System`Section(System`BoxData(System`InterpretationBox({
           System`ComplexStringBox("\"1.1.1: \""), {
            "{", {{"{", "}"}, ",", {"{", "1", "}"}, ",", {"{", "}"}, ",", {
@@ -229,11 +120,11 @@ System`Document({
          "{", {{"{", {"h", "(", {"1", ",", "2"}, ")"}, "}"}, ",", {
            "{", "1", "}"}, ",", {"{", "2", "}"}, ",", {"{", "3", "}"}, ",", {
            "{", "}"}}, "}"}), "Output", System`SectionGenerated -> 
-        System`True, System`SectionLabel -> "out [15]:")}, System`All), 
+        System`True, System`SectionLabel -> "out [4]:")}, System`All), 
     System`SectionGroup({
       System`Section(System`BoxData({
          "f5", "(", {{"h", "(", {"1", ",", "2"}, ")"}, ",", "3", ",", "4"}, 
-         ")"}), "Input", System`SectionLabel -> "in [16]:"), 
+         ")"}), "Input", System`SectionLabel -> "in [5]:"), 
       System`Section(System`BoxData(System`InterpretationBox({
           System`ComplexStringBox("\"1.1.1: \""), {
            "{", {{"{", "}"}, ",", {"{", "1", "}"}, ",", {"{", "}"}, ",", {
@@ -346,5 +237,5 @@ System`Document({
       System`Section(System`BoxData({
          "f5", "(", {{"h", "(", {"1", ",", "2"}, ")"}, ",", "3", ",", "4"}, 
          ")"}), "Output", System`SectionGenerated -> System`True, 
-       System`SectionLabel -> "out [16]:")}, System`All)}, System`All)}, 
+       System`SectionLabel -> "out [5]:")}, System`All)}, System`All)}, 
  System`Visible -> System`True)
