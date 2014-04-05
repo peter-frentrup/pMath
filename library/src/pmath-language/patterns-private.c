@@ -719,7 +719,8 @@ typedef struct pattern_info_t {
 struct pattern_variable_entry_t {
   struct _pmath_object_entry_t  inherited;
   
-  pmath_t first_matched_pattern; // PMATH_UNDEFINED when not matched
+  pmath_t       first_matched_pattern; // PMATH_UNDEFINED when not matched
+  pmath_bool_t  is_currently_matching;
 };
 
 static void pattern_variable_entry_destructor(void *e);
@@ -1017,6 +1018,7 @@ static void init_pattern_variables(
     entry->inherited.key = pmath_expr_get_item(pattern, 1);
     entry->inherited.value = pmath_ref(_pmath_object_empty_pattern_sequence);
     entry->first_matched_pattern = PMATH_UNDEFINED;
+    entry->is_currently_matching = FALSE;
     
     entry = pmath_ht_insert(table, entry);
     
@@ -1046,7 +1048,7 @@ static match_kind_t match_atom(
 ) {
   if(pmath_equals(pat, arg) && _pmath_pattern_is_const(pat))
     return PMATH_MATCH_KIND_LOCAL;
-  
+    
   if(pmath_is_expr(pat)) {
     const size_t              len  = pmath_expr_length(pat);
     pmath_t                   head = pmath_expr_get_item(pat, 0);
@@ -1107,7 +1109,7 @@ static match_kind_t match_atom(
         
         test = replace_multiple(test, info->pattern_variables);
       }
-        
+      
     AFTER_TEST_INIT:
       test = pmath_evaluate(test);
       pmath_unref(test);
@@ -1180,34 +1182,51 @@ static match_kind_t match_atom(
       
       entry = pmath_ht_search(info->pattern_variables, &pat_item);
       if(!entry) {
-        pmath_debug_print_object("[Internal Pattern Error: unknown pattern name ", pat_item, "]");
+        pmath_debug_print_object("[Internal Pattern Error: unknown pattern name ", pat_item, "]\n");
         pmath_unref(pat_item);
         return PMATH_MATCH_KIND_NONE;
       }
       
+//      // Do not allow recursive patterns like  (x: x: ~), i.e.
+//      // Pattern(x, Pattern(x, ~)) to prevent possible infinite recursion.
+//      if(entry->is_currently_matching) {
+//        pmath_debug_print_object("[recursive pattern ", pat, "]\n");
+//        return PMATH_MATCH_KIND_NONE;
+//      }
+
       pmath_unref(pat_item);
       pat_item = pmath_expr_get_item(pat, 2);
       
       if( pmath_same(entry->first_matched_pattern, PMATH_UNDEFINED) &&
           !pmath_same(pat_item, PMATH_UNDEFINED))
       {
-        // Didn't match a pattern with this name before.
-        pmath_t old_value;
+        // Didn't (fully) match a pattern with this name before.
         
-        entry->first_matched_pattern = pat_item;
-        old_value = entry->inherited.value;
-        entry->inherited.value = pmath_ref(arg);
+        pmath_bool_t recursive_matching = entry->is_currently_matching;
         
-        
-        // Do local matching.
-        // We set the new value before to prevent infinite recursion for
-        // degerate patterns like  (x: x: ~), i.e. Pattern(x, Pattern(x, ~)).
+        entry->is_currently_matching = TRUE;
         kind = match_atom(info, pat_item, arg, index_of_arg, count_of_arg);
+        entry->is_currently_matching = recursive_matching;
+        
         if(kind != PMATH_MATCH_KIND_NONE) {
+          pmath_t default_value;
+          
           if(kind == PMATH_MATCH_KIND_GLOBAL) {
-            pmath_unref(old_value);
+            pmath_unref(pat_item);
             return kind;
           }
+          
+          default_value = entry->inherited.value;
+          entry->inherited.value = pmath_ref(arg);
+          
+          if(recursive_matching) {
+            pmath_unref(pat_item);
+            pmath_unref(default_value);
+            return kind;
+          }
+          
+          assert(pmath_same(PMATH_UNDEFINED, entry->first_matched_pattern));
+          entry->first_matched_pattern = pat_item;
           
           // Success: now do global matching because there could be other
           // occurences of the name.
@@ -1216,16 +1235,16 @@ static match_kind_t match_atom(
           // these could be hidden inside Condition(...) or an Optional(name,...)
           kind = match_atom(info, info->pattern, info->func, 0, 0);
           if(kind != PMATH_MATCH_KIND_NONE) {
-            pmath_unref(old_value);
+            pmath_unref(default_value);
             return PMATH_MATCH_KIND_GLOBAL;
           }
+          
+          pmath_unref(entry->inherited.value);
+          entry->inherited.value = default_value;
+          entry->first_matched_pattern = PMATH_UNDEFINED;
         }
         
-        entry->first_matched_pattern = PMATH_UNDEFINED; // alias for pat_item
         pmath_unref(pat_item);
-        
-        pmath_unref(entry->inherited.value);
-        entry->inherited.value = old_value;
         return PMATH_MATCH_KIND_NONE;
       }
       else { // Already matched a pattern with this name before.
@@ -1376,6 +1395,43 @@ static match_kind_t match_atom(
         info->pattern = old_pattern;
         info->options = old_options;
       }
+      return PMATH_MATCH_KIND_NONE;
+    }
+    
+    if(pmath_same(head, PMATH_SYMBOL_LITERAL)) {
+      if(pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE)) {
+        size_t i;
+        
+        if(pmath_expr_length(arg) != pmath_expr_length(pat))
+          return PMATH_MATCH_KIND_NONE;
+          
+        for(i = pmath_expr_length(pat); i > 0; --i) {
+          pmath_t p = pmath_expr_get_item(pat, i);
+          pmath_t a = pmath_expr_get_item(arg, i);
+          
+          if(!pmath_equals(p, a)) {
+            pmath_unref(p);
+            pmath_unref(a);
+            return PMATH_MATCH_KIND_NONE;
+          }
+          
+          pmath_unref(p);
+          pmath_unref(a);
+        }
+        
+        return PMATH_MATCH_KIND_LOCAL;
+      }
+      
+      if(len == 1) {
+        pmath_t p = pmath_expr_get_item(pat, 1);
+        if(pmath_equals(p, arg)) {
+          pmath_unref(p);
+          return PMATH_MATCH_KIND_LOCAL;
+        }
+        
+        pmath_unref(p);
+      }
+      
       return PMATH_MATCH_KIND_NONE;
     }
     
@@ -1592,7 +1648,7 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       output->min = res_min;
       output->max = res_max;
     }
-    else if(pmath_same(head, PMATH_SYMBOL_PATTERNSEQUENCE)) {
+    else if(pmath_same(head, PMATH_SYMBOL_PATTERNSEQUENCE)) { // PatternSequence(...)
       _pmath_pattern_analyse_output_t  out2;
       pmath_t tmppat = input->pat;
       size_t i;
@@ -1619,6 +1675,9 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       }
       
       input->pat = tmppat;
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_LITERAL)) { // Literal(...)
+      output->min = output->max = pmath_expr_length(input->pat);
     }
     else if(len <= 1 && pmath_same(head, PMATH_SYMBOL_OPTIONSPATTERN)) { // OptionsPattern() or OptionsPattern(fn)
       output->min = 0;
@@ -2250,8 +2309,18 @@ static pmath_bool_t replace_with_literal_exact_once(
   
   if(pmath_same(*pattern, _old)) {
     pmath_unref(*pattern);
-    *pattern = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_LITERAL), 1, pmath_ref(_new_literal));
+    
+    if(pmath_is_expr_of(_new_literal, PMATH_MAGIC_PATTERN_SEQUENCE)) {
+      *pattern = pmath_expr_set_item(
+                   pmath_ref(_new_literal),
+                   0,
+                   pmath_ref(PMATH_SYMBOL_LITERAL));
+    }
+    else {
+      *pattern = pmath_expr_new_extended(
+                   pmath_ref(PMATH_SYMBOL_LITERAL), 1, pmath_ref(_new_literal));
+    }
+    
     return TRUE;
   }
   if(!pmath_is_expr(*pattern))
