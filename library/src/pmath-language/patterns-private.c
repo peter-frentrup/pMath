@@ -743,6 +743,8 @@ typedef struct match_func_data_t {
   pmath_expr_t     pat;       // wont be freed
   pmath_expr_t     func;      // wont be freed
   
+  _pmath_pattern_analyse_output_t *pat_infos; // zero based index: ifo for pat[1] is pat_infos[0]
+  
   pmath_bool_t associative;
   pmath_bool_t one_identity;
   pmath_bool_t symmetric;
@@ -763,6 +765,9 @@ static match_kind_t match_repeated(
   pattern_info_t  *info,
   pmath_t          pat,   // wont be freed
   pmath_expr_t     arg);  // wont be freed
+
+static pmath_bool_t init_analyse_match_func(
+  match_func_data_t  *data);
 
 static match_kind_t match_func_left( // for non-symmetric functions
   match_func_data_t  *data,
@@ -1439,6 +1444,7 @@ static match_kind_t match_atom(
       match_func_data_t data;
       match_kind_t kind;
       
+      memset(&data, 0, sizeof(data));
       data.info = info;
       data.pat  = pat;
       data.func = pmath_ref(arg);
@@ -1454,8 +1460,14 @@ static match_kind_t match_atom(
       ++indented;
 #endif
       
-      kind = match_func_left(&data, 1, 1);
-      
+      if(init_analyse_match_func(&data)) {
+        kind = match_func_left(&data, 1, 1);
+        
+        pmath_mem_free(data.pat_infos);
+      }
+      else
+        kind = PMATH_MATCH_KIND_NONE;
+        
 #ifdef DEBUG_LOG_MATCH
       --indented;
       debug_indent(); pmath_debug_print("... sequence %d\n", kind);
@@ -1860,6 +1872,38 @@ static match_kind_t match_repeated(
   return kind;
 }
 
+/*============================================================================*/
+
+static pmath_bool_t init_analyse_match_func(match_func_data_t *data) {
+  _pmath_pattern_analyse_input_t  input;
+  size_t i;
+  
+  assert(data->pat_infos == NULL);
+  
+  i = pmath_expr_length(data->pat);
+  if(i == 0)
+    return TRUE;
+    
+  data->pat_infos = pmath_mem_alloc(sizeof(data->pat_infos[0]) * i);
+  if(!data->pat_infos)
+    return FALSE;
+    
+  memset(&input, 0, sizeof(input));
+  input.parent_pat_head   = data->info->current_head;
+  input.pattern_variables = data->info->pattern_variables;
+  input.associative       = data->associative;
+  
+  for(; i > 0; i--) {
+    input.pat = pmath_expr_get_item(data->pat, i);
+    
+    _pmath_pattern_analyse(&input, &data->pat_infos[i - 1]);
+    
+    pmath_unref(input.pat);
+  }
+  
+  return TRUE;
+}
+
 static match_kind_t match_func_left( // for non-symmetric functions
   match_func_data_t  *data,
   size_t              pat_start,
@@ -1872,11 +1916,8 @@ static match_kind_t match_func_left( // for non-symmetric functions
   //                                                 |- used as a flag!
   // the caller is match_func_left itself => pat_start > 1
   
-  _pmath_pattern_analyse_input_t patarg;
-  memset(&patarg, 0, sizeof(patarg));
-  patarg.parent_pat_head   = data->info->current_head;
-  patarg.pattern_variables = data->info->pattern_variables;
-  patarg.associative       = data->associative;
+  assert(pat_start > 0);
+  assert(func_start > 0);
   
 #ifdef DEBUG_LOG_MATCH
   debug_indent(); pmath_debug_print("match_func_left ...\n");
@@ -1906,12 +1947,11 @@ NEXT_PATARG:
   
 FIRST_PATARG: ;
   {
-    _pmath_pattern_analyse_output_t patarg_out;
     size_t n;
     pmath_bool_t is_last_iter;
     
-    patarg.pat = pmath_expr_get_item(data->pat, pat_start);
-    _pmath_pattern_analyse(&patarg, &patarg_out);
+    pmath_t current_patarg = pmath_expr_get_item(data->pat, pat_start);
+    _pmath_pattern_analyse_output_t patarg_out = data->pat_infos[pat_start - 1];
     
   NEXT_FUNCARG:
 #ifdef DEBUG_LOG_MATCH
@@ -1945,16 +1985,16 @@ FIRST_PATARG: ;
             0, PMATH_MAGIC_PATTERN_SEQUENCE);
       }
       
-      kind = match_atom(data->info, patarg.pat, arg, func_start, flen);
+      kind = match_atom(data->info, current_patarg, arg, func_start, flen);
       pmath_unref(arg);
       if(kind == PMATH_MATCH_KIND_GLOBAL) {
-        pmath_unref(patarg.pat);
+        pmath_unref(current_patarg);
         return kind;
       }
       
       if(kind == PMATH_MATCH_KIND_LOCAL) {
         if(is_last_iter) {
-          pmath_unref(patarg.pat);
+          pmath_unref(current_patarg);
           ++pat_start;
           func_start += n;
           goto NEXT_PATARG;
@@ -1962,7 +2002,7 @@ FIRST_PATARG: ;
         
         kind = match_func_left(data, pat_start + 1, func_start + n);
         if(kind != PMATH_MATCH_KIND_NONE) {
-          pmath_unref(patarg.pat);
+          pmath_unref(current_patarg);
           return kind;
         }
       }
@@ -1982,12 +2022,12 @@ FIRST_PATARG: ;
 #ifdef DEBUG_LOG_MATCH
         debug_indent(); pmath_debug_print("first pat arg\n");
 #endif
-        pmath_unref(patarg.pat);
+        pmath_unref(current_patarg);
         goto FIRST_PATARG;
       }
     }
     
-    pmath_unref(patarg.pat);
+    pmath_unref(current_patarg);
     return PMATH_MATCH_KIND_NONE;
   }
 }
@@ -2081,20 +2121,12 @@ static match_kind_t match_func_symmetric(
     return PMATH_MATCH_KIND_NONE;
     
   for(i = 1; i <= plen; ++i) {
-    _pmath_pattern_analyse_input_t  patarg;
-    _pmath_pattern_analyse_output_t patarg_out;
-    
-    memset(&patarg, 0, sizeof(patarg));
-    patarg.parent_pat_head = data->info->current_head;
-    patarg.associative = data->associative;
-    patarg.pattern_variables = data->info->pattern_variables;
-    patarg.pat = pmath_expr_get_item(data->pat, i);
+    pmath_t current_patarg = pmath_expr_get_item(data->pat, i);
+    _pmath_pattern_analyse_output_t patarg_out = data->pat_infos[i - 1];
     
 #ifdef DEBUG_LOG_MATCH
     debug_indent(); pmath_debug_print("next pat arg (%"PRIuPTR")\n", i);
 #endif
-    
-    _pmath_pattern_analyse(&patarg, &patarg_out);
     
     if(patarg_out.max > flen)
       patarg_out.max = flen;
@@ -2131,13 +2163,13 @@ static match_kind_t match_func_symmetric(
 //          debug_indent(); show_arg_usage("arg usage: ", args_in_use, flen, "\n\n");
 //#endif
 
-          kind = match_atom(data->info, patarg.pat, arg, 1, flen);
+          kind = match_atom(data->info, current_patarg, arg, 1, flen);
           pmath_unref(arg);
           
           if(kind == PMATH_MATCH_KIND_GLOBAL) {
             pmath_mem_free(args_in_use);
             pmath_mem_free(indices);
-            pmath_unref(patarg.pat);
+            pmath_unref(current_patarg);
             return PMATH_MATCH_KIND_GLOBAL;
           }
           
@@ -2177,13 +2209,13 @@ static match_kind_t match_func_symmetric(
           debug_indent(); show_arg_usage("arg usage: ", args_in_use, flen, "\n\n");
 #endif
           
-          kind = match_atom(data->info, patarg.pat, arg, 1, flen);
+          kind = match_atom(data->info, current_patarg, arg, 1, flen);
           pmath_unref(arg);
           
           if(kind == PMATH_MATCH_KIND_GLOBAL) {
             pmath_mem_free(args_in_use);
             pmath_mem_free(indices);
-            pmath_unref(patarg.pat);
+            pmath_unref(current_patarg);
             return PMATH_MATCH_KIND_GLOBAL;
           }
           
@@ -2198,13 +2230,13 @@ static match_kind_t match_func_symmetric(
       }
     }
     
-    pmath_unref(patarg.pat);
+    pmath_unref(current_patarg);
     pmath_mem_free(args_in_use);
     pmath_mem_free(indices);
     return PMATH_MATCH_KIND_NONE;
     
   NEXT_PATARG:
-    pmath_unref(patarg.pat);
+    pmath_unref(current_patarg);
   }
   
   if(pmath_same(data->info->func, data->func)) {
@@ -2251,6 +2283,7 @@ static match_kind_t match_func(
     ++indented;
 #endif
     
+    memset(&data, 0, sizeof(data));
     data.info = info;
     data.pat  = pat;
     data.func = func;
@@ -2268,10 +2301,16 @@ static match_kind_t match_func(
     if(!info->symmetric && info->associative && pmath_same(func, info->func))
       info->assoc_start = 1;
       
-    if(data.symmetric)
-      kind = match_func_symmetric(&data);
+    if(init_analyse_match_func(&data)) {
+      if(data.symmetric)
+        kind = match_func_symmetric(&data);
+      else
+        kind = match_func_left(&data, 1, 1);
+      
+      pmath_mem_free(data.pat_infos);
+    }
     else
-      kind = match_func_left(&data, 1, 1);
+      kind = PMATH_MATCH_KIND_NONE;
       
 #ifdef DEBUG_LOG_MATCH
     --indented;
