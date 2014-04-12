@@ -3,6 +3,7 @@
 
 #include <util/array.h>
 #include <util/pmath-extra.h>
+#include <util/selections.h>
 #include <util/sharedptr.h>
 
 #include <graphics/paint-hook.h>
@@ -10,38 +11,11 @@
 
 
 namespace richmath {
-  class Box;
   class GeneralSyntaxInfo;
   class Style;
   class Stylesheet;
   class SyntaxState;
   class WidgetBox;
-  
-  class SelectionReference {
-    public:
-      explicit SelectionReference(int _id = 0, int _start = 0, int _end = 0);
-      
-      Box *get();
-      void set(Box *box, int _start, int _end);
-      void set_raw(Box *box, int _start, int _end);
-      void reset() { set(0, 0, 0); }
-      
-      bool equals(Box *box, int _start, int _end) const;
-      bool equals(const SelectionReference &other) const;
-      
-      bool operator==(const SelectionReference &other) const {
-        return other.id == id && other.start == start && other.end == end;
-      }
-      
-      bool operator!=(const SelectionReference &other) const {
-        return !(*this == other);
-      }
-      
-    public:
-      int id;
-      int start;
-      int end;
-  };
   
   class Context: public Base {
     public:
