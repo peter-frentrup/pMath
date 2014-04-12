@@ -607,7 +607,7 @@ int main(int argc, char **argv) {
 #endif
   
   if(!pmath_init() || !init_bindings()) {
-    message_dialog("pMath Fatal Error", "Cannot not initialize the pMath library.");
+    message_dialog("pMath Fatal Error", "Cannot initialize the pMath library.");
     
     return 1;
   }
