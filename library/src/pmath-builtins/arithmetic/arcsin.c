@@ -10,18 +10,6 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
-static double log2abs(mpfr_t x) {
-  mpfr_exp_t accexp;
-  double accmant;
-  
-  if(mpfr_zero_p(x))
-    return -HUGE_VAL;
-  
-  // accuracy = -Log(2, dx)
-  accmant = mpfr_get_d_2exp(&accexp, x, MPFR_RNDN);
-  return log2(fabs(accmant)) + accexp;
-}
-
 // x will be freed, x may be PMATH_NULL
 static pmath_mpfloat_t mp_arcsin(pmath_mpfloat_t x) {
   pmath_mpfloat_t val;

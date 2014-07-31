@@ -12,7 +12,6 @@
 
 
 static pmath_t mp_cos(pmath_mpfloat_t x) {
-  MPFR_DECL_INIT(err, PMATH_MP_ERROR_PREC);
   pmath_mpfloat_t val;
   
   assert(pmath_is_mpfloat(x));
