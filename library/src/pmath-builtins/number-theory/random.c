@@ -81,11 +81,6 @@ static pmath_t make_random_mpfloat(struct random_mpfloat_info_t *info) {
     return PMATH_FROM_INT32(0);
   }
   
-  mpfr_set_d( PMATH_AS_MP_ERROR(result), -info->bit_prec, MPFR_RNDN);
-  mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
-  mpfr_mul(   PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), PMATH_AS_MP_VALUE(result), MPFR_RNDU);
-  mpfr_abs(   PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDN);
-  
   return result;
 }
 
@@ -387,24 +382,17 @@ static pmath_t force_approx(pmath_t x, double bit_prec) {
   x = pmath_approximate(x, bit_prec, HUGE_VAL, NULL);
   
   // integer 0 is not changed by pmath_approximate() with bit_prec > -HUGE_VAL
+  //TODO: is that still true?
   if(pmath_is_int32(x)) { // N(0, 10) === 0
     if(bit_prec == -HUGE_VAL) {
       x = PMATH_FROM_DOUBLE((double)PMATH_AS_INT32(x));
     }
     else {
       int val = PMATH_AS_INT32(x);
-      mpfr_prec_t prec = (mpfr_prec_t)ceil(bit_prec);
       
-      x = _pmath_create_mp_float(prec);
+      x = _pmath_create_mp_float((mpfr_prec_t)ceil(bit_prec));
       if(!pmath_is_null(x)) {
         mpfr_set_si(PMATH_AS_MP_VALUE(x), val, MPFR_RNDN);
-        mpfr_set_si(PMATH_AS_MP_ERROR(x), val, MPFR_RNDN);
-        mpfr_abs(   PMATH_AS_MP_ERROR(x), PMATH_AS_MP_VALUE(x), MPFR_RNDU);
-        mpfr_div_2si(
-          PMATH_AS_MP_ERROR(x),
-          PMATH_AS_MP_ERROR(x),
-          prec,
-          MPFR_RNDU);
       }
     }
   }

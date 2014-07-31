@@ -38,11 +38,19 @@ double pmath_accuracy(pmath_t obj) { // will be freed
   
   if(pmath_is_mpfloat(obj)) {
     long exp;
-    double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
-    //acc = dex_get_d_log2(PMATH_AS_MP_ERROR(obj));
+    double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
+    mpfr_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(obj));
+    
     pmath_unref(obj);
-    //return - acc;
-    return -(log2(d) + exp);
+    
+    return (double)prec - (log2(d) + exp);
+    
+//    long exp;
+//    double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
+//
+//    pmath_unref(obj);
+//
+//    return -(log2(d) + exp);
   }
   
   acc = HUGE_VAL;
@@ -74,19 +82,25 @@ double pmath_precision(pmath_t obj) { // will be freed
   }
   
   if(pmath_is_mpfloat(obj)) {
-    long val_exp, err_exp;
-    double val_d, err_d;
-    
-    if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))) {
-      pmath_unref(obj);
-      return 0.0;
-    }
-    
-    val_d = mpfr_get_d_2exp(&val_exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
-    err_d = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
+    mpfr_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(obj));
     
     pmath_unref(obj);
-    return log2(fabs(val_d)) + val_exp - (log2(err_d) + err_exp);
+    
+    return prec;
+    
+    //long val_exp, err_exp;
+    //double val_d, err_d;
+    //
+    //if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))) {
+    //  pmath_unref(obj);
+    //  return 0.0;
+    //}
+    //
+    //val_d = mpfr_get_d_2exp(&val_exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
+    //err_d = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
+    //
+    //pmath_unref(obj);
+    //return log2(fabs(val_d)) + val_exp - (log2(err_d) + err_exp);
   }
   
   if(pmath_is_packed_array(obj)) {
@@ -173,9 +187,6 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
         PMATH_AS_DOUBLE(obj),
         MPFR_RNDN);
     }
-    
-    mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDN);
-    mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDN);
     
     return result;
   }
@@ -273,7 +284,8 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
         PMATH_AS_INT32(obj),
         MPFR_RNDN);
     }
-    else switch(PMATH_AS_PTR(obj)->type_shift) {
+    else {
+      switch(PMATH_AS_PTR(obj)->type_shift) {
         case PMATH_TYPE_SHIFT_MP_INT: {
             mpfr_set_z(
               PMATH_AS_MP_VALUE(result),
@@ -335,9 +347,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
             }
           } break;
       }
-      
-    mpfr_set_d( PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDN);
-    mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDN);
+    }
     
     pmath_unref(obj);
     return result;
@@ -356,10 +366,10 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
         case PMATH_PACKED_INT32:
           if(prec == HUGE_VAL)
             return obj;
-          
+            
           if(prec == -HUGE_VAL)
             return _pmath_expr_pack_array(obj, PMATH_PACKED_DOUBLE);
-          
+            
           break;
           
         case PMATH_PACKED_DOUBLE:
@@ -374,7 +384,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
       obj = pmath_expr_set_item(
               obj, i,
               pmath_set_precision(
-                pmath_expr_get_item(obj, i),
+                pmath_expr_extract_item(obj, i),
                 prec));
     }
     
@@ -445,17 +455,17 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
       prec = DBL_MANT_DIG;
     }
     
-    if(pmath_number_sign(obj) == 0) {
-      pmath_unref(obj);
-      return PMATH_FROM_INT32(0);
-    }
+//    if(pmath_number_sign(obj) == 0) {
+//      pmath_unref(obj);
+//      return PMATH_FROM_INT32(0);
+//    }
     
     if(prec >= PMATH_MP_PREC_MAX) {
       pmath_unref(obj);
       return PMATH_NULL; // overflow message?
     }
     
-    result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
+    result = _pmath_create_mp_float((mpfr_prec_t)floor(prec + 0.5));
     if(pmath_is_null(result)) {
       pmath_unref(obj);
       return PMATH_NULL;
@@ -482,37 +492,33 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
           } break;
           
         case PMATH_TYPE_SHIFT_QUOTIENT: {
+            mpq_t tmp_quot;
+            
+            mpq_init(tmp_quot);
             if(pmath_is_int32(PMATH_QUOT_NUM(obj))) {
-              mpfr_set_si(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_INT32(PMATH_QUOT_NUM(obj)),
-                MPFR_RNDN);
+              mpz_set_si(mpq_numref(tmp_quot), PMATH_AS_INT32(PMATH_QUOT_NUM(obj)));
             }
             else {
               assert(pmath_is_mpint(PMATH_QUOT_NUM(obj)));
               
-              mpfr_set_z(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
-                MPFR_RNDN);
+              mpz_set(mpq_numref(tmp_quot), PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)));
             }
             
             if(pmath_is_int32(PMATH_QUOT_DEN(obj))) {
-              mpfr_div_si(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_INT32(PMATH_QUOT_DEN(obj)),
-                MPFR_RNDN);
+              mpz_set_si(mpq_denref(tmp_quot), PMATH_AS_INT32(PMATH_QUOT_DEN(obj)));
             }
             else {
               assert(pmath_is_mpint(PMATH_QUOT_DEN(obj)));
               
-              mpfr_div_z(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
-                MPFR_RNDN);
+              mpz_set(mpq_denref(tmp_quot), PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)));
             }
+            
+            mpfr_set_q(
+              PMATH_AS_MP_VALUE(result),
+              tmp_quot,
+              MPFR_RNDN);
+              
+            mpq_clear(tmp_quot);
           } break;
           
         case PMATH_TYPE_SHIFT_MP_FLOAT: {
@@ -523,22 +529,6 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
           } break;
       }
       
-    mpfr_set_d(PMATH_AS_MP_ERROR(result), -prec, MPFR_RNDU);
-    
-    mpfr_ui_pow(
-      PMATH_AS_MP_ERROR(result),
-      2,
-      PMATH_AS_MP_ERROR(result),
-      MPFR_RNDU);
-      
-    mpfr_mul(
-      PMATH_AS_MP_ERROR(result),
-      PMATH_AS_MP_ERROR(result),
-      PMATH_AS_MP_VALUE(result),
-      MPFR_RNDA);
-      
-    mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
-    
     pmath_unref(obj);
     return result;
   }
@@ -561,17 +551,17 @@ PMATH_API pmath_t pmath_approximate(
     
   if(aborted)
     *aborted = FALSE;
-  
+    
   prec = precision_goal;
   acc  = accuracy_goal;
   
-  if(prec == -HUGE_VAL || acc == -HUGE_VAL) 
+  if(prec == -HUGE_VAL || acc == -HUGE_VAL)
     return pmath_evaluate(_pmath_approximate_step(obj, prec, acc));
-  
+    
   while(!pmath_aborting()) {
     pmath_t res = pmath_evaluate(_pmath_approximate_step(
                                    pmath_ref(obj), prec, acc));
-    
+                                   
     if(pmath_equals(res, obj)) {
       pmath_unref(obj);
       return res;

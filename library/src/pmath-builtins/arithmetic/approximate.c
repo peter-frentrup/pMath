@@ -332,8 +332,6 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
     
   mpfr_set_ui(PMATH_AS_MP_VALUE(result), 1, MPFR_RNDN);
   mpfr_exp(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), MPFR_RNDN);
-  mpfr_set_d(PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDD);
-  mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
   return result;
 }
 
@@ -373,8 +371,7 @@ PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, d
     return PMATH_NULL;
     
   mpfr_const_euler(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
-  mpfr_set_d(PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDD);
-  mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+  
   return result;
 }
 
@@ -417,8 +414,6 @@ PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double p
   mpfr_log10(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), MPFR_RNDN);
   mpfr_mul_ui(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), DBL_MANT_DIG, MPFR_RNDN);
   
-  mpfr_set_d(PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDD);
-  mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
   return result;
 }
 
@@ -458,7 +453,6 @@ PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double ac
     return PMATH_NULL;
     
   mpfr_const_pi(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
-  mpfr_set_d(PMATH_AS_MP_ERROR(result), -acc, MPFR_RNDD);
-  mpfr_ui_pow(PMATH_AS_MP_ERROR(result), 2, PMATH_AS_MP_ERROR(result), MPFR_RNDU);
+  
   return result;
 }

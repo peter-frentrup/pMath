@@ -35,7 +35,7 @@ double pmath_accuracy(pmath_t obj);
    \return The number of known bits.
 
    HUGE_VAL is given for exact quantities. -HUGE_VAL means "machine precision".
-   If \a obj is an expression, the minimum of its items' accuracies is returned.
+   If \a obj is an expression, the minimum of its items' precisions is returned.
 
    Note that the builtin function Precision() uses base 10, but this function
    operates on base 2.

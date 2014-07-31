@@ -374,8 +374,6 @@ static pmath_bool_t binary_read(
                 if(mpz_sgn(PMATH_AS_MPZ(mant)) == 0) {
                   mpfr_set_ui(PMATH_AS_MP_VALUE(f), 0, MPFR_RNDN);
 
-                  mpfr_set_ui_2exp(PMATH_AS_MP_ERROR(f), 1, -16382 - 112, MPFR_RNDU);
-
                   *type_value = f;
                   pmath_unref(mant);
                 }
@@ -386,13 +384,6 @@ static pmath_bool_t binary_read(
                     PMATH_AS_MP_VALUE(f),
                     PMATH_AS_MPZ(mant),
                     MPFR_RNDN);
-
-                  mpfr_set_ui_2exp(PMATH_AS_MP_ERROR(f), 1, -16382 - 112, MPFR_RNDU);
-                  mpfr_mul(
-                    PMATH_AS_MP_ERROR(f),
-                    PMATH_AS_MP_ERROR(f),
-                    PMATH_AS_MP_VALUE(f),
-                    MPFR_RNDU);
 
                   if(neg)
                     mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
@@ -427,13 +418,6 @@ static pmath_bool_t binary_read(
                   PMATH_AS_MP_VALUE(f),
                   PMATH_AS_MPZ(mant),
                   MPFR_RNDN);
-
-                mpfr_set_ui_2exp(PMATH_AS_MP_ERROR(f), 1, -112, MPFR_RNDU);
-                mpfr_mul(
-                  PMATH_AS_MP_ERROR(f),
-                  PMATH_AS_MP_ERROR(f),
-                  PMATH_AS_MP_VALUE(f),
-                  MPFR_RNDU);
 
                 if(neg)
                   mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);

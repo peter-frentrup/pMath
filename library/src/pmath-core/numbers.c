@@ -192,7 +192,6 @@ static void mp_cache_clear(void) {
       assert(f->inherited.refcount._data == 0);
       
       mpfr_clear(f->value);
-      mpfr_clear(f->error);
       pmath_mem_free(f);
     }
   }
@@ -220,7 +219,6 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
     pmath_atomic_write_release(&f->inherited.refcount, 1);
     
     mpfr_set_prec(f->value, precision);
-    mpfr_set_ui_2exp(f->error, 1, -precision, MPFR_RNDU);
     return PMATH_FROM_PTR(f);
   }
   else {
@@ -237,8 +235,6 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
     return PMATH_NULL;
     
   mpfr_init2(f->value, precision);
-  mpfr_init2(f->error, PMATH_MP_ERROR_PREC);
-  mpfr_set_ui_2exp(f->error, 1, -precision, MPFR_RNDU);
   
   return PMATH_FROM_PTR(f);
 }
@@ -249,13 +245,6 @@ pmath_float_t _pmath_create_mp_float_from_d(double value) {
   
   if(!pmath_is_null(result)) {
     mpfr_set_d(PMATH_AS_MP_VALUE(result), value, MPFR_RNDN);
-    mpfr_set_d(PMATH_AS_MP_ERROR(result), value, MPFR_RNDN);
-    mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
-    mpfr_div_2si(
-      PMATH_AS_MP_ERROR(result),
-      PMATH_AS_MP_ERROR(result),
-      mpfr_get_prec(PMATH_AS_MP_VALUE(result)),
-      MPFR_RNDU);
   }
   
   return result;
@@ -550,18 +539,6 @@ PMATH_API pmath_integer_t pmath_rational_denominator(
 //} ============================================================================
 //{ float constructors and exception handling ...
 
-static double mp_log2abs(mpfr_t x) {
-  mpfr_exp_t accexp;
-  double accmant;
-  
-  if(mpfr_zero_p(x))
-    return -HUGE_VAL;
-    
-  // accuracy = -Log(2, dx)
-  accmant = mpfr_get_d_2exp(&accexp, x, MPFR_RNDN);
-  return log2(fabs(accmant)) + accexp;
-}
-
 PMATH_API
 pmath_number_t pmath_float_new_str(
   const char               *str, // digits.digits
@@ -658,8 +635,6 @@ pmath_number_t pmath_float_new_str(
       };
       
     case PMATH_PREC_CTRL_GIVEN_PREC: {
-        MPFR_DECL_INIT(err_exp, PMATH_MP_ERROR_PREC);
-        MPFR_DECL_INIT(rel_err, PMATH_MP_ERROR_PREC);
         double bits = base_precision_accuracy * log2_base;
         
         if(bits >= PMATH_MP_PREC_MAX)
@@ -668,7 +643,7 @@ pmath_number_t pmath_float_new_str(
         if(bits < 0)
           bits = 0;
           
-        f = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(bits));
+        f = _pmath_create_mp_float((mpfr_prec_t)floor(bits + 0.5));
         if(pmath_is_null(f))
           return PMATH_NULL;
           
@@ -681,17 +656,6 @@ pmath_number_t pmath_float_new_str(
           return PMATH_FROM_INT32(0);
         }
         
-        // error = |value| * 2 ^ (-bits)
-        mpfr_set_d(err_exp, -bits, MPFR_RNDN);
-        mpfr_ui_pow(rel_err, 2, err_exp, MPFR_RNDN);
-        mpfr_mul(
-          PMATH_AS_MP_ERROR(f),
-          PMATH_AS_MP_VALUE(f),
-          rel_err,
-          MPFR_RNDA);
-        mpfr_abs(PMATH_AS_MP_ERROR(f), PMATH_AS_MP_ERROR(f), MPFR_RNDU);
-        
-        _pmath_mp_float_normalize(f);
         return f;
       };
       
@@ -710,11 +674,6 @@ pmath_number_t pmath_float_new_str(
           
         mpfr_set_str(PMATH_AS_MP_VALUE(f), str, base, MPFR_RNDN);
         
-        // error = base ^ -accuracy
-        mpfr_set_d(PMATH_AS_MP_ERROR(f), -base_precision_accuracy, MPFR_RNDD);
-        mpfr_ui_pow(PMATH_AS_MP_ERROR(f), base, PMATH_AS_MP_ERROR(f), MPFR_RNDU);
-        
-        _pmath_mp_float_normalize(f);
         return f;
       };
       
@@ -750,8 +709,7 @@ pmath_t _pmath_float_exceptions(
     pmath_message(PMATH_NULL, "unfl", 0);
     result = pmath_ref(_pmath_object_underflow);
   }
-  else if (mpfr_overflow_p() ||
-           mpfr_zero_p(PMATH_AS_MP_ERROR(x)))
+  else if(mpfr_overflow_p())
   {
     pmath_message(PMATH_NULL, "ovfl", 0);
     result = pmath_ref(_pmath_object_overflow);
@@ -778,23 +736,6 @@ pmath_t _pmath_float_exceptions(
 
 PMATH_PRIVATE
 void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f) {
-  MPFR_DECL_INIT(diff, PMATH_MP_ERROR_PREC);
-  
-  assert(pmath_is_mpfloat(f));
-  assert(pmath_refcount(f) == 1);
-  
-  mpfr_sub(
-    diff,
-    err_f,
-    PMATH_AS_MP_VALUE(f),
-    MPFR_RNDA);
-    
-  mpfr_abs(diff, diff, MPFR_RNDA);
-  mpfr_max(
-    PMATH_AS_MP_ERROR(f),
-    PMATH_AS_MP_ERROR(f),
-    diff,
-    MPFR_RNDU);
 }
 
 PMATH_PRIVATE
@@ -803,103 +744,10 @@ void _pmath_mp_float_clip_error(
   double          min_prec,
   double          max_prec
 ) {
-  MPFR_DECL_INIT(exp,    PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(relerr, PMATH_MP_ERROR_PREC);
-  double log_valf, log_errf, prec_f;
-  
-  assert(pmath_is_mpfloat(f));
-  assert(pmath_refcount(f) == 1);
-  
-  if(!(min_prec >= 0))
-    min_prec = 0;
-    
-  if(!(max_prec <= PMATH_MP_PREC_MAX))
-    max_prec = PMATH_MP_PREC_MAX;
-    
-  if(!(min_prec <= max_prec))
-    max_prec = min_prec;
-    
-  if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_ERROR(f)) <= 0) {
-    return;
-  }
-  
-  log_valf = mp_log2abs(PMATH_AS_MP_VALUE(f));
-  log_errf = mp_log2abs(PMATH_AS_MP_ERROR(f));
-  
-  prec_f = log_valf - log_errf;
-  
-  if(prec_f < min_prec) {
-    mpfr_prec_t prec = 1 + (mpfr_prec_t)ceil(min_prec);
-    if(prec < MPFR_PREC_MIN)
-      prec  = MPFR_PREC_MIN;
-      
-    pmath_debug_print("[precision %f < %f bits]\n", prec_f, min_prec);
-    
-    mpfr_prec_round(PMATH_AS_MP_VALUE(f), prec, MPFR_RNDN);
-    
-    mpfr_set_d(exp, -min_prec, MPFR_RNDN);
-    mpfr_ui_pow(
-      relerr,
-      2,
-      exp,
-      MPFR_RNDU);
-      
-    mpfr_mul(
-      PMATH_AS_MP_ERROR(f),
-      PMATH_AS_MP_VALUE(f),
-      relerr,
-      MPFR_RNDA);
-    mpfr_abs(
-      PMATH_AS_MP_ERROR(f),
-      PMATH_AS_MP_ERROR(f),
-      MPFR_RNDU);
-      
-    return;
-  }
-  
-  if(prec_f > max_prec) {
-    mpfr_prec_t prec = 1 + (mpfr_prec_t)ceil(max_prec);
-    if(prec < MPFR_PREC_MIN)
-      prec  = MPFR_PREC_MIN;
-      
-    pmath_debug_print("[precision %f > %f bits]\n", prec_f, max_prec);
-    
-    mpfr_prec_round(PMATH_AS_MP_VALUE(f), prec, MPFR_RNDN);
-    
-    mpfr_set_d(exp, -max_prec, MPFR_RNDN);
-    mpfr_ui_pow(
-      relerr,
-      2,
-      exp,
-      MPFR_RNDU);
-      
-    mpfr_mul(
-      PMATH_AS_MP_ERROR(f),
-      PMATH_AS_MP_VALUE(f),
-      relerr,
-      MPFR_RNDA);
-    mpfr_abs(
-      PMATH_AS_MP_ERROR(f),
-      PMATH_AS_MP_ERROR(f),
-      MPFR_RNDU);
-      
-    return;
-  }
 }
 
 PMATH_PRIVATE
 void _pmath_mp_float_normalize(pmath_mpfloat_t f) {
-  assert(pmath_is_mpfloat(f));
-  assert(pmath_refcount(f) == 1);
-  
-  if(mpfr_zero_p(PMATH_AS_MP_ERROR(f)) || mpfr_zero_p(PMATH_AS_MP_VALUE(f)))
-    return;
-    
-  if(mpfr_get_exp(PMATH_AS_MP_ERROR(f)) > mpfr_get_exp(PMATH_AS_MP_VALUE(f))) {
-    mpfr_sign_t sign = PMATH_AS_MP_VALUE(f)->_mpfr_sign;
-    mpfr_set_ui(PMATH_AS_MP_VALUE(f), 0, MPFR_RNDN);
-    PMATH_AS_MP_VALUE(f)->_mpfr_sign = sign;
-  }
 }
 
 //}
@@ -1162,11 +1010,6 @@ PMATH_API pmath_number_t pmath_number_neg(pmath_number_t num) {
             PMATH_AS_MP_VALUE(result),
             PMATH_AS_MP_VALUE(num),
             MPFR_RNDN);
-            
-          mpfr_set(
-            PMATH_AS_MP_ERROR(result),
-            PMATH_AS_MP_ERROR(num),
-            MPFR_RNDN);
         }
         
         pmath_unref(num);
@@ -1419,7 +1262,6 @@ static void destroy_mp_float(pmath_t f) {
     assert(f_ptr->inherited.refcount._data == 0);
     
     mpfr_clear(f_ptr->value);
-    mpfr_clear(f_ptr->error);
     pmath_mem_free(f_ptr);
   }
 }
@@ -1498,39 +1340,39 @@ static void write_mp_float_ex(
     base_prec = prec2 / log2(base);
   }
   
-  if(mpfr_zero_p(PMATH_AS_MP_VALUE(f)) || prec2 <= 0) {
-    mp_exp_t err_exp;
-    double err_mant = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(f), MPFR_RNDN);
-    
-    if(base != 10) {
-      snprintf(basestr, sizeof(basestr), "%d^^", base);
-      _pmath_write_cstr(basestr, info->write, info->user);
-    }
-    
-    if(for_machine_float) {
-      if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
-        _pmath_write_cstr("0.0`", info->write, info->user);
-      else
-        _pmath_write_cstr("0.0", info->write, info->user);
-    }
-    else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
-      // acc_b = -Log(b, u)
-      double base_acc = -(err_exp + log2(err_mant)) / log2(base);
-      
-      _pmath_write_cstr("0``", info->write, info->user);
-      write_short_double(base_acc, info->write, info->user);
-    }
-    else {
-      char s[30];
-      
-      double base_acc = -(err_exp + log2(err_mant)) / log2(base);
-      
-      snprintf(s, sizeof(s), "0.0*^%"PRIdMAX, (intmax_t)floor(-base_acc));
-      _pmath_write_cstr(s, info->write, info->user);
-    }
-    
-    return;
-  }
+//  if(mpfr_zero_p(PMATH_AS_MP_VALUE(f)) || prec2 <= 0) {
+//    mp_exp_t err_exp;
+//    double err_mant = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(f), MPFR_RNDN);
+//    
+//    if(base != 10) {
+//      snprintf(basestr, sizeof(basestr), "%d^^", base);
+//      _pmath_write_cstr(basestr, info->write, info->user);
+//    }
+//    
+//    if(for_machine_float) {
+//      if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
+//        _pmath_write_cstr("0.0`", info->write, info->user);
+//      else
+//        _pmath_write_cstr("0.0", info->write, info->user);
+//    }
+//    else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
+//      // acc_b = -Log(b, u)
+//      double base_acc = -(err_exp + log2(err_mant)) / log2(base);
+//      
+//      _pmath_write_cstr("0``", info->write, info->user);
+//      write_short_double(base_acc, info->write, info->user);
+//    }
+//    else {
+//      char s[30];
+//      
+//      double base_acc = -(err_exp + log2(err_mant)) / log2(base);
+//      
+//      snprintf(s, sizeof(s), "0.0*^%"PRIdMAX, (intmax_t)floor(-base_acc));
+//      _pmath_write_cstr(s, info->write, info->user);
+//    }
+//    
+//    return;
+//  }
   
   digits = 1 + (size_t)ceil(base_prec);
   if(digits < 2)

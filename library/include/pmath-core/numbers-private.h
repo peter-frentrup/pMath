@@ -78,7 +78,6 @@ struct _pmath_quotient_t {
 struct _pmath_mp_float_t {
   struct _pmath_t  inherited;
   mpfr_t           value;
-  mpfr_t           error;
 };
 
 #define PMATH_QUOT_NUM(obj)       (((struct _pmath_quotient_t*)     PMATH_AS_PTR(obj))->numerator)
@@ -86,7 +85,6 @@ struct _pmath_mp_float_t {
 
 #define PMATH_AS_MPZ(obj)         (((struct _pmath_mp_int_t*)       PMATH_AS_PTR(obj))->value)
 #define PMATH_AS_MP_VALUE(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value)
-#define PMATH_AS_MP_ERROR(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->error)
 
 /*============================================================================*/
 
@@ -151,16 +149,19 @@ pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
 
 PMATH_PRIVATE
+PMATH_DEPRECATED
 void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f);
 
 // should call _pmath_float_exceptions afterwards:
 PMATH_PRIVATE
+PMATH_DEPRECATED
 void _pmath_mp_float_clip_error(
   pmath_mpfloat_t f, 
   double          min_prec, 
   double          max_prec);
 
 PMATH_PRIVATE
+PMATH_DEPRECATED
 void _pmath_mp_float_normalize(pmath_mpfloat_t f);
 
 PMATH_PRIVATE

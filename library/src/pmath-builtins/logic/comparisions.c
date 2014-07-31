@@ -33,47 +33,43 @@
    "almost equal" is of course not transitive.
  */
 
-static pmath_number_t inverse(pmath_number_t x) { // x will be freed
-  if(pmath_is_integer(x))
-    return pmath_rational_new(INT(1), x);
-    
-  if(pmath_is_rational(x)) {
-    pmath_number_t y = pmath_rational_new(
-                         pmath_rational_denominator(x),
-                         pmath_rational_numerator(x));
-    pmath_unref(x);
-    return y;
-  }
-  
-  if(pmath_is_double(x)) {
-    double dx = PMATH_AS_DOUBLE(x);
-    if(dx == 0.0)
-      return PMATH_NULL;
-      
-    dx = 1 / dx;
-    if(isfinite(dx))
-      return PMATH_FROM_DOUBLE(dx);
-      
-    x = _pmath_create_mp_float_from_d(PMATH_AS_DOUBLE(x));
-  }
-  
-  if(pmath_is_mpfloat(x))
-    return _pow_fi(x, -1, TRUE);
-    
-  pmath_unref(x);
-  return PMATH_NULL;
-}
-
 static pmath_bool_t slow_almost_zero_number(pmath_number_t x) {
   assert(pmath_is_number(x));
   
   if(pmath_is_double(x))
-    return fabs(PMATH_AS_DOUBLE(x)) <= DBL_EPSILON;
+    return fabs(PMATH_AS_DOUBLE(x)) <= TOLERANCE_FACTOR * DBL_EPSILON;
     
-  if(pmath_is_mpfloat(x))
-    return mpfr_cmpabs(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_ERROR(x)) <= 0;
+  if(pmath_is_mpfloat(x)) {
+    if(mpfr_sgn(PMATH_AS_MP_VALUE(x)) < 0) {
+      return 0 > mpfr_cmp_si_2exp(PMATH_AS_MP_VALUE(x), -TOLERANCE_FACTOR, -(mpfr_exp_t)mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
+    }
     
+    return 0 < mpfr_cmp_si_2exp(PMATH_AS_MP_VALUE(x), TOLERANCE_FACTOR, -(mpfr_exp_t)mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
+    
+    //return mpfr_zero_p(PMATH_AS_MP_VALUE(x));
+    //return mpfr_cmpabs(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_ERROR(x)) <= 0;
+  }
+  
   return pmath_same(x, INT(0));
+}
+
+// x and y must have the same sign
+static pmath_bool_t slow_almost_equal_mpf(mpfr_srcptr x, mpfr_srcptr y) {
+  double tol_x = 1 + TOLERANCE_FACTOR * pow(0.5, mpfr_get_prec(x));
+  double tol_y = 1 + TOLERANCE_FACTOR * pow(0.5, mpfr_get_prec(y));
+  double tol = tol_x > tol_y ? tol_x : tol_y;
+  MPFR_DECL_INIT(rhs, DBL_MANT_DIG);
+  
+  if(mpfr_cmpabs(x, y) <= 0) {
+    mpfr_mul_d(rhs, y, tol, GMP_RNDU);
+    
+    return mpfr_cmpabs(x, rhs) <= 0;
+  }
+  else {
+    mpfr_mul_d(rhs, x, tol, GMP_RNDU);
+    
+    return mpfr_cmpabs(y, rhs) <= 0;
+  }
 }
 
 // reference implementation without fast paths:
@@ -108,57 +104,37 @@ static pmath_bool_t slow_almost_equal_numbers(pmath_number_t x, pmath_number_t y
   is_mp_x = pmath_is_mpfloat(x);
   is_mp_y = pmath_is_mpfloat(y);
   if(is_mp_x || is_mp_y) {
-    mpfr_ptr err = NULL;
-    MPFR_DECL_INIT(rhs, PMATH_MP_ERROR_PREC);
-    pmath_number_t absmin_xy, absmax_xy, lhs;
-    
-    if(is_mp_x && is_mp_y) {
-      if(mpfr_less_p(PMATH_AS_MP_ERROR(x), PMATH_AS_MP_ERROR(y)))
-        err = PMATH_AS_MP_ERROR(y);
-      else
-        err = PMATH_AS_MP_ERROR(x);
-    }
-    else if(is_mp_x)
-      err = PMATH_AS_MP_ERROR(x);
-    else
-      err = PMATH_AS_MP_ERROR(y);
-      
-    if(sign_x > 0) {
-      if(pmath_compare(x, y) < 0) {
-        absmin_xy = pmath_ref(x);
-        absmax_xy = pmath_ref(y);
-      }
-      else {
-        absmin_xy = pmath_ref(y);
-        absmax_xy = pmath_ref(x);
-      }
+    if(is_mp_x) {
+      x = pmath_ref(x);
     }
     else {
-      if(pmath_compare(x, y) < 0) {
-        absmin_xy = pmath_ref(x);
-        absmax_xy = pmath_ref(y);
-      }
-      else {
-        absmin_xy = pmath_ref(y);
-        absmax_xy = pmath_ref(x);
-      }
+      x = pmath_set_precision(x, mpfr_get_prec(PMATH_AS_MP_VALUE(y)));
+      is_mp_x = pmath_is_mpfloat(x);
     }
     
-    lhs = _mul_nn(absmax_xy, inverse(absmin_xy));
-    if(!pmath_is_mpfloat(lhs)) {
-      pmath_debug_print_object("[almost_equal: mpfloat expected, but ", lhs, " found]\n");
-      pmath_unref(lhs);
-      return pmath_equals(x, y);
+    if(is_mp_y) {
+      y = pmath_ref(y);
+    }
+    else {
+      y = pmath_set_precision(y, mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
+      is_mp_y = pmath_is_mpfloat(y);
     }
     
-    mpfr_mul_2exp(rhs, err, TOLERANCE_EXPONENT, MPFR_RNDN);
-    mpfr_add_ui(rhs, rhs, 1, MPFR_RNDN);
-    if(mpfr_lessequal_p(PMATH_AS_MP_VALUE(lhs), rhs)) {
-      pmath_unref(lhs);
-      return TRUE;
+    if(is_mp_x && is_mp_y) {
+      pmath_bool_t eq = slow_almost_equal_mpf(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_VALUE(y));
+      
+      pmath_unref(x);
+      pmath_unref(y);
+      return eq;
     }
     
-    pmath_unref(lhs);
+    if(!is_mp_x)
+      pmath_debug_print_object("[pmath_set_precision gave no mp float, but ", x, "]");
+    if(!is_mp_y)
+      pmath_debug_print_object("[pmath_set_precision gave no mp float, but ", y, "]");
+      
+    pmath_unref(x);
+    pmath_unref(y);
     return FALSE;
   }
   

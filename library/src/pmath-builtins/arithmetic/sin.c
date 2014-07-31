@@ -12,110 +12,11 @@
 
 
 static pmath_t mp_sin(pmath_mpfloat_t x) {
-  MPFR_DECL_INIT(err, PMATH_MP_ERROR_PREC);
-  pmath_thread_t thread = pmath_thread_get_current();
   pmath_mpfloat_t val;
-  double min_prec, max_prec;
-  mpfr_prec_t prec_bits;
   
   assert(pmath_is_mpfloat(x));
   
-  if(mpfr_cmp_ui(PMATH_AS_MP_ERROR(x), 1) >= 1) {
-    pmath_unref(x);
-    val = _pmath_create_mp_float(0);
-    
-    if(pmath_is_null(val)) 
-      return val;
-    
-    mpfr_set_ui(PMATH_AS_MP_VALUE(val), 0, MPFR_RNDN);
-    return val;
-  }
-  
-  if(!thread) {
-    pmath_unref(x);
-    return PMATH_NULL;
-  }
-  
-  min_prec = thread->min_precision;
-  max_prec = thread->max_precision;
-  
-  if(min_prec < 0)
-    min_prec  = 0;
-    
-  if(min_prec > PMATH_MP_PREC_MAX)
-    min_prec  = PMATH_MP_PREC_MAX;
-    
-  if(max_prec > PMATH_MP_PREC_MAX)
-    max_prec  = PMATH_MP_PREC_MAX;
-    
-  if(max_prec < min_prec)
-    max_prec  = min_prec;
-  
-  if(min_prec == max_prec) {
-    MPFR_DECL_INIT(err_exp, PMATH_MP_ERROR_PREC);
-    
-    val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(min_prec));
-    
-    if(pmath_is_null(val)) {
-      pmath_unref(x);
-      return val;
-    }
-    
-    mpfr_sin(
-      PMATH_AS_MP_VALUE(val),
-      PMATH_AS_MP_VALUE(x),
-      MPFR_RNDN);
-    
-    mpfr_set_d(err_exp, -min_prec - 1, MPFR_RNDU);
-    if(mpfr_zero_p(PMATH_AS_MP_VALUE(val))) {
-      mpfr_ui_pow(
-        PMATH_AS_MP_ERROR(val),
-        2,
-        err_exp,
-        MPFR_RNDU);
-    }
-    else {
-      mpfr_ui_pow(
-        err,
-        2,
-        err_exp,
-        MPFR_RNDU);
-        
-      mpfr_mul(
-        PMATH_AS_MP_ERROR(val),
-        err,
-        PMATH_AS_MP_VALUE(val),
-        MPFR_RNDA);
-      
-      mpfr_abs(PMATH_AS_MP_ERROR(val), PMATH_AS_MP_ERROR(val), MPFR_RNDU);
-    }
-    
-    pmath_unref(x);
-    return val;
-  }
-  
-// We use dy:= Cos(x) dx, which is not really correct: 
-// It should be dy >= Max(Abs(Sin(Interval(x-dx .. x+dx)) - Sin(x))),
-// but Mathematica has the same bug.
-  mpfr_cos(
-    err,
-    PMATH_AS_MP_VALUE(x),
-    MPFR_RNDA);
-  
-  if(mpfr_cmp_abs(err, PMATH_AS_MP_ERROR(x)) < 0) {
-    // dy <= dx ^ 2
-    prec_bits = 3 - 2 * mpfr_get_exp(PMATH_AS_MP_ERROR(x));
-  }
-  else {
-    prec_bits = 3 - mpfr_get_exp(err) - mpfr_get_exp(PMATH_AS_MP_ERROR(x));
-  }
-  
-  if(prec_bits < min_prec)
-    prec_bits = (mpfr_prec_t)ceil(min_prec);
-  else if(prec_bits > max_prec)
-    prec_bits = (mpfr_prec_t)ceil(max_prec);
-  
-  val = _pmath_create_mp_float(prec_bits);
+  val = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
   if(pmath_is_null(val)) {
     pmath_unref(x);
     return val;
@@ -126,26 +27,9 @@ static pmath_t mp_sin(pmath_mpfloat_t x) {
     PMATH_AS_MP_VALUE(x),
     MPFR_RNDN);
   
-  if(mpfr_cmp_abs(err, PMATH_AS_MP_ERROR(x)) < 0) {
-    // dy <= dx ^ 2
-    mpfr_mul(
-      PMATH_AS_MP_ERROR(val),
-      PMATH_AS_MP_ERROR(x),
-      PMATH_AS_MP_ERROR(x),
-      MPFR_RNDU);
-  }
-  else {
-    mpfr_mul(
-      PMATH_AS_MP_ERROR(val),
-      err,
-      PMATH_AS_MP_ERROR(x),
-      MPFR_RNDA);
-    mpfr_abs(PMATH_AS_MP_ERROR(val), PMATH_AS_MP_ERROR(val), MPFR_RNDU);
-  }
-  
   pmath_unref(x);
-  _pmath_mp_float_clip_error(val, min_prec, max_prec);
-  return val;
+  
+  return _pmath_float_exceptions(val);
 }
 
 PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr) {
