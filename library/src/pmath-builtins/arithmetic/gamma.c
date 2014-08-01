@@ -158,46 +158,53 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
     pmath_unref(den);
   }
   
-//  if(pmath_is_double(z)){
-//    double d = PMATH_AS_DOUBLE(z);
-//    pmath_mpfloat_t result;
-//
-//    result = _pmath_create_mp_float_from_d(d);
-//    if(result){
-//      mpfr_gamma(result->value, result->value, MPFR_RNDN);
-//
-//      if(mpfr_nan_p(result->value)){
-//        pmath_unref((pmath_t)result);
-//        pmath_unref(z);
-//        pmath_unref(expr);
-//        return pmath_ref(_pmath_object_complex_infinity);
-//      }
-//
-//      if(!mpfr_number_p(result->value)){
-//        pmath_unref((pmath_t)result);
-//        pmath_unref(z);
-//        pmath_unref(expr);
-//        pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-//        return pmath_ref(_pmath_object_overflow);
-//      }
-//
-//      d = mpfr_get_d(result->value, MPFR_RNDN);
-//      if(isfinite(d)){
-//        pmath_unref((pmath_t)result);
-//        pmath_unref(z);
-//        pmath_unref(expr);
-//        return PMATH_FROM_DOUBLE(d);
-//      }
-//
-//      pmath_unref(z);
-//      pmath_unref(expr);
-//      return (pmath_t)result;
-//    }
-//  }
-//
-//  if(pmath_is_float(z)){
-//
-//  }
+  if(pmath_is_float(z)) {
+    MPFR_DECL_INIT(z_mp_dbl, DBL_MANT_DIG);
+    mpfr_ptr z_ref;
+    pmath_mpfloat_t result;
+    pmath_bool_t need_double;
+    
+    if(pmath_is_double(z)) {
+      mpfr_set_d(z_mp_dbl, PMATH_AS_DOUBLE(z), MPFR_RNDN);
+      z_ref = z_mp_dbl;
+      need_double = TRUE;
+    }
+    else {
+      z_ref = PMATH_AS_MP_VALUE(z);
+      need_double = FALSE;
+    }
+    
+    result = _pmath_create_mp_float(mpfr_get_prec(z_ref));
+    if(pmath_is_null(result)) {
+      pmath_unref(z);
+      return expr;
+    }
+    
+    mpfr_gamma(PMATH_AS_MP_VALUE(result), z_ref, _pmath_current_rounding_mode());
+    
+    pmath_unref(z);
+    pmath_unref(expr);
+      
+    if(mpfr_nan_p(result->value)){
+      pmath_unref(result);
+      return pmath_ref(_pmath_object_complex_infinity);
+    }
+    
+    if(need_double) {
+      double d = mpfr_get_d(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
+      
+      pmath_unref(result);
+      
+      if(!isfinite(d)) {
+        pmath_message(PMATH_NULL, "ovfl", 0);
+        return pmath_ref(_pmath_object_overflow);
+      }
+      
+      return PMATH_AS_DOUBLE(d);
+    }
+
+    return _pmath_float_exceptions(result);
+  }
 
   { // infinite values
     int num_class = _pmath_number_class(z);
