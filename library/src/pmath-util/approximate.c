@@ -455,17 +455,12 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
       prec = DBL_MANT_DIG;
     }
     
-//    if(pmath_number_sign(obj) == 0) {
-//      pmath_unref(obj);
-//      return PMATH_FROM_INT32(0);
-//    }
-    
     if(prec >= PMATH_MP_PREC_MAX) {
       pmath_unref(obj);
       return PMATH_NULL; // overflow message?
     }
     
-    result = _pmath_create_mp_float((mpfr_prec_t)floor(prec + 0.5));
+    result = _pmath_create_mp_float((mpfr_prec_t)round(prec));
     if(pmath_is_null(result)) {
       pmath_unref(obj);
       return PMATH_NULL;

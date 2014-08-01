@@ -378,28 +378,6 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr) {
   return expr;
 }
 
-static pmath_t force_approx(pmath_t x, double bit_prec) {
-  x = pmath_approximate(x, bit_prec, HUGE_VAL, NULL);
-  
-  // integer 0 is not changed by pmath_approximate() with bit_prec > -HUGE_VAL
-  //TODO: is that still true?
-  if(pmath_is_int32(x)) { // N(0, 10) === 0
-    if(bit_prec == -HUGE_VAL) {
-      x = PMATH_FROM_DOUBLE((double)PMATH_AS_INT32(x));
-    }
-    else {
-      int val = PMATH_AS_INT32(x);
-      
-      x = _pmath_create_mp_float((mpfr_prec_t)ceil(bit_prec));
-      if(!pmath_is_null(x)) {
-        mpfr_set_si(PMATH_AS_MP_VALUE(x), val, MPFR_RNDN);
-      }
-    }
-  }
-  
-  return x;
-}
-
 PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
   /* RandomReal(a..b, n)
      RandomReal(a..b, {n1, n2, ...})
@@ -473,9 +451,8 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
   
   pmath_unref(opt);
   
-  
-  min = force_approx(min, mp_info.bit_prec);
-  max = force_approx(max, mp_info.bit_prec);
+  min = pmath_approximate(min, mp_info.bit_prec, HUGE_VAL, NULL);
+  max = pmath_approximate(max, mp_info.bit_prec, HUGE_VAL, NULL);
   
   if(!pmath_is_float(min) || !pmath_is_float(max)) {
     pmath_t range = pmath_expr_new_extended(
