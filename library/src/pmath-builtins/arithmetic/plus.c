@@ -393,9 +393,8 @@ static pmath_t _add_ff(
   assert(pmath_is_mpfloat(floatA));
   assert(pmath_is_mpfloat(floatB));
   
-  prec =    mpfr_get_prec(PMATH_AS_MP_VALUE(floatA));
-  if(prec < mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)))
-    prec = mpfr_get_prec(PMATH_AS_MP_VALUE(floatB));
+  prec = min(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)),
+             mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)));
     
   result = _pmath_create_mp_float(prec);
   if(pmath_is_null(result)) {

@@ -1446,9 +1446,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
         pmath_mpfloat_t result;
         mpfr_prec_t prec;
         
-        prec = mpfr_get_prec(PMATH_AS_MP_VALUE(base));
-        if(prec < mpfr_get_prec(PMATH_AS_MP_VALUE(exponent)))
-          prec  = mpfr_get_prec(PMATH_AS_MP_VALUE(exponent));
+        prec = min(mpfr_get_prec(PMATH_AS_MP_VALUE(base)),
+                   mpfr_get_prec(PMATH_AS_MP_VALUE(exponent)));
           
         result = _pmath_create_mp_float(prec);
         if(!pmath_is_null(result)) {
