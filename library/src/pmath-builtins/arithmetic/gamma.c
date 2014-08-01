@@ -185,7 +185,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
     pmath_unref(z);
     pmath_unref(expr);
       
-    if(mpfr_nan_p(result->value)){
+    if(mpfr_nan_p(PMATH_AS_MP_VALUE(result))){
       pmath_unref(result);
       return pmath_ref(_pmath_object_complex_infinity);
     }
@@ -200,7 +200,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
         return pmath_ref(_pmath_object_overflow);
       }
       
-      return PMATH_AS_DOUBLE(d);
+      return PMATH_FROM_DOUBLE(d);
     }
 
     return _pmath_float_exceptions(result);
