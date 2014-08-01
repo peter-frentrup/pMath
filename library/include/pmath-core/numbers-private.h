@@ -149,22 +149,6 @@ pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
 
 PMATH_PRIVATE
-PMATH_DEPRECATED
-void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f);
-
-// should call _pmath_float_exceptions afterwards:
-PMATH_PRIVATE
-PMATH_DEPRECATED
-void _pmath_mp_float_clip_error(
-  pmath_mpfloat_t f, 
-  double          min_prec, 
-  double          max_prec);
-
-PMATH_PRIVATE
-PMATH_DEPRECATED
-void _pmath_mp_float_normalize(pmath_mpfloat_t f);
-
-PMATH_PRIVATE
 pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t f);
 
 PMATH_PRIVATE

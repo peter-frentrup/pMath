@@ -241,7 +241,7 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
 
 PMATH_PRIVATE
 pmath_float_t _pmath_create_mp_float_from_d(double value) {
-  pmath_float_t result = _pmath_create_mp_float(DBL_MANT_DIG); // (0);
+  pmath_float_t result = _pmath_create_mp_float(DBL_MANT_DIG);
   
   if(!pmath_is_null(result)) {
     mpfr_set_d(PMATH_AS_MP_VALUE(result), value, MPFR_RNDN);
@@ -643,7 +643,7 @@ pmath_number_t pmath_float_new_str(
         if(bits < 0)
           bits = 0;
           
-        f = _pmath_create_mp_float((mpfr_prec_t)floor(bits + 0.5));
+        f = _pmath_create_mp_float((mpfr_prec_t)round(bits));
         if(pmath_is_null(f))
           return PMATH_NULL;
           
@@ -732,22 +732,6 @@ pmath_t _pmath_float_exceptions(
   mpfr_clear_flags();
   pmath_unref(x);
   return result;
-}
-
-PMATH_PRIVATE
-void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f) {
-}
-
-PMATH_PRIVATE
-void _pmath_mp_float_clip_error(
-  pmath_mpfloat_t f,
-  double          min_prec,
-  double          max_prec
-) {
-}
-
-PMATH_PRIVATE
-void _pmath_mp_float_normalize(pmath_mpfloat_t f) {
 }
 
 //}
