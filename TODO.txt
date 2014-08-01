@@ -3,6 +3,22 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
+- pmath: add Internal`SignBit(), Internal`CopySign(), Internal`NextToward()
+
+- change N(...) because we do not have adaptive precision tracking any more.
+
+? introduce pmath_identical(...) which gives FALSE for arguments 0.0 and -0.0 (unlike pmath_equal)
+
+- BUG: InputForm(Hold(a++*++b)) gives "Hold(a++ ++b)"
+	but Hold(a++ ++b) parses as Hold(StringExpression(a,Increment(b)))
+	
+	similar: Hold(a--*++b) is displayed as Hold(a-- ++b), but that gives a syntax error
+	
+? maybe get rid of Mma-like precision tracking and just preserve number of digits instead
+	N(..., {p,a}) would need to be reimplemented: compute with X and with X+Y digits, compare results to estimate error/precision
+
+- interesting: http://www.eecs.berkeley.edu/~fateman/papers/mma.review.pdf
+	
 - pmath: pattern matching intermediate results are different than in Mma:
 		f(x: h(~a /? (Print("1:", {{x},{a},{b},{c},{d}}); True),
 				~b /? (Print("2:", {{x},{a},{b},{c},{d}}); True)),
