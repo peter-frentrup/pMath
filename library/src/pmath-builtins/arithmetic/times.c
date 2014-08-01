@@ -68,7 +68,7 @@ static pmath_mpfloat_t _mul_fi(
       PMATH_AS_MP_VALUE(result),
       PMATH_AS_MP_VALUE(floatA),
       PMATH_AS_INT32(intB),
-      MPFR_RNDN);
+      _pmath_current_rounding_mode());
       
     pmath_unref(floatA);
     return _pmath_float_exceptions(result);
@@ -80,7 +80,7 @@ static pmath_mpfloat_t _mul_fi(
     PMATH_AS_MP_VALUE(result),
     PMATH_AS_MP_VALUE(floatA),
     PMATH_AS_MPZ(intB),
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
     
   pmath_unref(floatA);
   pmath_unref(intB);
@@ -129,7 +129,7 @@ static pmath_mpfloat_t _mul_fq(
     PMATH_AS_MP_VALUE(result),
     PMATH_AS_MP_VALUE(floatA),
     mpQuotB,
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
     
   pmath_unref(floatA);
   pmath_unref(quotB);
@@ -162,7 +162,7 @@ static pmath_mpfloat_t _mul_ff(
     PMATH_AS_MP_VALUE(result),
     PMATH_AS_MP_VALUE(floatA),
     PMATH_AS_MP_VALUE(floatB),
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
     
   pmath_unref(floatA);
   pmath_unref(floatB);

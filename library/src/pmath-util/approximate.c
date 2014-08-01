@@ -88,19 +88,19 @@ double pmath_precision(pmath_t obj) { // will be freed
     
     return prec;
     
-    //long val_exp, err_exp;
-    //double val_d, err_d;
-    //
-    //if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))) {
-    //  pmath_unref(obj);
-    //  return 0.0;
-    //}
-    //
-    //val_d = mpfr_get_d_2exp(&val_exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
-    //err_d = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
-    //
-    //pmath_unref(obj);
-    //return log2(fabs(val_d)) + val_exp - (log2(err_d) + err_exp);
+//    long val_exp, err_exp;
+//    double val_d, err_d;
+//    
+//    if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))) {
+//      pmath_unref(obj);
+//      return 0.0;
+//    }
+//    
+//    val_d = mpfr_get_d_2exp(&val_exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
+//    err_d = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
+//    
+//    pmath_unref(obj);
+//    return log2(fabs(val_d)) + val_exp - (log2(err_d) + err_exp);
   }
   
   if(pmath_is_packed_array(obj)) {
@@ -171,7 +171,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
       mpfr_set_ui(
         PMATH_AS_MP_VALUE(result),
         0,
-        MPFR_RNDN);
+        MPFR_RNDN); // setting to zero is always exact
     }
     else {
       double prec = log2(fabs(PMATH_AS_DOUBLE(obj))) + acc;
@@ -185,7 +185,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
       mpfr_set_d(
         PMATH_AS_MP_VALUE(result),
         PMATH_AS_DOUBLE(obj),
-        MPFR_RNDN);
+        _pmath_current_rounding_mode());
     }
     
     return result;
@@ -282,7 +282,7 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
       mpfr_set_si(
         PMATH_AS_MP_VALUE(result),
         PMATH_AS_INT32(obj),
-        MPFR_RNDN);
+        _pmath_current_rounding_mode());
     }
     else {
       switch(PMATH_AS_PTR(obj)->type_shift) {
@@ -290,61 +290,44 @@ pmath_t pmath_set_accuracy(pmath_t obj, double acc) { // obj will be freed
             mpfr_set_z(
               PMATH_AS_MP_VALUE(result),
               PMATH_AS_MPZ(obj),
-              MPFR_RNDN);
+              _pmath_current_rounding_mode());
           } break;
           
         case PMATH_TYPE_SHIFT_QUOTIENT: {
+            mpq_t tmp_quot;
+            
+            mpq_init(tmp_quot);
             if(pmath_is_int32(PMATH_QUOT_NUM(obj))) {
-              mpfr_set_si(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_INT32(PMATH_QUOT_NUM(obj)),
-                MPFR_RNDN);
+              mpz_set_si(mpq_numref(tmp_quot), PMATH_AS_INT32(PMATH_QUOT_NUM(obj)));
             }
             else {
               assert(pmath_is_mpint(PMATH_QUOT_NUM(obj)));
               
-              mpfr_set_z(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)),
-                MPFR_RNDN);
+              mpz_set(mpq_numref(tmp_quot), PMATH_AS_MPZ(PMATH_QUOT_NUM(obj)));
             }
             
             if(pmath_is_int32(PMATH_QUOT_DEN(obj))) {
-              mpfr_div_si(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_INT32(PMATH_QUOT_DEN(obj)),
-                MPFR_RNDN);
+              mpz_set_si(mpq_denref(tmp_quot), PMATH_AS_INT32(PMATH_QUOT_DEN(obj)));
             }
             else {
               assert(pmath_is_mpint(PMATH_QUOT_DEN(obj)));
               
-              mpfr_div_z(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)),
-                MPFR_RNDN);
+              mpz_set(mpq_denref(tmp_quot), PMATH_AS_MPZ(PMATH_QUOT_DEN(obj)));
             }
+            
+            mpfr_set_q(
+              PMATH_AS_MP_VALUE(result),
+              tmp_quot,
+              _pmath_current_rounding_mode());
+              
+            mpq_clear(tmp_quot);
           } break;
           
         case PMATH_TYPE_SHIFT_MP_FLOAT: {
             mpfr_set(
               PMATH_AS_MP_VALUE(result),
               PMATH_AS_MP_VALUE(obj),
-              MPFR_RNDN);
-              
-            if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))) {
-              mpfr_set_ui(
-                PMATH_AS_MP_VALUE(result),
-                +0,
-                MPFR_RNDN);
-            }
-            else {
-              mpfr_set(
-                PMATH_AS_MP_VALUE(result),
-                PMATH_AS_MP_VALUE(obj),
-                MPFR_RNDN);
-            }
+              _pmath_current_rounding_mode());
           } break;
       }
     }
@@ -470,20 +453,20 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
       mpfr_set_d(
         PMATH_AS_MP_VALUE(result),
         PMATH_AS_DOUBLE(obj),
-        MPFR_RNDN);
+        _pmath_current_rounding_mode());
     }
     else if(pmath_is_int32(obj)) {
       mpfr_set_si(
         PMATH_AS_MP_VALUE(result),
         PMATH_AS_INT32(obj),
-        MPFR_RNDN);
+        _pmath_current_rounding_mode());
     }
     else switch(PMATH_AS_PTR(obj)->type_shift) {
         case PMATH_TYPE_SHIFT_MP_INT: {
             mpfr_set_z(
               PMATH_AS_MP_VALUE(result),
               PMATH_AS_MPZ(obj),
-              MPFR_RNDN);
+              _pmath_current_rounding_mode());
           } break;
           
         case PMATH_TYPE_SHIFT_QUOTIENT: {
@@ -511,7 +494,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
             mpfr_set_q(
               PMATH_AS_MP_VALUE(result),
               tmp_quot,
-              MPFR_RNDN);
+              _pmath_current_rounding_mode());
               
             mpq_clear(tmp_quot);
           } break;
@@ -520,7 +503,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
             mpfr_set(
               PMATH_AS_MP_VALUE(result),
               PMATH_AS_MP_VALUE(obj),
-              MPFR_RNDN);
+              _pmath_current_rounding_mode());
           } break;
       }
       

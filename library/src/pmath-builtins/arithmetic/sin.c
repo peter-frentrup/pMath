@@ -1,6 +1,5 @@
 #include <pmath-core/numbers-private.h>
 
-#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -25,7 +24,7 @@ static pmath_t mp_sin(pmath_mpfloat_t x) {
   mpfr_sin(
     PMATH_AS_MP_VALUE(val),
     PMATH_AS_MP_VALUE(x),
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
   
   pmath_unref(x);
   
@@ -34,10 +33,6 @@ static pmath_t mp_sin(pmath_mpfloat_t x) {
 
 PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr) {
   pmath_t x;
-  pmath_thread_t me = pmath_thread_get_current();
-  
-  if(!me)
-    return expr;
   
   if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);

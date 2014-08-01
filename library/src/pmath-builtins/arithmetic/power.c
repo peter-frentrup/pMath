@@ -271,13 +271,14 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
   pmath_bool_t    null_on_errors
 ) {
   long lbaseexp;
+  mpfr_rnd_t rnd = _pmath_current_rounding_mode();
   
   assert(pmath_is_mpfloat(base));
   
   if(exponent <= 0 && mpfr_zero_p(PMATH_AS_MP_VALUE(base)))
     return base;
     
-  mpfr_get_d_2exp(&lbaseexp, PMATH_AS_MP_VALUE(base), MPFR_RNDN);
+  mpfr_get_d_2exp(&lbaseexp, PMATH_AS_MP_VALUE(base), rnd);
   
   if( (exponent < 0 &&
        0 == 2 * (unsigned long) - exponent) ||
@@ -314,7 +315,7 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
         PMATH_AS_MP_VALUE(result),
         1,
         PMATH_AS_MP_VALUE(base),
-        MPFR_RNDN);
+        rnd);
     }
     
     pmath_unref(base);
@@ -340,7 +341,7 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
       PMATH_AS_MP_VALUE(result),
       PMATH_AS_MP_VALUE(base),
       exponent,
-      MPFR_RNDN);
+      rnd);
       
     pmath_unref(base);
     return _pmath_float_exceptions(result);
@@ -1347,7 +1348,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
           mpfr_exp(
             PMATH_AS_MP_VALUE(result),
             PMATH_AS_MP_VALUE(exponent),
-            MPFR_RNDN);
+            _pmath_current_rounding_mode());
             
           pmath_unref(exponent);
           pmath_unref(base);
@@ -1473,7 +1474,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
             PMATH_AS_MP_VALUE(result),
             PMATH_AS_MP_VALUE(base),
             PMATH_AS_MP_VALUE(exponent),
-            MPFR_RNDN);
+            _pmath_current_rounding_mode());
             
           pmath_unref(exponent);
           pmath_unref(base);

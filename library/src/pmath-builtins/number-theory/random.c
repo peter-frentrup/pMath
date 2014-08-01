@@ -46,6 +46,7 @@ struct random_mpfloat_info_t {
   mpfr_ptr       range;     // may be NULL
   double         bit_prec;
   mpfr_prec_t    round_bit_prec;
+  mpfr_rnd_t     rounding_mode;
 };
 
 static pmath_t make_random_mpfloat(struct random_mpfloat_info_t *info) {
@@ -65,7 +66,7 @@ static pmath_t make_random_mpfloat(struct random_mpfloat_info_t *info) {
       PMATH_AS_MP_VALUE(result),
       PMATH_AS_MP_VALUE(result),
       info->range,
-      MPFR_RNDN);
+      info->rounding_mode);
   }
   
   if(info->min) {
@@ -73,7 +74,7 @@ static pmath_t make_random_mpfloat(struct random_mpfloat_info_t *info) {
       PMATH_AS_MP_VALUE(result),
       PMATH_AS_MP_VALUE(result),
       info->min,
-      MPFR_RNDN);
+      info->rounding_mode);
   }
   
   if(mpfr_zero_p(PMATH_AS_MP_VALUE(result))) {
@@ -534,13 +535,15 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
     range = _pmath_create_mp_float(mp_info.round_bit_prec);
     
     if(!pmath_is_null(range)) {
+      mp_info.rounding_mode = _pmath_current_rounding_mode();
+      
       if(pmath_is_double(max))
-        mpfr_d_sub(PMATH_AS_MP_VALUE(range), PMATH_AS_DOUBLE(max), PMATH_AS_MP_VALUE(min), MPFR_RNDN);
+        mpfr_d_sub(PMATH_AS_MP_VALUE(range), PMATH_AS_DOUBLE(max), PMATH_AS_MP_VALUE(min), mp_info.rounding_mode);
       else
-        mpfr_sub(PMATH_AS_MP_VALUE(range), PMATH_AS_MP_VALUE(max), PMATH_AS_MP_VALUE(min), MPFR_RNDN);
+        mpfr_sub(PMATH_AS_MP_VALUE(range), PMATH_AS_MP_VALUE(max), PMATH_AS_MP_VALUE(min), mp_info.rounding_mode);
         
-      mp_info.min   = PMATH_AS_MP_VALUE(min);
-      mp_info.range = PMATH_AS_MP_VALUE(range);
+      mp_info.min           = PMATH_AS_MP_VALUE(min);
+      mp_info.range         = PMATH_AS_MP_VALUE(range);
       
       pmath_unref(expr);
       expr = make_array(

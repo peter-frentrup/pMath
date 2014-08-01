@@ -148,6 +148,10 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
 
+// returns pmath_thread_current()->mp_rounding_mode; and MPFR_RNDN on error.
+PMATH_PRIVATE
+mpfr_rnd_t _pmath_current_rounding_mode(void);
+
 PMATH_PRIVATE
 pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t f);
 

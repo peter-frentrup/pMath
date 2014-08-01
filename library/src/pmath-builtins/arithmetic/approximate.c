@@ -302,6 +302,7 @@ static pmath_t approx_const_generic(
   double double_value
 ) {
   pmath_mpfloat_t result;
+  mpfr_rnd_t rnd = _pmath_current_rounding_mode();
   
   if(acc == -HUGE_VAL || prec == -HUGE_VAL)
     return PMATH_FROM_DOUBLE(double_value);
@@ -330,24 +331,24 @@ static pmath_t approx_const_generic(
   if(pmath_is_null(result))
     return PMATH_NULL;
   
-  generator(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
+  generator(PMATH_AS_MP_VALUE(result), rnd);
   
-  mpfr_set_ui(PMATH_AS_MP_VALUE(result), 1, MPFR_RNDN);
-  mpfr_exp(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), MPFR_RNDN);
+  mpfr_set_ui(PMATH_AS_MP_VALUE(result), 1, rnd);
+  mpfr_exp(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), rnd);
   return result;
 }
 
 static int mpfr_const_exp1(mpfr_ptr rop, mpfr_rnd_t rnd) {
-  mpfr_set_ui(rop, 1, MPFR_RNDN);
-  return mpfr_exp(rop, rop, MPFR_RNDN);
+  mpfr_set_ui(rop, 1, rnd);
+  return mpfr_exp(rop, rop, rnd);
 }
 
 static int mpfr_const_machineprecision(mpfr_ptr rop, mpfr_rnd_t rnd) {
   MPFR_DECL_INIT(two, DBL_MANT_DIG);
   
-  mpfr_set_ui(two, 2, MPFR_RNDN);
-  mpfr_log10(rop, two, MPFR_RNDN);
-  return mpfr_mul_ui(rop, rop, DBL_MANT_DIG, MPFR_RNDN);
+  mpfr_set_ui(two, 2, rnd);
+  mpfr_log10(rop, two, rnd);
+  return mpfr_mul_ui(rop, rop, DBL_MANT_DIG, rnd);
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc) {

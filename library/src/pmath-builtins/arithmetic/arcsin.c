@@ -1,6 +1,5 @@
 #include <pmath-core/numbers-private.h>
 
-#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -36,7 +35,7 @@ static pmath_mpfloat_t mp_arcsin(pmath_mpfloat_t x) {
   mpfr_asin(
     PMATH_AS_MP_VALUE(val),
     PMATH_AS_MP_VALUE(x),
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
     
   pmath_unref(x);
   

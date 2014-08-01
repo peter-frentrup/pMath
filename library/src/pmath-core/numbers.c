@@ -704,7 +704,11 @@ pmath_t _pmath_float_exceptions(
   /* MPFR flags "invalid" and "erange" are ignored.
    */
   
-  if(PMATH_UNLIKELY(mpfr_underflow_p())) {
+  if(mpfr_nan_p(PMATH_AS_MP_VALUE(x))) {
+    result = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    pmath_message(PMATH_NULL, "indet", 1, pmath_ref(result));
+  }
+  else if(mpfr_underflow_p()) {
     pmath_message(PMATH_NULL, "unfl", 0);
     result = pmath_ref(_pmath_object_underflow);
   }
@@ -712,10 +716,6 @@ pmath_t _pmath_float_exceptions(
   {
     pmath_message(PMATH_NULL, "ovfl", 0);
     result = pmath_ref(_pmath_object_overflow);
-  }
-  else if(mpfr_nan_p(PMATH_AS_MP_VALUE(x))) {
-    result = pmath_ref(PMATH_SYMBOL_UNDEFINED);
-    pmath_message(PMATH_NULL, "indet", 1, pmath_ref(result));
   }
   else if(mpfr_inf_p(PMATH_AS_MP_VALUE(x))) {
     result = pmath_expr_new_extended(
@@ -731,6 +731,16 @@ pmath_t _pmath_float_exceptions(
   mpfr_clear_flags();
   pmath_unref(x);
   return result;
+}
+
+PMATH_PRIVATE
+mpfr_rnd_t _pmath_current_rounding_mode(void) {
+  pmath_thread_t me = pmath_thread_get_current();
+  
+  if(me == NULL)
+    return MPFR_RNDN;
+  
+  return me->mp_rounding_mode;
 }
 
 //}
@@ -992,7 +1002,7 @@ PMATH_API pmath_number_t pmath_number_neg(pmath_number_t num) {
           mpfr_neg(
             PMATH_AS_MP_VALUE(result),
             PMATH_AS_MP_VALUE(num),
-            MPFR_RNDN);
+            MPFR_RNDN); // always exact  since result and num have same precision
         }
         
         pmath_unref(num);
@@ -1769,6 +1779,8 @@ int _pmath_numbers_compare(
 //      }
 //      
 //      return 0;
+
+      mpfr_rnd_t rounding_mode = _pmath_current_rounding_mode();
       
       mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
       mpfr_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
@@ -1778,7 +1790,7 @@ int _pmath_numbers_compare(
         int result;
         
         if(!pmath_is_null(tmp)) {
-          mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numB), MPFR_RNDN);
+          mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numB), rounding_mode);
           
           result = mpfr_cmp(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(tmp));
           
@@ -1791,7 +1803,7 @@ int _pmath_numbers_compare(
         int result;
         
         if(!pmath_is_null(tmp)) {
-          mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numA), MPFR_RNDN);
+          mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numA), rounding_mode);
           
           result = mpfr_cmp(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(tmp));
           
@@ -1849,7 +1861,9 @@ pmath_bool_t _pmath_numbers_equal(
     
   if( pmath_is_mpfloat(numA) &&
       pmath_is_mpfloat(numB))
-  {
+  { 
+    mpfr_rnd_t rounding_mode = _pmath_current_rounding_mode();
+    
     mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
     mpfr_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
     
@@ -1858,7 +1872,7 @@ pmath_bool_t _pmath_numbers_equal(
       pmath_bool_t result;
       
       if(!pmath_is_null(tmp)) {
-        mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numB), MPFR_RNDN);
+        mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numB), rounding_mode);
         
         result = mpfr_equal_p(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(tmp));
         
@@ -1871,7 +1885,7 @@ pmath_bool_t _pmath_numbers_equal(
       pmath_bool_t result;
       
       if(!pmath_is_null(tmp)) {
-        mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numA), MPFR_RNDN);
+        mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numA), rounding_mode);
         
         result = mpfr_equal_p(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numA));
         
