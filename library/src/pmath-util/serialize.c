@@ -726,7 +726,7 @@ static pmath_t deserialize(struct deserializer_t *info) {
         pmath_unref(mant);
         
         if(tag == TAG_MPFLOAT_OLD) {
-          pmath_debug_print("\n[deserialize old mp float format: skip error component]");
+          pmath_debug_print("[deserialize old mp float format: skip error component]\n");
           
           exp = (mp_exp_t)read_si32(info);
           mant = deserialize(info);

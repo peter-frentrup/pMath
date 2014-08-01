@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <string.h>
 
-
 #if __GNU_MP_VERSION < 4
 #  error gmp version 4 or newer needed
 #endif
@@ -1900,6 +1899,12 @@ PMATH_PRIVATE void _pmath_numbers_memory_panic(void) {
 PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
   char c = 0;
   hash_init = incremental_hash(&c, 1, 0);
+  
+  pmath_debug_print("[gmp %s]\n", gmp_version);
+  
+  pmath_debug_print("[mpfr %s%s]\n", 
+    mpfr_get_version(),
+    mpfr_buildopt_tls_p() ? "" : ", flags are not thrad safe");
   
   memset(int_cache, 0, sizeof(int_cache));
   memset(mp_cache,  0, sizeof(mp_cache));
