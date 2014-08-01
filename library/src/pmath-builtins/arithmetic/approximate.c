@@ -295,16 +295,16 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
-PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc) {
+static pmath_t approx_const_generic(
+  double prec, 
+  double acc,
+  int (*generator)(mpfr_ptr, mpfr_rnd_t),
+  double double_value
+) {
   pmath_mpfloat_t result;
   
-  if(!pmath_same(obj, PMATH_SYMBOL_E))
-    return obj;
-    
-  pmath_unref(obj);
-  
   if(acc == -HUGE_VAL || prec == -HUGE_VAL)
-    return PMATH_FROM_DOUBLE(M_E);
+    return PMATH_FROM_DOUBLE(double_value);
     
   if(acc < -PMATH_MP_PREC_MAX) {
     pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
@@ -312,147 +312,68 @@ PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc
   }
   
   if(prec == HUGE_VAL)
-    prec = 1.4426950408889634074 + acc; // = Log(2, E) + accuracy
+    prec = log2(double_value) + acc;
     
   if(prec > PMATH_MP_PREC_MAX) {
     pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
     return pmath_ref(_pmath_object_overflow);
   }
   
-  if(acc == HUGE_VAL) {
-    acc = prec - 1.4426950408889634074; // = precision - Log(2, E)
-  }
+//  if(acc == HUGE_VAL) {
+//    acc = prec - log2(double_value); 
+//  }
   
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
     
-  result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
+  result = _pmath_create_mp_float((mpfr_prec_t)round(prec));
   if(pmath_is_null(result))
     return PMATH_NULL;
-    
+  
+  generator(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
+  
   mpfr_set_ui(PMATH_AS_MP_VALUE(result), 1, MPFR_RNDN);
   mpfr_exp(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), MPFR_RNDN);
   return result;
 }
 
-PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, double acc) {
-  pmath_mpfloat_t result;
+static int mpfr_const_exp1(mpfr_ptr rop, mpfr_rnd_t rnd) {
+  mpfr_set_ui(rop, 1, MPFR_RNDN);
+  return mpfr_exp(rop, rop, MPFR_RNDN);
+}
+
+static int mpfr_const_machineprecision(mpfr_ptr rop, mpfr_rnd_t rnd) {
+  MPFR_DECL_INIT(two, DBL_MANT_DIG);
   
+  mpfr_set_ui(two, 2, MPFR_RNDN);
+  mpfr_log10(rop, two, MPFR_RNDN);
+  return mpfr_mul_ui(rop, rop, DBL_MANT_DIG, MPFR_RNDN);
+}
+
+PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc) {
+  if(!pmath_same(obj, PMATH_SYMBOL_E))
+    return obj;
+  
+  return approx_const_generic(prec, acc, mpfr_const_exp1, M_E);
+}
+
+PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, double acc) {
   if(!pmath_same(obj, PMATH_SYMBOL_EULERGAMMA))
     return obj;
-    
-  pmath_unref(obj);
   
-  if(acc == -HUGE_VAL || prec == -HUGE_VAL)
-    return PMATH_FROM_DOUBLE(0.57721566490153286061);
-    
-  if(acc < -PMATH_MP_PREC_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-    return pmath_ref(_pmath_object_underflow);
-  }
-  
-  if(prec == HUGE_VAL)
-    prec = -0.79281764161214693637 + acc; // = Log(2, EulerGamma) + accuracy
-    
-  if(prec > PMATH_MP_PREC_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-    return pmath_ref(_pmath_object_overflow);
-  }
-  
-  if(acc == HUGE_VAL) {
-    acc = prec + 0.79281764161214693637; // = precision - Log(2, EulerGamma)
-  }
-  
-  if(prec < MPFR_PREC_MIN)
-    prec = MPFR_PREC_MIN;
-    
-  result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
-  if(pmath_is_null(result))
-    return PMATH_NULL;
-    
-  mpfr_const_euler(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
-  
-  return result;
+  return approx_const_generic(prec, acc, mpfr_const_euler, 0.57721566490153286061);
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double prec, double acc) {
-  pmath_mpfloat_t result;
-  
   if(!pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION))
     return obj;
-    
-  pmath_unref(obj);
   
-  if(acc == -HUGE_VAL || prec == -HUGE_VAL)
-    return PMATH_FROM_DOUBLE((double)LOG10_2 * DBL_MANT_DIG);
-    
-  if(acc < -PMATH_MP_PREC_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-    return pmath_ref(_pmath_object_underflow);
-  }
-  
-  if(prec == HUGE_VAL)
-    prec = DBL_MANT_DIG + acc;
-    
-  if(prec > PMATH_MP_PREC_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-    return pmath_ref(_pmath_object_overflow);
-  }
-  
-  if(acc == HUGE_VAL) {
-    acc = prec - DBL_MANT_DIG;
-  }
-  
-  if(prec < MPFR_PREC_MIN)
-    prec = MPFR_PREC_MIN;
-    
-  result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
-  if(pmath_is_null(result))
-    return PMATH_NULL;
-    
-  mpfr_set_ui(PMATH_AS_MP_VALUE(result), 2, MPFR_RNDN);
-  mpfr_log10(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), MPFR_RNDN);
-  mpfr_mul_ui(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), DBL_MANT_DIG, MPFR_RNDN);
-  
-  return result;
+  return approx_const_generic(prec, acc, mpfr_const_machineprecision, (double)LOG10_2 * DBL_MANT_DIG);
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double acc) {
-  pmath_mpfloat_t result;
-  
   if(!pmath_same(obj, PMATH_SYMBOL_PI))
     return obj;
     
-  pmath_unref(obj);
-  
-  if(acc == -HUGE_VAL || prec == -HUGE_VAL)
-    return PMATH_FROM_DOUBLE(M_PI);
-    
-  if(acc < -PMATH_MP_PREC_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-    return pmath_ref(_pmath_object_underflow);
-  }
-  
-  if(prec == HUGE_VAL)
-    prec = 1.6514961294723187980 + acc; // = Log(2, Pi) + accuracy
-    
-  if(prec > PMATH_MP_PREC_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-    return pmath_ref(_pmath_object_overflow);
-  }
-  
-  if(acc == HUGE_VAL) {
-    acc = prec - 1.6514961294723187980; // = precision - Log(2, Pi)
-  }
-  
-  if(prec < MPFR_PREC_MIN)
-    prec = MPFR_PREC_MIN;
-    
-  result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
-  if(pmath_is_null(result))
-    return PMATH_NULL;
-    
-  mpfr_const_pi(PMATH_AS_MP_VALUE(result), MPFR_RNDN);
-  
-  return result;
+  return approx_const_generic(prec, acc, mpfr_const_pi, M_PI);
 }
