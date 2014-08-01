@@ -1067,7 +1067,7 @@ pmath_t _pmath_packed_element_unbox(const void *data, pmath_packed_type_t type) 
       d = *(double *)data;
       
       if(isfinite(d))
-        return PMATH_FROM_DOUBLE(d == 0 ? +0.0 : d); // convert -0.0 to +0.0
+        return PMATH_FROM_DOUBLE(d);
         
       if(d > 0)
         return pmath_ref(_pmath_object_pos_infinity);
