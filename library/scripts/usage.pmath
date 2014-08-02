@@ -638,7 +638,6 @@ Selectable::usage:= "Selectable is an option for displayed objects, sections and
 SelectedDocument::usage:= "SelectedDocument() returns the currently selected document."
 Sequence::usage:= "Sequence(\(StyleBox(\"expr\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"expr\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) represents a sequence of arguments to be spliced automatically into any function."
 SequenceHold::usage:= "SequenceHold is an attribute which specifies that Sequence objects appearing in the arguments of a function should not automatically be flattened out."
-SetAccuracy::usage:= "SetAccuracy(\(StyleBox(\"expr\", \"Arg\")\), \(StyleBox(\"a\", \"Arg\")\)) returns a version of \(StyleBox(\"expr\", \"Arg\")\) in which all numbers have been set to have accuracy \(StyleBox(\"a\", \"Arg\")\)."
 SetAttributes::usage:= "SetAttributes(\(StyleBox(\"symbol\", \"Arg\")\), \(StyleBox(\"attr\", \"Arg\")\)) adds \(StyleBox(\"attr\", \"Arg\")\) to the list of attributes of \(StyleBox(\"symbol\", \"Arg\")\)."
 SetDirectory::usage:= "SetDirectory(\"\(StyleBox(\"dir\", \"Arg\")\)\") set the current working directory."
 SetOptions::usage:= "SetOptions(\(StyleBox(\"s\", \"Arg\")\), \(StyleBox(\"name\", \"Arg\")\)\(SubscriptBox(\"1\")\) \[Rule] \(StyleBox(\"value\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"name\", \"Arg\")\)\(SubscriptBox(\"2\")\) \[Rule] \(StyleBox(\"value\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) sets the specified default options for a symbol \(StyleBox(\"s\", \"Arg\")\)."

@@ -46,22 +46,6 @@ double pmath_precision(pmath_t obj);
 
 /**\brief Set an object's accuracy in bits.
    \param obj An object. It will be freed.
-   \param acc The new number of known bits after the decimal point.
-   \return The new object.
-
-   Use <tt>acc == -HUGE_VAL</tt> for machine precision and
-   <tt>prec == -HUGE_VAL</tt> if you want to convert all floating point numbers
-   to exact rational numbers.
-
-   Note that the builtin function SetAccuracy() uses base 10, but this
-   function operates on base 2.
- */
-PMATH_API
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_set_accuracy(pmath_t obj, double acc);
-
-/**\brief Set an object's accuracy in bits.
-   \param obj An object. It will be freed.
    \param prec The new number of known bits.
    \return The new object.
 

@@ -1818,7 +1818,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_SECTIONPRINT,                builtin_sectionprint)
   BIND_DOWN(   PMATH_SYMBOL_SELECT,                      builtin_select)
   BIND_DOWN(   PMATH_SYMBOL_SELECTEDDOCUMENT,            general_builtin_nofront);
-  BIND_DOWN(   PMATH_SYMBOL_SETACCURACY,                 builtin_setaccuracy)
   BIND_DOWN(   PMATH_SYMBOL_SETATTRIBUTES,               builtin_setattributes)
   BIND_DOWN(   PMATH_SYMBOL_SETDIRECTORY,                builtin_setdirectory)
   BIND_DOWN(   PMATH_SYMBOL_SETOPTIONS,                  builtin_setoptions)

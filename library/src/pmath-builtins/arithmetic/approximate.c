@@ -34,25 +34,17 @@ static pmath_t precacc_to_obj(double binprec, double binacc) {
 PMATH_PRIVATE pmath_t _pmath_approximate_step(
   pmath_t obj, // will be freed
   double  prec,
-  double  acc
+  double  acc_unused
 ) {
   pmath_symbol_t sym;
   
   if(pmath_is_number(obj)) {
-    double oldacc  = pmath_accuracy(pmath_ref(obj));
     double oldprec = pmath_precision(pmath_ref(obj));
     
-    if(oldacc < acc || oldprec < prec)
+    if(oldprec < prec)
       return obj;
       
-    if(prec == HUGE_VAL)
-      return pmath_set_accuracy(obj, acc);
-      
-    obj = pmath_set_precision(obj, prec);
-    if(acc < HUGE_VAL && acc < pmath_accuracy(pmath_ref(obj)))
-      return pmath_set_accuracy(obj, acc);
-      
-    return obj;
+    return pmath_set_precision(obj, prec);
   }
   
   sym = _pmath_topmost_symbol(obj);
@@ -66,7 +58,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
       result = pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_N), 2,
                  pmath_ref(obj),
-                 precacc_to_obj(prec, acc));
+                 precacc_to_obj(prec, acc_unused));
                  
       if(_pmath_rulecache_find(&rules->approx_rules, &result)) {
         pmath_unref(sym);
@@ -78,7 +70,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     }
     
     result = pmath_ref(obj);
-    if(_pmath_run_approx_code(sym, &result, prec, acc)) {
+    if(_pmath_run_approx_code(sym, &result, prec, acc_unused)) {
       if(!pmath_equals(result, obj)) {
         pmath_unref(obj);
         pmath_unref(sym);
@@ -97,10 +89,10 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     if(pmath_is_packed_array(obj)) {
       switch(pmath_packed_array_get_element_type(obj)) {
         case PMATH_PACKED_INT32:
-          if(prec == -HUGE_VAL || acc == -HUGE_VAL)
+          if(prec == -HUGE_VAL)
             return _pmath_expr_pack_array(obj, PMATH_PACKED_DOUBLE);
             
-          if(prec == HUGE_VAL && acc == HUGE_VAL)
+          if(prec == HUGE_VAL)
             return obj;
             
           break;
@@ -120,7 +112,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     else {
       obj = pmath_expr_set_item(
               obj, 0,
-              _pmath_approximate_step(sym, prec, acc));
+              _pmath_approximate_step(sym, prec, acc_unused));
     }
     
     len = pmath_expr_length(obj);
@@ -128,14 +120,14 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     if(len > 0) {
       if(!(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST)) {
         pmath_t first = pmath_expr_extract_item(obj, 1);
-        obj = pmath_expr_set_item(obj, 1, _pmath_approximate_step(first, prec, acc));
+        obj = pmath_expr_set_item(obj, 1, _pmath_approximate_step(first, prec, acc_unused));
       }
       
       if(!(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDREST)) {
         size_t i;
         for(i = 2; i <= len; ++i) {
           pmath_t item = pmath_expr_extract_item(obj, i);
-          obj = pmath_expr_set_item(obj, i, _pmath_approximate_step(item, prec, acc));
+          obj = pmath_expr_set_item(obj, i, _pmath_approximate_step(item, prec, acc_unused));
         }
       }
     }

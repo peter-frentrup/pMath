@@ -46,49 +46,6 @@ pmath_t builtin_precision(pmath_expr_t expr) {
   return pmath_ref(_pmath_object_pos_infinity);
 }
 
-
-PMATH_PRIVATE
-pmath_t builtin_setaccuracy(pmath_expr_t expr) {
-  pmath_t acc_obj;
-  double acc;
-  
-  if(pmath_expr_length(expr) != 2) {
-    pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
-    return expr;
-  }
-  
-  acc_obj = pmath_expr_get_item(expr, 2);
-  if(_pmath_number_class(acc_obj) & PMATH_CLASS_POSINF) {
-    acc = HUGE_VAL;
-  }
-  else {
-    if(!pmath_is_number(acc_obj)) {
-      acc_obj = pmath_approximate(acc_obj, -HUGE_VAL, -HUGE_VAL, NULL);
-      
-      if(!pmath_is_number(acc_obj)){
-        pmath_unref(acc_obj);
-        acc_obj = pmath_expr_get_item(expr, 2);
-        pmath_message(PMATH_NULL, "invacc", 1, acc_obj);
-        return expr;
-      }
-    }
-    
-    acc = LOG2_10 * pmath_number_get_d(acc_obj);
-  }
-  pmath_unref(acc_obj);
-  
-  if(fabs(acc) > PMATH_MP_PREC_MAX) {
-    pmath_unref(expr);
-    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-    return pmath_ref(_pmath_object_overflow);
-  }
-  
-  acc_obj = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
-  
-  return pmath_set_accuracy(acc_obj, acc);
-}
-
 PMATH_PRIVATE
 pmath_t builtin_setprecision(pmath_expr_t expr) {
   pmath_t prec_obj;

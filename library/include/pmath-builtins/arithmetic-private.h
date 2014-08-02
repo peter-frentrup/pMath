@@ -93,10 +93,11 @@ pmath_bool_t _pmath_to_precision(
   double   *result); // precision in bits
 
 PMATH_PRIVATE
+PMATH_DEPRECATED
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_approximate_step(
   pmath_t obj, // will be freed
   double  prec, // -inf = MachinePrecision
-  double  acc); // -inf = MachinePrecision
+  double  acc_unused); // -inf = MachinePrecision
 
 #endif /* __PMATH_BUILTINS__ARITHMETIC_PRIVATE_H__ */

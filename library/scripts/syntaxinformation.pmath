@@ -437,7 +437,6 @@
 {"SectionPrint", {"ArgumentCount" -> 2..}},
 {"Select", {"ArgumentCount" -> 2..3}},
 {"Sequence", {"ArgumentCount" -> 0..}},
-{"SetAccuracy", {"ArgumentCount" -> 2}},
 {"SetAttributes", {"ArgumentCount" -> 2}},
 {"SetDirectory", {"ArgumentCount" -> 1}},
 {"SetOptions", {"ArgumentCount" -> 2..}},
