@@ -74,14 +74,14 @@ pmath_bool_t pmath_register_code(
 
    Any previous approximation-binding to the symbol will be overwritten.
 
-   The native function will be called as <tt>func(obj, precision, accuracy)</tt>
-   when evaluating the pMath expression <tt>N(obj, {precision, accuracy})</tt>,
+   The native function will be called as <tt>func(obj, precision)</tt>
+   when evaluating the pMath expression <tt>N(obj, precision)</tt>,
    where obj is either `symbol` or `symbol(...)`.
  */
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_t (*func)(pmath_t, double, double));
+  pmath_t (*func)(pmath_t, double));
 
 /** @} */
 
@@ -382,7 +382,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SECTIONLABELAUTODELETE                 PMATH_SYMBOL_BUILTIN(290)
 #define PMATH_SYMBOL_EDITABLE                               PMATH_SYMBOL_BUILTIN(291)
 #define PMATH_SYMBOL_SECTIONGENERATED                       PMATH_SYMBOL_BUILTIN(292)
-#define PMATH_SYMBOL_ACCURACY                               PMATH_SYMBOL_BUILTIN(293)
+//#define PMATH_SYMBOL_ACCURACY                               PMATH_SYMBOL_BUILTIN(293)
 #define PMATH_SYMBOL_MACHINEPRECISION_APPROX                PMATH_SYMBOL_BUILTIN(294)
 #define PMATH_SYMBOL_ISMACHINENUMBER                        PMATH_SYMBOL_BUILTIN(295)
 #define PMATH_SYMBOL_ISEXACTNUMBER                          PMATH_SYMBOL_BUILTIN(296)
@@ -408,7 +408,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SELECTABLE                             PMATH_SYMBOL_BUILTIN(316)
 #define PMATH_SYMBOL_STYLEBOX                               PMATH_SYMBOL_BUILTIN(317)
 #define PMATH_SYMBOL_PIECEWISE                              PMATH_SYMBOL_BUILTIN(318)
-#define PMATH_SYMBOL_SETACCURACY                            PMATH_SYMBOL_BUILTIN(319)
+//#define PMATH_SYMBOL_SETACCURACY                            PMATH_SYMBOL_BUILTIN(319)
 #define PMATH_SYMBOL_SETPRECISION                           PMATH_SYMBOL_BUILTIN(320)
 #define PMATH_SYMBOL_INPUTFIELDBOX                          PMATH_SYMBOL_BUILTIN(321)
 #define PMATH_SYMBOL_FILLBOX                                PMATH_SYMBOL_BUILTIN(322)

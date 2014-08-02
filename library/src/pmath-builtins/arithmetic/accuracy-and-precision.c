@@ -10,23 +10,6 @@
 #include <pmath-builtins/number-theory-private.h>
 
 PMATH_PRIVATE
-pmath_t builtin_accuracy(pmath_expr_t expr) {
-  double acc;
-  
-  if(pmath_expr_length(expr) != 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-    return expr;
-  }
-  
-  acc = pmath_accuracy(expr);
-  
-  if(isfinite(acc))
-    return PMATH_FROM_DOUBLE(acc * LOG10_2);
-    
-  return pmath_ref(_pmath_object_pos_infinity);
-}
-
-PMATH_PRIVATE
 pmath_t builtin_precision(pmath_expr_t expr) {
   double prec;
   
@@ -66,7 +49,7 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
   }
   else {
     if(!pmath_is_number(prec_obj)) {
-      prec_obj = pmath_approximate(prec_obj, -HUGE_VAL, -HUGE_VAL, NULL);
+      prec_obj = pmath_approximate(prec_obj, -HUGE_VAL, NULL);
       
       if(!pmath_is_number(prec_obj)){
         pmath_unref(prec_obj);

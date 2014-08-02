@@ -24,17 +24,9 @@ static pmath_t prec_to_obj(double binprec) {
   return PMATH_FROM_DOUBLE(LOG10_2 * binprec);
 }
 
-static pmath_t precacc_to_obj(double binprec, double binacc) {
-  return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_LIST), 2,
-           prec_to_obj(binprec),
-           prec_to_obj(binacc));
-}
-
 PMATH_PRIVATE pmath_t _pmath_approximate_step(
   pmath_t obj, // will be freed
-  double  prec,
-  double  acc_unused
+  double  prec
 ) {
   pmath_symbol_t sym;
   
@@ -58,7 +50,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
       result = pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_N), 2,
                  pmath_ref(obj),
-                 precacc_to_obj(prec, acc_unused));
+                 prec_to_obj(prec));
                  
       if(_pmath_rulecache_find(&rules->approx_rules, &result)) {
         pmath_unref(sym);
@@ -70,7 +62,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     }
     
     result = pmath_ref(obj);
-    if(_pmath_run_approx_code(sym, &result, prec, acc_unused)) {
+    if(_pmath_run_approx_code(sym, &result, prec)) {
       if(!pmath_equals(result, obj)) {
         pmath_unref(obj);
         pmath_unref(sym);
@@ -112,7 +104,7 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     else {
       obj = pmath_expr_set_item(
               obj, 0,
-              _pmath_approximate_step(sym, prec, acc_unused));
+              _pmath_approximate_step(sym, prec));
     }
     
     len = pmath_expr_length(obj);
@@ -120,14 +112,14 @@ PMATH_PRIVATE pmath_t _pmath_approximate_step(
     if(len > 0) {
       if(!(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST)) {
         pmath_t first = pmath_expr_extract_item(obj, 1);
-        obj = pmath_expr_set_item(obj, 1, _pmath_approximate_step(first, prec, acc_unused));
+        obj = pmath_expr_set_item(obj, 1, _pmath_approximate_step(first, prec));
       }
       
       if(!(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDREST)) {
         size_t i;
         for(i = 2; i <= len; ++i) {
           pmath_t item = pmath_expr_extract_item(obj, i);
-          obj = pmath_expr_set_item(obj, i, _pmath_approximate_step(item, prec, acc_unused));
+          obj = pmath_expr_set_item(obj, i, _pmath_approximate_step(item, prec));
         }
       }
     }
@@ -161,36 +153,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
   return FALSE;
 }
 
-static pmath_bool_t obj_to_accprec(
+static pmath_bool_t obj_to_prec(
   pmath_t  obj, // will be freed
-  double  *acc,
   double  *prec
 ) {
-  *acc = HUGE_VAL;
   if(!_pmath_to_precision(obj, prec)) {
-    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_LIST, 2)) {
-      pmath_t prec_obj = pmath_expr_get_item(obj, 1);
-      pmath_t acc_obj  = pmath_expr_get_item(obj, 2);
-      
-      pmath_unref(obj);
-      
-      if(!_pmath_to_precision(prec_obj, prec)) {
-        pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
-        pmath_unref(acc_obj);
-        return FALSE;
-      }
-      
-      if(!_pmath_to_precision(acc_obj, acc)) {
-        pmath_message(PMATH_NULL, "invacc", 1, acc_obj);
-        pmath_unref(prec_obj);
-        return FALSE;
-      }
-      
-      pmath_unref(prec_obj);
-      pmath_unref(acc_obj);
-      return TRUE;
-    }
-    
     pmath_message(PMATH_NULL, "invprec", 1, obj);
     return FALSE;
   }
@@ -200,24 +167,22 @@ static pmath_bool_t obj_to_accprec(
 }
 
 PMATH_PRIVATE pmath_t builtin_approximate(pmath_expr_t expr) {
-  /* N(obj)              = N(obj, MachinePrecision)
-     N(obj, prec)        = N(obj, {prec, Infinity})
-     N(obj, {prec, acc})
-  
+  /* N(obj)        = N(obj, MachinePrecision)
+     N(obj, prec)
+      
      Messages
-       General::invacc
        General::invprec
    */
   size_t len = pmath_expr_length(expr);
-  double prec_goal, acc_goal;
+  double prec_goal;
   pmath_t obj;
   
   if(len == 2) {
-    if(!obj_to_accprec(pmath_expr_get_item(expr, 2), &acc_goal, &prec_goal))
+    if(!obj_to_prec(pmath_expr_get_item(expr, 2), &prec_goal))
       return expr;
   }
   else if(len == 1) {
-    prec_goal = acc_goal = -HUGE_VAL;
+    prec_goal = -HUGE_VAL;
   }
   else {
     pmath_message_argxxx(len, 1, 2);
@@ -227,7 +192,7 @@ PMATH_PRIVATE pmath_t builtin_approximate(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  return pmath_approximate(obj, prec_goal, acc_goal, NULL);
+  return pmath_approximate(obj, prec_goal, NULL);
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr) {
@@ -252,7 +217,7 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr) {
   }
   
   if(pmath_expr_length(lhs) == 1) {
-    lhs = pmath_expr_append(lhs, 1, precacc_to_obj(-HUGE_VAL, -HUGE_VAL));
+    lhs = pmath_expr_append(lhs, 1, prec_to_obj(-HUGE_VAL));
   }
   
   arg = pmath_expr_get_item(lhs, 1);
@@ -289,32 +254,19 @@ PMATH_PRIVATE pmath_t builtin_assign_approximate(pmath_expr_t expr) {
 
 static pmath_t approx_const_generic(
   double prec, 
-  double acc,
   int (*generator)(mpfr_ptr, mpfr_rnd_t),
   double double_value
 ) {
   pmath_mpfloat_t result;
   mpfr_rnd_t rnd = _pmath_current_rounding_mode();
   
-  if(acc == -HUGE_VAL || prec == -HUGE_VAL)
+  if(prec == -HUGE_VAL)
     return PMATH_FROM_DOUBLE(double_value);
-    
-  if(acc < -PMATH_MP_PREC_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-    return pmath_ref(_pmath_object_underflow);
-  }
-  
-  if(prec == HUGE_VAL)
-    prec = log2(double_value) + acc;
     
   if(prec > PMATH_MP_PREC_MAX) {
     pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
     return pmath_ref(_pmath_object_overflow);
   }
-  
-//  if(acc == HUGE_VAL) {
-//    acc = prec - log2(double_value); 
-//  }
   
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
@@ -343,30 +295,30 @@ static int mpfr_const_machineprecision(mpfr_ptr rop, mpfr_rnd_t rnd) {
   return mpfr_mul_ui(rop, rop, DBL_MANT_DIG, rnd);
 }
 
-PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec, double acc) {
-  if(!pmath_same(obj, PMATH_SYMBOL_E))
+PMATH_PRIVATE pmath_t builtin_approximate_e(pmath_t obj, double prec) {
+  if(!pmath_same(obj, PMATH_SYMBOL_E) || prec == HUGE_VAL)
     return obj;
   
-  return approx_const_generic(prec, acc, mpfr_const_exp1, M_E);
+  return approx_const_generic(prec, mpfr_const_exp1, M_E);
 }
 
-PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec, double acc) {
-  if(!pmath_same(obj, PMATH_SYMBOL_EULERGAMMA))
+PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(pmath_t obj, double prec) {
+  if(!pmath_same(obj, PMATH_SYMBOL_EULERGAMMA) || prec == HUGE_VAL)
     return obj;
   
-  return approx_const_generic(prec, acc, mpfr_const_euler, 0.57721566490153286061);
+  return approx_const_generic(prec, mpfr_const_euler, 0.57721566490153286061);
 }
 
-PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double prec, double acc) {
-  if(!pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION))
+PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double prec) {
+  if(!pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION) || prec == HUGE_VAL)
     return obj;
   
-  return approx_const_generic(prec, acc, mpfr_const_machineprecision, (double)LOG10_2 * DBL_MANT_DIG);
+  return approx_const_generic(prec, mpfr_const_machineprecision, (double)LOG10_2 * DBL_MANT_DIG);
 }
 
-PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec, double acc) {
-  if(!pmath_same(obj, PMATH_SYMBOL_PI))
+PMATH_PRIVATE pmath_t builtin_approximate_pi(pmath_t obj, double prec) {
+  if(!pmath_same(obj, PMATH_SYMBOL_PI) || prec == HUGE_VAL)
     return obj;
     
-  return approx_const_generic(prec, acc, mpfr_const_pi, M_PI);
+  return approx_const_generic(prec, mpfr_const_pi, M_PI);
 }

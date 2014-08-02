@@ -9,67 +9,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 
-/* A value x with uncertainty u is realy any value in [x-u/2, x+u/2]
-   An approximate number with accuracy acc_b (in base b) by definition has
-   uncertainty u = b^-acc_b. So acc_b = -Log(b, u).
-   A non-zero approximate number with precision prec_b (in base b) by definition
-   has uncertainty u = |x| b^-prec_b.
-   So prec_b = -Log(b, u / |x|) = Log(b, |x|) + acc_b
-
-   Internally, we use base b = 2.
- */
-
-PMATH_API
-double pmath_accuracy(pmath_t obj) { // will be freed
-  double acc;
-  
-  if(pmath_is_double(obj)) {
-    if(PMATH_AS_DOUBLE(obj) == 0) {
-      pmath_unref(obj);
-      return 1 - DBL_MIN_EXP;
-    }
-    
-    acc = PMATH_AS_DOUBLE(obj);
-    
-    acc = DBL_MANT_DIG - log2(fabs(acc));
-    pmath_unref(obj);
-    return acc;
-  }
-  
-  if(pmath_is_mpfloat(obj)) {
-    long exp;
-    double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
-    mpfr_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(obj));
-    
-    pmath_unref(obj);
-    
-    return (double)prec - (log2(d) + exp);
-    
-//    long exp;
-//    double d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
-//
-//    pmath_unref(obj);
-//
-//    return -(log2(d) + exp);
-  }
-  
-  acc = HUGE_VAL;
-  
-  if(pmath_is_expr(obj)) {
-    size_t i;
-    
-    for(i = 0; i <= pmath_expr_length(obj); ++i) {
-      double acc2 = pmath_accuracy(
-                      pmath_expr_get_item(obj, i));
-                      
-      if(acc2 < acc)
-        acc = acc2;
-    }
-  }
-  
-  pmath_unref(obj);
-  return acc;
-}
 
 PMATH_API
 double pmath_precision(pmath_t obj) { // will be freed
@@ -317,10 +256,9 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
 PMATH_API pmath_t pmath_approximate(
   pmath_t       obj,            // will be freed
   double        precision_goal, // -inf = MachinePrecision
-  double        accuracy_goal,  // -inf = MachinePrecision
   pmath_bool_t *aborted
 ) {
-  double prec, acc, prec2;
+  double prec, prec2;
   pmath_thread_t me = pmath_thread_get_current();
   
   if(!me)
@@ -330,14 +268,13 @@ PMATH_API pmath_t pmath_approximate(
     *aborted = FALSE;
     
   prec = precision_goal;
-  acc  = accuracy_goal;
   
-  if(prec == -HUGE_VAL || acc == -HUGE_VAL)
-    return pmath_evaluate(_pmath_approximate_step(obj, prec, acc));
+  if(prec == -HUGE_VAL)
+    return pmath_evaluate(_pmath_approximate_step(obj, prec));
     
   while(!pmath_aborting()) {
     pmath_t res = pmath_evaluate(_pmath_approximate_step(
-                                   pmath_ref(obj), prec, acc));
+                                   pmath_ref(obj), prec));
                                    
     if(pmath_equals(res, obj)) {
       pmath_unref(obj);
@@ -350,24 +287,11 @@ PMATH_API pmath_t pmath_approximate(
       return res;
     }
     
-    if(accuracy_goal < HUGE_VAL) {
-      double acc2 = pmath_accuracy( pmath_ref(res));
-      
-      if(acc2 >= accuracy_goal) {
-        pmath_unref(obj);
-        return res;
-      }
-      
-      if(acc2 < acc)
-        acc = 2 * acc - acc2 + 2;
-    }
-    
     if(prec2 < prec)
       prec = 2 * prec - prec2 + 2;
       
     pmath_unref(res);
-    if( prec > precision_goal + me->max_extra_precision ||
-        acc  > accuracy_goal  + me->max_extra_precision)
+    if( prec > precision_goal + me->max_extra_precision)
     {
       // max. extra precision reached
       if(aborted) {
@@ -380,9 +304,8 @@ PMATH_API pmath_t pmath_approximate(
       }
       
       prec = precision_goal + me->max_extra_precision;
-      acc  = accuracy_goal  + me->max_extra_precision;
       
-      return pmath_evaluate(_pmath_approximate_step(obj, prec, acc));
+      return pmath_evaluate(_pmath_approximate_step(obj, prec));
     }
   }
   

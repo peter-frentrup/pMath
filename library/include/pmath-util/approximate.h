@@ -15,21 +15,6 @@
  */
 PMATH_API pmath_bool_t pmath_is_numeric(pmath_t obj);
 
-
-/**\brief Get the accuracy (in bits) of an object.
-   \param obj An object. It will be freed.
-   \return The number of known bits after the decimal point.
-
-   HUGE_VAL is given for exact quantities.
-   If \a obj is an expression, the minimum of its items' accuracies is returned.
-
-   Note that the builtin function Accuracy() uses base 10, but this function
-   operates on base 2.
- */
-PMATH_API
-PMATH_ATTRIBUTE_PURE
-double pmath_accuracy(pmath_t obj);
-
 /**\brief Get the precision (in bits) of an object.
    \param obj An object. It will be freed.
    \return The number of known bits.
@@ -63,7 +48,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec);
 /**\brief Approximate an object.
    \param obj            An object. It will be freed.
    \param precision_goal The requested precision in bits.
-   \param accuracy_goal  The requested accurarcy in bits.
+   \param ignored_accuracy_goal  Ignored.
    \param aborted        [out] Whether the approximation was aborted and an
                          N::meprec should be generated.
                          When this is NULL, N::meprec will be generated
@@ -79,7 +64,6 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_approximate(
   pmath_t       obj,            // will be freed
   double        precision_goal, // -inf = MachinePrecision
-  double        accuracy_goal,  // -inf = MachinePrecision
   pmath_bool_t *aborted);
 
 /** @} */

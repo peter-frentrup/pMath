@@ -80,7 +80,7 @@ PMATH_PRIVATE pmath_t builtin_evaluatedelayed(pmath_expr_t expr) {
   }
   
   reltime_obj = pmath_expr_get_item(expr, 2);
-  reltime_obj = pmath_approximate(reltime_obj, -HUGE_VAL, -HUGE_VAL, NULL);
+  reltime_obj = pmath_approximate(reltime_obj, -HUGE_VAL, NULL);
   
   if(pmath_is_number(reltime_obj))
     seconds = pmath_number_get_d(reltime_obj);

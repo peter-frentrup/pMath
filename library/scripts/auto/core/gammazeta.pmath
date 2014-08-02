@@ -42,10 +42,11 @@ Begin("System`Gamma`")
 	                                     k=1
    TODO: increase working precision, calculate final precision in advance
 */
+/*
 gammapos(~zz)::= Local({a,sum,k,z},
 	z:= zz;
-	a:= Ceiling(Accuracy(zz) * Log(10)/Log(2 Pi));
-	/* If(!IsMachineNumber(zz), z:= SetAccuracy(zz,Accuracy(zz)+20)); */
+	a:= Ceiling(*//*Accuracy*//*Precision(zz) * Log(10)/Log(2 Pi));
+	*//* If(!IsMachineNumber(zz), z:= SetAccuracy(zz,Accuracy(zz)+20)); *//*
 	z-= 1;
 	
 	Return((z+a)^(z+1/2) Exp(-z) Sum((-1)^(k-1) / (k-1)! (a-k)^(k-1/2) Exp(-k) / (z+k), k -> 1..a-1))
@@ -62,6 +63,7 @@ Gamma(~z ? IsInexactNumber)::=
 				Pi/(y Gamma(1-z)))))
 
 LogGamma(~z)::= With({y:= Log(Gamma(z))}, y /? HoldComplete(y) =!= HoldComplete(Log(Gamma(z))))
+*/
 
 End()
 

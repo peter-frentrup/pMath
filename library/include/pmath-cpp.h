@@ -272,7 +272,6 @@ namespace pmath {
         pmath_t approx = pmath_approximate(
                            pmath_ref(_obj),
                            -::std::numeric_limits<double>::infinity(),
-                           -::std::numeric_limits<double>::infinity(),
                            NULL);
                            
         if(pmath_is_number(approx))

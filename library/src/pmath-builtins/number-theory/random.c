@@ -452,8 +452,8 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
   
   pmath_unref(opt);
   
-  min = pmath_approximate(min, mp_info.bit_prec, HUGE_VAL, NULL);
-  max = pmath_approximate(max, mp_info.bit_prec, HUGE_VAL, NULL);
+  min = pmath_approximate(min, mp_info.bit_prec, NULL);
+  max = pmath_approximate(max, mp_info.bit_prec, NULL);
   
   if(!pmath_is_float(min) || !pmath_is_float(max)) {
     pmath_t range = pmath_expr_new_extended(
