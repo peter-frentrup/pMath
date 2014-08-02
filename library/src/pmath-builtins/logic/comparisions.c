@@ -104,18 +104,15 @@ static pmath_bool_t slow_almost_equal_numbers(pmath_number_t x, pmath_number_t y
   is_mp_x = pmath_is_mpfloat(x);
   is_mp_y = pmath_is_mpfloat(y);
   if(is_mp_x || is_mp_y) {
-    if(is_mp_x) {
-      x = pmath_ref(x);
-    }
-    else {
+    x = pmath_ref(x);
+    y = pmath_ref(y);
+    
+    if(!is_mp_x) {
       x = pmath_set_precision(x, mpfr_get_prec(PMATH_AS_MP_VALUE(y)));
       is_mp_x = pmath_is_mpfloat(x);
     }
     
-    if(is_mp_y) {
-      y = pmath_ref(y);
-    }
-    else {
+    if(!is_mp_y) {
       y = pmath_set_precision(y, mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
       is_mp_y = pmath_is_mpfloat(y);
     }
