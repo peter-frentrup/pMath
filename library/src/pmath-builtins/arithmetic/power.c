@@ -1452,23 +1452,23 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
           
         result = _pmath_create_mp_float(prec);
         if(!pmath_is_null(result)) {
-          //if(mpfr_zero_p(PMATH_AS_MP_ERROR(result))) {
-          //  pmath_unref(result);
-          //  pmath_unref(exponent);
-          //  pmath_unref(base);
-          //  pmath_unref(expr);
-          //  pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-          //  return pmath_ref(_pmath_object_underflow);
-          //}
-          //
-          //if(!mpfr_number_p(PMATH_AS_MP_ERROR(result))) {
-          //  pmath_unref(result);
-          //  pmath_unref(exponent);
-          //  pmath_unref(base);
-          //  pmath_unref(expr);
-          //  pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-          //  return pmath_ref(_pmath_object_overflow);
-          //}
+//          if(mpfr_zero_p(PMATH_AS_MP_ERROR(result))) {
+//            pmath_unref(result);
+//            pmath_unref(exponent);
+//            pmath_unref(base);
+//            pmath_unref(expr);
+//            pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
+//            return pmath_ref(_pmath_object_underflow);
+//          }
+//          
+//          if(!mpfr_number_p(PMATH_AS_MP_ERROR(result))) {
+//            pmath_unref(result);
+//            pmath_unref(exponent);
+//            pmath_unref(base);
+//            pmath_unref(expr);
+//            pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
+//            return pmath_ref(_pmath_object_overflow);
+//          }
           
           mpfr_pow(
             PMATH_AS_MP_VALUE(result),
@@ -1501,7 +1501,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     if(!_pmath_is_inexact(base) && !pmath_same(base, PMATH_FROM_INT32(0))) {
       double prec = pmath_precision(exponent);
       
-      base = pmath_approximate(base, prec, HUGE_VAL, NULL);
+      base = pmath_approximate(base, prec, NULL);
       expr = pmath_expr_set_item(expr, 1, base);
       return expr;
     }
@@ -1510,7 +1510,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     if(!_pmath_is_inexact(exponent)) {
       double prec = pmath_precision(base);
       
-      exponent = pmath_approximate(exponent, prec, HUGE_VAL, NULL);
+      exponent = pmath_approximate(exponent, prec, NULL);
       expr     = pmath_expr_set_item(expr, 2, exponent);
       return expr;
     }
@@ -1828,8 +1828,7 @@ PMATH_PRIVATE pmath_t builtin_sqrt(pmath_expr_t expr) {
 
 PMATH_PRIVATE pmath_t builtin_approximate_power(
   pmath_t obj,
-  double prec,
-  double acc
+  double prec
 ) {
   pmath_t base, exp;
   
@@ -1841,12 +1840,12 @@ PMATH_PRIVATE pmath_t builtin_approximate_power(
   
   if(pmath_is_integer(exp)) {
     pmath_unref(exp);
-    base = _pmath_approximate_step(base, prec, acc);
+    base = _pmath_approximate_step(base, prec);
     return pmath_expr_set_item(obj, 1, base);
   }
   
-  base = _pmath_approximate_step(base, prec, acc);
-  exp  = _pmath_approximate_step(exp, prec, acc);
+  base = _pmath_approximate_step(base, prec);
+  exp  = _pmath_approximate_step(exp, prec);
   obj = pmath_expr_set_item(obj, 1, base);
   obj = pmath_expr_set_item(obj, 2, exp);
   return obj;

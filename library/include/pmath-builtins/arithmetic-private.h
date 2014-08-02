@@ -97,7 +97,6 @@ PMATH_DEPRECATED
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_approximate_step(
   pmath_t obj, // will be freed
-  double  prec, // -inf = MachinePrecision
-  double  acc_unused); // -inf = MachinePrecision
+  double  prec); // -inf = MachinePrecision
 
 #endif /* __PMATH_BUILTINS__ARITHMETIC_PRIVATE_H__ */

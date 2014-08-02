@@ -1,7 +1,6 @@
 {{"System`", {
 {"Abort", {"ArgumentCount" -> 0..1}},
 {"Abs", {"ArgumentCount" -> 1}},
-{"Accuracy", {"ArgumentCount" -> 1}},
 {"AffineTransform", {"ArgumentCount" -> 1}},
 {"And", {"ArgumentCount" -> 2..}},
 {"Append", {"ArgumentCount" -> 2}},

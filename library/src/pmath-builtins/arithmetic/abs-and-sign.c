@@ -152,11 +152,11 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
       return PMATH_FROM_DOUBLE(0.0);
     }
     
-    // 0``200 + 0``100*I
+    // 0`200 + 0`100*I
     if(_pmath_is_inexact(x)) {
-      double accuracy = pmath_accuracy(x); // frees x
+      double prec = pmath_precision(x); // frees x
       
-      return pmath_float_new_str("0", 2, PMATH_PREC_CTRL_GIVEN_ACC, accuracy);
+      return pmath_float_new_str("0", 2, PMATH_PREC_CTRL_GIVEN_PREC, prec);
     }
     
     pmath_unref(x);

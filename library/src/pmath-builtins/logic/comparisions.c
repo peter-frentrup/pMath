@@ -207,7 +207,7 @@ static int pmath_fuzzy_compare(pmath_t a, pmath_t b) {
 // TRUE, FALSE or UNKNOWN
 static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   if(pmath_is_double(prev) && pmath_is_numeric(next)) {
-    pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, -HUGE_VAL, NULL);
+    pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, NULL);
     int c;
     
     if(!pmath_is_number(n)) {
@@ -249,7 +249,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   }
   
   if(pmath_is_double(next) && pmath_is_numeric(prev)) {
-    pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, -HUGE_VAL, NULL);
+    pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, NULL);
     int c;
     
     if(!pmath_is_number(p)) {
@@ -338,7 +338,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         n = pmath_ref(next);
         
         if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
-          n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
+          n = pmath_approximate(n, -HUGE_VAL, NULL);
           
         if( pmath_is_number(n) ||
             pmath_equals(next_infdir, PMATH_FROM_INT32(1)))
@@ -363,7 +363,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         n = pmath_ref(next);
         
         if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
-          n = pmath_approximate(n, -HUGE_VAL, -HUGE_VAL, NULL);
+          n = pmath_approximate(n, -HUGE_VAL, NULL);
           
         if( pmath_is_number(n) ||
             pmath_equals(next_infdir, PMATH_FROM_INT32(-1)))
@@ -388,7 +388,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         p = pmath_ref(prev);
         
         if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
-          p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
+          p = pmath_approximate(p, -HUGE_VAL, NULL);
           
         if( pmath_is_number(p) ||
             pmath_equals(prev_infdir, PMATH_FROM_INT32(1)))
@@ -413,7 +413,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         p = pmath_ref(prev);
         
         if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
-          p = pmath_approximate(p, -HUGE_VAL, -HUGE_VAL, NULL);
+          p = pmath_approximate(p, -HUGE_VAL, NULL);
           
         if( pmath_is_number(p) ||
             pmath_equals(prev_infdir, PMATH_FROM_INT32(-1)))
@@ -441,167 +441,96 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   }
   
   if(pmath_is_numeric(prev) && pmath_is_numeric(next)) {
-    int c = 0;
+    double pprec = pmath_precision(pmath_ref(prev));
+    double nprec = pmath_precision(pmath_ref(next));
     
-    if(pmath_is_mpfloat(prev)) {
-      double precacc = DBL_MANT_DIG + LOG10_2;
-      pmath_t n;
+    if(pprec < HUGE_VAL && nprec < HUGE_VAL) {
+      pmath_t p = pmath_ref(prev);
+      pmath_t n = pmath_ref(next);
       
-      n = pmath_approximate(pmath_ref(next), precacc, HUGE_VAL, NULL);
-      
-      if(!pmath_is_number(n)) {
-        pmath_unref(n);
-        return UNKNOWN;
-      }
-      
-      c = pmath_fuzzy_compare(prev, n);
-      if(c == 0) {
-        precacc = DBL_MANT_DIG + pmath_accuracy(n);
-        n = pmath_approximate(pmath_ref(next), HUGE_VAL, precacc, NULL);
+      if(!pmath_is_number(p))
+        p = pmath_approximate(p, min(pprec, nprec), NULL);
         
-        if(!pmath_is_number(n)) {
-          pmath_unref(n);
-          return UNKNOWN;
-        }
+      if(!pmath_is_number(n))
+        n = pmath_approximate(n, min(pprec, nprec), NULL);
         
-        c = pmath_fuzzy_compare(prev, n);
-      }
-      
-      pmath_unref(n);
-    }
-    else if(pmath_is_mpfloat(next)) {
-      double precacc = DBL_MANT_DIG + LOG10_2;
-      pmath_t p;
-      
-      p = pmath_approximate(pmath_ref(prev), precacc, HUGE_VAL, NULL);
-      
-      if(!pmath_is_number(p)) {
+      if(pmath_is_number(p) && pmath_is_number(n)) {
+        int c = pmath_fuzzy_compare(p, n);
+        
         pmath_unref(p);
-        return UNKNOWN;
-      }
-      
-      c = pmath_fuzzy_compare(p, next);
-      if(c == 0) {
-        precacc = DBL_MANT_DIG + pmath_accuracy(p);
-        p = pmath_approximate(pmath_ref(prev), HUGE_VAL, precacc, NULL);
+        pmath_unref(n);
         
-        if(!pmath_is_number(p)) {
-          pmath_unref(p);
-          return UNKNOWN;
+        if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
+            (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
+            (c >  0 && (directions & DIRECTION_GREATER) == 0))
+        {
+          return FALSE;
         }
         
-        c = pmath_fuzzy_compare(p, next);
+        return TRUE;
       }
       
       pmath_unref(p);
+      pmath_unref(n);
+      
+      return UNKNOWN;
     }
     else {
-      pmath_bool_t error1;
-      pmath_bool_t error2;
-      double pprec = DBL_MANT_DIG + LOG10_2;
-      double nprec = DBL_MANT_DIG + LOG10_2;
-      pmath_t p;
-      pmath_t n;
+      double prec, startprec;
+      int c = 0;
       
       pmath_thread_t me = pmath_thread_get_current();
-      
-      if(!me)
+      if(me == NULL)
         return UNKNOWN;
         
-      p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
-      n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
+      prec = startprec = DBL_MANT_DIG;
       
-      // TODO: check complex values for equality...
-      if(!pmath_is_number(p) || !pmath_is_number(n)) {
-        c = test_almost_equal(p, n);
+      for(;;) {
+        pmath_t p = pmath_approximate(pmath_ref(prev), prec, NULL);
+        pmath_t n = pmath_approximate(pmath_ref(next), prec, NULL);
+        
+        if(!pmath_is_number(p) || !pmath_is_number(n)) {
+          pmath_unref(p);
+          pmath_unref(n);
+          
+          return UNKNOWN;
+        }
+        
+        c = pmath_fuzzy_compare(p, n);
         pmath_unref(p);
         pmath_unref(n);
         
-        if(c == FALSE) {
-          if(directions == DIRECTION_EQUAL)
-            return FALSE;
-            
-          if(directions == 0) // no < or >
-            return TRUE;
-            
+        if(c != 0)
+          break;
+          
+        if(pmath_aborting())
           return UNKNOWN;
-        }
         
-        if(c == TRUE) {
-          if(directions == DIRECTION_EQUAL)
-            return TRUE;
+        if(prec >= startprec + me->max_extra_precision) {
+          pmath_t expr = pmath_expr_new_extended(
+            pmath_current_head(), 2,
+            pmath_ref(prev),
+            pmath_ref(next));
             
-          if(directions == 0) // no < or >
-            return FALSE;
-        }
-        
-        return UNKNOWN;
-      }
-      
-      c = pmath_fuzzy_compare(p, n);
-      if(c == 0 && !pmath_aborting()) {
-        nprec += 1;
-        while(c == 0 && !pmath_aborting() && !error1 && !error2) {
-          error1 = (pprec >= DBL_MANT_DIG + me->max_extra_precision);
-          error2 = (nprec >= DBL_MANT_DIG + me->max_extra_precision);
-          
-          if(error1 || error2)
-            break;
-            
-          pprec = 2 * pprec + 33;
-          nprec = 2 * nprec + 33;
-          
-          if(pprec > DBL_MANT_DIG + me->max_extra_precision)
-            pprec  = DBL_MANT_DIG + me->max_extra_precision;
-          if(nprec > DBL_MANT_DIG + me->max_extra_precision)
-            nprec  = DBL_MANT_DIG + me->max_extra_precision;
-            
-          pmath_unref(n);
-          pmath_unref(p);
-          
-          p = pmath_approximate(pmath_ref(prev), pprec, HUGE_VAL, &error1);
-          n = pmath_approximate(pmath_ref(next), nprec, HUGE_VAL, &error2);
-          
-          if(!pmath_is_number(p) || !pmath_is_number(n))
-            break;
-            
-          c = pmath_fuzzy_compare(p, n);
-        }
-      }
-      
-      pmath_unref(n);
-      pmath_unref(p);
-      
-      if(pmath_aborting())
-        return UNKNOWN;
-        
-      if((directions & ~DIRECTION_EQUAL) == 0) {
-        if(error1) {
-          pmath_message(PMATH_SYMBOL_N, "meprec", 2,
+          pmath_message(PMATH_NULL, "meprec", 2,
                         pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
-                        pmath_ref(prev));
-                        
+                        expr);
+          
           return UNKNOWN;
         }
         
-        if(error2) {
-          pmath_message(PMATH_SYMBOL_N, "meprec", 2,
-                        pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
-                        pmath_ref(next));
-                        
-          return UNKNOWN;
-        }
+        prec*= 1.414;
       }
+      
+      if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
+          (c == 0 && (directions & DIRECTION_EQUAL)   == 0) || // c==0 should not happen
+          (c >  0 && (directions & DIRECTION_GREATER) == 0))
+      {
+        return FALSE;
+      }
+      
+      return TRUE;
     }
-    
-    if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
-        (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
-        (c >  0 && (directions & DIRECTION_GREATER) == 0))
-    {
-      return FALSE;
-    }
-    
-    return TRUE;
   }
   
   return UNKNOWN;

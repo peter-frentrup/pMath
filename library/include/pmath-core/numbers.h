@@ -247,7 +247,7 @@ typedef enum {
   PMATH_PREC_CTRL_AUTO         = 0,
   PMATH_PREC_CTRL_MACHINE_PREC = 1,
   PMATH_PREC_CTRL_GIVEN_PREC   = 2,
-  PMATH_PREC_CTRL_GIVEN_ACC    = 3
+  PMATH_PREC_CTRL_GIVEN_ACC    = 3   // deprecated
 } pmath_precision_control_t;
 
 /**\brief Create a floating point number from a string.
