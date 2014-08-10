@@ -120,14 +120,14 @@ PMATH_PRIVATE pmath_t builtin_tan(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tanh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_times(           pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_approximate_e(               pmath_t obj, double prec);
-PMATH_PRIVATE pmath_t builtin_approximate_eulergamma(      pmath_t obj, double prec);
-PMATH_PRIVATE pmath_t builtin_approximate_machineprecision(pmath_t obj, double prec);
-PMATH_PRIVATE pmath_t builtin_approximate_pi(              pmath_t obj, double prec);
-PMATH_PRIVATE pmath_t builtin_approximate_power(           pmath_t obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_e(               pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_eulergamma(      pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_machineprecision(pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_pi(              pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_power(           pmath_t *obj, double prec);
 
-PMATH_PRIVATE pmath_t builtin_assign_approximate(      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_assign_setprecision(     pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/ ...
 PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr);
@@ -577,18 +577,18 @@ pmath_bool_t _pmath_run_approx_code(
 ) {
   func_entry_t         *entry;
   pmath_hashtable_t     table;
-  pmath_t             (*result)(pmath_t, double) = NULL;
+  pmath_bool_t        (*func)(pmath_t*, double) = NULL;
   
   table = LOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX);
   
   entry = pmath_ht_search(table, &key);
   if(entry)
-    result = (pmath_t(*)(pmath_t, double))entry->function;
+    func = (pmath_bool_t(*)(pmath_t*, double))entry->function;
     
   UNLOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX, table);
   
-  if(result) {
-    *in_out = result(*in_out, prec);
+  if(func) {
+    return func(in_out, prec);
     
     return TRUE;
   }
@@ -640,7 +640,7 @@ pmath_bool_t pmath_register_code(
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_t (*func)(pmath_t, double)
+  pmath_bool_t   (*func)(pmath_t*, double)
 ) {
   return pmath_register_code(
            symbol,
@@ -1489,7 +1489,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_SUB(    PMATH_SYMBOL_ISHELD,                           builtin_call_isheld)
   BIND_SUB(    PMATH_SYMBOL_LINEARSOLVEFUNCTION,              builtin_call_linearsolvefunction)
   
-  BIND_UP(     PMATH_SYMBOL_N,                                builtin_assign_approximate)
   BIND_UP(     PMATH_SYMBOL_NRULES,                           builtin_assign_symbol_rules)
   BIND_UP(     PMATH_SYMBOL_ATTRIBUTES,                       builtin_assign_attributes)
   BIND_UP(     PMATH_SYMBOL_CURRENTNAMESPACE,                 builtin_assign_namespace)
@@ -1509,6 +1508,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_UP(     PMATH_SYMBOL_OPTIONS,                          builtin_assign_options)
   BIND_UP(     PMATH_SYMBOL_OWNRULES,                         builtin_assign_ownrules)
   BIND_UP(     PMATH_SYMBOL_PART,                             builtin_assign_part)
+  BIND_UP(     PMATH_SYMBOL_SETPRECISION,                     builtin_assign_setprecision)
   BIND_UP(     PMATH_SYMBOL_SUBRULES,                         builtin_assign_symbol_rules)
   BIND_UP(     PMATH_SYMBOL_SYNTAXINFORMATION,                builtin_assign_syntaxinformation)
   BIND_UP(     PMATH_SYMBOL_UPRULES,                          builtin_assign_symbol_rules)
@@ -1737,7 +1737,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_MIN,                         builtin_min)
   BIND_DOWN(   PMATH_SYMBOL_MOD,                         builtin_mod)
   BIND_DOWN(   PMATH_SYMBOL_MOST,                        builtin_most)
-  BIND_DOWN(   PMATH_SYMBOL_N,                           builtin_approximate)
   BIND_DOWN(   PMATH_SYMBOL_NAMES,                       builtin_names)
   BIND_DOWN(   PMATH_SYMBOL_NAMESPACE,                   builtin_namespace)
   BIND_DOWN(   PMATH_SYMBOL_NEST,                        builtin_nest)

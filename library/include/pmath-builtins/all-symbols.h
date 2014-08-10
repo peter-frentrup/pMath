@@ -68,8 +68,9 @@ pmath_bool_t pmath_register_code(
 
 /**\brief Bind a pMath symbol to some native code for approximation.
    \param symbol The symbol. It wont be freed.
-   \param func A native function that frees/takes ownership of its first
-               argument.
+   \param func A native function that replaces its first argument by an 
+               approximation (precision according to its second argument) and
+               returns TRUE on success.
    \return Whether the binding succeded.
 
    Any previous approximation-binding to the symbol will be overwritten.
@@ -81,7 +82,7 @@ pmath_bool_t pmath_register_code(
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_t (*func)(pmath_t, double));
+  pmath_bool_t (*func)(pmath_t*, double));
 
 /** @} */
 
@@ -382,7 +383,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SECTIONLABELAUTODELETE                 PMATH_SYMBOL_BUILTIN(290)
 #define PMATH_SYMBOL_EDITABLE                               PMATH_SYMBOL_BUILTIN(291)
 #define PMATH_SYMBOL_SECTIONGENERATED                       PMATH_SYMBOL_BUILTIN(292)
-//#define PMATH_SYMBOL_ACCURACY                               PMATH_SYMBOL_BUILTIN(293)
+#define PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM              PMATH_SYMBOL_BUILTIN(293)
 #define PMATH_SYMBOL_MACHINEPRECISION_APPROX                PMATH_SYMBOL_BUILTIN(294)
 #define PMATH_SYMBOL_ISMACHINENUMBER                        PMATH_SYMBOL_BUILTIN(295)
 #define PMATH_SYMBOL_ISEXACTNUMBER                          PMATH_SYMBOL_BUILTIN(296)
@@ -408,7 +409,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_SELECTABLE                             PMATH_SYMBOL_BUILTIN(316)
 #define PMATH_SYMBOL_STYLEBOX                               PMATH_SYMBOL_BUILTIN(317)
 #define PMATH_SYMBOL_PIECEWISE                              PMATH_SYMBOL_BUILTIN(318)
-//#define PMATH_SYMBOL_SETACCURACY                            PMATH_SYMBOL_BUILTIN(319)
+#define PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING              PMATH_SYMBOL_BUILTIN(319)
 #define PMATH_SYMBOL_SETPRECISION                           PMATH_SYMBOL_BUILTIN(320)
 #define PMATH_SYMBOL_INPUTFIELDBOX                          PMATH_SYMBOL_BUILTIN(321)
 #define PMATH_SYMBOL_FILLBOX                                PMATH_SYMBOL_BUILTIN(322)
@@ -877,8 +878,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_DEVELOPER_TOPACKEDARRAY                PMATH_SYMBOL_BUILTIN(785)
 #define PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY              PMATH_SYMBOL_BUILTIN(786)
 #define PMATH_SYMBOL_DEVELOPER_ISPACKEDARRAY                PMATH_SYMBOL_BUILTIN(787)
-#define PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING              PMATH_SYMBOL_BUILTIN(788)
-#define PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM              PMATH_SYMBOL_BUILTIN(789)
   
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

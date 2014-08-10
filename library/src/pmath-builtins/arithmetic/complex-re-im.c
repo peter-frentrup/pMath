@@ -348,7 +348,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   }
   
   /* Check if it is a real number by approximating to MachinePrecision */
-  z2 = pmath_approximate(pmath_ref(z), -HUGE_VAL, NULL);
+  //z2 = pmath_approximate(pmath_ref(z), -HUGE_VAL, NULL);
+  z2 = pmath_set_precision(pmath_ref(z), -HUGE_VAL);
   
   if(pmath_is_number(z2)) {
     pmath_unref(z2);

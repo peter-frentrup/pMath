@@ -269,7 +269,7 @@ namespace pmath {
         if(is_number())
           return pmath_number_get_d(_obj);
           
-        pmath_t approx = pmath_approximate(
+        pmath_t approx = pmath_set_precision(
                            pmath_ref(_obj),
                            -::std::numeric_limits<double>::infinity(),
                            NULL);

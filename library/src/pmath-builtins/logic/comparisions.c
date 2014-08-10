@@ -204,7 +204,7 @@ static int pmath_fuzzy_compare(pmath_t a, pmath_t b) {
 // TRUE, FALSE or UNKNOWN
 static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   if(pmath_is_double(prev) && pmath_is_numeric(next)) {
-    pmath_t n = pmath_approximate(pmath_ref(next), -HUGE_VAL, NULL);
+    pmath_t n = pmath_set_precision(pmath_ref(next), -HUGE_VAL);
     int c;
     
     if(!pmath_is_number(n)) {
@@ -246,7 +246,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   }
   
   if(pmath_is_double(next) && pmath_is_numeric(prev)) {
-    pmath_t p = pmath_approximate(pmath_ref(prev), -HUGE_VAL, NULL);
+    pmath_t p = pmath_set_precision(pmath_ref(prev), -HUGE_VAL);
     int c;
     
     if(!pmath_is_number(p)) {
@@ -335,7 +335,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         n = pmath_ref(next);
         
         if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
-          n = pmath_approximate(n, -HUGE_VAL, NULL);
+          n = pmath_set_precision(n, -HUGE_VAL);
           
         if( pmath_is_number(n) ||
             pmath_equals(next_infdir, PMATH_FROM_INT32(1)))
@@ -360,7 +360,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         n = pmath_ref(next);
         
         if(pmath_is_null(next_infdir) && pmath_is_numeric(n))
-          n = pmath_approximate(n, -HUGE_VAL, NULL);
+          n = pmath_set_precision(n, -HUGE_VAL);
           
         if( pmath_is_number(n) ||
             pmath_equals(next_infdir, PMATH_FROM_INT32(-1)))
@@ -385,7 +385,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         p = pmath_ref(prev);
         
         if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
-          p = pmath_approximate(p, -HUGE_VAL, NULL);
+          p = pmath_set_precision(p, -HUGE_VAL);
           
         if( pmath_is_number(p) ||
             pmath_equals(prev_infdir, PMATH_FROM_INT32(1)))
@@ -410,7 +410,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         p = pmath_ref(prev);
         
         if(pmath_is_null(prev_infdir) && pmath_is_numeric(p))
-          p = pmath_approximate(p, -HUGE_VAL, NULL);
+          p = pmath_set_precision(p, -HUGE_VAL);
           
         if( pmath_is_number(p) ||
             pmath_equals(prev_infdir, PMATH_FROM_INT32(-1)))
@@ -446,10 +446,10 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       pmath_t n = pmath_ref(next);
       
       if(!pmath_is_number(p))
-        p = pmath_approximate(p, min(pprec, nprec), NULL);
+        p = pmath_set_precision(p, min(pprec, nprec));
         
       if(!pmath_is_number(n))
-        n = pmath_approximate(n, min(pprec, nprec), NULL);
+        n = pmath_set_precision(n, min(pprec, nprec));
         
       if(pmath_is_number(p) && pmath_is_number(n)) {
         int c = pmath_fuzzy_compare(p, n);
@@ -483,8 +483,8 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       prec = startprec = DBL_MANT_DIG;
       
       for(;;) {
-        pmath_t p = pmath_approximate(pmath_ref(prev), prec, NULL);
-        pmath_t n = pmath_approximate(pmath_ref(next), prec, NULL);
+        pmath_t p = pmath_set_precision(pmath_ref(prev), prec);
+        pmath_t n = pmath_set_precision(pmath_ref(next), prec);
         
         if(!pmath_is_number(p) || !pmath_is_number(n)) {
           pmath_unref(p);

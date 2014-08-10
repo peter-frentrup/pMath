@@ -1,13 +1,54 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/approximate.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/control/definitions-private.h>
+#include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
+
+PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
+  pmath_t  obj, // wont be freed
+  double  *result
+) {
+  if(pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION)) {
+    *result = -HUGE_VAL;
+    return TRUE;
+  }
+  
+  if(pmath_is_number(obj)) {
+    *result = LOG2_10 * pmath_number_get_d(obj);
+    return isfinite(*result);
+  }
+  
+  if(pmath_equals(obj, _pmath_object_pos_infinity)) {
+    *result = HUGE_VAL;
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+PMATH_PRIVATE pmath_t _pmath_from_precision(double prec_bits) {
+  if(prec_bits == -HUGE_VAL)
+    return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
+    
+  if(prec_bits == HUGE_VAL)
+    return pmath_ref(_pmath_object_pos_infinity);
+    
+  prec_bits *= LOG10_2;
+  if(isfinite(prec_bits))
+    return PMATH_FROM_DOUBLE(prec_bits);
+  
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
 
 PMATH_PRIVATE
 pmath_t builtin_precision(pmath_expr_t expr) {
@@ -49,7 +90,7 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
   }
   else {
     if(!pmath_is_number(prec_obj)) {
-      prec_obj = pmath_approximate(prec_obj, -HUGE_VAL, NULL);
+      prec_obj = pmath_set_precision(prec_obj, -HUGE_VAL);
       
       if(!pmath_is_number(prec_obj)){
         pmath_unref(prec_obj);
@@ -75,6 +116,66 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
   pmath_unref(expr);
   
   return pmath_set_precision(prec_obj, prec);
+}
+
+PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
+  /* SetPrecision(Sym, ~prec)::= ...
+   */
+  struct _pmath_symbol_rules_t *rules;
+  pmath_t tag;
+  pmath_t lhs;
+  pmath_t rhs;
+  pmath_t sym;
+  pmath_t arg;
+  
+  if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
+    return expr;
+    
+  if(pmath_is_expr_of_len(lhs, PMATH_SYMBOL_SETPRECISION, 2)) {
+    if(pmath_expr_length(lhs) != 2) {
+      pmath_unref(tag);
+      pmath_unref(lhs);
+      pmath_unref(rhs);
+      return expr;
+    }
+  }
+  else {
+    pmath_unref(tag);
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return expr;
+  }
+  
+  arg = pmath_expr_get_item(lhs, 1);
+  sym = _pmath_topmost_symbol(arg);
+  pmath_unref(arg);
+  
+  if(!pmath_same(tag, PMATH_UNDEFINED) &&
+      !pmath_same(tag, sym))
+  {
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
+    
+    pmath_unref(expr);
+    if(pmath_same(rhs, PMATH_UNDEFINED))
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    return rhs;
+  }
+  
+  pmath_unref(tag);
+  pmath_unref(expr);
+  
+  rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
+  pmath_unref(sym);
+  
+  if(!rules) {
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  _pmath_rulecache_change(&rules->approx_rules, lhs, rhs);
+  
+  return PMATH_NULL;
 }
 
 

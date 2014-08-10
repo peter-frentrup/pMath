@@ -691,7 +691,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
     }
     
     if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), NULL);
+      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
       return;
     }
   }
@@ -722,13 +722,13 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
     }
     
     if(_pmath_is_inexact(*a)) {
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), NULL);
+      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
       return;
     }
   }
   else if(_pmath_is_nonreal_complex(*b)) {
     if(_pmath_is_inexact(*b)) {
-      *a = pmath_approximate(*a, pmath_precision(pmath_ref(*b)), NULL);
+      *a = pmath_set_precision(*a, pmath_precision(pmath_ref(*b)));
       return;
     }
   }

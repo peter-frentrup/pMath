@@ -1,0 +1,27 @@
+/* approximation code N() ...
+	
+	TODO: use adaptive precision tracking with interval arithmetic
+ */
+
+BeginPackage("System`")
+
+
+Begin("System`Numerics`Private`")
+
+
+Default(N, 2):= MachinePrecision
+N(~x)::= SetPrecision(x, MachinePrecision)
+
+/* Need  With({y:= ...}, y /? True)  because the pattern matcher does not recognize /? inside Try()
+	In case of an error the pattern matcher sees  ($Failed /? False) /? True  and returns 
+	unevaluated.
+ */
+/*N(~x, ~prec)::= Try(SetPrecision(y, prec), Message(N::invprec, prec); $failed /? False, SetPrecision::invprec)*/
+N(~x, ~prec)::= With({y:= Try(SetPrecision(x, prec), Message(N::invprec, prec); $Failed /? False, SetPrecision::invprec)}, y /? True)
+
+N(~~~x) ::= $Failed /? (IsValidArgumentCount(N, Length({x}), 1, 2);False)
+
+
+End()
+
+EndPackage()
