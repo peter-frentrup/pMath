@@ -153,7 +153,7 @@ static pmath_t mp_log(pmath_mpfloat_t x) {
   
   assert(pmath_is_mpfloat(x));
   
-  if(mpfr_zero_p(PMATH_AS_MP_VALUE(x)) <= 0) {
+  if(mpfr_zero_p(PMATH_AS_MP_VALUE(x))) {
     pmath_unref(x);
     return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }

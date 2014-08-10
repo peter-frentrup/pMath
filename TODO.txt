@@ -5,17 +5,10 @@
 
 - pmath: add Internal`SignBit(), Internal`CopySign(), Internal`NextToward()
 
-- pmath: change N(...) because we do not have adaptive precision tracking any more.
-	SetPrecision(Pi,...) should approximate Pi. 
-	(SetPrecision(x, ~p)::= ...) should be stored in NRules(x)
-	remove Accuracy() and SetAccuracy()
-	?remove N() or define N(~x)::= SetPrecision(x, MachinePrecision). remove definitions for N(...,...)
-	N(..., {p,a}) would need to be reimplemented: compute with X and with X+Y digits, compare results to estimate error/precision
-
-- pmath: SetPrecision(x^(3/2), ...) should not change the exponent
-
 ? pmath: add internal multi precision RealInterval(a,b) type with correct outward rounding (=> mpfi library)
 	or implement it with some Internal`WithSoftwareRoundingMode(code, mode)
+	
+	make N(...) use adaptive precision tracking through RealInterval
 
 ? introduce pmath_identical(...) which gives FALSE for arguments 0.0 and -0.0 (unlike pmath_equal)
 

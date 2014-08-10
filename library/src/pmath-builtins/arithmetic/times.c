@@ -387,7 +387,7 @@ static pmath_bool_t times_2_arg_num(pmath_t *a, pmath_t *b) {
     }
     
     if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), NULL);
+      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
       return TRUE;
     }
     
@@ -476,7 +476,7 @@ static pmath_bool_t times_2_arg_num(pmath_t *a, pmath_t *b) {
     }
     
     if(_pmath_is_inexact(*a) && pmath_is_numeric(*b)) {
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), NULL);
+      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
       return TRUE;
     }
   }

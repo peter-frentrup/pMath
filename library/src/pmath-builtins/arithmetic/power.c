@@ -1499,18 +1499,18 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     }
     
     if(!_pmath_is_inexact(base) && !pmath_same(base, PMATH_FROM_INT32(0))) {
-      double prec = pmath_precision(exponent);
+      double prec = pmath_precision(exponent); // frees exponent
       
-      base = pmath_approximate(base, prec, NULL);
+      base = pmath_set_precision(base, prec);
       expr = pmath_expr_set_item(expr, 1, base);
       return expr;
     }
   }
   else if(_pmath_is_inexact(base)) {
     if(!_pmath_is_inexact(exponent)) {
-      double prec = pmath_precision(base);
+      double prec = pmath_precision(base); // frees base
       
-      exponent = pmath_approximate(exponent, prec, NULL);
+      exponent = pmath_set_precision(exponent, prec);
       expr     = pmath_expr_set_item(expr, 2, exponent);
       return expr;
     }
@@ -1826,27 +1826,28 @@ PMATH_PRIVATE pmath_t builtin_sqrt(pmath_expr_t expr) {
            pmath_ref(_pmath_one_half));
 }
 
-PMATH_PRIVATE pmath_t builtin_approximate_power(
-  pmath_t obj,
+PMATH_PRIVATE pmath_bool_t builtin_approximate_power(
+  pmath_t *obj,
   double prec
 ) {
   pmath_t base, exp;
   
-  if(!pmath_is_expr_of_len(obj, PMATH_SYMBOL_POWER, 2))
-    return obj;
+  if(!pmath_is_expr_of_len(*obj, PMATH_SYMBOL_POWER, 2))
+    return FALSE;
     
-  base = pmath_expr_get_item(obj, 1);
-  exp  = pmath_expr_get_item(obj, 2);
+  base = pmath_expr_extract_item(*obj, 1);
+  exp  = pmath_expr_get_item(*obj, 2);
   
-  if(pmath_is_integer(exp)) {
+  if(pmath_is_rational(exp)) {
     pmath_unref(exp);
-    base = _pmath_approximate_step(base, prec);
-    return pmath_expr_set_item(obj, 1, base);
+    base = pmath_set_precision(base, prec);
+    *obj = pmath_expr_set_item(*obj, 1, base);
+    return TRUE;
   }
   
-  base = _pmath_approximate_step(base, prec);
-  exp  = _pmath_approximate_step(exp, prec);
-  obj = pmath_expr_set_item(obj, 1, base);
-  obj = pmath_expr_set_item(obj, 2, exp);
-  return obj;
+  base = pmath_set_precision(base, prec);
+  exp  = pmath_set_precision(exp, prec);
+  *obj = pmath_expr_set_item(*obj, 1, base);
+  *obj = pmath_expr_set_item(*obj, 2, exp);
+  return TRUE;
 }
