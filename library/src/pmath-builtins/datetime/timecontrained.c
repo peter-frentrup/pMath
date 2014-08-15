@@ -37,7 +37,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr) {
   
   seconds = 0.0;
   
-  obj = pmath_approximate(obj, -HUGE_VAL, -HUGE_VAL, NULL);
+  obj = pmath_set_precision(obj, -HUGE_VAL);
   if(pmath_is_number(obj)) {
     seconds = pmath_number_get_d(obj);
   }

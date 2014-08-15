@@ -20,9 +20,7 @@ Interval(ranges: (~?IsRealOrInfinity .. ~?IsRealOrInfinity)**) ::=
 	With({result:= CompressSortedRanges({}, SortRanges @ {ranges})},
 		Interval @@ result /? result =!= {ranges})
 	
-Interval(~~~i1, ~x ? IsRealOrInfinity, ~~~i2) ::= 
-	With({err:= 10^-Accuracy(x)}, 
-		Interval(i1, x - err .. x + err, i2))
+Interval(~~~i1, ~x ? IsRealOrInfinity, ~~~i2) ::= Interval(i1, x .. x, i2)
 
 
 SortRanges(ranges: {(~ .. ~)***})::= ranges.Map(#.Sort(Less) &).Sort(First(#1) < First(#2) &)

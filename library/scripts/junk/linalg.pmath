@@ -50,7 +50,7 @@ decompLU(~M)::=
 		A:= M;
 		n:= Length(M);
 		indx:= vv:= Array(n);
-		tiny:= Accuracy(A);
+		tiny:= /*Accuracy*/Precision(A);
 		exact:= tiny===Infinity;
 		tiny:= 10^-tiny;
 		

@@ -48,9 +48,15 @@ static pmath_mpfloat_t _mul_fi(
   pmath_integer_t intB    // will be freed. not PMATH_NULL!
 ) {
   pmath_mpfloat_t result;
-  double fprec;
-  long   expB;
-  mpfr_prec_t prec;
+  
+  assert(pmath_is_mpfloat(floatA));
+  
+  result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
+  if(pmath_is_null(result)) {
+    pmath_unref(floatA);
+    pmath_unref(intB);
+    return PMATH_NULL;
+  }
   
   if(pmath_is_int32(intB)) {
     if(PMATH_AS_INT32(intB) == 0) {
@@ -58,126 +64,78 @@ static pmath_mpfloat_t _mul_fi(
       return intB;
     }
     
-    intB = _pmath_create_mp_int(PMATH_AS_INT32(intB));
-    
-    if(pmath_is_null(intB)) {
-      pmath_unref(floatA);
-      return intB;
-    }
+    mpfr_mul_si(
+      PMATH_AS_MP_VALUE(result),
+      PMATH_AS_MP_VALUE(floatA),
+      PMATH_AS_INT32(intB),
+      _pmath_current_rounding_mode());
+      
+    pmath_unref(floatA);
+    return _pmath_float_exceptions(result);
   }
   
   assert(pmath_is_mpint(intB));
-  
-  fprec = pmath_precision(pmath_ref(floatA));
-  fprec += log2(fabs(mpz_get_d_2exp(&expB, PMATH_AS_MPZ(intB))));
-  fprec += expB;
-  
-  if(fprec < MPFR_PREC_MIN)
-    prec = MPFR_PREC_MIN;
-  else if(fprec >= PMATH_MP_PREC_MAX)
-    prec = PMATH_MP_PREC_MAX;
-  else
-    prec = 1 + (mpfr_prec_t)ceil(fprec);
-    
-  result = _pmath_create_mp_float(prec);
-  
-  if(pmath_is_null(result)) {
-    pmath_unref(floatA);
-    pmath_unref(intB);
-    return PMATH_NULL;
-  }
-  
-  // (x +/- ux/2) (y +/- uy/2) = x y +/- x uy/2 +/- y ux/2 +/- ux uy/4
-  //
-  // => uxy:= uncertainty(x*y) = x uy + y ux + ux uy / 2 = y ux (uy = 0)
-  mpfr_mul_z(
-    PMATH_AS_MP_ERROR(result),
-    PMATH_AS_MP_ERROR(floatA),
-    PMATH_AS_MPZ(intB),
-    MPFR_RNDA);
-    
-  mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDN);
   
   mpfr_mul_z(
     PMATH_AS_MP_VALUE(result),
     PMATH_AS_MP_VALUE(floatA),
     PMATH_AS_MPZ(intB),
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
     
-  //_pmath_mp_float_normalize(result);
-  
   pmath_unref(floatA);
   pmath_unref(intB);
-  return result;
-}
-
-static pmath_mpfloat_t _div_fi(
-  pmath_mpfloat_t floatA, // will be freed. not PMATH_NULL!
-  pmath_integer_t intB    // wont be freed. not PMATH_NULL! not zero!
-) {
-  pmath_mpfloat_t result;
-  
-  result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
-  
-  if(pmath_is_null(result)) {
-    pmath_unref(floatA);
-    return PMATH_NULL;
-  }
-  
-  // (x +/- ux/2) (y +/- uy/2) = x y +/- x uy/2 +/- y ux/2 +/- ux uy/4
-  //
-  // => uxy:= uncertainty(x*y) = x uy + y ux + ux uy / 2 = y ux (uy = 0)
-  
-  // d(x/y) = 1/y dx + x d(1/y) + dx d(1/y) = 1/y dx   (d(1/y) = 0)
-  if(pmath_is_int32(intB)) {
-    mpfr_div_si(
-      PMATH_AS_MP_ERROR(result),
-      PMATH_AS_MP_ERROR(floatA),
-      PMATH_AS_INT32(intB),
-      MPFR_RNDA);
-      
-    mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
-    
-    mpfr_div_si(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(floatA),
-      PMATH_AS_INT32(intB),
-      MPFR_RNDN);
-  }
-  else {
-    mpfr_div_z(
-      PMATH_AS_MP_ERROR(result),
-      PMATH_AS_MP_ERROR(floatA),
-      PMATH_AS_MPZ(intB),
-      MPFR_RNDA);
-      
-    mpfr_abs(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), MPFR_RNDU);
-    
-    mpfr_div_z(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(floatA),
-      PMATH_AS_MPZ(intB),
-      MPFR_RNDN);
-  }
-  
-  _pmath_mp_float_normalize(result);
-  
-  pmath_unref(floatA);
-  return result;
+  return _pmath_float_exceptions(result);
 }
 
 static pmath_mpfloat_t _mul_fq(
   pmath_mpfloat_t  floatA, // will be freed. not PMATH_NULL!
   pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
 ) {
-  floatA = _mul_fi(floatA, pmath_ref(PMATH_QUOT_NUM(quotB)));
+  pmath_mpfloat_t result;
+  mpq_t mpQuotB;
   
-  if(pmath_is_mpfloat(floatA)) {
-    floatA = _div_fi(floatA, PMATH_QUOT_DEN(quotB));
+  assert(pmath_is_mpfloat(floatA));
+  assert(pmath_is_quotient(quotB));
+  
+  result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
+  if(pmath_is_null(result)) {
+    pmath_unref(result);
+    pmath_unref(floatA);
     pmath_unref(quotB);
+    return PMATH_NULL;
   }
   
-  return floatA;
+  mpq_init(mpQuotB);
+  
+  if(pmath_is_int32(PMATH_QUOT_NUM(quotB))) {
+    mpz_set_si(mpq_numref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_NUM(quotB)));
+  }
+  else {
+    assert(pmath_is_mpint(PMATH_QUOT_NUM(quotB)));
+    
+    mpz_set(mpq_numref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)));
+  }
+  
+  if(pmath_is_int32(PMATH_QUOT_DEN(quotB))) {
+    mpz_set_si(mpq_denref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_DEN(quotB)));
+  }
+  else {
+    assert(pmath_is_mpint(PMATH_QUOT_DEN(quotB)));
+    
+    mpz_set(mpq_denref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)));
+  }
+  
+  mpfr_mul_q(
+    PMATH_AS_MP_VALUE(result),
+    PMATH_AS_MP_VALUE(floatA),
+    mpQuotB,
+    _pmath_current_rounding_mode());
+    
+  pmath_unref(floatA);
+  pmath_unref(quotB);
+  mpq_clear(mpQuotB);
+  
+  return _pmath_float_exceptions(result);
 }
 
 static pmath_mpfloat_t _mul_ff(
@@ -185,137 +143,30 @@ static pmath_mpfloat_t _mul_ff(
   pmath_mpfloat_t floatB  // will be freed. not PMATH_NULL!
 ) {
   pmath_mpfloat_t result;
-  double fprec;
   mpfr_prec_t prec;
-  MPFR_DECL_INIT(err1, PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(err2, PMATH_MP_ERROR_PREC);
-  double min_prec, max_prec;
-  pmath_thread_t thread = pmath_thread_get_current();
   
-  if(!thread) {
-    pmath_unref(floatA);
-    pmath_unref(floatB);
-    return PMATH_NULL;
-  }
-  
-  min_prec = thread->min_precision;
-  max_prec = thread->max_precision;
-  
-  if(min_prec < 0)
-    min_prec  = 0;
-    
-  if(min_prec > PMATH_MP_PREC_MAX)
-    min_prec  = PMATH_MP_PREC_MAX;
-    
-  if(max_prec > PMATH_MP_PREC_MAX)
-    max_prec  = PMATH_MP_PREC_MAX;
-    
-  if(max_prec < min_prec)
-    max_prec  = min_prec;
-    
   assert(pmath_is_mpfloat(floatA));
   assert(pmath_is_mpfloat(floatB));
   
-  if(min_prec == max_prec) {
-    result = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(min_prec));
+  prec = min(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)),
+             mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)));
     
-    if(pmath_is_null(result)) {
-      pmath_unref(floatA);
-      pmath_unref(floatB);
-      return result;
-    }
-    
-    mpfr_mul(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(floatA),
-      PMATH_AS_MP_VALUE(floatB),
-      MPFR_RNDN);
-      
-    mpfr_set_d(err1, -min_prec, MPFR_RNDN);
-    mpfr_ui_pow(
-      err2,
-      2,
-      err1,
-      MPFR_RNDU);
-      
-    if(!mpfr_zero_p(PMATH_AS_MP_VALUE(result))) {
-      mpfr_mul(
-        PMATH_AS_MP_ERROR(result),
-        PMATH_AS_MP_VALUE(result),
-        err2,
-        MPFR_RNDA);
-      mpfr_abs(
-        PMATH_AS_MP_ERROR(result),
-        PMATH_AS_MP_ERROR(result),
-        MPFR_RNDU);
-    }
-    
-    pmath_unref(floatA);
-    pmath_unref(floatB);
-    return result;
-  }
-  
-  fprec = pmath_precision(pmath_ref(floatA)) +
-          pmath_precision(pmath_ref(floatB));
-          
-          
-  if(fprec < min_prec)
-    fprec  = min_prec;
-  else if(fprec > max_prec)
-    fprec = max_prec;
-    
-  prec = (mpfr_prec_t)ceil(fprec);
-  
   result = _pmath_create_mp_float(prec);
-  
   if(pmath_is_null(result)) {
-    pmath_unref(result);
     pmath_unref(floatA);
     pmath_unref(floatB);
     return PMATH_NULL;
   }
   
-  // (x +/- ux/2) (y +/- uy/2) = x y +/- x uy/2 +/- y ux/2 +/- ux uy/4
-  //
-  // => uxy:= uncertainty(x*y) = x uy + y ux + ux uy / 2
-  
-  mpfr_mul(
-    err1,
-    PMATH_AS_MP_VALUE(floatB),
-    PMATH_AS_MP_ERROR(floatA),
-    MPFR_RNDA);
-  mpfr_abs(err1, err1, MPFR_RNDU);
-  
-  mpfr_mul(
-    err2,
-    PMATH_AS_MP_VALUE(floatA),
-    PMATH_AS_MP_ERROR(floatB),
-    MPFR_RNDA);
-  mpfr_abs(err2, err2, MPFR_RNDU);
-  
-  mpfr_add(err1, err1, err2, MPFR_RNDU);
-  
-  mpfr_mul_2si(err2, PMATH_AS_MP_ERROR(floatB), -1, MPFR_RNDU);
-  
-  mpfr_fma(
-    PMATH_AS_MP_ERROR(result),
-    err2,
-    PMATH_AS_MP_ERROR(floatA),
-    err1,
-    MPFR_RNDU);
-    
   mpfr_mul(
     PMATH_AS_MP_VALUE(result),
     PMATH_AS_MP_VALUE(floatA),
     PMATH_AS_MP_VALUE(floatB),
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
     
   pmath_unref(floatA);
   pmath_unref(floatB);
-  
-  _pmath_mp_float_clip_error(result, min_prec, max_prec);
-  _pmath_mp_float_normalize(result);
-  return result;
+  return _pmath_float_exceptions(result);
 }
 
 static pmath_t _mul_mi(
@@ -536,7 +387,7 @@ static pmath_bool_t times_2_arg_num(pmath_t *a, pmath_t *b) {
     }
     
     if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL, NULL);
+      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
       return TRUE;
     }
     
@@ -625,7 +476,7 @@ static pmath_bool_t times_2_arg_num(pmath_t *a, pmath_t *b) {
     }
     
     if(_pmath_is_inexact(*a) && pmath_is_numeric(*b)) {
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL, NULL);
+      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
       return TRUE;
     }
   }

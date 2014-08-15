@@ -1,29 +1,53 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/approximate.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/control/definitions-private.h>
+#include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
-PMATH_PRIVATE
-pmath_t builtin_accuracy(pmath_expr_t expr) {
-  double acc;
-  
-  if(pmath_expr_length(expr) != 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-    return expr;
+
+PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
+  pmath_t  obj, // wont be freed
+  double  *result
+) {
+  if(pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION)) {
+    *result = -HUGE_VAL;
+    return TRUE;
   }
   
-  acc = pmath_accuracy(expr);
+  if(pmath_is_number(obj)) {
+    *result = LOG2_10 * pmath_number_get_d(obj);
+    return isfinite(*result);
+  }
   
-  if(isfinite(acc))
-    return PMATH_FROM_DOUBLE(acc * LOG10_2);
+  if(pmath_equals(obj, _pmath_object_pos_infinity)) {
+    *result = HUGE_VAL;
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+PMATH_PRIVATE pmath_t _pmath_from_precision(double prec_bits) {
+  if(prec_bits == -HUGE_VAL)
+    return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
     
-  return pmath_ref(_pmath_object_pos_infinity);
+  if(prec_bits == HUGE_VAL)
+    return pmath_ref(_pmath_object_pos_infinity);
+    
+  prec_bits *= LOG10_2;
+  if(isfinite(prec_bits))
+    return PMATH_FROM_DOUBLE(prec_bits);
+  
+  return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
 PMATH_PRIVATE
@@ -46,49 +70,6 @@ pmath_t builtin_precision(pmath_expr_t expr) {
   return pmath_ref(_pmath_object_pos_infinity);
 }
 
-
-PMATH_PRIVATE
-pmath_t builtin_setaccuracy(pmath_expr_t expr) {
-  pmath_t acc_obj;
-  double acc;
-  
-  if(pmath_expr_length(expr) != 2) {
-    pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
-    return expr;
-  }
-  
-  acc_obj = pmath_expr_get_item(expr, 2);
-  if(_pmath_number_class(acc_obj) & PMATH_CLASS_POSINF) {
-    acc = HUGE_VAL;
-  }
-  else {
-    if(!pmath_is_number(acc_obj)) {
-      acc_obj = pmath_approximate(acc_obj, -HUGE_VAL, -HUGE_VAL, NULL);
-      
-      if(!pmath_is_number(acc_obj)){
-        pmath_unref(acc_obj);
-        acc_obj = pmath_expr_get_item(expr, 2);
-        pmath_message(PMATH_NULL, "invacc", 1, acc_obj);
-        return expr;
-      }
-    }
-    
-    acc = LOG2_10 * pmath_number_get_d(acc_obj);
-  }
-  pmath_unref(acc_obj);
-  
-  if(fabs(acc) > PMATH_MP_PREC_MAX) {
-    pmath_unref(expr);
-    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-    return pmath_ref(_pmath_object_overflow);
-  }
-  
-  acc_obj = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
-  
-  return pmath_set_accuracy(acc_obj, acc);
-}
-
 PMATH_PRIVATE
 pmath_t builtin_setprecision(pmath_expr_t expr) {
   pmath_t prec_obj;
@@ -109,7 +90,7 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
   }
   else {
     if(!pmath_is_number(prec_obj)) {
-      prec_obj = pmath_approximate(prec_obj, -HUGE_VAL, -HUGE_VAL, NULL);
+      prec_obj = pmath_set_precision(prec_obj, -HUGE_VAL);
       
       if(!pmath_is_number(prec_obj)){
         pmath_unref(prec_obj);
@@ -135,6 +116,66 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
   pmath_unref(expr);
   
   return pmath_set_precision(prec_obj, prec);
+}
+
+PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
+  /* SetPrecision(Sym, ~prec)::= ...
+   */
+  struct _pmath_symbol_rules_t *rules;
+  pmath_t tag;
+  pmath_t lhs;
+  pmath_t rhs;
+  pmath_t sym;
+  pmath_t arg;
+  
+  if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
+    return expr;
+    
+  if(pmath_is_expr_of_len(lhs, PMATH_SYMBOL_SETPRECISION, 2)) {
+    if(pmath_expr_length(lhs) != 2) {
+      pmath_unref(tag);
+      pmath_unref(lhs);
+      pmath_unref(rhs);
+      return expr;
+    }
+  }
+  else {
+    pmath_unref(tag);
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return expr;
+  }
+  
+  arg = pmath_expr_get_item(lhs, 1);
+  sym = _pmath_topmost_symbol(arg);
+  pmath_unref(arg);
+  
+  if(!pmath_same(tag, PMATH_UNDEFINED) &&
+      !pmath_same(tag, sym))
+  {
+    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
+    
+    pmath_unref(expr);
+    if(pmath_same(rhs, PMATH_UNDEFINED))
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    return rhs;
+  }
+  
+  pmath_unref(tag);
+  pmath_unref(expr);
+  
+  rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
+  pmath_unref(sym);
+  
+  if(!rules) {
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  _pmath_rulecache_change(&rules->approx_rules, lhs, rhs);
+  
+  return PMATH_NULL;
 }
 
 

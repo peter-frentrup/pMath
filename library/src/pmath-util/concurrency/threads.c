@@ -416,7 +416,7 @@ PMATH_API pmath_bool_t pmath_thread_aborting(pmath_thread_t thread) {
       (thread->ignore_older_aborts <= pmath_atomic_read_aquire(&_pmath_abort_timer) ||
        !pmath_same(thread->exception, PMATH_UNDEFINED)))
   {
-    pmath_debug_print("[Abort]\n");
+    pmath_debug_print("[Abort]\r");
     return TRUE;
   }
   
@@ -520,6 +520,7 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   thread->min_precision             = 0.0;
   thread->max_precision             = HUGE_VAL;
   thread->current_dynamic_id        = parent ? parent->current_dynamic_id            : 0;
+  thread->mp_rounding_mode          = parent ? parent->mp_rounding_mode              : MPFR_RNDN;
   thread->critical_messages         = parent ? parent->critical_messages             : FALSE;
   thread->is_daemon                 = FALSE;
   thread->boxform                   = parent ? parent->boxform                       : BOXFORM_STANDARD;

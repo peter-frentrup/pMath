@@ -3,6 +3,22 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
+- pmath: add Internal`SignBit(), Internal`CopySign(), Internal`NextToward()
+
+? pmath: add internal multi precision RealInterval(a,b) type with correct outward rounding (=> mpfi library)
+	or implement it with some Internal`WithSoftwareRoundingMode(code, mode)
+	
+	make N(...) use adaptive precision tracking through RealInterval
+
+? introduce pmath_identical(...) which gives FALSE for arguments 0.0 and -0.0 (unlike pmath_equal)
+
+- BUG: InputForm(Hold(a++*++b)) gives "Hold(a++ ++b)"
+	but Hold(a++ ++b) parses as Hold(StringExpression(a,Increment(b)))
+	
+	similar: Hold(a--*++b) is displayed as Hold(a-- ++b), but that gives a syntax error
+
+- interesting: http://www.eecs.berkeley.edu/~fateman/papers/mma.review.pdf
+	
 - pmath: pattern matching intermediate results are different than in Mma:
 		f(x: h(~a /? (Print("1:", {{x},{a},{b},{c},{d}}); True),
 				~b /? (Print("2:", {{x},{a},{b},{c},{d}}); True)),

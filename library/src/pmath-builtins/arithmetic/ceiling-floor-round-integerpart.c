@@ -220,12 +220,13 @@ PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
       return _pmath_mp_int_normalize(result);
     }
     
-    {
+    { // TODO: use higher/adapted precision/interval arithmetic
       pmath_t re, im;
       pmath_unref(head);
       
       //expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
-      x = pmath_approximate(x, HUGE_VAL, 2 * LOG2_10, NULL);
+      //x = pmath_approximate(x, HUGE_VAL, 2 * LOG2_10, NULL);
+      x = pmath_set_precision(x, -HUGE_VAL);
       
       if(pmath_is_float(x))
         return pmath_expr_set_item(expr, 1, x);

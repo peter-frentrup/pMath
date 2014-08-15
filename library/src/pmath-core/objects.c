@@ -126,6 +126,24 @@ PMATH_API unsigned int pmath_hash(pmath_t obj) {
     return hash(obj);
   }
   
+  if(pmath_is_double(obj)) {
+    /* Ensure that +0.0 and -0.0 give the same hash value.
+       
+       Another option would be to make (0.0 === -0.0) return False, but then
+       we would have to make (0.0`20 === -0.0`20) give False, too. 
+       Identical() depends on pmath_equals() and we would have to add some
+       pmath_mp_identical() function.
+       
+       TODO: add Internal`SignBit(), Internal`CopySign(), Internal`NextToward()
+     */
+    
+    double d = PMATH_AS_DOUBLE(obj);
+    if(d == 0)
+      d = +0.0;
+      
+    return incremental_hash(&d, sizeof(double), 0); 
+  }
+  
   return incremental_hash(&obj, sizeof(pmath_t), 0);
 }
 

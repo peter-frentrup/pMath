@@ -292,10 +292,10 @@ static pmath_bool_t binary_write(
           
           if(pmath_is_rational(value)) {
             switch(size) {
-              case 2:  value = pmath_approximate(value,  11, HUGE_VAL, NULL);
-              case 4:  value = pmath_approximate(value,  24, HUGE_VAL, NULL);
-              case 8:  value = pmath_approximate(value,  53, HUGE_VAL, NULL);
-              default: value = pmath_approximate(value, 113, HUGE_VAL, NULL);
+              case 2:  value = pmath_set_precision(value,  11);
+              case 4:  value = pmath_set_precision(value,  24);
+              case 8:  value = pmath_set_precision(value,  53);
+              default: value = pmath_set_precision(value, 113);
             }
             
             value = pmath_evaluate(value);

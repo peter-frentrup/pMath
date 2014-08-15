@@ -1,7 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/approximate.h>
-#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -145,52 +144,19 @@ static pmath_t logrr(pmath_rational_t base, pmath_rational_t z) {
   return PMATH_NULL;
 }
 
-static double log2abs(mpfr_t x) {
-  mpfr_exp_t accexp;
-  double accmant;
-  
-  if(mpfr_zero_p(x))
-    return -HUGE_VAL;
-  
-  // accuracy = -Log(2, dx)
-  accmant = mpfr_get_d_2exp(&accexp, x, MPFR_RNDN);
-  return log2(fabs(accmant)) + accexp;
-}
-
 // x will be freed, x may be PMATH_NULL
 static pmath_t mp_log(pmath_mpfloat_t x) {
-  pmath_thread_t thread = pmath_thread_get_current();
-  double min_prec, max_prec, prec;
-  pmath_mpfloat_t val, err_x;
-  
-  MPFR_DECL_INIT(right_val, PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(left_val,  PMATH_MP_ERROR_PREC);
-  MPFR_DECL_INIT(diff_val,  PMATH_MP_ERROR_PREC);
+  pmath_mpfloat_t val;
   
   if(pmath_is_null(x))
     return PMATH_NULL;
-    
-  if(!thread) {
-    pmath_unref(x);
-    return PMATH_NULL;
-  }
   
-  min_prec = thread->min_precision;
-  max_prec = thread->max_precision;
-  
-  if(min_prec < 0)
-    min_prec  = 0;
-    
-  if(min_prec > PMATH_MP_PREC_MAX)
-    min_prec  = PMATH_MP_PREC_MAX;
-    
-  if(max_prec > PMATH_MP_PREC_MAX)
-    max_prec  = PMATH_MP_PREC_MAX;
-    
-  if(max_prec < min_prec)
-    max_prec  = min_prec;
-    
   assert(pmath_is_mpfloat(x));
+  
+  if(mpfr_zero_p(PMATH_AS_MP_VALUE(x))) {
+    pmath_unref(x);
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+  }
   
   if(mpfr_sgn(PMATH_AS_MP_VALUE(x)) < 0) {
     x = pmath_number_neg(x);
@@ -200,86 +166,7 @@ static pmath_t mp_log(pmath_mpfloat_t x) {
     return val;
   }
   
-  if(mpfr_cmp_abs(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_ERROR(x)) <= 0) {
-    pmath_unref(x);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-  }
-  
-  if(min_prec == max_prec) {
-    val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(min_prec));
-    
-    if(pmath_is_null(val)) {
-      pmath_unref(x);
-      return val;
-    }
-    
-    mpfr_log(
-      PMATH_AS_MP_VALUE(val),
-      PMATH_AS_MP_VALUE(x),
-      MPFR_RNDN);
-    
-    mpfr_set_d(left_val, -min_prec, MPFR_RNDN);
-    mpfr_ui_pow(
-      right_val,
-      2,
-      left_val,
-      MPFR_RNDU);
-      
-    mpfr_mul(
-      PMATH_AS_MP_ERROR(val), 
-      PMATH_AS_MP_VALUE(val), 
-      right_val,
-      MPFR_RNDA);
-    mpfr_abs(
-      PMATH_AS_MP_ERROR(val),
-      PMATH_AS_MP_ERROR(val),
-      MPFR_RNDU);
-      
-    pmath_unref(x);
-    val = _pmath_float_exceptions(val);
-    return val;
-  }
-  
-  err_x = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-  if(pmath_is_null(err_x)) {
-    pmath_unref(x);
-    return PMATH_NULL;
-  }
-  
-  mpfr_log(
-    right_val,
-    PMATH_AS_MP_VALUE(x),
-    MPFR_RNDU);
-  
-  mpfr_sub(
-    PMATH_AS_MP_VALUE(err_x),
-    PMATH_AS_MP_VALUE(x),
-    PMATH_AS_MP_ERROR(x),
-    MPFR_RNDD);
-    
-  mpfr_log(
-    left_val,
-    PMATH_AS_MP_VALUE(err_x),
-    MPFR_RNDD);
-  
-  pmath_unref(err_x); err_x = PMATH_NULL;
-  
-  mpfr_sub(
-    diff_val,
-    right_val,
-    left_val,
-    MPFR_RNDA);
-  
-  // precision === Log(2, |y|) + accuracy
-  // accuracy = -Log(2, dy)
-  prec = log2abs(right_val) - log2abs(diff_val);
-  
-  if(prec > max_prec)
-    prec  = max_prec;
-  else if(!(prec > min_prec))
-    prec         = min_prec;
-  
-  val = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(prec));
+  val = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
   
   if(pmath_is_null(val)) {
     pmath_unref(x);
@@ -289,14 +176,12 @@ static pmath_t mp_log(pmath_mpfloat_t x) {
   mpfr_log(
     PMATH_AS_MP_VALUE(val),
     PMATH_AS_MP_VALUE(x),
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
     
-  _pmath_mp_float_include_error(val, left_val);
-  
   pmath_unref(x);
   
-  _pmath_mp_float_clip_error(val, min_prec, max_prec);
   val = _pmath_float_exceptions(val);
+  
   return val;
 }
 

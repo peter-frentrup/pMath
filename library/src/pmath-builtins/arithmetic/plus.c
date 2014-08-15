@@ -309,18 +309,12 @@ static pmath_t _add_fi(
     return PMATH_NULL;
   }
   
-  // error does not change
-  mpfr_set(
-    PMATH_AS_MP_ERROR(result),
-    PMATH_AS_MP_ERROR(floatA),
-    MPFR_RNDU);
-    
   if(pmath_is_int32(intB)) {
     mpfr_add_si(
       PMATH_AS_MP_VALUE(result),
       PMATH_AS_MP_VALUE(floatA),
       PMATH_AS_INT32(intB),
-      MPFR_RNDN);
+      _pmath_current_rounding_mode());
   }
   else {
     assert(pmath_is_mpint(intB));
@@ -329,12 +323,10 @@ static pmath_t _add_fi(
       PMATH_AS_MP_VALUE(result),
       PMATH_AS_MP_VALUE(floatA),
       PMATH_AS_MPZ(intB),
-      MPFR_RNDN);
+      _pmath_current_rounding_mode());
       
     pmath_unref(intB);
   }
-  
-  _pmath_mp_float_normalize(result);
   
   pmath_unref(floatA);
   return _pmath_float_exceptions(result);
@@ -345,73 +337,49 @@ static pmath_t _add_fq(
   pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
 ) {
   pmath_mpfloat_t result;
-  pmath_mpfloat_t tmp;
-  mpfr_prec_t prec;
+  mpq_t mpQuotB;
   
   assert(pmath_is_mpfloat(floatA));
   assert(pmath_is_quotient(quotB));
   
-  prec = mpfr_get_prec(PMATH_AS_MP_VALUE(floatA));
-  
-  result = _pmath_create_mp_float(prec);
-  tmp    = _pmath_create_mp_float(prec);
-  if(pmath_is_null(result) || pmath_is_null(tmp)) {
+  result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
+  if(pmath_is_null(result)) {
     pmath_unref(result);
-    pmath_unref(tmp);
     pmath_unref(floatA);
     pmath_unref(quotB);
     return PMATH_NULL;
   }
   
-  // error does not change
-  mpfr_set(
-    PMATH_AS_MP_ERROR(result),
-    PMATH_AS_MP_ERROR(floatA),
-    MPFR_RNDU);
-    
+  mpq_init(mpQuotB);
+  
   if(pmath_is_int32(PMATH_QUOT_NUM(quotB))) {
-    mpfr_set_si(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_INT32(PMATH_QUOT_NUM(quotB)),
-      MPFR_RNDN);
+    mpz_set_si(mpq_numref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_NUM(quotB)));
   }
   else {
     assert(pmath_is_mpint(PMATH_QUOT_NUM(quotB)));
     
-    mpfr_set_z(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)),
-      MPFR_RNDN);
+    mpz_set(mpq_numref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)));
   }
   
   if(pmath_is_int32(PMATH_QUOT_DEN(quotB))) {
-    mpfr_div_si(
-      PMATH_AS_MP_VALUE(tmp),
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_INT32(PMATH_QUOT_DEN(quotB)),
-      MPFR_RNDN);
+    mpz_set_si(mpq_denref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_DEN(quotB)));
   }
   else {
     assert(pmath_is_mpint(PMATH_QUOT_DEN(quotB)));
     
-    mpfr_div_z(
-      PMATH_AS_MP_VALUE(tmp),
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)),
-      MPFR_RNDN);
+    mpz_set(mpq_denref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)));
   }
   
-  mpfr_add(
+  mpfr_add_q(
     PMATH_AS_MP_VALUE(result),
-    PMATH_AS_MP_VALUE(tmp),
     PMATH_AS_MP_VALUE(floatA),
-    MPFR_RNDN);
+    mpQuotB,
+    _pmath_current_rounding_mode());
     
-  _pmath_mp_float_normalize(result);
-  
   pmath_unref(floatA);
   pmath_unref(quotB);
-  pmath_unref(tmp);
+  mpq_clear(mpQuotB);
+  
   return _pmath_float_exceptions(result);
 }
 
@@ -425,9 +393,8 @@ static pmath_t _add_ff(
   assert(pmath_is_mpfloat(floatA));
   assert(pmath_is_mpfloat(floatB));
   
-  prec =    mpfr_get_prec(PMATH_AS_MP_VALUE(floatA));
-  if(prec < mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)))
-    prec = mpfr_get_prec(PMATH_AS_MP_VALUE(floatB));
+  prec = min(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)),
+             mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)));
     
   result = _pmath_create_mp_float(prec);
   if(pmath_is_null(result)) {
@@ -436,21 +403,12 @@ static pmath_t _add_ff(
     return PMATH_NULL;
   }
   
-  // d(x+y) = dx + dy
-  mpfr_add(
-    PMATH_AS_MP_ERROR(result),
-    PMATH_AS_MP_ERROR(floatA),
-    PMATH_AS_MP_ERROR(floatB),
-    MPFR_RNDU);
-    
   mpfr_add(
     PMATH_AS_MP_VALUE(result),
     PMATH_AS_MP_VALUE(floatA),
     PMATH_AS_MP_VALUE(floatB),
-    MPFR_RNDN);
+    _pmath_current_rounding_mode());
     
-  _pmath_mp_float_normalize(result);
-  
   pmath_unref(floatA);
   pmath_unref(floatB);
   return _pmath_float_exceptions(result);
@@ -733,10 +691,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
     }
     
     if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
-      if(pmath_number_sign(*a) == 0)
-        *b = pmath_approximate(*b, HUGE_VAL, pmath_accuracy(pmath_ref(*a)), NULL);
-      else
-        *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL, NULL);
+      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
       return;
     }
   }
@@ -767,13 +722,13 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
     }
     
     if(_pmath_is_inexact(*a)) {
-      *b = pmath_approximate(*b, pmath_precision(pmath_ref(*a)), HUGE_VAL, NULL);
+      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
       return;
     }
   }
   else if(_pmath_is_nonreal_complex(*b)) {
     if(_pmath_is_inexact(*b)) {
-      *a = pmath_approximate(*a, pmath_precision(pmath_ref(*b)), HUGE_VAL, NULL);
+      *a = pmath_set_precision(*a, pmath_precision(pmath_ref(*b)));
       return;
     }
   }

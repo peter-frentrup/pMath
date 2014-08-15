@@ -10,19 +10,20 @@
 #include <pmath-util/memory.h>
 
 
-#define TAG_NULL      0
-#define TAG_NEWREF    1
-#define TAG_REF       2
-#define TAG_MAGIC     3
-#define TAG_STR8      4
-#define TAG_STR16     5
-#define TAG_SYMBOL    6
-#define TAG_EXPR      7
-#define TAG_INT32     8
-#define TAG_MPINT     9
-#define TAG_QUOT     10
-#define TAG_MPFLOAT  11
-#define TAG_DOUBLE   12
+#define TAG_NULL          0
+#define TAG_NEWREF        1
+#define TAG_REF           2
+#define TAG_MAGIC         3
+#define TAG_STR8          4
+#define TAG_STR16         5
+#define TAG_SYMBOL        6
+#define TAG_EXPR          7
+#define TAG_INT32         8
+#define TAG_MPINT         9
+#define TAG_QUOT         10
+#define TAG_MPFLOAT_OLD  11
+#define TAG_DOUBLE       12
+#define TAG_MPFLOAT      13
 
 /* Data format   (LE = little endian)
 
@@ -55,12 +56,19 @@
 
    - quotients:         10,n,d         (n/d = serialized numerator/denomonator)
 
-   - multi floats       11,VP,VE,VM,EE,EM
+   - multi floats       (old format)
+                        11,VP,VE,VM,EE,EM
                                (VP = value's unsigned 32BitLE precision in bits)
                                (VE = value's signed 32BitLE exponent)
                                (VM = value's serialized integer mantissa including sign)
                                (EE = error's signed 32BitLE exponent)
                                (EM = error's serialized integer mantissa)
+
+                        (new format)
+                        13,VP,VE,VM
+                               (VP = value's unsigned 32BitLE precision in bits)
+                               (VE = value's signed 32BitLE exponent)
+                               (VM = value's serialized integer mantissa including sign)
 
    - machine floats     12,D   (D = ieee 754 double bits = unsigned 64BitLE)
  */
@@ -382,18 +390,23 @@ static void serialize(
         write_si32(info->file, (int32_t)exp);
         serialize(info, _pmath_mp_int_normalize(pmath_ref(mantissa)));
         
-        if(mpfr_zero_p(PMATH_AS_MP_ERROR(object))) {
-          exp = 0;
-          mpz_set_ui(PMATH_AS_MPZ(mantissa), 0);
-        }
-        else {
-          exp = mpfr_get_z_exp(
-                  PMATH_AS_MPZ(mantissa),
-                  PMATH_AS_MP_ERROR(object));
-        }
-        
-        write_si32(info->file, (int32_t)exp);
-        serialize(info, _pmath_mp_int_normalize(mantissa));
+//        if(TAG_MPFLOAT == TAG_MPFLOAT_OLD) {
+//          if(mpfr_zero_p(PMATH_AS_MP_ERROR(object))) {
+//            exp = 0;
+//            mpz_set_ui(PMATH_AS_MPZ(mantissa), 0);
+//          }
+//          else {
+//            exp = mpfr_get_z_exp(
+//                    PMATH_AS_MPZ(mantissa),
+//                    PMATH_AS_MP_ERROR(object));
+//          }
+//          
+//          write_si32(info->file, (int32_t)exp);
+//          serialize(info, _pmath_mp_int_normalize(mantissa));
+//        }
+//        else
+          pmath_unref(mantissa);
+          
       } break;
       
   default: DEFAULT:
@@ -451,7 +464,8 @@ static uint64_t read_ui64(struct deserializer_t *info) {
 }
 
 static pmath_t deserialize(struct deserializer_t *info) {
-  switch(read_ui8(info)) {
+  const uint8_t tag = read_ui8(info);
+  switch(tag) {
     case TAG_NULL: return PMATH_NULL;
     
     case TAG_NEWREF: {
@@ -668,6 +682,7 @@ static pmath_t deserialize(struct deserializer_t *info) {
         return PMATH_UNDEFINED;
       }
       
+    case TAG_MPFLOAT_OLD:
     case TAG_MPFLOAT: {
         pmath_mpfloat_t result;
         pmath_mpint_t mant;
@@ -710,24 +725,29 @@ static pmath_t deserialize(struct deserializer_t *info) {
         mpfr_mul_2si(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), exp, MPFR_RNDN);
         pmath_unref(mant);
         
-        exp = (mp_exp_t)read_si32(info);
-        mant = deserialize(info);
-        
-        if(pmath_is_int32(mant))
-          mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
+        if(tag == TAG_MPFLOAT_OLD) {
+          pmath_debug_print("[deserialize old mp float format: skip error component]\n");
           
-        if(!pmath_is_mpint(mant)) {
-          pmath_unref(mant);
-          pmath_unref(result);
+          exp = (mp_exp_t)read_si32(info);
+          mant = deserialize(info);
           
-          if(!info->error)
-            info->error = PMATH_SERIALIZE_BAD_BYTE;
+          if(pmath_is_int32(mant))
+            mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
             
-          return PMATH_UNDEFINED;
+          if(!pmath_is_mpint(mant)) {
+            pmath_unref(mant);
+            pmath_unref(result);
+            
+            if(!info->error)
+              info->error = PMATH_SERIALIZE_BAD_BYTE;
+              
+            return PMATH_UNDEFINED;
+          }
+          
+          //mpfr_set_z(  PMATH_AS_MP_ERROR(result), PMATH_AS_MPZ(mant), MPFR_RNDN);
+          //mpfr_mul_2si(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), exp, MPFR_RNDN);
         }
         
-        mpfr_set_z(  PMATH_AS_MP_ERROR(result), PMATH_AS_MPZ(mant), MPFR_RNDN);
-        mpfr_mul_2si(PMATH_AS_MP_ERROR(result), PMATH_AS_MP_ERROR(result), exp, MPFR_RNDN);
         pmath_unref(mant);
         return result;
       }

@@ -78,7 +78,6 @@ struct _pmath_quotient_t {
 struct _pmath_mp_float_t {
   struct _pmath_t  inherited;
   mpfr_t           value;
-  mpfr_t           error;
 };
 
 #define PMATH_QUOT_NUM(obj)       (((struct _pmath_quotient_t*)     PMATH_AS_PTR(obj))->numerator)
@@ -86,7 +85,6 @@ struct _pmath_mp_float_t {
 
 #define PMATH_AS_MPZ(obj)         (((struct _pmath_mp_int_t*)       PMATH_AS_PTR(obj))->value)
 #define PMATH_AS_MP_VALUE(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value)
-#define PMATH_AS_MP_ERROR(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->error)
 
 /*============================================================================*/
 
@@ -150,18 +148,9 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
 
+// returns pmath_thread_current()->mp_rounding_mode; and MPFR_RNDN on error.
 PMATH_PRIVATE
-void _pmath_mp_float_include_error(pmath_mpfloat_t f, mpfr_t err_f);
-
-// should call _pmath_float_exceptions afterwards:
-PMATH_PRIVATE
-void _pmath_mp_float_clip_error(
-  pmath_mpfloat_t f, 
-  double          min_prec, 
-  double          max_prec);
-
-PMATH_PRIVATE
-void _pmath_mp_float_normalize(pmath_mpfloat_t f);
+mpfr_rnd_t _pmath_current_rounding_mode(void);
 
 PMATH_PRIVATE
 pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t f);
