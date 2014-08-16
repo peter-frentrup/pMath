@@ -547,7 +547,6 @@ pmath_number_t pmath_float_new_str(
 ) {
   int i, len, int_digits, frac_digits;
   double log2_base = log2(base);
-  pmath_bool_t automatic = FALSE;
   pmath_mpfloat_t f;
   
   if(base < 2 || base > 36)
@@ -587,7 +586,6 @@ pmath_number_t pmath_float_new_str(
   }
   
   if(precision_control == PMATH_PREC_CTRL_AUTO) {
-    automatic = TRUE;
     if((int_digits + frac_digits) * log2_base <= DBL_MANT_DIG) {
       precision_control = PMATH_PREC_CTRL_MACHINE_PREC;
     }
@@ -647,13 +645,6 @@ pmath_number_t pmath_float_new_str(
           return PMATH_NULL;
           
         mpfr_set_str(PMATH_AS_MP_VALUE(f), str, base, MPFR_RNDN);
-        
-        if(mpfr_zero_p(PMATH_AS_MP_VALUE(f))) {
-          pmath_unref(f);
-          if(automatic)
-            return PMATH_FROM_DOUBLE(0.0);
-          return PMATH_FROM_INT32(0);
-        }
         
         return f;
       };

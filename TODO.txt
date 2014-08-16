@@ -3,8 +3,6 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
-- BUG: 0.0`10 gives 0 and InputForm(0.0``10) prints as 0.0000000000000`11.439139835231286, which gives 0 when used as input
-
 ? pmath: add internal multi precision RealInterval(a,b) type with correct outward rounding (=> mpfi library)
 	or implement it with some Internal`WithSoftwareRoundingMode(code, mode)
 	
