@@ -27,7 +27,7 @@ static pmath_t approx_const_generic(
   if(prec < MPFR_PREC_MIN)
     prec = MPFR_PREC_MIN;
     
-  result = _pmath_create_mp_float((mpfr_prec_t)round(prec));
+  result = _pmath_create_mp_float((mpfr_prec_t)ceil(prec));
   if(pmath_is_null(result))
     return PMATH_NULL;
   

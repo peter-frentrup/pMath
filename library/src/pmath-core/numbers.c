@@ -640,7 +640,7 @@ pmath_number_t pmath_float_new_str(
         if(bits < 0)
           bits = 0;
           
-        f = _pmath_create_mp_float((mpfr_prec_t)round(bits));
+        f = _pmath_create_mp_float((mpfr_prec_t)ceil(bits));
         if(pmath_is_null(f))
           return PMATH_NULL;
           
@@ -1306,65 +1306,67 @@ static void write_mp_float_ex(
   int base = 10;
   char basestr[10];
   mp_exp_t exp;
-  size_t digits, size;
+  size_t max_digits, size;
   char *str;
   double prec2 = pmath_precision(pmath_ref(f)); // it is a prec2 here
   double base_prec;
+  pmath_bool_t allow_round_trip = 0 != (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR);
+  pmath_bool_t exact_log2_base; // =0 if base is no power of 2, otherwise = log2(base)
   
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
     base = thread->numberbase;
     
-  if(base == 2) {
-    base_prec = prec2;
-  }
-  else if(base == 10) {
+  if(base == 10) {
+    exact_log2_base = 0;
     base_prec = LOG10_2 * prec2;
   }
+  else if(base == 2) {
+    exact_log2_base = 1;
+    base_prec = prec2 / exact_log2_base;
+  }
+  else if(base == 4) {
+    exact_log2_base = 2;
+    base_prec = prec2 / exact_log2_base;
+  }
+  else if(base == 8) {
+    exact_log2_base = 3;
+    base_prec = prec2 / exact_log2_base;
+  }
+  else if(base == 16) {
+    exact_log2_base = 4;
+    base_prec = prec2 / exact_log2_base;
+  }
+  else if(base == 32) {
+    exact_log2_base = 5;
+    base_prec = prec2 / exact_log2_base;
+  }
   else {
+    exact_log2_base = 0;
     base_prec = prec2 / log2(base);
   }
   
-//  if(mpfr_zero_p(PMATH_AS_MP_VALUE(f)) || prec2 <= 0) {
-//    mp_exp_t err_exp;
-//    double err_mant = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(f), MPFR_RNDN);
-//    
-//    if(base != 10) {
-//      snprintf(basestr, sizeof(basestr), "%d^^", base);
-//      _pmath_write_cstr(basestr, info->write, info->user);
-//    }
-//    
-//    if(for_machine_float) {
-//      if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
-//        _pmath_write_cstr("0.0`", info->write, info->user);
-//      else
-//        _pmath_write_cstr("0.0", info->write, info->user);
-//    }
-//    else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
-//      // acc_b = -Log(b, u)
-//      double base_acc = -(err_exp + log2(err_mant)) / log2(base);
-//      
-//      _pmath_write_cstr("0``", info->write, info->user);
-//      write_short_double(base_acc, info->write, info->user);
-//    }
-//    else {
-//      char s[30];
-//      
-//      double base_acc = -(err_exp + log2(err_mant)) / log2(base);
-//      
-//      snprintf(s, sizeof(s), "0.0*^%"PRIdMAX, (intmax_t)floor(-base_acc));
-//      _pmath_write_cstr(s, info->write, info->user);
-//    }
-//    
-//    return;
-//  }
-  
-  digits = 1 + (size_t)ceil(base_prec);
-  if(digits < 2)
-    digits = 2;
+  if(allow_round_trip) {
+    /* MPFR documentation says:
+       To recover f, we need (in most cases ...) a representation with
+       m = 1 + ceil(precbits * log(2) / log(base)) digits (with precbits 
+       replaced by  precbits-1  if base is a power of 2).
+     */
     
-  size = 7;
-  if(digits > 5)
-    size = digits + 2;
+    if(exact_log2_base > 0)
+      max_digits = 1 + ceil( (prec2 - 1) / exact_log2_base );
+    else
+      max_digits = 1 + ceil( base_prec );
+  }
+  else{
+    max_digits = (size_t)round(base_prec);
+  }
+  
+  if(max_digits < 2)
+    max_digits = 2;
+    
+  size = max_digits + 2;
+  if(size < 7)
+    size = 7;
     
   str = (char *)pmath_mem_alloc(size);
   if(!str) {
@@ -1372,7 +1374,7 @@ static void write_mp_float_ex(
     return;
   }
   
-  mpfr_get_str(str, &exp, base, digits, PMATH_AS_MP_VALUE(f), MPFR_RNDN);
+  mpfr_get_str(str, &exp, base, max_digits, PMATH_AS_MP_VALUE(f), MPFR_RNDN);
   
   if(exp == 0) {
     if(*str == '-') {
@@ -1402,7 +1404,7 @@ static void write_mp_float_ex(
       _pmath_write_cstr(str,    info->write, info->user);
     }
     
-    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
+    if(allow_round_trip) {
       _pmath_write_cstr("`", info->write, info->user);
       
       if(!for_machine_float)
@@ -1438,7 +1440,7 @@ static void write_mp_float_ex(
       
     _pmath_write_cstr(str + exp, info->write, info->user);
     
-    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
+    if(allow_round_trip) {
       _pmath_write_cstr("`", info->write, info->user);
       
       if(!for_machine_float)
@@ -1477,7 +1479,7 @@ static void write_mp_float_ex(
       
     _pmath_write_cstr(str + start, info->write, info->user);
     
-    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
+    if(allow_round_trip) {
       _pmath_write_cstr("`", info->write, info->user);
       
       if(!for_machine_float)
@@ -1526,7 +1528,7 @@ static void write_mp_float_ex(
       
     _pmath_write_cstr(str + start, info->write, info->user);
     
-    if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
+    if(allow_round_trip) {
       _pmath_write_cstr("`", info->write, info->user);
       
       if(!for_machine_float)

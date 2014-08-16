@@ -136,7 +136,7 @@ static pmath_t set_finite_precision_number(pmath_number_t obj, double prec) {
   if(prec < 0)
     prec = 0; // error message?
     
-  result = _pmath_create_mp_float((mpfr_prec_t)round(prec));
+  result = _pmath_create_mp_float((mpfr_prec_t)ceil(prec));
   if(pmath_is_null(result)) {
     pmath_unref(obj);
     return PMATH_NULL;
