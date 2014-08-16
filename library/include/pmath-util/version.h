@@ -25,7 +25,7 @@ PMATH_API
 double pmath_version_number(void);
 
 /**\brief Get version number part.
-   \param index The number index. Major=1, Minor=2, Revision=3, Subversion=4
+   \param index The number index. Major=1, Minor=2, Revision=3
  */
 PMATH_API
 long pmath_version_number_part(int index);
