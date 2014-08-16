@@ -467,9 +467,6 @@
 		<Unit filename="src/pmath-builtins/arithmetic/abs-and-sign.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/accuracy-and-precision.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/approximate.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -500,6 +497,9 @@
 		<Unit filename="src/pmath-builtins/arithmetic/conjugate.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/arithmetic/copysign-and-signbit.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/cos.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -515,10 +515,16 @@
 		<Unit filename="src/pmath-builtins/arithmetic/log.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/arithmetic/nexttoward.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/plus.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/power.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-builtins/arithmetic/precision.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/quotient-and-mod.c">
