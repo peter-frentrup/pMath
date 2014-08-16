@@ -128,6 +128,10 @@ PMATH_PRIVATE pmath_bool_t builtin_approximate_power(           pmath_t *obj, do
 
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_setprecision(     pmath_expr_t expr);
+
+PMATH_PRIVATE pmath_t builtin_internal_copysign(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_nexttoward(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_signbit(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/ ...
 PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr);
@@ -674,6 +678,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   //{ setting symbol names ...
   VERIFY(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE            = NEW_SYMBOL("Internal`AbortMessage"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_CONDITION               = NEW_SYMBOL("Internal`Condition"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_COPYSIGN                = NEW_SYMBOL("Internal`CopySign"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID             = NEW_SYMBOL("Internal`GetThreadId"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE         = NEW_SYMBOL("Internal`DynamicEvaluate"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE = NEW_SYMBOL("Internal`DynamicEvaluateMultiple"))
@@ -682,6 +687,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE       = NEW_SYMBOL("Internal`IsCriticalMessage"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK      = NEW_SYMBOL("Internal`$NamespacePathStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD              = NEW_SYMBOL("Internal`NextToward"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                 = NEW_SYMBOL("Internal`SignBit"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE              = NEW_SYMBOL("Internal`ThreadIdle"))
   
   VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
@@ -1517,11 +1524,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_UP(     PMATH_SYMBOL_UNDEFINED,                        builtin_operate_undefined)
   
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,            builtin_internal_abortmessage)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_COPYSIGN,                builtin_internal_copysign)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         builtin_internal_dynamicevaluate)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, builtin_internal_dynamicevaluatemultiple)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,           builtin_internal_dynamicremove)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,             builtin_getthreadid)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,       builtin_iscriticalmessage)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,              builtin_internal_nexttoward)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                 builtin_internal_signbit)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
   
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION,     builtin_developer_fileinformation)
