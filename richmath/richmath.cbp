@@ -169,6 +169,63 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
+			<Target title="Windows-Debug-Gtk3">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/debug/richmath-gtk3" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/debug/gtk3" />
+				<Option external_deps="../library/pmath.cbp;" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fno-exceptions" />
+					<Add option="-mms-bitfields" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DRICHMATH_USE_FT_FONT" />
+					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="../library/include" />
+					<Add directory="$(#cairo.include)" />
+					<Add directory="$(#pango.include)" />
+					<Add directory="$(#glib3.include)" />
+					<Add directory="$(#glib3.lib)/glib-2.0/include" />
+					<Add directory="$(#gtk3.include)" />
+					<Add directory="$(#gtk3.include)/fontconfig" />
+					<Add directory="$(#gtk3.include)/freetype2" />
+					<Add directory="$(#gtk3.include)/gtk-3.0" />
+					<Add directory="$(#gtk3.lib)/gtk-3.0/include" />
+					<Add directory="$(#gtk3.include)/gdk" />
+					<Add directory="$(#gtk3.include)/atk-1.0" />
+					<Add directory="$(#gtk3.include)/gdk-pixbuf-2.0" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add library="pmath" />
+					<Add library="cairo" />
+					<Add library="glib-2.0" />
+					<Add library="gobject-2.0" />
+					<Add library="pango-1.0" />
+					<Add library="pangocairo-1.0" />
+					<Add library="pangoft2-1.0" />
+					<Add library="user32" />
+					<Add library="fontconfig" />
+					<Add library="freetype" />
+					<Add library="gdk-win32-3.0" />
+					<Add library="gtk-win32-3.0" />
+					<Add library="gdk_pixbuf-2.0" />
+					<Add directory="../library/bin/windows/debug" />
+					<Add directory="$(#cairo.lib)" />
+					<Add directory="$(#pango.lib)" />
+					<Add directory="$(#glib3.lib)" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="post-build-windows.bat debug" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
 			<Target title="Windows-Release">
 				<Option platforms="Windows;" />
 				<Option output="bin/windows/release/richmath" prefix_auto="1" extension_auto="1" />
@@ -462,18 +519,21 @@
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-clipboard.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-colordialog.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-control-painter.h" />
 		<Unit filename="include/gui/gtk/mgtk-cursors.h">
@@ -481,48 +541,56 @@
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-document-window.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-filedialog.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-fontdialog.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-icons.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-x64" />
 			<Option target="Linux-Debug-Gtk3" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-menu-builder.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-tooltip-window.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-widget.h">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/native-widget.h" />
 		<Unit filename="include/gui/win32/basic-win32-widget.h">
@@ -717,72 +785,84 @@
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-clipboard.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-colordialog.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-control-painter.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-cursors.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-document-window.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-filedialog.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-fontdialog.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-icons.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-x64" />
 			<Option target="Linux-Debug-Gtk3" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-menu-builder.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-tooltip-window.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-widget.cpp">
 			<Option target="Windows-Debug-Gtk" />
 			<Option target="Linux-Debug-x86" />
 			<Option target="Linux-Debug-Gtk3" />
 			<Option target="Linux-Debug-x64" />
+			<Option target="Windows-Debug-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/native-widget.cpp" />
 		<Unit filename="src/gui/win32/basic-win32-widget.cpp">
@@ -891,7 +971,9 @@
 		<Unit filename="src/util/style.cpp" />
 		<Unit filename="src/util/syntax-state.cpp" />
 		<Extensions>
-			<code_completion />
+			<code_completion>
+				<search_path add="..\..\library\include" />
+			</code_completion>
 			<envvars />
 			<debugger>
 				<search_path add="../library/src" />

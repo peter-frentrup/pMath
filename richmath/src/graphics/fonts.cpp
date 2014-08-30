@@ -1,6 +1,9 @@
 #define _WIN32_WINNT 0x501
 //#define UNISCRIBE_OPENTYPE  0x0100 /* <- need usp10.dll redistributable for XP */
 
+//#define _WIN32_IE 0x0500
+//// or #define SHGFP_TYPE_CURRENT  0
+
 #include <graphics/fonts.h>
 
 #ifdef RICHMATH_USE_WIN32_FONT
@@ -13,6 +16,9 @@
 #  include <cairo-ft.h>
 #  include FT_TRUETYPE_TABLES_H
 #  include <cstdio>
+//#  ifdef WIN32
+//#    include <shlobj.h>
+//#  endif
 #else
 #  error no support for font backend
 #endif
@@ -124,6 +130,18 @@ class PangoSettings {
       cr      = cairo_reference(static_canvas.cr);
       context = pango_cairo_create_context(cr);
       
+//#ifdef WIN32
+//      {
+//        char system_font_dir[PATH_MAX];
+//        
+//        if(FAILED(SHGetFolderPathA(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, system_font_dir))) {
+//          fprintf(stderr, "SHGetFolderPathA failed. Using \n");
+//          strcpy(system_font_dir, "C:\\Windows\\Fonts");
+//        }
+//        
+//        FcConfigAppFontAddDir(NULL, (const FcChar8*)system_font_dir);
+//      }
+//#endif
     }
     
     ~PangoSettings() {

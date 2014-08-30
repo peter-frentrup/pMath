@@ -120,25 +120,16 @@ void MathGtkControlPainter::calc_container_size(
         break;
     }
     
-    GtkBorder *border;
+    GtkBorder border;
+    gtk_style_context_get_padding(context, GTK_STATE_FLAG_NORMAL, &border);
+    extents->ascent +=  0.75f * border.top;
+    extents->descent += 0.75f * border.bottom;
+    extents->width +=   0.75f * (border.left + border.right);
     
-    border = NULL;
-    gtk_style_context_get_style(context, "inner-border", &border, NULL);
-    if(border) {
-      extents->ascent +=  0.75f * border->top;
-      extents->descent += 0.75f * border->bottom;
-      extents->width +=   0.75f * (border->left + border->right);
-      gtk_border_free(border);
-    }
-    
-    border = NULL;
-    gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL, "border-width", &border, NULL);
-    if(border) {
-      extents->ascent +=  0.75f * border->top;
-      extents->descent += 0.75f * border->bottom;
-      extents->width +=   0.75f * (border->left + border->right);
-      gtk_border_free(border);
-    }
+    gtk_style_context_get_border(context, GTK_STATE_FLAG_NORMAL, &border);
+    extents->ascent +=  0.75f * border.top;
+    extents->descent += 0.75f * border.bottom;
+    extents->width +=   0.75f * (border.left + border.right);
     
     return;
   }
