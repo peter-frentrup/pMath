@@ -188,6 +188,12 @@ void MathGtkControlPainter::draw_container(
     width +=  0.75f;
     height += 0.75f;
     
+    canvas->translate(x, y);
+    x = y = 0;
+    canvas->scale(0.75, 0.75);
+    width/= 0.75;
+    height/= 0.75;
+    
     gtk_style_context_set_state(context, get_state_flags(type, state));
     
     switch(type) {
