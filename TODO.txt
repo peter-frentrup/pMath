@@ -10,10 +10,7 @@
 
 ? introduce pmath_identical(...) which gives FALSE for arguments 0.0 and -0.0 (unlike pmath_equal)
 
-- BUG: InputForm(Hold(a++*++b)) gives "Hold(a++ ++b)"
-	but Hold(a++ ++b) parses as Hold(StringExpression(a,Increment(b)))
-	
-	similar: Hold(a--*++b) is displayed as Hold(a-- ++b), but that gives a syntax error
+? Parse ...\[Newline]... as ...;... instead of ...*...
 
 - interesting: http://www.eecs.berkeley.edu/~fateman/papers/mma.review.pdf
 	

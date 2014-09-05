@@ -32,11 +32,27 @@
 #endif
 
 
+const int PMATH_PREC_INC_OUT = PMATH_PREC_RANGE + 1;
+
+
 //{ operator precedence of boxes ...
+
+static pmath_token_t pmath_token_analyse_output(
+  const uint16_t *str,
+  int             len,
+  int            *prec)
+{
+  pmath_token_t tok = pmath_token_analyse(str, len, prec);
+  
+  if(prec && *prec == PMATH_PREC_INC)
+    *prec = PMATH_PREC_INC_OUT;
+    
+  return tok;
+}
 
 static pmath_token_t box_token_analyse(pmath_t box, int *prec) { // box will be freed
   if(pmath_is_string(box)) {
-    pmath_token_t tok = pmath_token_analyse(
+    pmath_token_t tok = pmath_token_analyse_output(
                           pmath_string_buffer(&box),
                           pmath_string_length(box),
                           prec);
@@ -79,6 +95,9 @@ static int box_token_prefix_prec(pmath_t box, int defprec) { // box will be free
                  pmath_string_length(box),
                  defprec);
                  
+    if(prec == PMATH_PREC_INC)
+      prec = PMATH_PREC_INC_OUT;
+      
     pmath_unref(box);
     return prec;
   }
@@ -224,7 +243,7 @@ static int expr_precedence(pmath_t box, int *pos) { // box wont be freed
       case PMATH_TOK_PLUSPLUS:
         if(len == 2) {
           *pos = +1;
-          prec = PMATH_PREC_INC;
+          prec = PMATH_PREC_INC_OUT;
         }
         else {
           prec = PMATH_PREC_STR;
@@ -277,19 +296,21 @@ static int expr_precedence(pmath_t box, int *pos) { // box wont be freed
   return PMATH_PREC_PRIM;
 }
 
-// pos = -1: box at start => allow any Postfix operator
-// pos = +1: box at end   => allow any Prefix operator
+// pos = -1: box at start => allow any Postfix operator (except ++,--)
+// pos = +1: box at end   => allow any Prefix operator (except ++,--)
 static pmath_t ensure_min_precedence(pmath_t box, int minprec, int pos) {
   int expr_pos;
   int p = expr_precedence(box, &expr_pos);
   
   if(p < minprec) {
-    if(pos < 0 && expr_pos > 0)
-      return box;
-      
-    if(pos > 0 && expr_pos < 0)
-      return box;
-      
+    if(p != PMATH_PREC_INC_OUT) {
+      if(pos < 0 && expr_pos > 0)
+        return box;
+        
+      if(pos > 0 && expr_pos < 0)
+        return box;
+    }
+    
     return pmath_build_value("(sos)", "(", box, ")");
   }
   
@@ -460,8 +481,8 @@ static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // hea
 
 static pmath_t simple_prefix(pmath_symbol_t head, int *prec, int boxform) { // head wont be freed
 
-  if(pmath_same(head, PMATH_SYMBOL_INCREMENT))     RET_ST("++", PMATH_PREC_INC);
-  if(pmath_same(head, PMATH_SYMBOL_DECREMENT))     RET_ST("--", PMATH_PREC_INC);
+  if(pmath_same(head, PMATH_SYMBOL_INCREMENT))     RET_ST("++", PMATH_PREC_INC_OUT);
+  if(pmath_same(head, PMATH_SYMBOL_DECREMENT))     RET_ST("--", PMATH_PREC_INC_OUT);
   
   if(boxform < BOXFORM_OUTPUT) {
     if(pmath_same(head, PMATH_SYMBOL_NOT))  RET_CH(0x00AC, PMATH_PREC_REL);
@@ -481,8 +502,8 @@ static pmath_t simple_postfix(pmath_symbol_t head, int *prec, int boxform) { // 
   if(pmath_same(head, PMATH_SYMBOL_FUNCTION))       RET_CH('&',  PMATH_PREC_FUNC);
   if(pmath_same(head, PMATH_SYMBOL_FACTORIAL))      RET_CH('!',  PMATH_PREC_FAC);
   if(pmath_same(head, PMATH_SYMBOL_FACTORIAL2))     RET_ST("!!", PMATH_PREC_FAC);
-  if(pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))  RET_ST("++", PMATH_PREC_INC);
-  if(pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))  RET_ST("--", PMATH_PREC_INC);
+  if(pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))  RET_ST("++", PMATH_PREC_INC_OUT);
+  if(pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))  RET_ST("--", PMATH_PREC_INC_OUT);
   
   return PMATH_NULL;
 }
@@ -1758,12 +1779,12 @@ static pmath_t times_to_boxes(
         
         prevfactor = ensure_min_precedence(prevfactor, PMATH_PREC_MUL + 1, -1);
         ch = last_char(prevfactor);
-        last_tok = pmath_token_analyse(&ch, 1, NULL);
+        last_tok = pmath_token_analyse_output(&ch, 1, NULL);
       }
       else {
         prevfactor = ensure_min_precedence(prevfactor, PMATH_PREC_MUL + 1, -1);
         ch = last_char(prevfactor);
-        last_tok = pmath_token_analyse(&ch, 1, NULL);
+        last_tok = pmath_token_analyse_output(&ch, 1, NULL);
       }
       
       for(i = 2; i <= numlen; ++i) {
@@ -1801,7 +1822,7 @@ static pmath_t times_to_boxes(
           }
           else {
             ch = first_char(factor);
-            last_tok = pmath_token_analyse(&ch, 1, NULL);
+            last_tok = pmath_token_analyse_output(&ch, 1, NULL);
             
             if(last_tok == PMATH_TOK_LEFTCALL)
               pmath_emit(PMATH_C_STRING(" "), PMATH_NULL);
@@ -1809,7 +1830,7 @@ static pmath_t times_to_boxes(
         }
         
         ch = last_char(factor);
-        last_tok = pmath_token_analyse(&ch, 1, NULL);
+        last_tok = pmath_token_analyse_output(&ch, 1, NULL);
         
         prevfactor = factor;
       }

@@ -2194,7 +2194,7 @@ static unsigned int hash_expression(
 //{ writing expressions
 
 #define PRIO_ANY                 0
-#define PRIO_ASSIGN             10 // a:= b, a::= b
+#define PRIO_ASSIGN             10 // a:= b, a::= b, a+= b, a-= b, 
 #define PRIO_FUNCTION           20 // body _
 #define PRIO_COLON              25 // a : b : ...
 #define PRIO_RULE               30 // a -> b, a:> b
@@ -2207,11 +2207,11 @@ static unsigned int hash_expression(
 #define PRIO_IDENTITY           90 // a == b, a =!= b
 #define PRIO_EQUATION          100 // a = b, a < b, ...
 #define PRIO_RANGE             110 // a .. b
+#define PRIO_INCDEC            115 // a++, ++a, a--, --a
 #define PRIO_PLUS              120 // a + b + ...
 #define PRIO_TIMES             130 // a * b * ...
 #define PRIO_FACTOR            (PRIO_TIMES + 1)
 #define PRIO_POWER             140 // a^b
-#define PRIO_INCDEC            150 // a+= b, a++, ++a, a-= b, a--, --a
 #define PRIO_PATTERN           160 // pattern ? function, pattern**, pattern***
 #define PRIO_CALL              170 // f(...)
 #define PRIO_SYMBOL            180

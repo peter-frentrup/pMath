@@ -249,7 +249,7 @@ PMATH_API pmath_token_t pmath_token_analyse(
     case '-': {
         if(str[1] == '-') { // --
           *prec = PMATH_PREC_INC; // +1
-          return PMATH_TOK_NARY_OR_PREFIX;
+          return PMATH_TOK_POSTFIX_OR_PREFIX;
         }
         
         if(str[1] == '=') { // -=
@@ -431,6 +431,11 @@ PMATH_API int pmath_token_prefix_precedence(
     switch(str[0]) {
       case '+':
         if(str[1] == '+')
+          return PMATH_PREC_INC;
+        break;
+        
+      case '-':
+        if(str[1] == '-')
           return PMATH_PREC_INC;
         break;
         
