@@ -75,6 +75,25 @@
 					<Add directory="../bin/windows/msvc" />
 				</Linker>
 			</Target>
+			<Target title="Linux-Debug">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/debug/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-g" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add library="pmath" />
+					<Add library="edit" />
+					<Add directory="../bin/linux/debug" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
