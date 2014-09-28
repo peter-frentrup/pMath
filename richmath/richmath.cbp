@@ -435,6 +435,8 @@
 					<Add option="-lX11" />
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
+					<Add library="fontconfig" />
+					<Add library="freetype" />
 					<Add directory="../library/bin/linux/debug" />
 					<Add directory="$(#cairo.lib)" />
 					<Add directory="$(#pango.lib)" />
