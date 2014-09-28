@@ -10,13 +10,12 @@ static pmath_bool_t have_cas2;
 
 PMATH_API
 pmath_stack_t pmath_stack_new(void) {
-  pmath_stack_t stack = (pmath_stack_t)
-                        pmath_mem_alloc(sizeof(struct _pmath_stack_t));
+  pmath_stack_t stack = pmath_mem_alloc(sizeof(struct _pmath_stack_t));
                         
   if(!stack)
     return NULL;
     
-  memset(stack, 0, sizeof(stack));
+  memset(stack, 0, sizeof(*stack));
   pmath_atomic_barrier();
   return stack;
 }
