@@ -2,6 +2,7 @@
 
 #include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>

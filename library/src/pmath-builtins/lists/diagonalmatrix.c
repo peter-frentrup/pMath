@@ -6,6 +6,8 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+#include <string.h>
+
 
 static pmath_bool_t has_inexact_machine_number(pmath_expr_t vector) {
   size_t i;

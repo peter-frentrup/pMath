@@ -12,6 +12,8 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/lists-private.h>
 
+#include <string.h>
+
 
 #define MAX_DIM 10
 

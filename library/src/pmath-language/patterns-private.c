@@ -2074,7 +2074,7 @@ FIRST_PATARG: ;
 
 /*============================================================================*/
 
-static __inline pmath_bool_t index_start(
+static PMATH_INLINE pmath_bool_t index_start(
   size_t  *indices,
   char    *args_in_use,
   size_t   indices_len,

@@ -6,6 +6,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/io-private.h>
 
+#include <stdio.h>
+
 
 PMATH_PRIVATE pmath_t builtin_streamposition(pmath_expr_t expr) {
   pmath_t file;

@@ -1,6 +1,7 @@
 #include <pmath-util/concurrency/event-private.h>
 #include <pmath-util/concurrency/threadmsg-private.h>
 
+
 #ifdef PMATH_OS_WIN32
 
 PMATH_PRIVATE
@@ -40,6 +41,7 @@ void _pmath_event_signal(pmath_event_t *event) {
 #else
 
 #  include <math.h>
+#  include <limits.h>
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_event_init(pmath_event_t *event) {

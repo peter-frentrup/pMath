@@ -6,6 +6,8 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+#include <string.h>
+
 
 static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
   pmath_bool_t *have_critical = flag;

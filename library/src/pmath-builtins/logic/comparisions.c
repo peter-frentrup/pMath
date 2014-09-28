@@ -446,10 +446,10 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       pmath_t n = pmath_ref(next);
       
       if(!pmath_is_number(p))
-        p = pmath_set_precision(p, min(pprec, nprec));
+        p = pmath_set_precision(p, min_prec(pprec, nprec));
         
       if(!pmath_is_number(n))
-        n = pmath_set_precision(n, min(pprec, nprec));
+        n = pmath_set_precision(n, min_prec(pprec, nprec));
         
       if(pmath_is_number(p) && pmath_is_number(n)) {
         int c = pmath_fuzzy_compare(p, n);
