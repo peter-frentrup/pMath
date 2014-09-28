@@ -14,38 +14,38 @@
 
 
 #ifdef PMATH_OS_WIN32
-  #define exp2(x)      pow(2, x)
-  #define log2(x)      (log(x)/M_LN2)
-  #define round(x)     floor((x) + 0.5)
-  
-  #ifndef isfinite
-    #define isfinite(x)  _finite(x)
-  #endif
-  
-  #ifndef isnan
-    #define isnan(x)  _isnan(x)
-  #endif
+#define exp2(x)      pow(2, x)
+#define log2(x)      (log(x)/M_LN2)
+#define round(x)     floor((x) + 0.5)
+
+#ifndef isfinite
+#define isfinite(x)  _finite(x)
+#endif
+
+#ifndef isnan
+#define isnan(x)  _isnan(x)
+#endif
 #elif defined(sun) || defined(__sun)
-  #ifdef isfinite
-    #undef isfinite
-  #endif
-  
-  #ifdef isnan
-    #undef isnan
-  #endif
-  
-  #include <ieeefp.h>
-  
-  #define isfinite(x)  finite(x)
-  #define isnan(x)     isnand(x)
+#ifdef isfinite
+#undef isfinite
+#endif
+
+#ifdef isnan
+#undef isnan
+#endif
+
+#include <ieeefp.h>
+
+#define isfinite(x)  finite(x)
+#define isnan(x)     isnand(x)
 #endif
 
 #ifndef M_PI
-  #define M_PI		3.14159265358979323846
+#define M_PI    3.14159265358979323846
 #endif
 
 #ifndef M_E
-  #define M_E		2.7182818284590452354
+#define M_E   2.7182818284590452354
 #endif
 
 #define LOGE_2    0.69314718055994530941723212145818
@@ -72,7 +72,7 @@ struct _pmath_quotient_t {
   pmath_integer_t  denominator;
 };
 
-/* A number with absolute uncertainty "error". So this represents 
+/* A number with absolute uncertainty "error". So this represents
    value +/- 1/2 error
  */
 struct _pmath_mp_float_t {
@@ -85,6 +85,12 @@ struct _pmath_mp_float_t {
 
 #define PMATH_AS_MPZ(obj)         (((struct _pmath_mp_int_t*)       PMATH_AS_PTR(obj))->value)
 #define PMATH_AS_MP_VALUE(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value)
+
+PMATH_FORCE_INLINE mpfr_prec_t min_prec(mpfr_prec_t a, mpfr_prec_t b) {
+  if(a < b)
+    return a;
+  return b;
+}
 
 /*============================================================================*/
 

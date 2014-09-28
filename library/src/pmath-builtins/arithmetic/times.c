@@ -148,9 +148,9 @@ static pmath_mpfloat_t _mul_ff(
   assert(pmath_is_mpfloat(floatA));
   assert(pmath_is_mpfloat(floatB));
   
-  prec = min(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)),
-             mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)));
-    
+  prec = min_prec(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)),
+                  mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)));
+                  
   result = _pmath_create_mp_float(prec);
   if(pmath_is_null(result)) {
     pmath_unref(floatA);
@@ -597,10 +597,10 @@ static pmath_bool_t times_2_arg_pow(pmath_t *a, pmath_t *b) {
         size_t ia, ib;
         pmath_bool_t any_simplification = FALSE;
         
-        for(ib = 1;ib <= pmath_expr_length(expanded_b);++ib) {
+        for(ib = 1; ib <= pmath_expr_length(expanded_b); ++ib) {
           pmath_t fac_b = pmath_expr_extract_item(expanded_b, ib);
           
-          for(ia = 1;ia <= pmath_expr_length(expanded_a);++ia) {
+          for(ia = 1; ia <= pmath_expr_length(expanded_a); ++ia) {
             pmath_t fac_a = pmath_expr_extract_item(expanded_a, ia);
             
             pmath_bool_t success = times_2_arg(&fac_a, &fac_b);

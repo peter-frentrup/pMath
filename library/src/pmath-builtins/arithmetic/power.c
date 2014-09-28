@@ -1447,9 +1447,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
         pmath_mpfloat_t result;
         mpfr_prec_t prec;
         
-        prec = min(mpfr_get_prec(PMATH_AS_MP_VALUE(base)),
-                   mpfr_get_prec(PMATH_AS_MP_VALUE(exponent)));
-          
+        prec = min_prec(mpfr_get_prec(PMATH_AS_MP_VALUE(base)),
+                        mpfr_get_prec(PMATH_AS_MP_VALUE(exponent)));
+                        
         result = _pmath_create_mp_float(prec);
         if(!pmath_is_null(result)) {
 //          if(mpfr_zero_p(PMATH_AS_MP_ERROR(result))) {
@@ -1460,7 +1460,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
 //            pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
 //            return pmath_ref(_pmath_object_underflow);
 //          }
-//          
+//
 //          if(!mpfr_number_p(PMATH_AS_MP_ERROR(result))) {
 //            pmath_unref(result);
 //            pmath_unref(exponent);
@@ -1469,7 +1469,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
 //            pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
 //            return pmath_ref(_pmath_object_overflow);
 //          }
-          
+
           mpfr_pow(
             PMATH_AS_MP_VALUE(result),
             PMATH_AS_MP_VALUE(base),
