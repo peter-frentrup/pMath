@@ -30,13 +30,12 @@ PMATH_PRIVATE struct _regex_t *_pmath_regex_compile(
   pmath_t obj,            // will be freed
   int     pcre_options);
 
-/* Match a regular expression to a UTF-8 subject string. The subject
-   string is subject_length bytes long and matching starts at subject_offset.
+/* Match a regular expression to a subject string. Matching starts at subject_offset.
 
    Additional pcre_options can be given for pcre_exec.
 
-   If the regex matches, capture->ovector[0] contains the (byte) offset of the
-   match and capture->ovector[1] the length (in bytes) of the match.
+   If the regex matches, capture->ovector[0] contains the offset of the
+   match and capture->ovector[1] the length of the match.
 
    Optionally, a right-hand-side "rhs" can be adjusted as needed by
    StringReplace/...
