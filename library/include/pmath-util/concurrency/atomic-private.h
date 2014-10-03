@@ -13,7 +13,7 @@
    Do NOT mix "_pmath_atomic_[un]lock_ptr(p)" with direct memory access "*p [= ...]"
 
    usage:
-     static void * volatile global_value;
+     static pmath_atomic_t global_value;
 
      void *value = _pmath_atomic_lock_ptr(&global_value);
      ... use value ...
