@@ -4,6 +4,7 @@
 *.layout
 *.depend
 *.pdb
+*.cbp.mak
 /library/bin
 /library/obj
 /library/tmp
@@ -23,6 +24,8 @@
 /modules/hello/obj
 /richmath/bin
 /richmath/obj
+/richmath/Makefile
+/Makefile
 
 /richmath/WINDOWSTEMPDIR_FONTCONFIG_CACHE
 
