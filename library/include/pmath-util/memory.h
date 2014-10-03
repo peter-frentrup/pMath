@@ -28,6 +28,17 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 void *pmath_mem_alloc(size_t size);
 
+///**\brief Allocate some amount of memory with alignment.
+//   \param size The number of bytes to be allocated.
+//   \return A pointer to a block of mamory of at least size bytes or NULL.
+//
+//   You must free the result with pmath_memalign_free() or indirectly via
+//   pmath_mem_realloc().
+// */
+//PMATH_API
+//PMATH_ATTRIBUTE_USE_RESULT
+//void *pmath_memalign_alloc(size_t alignment, size_t size);
+
 /**\brief Change the size of a memory-chunk.
    \param p NULL or a pointer to a block of old_size bytes allocated with
           pmath_mem_alloc() or pmath_mem_realloc().
@@ -72,6 +83,14 @@ void *pmath_mem_realloc_no_failfree(
  */
 PMATH_API
 void pmath_mem_free(void *p);
+
+///**\brief Free an aligned memory-chunk.
+//   \param p NULL or a pointer to a block of old_size bytes allocated with
+//          pmath_memalign_alloc().
+// */
+//PMATH_API
+//PMATH_ATTRIBUTE_USE_RESULT
+//void *pmath_memalign_free(void *p);
 
 /**\brief Get memory usage information
    \param current Here goes the number of currently allocated bytes.

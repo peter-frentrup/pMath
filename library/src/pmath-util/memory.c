@@ -43,10 +43,13 @@
 
 #ifdef PMATH_USE_DLMALLOC
 
-#  define memory_allocate(s)      dlmalloc((s))
-#  define memory_reallocate(p,s)  dlrealloc((p), (s))
-#  define memory_free(p)          dlfree((p))
-#  define memory_size(p)          dlmalloc_usable_size((p))
+//#  define memory_aligned_allocate(a,s)  dlmemalign((a), (s))
+//#  define memory_aligned_free(p)        dlfree((p))
+
+#  define memory_allocate(s)            dlmalloc((s))
+#  define memory_reallocate(p,s)        dlrealloc((p), (s))
+#  define memory_free(p)                dlfree((p))
+#  define memory_size(p)                dlmalloc_usable_size((p))
 
 #  define init_platform_memory_manager(o) ((void)0)
 
@@ -55,6 +58,9 @@
    See http://msdn2.microsoft.com/en-us/library/aa366750.aspx
  */
 static HANDLE heap;
+
+//#  define memory_aligned_allocate(a,s)  _aligned_malloc((s), (a))
+//#  define memory_aligned_free(p)        _aligned_free((p))
 
 #  define memory_allocate(size)       HeapAlloc(heap, 0, (size))
 #  define memory_reallocate(p, size)  HeapReAlloc(heap, 0, (p), (size))
@@ -91,6 +97,9 @@ static void init_platform_memory_manager(void) {
     sizeof(low_fragmentation_heap));
 }
 #else
+//#  define memory_aligned_allocate(a,s)  memalign((a), (s))
+//#  define memory_aligned_free(p)        free((p))
+
 #  define memory_allocate(s)      malloc((s))
 #  define memory_reallocate(p,s)  realloc((p), (s))
 #  define memory_free(p)          free((p))
