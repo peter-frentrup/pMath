@@ -6,6 +6,8 @@
 *.pdb
 /library/bin
 /library/obj
+/library/tmp
+/library/Makefile
 /library/console/bin
 /library/console/obj
 /library/test/bin

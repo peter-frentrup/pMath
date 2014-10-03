@@ -4,7 +4,7 @@ CFLIB="-DBUILDING_PMATH -DPMATH_USE_PTHREAD -fPIC"
 CFLAGS="$CFLAGS -Iinclude -Wall"
 LDFLAGS="$LDFLAGS"
 SOFLAGS="-shared"
-LIBS="-lm -lpthread -lgmp -lmpfr -liconv -lpcre"
+LIBS="-lm -lpthread -lgmp -lmpfr -liconv -lpcre16 -ldl -lz"
 MAYOR="0"
 MINOR="1"
 SYSTEM="$(uname -s)"
@@ -31,6 +31,8 @@ cat > tmp/nop.c <<-_EOF_
 function printinfo {
 	printf "$1" >&2
 }
+
+printinfo "CFLAGS: $CFLAGS\n"
 
 
 printinfo "checking for -m64 option... "
@@ -145,7 +147,8 @@ fi
 case "$SYSTEM" in
 	"Linux" )
 		LIBS="$LIBS -lrt"
-		CFLAGS="$CFLAGS -pthread -D_XOPEN_SOURCE=600 -std=c99"
+		CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600 -std=c99"
+		LDFLAGS="$LDFLAGS -pthread"
 		SOFLAGS="$SOFLAGS -Wl,-soname,$""(LIBNAME).$""(MAYOR)"
 		;;
 		
@@ -210,12 +213,13 @@ echo "MINOR = $MINOR"
 echo "TESTNAME = pmath-test"
 echo "SHORTLIBNAME = $SHORTNAME"
 echo "LIBNAME = lib$""(SHORTLIBNAME).so"
-echo "TESTCFLAGS = $CFLAGS"
-echo "TESTLDFLAGS = $LDFLAGS"
-echo "TESTLIBS = -l$""(SHORTLIBNAME) -lrt"
 echo "CFLAGS = $CFLAGS $CFLIB"
 echo "LDFLAGS = $LDFLAGS $SOFLAGS"
 echo "LIBS = $LIBS"
+echo "TESTCFLAGS = $CFLAGS"
+echo "TESTLDFLAGS = $LDFLAGS -Wl,-rpath,?ORIGIN"
+echo "CHRPATH = chrpath -r '$""$""ORIGIN'"
+echo "TESTLIBS = -l$""(SHORTLIBNAME) -lrt $""(LIBS)"
 echo "RESULTDIR = $BINDIR"
 echo "RESULT = $""(RESULTDIR)/$RESULT"
 echo "RESULTM = $""(RESULTDIR)/$RESULTM"
@@ -229,7 +233,7 @@ echo
 
 ALLOBJS=""
 
-for srcfile in $( find src -type f ); do
+for srcfile in $( find src -type f -name *.c ); do
 	objfile="$OBJDIR/$srcfile.o"
 	dep="$(gcc -MM -MG -MT $objfile $CFLAGS $CFLIB $srcfile)"
 	if  [ "$?" == "0" ]; then
@@ -261,6 +265,7 @@ echo -e "\t$""(CP) scripts/maininit.5.txt $""(RESULTDIR)/maininit.pmath"
 echo
 echo "$""(TEST): $""(RESULT) $OBJDIR/test/main.o $""(RESULTDIR)/maininit.pmath"
 echo -e "\t$""(LINK) $""(TESTLDFLAGS) $""(TESTLIBS) -L$""(RESULTDIR) -l$""(SHORTLIBNAME) -o $""(TEST) $OBJDIR/test/main.o"
+echo -e "\t$""(CHRPATH) $""(TEST)"
 echo
 echo "clean:"
 echo -e "\t$""(RM) -r $BINDIR $OBJDIR\n"
