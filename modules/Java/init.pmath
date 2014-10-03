@@ -11,6 +11,7 @@ Java`JavaNew
 Java`JavaObject
 Java`JavaStartVM
 Java`$JavaVMLibraryName
+Java`$JavaInstalledVMs
 Java`$DefaultClassPath
 
 Java`AddToClassPath
@@ -62,6 +63,7 @@ Methods::usage:= "Methods(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"A
 ParentClass::usage:= "ParentClass(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) gives the parent class of the specified Java class."
 
 
+
 Which(
 	$SystemId === "Windows",
 	(
@@ -74,14 +76,14 @@ Which(
 		path:= path.FileNames({"server","client"});
 		path:= path.FileNames("jvm.dll");
 		
-		Unprotect($JavaVMLibraryName);
-		$JavaVMLibraryName:= First(path);
-		Unprotect($JavaVMLibraryName);
+		Unprotect($JavaInstalledVMs);
+		$JavaInstalledVMs:= path;
+		Protect($JavaInstalledVMs);
 		),
 	
 	$SystemId === "Linux",
 	(
-		If($ProcessorType === "x64", 
+		If($ProcessorType === "x86-64", 
 			arch:= "amd64";
 			path:= {"/usr/lib64", "/usr/local/lib64"};
 		,
@@ -96,11 +98,24 @@ Which(
 		path:= path.FileNames({"server","client"});
 		path:= path.FileNames("libjvm.so");
 		
-		Unprotect($JavaVMLibraryName);
-		$JavaVMLibraryName:= First(path);
-		Unprotect($JavaVMLibraryName);
+		Unprotect($JavaInstalledVMs);
+		$JavaInstalledVMs:= path;
+		Protect($JavaInstalledVMs);
+		),
+		
+	True,
+	(	
+		Unprotect($JavaInstalledVMs);
+		$JavaInstalledVMs:= {};
+		Protect($JavaInstalledVMs);
 		)
 	);
+		
+Unprotect($JavaVMLibraryName);
+If($JavaInstalledVMs =!= {},
+	$JavaVMLibraryName:= First($JavaInstalledVMs);
+	)
+Protect($JavaVMLibraryName);
 
 $DefaultClassPath:= {ToFileName(DirectoryName($Input), "classpath")}
 
@@ -140,7 +155,7 @@ Attributes(JavaObject):= {DeepHoldAll, Protected, ReadProtected}
 
 
 LoadLibrary(ToFileName(
-	{DirectoryName($Input), "bin", $SystemId},
+	{DirectoryName($Input), "bin", $SystemId, $ProcessorType},
 	If($SystemId === "Windows",
 		"pmath-java.dll",
 		"pmath-java.so")))
