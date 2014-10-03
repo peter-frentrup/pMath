@@ -8,11 +8,11 @@
 		<Build>
 			<Target title="Windows-Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\windows\hello" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\windows\" />
+				<Option output="bin/windows/debug/hello" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="..\..\library\test\bin\windows\debug\test.exe" />
+				<Option host_application="../../library/test/bin/windows/debug/test.exe" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
@@ -22,30 +22,50 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="..\..\library\bin\windows\debug" />
+					<Add directory="../../library/bin/windows/debug" />
 				</Linker>
 			</Target>
-			<Target title="Linux-Debug">
+			<Target title="Linux-Debug-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin\linux\hello" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\linux\" />
+				<Option output="bin/linux/debug-x86/hello" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/debug-x86" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add option="-fPIC" />
 					<Add option="-DBUILD_DLL" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="..\..\library\bin\linux\debug" />
+					<Add directory="../../library/bin/linux/debug-x86" />
+				</Linker>
+			</Target>
+			<Target title="Linux-Debug-x64">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/debug-x64/hello" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/debug-x64" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-fPIC" />
+					<Add option="-DBUILD_DLL" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add library="pmath" />
+					<Add directory="../../library/bin/linux/debug-x64" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
-			<Add directory="..\..\library\include" />
+			<Add directory="../../library/include" />
 		</Compiler>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
