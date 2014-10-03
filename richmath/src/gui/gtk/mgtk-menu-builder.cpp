@@ -168,7 +168,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
           pmath_mem_free(accel_path_str);
         }
         
-        g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_activate), (void *)for_document_window_id);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_activate), (void *)(intptr_t)for_document_window_id);
         
         gtk_widget_show(menu_item);
         gtk_menu_shell_append(menu, menu_item);

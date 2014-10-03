@@ -794,7 +794,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
       
     if(may_blink) {
       is_blinking = true;
-      gdk_threads_add_timeout(blink_time / 2, blink_caret, (void *)document()->id());
+      gdk_threads_add_timeout(blink_time / 2, blink_caret, (void *)(intptr_t)document()->id());
     }
   }
   

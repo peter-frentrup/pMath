@@ -315,7 +315,7 @@
 			</Target>
 			<Target title="Linux-Debug-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/debug-x64/pmath.so.0.1" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/linux/debug-x64/libpmath.so.0.1" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/debug-x64" />
 				<Option type="3" />
 				<Option compiler="gcc" />

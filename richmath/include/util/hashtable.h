@@ -15,8 +15,23 @@ namespace richmath {
   }
   
   template<typename T>
+  struct cast_hash_impl {
+    static unsigned int hash(const T &t) {
+      return (unsigned int)t;
+    }
+  };
+  
+  template<typename TP>
+  struct cast_hash_impl<TP*> {
+    static unsigned int hash(TP* const &t) {
+    	uintptr_t tmp = (uintptr_t)t;
+  	  return (unsigned int)((tmp & 0xFFFFFFFFU) ^ (tmp >> 32));
+  	}
+  };
+  
+  template<typename T>
   unsigned int cast_hash(const T &t) {
-    return (unsigned int)t;
+    return cast_hash_impl<T>::hash(t);
   }
   
   class Void { /* Note that this takes up one byte! */

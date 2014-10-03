@@ -142,7 +142,7 @@
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
-					<Add library="librt" />
+					<Add library="rt" />
 					<Add library="pthread" />
 					<Add directory="bin/linux/release" />
 				</Linker>
@@ -171,7 +171,7 @@
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
-					<Add library="librt" />
+					<Add library="rt" />
 					<Add library="pthread" />
 					<Add directory="bin/linux/debug" />
 				</Linker>
@@ -200,7 +200,7 @@
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
-					<Add library="librt" />
+					<Add library="rt" />
 					<Add library="pthread" />
 					<Add directory="bin/linux/debug-x64" />
 				</Linker>
