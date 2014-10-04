@@ -481,7 +481,7 @@ static void free_cache_info(JNIEnv *env, struct cache_info_t *info) {
     (*env)->DeleteLocalRef(env, info->jcMethod);
     
   if(info->jcField)
-    (*env)->DeleteLocalRef(env, info->jcMethod);
+    (*env)->DeleteLocalRef(env, info->jcField);
     
   pmath_unref(info->class_name);
   
