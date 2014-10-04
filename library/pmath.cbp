@@ -247,14 +247,15 @@
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
-					<Add library="m" />
-					<Add library="pthread" />
 					<Add library="mpfr" />
 					<Add library="gmp" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
-					<Add library="dl" />
 					<Add library="z" />
+					<Add library="dl" />
+					<Add library="pthread" />
+					<Add library="rt" />
+					<Add library="m" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh release" />
@@ -299,14 +300,15 @@
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
-					<Add library="m" />
-					<Add library="pthread" />
 					<Add library="mpfr" />
 					<Add library="gmp" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
-					<Add library="dl" />
 					<Add library="z" />
+					<Add library="dl" />
+					<Add library="pthread" />
+					<Add library="rt" />
+					<Add library="m" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh debug" />
@@ -348,14 +350,15 @@
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
-					<Add library="m" />
-					<Add library="pthread" />
 					<Add library="mpfr" />
 					<Add library="gmp" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
-					<Add library="dl" />
 					<Add library="z" />
+					<Add library="dl" />
+					<Add library="pthread" />
+					<Add library="rt" />
+					<Add library="m" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh debug-x64" />
