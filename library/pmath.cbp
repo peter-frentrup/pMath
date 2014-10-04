@@ -119,8 +119,8 @@
 				<Linker>
 					<Add option="/DEBUG" />
 					<Add option="/LTCG" />
-					<Add library="gmp.lib" />
 					<Add library="mpfr.lib" />
+					<Add library="gmp.lib" />
 					<Add library="iconv.lib" />
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
@@ -160,8 +160,8 @@
 				<Linker>
 					<Add option="/DEBUG" />
 					<Add option="/LTCG" />
-					<Add library="gmp.lib" />
 					<Add library="mpfr.lib" />
+					<Add library="gmp.lib" />
 					<Add library="iconv.lib" />
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
@@ -249,8 +249,8 @@
 					<Add option="-Wl,-soname,libpmath.so.0" />
 					<Add library="m" />
 					<Add library="pthread" />
-					<Add library="gmp" />
 					<Add library="mpfr" />
+					<Add library="gmp" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
 					<Add library="dl" />
@@ -301,8 +301,8 @@
 					<Add option="-Wl,-soname,libpmath.so.0" />
 					<Add library="m" />
 					<Add library="pthread" />
-					<Add library="gmp" />
 					<Add library="mpfr" />
+					<Add library="gmp" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
 					<Add library="dl" />
@@ -333,8 +333,6 @@
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-Wno-unused-but-set-variable" />
-					<Add option="-fno-var-tracking-assignments" />
 					<Add option="-mcx16" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DPMATH_DEBUG_MEMORY" />
@@ -352,8 +350,8 @@
 					<Add option="-Wl,-soname,libpmath.so.0" />
 					<Add library="m" />
 					<Add library="pthread" />
-					<Add library="gmp" />
 					<Add library="mpfr" />
+					<Add library="gmp" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
 					<Add library="dl" />
