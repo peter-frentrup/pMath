@@ -27,7 +27,7 @@
    You can create it with pmath_stack_new() and must destroy it with
    pmath_stack_free().
  */
-typedef struct _pmath_unaligned_stack_t  *pmath_stack_t;
+typedef struct _pmath_stack_t  *pmath_stack_t;
 
 /**\brief Create an empty stack.
    \return A new stack or PMATH_NULL.

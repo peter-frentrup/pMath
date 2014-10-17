@@ -25,14 +25,6 @@ struct _pmath_stack_t {
   } u;
 };
 
-/* A  struct _pmath_stack_t  must be aligned to 2*sizeof(void*),
-   which is 8 on 32 bit system and 16 on 64 bit systems.
-   However, dlmalloc() seems to guarantee only 8 bytes on my AMD64 Linux machine
-*/
-struct _pmath_unaligned_stack_t {
-	char _data[sizeof(struct _pmath_stack_t) + 16];
-};
-
 PMATH_PRIVATE pmath_bool_t _pmath_stacks_init(void);
 
 #endif /* __PMATH_UTIL__STACKS_PRIVATE_H__ */
