@@ -22,11 +22,15 @@ namespace richmath {
   };
   
   template<typename TP>
-  struct cast_hash_impl<TP*> {
-    static unsigned int hash(TP* const &t) {
-    	uintptr_t tmp = (uintptr_t)t;
-  	  return (unsigned int)((tmp & 0xFFFFFFFFU) ^ (tmp >> 32));
-  	}
+  struct cast_hash_impl<TP *> {
+    static unsigned int hash(TP *const &t) {
+#if PMATH_BITSIZE == 32
+      return (unsigned int)(uintptr_t)t;
+#else
+      uintptr_t tmp = (uintptr_t)t;
+      return (unsigned int)((tmp & 0xFFFFFFFFU) ^ (tmp >> 32));
+#endif
+    }
   };
   
   template<typename T>
