@@ -10,6 +10,13 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+#ifdef _MSC_VER
+#  if _MSC_VER < 1800
+#    define nexttoward _nextafter
+#  endif
+#endif
+
+
 static pmath_t double_result(double x) {
   if(isfinite(x))
     return PMATH_FROM_DOUBLE(x);
