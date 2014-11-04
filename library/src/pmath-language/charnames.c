@@ -514,6 +514,8 @@ static const struct pmath_named_char_t named_char_array[] = {
   { 0x017E, "ZHacek"},
   { 0x017F, "LongS"},
   
+  { 0x1E9E, "CapitalSZ" },
+  
   { 0x2190, "LeftArrow" },
   { 0x2191, "UpArrow" },
   //{ 0x2192, "RightArrow" }, // Rule

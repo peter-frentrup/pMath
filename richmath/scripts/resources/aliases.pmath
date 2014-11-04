@@ -201,6 +201,8 @@
 		"'''" -> "\[TriplePrime]",
 		"''''" -> "\[QuadruplePrime]",
 		
+		"\[SZ]" -> "\[CapitalSZ]",
+		
 		"a"     -> "\[Alpha]",
 		"alpha" -> "\[Alpha]",
 		"b"    -> "\[Beta]",
