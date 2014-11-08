@@ -37,6 +37,8 @@ typedef struct {
   pmath_t parent_pat_head; // wont be freed
   pmath_t pat;             // wont be freed
   
+  /* pattern_variables is an optimization to possibly limit the matchable size 
+   */
   pmath_hashtable_t pattern_variables; // should be NULL or a ht_pattern_variable_class (private)
   
   uint8_t associative;

@@ -863,14 +863,15 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
   info.pattern      = pattern;
   info.func         = obj;
   
-  info.pattern_variables = pmath_ht_create(&ht_pattern_variable_class, 0);
-  if(!info.pattern_variables) {
-    pmath_unref(pattern);
-    return FALSE;
-  }
-  
-  init_pattern_variables(info.pattern, info.pattern_variables);
-  
+  info.pattern_variables = NULL;
+//  info.pattern_variables = pmath_ht_create(&ht_pattern_variable_class, 0);
+//  if(!info.pattern_variables) {
+//    pmath_unref(pattern);
+//    return FALSE;
+//  }
+//
+//  init_pattern_variables(info.pattern, info.pattern_variables);
+
   info.options      = PMATH_NULL;
   
   info.assoc_start  = 1;
@@ -895,7 +896,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
         if(!info.arg_usage) {
           pmath_unref(head);
           pmath_unref(pattern);
-          pmath_ht_destroy(info.pattern_variables);
+          //pmath_ht_destroy(info.pattern_variables);
           return FALSE;
         }
       }
@@ -909,7 +910,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
   if(kind != PMATH_MATCH_KIND_NONE && !pmath_aborting()) {
     if(rhs) {
       if(!pmath_is_null(*rhs)) {
-        *rhs = replace_multiple(*rhs, info.pattern_variables);
+        if(info.pattern_variables) {
+          *rhs = replace_multiple(*rhs, info.pattern_variables);
+        }
         
         if(!pmath_is_null(info.options)) {
           pmath_t default_head = PMATH_NULL;
@@ -999,7 +1002,9 @@ CLEANUP:
 
   pmath_unref(info.options);
   pmath_unref(info.pattern);
-  pmath_ht_destroy(info.pattern_variables);
+  if(info.pattern_variables) {
+    pmath_ht_destroy(info.pattern_variables);
+  }
   if(info.symmetric)
     pmath_mem_free(info.arg_usage);
   return kind != PMATH_MATCH_KIND_NONE;
@@ -1115,7 +1120,9 @@ static match_kind_t match_atom(
       else {
         test = pmath_expr_get_item(pat, 2);
         
-        test = replace_multiple(test, info->pattern_variables);
+        if(info->pattern_variables) {
+          test = replace_multiple(test, info->pattern_variables);
+        }
       }
       
     AFTER_TEST_INIT:
@@ -1187,6 +1194,17 @@ static match_kind_t match_atom(
       match_kind_t kind;
       
       pmath_t pat_item = pmath_expr_get_item(pat, 1);
+      
+      if(!info->pattern_variables) {
+        info->pattern_variables = pmath_ht_create(&ht_pattern_variable_class, 0);
+        if(!info->pattern_variables) {
+          pmath_debug_print("[Internal Pattern Error: failed to initialize pattern_variables]\n");
+          pmath_unref(pat_item);
+          return PMATH_MATCH_KIND_NONE;
+        }
+      
+        init_pattern_variables(info->pattern, info->pattern_variables);
+      }
       
       entry = pmath_ht_search(info->pattern_variables, &pat_item);
       if(!entry) {
@@ -1895,7 +1913,7 @@ static pmath_bool_t init_analyse_match_func(match_func_data_t *data) {
   i = pmath_expr_length(data->pat);
   if(i > 0) {
     _pmath_pattern_analyse_input_t   input;
-  
+    
     data->pat_infos = pmath_mem_alloc(sizeof(data->pat_infos[0]) * i);
     if(!data->pat_infos)
       return FALSE;
@@ -1907,7 +1925,7 @@ static pmath_bool_t init_analyse_match_func(match_func_data_t *data) {
     
     for(; i > 0; i--) {
       _pmath_pattern_analyse_output_t *output;
-    
+      
       input.pat = pmath_expr_get_item(data->pat, i);
       
       output = &data->pat_infos[i - 1];
