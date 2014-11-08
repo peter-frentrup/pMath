@@ -67,10 +67,12 @@
 					<Add option="/GF" />
 					<Add option="/Ox" />
 					<Add option="/W3" />
+					<Add option="/Zi" />
 					<Add option="/DNDEBUG" />
 					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
+					<Add option="/DEBUG" />
 					<Add library="pmath.lib" />
 					<Add directory="../bin/windows/msvc" />
 				</Linker>

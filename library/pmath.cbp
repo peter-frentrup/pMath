@@ -96,7 +96,7 @@
 			</Target>
 			<Target title="Windows-MSVC">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc/libpmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/msvc/pmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc/" />
 				<Option type="3" />
 				<Option compiler="msvc10" />
@@ -109,7 +109,6 @@
 					<Add option="/Gd" />
 					<Add option="/GL" />
 					<Add option="/W3" />
-					<Add option="/Zi" />
 					<Add option="/wd4100 /wd4127 /wd4146 /wd4152 /wd4201 /wd4204 /wd4255 /wd4668 /wd4748 /wd4820 /wd4996" />
 					<Add option="/DNDEBUG" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
@@ -117,7 +116,6 @@
 					<Add directory="../msvc-c99" />
 				</Compiler>
 				<Linker>
-					<Add option="/DEBUG" />
 					<Add option="/LTCG" />
 					<Add library="mpfr.lib" />
 					<Add library="gmp.lib" />
@@ -134,7 +132,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug/libpmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/msvc-debug/pmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-debug/" />
 				<Option type="3" />
 				<Option compiler="msvc10" />
@@ -152,7 +150,7 @@
 					<Add option="/DPMATH_DEBUG_LOG" />
 					<Add option="/DPMATH_DEBUG_MEMORY" />
 					<Add option="/DPMATH_DEBUG_TESTS" />
-					<Add option="/DPMATH_DEBUG_NO_FORCEINLINE" />
+					<Add option="/Ddisable_PMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />
 					<Add directory="../msvc-c99" />

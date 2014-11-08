@@ -64,11 +64,13 @@
 					<Add option="/GF" />
 					<Add option="/Ox" />
 					<Add option="/W3" />
+					<Add option="/Zi" />
 					<Add option="/wd4711 /wd4996" />
 					<Add option="/DNDEBUG" />
 					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
+					<Add option="/DEBUG" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
