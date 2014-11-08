@@ -191,7 +191,9 @@ tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot))::=
 		)
 
 Attributes(checkRange):= {HoldAll}
-checkRange(spec: (~x:Symbol -> ~xmin..~xmax))::= 
+checkRange(spec: (~x:Symbol -> ~range))::= checkRangeRest(Hold(x), range)
+checkRange(~spec)::= (Message(Plot::pllim, HoldForm(spec)); Throw($PlotFailed))
+checkRangeRest(Hold(~x), ~xmin..~xmax)::=
 	With({evalxmin:= xmin, evalxmax:= xmax},
 		If((evalxmin < evalxmax) =!= True,
 			Message(Plot::plld, HoldForm(x), HoldForm(spec));
@@ -199,7 +201,6 @@ checkRange(spec: (~x:Symbol -> ~xmin..~xmax))::=
 			);
 		Return(evalxmin .. evalxmax);
 		)
-checkRange(~spec)::= (Message(Plot::pllim, HoldForm(spec)); Throw($PlotFailed))
 
 
 /* Attributes(makeFunction):= {HoldAll}
