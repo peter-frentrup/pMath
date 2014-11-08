@@ -1233,6 +1233,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_regex_init(void) {
   memset(regex_cache_array, 0, sizeof(regex_cache_array));
   regex_cache_array_next = 0;
   
+  pmath_debug_print("[pcre %s]\n", pcre16_version());
+  
   pcre16_callout = callout;
   return table != NULL;
 }

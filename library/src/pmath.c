@@ -50,6 +50,7 @@
 #endif
 
 #include <time.h>
+#include <zlib.h> // Only needed here to print its version number.
 
 
 PMATH_STATIC_ASSERT(sizeof(intptr_t) == sizeof(void *));
@@ -388,6 +389,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     if(!_pmath_modules_init())                goto FAIL_MODULES;
     
     if(!_pmath_dynamic_init())                goto FAIL_DYNAMIC;
+    
+    pmath_debug_print("[zlib %s]\n", zlib_version);
     
     { // init static objects ...
       // SystemException("OutOfMemory")

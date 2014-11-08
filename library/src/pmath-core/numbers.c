@@ -28,6 +28,7 @@
 #  define snprintf sprintf_s
 #endif
 
+#include <mpfi.h>
 
 #define MPFR_MANT(x) ((x)->_mpfr_d)
 
@@ -1912,6 +1913,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
   pmath_debug_print("[mpfr %s%s]\n", 
     mpfr_get_version(),
     mpfr_buildopt_tls_p() ? "" : ", flags are not thrad safe");
+  
+  pmath_debug_print("[mpfi %s]\n", mpfi_get_version());
   
   memset(int_cache, 0, sizeof(int_cache));
   memset(mp_cache,  0, sizeof(mp_cache));
