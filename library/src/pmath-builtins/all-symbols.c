@@ -703,6 +703,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_DEVELOPER_ISPACKEDARRAY       = NEW_SYMBOL("Developer`IsPackedArray"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM     = NEW_SYMBOL("Developer`PackedArrayForm"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT      = NEW_SYMBOL("Developer`SetDebugInfoAt"))
+  VERIFY(   PMATH_SYMBOL_DEVELOPER_SYSTEMINFORMATION   = NEW_SYMBOL("Developer`$SystemInformation"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_TOPACKEDARRAY       = NEW_SYMBOL("Developer`ToPackedArray"))
   
   VERIFY(   PMATH_SYMBOL_ABORTED                          = NEW_SYSTEM_SYMBOL("$Aborted"))

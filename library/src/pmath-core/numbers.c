@@ -28,8 +28,6 @@
 #  define snprintf sprintf_s
 #endif
 
-#include <mpfi.h>
-
 #define MPFR_MANT(x) ((x)->_mpfr_d)
 
 

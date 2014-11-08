@@ -17,7 +17,7 @@
 				<Option object_output="obj/windows/debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="test/bin/windows/debug/test.exe" />
+				<Option host_application="console/bin/windows/debug/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -59,7 +59,7 @@
 				<Option object_output="obj/windows/release/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="test/bin/windows/release/test.exe" />
+				<Option host_application="console/bin/windows/release/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -102,7 +102,7 @@
 				<Option object_output="obj/windows/msvc/" />
 				<Option type="3" />
 				<Option compiler="msvc10" />
-				<Option host_application="test/bin/windows/msvc/test.exe" />
+				<Option host_application="console/bin/windows/msvc/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -139,7 +139,7 @@
 				<Option object_output="obj/windows/msvc-debug/" />
 				<Option type="3" />
 				<Option compiler="msvc10" />
-				<Option host_application="test/bin/windows/msvc-debug/test.exe" />
+				<Option host_application="console/bin/windows/msvc-debug/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />

@@ -77,6 +77,30 @@
 					<Add directory="../bin/windows/msvc" />
 				</Linker>
 			</Target>
+			<Target title="Windows-MSVC-Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-debug/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-debug/" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/MT" />
+					<Add option="/arch:SSE2" />
+					<Add option="/Gd" />
+					<Add option="/GF" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/wd4711 /wd4996" />
+					<Add directory="../../msvc-c99" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+					<Add library="pmath" />
+					<Add library="edit_static" />
+					<Add library="user32" />
+					<Add directory="../bin/windows/msvc" />
+				</Linker>
+			</Target>
 			<Target title="Linux-Debug">
 				<Option platforms="Unix;" />
 				<Option output="bin/linux/debug/pmathc" prefix_auto="1" extension_auto="1" />

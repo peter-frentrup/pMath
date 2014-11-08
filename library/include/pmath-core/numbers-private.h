@@ -11,6 +11,7 @@
 #include <math.h>
 #include <gmp.h>
 #include <mpfr.h>
+#include <mpfi.h>
 
 
 #ifdef PMATH_OS_WIN32

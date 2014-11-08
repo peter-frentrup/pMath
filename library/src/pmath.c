@@ -50,6 +50,10 @@
 #endif
 
 #include <time.h>
+
+#define PCRE_STATIC
+#include <pcre.h> // Only needed here to print its version number.
+
 #include <zlib.h> // Only needed here to print its version number.
 
 
@@ -246,6 +250,84 @@ static pmath_expr_t get_exe_name(void) {
     return PMATH_NULL;
   }
 #endif
+}
+
+static pmath_expr_t get_system_information(void) {
+#  define SETTINGS_RULE(name, value)  pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RULE), 2, PMATH_C_STRING((name)), (value))
+#  define LIST1(a)     pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, (a))
+#  define LIST2(a, b)  pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, (a), (b))
+
+  pmath_expr_t compiler_info;
+  
+  // http://sourceforge.net/p/predef/wiki/Compilers/
+#  if defined( _MSC_VER )
+  {
+    char msvc_version[100];
+    
+    int version  = _MSC_VER / 100;
+    int revision = _MSC_VER % 100;
+    
+#  ifdef _MSC_FULL_VER
+#    if _MSC_VER >= 1400
+    int patch = _MSC_FULL_VER % 100000;
+#    else
+    int patch = _MSC_FULL_VER % 10000;
+#    endif
+#  else
+    int patch = 0;
+#  endif
+    
+    sprintf(msvc_version, "%d.%d.%d", version, revision, patch);
+    
+    compiler_info = LIST2(
+                      SETTINGS_RULE("Name",    PMATH_C_STRING("Microsoft Visual C++")),
+                      SETTINGS_RULE("Version", PMATH_C_STRING(msvc_version)));
+  }
+#elif defined(__GNUC__)
+  {
+    char gcc_version[100];
+  
+    int version  = __GNUC__;
+    int revision = __GNUC_MINOR__;
+  
+#  ifdef __GNUC_PATCHLEVEL__
+    int patch = __GNUC_PATCHLEVEL__;
+#  else
+    int patch = 0;
+#  endif
+  
+    sprintf(gcc_version, "%d.%d.%d", version, revision, patch);
+  
+    compiler_info = LIST2(
+                      SETTINGS_RULE("Name",    PMATH_C_STRING("GNU C/C++")),
+                      SETTINGS_RULE("Version", PMATH_C_STRING(gcc_version)));
+  }
+#else
+  {
+#  warning "No compiler info at runtime"
+    compiler_info = LIST2(
+                      SETTINGS_RULE("Name",    "Unknown"),
+                      SETTINGS_RULE("Version", "Unknown"));
+  }
+#endif
+  
+  return LIST2(
+           SETTINGS_RULE("Compiler", compiler_info),
+           SETTINGS_RULE(
+             "ThirdPartyLibraries",
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_LIST), 5,
+               SETTINGS_RULE("gmp",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(gmp_version))        )),
+               SETTINGS_RULE("mpfr", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfr_get_version())) )),
+               SETTINGS_RULE("mpfi", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfi_get_version())) )),
+               SETTINGS_RULE("pcre", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(pcre16_version()))   )),
+               SETTINGS_RULE("zlib", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(zlib_version))       ))
+             ))
+         );
+         
+#undef LIST1
+#undef LIST2
+#undef SETTINGS_RULE
 }
 
 #ifdef PMATH_DEBUG_TESTS
@@ -548,6 +630,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     
     { // initialize runs ...
       PMATH_RUN_ARGS("$ApplicationFileName:= `1`", "(o)", get_exe_name());
+      
+      PMATH_RUN_ARGS("Developer`$SystemInformation:= `1`", "(o)", get_system_information());
       
       PMATH_RUN("$NewMessage:=Function({},,HoldFirst)");
       
