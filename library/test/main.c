@@ -330,39 +330,28 @@ struct parse_data_t {
   pmath_t filename;
 };
 
-static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_data) {
+static pmath_t add_debug_info(
+  pmath_t                             token_or_span, 
+  const struct pmath_text_position_t *start, 
+  const struct pmath_text_position_t *end, 
+  void                               *_data
+) {
   pmath_t debug_info;
   struct parse_data_t *data = _data;
-  const uint16_t *code_buf;
-  int start_line, end_line, start_column, end_column, i;
+  int start_line, end_line, start_column, end_column;
   
-  assert(0 <= start);
-  assert(start <= end);
-  assert(end <= pmath_string_length(data->code));
+  assert(0 <= start->index);
+  assert(start->index <= end->index);
+  assert(end->index <= pmath_string_length(data->code));
   
   if(!pmath_is_expr(token_or_span))
     return token_or_span;
     
-  code_buf = pmath_string_buffer(&data->code);
+  start_line   = start->line;
+  start_column = start->index - start->line_start_index;
   
-  start_line   = 1;
-  start_column = start;
-  i = 0;
-  while(i < start) {
-    if(code_buf[i++] == '\n') {
-      ++start_line;
-      start_column = start - i;
-    }
-  }
-  
-  end_line   = start_line;
-  end_column = end - start + start_column;
-  while(i < end) {
-    if(code_buf[i++] == '\n') {
-      ++end_line;
-      end_column = end - i;
-    }
-  }
+  end_line   = end->line;
+  end_column = end->index - end->line_start_index;
   
   debug_info = pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE), 2,

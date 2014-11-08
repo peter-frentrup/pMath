@@ -195,6 +195,21 @@ pmath_t pmath_boxes_from_spans(
   pmath_t             (*box_at_index)(int, void*),
   void                 *data);
   
+/**\class pmath_text_position_t
+   \brief A string position with line and column number.
+ */
+struct pmath_text_position_t {
+  /**\brief 0-based character index. */
+  int index;
+  
+  /**\brief 0-based line number. */
+  int line;
+  
+  /**\brief 0-based index of beginning of the line.
+   */
+  int line_start_index;
+};
+
 /**\class pmath_boxes_from_spans_ex_t
    \brief Settings for pmath_boxes_from_spans_ex()
    
@@ -241,7 +256,11 @@ struct pmath_boxes_from_spans_ex_t{
      
      \see pmath_expr_get_debug_info
    */
-  pmath_t (*add_debug_info)(pmath_t token_or_span, int start, int end, void *data);
+  pmath_t (*add_debug_info)(
+    pmath_t                             token_or_span, 
+    const struct pmath_text_position_t *start, 
+    const struct pmath_text_position_t *end, 
+    void                               *data);
 };
 
 /**\internal */

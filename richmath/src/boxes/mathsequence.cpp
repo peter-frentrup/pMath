@@ -630,20 +630,20 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   if(start > 0)
     x1 += glyphs[start - 1].right;
     
-  if(startline > 0) 
+  if(startline > 0)
     x1 -= glyphs[lines[startline - 1].end - 1].right;
     
   x1 += indention_width(lines[startline].indent);
-
+  
   x2 = x0;
   if(end > 0)
     x2 += glyphs[end - 1].right;
     
-  if(endline > 0) 
+  if(endline > 0)
     x2 -= glyphs[lines[endline - 1].end - 1].right;
     
   x2 += indention_width(lines[endline].indent);
-
+  
   if(endline == startline) {
     float a = 0.5 * em;
     float d = 0;
@@ -1449,39 +1449,44 @@ pmath_t MathSequence::box_at_index(int i, void *_data) {
   return PMATH_NULL;
 }
 
-pmath_t MathSequence::add_debug_info(pmath_t token_or_span, int start, int end, void *_data) {
+pmath_t MathSequence::add_debug_info(
+  pmath_t                             token_or_span,
+  const struct pmath_text_position_t *start,
+  const struct pmath_text_position_t *end,
+  void                               *_data
+) {
   ScanData *data = (ScanData *)_data;
   
-  if(data->end <= start || end <= data->start) {
+  if(data->end <= start->index || end->index <= data->start) {
     pmath_unref(token_or_span);
     return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
   }
   
   if(pmath_is_string(token_or_span)) {
-    if(data->start <= start && end <= data->end)
+    if(data->start <= start->index && end->index <= data->end)
       return token_or_span;
       
     /* does not work with string tokens containing boxes */
     
-    if(start <= data->start && data->end <= end) {
+    if(start->index <= data->start && data->end <= end->index) {
       return pmath_string_part(
                token_or_span,
-               data->start - start,
+               data->start - start->index,
                data->end - data->start);
     }
     
-    if(data->start <= start && start <= data->end) {
+    if(data->start <= start->index && start->index <= data->end) {
       return pmath_string_part(
                token_or_span,
                0,
-               data->end - start);
+               data->end - start->index);
     }
     
-    if(data->start <= end && end <= data->end) {
+    if(data->start <= end->index && end->index <= data->end) {
       return pmath_string_part(
                token_or_span,
-               data->start - start,
-               end - data->start);
+               data->start - start->index,
+               end->index - data->start);
     }
     
     return token_or_span;
@@ -1493,7 +1498,7 @@ pmath_t MathSequence::add_debug_info(pmath_t token_or_span, int start, int end, 
   Expr debug_info = Call(
                       Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
                       Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), data->sequence->id()),
-                      Call(Symbol(PMATH_SYMBOL_RANGE), start, end));
+                      Call(Symbol(PMATH_SYMBOL_RANGE), start->index, end->index));
                       
   token_or_span = pmath_try_set_debug_info(
                     token_or_span,
@@ -2693,12 +2698,12 @@ void MathSequence::enlarge_space(Context *context) {
           if(!in_string)
             group_number_digits(context, i, e);
         }
-        /* no break */
+      /* no break */
       case PMATH_TOK_STRING:
       case PMATH_TOK_NAME:
       case PMATH_TOK_NAME2:
         lwf = true;
-        /* no break */
+      /* no break */
       case PMATH_TOK_SLOT:
         if(last_was_factor) {
           space_left = em * 3 / 18;

@@ -40,14 +40,14 @@ static pmath_bool_t check_path(pmath_t path) {
 }
 
 struct _get_file_info {
-  pmath_t ns;
-  pmath_t nspath;
-  pmath_t file;
+  pmath_t        ns;
+  pmath_t        nspath;
+  pmath_t        file;
   pmath_string_t filename;
-  int startline;
-  int codelines;
-  pmath_t current_code;
-  pmath_bool_t err;
+  int            startline;
+  int            codelines;
+  pmath_t        current_code;
+  pmath_bool_t   err;
 };
 
 static pmath_string_t scanner_read(void *data) {
@@ -85,39 +85,28 @@ static void scanner_error(
     info->err = TRUE;
 }
 
-static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_data) {
+static pmath_t add_debug_info(
+  pmath_t                             token_or_span, 
+  const struct pmath_text_position_t *start, 
+  const struct pmath_text_position_t *end, 
+  void                               *_data
+) {
   pmath_t debug_info;
   struct _get_file_info *data = _data;
-  const uint16_t *code_buf;
-  int start_line, end_line, start_column, end_column, i;
+  int start_line, end_line, start_column, end_column;
   
-  assert(0 <= start);
-  assert(start <= end);
-  assert(end <= pmath_string_length(data->current_code));
+  assert(0 <= start->index);
+  assert(start->index <= end->index);
+  assert(end->index <= pmath_string_length(data->current_code));
   
   if(!pmath_is_expr(token_or_span))
     return token_or_span;
     
-  code_buf = pmath_string_buffer(&data->current_code);
+  start_line   = start->line + data->startline;
+  start_column = start->index - start->line_start_index;
   
-  start_line   = data->startline;
-  start_column = start;
-  i = 0;
-  while(i < start) {
-    if(code_buf[i++] == '\n') {
-      ++start_line;
-      start_column = start - i;
-    }
-  }
-  
-  end_line   = start_line;
-  end_column = end - start + start_column;
-  while(i < end) {
-    if(code_buf[i++] == '\n') {
-      ++end_line;
-      end_column = end - i;
-    }
-  }
+  end_line   = end->line + data->startline;
+  end_column = end->index - end->line_start_index;
   
   debug_info = pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE), 2,

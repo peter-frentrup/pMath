@@ -27,7 +27,7 @@ namespace richmath {
       MathSequence();
       virtual ~MathSequence();
       
-      virtual AbstractSequence *create_similar(){ return new MathSequence(); }
+      virtual AbstractSequence *create_similar() { return new MathSequence(); }
       
       virtual Box *item(int i);
       virtual int count() {      return boxes.length(); }
@@ -73,7 +73,7 @@ namespace richmath {
       virtual Box *normalize_selection(int *start, int *end);
       
       int find_string_start(int pos_inside_string, int *next_afer_string = 0); // returns -1 on failure
-      bool is_inside_string(int pos){ return find_string_start(pos) >= 0; }
+      bool is_inside_string(int pos) { return find_string_start(pos) >= 0; }
       
       virtual void ensure_boxes_valid();
       void ensure_spans_valid();
@@ -88,8 +88,12 @@ namespace richmath {
       static pmath_string_t underoverscriptbox_at_index(int i, void *_data);
       static void syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err);
       static pmath_t box_at_index(int i, void *_data);
-      static pmath_t add_debug_info(pmath_t token_or_span, int start, int end, void *_data);
-      
+      static pmath_t add_debug_info(
+        pmath_t                             token_or_span,
+        const struct pmath_text_position_t *start,
+        const struct pmath_text_position_t *end,
+        void                               *_data);
+        
       void boxes_size(Context *context, int start, int end, float *a, float *d);
       void box_size(  Context *context, int pos, int box, float *a, float *d);
       void caret_size(Context *context, int pos, int box, float *a, float *d);
@@ -99,7 +103,7 @@ namespace richmath {
         Span     span,
         int     *pos,
         int     *box);
-      
+        
       void stretch_span(
         Context *context,
         Span     span,
@@ -109,9 +113,9 @@ namespace richmath {
         float   *core_descent,
         float   *ascent,
         float   *descent);
-      
-      void apply_glyph_substitutions(Context *context);
         
+      void apply_glyph_substitutions(Context *context);
+      
       void substitute_glyphs(
         Context              *context,
         int                   start,
@@ -179,7 +183,7 @@ namespace richmath {
       float line_spacing() { return 0.3f * em; }
       
     private:
-      Array<Box*>      boxes;
+      Array<Box *>      boxes;
       String           str;
       SpanArray        spans;
       Array<GlyphInfo> glyphs;

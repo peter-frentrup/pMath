@@ -116,15 +116,15 @@ PMATH_API pmath_bool_t pmath_span_array_is_token_end(
     pmath_debug_print("[pmath_span_array_is_token_end: out of bounds]\n");
     return TRUE;
   }
-    
+  
   if(pos + 1 == spans->length) {
-    if(1 != SPAN_TOK(spans->items[pos])){
+    if(1 != SPAN_TOK(spans->items[pos])) {
       pmath_debug_print("[missing token_end flag at end of span array]\n");
     }
     
     return TRUE;
   }
-    
+  
   return 1 == SPAN_TOK(spans->items[pos]);
 }
 
@@ -678,8 +678,8 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
           break;
           
         if( //!tokens->in_comment &&
-            !tokens->in_string &&
-            tokens->str[tokens->pos] == '*') // /*
+          !tokens->in_string &&
+          tokens->str[tokens->pos] == '*') // /*
         {
           tokens->comment_level++;
           ++tokens->pos;
@@ -807,7 +807,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
       
     case '%':
       tokens->span_items[tokens->pos] |= 2;
-      /* fall through */
+    /* fall through */
     case '@':
     case '.': {
         ++tokens->pos;
@@ -1210,8 +1210,8 @@ static void parse_skip_until_rightfence(struct parser_t *parser) {
         break;
     }
     
-    if( tok == PMATH_TOK_LEFT || 
-        tok == PMATH_TOK_LEFTCALL) 
+    if( tok == PMATH_TOK_LEFT ||
+        tok == PMATH_TOK_LEFTCALL)
     {
       ++fences;
     }
@@ -1282,7 +1282,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
     parse_skip_until_rightfence(parser);
     return;
   }
-   
+  
   tok = token_analyse(parser, next, &prec);
   
   switch(tok) {
@@ -1453,7 +1453,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
     parse_skip_until_rightfence(parser);
     return;
   }
-   
+  
   next = next_token_pos(parser);
   while(next != parser->tokens.pos) {
     tok = token_analyse(parser, next, &cur_prec);
@@ -1607,8 +1607,8 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           next = next_token_pos(parser);
           continue;
         }
-        /* no break */
-        
+      /* no break */
+      
       case PMATH_TOK_TILDES:
       case PMATH_TOK_DIGIT:
       case PMATH_TOK_STRING:
@@ -1873,47 +1873,101 @@ struct group_t {
   pmath_span_array_t                 *spans;
   pmath_string_t                      string;
   const uint16_t                     *str;
-  int                                 pos;
+  //int                                 pos;
+  struct pmath_text_position_t        tp;
+  struct pmath_text_position_t        tp_before_whitespace;
   struct pmath_boxes_from_spans_ex_t  settings;
 };
 
+static void increment_text_position_to(struct group_t *group, int end) {
+  if(group->tp.index > end){
+    assert(group->tp.index <= end && "cannot decrement text pointer");
+  }
+  
+  while(group->tp.index < end) {
+    if(group->str[group->tp.index++] == '\n') {
+      group->tp.line++;
+      group->tp.line_start_index = group->tp.index;
+    }
+  }
+  
+  group->tp_before_whitespace = group->tp;
+}
+
+static void increment_text_position(struct group_t *group) {
+  increment_text_position_to(group, group->tp.index + 1);
+}
+
+// Example code:
+//    
+//    1 * F(2) /*comment*/   + 3
+//                           ^-tp
+//             ^-tp_before_whitespace
+//                        ^-end
+//     \_________________/ 
+//
+// Here, we want the debug range info for the selected span \___/ to end after 
+// the comment, but before the plus sign. So we increment tp_before_whitespace
+// to end.
+static void check_tp_before_whitespace(struct group_t *group, int end) {
+  if(group->tp_before_whitespace.index != end) {
+    const struct pmath_text_position_t old_tp = group->tp;
+    
+    group->tp = group->tp_before_whitespace;
+    increment_text_position_to(group, end);
+    
+    group->tp = old_tp;
+    
+//    pmath_debug_print("[tp_b_w = %d (%d:%d) != %d = end]\n", 
+//      group->tp_before_whitespace.index,
+//      group->tp_before_whitespace.line,
+//      group->tp_before_whitespace.index - group->tp_before_whitespace.line_start_index,
+//      end);
+  }
+}
+
 static void skip_whitespace(struct group_t *group) {
+  const struct pmath_text_position_t tp_before_whitespace = group->tp;
+  
   for(;;) {
-    while( group->pos < group->spans->length &&
-           pmath_token_analyse(&group->str[group->pos], 1, NULL) == PMATH_TOK_SPACE)
+    while( group->tp.index < group->spans->length &&
+           pmath_token_analyse(&group->str[group->tp.index], 1, NULL) == PMATH_TOK_SPACE)
     {
-      ++group->pos;
+      increment_text_position(group);
     }
     
-    if( group->pos < group->spans->length &&
-        group->str[group->pos] == '\\')
+    if( group->tp.index < group->spans->length &&
+        group->str[group->tp.index] == '\\')
     {
-      if( group->pos + 1 == group->spans->length ||
-          group->str[group->pos + 1] <= ' ')
+      if( group->tp.index + 1 == group->spans->length ||
+          group->str[group->tp.index + 1] <= ' ')
       {
-        ++group->pos;
+        increment_text_position(group);
         continue;
       }
     }
     
-    if( group->pos + 1 < group->spans->length &&
-        group->str[group->pos]     == '/'     &&
-        group->str[group->pos + 1] == '*'     &&
-        !SPAN_TOK(group->spans->items[group->pos]))
+    if( group->tp.index + 1 < group->spans->length &&
+        group->str[group->tp.index]     == '/'     &&
+        group->str[group->tp.index + 1] == '*'     &&
+        !SPAN_TOK(group->spans->items[group->tp.index]))
     {
-      pmath_span_t *s = SPAN_PTR(group->spans->items[group->pos]);
+      pmath_span_t *s = SPAN_PTR(group->spans->items[group->tp.index]);
       if(s) {
         while(s->next)
           s = s->next;
           
-        group->pos = s->end + 1;
+        increment_text_position_to(group, s->end + 1);
       }
-      else
-        group->pos += 2;
-        
+      else { // increment by 2
+        increment_text_position(group);
+        increment_text_position(group);
+      }
+      
       continue;
     }
     
+    group->tp_before_whitespace = tp_before_whitespace;
     return;
   }
 }
@@ -1927,39 +1981,40 @@ static void write_to_str(pmath_string_t *result, const uint16_t *data, int len) 
 }
 
 static void emit_span(pmath_span_t *span, struct group_t *group) {
-  const int span_start = group->pos;
+  const struct pmath_text_position_t span_start = group->tp;
   
   if(!span) {
-    if(group->str[group->pos] == PMATH_CHAR_BOX) {
+    if(group->str[group->tp.index] == PMATH_CHAR_BOX) {
       if(group->settings.box_at_index)
         pmath_emit(
-          group->settings.box_at_index(group->pos, group->settings.data),
+          group->settings.box_at_index(group->tp.index, group->settings.data),
           PMATH_NULL);
       else
         pmath_emit(PMATH_NULL, PMATH_NULL);
-      ++group->pos;
+        
+      increment_text_position(group);
     }
     else {
       pmath_t result;
       
-      while( group->pos < group->spans->length &&
-             !SPAN_TOK(group->spans->items[group->pos]))
+      while( group->tp.index < group->spans->length &&
+             !SPAN_TOK(group->spans->items[group->tp.index]))
       {
-        ++group->pos;
+        increment_text_position(group);
       }
       
-      ++group->pos;
+      increment_text_position(group);
       
       result = pmath_string_part(
                  pmath_ref(group->string),
-                 span_start,
-                 group->pos - span_start);
+                 span_start.index,
+                 group->tp.index - span_start.index);
                  
       if(group->settings.add_debug_info) {
         result = group->settings.add_debug_info(
                    result,
-                   span_start,
-                   group->pos,
+                   &span_start,
+                   &group->tp,
                    group->settings.data);
       }
       
@@ -1974,30 +2029,30 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
   
   if( /*(group->flags & PMATH_BFS_PARSEABLE) && */
     !span->next &&
-    group->str[group->pos] == '"')
+    group->str[group->tp.index] == '"')
   {
     pmath_string_t result = PMATH_NULL;
-    int start = group->pos;
+    struct pmath_text_position_t start = group->tp;
     
     if(group->settings.flags & PMATH_BFS_USECOMPLEXSTRINGBOX) {
       pmath_t all;
       pmath_gather_begin(PMATH_NULL);
       
-      while(group->pos <= span->end) {
-        if(group->str[group->pos] == PMATH_CHAR_BOX) {
+      while(group->tp.index <= span->end) {
+        if(group->str[group->tp.index] == PMATH_CHAR_BOX) {
           pmath_t box;
           
-          if(start < group->pos) {
+          if(start.index < group->tp.index) {
             pmath_t pre = pmath_string_part(
                             pmath_ref(group->string),
-                            start,
-                            group->pos - start);
+                            start.index,
+                            group->tp.index - start.index);
                             
             if(group->settings.add_debug_info) {
               pre = group->settings.add_debug_info(
                       pre,
-                      start,
-                      group->pos,
+                      &start,
+                      &group->tp,
                       group->settings.data);
             }
             
@@ -2005,29 +2060,30 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
           }
           
           if(group->settings.box_at_index)
-            box = group->settings.box_at_index(group->pos, group->settings.data);
+            box = group->settings.box_at_index(group->tp.index, group->settings.data);
           else
             box = PMATH_NULL;
             
           pmath_emit(box, PMATH_NULL);
           
-          start = ++group->pos;
+          increment_text_position(group);
+          start = group->tp;
         }
         else
-          ++group->pos;
+          increment_text_position(group);
       }
       
-      if(start < group->pos) {
+      if(start.index < group->tp.index) {
         pmath_t rest = pmath_string_part(
                          pmath_ref(group->string),
-                         start,
-                         group->pos - start);
+                         start.index,
+                         group->tp.index - start.index);
                          
         if(group->settings.add_debug_info) {
           rest = group->settings.add_debug_info(
                    rest,
-                   start,
-                   group->pos,
+                   &start,
+                   &group->tp,
                    group->settings.data);
         }
         
@@ -2037,11 +2093,13 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
       all = pmath_gather_end();
       all = pmath_expr_set_item(all, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
       
+      check_tp_before_whitespace(group, span->end + 1);
+      
       if(group->settings.add_debug_info) {
         all = group->settings.add_debug_info(
                 all,
-                span_start,
-                span->end + 1,
+                &span_start,
+                &group->tp_before_whitespace, //span->end + 1,
                 group->settings.data);
       }
       
@@ -2050,25 +2108,25 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
         PMATH_NULL);
     }
     else {
-      while(group->pos <= span->end) {
-        if(group->str[group->pos] == PMATH_CHAR_BOX) {
+      while(group->tp.index <= span->end) {
+        if(group->str[group->tp.index] == PMATH_CHAR_BOX) {
           static const uint16_t left_box_char  = PMATH_CHAR_LEFT_BOX;
           static const uint16_t right_box_char = PMATH_CHAR_RIGHT_BOX;
           pmath_t box;
           
-          if(start < group->pos) {
+          if(start.index < group->tp.index) {
             if(!pmath_is_null(result)) {
               result = pmath_string_insert_ucs2(
                          result,
                          pmath_string_length(result),
-                         group->str + start,
-                         group->pos - start);
+                         group->str + start.index,
+                         group->tp.index - start.index);
             }
             else {
               result = pmath_string_part(
                          pmath_ref(group->string),
-                         start,
-                         group->pos - start);
+                         start.index,
+                         group->tp.index - start.index);
             }
           }
           
@@ -2079,7 +2137,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
                      1);
                      
           if(group->settings.box_at_index)
-            box = group->settings.box_at_index(group->pos, group->settings.data);
+            box = group->settings.box_at_index(group->tp.index, group->settings.data);
           else
             box = PMATH_NULL;
             
@@ -2096,32 +2154,35 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
                      pmath_string_length(result),
                      &right_box_char,
                      1);
-                     
-          start = ++group->pos;
+          
+          increment_text_position(group);
+          start = group->tp;
         }
         else
-          ++group->pos;
+          increment_text_position(group);
       }
       
       if(pmath_is_null(result)) {
         result = pmath_string_part(
                    pmath_ref(group->string),
-                   start,
-                   group->pos - start);
+                   start.index,
+                   group->tp.index - start.index);
       }
-      else if(start < group->pos) {
+      else if(start.index < group->tp.index) {
         result = pmath_string_insert_ucs2(
                    result,
                    pmath_string_length(result),
-                   group->str + start,
-                   group->pos - start);
+                   group->str + start.index,
+                   group->tp.index - start.index);
       }
+      
+      check_tp_before_whitespace(group, span->end + 1);
       
       if(group->settings.add_debug_info) {
         result = group->settings.add_debug_info(
                    result,
-                   span_start,
-                   span->end + 1,
+                   &span_start,
+                   &group->tp, //span->end + 1,
                    group->settings.data);
       }
       
@@ -2130,8 +2191,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
         PMATH_NULL);
     }
     
-    group->pos = span->end + 1;
-    
+    // Is this save? Might have skipped some white space ...
+    increment_text_position_to(group, span->end + 1);
     if(group->settings.flags & PMATH_BFS_PARSEABLE)
       skip_whitespace(group);
       
@@ -2142,15 +2203,17 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
     
     pmath_gather_begin(PMATH_NULL);
     emit_span(span->next, group);
-    while(group->pos <= span->end)
-      emit_span(SPAN_PTR(group->spans->items[group->pos]), group);
+    while(group->tp.index <= span->end)
+      emit_span(SPAN_PTR(group->spans->items[group->tp.index]), group);
       
     expr = pmath_gather_end();
+    check_tp_before_whitespace(group, span->end + 1);
+      
     if(group->settings.add_debug_info) {
       expr = group->settings.add_debug_info(
                expr,
-               span_start,
-               span->end + 1,
+               &span_start,
+               &group->tp_before_whitespace,//span->end + 1,
                group->settings.data);
     }
     
@@ -2194,7 +2257,10 @@ pmath_t pmath_boxes_from_spans_ex(
   group.spans                 = spans;
   group.string                = string;
   group.str                   = pmath_string_buffer(&string);
-  group.pos                   = 0;
+  
+  //group.pos                   = 0;
+  memset(&group.tp, 0, sizeof(group.tp));
+  
   memset(&group.settings, 0, sizeof(group.settings));
   if(settings) {
     group.settings.size = settings->size;
@@ -2209,8 +2275,8 @@ pmath_t pmath_boxes_from_spans_ex(
   if(group.settings.flags & PMATH_BFS_PARSEABLE)
     skip_whitespace(&group);
     
-  while(group.pos < spans->length)
-    emit_span(SPAN_PTR(spans->items[group.pos]), &group);
+  while(group.tp.index < spans->length)
+    emit_span(SPAN_PTR(spans->items[group.tp.index]), &group);
     
   result = pmath_expr_set_item(pmath_gather_end(), 0, PMATH_NULL);
   if(pmath_expr_length(result) == 1) {
@@ -2378,7 +2444,7 @@ static void ungroup(
       tokens.comment_level = g->comment_level;
       while(tokens.pos < tokens.len)
         scan_next(&tokens, NULL);
-      
+        
       g->comment_level = tokens.comment_level;
     }
     else {
@@ -2610,19 +2676,19 @@ static pmath_t quiet_parse(pmath_t str) {
             NULL,
             quiet_syntax_error,
             &error_flag);
-  
+            
   if(error_flag) {
     pmath_span_array_free(spans);
     pmath_unref(str);
     return PMATH_UNDEFINED;
   }
-            
+  
   memset(&settings, 0, sizeof(settings));
   settings.size  = sizeof(settings);
   settings.flags = PMATH_BFS_PARSEABLE;
   
   result = pmath_boxes_from_spans_ex(spans, str, &settings);
-             
+  
   pmath_span_array_free(spans);
   pmath_unref(str);
   
@@ -2640,14 +2706,14 @@ static pmath_t quiet_parse(pmath_t str) {
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
                result));
-              
+               
   pmath_unref(
     pmath_thread_local_save(
       message_name,
       on_off));
       
   pmath_unref(message_name);
-   
+  
   if(pmath_is_expr_of_len(result, PMATH_SYMBOL_HOLDCOMPLETE, 1)) {
     pmath_t value = pmath_expr_get_item(result, 1);
     pmath_unref(result);
