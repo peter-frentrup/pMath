@@ -776,10 +776,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("IsNumeric(MachinePrecision):=True");
       PMATH_RUN("IsNumeric(Pi):=True");
       
-      PMATH_RUN("N(Degree,~System`Private`x)::=N(Pi/180, System`Private`x)");
+      PMATH_RUN("SetPrecision(Degree,~)::= Pi/180");
       PMATH_RUN("MakeBoxes(Degree)::=\"\\[Degree]\"");
       
-      PMATH_RUN("N(GoldenRatio,~System`Private`x)::=N((Sqrt(5)+1)/2, System`Private`x)");
+      PMATH_RUN("SetPrecision(GoldenRatio,~)::= (Sqrt(5)+1)/2");
       
       PMATH_RUN("Default(Ceiling,2):=1");
       PMATH_RUN("Default(Floor,2):=1");
