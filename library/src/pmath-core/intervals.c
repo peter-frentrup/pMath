@@ -464,15 +464,17 @@ PMATH_PRIVATE pmath_bool_t _pmath_intervals_init(void) {
 
 PMATH_PRIVATE void _pmath_intervals_done(void) {
 
+  interval_cache_clear();
+  
 #ifdef PMATH_DEBUG_LOG
   {
     intptr_t hits   = pmath_atomic_read_aquire(&interval_cache_hits);
     intptr_t misses = pmath_atomic_read_aquire(&interval_cache_misses);
     
     pmath_debug_print("interval cache hit rate:         %f (%d of %d)\n",
-    hits / (double)(hits + misses),
-    (int) hits,
-    (int)(hits + misses));
+                      hits / (double)(hits + misses),
+                      (int) hits,
+                      (int)(hits + misses));
   }
 #endif
 }
