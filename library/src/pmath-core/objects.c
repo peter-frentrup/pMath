@@ -42,7 +42,8 @@ static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
   "symbol rule",
   "custom",
   "memory blob",
-  "packed array"
+  "packed array",
+  "real interval"
 };
 #endif
 
@@ -165,7 +166,7 @@ PMATH_API pmath_bool_t pmath_equals(
     eqA  = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].equals;
     cmpA = pmath_type_imps[PMATH_AS_PTR(objA)->type_shift].compare;
   }
-  else if(pmath_is_double(objA)) {
+  else if(pmath_is_double(objA) || pmath_is_int32(objA)) {
     eqA  = _pmath_numbers_equal;
     cmpA = _pmath_numbers_compare;
   }
@@ -180,7 +181,7 @@ PMATH_API pmath_bool_t pmath_equals(
     eqB  = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].equals;
     cmpB = pmath_type_imps[PMATH_AS_PTR(objB)->type_shift].compare;
   }
-  else if(pmath_is_double(objB)) {
+  else if(pmath_is_double(objB) || pmath_is_int32(objB)) {
     eqB  = _pmath_numbers_equal;
     cmpB = _pmath_numbers_compare;
   }
@@ -233,6 +234,14 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB) {
   if(cmpA && cmpA == cmpB) {
     return cmpA(objA, objB);
   }
+  
+  
+  if(pmath_is_interval(objA))
+    return -1;
+  
+  if(pmath_is_interval(objB))
+    return 1;
+    
   
   if(pmath_is_double(objA))
     return -1;

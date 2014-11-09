@@ -6,6 +6,7 @@
 #include <pmath-util/memory.h>
 
 #include <pmath-core/expressions-private.h>
+#include <pmath-core/intervals-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
 
@@ -509,6 +510,7 @@ static void memory_panic(void) {
                     
   _pmath_regex_memory_panic();
   _pmath_numbers_memory_panic();
+  _pmath_intervals_memory_panic();
   _pmath_symbols_memory_panic();
   _pmath_threadlocks_memory_panic();
   

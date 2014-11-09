@@ -165,7 +165,7 @@ pmath_expr_t pmath_expr_get_item_range(
            while \a expr is valid and not changed.
    
    Note that this may return NULL even for valid expressions. E.g. for sparse
-   arrays.
+   arrays or real intervals.
    This function is for fast reading access to multiple items. You have to do 
    all the error checking alone. 
    Note that result[0] === pmath_expr_get_item(expr, 1), a.s.o.

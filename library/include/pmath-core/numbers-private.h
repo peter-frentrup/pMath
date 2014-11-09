@@ -11,7 +11,6 @@
 #include <math.h>
 #include <gmp.h>
 #include <mpfr.h>
-#include <mpfi.h>
 
 
 #ifdef PMATH_OS_WIN32
@@ -53,7 +52,6 @@
 #define LOG2_10   3.3219280948873623478703194294894
 #define LOG10_2   0.30102999566398119521373889472449
 
-#define PMATH_MP_ERROR_PREC  DBL_MANT_DIG
 #define PMATH_MP_PREC_MAX    1000000
 
 struct _pmath_mp_int_t {

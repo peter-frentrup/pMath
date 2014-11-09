@@ -176,6 +176,7 @@ enum {
   PMATH_TYPE_SHIFT_CUSTOM,
   PMATH_TYPE_SHIFT_BLOB,
   PMATH_TYPE_SHIFT_PACKED_ARRAY,
+  PMATH_TYPE_SHIFT_INTERVAL,
   
   PMATH_TYPE_SHIFT_COUNT
 };
@@ -224,6 +225,11 @@ enum {
      A pmath_packed_array_t.
    */
   PMATH_TYPE_PACKED_ARRAY            = 1 << PMATH_TYPE_SHIFT_PACKED_ARRAY,
+  
+  /**\hideinitializer
+     A pmath_interval_t.
+   */
+  PMATH_TYPE_INTERVAL                = 1 << PMATH_TYPE_SHIFT_INTERVAL,
   
   /** Any pmath_expr_t.
    */

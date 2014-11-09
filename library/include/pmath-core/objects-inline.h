@@ -146,6 +146,12 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
  */
 #define pmath_is_integer(obj)       (pmath_is_int32(obj) || pmath_is_mpint(obj))
 
+/**\brief Check for a multi-precision floating point real interval.
+   \hideinitializer
+   \memberof pmath_interval_t
+ */
+#define pmath_is_interval(obj)       (pmath_is_pointer_of((obj), PMATH_TYPE_INTERVAL))
+
 /**\brief Check for a number.
    \hideinitializer
    \memberof pmath_number_t
@@ -202,10 +208,11 @@ pmath_bool_t pmath_is_pointer_of(pmath_t obj, pmath_type_t type) {
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_evaluatable(pmath_t obj) {
-  return pmath_is_null(obj)   ||
-         pmath_is_number(obj) ||
-         pmath_is_string(obj) ||
-         pmath_is_symbol(obj) ||
+  return pmath_is_null(obj)     ||
+         pmath_is_interval(obj) ||
+         pmath_is_number(obj)   ||
+         pmath_is_string(obj)   ||
+         pmath_is_symbol(obj)   ||
          pmath_is_expr(obj);
 }
 

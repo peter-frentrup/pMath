@@ -13,6 +13,7 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/custom-private.h>
+#include <pmath-core/intervals-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
 
@@ -460,6 +461,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     if(!_pmath_numbers_init())                goto FAIL_NUMBERS;
     if(!_pmath_expressions_init())            goto FAIL_EXPRESSIONS;
     if(!_pmath_packed_arrays_init())          goto FAIL_PACKED_ARRAYS;
+    if(!_pmath_intervals_init())              goto FAIL_INTERVALS;
     if(!_pmath_symbols_init())                goto FAIL_SYMBOLS;
     if(!_pmath_numeric_init())                goto FAIL_NUMERIC;
     if(!_pmath_symbol_values_init())          goto FAIL_SYMBOL_VALUES;
@@ -479,70 +481,84 @@ PMATH_API pmath_bool_t pmath_init(void) {
       _pmath_object_memory_exception = pmath_expr_new_extended(
                                          pmath_ref(PMATH_SYMBOL_SYSTEMEXCEPTION), 1,
                                          PMATH_C_STRING("OutOfMemory"));
-                                         
+      _pmath_expr_update(_pmath_object_memory_exception);
+      
       // Overflow()
       _pmath_object_overflow = pmath_expr_new(
                                  pmath_ref(PMATH_SYMBOL_OVERFLOW), 0);
+      _pmath_expr_update(_pmath_object_overflow);
                                  
       // Underflow()
       _pmath_object_underflow = pmath_expr_new(
                                   pmath_ref(PMATH_SYMBOL_UNDERFLOW), 0);
+      _pmath_expr_update(_pmath_object_underflow);
                                   
       // DirectedInfinity(1)
       _pmath_object_pos_infinity = pmath_expr_new_extended(
                                      pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
                                      PMATH_FROM_INT32(1));
+      _pmath_expr_update(_pmath_object_pos_infinity);
                                      
       // DirectedInfinity(-1)
       _pmath_object_neg_infinity = pmath_expr_new_extended(
                                      pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
                                      PMATH_FROM_INT32(-1));
+      _pmath_expr_update(_pmath_object_neg_infinity);
                                      
       // DirectedInfinity()
       _pmath_object_complex_infinity = pmath_expr_new(
                                          pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 0);
+      _pmath_expr_update(_pmath_object_complex_infinity);
                                          
       // Range(1, Automatic)
       _pmath_object_range_from_one = pmath_expr_new_extended(
                                        pmath_ref(PMATH_SYMBOL_RANGE), 2,
                                        PMATH_FROM_INT32(1),
                                        pmath_ref(PMATH_SYMBOL_AUTOMATIC));
+      _pmath_expr_update(_pmath_object_range_from_one);
                                        
       // Range(0, Automatic)
       _pmath_object_range_from_zero = pmath_expr_new_extended(
                                         pmath_ref(PMATH_SYMBOL_RANGE), 2,
                                         PMATH_FROM_INT32(0),
                                         pmath_ref(PMATH_SYMBOL_AUTOMATIC));
+      _pmath_expr_update(_pmath_object_range_from_zero);
                                         
       // SingleMatch()
       _pmath_object_singlematch = pmath_expr_new(
                                     pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 0);
+      _pmath_expr_update(_pmath_object_singlematch);
                                     
       // Repeated(SingleMatch(), Range(1, /\/))
       _pmath_object_multimatch = pmath_expr_new_extended(
                                    pmath_ref(PMATH_SYMBOL_REPEATED), 2,
                                    pmath_ref(_pmath_object_singlematch),
                                    pmath_ref(_pmath_object_range_from_one));
+      _pmath_expr_update(_pmath_object_multimatch);
                                    
       // Repeated(SingleMatch(), Range(0, /\/))
       _pmath_object_zeromultimatch = pmath_expr_new_extended(
                                        pmath_ref(PMATH_SYMBOL_REPEATED), 2,
                                        pmath_ref(_pmath_object_singlematch),
                                        pmath_ref(_pmath_object_range_from_zero));
+      _pmath_expr_update(_pmath_object_zeromultimatch);
                                        
       // PMATH_MAGIC_PATTERN_SEQUENCE()
       _pmath_object_empty_pattern_sequence = pmath_expr_new(
           PMATH_MAGIC_PATTERN_SEQUENCE, 0);
+      _pmath_expr_update(_pmath_object_empty_pattern_sequence);
           
       // List()
       _pmath_object_emptylist = pmath_expr_new(
                                   pmath_ref(PMATH_SYMBOL_LIST), 0);
+      _pmath_expr_update(_pmath_object_emptylist);
                                   
       // MessageName(General, "stop")
       _pmath_object_stop_message = pmath_expr_new_extended(
                                      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
                                      pmath_ref(PMATH_SYMBOL_GENERAL),
                                      PMATH_C_STRING("stop"));
+      //_pmath_expr_update(_pmath_object_stop_message);
                                      
 //    // MessageName(General, "newsym")
 //    _pmath_object_newsym_message = pmath_expr_new_extended(
@@ -555,12 +571,14 @@ PMATH_API pmath_bool_t pmath_init(void) {
             pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
             pmath_ref(PMATH_SYMBOL_LOADLIBRARY),
             PMATH_C_STRING("load"));
+      //_pmath_expr_update(_pmath_object_loadlibrary_load_message);
             
       // MessageName(LoadLibrary, "load")
       _pmath_object_get_load_message = pmath_expr_new_extended(
                                          pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
                                          pmath_ref(PMATH_SYMBOL_GET),
                                          PMATH_C_STRING("load"));
+      //_pmath_expr_update(_pmath_object_get_load_message);
                                          
       if( pmath_is_null(_pmath_object_complex_infinity)         ||
           pmath_is_null(_pmath_object_emptylist)                ||
@@ -1106,9 +1124,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
   FAIL_BUILTINS:          _pmath_symbol_values_done();
   FAIL_SYMBOL_VALUES:     _pmath_numeric_done();
   FAIL_NUMERIC:           _pmath_symbols_done();
-  FAIL_SYMBOLS:           _pmath_expressions_done();
-  FAIL_EXPRESSIONS:       _pmath_packed_arrays_done();
-  FAIL_PACKED_ARRAYS:     _pmath_numbers_done();
+  FAIL_SYMBOLS:           _pmath_intervals_done();
+  FAIL_INTERVALS:         _pmath_packed_arrays_done();
+  FAIL_PACKED_ARRAYS:     _pmath_expressions_done();
+  FAIL_EXPRESSIONS:       _pmath_numbers_done();
   FAIL_NUMBERS:           _pmath_strings_done();
   FAIL_STRINGS:           _pmath_objects_done();
   FAIL_OBJECTS:           _pmath_charnames_done();
@@ -1198,6 +1217,7 @@ PMATH_API void pmath_done(void) {
     _pmath_symbol_values_done();
     _pmath_numeric_done();
     _pmath_symbols_done();
+    _pmath_intervals_done();
     _pmath_packed_arrays_done();
     _pmath_expressions_done();
     _pmath_numbers_done();

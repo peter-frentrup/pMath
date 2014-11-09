@@ -1912,8 +1912,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
     mpfr_get_version(),
     mpfr_buildopt_tls_p() ? "" : ", flags are not thrad safe");
   
-  pmath_debug_print("[mpfi %s]\n", mpfi_get_version());
-  
   memset(int_cache, 0, sizeof(int_cache));
   memset(mp_cache,  0, sizeof(mp_cache));
   pmath_atomic_write_release(&int_cache_pos, 0);

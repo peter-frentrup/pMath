@@ -94,7 +94,10 @@ static pmath_t evaluate(
     }
 #endif
     
-    if(!pmath_is_string(obj) && !pmath_is_number(obj)) {
+    if( !pmath_is_string(obj) &&
+        !pmath_is_number(obj) &&
+        !pmath_is_interval(obj))
+    {
       obj = PMATH_NULL;
       break;
     }
@@ -420,7 +423,7 @@ static pmath_t evaluate_expression(
     }
     
     if(listable) {
-      if(evaluator_thread_list_arguments(&expr)) 
+      if(evaluator_thread_list_arguments(&expr))
         goto FINISH;
     }
     

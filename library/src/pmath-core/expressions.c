@@ -783,7 +783,7 @@ PMATH_PRIVATE pmath_t _pmath_expr_shrink_associative(
     
   switch(PMATH_AS_PTR(expr)->type_shift) {
     case PMATH_TYPE_SHIFT_PACKED_ARRAY:
-      /* magic_rem should ge a symbol or magic number and thus cannot be inside a
+      /* magic_rem should be a symbol or magic number and thus cannot be inside a
        * packed array.
        */
       return expr;
@@ -2084,6 +2084,7 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
           case PMATH_TYPE_SHIFT_PACKED_ARRAY: {
           
               int cmp = _pmath_packed_array_compare(a, b);
+              
               if(cmp == PMATH_ARRAYS_INCOMPATIBLE_CMP)
                 return compare_expr_general(a, b);
                 

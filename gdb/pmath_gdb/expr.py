@@ -28,6 +28,7 @@ PMATH_TYPE_SHIFT_MULTIRULE               = 7
 PMATH_TYPE_SHIFT_CUSTOM                  = 8
 PMATH_TYPE_SHIFT_BLOB                    = 9
 PMATH_TYPE_SHIFT_PACKED_ARRAY            = 10
+PMATH_TYPE_SHIFT_INTERVAL                = 11
 
 PMATH_TYPE_MP_INT                  = 1 << PMATH_TYPE_SHIFT_MP_INT
 PMATH_TYPE_QUOTIENT                = 1 << PMATH_TYPE_SHIFT_QUOTIENT
@@ -41,6 +42,7 @@ PMATH_TYPE_EXPRESSION              = PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_
 PMATH_TYPE_MULTIRULE               = 1 << PMATH_TYPE_SHIFT_MULTIRULE
 PMATH_TYPE_CUSTOM                  = 1 << PMATH_TYPE_SHIFT_CUSTOM
 PMATH_TYPE_BLOB                    = 1 << PMATH_TYPE_SHIFT_BLOB
+PMATH_TYPE_INTERVAL                = 1 << PMATH_TYPE_SHIFT_INTERVAL
 
 PMATH_PACKED_DOUBLE = 1
 PMATH_PACKED_INT32  = 2
@@ -60,7 +62,8 @@ class ExprVal:
         PMATH_TYPE_SHIFT_MULTIRULE:               'multirule',
         PMATH_TYPE_SHIFT_CUSTOM:                  'custom',
         PMATH_TYPE_SHIFT_BLOB:                    'blob',
-        PMATH_TYPE_SHIFT_PACKED_ARRAY:            'packed array'}
+        PMATH_TYPE_SHIFT_PACKED_ARRAY:            'packed array',
+        PMATH_TYPE_SHIFT_INTERVAL:                'interval'}
     _tag_names = {
         PMATH_TAG_MAGIC: 'magic',
         PMATH_TAG_INT32: 'int32',
@@ -204,6 +207,9 @@ class ExprVal:
 
     def is_expr(self):
         return self.is_pointer_of(PMATH_TYPE_EXPRESSION)
+
+    def is_interval(self):
+        return self.is_pointer_of(PMATH_TYPE_INTERVAL)
 
     def is_float(self):
         return self.is_double() or self.is_mpfloat()

@@ -401,6 +401,8 @@
 		<Unit filename="include/pmath-core/custom.h" />
 		<Unit filename="include/pmath-core/expressions-private.h" />
 		<Unit filename="include/pmath-core/expressions.h" />
+		<Unit filename="include/pmath-core/intervals-private.h" />
+		<Unit filename="include/pmath-core/intervals.h" />
 		<Unit filename="include/pmath-core/numbers-private.h" />
 		<Unit filename="include/pmath-core/numbers.h" />
 		<Unit filename="include/pmath-core/objects-inline.h" />
@@ -535,6 +537,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/quotient-and-mod.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-builtins/arithmetic/realinterval.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/rescale.c">
@@ -1165,6 +1170,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-core/expressions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-core/intervals.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-core/numbers.c">
