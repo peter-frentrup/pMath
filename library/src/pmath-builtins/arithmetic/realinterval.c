@@ -15,5 +15,10 @@ PMATH_PRIVATE pmath_t builtin_internal_realinterval(pmath_expr_t expr) {
     return expr;
   }
   
-  return pmath_interval_from_expr(expr);
+  expr = pmath_interval_from_expr(expr);
+  if(!pmath_is_interval(expr)) {
+    pmath_message(PMATH_NULL, "inv", 1, pmath_ref(expr));
+  }
+  
+  return expr;
 }
