@@ -23,6 +23,11 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_interval_t _pmath_create_interval(mpfr_prec_t precision);
 
 PMATH_PRIVATE
+pmath_bool_t _pmath_interval_set_point(
+  mpfi_ptr result, 
+  pmath_t  value);  // wont be freed
+
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_interval_exceptions(pmath_interval_t x);
 

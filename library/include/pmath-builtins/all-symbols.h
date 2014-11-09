@@ -68,9 +68,10 @@ pmath_bool_t pmath_register_code(
 
 /**\brief Bind a pMath symbol to some native code for approximation.
    \param symbol The symbol. It wont be freed.
-   \param func A native function that replaces its first argument by an 
+   \param func A native function that replaces its first argument by an
                approximation (precision according to its second argument) and
-               returns TRUE on success.
+               returns TRUE on success. If the third argument is TRUE, this
+               should generate an Internal`RealInterval
    \return Whether the binding succeded.
 
    Any previous approximation-binding to the symbol will be overwritten.
@@ -82,7 +83,7 @@ pmath_bool_t pmath_register_code(
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_bool_t (*func)(pmath_t*, double));
+  pmath_bool_t   (*func)(pmath_t *, double, pmath_bool_t));
 
 /** @} */
 
@@ -883,6 +884,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_INTERNAL_NEXTTOWARD                    PMATH_SYMBOL_BUILTIN(790)
 #define PMATH_SYMBOL_DEVELOPER_SYSTEMINFORMATION            PMATH_SYMBOL_BUILTIN(791)
 #define PMATH_SYMBOL_INTERNAL_REALINTERVAL                  PMATH_SYMBOL_BUILTIN(792)
-  
+#define PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL          PMATH_SYMBOL_BUILTIN(793)
+
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

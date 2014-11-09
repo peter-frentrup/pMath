@@ -39,14 +39,15 @@ pmath_bool_t _pmath_run_code(
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_run_approx_code(
-  pmath_t   key,   // wont be freed
-  pmath_t  *in_out,
-  double    prec);
+  pmath_t       key,   // wont be freed
+  pmath_t      *in_out,
+  double        prec,
+  pmath_bool_t  interval);
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_done(void);
 
-#define PMATH_BUILTIN_SYMBOL_COUNT  793
+#define PMATH_BUILTIN_SYMBOL_COUNT  794
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_PRIVATE_H__ */

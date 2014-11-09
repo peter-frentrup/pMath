@@ -98,33 +98,32 @@ PMATH_PRIVATE pmath_interval_t _pmath_create_interval(mpfr_prec_t precision) {
 
 //} ============================================================================
 
-static pmath_bool_t set_point_interval(pmath_interval_t result, pmath_t value) {
-  assert(pmath_is_interval(result));
-  
+PMATH_PRIVATE
+pmath_bool_t _pmath_interval_set_point(mpfi_ptr result, pmath_t value) {
   if(pmath_is_mpfloat(value)) {
     mpfi_set_fr(
-      PMATH_AS_MP_INTERVAL(result),
+      result,
       PMATH_AS_MP_VALUE(value));
     return TRUE;
   }
   
   if(pmath_is_double(value)) {
     mpfi_set_d(
-      PMATH_AS_MP_INTERVAL(result),
+      result,
       PMATH_AS_DOUBLE(value));
     return TRUE;
   }
   
   if(pmath_is_int32(value)) {
     mpfi_set_si(
-      PMATH_AS_MP_INTERVAL(result),
+      result,
       PMATH_AS_INT32(value));
     return TRUE;
   }
   
   if(pmath_is_mpint(value)) {
     mpfi_set_z(
-      PMATH_AS_MP_INTERVAL(result),
+      result,
       PMATH_AS_MPZ(value));
     return TRUE;
   }
@@ -150,9 +149,7 @@ static pmath_bool_t set_point_interval(pmath_interval_t result, pmath_t value) {
       mpz_init_set(mpq_denref(quot), PMATH_AS_MPZ(PMATH_QUOT_DEN(value)));
     }
     
-    mpfi_set_q(
-      PMATH_AS_MP_INTERVAL(result),
-      quot);
+    mpfi_set_q(result, quot);
       
     mpq_clear(quot);
     
@@ -164,7 +161,7 @@ static pmath_bool_t set_point_interval(pmath_interval_t result, pmath_t value) {
     
     if(cls & PMATH_CLASS_POSINF) {
       mpfi_set_d(
-        PMATH_AS_MP_INTERVAL(result),
+        result,
         HUGE_VAL);
         
       return TRUE;
@@ -172,7 +169,7 @@ static pmath_bool_t set_point_interval(pmath_interval_t result, pmath_t value) {
     
     if(cls & PMATH_CLASS_NEGINF) {
       mpfi_set_d(
-        PMATH_AS_MP_INTERVAL(result),
+        result,
         -HUGE_VAL);
         
       return TRUE;
@@ -244,10 +241,10 @@ pmath_t pmath_interval_from_expr(pmath_t obj) {
       return result;
     }
     
-    if(set_point_interval(result, left)) {
+    if(_pmath_interval_set_point(PMATH_AS_MP_INTERVAL(result), left)) {
       pmath_interval_t tmp = _pmath_create_interval(prec);
       
-      if(!pmath_is_null(tmp) && set_point_interval(tmp, right)) {
+      if(!pmath_is_null(tmp) && _pmath_interval_set_point(PMATH_AS_MP_INTERVAL(tmp), right)) {
         mpfi_put(
           PMATH_AS_MP_INTERVAL(result),
           PMATH_AS_MP_INTERVAL(tmp));

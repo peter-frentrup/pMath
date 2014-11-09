@@ -29,7 +29,7 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 double pmath_precision(pmath_t obj);
 
-/**\brief Set an object's accuracy in bits.
+/**\brief Set an object's precision in bits.
    \param obj An object. It will be freed.
    \param prec The new number of known bits.
    \return The new object.
@@ -44,6 +44,18 @@ double pmath_precision(pmath_t obj);
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_set_precision(pmath_t obj, double prec);
+
+/**\brief Excange numbers by containing intervals with given precision.
+   \param obj An object. It will be freed.
+   \param prec The new number of known bits.
+   \return The new object.
+
+   Note that the builtin function Internal`SetPrecisionInterval() uses base 10, 
+   but this function operates on base 2.
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_set_precision_interval(pmath_t obj, double prec);
 
 /** @} */
 

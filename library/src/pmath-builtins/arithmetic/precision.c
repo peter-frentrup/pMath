@@ -46,7 +46,7 @@ PMATH_PRIVATE pmath_t _pmath_from_precision(double prec_bits) {
   prec_bits *= LOG10_2;
   if(isfinite(prec_bits))
     return PMATH_FROM_DOUBLE(prec_bits);
-  
+    
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
@@ -72,6 +72,9 @@ pmath_t builtin_precision(pmath_expr_t expr) {
 
 PMATH_PRIVATE
 pmath_t builtin_setprecision(pmath_expr_t expr) {
+  /* SetPrecision(                 obj, p)
+     Internal`SetPrecisionInterval(obj, p)
+   */
   pmath_t prec_obj;
   double prec;
   
@@ -92,7 +95,7 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
     if(!pmath_is_number(prec_obj)) {
       prec_obj = pmath_set_precision(prec_obj, -HUGE_VAL);
       
-      if(!pmath_is_number(prec_obj)){
+      if(!pmath_is_number(prec_obj)) {
         pmath_unref(prec_obj);
         prec_obj = pmath_expr_get_item(expr, 2);
         pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
@@ -113,13 +116,26 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
   pmath_unref(prec_obj);
   
   prec_obj = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
   
+  if(pmath_is_expr_of(expr, PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL)) {
+    if(prec == HUGE_VAL) {
+      pmath_unref(prec_obj);
+      prec_obj = pmath_expr_get_item(expr, 2);
+      pmath_message(PMATH_NULL, "invprec", 1, prec_obj);
+      return expr;
+    }
+    
+    pmath_unref(expr);
+    return pmath_set_precision_interval(prec_obj, prec);
+  }
+  
+  pmath_unref(expr);
   return pmath_set_precision(prec_obj, prec);
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
-  /* SetPrecision(Sym, ~prec)::= ...
+  /* SetPrecision(                 sym, ~prec)::= ...
+     Internal`SetPrecisionInterval(sym, ~prec)::= ...
    */
   struct _pmath_symbol_rules_t *rules;
   pmath_t tag;
@@ -131,7 +147,9 @@ PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(pmath_is_expr_of_len(lhs, PMATH_SYMBOL_SETPRECISION, 2)) {
+  if(pmath_is_expr_of(lhs, PMATH_SYMBOL_SETPRECISION) ||
+      pmath_is_expr_of(lhs, PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL))
+  {
     if(pmath_expr_length(lhs) != 2) {
       pmath_unref(tag);
       pmath_unref(lhs);
@@ -188,7 +206,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
   
   if(!me)
     return expr;
-  
+    
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
