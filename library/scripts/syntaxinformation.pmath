@@ -213,6 +213,7 @@
 {"Intersection", {"ArgumentCount" -> 0..}},
 {"Interval", {"ArgumentCount" -> 0..}},
 {"IsArray", {"ArgumentCount" -> 1..3}},
+{"IsAtom", {"ArgumentCount" -> 1}},
 {"IsComplex", {"ArgumentCount" -> 1}},
 {"IsEven", {"ArgumentCount" -> 1}},
 {"IsExactNumber", {"ArgumentCount" -> 1}},
@@ -564,6 +565,12 @@
 {"PackedArrayForm", {"ArgumentCount" -> 1}},
 {"SetDebugInfoAt", {"ArgumentCount" -> 2..}},
 {"ToPackedArray", {"ArgumentCount" -> 1}}
+}},
+{"Internal`",{
+{"CopySign", {"ArgumentCount" -> 2}},
+{"NextToward", {"ArgumentCount" -> 2}},
+{"RealInterval", {"ArgumentCount" -> 2..3}},
+{"SignBit", {"ArgumentCount" -> 1}}
 }},
 {"System`Util`",{
 {"latexToBoxes", {"ArgumentCount" -> 1}}
