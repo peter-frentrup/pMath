@@ -327,6 +327,9 @@ PMATH_PRIVATE pmath_t builtin_developer_topackedarray(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespace(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
 
+PMATH_PRIVATE pmath_t builtin_internal_isrealinterval(pmath_expr_t expr);
+
+PMATH_PRIVATE pmath_t builtin_isatom(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iscomplex(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iseven(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isexactnumber(    pmath_expr_t expr);
@@ -688,6 +691,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE           = NEW_SYMBOL("Internal`DynamicRemove"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED          = NEW_SYMBOL("Internal`DynamicUpdated"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE       = NEW_SYMBOL("Internal`IsCriticalMessage"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL          = NEW_SYMBOL("Internal`IsRealInterval"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK      = NEW_SYMBOL("Internal`$NamespacePathStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD              = NEW_SYMBOL("Internal`NextToward"))
@@ -1023,6 +1027,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERSECTION                     = NEW_SYSTEM_SYMBOL("Intersection"))
   VERIFY(   PMATH_SYMBOL_INTERVAL                         = NEW_SYSTEM_SYMBOL("Interval"))
   VERIFY(   PMATH_SYMBOL_ISARRAY                          = NEW_SYSTEM_SYMBOL("IsArray"))
+  VERIFY(   PMATH_SYMBOL_ISATOM                           = NEW_SYSTEM_SYMBOL("IsAtom"))
   VERIFY(   PMATH_SYMBOL_ISCOMPLEX                        = NEW_SYSTEM_SYMBOL("IsComplex"))
   VERIFY(   PMATH_SYMBOL_ISEVEN                           = NEW_SYSTEM_SYMBOL("IsEven"))
   VERIFY(   PMATH_SYMBOL_ISEXACTNUMBER                    = NEW_SYSTEM_SYMBOL("IsExactNumber"))
@@ -1537,6 +1542,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,           builtin_internal_dynamicremove)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,             builtin_getthreadid)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,       builtin_iscriticalmessage)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL,          builtin_internal_isrealinterval)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,              builtin_internal_nexttoward)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALINTERVAL,            builtin_internal_realinterval)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL,    builtin_setprecision)
@@ -1694,6 +1700,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERRUPT,                   general_builtin_nofront)
   BIND_DOWN(   PMATH_SYMBOL_INTERSECTION,                builtin_intersection)
   BIND_DOWN(   PMATH_SYMBOL_ISARRAY,                     builtin_isarray)
+  BIND_DOWN(   PMATH_SYMBOL_ISATOM,                      builtin_isatom)
   BIND_DOWN(   PMATH_SYMBOL_ISCOMPLEX,                   builtin_iscomplex)
   BIND_DOWN(   PMATH_SYMBOL_ISEVEN,                      builtin_iseven)
   BIND_DOWN(   PMATH_SYMBOL_ISEXACTNUMBER,               builtin_isexactnumber)
