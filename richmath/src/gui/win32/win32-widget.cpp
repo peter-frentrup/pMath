@@ -556,7 +556,7 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   cairo_surface_destroy(target);
 }
 
-void Win32Widget::on_hscroll(WORD kind) {
+void Win32Widget::on_hscroll(WORD kind, WORD thumbPos) {
   SCROLLINFO si;
   
   si.cbSize = sizeof(si);
@@ -593,6 +593,10 @@ void Win32Widget::on_hscroll(WORD kind) {
     case SB_THUMBTRACK:
       si.nPos = si.nTrackPos;
       break;
+      
+    case SB_THUMBPOSITION:
+      si.nPos = thumbPos;
+      break;
   }
   
   si.fMask = SIF_POS;
@@ -606,7 +610,7 @@ void Win32Widget::on_hscroll(WORD kind) {
   }
 }
 
-void Win32Widget::on_vscroll(WORD kind) {
+void Win32Widget::on_vscroll(WORD kind, WORD thumbPos) {
   SCROLLINFO si;
   
   si.cbSize = sizeof(si);
@@ -642,6 +646,10 @@ void Win32Widget::on_vscroll(WORD kind) {
       
     case SB_THUMBTRACK:
       si.nPos = si.nTrackPos;
+      break;
+      
+    case SB_THUMBPOSITION:
+      si.nPos = thumbPos;
       break;
   }
   
@@ -869,11 +877,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } return 0;
         
       case WM_HSCROLL: {
-          on_hscroll(LOWORD(wParam));
+          on_hscroll(LOWORD(wParam), HIWORD(wParam));
         } return 0;
         
       case WM_VSCROLL: {
-          on_vscroll(LOWORD(wParam));
+          on_vscroll(LOWORD(wParam), HIWORD(wParam));
         } return 0;
         
       case WM_MOUSEHWHEEL: {

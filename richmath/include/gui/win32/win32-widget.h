@@ -103,8 +103,8 @@ namespace richmath {
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
       
       virtual void on_paint(HDC dc, bool from_wmpaint);
-      virtual void on_hscroll(WORD kind);
-      virtual void on_vscroll(WORD kind);
+      virtual void on_hscroll(WORD kind, WORD thumbPos);
+      virtual void on_vscroll(WORD kind, WORD thumbPos);
       virtual void on_mousedown(MouseEvent &event);
       virtual void on_mouseup(MouseEvent &event);
       virtual void on_mousemove(MouseEvent &event);
