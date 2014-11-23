@@ -420,6 +420,8 @@ void MathGtkDocumentWindow::invalidate_options() {
       gtk_widget_hide(_widget);
   }
   
+  float scale = doc->get_style(Magnification, _working_area->custom_scale_factor());
+  _working_area->set_custom_scale(scale);
 }
 
 void MathGtkDocumentWindow::title(String text) {

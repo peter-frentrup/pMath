@@ -883,6 +883,8 @@ void Win32DocumentWindow::invalidate_options() {
         SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
   }
   
+  float scale = doc->get_style(Magnification, _working_area->custom_scale_factor());
+  _working_area->set_custom_scale(scale);
 }
 
 void Win32DocumentWindow::title(String text) {

@@ -55,6 +55,7 @@ namespace richmath {
       virtual void show_tooltip(Expr boxes) = 0;
       virtual void hide_tooltip() = 0;
       
+      // scale setting changes doc style Magnification
       virtual bool is_scaleable() = 0;
       void scale_by(float ds);
       void set_custom_scale(float s);

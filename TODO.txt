@@ -3,6 +3,9 @@
 	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
 	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
 
+- richmath: support convex combinations of certain options, like FontSize -> 1.5 * FontSize + 1 or
+	FontSize -> 1.5 * Inherited + 1
+	
 ? pmath: add internal multi precision RealInterval(a,b) type with correct outward rounding (=> mpfi library)
 	or implement it with some Internal`WithSoftwareRoundingMode(code, mode)
 	

@@ -104,6 +104,7 @@ void NativeWidget::scale_by(float ds) {
 }
 
 void NativeWidget::set_custom_scale(float s) {
+
   if( !is_scaleable()           ||
       s == _custom_scale_factor ||
       s < ScaleMin              ||
@@ -115,7 +116,24 @@ void NativeWidget::set_custom_scale(float s) {
   _custom_scale_factor = s;
   if(fabs(_custom_scale_factor - ScaleDefault) < 0.0001)
     _custom_scale_factor = ScaleDefault;
+  
+  Document *doc = document();
+  if(doc && doc->style){
+    SharedPtr<Stylesheet> stylesheet = doc->stylesheet();
+    SharedPtr<Style> doc_base_style = stylesheet->find_parent_style(doc->style);
     
+    float docScaleDefault = ScaleDefault;
+    stylesheet->get(doc_base_style, Magnification, &docScaleDefault);
+    
+    if(docScaleDefault == _custom_scale_factor) {
+      pmath_debug_print("[skip Magnification -> %f]\n", _custom_scale_factor);
+      doc->style->remove(Magnification);
+    }
+    else {
+      doc->style->set(Magnification, _custom_scale_factor);
+    }
+  }
+  
   if(_document)
     _document->invalidate_all();
 }

@@ -20,6 +20,8 @@ static const char accel_path_prefix[] = "<Richmath>/";
 static Hashtable<String,  Expr> accel_path_to_cmd;
 static Hashtable<Expr, String>  cmd_to_accel_path;
 
+static bool ignore_activate_signal = false;
+
 
 static String add_command(Expr cmd) {
   String *ap_ptr = cmd_to_accel_path.search(cmd);
@@ -46,6 +48,9 @@ static String add_command(Expr cmd) {
 }
 
 static void on_menu_item_activate(GtkMenuItem *menuitem, void *id_ptr) {
+  if(ignore_activate_signal)
+    return;
+  
   const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menuitem);
   if(!accel_path_str)
     return;
@@ -81,7 +86,17 @@ static void on_map_menu_callback(GtkWidget *item, void *data) {
       
     Expr cmd = accel_path_to_cmd[String(accel_path_str)];
     if(!cmd.is_null()) {
-      gtk_widget_set_sensitive(item, Application::is_menucommand_runnable(cmd));
+      MenuCommandStatus status = Application::test_menucommand_status(cmd);
+      
+      gtk_widget_set_sensitive(item, status.enabled);
+      
+      if(GTK_IS_CHECK_MENU_ITEM(item)) {
+        
+        // emits "activate" signal if toggled
+        ignore_activate_signal = true;
+        gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), status.checked);
+        ignore_activate_signal = false;
+      }
     }
   }
 }
@@ -126,6 +141,16 @@ gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, 
   return FALSE;
 }
 
+static GtkWidget *create_menu_item_for_command(const char *label, Expr cmd) {
+  if(cmd.is_rule())
+    return gtk_check_menu_item_new_with_mnemonic(label);
+  
+  if(cmd[0] == GetSymbol(ScopedCommandSymbol))
+    return create_menu_item_for_command(label, cmd[1]);
+  
+  return gtk_menu_item_new_with_mnemonic(label);
+}
+
 void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id) {
   if(expr[0] != GetSymbol(MenuSymbol) || expr.expr_length() != 2)
     return;
@@ -157,7 +182,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
             if(label[i] == '&')
               label[i] = '_';
           }
-          menu_item = gtk_menu_item_new_with_mnemonic(label);
+          menu_item = create_menu_item_for_command(label, cmd);
           pmath_mem_free(label);
         }
         

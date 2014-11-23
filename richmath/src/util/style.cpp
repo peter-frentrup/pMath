@@ -80,9 +80,12 @@ int richmath::pmath_to_color(Expr obj) {
         double g = obj[2].to_double();
         double b = obj[3].to_double();
         
-        if(r < 0) r = 0.0; else if(!(r <= 1)) r = 1.0;
-        if(g < 0) g = 0.0; else if(!(g <= 1)) g = 1.0;
-        if(b < 0) b = 0.0; else if(!(b <= 1)) b = 1.0;
+        if(r < 0) r = 0.0;
+        else if(!(r <= 1)) r = 1.0;
+        if(g < 0) g = 0.0;
+        else if(!(g <= 1)) g = 1.0;
+        if(b < 0) b = 0.0;
+        else if(!(b <= 1)) b = 1.0;
         
         return ((int)(r * 255 + 0.5) << 16) | ((int)(g * 255 + 0.5) << 8) | (int)(b * 255 + 0.5);
       }
@@ -112,12 +115,14 @@ int richmath::pmath_to_color(Expr obj) {
           
         if(obj.expr_length() >= 2) {
           s = obj[2].to_double();
-          if(s < 0) s = 0; else if(!(s <= 1)) s = 1;
+          if(s < 0) s = 0;
+          else if(!(s <= 1)) s = 1;
           
           if(obj.expr_length() >= 3) {
             v = obj[3].to_double();
             v = fmod(v, 1.0);
-            if(v < 0) v = 0; else if(!(v <= 1)) v = 1;
+            if(v < 0) v = 0;
+            else if(!(v <= 1)) v = 1;
           }
         }
         
@@ -145,7 +150,8 @@ int richmath::pmath_to_color(Expr obj) {
         obj[1].is_number())
     {
       double l = obj[1].to_double();
-      if(l < 0) l = 0; else if(!(l <= 1)) l = 1;
+      if(l < 0) l = 0;
+      else if(!(l <= 1)) l = 1;
       
       return ((int)(l * 255 + 0.5) << 16) | ((int)(l * 255 + 0.5) << 8) | (int)(l * 255 + 0.5);
     }
@@ -263,10 +269,12 @@ namespace {
           add(StyleTypeBool,            StripOnInput,                     Symbol( PMATH_SYMBOL_STRIPONINPUT));
           add(StyleTypeBool,            Visible,                          Symbol( PMATH_SYMBOL_VISIBLE));
           
-          add(StyleTypeNumber,          FontSize,                         Symbol( PMATH_SYMBOL_FONTSIZE));
           add(StyleTypeNumber,          AspectRatio,                      Symbol( PMATH_SYMBOL_ASPECTRATIO));
+          add(StyleTypeNumber,          FontSize,                         Symbol( PMATH_SYMBOL_FONTSIZE));
           add(StyleTypeNumber,          GridBoxColumnSpacing,             Symbol( PMATH_SYMBOL_GRIDBOXCOLUMNSPACING));
           add(StyleTypeNumber,          GridBoxRowSpacing,                Symbol( PMATH_SYMBOL_GRIDBOXROWSPACING));
+          add(StyleTypeNumber,          Magnification,                    Symbol( PMATH_SYMBOL_MAGNIFICATION));
+          
           add(StyleTypeSize,            ImageSizeCommon,                  Symbol( PMATH_SYMBOL_IMAGESIZE));
           // ImageSizeHorizontal
           // ImageSizeVertical
@@ -328,7 +336,8 @@ namespace {
       }
       
       static bool is_window_option(int key) {
-        return key == Visible                   ||
+        return key == Magnification             ||
+               key == Visible                   ||
                key == WindowFrame               ||
                key == WindowTitle               ||
                key == DockedSectionsTop         ||
@@ -1443,6 +1452,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(ImageSizeCommon);
   emit_pmath(LanguageCategory);
   emit_pmath(LineBreakWithin);
+  emit_pmath(Magnification);
   emit_pmath(Method);
   emit_pmath(Placeholder);
   emit_pmath(PlotRange);
@@ -1495,49 +1505,39 @@ void Style::emit_to_pmath(bool with_inherited) const {
 
 SharedPtr<Stylesheet> Stylesheet::Default;
 
-bool Stylesheet::get(SharedPtr<Style> s, IntStyleOptionName n, int *value) {
+SharedPtr<Style> Stylesheet::find_parent_style(SharedPtr<Style> s) {
+  if(!s.is_valid())
+    return NULL;
+    
+  String inherited;
+  if(s->get(BaseStyleName, &inherited))
+    return styles[inherited];
+    
+  return NULL;
+}
+
+template<typename N, typename T>
+bool Stylesheet_get(Stylesheet *self, SharedPtr<Style> s, N n, T *value) {
   for(int count = 20; count && s; --count) {
     if(s->get(n, value))
       return true;
       
-    String inherited;
-    if(s->get(BaseStyleName, &inherited))
-      s = styles[inherited];
-    else
-      break;
+    s = self->find_parent_style(s);
   }
   
   return false;
+}
+
+bool Stylesheet::get(SharedPtr<Style> s, IntStyleOptionName n, int *value) {
+  return Stylesheet_get(this, s, n, value);
 }
 
 bool Stylesheet::get(SharedPtr<Style> s, FloatStyleOptionName n, float *value) {
-  for(int count = 20; count && s; --count) {
-    if(s->get(n, value))
-      return true;
-      
-    String inherited;
-    if(s->get(BaseStyleName, &inherited))
-      s = styles[inherited];
-    else
-      break;
-  }
-  
-  return false;
+  return Stylesheet_get(this, s, n, value);
 }
 
 bool Stylesheet::get(SharedPtr<Style> s, StringStyleOptionName n, String *value) {
-  for(int count = 20; count && s; --count) {
-    if(s->get(n, value))
-      return true;
-      
-    String inherited;
-    if(s->get(BaseStyleName, &inherited))
-      s = styles[inherited];
-    else
-      break;
-  }
-  
-  return false;
+  return Stylesheet_get(this, s, n, value);
 }
 
 bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
@@ -1545,14 +1545,22 @@ bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
     if(s->get(n, value))
       return true;
       
-    String inherited;
-    if(s->get(BaseStyleName, &inherited))
-      s = styles[inherited];
-    else
-      break;
+    s = find_parent_style(s);
   }
   
   return false;
+}
+
+Expr Stylesheet::get_pmath(SharedPtr<Style> s, Expr n) {
+  for(int count = 20; count && s; --count) {
+    Expr e = s->get_pmath(n);
+    if(e != PMATH_SYMBOL_INHERITED)
+      return e;
+      
+    s = find_parent_style(s);
+  }
+  
+  return Symbol(PMATH_SYMBOL_INHERITED);
 }
 
 int Stylesheet::get_with_base(SharedPtr<Style> s, IntStyleOptionName n) {
@@ -1589,6 +1597,14 @@ Expr Stylesheet::get_with_base(SharedPtr<Style> s, ObjectStyleOptionName n) {
     base->get(n, &value);
     
   return value;
+}
+
+Expr Stylesheet::get_pmath_with_base(SharedPtr<Style> s, Expr n) {
+  Expr e = get_pmath(s, n);
+  if(e != PMATH_SYMBOL_INHERITED)
+    return e;
+  
+  return get_pmath(base, n);
 }
 
 //} ... class Stylesheet

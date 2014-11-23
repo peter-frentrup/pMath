@@ -1,6 +1,7 @@
 #include <gui/win32/win32-menu.h>
 
 #include <eval/binding.h>
+#include <eval/application.h>
 #include <resources.h>
 
 #include <util/array.h>
@@ -149,6 +150,31 @@ Expr Win32Menu::id_to_command(DWORD  id) {
 
 DWORD  Win32Menu::command_to_id(Expr cmd) {
   return cmd_to_id[cmd];
+}
+
+void Win32Menu::init_popupmenu(HMENU sub) {
+  for(int i = GetMenuItemCount(sub) - 1; i >= 0; --i) {
+    MENUITEMINFOW mii;
+    
+    memset(&mii, 0, sizeof(mii));
+    mii.cbSize = sizeof(mii);
+    mii.fMask = MIIM_STATE;
+    
+    int id = GetMenuItemID(sub, i);
+    MenuCommandStatus status = Application::test_menucommand_status(id_to_command(id));
+    
+    if(status.enabled)
+      mii.fState |= MFS_ENABLED;
+    else
+      mii.fState |= MFS_GRAYED;
+      
+    if(status.checked) 
+      mii.fState |= MFS_CHECKED;
+    else
+      mii.fState |= MFS_UNCHECKED;
+    
+    SetMenuItemInfoW(sub, i, TRUE, &mii);
+  }
 }
 
 //} ... class Win32Menu

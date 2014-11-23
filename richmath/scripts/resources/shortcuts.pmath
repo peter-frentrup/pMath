@@ -53,6 +53,8 @@ FE`Private`shortcuts:= {
 	Item(KeyEvent(",", {KeyControl}),               "InsertColumn"),
 	Item(KeyEvent("Enter", {KeyControl}),           "InsertRow"),
 	
+	Item(KeyEvent("0", {KeyControl}),               ScopedCommand(Magnification->1.0, Document)),
+	
 	Item(KeyEvent("Enter", {KeyShift}),             "EvaluateSections"),
 	Item(KeyEvent("Enter", {KeyControl, KeyShift}), "EvaluateInPlace"),
 	Item(KeyEvent("F7", {}),                        "SubsessionEvaluateSections"),

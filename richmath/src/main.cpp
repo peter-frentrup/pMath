@@ -297,6 +297,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(AspectRatio,               1.0);
   Stylesheet::Default->base->set(GridBoxColumnSpacing,      0.4);
   Stylesheet::Default->base->set(GridBoxRowSpacing,         0.5);
+  Stylesheet::Default->base->set(Magnification,             1.0);
   
   Stylesheet::Default->base->set(SectionMarginLeft,         7.0);
   Stylesheet::Default->base->set(SectionMarginRight,        7.0);
@@ -341,6 +342,7 @@ static void init_stylesheet() {
   Style *s;
   
   s = new Style;
+  s->set(Magnification,                    1.0);
   s->set(Visible,                          true);
   s->set(WindowFrame,                      WindowFrameNormal);
   s->set(WindowTitle,                      String()); // === Automatic

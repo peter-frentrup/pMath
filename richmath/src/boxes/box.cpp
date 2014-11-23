@@ -404,164 +404,83 @@ SharedPtr<Stylesheet> Box::stylesheet() {
   return _parent->stylesheet();
 }
 
-int Box::get_style(IntStyleOptionName n, int result) {
+template<typename N, typename T>
+struct Style_get {
+  static bool impl(SharedPtr<Style> style, N n, T *result) {
+    return style->get(n, result);
+  }
+};
+
+template<typename N, typename T>
+struct Stylesheet_get {
+  static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, N n, T *result) {
+    return all->get(style, n, result);
+  }
+};
+
+template<typename N, typename T>
+T Box_get_style(
+  Box  *self,
+  N     n,
+  T     result,
+  bool(*Style_get_)(                            SharedPtr<Style>, N, T *) = Style_get<N, T>::impl,
+  bool(*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<Style>, N, T *) = Stylesheet_get<N, T>::impl
+) {
   Box *box;
   
-  if(style && style->get(n, &result))
+  if(self->style && Style_get_(self->style, n, &result))
     return result;
-    
-  SharedPtr<Stylesheet> all = stylesheet();
+  
+  SharedPtr<Stylesheet> all = self->stylesheet();
   if(all) {
-    box = this;
-    do {
+    if(Stylesheet_get_(all, self->style, n, &result))
+      return result;
+      
+    box = self->parent();
+    while(box) {
       if( box->changes_children_style()   &&
-          all->get(box->style, n, &result))
+          Stylesheet_get_(all, box->style, n, &result))
       {
         return result;
       }
       
-      box = box->_parent;
-    } while(box);
+      box = box->parent();
+    }
     
-    if(all->base && all->base->get(n, &result))
+    if(all->base && Style_get_(all->base, n, &result))
       return result;
   }
   else {
-    box = _parent;
+    box = self->parent();
     while(box) {
       if( box->changes_children_style() &&
           box->style                    &&
-          box->style->get(n, &result))
+          Style_get_(box->style, n, &result))
       {
         return result;
       }
       
-      box = box->_parent;
+      box = box->parent();
     }
   }
   
   return result;
+}
+
+int Box::get_style(IntStyleOptionName n, int result) {
+  return Box_get_style(this, n, result);
 }
 
 float Box::get_style(FloatStyleOptionName n, float result) {
-  Box *box;
-  
-  if(style && style->get(n, &result))
-    return result;
-    
-  SharedPtr<Stylesheet> all = stylesheet();
-  if(all) {
-    box = this;
-    do {
-      if( box->changes_children_style()   &&
-          all->get(box->style, n, &result))
-      {
-        return result;
-      }
-      
-      box = box->_parent;
-    } while(box);
-    
-    if(all->base && all->base->get(n, &result))
-      return result;
-  }
-  else {
-    box = _parent;
-    while(box) {
-      if( box->changes_children_style() &&
-          box->style                    &&
-          box->style->get(n, &result))
-      {
-        return result;
-      }
-      
-      box = box->_parent;
-    }
-  }
-  
-  return result;
+  return Box_get_style(this, n, result);
 }
 
 String Box::get_style(StringStyleOptionName n, String result) {
-  Box  *box;
-  
-  if(style && style->get(n, &result))
-    return result;
-    
-  SharedPtr<Stylesheet> all = stylesheet();
-  if(all) {
-    box = this;
-    do {
-      if( box->changes_children_style()   &&
-          all->get(box->style, n, &result))
-      {
-        return result;
-      }
-      
-      box = box->_parent;
-    } while(box);
-    
-    if(all->base && all->base->get(n, &result))
-      return result;
-  }
-  else {
-    box = _parent;
-    while(box) {
-      if( box->changes_children_style() &&
-          box->style                    &&
-          box->style->get(n, &result))
-      {
-        return result;
-      }
-      
-      box = box->_parent;
-    }
-  }
-  
-  return result;
+  return Box_get_style(this, n, result);
 }
 
 Expr Box::get_style(ObjectStyleOptionName n, Expr result) {
-  Box  *box;
-  
-  SharedPtr<Stylesheet> all = stylesheet();
-  if(all) {
-    if(all->get(style, n, &result))
-      return result;
-      
-    box = _parent;
-    
-    while(box) {
-      if( box->changes_children_style() &&
-          all->get(box->style, n, &result))
-      {
-        return result;
-      }
-      
-      box = box->_parent;
-    } while(box);
-    
-    if(all->base && all->base->get(n, &result))
-      return result;
-  }
-  else {
-    if(style && style->get(n, &result))
-      return result;
-      
-    box = _parent;
-    while(box) {
-      if( box->changes_children_style() &&
-          box->style                    &&
-          box->style->get(n, &result))
-      {
-        return result;
-      }
-      
-      box = box->_parent;
-    }
-  }
-  
-  return result;
+  return Box_get_style(this, n, result);
 }
 
 String Box::get_style(StringStyleOptionName n) {
@@ -572,13 +491,37 @@ Expr Box::get_style(ObjectStyleOptionName n) {
   return get_style(n, Expr());
 }
 
-int Box::get_own_style(IntStyleOptionName n, int result) {
-  if(style && style->get(n, &result))
+struct Style_get_pmath {
+  static bool impl(SharedPtr<Style> style, Expr n, Expr *result) {
+    *result = style->get_pmath(n);
+    return *result != PMATH_SYMBOL_INHERITED;
+  }
+};
+
+struct Stylesheet_get_pmath {
+  static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, Expr n, Expr *result) {
+    *result = all->get_pmath(style, n);
+    return *result != PMATH_SYMBOL_INHERITED;
+  }
+};
+
+Expr Box::get_pmath_style(Expr n) {
+  return Box_get_style(
+           this,
+           n,
+           Symbol(PMATH_SYMBOL_INHERITED),
+           Style_get_pmath::impl,
+           Stylesheet_get_pmath::impl);
+}
+
+template<typename N, typename T>
+T Box_get_own_style(Box *self, N n, T result) {
+  if(self->style && self->style->get(n, &result))
     return result;
     
-  SharedPtr<Stylesheet> all = stylesheet();
+  SharedPtr<Stylesheet> all = self->stylesheet();
   if(all) {
-    if(all->get(style, n, &result))
+    if(all->get(self->style, n, &result))
       return result;
       
     if(all->base && all->base->get(n, &result))
@@ -586,54 +529,22 @@ int Box::get_own_style(IntStyleOptionName n, int result) {
   }
   
   return result;
+}
+
+int Box::get_own_style(IntStyleOptionName n, int result) {
+  return Box_get_own_style(this, n, result);
 }
 
 float Box::get_own_style(FloatStyleOptionName n, float result) {
-  if(style && style->get(n, &result))
-    return result;
-    
-  SharedPtr<Stylesheet> all = stylesheet();
-  if(all) {
-    if(all->get(style, n, &result))
-      return result;
-      
-    if(all->base && all->base->get(n, &result))
-      return result;
-  }
-  
-  return result;
+  return Box_get_own_style(this, n, result);
 }
 
 String Box::get_own_style(StringStyleOptionName n, String result) {
-  if(style && style->get(n, &result))
-    return result;
-    
-  SharedPtr<Stylesheet> all = stylesheet();
-  if(all) {
-    if(all->get(style, n, &result))
-      return result;
-      
-    if(all->base && all->base->get(n, &result))
-      return result;
-  }
-  
-  return result;
+  return Box_get_own_style(this, n, result);
 }
 
 Expr Box::get_own_style(ObjectStyleOptionName n, Expr result) {
-  if(style && style->get(n, &result))
-    return result;
-    
-  SharedPtr<Stylesheet> all = stylesheet();
-  if(all) {
-    if(all->get(style, n, &result))
-      return result;
-      
-    if(all->base && all->base->get(n, &result))
-      return result;
-  }
-  
-  return result;
+  return Box_get_own_style(this, n, result);
 }
 
 String Box::get_own_style(StringStyleOptionName n) {

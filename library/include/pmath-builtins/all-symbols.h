@@ -887,6 +887,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL          PMATH_SYMBOL_BUILTIN(793)
 #define PMATH_SYMBOL_ISATOM                                 PMATH_SYMBOL_BUILTIN(794)
 #define PMATH_SYMBOL_INTERNAL_ISREALINTERVAL                PMATH_SYMBOL_BUILTIN(795)
+#define PMATH_SYMBOL_MAGNIFICATION                          PMATH_SYMBOL_BUILTIN(796)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

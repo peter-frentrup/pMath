@@ -842,6 +842,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
                 "GridBoxColumnSpacing->Inherited,"
                 "GridBoxRowSpacing->Inherited,"
                 "LineBreakWithin->Inherited,"
+                "Magnification->Inherited,"
                 "ReturnCreatesNewSection->Inherited,"
                 "ScriptSizeMultipliers->Inherited,"
                 "SectionEditDuplicate->Inherited,"

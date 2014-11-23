@@ -15,7 +15,6 @@
 #include <boxes/textsequence.h>
 #include <boxes/underoverscriptbox.h>
 #include <eval/binding.h>
-#include <eval/application.h>
 #include <gui/clipboard.h>
 #include <gui/native-widget.h>
 #include <util/spanexpr.h>
@@ -1344,10 +1343,10 @@ void Document::on_key_press(uint32_t unichar) {
           else
             new_style->get(LanguageCategory, &lang);
             
-          if(lang.equals("pMath"))
-            new_sect = new MathSection(new_style);
-          else
+          if(lang.equals("NaturalLanguage"))
             new_sect = new TextSection(new_style);
+          else
+            new_sect = new MathSection(new_style);
             
           insert(sect->index() + 1, new_sect);
           move_to(sect->abstract_content(), 0);
@@ -2371,6 +2370,7 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
     Canvas canvas(cr);
     
     float sf = native()->scale_factor();
+      
     canvas.scale(sf, sf);
     
     switch(cairo_surface_get_type(target)) {
@@ -2738,6 +2738,142 @@ void Document::paste_from_clipboard() {
   }
   
   native()->beep();
+}
+
+void Document::set_selection_style(Expr options) {
+  Box *sel = selection_box();
+  if(!sel)
+    return;
+    
+  int start = selection_start();
+  int end   = selection_end();
+  
+  if(sel->parent() == this) { // single section
+    start = sel->index();
+    end = start + 1;
+    sel = sel->parent();
+  }
+  
+  if(sel == this && start < end) {
+    if(!get_style(Editable, true))
+      return;
+      
+    native()->on_editing();
+    
+    for(int i = start; i < end; ++i) {
+      Section *sect = section(i);
+      
+      if(!sect->style)
+        sect->style = new Style();
+        
+      sect->style->add_pmath(options);
+      sect->invalidate();
+    }
+    
+    return;
+  }
+  
+  if(sel == this && start == end) {
+    //native()->on_editing();
+    style->add_pmath(options);
+    invalidate_options();
+    invalidate();
+    return;
+  }
+  
+  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel);
+  if(seq && start < end) {
+  
+    if(!seq->edit_selection(&context))
+      return;
+      
+    StyleBox *style_box = NULL;
+    if(start == 0 && end == seq->length()) {
+      style_box = dynamic_cast<StyleBox *>(seq->parent());
+    }
+    else {
+      int i = start;
+      Box *box = seq->move_logical(Forward, false, &i);
+      if(box && box != seq && box->parent() == seq) {
+        i = start;
+        if(seq->move_logical(Forward, true, &i) == seq && i >= end) {
+          // selection containt a single box
+          
+          style_box = dynamic_cast<StyleBox *>(box);
+        }
+      }
+    }
+    
+    native()->on_editing();
+    set_prev_sel_line();
+      
+    if(!style_box) {
+      style_box = new StyleBox();
+      style_box->style->add_pmath(options);
+      style_box->content()->insert(0, seq, start, end);
+      
+      seq->insert(end, style_box);
+      seq->remove(start, end);
+      
+      move_to(style_box->content(), style_box->content()->length());
+    }
+    
+    style_box->style->add_pmath(options);
+    style_box->invalidate();
+    return;
+  }
+}
+
+MenuCommandStatus Document::can_do_scoped(Expr cmd, Expr scope) {
+  SelectionReference old_sel = context.selection;
+  SelectionReference new_sel;
+  
+  if(scope == PMATH_SYMBOL_DOCUMENT) {
+    new_sel.set(this, 0, 0);
+  }
+  else if(scope == PMATH_SYMBOL_SECTION) {
+    Box *box = old_sel.get();
+    if(box)
+      box = box->find_parent<Section>(true);
+      
+    new_sel.set(box, 0, 0);
+  }
+  
+  if(!new_sel.get())
+    return false;
+    
+  context.selection = new_sel;
+  
+  MenuCommandStatus result = Application::test_menucommand_status(cmd);
+    
+  context.selection = old_sel;
+  return result;
+}
+
+bool Document::do_scoped(Expr cmd, Expr scope) {
+  SelectionReference old_sel = context.selection;
+  SelectionReference new_sel;
+  
+  if(scope == PMATH_SYMBOL_DOCUMENT) {
+    new_sel.set(this, 0, 0);
+  }
+  else if(scope == PMATH_SYMBOL_SECTION) {
+    Box *box = old_sel.get();
+    if(box)
+      box = box->find_parent<Section>(true);
+      
+    new_sel.set(box, 0, 0);
+  }
+  
+  if(!new_sel.get())
+    return false;
+    
+  context.selection = new_sel;
+  
+  bool result = Application::run_recursive_menucommand(cmd);
+  
+  context.selection = old_sel;
+  return result;
 }
 
 bool Document::split_section(bool do_it) {
@@ -4439,10 +4575,10 @@ bool Document::prepare_insert() {
     }
     
     Section *sect;
-    if(lang.equals("pMath"))
-      sect = new MathSection(section_style);
-    else
+    if(lang.equals("NaturalLanguage"))
       sect = new TextSection(section_style);
+    else
+      sect = new MathSection(section_style);
       
     insert(context.selection.start, sect);
     move_horizontal(Forward, false);

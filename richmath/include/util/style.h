@@ -66,6 +66,7 @@ namespace richmath {
     FontSize = 10000, // greater than any IntStyleOptionName value
     
     AspectRatio,
+    Magnification,
     
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
@@ -330,16 +331,22 @@ namespace richmath {
       
       SharedPtr<Style> base;
       
+      SharedPtr<Style> find_parent_style(SharedPtr<Style> s);
+      
       // each get() ignores base:
       bool get(SharedPtr<Style> s, IntStyleOptionName    n, int    *value);
       bool get(SharedPtr<Style> s, FloatStyleOptionName  n, float  *value);
       bool get(SharedPtr<Style> s, StringStyleOptionName n, String *value);
       bool get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   *value);
       
+      Expr get_pmath(SharedPtr<Style> s, Expr n);
+      
       int    get_with_base(SharedPtr<Style> s, IntStyleOptionName    n);
       float  get_with_base(SharedPtr<Style> s, FloatStyleOptionName  n);
       String get_with_base(SharedPtr<Style> s, StringStyleOptionName n);
       Expr   get_with_base(SharedPtr<Style> s, ObjectStyleOptionName n);
+      
+      Expr get_pmath_with_base(SharedPtr<Style> s, Expr n);
       
     public:
       static SharedPtr<Stylesheet> Default;

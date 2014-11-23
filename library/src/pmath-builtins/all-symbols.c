@@ -1103,6 +1103,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_MACHINEEPSILON                   = NEW_SYSTEM_SYMBOL("$MachineEpsilon"))
   VERIFY(   PMATH_SYMBOL_MACHINEPRECISION                 = NEW_SYSTEM_SYMBOL("MachinePrecision"))
   VERIFY(   PMATH_SYMBOL_MACHINEPRECISION_APPROX          = NEW_SYSTEM_SYMBOL("$MachinePrecision"))
+  VERIFY(   PMATH_SYMBOL_MAGNIFICATION                    = NEW_SYSTEM_SYMBOL("Magnification"))
   VERIFY(   PMATH_SYMBOL_MAKEBOXES                        = NEW_SYSTEM_SYMBOL("MakeBoxes"))
   VERIFY(   PMATH_SYMBOL_MAKEEXPRESSION                   = NEW_SYSTEM_SYMBOL("MakeExpression"))
   VERIFY(   PMATH_SYMBOL_MAP                              = NEW_SYSTEM_SYMBOL("Map"))

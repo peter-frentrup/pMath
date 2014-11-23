@@ -2,6 +2,7 @@
 #define __GUI__DOCUMENT_H__
 
 #include <boxes/sectionlist.h>
+#include <eval/application.h>
 #include <util/autocompletion.h>
 
 
@@ -112,6 +113,11 @@ namespace richmath {
       void paste_from_text(String mimetype, String data);
       void paste_from_binary(String mimetype, Expr file);
       void paste_from_clipboard();
+      
+      void set_selection_style(Expr options);
+      
+      MenuCommandStatus can_do_scoped(Expr cmd, Expr scope);
+      bool                  do_scoped(Expr cmd, Expr scope);
       
       bool split_section( bool do_it = true);
       bool merge_sections(bool do_it = true);

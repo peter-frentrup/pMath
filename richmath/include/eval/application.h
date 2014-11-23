@@ -33,6 +33,19 @@ namespace richmath {
     CNT_SAVE
   } ClientNotificationType;
   
+  class MenuCommandStatus {
+    public:
+      MenuCommandStatus(bool _enabled)
+      : enabled(_enabled),
+        checked(false)
+      {
+      }
+      
+    public:
+      bool enabled;
+      bool checked;
+  };
+  
   class Box;
   class Document;
   class Job;
@@ -46,12 +59,15 @@ namespace richmath {
         notify(CNT_MENUCOMMAND, cmd);
       }
       
-      static bool is_menucommand_runnable(Expr cmd);
+      // bad design:
+      static bool run_recursive_menucommand(Expr cmd);
+      
+      static MenuCommandStatus test_menucommand_status(Expr cmd);
       
       static void register_menucommand(
         Expr cmd,
-        bool (*func)(Expr cmd),
-        bool (*test)(Expr cmd) = 0);
+        bool              (*func)(Expr cmd),
+        MenuCommandStatus (*test)(Expr cmd) = 0);
         
       static void gui_print_section(Expr expr);
       //static void update_control_active(bool value);
@@ -73,7 +89,7 @@ namespace richmath {
       static Expr      run_filedialog(Expr data);
       
       /* These may return NULL (no gui available ...)
-         The document will not be visible, call invslidate_options() to 
+         The document will not be visible, call invslidate_options() to
          recognize the "Visible" style option.
       */
       static Document *create_document();

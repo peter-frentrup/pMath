@@ -168,14 +168,10 @@ static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
-static pmath_t builtin_feo_options(pmath_expr_t _expr) {
-  Expr expr(_expr);
-  
+static Expr cpp_builtin_feo_options(Expr expr) {
   if(expr[0] == PMATH_SYMBOL_OPTIONS) {
     if(expr.expr_length() == 1) {
-      Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
-      
-      return opts.release();
+      return Application::notify_wait(CNT_GETOPTIONS, expr[1]);
     }
     
     if( expr.expr_length() == 2 &&
@@ -190,13 +186,17 @@ static pmath_t builtin_feo_options(pmath_expr_t _expr) {
     if( expr.expr_length() >= 1 &&
         expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
     {
-      Expr opts = Application::notify_wait(CNT_SETOPTIONS, expr);
-      
-      return opts.release();
+      return Application::notify_wait(CNT_SETOPTIONS, expr);
     }
   }
   
-  return expr.release();
+  return expr;
+}
+
+static pmath_t builtin_feo_options(pmath_expr_t _expr) {
+  Expr result(cpp_builtin_feo_options(Expr(_expr)));
+  
+  return result.release();
 }
 
 static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr) {
@@ -272,65 +272,77 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
 
 //{ menu command availability checkers ...
 
-static bool can_abort(Expr cmd) {
-  return !Application::is_idle();
+static MenuCommandStatus can_abort(Expr cmd) {
+  return MenuCommandStatus(!Application::is_idle());
 }
 
-static bool can_convert_dynamic_to_literal(Expr cmd) {
+static MenuCommandStatus can_convert_dynamic_to_literal(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc || doc->selection_length() == 0)
-    return false;
+    return MenuCommandStatus(false);
     
   Box *sel = doc->selection_box();
   if(!sel || !sel->get_style(Editable))
-    return false;
+    return MenuCommandStatus(false);
     
-  return true;
+  return MenuCommandStatus(true);
 }
 
-static bool can_copy_cut(Expr cmd) {
+static MenuCommandStatus can_copy_cut(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc || !doc->can_copy())
-    return false;
+    return MenuCommandStatus(false);
     
   if(String(cmd).equals("Cut")) {
     Box *sel = doc->selection_box();
-    return sel && sel->get_style(Editable);
+    return MenuCommandStatus(sel && sel->get_style(Editable));
   }
   
-  return true;
+  return MenuCommandStatus(true);
 }
 
 
-static bool can_open_close_group(Expr cmd) {
+static MenuCommandStatus can_open_close_group(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc || doc->selection_length() == 0)
-    return false;
+    return MenuCommandStatus(false);
     
-  return true;
+  return MenuCommandStatus(true);
 }
 
-static bool can_document_write(Expr cmd) {
+static MenuCommandStatus can_do_scoped(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
+    return MenuCommandStatus(false);
+    
+  if(cmd.expr_length() != 2)
+    return MenuCommandStatus(false);
+    
+  return doc->can_do_scoped(cmd[1], cmd[2]);
+}
+
+static MenuCommandStatus can_document_write(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return MenuCommandStatus(false);
     
   Box *sel = doc->selection_box();
-  return sel && sel->get_style(Editable);
+  return MenuCommandStatus(sel && sel->get_style(Editable));
 }
 
-static bool can_duplicate_previous_input_output(Expr cmd) {
+static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
+    return MenuCommandStatus(false);
     
   if(doc->selection_box() == doc && doc->selection_length() > 0)
-    return false;
+    return MenuCommandStatus(false);
     
   Box *box = doc->selection_box();
   int a = doc->selection_start();
@@ -348,42 +360,42 @@ static bool can_duplicate_previous_input_output(Expr cmd) {
         (( input && math->get_style(Evaluatable)) ||
          (!input && math->get_style(SectionGenerated))))
     {
-      return true;
+      return MenuCommandStatus(true);
     }
   }
   
-  return false;
+  return MenuCommandStatus(false);
 }
 
-static bool can_edit_boxes(Expr cmd) {
+static MenuCommandStatus can_edit_boxes(Expr cmd) {
   Document *doc = get_current_document();
   
-  return doc && (doc->selection_length() > 0 || doc->selection_box() != doc) && doc->get_style(Editable);
+  return MenuCommandStatus(doc && (doc->selection_length() > 0 || doc->selection_box() != doc) && doc->get_style(Editable));
 }
 
-static bool can_expand_selection(Expr cmd) {
+static MenuCommandStatus can_expand_selection(Expr cmd) {
   Document *doc = get_current_document();
   
-  return doc && doc->selection_box() && doc->selection_box() != doc;
+  return MenuCommandStatus(doc && doc->selection_box() && doc->selection_box() != doc);
 }
 
-static bool can_evaluate_in_place(Expr cmd) {
+static MenuCommandStatus can_evaluate_in_place(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
-  
+    return MenuCommandStatus(false);
+    
   if(!dynamic_cast<MathSequence *>(doc->selection_box()))
-    return false;
-  
-  return doc->selection_length() > 0;
+    return MenuCommandStatus(false);
+    
+  return MenuCommandStatus(doc->selection_length() > 0);
 }
 
-static bool can_evaluate_sections(Expr cmd) {
+static MenuCommandStatus can_evaluate_sections(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
+    return MenuCommandStatus(false);
     
   Box *box = doc->selection_box();
   
@@ -392,7 +404,7 @@ static bool can_evaluate_sections(Expr cmd) {
       MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
       
       if(math && math->get_style(Evaluatable))
-        return true;
+        return MenuCommandStatus(true);
     }
   }
   else {
@@ -401,34 +413,34 @@ static bool can_evaluate_sections(Expr cmd) {
       
     MathSection *math = dynamic_cast<MathSection *>(box);
     if(math && math->get_style(Evaluatable))
-      return true;
+      return MenuCommandStatus(true);
   }
   
-  return false;
+  return MenuCommandStatus(false);
 }
 
-static bool can_find_evaluating_section(Expr cmd) {
+static MenuCommandStatus can_find_evaluating_section(Expr cmd) {
   Box *box = Application::find_current_job();
   
   if(!box)
-    return false;
+    return MenuCommandStatus(false);
     
   Section *sect = box->find_parent<Section>(true);
   if(!sect)
-    return false;
+    return MenuCommandStatus(false);
     
   Document *doc = sect->find_parent<Document>(false);
   if(!doc)
-    return false;
+    return MenuCommandStatus(false);
     
-  return true;
+  return MenuCommandStatus(true);
 }
 
-static bool can_find_matching_fence(Expr cmd) {
+static MenuCommandStatus can_find_matching_fence(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
+    return MenuCommandStatus(false);
     
   MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
   
@@ -441,29 +453,29 @@ static bool can_find_matching_fence(Expr cmd) {
       match = seq->matching_fence(pos);
     }
     
-    return match >= 0;
+    return MenuCommandStatus(match >= 0);
   }
   
-  return false;
+  return MenuCommandStatus(false);
 }
 
-static bool can_graphics_original_size(Expr cmd) {
+static MenuCommandStatus can_graphics_original_size(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
-  
+    return MenuCommandStatus(false);
+    
   if(dynamic_cast<GraphicsBox *>(doc->selection_box()))
-    return true;
-  
-  return doc->selection_length() > 0;
+    return MenuCommandStatus(true);
+    
+  return MenuCommandStatus(doc->selection_length() > 0);
 }
 
-static bool can_remove_from_evaluation_queue(Expr cmd) {
+static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
+    return MenuCommandStatus(false);
     
   int start = doc->selection_start();
   int end   = doc->selection_end();
@@ -475,50 +487,90 @@ static bool can_remove_from_evaluation_queue(Expr cmd) {
   }
   
   if(!box || start >= end)
-    return false;
+    return MenuCommandStatus(false);
     
   for(int i = end - 1; i >= start; --i) {
     if(Application::remove_job(doc->section(i), true))
-      return true;
+      return MenuCommandStatus(true);
   }
   
-  return false;
+  return MenuCommandStatus(false);
 }
 
-static bool can_section_merge(Expr cmd) {
+static MenuCommandStatus can_section_merge(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
+    return MenuCommandStatus(false);
     
-  return doc->merge_sections(false);
+  return MenuCommandStatus(doc->merge_sections(false));
 }
 
-static bool can_section_split(Expr cmd) {
+static MenuCommandStatus can_section_split(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc)
-    return false;
+    return MenuCommandStatus(false);
     
-  return doc->split_section(false);
+  return MenuCommandStatus(doc->split_section(false));
 }
 
-static bool can_similar_section_below(Expr cmd) {
+static MenuCommandStatus can_set_style(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return MenuCommandStatus(false);
+    
+  Box *sel = doc->selection_box();
+  
+  MenuCommandStatus status(sel && sel->get_style(Editable));
+  
+  if(sel && cmd.is_rule()) {
+    int start = doc->selection_start();
+    int end   = doc->selection_end();
+    
+    Expr lhs = cmd[1];
+    Expr rhs = cmd[2];
+    Expr val;
+    
+    if(start < end) {
+      if(sel == doc) {
+        status.checked = true;
+        
+        for(int i = start;i < end;++i) {
+          val = sel->item(i)->get_pmath_style(lhs);
+          status.checked = val == rhs;
+          if(!status.checked)
+            break;
+        }
+        
+        return status;
+      }
+    }
+    
+    val = sel->get_pmath_style(lhs);
+    status.checked = val.compare(rhs) == 0;
+  }
+  
+  return status;
+}
+
+static MenuCommandStatus can_similar_section_below(Expr cmd) {
   Document *doc = get_current_document();
   
   if(!doc || !doc->get_style(Editable))
-    return false;
+    return MenuCommandStatus(false);
     
   Box *box = doc->selection_box();
   while(box && box->parent() != doc) {
     box = box->parent();
   }
   
-  return 0 != dynamic_cast<AbstractSequenceSection *>(box);
+  return MenuCommandStatus(0 != dynamic_cast<AbstractSequenceSection *>(box));
 }
 
-static bool can_subsession_evaluate_sections(Expr cmd) {
-  return !can_abort(Expr()) && can_evaluate_sections(Expr());
+static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd) {
+  return MenuCommandStatus(!can_abort(Expr()).enabled && can_evaluate_sections(Expr()).enabled);
 }
 
 //} ... menu command availability checkers
@@ -577,7 +629,7 @@ static bool copy_special_cmd(Expr cmd) {
   String format(cmd[1]);
   if(!format.is_valid())
     return false;
-  
+    
   doc->copy_to_clipboard(format);
   return true;
 }
@@ -590,6 +642,18 @@ static bool cut_cmd(Expr cmd) {
     
   doc->cut_to_clipboard();
   return true;
+}
+
+static bool do_scoped_cmd(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+    
+  if(cmd.expr_length() != 2)
+    return false;
+    
+  return doc->do_scoped(cmd[1], cmd[2]);
 }
 
 static bool document_apply_cmd(Expr cmd) {
@@ -830,10 +894,10 @@ static bool evaluator_subsession_cmd(Expr cmd) {
     
   // non-blocking interrupt
   Application::execute_for(
-    Call(Symbol(PMATH_SYMBOL_DIALOG)), 
-    0, 
+    Call(Symbol(PMATH_SYMBOL_DIALOG)),
+    0,
     Infinity);
-  
+    
   return true;
 }
 
@@ -912,7 +976,7 @@ static bool graphics_original_size_cmd(Expr cmd) {
   
   if(!doc)
     return false;
-  
+    
   doc->graphics_original_size();
   return true;
 }
@@ -1209,6 +1273,40 @@ static bool select_all_cmd(Expr cmd) {
   return false;
 }
 
+static bool set_style_cmd(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc)
+    return false;
+    
+  doc->set_selection_style(cmd);
+  return true;
+  
+//  if(cmd.is_rule()) {
+//    Box *box = doc->selection_box();
+//    while(box && box->parent() != doc) {
+//      box = box->parent();
+//    }
+//
+//    if(!box)
+//      box = doc;
+//
+//    // see also CNT_GETOPTIONS
+//    Expr box_symbol = box->to_pmath_symbol();
+//    if(!box_symbol.is_symbol()) // TODO: generate StyleBox inside sequences ...
+//      return false;
+//
+//    cpp_builtin_feo_options(
+//      Call(Symbol(PMATH_SYMBOL_SETOPTIONS),
+//           Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), box->id()),
+//           cmd));
+//
+//    return true;
+//  }
+//
+//  return false;
+}
+
 static bool similar_section_below_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -1249,7 +1347,7 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
     Call(Symbol(PMATH_SYMBOL_DIALOG),
          Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
               String("EvaluateSectionsAndReturn"))),
-    0, 
+    0,
     Infinity);
     
   return false;
@@ -1334,6 +1432,7 @@ bool richmath::init_bindings() {
   VERIFY(fe_symbols[AutoCompleteNameSymbol]   = NEW_SYMBOL("FE`AutoCompleteName"))
   VERIFY(fe_symbols[AutoCompleteFileSymbol]   = NEW_SYMBOL("FE`AutoCompleteFile"))
   VERIFY(fe_symbols[AutoCompleteOtherSymbol]  = NEW_SYMBOL("FE`AutoCompleteOther"))
+  VERIFY(fe_symbols[ScopedCommandSymbol]      = NEW_SYMBOL("FE`ScopedCommand"))
   
   VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
   
@@ -1364,8 +1463,10 @@ bool richmath::init_bindings() {
     fe_symbols[InternalExecuteForSymbol],
     pmath_symbol_get_attributes(
       fe_symbols[InternalExecuteForSymbol]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
-  
-  Application::register_menucommand(GetSymbol(CopySpecialSymbol), copy_special_cmd, can_copy_cut);
+      
+  Application::register_menucommand(GetSymbol(CopySpecialSymbol),   copy_special_cmd, can_copy_cut);
+  Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),      set_style_cmd,    can_set_style);
+  Application::register_menucommand(GetSymbol(ScopedCommandSymbol), do_scoped_cmd,    can_do_scoped);
   
   return true;
   

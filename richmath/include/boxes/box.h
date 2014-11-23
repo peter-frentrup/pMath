@@ -201,6 +201,7 @@ namespace richmath {
       Expr   get_style(ObjectStyleOptionName n, Expr   result);
       String get_style(StringStyleOptionName n);
       Expr   get_style(ObjectStyleOptionName n);
+      Expr   get_pmath_style(Expr n);
       
       // ignore parents
       int    get_own_style(IntStyleOptionName    n, int    result = 0);

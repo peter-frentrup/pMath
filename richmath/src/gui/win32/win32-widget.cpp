@@ -863,17 +863,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_INITMENUPOPUP: {
           HMENU sub = (HMENU)wParam;
           
-          for(int i = GetMenuItemCount(sub) - 1; i >= 0; --i) {
-            UINT flags = MF_BYPOSITION;
-            
-            int id = GetMenuItemID(sub, i);
-            if(Application::is_menucommand_runnable(Win32Menu::id_to_command(id)))
-              flags |= MF_ENABLED;
-            else
-              flags |= MF_GRAYED;
-              
-            EnableMenuItem(sub, i, flags);
-          }
+          Win32Menu::init_popupmenu(sub);
         } return 0;
         
       case WM_HSCROLL: {
@@ -1199,7 +1189,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             return 0;
           }
         }
-        /* fall through */
+      /* fall through */
       case WM_SYSKEYDOWN: {
           HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWL_HWNDPARENT);
           if(parent) {

@@ -113,8 +113,8 @@ static ConcurrentQueue<ClientNotification> notifications;
 
 static SharedPtr<Session> session = new Session(0);
 
-static Hashtable<Expr, bool ( *)(Expr)> menu_commands;
-static Hashtable<Expr, bool ( *)(Expr)> menu_command_testers;
+static Hashtable<Expr, bool              ( *)(Expr)> menu_commands;
+static Hashtable<Expr, MenuCommandStatus ( *)(Expr)> menu_command_testers;
 
 static Hashtable<int, Void, cast_hash> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
@@ -311,9 +311,26 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
   return Expr(result);
 }
 
-bool Application::is_menucommand_runnable(Expr cmd) {
+bool Application::run_recursive_menucommand(Expr cmd) {
   bool (*func)(Expr);
   
+  func = menu_commands[cmd];
+  if(func && func(cmd))
+    return true;
+    
+  func = menu_commands[cmd[0]];
+  if(func && func(cmd))
+    return true;
+    
+  return false;
+}
+
+MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
+  MenuCommandStatus (*func)(Expr);
+  
+  if(cmd.is_null())
+    return MenuCommandStatus(true);
+    
   if(cmd.is_string()) {
     String scmd(cmd);
     
@@ -323,27 +340,33 @@ bool Application::is_menucommand_runnable(Expr cmd) {
       scmd = scmd.part(sizeof("@shaper=") - 1, -1);
       
       if(!MathShaper::available_shapers.search(scmd))
-        return false;
+        return MenuCommandStatus(false);
     }
     
     cmd = scmd;
   }
   
   func = menu_command_testers[cmd];
-  if(func && !func(cmd))
-    return false;
+  if(func) {
+    MenuCommandStatus status(func(cmd));
+    if(status.enabled)
+      return status;
+  }
     
-  func = menu_command_testers[cmd];
-  if(func && !func(cmd))
-    return false;
-    
-  return true;
+  func = menu_command_testers[cmd[0]];
+  if(func) {
+    MenuCommandStatus status(func(cmd));
+    if(status.enabled)
+      return status;
+  }
+  
+  return MenuCommandStatus(true);
 }
 
 void Application::register_menucommand(
   Expr cmd,
-  bool (*func)(Expr cmd),
-  bool (*test)(Expr cmd)
+  bool              (*func)(Expr cmd),
+  MenuCommandStatus (*test)(Expr cmd)
 ) {
   if(cmd.is_null()) {
     menu_commands.default_value       = func;
@@ -1408,17 +1431,7 @@ static Expr cnt_getdocuments() {
 }
 
 static void cnt_menucommand(Expr data) {
-  bool (*func)(Expr);
-  
-  func = menu_commands[data];
-  if(func && func(data))
-    return;
-    
-  func = menu_commands[data[0]];
-  if(func && func(data))
-    return;
-    
-  // ...
+  Application::run_recursive_menucommand(data);
 }
 
 static void cnt_addconfigshaper(Expr data) {
