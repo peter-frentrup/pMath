@@ -26,6 +26,7 @@
 #  include <gui/win32/win32-clipboard.h>
 #  include <gui/win32/win32-document-window.h>
 #  include <gui/win32/win32-menu.h>
+#  include <gui/win32/win32-touch.h>
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
@@ -636,6 +637,7 @@ int main(int argc, char **argv) {
     
 #ifdef RICHMATH_USE_WIN32_GUI
     Win32Themes::init();
+    Win32Touch::init();
     Win32Clipboard::init();
     Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(SHORTCUTS_CMD)));
     Win32Menu::main_menu              = new Win32Menu(Evaluate(Parse(MAIN_MENU_CMD)),  false);

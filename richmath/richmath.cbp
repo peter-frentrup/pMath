@@ -685,6 +685,12 @@
 			<Option target="Windows-Release" />
 			<Option target="Windows-MSVC" />
 		</Unit>
+		<Unit filename="include/gui/win32/win32-touch.h">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
 		<Unit filename="include/gui/win32/win32-widget.h">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
@@ -952,6 +958,12 @@
 			<Option target="Windows-MSVC" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-tooltip-window.cpp">
+			<Option target="Windows-Debug" />
+			<Option target="Windows-Debug-Freetype" />
+			<Option target="Windows-Release" />
+			<Option target="Windows-MSVC" />
+		</Unit>
+		<Unit filename="src/gui/win32/win32-touch.cpp">
 			<Option target="Windows-Debug" />
 			<Option target="Windows-Debug-Freetype" />
 			<Option target="Windows-Release" />

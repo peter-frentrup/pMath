@@ -22,6 +22,7 @@
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-tooltip-window.h>
+#include <gui/win32/win32-touch.h>
 
 #include <resources.h>
 
@@ -91,6 +92,7 @@ Win32Widget::Win32Widget(
     scrolling(false),
     _width(0),
     _height(0),
+    gesture_zoom_factor(1.0f),
     animation_running(false),
     is_dragging(false),
     is_drop_over(false)
@@ -1003,6 +1005,47 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_MOUSELEAVE: {
           document()->mouse_exit();
         } return 0;
+        
+      case WM_GESTURE:
+        if(Win32Touch::GetGestureInfo) {
+          Win32Touch::GESTUREINFO gi;
+          
+          memset(&gi, 0, sizeof(gi));
+          gi.cbSize = sizeof(gi);
+          
+          if(Win32Touch::GetGestureInfo((HANDLE)lParam, &gi)) {
+            bool handled = false;
+          
+            switch(gi.dwID) {
+              case GID_ZOOM: {
+                  handled = true;
+                  
+                  if(gi.dwFlags == GF_BEGIN) {
+                    gesture_zoom_factor = custom_scale_factor() / (double)(uint32_t)(gi.ullArguments);
+                  }
+                  else {
+                    double relzoom = (double)(uint32_t)(gi.ullArguments) * gesture_zoom_factor;
+//                    pmath_debug_print("[%s%s%szoom %f gesture %d at (%d,%d)]\n",
+//                                      (gi.dwFlags & GF_BEGIN)   ? "begin " : "",
+//                                      (gi.dwFlags & GF_INERTIA) ? "inerta " : "",
+//                                      (gi.dwFlags & GF_END)     ? "end " : "",
+//                                      relzoom,
+//                                      (int)gi.ullArguments,
+//                                      (int)gi.ptsLocation.x,
+//                                      (int)gi.ptsLocation.y);
+                                      
+                    set_custom_scale(relzoom);
+                  }
+                } break;
+            }
+            
+            if(handled) {
+              Win32Touch::CloseGestureInfoHandle((HANDLE)lParam);
+              return 0;
+            }
+          }
+        }
+        break;
         
       case WM_TIMER: {
           switch(wParam) {

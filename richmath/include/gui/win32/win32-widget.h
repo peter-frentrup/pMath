@@ -93,6 +93,8 @@ namespace richmath {
       int _width;
       int _height;
       
+      float gesture_zoom_factor;
+      
       Hashtable<SharedPtr<TimedEvent>, Void> animations;
       bool animation_running;
       bool is_dragging;
