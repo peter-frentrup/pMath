@@ -7,11 +7,11 @@
 
 namespace pmath4eigen {
   class ArithmeticExpr;
-  
+
 #define P4E_DECL_FUNC(NAME)       \
   inline const ArithmeticExpr     \
-  NAME(const ArithmeticExpr &x);  
-   
+  NAME(const ArithmeticExpr &x);
+
   P4E_DECL_FUNC( abs  )
   P4E_DECL_FUNC( acos )
   P4E_DECL_FUNC( asin )
@@ -24,7 +24,7 @@ namespace pmath4eigen {
   P4E_DECL_FUNC( sin  )
   P4E_DECL_FUNC( sqrt )
   P4E_DECL_FUNC( tan  )
-  
+
   inline const ArithmeticExpr
   pow(const ArithmeticExpr &a, const ArithmeticExpr &b);
 }
@@ -41,27 +41,32 @@ namespace pmath4eigen {
         : Expr(src)
       {
       }
-      
+
       ArithmeticExpr()
         : Expr(0)
       {
       }
-      
+
       ArithmeticExpr(int i)
         : Expr(i)
       {
       }
-      
-      explicit ArithmeticExpr(double d)
+
+      ArithmeticExpr(int64_t i)
+        : Expr(i)
+      {
+      }
+
+      ArithmeticExpr(double d)
         : Expr(d)
       {
       }
-      
+
       explicit ArithmeticExpr(const ArithmeticExpr &re, const ArithmeticExpr &im)
         : Expr((im == 0) ? Expr(re) : pmath::Complex(re, im))
       {
       }
-      
+
       explicit ArithmeticExpr(std::complex<double> c)
         : Expr(
           (std::imag(c) == 0.0)
@@ -69,15 +74,15 @@ namespace pmath4eigen {
           : Expr(pmath_build_value("Cff", std::real(c), std::imag(c))))
       {
       }
-      
+
       ArithmeticExpr &operator+=(const ArithmeticExpr &other);
       ArithmeticExpr &operator-=(const ArithmeticExpr &other);
       ArithmeticExpr &operator*=(const ArithmeticExpr &other);
       ArithmeticExpr &operator/=(const ArithmeticExpr &other);
   };
-  
+
   typedef Eigen::Matrix< ArithmeticExpr, Eigen::Dynamic, Eigen::Dynamic > MatrixXa;
-  
+
   inline const ArithmeticExpr
   operator+(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
@@ -87,7 +92,7 @@ namespace pmath4eigen {
                  left,
                  right)));
   }
-  
+
   inline const ArithmeticExpr
   operator-(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
@@ -97,7 +102,7 @@ namespace pmath4eigen {
                  left,
                  right)));
   }
-  
+
   inline const ArithmeticExpr
   operator-(const ArithmeticExpr &arg)
   {
@@ -106,7 +111,7 @@ namespace pmath4eigen {
                pmath::Minus(
                  arg)));
   }
-  
+
   inline const ArithmeticExpr
   operator*(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
@@ -116,7 +121,7 @@ namespace pmath4eigen {
                  left,
                  right)));
   }
-  
+
   inline const ArithmeticExpr
   operator/(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
@@ -126,13 +131,13 @@ namespace pmath4eigen {
                  left,
                  right)));
   }
-  
+
   inline bool
   operator==(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
     if(left.is_number() && right.is_number())
       return pmath_equals(left.get(), right.get());
-      
+
     return pmath::Evaluate(
              pmath::Call(
                pmath::Symbol(PMATH_SYMBOL_EQUAL),
@@ -140,14 +145,14 @@ namespace pmath4eigen {
                right)
            ) == PMATH_SYMBOL_TRUE;
   }
-  
+
   // not that (x != y) and (x == y) both may return false!
   inline bool
   operator!=(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
     if(left.is_number() && right.is_number())
       return !pmath_equals(left.get(), right.get());
-      
+
     return pmath::Evaluate(
              pmath::Call(
                pmath::Symbol(PMATH_SYMBOL_EQUAL),
@@ -155,13 +160,13 @@ namespace pmath4eigen {
                right)
            ) == PMATH_SYMBOL_FALSE;
   }
-  
+
   inline bool
   operator<(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
     if(left.is_number() && right.is_number())
       return left.compare(right) < 0;
-      
+
     return pmath::Evaluate(
              pmath::Call(
                pmath::Symbol(PMATH_SYMBOL_LESS),
@@ -169,13 +174,13 @@ namespace pmath4eigen {
                right)
            ) == PMATH_SYMBOL_TRUE;
   }
-  
+
   inline bool
   operator<=(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
     if(left.is_number() && right.is_number())
       return left.compare(right) <= 0;
-      
+
     return pmath::Evaluate(
              pmath::Call(
                pmath::Symbol(PMATH_SYMBOL_LESSEQUAL),
@@ -183,13 +188,13 @@ namespace pmath4eigen {
                right)
            ) == PMATH_SYMBOL_TRUE;
   }
-  
+
   inline bool
   operator>(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
     if(left.is_number() && right.is_number())
       return left.compare(right) > 0;
-      
+
     return pmath::Evaluate(
              pmath::Call(
                pmath::Symbol(PMATH_SYMBOL_GREATER),
@@ -197,13 +202,13 @@ namespace pmath4eigen {
                right)
            ) == PMATH_SYMBOL_TRUE;
   }
-  
+
   inline bool
   operator>=(const ArithmeticExpr &left, const ArithmeticExpr &right)
   {
     if(left.is_number() && right.is_number())
       return left.compare(right) >= 0;
-      
+
     return pmath::Evaluate(
              pmath::Call(
                pmath::Symbol(PMATH_SYMBOL_GREATEREQUAL),
@@ -211,32 +216,32 @@ namespace pmath4eigen {
                right)
            ) == PMATH_SYMBOL_TRUE;
   }
-  
-  
+
+
   inline ArithmeticExpr &
   ArithmeticExpr::operator+=(const ArithmeticExpr &other)
   {
     return *this = *this + other;
   }
-  
+
   inline ArithmeticExpr &
   ArithmeticExpr::operator-=(const ArithmeticExpr &other)
   {
     return *this = *this - other;
   }
-  
+
   inline ArithmeticExpr &
   ArithmeticExpr::operator*=(const ArithmeticExpr &other)
   {
     return *this = *this * other;
   }
-  
+
   inline ArithmeticExpr &
   ArithmeticExpr::operator/=(const ArithmeticExpr &other)
   {
     return *this = *this / other;
   }
-  
+
 #define P4E_IMPL_FUNC(NAME, PMCPP_NAME)         \
   inline const ArithmeticExpr                   \
   NAME(const ArithmeticExpr &x)                 \
@@ -256,7 +261,7 @@ namespace pmath4eigen {
   P4E_IMPL_FUNC( sin,  pmath::Sin    )
   P4E_IMPL_FUNC( sqrt, pmath::Sqrt   )
   P4E_IMPL_FUNC( tan,  pmath::Tan    )
-  
+
   inline const ArithmeticExpr
   conj(const ArithmeticExpr &x)
   {
@@ -266,7 +271,7 @@ namespace pmath4eigen {
                  pmath::Symbol(PMATH_SYMBOL_CONJUGATE),
                  x)));
   }
-  
+
   inline const ArithmeticExpr
   pow(const ArithmeticExpr &x, const ArithmeticExpr &y)
   {
@@ -286,7 +291,7 @@ namespace Eigen {
     typedef pmath4eigen::ArithmeticExpr  Real;
     typedef pmath4eigen::ArithmeticExpr  NonInteger;
     typedef pmath4eigen::ArithmeticExpr  Nested;
-    
+
     enum {
       IsInteger = 0,
       IsComplex = 1,
@@ -296,7 +301,7 @@ namespace Eigen {
       AddCost = 1,
       MulCost = 1
     };
-    
+
     static pmath4eigen::ArithmeticExpr epsilon() {
       // TODO: use thread-local default values...
       return pmath4eigen::ArithmeticExpr(1e-8);
@@ -307,7 +312,7 @@ namespace Eigen {
 namespace Eigen {
 
   namespace internal {
-  
+
     inline bool
     isApprox(
       const pmath4eigen::ArithmeticExpr &x,
@@ -323,7 +328,7 @@ namespace Eigen {
                  y)
              ) == PMATH_SYMBOL_TRUE;
     }
-    
+
     inline bool
     isApproxOrLessThan(
       const pmath4eigen::ArithmeticExpr &x,
@@ -338,14 +343,14 @@ namespace Eigen {
                  y)
              ) == PMATH_SYMBOL_TRUE;
     }
-    
-    
-    
+
+
+
     template<>
     struct conj_helper<pmath4eigen::ArithmeticExpr, pmath4eigen::ArithmeticExpr, false, true>
     {
       typedef pmath4eigen::ArithmeticExpr Scalar;
-      
+
       EIGEN_STRONG_INLINE Scalar pmadd(const Scalar &x, const Scalar &y, const Scalar &c) const
       {
         return Scalar(
@@ -356,7 +361,7 @@ namespace Eigen {
                        x,
                        pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y)))));
       }
-      
+
       EIGEN_STRONG_INLINE Scalar pmul(const Scalar &x, const Scalar &y) const
       {
         return Scalar(
@@ -366,12 +371,12 @@ namespace Eigen {
                      pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y))));
       }
     };
-    
+
     template<>
     struct conj_helper<pmath4eigen::ArithmeticExpr, pmath4eigen::ArithmeticExpr, true, false>
     {
       typedef pmath4eigen::ArithmeticExpr Scalar;
-      
+
       EIGEN_STRONG_INLINE Scalar pmadd(const Scalar &x, const Scalar &y, const Scalar &c) const
       {
         return Scalar(
@@ -382,7 +387,7 @@ namespace Eigen {
                        pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
                        y))));
       }
-      
+
       EIGEN_STRONG_INLINE Scalar pmul(const Scalar &x, const Scalar &y) const
       {
         return Scalar(
@@ -392,12 +397,12 @@ namespace Eigen {
                      y)));
       }
     };
-    
+
     template<>
     struct conj_helper<pmath4eigen::ArithmeticExpr, pmath4eigen::ArithmeticExpr, true, true>
     {
       typedef pmath4eigen::ArithmeticExpr Scalar;
-      
+
       EIGEN_STRONG_INLINE Scalar pmadd(const Scalar &x, const Scalar &y, const Scalar &c) const
       {
         return Scalar(
@@ -408,7 +413,7 @@ namespace Eigen {
                        pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
                        pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y)))));
       }
-      
+
       EIGEN_STRONG_INLINE Scalar pmul(const Scalar &x, const Scalar &y) const
       {
         return Scalar(
