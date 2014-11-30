@@ -9,6 +9,7 @@ class static:
         self.__call__ = function
 
 # from pmath-core/objects.h and pmath-core/objects-private.h:
+PMATH_TAGMASK_BITCOUNT  = 12
 PMATH_TAGMASK_NONDOUBLE = 0x7FF00000
 PMATH_TAGMASK_POINTER   = 0xFFF00000
 PMATH_TAG_MAGIC         = (PMATH_TAGMASK_NONDOUBLE | 0x10000)
@@ -121,7 +122,8 @@ class ExprVal:
             
         if self.is_pointer():
             try:
-                self._as_pointer = val['as_pointer_64']
+                dummy = val['as_pointer_64']
+                self._as_pointer = ((val['as_bits'] << PMATH_TAGMASK_BITCOUNT) >> PMATH_TAGMASK_BITCOUNT).cast(gdb.lookup_type('struct _pmath_t').pointer())
             except:
                 self._as_pointer = val['s']['u']['as_pointer_32']
 
