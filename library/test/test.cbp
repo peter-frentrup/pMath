@@ -53,6 +53,28 @@
 					<Add directory="../bin/windows/release" />
 				</Linker>
 			</Target>
+			<Target title="Windows-MSVC-Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-debug/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-debug/" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/MT" />
+					<Add option="/arch:SSE2" />
+					<Add option="/Gd" />
+					<Add option="/GL" />
+					<Add option="/GF" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add directory="../../msvc-c99" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+					<Add library="pmath.lib" />
+					<Add directory="../bin/windows/msvc-debug" />
+				</Linker>
+			</Target>
 			<Target title="Windows-MSVC">
 				<Option platforms="Windows;" />
 				<Option output="bin/windows/msvc/test" prefix_auto="1" extension_auto="1" />
@@ -77,12 +99,12 @@
 					<Add directory="../bin/windows/msvc" />
 				</Linker>
 			</Target>
-			<Target title="Windows-MSVC-Debug">
+			<Target title="Windows-MSVC-Debug-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug/test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/msvc-debug/" />
+				<Option output="bin/windows/msvc-debug-x64/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="1" />
-				<Option compiler="msvc10" />
+				<Option compiler="microsoft_visual_c_2012_x64" />
 				<Compiler>
 					<Add option="/MT" />
 					<Add option="/arch:SSE2" />
@@ -96,7 +118,7 @@
 				<Linker>
 					<Add option="/DEBUG" />
 					<Add library="pmath.lib" />
-					<Add directory="../bin/windows/msvc-debug" />
+					<Add directory="../bin/windows/msvc-debug-x64" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Clang">

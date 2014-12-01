@@ -55,16 +55,16 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
     pmath_atomic2_t cmp;
     cmp._data[0] = old_value_fst;
     cmp._data[1] = old_value_snd;
-    
+
     return (pmath_bool_t)_InterlockedCompareExchange128(
-      (__int64 volatile *)atom->_data,
+      (void *)atom->_data,
       new_value_snd, // high
       new_value_fst, // low   ... little endian
-      cmp);
+      &cmp._data[0]);
   }
 
 #elif PMATH_BITSIZE == 32
-  
+
   //#undef pmath_atomic_loop_nop
   //#define pmath_atomic_loop_nop() __asm{ rep nop }
 
@@ -78,13 +78,13 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
   ){
     uint64_t cmp = (uint64_t)old_value_fst | ((uint64_t)old_value_snd << 32);
     uint64_t xch = (uint64_t)new_value_fst | ((uint64_t)new_value_snd << 32);
-    
+
     return cmp == _InterlockedCompareExchange64(
       (__int64 volatile *)atom->_data,
       xch,
       cmp);
   }
-  
+
 #else
   #error unsupported PMATH_BITSIZE
 #endif
@@ -112,7 +112,7 @@ pmath_bool_t pmath_atomic_have_cas2(void){
         (long*)(atom_ptr), \
         (new_value)))
   #endif
-  
+
   #ifndef _InterlockedCompareExchangePointer
     #define _InterlockedCompareExchangePointer(atom_ptr, old_value, new_value) \
       (_InterlockedCompareExchange( \
@@ -120,45 +120,45 @@ pmath_bool_t pmath_atomic_have_cas2(void){
         (old_value), \
         (new_value)))
   #endif
-  
+
 #endif
 
 
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t new_value){
-  return (intptr_t)_InterlockedExchangePointer(&atom->_data, new_value);
+  return (intptr_t)_InterlockedExchangePointer((void**)&atom->_data, (void*)new_value);
 }
 
 
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
-  return (intptr_t)_InterlockedCompareExchangePointer(&atom->_data, new_value, old_value);
+  return (intptr_t)_InterlockedCompareExchangePointer((void**)&atom->_data, (void*)new_value, (void*)old_value);
 }
 
 
 PMATH_FORCE_INLINE
 pmath_bool_t pmath_atomic_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
-  return old_value == _InterlockedCompareExchangePointer(&atom->_data, new_value, old_value);
+  return old_value == (intptr_t)_InterlockedCompareExchangePointer((void**)&atom->_data, (void*)new_value, (void*)old_value);
 }
 
 
 PMATH_FORCE_INLINE
 void pmath_atomic_lock(pmath_atomic_t *atom){
   int count = PMATH_ATOMIC_FASTLOOP_COUNT;
-  
+
   while(count > 0 && pmath_atomic_read_aquire(atom) != 0){
     --count;
   }
-  
+
   if(pmath_atomic_read_aquire(atom) != 0){
     pmath_atomic_loop_yield();
   }
-  
+
   while(0 != pmath_atomic_fetch_set(atom, 1)){
     pmath_atomic_loop_nop();
     pmath_atomic_barrier();
   }
-  
+
   pmath_atomic_barrier();
 }
 
