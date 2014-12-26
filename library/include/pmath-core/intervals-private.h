@@ -6,6 +6,7 @@
 #endif
 
 #include <pmath-core/intervals.h>
+#include <pmath-core/numbers-private.h>
 
 #include <mpfi.h>
 
@@ -18,20 +19,20 @@ struct _pmath_interval_t {
 #define PMATH_AS_MP_INTERVAL(obj)  (((struct _pmath_interval_t*) PMATH_AS_PTR(obj))->value)
 
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_interval_t _pmath_create_interval(mpfr_prec_t precision);
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_interval_set_point(
-  mpfi_ptr result, 
+  mpfi_ptr result,
   pmath_t  value);  // wont be freed
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_interval_exceptions(pmath_interval_t x);
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_interval_get_value(
   pmath_interval_t interval, // wont be freed

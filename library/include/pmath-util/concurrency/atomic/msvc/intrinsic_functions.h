@@ -57,7 +57,7 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
     cmp._data[1] = old_value_snd;
 
     return (pmath_bool_t)_InterlockedCompareExchange128(
-      (void *)atom->_data,
+      &atom->_data[0],
       new_value_snd, // high
       new_value_fst, // low   ... little endian
       &cmp._data[0]);

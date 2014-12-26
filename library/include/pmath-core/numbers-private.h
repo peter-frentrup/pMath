@@ -9,7 +9,13 @@
 
 #include <float.h>
 #include <math.h>
-#include <gmp.h>
+
+#pragma warning(push)
+// In mpz_get_ui(): Converting 'mp_limb_t' to 'unsigned long': possible data loss.
+#  pragma warning(disable: 4244)
+#  include <gmp.h>
+#pragma warning(pop)
+
 #include <mpfr.h>
 
 
