@@ -306,6 +306,11 @@ namespace Eigen {
       // TODO: use thread-local default values...
       return pmath4eigen::ArithmeticExpr(1e-8);
     }
+
+    // What is dummy_precision() for ?
+    static pmath4eigen::ArithmeticExpr dummy_precision() {
+      return epsilon();
+    }
   };
 }
 
