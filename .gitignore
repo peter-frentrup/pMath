@@ -24,6 +24,8 @@
 /modules/hello/bin
 /modules/hello/obj
 /modules/hello/Makefile
+/richmath/dependencies/linux
+/richmath/dependencies/windows
 /richmath/bin
 /richmath/obj
 /richmath/Makefile
