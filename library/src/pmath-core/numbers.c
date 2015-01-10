@@ -1352,9 +1352,9 @@ static void write_mp_float_ex(
      */
     
     if(exact_log2_base > 0)
-      max_digits = 1 + ceil( (prec2 - 1) / exact_log2_base );
+      max_digits = (size_t)(1 + ceil( (prec2 - 1) / exact_log2_base ));
     else
-      max_digits = 1 + ceil( base_prec );
+      max_digits = (size_t)(1 + ceil( base_prec ));
   }
   else{
     max_digits = (size_t)round(base_prec);

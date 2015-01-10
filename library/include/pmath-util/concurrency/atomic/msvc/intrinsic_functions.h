@@ -110,15 +110,15 @@ pmath_bool_t pmath_atomic_have_cas2(void){
     #define _InterlockedExchangePointer(atom_ptr, new_value) \
       (_InterlockedExchange( \
         (long*)(atom_ptr), \
-        (new_value)))
+        (long)(new_value)))
   #endif
 
   #ifndef _InterlockedCompareExchangePointer
     #define _InterlockedCompareExchangePointer(atom_ptr, old_value, new_value) \
       (_InterlockedCompareExchange( \
         (long*)(atom_ptr), \
-        (old_value), \
-        (new_value)))
+        (long)(old_value), \
+        (long)(new_value)))
   #endif
 
 #endif
