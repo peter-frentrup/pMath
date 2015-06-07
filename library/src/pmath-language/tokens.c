@@ -58,7 +58,7 @@ static const struct char_info_t u0000_u00ff[256] = {
   /*         0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F  */
   /* 000 */ ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ___, ___, ___, ___, ___, ERR, ERR,
   /* 001 */ ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,
-  /* 002 */ ___, FAC, STR, ARG, ID,  ID2, FUN, DIF, LCL, RI1, MUL, ADD, SEQ, ADD, DOT, DIV,
+  /* 002 */ ___, FAC, STR, ARG, ID,  ERR, FUN, DIF, LCL, RI1, MUL, ADD, SEQ, ADD, DOT, DIV,
   /* 003 */ NUM, NUM, NUM, NUM, NUM, NUM, NUM, NUM, NUM, NUM, COL, EVA, REL, REL, REL, QUE,
   /* 004 */ APL, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 005 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  LCL, STR, RI2, POW, /*ERR*/ID,

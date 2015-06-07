@@ -959,22 +959,6 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   if(tok == PMATH_TOK_NAME)
     return make_expression_from_name_token(string);
     
-  // History(-n) = %%%% (n times)
-  if(str[0] == '%') {
-    int i;
-    for(i = 1; i < len; ++i)
-      if(str[i] != '%') {
-        pmath_unref(string);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
-      }
-      
-    pmath_unref(string);
-    return HOLDCOMPLETE(
-             pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_HISTORY), 1,
-               PMATH_FROM_INT32(-len)));
-  }
-  
   if(tok == PMATH_TOK_NAME2) {
     pmath_t obj = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
     pmath_unref(obj);

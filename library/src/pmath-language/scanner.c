@@ -393,7 +393,13 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       span = SPAN_PTR(parser->spans->items[parser->tokens.pos]);
       
       if(span) {
-        if( parser->tokens.pos + 1 < parser->tokens.len       &&
+        if( parser->tokens.pos < parser->tokens.len &&
+            parser->tokens.str[parser->tokens.pos] == '%')
+        {
+          parser->tokens.pos = span->end + 1;
+          continue;
+        }
+        else if( parser->tokens.pos + 1 < parser->tokens.len       &&
             parser->tokens.str[parser->tokens.pos]     == '/' &&
             parser->tokens.str[parser->tokens.pos + 1] == '*')
         {
@@ -438,7 +444,39 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       }
     }
     
-    if( parser->tokens.pos + 1 < parser->tokens.len       &&
+    if( parser->tokens.pos < parser->tokens.len &&
+        parser->tokens.str[parser->tokens.pos] == '%')
+    {
+      int last_space_start = parser->last_space_start;
+      
+      int start = parser->tokens.pos;
+      int end = start + 1;
+      int oldlen = parser->tokens.len;
+      pmath_string_t (*old_read_line)(void *) = parser->read_line;
+      parser->read_line = NULL;
+      
+      skip_to(parser, -1, next_token_pos(parser), FALSE);
+      parser->tokens.comment_level++;
+      while(end < parser->tokens.len && parser->tokens.str[end] != '\n')
+        ++end;
+      
+      parser->tokens.len = end;
+      while(parser->tokens.pos < end) {
+        int tmp = parser->tokens.pos;
+        parse_sequence(parser);
+        if(tmp == parser->tokens.pos)
+          ++parser->tokens.pos;
+      }
+      
+      span(&parser->tokens, start);
+      
+      parser->tokens.len = oldlen;
+      parser->tokens.comment_level--;
+      parser->last_space_start = last_space_start;
+      parser->read_line = old_read_line;
+      parser->last_was_newline = TRUE;
+    }
+    else if( parser->tokens.pos + 1 < parser->tokens.len &&
         //!parser->tokens.in_comment                        &&
         parser->tokens.str[parser->tokens.pos]     == '/' &&
         parser->tokens.str[parser->tokens.pos + 1] == '*')
@@ -476,8 +514,7 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       parser->last_space_start = last_space_start;
     }
     else if( parser->tokens.pos == parser->tokens.len &&
-             (!optional ||
-              parser->fencelevel > 0) &&
+             (!optional || parser->fencelevel > 0) &&
              !pmath_aborting())
     {
       if(!read_more(parser))
@@ -1945,6 +1982,24 @@ static void skip_whitespace(struct group_t *group) {
         increment_text_position(group);
         continue;
       }
+    }
+    
+    if( group->tp.index < group->spans->length &&
+        group->str[group->tp.index] == '%')
+    {
+      pmath_span_t *s = SPAN_PTR(group->spans->items[group->tp.index]);
+      if(s) {
+        while(s->next)
+          s = s->next;
+          
+        increment_text_position_to(group, s->end + 1);
+      }
+      else { // increment by 2
+        increment_text_position(group);
+        increment_text_position(group);
+      }
+      
+      continue;
     }
     
     if( group->tp.index + 1 < group->spans->length &&
