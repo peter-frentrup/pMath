@@ -85,6 +85,8 @@ pmath_symbol_attributes_t _pmath_get_function_attributes(pmath_t head)
       pmath_unref(attrib_obj);
       return attrib;
     }
+    
+    pmath_unref(attrib_obj);
   }
   
   head_sym = _pmath_topmost_symbol(head);
