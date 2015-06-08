@@ -13,8 +13,6 @@
 
 ? introduce pmath_identical(...) which gives FALSE for arguments 0.0 and -0.0 (unlike pmath_equal)
 
-? Parse ...\[Newline]... as ...;... instead of ...*...
-
 - interesting: http://www.eecs.berkeley.edu/~fateman/papers/mma.review.pdf
 	
 - pmath: pattern matching intermediate results are different than in Mma:
