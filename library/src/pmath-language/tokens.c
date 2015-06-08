@@ -27,6 +27,7 @@ struct char_info_t {
 #define NUM  {PMATH_PREC_PRIM,    PMATH_TOK_DIGIT}
 #define COL  {PMATH_PREC_MODY,    PMATH_TOK_COLON}
 #define EVA  {PMATH_PREC_EVAL,    PMATH_TOK_NARY_AUTOARG}
+#define EV_  {PMATH_PREC_EVAL,    PMATH_TOK_NEWLINE}
 #define REL  {PMATH_PREC_REL,     PMATH_TOK_NARY}
 #define QUE  {PMATH_PREC_TEST,    PMATH_TOK_QUESTION}
 #define APL  {PMATH_PREC_APL,     PMATH_TOK_BINARY_RIGHT}
@@ -56,7 +57,7 @@ struct char_info_t {
 
 static const struct char_info_t u0000_u00ff[256] = {
   /*         0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F  */
-  /* 000 */ ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ___, ___, ___, ___, ___, ERR, ERR,
+  /* 000 */ ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ___, EV_, ___, ___, ___, ERR, ERR,
   /* 001 */ ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR, ERR,
   /* 002 */ ___, FAC, STR, ARG, ID,  ERR, FUN, DIF, LCL, RI1, MUL, ADD, SEQ, ADD, DOT, DIV,
   /* 003 */ NUM, NUM, NUM, NUM, NUM, NUM, NUM, NUM, NUM, NUM, COL, EVA, REL, REL, REL, QUE,

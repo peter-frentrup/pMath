@@ -147,6 +147,7 @@ static int expr_precedence(pmath_t box, int *pos) { // box wont be freed
       case PMATH_TOK_NAME:
       case PMATH_TOK_NAME2:
       case PMATH_TOK_SLOT:
+      case PMATH_TOK_NEWLINE:
         break;
         
       case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
@@ -229,6 +230,7 @@ static int expr_precedence(pmath_t box, int *pos) { // box wont be freed
       case PMATH_TOK_NARY:
       case PMATH_TOK_NARY_AUTOARG:
       case PMATH_TOK_NARY_OR_PREFIX:
+      case PMATH_TOK_NEWLINE:
       case PMATH_TOK_COLON:
         //prec = prec;  // TODO: what did i mean here?
         break;

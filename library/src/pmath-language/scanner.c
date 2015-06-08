@@ -189,13 +189,12 @@ struct parser_t {
   
   pmath_bool_t stack_error;
   pmath_bool_t tokenizing;
-  pmath_bool_t last_was_newline;
   int          last_space_start;
 };
 
 //{ parsing ...
 
-static void span(struct scanner_t *tokens, int start) {
+static void span_and_allow_single_token(struct scanner_t *tokens, int start, pmath_bool_t allow_single_token) {
   int i, end;
   
   if(!tokens->span_items)
@@ -220,11 +219,13 @@ static void span(struct scanner_t *tokens, int start) {
     return;
   }
   
-  for(i = start; i < end; ++i)
-    if(SPAN_TOK(tokens->span_items[i]))
-      goto HAVE_MULTIPLE_TOKENS;
-      
-  return;
+  if(!allow_single_token) {
+    for(i = start; i < end; ++i)
+      if(SPAN_TOK(tokens->span_items[i]))
+        goto HAVE_MULTIPLE_TOKENS;
+        
+    return;
+  }
   
 HAVE_MULTIPLE_TOKENS: ;
   {
@@ -239,6 +240,10 @@ HAVE_MULTIPLE_TOKENS: ;
       SPAN_TOK(tokens->span_items[start]) |
       SPAN_OP( tokens->span_items[start]);
   }
+}
+
+static void span(struct scanner_t *tokens, int start) {
+  span_and_allow_single_token(tokens, start, FALSE);
 }
 
 static void handle_error(struct parser_t *parser) {
@@ -360,8 +365,6 @@ static pmath_bool_t read_more(struct parser_t *parser) {
 }
 
 static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t optional) {
-  parser->last_was_newline = FALSE;
-  
   if( parser->tokens.pos < parser->tokens.len &&
       parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX &&
       parser->subsuperscriptbox_at_index &&
@@ -400,8 +403,8 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
           continue;
         }
         else if( parser->tokens.pos + 1 < parser->tokens.len       &&
-            parser->tokens.str[parser->tokens.pos]     == '/' &&
-            parser->tokens.str[parser->tokens.pos + 1] == '*')
+                 parser->tokens.str[parser->tokens.pos]     == '/' &&
+                 parser->tokens.str[parser->tokens.pos + 1] == '*')
         {
           parser->tokens.pos = span->end + 1;
           continue;
@@ -409,18 +412,6 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
         else
           break;
       }
-    }
-    
-    if( parser->tokens.pos < parser->tokens.len &&
-        parser->tokens.str[parser->tokens.pos] == '\n')
-    {
-      if(!optional || parser->fencelevel > 0) {
-        ++parser->tokens.pos;
-        parser->last_was_newline = TRUE;
-        continue;
-      }
-      
-      break;
     }
     
     if( parser->tokens.pos < parser->tokens.len &&
@@ -459,7 +450,7 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       parser->tokens.comment_level++;
       while(end < parser->tokens.len && parser->tokens.str[end] != '\n')
         ++end;
-      
+        
       parser->tokens.len = end;
       while(parser->tokens.pos < end) {
         int tmp = parser->tokens.pos;
@@ -474,15 +465,13 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       parser->tokens.comment_level--;
       parser->last_space_start = last_space_start;
       parser->read_line = old_read_line;
-      parser->last_was_newline = TRUE;
     }
     else if( parser->tokens.pos + 1 < parser->tokens.len &&
-        //!parser->tokens.in_comment                        &&
-        parser->tokens.str[parser->tokens.pos]     == '/' &&
-        parser->tokens.str[parser->tokens.pos + 1] == '*')
+             //!parser->tokens.in_comment                        &&
+             parser->tokens.str[parser->tokens.pos]     == '/' &&
+             parser->tokens.str[parser->tokens.pos + 1] == '*')
     {
-      pmath_bool_t last_was_newline = FALSE;
-      int last_space_start = parser->last_space_start;
+      int oldss = parser->last_space_start;
       
       int start = parser->tokens.pos;
       
@@ -510,8 +499,7 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       --parser->fencelevel;
       parser->tokens.comment_level--;
       
-      parser->last_was_newline = last_was_newline;
-      parser->last_space_start = last_space_start;
+      parser->last_space_start = oldss;
     }
     else if( parser->tokens.pos == parser->tokens.len &&
              (!optional || parser->fencelevel > 0) &&
@@ -1100,7 +1088,6 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   parser.tokens.in_string            = FALSE;
   parser.tokens.have_error           = FALSE;
   parser.stack_error                 = FALSE;
-  parser.last_was_newline            = FALSE;
   parser.last_space_start            = 0;
   
   if(!parser.spans)
@@ -1211,7 +1198,6 @@ static pmath_bool_t same_token(
 }
 
 static pmath_bool_t plusplus_is_infix(struct parser_t *parser, int next) {
-  pmath_bool_t oldnl  = parser->last_was_newline;
   int          oldss  = parser->last_space_start;
   int          oldpos = parser->tokens.pos;
   pmath_bool_t result;
@@ -1222,9 +1208,8 @@ static pmath_bool_t plusplus_is_infix(struct parser_t *parser, int next) {
   result = next > parser->tokens.pos &&
            pmath_token_maybe_first(token_analyse(parser, next, NULL));
            
-  parser->last_was_newline = oldnl;
-  parser->last_space_start = oldss;
   parser->tokens.pos       = oldpos;
+  parser->last_space_start = oldss;
   return result;
 }
 
@@ -1310,7 +1295,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
   next  = next_token_pos(parser);
   
   if(next == parser->tokens.pos) {
-    if(!prim_optional)
+    if(!prim_optional || parser->fencelevel > 0)
       handle_error(parser);
     return;
   }
@@ -1350,6 +1335,8 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
         parser->spans->items[start] |= 2; //operand start
         skip_to(parser, start, next, TRUE);
         
+        // TODO: warn about "~\[RawNewline]..." or skip line-break?
+        
         next = next_token_pos(parser);
         tok  = token_analyse(parser, next, &prec);
         
@@ -1369,6 +1356,8 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
     case PMATH_TOK_SLOT: {
         parser->spans->items[start] |= 2; //operand start
         skip_to(parser, start, next, TRUE);
+        
+        // TODO: warn about "#\[RawNewline]..." ?
         
         next = next_token_pos(parser);
         tok  = token_analyse(parser, next, &prec);
@@ -1406,32 +1395,30 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
       
     case PMATH_TOK_LEFT:
     case PMATH_TOK_LEFTCALL: {
-        int next2;
-        pmath_token_t tok2;
+        int lhs;
         
         parser->spans->items[start] |= 2; //operand start
         skip_to(parser, -1, next, FALSE);
         
-        next = parser->tokens.pos;
-        
-        next2 = next_token_pos(parser);
-        tok2  = token_analyse(parser, next2, &prec);
-        
         ++parser->fencelevel;
         
-        if(tok2 != PMATH_TOK_RIGHT) {
+        lhs = parser->tokens.pos;
+        parse_prim(parser, TRUE);
         
-          parse_prim(parser, FALSE);
-          parse_rest(parser, next, PMATH_PREC_ANY);
+        next = next_token_pos(parser);
+        tok  = token_analyse(parser, next, &prec);
+        
+        if(tok != PMATH_TOK_RIGHT) {
+          parse_rest(parser, lhs, PMATH_PREC_ANY);
           
-          next2 = next_token_pos(parser);
-          tok2  = token_analyse(parser, next2, &prec);
+          next = next_token_pos(parser);
+          tok  = token_analyse(parser, next, &prec);
         }
         
         --parser->fencelevel;
         
-        if(tok2 == PMATH_TOK_RIGHT)
-          skip_to(parser, start, next2, TRUE);
+        if(tok == PMATH_TOK_RIGHT)
+          skip_to(parser, start, next, TRUE);
         else
           handle_error(parser);
       } break;
@@ -1439,6 +1426,37 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
     case PMATH_TOK_BINARY_LEFT_AUTOARG:
     case PMATH_TOK_NARY_AUTOARG:
       break;
+      
+    case PMATH_TOK_NEWLINE: {
+        /* Newline at the start of an expression does nothing. We skip multiple
+           newlines ( = multiple empty lines) here. 
+           Later in emit_span(), these will all be skipped, since they are at 
+           the start of a span.
+           This is also the reason, why we use span_and_allow_single_token(,,TRUE) 
+           here, so "f(\n)" parses as {"f", "(", {"\n"}, ")"}, which is reduced 
+           to {"f", "(", ")"} by emit_span().
+         */
+        if(prim_optional && parser->fencelevel == 0)
+          return;
+          
+        parser->spans->items[start] |= 2; //operand start
+        for(;;) {
+          skip_to(parser, -1, next, FALSE);
+          next = next_token_pos(parser);
+          
+          if(next == parser->tokens.pos)
+            break;
+            
+          tok = token_analyse(parser, next, &prec);
+          if(tok != PMATH_TOK_NEWLINE)
+            break;
+        }
+        
+        parse_prim(parser, prim_optional);
+        span_and_allow_single_token(&parser->tokens, start, TRUE);
+        leave(parser);
+        return;
+      } break;
       
     case PMATH_TOK_PLUSPLUS:
       prec = PMATH_PREC_INC; // +1
@@ -1576,6 +1594,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
       case PMATH_TOK_LEFTCALL:
         if(parser->last_space_start == parser->tokens.pos) { // no preceding space
           pmath_bool_t doublesq = FALSE;
+          int arglhs;
           
           if(PMATH_PREC_CALL < min_prec)
             break;
@@ -1612,15 +1631,23 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           }
           
           skip_to(parser, -1, next, FALSE);
-          next = next_token_pos(parser);
-          if(token_analyse(parser, next, &cur_prec) != PMATH_TOK_RIGHT)
-            parse_sequence(parser);
-            
-          next = next_token_pos(parser);
           
+          arglhs = parser->tokens.pos;
+          parse_prim(parser, TRUE);
+          
+          next = next_token_pos(parser);
+          tok  = token_analyse(parser, next, &cur_prec);
+          
+          if(tok != PMATH_TOK_RIGHT) {
+            parse_rest(parser, arglhs, PMATH_PREC_ANY);
+            
+            next = next_token_pos(parser);
+            tok  = token_analyse(parser, next, &cur_prec);
+          }
+        
           --parser->fencelevel;
           
-          if(token_analyse(parser, next, &cur_prec) == PMATH_TOK_RIGHT) {
+          if(tok == PMATH_TOK_RIGHT) {
             if(doublesq) {
               if( next == parser->tokens.pos + 1                &&
                   next < parser->tokens.len                     &&
@@ -1658,10 +1685,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
       case PMATH_TOK_INTEGRAL: {
           if(PMATH_PREC_MUL < min_prec)
             break;
-            
-          if(parser->last_was_newline)
-            handle_newline_multiplication(parser);
-            
+          
           cur_prec = PMATH_PREC_MUL;
           tok      = PMATH_TOK_NARY;
           next     = parser->tokens.pos;
@@ -1669,10 +1693,10 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
         
       case PMATH_TOK_BINARY_LEFT_AUTOARG:
       case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
+      case PMATH_TOK_NEWLINE:
       case PMATH_TOK_NARY_AUTOARG: {
           pmath_token_t tok2;
           int           next2;
-          pmath_bool_t  oldnl  = parser->last_was_newline;
           int           oldss  = parser->last_space_start;
           int           oldpos = parser->tokens.pos;
           
@@ -1683,6 +1707,18 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           
           next2 = next_token_pos(parser);
           tok2  = token_analyse(parser, next2, NULL);
+          
+          if(tok == PMATH_TOK_NEWLINE) {
+            /* Skip subsequent newlines (multiple empty lines).
+               Note that pmath_token_maybe_first(PMATH_TOK_NEWLINE) == TRUE
+             */
+            while(next2 != parser->tokens.pos && tok2 == PMATH_TOK_NEWLINE) {
+              skip_to(parser, -1, next2, TRUE);
+              next2 = next_token_pos(parser);
+              tok2  = token_analyse(parser, next2, NULL);
+            }
+          }
+          
           if(!pmath_token_maybe_first(tok2)) {
           
             if( tok == PMATH_TOK_BINARY_LEFT_AUTOARG ||
@@ -1711,9 +1747,8 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
             continue;
           }
           
-          parser->last_was_newline = oldnl;
-          parser->last_space_start = oldss;
           parser->tokens.pos       = oldpos;
+          parser->last_space_start = oldss;
           if(tok == PMATH_TOK_BINARY_LEFT_AUTOARG) {
             span(&parser->tokens, lhs);
             goto BINARY;
@@ -1736,11 +1771,12 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           NARY:
           
             if(last_prec == cur_prec) {
-              if( cur_prec != PMATH_PREC_OR  &&
-                  cur_prec != PMATH_PREC_AND &&
-                  cur_prec != PMATH_PREC_REL &&
-                  cur_prec != PMATH_PREC_ADD &&
-                  cur_prec != PMATH_PREC_MUL &&
+              if( cur_prec != PMATH_PREC_EVAL &&
+                  cur_prec != PMATH_PREC_OR   &&
+                  cur_prec != PMATH_PREC_AND  &&
+                  cur_prec != PMATH_PREC_REL  &&
+                  cur_prec != PMATH_PREC_ADD  &&
+                  cur_prec != PMATH_PREC_MUL  &&
                   !same_token(parser, last_tok_start, last_tok_end, next))
               {
                 span(&parser->tokens, lhs);
@@ -1917,7 +1953,7 @@ struct group_t {
 };
 
 static void increment_text_position_to(struct group_t *group, int end) {
-  if(group->tp.index > end){
+  if(group->tp.index > end) {
     assert(group->tp.index <= end && "cannot decrement text pointer");
   }
   
@@ -1936,14 +1972,14 @@ static void increment_text_position(struct group_t *group) {
 }
 
 // Example code:
-//    
+//
 //    1 * F(2) /*comment*/   + 3
 //                           ^-tp
 //             ^-tp_before_whitespace
 //                        ^-end
-//     \_________________/ 
+//     \_________________/
 //
-// Here, we want the debug range info for the selected span \___/ to end after 
+// Here, we want the debug range info for the selected span \___/ to end after
 // the comment, but before the plus sign. So we increment tp_before_whitespace
 // to end.
 static void check_tp_before_whitespace(struct group_t *group, int end) {
@@ -1955,7 +1991,7 @@ static void check_tp_before_whitespace(struct group_t *group, int end) {
     
     group->tp = old_tp;
     
-//    pmath_debug_print("[tp_b_w = %d (%d:%d) != %d = end]\n", 
+//    pmath_debug_print("[tp_b_w = %d (%d:%d) != %d = end]\n",
 //      group->tp_before_whitespace.index,
 //      group->tp_before_whitespace.line,
 //      group->tp_before_whitespace.index - group->tp_before_whitespace.line_start_index,
@@ -2209,7 +2245,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
                      pmath_string_length(result),
                      &right_box_char,
                      1);
-          
+                     
           increment_text_position(group);
           start = group->tp;
         }
@@ -2257,22 +2293,48 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
     pmath_t expr;
     
     pmath_gather_begin(PMATH_NULL);
-    emit_span(span->next, group);
+    
+    if( (group->settings.flags & PMATH_BFS_PARSEABLE) &&
+        !span->next &&
+        group->str[group->tp.index] == '\n')
+    {
+      increment_text_position(group);
+      skip_whitespace(group);
+      
+      while( group->tp.index <= span->end &&
+             group->str[group->tp.index] == '\n')
+      {
+        if(SPAN_PTR(group->spans->items[group->tp.index])) {
+          pmath_debug_print("[unexpected span at \\n %d]\n", group->tp.index);
+          break;
+        }
+        increment_text_position(group);
+        skip_whitespace(group);
+      }
+    }
+    else {
+      emit_span(span->next, group);
+    }
+    
     while(group->tp.index <= span->end)
       emit_span(SPAN_PTR(group->spans->items[group->tp.index]), group);
       
     expr = pmath_gather_end();
-    check_tp_before_whitespace(group, span->end + 1);
+    if(pmath_expr_length(expr) > 0) {
+      check_tp_before_whitespace(group, span->end + 1);
       
-    if(group->settings.add_debug_info) {
-      expr = group->settings.add_debug_info(
-               expr,
-               &span_start,
-               &group->tp_before_whitespace,//span->end + 1,
-               group->settings.data);
+      if(group->settings.add_debug_info) {
+        expr = group->settings.add_debug_info(
+                 expr,
+                 &span_start,
+                 &group->tp_before_whitespace,//span->end + 1,
+                 group->settings.data);
+      }
+      
+      pmath_emit(expr, PMATH_NULL);
     }
-    
-    pmath_emit(expr, PMATH_NULL);
+    else
+      pmath_unref(expr);
   }
 }
 

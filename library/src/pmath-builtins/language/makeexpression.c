@@ -1673,15 +1673,38 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       pmath_t prev = PMATH_NULL;
       pmath_bool_t last_was_semicolon = TRUE;
       
+      i = 1;
+      while(i <= exprlen && unichar_at(expr, i) == '\n')
+        ++i;
+        
+      while(i <= exprlen && unichar_at(expr, exprlen) == '\n')
+        --exprlen;
+        
+      if(i == exprlen) {
+        prev = parse_at(expr, i);
+        pmath_unref(expr);
+        
+        if(is_parse_error(prev))
+          return pmath_ref(PMATH_SYMBOL_FAILED);
+        
+        return HOLDCOMPLETE(prev);  
+      }
+      
       pmath_gather_begin(PMATH_NULL);
       
-      i = 1;
       while(i <= exprlen) {
         uint16_t ch = unichar_at(expr, i);
-        if(ch == ';' || ch == '\n') {
+        if(ch == ';') {
           last_was_semicolon = TRUE;
           pmath_emit(prev, PMATH_NULL);
           prev = PMATH_NULL;
+        }
+        else if(ch == '\n') {
+          last_was_semicolon = TRUE;
+          if(!pmath_is_null(prev)) {
+            pmath_emit(prev, PMATH_NULL);
+            prev = PMATH_NULL;
+          }
         }
         else if(!last_was_semicolon) {
           last_was_semicolon = FALSE;

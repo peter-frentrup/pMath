@@ -44,7 +44,8 @@ typedef enum {
   PMATH_TOK_SLOT,
   PMATH_TOK_QUESTION,
   PMATH_TOK_INTEGRAL, /* acts like PMATH_TOK_PREFIX */
-  PMATH_TOK_COMMENTEND
+  PMATH_TOK_COMMENTEND,
+  PMATH_TOK_NEWLINE
 } pmath_token_t;
 
 enum {
@@ -160,7 +161,8 @@ static PMATH_INLINE pmath_bool_t pmath_token_maybe_first(pmath_token_t tok) {
          tok == PMATH_TOK_TILDES                ||
          tok == PMATH_TOK_SLOT                  ||
          tok == PMATH_TOK_QUESTION              ||
-         tok == PMATH_TOK_INTEGRAL;
+         tok == PMATH_TOK_INTEGRAL              ||
+         tok == PMATH_TOK_NEWLINE;
 }
 
 /**\brief Test whether a token need not be the first token in a subexpression.

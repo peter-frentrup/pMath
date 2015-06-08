@@ -290,7 +290,7 @@ static void syntax_error_newl_or_nxt(
   pmath_string_t  filename,          // will be freed
   int             lines_before_code
 ) {
-  pmath_string_t before;
+  pmath_string_t before, after;
   int eol1, eol, bol;
   
   int             len = pmath_string_length(code);
@@ -321,37 +321,21 @@ static void syntax_error_newl_or_nxt(
   }
   
   before = pmath_string_part(pmath_ref(code), bol, eol1 - bol); // eol1-bol+1
-  if(str[position] == '\n') {
-    if(pmath_is_null(filename)) {
-      pmath_message(
-        PMATH_SYMBOL_SYNTAX, "newl", 1,
-        before);
-    }
-    else {
-      pmath_message(
-        PMATH_SYMBOL_SYNTAX, "newlf", 3,
-        before,
-        PMATH_FROM_INT32(lines_before_code),
-        filename);
-    }
+  after = pmath_string_part(pmath_ref(code), position, eol - position); // pos+1, eol-pos-1
+  
+  if(pmath_is_null(filename)) {
+    pmath_message(
+      PMATH_SYMBOL_SYNTAX, "nxt", 2,
+      before,
+      after);
   }
   else {
-    pmath_string_t after = pmath_string_part(pmath_ref(code), position, eol - position); // pos+1, eol-pos-1
-    
-    if(pmath_is_null(filename)) {
-      pmath_message(
-        PMATH_SYMBOL_SYNTAX, "nxt", 2,
-        before,
-        after);
-    }
-    else {
-      pmath_message(
-        PMATH_SYMBOL_SYNTAX, "nxtf", 4,
-        before,
-        after,
-        PMATH_FROM_INT32(lines_before_code),
-        filename);
-    }
+    pmath_message(
+      PMATH_SYMBOL_SYNTAX, "nxtf", 4,
+      before,
+      after,
+      PMATH_FROM_INT32(lines_before_code),
+      filename);
   }
 }
 

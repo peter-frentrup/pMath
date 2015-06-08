@@ -108,8 +108,6 @@ General::nopar1:= "`1` cannot be parallelized; proceeding with sequential evalua
 
 Syntax::bgn:= MakeExpression::bgn:= "An expression cannot begin with \"`1`\"."
 Syntax::bgnf:= "An expression cannot begin with \"`1`\". (Line `2` in `3`)"
-Syntax::newl:= "The newline character after \"`1`\" is interpreted as a multiplication operator."
-Syntax::newlf:= "The newline character after \"`1`\" is interpreted as a multiplication operator. (Line `2` in `3`)"
 Syntax::nxt:= MakeExpression::nxt:= "\"`1`\" cannot be followed by \"`2`\"."
 Syntax::nxtf:= "\"`1`\" cannot be followed by \"`2`\". (Line `3` in `4`)"
 Syntax::more:= "Incomplete expression; more input needed."
