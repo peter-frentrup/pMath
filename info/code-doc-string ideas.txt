@@ -1,0 +1,107 @@
+We need some way to document code and help code completion.
+
+
+Parameter input has the form {"method" -> "newton"|"euler", "speed" -> Real, "data" -> {{Real,Real}**}}
+Order of properties is irrelevant
+Want some doc-string for each property name, also for enum values
+
+	calculation(~input)::= With({speed:= input["speed"],...},...)
+
+
+Parameter obj is some JavaObject or NetObject
+
+	execution(~obj)::= (obj @ method(...); ...)
+
+Example
+
+	DefineType(CalculationMethodEnum):= 
+		DocString("Famous Newton method") @ 
+		"newton" | 
+		DocString("Famous method from Euler") @ 
+		"euler"
+	
+	DocString("Do the stupid calculation") @
+	Parameter(input -> {"method" -> CalculationMethodEnum, "speed" -> Real, "data" -> {{Real,Real}**}},
+		"Some input for the calculation") @
+	calculation(~input)::= ...
+
+
+However, this syntax probably does not easily work with TagAssign/TagAssignDelayed
+
+	DocString("Bla bla") @
+	f /: g(f,...) := ...
+
+
+Alternative: Use line comments (e.g. starting with "%". block comments might be to tedeous to write)
+
+	% Do the stupid calculation
+	% @param input: {"method" -> ........} -- Some input for the calculation
+	calculation(~input)::= ...
+
+	% @param obj: JavaObject("java.io.File") | NetObject("System.IO.File") -- A nice object
+	execution(~obj):= ...
+
+
+
+
+
+General syntax considerations
+=============================
+
+Line comment syntax
+1) Start with // anywhere
+	Advantage: 
+		Recognized by many programmers, fits to /* ... */ block comments
+	Disadvantage: 
+		Maybe we want some //@ operator some time; 
+		Also /* ... */ is not a nice choice?
+	
+2) Start with % anywhere
+	Advantage: 
+		Like MATLAB
+	Disadvantage:
+		Currently used as History(-1), %% as History(-2) a.s.o., as in Mma
+		Many languages use % as an operator
+
+3) Whole line starting with #
+	Advantage:
+		Supports Shebang #! comment for scipts.
+		Like Maple
+	Disadvantage: 
+		# is also the Slot of a Function
+
+Block comment syntax
+1) /* ... */
+	Advantages:
+		Recognized by many programmers.
+	Disadvantages:
+		/@ /: /? a.s.o. are operators/parts of operators, /* looks like one
+		Is "a/*b***/c*/" valid code? Note that "b***" is a valid pattern syntax.
+
+2) (* ... *)
+	Advantages:
+		Known from Mma, Pascal
+		Nesting easily recognized
+	Disadvantages:
+		Is "a(*b***)c*)" valid code?
+
+3) (< ... >)  or  (> ... <)
+	Advantages:
+		">)" and "<)" cannot be misparsed as a postfix operator + closing parenthesis
+	Disadvantages:
+		Not used anywhere.
+		Strange douple opening, double closing;
+
+		
+Whitesspace and \[RawNewline]
+--------------------------
+
+a\[RawNewline]b should NOT be parsed as "a b", i.e. a*b.
+Because one often forgets a comma in an argument list or a semicolon and then gets stange results,
+but no syntax errors.
+Idea 1) Treat any whitespace between two non-operators
+	a) as an implicit * or \[Times] if it does NOT contain \[Newline];
+	b) as an implicit ; if it does containt \[Newline]
+
+How should we treat block comments? What is "a/* bla\[Newline]bla */b" ? 
+Should it be "a*b" or "a;b" ?
