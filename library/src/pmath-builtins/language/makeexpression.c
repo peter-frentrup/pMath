@@ -928,7 +928,8 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   
   if(len == 0) {
     pmath_unref(string);
-    return HOLDCOMPLETE(PMATH_NULL);
+    return pmath_expr_new(
+             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
   }
   
   if(str[0] == '"')
@@ -943,7 +944,8 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   len = pmath_string_length( string);
   if(len == 0) {
     pmath_unref(string);
-    return HOLDCOMPLETE(PMATH_NULL);
+    return pmath_expr_new(
+             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
   }
   
   tok = pmath_token_analyse(str, 1, NULL);
@@ -978,6 +980,12 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   }
   
   // now come special cases of generally longer expressions:
+  
+  if(tok == PMATH_TOK_NEWLINE || tok == PMATH_TOK_SPACE) {
+    pmath_unref(string);
+    return pmath_expr_new(
+             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+  }
   
   if(len == 1 && str[0] == '#') {
     pmath_unref(string);
@@ -1583,7 +1591,7 @@ static pmath_t make_comma_sequence(pmath_expr_t expr) {
            pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE));
 }
 
-// a; b; c\[RawNewline]d ...  
+// a; b; c\[RawNewline]d ...
 static pmath_t make_evaluation_sequence(pmath_expr_t expr) {
   pmath_t prev = PMATH_NULL;
   pmath_bool_t last_was_semicolon = TRUE;
@@ -1596,6 +1604,12 @@ static pmath_t make_evaluation_sequence(pmath_expr_t expr) {
     
   while(i <= exprlen && unichar_at(expr, exprlen) == '\n')
     --exprlen;
+  
+  if(i > exprlen) {
+    pmath_unref(expr);
+    return pmath_expr_new(
+             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+  }
     
   if(i == exprlen) {
     prev = parse_at(expr, i);
@@ -2906,7 +2920,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     
     if(exprlen == 0) {
       pmath_unref(expr);
-      return HOLDCOMPLETE(PMATH_NULL);
+      return pmath_expr_new(
+               pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
     }
     
     firstchar  = unichar_at(expr, 1);
@@ -3042,7 +3057,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // f@x
       if(secondchar == '@' || secondchar == PMATH_CHAR_INVISIBLECALL)
         return make_prefix_call(expr);
-      
+        
       // arg // f
       if(is_string_at(expr, 2, "//"))
         return make_postfix_call(expr);
@@ -3058,15 +3073,15 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // args |-> body
       if(secondchar == 0x21A6)
         return make_arrow_function(expr);
-      
+        
       // f@@list
       if(is_string_at(expr, 2, "@@"))
         return make_apply(expr);
-      
+        
       // s::tag
       if(is_string_at(expr, 2, "::"))
         return make_message_name(expr);
-      
+        
       // lhs:=rhs
       if(secondchar == PMATH_CHAR_ASSIGN)
         return make_binary(expr, PMATH_SYMBOL_ASSIGN);
@@ -3074,7 +3089,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // lhs::=rhs
       if(secondchar == PMATH_CHAR_ASSIGNDELAYED)
         return make_binary(expr, PMATH_SYMBOL_ASSIGNDELAYED);
-      
+        
       // lhs->rhs
       if(secondchar == PMATH_CHAR_RULE)
         return make_binary(expr, PMATH_SYMBOL_RULE);
@@ -3127,41 +3142,41 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     // ~x:t  ~~x:t  ~~~x:t
     if(exprlen == 4 && unichar_at(expr, 3) == ':')
       return make_typed_named_match(expr);
-    
+      
     // t/:l:=r   t/:l::=r
-    if(exprlen == 5 && is_string_at(expr, 2, "/:")) 
+    if(exprlen == 5 && is_string_at(expr, 2, "/:"))
       return make_tag_assignment(expr);
-    
+      
     // infix operators (except * ) ...
     if(exprlen & 1) {
       int tokprec;
       
-      if(secondchar == '+' || secondchar == '-') 
+      if(secondchar == '+' || secondchar == '-')
         return make_plus(expr);
-      
+        
       // single character infix operators (except + - * / && || and relations) ...
       head = inset_operator(secondchar);
-      if(!pmath_is_null(head)) 
+      if(!pmath_is_null(head))
         return make_infix(expr, head);
-      
+        
       pmath_token_analyse(&secondchar, 1, &tokprec);
       
       // x/y/.../z
       if(tokprec == PMATH_PREC_DIV)
         return make_division(expr);
-      
+        
       // a && b && ...
       if(secondchar == 0x2227)
         return make_and(expr);
-      
+        
       // a || b || ...
       if(secondchar == 0x2228)
         return make_or(expr);
-      
+        
       // a && b && ...
       if(is_string_at(expr, 2, "&&"))
         return make_and(expr);
-      
+        
       // a || b || ...
       if(is_string_at(expr, 2, "||"))
         return make_or(expr);
@@ -3169,19 +3184,19 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // a ++ b ++ ...
       if(is_string_at(expr, 2, "++"))
         return make_infix_unchecked(expr, PMATH_SYMBOL_STRINGEXPRESSION);
-      
+        
       // relations ...
       head = relation_at(expr, 2);
-      if(!pmath_is_null(head)) 
+      if(!pmath_is_null(head))
         return make_relation(expr, head);
     }
     
     // f(x)  l[x]  l[[x]]
     if(exprlen == 4) {
       // f(x)
-      if(secondchar == '(' && unichar_at(expr, 4) == ')') 
+      if(secondchar == '(' && unichar_at(expr, 4) == ')')
         return make_simple_call(expr);
-      
+        
       // l[x]
       if(secondchar == '[' && unichar_at(expr, 4) == ']')
         return make_part(expr);
@@ -3208,11 +3223,11 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     // a..b..c
     if(is_string_at(expr, 2, "..") || is_string_at(expr, 1, ".."))
       return make_range(expr);
-    
+      
     // implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
-    if(pmath_is_expr_of(expr, PMATH_NULL)) 
+    if(pmath_is_expr_of(expr, PMATH_NULL))
       return obsolete_make_implicit_evaluation_sequence(expr);
-    
+      
     // everything else is multiplication ...
     return make_multiplication(expr);
   }

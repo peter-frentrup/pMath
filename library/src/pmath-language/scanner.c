@@ -194,7 +194,7 @@ struct parser_t {
 
 //{ parsing ...
 
-static void span_and_allow_single_token(struct scanner_t *tokens, int start, pmath_bool_t allow_single_token) {
+static void span(struct scanner_t *tokens, int start) {
   int i, end;
   
   if(!tokens->span_items)
@@ -219,13 +219,11 @@ static void span_and_allow_single_token(struct scanner_t *tokens, int start, pma
     return;
   }
   
-  if(!allow_single_token) {
-    for(i = start; i < end; ++i)
-      if(SPAN_TOK(tokens->span_items[i]))
-        goto HAVE_MULTIPLE_TOKENS;
-        
-    return;
-  }
+  for(i = start; i < end; ++i)
+    if(SPAN_TOK(tokens->span_items[i]))
+      goto HAVE_MULTIPLE_TOKENS;
+      
+  return;
   
 HAVE_MULTIPLE_TOKENS: ;
   {
@@ -240,10 +238,6 @@ HAVE_MULTIPLE_TOKENS: ;
       SPAN_TOK(tokens->span_items[start]) |
       SPAN_OP( tokens->span_items[start]);
   }
-}
-
-static void span(struct scanner_t *tokens, int start) {
-  span_and_allow_single_token(tokens, start, FALSE);
 }
 
 static void handle_error(struct parser_t *parser) {
@@ -1415,14 +1409,6 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
       break;
       
     case PMATH_TOK_NEWLINE: {
-        /* Newline at the start of an expression does nothing. We skip multiple
-           newlines ( = multiple empty lines) here. 
-           Later in emit_span(), these will all be skipped, since they are at 
-           the start of a span.
-           This is also the reason, why we use span_and_allow_single_token(,,TRUE) 
-           here, so "f(\n)" parses as {"f", "(", {"\n"}, ")"}, which is reduced 
-           to {"f", "(", ")"} by emit_span().
-         */
         if(prim_optional && parser->fencelevel == 0)
           return;
           
@@ -1440,7 +1426,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
         }
         
         parse_prim(parser, prim_optional);
-        span_and_allow_single_token(&parser->tokens, start, TRUE);
+        span(&parser->tokens, start);
         leave(parser);
         return;
       } break;
@@ -2281,27 +2267,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
     
     pmath_gather_begin(PMATH_NULL);
     
-    if( (group->settings.flags & PMATH_BFS_PARSEABLE) &&
-        !span->next &&
-        group->str[group->tp.index] == '\n')
-    {
-      increment_text_position(group);
-      skip_whitespace(group);
-      
-      while( group->tp.index <= span->end &&
-             group->str[group->tp.index] == '\n')
-      {
-        if(SPAN_PTR(group->spans->items[group->tp.index])) {
-          pmath_debug_print("[unexpected span at \\n %d]\n", group->tp.index);
-          break;
-        }
-        increment_text_position(group);
-        skip_whitespace(group);
-      }
-    }
-    else {
-      emit_span(span->next, group);
-    }
+    emit_span(span->next, group);
     
     while(group->tp.index <= span->end)
       emit_span(SPAN_PTR(group->spans->items[group->tp.index]), group);
