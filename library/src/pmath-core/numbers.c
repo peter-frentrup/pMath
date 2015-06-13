@@ -1906,7 +1906,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
   char c = 0;
   hash_init = incremental_hash(&c, 1, 0);
   
+#ifdef mpir_version
+  pmath_debug_print("[mpir %s ~= gmp %s]\n", mpir_version, gmp_version);
+#else
   pmath_debug_print("[gmp %s]\n", gmp_version);
+#endif
   
   pmath_debug_print("[mpfr %s%s]\n", 
     mpfr_get_version(),

@@ -258,7 +258,7 @@ static pmath_expr_t get_system_information(void) {
 #  define LIST1(a)     pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, (a))
 #  define LIST2(a, b)  pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, (a), (b))
 
-  pmath_expr_t compiler_info;
+  pmath_expr_t compiler_info, gmp_info;
   
   // http://sourceforge.net/p/predef/wiki/Compilers/
 #  if defined( _MSC_VER )
@@ -311,6 +311,23 @@ static pmath_expr_t get_system_information(void) {
                       SETTINGS_RULE("Version", "Unknown"));
   }
 #endif
+
+#ifdef mpir_version
+  {
+    gmp_info = SETTINGS_RULE("mpir", 
+      LIST1(
+        SETTINGS_RULE("Version", PMATH_C_STRING(mpir_version))
+      ));
+  }
+#else
+  {
+    gmp_info = SETTINGS_RULE("gmp",
+      LIST1(
+        SETTINGS_RULE("Version", PMATH_C_STRING(gmp_version))
+      ));
+  }
+#endif
+
   
   return LIST2(
            SETTINGS_RULE("Compiler", compiler_info),
@@ -318,7 +335,7 @@ static pmath_expr_t get_system_information(void) {
              "ThirdPartyLibraries",
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_LIST), 5,
-               SETTINGS_RULE("gmp",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(gmp_version))        )),
+               gmp_info,
                SETTINGS_RULE("mpfr", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfr_get_version())) )),
                SETTINGS_RULE("mpfi", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfi_get_version())) )),
                SETTINGS_RULE("pcre", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(pcre16_version()))   )),
