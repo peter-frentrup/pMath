@@ -33,21 +33,25 @@
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-Wno-unknown-pragmas" />
+					<Add option="-Wno-undef" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DPMATH_DEBUG_MEMORY" />
 					<Add option="-DPMATH_DEBUG_TESTS" />
 					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
+					<Add option="-D__GMP_LIBGMP_DLL=1" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="mpfi" />
 					<Add library="mpfr" />
-					<Add library="gmp" />
+					<Add library="mpir" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
 					<Add library="shell32" />
 					<Add library="zdll" />
+					<Add library="mpfi-globals" />
+					<Add library="mpir-globals" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat gcc-debug-x86 x86" />
@@ -77,8 +81,10 @@
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-Wno-unknown-pragmas" />
+					<Add option="-Wno-undef" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
+					<Add option="-D__GMP_LIBGMP_DLL=1" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -87,11 +93,13 @@
 					<Add option="-O3" />
 					<Add library="mpfi" />
 					<Add library="mpfr" />
-					<Add library="gmp" />
+					<Add library="mpir" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
 					<Add library="shell32" />
 					<Add library="zdll" />
+					<Add library="mpfi-globals" />
+					<Add library="mpir-globals" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat gcc-release-x86 x86" />
@@ -121,6 +129,7 @@
 					<Add option="/Ddisable_PMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />
+					<Add option="/D__GMP_LIBGMP_DLL=1" />
 					<Add directory="../msvc-c99" />
 				</Compiler>
 				<Linker>
@@ -128,12 +137,11 @@
 					<Add option="/LTCG" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
-					<Add library="gmp.lib" />
+					<Add library="mpir.lib" />
 					<Add library="iconv.lib" />
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
 					<Add library="zdll.lib" />
-					<Add library="gcc.lib" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat msvc-debug-x86 x86" />
@@ -159,18 +167,18 @@
 					<Add option="/DNDEBUG" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />
+					<Add option="/D__GMP_LIBGMP_DLL=1" />
 					<Add directory="../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add option="/LTCG" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
-					<Add library="gmp.lib" />
+					<Add library="mpir.lib" />
 					<Add library="iconv.lib" />
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
 					<Add library="zdll.lib" />
-					<Add library="gcc.lib" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat msvc-release-x86 x86" />
@@ -200,7 +208,7 @@
 					<Add option="/Ddisable_PMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />
-					<Add option="/D__GMP_LIBGMP_DLL" />
+					<Add option="/D__GMP_LIBGMP_DLL=1" />
 					<Add directory="../msvc-c99" />
 				</Compiler>
 				<Linker>
@@ -242,7 +250,7 @@
 					<Add option="/Ddisable_PMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />
-					<Add option="/D__GMP_LIBGMP_DLL" />
+					<Add option="/D__GMP_LIBGMP_DLL=1" />
 					<Add directory="../msvc-c99" />
 				</Compiler>
 				<Linker>
@@ -286,13 +294,14 @@
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
+					<Add option="-D__GMP_LIBGMP_DLL=1" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="mpfi" />
 					<Add library="mpfr" />
-					<Add library="gmp" />
+					<Add library="mpir" />
 					<Add library="iconv" />
 					<Add library="pcre16" />
 					<Add library="shell32" />
