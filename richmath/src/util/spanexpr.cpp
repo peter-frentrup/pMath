@@ -432,7 +432,7 @@ int SpanExpr::precedence(int *pos) {
     case PMATH_TOK_SLOT:
       break;
       
-    case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
+    case PMATH_TOK_NEWLINE:
     case PMATH_TOK_NARY_OR_PREFIX:
     case PMATH_TOK_POSTFIX_OR_PREFIX:
     case PMATH_TOK_PLUSPLUS:
@@ -445,7 +445,6 @@ int SpanExpr::precedence(int *pos) {
       
     case PMATH_TOK_BINARY_LEFT:
     case PMATH_TOK_BINARY_RIGHT:
-    case PMATH_TOK_BINARY_LEFT_AUTOARG:
     case PMATH_TOK_NARY:
     case PMATH_TOK_NARY_AUTOARG:
     case PMATH_TOK_PREFIX:
@@ -505,8 +504,6 @@ int SpanExpr::precedence(int *pos) {
       break;
       
     case PMATH_TOK_BINARY_LEFT:
-    case PMATH_TOK_BINARY_LEFT_AUTOARG:
-    case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
     case PMATH_TOK_QUESTION:
     case PMATH_TOK_BINARY_RIGHT:
     case PMATH_TOK_ASSIGNTAG:
@@ -514,6 +511,7 @@ int SpanExpr::precedence(int *pos) {
     case PMATH_TOK_NARY_AUTOARG:
     case PMATH_TOK_NARY_OR_PREFIX:
     case PMATH_TOK_COLON:
+    case PMATH_TOK_NEWLINE:
       //prec = prec;  // TODO: what did i mean here?
       break;
       

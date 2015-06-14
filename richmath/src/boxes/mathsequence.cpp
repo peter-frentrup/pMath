@@ -2533,7 +2533,6 @@ void MathSequence::enlarge_space(Context *context) {
         }
         goto POSTFIX;
         
-      case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
       case PMATH_TOK_NARY_OR_PREFIX: {
           if(spans.is_operand_start(i)) {
             prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
@@ -2542,7 +2541,6 @@ void MathSequence::enlarge_space(Context *context) {
         }
         goto INFIX;
         
-      case PMATH_TOK_BINARY_LEFT_AUTOARG:
       case PMATH_TOK_NARY_AUTOARG:
       case PMATH_TOK_BINARY_LEFT:
       case PMATH_TOK_BINARY_RIGHT:
@@ -2655,6 +2653,10 @@ void MathSequence::enlarge_space(Context *context) {
       case PMATH_TOK_COLON:
       case PMATH_TOK_ASSIGNTAG:
         space_left = space_right = em * 4 / 18;
+        break;
+      
+      case PMATH_TOK_NEWLINE:
+        space_left = space_right = 0.0;
         break;
         
       case PMATH_TOK_SPACE: {

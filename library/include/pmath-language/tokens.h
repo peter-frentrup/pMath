@@ -15,37 +15,35 @@
 /**\brief Token classes known in the pMath language.
  */
 typedef enum {
-  PMATH_TOK_NONE,
-  PMATH_TOK_SPACE,
-  PMATH_TOK_DIGIT,
-  PMATH_TOK_STRING,
-  PMATH_TOK_NAME,
-  PMATH_TOK_NAME2,
-  PMATH_TOK_BINARY_LEFT,
-  PMATH_TOK_BINARY_RIGHT,
-  PMATH_TOK_BINARY_LEFT_AUTOARG,
-  PMATH_TOK_BINARY_LEFT_OR_PREFIX,
-  PMATH_TOK_NARY,
-  PMATH_TOK_NARY_AUTOARG,
-  PMATH_TOK_NARY_OR_PREFIX,
-  PMATH_TOK_POSTFIX_OR_PREFIX,
-  PMATH_TOK_PREFIX,
-  PMATH_TOK_POSTFIX,
-  PMATH_TOK_CALL,
-  PMATH_TOK_LEFTCALL,
-  PMATH_TOK_LEFT,
-  PMATH_TOK_RIGHT,
-  PMATH_TOK_PRETEXT,
+  PMATH_TOK_NONE = 0,
+  PMATH_TOK_SPACE = 1,
+  PMATH_TOK_DIGIT = 2,
+  PMATH_TOK_STRING = 3,
+  PMATH_TOK_NAME = 4,
+  PMATH_TOK_NAME2 = 5,
+  PMATH_TOK_BINARY_LEFT = 6,
+  PMATH_TOK_BINARY_RIGHT = 7,
+  PMATH_TOK_NARY = 10,
+  PMATH_TOK_NARY_AUTOARG = 11,
+  PMATH_TOK_NARY_OR_PREFIX = 12,
+  PMATH_TOK_POSTFIX_OR_PREFIX = 13,
+  PMATH_TOK_PREFIX = 14,
+  PMATH_TOK_POSTFIX = 15,
+  PMATH_TOK_CALL = 16,
+  PMATH_TOK_LEFTCALL = 17,
+  PMATH_TOK_LEFT = 18,
+  PMATH_TOK_RIGHT = 19,
+  PMATH_TOK_PRETEXT = 20,
   
-  PMATH_TOK_ASSIGNTAG,
-  PMATH_TOK_PLUSPLUS,
-  PMATH_TOK_COLON,
-  PMATH_TOK_TILDES,
-  PMATH_TOK_SLOT,
-  PMATH_TOK_QUESTION,
-  PMATH_TOK_INTEGRAL, /* acts like PMATH_TOK_PREFIX */
-  PMATH_TOK_COMMENTEND,
-  PMATH_TOK_NEWLINE
+  PMATH_TOK_ASSIGNTAG = 21,
+  PMATH_TOK_PLUSPLUS = 22,
+  PMATH_TOK_COLON = 23,
+  PMATH_TOK_TILDES = 24,
+  PMATH_TOK_SLOT = 25,
+  PMATH_TOK_QUESTION = 26,
+  PMATH_TOK_INTEGRAL = 27, /* acts like PMATH_TOK_PREFIX */
+  PMATH_TOK_COMMENTEND = 28,
+  PMATH_TOK_NEWLINE = 29
 } pmath_token_t;
 
 enum {
@@ -149,8 +147,6 @@ static PMATH_INLINE pmath_bool_t pmath_token_maybe_first(pmath_token_t tok) {
          tok == PMATH_TOK_DIGIT                 ||
          tok == PMATH_TOK_STRING                ||
          tok == PMATH_TOK_PREFIX                ||
-         tok == PMATH_TOK_BINARY_LEFT_AUTOARG   ||
-         tok == PMATH_TOK_BINARY_LEFT_OR_PREFIX ||
          tok == PMATH_TOK_NARY_AUTOARG          ||
          tok == PMATH_TOK_NARY_OR_PREFIX        ||
          tok == PMATH_TOK_POSTFIX_OR_PREFIX     ||
@@ -240,7 +236,6 @@ static PMATH_INLINE pmath_bool_t pmath_char_is_integral(uint16_t ch) {
 static PMATH_INLINE pmath_bool_t pmath_token_maybe_bigop(pmath_token_t tok) {
   return tok == PMATH_TOK_BINARY_LEFT           ||
          tok == PMATH_TOK_BINARY_RIGHT          ||
-         tok == PMATH_TOK_BINARY_LEFT_OR_PREFIX ||
          tok == PMATH_TOK_NARY                  ||
          tok == PMATH_TOK_NARY_OR_PREFIX        ||
          tok == PMATH_TOK_POSTFIX_OR_PREFIX     ||

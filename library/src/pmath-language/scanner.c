@@ -1404,7 +1404,6 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
           handle_error(parser);
       } break;
       
-    case PMATH_TOK_BINARY_LEFT_AUTOARG:
     case PMATH_TOK_NARY_AUTOARG:
       break;
       
@@ -1435,7 +1434,6 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
       prec = PMATH_PREC_INC; // +1
       goto DO_PREFIX;
       
-    case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
     case PMATH_TOK_NARY_OR_PREFIX:
     case PMATH_TOK_POSTFIX_OR_PREFIX:
       prec = prefix_precedence(parser, next, prec);
@@ -1663,9 +1661,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           tok      = PMATH_TOK_NARY;
           next     = parser->tokens.pos;
         } goto NARY;
-        
-      case PMATH_TOK_BINARY_LEFT_AUTOARG:
-      case PMATH_TOK_BINARY_LEFT_OR_PREFIX:
+      
       case PMATH_TOK_NEWLINE:
       case PMATH_TOK_NARY_AUTOARG: {
           pmath_token_t tok2;
@@ -1694,9 +1690,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           
           if(!pmath_token_maybe_first(tok2)) {
           
-            if( tok == PMATH_TOK_BINARY_LEFT_AUTOARG ||
-                tok == PMATH_TOK_NARY_AUTOARG)
-            {
+            if(tok == PMATH_TOK_NARY_AUTOARG) {
               if(cur_prec < last_prec) {
                 int pos = parser->tokens.pos;
                 parser->tokens.pos = oldpos;
@@ -1722,10 +1716,6 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           
           parser->tokens.pos       = oldpos;
           parser->last_space_start = oldss;
-          if(tok == PMATH_TOK_BINARY_LEFT_AUTOARG) {
-            span(&parser->tokens, lhs);
-            goto BINARY;
-          }
         } goto NARY;
         
       case PMATH_TOK_QUESTION:
@@ -1763,15 +1753,10 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
             last_tok_start = parser->tokens.pos;
             last_tok_end   = next;
             
-            skip_to(parser, -1, next,
-                    (tok == PMATH_TOK_NARY_AUTOARG ||
-                     tok == PMATH_TOK_BINARY_LEFT_AUTOARG));
+            skip_to(parser, -1, next, tok == PMATH_TOK_NARY_AUTOARG);
                      
             rhs = parser->tokens.pos;
-            parse_prim(
-              parser,
-              (tok == PMATH_TOK_NARY_AUTOARG ||
-               tok == PMATH_TOK_BINARY_LEFT_AUTOARG));
+            parse_prim(parser, tok == PMATH_TOK_NARY_AUTOARG);
                
             next = next_token_pos(parser);
             oldpos = parser->tokens.pos;
