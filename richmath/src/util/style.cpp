@@ -11,9 +11,8 @@
 #endif
 
 #ifndef NAN
-#  define NAN numeric_limits<double>::quiet_NaN()
+#  define NAN  (std::numeric_limits<double>::quiet_NaN())
 #endif
-
 
 
 using namespace richmath;

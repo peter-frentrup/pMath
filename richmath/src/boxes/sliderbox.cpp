@@ -4,33 +4,17 @@
 #include <gui/native-widget.h>
 
 #include <cmath>
+#include <limits>
 
 using namespace richmath;
 using namespace std;
 
 #ifdef _MSC_VER
-
-#define isnan  _isnan
-
+#  define isnan  _isnan
 #endif
 
 #ifndef NAN
-
-#define NAN  (make_nan())
-static double make_nan() {
-  union {
-    uint64_t i;
-    double   d;
-  } u;
-  
-  u.i = 0x7ff8000000000000ULL;
-  
-  assert(isnan(u.d));
-  assert(isnan((float)u.d));
-  
-  return u.d;
-}
-
+#  define NAN  (std::numeric_limits<double>::quiet_NaN())
 #endif
 
 //{ class SliderBox ...
@@ -138,10 +122,10 @@ bool SliderBox::try_load_from_object(Expr expr, int opts) {
 ControlState SliderBox::calc_state(Context *context) {
   if(mouse_left_down)
     return PressedHovered;
-  
+    
   if(mouse_inside && mouse_over_thumb)
     return Hovered;
-  
+    
   return Normal;
 }
 
@@ -432,7 +416,7 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
     
     if(dynamic.is_dynamic())
       Application::activated_control(this);
-    
+      
     double val = mouse_to_val(event.x);
     
     if(val != range_value && get_own_style(ContinuousAction, true))
@@ -474,8 +458,8 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
   if(event.left) {
     event.set_source(this);
     double val = mouse_to_val(event.x);
-    if( val != range_value                  || 
-        dynamic.synchronous_updating() == 2 || 
+    if( val != range_value                  ||
+        dynamic.synchronous_updating() == 2 ||
         !get_own_style(ContinuousAction, true))
     {
       assign_dynamic_value(val);
@@ -489,10 +473,10 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
 
 /*void SliderBox::on_mouse_cancel() {
   Document *doc = find_parent<Document>(false);
-  
+
   if(doc)
     doc->native()->beep();
-  
+
   EmptyWidgetBox::on_mouse_cancel();
 }*/
 
