@@ -6,12 +6,11 @@
 - richmath: support convex combinations of certain options, like FontSize -> 1.5 * FontSize + 1 or
 	FontSize -> 1.5 * Inherited + 1
 	
-? pmath: add internal multi precision RealInterval(a,b) type with correct outward rounding (=> mpfi library)
-	or implement it with some Internal`WithSoftwareRoundingMode(code, mode)
-	
-	make N(...) use adaptive precision tracking through RealInterval
+? pmath: make N(...) use adaptive precision tracking through RealInterval
 
 ? introduce pmath_identical(...) which gives FALSE for arguments 0.0 and -0.0 (unlike pmath_equal)
+
+? use RowBox({...}) instead of {...} for spans as in Mma to simplify pattern matching of box-forms
 
 - interesting: http://www.eecs.berkeley.edu/~fateman/papers/mma.review.pdf
 	
