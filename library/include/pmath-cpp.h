@@ -1069,6 +1069,18 @@ namespace pmath {
       }
 #endif
       
+      File &operator=(const File &src) {
+        Expr::operator=(src);
+        return *this;
+      }
+      
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      File &operator=(File &&src) {
+        Expr::operator=(std::move(src));
+        return *this;
+      }
+#endif
+      
       /**\brief Test for file properties/capabilities
          \param properties 0 or one or more of the PMATH_FILE_PROP_XXX constants.
          \return Whether the file has all the specified capabilities.
@@ -1139,6 +1151,18 @@ namespace pmath {
       }
 #endif
       
+      BinaryFile &operator=(const BinaryFile &src) {
+        File::operator=(src);
+        return *this;
+      }
+      
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      BinaryFile &operator=(BinaryFile &&src) {
+        File::operator=(std::move(src));
+        return *this;
+      }
+#endif
+      
       /**\brief Create a memory buffer for as a double ended queue.
          \return The binary file. Can be used as ReadableBinaryFile and as
                  WriteableBinaryFile
@@ -1197,6 +1221,18 @@ namespace pmath {
       }
 #endif
       
+      ReadableBinaryFile &operator=(const ReadableBinaryFile &src) {
+        BinaryFile::operator=(src);
+        return *this;
+      }
+      
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      ReadableBinaryFile &operator=(ReadableBinaryFile &&src) {
+        BinaryFile::operator=(std::move(src));
+        return *this;
+      }
+#endif
+      
       /**\brief Create binary file object whose content is uncompressed from another binary file. */
       static ReadableBinaryFile create_uncompressor(ReadableBinaryFile srcfile) throw() {
         return ReadableBinaryFile(pmath_file_create_uncompressor(srcfile.release()));
@@ -1243,6 +1279,18 @@ namespace pmath {
       WriteableBinaryFile(WriteableBinaryFile &&src) throw()
         : BinaryFile(std::move(src))
       {
+      }
+#endif
+      
+      WriteableBinaryFile &operator=(const WriteableBinaryFile &src) {
+        BinaryFile::operator=(src);
+        return *this;
+      }
+      
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      WriteableBinaryFile &operator=(WriteableBinaryFile &&src) {
+        BinaryFile::operator=(std::move(src));
+        return *this;
       }
 #endif
       
@@ -1294,6 +1342,18 @@ namespace pmath {
       TextFile(TextFile &&src) throw()
         : File(std::move(src))
       {
+      }
+#endif
+      
+      TextFile &operator=(const TextFile &src) {
+        File::operator=(src);
+        return *this;
+      }
+      
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      TextFile &operator=(TextFile &&src) {
+        File::operator=(std::move(src));
+        return *this;
       }
 #endif
       
@@ -1355,6 +1415,18 @@ namespace pmath {
       }
 #endif
       
+      ReadableTextFile &operator=(const ReadableTextFile &src) {
+        TextFile::operator=(src);
+        return *this;
+      }
+      
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      ReadableTextFile &operator=(ReadableTextFile &&src) {
+        TextFile::operator=(std::move(src));
+        return *this;
+      }
+#endif
+      
       /**\brief Create a text file from a binary file using a known character encoding. */
       static ReadableTextFile create_from_binary(ReadableBinaryFile binfile, const char *encoding) throw() {
         return ReadableTextFile(TextFile::create_from_binary(binfile, encoding));
@@ -1407,6 +1479,18 @@ namespace pmath {
       WriteableTextFile(WriteableTextFile &&src) throw()
         : TextFile(std::move(src))
       {
+      }
+#endif
+      
+      WriteableTextFile &operator=(const WriteableTextFile &src) {
+        TextFile::operator=(src);
+        return *this;
+      }
+      
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      WriteableTextFile &operator=(WriteableTextFile &&src) {
+        TextFile::operator=(std::move(src));
+        return *this;
       }
 #endif
       
