@@ -23,6 +23,7 @@ namespace richmath {
      For normal text, use class TextSequence.
    */
   class MathSequence: public AbstractSequence {
+    friend class MathSequenceImpl;
     public:
       MathSequence();
       virtual ~MathSequence();
@@ -83,72 +84,6 @@ namespace richmath {
       
       int matching_fence(int pos); // -1 on error
       
-    protected:
-      static pmath_bool_t subsuperscriptbox_at_index(int i, void *_data);
-      static pmath_string_t underoverscriptbox_at_index(int i, void *_data);
-      static void syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err);
-      static pmath_t box_at_index(int i, void *_data);
-      static pmath_t add_debug_info(
-        pmath_t                             token_or_span,
-        const struct pmath_text_position_t *start,
-        const struct pmath_text_position_t *end,
-        void                               *_data);
-        
-      void boxes_size(Context *context, int start, int end, float *a, float *d);
-      void box_size(  Context *context, int pos, int box, float *a, float *d);
-      void caret_size(Context *context, int pos, int box, float *a, float *d);
-      
-      void resize_span(
-        Context *context,
-        Span     span,
-        int     *pos,
-        int     *box);
-        
-      void stretch_span(
-        Context *context,
-        Span     span,
-        int     *pos,
-        int     *box,
-        float   *core_ascent,
-        float   *core_descent,
-        float   *ascent,
-        float   *descent);
-        
-      void apply_glyph_substitutions(Context *context);
-      
-      void substitute_glyphs(
-        Context              *context,
-        int                   start,
-        int                   end,
-        uint32_t              math_script_tag,
-        uint32_t              math_language_tag,
-        uint32_t              text_script_tag,
-        uint32_t              text_language_tag,
-        const FontFeatureSet &features);
-        
-      void group_number_digits(Context *context, int start, int end);
-      void enlarge_space(Context *context);
-      
-      void split_lines(Context *context);
-      
-      void hstretch_lines(
-        float width,
-        float window_width,
-        float *unfilled_width);
-        
-      int fill_penalty_array(
-        Span  span,
-        int   depth,
-        int   pos,
-        int  *box);
-        
-      int fill_indention_array(
-        Span span,
-        int  depth,
-        int  pos);
-        
-      void new_line(int pos, unsigned int indent, bool continuation = false);
-      
     public:
       int insert(int pos, uint16_t chr);                  // unsafe, allows PMATH_BOX_CHAR
       int insert(int pos, const uint16_t *ucs2, int len); // unsafe, allows PMATH_BOX_CHAR
@@ -183,7 +118,7 @@ namespace richmath {
       float line_spacing() { return 0.3f * em; }
       
     private:
-      Array<Box *>      boxes;
+      Array<Box *>     boxes;
       String           str;
       SpanArray        spans;
       Array<GlyphInfo> glyphs;

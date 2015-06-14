@@ -106,6 +106,1978 @@ class ScanData {
     int end;
 };
 
+namespace richmath {
+  class BreakPositionWithPenalty {
+    public:
+      BreakPositionWithPenalty()
+        : text_position(-1),
+          prev_break_index(-1),
+          penalty(Infinity)
+      {
+      }
+      
+      BreakPositionWithPenalty(int tpos, int prev, double pen)
+        : text_position(tpos),
+          prev_break_index(prev),
+          penalty(pen)
+      {}
+      
+    public:
+      int text_position; // after that character is a break
+      int prev_break_index;
+      double penalty;
+  };
+  
+  class MathSequenceImpl {
+    private:
+      MathSequence &self;
+      
+    public:
+      MathSequenceImpl(MathSequence &_self)
+        : self(_self)
+      {
+      }
+      
+      static pmath_bool_t subsuperscriptbox_at_index(int i, void *_data) {
+        ScanData *data = (ScanData *)_data;
+        
+        int start = data->current_box;
+        while(data->current_box < data->sequence->boxes.length()) {
+          if(data->sequence->boxes[data->current_box]->index() == i) {
+            SubsuperscriptBox *b = dynamic_cast<SubsuperscriptBox *>(
+                                     data->sequence->boxes[data->current_box]);
+            return 0 != b;
+          }
+          ++data->current_box;
+        }
+        
+        data->current_box = 0;
+        while(data->current_box < start) {
+          if(data->sequence->boxes[data->current_box]->index() == i)
+            return 0 != dynamic_cast<SubsuperscriptBox *>(
+                     data->sequence->boxes[data->current_box]);
+          ++data->current_box;
+        }
+        
+        return FALSE;
+      }
+      
+      static pmath_string_t underoverscriptbox_at_index(int i, void *_data) {
+        ScanData *data = (ScanData *)_data;
+        
+        int start = data->current_box;
+        while(data->current_box < data->sequence->boxes.length()) {
+          if(data->sequence->boxes[data->current_box]->index() == i) {
+            UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox *>(
+                                        data->sequence->boxes[data->current_box]);
+                                        
+            if(box)
+              return pmath_ref(box->base()->text().get_as_string());
+          }
+          ++data->current_box;
+        }
+        
+        data->current_box = 0;
+        while(data->current_box < start) {
+          if(data->sequence->boxes[data->current_box]->index() == i) {
+            UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox *>(
+                                        data->sequence->boxes[data->current_box]);
+                                        
+            if(box)
+              return pmath_ref(box->base()->text().get_as_string());
+          }
+          ++data->current_box;
+        }
+        
+        return PMATH_NULL;
+      }
+      
+      static void syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err) {
+        ScanData *data = (ScanData *)_data;
+        
+        if(!data->sequence->get_style(ShowAutoStyles))
+          return;
+          
+        const uint16_t *buf = pmath_string_buffer(&code);
+        int             len = pmath_string_length(code);
+        
+        if(err) {
+          if(pos < data->sequence->glyphs.length()
+              && data->sequence->glyphs.length() > pos) {
+            data->sequence->glyphs[pos].style = GlyphStyleSyntaxError;
+          }
+        }
+        else if(pos < len && buf[pos] == '\n') { // new line character interpreted as multiplication
+          while(pos > 0 && buf[pos] == '\n')
+            --pos;
+            
+          if(pos >= 0
+              && pos < data->sequence->glyphs.length()
+              && data->sequence->glyphs.length() > pos) {
+            data->sequence->glyphs[pos].missing_after = true;
+          }
+        }
+      }
+      
+      static pmath_t box_at_index(int i, void *_data) {
+        ScanData *data = (ScanData *)_data;
+        
+        int flags = data->flags;
+        if((flags & BoxFlagParseable) && data->sequence->is_inside_string(i)) {
+          flags &= ~BoxFlagParseable;
+        }
+        
+        if(i < data->start || data->end <= i)
+          return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
+          
+        int start = data->current_box;
+        while(data->current_box < data->sequence->boxes.length()) {
+          if(data->sequence->boxes[data->current_box]->index() == i)
+            return data->sequence->boxes[data->current_box]->to_pmath(flags).release();
+          ++data->current_box;
+        }
+        
+        data->current_box = 0;
+        while(data->current_box < start) {
+          if(data->sequence->boxes[data->current_box]->index() == i)
+            return data->sequence->boxes[data->current_box]->to_pmath(flags).release();
+          ++data->current_box;
+        }
+        
+        return PMATH_NULL;
+      }
+      
+      static pmath_t add_debug_info(
+        pmath_t                             token_or_span,
+        const struct pmath_text_position_t *start,
+        const struct pmath_text_position_t *end,
+        void                               *_data
+      ) {
+        ScanData *data = (ScanData *)_data;
+        
+        if(data->end <= start->index || end->index <= data->start) {
+          pmath_unref(token_or_span);
+          return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
+        }
+        
+        if(pmath_is_string(token_or_span)) {
+          if(data->start <= start->index && end->index <= data->end)
+            return token_or_span;
+            
+          /* does not work with string tokens containing boxes */
+          
+          if(start->index <= data->start && data->end <= end->index) {
+            return pmath_string_part(
+                     token_or_span,
+                     data->start - start->index,
+                     data->end - data->start);
+          }
+          
+          if(data->start <= start->index && start->index <= data->end) {
+            return pmath_string_part(
+                     token_or_span,
+                     0,
+                     data->end - start->index);
+          }
+          
+          if(data->start <= end->index && end->index <= data->end) {
+            return pmath_string_part(
+                     token_or_span,
+                     data->start - start->index,
+                     end->index - data->start);
+          }
+          
+          return token_or_span;
+        }
+        
+        if(!pmath_is_expr(token_or_span))
+          return token_or_span;
+          
+        Expr debug_info = Call(
+                            Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
+                            Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), data->sequence->id()),
+                            Call(Symbol(PMATH_SYMBOL_RANGE), start->index, end->index));
+                            
+        token_or_span = pmath_try_set_debug_info(
+                          token_or_span,
+                          debug_info.release());
+                          
+        return token_or_span;
+      }
+      
+    private:
+      void box_size(
+        Context *context,
+        int      pos,
+        int      box,
+        float    *a,
+        float    *d
+      ) {
+        if(pos >= 0 && pos < self.glyphs.length()) {
+          const uint16_t *buf = self.str.buffer();
+          if(buf[pos] == PMATH_CHAR_BOX) {
+            if(box < 0)
+              box = self.get_box(pos);
+              
+            self.boxes[box]->extents().bigger_y(a, d);
+          }
+          else if(self.glyphs[pos].is_normal_text)
+            context->text_shaper->vertical_glyph_size(
+              context,
+              buf[pos],
+              self.glyphs[pos],
+              a,
+              d);
+          else
+            context->math_shaper->vertical_glyph_size(
+              context,
+              buf[pos],
+              self.glyphs[pos],
+              a,
+              d);
+        }
+      }
+      
+    public:
+      void boxes_size(
+        Context *context,
+        int      start,
+        int      end,
+        float    *a,
+        float    *d
+      ) {
+        int box = -1;
+        const uint16_t *buf = self.str.buffer();
+        for(int i = start; i < end; ++i) {
+          if(buf[i] == PMATH_CHAR_BOX) {
+            if(box < 0) {
+              do {
+                ++box;
+              } while(self.boxes[box]->index() < i);
+            }
+            self.boxes[box++]->extents().bigger_y(a, d);
+          }
+          else if(self.glyphs[i].is_normal_text) {
+            context->text_shaper->vertical_glyph_size(
+              context,
+              buf[i],
+              self.glyphs[i],
+              a,
+              d);
+          }
+          else {
+            context->math_shaper->vertical_glyph_size(
+              context,
+              buf[i],
+              self.glyphs[i],
+              a,
+              d);
+          }
+        }
+      }
+      
+      void caret_size(
+        Context *context,
+        int      pos,
+        int      box,
+        float    *a,
+        float    *d
+      ) {
+        if(self.glyphs.length() > 0) {
+          box_size(context, pos - 1, box - 1, a, d);
+          box_size(context, pos,     box,     a, d);
+        }
+        else {
+          *a = self._extents.ascent;
+          *d = self._extents.descent;
+        }
+      }
+      
+    public:
+      void resize_span(
+        Context *context,
+        Span     span,
+        int     *pos,
+        int     *box
+      ) {
+        if(!span) {
+          if(self.str[*pos] == PMATH_CHAR_BOX) {
+            self.boxes[*box]->resize(context);
+            
+            self.glyphs[*pos].right = self.boxes[*box]->extents().width;
+            self.glyphs[*pos].composed = 1;
+            ++*box;
+            ++*pos;
+            return;
+          }
+          
+          int next  = *pos;
+          while(next < self.glyphs.length() && !self.spans.is_token_end(next))
+            ++next;
+            
+          if(next < self.glyphs.length())
+            ++next;
+            
+          const uint16_t *buf = self.str.buffer();
+          
+          if(context->math_spacing) {
+            context->math_shaper->decode_token(
+              context,
+              next - *pos,
+              buf + *pos,
+              self.glyphs.items() + *pos);
+          }
+          else {
+            context->text_shaper->decode_token(
+              context,
+              next - *pos,
+              buf + *pos,
+              self.glyphs.items() + *pos);
+              
+            for(int i = *pos; i < next; ++i) {
+              if(self.glyphs[i].index) {
+                self.glyphs[i].is_normal_text = 1;
+              }
+              else {
+                context->math_shaper->decode_token(
+                  context,
+                  1,
+                  buf + i,
+                  self.glyphs.items() + i);
+              }
+            }
+          }
+          
+          *pos = next;
+          return;
+        }
+        
+        if(!span.next() && self.str[*pos] == '"') {
+          const uint16_t *buf = self.str.buffer();
+          int end = span.end();
+          if(!context->show_string_characters) {
+            ++*pos;
+            if(buf[end] == '"')
+              --end;
+          }
+          else {
+            context->math_shaper->decode_token(
+              context,
+              1,
+              buf + *pos,
+              self.glyphs.items() + *pos);
+              
+            if(buf[end] == '"')
+              context->math_shaper->decode_token(
+                context,
+                1,
+                buf + end,
+                self.glyphs.items() + end);
+          }
+          
+          bool old_math_styling = context->math_spacing;
+          context->math_spacing = false;
+          
+          while(*pos <= end) {
+            if(buf[*pos] == PMATH_CHAR_BOX) {
+              self.boxes[*box]->resize(context);
+              self.glyphs[*pos].right = self.boxes[*box]->extents().width;
+              self.glyphs[*pos].composed = 1;
+              ++*box;
+              ++*pos;
+            }
+            else {
+              int next = *pos;
+              while(next <= end && !self.spans.is_token_end(next))
+                ++next;
+              ++next;
+              
+              if(!context->show_string_characters && buf[*pos] == '\\')
+                ++*pos;
+                
+              context->text_shaper->decode_token(
+                context,
+                next - *pos,
+                buf + *pos,
+                self.glyphs.items() + *pos);
+                
+              for(int i = *pos; i < next; ++i) {
+                self.glyphs[i].is_normal_text = 1;
+              }
+              
+              *pos = next;
+            }
+          }
+          
+          context->math_spacing = old_math_styling;
+          
+          *pos = span.end() + 1;
+        }
+        else {
+          resize_span(context, span.next(), pos, box);
+          while(*pos <= span.end())
+            resize_span(context, self.spans[*pos], pos, box);
+        }
+      }
+      
+    public:
+      void stretch_span(
+        Context *context,
+        Span     span,
+        int     *pos,
+        int     *box,
+        float    *core_ascent,
+        float    *core_descent,
+        float    *ascent,
+        float    *descent
+      ) {
+        const uint16_t *buf = self.str.buffer();
+        
+        if(span) {
+          int start = *pos;
+          if(!span.next()) {
+            uint16_t ch = buf[start];
+            
+            if(ch == '"') {
+              for(; *pos <= span.end(); ++*pos) {
+                if(buf[*pos] == PMATH_CHAR_BOX)
+                  ++*box;
+              }
+              
+              return;
+            }
+            
+            if(ch == PMATH_CHAR_BOX) {
+              UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(self.boxes[*box]);
+              if(underover && underover->base()->length() == 1)
+                ch = underover->base()->str[0];
+            }
+            
+            if(pmath_char_is_left(ch)) {
+              float ca = 0;
+              float cd = 0;
+              float a = 0;
+              float d = 0;
+              
+              ++*pos;
+              while(*pos <= span.end() && !pmath_char_is_right(buf[*pos]))
+                stretch_span(context, self.spans[*pos], pos, box, &ca, &cd, &a, &d);
+                
+              float overhang_a = (a - ca) * UnderoverscriptOverhangCoverage;
+              float overhang_d = (d - cd) * UnderoverscriptOverhangCoverage;
+              
+              float new_ca = ca + overhang_a;
+              float new_cd = cd + overhang_d;
+              
+              if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
+                context->math_shaper->vertical_stretch_char(
+                  context, new_ca, new_cd, true, buf[*pos], &self.glyphs[*pos]);
+                  
+                ++*pos;
+              }
+              
+              context->math_shaper->vertical_stretch_char(
+                context, new_ca, new_cd, true, buf[start], &self.glyphs[start]);
+                
+              if(*ascent < a)
+                *ascent = a;
+                
+              if(*core_ascent < new_ca)
+                *core_ascent = new_ca;
+                
+              if(*descent < d)
+                *descent = d;
+                
+              if(*core_descent < new_cd)
+                *core_descent = new_cd;
+            }
+            else if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) {
+              float a = 0;
+              float d = 0;
+              int startbox = *box;
+              
+              if(buf[start] == PMATH_CHAR_BOX) {
+                assert(dynamic_cast<UnderoverscriptBox *>(self.boxes[startbox]) != 0);
+                
+                ++*pos;
+                ++*box;
+              }
+              else {
+                ++*pos;
+                
+                if( *pos < self.glyphs.length() &&
+                    buf[*pos] == PMATH_CHAR_BOX)
+                {
+                  SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(self.boxes[startbox]);
+                  
+                  if(subsup) {
+                    ++*box;
+                    ++*pos;
+                  }
+                }
+              }
+              
+              while(*pos <= span.end())
+                stretch_span(context, self.spans[*pos], pos, box, &a, &d, ascent, descent);
+                
+              if(buf[start] == PMATH_CHAR_BOX) {
+                UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(self.boxes[startbox]);
+                
+                assert(underover != 0);
+                
+                context->math_shaper->vertical_stretch_char(
+                  context,
+                  a,
+                  d,
+                  true,
+                  underover->base()->str[0],
+                  &underover->base()->glyphs[0]);
+                  
+                context->math_shaper->vertical_glyph_size(
+                  context,
+                  underover->base()->str[0],
+                  underover->base()->glyphs[0],
+                  &underover->base()->_extents.ascent,
+                  &underover->base()->_extents.descent);
+                  
+                underover->base()->_extents.width = underover->base()->glyphs[0].right;
+                
+                underover->after_items_resize(context);
+                
+                self.glyphs[start].right = underover->extents().width;
+                
+                underover->base()->extents().bigger_y(core_ascent, core_descent);
+                underover->extents().bigger_y(ascent, descent);
+              }
+              else {
+                context->math_shaper->vertical_stretch_char(
+                  context,
+                  a,
+                  d,
+                  true,
+                  buf[start],
+                  &self.glyphs[start]);
+                  
+                BoxSize size;
+                context->math_shaper->vertical_glyph_size(
+                  context,
+                  buf[start],
+                  self.glyphs[start],
+                  &size.ascent,
+                  &size.descent);
+                  
+                size.bigger_y(core_ascent, core_descent);
+                size.bigger_y(ascent,      descent);
+                
+                if( start + 1 < self.glyphs.length() &&
+                    buf[start + 1] == PMATH_CHAR_BOX)
+                {
+                  SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(self.boxes[startbox]);
+                  
+                  if(subsup) {
+                    subsup->stretch(context, size);
+                    subsup->extents().bigger_y(ascent, descent);
+                    
+                    subsup->adjust_x(context, buf[start], self.glyphs[start]);
+                  }
+                }
+              }
+              
+              if(*core_ascent < a)
+                *core_ascent = a;
+              if(*core_descent < d)
+                *core_descent = d;
+            }
+            else
+              stretch_span(context, span.next(), pos, box, core_ascent, core_descent, ascent, descent);
+          }
+          else
+            stretch_span(context, span.next(), pos, box, core_ascent, core_descent, ascent, descent);
+            
+          if( *pos <= span.end() &&
+              buf[*pos] == '/' &&
+              self.spans.is_token_end(*pos))
+          {
+            start = *pos;
+            
+            ++*pos;
+            while(*pos <= span.end())
+              stretch_span(context, self.spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
+              
+            context->math_shaper->vertical_stretch_char(
+              context,
+              *core_ascent  - 0.1 * self.em,
+              *core_descent - 0.1 * self.em,
+              true,
+              buf[start],
+              &self.glyphs[start]);
+              
+            BoxSize size;
+            context->math_shaper->vertical_glyph_size(
+              context,
+              buf[start],
+              self.glyphs[start],
+              &size.ascent,
+              &size.descent);
+              
+            size.bigger_y(core_ascent, core_descent);
+            size.bigger_y(ascent,      descent);
+          }
+          
+          while(*pos <= span.end() && (!pmath_char_is_left(buf[*pos]) || self.spans[*pos]))
+            stretch_span(context, self.spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
+            
+          if(*pos < span.end()) {
+            start = *pos;
+            
+            float ca = 0;
+            float cd = 0;
+            float a = 0;
+            float d = 0;
+            
+            ++*pos;
+            while(*pos <= span.end() && !pmath_char_is_right(buf[*pos]))
+              stretch_span(context, self.spans[*pos], pos, box, &ca, &cd, &a, &d);
+              
+            float overhang_a = (a - ca) * UnderoverscriptOverhangCoverage;
+            float overhang_d = (d - cd) * UnderoverscriptOverhangCoverage;
+            
+            float new_ca = ca + overhang_a;
+            float new_cd = cd + overhang_d;
+            
+            if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
+              context->math_shaper->vertical_stretch_char(
+                context, new_ca, new_cd, false, buf[*pos], &self.glyphs[*pos]);
+                
+              ++*pos;
+            }
+            
+            context->math_shaper->vertical_stretch_char(
+              context, new_ca, new_cd, false, buf[start], &self.glyphs[start]);
+              
+            if(*ascent < a)
+              *ascent = a;
+              
+            if(*core_ascent < new_ca)
+              *core_ascent = new_ca;
+              
+            if(*descent < d)
+              *descent = d;
+              
+            if(*core_descent < new_cd)
+              *core_descent = new_cd;
+              
+            while(*pos <= span.end()) {
+              stretch_span(
+                context,
+                self.spans[*pos],
+                pos,
+                box,
+                core_ascent,
+                core_descent,
+                ascent, descent);
+            }
+          }
+          
+          return;
+        }
+        
+        if(buf[*pos] == PMATH_CHAR_BOX) {
+          SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(self.boxes[*box]);
+          
+          if(subsup && *pos > 0) {
+            if(buf[*pos - 1] == PMATH_CHAR_BOX) {
+              subsup->stretch(context, self.boxes[*box - 1]->extents());
+            }
+            else {
+              BoxSize size;
+              
+              context->math_shaper->vertical_glyph_size(
+                context, buf[*pos - 1], self.glyphs[*pos - 1],
+                &size.ascent, &size.descent);
+                
+              subsup->stretch(context, size);
+              subsup->adjust_x(context, buf[*pos - 1], self.glyphs[*pos - 1]);
+            }
+            
+            subsup->extents().bigger_y(ascent,      descent);
+            subsup->extents().bigger_y(core_ascent, core_descent);
+          }
+          else {
+            UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(self.boxes[*box]);
+            
+            if(underover) {
+              uint16_t ch = 0;
+              
+              if(underover->base()->length() == 1)
+                ch = underover->base()->text()[0];
+                
+              if( self.spans.is_operand_start(*pos) &&
+                  (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)))
+              {
+                context->math_shaper->vertical_stretch_char(
+                  context,
+                  0,
+                  0,
+                  true,
+                  underover->base()->str[0],
+                  &underover->base()->glyphs[0]);
+                  
+                context->math_shaper->vertical_glyph_size(
+                  context,
+                  underover->base()->str[0],
+                  underover->base()->glyphs[0],
+                  &underover->base()->_extents.ascent,
+                  &underover->base()->_extents.descent);
+                  
+                underover->base()->_extents.width = underover->base()->glyphs[0].right;
+                
+                underover->after_items_resize(context);
+                
+                self.glyphs[*pos].right = underover->extents().width;
+              }
+              
+              underover->base()->extents().bigger_y(core_ascent, core_descent);
+            }
+            else
+              self.boxes[*box]->extents().bigger_y(core_ascent, core_descent);
+          }
+          
+          self.boxes[*box]->extents().bigger_y(ascent, descent);
+          ++*box;
+          ++*pos;
+          return;
+        }
+        
+        if( self.spans.is_operand_start(*pos) &&
+            self.length() > 1 &&
+            (pmath_char_maybe_bigop(buf[*pos]) || pmath_char_is_integral(buf[*pos])))
+        {
+          context->math_shaper->vertical_stretch_char(
+            context,
+            0,
+            0,
+            true,
+            buf[*pos],
+            &self.glyphs[*pos]);
+            
+          BoxSize size;
+          context->math_shaper->vertical_glyph_size(
+            context,
+            buf[*pos],
+            self.glyphs[*pos],
+            &size.ascent,
+            &size.descent);
+            
+          size.bigger_y(core_ascent, core_descent);
+          size.bigger_y(ascent,      descent);
+          
+          ++*pos;
+          return;
+        }
+        
+        do {
+          context->math_shaper->vertical_glyph_size(
+            context, buf[*pos], self.glyphs[*pos], core_ascent, core_descent);
+          ++*pos;
+        } while(*pos < self.str.length() && !self.spans.is_token_end(*pos - 1));
+        
+        if(*ascent < *core_ascent)
+          *ascent = *core_ascent;
+        if(*descent < *core_descent)
+          *descent = *core_descent;
+      }
+      
+    private:
+      void substitute_glyphs(
+        Context              *context,
+        int                   start,
+        int                   end,
+        uint32_t              math_script_tag,
+        uint32_t              math_language_tag,
+        uint32_t              text_script_tag,
+        uint32_t              text_language_tag,
+        const FontFeatureSet &features
+      ) {
+        if(features.empty())
+          return;
+          
+        const uint16_t *buf = self.str.buffer();
+        cairo_text_extents_t cte;
+        cairo_glyph_t        cg;
+        cg.x = cg.y = 0;
+        
+        int run_start = start;
+        while(run_start < end) {
+          if( self.glyphs[run_start].composed ||
+              buf[run_start] == PMATH_CHAR_BOX)
+          {
+            ++run_start;
+            continue;
+          }
+          
+          int next_run = run_start + 1;
+          for(; next_run < end; ++next_run) {
+            if(self.glyphs[next_run].composed || buf[run_start] == PMATH_CHAR_BOX)
+              break;
+              
+            if(self.glyphs[run_start].fontinfo != self.glyphs[next_run].fontinfo)
+              break;
+            if(self.glyphs[run_start].slant != self.glyphs[next_run].slant)
+              break;
+            if(self.glyphs[run_start].is_normal_text != self.glyphs[next_run].is_normal_text)
+              break;
+          }
+          
+          uint32_t script_tag, language_tag;
+          SharedPtr<TextShaper> shaper;
+          
+          if(self.glyphs[run_start].is_normal_text) {
+            shaper = context->text_shaper;
+            script_tag   = text_script_tag;
+            language_tag = text_language_tag;
+          }
+          else {
+            shaper = context->math_shaper;
+            script_tag   = math_script_tag;
+            language_tag = math_language_tag;
+          }
+          
+          FontFace face = shaper->font(self.glyphs[run_start].fontinfo);
+          FontInfo info(face);
+          const GlyphSubstitutions *gsub = info.get_gsub_table();
+          
+          if(gsub) {
+            static Array<OTFontReshaper::IndexAndValue> lookups;
+            lookups.length(0);
+            
+            OTFontReshaper::get_lookups(
+              gsub,
+              script_tag,
+              language_tag,
+              features,
+              &lookups);
+              
+            if(lookups.length() > 0) {
+              context->canvas->set_font_face(face);
+              
+              static OTFontReshaper reshaper;
+              
+              reshaper.glyphs.length(    next_run - run_start);
+              reshaper.glyph_info.length(next_run - run_start);
+              
+              reshaper.glyphs.length(0);
+              reshaper.glyph_info.length(0);
+              
+              for(int i = run_start; i < next_run; ++i) {
+                if(self.glyphs[i].index == IgnoreGlyph)
+                  continue;
+                  
+                reshaper.glyphs.add(self.glyphs[i].index);
+                reshaper.glyph_info.add(i);
+              }
+              
+              reshaper.apply_lookups(gsub, lookups);
+              
+              assert(reshaper.glyphs.length() == reshaper.glyph_info.length());
+              
+              int len = reshaper.glyphs.length();
+              int i = 0;
+              while(i < len) {
+                int i2 = i + 1;
+                
+                int pos = reshaper.glyph_info[i];
+                
+                if(i2 < len && reshaper.glyph_info[i2] == pos) {
+                  // no room for "one to many" substitution
+                  
+                  ++i2;
+                  while(i2 < len && reshaper.glyph_info[i2] == pos)
+                    ++i2;
+                    
+                  i = i2;
+                  continue;
+                }
+                
+                int next;
+                if(i2 < len)
+                  next = reshaper.glyph_info[i2];
+                else
+                  next = next_run;
+                  
+                assert(pos < next);
+                
+                if(self.glyphs[pos].index != reshaper.glyphs[i]) {
+                  cg.index = self.glyphs[pos].index = reshaper.glyphs[i];
+                  
+                  context->canvas->glyph_extents(&cg, 1, &cte);
+                  cte.x_advance /= (next - pos);
+                  self.glyphs[pos].right = cte.x_advance;
+                  
+                  for(int j = pos + 1; j < next; ++j) {
+                    self.glyphs[j].right = cte.x_advance;
+                    self.glyphs[j].index = IgnoreGlyph;
+                  }
+                }
+                
+                i = i2;
+              }
+            }
+          }
+          run_start = next_run;
+        }
+      }
+      
+    public:
+      void apply_glyph_substitutions(Context *context) {
+        if(context->fontfeatures.empty())
+          return;
+          
+        int old_ssty_feature_value = context->fontfeatures.feature_value(FontFeatureSet::TAG_ssty);
+        if(old_ssty_feature_value < 0)
+          context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, context->script_indent);
+          
+        /* TODO: infer script ("math") and language ("dflt") from style/context.
+         */
+        
+        substitute_glyphs(
+          context,
+          0,
+          self.glyphs.length(),
+          OTFontReshaper::SCRIPT_math,
+          OTFontReshaper::LANG_dflt,
+          OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
+          OTFontReshaper::LANG_dflt,
+          context->fontfeatures);
+          
+        substitute_glyphs(
+          context,
+          0,
+          self.glyphs.length(),
+          OTFontReshaper::SCRIPT_latn,
+          OTFontReshaper::LANG_dflt,
+          OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
+          OTFontReshaper::LANG_dflt,
+          context->fontfeatures);
+          
+        context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, old_ssty_feature_value);
+      }
+      
+    private:
+      void group_number_digits(Context *context, int start, int end) {
+        static const int min_int_digits  = 5;
+        static const int min_frac_digits = 7;//INT_MAX;
+        static const int int_group_size  = 3;
+        static const int frac_group_size = 5;
+        
+        const uint16_t *buf = self.str.buffer();
+        int decimal_point = end + 1;
+        
+        float half_space_width = self.em / 10; // total: em/5 = thin space
+        
+        for(int i = start; i <= end; ++i) {
+          if(buf[i] < '0' || buf[i] > '9') {
+            if(buf[i] == '^') // explicitly specified base
+              return;
+              
+            if(buf[i] == '.' && i < decimal_point) {
+              decimal_point = i;
+              continue;
+            }
+            
+            if(buf[i] == '`') { // precision control
+              if(i < decimal_point)
+                decimal_point = i;
+                
+              end = i - 1;
+              break;
+            }
+          }
+        }
+        
+        if( int_group_size        >  0              &&
+            decimal_point - start >= min_int_digits &&
+            decimal_point - start >  int_group_size)
+        {
+          for(int i = decimal_point - int_group_size; i > start; i -= int_group_size) {
+            self.glyphs[i - 1].right += half_space_width;
+            
+            self.glyphs[i].x_offset  += half_space_width;
+            self.glyphs[i].right     += half_space_width;
+          }
+        }
+        
+        if( frac_group_size     >  0               &&
+            end - decimal_point >= min_frac_digits &&
+            end - decimal_point >  frac_group_size)
+        {
+          for(int i = decimal_point + frac_group_size; i < end; i += frac_group_size) {
+            self.glyphs[i].right        += half_space_width;
+            
+            self.glyphs[i + 1].x_offset += half_space_width;
+            self.glyphs[i + 1].right    += half_space_width;
+          }
+        }
+      }
+      
+    public:
+      void enlarge_space(Context *context) {
+        if(context->script_indent > 0)
+          return;
+          
+        int box = 0;
+        bool in_string = false;
+        bool in_alias = false;
+        const uint16_t *buf = self.str.buffer();
+        int i;
+        bool last_was_factor = false;
+        //bool last_was_number = false;
+        bool last_was_space  = false;
+        bool last_was_left   = false;
+        
+        int e = -1;
+        while(true) {
+          i = e += 1;
+          if(i >= self.glyphs.length())
+            break;
+            
+          while(e < self.glyphs.length() && !self.spans.is_token_end(e))
+            ++e;
+            
+          // italic correction
+          if( self.glyphs[e].slant == FontSlantItalic &&
+              buf[e] != PMATH_CHAR_BOX &&
+              (e + 1 == self.glyphs.length() || self.glyphs[e + 1].slant != FontSlantItalic))
+          {
+            float ital_corr = context->math_shaper->italic_correction(
+                                context,
+                                buf[e],
+                                self.glyphs[e]);
+                                
+            ital_corr *= self.em;
+            if(e + 1 < self.glyphs.length()) {
+              self.glyphs[e + 1].x_offset += ital_corr;
+              self.glyphs[e + 1].right += ital_corr;
+            }
+            else
+              self.glyphs[e].right += ital_corr;
+          }
+          
+          while(e + 1 < self.glyphs.length() &&
+                buf[e + 1] == PMATH_CHAR_BOX &&
+                box < self.boxes.length())
+          {
+            while(box < self.boxes.length() && self.boxes[box]->index() <= e)
+              ++box;
+              
+            if(box == self.boxes.length() || !dynamic_cast<SubsuperscriptBox *>(self.boxes[box]))
+              break;
+              
+            ++e;
+          }
+          
+          if(buf[i] == '\t') {
+            static uint16_t arrow = 0x21e2;//0x27F6;
+            float width = 4 * context->canvas->get_font_size();
+            
+            if(context->show_auto_styles && !in_string) {
+              context->math_shaper->decode_token(
+                context,
+                1,
+                &arrow,
+                &self.glyphs[i]);
+                
+              self.glyphs[i].x_offset = (width - self.glyphs[i].right) / 2;
+              
+              self.glyphs[i].style = GlyphStyleImplicit;
+            }
+            else {
+              self.glyphs[i].index = 0;
+            }
+            
+            self.glyphs[i].right = width;
+            continue;
+          }
+          
+          if(buf[i] == '"') {
+            in_string = !in_string;
+            last_was_factor = false;
+            continue;
+          }
+          
+          if(buf[i] == PMATH_CHAR_ALIASDELIMITER) {
+            in_alias = !in_alias;
+            last_was_factor = false;
+            continue;
+          }
+          
+          if(in_string || in_alias || e >= self.glyphs.length())
+            continue;
+            
+          const uint16_t *op = buf;
+          int ii = i;
+          int ee = e;
+          if(op[ii] == PMATH_CHAR_BOX) {
+            while(self.boxes[box]->index() < i)
+              ++box;
+              
+            if(box < self.boxes.length()) {
+              Box *tmp = self.boxes[box];
+              while(tmp) {
+                if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox *>(tmp)) {
+                  tmp = asb->content();
+                  continue;
+                }
+                
+                if(MathSequence *seq = dynamic_cast<MathSequence *>(tmp)) {
+                  if(seq->length() == 1 && seq->count() == 1) {
+                    tmp = seq->item(0);
+                    continue;
+                  }
+                  
+                  op = seq->text().buffer();
+                  ii = 0;
+                  ee = ii;
+                  while( ee < seq->length() &&
+                         !seq->span_array().is_token_end(ee))
+                  {
+                    ++ee;
+                  }
+                  
+                  if(ee != seq->length() - 1) {
+                    op = buf;
+                    ii = i;
+                    ee = e;
+                  }
+                  
+                  break;
+                }
+                
+                if(UnderoverscriptBox *uob = dynamic_cast<UnderoverscriptBox *>(tmp)) {
+                  tmp = uob->base();
+                  continue;
+                }
+                
+//          if(FractionBox *fb = dynamic_cast<FractionBox *>(tmp)) {
+//            if(i > 0 && pmath_char_is_digit(buf[i - 1])) {
+//
+//            }
+//          }
+
+                break;
+              }
+              
+//        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(tmp);
+//        if(underover && underover->base()->length() > 0) {
+//          op = underover->base()->text().buffer();
+//          ii = 0;
+//          ee = ii;
+//          while( ee < underover->base()->length() &&
+//                 !underover->base()->span_array().is_token_end(ee))
+//          {
+//            ++ee;
+//          }
+//
+//          if(ee != underover->base()->length() - 1) {
+//            op = buf;
+//            ii = i;
+//            ee = e;
+//          }
+//        }
+            }
+          }
+          
+          int prec;
+          pmath_token_t tok = pmath_token_analyse(op + ii, ee - ii + 1, &prec);
+          float space_left  = 0.0;
+          float space_right = 0.0;
+          
+          bool lwf = false; // new last_was_factor
+          bool lwl = false; // new last_was_left
+          switch(tok) {
+            case PMATH_TOK_PLUSPLUS: {
+                if(self.spans.is_operand_start(i)) {
+                  prec = PMATH_PREC_CALL;
+                  goto PREFIX;
+                }
+                
+                if(e + 1 < self.glyphs.length()
+                    && self.spans.is_operand_start(e + 1))
+                  goto INFIX;
+                  
+                prec = PMATH_PREC_CALL;
+              }
+              goto POSTFIX;
+              
+            case PMATH_TOK_NARY_OR_PREFIX: {
+                if(self.spans.is_operand_start(i)) {
+                  prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
+                  goto PREFIX;
+                }
+              }
+              goto INFIX;
+              
+            case PMATH_TOK_NARY_AUTOARG:
+            case PMATH_TOK_BINARY_LEFT:
+            case PMATH_TOK_BINARY_RIGHT:
+            case PMATH_TOK_NARY:
+            case PMATH_TOK_QUESTION: {
+              INFIX:
+                switch(prec) {
+                  case PMATH_PREC_SEQ:
+                  case PMATH_PREC_EVAL:
+                    space_right = self.em * 6 / 18;
+                    break;
+                    
+                  case PMATH_PREC_ASS:
+                  case PMATH_PREC_MODY:
+                    space_left  = self.em * 4 / 18;
+                    space_right = self.em * 8 / 18;
+                    break;
+                    
+                  case PMATH_PREC_LAZY:
+                  case PMATH_PREC_REPL:
+                  case PMATH_PREC_RULE:
+                  case PMATH_PREC_MAP:
+                  case PMATH_PREC_STR:
+                  case PMATH_PREC_COND:
+                  case PMATH_PREC_ARROW:
+                  case PMATH_PREC_REL:
+                    space_left = space_right = self.em * 5 / 18; // total: 10/18 em
+                    break;
+                    
+                  case PMATH_PREC_ALT:
+                  case PMATH_PREC_OR:
+                  case PMATH_PREC_XOR:
+                  case PMATH_PREC_AND:
+                  case PMATH_PREC_UNION:
+                  case PMATH_PREC_ISECT:
+                  case PMATH_PREC_RANGE:
+                  case PMATH_PREC_ADD:
+                  case PMATH_PREC_PLUMI:
+                    space_left = space_right = self.em * 4 / 18; // total: 8/18 em
+                    break;
+                    
+                  case PMATH_PREC_CIRCADD:
+                  case PMATH_PREC_CIRCMUL:
+                  case PMATH_PREC_MUL:
+                  case PMATH_PREC_DIV:
+                  case PMATH_PREC_MIDDOT:
+                  case PMATH_PREC_MUL2:
+                    space_left = space_right = self.em * 3 / 18; // total: 6/18 em
+                    break;
+                    
+                  case PMATH_PREC_CROSS:
+                  case PMATH_PREC_POW:
+                  case PMATH_PREC_APL:
+                  case PMATH_PREC_TEST:
+                    space_left = space_right = self.em * 2 / 18; // total: 4/18 em
+                    break;
+                    
+                  case PMATH_PREC_REPEAT:
+                  case PMATH_PREC_INC:
+                  case PMATH_PREC_CALL:
+                  case PMATH_PREC_DIFF:
+                  case PMATH_PREC_PRIM:
+                    break;
+                }
+              }
+              break;
+              
+            case PMATH_TOK_POSTFIX_OR_PREFIX:
+              if(!self.spans.is_operand_start(i))
+                goto POSTFIX;
+                
+              prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
+              goto PREFIX;
+              
+            case PMATH_TOK_PREFIX: {
+              PREFIX:
+                switch(prec) {
+                  case PMATH_PREC_REL: // not
+                    space_right = self.em * 4 / 18;
+                    break;
+                    
+                  case PMATH_PREC_ADD:
+                    space_right = self.em * 1 / 18;
+                    break;
+                    
+                  case PMATH_PREC_DIV:
+                    if(op[ii] == PMATH_CHAR_INTEGRAL_D) {
+                      space_left = self.em * 3 / 18;
+                    }
+                    break;
+                    
+                  default: break;
+                }
+              }
+              break;
+              
+            case PMATH_TOK_POSTFIX: {
+              POSTFIX:
+                switch(prec) {
+                  case PMATH_PREC_FAC:
+                  case PMATH_PREC_FUNC:
+                    space_left = self.em * 2 / 18;
+                    break;
+                    
+                  default: break;
+                }
+              }
+              break;
+              
+            case PMATH_TOK_COLON:
+            case PMATH_TOK_ASSIGNTAG:
+              space_left = space_right = self.em * 4 / 18;
+              break;
+              
+            case PMATH_TOK_NEWLINE:
+              space_left = space_right = 0.0;
+              break;
+              
+            case PMATH_TOK_SPACE: {
+                // implicit multiplication:
+                if( buf[i] == ' '           &&
+                    e + 1 < self.glyphs.length() &&
+                    last_was_factor && context->multiplication_sign)
+                {
+                  pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, NULL);
+                  
+                  if(buf[e + 1] == PMATH_CHAR_BOX) {
+                    Box *next_box = self.boxes[self.get_box(e + 1, box)];
+                    
+                    tok2 = get_box_start_token(next_box);
+                  }
+                  
+                  if( tok2 == PMATH_TOK_DIGIT ||
+                      tok2 == PMATH_TOK_LEFT  ||
+                      tok2 == PMATH_TOK_LEFTCALL)
+                  {
+                    context->math_shaper->decode_token(
+                      context,
+                      1,
+                      &context->multiplication_sign,
+                      &self.glyphs[i]);
+                      
+                    space_left = space_right = self.em * 3 / 18;
+                    
+                    //if(context->show_auto_styles)
+                    self.glyphs[i].style = GlyphStyleImplicit;
+                  }
+                }
+                else {
+                  last_was_space = true;
+                  continue;
+                }
+              } break;
+              
+            case PMATH_TOK_DIGIT:
+              {
+                if(!in_string)
+                  group_number_digits(context, i, e);
+              }
+            /* no break */
+            case PMATH_TOK_STRING:
+            case PMATH_TOK_NAME:
+            case PMATH_TOK_NAME2:
+              lwf = true;
+            /* no break */
+            case PMATH_TOK_SLOT:
+              if(last_was_factor) {
+                space_left = self.em * 3 / 18;
+              }
+              break;
+              
+            case PMATH_TOK_LEFT:
+              lwl = true;
+              if(last_was_factor) {
+                space_left = self.em * 3 / 18;
+              }
+              break;
+              
+            case PMATH_TOK_RIGHT:
+              if(last_was_left) {
+                space_left = self.em * 3 / 18;
+              }
+              lwf = true;
+              break;
+              
+            case PMATH_TOK_PRETEXT:
+              if(i + 1 == e && buf[i] == '<') {
+                self.glyphs[e].x_offset -= self.em * 4 / 18;
+                self.glyphs[e].right -=    self.em * 2 / 18;
+              }
+              break;
+              
+            case PMATH_TOK_LEFTCALL:
+              lwl = true;
+              break;
+              
+            case PMATH_TOK_NONE:
+            case PMATH_TOK_CALL:
+            case PMATH_TOK_TILDES:
+            case PMATH_TOK_INTEGRAL:
+            case PMATH_TOK_COMMENTEND:
+              break;
+          }
+          
+          //last_was_number = tok == PMATH_TOK_DIGIT;
+          last_was_factor = lwf;
+          last_was_left   = lwl;
+          
+          if(last_was_space) {
+            last_was_space = false;
+            space_left     = 0;
+          }
+          
+          if(i > 0 || e + 1 < self.glyphs.length()) {
+            self.glyphs[i].x_offset += space_left;
+            self.glyphs[i].right +=    space_left;
+            if(e + 1 < self.glyphs.length()) {
+              self.glyphs[e + 1].x_offset += space_right;
+              self.glyphs[e + 1].right +=    space_right;
+            }
+            else
+              self.glyphs[e].right += space_right;
+          }
+        }
+      }
+      
+    private:
+      /* indention_array[i]: indention of the next line, if there is a line break
+         before the i-th character.
+       */
+      static Array<int> indention_array;
+      
+      /* penalty_array[i]: A penalty value, which is used to decide whether a line
+         break should be placed after (testme: before???) the i-th character.
+         The higher this value is, the lower is the probability of a line break after
+         character i.
+       */
+      static Array<double> penalty_array;
+      
+      static const double DepthPenalty;
+      static const double WordPenalty;
+      static const double BestLineWidth;
+      static const double LineWidthFactor;
+      
+      static Array<BreakPositionWithPenalty>  break_array;
+      static Array<int>                       break_result;
+      
+    private:
+      int fill_penalty_array(
+        Span  span,
+        int   depth,
+        int   pos,
+        int  *box
+      ) {
+        const uint16_t *buf = self.str.buffer();
+        
+        if(!span) {
+          if(pos > 0) {
+            if( buf[pos] == ',' ||
+                buf[pos] == ';' ||
+                buf[pos] == ':' ||
+                buf[pos] == PMATH_CHAR_ASSIGN ||
+                buf[pos] == PMATH_CHAR_ASSIGNDELAYED)
+            {
+              penalty_array[pos - 1] += DepthPenalty;
+              //--depth;
+            }
+            
+            if( buf[pos] == 0xA0   /* \[NonBreakingSpace] */ ||
+                buf[pos] == 0x2011 /* non breaking hyphen */ ||
+                buf[pos] == 0x2060 /* \[NonBreak] */)
+            {
+              penalty_array[pos - 1] = Infinity;
+              penalty_array[pos]   = Infinity;
+              ++pos;
+            }
+          }
+          
+          if(buf[pos] == PMATH_CHAR_BOX && pos > 0) {
+            self.ensure_boxes_valid();
+            
+            while(self.boxes[*box]->index() < pos)
+              ++*box;
+              
+            if(dynamic_cast<SubsuperscriptBox *>(self.boxes[*box])) {
+              penalty_array[pos - 1] = Infinity;
+              return pos + 1;
+            }
+            
+            if( self.spans.is_operand_start(pos - 1) &&
+                dynamic_cast<GridBox *>(self.boxes[*box]))
+            {
+              if(pos > 0 && self.spans.is_operand_start(pos - 1)) {
+                if(buf[pos - 1] == PMATH_CHAR_PIECEWISE) {
+                  penalty_array[pos - 1] = Infinity;
+                  return pos + 1;
+                }
+                
+                pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, NULL);
+                
+                if(tok == PMATH_TOK_LEFT || tok == PMATH_TOK_LEFTCALL)
+                  penalty_array[pos - 1] = Infinity;
+              }
+              
+              if(pos + 1 < self.glyphs.length()) {
+                pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, NULL);
+                
+                if(tok == PMATH_TOK_RIGHT)
+                  penalty_array[pos] = Infinity;
+                return pos + 1;
+              }
+            }
+          }
+          
+          if(!self.spans.is_operand_start(pos))
+            depth++;
+            
+          if(buf[pos] == ' ') {
+            penalty_array[pos] += depth * DepthPenalty;
+            
+            return pos + 1;
+          }
+          
+          while(pos < self.spans.length() && !self.spans.is_token_end(pos)) {
+            penalty_array[pos] += depth * DepthPenalty + WordPenalty;
+            ++pos;
+          }
+          
+          if(pos < self.spans.length()) {
+            penalty_array[pos] += depth * DepthPenalty;
+            ++pos;
+          }
+          
+          return pos;
+        }
+        
+        ++depth;
+        
+        int next = fill_penalty_array(span.next(), depth, pos, box);
+        
+        if(pmath_char_is_left(buf[pos])) {
+          penalty_array[pos] += WordPenalty + DepthPenalty;
+        }
+        
+        if(buf[pos] == '"' && !span.next()) {
+          ++depth;
+          
+          penalty_array[pos] = Infinity;
+          
+          bool last_was_special = false;
+          while(next < span.end()) {
+            pmath_token_t tok = pmath_token_analyse(buf + next, 1, NULL);
+            penalty_array[next] += depth * DepthPenalty + WordPenalty;
+            
+            switch(tok) {
+              case PMATH_TOK_SPACE:
+                penalty_array[next] -= WordPenalty;
+                last_was_special = false;
+                break;
+                
+              case PMATH_TOK_STRING:
+                last_was_special = false;
+                break;
+                
+              case PMATH_TOK_NAME:
+              case PMATH_TOK_NAME2:
+              case PMATH_TOK_DIGIT:
+                if(last_was_special)
+                  penalty_array[next - 1] -= WordPenalty;
+                last_was_special = false;
+                break;
+                
+              default:
+                last_was_special = true;
+                break;
+            }
+            
+            ++next;
+          }
+          return next;
+        }
+        
+        int func_depth = depth - 1;
+        float inc_penalty = 0.0;
+        float dec_penalty = 0.0;
+        while(next <= span.end()) {
+          switch(buf[next]) {
+            case ';': dec_penalty = DepthPenalty; break;
+            
+            case PMATH_CHAR_ASSIGN:
+            case PMATH_CHAR_ASSIGNDELAYED:
+            case PMATH_CHAR_RULE:
+            case PMATH_CHAR_RULEDELAYED:   inc_penalty = DepthPenalty; break;
+            
+            case ':': {
+                if( (next + 2 <= span.end() &&  buf[next + 1] == ':' && buf[next + 2] == '=') ||
+                    (next + 1 <= span.end() && (buf[next + 1] == '>' || buf[next + 1] == '=')))
+                {
+                  inc_penalty = DepthPenalty;
+                }
+              } break;
+              
+            case '-': {
+                if(next + 1 <= span.end() && (buf[next + 1] == '>' || buf[next + 1] == '='))
+                  inc_penalty = DepthPenalty;
+              } break;
+              
+            case '+': {
+                if(next + 1 <= span.end() && buf[next + 1] == '=')
+                  inc_penalty = DepthPenalty;
+              } break;
+              
+            default:
+              if(pmath_char_is_left(buf[next])) {
+                if(self.spans.is_operand_start(next))
+                  penalty_array[next] += WordPenalty;
+                else
+                  penalty_array[next - 1] += WordPenalty;
+                  
+                depth = func_depth;
+              }
+              else if(pmath_char_is_right(buf[next])) {
+                penalty_array[next - 1] += WordPenalty;
+              }
+          }
+          
+          next = fill_penalty_array(self.spans[next], depth, next, box);
+        }
+        
+        inc_penalty -= dec_penalty;
+        if(inc_penalty != 0) {
+          for(; pos < next; ++pos)
+            penalty_array[pos] += inc_penalty;
+        }
+        
+        return next;
+      }
+      
+      int fill_indention_array(
+        Span  span,
+        int   depth,
+        int   pos
+      ) {
+        const uint16_t *buf = self.str.buffer();
+        
+        if(!span) {
+          indention_array[pos] = depth;
+          
+          ++pos;
+          if(pos == self.spans.length() || self.spans.is_token_end(pos - 1))
+            return pos;
+            
+          ++depth;
+          do {
+            indention_array[pos] = depth;
+            ++pos;
+          } while(pos < self.spans.length() && !self.spans.is_token_end(pos - 1));
+          
+          return pos;
+        }
+        
+        bool in_string = buf[pos] == '\"' && !span.next();
+        int next = fill_indention_array(span.next(), depth + 1, pos);
+        
+        indention_array[pos] = depth;
+//        if(in_string)
+//          depth+= 1;
+
+        bool depth_dec = false;
+        while(next <= span.end()) {
+          if(in_string && next > 0 && buf[next - 1] == '\n') {
+            indention_array[next] = depth; // 0
+            ++next;
+          }
+          else {
+            if((buf[next] == ';' || buf[next] == ',') && !depth_dec && !in_string) {
+              --depth;
+              depth_dec = true;
+            }
+            
+            next = fill_indention_array(self.spans[next], depth + 1, next);
+          }
+        }
+        
+        return next;
+      }
+      
+      void new_line(int pos, unsigned int indent, bool continuation = false) {
+        int len = self.lines.length();
+        if( self.lines[len - 1].end < pos ||
+            pos == 0 ||
+            (len >= 2 && self.lines[len - 2].end >= pos))
+        {
+          return;
+        }
+        
+        self.lines.length(len + 1);
+        self.lines[len].end = self.lines[len - 1].end;
+        self.lines[len - 1].end = pos;
+        self.lines[len - 1].continuation = continuation;
+        
+        self.lines[len].ascent = self.lines[len].descent = 0;
+        self.lines[len].indent = indent;
+        self.lines[len].continuation = 0;
+        return;
+      }
+      
+    public:
+      void split_lines(Context *context) {
+        if(self.glyphs.length() == 0)
+          return;
+          
+        const uint16_t *buf = self.str.buffer();
+        
+        if(self.glyphs[self.glyphs.length() - 1].right <= context->width) {
+          bool have_newline = false;
+          
+          for(int i = 0; i < self.glyphs.length(); ++i)
+            if(buf[i] == '\n') {
+              have_newline = true;
+              break;
+            }
+            
+          if(!have_newline)
+            return;
+        }
+        
+        indention_array.length(self.glyphs.length() + 1);
+        penalty_array.length(self.glyphs.length());
+        
+        indention_array.zeromem();
+        penalty_array.zeromem();
+        
+        int pos = 0;
+        while(pos < self.glyphs.length())
+          pos = fill_indention_array(self.spans[pos], 0, pos);
+          
+        indention_array[self.glyphs.length()] = indention_array[self.glyphs.length() - 1];
+        
+        int box = 0;
+        pos = 0;
+        while(pos < self.glyphs.length())
+          pos = fill_penalty_array(self.spans[pos], 0, pos, &box);
+          
+        if(buf[self.glyphs.length() - 1] != '\n')
+          penalty_array[self.glyphs.length() - 1] = HUGE_VAL;
+          
+        self._extents.width = context->width;
+        for(int start_of_paragraph = 0; start_of_paragraph < self.glyphs.length();) {
+          int end_of_paragraph = start_of_paragraph + 1;
+          while(end_of_paragraph < self.glyphs.length()
+                && buf[end_of_paragraph - 1] != '\n')
+            ++end_of_paragraph;
+            
+          break_array.length(0);
+          break_array.add(BreakPositionWithPenalty(start_of_paragraph - 1, 0, 0.0));
+          
+          for(pos = start_of_paragraph; pos < end_of_paragraph; ++pos) {
+            float xend = self.glyphs[pos].right;
+            
+            int current = break_array.length();
+            break_array.add(BreakPositionWithPenalty(pos, -1, Infinity));
+            
+            for(int i = current - 1; i >= 0; --i) {
+              float xstart    = 0;
+              float indention = 0;
+              double penalty  = break_array[i].penalty;
+              if(break_array[i].text_position >= 0) {
+                int tp = break_array[i].text_position;
+                xstart    = self.glyphs[tp].right;
+                indention = self.indention_width(indention_array[tp + 1]);
+                penalty  += penalty_array[tp];
+              }
+              
+              if(xend - xstart + indention > context->width
+                  && i + 1 < current)
+                break;
+                
+              double best = context->width * BestLineWidth;
+              if( pos + 1 < end_of_paragraph ||
+                  best < xend - xstart + indention)
+              {
+                double factor = 0;
+                if(context->width > 0)
+                  factor = LineWidthFactor / context->width;
+                double rel_amplitude = ((xend - xstart + indention) - best) * factor;
+                penalty += rel_amplitude * rel_amplitude;
+              }
+              
+              if(!(penalty >= break_array[current].penalty)) {
+                break_array[current].penalty = penalty;
+                break_array[current].prev_break_index = i;
+              }
+            }
+          }
+          
+          int mini = break_array.length() - 1;
+          for(int i = mini - 1; i >= 0 && break_array[i].text_position + 1 == end_of_paragraph; --i) {
+            if(break_array[i].penalty < break_array[mini].penalty)
+              mini = i;
+          }
+          
+          if(buf[end_of_paragraph - 1] != '\n')
+            mini = break_array[mini].prev_break_index;
+            
+          break_result.length(0);
+          for(int i = mini; i > 0; i = break_array[i].prev_break_index)
+            break_result.add(i);
+            
+          for(int i = break_result.length() - 1; i >= 0; --i) {
+            int j = break_result[i];
+            pos = break_array[j].text_position;
+            
+            while(pos + 1 < end_of_paragraph && buf[pos + 1] == ' ')
+              ++pos;
+              
+            if(pos < end_of_paragraph) {
+              new_line(
+                pos + 1,
+                indention_array[pos + 1],
+                !self.spans.is_token_end(pos));
+            }
+          }
+          
+          start_of_paragraph = end_of_paragraph;
+        }
+        
+        // Move FillBoxes to the beginning of the next line,
+        // so aaaaaaaaaaaaaa.........bbbbb will become
+        //    aaaaaaaaaaaaaa
+        //    ............bbbbb
+        // when the window is resized.
+        box = 0;
+        for(int line = 0; line < self.lines.length() - 1; ++line) {
+          if(self.lines[line].end > 0 && buf[self.lines[line].end - 1] == PMATH_CHAR_BOX) {
+            while(self.boxes[box]->index() < self.lines[line].end - 1)
+              ++box;
+              
+            FillBox *fb = dynamic_cast<FillBox *>(self.boxes[box]);
+            if(fb) {
+              if(buf[self.lines[line].end] == PMATH_CHAR_BOX
+                  && dynamic_cast<FillBox *>(self.boxes[box + 1]))
+                continue;
+                
+              float w = self.glyphs[self.lines[line + 1].end - 1].right - self.glyphs[self.lines[line].end - 1].right;
+              
+              if(fb->extents().width + w + self.indention_width(self.lines[line + 1].indent) <= context->width) {
+                self.lines[line].end--;
+              }
+            }
+          }
+        }
+      }
+      
+    public:
+      void hstretch_lines(
+        float width,
+        float window_width,
+        float *unfilled_width
+      ) {
+        *unfilled_width = -HUGE_VAL;
+        
+        if(width == HUGE_VAL) {
+          if(window_width == HUGE_VAL)
+            return;
+            
+          width = window_width;
+        }
+        
+        const uint16_t *buf = self.str.buffer();
+        
+        int box = 0;
+        int start = 0;
+        
+        float delta_x = 0;
+        for(int line = 0; line < self.lines.length(); line++) {
+          float total_fill_weight = 0;
+          float white = 0;
+          
+          int oldbox = box;
+          for(int pos = start; pos < self.lines[line].end; ++pos) {
+            if(buf[pos] == PMATH_CHAR_BOX) {
+              while(self.boxes[box]->index() < pos)
+                ++box;
+                
+              FillBox *fillbox = dynamic_cast<FillBox *>(self.boxes[box]);
+              if(fillbox && fillbox->weight > 0) {
+                total_fill_weight += fillbox->weight;
+                white += fillbox->extents().width;
+              }
+            }
+            
+            self.glyphs[pos].right += delta_x;
+          }
+          
+          float line_width = self.indention_width(line);
+          if(start > 0)
+            line_width -= self.glyphs[start - 1].right;
+          if(self.lines[line].end > 0)
+            line_width += self.glyphs[self.lines[line].end - 1].right;
+            
+          if(total_fill_weight > 0) {
+            if(width - line_width > 0) {
+              float dx = 0;
+              
+              white += width - line_width;
+              
+              box = oldbox;
+              for(int pos = start; pos < self.lines[line].end; ++pos) {
+                if(buf[pos] == PMATH_CHAR_BOX) {
+                  while(self.boxes[box]->index() < pos)
+                    ++box;
+                    
+                  FillBox *fillbox = dynamic_cast<FillBox *>(self.boxes[box]);
+                  if(fillbox && fillbox->weight > 0) {
+                    BoxSize size = fillbox->extents();
+                    dx -= size.width;
+                    
+                    size.width = white * fillbox->weight / total_fill_weight;
+                    fillbox->expand(size);
+                    
+                    dx += size.width;
+                    
+                    if(self.lines[line].ascent < fillbox->extents().ascent)
+                      self.lines[line].ascent = fillbox->extents().ascent;
+                      
+                    if(self.lines[line].descent < fillbox->extents().descent)
+                      self.lines[line].descent = fillbox->extents().descent;
+                  }
+                }
+                
+                self.glyphs[pos].right += dx;
+              }
+              
+              delta_x += dx;
+            }
+          }
+          
+          line_width += self.indention_width(self.lines[line].indent);
+          if(*unfilled_width < line_width)
+            *unfilled_width = line_width;
+            
+          start = self.lines[line].end;
+        }
+      }
+      
+  };
+  
+  Array<int>    MathSequenceImpl::indention_array(0);
+  Array<double> MathSequenceImpl::penalty_array(0);
+
+  const double MathSequenceImpl::DepthPenalty = 1.0;
+  const double MathSequenceImpl::WordPenalty = 100.0;//2.0;
+  const double MathSequenceImpl::BestLineWidth = 0.95;
+  const double MathSequenceImpl::LineWidthFactor = 2.0;
+  
+  Array<BreakPositionWithPenalty>  MathSequenceImpl::break_array(0);
+  Array<int>                       MathSequenceImpl::break_result(0);
+  
+}
+
 //{ class MathSequence ...
 
 MathSequence::MathSequence()
@@ -164,7 +2136,7 @@ bool MathSequence::expand(const BoxSize &size) {
     float uw;
     float w = _extents.width;
     
-    hstretch_lines(
+    MathSequenceImpl(*this).hstretch_lines(
       size.width,
       size.width,
       &uw);
@@ -190,9 +2162,9 @@ void MathSequence::resize(Context *context) {
   int box = 0;
   int pos = 0;
   while(pos < glyphs.length())
-    resize_span(context, spans[pos], &pos, &box);
+    MathSequenceImpl(*this).resize_span(context, spans[pos], &pos, &box);
     
-  apply_glyph_substitutions(context);
+  MathSequenceImpl(*this).apply_glyph_substitutions(context);
   
   if(context->show_auto_styles) {
     ScopeColorizer colorizer(this);
@@ -250,17 +2222,17 @@ void MathSequence::resize(Context *context) {
         box = 0;
         pos = 0;
         while(pos < glyphs.length())
-          stretch_span(context, spans[pos], &pos, &box, &ca, &cd, &a, &d);
+          MathSequenceImpl(*this).stretch_span(context, spans[pos], &pos, &box, &ca, &cd, &a, &d);
       }
     }
     else {
       box = 0;
       pos = 0;
       while(pos < glyphs.length())
-        stretch_span(context, spans[pos], &pos, &box, &ca, &cd, &a, &d);
+        MathSequenceImpl(*this).stretch_span(context, spans[pos], &pos, &box, &ca, &cd, &a, &d);
     }
     
-    enlarge_space(context);
+    MathSequenceImpl(*this).enlarge_space(context);
   }
   
   {
@@ -281,9 +2253,9 @@ void MathSequence::resize(Context *context) {
   
   context->section_content_window_width = old_scww;
   
-  split_lines(context);
+  MathSequenceImpl(*this).split_lines(context);
   if(dynamic_cast<Section *>(_parent)) {
-    hstretch_lines(
+    MathSequenceImpl(*this).hstretch_lines(
       context->width,
       context->section_content_window_width,
       &context->sequence_unfilled_width);
@@ -657,10 +2629,10 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
           if(buf[i] == PMATH_CHAR_BOX)
             ++box;
             
-        caret_size(opt_context, start, box, &a, &d);
+        MathSequenceImpl(*this).caret_size(opt_context, start, box, &a, &d);
       }
       else {
-        boxes_size(
+        MathSequenceImpl(*this).boxes_size(
           opt_context,
           start,
           end,
@@ -745,8 +2717,8 @@ Expr MathSequence::to_pmath(int flags) {
   memset(&settings, 0, sizeof(settings));
   settings.size           = sizeof(settings);
   settings.data           = &data;
-  settings.box_at_index   = box_at_index;
-  settings.add_debug_info = add_debug_info;
+  settings.box_at_index   = MathSequenceImpl::box_at_index;
+  settings.add_debug_info = MathSequenceImpl::add_debug_info;
   
   if(flags & BoxFlagParseable)
     settings.flags |= PMATH_BFS_PARSEABLE;
@@ -770,8 +2742,8 @@ Expr MathSequence::to_pmath(int flags, int start, int end) {
   memset(&settings, 0, sizeof(settings));
   settings.size           = sizeof(settings);
   settings.data           = &data;
-  settings.box_at_index   = box_at_index;
-  settings.add_debug_info = add_debug_info;
+  settings.box_at_index   = MathSequenceImpl::box_at_index;
+  settings.add_debug_info = MathSequenceImpl::add_debug_info;
   
   if(flags & BoxFlagParseable)
     settings.flags |= PMATH_BFS_PARSEABLE;
@@ -896,7 +2868,7 @@ Box *MathSequence::move_logical(
 
 Box *MathSequence::move_vertical(
   LogicalDirection  direction,
-  float            *index_rel_x,
+  float             *index_rel_x,
   int              *index,
   bool              called_from_child
 ) {
@@ -995,7 +2967,7 @@ Box *MathSequence::mouse_selection(
   float  y,
   int   *start,
   int   *end,
-  bool  *was_inside_start
+  bool   *was_inside_start
 ) {
   *was_inside_start = true;
   
@@ -1214,9 +3186,9 @@ void MathSequence::ensure_spans_valid() {
   spans = pmath_spans_from_string(
             &code,
             0,
-            subsuperscriptbox_at_index,
-            underoverscriptbox_at_index,
-            syntax_error,
+            MathSequenceImpl::subsuperscriptbox_at_index,
+            MathSequenceImpl::underoverscriptbox_at_index,
+            MathSequenceImpl::syntax_error,
             &data);
 }
 
@@ -1338,1963 +3310,6 @@ int MathSequence::matching_fence(int pos) {
 //  }
 
   return -1;
-}
-
-pmath_bool_t MathSequence::subsuperscriptbox_at_index(int i, void *_data) {
-  ScanData *data = (ScanData *)_data;
-  
-  int start = data->current_box;
-  while(data->current_box < data->sequence->boxes.length()) {
-    if(data->sequence->boxes[data->current_box]->index() == i) {
-      SubsuperscriptBox *b = dynamic_cast<SubsuperscriptBox *>(
-                               data->sequence->boxes[data->current_box]);
-      return 0 != b;
-    }
-    ++data->current_box;
-  }
-  
-  data->current_box = 0;
-  while(data->current_box < start) {
-    if(data->sequence->boxes[data->current_box]->index() == i)
-      return 0 != dynamic_cast<SubsuperscriptBox *>(
-               data->sequence->boxes[data->current_box]);
-    ++data->current_box;
-  }
-  
-  return FALSE;
-}
-
-pmath_string_t MathSequence::underoverscriptbox_at_index(int i, void *_data) {
-  ScanData *data = (ScanData *)_data;
-  
-  int start = data->current_box;
-  while(data->current_box < data->sequence->boxes.length()) {
-    if(data->sequence->boxes[data->current_box]->index() == i) {
-      UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox *>(
-                                  data->sequence->boxes[data->current_box]);
-                                  
-      if(box)
-        return pmath_ref(box->base()->text().get_as_string());
-    }
-    ++data->current_box;
-  }
-  
-  data->current_box = 0;
-  while(data->current_box < start) {
-    if(data->sequence->boxes[data->current_box]->index() == i) {
-      UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox *>(
-                                  data->sequence->boxes[data->current_box]);
-                                  
-      if(box)
-        return pmath_ref(box->base()->text().get_as_string());
-    }
-    ++data->current_box;
-  }
-  
-  return PMATH_NULL;
-}
-
-void MathSequence::syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err) {
-  ScanData *data = (ScanData *)_data;
-  
-  if(!data->sequence->get_style(ShowAutoStyles))
-    return;
-    
-  const uint16_t *buf = pmath_string_buffer(&code);
-  int             len = pmath_string_length(code);
-  
-  if(err) {
-    if(pos < data->sequence->glyphs.length()
-        && data->sequence->glyphs.length() > pos) {
-      data->sequence->glyphs[pos].style = GlyphStyleSyntaxError;
-    }
-  }
-  else if(pos < len && buf[pos] == '\n') { // new line character interpreted as multiplication
-    while(pos > 0 && buf[pos] == '\n')
-      --pos;
-      
-    if(pos >= 0
-        && pos < data->sequence->glyphs.length()
-        && data->sequence->glyphs.length() > pos) {
-      data->sequence->glyphs[pos].missing_after = true;
-    }
-  }
-}
-
-pmath_t MathSequence::box_at_index(int i, void *_data) {
-  ScanData *data = (ScanData *)_data;
-  
-  int flags = data->flags;
-  if((flags & BoxFlagParseable) && data->sequence->is_inside_string(i)) {
-    flags &= ~BoxFlagParseable;
-  }
-  
-  if(i < data->start || data->end <= i)
-    return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
-    
-  int start = data->current_box;
-  while(data->current_box < data->sequence->boxes.length()) {
-    if(data->sequence->boxes[data->current_box]->index() == i)
-      return data->sequence->boxes[data->current_box]->to_pmath(flags).release();
-    ++data->current_box;
-  }
-  
-  data->current_box = 0;
-  while(data->current_box < start) {
-    if(data->sequence->boxes[data->current_box]->index() == i)
-      return data->sequence->boxes[data->current_box]->to_pmath(flags).release();
-    ++data->current_box;
-  }
-  
-  return PMATH_NULL;
-}
-
-pmath_t MathSequence::add_debug_info(
-  pmath_t                             token_or_span,
-  const struct pmath_text_position_t *start,
-  const struct pmath_text_position_t *end,
-  void                               *_data
-) {
-  ScanData *data = (ScanData *)_data;
-  
-  if(data->end <= start->index || end->index <= data->start) {
-    pmath_unref(token_or_span);
-    return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
-  }
-  
-  if(pmath_is_string(token_or_span)) {
-    if(data->start <= start->index && end->index <= data->end)
-      return token_or_span;
-      
-    /* does not work with string tokens containing boxes */
-    
-    if(start->index <= data->start && data->end <= end->index) {
-      return pmath_string_part(
-               token_or_span,
-               data->start - start->index,
-               data->end - data->start);
-    }
-    
-    if(data->start <= start->index && start->index <= data->end) {
-      return pmath_string_part(
-               token_or_span,
-               0,
-               data->end - start->index);
-    }
-    
-    if(data->start <= end->index && end->index <= data->end) {
-      return pmath_string_part(
-               token_or_span,
-               data->start - start->index,
-               end->index - data->start);
-    }
-    
-    return token_or_span;
-  }
-  
-  if(!pmath_is_expr(token_or_span))
-    return token_or_span;
-    
-  Expr debug_info = Call(
-                      Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
-                      Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), data->sequence->id()),
-                      Call(Symbol(PMATH_SYMBOL_RANGE), start->index, end->index));
-                      
-  token_or_span = pmath_try_set_debug_info(
-                    token_or_span,
-                    debug_info.release());
-                    
-  return token_or_span;
-}
-
-void MathSequence::boxes_size(
-  Context *context,
-  int      start,
-  int      end,
-  float   *a,
-  float   *d
-) {
-  int box = -1;
-  const uint16_t *buf = str.buffer();
-  for(int i = start; i < end; ++i) {
-    if(buf[i] == PMATH_CHAR_BOX) {
-      if(box < 0) {
-        do {
-          ++box;
-        } while(boxes[box]->index() < i);
-      }
-      boxes[box++]->extents().bigger_y(a, d);
-    }
-    else if(glyphs[i].is_normal_text) {
-      context->text_shaper->vertical_glyph_size(
-        context,
-        buf[i],
-        glyphs[i],
-        a,
-        d);
-    }
-    else {
-      context->math_shaper->vertical_glyph_size(
-        context,
-        buf[i],
-        glyphs[i],
-        a,
-        d);
-    }
-  }
-}
-
-void MathSequence::box_size(
-  Context *context,
-  int      pos,
-  int      box,
-  float   *a,
-  float   *d
-) {
-  if(pos >= 0 && pos < glyphs.length()) {
-    const uint16_t *buf = str.buffer();
-    if(buf[pos] == PMATH_CHAR_BOX) {
-      if(box < 0)
-        box = get_box(pos);
-        
-      boxes[box]->extents().bigger_y(a, d);
-    }
-    else if(glyphs[pos].is_normal_text)
-      context->text_shaper->vertical_glyph_size(
-        context,
-        buf[pos],
-        glyphs[pos],
-        a,
-        d);
-    else
-      context->math_shaper->vertical_glyph_size(
-        context,
-        buf[pos],
-        glyphs[pos],
-        a,
-        d);
-  }
-}
-
-void MathSequence::caret_size(
-  Context *context,
-  int      pos,
-  int      box,
-  float   *a,
-  float   *d
-) {
-  if(glyphs.length() > 0) {
-    box_size(context, pos - 1, box - 1, a, d);
-    box_size(context, pos,     box,     a, d);
-  }
-  else {
-    *a = _extents.ascent;
-    *d = _extents.descent;
-  }
-}
-
-void MathSequence::resize_span(
-  Context *context,
-  Span     span,
-  int     *pos,
-  int     *box
-) {
-  if(!span) {
-    if(str[*pos] == PMATH_CHAR_BOX) {
-      boxes[*box]->resize(context);
-      
-      glyphs[*pos].right = boxes[*box]->extents().width;
-      glyphs[*pos].composed = 1;
-      ++*box;
-      ++*pos;
-      return;
-    }
-    
-    int next  = *pos;
-    while(next < glyphs.length() && !spans.is_token_end(next))
-      ++next;
-      
-    if(next < glyphs.length())
-      ++next;
-      
-    const uint16_t *buf = str.buffer();
-    
-    if(context->math_spacing) {
-      context->math_shaper->decode_token(
-        context,
-        next - *pos,
-        buf + *pos,
-        glyphs.items() + *pos);
-    }
-    else {
-      context->text_shaper->decode_token(
-        context,
-        next - *pos,
-        buf + *pos,
-        glyphs.items() + *pos);
-        
-      for(int i = *pos; i < next; ++i) {
-        if(glyphs[i].index) {
-          glyphs[i].is_normal_text = 1;
-        }
-        else {
-          context->math_shaper->decode_token(
-            context,
-            1,
-            buf + i,
-            glyphs.items() + i);
-        }
-      }
-    }
-    
-    *pos = next;
-    return;
-  }
-  
-  if(!span.next() && str[*pos] == '"') {
-    const uint16_t *buf = str.buffer();
-    int end = span.end();
-    if(!context->show_string_characters) {
-      ++*pos;
-      if(buf[end] == '"')
-        --end;
-    }
-    else {
-      context->math_shaper->decode_token(
-        context,
-        1,
-        buf + *pos,
-        glyphs.items() + *pos);
-        
-      if(buf[end] == '"')
-        context->math_shaper->decode_token(
-          context,
-          1,
-          buf + end,
-          glyphs.items() + end);
-    }
-    
-    bool old_math_styling = context->math_spacing;
-    context->math_spacing = false;
-    
-    while(*pos <= end) {
-      if(buf[*pos] == PMATH_CHAR_BOX) {
-        boxes[*box]->resize(context);
-        glyphs[*pos].right = boxes[*box]->extents().width;
-        glyphs[*pos].composed = 1;
-        ++*box;
-        ++*pos;
-      }
-      else {
-        int next = *pos;
-        while(next <= end && !spans.is_token_end(next))
-          ++next;
-        ++next;
-        
-        if(!context->show_string_characters
-            && buf[*pos] == '\\')
-          ++*pos;
-          
-        context->text_shaper->decode_token(
-          context,
-          next - *pos,
-          buf + *pos,
-          glyphs.items() + *pos);
-          
-        for(int i = *pos; i < next; ++i) {
-          glyphs[i].is_normal_text = 1;
-        }
-        
-        *pos = next;
-      }
-    }
-    
-    context->math_spacing = old_math_styling;
-    
-    *pos = span.end() + 1;
-  }
-  else {
-    resize_span(context, span.next(), pos, box);
-    while(*pos <= span.end())
-      resize_span(context, spans[*pos], pos, box);
-  }
-}
-
-void MathSequence::stretch_span(
-  Context *context,
-  Span     span,
-  int     *pos,
-  int     *box,
-  float   *core_ascent,
-  float   *core_descent,
-  float   *ascent,
-  float   *descent
-) {
-  const uint16_t *buf = str.buffer();
-  
-  if(span) {
-    int start = *pos;
-    if(!span.next()) {
-      uint16_t ch = buf[start];
-      
-      if(ch == '"') {
-        for(; *pos <= span.end(); ++*pos) {
-          if(buf[*pos] == PMATH_CHAR_BOX)
-            ++*box;
-        }
-        
-        return;
-      }
-      
-      if(ch == PMATH_CHAR_BOX) {
-        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(boxes[*box]);
-        if(underover && underover->base()->length() == 1)
-          ch = underover->base()->str[0];
-      }
-      
-      if(pmath_char_is_left(ch)) {
-        float ca = 0;
-        float cd = 0;
-        float a = 0;
-        float d = 0;
-        
-        ++*pos;
-        while(*pos <= span.end() && !pmath_char_is_right(buf[*pos]))
-          stretch_span(context, spans[*pos], pos, box, &ca, &cd, &a, &d);
-          
-        float overhang_a = (a - ca) * UnderoverscriptOverhangCoverage;
-        float overhang_d = (d - cd) * UnderoverscriptOverhangCoverage;
-        
-        float new_ca = ca + overhang_a;
-        float new_cd = cd + overhang_d;
-        
-        if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
-          context->math_shaper->vertical_stretch_char(
-            context, new_ca, new_cd, true, buf[*pos], &glyphs[*pos]);
-            
-          ++*pos;
-        }
-        
-        context->math_shaper->vertical_stretch_char(
-          context, new_ca, new_cd, true, buf[start], &glyphs[start]);
-          
-        if(*ascent < a)
-          *ascent = a;
-          
-        if(*core_ascent < new_ca)
-          *core_ascent = new_ca;
-          
-        if(*descent < d)
-          *descent = d;
-          
-        if(*core_descent < new_cd)
-          *core_descent = new_cd;
-      }
-      else if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) {
-        float a = 0;
-        float d = 0;
-        int startbox = *box;
-        
-        if(buf[start] == PMATH_CHAR_BOX) {
-          assert(dynamic_cast<UnderoverscriptBox *>(boxes[startbox]) != 0);
-          
-          ++*pos;
-          ++*box;
-        }
-        else {
-          ++*pos;
-          
-          if( *pos < glyphs.length() &&
-              buf[*pos] == PMATH_CHAR_BOX)
-          {
-            SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(boxes[startbox]);
-            
-            if(subsup) {
-              ++*box;
-              ++*pos;
-            }
-          }
-        }
-        
-        while(*pos <= span.end())
-          stretch_span(context, spans[*pos], pos, box, &a, &d, ascent, descent);
-          
-        if(buf[start] == PMATH_CHAR_BOX) {
-          UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(boxes[startbox]);
-          
-          assert(underover != 0);
-          
-          context->math_shaper->vertical_stretch_char(
-            context,
-            a,
-            d,
-            true,
-            underover->base()->str[0],
-            &underover->base()->glyphs[0]);
-            
-          context->math_shaper->vertical_glyph_size(
-            context,
-            underover->base()->str[0],
-            underover->base()->glyphs[0],
-            &underover->base()->_extents.ascent,
-            &underover->base()->_extents.descent);
-            
-          underover->base()->_extents.width = underover->base()->glyphs[0].right;
-          
-          underover->after_items_resize(context);
-          
-          glyphs[start].right = underover->extents().width;
-          
-          underover->base()->extents().bigger_y(core_ascent, core_descent);
-          underover->extents().bigger_y(ascent, descent);
-        }
-        else {
-          context->math_shaper->vertical_stretch_char(
-            context,
-            a,
-            d,
-            true,
-            buf[start],
-            &glyphs[start]);
-            
-          BoxSize size;
-          context->math_shaper->vertical_glyph_size(
-            context,
-            buf[start],
-            glyphs[start],
-            &size.ascent,
-            &size.descent);
-            
-          size.bigger_y(core_ascent, core_descent);
-          size.bigger_y(ascent,      descent);
-          
-          if( start + 1 < glyphs.length() &&
-              buf[start + 1] == PMATH_CHAR_BOX)
-          {
-            SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(boxes[startbox]);
-            
-            if(subsup) {
-              subsup->stretch(context, size);
-              subsup->extents().bigger_y(ascent, descent);
-              
-              subsup->adjust_x(context, buf[start], glyphs[start]);
-            }
-          }
-        }
-        
-        if(*core_ascent < a)
-          *core_ascent = a;
-        if(*core_descent < d)
-          *core_descent = d;
-      }
-      else
-        stretch_span(context, span.next(), pos, box, core_ascent, core_descent, ascent, descent);
-    }
-    else
-      stretch_span(context, span.next(), pos, box, core_ascent, core_descent, ascent, descent);
-      
-    if( *pos <= span.end() &&
-        buf[*pos] == '/' &&
-        spans.is_token_end(*pos))
-    {
-      start = *pos;
-      
-      ++*pos;
-      while(*pos <= span.end())
-        stretch_span(context, spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
-        
-      context->math_shaper->vertical_stretch_char(
-        context,
-        *core_ascent  - 0.1 * em,
-        *core_descent - 0.1 * em,
-        true,
-        buf[start],
-        &glyphs[start]);
-        
-      BoxSize size;
-      context->math_shaper->vertical_glyph_size(
-        context,
-        buf[start],
-        glyphs[start],
-        &size.ascent,
-        &size.descent);
-        
-      size.bigger_y(core_ascent, core_descent);
-      size.bigger_y(ascent,      descent);
-    }
-    
-    while(*pos <= span.end() && (!pmath_char_is_left(buf[*pos]) || spans[*pos]))
-      stretch_span(context, spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
-      
-    if(*pos < span.end()) {
-      start = *pos;
-      
-      float ca = 0;
-      float cd = 0;
-      float a = 0;
-      float d = 0;
-      
-      ++*pos;
-      while(*pos <= span.end() && !pmath_char_is_right(buf[*pos]))
-        stretch_span(context, spans[*pos], pos, box, &ca, &cd, &a, &d);
-        
-      float overhang_a = (a - ca) * UnderoverscriptOverhangCoverage;
-      float overhang_d = (d - cd) * UnderoverscriptOverhangCoverage;
-      
-      float new_ca = ca + overhang_a;
-      float new_cd = cd + overhang_d;
-      
-      if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
-        context->math_shaper->vertical_stretch_char(
-          context, new_ca, new_cd, false, buf[*pos], &glyphs[*pos]);
-          
-        ++*pos;
-      }
-      
-      context->math_shaper->vertical_stretch_char(
-        context, new_ca, new_cd, false, buf[start], &glyphs[start]);
-        
-      if(*ascent < a)
-        *ascent = a;
-        
-      if(*core_ascent < new_ca)
-        *core_ascent = new_ca;
-        
-      if(*descent < d)
-        *descent = d;
-        
-      if(*core_descent < new_cd)
-        *core_descent = new_cd;
-        
-      while(*pos <= span.end()) {
-        stretch_span(
-          context,
-          spans[*pos],
-          pos,
-          box,
-          core_ascent,
-          core_descent,
-          ascent, descent);
-      }
-    }
-    
-    return;
-  }
-  
-  if(buf[*pos] == PMATH_CHAR_BOX) {
-    SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(boxes[*box]);
-    
-    if(subsup && *pos > 0) {
-      if(buf[*pos - 1] == PMATH_CHAR_BOX) {
-        subsup->stretch(context, boxes[*box - 1]->extents());
-      }
-      else {
-        BoxSize size;
-        
-        context->math_shaper->vertical_glyph_size(
-          context, buf[*pos - 1], glyphs[*pos - 1],
-          &size.ascent, &size.descent);
-          
-        subsup->stretch(context, size);
-        subsup->adjust_x(context, buf[*pos - 1], glyphs[*pos - 1]);
-      }
-      
-      subsup->extents().bigger_y(ascent,      descent);
-      subsup->extents().bigger_y(core_ascent, core_descent);
-    }
-    else {
-      UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(boxes[*box]);
-      
-      if(underover) {
-        uint16_t ch = 0;
-        
-        if(underover->base()->length() == 1)
-          ch = underover->base()->text()[0];
-          
-        if( spans.is_operand_start(*pos) &&
-            (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)))
-        {
-          context->math_shaper->vertical_stretch_char(
-            context,
-            0,
-            0,
-            true,
-            underover->base()->str[0],
-            &underover->base()->glyphs[0]);
-            
-          context->math_shaper->vertical_glyph_size(
-            context,
-            underover->base()->str[0],
-            underover->base()->glyphs[0],
-            &underover->base()->_extents.ascent,
-            &underover->base()->_extents.descent);
-            
-          underover->base()->_extents.width = underover->base()->glyphs[0].right;
-          
-          underover->after_items_resize(context);
-          
-          glyphs[*pos].right = underover->extents().width;
-        }
-        
-        underover->base()->extents().bigger_y(core_ascent, core_descent);
-      }
-      else
-        boxes[*box]->extents().bigger_y(core_ascent, core_descent);
-    }
-    
-    boxes[*box]->extents().bigger_y(ascent, descent);
-    ++*box;
-    ++*pos;
-    return;
-  }
-  
-  if( spans.is_operand_start(*pos) &&
-      length() > 1 &&
-      (pmath_char_maybe_bigop(buf[*pos]) || pmath_char_is_integral(buf[*pos])))
-  {
-    context->math_shaper->vertical_stretch_char(
-      context,
-      0,
-      0,
-      true,
-      buf[*pos],
-      &glyphs[*pos]);
-      
-    BoxSize size;
-    context->math_shaper->vertical_glyph_size(
-      context,
-      buf[*pos],
-      glyphs[*pos],
-      &size.ascent,
-      &size.descent);
-      
-    size.bigger_y(core_ascent, core_descent);
-    size.bigger_y(ascent,      descent);
-    
-    ++*pos;
-    return;
-  }
-  
-  do {
-    context->math_shaper->vertical_glyph_size(
-      context, buf[*pos], glyphs[*pos], core_ascent, core_descent);
-    ++*pos;
-  } while(*pos < str.length() && !spans.is_token_end(*pos - 1));
-  
-  if(*ascent < *core_ascent)
-    *ascent = *core_ascent;
-  if(*descent < *core_descent)
-    *descent = *core_descent;
-}
-
-void MathSequence::apply_glyph_substitutions(Context *context) {
-  if(context->fontfeatures.empty())
-    return;
-    
-  int old_ssty_feature_value = context->fontfeatures.feature_value(FontFeatureSet::TAG_ssty);
-  if(old_ssty_feature_value < 0)
-    context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, context->script_indent);
-    
-  /* TODO: infer script ("math") and language ("dflt") from style/context.
-   */
-  
-//  substitute_glyphs(
-//    context,
-//    0,
-//    glyphs.length(),
-//    OTFontReshaper::SCRIPT_math,
-//    OTFontReshaper::LANG_dflt,
-//    OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
-//    OTFontReshaper::LANG_dflt,
-//    context->fontfeatures);
-
-  substitute_glyphs(
-    context,
-    0,
-    glyphs.length(),
-    OTFontReshaper::SCRIPT_math,
-    OTFontReshaper::LANG_dflt,
-    OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
-    OTFontReshaper::LANG_dflt,
-    context->fontfeatures);
-    
-  substitute_glyphs(
-    context,
-    0,
-    glyphs.length(),
-    OTFontReshaper::SCRIPT_latn,
-    OTFontReshaper::LANG_dflt,
-    OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
-    OTFontReshaper::LANG_dflt,
-    context->fontfeatures);
-    
-  context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, old_ssty_feature_value);
-}
-
-void MathSequence::substitute_glyphs(
-  Context              *context,
-  int                   start,
-  int                   end,
-  uint32_t              math_script_tag,
-  uint32_t              math_language_tag,
-  uint32_t              text_script_tag,
-  uint32_t              text_language_tag,
-  const FontFeatureSet &features
-) {
-  if(features.empty())
-    return;
-    
-  const uint16_t *buf = str.buffer();
-  cairo_text_extents_t cte;
-  cairo_glyph_t        cg;
-  cg.x = cg.y = 0;
-  
-  int run_start = start;
-  while(run_start < end) {
-    if( glyphs[run_start].composed ||
-        buf[run_start] == PMATH_CHAR_BOX)
-    {
-      ++run_start;
-      continue;
-    }
-    
-    int next_run = run_start + 1;
-    for(; next_run < end; ++next_run) {
-      if(glyphs[next_run].composed || buf[run_start] == PMATH_CHAR_BOX)
-        break;
-        
-      if(glyphs[run_start].fontinfo != glyphs[next_run].fontinfo)
-        break;
-      if(glyphs[run_start].slant != glyphs[next_run].slant)
-        break;
-      if(glyphs[run_start].is_normal_text != glyphs[next_run].is_normal_text)
-        break;
-    }
-    
-    uint32_t script_tag, language_tag;
-    SharedPtr<TextShaper> shaper;
-    
-    if(glyphs[run_start].is_normal_text) {
-      shaper = context->text_shaper;
-      script_tag   = text_script_tag;
-      language_tag = text_language_tag;
-    }
-    else {
-      shaper = context->math_shaper;
-      script_tag   = math_script_tag;
-      language_tag = math_language_tag;
-    }
-    
-    FontFace face = shaper->font(glyphs[run_start].fontinfo);
-    FontInfo info(face);
-    const GlyphSubstitutions *gsub = info.get_gsub_table();
-    
-    if(gsub) {
-      static Array<OTFontReshaper::IndexAndValue> lookups;
-      lookups.length(0);
-      
-      OTFontReshaper::get_lookups(
-        gsub,
-        script_tag,
-        language_tag,
-        features,
-        &lookups);
-        
-      if(lookups.length() > 0) {
-        context->canvas->set_font_face(face);
-        
-        static OTFontReshaper reshaper;
-        
-        reshaper.glyphs.length(    next_run - run_start);
-        reshaper.glyph_info.length(next_run - run_start);
-        
-        reshaper.glyphs.length(0);
-        reshaper.glyph_info.length(0);
-        
-        for(int i = run_start; i < next_run; ++i) {
-          if(glyphs[i].index == IgnoreGlyph)
-            continue;
-            
-          reshaper.glyphs.add(glyphs[i].index);
-          reshaper.glyph_info.add(i);
-        }
-        
-        reshaper.apply_lookups(gsub, lookups);
-        
-        assert(reshaper.glyphs.length() == reshaper.glyph_info.length());
-        
-        int len = reshaper.glyphs.length();
-        int i = 0;
-        while(i < len) {
-          int i2 = i + 1;
-          
-          int pos = reshaper.glyph_info[i];
-          
-          if(i2 < len && reshaper.glyph_info[i2] == pos) {
-            // no room for "one to many" substitution
-            
-            ++i2;
-            while(i2 < len && reshaper.glyph_info[i2] == pos)
-              ++i2;
-              
-            i = i2;
-            continue;
-          }
-          
-          int next;
-          if(i2 < len)
-            next = reshaper.glyph_info[i2];
-          else
-            next = next_run;
-            
-          assert(pos < next);
-          
-          if(glyphs[pos].index != reshaper.glyphs[i]) {
-            cg.index = glyphs[pos].index = reshaper.glyphs[i];
-            
-            context->canvas->glyph_extents(&cg, 1, &cte);
-            cte.x_advance /= (next - pos);
-            glyphs[pos].right = cte.x_advance;
-            
-            for(int j = pos + 1; j < next; ++j) {
-              glyphs[j].right = cte.x_advance;
-              glyphs[j].index = IgnoreGlyph;
-            }
-          }
-          
-          i = i2;
-        }
-        
-        
-//        for(int i = run_start; i < next_run; ++i) {
-//          uint16_t glyph_index = glyphs[i].index;
-//
-//          glyph_index = OTFontReshaper::substitute_single_glyph(gsub, glyph_index, lookups);
-//
-//          if(glyphs[i].index != glyph_index) {
-//            glyphs[i].index = glyph_index;
-//            cg.index = glyph_index;
-//
-//            context->canvas->glyph_extents(&cg, 1, &cte);
-//            glyphs[i].right = cte.x_advance;
-//  //          // for debugging:
-//  //          context->pre_paint_hooks.add(
-//  //            this,
-//  //            new SelectionFillHook(i, i + 1, 0x0080FF, 0.5));
-//          }
-//        }
-      }
-    }
-    run_start = next_run;
-  }
-}
-
-void MathSequence::group_number_digits(Context *context, int start, int end) {
-  static const int min_int_digits  = 5;
-  static const int min_frac_digits = 7;//INT_MAX;
-  static const int int_group_size  = 3;
-  static const int frac_group_size = 5;
-  
-  const uint16_t *buf = str.buffer();
-  int decimal_point = end + 1;
-  
-  float half_space_width = em / 10; // total: em/5 = thin space
-  
-  for(int i = start; i <= end; ++i) {
-    if(buf[i] < '0' || buf[i] > '9') {
-      if(buf[i] == '^') // explicitly specified base
-        return;
-        
-      if(buf[i] == '.' && i < decimal_point) {
-        decimal_point = i;
-        continue;
-      }
-      
-      if(buf[i] == '`') { // precision control
-        if(i < decimal_point)
-          decimal_point = i;
-          
-        end = i - 1;
-        break;
-      }
-    }
-  }
-  
-  if( int_group_size        >  0              &&
-      decimal_point - start >= min_int_digits &&
-      decimal_point - start >  int_group_size)
-  {
-    for(int i = decimal_point - int_group_size; i > start; i -= int_group_size) {
-      glyphs[i - 1].right += half_space_width;
-      
-      glyphs[i].x_offset  += half_space_width;
-      glyphs[i].right     += half_space_width;
-    }
-  }
-  
-  if( frac_group_size     >  0               &&
-      end - decimal_point >= min_frac_digits &&
-      end - decimal_point >  frac_group_size)
-  {
-    for(int i = decimal_point + frac_group_size; i < end; i += frac_group_size) {
-      glyphs[i].right        += half_space_width;
-      
-      glyphs[i + 1].x_offset += half_space_width;
-      glyphs[i + 1].right    += half_space_width;
-    }
-  }
-}
-
-void MathSequence::enlarge_space(Context *context) {
-  if(context->script_indent > 0)
-    return;
-    
-  int box = 0;
-  bool in_string = false;
-  bool in_alias = false;
-  const uint16_t *buf = str.buffer();
-  int i;
-  bool last_was_factor = false;
-  //bool last_was_number = false;
-  bool last_was_space  = false;
-  bool last_was_left   = false;
-  
-  int e = -1;
-  while(true) {
-    i = e += 1;
-    if(i >= glyphs.length())
-      break;
-      
-    while(e < glyphs.length() && !spans.is_token_end(e))
-      ++e;
-      
-    // italic correction
-    if( glyphs[e].slant == FontSlantItalic &&
-        buf[e] != PMATH_CHAR_BOX &&
-        (e + 1 == glyphs.length() || glyphs[e + 1].slant != FontSlantItalic))
-    {
-      float ital_corr = context->math_shaper->italic_correction(
-                          context,
-                          buf[e],
-                          glyphs[e]);
-                          
-      ital_corr *= em;
-      if(e + 1 < glyphs.length()) {
-        glyphs[e + 1].x_offset += ital_corr;
-        glyphs[e + 1].right += ital_corr;
-      }
-      else
-        glyphs[e].right += ital_corr;
-    }
-    
-    while(e + 1 < glyphs.length() &&
-          buf[e + 1] == PMATH_CHAR_BOX &&
-          box < boxes.length())
-    {
-      while(box < boxes.length() && boxes[box]->index() <= e)
-        ++box;
-        
-      if(box == boxes.length() || !dynamic_cast<SubsuperscriptBox *>(boxes[box]))
-        break;
-        
-      ++e;
-    }
-    
-    if(buf[i] == '\t') {
-      static uint16_t arrow = 0x21e2;//0x27F6;
-      float width = 4 * context->canvas->get_font_size();
-      
-      if(context->show_auto_styles && !in_string) {
-        context->math_shaper->decode_token(
-          context,
-          1,
-          &arrow,
-          &glyphs[i]);
-          
-        glyphs[i].x_offset = (width - glyphs[i].right) / 2;
-        
-        glyphs[i].style = GlyphStyleImplicit;
-      }
-      else {
-        glyphs[i].index = 0;
-      }
-      
-      glyphs[i].right = width;
-      continue;
-    }
-    
-    if(buf[i] == '"') {
-      in_string = !in_string;
-      last_was_factor = false;
-      continue;
-    }
-    
-    if(buf[i] == PMATH_CHAR_ALIASDELIMITER) {
-      in_alias = !in_alias;
-      last_was_factor = false;
-      continue;
-    }
-    
-    if(in_string || in_alias || e >= glyphs.length())
-      continue;
-      
-    const uint16_t *op = buf;
-    int ii = i;
-    int ee = e;
-    if(op[ii] == PMATH_CHAR_BOX) {
-      while(boxes[box]->index() < i)
-        ++box;
-        
-      if(box < boxes.length()) {
-        Box *tmp = boxes[box];
-        while(tmp) {
-          if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox *>(tmp)) {
-            tmp = asb->content();
-            continue;
-          }
-          
-          if(MathSequence *seq = dynamic_cast<MathSequence *>(tmp)) {
-            if(seq->length() == 1 && seq->count() == 1) {
-              tmp = seq->item(0);
-              continue;
-            }
-            
-            op = seq->text().buffer();
-            ii = 0;
-            ee = ii;
-            while( ee < seq->length() &&
-                   !seq->span_array().is_token_end(ee))
-            {
-              ++ee;
-            }
-            
-            if(ee != seq->length() - 1) {
-              op = buf;
-              ii = i;
-              ee = e;
-            }
-            
-            break;
-          }
-          
-          if(UnderoverscriptBox *uob = dynamic_cast<UnderoverscriptBox *>(tmp)) {
-            tmp = uob->base();
-            continue;
-          }
-          
-//          if(FractionBox *fb = dynamic_cast<FractionBox *>(tmp)) {
-//            if(i > 0 && pmath_char_is_digit(buf[i - 1])) {
-//
-//            }
-//          }
-
-          break;
-        }
-        
-//        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(tmp);
-//        if(underover && underover->base()->length() > 0) {
-//          op = underover->base()->text().buffer();
-//          ii = 0;
-//          ee = ii;
-//          while( ee < underover->base()->length() &&
-//                 !underover->base()->span_array().is_token_end(ee))
-//          {
-//            ++ee;
-//          }
-//
-//          if(ee != underover->base()->length() - 1) {
-//            op = buf;
-//            ii = i;
-//            ee = e;
-//          }
-//        }
-      }
-    }
-    
-    int prec;
-    pmath_token_t tok = pmath_token_analyse(op + ii, ee - ii + 1, &prec);
-    float space_left  = 0.0;
-    float space_right = 0.0;
-    
-    bool lwf = false; // new last_was_factor
-    bool lwl = false; // new last_was_left
-    switch(tok) {
-      case PMATH_TOK_PLUSPLUS: {
-          if(spans.is_operand_start(i)) {
-            prec = PMATH_PREC_CALL;
-            goto PREFIX;
-          }
-          
-          if(e + 1 < glyphs.length()
-              && spans.is_operand_start(e + 1))
-            goto INFIX;
-            
-          prec = PMATH_PREC_CALL;
-        }
-        goto POSTFIX;
-        
-      case PMATH_TOK_NARY_OR_PREFIX: {
-          if(spans.is_operand_start(i)) {
-            prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
-            goto PREFIX;
-          }
-        }
-        goto INFIX;
-        
-      case PMATH_TOK_NARY_AUTOARG:
-      case PMATH_TOK_BINARY_LEFT:
-      case PMATH_TOK_BINARY_RIGHT:
-      case PMATH_TOK_NARY:
-      case PMATH_TOK_QUESTION: {
-        INFIX:
-          switch(prec) {
-            case PMATH_PREC_SEQ:
-            case PMATH_PREC_EVAL:
-              space_right = em * 6 / 18;
-              break;
-              
-            case PMATH_PREC_ASS:
-            case PMATH_PREC_MODY:
-              space_left  = em * 4 / 18;
-              space_right = em * 8 / 18;
-              break;
-              
-            case PMATH_PREC_LAZY:
-            case PMATH_PREC_REPL:
-            case PMATH_PREC_RULE:
-            case PMATH_PREC_MAP:
-            case PMATH_PREC_STR:
-            case PMATH_PREC_COND:
-            case PMATH_PREC_ARROW:
-            case PMATH_PREC_REL:
-              space_left = space_right = em * 5 / 18; // total: 10/18 em
-              break;
-              
-            case PMATH_PREC_ALT:
-            case PMATH_PREC_OR:
-            case PMATH_PREC_XOR:
-            case PMATH_PREC_AND:
-            case PMATH_PREC_UNION:
-            case PMATH_PREC_ISECT:
-            case PMATH_PREC_RANGE:
-            case PMATH_PREC_ADD:
-            case PMATH_PREC_PLUMI:
-              space_left = space_right = em * 4 / 18; // total: 8/18 em
-              break;
-              
-            case PMATH_PREC_CIRCADD:
-            case PMATH_PREC_CIRCMUL:
-            case PMATH_PREC_MUL:
-            case PMATH_PREC_DIV:
-            case PMATH_PREC_MIDDOT:
-            case PMATH_PREC_MUL2:
-              space_left = space_right = em * 3 / 18; // total: 6/18 em
-              break;
-              
-            case PMATH_PREC_CROSS:
-            case PMATH_PREC_POW:
-            case PMATH_PREC_APL:
-            case PMATH_PREC_TEST:
-              space_left = space_right = em * 2 / 18; // total: 4/18 em
-              break;
-              
-            case PMATH_PREC_REPEAT:
-            case PMATH_PREC_INC:
-            case PMATH_PREC_CALL:
-            case PMATH_PREC_DIFF:
-            case PMATH_PREC_PRIM:
-              break;
-          }
-        }
-        break;
-        
-      case PMATH_TOK_POSTFIX_OR_PREFIX:
-        if(!spans.is_operand_start(i))
-          goto POSTFIX;
-          
-        prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
-        goto PREFIX;
-        
-      case PMATH_TOK_PREFIX: {
-        PREFIX:
-          switch(prec) {
-            case PMATH_PREC_REL: // not
-              space_right = em * 4 / 18;
-              break;
-              
-            case PMATH_PREC_ADD:
-              space_right = em * 1 / 18;
-              break;
-              
-            case PMATH_PREC_DIV:
-              if(op[ii] == PMATH_CHAR_INTEGRAL_D) {
-                space_left = em * 3 / 18;
-              }
-              break;
-              
-            default: break;
-          }
-        }
-        break;
-        
-      case PMATH_TOK_POSTFIX: {
-        POSTFIX:
-          switch(prec) {
-            case PMATH_PREC_FAC:
-            case PMATH_PREC_FUNC:
-              space_left = em * 2 / 18;
-              break;
-              
-            default: break;
-          }
-        }
-        break;
-        
-      case PMATH_TOK_COLON:
-      case PMATH_TOK_ASSIGNTAG:
-        space_left = space_right = em * 4 / 18;
-        break;
-      
-      case PMATH_TOK_NEWLINE:
-        space_left = space_right = 0.0;
-        break;
-        
-      case PMATH_TOK_SPACE: {
-          // implicit multiplication:
-          if( buf[i] == ' '           &&
-              e + 1 < glyphs.length() &&
-              last_was_factor && context->multiplication_sign)
-          {
-            pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, NULL);
-            
-            if(buf[e + 1] == PMATH_CHAR_BOX) {
-              Box *next_box = boxes[get_box(e + 1, box)];
-              
-              tok2 = get_box_start_token(next_box);
-            }
-            
-            if( tok2 == PMATH_TOK_DIGIT ||
-                tok2 == PMATH_TOK_LEFT  ||
-                tok2 == PMATH_TOK_LEFTCALL)
-            {
-              context->math_shaper->decode_token(
-                context,
-                1,
-                &context->multiplication_sign,
-                &glyphs[i]);
-                
-              space_left = space_right = em * 3 / 18;
-              
-              //if(context->show_auto_styles)
-              glyphs[i].style = GlyphStyleImplicit;
-            }
-          }
-          else {
-            last_was_space = true;
-            continue;
-          }
-        } break;
-        
-      case PMATH_TOK_DIGIT:
-        {
-          if(!in_string)
-            group_number_digits(context, i, e);
-        }
-      /* no break */
-      case PMATH_TOK_STRING:
-      case PMATH_TOK_NAME:
-      case PMATH_TOK_NAME2:
-        lwf = true;
-      /* no break */
-      case PMATH_TOK_SLOT:
-        if(last_was_factor) {
-          space_left = em * 3 / 18;
-        }
-        break;
-        
-      case PMATH_TOK_LEFT:
-        lwl = true;
-        if(last_was_factor) {
-          space_left = em * 3 / 18;
-        }
-        break;
-        
-      case PMATH_TOK_RIGHT:
-        if(last_was_left) {
-          space_left = em * 3 / 18;
-        }
-        lwf = true;
-        break;
-        
-      case PMATH_TOK_PRETEXT:
-        if(i + 1 == e && buf[i] == '<') {
-          glyphs[e].x_offset -= em * 4 / 18;
-          glyphs[e].right -=    em * 2 / 18;
-        }
-        break;
-        
-      case PMATH_TOK_LEFTCALL:
-        lwl = true;
-        break;
-        
-      case PMATH_TOK_NONE:
-      case PMATH_TOK_CALL:
-      case PMATH_TOK_TILDES:
-      case PMATH_TOK_INTEGRAL:
-      case PMATH_TOK_COMMENTEND:
-        break;
-    }
-    
-    //last_was_number = tok == PMATH_TOK_DIGIT;
-    last_was_factor = lwf;
-    last_was_left   = lwl;
-    
-    if(last_was_space) {
-      last_was_space = false;
-      space_left     = 0;
-    }
-    
-    if(i > 0 || e + 1 < glyphs.length()) {
-      glyphs[i].x_offset += space_left;
-      glyphs[i].right +=    space_left;
-      if(e + 1 < glyphs.length()) {
-        glyphs[e + 1].x_offset += space_right;
-        glyphs[e + 1].right +=    space_right;
-      }
-      else
-        glyphs[e].right += space_right;
-    }
-  }
-}
-
-/* indention_array[i]: indention of the next line, if there is a line break
-   before the i-th character.
- */
-static Array<int> indention_array(0);
-
-/* penalty_array[i]: A penalty value, which is used to decide whether a line
-   break should be placed after (testme: before???) the i-th character.
-   The higher this value is, the lower is the probability of a line break after
-   character i.
- */
-static Array<double> penalty_array(0);
-
-static const double DepthPenalty = 1.0;
-static const double WordPenalty = 100.0;//2.0;
-static const double BestLineWidth = 0.95;
-static const double LineWidthFactor = 2.0;
-
-class BreakPositionWithPenalty {
-  public:
-    BreakPositionWithPenalty()
-      : text_position(-1),
-        prev_break_index(-1),
-        penalty(Infinity)
-    {
-    }
-    
-    BreakPositionWithPenalty(int tpos, int prev, double pen)
-      : text_position(tpos),
-        prev_break_index(prev),
-        penalty(pen)
-    {}
-    
-  public:
-    int text_position; // after that character is a break
-    int prev_break_index;
-    double penalty;
-};
-
-static Array<BreakPositionWithPenalty>  break_array(0);
-static Array<int>                       break_result(0);
-
-void MathSequence::split_lines(Context *context) {
-  if(glyphs.length() == 0)
-    return;
-    
-  const uint16_t *buf = str.buffer();
-  
-  if(glyphs[glyphs.length() - 1].right <= context->width) {
-    bool have_newline = false;
-    
-    for(int i = 0; i < glyphs.length(); ++i)
-      if(buf[i] == '\n') {
-        have_newline = true;
-        break;
-      }
-      
-    if(!have_newline)
-      return;
-  }
-  
-  indention_array.length(glyphs.length() + 1);
-  penalty_array.length(glyphs.length());
-  
-  indention_array.zeromem();
-  penalty_array.zeromem();
-  
-  int pos = 0;
-  while(pos < glyphs.length())
-    pos = fill_indention_array(spans[pos], 0, pos);
-    
-  indention_array[glyphs.length()] = indention_array[glyphs.length() - 1];
-  
-  int box = 0;
-  pos = 0;
-  while(pos < glyphs.length())
-    pos = fill_penalty_array(spans[pos], 0, pos, &box);
-    
-  if(buf[glyphs.length() - 1] != '\n')
-    penalty_array[glyphs.length() - 1] = HUGE_VAL;
-    
-  _extents.width = context->width;
-  for(int start_of_paragraph = 0; start_of_paragraph < glyphs.length();) {
-    int end_of_paragraph = start_of_paragraph + 1;
-    while(end_of_paragraph < glyphs.length()
-          && buf[end_of_paragraph - 1] != '\n')
-      ++end_of_paragraph;
-      
-    break_array.length(0);
-    break_array.add(BreakPositionWithPenalty(start_of_paragraph - 1, 0, 0.0));
-    
-    for(pos = start_of_paragraph; pos < end_of_paragraph; ++pos) {
-      float xend = glyphs[pos].right;
-      
-      int current = break_array.length();
-      break_array.add(BreakPositionWithPenalty(pos, -1, Infinity));
-      
-      for(int i = current - 1; i >= 0; --i) {
-        float xstart    = 0;
-        float indention = 0;
-        double penalty  = break_array[i].penalty;
-        if(break_array[i].text_position >= 0) {
-          int tp = break_array[i].text_position;
-          xstart    = glyphs[tp].right;
-          indention = indention_width(indention_array[tp + 1]);
-          penalty  += penalty_array[tp];
-        }
-        
-        if(xend - xstart + indention > context->width
-            && i + 1 < current)
-          break;
-          
-        double best = context->width * BestLineWidth;
-        if(pos + 1 < end_of_paragraph
-            || best < xend - xstart + indention) {
-          double factor = 0;
-          if(context->width > 0)
-            factor = LineWidthFactor / context->width;
-          double rel_amplitude = ((xend - xstart + indention) - best) * factor;
-          penalty += rel_amplitude * rel_amplitude;
-        }
-        
-        if(!(penalty >= break_array[current].penalty)) {
-          break_array[current].penalty = penalty;
-          break_array[current].prev_break_index = i;
-        }
-      }
-    }
-    
-    int mini = break_array.length() - 1;
-    for(int i = mini - 1; i >= 0 && break_array[i].text_position + 1 == end_of_paragraph; --i) {
-      if(break_array[i].penalty < break_array[mini].penalty)
-        mini = i;
-    }
-    
-    if(buf[end_of_paragraph - 1] != '\n')
-      mini = break_array[mini].prev_break_index;
-      
-    break_result.length(0);
-    for(int i = mini; i > 0; i = break_array[i].prev_break_index)
-      break_result.add(i);
-      
-    for(int i = break_result.length() - 1; i >= 0; --i) {
-      int j = break_result[i];
-      pos = break_array[j].text_position;
-      
-      while(pos + 1 < end_of_paragraph && buf[pos + 1] == ' ')
-        ++pos;
-        
-      if(pos < end_of_paragraph) {
-        new_line(
-          pos + 1,
-          indention_array[pos + 1],
-          !spans.is_token_end(pos));
-      }
-    }
-    
-    start_of_paragraph = end_of_paragraph;
-  }
-  
-  // Move FillBoxes to the beginning of the next line,
-  // so aaaaaaaaaaaaaa.........bbbbb will become
-  //    aaaaaaaaaaaaaa
-  //    ............bbbbb
-  // when the window is resized.
-  box = 0;
-  for(int line = 0; line < lines.length() - 1; ++line) {
-    if(lines[line].end > 0 && buf[lines[line].end - 1] == PMATH_CHAR_BOX) {
-      while(boxes[box]->index() < lines[line].end - 1)
-        ++box;
-        
-      FillBox *fb = dynamic_cast<FillBox *>(boxes[box]);
-      if(fb) {
-        if(buf[lines[line].end] == PMATH_CHAR_BOX
-            && dynamic_cast<FillBox *>(boxes[box + 1]))
-          continue;
-          
-        float w = glyphs[lines[line + 1].end - 1].right - glyphs[lines[line].end - 1].right;
-        
-        if(fb->extents().width + w + indention_width(lines[line + 1].indent) <= context->width) {
-          lines[line].end--;
-        }
-      }
-    }
-  }
-}
-
-int MathSequence::fill_penalty_array(
-  Span  span,
-  int   depth,
-  int   pos,
-  int  *box
-) {
-  const uint16_t *buf = str.buffer();
-  
-  if(!span) {
-    if(pos > 0) {
-      if(buf[pos] == ','
-          || buf[pos] == ';'
-          || buf[pos] == ':'
-          || buf[pos] == PMATH_CHAR_ASSIGN
-          || buf[pos] == PMATH_CHAR_ASSIGNDELAYED) {
-        penalty_array[pos - 1] += DepthPenalty;
-        //--depth;
-      }
-      
-      if(buf[pos] == 0xA0   /* \[NonBreakingSpace] */
-          || buf[pos] == 0x2011 /* non breaking hyphen */
-          || buf[pos] == 0x2060 /* \[NonBreak] */) {
-        penalty_array[pos - 1] = Infinity;
-        penalty_array[pos]   = Infinity;
-        ++pos;
-      }
-    }
-    
-    if(buf[pos] == PMATH_CHAR_BOX && pos > 0) {
-      ensure_boxes_valid();
-      
-      while(boxes[*box]->index() < pos)
-        ++*box;
-        
-      if(dynamic_cast<SubsuperscriptBox *>(boxes[*box])) {
-        penalty_array[pos - 1] = Infinity;
-        return pos + 1;
-      }
-      
-      if(spans.is_operand_start(pos - 1)
-          && dynamic_cast<GridBox *>(boxes[*box])) {
-        if(pos > 0 && spans.is_operand_start(pos - 1)) {
-          if(buf[pos - 1] == PMATH_CHAR_PIECEWISE) {
-            penalty_array[pos - 1] = Infinity;
-            return pos + 1;
-          }
-          
-          pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, NULL);
-          
-          if(tok == PMATH_TOK_LEFT
-              || tok == PMATH_TOK_LEFTCALL)
-            penalty_array[pos - 1] = Infinity;
-        }
-        
-        if(pos + 1 < glyphs.length()) {
-          pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, NULL);
-          
-          if(tok == PMATH_TOK_RIGHT)
-            penalty_array[pos] = Infinity;
-          return pos + 1;
-        }
-      }
-    }
-    
-    if(!spans.is_operand_start(pos))
-      depth++;
-      
-    if(buf[pos] == ' ') {
-      penalty_array[pos] += depth * DepthPenalty;
-      
-      return pos + 1;
-    }
-    
-    while(pos < spans.length() && !spans.is_token_end(pos)) {
-      penalty_array[pos] += depth * DepthPenalty + WordPenalty;
-      ++pos;
-    }
-    
-    if(pos < spans.length()) {
-      penalty_array[pos] += depth * DepthPenalty;
-      ++pos;
-    }
-    
-    return pos;
-  }
-  
-  ++depth;
-  
-  int next = fill_penalty_array(span.next(), depth, pos, box);
-  
-  if(pmath_char_is_left(buf[pos])) {
-    penalty_array[pos] += WordPenalty + DepthPenalty;
-  }
-  
-  if(buf[pos] == '"' && !span.next()) {
-    ++depth;
-    
-    penalty_array[pos] = Infinity;
-    
-    bool last_was_special = false;
-    while(next < span.end()) {
-      pmath_token_t tok = pmath_token_analyse(buf + next, 1, NULL);
-      penalty_array[next] += depth * DepthPenalty + WordPenalty;
-      
-      switch(tok) {
-        case PMATH_TOK_SPACE:
-          penalty_array[next] -= WordPenalty;
-          last_was_special = false;
-          break;
-          
-        case PMATH_TOK_STRING:
-          last_was_special = false;
-          break;
-          
-        case PMATH_TOK_NAME:
-        case PMATH_TOK_NAME2:
-        case PMATH_TOK_DIGIT:
-          if(last_was_special)
-            penalty_array[next - 1] -= WordPenalty;
-          last_was_special = false;
-          break;
-          
-        default:
-          last_was_special = true;
-          break;
-      }
-      
-      ++next;
-    }
-    return next;
-  }
-  
-  int func_depth = depth - 1;
-  float inc_penalty = 0.0;
-  float dec_penalty = 0.0;
-  while(next <= span.end()) {
-    switch(buf[next]) {
-      case ';': dec_penalty = DepthPenalty; break;
-      
-      case PMATH_CHAR_ASSIGN:
-      case PMATH_CHAR_ASSIGNDELAYED:
-      case PMATH_CHAR_RULE:
-      case PMATH_CHAR_RULEDELAYED:   inc_penalty = DepthPenalty; break;
-      
-      case ':': {
-          if((next + 2 <= span.end() && buf[next + 1] == ':' && buf[next + 2] == '=')
-              || (next + 1 <= span.end() && (buf[next + 1] == '>' || buf[next + 1] == '=')))
-            inc_penalty = DepthPenalty;
-        } break;
-        
-      case '-': {
-          if(next + 1 <= span.end() && (buf[next + 1] == '>' || buf[next + 1] == '='))
-            inc_penalty = DepthPenalty;
-        } break;
-        
-      case '+': {
-          if(next + 1 <= span.end() && buf[next + 1] == '=')
-            inc_penalty = DepthPenalty;
-        } break;
-        
-      default:
-        if(pmath_char_is_left(buf[next])) {
-          if(spans.is_operand_start(next))
-            penalty_array[next] += WordPenalty;
-          else
-            penalty_array[next - 1] += WordPenalty;
-            
-          depth = func_depth;
-        }
-        else if(pmath_char_is_right(buf[next])) {
-          penalty_array[next - 1] += WordPenalty;
-        }
-    }
-    
-    next = fill_penalty_array(spans[next], depth, next, box);
-  }
-  
-  inc_penalty -= dec_penalty;
-  if(inc_penalty != 0) {
-    for(; pos < next; ++pos)
-      penalty_array[pos] += inc_penalty;
-  }
-  
-  return next;
-}
-
-int MathSequence::fill_indention_array(
-  Span  span,
-  int   depth,
-  int   pos
-) {
-  const uint16_t *buf = str.buffer();
-  
-  if(!span) {
-    indention_array[pos] = depth;
-    
-    ++pos;
-    if(pos == spans.length() || spans.is_token_end(pos - 1))
-      return pos;
-      
-    ++depth;
-    do {
-      indention_array[pos] = depth;
-      ++pos;
-    } while(pos < spans.length() && !spans.is_token_end(pos - 1));
-    
-    return pos;
-  }
-  
-  bool in_string = buf[pos] == '\"' && !span.next();
-  int next = fill_indention_array(span.next(), depth + 1, pos);
-  
-  indention_array[pos] = depth;
-//  if(in_string)
-//    depth+= 1;
-
-  bool depth_dec = false;
-  while(next <= span.end()) {
-    if(in_string && next > 0 && buf[next - 1] == '\n') {
-      indention_array[next] = depth; // 0
-      ++next;
-    }
-    else {
-      if((buf[next] == ';' || buf[next] == ',') && !depth_dec && !in_string) {
-        --depth;
-        depth_dec = true;
-      }
-      
-      next = fill_indention_array(spans[next], depth + 1, next);
-    }
-  }
-  
-  return next;
-}
-
-void MathSequence::new_line(int pos, unsigned int indent, bool continuation) {
-  int len = lines.length();
-  if(lines[len - 1].end < pos
-      || pos == 0
-      || (len >= 2 && lines[len - 2].end >= pos))
-    return;
-    
-  lines.length(len + 1);
-  lines[len].end = lines[len - 1].end;
-  lines[len - 1].end = pos;
-  lines[len - 1].continuation = continuation;
-  
-  lines[len].ascent = lines[len].descent = 0;
-  lines[len].indent = indent;
-  lines[len].continuation = 0;
-  return;
-}
-
-void MathSequence::hstretch_lines(
-  float width,
-  float window_width,
-  float *unfilled_width
-) {
-  *unfilled_width = -HUGE_VAL;
-  
-  if(width == HUGE_VAL) {
-    if(window_width == HUGE_VAL)
-      return;
-      
-    width = window_width;
-  }
-  
-  const uint16_t *buf = str.buffer();
-  
-  int box = 0;
-  int start = 0;
-  
-  float delta_x = 0;
-  for(int line = 0; line < lines.length(); line++) {
-    float total_fill_weight = 0;
-    float white = 0;
-    
-    int oldbox = box;
-    for(int pos = start; pos < lines[line].end; ++pos) {
-      if(buf[pos] == PMATH_CHAR_BOX) {
-        while(boxes[box]->index() < pos)
-          ++box;
-          
-        FillBox *fillbox = dynamic_cast<FillBox *>(boxes[box]);
-        if(fillbox && fillbox->weight > 0) {
-          total_fill_weight += fillbox->weight;
-          white += fillbox->extents().width;
-        }
-      }
-      
-      glyphs[pos].right += delta_x;
-    }
-    
-    float line_width = indention_width(line);
-    if(start > 0)
-      line_width -= glyphs[start - 1].right;
-    if(lines[line].end > 0)
-      line_width += glyphs[lines[line].end - 1].right;
-      
-    if(total_fill_weight > 0) {
-      if(width - line_width > 0) {
-        float dx = 0;
-        
-        white += width - line_width;
-        
-        box = oldbox;
-        for(int pos = start; pos < lines[line].end; ++pos) {
-          if(buf[pos] == PMATH_CHAR_BOX) {
-            while(boxes[box]->index() < pos)
-              ++box;
-              
-            FillBox *fillbox = dynamic_cast<FillBox *>(boxes[box]);
-            if(fillbox && fillbox->weight > 0) {
-              BoxSize size = fillbox->extents();
-              dx -= size.width;
-              
-              size.width = white * fillbox->weight / total_fill_weight;
-              fillbox->expand(size);
-              
-              dx += size.width;
-              
-              if(lines[line].ascent < fillbox->extents().ascent)
-                lines[line].ascent = fillbox->extents().ascent;
-                
-              if(lines[line].descent < fillbox->extents().descent)
-                lines[line].descent = fillbox->extents().descent;
-            }
-          }
-          
-          glyphs[pos].right += dx;
-        }
-        
-        delta_x += dx;
-      }
-    }
-    
-    line_width += indention_width(lines[line].indent);
-    if(*unfilled_width < line_width)
-      *unfilled_width = line_width;
-      
-    start = lines[line].end;
-  }
 }
 
 //{ insert/remove ...
