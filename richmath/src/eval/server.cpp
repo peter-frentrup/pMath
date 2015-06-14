@@ -70,13 +70,17 @@ class LocalServer: public Server {
           if(boxes) {
             if(object.is_expr() && object[0].is_null()) {
               for(size_t i = 1; i <= object.expr_length(); ++i) {
-                Expr result = Expr(
-                                pmath_session_execute(
-                                  pmath_expr_new_extended(
-                                    pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 1,
-                                    pmath_ref(object[i].get())),
-                                  &aborted));
-                                  
+                Expr result = object[i];
+                if(result.is_string() && String(result).equals("\n"))
+                  continue;
+                  
+                result = Expr(
+                           pmath_session_execute(
+                             pmath_expr_new_extended(
+                               pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 1,
+                               pmath_ref(result.get())),
+                             &aborted));
+                             
                 if( return_from_dialog               &&
                     !aborted                         &&
                     result[0] == PMATH_SYMBOL_RETURN &&
@@ -199,7 +203,7 @@ class LocalServer: public Server {
     virtual Expr interrupt_wait(
       Expr           expr,
       double         timeout_seconds,
-      pmath_bool_t (*idle_function)(double *end_tick,void *idle_data),
+      pmath_bool_t (*idle_function)(double *end_tick, void *idle_data),
       void          *idle_data
     ) {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {

@@ -1251,6 +1251,9 @@ static void parse_sequence(struct parser_t *parser) {
       break;
     }
     
+    if(tok == PMATH_TOK_NEWLINE && parser->fencelevel == 0)
+      break;
+    
     parse_prim(parser, FALSE);
     parse_rest(parser, start, PMATH_PREC_ANY);
     
@@ -1662,7 +1665,11 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           next     = parser->tokens.pos;
         } goto NARY;
       
-      case PMATH_TOK_NEWLINE:
+      case PMATH_TOK_NEWLINE: {
+          if(parser->fencelevel == 0)
+            break;
+        }
+        /* no break */
       case PMATH_TOK_NARY_AUTOARG: {
           pmath_token_t tok2;
           int           next2;
