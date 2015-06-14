@@ -54,10 +54,6 @@ static const float UnderoverscriptOverhangCoverage = 0.75f;
     \  i=1      /                i=1
 */
 
-static inline bool char_is_white(uint16_t ch) {
-  return ch == ' ' || ch == '\n';
-}
-
 static pmath_token_t get_box_start_token(Box *box) {
   while(box) {
     if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox *>(box)) {
@@ -138,6 +134,8 @@ namespace richmath {
       {
       }
       
+    //{ loading/scanner helpers
+    public:
       static pmath_bool_t subsuperscriptbox_at_index(int i, void *_data) {
         ScanData *data = (ScanData *)_data;
         
@@ -304,7 +302,10 @@ namespace richmath {
                           
         return token_or_span;
       }
-      
+    
+    //}
+    
+    //{ vertical stretching
     private:
       void box_size(
         Context *context,
@@ -392,7 +393,10 @@ namespace richmath {
           *d = self._extents.descent;
         }
       }
-      
+    
+    //}
+    
+    //{ basic sizing
     public:
       void resize_span(
         Context *context,
@@ -887,7 +891,10 @@ namespace richmath {
         if(*descent < *core_descent)
           *descent = *core_descent;
       }
+    
+    //}
       
+    //{ OpenType substitutions
     private:
       void substitute_glyphs(
         Context              *context,
@@ -1062,7 +1069,10 @@ namespace richmath {
           
         context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, old_ssty_feature_value);
       }
-      
+    
+    //}
+    
+    //{ horizontal kerning/spacing
     private:
       void group_number_digits(Context *context, int start, int end) {
         static const int min_int_digits  = 5;
@@ -1542,7 +1552,105 @@ namespace richmath {
           }
         }
       }
-      
+    
+    //}
+    
+    //{ horizontal stretching (variable width)
+    public:
+      void hstretch_lines(
+        float width,
+        float window_width,
+        float *unfilled_width
+      ) {
+        *unfilled_width = -HUGE_VAL;
+        
+        if(width == HUGE_VAL) {
+          if(window_width == HUGE_VAL)
+            return;
+            
+          width = window_width;
+        }
+        
+        const uint16_t *buf = self.str.buffer();
+        
+        int box = 0;
+        int start = 0;
+        
+        float delta_x = 0;
+        for(int line = 0; line < self.lines.length(); line++) {
+          float total_fill_weight = 0;
+          float white = 0;
+          
+          int oldbox = box;
+          for(int pos = start; pos < self.lines[line].end; ++pos) {
+            if(buf[pos] == PMATH_CHAR_BOX) {
+              while(self.boxes[box]->index() < pos)
+                ++box;
+                
+              FillBox *fillbox = dynamic_cast<FillBox *>(self.boxes[box]);
+              if(fillbox && fillbox->weight > 0) {
+                total_fill_weight += fillbox->weight;
+                white += fillbox->extents().width;
+              }
+            }
+            
+            self.glyphs[pos].right += delta_x;
+          }
+          
+          float line_width = self.indention_width(line);
+          if(start > 0)
+            line_width -= self.glyphs[start - 1].right;
+          if(self.lines[line].end > 0)
+            line_width += self.glyphs[self.lines[line].end - 1].right;
+            
+          if(total_fill_weight > 0) {
+            if(width - line_width > 0) {
+              float dx = 0;
+              
+              white += width - line_width;
+              
+              box = oldbox;
+              for(int pos = start; pos < self.lines[line].end; ++pos) {
+                if(buf[pos] == PMATH_CHAR_BOX) {
+                  while(self.boxes[box]->index() < pos)
+                    ++box;
+                    
+                  FillBox *fillbox = dynamic_cast<FillBox *>(self.boxes[box]);
+                  if(fillbox && fillbox->weight > 0) {
+                    BoxSize size = fillbox->extents();
+                    dx -= size.width;
+                    
+                    size.width = white * fillbox->weight / total_fill_weight;
+                    fillbox->expand(size);
+                    
+                    dx += size.width;
+                    
+                    if(self.lines[line].ascent < fillbox->extents().ascent)
+                      self.lines[line].ascent = fillbox->extents().ascent;
+                      
+                    if(self.lines[line].descent < fillbox->extents().descent)
+                      self.lines[line].descent = fillbox->extents().descent;
+                  }
+                }
+                
+                self.glyphs[pos].right += dx;
+              }
+              
+              delta_x += dx;
+            }
+          }
+          
+          line_width += self.indention_width(self.lines[line].indent);
+          if(*unfilled_width < line_width)
+            *unfilled_width = line_width;
+            
+          start = self.lines[line].end;
+        }
+      }
+    
+    //}
+    
+    //{ line breaking/indentation
     private:
       /* indention_array[i]: indention of the next line, if there is a line break
          before the i-th character.
@@ -1971,98 +2079,8 @@ namespace richmath {
         }
       }
       
-    public:
-      void hstretch_lines(
-        float width,
-        float window_width,
-        float *unfilled_width
-      ) {
-        *unfilled_width = -HUGE_VAL;
-        
-        if(width == HUGE_VAL) {
-          if(window_width == HUGE_VAL)
-            return;
-            
-          width = window_width;
-        }
-        
-        const uint16_t *buf = self.str.buffer();
-        
-        int box = 0;
-        int start = 0;
-        
-        float delta_x = 0;
-        for(int line = 0; line < self.lines.length(); line++) {
-          float total_fill_weight = 0;
-          float white = 0;
-          
-          int oldbox = box;
-          for(int pos = start; pos < self.lines[line].end; ++pos) {
-            if(buf[pos] == PMATH_CHAR_BOX) {
-              while(self.boxes[box]->index() < pos)
-                ++box;
-                
-              FillBox *fillbox = dynamic_cast<FillBox *>(self.boxes[box]);
-              if(fillbox && fillbox->weight > 0) {
-                total_fill_weight += fillbox->weight;
-                white += fillbox->extents().width;
-              }
-            }
-            
-            self.glyphs[pos].right += delta_x;
-          }
-          
-          float line_width = self.indention_width(line);
-          if(start > 0)
-            line_width -= self.glyphs[start - 1].right;
-          if(self.lines[line].end > 0)
-            line_width += self.glyphs[self.lines[line].end - 1].right;
-            
-          if(total_fill_weight > 0) {
-            if(width - line_width > 0) {
-              float dx = 0;
-              
-              white += width - line_width;
-              
-              box = oldbox;
-              for(int pos = start; pos < self.lines[line].end; ++pos) {
-                if(buf[pos] == PMATH_CHAR_BOX) {
-                  while(self.boxes[box]->index() < pos)
-                    ++box;
-                    
-                  FillBox *fillbox = dynamic_cast<FillBox *>(self.boxes[box]);
-                  if(fillbox && fillbox->weight > 0) {
-                    BoxSize size = fillbox->extents();
-                    dx -= size.width;
-                    
-                    size.width = white * fillbox->weight / total_fill_weight;
-                    fillbox->expand(size);
-                    
-                    dx += size.width;
-                    
-                    if(self.lines[line].ascent < fillbox->extents().ascent)
-                      self.lines[line].ascent = fillbox->extents().ascent;
-                      
-                    if(self.lines[line].descent < fillbox->extents().descent)
-                      self.lines[line].descent = fillbox->extents().descent;
-                  }
-                }
-                
-                self.glyphs[pos].right += dx;
-              }
-              
-              delta_x += dx;
-            }
-          }
-          
-          line_width += self.indention_width(self.lines[line].indent);
-          if(*unfilled_width < line_width)
-            *unfilled_width = line_width;
-            
-          start = self.lines[line].end;
-        }
-      }
-      
+    //}
+    
   };
   
   Array<int>    MathSequenceImpl::indention_array(0);
@@ -3252,63 +3270,6 @@ int MathSequence::matching_fence(int pos) {
     }
   }
   
-//  if(pmath_char_is_left(buf[pos])) {
-//    ensure_spans_valid();
-//
-//    uint16_t ch = pmath_right_fence(buf[pos]);
-//
-//    if(!ch)
-//      return -1;
-//
-//    ++pos;
-//    while(pos < len && /*buf[pos] != ch*/ !pmath_char_is_right(buf[pos])) {
-//      if(spans[pos]) {
-//        pos = spans[pos].end() + 1;
-//      }
-//      else
-//        ++pos;
-//    }
-//
-//    if(pos < len && buf[pos] == ch)
-//      return pos;
-//  }
-//  else if(pmath_char_is_right(buf[pos])) {
-//    ensure_spans_valid();
-//
-//    int right = pos;
-//    do {
-//      --pos;
-//    } while(pos >= 0 && char_is_white(buf[pos]));
-//
-//    if(pos >= 0 && pmath_right_fence(buf[pos]) == buf[right])
-//      return pos;
-//
-//    for(; pos >= 0; --pos) {
-//      Span span = spans[pos];
-//      if(span && span.end() >= right) {
-//        while(span.next() && span.next().end() >= right)
-//          span = span.next();
-//
-//        if(pmath_right_fence(buf[pos]) == buf[right])
-//          return pos;
-//
-//        ++pos;
-//        while(pos < right
-//              && pmath_right_fence(buf[pos]) != buf[right]) {
-//          if(spans[pos])
-//            pos = spans[pos].end() + 1;
-//          else
-//            ++pos;
-//        }
-//
-//        if(pos < right)
-//          return pos;
-//
-//        return -1;
-//      }
-//    }
-//  }
-
   return -1;
 }
 
