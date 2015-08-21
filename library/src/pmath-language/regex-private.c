@@ -148,7 +148,7 @@ static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
   pmath_string_t          rhs // wont be freed; a string of the form "$..."
 ) {
   const uint16_t *buf;
-  char *name;
+  uint16_t *name;
   int i, len, namecount, nameentrysize;
   int capture_num;
   
@@ -179,11 +179,11 @@ static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
   {
     while(namecount > 0) {
       i = 0;
-      while(i < len && name[2 + i] && name[2 + i] == buf[i])
+      while(i < len && name[1 + i] && name[1 + i] == buf[i])
         ++i;
         
-      if(i == len && name[2 + i] == '\0') {
-        capture_num = (int)(((uint16_t)name[0] << 8) | (uint16_t)name[1]);
+      if(i == len && name[1 + i] == '\0') {
+        capture_num = (int)name[0];
         
         if( c->ovector[2 * capture_num] >= 0 &&
             c->ovector[2 * capture_num + 1] >= 0)
@@ -192,7 +192,8 @@ static pmath_string_t get_capture_by_rhs( // PMATH_NULL if no capture was found
         }
       }
       
-      name += namecount;
+      name += nameentrysize / sizeof(name[0]);
+      --namecount;
     }
   }
   
