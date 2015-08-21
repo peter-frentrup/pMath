@@ -150,7 +150,12 @@ static pmath_t concat_strings(pmath_expr_t expr) {
     pmath_unref(fst);
   }
   
-  result = _pmath_new_string_buffer(length);
+  if(length > (size_t)INT_MAX) { // overflow
+    pmath_abort_please();
+    return expr;
+  }
+  
+  result = _pmath_new_string_buffer((int)length);
   if(!result)
     return expr;
     

@@ -1,4 +1,5 @@
 #include <pmath-core/numbers.h>
+#include <pmath-core/numbers-private.h>
 #include <pmath-core/expressions-private.h>
 
 #include <pmath-util/evaluation.h>
@@ -151,15 +152,17 @@ static pmath_t get_item(pmath_expr_t list, pmath_t idx) { // int_index will be f
     return idx;
   }
   
-  if(pmath_is_integer(idx)) {
-    if(pmath_compare(idx, INT(1)) <= 0) {
+  if(n > INT32_MAX) {
+    if(pmath_is_mpint(idx) && mpz_fits_ulong_p(PMATH_AS_MPZ(idx))) {
+      size_t i = mpz_get_ui(PMATH_AS_MPZ(idx));
       pmath_unref(idx);
-      return pmath_expr_get_item(list, 1);
-    }
-    
-    if(pmath_compare(idx, INT(n)) >= 0) {
-      pmath_unref(idx);
-      return pmath_expr_get_item(list, n);
+      
+      assert(i >= 1); // otherwise it would be an int32
+        
+      if(i > n)
+        return pmath_expr_get_item(list, n);
+        
+      return pmath_expr_get_item(list, i);
     }
   }
   
@@ -276,7 +279,7 @@ pmath_t builtin_quantile(pmath_expr_t expr) {
   list = pmath_expr_get_item(expr, 1);
   if(is_real_matrix(list, &rows, &cols)) {
     if(rows >= 2) {
-      pmath_t qi = PLUS(a, TIMES(qs, PLUS(INT(rows), b)));
+      pmath_t qi = PLUS(a, TIMES(qs, PLUS(INT_UIPTR(rows), b)));
       size_t j;
       
       qi = pmath_evaluate(qi);
@@ -309,7 +312,7 @@ pmath_t builtin_quantile(pmath_expr_t expr) {
   else if(is_real_vector(list)) {
     size_t n = pmath_expr_length(list);
     if(n >= 2) {
-      pmath_t qi = PLUS(a, TIMES(qs, PLUS(INT(n), b)));
+      pmath_t qi = PLUS(a, TIMES(qs, PLUS(INT_UIPTR(n), b)));
       
       qi = pmath_evaluate(qi);
       

@@ -325,15 +325,23 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
   }
   
   n_obj = pmath_expr_get_item(expr, 2);
+  if(!pmath_is_expr_of(n_obj, PMATH_SYMBOL_LIST))
+    n_obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, n_obj);
+    
+  if(pmath_expr_length(n_obj) > 1000000) {
+    pmath_message(PMATH_NULL, "ovfl", 0);
+    pmath_unref(n_obj);
+    pmath_unref(list);
+    return expr;
+  }
+  info.inherited.depth = (int)pmath_expr_length(n_obj);
+  
   if(exprlen >= 3) {
     padding = pmath_expr_get_item(expr, 3);
   }
   else
     padding = PMATH_FROM_INT32(0);
-    
-  if(!pmath_is_expr_of(n_obj, PMATH_SYMBOL_LIST))
-    n_obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, n_obj);
-    
+  
   if(exprlen >= 4) {
     margin = pmath_expr_get_item(expr, 4);
   }
@@ -361,7 +369,6 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
     goto FINISH;
   }
   
-  info.inherited.depth = pmath_expr_length(n_obj);
   info.inherited.lengths = pmath_mem_alloc(sizeof(intptr_t) * info.inherited.depth);
   info.margins           = pmath_mem_alloc(sizeof(intptr_t) * info.inherited.depth);
   if(!info.inherited.lengths || !info.margins)

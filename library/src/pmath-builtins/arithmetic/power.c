@@ -1001,17 +1001,16 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
           int32_t si = PMATH_AS_INT32(expr);
 
           if(si == 1 || si == -1) {
-            unsigned long ue = mpz_get_ui(PMATH_AS_MPZ(exponent)); // truncateing
+            unsigned exp_mod4 = 3u & mpz_get_ui(PMATH_AS_MPZ(exponent)); // truncateing
 
-            ue = ue & 3;
-            if(ue != 0 && mpz_sgn(PMATH_AS_MPZ(exponent)) < 0) {
-              ue = 4 - ue;
+            if(exp_mod4 != 0 && mpz_sgn(PMATH_AS_MPZ(exponent)) < 0) {
+              exp_mod4 = 4 - exp_mod4;
             }
 
             pmath_unref(expr);
             pmath_unref(base);
             pmath_unref(exponent);
-            switch(ue) {
+            switch(exp_mod4) {
               case 0: return INT(1);
               case 1: return COMPLEX(INT(0), INT(si));
               case 2: return INT(-1);
@@ -1026,17 +1025,16 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
           double d = PMATH_AS_DOUBLE(expr);
 
           if(d == 1 || d == -1) {
-            unsigned long ue = mpz_get_ui(PMATH_AS_MPZ(exponent));
+            unsigned exp_mod4 = 3u & mpz_get_ui(PMATH_AS_MPZ(exponent));
 
-            ue = ue & 3;
-            if(ue != 0 && mpz_sgn(PMATH_AS_MPZ(exponent)) < 0) {
-              ue = 4 - ue;
+            if(exp_mod4 != 0 && mpz_sgn(PMATH_AS_MPZ(exponent)) < 0) {
+              exp_mod4 = 4 - exp_mod4;
             }
 
             pmath_unref(expr);
             pmath_unref(base);
             pmath_unref(exponent);
-            switch(ue) {
+            switch(exp_mod4) {
               case 0: return PMATH_FROM_DOUBLE(1.0);
               case 1: return COMPLEX(INT(0), PMATH_FROM_DOUBLE(d));
               case 2: return PMATH_FROM_DOUBLE(-1.0);

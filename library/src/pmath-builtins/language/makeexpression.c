@@ -838,13 +838,13 @@ static pmath_t make_expression_from_string_token(pmath_string_t string) {
       
       if(u <= 0xFFFF) {
         AFTER_STRING(result)[j++] = (uint16_t)u;
-        i = end - str;
+        i = (int)(end - str);
       }
       else if(u <= 0x10FFFF) {
         u -= 0x10000;
         AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((u >> 10) & 0x03FF);
         AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(u & 0x03FF);
-        i = end - str;
+        i = (int)(end - str);
       }
       else {
         // TODO: error/warning
@@ -892,7 +892,7 @@ static pmath_string_t unescape_chars(pmath_string_t str) {
     int endpos;
     
     endchr = pmath_char_parse(buf + i, len - i, &u);
-    endpos = endchr - buf;
+    endpos = (int)(endchr - buf);
     
     result = pmath_string_insert_ucs2(result, INT_MAX, buf, i);
     

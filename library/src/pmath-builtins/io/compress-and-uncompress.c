@@ -6,12 +6,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
-struct buffer_manipulate_info_t {
-  pmath_string_t string;
-  pmath_bool_t   success;
-};
-
-
 PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr) {
   pmath_t obj, bfile, zfile, tfile;
   pmath_serialize_error_t err;

@@ -51,7 +51,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr) {
             name = pmath_string_insert_ucs2(
               PMATH_NULL, 0,
               (const uint16_t *)start,
-              ((size_t)end - (size_t)start) / sizeof(uint16_t));
+              (int)(((size_t)end - (size_t)start) / sizeof(uint16_t)));
 
             pmath_emit(
               pmath_expr_new_extended(

@@ -96,7 +96,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     pmath_unref(lhs);
     messages = pmath_ht_create(
       &pmath_ht_obj_class, 
-      pmath_expr_length(rhs));
+      (unsigned int)pmath_expr_length(rhs));
     
     for(i = 1;i <= pmath_expr_length(rhs);++i){
       pmath_t rule;

@@ -364,8 +364,8 @@ static pmath_bool_t binary_write(
                     if( exp <= 15 &&
                         mpz_cmpabs_ui(PMATH_AS_MPZ(mant), 0x400) <= 0)
                     {
-                      unsigned long umant = mpz_get_ui(PMATH_AS_MPZ(mant));
-                      unsigned long uexp = (unsigned long)(exp + 15);
+                      unsigned umant = (unsigned)mpz_get_ui(PMATH_AS_MPZ(mant));
+                      unsigned uexp = (unsigned)(exp + 15);
                       
                       data[0] = (umant >> 8) & 0x03;
                       data[1] = umant & 0xFF;
@@ -396,8 +396,8 @@ static pmath_bool_t binary_write(
                     if( exp <= 127 &&
                         mpz_cmpabs_ui(PMATH_AS_MPZ(mant), 0x800000) <= 0)
                     {
-                      unsigned long umant = mpz_get_ui(PMATH_AS_MPZ(mant));
-                      unsigned long uexp = (unsigned long)(exp + 127);
+                      unsigned umant = (unsigned)mpz_get_ui(PMATH_AS_MPZ(mant));
+                      unsigned uexp = (unsigned)(exp + 127);
                       
                       data[0] = 0;
                       data[1] = (umant >> 16) & 0x7F;
@@ -434,7 +434,7 @@ static pmath_bool_t binary_write(
                       
                     if(exp <= 1023) {
                       size_t count = (mpz_sizeinbase(PMATH_AS_MPZ(mant), 2) + 7) / 8;
-                      unsigned long uexp = (unsigned long)(exp + 1023);
+                      unsigned uexp = (unsigned)(exp + 1023);
                       
                       if(count > 7)
                         goto MAKE_INFINTE;
@@ -474,7 +474,7 @@ static pmath_bool_t binary_write(
                       
                     if(exp <= 16383) {
                       size_t count = (mpz_sizeinbase(PMATH_AS_MPZ(mant), 2) + 7) / 8;
-                      unsigned long uexp = (unsigned long)(exp + 16383);
+                      unsigned uexp = (unsigned)(exp + 16383);
                       
                       if(count > 14)
                         goto MAKE_INFINTE;

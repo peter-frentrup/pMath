@@ -25,7 +25,7 @@ PMATH_PRIVATE pmath_t builtin_characters(pmath_expr_t expr) {
     for(i = pmath_expr_length(expr); i > 0; --i)
       expr = pmath_expr_set_item(
                expr, i,
-               pmath_string_part(pmath_ref(string), i - 1, 1));
+               pmath_string_part(pmath_ref(string), (int)i - 1, 1));
   }
   
   pmath_unref(string);

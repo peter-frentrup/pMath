@@ -112,7 +112,7 @@ static pmath_bool_t binary_read(
       for(;;) {
         size_t i;
 
-        size = pmath_file_read(file, buf, sizeof(buf), TRUE);
+        size = (int)pmath_file_read(file, buf, sizeof(buf), TRUE);
         if(size == 0) {
           pmath_unref(*type_value);
           *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
@@ -125,7 +125,7 @@ static pmath_bool_t binary_read(
                             *type_value,
                             INT_MAX,
                             buf,
-                            i);
+                            (int)i);
 
             pmath_file_read(file, buf, i + 1, FALSE);
             return TRUE;
@@ -136,7 +136,7 @@ static pmath_bool_t binary_read(
                         *type_value,
                         INT_MAX,
                         buf,
-                        size);
+                        (int)size);
 
         pmath_file_read(file, buf, size, FALSE);
       }

@@ -34,14 +34,14 @@ static pmath_integer_t logii(pmath_integer_t base, pmath_integer_t z) {
     pmath_mpint_t tmp = _pmath_create_mp_int(0);
     
     if(!pmath_is_null(tmp)) {
-      unsigned long result = mpz_remove(
+      mp_bitcnt_t result = mpz_remove(
                                PMATH_AS_MPZ(tmp),
                                PMATH_AS_MPZ(z),
                                PMATH_AS_MPZ(base));
                                
       if(mpz_cmp_ui(PMATH_AS_MPZ(tmp), 1) == 0) {
         pmath_unref(tmp);
-        return pmath_integer_new_ulong(result);
+        return pmath_integer_new_uiptr(result);
       }
       
       pmath_unref(tmp);

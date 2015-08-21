@@ -242,7 +242,7 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
       !_pmath_is_matrix(lumatrix, &rows, &cols, TRUE)       ||
       rows == 0                                             ||
       cols != rows                                          ||
-      rows >= 0x7FFFFFFF                                    ||
+      rows >= (size_t)INT_MAX                               ||
       pmath_expr_length(vector) != cols)
   {
     pmath_unref(lumatrix);
@@ -256,8 +256,8 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
   obj2 = pmath_expr_get_item(headitem, 2);
   pmath_unref(headitem);
 
-  if( !pmath_same(obj1, PMATH_FROM_INT32(rows)) ||
-      !pmath_same(obj2, PMATH_FROM_INT32(cols)))
+  if( !pmath_same(obj1, PMATH_FROM_INT32((int)rows)) ||
+      !pmath_same(obj2, PMATH_FROM_INT32((int)cols)))
   {
     pmath_unref(obj1);
     pmath_unref(obj2);
