@@ -80,7 +80,6 @@ static const pmath_ht_class_t function_table_class = {
 
 //{ builtins from src/pmath-builtins/arithmetic/ ...
 PMATH_PRIVATE pmath_t builtin_abs(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_approximate(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arcsin(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arctan(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arg(             pmath_expr_t expr);
@@ -1606,6 +1605,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_COMPLEX,                     builtin_complex)
   BIND_DOWN(   PMATH_SYMBOL_COMPRESS,                    builtin_compress)
   BIND_DOWN(   PMATH_SYMBOL_COMPRESSSTREAM,              builtin_compressstream)
+  BIND_DOWN(   PMATH_SYMBOL_CONDITIONALEXPRESSION,       builtin_conditionalexpression)
   BIND_DOWN(   PMATH_SYMBOL_CONJUGATE,                   builtin_conjugate)
   BIND_DOWN(   PMATH_SYMBOL_CONSTANTARRAY,               builtin_constantarray)
   BIND_DOWN(   PMATH_SYMBOL_CONTINUE,                    general_builtin_zeroonearg)
@@ -1747,6 +1747,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_LOADLIBRARY,                 builtin_loadlibrary)
   BIND_DOWN(   PMATH_SYMBOL_LOCAL,                       builtin_local)
   BIND_DOWN(   PMATH_SYMBOL_LOG,                         builtin_log)
+  BIND_DOWN(   PMATH_SYMBOL_LOGGAMMA,                    builtin_loggamma)
   BIND_DOWN(   PMATH_SYMBOL_LUDECOMPOSITION,             builtin_ludecomposition)
   BIND_DOWN(   PMATH_SYMBOL_MAP,                         builtin_map)
   BIND_DOWN(   PMATH_SYMBOL_MAPINDEXED,                  builtin_mapindexed)
