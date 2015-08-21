@@ -46,7 +46,7 @@ PMATH_PRIVATE pmath_t builtin_rescale(pmath_expr_t expr) {
     pmath_unref(range);
     
     if(exprlen == 3) {
-      pmath_t range = pmath_expr_get_item(expr, 3);
+      range = pmath_expr_get_item(expr, 3);
       
       if(!pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
         pmath_unref(x);

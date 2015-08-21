@@ -1523,7 +1523,7 @@ static match_kind_t match_atom(
       match_kind_t kind;
       
       if(pmath_is_expr(arg)) {
-        match_kind_t kind = match_func(info, pat, arg);
+        kind = match_func(info, pat, arg);
         if(kind != PMATH_MATCH_KIND_NONE)
           return kind;
       }
@@ -2191,8 +2191,6 @@ static match_kind_t match_func_symmetric(
       
     MATCH_MULTI_ARGS_LOOP(n, is_last_iter, patarg_out,
     {
-      size_t j;
-      
       if(index_start(indices, args_in_use, n, flen)) {
         do {
           pmath_t arg = PMATH_NULL;
@@ -2257,7 +2255,6 @@ static match_kind_t match_func_symmetric(
       if(index_start(indices, args_in_use, n, flen)) {
         do {
           pmath_t arg = PMATH_NULL;
-          match_kind_t kind;
           
           arg = pmath_expr_get_item(data->func, *indices);
           

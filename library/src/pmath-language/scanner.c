@@ -526,7 +526,7 @@ static pmath_token_t scan_next_escaped_char(struct scanner_t *tokens, struct par
 START:
 
   endstr = pmath_char_parse(tokens->str + tokens->pos, tokens->len - tokens->pos, &u);
-  endpos = endstr - tokens->str;
+  endpos = (int)(endstr - tokens->str);
   *chr = u;
   
   if(u <= 0xFFFF) {
@@ -1519,7 +1519,6 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
         } break;
         
       case PMATH_TOK_ASSIGNTAG: {
-          int rhs;
           int prec;
           
           span(&parser->tokens, lhs);
@@ -2595,7 +2594,6 @@ static void ungroup(
         if(!old || old->end != g->pos - 1) {
         
           pmath_bool_t have_mutliple_tokens = FALSE;
-          int i;
           for(i = start; i < g->pos - 1; ++i) {
             if(1 == SPAN_TOK(g->spans->items[i])) {
               have_mutliple_tokens = TRUE;
@@ -2649,9 +2647,9 @@ static void ungroup(
           pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
           
           while(old) {
-            pmath_span_t *s = old->next;
+            pmath_span_t *tmp = old->next;
             pmath_mem_free(old);
-            old = s;
+            old = tmp;
           }
           
           s->next = NULL;

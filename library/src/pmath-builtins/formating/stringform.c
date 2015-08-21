@@ -237,8 +237,6 @@ pmath_bool_t _pmath_stringform_write(
     pmath_write_ex(info, result);
   }
   else if(pmath_is_expr(result)) {
-    size_t i;
-    
     for(i = 1; i <= pmath_expr_length(result); ++i) {
       pmath_t item = pmath_expr_get_item(result, i);
       
