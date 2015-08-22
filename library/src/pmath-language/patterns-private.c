@@ -2254,7 +2254,7 @@ static match_kind_t match_func_symmetric(
       
       if(index_start(indices, args_in_use, n, flen)) {
         do {
-          pmath_t arg = PMATH_NULL;
+          pmath_t arg;
           
           arg = pmath_expr_get_item(data->func, *indices);
           

@@ -105,8 +105,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   
   if(!messages && !pmath_same(rhs, PMATH_UNDEFINED))
     messages = pmath_ht_create(&pmath_ht_obj_class, 1);
-  
-  entry = NULL;
+
   if(pmath_same(rhs, PMATH_UNDEFINED)){
     entry = pmath_ht_remove(messages, &lhs);
   }
@@ -123,7 +122,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
     else{
       pmath_unref(entry->value);
       entry->value = pmath_ref(rhs);
-      entry = 0;
+      entry = NULL;
     }
   }
   

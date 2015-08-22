@@ -106,7 +106,7 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   pmath_t *delta,
   size_t  *count
 ) {
-  pmath_t count_obj = PMATH_NULL;
+  pmath_t count_obj;
   *start = *delta = PMATH_NULL;
   *count = 0;
 
