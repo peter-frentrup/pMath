@@ -1,3 +1,5 @@
+#include <pmath-builtins/parallel-private.h>
+
 #include <pmath-util/concurrency/threadpool.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
