@@ -135,7 +135,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
     size_t *sizes;
     size_t i;
     size_t total_size;
-    int elem_type = pmath_packed_array_get_element_type(c);
+    pmath_packed_type_t elem_type = pmath_packed_array_get_element_type(c);
     pmath_packed_array_t result;
     void *data;
     

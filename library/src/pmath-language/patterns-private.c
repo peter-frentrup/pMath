@@ -1571,7 +1571,7 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       _pmath_pattern_analyse(input, output);
       pmath_unref(input->pat);
       input->pat = obj;
-      input->associative = old_associative;
+      input->associative = !!old_associative;
       
       min2 = 1;
       max2 = SIZE_MAX;
@@ -1921,7 +1921,7 @@ static pmath_bool_t init_analyse_match_func(match_func_data_t *data) {
     memset(&input, 0, sizeof(input));
     input.parent_pat_head   = data->info->current_head;
     input.pattern_variables = data->info->pattern_variables;
-    input.associative       = data->associative;
+    input.associative       = !!data->associative;
     
     for(; i > 0; i--) {
       _pmath_pattern_analyse_output_t *output;

@@ -6,7 +6,7 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-static intptr_t umod(intptr_t i, intptr_t m) {
+static uintptr_t umod(intptr_t i, intptr_t m) {
   assert(m > 0);
   
   if(i < 0)
@@ -169,10 +169,10 @@ PMATH_PRIVATE pmath_t builtin_listconvolve(pmath_expr_t expr) {
   if(end - start + 1 >= 0){
     intptr_t s, r;
     
-    expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), end - start + 1);
+    expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)(end - start + 1));
     
     for(s = start;s <= end;++s){
-      pmath_t sum = pmath_expr_new(pmath_ref(plus), R);
+      pmath_t sum = pmath_expr_new(pmath_ref(plus), (size_t)R);
       
       for(r = 0;r < R;++r) {
         pmath_t ker_factor  = pmath_expr_get_item(ker, (size_t)r + 1);
@@ -184,7 +184,7 @@ PMATH_PRIVATE pmath_t builtin_listconvolve(pmath_expr_t expr) {
           list_factor);
           
         term = pmath_evaluate(term);
-        sum = pmath_expr_set_item(sum, r + 1, term);
+        sum = pmath_expr_set_item(sum, (size_t)r + 1, term);
       }
       
       sum = pmath_evaluate(sum);
