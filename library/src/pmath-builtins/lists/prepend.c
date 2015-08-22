@@ -9,7 +9,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_prepend(
   pmath_expr_t expr,  // will be freed
   pmath_t      item   // will be freed
 ) {
-  size_t len = pmath_expr_length(expr);
+  size_t len;
   
   len = pmath_expr_length(expr);
   expr = pmath_expr_resize(expr, len + 1);

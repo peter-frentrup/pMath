@@ -15,8 +15,6 @@
 #include <string.h>
 
 
-#define MAX_DIM 10
-
 // frees c
 static pmath_t const_list(pmath_t c, size_t length) {
   pmath_expr_t expr;

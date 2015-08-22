@@ -35,8 +35,7 @@ PMATH_PRIVATE pmath_t builtin_flatten(pmath_expr_t expr) {
     }
     pmath_unref(depth_arg);
   }
-  
-  head = PMATH_NULL;
+
   if(exprlen == 3)
     head = pmath_expr_get_item(expr, 3);
   else
