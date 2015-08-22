@@ -269,7 +269,6 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
 
   head = pmath_ref(vector);
   for(i = 1; i <= rows; ++i) {
-    size_t j;
     obj1 = pmath_expr_get_item(perm_vector, i);
 
     if( !pmath_is_int32(obj1)     ||

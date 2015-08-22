@@ -38,7 +38,7 @@ PMATH_PRIVATE pmath_t builtin_operate(pmath_expr_t expr) {
   level = 1;
   
   if(exprlen == 3) {
-    pmath_t obj = pmath_expr_get_item(expr, 3);
+    obj = pmath_expr_get_item(expr, 3);
     
     if(!pmath_is_int32(obj) || PMATH_AS_INT32(obj) < 0) {
       pmath_unref(obj);

@@ -29,8 +29,8 @@ PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr) {
   
   if(exprlen == 2) {
     pmath_t lessfn = pmath_expr_get_item(expr, 2);
-    pmath_t last = pmath_expr_get_item(list, 1);
-    size_t i;
+    last = pmath_expr_get_item(list, 1);
+
     for(i = 2; i <= pmath_expr_length(list); ++i) {
       pmath_t current = pmath_expr_get_item(list, i);
       
