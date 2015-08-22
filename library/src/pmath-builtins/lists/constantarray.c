@@ -1,18 +1,13 @@
 #include <pmath-core/expressions-private.h>
-#include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays-private.h>
 
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/memory.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/build-expr-private.h>
-#include <pmath-builtins/lists-private.h>
-
-#include <string.h>
 
 
 // frees c

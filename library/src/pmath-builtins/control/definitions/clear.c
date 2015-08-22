@@ -1,3 +1,5 @@
+#include <pmath-builtins/control/definitions-private.h>
+
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/evaluation.h>
@@ -6,7 +8,6 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control/definitions-private.h>
 
 
 PMATH_PRIVATE

@@ -3,8 +3,6 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/number-theory-private.h>
 
 
 static pmath_bool_t all_non_complex(pmath_t expr) {

@@ -9,8 +9,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
-#include <string.h>
-
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT

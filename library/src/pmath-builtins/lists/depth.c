@@ -1,9 +1,9 @@
+#include <pmath-builtins/lists-private.h>
+
 #include <pmath-core/numbers.h>
 #include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 
 // ignores head of expressions

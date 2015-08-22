@@ -9,7 +9,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
-#include <pmath-builtins/number-theory-private.h>
 
 
 #define DIRECTION_LESS      (1<<0)

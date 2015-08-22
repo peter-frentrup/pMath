@@ -4,11 +4,8 @@
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
 
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/all-symbols-private.h>
-
-#include <limits.h>
 
 
 struct contains_info_t {

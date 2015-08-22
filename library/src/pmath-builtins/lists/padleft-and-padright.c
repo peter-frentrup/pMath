@@ -7,8 +7,6 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-#include <string.h>
-
 
 struct make_rect_t {
   pmath_t       head;

@@ -11,8 +11,6 @@
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
-#include <string.h>
-
 
 /* TODO: allow ReplacePart({{a, b, c}, {d, e}, {f}}, {~~~, -1} -> xx)
                                                            ==

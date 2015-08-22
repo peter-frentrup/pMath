@@ -8,7 +8,6 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/lists-private.h>
-#include <pmath-builtins/number-theory-private.h>
 
 
 /* The Berkowitz algorithm.

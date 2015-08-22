@@ -5,8 +5,6 @@
 
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols-private.h>
-
 
 PMATH_API
 size_t pmath_object_bytecount(pmath_t obj) {

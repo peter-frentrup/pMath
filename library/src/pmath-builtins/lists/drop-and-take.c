@@ -1,6 +1,5 @@
 #include <pmath-core/numbers.h>
 
-#include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>

@@ -1,7 +1,6 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/lists-private.h>
 
 
 PMATH_PRIVATE pmath_t _pmath_object_head(pmath_t obj) { // obj wont be freed

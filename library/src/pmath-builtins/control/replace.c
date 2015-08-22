@@ -11,8 +11,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
-#include <limits.h>
-
 
 typedef struct {
   pmath_bool_t with_heads; // currently not set (allways FALSE)

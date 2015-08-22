@@ -4,8 +4,6 @@
 #include <pmath-util/debug.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols-private.h>
-
 
 PMATH_PRIVATE pmath_t builtin_union(pmath_expr_t expr) {
   /* Union(list1, list2, ...)

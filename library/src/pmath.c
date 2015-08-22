@@ -1,10 +1,3 @@
-#include <pmath-builtins/io-private.h>
-#include <pmath-util/stacks-private.h>
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <pmath.h>
 #include <pmath-private.h>
 
@@ -28,10 +21,16 @@
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/modules-private.h>
+#include <pmath-util/stacks-private.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/io-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
 
 #ifdef PMATH_OS_WIN32
 #  define NOGDI

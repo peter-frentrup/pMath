@@ -10,7 +10,6 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
-#include <pmath-builtins/lists-private.h>
 
 
 static pmath_t extract_sametest_option(pmath_expr_t expr, size_t *len) {

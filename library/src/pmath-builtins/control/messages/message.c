@@ -1,5 +1,4 @@
 #include <pmath-core/expressions-private.h>
-#include <pmath-core/numbers.h>
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/emit-and-gather.h>

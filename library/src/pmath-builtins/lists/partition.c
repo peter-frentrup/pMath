@@ -8,8 +8,6 @@
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/all-symbols-private.h>
 
-#include <string.h>
-
 
 #define ceildiv(x, y) (((x) + (y) - 1) / (y))
 

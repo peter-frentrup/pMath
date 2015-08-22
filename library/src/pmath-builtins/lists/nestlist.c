@@ -5,8 +5,6 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols-private.h>
-
 
 PMATH_PRIVATE pmath_t builtin_nestlist(pmath_expr_t expr) {
   /* NestList(f, x, n)

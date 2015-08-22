@@ -2,7 +2,6 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE pmath_t builtin_finally(pmath_expr_t expr) {
   pmath_thread_t   current_thread;

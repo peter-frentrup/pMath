@@ -5,7 +5,6 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
 

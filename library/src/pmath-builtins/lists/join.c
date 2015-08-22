@@ -6,8 +6,6 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-#include <string.h>
-
 
 static pmath_bool_t chech_concat_expr_arguments(pmath_expr_t expr, size_t *length) {
   pmath_t fst;

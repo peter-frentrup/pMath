@@ -110,11 +110,15 @@ pmath_t PMATH_FROM_TAG(uint32_t tag, int32_t value) {
 }
 
 
+/**\brief Create an integer object from an int32_t.
+   
+   Integer objects of int32_t are not reference-counted, since they are stored 
+   directly inside the pmath_t. Hence there is no need to pmath_unref() them.
+ */
 PMATH_FORCE_INLINE
 pmath_t PMATH_FROM_INT32(int32_t i) {
   return PMATH_FROM_TAG(PMATH_TAG_INT32, i);
 }
-
 
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT

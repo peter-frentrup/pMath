@@ -1,12 +1,12 @@
+#include <pmath-builtins/lists-private.h>
+
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
-#include <pmath-util/option-helpers.h>
 
+#include <pmath-util/option-helpers.h>
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/control/flow-private.h>
-#include <pmath-builtins/lists-private.h>
 
 
 PMATH_PRIVATE

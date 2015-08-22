@@ -4,7 +4,6 @@
 #include <pmath-util/helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/build-expr-private.h>
 
 
 static pmath_expr_t find_best(

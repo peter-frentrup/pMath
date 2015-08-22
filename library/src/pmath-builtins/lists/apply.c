@@ -3,7 +3,6 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
 struct apply_info_t {

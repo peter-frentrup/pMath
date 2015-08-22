@@ -1,9 +1,10 @@
+#include <pmath-builtins/io-private.h>
+
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
 #include <pmath-util/serialize.h>
@@ -11,9 +12,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/control-private.h>
-#include <pmath-builtins/io-private.h>
-
-#include <limits.h>
 
 
 PMATH_PRIVATE int _pmath_get_byte_ordering(pmath_t head, pmath_expr_t options) {

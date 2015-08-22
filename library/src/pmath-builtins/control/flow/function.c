@@ -2,12 +2,10 @@
 
 #include <pmath-language/patterns-private.h>
 
-#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
 
 // retains debug-info

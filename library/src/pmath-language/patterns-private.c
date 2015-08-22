@@ -15,10 +15,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
-#include <inttypes.h>
-#include <string.h>
-
-
 
 // initialization in pmath_init():
 PMATH_PRIVATE pmath_t _pmath_object_range_from_one; /* readonly */

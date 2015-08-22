@@ -1,7 +1,5 @@
 #include <pmath-core/expressions-private.h>
-#include <pmath-core/numbers.h>
 
-#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
