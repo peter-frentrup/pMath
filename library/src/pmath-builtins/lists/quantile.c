@@ -258,7 +258,7 @@ pmath_t builtin_quantile(pmath_expr_t expr) {
     }
     else if(is_real_vector(params) && pmath_expr_length(params) == 2) {
       a = pmath_expr_get_item(params, 1);
-      a = pmath_expr_get_item(params, 2);
+      b = pmath_expr_get_item(params, 2);
       c = INT(1);
       d = INT(0);
       pmath_unref(params);
