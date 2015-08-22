@@ -280,33 +280,28 @@ pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t integer) {
   return integer;
 }
 
-PMATH_API pmath_integer_t pmath_integer_new_slong(signed long int si) {
-  pmath_mpint_t integer;
-  if(si >= INT32_MIN && si <= INT32_MAX)
-    return PMATH_FROM_INT32(si);
-    
-  integer = _pmath_create_mp_int(0);
-  if(pmath_is_null(integer))
-    return PMATH_NULL;
-    
-  mpz_set_si(PMATH_AS_MPZ(integer), si);
-  return integer;
-}
-
-PMATH_API pmath_integer_t pmath_integer_new_ulong(unsigned long int ui) {
+PMATH_API pmath_integer_t pmath_integer_new_ui32_slow(uint32_t ui) {
   pmath_mpint_t integer;
   if(ui <= INT32_MAX)
-    return PMATH_FROM_INT32(ui);
+    return PMATH_FROM_INT32((int32_t)ui);
     
   integer = _pmath_create_mp_int(0);
   if(pmath_is_null(integer))
     return PMATH_NULL;
     
-  mpz_set_ui(PMATH_AS_MPZ(integer), ui);
+  mpz_import(
+    PMATH_AS_MPZ(integer),
+    1,
+    -1,
+    sizeof(uint32_t),
+    0,
+    0,
+    &ui);
+    
   return integer;
 }
 
-PMATH_API pmath_integer_t pmath_integer_new_si64(int64_t si) {
+PMATH_API pmath_integer_t pmath_integer_new_si64_slow(int64_t si) {
   pmath_mpint_t integer;
   
   if(INT32_MIN <= si && si <= INT32_MAX)
@@ -317,8 +312,6 @@ PMATH_API pmath_integer_t pmath_integer_new_si64(int64_t si) {
     return PMATH_NULL;
     
   if(si < 0) {
-    si = -si;
-    
     if(si == INT64_MIN) { // -2^63
       mpz_set_si(PMATH_AS_MPZ(integer), -1);
       mpz_mul_2exp(PMATH_AS_MPZ(integer), PMATH_AS_MPZ(integer), 63);
@@ -350,7 +343,7 @@ PMATH_API pmath_integer_t pmath_integer_new_si64(int64_t si) {
   return integer;
 }
 
-PMATH_API pmath_integer_t pmath_integer_new_ui64(uint64_t ui) {
+PMATH_API pmath_integer_t pmath_integer_new_ui64_slow(uint64_t ui) {
   pmath_mpint_t integer;
   if(ui <= INT32_MAX)
     return PMATH_FROM_INT32((int32_t)ui);

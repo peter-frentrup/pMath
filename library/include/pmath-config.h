@@ -225,4 +225,20 @@
 #  define PMATH_BYTE_ORDER     1
 #endif
 
+/* Bits per int   PMATH_INT_BITSIZE
+   Bits per long  PMATH_LONG_BITSIZE
+ */
+#if PMATH_BITSIZE == 64
+#  ifdef PMATH_OS_WIN32
+#    define PMATH_INT_BITSIZE   32
+#    define PMATH_LONG_BITSIZE  32
+#  else
+#    define PMATH_INT_BITSIZE   64
+#    define PMATH_LONG_BITSIZE  64
+#  endif
+#else
+#  define PMATH_INT_BITSIZE   32
+#  define PMATH_LONG_BITSIZE  32
+#endif
+
 #endif /* __PMATH_CONFIG_H__ */

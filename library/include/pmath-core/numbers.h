@@ -90,23 +90,17 @@ typedef pmath_float_t pmath_mpfloat_t;
 
 /*============================================================================*/
 
-/**\brief Create an integer object from a signed long.
-   \memberof pmath_integer_t
-   \param si A signed long int.
-   \return A pMath integer with the specified value or PMATH_NULL.
- */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_integer_t pmath_integer_new_slong(signed long int si);
+pmath_integer_t pmath_integer_new_ui32_slow(uint32_t ui);
 
-/**\brief Create an integer object from an unsigned long.
-   \memberof pmath_integer_t
-   \param ui An unsigned long int.
-   \return A pMath integer with the specified value or PMATH_NULL.
- */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_integer_t pmath_integer_new_ulong(unsigned long int ui);
+pmath_integer_t pmath_integer_new_ui64_slow(uint64_t ui);
+
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_si64_slow(int64_t si);
 
 /**\brief Create an integer object from an int32_t
    \memberof pmath_integer_t
@@ -115,8 +109,7 @@ pmath_integer_t pmath_integer_new_ulong(unsigned long int ui);
  */
 #define pmath_integer_new_si32(si) PMATH_FROM_INT32(si)
 
-
-/**\brief Create an integer object from an uint32_t.
+/**\brief Create an integer object from an uint32_t
    \memberof pmath_integer_t
    \param ui An uint32_t
    \return A pMath integer with the specified value or PMATH_NULL.
@@ -124,9 +117,10 @@ pmath_integer_t pmath_integer_new_ulong(unsigned long int ui);
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t pmath_integer_new_ui32(uint32_t ui) {
-  if(ui >> 31)
-    return pmath_integer_new_ulong(ui);
-  return PMATH_FROM_INT32((int32_t)ui);
+  if(ui <= INT32_MAX)
+    return PMATH_FROM_INT32((int32_t)ui);
+  
+  return pmath_integer_new_ui32_slow(ui);
 }
 
 /**\brief Create an integer object from an int64_t.
@@ -134,18 +128,28 @@ pmath_integer_t pmath_integer_new_ui32(uint32_t ui) {
    \param si An int64_t value.
    \return A pMath integer with the specified value or PMATH_NULL.
  */
-PMATH_API
+PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_integer_t pmath_integer_new_si64(int64_t si);
+pmath_integer_t pmath_integer_new_si64(int64_t si) {
+  if(si <= INT32_MAX && si >= INT32_MIN)
+    return PMATH_FROM_INT32((int32_t)si);
+  
+  return pmath_integer_new_si64_slow(si);
+}
 
 /**\brief Create an integer object from an uint64_t.
    \memberof pmath_integer_t
    \param ui A uint64_t value.
    \return A pMath integer with the specified value or PMATH_NULL.
  */
-PMATH_API
+PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_integer_t pmath_integer_new_ui64(uint64_t ui);
+pmath_integer_t pmath_integer_new_ui64(uint64_t ui) {
+  if(ui <= INT32_MAX)
+    return PMATH_FROM_INT32((int32_t)ui);
+  
+  return pmath_integer_new_ui64_slow(ui);
+}
 
 /**\brief Create an integer object from an intptr_t.
    \memberof pmath_integer_t
@@ -153,7 +157,11 @@ pmath_integer_t pmath_integer_new_ui64(uint64_t ui);
    \return A pMath integer with the specified value or PMATH_NULL.
    \hideinitializer
  */
-#define pmath_integer_new_siptr(si)  PMATH_CONCAT(pmath_integer_new_si, PMATH_BITSIZE)(si)
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_siptr(intptr_t si) {
+  return PMATH_CONCAT(pmath_integer_new_si, PMATH_BITSIZE)(si);
+}
 
 /**\brief Create an integer object from an uintptr_t.
    \memberof pmath_integer_t
@@ -161,7 +169,57 @@ pmath_integer_t pmath_integer_new_ui64(uint64_t ui);
    \return A pMath integer with the specified value or PMATH_NULL.
    \hideinitializer
  */
-#define pmath_integer_new_uiptr(ui)  PMATH_CONCAT(pmath_integer_new_ui, PMATH_BITSIZE)(ui)
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_uiptr(uintptr_t ui) {
+  return PMATH_CONCAT(pmath_integer_new_ui, PMATH_BITSIZE)(ui);
+}
+
+
+/**\brief Create an integer object from a signed long.
+   \memberof pmath_integer_t
+   \param si A signed long int.
+   \return A pMath integer with the specified value or PMATH_NULL.
+ */
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_slong(long si) {
+  return PMATH_CONCAT(pmath_integer_new_si, PMATH_LONG_BITSIZE)(si);
+}
+
+/**\brief Create an integer object from an unsigned long.
+   \memberof pmath_integer_t
+   \param ui An unsigned long int.
+   \return A pMath integer with the specified value or PMATH_NULL.
+ */
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_ulong(unsigned long ui) {
+  return PMATH_CONCAT(pmath_integer_new_ui, PMATH_LONG_BITSIZE)(ui);
+}
+
+
+/**\brief Create an integer object from a signed int.
+   \memberof pmath_integer_t
+   \param si A (signed) int.
+   \return A pMath integer with the specified value or PMATH_NULL.
+ */
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_sint(int si) {
+  return PMATH_CONCAT(pmath_integer_new_si, PMATH_INT_BITSIZE)(si);
+}
+
+/**\brief Create an integer object from an unsigned int.
+   \memberof pmath_integer_t
+   \param ui An unsigned int.
+   \return A pMath integer with the specified value or PMATH_NULL.
+ */
+PMATH_FORCE_INLINE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_integer_t pmath_integer_new_uint(unsigned int ui) {
+  return PMATH_CONCAT(pmath_integer_new_ui, PMATH_INT_BITSIZE)(ui);
+}
 
 /**\brief Create an integer object from a data buffer.
    \memberof pmath_integer_t
