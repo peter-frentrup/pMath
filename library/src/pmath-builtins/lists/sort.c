@@ -1,7 +1,6 @@
 #include <pmath-core/numbers.h>
 #include <pmath-core/symbols.h>
 
-#include <assert.h>
 #include <string.h>
 
 #include <pmath-util/concurrency/threads.h>
@@ -13,117 +12,6 @@
 #include <pmath-core/expressions-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-
-
-/*PMATH_FORCE_INLINE void insertion_sort(
-  pmath_t *list,
-  size_t n,
-  pmath_bool_t (*lessfn)(pmath_t,pmath_t,void*), // lesseqfn ?
-  void *fndata
-){
-  size_t i, j;
-  pmath_t key;
-
-  --list; // index begins with 1
-
-  for(j = 2;j <= n;++j){
-    key = list[j];
-    i = j - 1;
-    while(i > 0 && lessfn(key, list[i], fndata))
-      --i;
-    list[i + 1] = key;
-  }
-}
-
-PMATH_FORCE_INLINE pmath_t median_of_3(
-  pmath_t a,
-  pmath_t b,
-  pmath_t c,
-  pmath_bool_t (*lessfn)(pmath_t,pmath_t,void*), // lesseqfn ?
-  void *fndata
-){
-  if(lessfn(a, b, fndata)){
-    if(lessfn(b, c, fndata))
-      return b;
-
-    if(lessfn(a, c, fndata))
-      return c;
-
-    return a;
-  }
-
-  if(lessfn(a, c, fndata))
-    return a;
-
-  if(lessfn(b, c, fndata))
-    return c;
-
-  return b;
-}
-
-PMATH_FORCE_INLINE size_t partition(
-  pmath_t *list,
-  size_t a,
-  size_t b,
-  pmath_bool_t (*lessfn)(pmath_t,pmath_t,void*), // lesseqfn ?
-  void *fndata
-){
-  size_t i, j;
-  pmath_t pivot;
-
-  assert(a < b);
-
-  i = a;
-  j = b - 1;
-  pivot = median_of_3(list[a], list[b], list[a + b / 2], lessfn, fndata);
-  do{
-    while(i < b && lessfn(list[i], pivot, fndata))
-      ++i;
-
-    while(j > a && lessfn(pivot, list[j], fndata))
-      --j;
-
-    if(i < j){
-      pmath_t tmp = list[i];
-      list[i] = list[j];
-      list[j] = tmp;
-    }
-  }while(i < j);
-
-  if(lessfn(pivot, list[i], fndata)){
-    pmath_t tmp = list[i];
-    list[i] = list[b];
-    list[b] = tmp;
-  }
-
-  return i;
-}
-
-#define INSERTION_SORT_MAX  16
-
-static void quicksort(
-  pmath_t *list,
-  size_t a,
-  size_t b,
-  pmath_bool_t (*lessfn)(pmath_t,pmath_t,void*), // lesseqfn ?
-  void *fndata
-){
-  while(b - a < INSERTION_SORT_MAX){
-    size_t p = partition(list, a, b, lessfn, fndata);
-    if(b - p > p - a){
-      quicksort(list, a, p - 1, lessfn, fndata);
-      a = p + 1;
-    }
-    else{
-      quicksort(list, p + 1, b, lessfn, fndata);
-      b = p - 1;
-    }
-  }
-
-  if(a < b)
-    insertion_sort(list + a, b - a + 1, lessfn, fndata);
-}*/
-
 
 
 // using nested functions where available (gcc)
