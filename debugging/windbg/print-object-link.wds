@@ -1,0 +1,125 @@
+$$ Print  [symbol fff0000001e18eb0]  from some  @@c++(expr.as_bits)
+$$
+$$  ${pmath-rint-object-link}  bits  [location]
+
+.if (${/d:$arg1} == 0) { 
+	.printf /oe "ERROR: uint64_t value expected"
+}
+.else {
+	r $t1 = ${$arg1}
+	r? $t1 = @@c++((uint64_t)@$t1)
+	
+	r $t0 = 0
+$$	r $t1 = 0;	$$ obj.as_bits -- the argument $arg1
+	r $t2 = 0
+	r $t3 = 0
+	r $t4 = 0
+	r $t5 = 0
+	r $t6 = 0
+	r $t7 = 0
+	r $t8 = 0
+	r $t9 = 0
+	r $t10 = 0
+	r $t11 = 0;	$$ obj.s.tag
+	r $t12 = 0;	$$ pointer of obj
+	r $t13 = 0
+	r $t14 = 0
+	r $t15 = 0
+	r $t16 = 0
+	r $t17 = 0
+	r $t18 = 0
+	r $t19 = 0
+	
+	$$	r $t11 = @@c++((@$t1.s.tag))
+	r $t11 = (@$t1>>0n32)
+	
+	$$ .printf /D "<exec cmd=\"$\{pmath-inspect-object-bits} 0x%p ${/f:$arg2}\">", @$t1
+	.printf /D "<exec cmd=\"debugpmath\ inspectbits 0x%p ${/f:$arg2}\">", @$t1
+
+	.if ((@$t11 & 0x7FF00000) != 0x7FF00000) {
+		.printf "[double %p]", @$t1
+	}
+	.elsif (@$t11 == 0x7FF10000) {
+		.printf "[magic %p]", @$t1
+	}
+	.elsif (@$t11 == 0x7FF20000) {
+		.printf "[int32 %p]", @$t1
+	}
+	.elsif (@$t11 == 0x7FF30000) {
+		.printf "[str0 %p]", @$t1
+	}
+	.elsif (@$t11 == 0x7FF40000) {
+		.printf "[str1 %p]", @$t1
+	}
+	.elsif (@$t11 == 0x7FF50000) {
+		.printf "[str2 %p]", @$t1
+	}
+	.elsif (@$t11 == 0x7FFFFFFF) {
+		.printf "[invalid %p]", @$t1
+	}
+	.elsif ((@$t11 & 0xFFF00000) == 0xFFF00000) {
+		$$ Some pointer
+		
+		.if ($ptrsize == 4) {
+			$$	r? $t12 = @@masm(@$t1.s.u.as_pointer_32)
+			r? $t12 = @@c++( (pmath!_pmath_t*)((@$t1 << 32) >> 32) )
+		}
+		.else {
+			$$	r? $t12 = @@c++((pmath!_pmath_t *)((@$t1.as_bits << 12) >> 12))
+			r? $t12 = @@c++( (pmath!_pmath_t*)((@$t1 << 12) >> 12) )
+		}
+		
+		.if (@$t12 == 0x0) {
+			.printf "[null %p]", @$t1
+		}
+		.else {
+			$$ Cannot use .elsif here, because if @$t12 = 0, then skipping
+			$$ over .elsif, which dereferences @$t12, gives an error.
+			
+			.if (@@c++((@$t12->type_shift)) == 0) {
+				.printf "[mp-float %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 1) {
+				.printf "[mp-int %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 2) {
+				.printf "[quotient %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 3) {
+				.printf "[string %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 4) {
+				.printf "[symbol %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 5) {
+				.printf "[expr %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 6) {
+				.printf "[expr-part %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 7) {
+				.printf "[multirule %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 8) {
+				.printf "[custom %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 9) {
+				.printf "[blob %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 10) {
+				.printf "[packed-array %p]", @$t1
+			}
+			.elsif (@@c++((@$t12->type_shift)) == 11) {
+				.printf "[interval %p]", @$t1
+			}
+			.else {
+				.printf "[? %p]", @$t1
+			}
+		}
+	}
+	.else {
+		.printf "[? %p]", @$t1
+	}
+	
+	.printf /D "</exec>"
+}

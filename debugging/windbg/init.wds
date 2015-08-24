@@ -1,0 +1,17 @@
+$$ initialize script aliases
+
+.echo "init pmath aliases"
+aS ${/v:pmath-init-dbg} $$>a<"${$arg0}"
+aS ${/v:pmath-dbg-path} ${$arg0}\..
+
+.block {
+	aS ${/v:pmath-print-object-link}   $$>a<"${pmath-dbg-path}\print-object-link.wds"
+	aS ${/v:pmath-print-object-simple} $$>a<"${pmath-dbg-path}\print-object-simple.wds"
+	aS ${/v:pmath-print-string-buffer} $$>a<"${pmath-dbg-path}\print-string-buffer.wds"
+	aS ${/v:pmath-print-escape-char}   $$>a<"${pmath-dbg-path}\print-escape-char.wds"
+	aS ${/v:pmath-print-expr}          $$>a<"${pmath-dbg-path}\print-expr.wds"
+	aS ${/v:pmath-inspect-object-bits} $$>a<"${pmath-dbg-path}\inspect-object-bits.wds"
+	aS ${/v:pmath-inspect}             $$>a<"${pmath-dbg-path}\inspect.wds"
+	
+	aS ${/v:debugpmath}   $$>a<"${pmath-dbg-path}\debugpmath.wds"
+}

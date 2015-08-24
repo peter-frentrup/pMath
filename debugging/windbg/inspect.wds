@@ -1,0 +1,12 @@
+$$ Inspect a pmath object, given its pmath_t
+
+.if (${/d:$arg1} == 0) { 
+	.printf /oe "ERROR: pmath_t value expected\n"
+}
+.else {
+	r? $t1 = @@c++(${$arg1}.as_bits)
+	
+	aS ${/v:pmath-var-last-inspect-head}  ${$arg1}  ${$arg1}
+$$	.printf "\n${$arg1} ="
+	${pmath-inspect-object-bits} @$t1  ${$arg1}
+}

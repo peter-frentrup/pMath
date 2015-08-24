@@ -1,0 +1,11 @@
+$$ ${pmath-print-escape-char} character
+
+.if($scmp("${$arg1}", "\"") == 0) {
+	.printf "\\\""
+}
+.elsif($scmp("${$arg1}", "\\") == 0) {
+	.printf "\\\\"
+}
+.else {
+	.printf "%c", ${$arg1}
+}

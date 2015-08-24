@@ -1,0 +1,133 @@
+$$ Write a pmath_string_t
+$$
+$$ ${pmath-print-string-buffer} [/e] obj_bits
+
+$$ .printf "HINT: got ${$arg1}  ${$arg2} \n"
+	
+$$	.if (${/d:$arg1} == 0) { 
+$$		.printf /oe "ERROR: uint64_t value expected, but nothing given\n"
+$$	}
+$$	.elsif (@@c++(($scmp("${$arg1}", "/e") == 0) && (${/d:$arg2} == 0))) { 
+$$		.printf /oe "ERROR: uint64_t value expected, but only ${$arg1} given\n"
+$$	}
+$$	.else {
+.block {
+	.if ($scmp("${$arg1}", "/e") == 0) {
+		r? $t1 = ${$arg2}
+		r $t10 = 1
+	}
+	.else {
+		r? $t1 = ${$arg1}
+		r $t10 = 0
+	}
+	
+	r $t0 = 0
+$$	r $t1 = 0;	$$ obj.as_bits -- the argument $arg1
+	r $t2 = 0
+	r $t3 = 0
+	r $t4 = 0
+	r $t5 = 0
+	r $t6 = 0
+	r $t7 = 0
+	r $t8 = 0
+	r $t9 = 0
+$$	r $t10 = 0;	$$ escape flag
+	r $t11 = 0;	$$ obj.s.tag
+	r $t12 = 0;	$$ pointer of obj  (pmath!_pmath_string_t*)
+	r $t13 = 0;	$$ STRING_HEADER_SIZE
+	r $t14 = 0;	$$ string buffer content
+	r $t15 = 0; $$ length
+	r $t16 = 0
+	r $t17 = 0
+	r $t18 = 0
+	r $t19 = 0
+	
+	$$	r $t11 = @@c++((@$t1.s.tag))
+	r $t11 = (@$t1>>0n32)
+
+	.if ((@$t11 & 0xFFF00000) == 0xFFF00000) {
+		$$ Some pointer
+		
+		.if ($ptrsize == 4) {
+			$$	r? $t12 = @@masm(@$t1.s.u.as_pointer_32)
+			r? $t12 = @@c++( (pmath!_pmath_string_t*)((@$t1 << 32) >> 32) )
+		}
+		.else {
+			$$	r? $t12 = @@c++((pmath!_pmath_t *)((@$t1.as_bits << 12) >> 12))
+			r? $t12 = @@c++( (pmath!_pmath_string_t*)((@$t1 << 12) >> 12) )
+		}
+		
+		.if ($t12 == 0x0) {
+		}
+		.else {
+			$$ Cannot use .elsif here, because if @$t12 = 0, then skipping
+			$$ over .elsif, which dereferences @$t12, gives an error.
+			
+			.if (@@c++((@$t12->inherited.type_shift)) == 3) {
+				$$ big string
+				
+				$$ $t13 is STRING_HEADER_SIZE
+				$$ $t14 is string buffer content
+				$$ $t15 is string buffer content
+					
+				r $t13 = @@c++((((sizeof(pmath!_pmath_string_t) + @$ptrsize - 1) / @$ptrsize) *  @$ptrsize))
+				
+				r $t15 = @@c++( @$t12->length )
+				.if (@@c++(@$t12->buffer == 0x0)) {
+					r? $t14 = @@c++((wchar_t*)(((char*)@$t12)+@$t13))
+				}
+				.else {
+					r? $t14 = @@c++((wchar_t*)(((char*)@$t12->buffer)+@$t13))
+				}
+				
+				.if(@$t10) {
+					.printf "\""
+					.for(; @$t15 > 0; r $t15 = @$t15-1; r? $t14 = @@c++((&@$t14[1]))) {
+						${pmath-print-escape-char} @@c++(@$t14[0])
+					}
+					.printf "\""
+				}
+				.else {
+					.for(; @$t15 > 0; r $t15 = @$t15-1; r? $t14 = @@c++((&@$t14[1]))) {
+						.printf "%c", @@c++(@$t14[0])
+					}
+				}
+			}
+			.else {
+				.printf /oe "ERROR: not a string\n"
+			}
+		}
+	}
+	.elsif (@$t11 == 0x7FF30000) {
+		$$ str0
+		.if(@$t10) {
+			.printf "\"\""
+		}
+	}
+	.elsif (@$t11 == 0x7FF40000) {
+		$$ str1
+		.if(@$t10) {
+			.printf "\""
+			${pmath-print-escape-char} ((@$t1<<0n48)>>0n32)
+			.printf "\""
+		}
+		.else {
+			.printf "%c", ((@$t1<<0n48)>>0n32)
+		}
+	}
+	.elsif (@$t11 == 0x7FF50000) {
+		.if(@$t10) {
+			.printf "\""
+			${pmath-print-escape-char} ((@$t1<<0n48)>>0n48)
+			${pmath-print-escape-char} ((@$t1<<0n32)>>0n48)
+			.printf "\""
+		}
+		.else {
+			.printf "%c", ((@$t1<<0n48)>>0n48)
+			.printf "%c", ((@$t1<<0n32)>>0n48)
+		}
+	}
+	.else {
+		.printf /oe "ERROR: not a string"
+	}
+}

@@ -1,0 +1,19 @@
+$$ Inspect a pmath object, given its pmath_t::as_bits
+
+.if (${/d:$arg1} == 0) { 
+	.printf /oe "ERROR: uint64_t value expected\n"
+}
+.else {
+	.if(${/d:$arg2}) {
+		.printf "\n${$arg2} =\n"
+	}
+	.else {
+		.printf "\n"
+	}
+	
+	${pmath-print-object-link} ${$arg1}  ${/f:$arg2}
+	.printf " =\n  "
+	
+	${pmath-print-expr} ${$arg1}  ${/f:$arg2}
+	.printf "\n\n"
+}

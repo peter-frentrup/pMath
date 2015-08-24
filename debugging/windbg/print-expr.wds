@@ -1,0 +1,122 @@
+$$ Print an expression from its bit-pattern.
+$$
+$$  ${pmath-print-expr}  bits  [location]
+
+.if (${/d:$arg1} == 0) { 
+	.printf /oe "ERROR: uint64_t value expected"
+}
+.else {
+	r $t1 = ${$arg1}
+	r? $t1 = @@c++((uint64_t)@$t1)
+	
+	r $t0 = 0
+$$	r $t1 = 0;	$$ obj.as_bits -- the argument $arg1
+	r $t2 = 0
+	r $t3 = 0
+	r $t4 = 0
+	r $t5 = 0
+	r $t6 = 0
+	r $t7 = 0
+	r $t8 = 0
+	r $t9 = 0
+	r $t10 = 0
+	r $t11 = 0;	$$ obj.s.tag
+	r $t12 = 0;	$$ pointer of obj
+	r $t13 = 0; $$ item of expr
+	r $t14 = 0; $$ length of expr
+	r $t15 = 0; $$ pointer to item
+	r $t16 = 0; $$ index
+	r $t17 = 0
+	r $t18 = 0
+	r $t19 = 0
+	
+	$$	r $t11 = @@c++((@$t1.s.tag))
+	r $t11 = (@$t1>>0n32)
+	
+	.if ((@$t11 & 0xFFF00000) == 0xFFF00000) {
+		$$ Some pointer
+		
+		.if ($ptrsize == 4) {
+			$$	r? $t12 = @@masm(@$t1.s.u.as_pointer_32)
+			r? $t12 = @@c++( (pmath!_pmath_t*)((@$t1 << 32) >> 32) )
+		}
+		.else {
+			$$	r? $t12 = @@c++((pmath!_pmath_t *)((@$t1.as_bits << 12) >> 12))
+			r? $t12 = @@c++( (pmath!_pmath_t*)((@$t1 << 12) >> 12) )
+		}
+		
+		.if (@$t12 == 0x0) {
+			.printf "/\\/"
+		}
+		.else {
+			$$ Cannot use .elsif here, because if @$t12 = 0, then skipping
+			$$ over .elsif, which dereferences @$t12, gives an error.
+			
+			.if (@@c++(((@$t12->type_shift) == 5) || ((@$t12->type_shift) == 6))) {
+				$$ expr, expr part
+				
+				$$ $t13 is item of expr
+				$$ $t14 is length of expr
+				r? $t13 = @@c++( ((pmath!_pmath_expr_t*)@$t12)->items[0].as_bits )
+				r? $t14 = @@c++( ((pmath!_pmath_expr_t*)@$t12)->length )
+				
+				$$ The head
+				.push /r /q
+				${pmath-print-object-simple} @$t13  ${/f:$arg2}[0]
+				.pop /r /q
+				
+				$$ $t15 is pointer to the arguments
+				.if(@@c++(((@$t12->type_shift) == 5))) {
+					$$ expr
+					
+					r? $t15 = @@c++( &((pmath!_pmath_expr_t*)@$t12)->items[1].as_bits )
+				}
+				.else {
+					$$ 6 = expr part
+					
+					r? $t15 = @@c++( &((pmath!_pmath_expr_part_t*)@$t12)->buffer->items[((pmath!_pmath_expr_part_t*)@$t12)->start].as_bits )
+				}
+				
+				.if(@$t14 == 0) {
+					.printf "()"
+				}
+				.else {
+					.printf "(\n    "
+					
+					$$	.printf "...%d...", $t14
+					
+					r? $t13 = @@c++(@$t15[0])
+					.push /r /q
+					${pmath-print-object-simple} @$t13  ${/f:$arg2}[1]
+					.pop /r /q
+					
+					.for(r $t16 = 2; @$t16 <= @$t14; r $t16 = @$t16+1) {
+						
+						r? $t15 = @@c++(&@$t15[1])
+						r? $t13 = @@c++(@$t15[0])
+						
+						.printf ",\n    "
+						.foreach (idx { .printf "%ld", @$t16; }) { 
+							.push /r /q
+							${pmath-print-object-simple} @$t13  ${/f:$arg2}[${idx}]
+							.pop /r /q
+						}
+
+					}
+					
+					.printf ")"
+				}
+			}
+			.else {
+				.push /r /q
+				${pmath-print-object-simple} @$t1  ${/f:$arg2}
+				.pop /r /q
+			}
+		}
+	}
+	.else {
+		.push /r /q
+		${pmath-print-object-simple} @$t1  ${/f:$arg2}
+		.pop /r /q
+	}
+}

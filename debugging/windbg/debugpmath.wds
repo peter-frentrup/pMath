@@ -1,0 +1,172 @@
+$$
+
+.if(@@c++(@@($scmp("${$arg1}", "help") == 0) || (${/d:$arg1} == 0))) {
+	.printf "Debugging pmath. Possible commands are\n\n"
+	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ help\"           >help</link>               Display this help.\n"
+	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ inspect\"        >inspect</link>            Inspect a pmath object variable.\n"
+	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ inspectbits\"    >inspectbits</link>        Inspect a pmath object in memory.\n"
+	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ unsafeprint\"    >unsafeprint</link>        Call into pmath.dll to inspect a pmath object variable.\n"
+	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ unsafeprintbits\">unsafeprintbits</link>    Call into pmath.dll to inspect a pmath object in memory.\n"
+	.printf "\n"
+}
+.elsif($scmp("${$arg1}", "inspect") == 0) {
+	$$ debugpmath inspect expr
+	
+	.if(${/d:$arg2} == 0) {
+		.printf "usage:\n\n"
+	    .printf /D "  <link cmd=\"debugpmath\">debugpmath</link>"
+		.printf /D " inspect <i>expr</i>\n"
+		.printf /D "    Display the content of a <col fg=\"srcspid\">pmath_t</col> variable <i>expr</i>.\n\n"
+	}
+	.else{
+		${pmath-inspect} ${/f:$arg2}
+	}
+}
+.elsif($scmp("${$arg1}", "inspectbits") == 0) {
+	$$ debugpmath inspectbits expr [caption]
+	.if(${/d:$arg2} == 0) {
+		.printf "usage:\n\n"
+		
+	    .printf /D "  <link cmd=\"debugpmath\">debugpmath</link>"
+		.printf /D " inspectbits <i>integer</i>\n"
+		.printf /D "    Display the content of a <col fg=\"srcspid\">pmath_t</col> object given by its <col fg=\"srcspid\">pmath_t::as_bits</col> <i>integer</i>.\n\n"
+		
+	    .printf /D "  <link cmd=\"debugpmath\">debugpmath</link>"
+		.printf /D " inspectbits <i>integer</i> <i>caption</i>\n"
+		.printf /D "    Display the content of a <col fg=\"srcspid\">pmath_t</col> object with an optional <i>caption</i>, given its\n"
+		.printf /D "    <col fg=\"srcspid\">pmath_t::as_bits</col> <i>integer</i>.\n\n"
+		
+	}
+	.else{
+		${pmath-inspect-object-bits}  ${/f:$arg2}   ${/f:$arg3}
+	}
+}
+.elsif($scmp("${$arg1}", "unsafeprint") == 0) {
+	$$ debugpmath unsafeprint expr
+	.if(${/d:$arg2} == 0) {
+		.printf "usage:\n\n"
+		
+	    .printf /D "  <link cmd=\"debugpmath\">debugpmath</link>"
+		.printf /D " unsafeprint <i>expr</i>\n"
+		.printf /D "    Call into pmath.dll to display a <col fg=\"srcspid\">pmath_t</col> variable <i>expr</i>.\n\n"
+		
+	}
+	.else{
+		r? $t1 = ${$arg2}
+		aS /x ${/v:pmath-tmp-bits} @@c++(@$t1.as_bits)
+		
+		.block {
+			debugpmath unsafeprintbits ${pmath-tmp-bits} ${$arg2} ${pmath-tmp-bits} ${$arg2}
+		}
+		
+		ad ${/v:pmath-tmp-bits}
+	}
+}
+.elsif($scmp("${$arg1}", "unsafeprintbits") == 0) {
+	$$ debugpmath unsafeprint expr [caption]
+	.if(${/d:$arg2} == 0) {
+		.printf "usage:\n\n"
+		
+	    .printf /D "  <link cmd=\"debugpmath\">debugpmath</link>"
+		.printf /D " unsafeprintbits <i>integer</i>\n"
+		.printf /D "    Call into pmath.dll to display a <col fg=\"srcspid\">pmath_t</col> object given by its\n"
+		.printf /D "    <col fg=\"srcspid\">pmath_t::as_bits</col> <i>integer</i>.\n\n"
+		
+	    .printf /D "  <link cmd=\"debugpmath\">debugpmath</link>"
+		.printf /D " unsafeprintbits <i>integer</i> <i>caption</i>\n"
+		.printf /D "    Call into pmath.dll to display the content of a <col fg=\"srcspid\">pmath_t</col> object\n"
+		.printf /D "    with an optional <i>caption</i>, given its <col fg=\"srcspid\">pmath_t::as_bits</col> <i>integer</i>.\n\n"
+		
+	    .printf /D "  <link cmd=\"debugpmath\">debugpmath</link>"
+		.printf /D " unsafeprintbits <i>integer</i> <i>caption</i> <i>backint</i> <i>back</i>\n"
+		.printf /D "    Call into pmath.dll to display the content of a <col fg=\"srcspid\">pmath_t</col> object\n"
+		.printf /D "    with an optional <i>caption</i>, given its <col fg=\"srcspid\">pmath_t::as_bits</col> <i>integer</i>.\n"
+		.printf /D "    Also prints a link (<b>^</b>) to inspecting the <col fg=\"srcspid\">pmath_t</col> <i>back</i> given its\n"
+		.printf /D "    <col fg=\"srcspid\">pmath_t::as_bits</col> <i>backint</i>.\n\n"
+		
+	}
+	.else{
+		r $t1 = ${$arg2}
+		
+		aS /c ${/v:call-output} .call pmath!pmath_debug_print_raw(@$t1)
+		
+		.block {
+			.if($spat("${call-output}", "*Thread is set up for call*")) {
+				eza pmath!pmath_debug_print_raw_begin_link_fmt "<?dml?><link cmd=\"debugpmath\ unsafeprintbits 0x%I64x ${/f:$arg3}%s ${/f:$arg4} ${/f:$arg5}\">"
+				eza pmath!pmath_debug_print_raw_end_link_fmt "<?dml?></link>"
+				$$ ed pmath!pmath_debug_print_raw_maxdepth 1
+				
+				
+				r? $t2 = @@c++(pmath!pmath_debug_print_raw_maxdepth)
+				.printf "\nmax. depth  %-4d", @$t2
+				
+				.printf /D " <link cmd=\" ed pmath!pmath_debug_print_raw_maxdepth 0n%d;", @@c++(@$t2+1)
+				.printf /D " debugpmath\ unsafeprintbits 0x%p ${/f:$arg3} ${/f:$arg4} ${/f:$arg5}\">increase</link>", @$t1
+				
+				.if (@$t2 > 1) {
+					.printf /D ", <link cmd=\" ed pmath!pmath_debug_print_raw_maxdepth 0n%d;", @@c++(@$t2-1)
+					.printf /D " debugpmath\ unsafeprintbits 0x%p ${/f:$arg3} ${/f:$arg4} ${/f:$arg5}\">decrease</link>", @$t1
+				}
+				.else {
+					.printf /D ", <b>decrease</b>"
+				}
+				
+				.printf ", set to"
+				.foreach /s (i "1 2 3 4") {
+					.if (${i} == @$t2) {
+						.printf /D " <b>${i}</b>"
+					}
+					.else{
+						.printf /D " <link cmd=\" ed pmath!pmath_debug_print_raw_maxdepth ${i}; debugpmath\ unsafeprintbits 0x%p ${/f:$arg3} ${/f:$arg4} ${/f:$arg5}\">${i}</link>", @$t1
+					}
+				}
+				
+				
+				r? $t2 = @@c++(pmath!pmath_debug_print_raw_maxlength)
+				.printf "\nmax. length %-4lu", @$t2
+				
+				.printf /D " <link cmd=\" ep pmath!pmath_debug_print_raw_maxlength 0n%ld;", @@c++(@$t2+1)
+				.printf /D " debugpmath\ unsafeprintbits 0x%p ${/f:$arg3} ${/f:$arg4} ${/f:$arg5}\">increase</link>", @$t1
+				
+				.if (@$t2 > 1) {
+					.printf /D ", <link cmd=\" ep pmath!pmath_debug_print_raw_maxlength 0n%ld;", @@c++(@$t2-1)
+					.printf /D " debugpmath\ unsafeprintbits 0x%p ${/f:$arg3} ${/f:$arg4} ${/f:$arg5}\">decrease</link>", @$t1
+				}
+				.else {
+					.printf /D ", <b>decrease</b>"
+				}
+				
+				.printf ", set to"
+				.foreach /s (i "5 10 20 50 100") {
+					.if (0n${i} == @$t2) {
+						.printf /D " <b>${i}</b>"
+					}
+					.else{
+						.printf /D " <link cmd=\" ep pmath!pmath_debug_print_raw_maxlength 0n${i}; debugpmath\ unsafeprintbits 0x%p ${/f:$arg3} ${/f:$arg4} ${/f:$arg5}\">${i}</link>", @$t1
+					}
+				}
+				
+				
+				.printf "\n"
+				.if (@@c++(${/d:$arg4} && ${/d:$arg5})) {
+					.printf /D "<link cmd=\"debugpmath\ unsafeprintbits ${$arg4} ${$arg5} ${$arg4} ${$arg5}\">^ </link>"
+				}
+				
+				.if (${/d:$arg3}) {
+					.printf "${/f:$arg3} ="
+				}
+				
+				.printf "\n"
+				g
+				.printf "\n\n"
+				
+				$$ TODO: reset global variables edited above 
+			}
+			.else {
+				.echo ${call-output}
+			}
+		}
+		
+		ad ${/v:call-output}
+	}
+}
