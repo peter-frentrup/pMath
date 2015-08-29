@@ -58,12 +58,6 @@ typedef struct {
 typedef struct {
   _pmath_pattern_size_t    size;
   _pmath_pattern_options_t options;
-//  size_t min;
-//  size_t max;
-//  
-//  uint8_t no_sequence; // can only be TRUE if input.associative is TRUE
-//  uint8_t longest;
-//  uint8_t prefer_nonempty;
 } _pmath_pattern_analyse_output_t;
 
 PMATH_PRIVATE
