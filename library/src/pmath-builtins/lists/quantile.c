@@ -279,7 +279,7 @@ pmath_t builtin_quantile(pmath_expr_t expr) {
   list = pmath_expr_get_item(expr, 1);
   if(is_real_matrix(list, &rows, &cols)) {
     if(rows >= 2) {
-      pmath_t qi = PLUS(a, TIMES(qs, PLUS(INT_UIPTR(rows), b)));
+      pmath_t qi = PLUS(a, TIMES(qs, PLUS(pmath_integer_new_uiptr(rows), b)));
       size_t j;
       
       qi = pmath_evaluate(qi);
@@ -312,7 +312,7 @@ pmath_t builtin_quantile(pmath_expr_t expr) {
   else if(is_real_vector(list)) {
     size_t n = pmath_expr_length(list);
     if(n >= 2) {
-      pmath_t qi = PLUS(a, TIMES(qs, PLUS(INT_UIPTR(n), b)));
+      pmath_t qi = PLUS(a, TIMES(qs, PLUS(pmath_integer_new_uiptr(n), b)));
       
       qi = pmath_evaluate(qi);
       

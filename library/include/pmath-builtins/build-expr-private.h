@@ -2,7 +2,6 @@
 #define __PMATH_BUILTINS__BUILD_EXPR_PRIVATE_H__
 
 #define INT(I)          PMATH_FROM_INT32(I)
-#define INT_UIPTR(I)    (((I) < (size_t)INT32_MAX) ? PMATH_FROM_INT32((int32_t)(I)) : pmath_integer_new_uiptr(I))
 #define CINFTY          pmath_ref(_pmath_object_complex_infinity)
 #define QUOT(N,D)       pmath_rational_new(INT(N), INT(D))
 #define ONE_HALF        pmath_ref(_pmath_one_half)
