@@ -321,6 +321,7 @@ static void debug_print_raw_pointer_impl(
       
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
+    case PMATH_TYPE_SHIFT_PACKED_ARRAY:
       if(depth < info->maxdepth) {
         size_t length, i;
         pmath_t head;
