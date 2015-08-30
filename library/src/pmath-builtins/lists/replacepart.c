@@ -4,7 +4,6 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/incremental-hash-private.h>
@@ -182,13 +181,6 @@ static pmath_t replace_int_part_recursive(
       sub = replace_part_recursive(info, current_depth + 1, sub);
       expr = pmath_expr_set_item(expr, i, sub);
     }
-    else {
-      pmath_debug_print("\n[ReplacePart skip");
-      for(i = 0; i < info->current_multiindex->length; ++i) {
-        pmath_debug_print(" %" PRIdPTR, info->current_multiindex->indices[i] );
-      }
-      pmath_debug_print("]\n");
-    }
     
     info->current_multiindex->length = mi_len;
   }
@@ -220,14 +212,6 @@ static pmath_t replace_multiindex_part_recursive(
     sub = pmath_expr_extract_item(expr, *indices);
     sub = replace_multiindex_part_recursive(info, next_depth, sub, indices + 1, count_indices - 1);
     expr = pmath_expr_set_item(expr, *indices, sub);
-  }
-  else {
-    size_t i;
-    pmath_debug_print("\n[ReplacePart skip");
-    for(i = 0; i < info->current_multiindex->length; ++i) {
-      pmath_debug_print(" %" PRIdPTR, info->current_multiindex->indices[i] );
-    }
-    pmath_debug_print("]\n");
   }
   
   info->current_multiindex->length = mi_len;
@@ -474,8 +458,6 @@ static pmath_t replace_part_recursive(
   pmath_t index;
   
   if(current_pattern_depth > info->depth) {
-    size_t i;
-    
     struct multiindex_t *success_pos = pmath_mem_alloc(
         (info->current_multiindex->length + 1) * sizeof(size_t));
         
@@ -488,12 +470,6 @@ static pmath_t replace_part_recursive(
       success_pos = pmath_ht_insert(info->replacements, success_pos);
       pmath_mem_free(success_pos);
     }
-    
-    pmath_debug_print("\n[ReplacePart at");
-    for(i = 0; i < info->current_multiindex->length; ++i) {
-      pmath_debug_print(" %" PRIdPTR, info->current_multiindex->indices[i] );
-    }
-    pmath_debug_print("]\n");
     
     pmath_unref(expr);
     return pmath_ref(info->value);
