@@ -1,0 +1,133 @@
+
+AssertEqual(
+	ReplacePart({a, b, c, d, e}, 3 -> xxx),
+	{a,b,xxx,d,e})
+
+AssertEqual(
+	ReplacePart({a, b, c, d, e}, {2 -> xx, 5 -> yy}),
+	{a,xx,c,d,yy})
+
+% first rule matches:
+AssertEqual(
+	ReplacePart({a, b, c, d, e}, {2 -> xx, 2 -> yy}),
+	{a,xx,c,d,e})
+
+AssertEqual(
+	ReplacePart({a, b, c, d, e}, {3 -> u, ~ -> x}),
+	{x,x,u,x,x})
+
+AssertEqual(
+	ReplacePart({{a, b}, {c, d}}, {2, 1} -> xx),
+	{{a,b},{xx,d}})
+
+
+% Patterns:
+AssertEqual(
+	ReplacePart({{a, b}, {c, d}}, {~i, ~i} -> xx),
+	{{xx, b}, {c, xx}})
+
+AssertEqual(
+	ReplacePart({{a, b}, {c, d}}, {~i, ~i} :> f(i)),
+	{{f(1), b}, {c, f(2)}})
+
+AssertEqual(
+	ReplacePart(a + b + c^n, {{3, 2} -> x + y, 2 -> b^100}),
+	a + b^100 + c^(x+y))
+
+% Outside bounds: no-op
+AssertEqual(
+	ReplacePart({a, b, c, d}, 5 -> x),
+	{a, b, c, d})
+
+% Negative indices
+AssertEqual(
+	ReplacePart({a, b, c, d, e, f, g}, -3 -> xxx),
+	{a, b, c, d, xxx, f, g})
+
+% Negative, outside bounds: no-op
+AssertEqual(
+	ReplacePart({a, b, c, d, e, f, g}, -8 -> xxx),
+	{a, b, c, d, e, f, g})
+
+
+% Multiple replacements
+AssertEqual(
+	ReplacePart({a, b, c, d, e, f, g}, {{1}, {3}, {5}} -> xxx),
+	{xxx, b, xxx, d, xxx, f, g})
+
+AssertEqual(
+	ReplacePart({a, b, c, d, e, f, g}, (1 | 3 | 5) -> xxx),
+	{xxx, b, xxx, d, xxx, f, g})
+
+AssertEqual(
+	ReplacePart({a, b, c, d, e, f, g}, Except(1 | 3 | 5) -> xxx),
+	{a, xxx, c, xxx, e, xxx, xxx})
+
+AssertEqual(
+	ReplacePart({a, b, c, d, e, f, g}, ~?IsEven -> xxx),
+	{a, xxx, c, xxx, e, xxx, g})
+
+AssertEqual(
+	ReplacePart({{a, b, c}, {d, e}, {f}}, {1, ~} -> xx),
+	{{xx, xx, xx}, {d, e}, {f}})
+
+AssertEqual(
+	ReplacePart({{a, b, c}, {d, e}, {f}}, {~, -1} -> xx),
+	{{a, b, xx}, {d, xx}, {xx}})
+
+AssertEqual(
+	ReplacePart({{a, b, c}, {d, e}, {f}}, {~i, -1} :> xx(i)),
+	{{a, b, xx(1)}, {d, xx(2)}, {xx(3)}})
+
+AssertEqual(
+	ReplacePart({{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {~i, ~i} :> x),
+	{{x, 0, 0}, {0, x, 0}, {0, 0, x}})
+
+AssertEqual(
+	ReplacePart({{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {~i, ~i} -> f(i)),
+	{{f(1), 0, 0}, {0, f(2), 0}, {0, 0, f(3)}})
+
+AssertEqual(
+	ReplacePart({{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}, {~~~, 2, ~~~} -> f(1,1,1)),
+	{{0, f(1,1,1), 0}, f(1,1,1), {0, f(1,1,1), 0}})
+
+AssertEqual(
+	ReplacePart({{a, b, c}, {d, e}, {f}}, ~~i -> s(i)),
+	{s(1), s(2), s(3)})
+
+
+% Replace heads
+AssertEqual(
+	ReplacePart(f(x, y), 0 -> g),
+	g(x, y))
+
+AssertEqual(
+	ReplacePart(f(x, y), 0 -> g, Heads -> False),
+	f(x, y))
+
+AssertEqual(
+	ReplacePart(f(x, y), ~ -> g),
+	f(g, g))
+
+AssertEqual(
+	ReplacePart(f(x, y), ~ -> g, Heads -> True),
+	g(g, g))
+
+AssertEqual(
+	ReplacePart(f(g)(x, y), {0, 1} -> hh),
+	f(hh)(x, y))
+
+% beware of reordering of Orderless functions
+AssertEqual(
+	ReplacePart(a x^2 + y^2 + c z^2, {~~~, 0} -> List),
+	{{y, 2}, {a, {x, 2}}, {c, {z, 2}}})
+
+AssertEqual(
+	ReplacePart(ReplacePart(a + b + c, 1 -> x), 3 -> y),
+	b + c + y)
+
+
+AssertEqual(
+	ReplacePart(IdentityMatrix(5), {~, 1 | 5} -> x),
+	{{x,0,0,0,x}, {x,1,0,0,x}, {x,0,1,0,x}, {x,0,0,1,x}, {x,0,0,0,x}})
+

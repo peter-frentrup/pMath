@@ -1,0 +1,51 @@
+
+BeginPackage("TestSuite`")
+
+TestSuite`Assert
+TestSuite`AssertEqual
+
+Begin("TestSuite`Private`")
+
+ClearAll(Assert, AssertEqual);
+
+Assert::fail:= "Assertion `1` failed with `2`."
+AssertEqual::fail:= "`1` and `2` should equal, but found `3` =!= `4`."
+
+Attributes(Assert)::= HoldFirst;
+Assert(~cond)::= 
+	With({evalCond := cond}, 
+		If(evalCond =!= True, 
+			Message(Assert::fail, 
+				HoldForm(cond), 
+				HoldForm(evalCond))
+			))
+Assert(~~~args) /? IsValidArgumentCount(Assert, Length @ HoldComplete(args), 1, 1)::= $Failed
+
+Attributes(AssertEqual)::= HoldAll;
+AssertEqual(~lhs, ~rhs)::= 
+	With({evalLhs := lhs, evalRhs:= rhs},
+		If(evalLhs =!= evalRhs,
+			Message(AssertEqual::fail,
+				HoldForm(lhs),
+				HoldForm(rhs),
+				HoldForm(evalLhs),
+				HoldForm(evalRhs))
+			))
+AssertEqual(~~~args) /? IsValidArgumentCount(AssertEqual, Length @ HoldComplete(args), 2, 2)::= $Failed
+
+testFiles:= $Input.DirectoryName.ToFileName("tests").FileNames("*.pmath")
+
+Do(
+	Print(StringForm("Run test `1` of `2`: `3`", i, Length(testFiles), testFiles[i]));
+	
+	Remove @ Evaluate("TestSuite`Private`Test" ++ ToString(i) ++ "`*")
+	Begin("TestSuite`Private`Test" ++ ToString(i) ++ "`");
+	
+	Get(testFiles[i]);
+	
+	End();
+	, i -> 1..Length(testFiles))
+
+End();
+
+EndPackage();
