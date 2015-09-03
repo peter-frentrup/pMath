@@ -6,10 +6,10 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="Windows-Debug">
+			<Target title="Windows-GCC-Debug-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/debug/pmathc" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/Debug/" />
+				<Option output="bin/windows/gcc-debug-x86/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -24,13 +24,13 @@
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
-					<Add directory="../bin/windows/debug" />
+					<Add directory="../bin/windows/gcc-debug-x86" />
 				</Linker>
 			</Target>
-			<Target title="Windows-Release">
+			<Target title="Windows-GCC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/release/pmathc" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/Release/" />
+				<Option output="bin/windows/gcc-release-x86/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/gcc-release-x86/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -47,13 +47,37 @@
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
-					<Add directory="../bin/windows/release" />
+					<Add directory="../bin/windows/gcc-release-x86" />
 				</Linker>
 			</Target>
-			<Target title="Windows-MSVC">
+			<Target title="Windows-MSVC-Debug-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc/pmathc" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/msvc/" />
+				<Option output="bin/windows/msvc-debug-x86/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-debug-x86/" />
+				<Option type="1" />
+				<Option compiler="msvc10" />
+				<Compiler>
+					<Add option="/MT" />
+					<Add option="/arch:SSE2" />
+					<Add option="/Gd" />
+					<Add option="/GF" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/wd4711 /wd4996" />
+					<Add directory="../../msvc-c99" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+					<Add library="pmath" />
+					<Add library="edit_static" />
+					<Add library="user32" />
+					<Add directory="../bin/windows/msvc-debug-x86" />
+				</Linker>
+			</Target>
+			<Target title="Windows-MSVC-Release-x86">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-release-x86/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option type="1" />
 				<Option compiler="msvc10" />
 				<Compiler>
@@ -74,15 +98,15 @@
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
-					<Add directory="../bin/windows/msvc" />
+					<Add directory="../bin/windows/msvc-release-x86" />
 				</Linker>
 			</Target>
-			<Target title="Windows-MSVC-Debug">
+			<Target title="Windows-MSVC-Debug-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug/pmathc" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/msvc-debug/" />
+				<Option output="bin/windows/msvc-debug-x64/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="1" />
-				<Option compiler="msvc10" />
+				<Option compiler="microsoft_visual_c_2012_x64" />
 				<Compiler>
 					<Add option="/MT" />
 					<Add option="/arch:SSE2" />
@@ -98,13 +122,40 @@
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
-					<Add directory="../bin/windows/msvc" />
+					<Add directory="../bin/windows/msvc-debug-x64" />
 				</Linker>
 			</Target>
-			<Target title="Linux-Debug">
+			<Target title="Windows-MSVC-Release-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-release-x64/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-release-x64/" />
+				<Option type="1" />
+				<Option compiler="microsoft_visual_c_2012_x64" />
+				<Compiler>
+					<Add option="/MT" />
+					<Add option="/arch:SSE2" />
+					<Add option="/Gd" />
+					<Add option="/GL" />
+					<Add option="/GF" />
+					<Add option="/Ox" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/wd4711 /wd4996" />
+					<Add option="/DNDEBUG" />
+					<Add directory="../../msvc-c99" />
+				</Compiler>
+				<Linker>
+					<Add option="/DEBUG" />
+					<Add library="pmath" />
+					<Add library="edit_static" />
+					<Add library="user32" />
+					<Add directory="../bin/windows/msvc-release-x64" />
+				</Linker>
+			</Target>
+			<Target title="Linux-GCC-Debug-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/debug/pmathc" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/linux/Debug/" />
+				<Option output="bin/linux/gcc-debug-x86/pmathc" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-debug-x86/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -117,8 +168,11 @@
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
 					<Add library="edit" />
-					<Add directory="../bin/linux/debug" />
+					<Add directory="../bin/linux/gcc-debug-x86" />
 				</Linker>
+				<ExtraCommands>
+					<Add after="./post-build-linux.sh gcc-debug-x64" />
+				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>

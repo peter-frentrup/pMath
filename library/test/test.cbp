@@ -168,10 +168,10 @@
 					<Add directory="../bin/windows/release" />
 				</Linker>
 			</Target>
-			<Target title="Linux-Debug-x86">
+			<Target title="Linux-GCC-Debug-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/debug/test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/linux/debug/" />
+				<Option output="bin/linux/gcc-debug-x86/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-debug-x86/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -191,16 +191,16 @@
 					<Add library="pmath" />
 					<Add library="rt" />
 					<Add library="pthread" />
-					<Add directory="bin/linux/debug" />
+					<Add directory="../bin/linux/gcc-debug-x86" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh debug" />
+					<Add after="./post-build-linux.sh gcc-debug-x86" />
 				</ExtraCommands>
 			</Target>
-			<Target title="Linux-Release-x86">
+			<Target title="Linux-GCC-Release-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/release/test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/linux/release/" />
+				<Option output="bin/linux/gcc-release-x86/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-release-x86/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -219,16 +219,16 @@
 					<Add library="pmath" />
 					<Add library="rt" />
 					<Add library="pthread" />
-					<Add directory="bin/linux/release" />
+					<Add directory="../bin/linux/gcc-release-x86" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh release" />
+					<Add after="./post-build-linux.sh gcc-release-x86" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux-Debug-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/debug-x64/test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/linux/debug-x64/" />
+				<Option output="bin/linux/gcc-debug-x64/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-debug-x64/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -248,16 +248,16 @@
 					<Add library="pmath" />
 					<Add library="rt" />
 					<Add library="pthread" />
-					<Add directory="bin/linux/debug-x64" />
+					<Add directory="../bin/linux/gcc-debug-x64" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh debug-x64" />
+					<Add after="./post-build-linux.sh gcc-debug-x64" />
 				</ExtraCommands>
 			</Target>
-			<Target title="Linux-Release-x64">
+			<Target title="Linux-GCC-Release-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/release-x64/test" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/linux/release-x64/" />
+				<Option output="bin/linux/gcc-release-x64/test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-release-x64/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -278,10 +278,10 @@
 					<Add library="pmath" />
 					<Add library="rt" />
 					<Add library="pthread" />
-					<Add directory="bin/linux/release-x64" />
+					<Add directory="../bin/linux/gcc-release-x64" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh debug-x64" />
+					<Add after="./post-build-linux.sh gcc-release-x64" />
 				</ExtraCommands>
 			</Target>
 		</Build>
