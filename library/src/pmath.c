@@ -1261,35 +1261,84 @@ PMATH_API void pmath_done(void) {
 }
 
 #ifdef PMATH_OS_WIN32
+static pmath_bool_t check_min_os_version(int major, int minor, int service_pack) {
+  OSVERSIONINFOEXW versionInfoEx;
+  
+  const DWORDLONG dwlConditionMask =
+      VerSetConditionMask(
+          VerSetConditionMask(
+              VerSetConditionMask(
+                  0,
+                  VER_MAJORVERSION,
+                  VER_GREATER_EQUAL),
+              VER_MINORVERSION,
+              VER_GREATER_EQUAL),
+          VER_SERVICEPACKMAJOR,
+          VER_GREATER_EQUAL);
+          
+  memset(&versionInfoEx, 0, sizeof(versionInfoEx));
+  versionInfoEx.dwOSVersionInfoSize = sizeof(versionInfoEx);
+  
+  versionInfoEx.dwMajorVersion = major;
+  versionInfoEx.dwMinorVersion = minor;
+  versionInfoEx.wServicePackMajor = service_pack;
+  
+  return VerifyVersionInfoW(
+      &versionInfoEx,
+      VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR,
+      dwlConditionMask) != FALSE;
+}
+
+static pmath_bool_t is_vista_or_newer(void) {
+  return check_min_os_version(
+      HIBYTE(_WIN32_WINNT_VISTA),
+      LOBYTE(_WIN32_WINNT_VISTA),
+      0);
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 
 // If pthreads are used, this function will be called elsewhere.
-#  ifdef PMATH_USE_WINDOWS_THREADS
+#ifdef PMATH_USE_WINDOWS_THREADS
   if(fdwReason == DLL_THREAD_DETACH)
     _pmath_thread_destructed();
-#  endif
+#endif
     
-#  ifdef PMATH_DEBUG_LOG
   switch(fdwReason) {
     case DLL_PROCESS_ATTACH:
-      fprintf(stderr, "[+ process threadid=%u]\n", (unsigned)GetCurrentThreadId());
+      {
+        pmath_bool_t dynamic_loading = lpvReserved == NULL;
+#ifdef PMATH_DEBUG_LOG
+        fprintf(stderr, "[+ process threadid=%u %s]\n",
+            (unsigned)GetCurrentThreadId(),
+            dynamic_loading ? "dynamic load" : "static load");
+#endif
+        if(dynamic_loading && !is_vista_or_newer()) {
+          /* __declspec(thread) variables do not work correctly in dynamically
+             loaded DLLs under older Windows versions. This was fixed in Vista,
+             see [1].
+             The thread-safe build of MPFR uses __declspec(thread).
+          
+             [1] Thread Local Storage, part 7: Windows Vista support for __declspec(thread) in demand loaded DLLs
+                 (http://www.nynaeve.net/?p=189)
+           */
+          return FALSE;
+        }
+      }
       break;
       
     case DLL_PROCESS_DETACH:
-      fprintf(stderr, "[- process threadid=%u]\n", (unsigned)GetCurrentThreadId());
+      {
+#ifdef PMATH_DEBUG_LOG
+        fprintf(stderr, "[- process threadid=%u %s]\n",
+            (unsigned)GetCurrentThreadId(),
+            lpvReserved ? "terminate" : "dynamic unload");
+#endif
+      }
       break;
-      
-//    case DLL_THREAD_ATTACH:
-//      fprintf(stderr, "[+ thread id=%u]\n", (unsigned)GetCurrentThreadId());
-//      break;
-//
-//    case DLL_THREAD_DETACH:
-//      fprintf(stderr, "[- thread id=%u]\n", (unsigned)GetCurrentThreadId());
-//      break;
   }
-#  endif
   
-  return TRUE; // succesful
+  return TRUE;
 }
 #elif defined(__GNUC__) && defined(PMATH_DEBUG_LOG)
 static
