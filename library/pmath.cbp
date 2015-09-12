@@ -583,6 +583,7 @@
 		<Unit filename="include/pmath-util/modules-private.h" />
 		<Unit filename="include/pmath-util/option-helpers-private.h" />
 		<Unit filename="include/pmath-util/option-helpers.h" />
+		<Unit filename="include/pmath-util/overflow-calc-private.h" />
 		<Unit filename="include/pmath-util/serialize.h" />
 		<Unit filename="include/pmath-util/stacks-private.h" />
 		<Unit filename="include/pmath-util/stacks.h" />

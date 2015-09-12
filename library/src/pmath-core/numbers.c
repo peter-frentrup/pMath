@@ -543,8 +543,8 @@ pmath_number_t pmath_float_new_str(
   
   if(base < 2 || base > 36)
     return PMATH_NULL;
-    
-  len = strlen(str);
+  
+  len = (int)strlen(str);
   
   int_digits = 0;
   for(i = 0; i < len && !pmath_char_is_basedigit(base, str[i]); ++i) {
@@ -792,7 +792,7 @@ PMATH_API uint32_t pmath_integer_get_ui32(pmath_integer_t integer) {
   if(pmath_is_null(integer))
     return 0;
     
-  return mpz_get_ui(PMATH_AS_MPZ(integer));
+  return (uint32_t)mpz_get_ui(PMATH_AS_MPZ(integer));
 }
 
 PMATH_API

@@ -115,7 +115,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr) {
     pmath_unref(expr);
     
     if(task_count > info.index._data)
-      task_count = info.index._data;
+      task_count = (int)info.index._data;
       
     tasks = (pmath_task_t*)pmath_mem_alloc(task_count * sizeof(pmath_task_t));
     if(tasks) {

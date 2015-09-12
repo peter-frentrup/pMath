@@ -211,7 +211,7 @@ pmath_t pmath_interval_from_expr(pmath_t obj) {
       dprec = HUGE_VAL;
       
     if(dprec > 0 && dprec <= PMATH_MP_PREC_MAX) {
-      prec = (size_t)ceil(dprec);
+      prec = (mpfr_prec_t)ceil(dprec);
     }
     else if(dprec == -HUGE_VAL) {
       prec = DBL_MANT_DIG;

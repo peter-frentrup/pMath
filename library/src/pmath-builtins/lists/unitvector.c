@@ -16,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_unitvector(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, exprlen);
   if(!pmath_is_int32(obj) || PMATH_AS_INT32(obj) <= 0) {
     pmath_unref(obj);
-    pmath_message(PMATH_NULL, "intpm", 2, PMATH_FROM_INT32(exprlen), pmath_ref(expr));
+    pmath_message(PMATH_NULL, "intpm", 2, pmath_integer_new_uiptr(exprlen), pmath_ref(expr));
     return expr;
   }
   
@@ -35,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_unitvector(pmath_expr_t expr) {
   }
   
   if(n < k) {
-    pmath_message(PMATH_NULL, "dir", 2, PMATH_FROM_INT32(n), PMATH_FROM_INT32(k));
+    pmath_message(PMATH_NULL, "dir", 2, pmath_integer_new_uiptr(n), PMATH_FROM_INT32(k));
     return expr;
   }
   

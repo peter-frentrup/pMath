@@ -21,7 +21,12 @@ PMATH_API
 #if PMATH_NEED_GNUC(2, 4)
 __attribute__((__format__(__printf__, 1, 2)))
 #endif
-void pmath_debug_print(const char *fmt, ...);
+void pmath_debug_print(
+#  ifdef _Printf_format_string_
+    _Printf_format_string_
+#  endif
+    _In_  const char *fmt,
+    ...);
 
 /**\brief Print a pMath object to the debug log.
    \param pre A string that should be printed before the object.
@@ -30,9 +35,9 @@ void pmath_debug_print(const char *fmt, ...);
  */
 PMATH_API
 void pmath_debug_print_object(
-  const char *pre,
-  pmath_t     obj,
-  const char *post);
+    _In_  const char *pre,
+    _In_  pmath_t     obj,
+    _In_  const char *post);
 
 /**\brief Print the current pMath stack trace to the debug log.
  */
@@ -43,28 +48,28 @@ void pmath_debug_print_stack(void);
    \param pre A string that should be printed before the object.
    \param obj A pMath object. It wont be freed.
    \param post A string that should be printed after the object.
-   
+
    \see pmath_get_debug_info
  */
 PMATH_API
 void pmath_debug_print_debug_info(
-  const char *pre,
-  pmath_t     obj,
-  const char *post);
+    _In_  const char *pre,
+    _In_  pmath_t     obj,
+    _In_  const char *post);
 
 #ifndef PMATH_DOXYGEN
-  #ifndef PMATH_DEBUG_LOG
-    #define pmath_debug_print(...)                        ((void)0)
-    #define pmath_debug_print_stack()                     ((void)0)
-    #define pmath_debug_print_debug_info(PRE, OBJ, POST)  ((void)0)
-  #endif /* PMATH_DEBUG_LOG */
+#  ifndef PMATH_DEBUG_LOG
+#    define pmath_debug_print(...)                        ((void)0)
+#    define pmath_debug_print_stack()                     ((void)0)
+#    define pmath_debug_print_debug_info(PRE, OBJ, POST)  ((void)0)
+#  endif /* PMATH_DEBUG_LOG */
 #endif /* PMATH_DOXYGEN */
 
 /** @} */
 
 #ifdef BUILDING_PMATH
-  PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void);
-  PMATH_PRIVATE void         _pmath_debug_library_done(void);
+PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void);
+PMATH_PRIVATE void         _pmath_debug_library_done(void);
 #endif
 
 #endif /* __PMATH_DEBUG_H__ */

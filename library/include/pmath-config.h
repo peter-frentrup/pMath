@@ -42,6 +42,19 @@
 #  include <sal.h>
 #endif
 
+#ifndef _In_
+#  define _In_
+#endif
+#ifndef _In_opt_
+#  define _In_opt_
+#endif
+#ifndef _Inout_
+#  define _Inout_
+#endif
+#ifndef _Out_
+#  define _Out_
+#endif
+
 /* PMATH_ATTRIBUTE_USE_RESULT: You must use the result of a function with this
    attribute. E.g. destroy the result.
 
@@ -50,8 +63,11 @@
 #if PMATH_NEED_GNUC(3, 4)
 #  define PMATH_ATTRIBUTE_USE_RESULT   __attribute__((__warn_unused_result__))
 #  define PMATH_ATTRIBUTE_NONNULL(...) __attribute__((__nonnull__(__VA_ARGS__)))
+#elif defined(_MSC_VER) && defined(_Check_return_)
+#  define PMATH_ATTRIBUTE_USE_RESULT   _Check_return_
+#  define PMATH_ATTRIBUTE_NONNULL(...)
 #else
-#  define PMATH_ATTRIBUTE_USE_RESULT /*_Check_return_*/
+#  define PMATH_ATTRIBUTE_USE_RESULT
 #  define PMATH_ATTRIBUTE_NONNULL(...)
 #endif
 

@@ -43,8 +43,8 @@ struct _pmath_string_t *_pmath_new_string_buffer(int size) {
     return NULL;
     
   result = (void *)PMATH_AS_PTR(_pmath_create_stub(
-                                  PMATH_TYPE_SHIFT_BIGSTRING,
-                                  STRING_HEADER_SIZE + bytes));
+      PMATH_TYPE_SHIFT_BIGSTRING,
+      STRING_HEADER_SIZE + bytes));
   if(!result)
     return result;
     
@@ -89,9 +89,9 @@ pmath_t _pmath_from_buffer(struct _pmath_string_t *b) {
 
 PMATH_PRIVATE
 struct _pmath_string_t *enlarge_string(
-  struct _pmath_string_t *string, // will be freed
-  int                     extra_start,
-  int                     extralen // not negative
+    struct _pmath_string_t *string, // will be freed
+    int                     extra_start,
+    int                     extralen // not negative
 ) {
   struct _pmath_string_t *result;
   const uint16_t *buf;
@@ -111,38 +111,48 @@ struct _pmath_string_t *enlarge_string(
   if( string->buffer == NULL &&
       pmath_atomic_read_aquire(&string->inherited.refcount) == 1)
   {
-    int newcap;
+    size_t newcap;
     size_t bytes;
-    if(string->capacity_or_start >= string->length + extralen) {
+    
+    unsigned new_length = (unsigned)string->length + (unsigned)extralen;
+    if(new_length < (unsigned)string->length || new_length > INT_MAX) {
+      pmath_abort_please();
+      pmath_unref(PMATH_FROM_PTR(string));
+      return NULL;
+    }
+    
+    if((unsigned)string->capacity_or_start >= new_length) {
       memmove(
-        AFTER_STRING(string) + extra_start + extralen,
-        AFTER_STRING(string) + extra_start,
-        (string->length - extra_start) * sizeof(uint16_t));
-      string->length += extralen;
+          AFTER_STRING(string) + extra_start + extralen,
+          AFTER_STRING(string) + extra_start,
+          (string->length - extra_start) * sizeof(uint16_t));
+      string->length = (int)new_length;
       return string;
     }
     
-    newcap = LENGTH_TO_CAPACITY(string->length + extralen);
-    bytes = (size_t)newcap * sizeof(uint16_t);
-    if(newcap < 0 || bytes / sizeof(uint16_t) != (size_t)newcap) {
+    newcap = LENGTH_TO_CAPACITY(new_length);
+    bytes = newcap * sizeof(uint16_t);
+    if( newcap > (INT_MAX - STRING_HEADER_SIZE) / sizeof(uint16_t) ||
+        (newcap * sizeof(uint16_t)) / sizeof(uint16_t) != newcap)
+    {
       pmath_abort_please();
       pmath_unref(PMATH_FROM_PTR(string));
       return NULL;
     }
     
     result = (struct _pmath_string_t *)
-             pmath_mem_realloc(string, STRING_HEADER_SIZE + sizeof(uint16_t) * newcap);
+        pmath_mem_realloc(string, STRING_HEADER_SIZE + sizeof(uint16_t) * newcap);
     if(!result)
       return NULL;
       
     if(result->length > extra_start) {
       memmove(
-        AFTER_STRING(result) + extra_start + extralen,
-        AFTER_STRING(result) + extra_start,
-        (result->length - extra_start) * sizeof(uint16_t));
+          AFTER_STRING(result) + extra_start + extralen,
+          AFTER_STRING(result) + extra_start,
+          (result->length - extra_start) * sizeof(uint16_t));
     }
     result->capacity_or_start = newcap;
-    result->length +=            extralen;
+    result->length += extralen;
     return result;
   }
   
@@ -158,31 +168,31 @@ struct _pmath_string_t *enlarge_string(
     buf = AFTER_STRING(string);
     
   memcpy(
-    AFTER_STRING(result),
-    buf,
-    extra_start * sizeof(uint16_t));
-    
+      AFTER_STRING(result),
+      buf,
+      extra_start * sizeof(uint16_t));
+      
   memcpy(
-    AFTER_STRING(result) + extra_start + extralen,
-    buf + extra_start,
-    (string->length - extra_start) * sizeof(uint16_t));
-    
+      AFTER_STRING(result) + extra_start + extralen,
+      buf + extra_start,
+      (string->length - extra_start) * sizeof(uint16_t));
+      
   pmath_unref(PMATH_FROM_PTR(string));
   return result;
 }
 
 static
 struct _pmath_string_t *enlarge_string_2(
-  pmath_string_t string,
-  int            extra_start,
-  int            extralen
+    pmath_string_t string,
+    int            extra_start,
+    int            extralen
 ) {
   struct _pmath_string_t *result;
   uint16_t *buffer;
   
   if(pmath_is_pointer(string)) {
     return enlarge_string(
-             (struct _pmath_string_t *)PMATH_AS_PTR(string), extra_start, extralen);
+        (struct _pmath_string_t *)PMATH_AS_PTR(string), extra_start, extralen);
   }
   
   assert(pmath_is_ministr(string));
@@ -248,8 +258,8 @@ static void destroy_string(pmath_t p) {
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_strings_equal(
-  pmath_t strA,
-  pmath_t strB
+    pmath_t strA,
+    pmath_t strB
 ) {
   const uint16_t *bufA;
   const uint16_t *bufB;
@@ -271,8 +281,8 @@ pmath_bool_t _pmath_strings_equal(
 
 PMATH_PRIVATE
 int _pmath_strings_compare(
-  pmath_t strA,
-  pmath_t strB
+    pmath_t strA,
+    pmath_t strB
 ) {
   const uint16_t *bufA = pmath_string_buffer(&strA);
   const uint16_t *bufB = pmath_string_buffer(&strB);
@@ -323,9 +333,9 @@ static unsigned int hash_string(pmath_t str) {
 
 PMATH_PRIVATE
 void _pmath_write_cstr(
-  const char          *str,
-  void (*write_ucs2)(void *, const uint16_t *, int),
-  void                *user
+    const char          *str,
+    void (*write_ucs2)(void *, const uint16_t *, int),
+    void                *user
 ) {
   int len = strlen(str);
 #define BUFLEN 256
@@ -701,10 +711,10 @@ void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
 
 PMATH_PRIVATE
 void _pmath_string_write_escaped(
-  pmath_t          str,     // wont be freed
-  pmath_bool_t     only_ascii,
-  void           (*write)(void *user, const uint16_t *data, int len),
-  void            *user
+    pmath_t          str,     // wont be freed
+    pmath_bool_t     only_ascii,
+    void           (*write)(void *user, const uint16_t *data, int len),
+    void            *user
 ) {
   static char hex_digits[16] = "0123456789ABCDEF";
   
@@ -717,10 +727,10 @@ void _pmath_string_write_escaped(
       const uint16_t *start = s;
       int len = 0;
       while( s != end   &&
-             *s >= ' '  &&
-             *s != '\"' &&
-             *s != '\\' &&
-             *s <= 0x7F)
+          *s >= ' '  &&
+          *s != '\"' &&
+          *s != '\\' &&
+          *s <= 0x7F)
       {
         ++s;
         ++len;
@@ -760,10 +770,10 @@ void _pmath_string_write_escaped(
               }
               else
                 unichar = *s;
-              
+                
               charname = pmath_char_to_name(unichar);
               _pmath_write_cstr("\\[", write, user);
-                
+              
               if(charname) {
                 _pmath_write_cstr(charname, write, user);
               }
@@ -780,10 +790,10 @@ void _pmath_string_write_escaped(
                 special[6] = hex_digits[(unichar & 0x000000F0U) >> 4];
                 special[7] = hex_digits[ unichar & 0x0000000FU];
                 
-                for(i = 0;i <= 3;++i)
+                for(i = 0; i <= 3; ++i)
                   if(special[i] != '0')
                     break;
-                  
+                    
                 write(user, special + i, 8 - i);
               }
               
@@ -823,10 +833,10 @@ void _pmath_string_write_escaped(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_escape_string(
-  pmath_string_t prefix, // will be freed
-  pmath_string_t string, // will be freed
-  pmath_string_t suffix, // will be freed
-  pmath_bool_t   only_ascii
+    pmath_string_t prefix, // will be freed
+    pmath_string_t string, // will be freed
+    pmath_string_t suffix, // will be freed
+    pmath_bool_t   only_ascii
 ) {
   pmath_string_t result = prefix;
   
@@ -834,11 +844,11 @@ pmath_t _pmath_escape_string(
     result = PMATH_FROM_TAG(PMATH_TAG_STR0, 0);
     
   _pmath_string_write_escaped(
-    string,
-    only_ascii,
-    (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
-    &result);
-    
+      string,
+      only_ascii,
+      (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+      &result);
+      
   pmath_unref(string);
   return pmath_string_concat(result, suffix);
 }
@@ -849,11 +859,11 @@ void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str) {
     _pmath_write_cstr("\"", info->write, info->user);
     
     _pmath_string_write_escaped(
-      str,
-      (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) != 0,
-      info->write,
-      info->user);
-      
+        str,
+        (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) != 0,
+        info->write,
+        info->user);
+        
     _pmath_write_cstr("\"", info->write, info->user);
   }
   else {
@@ -889,10 +899,10 @@ pmath_string_t pmath_string_new(int capacity) {
 }
 
 PMATH_API pmath_string_t pmath_string_insert_latin1(
-  pmath_string_t str,
-  int            inspos,
-  const char    *ins,
-  int            inslen
+    pmath_string_t str,
+    int            inspos,
+    const char    *ins,
+    int            inslen
 ) {
   struct _pmath_string_t *result;
   uint16_t *ucs;
@@ -936,8 +946,8 @@ PMATH_API pmath_string_t pmath_string_insert_latin1(
 
 PMATH_API
 pmath_string_t pmath_string_from_utf8(
-  const char    *str,
-  int            len
+    const char    *str,
+    int            len
 ) {
   struct _pmath_string_t *result;
   size_t inbytesleft;
@@ -991,8 +1001,8 @@ pmath_string_t pmath_string_from_utf8(
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 char *pmath_string_to_utf8(
-  pmath_string_t  str,
-  int            *result_len
+    pmath_string_t  str,
+    int            *result_len
 ) {
   const uint16_t *buf = pmath_string_buffer(&str);
   int             len = pmath_string_length(str);
@@ -1145,11 +1155,11 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
 
 PMATH_API
 pmath_string_t pmath_string_insert_codepage(
-  pmath_string_t str,
-  int            inspos,
-  const char    *ins,
-  int            inslen,
-  const uint16_t *cp
+    pmath_string_t str,
+    int            inspos,
+    const char    *ins,
+    int            inslen,
+    const uint16_t *cp
 ) {
   struct _pmath_string_t *result;
   uint16_t *ucs;
@@ -1191,10 +1201,10 @@ pmath_string_t pmath_string_insert_codepage(
 
 PMATH_API
 pmath_string_t pmath_string_insert_ucs2(
-  pmath_string_t  str,
-  int             inspos,
-  const uint16_t *ins,
-  int             inslen
+    pmath_string_t  str,
+    int             inspos,
+    const uint16_t *ins,
+    int             inslen
 ) {
   struct _pmath_string_t *result;
   uint16_t *ucs;
@@ -1240,9 +1250,9 @@ pmath_string_t pmath_string_insert_ucs2(
 
 PMATH_API
 pmath_string_t pmath_string_insert(
-  pmath_string_t str,
-  int            inspos,
-  pmath_string_t ins
+    pmath_string_t str,
+    int            inspos,
+    pmath_string_t ins
 ) {
   pmath_string_t result;
   struct _pmath_string_t *_str;
@@ -1311,28 +1321,28 @@ pmath_string_t pmath_string_insert(
     
     result = pmath_ref(PMATH_FROM_PTR(_str->buffer));
     result = pmath_string_part(
-               result,
-               _str->capacity_or_start + inspos,
-               _str->length + _ins->length);
+        result,
+        _str->capacity_or_start + inspos,
+        _str->length + _ins->length);
     pmath_unref(str);
     pmath_unref(ins);
     return result;
   }
   
   result = pmath_string_insert_ucs2(
-             str,
-             inspos,
-             pmath_string_buffer(&ins),
-             pmath_string_length(ins));
-             
+      str,
+      inspos,
+      pmath_string_buffer(&ins),
+      pmath_string_length(ins));
+      
   pmath_unref(ins);
   return result;
 }
 
 PMATH_API
 pmath_string_t pmath_string_concat(
-  pmath_string_t prefix,
-  pmath_string_t postfix
+    pmath_string_t prefix,
+    pmath_string_t postfix
 ) {
   if(pmath_is_null(prefix))
     return postfix;
@@ -1345,9 +1355,9 @@ pmath_string_t pmath_string_concat(
 
 PMATH_API
 pmath_string_t pmath_string_part(
-  pmath_string_t string,
-  int            start,
-  int            length
+    pmath_string_t string,
+    int            start,
+    int            length
 ) {
   struct _pmath_string_t *_str;
   
@@ -1478,9 +1488,9 @@ pmath_string_t pmath_string_part(
   
   {
     struct _pmath_string_t *result = (void *)PMATH_AS_PTR(_pmath_create_stub(
-                                       PMATH_TYPE_SHIFT_BIGSTRING,
-                                       sizeof(struct _pmath_string_t)));
-                                       
+        PMATH_TYPE_SHIFT_BIGSTRING,
+        sizeof(struct _pmath_string_t)));
+        
     if(!result) {
       pmath_unref(string);
       return PMATH_NULL;
@@ -1537,8 +1547,8 @@ int pmath_string_length(pmath_string_t string) {
 PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_string_equals_latin1(
-  pmath_string_t  string,
-  const char     *latin1
+    pmath_string_t  string,
+    const char     *latin1
 ) {
   const uint16_t *buf;
   int i, len;
@@ -1556,8 +1566,8 @@ pmath_bool_t pmath_string_equals_latin1(
 
 PMATH_API
 pmath_string_t pmath_string_from_native(
-  const char  *str,
-  int          len
+    const char  *str,
+    int          len
 ) {
   struct _pmath_string_t *result;
   size_t inbytesleft;
@@ -1635,24 +1645,24 @@ char *pmath_string_to_native(pmath_string_t str, int *result_len) {
 PMATH_PRIVATE
 pmath_bool_t _pmath_strings_init(void) {
   _pmath_init_special_type(
-    PMATH_TYPE_SHIFT_BIGSTRING,
-    _pmath_strings_compare,
-    hash_string,
-    destroy_string,
-    _pmath_strings_equal,
-    _pmath_string_write);
-    
+      PMATH_TYPE_SHIFT_BIGSTRING,
+      _pmath_strings_compare,
+      hash_string,
+      destroy_string,
+      _pmath_strings_equal,
+      _pmath_string_write);
+      
   to_utf8 = iconv_open(
-              "UTF-8",
-              PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
-              
+      "UTF-8",
+      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
+      
   if(to_utf8 == (iconv_t) - 1)
     return FALSE;
     
   from_utf8 = iconv_open(
-                PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
-                "UTF-8");
-                
+      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
+      "UTF-8");
+      
   if(from_utf8 == (iconv_t) - 1) {
     iconv_close(to_utf8);
     return FALSE;
@@ -1661,9 +1671,9 @@ pmath_bool_t _pmath_strings_init(void) {
   _init_pmath_native_encoding();
   
   to_native = iconv_open(
-                _pmath_native_encoding,
-                PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
-                
+      _pmath_native_encoding,
+      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
+      
   if(to_native == (iconv_t) - 1) {
     iconv_close(to_utf8);
     iconv_close(from_utf8);
@@ -1671,9 +1681,9 @@ pmath_bool_t _pmath_strings_init(void) {
   }
   
   from_native = iconv_open(
-                  PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
-                  _pmath_native_encoding);
-                  
+      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
+      _pmath_native_encoding);
+      
   if(from_native == (iconv_t) - 1) {
     iconv_close(to_utf8);
     iconv_close(from_utf8);

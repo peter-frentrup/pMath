@@ -7,11 +7,13 @@
 #include <pmath-builtins/arithmetic-private.h>
 
 
-static pmath_t expand_ui_power(pmath_t sum, unsigned long n) {
+static pmath_t expand_ui_power(pmath_t sum, int32_t n) {
   pmath_t a;
   pmath_t b;
   pmath_t bin;
-  size_t k;
+  int32_t k;
+  
+  assert(n >= 0);
   
   if(n == 0) {
     pmath_unref(sum);
@@ -36,15 +38,15 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n) {
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_POWER), 2,
       pmath_ref(a),
-      pmath_integer_new_ulong(n)),
+      PMATH_FROM_INT32(n)),
     PMATH_NULL);
     
   bin = PMATH_FROM_INT32(1);
   for(k = 1; k < n; ++k) {
     bin = _mul_nn(bin,
                   pmath_rational_new(
-                    pmath_integer_new_ulong(n - k + 1),
-                    pmath_integer_new_ulong(k)));
+                    PMATH_FROM_INT32(n - k + 1),
+                    PMATH_FROM_INT32(k)));
                     
     pmath_emit(
       pmath_expr_new_extended(
@@ -53,11 +55,11 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n) {
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_POWER), 2,
           pmath_ref(a),
-          pmath_integer_new_ulong(n - k)),
+          PMATH_FROM_INT32(n - k)),
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_POWER), 2,
           pmath_ref(b),
-          pmath_integer_new_ulong(k))),
+          PMATH_FROM_INT32(k))),
       PMATH_NULL);
   }
   pmath_unref(bin);
@@ -66,7 +68,7 @@ static pmath_t expand_ui_power(pmath_t sum, unsigned long n) {
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_POWER), 2,
       pmath_ref(b),
-      pmath_integer_new_ulong(n)),
+      PMATH_FROM_INT32(n)),
     PMATH_NULL);
     
   pmath_unref(a);
@@ -117,7 +119,7 @@ static pmath_t expand_product(pmath_t expr, pmath_bool_t *changed) {
         if(pmath_is_expr_of(base, PMATH_SYMBOL_PLUS)) {
           pmath_unref(expr);
           pmath_unref(exp);
-          expr = expand_ui_power(base, (unsigned)PMATH_AS_INT32(exp));
+          expr = expand_ui_power(base, PMATH_AS_INT32(exp));
           *changed = TRUE;
           return expr;
         }
