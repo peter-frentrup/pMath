@@ -1,0 +1,4 @@
+[bugtraq]
+	url = https://bitbucket.org/pfrentrup/pmath/issues/%BUGID%
+[bugtraq]
+	logregex = "[Ii]ssues?(\\s*(,\\s*)?(and\\s+)?#\\d+)+\n(\\d)+"
