@@ -104,7 +104,7 @@
 				<Option output="bin/windows/msvc-debug-x64/test" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="1" />
-				<Option compiler="microsoft_visual_c_2012_x64" />
+				<Option compiler="msvc_2015_x64" />
 				<Compiler>
 					<Add option="/MT" />
 					<Add option="/arch:SSE2" />
@@ -126,7 +126,7 @@
 				<Option output="bin/windows/msvc-release-x64/test" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="1" />
-				<Option compiler="microsoft_visual_c_2012_x64" />
+				<Option compiler="msvc_2015_x64" />
 				<Compiler>
 					<Add option="/MT" />
 					<Add option="/arch:SSE2" />

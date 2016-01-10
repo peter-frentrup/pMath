@@ -190,7 +190,7 @@
 				<Option output="bin/windows/msvc-debug-x64/pmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
-				<Option compiler="microsoft_visual_c_2012_x64" />
+				<Option compiler="msvc_2015_x64" />
 				<Option host_application="console/bin/windows/msvc-debug-x64/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
@@ -232,7 +232,7 @@
 				<Option output="bin/windows/msvc-release-x64/pmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="3" />
-				<Option compiler="microsoft_visual_c_2012_x64" />
+				<Option compiler="msvc_2015_x64" />
 				<Option host_application="console/bin/windows/msvc-release-x64/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />

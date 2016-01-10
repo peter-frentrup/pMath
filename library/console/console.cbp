@@ -106,7 +106,7 @@
 				<Option output="bin/windows/msvc-debug-x64/pmathc" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="1" />
-				<Option compiler="microsoft_visual_c_2012_x64" />
+				<Option compiler="msvc_2015_x64" />
 				<Compiler>
 					<Add option="/MT" />
 					<Add option="/arch:SSE2" />
@@ -130,27 +130,20 @@
 				<Option output="bin/windows/msvc-release-x64/pmathc" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="1" />
-				<Option compiler="microsoft_visual_c_2012_x64" />
-				<Compiler>
-					<Add option="/MT" />
-					<Add option="/arch:SSE2" />
-					<Add option="/Gd" />
-					<Add option="/GL" />
-					<Add option="/GF" />
-					<Add option="/Ox" />
-					<Add option="/W3" />
-					<Add option="/Zi" />
-					<Add option="/wd4711 /wd4996" />
-					<Add option="/DNDEBUG" />
-					<Add directory="../../msvc-c99" />
-				</Compiler>
-				<Linker>
-					<Add option="/DEBUG" />
-					<Add library="pmath" />
-					<Add library="edit_static" />
-					<Add library="user32" />
-					<Add directory="../bin/windows/msvc-release-x64" />
-				</Linker>
+				<Option compiler="msvc_2015_x64" />
+				<Option projectCompilerOptionsRelation="-1" />
+				<Option projectLinkerOptionsRelation="-1" />
+				<Option projectIncludeDirsRelation="-1" />
+				<Option projectResourceIncludeDirsRelation="-1" />
+				<Option projectLibDirsRelation="-1" />
+				<MakeCommands>
+					<Build command="" />
+					<CompileFile command="" />
+					<Clean command="" />
+					<DistClean command="" />
+					<AskRebuildNeeded command="" />
+					<SilentBuild command=" &gt; $(CMD_NULL)" />
+				</MakeCommands>
 			</Target>
 			<Target title="Linux-GCC-Debug-x86">
 				<Option platforms="Unix;" />
