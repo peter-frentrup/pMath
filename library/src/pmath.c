@@ -51,7 +51,6 @@
 
 #include <time.h>
 
-#define PCRE_STATIC
 #include <pcre.h> // Only needed here to print its version number.
 
 #include <zlib.h> // Only needed here to print its version number.

@@ -18,7 +18,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define PCRE_STATIC
 #include <pcre.h>
 
 

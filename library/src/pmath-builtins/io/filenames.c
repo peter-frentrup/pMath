@@ -27,7 +27,6 @@
 #include <string.h>
 #endif
 
-#define PCRE_STATIC
 #include <pcre.h>
 
 

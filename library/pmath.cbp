@@ -40,6 +40,12 @@
 					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="-D__GMP_LIBGMP_DLL=1" />
+					<Add directory="$(#gmp_32.include)" />
+					<Add directory="$(#mpfr_32.include)" />
+					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#pcre_32.include)" />
+					<Add directory="$(#iconv_32.include)" />
+					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
@@ -52,6 +58,12 @@
 					<Add library="zdll" />
 					<Add library="mpfi-globals" />
 					<Add library="mpir-globals" />
+					<Add directory="$(#gmp_32.lib)" />
+					<Add directory="$(#mpfr_32.lib)" />
+					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#pcre_32.lib)" />
+					<Add directory="$(#iconv_32.lib)" />
+					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat gcc-debug-x86 x86" />
@@ -85,6 +97,12 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="-D__GMP_LIBGMP_DLL=1" />
+					<Add directory="$(#gmp_32.include)" />
+					<Add directory="$(#mpfr_32.include)" />
+					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#pcre_32.include)" />
+					<Add directory="$(#iconv_32.include)" />
+					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -100,6 +118,12 @@
 					<Add library="zdll" />
 					<Add library="mpfi-globals" />
 					<Add library="mpir-globals" />
+					<Add directory="$(#gmp_32.lib)" />
+					<Add directory="$(#mpfr_32.lib)" />
+					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#pcre_32.lib)" />
+					<Add directory="$(#iconv_32.lib)" />
+					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat gcc-release-x86 x86" />
@@ -131,6 +155,12 @@
 					<Add option="/D_USE_MATH_DEFINES" />
 					<Add option="/D__GMP_LIBGMP_DLL=1" />
 					<Add directory="../msvc-c99" />
+					<Add directory="$(#gmp_32.include)" />
+					<Add directory="$(#mpfr_32.include)" />
+					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#pcre_32.include)" />
+					<Add directory="$(#iconv_32.include)" />
+					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -142,6 +172,12 @@
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
 					<Add library="zdll.lib" />
+					<Add directory="$(#gmp_32.lib)" />
+					<Add directory="$(#mpfr_32.lib)" />
+					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#pcre_32.lib)" />
+					<Add directory="$(#iconv_32.lib)" />
+					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat msvc-debug-x86 x86" />
@@ -169,6 +205,12 @@
 					<Add option="/D_USE_MATH_DEFINES" />
 					<Add option="/D__GMP_LIBGMP_DLL=1" />
 					<Add directory="../msvc-c99" />
+					<Add directory="$(#gmp_32.include)" />
+					<Add directory="$(#mpfr_32.include)" />
+					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#pcre_32.include)" />
+					<Add directory="$(#iconv_32.include)" />
+					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="/LTCG" />
@@ -179,6 +221,12 @@
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
 					<Add library="zdll.lib" />
+					<Add directory="$(gmp_32.lib)" />
+					<Add directory="$(mpfr_32.lib)" />
+					<Add directory="$(mpfi_32.lib)" />
+					<Add directory="$(#pcre_32.lib)" />
+					<Add directory="$(#iconv_32.lib)" />
+					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat msvc-release-x86 x86" />
@@ -210,6 +258,12 @@
 					<Add option="/D_USE_MATH_DEFINES" />
 					<Add option="/D__GMP_LIBGMP_DLL=1" />
 					<Add directory="../msvc-c99" />
+					<Add directory="$(#gmp_64.include)" />
+					<Add directory="$(#mpfr_64.include)" />
+					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#pcre_64.include)" />
+					<Add directory="$(#iconv_64.include)" />
+					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -221,8 +275,20 @@
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
 					<Add library="zlib.lib" />
+					<Add directory="$(#gmp_64.lib)" />
+					<Add directory="$(#mpfr_64.lib)" />
+					<Add directory="$(#mpfi_64.lib)" />
+					<Add directory="$(#pcre_64.lib)" />
+					<Add directory="$(#iconv_64.lib)" />
+					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat msvc-debug-x64 x64" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -249,6 +315,12 @@
 					<Add option="/D_USE_MATH_DEFINES" />
 					<Add option="/D__GMP_LIBGMP_DLL=1" />
 					<Add directory="../msvc-c99" />
+					<Add directory="$(#gmp_64.include)" />
+					<Add directory="$(#mpfr_64.include)" />
+					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#pcre_64.include)" />
+					<Add directory="$(#iconv_64.include)" />
+					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -260,9 +332,21 @@
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
 					<Add library="zlib.lib" />
+					<Add directory="$(#gmp_64.lib)" />
+					<Add directory="$(#mpfr_64.lib)" />
+					<Add directory="$(#mpfi_64.lib)" />
+					<Add directory="$(#pcre_64.lib)" />
+					<Add directory="$(#iconv_64.lib)" />
+					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat msvc-release-x64 x64" />
+					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after="post-build-windows.bat msvc-debug-x64 x64" />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -292,6 +376,12 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="-D__GMP_LIBGMP_DLL=1" />
+					<Add directory="$(#gmp_32.include)" />
+					<Add directory="$(#mpfr_32.include)" />
+					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#pcre_32.include)" />
+					<Add directory="$(#iconv_32.include)" />
+					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -303,6 +393,12 @@
 					<Add library="pcre16" />
 					<Add library="shell32" />
 					<Add library="zdll" />
+					<Add directory="$(#gmp_32.lib)" />
+					<Add directory="$(#mpfr_32.lib)" />
+					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#pcre_32.lib)" />
+					<Add directory="$(#iconv_32.lib)" />
+					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="post-build-windows.bat clang" />
@@ -332,6 +428,12 @@
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
+					<Add directory="$(#gmp_32.include)" />
+					<Add directory="$(#mpfr_32.include)" />
+					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#pcre_32.include)" />
+					<Add directory="$(#iconv_32.include)" />
+					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -343,6 +445,12 @@
 					<Add library="pcre16" />
 					<Add library="shell32" />
 					<Add library="zdll" />
+					<Add directory="$(#gmp_32.lib)" />
+					<Add directory="$(#mpfr_32.lib)" />
+					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#pcre_32.lib)" />
+					<Add directory="$(#iconv_32.lib)" />
+					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x86 x86" />
@@ -379,6 +487,12 @@
 					<Add option="-D_XOPEN_SOURCE" />
 					<Add option="-D_BSD_SOURCE" />
 					<Add option="-D_GNU_SOURCE" />
+					<Add directory="$(#gmp_32.include)" />
+					<Add directory="$(#mpfr_32.include)" />
+					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#pcre_32.include)" />
+					<Add directory="$(#iconv_32.include)" />
+					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
@@ -392,6 +506,12 @@
 					<Add library="pthread" />
 					<Add library="rt" />
 					<Add library="m" />
+					<Add directory="$(#gmp_32.lib)" />
+					<Add directory="$(#mpfr_32.lib)" />
+					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#pcre_32.lib)" />
+					<Add directory="$(#iconv_32.lib)" />
+					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-release-x86 x86" />
@@ -430,6 +550,12 @@
 					<Add option="-D_XOPEN_SOURCE" />
 					<Add option="-D_BSD_SOURCE" />
 					<Add option="-D_GNU_SOURCE" />
+					<Add directory="$(#gmp_64.include)" />
+					<Add directory="$(#mpfr_64.include)" />
+					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#pcre_64.include)" />
+					<Add directory="$(#iconv_64.include)" />
+					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
@@ -442,6 +568,12 @@
 					<Add library="pthread" />
 					<Add library="rt" />
 					<Add library="m" />
+					<Add directory="$(#gmp_64.lib)" />
+					<Add directory="$(#mpfr_64.lib)" />
+					<Add directory="$(#mpfi_64.lib)" />
+					<Add directory="$(#pcre_64.lib)" />
+					<Add directory="$(#iconv_64.lib)" />
+					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x64 x64" />
@@ -478,6 +610,12 @@
 					<Add option="-D_XOPEN_SOURCE" />
 					<Add option="-D_BSD_SOURCE" />
 					<Add option="-D_GNU_SOURCE" />
+					<Add directory="$(#gmp_64.include)" />
+					<Add directory="$(#mpfr_64.include)" />
+					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#pcre_64.include)" />
+					<Add directory="$(#iconv_64.include)" />
+					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
@@ -490,6 +628,12 @@
 					<Add library="pthread" />
 					<Add library="rt" />
 					<Add library="m" />
+					<Add directory="$(#gmp_64.lib)" />
+					<Add directory="$(#mpfr_64.lib)" />
+					<Add directory="$(#mpfi_64.lib)" />
+					<Add directory="$(#pcre_64.lib)" />
+					<Add directory="$(#iconv_64.lib)" />
+					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-release-x64 x64" />

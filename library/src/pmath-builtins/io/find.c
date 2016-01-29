@@ -15,7 +15,6 @@
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/io-private.h>
 
-#define PCRE_STATIC
 #include <pcre.h>
 
 PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr) {

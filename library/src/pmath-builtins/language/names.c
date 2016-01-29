@@ -11,7 +11,6 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-#define PCRE_STATIC
 #include <pcre.h>
 
 

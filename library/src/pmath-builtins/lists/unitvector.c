@@ -1,5 +1,7 @@
 #include <pmath-util/messages.h>
 
+#include <pmath-core/numbers.h>
+
 #include <pmath-builtins/all-symbols-private.h>
 
 
