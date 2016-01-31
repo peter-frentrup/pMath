@@ -1,3 +1,5 @@
+#define PMATH_DEBUG_LOG
+
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays-private.h>
@@ -1050,12 +1052,14 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
     if(is_sorted)
       return expr;
   }
-  else
+  else {
     pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
-    
+  }
+  
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
+    //pmath_t head = pmath_ref(expr_part_ptr->inherited.items[0]);
     struct _pmath_expr_t *new_expr =
       (void *)PMATH_AS_PTR(pmath_expr_new(PMATH_NULL, length));
       
@@ -1064,11 +1068,19 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
       return PMATH_NULL;
     }
     
+    pmath_debug_print_object("[sort copy of ", expr, "]\n");
+    
     switch(PMATH_AS_PTR(expr)->type_shift) {
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
-          size_t i;
-          for(i = 0; i <= length; i++)
+          pmath_debug_print("[sort copy: general expr length %"PRIuPTR"]\n", length);
+          
+          for(i = 0; i <= length; i++) {
+            pmath_debug_print("  [copy item # %"PRIuPTR" of %"PRIuPTR" %s]\n", 
+              i, 
+              length,
+              i <= length ? "ok" : "wtf");
             new_expr->items[i] = pmath_ref(expr_part_ptr->inherited.items[i]);
+          }
         } break;
         
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
@@ -1078,17 +1090,26 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
             new_expr->items[i] = pmath_ref(
                                    expr_part_ptr->buffer->items[expr_part_ptr->start + i - 1]);
         } break;
+        
       default:
         assert("invalid expression type" && 0);
     }
     
+    pmath_debug_print("[delete old expr]\n");
+    
     pmath_unref(expr);
     expr = PMATH_FROM_PTR(new_expr);
     expr_part_ptr = (void *)new_expr;
-  }
-  else
-    touch_expr(&expr_part_ptr->inherited);
     
+    pmath_debug_print_object("[copied to ", expr, "]\n");
+    
+  }
+  else {
+    pmath_debug_print_object("[inline sort ", expr, "]\n");
+    
+    touch_expr(&expr_part_ptr->inherited);
+  }
+  
   qsort(
     expr_part_ptr->inherited.items + 1,
     length,
