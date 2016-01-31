@@ -427,8 +427,8 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
       pmath_string_t (*old_read_line)(void *) = parser->read_line;
       parser->read_line = NULL;
       
-      skip_to(parser, -1, next_token_pos(parser), FALSE);
       parser->tokens.comment_level++;
+      skip_to(parser, -1, next_token_pos(parser), FALSE);
       while(end < parser->tokens.len && parser->tokens.str[end] != '\n')
         ++end;
         
@@ -2523,7 +2523,7 @@ static void ungroup(
     if( pmath_is_null(head) ||
         pmath_same(head, PMATH_SYMBOL_LIST))
     {
-      size_t i, len;
+      size_t ei, len;
       int start = g->pos;
       int old_comment_level = g->comment_level;
       
@@ -2552,8 +2552,8 @@ static void ungroup(
         pmath_unref(second);
       }
       
-      for(i = 1; i <= len; ++i)
-        ungroup(g, pmath_expr_get_item(box, i));
+      for(ei = 1; ei <= len; ++ei)
+        ungroup(g, pmath_expr_get_item(box, ei));
         
     AFTER_UNGROUP:
       g->spans->items[start] |= 2; // operand start
@@ -2592,6 +2592,7 @@ static void ungroup(
         pmath_unref(first);
         
         if(!old || old->end != g->pos - 1) {
+          int i;
         
           pmath_bool_t have_mutliple_tokens = FALSE;
           for(i = start; i < g->pos - 1; ++i) {
