@@ -269,7 +269,7 @@ static void debug_print_item(
   snprintf(
     info->index_info + index_info_start,
     info->index_info_length - index_info_start,
-    "[%" PRIx64 "]",
+    "[%" PRIxPTR "]",
     i);
 
   item = pmath_expr_get_item(obj, i);
