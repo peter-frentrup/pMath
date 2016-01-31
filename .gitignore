@@ -5,10 +5,12 @@
 *.depend
 *.pdb
 *.cbp.mak
+/library/.idea
 /library/bin
 /library/obj
 /library/tmp
 /library/Makefile
+/library/dependencies
 /library/console/bin
 /library/console/obj
 /library/test/bin
@@ -34,5 +36,4 @@
 /richmath/WINDOWSTEMPDIR_FONTCONFIG_CACHE
 
 /richmath/*.cscope_file_list
-/library/depencies
 *.bmarks
