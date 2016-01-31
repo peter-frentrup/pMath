@@ -1,5 +1,3 @@
-#define PMATH_DEBUG_LOG
-
 #include <pmath-util/evaluation.h>
 
 #include <pmath-core/expressions-private.h>
@@ -171,18 +169,7 @@ static pmath_expr_t evaluate_arguments(
   item = pmath_expr_get_item(expr, 1);
   
   if(!hold_first || pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
-    pmath_bool_t log_arg = pmath_is_expr_of(item, PMATH_SYMBOL_PLUS);
-    
-    if(log_arg) {
-      pmath_debug_print_object("[eval 1st arg ", item, "]\n");
-    }
-      
     item = evaluate(item, thread_ptr);
-    
-    if(log_arg) {
-      pmath_debug_print_object("[-> ", item, "]\n");
-    }
-      
     expr = pmath_expr_set_item(expr, 1, item);
   }
   else
@@ -454,11 +441,8 @@ static pmath_t evaluate_expression(
       exprlen = pmath_expr_length(expr);
     }
     
-    if(symmetric) {
-      pmath_debug_print_object("[pre eval sort ", expr, "]\n");
+    if(symmetric) 
       expr = pmath_expr_sort(expr);
-      pmath_debug_print_object("[pre eval sorted to ", expr, "]\n");
-    }
     
     if(apply_rules) {
       expr = evaluator_strip_unevaluated(

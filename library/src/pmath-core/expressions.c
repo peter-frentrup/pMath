@@ -1,5 +1,3 @@
-#define PMATH_DEBUG_LOG
-
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays-private.h>
@@ -1059,33 +1057,23 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
-    //pmath_t head = pmath_ref(expr_part_ptr->inherited.items[0]);
+    pmath_t head = pmath_ref(expr_part_ptr->inherited.items[0]);
     struct _pmath_expr_t *new_expr =
-      (void *)PMATH_AS_PTR(pmath_expr_new(PMATH_NULL, length));
+      (void *)PMATH_AS_PTR(pmath_expr_new(head, length));
       
     if(!new_expr) {
       pmath_unref(expr);
       return PMATH_NULL;
     }
     
-    pmath_debug_print_object("[sort copy of ", expr, "]\n");
-    
     switch(PMATH_AS_PTR(expr)->type_shift) {
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
-          pmath_debug_print("[sort copy: general expr length %"PRIuPTR"]\n", length);
-          
-          for(i = 0; i <= length; i++) {
-            pmath_debug_print("  [copy item # %"PRIuPTR" of %"PRIuPTR" %s]\n", 
-              i, 
-              length,
-              i <= length ? "ok" : "wtf");
+          for(i = 1; i <= length; i++) {
             new_expr->items[i] = pmath_ref(expr_part_ptr->inherited.items[i]);
           }
         } break;
         
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-          new_expr->items[0] = pmath_ref(expr_part_ptr->inherited.items[0]);
-          
           for(i = 1; i <= length; i++)
             new_expr->items[i] = pmath_ref(
                                    expr_part_ptr->buffer->items[expr_part_ptr->start + i - 1]);
@@ -1095,18 +1083,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
         assert("invalid expression type" && 0);
     }
     
-    pmath_debug_print("[delete old expr]\n");
-    
     pmath_unref(expr);
     expr = PMATH_FROM_PTR(new_expr);
     expr_part_ptr = (void *)new_expr;
-    
-    pmath_debug_print_object("[copied to ", expr, "]\n");
-    
   }
   else {
-    pmath_debug_print_object("[inline sort ", expr, "]\n");
-    
     touch_expr(&expr_part_ptr->inherited);
   }
   
@@ -1165,8 +1146,9 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
+    pmath_t head = pmath_ref(expr_part_ptr->inherited.items[0]);
     struct _pmath_expr_t *new_expr =
-      (void *)PMATH_AS_PTR(pmath_expr_new(PMATH_NULL, length));
+      (void *)PMATH_AS_PTR(pmath_expr_new(head, length));
       
     if(!new_expr) {
       pmath_unref(expr);
@@ -1175,14 +1157,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
     
     switch(PMATH_AS_PTR(expr)->type_shift) {
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
-          size_t i;
-          for(i = 0; i <= length; i++)
+          for(i = 1; i <= length; i++)
             new_expr->items[i] = pmath_ref(expr_part_ptr->inherited.items[i]);
         } break;
         
       case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-          new_expr->items[0] = pmath_ref(expr_part_ptr->inherited.items[0]);
-          
           for(i = 1; i <= length; i++)
             new_expr->items[i] = pmath_ref(
                                    expr_part_ptr->buffer->items[expr_part_ptr->start + i - 1]);
