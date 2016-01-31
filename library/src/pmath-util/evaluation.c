@@ -169,10 +169,13 @@ static pmath_expr_t evaluate_arguments(
   item = pmath_expr_get_item(expr, 1);
   
   if(!hold_first || pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
+    pmath_unref(item);
+    item = pmath_expr_extract_item(expr, 1);
+    
     item = evaluate(item, thread_ptr);
     expr = pmath_expr_set_item(expr, 1, item);
   }
-  else
+  else 
     pmath_unref(item);
     
   if(hold_rest) {
@@ -189,7 +192,7 @@ static pmath_expr_t evaluate_arguments(
   }
   else {
     for(i = 2; i <= exprlen; ++i) {
-      item = pmath_expr_get_item(expr, i);
+      item = pmath_expr_extract_item(expr, i);
       item = evaluate(item, thread_ptr);
       expr = pmath_expr_set_item(expr, i, item);
     }
