@@ -49,23 +49,21 @@
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
-					<Add library="mpfi" />
-					<Add library="mpfr" />
-					<Add library="mpir" />
-					<Add library="iconv" />
-					<Add library="pcre16" />
+					<Add option='&quot;$(#mpfi_32.bin)/mpfi.dll&quot;' />
+					<Add option='&quot;$(#mpfr_32.bin)/mpfr.dll&quot;' />
+					<Add option='&quot;$(#gmp_32.bin)/mpir.dll&quot;' />
+					<Add option='&quot;$(#iconv_32.bin)/iconv.dll&quot;' />
+					<Add option='&quot;$(#pcre_32.bin)/pcre16.dll&quot;' />
+					<Add option='&quot;$(#zlib_32.bin)/zlib.dll&quot;' />
 					<Add library="shell32" />
-					<Add library="zdll" />
-					<Add library="mpfi-globals" />
-					<Add library="mpir-globals" />
-					<Add directory="$(#gmp_32.lib)" />
-					<Add directory="$(#mpfr_32.lib)" />
-					<Add directory="$(#mpfi_32.lib)" />
-					<Add directory="$(#pcre_32.lib)" />
-					<Add directory="$(#iconv_32.lib)" />
-					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat gcc-debug-x86 x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -73,7 +71,7 @@
 			<Target title="Windows-GCC-Release-x86">
 				<Option platforms="Windows;" />
 				<Option output="bin/windows/gcc-release-x86/pmath" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/windows/release/" />
+				<Option object_output="obj/windows/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="console/bin/windows/gcc-release-x86/pmathc.exe" />
@@ -81,8 +79,9 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />
+					<Add option="-flto" />
+					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
@@ -109,23 +108,137 @@
 					<Add option="-static-libgcc" />
 					<Add option="-flto" />
 					<Add option="-O3" />
-					<Add library="mpfi" />
-					<Add library="mpfr" />
-					<Add library="mpir" />
-					<Add library="iconv" />
-					<Add library="pcre16" />
+					<Add option='&quot;$(#mpfi_32.bin)/mpfi.dll&quot;' />
+					<Add option='&quot;$(#mpfr_32.bin)/mpfr.dll&quot;' />
+					<Add option='&quot;$(#gmp_32.bin)/mpir.dll&quot;' />
+					<Add option='&quot;$(#iconv_32.bin)/iconv.dll&quot;' />
+					<Add option='&quot;$(#pcre_32.bin)/pcre16.dll&quot;' />
+					<Add option='&quot;$(#zlib_32.bin)/zlib.dll&quot;' />
 					<Add library="shell32" />
-					<Add library="zdll" />
-					<Add library="mpfi-globals" />
-					<Add library="mpir-globals" />
-					<Add directory="$(#gmp_32.lib)" />
-					<Add directory="$(#mpfr_32.lib)" />
-					<Add directory="$(#mpfi_32.lib)" />
-					<Add directory="$(#pcre_32.lib)" />
-					<Add directory="$(#iconv_32.lib)" />
-					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after="post-build-windows.bat gcc-release-x86 x86" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Windows-GCC-Debug-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/gcc-debug-x64/pmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/gcc-debug-x64/" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_x64_compiler" />
+				<Option host_application="console/bin/windows/gcc-debug-x86/pmathc.exe" />
+				<Option run_host_application_in_terminal="0" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-Wundef" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-Wno-unused-parameter" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+					<Add option="-Wno-unknown-pragmas" />
+					<Add option="-Wno-undef" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DPMATH_DEBUG_MEMORY" />
+					<Add option="-DPMATH_DEBUG_TESTS" />
+					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
+					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
+					<Add option="-D__GMP_LIBGMP_DLL=1" />
+					<Add directory="$(#gmp_64.include)" />
+					<Add directory="$(#mpfr_64.include)" />
+					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#pcre_64.include)" />
+					<Add directory="$(#iconv_64.include)" />
+					<Add directory="$(#zlib_64.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#mpfi_64.bin)/mpfi.dll&quot;' />
+					<Add option='&quot;$(#mpfr_64.bin)/mpfr.dll&quot;' />
+					<Add option='&quot;$(#gmp_64.bin)/mpir.dll&quot;' />
+					<Add option='&quot;$(#iconv_64.bin)/iconv.dll&quot;' />
+					<Add option='&quot;$(#pcre_64.bin)/pcre16.dll&quot;' />
+					<Add option='&quot;$(#zlib_64.bin)/zlib.dll&quot;' />
+					<Add library="shell32" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after="post-build-windows.bat gcc-debug-x86 x86" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Windows-GCC-Release-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/gcc-release-x64/pmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/gcc-release-x64/" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_x64_compiler" />
+				<Option host_application="console/bin/windows/gcc-release-x86/pmathc.exe" />
+				<Option run_host_application_in_terminal="0" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-flto" />
+					<Add option="-O3" />
+					<Add option="-Wundef" />
+					<Add option="-Winline" />
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-Wno-unused-parameter" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+					<Add option="-Wno-unknown-pragmas" />
+					<Add option="-Wno-undef" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DPMATH_USE_WINDOWS_THREADS=1" />
+					<Add option="-D__GMP_LIBGMP_DLL=1" />
+					<Add directory="$(#gmp_64.include)" />
+					<Add directory="$(#mpfr_64.include)" />
+					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#pcre_64.include)" />
+					<Add directory="$(#iconv_64.include)" />
+					<Add directory="$(#zlib_64.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libgcc" />
+					<Add option="-flto" />
+					<Add option="-O3" />
+					<Add option='&quot;$(#mpfi_64.bin)/mpfi.dll&quot;' />
+					<Add option='&quot;$(#mpfr_64.bin)/mpfr.dll&quot;' />
+					<Add option='&quot;$(#gmp_64.bin)/mpir.dll&quot;' />
+					<Add option='&quot;$(#iconv_64.bin)/iconv.dll&quot;' />
+					<Add option='&quot;$(#pcre_64.bin)/pcre16.dll&quot;' />
+					<Add option='&quot;$(#zlib_64.bin)/zlib.dll&quot;' />
+					<Add library="shell32" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat gcc-release-x86 x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -180,6 +293,12 @@
 					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat msvc-debug-x86 x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -229,6 +348,12 @@
 					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
+					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat msvc-release-x86 x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -363,7 +488,6 @@
 				<Compiler>
 					<Add option="-O3" />
 					<Add option="-Wall" />
-					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />
@@ -416,7 +540,6 @@
 				<Compiler>
 					<Add option="-O3" />
 					<Add option="-Wall" />
-					<Add option="-march=pentium4" />
 					<Add option="-march=i686" />
 					<Add option="-Wundef" />
 					<Add option="-Winline" />

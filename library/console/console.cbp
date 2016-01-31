@@ -24,7 +24,7 @@
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
-					<Add directory="../bin/windows/gcc-debug-x86" />
+					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-GCC-Release-x86">
@@ -47,7 +47,7 @@
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
-					<Add directory="../bin/windows/gcc-release-x86" />
+					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC-Debug-x86">
@@ -71,7 +71,7 @@
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
-					<Add directory="../bin/windows/msvc-debug-x86" />
+					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC-Release-x86">
@@ -98,7 +98,7 @@
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
-					<Add directory="../bin/windows/msvc-release-x86" />
+					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC-Debug-x64">
@@ -122,7 +122,7 @@
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
-					<Add directory="../bin/windows/msvc-debug-x64" />
+					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC-Release-x64">
@@ -161,7 +161,7 @@
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
 					<Add library="edit" />
-					<Add directory="../bin/linux/gcc-debug-x86" />
+					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x64" />
