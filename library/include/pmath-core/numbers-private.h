@@ -10,25 +10,34 @@
 #include <float.h>
 #include <math.h>
 
+
+#ifdef PMATH_OS_WIN32
+// Needed by mpir/gmp to use dllimport declarations
+#  define MSC_USE_DLL
+#endif
+
 #pragma warning(push)
 // In mpz_get_ui(): Converting 'mp_limb_t' to 'unsigned long': possible data loss.
 #  pragma warning(disable: 4244)
 #  include <gmp.h>
 #pragma warning(pop)
 
+
 #include <mpfr.h>
 
 
 #ifdef PMATH_OS_WIN32
-#  define exp2(x)      pow(2, x)
-#  define log2(x)      (log(x)/M_LN2)
-#  define round(x)     floor((x) + 0.5)
+//#  define exp2(x)      pow(2, x)
+//#  define log2(x)      (log(x)/M_LN2)
+//#  define round(x)     floor((x) + 0.5)
 
 #  ifndef isfinite
+#    warning "isfinite not defined"
 #    define isfinite(x)  _finite(x)
 #  endif
 
 #  ifndef isnan
+#    warning "isnan not defined"
 #    define isnan(x)  _isnan(x)
 #  endif
 #elif defined(sun) || defined(__sun)
@@ -47,14 +56,16 @@
 #endif
 
 #ifndef M_PI
+#  warning "M_PI not defined"
 #  define M_PI    3.14159265358979323846
 #endif
 
 #ifndef M_E
+#  warning "M_E not defined"
 #  define M_E   2.7182818284590452354
 #endif
 
-#define LOGE_2    0.69314718055994530941723212145818
+#define LOGE_2    0.69314718055994530941723212145818 // consider using M_LN2 ?
 #define LOG2_10   3.3219280948873623478703194294894
 #define LOG10_2   0.30102999566398119521373889472449
 
