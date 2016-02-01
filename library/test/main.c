@@ -101,7 +101,7 @@ static pmath_string_t read_line(FILE *file) {
   char buf[512];
   
   while(fgets(buf, sizeof(buf), file) != NULL) {
-    int len = strlen(buf);
+    int len = (int)strlen(buf);
     
     if(buf[len - 1] == '\n') {
       if(len == 1)
@@ -138,26 +138,37 @@ static void _pmath_write_cstr(FILE *file, const char *cstr) {
 
 static pmath_threadlock_t print_lock = NULL;
 
-static void write_output_locked_callback(void *_obj) {
+struct write_output_t {
+  pmath_t object;
+  const char *indent;
+};
+
+static void write_output_locked_callback(void *_context) {
   pmath_cstr_writer_info_t info;
-  pmath_t obj = *(pmath_t *)_obj;
-  int i;
+  struct write_output_t *context = _context;
+  int indent_length;
   
   info.user = stdout;
   info._pmath_write_cstr = (void ( *)(void *, const char *))_pmath_write_cstr;
   
-  i = dialog_depth;
-  while(i-- > 0)
+  indent_length = dialog_depth;
+  while(indent_length-- > 0)
     printf(" ");
-  printf("       ");
+  printf("%s", context->indent);
+  
+  indent_length = 0;
+  while(indent_length <= console_width / 2 && context->indent[indent_length])
+    ++indent_length;
+  
+  indent_length+= dialog_depth;
   
   pmath_write_with_pagewidth(
-    obj,
+    context->object,
     0,
     pmath_native_writer,
     &info,
-    console_width - (7 + dialog_depth),
-    7 + dialog_depth);
+    console_width - indent_length,
+    indent_length);
   printf("\n");
   fflush(stdout);
 }
@@ -175,11 +186,16 @@ static void indent_locked_callback(void *s) {
   fflush(stdout);
 }
 
-static void write_output(pmath_t obj) {
+static void write_output(const char *indent, pmath_t obj) {
+  struct write_output_t context;
+  
+  context.object = obj;
+  context.indent = indent ? indent : "";
+  
   pmath_thread_call_locked(
     &print_lock,
     write_output_locked_callback,
-    &obj);
+    &context);
 }
 
 static void write_line(const char *s) {
@@ -457,7 +473,7 @@ static pmath_t dialog(pmath_t first_eval) {
             result = PMATH_NULL;
           }
           
-          write_output(obj);
+          write_output("       ", obj);
         }
         
         pmath_unref(obj);
@@ -592,8 +608,7 @@ static void interrupt_callback(void *dummy) {
     }
     
     if(pmath_string_length(word) > 0) {
-      write_line("unknown command: ");
-      write_output(word);
+      write_output("unknown command: ", word);
     }
     
     write_line(
@@ -669,13 +684,11 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   if(pmath_expr_length(expr) < 2)
     return expr;
     
-  ++dialog_depth;
-  
   if(pmath_expr_length(expr) == 2) {
     pmath_t item = pmath_expr_get_item(expr, 2);
     pmath_unref(expr);
     
-    write_output(item);
+    write_output("", item);
     pmath_unref(item);
   }
   else {
@@ -685,11 +698,9 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_LIST));
     row = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 1, row);
     
-    write_output(row);
+    write_output("", row);
     pmath_unref(row);
   }
-  
-  --dialog_depth;
   
   write_line("\n");
   return PMATH_NULL;
