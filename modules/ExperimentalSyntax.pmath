@@ -1,0 +1,262 @@
+%
+% Experimental syntax simplififcations.
+%
+% Reading and writing deeply nested expression trees (esp. nested With(...)) is hard. Espacially
+% imperative definitions are hard to read because one can easily overlook a comma or miscount 
+% parenthesis.
+% This file enhances the pMath syntax with some syntactic suggar for With, Local, If, Do, While, 
+% and related functions. This is highly experimental. Especially the performance impact on 
+% MakeExpression needs to be investigated.
+%
+% These syntax enhancements are only active while ExperimentalSyntax` is in the current 
+% $NamespacePath. So any package may include <<ExperimentalSyntax` without breaking other packages.
+%
+% Note that there must be no space before "(" and no line-break before "{". Also, the braces around
+% blocks are mandatory. If ever mixed within (mathematical) expressions, these constructs should
+% be placed in parenthesis.
+% The reason is that inter-operand whitespace is treated by the internal parser (StringToBoxes) as 
+% implicit multiplication.
+%
+% Note that ToString/ToBoxes of expressions involving unevaluated products of Lists will not be 
+% reparsed correctly when used in strange combination with the With/If/... functions.
+% Example: Hold(If(a,b,c) * {1,2,3})
+% This could be fixed by letting ToString/ToBoxes insert "*" or "\[Times]" instead of the 
+% implicit " " in front of opening braces, the same way they do it with opening parenthesis.
+%
+%
+% Supported syntax additions are
+% Conditional constructs:
+%	If(cond1) {
+%		block1
+%	} Else If(cond2) {
+%		block2
+%	} Else {
+%		block3
+%	}
+%
+%	Switch(expr) {
+%		Case(pat1) {
+%			block1
+%		}
+%		Case(pat2) {
+%			block2
+%		}
+%	}
+%
+% Looping constructs:
+%	While(cond) {
+%		block
+%	}
+%
+%	Do(i->1..3) {
+%		block
+%	}
+%
+% Scoping constructs:
+%	With(vars) {
+%		block
+%	}
+%
+%	Local(vars) {
+%		block
+%	}
+%
+% There is also a form to force parsing in block mode (because `{block}` alone gives a list).
+%	Block {
+%		block
+%	}
+%
+% Defining functions also has a new syntax
+%	Function name(~arg) {
+%		body
+%	}
+%
+%
+% Moreover, within such a `block`, automatic scope nesting is applied
+%	Do(1) {
+%		Print(x)
+%		With(x:= 5)
+%		Finally(Print("last A"))
+%		Finally(Print("last B"))
+%		Print(x, " ", y);
+%		Local(y, z:= 7)
+%		Print(y, " ", z)
+%	}
+%
+BeginPackage("ExperimentalSyntax`")
+
+Begin("ExperimentalSyntax`Private`")
+
+
+%
+% Experimental syntax is only active if ExperimentalSyntax` is in current namespace path.
+%
+$HaveExperimentalSyntax::= $Namespace === "ExperimentalSyntax`" || !$NamespacePath.IsFreeOf("ExperimentalSyntax`")
+Protect($HaveExperimentalSyntax)
+
+%
+% Copied from auto/core/graphics/init.pmath
+%
+composeHeldExpr(~sym, HoldComplete(~~~a))::= 
+	HoldComplete(sym(a))
+composeHeldExpr(~sym, HoldComplete(~~~a), HoldComplete(~~~b), ~~~c:HoldComplete)::=
+	composeHeldExpr(sym, HoldComplete(a,b), c)
+composeHeldExpr(~~~):= $Failed
+
+
+debugEcho(~x)::= (Print(x); x)
+debugEcho(~x, ~label)::= (Print(label, x); x)
+debugEcho(~x, ~label, ~f)::= (Print(label, f(x)); x)
+debugEchoFunction(~~~args)(~x)::= debugEcho(x, args)
+
+Unprotect(MakeExpression)
+
+
+%
+% converting `a; With(vars); b; With(more); c` to `a; With({vars}, b; With({more}, c))` and more.
+%
+convertHeldBlock(HoldComplete())::= HoldComplete(/\/)
+convertHeldBlock(~heldEvalSequence)::=
+	heldEvalSequence.ReplaceRepeated({
+		HoldPattern(~~~start; With(~~vars); ~~~rest) :> (start; WITH({vars}, rest)),
+		HoldPattern(~~~start; Local(~~vars); ~~rest) :> (start; LOCAL({vars}, rest)),
+		HoldPattern(~~~start; Finally(~end); ~~rest) :> (start; FINALLY(rest, end)),
+		HoldPattern(~~~start; {~more;~~~middle}; ~~~rest) :> (start; more; middle; rest),
+		HoldPattern(~~~start; {~middle}; ~~~rest) :> (start; middle; rest)
+	},
+	1).Replace({WITH -> With, LOCAL -> Local, FINALLY -> Finally}, Heads->True)
+
+makeBlockExpression()::= HoldComplete(/\/)
+makeBlockExpression({})::= HoldComplete(/\/)
+makeBlockExpression(~blockBoxes)::= convertHeldBlock @ MakeExpression @ blockBoxes
+
+%
+% TODO: flag an error in `If(a,b) {body}` instead of silently interpreting as `If(a && b) {body}`
+%
+asHeldCondition(p: HoldComplete(~))::= p
+asHeldCondition(p: HoldComplete(~~~))::= 
+	composeHeldExpr(And, p)
+
+asHeldSwitchExpression(p: HoldComplete(~))::= p
+asHeldSwitchExpression(p: HoldComplete(~~~))::= 
+	composeHeldExpr(/\/, p)
+
+
+%
+% Function name(~arg) { body }
+%
+% TODO (?): Use `Function name(arg1, arg2) {body}` instead of patterns and check that only plain 
+% symbols are used.
+% TODO: support type annotations, for example `Function add(x -> Real, y -> Real) -> Real { x+y }`
+% Caution, ` ` binds stronger than `->`:       \________________________________/    \__________/
+%
+MakeExpression({"Function", lhs: {~:String, "(", ~~~}, {"{", ~body, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		AssignDelayed,
+		MakeExpression(lhs),
+		makeBlockExpression(body))
+
+
+%
+% If(cond) {trueBlock}
+%
+MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		If,
+		asHeldCondition @ MakeExpression(cond),
+		makeBlockExpression(trueBlock))
+
+%
+% If(cond) {trueBlock} Else {falseBlock}
+%
+MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", {"{", ?falseBlock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		If,
+		asHeldCondition @ MakeExpression(cond),
+		makeBlockExpression(trueBlock),
+		makeBlockExpression(falseBlock))
+
+%
+% If(cond) {trueBlock} Else If(cond2) ...
+%
+MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", rest: PatternSequence({"If", "(", ~, ")"}, ~~)}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		If,
+		asHeldCondition @ MakeExpression(cond),
+		makeBlockExpression(trueBlock),
+		MakeExpression({rest}))
+
+%
+% Switch(expr) {Case(pat1) {block1} \[RawNewline] Case(pat2) {block2}  Case(pat3) {block3}}
+%
+getSwitchCases({})::= HoldComplete()
+getSwitchCases({"\[RawNewline]"***, ~inner:List})::= getSwitchCases(inner)
+getSwitchCases({{"Case", "(", ~pattern, ")"}, {"{", ~block, "}"}, ~~~more})::=
+	Join(
+		First @ composeHeldExpr(
+			HoldComplete,
+			asHeldSwitchExpression @ MakeExpression(pattern),
+			makeBlockExpression(block)),
+		getSwitchCases({more}))
+getSwitchCases({~case, "\[RawNewline]", ~~~more})::= Join(getSwitchCases(case), getSwitchCases({more}))
+getSwitchCases(~other)::= (
+	Message(Syntax::switchcase, other)
+	HoldComplete()
+	)
+MakeExpression({{"Switch", "(", ~expr, ")"}, {"{", ?cases:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		Switch,
+		asHeldSwitchExpression @ MakeExpression(expr),
+		getSwitchCases({cases}))
+
+
+%
+% While(cond) { block } 
+%
+MakeExpression({{"While", "(", ~cond, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		While
+		asHeldCondition @ MakeExpression(cond),
+		makeBlockExpression(block))
+
+%
+% Do(iter) { block } 
+%
+MakeExpression({{"Do", "(", ~iter, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		Do,
+		makeBlockExpression(block)
+		MakeExpression(iter))
+
+%
+% Block { block } 
+%
+MakeExpression({"Block", {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	makeBlockExpression(block)
+
+%
+% Local(vars) { block } 
+%
+MakeExpression({{"With", "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		Local
+		MakeExpression({"{", vars, "}"}),
+		makeBlockExpression(block))
+
+%
+% With(vars) { block } 
+%
+MakeExpression({{"With", "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		With
+		MakeExpression({"{", vars, "}"}),
+		makeBlockExpression(block))
+
+
+
+Protect(MakeExpression)
+
+
+End()
+
+EndPackage()
