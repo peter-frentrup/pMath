@@ -2331,6 +2331,7 @@ static void product_writer(
     if( i < len &&
         (data[i] == '(' ||
          data[i] == '[' ||
+         data[i] == '{' ||
          data[i] == '.'))
     {
       _pmath_write_cstr("*", hook->next->write, hook->next->user);

@@ -17,11 +17,11 @@
 % The reason is that inter-operand whitespace is treated by the internal parser (StringToBoxes) as 
 % implicit multiplication.
 %
-% Note that ToString/ToBoxes of expressions involving unevaluated products of Lists will not be 
+% Note that ToBoxes() of expressions involving unevaluated products of Lists will not be 
 % reparsed correctly when used in strange combination with the With/If/... functions.
 % Example: Hold(If(a,b,c) * {1,2,3})
-% This could be fixed by letting ToString/ToBoxes insert "*" or "\[Times]" instead of the 
-% implicit " " in front of opening braces, the same way they do it with opening parenthesis.
+% This could be fixed by letting ToBoxes() insert "*" or "\[Times]" or "\[InvisibleTimes]" instead 
+% of the implicit " " in front of opening braces, the same way they do it with opening parenthesis.
 %
 %
 % Supported syntax additions are
