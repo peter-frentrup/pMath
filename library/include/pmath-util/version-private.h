@@ -2,7 +2,7 @@
 #define __PMATH_UTIL__VERSION_PRIVATE_H__
 
 	//Date Version Types
-	static const char _PMATH_VERSION_DATE[] = "12";
+	static const char _PMATH_VERSION_DATE[] = "13";
 	static const char _PMATH_VERSION_MONTH[] = "03";
 	static const char _PMATH_VERSION_YEAR[] = "2016";
 	static const char _PMATH_VERSION_UBUNTU_VERSION_STYLE[] =  "16.03";
@@ -18,7 +18,7 @@
 	static const long _PMATH_VERSION_REVISION  = 914;
 	
 	//Miscellaneous Version Types
-	static const long _PMATH_VERSION_BUILDS_COUNT  = 618;
+	static const long _PMATH_VERSION_BUILDS_COUNT  = 619;
 	#define _PMATH_VERSION_RC_FILEVERSION 0,5,506,914
 	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 5, 506, 914\0"
 	static const char _PMATH_VERSION_FULLVERSION_STRING [] = "0.5.506.914";

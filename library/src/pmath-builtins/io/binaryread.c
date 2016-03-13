@@ -1,7 +1,11 @@
 #include <pmath-builtins/io-private.h>
 
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-language/scanner.h>
+
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files.h>
 #include <pmath-util/helpers.h>
@@ -12,6 +16,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/control-private.h>
+
+
+#define MIN(A, B)  ((A) < (B) ? (A) : (B))
 
 
 PMATH_PRIVATE int _pmath_get_byte_ordering(pmath_t head, pmath_expr_t options) {
@@ -85,7 +92,7 @@ enum simple_binary_type_t {
   TYPE_COMPLEX // size: 4, 8, 16, 32
 };
 
-static enum simple_binary_type_t as_simple_binary_type(pmath_string_t name, size_t *size) {
+static enum simple_binary_type_t as_simple_binary_type(pmath_t name, size_t *size) {
   assert(size != NULL);
   
   if(pmath_is_null(name)) {
@@ -93,98 +100,98 @@ static enum simple_binary_type_t as_simple_binary_type(pmath_string_t name, size
     return TYPE_UINT;
   }
   
-  assert(pmath_is_string(name));
-  
-  if( pmath_string_equals_latin1(name, "Byte") ||
-      pmath_string_equals_latin1(name, "UnsignedInteger8"))
-  {
-    *size = 1;
-    return TYPE_UINT;
-  }
-  
-  if(pmath_string_equals_latin1(name, "Integer8")) {
-    *size = 1;
-    return TYPE_INT;
-  }
-  else if(pmath_string_equals_latin1(name, "UnsignedInteger16")) {
-    *size = 2;
-    return TYPE_UINT;
-  }
-  else if(pmath_string_equals_latin1(name, "Integer16")) {
-    *size = 2;
-    return TYPE_INT;
-  }
-  else if(pmath_string_equals_latin1(name, "UnsignedInteger24")) {
-    *size = 3;
-    return TYPE_UINT;
-  }
-  else if(pmath_string_equals_latin1(name, "Integer24")) {
-    *size = 3;
-    return TYPE_INT;
-  }
-  else if(pmath_string_equals_latin1(name, "UnsignedInteger32")) {
-    *size = 4;
-    return TYPE_UINT;
-  }
-  else if(pmath_string_equals_latin1(name, "Integer32")) {
-    *size = 4;
-    return TYPE_INT;
-  }
-  else if(pmath_string_equals_latin1(name, "UnsignedInteger64")) {
-    *size = 8;
-    return TYPE_UINT;
-  }
-  else if(pmath_string_equals_latin1(name, "Integer64")) {
-    *size = 8;
-    return TYPE_INT;
-  }
-  else if(pmath_string_equals_latin1(name, "UnsignedInteger128")) {
-    *size = 16;
-    return TYPE_UINT;
-  }
-  else if(pmath_string_equals_latin1(name, "Integer128")) {
-    *size = 16;
-    return TYPE_INT;
-  }
-  else if(pmath_string_equals_latin1(name, "Character8")) {
-    *size = 1;
-    return TYPE_CHAR;
-  }
-  else if(pmath_string_equals_latin1(name, "Character16")) {
-    *size = 2;
-    return TYPE_CHAR;
-  }
-  else if(pmath_string_equals_latin1(name, "Real16")) {
-    *size = 2;
-    return TYPE_REAL;
-  }
-  else if(pmath_string_equals_latin1(name, "Real32")) {
-    *size = 4;
-    return TYPE_REAL;
-  }
-  else if(pmath_string_equals_latin1(name, "Real64")) {
-    *size = 8;
-    return TYPE_REAL;
-  }
-  else if(pmath_string_equals_latin1(name, "Real128")) {
-    *size = 16;
-    return TYPE_REAL;
-  }
-  else if(pmath_string_equals_latin1(name, "Complex32")) {
-    *size = 4;
-    return TYPE_COMPLEX;
-  }
-  else if(pmath_string_equals_latin1(name, "Complex64")) {
-    *size = 8;
-    return TYPE_COMPLEX;
-  }
-  else if(pmath_string_equals_latin1(name, "Complex128")) {
-    *size = 16;
-    return TYPE_COMPLEX;
-  }
-  else if(pmath_string_equals_latin1(name, "Complex256")) {
-    *size = 32;
-    return TYPE_COMPLEX;
+  if(pmath_is_string(name)) {
+    if( pmath_string_equals_latin1(name, "Byte") ||
+        pmath_string_equals_latin1(name, "UnsignedInteger8"))
+    {
+      *size = 1;
+      return TYPE_UINT;
+    }
+    
+    if(pmath_string_equals_latin1(name, "Integer8")) {
+      *size = 1;
+      return TYPE_INT;
+    }
+    else if(pmath_string_equals_latin1(name, "UnsignedInteger16")) {
+      *size = 2;
+      return TYPE_UINT;
+    }
+    else if(pmath_string_equals_latin1(name, "Integer16")) {
+      *size = 2;
+      return TYPE_INT;
+    }
+    else if(pmath_string_equals_latin1(name, "UnsignedInteger24")) {
+      *size = 3;
+      return TYPE_UINT;
+    }
+    else if(pmath_string_equals_latin1(name, "Integer24")) {
+      *size = 3;
+      return TYPE_INT;
+    }
+    else if(pmath_string_equals_latin1(name, "UnsignedInteger32")) {
+      *size = 4;
+      return TYPE_UINT;
+    }
+    else if(pmath_string_equals_latin1(name, "Integer32")) {
+      *size = 4;
+      return TYPE_INT;
+    }
+    else if(pmath_string_equals_latin1(name, "UnsignedInteger64")) {
+      *size = 8;
+      return TYPE_UINT;
+    }
+    else if(pmath_string_equals_latin1(name, "Integer64")) {
+      *size = 8;
+      return TYPE_INT;
+    }
+    else if(pmath_string_equals_latin1(name, "UnsignedInteger128")) {
+      *size = 16;
+      return TYPE_UINT;
+    }
+    else if(pmath_string_equals_latin1(name, "Integer128")) {
+      *size = 16;
+      return TYPE_INT;
+    }
+    else if(pmath_string_equals_latin1(name, "Character8")) {
+      *size = 1;
+      return TYPE_CHAR;
+    }
+    else if(pmath_string_equals_latin1(name, "Character16")) {
+      *size = 2;
+      return TYPE_CHAR;
+    }
+    else if(pmath_string_equals_latin1(name, "Real16")) {
+      *size = 2;
+      return TYPE_REAL;
+    }
+    else if(pmath_string_equals_latin1(name, "Real32")) {
+      *size = 4;
+      return TYPE_REAL;
+    }
+    else if(pmath_string_equals_latin1(name, "Real64")) {
+      *size = 8;
+      return TYPE_REAL;
+    }
+    else if(pmath_string_equals_latin1(name, "Real128")) {
+      *size = 16;
+      return TYPE_REAL;
+    }
+    else if(pmath_string_equals_latin1(name, "Complex32")) {
+      *size = 4;
+      return TYPE_COMPLEX;
+    }
+    else if(pmath_string_equals_latin1(name, "Complex64")) {
+      *size = 8;
+      return TYPE_COMPLEX;
+    }
+    else if(pmath_string_equals_latin1(name, "Complex128")) {
+      *size = 16;
+      return TYPE_COMPLEX;
+    }
+    else if(pmath_string_equals_latin1(name, "Complex256")) {
+      *size = 32;
+      return TYPE_COMPLEX;
+    }
   }
   
   *size = 0;
@@ -667,15 +674,12 @@ PMATH_PRIVATE pmath_t builtin_binaryread(pmath_expr_t expr) {
     return expr;
   }
 
-  {
-    byte_ordering = _pmath_get_byte_ordering(PMATH_NULL, options);
-
-    if(!byte_ordering) {
-      pmath_unref(expr);
-      pmath_unref(type);
-      pmath_unref(options);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
+  byte_ordering = _pmath_get_byte_ordering(PMATH_NULL, options);
+  if(!byte_ordering) {
+    pmath_unref(expr);
+    pmath_unref(type);
+    pmath_unref(options);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
   }
 
   file = pmath_expr_get_item(expr, 1);
@@ -698,4 +702,152 @@ PMATH_PRIVATE pmath_t builtin_binaryread(pmath_expr_t expr) {
 
   pmath_unref(file);
   return type;
+}
+
+static pmath_t binary_read_list(
+  pmath_t file, // won't be freed
+  pmath_t type, // won't be freed
+  size_t count, 
+  int byte_ordering
+) {
+  size_t item_size;
+  enum simple_binary_type_t simple_type;
+  pmath_expr_t result;
+  pmath_t item;
+  size_t min_chunk = 128;
+  size_t i;
+  size_t length;
+  
+  assert(byte_ordering == +1 || byte_ordering == -1);
+  
+  if(count == 0 || pmath_file_status(file) != PMATH_FILE_OK) {
+    // TODO: check that `type` is valid anyways.
+    return pmath_ref(_pmath_object_emptylist);
+  }
+  
+  simple_type = as_simple_binary_type(type, &item_size);
+//  if(simple_type != TYPE_NONE) {
+//    uint8_t buf[1024];
+//    
+//    assert(item_size > 0);
+//    assert(item_size <= sizeof(buf));
+//    assert(sizeof(buf) % item_size == 0);
+//    
+//    
+//  }
+  
+  item = pmath_ref(type);
+  if(!binary_read(file, &item, byte_ordering)) {
+    return item; // $Failed
+  }
+  
+  length = MIN(count, 128);
+  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), length);
+  result = pmath_expr_set_item(result, 1, item);
+  
+  i = 1;
+  while(i < count && pmath_file_status(file) == PMATH_FILE_OK && !pmath_aborting()) {
+    if(i == length) {
+      length = MIN(count, length + 128);
+      result = pmath_expr_resize(result, length);
+    }
+    ++i;
+    
+    item = pmath_ref(type);
+    binary_read(file, &item, byte_ordering);
+    result = pmath_expr_set_item(result, i, item);
+  }
+  
+  result = pmath_expr_resize(result, i);
+  return result;
+}
+
+PMATH_PRIVATE pmath_t builtin_binaryreadlist(pmath_expr_t expr) {
+  /* BinaryReadList(file, type, n)
+     BinaryReadList(file, type)    = BinaryReadList(file, type, Infinity)
+     BinaryReadList(file)          = BinaryReadList(file, "Byte", Infinity)
+     
+     ByteOrdering :> $ByteOrdering
+   */
+  pmath_expr_t options;
+  pmath_t file, type;
+  size_t last_nonoption;
+  int byte_ordering = 0;
+  size_t count = SIZE_MAX;
+
+  if(pmath_expr_length(expr) < 1) {
+    pmath_message_argxxx(0, 1, 3);
+    return expr;
+  }
+
+  type = pmath_expr_get_item(expr, 2);
+  if(pmath_is_null(type) || pmath_is_set_of_options(type)) {
+    pmath_unref(type);
+    type = PMATH_NULL;
+    last_nonoption = 1;
+  }
+  else {
+    pmath_t n = pmath_expr_get_item(expr, 3);
+    
+    if(pmath_is_null(n) || pmath_is_set_of_options(n)) {
+      last_nonoption = 2;
+    }
+    else {
+      last_nonoption = 3;
+      
+      if(pmath_is_int32(n) && PMATH_AS_INT32(n) >= 0) {
+        count = (size_t)PMATH_AS_INT32(n);
+      }
+      else if(!pmath_equals(n, _pmath_object_pos_infinity)) {
+        pmath_message(PMATH_NULL, "intnm", 2, PMATH_FROM_INT32(3), pmath_ref(expr));
+        
+        pmath_unref(n);
+        pmath_unref(type);
+        return expr;
+      }
+    }
+    
+    pmath_unref(n);
+  }
+  
+  options = pmath_options_extract(expr, last_nonoption);
+  if(pmath_is_null(options)) {
+    pmath_unref(type);
+    return expr;
+  }
+
+  byte_ordering = _pmath_get_byte_ordering(PMATH_NULL, options);
+  if(!byte_ordering) {
+    pmath_unref(expr);
+    pmath_unref(type);
+    pmath_unref(options);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+
+  file = pmath_expr_get_item(expr, 1);
+  if(pmath_is_string(file)) {
+    file = pmath_evaluate(pmath_parse_string_args(
+                            "Try(OpenRead(`1`, BinaryFormat->True))", "(o)", file));
+  }
+  
+  if(!_pmath_file_check(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
+    pmath_unref(file);
+    pmath_unref(type);
+    pmath_unref(expr);
+    pmath_unref(options);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+
+  if(byte_ordering == 0)
+    byte_ordering = PMATH_BYTE_ORDER;
+
+  pmath_unref(expr);
+  pmath_unref(options);
+
+  // locking?
+  expr = binary_read_list(file, type, count, byte_ordering);
+
+  pmath_unref(file);
+  pmath_unref(type);
+  return expr;
 }

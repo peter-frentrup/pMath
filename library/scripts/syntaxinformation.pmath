@@ -27,6 +27,7 @@
 {"BeginPackage", {"ArgumentCount" -> 1..2}},
 {"BernoulliB", {"ArgumentCount" -> 1..2}},
 {"BinaryRead", {"ArgumentCount" -> 1..2}},
+{"BinaryReadList", {"ArgumentCount" -> 1..3}},
 {"BinaryWrite", {"ArgumentCount" -> 1..2}},
 {"Binomial", {"ArgumentCount" -> 2}},
 {"BitAnd", {"ArgumentCount" -> 2..}},

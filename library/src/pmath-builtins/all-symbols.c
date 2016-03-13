@@ -271,6 +271,7 @@ PMATH_PRIVATE pmath_t builtin_developer_fileinformation(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_binaryread(                    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_binaryreadlist(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binarywrite(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_characters(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_close(                         pmath_expr_t expr);
@@ -757,6 +758,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_BERNOULLIB                       = NEW_SYSTEM_SYMBOL("BernoulliB"))
   VERIFY(   PMATH_SYMBOL_BINARYFORMAT                     = NEW_SYSTEM_SYMBOL("BinaryFormat"))
   VERIFY(   PMATH_SYMBOL_BINARYREAD                       = NEW_SYSTEM_SYMBOL("BinaryRead"))
+  VERIFY(   PMATH_SYMBOL_BINARYREADLIST                   = NEW_SYSTEM_SYMBOL("BinaryReadList"))
   VERIFY(   PMATH_SYMBOL_BINARYWRITE                      = NEW_SYSTEM_SYMBOL("BinaryWrite"))
   VERIFY(   PMATH_SYMBOL_BINOMIAL                         = NEW_SYSTEM_SYMBOL("Binomial"))
   VERIFY(   PMATH_SYMBOL_BITAND                           = NEW_SYSTEM_SYMBOL("BitAnd"))
@@ -1573,6 +1575,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_BEGIN,                       builtin_begin)
   BIND_DOWN(   PMATH_SYMBOL_BEGINPACKAGE,                builtin_beginpackage)
   BIND_DOWN(   PMATH_SYMBOL_BINARYREAD,                  builtin_binaryread)
+  BIND_DOWN(   PMATH_SYMBOL_BINARYREADLIST,              builtin_binaryreadlist)
   BIND_DOWN(   PMATH_SYMBOL_BINARYWRITE,                 builtin_binarywrite)
   BIND_DOWN(   PMATH_SYMBOL_BINOMIAL,                    builtin_binomial)
   BIND_DOWN(   PMATH_SYMBOL_BITAND,                      builtin_bitand)

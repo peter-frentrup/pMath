@@ -823,7 +823,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "Options(ReplaceRepeated):="
           "Options(Scan):={Heads->False}");
           
-      PMATH_RUN("Options(BinaryRead):=Options(BinaryWrite):={"
+      PMATH_RUN("Options(BinaryRead):=Options(BinaryReadList):=Options(BinaryWrite):={"
           "ByteOrdering:>$ByteOrdering}");
           
       PMATH_RUN("Options(Button):={"
