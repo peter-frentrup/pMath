@@ -38,6 +38,24 @@
           </item>
           <item>
             <key>
+              <string>F</string>
+            </key>
+            <value>
+              <TagType>
+                <Description>Function</Description>
+                <BuildIn>false</BuildIn>
+                <RegexPatterns>
+                  <string>/^Function ([A-Z_a-z][A-Z_a-z0-9]*)(\(.*\).*)[[:blank:]]+\{/\1&#x2;signature:\2/F/e</string>
+                </RegexPatterns>
+                <Show>true</Show>
+                <TrackCaret>false</TrackCaret>
+                <IconFilename>c_method.png</IconFilename>
+                <ForeColor>-10944441</ForeColor>
+              </TagType>
+            </value>
+          </item>
+          <item>
+            <key>
               <string>f</string>
             </key>
             <value>
@@ -78,7 +96,7 @@
             </key>
             <value>
               <TagType>
-                <Description>New TagType [v]</Description>
+                <Description>Usage</Description>
                 <BuildIn>false</BuildIn>
                 <RegexPatterns>
                   <string>/^([$A-Z_a-z]?[A-Z_a-z0-9]*)::usage[[:blank:]]*:=/\1&#x2;signature:::usage/v/e</string>
