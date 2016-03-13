@@ -1302,7 +1302,7 @@ static void write_mp_float_ex(
   char *str;
   double prec2 = pmath_precision(pmath_ref(f)); // it is a prec2 here
   double base_prec;
-  pmath_bool_t allow_round_trip = 0 != (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR);
+  pmath_bool_t allow_round_trip = 0 != (info->options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR));
   pmath_bool_t exact_log2_base; // =0 if base is no power of 2, otherwise = log2(base)
   
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
