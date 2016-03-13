@@ -13,11 +13,11 @@
             <Keywords name="Numbers, suffix1"></Keywords>
             <Keywords name="Numbers, suffix2"></Keywords>
             <Keywords name="Numbers, range">..</Keywords>
-            <Keywords name="Operators1">::= :: := :&gt; : === =!= != = &lt;&lt; &lt;= &lt; &gt;= &gt; ?? ? /? /: /= / *= * -= -- -&gt; - += ++ + &apos; , .. . ; [ ] ^ ( ) { } @@ @ || |</Keywords>
+            <Keywords name="Operators1">::= :: := :&gt; : === =!= != = &lt;&lt; &lt;= &lt; &gt;= &gt; ?? ? /? /: /= / *= * -= -- -&gt; - += ++ + &apos; , .. . ; [ ] ^ ( ) @@ @ || |</Keywords>
             <Keywords name="Operators2"></Keywords>
-            <Keywords name="Folders in code1, open"></Keywords>
+            <Keywords name="Folders in code1, open">{</Keywords>
             <Keywords name="Folders in code1, middle"></Keywords>
-            <Keywords name="Folders in code1, close"></Keywords>
+            <Keywords name="Folders in code1, close">}</Keywords>
             <Keywords name="Folders in code2, open">Begin BeginPackage</Keywords>
             <Keywords name="Folders in code2, middle"></Keywords>
             <Keywords name="Folders in code2, close">End EndPackage</Keywords>
@@ -26,7 +26,7 @@
             <Keywords name="Folders in comment, close"></Keywords>
             <Keywords name="Keywords1">~ #</Keywords>
             <Keywords name="Keywords2">&amp;</Keywords>
-            <Keywords name="Keywords3">If For Local Do While Return Break Continue Catch Throw Goto Label Switch Which</Keywords>
+            <Keywords name="Keywords3">Block Break Case Catch Continue Do Else For Function Goto If Label Local Return Switch Throw Which While With</Keywords>
             <Keywords name="Keywords4">True False Undefined Infinity Pi E I</Keywords>
             <Keywords name="Keywords5"></Keywords>
             <Keywords name="Keywords6"></Keywords>
