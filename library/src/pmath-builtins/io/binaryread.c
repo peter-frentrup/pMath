@@ -82,7 +82,7 @@ enum simple_binary_type_t {
   TYPE_INT,
   TYPE_CHAR,   // size: 1, 2
   TYPE_REAL,   // size: 2, 4, 8, 16
-  TYPE_COMPLEX // size: 2, 4, 8, 16. To be multiplied by 2
+  TYPE_COMPLEX // size: 2, 4, 8, 16
 };
 
 static enum simple_binary_type_t as_simple_binary_type(pmath_string_t name, size_t *size) {
@@ -172,24 +172,272 @@ static enum simple_binary_type_t as_simple_binary_type(pmath_string_t name, size
     return TYPE_REAL;
   }
   else if(pmath_string_equals_latin1(name, "Complex32")) {
-    *size = 2;
-    return TYPE_COMPLEX;
-  }
-  else if(pmath_string_equals_latin1(name, "Complex64")) {
     *size = 4;
     return TYPE_COMPLEX;
   }
-  else if(pmath_string_equals_latin1(name, "Complex128")) {
+  else if(pmath_string_equals_latin1(name, "Complex64")) {
     *size = 8;
     return TYPE_COMPLEX;
   }
-  else if(pmath_string_equals_latin1(name, "Complex256")) {
+  else if(pmath_string_equals_latin1(name, "Complex128")) {
     *size = 16;
+    return TYPE_COMPLEX;
+  }
+  else if(pmath_string_equals_latin1(name, "Complex256")) {
+    *size = 32;
     return TYPE_COMPLEX;
   }
   
   *size = 0;
   return TYPE_NONE;
+}
+
+static pmath_t binary_read_real16(uint8_t *buf, int byte_ordering) { // works only if double is IEEE
+  double val;
+  
+  pmath_bool_t neg;
+  uint8_t uexp;
+  uint16_t mant;
+
+  if(byte_ordering > 0) {
+    neg = (buf[0] & 0x80) != 0;
+    uexp = (buf[0] & 0x7C) >> 2;
+    mant = (((uint16_t)buf[0] & 0x03) << 8) | (uint16_t)buf[1];
+  }
+  else {
+    neg = (buf[1] & 0x80) != 0;
+    uexp = (buf[0] & 0x7C) >> 2;
+    mant = (((uint16_t)buf[1] & 0x03) << 8) | (uint16_t)buf[0];
+  }
+
+  if(uexp == 0) {
+    val = mant * 2e-24;
+    if(neg)
+      val = -val;
+
+    return PMATH_FROM_DOUBLE(val);
+  }
+  
+  if(uexp == 0x1F) {
+    if(mant == 0) {
+      if(neg) {
+        return pmath_ref(_pmath_object_neg_infinity);
+      }
+      
+      return pmath_ref(_pmath_object_pos_infinity);
+    }
+    
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+  }
+  
+  val = pow(2, (int)uexp - 25);
+  mant |= 0x400;
+  val *= mant;
+
+  if(neg)
+    val = -val;
+
+  return PMATH_FROM_DOUBLE(val);
+}
+
+static pmath_t binary_read_real32(uint8_t *buf, int byte_ordering) { // works only if double and float are IEEE
+  union {
+    uint8_t buf[4];
+    float f;
+  } data;
+  double val;
+  
+  if(byte_ordering == PMATH_BYTE_ORDER) {
+    data.buf[0] = buf[0];
+    data.buf[1] = buf[1];
+    data.buf[2] = buf[2];
+    data.buf[3] = buf[3];
+  }
+  else {
+    assert(byte_ordering == - PMATH_BYTE_ORDER);
+    
+    data.buf[3] = buf[0];
+    data.buf[2] = buf[1];
+    data.buf[1] = buf[2];
+    data.buf[0] = buf[3];
+  }
+  
+  val = data.f;
+  
+  if(val == HUGE_VAL) {
+    return pmath_ref(_pmath_object_pos_infinity);
+  }
+  
+  if(val == -HUGE_VAL) {
+    return pmath_ref(_pmath_object_neg_infinity);
+  }
+  
+  if(isnan(val)) {
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+  }
+  
+  return PMATH_FROM_DOUBLE(val);
+}
+
+static pmath_t binary_read_real64(uint8_t *buf, int byte_ordering) { // works only if double is IEEE
+  union {
+    uint8_t buf[8];
+    double d;
+  } data;
+  double val;
+  
+  if(byte_ordering == PMATH_BYTE_ORDER) {
+    data.buf[0] = buf[0];
+    data.buf[1] = buf[1];
+    data.buf[2] = buf[2];
+    data.buf[3] = buf[3];
+    data.buf[4] = buf[4];
+    data.buf[5] = buf[5];
+    data.buf[6] = buf[6];
+    data.buf[7] = buf[7];
+  }
+  else {
+    assert(byte_ordering == - PMATH_BYTE_ORDER);
+    
+    data.buf[7] = buf[0];
+    data.buf[6] = buf[1];
+    data.buf[5] = buf[2];
+    data.buf[4] = buf[3];
+    data.buf[3] = buf[4];
+    data.buf[2] = buf[5];
+    data.buf[1] = buf[6];
+    data.buf[0] = buf[7];
+  }
+  
+  val = data.d;
+  
+  if(val == HUGE_VAL) {
+    return pmath_ref(_pmath_object_pos_infinity);
+  }
+  
+  if(val == -HUGE_VAL) {
+    return pmath_ref(_pmath_object_neg_infinity);
+  }
+  
+  if(isnan(val)) {
+    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+  }
+  
+  return PMATH_FROM_DOUBLE(val);
+}
+
+static pmath_t binary_read_real128(uint8_t *buf, int byte_ordering) {
+  pmath_mpfloat_t f  = _pmath_create_mp_float(113);
+  pmath_mpint_t mant = pmath_integer_new_data(
+                         14, // 112 / 8
+                         byte_ordering,
+                         1,
+                         PMATH_BYTE_ORDER,
+                         0,
+                         byte_ordering < 0 ? &buf[0] : &buf[2]);
+
+  if(pmath_is_int32(mant))
+    mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
+
+  if(!pmath_is_null(f) && !pmath_is_null(mant)) {
+    uint16_t uexp;
+    pmath_bool_t neg;
+
+    if(byte_ordering > 0) {
+      uexp = ((buf[0] & 0x7F) << 8) | (buf[1]);
+    }
+    else {
+      uexp = ((buf[15] & 0x7F) << 8) | (buf[14]);
+    }
+
+    if(byte_ordering > 0) {
+      neg = (buf[0] & 0x80) != 0;
+    }
+    else {
+      neg = (buf[15] & 0x80) != 0;
+    }
+
+    if(uexp == 0) {
+      if(mpz_sgn(PMATH_AS_MPZ(mant)) == 0) {
+        mpfr_set_ui(PMATH_AS_MP_VALUE(f), 0, MPFR_RNDN);
+      }
+      else {
+        mpfr_set_ui_2exp(PMATH_AS_MP_VALUE(f), 1, -112, MPFR_RNDU);
+        mpfr_mul_z(
+          PMATH_AS_MP_VALUE(f),
+          PMATH_AS_MP_VALUE(f),
+          PMATH_AS_MPZ(mant),
+          MPFR_RNDN);
+      }
+
+      if(neg) {
+        mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
+      }
+        
+      pmath_unref(mant);
+      return f;
+    }
+    
+    if(uexp == 0x7FFF) {
+      if(mpz_sgn(PMATH_AS_MPZ(mant)) == 0) {
+        pmath_unref(f);
+        pmath_unref(mant);
+
+        if(neg) {
+          return pmath_ref(_pmath_object_neg_infinity);
+        }
+        
+        return pmath_ref(_pmath_object_pos_infinity);
+      }
+      
+      pmath_unref(f);
+      pmath_unref(mant);
+      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    }
+    else {
+      mpz_setbit(PMATH_AS_MPZ(mant), 112);
+
+      mpfr_set_ui_2exp(PMATH_AS_MP_VALUE(f), 1, ((int)uexp) - 16383 - 112, MPFR_RNDU);
+      mpfr_mul_z(
+        PMATH_AS_MP_VALUE(f),
+        PMATH_AS_MP_VALUE(f),
+        PMATH_AS_MPZ(mant),
+        MPFR_RNDN);
+
+      if(neg)
+        mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
+
+      pmath_unref(mant);
+      return f;
+    }
+  }
+  
+  pmath_unref(mant);
+  pmath_unref(f);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t binary_read_real(uint8_t *buf, size_t size, int byte_ordering) {
+  assert(buf != NULL);
+  assert(size > 0);
+  assert(byte_ordering == +1 || byte_ordering == -1);
+  
+  switch(size) {
+  case 2: 
+    return binary_read_real16(buf, byte_ordering);
+    
+  case 4: 
+    return binary_read_real32(buf, byte_ordering);
+    
+  case 8: 
+    return binary_read_real64(buf, byte_ordering);
+    
+  case 16: 
+    return binary_read_real128(buf, byte_ordering);
+  }
+  
+  assert(0 && "invalid size");
+  return pmath_ref(PMATH_SYMBOL_UNDEFINED);
 }
 
 static pmath_t binary_read_simple(
@@ -199,30 +447,15 @@ static pmath_t binary_read_simple(
   int                       byte_ordering
 ) {
   union {
-    uint8_t  buf[16];
-    uint32_t buf32[4];
-    double d;
-    float f;
+    uint8_t buf[32];
+    double  d;
+    float   f;
   } data;
   
   assert(size > 0);
   assert(size <= sizeof(data));
   assert(type != TYPE_NONE);
   assert(byte_ordering == +1 || byte_ordering == -1);
-  
-  if(type == TYPE_COMPLEX) {
-    pmath_t re = binary_read_simple(file, TYPE_REAL, size, byte_ordering);
-    pmath_t im = binary_read_simple(file, TYPE_REAL, size, byte_ordering);
-    
-    switch(size) {
-      case 2:  re = PMATH_C_STRING("Real16"); break;
-      case 4:  re = PMATH_C_STRING("Real32"); break;
-      case 8:  re = PMATH_C_STRING("Real64"); break;
-      default: re = PMATH_C_STRING("Real128");
-    }
-
-    return make_complex(re, im);
-  }
   
   if(pmath_file_read(file, &data, size, FALSE) < size) {
     return pmath_ref(PMATH_SYMBOL_ENDOFFILE);
@@ -275,194 +508,14 @@ static pmath_t binary_read_simple(
   }
 
   if(type == TYPE_REAL) {
-    if(size == 16) {
-      pmath_mpfloat_t f  = _pmath_create_mp_float(113);
-      pmath_mpint_t mant = pmath_integer_new_data(
-                             14, // 112 / 8
-                             byte_ordering,
-                             1,
-                             PMATH_BYTE_ORDER,
-                             0,
-                             byte_ordering < 0 ? &data.buf[0] : &data.buf[2]);
-
-      if(pmath_is_int32(mant))
-        mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
-
-      if(!pmath_is_null(f) && !pmath_is_null(mant)) {
-        uint16_t uexp;
-        pmath_bool_t neg;
-
-        if(byte_ordering > 0) {
-          uexp = ((data.buf[0] & 0x7F) << 8) | (data.buf[1]);
-        }
-        else {
-          uexp = ((data.buf[15] & 0x7F) << 8) | (data.buf[14]);
-        }
-
-        if(byte_ordering > 0) {
-          neg = (data.buf[0] & 0x80) != 0;
-        }
-        else {
-          neg = (data.buf[15] & 0x80) != 0;
-        }
-
-        if(uexp == 0) {
-          if(mpz_sgn(PMATH_AS_MPZ(mant)) == 0) {
-            mpfr_set_ui(PMATH_AS_MP_VALUE(f), 0, MPFR_RNDN);
-          }
-          else {
-            mpfr_set_ui_2exp(PMATH_AS_MP_VALUE(f), 1, -112, MPFR_RNDU);
-            mpfr_mul_z(
-              PMATH_AS_MP_VALUE(f),
-              PMATH_AS_MP_VALUE(f),
-              PMATH_AS_MPZ(mant),
-              MPFR_RNDN);
-          }
-
-          if(neg) {
-            mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
-          }
-            
-          pmath_unref(mant);
-          return f;
-        }
-        
-        if(uexp == 0x7FFF) {
-          if(mpz_sgn(PMATH_AS_MPZ(mant)) == 0) {
-            pmath_unref(f);
-            pmath_unref(mant);
-
-            if(neg) {
-              return pmath_ref(_pmath_object_neg_infinity);
-            }
-            
-            return pmath_ref(_pmath_object_pos_infinity);
-          }
-          
-          pmath_unref(f);
-          pmath_unref(mant);
-          return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-        }
-        else {
-          mpz_setbit(PMATH_AS_MPZ(mant), 112);
-
-          mpfr_set_ui_2exp(PMATH_AS_MP_VALUE(f), 1, ((int)uexp) - 16383 - 112, MPFR_RNDU);
-          mpfr_mul_z(
-            PMATH_AS_MP_VALUE(f),
-            PMATH_AS_MP_VALUE(f),
-            PMATH_AS_MPZ(mant),
-            MPFR_RNDN);
-
-          if(neg)
-            mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
-
-          pmath_unref(mant);
-          return f;
-        }
-      }
-      else {
-        pmath_unref(mant);
-        pmath_unref(f);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
-      }
-    }
-    else if(size == 2) { // works only if double is ieee
-      double val;
+    return binary_read_real(&data.buf[0], size, byte_ordering);
+  }
   
-      pmath_bool_t neg;
-      uint8_t uexp;
-      uint16_t mant;
-
-      if(byte_ordering > 0) {
-        neg = (data.buf[0] & 0x80) != 0;
-        uexp = (data.buf[0] & 0x7C) >> 2;
-        mant = (((uint16_t)data.buf[0] & 0x03) << 8) | (uint16_t)data.buf[1];
-      }
-      else {
-        neg = (data.buf[1] & 0x80) != 0;
-        uexp = (data.buf[0] & 0x7C) >> 2;
-        mant = (((uint16_t)data.buf[1] & 0x03) << 8) | (uint16_t)data.buf[0];
-      }
-
-      if(uexp == 0) {
-        val = mant * 2e-24;
-        if(neg)
-          val = -val;
-
-        return PMATH_FROM_DOUBLE(val);
-      }
-      
-      if(uexp == 0x1F) {
-        if(mant == 0) {
-          if(neg) {
-            return pmath_ref(_pmath_object_neg_infinity);
-          }
-          
-          return pmath_ref(_pmath_object_pos_infinity);
-        }
-        
-        return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-      }
-      
-      val = pow(2, (int)uexp - 25);
-      mant |= 0x400;
-      val *= mant;
-
-      if(neg)
-        val = -val;
-
-      return PMATH_FROM_DOUBLE(val);
-    }
-    else { // works only if float and double are ieee
-      double val;
+  if(type == TYPE_COMPLEX) {
+    pmath_t re = binary_read_real(&data.buf[0],        size / 2, byte_ordering);
+    pmath_t im = binary_read_real(&data.buf[size / 2], size / 2, byte_ordering);
     
-      if(size == 8) {
-        if(byte_ordering != PMATH_BYTE_ORDER) {
-          uint8_t tmp0 = data.buf[0];
-          uint8_t tmp1 = data.buf[1];
-          uint8_t tmp2 = data.buf[2];
-          uint8_t tmp3 = data.buf[3];
-          data.buf[0] = data.buf[7];
-          data.buf[1] = data.buf[6];
-          data.buf[2] = data.buf[5];
-          data.buf[3] = data.buf[4];
-          data.buf[4] = tmp3;
-          data.buf[5] = tmp2;
-          data.buf[6] = tmp1;
-          data.buf[7] = tmp0;
-        }
-        
-        val = data.d;
-      }
-      else {
-        assert(size == 4);
-        
-        if(byte_ordering != PMATH_BYTE_ORDER) {
-          uint8_t tmp0 = data.buf[0];
-          uint8_t tmp1 = data.buf[1];
-          data.buf[0] = data.buf[3];
-          data.buf[1] = data.buf[2];
-          data.buf[2] = tmp1;
-          data.buf[3] = tmp0;
-        }
-        
-        val = data.f;
-      }
-
-      if(val == HUGE_VAL) {
-        return pmath_ref(_pmath_object_pos_infinity);
-      }
-      
-      if(val == -HUGE_VAL) {
-        return pmath_ref(_pmath_object_neg_infinity);
-      }
-      
-      if(isnan(val)) {
-        return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-      }
-      
-      return PMATH_FROM_DOUBLE(val);
-    }
+    return make_complex(re, im);
   }
   
   assert(0 && "unknown type");
