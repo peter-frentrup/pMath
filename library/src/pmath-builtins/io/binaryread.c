@@ -232,10 +232,6 @@ static pmath_bool_t binary_read(
         size = 16;
         type = REAL;
       }
-      else if(pmath_string_equals_latin1(*type_value, "Real128")) {
-        size = 16;
-        type = REAL;
-      }
       else if(pmath_string_equals_latin1(*type_value, "Complex32")) {
         size = 2;
         type = COMPLEX;
