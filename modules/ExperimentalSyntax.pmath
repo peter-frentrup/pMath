@@ -215,7 +215,7 @@ MakeExpression({{"Switch", "(", ~expr, ")"}, {"{", ?cases:{}, "}"}}) /? $HaveExp
 %
 MakeExpression({{"While", "(", ~cond, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
-		While
+		While,
 		asHeldCondition @ MakeExpression(cond),
 		makeBlockExpression(block))
 
@@ -225,7 +225,7 @@ MakeExpression({{"While", "(", ~cond, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExpe
 MakeExpression({{"Do", "(", ~iter, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		Do,
-		makeBlockExpression(block)
+		makeBlockExpression(block),
 		MakeExpression(iter))
 
 %
