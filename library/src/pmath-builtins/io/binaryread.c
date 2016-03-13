@@ -76,6 +76,122 @@ static pmath_t make_complex(pmath_t re, pmath_t im) {
              im_inf));
 }
 
+enum simple_binary_type_t {
+  TYPE_NONE,
+  TYPE_UINT,
+  TYPE_INT,
+  TYPE_CHAR,   // size: 1, 2
+  TYPE_REAL,   // size: 2, 4, 8, 16
+  TYPE_COMPLEX // size: 2, 4, 8, 16. To be multiplied by 2
+};
+
+static enum simple_binary_type_t as_simple_binary_type(pmath_string_t name, size_t *size) {
+  
+  assert(size >= 0);
+  
+  if(pmath_is_null(name)) {
+    *size = 1;
+    return TYPE_UINT;
+  }
+  
+  assert(pmath_is_string(name));
+  
+  if( pmath_string_equals_latin1(name, "Byte") ||
+      pmath_string_equals_latin1(name, "UnsignedInteger8"))
+  {
+    *size = 1;
+    return TYPE_UINT;
+  }
+  
+  if(pmath_string_equals_latin1(name, "Integer8")) {
+    *size = 1;
+    return TYPE_INT;
+  }
+  else if(pmath_string_equals_latin1(name, "UnsignedInteger16")) {
+    *size = 2;
+    return TYPE_UINT;
+  }
+  else if(pmath_string_equals_latin1(name, "Integer16")) {
+    *size = 2;
+    return TYPE_INT;
+  }
+  else if(pmath_string_equals_latin1(name, "UnsignedInteger24")) {
+    *size = 3;
+    return TYPE_UINT;
+  }
+  else if(pmath_string_equals_latin1(name, "Integer24")) {
+    *size = 3;
+    return TYPE_INT;
+  }
+  else if(pmath_string_equals_latin1(name, "UnsignedInteger32")) {
+    *size = 4;
+    return TYPE_UINT;
+  }
+  else if(pmath_string_equals_latin1(name, "Integer32")) {
+    *size = 4;
+    return TYPE_INT;
+  }
+  else if(pmath_string_equals_latin1(name, "UnsignedInteger64")) {
+    *size = 8;
+    return TYPE_UINT;
+  }
+  else if(pmath_string_equals_latin1(name, "Integer64")) {
+    *size = 8;
+    return TYPE_INT;
+  }
+  else if(pmath_string_equals_latin1(name, "UnsignedInteger128")) {
+    *size = 16;
+    return TYPE_UINT;
+  }
+  else if(pmath_string_equals_latin1(name, "Integer128")) {
+    *size = 16;
+    return TYPE_INT;
+  }
+  else if(pmath_string_equals_latin1(name, "Character8")) {
+    *size = 1;
+    return TYPE_CHAR;
+  }
+  else if(pmath_string_equals_latin1(name, "Character16")) {
+    *size = 2;
+    return TYPE_CHAR;
+  }
+  else if(pmath_string_equals_latin1(name, "Real16")) {
+    *size = 2;
+    return TYPE_REAL;
+  }
+  else if(pmath_string_equals_latin1(name, "Real32")) {
+    *size = 4;
+    return TYPE_REAL;
+  }
+  else if(pmath_string_equals_latin1(name, "Real64")) {
+    *size = 8;
+    return TYPE_REAL;
+  }
+  else if(pmath_string_equals_latin1(name, "Real128")) {
+    *size = 16;
+    return TYPE_REAL;
+  }
+  else if(pmath_string_equals_latin1(name, "Complex32")) {
+    *size = 2;
+    return TYPE_COMPLEX;
+  }
+  else if(pmath_string_equals_latin1(name, "Complex64")) {
+    *size = 4;
+    return TYPE_COMPLEX;
+  }
+  else if(pmath_string_equals_latin1(name, "Complex128")) {
+    *size = 8;
+    return TYPE_COMPLEX;
+  }
+  else if(pmath_string_equals_latin1(name, "Complex256")) {
+    *size = 16;
+    return TYPE_COMPLEX;
+  }
+  
+  *size = 0;
+  return TYPE_NONE;
+}
+
 static pmath_bool_t binary_read(
   pmath_t  file,        // wont be freed
   pmath_t *type_value,
@@ -148,108 +264,9 @@ static pmath_bool_t binary_read(
         float f;
       } data;
 
-      enum {
-        NONE,
-        UINT,
-        INT,
-        CHAR,
-        REAL,
-        COMPLEX
-      } type = NONE;
+      enum simple_binary_type_t type = as_simple_binary_type(*type_value, &size);
 
-      if( pmath_is_null(*type_value)                      ||
-          pmath_string_equals_latin1(*type_value, "Byte") ||
-          pmath_string_equals_latin1(*type_value, "UnsignedInteger8"))
-      {
-        size = 1;
-        type = UINT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Integer8")) {
-        size = 1;
-        type = INT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "UnsignedInteger16")) {
-        size = 2;
-        type = UINT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Integer16")) {
-        size = 2;
-        type = INT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "UnsignedInteger24")) {
-        size = 3;
-        type = UINT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Integer24")) {
-        size = 3;
-        type = INT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "UnsignedInteger32")) {
-        size = 4;
-        type = UINT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Integer32")) {
-        size = 4;
-        type = INT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "UnsignedInteger64")) {
-        size = 8;
-        type = UINT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Integer64")) {
-        size = 8;
-        type = INT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "UnsignedInteger128")) {
-        size = 16;
-        type = UINT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Integer128")) {
-        size = 16;
-        type = INT;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Character8")) {
-        size = 1;
-        type = CHAR;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Character16")) {
-        size = 2;
-        type = CHAR;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Real16")) {
-        size = 2;
-        type = REAL;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Real32")) {
-        size = 4;
-        type = REAL;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Real64")) {
-        size = 8;
-        type = REAL;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Real128")) {
-        size = 16;
-        type = REAL;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Complex32")) {
-        size = 2;
-        type = COMPLEX;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Complex64")) {
-        size = 4;
-        type = COMPLEX;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Complex128")) {
-        size = 8;
-        type = COMPLEX;
-      }
-      else if(pmath_string_equals_latin1(*type_value, "Complex256")) {
-        size = 16;
-        type = COMPLEX;
-      }
-
-      if(type == COMPLEX) {
+      if(type == TYPE_COMPLEX) {
         pmath_t re;
         pmath_t im;
 
@@ -286,7 +303,7 @@ static pmath_bool_t binary_read(
           return TRUE;
         }
 
-        if(type == INT) {
+        if(type == TYPE_INT) {
           if( (byte_ordering < 0 && (int8_t)data.buf[size - 1] < 0) ||
               (byte_ordering > 0 && (int8_t)data.buf[0]        < 0))
           {
@@ -296,10 +313,10 @@ static pmath_bool_t binary_read(
             }
           }
           else
-            type = UINT;
+            type = TYPE_UINT;
         }
 
-        if(type == UINT || type == INT) {
+        if(type == TYPE_UINT || type == TYPE_INT) {
           *type_value = pmath_integer_new_data(
                           size,
                           byte_ordering,
@@ -308,14 +325,14 @@ static pmath_bool_t binary_read(
                           0,
                           &data);
 
-          if(type == INT) {
+          if(type == TYPE_INT) {
             *type_value = _add_nn(*type_value, PMATH_FROM_INT32(1));
             *type_value = pmath_number_neg(*type_value);
           }
           return TRUE;
         }
 
-        if(type == CHAR) {
+        if(type == TYPE_CHAR) {
           if(size == 2) {
             uint16_t chr;
 
@@ -332,7 +349,7 @@ static pmath_bool_t binary_read(
           return TRUE;
         }
 
-        if(type == REAL) {
+        if(type == TYPE_REAL) {
           if(size == 16) {
             pmath_mpfloat_t f  = _pmath_create_mp_float(113);
             pmath_mpint_t mant = pmath_integer_new_data(
