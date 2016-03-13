@@ -77,16 +77,15 @@ static pmath_t make_complex(pmath_t re, pmath_t im) {
 }
 
 enum simple_binary_type_t {
-  TYPE_NONE,
-  TYPE_UINT,
-  TYPE_INT,
+  TYPE_NONE,   // size: 0
+  TYPE_UINT,   // size: 1, 2, 3, 4, 8, 16
+  TYPE_INT,    // size: 1, 2, 3, 4, 8, 16
   TYPE_CHAR,   // size: 1, 2
   TYPE_REAL,   // size: 2, 4, 8, 16
-  TYPE_COMPLEX // size: 2, 4, 8, 16
+  TYPE_COMPLEX // size: 4, 8, 16, 32
 };
 
 static enum simple_binary_type_t as_simple_binary_type(pmath_string_t name, size_t *size) {
-  
   assert(size != NULL);
   
   if(pmath_is_null(name)) {
@@ -192,7 +191,10 @@ static enum simple_binary_type_t as_simple_binary_type(pmath_string_t name, size
   return TYPE_NONE;
 }
 
-static pmath_t binary_read_real16(uint8_t *buf, int byte_ordering) { // works only if double is IEEE
+static pmath_t binary_read_real16(
+  uint8_t *buf,
+  int      byte_ordering
+) { // works only if double is IEEE
   double val;
   
   pmath_bool_t neg;
@@ -240,7 +242,10 @@ static pmath_t binary_read_real16(uint8_t *buf, int byte_ordering) { // works on
   return PMATH_FROM_DOUBLE(val);
 }
 
-static pmath_t binary_read_real32(uint8_t *buf, int byte_ordering) { // works only if double and float are IEEE
+static pmath_t binary_read_real32(
+  uint8_t *buf, 
+  int      byte_ordering
+) { // works only if double and float are IEEE
   union {
     uint8_t buf[4];
     float f;
@@ -279,7 +284,10 @@ static pmath_t binary_read_real32(uint8_t *buf, int byte_ordering) { // works on
   return PMATH_FROM_DOUBLE(val);
 }
 
-static pmath_t binary_read_real64(uint8_t *buf, int byte_ordering) { // works only if double is IEEE
+static pmath_t binary_read_real64(
+  uint8_t *buf, 
+  int      byte_ordering
+) { // works only if double is IEEE
   union {
     uint8_t buf[8];
     double d;
@@ -326,7 +334,10 @@ static pmath_t binary_read_real64(uint8_t *buf, int byte_ordering) { // works on
   return PMATH_FROM_DOUBLE(val);
 }
 
-static pmath_t binary_read_real128(uint8_t *buf, int byte_ordering) {
+static pmath_t binary_read_real128(
+  uint8_t *buf, 
+  int      byte_ordering
+) {
   pmath_mpfloat_t f  = _pmath_create_mp_float(113);
   pmath_mpint_t mant = pmath_integer_new_data(
                          14, // 112 / 8
@@ -417,7 +428,11 @@ static pmath_t binary_read_real128(uint8_t *buf, int byte_ordering) {
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
-static pmath_t binary_read_real(uint8_t *buf, size_t size, int byte_ordering) {
+static pmath_t binary_read_real(
+  uint8_t *buf, 
+  size_t   size, 
+  int      byte_ordering
+) {
   assert(buf != NULL);
   assert(size > 0);
   assert(byte_ordering == +1 || byte_ordering == -1);
@@ -441,33 +456,23 @@ static pmath_t binary_read_real(uint8_t *buf, size_t size, int byte_ordering) {
 }
 
 static pmath_t binary_read_simple(
-  pmath_t                   file, // wont be freed
-  enum simple_binary_type_t type,
-  size_t                    size,
-  int                       byte_ordering
+  uint8_t                   *buf,
+  enum simple_binary_type_t  type,
+  size_t                     size, 
+  int                        byte_ordering
 ) {
-  union {
-    uint8_t buf[32];
-    double  d;
-    float   f;
-  } data;
-  
+  assert(buf != NULL);
   assert(size > 0);
-  assert(size <= sizeof(data));
   assert(type != TYPE_NONE);
   assert(byte_ordering == +1 || byte_ordering == -1);
   
-  if(pmath_file_read(file, &data, size, FALSE) < size) {
-    return pmath_ref(PMATH_SYMBOL_ENDOFFILE);
-  }
-  
   if(type == TYPE_INT) {
-    if( (byte_ordering < 0 && (int8_t)data.buf[size - 1] < 0) ||
-        (byte_ordering > 0 && (int8_t)data.buf[0]        < 0))
+    if( (byte_ordering < 0 && (int8_t)buf[size - 1] < 0) ||
+        (byte_ordering > 0 && (int8_t)buf[0]        < 0))
     {
       size_t i;
       for(i = 0; i < size; ++i) {
-        data.buf[i] = ~data.buf[i];
+        buf[i] = ~buf[i];
       }
     }
     else
@@ -481,7 +486,7 @@ static pmath_t binary_read_simple(
                       1,
                       PMATH_BYTE_ORDER,
                       0,
-                      &data);
+                      buf);
 
     if(type == TYPE_INT) {
       value = _add_nn(value, PMATH_FROM_INT32(1));
@@ -496,24 +501,25 @@ static pmath_t binary_read_simple(
       uint16_t chr;
 
       if(byte_ordering < 0)
-        chr = (uint16_t)data.buf[0] | ((uint16_t)data.buf[1] << 8);
+        chr = (uint16_t)buf[0] | ((uint16_t)buf[1] << 8);
       else
-        chr = (uint16_t)data.buf[1] | ((uint16_t)data.buf[0] << 8);
+        chr = (uint16_t)buf[1] | ((uint16_t)buf[0] << 8);
 
       return pmath_string_insert_ucs2(PMATH_NULL, 0, &chr, 2);
     }
     
     assert(size == 1);
-    return pmath_string_insert_latin1(PMATH_NULL, 0, (const char *)&data, 1);
+    assert(sizeof(char) == sizeof(uint8_t));
+    return pmath_string_insert_latin1(PMATH_NULL, 0, (const char *)buf, 1);
   }
 
   if(type == TYPE_REAL) {
-    return binary_read_real(&data.buf[0], size, byte_ordering);
+    return binary_read_real(&buf[0], size, byte_ordering);
   }
   
   if(type == TYPE_COMPLEX) {
-    pmath_t re = binary_read_real(&data.buf[0],        size / 2, byte_ordering);
-    pmath_t im = binary_read_real(&data.buf[size / 2], size / 2, byte_ordering);
+    pmath_t re = binary_read_real(&buf[0],        size / 2, byte_ordering);
+    pmath_t im = binary_read_real(&buf[size / 2], size / 2, byte_ordering);
     
     return make_complex(re, im);
   }
@@ -590,8 +596,17 @@ static pmath_bool_t binary_read(
       enum simple_binary_type_t type = as_simple_binary_type(*type_value, &size);
       
       if(size) {
+        uint8_t buf[32];
+      
+        assert(size <= sizeof(buf));
+        
         pmath_unref(*type_value);
-        *type_value = binary_read_simple(file, type, size, byte_ordering);
+        if(pmath_file_read(file, buf, size, FALSE) < size) {
+          *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+          return TRUE;
+        }
+        
+        *type_value = binary_read_simple(buf, type, size, byte_ordering);
         return TRUE;
       }
     }
