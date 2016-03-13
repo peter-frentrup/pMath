@@ -87,7 +87,7 @@ enum simple_binary_type_t {
 
 static enum simple_binary_type_t as_simple_binary_type(pmath_string_t name, size_t *size) {
   
-  assert(size >= 0);
+  assert(size != NULL);
   
   if(pmath_is_null(name)) {
     *size = 1;
@@ -317,10 +317,10 @@ static pmath_t binary_read_simple(
               PMATH_AS_MP_VALUE(f),
               PMATH_AS_MPZ(mant),
               MPFR_RNDN);
+          }
 
-            if(neg) {
-              mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
-            }
+          if(neg) {
+            mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
           }
             
           pmath_unref(mant);
@@ -385,10 +385,6 @@ static pmath_t binary_read_simple(
       }
 
       if(uexp == 0) {
-        if(mant == 0) {
-          return PMATH_FROM_DOUBLE(/*neg ? -0.0 : */0.0);
-        }
-        
         val = mant * 2e-24;
         if(neg)
           val = -val;
@@ -465,9 +461,6 @@ static pmath_t binary_read_simple(
         return pmath_ref(PMATH_SYMBOL_UNDEFINED);
       }
       
-      if(val == 0) // signed 0?
-        val = 0;
-        
       return PMATH_FROM_DOUBLE(val);
     }
   }
