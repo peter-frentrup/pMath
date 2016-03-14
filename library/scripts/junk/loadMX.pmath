@@ -401,10 +401,8 @@ mx.BinaryRead("TerminatedString")
 mx.BinaryRead("Byte").BaseForm(16) % 16^^00, maybe also use "TerminatedString" ?
 
 mx.readMagicUI32(16^^08080808, doHeader)
-mx.readMagicUI32(16^^00000000, doHeader)
 
-mxVersion:= mx.BinaryRead("UnsignedInteger32");
-mxVersion.BaseForm(16) % version number ?  16^^40180000 or 16^^40140000 ...
+mxVersion:= mx.BinaryRead("Real64")
 
 mx.readString() % e.g. "Windows"
 

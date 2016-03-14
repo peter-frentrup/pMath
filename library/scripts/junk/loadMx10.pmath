@@ -21,34 +21,44 @@
 %
 BeginPackage("Developer`LoadMx10`", "ExperimentalSyntax`")
 
+Developer`LoadMx10`readInteger
 Developer`LoadMx10`readString
 Developer`LoadMx10`readMagicString
-Developer`LoadMx10`doHeader
+Developer`LoadMx10`doHeader32
+Developer`LoadMx10`doHeader64
 Developer`LoadMx10`doStage1
-Developer`LoadMx10`newConstStringLookup
-Developer`LoadMx10`doStage2
-Developer`LoadMx10`readInteger
+Developer`LoadMx10`newConstLookup
+Developer`LoadMx10`newSimpleConstLookup
 Developer`LoadMx10`readConstant
+Developer`LoadMx10`doStage2
+Developer`LoadMx10`newSymbolLookup
+Developer`LoadMx10`doStage3
+Developer`LoadMx10`doStage4
 
-Developer`LoadMx10`MxStringConst
+Developer`LoadMx10`MxExpr
+Developer`LoadMx10`MxInteger
+Developer`LoadMx10`MxLargeInteger
+Developer`LoadMx10`MxLargeReal
+Developer`LoadMx10`MxRational
+Developer`LoadMx10`MxRationalRef
+Developer`LoadMx10`MxReal
+Developer`LoadMx10`MxString
+Developer`LoadMx10`MxSymbol
 
 Begin("Developer`LoadMx10`Private`")
 
 readMagicString::magic:= "(at `1`) expected string `2` but found `3`"
-doHeader::magic:= doStage1::magic:= doStage2::magic:= readMagicString::magic
-newConstStringLookup::nostr:= "No string constant at index `1`"
+doHeaderHelper::magic:= doStage1::magic:= doStage2::magic:= readMagicString::magic
+newSimpleConstLookup::notyp:= "No constant of type `1` at index `2`"
 
-doStage1::tag:= "(at `1`) unknown type tag `2`"
+doStage1::tag:= doStage2::tag:= doStage3::tag:= doStage4::tag:= "(at `1`) unknown type tag `2`"
 
 % The most significant bit (msb) of every byte indicates whether more bytes follow.
 % Values seem to be in little endian format, but this may depend on the machine?
 % The least significant bit of the first byte is the sign bit.
 %
 % Integers between -64..63 = -2^6..2^6-1 are encoded as a single byte 0VVV VVVS
-% where S is the sign bit and VVVVVV the absolute value. An exception is
-% -1, which is encoded as 0000 0001 that would otherwise mean -0.
-%
-% It is unclear what 0000 0011 decodes to.
+% where S is the sign bit and VVVVVV the absolute value - 1.
 %
 % Larger integers between -8192..8191 = -2^13..2^13-1 need two bytes.
 % Larger integers between -1048576 .. 1048575 = -2^20..2^20-1 need three bytes.
@@ -70,12 +80,7 @@ Function readInteger(~mx) {
 	}
 	
 	If(signBit != 0) {
-		If(absValue = 0) {
-			Return(-1)
-		} Else If(absValue = 1) {
-			Message(readInteger::smallNegOne, BaseForm(pos, 16))
-		}
-		Return(-absValue)
+		Return(-1 - absValue)
 	} Else {
 		Return(absValue)
 	}
@@ -110,16 +115,59 @@ Function readMagicString(~mx, ~str, ~errsym) {
 	Return(True)
 }
 
-Function doHeader(~mx) {
+Function doHeaderHelper(~mx, uiptr : "UnsignedInteger32" | "UnsignedInteger64") {
 	With(intro:= mx.BinaryRead("TerminatedString"))
-	With(unknownHeaderA:= mx.BinaryRead({"Byte", "UnsignedInteger32", "UnsignedInteger32"}))
-	With(mmaVersion:= mx.BinaryRead("Real64"))
-	With(unknownHeaderB:= mx.BinaryRead({"UnsignedInteger32", "UnsignedInteger32"}))
-	With(system:= mx.BinaryRead("TerminatedString"))
-	With(unknownHeaderC:= mx.BinaryRead({"Byte", "UnsignedInteger32", "UnsignedInteger32"}))
+	With(unknownHeaderA:= mx.BinaryRead("Byte"))
 	
-	mx.readMagicString("ENDCONT", doHeader)
-	Return({"intro" -> intro, "version" -> mmaVersion, "system" -> system, "unknown" -> {unknownHeaderA, unknownHeaderB, unknownHeaderC}})
+	With(fileVersion:= mx.BinaryRead(uiptr))
+	
+	Local(programVersion)
+	Switch(fileVersion) {
+		Case(16^^08080808) { % Mma 3.0 .. 8.0
+			programVersion:= mx.BinaryRead("Real64")
+		}
+		Case(1) { % Mma 9.0
+			programVersion:= mx.BinaryRead("Real64")
+		}
+		Case(2) { % Mma 10.0
+			programVersion:= mx.BinaryRead("Real64")
+		}
+		Case(3) { % Mma 10.3
+			programVersion:= mx.BinaryRead({"UnsignedInteger32", "UnsignedInteger32"})
+		}
+		Case(~) {
+			Message(doHeaderHelper::ver, fileVersion)
+		}
+	}
+	
+	With(systemStringSize:= mx.BinaryRead(uiptr))
+	With(system:= mx.BinaryRead("TerminatedString"))
+	With(padding:= mx.BinaryReadList("Byte", Ceiling(systemStringSize, 4) - systemStringSize))
+	
+	Local(unknownHeaderC:= {})
+	Switch(fileVersion) {
+		Case(2) { % Mma 10.0
+			unknownHeaderC:= mx.BinaryRead({uiptr})
+		}
+		Case(3) { % Mma 10.3
+			unknownHeaderC:= mx.BinaryRead({uiptr, uiptr})
+		}
+	}
+	
+	mx.readMagicString("ENDCONT", doHeaderHelper)
+	Return({
+		"intro" -> intro, 
+		"file version" -> fileVersion, 
+		"program version" -> programVersion, 
+		"system" -> system, 
+		"unknown" -> {unknownHeaderA, padding, unknownHeaderC}})
+}
+
+Function doHeader64(~mx) {
+	mx.doHeaderHelper("UnsignedInteger64")
+}
+Function doHeader32(~mx) {
+	mx.doHeaderHelper("UnsignedInteger32")
 }
 
 Function doStage1(~mx) {
@@ -139,68 +187,111 @@ Function doStage1(~mx) {
 }
 
 %
-% Returns a function which evaluates its argument (integer) to the corresponding string value from 
-% `constPool`
+% Returns a function which evaluates its argument (integer) to the corresponding entry from the 
+% constant pool
 %
 % @param constPool A list of constants as returned by doStage1()
 %
-Function newConstStringLookup(~constPool:List) {
-	Local(constStrings)
+Function newConstLookup(~constPool:List) {
+	Local(consts)
 	
-	With(indices:= constPool.Position(MxStringConst, 2)[All, 1])
+	constPool.MapIndexed((consts(#2[1]):= #1)&)
+	
+	consts(~i)::= (Message(newConstLookup::noconst, i); $Failed)
+	
+	Return(consts)
+}
+
+%
+% Returns a function which evaluates its argument (integer) to the corresponding entry from the constant pool
+%
+% @param constPool   A list of constants as returned by doStage1()
+% @param headPattern Which heads are recognized (MxString, MxInteger | MxLargeInteger, ...)
+%
+Function newSimpleConstLookup(~constPool:List, ~headPattern) {
+	Local(consts)
+	
+	With(indices:= constPool.Position(headPattern, 2)[All, 1])
 	With(values:= constPool[indices, 1])
 	
-	{indices, values}.MapThread((constStrings(#1):= #2) &)
-	constStrings(~i)::= (Message(newConstStringLookup::nostr, i); $Failed)
+	{indices, values}.MapThread((consts(#1):= #2) &)
+	consts(~i)::= (Message(newSimpleConstLookup::notyp, i, headPattern); $Failed)
 	
-	Return(constStrings)
+	Return(consts)
 }
 
 %
 Function readReal(~mx) {
 	With(pos:= mx.StreamPosition)
 	
-	With(numQuads:= mx.readInteger)
+	With(numQuads:= 2 * mx.readInteger)
 	With(sign:= mx.BinaryRead("Byte"))
 	
-	With(unknown1:= mx.BinaryRead({ "Byte", "Byte" } ))
+	With(deltaExp:= mx.readInteger)
 	With(unknown2:= mx.BinaryRead("Real64"))
 	
 	
 	With(precisionBits:= mx.BinaryRead("Real64"))
-	With(mantissaBytes:= mx.BinaryReadList("Byte", 4 * numQuads))
+	With(mantissaQuads:= mx.BinaryReadList("UnsignedInteger32", numQuads))
+	With(mantissa:= Total(mantissaQuads * 2^(32 * Array(0..numQuads-1))))
 	
-	Return({sign, unknown1, unknown2, precisionBits, mantissaBytes})
+	With(exactAbsValue:= mantissa * 2^(deltaExp - 32 numQuads))
+	With(absValue:= SetPrecision(exactAbsValue, Log(10 precisionBits, 2.0)))
+	
+	%Return({pos, ((-1)^sign) absValue , sign, {32 numQuads, deltaExp, unknown2}, precisionBits, mantissa})
+	If(sign != 0) {
+		Return(-absValue)
+	}
+	
+	Return(absValue)
+}
+
+Function readLargeInteger(~mx) {
+	With(pos:= mx.StreamPosition)
+	
+	With(numQuads:= 2 * mx.readInteger)
+	With(sign:= mx.BinaryRead("Byte"))
+	
+	With(quads:= mx.BinaryReadList("UnsignedInteger32", numQuads))
+	With(absValue:= Total(quads * 2^(32 * Array(0..numQuads-1))))
+	
+	If(sign != 0) {
+		Return(-absValue)
+	}
+	
+	Return(absValue)
 }
 
 Function readConstant(~mx) {
-	With(pos:= mx.StreamPosition, tag:= mx.BinaryRead("Byte"))
+	With(pos:= mx.StreamPosition, tag:= mx.readInteger)
 	
 	Switch(tag) {
-		Case(16^^01) { % Double
+		Case(-1) { % 16^^01 = -1: Double
 			Return(MxReal(mx.BinaryRead("Real64")))
 		}
-		Case(16^^0f) { % Arbitrary size floating point
-			Return(MxReal(mx.readReal))
+		Case(-2) { % 16^^03 = -2: Machine size integer
+			Return(MxInteger(mx.readInteger))
+		}
+		Case(-3) { % 16^^03 = -3: Large integer
+			Return(MxInteger(mx.readInteger))
 		}
 		
-		Case(16^^03) { % Machine size integer
-			Return(MxIntegerConst(mx.readInteger))
+		Case(-6) { % 16^^0b = -6: A string
+			Return(MxString(mx.readString))
 		}
-		Case(16^^0d) { % Arbitrary size integer
-			Return(MxLargeIntegerConst(mx.readInteger))
+		Case(-7) { % 16^^0d = -7: Arbitrary size integer
+			Return(MxLargeInteger(mx.readLargeInteger))
+		}
+		Case(-8) { % 16^^0f = -8: Arbitrary size floating point
+			Return(MxLargeReal(mx.readReal))
 		}
 		
-		Case(16^^13) { % Rational number
+		Case(-10) { % 16^^13 = -10: Rational number
 			Return(MxRationalRef(mx.readInteger, mx.readInteger))
 		}
 		
-		Case(16^^0b) { % A string
-			Return(MxStringConst(mx.readString))
-		}
-		
 		Case(~) {
-			Message(doStage1::tag, BaseForm(pos, 16), BaseForm(tag, 16))
+			Message(doStage1::tag, BaseForm(pos, 16), tag)
 			Return($Failed)
 		}
 	}
@@ -213,13 +304,13 @@ Function readConstant(~mx) {
 % @param constPool The table of constants as returned by doStage1()
 %
 Function doStage2(~mx, ~constPool) {
-	If(!mx.readMagicString("Stage 2", doStage1)) {
+	If(!mx.readMagicString("Stage 2", doStage2)) {
 		Return({})
 	}
 	
-	With(countPos:= mx.StreamPosition)
-	With(stringLookup:= newConstStringLookup(constPool))
+	With(stringLookup:= newSimpleConstLookup(constPool, MxString))
 	
+	With(countPos:= mx.StreamPosition)
 	With(count:= mx.readInteger)
 	If(count < 0) {
 		Message(doStage2::count, BaseForm(countPos, 16), count)
@@ -246,6 +337,149 @@ Function readSymbol(~mx, ~stringLookup) {
 	
 	Return({pos, stringLookup(contextRef), stringLookup(nameRef), {unknown1, unknown2}, attr})
 }
+
+%
+% Returns a function which evaluates its argument (integer) to the corresponding symbol name.
+%
+% @param symbols A list of symbol definitions as returned by doStage2()
+%
+Function newSymbolLookup(~symbols:List) {
+	Local(names)
+	
+	symbols.MapIndexed((names(#2[1]):= #1[2] ++ #1[3])&)
+	
+	names(~i)::= (Message(newSymbolLookup::nosym, i); $Failed)
+	
+	Return(names)
+}
+
+
+%
+% The expression table
+%
+Function doStage3(~mx, ~constPool, ~symbols) {
+	If(!mx.readMagicString("Stage 3", doStage3)) {
+		Return({})
+	}
+	
+	With(countPos:= mx.StreamPosition)
+	With(count:= mx.readInteger)
+	If(count < 0) {
+		Message(doStage3::count, BaseForm(countPos, 16), count)
+		Return({})
+	}
+	
+	With(constLookup:= newConstLookup(constPool))
+	With(symbolLookup:= newSymbolLookup(symbols))
+	
+	Return(Table(mx.readExpr(constLookup, symbolLookup), count))
+}
+
+Function readExpr(~mx, ~constLookup, ~symbolLookup) {
+	With(pos:= mx.StreamPosition)
+	
+	With(length:= mx.readInteger)
+	If(length < 0) {
+		%Message(readExpr::length, BaseForm(pos, 16), length)
+		%
+		% negative lengths seem to be special cases of empty lists ?
+		%
+		Return({pos, {}, length})
+	}
+	
+	With(unknown1:= mx.readInteger)
+	With(unknown2:= mx.readInteger)
+	
+	With(head:= mx.readExprPart(constLookup, symbolLookup))
+	With(arguments:= Table(mx.readExprPart(constLookup, symbolLookup), length))
+	
+	Return({pos, head @@ arguments, {unknown1, unknown2}})
+}
+
+Function readExprPart(~mx, ~constLookup, ~symbolLookup) {
+	With(pos:= mx.StreamPosition)
+	With(tag:= mx.readInteger)
+	
+	Switch(tag) {
+		Case(0 | 1 | 2 | 3 | 8) { % const reference
+			% tag 00 = 0 = integer
+			% tag 02 = 1 = large integer 
+			% tag 04 = 2 = double
+			% tag 06 = 3 = large real 
+			% tag 10 = 8 = string
+			With(ptr:= mx.readInteger)
+			Return(constLookup(ptr));
+		}
+		
+		Case(4) { % 08 = 4 = const rational
+			With(ptr:= mx.readInteger)
+			With(ratref:= constLookup(ptr))
+			With(num:= constLookup(ratref[1]))
+			With(den:= constLookup(ratref[2]))
+			Return(MxRational(num, den));
+		}
+		
+		Case(6) { % 0c = 6 = expr reference
+			With(ptr:= mx.readInteger)
+			Return(MxExpr(ptr));
+		}
+		
+		Case(7) { % 0e = 7 = symbol reference
+			With(ptr:= mx.readInteger)
+			Return(MxSymbol(symbolLookup(ptr)));
+		}
+		
+		Case(~) {
+			Message(doStage3::tag, BaseForm(pos, 16), tag)
+			Return($Failed)
+		}
+	}
+}
+
+
+%
+% Returns a list of symbol definitions.
+%
+Function doStage4(~mx, ~constPool, ~symbols) {
+	If(!mx.readMagicString("Stage 4", doStage4)) {
+		Return({})
+	}
+	
+	With(constLookup:= newConstLookup(constPool))
+	With(symbolLookup:= newSymbolLookup(symbols))
+	
+	Return @ Last @ Gather(
+		While(True) {
+			With(pos:= mx.StreamPosition)
+			
+			With(symRef:= mx.readInteger)
+			If(symRef = -1) {
+				Break();
+			}
+			
+			If((symRef > 0) =!= True) {
+				Message(doStage4::badsym, BaseForm(pos, 16), symRef)
+				Break();
+			}
+			
+			With(rhs:= mx.readExprPart(constLookup, symbolLookup))
+			
+			With(kind:= mx.readInteger.Replace({
+				0 -> "OwnValues",
+				1 -> "SubValues",
+				2 -> "UpValues",
+				3 -> "DownValues",
+				4 -> "NValues",
+				5 -> "FormatValues",
+				6 -> "DefaultValues",
+				7 -> "Messages"
+				}))
+			
+			Emit({pos, MxSymbol(symbolLookup(symRef)), rhs, kind})
+		}
+	)
+}
+
 
 End()
 
