@@ -1,0 +1,50 @@
+blobFile:= ToFileName({DirectoryName($Input, 2), "data"}, "blob.dat")
+
+AssertEqual(
+	BinaryReadList(blobFile),
+	{16^^c9, 16^^65, 16^^68, 16^^0f, 16^^cb, 16^^56, 16^^4f, 16^^40, 16^^27, 16^^06, 16^^ec, 16^^65, 16^^11, 16^^9c, 16^^40, 16^^40})
+	
+AssertEqual(
+	BinaryReadList(blobFile, ByteOrdering -> -1),
+	{16^^c9, 16^^65, 16^^68, 16^^0f, 16^^cb, 16^^56, 16^^4f, 16^^40, 16^^27, 16^^06, 16^^ec, 16^^65, 16^^11, 16^^9c, 16^^40, 16^^40})
+
+
+AssertEqual(
+	BinaryReadList(blobFile, ByteOrdering -> 1),
+	{16^^c9, 16^^65, 16^^68, 16^^0f, 16^^cb, 16^^56, 16^^4f, 16^^40, 16^^27, 16^^06, 16^^ec, 16^^65, 16^^11, 16^^9c, 16^^40, 16^^40})
+
+AssertEqual(
+	BinaryReadList(blobFile, "UnsignedInteger16", ByteOrdering -> 1),
+	{16^^c965, 16^^680f, 16^^cb56, 16^^4f40, 16^^2706, 16^^ec65, 16^^119c, 16^^4040})
+
+AssertEqual(
+	BinaryReadList(blobFile, "UnsignedInteger24", ByteOrdering -> 1),
+	{16^^c96568, 16^^0fcb56, 16^^4f4027, 16^^06ec65, 16^^119c40, EndOfFile})
+
+AssertEqual(
+	BinaryReadList(blobFile, "UnsignedInteger32", ByteOrdering -> 1),
+	{16^^c965680f, 16^^cb564f40, 16^^2706ec65, 16^^119c4040})
+
+AssertEqual(
+	BinaryReadList(blobFile, "Integer32", ByteOrdering -> 1),
+	{-16^^369a97f1, -16^^34a9b0c0, 16^^2706ec65, 16^^119c4040})
+
+AssertEqual(
+	BinaryReadList(blobFile, "UnsignedInteger64", ByteOrdering -> 1),
+	{16^^c965680fcb564f40, 16^^2706ec65119c4040})
+
+AssertEqual(
+	BinaryReadList(blobFile, "UnsignedInteger64", ByteOrdering -> -1),
+	{16^^404f56cb0f6865c9, 16^^40409c1165ec0627})
+
+AssertEqual(
+	BinaryReadList(blobFile, "UnsignedInteger128", ByteOrdering -> 1),
+	{16^^c965680fcb564f402706ec65119c4040})
+
+AssertEqual(
+	BinaryReadList(blobFile, "Real64", ByteOrdering -> -1),
+	{62.67807190511264`, 33.219280948873624`})
+
+AssertEqual(
+	BinaryReadList(blobFile, "Complex128", ByteOrdering -> -1),
+	{62.67807190511264` + 33.219280948873624` I})
