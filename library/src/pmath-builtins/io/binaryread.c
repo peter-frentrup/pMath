@@ -52,16 +52,9 @@ static pmath_t make_complex(pmath_t re, pmath_t im) {
     return im;
   }
 
-  if(pmath_is_number(im)) {
-    if(pmath_number_sign(im) == 0) {
-      pmath_unref(im);
-      return re;
-    }
-
-    if(pmath_is_number(re)) {
-      return pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_COMPLEX), 2, re, im);
-    }
+  if(pmath_is_number(im) && pmath_is_number(re)) {
+    return pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_COMPLEX), 2, re, im);
   }
 
   re_inf = _pmath_directed_infinity_direction(re);
