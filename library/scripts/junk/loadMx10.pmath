@@ -35,6 +35,8 @@ Developer`LoadMx10`newSymbolLookup
 Developer`LoadMx10`doStage3
 Developer`LoadMx10`doStage4
 
+Developer`LoadMx10`MxComplex
+Developer`LoadMx10`MxComplexRef
 Developer`LoadMx10`MxExpr
 Developer`LoadMx10`MxInteger
 Developer`LoadMx10`MxLargeInteger
@@ -53,6 +55,7 @@ doHeaderHelper::magic:= doStage1::magic:= doStage2::magic:= readMagicString::mag
 newSimpleConstLookup::notyp:= "No constant of type `1` at index `2`"
 
 doStage1::tag:= doStage2::tag:= doStage3::tag:= doStage4::tag:= "(at `1`) unknown type tag `2`"
+readPackedArray::tag:= "(at `1`) unknown array element type tag `2`"
 
 % The most significant bit (msb) of every byte indicates whether more bytes follow.
 % Values seem to be in little endian format, but this may depend on the machine?
@@ -285,6 +288,13 @@ Function readPackedArray(~mx) {
 			
 			Return({Real, totalSize, sizes, flatData})
 		}
+		
+		Case(4) { % complex
+			% On 32 bit machines, this is probably Integer32 ?
+			With(flatData:= mx.BinaryReadList("Complex128", totalSize))
+			
+			Return({Complex, totalSize, sizes, flatData})
+		}
 	}
 	
 	Message(readPackedArray::tag, BaseForm(pos, 16), tag)
@@ -317,6 +327,9 @@ Function readConstant(~mx) {
 		
 		Case(-10) { % 16^^13 = -10: Rational number
 			Return(MxRationalRef(mx.readInteger, mx.readInteger))
+		}
+		Case(-11) { % 16^^15 = -11: Complex number
+			Return(MxComplexRef(mx.readInteger, mx.readInteger))
 		}
 		
 		Case(~) {
@@ -430,12 +443,13 @@ Function readExprPart(~mx, ~constLookup, ~symbolLookup) {
 	With(tag:= mx.readInteger)
 	
 	Switch(tag) {
-		Case(0 | 1 | 2 | 3 | 8) { % const reference
+		Case(0 | 1 | 2 | 3 | 8 | 9) { % simple const reference
 			% tag 00 = 0 = integer
 			% tag 02 = 1 = large integer 
 			% tag 04 = 2 = double
 			% tag 06 = 3 = large real 
 			% tag 10 = 8 = string
+			% tag 12 = 9 = packed array
 			With(ptr:= mx.readInteger)
 			Return(constLookup(ptr));
 		}
@@ -446,6 +460,14 @@ Function readExprPart(~mx, ~constLookup, ~symbolLookup) {
 			With(num:= constLookup(ratref[1]))
 			With(den:= constLookup(ratref[2]))
 			Return(MxRational(num, den));
+		}
+		
+		Case(5) { % 0a = 5 = const complex
+			With(ptr:= mx.readInteger)
+			With(cplxref:= constLookup(ptr))
+			With(re:= constLookup(cplxref[1]))
+			With(im:= constLookup(cplxref[2]))
+			Return(MxComplex(re, im));
 		}
 		
 		Case(6) { % 0c = 6 = expr reference
