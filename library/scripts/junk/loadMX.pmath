@@ -1,4 +1,26 @@
-/* read 32bit little endian *.mx files (tested with Mathematica 6: version 16^^40180000)*/
+%
+% Read 32bit little endian *.mx files (tested with Mathematica 6: version 16^^40180000)
+% This format was roughly valid until version 9.x
+%
+% In 10.0 it changed significantly and this code does not work at all.
+%
+BeginPackage("Developer`LoadMX`")
+
+Developer`LoadMX`readString
+Developer`LoadMX`readMagicString
+Developer`LoadMX`readMagicUI32
+Developer`LoadMX`doStage1
+Developer`LoadMX`doStage2
+Developer`LoadMX`doStage3
+Developer`LoadMX`doExpr
+Developer`LoadMX`doExprPart
+Developer`LoadMX`doStage4
+Developer`LoadMX`niceObj
+Developer`LoadMX`niceExpr
+Developer`LoadMX`findExprReferences
+
+
+Begin("Developer`LoadMX`Private`")
 
 readString(~mx)::= 
 	With({len:= mx.BinaryRead("UnsignedInteger32")},
@@ -35,8 +57,9 @@ readMagicUI32(~mx, ~val, ~errsym)::=
 		Return(True);
 		)
 
-/* Returns an array of constants
- */
+%
+% Returns an array of constants
+%
 doStage1(~mx)::= 
 	Local({constantCache, numConsts, typeId, subTypeId, val, i, len, sgn, exp, prec1, prec2, total, dims},
 		If(!mx.readMagicString("Stage 1", doStage1),
@@ -151,32 +174,33 @@ doStage1(~mx)::=
 		Return(constantCache);
 		)
 
-/* Returns an array of symbols entries, each of which is a list of five fields (32bit ints),
-	{namespaceNamePtr, namePtr, ?, ?, attributes},
-	For the two unkown fields, the read 32bit unsigned integer is given instead. 
-	The attributes field is bitfield of the following form 
-	(Locked, Stub is missing, high order word = 0):
-	  ____----____----
-	  0001000101111000
-	   | | | | | | | ^ ?                   0
-	   | | | | | | |^- HoldFirst           1
-	   | | | | | | '-- HoldRest            2
-	   | | | | | |^--- Flat                3
-	   | | | | | '---- Orderless           4
-	   | | | | |^----- OneIdentity         5
-	   | | | | '------ Listable            6
-	   | | | |^------- Constant            7
-	   | | | '-------- Protected           8
-	   | | |^--------- ReadProtected       9
-	   | | '---------- NHoldFirst         10
-	   | |^----------- NHoldRest          11
-	   | '------------ NumericFunction    12
-	   |^------------- SequenceHold       13
-	   '-------------- HoldAllComplete    14
-	  ^--------------- Temporary          15
-	  
-	  The stream position of the n'th symbol is at byte  start(Stage 2) + 4 + 5*4*(n-1).
- */
+%
+% Returns an array of symbols entries, each of which is a list of five fields (32bit ints),
+% {namespaceNamePtr, namePtr, ?, ?, attributes},
+% For the two unkown fields, the read 32bit unsigned integer is given instead. 
+% The attributes field is bitfield of the following form 
+% (Locked, Stub is missing, high order word = 0):
+%	  ____----____----
+%	  0001000101111000
+%	   | | | | | | | ^ ?                   0
+%	   | | | | | | |^- HoldFirst           1
+%	   | | | | | | '-- HoldRest            2
+%	   | | | | | |^--- Flat                3
+%	   | | | | | '---- Orderless           4
+%	   | | | | |^----- OneIdentity         5
+%	   | | | | '------ Listable            6
+%	   | | | |^------- Constant            7
+%	   | | | '-------- Protected           8
+%	   | | |^--------- ReadProtected       9
+%	   | | '---------- NHoldFirst         10
+%	   | |^----------- NHoldRest          11
+%	   | '------------ NumericFunction    12
+%	   |^------------- SequenceHold       13
+%	   '-------------- HoldAllComplete    14
+%	  ^--------------- Temporary          15
+%	  
+% The stream position of the n'th symbol is at byte  start(Stage 2) + 4 + 5*4*(n-1).
+%
 doStage2(~mx, ~constantCache)::= 
 	Local({symbolCache, numSymbols, i, fields},
 		If(!mx.readMagicString("Stage 2", doStage2),
@@ -204,15 +228,14 @@ doStage2(~mx, ~constantCache)::=
 		Return(symbolCache);
 		)
 		
-/* Returns a dictionary of expressions. exprCache(Length) is the number of expressions.
-	exprCache(n) contains information about the n'th expression. It is list of three entries, 
-	{expr, flags, pos} where flags is some unkown flags (list of 0 or 3 ints), pos is the stream 
-	position and expr is an expression with head and items being either of 
-	MxConstExpr({}, negativeLen)
-	MxConst(value, constIndex, type), 
-	MxSym(name, symbolIndex), 
-	MxExpr(previousIndex), MxConstExpr({}, -num)
- */
+% Returns a dictionary of expressions. exprCache(Length) is the number of expressions.
+% exprCache(n) contains information about the n'th expression. It is list of three entries, 
+% {expr, flags, pos} where flags is some unkown flags (list of 0 or 3 ints), pos is the stream 
+% position and expr is an expression with head and items being either of 
+%	MxConstExpr({}, negativeLen)
+%	MxConst(value, constIndex, type), 
+%	MxSym(name, symbolIndex), 
+%	MxExpr(previousIndex), MxConstExpr({}, -num)
 doStage3(~mx, ~constantCache, ~symbolCache)::= 
 	Local({exprCache, numExpr, i},
 		exprCache(~p)::= (Message(doStage3::noexpr, p); $Failed);
@@ -270,7 +293,7 @@ doExprPart(~mx, ~exprIndex, ~itemIndex, ~constantCache, ~symbolCache)::=
 				Return(MxConst(constantCache[ptr], ptr, typeId));
 				),
 				
-			4, ( /* expr */
+			4, ( % expr
 				ptr:= mx.BinaryRead("UnsignedInteger32");
 				If(ptr >= exprIndex || ptr < 1,
 					Message(doStage3::invexpr, exprIndex, itemIndex, typeId, ptr);
@@ -278,7 +301,7 @@ doExprPart(~mx, ~exprIndex, ~itemIndex, ~constantCache, ~symbolCache)::=
 				Return(MxExpr(ptr)); /* exprCache(ptr) */
 				),
 				
-			5, ( /* symbol */
+			5, ( % symbol
 				ptr:= mx.BinaryRead("UnsignedInteger32");
 				If(ptr > symbolCache.Length || ptr < 1,
 					Message(doStage3::invsym, exprIndex, itemIndex, typeId, ptr);
@@ -291,9 +314,10 @@ doExprPart(~mx, ~exprIndex, ~itemIndex, ~constantCache, ~symbolCache)::=
 			Return(MxOther(typeId, mx.BinaryRead("UnsignedInteger32")));
 		)
 
-/* Returns a list of top-level expression references. Each item is a list of four fields, 
-	{MxSymbol(symbolIndex), ?, MxExpr(exprIndex), ?}
- */
+%
+% Returns a list of top-level expression references. Each item is a list of four fields, 
+%	{MxSymbol(symbolIndex), ?, MxExpr(exprIndex), ?}
+%
 doStage4(~mx, ~constantCache, ~symbolCache)::= 
 	Local({i, sym, b, c, d},
 		If(!mx.readMagicString("Stage 4", doStage4),
@@ -361,26 +385,28 @@ niceExpr(~exprCache, ~ptr, ~maxDepth)::=
 findExprReferences(~exprCache, ~exprIndex)::= 
 	Array((exprIndex+1)..exprCache(Length)).Select(Position(exprCache(#),MxExpr(exprIndex))=!={} &)
 
+End()
+
+EndPackage()
 
 /*
-mx:= OpenRead("D:/tmp/dump/temp.mx", BinaryFormat->True)
+%mx:= OpenRead("D:/tmp/dump/temp.mx", BinaryFormat->True)
+%
+%mx:= OpenRead("C:/Program Files/Wolfram Research/Mathematica/6.0/SystemFiles/Kernel/SystemResources/Windows/SystemUtilities.mx", BinaryFormat->True)
 
-mx:= OpenRead("C:/Program Files/Wolfram Research/Mathematica/6.0/SystemFiles/Kernel/SystemResources/Windows/SystemUtilities.mx", BinaryFormat->True)
-
-*/
 mx:= OpenRead("C:/Program Files/Wolfram Research/Mathematica/6.0/SystemFiles/Kernel/SystemResources/Windows/FEKernelInit.mx", BinaryFormat->True)
 
 mx.BinaryRead("TerminatedString")
 
-mx.BinaryRead("Byte").BaseForm(16) /* 16^^00, maybe also use "TerminatedString" ? */
+mx.BinaryRead("Byte").BaseForm(16) % 16^^00, maybe also use "TerminatedString" ?
 
 mx.readMagicUI32(16^^08080808, doHeader)
 mx.readMagicUI32(16^^00000000, doHeader)
 
 mxVersion:= mx.BinaryRead("UnsignedInteger32");
-mxVersion.BaseForm(16) /* version number ?  16^^40180000 or 16^^40140000 ... */
+mxVersion.BaseForm(16) % version number ?  16^^40180000 or 16^^40140000 ...
 
-mx.readString() /* e.g. "Windows" */
+mx.readString() % e.g. "Windows"
 
 mx.readMagicString("ENDCONT", doHeader)
 
@@ -391,3 +417,5 @@ symbolCache:= mx.doStage2(constantCache);
 exprCache:= mx.doStage3(constantCache, symbolCache);
 
 mainCache:= mx.doStage4(constantCache, symbolCache);
+*/
+/\/

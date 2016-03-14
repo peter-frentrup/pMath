@@ -1,0 +1,243 @@
+%
+% Load Mathematica 10 *.mx files. Tested with Windows 7 x64
+%
+% Like in previous versions of the file format, an *.mx file contains a header wich ends with 
+% "ENTCONT", followed by four stages. Each of which start with "Stage 1", "Stage 2", ...
+% Unlike previous versions, the new format seems to be more cross-platform and more compact.
+%
+% Strings are NUL-terminated ASCII strings, now without length prefix.
+%
+% The header contains version and system information.
+%
+% Stage 1 is the constant pool. Each constant starts with a type tag byte
+%
+% Stage 2 is the symbol pool. Symbols have namespace, name and attribute information.
+%
+% Stage 3 is the expression pool. Each expression is an array with items being references to 
+% previous expressions, to symbols, or to conmstants.
+%
+% Stage 4 is the main expression pool. It contains a reference (possibly several references?) to the
+% main expression which is to be (executed and) returned by Get["file.mx"].
+%
+BeginPackage("Developer`LoadMx10`", "ExperimentalSyntax`")
+
+Developer`LoadMx10`readMagicString
+Developer`LoadMx10`doStage1
+Developer`LoadMx10`readInteger
+Developer`LoadMx10`readConstant
+
+Developer`LoadMx10`MxStringConst
+
+Begin("Developer`LoadMx10`Private`")
+
+readMagicString::magic:= "(at `1`) expected string `2` but found `3`"
+doStage1::magig:= readMagicString::magic
+
+doStage1::tag:= "(at `1`) unknown type tag `2`"
+
+% The most significant bit (msb) of every byte indicates whether more bytes follow.
+% Values seem to be in little endian format, but this may depend on the machine?
+% The least significant bit of the first byte is the sign bit.
+%
+% Integers between -64..63 = -2^6..2^6-1 are encoded as a single byte 0VVV VVVS
+% where S is the sign bit and VVVVVV the absolute value. An exception is
+% -1, which is encoded as 0000 0001 that would otherwise mean -0.
+%
+% It is unclear what 0000 0011 decodes to.
+%
+% Larger integers between -8192..8191 = -2^13..2^13-1 need two bytes.
+% Larger integers between -1048576 .. 1048575 = -2^20..2^20-1 need three bytes.
+Function readInteger(~mx) {
+	With(pos:= mx.StreamPosition)
+	
+	Local(byte:= mx.BinaryRead("Byte"))
+	Local(absValue:= 0)
+	Local(shift:= 6)
+	
+	With(signBit:= BitGet(byte, 0))
+	absValue:= BitShiftRight(BitAnd(shiftedValue, 2^^01111110), 1)
+	
+	While(BitGet(byte, 7) != 0) {
+		byte:= mx.BinaryRead("Byte")
+		
+		absValue+= BitShiftLeft(BitAnd(byte, 2^^01111111), shift)
+		shift+= 7
+	}
+	
+	If(signBit != 0) {
+		If(absValue = 0) {
+			Return(-1)
+		} Else If(absValue = 1) {
+			Message(readConstant::smallNegOne, BaseForm(pos, 16))
+		}
+		Return(-absValue)
+	} Else {
+		Return(absValue)
+	}
+}
+
+Function readString(~mx) {
+	% Every string starts with a byte-count N followed by N bytes, the last of which is NUL and not
+	% part of the string.
+	%
+	% TODO: convert from modified UTF-8 (embedded U+0000 is represented by the byte 16^^ff).
+	With(pos:= mx.StreamPosition)
+	With(size:= mx.readInteger)
+	
+	If(size <= 0) {
+		Message(readString::size, BaseForm(pos, 16), size)
+		mx.SetStreamPosition(pos)
+		Return($Failed)
+	}
+	
+	mx.BinaryRead("TerminatedString")
+}
+
+Function readMagicString(~mx, ~str, ~errsym) {
+	With(pos:= mx.StreamPosition, read:= mx.readString())
+	
+	If(read =!= str) {
+		Message(errsym::"magic", BaseForm(pos, 16), str, read)
+		mx.SetStreamPosition(pos)
+		Return(False)
+	}
+	
+	Return(True)
+}
+
+
+Function doStage1(~mx) {
+	If(!mx.readMagicString("Stage 1", doStage1)) {
+		Return({})
+	}
+	
+	With(countPos:= mx.StreamPosition)
+	
+	With(count:= mx.readInteger)
+	If(count < 0) {
+		Message(doStage1::count, BaseForm(countPos, 16), count)
+		Return({})
+	}
+	
+	Return(Table(mx.readConstant, count))
+}
+
+%
+Function readReal(~mx) {
+	With(pos:= mx.StreamPosition)
+	
+	With(numQuads:= mx.readInteger)
+	With(sign:= mx.BinaryRead("Byte"))
+	
+	With(unknown1:= mx.BinaryRead({ "Byte", "Byte" } ))
+	With(unknown2:= mx.BinaryRead("Real64"))
+	
+	
+	With(precisionBits:= mx.BinaryRead("Real64"))
+	With(mantissaBytes:= mx.BinaryReadList("Byte", 4 * numQuads))
+	
+	Return({sign, unknown1, unknown2, precisionBits, mantissaBytes})
+}
+
+Function readConstant(~mx) {
+	With(pos:= mx.StreamPosition, tag:= mx.BinaryRead("Byte"))
+	
+	Switch(tag) {
+		Case(16^^01) { % Double
+			Return(MxReal(mx.BinaryRead("Real64")))
+		}
+		Case(16^^0f) { % Arbitrary size floating point
+			Return(MxReal(mx.readReal))
+		}
+		
+		Case(16^^03) { % Machine size integer
+			Return(MxIntegerConst(mx.readInteger))
+		}
+		Case(16^^0d) { % Arbitrary size integer
+			Return(MxLargeIntegerConst(mx.readInteger))
+		}
+		
+		Case(16^^13) { % Rational number
+			Return(MxRationalRef(mx.readInteger, mx.readInteger))
+		}
+		
+		Case(16^^0b) { % A string
+			Return(MxStringConst(mx.readString))
+		}
+		
+		Case(~) {
+			Message(doStage1::tag, BaseForm(pos, 16), BaseForm(tag, 16))
+			Return($Failed)
+		}
+	}
+}
+
+
+%
+% The symbol table
+%
+% @param constPool The table of constants as returned by doStage1()
+%
+Function doStage2(~mx, ~constPool) {
+	If(!mx.readMagicString("Stage 2", doStage1)) {
+		Return({})
+	}
+	
+	With(countPos:= mx.StreamPosition)
+	
+	With(count:= mx.readInteger)
+	If(count < 0) {
+		Message(doStage2::count, BaseForm(countPos, 16), count)
+		Return({})
+	}
+	
+	Return(Table(mx.readSymbol(constPool), count))
+}
+
+%
+% A symbol has a context (reference to string from constant pool),
+% a name (reference to string from constant pool),
+% two (more ?) unknown bytes 
+% and an attributes number
+%
+Function readSymbol(~mx, ~constPool) {
+	With(pos:= mx.StreamPosition)
+	
+	With(contextRef:= mx.readInteger)
+	With(nameRef:= mx.readInteger)
+	With(unknown:= mx.BinaryReadList("Byte", 2))
+	With(attr:= mx.readInteger)
+	
+	If(contextRef <= 0 || contextRef > constPool.Length) {
+		Message(readSymbol::ctxref, BaseForm(pos, 16), contextRef, constPool.Length)
+		
+		Return({$Failed, contextRef, nameRef, unknown, attr})
+	}
+	
+	If(nameRef <= 0 || nameRef > constPool.Length) {
+		Message(readSymbol::namref, BaseForm(pos, 16), nameRef, constPool.Length)
+		
+		Return({$Failed, contextRef, nameRef, unknown, attr})
+	}
+	
+	If(constPool[contextRef].Head != MxStringConst) {
+		Message(readSymbol::ctxstr, BaseForm(pos, 16), constPool[contextRef])
+		
+		Return({$Failed, contextRef, nameRef, unknown, attr})
+	}
+	
+	If(constPool[nameRef].Head != MxStringConst) {
+		Message(readSymbol::namstr, BaseForm(pos, 16), constPool[nameRef])
+		
+		Return({$Failed, contextRef, nameRef, unknown, attr})
+	}
+	
+	With(context:= constPool[contextRef, 1])
+	With(name:= constPool[nameRef, 1])
+	
+	Return({context, name, unknown, attr})
+}
+
+End()
+
+EndPackage()
