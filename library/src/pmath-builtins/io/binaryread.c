@@ -2,6 +2,7 @@
 
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-language/scanner.h>
 
@@ -196,6 +197,18 @@ static enum simple_binary_type_t as_simple_binary_type(pmath_t name, size_t *siz
   
   *size = 0;
   return TYPE_NONE;
+}
+
+static void reverse_byte_order_32(uint8_t *buf) {
+  uint8_t tmp0 = buf[0];
+  uint8_t tmp1 = buf[1];
+  uint8_t tmp2 = buf[2];
+  uint8_t tmp3 = buf[3];
+  
+  buf[0] = tmp3;
+  buf[1] = tmp2;
+  buf[2] = tmp1;
+  buf[3] = tmp0;
 }
 
 static pmath_t binary_read_real16(
@@ -704,6 +717,76 @@ PMATH_PRIVATE pmath_t builtin_binaryread(pmath_expr_t expr) {
   return type;
 }
 
+static pmath_t binary_read_int32_list(
+  pmath_t file, // won't be freed
+  size_t count, 
+  int byte_ordering
+) {
+  pmath_blob_t blob = PMATH_NULL;
+  pmath_bool_t append_eof_symbol = FALSE;
+  pmath_packed_array_t array;
+  void *buf = NULL;
+  
+  size_t buf_size = 0;
+  size_t length = 0;
+  
+  while(length < count && pmath_file_status(file) == PMATH_FILE_OK && !pmath_aborting()) {
+    pmath_blob_t new_blob;
+    size_t read_bytes;
+    size_t old_buf_size = buf_size;
+    
+    length = MIN(count, length + 128);
+    if(SIZE_MAX / sizeof(int32_t) < length) {
+      break;
+    }
+    
+    buf_size = sizeof(int32_t) * length;
+    new_blob = pmath_blob_new(buf_size, FALSE);
+    if(PMATH_UNLIKELY(pmath_is_null(new_blob)))
+      break;
+    
+    if(old_buf_size > 0) {
+      int32_t *new_buf = pmath_blob_try_write(new_blob);
+      memcpy(buf, new_buf, old_buf_size);
+      
+      pmath_unref(blob);
+      
+      buf = new_buf;
+    }
+    else{
+      buf = pmath_blob_try_write(new_blob);
+    }
+    
+    blob = new_blob;
+    
+    read_bytes = pmath_file_read(file, 
+                                 (uint8_t*)buf + old_buf_size, 
+                                 buf_size - old_buf_size, 
+                                 FALSE);
+    if(read_bytes < buf_size - old_buf_size) {
+      length = (old_buf_size + read_bytes) / sizeof(int32_t);
+      append_eof_symbol = (read_bytes % sizeof(int32_t)) != 0;
+      break;
+    }
+  }
+  
+  if(byte_ordering != PMATH_BYTE_ORDER) {
+    size_t i;
+    uint8_t *p = buf;
+    
+    for(i = 0; i < length; ++i, p+= sizeof(int32_t)) {
+      reverse_byte_order_32(p);
+    }
+  }
+  
+  array = pmath_packed_array_new(blob, PMATH_PACKED_INT32, 1, &length, NULL, 0);
+  if(append_eof_symbol) {
+    pmath_expr_append(array, 1, pmath_ref(PMATH_SYMBOL_ENDOFFILE));
+  }
+  
+  return array;
+}
+
 static pmath_t binary_read_list(
   pmath_t file, // won't be freed
   pmath_t type, // won't be freed
@@ -714,7 +797,6 @@ static pmath_t binary_read_list(
   enum simple_binary_type_t simple_type;
   pmath_expr_t result;
   pmath_t item;
-  size_t min_chunk = 128;
   size_t i;
   size_t length;
   
@@ -726,15 +808,9 @@ static pmath_t binary_read_list(
   }
   
   simple_type = as_simple_binary_type(type, &item_size);
-//  if(simple_type != TYPE_NONE) {
-//    uint8_t buf[1024];
-//    
-//    assert(item_size > 0);
-//    assert(item_size <= sizeof(buf));
-//    assert(sizeof(buf) % item_size == 0);
-//    
-//    
-//  }
+  if(simple_type == TYPE_INT && item_size == sizeof(int32_t)) {
+    return binary_read_int32_list(file, count, byte_ordering);
+  }
   
   item = pmath_ref(type);
   if(!binary_read(file, &item, byte_ordering)) {
