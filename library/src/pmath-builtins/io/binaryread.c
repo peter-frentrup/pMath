@@ -774,7 +774,7 @@ static pmath_t binary_read_int32_list(
   
   array = pmath_packed_array_new(blob, PMATH_PACKED_INT32, 1, &length, NULL, 0);
   if(append_eof_symbol) {
-    pmath_expr_append(array, 1, pmath_ref(PMATH_SYMBOL_ENDOFFILE));
+    array = pmath_expr_append(array, 1, pmath_ref(PMATH_SYMBOL_ENDOFFILE));
   }
   
   return array;
