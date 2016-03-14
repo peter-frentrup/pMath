@@ -240,10 +240,11 @@ Function readSymbol(~mx, ~stringLookup) {
 	
 	With(contextRef:= mx.readInteger)
 	With(nameRef:= mx.readInteger)
-	With(unknown:= mx.BinaryReadList("Byte", 2))
+	With(unknown1:= mx.readInteger)
+	With(unknown2:= mx.readInteger)
 	With(attr:= mx.readInteger)
 	
-	Return({stringLookup(contextRef), stringLookup(nameRef), unknown, attr})
+	Return({pos, stringLookup(contextRef), stringLookup(nameRef), {unknown1, unknown2}, attr})
 }
 
 End()
