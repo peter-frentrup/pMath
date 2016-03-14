@@ -39,6 +39,7 @@ Developer`LoadMx10`MxExpr
 Developer`LoadMx10`MxInteger
 Developer`LoadMx10`MxLargeInteger
 Developer`LoadMx10`MxLargeReal
+Developer`LoadMx10`MxPackedArray
 Developer`LoadMx10`MxRational
 Developer`LoadMx10`MxRationalRef
 Developer`LoadMx10`MxReal
@@ -262,6 +263,34 @@ Function readLargeInteger(~mx) {
 	Return(absValue)
 }
 
+Function readPackedArray(~mx) {
+	With(pos:= mx.StreamPosition)
+	
+	With(tag:= mx.readInteger)
+	With(depth:= mx.readInteger)
+	With(totalSize:= mx.readInteger)
+	With(sizes:= Table(mx.readInteger, depth))
+	
+	Switch(tag) {
+		Case(2) { % integer
+			% On 32 bit machines, this is probably Integer32 ?
+			With(flatData:= mx.BinaryReadList("Integer64", totalSize))
+			
+			Return({Integer, totalSize, sizes, flatData})
+		}
+		
+		Case(3) { % real
+			% On 32 bit machines, this is probably Integer32 ?
+			With(flatData:= mx.BinaryReadList("Real64", totalSize))
+			
+			Return({Real, totalSize, sizes, flatData})
+		}
+	}
+	
+	Message(readPackedArray::tag, BaseForm(pos, 16), tag)
+	Return({$Failed, totalSize, sizes})
+}
+
 Function readConstant(~mx) {
 	With(pos:= mx.StreamPosition, tag:= mx.readInteger)
 	
@@ -272,8 +301,8 @@ Function readConstant(~mx) {
 		Case(-2) { % 16^^03 = -2: Machine size integer
 			Return(MxInteger(mx.readInteger))
 		}
-		Case(-3) { % 16^^03 = -3: Large integer
-			Return(MxInteger(mx.readInteger))
+		Case(-3) { % 16^^05 = -3: packed array
+			Return(MxPackedArray(mx.readPackedArray))
 		}
 		
 		Case(-6) { % 16^^0b = -6: A string
