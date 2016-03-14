@@ -118,11 +118,9 @@ Unprotect(MakeExpression)
 convertHeldBlock(HoldComplete())::= HoldComplete(/\/)
 convertHeldBlock(~heldEvalSequence)::=
 	heldEvalSequence.ReplaceRepeated({
-		HoldPattern(~~~start; With(~~vars); ~~~rest) :> (start; WITH({vars}, rest)),
-		HoldPattern(~~~start; Local(~~vars); ~~rest) :> (start; LOCAL({vars}, rest)),
-		HoldPattern(~~~start; Finally(~end); ~~rest) :> (start; FINALLY(rest, end)),
-		HoldPattern(~~~start; {~more;~~~middle}; ~~~rest) :> (start; more; middle; rest),
-		HoldPattern(~~~start; {~middle}; ~~~rest) :> (start; middle; rest)
+		HoldPattern(~~~start; With(~~vars); ~~~rest) :> (start; WITH({vars}, EvaluationSequence(rest))),
+		HoldPattern(~~~start; Local(~~vars); ~~~rest) :> (start; LOCAL({vars}, EvaluationSequence(rest))),
+		HoldPattern(~~~start; Finally(~end); ~~~rest) :> (start; FINALLY(EvaluationSequence(rest), end))
 	},
 	1).Replace({WITH -> With, LOCAL -> Local, FINALLY -> Finally}, Heads->True)
 
