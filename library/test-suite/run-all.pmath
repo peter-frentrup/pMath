@@ -38,6 +38,8 @@ testFiles:= $Input.DirectoryName.ToFileName("tests").FileNames("*.pmath")
 Do(i -> 1..Length(testFiles)) {
 	Print(StringForm("Run test `1` of `2`: `3`", i, Length(testFiles), testFiles[i]));
 	
+	Clear($MessageCount)
+	
 	Remove @ Evaluate("TestSuite`Private`Test" ++ ToString(i) ++ "`*")
 	Begin("TestSuite`Private`Test" ++ ToString(i) ++ "`");
 	
