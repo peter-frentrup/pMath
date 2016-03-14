@@ -21,8 +21,12 @@
 %
 BeginPackage("Developer`LoadMx10`", "ExperimentalSyntax`")
 
+Developer`LoadMx10`readString
 Developer`LoadMx10`readMagicString
+Developer`LoadMx10`doHeader
 Developer`LoadMx10`doStage1
+Developer`LoadMx10`newConstStringLookup
+Developer`LoadMx10`doStage2
 Developer`LoadMx10`readInteger
 Developer`LoadMx10`readConstant
 
@@ -31,7 +35,8 @@ Developer`LoadMx10`MxStringConst
 Begin("Developer`LoadMx10`Private`")
 
 readMagicString::magic:= "(at `1`) expected string `2` but found `3`"
-doStage1::magig:= readMagicString::magic
+doHeader::magic:= doStage1::magic:= doStage2::magic:= readMagicString::magic
+newConstStringLookup::nostr:= "No string constant at index `1`"
 
 doStage1::tag:= "(at `1`) unknown type tag `2`"
 
@@ -55,7 +60,7 @@ Function readInteger(~mx) {
 	Local(shift:= 6)
 	
 	With(signBit:= BitGet(byte, 0))
-	absValue:= BitShiftRight(BitAnd(shiftedValue, 2^^01111110), 1)
+	absValue:= BitShiftRight(BitAnd(byte, 2^^01111110), 1)
 	
 	While(BitGet(byte, 7) != 0) {
 		byte:= mx.BinaryRead("Byte")
@@ -68,7 +73,7 @@ Function readInteger(~mx) {
 		If(absValue = 0) {
 			Return(-1)
 		} Else If(absValue = 1) {
-			Message(readConstant::smallNegOne, BaseForm(pos, 16))
+			Message(readInteger::smallNegOne, BaseForm(pos, 16))
 		}
 		Return(-absValue)
 	} Else {
@@ -105,6 +110,17 @@ Function readMagicString(~mx, ~str, ~errsym) {
 	Return(True)
 }
 
+Function doHeader(~mx) {
+	With(intro:= mx.BinaryRead("TerminatedString"))
+	With(unknownHeaderA:= mx.BinaryRead({"Byte", "UnsignedInteger32", "UnsignedInteger32"}))
+	With(mmaVersion:= mx.BinaryRead("Real64"))
+	With(unknownHeaderB:= mx.BinaryRead({"UnsignedInteger32", "UnsignedInteger32"}))
+	With(system:= mx.BinaryRead("TerminatedString"))
+	With(unknownHeaderC:= mx.BinaryRead({"Byte", "UnsignedInteger32", "UnsignedInteger32"}))
+	
+	mx.readMagicString("ENDCONT", doHeader)
+	Return({"intro" -> intro, "version" -> mmaVersion, "system" -> system, "unknown" -> {unknownHeaderA, unknownHeaderB, unknownHeaderC}})
+}
 
 Function doStage1(~mx) {
 	If(!mx.readMagicString("Stage 1", doStage1)) {
@@ -120,6 +136,24 @@ Function doStage1(~mx) {
 	}
 	
 	Return(Table(mx.readConstant, count))
+}
+
+%
+% Returns a function which evaluates its argument (integer) to the corresponding string value from 
+% `constPool`
+%
+% @param constPool A list of constants as returned by doStage1()
+%
+Function newConstStringLookup(~constPool:List) {
+	Local(constStrings)
+	
+	With(indices:= constPool.Position(MxStringConst, 2)[All, 1])
+	With(values:= constPool[indices, 1])
+	
+	{indices, values}.MapThread((constStrings(#1):= #2) &)
+	constStrings(~i)::= (Message(newConstStringLookup::nostr, i); $Failed)
+	
+	Return(constStrings)
 }
 
 %
@@ -184,6 +218,7 @@ Function doStage2(~mx, ~constPool) {
 	}
 	
 	With(countPos:= mx.StreamPosition)
+	With(stringLookup:= newConstStringLookup(constPool))
 	
 	With(count:= mx.readInteger)
 	If(count < 0) {
@@ -191,7 +226,7 @@ Function doStage2(~mx, ~constPool) {
 		Return({})
 	}
 	
-	Return(Table(mx.readSymbol(constPool), count))
+	Return(Table(mx.readSymbol(stringLookup), count))
 }
 
 %
@@ -200,7 +235,7 @@ Function doStage2(~mx, ~constPool) {
 % two (more ?) unknown bytes 
 % and an attributes number
 %
-Function readSymbol(~mx, ~constPool) {
+Function readSymbol(~mx, ~stringLookup) {
 	With(pos:= mx.StreamPosition)
 	
 	With(contextRef:= mx.readInteger)
@@ -208,34 +243,7 @@ Function readSymbol(~mx, ~constPool) {
 	With(unknown:= mx.BinaryReadList("Byte", 2))
 	With(attr:= mx.readInteger)
 	
-	If(contextRef <= 0 || contextRef > constPool.Length) {
-		Message(readSymbol::ctxref, BaseForm(pos, 16), contextRef, constPool.Length)
-		
-		Return({$Failed, contextRef, nameRef, unknown, attr})
-	}
-	
-	If(nameRef <= 0 || nameRef > constPool.Length) {
-		Message(readSymbol::namref, BaseForm(pos, 16), nameRef, constPool.Length)
-		
-		Return({$Failed, contextRef, nameRef, unknown, attr})
-	}
-	
-	If(constPool[contextRef].Head != MxStringConst) {
-		Message(readSymbol::ctxstr, BaseForm(pos, 16), constPool[contextRef])
-		
-		Return({$Failed, contextRef, nameRef, unknown, attr})
-	}
-	
-	If(constPool[nameRef].Head != MxStringConst) {
-		Message(readSymbol::namstr, BaseForm(pos, 16), constPool[nameRef])
-		
-		Return({$Failed, contextRef, nameRef, unknown, attr})
-	}
-	
-	With(context:= constPool[contextRef, 1])
-	With(name:= constPool[nameRef, 1])
-	
-	Return({context, name, unknown, attr})
+	Return({stringLookup(contextRef), stringLookup(nameRef), unknown, attr})
 }
 
 End()
