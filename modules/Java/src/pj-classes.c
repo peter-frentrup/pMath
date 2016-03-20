@@ -987,7 +987,7 @@ pmath_t pj_class_call_method(
                   break;
                   
                 case 'C':
-                  val.b = (*env)->CallStaticCharMethodA(env, clazz, mid, jargs);
+                  val.c = (*env)->CallStaticCharMethodA(env, clazz, mid, jargs);
                   break;
                   
                 case 'S':
@@ -1045,7 +1045,7 @@ pmath_t pj_class_call_method(
                   break;
                   
                 case 'C':
-                  val.b = (*env)->CallCharMethodA(env, obj, mid, jargs);
+                  val.c = (*env)->CallCharMethodA(env, obj, mid, jargs);
                   break;
                   
                 case 'S':
@@ -1330,7 +1330,7 @@ pmath_t pj_class_get_field(
         break;
         
       case 'C':
-        val.b = (*env)->GetStaticCharField(env, clazz, fid);
+        val.c = (*env)->GetStaticCharField(env, clazz, fid);
         break;
         
       case 'S':
@@ -1387,7 +1387,7 @@ pmath_t pj_class_get_field(
         break;
         
       case 'C':
-        val.b = (*env)->GetCharField(env, obj, fid);
+        val.c = (*env)->GetCharField(env, obj, fid);
         break;
         
       case 'S':

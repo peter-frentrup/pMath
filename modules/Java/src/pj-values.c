@@ -274,7 +274,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
           }
         }
         else {
-          void *data = (*env)->GetPrimitiveArrayCritical(env, arr, NULL);
+          uint8_t *data = (*env)->GetPrimitiveArrayCritical(env, arr, NULL);
           if(data) {
             jsize i;
             for(i = 0; i < len; ++i) {
@@ -589,7 +589,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
           }
         }
         else {
-          void *data = (*env)->GetPrimitiveArrayCritical(env, value->l, NULL);
+          uint8_t *data = (*env)->GetPrimitiveArrayCritical(env, value->l, NULL);
           
           if(data) {
             size_t i;
