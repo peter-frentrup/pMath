@@ -254,7 +254,7 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="/MD" />
+					<Add option="/MDd" />
 					<Add option="/Gd" />
 					<Add option="/GL" />
 					<Add option="/W3" />
@@ -275,6 +275,7 @@
 					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
+					<Add option="/debug" />
 					<Add option="/DEBUG" />
 					<Add option="/LTCG" />
 					<Add library="mpfi.lib" />
@@ -367,7 +368,7 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="/MD" />
+					<Add option="/MDd" />
 					<Add option="/Gd" />
 					<Add option="/GL" />
 					<Add option="/W3" />
@@ -388,6 +389,7 @@
 					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
+					<Add option="/debug" />
 					<Add option="/DEBUG" />
 					<Add option="/LTCG" />
 					<Add library="mpfi.lib" />

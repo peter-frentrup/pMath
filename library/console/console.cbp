@@ -57,7 +57,7 @@
 				<Option type="1" />
 				<Option compiler="msvc_2015" />
 				<Compiler>
-					<Add option="/MT" />
+					<Add option="/MDd" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
@@ -67,6 +67,7 @@
 					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
+					<Add option="/debug" />
 					<Add option="/DEBUG" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
@@ -81,7 +82,7 @@
 				<Option type="1" />
 				<Option compiler="msvc_2015" />
 				<Compiler>
-					<Add option="/MT" />
+					<Add option="/MD" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GL" />
@@ -94,6 +95,7 @@
 					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
+					<Add option="/debug" />
 					<Add option="/DEBUG" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
@@ -108,7 +110,7 @@
 				<Option type="1" />
 				<Option compiler="msvc_2015_x64" />
 				<Compiler>
-					<Add option="/MT" />
+					<Add option="/MDd" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
@@ -118,6 +120,7 @@
 					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
+					<Add option="/debug" />
 					<Add option="/DEBUG" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
@@ -135,6 +138,9 @@
 				<Option projectLinkerOptionsRelation="-1" />
 				<Option projectIncludeDirsRelation="-1" />
 				<Option projectLibDirsRelation="-1" />
+				<Compiler>
+					<Add option="/MD" />
+				</Compiler>
 				<MakeCommands>
 					<Build command="" />
 					<CompileFile command="" />
