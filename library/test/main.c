@@ -681,14 +681,23 @@ static pmath_t builtin_quit(pmath_expr_t expr) {
 }
 
 static pmath_t builtin_sectionprint(pmath_expr_t expr) {
+  pmath_t style;
+  const char *indent = "";
+  
   if(pmath_expr_length(expr) < 2)
     return expr;
-    
+  
+  style = pmath_expr_get_item(expr, 1);
+  if(pmath_is_string(style) && pmath_string_equals_latin1(style, "Echo")) {
+    indent = ">> ";
+  }
+  pmath_unref(style);
+  
   if(pmath_expr_length(expr) == 2) {
     pmath_t item = pmath_expr_get_item(expr, 2);
     pmath_unref(expr);
     
-    write_output("", item);
+    write_output(indent, item);
     pmath_unref(item);
   }
   else {
@@ -698,7 +707,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_LIST));
     row = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 1, row);
     
-    write_output("", row);
+    write_output(indent, row);
     pmath_unref(row);
   }
   
