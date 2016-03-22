@@ -13,8 +13,7 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr) {
   pmath_t min  = pmath_expr_get_item(expr, 3);
   pmath_t max  = pmath_expr_get_item(expr, 4);
   
-  if( pmath_is_symbol(head)    &&
-      pmath_is_int32(len)      &&
+  if( pmath_is_int32(len)      &&
       pmath_is_int32(min)      &&
       PMATH_AS_INT32(len) >= 0 &&
       PMATH_AS_INT32(min) >= 0)
