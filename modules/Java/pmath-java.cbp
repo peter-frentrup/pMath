@@ -13,8 +13,8 @@
 		<Build>
 			<Target title="Windows-GCC-Debug-x86 Richmath Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86-64/pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Windows/debug/gcc-debug-x64/" />
+				<Option output="bin/Windows/gcc-debug-x86/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option host_application="../../richmath/bin/windows/debug/richmath.exe" />
@@ -36,11 +36,14 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/gcc-debug-x86" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Windows-GCC-Debug-x86 Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86/pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Windows/debug/gcc-debug-x86/" />
+				<Option output="bin/Windows/gcc-debug-x86/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option parameters="-Dpmath.core.dll=..\..\library\bin\windows\gcc-debug-x86\pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\windows\x86\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
@@ -63,11 +66,14 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/gcc-debug-x86" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Windows-GCC-Debug-x64 Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86/pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Windows/debug/gcc-debug-x86/" />
+				<Option output="bin/Windows/gcc-debug-x64/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
 				<Option parameters="-Dpmath.core.dll=..\..\library\bin\windows\gcc-debug-x64\pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\windows\x86-64\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
@@ -90,11 +96,14 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/gcc-debug-x64" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Windows-MSVC-Debug-x86 Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86/pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Windows/msvc-release-x86/" />
+				<Option output="bin/Windows/msvc-debug-x86/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
 				<Option parameters="-Dpmath.core.dll=..\..\library\bin\windows\msvc-debug-x86\pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\windows\x86\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
@@ -117,11 +126,15 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/msvc-debug-x86" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;bin\Windows\x86\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Windows-MSVC-Debug-x64 Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86/pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Windows/msvc-release-x86/" />
+				<Option output="bin/Windows/msvc-debug-x64/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
 				<Option parameters="-Dpmath.core.dll=..\..\library\bin\windows\msvc-debug-x64\pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\windows\x86-64\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
@@ -129,7 +142,6 @@
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="/MDd" />
-					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GL" />
 					<Add option="/GF" />
@@ -145,10 +157,14 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/msvc-debug-x64" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;bin\Windows\x86-64\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Windows-GCC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Windows/gcc-release-x86/pmath-java" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Windows/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -171,10 +187,13 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/gcc-release-x86" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Windows-GCC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86-64/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Windows/gcc-release-x64/pmath-java" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Windows/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -197,10 +216,13 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/gcc-release-x64" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Windows-MSVC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Windows/msvc-release-x86/pmath-java" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Windows/msvc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
@@ -222,18 +244,20 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/msvc-release-x86" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Windows-MSVC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/Windows/x86/pmath-java" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Windows/msvc-release-x86/" />
+				<Option output="bin/Windows/msvc-release-x64/pmath-java" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Windows/msvc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
 				<Option host_application="../../richmath/bin/windows/debug/richmath.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="/MD" />
-					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GL" />
 					<Add option="/GF" />
@@ -247,6 +271,9 @@
 					<Add library="user32" />
 					<Add directory="../../library/bin/windows/msvc-release-x64" />
 				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
+				</ExtraCommands>
 			</Target>
 			<Target title="Linux-Debug-x86">
 				<Option platforms="Unix;" />

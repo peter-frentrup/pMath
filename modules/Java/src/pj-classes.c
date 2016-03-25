@@ -1152,9 +1152,10 @@ jobject pj_class_new_object(
   
   pmath_unref(pj_thread_get_companion(NULL));
   
-  if(!env
-      || !clazz
-      || (*env)->EnsureLocalCapacity(env, 1) != 0) {
+  if( !env || 
+      !clazz || 
+      (*env)->EnsureLocalCapacity(env, 1) != 0) 
+  {
     pj_exception_to_pmath(env);
     pmath_unref(args);
     return NULL;
@@ -1202,8 +1203,8 @@ jobject pj_class_new_object(
       
       if((*env)->PushLocalFrame(env, num_args) == 0) {
         if(pj_value_fill_args(env, types, args, jargs)) {
-          jmethodID mid         = 0;
-          int       modifiers   = 0;
+          jmethodID mid       = 0;
+          int       modifiers = 0;
           
           key = pmath_expr_set_item(key, 3, pmath_ref(types));
           
@@ -1211,8 +1212,8 @@ jobject pj_class_new_object(
           {
             struct pmath2id_t *cache_entry = pmath_ht_search(cms2id, &key);
             if(cache_entry && cache_entry->mid != 0) {
-              mid         = cache_entry->mid;
-              modifiers   = cache_entry->modifiers;
+              mid       = cache_entry->mid;
+              modifiers = cache_entry->modifiers;
             }
           }
           pmath_atomic_unlock(&cms2id_lock);
