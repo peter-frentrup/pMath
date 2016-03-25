@@ -223,7 +223,7 @@ static void auto_detach_proc(void *p) {
       JNIEnv *env = NULL;
       
       (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4);
-      if(env){
+      if(env) {
         (*env)->ExceptionClear(env);
         (*jvm)->DetachCurrentThread(jvm);
       }
@@ -535,7 +535,7 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
                    pmath_ref(PMATH_SYMBOL_INPUTFORM), 1,
                    ex)));
                    
-        if(!pmath_is_string(ex)){
+        if(!pmath_is_string(ex)) {
           pmath_debug_print_object("[ToString did not return a string: ", ex, "]\n");
           pmath_unref(ex);
           ex = PMATH_C_STRING("$Failed");
@@ -581,7 +581,7 @@ void pjvm_ensure_started(void) {
 }
 
 
-extern pmath_t pj_builtin_javaisrunning(pmath_expr_t expr){
+extern pmath_t pj_builtin_javaisrunning(pmath_expr_t expr) {
   if(pmath_expr_length(expr) > 0) {
     pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
     return expr;
@@ -591,7 +591,7 @@ extern pmath_t pj_builtin_javaisrunning(pmath_expr_t expr){
   
   if(pjvm_java_is_running())
     return pmath_ref(PMATH_SYMBOL_TRUE);
-  
+    
   return pmath_ref(PMATH_SYMBOL_FALSE);
 }
 

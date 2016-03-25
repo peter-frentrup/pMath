@@ -312,7 +312,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj) {
       char *s = str;
       if(*s == 'L') {
         ++s;
-        s[strlen(s)-1] = '\0';
+        s[strlen(s) - 1] = '\0';
       }
       result = (*env)->FindClass(env, s);
       pmath_mem_free(str);
@@ -522,12 +522,13 @@ static pmath_expr_t cache_methods(
     modifiers = (*env)->CallIntMethod(
                   env, method,
                   constructors ? info->midConstructorGetModifiers : info->midMethodGetModifiers);
-    if(!(modifiers & PJ_MODIFIER_PUBLIC)
-        ||  (modifiers & PJ_MODIFIER_PRIVATE)
-        ||  (modifiers & PJ_MODIFIER_PROTECTED))
+    if(!(modifiers & PJ_MODIFIER_PUBLIC)  ||
+        (modifiers & PJ_MODIFIER_PRIVATE) ||
+        (modifiers & PJ_MODIFIER_PROTECTED))
+    {
       goto FAIL_PUBLIC;
-      
-      
+    }
+    
     mid = (*env)->FromReflectedMethod(env, method);
     if(!mid)
       goto FAIL_MID;
@@ -703,12 +704,13 @@ static pmath_expr_t cache_fields(
       
       
     modifiers = (*env)->CallIntMethod(env, field, info->midFieldGetModifiers);
-    if(!(modifiers & PJ_MODIFIER_PUBLIC)
-        ||  (modifiers & PJ_MODIFIER_PRIVATE)
-        ||  (modifiers & PJ_MODIFIER_PROTECTED))
+    if(!(modifiers & PJ_MODIFIER_PUBLIC) ||
+        (modifiers & PJ_MODIFIER_PRIVATE) ||
+        (modifiers & PJ_MODIFIER_PROTECTED))
+    {
       goto FAIL_PUBLIC;
-      
-      
+    }
+    
     fid = (*env)->FromReflectedField(env, field);
     if(!fid)
       goto FAIL_FID;
@@ -895,9 +897,7 @@ pmath_t pj_class_call_method(
   pmath_expr_t          signatures;
   jint                  num_args;
   
-  if(!env
-      || !obj
-      || (*env)->EnsureLocalCapacity(env, 1) != 0) {
+  if(!env || !obj || (*env)->EnsureLocalCapacity(env, 1) != 0) {
     pj_exception_to_pmath(env);
     pmath_unref(name);
     pmath_unref(args);
@@ -930,9 +930,10 @@ pmath_t pj_class_call_method(
   }
   pmath_atomic_unlock(&cms2id_lock);
   
-  if(!pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST)
-      || !pmath_is_string(name)
-      || pmath_string_equals_latin1(name, "<init>")) {
+  if( !pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST) ||
+      !pmath_is_string(name) ||
+      pmath_string_equals_latin1(name, "<init>"))
+  {
     pj_thread_message(msg_thread,
                       PJ_SYMBOL_JAVA, "nometh", 2,
                       name,
@@ -1104,7 +1105,7 @@ pmath_t pj_class_call_method(
   
   pmath_unref(key);
   pmath_unref(signatures);
-    
+  
   if(pmath_same(result, PMATH_UNDEFINED)) {
     if(num_args == 0) {
       pmath_unref(args);
@@ -1130,7 +1131,7 @@ pmath_t pj_class_call_method(
   
   if(!is_static)
     (*env)->DeleteLocalRef(env, clazz);
-  
+    
   pmath_unref(name);
   pmath_unref(args);
   
@@ -1152,9 +1153,9 @@ jobject pj_class_new_object(
   
   pmath_unref(pj_thread_get_companion(NULL));
   
-  if( !env || 
-      !clazz || 
-      (*env)->EnsureLocalCapacity(env, 1) != 0) 
+  if( !env ||
+      !clazz ||
+      (*env)->EnsureLocalCapacity(env, 1) != 0)
   {
     pj_exception_to_pmath(env);
     pmath_unref(args);
@@ -1274,9 +1275,7 @@ pmath_t pj_class_get_field(
   jvalue          val;
   pmath_t         result;
   
-  if(!env
-      || !obj
-      || (*env)->EnsureLocalCapacity(env, 1) != 0) {
+  if(!env || !obj || (*env)->EnsureLocalCapacity(env, 1) != 0) {
     pj_exception_to_pmath(env);
     pmath_unref(name);
     return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -1455,9 +1454,7 @@ extern pmath_bool_t pj_class_set_field(
   jvalue          val;
   pmath_bool_t    result;
   
-  if(!env
-      || !obj
-      || (*env)->EnsureLocalCapacity(env, 1) != 0) {
+  if(!env || !obj || (*env)->EnsureLocalCapacity(env, 1) != 0) {
     pj_exception_to_pmath(env);
     pmath_unref(name);
     pmath_unref(value);

@@ -75,7 +75,7 @@ static pmath_bool_t startup(void *arg) {
 
 
 // Run <<Java` in the companion thread to add it to the namespace path.
-void pj_companion_run_init(void){
+void pj_companion_run_init(void) {
 
   pmath_messages_t  companion;
   pmath_string_t    expr;
@@ -100,7 +100,7 @@ pmath_bool_t pj_load_pmath(JNIEnv *env) {
   
   if(!startup(jvm))
     return FALSE;
-  
+    
   pj_companion_run_init();
   
   return TRUE;

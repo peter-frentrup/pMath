@@ -6,11 +6,11 @@
 
 
 JNIEXPORT jint JNICALL
-JNI_OnLoad(JavaVM *vm, void *reserved){
+JNI_OnLoad(JavaVM *vm, void *reserved) {
 // todo: make this reentrant and thread-safe
 
   printf("[JNI_OnLoad]\n");
-  if(pmath_is_null(pjvm_dll_filename)){
+  if(pmath_is_null(pjvm_dll_filename)) {
     // todo: load pmath in a worker thread...
     printf("[pmath not yet loaded]\n");
     return JNI_VERSION_1_4;
@@ -20,14 +20,14 @@ JNI_OnLoad(JavaVM *vm, void *reserved){
 }
 
 JNIEXPORT void JNICALL
-JNI_OnUnload(JavaVM *vm, void *reserved){
+JNI_OnUnload(JavaVM *vm, void *reserved) {
   printf("[JNI_OnUnload]\n");
 }
 
 
 PMATH_MODULE
-pmath_bool_t pmath_module_init(pmath_string_t dll_filename){
-  
+pmath_bool_t pmath_module_init(pmath_string_t dll_filename) {
+
   printf("[pmath-java: pmath_module_init]\n");
   
   pjvm_auto_detach_key = PMATH_NULL;
@@ -42,25 +42,25 @@ pmath_bool_t pmath_module_init(pmath_string_t dll_filename){
   pjvm_dll_filename = pmath_ref(dll_filename);
   
   pjvm_auto_detach_key = pmath_expr_new_extended(
-    pmath_ref(PJ_SYMBOL_JAVA), 1,
-    pmath_ref(PMATH_SYMBOL_ENVIRONMENT));
-  
+                           pmath_ref(PJ_SYMBOL_JAVA), 1,
+                           pmath_ref(PMATH_SYMBOL_ENVIRONMENT));
+                           
   if(!pmath_is_null(pjvm_auto_detach_key))
     return TRUE;
-  
+    
   pmath_unref(pjvm_dll_filename);
   
-                      pj_threads_done();
- FAIL_PJ_THREADS:     pj_symbols_done();
- FAIL_PJ_SYMBOLS:     pj_objects_done();
- FAIL_PJ_OBJECTS:     pj_classes_done();
- FAIL_PJ_CLASSES:     pjvm_done();
- FAIL_PJVM:
+  pj_threads_done();
+FAIL_PJ_THREADS:     pj_symbols_done();
+FAIL_PJ_SYMBOLS:     pj_objects_done();
+FAIL_PJ_OBJECTS:     pj_classes_done();
+FAIL_PJ_CLASSES:     pjvm_done();
+FAIL_PJVM:
   return FALSE;
 }
 
 PMATH_MODULE
-void pmath_module_done(void){
+void pmath_module_done(void) {
   pmath_unref(pjvm_dll_filename);
   pjvm_dll_filename = PMATH_NULL;
   

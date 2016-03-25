@@ -55,9 +55,9 @@ pmath_t pj_builtin__pmath_Core_execute(pmath_t expr) {
 //        pmath_ref(PMATH_SYMBOL_THROW), 1,
 //        exception));
   }
-  else{
+  else {
     pmath_unref(exception);
-  
+    
     result = pmath_expr_new_extended(
                pmath_ref(PJ_SYMBOL_INTERNAL_SUCCEEDED), 1,
                result);
@@ -84,7 +84,7 @@ JNIEXPORT jobject JNICALL Java_pmath_Core_execute(
   if(pmath_is_null(pjvm_dll_filename)) {
     if(!pj_load_pmath(env))
       return NULL;
-    
+      
     if(pmath_is_null(pjvm_dll_filename))
       return NULL;
   }
@@ -93,7 +93,7 @@ JNIEXPORT jobject JNICALL Java_pmath_Core_execute(
   if(load_temporary) {
     if(!pmath_init())
       return NULL;
-    
+      
     pj_companion_run_init();
   }
   
@@ -123,7 +123,7 @@ JNIEXPORT jobject JNICALL Java_pmath_Core_execute(
     pmath_unref(expr);
     expr = result;
   }
-  else{
+  else {
     pmath_debug_print_object("[java->pmath callback returned invalid code ", expr, "]\n");
     pmath_unref(expr);
     expr = PMATH_NULL;
