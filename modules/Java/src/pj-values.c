@@ -42,6 +42,149 @@ jstring pj_string_to_java(JNIEnv *env, pmath_string_t str) {
   return result;
 }
 
+// obj will be freed
+static pmath_bool_t bool_to_java(pmath_t obj, jvalue *value) {
+  pmath_unref(obj);
+  
+  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+    value->z = JNI_TRUE;
+    return TRUE;
+  }
+  
+  if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+    value->z = JNI_FALSE;
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+// obj will be freed
+static pmath_bool_t char_to_java(pmath_t obj, jvalue *value) {
+  if(pmath_is_string(obj) && pmath_string_length(obj) == 1) {
+    value->c = (jchar)pmath_string_buffer(&obj)[0];
+    pmath_unref(obj);
+    return TRUE;
+  }
+  
+  pmath_unref(obj);
+  return FALSE;
+}
+
+// obj will be freed
+static pmath_bool_t byte_to_java(pmath_t obj, jvalue *value) {
+  int32_t i;
+  
+  if(!pmath_is_int32(obj)) {
+    pmath_unref(obj);
+    return FALSE;
+  }
+  
+  i = PMATH_AS_INT32(obj);
+  
+  if(i < -128 || i > 127)
+    return FALSE;
+    
+  value->b = (jbyte)i;
+  return TRUE;
+}
+
+// obj will be freed
+static pmath_bool_t short_to_java(pmath_t obj, jvalue *value) {
+  int32_t i;
+  
+  if(!pmath_is_int32(obj)) {
+    pmath_unref(obj);
+    return FALSE;
+  }
+  
+  i = PMATH_AS_INT32(obj);
+  
+  if(i < -32768 || i > 32767)
+    return FALSE;
+    
+  value->s = (jshort)i;
+  return TRUE;
+}
+
+// obj will be freed
+static pmath_bool_t int_to_java(pmath_t obj, jvalue *value) {
+  if(!pmath_is_int32(obj)) {
+    pmath_unref(obj);
+    return FALSE;
+  }
+  
+  value->i = PMATH_AS_INT32(obj);
+  return TRUE;
+}
+
+// obj will be freed
+static pmath_bool_t long_to_java(pmath_t obj, jvalue *value) {
+  int64_t j;
+  
+  if(!pmath_is_int32(obj) || !pmath_integer_fits_si64(obj)) {
+    pmath_unref(obj);
+    return FALSE;
+  }
+  
+  j = pmath_integer_get_si64(obj);
+  pmath_unref(obj);
+  
+  value->j = j;
+  return TRUE;
+}
+
+// obj will be freed
+static pmath_bool_t double_to_java(pmath_t obj, jvalue *value) {
+  double d = 0;
+  
+  if(pmath_is_float(obj)) {
+    d = pmath_number_get_d(obj);
+  }
+  else if(pmath_same(obj, PMATH_SYMBOL_UNDEFINED) || pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 0)) {
+    d = NAN;
+  }
+  else if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 1)) {
+    pmath_t dir = pmath_expr_get_item(obj, 1);
+    
+    if(pmath_is_number(dir)) {
+      int sign = pmath_number_sign(dir);
+      pmath_unref(dir);
+      
+      if(sign < 0)
+        d = -HUGE_VAL;
+      else if(sign > 0)
+        d = HUGE_VAL;
+      else
+        d = NAN;
+    }
+    else {
+      pmath_unref(dir);
+      pmath_unref(obj);
+      return FALSE;
+    }
+  }
+  else {
+    pmath_unref(obj);
+    return FALSE;
+  }
+  
+  value->d = d;
+    
+  pmath_unref(obj);
+  return TRUE;
+}
+
+// obj will be freed
+static pmath_bool_t float_to_java(pmath_t obj, jvalue *value) {
+  jvalue tmp;
+  if(double_to_java(obj, &tmp)) {
+    value->f = (jfloat)tmp.d;
+    return TRUE;
+  }
+  
+  return FALSE;
+}
 
 // obj will be freed; type wont be freed
 pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *value) {
@@ -53,149 +196,29 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
   memset(value, 0, sizeof(jvalue));
   
   if(pmath_is_symbol(type)) {
-    if(pmath_same(type, PJ_SYMBOL_TYPE_BOOLEAN)) {
-      pmath_unref(obj);
-      
-      if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
-        value->z = JNI_TRUE;
-        return TRUE;
-      }
-      
-      if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
-        value->z = JNI_FALSE;
-        return TRUE;
-      }
-      
-      return FALSE;
-    }
+    if(pmath_same(type, PJ_SYMBOL_TYPE_BOOLEAN)) 
+      return bool_to_java(obj, value);
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_BYTE)) {
-      int i;
-      
-      if(!pmath_is_int32(obj)) {
-        pmath_unref(obj);
-        return FALSE;
-      }
-      
-      i = PMATH_AS_INT32(obj);
-      pmath_unref(obj);
-      
-      if(i < -128 || i > 127)
-        return FALSE;
-        
-      value->b = (jbyte)i;
-      return TRUE;
-    }
+    if(pmath_same(type, PJ_SYMBOL_TYPE_BYTE)) 
+      return byte_to_java(obj, value);
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_CHAR)) {
-      if(pmath_is_string(obj)
-          && pmath_string_length(obj) == 1) {
-        value->c = (jchar)pmath_string_buffer(&obj)[0];
-        pmath_unref(obj);
-        return TRUE;
-      }
-      
-      pmath_unref(obj);
-      return FALSE;
-    }
+    if(pmath_same(type, PJ_SYMBOL_TYPE_CHAR)) 
+      return char_to_java(obj, value);
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_SHORT)) {
-      int i;
-      
-      if(!pmath_is_int32(obj)) {
-        pmath_unref(obj);
-        return FALSE;
-      }
-      
-      i = PMATH_AS_INT32(obj);
-      pmath_unref(obj);
-      
-      if(i < -32768 || i > 32767)
-        return FALSE;
-        
-      value->s = (jshort)i;
-      return TRUE;
-    }
+    if(pmath_same(type, PJ_SYMBOL_TYPE_SHORT))
+      return short_to_java(obj, value);
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_INT)) {
-      int i;
-      
-      if(!pmath_is_int32(obj)) {
-        pmath_unref(obj);
-        return FALSE;
-      }
-      
-      i = PMATH_AS_INT32(obj);
-      pmath_unref(obj);
-      
-      if(i < -2147483647 - 1 || i > 2147483647)
-        return FALSE;
-        
-      value->i = (jint)i;
-      return TRUE;
-    }
+    if(pmath_same(type, PJ_SYMBOL_TYPE_INT)) 
+      return int_to_java(obj, value);
     
-    if(pmath_same(type, PJ_SYMBOL_TYPE_LONG)) {
-      int64_t j;
-      
-      if(!pmath_is_int32(obj)
-          || !pmath_integer_fits_si64(obj)) {
-        pmath_unref(obj);
-        return FALSE;
-      }
-      
-      j = pmath_integer_get_si64(obj);
-      pmath_unref(obj);
-      
-      value->j = (jlong)j;
-      return TRUE;
-    }
+    if(pmath_same(type, PJ_SYMBOL_TYPE_LONG)) 
+      return long_to_java(obj, value);
     
-    if( pmath_same(type, PJ_SYMBOL_TYPE_FLOAT) ||
-        pmath_same(type, PJ_SYMBOL_TYPE_DOUBLE))
-    {
-      double d = 0;
-      
-      if(pmath_is_float(obj)) {
-        d = pmath_number_get_d(obj);
-      }
-      else if(pmath_same(obj, PMATH_SYMBOL_UNDEFINED)
-              || pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 0)) {
-        d = NAN;
-      }
-      else if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 1)) {
-        pmath_t dir = pmath_expr_get_item(obj, 1);
-        
-        if(pmath_is_number(dir)) {
-          int sign = pmath_number_sign(dir);
-          pmath_unref(dir);
-          
-          if(sign < 0)
-            d = -HUGE_VAL;
-          else if(sign > 0)
-            d = HUGE_VAL;
-          else
-            d = NAN;
-        }
-        else {
-          pmath_unref(dir);
-          pmath_unref(obj);
-          return FALSE;
-        }
-      }
-      else {
-        pmath_unref(obj);
-        return FALSE;
-      }
-      
-      if(pmath_same(type, PJ_SYMBOL_TYPE_FLOAT))
-        value->f = (float)d;
-      else
-        value->d = d;
-        
-      pmath_unref(obj);
-      return TRUE;
-    }
+    if(pmath_same(type, PJ_SYMBOL_TYPE_FLOAT)) 
+      return float_to_java(obj, value);
+    
+    if(pmath_same(type, PJ_SYMBOL_TYPE_DOUBLE)) 
+      return double_to_java(obj, value);
   }
   
   if(pmath_is_expr_of_len(type, PJ_SYMBOL_TYPE_ARRAY, 1)) {
@@ -204,42 +227,96 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       return TRUE;
     }
     
+    if( pmath_is_packed_array(obj) && 
+        pmath_packed_array_get_dimensions(obj) == 1) 
+    {
+      pmath_t elem_type = pmath_expr_get_item(type, 1);
+      jsize len = (jsize)pmath_expr_length(obj);
+      
+      switch(pmath_packed_array_get_element_type(obj)) {
+      case PMATH_PACKED_DOUBLE:
+        if(pmath_same(elem_type, PJ_SYMBOL_TYPE_DOUBLE)) {
+          const double *data = pmath_packed_array_read(obj, NULL, 0);
+          jdoubleArray arr = (*env)->NewDoubleArray(env, len);
+          
+          if(!arr) {
+            pmath_unref(obj);
+            return FALSE;
+          }
+          
+          (*env)->SetDoubleArrayRegion(env, arr, 0, len, data);
+          value->l = arr;
+          
+          pmath_unref(obj);
+        }
+        return TRUE;
+        
+      case PMATH_PACKED_INT32: 
+        if(pmath_same(elem_type, PJ_SYMBOL_TYPE_INT)) {
+          const jint *data = pmath_packed_array_read(obj, NULL, 0);
+          jintArray arr = (*env)->NewIntArray(env, len);
+          
+          assert(sizeof(int32_t) == sizeof(jint));
+          
+          if(!arr) {
+            pmath_unref(obj);
+            return FALSE;
+          }
+          
+          (*env)->SetIntArrayRegion(env, arr, 0, len, data);
+          value->l = arr;
+          
+          pmath_unref(obj);
+        }
+        return TRUE;
+      }
+    }
+    
     if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
       pmath_t elem_type = pmath_expr_get_item(type, 1);
       jsize len = (jsize)pmath_expr_length(obj);
       jobject arr = NULL;
       size_t item_size = 0;
+      pmath_bool_t (*simple_converter)(pmath_t, jvalue*) = NULL;
       
       if(pmath_same(elem_type, PJ_SYMBOL_TYPE_BOOLEAN)) {
         item_size = sizeof(jboolean);
+        simple_converter = bool_to_java;
         arr = (*env)->NewBooleanArray(env, len);
       }
       else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_BYTE)) {
         item_size = sizeof(jbyte);
+        simple_converter = byte_to_java;
         arr = (*env)->NewByteArray(env, len);
       }
       else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_CHAR)) {
         item_size = sizeof(jchar);
+        simple_converter = char_to_java;
         arr = (*env)->NewCharArray(env, len);
       }
       else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_SHORT)) {
         item_size = sizeof(jshort);
+        simple_converter = short_to_java;
         arr = (*env)->NewShortArray(env, len);
       }
       else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_INT)) {
         item_size = sizeof(jint);
+        simple_converter = int_to_java;
         arr = (*env)->NewIntArray(env, len);
       }
       else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_LONG)) {
         item_size = sizeof(jlong);
+        simple_converter = long_to_java;
         arr = (*env)->NewLongArray(env, len);
       }
       else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_FLOAT)) {
         item_size = sizeof(jfloat);
+        simple_converter = float_to_java;
         arr = (*env)->NewFloatArray(env, len);
       }
       else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_DOUBLE)) {
         item_size = sizeof(jdouble);
+        simple_converter = double_to_java;
         arr = (*env)->NewDoubleArray(env, len);
       }
       else if((*env)->EnsureLocalCapacity(env, 2) == 0) {
@@ -258,6 +335,9 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         
         if(item_size == 0) {
           jsize i;
+          
+          assert(simple_converter == NULL);
+          
           for(i = 0; i < len; ++i) {
             pmath_t item = pmath_expr_get_item(obj, (size_t)i + 1);
             jvalue val;
@@ -275,12 +355,15 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
         }
         else {
           uint8_t *data = (*env)->GetPrimitiveArrayCritical(env, arr, NULL);
+          
+          assert(simple_converter != NULL);
+          
           if(data) {
             jsize i;
             for(i = 0; i < len; ++i) {
               pmath_t item = pmath_expr_get_item(obj, (size_t)i + 1);
               
-              if(!pj_value_to_java(env, item, elem_type, (jvalue*)(data + item_size * (size_t)i))) {
+              if(!simple_converter(item, (jvalue*)(data + item_size * (size_t)i))) {
                 success = FALSE;
                 break;
               }
