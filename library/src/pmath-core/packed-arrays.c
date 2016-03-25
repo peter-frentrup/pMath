@@ -961,6 +961,19 @@ pmath_packed_type_t pmath_packed_array_get_element_type(pmath_packed_array_t arr
 }
 
 PMATH_API
+size_t pmath_packed_array_get_non_continuous_dimensions(pmath_packed_array_t array) {
+  struct _pmath_packed_array_t *_array;
+  
+  if(PMATH_UNLIKELY(pmath_is_null(array)))
+    return 0;
+    
+  assert(pmath_is_packed_array(array));
+  
+  _array = (void *)PMATH_AS_PTR(array);
+  return _array->non_continuous_dimensions_count;
+}
+
+PMATH_API
 const void *pmath_packed_array_read(
     pmath_packed_array_t  array,
     const size_t         *indices,
