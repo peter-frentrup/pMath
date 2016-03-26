@@ -276,7 +276,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
-					<Add option="/DEBUG" />
 					<Add option="/LTCG" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
@@ -390,7 +389,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
-					<Add option="/DEBUG" />
 					<Add option="/LTCG" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
