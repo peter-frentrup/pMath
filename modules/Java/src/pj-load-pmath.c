@@ -4,6 +4,53 @@
 
 #include <math.h>
 
+#ifndef PMATH_OS_WIN32
+static char *JNU_GetStringNativeChars(JNIEnv *env, jstring jstr) {
+  jbyteArray bytes = NULL;
+  jthrowable exc;
+  char *result = NULL;
+  
+  jclass string_class;
+  jmethodID MID_String_getBytes;
+  
+  if((*env)->EnsureLocalCapacity(env, 2) < 0) 
+    return NULL;
+  
+  string_class = (*env)->FindClass(env, "java/lang/String");
+  if(!string_class)
+    return NULL;
+  
+  MID_String_getBytes = (*env)->GetMethodID(env, string_class, "getBytes", "()[B");
+  if(!MID_String_getBytes) {
+    (*env)->DeleteLocalRef(env, string_class);
+    return NULL;
+  }
+  
+  (*env)->DeleteLocalRef(env, string_class);
+  
+  bytes = (*env)->CallObjectMethod(env, jstr, MID_String_getBytes);
+  exc = (*env)->ExceptionOccurred(env);
+  if(!exc) {
+    jint len = (*env)->GetArrayLength(env, bytes);
+    result = malloc(len + 1);
+    
+    if (result == 0) {
+      (*env)->DeleteLocalRef(env, bytes);
+      return NULL;
+    }
+    
+    (*env)->GetByteArrayRegion(env, bytes, 0, len,
+                               (jbyte *)result);
+    result[len] = '\0';
+  } 
+  else {
+    (*env)->DeleteLocalRef(env, exc);
+  }
+  
+  (*env)->DeleteLocalRef(env, bytes);
+  return result;
+}
+#endif
 
 // set PMATH_BASEDIRECTORY environment variable from "pmath.core.base_directory" system property.
 static void prepare_environment(JNIEnv *env) {
@@ -17,21 +64,36 @@ static void prepare_environment(JNIEnv *env) {
         jstring name = (*env)->NewStringUTF(env, "pmath.core.base_directory");
         
         if(name) {
-          jobject value = (*env)->CallStaticObjectMethod(env, system_class, mid_getProperty, name);
+          jstring value = (*env)->CallStaticObjectMethod(env, system_class, mid_getProperty, name);
           
           if(value) {
-            const char *str = (*env)->GetStringUTFChars(env, value, NULL);
-            
-            if (str != NULL) {
-#ifdef PMATH_OS_WIN32
-              SetEnvironmentVariableA("PMATH_BASEDIRECTORY", str);
-#else
-              setenv("PMATH_BASEDIRECTORY", str, 1);
-#endif
+#           ifdef PMATH_OS_WIN32
+            {
+              jsize len = (*env)->GetStringLength(env, value);
+              wchar_t *str = malloc(sizeof(wchar_t) * ((size_t)len + 1));
+              const wchar_t *buf = (*env)->GetStringCritical(env, value, NULL);
               
-              (*env)->ReleaseStringUTFChars(env, value, str);
+              if(str && buf) {
+                memcpy(str, buf, sizeof(wchar_t) * (size_t)len);
+                str[len] = L'\0';
+                
+                SetEnvironmentVariableW(L"PMATH_BASEDIRECTORY", str);
+              }
+              
+              (*env)->ReleaseStringCritical(env, value, buf);
+              free(str);
             }
+#           else
+            {
+              const char *str = JNU_GetStringNativeChars(env, value);
             
+              if(str) {
+                setenv("PMATH_BASEDIRECTORY", str, 1);
+                
+                free(str);
+              }
+            }
+#           endif
             (*env)->DeleteLocalRef(env, value);
           }
           
