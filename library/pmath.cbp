@@ -760,6 +760,9 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<VirtualTargets>
+			<Add alias="All-Windows" targets="Windows-GCC-Debug-x86;Windows-GCC-Release-x86;Windows-GCC-Debug-x64;Windows-GCC-Release-x64;Windows-MSVC-Debug-x86;Windows-MSVC-Release-x86;Windows-MSVC-Debug-x64;Windows-MSVC-Release-x64;" />
+		</VirtualTargets>
 		<Compiler>
 			<Add option="-DBUILDING_PMATH" />
 			<Add option="-D_LARGEFILE64_SOURCE=1" />
