@@ -68,7 +68,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
-					<Add option="/DEBUG" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
@@ -96,7 +95,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
-					<Add option="/DEBUG" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
@@ -121,7 +119,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
-					<Add option="/DEBUG" />
 					<Add library="pmath" />
 					<Add library="edit_static" />
 					<Add library="user32" />
@@ -193,7 +190,7 @@
 			<envvars />
 			<debugger>
 				<remote_debugging>
-					<options conn_type="0" serial_baud="115200" additional_cmds="python import sys&#x0A;python sys.path.insert(0, &apos;../../gdb&apos;)&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+					<options conn_type="0" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
 				</remote_debugging>
 			</debugger>
 		</Extensions>
