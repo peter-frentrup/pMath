@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="pmath_t">
+		<DisplayString Condition="((s.tag &amp; 0x7FF00000) != 0x7FF00000)">{as_double}</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((as_bits &lt;&lt; 12) == 0)">(null)</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 0)">mp float</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 1)">mp int</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 2)">quotient</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 3)">big string</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 4)">symbol</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 5)">general expr</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 6)">general expr part</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 7)">multirule</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 8)">custom</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 9)">blob</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 10)">packed array</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 11)">interval</DisplayString>
+		<DisplayString Condition="(s.tag &amp; 0xFFF00000) == 0xFFF00000">object tag {(*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift} at {(as_bits &lt;&lt; 12) &gt;&gt; 12}</DisplayString>
+		<DisplayString>magic {s.tag} value {s.u.as_int32}</DisplayString>
+		<Expand>
+			<!-- mp float -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 0)">
+				*(_pmath_mp_float_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- mp int -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 1)">
+				*(_pmath_mp_int_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- quotient -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 2)">
+				*(_pmath_quotient_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- big string -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 3)">
+				*(_pmath_string_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- symbol -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 4)">
+				*(_pmath_symbol_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- general expr -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 5)">
+				*(pmath!_pmath_expr_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- general expr part -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 6)">
+				*(_pmath_expr_part_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- multirule -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 7)">
+				*(_pmath_multirule_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- custom -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 8)">
+				*(_pmath_custom_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- blob -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 9)">
+				*(_pmath_blob_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- packed array -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 10)">
+				*(_pmath_packed_array_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- interval -->
+			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 11)">
+				*(_pmath_interval_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+			
+			<!-- (unknown) -->
+			<Item Name="[deref]" Condition="(s.tag &amp; 0xFFF00000) == 0xFFF00000">
+				*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+		</Expand>
+	</Type>
+</AutoVisualizer>
