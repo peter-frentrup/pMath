@@ -49,19 +49,52 @@ static FILE *debuglog = NULL;
 
 static pmath_bool_t debugging_output = TRUE;
 
+
+/* Redirect pmath_debug_print_object(...) and pmath_debug_print_stack(...) to OutputDebugString().
+  Settable in WinDbg with
+
+  ed pmath!pmath_debug_print_to_debugger 1
+ */
+PMATH_API int pmath_debug_print_to_debugger = 0;
+
 PMATH_API void pmath_debug_print(const char *fmt, ...) {
   if(debugging_output) {
     va_list args;
     
     debugging_output = FALSE;
-    
     va_start(args, fmt);
-    flockfile(debuglog);
-    vfprintf(debuglog, fmt, args);
-    funlockfile(debuglog);
-    va_end(args);
-    fflush(debuglog);
     
+    if(pmath_debug_print_to_debugger) {
+      char small_buffer[1024];
+      
+      // TODO: use larger buffer is there is some %s or similar in the format string.
+      vsnprintf(small_buffer, sizeof(small_buffer), fmt, args);
+      
+#ifdef PMATH_OS_WIN32
+      {
+        OutputDebugStringA(small_buffer);
+      }
+#else
+      {
+        flockfile(debuglog);
+        
+        fprintf(debuglog, "%s", small_buffer);
+        
+        funlockfile(debuglog);
+        fflush(debuglog);
+      }
+#endif
+    }
+    else {
+      flockfile(debuglog);
+      
+      vfprintf(debuglog, fmt, args);
+      
+      funlockfile(debuglog);
+      fflush(debuglog);
+    }
+    
+    va_end(args);
     debugging_output = TRUE;
   }
 }
@@ -206,42 +239,41 @@ struct _debug_print_raw_info_t {
 
    Takes [1] an uint64_t (pmath_t::as_bits) and [2] a char* (info->index_info)
  */
-PMATH_API char pmath_debug_print_raw_begin_link_fmt[1024] = 
-    "<?dml?><link cmd=\".call pmath!pmath_debug_print_raw(0x%" PRIx64 "); g\">";
-PMATH_API char pmath_debug_print_raw_end_link_fmt[256] = 
-    "<?dml?></link>";
-PMATH_API int pmath_debug_print_raw_maxlength = 5;
+PMATH_API char pmath_debug_print_raw_begin_link_fmt[1024] = ""; //"<?dml?><link cmd=\".call pmath!pmath_debug_print_raw(0x%" PRIx64 "); g\">";
+PMATH_API char pmath_debug_print_raw_end_link_fmt[256] = ""; //"<?dml?></link>";
+
+PMATH_API size_t pmath_debug_print_raw_maxlength = 5;
 PMATH_API int pmath_debug_print_raw_maxdepth = 1;
 
 static void debug_print_link(
-    struct _debug_print_raw_info_t *info,
-    const char                     *description,
-    pmath_t                         obj
+  struct _debug_print_raw_info_t *info,
+  const char                     *description,
+  pmath_t                         obj
 ) {
   char buffer[256];
   
   snprintf(
-      buffer,
-      sizeof(buffer),
-      info->link_begin_fmt,
-      obj.as_bits,
-      info->index_info);
+    buffer,
+    sizeof(buffer),
+    info->link_begin_fmt,
+    obj.as_bits,
+    info->index_info);
   _pmath_write_cstr(buffer, info->write, info->user);
   
   snprintf(
-      buffer,
-      sizeof(buffer),
-      "[%s %016" PRIx64 "]",
-      description,
-      obj.as_bits);
+    buffer,
+    sizeof(buffer),
+    "[%s %016" PRIx64 "]",
+    description,
+    obj.as_bits);
   _pmath_write_cstr(buffer, info->write, info->user);
   
   snprintf(
-      buffer,
-      sizeof(buffer),
-      info->link_end_fmt,
-      obj.as_bits,
-      info->index_info);
+    buffer,
+    sizeof(buffer),
+    info->link_end_fmt,
+    obj.as_bits,
+    info->index_info);
   _pmath_write_cstr(buffer, info->write, info->user);
 }
 
@@ -253,14 +285,14 @@ static void debug_print_indent(struct _debug_print_raw_info_t *info, int depth) 
 }
 
 static void debug_print_raw_impl(
-    struct _debug_print_raw_info_t *info,
-    pmath_t                         obj,
-    int                             maxdepth);
+  struct _debug_print_raw_info_t *info,
+  pmath_t                         obj,
+  int                             maxdepth);
 
 static void debug_print_item(
   struct _debug_print_raw_info_t *info,
   size_t                          index_info_start,
-  pmath_t                         obj, 
+  pmath_t                         obj,
   size_t                          i,
   int                             depth
 ) {
@@ -271,7 +303,7 @@ static void debug_print_item(
     info->index_info_length - index_info_start,
     "[%" PRIxPTR "]",
     i);
-
+    
   item = pmath_expr_get_item(obj, i);
   debug_print_raw_impl(info, item, depth);
   pmath_unref(item);
@@ -291,21 +323,21 @@ static void debug_print_skip_skeleton(
     
   _pmath_write_cstr(buffer, info->write, info->user);
 }
-    
+
 static void debug_print_raw_pointer_impl(
-    struct _debug_print_raw_info_t *info,
-    struct _pmath_t                *pointer,
-    int                             depth
+  struct _debug_print_raw_info_t *info,
+  struct _pmath_t                *pointer,
+  int                             depth
 ) {
   pmath_t obj = PMATH_FROM_PTR(pointer);
   
   if(!pointer) {
     pmath_write(
-        obj,
-        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
-        info->write,
-        info->user);
-        
+      obj,
+      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
+      info->write,
+      info->user);
+      
     return;
   }
   
@@ -313,10 +345,10 @@ static void debug_print_raw_pointer_impl(
     case PMATH_TYPE_SHIFT_BIGSTRING:
     case PMATH_TYPE_SHIFT_SYMBOL:
       pmath_write(
-          obj,
-          PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
-          info->write,
-          info->user);
+        obj,
+        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
+        info->write,
+        info->user);
       break;
       
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
@@ -352,7 +384,7 @@ static void debug_print_raw_pointer_impl(
           size_t skip_count;
           
           if(length > info->maxlength) {
-            skip_index = info->maxlength/2 + 1;
+            skip_index = info->maxlength / 2 + 1;
             
             if(info->maxlength == 0)
               skip_count = length;
@@ -404,7 +436,7 @@ static void debug_print_raw_pointer_impl(
             _pmath_write_cstr(" }", info->write, info->user);
           else
             _pmath_write_cstr(")", info->write, info->user);
-          
+            
           info->index_info[index_info_start] = '\0';
         }
       }
@@ -419,16 +451,16 @@ static void debug_print_raw_pointer_impl(
 }
 
 static void debug_print_raw_impl(
-    struct _debug_print_raw_info_t *info,
-    pmath_t                         obj,
-    int                             depth
+  struct _debug_print_raw_info_t *info,
+  pmath_t                         obj,
+  int                             depth
 ) {
   if(!pmath_is_pointer(obj)) {
     pmath_write(
-        obj,
-        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
-        info->write,
-        info->user);
+      obj,
+      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
+      info->write,
+      info->user);
   }
   else
     debug_print_raw_pointer_impl(info, PMATH_AS_PTR(obj), depth);
@@ -441,7 +473,7 @@ void pmath_debug_print_raw(uint64_t obj_data) {
   char index_info_buffer[256] = "";
   
   obj.as_bits = obj_data;
-    
+  
   if(debugging_output) {
     debugging_output = FALSE;
     
@@ -460,30 +492,48 @@ void pmath_debug_print_raw(uint64_t obj_data) {
     
     debug_print_raw_impl(&info, obj, 0);
     
+    _pmath_write_cstr("\n", info.write, info.user);
+    
     debugging_output = TRUE;
   }
 }
 
 PMATH_API void pmath_debug_print_object(
-    const char *pre,
-    pmath_t     obj,
-    const char *post
+  const char *pre,
+  pmath_t     obj,
+  const char *post
 ) {
   if(debugging_output) {
     debugging_output = FALSE;
     
-    flockfile(debuglog);
-    
-    fputs(pre, debuglog);
-    pmath_write(
+#ifdef PMATH_OS_WIN32
+    if(pmath_debug_print_to_debugger) {
+      OutputDebugStringA(pre);
+      
+      pmath_write(
+        obj,
+        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLNAME,
+        write_data_to_debugger,
+        NULL);
+        
+      OutputDebugStringA(post);
+    }
+    else
+#endif
+    {
+      flockfile(debuglog);
+      fputs(pre, debuglog);
+      
+      pmath_write(
         obj,
         PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLNAME,
         write_data_to_file,
         debuglog);
-    fputs(post, debuglog);
-    fflush(debuglog);
-    
-    funlockfile(debuglog);
+        
+      fputs(post, debuglog);
+      fflush(debuglog);
+      funlockfile(debuglog);
+    }
     
     debugging_output = TRUE;
   }
@@ -518,9 +568,9 @@ PMATH_API void pmath_debug_print_stack(void) {
 
 PMATH_API
 void pmath_debug_print_debug_info(
-    const char *pre,
-    pmath_t     obj,
-    const char *post
+  const char *pre,
+  pmath_t     obj,
+  const char *post
 ) {
   pmath_t info = pmath_get_debug_info(obj);
   

@@ -7,6 +7,7 @@ $$
 	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ inspectbits\"    >inspectbits</link>        Inspect a pmath object in memory.\n"
 	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ unsafeprint\"    >unsafeprint</link>        Call into pmath.dll to inspect a pmath object variable.\n"
 	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ unsafeprintbits\">unsafeprintbits</link>    Call into pmath.dll to inspect a pmath object in memory.\n"
+	.printf /D "  debugpmath\ <link cmd=\"debugpmath\ stack\"          >stack</link>              Call into pmath.dll to show the current managed stack.\n"
 	.printf "\n"
 }
 .elsif($scmp("${$arg1}", "inspect") == 0) {
@@ -158,7 +159,7 @@ $$
 				
 				.printf "\n"
 				g
-				.printf "\n\n"
+				.printf "\n"
 				
 				$$ TODO: reset global variables edited above 
 			}
@@ -169,4 +170,28 @@ $$
 		
 		ad ${/v:call-output}
 	}
+}
+.elsif($scmp("${$arg1}", "stack") == 0) {
+	
+	aS /c ${/v:call-output} .call pmath!pmath_debug_print_stack()
+	
+	.block {
+		.if($spat("${call-output}", "*Thread is set up for call*")) {
+		
+			r? $t2 = @@c++(pmath!pmath_debug_print_to_debugger)
+			
+			ed pmath!pmath_debug_print_to_debugger 1
+			
+			.printf "\n"
+			g
+			.printf "\n"
+			
+			ed pmath!pmath_debug_print_to_debugger @$t2
+		}
+		.else {
+			.echo ${call-output}
+		}
+	}
+		
+	ad ${/v:call-output}
 }

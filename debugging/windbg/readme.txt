@@ -3,7 +3,7 @@ WinDbg scripts
 
 Inside WinDbg, run 
 
-	$$><C:\full\path\to\init.wds
+	$$><C:\full\path\to\pmath\debugging\windbg\init.wds
 
 Later, you can inspect a pmath_t variable `obj` with
 
@@ -26,7 +26,16 @@ Similar to the above macro, there is
 	.browse debugpmath unsafeprint obj
 
 You can print the pmath managed stack with
+	
+	debugpmath stack
+	
+which is basically an abbreviation for 
 
+	ed pmath!pmath_debug_print_to_debugger 1
 	.call pmath!pmath_debug_print_stack(); g
+	ed pmath!pmath_debug_print_to_debugger 0
 
-However, this currently prints to stderr, instead of using DebugOutputString.
+You can redirect all output from pmath_debug_print()/... to the debugger instead of stderr by setting
+
+	ed pmath!pmath_debug_print_to_debugger 1
+
