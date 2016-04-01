@@ -39,7 +39,9 @@ struct linewriter_t {
   
   int                    indentation_width;
   pmath_write_options_t  next_options;
-  pmath_bool_t           is_inside_rawboxes;
+  
+  /// Increased inside RawBoxes(...) and inside strings, because strings can contain embedded boxes.
+  int  rawboxes_depth;
   
   void  *user;
   void (*write)(void *, const uint16_t *, int);
@@ -482,6 +484,27 @@ static void line_write(void *user, const uint16_t *data, int len) {
   }
 }
 
+static pmath_bool_t is_row(pmath_t expr){
+  size_t exprlen;
+  pmath_t item;
+  
+  if(!pmath_is_expr_of(expr, PMATH_SYMBOL_ROW))
+    return FALSE;
+  
+  exprlen = pmath_expr_length(expr);
+  if(exprlen < 1 || exprlen > 2)
+    return FALSE;
+  
+  item = pmath_expr_get_item(expr, 1);
+  if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+    pmath_unref(item);
+    return TRUE;
+  }
+  
+  pmath_unref(item);
+  return FALSE;
+}
+
 static void pre_write(void *user, pmath_t item, pmath_write_options_t options) {
   struct linewriter_t *lw = user;
   struct write_pos_t  *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
@@ -490,16 +513,18 @@ static void pre_write(void *user, pmath_t item, pmath_write_options_t options) {
     if( 0 == (options & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
         pmath_is_expr_of_len(item, PMATH_SYMBOL_RAWBOXES, 1))
     {
-      lw->is_inside_rawboxes = TRUE;
+      lw->rawboxes_depth++;
     }
     
-    if(lw->is_inside_rawboxes) {
+    if(lw->rawboxes_depth > 0) {
       if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST))
         lw->expr_depth++;
     }
-    else
+    else if(!is_row(item))
       lw->expr_depth++;
   }
+  else
+    lw->rawboxes_depth++;
   
   lw->next_options = options;
   
@@ -518,7 +543,7 @@ static void post_write(void *user, pmath_t item, pmath_write_options_t options) 
   struct write_pos_t  *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
   
   if(!pmath_is_string(item)) {
-    if(lw->is_inside_rawboxes) {
+    if(lw->rawboxes_depth > 0) {
       if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST))
         lw->expr_depth--;
     }
@@ -528,9 +553,11 @@ static void post_write(void *user, pmath_t item, pmath_write_options_t options) 
     if( 0 == (options & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
         pmath_is_expr_of_len(item, PMATH_SYMBOL_RAWBOXES, 1))
     {
-      lw->is_inside_rawboxes = FALSE;
+      lw->rawboxes_depth--;
     }
   }
+  else
+    lw->rawboxes_depth--;
   
   if(lw->prev_depth > lw->expr_depth)
     lw->prev_depth = lw->expr_depth;
@@ -606,7 +633,7 @@ void pmath_write_with_pagewidth(
   lw.prev_depth           = 0;
   lw.indentation_width    = indentation_width;
   lw.next_options         = 0;
-  lw.is_inside_rawboxes   = FALSE;
+  lw.rawboxes_depth       = 0;
   lw.write                = write;
   lw.user                 = user;
   
