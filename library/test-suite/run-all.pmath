@@ -10,6 +10,7 @@ ClearAll(Assert, AssertEqual);
 
 Assert::fail:= "Assertion `1` failed with `2`."
 AssertEqual::fail:= "`1` and `2` should equal, but found `3` =!= `4`."
+AssertUnequal::fail:= "`1` and `2` should not equal, but found `3` === `4`."
 
 Attributes(Assert)::= HoldFirst;
 Function Assert(~cond) {
@@ -33,6 +34,19 @@ Function AssertEqual(~lhs, ~rhs) {
 }
 AssertEqual(~~~args) /? IsValidArgumentCount(AssertEqual, Length @ HoldComplete(args), 2, 2)::= $Failed
 
+Attributes(AssertUnequal)::= HoldAll;
+Function AssertUnequal(~lhs, ~rhs) {
+	With(evalLhs := lhs, evalRhs:= rhs)
+	If(evalLhs === evalRhs) {
+		Message(AssertUnequal::fail,
+			HoldForm(lhs),
+			HoldForm(rhs),
+			HoldForm(evalLhs),
+			HoldForm(evalRhs))
+	}
+}
+AssertUnequal(~~~args) /? IsValidArgumentCount(AssertUnequal, Length @ HoldComplete(args), 2, 2)::= $Failed
+
 testFiles:= $Input.DirectoryName.ToFileName("tests").FileNames("*.pmath")
 
 Do(i -> 1..Length(testFiles)) {
@@ -41,11 +55,11 @@ Do(i -> 1..Length(testFiles)) {
 	Clear($MessageCount)
 	
 	Remove @ Evaluate("TestSuite`Private`Test" ++ ToString(i) ++ "`*")
-	Begin("TestSuite`Private`Test" ++ ToString(i) ++ "`");
+	BeginPackage("TestSuite`Private`Test" ++ ToString(i) ++ "`", {"TestSuite`", "ExperimentalSyntax`"});
 	
 	Get(testFiles[i]);
 	
-	End();
+	EndPackage();
 }
 
 End();

@@ -1,0 +1,43 @@
+
+<<Developer`
+
+intList:= {0, 8, 15, -42}
+packedIntList:= intList.ToPackedArray
+
+Assert(!IsPackedArray(intList))
+Assert(IsPackedArray(packedIntList))
+
+AssertEqual(intList, packedIntList)
+
+AssertEqual(Hash(intList), Hash(packedIntList))
+
+
+
+realList:= {0.0, 8.0, 1.5, -4.2}
+packedRealList:= realList.ToPackedArray
+
+Assert(!IsPackedArray(realList))
+Assert(IsPackedArray(packedRealList))
+
+AssertEqual(realList, packedRealList)
+
+AssertEqual(Hash(realList), Hash(packedRealList))
+
+
+
+mixedList:= {0, 1.0, -4.0, 5.5}
+failPackMixedAsInteger:= mixedList.ToPackedArray(Integer)
+packMixedAsReal:= mixedList.ToPackedArray(Real)
+
+Assert(!IsPackedArray(mixedList))
+Assert(!IsPackedArray(failPackMixedAsInteger))
+Assert(IsPackedArray(packMixedAsReal))
+
+AssertEqual(mixedList, failPackMixedAsInteger)
+
+AssertUnequal(mixedList, packMixedAsReal)
+
+AssertEqual(mixedList // N, packMixedAsReal)
+
+AssertEqual(Hash(mixedList // N), Hash(packMixedAsReal))
+
