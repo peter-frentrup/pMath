@@ -47,7 +47,7 @@ static pmath_t set_debuginfo_at(
   pmath_t indices, // wont be freed
   size_t  i
 ) {
-  if(i < pmath_expr_length(indices)) {
+  if(i <= pmath_expr_length(indices)) {
     pmath_t index = pmath_expr_get_item(indices, i);
     
     if( pmath_is_int32(index) &&
