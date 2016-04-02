@@ -1,4 +1,4 @@
-
+Print($Input)
 BeginPackage("TestSuite`", {"ExperimentalSyntax`"})
 
 TestSuite`Assert
@@ -18,6 +18,9 @@ Function Assert(~cond) {
 	If(evalCond =!= True) {
 		Message(Assert::fail, HoldForm(cond), HoldForm(evalCond))
 	}
+	
+	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
+	/\/ /? True
 }
 Assert(~~~args) /? IsValidArgumentCount(Assert, Length @ HoldComplete(args), 1, 1)::= $Failed
 
@@ -31,6 +34,9 @@ Function AssertEqual(~lhs, ~rhs) {
 			HoldForm(evalLhs),
 			HoldForm(evalRhs))
 	}
+	
+	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
+	/\/ /? True
 }
 AssertEqual(~~~args) /? IsValidArgumentCount(AssertEqual, Length @ HoldComplete(args), 2, 2)::= $Failed
 
@@ -44,6 +50,9 @@ Function AssertUnequal(~lhs, ~rhs) {
 			HoldForm(evalLhs),
 			HoldForm(evalRhs))
 	}
+	
+	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
+	/\/ /? True
 }
 AssertUnequal(~~~args) /? IsValidArgumentCount(AssertUnequal, Length @ HoldComplete(args), 2, 2)::= $Failed
 
