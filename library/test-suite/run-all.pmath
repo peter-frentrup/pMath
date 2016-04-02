@@ -12,11 +12,14 @@ Assert::fail:= "Assertion `1` failed with `2`."
 AssertEqual::fail:= "`1` and `2` should equal, but found `3` =!= `4`."
 AssertUnequal::fail:= "`1` and `2` should not equal, but found `3` === `4`."
 
+Attributes(suppressDebugInfo):= {HoldFirst}
+suppressDebugInfo(~expr)::= ReleaseHold(Developer`SetDebugInfoAt(HoldComplete(expr), /\/, 1))
+
 Attributes(Assert)::= HoldFirst;
 Function Assert(~cond) {
 	With(evalCond := cond)
 	If(evalCond =!= True) {
-		Message(Assert::fail, HoldForm(cond), HoldForm(evalCond))
+		suppressDebugInfo @ Message(Assert::fail, HoldForm(cond), HoldForm(evalCond))
 	}
 	
 	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
@@ -28,7 +31,7 @@ Attributes(AssertEqual)::= HoldAll;
 Function AssertEqual(~lhs, ~rhs) {
 	With(evalLhs := lhs, evalRhs:= rhs)
 	If(evalLhs =!= evalRhs) {
-		Message(AssertEqual::fail,
+		suppressDebugInfo @ Message(AssertEqual::fail,
 			HoldForm(lhs),
 			HoldForm(rhs),
 			HoldForm(evalLhs),
@@ -44,7 +47,7 @@ Attributes(AssertUnequal)::= HoldAll;
 Function AssertUnequal(~lhs, ~rhs) {
 	With(evalLhs := lhs, evalRhs:= rhs)
 	If(evalLhs === evalRhs) {
-		Message(AssertUnequal::fail,
+		suppressDebugInfo @ Message(AssertUnequal::fail,
 			HoldForm(lhs),
 			HoldForm(rhs),
 			HoldForm(evalLhs),
