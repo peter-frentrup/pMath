@@ -116,7 +116,7 @@ AutoLoad(Hold(Cross, Transpose, QRDecomposition),
 AutoLoad(Hold(Interval), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "interval.pmath"))
 AutoLoad(Hold(Developer`InspectBoxes), 
-	ToFileName({$BaseDirectory, "auto", "core"}, "Developer.pmath"))
+	ToFileName({$BaseDirectory, "auto", "core", "Developer"}, "InspectBoxes.pmath"))
 AutoLoad(Hold(Normalize, RotationMatrix, ScalingMatrix, ReflectionMatrix, ShearingMatrix, LinearFractionalTransform, ReflectionTransform, RotationTransform, AffineTransform, TranslationTransform, ScalingTransform, ShearingTransform, TransformationFunction, TransformationMatrix),
 	ToFileName({$BaseDirectory, "auto", "core"}, "geotrans.pmath"))
 AutoLoad(Hold(Echo, EchoFunction), 
