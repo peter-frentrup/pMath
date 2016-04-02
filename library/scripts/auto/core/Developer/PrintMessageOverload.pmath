@@ -1,0 +1,58 @@
+
+BeginPackage("Developer`", {"ExperimentalSyntax`"})
+
+Developer`PrintMessageOverload
+
+Begin("Developer`Private`")
+
+
+$overloadMessagePrint:= False
+SetAttributes($overloadMessagePrint, ThreadLocal)
+
+Unprotect(SectionPrint)
+SectionPrint("Message", ~expr) /? $overloadMessagePrint ::= 
+	Block({$overloadMessagePrint:= False},
+		PrintMessageOverload(expr)
+	)
+Protect(SectionPrint)
+
+
+Function PrintMessageOverload(~expr) {
+	% stack ends with {..., Block, With} where With comes from here and Block comes from
+	% the overloading/implementation of SectionPrint("Message", ~). So the stack outside 
+	% SectionPrint("Message", ~) is stack[..-3]
+	With(stack:= Stack())
+	
+	SectionPrint("Message", Row @ {expr, "\n at ", stack[..-3].Map(stackEntryForm).Row("\n at ")})
+}
+
+Protect(PrintMessageOverload)
+
+$overloadMessagePrint:= True
+
+
+Options(stackEntryForm)::= {"Head" -> "?", "Location" -> None}
+Function stackEntryForm(OptionsPattern()) {
+	With(head:= OptionValue("Head"))
+	With(location:= OptionValue("Location"))
+	
+	If(location === None) {
+		Return @ head
+	} Else {
+		Return @ Row @ {head, " in ", describeLocation(location)}
+	}
+}
+
+describeLocation(~expr)::= expr
+Function describeLocation(
+	DebugInfoSource(
+		~filename:String, 
+		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
+) {
+	Return @ Row @ {"line ", fromLine+1, ":", fromColumn, "..", toLine+1, ":", toColumn, " of ", filename}
+}
+
+
+End()
+
+EndPackage()
