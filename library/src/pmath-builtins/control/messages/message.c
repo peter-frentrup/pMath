@@ -184,6 +184,9 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   }
   
   pmath_unref(name);
+  
+  expr = pmath_evaluate(expr);
+  
   return expr;
 }
 
