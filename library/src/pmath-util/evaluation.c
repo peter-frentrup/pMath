@@ -163,9 +163,11 @@ static pmath_expr_t evaluate_arguments(
   pmath_bool_t     hold_rest
 ) {
   pmath_t item;
+  pmath_t debug_info;
   size_t i;
   size_t exprlen = pmath_expr_length(expr);
   
+  debug_info = pmath_get_debug_info(expr);
   item = pmath_expr_get_item(expr, 1);
   
   if(!hold_first || pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
@@ -197,6 +199,8 @@ static pmath_expr_t evaluate_arguments(
       expr = pmath_expr_set_item(expr, i, item);
     }
   }
+  
+  expr = pmath_try_set_debug_info(expr, debug_info);
   
   return expr;
 }
