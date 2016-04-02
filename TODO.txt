@@ -76,8 +76,6 @@
 - richmath: Why is the end column of debug-info so large?? See "InspectBoxes - Test.pmathdoc"
 	This does not occur in test.exe ?!?
 
-- add Developer`StackInformation() to get {{"Head" -> symbol, "Location" -> debuginfo, ...}, ...}
-
 - Message(...) should print a stack trace
 - add Assert(...)
 

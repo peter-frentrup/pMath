@@ -316,7 +316,10 @@ PMATH_API pmath_t pmath_current_head(void) {
   return pmath_ref(thread->stack_info->head);
 }
 
-PMATH_API void pmath_walk_stack(pmath_stack_walker_t walker, void *closure) {
+PMATH_API void pmath_walk_stack(
+  pmath_bool_t (*walker)(pmath_t head, void *closure), 
+  void *closure
+) {
   pmath_thread_t thread = pmath_thread_get_current();
   
   while(thread) {

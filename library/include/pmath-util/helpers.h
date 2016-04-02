@@ -14,12 +14,6 @@
   @{
  */
 
-/**\brief A stack walker function.
-
-   The return value specifies, whether the walk on the stack go on.
- */
-typedef pmath_bool_t (*pmath_stack_walker_t)(pmath_t head, void *closure);
-
 /*============================================================================*/
 
 /**\brief Check if an object is an expression with a specified head.
@@ -141,14 +135,17 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_current_head(void);
 
 /**\brief Walk up the current thread's and its parents' stack.
-   \param walker A callback function.
+   \param walker  A callback function. It should return TRUE when walking may 
+                  continue. It may not destroy its argument.
    \param closure A pointer that will be provided to walker as the second 
                   argument.
  */
 PMATH_API 
-void pmath_walk_stack(pmath_stack_walker_t walker, void *closure);
+void pmath_walk_stack(
+  pmath_bool_t (*walker)(pmath_t head, void *closure), 
+  void *closure);
 
-/**\brief Walk up the current thread's and its parents' stack.
+/**\brief Walk up the current thread's and its parents' stack, providing debug information.
    \param walker  A callback function. It should return TRUE when walking may 
                   continue. It may not destroy its arguments.
    \param closure A pointer that will be provided to walker as the last argument.
