@@ -133,20 +133,20 @@ static pmath_t get_file(
   
   pmath_message(PMATH_SYMBOL_GET, "load", 1, pmath_ref(name));
   
-  old_input = pmath_evaluate(pmath_ref(PMATH_SYMBOL_INPUT));
-  pmath_unref(pmath_thread_local_save(
-                PMATH_SYMBOL_INPUT,
-                _pmath_canonical_file_name(pmath_ref(name))));
-                
   info.ns           = pmath_evaluate(pmath_ref(PMATH_SYMBOL_CURRENTNAMESPACE));
   info.nspath       = pmath_evaluate(pmath_ref(PMATH_SYMBOL_NAMESPACEPATH));
   info.file         = file;
-  info.filename     = name;
+  info.filename     = _pmath_canonical_file_name(pmath_ref(name));
   info.startline    = 1;
   info.codelines    = 0;
   info.current_code = PMATH_NULL;
   info.err          = FALSE;
   
+  old_input = pmath_evaluate(pmath_ref(PMATH_SYMBOL_INPUT));
+  pmath_unref(pmath_thread_local_save(
+                PMATH_SYMBOL_INPUT,
+                pmath_ref(info.filename)));
+                
   memset(&parse_settings, 0, sizeof(parse_settings));
   parse_settings.size           = sizeof(parse_settings);
   parse_settings.flags          = PMATH_BFS_PARSEABLE;
@@ -218,6 +218,7 @@ static pmath_t get_file(
   
   pmath_unref(pmath_thread_local_save(PMATH_SYMBOL_INPUT, old_input));
   pmath_file_close(file);
+  pmath_unref(info.filename);
   pmath_unref(name);
   pmath_unref(head);
   
