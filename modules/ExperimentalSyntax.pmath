@@ -81,7 +81,7 @@
 %		Print(y, " ", z)
 %	}
 %
-BeginPackage("ExperimentalSyntax`")
+BeginPackage("ExperimentalSyntax`", {"Developer`"})
 
 Begin("ExperimentalSyntax`Private`")
 
@@ -117,10 +117,10 @@ Unprotect(MakeExpression)
 makeBlockExpression()::= HoldComplete(/\/)
 makeBlockExpression({})::= HoldComplete(/\/)
 makeBlockExpression(~boxes)::=
-	With({stmts:= Gather(emitMakeStatements(boxes)).Last.Apply(HoldComplete).Flatten(1)},
+	With({debugInfo:= GetDebugInfo(boxes), stmts:= Gather(emitMakeStatements(boxes)).Last.Apply(HoldComplete).Flatten(1)},
 		If(Length(stmts) = 0, Return(HoldComplete(/\/)));
 		If(Length(stmts) = 1, Return(stmts));
-		Return(composeHeldExpr(EvaluationSequence, stmts))
+		Return(composeHeldExpr(EvaluationSequence, stmts).SetDebugInfoAt(debugInfo, 1))
 		)
 
 emitMakeStatements({}):= /\/
