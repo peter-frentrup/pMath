@@ -23,7 +23,7 @@ Function PrintMessageOverload(~expr) {
 	% SectionPrint("Message", ~) is stack[..-3]
 	With(stack:= Stack())
 	
-	SectionPrint("Message", Row @ {expr, "\n at ", stack[..-3].Map(stackEntryForm).Row("\n at ")})
+	SectionPrint("Message", Row @ {expr, "\n at ", stack[..-3].Reverse.Map(stackEntryForm).Row("\n at ")})
 }
 
 Protect(PrintMessageOverload)
@@ -49,7 +49,7 @@ Function describeLocation(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
 ) {
-	Return @ Row @ {"line ", fromLine+1, ":", fromColumn, "..", toLine+1, ":", toColumn, " of ", filename}
+	Return @ Row @ {"line ", fromLine, ":", fromColumn, "..", toLine, ":", toColumn, " of ", filename}
 }
 
 

@@ -258,7 +258,16 @@ static void kill_interrupt_daemon(void *dummy) {
   sem_post(&interrupt_semaphore);
 }
 
-static pmath_string_t scanner_read(void *dummy) {
+struct parse_data_t {
+  pmath_t code;
+  pmath_t filename;
+  int start_line;
+  int numlines;
+  unsigned error: 1;
+};
+
+static pmath_string_t scanner_read(void *_data) {
+  struct parse_data_t *data = _data;
   pmath_string_t result;
   
   if(pmath_aborting())
@@ -271,17 +280,19 @@ static pmath_string_t scanner_read(void *dummy) {
     pmath_unref(result);
     return PMATH_NULL;
   }
+  
+  data->numlines++;
   return result;
 }
 
-static void scanner_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
-  pmath_bool_t *have_critical = flag;
+static void scanner_error(pmath_string_t code, int pos, void *_data, pmath_bool_t critical) {
+  struct parse_data_t *data = _data;
   
-  if(!*have_critical)
+  if(!data->error)
     pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
     
   if(critical)
-    *have_critical = TRUE;
+    data->error = TRUE;
 }
 
 static void handle_options(int argc, const char **argv) {
@@ -341,11 +352,6 @@ static pmath_t check_dialog_return(pmath_t result) { // result wont be freed
   return PMATH_UNDEFINED;
 }
 
-struct parse_data_t {
-  pmath_t code;
-  pmath_t filename;
-};
-
 static pmath_t add_debug_info(
   pmath_t                             token_or_span, 
   const struct pmath_text_position_t *start, 
@@ -363,10 +369,10 @@ static pmath_t add_debug_info(
   if(!pmath_is_expr(token_or_span))
     return token_or_span;
     
-  start_line   = start->line;
+  start_line   = start->line + data->start_line;
   start_column = start->index - start->line_start_index;
   
-  end_line   = end->line;
+  end_line   = end->line + data->start_line;
   end_column = end->index - end->line_start_index;
   
   debug_info = pmath_expr_new_extended(
@@ -401,10 +407,11 @@ static pmath_t dialog(pmath_t first_eval) {
     parse_settings.add_debug_info = add_debug_info;
     
     parse_data.filename = PMATH_C_STRING("<input>");
+    parse_data.start_line = 1;
+    parse_data.numlines = 0;
     
     result = PMATH_NULL;
     while(!quitting) {
-      pmath_bool_t err = FALSE;
       pmath_span_array_t *spans;
       
       pmath_continue_after_abort();
@@ -412,6 +419,9 @@ static pmath_t dialog(pmath_t first_eval) {
       write_line("\n");
       write_indent("pmath> ");
       
+      parse_data.start_line+= parse_data.numlines;
+      parse_data.numlines = 1;
+      parse_data.error = FALSE;
       parse_data.code = read_line(stdin);
       
       if(dialog_depth > 0 && pmath_aborting()) {
@@ -425,9 +435,9 @@ static pmath_t dialog(pmath_t first_eval) {
                 NULL,
                 NULL,
                 scanner_error,
-                &err);
+                &parse_data);
                 
-      if(!err) {
+      if(!parse_data.error) {
         pmath_t debug_info;
         pmath_t obj = pmath_boxes_from_spans_ex(
                         spans,
