@@ -282,4 +282,16 @@
 	<!--<Type Name="pmath_atomic_t">
 		<DisplayString>{_data}</DisplayString>
 	</Type>-->
+	
+	<Type Name="_memory_header_t">
+		<Version Name="pmath.dll" />
+		<DisplayString>debug header for {((uintptr_t)this + ((sizeof(pmath!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),!}</DisplayString>
+		<Expand>
+			<Item Name="[ptr]">(void*)((char*)this + ((sizeof(pmath!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),[size]</Item>
+			<Item Name="size">size</Item>
+			<Item Name="alloc_time">alloc_time</Item>
+			<Item Name="prev">prev</Item>
+			<Item Name="next">next</Item>
+		</Expand>
+	</Type>
 </AutoVisualizer>
