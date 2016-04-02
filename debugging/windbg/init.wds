@@ -14,4 +14,6 @@ aS ${/v:pmath-dbg-path} ${$arg0}\..
 	aS ${/v:pmath-inspect}             $$>a<"${pmath-dbg-path}\inspect.wds"
 	
 	aS ${/v:debugpmath}   $$>a<"${pmath-dbg-path}\debugpmath.wds"
+	
+	.nvload "${pmath-dbg-path}\pmath.natvis"
 }

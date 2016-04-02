@@ -9,7 +9,7 @@ To make the utility commands available inside WinDbg, run
 
 	$$><C:\full\path\to\pmath\debugging\windbg\init.wds
 
-Later, you can inspect a pmath_t variable `obj` with
+This also loads the NatVis file. Later, you can inspect a pmath_t variable `obj` with
 
 	debugpmath inspect  obj
 
