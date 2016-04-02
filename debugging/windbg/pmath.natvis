@@ -2,86 +2,284 @@
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 	<Type Name="pmath_t">
 		<DisplayString Condition="((s.tag &amp; 0x7FF00000) != 0x7FF00000)">{as_double}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FFFFFFF">invalid (locked) {s.u.as_int32}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF10000">magic {s.u.as_int32}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF20000">{s.u.as_int32}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF30000">{(wchar_t*)s.u.as_chars,[0]}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF40000">{(wchar_t*)s.u.as_chars,[1]}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF50000">{(wchar_t*)s.u.as_chars,[2]}</DisplayString>
 		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((as_bits &lt;&lt; 12) == 0)">(null)</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 0)">mp float</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 1)">mp int</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 2)">quotient</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 3)">big string</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 4)">symbol</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 5)">general expr</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 6)">general expr part</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 7)">multirule</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 8)">custom</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 9)">blob</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 10)">packed array</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 11)">interval</DisplayString>
-		<DisplayString Condition="(s.tag &amp; 0xFFF00000) == 0xFFF00000">object tag {(*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift} at {(as_bits &lt;&lt; 12) &gt;&gt; 12}</DisplayString>
-		<DisplayString>magic {s.tag} value {s.u.as_int32}</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000)">{*(pmath!_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)}</DisplayString>
+		<DisplayString>magic {s.tag,x} value {s.u.as_int32,x}</DisplayString>
+		<Expand HideRawView="true">
+			<ExpandedItem Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((as_bits &lt;&lt; 12) != 0)">
+				*(pmath!_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			</ExpandedItem>
+			<Synthetic Name="length" Condition="s.tag == 0x7FF30000" ExcludeView="simple">
+				<DisplayString>0</DisplayString>
+			</Synthetic>
+			<Synthetic Name="length" Condition="s.tag == 0x7FF40000" ExcludeView="simple">
+				<DisplayString>1</DisplayString>
+			</Synthetic>
+			<Synthetic Name="length" Condition="s.tag == 0x7FF50000" ExcludeView="simple">
+				<DisplayString>2</DisplayString>
+			</Synthetic>
+		</Expand>
+	</Type>
+	<!--<Type Name="_pmath_t*">
+		<DisplayString>{*(_pmath_t*)((((uint64_t)this) &lt;&lt; 12) &gt;&gt; 12)}</DisplayString>
 		<Expand>
-			<!-- mp float -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 0)">
-				*(_pmath_mp_float_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			<Item Name="[deref]" Condition="((uint64_t)this &gt;&gt; 52) == 0xFFF">
+				*(_pmath_t*)((((uint64_t)this) &lt;&lt; 12) &gt;&gt; 12)
+			</Item>
+		</Expand>
+	</Type>-->
+	<Type Name="_pmath_t">
+		<DisplayString Condition="type_shift ==  0">{*(pmath!_pmath_mp_float_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  1">{*(pmath!_pmath_mp_int_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  2">{*(pmath!_pmath_quotient_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  3">{*(pmath!_pmath_string_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  4">{*(pmath!_pmath_symbol_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  5">{*(pmath!_pmath_expr_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  6">{*(pmath!_pmath_expr_part_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  7">{*(pmath!_pmath_multirule_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  8">{*(pmath!_pmath_custom_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  9">{*(pmath!_pmath_blob_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift == 10">{*(pmath!_pmath_packed_array_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift == 11">{*(pmath!_pmath_interval_t*)this}</DisplayString>
+		<DisplayString>object tag {type_shift}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="[deref]" Condition="type_shift == 0">
+				*(pmath!_pmath_mp_float_t*)this
 			</Item>
 			
-			<!-- mp int -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 1)">
-				*(_pmath_mp_int_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			<Item Name="[deref]" Condition="type_shift == 1">
+				*(pmath!_pmath_mp_int_t*)this
 			</Item>
 			
-			<!-- quotient -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 2)">
-				*(_pmath_quotient_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			<ExpandedItem Condition="type_shift == 2">
+				*(pmath!_pmath_quotient_t*)this
+			</ExpandedItem>
+			
+			<ExpandedItem Condition="type_shift == 3">
+				*(pmath!_pmath_string_t*)this
+			</ExpandedItem>
+			
+			<ExpandedItem Condition="type_shift == 4">
+				*(pmath!_pmath_symbol_t*)this
+			</ExpandedItem>
+			
+			<ExpandedItem Condition="type_shift == 5">
+				*(pmath!_pmath_expr_t*)this
+			</ExpandedItem>
+			
+			<ExpandedItem Condition="type_shift == 6">
+				*(pmath!_pmath_expr_part_t*)this
+			</ExpandedItem>
+			
+			<Item Name="[deref]" Condition="type_shift == 7">
+				*(pmath!_pmath_multirule_t*)this
 			</Item>
 			
-			<!-- big string -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 3)">
-				*(_pmath_string_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			<Item Name="[deref]" Condition="type_shift == 8">
+				*(pmath!_pmath_custom_t*)this
 			</Item>
 			
-			<!-- symbol -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 4)">
-				*(_pmath_symbol_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			<Item Name="[deref]" Condition="type_shift == 9">
+				*(pmath!_pmath_blob_t*)this
 			</Item>
 			
-			<!-- general expr -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 5)">
-				*(pmath!_pmath_expr_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
-			</Item>
+			<ExpandedItem Condition="type_shift == 10">
+				*(pmath!_pmath_packed_array_t*)this
+			</ExpandedItem>
 			
-			<!-- general expr part -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 6)">
-				*(_pmath_expr_part_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
-			</Item>
-			
-			<!-- multirule -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 7)">
-				*(_pmath_multirule_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
-			</Item>
-			
-			<!-- custom -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 8)">
-				*(_pmath_custom_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
-			</Item>
-			
-			<!-- blob -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 9)">
-				*(_pmath_blob_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
-			</Item>
-			
-			<!-- packed array -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 10)">
-				*(_pmath_packed_array_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
-			</Item>
-			
-			<!-- interval -->
-			<Item Name="[deref]" Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)).type_shift == 11)">
-				*(_pmath_interval_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
-			</Item>
-			
-			<!-- (unknown) -->
-			<Item Name="[deref]" Condition="(s.tag &amp; 0xFFF00000) == 0xFFF00000">
-				*(_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			<Item Name="[deref]" Condition="type_shift == 11">
+				*(pmath!_pmath_interval_t*)this
 			</Item>
 		</Expand>
 	</Type>
+	<Type Name="_pmath_mp_float_t">
+		<DisplayString>mp float</DisplayString>
+	</Type>
+	<Type Name="_pmath_mp_int_t">
+		<DisplayString>mp int</DisplayString>
+	</Type>
+	<Type Name="_pmath_quotient_t">
+		<DisplayString>quotient</DisplayString>
+		<Expand>
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath!_pmath_quotient_t*)this,!</Item>
+			<Item Name="numerator">numerator</Item>
+			<Item Name="denominator">denominator</Item>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_string_t">
+		<DisplayString Condition="buffer == 0">{(wchar_t*)((char*)this + ((sizeof(pmath!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)),[length]}</DisplayString>
+		<DisplayString Condition="buffer != 0">{(wchar_t*)((char*)buffer + ((sizeof(pmath!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + capacity_or_start,[length]}</DisplayString>
+		<Expand HideRawView="true">
+			<!--
+			<Item Name="[header size]">((sizeof(pmath!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)</Item>
+			-->
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath!_pmath_string_t*)this,!</Item>
+			<Item Name="length" ExcludeView="simple">length</Item>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_symbol_t">
+		<DisplayString>{name,sub}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath!_pmath_symbol_t*)this,!</Item>
+			<Synthetic Name="attributes">
+				<DisplayString>{attributes,b}</DisplayString>
+				<Expand>
+					<Synthetic Name="Protected"        Condition="attributes &amp;     0x1"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="HoldFirst"        Condition="attributes &amp;     0x2"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="HoldRest"         Condition="attributes &amp;     0x4"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="Symmetric"        Condition="attributes &amp;     0x8"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="Associative"      Condition="attributes &amp;    0x10"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="NHoldFirst"       Condition="attributes &amp;    0x20"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="NHoldRest"        Condition="attributes &amp;    0x40"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="Temporary"        Condition="attributes &amp;    0x80"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="Listable"         Condition="attributes &amp;   0x100"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="DeepHoldAll"      Condition="attributes &amp;   0x200"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="HoldAllComplete"  Condition="attributes &amp;   0x400"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="OneIdentity"      Condition="attributes &amp;   0x800"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="ThreadLocal"      Condition="attributes &amp;  0x1000"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="NumericFunction"  Condition="attributes &amp;  0x2000"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="ReadProtected"    Condition="attributes &amp;  0x4000"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="SequenceHold"     Condition="attributes &amp;  0x8000"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="Removed"          Condition="attributes &amp; 0x10000"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="DefiniteFunction" Condition="attributes &amp; 0x20000"><DisplayString>yes</DisplayString></Synthetic>
+				</Expand>
+			</Synthetic>
+			<Item Name="value">value</Item>
+			<Item Name="rules">*(pmath!_pmath_symbol_rules_t*)rules._data</Item>
+			<Item Name="prev">*prev</Item>
+			<Item Name="next">*next</Item>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_expr_t">
+		<DisplayString Condition="length==0">{items[0]}()</DisplayString>
+		<DisplayString>{items[0]}(&lt;&lt;{length,d}&gt;&gt;)</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple" Condition="inherited.inherited.inherited.type_shift == 5">
+				*(pmath!_pmath_expr_part_t*)this,!
+			</Item>
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
+				*(pmath!_pmath_expr_t*)this,!
+			</Item>
+			<Item Name="[length]" ExcludeView="simple">length,d</Item>
+			<Item Name="debug_info">*debug_ptr</Item>
+			<Item Name="head">items[0]</Item>
+			<ArrayItems Condition="inherited.inherited.inherited.type_shift == 5">
+				<Size>length</Size>
+				<LowerBound>1</LowerBound>
+				<ValuePointer>&amp;items[1]</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_expr_part_t">
+		<DisplayString Condition="length==0">{inherited.items[0]}()</DisplayString>
+		<DisplayString>{inherited.items[0]}(&lt;&lt;{inherited.length,d}&gt;&gt;)</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
+				*(pmath!_pmath_expr_part_t*)this,!
+			</Item>
+			<Item Name="[length]" ExcludeView="simple">inherited.length,d</Item>
+			<Item Name="debug_info">*inherited.debug_ptr</Item>
+			<Item Name="head">inherited.items[0]</Item>
+			<ArrayItems>
+				<Size>inherited.length</Size>
+				<LowerBound>1</LowerBound>
+				<ValuePointer>&amp;buffer-&gt;items[start]</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_multirule_t">
+		<DisplayString>multirule</DisplayString>
+	</Type>
+	<Type Name="_pmath_custom_t">
+		<DisplayString>custom object</DisplayString>
+	</Type>
+	<Type Name="_pmath_blob_t">
+		<DisplayString>blob</DisplayString>
+	</Type>
+	<Type Name="_pmath_packed_array_t">
+		<DisplayString Condition="element_type == 1 &amp;&amp; dimensions    == 1">packed double array [{sizes_and_steps[0],d}]</DisplayString>
+		<DisplayString Condition="element_type == 1 &amp;&amp; dimensions    == 2">packed double array [{sizes_and_steps[0],d} x {sizes_and_steps[1],d}]</DisplayString>
+		<DisplayString Condition="element_type == 1 &amp;&amp; dimensions    == 3">packed double array [{sizes_and_steps[0],d} x {sizes_and_steps[1],d} x {sizes_and_steps[2],d}]</DisplayString>
+		<DisplayString Condition="element_type == 1 &amp;&amp; dimensions &gt;= 3">packed double array [{sizes_and_steps[0],d} x ... x {sizes_and_steps[dimensions-2],d} x {sizes_and_steps[dimensions-1],d}]</DisplayString>
+		<DisplayString Condition="element_type == 1"                              >packed double array</DisplayString>
+		<DisplayString Condition="element_type == 2 &amp;&amp; dimensions    == 1">packed int32 array [{sizes_and_steps[0],d}]</DisplayString>
+		<DisplayString Condition="element_type == 2 &amp;&amp; dimensions    == 2">packed int32 array [{sizes_and_steps[0],d} x {sizes_and_steps[1],d}]</DisplayString>
+		<DisplayString Condition="element_type == 2 &amp;&amp; dimensions    == 3">packed int32 array [{sizes_and_steps[0],d} x {sizes_and_steps[1],d} x {sizes_and_steps[2],d}]</DisplayString>
+		<DisplayString Condition="element_type == 2 &amp;&amp; dimensions &gt;= 3">packed int32 array [{sizes_and_steps[0],d} x ... x {sizes_and_steps[dimensions-2],d} x {sizes_and_steps[dimensions-1],d}]</DisplayString>
+		<DisplayString Condition="element_type == 2"                              >packed int32 array</DisplayString>
+		<DisplayString>packed array</DisplayString>
+		<Expand>
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
+				*(pmath!_pmath_packed_array_t*)this,!
+			</Item>
+			<Item Name="element_type">(pmath!pmath_packed_type_t)element_type</Item>
+			<Item Name="dimensions">dimensions,d</Item>
+			<Synthetic Name="sizes">
+				<DisplayString Condition="dimensions == 1">[{(intptr_t)sizes_and_steps[0]}]</DisplayString>
+				<DisplayString Condition="dimensions == 2">[{(intptr_t)sizes_and_steps[0]} x {(intptr_t)sizes_and_steps[1]}]</DisplayString>
+				<DisplayString Condition="dimensions == 3">[{(intptr_t)sizes_and_steps[0]} x {(intptr_t)sizes_and_steps[1]} x {(intptr_t)sizes_and_steps[2]}]</DisplayString>
+				<DisplayString Condition="dimensions == 4">[{(intptr_t)sizes_and_steps[0]} x {(intptr_t)sizes_and_steps[1]} x {(intptr_t)sizes_and_steps[2]} x {(intptr_t)sizes_and_steps[3]}]</DisplayString>
+				<DisplayString Condition="dimensions == 5">[{(intptr_t)sizes_and_steps[0]} x {(intptr_t)sizes_and_steps[1]} x {(intptr_t)sizes_and_steps[2]} x {(intptr_t)sizes_and_steps[3]} x {(intptr_t)sizes_and_steps[4]}]</DisplayString>
+				<DisplayString Condition="dimensions == 6">[{(intptr_t)sizes_and_steps[0]} x {(intptr_t)sizes_and_steps[1]} x {(intptr_t)sizes_and_steps[2]} x {(intptr_t)sizes_and_steps[3]} x {(intptr_t)sizes_and_steps[4]} x {(intptr_t)sizes_and_steps[5]}]</DisplayString>
+				<DisplayString Condition="dimensions &gt; 6">[{(intptr_t)sizes_and_steps[0]} x ... x {(intptr_t)sizes_and_steps[dimensions-1]}]</DisplayString>
+				<Expand>
+					<ArrayItems>
+						<Size>dimensions</Size>
+						<ValuePointer>&amp;sizes_and_steps[0]</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+			<Synthetic Name="steps">
+				<DisplayString Condition="dimensions == 1">({(intptr_t)sizes_and_steps[dimensions]})</DisplayString>
+				<DisplayString Condition="dimensions == 2">({(intptr_t)sizes_and_steps[dimensions]}, {(intptr_t)sizes_and_steps[dimensions+1]})</DisplayString>
+				<DisplayString Condition="dimensions == 3">({(intptr_t)sizes_and_steps[dimensions]}, {(intptr_t)sizes_and_steps[dimensions+1]}, {(intptr_t)sizes_and_steps[dimensions+2]})</DisplayString>
+				<DisplayString Condition="dimensions == 4">({(intptr_t)sizes_and_steps[dimensions]}, {(intptr_t)sizes_and_steps[dimensions+1]}, {(intptr_t)sizes_and_steps[dimensions+2]}, {(intptr_t)sizes_and_steps[dimensions+3]})</DisplayString>
+				<DisplayString Condition="dimensions == 5">({(intptr_t)sizes_and_steps[dimensions]}, {(intptr_t)sizes_and_steps[dimensions+1]}, {(intptr_t)sizes_and_steps[dimensions+2]}, {(intptr_t)sizes_and_steps[dimensions+3]}, {(intptr_t)sizes_and_steps[dimensions+4]})</DisplayString>
+				<DisplayString Condition="dimensions == 6">({(intptr_t)sizes_and_steps[dimensions]}, {(intptr_t)sizes_and_steps[dimensions+1]}, {(intptr_t)sizes_and_steps[dimensions+2]}, {(intptr_t)sizes_and_steps[dimensions+3]}, {(intptr_t)sizes_and_steps[dimensions+4]}, {(intptr_t)sizes_and_steps[dimensions+5]})</DisplayString>
+				<DisplayString Condition="dimensions &gt; 6">({(intptr_t)sizes_and_steps[dimensions]}, ..., {(intptr_t)sizes_and_steps[2*dimensions-1]})</DisplayString>
+				<Expand>
+					<ArrayItems>
+						<Size>dimensions</Size>
+						<ValuePointer>&amp;sizes_and_steps[dimensions]</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+			<Item Name="blob">*blob</Item>
+			<Item Name="[data]" Condition="element_type == 1">(double*)((char*)blob-&gt;data + offset)</Item>
+			<Item Name="[data]" Condition="element_type == 2">(int*)   ((char*)blob-&gt;data + offset)</Item>
+			<Item Name="[data]"                              >(void*)  ((char*)blob-&gt;data + offset)</Item>
+			<!--<ArrayItems Condition="dimensions == 1">
+				<Size>sizes_and_steps[0]</Size>
+				<ValuePointer Condition="element_type == 1">(double*)((char*)blob-&gt;data + offset)</ValuePointer>
+				<ValuePointer Condition="element_type == 2">(int*)((char*)blob-&gt;data + offset)</ValuePointer>
+			</ArrayItems>-->
+			<ArrayItems Condition="non_continuous_dimensions_count == 0">
+				<Direction>Forward</Direction>
+				<Rank>dimensions</Rank>
+				<Size>sizes_and_steps[$i]</Size>
+				<LowerBound>1</LowerBound>
+				<ValuePointer Condition="element_type == 1">(double*)((char*)blob-&gt;data + offset)</ValuePointer>
+				<ValuePointer Condition="element_type == 2">(int*)((char*)blob-&gt;data + offset)</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_interval_t">
+		<DisplayString>interval</DisplayString>
+	</Type>
+	
+	<Type Name="pmath_locked_t">
+		<DisplayString>{_data}</DisplayString>
+		<Expand>
+			<ExpandedItem>_data</ExpandedItem>
+		</Expand>
+	</Type>
+	<!--<Type Name="pmath_atomic_t">
+		<DisplayString>{_data}</DisplayString>
+	</Type>-->
 </AutoVisualizer>
