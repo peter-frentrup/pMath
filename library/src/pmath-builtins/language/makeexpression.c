@@ -186,7 +186,7 @@ static pmath_t wrap_hold_with_debuginfo_from(
   if(pmath_is_expr(result) && pmath_refcount(result) == 1) {
     pmath_t debug_info = pmath_get_debug_info(boxes_with_debuginfo);
     
-    result = pmath_try_set_debug_info(result, pmath_ref(debug_info));
+    result = pmath_try_set_debug_info(result, debug_info);
   }
   
   pmath_unref(boxes_with_debuginfo);
