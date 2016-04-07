@@ -114,7 +114,6 @@
 					<Add option="/GF" />
 					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
@@ -138,7 +137,6 @@
 					<Add option="/W3" />
 					<Add option="/Zi" />
 					<Add option="/DNDEBUG" />
-					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
@@ -160,7 +158,6 @@
 					<Add option="/GF" />
 					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
@@ -183,7 +180,6 @@
 					<Add option="/Ox" />
 					<Add option="/W3" />
 					<Add option="/DNDEBUG" />
-					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add library="pmath.lib" />
@@ -241,7 +237,7 @@
 					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh gcc-debug-x86" />
+					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR)" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux-GCC-Release-x86">
@@ -269,7 +265,7 @@
 					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh gcc-release-x86" />
+					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR)" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux-GCC-Debug-x64">
@@ -298,7 +294,7 @@
 					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh gcc-debug-x64" />
+					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR)" />
 				</ExtraCommands>
 			</Target>
 			<Target title="Linux-GCC-Release-x64">
@@ -328,7 +324,7 @@
 					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="./post-build-linux.sh gcc-release-x64" />
+					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR)" />
 				</ExtraCommands>
 			</Target>
 		</Build>
