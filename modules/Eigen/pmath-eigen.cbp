@@ -8,7 +8,7 @@
 		<Build>
 			<Target title="Windows-GCC-Debug-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86/pmath-eigen.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -30,7 +30,7 @@
 			</Target>
 			<Target title="Windows-GCC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86/pmath-eigen.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -51,7 +51,7 @@
 			</Target>
 			<Target title="Windows-GCC-Debug-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86-64/pmath-eigen.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -73,7 +73,7 @@
 			</Target>
 			<Target title="Windows-GCC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86-64/pmath-eigen.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -94,12 +94,13 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86/libpmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86/pmath-eigen.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
 				<Compiler>
 					<Add option="/MDd" />
+					<Add option="/EHsc" />
 					<Add option="/Zi" />
 					<Add option="/wd4005" />
 					<Add option="/DPMATH_DEBUG_LOG" />
@@ -108,7 +109,6 @@
 					<Add option="/Ddisable_PMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />
-					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
@@ -117,15 +117,15 @@
 			</Target>
 			<Target title="Windows-MSVC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86/libpmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86/pmath-eigen.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
 				<Compiler>
-					<Add option="/MDd" />
+					<Add option="/MD" />
+					<Add option="/EHsc" />
 					<Add option="/wd4005" />
 					<Add option="/DNDEBUG" />
-					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add directory="../../library/bin/windows/msvc-release-x86" />
@@ -133,12 +133,13 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86-64/libpmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86-64/pmath-eigen.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
 				<Compiler>
 					<Add option="/MDd" />
+					<Add option="/EHsc" />
 					<Add option="/Zi" />
 					<Add option="/wd4005" />
 					<Add option="/DPMATH_DEBUG_LOG" />
@@ -147,7 +148,6 @@
 					<Add option="/Ddisable_PMATH_DEBUG_NO_FORCEINLINE" />
 					<Add option="/DPMATH_USE_WINDOWS_THREADS=1" />
 					<Add option="/D_USE_MATH_DEFINES" />
-					<Add directory="../../msvc-c99" />
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
@@ -156,12 +156,14 @@
 			</Target>
 			<Target title="Windows-MSVC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86-64/libpmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86-64/pmath-eigen.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
 				<Compiler>
 					<Add option="/MD" />
+					<Add option="/EHsc" />
+					<Add option="/wd4005" />
 					<Add option="/DNDEBUG" />
 				</Compiler>
 				<Linker>
@@ -170,7 +172,7 @@
 			</Target>
 			<Target title="Linux-GCC-Debug-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/x86/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/linux/x86/pmath-eigen.so" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -192,7 +194,7 @@
 			</Target>
 			<Target title="Linux-GCC-Release-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/x86/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/linux/x86/pmath-eigen.so" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -215,7 +217,7 @@
 			</Target>
 			<Target title="Linux-GCC-Debug-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/linux/x86-64/pmath-eigen.so" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -238,7 +240,7 @@
 			</Target>
 			<Target title="Linux-GCC-Release-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/linux/x86-64/pmath-eigen.so" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />

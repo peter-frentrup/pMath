@@ -25,7 +25,6 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-GCC-Release-x86">
@@ -50,7 +49,6 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-GCC-Debug-x64">
@@ -72,7 +70,6 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-GCC-Release-x64">
@@ -97,7 +94,6 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC-Debug-x86">
@@ -118,7 +114,6 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add library="pmath.lib" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC-Release-x86">
@@ -141,7 +136,6 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add library="pmath.lib" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC-Debug-x64">
@@ -162,7 +156,6 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add library="pmath.lib" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-MSVC-Release-x64">
@@ -183,7 +176,6 @@
 				</Compiler>
 				<Linker>
 					<Add library="pmath.lib" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Windows-Clang">
@@ -208,7 +200,6 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="pmath" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 			</Target>
 			<Target title="Linux-GCC-Debug-x86">
@@ -227,14 +218,12 @@
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
-					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add library="rt" />
 					<Add library="pthread" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR)" />
@@ -255,14 +244,12 @@
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-DNDEBUG" />
-					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add library="rt" />
 					<Add library="pthread" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR)" />
@@ -284,14 +271,12 @@
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
 					<Add option="-DNDEBUG" />
-					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add library="rt" />
 					<Add library="pthread" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR)" />
@@ -314,14 +299,12 @@
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
 					<Add option="-DNDEBUG" />
-					<Add directory="/usr/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add library="rt" />
 					<Add library="pthread" />
-					<Add directory="../$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh $(TARGET_OUTPUT_DIR)" />
@@ -334,6 +317,9 @@
 		<Compiler>
 			<Add directory="../include" />
 		</Compiler>
+		<Linker>
+			<Add directory="../$(TARGET_OUTPUT_DIR)" />
+		</Linker>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>

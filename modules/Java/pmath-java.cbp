@@ -13,7 +13,7 @@
 		<Build>
 			<Target title="Windows-GCC-Debug-x86 Richmath Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-debug-x86/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/gcc-debug-x86/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -34,7 +34,6 @@
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
@@ -43,7 +42,7 @@
 			</Target>
 			<Target title="Windows-GCC-Debug-x86 Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-debug-x86/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/gcc-debug-x86/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -65,7 +64,6 @@
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
@@ -74,7 +72,7 @@
 			</Target>
 			<Target title="Windows-GCC-Debug-x86 Console Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-debug-x86/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/gcc-debug-x86/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -95,7 +93,6 @@
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
@@ -104,7 +101,7 @@
 			</Target>
 			<Target title="Windows-GCC-Debug-x64 Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-debug-x64/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/gcc-debug-x64/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -126,7 +123,6 @@
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
@@ -135,7 +131,7 @@
 			</Target>
 			<Target title="Windows-GCC-Debug-x64 Console Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-debug-x64/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/gcc-debug-x64/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -156,7 +152,6 @@
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
@@ -165,7 +160,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x86 Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug-x86/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/msvc-debug-x86/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
@@ -187,7 +182,6 @@
 					<Add option="/debug" />
 					<Add option="/LTCG" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
@@ -197,7 +191,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x86 Console Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug-x86/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/msvc-debug-x86/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
@@ -218,7 +212,6 @@
 					<Add option="/debug" />
 					<Add option="/LTCG" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
@@ -228,7 +221,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x64 Java Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug-x64/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/msvc-debug-x64/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
@@ -250,7 +243,6 @@
 					<Add option="/debug" />
 					<Add option="/LTCG" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
@@ -260,7 +252,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x64 Console Host">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug-x64/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/msvc-debug-x64/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
@@ -281,7 +273,6 @@
 					<Add option="/debug" />
 					<Add option="/LTCG" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
@@ -291,7 +282,7 @@
 			</Target>
 			<Target title="Windows-GCC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-release-x86/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/gcc-release-x86/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -312,7 +303,6 @@
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
@@ -321,7 +311,7 @@
 			</Target>
 			<Target title="Windows-GCC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-release-x64/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/gcc-release-x64/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -342,7 +332,6 @@
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-kill-at" />
 					<Add library="user32" />
-					<Add directory="../../library/bin/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
@@ -351,7 +340,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-release-x86/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/msvc-release-x86/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
@@ -371,7 +360,6 @@
 				<Linker>
 					<Add option="/LTCG" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86\*&quot;' />
@@ -380,7 +368,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-release-x64/libpmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/windows/msvc-release-x64/pmath-java.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
@@ -399,7 +387,6 @@
 				<Linker>
 					<Add option="/LTCG" />
 					<Add library="user32" />
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\x86-64\*&quot;' />
@@ -408,7 +395,7 @@
 			</Target>
 			<Target title="Linux-GCC-Debug-x86 Console Host">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/gcc-debug-x86/pmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/linux/gcc-debug-x86/pmath-java.so" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -427,18 +414,15 @@
 					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
-				<Linker>
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
-				</Linker>
 				<ExtraCommands>
 					<Add after="mkdir -p bin/Linux/x86/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/x86/' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
-			<Target title="Linux-Release-x86">
+			<Target title="Linux-GCC-Release-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/gcc-release-x86/pmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/linux/gcc-release-x86/pmath-java.so" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -455,18 +439,15 @@
 					<Add option="-Wno-unused-but-set-variable" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
-				<Linker>
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
-				</Linker>
 				<ExtraCommands>
 					<Add after="mkdir -p bin/Linux/x86/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/x86/' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
-			<Target title="Linux-Debug-x64 Console Host">
+			<Target title="Linux-GCC-Debug-x64 Console Host">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/gcc-debug-x64/pmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/linux/gcc-debug-x64/pmath-java.so" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -484,18 +465,15 @@
 					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
-				<Linker>
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
-				</Linker>
 				<ExtraCommands>
 					<Add after="mkdir -p bin/Linux/x86-64/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/x86-64/' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
-			<Target title="Linux-Release-x64">
+			<Target title="Linux-GCC-Release-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/gcc-release-x64/pmath-java" prefix_auto="0" extension_auto="1" />
+				<Option output="bin/linux/gcc-release-x64/pmath-java.so" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -513,9 +491,6 @@
 					<Add option="-DBUILD_DLL" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
-				<Linker>
-					<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
-				</Linker>
 				<ExtraCommands>
 					<Add after="mkdir -p bin/Linux/x86-64/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/x86-64/' />
@@ -523,12 +498,16 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<VirtualTargets>
+			<Add alias="All-Windows" targets="Windows-GCC-Debug-x86 Console Host;Windows-GCC-Debug-x64 Console Host;Windows-MSVC-Debug-x86 Console Host;Windows-MSVC-Debug-x64 Console Host;Windows-GCC-Release-x86;Windows-GCC-Release-x64;Windows-MSVC-Release-x86;Windows-MSVC-Release-x64;" />
+		</VirtualTargets>
 		<Compiler>
 			<Add directory="../../library/include" />
 			<Add directory="$(#jdk.include)" />
 		</Compiler>
 		<Linker>
 			<Add library="pmath" />
+			<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 			<Add directory="$(#jdk.lib)" />
 		</Linker>
 		<Unit filename="src/main.c">
