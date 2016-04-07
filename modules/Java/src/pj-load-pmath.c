@@ -108,8 +108,7 @@ static void prepare_environment(JNIEnv *env) {
 
 // calls pmath_init()
 // pmath_done() will be called on thread exit.
-static pmath_bool_t startup(void *arg) {
-  JavaVM *jvm = (JavaVM*)arg;
+static pmath_bool_t startup(JavaVM *jvm) {
   JNIEnv *env;
   
   if(!pmath_init())
