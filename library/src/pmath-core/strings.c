@@ -17,6 +17,7 @@
 
 #include <errno.h>
 #include <iconv.h>
+#include <limits.h>
 #include <string.h>
 
 
@@ -33,25 +34,25 @@ struct _pmath_string_t *_pmath_new_string_buffer(int size) {
   size_t bytes;
   int len = size;
   struct _pmath_string_t *result;
-  
+
   if(size < 0 || (int)LENGTH_TO_CAPACITY(size) < size)
     return NULL;
-    
+
   size = (int)LENGTH_TO_CAPACITY(size);
   bytes = (size_t)size * sizeof(uint16_t);
   if(bytes / sizeof(uint16_t) != (size_t)size)
     return NULL;
-    
+
   result = (void *)PMATH_AS_PTR(_pmath_create_stub(
       PMATH_TYPE_SHIFT_BIGSTRING,
       STRING_HEADER_SIZE + bytes));
   if(!result)
     return result;
-    
+
   result->length            = len;
   result->buffer            = NULL;
   result->capacity_or_start = size;
-  
+
   return result;
 }
 
@@ -60,21 +61,21 @@ pmath_t _pmath_from_buffer(struct _pmath_string_t *b) {
   if(b && b->length <= 2) {
     pmath_t result;
     const uint16_t *buf = (b->buffer ? AFTER_STRING(b->buffer) + b->capacity_or_start : AFTER_STRING(b));
-    
+
     switch(b->length) {
       case 0:
         result.s.tag = PMATH_TAG_STR0;
         result.s.u.as_int32 = 0;
         pmath_unref(PMATH_FROM_PTR(b));
         return result;
-        
+
       case 1:
         result.s.tag = PMATH_TAG_STR1;
         result.s.u.as_chars[0] = buf[0];
         result.s.u.as_chars[1] = 0;
         pmath_unref(PMATH_FROM_PTR(b));
         return result;
-        
+
       case 2:
         result.s.tag = PMATH_TAG_STR2;
         result.s.u.as_chars[0] = buf[0];
@@ -83,7 +84,7 @@ pmath_t _pmath_from_buffer(struct _pmath_string_t *b) {
         return result;
     }
   }
-  
+
   return PMATH_FROM_PTR(b);
 }
 
@@ -95,32 +96,32 @@ struct _pmath_string_t *enlarge_string(
 ) {
   struct _pmath_string_t *result;
   const uint16_t *buf;
-  
+
   if(extralen <= 0) {
     pmath_unref(PMATH_FROM_PTR(string));
     return NULL;
   }
-  
+
   assert(extra_start >= 0);
-  
+
   if(!string)
     return _pmath_new_string_buffer(extralen);
-    
+
   assert(extra_start <= string->length);
-  
+
   if( string->buffer == NULL &&
       pmath_atomic_read_aquire(&string->inherited.refcount) == 1)
   {
     size_t newcap;
     size_t bytes;
-    
+
     unsigned new_length = (unsigned)string->length + (unsigned)extralen;
     if(new_length < (unsigned)string->length || new_length > INT_MAX) {
       pmath_abort_please();
       pmath_unref(PMATH_FROM_PTR(string));
       return NULL;
     }
-    
+
     if((unsigned)string->capacity_or_start >= new_length) {
       memmove(
           AFTER_STRING(string) + extra_start + extralen,
@@ -129,7 +130,7 @@ struct _pmath_string_t *enlarge_string(
       string->length = (int)new_length;
       return string;
     }
-    
+
     newcap = LENGTH_TO_CAPACITY(new_length);
     bytes = newcap * sizeof(uint16_t);
     if( newcap > (INT_MAX - STRING_HEADER_SIZE) / sizeof(uint16_t) ||
@@ -139,12 +140,12 @@ struct _pmath_string_t *enlarge_string(
       pmath_unref(PMATH_FROM_PTR(string));
       return NULL;
     }
-    
+
     result = (struct _pmath_string_t *)
         pmath_mem_realloc(string, STRING_HEADER_SIZE + sizeof(uint16_t) * newcap);
     if(!result)
       return NULL;
-      
+
     if(result->length > extra_start) {
       memmove(
           AFTER_STRING(result) + extra_start + extralen,
@@ -155,28 +156,28 @@ struct _pmath_string_t *enlarge_string(
     result->length += extralen;
     return result;
   }
-  
+
   result = _pmath_new_string_buffer(string->length + extralen);
   if(!result) {
     pmath_unref(PMATH_FROM_PTR(string));
     return NULL;
   }
-  
+
   if(string->buffer)
     buf = AFTER_STRING(string->buffer) + string->capacity_or_start;
   else
     buf = AFTER_STRING(string);
-    
+
   memcpy(
       AFTER_STRING(result),
       buf,
       extra_start * sizeof(uint16_t));
-      
+
   memcpy(
       AFTER_STRING(result) + extra_start + extralen,
       buf + extra_start,
       (string->length - extra_start) * sizeof(uint16_t));
-      
+
   pmath_unref(PMATH_FROM_PTR(string));
   return result;
 }
@@ -189,47 +190,47 @@ struct _pmath_string_t *enlarge_string_2(
 ) {
   struct _pmath_string_t *result;
   uint16_t *buffer;
-  
+
   if(pmath_is_pointer(string)) {
     return enlarge_string(
         (struct _pmath_string_t *)PMATH_AS_PTR(string), extra_start, extralen);
   }
-  
+
   assert(pmath_is_ministr(string));
   assert(extra_start >= 0);
   assert(extralen >= 0);
-  
+
   if(pmath_is_str0(string)) {
     assert(extra_start == 0);
     return _pmath_new_string_buffer(extralen);
   }
-  
+
   if(pmath_is_str1(string)) {
     assert(extra_start <= 1);
-    
+
     result = _pmath_new_string_buffer(1 + extralen);
     if(!result)
       return NULL;
-      
+
     buffer = AFTER_STRING(result);
-    
+
     if(extra_start == 0) {
       buffer[extralen] = string.s.u.as_chars[0];
     }
     else {
       buffer[0] = string.s.u.as_chars[0];
     }
-    
+
     return result;
   }
-  
+
   assert(pmath_is_str2(string));
   assert(extra_start <= 2);
-  
+
   result = _pmath_new_string_buffer(2 + extralen);
   if(!result)
     return NULL;
-    
+
   buffer = AFTER_STRING(result);
   if(extra_start == 0) {
     buffer[extralen]   = string.s.u.as_chars[0];
@@ -243,16 +244,16 @@ struct _pmath_string_t *enlarge_string_2(
     buffer[0] = string.s.u.as_chars[0];
     buffer[1] = string.s.u.as_chars[1];
   }
-  
+
   return result;
 }
 
 static void destroy_string(pmath_t p) {
   struct _pmath_string_t *str = (void *)PMATH_AS_PTR(p);
-  
+
   if(str->buffer)
     pmath_unref(PMATH_FROM_PTR(str->buffer));
-    
+
   pmath_mem_free(str);
 }
 
@@ -264,18 +265,18 @@ pmath_bool_t _pmath_strings_equal(
   const uint16_t *bufA;
   const uint16_t *bufB;
   int len = pmath_string_length(strA);
-  
+
   if(len != pmath_string_length(strB))
     return FALSE;
-    
+
   bufA = pmath_string_buffer(&strA);
   bufB = pmath_string_buffer(&strB);
-  
+
   for(; len > 0; --len) {
     if(*(bufA++) != *(bufB++))
       return FALSE;
   }
-  
+
   return TRUE;
 }
 
@@ -288,7 +289,7 @@ int _pmath_strings_compare(
   const uint16_t *bufB = pmath_string_buffer(&strB);
   int lenA = pmath_string_length(strA);
   int lenB = pmath_string_length(strB);
-  
+
   int i;
   for(i = 0; i < lenA && i < lenB; i++) {
     if(bufA[i] < bufB[i])
@@ -306,28 +307,28 @@ int _pmath_strings_compare(
 static unsigned int hash_string(pmath_t str) {
   int len             = pmath_string_length(str);
   const uint16_t *buf = pmath_string_buffer(&str);
-  
+
   if(len <= 2) { /* could be a ministr */
     pmath_t tmp;
     switch(len) {
       case 0:
         tmp.s.tag = PMATH_TAG_STR0;
         tmp.s.u.as_int32 = 0;
-        
+
       case 1:
         tmp.s.tag = PMATH_TAG_STR1;
         tmp.s.u.as_chars[0] = buf[0];
         tmp.s.u.as_chars[1] = 0;
-        
+
       case 2:
         tmp.s.tag = PMATH_TAG_STR2;
         tmp.s.u.as_chars[0] = buf[0];
         tmp.s.u.as_chars[1] = buf[1];
     }
-    
+
     return incremental_hash(&tmp, sizeof(pmath_t), 0);
   }
-  
+
   return incremental_hash(buf, (size_t)len * sizeof(uint16_t), 0);
 }
 
@@ -360,35 +361,35 @@ void _pmath_write_cstr(
 static pmath_bool_t is_single_token(pmath_t box) {
   if(pmath_is_string(box))
     return TRUE;
-    
+
   if( pmath_is_expr_of(box, PMATH_NULL) ||
       pmath_is_expr_of(box, PMATH_SYMBOL_LIST))
   {
     pmath_t part;
     pmath_bool_t result;
-    
+
     if(pmath_expr_length(box) != 1)
       return FALSE;
-      
+
     part = pmath_expr_get_item(box, 1);
     result = is_single_token(part);
     pmath_unref(part);
     return result;
   }
-  
+
   if( pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX) ||
       pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX) ||
       pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
   {
     pmath_t part;
     pmath_bool_t result;
-    
+
     part = pmath_expr_get_item(box, 1);
     result = is_single_token(part);
     pmath_unref(part);
     return result;
   }
-  
+
   return FALSE;
 }
 
@@ -407,23 +408,23 @@ static void write_single_token_box(struct pmath_write_ex_t *info, pmath_t box) {
 static void write_and_skip_string_chars(void *user, const uint16_t *data, int len) {
   struct pmath_write_ex_t *old_info = user;
   int i = 0;
-  
+
   while(i < len) {
     if( data[i] == '\\' &&
         i + 1 < len &&
         (data[i + 1] == '"' || data[i + 1] == '\\'))
     {
       old_info->write(old_info->user, data, i);
-      
+
       old_info->write(old_info->user, &data[i + 1], 1);
-      
+
       i    += 2;
       data += i;
       len  -= i;
       i     = 0;
       continue;
     }
-    
+
     if(data[i] == '"') {
       old_info->write(old_info->user, data, i);
       ++i;
@@ -432,29 +433,29 @@ static void write_and_skip_string_chars(void *user, const uint16_t *data, int le
       i     = 0;
       continue;
     }
-    
+
     ++i;
   }
-  
+
   if(len > 0)
     old_info->write(old_info->user, data, len);
 }
 
 static void call_old_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct pmath_write_ex_t *old_info = user;
-  
+
   old_info->pre_write(old_info->user, obj, options);
 }
 
 static void get_token_spacing(pmath_string_t token, const char **pre, const char **post) {
   PMATH_ATTRIBUTE_UNUSED pmath_token_t tok;
   int prec;
-  
+
   *pre  = "";
   *post = "";
-  
+
   tok = pmath_token_analyse(pmath_string_buffer(&token), pmath_string_length(token), &prec);
-  
+
   if(prec <= PMATH_PREC_ANY) {
   }
   else if(prec <= PMATH_PREC_MODY) {
@@ -471,7 +472,7 @@ static void get_token_spacing(pmath_string_t token, const char **pre, const char
 
 static void call_old_post_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct pmath_write_ex_t *old_info = user;
-  
+
   old_info->post_write(old_info->user, obj, options);
 }
 
@@ -480,41 +481,41 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     info->write(info->user, pmath_string_buffer(&box), pmath_string_length(box));
     return;
   }
-  
+
   if( pmath_is_expr_of(box, PMATH_SYMBOL_COMPLEXSTRINGBOX) ||
       pmath_is_expr_of(box, PMATH_NULL))
   {
     size_t i;
-    
+
     for(i = 1; i <= pmath_expr_length(box); ++i) {
       pmath_t part = pmath_expr_get_item(box, i);
-      
+
       _pmath_write_boxes(info, part);
-      
+
       pmath_unref(part);
     }
-    
+
     return;
   }
-  
+
   if(pmath_is_expr_of(box, PMATH_SYMBOL_LIST)) {
     size_t i;
     size_t boxlen = pmath_expr_length(box);
-    
+
     for(i = 1; i <= boxlen; ++i) {
       pmath_t part = pmath_expr_get_item(box, i);
-      
+
       if(pmath_is_string(part)) {
         const char *pre;
         const char *post;
-        
+
         get_token_spacing(part, &pre, &post);
-        
+
         if(*pre && i > 1)
           _pmath_write_cstr(pre, info->write, info->user);
-          
+
         info->write(info->user, pmath_string_buffer(&part), pmath_string_length(part));
-        
+
         if(*post && i < boxlen) {
           pmath_t next = pmath_expr_get_item(box, i + 1);
           if( pmath_is_expr_of(next, PMATH_SYMBOL_SUBSCRIPTBOX)     ||
@@ -524,43 +525,43 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
             _pmath_write_boxes(info, next);
             ++i;
           }
-          
+
           pmath_unref(next);
-          
+
           if(i < boxlen)
             _pmath_write_cstr(post, info->write, info->user);
         }
       }
       else
         _pmath_write_boxes(info, part);
-        
+
       pmath_unref(part);
     }
-    
+
     return;
   }
-  
+
   if(pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)) {
     pmath_bool_t hide_string_characters = FALSE;
     pmath_t part;
-    
+
     size_t i;
     for(i = pmath_expr_length(box); i > 1; --i) {
       pmath_t option = pmath_expr_get_item(box, i);
-      
+
       if(_pmath_is_rule(option)) {
         pmath_t lhs = pmath_expr_get_item(option, 1);
         pmath_t rhs = pmath_expr_get_item(option, 2);
         pmath_unref(lhs);
         pmath_unref(rhs);
-        
+
         if(pmath_same(lhs, PMATH_SYMBOL_SHOWSTRINGCHARACTERS))
           hide_string_characters = pmath_same(rhs, PMATH_SYMBOL_FALSE);
       }
-      
+
       pmath_unref(option);
     }
-    
+
     if(hide_string_characters) {
       struct pmath_write_ex_t info2;
       memset(&info2, 0, sizeof(info2));
@@ -570,21 +571,21 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
       info2.write      = write_and_skip_string_chars;
       info2.pre_write  = call_old_pre_write;
       info2.post_write = call_old_post_write;
-      
+
       part = pmath_expr_get_item(box, 1);
       _pmath_write_boxes(&info2, part);
       pmath_unref(part);
-      
+
       return;
     }
-    
+
     part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
-    
+
     return;
   }
-  
+
   if( pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)       ||
       pmath_is_expr_of(box, PMATH_SYMBOL_TOOLTIPBOX)   ||
       pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
@@ -592,109 +593,109 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
-    
+
     return;
   }
-  
+
   if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
-    
+
     return;
   }
-  
+
   if(pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
-    
+
     return;
   }
-  
+
   if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
-    
+
     part = pmath_expr_get_item(box, 2);
     _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
-    
+
     return;
   }
-  
+
   if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
-    
+
     part = pmath_expr_get_item(box, 2);
     _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
-    
+
     return;
   }
-  
+
   if(pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
-    
+
     part = pmath_expr_get_item(box, 2);
     _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
-    
+
     return;
   }
-  
+
   if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
-    
+
     part = pmath_expr_get_item(box, 2);
     _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
-    
+
     part = pmath_expr_get_item(box, 3);
     _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
     pmath_unref(part);
-    
+
     return;
   }
-  
+
   if(pmath_is_expr(box)) {
     pmath_t part;
     size_t i;
-    
+
     part = pmath_expr_get_item(box, 0);
     pmath_write_ex(info, part);
     pmath_unref(part);
-    
+
     _pmath_write_cstr("(", info->write, info->user);
     for(i = 1; i <= pmath_expr_length(box); ++i) {
       if(i > 1)
         _pmath_write_cstr(", ", info->write, info->user);
-        
+
       part = pmath_expr_get_item(box, i);
       _pmath_write_boxes(info, part);
       pmath_unref(part);
-      
+
     }
     _pmath_write_cstr(")", info->write, info->user);
-    
+
     return;
   }
-  
+
   pmath_write_ex(info, box);
 }
 
@@ -702,9 +703,9 @@ PMATH_PRIVATE
 void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
   if(info->pre_write)
     info->pre_write(info->user, box, info->options);
-    
+
   write_boxes_impl(info, box);
-  
+
   if(info->post_write)
     info->post_write(info->user, box, info->options);
 }
@@ -717,11 +718,11 @@ void _pmath_string_write_escaped(
     void            *user
 ) {
   static char hex_digits[16] = "0123456789ABCDEF";
-  
+
   const uint16_t *buffer = pmath_string_buffer(&str);
   const uint16_t *end    = buffer + pmath_string_length(str);
   const uint16_t *s      = buffer;
-  
+
   if(only_ascii) {
     while(s != end) {
       const uint16_t *start = s;
@@ -735,10 +736,10 @@ void _pmath_string_write_escaped(
         ++s;
         ++len;
       }
-      
+
       if(start != s)
         write(user, start, len);
-        
+
       if(s != end) {
         uint16_t special[10];
         special[0] = '\\';
@@ -755,32 +756,32 @@ void _pmath_string_write_escaped(
             special[1] = ')';
             write(user, special, 2);
             break;
-            
+
           default: {
               uint32_t unichar;
               const char *charname;
-              
+
               if( s + 1 != end              &&
                   (s[0] & 0xFC00) == 0xD800 &&
                   (s[1] & 0xFC00) == 0xDC00)
               {
                 unichar = 0x10000 + ((((uint32_t)s[0] & 0x03FF) << 10) | (s[1] & 0x03FF));
-                
+
                 ++s;
               }
               else
                 unichar = *s;
-                
+
               charname = pmath_char_to_name(unichar);
               _pmath_write_cstr("\\[", write, user);
-              
+
               if(charname) {
                 _pmath_write_cstr(charname, write, user);
               }
               else {
                 int i;
                 _pmath_write_cstr("U+", write, user);
-                
+
                 special[0] = hex_digits[(unichar & 0xF0000000U) >> 28];
                 special[1] = hex_digits[(unichar & 0x0F000000U) >> 24];
                 special[2] = hex_digits[(unichar & 0x00F00000U) >> 20];
@@ -789,14 +790,14 @@ void _pmath_string_write_escaped(
                 special[5] = hex_digits[(unichar & 0x00000F00U) >> 8];
                 special[6] = hex_digits[(unichar & 0x000000F0U) >> 4];
                 special[7] = hex_digits[ unichar & 0x0000000FU];
-                
+
                 for(i = 0; i <= 3; ++i)
                   if(special[i] != '0')
                     break;
-                    
+
                 write(user, special + i, 8 - i);
               }
-              
+
               _pmath_write_cstr("]",   write, user);
             }
         }
@@ -813,10 +814,10 @@ void _pmath_string_write_escaped(
         ++s;
         ++len;
       }
-      
+
       if(start != s)
         write(user, start, len);
-        
+
       if(s != end) {
         uint16_t special[10];
         special[0] = '\\';
@@ -839,16 +840,16 @@ pmath_t _pmath_escape_string(
     pmath_bool_t   only_ascii
 ) {
   pmath_string_t result = prefix;
-  
+
   if(pmath_is_null(result))
     result = PMATH_FROM_TAG(PMATH_TAG_STR0, 0);
-    
+
   _pmath_string_write_escaped(
       string,
       only_ascii,
       (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
       &result);
-      
+
   pmath_unref(string);
   return pmath_string_concat(result, suffix);
 }
@@ -857,20 +858,20 @@ PMATH_PRIVATE
 void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str) {
   if(info->options & PMATH_WRITE_OPTIONS_FULLSTR)  {
     _pmath_write_cstr("\"", info->write, info->user);
-    
+
     _pmath_string_write_escaped(
         str,
         (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) != 0,
         info->write,
         info->user);
-        
+
     _pmath_write_cstr("\"", info->write, info->user);
   }
   else {
     pmath_t expanded = pmath_string_expand_boxes(pmath_ref(str));
-    
+
     _pmath_write_boxes(info, expanded);
-    
+
     pmath_unref(expanded);
   }
 }
@@ -880,20 +881,20 @@ void _pmath_string_write(struct pmath_write_ex_t *info, pmath_t str) {
 PMATH_API
 pmath_string_t pmath_string_new(int capacity) {
   struct _pmath_string_t *result;
-  
+
   assert(capacity >= 0);
-  
+
   if(capacity <= 2) {
     pmath_string_t str;
     str.s.tag = PMATH_TAG_STR0;
     str.s.u.as_int32 = 0;
     return str;
   }
-  
+
   result = _pmath_new_string_buffer(capacity);
   if(!result)
     return PMATH_NULL;
-    
+
   result->length = 0;
   return PMATH_FROM_PTR(result);
 }
@@ -907,18 +908,18 @@ PMATH_API pmath_string_t pmath_string_insert_latin1(
   struct _pmath_string_t *result;
   uint16_t *ucs;
   int len;
-  
+
   assert(pmath_is_null(str) || pmath_is_string(str));
-  
+
   if(inslen < 0)
     inslen = strlen(ins);
-    
+
   if(inslen == 0) {
     if(pmath_is_null(str))
       return pmath_string_new(0);
     return str;
   }
-  
+
   if(pmath_is_null(str) || pmath_is_str0(str))
     len = 0;
   else if(pmath_is_str1(str))
@@ -927,20 +928,20 @@ PMATH_API pmath_string_t pmath_string_insert_latin1(
     len = 2;
   else
     len = ((struct _pmath_string_t *)PMATH_AS_PTR(str))->length;
-    
+
   if(inspos < 0)
     inspos = 0;
   else if(inspos > len)
     inspos = len;
-    
+
   result = enlarge_string_2(str, inspos, inslen);
   if(!result)
     return PMATH_NULL;
-    
+
   ucs = AFTER_STRING(result) + inspos;
   while(inslen-- > 0)
     *ucs++ = (uint16_t)(unsigned char) * ins++;
-    
+
   return _pmath_from_buffer(result);
 }
 
@@ -954,32 +955,32 @@ pmath_string_t pmath_string_from_utf8(
   size_t outbytesleft;
   char *inbuf;
   char *outbuf;
-  
+
   if(len < 0)
     len = strlen(str);
-    
+
   result = _pmath_new_string_buffer((3 * len) / 2);
   if(!result)
     return PMATH_NULL;
-    
+
   inbytesleft = (size_t)len;
   outbytesleft = sizeof(uint16_t) * result->length;
   inbuf  = (char *)str;
   outbuf = (char *)AFTER_STRING(result);
-  
+
   while(inbytesleft > 0) {
     size_t ret = iconv(from_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    
+
     if(ret == (size_t) - 1) {
       if(errno == E2BIG) { // output buffer too small
         size_t bytes_written = (size_t)outbuf - (size_t)AFTER_STRING(result);
         result->length = (int)(bytes_written / sizeof(uint16_t));
-        
+
         result = enlarge_string(result, result->length, (3 * inbytesleft) / 2 + 1);
-        
+
         if(!result)
           return PMATH_NULL;
-          
+
         outbuf = ((char *)AFTER_STRING(result)) + bytes_written;
         outbytesleft = sizeof(uint16_t) * result->length - bytes_written;
       }
@@ -993,7 +994,7 @@ pmath_string_t pmath_string_from_utf8(
       }
     }
   }
-  
+
   result->length = ((size_t)outbuf - (size_t)AFTER_STRING(result)) / 2;
   return _pmath_from_buffer(result);
 }
@@ -1012,16 +1013,16 @@ char *pmath_string_to_utf8(
   char *outbuf        = res;
   size_t inbytesleft  = sizeof(uint16_t) * (size_t)len;
   size_t outbytesleft = size - 1;
-  
+
   if(!res) {
     if(result_len)
       *result_len = 0;
     return NULL;
   }
-  
+
   while(inbytesleft > 0) {
     size_t ret = iconv(to_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    
+
     if(ret == (size_t)(-1)) {
       pmath_mem_free(res);
       if(result_len)
@@ -1029,7 +1030,7 @@ char *pmath_string_to_utf8(
       return NULL;
     }
   }
-  
+
   *outbuf = '\0';
   if(result_len)
     *result_len = (int)((size_t)outbuf - (size_t)res);
@@ -1038,15 +1039,15 @@ char *pmath_string_to_utf8(
 
 static void write_with_nulls(pmath_cstr_writer_info_t *info, const char *str, const char *end) {
   int len = (int)(end - str);
-  
+
   while(len > 0) {
     int sublen = strlen(str) + 1;
-    
+
     info->_pmath_write_cstr(info->user, str);
-    
+
     str += sublen;
     len -= sublen;
-    
+
     if(len > 0) {
       info->_pmath_write_cstr(info->user, "\\[U+0000]");
     }
@@ -1060,16 +1061,16 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
   char buf[100];
   char *outbuf = buf;
   size_t outbytesleft = sizeof(buf) - 1;
-  
+
   while(inbytesleft > 0) {
     size_t ret = iconv(to_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    
+
     if(ret == (size_t) - 1) {
       if(errno == E2BIG) { // output buffer too small
         *outbuf = '\0';
-        
+
         write_with_nulls(user, buf, outbuf);
-        
+
         outbuf = buf;
         outbytesleft = sizeof(buf) - 1;
       }
@@ -1079,7 +1080,7 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
       }
     }
   }
-  
+
   *outbuf = '\0';
   write_with_nulls(user, buf, outbuf);
 }
@@ -1092,16 +1093,16 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
   char buf[100];
   char *outbuf = buf;
   size_t outbytesleft = sizeof(buf) - 1;
-  
+
   while(inbytesleft > 0) {
     size_t ret = iconv(to_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    
+
     if(ret == (size_t) - 1) {
 //      if(errno == E2BIG){ // output buffer too small
       *outbuf = '\0';
-      
+
       write_with_nulls(info, buf, outbuf);
-      
+
       outbuf = buf;
       outbytesleft = sizeof(buf) - 1;
 //      }
@@ -1110,29 +1111,29 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
         const char *name;
         uint16_t *u16 = (void *)inbuf;
         uint32_t ch;
-        
+
         if( (u16[0] & 0xFC00) == 0xD800 &&
             inbytesleft >= 4 &&
             (u16[1] & 0xFC00) == 0xDC00)
         {
           ch = 0x10000 + ((uint32_t)(u16[0] & 0x3FF) << 10) + (u16[1] & 0x3FF);
-          
+
           inbuf += 4;
           inbytesleft -= 4;
         }
         else {
           ch = u16[0];
-          
+
           inbuf += 2;
           inbytesleft -= 2;
         }
-        
+
         switch(ch) {
           case PMATH_CHAR_ASSIGN:        info->_pmath_write_cstr(info->user, ":="); break;
           case PMATH_CHAR_ASSIGNDELAYED: info->_pmath_write_cstr(info->user, "::="); break;
           case PMATH_CHAR_RULE:          info->_pmath_write_cstr(info->user, "->"); break;
           case PMATH_CHAR_RULEDELAYED:   info->_pmath_write_cstr(info->user, ":>"); break;
-          
+
           default:
             name = pmath_char_to_name(ch);
             if(name) {
@@ -1148,7 +1149,7 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
       }
     }
   }
-  
+
   *outbuf = '\0';
   write_with_nulls(info, buf, outbuf);
 }
@@ -1164,16 +1165,16 @@ pmath_string_t pmath_string_insert_codepage(
   struct _pmath_string_t *result;
   uint16_t *ucs;
   int len;
-  
+
   if(inslen < 0)
     inslen = strlen(ins);
-    
+
   if(inslen == 0) {
     if(pmath_is_null(str))
       return pmath_string_new(0);
     return str;
   }
-  
+
   if(pmath_is_null(str) || pmath_is_str0(str))
     len = 0;
   else if(pmath_is_str1(str))
@@ -1182,20 +1183,20 @@ pmath_string_t pmath_string_insert_codepage(
     len = 2;
   else
     len = ((struct _pmath_string_t *)PMATH_AS_PTR(str))->length;
-    
+
   if(inspos < 0)
     inspos = 0;
   else if(inspos > len)
     inspos = len;
-    
+
   result = enlarge_string_2(str, inspos, inslen);
   if(!result)
     return PMATH_NULL;
-    
+
   ucs = AFTER_STRING(result) + inspos;
   while(inslen-- > 0)
     *ucs++ = cp[(unsigned char) * ins++];
-    
+
   return _pmath_from_buffer(result);
 }
 
@@ -1209,20 +1210,20 @@ pmath_string_t pmath_string_insert_ucs2(
   struct _pmath_string_t *result;
   uint16_t *ucs;
   int len;
-  
+
   if(inslen < 0) {
     register const uint16_t *tmp = ins;
     inslen = 0;
     while(*tmp++)
       ++inslen;
   }
-  
+
   if(inslen == 0) {
     if(pmath_is_null(str))
       return pmath_string_new(0);
     return str;
   }
-  
+
   if(pmath_is_null(str) || pmath_is_str0(str))
     len = 0;
   else if(pmath_is_str1(str))
@@ -1231,20 +1232,20 @@ pmath_string_t pmath_string_insert_ucs2(
     len = 2;
   else
     len = ((struct _pmath_string_t *)PMATH_AS_PTR(str))->length;
-    
+
   if(inspos < 0)
     inspos = 0;
   else if(inspos > len)
     inspos = len;
-    
+
   result = enlarge_string_2(str, inspos, inslen);
   if(!result)
     return PMATH_NULL;
-    
+
   ucs = AFTER_STRING(result) + inspos;
   while(inslen-- > 0)
     *ucs++ = *ins++;
-    
+
   return _pmath_from_buffer(result);
 }
 
@@ -1257,41 +1258,41 @@ pmath_string_t pmath_string_insert(
   pmath_string_t result;
   struct _pmath_string_t *_str;
   struct _pmath_string_t *_ins;
-  
+
   if(pmath_is_ministr(ins)) {
     int len = 0;
     if(pmath_is_str1(ins))
       len = 1;
     if(pmath_is_str2(ins))
       len = 2;
-      
+
     return pmath_string_insert_ucs2(str, inspos, ins.s.u.as_chars, len);
   }
-  
+
   _ins = (struct _pmath_string_t *)PMATH_AS_PTR(ins);
-  
+
   if(pmath_is_str0(str)) {
     _str = NULL;
   }
   else if(pmath_is_str1(str)) {
     _str = _pmath_new_string_buffer(1);
-    
+
     if(_str == NULL) {
       pmath_unref(ins);
       return PMATH_NULL;
     }
-    
+
     AFTER_STRING(_str)[0] = str.s.u.as_chars[0];
     str = PMATH_FROM_PTR(_str);
   }
   else if(pmath_is_str2(str)) {
     _str = _pmath_new_string_buffer(2);
-    
+
     if(_str == NULL) {
       pmath_unref(ins);
       return PMATH_NULL;
     }
-    
+
     AFTER_STRING(_str)[0] = str.s.u.as_chars[0];
     AFTER_STRING(_str)[1] = str.s.u.as_chars[1];
     str = PMATH_FROM_PTR(_str);
@@ -1299,7 +1300,7 @@ pmath_string_t pmath_string_insert(
   else {
     _str = (struct _pmath_string_t *)PMATH_AS_PTR(str);
   }
-  
+
   if( _str && _ins                 &&
       _str->buffer                 &&
       _str->buffer == _ins->buffer &&
@@ -1311,14 +1312,14 @@ pmath_string_t pmath_string_insert(
       pmath_unref(ins);
       return str;
     }
-    
+
     if(pmath_atomic_read_aquire(&_ins->inherited.refcount) == 1) {
       _ins->length +=            _str->length;
       _ins->capacity_or_start = _str->capacity_or_start;
       pmath_unref(str);
       return ins;
     }
-    
+
     result = pmath_ref(PMATH_FROM_PTR(_str->buffer));
     result = pmath_string_part(
         result,
@@ -1328,13 +1329,13 @@ pmath_string_t pmath_string_insert(
     pmath_unref(ins);
     return result;
   }
-  
+
   result = pmath_string_insert_ucs2(
       str,
       inspos,
       pmath_string_buffer(&ins),
       pmath_string_length(ins));
-      
+
   pmath_unref(ins);
   return result;
 }
@@ -1346,10 +1347,10 @@ pmath_string_t pmath_string_concat(
 ) {
   if(pmath_is_null(prefix))
     return postfix;
-    
+
   if(pmath_is_null(postfix))
     return prefix;
-    
+
   return pmath_string_insert(prefix, pmath_string_length(prefix), postfix);
 }
 
@@ -1360,88 +1361,88 @@ pmath_string_t pmath_string_part(
     int            length
 ) {
   struct _pmath_string_t *_str;
-  
+
   if(pmath_is_null(string))
     return PMATH_NULL;
-    
+
   if(pmath_is_str0(string))
     return string;
-    
+
   if(length == 0) {
     pmath_unref(string);
-    
+
     string.s.tag = PMATH_TAG_STR0;
     string.s.u.as_chars[0] = 0;
     string.s.u.as_chars[1] = 0;
     return string;
   }
-  
+
   if(pmath_is_str1(string)) {
     if(start == 0)
       return string;
-      
+
     string.s.tag = PMATH_TAG_STR0;
     string.s.u.as_chars[0] = 0;
     return string;
   }
-  
+
   if(pmath_is_str2(string)) {
     if(start == 0) {
       if(length == 1) {
         string.s.tag = PMATH_TAG_STR1;
         string.s.u.as_chars[1] = 0;
       }
-      
+
       return string;
     }
-    
+
     if(start == 1) {
       string.s.tag = PMATH_TAG_STR1;
       string.s.u.as_chars[0] = string.s.u.as_chars[1];
       string.s.u.as_chars[1] = 0;
       return string;
     }
-    
+
     string.s.tag = PMATH_TAG_STR0;
     string.s.u.as_chars[0] = 0;
     string.s.u.as_chars[1] = 0;
     return string;
   }
-  
+
   _str = (struct _pmath_string_t *)PMATH_AS_PTR(string);
-  
+
   if(start < 0 || start >= _str->length) {
     pmath_unref(string);
-    
+
     string.s.tag = PMATH_TAG_STR0;
     string.s.u.as_chars[0] = 0;
     string.s.u.as_chars[1] = 0;
     return string;
   }
-  
+
   if( length < 0                    ||
       start + length > _str->length ||
       length         > _str->length)
   {
     length = _str->length - start;
   }
-  
+
   if(length <= 0) {
     pmath_unref(string);
-    
+
     string.s.tag = PMATH_TAG_STR0;
     string.s.u.as_chars[0] = 0;
     string.s.u.as_chars[1] = 0;
     return string;
   }
-  
+
   if(length == _str->length)
     return string;
-    
+
   if(length <= 2) {
     pmath_t result;
     const uint16_t *buffer = start + (_str->buffer ? AFTER_STRING(_str->buffer) + _str->capacity_or_start : AFTER_STRING(_str));
-    
+
     if(length == 1) {
       result.s.tag = PMATH_TAG_STR1;
       result.s.u.as_chars[0] = buffer[0];
@@ -1449,57 +1450,57 @@ pmath_string_t pmath_string_part(
       pmath_unref(string);
       return result;
     }
-    
+
     result.s.tag = PMATH_TAG_STR2;
     result.s.u.as_chars[0] = buffer[0];
     result.s.u.as_chars[1] = buffer[1];
     pmath_unref(string);
     return result;
   }
-  
+
   if(pmath_atomic_read_aquire(&_str->inherited.refcount) == 1) {
     if(_str->buffer) {
       _str->capacity_or_start += start;
       _str->length            = length;
       return string;
     }
-    
+
     if(start == 0) {
       _str->length = length;
       return string;
     }
   }
-  
+
   if(_str->buffer) {
     pmath_t tmp = string;
-    
+
     start += _str->capacity_or_start;
     string = pmath_ref(PMATH_FROM_PTR(_str->buffer));
     _str = (struct _pmath_string_t *)PMATH_AS_PTR(string);
     pmath_unref(tmp);
-    
+
     assert(pmath_is_string(string));
-    
+
     if(start == 0 && pmath_refcount(string) == 1) {
       _str->length = length;
       return string;
     }
   }
-  
+
   {
     struct _pmath_string_t *result = (void *)PMATH_AS_PTR(_pmath_create_stub(
         PMATH_TYPE_SHIFT_BIGSTRING,
         sizeof(struct _pmath_string_t)));
-        
+
     if(!result) {
       pmath_unref(string);
       return PMATH_NULL;
     }
-    
+
     result->length            = length;
     result->buffer            = _str;
     result->capacity_or_start = start;
-    
+
     return PMATH_FROM_PTR(result); /* already know length > 2 */
   }
 }
@@ -1507,39 +1508,39 @@ pmath_string_t pmath_string_part(
 PMATH_API
 const uint16_t *pmath_string_buffer(pmath_string_t *string) {
   struct _pmath_string_t *_str;
-  
+
   if(pmath_is_null(*string))
     return NULL;
-    
+
   if(pmath_is_ministr(*string))
     return &string->s.u.as_chars[0];
-    
+
   assert(pmath_is_string(*string));
   _str = (void *)PMATH_AS_PTR(*string);
-  
+
   if(_str->buffer == NULL)
     return AFTER_STRING(_str);
-    
+
   return AFTER_STRING(_str->buffer) + _str->capacity_or_start;
 }
 
 PMATH_API
 int pmath_string_length(pmath_string_t string) {
   struct _pmath_string_t *_str;
-  
+
   if(pmath_is_null(string) || pmath_is_str0(string))
     return 0;
-    
+
   if(pmath_is_str1(string))
     return 1;
-    
+
   if(pmath_is_str2(string))
     return 2;
-    
+
   assert(pmath_is_bigstr(string));
-  
+
   _str = (void *)PMATH_AS_PTR(string);
-  
+
   assert(_str->length >= 0);
   return _str->length;
 }
@@ -1552,13 +1553,13 @@ pmath_bool_t pmath_string_equals_latin1(
 ) {
   const uint16_t *buf;
   int i, len;
-  
+
   buf = pmath_string_buffer(&string);
   len = pmath_string_length(string);
   for(i = 0; i < len; ++i)
     if(latin1[i] == '\0' || buf[i] != latin1[i])
       return FALSE;
-      
+
   return latin1[len] == '\0';
 }
 
@@ -1574,32 +1575,32 @@ pmath_string_t pmath_string_from_native(
   size_t outbytesleft;
   char *inbuf;
   char *outbuf;
-  
+
   if(!str)
     return PMATH_NULL;
-    
+
   if(len < 0)
     len = strlen(str);
-    
+
   result = _pmath_new_string_buffer(len);
-  
+
   inbytesleft = (size_t)len;
   outbytesleft = sizeof(uint16_t) * (size_t)len;
   inbuf  = (char *)str;
   outbuf = (char *)AFTER_STRING(result);
-  
+
   if(!result)
     return PMATH_NULL;
-    
+
   while(inbytesleft > 0) {
     size_t ret = iconv(from_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    
+
     if(ret == (size_t)(-1)) {
       pmath_unref(PMATH_FROM_PTR(result));
       return PMATH_NULL;
     }
   }
-  
+
   result->length = ((size_t)outbuf - (size_t)AFTER_STRING(result)) / 2;
   return _pmath_from_buffer(result);
 }
@@ -1608,24 +1609,24 @@ PMATH_API
 char *pmath_string_to_native(pmath_string_t str, int *result_len) {
   int len = pmath_string_length(str);
   const uint16_t *buf = pmath_string_buffer(&str);
-  
+
   size_t s_size = 4 * ((size_t)len) + 1;
   char *s = (char *)pmath_mem_alloc(s_size);
-  
+
   size_t inbytesleft = sizeof(uint16_t) * (size_t)len;
   size_t outbytesleft = s_size - 1;
   char *inbuf  = (char *)buf;
   char *outbuf = s;
-  
+
   if(!s) {
     if(result_len)
       *result_len = 0;
     return NULL;
   }
-  
+
   while(inbytesleft > 0) {
     size_t ret = iconv(to_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    
+
     if(ret == (size_t)(-1)) {
       pmath_mem_free(s);
       if(result_len)
@@ -1633,7 +1634,7 @@ char *pmath_string_to_native(pmath_string_t str, int *result_len) {
       return NULL;
     }
   }
-  
+
   *outbuf = '\0';
   if(result_len)
     *result_len = (int)((size_t)outbuf - (size_t)s);
@@ -1651,46 +1652,46 @@ pmath_bool_t _pmath_strings_init(void) {
       destroy_string,
       _pmath_strings_equal,
       _pmath_string_write);
-      
+
   to_utf8 = iconv_open(
       "UTF-8",
       PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
-      
+
   if(to_utf8 == (iconv_t) - 1)
     return FALSE;
-    
+
   from_utf8 = iconv_open(
       PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
       "UTF-8");
-      
+
   if(from_utf8 == (iconv_t) - 1) {
     iconv_close(to_utf8);
     return FALSE;
   }
-  
+
   _init_pmath_native_encoding();
-  
+
   to_native = iconv_open(
       _pmath_native_encoding,
       PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
-      
+
   if(to_native == (iconv_t) - 1) {
     iconv_close(to_utf8);
     iconv_close(from_utf8);
     return FALSE;
   }
-  
+
   from_native = iconv_open(
       PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
       _pmath_native_encoding);
-      
+
   if(from_native == (iconv_t) - 1) {
     iconv_close(to_utf8);
     iconv_close(from_utf8);
     iconv_close(to_native);
     return FALSE;
   }
-  
+
   return TRUE;
 }
 

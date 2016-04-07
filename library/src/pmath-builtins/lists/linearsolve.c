@@ -9,6 +9,8 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/lists-private.h>
 
+#include <limits.h>
+
 
 static pmath_bool_t is_zero(pmath_t x) {
   if(pmath_is_expr_of(x, PMATH_SYMBOL_LIST)) {

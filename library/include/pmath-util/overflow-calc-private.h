@@ -7,10 +7,13 @@
 
 #include <pmath-types.h>
 
+#include <limits.h>
+
+
 /* See
    [1] INT32-C. Ensure that operations on signed integers do not result in overflow
-       https://www.securecoding.cert.org/confluence/display/c/INT32-C.+Ensure+that+operations+on+signed+integers+do+not+result+in+overflow 
-   
+       https://www.securecoding.cert.org/confluence/display/c/INT32-C.+Ensure+that+operations+on+signed+integers+do+not+result+in+overflow
+
    [2] INT30-C. Ensure that unsigned integer operations do not wrap
        https://www.securecoding.cert.org/confluence/display/c/INT30-C.+Ensure+that+unsigned+integer+operations+do+not+wrap
  */

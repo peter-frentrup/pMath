@@ -10,6 +10,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
+#include <limits.h>
+
 
 PMATH_PRIVATE int _pmath_object_in_levelspec(
   pmath_t obj,
