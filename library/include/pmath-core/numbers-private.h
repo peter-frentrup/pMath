@@ -16,12 +16,15 @@
 #  define MSC_USE_DLL
 #endif
 
-#pragma warning(push)
+#ifdef _MSC_VER
+#  pragma warning(push)
 // In mpz_get_ui(): Converting 'mp_limb_t' to 'unsigned long': possible data loss.
-#  pragma warning(disable: 4244)
+#    pragma warning(disable: 4244)
+#    include <gmp.h>
+#  pragma warning(pop)
+#else
 #  include <gmp.h>
-#pragma warning(pop)
-
+#endif // _MSC_VER
 
 #include <mpfr.h>
 
