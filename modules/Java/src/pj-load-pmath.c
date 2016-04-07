@@ -85,7 +85,7 @@ static void prepare_environment(JNIEnv *env) {
             }
 #           else
             {
-              const char *str = JNU_GetStringNativeChars(env, value);
+              char *str = JNU_GetStringNativeChars(env, value);
             
               if(str) {
                 setenv("PMATH_BASEDIRECTORY", str, 1);
