@@ -17,10 +17,10 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-std=c++14" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 				</Compiler>
 				<Linker>
@@ -38,9 +38,9 @@
 					<Add option="-march=i686" />
 					<Add option="-O2" />
 					<Add option="-Wall" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-std=c++14" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
@@ -60,10 +60,10 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-Wall" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-std=c++14" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 				</Compiler>
 				<Linker>
@@ -81,9 +81,9 @@
 					<Add option="-march=core2" />
 					<Add option="-O2" />
 					<Add option="-Wall" />
+					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-std=c++14" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
@@ -94,7 +94,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86/libpmath-eigen" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
@@ -117,7 +117,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86/libpmath-eigen" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
@@ -133,7 +133,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86-64/libpmath-eigen" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
@@ -156,11 +156,10 @@
 			</Target>
 			<Target title="Windows-MSVC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/x86-64/libpmath-eigen" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
-				<Option projectCompilerOptionsRelation="-1" />
 				<Compiler>
 					<Add option="/MD" />
 					<Add option="/DNDEBUG" />
@@ -168,35 +167,97 @@
 				<Linker>
 					<Add directory="../../library/bin/windows/msvc-release-x64" />
 				</Linker>
-				<MakeCommands>
-					<Build command="" />
-					<CompileFile command="" />
-					<Clean command="" />
-					<DistClean command="" />
-					<AskRebuildNeeded command="" />
-					<SilentBuild command=" &gt; $(CMD_NULL)" />
-				</MakeCommands>
+			</Target>
+			<Target title="Linux-GCC-Debug-x86">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/x86/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-debug-x86/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option host_application="../../richmath/bin/linux/gcc-debug-x86/richmath" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-std=c++11" />
+					<Add option="-fPIC" />
+					<Add option="-g" />
+					<Add option="-Wno-unused-local-typedefs" />
+					<Add option="-fno-exceptions" />
+				</Compiler>
+				<Linker>
+					<Add directory="../../library/bin/linux/gcc-debug-x86" />
+				</Linker>
+			</Target>
+			<Target title="Linux-GCC-Release-x86">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/x86/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-release-x86/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option host_application="../../richmath/bin/linux/gcc-release-x86/richmath" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-O3" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-std=c++11" />
+					<Add option="-fPIC" />
+					<Add option="-Wno-unused-local-typedefs" />
+					<Add option="-fno-exceptions" />
+					<Add option="-DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add directory="../../library/bin/linux/gcc-release-x86" />
+				</Linker>
 			</Target>
 			<Target title="Linux-GCC-Debug-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/linux/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/linux/gcc-debug-x64/" />
 				<Option type="3" />
-				<Option compiler="gcc" />
-				<Option host_application="../../richmath/bin/windows/debug/richmath.exe" />
+				<Option compiler="gnu_gcc_x64_compiler" />
+				<Option host_application="../../richmath/bin/linux/gcc-debug-x64/richmath" />
 				<Option run_host_application_in_terminal="1" />
-				<Option projectCompilerOptionsRelation="-1" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-Wno-unused-local-typedefs" />
+					<Add option="-std=c++11" />
+					<Add option="-fno-exceptions" />
+					<Add option="-fPIC" />
+					<Add option="-g" />
+					<Add option="-Wpointer-arith" />
+				</Compiler>
 				<Linker>
-					<Add directory="../../library/bin/windows/msvc-release-x64" />
+					<Add directory="../../library/bin/linux/gcc-debug-x64" />
 				</Linker>
-				<MakeCommands>
-					<Build command="" />
-					<CompileFile command="" />
-					<Clean command="" />
-					<DistClean command="" />
-					<AskRebuildNeeded command="" />
-					<SilentBuild command=" &gt; $(CMD_NULL)" />
-				</MakeCommands>
+			</Target>
+			<Target title="Linux-GCC-Release-x64">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/x86-64/pmath-eigen" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-release-x64/" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_x64_compiler" />
+				<Option host_application="../../richmath/bin/linux/gcc-release-x64/richmath" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-O3" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-std=c++11" />
+					<Add option="-fPIC" />
+					<Add option="-Wno-unused-local-typedefs" />
+					<Add option="-fno-exceptions" />
+					<Add option="-DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add directory="../../library/bin/linux/gcc-release-x64" />
+				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
