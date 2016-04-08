@@ -14,6 +14,7 @@
 #include <pmath-util/messages.h>
 #include <pmath-util/stacks-private.h>
 #include <pmath-util/symbol-values-private.h>
+#include <pmath-util/user-format-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
@@ -1150,6 +1151,9 @@ static void write_symbol(struct pmath_write_ex_t *info, pmath_t symbol) {
   pmath_string_t name;
   const uint16_t *str;
   int len;
+  
+  if(_pmath_write_user_format(info, symbol))
+    return;
   
   name = pmath_symbol_name(symbol);
   len = pmath_string_length(name);

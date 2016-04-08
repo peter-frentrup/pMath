@@ -267,6 +267,7 @@ FontSize::usage:= "FontSize is an option for Section, Style and related construc
 FontSlant::usage:= "FontSlant is an option for Section, Style and related constructs which specifies how slanted characters in text should be."
 FontWeight::usage:= "FontWeight is an option for Style, Section and related constructs which specifies how heavy characters in a font should be."
 For::usage:= "For(\(StyleBox(\"start\", \"Arg\")\), \(StyleBox(\"test\", \"Arg\")\), \(StyleBox(\"incr\", \"Arg\")\), \(StyleBox(\"body\", \"Arg\")\)) executes \(StyleBox(\"start\", \"Arg\")\), then repeatedly evaluates \(StyleBox(\"body\", \"Arg\")\) and \(StyleBox(\"incr\", \"Arg\")\) until \(StyleBox(\"test\", \"Arg\")\) fails to give True."
+Format::usage:= "Format(\(StyleBox(\"expr\", \"Arg\")\)) defines print forms for expressions."
 FormatRules::usage:= "FormatRules(\(StyleBox(\"f\", \"Arg\")\)) gives a list of formating rules for the symbol \(StyleBox(\"f\", \"Arg\")\) and expressions of the form \({StyleBox(\"f\", \"Arg\"), \"(\", \"\\[Ellipsis]\", \")\"}\)."
 FractionalPart::usage:= "FractionalPart(\(StyleBox(\"x\", \"Arg\")\)) gives the fractional part of \(StyleBox(\"x\", \"Arg\")\)."
 FractionBox::usage:= "FractionBox(\(StyleBox(\"x\", \"Arg\")\), \(StyleBox(\"y\", \"Arg\")\)) is a low-level construct that represents \(FractionBox(StyleBox(\"x\", \"Arg\"), StyleBox(\"y\", \"Arg\"))\) in document expressions."

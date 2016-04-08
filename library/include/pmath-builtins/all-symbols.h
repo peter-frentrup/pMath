@@ -889,6 +889,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_INTERNAL_ISREALINTERVAL                PMATH_SYMBOL_BUILTIN(795)
 #define PMATH_SYMBOL_MAGNIFICATION                          PMATH_SYMBOL_BUILTIN(796)
 #define PMATH_SYMBOL_BINARYREADLIST                         PMATH_SYMBOL_BUILTIN(797)
+#define PMATH_SYMBOL_FORMAT                                 PMATH_SYMBOL_BUILTIN(798)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

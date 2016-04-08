@@ -12,6 +12,7 @@
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/user-format-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
@@ -3788,6 +3789,9 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
 
 PMATH_PRIVATE
 void _pmath_expr_write(struct pmath_write_ex_t *info, pmath_t expr) {
+  if(_pmath_write_user_format(info, expr))
+    return;
+  
   write_expr_ex(info, PRIO_ANY, expr);
 }
 

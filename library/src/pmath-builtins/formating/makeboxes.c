@@ -16,6 +16,7 @@
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
 #include <pmath-util/symbol-values-private.h>
+#include <pmath-util/user-format-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
@@ -3391,6 +3392,27 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
       return obj;
     }
     
+    if( thread->boxform < BOXFORM_OUTPUT) {
+      pmath_t format;
+      
+      if(user_make_boxes(&obj))
+        return obj;
+        
+      format = _pmath_get_user_format(obj);
+      if(!pmath_same(format, PMATH_UNDEFINED)) {
+        format = pmath_evaluate(
+                   pmath_expr_new_extended(
+                     pmath_ref(PMATH_SYMBOL_MAKEBOXES), 1,
+                     format));
+        
+        obj = pmath_expr_new_extended(
+                pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+                format,
+                obj);
+        return pmath_evaluate(obj);
+      }
+    }
+    
     switch(PMATH_AS_PTR(obj)->type_shift) {
       case PMATH_TYPE_SHIFT_SYMBOL: {
           pmath_string_t s = PMATH_NULL;
@@ -3536,7 +3558,6 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
 
 //} ... boxforms for more complex functions
 
-
 PMATH_PRIVATE pmath_t builtin_makeboxes(pmath_expr_t expr) {
   /* MakeBoxes(object)
    */
@@ -3578,7 +3599,10 @@ static pmath_t strip_pattern_condition(pmath_t expr) {
   return expr;
 }
 
-PMATH_PRIVATE pmath_t builtin_assign_makeboxes(pmath_expr_t expr) {
+PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr) {
+  /* MakeBoxes(...)::= ...
+     Format(...)::= ...
+   */
   struct _pmath_symbol_rules_t *rules;
   pmath_t        tag;
   pmath_t        lhs;
@@ -3591,7 +3615,9 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_MAKEBOXES, 1)) {
+  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_MAKEBOXES, 1) &&
+      !pmath_is_expr_of_len(lhs, PMATH_SYMBOL_FORMAT, 1))
+  {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);

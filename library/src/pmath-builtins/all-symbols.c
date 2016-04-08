@@ -252,9 +252,9 @@ PMATH_PRIVATE pmath_t builtin_parenthesizeboxes(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_toboxes(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tostring(         pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_assign_makeboxes(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_syntaxinformation(       pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_syntaxinformation(         pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/gui/ ...
 PMATH_PRIVATE pmath_t builtin_button( pmath_expr_t expr);
@@ -951,6 +951,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_FONTSLANT                        = NEW_SYSTEM_SYMBOL("FontSlant"))
   VERIFY(   PMATH_SYMBOL_FONTWEIGHT                       = NEW_SYSTEM_SYMBOL("FontWeight"))
   VERIFY(   PMATH_SYMBOL_FOR                              = NEW_SYSTEM_SYMBOL("For"))
+  VERIFY(   PMATH_SYMBOL_FORMAT                           = NEW_SYSTEM_SYMBOL("Format"))
   VERIFY(   PMATH_SYMBOL_FORMATRULES                      = NEW_SYSTEM_SYMBOL("FormatRules"))
   VERIFY(   PMATH_SYMBOL_FRACTIONALPART                   = NEW_SYSTEM_SYMBOL("FractionalPart"))
   VERIFY(   PMATH_SYMBOL_FRACTIONBOX                      = NEW_SYSTEM_SYMBOL("FractionBox"))
@@ -1516,11 +1517,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_UP(     PMATH_SYMBOL_DEFAULTRULES,                     builtin_assign_symbol_rules)
   BIND_UP(     PMATH_SYMBOL_DOWNRULES,                        builtin_assign_symbol_rules)
   BIND_UP(     PMATH_SYMBOL_ENVIRONMENT,                      builtin_assign_environment)
+  BIND_UP(     PMATH_SYMBOL_FORMAT,                           builtin_assign_makeboxes_or_format)
   BIND_UP(     PMATH_SYMBOL_FORMATRULES,                      builtin_assign_symbol_rules)
   BIND_UP(     PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,          builtin_assign_namespacepath)
   BIND_UP(     PMATH_SYMBOL_ISNUMERIC,                        builtin_assign_isnumeric)
   BIND_UP(     PMATH_SYMBOL_LIST,                             builtin_assign_list)
-  BIND_UP(     PMATH_SYMBOL_MAKEBOXES,                        builtin_assign_makeboxes)
+  BIND_UP(     PMATH_SYMBOL_MAKEBOXES,                        builtin_assign_makeboxes_or_format)
   BIND_UP(     PMATH_SYMBOL_MAXEXTRAPRECISION,                builtin_assign_maxextraprecision)
   BIND_UP(     PMATH_SYMBOL_MESSAGENAME,                      builtin_assign_messagename)
   BIND_UP(     PMATH_SYMBOL_MESSAGES,                         builtin_assign_messages)
