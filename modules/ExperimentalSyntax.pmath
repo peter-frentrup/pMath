@@ -263,7 +263,7 @@ MakeExpression({"Block" | {"\[RawNewline]"**, "Block"}, {"{", ?block:{}, "}"}}) 
 %
 % Local(vars) { block } 
 %
-MakeExpression({{"With" | {"\[RawNewline]"**, "With"}, "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"Local" | {"\[RawNewline]"**, "Local"}, "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		Local,
 		MakeExpression({"{", vars, "}"}),
