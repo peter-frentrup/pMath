@@ -25,9 +25,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -60,9 +58,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -94,9 +90,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -129,9 +123,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -163,9 +155,7 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_NO_FORCEINLINE" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -199,8 +189,7 @@
 					<Add option="/GF" />
 					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add option="/DBUILD_DLL" />
-					<Add option="/DNDEBUG" />
+					<Add option="/DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -234,8 +223,7 @@
 					<Add option="/GF" />
 					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add option="/DBUILD_DLL" />
-					<Add option="/DNDEBUG" />
+					<Add option="/DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -270,8 +258,7 @@
 					<Add option="/GF" />
 					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add option="/DBUILD_DLL" />
-					<Add option="/DNDEBUG" />
+					<Add option="/DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -305,8 +292,7 @@
 					<Add option="/GF" />
 					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add option="/DBUILD_DLL" />
-					<Add option="/DNDEBUG" />
+					<Add option="/DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
 				<Linker>
@@ -339,7 +325,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -373,7 +358,6 @@
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
 					<Add option="-fno-exceptions" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -408,7 +392,6 @@
 					<Add option="/GL" />
 					<Add option="/GF" />
 					<Add option="/W3" />
-					<Add option="/DBUILD_DLL" />
 					<Add option="/DNDEBUG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -440,7 +423,6 @@
 					<Add option="/GL" />
 					<Add option="/GF" />
 					<Add option="/W3" />
-					<Add option="/DBUILD_DLL" />
 					<Add option="/DNDEBUG" />
 					<Add directory="$(#jdk.include)/win32" />
 				</Compiler>
@@ -474,13 +456,11 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-Wno-unused-but-set-variable" />
-					<Add option="-DBUILD_DLL" />
 					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
 				<ExtraCommands>
-					<Add after='rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after="rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*" />
 					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; ../bin/Linux/$(ARCH_NAME)/' />
 					<Mode after="always" />
@@ -505,11 +485,11 @@
 					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-Wno-unused-but-set-variable" />					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
 				<ExtraCommands>
-					<Add after='rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after="rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*" />
 					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; ../bin/Linux/$(ARCH_NAME)/' />
 					<Mode after="always" />
@@ -535,11 +515,10 @@
 					<Add option="-fno-exceptions" />
 					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="-DPMATH_DEBUG_LOG" />
-					<Add option="-DPMATH_DEBUG_NO_FASTREF" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
 				<ExtraCommands>
-					<Add after='rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after="rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*" />
 					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; ../bin/Linux/$(ARCH_NAME)/' />
 					<Mode after="always" />
@@ -564,12 +543,11 @@
 					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
-					<Add option="-Wno-unused-but-set-variable" />
-					<Add option="-DBUILD_DLL" />
+					<Add option="-Wno-unused-but-set-variable" />					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
 				<ExtraCommands>
-					<Add after='rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after="rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*" />
 					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; ../bin/Linux/$(ARCH_NAME)/' />
 					<Mode after="always" />
