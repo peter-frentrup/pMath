@@ -63,10 +63,7 @@
 	suggest special string values,
 
 - pmath/modules: add a .Net-binding similar to the Java-binding
-	
-- pmath: support C++11 rvalue references for pmath::Expr and derived bindings (e.g. Eigen module)
-	to get rid of numerous pmath_ref/unref() calls
-	
+
 - pmath: implement Together(...) 
 
 - pmath: generate a message when unpacking a packed array
@@ -76,7 +73,6 @@
 - richmath: Why is the end column of debug-info so large?? See "InspectBoxes - Test.pmathdoc"
 	This does not occur in test.exe ?!?
 
-- Message(...) should print a stack trace
 - add Assert(...)
 
 - richmath: menu item Evaluate in Subsession is incorrectly grayed out during evaluations...
@@ -172,7 +168,7 @@
 
 - richmath: FractionBox: change distance between fraction rule an numerator (too big)
 
-- pmath: crash with recursive String patterns
+- pmath: fix crash with recursive String patterns (???)
 
 !? make <<context` parse as Needs("context`") and do not provide special syntax for Get()
 
@@ -240,8 +236,6 @@
 
 - add Insert()
 
-- improve Abs() => complex values
-
 - add Outer()
 
 ? add IsRule(), IsRuleList(), IsRuleOrRuleList(), IsMatch(p)()
@@ -255,9 +249,7 @@
     * http://www.google.com/codesearch?hl=de&q=show:PBE7MtaLlk0:xpcZYsLsbi4:9oPi5mTcNcs&sa=N&ct=rd&cs_p=http://webauth.stanford.edu/source/libgcc-3.4.4.tar.bz2&cs_f=gcc-3.4.4/libjava/sysdep/powerpc/locks.h
     * http://lxr.linux.no/linux/Documentation/memory-barriers.txt
 
-- optimize pmath_expr_t for (multidimensional) rectangular arrays of intptr_t/double with List as head of all sublists
-
-- add support for file io in richmath (graphical front-end) and write help files for every symbol
+- write help files for every symbol
 
 - builtin_power: handle approximate complex arguments (real or imaginary part is pmath_float_t)
 - builtin_power: handle special complex values (E^(I Pi) = -1, ...).
