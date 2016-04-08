@@ -117,15 +117,30 @@ Unprotect(MakeExpression)
 makeBlockExpression()::= HoldComplete(/\/)
 makeBlockExpression({})::= HoldComplete(/\/)
 makeBlockExpression(~boxes)::=
-	With({debugInfo:= GetDebugInfo(boxes), stmts:= Gather(emitMakeStatements(boxes)).Last.Apply(HoldComplete).Flatten(1)},
+	With({debugInfo:= GetDebugInfo(boxes), 
+			stmts:= Gather(emitMakeStatements(boxes)).Last.shortenHeldStatementsList.Apply(HoldComplete).Flatten(1)
+		},
 		If(Length(stmts) = 0, Return(HoldComplete(/\/)));
 		If(Length(stmts) = 1, Return(stmts));
 		Return(composeHeldExpr(EvaluationSequence, stmts).SetDebugInfoAt(debugInfo, 1))
 		)
 
+shortenHeldStatementsList({})::= {HoldComplete(/\/)}
+shortenHeldStatementsList(~heldStmts:List)::=
+	With({heldNonemptyStmts:= heldStmts.Replace(HoldComplete() -> Sequence(), 1)},
+		With({haveNullStmts:= heldNonemptyStmts.Last === HoldComplete(/\/), 
+				shortStmts:= heldNonemptyStmts.Replace(HoldComplete(/\/) -> Sequence(), 1)
+			},
+			%Print("shorten ", haveNullStmts, " ", heldStmts, " to ", shortStmts);
+			If(haveNullStmts, 
+				shortStmts.Append(HoldComplete(/\/))
+			,
+				shortStmts)
+		)
+	)
+
 emitMakeStatements({}):= /\/
 emitMakeStatements({~boxes})::= emitMakeStatements(boxes)
-emitMakeStatements({"\[RawNewline]"**, ~x})::= emitMakeStatement(x)
 emitMakeStatements({{"With" | {"\[RawNewline]"**, "With"}, "(", ~vars, ")"}, ";" | "\[RawNewline]", ~~~rest})::= 
 	Emit @ composeHeldExpr(
 		With,
@@ -146,13 +161,9 @@ emitMakeStatements({"Local" | {"\[RawNewline]"**, "Local"}, "(", ~vars, ")"})::=
 		Local,
 		MakeExpression({"{", vars, "}"}),
 		HoldComplete(/\/))
-emitMakeStatements({~stmt, ";" | "\[RawNewline]", ~~rest})::= (
-	emitMakeStatements(stmt);
-	emitMakeStatements({rest}))
-emitMakeStatements({~boxes, ";"})::= (
-	emitMakeStatements({boxes});
-	Emit @ HoldComplete(/\/))
-emitMakeStatements({~boxes, "\[RawNewline]"})::= emitMakeStatements({boxes})
+emitMakeStatements(stmts: {~~~, ";" | "\[RawNewline]", ~~~})::= stmts.Map(emitMakeStatements)
+emitMakeStatements(";")::= Emit @ HoldComplete(/\/)
+emitMakeStatements("\[RawNewline]")::= /\/
 emitMakeStatements(~boxes)::= Emit @ MakeExpression(boxes)
 
 
