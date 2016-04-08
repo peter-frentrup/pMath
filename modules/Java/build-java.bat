@@ -28,8 +28,8 @@ pushd %~dp0
 %javac.exe% -source 6 -target 6 classpath\pmath\*.java
 %javac.exe% -source 6 -target 6 classpath\pmath\util\*.java
 
-%javac.exe% -source 6 -target 6 -cp classpath test\App\*.java
-%javac.exe% -source 6 -target 6 -cp classpath test\Interrupt\*.java
+%javac.exe% -source 6 -target 6 -cp classpath example\App\*.java
+%javac.exe% -source 6 -target 6 -cp classpath example\Interrupt\*.java
 
 popd
 

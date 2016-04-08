@@ -20,9 +20,6 @@
 /library/doxygen/latex
 /modules/Eigen/bin
 /modules/Eigen/obj
-/modules/Java/bin
-/modules/Java/obj
-/modules/Java/Makefile
 /modules/hello/bin
 /modules/hello/obj
 /modules/hello/Makefile

@@ -17,7 +17,7 @@
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="../../richmath/bin/$(TARGET_OUTPUT_DIR)richmath.exe" />
+				<Option host_application="../../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
@@ -36,8 +36,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -50,7 +51,7 @@
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option parameters="/C run-java-32.bat -Dpmath.core.dll=..\..\library\$(TARGET_OUTPUT_DIR)pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\Windows\$(ARCH_NAME)\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
+				<Option parameters="/C run-java-32.bat -Dpmath.core.dll=..\..\..\library\bin\windows\gcc-debug-x86\pmath.dll -Dpmath.core.base_directory=..\..\..\library\scripts -Dpmath.binding.dll=..\bin\Windows\x86\pmath-java.dll -classpath ..\classpath;..\example\App TestApp" />
 				<Option host_application="cmd" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
@@ -70,8 +71,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -84,7 +86,7 @@
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option host_application="../../../library/$(TARGET_OUTPUT_DIR)test.exe" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=i686" />
@@ -103,8 +105,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -117,7 +120,7 @@
 				<Option object_output="obj/windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
-				<Option parameters="-d64 -Dpmath.core.dll=..\..\library\$(TARGET_OUTPUT_DIR)pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\Windows\$(ARCH_NAME)\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
+				<Option parameters="-d64 -Dpmath.core.dll=..\..\..\library\bin\windows\gcc-debug-x64\pmath.dll -Dpmath.core.base_directory=..\..\..\library\scripts -Dpmath.binding.dll=..\bin\Windows\x86-64\pmath-java.dll -classpath ..\classpath;..\example\App TestApp" />
 				<Option host_application="java" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
@@ -137,8 +140,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -151,7 +155,7 @@
 				<Option object_output="obj/windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
-				<Option host_application="../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=core2" />
@@ -170,8 +174,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -184,7 +189,7 @@
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
-				<Option parameters="/C run-java-32.bat -Dpmath.core.dll=..\..\library\$(TARGET_OUTPUT_DIR)pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\Windows\$(ARCH_NAME)\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
+				<Option parameters="/C run-java-32.bat -Dpmath.core.dll=..\..\..\library\bin\windows\msvc-debug-x86\pmath.dll -Dpmath.core.base_directory=..\..\..\library\scripts -Dpmath.binding.dll=..\bin\Windows\x86\pmath-java.dll -classpath ..\classpath;..\example\app TestApp" />
 				<Option host_application="cmd" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
@@ -204,9 +209,10 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -219,7 +225,7 @@
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
-				<Option host_application="../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="/MDd" />
@@ -238,9 +244,10 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -253,7 +260,7 @@
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
-				<Option parameters="-d64 -Dpmath.core.dll=..\..\library\$(TARGET_OUTPUT_DIR)pmath.dll -Dpmath.core.base_directory=..\..\library\scripts -Dpmath.binding.dll=.\bin\Windows\$(ARCH_NAME)\pmath-java.dll -classpath .\classpath;.\test\app TestApp" />
+				<Option parameters="-d64 -Dpmath.core.dll=..\..\..\library\bin\windows\msvc-debug-x64\pmath.dll -Dpmath.core.base_directory=..\..\..\library\scripts -Dpmath.binding.dll=..\bin\Windows\x86-64\pmath-java.dll -classpath ..\classpath;..\example\app TestApp" />
 				<Option host_application="java" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
@@ -273,9 +280,10 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -288,7 +296,7 @@
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
-				<Option host_application="../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="/MDd" />
@@ -307,9 +315,10 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -322,7 +331,7 @@
 				<Option object_output="obj/windows/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
+				<Option host_application="../../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
@@ -341,8 +350,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -355,7 +365,7 @@
 				<Option object_output="obj/windows/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
-				<Option host_application="../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
+				<Option host_application="../../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=core2" />
@@ -374,8 +384,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -388,7 +399,7 @@
 				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
-				<Option host_application="../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
+				<Option host_application="../../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="/MD" />
@@ -406,8 +417,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -420,7 +432,7 @@
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
-				<Option host_application="../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
+				<Option host_application="../../../richmath/$(TARGET_OUTPUT_DIR)richmath.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="/MD" />
@@ -437,8 +449,9 @@
 					<Add library="user32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /C if not exist &quot;bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;bin\Windows\$(ARCH_NAME)&quot;' />
-					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;bin\Windows\$(ARCH_NAME)\*&quot;' />
+					<Add after='cmd /C if exist &quot;..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\Windows\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after='cmd /C if not exist &quot;..\bin\Windows\$(ARCH_NAME)&quot; mkdir &quot;..\bin\Windows\$(ARCH_NAME)&quot;' />
+					<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\Windows\$(ARCH_NAME)\*&quot;' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -451,7 +464,7 @@
 				<Option object_output="obj/linux/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="$(PROJECT_DIR)../../library/test/$(TARGET_OUTPUT_DIR)test" />
+				<Option host_application="$(PROJECT_DIR)../../../library/test/$(TARGET_OUTPUT_DIR)test" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=i686" />
@@ -467,8 +480,9 @@
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
 				<ExtraCommands>
-					<Add after="mkdir -p bin/Linux/$(ARCH_NAME)/" />
-					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/$(ARCH_NAME)/' />
+					<Add after='rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
+					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; ../bin/Linux/$(ARCH_NAME)/' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -481,7 +495,7 @@
 				<Option object_output="obj/linux/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="$(PROJECT_DIR)../../richmath/$(TARGET_OUTPUT_DIR)richmath" />
+				<Option host_application="$(PROJECT_DIR)../../../richmath/$(TARGET_OUTPUT_DIR)richmath" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=i686" />
@@ -495,8 +509,9 @@
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
 				<ExtraCommands>
-					<Add after="mkdir -p bin/Linux/$(ARCH_NAME)/" />
-					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/$(ARCH_NAME)/' />
+					<Add after='rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
+					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; ../bin/Linux/$(ARCH_NAME)/' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -509,7 +524,7 @@
 				<Option object_output="obj/linux/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
-				<Option host_application="$(PROJECT_DIR)../../library/test/$(TARGET_OUTPUT_DIR)test" />
+				<Option host_application="$(PROJECT_DIR)../../../library/test/$(TARGET_OUTPUT_DIR)test" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
 					<Add option="-march=core2" />
@@ -524,8 +539,9 @@
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
 				<ExtraCommands>
-					<Add after="mkdir -p bin/Linux/$(ARCH_NAME)/" />
-					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/$(ARCH_NAME)/' />
+					<Add after='rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
+					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; ../bin/Linux/$(ARCH_NAME)/' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -538,7 +554,7 @@
 				<Option object_output="obj/linux/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
-				<Option host_application="$(PROJECT_DIR)../../richmath/$(TARGET_OUTPUT_DIR)richmath" />
+				<Option host_application="$(PROJECT_DIR)../../../richmath/$(TARGET_OUTPUT_DIR)richmath" />
 				<Option run_host_application_in_terminal="0" />
 				<Compiler>
 					<Add option="-march=core2" />
@@ -553,8 +569,9 @@
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
 				<ExtraCommands>
-					<Add after="mkdir -p bin/Linux/$(ARCH_NAME)/" />
-					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/$(ARCH_NAME)/' />
+					<Add after='rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*' />
+					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
+					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; ../bin/Linux/$(ARCH_NAME)/' />
 					<Mode after="always" />
 				</ExtraCommands>
 				<Environment>
@@ -566,12 +583,12 @@
 			<Add alias="All-Windows" targets="Windows-GCC-Debug-x86 Console Host;Windows-GCC-Debug-x64 Console Host;Windows-MSVC-Debug-x86 Console Host;Windows-MSVC-Debug-x64 Console Host;Windows-GCC-Release-x86;Windows-GCC-Release-x64;Windows-MSVC-Release-x86;Windows-MSVC-Release-x64;" />
 		</VirtualTargets>
 		<Compiler>
-			<Add directory="../../library/include" />
+			<Add directory="../../../library/include" />
 			<Add directory="$(#jdk.include)" />
 		</Compiler>
 		<Linker>
 			<Add library="pmath" />
-			<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
+			<Add directory="../../../library/$(TARGET_OUTPUT_DIR)" />
 			<Add directory="$(#jdk.lib)" />
 		</Linker>
 		<Unit filename="src/main.c">
@@ -611,7 +628,7 @@
 		<Unit filename="src/pmath_Core.h" />
 		<Extensions>
 			<code_completion>
-				<search_path add="../../library/include" />
+				<search_path add="../../../library/include" />
 			</code_completion>
 			<envvars />
 			<debugger />
