@@ -1,4 +1,4 @@
-BeginPackage("Java`")
+BeginPackage("Java`", {"ExperimentalSyntax`"})
 
 Java`Java
 Java`JavaClass
@@ -63,58 +63,54 @@ Methods::usage:= "Methods(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"A
 ParentClass::usage:= "ParentClass(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) gives the parent class of the specified Java class."
 
 
-
-Which(
-	$SystemId === "Windows",
-	(
+Local(path) {
+	If($SystemId === "Windows") {
 		path:= Join(Environment("PATH").StringSplit($PathListSeparator),
-					Environment("ProgramFiles").StringSplit($PathListSeparator));
+				Environment("ProgramFiles").StringSplit($PathListSeparator))
 		
-		path:= path.FileNames("Java");
-		path:= Join(path.FileNames("jre*").Reverse, path.FileNames("jdk*").FileNames("jre").Reverse);
-		path:= path.FileNames("bin");
-		path:= path.FileNames({"server","client"});
-		path:= path.FileNames("jvm.dll");
+		path:= path.FileNames("Java")
+		path:= Join(path.FileNames("jre*").Reverse, path.FileNames("jdk*").FileNames("jre").Reverse)
+		path:= path.FileNames("bin")
+		path:= path.FileNames({"server","client"})
+		path:= path.FileNames("jvm.dll")
 		
-		Unprotect($JavaInstalledVMs);
+		Unprotect($JavaInstalledVMs)
+		$JavaInstalledVMs:= path
+		Protect($JavaInstalledVMs)
+	} Else If($SystemId === "Linux") {
+		Local(arch)
+		
+		If($ProcessorType === "x86-64") {
+			arch:= "amd64"
+			path:= {"/usr/lib64", "/usr/local/lib64"}
+		} Else {
+			arch:= "i386"
+			path:= {"/usr/lib", "/usr/local/lib"}
+		}
+		
+		path:= path.FileNames("jvm")
+		path:= Join(path.FileNames("java"), path.FileNames("*").Complement({"java"}).Reverse)
+		path:= path.FileNames("jre")
+		path:= path.FileNames("lib")
+		path:= path.FileNames(arch)
+		path:= path.FileNames({"default", "server", "client"})
+		path:= path.FileNames("libjvm.so")
+		
+		Unprotect($JavaInstalledVMs)
 		$JavaInstalledVMs:= path;
-		Protect($JavaInstalledVMs);
-		),
+		Protect($JavaInstalledVMs)
+	} Else {
+		Unprotect($JavaInstalledVMs)
+		$JavaInstalledVMs:= {}
+		Protect($JavaInstalledVMs)
+	}
+}
 	
-	$SystemId === "Linux",
-	(
-		If($ProcessorType === "x86-64", 
-			arch:= "amd64";
-			path:= {"/usr/lib64", "/usr/local/lib64"};
-		,
-			arch:= "i386";
-			path:= {"/usr/lib", "/usr/local/lib"});
-		
-		path:= path.FileNames("jvm");
-		path:= Join(path.FileNames("java"), path.FileNames("*").Complement({"java"}).Reverse);
-		path:= path.FileNames("jre");
-		path:= path.FileNames("lib");
-		path:= path.FileNames(arch);
-		path:= path.FileNames({"default", "server", "client"});
-		path:= path.FileNames("libjvm.so");
-		
-		Unprotect($JavaInstalledVMs);
-		$JavaInstalledVMs:= path;
-		Protect($JavaInstalledVMs);
-		),
-		
-	True,
-	(	
-		Unprotect($JavaInstalledVMs);
-		$JavaInstalledVMs:= {};
-		Protect($JavaInstalledVMs);
-		)
-	);
-		
 Unprotect($JavaVMLibraryName);
-If($JavaInstalledVMs =!= {},
-	$JavaVMLibraryName:= First($JavaInstalledVMs);
-	)
+If($JavaInstalledVMs =!= {}) {
+	$JavaVMLibraryName:= First($JavaInstalledVMs)
+}
+
 Protect($JavaVMLibraryName);
 
 $DefaultClassPath:= {ToFileName(DirectoryName($Input), "classpath")}
@@ -188,15 +184,16 @@ Fields(~obj:JavaObject)::= Fields(GetClass @ obj)
 
 AddToClassPath(~~~paths:String)::= {paths}.Scan(AddToClassPath)
 AddToClassPath(paths: {~~~:String})::= paths.Scan(AddToClassPath)
-AddToClassPath(~path:String)::= 
-	If(JavaIsRunning(),
-		JavaClass("pmath.util.ClassPathUpdater") @ add(path)
-	,
-		With({protected:= Unprotect($DefaultClassPath)},
-			$DefaultClassPath:= Append($DefaultClassPath, path);
-			Protect @@ protected;
-			)
-		)
+Function AddToClassPath(~path:String) {
+	If(JavaIsRunning()) {
+		JavaClass("pmath.util.ClassPathUpdater") @ add(path);
+	} Else {
+		With(protected:= Unprotect($DefaultClassPath))
+		
+		$DefaultClassPath:= Append($DefaultClassPath, path)
+		Protect @@ protected;
+	}
+}
 
 
 Attributes(Constructors):= Attributes(Methods):= Attributes(Fields):= Attributes(AddToClassPath):= {Protected, ReadProtected}
