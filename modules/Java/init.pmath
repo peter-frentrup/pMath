@@ -135,7 +135,7 @@ Attributes(JavaClass):= {DeepHoldAll, Protected, ReadProtected}
 
 
 /* JavaObject */
-MakeBoxes(o: JavaObject(~, ~name))::= With({boxes:= MakeBoxes(Skeleton(name))}, InterpretationBox(boxes, o))
+Format(JavaObject(~, ~name:String))::= Skeleton(name)
 
 JavaObject/: ClassName(JavaObject(~, ~name))::= name
 JavaObject/: GetClass(JavaObject(~, ~name))::= JavaClass(name)
