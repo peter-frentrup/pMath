@@ -182,6 +182,9 @@ Constructors(cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), S
 Methods(     cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), Style("no methods",     Italic))&(JavaClassAsObject(cls).JavaCall("getMethods").Map(     #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
 Fields(      cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), Style("no fields",      Italic))&(JavaClassAsObject(cls).JavaCall("getFields").Map(      #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
 
+Constructors(~obj:JavaObject)::= Constructors(GetClass @ obj)
+Methods(~obj:JavaObject)::= Methods(GetClass @ obj)
+Fields(~obj:JavaObject)::= Fields(GetClass @ obj)
 
 AddToClassPath(~~~paths:String)::= {paths}.Scan(AddToClassPath)
 AddToClassPath(paths: {~~~:String})::= paths.Scan(AddToClassPath)
