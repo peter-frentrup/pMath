@@ -104,25 +104,45 @@ composeHeldExpr(~~~args)::= (
 	$Failed)
 
 
-debugEcho(~x)::= (Print(x); x)
-debugEcho(~x, ~label)::= (Print(label, x); x)
-debugEcho(~x, ~label, ~f)::= (Print(label, f(x)); x)
-debugEchoFunction(~~~args)(~x)::= debugEcho(x, args)
-
 Unprotect(MakeExpression)
+
+STARTBLOCK
+BLOCK
 
 %
 % parsing statement blocks
 %
+composeHeldEvaluationSequence(HoldComplete())::= HoldComplete(/\/)
+composeHeldEvaluationSequence(h: HoldComplete(~))::= h
+composeHeldEvaluationSequence(h: HoldComplete(~~))::= composeHeldExpr(EvaluationSequence, h)
+
+finishBlock(~heldStatements: List)::= heldStatements.Replace(
+	BLOCK(~head, ~~~heldargs) :> composeHeldExpr(head, heldargs),
+	1).Apply(HoldComplete).Flatten(1)
+
 makeBlockExpression()::= HoldComplete(/\/)
 makeBlockExpression({})::= HoldComplete(/\/)
 makeBlockExpression(~boxes)::=
 	With({debugInfo:= GetDebugInfo(boxes), 
-			stmts:= Gather(emitMakeStatements(boxes)).Last.shortenHeldStatementsList.Apply(HoldComplete).Flatten(1)
+			flatStmts:= Gather(emitMakeStatements(boxes)).Last.Replace(HoldComplete() -> Sequence(), 1)
 		},
-		If(Length(stmts) = 0, Return(HoldComplete(/\/)));
-		If(Length(stmts) = 1, Return(stmts));
-		Return(composeHeldExpr(EvaluationSequence, stmts).SetDebugInfoAt(debugInfo, 1))
+		With({lastIsNull:= flatStmts.Length > 0 && flatStmts.Last === HoldComplete(/\/),
+			nonNullStmts:= flatStmts.Replace(HoldComplete(/\/) -> Sequence(), 1)
+			},
+			If(Length(nonNullStmts) = 0, Return(HoldComplete(/\/)));
+			With({groupedStmts:= nonNullStmts.ReplaceRepeated(
+					{Longest(~~~pre), STARTBLOCK(~head, ~~~init), ~~~post} :> 
+						{pre, BLOCK(head, init, composeHeldEvaluationSequence({post}.finishBlock))},
+					0).finishBlock
+				},
+				
+				If(lastIsNull, 
+					Return(composeHeldExpr(EvaluationSequence, groupedStmts, HoldComplete(/\/)).SetDebugInfoAt(debugInfo, 1)));
+				If(Length(groupedStmts) = 1, 
+					Return(groupedStmts));
+				Return(composeHeldExpr(EvaluationSequence, groupedStmts).SetDebugInfoAt(debugInfo, 1));
+				)
+			)
 		)
 
 shortenHeldStatementsList({})::= {HoldComplete(/\/)}
@@ -141,26 +161,10 @@ shortenHeldStatementsList(~heldStmts:List)::=
 
 emitMakeStatements({}):= /\/
 emitMakeStatements({~boxes})::= emitMakeStatements(boxes)
-emitMakeStatements({{"With" | {"\[RawNewline]"**, "With"}, "(", ~vars, ")"}, ";" | "\[RawNewline]", ~~~rest})::= 
-	Emit @ composeHeldExpr(
-		With,
-		MakeExpression({"{", vars, "}"}),
-		makeBlockExpression({rest}))
 emitMakeStatements({"With" | {"\[RawNewline]"**, "With"}, "(", ~vars, ")"})::= 
-	Emit @ composeHeldExpr(
-		With,
-		MakeExpression({"{", vars, "}"}),
-		HoldComplete(/\/))
-emitMakeStatements({{"Local" | {"\[RawNewline]"**, "Local"}, "(", ~vars, ")"}, ";" | "\[RawNewline]", ~~~rest})::= 
-	Emit @ composeHeldExpr(
-		Local,
-		MakeExpression({"{", vars, "}"}),
-		makeBlockExpression({rest}))
+	Emit @ STARTBLOCK(With, MakeExpression({"{", vars, "}"}))
 emitMakeStatements({"Local" | {"\[RawNewline]"**, "Local"}, "(", ~vars, ")"})::= 
-	Emit @ composeHeldExpr(
-		Local,
-		MakeExpression({"{", vars, "}"}),
-		HoldComplete(/\/))
+	Emit @ STARTBLOCK(Local, MakeExpression({"{", vars, "}"}))
 emitMakeStatements(stmts: {~~~, ";" | "\[RawNewline]", ~~~})::= stmts.Map(emitMakeStatements)
 emitMakeStatements(";")::= Emit @ HoldComplete(/\/)
 emitMakeStatements("\[RawNewline]")::= /\/
