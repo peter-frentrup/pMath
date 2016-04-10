@@ -356,6 +356,36 @@ pmath_bool_t pj_object_is_java(JNIEnv *env, pmath_t obj) {
 }
 
 
+static
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t wrap_exception_result(pmath_symbol_t head, pmath_t exception) {
+  if(pmath_same(exception, PMATH_ABORT_EXCEPTION)) {
+    return pmath_expr_new(
+             pmath_ref(PMATH_SYMBOL_ABORT), 0);
+  }
+  
+  if(pmath_is_evaluatable(exception)) {
+    pmath_t do_throw = pmath_expr_new_extended(
+                         pmath_ref(PMATH_SYMBOL_THROW), 1,
+                         pmath_ref(exception));
+    pmath_t message_name = pmath_expr_new_extended(
+                             pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+                             pmath_ref(head),
+                             PMATH_C_STRING("ex"));
+    pmath_t do_message = pmath_expr_new_extended(
+                           pmath_ref(PMATH_SYMBOL_MESSAGE), 2,
+                           message_name,
+                           exception);
+    return pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_FINALLY), 2,
+             do_message, 
+             do_throw);
+  }
+  
+  pmath_unref(exception);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
 pmath_t pj_builtin_isjavaobject(pmath_expr_t expr) {
   JNIEnv *env;
   pmath_t obj;
@@ -570,23 +600,8 @@ pmath_t pj_builtin_internal_javacall(pmath_expr_t expr) {
   
   exception = pmath_catch();
   if(!pmath_same(exception, PMATH_UNDEFINED)) {
-  
-    if(pmath_same(exception, PMATH_ABORT_EXCEPTION)) {
-      pmath_unref(result);
-      result = pmath_expr_new(
-                 pmath_ref(PMATH_SYMBOL_ABORT), 0);
-    }
-    else if(pmath_is_evaluatable(exception)) {
-      pmath_unref(result);
-      result = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_THROW), 1,
-                 exception);
-    }
-    else {
-      pmath_unref(exception);
-      pmath_unref(result);
-      result = pmath_ref(PMATH_SYMBOL_FAILED);
-    }
+    pmath_unref(result);
+    result = wrap_exception_result(PJ_SYMBOL_JAVACALL, exception);
   }
   
   pmath_unref(expr);
@@ -728,16 +743,7 @@ pmath_t pj_builtin_internal_javanew(pmath_expr_t expr) {
   exception = pmath_catch();
   if(!pmath_same(exception, PMATH_UNDEFINED)) {
     pmath_unref(result);
-    
-    if(pmath_same(exception, PMATH_ABORT_EXCEPTION)) {
-      result = pmath_expr_new(
-                 pmath_ref(PMATH_SYMBOL_ABORT), 0);
-    }
-    else {
-      result = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_THROW), 1,
-                 exception);
-    }
+    result = wrap_exception_result(PJ_SYMBOL_JAVANEW, exception);
   }
   
   pmath_unref(expr);

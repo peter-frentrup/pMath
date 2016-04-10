@@ -42,6 +42,8 @@ JavaNew::argx:= "Incorrect number or type of arguments to constructor for class 
 JavaNew::argx0:= "There is no constructor for class `1` that takes zero arguments."
 JavaNew::fail:= "Error calling constructor for class `1`."
 
+JavaNew::ex:= JavaCall::ex:= "Exception crossing pMath-to-Java boundary: `1`"
+
 
 AddToClassPath::usage:= "AddToClassPath(\"\(StyleBox(\"location\", \"Arg\")\)\(SubscriptBox(\"1\")\)\", \"\(StyleBox(\"location\", \"Arg\")\)\(SubscriptBox(\"2\")\)\", \[Ellipsis]) adds the specified directories or jar/zip files to the java class path. All locations should be full paths."
 ClassName::usage:= "ClassName(\(StyleBox(\"obj\", BaseStyle -> \"Arg\")\)) gives the class name of a Java object \(StyleBox(\"obj\", BaseStyle -> \"Arg\")\)."
