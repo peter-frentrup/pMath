@@ -144,9 +144,26 @@ JavaObject/: GetClass(JavaObject(~, ~name))::= JavaClass(name)
 JavaObject/: (~o:JavaObject @ (~f:String):= ~rhs)::= JavaField(o, f):= rhs
 JavaObject/: (~o:JavaObject @ (~f:Symbol):= ~rhs)::= With({fs:= SymbolName(f)}, JavaField(o, fs):= rhs)
 
-~o:JavaObject @ (~m:String)(~~~args) ::= JavaCall(o, m,             args)
-~o:JavaObject @ (~m:Symbol)(~~~args) ::= JavaCall(o, SymbolName(m), args)
-~o:JavaObject @ (e1: ~(~~~))(~e2)    ::= (o @ e1) @ e2
+expr:(~o:JavaObject @ (~m:String)(~~~args)) ::= Block {
+	With(di:= Developer`GetDebugInfo(expr))
+	
+	HoldComplete(JavaCall(o, m, args)).Developer`SetDebugInfoAt(di, 1).ReleaseHold
+}
+
+expr:(~o:JavaObject @ (~m:Symbol)(~~~args)) ::= Block {
+	With(di:= Developer`GetDebugInfo(expr))
+	With(str:= SymbolName(m))
+	
+	HoldComplete(JavaCall(o, str, args)).Developer`SetDebugInfoAt(di, 1).ReleaseHold
+}
+
+expr:(~o:JavaObject @ (e1: ~(~~~))(~e2)) ::= Block {
+	With(di1:= Developer`GetDebugInfo(e1))
+	With(call1:= HoldComplete(o @ e1).Developer`SetDebugInfoAt(di, 1).ReleaseHold)
+	With(di:= Developer`GetDebugInfo(expr))
+	
+	HoldComplete(call1 @ e2).Developer`SetDebugInfoAt(di, 1).ReleaseHold
+}
 
 Attributes(JavaObject):= {DeepHoldAll, Protected, ReadProtected}
 
