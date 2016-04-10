@@ -1,0 +1,79 @@
+
+BeginPackage("Java`", {"ExperimentalSyntax`"})
+
+Java`ImplementJavaClass
+
+Begin("Java`Reflection`Private`")
+
+
+Function stringStyle(~s, ~~~styles) {
+	"\(" ++ Style(s, styles, ShowStringCharacters->False).ToBoxes.InputForm.ToString ++ "\)"
+}
+
+Function syntaxHighlight(~lines) {
+	lines.StringReplace(
+		{("final " | "public " | "native ") -> ""}
+	).StringReplace(
+		"," -> ", "
+	).StringReplace(
+		"java.lang." ++ (name: WordCharacter**) ++ (c: " " | "[" | "," | "(" | ")" | EndOfString) :> name ++ c
+	).StringReplace(
+		" " ++ Shortest((WordCharacter | "$" | ".")**) ++ "." ++ (name:WordCharacter**) ++ "(" :> " " ++ stringStyle(name, Blue, Italic) ++ "("
+	).StringReplace(
+		(s: WordBoundary ++ ("Object" | "String") ++ WordBoundary) :> stringStyle(s, Bold)
+	).StringReplace(
+		WordBoundary ++ (s: "abstract" | "void" | "byte" | "char" | "boolean" | "short" | "int" | "long" | "throws" | "double" | "float" | "static" | "synchronized") ++ WordBoundary :> stringStyle(s, Brown, Bold)
+	)
+}
+
+Function Constructors(~obj:JavaObject) { 
+	Constructors(GetClass @ obj) 
+}
+Function Constructors(cls: (~:JavaClass | ~:String)) {
+	With(ctors:= JavaClassAsObject(cls).JavaCall("getConstructors").Map(#.JavaCall("toString")&))
+	
+	If(ctors === {}) {
+		Return(Style("no constructors",Italic))
+	} Else {
+		Return(Row(ctors.syntaxHighlight, "\n"))
+	}
+}
+
+Function Methods(~obj:JavaObject, Optional(~wildcard:String, "*")) {
+	Methods(GetClass @ obj, wildcard)
+}
+Function Methods(cls: (~:JavaClass | ~:String), Optional(~wildcard:String, "*")) {
+	With(pattern:= StartOfString ++ wildcard.StringReplace({"*" -> ~~~, "?" -> ~}) ++ EndOfString)
+	
+	With(methods:= JavaClassAsObject(cls).JavaCall("getMethods"))
+	With(nameAndMethods:= methods.Map({#.JavaCall("getName"), #} &).Sort)
+	With(choosenMethods:= nameAndMethods.Select(StringMatch(#[1], pattern) &))
+	
+	If(choosenMethods === {}) {
+		Return(stringStyle("no matching methods",Italic))
+	}
+	
+	Return(Row(choosenMethods[All, 2].Map(#.JavaCall("toString")&).syntaxHighlight, "\n"))
+}
+
+Function Fields(~obj:JavaObject, Optional(~wildcard:String, "*")) {
+	Fields(GetClass @ obj)
+}
+Function Fields(cls: (~:JavaClass | ~:String), Optional(~wildcard:String, "*")) {
+	With(pattern:= StartOfString ++ wildcard.StringReplace({"*" -> ~~~, "?" -> ~}) ++ EndOfString)
+	
+	With(fields:= JavaClassAsObject(cls).JavaCall("getFields"))
+	With(nameAndFields:= fields.Map({#.JavaCall("getName"), #} &).Sort)
+	With(choosenFields:= nameAndFields.Select(StringMatch(#[1], pattern) &))
+	
+	If(choosenFields === {}) {
+		Return(stringStyle("no matching fields",Italic))
+	}
+	
+	Return(Row(choosenFields[All, 2].Map(#.JavaCall("toString")&).syntaxHighlight, "\n"))
+}
+
+
+End()
+
+EndPackage()

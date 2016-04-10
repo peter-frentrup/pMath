@@ -1,0 +1,30 @@
+
+BeginPackage("UsingAwt`")
+
+Begin("UsingAwt`Private`")
+
+<<Java`
+
+frm:= JavaNew("java.awt.Frame")
+
+frm @ setTitle("Hello World")
+label:= JavaNew("java.awt.Label", "Please wait...")
+label @ setAlignment(JavaClass("java.awt.Label") @ CENTER);
+frm @ add(label)
+
+frm @ setSize(300, 150)
+frm @ setLocationByPlatform(True)
+frm @ setEnabled(False)
+frm @ show()
+
+adapter:= ImplementJavaClass("java.awt.event.WindowAdapter", {"windowClosing" -> onClosing})
+frm @ addWindowListener(adapter)
+
+onClosing(~this, ~windowEvent)::= windowEvent @ getWindow() @ dispose()
+
+label @ setText("Hi there.")
+frm @ setEnabled(True)
+
+End()
+
+EndPackage()

@@ -26,6 +26,8 @@ Java`Constructors
 Java`Methods
 Java`Fields
 
+Java`ImplementJavaClass
+
 Begin("Java`Private`")
 
 
@@ -47,8 +49,6 @@ JavaNew::ex:= JavaCall::ex:= "Exception crossing pMath-to-Java boundary: `1`"
 
 AddToClassPath::usage:= "AddToClassPath(\"\(StyleBox(\"location\", \"Arg\")\)\(SubscriptBox(\"1\")\)\", \"\(StyleBox(\"location\", \"Arg\")\)\(SubscriptBox(\"2\")\)\", \[Ellipsis]) adds the specified directories or jar/zip files to the java class path. All locations should be full paths."
 ClassName::usage:= "ClassName(\(StyleBox(\"obj\", BaseStyle -> \"Arg\")\)) gives the class name of a Java object \(StyleBox(\"obj\", BaseStyle -> \"Arg\")\)."
-Constructors::usage:= "Constructors(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) lists all public constructors of the specified Java class."
-Fields::usage:= "Fields(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) lists all public member fields of the specified Java class."
 InstanceOf::usage:= "InstanceOf(\(StyleBox(\"obj\", BaseStyle -> \"Arg\")\), JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) gives True if \(StyleBox(\"obj\", BaseStyle -> \"Arg\")\) represents a Java object of the class \(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)."
 IsJavaObject::usage:= "IsJavaObject(\(StyleBox(\"expr\", BaseStyle -> \"Arg\")\)) gives True if \(StyleBox(\"expr\", BaseStyle -> \"Arg\")\) represents a living Java object."
 Java::usage:= "Java is a symbol that is used with Java related messages."
@@ -61,8 +61,14 @@ JavaIsRunning::usage:= "IsJavaRunning() gives True if the Java Virtual Machine i
 JavaNew::usage:= "JavaNew(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\", \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) or JavaNew(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\"), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"arg\", BaseStyle -> \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]) creates a new Java object."
 JavaObject::usage:= "JavaObject(\[Ellipsis]) represents a java object."
 JavaStartVM::usage:= "JavaStartVM() starts the Java Virtual Machine if it is not already started. Note that the JVM is started automatically when needed."
-Methods::usage:= "Methods(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) lists all public methods of the specified Java class."
+GetClass::usage:= "GetClass(\(StyleBox(\"obj\", \"Arg\")\)) gives the JavaClass representing the object's Java class."
 ParentClass::usage:= "ParentClass(JavaClass(\"\(StyleBox(\"classname\", BaseStyle -> \"Arg\")\)\")) gives the parent class of the specified Java class."
+
+Constructors::usage:= "Constructors(\(StyleBox(\"classOrObject\", \"Arg\")\)) lists all public constructors of the specified Java class or object."
+Methods::usage:= "Methods(\(StyleBox(\"classOrObject\", \"Arg\")\)) lists all public methods of the specified Java class or object.\nMethods(\(StyleBox(\"classOrObject\", \"Arg\")\), \(StyleBox(\"pat\", \"Arg\")\)) returns only those methods whose names match the wildcard pattern."
+Fields::usage:= "Fields((StyleBox(\"classOrObject\", \"Arg\")\)) lists all public member fields of the specified Java class or object.\nFields(\(StyleBox(\"classOrObject\", \"Arg\")\), \(StyleBox(\"pat\", \"Arg\")\)) returns only those fields whose names match the wildcard pattern."
+
+ImplementJavaClass::usage:= "ImplementJavaClass(\(StyleBox(\"class\", \"Arg\")\), {\"\(StyleBox(\"meth\", \"Arg\")\)\(SubscriptBox(\"1\")\)\" \[Rule] \(StyleBox(\"sym\", \"Arg\")\)\(SubscriptBox(\"1\")\), \"\(StyleBox(\"meth\", \"Arg\")\)\(SubscriptBox(\"2\")\)\" \[Rule] \(StyleBox(\"sym\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]}) creates a new Java object of type \(StyleBox(\"class\", \"Arg\")\) with methods \(StyleBox(\"meth\", \"Arg\")\)\(SubscriptBox(StyleBox(\"i\", \"Arg\"))\) implemented by \(StyleBox(\"pMath\", \"TI\")\) functions \(StyleBox(\"sym\", \"Arg\")\)\(SubscriptBox(StyleBox(\"i\", \"Arg\"))\).\nImplementJavaClass({\(StyleBox(\"class\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"class\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]}, \[Ellipsis]) allows multiple Java interfaces to be specified."
 
 
 Local(path) {
@@ -167,7 +173,11 @@ expr:(~o:JavaObject @ (e1: ~(~~~))(~e2)) ::= Block {
 
 Attributes(JavaObject):= {DeepHoldAll, Protected, ReadProtected}
 
-
+AutoLoad(Hold(Constructors, Methods, Fields), 
+	ToFileName(ParentDirectory($Input), "reflection.pmath"))
+AutoLoad(Hold(ImplementJavaClass), 
+	ToFileName(ParentDirectory($Input), "ImplementJavaClass.pmath"))
+Protect(Constructors, Methods, Fields, ImplementJavaClass)
 
 LoadLibrary(ToFileName(
 	{DirectoryName($Input), "bin", $SystemId, $ProcessorType},
@@ -175,31 +185,6 @@ LoadLibrary(ToFileName(
 		"pmath-java.dll",
 		"pmath-java.so")))
 
-
-
-stringStyle(~s, ~~~styles)::= "\(" ++ Style(s, styles, ShowStringCharacters->False).ToBoxes.InputForm.ToString ++ "\)"
-
-syntaxHighlight(~lines)::= lines.StringReplace(
-		{("final " | "public " | "native ") -> ""}
-	).StringReplace(
-		"," -> ", "
-	).StringReplace(
-		"java.lang." ++ (name: WordCharacter**) ++ (c: " " | "[" | "," | "(" | ")" | EndOfString) :> name ++ c
-	).StringReplace(
-		" " ++ Shortest((WordCharacter | "$" | ".")**) ++ "." ++ (name:WordCharacter**) ++ "(" :> " " ++ stringStyle(name, Blue, Italic) ++ "("
-	).StringReplace(
-		(s: WordBoundary ++ ("Object" | "String") ++ WordBoundary) :> stringStyle(s, Bold)
-	).StringReplace(
-		WordBoundary ++ (s: "abstract" | "void" | "byte" | "char" | "boolean" | "short" | "int" | "long" | "throws" | "double" | "float" | "static" | "synchronized") ++ WordBoundary :> stringStyle(s, Brown, Bold)
-	)
-
-Constructors(cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), Style("no constructors",Italic))&(JavaClassAsObject(cls).JavaCall("getConstructors").Map(#.JavaCall("toString")&).syntaxHighlight)
-Methods(     cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), Style("no methods",     Italic))&(JavaClassAsObject(cls).JavaCall("getMethods").Map(     #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
-Fields(      cls: (~:JavaClass | ~:String))::= If(Length(#) > 0, Row(#, "\n"), Style("no fields",      Italic))&(JavaClassAsObject(cls).JavaCall("getFields").Map(      #.JavaCall("toString")&).SortBy(StringReplace(#, StartOfString ++ ~~~ ++ "." ++ (name:WordCharacter**) ++ "(" ++ ~~~ :> name)&).syntaxHighlight)
-
-Constructors(~obj:JavaObject)::= Constructors(GetClass @ obj)
-Methods(~obj:JavaObject)::= Methods(GetClass @ obj)
-Fields(~obj:JavaObject)::= Fields(GetClass @ obj)
 
 AddToClassPath(~~~paths:String)::= {paths}.Scan(AddToClassPath)
 AddToClassPath(paths: {~~~:String})::= paths.Scan(AddToClassPath)
@@ -214,8 +199,6 @@ Function AddToClassPath(~path:String) {
 	}
 }
 
-
-Attributes(Constructors):= Attributes(Methods):= Attributes(Fields):= Attributes(AddToClassPath):= {Protected, ReadProtected}
 
 End()
 
