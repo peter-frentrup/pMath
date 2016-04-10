@@ -21,6 +21,7 @@ ImplementJavaClass::usage:= "ImplementJavaClass(\(StyleBox(\"class\", \"Arg\")\)
 javaThrow(~ex)::= Throw(JavaException(ex, ex @ toString(), Map(ex @ getStackTrace(), # @ toString() &)))
 
 Function DoCallback(~symbol, ~javaObject, ~methodName, ~argumentList) {
+	Message(ImplementJavaClass::noimpl, HoldForm(DoCallback(symbol, javaObject, methodName, argumentList)))
 	javaThrow(JavaNew(
 		"java.lang.UnsupportedOperationException", 
 		"Not yet implemented: " ++ ClassName(javaObject) ++ "." ++ methodName ++ "(\[Ellipsis])"))
@@ -34,7 +35,7 @@ ImplementJavaClass::static:= "Cannot implement static method `1`."
 
 
 Function BuildImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String}) {
-	Local(class, m)
+	Local(class, meth)
 	With(pool:= JavaClass("javassist.ClassPool") @ getDefault())
 	With(ctclasses:= classes.Map(pool @ get(First(#)) &))
 	With(ctinterfaces:= ctclasses.Select(# @ isInterface() &))
@@ -50,13 +51,13 @@ Function BuildImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String
 		Return($Failed)
 	}
 	
-	Do(m -> ctmethods) {
-		If(BitAnd(m @ getModifiers(), static) != 0) {
-			Message(ImplementJavaClass::static, m @ toString());
+	Do(meth -> ctmethods) {
+		If(BitAnd(meth @ getModifiers(), static) != 0) {
+			Message(ImplementJavaClass::static, meth @ toString());
 			Return(Return($Failed));
 		}
-		If(methods.IsFreeOf(m @ getName())) {
-			Message(ImplementJavaClass::miss, m @ toString());
+		If(methods.IsFreeOf(meth @ getName())) {
+			Message(ImplementJavaClass::miss, meth @ toString());
 			Return(Return($Failed));
 		}
 	}
@@ -73,23 +74,22 @@ Function BuildImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String
 				newCtClass @ setSuperclass( First(ctsuper) )
 			}
 			
-			newCtClass @ addField(JavaClass("javassist.CtField") @ make("private String __pmath_impl", newCtClass));
+			newCtClass @ addField(JavaClass("javassist.CtField") @ make("private String __pmath_impl;", newCtClass));
 			newCtClass @ addMethod(
 				JavaClass("javassist.CtNewMethod") @ make(
 					"public void __pmath_init(String impl){ if(this.__pmath_impl == null) this.__pmath_impl = impl; }", 
 					newCtClass));
 			
-			Do(m -> ctmethodsWithImpl) {
-				With(origMethod:= m[1])
-				With(implMethod:= Namespace(m[2]) ++ SymbolName(m[2]))
-				With(modifiers:= BitAnd(origMethod @ getModifiers(), BitNot(abstract)))
-				With(returnType:= origMethod @ getReturnType())
-				With(parameters:= origMethod @ getParameterTypes())
-				With(exceptions:= origMethod @ getExceptionTypes())
-				With(methodName:= origMethod @ getName())
+			Do(meth -> ctmethods) {
+				With(origMethod:= meth)
+				With(modifiers:= BitAnd(meth @ getModifiers(), BitNot(abstract)))
+				With(returnType:= meth @ getReturnType())
+				With(parameters:= meth @ getParameterTypes())
+				With(exceptions:= meth @ getExceptionTypes())
+				With(methodName:= meth @ getName())
 				With(javaBody:= "{ return ($r)pmath.Core.execute(\
-									\"Javassist`Private`DoCallback(\" + this.__pmath_impl + \", `1`, " ++ (m @ getName()) ++ ", `2`)\", \
-									new Object[]{ this, $args });\
+									\"Javassist`Private`DoCallback(ToExpression(`1`), `2`, `3`, `4`)\", \
+									new Object[]{ this.__pmath_impl, this, \"" ++ (meth @ getName()) ++ "\", $args });\
 								}")
 				With(newMethod:= JavaClass("javassist.CtNewMethod") @ make(
 										modifiers, returnType, methodName, parameters, exceptions, javaBody, newCtClass))
@@ -113,14 +113,15 @@ Function GetImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String})
 	
 
 Options(ImplementJavaClass):= {ConstructorArguments->{}}
+Options(ImplementJavaClassInternal):= Options(ImplementJavaClass)
 
 ImplementJavaClass(class: (~:String | ~:JavaClass), methods: {(~:String -> ~:Symbol)***}, options: OptionsPattern())::=
 	ImplementJavaClass({class}, methods, options)
 
 ImplementJavaClass(classes: {(~:String | ~:JavaClass)***}, methods: {(~:String -> ~:Symbol)***}, options: OptionsPattern())::=
-	ImplementJavaClass(classes.Map(If(IsString(#), JavaClass(#), #)&), methods, options)
+	ImplementJavaClassInternal(classes.Map(If(IsString(#), JavaClass(#), #)&), methods, options)
 
-Function ImplementJavaClass(classes: {~~~:JavaClass}, methods: {(~:String -> ~:Symbol)***}, OptionsPattern()) {
+Function ImplementJavaClassInternal(classes: {~~~:JavaClass}, methods: {(~:String -> ~:Symbol)***}, OptionsPattern()) {
 	With(class:= GetImplementationClass(Union(classes), Union(methods[All, 1])))
 	If(class === $Failed) {
 		Return($Failed)
@@ -128,14 +129,18 @@ Function ImplementJavaClass(classes: {~~~:JavaClass}, methods: {(~:String -> ~:S
 	
 	With(obj:= JavaNew(class @ getName(), Sequence @@ OptionValue(ConstructorArguments)))
 	If(obj =!= $Failed) {
-		Local(impl, meth)
+		With(objSym:= First(obj))
+		Local(meth)
+		
+		obj @ "__pmath_init"(LongForm(objSym).ToString);
+		
+		Unprotect(objSym);
 		Do(meth -> methods) {
 			With(methodName:= meth[1], methodImpl:= meth[2])
 			
-			impl/: DoCallback(impl, ~this, methodName, {~~~args})::= methodImpl(args)
+			objSym/: DoCallback(objSym, ~this, methodName, {~~~args})::= methodImpl(this, args)
 		}
-		
-		obj @ "__pmath_init"(LongForm(impl).ToString);
+		Protect(objSym);
 	}
 	Return(obj);
 }
