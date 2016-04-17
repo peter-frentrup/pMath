@@ -262,6 +262,15 @@ MakeExpression({"Block" | {"\[RawNewline]"**, "Block"}, {"{", ?block:{}, "}"}}) 
 	makeBlockExpression(block)
 
 %
+% Try { block } Finally { endblock }
+%
+MakeExpression({"Try" | {"\[RawNewline]"**, "Try"}, {"{", ?block:{}, "}"}, "Finally", {"{", ?endblock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		Finally,
+		makeBlockExpression(block),
+		makeBlockExpression(endblock))
+
+%
 % Local(vars) { block } 
 %
 MakeExpression({{"Local" | {"\[RawNewline]"**, "Local"}, "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=

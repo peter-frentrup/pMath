@@ -59,40 +59,39 @@ Function BuildImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String
 		{pool @ getClassLoader(), JavaClass("java.lang.ClassLoader") @ getSystemClassLoader()}, 
 		# =!= /\/ &))
 	
-	Finally(
-		Block {
-			ctinterfaces.Scan(newCtClass @ addInterface(#) &);
-			If(ctsuper.Length = 1) {
-				newCtClass @ setSuperclass( First(ctsuper) )
-			}
+	Try {
+		ctinterfaces.Scan(newCtClass @ addInterface(#) &);
+		If(ctsuper.Length = 1) {
+			newCtClass @ setSuperclass( First(ctsuper) )
+		}
+		
+		newCtClass @ addField(JavaClass("javassist.CtField") @ make("private String __pmath_impl;", newCtClass));
+		newCtClass @ addMethod(
+			JavaClass("javassist.CtNewMethod") @ make(
+				"public void __pmath_init(String impl){ if(this.__pmath_impl == null) this.__pmath_impl = impl; }", 
+				newCtClass));
+		
+		Do(meth -> ctmethods) {
+			With(origMethod:= meth)
+			With(modifiers:= BitAnd(meth @ getModifiers(), BitNot(abstract)))
+			With(returnType:= meth @ getReturnType())
+			With(parameters:= meth @ getParameterTypes())
+			With(exceptions:= meth @ getExceptionTypes())
+			With(methodName:= meth @ getName())
+			With(javaBody:= "{ return ($r)pmath.Core.execute(\
+								\"ImplementJavaClass`Private`DoCallback(ToExpression(`1`), `2`, `3`, `4`)\", \
+								new Object[]{ this.__pmath_impl, this, \"" ++ (meth @ getName()) ++ "\", $args });\
+							}")
+			With(newMethod:= JavaClass("javassist.CtNewMethod") @ make(
+									modifiers, returnType, methodName, parameters, exceptions, javaBody, newCtClass))
 			
-			newCtClass @ addField(JavaClass("javassist.CtField") @ make("private String __pmath_impl;", newCtClass));
-			newCtClass @ addMethod(
-				JavaClass("javassist.CtNewMethod") @ make(
-					"public void __pmath_init(String impl){ if(this.__pmath_impl == null) this.__pmath_impl = impl; }", 
-					newCtClass));
-			
-			Do(meth -> ctmethods) {
-				With(origMethod:= meth)
-				With(modifiers:= BitAnd(meth @ getModifiers(), BitNot(abstract)))
-				With(returnType:= meth @ getReturnType())
-				With(parameters:= meth @ getParameterTypes())
-				With(exceptions:= meth @ getExceptionTypes())
-				With(methodName:= meth @ getName())
-				With(javaBody:= "{ return ($r)pmath.Core.execute(\
-									\"ImplementJavaClass`Private`DoCallback(ToExpression(`1`), `2`, `3`, `4`)\", \
-									new Object[]{ this.__pmath_impl, this, \"" ++ (meth @ getName()) ++ "\", $args });\
-								}")
-				With(newMethod:= JavaClass("javassist.CtNewMethod") @ make(
-										modifiers, returnType, methodName, parameters, exceptions, javaBody, newCtClass))
-				
-				newCtClass @ addMethod(newMethod)
-			}
-			
-			Return(Evaluate(newCtClass @ toClass(classLoader, /\/)));
-		},
+			newCtClass @ addMethod(newMethod)
+		}
+		
+		Return(Evaluate(newCtClass @ toClass(classLoader, /\/)));
+	} Finally {
 		newCtClass @ prune()
-	)
+	}
 }
 
 Function GetImplementationClass(classes: {~~~:JavaClass}, methods: {~~~:String}) {

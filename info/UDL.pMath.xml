@@ -26,7 +26,7 @@
             <Keywords name="Folders in comment, close"></Keywords>
             <Keywords name="Keywords1">~ #</Keywords>
             <Keywords name="Keywords2">&amp;</Keywords>
-            <Keywords name="Keywords3">Block Break Case Catch Continue Do Else For Function Goto If Label Local Return Switch Throw Which While With</Keywords>
+            <Keywords name="Keywords3">Block Break Case Catch Continue Do Else Finally For Function Goto If Label Local Return Switch Throw Try Which While With</Keywords>
             <Keywords name="Keywords4">True False Undefined Infinity Pi E I</Keywords>
             <Keywords name="Keywords5"></Keywords>
             <Keywords name="Keywords6"></Keywords>
