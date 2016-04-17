@@ -145,20 +145,6 @@ makeBlockExpression(~boxes)::=
 			)
 		)
 
-shortenHeldStatementsList({})::= {HoldComplete(/\/)}
-shortenHeldStatementsList(~heldStmts:List)::=
-	With({heldNonemptyStmts:= heldStmts.Replace(HoldComplete() -> Sequence(), 1)},
-		With({haveNullStmts:= heldNonemptyStmts.Last === HoldComplete(/\/), 
-				shortStmts:= heldNonemptyStmts.Replace(HoldComplete(/\/) -> Sequence(), 1)
-			},
-			%Print("shorten ", haveNullStmts, " ", heldStmts, " to ", shortStmts);
-			If(haveNullStmts, 
-				shortStmts.Append(HoldComplete(/\/))
-			,
-				shortStmts)
-		)
-	)
-
 emitMakeStatements({}):= /\/
 emitMakeStatements({~boxes})::= emitMakeStatements(boxes)
 emitMakeStatements({"With" | {"\[RawNewline]"**, "With"}, "(", ~vars, ")"})::= 
