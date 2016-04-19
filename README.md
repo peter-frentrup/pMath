@@ -14,39 +14,40 @@ The variables correspond to
 
 * **gmp_32**/**gmp_64** points to the [MPIR][] (Multiple Precision Integers and Rationals) installation directory.
   
-  Set *include* to the include directory (containing gmp.h).  
-  Set *lib* to the library directory (containing mpir.lib or libmpir.a).  
-  Set *bin* to the binary directory (containing mpir.dll).
+    Set *include* to the include directory (containing gmp.h).  
+    Set *lib* to the library directory (containing mpir.lib or libmpir.a).  
+    Set *bin* to the binary directory (containing mpir.dll).
 
 * **mpfr_32**/**mpfr_64** points to the [MPFR][] (Multiple Precision Floating-point with correct Rounding) installation directory.
   
-  Set *include* to the include directory (containing mpfr.h).  
-  Set *lib* to the library directory (containing mpfr.lib or libmpfr.a).  
-  Set *bin* to the binary directory (containing mpfr.dll).
+    Set *include* to the include directory (containing mpfr.h).  
+    Set *lib* to the library directory (containing mpfr.lib or libmpfr.a).  
+    Set *bin* to the binary directory (containing mpfr.dll).
 
 * **mpfi_32**/**mpfi_64** points to the [MPFI][] (Multiple Precision Floating-point Intervals) installation directory.
   
-  Set *include* to the include directory (containing mpfi.h).  
-  Set *lib* to the library directory (containing mpfi.lib or libmpfi.a).  
-  Set *bin* to the binary directory (containing mpfi.dll).
+    Set *include* to the include directory (containing mpfi.h).  
+    Set *lib* to the library directory (containing mpfi.lib or libmpfi.a).  
+    Set *bin* to the binary directory (containing mpfi.dll).
   
 * **iconv_32**/**iconv_64** points to an [iconv][] installation directory for character set conversion. On Windows, [win_iconv][] is a good choice.
   
-  Set *include* to the include directory (containing iconv.h).  
-  Set *lib* to the library directory (containing iconv.lib or libiconv.a).  
-  Set *bin* to the binary directory (containing iconv.dll).
+    Set *include* to the include directory (containing iconv.h).  
+    Set *lib* to the library directory (containing iconv.lib or libiconv.a).  
+    Set *bin* to the binary directory (containing iconv.dll).
+	For Unix systems you can typically leave *bin* and *lib* empty because iconv is implemented by the standard library.
 
 * **pcre_32**/**pcre_64** points to the [PCRE][] (Perl Compatible Regular Expressions) installation directory.
   
-  Set *include* to the include directory (containing pcre.h).  
-  Set *lib* to the library directory (containing pcre16.lib or libpcre16.a).  
-  Set *bin* to the binary directory (containing pcre16.dll).
+    Set *include* to the include directory (containing pcre.h).  
+    Set *lib* to the library directory (containing pcre16.lib or libpcre16.a).  
+    Set *bin* to the binary directory (containing pcre16.dll).
 
 * **zlib_32**/**zlib_64** points to the [zlib][] installation directory for compression.
   
-  Set *include* to the include directory (containing zlib.h).  
-  Set *lib* to the library directory (containing zlib.lib or libzlib.a).  
-  Set *bin* to the binary directory (containing zlib.dll).
+    Set *include* to the include directory (containing zlib.h).  
+    Set *lib* to the library directory (containing zlib.lib or libzlib.a).  
+    Set *bin* to the binary directory (containing zlib.dll).
 
 
 ### Building the required libraries from source on Windows ###
