@@ -61,6 +61,12 @@
 %		block
 %	}
 %
+%	Try {
+%		block
+%	} Finally {
+%		endblock
+%	}
+%
 % There is also a form to force parsing in block mode (because `{block}` alone gives a list).
 %	Block {
 %		block
