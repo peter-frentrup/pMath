@@ -26,21 +26,20 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangowin32-1.0" />
 					<Add library="comctl32" />
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
@@ -48,14 +47,10 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
-					<Add directory="../library/bin/windows/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
-					<Add directory="$(#gtk.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-debug-x86 x86  gcc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -79,39 +74,35 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#gtk.include)/fontconfig" />
-					<Add directory="$(#gtk.include)/freetype2" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
+					<Add directory="$(#fontconfig_32.include)" />
+					<Add directory="$(#freetype_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangoft2-1.0.dll&quot;' />
+					<Add option='&quot;$(#fontconfig_32.bin)/fontconfig.dll&quot;' />
+					<Add option='&quot;$(#freetype_32.bin)/freetype.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangowin32-1.0" />
-					<Add library="pangoft2-1.0" />
 					<Add library="comctl32" />
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
 					<Add library="user32" />
 					<Add library="uuid" />
-					<Add library="fontconfig" />
-					<Add library="freetype" />
-					<Add directory="../library/bin/windows/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-debug-x86 x86 gcc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#fontconfig_32.bin);$(#freetype_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -135,40 +126,37 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#pango.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#gtk.include)/fontconfig" />
-					<Add directory="$(#gtk.include)/freetype2" />
-					<Add directory="$(#gtk.include)/gtk-2.0" />
-					<Add directory="$(#gtk.lib)/gtk-2.0/include" />
-					<Add directory="$(#gtk.include)/gdk" />
-					<Add directory="$(#gtk.include)/atk-1.0" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#pango_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#fontconfig_32.include)" />
+					<Add directory="$(#fontconfig_32.include)" />
+					<Add directory="$(#gtk_32.include)" />
+					<Add directory="$(#gtk_32.include)/gtk-2.0" />
+					<Add directory="$(#gtk_32.include)/gdk-pixbuf-2.0" />
+					<Add directory="$(#gtk_32.lib)/gtk-2.0/include" />
+					<Add directory="$(#gtk_32.include)/atk-1.0" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
+					<Add option='&quot;$(#fontconfig_32.bin)/fontconfig.dll&quot;' />
+					<Add option='&quot;$(#freetype_32.bin)/freetype.dll&quot;' />
+					<Add option='&quot;$(#gtk_32.bin)/gdk-win32-2.0.dll&quot;' />
+					<Add option='&quot;$(#gtk_32.bin)/gdk_pixbuf-2.0.dll&quot;' />
+					<Add option='&quot;$(#gtk_32.bin)/gtk-win32-2.0.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangoft2-1.0" />
 					<Add library="user32" />
-					<Add library="fontconfig" />
-					<Add library="freetype" />
-					<Add library="gdk-win32-2.0" />
-					<Add library="gtk-win32-2.0" />
-					<Add library="gdk_pixbuf-2.0" />
-					<Add directory="../library/bin/windows/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-debug-x86 x86  gcc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#fontconfig_32.bin);$(#freetype_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -192,41 +180,37 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#pango.include)" />
-					<Add directory="$(#glib3.include)" />
-					<Add directory="$(#glib3.lib)/glib-2.0/include" />
-					<Add directory="$(#gtk3.include)" />
-					<Add directory="$(#gtk3.include)/fontconfig" />
-					<Add directory="$(#gtk3.include)/freetype2" />
-					<Add directory="$(#gtk3.include)/gtk-3.0" />
-					<Add directory="$(#gtk3.lib)/gtk-3.0/include" />
-					<Add directory="$(#gtk3.include)/gdk" />
-					<Add directory="$(#gtk3.include)/atk-1.0" />
-					<Add directory="$(#gtk3.include)/gdk-pixbuf-2.0" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#pango_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#fontconfig_32.include)" />
+					<Add directory="$(#fontconfig_32.include)" />
+					<Add directory="$(#gtk3_32.include)" />
+					<Add directory="$(#gtk3_32.include)/gtk-3.0" />
+					<Add directory="$(#gtk3_32.include)/gdk-pixbuf-2.0" />
+					<Add directory="$(#gtk3_32.lib)/gtk-3.0/include" />
+					<Add directory="$(#gtk3_32.include)/atk-1.0" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
+					<Add option='&quot;$(#fontconfig_32.bin)/fontconfig.dll&quot;' />
+					<Add option='&quot;$(#freetype_32.bin)/freetype.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gdk-win32-3.0.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gdk_pixbuf-2.0.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gtk-win32-3.0.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangoft2-1.0" />
 					<Add library="user32" />
-					<Add library="fontconfig" />
-					<Add library="freetype" />
-					<Add library="gdk-win32-3.0" />
-					<Add library="gtk-win32-3.0" />
-					<Add library="gdk_pixbuf-2.0" />
-					<Add directory="../library/bin/windows/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib3.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-debug-x86 x86  gcc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#fontconfig_32.bin);$(#freetype_32.bin);$(#gtk3_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -250,23 +234,23 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add option="-flto" />
 					<Add option="-O3" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangowin32-1.0" />
 					<Add library="comctl32" />
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
@@ -274,13 +258,10 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
-					<Add directory="../library/bin/windows/gcc-release-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-release-x86 x86  gcc-release-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -290,7 +271,7 @@
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="1" />
-				<Option compiler="msvc10" />
+				<Option compiler="msvc_2015" />
 				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="/MDd" />
@@ -310,16 +291,15 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
-					<Add directory="../msvc-c99" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
 					<Add option="/ENTRY:mainCRTStartup" />
-					<Add library="pmath" />
+					<Add library="pmath.lib" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
 					<Add library="gobject-2.0" />
@@ -333,13 +313,13 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
-					<Add directory="../library/bin/windows/msvc-release-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_32.lib)" />
+					<Add directory="$(#glib_32.lib)" />
+					<Add directory="$(#pango_32.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat msvc-debug-x86 x86  msvc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -349,7 +329,7 @@
 				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="0" />
-				<Option compiler="msvc10" />
+				<Option compiler="msvc_2015" />
 				<Compiler>
 					<Add option="/MD" />
 					<Add option="/arch:SSE2" />
@@ -368,11 +348,10 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
-					<Add directory="../msvc-c99" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="/DEBUG" />
@@ -391,13 +370,13 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
-					<Add directory="../library/bin/windows/msvc-release-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_32.lib)" />
+					<Add directory="$(#pango_32.lib)" />
+					<Add directory="$(#glib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat msvc-release-x86 x86  msvc-release-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
