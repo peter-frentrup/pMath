@@ -54,7 +54,7 @@
 					<Add option='&quot;$(#gmp_32.bin)/mpir.dll&quot;' />
 					<Add option='&quot;$(#iconv_32.bin)/iconv.dll&quot;' />
 					<Add option='&quot;$(#pcre_32.bin)/pcre16.dll&quot;' />
-					<Add option='&quot;$(#zlib_32.bin)/zlib.dll&quot;' />
+					<Add option='&quot;$(#zlib_32.bin)/zlib1.dll&quot;' />
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
@@ -63,7 +63,7 @@
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -113,7 +113,7 @@
 					<Add option='&quot;$(#gmp_32.bin)/mpir.dll&quot;' />
 					<Add option='&quot;$(#iconv_32.bin)/iconv.dll&quot;' />
 					<Add option='&quot;$(#pcre_32.bin)/pcre16.dll&quot;' />
-					<Add option='&quot;$(#zlib_32.bin)/zlib.dll&quot;' />
+					<Add option='&quot;$(#zlib_32.bin)/zlib1.dll&quot;' />
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
@@ -122,7 +122,7 @@
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -170,7 +170,7 @@
 					<Add option='&quot;$(#gmp_64.bin)/mpir.dll&quot;' />
 					<Add option='&quot;$(#iconv_64.bin)/iconv.dll&quot;' />
 					<Add option='&quot;$(#pcre_64.bin)/pcre16.dll&quot;' />
-					<Add option='&quot;$(#zlib_64.bin)/zlib.dll&quot;' />
+					<Add option='&quot;$(#zlib_64.bin)/zlib1.dll&quot;' />
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
@@ -179,7 +179,7 @@
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -229,7 +229,7 @@
 					<Add option='&quot;$(#gmp_64.bin)/mpir.dll&quot;' />
 					<Add option='&quot;$(#iconv_64.bin)/iconv.dll&quot;' />
 					<Add option='&quot;$(#pcre_64.bin)/pcre16.dll&quot;' />
-					<Add option='&quot;$(#zlib_64.bin)/zlib.dll&quot;' />
+					<Add option='&quot;$(#zlib_64.bin)/zlib1.dll&quot;' />
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
@@ -238,7 +238,7 @@
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -283,7 +283,7 @@
 					<Add library="iconv.lib" />
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
-					<Add library="zlib.lib" />
+					<Add library="zlib1.lib" />
 					<Add directory="$(#gmp_32.lib)" />
 					<Add directory="$(#mpfr_32.lib)" />
 					<Add directory="$(#mpfi_32.lib)" />
@@ -297,7 +297,7 @@
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -337,7 +337,7 @@
 					<Add library="iconv.lib" />
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
-					<Add library="zlib.lib" />
+					<Add library="zlib1.lib" />
 					<Add directory="$(#gmp_32.lib)" />
 					<Add directory="$(#mpfr_32.lib)" />
 					<Add directory="$(#mpfi_32.lib)" />
@@ -351,7 +351,7 @@
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -396,7 +396,7 @@
 					<Add library="iconv.lib" />
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
-					<Add library="zlib.lib" />
+					<Add library="zlib1.lib" />
 					<Add directory="$(#gmp_64.lib)" />
 					<Add directory="$(#mpfr_64.lib)" />
 					<Add directory="$(#mpfi_64.lib)" />
@@ -410,7 +410,7 @@
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -452,7 +452,7 @@
 					<Add library="iconv.lib" />
 					<Add library="pcre16.lib" />
 					<Add library="shell32.lib" />
-					<Add library="zlib.lib" />
+					<Add library="zlib1.lib" />
 					<Add directory="$(#gmp_64.lib)" />
 					<Add directory="$(#mpfr_64.lib)" />
 					<Add directory="$(#mpfi_64.lib)" />
@@ -466,7 +466,7 @@
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -765,8 +765,6 @@
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-DBUILDING_PMATH" />
-			<Add option="-D_LARGEFILE64_SOURCE=1" />
-			<Add option="-D_FILE_OFFSET_BITS=64" />
 			<Add directory="include" />
 		</Compiler>
 		<Unit filename="doxygen/pmath.chm" />
