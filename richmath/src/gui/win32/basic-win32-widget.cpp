@@ -313,10 +313,7 @@ LRESULT CALLBACK BasicWin32Widget::window_proc(HWND hwnd, UINT message, WPARAM w
     if(!widget)
       return FALSE;
       
-    SetWindowLongPtr(
-      hwnd,
-      GWLP_USERDATA,
-      (LONG)widget);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)widget);
       
     widget->_hwnd = hwnd;
   }

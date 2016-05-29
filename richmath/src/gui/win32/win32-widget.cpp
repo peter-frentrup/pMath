@@ -884,7 +884,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             ScreenToClient(_hwnd, &pt);
             
             if(!PtInRect(&rect, pt)) {
-              HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWL_HWNDPARENT);
+              HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
               return SendMessageW(parent, message, wParam, lParam);
             }
           }
@@ -915,7 +915,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               ScreenToClient(_hwnd, &pt);
               
               if(!PtInRect(&rect, pt)) {
-                HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWL_HWNDPARENT);
+                HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
                 return SendMessageW(parent, message, wParam, lParam);
               }
             }
@@ -1234,7 +1234,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         }
       /* fall through */
       case WM_SYSKEYDOWN: {
-          HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWL_HWNDPARENT);
+          HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
           if(parent) {
             return SendMessageW(parent, message, wParam, lParam);
           }
