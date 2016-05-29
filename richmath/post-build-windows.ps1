@@ -42,7 +42,7 @@ Function Get-SourceDlls([string] $TargetExe, [string] $DllSearchPath) {
 	
 	ForEach( $module in $modules ) {
 		If( ($module.Status -eq '') -or ($module.Status -eq '6') ) {
-			$file = Get-Item -Path $module.Module
+			$file = Get-Item -Path $module.Module -Force
 			$dir = $file.Directory.FullName
 			If( $allowedPaths.Contains($dir.ToLower())) {
 				Write-Output $file.Directory.GetFiles($file.Name)[0].FullName
