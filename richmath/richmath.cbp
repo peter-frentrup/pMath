@@ -131,7 +131,6 @@
 					<Add directory="$(#glib_32.include)" />
 					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
 					<Add directory="$(#fontconfig_32.include)" />
-					<Add directory="$(#fontconfig_32.include)" />
 					<Add directory="$(#gtk_32.include)" />
 					<Add directory="$(#gtk_32.include)/gtk-2.0" />
 					<Add directory="$(#gtk_32.include)/gdk-pixbuf-2.0" />
@@ -184,7 +183,6 @@
 					<Add directory="$(#pango_32.include)" />
 					<Add directory="$(#glib_32.include)" />
 					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
-					<Add directory="$(#fontconfig_32.include)" />
 					<Add directory="$(#fontconfig_32.include)" />
 					<Add directory="$(#gtk3_32.include)" />
 					<Add directory="$(#gtk3_32.include)/gtk-3.0" />
@@ -376,6 +374,118 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
+			<Target title="Windows-MSVC-Debug-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-debug-x64/richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-debug-x64/" />
+				<Option external_deps="../library/pmath.cbp;" />
+				<Option type="1" />
+				<Option compiler="msvc_2015_x64" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="/MDd" />
+					<Add option="/Gd" />
+					<Add option="/GF" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/wd4800 /wd4710 /wd4711 /wd4738 /wd4244 /wd4146 /wd4305" />
+					<Add option="/DPMATH_DEBUG_LOG" />
+					<Add option="/D_HAS_EXCEPTIONS=0" />
+					<Add option="/D_USE_MATH_DEFINES" />
+					<Add option="/DRICHMATH_USE_WIN32_FONT" />
+					<Add option="/DRICHMATH_USE_WIN32_GUI" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="../library/include" />
+					<Add directory="$(#cairo_64.include)" />
+					<Add directory="$(#glib_64.include)" />
+					<Add directory="$(#glib_64.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_64.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/ENTRY:mainCRTStartup" />
+					<Add library="pmath.lib" />
+					<Add library="cairo" />
+					<Add library="glib-2.0" />
+					<Add library="gobject-2.0" />
+					<Add library="pango-1.0" />
+					<Add library="pangocairo-1.0" />
+					<Add library="pangowin32-1.0" />
+					<Add library="comctl32" />
+					<Add library="comdlg32" />
+					<Add library="gdi32" />
+					<Add library="ole32" />
+					<Add library="user32" />
+					<Add library="uuid" />
+					<Add library="usp10" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_64.lib)" />
+					<Add directory="$(#glib_64.lib)" />
+					<Add directory="$(#pango_64.lib)" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_64.bin);$(#pango_64.bin);$(#glib_64.bin);$(#gtk_64.bin)&quot; -ErrorAction Stop -Verbose' />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Windows-MSVC-Release-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-release-x64/richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-release-x64/" />
+				<Option external_deps="../library/pmath.cbp;" />
+				<Option type="1" />
+				<Option compiler="msvc_2015_x64" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="/MD" />
+					<Add option="/Gd" />
+					<Add option="/GL" />
+					<Add option="/GF" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+					<Add option="/wd4800 /wd4710 /wd4711 /wd4738 /wd4244 /wd4146 /wd4305" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_HAS_EXCEPTIONS=0" />
+					<Add option="/D_USE_MATH_DEFINES" />
+					<Add option="/DRICHMATH_USE_WIN32_FONT" />
+					<Add option="/DRICHMATH_USE_WIN32_GUI" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="../library/include" />
+					<Add directory="$(#cairo_64.include)" />
+					<Add directory="$(#glib_64.include)" />
+					<Add directory="$(#glib_64.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_64.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/LTCG" />
+					<Add library="pmath.lib" />
+					<Add library="cairo" />
+					<Add library="glib-2.0" />
+					<Add library="gobject-2.0" />
+					<Add library="pango-1.0" />
+					<Add library="pangocairo-1.0" />
+					<Add library="pangowin32-1.0" />
+					<Add library="comctl32" />
+					<Add library="comdlg32" />
+					<Add library="gdi32" />
+					<Add library="ole32" />
+					<Add library="user32" />
+					<Add library="uuid" />
+					<Add library="usp10" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_64.lib)" />
+					<Add directory="$(#glib_64.lib)" />
+					<Add directory="$(#pango_64.lib)" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_64.bin);$(#pango_64.bin);$(#glib_64.bin);$(#gtk_64.bin)&quot; -ErrorAction Stop -Verbose' />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
 			<Target title="Linux-GCC-Debug-x86">
 				<Option platforms="Unix;" />
 				<Option output="bin/linux/gcc-debug-x86/richmath" prefix_auto="1" extension_auto="1" />
@@ -548,8 +658,10 @@
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/clipboard.h" />
 		<Unit filename="include/gui/control-painter.h" />
@@ -637,120 +749,154 @@
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/basic-win32-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/dataobject.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/dropsource.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/enumformatetc.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-clipboard.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-colordialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-control-painter.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-document-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-filedialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-fontdialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-menu.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-menubar.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-themes.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-tooltip-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-touch.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-widget.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/util/array.h" />
 		<Unit filename="include/util/autocompletion.h" />
@@ -769,16 +915,20 @@
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="resources/richmath.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="scripts/frontinit.pmath" />
 		<Unit filename="src/boxes/box.cpp" />
@@ -840,8 +990,10 @@
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/clipboard.cpp" />
 		<Unit filename="src/gui/control-painter.cpp" />
@@ -935,120 +1087,154 @@
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/basic-win32-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/dataobject.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/dropsource.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/enumformatetc.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-clipboard.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-colordialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-control-painter.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-document-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-filedialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-fontdialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-menu.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-menubar.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-themes.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-tooltip-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-touch.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/util/autocompletion.cpp" />
