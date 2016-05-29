@@ -31,9 +31,10 @@ Function Get-SourceDlls([string] $TargetExe, [string] $DllSearchPath) {
 	$allowedPaths = New-Object System.Collections.ArrayList
 	ForEach( $dir in $DllSearchPath.Split(";") ) {
 		If( Test-Path $dir ) {
-			Write-Verbose "Consider $dir"
+			$normalizedDir = (Get-Item -Path "$dir\.").FullName.ToLower()
+			Write-Verbose "Consider $normalizedDir"
 			# Remove trailing slash if possible by going via $dir\.
-			$allowedPaths.Add( (Get-Item -Path "$dir\.").FullName.ToLower() ) > $null
+			$allowedPaths.Add( $normalizedDir ) > $null
 		}
 	}
 
@@ -49,6 +50,12 @@ Function Get-SourceDlls([string] $TargetExe, [string] $DllSearchPath) {
 			Else {
 				Write-Verbose "Skip $($file.Name) from $dir"
 			}
+		}
+		ElseIf($module.Status -eq '?') {
+			Write-Error "Module not found: $($module.Module)"
+		}
+		Else {
+			Write-Verbose "$($module.Status): Ignore module $($module.Module)"
 		}
 	}
 	
