@@ -41,7 +41,7 @@ Function Get-SourceDlls([string] $TargetExe, [string] $DllSearchPath) {
 	$modules = ..\util\depends.ps1 -Library $tmpExe -SearchPath $DllSearchPath
 	
 	ForEach( $module in $modules ) {
-		If( $module.Status -eq '' ) {
+		If( ($module.Status -eq '') -or ($module.Status -eq '6') ) {
 			$file = Get-Item -Path $module.Module
 			$dir = $file.Directory.FullName
 			If( $allowedPaths.Contains($dir.ToLower())) {
