@@ -3,7 +3,7 @@
 	<assemblyIdentity
 		version="0.0.1.0"
 		name="richmath"
-		processorArchitecture="x86"
+		processorArchitecture="*"
 		type="win32"/>
 	<description>pMath Graphical Frontend</description>
 	<dependency>
@@ -12,7 +12,7 @@
 				type="win32"
 				name="Microsoft.Windows.Common-Controls"
 				version="6.0.0.0"
-				processorArchitecture="x86"
+				processorArchitecture="*"
 				publicKeyToken="6595b64144ccf1df"
 				language="*"/>
 		</dependentAssembly>
