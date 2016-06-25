@@ -228,7 +228,7 @@ static void adjustment_changed_callback(
   self->adjustment_changed(adjustment);
 }
 
-static MathGtkDocumentWindow *_first_window = NULL;
+static MathGtkDocumentWindow *_first_window = nullptr;
 
 MathGtkDocumentWindow::MathGtkDocumentWindow()
   : BasicGtkWidget(),
@@ -313,7 +313,7 @@ void MathGtkDocumentWindow::after_construction() {
   gtk_widget_show_all(_table);
   gtk_widget_set_can_focus(_widget, FALSE);
   
-  GList *focus_chain = NULL;
+  GList *focus_chain = nullptr;
   focus_chain = g_list_prepend(focus_chain, _working_area->widget());
   gtk_container_set_focus_chain(GTK_CONTAINER(_table), focus_chain);
   g_list_free(focus_chain);
@@ -446,7 +446,7 @@ void MathGtkDocumentWindow::title(String text) {
   if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
     
-  char *str = pmath_string_to_utf8(text.get(), NULL);
+  char *str = pmath_string_to_utf8(text.get(), nullptr);
   if(str)
     gtk_window_set_title(GTK_WINDOW(_widget), str);
     
@@ -548,7 +548,7 @@ void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment) {
                "lower",     &lo,
                "page-size", &page,
                "upper",     &hi,
-               NULL);
+               nullptr);
                
   gtk_widget_set_visible(scrollbar, (window_frame() == WindowFrameNormal) && lo + page < hi);
 }
@@ -819,7 +819,7 @@ bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e) {
           
           int dx = SnapDistance;
           int dy = SnapDistance;
-          if(test_rects_touch(rect, other_rect, &dx, &dy, NULL))
+          if(test_rects_touch(rect, other_rect, &dx, &dy, nullptr))
             main->_snapped_documents.add(DocumentPosition(win->document()->id(), other_rect.x, other_rect.y));
         }
       }

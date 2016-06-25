@@ -346,7 +346,7 @@ MathGtkIcons::~MathGtkIcons(){
   for(int i = 0; i < IconsCount; ++i) {
     if(icons[i]) {
       g_object_unref(icons[i]);
-      icons[i] = NULL;
+      icons[i] = nullptr;
     }
   }
   }
@@ -356,14 +356,14 @@ GdkPixbuf *MathGtkIcons::get_icon(Index idx) {
   assert(0 <= (int)idx && (int)idx < (int)IconsCount);
   
   if(!icons[idx]) {
-    icons[idx] = gdk_pixbuf_from_pixdata(data[idx], FALSE, NULL);
+    icons[idx] = gdk_pixbuf_from_pixdata(data[idx], FALSE, nullptr);
   }
   
   return GDK_PIXBUF(g_object_ref(icons[idx]));
 }
 
 GList *MathGtkIcons::get_app_icon_list() {
-  GList *list = NULL;
+  GList *list = nullptr;
   
   list = g_list_prepend(list, get_icon(AppIcon48Index));
   list = g_list_prepend(list, get_icon(AppIcon32Index));

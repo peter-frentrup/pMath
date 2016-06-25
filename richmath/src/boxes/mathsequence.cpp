@@ -81,7 +81,7 @@ static pmath_token_t get_box_start_token(Box *box) {
         continue;
       }
       
-      return pmath_token_analyse(buf, 1, NULL);
+      return pmath_token_analyse(buf, 1, nullptr);
     }
     
     if(dynamic_cast<FractionBox *>(box))
@@ -1451,7 +1451,7 @@ namespace richmath {
                     e + 1 < self.glyphs.length() &&
                     last_was_factor && context->multiplication_sign)
                 {
-                  pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, NULL);
+                  pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, nullptr);
                   
                   if(buf[e + 1] == PMATH_CHAR_BOX) {
                     Box *next_box = self.boxes[self.get_box(e + 1, box)];
@@ -1723,14 +1723,14 @@ namespace richmath {
                   return pos + 1;
                 }
                 
-                pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, NULL);
+                pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, nullptr);
                 
                 if(tok == PMATH_TOK_LEFT || tok == PMATH_TOK_LEFTCALL)
                   penalty_array[pos - 1] = Infinity;
               }
               
               if(pos + 1 < self.glyphs.length()) {
-                pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, NULL);
+                pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, nullptr);
                 
                 if(tok == PMATH_TOK_RIGHT)
                   penalty_array[pos] = Infinity;
@@ -1776,7 +1776,7 @@ namespace richmath {
           
           bool last_was_special = false;
           while(next < span.end()) {
-            pmath_token_t tok = pmath_token_analyse(buf + next, 1, NULL);
+            pmath_token_t tok = pmath_token_analyse(buf + next, 1, nullptr);
             penalty_array[next] += depth * DepthPenalty + WordPenalty;
             
             switch(tok) {
@@ -2214,7 +2214,7 @@ void MathSequence::resize(Context *context) {
     if(glyphs.length() == 1 &&
         !dynamic_cast<UnderoverscriptBox *>(_parent))
     {
-      pmath_token_t tok = pmath_token_analyse(str.buffer(), 1, NULL);
+      pmath_token_t tok = pmath_token_analyse(str.buffer(), 1, nullptr);
       
       if(tok == PMATH_TOK_INTEGRAL || tok == PMATH_TOK_PREFIX) {
         context->math_shaper->vertical_stretch_char(

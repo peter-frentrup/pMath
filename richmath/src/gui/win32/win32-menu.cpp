@@ -53,15 +53,15 @@ static void add_remove_menu(int delta) {
 
 static HMENU create_menu(Expr expr, bool is_popup) {
   if(expr[0] != GetSymbol(MenuSymbol) || expr.expr_length() != 2)
-    return NULL;
+    return nullptr;
     
   String name(expr[1]);
   if(name.is_null())
-    return NULL;
+    return nullptr;
     
   expr = expr[2];
   if(expr[0] != PMATH_SYMBOL_LIST)
-    return NULL;
+    return nullptr;
     
   HMENU menu = is_popup ? CreatePopupMenu() : CreateMenu();
   if(menu) {
@@ -405,7 +405,7 @@ static String accel_text(const ACCEL &accel) {
 
 static HACCEL create_accel(Expr expr) {
   if(expr[0] != PMATH_SYMBOL_LIST)
-    return NULL;
+    return nullptr;
     
   Array<ACCEL> accel(expr.expr_length());
   int j = 0;

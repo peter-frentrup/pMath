@@ -48,7 +48,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
       memcpy(dst, data, size);
       GlobalUnlock(hglb);
       
-      return NULL != SetClipboardData(id, hglb);
+      return nullptr != SetClipboardData(id, hglb);
     }
     
     virtual bool add_text(String mimetype, String data) {
@@ -70,7 +70,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
       dst[len] = '\0';
       GlobalUnlock(hglb);
       
-      return NULL != SetClipboardData(id, hglb);
+      return nullptr != SetClipboardData(id, hglb);
     }
     
     virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) {
@@ -92,7 +92,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
 //
 //          BitBlt(memDC, 0, 0, width, height, dc, 0, 0, SRCCOPY);
 //
-//          bool success = NULL != SetClipboardData(CF_BITMAP, memBM);
+//          bool success = nullptr != SetClipboardData(CF_BITMAP, memBM);
 //
 //          DeleteDC(memDC);
 //
@@ -104,7 +104,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
 ////
 ////          HBITMAP bmp = (HBITMAP)SelectObject(dc, (HGDIOBJ)dummy_bmp);
 ////
-////          return NULL != SetClipboardData(CF_BITMAP, bmp);
+////          return nullptr != SetClipboardData(CF_BITMAP, bmp);
 //        }
 
         if(cairo_surface_get_type(img) == CAIRO_SURFACE_TYPE_IMAGE) {
@@ -161,7 +161,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
             
             GlobalUnlock(hglb);
             
-            return NULL != SetClipboardData(CF_DIB, hglb);
+            return nullptr != SetClipboardData(CF_DIB, hglb);
           }
         }
       }

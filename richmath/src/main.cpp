@@ -169,10 +169,10 @@ static void message_dialog(const char *title, const char *content) {
     
 #ifdef RICHMATH_USE_GTK_GUI
   {
-    GtkWidget *dialog = NULL;
+    GtkWidget *dialog = nullptr;
     
     dialog = gtk_message_dialog_new(
-               NULL,
+               nullptr,
                GTK_DIALOG_MODAL,
                GTK_MESSAGE_ERROR,
                GTK_BUTTONS_OK,
@@ -714,7 +714,7 @@ int main(int argc, char **argv) {
       int y = monitor_info.rcWork.top  + (monitor_info.rcWork.bottom - monitor_info.rcWork.top - h) / 3;
       
       SetWindowPos(
-        wndMain->hwnd(), NULL,
+        wndMain->hwnd(), nullptr,
         x, y, w, h,
         SWP_NOZORDER | SWP_NOACTIVATE);
     }

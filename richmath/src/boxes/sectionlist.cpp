@@ -614,7 +614,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
 }
 
 void SectionList::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {
-  assert(pos != NULL);
+  assert(pos != nullptr);
   assert(*pos >= 0);
   
   int start = *pos;
@@ -1160,7 +1160,7 @@ void SectionList::paint_single_section_bracket(
       context->canvas->set_color(0x000000);
       context->canvas->stroke_preserve();
       
-      cairo_set_dash(context->canvas->cairo(), NULL, 0, 0.0);
+      cairo_set_dash(context->canvas->cairo(), nullptr, 0, 0.0);
     }
     else if(style & BorderEval) {
       cairo_set_line_width(context->canvas->cairo(), 3.0);

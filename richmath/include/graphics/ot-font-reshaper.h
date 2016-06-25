@@ -277,7 +277,7 @@ namespace richmath {
       const LangSys *lang_sys(int i) const;     // exclusing default
       
     private:
-      uint16_t _default_lang_sys_offset; // may be NULL
+      uint16_t _default_lang_sys_offset; // may be nullptr
       uint16_t _count;
       struct {
         UnalignedBEUint32 lang_sys_tag;
@@ -293,7 +293,7 @@ namespace richmath {
       int feature_index(int i) const; // exclusing required, result is uint16_t
       
     private:
-      uint16_t _lookup_order_offset; // = NULL
+      uint16_t _lookup_order_offset; // = nullptr
       uint16_t _req_feature_index; // 0xFFFF if there is no required feature for this language system
       uint16_t _feature_count;
       uint16_t _feature_indices[1]; // [feature_count]
@@ -319,7 +319,7 @@ namespace richmath {
       int lookup_index(int i) const;
       
     private:
-      uint16_t _params_offset; // = NULL (reserved for offset to FeatureParams)
+      uint16_t _params_offset; // = nullptr (reserved for offset to FeatureParams)
       uint16_t _count;
       uint16_t _lookup_indices[1]; // [count]
   };

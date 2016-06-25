@@ -130,7 +130,7 @@ void TextShaper::show_glyph(
         To see the difference, draw something to the glass area of the window (an
         ARGB32-image surface is used there) with and without this workaround.
      */
-    static cairo_font_face_t *prev_font = NULL;
+    static cairo_font_face_t *prev_font = nullptr;
     if(prev_font != ff.cairo()) {
       prev_font = ff.cairo();
       

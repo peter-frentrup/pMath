@@ -187,13 +187,13 @@ bool GraphicsDirective::try_load_from_object(Expr expr, int opts) {
 }
 
 void GraphicsDirective::add(GraphicsElement *g) {
-  assert(g != NULL);
+  assert(g != nullptr);
   
   _items.add(g);
 }
 
 void GraphicsDirective::insert(int i, GraphicsElement *g) {
-  assert(g != NULL);
+  assert(g != nullptr);
   
   assert(0 <= i);
   assert(i <= count());

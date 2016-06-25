@@ -75,7 +75,7 @@ static void add_remove_widget(int delta) {
     drag_mime_types.add(Clipboard::BoxesText);
     drag_mime_types.add(Clipboard::PlainText);
     
-    drop_targets = gtk_target_list_new(NULL, 0);
+    drop_targets = gtk_target_list_new(nullptr, 0);
     for(int i = 0; i < drag_mime_types.length(); ++i) {
       MathGtkClipboard::add_to_target_list(drop_targets, drag_mime_types[i], i);
     }
@@ -133,7 +133,7 @@ MathGtkWidget::~MathGtkWidget() {
 void MathGtkWidget::after_construction() {
   BasicGtkWidget::after_construction();
   
-  _popup_menu = NULL;
+  _popup_menu = nullptr;
   
   gtk_widget_set_events(_widget, GDK_ALL_EVENTS_MASK);
   gtk_widget_set_can_focus(_widget, TRUE);
@@ -267,7 +267,7 @@ double MathGtkWidget::double_click_time() {
   g_object_get(
     settings,
     "gtk-double-click-time", &t,
-    NULL);
+    nullptr);
     
   return t / 1000.0;
 }
@@ -284,7 +284,7 @@ void MathGtkWidget::double_click_dist(float *dx, float *dy) {
   g_object_get(
     settings,
     "gtk-double-click-distance", &d,
-    NULL);
+    nullptr);
     
   *dx = *dy = d / scale_factor();
 }
@@ -394,7 +394,7 @@ bool MathGtkWidget::is_mouse_down() {
     
   GdkModifierType mod = (GdkModifierType)0;
   
-  gdk_window_get_pointer(w, NULL, NULL, &mod);
+  gdk_window_get_pointer(w, nullptr, nullptr, &mod);
   return 0 != (mod & (GDK_BUTTON1_MASK | GDK_BUTTON2_MASK | GDK_BUTTON3_MASK | GDK_BUTTON4_MASK | GDK_BUTTON5_MASK));
 }
 
@@ -408,7 +408,7 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
     
   animations.set(event, Void());
   if(!animation_running) {
-    animation_running = 0 < gdk_threads_add_timeout(ANIMATION_DELAY, animation_timeout, NULL);
+    animation_running = 0 < gdk_threads_add_timeout(ANIMATION_DELAY, animation_timeout, nullptr);
     
     if(!animation_running) {
       animations.remove(event);
@@ -422,8 +422,8 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
 void MathGtkWidget::popup_detached(GtkWidget *attach_widget, GtkMenu *menu) {
   MathGtkWidget *wid = dynamic_cast<MathGtkWidget *>(BasicGtkWidget::from_widget(attach_widget));
   
-  if(wid && wid->_popup_menu != NULL && GTK_MENU(wid->_popup_menu) == menu)
-    wid->_popup_menu = NULL;
+  if(wid && wid->_popup_menu != nullptr && GTK_MENU(wid->_popup_menu) == menu)
+    wid->_popup_menu = nullptr;
 }
 
 GtkMenu *MathGtkWidget::popup_menu() {
@@ -438,8 +438,8 @@ GtkMenu *MathGtkWidget::popup_menu() {
     
     gtk_widget_add_events(GTK_WIDGET(_popup_menu), GDK_STRUCTURE_MASK);
     
-    g_signal_connect(GTK_WIDGET(_popup_menu), "map-event",   G_CALLBACK(MathGtkMenuBuilder::on_map_menu),   NULL);
-    g_signal_connect(GTK_WIDGET(_popup_menu), "unmap-event", G_CALLBACK(MathGtkMenuBuilder::on_unmap_menu), NULL);
+    g_signal_connect(GTK_WIDGET(_popup_menu), "map-event",   G_CALLBACK(MathGtkMenuBuilder::on_map_menu),   nullptr);
+    g_signal_connect(GTK_WIDGET(_popup_menu), "unmap-event", G_CALLBACK(MathGtkMenuBuilder::on_unmap_menu), nullptr);
     
   }
   
@@ -702,10 +702,10 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
     
   int action = 0;
   
-  GdkAtom target = gtk_drag_dest_find_target(_widget, context, NULL);
+  GdkAtom target = gtk_drag_dest_find_target(_widget, context, nullptr);
   if(target != GDK_NONE) {
     GdkModifierType mask;
-    gdk_window_get_pointer(gtk_widget_get_window(_widget), NULL, NULL, &mask);
+    gdk_window_get_pointer(gtk_widget_get_window(_widget), nullptr, nullptr, &mask);
     
     action = gdk_drag_context_get_suggested_action(context);
     if(mask & GDK_CONTROL_MASK)
@@ -744,7 +744,7 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   if(!may_drop_into(dst, start, end, source_widget == _widget))
     return false;
     
-  GdkAtom target = gtk_drag_dest_find_target(_widget, context, NULL);
+  GdkAtom target = gtk_drag_dest_find_target(_widget, context, nullptr);
   if(target != GDK_NONE)
     gtk_drag_get_data(_widget, context, target, time);
   else
@@ -790,7 +790,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
       settings,
       "gtk-cursor-blink",      &may_blink,
       "gtk-cursor-blink-time", &blink_time,
-      NULL);
+      nullptr);
       
     if(may_blink) {
       is_blinking = true;
@@ -828,7 +828,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
                    "lower",     0.0,
                    "page-size", w_page,
                    "upper",     w_max,
-                   NULL);
+                   nullptr);
     }
     
     if(_vadjustment) {
@@ -836,7 +836,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
                    "lower",     0.0,
                    "page-size", h_page,
                    "upper",     h_max,
-                   NULL);
+                   nullptr);
     }
   }
 }
@@ -854,7 +854,7 @@ void MathGtkWidget::handle_mouse_move(MouseEvent &event) {
 
 bool MathGtkWidget::on_popup_menu() {
   gtk_menu_popup(
-    popup_menu(), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time());
+    popup_menu(), nullptr, nullptr, nullptr, nullptr, 0, gtk_get_current_event_time());
   return true;
 }
 
@@ -1015,7 +1015,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   {
     GdkWindow *w = gtk_widget_get_window(_widget);
     
-    gdk_window_get_pointer(w, NULL, NULL, &mod);
+    gdk_window_get_pointer(w, nullptr, nullptr, &mod);
   }
   
   SpecialKeyEvent ske;
@@ -1039,7 +1039,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     // bugzilla.novell.com/show_bug.cgi?id=394949
     // (Bug 394949 - Simulated Caps lock key press via XTestFakeKeyEvent does not toggle the LED indicator)
     
-    Display *display = XOpenDisplay(NULL);
+    Display *display = XOpenDisplay(nullptr);
     
     unsigned state;
     
@@ -1073,7 +1073,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   
   if(event->keyval == GDK_Menu || (event->keyval == GDK_F10 && (mod & GDK_SHIFT_MASK)))
     gtk_menu_popup(
-      popup_menu(), NULL, NULL, NULL, NULL, 0, event->time);
+      popup_menu(), nullptr, nullptr, nullptr, nullptr, 0, event->time);
   
   if(ske.ctrl || (ske.alt && !ske.shift))
     return false;
@@ -1110,7 +1110,7 @@ bool MathGtkWidget::on_key_release(GdkEvent *e) {
   {
     GdkWindow *w = gtk_widget_get_window(_widget);
     
-    gdk_window_get_pointer(w, NULL, NULL, &mod);
+    gdk_window_get_pointer(w, nullptr, nullptr, &mod);
   }
   
   SpecialKeyEvent ske;
@@ -1176,7 +1176,7 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
 
   if(me.right) {
     gtk_menu_popup(
-      popup_menu(), NULL, NULL, NULL, NULL, event->button, event->time);
+      popup_menu(), nullptr, nullptr, nullptr, nullptr, event->button, event->time);
   }
   
   return true;

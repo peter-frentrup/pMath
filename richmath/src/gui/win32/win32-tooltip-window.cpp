@@ -29,7 +29,7 @@ Win32TooltipWindow::Win32TooltipWindow()
     0,
     100,
     100,
-    NULL)
+    nullptr)
 {
   init_tooltip_class();
   set_window_class_name(win32_tooltip_class_name);
@@ -117,7 +117,7 @@ void Win32TooltipWindow::resize(bool just_move) {
       SetWindowRgn(_hwnd, CreateRoundRectRgn(0, 0, best_width + 1, best_height + 1, 4, 4), FALSE);
     }
     else
-      SetWindowRgn(_hwnd, NULL, FALSE);
+      SetWindowRgn(_hwnd, nullptr, FALSE);
   }
   
   MONITORINFO moninfo;

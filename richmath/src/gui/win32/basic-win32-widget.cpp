@@ -16,7 +16,7 @@ static void add_remove_window(int count) {
   static int global_window_count = 0;
   
   if(global_window_count == 0) {
-    HRESULT ole_status = OleInitialize(NULL);
+    HRESULT ole_status = OleInitialize(nullptr);
     
     if(ole_status != S_OK && ole_status != S_FALSE) {
       fprintf(stderr, "OleInitialize failed.\n");
@@ -285,8 +285,8 @@ void BasicWin32Widget::init_window_class() {
                                      GetSystemMetrics(SM_CXSMICON),
                                      GetSystemMetrics(SM_CYSMICON),
                                      LR_DEFAULTCOLOR);
-//  wincl.hIcon     = LoadIcon(NULL, IDI_APPLICATION);
-//  wincl.hIconSm   = (HICON)LoadImage(NULL, IDI_APPLICATION,
+//  wincl.hIcon     = LoadIcon(nullptr, IDI_APPLICATION);
+//  wincl.hIconSm   = (HICON)LoadImage(nullptr, IDI_APPLICATION,
 //                                     IMAGE_ICON,
 //                                     GetSystemMetrics(SM_CXSMICON),
 //                                     GetSystemMetrics(SM_CYSMICON),

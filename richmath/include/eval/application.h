@@ -88,7 +88,7 @@ namespace richmath {
       static Box      *get_evaluation_box();
       static Expr      run_filedialog(Expr data);
       
-      /* These may return NULL (no gui available ...)
+      /* These may return nullptr (no gui available ...)
          The document will not be visible, call invslidate_options() to
          recognize the "Visible" style option.
       */

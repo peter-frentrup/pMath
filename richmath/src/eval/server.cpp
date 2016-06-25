@@ -295,7 +295,7 @@ class LocalServer: public Server {
       }
       
       // in another thread => send to main thread
-      return pmath_thread_send_wait(ls->message_queue.get(), expr, Infinity, NULL, NULL);
+      return pmath_thread_send_wait(ls->message_queue.get(), expr, Infinity, nullptr, nullptr);
     }
     
     static Expr dialog(Data *me, Expr firsteval) {

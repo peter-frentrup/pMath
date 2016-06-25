@@ -191,7 +191,7 @@ class GlobalPangoContext {
         name += fn;
       }
       
-      char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
+      char *utf8_name = pmath_string_to_utf8(name.get_as_string(), nullptr);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
         
@@ -434,7 +434,7 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
     PangoLayoutIter *iter = get_iter();
     
     // adjust start...
-    PangoLayoutLine *prev = NULL;
+    PangoLayoutLine *prev = nullptr;
     do {
       PangoLayoutLine *line = pango_layout_iter_get_line_readonly(iter);
       
@@ -448,7 +448,7 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
       prev = line;
     } while(pango_layout_iter_next_line(iter));
     pango_layout_iter_free(iter);
-    prev = NULL;
+    prev = nullptr;
     
     iter = get_iter();
     do {

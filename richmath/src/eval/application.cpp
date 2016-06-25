@@ -70,7 +70,7 @@ namespace {
       
       void done() {
         if(finished) {
-          result_ptr = NULL;
+          result_ptr = nullptr;
           pmath_atomic_write_release(finished, 1);
           pmath_thread_wakeup(notify_queue.get());
         }
@@ -255,7 +255,7 @@ void Application::notify(ClientNotificationType type, Expr data) {
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, NULL, NULL);
+  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, nullptr, nullptr);
 #endif
 }
 
@@ -299,7 +299,7 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, NULL, NULL);
+  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, nullptr, nullptr);
 #endif
   
   while(!pmath_atomic_read_aquire(&finished)) {
@@ -629,7 +629,7 @@ void Application::doevents() {
 #ifdef RICHMATH_USE_WIN32_GUI
   {
     MSG msg;
-    while(PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
+    while(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
       if(msg.message == WM_QUIT) {
         PostQuitMessage(0);
         break;
@@ -665,7 +665,7 @@ int Application::run() {
   {
     MSG msg;
     BOOL bRet;
-    while((bRet = GetMessageW(&msg, NULL, 0, 0)) != 0) {
+    while((bRet = GetMessageW(&msg, nullptr, 0, 0)) != 0) {
       if(bRet == -1) {
         pmath_atomic_write_release(&state, Quitting);
         return 1;
@@ -733,7 +733,7 @@ void Application::add_job(SharedPtr<Job> job) {
 #endif
     
 #ifdef RICHMATH_USE_GTK_GUI
-    g_idle_add_full(G_PRIORITY_DEFAULT, on_add_job, NULL, NULL);
+    g_idle_add_full(G_PRIORITY_DEFAULT, on_add_job, nullptr, nullptr);
 #endif
   }
 }
@@ -868,7 +868,7 @@ Document *Application::create_document() {
       Win32Widget *wid = dynamic_cast<Win32Widget *>(doc->native());
       if(wid) {
         HWND hwnd = wid->hwnd();
-        while(GetParent(hwnd) != NULL)
+        while(GetParent(hwnd) != nullptr)
           hwnd = GetParent(hwnd);
           
         int dx = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
@@ -1390,7 +1390,7 @@ static void cnt_executefor(Expr data) {
       expr,
       seconds,
       execute_for_idle,
-      NULL);
+      nullptr);
       
     is_executing_for_sth = old_is_executing_for_sth;
   }
@@ -1532,7 +1532,7 @@ static void cnt_dynamicupate(Expr data) {
 #endif
         
 #ifdef RICHMATH_USE_GTK_GUI
-      if(g_timeout_add_full(G_PRIORITY_DEFAULT, milliseconds, on_dynamic_update_delay_timeout, NULL, NULL))
+      if(g_timeout_add_full(G_PRIORITY_DEFAULT, milliseconds, on_dynamic_update_delay_timeout, nullptr, nullptr))
         dynamic_update_delay_timer_active = true;
 #endif
     }

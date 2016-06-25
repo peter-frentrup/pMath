@@ -98,12 +98,12 @@ namespace richmath {
       
       template<class C, typename A, bool (C::*method)(A)>
       void signal_connect(const char *name) {
-        g_signal_connect(_widget, name, G_CALLBACK((Marshaller<C, A, method>::function)), NULL);
+        g_signal_connect(_widget, name, G_CALLBACK((Marshaller<C, A, method>::function)), nullptr);
       }
       
       template<class C, bool (C::*method)()>
       void signal_connect(const char *name) {
-        g_signal_connect(_widget, name, G_CALLBACK((Marshaller0<C, method>::function)), NULL);
+        g_signal_connect(_widget, name, G_CALLBACK((Marshaller0<C, method>::function)), nullptr);
       }
       
     private:

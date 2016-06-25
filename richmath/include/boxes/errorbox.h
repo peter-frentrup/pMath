@@ -12,7 +12,7 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, int options);
       
-      virtual Box *item(int i) { return NULL; }
+      virtual Box *item(int i) { return nullptr; }
       virtual int count() { return 0; }
       
       virtual void resize(Context *context);

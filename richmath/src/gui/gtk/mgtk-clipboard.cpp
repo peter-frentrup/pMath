@@ -36,7 +36,7 @@ namespace {
       ) {
         ClipboardData *self = (ClipboardData *)user_data;
         
-        assert(self != NULL);
+        assert(self != nullptr);
         
         if(info == PixbufInfoIndex) {
           gtk_selection_data_set_pixbuf(selection_data, self->pixbuf);
@@ -86,7 +86,7 @@ namespace {
         : OpenedClipboard(),
           clipboard(_clipboard),
           clipboard_data(new ClipboardData),
-          targets(gtk_target_list_new(NULL, 0))
+          targets(gtk_target_list_new(nullptr, 0))
       {
       }
       
@@ -141,7 +141,7 @@ namespace {
           }
 #else
           {
-            GdkPixmap *pixmap = gdk_pixmap_new(NULL, width, height,
+            GdkPixmap *pixmap = gdk_pixmap_new(nullptr, width, height,
                                                gdk_visual_get_best_depth());
           
             cairo_t *cr = gdk_cairo_create(pixmap);
@@ -150,7 +150,7 @@ namespace {
             cairo_destroy(cr);
           
             pixbuf = gdk_pixbuf_get_from_drawable(
-                       NULL,
+                       nullptr,
                        GDK_PIXMAP(pixmap),
                        gdk_colormap_get_system(),
                        0, 0,
@@ -285,7 +285,7 @@ cairo_surface_t *MathGtkClipboard::create_image(String mimetype, double width, d
 GdkAtom MathGtkClipboard::mimetype_to_atom(String mimetype) {
   GdkAtom atom;
   
-  char *str = pmath_string_to_utf8(mimetype.get(), NULL);
+  char *str = pmath_string_to_utf8(mimetype.get(), nullptr);
   atom = gdk_atom_intern(str, TRUE);
   pmath_mem_free(str);
   

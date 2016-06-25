@@ -574,7 +574,7 @@ void Win32DocumentWindow::after_construction() {
   HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);
   AppendMenuW(sysmenu, MF_SEPARATOR, 0, L"");
   
-  HMENU menu = Win32Menu::main_menu ? Win32Menu::main_menu->hmenu() : NULL;
+  HMENU menu = Win32Menu::main_menu ? Win32Menu::main_menu->hmenu() : nullptr;
   for(int i = 0; i < GetMenuItemCount(menu); ++i) {
     wchar_t data[100];
     
@@ -739,7 +739,7 @@ void Win32DocumentWindow::rearrange() {
           flags |= SWP_NOMOVE;
           
         SetWindowPos(
-          _hwnd, NULL,
+          _hwnd, nullptr,
           outer.left, outer.top,
           neww, newh,
           flags);
@@ -809,7 +809,7 @@ void Win32DocumentWindow::rearrange() {
       int h = new_ys[j + 1] - new_ys[j];
       
       SetWindowPos(
-        widgets[j], NULL,
+        widgets[j], nullptr,
         rect.left, new_ys[j], w, h,
         SWP_NOZORDER | SWP_NOACTIVATE);
     }
@@ -870,7 +870,7 @@ void Win32DocumentWindow::invalidate_options() {
   if(doc->get_style(Visible, true)) {
     if(!IsWindowVisible(_hwnd)) {
       SetWindowPos(
-        _hwnd, NULL,
+        _hwnd, nullptr,
         0, 0, 1, 1,
         SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
     }
@@ -878,7 +878,7 @@ void Win32DocumentWindow::invalidate_options() {
   else {
     if(IsWindowVisible(_hwnd))
       SetWindowPos(
-        _hwnd, NULL,
+        _hwnd, nullptr,
         0, 0, 1, 1,
         SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
   }

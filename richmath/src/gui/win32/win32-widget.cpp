@@ -97,12 +97,12 @@ Win32Widget::Win32Widget(
     is_dragging(false),
     is_drop_over(false)
 {
-  if (HDC hdc = GetDC(NULL))
+  if (HDC hdc = GetDC(nullptr))
   {
     //int dpi_x = GetDeviceCaps(hdc, LOGPIXELSX);
     //int dpi_y = GetDeviceCaps(hdc, LOGPIXELSY);
     _dpi = GetDeviceCaps(hdc, LOGPIXELSY);
-    ReleaseDC(NULL, hdc);
+    ReleaseDC(nullptr, hdc);
   }
 }
 
@@ -365,7 +365,7 @@ bool Win32Widget::register_timed_event(SharedPtr<TimedEvent> event) {
     
   animations.set(event, Void());
   if(!animation_running) {
-    animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, NULL);
+    animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
     
     if(!animation_running) {
       animations.remove(event);
@@ -434,7 +434,7 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
       document()->selection_length() == 0 &&
       GetCaretBlinkTime() != INFINITE)
   {
-    SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), NULL);
+    SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
   }
   
   canvas->scale(1 / scale_factor(), 1 / scale_factor());
@@ -787,7 +787,7 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
     screen_pt.x,
     screen_pt.y,
     _hwnd,
-    NULL);
+    nullptr);
 }
 
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
@@ -1128,7 +1128,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                       te->execute_event();
                     }
                     else if(!animation_running) {
-                      animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, NULL);
+                      animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
                       
                       if(!animation_running) {
                         animations.remove(te);
@@ -1218,7 +1218,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               document()->selection_length() == 0 &&
               GetCaretBlinkTime() != INFINITE)
           {
-            SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), NULL);
+            SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
           }
         } return 0;
         
@@ -1259,7 +1259,7 @@ bool Win32Widget::is_data_droppable(IDataObject *data_object) {
   
   fmt.dwAspect = DVASPECT_CONTENT;
   fmt.lindex   = -1;
-  fmt.ptd      = NULL;
+  fmt.ptd      = nullptr;
   fmt.tymed    = TYMED_HGLOBAL;
   
   fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
@@ -1306,7 +1306,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   
   fmt.dwAspect = DVASPECT_CONTENT;
   fmt.lindex   = -1;
-  fmt.ptd      = NULL;
+  fmt.ptd      = nullptr;
   fmt.tymed    = TYMED_HGLOBAL;
   
   do {

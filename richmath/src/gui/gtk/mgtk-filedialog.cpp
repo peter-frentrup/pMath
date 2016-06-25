@@ -41,10 +41,10 @@ Expr MathGtkFileDialog::show(
   }
   
   
-  const char *utf8_title      = NULL;
-  char       *utf8_title_data = NULL;
+  const char *utf8_title      = nullptr;
+  char       *utf8_title_data = nullptr;
   if(title.is_valid()){
-    utf8_title = utf8_title_data = pmath_string_to_utf8(title.get_as_string(), NULL);
+    utf8_title = utf8_title_data = pmath_string_to_utf8(title.get_as_string(), nullptr);
   }
   else{
 //    GtkStockItem item;
@@ -63,7 +63,7 @@ Expr MathGtkFileDialog::show(
                save ? GTK_FILE_CHOOSER_ACTION_SAVE : GTK_FILE_CHOOSER_ACTION_OPEN,
                GTK_STOCK_CANCEL,                       GTK_RESPONSE_CANCEL,
                save ? GTK_STOCK_SAVE : GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-               NULL));
+               nullptr));
                
   pmath_mem_free(utf8_title_data);
   
@@ -99,7 +99,7 @@ Expr MathGtkFileDialog::show(
             GtkFileFilter *next_filter = gtk_file_filter_new();
             
             String str = String(lhs);
-            char *utf8 = pmath_string_to_utf8(str.get_as_string(), NULL);
+            char *utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr);
             gtk_file_filter_set_name(next_filter, utf8);
             pmath_mem_free(utf8);
             
@@ -110,7 +110,7 @@ Expr MathGtkFileDialog::show(
                 gtk_file_filter_add_pattern(next_filter, "*");
               }
               else {
-                utf8 = pmath_string_to_utf8(str.get_as_string(), NULL);
+                utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr);
                 gtk_file_filter_add_pattern(next_filter, utf8);
                 pmath_mem_free(utf8);
               }
@@ -127,7 +127,7 @@ Expr MathGtkFileDialog::show(
     // TODO: This should only be used when the file already exists.
     // gtk_file_chooser_set_current_folder() + gtk_file_chooser_set_current_name() should be used for not-yet existing files!
     
-    char *utf8_filename = pmath_string_to_utf8(initialfile.get_as_string(), NULL);
+    char *utf8_filename = pmath_string_to_utf8(initialfile.get_as_string(), nullptr);
     if(utf8_filename) {
       gtk_file_chooser_set_filename(chooser, utf8_filename);
       pmath_mem_free(utf8_filename);

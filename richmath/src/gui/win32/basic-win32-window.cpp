@@ -60,7 +60,7 @@ static void init_basic_window_data() {
   if(!composition_window_theme &&
       Win32Themes::OpenThemeData)
   {
-    composition_window_theme = Win32Themes::OpenThemeData(NULL, L"CompositedWindow::Window");
+    composition_window_theme = Win32Themes::OpenThemeData(nullptr, L"CompositedWindow::Window");
   }
 }
 
@@ -89,7 +89,7 @@ static void remove_basic_window() {
 
 //{ class BasicWin32Window ...
 
-static BasicWin32Window *_first_window = NULL;
+static BasicWin32Window *_first_window = nullptr;
 bool BasicWin32Window::during_pos_changing = false;
 
 BasicWin32Window::BasicWin32Window(
@@ -106,7 +106,7 @@ BasicWin32Window::BasicWin32Window(
     y,
     width,
     height,
-    NULL),
+    nullptr),
   min_client_height(0),
   max_client_height(-1),
   min_client_width(0),
@@ -394,8 +394,8 @@ void BasicWin32Window::snap_rect_or_pt(RECT *windowrect, POINT *pt) {
   info.max_dx = &max_dx;
   info.max_dy = &max_dy;
   EnumDisplayMonitors(
-    NULL,
-    NULL,
+    nullptr,
+    nullptr,
     snap_monitor,
     (LPARAM)&info);
     
@@ -418,8 +418,8 @@ void BasicWin32Window::snap_rect_or_pt(RECT *windowrect, POINT *pt) {
       info.orig_rect = &rect;
       
       EnumDisplayMonitors(
-        NULL,
-        NULL,
+        nullptr,
+        nullptr,
         snap_monitor,
         (LPARAM)&info);
         
@@ -535,7 +535,7 @@ HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, int dx, int dy) {
         hdwp = tryDeferWindowPos(
                  hdwp,
                  e->key,
-                 NULL,
+                 nullptr,
                  rect.left + dx,
                  rect.top + dy,
                  0, 0,
@@ -807,7 +807,7 @@ void BasicWin32Window::on_move(LPARAM lParam) {
   hdwp = tryDeferWindowPos(
            hdwp,
            _hwnd,
-           NULL,
+           nullptr,
            rect.left,
            rect.top,
            1,
@@ -937,7 +937,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     str[MAX_STR_LEN - 1] = '\0';
     
     LOGFONTW log_font;
-    HFONT old_font = NULL;
+    HFONT old_font = nullptr;
     if(SUCCEEDED(Win32Themes::GetThemeSysFont(composition_window_theme, 801, &log_font))) {
       // TMT_CAPTIONFONT = 801
       HFONT font = CreateFontIndirectW(&log_font);
@@ -1039,7 +1039,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
           icon_w,
           icon_h,
           0,
-          NULL,
+          nullptr,
           DI_NORMAL);
       }
     }
@@ -1084,7 +1084,7 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
     // Inform application of the frame change.
     SetWindowPos(
       _hwnd,
-      NULL,
+      nullptr,
       0, //client.left,
       0, //client.top,
       1, //client.right  - client.left,
@@ -1448,7 +1448,7 @@ static BOOL CALLBACK remove_child_rgn_callback(HWND hwnd, LPARAM lParam) {
   
   RECT rect;
   GetWindowRect(hwnd, &rect);
-  MapWindowPoints(NULL, info->parent, (POINT *)&rect, 2);
+  MapWindowPoints(nullptr, info->parent, (POINT *)&rect, 2);
   
   HRGN rectrgn = CreateRectRgnIndirect(&rect);
   CombineRgn(info->region, info->region, rectrgn, RGN_DIFF);
@@ -1780,7 +1780,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                           pt.y,
                           0,
                           _hwnd,
-                          NULL);
+                          nullptr);
                           
               if(cmd)
                 SendMessageW(_hwnd, WM_SYSCOMMAND, cmd, 0);
@@ -1880,7 +1880,7 @@ HDWP BasicWin32Window::tryDeferWindowPos(
       cy,
       uFlags);
       
-    return NULL;
+    return nullptr;
   }
 }
 //} ... class BasicWin32Window

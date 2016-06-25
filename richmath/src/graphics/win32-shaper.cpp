@@ -79,13 +79,13 @@ void WindowsFontShaper::decode_token(
             (const WCHAR*)str + i,
             2,
             2,
-            NULL,
-            NULL,
+            nullptr,
+            nullptr,
             uniscribe_items,
             &num_items)
           && num_items == 1)
       {
-        SCRIPT_CACHE   cache = NULL;
+        SCRIPT_CACHE   cache = nullptr;
         WORD           out_glyphs[2];
         SCRIPT_VISATTR vis_attr[  2];
         WORD log_clust[2] = {0, 1};

@@ -34,7 +34,7 @@ namespace richmath {
       virtual void invalidate_options();
       void invalidate_all();
       
-      NativeWidget *native() { return _native; } // never NULL
+      NativeWidget *native() { return _native; } // never nullptr
       
       virtual void scroll_to(float x, float y, float w, float h);
       virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);

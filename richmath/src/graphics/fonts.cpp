@@ -134,12 +134,12 @@ class PangoSettings {
 //      {
 //        char system_font_dir[PATH_MAX];
 //        
-//        if(FAILED(SHGetFolderPathA(NULL, CSIDL_FONTS, NULL, SHGFP_TYPE_CURRENT, system_font_dir))) {
+//        if(FAILED(SHGetFolderPathA(nullptr, CSIDL_FONTS, nullptr, SHGFP_TYPE_CURRENT, system_font_dir))) {
 //          fprintf(stderr, "SHGetFolderPathA failed. Using \n");
 //          strcpy(system_font_dir, "C:\\Windows\\Fonts");
 //        }
 //        
-//        FcConfigAppFontAddDir(NULL, (const FcChar8*)system_font_dir);
+//        FcConfigAppFontAddDir(nullptr, (const FcChar8*)system_font_dir);
 //      }
 //#endif
     }
@@ -223,7 +223,7 @@ FontFace::FontFace(
   {
 //    PangoFontDescription *desc = pango_font_description_new();
 //
-//    char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
+//    char *utf8_name = pmath_string_to_utf8(name.get_as_string(), nullptr);
 //    if(utf8_name)
 //      pango_font_description_set_family_static(desc, utf8_name);
 //
@@ -243,10 +243,10 @@ FontFace::FontFace(
   
     int fcslant  = style.italic ? FC_SLANT_ITALIC : FC_SLANT_ROMAN;
     int fcweight = style.bold   ? FC_WEIGHT_BOLD  : FC_WEIGHT_MEDIUM;
-    char *family = pmath_string_to_utf8(name.get(), NULL);
+    char *family = pmath_string_to_utf8(name.get(), nullptr);
   
     FcPattern *pattern = FcPatternBuild(
-      NULL,
+      nullptr,
       FC_FAMILY,     FcTypeString,  family,
       FC_SLANT,      FcTypeInteger, fcslant,
       FC_WEIGHT,     FcTypeInteger, fcweight,
@@ -255,23 +255,23 @@ FontFace::FontFace(
       FC_SIZE,       FcTypeDouble,  1024.0,
       FC_PIXEL_SIZE, FcTypeDouble,  1024.0 * 0.75,
       FC_SCALABLE,   FcTypeBool,    FcTrue,
-      NULL);
+      nullptr);
   
 //    FcResult result;
 //    pmath_debug_print("fontset for %s:\n", family);
-//    FcFontSet *set = FcFontSort(NULL, pattern, FcFalse, NULL, &result);
+//    FcFontSet *set = FcFontSort(nullptr, pattern, FcFalse, nullptr, &result);
 //    FcFontSetPrint(set);
 //    FcFontSetDestroy(set);
 //
 //    FcPatternPrint(pattern);
 //
-//    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+//    FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
 //    FcPatternPrint(pattern);
 //
 //    FcDefaultSubstitute(pattern);
 //    FcPatternPrint(pattern);
 //
-//    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
+//    FcPattern *resolved = FcFontMatch(nullptr, pattern, &result);
 //    FcPatternPrint(resolved);
 //
 //    FcPatternDestroy(resolved);
@@ -392,8 +392,8 @@ Expr FontInfo::all_fonts() {
   
 #ifdef RICHMATH_USE_FT_FONT
   {
-    FcFontSet *app_fonts = FcConfigGetFonts(NULL, FcSetApplication);
-    FcFontSet *sys_fonts = FcConfigGetFonts(NULL, FcSetSystem);
+    FcFontSet *app_fonts = FcConfigGetFonts(nullptr, FcSetApplication);
+    FcFontSet *sys_fonts = FcConfigGetFonts(nullptr, FcSetSystem);
     
     int num_app_fonts = app_fonts ? app_fonts->nfont : 0;
     int num_sys_fonts = sys_fonts ? sys_fonts->nfont : 0;
@@ -432,9 +432,9 @@ void FontInfo::add_private_font(String filename) {
   
 #ifdef RICHMATH_USE_FT_FONT
   {
-    char *file = pmath_string_to_utf8(filename.get(), NULL);
+    char *file = pmath_string_to_utf8(filename.get(), nullptr);
     
-    FcConfigAppFontAddFile(NULL, (const FcChar8 *)file);
+    FcConfigAppFontAddFile(nullptr, (const FcChar8 *)file);
     
     pmath_mem_free(file);
   }
@@ -486,7 +486,7 @@ bool FontInfo::font_exists(String name) {
   {
 //    PangoFontDescription *desc = pango_font_description_new();
 //
-//    char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
+//    char *utf8_name = pmath_string_to_utf8(name.get_as_string(), nullptr);
 //    if(!utf8_name){
 //      pango_font_description_free(desc);
 //      return false;
@@ -513,16 +513,16 @@ bool FontInfo::font_exists(String name) {
 //    return true;
 
 
-    char *family = pmath_string_to_utf8(name.get(), NULL);
+    char *family = pmath_string_to_utf8(name.get(), nullptr);
     
-    FcPattern *pattern = FcPatternBuild(NULL,
+    FcPattern *pattern = FcPatternBuild(nullptr,
                                         FC_FAMILY, FcTypeString, family,
-                                        NULL);
+                                        nullptr);
                                         
     FcResult result = FcResultMatch;
-    FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+    FcConfigSubstitute(nullptr, pattern, FcMatchPattern);
     FcDefaultSubstitute(pattern);
-    FcPattern *resolved = FcFontMatch(NULL, pattern, &result);
+    FcPattern *resolved = FcFontMatch(nullptr, pattern, &result);
     FcPatternDestroy(pattern);
     
     if(result != FcResultMatch) {
@@ -577,7 +577,7 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch) {
           WCHAR str[2];
           SCRIPT_ITEM uniscribe_items[3];
           int num_items;
-          SCRIPT_CACHE cache = NULL;
+          SCRIPT_CACHE cache = nullptr;
           WORD           out_glyphs[2];
           SCRIPT_VISATTR vis_attr[  2];
           WORD log_clust[2] = {0, 1};
@@ -591,8 +591,8 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch) {
                 str,
                 2,
                 2,
-                NULL,
-                NULL,
+                nullptr,
+                nullptr,
                 uniscribe_items,
                 &num_items) &&
               num_items == 1)
@@ -693,7 +693,7 @@ size_t FontInfo::get_truetype_table(
 
 static const char *default_postscript_names[258] = {
   ".notdef",
-  ".null",
+  ".nullptr",
   "nonmarkingreturn",
   "space",
   "exclam",

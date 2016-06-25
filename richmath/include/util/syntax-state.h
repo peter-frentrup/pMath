@@ -56,7 +56,7 @@ namespace richmath {
       
     public:
       SymbolKind            kind;
-      SharedPtr<ScopePos>   pos; // never NULL!!!
+      SharedPtr<ScopePos>   pos; // never nullptr!!!
       SharedPtr<SymbolInfo> next;
   };
   

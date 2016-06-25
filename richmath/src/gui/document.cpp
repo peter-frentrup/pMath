@@ -124,7 +124,7 @@ Box *richmath::expand_selection(Box *box, int *start, int *end) {
         s = g_utf8_find_next_char(s, s_end);
       }
       
-      const char *word_end = NULL;
+      const char *word_end = nullptr;
       
       while(s && !word_end) {
         if(attrs[i].is_word_boundary && word_end != word_start)
@@ -135,7 +135,7 @@ Box *richmath::expand_selection(Box *box, int *start, int *end) {
       }
       
       g_free(attrs);
-      attrs = NULL;
+      attrs = nullptr;
       
       if(!word_end)
         word_end = s_end;
@@ -2787,7 +2787,7 @@ void Document::set_selection_style(Expr options) {
     if(!seq->edit_selection(&context))
       return;
       
-    StyleBox *style_box = NULL;
+    StyleBox *style_box = nullptr;
     if(start == 0 && end == seq->length()) {
       style_box = dynamic_cast<StyleBox *>(seq->parent());
     }
@@ -3136,7 +3136,7 @@ void Document::insert_string(String text, bool autoformat) {
           case ' ':
           case '\t': {
               if(i + 1 < len) {
-                pmath_token_t tok = pmath_token_analyse(&buf[i + 1], 1, NULL);
+                pmath_token_t tok = pmath_token_analyse(&buf[i + 1], 1, nullptr);
                 
                 if(tok == PMATH_TOK_DIGIT) {
                   if( !pmath_char_is_name(last_char) &&
