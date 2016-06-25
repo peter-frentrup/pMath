@@ -871,7 +871,9 @@ void BasicWin32Window::paint_themed(HDC hdc) {
     }
     cairo_destroy(cr);
     
+    cairo_surface_flush(surface);
     HDC bmp_dc = cairo_win32_surface_get_dc(surface);
+    
     paint_themed_caption(bmp_dc);
     BitBlt(
       hdc,
