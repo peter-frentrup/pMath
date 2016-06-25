@@ -11,14 +11,14 @@ namespace richmath {
       virtual ~DynamicLocalBox();
       
       // Box::try_create<DynamicLocalBox>(expr, options)
-      virtual bool try_load_from_object(Expr expr, int options);
+      virtual bool try_load_from_object(Expr expr, int options) override;
       
-      virtual void paint(Context *context);
+      virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_DYNAMICLOCALBOX); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DYNAMICLOCALBOX); }
+      virtual Expr to_pmath(int flags) override;
       
-      virtual Expr prepare_dynamic(Expr expr);
+      virtual Expr prepare_dynamic(Expr expr) override;
       
     protected:
       void ensure_init();

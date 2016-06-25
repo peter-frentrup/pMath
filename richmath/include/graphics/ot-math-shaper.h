@@ -248,35 +248,35 @@ namespace richmath {
     public:
       virtual ~OTMathShaper();
       
-      virtual uint8_t num_fonts() { return text_shaper->num_fonts(); }
-      virtual FontFace font(uint8_t fontinfo) { return text_shaper->font(fontinfo); }
-      virtual String font_name(uint8_t fontinfo) { return text_shaper->font_name(fontinfo); }
+      virtual uint8_t num_fonts() override { return text_shaper->num_fonts(); }
+      virtual FontFace font(uint8_t fontinfo) override { return text_shaper->font(fontinfo); }
+      virtual String font_name(uint8_t fontinfo) override { return text_shaper->font_name(fontinfo); }
       
       virtual void decode_token(
         Context        *context,
         int             len,
         const uint16_t *str,
-        GlyphInfo      *result);
+        GlyphInfo      *result) override;
         
       virtual void vertical_glyph_size(
         Context         *context,
         const uint16_t   ch,
         const GlyphInfo &info,
         float           *ascent,
-        float           *descent);
+        float           *descent) override;
         
       virtual void show_glyph(
         Context         *context,
         float            x,
         float            y,
         const uint16_t   ch,
-        const GlyphInfo &info);
+        const GlyphInfo &info) override;
         
       virtual bool horizontal_stretch_char(
         Context        *context,
         float           width,
         const uint16_t  ch,
-        GlyphInfo      *result);
+        GlyphInfo      *result) override;
         
       virtual void vertical_stretch_char(
         Context        *context,
@@ -284,7 +284,7 @@ namespace richmath {
         float           descent,
         bool            full_stretch,
         const uint16_t  ch,
-        GlyphInfo      *result);
+        GlyphInfo      *result) override;
         
       virtual void accent_positions(
         Context           *context,
@@ -295,7 +295,7 @@ namespace richmath {
         float             *under_x,
         float             *under_y,
         float             *over_x,
-        float             *over_y);
+        float             *over_y) override;
         
       virtual void script_positions(
         Context           *context,
@@ -304,7 +304,7 @@ namespace richmath {
         MathSequence      *sub,
         MathSequence      *super,
         float             *sub_y,
-        float             *super_y);
+        float             *super_y) override;
         
       virtual void script_corrections(
         Context           *context,
@@ -315,7 +315,7 @@ namespace richmath {
         float              sub_y,
         float              super_y,
         float             *sub_x,
-        float             *super_x);
+        float             *super_x) override;
         
       virtual void shape_fraction(
         Context        *context,
@@ -323,16 +323,16 @@ namespace richmath {
         const BoxSize  &den,
         float          *num_y,
         float          *den_y,
-        float          *width);
+        float          *width) override;
         
       virtual void show_fraction(
         Context        *context,
-        float           width);
+        float           width) override;
         
       virtual float italic_correction(
         Context          *context,
         uint16_t          ch,
-        const GlyphInfo  &info);
+        const GlyphInfo  &info) override;
         
       virtual void shape_radical(
         Context          *context,    // in
@@ -340,19 +340,19 @@ namespace richmath {
         float            *radicand_x, // out
         float            *exponent_x, // out
         float            *exponent_y, // out
-        RadicalShapeInfo *info);      // out
+        RadicalShapeInfo *info) override; // out
         
       virtual void show_radical(
         Context                *context,
-        const RadicalShapeInfo &info);
+        const RadicalShapeInfo &info) override;
         
-      virtual void get_script_size_multis(Array<float> *arr);
+      virtual void get_script_size_multis(Array<float> *arr) override;
       
-      virtual SharedPtr<TextShaper> set_style(FontStyle _style);
+      virtual SharedPtr<TextShaper> set_style(FontStyle _style) override;
       
-      virtual FontStyle get_style() { return style; }
+      virtual FontStyle get_style() override { return style; }
       
-      virtual float get_center_height(Context *context, uint8_t fontinfo);
+      virtual float get_center_height(Context *context, uint8_t fontinfo) override;
       
     protected:
       void stretch_glyph_assembly(

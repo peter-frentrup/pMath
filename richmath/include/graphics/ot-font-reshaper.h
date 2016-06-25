@@ -27,7 +27,7 @@ namespace richmath {
       static uint16_t read(uint16_t value) {
         const uint8_t *p = (const uint8_t *)&value;
         
-        return (p[0] << 8) + p[1];
+        return (uint16_t)((p[0] << 8) + p[1]);
       }
       
       static int16_t read(int16_t value) {

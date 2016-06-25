@@ -16,7 +16,7 @@ namespace richmath {
   // Must call init() immediately after the construction of a derived object!
   class BasicWin32Window: public BasicWin32Widget {
     protected:
-      virtual void after_construction();
+      virtual void after_construction() override;
       
     public:
       BasicWin32Window(
@@ -82,7 +82,7 @@ namespace richmath {
       void invalidate_non_child();
       void invalidate_caption();
       
-      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
+      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       
     protected:
       Hashtable<HWND, Void, cast_hash> all_snappers;

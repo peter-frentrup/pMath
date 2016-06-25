@@ -110,7 +110,7 @@ namespace {
           delete clipboard_data;
       }
       
-      virtual bool add_binary(String mimetype, void *data, size_t size) {
+      virtual bool add_binary(String mimetype, void *data, size_t size) override {
         if(size >= INT_MAX / 2)
           return false;
         unsigned info = clipboard_data->add((const char *)data, (int)size);
@@ -120,7 +120,7 @@ namespace {
         return true;
       }
       
-      virtual bool add_text(String mimetype, String data) {
+      virtual bool add_text(String mimetype, String data) override {
         int len;
         char *str = pmath_string_to_utf8(data.get(), &len);
         bool result = add_binary(mimetype, str, (size_t)len);
@@ -128,7 +128,7 @@ namespace {
         return result;
       }
       
-      virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) {
+      virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) override {
         if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_IMAGE) {
           int width  = cairo_image_surface_get_width( image);
           int height = cairo_image_surface_get_height(image);

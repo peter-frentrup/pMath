@@ -27,17 +27,17 @@ namespace richmath {
       Document();
       ~Document();
       
-      virtual bool try_load_from_object(Expr expr, int options);
+      virtual bool try_load_from_object(Expr expr, int options) override;
       
-      virtual bool request_repaint(float x, float y, float w, float h);
-      virtual void invalidate();
-      virtual void invalidate_options();
+      virtual bool request_repaint(float x, float y, float w, float h) override;
+      virtual void invalidate() override;
+      virtual void invalidate_options() override;
       void invalidate_all();
       
       NativeWidget *native() { return _native; } // never nullptr
       
-      virtual void scroll_to(float x, float y, float w, float h);
-      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
+      virtual void scroll_to(float x, float y, float w, float h) override;
+      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end) override;
       
       void mouse_exit();
       void mouse_down(MouseEvent &event);
@@ -52,15 +52,15 @@ namespace richmath {
       void key_up(SpecialKeyEvent &event);
       void key_press(uint16_t unicode);
       
-      virtual Box *mouse_sensitive() { return this; }
-      virtual void on_mouse_down(MouseEvent &event);
-      virtual void on_mouse_move(MouseEvent &event);
-      virtual void on_mouse_up(MouseEvent &event);
-      virtual void on_mouse_cancel();
+      virtual Box *mouse_sensitive() override { return this; }
+      virtual void on_mouse_down(MouseEvent &event) override;
+      virtual void on_mouse_move(MouseEvent &event) override;
+      virtual void on_mouse_up(MouseEvent &event) override;
+      virtual void on_mouse_cancel() override;
       
-      virtual void on_key_down(SpecialKeyEvent &event);
-      virtual void on_key_up(SpecialKeyEvent &event);
-      virtual void on_key_press(uint32_t unichar);
+      virtual void on_key_down(SpecialKeyEvent &event) override;
+      virtual void on_key_up(SpecialKeyEvent &event) override;
+      virtual void on_key_press(uint32_t unichar) override;
       
       // substart and subend may lie outside 0..subbox->length()
       bool is_inside_selection(Box *subbox, int substart, int subend);
@@ -96,9 +96,9 @@ namespace richmath {
       
       void select_prev(bool operands_only);
       
-      virtual void insert_pmath(int *pos, Expr boxes, int overwrite_until_index = 0);
-      virtual void insert(int pos, Section *section);
-      virtual Section *swap(int pos, Section *section);
+      virtual void insert_pmath(int *pos, Expr boxes, int overwrite_until_index = 0) override;
+      virtual void insert(int pos, Section *section) override;
+      virtual Section *swap(int pos, Section *section) override;
       
       Box *prepare_copy(int *start, int *end);
       bool can_copy();
@@ -149,16 +149,16 @@ namespace richmath {
       void reset_mouse();
       bool is_mouse_down() { return mouse_down_counter > 0; }
       
-      virtual SharedPtr<Stylesheet> stylesheet() { return context.stylesheet; }
-      virtual void reset_style();
+      virtual SharedPtr<Stylesheet> stylesheet() override { return context.stylesheet; }
+      virtual void reset_style() override;
       
       void paint_resize(Canvas *canvas, bool resize_only);
       
       Expr section_list_to_pmath(int flags, int start, int end) {
         return SectionList::to_pmath(flags, start, end);
       }
-      virtual Expr to_pmath(int flags);
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_DOCUMENT); }
+      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DOCUMENT); }
       
     public:
       Document *main_document; // not owned

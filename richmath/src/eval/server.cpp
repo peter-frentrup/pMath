@@ -178,7 +178,7 @@ class LocalServer: public Server {
       pmath_atomic_unlock(&data_spin);
     }
     
-    virtual void run_boxes(Expr boxes) {
+    virtual void run_boxes(Expr boxes) override {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {
         Token t;
         
@@ -189,7 +189,7 @@ class LocalServer: public Server {
       }
     }
     
-    virtual void run(Expr obj) {
+    virtual void run(Expr obj) override {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {
         Token t;
         
@@ -205,7 +205,7 @@ class LocalServer: public Server {
       double         timeout_seconds,
       pmath_bool_t (*idle_function)(double *end_tick, void *idle_data),
       void          *idle_data
-    ) {
+    ) override {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {
         return Expr(pmath_thread_send_wait(
                       message_queue.get(),
@@ -218,17 +218,17 @@ class LocalServer: public Server {
         return Expr();
     }
     
-    virtual void interrupt(Expr expr) {
+    virtual void interrupt(Expr expr) override {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {
         pmath_thread_send(message_queue.get(), expr.release());
       }
     }
     
-    virtual void abort_all() {
+    virtual void abort_all() override {
       pmath_abort_please();
     }
     
-    virtual bool is_accessable() {
+    virtual bool is_accessable() override {
       return data && !pmath_atomic_read_aquire(&data->do_quit);
     }
     

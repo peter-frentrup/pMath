@@ -58,17 +58,17 @@ namespace richmath {
       //
       // IUnknown members
       //
-      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject);
-      STDMETHODIMP_(ULONG) AddRef(void);
-      STDMETHODIMP_(ULONG) Release(void);
+      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject) override;
+      STDMETHODIMP_(ULONG) AddRef(void) override;
+      STDMETHODIMP_(ULONG) Release(void) override;
       
       //
       // IDropTarget members
       //
-      STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect);
-      STDMETHODIMP DragOver(DWORD key_state, POINTL pt, DWORD *effect);
-      STDMETHODIMP DragLeave(void);
-      STDMETHODIMP Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect);
+      STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
+      STDMETHODIMP DragOver(DWORD key_state, POINTL pt, DWORD *effect) override;
+      STDMETHODIMP DragLeave(void) override;
+      STDMETHODIMP Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
       
     public:
       HWND &hwnd() { return _hwnd; }

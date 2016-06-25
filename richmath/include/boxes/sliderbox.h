@@ -12,37 +12,37 @@ namespace richmath {
       virtual ~SliderBox();
       
       // Box::try_create<SliderBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual Box *item(int i) { return 0; }
-      virtual int count() { return 0; }
-      virtual int length() { return 0; }
+      virtual Box *item(int i) override { return nullptr; }
+      virtual int count() override { return 0; }
+      virtual int length() override { return 0; }
       
-      virtual ControlState calc_state(Context *context);
+      virtual ControlState calc_state(Context *context) override;
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
-      virtual Box *remove(int *index) { return this; }
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
+      virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_SLIDERBOX); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_SLIDERBOX); }
+      virtual Expr to_pmath(int flags) override;
       
-      virtual void dynamic_updated();
-      virtual void dynamic_finished(Expr info, Expr result);
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      virtual void dynamic_updated() override;
+      virtual void dynamic_finished(Expr info, Expr result) override;
+      virtual Box *dynamic_to_literal(int *start, int *end) override;
       
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
-      virtual void on_mouse_exit();
-      virtual void on_mouse_down(MouseEvent &event);
-      virtual void on_mouse_move(MouseEvent &event);
-      virtual void on_mouse_up(MouseEvent &event);
-      //virtual void on_mouse_cancel();
+      virtual void on_mouse_exit() override;
+      virtual void on_mouse_down(MouseEvent &event) override;
+      virtual void on_mouse_move(MouseEvent &event) override;
+      virtual void on_mouse_up(MouseEvent &event) override;
+      //virtual void on_mouse_cancel() override;
       
     protected:
       float calc_thumb_pos(double val);

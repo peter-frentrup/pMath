@@ -35,7 +35,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
       CloseClipboard();
     }
     
-    virtual bool add_binary(String mimetype, void *data, size_t size) {
+    virtual bool add_binary(String mimetype, void *data, size_t size) override {
       unsigned int id = Win32Clipboard::mime_to_win32cbformat[mimetype];
       if(!id)
         return false;
@@ -51,7 +51,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
       return nullptr != SetClipboardData(id, hglb);
     }
     
-    virtual bool add_text(String mimetype, String data) {
+    virtual bool add_text(String mimetype, String data) override {
       unsigned int id = Win32Clipboard::mime_to_win32cbformat[mimetype];
       if(!id)
         return false;
@@ -73,7 +73,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
       return nullptr != SetClipboardData(id, hglb);
     }
     
-    virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) {
+    virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) override {
       if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_WIN32) {
         cairo_surface_t *img = cairo_win32_surface_get_image(image);
         if(!img)

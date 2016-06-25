@@ -49,20 +49,20 @@ namespace richmath {
     public:
       explicit InputJob(MathSection *section);
       
-      virtual void enqueued();
-      virtual bool start();
-      virtual void returned(Expr expr);
-      virtual void returned_boxes(Expr expr);
-      virtual void end();
-      virtual void dequeued();
+      virtual void enqueued() override;
+      virtual bool start() override;
+      virtual void returned(Expr expr) override;
+      virtual void returned_boxes(Expr expr) override;
+      virtual void end() override;
+      virtual void dequeued() override;
   };
   
   class EvaluationJob: public InputJob {
     public:
       explicit EvaluationJob(Expr expr, Box *box = 0);
       
-      virtual bool start();
-      virtual void end();
+      virtual bool start() override;
+      virtual void end() override;
       
     protected:
       Expr _expr;
@@ -72,9 +72,9 @@ namespace richmath {
     public:
       explicit DynamicEvaluationJob(Expr info, Expr expr, Box *box);
       
-      virtual bool start();
-      virtual void end();
-      virtual void returned(Expr expr);
+      virtual bool start() override;
+      virtual void end() override;
+      virtual void returned(Expr expr) override;
       
     protected:
       Expr _info;
@@ -85,9 +85,9 @@ namespace richmath {
     public:
       explicit ReplacementJob(MathSequence *seq, int start, int end);
       
-      virtual bool start();
-      virtual void returned_boxes(Expr expr);
-      virtual void end();
+      virtual bool start() override;
+      virtual void returned_boxes(Expr expr) override;
+      virtual void end() override;
       
     public:
       bool have_result;

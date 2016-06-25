@@ -14,7 +14,7 @@ namespace richmath {
   // Must call init() immediately after the construction of a derived object!
   class Win32Widget: public NativeWidget, public BasicWin32Widget {
     protected:
-      virtual void after_construction();
+      virtual void after_construction() override;
       
     public:
       Win32Widget(
@@ -28,53 +28,53 @@ namespace richmath {
         HWND *parent);
       virtual ~Win32Widget();
       
-      virtual void window_size(float *w, float *h);
-      virtual void page_size(float *w, float *h) {
+      virtual void window_size(float *w, float *h) override;
+      virtual void page_size(float *w, float *h) override {
         window_size(w, h);
       }
       
-      virtual bool is_scrollable() { return true; }
-      virtual bool autohide_vertical_scrollbar() { return _autohide_vertical_scrollbar; }
-      virtual void scroll_pos(float *x, float *y);
-      virtual void scroll_to(float x, float y);
+      virtual bool is_scrollable() override { return true; }
+      virtual bool autohide_vertical_scrollbar() override { return _autohide_vertical_scrollbar; }
+      virtual void scroll_pos(float *x, float *y) override;
+      virtual void scroll_to(float x, float y) override;
       
-      virtual void show_tooltip(Expr boxes);
-      virtual void hide_tooltip();
+      virtual void show_tooltip(Expr boxes) override;
+      virtual void hide_tooltip() override;
       
-      virtual bool is_scaleable() { return true; }
+      virtual bool is_scaleable() override { return true; }
       
-      virtual double message_time();
-      virtual double double_click_time();
-      virtual void double_click_dist(float *dx, float *dy);
-      virtual void do_drag_drop(Box *src, int start, int end);
-      virtual bool cursor_position(float *x, float *y);
+      virtual double message_time() override;
+      virtual double double_click_time() override;
+      virtual void double_click_dist(float *dx, float *dy) override;
+      virtual void do_drag_drop(Box *src, int start, int end) override;
+      virtual bool cursor_position(float *x, float *y) override;
       
-      virtual void bring_to_front();
-      virtual void close() {}
-      virtual void invalidate();
-      virtual void invalidate_options();
-      virtual void invalidate_rect(float x, float y, float w, float h);
-      virtual void force_redraw();
+      virtual void bring_to_front() override;
+      virtual void close() override {}
+      virtual void invalidate() override;
+      virtual void invalidate_options() override;
+      virtual void invalidate_rect(float x, float y, float w, float h) override;
+      virtual void force_redraw() override;
       
-      virtual void set_cursor(CursorType type);
+      virtual void set_cursor(CursorType type) override;
       
-      virtual void running_state_changed();
+      virtual void running_state_changed() override;
       
-      virtual bool is_mouse_down();
+      virtual bool is_mouse_down() override;
       
-      virtual void beep();
+      virtual void beep() override;
       
-      virtual bool register_timed_event(SharedPtr<TimedEvent> event);
+      virtual bool register_timed_event(SharedPtr<TimedEvent> event) override;
       
-      virtual String filename(){ return String(); }
-      virtual void filename(String new_filename) {}
+      virtual String filename() override { return String(); }
+      virtual void filename(String new_filename) override {}
       
-      virtual void on_editing() {}
-      virtual void on_saved() {}
+      virtual void on_editing() override {}
+      virtual void on_saved() override {}
       
     public:
-      STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect);
-      STDMETHODIMP DragLeave(void);
+      STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
+      STDMETHODIMP DragLeave(void) override;
       
     public:
       bool _autohide_vertical_scrollbar;
@@ -113,12 +113,12 @@ namespace richmath {
       virtual void on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift);
       virtual void on_popupmenu(POINT screen_pt);
       
-      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
+      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       
-      virtual bool is_data_droppable(IDataObject *data_object);
-      virtual DWORD drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effects);
-      virtual void do_drop_data(IDataObject *data_object, DWORD effect);
-      virtual void position_drop_cursor(POINTL ptl);
+      virtual bool is_data_droppable(IDataObject *data_object) override;
+      virtual DWORD drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effects) override;
+      virtual void do_drop_data(IDataObject *data_object, DWORD effect) override;
+      virtual void position_drop_cursor(POINTL ptl) override;
   };
   
   SpecialKey win32_virtual_to_special_key(DWORD vkey);

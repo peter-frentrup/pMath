@@ -17,22 +17,22 @@ namespace richmath {
       //
       // IUnknown members
       //
-      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject);
-      STDMETHODIMP_(ULONG) AddRef(void);
-      STDMETHODIMP_(ULONG) Release(void);
+      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject) override;
+      STDMETHODIMP_(ULONG) AddRef(void) override;
+      STDMETHODIMP_(ULONG) Release(void) override;
       
       //
       // IDataObject members
       //
-      STDMETHODIMP GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium);
-      STDMETHODIMP GetDataHere(FORMATETC *pFormatEtc, STGMEDIUM *pMedium);
-      STDMETHODIMP QueryGetData(FORMATETC *pFormatEtc);
-      STDMETHODIMP GetCanonicalFormatEtc(FORMATETC *pFormatEct,  FORMATETC *pFormatEtcOut);
-      STDMETHODIMP SetData(FORMATETC *pFormatEtc,  STGMEDIUM *pMedium, BOOL fRelease);
-      STDMETHODIMP EnumFormatEtc(DWORD dwDirection, IEnumFORMATETC **ppEnumFormatEtc);
-      STDMETHODIMP DAdvise(FORMATETC *pFormatEtc,  DWORD advf, IAdviseSink *pAdvSink, DWORD *pdwConnection);
-      STDMETHODIMP DUnadvise(DWORD dwConnection);
-      STDMETHODIMP EnumDAdvise(IEnumSTATDATA **ppEnumAdvise);
+      STDMETHODIMP GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) override;
+      STDMETHODIMP GetDataHere(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) override;
+      STDMETHODIMP QueryGetData(FORMATETC *pFormatEtc) override;
+      STDMETHODIMP GetCanonicalFormatEtc(FORMATETC *pFormatEct,  FORMATETC *pFormatEtcOut) override;
+      STDMETHODIMP SetData(FORMATETC *pFormatEtc,  STGMEDIUM *pMedium, BOOL fRelease) override;
+      STDMETHODIMP EnumFormatEtc(DWORD dwDirection, IEnumFORMATETC **ppEnumFormatEtc) override;
+      STDMETHODIMP DAdvise(FORMATETC *pFormatEtc,  DWORD advf, IAdviseSink *pAdvSink, DWORD *pdwConnection) override;
+      STDMETHODIMP DUnadvise(DWORD dwConnection) override;
+      STDMETHODIMP EnumDAdvise(IEnumSTATDATA **ppEnumAdvise) override;
       
     public:
       DataObject();

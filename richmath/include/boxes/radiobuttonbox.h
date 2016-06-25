@@ -11,17 +11,17 @@ namespace richmath {
       RadioButtonBox();
       
       // Box::try_create<RadioButtonBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual void paint(Context *context);
+      virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_RADIOBUTTONBOX); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_RADIOBUTTONBOX); }
+      virtual Expr to_pmath(int flags) override;
       
-      virtual void dynamic_finished(Expr info, Expr result);
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      virtual void dynamic_finished(Expr info, Expr result) override;
+      virtual Box *dynamic_to_literal(int *start, int *end) override;
       
-      virtual void click();
+      virtual void click() override;
       
     protected:
       ContainerType calc_type(Expr result);

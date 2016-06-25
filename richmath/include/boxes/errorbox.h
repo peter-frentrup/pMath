@@ -10,18 +10,18 @@ namespace richmath {
       ErrorBox(const Expr object);
       virtual ~ErrorBox();
       
-      virtual bool try_load_from_object(Expr expr, int options);
+      virtual bool try_load_from_object(Expr expr, int options) override;
       
-      virtual Box *item(int i) { return nullptr; }
-      virtual int count() { return 0; }
+      virtual Box *item(int i) override { return nullptr; }
+      virtual int count() override { return 0; }
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       
-      virtual Box *remove(int *index) { return this; }
+      virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags) { return _object; }
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override { return _object; }
       
     private:
       Expr _object;

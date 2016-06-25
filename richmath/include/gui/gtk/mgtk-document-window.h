@@ -30,7 +30,7 @@ namespace richmath {
       };
       
     protected:
-      virtual void after_construction();
+      virtual void after_construction() override;
       
     public:
       MathGtkDocumentWindow();

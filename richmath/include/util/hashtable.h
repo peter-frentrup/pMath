@@ -145,7 +145,7 @@ namespace richmath {
           if(is_used(*entry_ptr)) {
             --i;
             
-            int i2 = lookup((*entry_ptr)->key);
+            unsigned int i2 = lookup((*entry_ptr)->key);
             assert(!is_used(table[i2]));
             
             table[i2] = *entry_ptr;
@@ -260,7 +260,7 @@ namespace richmath {
       }
       
       void set(const K &key, const V &value) {
-        int i = lookup(key);
+        unsigned int i = lookup(key);
         if(is_used(table[i])) {
           table[i]->value = value;
         }

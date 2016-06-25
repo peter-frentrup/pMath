@@ -30,49 +30,49 @@ namespace richmath {
       virtual ~GraphicsBox();
       
       // Box::try_create<GraphicsBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
       void reset_user_options();
       void set_user_default_options(Expr rules);
       Expr get_user_options();
       
-      virtual Box *item(int i);
-      virtual int count();
+      virtual Box *item(int i) override;
+      virtual int count() override;
       
-      virtual void invalidate();
-      virtual bool request_repaint(float x, float y, float w, float h);
+      virtual void invalidate() override;
+      virtual bool request_repaint(float x, float y, float w, float h) override;
       
-      virtual bool expand(const BoxSize &size);
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual bool expand(const BoxSize &size) override;
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       
-      virtual void reset_style();
+      virtual void reset_style() override;
       
-      virtual Box *remove(int *index) { return this; }
+      virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol(){ return Symbol(PMATH_SYMBOL_GRAPHICSBOX); }
-      virtual Expr to_pmath(int flags); // BoxFlagXXX
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_GRAPHICSBOX); }
+      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
       
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
-      virtual bool selectable(int i = -1);
+      virtual bool selectable(int i = -1) override;
         
-      virtual Box *normalize_selection(int *start, int *end);
+      virtual Box *normalize_selection(int *start, int *end) override;
       
       int calc_mouse_over_part(float x, float y);
       void transform_inner_to_outer(cairo_matrix_t *mat);
       
-      virtual Box *mouse_sensitive();
-      virtual void on_mouse_enter();
-      virtual void on_mouse_exit();
-      virtual void on_mouse_down(MouseEvent &event);
-      virtual void on_mouse_move(MouseEvent &event);
-      virtual void on_mouse_up(MouseEvent &event);
+      virtual Box *mouse_sensitive() override;
+      virtual void on_mouse_enter() override;
+      virtual void on_mouse_exit() override;
+      virtual void on_mouse_down(MouseEvent &event) override;
+      virtual void on_mouse_move(MouseEvent &event) override;
+      virtual void on_mouse_up(MouseEvent &event) override;
       
     protected:
       int   mouse_over_part; // GraphicsPartXXX

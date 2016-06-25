@@ -31,7 +31,7 @@ class Win32ControlPainterInfo: public BasicWin32Widget {
     }
     
   protected:
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) {
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       switch(message) {
         case WM_DWMCOMPOSITIONCHANGED:
         case WM_THEMECHANGED: {

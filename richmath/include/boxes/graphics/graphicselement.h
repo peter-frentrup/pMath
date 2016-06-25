@@ -63,7 +63,7 @@ namespace richmath {
       GraphicsDirective();
       virtual ~GraphicsDirective();
       
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
       int              count() {     return _items.length(); }
       GraphicsElement *item(int i) { return _items[i]; }
@@ -72,9 +72,9 @@ namespace richmath {
       void insert(int i, GraphicsElement *g);
       void remove(int i);
       
-      virtual void find_extends(GraphicsBounds &bounds);
-      virtual void paint(GraphicsBoxContext *context);
-      virtual Expr to_pmath(int flags); // BoxFlagXXX
+      virtual void find_extends(GraphicsBounds &bounds) override;
+      virtual void paint(GraphicsBoxContext *context) override;
+      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
       
     private:
       Array<GraphicsElement *> _items;
@@ -85,11 +85,11 @@ namespace richmath {
       GraphicsElementCollection();
       virtual ~GraphicsElementCollection();
       
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       void load_from_object(Expr expr, int opts);
       
-      virtual void paint(GraphicsBoxContext *context);
-      virtual Expr to_pmath(int flags); // BoxFlagXXX
+      virtual void paint(GraphicsBoxContext *context) override;
+      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
   };
 }
 

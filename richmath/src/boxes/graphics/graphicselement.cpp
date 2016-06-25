@@ -26,17 +26,17 @@ namespace {
       {
       }
       
-      virtual bool try_load_from_object(Expr expr, int opts) {
+      virtual bool try_load_from_object(Expr expr, int opts) override {
         return false;
       }
       
-      virtual void find_extends(GraphicsBounds &bounds) {
+      virtual void find_extends(GraphicsBounds &bounds) override {
       }
       
-      virtual void paint(GraphicsBoxContext *context) {
+      virtual void paint(GraphicsBoxContext *context) override {
       }
       
-      virtual Expr to_pmath(int flags) { // BoxFlagXXX
+      virtual Expr to_pmath(int flags) override { // BoxFlagXXX
         return _expr;
       }
       

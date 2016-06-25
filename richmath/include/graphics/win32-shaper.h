@@ -25,14 +25,14 @@ namespace richmath {
         Context        *context,
         int             len,
         const uint16_t *str,
-        GlyphInfo      *result);
+        GlyphInfo      *result) override;
         
-      virtual uint8_t num_fonts() { return 1; }
-      virtual FontFace font(uint8_t fontinfo) { return _font; }
-      virtual String font_name(uint8_t fontinfo) { return _name; }
-      virtual FontStyle get_style() { return _style; }
+      virtual uint8_t num_fonts() override { return 1; }
+      virtual FontFace font(uint8_t fontinfo) override { return _font; }
+      virtual String font_name(uint8_t fontinfo) override { return _name; }
+      virtual FontStyle get_style() override { return _style; }
       
-      SharedPtr<TextShaper> set_style(FontStyle style);
+      virtual SharedPtr<TextShaper> set_style(FontStyle style) override;
       
     private:
       String    _name;

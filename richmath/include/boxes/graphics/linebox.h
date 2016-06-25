@@ -10,12 +10,12 @@ namespace richmath {
       static LineBox *create(Expr expr, int opts); // may return nullptr
       virtual ~LineBox();
       
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual void find_extends(GraphicsBounds &bounds);
-      virtual void paint(GraphicsBoxContext *context);
+      virtual void find_extends(GraphicsBounds &bounds) override;
+      virtual void paint(GraphicsBoxContext *context) override;
       
-      virtual Expr to_pmath(int flags); // BoxFlagXXX
+      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
       
     protected:
       Expr                        _uncompressed_expr;

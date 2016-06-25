@@ -69,37 +69,37 @@ class richmath::Win32WorkingArea: public Win32Widget {
     {
     }
     
-    virtual void page_size(float *w, float *h) {
+    virtual void page_size(float *w, float *h) override {
       Win32Widget::page_size(w, h);
       
       if(auto_size)
         *w = HUGE_VAL;
     }
     
-    virtual void running_state_changed() {
+    virtual void running_state_changed() override {
       if(_parent)
         _parent->reset_title();
     }
     
-    void bring_to_front() {
+    virtual void bring_to_front() override {
       SetFocus(_hwnd);
       SetForegroundWindow(_parent->hwnd());
     }
     
-    virtual void close() {
+    virtual void close() override {
       SendMessageW(_parent->hwnd(), WM_CLOSE, 0, 0);
     }
     
-    virtual void invalidate_options() {
+    virtual void invalidate_options() override {
       if(_parent)
         _parent->invalidate_options();
     }
     
-    virtual String filename() { return _parent->filename(); }
-    virtual void filename(String new_filename) { _parent->filename(new_filename); }
+    virtual String filename() override { return _parent->filename(); }
+    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() { _parent->on_editing(); }
-    virtual void on_saved() {   _parent->on_saved(); }
+    virtual void on_editing() override { _parent->on_editing(); }
+    virtual void on_saved() override {   _parent->on_saved(); }
     
   private:
     Win32DocumentWindow *_parent;
@@ -121,14 +121,14 @@ class richmath::Win32WorkingArea: public Win32Widget {
       }
     }
     
-    virtual void set_cursor(CursorType type) {
+    virtual void set_cursor(CursorType type) override {
       if(auto_size && document()->count() == 0)
         return;
         
       Win32Widget::set_cursor(type);
     }
     
-    virtual void paint_background(Canvas *canvas) {
+    virtual void paint_background(Canvas *canvas) override {
       if((auto_size && document()->count() == 0) || _parent->window_frame() != WindowFrameNormal) {
         _parent->paint_background(canvas, _hwnd);
       }
@@ -138,7 +138,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       }
     }
     
-    virtual void paint_canvas(Canvas *canvas, bool resize_only) {
+    virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
       Win32Widget::paint_canvas(canvas, resize_only);
       
       if(auto_size) {
@@ -168,7 +168,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
         best_width = best_height = 1;
     }
     
-    virtual void on_paint(HDC dc, bool from_wmpaint) {
+    virtual void on_paint(HDC dc, bool from_wmpaint) override {
       Win32Widget::on_paint(dc, from_wmpaint);
       rearrange();
     }
@@ -177,7 +177,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
 class richmath::Win32Dock: public Win32Widget {
     friend class Win32DocumentWindow;
   protected:
-    virtual void after_construction() {
+    virtual void after_construction() override {
       Win32Widget::after_construction();
       
       assert(document()->style.is_valid());
@@ -217,42 +217,42 @@ class richmath::Win32Dock: public Win32Widget {
       return;
     }
     
-    virtual void page_size(float *w, float *h) {
+    virtual void page_size(float *w, float *h) override {
       Win32Widget::page_size(w, h);
       *w = HUGE_VAL;
     }
     
-    virtual bool is_scrollable() { return false; }
-    virtual void scroll_pos(float *x, float *y) { *x = *y = 0; }
-    virtual void scroll_to(float x, float y) {}
+    virtual bool is_scrollable() override { return false; }
+    virtual void scroll_pos(float *x, float *y) override { *x = *y = 0; }
+    virtual void scroll_to(float x, float y) override {}
     
-    void bring_to_front() {
+    virtual void bring_to_front() override {
       SetFocus(_hwnd);
       SetForegroundWindow(_parent->hwnd());
     }
     
-    virtual void close() {
+    virtual void close() override {
       SendMessageW(_parent->hwnd(), WM_CLOSE, 0, 0);
     }
     
-    virtual int height() {
+    int height() {
       return (int)(document()->extents().height() * scale_factor() + 0.5f);
     }
     
-    virtual int min_width() {
+    int min_width() {
       return (int)(document()->unfilled_width * scale_factor() + 0.5f);
     }
     
-    virtual void running_state_changed() {
+    virtual void running_state_changed() override {
       if(_parent)
         _parent->reset_title();
     }
     
-    virtual String filename() { return _parent->filename(); }
-    virtual void filename(String new_filename) { _parent->filename(new_filename); }
+    virtual String filename() override { return _parent->filename(); }
+    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() { _parent->on_editing(); }
-    virtual void on_saved() {   _parent->on_saved(); }
+    virtual void on_editing() override { _parent->on_editing(); }
+    virtual void on_saved() override {   _parent->on_saved(); }
     
     void resize() {
       HDC dc = GetDC(_hwnd);
@@ -312,11 +312,11 @@ class richmath::Win32Dock: public Win32Widget {
       }
     }
     
-    virtual void paint_background(Canvas *canvas) {
+    virtual void paint_background(Canvas *canvas) override {
       _parent->paint_background(canvas, _hwnd);
     }
     
-    virtual void paint_canvas(Canvas *canvas, bool resize_only) {
+    virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
       bool bif = Win32ControlPainter::win32_painter.blur_input_field;
       Win32ControlPainter::win32_painter.blur_input_field = false;
       
@@ -333,12 +333,12 @@ class richmath::Win32Dock: public Win32Widget {
         _parent->rearrange();
     }
     
-    virtual void on_paint(HDC dc, bool from_wmpaint) {
+    virtual void on_paint(HDC dc, bool from_wmpaint) override {
       Win32Widget::on_paint(dc, from_wmpaint);
       rearrange();
     }
     
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) {
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       if(!initializing()) {
         switch(message) {
           case WM_MOUSEMOVE: {
@@ -395,7 +395,7 @@ class richmath::Win32Dock: public Win32Widget {
 
 class richmath::Win32GlassDock: public richmath::Win32Dock {
   protected:
-    virtual void after_construction() {
+    virtual void after_construction() override {
       Win32Dock::after_construction();
       
       document()->style->set(Background, -1);
@@ -432,7 +432,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
         document()->style->remove(TextShadow);
     }
     
-    virtual void paint_background(Canvas *canvas) {
+    virtual void paint_background(Canvas *canvas) override {
       if( Win32Themes::IsCompositionActive &&
           Win32Themes::IsCompositionActive())
       {
@@ -475,7 +475,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
       Win32Dock::paint_background(canvas);
     }
     
-    virtual void on_paint(HDC dc, bool from_wmpaint) {
+    virtual void on_paint(HDC dc, bool from_wmpaint) override {
       if( Win32Themes::IsCompositionActive &&
           Win32Themes::IsCompositionActive())
       {
@@ -487,7 +487,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
       Win32Dock::on_paint(dc, from_wmpaint);
     }
     
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) {
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       if(!initializing()) {
         switch(message) {
           case WM_LBUTTONDOWN: {

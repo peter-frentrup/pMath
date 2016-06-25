@@ -11,15 +11,15 @@ namespace richmath {
       InterpretationBox(MathSequence *content);
       InterpretationBox(MathSequence *content, Expr _interpretation);
       
-      virtual void reset_style();
+      virtual void reset_style() override;
       
       // Box::try_create<InterpretationBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_INTERPRETATIONBOX); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_INTERPRETATIONBOX); }
+      virtual Expr to_pmath(int flags) override;
       
-      virtual bool edit_selection(Context *context);
+      virtual bool edit_selection(Context *context) override;
       
     public:
       Expr interpretation;

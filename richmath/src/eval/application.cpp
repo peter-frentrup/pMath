@@ -196,7 +196,7 @@ class ClientInfoWindow: public BasicWin32Widget {
     }
     
   protected:
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) {
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       if(!initializing()) {
         switch(message) {
           case WM_CLIENTNOTIFY:

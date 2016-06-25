@@ -178,7 +178,7 @@ namespace richmath {
       virtual Box *normalize_selection(int *start, int *end);
       
       virtual Expr prepare_dynamic(Expr expr);
-      virtual void dynamic_updated();
+      virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) {}
       
       virtual bool try_load_from_object(Expr object, int options) = 0; // BoxOptionXXX
@@ -247,19 +247,19 @@ namespace richmath {
       DummyBox(): Box() {}
       virtual ~DummyBox() {}
       
-      virtual bool try_load_from_object(Expr expr, int options) { return false; }
+      virtual bool try_load_from_object(Expr expr, int options) override { return false; }
       
-      virtual Box *item(int i) { return 0; }
-      virtual int  count() {     return 0; }
-      virtual int  length() {    return 0; }
+      virtual Box *item(int i) override { return nullptr; }
+      virtual int  count() override {     return 0; }
+      virtual int  length() override {    return 0; }
       
-      virtual void resize(Context *context) {}
-      virtual void paint(Context *context) {}
+      virtual void resize(Context *context) override {}
+      virtual void paint(Context *context) override {}
       
-      virtual Box *remove(int *index) { return this; }
+      virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags) { return Expr(); }
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override { return Expr(); }
   };
   
   class AbstractSequence: public Box {
@@ -283,10 +283,10 @@ namespace richmath {
       virtual void remove(int start, int end) = 0;
       
       virtual Box *extract_box(int boxindex) = 0;
-      virtual bool try_load_from_object(Expr object, int options);
+      virtual bool try_load_from_object(Expr object, int options) override;
       virtual void load_from_object(Expr object, int options) = 0; // BoxOptionXXX
       
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      virtual Box *dynamic_to_literal(int *start, int *end) override;
       
       BoxSize &var_extents() { return _extents; }
       
@@ -295,7 +295,7 @@ namespace richmath {
       
       virtual void get_line_heights(int line, float *ascent, float *descent) = 0;
       
-      virtual bool request_repaint_range(int start, int end);
+      virtual bool request_repaint_range(int start, int end) override;
       
     protected:
       float em;
