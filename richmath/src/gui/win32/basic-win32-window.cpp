@@ -893,19 +893,11 @@ void BasicWin32Window::paint_themed(HDC hdc) {
 void get_system_button_bounds(HWND hwnd, RECT *rect) {
   //DwmGetWindowAttribute(hwnd, DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT));
   
-  // TITLEBARINFOEX:
-  struct {
-    DWORD cbSize;
-    RECT rcTitleBar;
-    DWORD rgstate[6];
-    RECT rgrect[6];
-  } tbi;
-  
+  TITLEBARINFOEX tbi;
   memset(&tbi, 0, sizeof(tbi));
   tbi.cbSize = sizeof(tbi);
   
-  // WM_GETTITLEBARINFOEX = 0x033F
-  SendMessageW(hwnd, 0x033F, 0, (LPARAM)&tbi);
+  SendMessageW(hwnd, WM_GETTITLEBARINFOEX, 0, (LPARAM)&tbi);
   
   memset(rect, 0, sizeof(RECT));
   for(int i = 2; i <= 5; ++i)
