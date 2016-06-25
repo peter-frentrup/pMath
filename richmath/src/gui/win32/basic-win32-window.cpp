@@ -950,8 +950,23 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
       old_font = (HFONT)SelectObject(hdc_bitmap, font);
     }
     
-    int frame_x   = GetSystemMetrics(SM_CXSIZEFRAME);
-    int frame_y   = GetSystemMetrics(SM_CYSIZEFRAME);
+    /* SM_CXPADDEDBORDER is available since Windows Vista.
+    
+       If the executable specifies subsystem version < 6.0 (e.g. 5.02 for XP 64bit),
+       then GetSystemMetrics(SM_CXSIZEFRAME) will lie to us and include the border 
+       padding, giving e.g. 8px on Windows 7. On the other hand, 
+       GetSystemMetrics(SM_CXPADDEDBORDER) will also lie and give 0px.
+       However, newer versions of Visual C++ set a default subsystem version of 6.0 
+       or higher, because XP is not supported any more. In that case, 
+       GetSystemMetrics(SM_CXSIZEFRAME) will not include the border padding and give 
+       only 4px on Windows 7. In that case GetSystemMetrics(SM_CXPADDEDBORDER) will
+       give 4px.
+       
+       Hence, the sum of SM_CXPADDEDBORDER and SM_CXSIZEFRAME is always what we want.
+     */
+    
+    int frame_x   = GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+    int frame_y   = GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
     int caption_h = GetSystemMetrics(SM_CYCAPTION);
     
     bool center_caption = false;
@@ -1781,8 +1796,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
         
       case WM_NCLBUTTONUP: {
-          if(_themed_frame
-              && wParam == HTSYSMENU) {
+          if(_themed_frame && wParam == HTSYSMENU) {
             HMENU menu = GetSystemMenu(_hwnd, FALSE);
             
             if(menu) {
@@ -1791,10 +1805,10 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               tpm.cbSize = sizeof(tpm);
               GetWindowRect(_hwnd, &tpm.rcExclude);
               
-              tpm.rcExclude.left +=  GetSystemMetrics(SM_CXSIZEFRAME);
-              tpm.rcExclude.top +=   GetSystemMetrics(SM_CYSIZEFRAME);
-              tpm.rcExclude.right -= GetSystemMetrics(SM_CXSIZEFRAME);
-              tpm.rcExclude.bottom = tpm.rcExclude.top  + GetSystemMetrics(SM_CYCAPTION);
+              tpm.rcExclude.left +=  GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+              tpm.rcExclude.top +=   GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+              tpm.rcExclude.right -= GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+              tpm.rcExclude.bottom = tpm.rcExclude.top + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER);
               
               //POINT pt;
               //pt.x = (short)LOWORD(lParam);

@@ -434,9 +434,8 @@
 				<Option output="bin/windows/msvc-release-x64/richmath" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option external_deps="../library/pmath.cbp;" />
-				<Option type="1" />
+				<Option type="0" />
 				<Option compiler="msvc_2015_x64" />
-				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="/MD" />
 					<Add option="/Gd" />
