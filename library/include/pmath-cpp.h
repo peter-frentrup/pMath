@@ -213,9 +213,9 @@ namespace pmath {
       
       /**\brief Length of the expression or 0 on error. */
       size_t expr_length() const throw() {
-        if(is_expr())
-          return pmath_expr_length(_obj);
-        return 0;
+        if(!is_expr())
+          return 0;
+        return pmath_expr_length(_obj);
       }
       
       /**\brief Get the i-th argument of the expression.
@@ -225,9 +225,21 @@ namespace pmath {
          last argument.
        */
       Expr operator[](size_t i) const throw() {
-        if(is_expr())
-          return Expr(pmath_expr_get_item(_obj, i));
-        return Expr();
+        if(!is_expr())
+          return Expr();
+        return Expr(pmath_expr_get_item(_obj, i));
+      }
+      
+      /**\brief Get the i-th argument of the expression.
+         \param i Index. Values outside 0..expr_length() give PMATH_NULL.
+         \return The i-th argument if the object is a \ref pmath_expr_t.
+       */
+      Expr operator[](int i) const throw() {
+        if(i < 0)
+          return Expr();
+        if(!is_expr())
+          return Expr();
+        return Expr(pmath_expr_get_item(_obj, (size_t)i));
       }
       
       /**\brief Change the i-th argument of an expression
@@ -239,21 +251,52 @@ namespace pmath {
           _obj = pmath_expr_set_item(_obj, i, e.release());
       }
       
+      /**\brief Change the i-th argument of an expression
+         \param i Index. Values outside 0..expr_length() are ignored.
+         \param e The new element.
+       */
+      void set(int i, Expr e) throw() {
+        if(i < 0)
+          return;
+        if(is_expr())
+          _obj = pmath_expr_set_item(_obj, (size_t)i, e.release());
+      }
+      
       /**\brief Change the (i,j)-th argument of a matrix
          \param i The matrix row.
          \param j The matrix column.
          \param e The new element.
        */
       void set(size_t i, size_t j, Expr e) throw() {
-        if(is_expr()) {
-          pmath_t item = pmath_expr_extract_item(_obj, i);
-          if(pmath_is_expr(item)) {
-            item = pmath_expr_set_item(item, j, e.release());
-            _obj = pmath_expr_set_item(_obj, i, item);
-          }
-          else {
-            _obj = pmath_expr_set_item(_obj, i, item);
-          }
+        if(!is_expr())
+          return;
+        
+        pmath_t item = pmath_expr_extract_item(_obj, i);
+        if(pmath_is_expr(item)) {
+          item = pmath_expr_set_item(item, j, e.release());
+          _obj = pmath_expr_set_item(_obj, i, item);
+        }
+        else {
+          _obj = pmath_expr_set_item(_obj, i, item);
+        }
+      }
+      
+      /**\brief Change the (i,j)-th argument of a matrix
+         \param i The matrix row.
+         \param j The matrix column.
+         \param e The new element.
+       */
+      void set(int i, int j, Expr e) throw() {
+        if(i < 0 || j < 0 || !is_expr())
+          return;
+        
+        pmath_t item = pmath_expr_extract_item(_obj, (size_t)i);
+        if(pmath_is_expr(item)) {
+          item = pmath_expr_set_item(item, (size_t)j, e.release());
+          _obj = pmath_expr_set_item(_obj, (size_t)i, item);
+        }
+        else {
+          _obj = pmath_expr_set_item(_obj, (size_t)i, item);
         }
       }
       
@@ -261,23 +304,20 @@ namespace pmath {
          \param e The new element.
         */
       void append(Expr e) throw() {
-        if(is_expr()) {
+        if(is_expr())
           _obj = pmath_expr_append(_obj, 1, e.release());
-        }
       }
       
       void expr_remove_all(Expr rem) throw() {
-        if(is_expr()) {
+        if(is_expr())
           _obj = pmath_expr_remove_all(_obj, rem.get());
-        }
       }
       
       /**\brief Sort the expression
         */
       void sort() throw() {
-        if(is_expr()) {
+        if(is_expr())
           _obj = pmath_expr_sort(_obj);
-        }
       }
       
       /**\brief Convert to a double.
