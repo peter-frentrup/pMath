@@ -1506,8 +1506,8 @@ pmath_string_t pmath_string_part(
 }
 
 PMATH_API
-const uint16_t *pmath_string_buffer(pmath_string_t *string) {
-  struct _pmath_string_t *_str;
+const uint16_t *pmath_string_buffer(const pmath_string_t *string) {
+  const struct _pmath_string_t *_str;
 
   if(pmath_is_null(*string))
     return NULL;

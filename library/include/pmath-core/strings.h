@@ -267,7 +267,7 @@ pmath_string_t pmath_string_part(
 
 PMATH_API
 PMATH_ATTRIBUTE_PURE
-const uint16_t *pmath_string_buffer(pmath_string_t *string);
+const uint16_t *pmath_string_buffer(const pmath_string_t *string);
 
 /**\brief Get a string's length.
    \memberof pmath_string_t
