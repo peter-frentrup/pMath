@@ -281,9 +281,8 @@
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
-					<Add option="/Wall" />
 					<Add option="/Zi" />
-					<Add option="/wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
 					<Add option="/wd4263 /wd4264 /wd4266" />
 					<Add option="/DPMATH_DEBUG_LOG" />
 					<Add option="/D_HAS_EXCEPTIONS=0" />
@@ -300,7 +299,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
-					<Add option="/DEBUG" />
 					<Add option="/ENTRY:mainCRTStartup" />
 					<Add library="pmath.lib" />
 					<Add library="cairo" />
@@ -338,9 +336,8 @@
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
-					<Add option="/Wall" />
 					<Add option="/Zi" />
-					<Add option="/wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
 					<Add option="/wd4263 /wd4264 /wd4266" />
 					<Add option="/DNDEBUG" />
 					<Add option="/D_HAS_EXCEPTIONS=0" />
@@ -357,7 +354,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="/debug" />
-					<Add option="/DEBUG" />
 					<Add option="/ENTRY:mainCRTStartup" />
 					<Add library="pmath" />
 					<Add library="cairo" />
@@ -395,9 +391,8 @@
 					<Add option="/MDd" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
-					<Add option="/Wall" />
 					<Add option="/Zi" />
-					<Add option="/wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
 					<Add option="/wd4263 /wd4264 /wd4266" />
 					<Add option="/DPMATH_DEBUG_LOG" />
 					<Add option="/D_HAS_EXCEPTIONS=0" />
@@ -451,9 +446,8 @@
 					<Add option="/Gd" />
 					<Add option="/GL" />
 					<Add option="/GF" />
-					<Add option="/Wall" />
 					<Add option="/Zi" />
-					<Add option="/wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
 					<Add option="/wd4263 /wd4264 /wd4266" />
 					<Add option="/DNDEBUG" />
 					<Add option="/D_HAS_EXCEPTIONS=0" />

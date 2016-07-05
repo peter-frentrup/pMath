@@ -63,11 +63,11 @@ uint32_t TextBuffer::char_at(int pos) {
     
   switch(len) {
     case 1:
-      return _buffer[pos];
+      return (unsigned char)_buffer[pos];
       
     case 2: {
-        uint32_t c1 = _buffer[pos];
-        uint32_t c2 = _buffer[pos + 1];
+        uint32_t c1 = (unsigned char)_buffer[pos];
+        uint32_t c2 = (unsigned char)_buffer[pos + 1];
         
         c1 = c1 & 0x1Fu;
         c2 = c2 & 0x3Fu;
@@ -76,9 +76,9 @@ uint32_t TextBuffer::char_at(int pos) {
       }
       
     case 3: {
-        uint32_t c1 = _buffer[pos];
-        uint32_t c2 = _buffer[pos + 1];
-        uint32_t c3 = _buffer[pos + 2];
+        uint32_t c1 = (unsigned char)_buffer[pos];
+        uint32_t c2 = (unsigned char)_buffer[pos + 1];
+        uint32_t c3 = (unsigned char)_buffer[pos + 2];
         
         c1 = c1 & 0x0Fu;
         c2 = c2 & 0x3Fu;
@@ -88,10 +88,10 @@ uint32_t TextBuffer::char_at(int pos) {
       }
       
     case 4: {
-        uint32_t c1 = _buffer[pos];
-        uint32_t c2 = _buffer[pos + 1];
-        uint32_t c3 = _buffer[pos + 2];
-        uint32_t c4 = _buffer[pos + 3];
+        uint32_t c1 = (unsigned char)_buffer[pos];
+        uint32_t c2 = (unsigned char)_buffer[pos + 1];
+        uint32_t c3 = (unsigned char)_buffer[pos + 2];
+        uint32_t c4 = (unsigned char)_buffer[pos + 3];
         
         c1 = c1 & 0x07u;
         c2 = c2 & 0x3Fu;
@@ -144,6 +144,8 @@ int TextBuffer::insert(int pos, const String &s) {
 }
 
 void TextBuffer::remove(int pos, int len) {
+  assert(len >= 0);
+  assert(pos + len <= _length);
   memmove(_buffer + pos, _buffer + pos + len, _length - pos - len);
   _length -= len;
 }
