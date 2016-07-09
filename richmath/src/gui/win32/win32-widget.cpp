@@ -27,10 +27,10 @@
 #include <resources.h>
 
 #ifndef WM_MOUSEHWHEEL
-#define WM_MOUSEHWHEEL  0x020E
+#  define WM_MOUSEHWHEEL  0x020E
 #endif
 #ifndef SPI_GETWHEELSCROLLCHARS
-#define SPI_GETWHEELSCROLLCHARS   0x006C
+#  define SPI_GETWHEELSCROLLCHARS   0x006C
 #endif
 
 #define TID_SCROLL         1
@@ -108,6 +108,9 @@ Win32Widget::Win32Widget(
 
 void Win32Widget::after_construction() {
   BasicWin32Widget::after_construction();
+  
+//  if(Win32Touch::RegisterTouchWindow)
+//    Win32Touch::RegisterTouchWindow(_hwnd, 0);
 }
 
 Win32Widget::~Win32Widget() {
@@ -939,10 +942,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           int cursorId;
           PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
           pmath_debug_print(
-            "[%s id %d down]\n",
+            "[WM_%sBUTTONDOWN: %s id %d]\n",
+            message == WM_LBUTTONDOWN ? "L" : (message == WM_MBUTTONDOWN ? "M" : "R"),
             source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
             cursorId);
-          
+            
           event.left   = message == WM_LBUTTONDOWN;
           event.middle = message == WM_MBUTTONDOWN;
           event.right  = message == WM_RBUTTONDOWN;
@@ -961,6 +965,14 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_RBUTTONUP: {
           MouseEvent event;
           
+          int cursorId;
+          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
+          pmath_debug_print(
+            "[WM_%sBUTTONUP: %s id %d]\n",
+            message == WM_LBUTTONUP ? "L" : (message == WM_MBUTTONUP ? "M" : "R"),
+            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
+            cursorId);
+            
           event.left   = message == WM_LBUTTONUP;
           event.middle = message == WM_MBUTTONUP;
           event.right  = message == WM_RBUTTONUP;
@@ -986,6 +998,13 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_MOUSEMOVE: {
           MouseEvent event;
           
+//          int cursorId;
+//          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
+//          pmath_debug_print(
+//            "[WM_MOUSEMOVE: %s id %d]\n",
+//            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
+//            cursorId);
+
           event.left   = (wParam & MK_LBUTTON) != 0;
           event.middle = (wParam & MK_MBUTTON) != 0;
           event.right  = (wParam & MK_RBUTTON) != 0;
@@ -1007,11 +1026,34 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           tme.dwHoverTime = HOVER_DEFAULT;
           
           TrackMouseEvent(&tme);
+          
+          // NOTE: The internet says, WM_MOUSEMOVE messages must be passed on to
+          // DefWindowProc for WM_TOUCH messages to be emitted.
+          // This does not seem to be necessary on Windows 7, but maybe later?
         } return 0;
         
       case WM_MOUSELEAVE: {
           document()->mouse_exit();
         } return 0;
+        
+      case WM_GESTURENOTIFY: {
+          Win32Touch::GESTURENOTIFYSTRUCT *note = (Win32Touch::GESTURENOTIFYSTRUCT*)lParam;
+          if(Win32Touch::SetGestureConfig) {
+            Win32Touch::GESTURECONFIG gc[] = {
+              { GID_ZOOM, 
+                GC_ZOOM, 0},
+              { GID_PAN,
+                GC_PAN | GC_PAN_WITH_INERTIA | GC_PAN_WITH_GUTTER | GC_PAN_WITH_SINGLE_FINGER_VERTICALLY,
+                GC_PAN_WITH_SINGLE_FINGER_HORIZONTALLY
+              },
+              { GID_TWOFINGERTAP, 
+                GC_TWOFINGERTAP, 0},
+              { GID_PRESSANDTAP, 
+                GC_PRESSANDTAP, 0}
+            };
+            Win32Touch::SetGestureConfig(_hwnd, 0, ARRAYSIZE(gc), gc, sizeof(gc[0]));
+          }
+        } break;
         
       case WM_GESTURE:
         if(Win32Touch::GetGestureInfo) {
@@ -1022,7 +1064,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           
           if(Win32Touch::GetGestureInfo((HANDLE)lParam, &gi)) {
             bool handled = false;
-          
+            
             switch(gi.dwID) {
               case GID_ZOOM: {
                   handled = true;
@@ -1040,11 +1082,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 //                                      (int)gi.ullArguments,
 //                                      (int)gi.ptsLocation.x,
 //                                      (int)gi.ptsLocation.y);
-                                      
+
                     set_custom_scale(relzoom);
                   }
                 } break;
-              
+                
               case GID_TWOFINGERTAP: {
                   handled = true;
                   set_custom_scale(1.0f);
@@ -1056,7 +1098,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 //                    gi.ullArguments,
 //                    (int)gi.ptsLocation.x,
 //                    (int)gi.ptsLocation.y);
-              } break;
+                } break;
             }
             
             if(handled) {
@@ -1067,6 +1109,54 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         }
         break;
         
+//      case WM_TOUCH:
+//        if(Win32Touch::GetTouchInputInfo) {
+//          UINT cInputs = LOWORD(wParam);
+//          Array<Win32Touch::TOUCHINPUT> inputs((int)cInputs);
+//
+//          if(Win32Touch::GetTouchInputInfo((HANDLE)lParam, cInputs, inputs.items(), sizeof(Win32Touch::TOUCHINPUT))) {
+//            bool handled = false;
+//
+//            bool allMoveOnly = true;
+//            for(int i = 0;i < inputs.length();++i) {
+//              Win32Touch::TOUCHINPUT &ti = inputs[i];
+//              if((ti.dwFlags & (TOUCHEVENTF_UP | TOUCHEVENTF_DOWN)) != 0) {
+//                allMoveOnly = false;
+//              }
+//            }
+//
+//            if(!allMoveOnly) {
+//              pmath_debug_print("[WM_TOUCH: %u inputs]\n", cInputs);
+//              for(int i = 0;i < inputs.length();++i) {
+//                Win32Touch::TOUCHINPUT &ti = inputs[i];
+//
+//                pmath_debug_print(
+//                  "  [id %u %s%s%s%s%s%s%s%sat (%.2f,%.2f) %s%.2fx%.2f]\n",
+//                  ti.dwID,
+//                  (ti.dwFlags & TOUCHEVENTF_PEN)        ? "pen "           : "", // does not happen?
+//                  (ti.dwFlags & TOUCHEVENTF_PRIMARY)    ? "primary "       : "",
+//                  (ti.dwFlags & TOUCHEVENTF_MOVE)       ? "move "          : "",
+//                  (ti.dwFlags & TOUCHEVENTF_DOWN)       ? "down "          : "",
+//                  (ti.dwFlags & TOUCHEVENTF_UP)         ? "up "            : "",
+//                  (ti.dwFlags & TOUCHEVENTF_INRANGE)    ? "inrange "       : "",
+//                  (ti.dwFlags & TOUCHEVENTF_NOCOALESCE) ? "non-coalesced " : "coalesced ",
+//                  (ti.dwFlags & TOUCHEVENTF_PALM)       ? "palm "          : "",
+//                  ti.x / 100.0f,
+//                  ti.y / 100.0f,
+//                  (ti.dwMask & TOUCHINPUTMASKF_CONTACTAREA) ? "contact area ": "ignore area ",
+//                  ti.cxContact / 100.0f,
+//                  ti.cyContact / 100.0f);
+//              }
+//            }
+//
+//            if(handled) {
+//              Win32Touch::CloseTouchInputHandle((HANDLE)lParam);
+//              return 0;
+//            }
+//          }
+//        }
+//        break;
+
       case WM_TIMER: {
           switch(wParam) {
             case TID_SCROLL: {
