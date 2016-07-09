@@ -936,6 +936,13 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_RBUTTONDOWN: {
           MouseEvent event;
           
+          int cursorId;
+          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
+          pmath_debug_print(
+            "[%s id %d down]\n",
+            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
+            cursorId);
+          
           event.left   = message == WM_LBUTTONDOWN;
           event.middle = message == WM_MBUTTONDOWN;
           event.right  = message == WM_RBUTTONDOWN;

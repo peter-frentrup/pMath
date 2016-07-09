@@ -11,6 +11,12 @@
 
 
 namespace richmath {
+  enum class PointerEventSource {
+    Mouse,
+    Pen,
+    Touch
+  } ;
+  
   /* (optional) Windows 7 Touch API */
   class Win32Touch: public Base {
     public:
@@ -30,6 +36,11 @@ namespace richmath {
       static BOOL (WINAPI *GetGestureInfo)(HANDLE, PGESTUREINFO);
       static BOOL (WINAPI *CloseGestureInfoHandle)(HANDLE);
       
+      static PointerEventSource get_mouse_message_source(int *id) {
+        return get_mouse_message_source(id, ::GetMessageExtraInfo());
+      }
+      static PointerEventSource get_mouse_message_source(int *id, LPARAM messageExtraInfo);
+    
       static void init();
       
     private:
