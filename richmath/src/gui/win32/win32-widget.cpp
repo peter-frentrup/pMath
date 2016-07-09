@@ -1020,7 +1020,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               case GID_ZOOM: {
                   handled = true;
                   
-                  if(gi.dwFlags == GF_BEGIN) {
+                  if(gi.dwFlags & GF_BEGIN) {
                     gesture_zoom_factor = custom_scale_factor() / (double)(uint32_t)(gi.ullArguments);
                   }
                   else {
@@ -1037,6 +1037,19 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                     set_custom_scale(relzoom);
                   }
                 } break;
+              
+              case GID_TWOFINGERTAP: {
+                  handled = true;
+                  set_custom_scale(1.0f);
+//                  pmath_debug_print(
+//                    "[%s%s%s2-finger tap gesture (finger distance %llu) at (%d,%d)]\n",
+//                    (gi.dwFlags & GF_BEGIN)   ? "begin " : "",
+//                    (gi.dwFlags & GF_INERTIA) ? "inerta " : "",
+//                    (gi.dwFlags & GF_END)     ? "end " : "",
+//                    gi.ullArguments,
+//                    (int)gi.ptsLocation.x,
+//                    (int)gi.ptsLocation.y);
+              } break;
             }
             
             if(handled) {
