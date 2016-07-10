@@ -122,8 +122,6 @@ static pmath_t builtin_documentget(pmath_expr_t _expr) {
   }
   
   return Application::notify_wait(CNT_DOCUMENTGET, expr).release();
-  
-  return PMATH_NULL;
 }
 
 static pmath_t builtin_documentread(pmath_expr_t _expr) {
@@ -135,8 +133,6 @@ static pmath_t builtin_documentread(pmath_expr_t _expr) {
   }
   
   return Application::notify_wait(CNT_DOCUMENTREAD, expr).release();
-  
-  return PMATH_NULL;
 }
 
 static pmath_t builtin_documents(pmath_expr_t expr) {
