@@ -13,7 +13,6 @@ namespace richmath {
   class StylusUtil {
     public:
       static ComBase<IRealTimeStylus> create_stylus_for_window(HWND hwnd);
-      static ComBase<IGestureRecognizer> create_gesture_recognizer();
       
       static ULONG get_stylus_sync_plugin_count(IRealTimeStylus *stylus);
       static ULONG get_stylus_sync_plugin_count(const ComBase<IRealTimeStylus> &stylus) {
@@ -22,8 +21,6 @@ namespace richmath {
       
       static void debug_describe_packet_data_definition(IRealTimeStylus *stylus, TABLET_CONTEXT_ID tcid);
       static void debug_describe_packet_data(IRealTimeStylus *stylus, TABLET_CONTEXT_ID tcid, LONG *data);
-      
-      static void debug_describe_gesture(GESTURE_DATA *gesture);
   };
 }
 

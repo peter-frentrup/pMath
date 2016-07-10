@@ -111,8 +111,6 @@ void Win32Widget::after_construction() {
   
   stylus = StylusUtil::create_stylus_for_window(_hwnd);
   if(stylus) {
-    gesture_recognizer = StylusUtil::create_gesture_recognizer();
-    
     auto stylus3 = stylus.as<IRealTimeStylus3>();
     if(stylus3) {
       /* RealTimeStylus with MultiTouchEnabled disables WM_GESTURE */
@@ -148,14 +146,6 @@ void Win32Widget::after_construction() {
     /* RealTimeStylus disables single-finger WM_GESTURE */
     HRbool(stylus->put_Enabled(TRUE));
     
-    if(HRbool(stylus->AddStylusSyncPlugin(
-                StylusUtil::get_stylus_sync_plugin_count(stylus),
-                gesture_recognizer.as<IStylusSyncPlugin>().get())))
-    {
-      int gestures[] = { IAG_AllGestures };
-      HRbool(gesture_recognizer->EnableGestures(ARRAYSIZE(gestures), gestures));
-      HRbool(gesture_recognizer->put_Enabled(TRUE));
-    }
     HRbool(stylus->AddStylusSyncPlugin(
              StylusUtil::get_stylus_sync_plugin_count(stylus),
              this));
@@ -465,7 +455,6 @@ STDMETHODIMP Win32Widget::DataInterest(RealTimeStylusDataInterest* pEventInteres
   *pEventInterest = (RealTimeStylusDataInterest)(
                       RTSDI_StylusDown |
                       RTSDI_StylusUp |
-                      RTSDI_CustomStylusDataAdded |
                       RTSDI_SystemEvents);
   return S_OK;
 }
@@ -496,8 +485,6 @@ STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo
     
   //StylusUtil::debug_describe_packet_data_definition(piRtsSrc, pStylusInfo->tcid);
   StylusUtil::debug_describe_packet_data(piRtsSrc, pStylusInfo->tcid, pPacket);
-  
-  //HRbool(gesture_recognizer->put_Enabled(kind == TDK_Touch));
   return S_OK;
 }
 
@@ -544,20 +531,6 @@ STDMETHODIMP Win32Widget::SystemEvent(IRealTimeStylus *piRtsSrc, TABLET_CONTEXT_
     (unsigned)event,
     kind == TDK_Mouse ? "mouse" : (kind == TDK_Pen ? "pen" : (kind == TDK_Touch ? "touch" : "???")),
     sid);
-  return S_OK;
-}
-
-STDMETHODIMP Win32Widget::CustomStylusDataAdded(IRealTimeStylus *piRtsSrc, const GUID *pGuidId, ULONG cbData, const BYTE *pbData) {
-  if(pbData != nullptr && *pGuidId == GUID_GESTURE_DATA) {
-    fprintf(stderr, "[CustomStylusDataAdded GUID_GESTURE_DATA]\n");
-    
-    for(GESTURE_DATA *gd = (GESTURE_DATA*)pbData; (BYTE*)(gd + 1) <= pbData + cbData; ++gd) {
-      StylusUtil::debug_describe_gesture(gd);
-    }
-  }
-  else
-    fprintf(stderr, "[CustomStylusDataAdded other]\n");
-    
   return S_OK;
 }
 

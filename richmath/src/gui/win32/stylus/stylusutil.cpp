@@ -32,21 +32,6 @@ ComBase<IRealTimeStylus> StylusUtil::create_stylus_for_window(HWND hwnd) {
   return stylus;
 }
 
-ComBase<IGestureRecognizer> StylusUtil::create_gesture_recognizer() {
-  ComBase<IGestureRecognizer> recognizer;
-  if(!HRbool(CoCreateInstance(
-               CLSID_GestureRecognizer,
-               nullptr,
-               CLSCTX_ALL,
-               IID_IGestureRecognizer,
-               (void**)recognizer.get_address_of())))
-  {
-    return recognizer;
-  }
-  
-  return recognizer;
-}
-
 ULONG StylusUtil::get_stylus_sync_plugin_count(IRealTimeStylus *stylus) {
   if(!stylus)
     return 0;
@@ -138,75 +123,6 @@ void StylusUtil::debug_describe_packet_data(IRealTimeStylus *stylus, TABLET_CONT
     }
     CoTaskMemFree(props);
   }
-}
-
-static const char *describe_gesture_id(int id) {
-  switch(id) {
-    case IAG_AllGestures:     return "IAG_AllGestures";
-    case IAG_NoGesture:       return "IAG_NoGesture";
-    case IAG_Scratchout:      return "IAG_Scratchout";
-    case IAG_Triangle:        return "IAG_Triangle";
-    case IAG_Square:          return "IAG_Square";
-    case IAG_Star:            return "IAG_Star";
-    case IAG_Check:           return "IAG_Check";
-    case IAG_Curlicue:        return "IAG_Curlicue";
-    case IAG_DoubleCurlicue:  return "IAG_DoubleCurlicue";
-    case IAG_Circle:          return "IAG_Circle";
-    case IAG_DoubleCircle:    return "IAG_DoubleCircle";
-    case IAG_SemiCircleLeft:  return "IAG_SemiCircleLeft";
-    case IAG_SemiCircleRight: return "IAG_SemiCircleRight";
-    case IAG_ChevronUp:       return "IAG_ChevronUp";
-    case IAG_ChevronDown:     return "IAG_ChevronDown";
-    case IAG_ChevronLeft:     return "IAG_ChevronLeft";
-    case IAG_ChevronRight:    return "IAG_ChevronRight";
-    case IAG_ArrowUp:         return "IAG_ArrowUp";
-    case IAG_ArrowDown:       return "IAG_ArrowDown";
-    case IAG_ArrowLeft:       return "IAG_ArrowLeft";
-    case IAG_ArrowRight:      return "IAG_ArrowRight";
-    case IAG_Up:              return "IAG_Up";
-    case IAG_Down:            return "IAG_Down";
-    case IAG_Left:            return "IAG_Left";
-    case IAG_Right:           return "IAG_Right";
-    case IAG_UpDown:          return "IAG_UpDown";
-    case IAG_DownUp:          return "IAG_DownUp";
-    case IAG_LeftRight:       return "IAG_LeftRight";
-    case IAG_RightLeft:       return "IAG_RightLeft";
-    case IAG_UpLeftLong:      return "IAG_UpLeftLong";
-    case IAG_UpRightLong:     return "IAG_UpRightLong";
-    case IAG_DownLeftLong:    return "IAG_DownLeftLong";
-    case IAG_DownRightLong:   return "IAG_DownRightLong";
-    case IAG_UpLeft:          return "IAG_UpLeft";
-    case IAG_UpRight:         return "IAG_UpRight";
-    case IAG_DownLeft:        return "IAG_DownLeft";
-    case IAG_DownRight:       return "IAG_DownRight";
-    case IAG_LeftUp:          return "IAG_LeftUp";
-    case IAG_LeftDown:        return "IAG_LeftDown";
-    case IAG_RightUp:         return "IAG_RightUp";
-    case IAG_RightDown:       return "IAG_RightDown";
-    case IAG_Exclamation:     return "IAG_Exclamation";
-    case IAG_Tap:             return "IAG_Tap";
-    case IAG_DoubleTap:       return "IAG_DoubleTap";
-  }
-  return "???";
-}
-
-static const char *describe_recognition_confidence(int confidence) {
-  switch(confidence) {
-    case IRC_Strong:       return "strong";
-    case IRC_Intermediate: return "intermediate";
-    case IRC_Poor:         return "poor";
-  }
-  return "???";
-}
-
-void StylusUtil::debug_describe_gesture(GESTURE_DATA *gesture) {
-  fprintf(
-    stderr,
-    "gesture %s (%x) confidence %s, %d strokes\n",
-    describe_gesture_id(gesture->gestureId),
-    gesture->gestureId,
-    describe_recognition_confidence(gesture->recoConfidence),
-    gesture->strokeCount);
 }
 
 //} ... class StylusUtil
