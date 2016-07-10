@@ -1572,7 +1572,7 @@ static Expr cnt_currentvalue(Expr data) {
   Box *box = 0;
   
   if(data.expr_length() == 1) {
-    box = FrontEndObject::find_cast<Box>(Dynamic::current_evaluation_box_id);
+    box = Application::get_evaluation_box();
     item = data[1];
   }
   else if(data.expr_length() == 2) {
