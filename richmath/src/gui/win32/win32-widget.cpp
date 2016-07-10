@@ -109,21 +109,21 @@ Win32Widget::Win32Widget(
 void Win32Widget::after_construction() {
   BasicWin32Widget::after_construction();
   
-  stylus = StylusUtil::create(_hwnd);
+  stylus = StylusUtil::create_stylus_for_window(_hwnd);
   if(stylus) {
+    gesture_recognizer = StylusUtil::create_gesture_recognizer();
+    
     auto stylus3 = stylus.as<IRealTimeStylus3>();
     if(stylus3) {
       /* RealTimeStylus with MultiTouchEnabled disables WM_GESTURE */
       //HRbool(stylus3->put_MultiTouchEnabled(TRUE));
     }
-  
-    HRbool(stylus->AddStylusSyncPlugin(0, this));
     
 //    GUID props[] = {
 //      GUID_PACKETPROPERTY_GUID_X,
 //      GUID_PACKETPROPERTY_GUID_Y,
 //      GUID_PACKETPROPERTY_GUID_NORMAL_PRESSURE,
-//      
+//
 //      GUID_PACKETPROPERTY_GUID_Z,
 //      GUID_PACKETPROPERTY_GUID_PACKET_STATUS,
 //      GUID_PACKETPROPERTY_GUID_TIMER_TICK,
@@ -144,9 +144,22 @@ void Win32Widget::after_construction() {
 //      GUID_PACKETPROPERTY_GUID_DEVICE_CONTACT_ID,
 //    };
 //    HRbool(stylus->SetDesiredPacketDescription(ARRAYSIZE(props), props));
-    
+
     /* RealTimeStylus disables single-finger WM_GESTURE */
     HRbool(stylus->put_Enabled(TRUE));
+    
+    if(HRbool(stylus->AddStylusSyncPlugin(
+                StylusUtil::get_stylus_sync_plugin_count(stylus),
+                gesture_recognizer.as<IStylusSyncPlugin>().get())))
+    {
+      int gestures[] = { IAG_AllGestures };
+      HRbool(gesture_recognizer->EnableGestures(ARRAYSIZE(gestures), gestures));
+      HRbool(gesture_recognizer->put_Enabled(TRUE));
+    }
+    HRbool(stylus->AddStylusSyncPlugin(
+             StylusUtil::get_stylus_sync_plugin_count(stylus),
+             this));
+    fprintf(stderr, "[%lu RTS plugins]\n", StylusUtil::get_stylus_sync_plugin_count(stylus));
   }
   
   /* Enabling WM_TOUCH disables WM_GESTURE */
@@ -451,13 +464,15 @@ STDMETHODIMP Win32Widget::DragLeave(void) {
 STDMETHODIMP Win32Widget::DataInterest(RealTimeStylusDataInterest* pEventInterest) {
   *pEventInterest = (RealTimeStylusDataInterest)(
                       RTSDI_StylusDown |
-                      RTSDI_StylusUp);
+                      RTSDI_StylusUp |
+                      RTSDI_CustomStylusDataAdded |
+                      RTSDI_SystemEvents);
   return S_OK;
 }
 
-STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPropCountPerPkt, LONG* pPacket, LONG** ppInOutPkt) {
+STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo *pStylusInfo, ULONG cPropCountPerPkt, LONG *pPacket, LONG **ppInOutPkt) {
   ComBase<IInkTablet> tablet;
-  HR(piSrcRtp->GetTabletFromTabletContextId(pStylusInfo->tcid, tablet.get_address_of()));
+  HR(piRtsSrc->GetTabletFromTabletContextId(pStylusInfo->tcid, tablet.get_address_of()));
   
   TabletDeviceKind kind = (TabletDeviceKind) - 1;
   auto tablet2 = tablet.as<IInkTablet2>();
@@ -479,18 +494,70 @@ STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus* piSrcRtp, const StylusInfo
     (double)x_pt,
     (double)y_pt);
     
-  //StylusUtil::debug_describe_packet_data_definition(piSrcRtp, pStylusInfo->tcid);
-  StylusUtil::debug_describe_packet_data(piSrcRtp, pStylusInfo->tcid, pPacket);
+  //StylusUtil::debug_describe_packet_data_definition(piRtsSrc, pStylusInfo->tcid);
+  StylusUtil::debug_describe_packet_data(piRtsSrc, pStylusInfo->tcid, pPacket);
+  
+  //HRbool(gesture_recognizer->put_Enabled(kind == TDK_Touch));
   return S_OK;
 }
 
-STDMETHODIMP Win32Widget::StylusUp(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPropCountPerPkt, LONG* pPacket, LONG** ppInOutPkt) {
+STDMETHODIMP Win32Widget::StylusUp(IRealTimeStylus *piRtsSrc, const StylusInfo *pStylusInfo, ULONG cPropCountPerPkt, LONG *pPacket, LONG **ppInOutPkt) {
   fprintf(
     stderr,
     "[StylusUp tablet %u, stylus %u %s]\n",
     pStylusInfo->tcid,
     pStylusInfo->cid,
     pStylusInfo->bIsInvertedCursor ? "inverted" : "");
+  return S_OK;
+}
+
+static const char *describe_system_event(SYSTEM_EVENT event) {
+  switch(event) {
+    case ISG_Tap:        return "ISG_Tap";
+    case ISG_DoubleTap:  return "ISG_DoubleTap";
+    case ISG_RightTap:   return "ISG_RightTap";
+    case ISG_Drag:       return "ISG_Drag";
+    case ISG_RightDrag:  return "ISG_RightDrag";
+    case ISG_HoldEnter:  return "ISG_HoldEnter";
+    case ISG_HoldLeave:  return "ISG_HoldLeave";
+    case ISG_HoverEnter: return "ISG_HoverEnter";
+    case ISG_HoverLeave: return "ISG_HoverLeave";
+    case ISG_Flick:      return "ISG_Flick";
+  }
+  return "???";
+}
+
+STDMETHODIMP Win32Widget::SystemEvent(IRealTimeStylus *piRtsSrc, TABLET_CONTEXT_ID tcid, STYLUS_ID sid, SYSTEM_EVENT event, SYSTEM_EVENT_DATA eventdata) {
+  ComBase<IInkTablet> tablet;
+  HR(piRtsSrc->GetTabletFromTabletContextId(tcid, tablet.get_address_of()));
+  
+  TabletDeviceKind kind = (TabletDeviceKind) - 1;
+  auto tablet2 = tablet.as<IInkTablet2>();
+  if(tablet2) {
+    HR(tablet2->get_DeviceKind(&kind));
+  }
+  
+  fprintf(
+    stderr,
+    "[SystemEvent %s (0x%x) tablet %s, cid %u]\n",
+    describe_system_event(event),
+    (unsigned)event,
+    kind == TDK_Mouse ? "mouse" : (kind == TDK_Pen ? "pen" : (kind == TDK_Touch ? "touch" : "???")),
+    sid);
+  return S_OK;
+}
+
+STDMETHODIMP Win32Widget::CustomStylusDataAdded(IRealTimeStylus *piRtsSrc, const GUID *pGuidId, ULONG cbData, const BYTE *pbData) {
+  if(pbData != nullptr && *pGuidId == GUID_GESTURE_DATA) {
+    fprintf(stderr, "[CustomStylusDataAdded GUID_GESTURE_DATA]\n");
+    
+    for(GESTURE_DATA *gd = (GESTURE_DATA*)pbData; (BYTE*)(gd + 1) <= pbData + cbData; ++gd) {
+      StylusUtil::debug_describe_gesture(gd);
+    }
+  }
+  else
+    fprintf(stderr, "[CustomStylusDataAdded other]\n");
+    
   return S_OK;
 }
 

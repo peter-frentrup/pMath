@@ -78,8 +78,10 @@ namespace richmath {
       STDMETHODIMP DragLeave(void) override;
       
       STDMETHODIMP DataInterest(RealTimeStylusDataInterest* pEventInterest) override;
-      STDMETHODIMP StylusDown(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPropCountPerPkt, LONG* pPacket, LONG** ppInOutPkt) override;
-      STDMETHODIMP StylusUp(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPropCountPerPkt, LONG* pPacket, LONG** ppInOutPkt) override;
+      STDMETHODIMP StylusDown(IRealTimeStylus*, const StylusInfo*, ULONG, LONG*, LONG**) override;
+      STDMETHODIMP StylusUp(IRealTimeStylus*, const StylusInfo*, ULONG, LONG*, LONG**) override;
+      STDMETHODIMP SystemEvent(IRealTimeStylus*, TABLET_CONTEXT_ID, STYLUS_ID, SYSTEM_EVENT, SYSTEM_EVENT_DATA) override;
+      STDMETHODIMP CustomStylusDataAdded(IRealTimeStylus*, const GUID*, ULONG, const BYTE*) override;
       
     public:
       bool _autohide_vertical_scrollbar;
@@ -106,6 +108,7 @@ namespace richmath {
       bool is_drop_over;
       
       ComBase<IRealTimeStylus> stylus;
+      ComBase<IGestureRecognizer> gesture_recognizer;
       
     protected:
       virtual void paint_background(Canvas *canvas);
