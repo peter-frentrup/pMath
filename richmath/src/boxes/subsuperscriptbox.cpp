@@ -220,7 +220,7 @@ Box *SubsuperscriptBox::remove(int *index) {
         adopt(_superscript, 1);
         invalidate();
       }
-      return move_logical(Backward, false, index);
+      return move_logical(LogicalDirection::Backward, false, index);
     }
     
     if(_superscript->length() == 0) {
@@ -228,7 +228,7 @@ Box *SubsuperscriptBox::remove(int *index) {
       _superscript = 0;
       invalidate();
     }
-    return move_logical(Backward, false, index);
+    return move_logical(LogicalDirection::Backward, false, index);
   }
   
   if(_parent
@@ -238,7 +238,7 @@ Box *SubsuperscriptBox::remove(int *index) {
     return _parent->remove(index);
   }
   
-  return move_logical(Backward, false, index);
+  return move_logical(LogicalDirection::Backward, false, index);
 }
 
 void SubsuperscriptBox::complete() {
@@ -291,7 +291,7 @@ Box *SubsuperscriptBox::move_vertical(
   MathSequence *dst = 0;
   
   if(*index < 0) {
-    if(direction == Forward || !_subscript) {
+    if(direction == LogicalDirection::Forward || !_subscript) {
       dst = _superscript;
       *index_rel_x -= super_x;
     }
@@ -305,11 +305,11 @@ Box *SubsuperscriptBox::move_vertical(
 //    *index_rel_x+= _base.width;
     *index_rel_x += sub_x;
     
-    if(direction == Backward)
+    if(direction == LogicalDirection::Backward)
       dst = _superscript;
   }
   else { // comming from superscript
-    if(direction == Forward && _subscript) {
+    if(direction == LogicalDirection::Forward && _subscript) {
       dst = _subscript;
       *index_rel_x -= sub_x;
 //      *index_rel_x-= _base.width;

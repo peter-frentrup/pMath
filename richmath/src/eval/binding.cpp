@@ -1329,7 +1329,7 @@ static bool similar_section_below_cmd(Expr cmd) {
       
     doc->insert(box->index() + 1, section);
     doc->move_to(doc, box->index() + 1);
-    doc->move_horizontal(Forward, false);
+    doc->move_horizontal(LogicalDirection::Forward, false);
     return true;
   }
   

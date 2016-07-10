@@ -952,34 +952,34 @@ bool MathGtkWidget::on_focus_out(GdkEvent *e) {
 
 static SpecialKey keyval_to_special_key(guint keyval) {
   switch(keyval) {
-    case GDK_Left:            return KeyLeft;
-    case GDK_Right:           return KeyRight;
-    case GDK_Up:              return KeyUp;
-    case GDK_Down:            return KeyDown;
-    case GDK_Home:            return KeyHome;
-    case GDK_End:             return KeyEnd;
-    case GDK_Page_Up:         return KeyPageUp;
-    case GDK_Page_Down:       return KeyPageDown;
-    case GDK_BackSpace:       return KeyBackspace;
-    case GDK_Delete:          return KeyDelete;
+    case GDK_Left:            return SpecialKey::Left;
+    case GDK_Right:           return SpecialKey::Right;
+    case GDK_Up:              return SpecialKey::Up;
+    case GDK_Down:            return SpecialKey::Down;
+    case GDK_Home:            return SpecialKey::Home;
+    case GDK_End:             return SpecialKey::End;
+    case GDK_Page_Up:         return SpecialKey::PageUp;
+    case GDK_Page_Down:       return SpecialKey::PageDown;
+    case GDK_BackSpace:       return SpecialKey::Backspace;
+    case GDK_Delete:          return SpecialKey::Delete;
     case GDK_Linefeed:
     case GDK_Return:
-    case GDK_KP_Enter:        return KeyReturn;
-    case GDK_Tab:             return KeyTab;
-    case GDK_Escape:          return KeyEscape;
-    case GDK_F1:              return KeyF1;
-    case GDK_F2:              return KeyF2;
-    case GDK_F3:              return KeyF3;
-    case GDK_F4:              return KeyF4;
-    case GDK_F5:              return KeyF5;
-    case GDK_F6:              return KeyF6;
-    case GDK_F7:              return KeyF7;
-    case GDK_F8:              return KeyF8;
-    case GDK_F9:              return KeyF9;
-    case GDK_F10:             return KeyF10;
-    case GDK_F11:             return KeyF11;
-    case GDK_F12:             return KeyF12;
-    default:                  return KeyUnknown;
+    case GDK_KP_Enter:        return SpecialKey::Return;
+    case GDK_Tab:             return SpecialKey::Tab;
+    case GDK_Escape:          return SpecialKey::Escape;
+    case GDK_F1:              return SpecialKey::F1;
+    case GDK_F2:              return SpecialKey::F2;
+    case GDK_F3:              return SpecialKey::F3;
+    case GDK_F4:              return SpecialKey::F4;
+    case GDK_F5:              return SpecialKey::F5;
+    case GDK_F6:              return SpecialKey::F6;
+    case GDK_F7:              return SpecialKey::F7;
+    case GDK_F8:              return SpecialKey::F8;
+    case GDK_F9:              return SpecialKey::F9;
+    case GDK_F10:             return SpecialKey::F10;
+    case GDK_F11:             return SpecialKey::F11;
+    case GDK_F12:             return SpecialKey::F12;
+    default:                  return SpecialKey::Unknown;
   }
 }
 
@@ -1023,7 +1023,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   ske.ctrl  = 0 != (mod & GDK_CONTROL_MASK);
   ske.alt   = 0 != (mod & GDK_MOD1_MASK);
   ske.shift = 0 != (mod & GDK_SHIFT_MASK);
-  if(ske.key) {
+  if(ske.key != SpecialKey::Unknown) {
     document()->key_down(ske);
   }
   
@@ -1049,7 +1049,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     if(capslock_active_before) {
       int capslock_mask = 0;
       
-      KeyCode capslock_keycode = XKeysymToKeycode(display, XK_Caps_Lock);
+      SpecialKey::Code capslock_keycode = XKeysymToKeycode(display, XK_Caps_Lock);
       XModifierKeymap *map = XGetModifierMapping(display);
       for(int i = 0; i < 8; ++i) {
         if(map->modifiermap[map->max_keypermod * i] == capslock_keycode)
@@ -1115,7 +1115,7 @@ bool MathGtkWidget::on_key_release(GdkEvent *e) {
   
   SpecialKeyEvent ske;
   ske.key = keyval_to_special_key(event->keyval);
-  if(ske.key) {
+  if(ske.key != SpecialKey::Unknown) {
     ske.ctrl  = 0 != (mod & GDK_CONTROL_MASK);
     ske.alt   = 0 != (mod & GDK_MOD1_MASK);
     ske.shift = 0 != (mod & GDK_SHIFT_MASK);

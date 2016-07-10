@@ -410,7 +410,7 @@ void InputFieldBox::on_finish_editing() {
 
 void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
   switch(event.key) {
-    case KeyReturn:
+    case SpecialKey::Return:
     
       if(!invalidated)
         dynamic_updated();
@@ -423,27 +423,27 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
         must_update = true;
       }
       
-      event.key = KeyUnknown;
+      event.key = SpecialKey::Unknown;
       return;
       
-//    case KeyTab:
-//      event.key = KeyUnknown;
+//    case SpecialKey::Tab:
+//      event.key = SpecialKey::Unknown;
 //      return;
       
-    case KeyUp: {
+    case SpecialKey::Up: {
         Document *doc = find_parent<Document>(false);
         if(doc && doc->selection_box() == _content && doc->selection_start() == 0)
           break;
           
-        event.key = KeyLeft;
+        event.key = SpecialKey::Left;
       } break;
       
-    case KeyDown: {
+    case SpecialKey::Down: {
         Document *doc = find_parent<Document>(false);
         if(doc && doc->selection_box() == _content && doc->selection_start() == _content->length())
           break;
           
-        event.key = KeyRight;
+        event.key = SpecialKey::Right;
       } break;
       
     default:

@@ -1014,20 +1014,20 @@ void Document::on_mouse_cancel() {
 void Document::on_key_down(SpecialKeyEvent &event) {
   if(native()->is_scrollable()) {
     switch(event.key) {
-      case KeyPageUp: {
+      case SpecialKey::PageUp: {
           float w, h;
           native()->window_size(&w, &h);
           native()->scroll_by(0, -h);
           
-          event.key = KeyUnknown;
+          event.key = SpecialKey::Unknown;
         } return;
         
-      case KeyPageDown: {
+      case SpecialKey::PageDown: {
           float w, h;
           native()->window_size(&w, &h);
           native()->scroll_by(0, h);
           
-          event.key = KeyUnknown;
+          event.key = SpecialKey::Unknown;
         } return;
         
       default: break;
@@ -1035,114 +1035,114 @@ void Document::on_key_down(SpecialKeyEvent &event) {
   }
   
   switch(event.key) {
-    case KeyLeft: {
+    case SpecialKey::Left: {
         if(event.shift) {
-          move_horizontal(Backward, event.ctrl, true);
+          move_horizontal(LogicalDirection::Backward, event.ctrl, true);
         }
         else if(selection_length() > 0) {
           Box *selbox = context.selection.get();
           
           if(selbox == this) {
             move_to(this, context.selection.end);
-            move_horizontal(Backward, event.ctrl);
+            move_horizontal(LogicalDirection::Backward, event.ctrl);
           }
           else if( dynamic_cast<GridBox *>(selbox) ||
                    (selbox &&
                     dynamic_cast<GridItem *>(selbox->parent()) &&
                     ((MathSequence *)selbox)->is_placeholder()))
           {
-            move_horizontal(Backward, event.ctrl);
+            move_horizontal(LogicalDirection::Backward, event.ctrl);
           }
           else
             move_to(selbox, context.selection.start);
         }
         else
-          move_horizontal(Backward, event.ctrl);
+          move_horizontal(LogicalDirection::Backward, event.ctrl);
           
-        event.key = KeyUnknown;
+        event.key = SpecialKey::Unknown;
         auto_completion.stop();
       } return;
       
-    case KeyRight: {
+    case SpecialKey::Right: {
         if(event.shift) {
-          move_horizontal(Forward, event.ctrl, true);
+          move_horizontal(LogicalDirection::Forward, event.ctrl, true);
         }
         else if(selection_length() > 0) {
           Box *selbox = selection_box();
           
           if(selbox == this) {
             move_to(this, context.selection.start);
-            move_horizontal(Forward, event.ctrl);
+            move_horizontal(LogicalDirection::Forward, event.ctrl);
           }
           else if(dynamic_cast<GridBox *>(selbox) ||
                   (selbox &&
                    dynamic_cast<GridItem *>(selbox->parent()) &&
                    ((MathSequence *)selbox)->is_placeholder()))
           {
-            move_horizontal(Forward, event.ctrl);
+            move_horizontal(LogicalDirection::Forward, event.ctrl);
           }
           else
             move_to(selbox, context.selection.end);
         }
         else
-          move_horizontal(Forward, event.ctrl);
+          move_horizontal(LogicalDirection::Forward, event.ctrl);
           
-        event.key = KeyUnknown;
+        event.key = SpecialKey::Unknown;
         auto_completion.stop();
       } return;
       
-    case KeyHome: {
-        move_start_end(Backward, event.shift);
-        event.key = KeyUnknown;
+    case SpecialKey::Home: {
+        move_start_end(LogicalDirection::Backward, event.shift);
+        event.key = SpecialKey::Unknown;
         auto_completion.stop();
       } return;
       
-    case KeyEnd: {
-        move_start_end(Forward, event.shift);
-        event.key = KeyUnknown;
+    case SpecialKey::End: {
+        move_start_end(LogicalDirection::Forward, event.shift);
+        event.key = SpecialKey::Unknown;
         auto_completion.stop();
       } return;
       
-    case KeyUp: {
-        move_vertical(Backward, event.shift);
-        event.key = KeyUnknown;
+    case SpecialKey::Up: {
+        move_vertical(LogicalDirection::Backward, event.shift);
+        event.key = SpecialKey::Unknown;
         auto_completion.stop();
       } return;
       
-    case KeyDown: {
-        move_vertical(Forward, event.shift);
-        event.key = KeyUnknown;
+    case SpecialKey::Down: {
+        move_vertical(LogicalDirection::Forward, event.shift);
+        event.key = SpecialKey::Unknown;
         auto_completion.stop();
       } return;
       
-    case KeyTab: {
+    case SpecialKey::Tab: {
         if(is_tabkey_only_moving()) {
           SelectionReference oldpos = context.selection;
           
           if(!event.ctrl) {
-            if(auto_completion.next(event.shift ? Backward : Forward)) {
-              event.key = KeyUnknown;
+            if(auto_completion.next(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward)) {
+              event.key = SpecialKey::Unknown;
               return;
             }
           }
           
-          move_tab(event.shift ? Backward : Forward);
+          move_tab(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward);
           
           if(oldpos == context.selection) {
-            //if(!auto_completion.next(event.shift ? Backward : Forward))
+            //if(!auto_completion.next(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward))
             native()->beep();
           }
         }
         else
           key_press('\t');
-        event.key = KeyUnknown;
+        event.key = SpecialKey::Unknown;
       } return;
       
-    case KeyBackspace: {
+    case SpecialKey::Backspace: {
         set_prev_sel_line();
         if(selection_length() > 0) {
           if(remove_selection(true))
-            event.key = KeyUnknown;
+            event.key = SpecialKey::Unknown;
           return;
         }
         
@@ -1171,30 +1171,30 @@ void Document::on_key_down(SpecialKeyEvent &event) {
               ++boxi;
               
             if(seq->item(boxi)->length() == 0) {
-              move_horizontal(Backward, event.ctrl, true);
-              event.key = KeyUnknown;
+              move_horizontal(LogicalDirection::Backward, event.ctrl, true);
+              event.key = SpecialKey::Unknown;
               return;
             }
             
             int old_sel_end = selection_end();
-            move_horizontal(Backward, event.ctrl, event.ctrl || event.shift);
+            move_horizontal(LogicalDirection::Backward, event.ctrl, event.ctrl || event.shift);
             
             if(selection_length() == 0 &&
                 old == context.selection.id)
             {
               select(seq, selection_start(), old_sel_end);
-              event.key = KeyUnknown;
+              event.key = SpecialKey::Unknown;
               return;
             }
           }
           else
-            move_horizontal(Backward, event.ctrl, true);
+            move_horizontal(LogicalDirection::Backward, event.ctrl, true);
             
           if(!event.ctrl &&
               seq &&
               seq->text()[context.selection.start] == PMATH_CHAR_BOX)
           {
-            event.key = KeyUnknown;
+            event.key = SpecialKey::Unknown;
             return;
           }
           
@@ -1207,26 +1207,26 @@ void Document::on_key_down(SpecialKeyEvent &event) {
           }
         }
         else
-          move_horizontal(Backward, event.ctrl);
+          move_horizontal(LogicalDirection::Backward, event.ctrl);
           
-        event.key = KeyUnknown;
+        event.key = SpecialKey::Unknown;
       } return;
       
-    case KeyDelete: {
+    case SpecialKey::Delete: {
         set_prev_sel_line();
         if(selection_length() > 0) {
           if(remove_selection(true))
-            event.key = KeyUnknown;
+            event.key = SpecialKey::Unknown;
           return;
         }
         
         Box *selbox = context.selection.get();
         if(event.ctrl || selbox != this) {
           int index = context.selection.start;
-          Box *box = selbox->move_logical(Forward, event.ctrl, &index);
+          Box *box = selbox->move_logical(LogicalDirection::Forward, event.ctrl, &index);
           
           while(box && !box->selectable()) {
-            box = box->move_logical(Forward, true, &index);
+            box = box->move_logical(LogicalDirection::Forward, true, &index);
           }
           
           if(box == selbox || box == selbox->parent()) {
@@ -1237,7 +1237,7 @@ void Document::on_key_down(SpecialKeyEvent &event) {
               MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
               
               if(seq && seq->text()[context.selection.start] == PMATH_CHAR_BOX) {
-                event.key = KeyUnknown;
+                event.key = SpecialKey::Unknown;
                 return;
               }
             }
@@ -1273,12 +1273,12 @@ void Document::on_key_down(SpecialKeyEvent &event) {
           }
         }
         else
-          move_horizontal(Forward, event.ctrl);
+          move_horizontal(LogicalDirection::Forward, event.ctrl);
           
-        event.key = KeyUnknown;
+        event.key = SpecialKey::Unknown;
       } return;
       
-    case KeyEscape: {
+    case SpecialKey::Escape: {
         if(context.clicked_box_id) {
           Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
           
@@ -1286,12 +1286,12 @@ void Document::on_key_down(SpecialKeyEvent &event) {
             receiver->on_mouse_cancel();
             
           context.clicked_box_id = 0;
-          event.key = KeyUnknown;
+          event.key = SpecialKey::Unknown;
           return;
         }
         
         key_press(PMATH_CHAR_ALIASDELIMITER);
-        event.key = KeyUnknown;
+        event.key = SpecialKey::Unknown;
       } return;
       
     default: return;
@@ -1838,12 +1838,12 @@ void Document::move_horizontal(
   }
   
   int i = sel_last.start;
-  if(direction == Forward)
+  if(direction == LogicalDirection::Forward)
     i = sel_last.end;
     
   if(sel_last.start != sel_last.end) {
     if(box == selbox) {
-      if(direction == Forward) {
+      if(direction == LogicalDirection::Forward) {
         if(sel_last.end == context.selection.end)
           box = box->move_logical(direction, jumping, &i);
       }
@@ -1858,7 +1858,7 @@ void Document::move_horizontal(
     
   while(box && !box->selectable(i)) {
     i = box->index();
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       ++i;
       
     box = box->parent();
@@ -1872,7 +1872,7 @@ void Document::move_horizontal(
     int j = i;
     
     if(seq) {
-      if(direction == Forward) {
+      if(direction == LogicalDirection::Forward) {
         if(seq->is_placeholder(i))
           ++j;
       }
@@ -1903,16 +1903,16 @@ void Document::move_vertical(
       int i = sel_last.start;
       int j = sel_last.end;
       
-      if(direction == Forward && j < length())
+      if(direction == LogicalDirection::Forward && j < length())
         ++j;
-      else if(direction == Backward && i > 0)
+      else if(direction == LogicalDirection::Backward && i > 0)
         --i;
         
       select(this, i, j);
       return;
     }
     
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       move_to(this, sel_last.end);
     else
       move_to(this, sel_last.start);
@@ -1921,7 +1921,7 @@ void Document::move_vertical(
   }
   
   int i, j;
-  if(direction == Forward && sel_last.start + 1 < sel_last.end) {
+  if(direction == LogicalDirection::Forward && sel_last.start + 1 < sel_last.end) {
     i = sel_last.end;
     if( sel_last.start < sel_last.end &&
         !dynamic_cast<MathSequence *>(box))
@@ -1967,7 +1967,7 @@ void Document::move_start_end(
     
   int index = context.selection.start;
   if( context.selection.start < context.selection.end &&
-      direction == Forward)
+      direction == LogicalDirection::Forward)
   {
     index = context.selection.end;
   }
@@ -1983,7 +1983,7 @@ void Document::move_start_end(
       --l;
       
     if(l >= 0) {
-      if(direction == Forward) {
+      if(direction == LogicalDirection::Forward) {
         index = seq->line_array()[l].end;
         
         if( index > 0 && seq->text()[index - 1] == '\n')
@@ -2000,7 +2000,7 @@ void Document::move_start_end(
   else if(TextSequence *seq = dynamic_cast<TextSequence *>(box)) {
     GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
     
-    if(direction == Backward) {
+    if(direction == LogicalDirection::Backward) {
       while(lines) {
         PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
         
@@ -2030,16 +2030,16 @@ void Document::move_start_end(
   }
   else if(context.selection.start < context.selection.end && length() > 0) {
     index = context.selection.start;
-    if(context.selection.start < context.selection.end && direction == Forward)
+    if(context.selection.start < context.selection.end && direction == LogicalDirection::Forward)
       index = context.selection.end - 1;
       
     if(section(index)->length() > 0) {
-      if(direction == Forward) {
-        direction = Backward;
+      if(direction == LogicalDirection::Forward) {
+        direction = LogicalDirection::Backward;
         ++index;
       }
       else {
-        direction = Forward;
+        direction = LogicalDirection::Forward;
       }
       box = move_logical(direction, false, &index);
     }
@@ -2064,7 +2064,7 @@ void Document::move_tab(LogicalDirection direction) {
   }
   
   int i;
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     i = sel_last.end;
   }
   else {
@@ -2080,7 +2080,7 @@ void Document::move_tab(LogicalDirection direction) {
         
       repeated = true;
       
-      if(direction == Forward)
+      if(direction == LogicalDirection::Forward)
         --i;
       else
         ++i;
@@ -2793,10 +2793,10 @@ void Document::set_selection_style(Expr options) {
     }
     else {
       int i = start;
-      Box *box = seq->move_logical(Forward, false, &i);
+      Box *box = seq->move_logical(LogicalDirection::Forward, false, &i);
       if(box && box != seq && box->parent() == seq) {
         i = start;
-        if(seq->move_logical(Forward, true, &i) == seq && i >= end) {
+        if(seq->move_logical(LogicalDirection::Forward, true, &i) == seq && i >= end) {
           // selection containt a single box
           
           style_box = dynamic_cast<StyleBox *>(box);
@@ -2928,7 +2928,7 @@ bool Document::split_section(bool do_it) {
   seq->remove(start, seq->length());
   
   move_to(this, sect->index() + 1);
-  move_horizontal(Forward, false);
+  move_horizontal(LogicalDirection::Forward, false);
   return true;
 }
 
@@ -3300,7 +3300,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
           }
         }
         
-        current = current->move_logical(Forward, false, &i);
+        current = current->move_logical(LogicalDirection::Forward, false, &i);
       }
       
       if(placeholder_seq) {
@@ -3344,7 +3344,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
               
               Box *prev = current;
               int prev_index = i;
-              current = current->move_logical(Forward, false, &i);
+              current = current->move_logical(LogicalDirection::Forward, false, &i);
               
               if(prev == current && i == prev_index)
                 break;
@@ -3363,7 +3363,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
                   break;
                 }
                 
-                current = current->move_logical(Forward, false, &i);
+                current = current->move_logical(LogicalDirection::Forward, false, &i);
               }
             }
           }
@@ -4581,7 +4581,7 @@ bool Document::prepare_insert() {
       sect = new MathSection(section_style);
       
     insert(context.selection.start, sect);
-    move_horizontal(Forward, false);
+    move_horizontal(LogicalDirection::Forward, false);
     
     return true;
   }

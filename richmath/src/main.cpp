@@ -744,8 +744,8 @@ int main(int argc, char **argv) {
     todo(main_doc, "CTRL-R to refactor local variable names.");
     todo(main_doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
     main_doc->select(main_doc, 0, 0);
-    main_doc->move_horizontal(Forward,  true);
-    main_doc->move_horizontal(Backward, false);
+    main_doc->move_horizontal(LogicalDirection::Forward,  true);
+    main_doc->move_horizontal(LogicalDirection::Backward, false);
     
     main_doc->invalidate_options();
   }

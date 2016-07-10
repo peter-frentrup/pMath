@@ -157,7 +157,7 @@ Box *RadicalBox::remove(int *index) {
       _exponent = 0;
       invalidate();
     }
-    return move_logical(Backward, false, index);
+    return move_logical(LogicalDirection::Backward, false, index);
   }
   
   if(_parent) {
@@ -166,7 +166,7 @@ Box *RadicalBox::remove(int *index) {
     if(seq) {
       if(_exponent) {
         if(_radicand->length() > 0)
-          return move_logical(Backward, false, index);
+          return move_logical(LogicalDirection::Backward, false, index);
           
         seq->insert(_index + 1, _exponent, 0, _exponent->length());
       }

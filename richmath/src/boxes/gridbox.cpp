@@ -659,7 +659,7 @@ Box *GridBox::remove_range(int *start, int end) {
   if(*start >= end) {
     if(_parent) {
       *start = _index + 1;
-      return _parent->move_logical(Backward, true, start);
+      return _parent->move_logical(LogicalDirection::Backward, true, start);
     }
     
     return this;
@@ -890,7 +890,7 @@ Box *GridBox::remove(int *index) {
     return remove_range(index, *index + 1);
   }
   
-  return move_logical(Backward, false, index);
+  return move_logical(LogicalDirection::Backward, false, index);
 }
 
 Expr GridBox::to_pmath(int flags) {
@@ -948,7 +948,7 @@ Box *GridBox::move_vertical(
   need_pos_vectors();
   
   if(*index < 0) {
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       row = 0;
     else
       row = rows() - 1;
@@ -961,7 +961,7 @@ Box *GridBox::move_vertical(
   }
   else {
     items.index_to_yx(*index, &row, &col);
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       ++row;
     else
       --row;

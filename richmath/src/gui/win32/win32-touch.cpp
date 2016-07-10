@@ -15,7 +15,7 @@ BOOL (WINAPI * Win32Touch::CloseTouchInputHandle)(HANDLE) = nullptr;
 
 HMODULE Win32Touch::user32 = nullptr;
 
-PointerEventSource Win32Touch::get_mouse_message_source(int *id, LPARAM messageExtraInfo) {
+DeviceKind Win32Touch::get_mouse_message_source(int *id, LPARAM messageExtraInfo) {
   // https://msdn.microsoft.com/en-us/library/windows/desktop/ms703320(v=vs.85).aspx
   // Distinguishing Pen Input from Mouse and Touch
   if(id)
@@ -24,7 +24,7 @@ PointerEventSource Win32Touch::get_mouse_message_source(int *id, LPARAM messageE
   bool isPenOrTouch = (messageExtraInfo & 0xFFFFFF00) == 0xFF515700;
   bool isTouch = isPenOrTouch && ((messageExtraInfo & 0x80) != 0);
   
-  return isPenOrTouch ? (isTouch ? PointerEventSource::Touch : PointerEventSource::Pen) : PointerEventSource::Mouse; 
+  return isPenOrTouch ? (isTouch ? DeviceKind::Touch : DeviceKind::Pen) : DeviceKind::Mouse; 
 }
 
 void Win32Touch::init() {

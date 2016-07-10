@@ -2813,11 +2813,11 @@ Box *MathSequence::move_logical(
   bool              jumping,
   int              *index
 ) {
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
       if(_parent) {
         *index = _index;
-        return _parent->move_logical(Forward, true, index);
+        return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
@@ -2846,13 +2846,13 @@ Box *MathSequence::move_logical(
     while(boxes[b]->index() != *index)
       ++b;
     *index = -1;
-    return boxes[b]->move_logical(Forward, true, index);
+    return boxes[b]->move_logical(LogicalDirection::Forward, true, index);
   }
   
   if(*index <= 0) {
     if(_parent) {
       *index = _index + 1;
-      return _parent->move_logical(Backward, true, index);
+      return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
     return this;
   }
@@ -2881,7 +2881,7 @@ Box *MathSequence::move_logical(
   while(boxes[b]->index() != *index - 1)
     ++b;
   *index = boxes[b]->length() + 1;
-  return boxes[b]->move_logical(Backward, true, index);
+  return boxes[b]->move_logical(LogicalDirection::Backward, true, index);
 }
 
 Box *MathSequence::move_vertical(
@@ -2904,9 +2904,9 @@ Box *MathSequence::move_vertical(
       if(line > 0)
         x -= glyphs[lines[line - 1].end - 1].right;
     }
-    dstline = direction == Forward ? line + 1 : line - 1;
+    dstline = direction == LogicalDirection::Forward ? line + 1 : line - 1;
   }
-  else if(direction == Forward) {
+  else if(direction == LogicalDirection::Forward) {
     line = -1;
     dstline = 0;
   }
@@ -2942,7 +2942,7 @@ Box *MathSequence::move_vertical(
     if(i > 0
         && i < glyphs.length()
         && i == lines[dstline].end
-        && (direction == Backward || str[i - 1] == '\n'))
+        && (direction == LogicalDirection::Backward || str[i - 1] == '\n'))
       --i;
       
     *index_rel_x = x - indention_width(lines[dstline].indent);

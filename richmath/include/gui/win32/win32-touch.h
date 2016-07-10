@@ -7,16 +7,10 @@
 
 
 #include <windows.h>
-#include <util/base.h>
+#include <boxes/box.h>
 
 
 namespace richmath {
-  enum class PointerEventSource {
-    Mouse,
-    Pen,
-    Touch
-  } ;
-  
   /* (optional) Windows 7 Touch API */
   class Win32Touch: public Base {
     public:
@@ -70,10 +64,10 @@ namespace richmath {
       static BOOL (WINAPI *GetTouchInputInfo)(HANDLE, UINT, PTOUCHINPUT, int);
       static BOOL (WINAPI *CloseTouchInputHandle)(HANDLE);
       
-      static PointerEventSource get_mouse_message_source(int *id) {
+      static DeviceKind get_mouse_message_source(int *id) {
         return get_mouse_message_source(id, ::GetMessageExtraInfo());
       }
-      static PointerEventSource get_mouse_message_source(int *id, LPARAM messageExtraInfo);
+      static DeviceKind get_mouse_message_source(int *id, LPARAM messageExtraInfo);
     
       static void init();
       

@@ -126,7 +126,7 @@ Box *Section::move_vertical(
 ) {
   if(_parent) {
     if(index < 0) { // called from parent
-      if(direction == Forward)
+      if(direction == LogicalDirection::Forward)
         *index = _index + 1;
       else
         *index = _index;
@@ -523,7 +523,7 @@ Box *AbstractSequenceSection::move_vertical(
   
   if(_parent) {
     *index_rel_x += cx;
-//    if(direction == Forward)
+//    if(direction == LogicalDirection::Forward)
 //      *index = _index + 1;
 //    else
 //      *index = _index;

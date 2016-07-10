@@ -791,11 +791,11 @@ Box *TextSequence::move_logical(
 ) {
   ensure_text_valid();
   
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
       if(_parent) {
         *index = _index;
-        return _parent->move_logical(Forward, true, index);
+        return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
@@ -825,7 +825,7 @@ Box *TextSequence::move_logical(
         ++b;
         
       *index = -1;
-      return boxes[b]->move_logical(Forward, true, index);
+      return boxes[b]->move_logical(LogicalDirection::Forward, true, index);
     }
     
     if(jumping) { // next word
@@ -858,7 +858,7 @@ Box *TextSequence::move_logical(
   if(*index <= 0) {
     if(_parent) {
       *index = _index + 1;
-      return _parent->move_logical(Backward, true, index);
+      return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
     return this;
   }
@@ -885,7 +885,7 @@ Box *TextSequence::move_logical(
       ++b;
       
     *index = boxes[b]->length() + 1;
-    return boxes[b]->move_logical(Backward, true, index);
+    return boxes[b]->move_logical(LogicalDirection::Backward, true, index);
   }
   
   if(jumping) { // prev. word
@@ -920,7 +920,7 @@ Box *TextSequence::move_vertical(
   float x = *index_rel_x;
   
   if(*index < 0) {
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       line = 0;
     else
       line = numlines - 1;
@@ -933,7 +933,7 @@ Box *TextSequence::move_vertical(
     line_extents(line, &lx, 0, 0);
     
     x += lx + pango_units_to_double(px);
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       ++line;
     else
       --line;

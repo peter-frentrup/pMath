@@ -43,33 +43,33 @@ using namespace richmath;
 
 SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
   switch(vkey) {
-    case VK_LEFT:     return KeyLeft;
-    case VK_RIGHT:    return KeyRight;
-    case VK_UP:       return KeyUp;
-    case VK_DOWN:     return KeyDown;
-    case VK_HOME:     return KeyHome;
-    case VK_END:      return KeyEnd;
-    case VK_PRIOR:    return KeyPageUp;
-    case VK_NEXT:     return KeyPageDown;
-    case VK_BACK:     return KeyBackspace;
-    case VK_DELETE:   return KeyDelete;
-    case VK_RETURN:   return KeyReturn;
-    case VK_ESCAPE:   return KeyEscape;
-    case VK_TAB:      return KeyTab;
-    case VK_F1:       return KeyF1;
-    case VK_F2:       return KeyF2;
-    case VK_F3:       return KeyF3;
-    case VK_F4:       return KeyF4;
-    case VK_F5:       return KeyF5;
-    case VK_F6:       return KeyF6;
-    case VK_F7:       return KeyF7;
-    case VK_F8:       return KeyF8;
-    case VK_F9:       return KeyF9;
-    case VK_F10:      return KeyF10;
-    case VK_F11:      return KeyF11;
-    case VK_F12:      return KeyF12;
+    case VK_LEFT:     return SpecialKey::Left;
+    case VK_RIGHT:    return SpecialKey::Right;
+    case VK_UP:       return SpecialKey::Up;
+    case VK_DOWN:     return SpecialKey::Down;
+    case VK_HOME:     return SpecialKey::Home;
+    case VK_END:      return SpecialKey::End;
+    case VK_PRIOR:    return SpecialKey::PageUp;
+    case VK_NEXT:     return SpecialKey::PageDown;
+    case VK_BACK:     return SpecialKey::Backspace;
+    case VK_DELETE:   return SpecialKey::Delete;
+    case VK_RETURN:   return SpecialKey::Return;
+    case VK_ESCAPE:   return SpecialKey::Escape;
+    case VK_TAB:      return SpecialKey::Tab;
+    case VK_F1:       return SpecialKey::F1;
+    case VK_F2:       return SpecialKey::F2;
+    case VK_F3:       return SpecialKey::F3;
+    case VK_F4:       return SpecialKey::F4;
+    case VK_F5:       return SpecialKey::F5;
+    case VK_F6:       return SpecialKey::F6;
+    case VK_F7:       return SpecialKey::F7;
+    case VK_F8:       return SpecialKey::F8;
+    case VK_F9:       return SpecialKey::F9;
+    case VK_F10:      return SpecialKey::F10;
+    case VK_F11:      return SpecialKey::F11;
+    case VK_F12:      return SpecialKey::F12;
     
-    default: return KeyUnknown;
+    default: return SpecialKey::Unknown;
   }
 }
 
@@ -884,7 +884,7 @@ void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
   SpecialKeyEvent event;
   event.key = win32_virtual_to_special_key(virtkey);
   
-  if(event.key) {
+  if(event.key != SpecialKey::Unknown) {
     event.ctrl  = ctrl;
     event.alt   = alt;
     event.shift = shift;
@@ -1415,7 +1415,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_KEYUP: if(!is_drop_over) {
           SpecialKeyEvent event;
           event.key = win32_virtual_to_special_key(wParam);
-          if(event.key) {
+          if(event.key != SpecialKey::Unknown) {
             event.ctrl  = GetKeyState(VK_CONTROL) & ~1;
             event.alt   = GetKeyState(VK_MENU)    & ~1;
             event.shift = GetKeyState(VK_SHIFT)   & ~1;

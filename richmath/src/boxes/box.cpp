@@ -191,21 +191,21 @@ Box *Box::move_logical(
   bool              jumping,
   int              *index
 ) {
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     int b = *index;
     if(b < 0 || jumping)
       ++b;
       
     if(b < count()) {
       *index = -1;
-      return item(b)->move_logical(Forward, false, index);
+      return item(b)->move_logical(LogicalDirection::Forward, false, index);
     }
     
     if(!_parent)
       return this;
       
     *index = _index;
-    return _parent->move_logical(Forward, true, index);
+    return _parent->move_logical(LogicalDirection::Forward, true, index);
   }
   
   int b = *index - 1;
@@ -216,14 +216,14 @@ Box *Box::move_logical(
     
   if(b >= 0) {
     *index = item(b)->length() + 1;
-    return item(b)->move_logical(Backward, false, index);
+    return item(b)->move_logical(LogicalDirection::Backward, false, index);
   }
   
   if(!_parent)
     return this;
     
   *index = _index + 1;
-  return _parent->move_logical(Backward, true, index);
+  return _parent->move_logical(LogicalDirection::Backward, true, index);
 }
 
 Box *Box::move_vertical(

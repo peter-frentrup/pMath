@@ -368,8 +368,8 @@ void MathGtkAccelerators::load(Expr expr) {
     Expr item = expr[i];
     Expr cmd(item[2]);
     
-    guint           accel_key;
-    GdkModifierType accel_mod;
+    guint           accel_key = 0;
+    GdkModifierType accel_mod = (GdkModifierType)0;
     
     if( item[0] == GetSymbol(ItemSymbol)               &&
         item.expr_length() == 2                        &&
@@ -397,8 +397,8 @@ void MathGtkAccelerators::load(Expr expr) {
         }
       }
     }
-    else
-      pmath_debug_print_object("Cannot add shortcut ", item.get(), ".\n");
+    else 
+      pmath_debug_print_object("Cannot add shortcut ", item.get(), "\n");
   }
 }
 

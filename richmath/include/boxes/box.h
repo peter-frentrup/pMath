@@ -8,10 +8,10 @@
 
 
 namespace richmath {
-  typedef enum {
+  enum class LogicalDirection {
     Forward,
     Backward
-  } LogicalDirection;
+  };
   
   class Box;
   class SyntaxState;
@@ -31,35 +31,35 @@ namespace richmath {
       Box *source;
   };
   
-  typedef enum {
-    KeyUnknown = 0,
+  enum class SpecialKey {
+    Unknown = 0,
     
-    KeyLeft,
-    KeyRight,
-    KeyUp,
-    KeyDown,
-    KeyHome,
-    KeyEnd,
-    KeyPageUp,
-    KeyPageDown,
-    KeyBackspace,
-    KeyDelete,
-    KeyReturn,
-    KeyTab,
-    KeyEscape,
-    KeyF1,
-    KeyF2,
-    KeyF3,
-    KeyF4,
-    KeyF5,
-    KeyF6,
-    KeyF7,
-    KeyF8,
-    KeyF9,
-    KeyF10,
-    KeyF11,
-    KeyF12
-  } SpecialKey;
+    Left,
+    Right,
+    Up,
+    Down,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+    Backspace,
+    Delete,
+    Return,
+    Tab,
+    Escape,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12
+  };
   
   class SpecialKeyEvent {
     public:

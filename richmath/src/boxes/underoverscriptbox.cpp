@@ -285,7 +285,7 @@ Box *UnderoverscriptBox::remove(int *index) {
     if(_base->length() == 0)
       _base->insert(0, PMATH_CHAR_PLACEHOLDER);
       
-    return move_logical(Backward, false, index);
+    return move_logical(LogicalDirection::Backward, false, index);
   }
   
   if(_underscript && _overscript) {
@@ -297,7 +297,7 @@ Box *UnderoverscriptBox::remove(int *index) {
         invalidate();
       }
       
-      return move_logical(Backward, false, index);
+      return move_logical(LogicalDirection::Backward, false, index);
     }
     
     if(_overscript->length() == 0) {
@@ -305,7 +305,7 @@ Box *UnderoverscriptBox::remove(int *index) {
       _overscript = 0;
       invalidate();
     }
-    return move_logical(Backward, false, index);
+    return move_logical(LogicalDirection::Backward, false, index);
   }
   
   MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
@@ -319,7 +319,7 @@ Box *UnderoverscriptBox::remove(int *index) {
     return seq;
   }
   
-  return move_logical(Backward, false, index);
+  return move_logical(LogicalDirection::Backward, false, index);
 }
 
 void UnderoverscriptBox::complete() {
@@ -375,7 +375,7 @@ Box *UnderoverscriptBox::move_vertical(
   MathSequence *dst = 0;
   
   if(*index < 0) {
-    if(direction == Forward) {
+    if(direction == LogicalDirection::Forward) {
       if(_overscript) {
         dst = _overscript;
         *index_rel_x -= over_x;
@@ -397,7 +397,7 @@ Box *UnderoverscriptBox::move_vertical(
   else if(*index == 0) { // comming from base
     *index_rel_x += base_x;
     
-    if(direction == Backward) {
+    if(direction == LogicalDirection::Backward) {
       dst = _overscript;
       *index_rel_x -= over_x;
     }
@@ -409,7 +409,7 @@ Box *UnderoverscriptBox::move_vertical(
   else if(*index == 1 && _underscript) { // comming from underscript
     *index_rel_x += under_x;
     
-    if(direction == Backward) {
+    if(direction == LogicalDirection::Backward) {
       dst = _base;
       *index_rel_x -= base_x;
     }
@@ -417,7 +417,7 @@ Box *UnderoverscriptBox::move_vertical(
   else { // comming from overscript
     *index_rel_x += over_x;
     
-    if(direction == Forward) {
+    if(direction == LogicalDirection::Forward) {
       dst = _base;
       *index_rel_x -= base_x;
     }

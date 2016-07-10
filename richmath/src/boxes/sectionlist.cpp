@@ -246,11 +246,11 @@ Box *SectionList::move_logical(
   bool              jumping,
   int              *index
 ) {
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     if(*index >= count()) {
       if(_parent) {
         *index = _index;
-        return _parent->move_logical(Forward, true, index);
+        return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
@@ -262,13 +262,13 @@ Box *SectionList::move_logical(
     
     int b = *index;
     *index = -1;
-    return _sections[b]->move_logical(Forward, true, index);
+    return _sections[b]->move_logical(LogicalDirection::Forward, true, index);
   }
   
   if(*index <= 0) {
     if(_parent) {
       *index = _index + 1;
-      return _parent->move_logical(Backward, true, index);
+      return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
     return this;
   }
@@ -280,7 +280,7 @@ Box *SectionList::move_logical(
   
   int b = *index - 1;
   *index = _sections[b]->length() + 1;
-  return _sections[b]->move_logical(Backward, true, index);
+  return _sections[b]->move_logical(LogicalDirection::Backward, true, index);
 }
 
 Box *SectionList::move_vertical(
@@ -292,14 +292,14 @@ Box *SectionList::move_vertical(
   int s = *index;
   
   if(s < 0) {
-    if(direction == Backward)
+    if(direction == LogicalDirection::Backward)
       *index = _sections.length();
     else
       *index = 0;
     return this;
   }
   
-  if(direction == Backward) {
+  if(direction == LogicalDirection::Backward) {
     if(s == 0) {
       *index = s;
       return this;
