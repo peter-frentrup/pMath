@@ -454,8 +454,7 @@ STDMETHODIMP Win32Widget::DragLeave(void) {
 STDMETHODIMP Win32Widget::DataInterest(RealTimeStylusDataInterest* pEventInterest) {
   *pEventInterest = (RealTimeStylusDataInterest)(
                       RTSDI_StylusDown |
-                      RTSDI_StylusUp |
-                      RTSDI_SystemEvents);
+                      RTSDI_StylusUp);
   return S_OK;
 }
 
@@ -512,26 +511,6 @@ static const char *describe_system_event(SYSTEM_EVENT event) {
     case ISG_Flick:      return "ISG_Flick";
   }
   return "???";
-}
-
-STDMETHODIMP Win32Widget::SystemEvent(IRealTimeStylus *piRtsSrc, TABLET_CONTEXT_ID tcid, STYLUS_ID sid, SYSTEM_EVENT event, SYSTEM_EVENT_DATA eventdata) {
-  ComBase<IInkTablet> tablet;
-  HR(piRtsSrc->GetTabletFromTabletContextId(tcid, tablet.get_address_of()));
-  
-  TabletDeviceKind kind = (TabletDeviceKind) - 1;
-  auto tablet2 = tablet.as<IInkTablet2>();
-  if(tablet2) {
-    HR(tablet2->get_DeviceKind(&kind));
-  }
-  
-  fprintf(
-    stderr,
-    "[SystemEvent %s (0x%x) tablet %s, cid %u]\n",
-    describe_system_event(event),
-    (unsigned)event,
-    kind == TDK_Mouse ? "mouse" : (kind == TDK_Pen ? "pen" : (kind == TDK_Touch ? "touch" : "???")),
-    sid);
-  return S_OK;
 }
 
 void Win32Widget::paint_background(Canvas *canvas) {
@@ -1076,14 +1055,13 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.x /= scale_factor();
           event.y /= scale_factor();
           
-          int cursorId;
-          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
+          event.device = Win32Touch::get_mouse_message_source(&event.id);
           fprintf(
             stderr,
             "[WM_%sBUTTONDOWN: %s id %d at (%f,%f)]\n",
             message == WM_LBUTTONDOWN ? "L" : (message == WM_MBUTTONDOWN ? "M" : "R"),
-            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
-            cursorId,
+            event.device == DeviceKind::Mouse ? "mouse" : (event.device == DeviceKind::Pen ? "pen" : "touch"),
+            event.id,
             (double)event.x,
             (double)event.y);
             
@@ -1095,14 +1073,13 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_RBUTTONUP: {
           MouseEvent event;
           
-          int cursorId;
-          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
+          event.device = Win32Touch::get_mouse_message_source(&event.id);
           fprintf(
             stderr,
             "[WM_%sBUTTONUP: %s id %d]\n",
             message == WM_LBUTTONUP ? "L" : (message == WM_MBUTTONUP ? "M" : "R"),
-            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
-            cursorId);
+            event.device == DeviceKind::Mouse ? "mouse" : (event.device == DeviceKind::Pen ? "pen" : "touch"),
+            event.id);
             
           event.left   = message == WM_LBUTTONUP;
           event.middle = message == WM_MBUTTONUP;
@@ -1128,7 +1105,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         
       case WM_MOUSEMOVE: {
           MouseEvent event;
-          
+          event.device = Win32Touch::get_mouse_message_source(&event.id);
 //          int cursorId;
 //          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
 //          pmath_debug_print(

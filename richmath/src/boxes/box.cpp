@@ -14,33 +14,35 @@ using namespace richmath;
 MouseEvent::MouseEvent()
   : x(0),
     y(0),
+    id(0),
+    device(DeviceKind::Mouse),
     left(false),
     middle(false),
     right(false),
-    source(0)
+    origin(0)
 {
 }
 
-void MouseEvent::set_source(Box *new_source) {
-  if(source == new_source)
+void MouseEvent::set_origin(Box *new_origin) {
+  if(origin == new_origin)
     return;
     
-  Box *common = 0;//Box::common_parent(source, new_source);
+  Box *common = nullptr;//Box::common_parent(origin, new_origin);
   
   cairo_matrix_t mat;
   cairo_matrix_init_identity(&mat);
   
-  if(new_source) {
-    new_source->transformation(common, &mat);
+  if(new_origin) {
+    new_origin->transformation(common, &mat);
     cairo_matrix_invert(&mat);
   }
   
-  if(source)
-    source->transformation(common, &mat);
+  if(origin)
+    origin->transformation(common, &mat);
     
   Canvas::transform_point(mat, &x, &y);
   
-  source = new_source;
+  origin = new_origin;
 }
 
 //} ... class MouseEvent

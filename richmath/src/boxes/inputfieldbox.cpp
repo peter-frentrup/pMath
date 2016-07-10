@@ -327,7 +327,7 @@ void InputFieldBox::on_mouse_down(MouseEvent &event) {
   Document *doc = find_parent<Document>(false);
   if(doc) {
     if(event.left) {
-      event.set_source(0);
+      event.set_origin(0);
       float gx = event.x;
       float gy = event.y;
       
@@ -350,7 +350,7 @@ void InputFieldBox::on_mouse_down(MouseEvent &event) {
         doc->select(box, start, end);
       }
       else {
-        event.set_source(this);
+        event.set_origin(this);
         int start, end;
         bool was_inside_start;
         Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
@@ -370,7 +370,7 @@ void InputFieldBox::on_mouse_move(MouseEvent &event) {
   Document *doc = find_parent<Document>(false);
   
   if(doc) {
-    event.set_source(this);
+    event.set_origin(this);
     
     int start, end;
     bool was_inside_start;

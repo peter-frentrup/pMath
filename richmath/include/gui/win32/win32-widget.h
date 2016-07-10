@@ -80,7 +80,6 @@ namespace richmath {
       STDMETHODIMP DataInterest(RealTimeStylusDataInterest* pEventInterest) override;
       STDMETHODIMP StylusDown(IRealTimeStylus*, const StylusInfo*, ULONG, LONG*, LONG**) override;
       STDMETHODIMP StylusUp(IRealTimeStylus*, const StylusInfo*, ULONG, LONG*, LONG**) override;
-      STDMETHODIMP SystemEvent(IRealTimeStylus*, TABLET_CONTEXT_ID, STYLUS_ID, SYSTEM_EVENT, SYSTEM_EVENT_DATA) override;
       
     public:
       bool _autohide_vertical_scrollbar;

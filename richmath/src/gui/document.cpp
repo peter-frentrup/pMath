@@ -603,7 +603,7 @@ void Document::mouse_down(MouseEvent &event) {
   
   Application::delay_dynamic_updates(true);
   if(++mouse_down_counter == 1) {
-    event.set_source(this);
+    event.set_origin(this);
     
     bool was_inside_start;
     int start, end;
@@ -694,7 +694,7 @@ void Document::mouse_move(MouseEvent &event) {
     receiver->on_mouse_move(event);
   }
   else {
-    event.set_source(this);
+    event.set_origin(this);
     
     int start, end;
     bool was_inside_start;
@@ -833,7 +833,7 @@ void Document::on_mouse_down(MouseEvent &event) {
   
   auto_completion.stop();
   
-  event.set_source(this);
+  event.set_origin(this);
   
   drag_status = DragStatusIdle;
   if(event.left) {
@@ -919,7 +919,7 @@ void Document::on_mouse_down(MouseEvent &event) {
 }
 
 void Document::on_mouse_move(MouseEvent &event) {
-  event.set_source(this);
+  event.set_origin(this);
   
   int start, end;
   bool was_inside_start;
@@ -974,7 +974,7 @@ void Document::on_mouse_move(MouseEvent &event) {
       Section *sec2 = box ? box->find_parent<Section>(true) : 0;
       
       if(sec1 && sec1 != sec2) {
-        event.set_source(sec1);
+        event.set_origin(sec1);
         box = sec1->mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
       }
       
@@ -986,7 +986,7 @@ void Document::on_mouse_move(MouseEvent &event) {
 }
 
 void Document::on_mouse_up(MouseEvent &event) {
-  event.set_source(this);
+  event.set_origin(this);
   
   if(event.left && drag_status != DragStatusIdle) {
     bool was_inside_start;

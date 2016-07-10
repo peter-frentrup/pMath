@@ -16,19 +16,27 @@ namespace richmath {
   class Box;
   class SyntaxState;
   
+  enum class DeviceKind: char {
+    Mouse,
+    Pen,
+    Touch
+  };
+  
   class MouseEvent {
     public:
       MouseEvent();
       
-      void set_source(Box *new_source);
+      void set_origin(Box *new_origin);
       
     public:
-      float x, y;
-      bool left;
-      bool middle;
-      bool right;
+      float      x, y;
+      int        id;
+      DeviceKind device;
+      bool       left;
+      bool       middle;
+      bool       right;
       
-      Box *source;
+      Box *origin;
   };
   
   enum class SpecialKey {

@@ -166,7 +166,7 @@ void ContainerWidgetBox::on_mouse_exit() {
 }
 
 void ContainerWidgetBox::on_mouse_down(MouseEvent &event) {
-  event.set_source(this);
+  event.set_origin(this);
   
   mouse_left_down   = mouse_left_down   || event.left;
   mouse_middle_down = mouse_middle_down || event.middle;
@@ -180,7 +180,7 @@ void ContainerWidgetBox::on_mouse_down(MouseEvent &event) {
 }
 
 void ContainerWidgetBox::on_mouse_move(MouseEvent &event) {
-  event.set_source(this);
+  event.set_origin(this);
   
   bool mi = event.x >= 0 &&
             event.x <= _extents.width &&

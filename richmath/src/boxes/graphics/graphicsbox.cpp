@@ -1206,7 +1206,7 @@ void GraphicsBox::on_mouse_exit() {
 }
 
 void GraphicsBox::on_mouse_down(MouseEvent &event) {
-  event.set_source(this);
+  event.set_origin(this);
   
   int part = calc_mouse_over_part(event.x, event.y);
   
@@ -1229,7 +1229,7 @@ void GraphicsBox::on_mouse_down(MouseEvent &event) {
 void GraphicsBox::on_mouse_move(MouseEvent &event) {
 
   if(event.left) {
-    event.set_source(this);
+    event.set_origin(this);
     
     float dx = 0;
     float dy = 0;
@@ -1305,7 +1305,7 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
       !event.middle &&
       !event.right)
   {
-    event.set_source(this);
+    event.set_origin(this);
     
     int part = calc_mouse_over_part(event.x, event.y);
     

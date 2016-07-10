@@ -412,7 +412,7 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
   EmptyWidgetBox::on_mouse_down(event);
   
   if(mouse_left_down) {
-    event.set_source(this);
+    event.set_origin(this);
     
     if(dynamic.is_dynamic())
       Application::activated_control(this);
@@ -429,7 +429,7 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
 void SliderBox::on_mouse_move(MouseEvent &event) {
   EmptyWidgetBox::on_mouse_move(event);
   
-  event.set_source(this);
+  event.set_origin(this);
   
   if(mouse_left_down) {
     double val = mouse_to_val(event.x);
@@ -456,7 +456,7 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
 
 void SliderBox::on_mouse_up(MouseEvent &event) {
   if(event.left) {
-    event.set_source(this);
+    event.set_origin(this);
     double val = mouse_to_val(event.x);
     if( val != range_value                  ||
         dynamic.synchronous_updating() == 2 ||
