@@ -8,6 +8,7 @@
 #include <gui/document.h>
 #include <gui/native-widget.h>
 #include <gui/win32/basic-win32-widget.h>
+#include <gui/win32/stylus/stylusutil.h>
 
 
 namespace richmath {
@@ -76,6 +77,10 @@ namespace richmath {
       STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
       STDMETHODIMP DragLeave(void) override;
       
+      STDMETHODIMP DataInterest(RealTimeStylusDataInterest* pEventInterest) override;
+      STDMETHODIMP StylusDown(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPropCountPerPkt, LONG* pPacket, LONG** ppInOutPkt) override;
+      STDMETHODIMP StylusUp(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPropCountPerPkt, LONG* pPacket, LONG** ppInOutPkt) override;
+      
     public:
       bool _autohide_vertical_scrollbar;
       cairo_format_t _image_format;
@@ -99,6 +104,8 @@ namespace richmath {
       bool animation_running;
       bool is_dragging;
       bool is_drop_over;
+      
+      ComBase<IRealTimeStylus> stylus;
       
     protected:
       virtual void paint_background(Canvas *canvas);

@@ -109,6 +109,47 @@ Win32Widget::Win32Widget(
 void Win32Widget::after_construction() {
   BasicWin32Widget::after_construction();
   
+  stylus = StylusUtil::create(_hwnd);
+  if(stylus) {
+    auto stylus3 = stylus.as<IRealTimeStylus3>();
+    if(stylus3) {
+      /* RealTimeStylus with MultiTouchEnabled disables WM_GESTURE */
+      //HRbool(stylus3->put_MultiTouchEnabled(TRUE));
+    }
+  
+    HRbool(stylus->AddStylusSyncPlugin(0, this));
+    
+//    GUID props[] = {
+//      GUID_PACKETPROPERTY_GUID_X,
+//      GUID_PACKETPROPERTY_GUID_Y,
+//      GUID_PACKETPROPERTY_GUID_NORMAL_PRESSURE,
+//      
+//      GUID_PACKETPROPERTY_GUID_Z,
+//      GUID_PACKETPROPERTY_GUID_PACKET_STATUS,
+//      GUID_PACKETPROPERTY_GUID_TIMER_TICK,
+//      GUID_PACKETPROPERTY_GUID_SERIAL_NUMBER,
+//      GUID_PACKETPROPERTY_GUID_TANGENT_PRESSURE,
+//      GUID_PACKETPROPERTY_GUID_BUTTON_PRESSURE,
+//      GUID_PACKETPROPERTY_GUID_X_TILT_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_Y_TILT_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_AZIMUTH_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_ALTITUDE_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_TWIST_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_PITCH_ROTATION,
+//      GUID_PACKETPROPERTY_GUID_ROLL_ROTATION,
+//      GUID_PACKETPROPERTY_GUID_YAW_ROTATION,
+//      GUID_PACKETPROPERTY_GUID_WIDTH,
+//      GUID_PACKETPROPERTY_GUID_HEIGHT,
+//      GUID_PACKETPROPERTY_GUID_FINGERCONTACTCONFIDENCE,
+//      GUID_PACKETPROPERTY_GUID_DEVICE_CONTACT_ID,
+//    };
+//    HRbool(stylus->SetDesiredPacketDescription(ARRAYSIZE(props), props));
+    
+    /* RealTimeStylus disables single-finger WM_GESTURE */
+    HRbool(stylus->put_Enabled(TRUE));
+  }
+  
+  /* Enabling WM_TOUCH disables WM_GESTURE */
 //  if(Win32Touch::RegisterTouchWindow)
 //    Win32Touch::RegisterTouchWindow(_hwnd, 0);
 }
@@ -405,6 +446,52 @@ STDMETHODIMP Win32Widget::DragLeave(void) {
     
   is_drop_over = false;
   return BasicWin32Widget::DragLeave();
+}
+
+STDMETHODIMP Win32Widget::DataInterest(RealTimeStylusDataInterest* pEventInterest) {
+  *pEventInterest = (RealTimeStylusDataInterest)(
+                      RTSDI_StylusDown |
+                      RTSDI_StylusUp);
+  return S_OK;
+}
+
+STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPropCountPerPkt, LONG* pPacket, LONG** ppInOutPkt) {
+  ComBase<IInkTablet> tablet;
+  HR(piSrcRtp->GetTabletFromTabletContextId(pStylusInfo->tcid, tablet.get_address_of()));
+  
+  TabletDeviceKind kind = (TabletDeviceKind) - 1;
+  auto tablet2 = tablet.as<IInkTablet2>();
+  if(tablet2) {
+    HR(tablet2->get_DeviceKind(&kind));
+  }
+  
+  // ink space is in 0.01mm. 72pt = 1inch = 25.4mm So 0.01mm = 72/2540 pt
+  float x_pt = pPacket[0] * 72.0f / 2540.0f;
+  float y_pt = pPacket[1] * 72.0f / 2540.0f;
+  
+  fprintf(
+    stderr,
+    "[StylusDown tablet %u (%s), cid %u %sat (%f,%f)]\n",
+    pStylusInfo->tcid,
+    kind == TDK_Mouse ? "mouse" : (kind == TDK_Pen ? "pen" : (kind == TDK_Touch ? "touch" : "???")),
+    pStylusInfo->cid,
+    pStylusInfo->bIsInvertedCursor ? "(inverted) " : " ",
+    (double)x_pt,
+    (double)y_pt);
+    
+  //StylusUtil::debug_describe_packet_data_definition(piSrcRtp, pStylusInfo->tcid);
+  StylusUtil::debug_describe_packet_data(piSrcRtp, pStylusInfo->tcid, pPacket);
+  return S_OK;
+}
+
+STDMETHODIMP Win32Widget::StylusUp(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPropCountPerPkt, LONG* pPacket, LONG** ppInOutPkt) {
+  fprintf(
+    stderr,
+    "[StylusUp tablet %u, stylus %u %s]\n",
+    pStylusInfo->tcid,
+    pStylusInfo->cid,
+    pStylusInfo->bIsInvertedCursor ? "inverted" : "");
+  return S_OK;
 }
 
 void Win32Widget::paint_background(Canvas *canvas) {
@@ -939,14 +1026,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_RBUTTONDOWN: {
           MouseEvent event;
           
-          int cursorId;
-          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
-          pmath_debug_print(
-            "[WM_%sBUTTONDOWN: %s id %d]\n",
-            message == WM_LBUTTONDOWN ? "L" : (message == WM_MBUTTONDOWN ? "M" : "R"),
-            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
-            cursorId);
-            
           event.left   = message == WM_LBUTTONDOWN;
           event.middle = message == WM_MBUTTONDOWN;
           event.right  = message == WM_RBUTTONDOWN;
@@ -957,6 +1036,17 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.x /= scale_factor();
           event.y /= scale_factor();
           
+          int cursorId;
+          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
+          fprintf(
+            stderr,
+            "[WM_%sBUTTONDOWN: %s id %d at (%f,%f)]\n",
+            message == WM_LBUTTONDOWN ? "L" : (message == WM_MBUTTONDOWN ? "M" : "R"),
+            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
+            cursorId,
+            (double)event.x,
+            (double)event.y);
+            
           on_mousedown(event);
         } return 0;
         
@@ -967,7 +1057,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           
           int cursorId;
           PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
-          pmath_debug_print(
+          fprintf(
+            stderr,
             "[WM_%sBUTTONUP: %s id %d]\n",
             message == WM_LBUTTONUP ? "L" : (message == WM_MBUTTONUP ? "M" : "R"),
             source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
@@ -1037,19 +1128,22 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } return 0;
         
       case WM_GESTURENOTIFY: {
-          Win32Touch::GESTURENOTIFYSTRUCT *note = (Win32Touch::GESTURENOTIFYSTRUCT*)lParam;
+          //Win32Touch::GESTURENOTIFYSTRUCT *note = (Win32Touch::GESTURENOTIFYSTRUCT*)lParam;
           if(Win32Touch::SetGestureConfig) {
             Win32Touch::GESTURECONFIG gc[] = {
-              { GID_ZOOM, 
-                GC_ZOOM, 0},
+              { GID_ZOOM,
+                GC_ZOOM, 0
+              },
               { GID_PAN,
                 GC_PAN | GC_PAN_WITH_INERTIA | GC_PAN_WITH_GUTTER | GC_PAN_WITH_SINGLE_FINGER_VERTICALLY,
                 GC_PAN_WITH_SINGLE_FINGER_HORIZONTALLY
               },
-              { GID_TWOFINGERTAP, 
-                GC_TWOFINGERTAP, 0},
-              { GID_PRESSANDTAP, 
-                GC_PRESSANDTAP, 0}
+              { GID_TWOFINGERTAP,
+                GC_TWOFINGERTAP, 0
+              },
+              { GID_PRESSANDTAP,
+                GC_PRESSANDTAP, 0
+              }
             };
             Win32Touch::SetGestureConfig(_hwnd, 0, ARRAYSIZE(gc), gc, sizeof(gc[0]));
           }

@@ -45,7 +45,8 @@ BasicWin32Widget::BasicWin32Widget(
     _allow_drop(true),
     _is_dragging_over(false),
     init_data(new InitData),
-    _initializing(true)
+    _initializing(true),
+    freeThreadedMarshaller(nullptr)
 {
   init_window_class();
   add_remove_window(+1);
@@ -58,6 +59,15 @@ BasicWin32Widget::BasicWin32Widget(
   init_data->height            = height;
   init_data->parent            = parent;
   init_data->window_class_name = 0;
+  
+  
+  HRESULT hr = CoCreateFreeThreadedMarshaler(
+                 static_cast<IStylusSyncPlugin*>(this), 
+                 &freeThreadedMarshaller);
+  if(FAILED(hr)) {
+    fprintf(stderr, "BasicWin32Widget: cannot create free-threaded marshaller for IStylusSyncPlugin");
+    freeThreadedMarshaller = nullptr;
+  }
 }
 
 void BasicWin32Widget::set_window_class_name(const wchar_t *static_name) {
@@ -123,7 +133,17 @@ STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject) {
     return S_OK;
   }
   
-  *ppvObject = 0;
+  if(iid == IID_IStylusSyncPlugin) {
+    AddRef();
+    *ppvObject = static_cast<IStylusSyncPlugin *>(this);
+    return S_OK;
+  }
+  
+  if((iid == IID_IMarshal) && (freeThreadedMarshaller != NULL)) {
+    return freeThreadedMarshaller->QueryInterface(iid, ppvObject);
+  }
+  
+  *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
@@ -314,7 +334,7 @@ LRESULT CALLBACK BasicWin32Widget::window_proc(HWND hwnd, UINT message, WPARAM w
       return FALSE;
       
     SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)widget);
-      
+    
     widget->_hwnd = hwnd;
   }
   
