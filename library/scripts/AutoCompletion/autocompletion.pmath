@@ -87,15 +87,12 @@ Function allNamespacesFromPath() {
 % stringLength(~str:String)::= str.StringPosition(EndOfString)[1,-1]
 
 Function makeCamelCasePattern(~str:String) {
-	With(anyNonUpper:= "a".."z") % ... := If(str.containsSubstring("`"), Except("A".."Z"|"`"), Except("A".."Z"))
+	With(interWordPattern:= Shortest(Except("`")***))
 	Return(str.StringReplace({
-		s: "A".."Z" ++ ("a".."z")*** ++ EndOfString :> s,
-		s: "A".."Z" ++ ("a".."z")*** :> s ++ anyNonUpper***,
-		WordBoundary ++ (char: "a".."z") ++ (s: ("a".."z")*** ++ RegularExpression("(?=[^a-z])")) :> ((WordBoundary ++ char) | upperCaseChar(char)) ++ s ++ anyNonUpper***,
-		char: "a".."z" ++ EndOfString :> upperCaseChar(char),
-		char: "a".."z" :> upperCaseChar(char) ++ anyNonUpper***}))
+		(StartOfString|RegularExpression("(?<=`)")) ++ c: RegularExpression("[a-zA-Z]") :> RegularExpression("(?i:^" ++ c ++ ")") | RegularExpression("(?i:[^a-z]" ++ c ++ ")") | upperCaseChar(c),
+		c: RegularExpression("[a-zA-Z]") :> c | (interWordPattern ++ (RegularExpression("(?i:[^a-z]" ++ c ++ ")")) | upperCaseChar(c)),
+		c: RegularExpression("[^a-zA-Z]") :> interWordPattern ++ c}))
 }
-	
 
 Function escapeRegex(~str:String) {
 	Return(str.StringReplace(c: Characters("\[RawBackslash]^$.[|()?*+{") :> "\[RawBackslash]" ++ c))
