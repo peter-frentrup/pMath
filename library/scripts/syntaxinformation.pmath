@@ -565,7 +565,7 @@
 {"IsPackedArray", {"ArgumentCount" -> 1..2}},
 {"PackedArrayForm", {"ArgumentCount" -> 1}},
 {"SetDebugInfoAt", {"ArgumentCount" -> 2..}},
-{"ToPackedArray", {"ArgumentCount" -> 1}}
+{"ToPackedArray", {"ArgumentCount" -> 1..2}}
 }},
 {"Internal`",{
 {"CopySign", {"ArgumentCount" -> 2}},
