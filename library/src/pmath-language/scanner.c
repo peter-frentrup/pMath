@@ -1503,10 +1503,11 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
         } break;
         
       case PMATH_TOK_PLUSPLUS: {
-          if(plusplus_is_infix(parser, next)) // x++y
-            goto NARY;
-            
-          if(PMATH_PREC_INC >= min_prec) { // x++
+          if(plusplus_is_infix(parser, next)) { // x++y
+            if(cur_prec >= min_prec)
+              goto NARY;
+          }
+          else if(PMATH_PREC_INC >= min_prec) { // x++
             span(&parser->tokens, lhs);
             
             last_tok_start = parser->tokens.pos;
