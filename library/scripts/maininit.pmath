@@ -134,3 +134,5 @@ Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "sumprod.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "graphics"}, "init.pmath"))
 
 $NamespacePath:= {"System`"}
+
+Off("Packing")
