@@ -13,7 +13,7 @@
 		<Build>
 			<Target title="Windows-GCC-Debug-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-debug-x86/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/gcc-debug-x86/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -70,7 +70,7 @@
 			</Target>
 			<Target title="Windows-GCC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-release-x86/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/gcc-release-x86/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -129,7 +129,7 @@
 			</Target>
 			<Target title="Windows-GCC-Debug-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-debug-x64/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/gcc-debug-x64/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -186,7 +186,7 @@
 			</Target>
 			<Target title="Windows-GCC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/gcc-release-x64/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/gcc-release-x64/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -245,7 +245,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug-x86/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/msvc-debug-x86/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
@@ -277,6 +277,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/LTCG" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
@@ -304,7 +305,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Release-x86">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-release-x86/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/msvc-release-x86/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
@@ -331,6 +332,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="/LTCG" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
@@ -358,7 +360,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Debug-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-debug-x64/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/msvc-debug-x64/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
@@ -390,6 +392,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/LTCG" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
@@ -417,7 +420,7 @@
 			</Target>
 			<Target title="Windows-MSVC-Release-x64">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/msvc-release-x64/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/msvc-release-x64/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
@@ -444,8 +447,9 @@
 					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
-					<Add option="/DEBUG" />
+					<Add option="/debug" />
 					<Add option="/LTCG" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
@@ -473,7 +477,7 @@
 			</Target>
 			<Target title="Windows-Clang">
 				<Option platforms="Windows;" />
-				<Option output="bin/windows/clang/pmath" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/windows/clang/pmath.dll" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/windows/clang/" />
 				<Option type="3" />
 				<Option compiler="clang" />
@@ -527,7 +531,7 @@
 			</Target>
 			<Target title="Linux-GCC-Debug-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/gcc-debug-x86/pmath.so.0.1" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/linux/gcc-debug-x86/libpmath.so.0.1" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-debug-x86" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -578,7 +582,7 @@
 			</Target>
 			<Target title="Linux-GCC-Release-x86">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/gcc-release-x86/pmath.so.0.1" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/linux/gcc-release-x86/libpmath.so.0.1" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-release-x86" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -639,7 +643,7 @@
 			</Target>
 			<Target title="Linux-GCC-Debug-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/gcc-debug-x64/pmath.so.0.1" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/linux/gcc-debug-x64/libpmath.so.0.1" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-debug-x64" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
@@ -701,7 +705,7 @@
 			</Target>
 			<Target title="Linux-GCC-Release-x64">
 				<Option platforms="Unix;" />
-				<Option output="bin/linux/gcc-release-x64/pmath.so.0.1" prefix_auto="1" extension_auto="0" />
+				<Option output="bin/linux/gcc-release-x64/libpmath.so.0.1" prefix_auto="0" extension_auto="0" />
 				<Option object_output="obj/linux/gcc-release-x64" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
