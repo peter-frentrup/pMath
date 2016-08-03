@@ -165,6 +165,7 @@ First::first:= "`1` has a length of zero and no first element."
 Format::forml:= "Recursion depth limit exceeded while formatting output."
 
 FromCharacterCode::nonunicode:= "A character code, which should be a non-negative integer less than 1114112, is expected at position `1` in `2`."
+FromCharacterCode::invbyte:= "Unexpeted byte `1` for the specified encoding is treated as a single unicode character."
 
 Function::par:= "Function parameter specification `1` in `2` is neither a symbol nor a list of symbols."
 Function::cnt:= "Too many parameters in `1` to be filled from `2`."
