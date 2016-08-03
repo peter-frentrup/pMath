@@ -9,6 +9,8 @@
    src/pmath-builtins/control/messages/
  */
 
+PMATH_PRIVATE pmath_t _pmath_messages_in_group(pmath_string_t group); // group will be freed
+
 PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg);
 PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg);
 
