@@ -106,7 +106,7 @@ static pmath_t try_from_iconv_bytes(const int32_t *data, size_t length, iconv_t 
     }
     
     ret = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    str = pmath_string_insert_ucs2(str, MAXINT, words, (int)((uint16_t*)outbuf - words));
+    str = pmath_string_insert_ucs2(str, INT_MAX, words, (int)((uint16_t*)outbuf - words));
     
     if(ret == (size_t) - 1) {
       if(errno == EILSEQ) { // invalid input byte
@@ -133,7 +133,7 @@ static pmath_t try_from_iconv_bytes(const int32_t *data, size_t length, iconv_t 
       }
     }
     
-    if(inbuf == bytes) {
+    if(inbuf == (char*)bytes) {
       // A single outbut character needed more than 16 input bytes ???
       if(pmath_aborting())
         break;

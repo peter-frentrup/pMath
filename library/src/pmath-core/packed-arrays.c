@@ -1465,7 +1465,7 @@ pmath_expr_t _pmath_packed_array_set_item(
 // array won't be freed.
 static void unpack_array_message(pmath_packed_array_t array){
   pmath_t caller = pmath_current_head();
-  pmath_t dimensions = _pmath_dimensions(array, MAXSIZE_T);
+  pmath_t dimensions = _pmath_dimensions(array, SIZE_MAX);
   
   if(pmath_is_symbol(caller)) {
     pmath_message(PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY, "punpack", 2, caller, dimensions);
