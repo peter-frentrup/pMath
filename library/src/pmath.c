@@ -698,6 +698,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN_ARGS("$MinMachineNumber:=`1`", "(f)", (double)DBL_MIN);
       PMATH_RUN("$MaxExtraPrecision:=50");
       
+      PMATH_RUN("$MessageGroups:={\"Packing\" :> {General::punpack, General::punpack1}}");
+      
       init_pagewidth();
       
       PMATH_RUN("$Path:={\".\"}");

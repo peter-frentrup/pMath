@@ -1121,6 +1121,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_MEMORYUSAGE                      = NEW_SYSTEM_SYMBOL("MemoryUsage"))
   VERIFY(   PMATH_SYMBOL_MESSAGE                          = NEW_SYSTEM_SYMBOL("Message"))
   VERIFY(   PMATH_SYMBOL_MESSAGECOUNT                     = NEW_SYSTEM_SYMBOL("$MessageCount"))
+  VERIFY(   PMATH_SYMBOL_MESSAGEGROUPS                    = NEW_SYSTEM_SYMBOL("$MessageGroups"))
   VERIFY(   PMATH_SYMBOL_MESSAGENAME                      = NEW_SYSTEM_SYMBOL("MessageName"))
   VERIFY(   PMATH_SYMBOL_MESSAGES                         = NEW_SYSTEM_SYMBOL("Messages"))
   VERIFY(   PMATH_SYMBOL_METHOD                           = NEW_SYSTEM_SYMBOL("Method"))
