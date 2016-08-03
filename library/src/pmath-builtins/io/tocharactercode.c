@@ -41,6 +41,8 @@ static pmath_expr_t string_to_utf32_codes(pmath_string_t str, iconv_t dummy) { /
   pmath_packed_array_t result = pmath_packed_array_new(PMATH_NULL, PMATH_PACKED_INT32, 1, &size, NULL, 0);
   int32_t *data_start = pmath_packed_array_begin_write(&result, NULL, 0);
   int32_t *data = data_start;
+  pmath_t tmp;
+  
   if(!data_start) {
     pmath_unref(str);
     pmath_unref(result);
@@ -62,7 +64,9 @@ static pmath_expr_t string_to_utf32_codes(pmath_string_t str, iconv_t dummy) { /
   }
   
   pmath_unref(str);
-  return pmath_expr_get_item_range(result, 1, data - data_start);
+  tmp = pmath_expr_get_item_range(result, 1, data - data_start);
+  pmath_unref(result);
+  return tmp;
 }
 
 static pmath_expr_t append_bytes(pmath_expr_t expr, char *bytes, size_t num_bytes) {
