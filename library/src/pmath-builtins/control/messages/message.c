@@ -15,7 +15,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg) {
 //  return pmath_equals(msg, _pmath_object_newsym_message);
   if(!pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2))
     return FALSE;
-  
+    
   return pmath_equals(msg, _pmath_object_loadlibrary_load_message) ||
          pmath_equals(msg, _pmath_object_get_load_message);
 }
@@ -42,7 +42,7 @@ static pmath_bool_t is_known_on_off(pmath_thread_t thread, pmath_t msg, pmath_bo
   
   *is_on = TRUE;
   return FALSE;
-} 
+}
 
 PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg) {
   pmath_thread_t thread;
@@ -52,10 +52,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg) {
   thread = pmath_thread_get_current();
   if(is_known_on_off(thread, msg, &result))
     return result;
-  
+    
   if(!pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2))
     return TRUE;
-  
+    
   tmp = pmath_expr_set_item(pmath_ref(msg), 2, PMATH_NULL);
   if(is_known_on_off(thread, tmp, &result)) {
     pmath_unref(tmp);
@@ -120,15 +120,15 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   
   thread = pmath_thread_get_current();
   if(thread && thread->critical_messages) {
-    pmath_t dothrow = pmath_evaluate(
-                        pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE), 1,
-                          pmath_ref(name)));
-    pmath_unref(dothrow);
+    pmath_t throw_tag = pmath_evaluate(
+                          pmath_expr_new_extended(
+                            pmath_ref(PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG), 1,
+                            pmath_ref(name)));
     
-    if(pmath_same(dothrow, PMATH_SYMBOL_TRUE)) {
+    if(!pmath_is_null(throw_tag)) {
       pmath_unref(expr);//pmath_unref(pmath_evaluate(expr));
-      pmath_throw(name);
+      pmath_unref(name);
+      pmath_throw(throw_tag);
       return PMATH_NULL;
     }
   }
