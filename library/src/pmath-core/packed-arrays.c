@@ -12,9 +12,12 @@
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/overflow-calc-private.h>
 #include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
+
 
 #ifdef _MSC_VER
 #  define snprintf sprintf_s
@@ -1457,9 +1460,25 @@ pmath_expr_t _pmath_packed_array_set_item(
 
 /* -------------------------------------------------------------------------- */
 
-PMATH_PRIVATE
+
+
+// array won't be freed.
+static void unpack_array_message(pmath_packed_array_t array){
+  pmath_t caller = pmath_current_head();
+  pmath_t dimensions = _pmath_dimensions(array, MAXSIZE_T);
+  
+  if(pmath_is_symbol(caller)) {
+    pmath_message(PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY, "punpack", 2, caller, dimensions);
+  }
+  else {
+    pmath_unref(caller);
+    pmath_message(PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY, "punpack1", 1, dimensions);
+  }
+}
+
+static
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t recursive) {
+pmath_expr_t unpack_array(pmath_packed_array_t array, pmath_bool_t recursive, pmath_bool_t quiet) {
   struct _pmath_packed_array_t *_array;
   struct _pmath_expr_t *expr;
   size_t i, length;
@@ -1470,6 +1489,9 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t r
   _array = (void *)PMATH_AS_PTR(array);
   
   length = ARRAY_SIZES(_array)[0];
+  
+  if(!quiet)
+    unpack_array_message(array);
   
   expr = _pmath_expr_new_noinit(length);
   if(PMATH_UNLIKELY(expr == NULL)) {
@@ -1485,11 +1507,17 @@ pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t r
     // items are all packed arrays (or PMATH_NULL on error)
     
     for(i = 1; i <= length; ++i)
-      expr->items[i] = _pmath_expr_unpack_array(expr->items[i], TRUE);
+      expr->items[i] = unpack_array(expr->items[i], TRUE, TRUE);
   }
   
   pmath_unref(array);
   return PMATH_FROM_PTR(expr);
+}
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t recursive) {
+  return unpack_array(array, recursive, FALSE);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -2117,7 +2145,7 @@ pmath_expr_t _pmath_packed_array_map(
       
       return _pmath_expr_map(
           expr,
-          start,
+          start + 1,
           end,
           func,
           context);
