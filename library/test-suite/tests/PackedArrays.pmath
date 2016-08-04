@@ -41,3 +41,9 @@ AssertEqual(mixedList // N, packMixedAsReal)
 
 AssertEqual(Hash(mixedList // N), Hash(packMixedAsReal))
 
+
+
+Assert(IsPackedArray(Array(3)))
+AssertEqual(Select(Array(3), True &), {1, 2, 3})
+AssertEqual(Select({1,2,3}, True &), {1, 2, 3})
+
