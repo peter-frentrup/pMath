@@ -64,7 +64,7 @@ static void emit_messages_in_groups(pmath_t messages, int max_depth) {
     
     pmath_unref(held_group);
     if(pmath_is_expr_of(messages, PMATH_SYMBOL_HOLD))
-      messages = pmath_expr_set_item(messages, 0, PMATH_SYMBOL_LIST);
+      messages = pmath_expr_set_item(messages, 0, pmath_ref(PMATH_SYMBOL_LIST));
   }
   
   if(max_depth > 0 && pmath_is_expr_of(messages, PMATH_SYMBOL_LIST)) {
