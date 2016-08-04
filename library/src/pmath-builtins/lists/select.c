@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
@@ -119,6 +120,58 @@ static size_t test_all_slow(
   return count;
 }
 
+static pmath_expr_t create_similar(pmath_t expr, size_t length) {
+  if(length == 0)
+    return pmath_expr_new(pmath_expr_get_item(expr, 0), 0);
+    
+  if(pmath_is_packed_array(expr)) {
+    pmath_packed_array_t result;
+    
+    const size_t *old_sizes = pmath_packed_array_get_sizes(expr);
+    const size_t *old_steps = pmath_packed_array_get_steps(expr);
+    
+    size_t buffer[6];
+    size_t *sizes;
+    size_t *steps;
+    
+    size_t dims = pmath_packed_array_get_dimensions(expr);
+    if(dims == 0)
+        return PMATH_NULL;
+      
+    if(2 * dims < sizeof(buffer) / sizeof(buffer[0])) {
+      sizes = buffer;
+      steps = sizes + dims;
+    }
+    else {
+      sizes = pmath_mem_alloc(2 * dims * sizeof(size_t));
+      if(!sizes)
+        return PMATH_NULL;
+        
+      steps = sizes + dims;
+    }
+    
+    memcpy(sizes, old_sizes, dims * sizeof(size_t));
+    memcpy(steps, old_steps, dims * sizeof(size_t));
+    
+    sizes[0] = length;
+    
+    result = pmath_packed_array_new(
+      PMATH_NULL, 
+      pmath_packed_array_get_element_type(expr),
+      dims,
+      sizes,
+      steps,
+      0);
+    
+    if(sizes != buffer)
+      pmath_mem_free(sizes);
+    
+    return result;
+  }
+  
+  return pmath_expr_new(pmath_expr_get_item(expr, 0), length);
+}
+
 // all indices are 0-based
 static pmath_expr_t pick_slow(
   pmath_expr_t  expr, // wont be freed
@@ -133,7 +186,7 @@ static pmath_expr_t pick_slow(
   if(!successes)
     return pmath_expr_get_item_range(expr, first_success + 1, success_list_length);
   
-  result = pmath_expr_new(pmath_expr_get_item(expr, 0), num_successes);
+  result = create_similar(expr, num_successes);
   j = 1;
   for(i = 0;i < success_list_length; ++i) {
     if(successes[i]) {
