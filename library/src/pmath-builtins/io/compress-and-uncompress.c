@@ -1,6 +1,6 @@
 #include <pmath-util/compression.h>
 #include <pmath-util/messages.h>
-#include <pmath-util/mixed-file.h>
+#include <pmath-util/files/mixed-buffer.h>
 #include <pmath-util/serialize.h>
 
 #include <pmath-builtins/all-symbols-private.h>

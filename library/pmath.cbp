@@ -839,7 +839,10 @@
 		<Unit filename="include/pmath-util/dynamic-private.h" />
 		<Unit filename="include/pmath-util/emit-and-gather.h" />
 		<Unit filename="include/pmath-util/evaluation.h" />
-		<Unit filename="include/pmath-util/files.h" />
+		<Unit filename="include/pmath-util/files/abstract-file.h" />
+		<Unit filename="include/pmath-util/files/binary-buffer.h" />
+		<Unit filename="include/pmath-util/files/mixed-buffer.h" />
+		<Unit filename="include/pmath-util/files/text-from-binary.h" />
 		<Unit filename="include/pmath-util/hashtables-private.h" />
 		<Unit filename="include/pmath-util/hashtables.h" />
 		<Unit filename="include/pmath-util/helpers.h" />
@@ -847,7 +850,6 @@
 		<Unit filename="include/pmath-util/line-writer.h" />
 		<Unit filename="include/pmath-util/memory.h" />
 		<Unit filename="include/pmath-util/messages.h" />
-		<Unit filename="include/pmath-util/mixed-file.h" />
 		<Unit filename="include/pmath-util/modules-private.h" />
 		<Unit filename="include/pmath-util/option-helpers-private.h" />
 		<Unit filename="include/pmath-util/option-helpers.h" />
@@ -1639,7 +1641,16 @@
 		<Unit filename="src/pmath-util/evaluation.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-util/files.c">
+		<Unit filename="src/pmath-util/files/abstract-file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/files/binary-buffer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/files/mixed-buffer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/files/text-from-binary.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/hashtables-private.c">
@@ -1658,9 +1669,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/messages.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-util/mixed-file.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/modules-private.c">

@@ -1,8 +1,8 @@
 #include <pmath-core/custom.h>
 
+#include <pmath-util/files/mixed-buffer.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/memory.h>
-#include <pmath-util/mixed-file.h>
 
 #include <limits.h>
 #include <string.h>
@@ -211,11 +211,11 @@ static size_t decode_base85(const uint16_t *in5, uint8_t *out4) {
   uint8_t full5[5];
   size_t result;
   
-  full5[0] = in5[0];
-  full5[1] = in5[1];
-  full5[2] = in5[2];
-  full5[3] = in5[3];
-  full5[4] = in5[4];
+  full5[0] = in5[0] & 0x7F;
+  full5[1] = in5[1] & 0x7F;
+  full5[2] = in5[2] & 0x7F;
+  full5[3] = in5[3] & 0x7F;
+  full5[4] = in5[4] & 0x7F;
   
   result = 4;
   if(full5[4] == (unsigned char)'~') {
@@ -231,11 +231,11 @@ static size_t decode_base85(const uint16_t *in5, uint8_t *out4) {
     }
   }
   
-  ui =           base85_value[full5[0] & 0x7F];
-  ui = ui * 85 + base85_value[full5[1] & 0x7F];
-  ui = ui * 85 + base85_value[full5[2] & 0x7F];
-  ui = ui * 85 + base85_value[full5[3] & 0x7F];
-  ui = ui * 85 + base85_value[full5[4] & 0x7F];
+  ui =           base85_value[full5[0]];
+  ui = ui * 85 + base85_value[full5[1]];
+  ui = ui * 85 + base85_value[full5[2]];
+  ui = ui * 85 + base85_value[full5[3]];
+  ui = ui * 85 + base85_value[full5[4]];
   
   out4[3] = ui & 0xFF;
   ui = ui >> 8;
@@ -372,8 +372,8 @@ static void textbuffer_flush_base85(void *extra) {
     memset(tb->out, 0, out_avail);
     encode_base85(tb->outbuffer, block5);
     
-    tb->text = pmath_string_insert_latin1(tb->text, INT_MAX, block5,       5 - out_avail);
-    tb->text = pmath_string_insert_latin1(tb->text, INT_MAX, base85_flush, out_avail);
+    tb->text = pmath_string_insert_latin1(tb->text, INT_MAX, block5,       5 - (int)out_avail);
+    tb->text = pmath_string_insert_latin1(tb->text, INT_MAX, base85_flush, (int)out_avail);
   }
 }
 
