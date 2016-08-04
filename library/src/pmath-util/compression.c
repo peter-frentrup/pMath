@@ -48,7 +48,7 @@ static size_t compressor_deflate(
   int                       zlib_flush_value
 ) {
   int ret = Z_OK;
-  pmath_bool_t force_continue_deflate = FALSE;
+  pmath_bool_t force_continue_deflate;
   uInt old_avail_out;
   if(data->status != PMATH_FILE_OK)
     return 0;
@@ -63,6 +63,7 @@ static size_t compressor_deflate(
     
     old_avail_out = data->info.avail_out;
     
+    force_continue_deflate = FALSE;
     ret = deflate(&data->info, zlib_flush_value);
     if(ret < 0 && ret != Z_BUF_ERROR) {
       data->status = PMATH_FILE_OTHERERROR;
