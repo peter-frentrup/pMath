@@ -1,7 +1,7 @@
 #include <pmath-util/compression.h>
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/memory.h>
-
 
 #include <string.h>
 #include <zlib.h>
