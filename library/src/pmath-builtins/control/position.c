@@ -33,6 +33,8 @@ struct position_info_t {
   long levelmax;
   size_t max;
   pmath_bool_t with_heads;
+  
+  pmath_t pattern;
 };
 
 static void destroy_index(struct index_t *idx) {
@@ -50,6 +52,13 @@ static void destroy_index_lists(struct index_lists_t *ids) {
     pmath_mem_free(ids);
     ids = next;
   }
+}
+
+// does not free obj
+static pmath_bool_t test_pattern(struct position_info_t *info, pmath_t obj) {
+  assert(info != NULL);
+  
+  return _pmath_pattern_match(obj, pmath_ref(info->pattern), NULL);
 }
 
 static pmath_bool_t prepend_index(struct index_lists_t *lists, size_t i) {
@@ -74,17 +83,13 @@ static struct index_lists_t **collect_position(
   struct position_info_t  *info,
   struct index_lists_t   **list_end,
   pmath_t                  expr, // wont be freed
-  long                     level,
-  pmath_bool_t           (*test)(pmath_t, void *),
-  void                    *test_context);
+  long                     level);
 
 static struct index_lists_t **collect_expr_items_position_slow(
   struct position_info_t  *info,
   struct index_lists_t   **list_end,
   pmath_expr_t             expr, // wont be freed
-  long                     level,
-  pmath_bool_t           (*test)(pmath_t, void *),
-  void                    *test_context
+  long                     level
 ) {
   size_t i, len;
   
@@ -101,9 +106,7 @@ static struct index_lists_t **collect_expr_items_position_slow(
                 info,
                 list_end,
                 item,
-                level + 1,
-                test,
-                test_context);
+                level + 1);
                 
     pmath_unref(item);
     prepend_index(*list_end, i);
@@ -118,9 +121,7 @@ static struct index_lists_t **collect_general_expr_items_position(
   struct index_lists_t   **list_end,
   const pmath_t           *expr_items,
   size_t                   length,
-  long                     level,
-  pmath_bool_t           (*test)(pmath_t, void *),
-  void                    *test_context
+  long                     level
 ) {
   size_t i0;
   
@@ -134,9 +135,7 @@ static struct index_lists_t **collect_general_expr_items_position(
                 info,
                 list_end,
                 expr_items[i0],
-                level + 1,
-                test,
-                test_context);
+                level + 1);
                 
     prepend_index(*list_end, i0 + 1);
     list_end = new_end;
@@ -149,9 +148,7 @@ static struct index_lists_t **collect_position(
   struct position_info_t  *info,
   struct index_lists_t   **list_end,
   pmath_t                  expr, // wont be freed
-  long                     level,
-  pmath_bool_t           (*test)(pmath_t, void *),
-  void                    *test_context
+  long                     level
 ) {
   int reldepth;
   
@@ -176,9 +173,7 @@ static struct index_lists_t **collect_position(
                     info,
                     list_end,
                     head,
-                    level + 1,
-                    test,
-                    test_context);
+                    level + 1);
                     
         pmath_unref(head);
         prepend_index(*list_end, 0);
@@ -192,18 +187,14 @@ static struct index_lists_t **collect_position(
                      list_end,
                      items,
                      pmath_expr_length(expr),
-                     level,
-                     test,
-                     test_context);
+                     level);
       }
       else {
         list_end = collect_expr_items_position_slow(
                      info,
                      list_end,
                      expr,
-                     level,
-                     test,
-                     test_context);
+                     level);
       }
     }
   }
@@ -214,7 +205,7 @@ static struct index_lists_t **collect_position(
   if(reldepth < 0)
     return list_end;
     
-  if((*test)(expr, test_context)) {
+  if(test_pattern(info, expr)) {
     struct index_lists_t *result;
     
     result = pmath_mem_alloc(sizeof(struct index_lists_t));
@@ -287,29 +278,22 @@ static pmath_expr_t index_lists_to_expr(struct index_lists_t *ids) {
 }
 
 
-static pmath_bool_t pattern_tester(pmath_t obj, void *pattern_ptr) {
-  pmath_t *pattern = pattern_ptr;
-  
-  return _pmath_pattern_match(obj, pmath_ref(*pattern), NULL);
-}
-
 static pmath_expr_t position(
-  struct position_info_t *info,
-  pmath_t                 expr,   // will be freed
-  pmath_t                 pattern // will be freed
+  struct position_info_t *info, // will free .pattern member
+  pmath_t                 expr  // will be freed
 ) {
   struct index_lists_t *lists = NULL;
+  assert(info != NULL);
   
   collect_position(
     info,
     &lists,
     expr,
-    0,
-    pattern_tester,
-    &pattern);
+    0);
     
   pmath_unref(expr);
-  pmath_unref(pattern);
+  pmath_unref(info->pattern);
+  info->pattern = PMATH_UNDEFINED;
   
   expr = index_lists_to_expr(lists);
   destroy_index_lists(lists);
@@ -332,7 +316,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
   struct position_info_t info;
   size_t last_nonoption, exprlen = pmath_expr_length(expr);
   pmath_expr_t options;
-  pmath_t obj, pattern;
+  pmath_t obj;
   
   if(exprlen < 2) {
     pmath_message_argxxx(exprlen, 2, 4);
@@ -384,11 +368,11 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
     pmath_unref(levels);
   }
   
-  pattern = pmath_expr_get_item(expr, 2);
+  info.pattern = pmath_expr_get_item(expr, 2);
   
   options = pmath_options_extract(expr, last_nonoption);
   if(pmath_is_null(options)) {
-    pmath_unref(pattern);
+    pmath_unref(info.pattern);
     return expr;
   }
   
@@ -400,7 +384,7 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
     info.with_heads = FALSE;
   }
   else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
-    pmath_unref(pattern);
+    pmath_unref(info.pattern);
     pmath_unref(options);
     pmath_message(
       PMATH_NULL, "opttf", 2,
@@ -414,5 +398,5 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  return position(&info, obj, pattern);
+  return position(&info, obj);
 }
