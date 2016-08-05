@@ -120,7 +120,8 @@ static size_t test_all_slow(
   return count;
 }
 
-static pmath_expr_t create_similar(pmath_t expr, size_t length) {
+PMATH_PRIVATE
+pmath_expr_t _pmath_expr_create_similar(pmath_t expr, size_t length) {
   if(length == 0)
     return pmath_expr_new(pmath_expr_get_item(expr, 0), 0);
     
@@ -186,7 +187,7 @@ static pmath_expr_t pick_slow(
   if(!successes)
     return pmath_expr_get_item_range(expr, first_success + 1, success_list_length);
   
-  result = create_similar(expr, num_successes);
+  result = _pmath_expr_create_similar(expr, num_successes);
   j = 1;
   for(i = 0;i < success_list_length; ++i) {
     if(successes[i]) {
