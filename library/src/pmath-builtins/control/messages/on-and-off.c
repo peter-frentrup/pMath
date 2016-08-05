@@ -39,6 +39,7 @@ static void set_message_on_off(pmath_t message, pmath_bool_t on) {
 static void emit_messages_in_groups(pmath_t messages, int max_depth) {
   if(_pmath_is_valid_messagename(messages)) {
     pmath_emit(messages, PMATH_NULL);
+    return;
   }
   
   if(pmath_is_string(messages)) {
