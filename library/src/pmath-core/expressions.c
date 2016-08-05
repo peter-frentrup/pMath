@@ -795,13 +795,7 @@ PMATH_PRIVATE pmath_t _pmath_expr_shrink_associative(
           const pmath_t *items;
           
           items = pmath_expr_read_item_data(expr);
-          if(!items) {
-            pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
-            pmath_unref(expr);
-            return PMATH_NULL;
-          }
-          
-          assert(items != NULL);
+          assert(items != NULL && "general expr always have items array");
           
           while(srci0 <= len && pmath_same(items[srci0], magic_rem))
             ++srci0;
@@ -840,10 +834,7 @@ static pmath_expr_t remove_all_fast(
     const pmath_t *items;
     
     items = pmath_expr_read_item_data(expr);
-    if(!items)
-      pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
-      
-    assert(items != NULL);
+    assert(items != NULL && "general expr always have items array");
     
     while(srci0 <= len && pmath_equals(items[srci0], rem))
       ++srci0;
@@ -1012,93 +1003,42 @@ static int cmp_glibc(const void *a, const void *b, void *c) {
 
 #endif
 
+/* The C standard does not allow to cast between data pointer and function pointer
+   (They could have different size). So we do a double indirection.
+ */
+struct context_free_comparer_t {
+  int (*function)(const pmath_t *, const pmath_t *);
+};
+
+static int compare_no_context(void *_cfc, const pmath_t *a, const pmath_t *b) {
+  struct context_free_comparer_t *cfc = _cfc;
+  return cfc->function(a, b);
+}
+
 PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex(
   pmath_expr_t expr, // will be freed
   int(*cmp)(const pmath_t *, const pmath_t *)
 ) {
-  size_t i, length;
-  struct _pmath_expr_part_t *expr_part_ptr;
-  const pmath_t *initial_items;
-  
-  if(pmath_is_packed_array(expr)) {
-    pmath_debug_print("[unpack array: _pmath_expr_sort_ex]\n");
-    
-    expr = _pmath_expr_unpack_array(expr, FALSE);
-  }
-    
-  if(PMATH_UNLIKELY(pmath_is_null(expr)))
-    return PMATH_NULL;
-    
-  assert(pmath_is_expr(expr));
-  expr_part_ptr = (void *)PMATH_AS_PTR(expr);
-  
-  length = expr_part_ptr->inherited.length;
-  if(length < 2)
-    return expr;
-    
-  initial_items = pmath_expr_read_item_data(expr);
-  if(initial_items) {
-    pmath_bool_t is_sorted = TRUE;
-    
-    for(i = 1; i < length; ++i) {
-      int c = (*cmp)(&initial_items[i - 1], &initial_items[i]);
-      if(c > 0) {
-        is_sorted = FALSE;
-        break;
-      }
+  struct context_free_comparer_t cfc;
+  cfc.function = cmp;
+  return _pmath_expr_sort_ex_context(expr, compare_no_context, &cfc);
+}
+
+static pmath_bool_t are_items_sorted(
+  const pmath_t  *items,
+  size_t          count,
+  int           (*cmp)(void *, const pmath_t *, const pmath_t *),
+  void           *context
+) {
+  size_t i;
+  for(i = 1; i < count; ++i) {
+    int c = (*cmp)(context, &items[i - 1], &items[i]);
+    if(c > 0) {
+      return FALSE;
     }
-    
-    if(is_sorted)
-      return expr;
-  }
-  else {
-    pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
   }
   
-  if( pmath_refcount(expr) > 1 ||
-      PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
-  {
-    pmath_t head = pmath_ref(expr_part_ptr->inherited.items[0]);
-    struct _pmath_expr_t *new_expr =
-      (void *)PMATH_AS_PTR(pmath_expr_new(head, length));
-      
-    if(!new_expr) {
-      pmath_unref(expr);
-      return PMATH_NULL;
-    }
-    
-    switch(PMATH_AS_PTR(expr)->type_shift) {
-      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
-          for(i = 1; i <= length; i++) {
-            new_expr->items[i] = pmath_ref(expr_part_ptr->inherited.items[i]);
-          }
-        } break;
-        
-      case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART: {
-          for(i = 1; i <= length; i++)
-            new_expr->items[i] = pmath_ref(
-                                   expr_part_ptr->buffer->items[expr_part_ptr->start + i - 1]);
-        } break;
-        
-      default:
-        assert("invalid expression type" && 0);
-    }
-    
-    pmath_unref(expr);
-    expr = PMATH_FROM_PTR(new_expr);
-    expr_part_ptr = (void *)new_expr;
-  }
-  else {
-    touch_expr(&expr_part_ptr->inherited);
-  }
-  
-  qsort(
-    expr_part_ptr->inherited.items + 1,
-    length,
-    sizeof(pmath_t),
-    (int( *)(const void *, const void *))cmp);
-    
-  return expr;
+  return TRUE;
 }
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
@@ -1115,11 +1055,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
     
     expr = _pmath_expr_unpack_array(expr, FALSE);
   }
-    
+  
   if(PMATH_UNLIKELY(pmath_is_null(expr)))
     return PMATH_NULL;
     
-  assert(pmath_is_expr(expr));
+  assert(pmath_is_pointer_of(expr, PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART));
   expr_part_ptr = (void *)PMATH_AS_PTR(expr);
   
   length = expr_part_ptr->inherited.length;
@@ -1127,23 +1067,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_sort_ex_context(
     return expr;
     
   initial_items = pmath_expr_read_item_data(expr);
-  if(initial_items) {
-    pmath_bool_t is_sorted = TRUE;
-    
-    for(i = 1; i < length; ++i) {
-      int c = (*cmp)(context, &initial_items[i - 1], &initial_items[i]);
-      if(c > 0) {
-        is_sorted = FALSE;
-        break;
-      }
-    }
-    
-    if(is_sorted)
-      return expr;
-  }
-  else
-    pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
-    
+  assert(initial_items != NULL && "general expr always have items array");
+  
+  if(are_items_sorted(initial_items, length, cmp, context))
+    return expr;
+  
   if( pmath_refcount(expr) > 1 ||
       PMATH_AS_PTR(expr)->type_shift != PMATH_TYPE_SHIFT_EXPRESSION_GENERAL)
   {
@@ -1414,7 +1342,7 @@ pmath_expr_t _pmath_expr_map_slow(
   if(end > i)
     end = i;
     
-  for(i = start;i <= end;++i) {
+  for(i = start; i <= end; ++i) {
     pmath_t item = pmath_expr_extract_item(expr, i);
     
     item = func(item, i, context);
@@ -1991,7 +1919,7 @@ void _pmath_expr_update(pmath_expr_t expr) {
     return;
     
   tt = (struct _pmath_timed_t*)PMATH_AS_PTR(expr);
-    
+  
   switch(tt->inherited.type_shift) {
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
@@ -2008,7 +1936,7 @@ _pmath_timer_t _pmath_expr_last_change(pmath_expr_t expr) {
     return 0;
     
   tt = (struct _pmath_timed_t*)PMATH_AS_PTR(expr);
-    
+  
   switch(tt->inherited.type_shift) {
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART:
@@ -2578,9 +2506,9 @@ static void write_expr_ex(
       
     item = pmath_symbol_get_value(PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING);
     pmath_unref(item);
-    if(pmath_same(item, PMATH_SYMBOL_TRUE))  
+    if(pmath_same(item, PMATH_SYMBOL_TRUE))
       goto FULLFORM;
-    
+      
     item = pmath_expr_get_item(expr, 1);
     _pmath_write_boxes(info, item);
     pmath_unref(item);
@@ -2764,890 +2692,891 @@ static void write_expr_ex(
     
     pmath_unref(item);
   }
-else INPUTFORM: if(exprlen == 2 && /*=========================================*/
-                     (pmath_same(head, PMATH_SYMBOL_ASSIGN)        ||
-                      pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED) ||
-                      pmath_same(head, PMATH_SYMBOL_DECREMENT)     ||
-                      pmath_same(head, PMATH_SYMBOL_DIVIDEBY)      ||
-                      pmath_same(head, PMATH_SYMBOL_INCREMENT)     ||
-                      pmath_same(head, PMATH_SYMBOL_TIMESBY)))
-  {
-    pmath_t lhs, rhs;
-    
-    if(priority > PRIO_ASSIGN)
-      WRITE_CSTR("(");
+else INPUTFORM:
+    if(exprlen == 2 && /*=========================================*/
+        (pmath_same(head, PMATH_SYMBOL_ASSIGN)        ||
+         pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED) ||
+         pmath_same(head, PMATH_SYMBOL_DECREMENT)     ||
+         pmath_same(head, PMATH_SYMBOL_DIVIDEBY)      ||
+         pmath_same(head, PMATH_SYMBOL_INCREMENT)     ||
+         pmath_same(head, PMATH_SYMBOL_TIMESBY)))
+    {
+      pmath_t lhs, rhs;
       
-    lhs = pmath_expr_get_item(expr, 1);
-    rhs = pmath_expr_get_item(expr, 2);
-    
-    write_ex(info, PRIO_ASSIGN + 1, lhs);
-    
-    if(     pmath_same(head, PMATH_SYMBOL_ASSIGN))         WRITE_CSTR(":= ");
-    else if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  WRITE_CSTR("::= ");
-    else if(pmath_same(head, PMATH_SYMBOL_DECREMENT))      WRITE_CSTR("-= ");
-    else if(pmath_same(head, PMATH_SYMBOL_DIVIDEBY))       WRITE_CSTR("/= ");
-    else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))      WRITE_CSTR("+= ");
-    else                                                   WRITE_CSTR("*= ");
-    
-    write_ex(info, PRIO_ASSIGN, rhs);
-    
-    pmath_unref(lhs);
-    pmath_unref(rhs);
-    
-    if(priority > PRIO_ASSIGN)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_DECREMENT)     ||
-          pmath_same(head, PMATH_SYMBOL_INCREMENT)     ||
-          pmath_same(head, PMATH_SYMBOL_POSTDECREMENT) ||
-          pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))
-  {
-    pmath_t arg;
-    
-    if(exprlen != 1)
-      goto FULLFORM;
-      
-    if(priority > PRIO_INCDEC)
-      WRITE_CSTR("(");
-      
-    if(pmath_same(head, PMATH_SYMBOL_DECREMENT))  WRITE_CSTR("--");
-    else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))  WRITE_CSTR("++");
-    
-    arg = pmath_expr_get_item(expr, 1);
-    write_ex(info, PRIO_INCDEC + 1, arg);
-    pmath_unref(arg);
-    
-    if(pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))  WRITE_CSTR("--");
-    else if(pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))  WRITE_CSTR("++");
-    
-    if(priority > PRIO_INCDEC)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN) ||
-          pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED))
-  {
-    pmath_t obj;
-    
-    if(exprlen != 3)
-      goto FULLFORM;
-      
-    if(priority > PRIO_ASSIGN)
-      WRITE_CSTR("(");
-      
-    obj = pmath_expr_get_item(expr, 1);
-    write_ex(info, PRIO_SYMBOL, obj);
-    pmath_unref(obj);
-    
-    WRITE_CSTR("/: ");
-    
-    obj = pmath_expr_get_item(expr, 2);
-    write_ex(info, PRIO_ASSIGN + 1, obj);
-    pmath_unref(obj);
-    
-    if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))  WRITE_CSTR(":= ");
-    else                                          WRITE_CSTR("::= ");
-    
-    obj = pmath_expr_get_item(expr, 3);
-    write_ex(info, PRIO_ASSIGN, obj);
-    pmath_unref(obj);
-    
-    if(priority > PRIO_ASSIGN)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_RULE) ||
-          pmath_same(head, PMATH_SYMBOL_RULEDELAYED))
-  {
-    pmath_t lhs, rhs;
-    
-    if(exprlen != 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_RULE)
-      WRITE_CSTR("(");
-      
-    lhs = pmath_expr_get_item(expr, 1);
-    rhs = pmath_expr_get_item(expr, 2);
-    
-    write_ex(info, PRIO_RULE + 1, lhs);
-    
-    if(pmath_same(head, PMATH_SYMBOL_RULE))  WRITE_CSTR(" -> ");
-    else                                     WRITE_CSTR(" :> ");
-    
-    write_ex(info, PRIO_RULE, rhs);
-    
-    pmath_unref(lhs);
-    pmath_unref(rhs);
-    
-    if(priority > PRIO_RULE)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_LIST)) {
-    size_t i;
-    
-    WRITE_CSTR("{");
-    for(i = 1; i <= exprlen; i++) {
-      pmath_t item;
-      
-      if(i > 1)
-        WRITE_CSTR(", ");
+      if(priority > PRIO_ASSIGN)
+        WRITE_CSTR("(");
         
-      item = pmath_expr_get_item(expr, i);
-      pmath_write_ex(info, item);
-      pmath_unref(item);
+      lhs = pmath_expr_get_item(expr, 1);
+      rhs = pmath_expr_get_item(expr, 2);
+      
+      write_ex(info, PRIO_ASSIGN + 1, lhs);
+      
+      if(     pmath_same(head, PMATH_SYMBOL_ASSIGN))         WRITE_CSTR(":= ");
+      else if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  WRITE_CSTR("::= ");
+      else if(pmath_same(head, PMATH_SYMBOL_DECREMENT))      WRITE_CSTR("-= ");
+      else if(pmath_same(head, PMATH_SYMBOL_DIVIDEBY))       WRITE_CSTR("/= ");
+      else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))      WRITE_CSTR("+= ");
+      else                                                   WRITE_CSTR("*= ");
+      
+      write_ex(info, PRIO_ASSIGN, rhs);
+      
+      pmath_unref(lhs);
+      pmath_unref(rhs);
+      
+      if(priority > PRIO_ASSIGN)
+        WRITE_CSTR(")");
     }
-    
-    WRITE_CSTR("}");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_STRINGEXPRESSION)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
+    else if(pmath_same(head, PMATH_SYMBOL_DECREMENT)     ||
+            pmath_same(head, PMATH_SYMBOL_INCREMENT)     ||
+            pmath_same(head, PMATH_SYMBOL_POSTDECREMENT) ||
+            pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))
+    {
+      pmath_t arg;
       
-    if(priority > PRIO_STREXPR)
-      WRITE_CSTR("(");
-      
-    for(i = 1; i <= exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR(" ++ ");
+      if(exprlen != 1)
+        goto FULLFORM;
         
-      item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_STREXPR + 1, item);
-      pmath_unref(item);
-    }
-    
-    if(priority > PRIO_STREXPR)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_EVALUATIONSEQUENCE)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_ANY)
-      WRITE_CSTR("(");
-      
-    for(i = 1; i < exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR("; ");
+      if(priority > PRIO_INCDEC)
+        WRITE_CSTR("(");
         
-      item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_ANY + 1, item);
-      pmath_unref(item);
+      if(pmath_same(head, PMATH_SYMBOL_DECREMENT))  WRITE_CSTR("--");
+      else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))  WRITE_CSTR("++");
+      
+      arg = pmath_expr_get_item(expr, 1);
+      write_ex(info, PRIO_INCDEC + 1, arg);
+      pmath_unref(arg);
+      
+      if(pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))  WRITE_CSTR("--");
+      else if(pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))  WRITE_CSTR("++");
+      
+      if(priority > PRIO_INCDEC)
+        WRITE_CSTR(")");
     }
-    
-    item = pmath_expr_get_item(expr, exprlen);
-    if(!pmath_is_null(item)) {
-      WRITE_CSTR("; ");
-      write_ex(info, PRIO_ANY + 1, item);
-      pmath_unref(item);
-    }
-    else
-      WRITE_CSTR(";");
+    else if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN) ||
+            pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED))
+    {
+      pmath_t obj;
       
-    if(priority > PRIO_ANY)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_ALTERNATIVES)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_ALTERNATIVES)
-      WRITE_CSTR("(");
-      
-    for(i = 1; i <= exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR(" | ");
+      if(exprlen != 3)
+        goto FULLFORM;
         
-      item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_ALTERNATIVES + 1, item);
-      pmath_unref(item);
-    }
-    
-    if(priority > PRIO_ALTERNATIVES)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_OR)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_LOGIC)
-      WRITE_CSTR("(");
-      
-    for(i = 1; i <= exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR(" || ");
+      if(priority > PRIO_ASSIGN)
+        WRITE_CSTR("(");
         
-      item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_LOGIC + 1, item);
-      pmath_unref(item);
+      obj = pmath_expr_get_item(expr, 1);
+      write_ex(info, PRIO_SYMBOL, obj);
+      pmath_unref(obj);
+      
+      WRITE_CSTR("/: ");
+      
+      obj = pmath_expr_get_item(expr, 2);
+      write_ex(info, PRIO_ASSIGN + 1, obj);
+      pmath_unref(obj);
+      
+      if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))  WRITE_CSTR(":= ");
+      else                                          WRITE_CSTR("::= ");
+      
+      obj = pmath_expr_get_item(expr, 3);
+      write_ex(info, PRIO_ASSIGN, obj);
+      pmath_unref(obj);
+      
+      if(priority > PRIO_ASSIGN)
+        WRITE_CSTR(")");
     }
-    
-    if(priority > PRIO_LOGIC)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_AND)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
+    else if(pmath_same(head, PMATH_SYMBOL_RULE) ||
+            pmath_same(head, PMATH_SYMBOL_RULEDELAYED))
+    {
+      pmath_t lhs, rhs;
       
-    if(priority > PRIO_LOGIC)
-      WRITE_CSTR("(");
-      
-    for(i = 1; i <= exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR(" && ");
+      if(exprlen != 2)
+        goto FULLFORM;
         
-      item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_LOGIC + 1, item);
-      pmath_unref(item);
-    }
-    
-    if(priority > PRIO_LOGIC)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_NOT)) {
-    pmath_t item;
-    
-    if(exprlen != 1)
-      goto FULLFORM;
-      
-    if(priority > PRIO_NOT)  WRITE_CSTR("(!");
-    else                     WRITE_CSTR("!");
-    
-    item = pmath_expr_get_item(expr, 1);
-    write_ex(info, PRIO_NOT + 1, item);
-    pmath_unref(item);
-    
-    if(priority > PRIO_NOT)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_IDENTICAL)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_IDENTITY)
-      WRITE_CSTR("(");
-      
-    for(i = 1; i <= exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR(" === ");
+      if(priority > PRIO_RULE)
+        WRITE_CSTR("(");
         
-      item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_IDENTITY + 1, item);
-      pmath_unref(item);
+      lhs = pmath_expr_get_item(expr, 1);
+      rhs = pmath_expr_get_item(expr, 2);
+      
+      write_ex(info, PRIO_RULE + 1, lhs);
+      
+      if(pmath_same(head, PMATH_SYMBOL_RULE))  WRITE_CSTR(" -> ");
+      else                                     WRITE_CSTR(" :> ");
+      
+      write_ex(info, PRIO_RULE, rhs);
+      
+      pmath_unref(lhs);
+      pmath_unref(rhs);
+      
+      if(priority > PRIO_RULE)
+        WRITE_CSTR(")");
     }
-    
-    if(priority > PRIO_IDENTITY)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_UNIDENTICAL)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
+    else if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+      size_t i;
       
-    if(priority > PRIO_IDENTITY)
-      WRITE_CSTR("(");
-      
-    for(i = 1; i <= exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR(" =!= ");
+      WRITE_CSTR("{");
+      for(i = 1; i <= exprlen; i++) {
+        pmath_t item;
         
-      item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_IDENTITY + 1, item);
-      pmath_unref(item);
-    }
-    
-    if(priority > PRIO_IDENTITY)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_LESS)         ||
-          pmath_same(head, PMATH_SYMBOL_LESSEQUAL)    ||
-          pmath_same(head, PMATH_SYMBOL_GREATER)      ||
-          pmath_same(head, PMATH_SYMBOL_GREATEREQUAL) ||
-          pmath_same(head, PMATH_SYMBOL_EQUAL)        ||
-          pmath_same(head, PMATH_SYMBOL_UNEQUAL))
-  {
-    pmath_t item;
-    char   *op;
-    size_t  i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
-      
-    if(     pmath_same(head, PMATH_SYMBOL_LESS))          op = " < ";
-    else if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     op = " <= ";
-    else if(pmath_same(head, PMATH_SYMBOL_GREATER))       op = " > ";
-    else if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  op = " >= ";
-    else if(pmath_same(head, PMATH_SYMBOL_EQUAL))         op = " = ";
-    else if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       op = " != ";
-    else                                                  op = "";
-    
-    if(priority > PRIO_EQUATION)
-      WRITE_CSTR("(");
-      
-    for(i = 1; i <= exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR(op);
-        
-      item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_EQUATION + 1, item);
-      pmath_unref(item);
-    }
-    
-    if(priority > PRIO_EQUATION)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_INEQUATION)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 3 || (exprlen & 1) == 0)
-      goto FULLFORM;
-      
-    if(priority > PRIO_EQUATION)
-      WRITE_CSTR("(");
-      
-    item = pmath_expr_get_item(expr, 1);
-    write_ex(info, PRIO_EQUATION + 1, item);
-    pmath_unref(item);
-    
-    exprlen /= 2;
-    for(i = 1; i <= exprlen; i++) {
-      item = pmath_expr_get_item(expr, 2 * i);
-      if(     pmath_same(item, PMATH_SYMBOL_LESS))          WRITE_CSTR(" < ");
-      else if(pmath_same(item, PMATH_SYMBOL_LESSEQUAL))     WRITE_CSTR(" <= ");
-      else if(pmath_same(item, PMATH_SYMBOL_GREATER))       WRITE_CSTR(" > ");
-      else if(pmath_same(item, PMATH_SYMBOL_GREATEREQUAL))  WRITE_CSTR(" >= ");
-      else if(pmath_same(item, PMATH_SYMBOL_EQUAL))         WRITE_CSTR(" = ");
-      else if(pmath_same(item, PMATH_SYMBOL_UNEQUAL))       WRITE_CSTR(" != ");
-      else                                                  WRITE_CSTR(" <<?>> ");
-      pmath_unref(item);
-      
-      item = pmath_expr_get_item(expr, 2 * i + 1);
-      write_ex(info, PRIO_EQUATION + 1, item);
-      pmath_unref(item);
-    }
-    
-    if(priority > PRIO_EQUATION)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_PLUS)) {
-    struct _writer_hook_data_t sum_writer_data;
-    struct pmath_write_ex_t    hook_info;
-    size_t i;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_PLUS)
-      WRITE_CSTR("(");
-      
-    sum_writer_data.next          = info;
-    sum_writer_data.prefix_status = TRUE;
-    init_hook_info(&hook_info, &sum_writer_data);
-    hook_info.write = sum_writer;
-    
-    for(i = 1; i <= exprlen; i++) {
-      pmath_t item = pmath_expr_get_item(expr, i);
-      write_ex(&hook_info, PRIO_PLUS + 1, item);
-      
-      sum_writer_data.prefix_status = FALSE;
-      pmath_unref(item);
-    }
-    
-    if(priority > PRIO_PLUS)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_TIMES)) {
-    struct _writer_hook_data_t  product_writer_data;
-    struct pmath_write_ex_t     hook_info;
-    pmath_t item;
-    size_t i;
-    pmath_bool_t skip_star = FALSE;
-    
-    if(exprlen < 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_TIMES)
-      WRITE_CSTR("(");
-      
-    product_writer_data.next          = info;
-    product_writer_data.prefix_status = 1;
-    product_writer_data.special_end   = FALSE;
-    init_hook_info(&hook_info, &product_writer_data);
-    hook_info.write = product_writer;
-    
-    item = pmath_expr_get_item(expr, 1);
-    if(pmath_same(item, PMATH_FROM_INT32(-1))) {
-      _pmath_write_cstr("-", info->write, info->user);
-      skip_star = TRUE;
-    }
-    else {
-      write_ex(&hook_info, PRIO_TIMES, item);
-      product_writer_data.prefix_status = 0;
-    }
-    pmath_unref(item);
-    
-    for(i = 2; i <= exprlen; i++) {
-      item = pmath_expr_get_item(expr, i);
-      
-      if(product_writer_data.special_end ||
-          (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR))
-      {
-        if(skip_star) {
-          skip_star = FALSE;
-        }
-        else {
-          _pmath_write_cstr("*", info->write, info->user);
-          product_writer_data.prefix_status = 1;
-        }
+        if(i > 1)
+          WRITE_CSTR(", ");
+          
+        item = pmath_expr_get_item(expr, i);
+        pmath_write_ex(info, item);
+        pmath_unref(item);
       }
       
-      write_ex(&hook_info, PRIO_FACTOR, item);
-      product_writer_data.prefix_status = 0;
+      WRITE_CSTR("}");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_STRINGEXPRESSION)) {
+      pmath_t item;
+      size_t i;
+      
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_STREXPR)
+        WRITE_CSTR("(");
+        
+      for(i = 1; i <= exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR(" ++ ");
+          
+        item = pmath_expr_get_item(expr, i);
+        write_ex(info, PRIO_STREXPR + 1, item);
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_STREXPR)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_EVALUATIONSEQUENCE)) {
+      pmath_t item;
+      size_t i;
+      
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_ANY)
+        WRITE_CSTR("(");
+        
+      for(i = 1; i < exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR("; ");
+          
+        item = pmath_expr_get_item(expr, i);
+        write_ex(info, PRIO_ANY + 1, item);
+        pmath_unref(item);
+      }
+      
+      item = pmath_expr_get_item(expr, exprlen);
+      if(!pmath_is_null(item)) {
+        WRITE_CSTR("; ");
+        write_ex(info, PRIO_ANY + 1, item);
+        pmath_unref(item);
+      }
+      else
+        WRITE_CSTR(";");
+        
+      if(priority > PRIO_ANY)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_ALTERNATIVES)) {
+      pmath_t item;
+      size_t i;
+      
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_ALTERNATIVES)
+        WRITE_CSTR("(");
+        
+      for(i = 1; i <= exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR(" | ");
+          
+        item = pmath_expr_get_item(expr, i);
+        write_ex(info, PRIO_ALTERNATIVES + 1, item);
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_ALTERNATIVES)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_OR)) {
+      pmath_t item;
+      size_t i;
+      
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_LOGIC)
+        WRITE_CSTR("(");
+        
+      for(i = 1; i <= exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR(" || ");
+          
+        item = pmath_expr_get_item(expr, i);
+        write_ex(info, PRIO_LOGIC + 1, item);
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_LOGIC)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_AND)) {
+      pmath_t item;
+      size_t i;
+      
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_LOGIC)
+        WRITE_CSTR("(");
+        
+      for(i = 1; i <= exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR(" && ");
+          
+        item = pmath_expr_get_item(expr, i);
+        write_ex(info, PRIO_LOGIC + 1, item);
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_LOGIC)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_NOT)) {
+      pmath_t item;
+      
+      if(exprlen != 1)
+        goto FULLFORM;
+        
+      if(priority > PRIO_NOT)  WRITE_CSTR("(!");
+      else                     WRITE_CSTR("!");
+      
+      item = pmath_expr_get_item(expr, 1);
+      write_ex(info, PRIO_NOT + 1, item);
       pmath_unref(item);
+      
+      if(priority > PRIO_NOT)
+        WRITE_CSTR(")");
     }
-    
-    if(priority > PRIO_TIMES)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_POWER)) {
-    struct _writer_hook_data_t  division_writer_data;
-    struct pmath_write_ex_t     hook_info;
-    pmath_t base, exponent;
-    
-    if(exprlen != 2)
-      goto FULLFORM;
+    else if(pmath_same(head, PMATH_SYMBOL_IDENTICAL)) {
+      pmath_t item;
+      size_t i;
       
-    exponent = pmath_expr_get_item(expr, 2);
-    base = pmath_expr_get_item(expr, 1);
-    
-    division_writer_data.next          = info;
-    division_writer_data.prefix_status = 0;
-    init_hook_info(&hook_info, &division_writer_data);
-    hook_info.write = division_writer;
-    
-    if(pmath_equals(exponent, _pmath_one_half)) {
-      WRITE_CSTR("Sqrt(");
-      pmath_write_ex(info, base);
-      WRITE_CSTR(")");
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_IDENTITY)
+        WRITE_CSTR("(");
+        
+      for(i = 1; i <= exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR(" === ");
+          
+        item = pmath_expr_get_item(expr, i);
+        write_ex(info, PRIO_IDENTITY + 1, item);
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_IDENTITY)
+        WRITE_CSTR(")");
     }
-    else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))) {
-      WRITE_CSTR("1/");
+    else if(pmath_same(head, PMATH_SYMBOL_UNIDENTICAL)) {
+      pmath_t item;
+      size_t i;
       
-      write_ex(&hook_info, PRIO_POWER + 1, base);
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_IDENTITY)
+        WRITE_CSTR("(");
+        
+      for(i = 1; i <= exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR(" =!= ");
+          
+        item = pmath_expr_get_item(expr, i);
+        write_ex(info, PRIO_IDENTITY + 1, item);
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_IDENTITY)
+        WRITE_CSTR(")");
     }
-    else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0) {
-      WRITE_CSTR("1/");
+    else if(pmath_same(head, PMATH_SYMBOL_LESS)         ||
+            pmath_same(head, PMATH_SYMBOL_LESSEQUAL)    ||
+            pmath_same(head, PMATH_SYMBOL_GREATER)      ||
+            pmath_same(head, PMATH_SYMBOL_GREATEREQUAL) ||
+            pmath_same(head, PMATH_SYMBOL_EQUAL)        ||
+            pmath_same(head, PMATH_SYMBOL_UNEQUAL))
+    {
+      pmath_t item;
+      char   *op;
+      size_t  i;
       
-      exponent = pmath_number_neg(exponent);
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(     pmath_same(head, PMATH_SYMBOL_LESS))          op = " < ";
+      else if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     op = " <= ";
+      else if(pmath_same(head, PMATH_SYMBOL_GREATER))       op = " > ";
+      else if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  op = " >= ";
+      else if(pmath_same(head, PMATH_SYMBOL_EQUAL))         op = " = ";
+      else if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       op = " != ";
+      else                                                  op = "";
       
-      write_ex(&hook_info, PRIO_POWER + 1, base);
+      if(priority > PRIO_EQUATION)
+        WRITE_CSTR("(");
+        
+      for(i = 1; i <= exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR(op);
+          
+        item = pmath_expr_get_item(expr, i);
+        write_ex(info, PRIO_EQUATION + 1, item);
+        pmath_unref(item);
+      }
       
-      WRITE_CSTR("^");
-      write_ex(info, PRIO_POWER, exponent);
+      if(priority > PRIO_EQUATION)
+        WRITE_CSTR(")");
     }
-    else {
-      pmath_t minus_one_half = pmath_number_neg(pmath_ref(_pmath_one_half));
+    else if(pmath_same(head, PMATH_SYMBOL_INEQUATION)) {
+      pmath_t item;
+      size_t i;
       
-      if(pmath_equals(exponent, minus_one_half)) {
-        WRITE_CSTR("1/Sqrt(");
+      if(exprlen < 3 || (exprlen & 1) == 0)
+        goto FULLFORM;
+        
+      if(priority > PRIO_EQUATION)
+        WRITE_CSTR("(");
+        
+      item = pmath_expr_get_item(expr, 1);
+      write_ex(info, PRIO_EQUATION + 1, item);
+      pmath_unref(item);
+      
+      exprlen /= 2;
+      for(i = 1; i <= exprlen; i++) {
+        item = pmath_expr_get_item(expr, 2 * i);
+        if(     pmath_same(item, PMATH_SYMBOL_LESS))          WRITE_CSTR(" < ");
+        else if(pmath_same(item, PMATH_SYMBOL_LESSEQUAL))     WRITE_CSTR(" <= ");
+        else if(pmath_same(item, PMATH_SYMBOL_GREATER))       WRITE_CSTR(" > ");
+        else if(pmath_same(item, PMATH_SYMBOL_GREATEREQUAL))  WRITE_CSTR(" >= ");
+        else if(pmath_same(item, PMATH_SYMBOL_EQUAL))         WRITE_CSTR(" = ");
+        else if(pmath_same(item, PMATH_SYMBOL_UNEQUAL))       WRITE_CSTR(" != ");
+        else                                                  WRITE_CSTR(" <<?>> ");
+        pmath_unref(item);
+        
+        item = pmath_expr_get_item(expr, 2 * i + 1);
+        write_ex(info, PRIO_EQUATION + 1, item);
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_EQUATION)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_PLUS)) {
+      struct _writer_hook_data_t sum_writer_data;
+      struct pmath_write_ex_t    hook_info;
+      size_t i;
+      
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_PLUS)
+        WRITE_CSTR("(");
+        
+      sum_writer_data.next          = info;
+      sum_writer_data.prefix_status = TRUE;
+      init_hook_info(&hook_info, &sum_writer_data);
+      hook_info.write = sum_writer;
+      
+      for(i = 1; i <= exprlen; i++) {
+        pmath_t item = pmath_expr_get_item(expr, i);
+        write_ex(&hook_info, PRIO_PLUS + 1, item);
+        
+        sum_writer_data.prefix_status = FALSE;
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_PLUS)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_TIMES)) {
+      struct _writer_hook_data_t  product_writer_data;
+      struct pmath_write_ex_t     hook_info;
+      pmath_t item;
+      size_t i;
+      pmath_bool_t skip_star = FALSE;
+      
+      if(exprlen < 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_TIMES)
+        WRITE_CSTR("(");
+        
+      product_writer_data.next          = info;
+      product_writer_data.prefix_status = 1;
+      product_writer_data.special_end   = FALSE;
+      init_hook_info(&hook_info, &product_writer_data);
+      hook_info.write = product_writer;
+      
+      item = pmath_expr_get_item(expr, 1);
+      if(pmath_same(item, PMATH_FROM_INT32(-1))) {
+        _pmath_write_cstr("-", info->write, info->user);
+        skip_star = TRUE;
+      }
+      else {
+        write_ex(&hook_info, PRIO_TIMES, item);
+        product_writer_data.prefix_status = 0;
+      }
+      pmath_unref(item);
+      
+      for(i = 2; i <= exprlen; i++) {
+        item = pmath_expr_get_item(expr, i);
+        
+        if(product_writer_data.special_end ||
+            (info->options & PMATH_WRITE_OPTIONS_INPUTEXPR))
+        {
+          if(skip_star) {
+            skip_star = FALSE;
+          }
+          else {
+            _pmath_write_cstr("*", info->write, info->user);
+            product_writer_data.prefix_status = 1;
+          }
+        }
+        
+        write_ex(&hook_info, PRIO_FACTOR, item);
+        product_writer_data.prefix_status = 0;
+        pmath_unref(item);
+      }
+      
+      if(priority > PRIO_TIMES)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_POWER)) {
+      struct _writer_hook_data_t  division_writer_data;
+      struct pmath_write_ex_t     hook_info;
+      pmath_t base, exponent;
+      
+      if(exprlen != 2)
+        goto FULLFORM;
+        
+      exponent = pmath_expr_get_item(expr, 2);
+      base = pmath_expr_get_item(expr, 1);
+      
+      division_writer_data.next          = info;
+      division_writer_data.prefix_status = 0;
+      init_hook_info(&hook_info, &division_writer_data);
+      hook_info.write = division_writer;
+      
+      if(pmath_equals(exponent, _pmath_one_half)) {
+        WRITE_CSTR("Sqrt(");
         pmath_write_ex(info, base);
         WRITE_CSTR(")");
       }
-      else {
-        if(priority > PRIO_POWER)
-          WRITE_CSTR("(");
-          
-        write_ex(info, PRIO_POWER + 1, base);
+      else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))) {
+        WRITE_CSTR("1/");
+        
+        write_ex(&hook_info, PRIO_POWER + 1, base);
+      }
+      else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0) {
+        WRITE_CSTR("1/");
+        
+        exponent = pmath_number_neg(exponent);
+        
+        write_ex(&hook_info, PRIO_POWER + 1, base);
+        
         WRITE_CSTR("^");
         write_ex(info, PRIO_POWER, exponent);
+      }
+      else {
+        pmath_t minus_one_half = pmath_number_neg(pmath_ref(_pmath_one_half));
         
-        if(priority > PRIO_POWER)
+        if(pmath_equals(exponent, minus_one_half)) {
+          WRITE_CSTR("1/Sqrt(");
+          pmath_write_ex(info, base);
           WRITE_CSTR(")");
+        }
+        else {
+          if(priority > PRIO_POWER)
+            WRITE_CSTR("(");
+            
+          write_ex(info, PRIO_POWER + 1, base);
+          WRITE_CSTR("^");
+          write_ex(info, PRIO_POWER, exponent);
+          
+          if(priority > PRIO_POWER)
+            WRITE_CSTR(")");
+        }
+        
+        pmath_unref(minus_one_half);
       }
       
-      pmath_unref(minus_one_half);
+      pmath_unref(base);
+      pmath_unref(exponent);
     }
-    
-    pmath_unref(base);
-    pmath_unref(exponent);
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_RANGE)) {
-    pmath_t item;
-    if(exprlen < 2 || exprlen > 3)
-      goto FULLFORM;
+    else if(pmath_same(head, PMATH_SYMBOL_RANGE)) {
+      pmath_t item;
+      if(exprlen < 2 || exprlen > 3)
+        goto FULLFORM;
+        
+      if(priority > PRIO_RANGE)
+        WRITE_CSTR("(");
+        
+      item = pmath_expr_get_item(expr, 1);
+      if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
+        write_ex(info, PRIO_RANGE + 1, item);
+      pmath_unref(item);
       
-    if(priority > PRIO_RANGE)
-      WRITE_CSTR("(");
-      
-    item = pmath_expr_get_item(expr, 1);
-    if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
-      write_ex(info, PRIO_RANGE + 1, item);
-    pmath_unref(item);
-    
-    WRITE_CSTR(" .. ");
-    
-    item = pmath_expr_get_item(expr, 2);
-    if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
-      write_ex(info, PRIO_RANGE + 1, item);
-    pmath_unref(item);
-    
-    if(exprlen == 3) {
       WRITE_CSTR(" .. ");
       
-      item = pmath_expr_get_item(expr, 3);
-      write_ex(info, PRIO_RANGE + 1, item);
+      item = pmath_expr_get_item(expr, 2);
+      if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
+        write_ex(info, PRIO_RANGE + 1, item);
       pmath_unref(item);
-    }
-    
-    if(priority > PRIO_RANGE)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_PART)) {
-    pmath_t item;
-    size_t i;
-    
-    if(exprlen < 1)
-      goto FULLFORM;
       
-    item = pmath_expr_get_item(expr, 1);
-    write_ex(info, PRIO_CALL, item);
-    pmath_unref(item);
-    
-    WRITE_CSTR("[");
-    for(i = 2; i <= exprlen; i++) {
-      if(i > 2)
-        WRITE_CSTR(", ");
+      if(exprlen == 3) {
+        WRITE_CSTR(" .. ");
         
-      item = pmath_expr_get_item(expr, i);
-      pmath_write_ex(info, item);
-      pmath_unref(item);
-    }
-    WRITE_CSTR("]");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_MESSAGENAME)) {
-    pmath_t symbol;
-    pmath_t tag;
-    
-    if(exprlen != 2)
-      goto FULLFORM;
+        item = pmath_expr_get_item(expr, 3);
+        write_ex(info, PRIO_RANGE + 1, item);
+        pmath_unref(item);
+      }
       
-    tag = pmath_expr_get_item(expr, 2);
-    
-    if(!pmath_is_string(tag)) {
+      if(priority > PRIO_RANGE)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_PART)) {
+      pmath_t item;
+      size_t i;
+      
+      if(exprlen < 1)
+        goto FULLFORM;
+        
+      item = pmath_expr_get_item(expr, 1);
+      write_ex(info, PRIO_CALL, item);
+      pmath_unref(item);
+      
+      WRITE_CSTR("[");
+      for(i = 2; i <= exprlen; i++) {
+        if(i > 2)
+          WRITE_CSTR(", ");
+          
+        item = pmath_expr_get_item(expr, i);
+        pmath_write_ex(info, item);
+        pmath_unref(item);
+      }
+      WRITE_CSTR("]");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_MESSAGENAME)) {
+      pmath_t symbol;
+      pmath_t tag;
+      
+      if(exprlen != 2)
+        goto FULLFORM;
+        
+      tag = pmath_expr_get_item(expr, 2);
+      
+      if(!pmath_is_string(tag)) {
+        pmath_unref(tag);
+        goto FULLFORM;
+      }
+      
+      if(priority > PRIO_CALL)
+        WRITE_CSTR("(");
+      symbol = pmath_expr_get_item(expr, 1);
+      
+      write_ex(info, PRIO_CALL, symbol);
+      WRITE_CSTR("::");
+      pmath_write_ex(info, tag);
+      
+      pmath_unref(symbol);
       pmath_unref(tag);
-      goto FULLFORM;
-    }
-    
-    if(priority > PRIO_CALL)
-      WRITE_CSTR("(");
-    symbol = pmath_expr_get_item(expr, 1);
-    
-    write_ex(info, PRIO_CALL, symbol);
-    WRITE_CSTR("::");
-    pmath_write_ex(info, tag);
-    
-    pmath_unref(symbol);
-    pmath_unref(tag);
-    
-    if(priority > PRIO_CALL)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_COMPLEX)) {
-    pmath_number_t re, im;
-    pmath_bool_t lparen = FALSE;
-    
-    if(!_pmath_is_nonreal_complex(expr))
-      goto FULLFORM;
       
-    re = pmath_expr_get_item(expr, 1);
-    im = pmath_expr_get_item(expr, 2);
-    
-    if(!pmath_same(re, PMATH_FROM_INT32(0))) {
-      if(priority > PRIO_PLUS) {
-        WRITE_CSTR("(");
-        lparen = TRUE;
-      }
+      if(priority > PRIO_CALL)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_COMPLEX)) {
+      pmath_number_t re, im;
+      pmath_bool_t lparen = FALSE;
       
-      pmath_write_ex(info, re);
-      
-      if(pmath_number_sign(im) >= 0)
-        WRITE_CSTR(" + ");
-      else
-        WRITE_CSTR(" ");
-    }
-    
-    if(pmath_equals(im, PMATH_FROM_INT32(-1))) {
-      if(!lparen && priority > PRIO_TIMES) {
-        WRITE_CSTR("(");
-        lparen = TRUE;
-      }
-      WRITE_CSTR("-I");
-    }
-    else if(pmath_equals(im, PMATH_FROM_INT32(1))) {
-      WRITE_CSTR("I");
-    }
-    else {
-      if(!lparen && priority > PRIO_TIMES) {
-        WRITE_CSTR("(");
-        lparen = TRUE;
-      }
-      pmath_write_ex(info, im);
-      WRITE_CSTR(" I");
-    }
-    
-    if(lparen)
-      WRITE_CSTR(")");
-      
-    pmath_unref(re);
-    pmath_unref(im);
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_PATTERN)) {
-    pmath_t sym, pat;
-    
-    if(exprlen != 2)
-      goto FULLFORM;
-      
-    sym = pmath_expr_get_item(expr, 1);
-    if(!pmath_is_symbol(sym)) {
-      pmath_unref(sym);
-      goto FULLFORM;
-    }
-    
-    pat = pmath_expr_get_item(expr, 2);
-    if(pmath_equals(pat, _pmath_object_singlematch)) {
-      WRITE_CSTR("~");
-      pmath_write_ex(info, sym);
-    }
-    else if(pmath_equals(pat, _pmath_object_multimatch)) {
-      WRITE_CSTR("~~");
-      pmath_write_ex(info, sym);
-    }
-    else if(pmath_equals(pat, _pmath_object_zeromultimatch)) {
-      WRITE_CSTR("~~~");
-      pmath_write_ex(info, sym);
-    }
-    else {
-      pmath_bool_t default_pattern = TRUE;
-      
-      if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_SINGLEMATCH, 1)) {
-        pmath_t type = pmath_expr_get_item(pat, 1);
+      if(!_pmath_is_nonreal_complex(expr))
+        goto FULLFORM;
         
+      re = pmath_expr_get_item(expr, 1);
+      im = pmath_expr_get_item(expr, 2);
+      
+      if(!pmath_same(re, PMATH_FROM_INT32(0))) {
+        if(priority > PRIO_PLUS) {
+          WRITE_CSTR("(");
+          lparen = TRUE;
+        }
+        
+        pmath_write_ex(info, re);
+        
+        if(pmath_number_sign(im) >= 0)
+          WRITE_CSTR(" + ");
+        else
+          WRITE_CSTR(" ");
+      }
+      
+      if(pmath_equals(im, PMATH_FROM_INT32(-1))) {
+        if(!lparen && priority > PRIO_TIMES) {
+          WRITE_CSTR("(");
+          lparen = TRUE;
+        }
+        WRITE_CSTR("-I");
+      }
+      else if(pmath_equals(im, PMATH_FROM_INT32(1))) {
+        WRITE_CSTR("I");
+      }
+      else {
+        if(!lparen && priority > PRIO_TIMES) {
+          WRITE_CSTR("(");
+          lparen = TRUE;
+        }
+        pmath_write_ex(info, im);
+        WRITE_CSTR(" I");
+      }
+      
+      if(lparen)
+        WRITE_CSTR(")");
+        
+      pmath_unref(re);
+      pmath_unref(im);
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_PATTERN)) {
+      pmath_t sym, pat;
+      
+      if(exprlen != 2)
+        goto FULLFORM;
+        
+      sym = pmath_expr_get_item(expr, 1);
+      if(!pmath_is_symbol(sym)) {
+        pmath_unref(sym);
+        goto FULLFORM;
+      }
+      
+      pat = pmath_expr_get_item(expr, 2);
+      if(pmath_equals(pat, _pmath_object_singlematch)) {
         WRITE_CSTR("~");
         pmath_write_ex(info, sym);
-        WRITE_CSTR(":");
+      }
+      else if(pmath_equals(pat, _pmath_object_multimatch)) {
+        WRITE_CSTR("~~");
+        pmath_write_ex(info, sym);
+      }
+      else if(pmath_equals(pat, _pmath_object_zeromultimatch)) {
+        WRITE_CSTR("~~~");
+        pmath_write_ex(info, sym);
+      }
+      else {
+        pmath_bool_t default_pattern = TRUE;
         
+        if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+          pmath_t type = pmath_expr_get_item(pat, 1);
+          
+          WRITE_CSTR("~");
+          pmath_write_ex(info, sym);
+          WRITE_CSTR(":");
+          
+          write_ex(info, PRIO_SYMBOL, type);
+          
+          pmath_unref(type);
+          default_pattern = FALSE;
+        }
+        else if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_REPEATED, 2)) {
+          pmath_t rep   = pmath_expr_get_item(pat, 1);
+          pmath_t range = pmath_expr_get_item(pat, 2);
+          
+          if(pmath_is_expr_of_len(rep, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+            pmath_t type = pmath_expr_get_item(rep, 1);
+            
+            if(pmath_equals(range, _pmath_object_range_from_one)) {
+              WRITE_CSTR("~~");
+              pmath_write_ex(info, sym);
+              WRITE_CSTR(":");
+              
+              write_ex(info, PRIO_SYMBOL, type);
+              default_pattern = FALSE;
+            }
+            else if(pmath_equals(range, _pmath_object_range_from_zero)) {
+              WRITE_CSTR("~~~");
+              pmath_write_ex(info, sym);
+              WRITE_CSTR(":");
+              
+              write_ex(info, PRIO_SYMBOL, type);
+              default_pattern = FALSE;
+            }
+            
+            pmath_unref(type);
+          }
+          
+          pmath_unref(rep);
+          pmath_unref(range);
+        }
+        
+        if(default_pattern) {
+          if(priority > PRIO_ALTERNATIVES)
+            WRITE_CSTR("(");
+            
+          pmath_write_ex(info, sym);
+          WRITE_CSTR(": ");
+          write_ex(info, PRIO_ALTERNATIVES, pat);
+          
+          if(priority > PRIO_ALTERNATIVES)
+            WRITE_CSTR(")");
+        }
+      }
+      
+      pmath_unref(sym);
+      pmath_unref(pat);
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_TESTPATTERN)) {
+      pmath_t item;
+      
+      if(exprlen != 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_PATTERN)
+        WRITE_CSTR("(");
+        
+      item = pmath_expr_get_item(expr, 1);
+      write_ex(info, PRIO_PATTERN + 1, item);
+      pmath_unref(item);
+      
+      WRITE_CSTR(" ? ");
+      
+      item = pmath_expr_get_item(expr, 2);
+      write_ex(info, PRIO_CALL, item);
+      pmath_unref(item);
+      
+      if(priority > PRIO_PATTERN)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_CONDITION)) {
+      pmath_t item;
+      
+      if(exprlen != 2)
+        goto FULLFORM;
+        
+      if(priority > PRIO_CONDITION)
+        WRITE_CSTR("(");
+        
+      item = pmath_expr_get_item(expr, 1);
+      write_ex(info, PRIO_CONDITION + 1, item);
+      pmath_unref(item);
+      
+      WRITE_CSTR(" /? ");
+      
+      item = pmath_expr_get_item(expr, 2);
+      write_ex(info, PRIO_ALTERNATIVES + 1, item);
+      pmath_unref(item);
+      
+      if(priority > PRIO_CONDITION)
+        WRITE_CSTR(")");
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)) {
+      if(exprlen == 0) {
+        WRITE_CSTR("~");
+      }
+      else if(exprlen == 1) {
+        pmath_t type = pmath_expr_get_item(expr, 1);
+        
+        WRITE_CSTR("~:");
         write_ex(info, PRIO_SYMBOL, type);
         
         pmath_unref(type);
-        default_pattern = FALSE;
       }
-      else if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_REPEATED, 2)) {
-        pmath_t rep   = pmath_expr_get_item(pat, 1);
-        pmath_t range = pmath_expr_get_item(pat, 2);
+      else
+        goto FULLFORM;
+    }
+    else if(pmath_same(head, PMATH_SYMBOL_REPEATED)) {
+      pmath_t pattern, range;
+      
+      if(exprlen != 2)
+        goto FULLFORM;
         
-        if(pmath_is_expr_of_len(rep, PMATH_SYMBOL_SINGLEMATCH, 1)) {
-          pmath_t type = pmath_expr_get_item(rep, 1);
+      pattern = pmath_expr_get_item(expr, 1);
+      range = pmath_expr_get_item(expr, 2);
+      
+      if(pmath_equals(range, _pmath_object_range_from_one)) {
+        if(pmath_equals(pattern, _pmath_object_singlematch)) {
+          WRITE_CSTR("~~");
+        }
+        else if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+          pmath_t type = pmath_expr_get_item(pattern, 1);
           
-          if(pmath_equals(range, _pmath_object_range_from_one)) {
-            WRITE_CSTR("~~");
-            pmath_write_ex(info, sym);
-            WRITE_CSTR(":");
-            
-            write_ex(info, PRIO_SYMBOL, type);
-            default_pattern = FALSE;
-          }
-          else if(pmath_equals(range, _pmath_object_range_from_zero)) {
-            WRITE_CSTR("~~~");
-            pmath_write_ex(info, sym);
-            WRITE_CSTR(":");
-            
-            write_ex(info, PRIO_SYMBOL, type);
-            default_pattern = FALSE;
-          }
+          WRITE_CSTR("~~:");
+          write_ex(info, PRIO_SYMBOL, type);
           
           pmath_unref(type);
         }
-        
-        pmath_unref(rep);
+        else {
+          if(priority > PRIO_PATTERN)
+            WRITE_CSTR("(");
+            
+          write_ex(info, PRIO_PATTERN + 1, pattern);
+          WRITE_CSTR("**");
+          
+          if(priority > PRIO_PATTERN)
+            WRITE_CSTR(")");
+        }
+      }
+      else if(pmath_equals(range, _pmath_object_range_from_zero)) {
+        if(pmath_equals(pattern, _pmath_object_singlematch)) {
+          WRITE_CSTR("~~~");
+        }
+        else if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+          pmath_t type = pmath_expr_get_item(pattern, 1);
+          
+          WRITE_CSTR("~~~:");
+          write_ex(info, PRIO_SYMBOL, type);
+          
+          pmath_unref(type);
+        }
+        else {
+          if(priority > PRIO_PATTERN)
+            WRITE_CSTR("(");
+            
+          write_ex(info, PRIO_PATTERN + 1, pattern);
+          WRITE_CSTR("***");
+          
+          if(priority > PRIO_PATTERN)
+            WRITE_CSTR(")");
+        }
+      }
+      else {
+        pmath_unref(pattern);
         pmath_unref(range);
+        goto FULLFORM;
       }
       
-      if(default_pattern) {
-        if(priority > PRIO_ALTERNATIVES)
-          WRITE_CSTR("(");
-          
-        pmath_write_ex(info, sym);
-        WRITE_CSTR(": ");
-        write_ex(info, PRIO_ALTERNATIVES, pat);
-        
-        if(priority > PRIO_ALTERNATIVES)
-          WRITE_CSTR(")");
-      }
-    }
-    
-    pmath_unref(sym);
-    pmath_unref(pat);
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_TESTPATTERN)) {
-    pmath_t item;
-    
-    if(exprlen != 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_PATTERN)
-      WRITE_CSTR("(");
-      
-    item = pmath_expr_get_item(expr, 1);
-    write_ex(info, PRIO_PATTERN + 1, item);
-    pmath_unref(item);
-    
-    WRITE_CSTR(" ? ");
-    
-    item = pmath_expr_get_item(expr, 2);
-    write_ex(info, PRIO_CALL, item);
-    pmath_unref(item);
-    
-    if(priority > PRIO_PATTERN)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_CONDITION)) {
-    pmath_t item;
-    
-    if(exprlen != 2)
-      goto FULLFORM;
-      
-    if(priority > PRIO_CONDITION)
-      WRITE_CSTR("(");
-      
-    item = pmath_expr_get_item(expr, 1);
-    write_ex(info, PRIO_CONDITION + 1, item);
-    pmath_unref(item);
-    
-    WRITE_CSTR(" /? ");
-    
-    item = pmath_expr_get_item(expr, 2);
-    write_ex(info, PRIO_ALTERNATIVES + 1, item);
-    pmath_unref(item);
-    
-    if(priority > PRIO_CONDITION)
-      WRITE_CSTR(")");
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)) {
-    if(exprlen == 0) {
-      WRITE_CSTR("~");
-    }
-    else if(exprlen == 1) {
-      pmath_t type = pmath_expr_get_item(expr, 1);
-      
-      WRITE_CSTR("~:");
-      write_ex(info, PRIO_SYMBOL, type);
-      
-      pmath_unref(type);
-    }
-    else
-      goto FULLFORM;
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_REPEATED)) {
-    pmath_t pattern, range;
-    
-    if(exprlen != 2)
-      goto FULLFORM;
-      
-    pattern = pmath_expr_get_item(expr, 1);
-    range = pmath_expr_get_item(expr, 2);
-    
-    if(pmath_equals(range, _pmath_object_range_from_one)) {
-      if(pmath_equals(pattern, _pmath_object_singlematch)) {
-        WRITE_CSTR("~~");
-      }
-      else if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_SINGLEMATCH, 1)) {
-        pmath_t type = pmath_expr_get_item(pattern, 1);
-        
-        WRITE_CSTR("~~:");
-        write_ex(info, PRIO_SYMBOL, type);
-        
-        pmath_unref(type);
-      }
-      else {
-        if(priority > PRIO_PATTERN)
-          WRITE_CSTR("(");
-          
-        write_ex(info, PRIO_PATTERN + 1, pattern);
-        WRITE_CSTR("**");
-        
-        if(priority > PRIO_PATTERN)
-          WRITE_CSTR(")");
-      }
-    }
-    else if(pmath_equals(range, _pmath_object_range_from_zero)) {
-      if(pmath_equals(pattern, _pmath_object_singlematch)) {
-        WRITE_CSTR("~~~");
-      }
-      else if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_SINGLEMATCH, 1)) {
-        pmath_t type = pmath_expr_get_item(pattern, 1);
-        
-        WRITE_CSTR("~~~:");
-        write_ex(info, PRIO_SYMBOL, type);
-        
-        pmath_unref(type);
-      }
-      else {
-        if(priority > PRIO_PATTERN)
-          WRITE_CSTR("(");
-          
-        write_ex(info, PRIO_PATTERN + 1, pattern);
-        WRITE_CSTR("***");
-        
-        if(priority > PRIO_PATTERN)
-          WRITE_CSTR(")");
-      }
-    }
-    else {
       pmath_unref(pattern);
       pmath_unref(range);
-      goto FULLFORM;
     }
-    
-    pmath_unref(pattern);
-    pmath_unref(range);
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_FUNCTION)) {
-    pmath_t body;
-    
-    if(exprlen != 1)
-      goto FULLFORM;
+    else if(pmath_same(head, PMATH_SYMBOL_FUNCTION)) {
+      pmath_t body;
       
-    if(priority > PRIO_FUNCTION)
-      WRITE_CSTR("(");
+      if(exprlen != 1)
+        goto FULLFORM;
+        
+      if(priority > PRIO_FUNCTION)
+        WRITE_CSTR("(");
+        
+      body = pmath_expr_get_item(expr, 1);
+      write_ex(info, PRIO_FUNCTION, body);
+      pmath_unref(body);
       
-    body = pmath_expr_get_item(expr, 1);
-    write_ex(info, PRIO_FUNCTION, body);
-    pmath_unref(body);
-    
-    if(priority > PRIO_FUNCTION)
-      WRITE_CSTR(" &)");
-    else
-      WRITE_CSTR(" &");
-  }
+      if(priority > PRIO_FUNCTION)
+        WRITE_CSTR(" &)");
+      else
+        WRITE_CSTR(" &");
+    }
 //  else if(pmath_same(head, PMATH_SYMBOL_SEQUENCE)){
 //    pmath_t item;
 //    size_t i;
@@ -3666,124 +3595,124 @@ else INPUTFORM: if(exprlen == 2 && /*=========================================*/
 //
 //    WRITE_CSTR(")");
 //  }
-  else if(pmath_same(head, PMATH_SYMBOL_PUREARGUMENT)) {
-    pmath_t item;
-    
-    if(exprlen != 1)
-      goto FULLFORM;
+    else if(pmath_same(head, PMATH_SYMBOL_PUREARGUMENT)) {
+      pmath_t item;
       
-    item = pmath_expr_get_item(expr, 1);
-    
-    if(pmath_is_integer(item) && pmath_number_sign(item) > 0) {
-      if(priority > PRIO_CALL)
-        WRITE_CSTR("(#");
-      else
-        WRITE_CSTR("#");
+      if(exprlen != 1)
+        goto FULLFORM;
         
-      write_ex(info, PRIO_CALL + 1, item);
+      item = pmath_expr_get_item(expr, 1);
       
-      if(priority > PRIO_CALL)
-        WRITE_CSTR(")");
-    }
-    else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RANGE, 2)) {
-      pmath_t a = pmath_expr_get_item(item, 1);
-      pmath_t b = pmath_expr_get_item(item, 2);
-      pmath_unref(b);
-      
-      if( pmath_same(b, PMATH_SYMBOL_AUTOMATIC) &&
-          pmath_is_integer(a)                   &&
-          pmath_number_sign(a) > 0)
-      {
+      if(pmath_is_integer(item) && pmath_number_sign(item) > 0) {
         if(priority > PRIO_CALL)
-          WRITE_CSTR("(##");
+          WRITE_CSTR("(#");
         else
-          WRITE_CSTR("##");
+          WRITE_CSTR("#");
           
-        write_ex(info, PRIO_CALL + 1, a);
-        pmath_unref(a);
+        write_ex(info, PRIO_CALL + 1, item);
         
         if(priority > PRIO_CALL)
           WRITE_CSTR(")");
       }
+      else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RANGE, 2)) {
+        pmath_t a = pmath_expr_get_item(item, 1);
+        pmath_t b = pmath_expr_get_item(item, 2);
+        pmath_unref(b);
+        
+        if( pmath_same(b, PMATH_SYMBOL_AUTOMATIC) &&
+            pmath_is_integer(a)                   &&
+            pmath_number_sign(a) > 0)
+        {
+          if(priority > PRIO_CALL)
+            WRITE_CSTR("(##");
+          else
+            WRITE_CSTR("##");
+            
+          write_ex(info, PRIO_CALL + 1, a);
+          pmath_unref(a);
+          
+          if(priority > PRIO_CALL)
+            WRITE_CSTR(")");
+        }
+        else {
+          pmath_unref(a);
+          pmath_unref(item);
+          goto FULLFORM;
+        }
+      }
       else {
-        pmath_unref(a);
         pmath_unref(item);
         goto FULLFORM;
       }
-    }
-    else {
-      pmath_unref(item);
-      goto FULLFORM;
-    }
-    
-    pmath_unref(item);
-  }
-  else if(pmath_same(head, PMATH_SYMBOL_OPTIONAL)) {
-    pmath_t item;
-    pmath_t sub_item;
-    
-    if(exprlen < 1 || exprlen > 2)
-      goto FULLFORM;
       
-    item = pmath_expr_get_item(expr, 1);
-    if(!pmath_is_expr_of_len(item, PMATH_SYMBOL_PATTERN, 2)) {
       pmath_unref(item);
-      goto FULLFORM;
     }
-    
-    sub_item = pmath_expr_get_item(item, 2);
-    if(!pmath_equals(sub_item, _pmath_object_singlematch)) {
-      pmath_unref(sub_item);
-      pmath_unref(item);
-      goto FULLFORM;
-    }
-    
-    pmath_unref(sub_item);
-    sub_item = pmath_expr_get_item(item, 1);
-    if(!pmath_is_symbol(sub_item)) {
-      pmath_unref(sub_item);
-      pmath_unref(item);
-      goto FULLFORM;
-    }
-    
-    if(exprlen == 2 && priority > PRIO_TIMES)  WRITE_CSTR("(?");
-    else                                       WRITE_CSTR("?");
-    
-    pmath_write_ex(info, sub_item);
-    pmath_unref(sub_item);
-    pmath_unref(item);
-    
-    if(exprlen == 2) {
-      WRITE_CSTR(":");
+    else if(pmath_same(head, PMATH_SYMBOL_OPTIONAL)) {
+      pmath_t item;
+      pmath_t sub_item;
       
-      item = pmath_expr_get_item(expr, 2);
-      write_ex(info, PRIO_PLUS + 1, item);
-      pmath_unref(item);
-      
-      if(priority > PRIO_TIMES)
-        WRITE_CSTR(")");
-    }
-  }
-  else { /*====================================================================*/
-    pmath_t item;
-    size_t i;
-    
-  FULLFORM:
-  
-    write_ex(info, PRIO_CALL, head);
-    WRITE_CSTR("(");
-    for(i = 1; i <= exprlen; i++) {
-      if(i > 1)
-        WRITE_CSTR(", ");
+      if(exprlen < 1 || exprlen > 2)
+        goto FULLFORM;
         
-      item = pmath_expr_get_item(expr, i);
-      if(!pmath_is_null(item) || exprlen < 2)
-        pmath_write_ex(info, item);
+      item = pmath_expr_get_item(expr, 1);
+      if(!pmath_is_expr_of_len(item, PMATH_SYMBOL_PATTERN, 2)) {
+        pmath_unref(item);
+        goto FULLFORM;
+      }
+      
+      sub_item = pmath_expr_get_item(item, 2);
+      if(!pmath_equals(sub_item, _pmath_object_singlematch)) {
+        pmath_unref(sub_item);
+        pmath_unref(item);
+        goto FULLFORM;
+      }
+      
+      pmath_unref(sub_item);
+      sub_item = pmath_expr_get_item(item, 1);
+      if(!pmath_is_symbol(sub_item)) {
+        pmath_unref(sub_item);
+        pmath_unref(item);
+        goto FULLFORM;
+      }
+      
+      if(exprlen == 2 && priority > PRIO_TIMES)  WRITE_CSTR("(?");
+      else                                       WRITE_CSTR("?");
+      
+      pmath_write_ex(info, sub_item);
+      pmath_unref(sub_item);
       pmath_unref(item);
+      
+      if(exprlen == 2) {
+        WRITE_CSTR(":");
+        
+        item = pmath_expr_get_item(expr, 2);
+        write_ex(info, PRIO_PLUS + 1, item);
+        pmath_unref(item);
+        
+        if(priority > PRIO_TIMES)
+          WRITE_CSTR(")");
+      }
     }
-    WRITE_CSTR(")");
-  }
-  
+    else { /*====================================================================*/
+      pmath_t item;
+      size_t i;
+      
+    FULLFORM:
+    
+      write_ex(info, PRIO_CALL, head);
+      WRITE_CSTR("(");
+      for(i = 1; i <= exprlen; i++) {
+        if(i > 1)
+          WRITE_CSTR(", ");
+          
+        item = pmath_expr_get_item(expr, i);
+        if(!pmath_is_null(item) || exprlen < 2)
+          pmath_write_ex(info, item);
+        pmath_unref(item);
+      }
+      WRITE_CSTR(")");
+    }
+    
   pmath_unref(head);
 }
 
@@ -3791,7 +3720,7 @@ PMATH_PRIVATE
 void _pmath_expr_write(struct pmath_write_ex_t *info, pmath_t expr) {
   if(_pmath_write_user_format(info, expr))
     return;
-  
+    
   write_expr_ex(info, PRIO_ANY, expr);
 }
 
