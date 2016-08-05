@@ -35,6 +35,7 @@ struct position_info_t {
   pmath_bool_t with_heads;
   
   pmath_t pattern;
+  unsigned pattern_is_const: 1;
 };
 
 static void destroy_index(struct index_t *idx) {
@@ -58,7 +59,10 @@ static void destroy_index_lists(struct index_lists_t *ids) {
 static pmath_bool_t test_pattern(struct position_info_t *info, pmath_t obj) {
   assert(info != NULL);
   
-  return _pmath_pattern_match(obj, pmath_ref(info->pattern), NULL);
+  if(info->pattern_is_const)
+    return pmath_equals(obj, info->pattern);
+  else
+    return _pmath_pattern_match(obj, pmath_ref(info->pattern), NULL);
 }
 
 static pmath_bool_t prepend_index(struct index_lists_t *lists, size_t i) {
@@ -284,6 +288,8 @@ static pmath_expr_t position(
 ) {
   struct index_lists_t *lists = NULL;
   assert(info != NULL);
+  
+  info->pattern_is_const = _pmath_pattern_is_const(info->pattern);
   
   collect_position(
     info,
