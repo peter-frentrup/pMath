@@ -31,6 +31,7 @@ PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr) {
   pmath_unref(expr);
   
   expr = pmath_file_readline(tfile);
+  expr = pmath_string_insert_latin1(expr, 0, "1:", 2);
   pmath_file_close(tfile);
   return expr;
 }
@@ -42,6 +43,8 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
   pmath_t obj, str, bfile, tfile, zfile;
   pmath_serialize_error_t err;
   size_t exprlen = pmath_expr_length(expr);
+  const uint16_t *buf;
+  int len;
   
   if(exprlen < 1 || exprlen > 2) {
     pmath_message_argxxx(exprlen, 1, 2);
@@ -55,9 +58,20 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
     return expr;
   }
   
+  buf = pmath_string_buffer(&str);
+  len = pmath_string_length(str);
+  if(len > 2 && buf[1] == ':' && buf[0] == '1') {
+    buf+= 2;
+    len-= 2;
+  }
+  else {
+    pmath_message(PMATH_NULL, "corrupt", 1, str);
+    return expr;
+  }
+  
   pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
   
-  pmath_file_writetext(tfile, pmath_string_buffer(&str), pmath_string_length(str));
+  pmath_file_writetext(tfile, buf, len);
   pmath_file_close(tfile);
   
   zfile = pmath_file_create_decompressor(pmath_ref(bfile), NULL);
