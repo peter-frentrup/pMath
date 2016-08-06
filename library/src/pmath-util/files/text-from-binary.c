@@ -1,6 +1,7 @@
 #include <pmath-util/files/text-from-binary.h>
 #include <pmath-util/memory.h>
 
+#include <errno.h>
 #include <iconv.h>
 
 
