@@ -3,6 +3,7 @@
 #include <pmath-core/expressions.h>
 #include <pmath-core/intervals.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-util/debug.h>
@@ -26,6 +27,7 @@
 #define TAG_DOUBLE       11
 #define TAG_MPFLOAT      12
 #define TAG_INTERVAL     13
+#define TAG_ARRAY        14
 
 /* Data format
   Integers are generally stored in variable-length encoding, like BinaryWrite(... ,Integer)
@@ -63,6 +65,10 @@
                                (mantissa = value's serialized integer mantissa including sign)
 
    - real intervals     13, interval_expr
+
+   - packed arrays:     14, type, depth, size1, ... sizeN, V,V,...
+                                                           \_____/ = size1*..*sizeN many values (double or int32_t: 8 or 4 bytes, little endian)
+                                         \______________/ = depth many integers
  */
 
 //{ hashtable_int_obj_class ...
@@ -131,6 +137,14 @@ static void write_si32(pmath_t file, int32_t i) {
 
 static void write_int(pmath_t file, int i) {
   _pmath_serialize_raw_integer_si(file, i);
+}
+
+static void flip_endianness_32(void *ptr) {
+  uint8_t *bytes = ptr;
+  
+  uint8_t tmp;
+  tmp = bytes[0]; bytes[0] = bytes[3]; bytes[3] = tmp;
+  tmp = bytes[1]; bytes[1] = bytes[2]; bytes[2] = tmp;
 }
 
 static void flip_endianness_64(void *ptr) {
@@ -345,6 +359,93 @@ static void write_new_cache_entry(struct serializer_t *info, pmath_t object) {
   write_ref(info->file, refno);
 }
 
+static void write_array_data(
+  struct serializer_t *info,
+  const size_t *sizes,
+  const size_t *steps,
+  size_t depth,
+  size_t non_cont_depth,
+  const uint8_t *bytes
+) {
+  size_t i;
+  assert(non_cont_depth < depth);
+  
+  if(non_cont_depth == 0) {
+    size_t num_elems = 1;
+    size_t elem_size = steps[depth - 1];
+    
+    for(i = 0; i < depth; ++i)
+      num_elems *= sizes[i];
+      
+    if(PMATH_BYTE_ORDER > 0) {
+      if(elem_size == 8) {
+        const uint64_t *elems = (void*)bytes;
+        uint64_t tmp;
+        
+        while(num_elems-- > 0) {
+          tmp = *elems++;
+          flip_endianness_64(&tmp);
+          pmath_file_write(info->file, &tmp, sizeof(tmp));
+        }
+      }
+      else {
+        const uint32_t *elems = (void*)bytes;
+        uint32_t tmp;
+        
+        assert(elem_size == 4);
+        
+        while(num_elems-- > 0) {
+          tmp = *elems++;
+          flip_endianness_32(&tmp);
+          pmath_file_write(info->file, &tmp, sizeof(tmp));
+        }
+      }
+    }
+    else {
+      pmath_file_write(info->file, bytes, num_elems * elem_size);
+    }
+    
+    return;
+  }
+  
+  for(i = 0; i < sizes[0]; ++i, bytes += steps[0]) {
+    write_array_data(
+      info,
+      sizes + 1,
+      steps + 1,
+      depth - 1,
+      non_cont_depth - 1,
+      bytes);
+  }
+}
+
+// array will be freed
+static void serialize_packed_array(struct serializer_t *info, pmath_packed_array_t array) {
+  pmath_packed_type_t elem_type;
+  size_t i, depth, non_cont;
+  const size_t *sizes;
+  const size_t *steps;
+  const uint8_t *bytes;
+  
+  elem_type = pmath_packed_array_get_element_type(array);
+  depth = pmath_packed_array_get_dimensions(array);
+  sizes = pmath_packed_array_get_sizes(array);
+  steps = pmath_packed_array_get_steps(array);
+  non_cont = pmath_packed_array_get_non_continuous_dimensions(array);
+  bytes = pmath_packed_array_read(array, NULL, 0);
+  
+  write_tag(info->file, TAG_ARRAY);
+  write_int(info->file, elem_type);
+  write_size(info->file, depth);
+  
+  for(i = 0; i < depth; ++i)
+    write_size(info->file, sizes[i]);
+    
+  write_array_data(info, sizes, steps, depth, non_cont, bytes);
+    
+  pmath_unref(array);
+}
+
 static void serialize(
   struct serializer_t *info,
   pmath_t              object // will be freed
@@ -426,6 +527,10 @@ static void serialize(
       write_tag(info->file, TAG_INTERVAL);
       serialize(info, pmath_interval_get_expr(object));
       pmath_unref(object);
+      return;
+    
+    case PMATH_TYPE_SHIFT_PACKED_ARRAY:
+      serialize_packed_array(info, object);
       return;
   }
   
@@ -818,6 +923,89 @@ static pmath_t read_mp_float(struct deserializer_t *info) {
   return result;
 }
 
+static pmath_t read_packed_array(struct deserializer_t *info) {
+  pmath_packed_type_t elem_type;
+  size_t elem_size;
+  pmath_packed_array_t array;
+  size_t depth;
+  size_t *sizes;
+  size_t i;
+  void *data;
+  size_t total_elems;
+  
+  elem_type = read_int(info);
+  elem_size = pmath_packed_element_size(elem_type);
+  if(elem_size == 0) {
+    if(!info->error)
+      info->error = PMATH_SERIALIZE_BAD_BYTE;
+    return PMATH_UNDEFINED;
+  }
+  
+  depth = read_size(info);
+  
+  if(info->error)
+    return PMATH_UNDEFINED;
+  
+  if(depth == 0 || depth > SIZE_MAX / sizeof(size_t)) {
+    info->error = PMATH_SERIALIZE_BAD_BYTE;
+    return PMATH_UNDEFINED;
+  }
+  
+  sizes = pmath_mem_alloc(depth * sizeof(size_t));
+  if(!sizes) {
+    info->error = PMATH_SERIALIZE_NO_MEMORY;
+    return PMATH_UNDEFINED;
+  }
+  
+  for(i = 0;i < depth;++i)
+    sizes[i] = read_size(info);
+  
+  if(info->error) {
+    pmath_mem_free(sizes);
+    return PMATH_UNDEFINED;
+  }
+  
+  array = pmath_packed_array_new(PMATH_NULL, elem_type, depth, sizes, NULL, 0);
+  pmath_mem_free(sizes);
+  
+  data = pmath_packed_array_begin_write(&array, NULL, 0);
+  if(!data) {
+    info->error = PMATH_SERIALIZE_NO_MEMORY;
+    pmath_unref(array);
+    return PMATH_UNDEFINED;
+  }
+  
+  total_elems = 1;
+  for(i = 0;i < depth;++i)
+    total_elems*= sizes[i];
+  
+  i = pmath_file_read(info->file, data, total_elems * elem_size, FALSE);
+  if(i != total_elems * elem_size) {
+    info->error = PMATH_SERIALIZE_EOF;
+    pmath_unref(array);
+    return PMATH_UNDEFINED;
+  }
+  
+  if(PMATH_BYTE_ORDER > 0) {
+    if(elem_size == 8) {
+      uint64_t *elems = data;
+      
+      for(i = 0;i < total_elems;++i) 
+        flip_endianness_64(elems++);
+    }
+    else {
+      uint32_t *elems = data;
+      
+      assert(elem_size == 4);
+      
+      for(i = 0;i < total_elems;++i) 
+        flip_endianness_32(elems++);
+    }
+  }
+  
+  return array;
+}
+
 static pmath_t deserialize(struct deserializer_t *info) {
   const uint8_t tag = read_tag(info);
   switch(tag) {
@@ -835,6 +1023,7 @@ static pmath_t deserialize(struct deserializer_t *info) {
     case TAG_DOUBLE:   return read_double_object(info);
     case TAG_MPFLOAT:  return read_mp_float(info);
     case TAG_INTERVAL: return pmath_interval_from_expr(deserialize(info));
+    case TAG_ARRAY:    return read_packed_array(info);
   }
   
   if(!info->error)
