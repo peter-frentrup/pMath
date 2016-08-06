@@ -141,6 +141,9 @@ Clock::length:= "The length of the Clock, `1`, cannot be computed."
 Clock::period:= "Clock period `1` is not a finite positive number."
 Clock::vals:= "Clock called with illegal iterator values, `1`."
 
+CompressStream::wbits:= UncompressStream::wbits:= "Invalid option \"WindowBits\" -> `1`. Value must be Automatic or an integer in range 8..15."
+CompressStream::lvl:= "Invalid option Level -> `1`. Compression level must be Automatic or an integer between 0 and 9."
+
 CopyDirectory::dirne:= DeleteDirectory::dirne:= RenameDirectory::dirne:= "Directory `1` not empty."
 CopyDirectory::filex:= CopyFile::filex:= RenameDirectory::filex:= RenameFile::filex:= "Cannot overwrite existing file `1`."
 CopyDirectory::nodir:= DeleteDirectory::nodir:= RenameDirectory::nodir:= "Directory `1` not found."
