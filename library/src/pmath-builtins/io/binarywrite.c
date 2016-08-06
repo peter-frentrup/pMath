@@ -26,7 +26,7 @@ static pmath_bool_t binary_write(
        pmath_string_equals_latin1(type, "Expression")))
   {
     pmath_unref(type);
-    pmath_serialize(file, value);
+    pmath_serialize(file, value, 0);
     
     return TRUE;
   }

@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr) {
   
   pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
   zfile = pmath_file_create_compressor(pmath_ref(bfile));
-  err = pmath_serialize(zfile, obj);
+  err = pmath_serialize(zfile, obj, 0);
   pmath_file_close(zfile);
   pmath_file_close(bfile);
   

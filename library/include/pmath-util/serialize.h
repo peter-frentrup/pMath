@@ -17,12 +17,14 @@ typedef enum {
 /**\brief Write an object to a binary file.
    \param file A \ref file_api "file object". It wont be freed.
    \param object A pMath object. It will be freed.
+   \param flags Options bitset. Must be 0.
    \return An error code.
  */
 PMATH_API
 pmath_serialize_error_t pmath_serialize(
   pmath_t file,
-  pmath_t object);
+  pmath_t object,
+  int     flags);
 
 /**\brief Write an object to a binary file.
    \param file A \ref file_api "file object". It wont be freed.

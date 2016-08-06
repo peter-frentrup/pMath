@@ -847,7 +847,8 @@ static pmath_t deserialize(struct deserializer_t *info) {
 PMATH_API
 pmath_serialize_error_t pmath_serialize(
   pmath_t file,
-  pmath_t object
+  pmath_t object,
+  int     flags
 ) {
   struct serializer_t info;
   
