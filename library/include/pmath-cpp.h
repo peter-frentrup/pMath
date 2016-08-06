@@ -1874,7 +1874,7 @@ namespace pmath {
     pmath_file_write_object(file.get(), _obj, options);
   }
   
-  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file, int flags = 0) const throw() {
+  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file, int flags) const throw() {
     return pmath_serialize(file.get(), _obj, flags);
   }
   
