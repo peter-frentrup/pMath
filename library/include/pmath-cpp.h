@@ -346,9 +346,10 @@ namespace pmath {
       
       /**\brief Serialize to a binary file/stream.
          \param file The binary file/stream. It must be writeable.
+         \param flags Serialization options.
          \return An error number.
        */
-      pmath_serialize_error_t serialize(WriteableBinaryFile file) const throw();
+      pmath_serialize_error_t serialize(WriteableBinaryFile file, int flags = 0) const throw();
       
       /**\brief Deserialize an Expr from a binary file/stream.
          \param file The binary file/stream. It must be writeable.
@@ -1873,8 +1874,8 @@ namespace pmath {
     pmath_file_write_object(file.get(), _obj, options);
   }
   
-  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file) const throw() {
-    return pmath_serialize(file.get(), _obj);
+  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file, int flags = 0) const throw() {
+    return pmath_serialize(file.get(), _obj, flags);
   }
   
   inline Expr Expr::deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) throw() {
