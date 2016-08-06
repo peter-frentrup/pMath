@@ -839,6 +839,14 @@ PMATH_API pmath_bool_t pmath_init(void) {
           
       PMATH_RUN("Options(Complement):={SameTest->Automatic}");
       
+      PMATH_RUN("Options(CompressStream):={"
+          "\"WindowBits\"->Automatic,"
+          "\"RawDeflate\"->False,"
+          "Level->Automatic}");
+      PMATH_RUN("Options(UncompressStream):={"
+          "\"WindowBits\"->Automatic,"
+          "\"RawInflate\"->False}");
+      
       PMATH_RUN("Options(CreateDocument):=Options(Document):={"
           "Antialiasing->Inherited,"
           "AutoNumberFormating->Inherited,"

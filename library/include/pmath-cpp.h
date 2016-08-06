@@ -1262,8 +1262,8 @@ namespace pmath {
 #endif
       
       /**\brief Create binary file object whose content is uncompressed from another binary file. */
-      static ReadableBinaryFile create_uncompressor(ReadableBinaryFile srcfile) throw() {
-        return ReadableBinaryFile(pmath_file_create_uncompressor(srcfile.release()));
+      static ReadableBinaryFile create_decompressor(ReadableBinaryFile srcfile, struct pmath_decompressor_settings_t *settings = nullptr) throw() {
+        return ReadableBinaryFile(pmath_file_create_decompressor(srcfile.release(), settings));
       }
       
       /**\brief Read some bytes from the file. See pmath_file_read(). */
@@ -1323,8 +1323,8 @@ namespace pmath {
 #endif
       
       /**\brief Create binary file object whose content is compressed into another binary file. */
-      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile) throw() {
-        return WriteableBinaryFile(pmath_file_create_compressor(dstfile.get()));
+      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile, struct pmath_compressor_settings_t *settings = nullptr) throw() {
+        return WriteableBinaryFile(pmath_file_create_compressor(dstfile.get(), settings));
       }
       
       /**\brief Write some bytes to the file. See pmath_file_write(). */

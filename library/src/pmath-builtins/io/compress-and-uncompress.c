@@ -18,7 +18,7 @@ PMATH_PRIVATE pmath_t builtin_compress(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   
   pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
-  zfile = pmath_file_create_compressor(pmath_ref(bfile));
+  zfile = pmath_file_create_compressor(pmath_ref(bfile), NULL);
   err = pmath_serialize(zfile, obj, 0);
   pmath_file_close(zfile);
   pmath_file_close(bfile);
@@ -60,7 +60,7 @@ PMATH_PRIVATE pmath_t builtin_uncompress(pmath_expr_t expr) {
   pmath_file_writetext(tfile, pmath_string_buffer(&str), pmath_string_length(str));
   pmath_file_close(tfile);
   
-  zfile = pmath_file_create_uncompressor(pmath_ref(bfile));
+  zfile = pmath_file_create_decompressor(pmath_ref(bfile), NULL);
   obj = pmath_deserialize(zfile, &err);
   pmath_file_close(zfile);
   pmath_file_close(bfile);

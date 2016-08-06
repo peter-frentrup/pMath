@@ -200,10 +200,13 @@ static void compressor_inflate_destructor(void *extra) {
 
 
 PMATH_API
-pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile) {
+pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile, struct pmath_compressor_settings_t *options) {
   struct compressor_data_t *data;
   pmath_binary_file_api_t  api;
   int ret;
+  int window_bits = MAX_WBITS;
+  int level = Z_DEFAULT_COMPRESSION;
+  int strategy = Z_DEFAULT_STRATEGY;
   memset(&api, 0, sizeof(api));
   api.struct_size = sizeof(api);
   
@@ -211,6 +214,39 @@ pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile) {
   api.write_function   = compressor_write;
   api.flush_function   = compressor_flush;
   api.get_pos_function = compressor_get_position;
+  
+  if(options) {
+    if(options->size != sizeof(struct pmath_compressor_settings_t)) {
+      pmath_debug_print("[invalid pmath_compressor_settings_t size]\n");
+      pmath_unref(dstfile);
+      return PMATH_NULL;
+    }
+    
+    if(options->level != Z_DEFAULT_COMPRESSION) {
+      if(options->level < Z_NO_COMPRESSION || options->level > Z_BEST_COMPRESSION) {
+        pmath_debug_print("[invalid compression level %d]\n", options->level);
+        pmath_unref(dstfile);
+        return PMATH_NULL;
+      }
+      
+      level = options->level;
+    }
+    
+    if(options->window_bits != 0) {
+      if(options->window_bits < 8 || options->window_bits > MAX_WBITS) {
+        pmath_debug_print("[invalid window_bits %d]\n", options->window_bits);
+        pmath_unref(dstfile);
+        return PMATH_NULL;
+      }
+      
+      window_bits = options->window_bits;
+    }
+    
+    if(options->skip_header)
+      window_bits = -window_bits;
+    
+    strategy = options->strategy;
+  }
   
   if(!pmath_file_test(dstfile, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)) {
     pmath_unref(dstfile);
@@ -233,12 +269,13 @@ pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile) {
 //  ret = deflateInit(&data->info, Z_DEFAULT_COMPRESSION);
   ret = deflateInit2(
           &data->info,
-          Z_DEFAULT_COMPRESSION,
+          level,
           Z_DEFLATED,
-          -MAX_WBITS,
+          window_bits,
           8, // or MAX_MEM_LEVEL
-          Z_DEFAULT_STRATEGY);
+          strategy);
   if(ret != Z_OK) {
+    pmath_debug_print("[deflateInit2() failed with error %d]\n", ret);
     pmath_unref(dstfile);
     return PMATH_NULL;
   }
@@ -250,16 +287,38 @@ pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile) {
 }
 
 PMATH_API
-pmath_symbol_t pmath_file_create_uncompressor(pmath_t srcfile) {
+pmath_symbol_t pmath_file_create_decompressor(pmath_t srcfile, struct pmath_decompressor_settings_t *options) {
   struct compressor_data_t *data;
   pmath_binary_file_api_t  api;
   int ret;
+  int window_bits = MAX_WBITS;
   memset(&api, 0, sizeof(api));
   api.struct_size = sizeof(api);
   
   api.status_function  = compressor_status;
   api.read_function    = compressor_read;
   api.get_pos_function = compressor_get_position;
+  
+  if(options) {
+    if(options->size != sizeof(struct pmath_decompressor_settings_t)) {
+      pmath_debug_print("[invalid pmath_decompressor_settings_t size]\n");
+      pmath_unref(srcfile);
+      return PMATH_NULL;
+    }
+    
+    if(options->window_bits != 0) {
+      if(options->window_bits < 8 || options->window_bits > MAX_WBITS) {
+        pmath_debug_print("[invalid window_bits %d]\n", options->window_bits);
+        pmath_unref(srcfile);
+        return PMATH_NULL;
+      }
+      
+      window_bits = options->window_bits;
+    }
+    
+    if(options->skip_header)
+      window_bits = -window_bits;
+  }
   
   if(!pmath_file_test(srcfile, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
     pmath_unref(srcfile);
@@ -282,12 +341,12 @@ pmath_symbol_t pmath_file_create_uncompressor(pmath_t srcfile) {
   data->info.avail_in = 0;
   
 //  ret = inflateInit(&data->info);
-  ret = inflateInit2(&data->info, -MAX_WBITS);
+  ret = inflateInit2(&data->info, window_bits);
   if(ret != Z_OK) {
+    pmath_debug_print("[inflateInit2() failed with error %d]\n", ret);
     pmath_unref(srcfile);
     return PMATH_NULL;
   }
-  
   
   return pmath_file_create_binary(data, compressor_inflate_destructor, &api);
 }
