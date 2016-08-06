@@ -2333,8 +2333,8 @@ void Document::copy_to_binary(String mimetype, Expr file) {
     }
     
     Expr boxes = selbox->to_pmath(BoxFlagDefault, start, end);
-    file = Expr(pmath_file_create_compressor(file.release()));
-    pmath_serialize(file.get(), boxes.release());
+    file = Expr(pmath_file_create_compressor(file.release(), nullptr));
+    pmath_serialize(file.get(), boxes.release(), 0);
     pmath_file_close(file.release());
     return;
   }
@@ -2694,7 +2694,7 @@ void Document::paste_from_text(String mimetype, String data) {
 void Document::paste_from_binary(String mimetype, Expr file) {
   if(mimetype.equals(Clipboard::BoxesBinary)) {
     pmath_serialize_error_t err = PMATH_SERIALIZE_OK;
-    file = Expr(pmath_file_create_uncompressor(file.release()));
+    file = Expr(pmath_file_create_decompressor(file.release(), nullptr));
     Expr boxes = Expr(pmath_deserialize(file.get(), &err));
     paste_from_boxes(boxes);
     return;
