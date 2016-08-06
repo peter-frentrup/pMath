@@ -140,7 +140,7 @@ pmath_t builtin_uncompressstream(pmath_expr_t expr) {
   struct pmath_decompressor_settings_t settings;
   pmath_expr_t options;
   
-  if(pmath_expr_length(expr) != 1) {
+  if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
