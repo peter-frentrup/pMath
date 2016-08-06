@@ -63,6 +63,7 @@ static pmath_bool_t check_all_same_head(pmath_expr_t expr, size_t *joined_length
     pmath_unref(other_head);
   }
   
+  pmath_unref(head);
   return TRUE;
 }
 
@@ -115,7 +116,7 @@ static pmath_expr_t remove_duplicate_sequences(pmath_expr_t list) {
     first = next;
   }
   
-  j = i-1;
+  j = i - 1;
   while(i <= len) {
     pmath_t next = PMATH_NULL;
     do {
