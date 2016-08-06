@@ -125,7 +125,7 @@ namespace richmath {
       
       void copy_to(Interface ** other) const noexcept {
         COM_ASSERT(other != nullptr);
-        InternalAddRef();
+        internal_add_reference();
         *other = ptr;
       }
       
