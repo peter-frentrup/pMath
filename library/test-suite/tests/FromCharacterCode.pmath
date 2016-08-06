@@ -1,0 +1,24 @@
+
+AssertEqual("abc", FromCharacterCode({97, 98, 99}))
+AssertEqual("abc", FromCharacterCode({97, 98, 99}, "ASCII"))
+AssertEqual("abc", FromCharacterCode({97, 98, 99}, "UTF-8"))
+AssertEqual("abc", FromCharacterCode({97, 98, 99}, "UTF-16"))
+AssertEqual("abc", FromCharacterCode({97, 98, 99}, "UTF-32"))
+
+AssertEqual("XYZ", FromCharacterCode @ {88, 89, 90})
+
+AssertEqual("\[Alpha]\[Beta]", FromCharacterCode @ {16^^3b1, 16^^3b2})
+
+AssertEqual("\[Alpha]\[Beta]", FromCharacterCode({16^^ce, 16^^B1, 16^^ce, 16^^b2}, "UTF-8"))
+
+AssertEqual("\[Sum]", FromCharacterCode @ {16^^2211})
+
+AssertEqual("\[Sum]", FromCharacterCode({16^^E2, 16^^88, 16^^91}, "UTF-8"))
+
+AssertEqual("\[U+1234]\[U+0000]\[U+FFFF]", FromCharacterCode @ {16^^1234, 0, 16^^ffff})
+
+AssertEqual("\[U+12345]", FromCharacterCode({16^^12345}, "Unicode"))
+AssertEqual("\[U+12345]", FromCharacterCode({16^^12345}, "UTF-32"))
+AssertEqual("\[U+12345]", FromCharacterCode({16^^D808, 16^^DF45}))
+AssertEqual("\[U+12345]", FromCharacterCode({16^^D808, 16^^DF45}, "UTF-16"))
+AssertEqual("\[U+12345]", FromCharacterCode({16^^F0, 16^^92, 16^^8D, 16^^85}, "UTF-8"))

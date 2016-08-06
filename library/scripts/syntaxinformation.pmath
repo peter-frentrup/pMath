@@ -167,7 +167,7 @@
 {"FractionBox", {"ArgumentCount" -> 2}},
 {"FrameBox", {"ArgumentCount" -> 1}},
 {"Framed", {"ArgumentCount" -> 1}},
-{"FromCharacterCode", {"ArgumentCount" -> 1}},
+{"FromCharacterCode", {"ArgumentCount" -> 1..2}},
 {"FrontEndObject", {"ArgumentCount" -> 1}},
 {"FrontEndTokenExecute", {"ArgumentCount" -> 1}},
 {"FullForm", {"ArgumentCount" -> 1}},
@@ -518,7 +518,7 @@
 {"TimesBy", {"ArgumentCount" -> 2}},
 {"Timing", {"ArgumentCount" -> 1}},
 {"ToBoxes", {"ArgumentCount" -> 1}},
-{"ToCharacterCode", {"ArgumentCount" -> 1}},
+{"ToCharacterCode", {"ArgumentCount" -> 1..2}},
 {"ToExpression", {"ArgumentCount" -> 1}},
 {"ToFileName", {"ArgumentCount" -> 2}},
 {"Tooltip", {"ArgumentCount" -> 2}},
@@ -565,7 +565,7 @@
 {"IsPackedArray", {"ArgumentCount" -> 1..2}},
 {"PackedArrayForm", {"ArgumentCount" -> 1}},
 {"SetDebugInfoAt", {"ArgumentCount" -> 2..}},
-{"ToPackedArray", {"ArgumentCount" -> 1}}
+{"ToPackedArray", {"ArgumentCount" -> 1..2}}
 }},
 {"Internal`",{
 {"CopySign", {"ArgumentCount" -> 2}},

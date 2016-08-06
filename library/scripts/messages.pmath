@@ -72,6 +72,7 @@ General::lslc:= "Coefficient matrix and target vector(s) or matrix do not have t
 General::mat:= "Argument `1` at position `2` is not a nonempty matrix."
 General::matsq:= "Argument `1` at position `2` is not a nonempty square matrix."
 General::mbrpos:= "Argument `2` in `1` must be one of `3`."
+General::mgre:= "Cannot resolve message group `1`."
 General::ncompl:= "Symbolic or non-complex numerical arguments are expected."
 General::nexprat:= "Non-atomic expression expected at position `1` in `2`."
 General::nostream:= "`1` is not an open stream."
@@ -148,6 +149,8 @@ CopyFile::fdir:= DeleteFile::fdir:= RenameFile::fdir:= "`1` is a directory; a fi
 DefaultRules::vlist:= DownRules::vlist:= OwnRules::vlist:= SubRules::vlist:= UpRules::vlist:= "Cannot set `1` to `2`; value must be a list of rules."
 
 Developer`HasBuiltinCode::norul:= "Unknown code type `1`. It must be one of {DownRules, NRules, SubRules, UpRules}."
+Developer`FromPackedArray::punpack:= "Unpacking array with dimensions `2` in call to `1`."
+Developer`FromPackedArray::punpack1:= "Unpacking array with dimensions `1`."
 
 Dot::shape:= "The tensors `3` and `5` have incompatible shapes."
 
@@ -163,6 +166,9 @@ EvaluateDelayed::invtim:= "`1` is not a positive machine-size number."
 First::first:= "`1` has a length of zero and no first element."
 
 Format::forml:= "Recursion depth limit exceeded while formatting output."
+
+FromCharacterCode::nonunicode:= "A character code, which should be a non-negative integer less than 1114112, is expected at position `1` in `2`."
+FromCharacterCode::invbyte:= "Unexpeted byte `1` for the specified encoding is treated as a single unicode character."
 
 Function::par:= "Function parameter specification `1` in `2` is neither a symbol nor a list of symbols."
 Function::cnt:= "Too many parameters in `1` to be filled from `2`."
@@ -203,7 +209,7 @@ NestWhile::nwargs:= NestWhileList::nwargs:= "Argument `1` in `2` is not of the f
 
 Norm::ptype:= "The second argument of Norm, `1`, should be a symbol, Infinity, or an integer or real number not less than 1 for vector p-norms; or 1, 2, Infinity, or \"Frobenius\" for matrix norms."
 
-OpenAppend::charcode:= OpenRead::charcode:= OpenWrite::charcode:= "`1` is not a valid character encoding."
+OpenAppend::charcode:= OpenRead::charcode:= OpenWrite::charcode:= ToCharacterCode::charcode:= "`1` is not a valid character encoding."
 OpenRead::text:= OpenWrite::text:= "BinaryFormat->False expected for reopening the binary stream `1`."
 
 Options::optnf:= OptionValue::optnf:= SetOptions::optnf:= "`1` is not a known option for `2`."

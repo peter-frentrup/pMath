@@ -1,7 +1,7 @@
 #include <pmath-util/compression.h>
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/memory.h>
-
 
 #include <string.h>
 #include <zlib.h>
@@ -24,6 +24,23 @@ struct compressor_data_t {
   Bytef                outbuffer[64];
 };
 
+static pmath_bool_t compressor_flush_outbuffer(struct compressor_data_t *data) {
+  size_t size = sizeof(data->outbuffer) - data->info.avail_out;
+  
+  data->info.next_out  = data->outbuffer;
+  data->info.avail_out = sizeof(data->outbuffer);
+  
+  if(size != pmath_file_write(data->file, data->outbuffer, size)) {
+    data->status = pmath_file_status(data->file);
+    if(data->status == PMATH_FILE_OK)
+      data->status = PMATH_FILE_OTHERERROR;
+      
+    return FALSE;
+  }
+  
+  return TRUE;
+}
+
 static size_t compressor_deflate(
   struct compressor_data_t *data,
   const void               *buffer,
@@ -31,6 +48,7 @@ static size_t compressor_deflate(
   int                       zlib_flush_value
 ) {
   int ret = Z_OK;
+  pmath_bool_t force_continue_deflate;
   uInt old_avail_out;
   if(data->status != PMATH_FILE_OK)
     return 0;
@@ -39,27 +57,22 @@ static size_t compressor_deflate(
   data->info.avail_in = (uInt)buffer_size;
   do {
     if(data->info.avail_out == 0) {
-      size_t size = sizeof(data->outbuffer);
-      
-      data->info.next_out  = data->outbuffer;
-      data->info.avail_out = size;
-      if(size != pmath_file_write(data->file, data->outbuffer, size)) {
-        data->status = pmath_file_status(data->file);
-        if(data->status == PMATH_FILE_OK)
-          data->status = PMATH_FILE_OTHERERROR;
-          
+      if(!compressor_flush_outbuffer(data))
         return buffer_size - data->info.avail_in;
-      }
     }
     
     old_avail_out = data->info.avail_out;
     
+    force_continue_deflate = FALSE;
     ret = deflate(&data->info, zlib_flush_value);
     if(ret < 0 && ret != Z_BUF_ERROR) {
       data->status = PMATH_FILE_OTHERERROR;
       return buffer_size - data->info.avail_in;
     }
-  } while(data->info.avail_in > 0 || old_avail_out != data->info.avail_out);
+    else if(ret == Z_OK && zlib_flush_value == Z_FINISH) {
+      force_continue_deflate = !pmath_aborting();
+    }
+  } while(data->info.avail_in > 0 || old_avail_out != data->info.avail_out || force_continue_deflate);
   
   return buffer_size - data->info.avail_in;
 }
@@ -131,6 +144,8 @@ static void compressor_flush(void *extra) {
   struct compressor_data_t *data = extra;
   
   compressor_deflate(data, NULL, 0, Z_SYNC_FLUSH);
+  compressor_flush_outbuffer(data);
+  pmath_file_flush(data->file);
 }
 
 static int64_t compressor_get_position(void *extra) {
@@ -139,11 +154,11 @@ static int64_t compressor_get_position(void *extra) {
   int64_t pos = pmath_file_get_position(data->file);
   if(pos < 0)
     return -1;
-  
-  if(data->info.next_in == data->outbuffer) {
-    pos-= data->info.avail_in;
     
-    if(pos < 0){
+  if(data->info.next_in == data->outbuffer) {
+    pos -= data->info.avail_in;
+    
+    if(pos < 0) {
       pmath_debug_print("[decompressor: avail_in > pmath_file_get_position]\n");
     }
     
@@ -151,9 +166,9 @@ static int64_t compressor_get_position(void *extra) {
   }
   
   if(data->info.next_out == data->outbuffer) {
-    pos-= data->info.avail_out;
+    pos -= data->info.avail_out;
     
-    if(pos < 0){
+    if(pos < 0) {
       pmath_debug_print("[compressor: avail_out > pmath_file_get_position]\n");
     }
     
@@ -167,7 +182,8 @@ static void compressor_deflate_destructor(void *extra) {
   struct compressor_data_t *data = extra;
   
   compressor_deflate(data, NULL, 0, Z_FINISH);
-  pmath_file_write(data->file, data->outbuffer, sizeof(data->outbuffer) - data->info.avail_out);
+  compressor_flush_outbuffer(data);
+  
   deflateEnd(&data->info);
   pmath_file_close_if_unused(data->file);
   pmath_mem_free(data);
@@ -214,7 +230,14 @@ pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile) {
   data->info.zalloc = alloc_for_zlib;
   data->info.zfree  = free_for_zlib;
   
-  ret = deflateInit(&data->info, Z_DEFAULT_COMPRESSION);
+//  ret = deflateInit(&data->info, Z_DEFAULT_COMPRESSION);
+  ret = deflateInit2(
+          &data->info,
+          Z_DEFAULT_COMPRESSION,
+          Z_DEFLATED,
+          -MAX_WBITS,
+          8, // or MAX_MEM_LEVEL
+          Z_DEFAULT_STRATEGY);
   if(ret != Z_OK) {
     pmath_unref(dstfile);
     return PMATH_NULL;
@@ -253,17 +276,18 @@ pmath_symbol_t pmath_file_create_uncompressor(pmath_t srcfile) {
   data->status = PMATH_FILE_OK;
   
   memset(&data->info, 0, sizeof(data->info));
-  data->info.zalloc = alloc_for_zlib;
-  data->info.zfree  = free_for_zlib;
+  data->info.zalloc   = alloc_for_zlib;
+  data->info.zfree    = free_for_zlib;
+  data->info.next_in  = data->outbuffer;
+  data->info.avail_in = 0;
   
-  ret = inflateInit(&data->info);
+//  ret = inflateInit(&data->info);
+  ret = inflateInit2(&data->info, -MAX_WBITS);
   if(ret != Z_OK) {
     pmath_unref(srcfile);
     return PMATH_NULL;
   }
   
-  data->info.next_in  = data->outbuffer;
-  data->info.avail_in = 0;
   
   return pmath_file_create_binary(data, compressor_inflate_destructor, &api);
 }

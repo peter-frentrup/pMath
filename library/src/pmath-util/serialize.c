@@ -5,7 +5,7 @@
 #include <pmath-core/strings-private.h>
 
 #include <pmath-util/debug.h>
-#include <pmath-util/files.h>
+#include <pmath-util/files/abstract-file.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
 

@@ -2,7 +2,7 @@
 
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/files.h>
+#include <pmath-util/files/text-from-binary.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>

@@ -1,7 +1,7 @@
 #ifndef __PMATH_UTIL__COMPRESSION_H__
 #define __PMATH_UTIL__COMPRESSION_H__
 
-#include <pmath-util/files.h>
+#include <pmath-util/files/abstract-file.h>
 
 /**\addtogroup file_api
   @{

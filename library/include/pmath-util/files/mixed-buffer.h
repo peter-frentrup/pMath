@@ -1,12 +1,10 @@
-#ifndef __PMATH_UTIL__MIXED_FILE_H__
-#define __PMATH_UTIL__MIXED_FILE_H__
+#ifndef __PMATH_UTIL__FILES__MIXED_BUFFER_H__
+#define __PMATH_UTIL__FILES__MIXED_BUFFER_H__
 
-#include <pmath-util/files.h>
-
+#include <pmath-util/files/abstract-file.h>
 
 /**\addtogroup file_api
-
-   @{
+  @{
  */
 
 /**\brief Creates a mixed binary/text file double ended queue.
@@ -22,6 +20,6 @@ void pmath_file_create_mixed_buffer(
   pmath_symbol_t *out_textfile,
   pmath_symbol_t *out_binfile);
 
-/* @} */
+/** @} */
 
-#endif /* __PMATH_UTIL__MIXED_FILE_H__ */
+#endif // __PMATH_UTIL__FILES__MIXED_BUFFER_H__
