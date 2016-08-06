@@ -29,8 +29,8 @@ namespace richmath {
   
   template <typename Interface>
   class RemoveAddRefRelease: public Interface {
-      ULONG WINAPI AddRef();
-      ULONG WINAPI Release();
+      ULONG WINAPI AddRef() override;
+      ULONG WINAPI Release() override;
   };
   
   template <typename Interface>
