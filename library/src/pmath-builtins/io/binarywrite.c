@@ -1,7 +1,8 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/approximate.h>
-#include <pmath-util/files.h>
+#include <pmath-util/files/abstract-file.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/io-varint-private.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/serialize.h>
 #include <pmath-util/option-helpers.h>
@@ -25,8 +26,19 @@ static pmath_bool_t binary_write(
        pmath_string_equals_latin1(type, "Expression")))
   {
     pmath_unref(type);
-    pmath_serialize(file, value);
+    pmath_serialize(file, value, 0);
     
+    return TRUE;
+  }
+  
+  if(pmath_same(type, PMATH_SYMBOL_INTEGER)) {
+    if(!pmath_is_integer(value)) {
+      pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
+      return FALSE;
+    }
+    
+    _pmath_serialize_raw_integer(file, value);
+    pmath_unref(type);
     return TRUE;
   }
   

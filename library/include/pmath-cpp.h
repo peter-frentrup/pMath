@@ -346,9 +346,10 @@ namespace pmath {
       
       /**\brief Serialize to a binary file/stream.
          \param file The binary file/stream. It must be writeable.
+         \param flags Serialization options.
          \return An error number.
        */
-      pmath_serialize_error_t serialize(WriteableBinaryFile file) const throw();
+      pmath_serialize_error_t serialize(WriteableBinaryFile file, int flags = 0) const throw();
       
       /**\brief Deserialize an Expr from a binary file/stream.
          \param file The binary file/stream. It must be writeable.
@@ -1261,8 +1262,8 @@ namespace pmath {
 #endif
       
       /**\brief Create binary file object whose content is uncompressed from another binary file. */
-      static ReadableBinaryFile create_uncompressor(ReadableBinaryFile srcfile) throw() {
-        return ReadableBinaryFile(pmath_file_create_uncompressor(srcfile.release()));
+      static ReadableBinaryFile create_decompressor(ReadableBinaryFile srcfile, struct pmath_decompressor_settings_t *settings = nullptr) throw() {
+        return ReadableBinaryFile(pmath_file_create_decompressor(srcfile.release(), settings));
       }
       
       /**\brief Read some bytes from the file. See pmath_file_read(). */
@@ -1322,8 +1323,8 @@ namespace pmath {
 #endif
       
       /**\brief Create binary file object whose content is compressed into another binary file. */
-      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile) throw() {
-        return WriteableBinaryFile(pmath_file_create_compressor(dstfile.get()));
+      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile, struct pmath_compressor_settings_t *settings = nullptr) throw() {
+        return WriteableBinaryFile(pmath_file_create_compressor(dstfile.get(), settings));
       }
       
       /**\brief Write some bytes to the file. See pmath_file_write(). */
@@ -1873,8 +1874,8 @@ namespace pmath {
     pmath_file_write_object(file.get(), _obj, options);
   }
   
-  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file) const throw() {
-    return pmath_serialize(file.get(), _obj);
+  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file, int flags) const throw() {
+    return pmath_serialize(file.get(), _obj, flags);
   }
   
   inline Expr Expr::deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) throw() {

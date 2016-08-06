@@ -6,7 +6,7 @@
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/files.h>
+#include <pmath-util/files/abstract-file.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
