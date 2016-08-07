@@ -118,6 +118,8 @@ namespace richmath {
       Array<SpanExpr*> _items;
   };
   
+  bool is_comment_start_at(const uint16_t *str, const uint16_t *buf_end);
+  
   class SequenceSpan { // a,b,c
     public:
       explicit SequenceSpan(SpanExpr *span, bool take_ownership);

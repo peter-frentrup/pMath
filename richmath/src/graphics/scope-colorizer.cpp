@@ -722,24 +722,32 @@ void ScopeColorizer::scope_colorize_spanexpr(
 
 
 void ScopeColorizer::comments_colorize_span(Span span, int *pos) {
-  const uint16_t         *buf    = sequence->text().buffer();
-  const Array<GlyphInfo> &glyphs = sequence->glyph_array();
-  const SpanArray        &spans  = sequence->span_array();
+  const uint16_t         *buf     = sequence->text().buffer();
+  const uint16_t         *buf_end = buf + sequence->text().length();
+  const Array<GlyphInfo> &glyphs  = sequence->glyph_array();
+  const SpanArray        &spans   = sequence->span_array();
   
   if(!span) {
-    while(*pos < glyphs.length() && !spans.is_token_end(*pos))
-      ++*pos;
+    if(is_comment_start_at(buf + *pos, buf_end)) {
+      while(*pos < glyphs.length() && !spans.is_token_end(*pos)) {
+        glyphs[*pos].style = GlyphStyleComment;
+        ++*pos;
+      }
       
-    ++*pos;
+      glyphs[*pos].style = GlyphStyleComment;
+      ++*pos;
+    }
+    else {
+      while(*pos < glyphs.length() && !spans.is_token_end(*pos))
+        ++*pos;
+        
+      ++*pos;
+    }
     return;
   }
   
-  
   if(!span.next()) {
-    if(*pos + 1 < span.end() &&
-        buf[*pos]     == '/' &&
-        buf[*pos + 1] == '*')
-    {
+    if(is_comment_start_at(buf + *pos, buf_end)) {
       for(; *pos <= span.end(); ++*pos)
         glyphs[*pos].style = GlyphStyleComment;
         
