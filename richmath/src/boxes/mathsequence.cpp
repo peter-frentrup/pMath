@@ -1863,11 +1863,47 @@ namespace richmath {
         return next;
       }
       
-      int fill_indention_array(
-        Span  span,
-        int   depth,
-        int   pos
-      ) {
+      int fill_string_indentation(Span span, int depth, int pos) {
+        const uint16_t *buf = self.str.buffer();
+        
+        assert(buf[pos] == '\"');
+        assert(span);
+        assert(!span.next());
+        
+        int next = fill_indention_array(span.next(), depth + 1, pos);
+        indention_array[pos] = depth;
+        
+        while(next <= span.end()) {
+          if(next > 0 && buf[next - 1] == '\n') {
+            indention_array[next] = depth;
+            ++next;
+          }
+          else {
+            next = fill_indention_array(self.spans[next], depth + 1, next);
+          }
+        }
+        
+        return next;
+      }
+      
+      void set_initial_whitespace_depth(int pos, int next, int depth) {
+        const uint16_t *buf = self.str.buffer();
+        
+        int i = pos + 1;
+        while(i < next) {
+          indention_array[i] = depth;
+          
+          if(!(buf[i] == '\n' || is_comment_start_at(buf + i, buf + next)))
+            break;
+          
+          if(self.spans[i])
+            i = self.spans[i].end() + 1;
+          else
+            ++i;
+        }
+      }
+      
+      int fill_indention_array(Span span, int depth, int pos) {
         const uint16_t *buf = self.str.buffer();
         
         if(!span) {
@@ -1886,27 +1922,58 @@ namespace richmath {
           return pos;
         }
         
-        bool in_string = buf[pos] == '\"' && !span.next();
+        if(buf[pos] == '\"' && !span.next())
+          return fill_string_indentation(span, depth, pos);
+        
         int next = fill_indention_array(span.next(), depth + 1, pos);
         
-        indention_array[pos] = depth;
-//        if(in_string)
-//          depth+= 1;
-
-        bool depth_dec = false;
+        bool prev_simple = false;
+        bool ends_with_newline = false;
+        bool inner_newline = false;
         while(next <= span.end()) {
-          if(in_string && next > 0 && buf[next - 1] == '\n') {
-            indention_array[next] = depth; // 0
-            ++next;
+          Span sub = self.spans[next];
+          if((buf[next] == ';' || buf[next] == '\n') && !sub && !prev_simple)
+            inner_newline = true;
+          
+          ends_with_newline = buf[next] == '\n' && !sub;
+          prev_simple = !sub;
+          next = fill_indention_array(sub, depth + 1, next);
+        }
+        
+        if(ends_with_newline) {
+          /* span = {{foo...}, "\n"}.  Treat as {foo...} */
+          for(int i = pos; i < next; ++i)
+            indention_array[i]--;
+          return next;
+        }
+        
+        indention_array[pos] = depth;
+        if(buf[pos] == '\n') {
+          /* Leading \n is attached to the innermost span, e.g. 
+              F(\nA()()\nB()\n) 
+                \_/    
+                \___/
+                \_____/  \_/
+                \__________/
+                \____________/
+              \_______________/
+              116 655443 444221   <-- depth
+              011 655443 344221   <-- indent without any \n handling (6 for A, 3 for B)
+              011 544332 233111   <-- indent with `ends_with_newline` rule above (5 for A, 2 for B)
+              011 144332 233111   <-- indent without `inner_newline` rule below  (1 for A, 2 for B)
+              012 244332 233111   <-- indent with full \n handling (2 for A, 2 for B)
+           */
+          
+          if(inner_newline) {
+            /* Indent A and B in the above example by the same amount, i.e. no 
+               additional indentation at \nB
+               Inner '\n' is essentially an implicit ';'
+             */
+            set_initial_whitespace_depth(pos, next, depth + 1);
+            indention_array[pos] = depth + 1;
           }
-          else {
-            if((buf[next] == ';' || buf[next] == ',') && !depth_dec && !in_string) {
-              --depth;
-              depth_dec = true;
-            }
-            
-            next = fill_indention_array(self.spans[next], depth + 1, next);
-          }
+          else 
+            set_initial_whitespace_depth(pos, next, depth);
         }
         
         return next;
@@ -2425,6 +2492,25 @@ void MathSequence::paint(Context *context) {
       for(; line < lines.length() && y < clip_y2; ++line) {
         float x_extra = x0 + indention_width(lines[line].indent);
         
+//        #ifndef NDEBUG
+//        {
+//          int old_color = context->canvas->get_color();
+//          context->canvas->save();
+//          context->canvas->set_color(0x808080);
+//          
+//          for(int i = 0;i < lines[line].indent;++i) {
+//            context->canvas->move_to(
+//              x0 + i * (x_extra - x0) / lines[line].indent, 
+//              y + lines[line].ascent);
+//            context->canvas->rel_line_to(0, -0.75);
+//          }
+//          context->canvas->stroke();
+//          
+//          context->canvas->set_color(old_color);
+//          context->canvas->restore();
+//        }
+//        #endif
+        
         if(pos > 0)
           x_extra -= glyphs[pos - 1].right;
           
@@ -2464,21 +2550,21 @@ void MathSequence::paint(Context *context) {
             }
           }
           
-          //#ifndef NDEBUG
-          //if(spans.is_operand_start(pos)){
-          //  context->canvas->save();
-          //
-          //  context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
-          //  context->canvas->rel_line_to(0, 3);
-          //  context->canvas->rel_line_to(3, 0);
-          //
-          //  context->canvas->set_color(0x008000);
-          //  context->canvas->hair_stroke();
-          //
-          //  context->canvas->set_color(default_color);
-          //  context->canvas->restore();
-          //}
-          //#endif
+//          #ifndef NDEBUG
+//          if(spans.is_operand_start(pos)){
+//            context->canvas->save();
+//          
+//            context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
+//            context->canvas->rel_line_to(0, 3);
+//            context->canvas->rel_line_to(3, 0);
+//          
+//            context->canvas->set_color(0x008000);
+//            context->canvas->hair_stroke();
+//          
+//            context->canvas->set_color(default_color);
+//            context->canvas->restore();
+//          }
+//          #endif
           
           
           if(buf[pos] == PMATH_CHAR_BOX) {
