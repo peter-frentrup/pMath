@@ -1176,7 +1176,7 @@ namespace richmath {
           void find_box_token(const uint16_t *&op, int &ii, int &ee, int &next_box_index) {
             assert(op == buf);
             assert(op[ii] == PMATH_CHAR_BOX);
-            assert(ii < ee);
+            assert(ii <= ee);
             
             int i = ii;
             int e = ee;
