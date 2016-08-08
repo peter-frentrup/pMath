@@ -514,103 +514,107 @@ void ScopeColorizer::scope_colorize_spanexpr(
   }
   
   if(se->count() >= 3 && se->count() <= 4) { // F(x)   ~x:t
-    if( se->item_as_char(1) == '(' &&
-        pmath_char_is_name(se->item_first_char(0)))
-    {
-      String name = se->item_as_text(0);
-      SyntaxInformation info(name);
-      
-      scope_colorize_spanexpr(state, se->item(0));
-      
-      if(info.locals_form != NoSpec) {
-        FunctionCallSpan call = se;
+    if( se->item_as_char(1) == '(') {
+      SpanExpr *head = se->item(0);
+      while(head && head->count() == 1)
+        head = head->item(0);
         
-        const int arg_count = call.function_argument_count();
-        if(arg_count < 1)
-          return;
+      if(head && pmath_char_is_name(head->first_char())) {
+        String name = head->as_text();
+        SyntaxInformation info(name);
+        
+        scope_colorize_spanexpr(state, se->item(0));
+        
+        if(info.locals_form != NoSpec) {
+          FunctionCallSpan call = se;
           
-        switch(info.locals_form) {
-          case LocalSpec: {
-              scope_colorize_spanexpr(state, call.function_argument(1));
-              
-              SharedPtr<ScopePos> next_scope = state->new_scope();
-              state->new_scope();
-              
-              symdeflist_colorize_spanexpr(state, call.function_argument(1), LocalSymbol);
-              
-              if(arg_count >= 2) {
-                scope_colorize_spanexpr(state, call.function_argument(2));
-              }
-              
-              state->current_pos = next_scope;
-              
-              for(int i = 3; i <= arg_count; ++i)
-                scope_colorize_spanexpr(state, call.function_argument(i));
-                
-            }
+          const int arg_count = call.function_argument_count();
+          if(arg_count < 1)
             return;
             
-          case FunctionSpec: {
-              if(arg_count == 1) {
-                bool old_in_function = state->in_function;
-                state->in_function = true;
+          switch(info.locals_form) {
+            case LocalSpec: {
+                scope_colorize_spanexpr(state, call.function_argument(1));
+                
+                SharedPtr<ScopePos> next_scope = state->new_scope();
+                state->new_scope();
+                
+                symdeflist_colorize_spanexpr(state, call.function_argument(1), LocalSymbol);
+                
+                if(arg_count >= 2) {
+                  scope_colorize_spanexpr(state, call.function_argument(2));
+                }
+                
+                state->current_pos = next_scope;
+                
+                for(int i = 3; i <= arg_count; ++i)
+                  scope_colorize_spanexpr(state, call.function_argument(i));
+                  
+              }
+              return;
+              
+            case FunctionSpec: {
+                if(arg_count == 1) {
+                  bool old_in_function = state->in_function;
+                  state->in_function = true;
+                  
+                  scope_colorize_spanexpr(state, call.function_argument(1));
+                  
+                  state->in_function = old_in_function;
+                  return;
+                }
                 
                 scope_colorize_spanexpr(state, call.function_argument(1));
                 
-                state->in_function = old_in_function;
-                return;
-              }
-              
-              scope_colorize_spanexpr(state, call.function_argument(1));
-              
-              SharedPtr<ScopePos> next_scope = state->new_scope();
-              state->new_scope();
-              
-              if(pmath_char_is_name(call.function_argument(1)->first_char()))
-                symbol_colorize(state, call.function_argument(1)->start(), Parameter);
-              else
-                symdeflist_colorize_spanexpr(state, call.function_argument(1), Parameter);
+                SharedPtr<ScopePos> next_scope = state->new_scope();
+                state->new_scope();
                 
-              scope_colorize_spanexpr(state, call.function_argument(2));
-              
-              state->current_pos = next_scope;
-              
-              for(int i = 3; i < arg_count; ++i)
-                scope_colorize_spanexpr(state, call.function_argument(i));
-                
-            }
-            return;
-            
-          case TableSpec: {
-              SharedPtr<ScopePos> next_scope = state->new_scope();
-              state->new_scope();
-              
-              for(int i = info.locals_min; i <= info.locals_max && i <= arg_count; ++i) {
-                replacement_colorize_spanexpr(state, call.function_argument(i), Special);
-                
-                for(int j = i + 1; j <= info.locals_max && j <= arg_count; ++j) {
-                  SpanExpr *arg_j = call.function_argument(j);
+                if(pmath_char_is_name(call.function_argument(1)->first_char()))
+                  symbol_colorize(state, call.function_argument(1)->start(), Parameter);
+                else
+                  symdeflist_colorize_spanexpr(state, call.function_argument(1), Parameter);
                   
-                  for(int p = arg_j->start(); p <= arg_j->end(); ++p)
-                    glyphs[p].style = GlyphStyleNone;
-                    
-                  scope_colorize_spanexpr(state, arg_j);
-                }
+                scope_colorize_spanexpr(state, call.function_argument(2));
+                
+                state->current_pos = next_scope;
+                
+                for(int i = 3; i < arg_count; ++i)
+                  scope_colorize_spanexpr(state, call.function_argument(i));
+                  
               }
+              return;
               
-              for(int i = 1; i < info.locals_min && i <= arg_count; ++i)
-                scope_colorize_spanexpr(state, call.function_argument(i));
+            case TableSpec: {
+                SharedPtr<ScopePos> next_scope = state->new_scope();
+                state->new_scope();
                 
-              for(int i = info.locals_max; i < arg_count; ++i)
-                scope_colorize_spanexpr(state, call.function_argument(i + 1));
+                for(int i = info.locals_min; i <= info.locals_max && i <= arg_count; ++i) {
+                  replacement_colorize_spanexpr(state, call.function_argument(i), Special);
+                  
+                  for(int j = i + 1; j <= info.locals_max && j <= arg_count; ++j) {
+                    SpanExpr *arg_j = call.function_argument(j);
+                    
+                    for(int p = arg_j->start(); p <= arg_j->end(); ++p)
+                      glyphs[p].style = GlyphStyleNone;
+                      
+                    scope_colorize_spanexpr(state, arg_j);
+                  }
+                }
                 
-              state->current_pos = next_scope;
-            }
-            return;
-            
-          case NoSpec:
-            break;
-            
+                for(int i = 1; i < info.locals_min && i <= arg_count; ++i)
+                  scope_colorize_spanexpr(state, call.function_argument(i));
+                  
+                for(int i = info.locals_max; i < arg_count; ++i)
+                  scope_colorize_spanexpr(state, call.function_argument(i + 1));
+                  
+                state->current_pos = next_scope;
+              }
+              return;
+              
+            case NoSpec:
+              break;
+              
+          }
         }
       }
     }
@@ -863,6 +867,9 @@ void ScopeColorizer::arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se, fl
   FunctionCallSpan        call   = se;
   SpanExpr               *head   = call.function_head();
   const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+  
+  while(head->count() == 1)
+    head = head->item(0);
   
   if(head->count() != 0)
     return;
