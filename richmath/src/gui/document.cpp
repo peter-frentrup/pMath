@@ -1020,6 +1020,259 @@ namespace richmath {
       
       //}
       
+      //{ key events
+      void handle_key_left_right(SpecialKeyEvent &event, LogicalDirection direction) {
+        int sel_forward_start;
+        int sel_forward_end;
+        
+        if(direction == LogicalDirection::Forward) {
+          sel_forward_start = self.context.selection.start;
+          sel_forward_end   = self.context.selection.end;
+        }
+        else {
+          sel_forward_start = self.context.selection.end;
+          sel_forward_end   = self.context.selection.start;
+        }
+        
+        if(event.shift) {
+          self.move_horizontal(direction, event.ctrl, true);
+        }
+        else if(self.selection_length() > 0) {
+          Box *selbox = self.context.selection.get();
+          
+          if(selbox == &self) {
+            self.move_to(&self, sel_forward_start);
+            self.move_horizontal(direction, event.ctrl);
+          }
+          else if( dynamic_cast<GridBox *>(selbox) ||
+                   (selbox &&
+                    dynamic_cast<GridItem *>(selbox->parent()) &&
+                    ((MathSequence *)selbox)->is_placeholder()))
+          {
+            self.move_horizontal(direction, event.ctrl);
+          }
+          else
+            self.move_to(selbox, sel_forward_end);
+        }
+        else
+          self.move_horizontal(direction, event.ctrl);
+          
+        event.key = SpecialKey::Unknown;
+        self.auto_completion.stop();
+      }
+      
+      void handle_key_home_end(SpecialKeyEvent &event, LogicalDirection direction) {
+        self.move_start_end(direction, event.shift);
+        event.key = SpecialKey::Unknown;
+        self.auto_completion.stop();
+      }
+      
+      void handle_key_up_down(SpecialKeyEvent &event, LogicalDirection direction) {
+        self.move_vertical(direction, event.shift);
+        event.key = SpecialKey::Unknown;
+        self.auto_completion.stop();
+      }
+      
+      void handle_key_pageup_pagedown(SpecialKeyEvent &event, LogicalDirection direction) {
+        if(!self.native()->is_scrollable())
+          return;
+        
+        float w, h;
+        self.native()->window_size(&w, &h);
+        if(direction == LogicalDirection::Backward)
+          h = -h;
+          
+        self.native()->scroll_by(0, h);
+        
+        event.key = SpecialKey::Unknown;
+      }
+      
+      void handle_key_tab(SpecialKeyEvent &event) {
+        if(self.is_tabkey_only_moving()) {
+          SelectionReference oldpos = self.context.selection;
+          
+          if(!event.ctrl) {
+            if(self.auto_completion.next(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward)) {
+              event.key = SpecialKey::Unknown;
+              return;
+            }
+          }
+          
+          self.move_tab(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward);
+          
+          if(oldpos == self.context.selection) {
+            self.native()->beep();
+          }
+        }
+        else
+          self.key_press('\t');
+          
+        event.key = SpecialKey::Unknown;
+      }
+      
+      void handle_key_backspace(SpecialKeyEvent &event) {
+        set_prev_sel_line();
+        if(self.selection_length() > 0) {
+          if(self.remove_selection(true))
+            event.key = SpecialKey::Unknown;
+          return;
+        }
+        
+        Box *selbox = self.context.selection.get();
+        if( self.context.selection.start == 0 &&
+            selbox &&
+            selbox->get_style(Editable) &&
+            selbox->parent() &&
+            selbox->parent()->exitable())
+        {
+          int index = selbox->index();
+          selbox = selbox->parent()->remove(&index);
+          
+          self.move_to(selbox, index);
+          self.auto_completion.stop();
+          event.key = SpecialKey::Unknown;
+          return;
+        }
+        
+        if(event.ctrl || selbox != &self) {
+          int old = self.context.selection.id;
+          MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
+          
+          if( seq &&
+              seq->text()[self.context.selection.start - 1] == PMATH_CHAR_BOX)
+          {
+            int boxi = 0;
+            while(seq->item(boxi)->index() < self.context.selection.start - 1)
+              ++boxi;
+              
+            if(seq->item(boxi)->length() == 0) {
+              self.move_horizontal(LogicalDirection::Backward, event.ctrl, true);
+              event.key = SpecialKey::Unknown;
+              return;
+            }
+            
+            int old_sel_end = self.selection_end();
+            self.move_horizontal(
+              LogicalDirection::Backward,
+              event.ctrl,
+              event.ctrl || event.shift);
+              
+            if( self.selection_length() == 0 &&
+                old == self.context.selection.id)
+            {
+              self.select(seq, self.selection_start(), old_sel_end);
+              event.key = SpecialKey::Unknown;
+              return;
+            }
+          }
+          else
+            self.move_horizontal(LogicalDirection::Backward, event.ctrl, true);
+            
+          if(!event.ctrl &&
+              seq &&
+              seq->text()[self.context.selection.start] == PMATH_CHAR_BOX)
+          {
+            event.key = SpecialKey::Unknown;
+            return;
+          }
+          
+          if(old == self.context.selection.id) {
+            self.remove_selection(true);
+            
+            // reset sel_last:
+            selbox = self.context.selection.get();
+            self.select(selbox, self.context.selection.start, self.context.selection.end);
+          }
+        }
+        else
+          self. move_horizontal(LogicalDirection::Backward, event.ctrl);
+          
+        event.key = SpecialKey::Unknown;
+      }
+      
+      void handle_key_delete(SpecialKeyEvent &event) {
+        set_prev_sel_line();
+        if(self.selection_length() > 0) {
+          if(self.remove_selection(true))
+            event.key = SpecialKey::Unknown;
+          return;
+        }
+        
+        Box *selbox = self.context.selection.get();
+        if(event.ctrl || selbox != &self) {
+          int index = self.context.selection.start;
+          Box *box = selbox->move_logical(LogicalDirection::Forward, event.ctrl, &index);
+          
+          while(box && !box->selectable()) {
+            box = box->move_logical(LogicalDirection::Forward, true, &index);
+          }
+          
+          if(box == selbox || box == selbox->parent()) {
+            self.move_to(box, index, true);
+            selbox = self.selection_box();
+            
+            if(!event.ctrl) {
+              MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
+              
+              if(seq && seq->text()[self.context.selection.start] == PMATH_CHAR_BOX) {
+                event.key = SpecialKey::Unknown;
+                return;
+              }
+            }
+            
+            self.remove_selection(true);
+          }
+          else {
+            Box *p = box;
+            while(p && p != selbox)
+              p = p->parent();
+              
+            if(p) {
+              MathSequence *seq = dynamic_cast<MathSequence *>(box);
+              
+              if(seq && seq->is_placeholder(index)) {
+                self.select(seq, index, index + 1);
+              }
+              else {
+                int  old_start = self.selection_start();
+                Box *old_box   = self.selection_box();
+                
+                self.move_to(box, index);
+                
+                if( self.selection_start() == old_start &&
+                    self.selection_box()   == old_box)
+                {
+                  self.select(old_box, old_start, old_start + 1);
+                }
+              }
+            }
+            else
+              self.native()->beep();
+          }
+        }
+        else
+          self.move_horizontal(LogicalDirection::Forward, event.ctrl);
+          
+        event.key = SpecialKey::Unknown;
+      }
+      
+      void handle_key_escape(SpecialKeyEvent &event) {
+        if(self.context.clicked_box_id) {
+          Box *receiver = FrontEndObject::find_cast<Box>(self.context.clicked_box_id);
+          
+          if(receiver)
+            receiver->on_mouse_cancel();
+            
+          self.context.clicked_box_id = 0;
+          event.key = SpecialKey::Unknown;
+          return;
+        }
+        
+        self.key_press(PMATH_CHAR_ALIASDELIMITER);
+        event.key = SpecialKey::Unknown;
+      }
+      //}
+      
       //{ macro handling
     private:
       bool handle_immediate_macros(
@@ -1723,287 +1976,54 @@ void Document::on_mouse_cancel() {
 }
 
 void Document::on_key_down(SpecialKeyEvent &event) {
-  if(native()->is_scrollable()) {
-    switch(event.key) {
-      case SpecialKey::PageUp: {
-          float w, h;
-          native()->window_size(&w, &h);
-          native()->scroll_by(0, -h);
-          
-          event.key = SpecialKey::Unknown;
-        } return;
-        
-      case SpecialKey::PageDown: {
-          float w, h;
-          native()->window_size(&w, &h);
-          native()->scroll_by(0, h);
-          
-          event.key = SpecialKey::Unknown;
-        } return;
-        
-      default: break;
-    }
-  }
-  
   switch(event.key) {
-    case SpecialKey::Left: {
-        if(event.shift) {
-          move_horizontal(LogicalDirection::Backward, event.ctrl, true);
-        }
-        else if(selection_length() > 0) {
-          Box *selbox = context.selection.get();
-          
-          if(selbox == this) {
-            move_to(this, context.selection.end);
-            move_horizontal(LogicalDirection::Backward, event.ctrl);
-          }
-          else if( dynamic_cast<GridBox *>(selbox) ||
-                   (selbox &&
-                    dynamic_cast<GridItem *>(selbox->parent()) &&
-                    ((MathSequence *)selbox)->is_placeholder()))
-          {
-            move_horizontal(LogicalDirection::Backward, event.ctrl);
-          }
-          else
-            move_to(selbox, context.selection.start);
-        }
-        else
-          move_horizontal(LogicalDirection::Backward, event.ctrl);
-          
-        event.key = SpecialKey::Unknown;
-        auto_completion.stop();
-      } return;
+    case SpecialKey::Left:
+      DocumentImpl(*this).handle_key_left_right(event, LogicalDirection::Backward);
+      return;
       
-    case SpecialKey::Right: {
-        if(event.shift) {
-          move_horizontal(LogicalDirection::Forward, event.ctrl, true);
-        }
-        else if(selection_length() > 0) {
-          Box *selbox = selection_box();
-          
-          if(selbox == this) {
-            move_to(this, context.selection.start);
-            move_horizontal(LogicalDirection::Forward, event.ctrl);
-          }
-          else if(dynamic_cast<GridBox *>(selbox) ||
-                  (selbox &&
-                   dynamic_cast<GridItem *>(selbox->parent()) &&
-                   ((MathSequence *)selbox)->is_placeholder()))
-          {
-            move_horizontal(LogicalDirection::Forward, event.ctrl);
-          }
-          else
-            move_to(selbox, context.selection.end);
-        }
-        else
-          move_horizontal(LogicalDirection::Forward, event.ctrl);
-          
-        event.key = SpecialKey::Unknown;
-        auto_completion.stop();
-      } return;
+    case SpecialKey::Right:
+      DocumentImpl(*this).handle_key_left_right(event, LogicalDirection::Forward);
+      return;
       
-    case SpecialKey::Home: {
-        move_start_end(LogicalDirection::Backward, event.shift);
-        event.key = SpecialKey::Unknown;
-        auto_completion.stop();
-      } return;
+    case SpecialKey::Home:
+      DocumentImpl(*this).handle_key_home_end(event, LogicalDirection::Backward);
+      return;
       
-    case SpecialKey::End: {
-        move_start_end(LogicalDirection::Forward, event.shift);
-        event.key = SpecialKey::Unknown;
-        auto_completion.stop();
-      } return;
+    case SpecialKey::End:
+      DocumentImpl(*this).handle_key_home_end(event, LogicalDirection::Forward);
+      return;
       
-    case SpecialKey::Up: {
-        move_vertical(LogicalDirection::Backward, event.shift);
-        event.key = SpecialKey::Unknown;
-        auto_completion.stop();
-      } return;
+    case SpecialKey::Up:
+      DocumentImpl(*this).handle_key_up_down(event, LogicalDirection::Backward);
+      return;
       
-    case SpecialKey::Down: {
-        move_vertical(LogicalDirection::Forward, event.shift);
-        event.key = SpecialKey::Unknown;
-        auto_completion.stop();
-      } return;
+    case SpecialKey::Down:
+      DocumentImpl(*this).handle_key_up_down(event, LogicalDirection::Forward);
+      return;
       
-    case SpecialKey::Tab: {
-        if(is_tabkey_only_moving()) {
-          SelectionReference oldpos = context.selection;
-          
-          if(!event.ctrl) {
-            if(auto_completion.next(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward)) {
-              event.key = SpecialKey::Unknown;
-              return;
-            }
-          }
-          
-          move_tab(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward);
-          
-          if(oldpos == context.selection) {
-            //if(!auto_completion.next(event.shift ? LogicalDirection::Backward : LogicalDirection::Forward))
-            native()->beep();
-          }
-        }
-        else
-          key_press('\t');
-        event.key = SpecialKey::Unknown;
-      } return;
+    case SpecialKey::PageUp:
+      DocumentImpl(*this).handle_key_pageup_pagedown(event, LogicalDirection::Backward);
+      return;
       
-    case SpecialKey::Backspace: {
-        DocumentImpl(*this).set_prev_sel_line();
-        if(selection_length() > 0) {
-          if(remove_selection(true))
-            event.key = SpecialKey::Unknown;
-          return;
-        }
-        
-        Box *selbox = context.selection.get();
-        if( context.selection.start == 0 &&
-            selbox &&
-            selbox->get_style(Editable) &&
-            selbox->parent() &&
-            selbox->parent()->exitable())
-        {
-          int index = selbox->index();
-          selbox = selbox->parent()->remove(&index);
-          
-          move_to(selbox, index);
-          auto_completion.stop();
-        }
-        else if(event.ctrl || selbox != this) {
-          int old = context.selection.id;
-          MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
-          
-          if( seq &&
-              seq->text()[context.selection.start - 1] == PMATH_CHAR_BOX)
-          {
-            int boxi = 0;
-            while(seq->item(boxi)->index() < context.selection.start - 1)
-              ++boxi;
-              
-            if(seq->item(boxi)->length() == 0) {
-              move_horizontal(LogicalDirection::Backward, event.ctrl, true);
-              event.key = SpecialKey::Unknown;
-              return;
-            }
-            
-            int old_sel_end = selection_end();
-            move_horizontal(LogicalDirection::Backward, event.ctrl, event.ctrl || event.shift);
-            
-            if(selection_length() == 0 &&
-                old == context.selection.id)
-            {
-              select(seq, selection_start(), old_sel_end);
-              event.key = SpecialKey::Unknown;
-              return;
-            }
-          }
-          else
-            move_horizontal(LogicalDirection::Backward, event.ctrl, true);
-            
-          if(!event.ctrl &&
-              seq &&
-              seq->text()[context.selection.start] == PMATH_CHAR_BOX)
-          {
-            event.key = SpecialKey::Unknown;
-            return;
-          }
-          
-          if(old == context.selection.id) {
-            remove_selection(true);
-            
-            // reset sel_last:
-            selbox = context.selection.get();
-            select(selbox, context.selection.start, context.selection.end);
-          }
-        }
-        else
-          move_horizontal(LogicalDirection::Backward, event.ctrl);
-          
-        event.key = SpecialKey::Unknown;
-      } return;
+    case SpecialKey::PageDown:
+      DocumentImpl(*this).handle_key_pageup_pagedown(event, LogicalDirection::Forward);
+      return;
       
-    case SpecialKey::Delete: {
-        DocumentImpl(*this).set_prev_sel_line();
-        if(selection_length() > 0) {
-          if(remove_selection(true))
-            event.key = SpecialKey::Unknown;
-          return;
-        }
-        
-        Box *selbox = context.selection.get();
-        if(event.ctrl || selbox != this) {
-          int index = context.selection.start;
-          Box *box = selbox->move_logical(LogicalDirection::Forward, event.ctrl, &index);
-          
-          while(box && !box->selectable()) {
-            box = box->move_logical(LogicalDirection::Forward, true, &index);
-          }
-          
-          if(box == selbox || box == selbox->parent()) {
-            move_to(box, index, true);
-            selbox = selection_box();
-            
-            if(!event.ctrl) {
-              MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
-              
-              if(seq && seq->text()[context.selection.start] == PMATH_CHAR_BOX) {
-                event.key = SpecialKey::Unknown;
-                return;
-              }
-            }
-            
-            remove_selection(true);
-          }
-          else {
-            Box *p = box;
-            while(p && p != selbox)
-              p = p->parent();
-              
-            if(p) {
-              MathSequence *seq = dynamic_cast<MathSequence *>(box);
-              
-              if(seq && seq->is_placeholder(index)) {
-                select(seq, index, index + 1);
-              }
-              else {
-                int  old_start = selection_start();
-                Box *old_box   = selection_box();
-                
-                move_to(box, index);
-                
-                if( selection_start() == old_start &&
-                    selection_box()   == old_box)
-                {
-                  select(old_box, old_start, old_start + 1);
-                }
-              }
-            }
-            else
-              native()->beep();
-          }
-        }
-        else
-          move_horizontal(LogicalDirection::Forward, event.ctrl);
-          
-        event.key = SpecialKey::Unknown;
-      } return;
+    case SpecialKey::Tab:
+      DocumentImpl(*this).handle_key_tab(event);
+      return;
       
-    case SpecialKey::Escape: {
-        if(context.clicked_box_id) {
-          Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
-          
-          if(receiver)
-            receiver->on_mouse_cancel();
-            
-          context.clicked_box_id = 0;
-          event.key = SpecialKey::Unknown;
-          return;
-        }
-        
-        key_press(PMATH_CHAR_ALIASDELIMITER);
-        event.key = SpecialKey::Unknown;
-      } return;
+    case SpecialKey::Backspace:
+      DocumentImpl(*this).handle_key_backspace(event);
+      return;
+      
+    case SpecialKey::Delete: 
+      DocumentImpl(*this).handle_key_delete(event);
+      return;
+      
+    case SpecialKey::Escape: 
+      DocumentImpl(*this).handle_key_escape(event);
+      return;
       
     default: return;
   }
