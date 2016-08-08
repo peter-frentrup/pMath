@@ -21,8 +21,9 @@ namespace richmath {
     DragStatusCurrentlyDragging
   } DragStatus;
   
-  class Document: public SectionList {
+  class Document final: public SectionList {
       friend class NativeWidget;
+      friend class DocumentImpl;
     public:
       Document();
       ~Document();
@@ -164,29 +165,6 @@ namespace richmath {
       Document *main_document; // not owned
       
     protected:
-      void raw_select(Box *box, int start, int end);
-      
-      void after_resize_section(int i);
-      void add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section); // paint to context.canvas
-      void add_matching_bracket_hook();
-      void add_autocompletion_hook();
-      
-      void paint_document_cursor(); // paint to context.canvas
-      void paint_flashing_cursor_if_needed(); // paint to context.canvas
-      
-      void set_prev_sel_line();
-      bool prepare_insert();
-      bool prepare_insert_math(bool include_previous_word);
-      
-      bool handle_immediate_macros(
-        const Hashtable<String, Expr, object_hash> &table);
-      bool handle_macros(
-        const Hashtable<String, Expr, object_hash> &table);
-        
-      bool handle_immediate_macros();
-      bool handle_macros();
-      
-    protected:
       Context     context;
       float       best_index_rel_x;
       int         prev_sel_line;
@@ -213,7 +191,9 @@ namespace richmath {
       SelectionReference mouse_down_sel;
       SelectionReference mouse_move_sel;
       
+      /* When the selection changes, these ranges need to be repainted, too. */
       Array<SelectionReference> additional_selection;
+      
       SelectionReference        last_paint_sel;
       
       AutoCompletion auto_completion;
