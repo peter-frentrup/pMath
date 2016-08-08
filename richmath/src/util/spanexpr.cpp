@@ -191,10 +191,14 @@ SpanExpr *SpanExpr::expand(bool self_destruction) {
       start = _start - 1;
       while(start >= 0) {
         sp = _sequence->span_array()[start];
-        while(sp && sp.next() && sp.next().end() >= _end)
-          sp = sp.next();
-          
-        if(sp || start == 0)
+        if(sp && sp.end() >= _end) {
+          while(sp.next() && sp.next().end() >= _end)
+            sp = sp.next();
+            
+          break;
+        }
+        
+        if(start == 0)
           break;
           
         --start;
