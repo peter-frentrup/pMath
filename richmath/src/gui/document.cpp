@@ -4315,13 +4315,106 @@ void Document::add_selected_word_highlight_hooks(int first_visible_section, int 
 void Document::add_matching_bracket_hook() {
   MathSequence *seq = dynamic_cast<MathSequence *>(selection_box());
   int start = selection_start();
-  int len   = selection_length();
+  int end   = selection_end();
   
-  if(seq && len <= 1) {
+  if(seq) {
+    SelectionReference ref;
+    SpanExpr *span;
+    
+    span = SpanExpr::find(seq, start);
+    
+    while(span && span->end() + 1 < end)
+      span = span->expand(true);
+    
+    for(; span; span = span->expand(true)) {
+      if(FunctionCallSpan::is_simple_call(span)) {
+        FunctionCallSpan call(span);
+        
+        SpanExpr *head = call.function_head();
+        if( box_order(head->sequence(), head->start(), seq, start) <= 0 &&
+            box_order(head->sequence(), head->end() + 1, seq, end) >= 0)
+        {
+          continue;
+        }
+        seq = span->sequence();
+        
+        // head without prior line breaks
+        int s = head->start();
+        int n = head->end() + 1;
+        const uint16_t *buf = seq->text().buffer();
+        while(s < n && buf[s] == '\n')
+          ++s;
+          
+        ref.set(seq, s, n);
+        additional_selection.add(ref);
+        context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+
+        // opening parenthesis, always exists
+        ref.set(seq, span->item_pos(1), span->item_pos(1) + 1);
+        additional_selection.add(ref);
+        context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+        
+        // closing parenthesis, last item, might not exist
+        int clos = span->count() - 1;
+        if(clos >= 2 && span->item_equals(clos, ")")) {
+          ref.set(seq, span->item_pos(clos), span->item_pos(clos) + 1);
+          additional_selection.add(ref);
+          context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+        }
+        
+        delete span;
+        return;
+      }
+      
+      if(FunctionCallSpan::is_complex_call(span)) {
+        FunctionCallSpan call(span);
+        
+        SpanExpr *head = span->item(2);
+        if( box_order(head->sequence(), head->start(), seq, start) <= 0 &&
+            box_order(head->sequence(), head->end() + 1, seq, end) >= 0)
+        {
+          continue;
+        }
+        seq = span->sequence();
+        
+        // head, always exists
+        ref.set(seq, head->start(), head->end() + 1);
+        additional_selection.add(ref);
+        context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+        
+        // dot, always exists
+        ref.set(seq, span->item_pos(1), span->item_pos(1) + 1);
+        additional_selection.add(ref);
+        context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+        
+        // opening parenthesis, might not exist
+        if(span->count() > 3) {
+          ref.set(seq, span->item_pos(3), span->item_pos(3) + 1);
+          additional_selection.add(ref);
+          context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+        }
+        
+        // closing parenthesis, last item, might not exist
+        int clos = span->count() - 1;
+        if(clos >= 2 && span->item_equals(clos, ")")) {
+          ref.set(seq, span->item_pos(clos), span->item_pos(clos) + 1);
+          additional_selection.add(ref);
+          context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+        }
+        
+        delete span;
+        return;
+      }
+    }
+    
+    delete span;
+  }
+  
+  if(seq && end - start <= 1) {
     int pos = start;
     int other_bracket = seq->matching_fence(pos);
     
-    if(other_bracket < 0 && len == 0 && pos > 0) {
+    if(other_bracket < 0 && start == end && pos > 0) {
       pos -= 1;
       other_bracket = seq->matching_fence(pos);
     }
@@ -4336,51 +4429,83 @@ void Document::add_matching_bracket_hook() {
       ref.set(seq, other_bracket, other_bracket + 1);
       additional_selection.add(ref);
       context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
-      
-      SpanExpr *span = new SpanExpr(pos, seq);
-      while(span) {
-        if( span->start() <= pos           && pos           <= span->end() &&
-            span->start() <= other_bracket && other_bracket <= span->end())
-        {
-          break;
-        }
-        
-        span = span->expand(true);
-      }
-      
-      if(FunctionCallSpan::is_simple_call(span)) {
-        FunctionCallSpan call(span);
-        
-        SpanExpr *head = call.function_head();
-        if(head->as_token() == PMATH_TOK_NAME) {
-          context.pre_paint_hooks.add(seq, new SelectionFillHook(head->start(), head->end() + 1, 0xFFFF00, 0.5));
-          
-          ref.set(seq, head->start(), head->end() + 1);
-          additional_selection.add(ref);
-          
-        }
-      }
-      else if(FunctionCallSpan::is_complex_call(span)) {
-        FunctionCallSpan call(span);
-        
-        SpanExpr *head = call.function_head();
-        if(head->as_token() == PMATH_TOK_NAME) {
-          context.pre_paint_hooks.add(seq, new SelectionFillHook(head->start(), head->end() + 1, 0xFFFF00, 0.5));
-          
-          ref.set(seq, head->start(), head->end() + 1);
-          additional_selection.add(ref);
-          
-        }
-        
-        // the dot:
-        ref.set(seq, span->item_pos(1), span->item_pos(1) + 1);
-        additional_selection.add(ref);
-        context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
-      }
-      
-      delete span;
     }
-  }
+  } 
+  
+  return;
+  
+//  if(seq && len <= 1) {
+//    int pos = start;
+//    int other_bracket = seq->matching_fence(pos);
+//    
+//    if(other_bracket < 0 && len == 0 && pos > 0) {
+//      pos -= 1;
+//      other_bracket = seq->matching_fence(pos);
+//    }
+//    
+//    if(other_bracket >= 0) {
+//      SelectionReference ref;
+//      
+//      ref.set(seq, pos, pos + 1);
+//      additional_selection.add(ref);
+//      context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+//      
+//      ref.set(seq, other_bracket, other_bracket + 1);
+//      additional_selection.add(ref);
+//      context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+//      
+//      SpanExpr *span = new SpanExpr(pos, seq);
+//      while(span) {
+//        if( span->start() <= pos           && pos           <= span->end() &&
+//            span->start() <= other_bracket && other_bracket <= span->end())
+//        {
+//          break;
+//        }
+//        
+//        span = span->expand(true);
+//      }
+//      
+//      if(FunctionCallSpan::is_simple_call(span)) {
+//        FunctionCallSpan call(span);
+//        
+//        SpanExpr *head = call.function_head();
+//        /*if(head->as_token() == PMATH_TOK_NAME)*/ {
+//          int s = head->start();
+//          int n = head->end() + 1;
+//          const uint16_t *buf = seq->text().buffer();
+//          while(s < n && buf[s] == '\n')
+//            ++s;
+//            
+//          ref.set(seq, s, n);
+//          additional_selection.add(ref);
+//          context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+//        }
+//      }
+//      else if(FunctionCallSpan::is_complex_call(span)) {
+//        FunctionCallSpan call(span);
+//        
+//        SpanExpr *head = call.function_head();
+//        /*if(head->as_token() == PMATH_TOK_NAME)*/ {
+//          int s = head->start();
+//          int n = head->end() + 1;
+//          const uint16_t *buf = seq->text().buffer();
+//          while(s < n && buf[s] == '\n')
+//            ++s;
+//            
+//          ref.set(seq, s, n);
+//          additional_selection.add(ref);
+//          context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+//        }
+//        
+//        // the dot:
+//        ref.set(seq, span->item_pos(1), span->item_pos(1) + 1);
+//        additional_selection.add(ref);
+//        context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
+//      }
+//      
+//      delete span;
+//    }
+//  }
 }
 
 void Document::add_autocompletion_hook() {
