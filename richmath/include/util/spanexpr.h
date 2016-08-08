@@ -89,9 +89,9 @@ namespace richmath {
       String        as_text();
       Box          *as_box();
       
-      pmath_token_t as_token(int *prec = 0);
+      pmath_token_t as_token(int *prec = nullptr);
       int as_prefix_prec(int defprec);
-      int precedence(int *pos = 0); // -1,0,+1 = Prefix,Infix,Postfix
+      int precedence(int *pos = nullptr); // -1,0,+1 = Prefix,Infix,Postfix
       
       bool is_box() {     return as_char() == PMATH_CHAR_BOX; }
       bool is_operand() { return _start <= _end && _sequence->span_array().is_operand_start(_start); }
@@ -119,6 +119,7 @@ namespace richmath {
   };
   
   bool is_comment_start_at(const uint16_t *str, const uint16_t *buf_end);
+  SpanExpr *span_as_name(SpanExpr *span);
   
   class SequenceSpan { // a,b,c
     public:
@@ -175,6 +176,21 @@ namespace richmath {
     private:
       SpanExpr     *_span;
       SequenceSpan  _args;
+  };
+  
+  /* Blocks are syntactic as implemented by ExperimentalSyntax`
+     Examples are "If(...) {...} Else If(...) {...}" or "Block {...}"
+     
+     They are characterized by being a concatenation of at least two operands 
+     (parses as multiplication, but should not have multiplication sign)
+     such that at least one of the operands is a list and the others are symbol 
+     names or simple calls. 
+     The first may not be a list and two lists may not follow immediately after 
+     each other.
+   */
+  class BlockSpan {
+    public:
+      static bool maybe_block(SpanExpr *span);
   };
 }
 

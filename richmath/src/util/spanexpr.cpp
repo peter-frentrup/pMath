@@ -638,6 +638,22 @@ bool richmath::is_comment_start_at(const uint16_t *str, const uint16_t *buf_end)
   return false;
 }
 
+SpanExpr *richmath::span_as_name(SpanExpr *span) {
+  if(!span)
+    return nullptr;
+  
+  while(span->count() == 1)
+    span = span->item(0);
+  
+  if(span->count() != 0)
+    return nullptr;
+  
+  if(span->as_token() == PMATH_TOK_NAME)
+    return span;
+  
+  return nullptr;
+}
+
 //{ class SequenceSpan ...
 
 SequenceSpan::SequenceSpan(SpanExpr *span, bool take_ownership)
@@ -1037,3 +1053,40 @@ int FunctionCallSpan::list_length() {
 
 //} ... class FunctionCallSpan
 
+//{ class BlockSpan ...
+
+bool BlockSpan::maybe_block(SpanExpr *span) {
+  if(!span)
+    return false;
+  
+  if(span->count() < 2)
+    return false;
+  
+  for(int i = 0;i < span->count();++i) {
+    if(!span->item_is_operand(i))
+      return false;
+  }
+  
+  bool have_list = false;
+  bool allow_list = false;
+  for(int i = 0;i < span->count();++i) {
+    SpanExpr *item = span->item(i);
+    
+    if(allow_list && FunctionCallSpan::is_list(item)) {
+      have_list = true;
+      allow_list = false;
+      continue;
+    }
+    
+    allow_list = true;
+    if(span_as_name(item)) 
+      continue;
+    
+    if(!FunctionCallSpan::is_simple_call(item))
+      return false;
+  }
+  
+  return have_list;
+}
+
+//} ... class BlockSpan
