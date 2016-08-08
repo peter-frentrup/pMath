@@ -54,45 +54,6 @@ static const float UnderoverscriptOverhangCoverage = 0.75f;
     \  i=1      /                i=1
 */
 
-static pmath_token_t get_box_start_token(Box *box) {
-  while(box) {
-    if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox *>(box)) {
-      box = asb->content();
-      continue;
-    }
-    
-    if(UnderoverscriptBox *uob = dynamic_cast<UnderoverscriptBox *>(box)) {
-      box = uob->base();
-      continue;
-    }
-    
-    if(NumberBox *nb = dynamic_cast<NumberBox *>(box)) {
-      box = nb->content();
-      continue;
-    }
-    
-    if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
-      if(seq->length() == 0)
-        break;
-        
-      const uint16_t *buf = seq->text().buffer();
-      if(buf[0] == PMATH_CHAR_BOX) {
-        box = seq->item(0);
-        continue;
-      }
-      
-      return pmath_token_analyse(buf, 1, nullptr);
-    }
-    
-    if(dynamic_cast<FractionBox *>(box))
-      return PMATH_TOK_DIGIT;
-      
-    break;
-  }
-  
-  return PMATH_TOK_NAME2;
-}
-
 class ScanData {
   public:
     MathSequence *sequence;
@@ -134,7 +95,7 @@ namespace richmath {
       {
       }
       
-    //{ loading/scanner helpers
+      //{ loading/scanner helpers
     public:
       static pmath_bool_t subsuperscriptbox_at_index(int i, void *_data) {
         ScanData *data = (ScanData *)_data;
@@ -302,10 +263,10 @@ namespace richmath {
                           
         return token_or_span;
       }
-    
-    //}
-    
-    //{ vertical stretching
+      
+      //}
+      
+      //{ vertical stretching
     private:
       void box_size(
         Context *context,
@@ -393,10 +354,10 @@ namespace richmath {
           *d = self._extents.descent;
         }
       }
-    
-    //}
-    
-    //{ basic sizing
+      
+      //}
+      
+      //{ basic sizing
     public:
       void resize_span(
         Context *context,
@@ -891,10 +852,10 @@ namespace richmath {
         if(*descent < *core_descent)
           *descent = *core_descent;
       }
-    
-    //}
       
-    //{ OpenType substitutions
+      //}
+      
+      //{ OpenType substitutions
     private:
       void substitute_glyphs(
         Context              *context,
@@ -1069,124 +1030,128 @@ namespace richmath {
           
         context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, old_ssty_feature_value);
       }
-    
-    //}
-    
-    //{ horizontal kerning/spacing
+      
+      //}
+      
+      //{ horizontal kerning/spacing
     private:
-      void group_number_digits(Context *context, int start, int end) {
-        static const int min_int_digits  = 5;
-        static const int min_frac_digits = 7;//INT_MAX;
-        static const int int_group_size  = 3;
-        static const int frac_group_size = 5;
-        
-        const uint16_t *buf = self.str.buffer();
-        int decimal_point = end + 1;
-        
-        float half_space_width = self.em / 10; // total: em/5 = thin space
-        
-        for(int i = start; i <= end; ++i) {
-          if(buf[i] < '0' || buf[i] > '9') {
-            if(buf[i] == '^') // explicitly specified base
+      class EnlargeSpace {
+        private:
+          MathSequence &self;
+          Context *context;
+          
+          const uint16_t *buf;
+          
+        public:
+          EnlargeSpace(MathSequence &_self, Context *_context)
+            : self(_self),
+              context(_context),
+              buf(_self.str.buffer())
+          {
+          }
+          
+        private:
+          void group_number_digits(int start, int end) {
+            static const int min_int_digits  = 5;
+            static const int min_frac_digits = 7;//INT_MAX;
+            static const int int_group_size  = 3;
+            static const int frac_group_size = 5;
+            
+            int decimal_point = end + 1;
+            
+            float half_space_width = self.em / 10; // total: em/5 = thin space
+            
+            for(int i = start; i <= end; ++i) {
+              if(buf[i] < '0' || buf[i] > '9') {
+                if(buf[i] == '^') // explicitly specified base
+                  return;
+                  
+                if(buf[i] == '.' && i < decimal_point) {
+                  decimal_point = i;
+                  continue;
+                }
+                
+                if(buf[i] == '`') { // precision control
+                  if(i < decimal_point)
+                    decimal_point = i;
+                    
+                  end = i - 1;
+                  break;
+                }
+              }
+            }
+            
+            if( int_group_size        >  0              &&
+                decimal_point - start >= min_int_digits &&
+                decimal_point - start >  int_group_size)
+            {
+              for(int i = decimal_point - int_group_size; i > start; i -= int_group_size) {
+                self.glyphs[i - 1].right += half_space_width;
+                
+                self.glyphs[i].x_offset  += half_space_width;
+                self.glyphs[i].right     += half_space_width;
+              }
+            }
+            
+            if( frac_group_size     >  0               &&
+                end - decimal_point >= min_frac_digits &&
+                end - decimal_point >  frac_group_size)
+            {
+              for(int i = decimal_point + frac_group_size; i < end; i += frac_group_size) {
+                self.glyphs[i].right        += half_space_width;
+                
+                self.glyphs[i + 1].x_offset += half_space_width;
+                self.glyphs[i + 1].right    += half_space_width;
+              }
+            }
+          }
+          
+          void italic_correction(int token_end) {
+            if(self.glyphs[token_end].slant != FontSlantItalic)
               return;
               
-            if(buf[i] == '.' && i < decimal_point) {
-              decimal_point = i;
-              continue;
-            }
-            
-            if(buf[i] == '`') { // precision control
-              if(i < decimal_point)
-                decimal_point = i;
-                
-              end = i - 1;
-              break;
-            }
-          }
-        }
-        
-        if( int_group_size        >  0              &&
-            decimal_point - start >= min_int_digits &&
-            decimal_point - start >  int_group_size)
-        {
-          for(int i = decimal_point - int_group_size; i > start; i -= int_group_size) {
-            self.glyphs[i - 1].right += half_space_width;
-            
-            self.glyphs[i].x_offset  += half_space_width;
-            self.glyphs[i].right     += half_space_width;
-          }
-        }
-        
-        if( frac_group_size     >  0               &&
-            end - decimal_point >= min_frac_digits &&
-            end - decimal_point >  frac_group_size)
-        {
-          for(int i = decimal_point + frac_group_size; i < end; i += frac_group_size) {
-            self.glyphs[i].right        += half_space_width;
-            
-            self.glyphs[i + 1].x_offset += half_space_width;
-            self.glyphs[i + 1].right    += half_space_width;
-          }
-        }
-      }
-      
-    public:
-      void enlarge_space(Context *context) {
-        if(context->script_indent > 0)
-          return;
-          
-        int box = 0;
-        bool in_string = false;
-        bool in_alias = false;
-        const uint16_t *buf = self.str.buffer();
-        int i;
-        bool last_was_factor = false;
-        //bool last_was_number = false;
-        bool last_was_space  = false;
-        bool last_was_left   = false;
-        
-        int e = -1;
-        while(true) {
-          i = e += 1;
-          if(i >= self.glyphs.length())
-            break;
-            
-          while(e < self.glyphs.length() && !self.spans.is_token_end(e))
-            ++e;
-            
-          // italic correction
-          if( self.glyphs[e].slant == FontSlantItalic &&
-              buf[e] != PMATH_CHAR_BOX &&
-              (e + 1 == self.glyphs.length() || self.glyphs[e + 1].slant != FontSlantItalic))
-          {
-            float ital_corr = context->math_shaper->italic_correction(
-                                context,
-                                buf[e],
-                                self.glyphs[e]);
-                                
-            ital_corr *= self.em;
-            if(e + 1 < self.glyphs.length()) {
-              self.glyphs[e + 1].x_offset += ital_corr;
-              self.glyphs[e + 1].right += ital_corr;
-            }
-            else
-              self.glyphs[e].right += ital_corr;
-          }
-          
-          while(e + 1 < self.glyphs.length() &&
-                buf[e + 1] == PMATH_CHAR_BOX &&
-                box < self.boxes.length())
-          {
-            while(box < self.boxes.length() && self.boxes[box]->index() <= e)
-              ++box;
+            if(buf[token_end] == PMATH_CHAR_BOX)
+              return;
               
-            if(box == self.boxes.length() || !dynamic_cast<SubsuperscriptBox *>(self.boxes[box]))
-              break;
-              
-            ++e;
+            if( token_end + 1 == self.glyphs.length() ||
+                self.glyphs[token_end + 1].slant != FontSlantItalic)
+            {
+              float ital_corr = context->math_shaper->italic_correction(
+                                  context,
+                                  buf[token_end],
+                                  self.glyphs[token_end]);
+                                  
+              ital_corr *= self.em;
+              if(token_end + 1 < self.glyphs.length()) {
+                self.glyphs[token_end + 1].x_offset += ital_corr;
+                self.glyphs[token_end + 1].right += ital_corr;
+              }
+              else
+                self.glyphs[token_end].right += ital_corr;
+            }
           }
           
-          if(buf[i] == '\t') {
+          void skip_subsuperscript(int &token_end, int &next_box_index) {
+            while(token_end + 1 < self.glyphs.length() &&
+                  buf[token_end + 1] == PMATH_CHAR_BOX &&
+                  next_box_index < self.boxes.length())
+            {
+              while(next_box_index < self.boxes.length() &&
+                    self.boxes[next_box_index]->index() <= token_end) {
+                ++next_box_index;
+              }
+              
+              if( next_box_index == self.boxes.length() ||
+                  !dynamic_cast<SubsuperscriptBox *>(self.boxes[next_box_index]))
+              {
+                break;
+              }
+              
+              ++token_end;
+            }
+          }
+          
+          void show_tab_character(int pos, bool in_string) {
             static uint16_t arrow = 0x21e2;//0x27F6;
             float width = 4 * context->canvas->get_font_size();
             
@@ -1195,44 +1160,32 @@ namespace richmath {
                 context,
                 1,
                 &arrow,
-                &self.glyphs[i]);
+                &self.glyphs[pos]);
                 
-              self.glyphs[i].x_offset = (width - self.glyphs[i].right) / 2;
+              self.glyphs[pos].x_offset = (width - self.glyphs[pos].right) / 2;
               
-              self.glyphs[i].style = GlyphStyleImplicit;
+              self.glyphs[pos].style = GlyphStyleImplicit;
             }
             else {
-              self.glyphs[i].index = 0;
+              self.glyphs[pos].index = 0;
             }
             
-            self.glyphs[i].right = width;
-            continue;
+            self.glyphs[pos].right = width;
           }
           
-          if(buf[i] == '"') {
-            in_string = !in_string;
-            last_was_factor = false;
-            continue;
-          }
-          
-          if(buf[i] == PMATH_CHAR_ALIASDELIMITER) {
-            in_alias = !in_alias;
-            last_was_factor = false;
-            continue;
-          }
-          
-          if(in_string || in_alias || e >= self.glyphs.length())
-            continue;
+          void find_box_token(const uint16_t *&op, int &ii, int &ee, int &next_box_index) {
+            assert(op == buf);
+            assert(op[ii] == PMATH_CHAR_BOX);
+            assert(ii < ee);
             
-          const uint16_t *op = buf;
-          int ii = i;
-          int ee = e;
-          if(op[ii] == PMATH_CHAR_BOX) {
-            while(self.boxes[box]->index() < i)
-              ++box;
+            int i = ii;
+            int e = ee;
+            
+            while(self.boxes[next_box_index]->index() < i)
+              ++next_box_index;
               
-            if(box < self.boxes.length()) {
-              Box *tmp = self.boxes[box];
+            if(next_box_index < self.boxes.length()) {
+              Box *tmp = self.boxes[next_box_index];
               while(tmp) {
                 if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox *>(tmp)) {
                   tmp = asb->content();
@@ -1268,294 +1221,393 @@ namespace richmath {
                   continue;
                 }
                 
-//          if(FractionBox *fb = dynamic_cast<FractionBox *>(tmp)) {
-//            if(i > 0 && pmath_char_is_digit(buf[i - 1])) {
+//                if(FractionBox *fb = dynamic_cast<FractionBox *>(tmp)) {
+//                  if(i > 0 && pmath_char_is_digit(buf[i - 1])) {
 //
-//            }
-//          }
+//                  }
+//                }
 
                 break;
               }
               
-//        UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(tmp);
-//        if(underover && underover->base()->length() > 0) {
-//          op = underover->base()->text().buffer();
-//          ii = 0;
-//          ee = ii;
-//          while( ee < underover->base()->length() &&
-//                 !underover->base()->span_array().is_token_end(ee))
-//          {
-//            ++ee;
-//          }
+//              UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(tmp);
+//              if(underover && underover->base()->length() > 0) {
+//                op = underover->base()->text().buffer();
+//                ii = 0;
+//                ee = ii;
+//                while( ee < underover->base()->length() &&
+//                       !underover->base()->span_array().is_token_end(ee))
+//                {
+//                  ++ee;
+//                }
 //
-//          if(ee != underover->base()->length() - 1) {
-//            op = buf;
-//            ii = i;
-//            ee = e;
-//          }
-//        }
+//                if(ee != underover->base()->length() - 1) {
+//                  op = buf;
+//                  ii = i;
+//                  ee = e;
+//                }
+//              }
             }
           }
           
-          int prec;
-          pmath_token_t tok = pmath_token_analyse(op + ii, ee - ii + 1, &prec);
-          float space_left  = 0.0;
-          float space_right = 0.0;
-          
-          bool lwf = false; // new last_was_factor
-          bool lwl = false; // new last_was_left
-          switch(tok) {
-            case PMATH_TOK_PLUSPLUS: {
-                if(self.spans.is_operand_start(i)) {
-                  prec = PMATH_PREC_CALL;
-                  goto PREFIX;
-                }
-                
-                if(e + 1 < self.glyphs.length()
-                    && self.spans.is_operand_start(e + 1))
-                  goto INFIX;
+          static pmath_token_t get_box_start_token(Box *box) {
+            while(box) {
+              if(AbstractStyleBox *asb = dynamic_cast<AbstractStyleBox *>(box)) {
+                box = asb->content();
+                continue;
+              }
+              
+              if(UnderoverscriptBox *uob = dynamic_cast<UnderoverscriptBox *>(box)) {
+                box = uob->base();
+                continue;
+              }
+              
+              if(NumberBox *nb = dynamic_cast<NumberBox *>(box)) {
+                box = nb->content();
+                continue;
+              }
+              
+              if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
+                if(seq->length() == 0)
+                  break;
                   
-                prec = PMATH_PREC_CALL;
-              }
-              goto POSTFIX;
-              
-            case PMATH_TOK_NARY_OR_PREFIX: {
-                if(self.spans.is_operand_start(i)) {
-                  prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
-                  goto PREFIX;
-                }
-              }
-              goto INFIX;
-              
-            case PMATH_TOK_NARY_AUTOARG:
-            case PMATH_TOK_BINARY_LEFT:
-            case PMATH_TOK_BINARY_RIGHT:
-            case PMATH_TOK_NARY:
-            case PMATH_TOK_QUESTION: {
-              INFIX:
-                switch(prec) {
-                  case PMATH_PREC_SEQ:
-                  case PMATH_PREC_EVAL:
-                    space_right = self.em * 6 / 18;
-                    break;
-                    
-                  case PMATH_PREC_ASS:
-                  case PMATH_PREC_MODY:
-                    space_left  = self.em * 4 / 18;
-                    space_right = self.em * 8 / 18;
-                    break;
-                    
-                  case PMATH_PREC_LAZY:
-                  case PMATH_PREC_REPL:
-                  case PMATH_PREC_RULE:
-                  case PMATH_PREC_MAP:
-                  case PMATH_PREC_STR:
-                  case PMATH_PREC_COND:
-                  case PMATH_PREC_ARROW:
-                  case PMATH_PREC_REL:
-                    space_left = space_right = self.em * 5 / 18; // total: 10/18 em
-                    break;
-                    
-                  case PMATH_PREC_ALT:
-                  case PMATH_PREC_OR:
-                  case PMATH_PREC_XOR:
-                  case PMATH_PREC_AND:
-                  case PMATH_PREC_UNION:
-                  case PMATH_PREC_ISECT:
-                  case PMATH_PREC_RANGE:
-                  case PMATH_PREC_ADD:
-                  case PMATH_PREC_PLUMI:
-                    space_left = space_right = self.em * 4 / 18; // total: 8/18 em
-                    break;
-                    
-                  case PMATH_PREC_CIRCADD:
-                  case PMATH_PREC_CIRCMUL:
-                  case PMATH_PREC_MUL:
-                  case PMATH_PREC_DIV:
-                  case PMATH_PREC_MIDDOT:
-                  case PMATH_PREC_MUL2:
-                    space_left = space_right = self.em * 3 / 18; // total: 6/18 em
-                    break;
-                    
-                  case PMATH_PREC_CROSS:
-                  case PMATH_PREC_POW:
-                  case PMATH_PREC_APL:
-                  case PMATH_PREC_TEST:
-                    space_left = space_right = self.em * 2 / 18; // total: 4/18 em
-                    break;
-                    
-                  case PMATH_PREC_REPEAT:
-                  case PMATH_PREC_INC:
-                  case PMATH_PREC_CALL:
-                  case PMATH_PREC_DIFF:
-                  case PMATH_PREC_PRIM:
-                    break;
-                }
-              }
-              break;
-              
-            case PMATH_TOK_POSTFIX_OR_PREFIX:
-              if(!self.spans.is_operand_start(i))
-                goto POSTFIX;
-                
-              prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
-              goto PREFIX;
-              
-            case PMATH_TOK_PREFIX: {
-              PREFIX:
-                switch(prec) {
-                  case PMATH_PREC_REL: // not
-                    space_right = self.em * 4 / 18;
-                    break;
-                    
-                  case PMATH_PREC_ADD:
-                    space_right = self.em * 1 / 18;
-                    break;
-                    
-                  case PMATH_PREC_DIV:
-                    if(op[ii] == PMATH_CHAR_INTEGRAL_D) {
-                      space_left = self.em * 3 / 18;
-                    }
-                    break;
-                    
-                  default: break;
-                }
-              }
-              break;
-              
-            case PMATH_TOK_POSTFIX: {
-              POSTFIX:
-                switch(prec) {
-                  case PMATH_PREC_FAC:
-                  case PMATH_PREC_FUNC:
-                    space_left = self.em * 2 / 18;
-                    break;
-                    
-                  default: break;
-                }
-              }
-              break;
-              
-            case PMATH_TOK_COLON:
-            case PMATH_TOK_ASSIGNTAG:
-              space_left = space_right = self.em * 4 / 18;
-              break;
-              
-            case PMATH_TOK_NEWLINE:
-              space_left = space_right = 0.0;
-              break;
-              
-            case PMATH_TOK_SPACE: {
-                // implicit multiplication:
-                if( buf[i] == ' '           &&
-                    e + 1 < self.glyphs.length() &&
-                    last_was_factor && context->multiplication_sign)
-                {
-                  pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, nullptr);
-                  
-                  if(buf[e + 1] == PMATH_CHAR_BOX) {
-                    Box *next_box = self.boxes[self.get_box(e + 1, box)];
-                    
-                    tok2 = get_box_start_token(next_box);
-                  }
-                  
-                  if( tok2 == PMATH_TOK_DIGIT ||
-                      tok2 == PMATH_TOK_LEFT  ||
-                      tok2 == PMATH_TOK_LEFTCALL)
-                  {
-                    context->math_shaper->decode_token(
-                      context,
-                      1,
-                      &context->multiplication_sign,
-                      &self.glyphs[i]);
-                      
-                    space_left = space_right = self.em * 3 / 18;
-                    
-                    //if(context->show_auto_styles)
-                    self.glyphs[i].style = GlyphStyleImplicit;
-                  }
-                }
-                else {
-                  last_was_space = true;
+                const uint16_t *buf = seq->text().buffer();
+                if(buf[0] == PMATH_CHAR_BOX) {
+                  box = seq->item(0);
                   continue;
                 }
-              } break;
-              
-            case PMATH_TOK_DIGIT:
-              {
-                if(!in_string)
-                  group_number_digits(context, i, e);
+                
+                return pmath_token_analyse(buf, 1, nullptr);
               }
-            /* no break */
-            case PMATH_TOK_STRING:
-            case PMATH_TOK_NAME:
-            case PMATH_TOK_NAME2:
-              lwf = true;
-            /* no break */
-            case PMATH_TOK_SLOT:
-              if(last_was_factor) {
-                space_left = self.em * 3 / 18;
-              }
-              break;
               
-            case PMATH_TOK_LEFT:
-              lwl = true;
-              if(last_was_factor) {
-                space_left = self.em * 3 / 18;
-              }
+              if(dynamic_cast<FractionBox *>(box))
+                return PMATH_TOK_DIGIT;
+                
               break;
-              
-            case PMATH_TOK_RIGHT:
-              if(last_was_left) {
-                space_left = self.em * 3 / 18;
-              }
-              lwf = true;
-              break;
-              
-            case PMATH_TOK_PRETEXT:
-              if(i + 1 == e && buf[i] == '<') {
-                self.glyphs[e].x_offset -= self.em * 4 / 18;
-                self.glyphs[e].right -=    self.em * 2 / 18;
-              }
-              break;
-              
-            case PMATH_TOK_LEFTCALL:
-              lwl = true;
-              break;
-              
-            case PMATH_TOK_NONE:
-            case PMATH_TOK_CALL:
-            case PMATH_TOK_TILDES:
-            case PMATH_TOK_INTEGRAL:
-            case PMATH_TOK_COMMENTEND:
-              break;
-          }
-          
-          //last_was_number = tok == PMATH_TOK_DIGIT;
-          last_was_factor = lwf;
-          last_was_left   = lwl;
-          
-          if(last_was_space) {
-            last_was_space = false;
-            space_left     = 0;
-          }
-          
-          if(i > 0 || e + 1 < self.glyphs.length()) {
-            self.glyphs[i].x_offset += space_left;
-            self.glyphs[i].right +=    space_left;
-            if(e + 1 < self.glyphs.length()) {
-              self.glyphs[e + 1].x_offset += space_right;
-              self.glyphs[e + 1].right +=    space_right;
             }
-            else
-              self.glyphs[e].right += space_right;
+            
+            return PMATH_TOK_NAME2;
           }
-        }
+          
+        public:
+          void run() {
+            if(context->script_indent > 0)
+              return;
+              
+            int box = 0;
+            bool in_string = false;
+            bool in_alias = false;
+            bool last_was_factor = false;
+            //bool last_was_number = false;
+            bool last_was_space  = false;
+            bool last_was_left   = false;
+            
+            int e = -1;
+            
+            while(true) {
+              int i = e += 1;
+              if(i >= self.glyphs.length())
+                break;
+                
+              while(e < self.glyphs.length() && !self.spans.is_token_end(e))
+                ++e;
+                
+              italic_correction(e);
+              skip_subsuperscript(e, box);
+              
+              if(buf[i] == '\t') {
+                show_tab_character(i, in_string);
+                continue;
+              }
+              
+              if(buf[i] == '"') {
+                in_string = !in_string;
+                last_was_factor = false;
+                continue;
+              }
+              
+              if(buf[i] == PMATH_CHAR_ALIASDELIMITER) {
+                in_alias = !in_alias;
+                last_was_factor = false;
+                continue;
+              }
+              
+              if(in_string || in_alias || e >= self.glyphs.length())
+                continue;
+                
+              const uint16_t *op = buf;
+              int ii = i;
+              int ee = e;
+              if(op[ii] == PMATH_CHAR_BOX)
+                find_box_token(op, ii, ee, box);
+                
+              int prec;
+              pmath_token_t tok = pmath_token_analyse(op + ii, ee - ii + 1, &prec);
+              float space_left  = 0.0;
+              float space_right = 0.0;
+              
+              bool lwf = false; // new last_was_factor
+              bool lwl = false; // new last_was_left
+              switch(tok) {
+                case PMATH_TOK_PLUSPLUS: {
+                    if(self.spans.is_operand_start(i)) {
+                      prec = PMATH_PREC_CALL;
+                      goto PREFIX;
+                    }
+                    
+                    if( e + 1 < self.glyphs.length() &&
+                        self.spans.is_operand_start(e + 1))
+                    {
+                      goto INFIX;
+                    }
+                    
+                    prec = PMATH_PREC_CALL;
+                  }
+                  goto POSTFIX;
+                  
+                case PMATH_TOK_NARY_OR_PREFIX: {
+                    if(self.spans.is_operand_start(i)) {
+                      prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
+                      goto PREFIX;
+                    }
+                  }
+                  goto INFIX;
+                  
+                case PMATH_TOK_NARY_AUTOARG:
+                case PMATH_TOK_BINARY_LEFT:
+                case PMATH_TOK_BINARY_RIGHT:
+                case PMATH_TOK_NARY:
+                case PMATH_TOK_QUESTION: {
+                  INFIX:
+                    switch(prec) {
+                      case PMATH_PREC_SEQ:
+                      case PMATH_PREC_EVAL:
+                        space_right = self.em * 6 / 18;
+                        break;
+                        
+                      case PMATH_PREC_ASS:
+                      case PMATH_PREC_MODY:
+                        space_left  = self.em * 4 / 18;
+                        space_right = self.em * 8 / 18;
+                        break;
+                        
+                      case PMATH_PREC_LAZY:
+                      case PMATH_PREC_REPL:
+                      case PMATH_PREC_RULE:
+                      case PMATH_PREC_MAP:
+                      case PMATH_PREC_STR:
+                      case PMATH_PREC_COND:
+                      case PMATH_PREC_ARROW:
+                      case PMATH_PREC_REL:
+                        space_left = space_right = self.em * 5 / 18; // total: 10/18 em
+                        break;
+                        
+                      case PMATH_PREC_ALT:
+                      case PMATH_PREC_OR:
+                      case PMATH_PREC_XOR:
+                      case PMATH_PREC_AND:
+                      case PMATH_PREC_UNION:
+                      case PMATH_PREC_ISECT:
+                      case PMATH_PREC_RANGE:
+                      case PMATH_PREC_ADD:
+                      case PMATH_PREC_PLUMI:
+                        space_left = space_right = self.em * 4 / 18; // total: 8/18 em
+                        break;
+                        
+                      case PMATH_PREC_CIRCADD:
+                      case PMATH_PREC_CIRCMUL:
+                      case PMATH_PREC_MUL:
+                      case PMATH_PREC_DIV:
+                      case PMATH_PREC_MIDDOT:
+                      case PMATH_PREC_MUL2:
+                        space_left = space_right = self.em * 3 / 18; // total: 6/18 em
+                        break;
+                        
+                      case PMATH_PREC_CROSS:
+                      case PMATH_PREC_POW:
+                      case PMATH_PREC_APL:
+                      case PMATH_PREC_TEST:
+                        space_left = space_right = self.em * 2 / 18; // total: 4/18 em
+                        break;
+                        
+                      case PMATH_PREC_REPEAT:
+                      case PMATH_PREC_INC:
+                      case PMATH_PREC_CALL:
+                      case PMATH_PREC_DIFF:
+                      case PMATH_PREC_PRIM:
+                        break;
+                    }
+                  }
+                  break;
+                  
+                case PMATH_TOK_POSTFIX_OR_PREFIX:
+                  if(!self.spans.is_operand_start(i))
+                    goto POSTFIX;
+                    
+                  prec = pmath_token_prefix_precedence(op + ii, ee - ii + 1, prec);
+                  goto PREFIX;
+                  
+                case PMATH_TOK_PREFIX: {
+                  PREFIX:
+                    switch(prec) {
+                      case PMATH_PREC_REL: // not
+                        space_right = self.em * 4 / 18;
+                        break;
+                        
+                      case PMATH_PREC_ADD:
+                        space_right = self.em * 1 / 18;
+                        break;
+                        
+                      case PMATH_PREC_DIV:
+                        if(op[ii] == PMATH_CHAR_INTEGRAL_D) {
+                          space_left = self.em * 3 / 18;
+                        }
+                        break;
+                        
+                      default: break;
+                    }
+                  }
+                  break;
+                  
+                case PMATH_TOK_POSTFIX: {
+                  POSTFIX:
+                    switch(prec) {
+                      case PMATH_PREC_FAC:
+                      case PMATH_PREC_FUNC:
+                        space_left = self.em * 2 / 18;
+                        break;
+                        
+                      default: break;
+                    }
+                  }
+                  break;
+                  
+                case PMATH_TOK_COLON:
+                case PMATH_TOK_ASSIGNTAG:
+                  space_left = space_right = self.em * 4 / 18;
+                  break;
+                  
+                case PMATH_TOK_NEWLINE:
+                  space_left = space_right = 0.0;
+                  break;
+                  
+                case PMATH_TOK_SPACE: {
+                    // implicit multiplication:
+                    if( buf[i] == ' '           &&
+                        e + 1 < self.glyphs.length() &&
+                        last_was_factor && context->multiplication_sign)
+                    {
+                      pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, nullptr);
+                      
+                      if(buf[e + 1] == PMATH_CHAR_BOX) {
+                        Box *next_box = self.boxes[self.get_box(e + 1, box)];
+                        
+                        tok2 = get_box_start_token(next_box);
+                      }
+                      
+                      if( tok2 == PMATH_TOK_DIGIT ||
+                          tok2 == PMATH_TOK_LEFT  ||
+                          tok2 == PMATH_TOK_LEFTCALL)
+                      {
+                        context->math_shaper->decode_token(
+                          context,
+                          1,
+                          &context->multiplication_sign,
+                          &self.glyphs[i]);
+                          
+                        space_left = space_right = self.em * 3 / 18;
+                        
+                        //if(context->show_auto_styles)
+                        self.glyphs[i].style = GlyphStyleImplicit;
+                      }
+                    }
+                    else {
+                      last_was_space = true;
+                      continue;
+                    }
+                  } break;
+                  
+                case PMATH_TOK_DIGIT:
+                  {
+                    if(!in_string)
+                      group_number_digits(i, e);
+                  }
+                /* no break */
+                case PMATH_TOK_STRING:
+                case PMATH_TOK_NAME:
+                case PMATH_TOK_NAME2:
+                  lwf = true;
+                /* no break */
+                case PMATH_TOK_SLOT:
+                  if(last_was_factor) {
+                    space_left = self.em * 3 / 18;
+                  }
+                  break;
+                  
+                case PMATH_TOK_LEFT:
+                  lwl = true;
+                  if(last_was_factor) {
+                    space_left = self.em * 3 / 18;
+                  }
+                  break;
+                  
+                case PMATH_TOK_RIGHT:
+                  if(last_was_left) {
+                    space_left = self.em * 3 / 18;
+                  }
+                  lwf = true;
+                  break;
+                  
+                case PMATH_TOK_PRETEXT:
+                  if(i + 1 == e && buf[i] == '<') {
+                    self.glyphs[e].x_offset -= self.em * 4 / 18;
+                    self.glyphs[e].right -=    self.em * 2 / 18;
+                  }
+                  break;
+                  
+                case PMATH_TOK_LEFTCALL:
+                  lwl = true;
+                  break;
+                  
+                case PMATH_TOK_NONE:
+                case PMATH_TOK_CALL:
+                case PMATH_TOK_TILDES:
+                case PMATH_TOK_INTEGRAL:
+                case PMATH_TOK_COMMENTEND:
+                  break;
+              }
+              
+              //last_was_number = tok == PMATH_TOK_DIGIT;
+              last_was_factor = lwf;
+              last_was_left   = lwl;
+              
+              if(last_was_space) {
+                last_was_space = false;
+                space_left     = 0;
+              }
+              
+              if(i > 0 || e + 1 < self.glyphs.length()) {
+                self.glyphs[i].x_offset += space_left;
+                self.glyphs[i].right +=    space_left;
+                if(e + 1 < self.glyphs.length()) {
+                  self.glyphs[e + 1].x_offset += space_right;
+                  self.glyphs[e + 1].right +=    space_right;
+                }
+                else
+                  self.glyphs[e].right += space_right;
+              }
+            }
+          }
+      };
+    public:
+    
+      void enlarge_space(Context *context) {
+        EnlargeSpace(self, context).run();
       }
-    
-    //}
-    
-    //{ horizontal stretching (variable width)
+      
+      //}
+      
+      //{ horizontal stretching (variable width)
     public:
       void hstretch_lines(
         float width,
@@ -1647,10 +1699,10 @@ namespace richmath {
           start = self.lines[line].end;
         }
       }
-    
-    //}
-    
-    //{ line breaking/indentation
+      
+      //}
+      
+      //{ line breaking/indentation
     private:
       /* indention_array[i]: indention of the next line, if there is a line break
          before the i-th character.
@@ -1895,7 +1947,7 @@ namespace richmath {
           
           if(!(buf[i] == '\n' || is_comment_start_at(buf + i, buf + next)))
             break;
-          
+            
           if(self.spans[i])
             i = self.spans[i].end() + 1;
           else
@@ -1924,7 +1976,7 @@ namespace richmath {
         
         if(buf[pos] == '\"' && !span.next())
           return fill_string_indentation(span, depth, pos);
-        
+          
         int next = fill_indention_array(span.next(), depth + 1, pos);
         
         bool prev_simple = false;
@@ -1934,7 +1986,7 @@ namespace richmath {
           Span sub = self.spans[next];
           if((buf[next] == ';' || buf[next] == '\n') && !sub && !prev_simple)
             inner_newline = true;
-          
+            
           ends_with_newline = buf[next] == '\n' && !sub;
           prev_simple = !sub;
           next = fill_indention_array(sub, depth + 1, next);
@@ -1949,9 +2001,9 @@ namespace richmath {
         
         indention_array[pos] = depth;
         if(buf[pos] == '\n') {
-          /* Leading \n is attached to the innermost span, e.g. 
-              F(\nA()()\nB()\n) 
-                \_/    
+          /* Leading \n is attached to the innermost span, e.g.
+              F(\nA()()\nB()\n)
+                \_/
                 \___/
                 \_____/  \_/
                 \__________/
@@ -1965,14 +2017,14 @@ namespace richmath {
            */
           
           if(inner_newline) {
-            /* Indent A and B in the above example by the same amount, i.e. no 
+            /* Indent A and B in the above example by the same amount, i.e. no
                additional indentation at \nB
                Inner '\n' is essentially an implicit ';'
              */
             set_initial_whitespace_depth(pos, next, depth + 1);
             indention_array[pos] = depth + 1;
           }
-          else 
+          else
             set_initial_whitespace_depth(pos, next, depth);
         }
         
@@ -2146,13 +2198,13 @@ namespace richmath {
         }
       }
       
-    //}
-    
+      //}
+      
   };
   
   Array<int>    MathSequenceImpl::indention_array(0);
   Array<double> MathSequenceImpl::penalty_array(0);
-
+  
   const double MathSequenceImpl::DepthPenalty = 1.0;
   const double MathSequenceImpl::WordPenalty = 100.0;//2.0;
   const double MathSequenceImpl::BestLineWidth = 0.95;
@@ -2497,20 +2549,20 @@ void MathSequence::paint(Context *context) {
 //          int old_color = context->canvas->get_color();
 //          context->canvas->save();
 //          context->canvas->set_color(0x808080);
-//          
+//
 //          for(int i = 0;i < lines[line].indent;++i) {
 //            context->canvas->move_to(
-//              x0 + i * (x_extra - x0) / lines[line].indent, 
+//              x0 + i * (x_extra - x0) / lines[line].indent,
 //              y + lines[line].ascent);
 //            context->canvas->rel_line_to(0, -0.75);
 //          }
 //          context->canvas->stroke();
-//          
+//
 //          context->canvas->set_color(old_color);
 //          context->canvas->restore();
 //        }
 //        #endif
-        
+
         if(pos > 0)
           x_extra -= glyphs[pos - 1].right;
           
@@ -2553,20 +2605,20 @@ void MathSequence::paint(Context *context) {
 //          #ifndef NDEBUG
 //          if(spans.is_operand_start(pos)){
 //            context->canvas->save();
-//          
+//
 //            context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
 //            context->canvas->rel_line_to(0, 3);
 //            context->canvas->rel_line_to(3, 0);
-//          
+//
 //            context->canvas->set_color(0x008000);
 //            context->canvas->hair_stroke();
-//          
+//
 //            context->canvas->set_color(default_color);
 //            context->canvas->restore();
 //          }
 //          #endif
-          
-          
+
+
           if(buf[pos] == PMATH_CHAR_BOX) {
             while(boxes[box]->index() < pos)
               ++box;
