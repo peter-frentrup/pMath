@@ -6,6 +6,6 @@ FE`AutoCompleteName(~part:String)::= AutoCompletion`AutoCompleteName(Names(), pa
 
 FE`AutoCompleteFile(~part:String)::= AutoCompletion`AutoCompleteFullFilename(part)
 
-FE`AutoCompleteOther(~list, ~part)::= AutoCompletion`AutoCompleteOther(list, other)
+FE`AutoCompleteOther(~list, ~part)::= AutoCompletion`AutoCompleteOther(list, part)
 
 End()
