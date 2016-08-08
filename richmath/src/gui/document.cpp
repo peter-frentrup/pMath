@@ -4321,7 +4321,7 @@ void Document::add_matching_bracket_hook() {
     SelectionReference ref;
     SpanExpr *span;
     
-    span = SpanExpr::find(seq, start);
+    span = SpanExpr::find(seq, start, true);
     
     while(span && span->end() + 1 < end)
       span = span->expand(true);
@@ -4338,14 +4338,10 @@ void Document::add_matching_bracket_hook() {
         }
         seq = span->sequence();
         
-        // head without prior line breaks
-        int s = head->start();
-        int n = head->end() + 1;
-        const uint16_t *buf = seq->text().buffer();
-        while(s < n && buf[s] == '\n')
-          ++s;
-          
-        ref.set(seq, s, n);
+        // head without white space
+        while(head->count() == 1)
+          head = head->item(0);
+        ref.set(seq, head->start(), head->end() + 1);
         additional_selection.add(ref);
         context.pre_paint_hooks.add(seq, new SelectionFillHook(ref.start, ref.end, 0xFFFF00, 0.5));
 
