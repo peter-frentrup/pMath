@@ -1505,10 +1505,7 @@ namespace richmath {
                         tok2 = get_box_start_token(next_box);
                       }
                       
-                      if( tok2 == PMATH_TOK_DIGIT ||
-                          tok2 == PMATH_TOK_LEFT  ||
-                          tok2 == PMATH_TOK_LEFTCALL)
-                      {
+                      if(tok2 == PMATH_TOK_DIGIT || tok2 == PMATH_TOK_LEFTCALL) {
                         context->math_shaper->decode_token(
                           context,
                           1,
