@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>name</key>
+    <string>pMath</string>
+
+    <key>fileTypes</key>
+    <array>
+        <string>pmath</string>
+    </array>
+
+    <key>scopeName</key>
+    <string>source.pmath</string>
+
+    <key>foldingStartMarker</key>
+    <string>^\s*Begin</string>
+    
+    <key>foldingStopMarker</key>
+    <string>^\s*End</string>
+
+    <key>patterns</key>
+    <array>
+        <dict>
+            <key>include</key>
+            <string>#functiondef</string>
+        </dict>
+        <!--<dict>
+            <key>include</key>
+            <string>#controlblocks</string>
+        </dict>-->
+        <dict>
+            <key>include</key>
+            <string>#expression</string>
+        </dict>
+    </array>
+
+    <key>repository</key>
+    <dict>
+        <key>expression</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>include</key>
+                    <string>#linecomment</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#blockcomment</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#string</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#keywords</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#patternnames</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#names</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#numbers</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#operators</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#nesting</string>
+                </dict>
+            </array>
+        </dict>
+
+        <key>linecomment</key>
+        <dict>
+            <key>begin</key>
+            <string>%</string>
+
+            <key>end</key>
+            <string>\n</string>
+            
+			<key>name</key>
+            <string>comment.line.pmath</string>
+        </dict>
+
+        <key>blockcomment</key>
+        <dict>
+            <key>begin</key>
+            <string>/\*</string>
+            
+            <key>end</key>
+            <string>\*/</string>
+            
+			<key>name</key>
+            <string>comment.block.pmath</string>
+        </dict>
+
+        <key>string</key>
+        <dict>
+            <key>begin</key>
+            <string>"</string>
+            
+			<key>beginCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.begin.pmath</string>
+				</dict>
+            </dict>
+
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>include</key>
+					<string>#stringcontent</string>
+				</dict>
+            </array>
+
+            <key>end</key>
+            <string>"</string>
+            
+			<key>endCaptures</key>
+			<dict>
+				<key>0</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.definition.string.end.pmath</string>
+				</dict>
+            </dict>
+
+			<key>name</key>
+            <string>string.quoted.double.pmath</string>
+        </dict>
+
+        <key>stringcontent</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    \\
+                    (?:
+                        ["\\rnt]
+                        |
+                        \[
+                            [^\]"]+
+                        \]
+                    )
+                    </string>
+                    
+                    <key>name</key>
+                    <string>constant.character.escape.pmath</string>
+                </dict>
+                <dict>
+                    <key>begin</key>
+                    <string>\\\(</string>
+
+                    <key>beginCaptures</key>
+                    <dict>
+                        <key>0</key>
+                        <dict>
+                            <key>name</key>
+                            <string>constant.character.escape.pmath</string>
+                        </dict>
+                    </dict>
+                    
+                    <key>patterns</key>
+                    <array>
+                        <dict>
+                            <key>include</key>
+                            <string>#stringcontent</string>
+                        </dict>
+                    </array>
+
+                    <key>end</key>
+                    <string>\\\)</string>
+                    
+                    <key>endCaptures</key>
+                    <dict>
+                        <key>0</key>
+                        <dict>
+                            <key>name</key>
+                            <string>constant.character.escape.pmath</string>
+                        </dict>
+                    </dict>
+                    
+                    <key>name</key>
+                    <string>markup.raw.inline.pmath</string>
+                </dict>
+                <dict>
+                    <key>match</key>
+					<string>\\.</string>
+					<key>name</key>
+                    <string>invalid.illegal.unrecognized-string-escape.pmath</string>
+                </dict>
+                <dict>
+                    <key>match</key>
+                    <string>`[0-9]*`</string>
+                    
+                    <key>name</key>
+                    <string>markup.quote.pmath</string>
+                </dict>
+            </array>
+        </dict>
+
+        <key>keywords</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>\b(Block|Break|Case|Catch|Continue|Do|Else|Finally|Function|If|Local|Return|Switch|Throw|Try|While|With)\b</string>
+
+                    <key>name</key>
+                    <string>keyword.control.pmath</string>
+                </dict>
+                <dict>
+                    <key>match</key>
+                    <string>/\\/|True|False|Automatic|None|\$Failed</string>
+
+                    <key>name</key>
+                    <string>constant.language.pmath</string>
+                </dict>
+            </array>
+        </dict>
+
+        <key>patternnames</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>(~{1,3})([$a-zA-Z][$a-zA-Z0-9]*)?(:([$a-zA-Z][$a-zA-Z0-9]*))?</string>
+                    
+                    <key>captures</key>
+                    <dict>
+                        <key>0</key>
+                        <dict>
+                            <key>name</key>
+                            <string>pattern.variable.parameter.pmath</string>
+                        </dict>
+                        
+                        <key>2</key>
+                        <dict>
+                            <key>name</key>
+                            <string>pattern.variable.parameter.name.pmath</string>
+                        </dict>
+                        
+                        <key>4</key>
+                        <dict>
+                            <key>name</key>
+                            <string>pattern.variable.parameter.type.pmath</string>
+                        </dict>
+                    </dict>
+                </dict>
+                
+                <dict>
+                    <key>match</key>
+                    <string>(\?)([$a-zA-Z][$a-zA-Z0-9]*)</string>
+                    
+                    <key>captures</key>
+                    <dict>
+                        <key>0</key>
+                        <dict>
+                            <key>name</key>
+                            <string>pattern.variable.parameter.optional.pmath</string>
+                        </dict>
+                        
+                        <key>2</key>
+                        <dict>
+                            <key>name</key>
+                            <string>pattern.variable.parameter.name.pmath</string>
+                        </dict>
+                    </dict>
+                </dict>
+
+                <dict>
+                    <key>match</key>
+                    <string>\b[$a-zA-Z][$a-zA-Z0-9]*(?=:(?!:)(?!=))</string>
+                    
+                    <key>name</key>
+                    <string>pattern.variable.parameter.name.pmath</string>
+                </dict>
+            </array>
+        </dict>
+        
+        <key>names</key>
+        <dict>
+            <key>match</key>
+            <string>(?x)
+            [$a-zA-Z][$a-zA-Z0-9]*
+            (?:
+                `
+                [$a-zA-Z][$a-zA-Z0-9]*
+            )*
+            </string>
+            
+			<key>name</key>
+            <string>name.other.pmath</string>
+        </dict>
+
+        <key>numbers</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                   # (?:
+                   #     10\^\^
+                   # )?
+                    [0-9]+
+                    (?:
+                        \.[0-9]+
+                        (?:
+                            `
+                            (?:
+                            |
+                            `?[0-9]+(?:\.[0-9]+)
+                            )?
+                        )?
+                    )?
+                    (?:
+                        \*\^
+                        [+-]?
+                        [0-9]+
+                    )?
+                    </string>
+                    
+			        <key>name</key>
+                    <string>constant.numeric.decimal.pmath</string>
+                </dict>
+
+                <!--<dict>
+                    <key>match</key>
+                    <string>(?x)
+                    2\^\^
+                    [01]+
+                    (?:
+                        \.[01]+
+                        (?:
+                            `
+                            (?:
+                            |
+                            `?[0-9]+(?:\.[0-9]+)
+                            )?
+                        )?
+                    )?
+                    (?:
+                        \*\^
+                        [+-]?
+                        [0-9]+
+                    )?
+                    </string>
+                    
+			        <key>name</key>
+                    <string>constant.numeric.binary.json</string>
+                </dict>
+                
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    16\^\^
+                    [0-9a-fA-F]+
+                    (?:
+                        \.[0-9a-fA-F]+
+                        (?:
+                            `
+                            (?:
+                            |
+                            `?[0-9]+(?:\.[0-9]+)
+                            )?
+                        )?
+                    )?
+                    (?:
+                        \*\^
+                        [+-]?
+                        [0-9]+
+                    )?
+                    </string>
+                    
+			        <key>name</key>
+                    <string>constant.numeric.hexadecimal.pmath</string>
+                </dict>-->
+                
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    [0-9]+
+                    \^\^
+                    [0-9a-zA-Z]+
+                    (?:
+                        \.[0-9a-zA-Z]+
+                        (?:
+                            `
+                            (?:
+                            |
+                            `?[0-9]+(?:\.[0-9]+)
+                            )?
+                        )?
+                    )?
+                    (?:
+                        \*\^
+                        [+-]?
+                        [0-9]+
+                    )?
+                    </string>
+                    
+			        <key>name</key>
+                    <string>constant.numeric.otherbase.pmath</string>
+                </dict>
+            </array>
+        </dict>
+
+        <key>operators</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>(?&lt;!=)==(?!=)</string>
+                    
+                    <key>name</key>
+                    <string>invalid.illegal.keyword.operator.pmath</string>
+                </dict>
+
+                <dict>
+                    <key>match</key>
+                    <string>=[=!]=|::?=?|[+\-*/]?=|[-:]&gt;|\|\|?|&amp;&amp;|/[/:?]|\?|~|~~|~~~|\^|\.\.|;|[&lt;&gt;+\-*/]=?|@</string>
+                    <!--<string>;|::|::=|:=|:&gt;|-&gt;|&lt;|&lt;=|&lt;&lt;|=|===|!=|=!=|&gt;|&gt;=|\+\+|--|\.\.|!!|!|\|\||&amp;&amp;|\+|-|\*|/|\^|\?</string>-->
+                    
+                    <key>name</key>
+                    <string>keyword.operator.pmath</string>
+                </dict>
+            </array>
+        </dict>
+    
+        <key>nesting</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>begin</key>
+                    <string>\(</string>
+                    
+                    <key>patterns</key>
+                    <array>
+                        <dict>
+                            <key>include</key>
+                            <string>#expression</string>
+                        </dict>
+                    </array>
+
+                    <key>end</key>
+                    <string>\)</string>
+                </dict>
+                
+                <dict>
+                    <key>begin</key>
+                    <string>\[</string>
+                    
+                    <key>patterns</key>
+                    <array>
+                        <dict>
+                            <key>include</key>
+                            <string>#expression</string>
+                        </dict>
+                    </array>
+
+                    <key>end</key>
+                    <string>\]</string>
+                </dict>
+                
+                <dict>
+                    <key>begin</key>
+                    <string>\{</string>
+                    
+                    <key>patterns</key>
+                    <array>
+                        <dict>
+                            <key>include</key>
+                            <string>#expression</string>
+                        </dict>
+                        <!--<dict>
+                            <key>include</key>
+                            <string>#controlblocks</string>
+                        </dict>-->
+                    </array>
+
+                    <key>end</key>
+                    <string>\}</string>
+                </dict>
+            </array>
+        </dict>
+
+        <key>functiondef</key>
+        <dict>
+            <key>match</key>
+            <string>(?x)
+            ^\s*
+            (Function)
+            \s+
+            (
+                [$a-zA-Z][$a-zA-Z0-9]*
+                (?:
+                    `
+                    [$a-zA-Z][$a-zA-Z0-9]*
+                )*
+            )
+            (?=\()
+            </string>
+
+            <key>captures</key>
+            <dict>
+                <key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.control.pmath</string>
+                </dict>
+
+                <key>2</key>
+                <dict>
+					<key>name</key>
+					<string>entity.name.function.pmath</string>
+                </dict>
+            </dict>
+        </dict>
+
+        <!--<key>controlblocks</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    ^\s*
+                    (Block|Try)
+                    (?=
+                        \{
+                    )
+                    </string>
+
+                    <key>captures</key>
+                    <dict>
+                        <key>1</key>
+                        <dict>
+                            <key>name</key>
+                            <string>keyword.control.pmath</string>
+                        </dict>
+                    </dict>
+                </dict>
+
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    ^\s*
+                    (If|Do|Switch|Case|With|Local)
+                    (?=
+                        \(
+                    )
+                    </string>
+
+                    <key>captures</key>
+                    <dict>
+                        <key>1</key>
+                        <dict>
+                            <key>name</key>
+                            <string>keyword.control.pmath</string>
+                        </dict>
+                    </dict>
+                </dict>
+
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    (?&lt;=
+                        \}
+                    )
+                    \s*
+                    (Else|Finally)
+                    \s*
+                    (?=
+                        \{
+                    )
+                    </string>
+
+                    <key>captures</key>
+                    <dict>
+                        <key>1</key>
+                        <dict>
+                            <key>name</key>
+                            <string>keyword.control.pmath</string>
+                        </dict>
+                    </dict>
+                </dict>
+                
+
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    (?&lt;=
+                        \}
+                    )
+                    \s*
+                    (Else If)
+                    \s*
+                    (?=
+                        \(
+                    )
+                    </string>
+
+                    <key>captures</key>
+                    <dict>
+                        <key>1</key>
+                        <dict>
+                            <key>name</key>
+                            <string>keyword.control.pmath</string>
+                        </dict>
+                    </dict>
+                </dict>
+            </array>
+        </dict>-->
+    </dict>
+
+    <key>uuid</key>
+    <string>c45a968c-36bf-44b4-a225-c9c6a6a16f50</string>
+</dict>
+</plist>

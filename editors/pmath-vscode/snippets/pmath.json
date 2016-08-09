@@ -1,0 +1,166 @@
+{
+    "begin package context": {
+        "prefix": "package",
+        "body": [
+            "BeginPackage(\"${ContextName}`\")",
+            "",
+            "${ContextName}`${ExportedSymbol}",
+            "",
+            "Begin(\"${ContextName}`Private\")",
+            "",
+            "$0",
+            "",
+            "End()",
+            "",
+            "EndPackage()"
+        ],
+        "description": "BeginPackage ... EndPackage"
+    },
+    "define function": {
+        "prefix": "function",
+        "body": [
+            "Function ${Name}(${~parameter}}) {",
+            "\t$1",
+            "}"
+        ],
+        "description": "Function definition (block syntax)"
+    },
+    "while block": {
+        "prefix": "while",
+        "body": [
+            "While(${condition}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "While(cond) {...}"
+    },
+    "if block": {
+        "prefix": "if",
+        "body": [
+            "If(${condition}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "If(cond) {...}"
+    },
+    "if-else block": {
+        "prefix": "ifelse",
+        "body": [
+            "If(${condition}) {",
+            "\t$0",
+            "} Else {",
+            "\t",
+            "}"
+        ],
+        "description": "If(cond) {...} Else {...}"
+    },
+    "do range loop": {
+        "prefix": "dorange",
+        "body": [
+            "Do(${index} -> ${start}..${end}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "Do(index -> start..end) {...}"
+    },
+    "do step range loop": {
+        "prefix": "dosteprange",
+        "body": [
+            "Do(${index} -> ${start}..${end}..${step}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "Do(index -> start..end..step) {...}"
+    },
+    "do values loop": {
+        "prefix": "dovalues",
+        "body": [
+            "Do(${elem} -> ${values}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "Do(elem -> values) {...}"
+    },
+    "block": {
+        "prefix": "block",
+        "body": [
+            "Block {",
+            "\t$0",
+            "}"
+        ],
+        "description": "Block {...}"
+    },
+    "with block": {
+        "prefix": "withblock",
+        "body": [
+            "With(${var}:= ${value}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "With block"
+    },
+    "with statement": {
+        "prefix": "with",
+        "body": [
+            "With(${var}:= ${value})",
+            "$0"
+        ],
+        "description": "With statement (inside blocks)"
+    },
+    "with call": {
+        "prefix": "withcall",
+        "body": [
+            "With({${var}:= ${value}}, $0)"
+        ],
+        "description": "With statement call (outside blocks)"
+    },
+    "local block": {
+        "prefix": "localblock",
+        "body": [
+            "Local(${var}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "Local block"
+    },
+    "local statement": {
+        "prefix": "local",
+        "body": [
+            "Local(${var})",
+            "$0"
+        ],
+        "description": "Local statement (inside blocks)"
+    },
+    "local call": {
+        "prefix": "localcall",
+        "body": [
+            "Local({${variables}}, $0)"
+        ],
+        "description": "Local statement call (outside blocks)"
+    },
+    "switch block": {
+        "prefix": "switch",
+        "body": [
+            "Switch(${value}) {",
+            "\tCase(${pattern1}) {",
+            "\t\t$1",
+            "\t}",
+            "\tCase(${pattern2}) {",
+            "\t\t$2",
+            "\t}",
+            "}"
+        ],
+        "description": "Switch block"
+    },
+    "try finally block": {
+        "prefix": "tryfinally",
+        "body": [
+            "Try {",
+            "\t$1",
+            "} Finally {",
+            "\t$2",
+            "}"
+        ],
+        "description": "Try {...} Finally {...}"
+    }
+}
