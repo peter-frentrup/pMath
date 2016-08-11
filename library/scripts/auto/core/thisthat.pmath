@@ -1,0 +1,18 @@
+
+Begin("System`")
+
+AbsArg
+MinMax
+ReIm
+TakeDrop
+
+Begin("System`Private`")
+
+AbsArg(~z)::= {Abs(z), Arg(z)}
+MinMax(~~~xs)::= {Min(xs), Max(xs)}
+ReIm(~z)::= {Re(z), Im(z)}
+TakeDrop(~list, ~~ns)::= With({t:= Take(list, ns), d:= Drop(list, ns)}, {t,d} /? Head(t) =!= Take && Head(d) =!= Drop)
+
+End()
+
+End()
