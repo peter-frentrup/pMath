@@ -1,5 +1,5 @@
 
-Begin("System`")
+BeginPackage("System`")
 
 AbsArg
 MinMax
@@ -21,4 +21,4 @@ MinMax(~list, {~minerr, ~maxerr})::= {Min(list) - minerr, Max(list) + maxerr}
 
 End()
 
-End()
+EndPackage()

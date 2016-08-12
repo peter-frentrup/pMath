@@ -13,6 +13,7 @@ AutoLoad
 Protect(Normalize, RotationMatrix, ScalingMatrix, ReflectionMatrix, ShearingMatrix, LinearFractionalTransform, ReflectionTransform, RotationTransform, AffineTransform, TranslationTransform, ScalingTransform, ShearingTransform, TransformationFunction, TransformationMatrix)
 Protect(Echo,EchoFunction)
 Protect(AbsArg, MinMax, TakeDrop, ReIm)
+Protect(UpTo)
 
 End()
 
@@ -124,6 +125,8 @@ AutoLoad(Hold(Echo, EchoFunction),
 	ToFileName({$BaseDirectory, "auto", "core"}, "echo.pmath"))
 AutoLoad(Hold(AbsArg, MinMax, TakeDrop, ReIm), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "thisthat.pmath"))
+AutoLoad(Hold(UpTo), 
+	ToFileName({$BaseDirectory, "auto", "core"}, "upto.pmath"))
 
 AutoLoad(Hold(System`Util`latexToBoxes), 
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "latextoboxes.pmath"))

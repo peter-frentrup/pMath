@@ -1,0 +1,73 @@
+
+BeginPackage("System`")
+
+<<ExperimentalSyntax`
+
+UpTo
+
+Begin("System`Private`")
+
+UpTo/: Take(~list, UpTo(~n:Integer))::= 
+	If(Abs(n) > Length(list)) {
+		list
+	} Else {
+		Take(list, n)
+	}
+	
+UpTo/: Drop(~list, UpTo(~n:Integer))::= 
+	If(Abs(n) > Length(list)) {
+		list
+	} Else {
+		Drop(list, n)
+	}
+
+	
+UpTo/: Ordering(~list, UpTo(~n:Integer))::= 
+	If(Abs(n) > Length(list)) {
+		Ordering(list)
+	} Else {
+		Ordering(list, n)
+	}
+	
+UpTo/: Ordering(~list, UpTo(~n:Integer), ~p)::= 
+	If(Abs(n) > Length(list)) {
+		Ordering(list, All, p)
+	} Else {
+		Ordering(list, n, p)
+	}
+
+
+% TODO: support UpTo in Parition() for multiple dimensions
+UpTo/: Parition(~list, UpTo(~n:Integer ? IsPositive))::=
+	Parition(list, n, n, 1, {})
+	
+UpTo/: Parition(~list, UpTo(~n:Integer ? IsPositive), ~d)::=
+	Parition(list, n, d, 1, {})
+	
+UpTo/: Parition(~list, UpTo(~n:Integer ? IsPositive), ~d, ~k)::=
+	Parition(list, n, d, k, {})
+
+
+stringLength(~str:String)::= StringPosition(str, EndOfString)[1,-1]
+UpTo/: StringTake(~str: String, UpTo(~n:Integer))::=
+	With(len:= stringLength(str)) {
+		If(Abs(n) > len) {
+			str
+		} Else {
+			StringTake(str, n)
+		}
+	}
+UpTo/: StringDrop(~str: String, UpTo(~n:Integer))::=
+	With(len:= stringLength(str)) {
+		If(Abs(n) > len) {
+			str
+		} Else {
+			StringDrop(str, n)
+		}
+	}
+UpTo/: StringTake(~strs: List, ~u:UpTo)::= strs.Map(StringTake(#, u) &)
+UpTo/: StringDrop(~strs: List, ~u:UpTo)::= strs.Map(StringDrop(#, u) &)
+	
+End()
+
+EndPackage()
