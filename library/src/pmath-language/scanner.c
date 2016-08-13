@@ -1851,7 +1851,14 @@ static void parse_textline(struct parser_t *parser) {
   int i;
   int start = parser->tokens.pos;
   
-  if(parser->tokens.str[parser->tokens.pos] == '"') {
+  if(start == parser->tokens.len) {
+    handle_error(parser);
+    return;
+  }
+  
+  assert(start < parser->tokens.len);
+  
+  if(parser->tokens.str[start] == '"') {
     parse_prim(parser, FALSE);
     return;
   }
