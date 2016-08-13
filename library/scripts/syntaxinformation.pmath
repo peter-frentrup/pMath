@@ -552,6 +552,7 @@
 {"UpperLeftArrow", {"ArgumentCount" -> 2..}},
 {"UpperRightArrow", {"ArgumentCount" -> 2..}},
 {"UpRules", {"ArgumentCount" -> 1}},
+{"UpTo", {"ArgumentCount" -> 1}},
 {"Wait", {"ArgumentCount" -> 2}},
 {"Which", {"ArgumentCount" -> 0..}},
 {"While", {"ArgumentCount" -> 2}},
