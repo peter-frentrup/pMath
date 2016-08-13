@@ -1,0 +1,17 @@
+
+BeginPackage("System`")
+
+<<ExperimentalSyntax`
+
+Nothing
+
+Begin("System`Private`")
+
+
+Nothing(~~~)::= Nothing
+Nothing/: list:{~~~,Nothing,~~~}::= Replace(Unevaluated(list), Nothing -> Sequence(), 1)
+
+
+End()
+
+EndPackage()
