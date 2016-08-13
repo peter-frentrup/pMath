@@ -23,6 +23,7 @@ static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t 
 
 struct _pmath_string_to_boxes_data_t {
   pmath_string_t                      debug_source;
+  pmath_t                             token_decorator;
   struct pmath_boxes_from_spans_ex_t  settings;
 };
 
@@ -39,7 +40,12 @@ static pmath_t add_string_debug_info(
   assert(start->index <= end->index);
   
   if(!pmath_is_expr(token_or_span)) {
-    return token_or_span;
+    if(pmath_same(data->token_decorator, PMATH_UNDEFINED))
+      return token_or_span;
+      
+    token_or_span = pmath_expr_new_extended(
+                      pmath_ref(data->token_decorator), 1,
+                      token_or_span);
   }
   
   debug_info = pmath_expr_new_extended(
@@ -78,9 +84,27 @@ static pmath_bool_t handle_whitespace_option(
   return FALSE;
 }
 
+static void handle_tokens_option(
+  struct _pmath_string_to_boxes_data_t *data,
+  pmath_t                               options // wont be freed
+) {
+  // "Word"Tokens"->String ==> token_decorator = PMATH_UNDEFINED, else token_decorator = option value
+  pmath_t name= PMATH_C_STRING("Tokens");
+  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
+  pmath_unref(name);
+  if(pmath_same(value, PMATH_SYMBOL_STRING)) {
+    data->token_decorator = PMATH_UNDEFINED;
+    pmath_unref(value);
+    return;
+  }
+  
+  data->token_decorator = value;
+}
+
 PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
   /* StringToBoxes("code", [options])
   
+     "Tokens" -> String       % return single tokens as a string instead of wrapped in an expression
      Whitespace -> False
    */
   struct _pmath_string_to_boxes_data_t  data;
@@ -121,6 +145,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
+  handle_tokens_option(&data, options);
   
   pmath_unref(options);
   
@@ -134,11 +159,12 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
           syntax_error,
           &error_flag);
           
-  if(error_flag) {
-    pmath_unref(code);
-    pmath_span_array_free(arr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
-  }
+//  if(error_flag) {
+//    pmath_span_array_free(arr);
+//    pmath_unref(code);
+//    pmath_unref(data.token_decorator);
+//    return pmath_ref(PMATH_SYMBOL_FAILED);
+//  }
   
   
   data.debug_source = pmath_expr_new_extended(
@@ -150,6 +176,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
   
   pmath_span_array_free(arr);
   pmath_unref(code);
+  pmath_unref(data.token_decorator);
   pmath_unref(data.debug_source);
   return result;
 }
