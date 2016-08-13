@@ -302,6 +302,7 @@ static MathSequence *search_string(
   const String string,
   bool complete_token
 ) {
+RESTART:
   MathSequence *seq = dynamic_cast<MathSequence *>(box);
   
   if(seq) {
@@ -355,13 +356,8 @@ static MathSequence *search_string(
           ++b;
           
         *index = 0;
-        return search_string(
-                 box->item(b),
-                 index,
-                 stop_box,
-                 stop_index,
-                 string,
-                 complete_token);
+        box = box->item(b);
+        goto RESTART;
       }
     }
     
@@ -372,13 +368,8 @@ static MathSequence *search_string(
           ++b;
           
         *index = 0;
-        return search_string(
-                 box->item(b),
-                 index,
-                 stop_box,
-                 stop_index,
-                 string,
-                 complete_token);
+        box = box->item(b);
+        goto RESTART;
       }
     }
   }
@@ -388,35 +379,20 @@ static MathSequence *search_string(
       
     int i = *index;
     *index = 0;
-    return search_string(
-             box->item(i),
-             index,
-             stop_box,
-             stop_index,
-             string,
-             complete_token);
+    box = box->item(i);
+    goto RESTART;
   }
   else if(*index < box->count()) {
     int i = *index;
     *index = 0;
-    return search_string(
-             box->item(i),
-             index,
-             stop_box,
-             stop_index,
-             string,
-             complete_token);
+    box = box->item(i);
+    goto RESTART;
   }
   
   if(box->parent()) {
     *index = box->index() + 1;
-    return search_string(
-             box->parent(),
-             index,
-             stop_box,
-             stop_index,
-             string,
-             complete_token);
+    box = box->parent();
+    goto RESTART;
   }
   
   *index = 0;
