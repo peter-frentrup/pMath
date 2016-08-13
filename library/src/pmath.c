@@ -987,7 +987,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(StringCases):=Options(StringCount):={IgnoreCase->False,Overlaps->False}");
       PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
       
-      PMATH_RUN("Options(StringToBoxes):={\"Tokens\"->String,Whitespace->False}");
+      PMATH_RUN("Options(StringToBoxes):={\"IgnoreSyntaxErrors\"->False,\"Tokens\"->String,Whitespace->False}");
       
       PMATH_RUN("Options(Style):=Options(StyleBox):={"
           "Antialiasing->Inherited,"

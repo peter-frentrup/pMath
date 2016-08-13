@@ -84,11 +84,39 @@ static pmath_bool_t handle_whitespace_option(
   return FALSE;
 }
 
+static pmath_bool_t handle_ignoresyntaxerrors_option(
+  pmath_bool_t *result,
+  pmath_t       options // wont be freed
+) {
+  // "IgnoreSyntaxErrors"->False ==> return $Failed don error
+  pmath_t name= PMATH_C_STRING("IgnoreSyntaxErrors");
+  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
+  pmath_unref(name);
+  if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
+    *result = FALSE;
+    pmath_unref(value);
+    return TRUE;
+  }
+  
+  if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
+    *result = TRUE;
+    pmath_unref(value);
+    return TRUE;
+  }
+  
+  *result = FALSE;
+  pmath_message(
+    PMATH_NULL, "opttf", 2,
+    pmath_ref(PMATH_SYMBOL_WHITESPACE),
+    value);
+  return FALSE;
+}
+
 static void handle_tokens_option(
   struct _pmath_string_to_boxes_data_t *data,
   pmath_t                               options // wont be freed
 ) {
-  // "Word"Tokens"->String ==> token_decorator = PMATH_UNDEFINED, else token_decorator = option value
+  // "Tokens"->String ==> token_decorator = PMATH_UNDEFINED, else token_decorator = option value
   pmath_t name= PMATH_C_STRING("Tokens");
   pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
   pmath_unref(name);
@@ -110,6 +138,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
   struct _pmath_string_to_boxes_data_t  data;
   pmath_string_t                        code;
   pmath_bool_t                          error_flag;
+  pmath_bool_t                          ignore_errors;
   pmath_span_array_t                   *arr;
   pmath_t                               result;
   pmath_t                               options;
@@ -133,19 +162,28 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
-  memset(&data.settings, 0, sizeof(data.settings));
+  memset(&data, 0, sizeof(data));
   data.settings.size = sizeof(data.settings);
   data.settings.data = &data;
   data.settings.add_debug_info = add_string_debug_info;
   
-  if(!handle_whitespace_option(&data, options)) {
+  if(!handle_ignoresyntaxerrors_option(&ignore_errors, options)) {
     pmath_unref(options);
     pmath_unref(code);
+    pmath_unref(data.token_decorator);
     pmath_unref(expr);
     return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
   handle_tokens_option(&data, options);
+  
+  if(!handle_whitespace_option(&data, options)) {
+    pmath_unref(options);
+    pmath_unref(code);
+    pmath_unref(data.token_decorator);
+    pmath_unref(expr);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
   
   pmath_unref(options);
   
@@ -159,12 +197,12 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
           syntax_error,
           &error_flag);
           
-//  if(error_flag) {
-//    pmath_span_array_free(arr);
-//    pmath_unref(code);
-//    pmath_unref(data.token_decorator);
-//    return pmath_ref(PMATH_SYMBOL_FAILED);
-//  }
+  if(error_flag && !ignore_errors) {
+    pmath_span_array_free(arr);
+    pmath_unref(code);
+    pmath_unref(data.token_decorator);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
   
   
   data.debug_source = pmath_expr_new_extended(
