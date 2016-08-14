@@ -47,6 +47,7 @@ static void make_critical_message(pmath_t msg, pmath_t tag) { // msg will be fre
 static void make_all_messages_critical(pmath_t messages, pmath_t tag) { // messages will be freed, tag wont
   if(pmath_is_symbol(messages) || _pmath_is_valid_messagename(messages)) {
     make_critical_message(messages, tag);
+    return;
   }
   
   if(pmath_is_expr_of(messages, PMATH_SYMBOL_LIST)) {

@@ -1486,6 +1486,38 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
   next = next_token_pos(parser);
   while(next != parser->tokens.pos) {
     tok = token_analyse(parser, next, &cur_prec);
+    if(tok == PMATH_TOK_NEWLINE && parser->fencelevel > 0) {
+      /* Check whether the token after the line break can start an expression.
+         If it can start an expression, then this line break is significant and
+         essentially serves as an implicit `;`.
+         If the next token can only continue but not start an expression, then this 
+         line break is non-significant.
+       */
+      int oldpos = parser->tokens.pos;
+      int next2 = next;
+      int tok2 = tok;
+      int prec2 = cur_prec;
+      while(next2 != parser->tokens.pos && tok2 == PMATH_TOK_NEWLINE) {
+        skip_to(parser, -1, next2, TRUE);
+        next2 = next_token_pos(parser);
+        tok2 = token_analyse(parser, next2, &prec2);
+      }
+      
+      if(!pmath_token_maybe_first(tok2) && pmath_token_maybe_rest(tok2)) {
+        /* The line break is not significant. */
+        int pos = parser->tokens.pos;
+        parser->tokens.pos = oldpos;
+        span(&parser->tokens, lhs);
+        parser->tokens.pos = pos;
+        
+        tok = tok2;
+        next = next2;
+        cur_prec = prec2;
+      }
+      else {
+        parser->tokens.pos = oldpos;
+      }
+    }
     
     switch(tok) {
       case PMATH_TOK_POSTFIX:
@@ -1684,7 +1716,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           next2 = next_token_pos(parser);
           tok2  = token_analyse(parser, next2, NULL);
           
-          if(tok == PMATH_TOK_NEWLINE) {
+          if(tok == PMATH_TOK_NEWLINE && parser->fencelevel > 0) {
             /* Skip subsequent newlines (multiple empty lines).
                Note that pmath_token_maybe_first(PMATH_TOK_NEWLINE) == TRUE
              */
@@ -1708,10 +1740,10 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
               span(&parser->tokens, lhs);
             }
             else {
-              next               = parser->tokens.pos;
+              int pos = parser->tokens.pos;
               parser->tokens.pos = oldpos;
               span(&parser->tokens, lhs);
-              skip_to(parser, lhs, next, TRUE);
+              parser->tokens.pos = pos;
             }
             
             next           = next2;
@@ -1771,6 +1803,36 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
               int next_prec;
               tok = token_analyse(parser, next, &next_prec);
               oldpos = next;
+              
+              if(tok == PMATH_TOK_NEWLINE && parser->fencelevel > 0) {
+                int nlpos = parser->tokens.pos;
+                int nlprec = next_prec;
+                
+                /* Skip subsequent newlines (multiple empty lines).
+                   If the next token after that cannot start an expression but can
+                   continue an expression, then the newline was not significant and 
+                   that token should be considered.
+                   Otherwise the newline is significant (and acts as an implicit `;`)
+                 */
+                while(next != parser->tokens.pos && tok == PMATH_TOK_NEWLINE) {
+                  skip_to(parser, -1, next, TRUE);
+                  next = next_token_pos(parser);
+                  tok  = token_analyse(parser, next, &next_prec);
+                }
+                
+                if(!pmath_token_maybe_first(tok) && pmath_token_maybe_rest(tok)) {
+                  /* The line break is not significant (`tok` and `next_prec` refer to the
+                     next token), but we reset the position to not interfere with span(). */
+                  next = oldpos;
+                  parser->tokens.pos = nlpos;
+                }
+                else {
+                  tok = PMATH_TOK_NEWLINE;
+                  next = oldpos;
+                  next_prec = nlprec;
+                  parser->tokens.pos = nlpos;
+                }
+              }
               
               if(tok == PMATH_TOK_BINARY_RIGHT) {
                 if(next_prec >= cur_prec) {
@@ -1851,7 +1913,14 @@ static void parse_textline(struct parser_t *parser) {
   int i;
   int start = parser->tokens.pos;
   
-  if(parser->tokens.str[parser->tokens.pos] == '"') {
+  if(start == parser->tokens.len) {
+    handle_error(parser);
+    return;
+  }
+  
+  assert(start < parser->tokens.len);
+  
+  if(parser->tokens.str[start] == '"') {
     parse_prim(parser, FALSE);
     return;
   }
