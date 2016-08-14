@@ -53,7 +53,7 @@ static pmath_t add_string_debug_info(
                  pmath_ref(data->debug_source),
                  pmath_expr_new_extended(
                    pmath_ref(PMATH_SYMBOL_RANGE), 2,
-                   pmath_integer_new_si32(start->index),
+                   pmath_integer_new_si32(start->index + 1),
                    pmath_integer_new_si32(end->index)));
                    
   return pmath_try_set_debug_info(token_or_span, debug_info);
