@@ -38,6 +38,11 @@
 
 #include <util/spanexpr.h>
 
+
+#define MIN(a, b)  ((a) < (b) ? (a) : (b))
+#define MAX(a, b)  ((a) > (b) ? (a) : (b))
+
+
 using namespace richmath;
 
 static const float RefErrorIndictorHeight = 1 / 3.0f;
@@ -1952,6 +1957,47 @@ namespace richmath {
         }
       }
       
+      int fill_block_body_indention_array(Span span, int depth, int pos) {
+        if(!span)
+          return fill_indention_array(span, depth, pos);
+          
+        const uint16_t *buf = self.str.buffer();
+        
+        int next = fill_indention_array(span, depth, pos);
+        
+        if(buf[pos] == '{' && buf[next - 1] == '}' && !span.next()) {
+          /* Unindent closing brace of a block.
+               Block {
+                 body
+               }
+             instead of
+               Block {
+                 body
+                 }
+           */
+          indention_array[next - 1] = MAX(0, depth - 1);
+        }
+        
+        if(buf[next - 1] == ')') {
+          /* Unindent closing parenthesis of a block header. 
+               If(
+                 cond
+               ) {
+                 body
+               }
+             instead of
+               If(
+                 cond
+                 ) {
+                 body
+               }
+           */
+          indention_array[next - 1] = MAX(0, depth - 1);
+        }
+        
+        return next;
+      }
+      
       int fill_indention_array(Span span, int depth, int pos) {
         const uint16_t *buf = self.str.buffer();
         
@@ -1974,7 +2020,15 @@ namespace richmath {
         if(buf[pos] == '\"' && !span.next())
           return fill_string_indentation(span, depth, pos);
           
-        int next = fill_indention_array(span.next(), depth + 1, pos);
+        int (MathSequenceImpl::*fia)(Span, int, int) = &MathSequenceImpl::fill_indention_array;
+        
+        {
+          SpanExpr span_expr(pos, span, &self);
+          if(BlockSpan::maybe_block(&span_expr))
+            fia = &MathSequenceImpl::fill_block_body_indention_array;
+        }
+        
+        int next = (this->*fia)(span.next(), depth + 1, pos);
         
         bool prev_simple = false;
         bool ends_with_newline = false;
@@ -1986,13 +2040,13 @@ namespace richmath {
             
           ends_with_newline = buf[next] == '\n' && !sub;
           prev_simple = !sub;
-          next = fill_indention_array(sub, depth + 1, next);
+          next = (this->*fia)(sub, depth + 1, next);
         }
         
         if(ends_with_newline) {
           /* span = {{foo...}, "\n"}.  Treat as {foo...} */
           for(int i = pos; i < next; ++i)
-            indention_array[i]--;
+            indention_array[i] = MAX(0, indention_array[i] - 1);
           return next;
         }
         
@@ -2541,24 +2595,24 @@ void MathSequence::paint(Context *context) {
       for(; line < lines.length() && y < clip_y2; ++line) {
         float x_extra = x0 + indention_width(lines[line].indent);
         
-//        #ifndef NDEBUG
-//        {
-//          int old_color = context->canvas->get_color();
-//          context->canvas->save();
-//          context->canvas->set_color(0x808080);
-//
-//          for(int i = 0;i < lines[line].indent;++i) {
-//            context->canvas->move_to(
-//              x0 + i * (x_extra - x0) / lines[line].indent,
-//              y + lines[line].ascent);
-//            context->canvas->rel_line_to(0, -0.75);
-//          }
-//          context->canvas->stroke();
-//
-//          context->canvas->set_color(old_color);
-//          context->canvas->restore();
-//        }
-//        #endif
+        #ifndef NDEBUG
+        {
+          int old_color = context->canvas->get_color();
+          context->canvas->save();
+          context->canvas->set_color(0x808080);
+
+          for(int i = 0;i < lines[line].indent;++i) {
+            context->canvas->move_to(
+              x0 + i * (x_extra - x0) / lines[line].indent,
+              y + lines[line].ascent);
+            context->canvas->rel_line_to(0, -0.75);
+          }
+          context->canvas->stroke();
+
+          context->canvas->set_color(old_color);
+          context->canvas->restore();
+        }
+        #endif
 
         if(pos > 0)
           x_extra -= glyphs[pos - 1].right;
