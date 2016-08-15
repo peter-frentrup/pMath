@@ -543,6 +543,7 @@ namespace richmath {
       }
       
       void colorize_localspec_call(SpanExpr *se, const SyntaxInformation &info) {
+        /* This currently ignores info.locals_min and info.locals_max. */
         FunctionCallSpan call = se;
         const int arg_count = call.function_argument_count();
         
@@ -659,6 +660,135 @@ namespace richmath {
         }
         
         return false;
+      }
+      
+      void colorize_block_body_line(SpanExpr *se, SharedPtr<ScopePos> &scope_after_block) {
+        while(se->count() == 1)
+          se = se->item(0);
+          
+        if(FunctionCallSpan::is_simple_call(se)) {
+          FunctionCallSpan call(se);
+          
+          SpanExpr *name = span_as_name(call.function_head());
+          if(name) {
+            if(name->equals("Local") || name->equals("With")) {
+              colorize_scoping_block_head(call, scope_after_block, &ScopeColorizerImpl::symdef_local_colorize_spanexpr);
+              return;
+            }
+          }
+        }
+        
+        if(se->count() < 2) {
+          scope_colorize_spanexpr(se);
+          return;
+        }
+        
+        uint16_t firstchar = se->item_as_char(0);
+        uint16_t secondchar = se->item_as_char(1);
+        if( firstchar  == ';' || firstchar  == '\n' || firstchar  == ',' ||
+            secondchar == ';' || secondchar == '\n' || secondchar == ',')
+        {
+          for(int i = 0; i < se->count(); ++i) {
+            colorize_block_body_line(se->item(i), scope_after_block);
+          }
+          
+          return;
+        }
+        
+        scope_colorize_spanexpr(se);
+      }
+      
+      void colorize_block_body(SpanExpr *se) {
+        if(se->count() < 2 || !FunctionCallSpan::is_list(se)) {
+          scope_colorize_spanexpr(se);
+          return;
+        }
+        
+        SharedPtr<ScopePos> next_scope;
+        colorize_block_body_line(se->item(1), next_scope);
+        if(next_scope)
+          state->current_pos = next_scope;
+      }
+      
+      void symdef_local_colorize_spanexpr(SpanExpr *se) {
+        symdef_colorize_spanexpr(se, LocalSymbol);
+      }
+      
+      void replacement_special_colorize_spanexpr(SpanExpr *se) {
+        replacement_colorize_spanexpr(se, Special);
+      }
+      
+      void colorize_scoping_block_head(FunctionCallSpan &head, SharedPtr<ScopePos> &scope_after_block, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*)) {
+        scope_colorize_spanexpr(head.span());
+        
+        if(!scope_after_block)
+          scope_after_block = state->new_scope();
+          
+        state->new_scope();
+        
+        const int head_arg_count = head.function_argument_count();
+        for(int i = 1; i <= head_arg_count; ++i)
+          (this->*colorize_def)(head.function_argument(i));
+      }
+      
+      void colorize_scoping_block(FunctionCallSpan &head, SpanExpr *se, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*)) {
+        assert(se->count() == 2);
+        
+        SharedPtr<ScopePos> next_scope;
+        colorize_scoping_block_head(head, next_scope, colorize_def);
+        assert(next_scope);
+        
+        colorize_block_body(se->item(1));
+        
+        state->current_pos = next_scope;
+      }
+      
+      void colorize_block(SpanExpr *se) {
+        assert(se->count() >= 2);
+        
+        if(FunctionCallSpan::is_simple_call(se->item(0))) {
+          FunctionCallSpan head_call(se->item(0));
+          
+          SpanExpr *name = span_as_name(head_call.function_head());
+          if(name) {
+            if(se->count() == 2) {
+              if(name->equals("Local") || name->equals("With")) {
+                colorize_scoping_block(head_call, se, &ScopeColorizerImpl::symdef_local_colorize_spanexpr);
+                return;
+              }
+              if(name->equals("Do")) {
+                colorize_scoping_block(head_call, se, &ScopeColorizerImpl::replacement_special_colorize_spanexpr);
+                return;
+              }
+            }
+          }
+        }
+        
+        SpanExpr *name = span_as_name(se->item(0));
+        if(name && name->equals("Function") && se->count() == 3) {
+          /* Function name(...) {...}  is syntactic suggar for  name(...)::=...
+           */
+          scope_colorize_spanexpr(se->item(0));
+          
+          SharedPtr<ScopePos> next_scope = state->new_scope();
+          state->new_scope();
+          
+          bool old_in_pattern = state->in_pattern;
+          state->in_pattern = true;
+          
+          scope_colorize_spanexpr(se->item(1)); // name(...)
+          
+          state->in_pattern = old_in_pattern;
+          
+          colorize_block_body(se->item(2)); // {...}
+          
+          state->current_pos = next_scope;
+          return;
+        }
+        
+        for(int i = 0; i < se->count(); ++i) {
+          colorize_block_body(se->item(i));
+        }
       }
       
     public:
@@ -789,12 +919,305 @@ namespace richmath {
           }
         }
         
+        if(BlockSpan::maybe_block(se)) {
+          colorize_block(se);
+          return;
+        }
+        
         for(int i = 0; i < se->count(); ++i) {
           SpanExpr *sub = se->item(i);
           
           scope_colorize_spanexpr(sub);
         }
       }
+  };
+  
+  class ErrorColorizerImpl {
+    private:
+      float  error_indicator_height;
+      
+    public:
+      ErrorColorizerImpl(float _error_indicator_height)
+        : error_indicator_height(_error_indicator_height)
+      {
+      }
+      
+    private:
+      void unknown_option_colorize_spanexpr(SpanExpr *se, Expr options) {
+        FunctionCallSpan call(se);
+        
+        if(call.is_list()) {
+          for(int i = call.list_length(); i >= 1; --i)
+            unknown_option_colorize_spanexpr(call.list_element(i), options);
+            
+          return;
+        }
+        
+        if(se->count() == 3) {
+          if(se->item(0)->as_token() != PMATH_TOK_NAME)
+            return;
+            
+          if( se->item_as_char(1) == PMATH_CHAR_RULE        ||
+              se->item_as_char(1) == PMATH_CHAR_RULEDELAYED ||
+              se->item_as_text(1).equals("->")              ||
+              se->item_as_text(1).equals(":>"))
+          {
+            String          name = se->item_as_text(0);
+            const uint16_t *buf  = name.buffer();
+            int             len  = name.length();
+            
+            for(size_t i = options.expr_length(); i > 0; --i) {
+              Expr rule = options[i];
+              Expr lhs  = rule[1];
+              
+              if(!lhs.is_symbol())
+                continue;
+                
+              String          lhs_name(pmath_symbol_name(lhs.get()));
+              const uint16_t *lhs_buf = lhs_name.buffer();
+              int             lhs_len = lhs_name.length();
+              
+              if(lhs_len < len)
+                continue;
+                
+              if(0 != memcmp(buf, lhs_buf + lhs_len - len, len * sizeof(uint16_t)))
+                continue;
+                
+              if(lhs_len == len || lhs_buf[lhs_len - len - 1] == '`')
+                return;
+            }
+            
+            int name_start = se->item(0)->start();
+            int name_end   = se->item(0)->end();
+            
+            const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+            
+            for(int i = name_start; i <= name_end; ++i)
+              glyphs[i].style = GlyphStyleInvalidOption;
+          }
+        }
+      }
+      
+      void add_missing_indicator(SpanExpr *span_before) {
+        const Array<GlyphInfo> &glyphs = span_before->sequence()->glyph_array();
+        int end = span_before->end();
+        
+        glyphs[end].missing_after = 1;
+        
+        if(end + 1 < glyphs.length()) {
+          glyphs[end + 1].x_offset += 2 * error_indicator_height;
+          glyphs[end + 1].right    += 2 * error_indicator_height;
+        }
+        else
+          glyphs[end].right += error_indicator_height;
+      }
+      
+      void mark_excess_args(FunctionCallSpan &call, int max_args) {
+        const Array<GlyphInfo> &glyphs = call.span()->sequence()->glyph_array();
+        
+        int end = call.arguments_span()->end();
+        int start;
+        
+        if(max_args == 0) {
+          start = call.arguments_span()->start();
+          
+          if(call.is_complex_call()) {
+            int arg1_start = call.function_argument(1)->start();
+            int arg1_end   = call.function_argument(1)->end();
+            
+            for(int pos = arg1_start; pos <= arg1_end; ++pos)
+              glyphs[pos].style = GlyphStyleExcessArg;
+          }
+        }
+        else if(max_args == 1 && call.is_complex_call()) {
+          start = call.arguments_span()->start();
+        }
+        else {
+          start = call.function_argument(max_args)->end() + 1;
+        }
+        
+        for(int pos = start; pos <= end; ++pos)
+          glyphs[pos].style = GlyphStyleExcessArg;
+          
+        return;
+      }
+      
+      void arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se) {
+        if(!FunctionCallSpan::is_call(se))
+          return;
+          
+        FunctionCallSpan        call      = se;
+        SpanExpr               *head_name = span_as_name(call.function_head());
+        const Array<GlyphInfo> &glyphs    = se->sequence()->glyph_array();
+        
+        if(!head_name)
+          return;
+          
+        if(GlyphStyleNone != glyphs[head_name->start()].style)
+          return;
+          
+        String name = head_name->as_text();
+        SyntaxInformation info(name);
+        
+        if(info.minargs == 0 && info.maxargs == INT_MAX)
+          return;
+          
+        int arg_count = call.function_argument_count();
+        
+        if(arg_count > info.maxargs) {
+          Expr options = Application::interrupt_cached(
+                           Call(Symbol(PMATH_SYMBOL_OPTIONS), name));
+                           
+          if( options.expr_length() == 0 ||
+              options[0] != PMATH_SYMBOL_LIST)
+          {
+            mark_excess_args(call, info.maxargs);
+            return;
+          }
+          
+          for(int i = info.maxargs + 1; i <= arg_count; ++i)
+            unknown_option_colorize_spanexpr(call.function_argument(i), options);
+        }
+        
+        if(arg_count < info.minargs) {
+          add_missing_indicator(call.arguments_span());
+        }
+      }
+      
+      void get_block_head_argument_counts(SpanExpr *name, int &argmin, int &argmax) {
+        argmin = 0;
+        argmax = INT_MAX;
+        
+        if( name->equals("If") ||
+            name->equals("While") ||
+            name->equals("Switch") ||
+            name->equals("Case"))
+        {
+          argmin = 1;
+          argmax = 1;
+          return;
+        }
+        
+        if( name->equals("Do") ||
+            name->equals("With") ||
+            name->equals("Local"))
+        {
+          argmin = 1;
+          return;
+        }
+        
+        
+        if( name->equals("Function") ||
+            name->equals("Block") ||
+            name->equals("Try") ||
+            name->equals("Finally"))
+        {
+          argmax = 0;
+        }
+      }
+      
+      void colorize_block_body_line_errors(SpanExpr *se) {
+        while(se->count() == 1)
+          se = se->item(0);
+          
+        if(FunctionCallSpan::is_simple_call(se)) {
+          FunctionCallSpan call(se);
+          
+          SpanExpr *name = span_as_name(call.function_head());
+          if(name) {
+            if(name->equals("Local") || name->equals("With")) {
+              colorize_block_body_errors(se);
+              return;
+            }
+          }
+        }
+        
+        if(se->count() < 2) {
+          arglist_errors_colorize_spanexpr(se);
+          return;
+        }
+        
+        uint16_t firstchar = se->item_as_char(0);
+        uint16_t secondchar = se->item_as_char(1);
+        if( firstchar  == ';' || firstchar  == '\n' || firstchar  == ',' ||
+            secondchar == ';' || secondchar == '\n' || secondchar == ',')
+        {
+          for(int i = 0; i < se->count(); ++i) {
+            colorize_block_body_line_errors(se->item(i));
+          }
+          
+          return;
+        }
+        
+        arglist_errors_colorize_spanexpr(se);
+      }
+      
+      void colorize_block_body_errors(SpanExpr *se) {
+        while(se->count() == 1)
+          se = se->item(0);
+          
+        if(FunctionCallSpan::is_simple_call(se)) {
+          FunctionCallSpan call(se);
+          SpanExpr *name = span_as_name(call.function_head());
+          if(name) {
+            int arg_count = call.function_argument_count();
+            int argmin, argmax;
+            
+            get_block_head_argument_counts(name, argmin, argmax);
+            if(argmax > arg_count)
+              argmax = arg_count;
+              
+            for(int i = 1; i <= argmax; ++i) {
+              arglist_errors_colorize_spanexpr(call.function_argument(i));
+            }
+            
+            if(arg_count > argmax)
+              mark_excess_args(call, argmax);
+            else if(arg_count < argmin)
+              add_missing_indicator(call.arguments_span());
+              
+            return;
+          }
+        }
+        
+        if(se->as_token() == PMATH_TOK_NAME) {
+          int argmin, argmax;
+          get_block_head_argument_counts(se, argmin, argmax);
+          if(argmin > 0) {
+            add_missing_indicator(se);
+          }
+          
+          return;
+        }
+        
+        if(se->count() >= 2 && FunctionCallSpan::is_list(se)) {
+          colorize_block_body_line_errors(se->item(1));
+          return;
+        }
+        
+        arglist_errors_colorize_spanexpr(se);
+      }
+      
+      void colorize_block_errors(SpanExpr *se) {
+        assert(se->count() >= 2);
+        
+        for(int i = 0; i < se->count(); ++i)
+          colorize_block_body_errors(se->item(i));
+      }
+      
+    public:
+      void arglist_errors_colorize_spanexpr(SpanExpr *se) {
+        if(BlockSpan::maybe_block(se)) {
+          colorize_block_errors(se);
+          return;
+        }
+        
+        arglist_errors_colorize_spanexpr_norecurse(se);
+        
+        for(int i = 0; i < se->count(); ++i)
+          arglist_errors_colorize_spanexpr(se->item(i));
+      }
+      
   };
 }
 
@@ -939,140 +1362,7 @@ void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
 }
 
 void ScopeColorizer::arglist_errors_colorize_spanexpr(SpanExpr *se, float error_indicator_height) {
-  arglist_errors_colorize_spanexpr_norecurse(se, error_indicator_height);
-  
-  for(int i = 0; i < se->count(); ++i)
-    arglist_errors_colorize_spanexpr(se->item(i), error_indicator_height);
-}
-
-
-void ScopeColorizer::arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se, float error_indicator_height) {
-  if(!FunctionCallSpan::is_call(se))
-    return;
-    
-  FunctionCallSpan        call      = se;
-  SpanExpr               *head_name = span_as_name(call.function_head());
-  const Array<GlyphInfo> &glyphs    = se->sequence()->glyph_array();
-  
-  if(!head_name)
-    return;
-    
-  if(GlyphStyleNone != glyphs[head_name->start()].style)
-    return;
-    
-  String name = head_name->as_text();
-  SyntaxInformation info(name);
-  
-  if(info.minargs == 0 && info.maxargs == INT_MAX)
-    return;
-    
-  int arg_count = call.function_argument_count();
-  
-  if(arg_count > info.maxargs) {
-    Expr options = Application::interrupt_cached(
-                     Call(Symbol(PMATH_SYMBOL_OPTIONS), name));
-                     
-    if( options.expr_length() == 0 ||
-        options[0] != PMATH_SYMBOL_LIST)
-    {
-      int end = call.arguments_span()->end();
-      int start;
-      
-      if(info.maxargs == 0) {
-        start = call.arguments_span()->start();
-        
-        if(call.is_complex_call()) {
-          int arg1_start = call.function_argument(1)->start();
-          int arg1_end   = call.function_argument(1)->end();
-          
-          for(int pos = arg1_start; pos <= arg1_end; ++pos)
-            glyphs[pos].style = GlyphStyleExcessArg;
-        }
-      }
-      else if(info.maxargs == 1 && call.is_complex_call()) {
-        start = call.arguments_span()->start();
-      }
-      else {
-        start = call.function_argument(info.maxargs)->end() + 1;
-      }
-      
-      for(int pos = start; pos <= end; ++pos)
-        glyphs[pos].style = GlyphStyleExcessArg;
-        
-      return;
-    }
-    
-    for(int i = info.maxargs + 1; i <= arg_count; ++i)
-      unknown_option_colorize_spanexpr(call.function_argument(i), options);
-  }
-  
-  if(arg_count < info.minargs) {
-    int end = call.arguments_span()->end();
-    
-    glyphs[end].missing_after = 1;
-    
-    if(end + 1 < glyphs.length()) {
-      glyphs[end + 1].x_offset += 2 * error_indicator_height;
-      glyphs[end + 1].right    += 2 * error_indicator_height;
-    }
-    else
-      glyphs[end].right += error_indicator_height;
-  }
-}
-
-void ScopeColorizer::unknown_option_colorize_spanexpr(SpanExpr *se, Expr options) {
-  FunctionCallSpan call(se);
-  
-  if(call.is_list()) {
-    for(int i = call.list_length(); i >= 1; --i)
-      unknown_option_colorize_spanexpr(call.list_element(i), options);
-      
-    return;
-  }
-  
-  if(se->count() == 3) {
-    if(se->item(0)->as_token() != PMATH_TOK_NAME)
-      return;
-      
-    if( se->item_as_char(1) == PMATH_CHAR_RULE        ||
-        se->item_as_char(1) == PMATH_CHAR_RULEDELAYED ||
-        se->item_as_text(1).equals("->")              ||
-        se->item_as_text(1).equals(":>"))
-    {
-      String          name = se->item_as_text(0);
-      const uint16_t *buf  = name.buffer();
-      int             len  = name.length();
-      
-      for(size_t i = options.expr_length(); i > 0; --i) {
-        Expr rule = options[i];
-        Expr lhs  = rule[1];
-        
-        if(!lhs.is_symbol())
-          continue;
-          
-        String          lhs_name(pmath_symbol_name(lhs.get()));
-        const uint16_t *lhs_buf = lhs_name.buffer();
-        int             lhs_len = lhs_name.length();
-        
-        if(lhs_len < len)
-          continue;
-          
-        if(0 != memcmp(buf, lhs_buf + lhs_len - len, len * sizeof(uint16_t)))
-          continue;
-          
-        if(lhs_len == len || lhs_buf[lhs_len - len - 1] == '`')
-          return;
-      }
-      
-      int name_start = se->item(0)->start();
-      int name_end   = se->item(0)->end();
-      
-      const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
-      
-      for(int i = name_start; i <= name_end; ++i)
-        glyphs[i].style = GlyphStyleInvalidOption;
-    }
-  }
+  ErrorColorizerImpl(error_indicator_height).arglist_errors_colorize_spanexpr(se);
 }
 
 //} ... class ScopeColorizer

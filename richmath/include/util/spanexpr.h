@@ -292,6 +292,8 @@ namespace richmath {
       bool is_call(){         return is_call(_span); }
       bool is_list() {        return is_list(_span); }
       
+      SpanExpr *span() { return _span; }
+      
       SpanExpr *arguments_span(){ return _args.all(); }
       
       /** Get the function head.
