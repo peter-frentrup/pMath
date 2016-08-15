@@ -99,7 +99,9 @@ namespace richmath {
           If you choose self_destruction=false, and the function returns nullptr, you still 
           own this span and have to delete it later.
           If you choose self_destruction=false, and the function returns a valid span 
-          (not nullptr), you can still access this afterwards, but you must not delete it.
+          (not nullptr), you can still access this afterwards, but you need not delete it.
+          (if you delete this afterwards, it will be detached from its parent span, which
+          would later recreate a span at the same position on demand).
        */
       SpanExpr *expand(bool self_destruction = true);
       
