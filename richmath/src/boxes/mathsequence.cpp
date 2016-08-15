@@ -1727,12 +1727,21 @@ namespace richmath {
       static Array<int>                       break_result;
       
     private:
-      int fill_penalty_array(
-        Span  span,
-        int   depth,
-        int   pos,
-        int  *box
-      ) {
+      int fill_block_body_penalty_array(Span span, int depth, int pos, int *box) {
+        if(!span)
+          return fill_penalty_array(span, depth, pos, box);
+        
+        int next = fill_penalty_array(span, depth, pos, box);
+        
+        const uint16_t *buf = self.str.buffer();
+        if(buf[next - 1] == ')' && next >= 2) {
+          penalty_array[next - 2] = MAX(0, penalty_array[next - 1] - 2 * DepthPenalty);
+        }
+        
+        return next;
+      }
+      
+      int fill_penalty_array(Span span, int depth, int pos, int *box) {
         const uint16_t *buf = self.str.buffer();
         
         if(!span) {
@@ -1817,7 +1826,14 @@ namespace richmath {
         
         ++depth;
         
-        int next = fill_penalty_array(span.next(), depth, pos, box);
+        int (MathSequenceImpl::*fpa)(Span, int, int, int*) = &MathSequenceImpl::fill_penalty_array;
+        {
+          SpanExpr span_expr(pos, span, &self);
+          if(BlockSpan::maybe_block(&span_expr))
+            fpa = &MathSequenceImpl::fill_block_body_penalty_array;
+        }
+        
+        int next = (this->*fpa)(span.next(), depth, pos, box);
         
         if(pmath_char_is_left(buf[pos])) {
           penalty_array[pos] += WordPenalty + DepthPenalty;
@@ -1905,7 +1921,7 @@ namespace richmath {
               }
           }
           
-          next = fill_penalty_array(self.spans[next], depth, next, box);
+          next = (this->*fpa)(self.spans[next], depth, next, box);
         }
         
         inc_penalty -= dec_penalty;
@@ -1961,10 +1977,9 @@ namespace richmath {
         if(!span)
           return fill_indention_array(span, depth, pos);
           
-        const uint16_t *buf = self.str.buffer();
-        
         int next = fill_indention_array(span, depth, pos);
         
+        const uint16_t *buf = self.str.buffer();
         if(buf[pos] == '{' && buf[next - 1] == '}' && !span.next()) {
           /* Unindent closing brace of a block.
                Block {
@@ -1977,8 +1992,7 @@ namespace richmath {
            */
           indention_array[next - 1] = MAX(0, depth - 1);
         }
-        
-        if(buf[next - 1] == ')') {
+        else if(buf[next - 1] == ')') {
           /* Unindent closing parenthesis of a block header. 
                If(
                  cond
