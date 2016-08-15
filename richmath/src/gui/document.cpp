@@ -668,8 +668,8 @@ namespace richmath {
               FunctionCallSpan call(span);
               
               SpanExpr *head = call.function_head();
-              if( box_order(head->sequence(), head->start(), seq, start) <= 0 &&
-                  box_order(head->sequence(), head->end() + 1, seq, end) >= 0)
+              if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
+                  box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
               {
                 continue;
               }
@@ -698,8 +698,8 @@ namespace richmath {
               FunctionCallSpan call(span);
               
               SpanExpr *head = span->item(2);
-              if( box_order(head->sequence(), head->start(), seq, start) <= 0 &&
-                  box_order(head->sequence(), head->end() + 1, seq, end) >= 0)
+              if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
+                  box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
               {
                 continue;
               }
