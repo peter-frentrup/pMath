@@ -58,6 +58,7 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
   assert(_end < sequence->length());
   assert(!_parent || _parent->_end >= _end);
   
+  int last_non_newline_length = 0;
   _items_pos.length(0);
   
   const uint16_t *str     = sequence->text().buffer();
@@ -75,16 +76,20 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
     if(_span.next()) {
       pos = _span.next().end() + 1;
       
-      if(!is_comment_start_at(str + prev, str_end))
+      if(!is_comment_start_at(str + prev, str_end)) {
         _items_pos.add(prev);
+        last_non_newline_length = _items_pos.length();
+      }
     }
     else {
       while(!sequence->span_array().is_token_end(pos))
         ++pos;
       ++pos;
       
-      if(str[prev] > ' ')
-        _items_pos.add(prev);
+      if(str[prev] > ' ') {
+        _items_pos.add(prev); 
+        last_non_newline_length = _items_pos.length();
+      }
     }
     
     while(pos <= _end) {
@@ -93,21 +98,30 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
       if(sequence->span_array()[pos]) {
         pos = sequence->span_array()[pos].end() + 1;
         
-        if(!is_comment_start_at(str + prev, str_end))
+        if(!is_comment_start_at(str + prev, str_end)) {
           _items_pos.add(prev);
+          last_non_newline_length = _items_pos.length();
+        }
       }
       else {
         while(!sequence->span_array().is_token_end(pos))
           ++pos;
         ++pos;
         
-        if(str[prev] > ' ')
+        if(str[prev] > ' ') {
           _items_pos.add(prev);
+          last_non_newline_length = _items_pos.length();
+        }
+        else if(str[prev] == '\n' && last_non_newline_length > 0) { 
+          /* \n between spans/tokens is significant, \n at start or end of span is not. */
+          _items_pos.add(prev);
+        }
       }
     }
   }
   
-  _items.length(_items_pos.length(), 0);
+  _items_pos.length(last_non_newline_length);
+  _items.length(last_non_newline_length, 0);
 }
 
 SpanExpr::~SpanExpr() {
