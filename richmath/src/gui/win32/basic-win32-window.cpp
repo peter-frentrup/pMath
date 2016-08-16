@@ -640,9 +640,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
 
   bool minmax = false;
   if(lParam->bottom - lParam->top < minh) {
-    if(wParam == WMSZ_TOP
-        || wParam == WMSZ_TOPLEFT
-        || wParam == WMSZ_TOPRIGHT)
+    if(wParam == WMSZ_TOP || wParam == WMSZ_TOPLEFT || wParam == WMSZ_TOPRIGHT)
       lParam->top = lParam->bottom - minh;
     else
       lParam->bottom = lParam->top + minh;
@@ -651,9 +649,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   }
 
   if(lParam->bottom - lParam->top > maxh && max_client_height > 0) {
-    if(wParam == WMSZ_TOP
-        || wParam == WMSZ_TOPLEFT
-        || wParam == WMSZ_TOPRIGHT)
+    if(wParam == WMSZ_TOP || wParam == WMSZ_TOPLEFT || wParam == WMSZ_TOPRIGHT)
       lParam->top = lParam->bottom - maxh;
     else
       lParam->bottom = lParam->top + maxh;
@@ -662,9 +658,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   }
 
   if(lParam->right - lParam->left < minw) {
-    if(wParam == WMSZ_LEFT
-        || wParam == WMSZ_TOPLEFT
-        || wParam == WMSZ_BOTTOMLEFT)
+    if(wParam == WMSZ_LEFT || wParam == WMSZ_TOPLEFT || wParam == WMSZ_BOTTOMLEFT)
       lParam->left = lParam->right - minw;
     else
       lParam->right = lParam->left + minw;
@@ -673,9 +667,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   }
 
   if(lParam->right - lParam->left > maxw && max_client_width > 0) {
-    if(wParam == WMSZ_LEFT
-        || wParam == WMSZ_TOPLEFT
-        || wParam == WMSZ_BOTTOMLEFT)
+    if(wParam == WMSZ_LEFT || wParam == WMSZ_TOPLEFT || wParam == WMSZ_BOTTOMLEFT)
       lParam->left = lParam->right - maxw;
     else
       lParam->right = lParam->left + maxw;

@@ -660,7 +660,7 @@ bool Win32DocumentWindow::is_all_glass() {
 void Win32DocumentWindow::rearrange() {
   if(creation)
     return;
-    
+  
   RECT rect;
   get_client_rect(&rect);
   
@@ -749,6 +749,8 @@ void Win32DocumentWindow::rearrange() {
         
         for(int i = 4; i <= PARTCOUNT; ++i)
           new_ys[i] += newh - oldh;
+          
+        work_height = new_ys[4] - new_ys[3];
       }
     }
   }
@@ -815,7 +817,7 @@ void Win32DocumentWindow::rearrange() {
     }
   }
   
-  min_client_height = rect.bottom - (new_ys[4] - new_ys[3]);
+  min_client_height = rect.bottom - rect.top - (new_ys[4] - new_ys[3]);
   
   if(_working_area->auto_size) {
     min_client_height += work_height;

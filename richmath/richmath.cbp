@@ -386,7 +386,6 @@
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="msvc_2015_x64" />
-				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="/MDd" />
 					<Add option="/Gd" />
