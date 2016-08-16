@@ -1095,10 +1095,10 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
 //      nc.cxLeftWidth +=    margins->cxLeftWidth    - cx - padd;
 //      nc.cxRightWidth +=   margins->cxRightWidth   - cx - padd;
 //      nc.cyBottomHeight += margins->cyBottomHeight - cy - padd;
-      nc.cxLeftWidth = 0;
-      nc.cxRightWidth = 0;
+      nc.cxLeftWidth = margins->cxLeftWidth;
+      nc.cxRightWidth = margins->cxRightWidth;
       nc.cyTopHeight += margins->cyTopHeight;
-      nc.cyBottomHeight = 0;
+      nc.cyBottomHeight = margins->cyBottomHeight;
 
       Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);
     }
