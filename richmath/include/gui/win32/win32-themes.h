@@ -163,10 +163,21 @@ namespace richmath {
                              DTT_COMPOSITED)
 #endif
       
+      typedef struct {
+        DWORD color;
+        DWORD afterglow;
+        DWORD color_balance;
+        DWORD afterglow_balance;
+        DWORD blur_balance;
+        DWORD glass_reflection_intensity;
+        BOOL  opaque_blend;
+      } DWM_COLORIZATION_PARAMS;
+      
     public:
       static HRESULT(WINAPI *DwmEnableComposition)(UINT);
       static HRESULT(WINAPI *DwmExtendFrameIntoClientArea)(HWND, const MARGINS*);
       static HRESULT(WINAPI *DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD);
+      static HRESULT(WINAPI *DwmGetColorizationParameters)(DWM_COLORIZATION_PARAMS *params);
       static HRESULT(WINAPI *DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO*);
       static HRESULT(WINAPI *DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT*);
       
@@ -204,6 +215,8 @@ namespace richmath {
       static void init();
       static bool current_theme_is_aero();
       static bool check_osversion(int min_major, int min_minor);
+      
+      static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       
     private:
       static HMODULE dwmapi;

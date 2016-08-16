@@ -939,6 +939,13 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     dtt_opts.dwSize    = sizeof(dtt_opts);
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = 10;
+    
+    if(Win32Themes::DwmGetColorizationParameters) {
+      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
+      Win32Themes::DwmGetColorizationParameters(&params);
+      
+      dtt_opts.crText = Win32Themes::get_window_title_text_color(&params, _active);
+    }
 
 #define MAX_STR_LEN 1024
     WCHAR str[MAX_STR_LEN];
