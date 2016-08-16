@@ -166,14 +166,19 @@ void BasicWin32Window::get_client_rect(RECT *rect) {
     GetWindowRect(_hwnd, &winrect);
     get_nc_margins(&margins);
 
-    int cx = GetSystemMetrics(SM_CXFRAME);
-    //int cy = GetSystemMetrics(SM_CYFRAME);
-    int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
-
-    rect->left   = margins.cxLeftWidth - cx - padd;
+    rect->left   = 0;
     rect->top    = margins.cyTopHeight;
-    rect->right  = winrect.right  - winrect.left - (cx + padd) - margins.cxRightWidth;
-    rect->bottom = winrect.bottom - winrect.top                - margins.cyBottomHeight;
+    rect->right  = winrect.right  - winrect.left - margins.cxLeftWidth - margins.cxRightWidth;
+    rect->bottom = winrect.bottom - winrect.top                        - margins.cyBottomHeight;
+
+//    int cx = GetSystemMetrics(SM_CXFRAME);
+//    //int cy = GetSystemMetrics(SM_CYFRAME);
+//    int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
+//
+//    rect->left   = margins.cxLeftWidth - cx - padd;
+//    rect->top    = margins.cyTopHeight;
+//    rect->right  = winrect.right  - winrect.left - (cx + padd) - margins.cxRightWidth;
+//    rect->bottom = winrect.bottom - winrect.top                - margins.cyBottomHeight;
   }
   else
     GetClientRect(_hwnd, rect);
@@ -215,15 +220,6 @@ void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins) {
   margins->cyTopHeight    = -frame.top;
   margins->cxRightWidth   = frame.right;
   margins->cyBottomHeight = frame.bottom;
-
-//  int cx = GetSystemMetrics(SM_CXFRAME);
-//  int cy = GetSystemMetrics(SM_CYFRAME);
-//  int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
-//
-//  margins->cxLeftWidth    = -frame.left - cx - padd;
-//  margins->cyTopHeight    = -frame.top;
-//  margins->cxRightWidth   = frame.right - cx - padd;
-//  margins->cyBottomHeight = frame.bottom - cy - padd;
 }
 
 //{ snapping windows & alignment ...
@@ -978,8 +974,8 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
 
     bool center_caption = false;
 
-    // center caption on Windows 8 or newer
-    if(Win32Themes::check_osversion(6, 2)) {
+    // center caption on Windows 8 or 8.1
+    if(Win32Themes::check_osversion(6, 2) && !Win32Themes::check_osversion(10, 0)) {
       center_caption = true;
     }
 
@@ -1086,14 +1082,16 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
       if(_themed_frame)
         get_nc_margins(&nc);
 
-      int cx = GetSystemMetrics(SM_CXFRAME);
-      int cy = GetSystemMetrics(SM_CYFRAME);
-      int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
-
-      nc.cxLeftWidth +=    margins->cxLeftWidth - cx - padd;
-      nc.cxRightWidth +=   margins->cxRightWidth - cx - padd;
-      nc.cyTopHeight +=    margins->cyTopHeight;
-      nc.cyBottomHeight += margins->cyBottomHeight - cy - padd;
+//      int cx = GetSystemMetrics(SM_CXFRAME);
+//      int cy = GetSystemMetrics(SM_CYFRAME);
+//      int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
+//      nc.cxLeftWidth +=    margins->cxLeftWidth    - cx - padd;
+//      nc.cxRightWidth +=   margins->cxRightWidth   - cx - padd;
+//      nc.cyBottomHeight += margins->cyBottomHeight - cy - padd;
+      nc.cxLeftWidth = 0;
+      nc.cxRightWidth = 0;
+      nc.cyTopHeight += margins->cyTopHeight;
+      nc.cyBottomHeight = 0;
 
       Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);
     }
@@ -1133,17 +1131,19 @@ bool BasicWin32Window::is_closed() {
 
 void BasicWin32Window::paint_background(Canvas *canvas, HWND child, bool wallpaper_only) {
   RECT rect, child_rect;
+  Win32Themes::MARGINS margins = {0};
 
   GetWindowRect(child, &child_rect);
   GetWindowRect(_hwnd, &rect);
+  get_nc_margins(&margins);
 
-  int cx = GetSystemMetrics(SM_CXFRAME);
-  //int cy = GetSystemMetrics(SM_CYFRAME);
-  int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
+//  int cx = GetSystemMetrics(SM_CXFRAME);
+//  //int cy = GetSystemMetrics(SM_CYFRAME);
+//  int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
 
   paint_background(
     canvas,
-    child_rect.left - rect.left - cx - padd,
+    child_rect.left - rect.left - margins.cxLeftWidth,
     child_rect.top  - rect.top,
     wallpaper_only);
 }
@@ -1165,8 +1165,8 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
 
     RECT glassfree;
     get_glassfree_rect(&glassfree);
-    glassfree.left   -= rect.left;
-    glassfree.right  -= rect.left;
+//    glassfree.left   -= rect.left;
+//    glassfree.right  -= rect.left;
     glassfree.top    -= rect.top;
     glassfree.bottom -= rect.top;
 
@@ -1236,8 +1236,30 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
 
       int buttonradius;
       int frameradius;
+      float buttons_alpha = 1.0f;
 
-      if(Win32Themes::check_osversion(6, 2)) { // Windows 8 or newer
+      bool is_win8_or_newer = Win32Themes::check_osversion(6, 2);
+
+      if(_mouse_over_caption_buttons) {
+        if(is_win8_or_newer)
+          buttons_alpha = 0.8f;
+        else
+          buttons_alpha = 1.0f;
+      }
+      else if(_active) {
+        if(is_win8_or_newer)
+          buttons_alpha = 0.5f;
+        else
+          buttons_alpha = 0.8f;
+      }
+      else {
+        if(is_win8_or_newer)
+          buttons_alpha = 0.4f;
+        else
+          buttons_alpha = 0.4f;
+      }
+
+      if(is_win8_or_newer) { // Windows 8 or newer
         buttonradius = 1;
         frameradius  = 1;
       }
@@ -1250,7 +1272,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         frameradius  = 6; //GetSystemMetrics(SM_CXFRAME)-2;
       }
 
-      if(!IsRectEmpty(&glassfree)) { // show border between glass/nonglass
+      if(!IsRectEmpty(&glassfree) && !is_win8_or_newer) { // show border between glass/nonglass on Windows Vista and 7
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 
         canvas->move_to(rect.left,  rect.top);
@@ -1306,17 +1328,20 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           canvas->close_path();
         }
 
-        if(_mouse_over_caption_buttons) {
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-        }
-        else if(_active) {
-          canvas->set_color(0xffffff, 1 - 0.2);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
-        }
-        else {
-          canvas->set_color(0xffffff, 1 - 0.6);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
-        }
+        canvas->set_color(0xffffff, buttons_alpha);
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+
+//        if(_mouse_over_caption_buttons) {
+//          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+//        }
+//        else if(_active) {
+//          canvas->set_color(0xffffff, 1 - 0.2);
+//          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+//        }
+//        else {
+//          canvas->set_color(0xffffff, 1 - 0.6);
+//          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+//        }
 
         canvas->fill();
       }
@@ -1329,7 +1354,9 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         canvas->close_path();
 
         {
-          InflateRect(&rect, -1, -1);
+          //InflateRect(&rect, -1, -1);
+          rect.top+= 1;
+
           canvas->move_to(rect.left, rect.top + frameradius);
           canvas->arc(rect.left  + frameradius, rect.top    + frameradius, frameradius,     M_PI,     3 * M_PI / 2, false);
           canvas->arc(rect.right - frameradius, rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,     false);
@@ -1337,7 +1364,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           canvas->arc(rect.left  + frameradius, rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
           canvas->close_path();
 
-          InflateRect(&rect, 1, 1);
+          //InflateRect(&rect, 1, 1);
         }
 
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
@@ -1760,14 +1787,19 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(wParam && _themed_frame) {
             NCCALCSIZE_PARAMS *calcsize_params = (NCCALCSIZE_PARAMS*)lParam;
             //return 0;//WVR_ALIGNTOP | WVR_ALIGNRIGHT;
+            Win32Themes::MARGINS margins = {0};
+            get_nc_margins(&margins);
+            //int cx = GetSystemMetrics(SM_CXFRAME);
+            //int cy = GetSystemMetrics(SM_CYFRAME);
+            //int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
+            //
+            //calcsize_params->rgrc[0].left+= cx + padd;
+            //calcsize_params->rgrc[0].right-= cx + padd;
+            //calcsize_params->rgrc[0].bottom-= cy + padd;
 
-            int cx = GetSystemMetrics(SM_CXFRAME);
-            int cy = GetSystemMetrics(SM_CYFRAME);
-            int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
-
-            calcsize_params->rgrc[0].left+= cx + padd;
-            calcsize_params->rgrc[0].right-= cx + padd;
-            calcsize_params->rgrc[0].bottom-= cy + padd;
+            calcsize_params->rgrc[0].left+= margins.cxLeftWidth;
+            calcsize_params->rgrc[0].right-= margins.cxRightWidth;
+            calcsize_params->rgrc[0].bottom-= margins.cyBottomHeight;
 
             return WVR_VALIDRECTS | WVR_REDRAW;
           }
