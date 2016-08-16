@@ -1469,8 +1469,8 @@ void Document::invalidate_options() {
     
     native()->invalidate_options();
   }
-  
-  //Box::invalidate_options();
+  else
+    Box::invalidate_options();
 }
 
 void Document::invalidate_all() {
