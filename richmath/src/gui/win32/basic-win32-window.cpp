@@ -1382,14 +1382,19 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         canvas->close_path();
 
         {
+          RECT window_rect;
+          GetWindowRect(_hwnd, &window_rect);
+          POINT *pt = (POINT*)&window_rect;
+          ScreenToClient(_hwnd, &pt[0]);
+          ScreenToClient(_hwnd, &pt[1]);
           //InflateRect(&rect, -1, -1);
-          rect.top+= 1;
+          window_rect.top+= 1;
 
-          canvas->move_to(rect.left, rect.top + frameradius);
-          canvas->arc(rect.left  + frameradius, rect.top    + frameradius, frameradius,     M_PI,     3 * M_PI / 2, false);
-          canvas->arc(rect.right - frameradius, rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,     false);
-          canvas->arc(rect.right - frameradius, rect.bottom - frameradius, frameradius, 0,                M_PI / 2, false);
-          canvas->arc(rect.left  + frameradius, rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
+          canvas->move_to(window_rect.left, window_rect.top + frameradius);
+          canvas->arc(window_rect.left  + frameradius, window_rect.top    + frameradius, frameradius,     M_PI,     3 * M_PI / 2, false);
+          canvas->arc(window_rect.right - frameradius, window_rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,     false);
+          canvas->arc(window_rect.right - frameradius, window_rect.bottom - frameradius, frameradius, 0,                M_PI / 2, false);
+          canvas->arc(window_rect.left  + frameradius, window_rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
           canvas->close_path();
 
           //InflateRect(&rect, 1, 1);
