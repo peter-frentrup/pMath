@@ -51,6 +51,9 @@ Function Get-SourceDlls([string] $TargetExe, [string] $DllSearchPath) {
 				Write-Verbose "Skip $($file.Name) from $dir"
 			}
 		}
+		ElseIf($module.Module -like 'api-ms-*') {
+			Write-Verbose "$($module.Status): Ignore Windows module $($module.Module)"
+		}
 		ElseIf($module.Status -eq '?') {
 			Write-Error "Module not found: $($module.Module)"
 		}
