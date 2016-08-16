@@ -26,6 +26,10 @@ using namespace richmath;
 #endif
 
 
+#define MIN(a, b)  ((a) < (b) ? (a) : (b))
+#define MAX(a, b)  ((a) > (b) ? (a) : (b))
+
+
 static Hashtable<String, AutoCairoSurface> background_image_cache;
 
 static HANDLE composition_window_theme = 0;
@@ -901,7 +905,7 @@ void BasicWin32Window::paint_themed(HDC hdc) {
   }
 }
 
-void get_system_button_bounds(HWND hwnd, RECT *rect) {
+static void get_system_button_bounds(HWND hwnd, RECT *rect) {
   //DwmGetWindowAttribute(hwnd, DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT));
 
   TITLEBARINFOEX tbi;
@@ -914,6 +918,43 @@ void get_system_button_bounds(HWND hwnd, RECT *rect) {
   for(int i = 2; i <= 5; ++i)
     UnionRect(rect, rect, &tbi.rgrect[i]);
 
+  POINT *pt = (POINT *)rect;
+  ScreenToClient(hwnd, &pt[0]);
+  ScreenToClient(hwnd, &pt[1]);
+}
+
+static void get_system_menu_bounds(HWND hwnd, RECT *rect) {
+  memset(rect, 0, sizeof(RECT));
+  
+  GetWindowRect(hwnd, rect);
+  
+  RECT buttons;
+  get_system_button_bounds(hwnd, &buttons);
+  ClientToScreen(hwnd, (POINT *)&buttons);
+  int invisible_top = buttons.top - rect->top - 1;
+  
+  DWORD style    = GetWindowLongW(hwnd, GWL_STYLE);
+  DWORD ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
+  RECT neg_margins = { 0, 0, 0, 0 };
+  AdjustWindowRectEx(&neg_margins, style, FALSE, ex_style);
+  
+  int caption_h = GetSystemMetrics(SM_CYCAPTION);
+  int icon_w    = GetSystemMetrics(SM_CXSMICON);
+  int icon_h    = GetSystemMetrics(SM_CYSMICON);
+  
+  int visible_top = -neg_margins.top - invisible_top;
+  
+  rect->left += -neg_margins.left + 1;
+  rect->top+= invisible_top + (visible_top - icon_h) / 2;
+  
+  if(Win32Themes::check_osversion(10, 0)) {
+    /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more. */
+    rect->left+= -neg_margins.left;
+  }
+  
+  rect->right = rect->left + icon_w;
+  rect->bottom = rect->top + icon_h;
+  
   POINT *pt = (POINT *)rect;
   ScreenToClient(hwnd, &pt[0]);
   ScreenToClient(hwnd, &pt[1]);
@@ -960,25 +1001,6 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
       old_font = (HFONT)SelectObject(hdc_bitmap, font);
     }
 
-    /* SM_CXPADDEDBORDER is available since Windows Vista.
-
-       If the executable specifies subsystem version < 6.0 (e.g. 5.02 for XP 64bit),
-       then GetSystemMetrics(SM_CXSIZEFRAME) will lie to us and include the border
-       padding, giving e.g. 8px on Windows 7. On the other hand,
-       GetSystemMetrics(SM_CXPADDEDBORDER) will also lie and give 0px.
-       However, newer versions of Visual C++ set a default subsystem version of 6.0
-       or higher, because XP is not supported any more. In that case,
-       GetSystemMetrics(SM_CXSIZEFRAME) will not include the border padding and give
-       only 4px on Windows 7. In that case GetSystemMetrics(SM_CXPADDEDBORDER) will
-       give 4px.
-
-       Hence, the sum of SM_CXPADDEDBORDER and SM_CXSIZEFRAME is always what we want.
-     */
-
-    int frame_x   = GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-    int frame_y   = GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-    int caption_h = GetSystemMetrics(SM_CYCAPTION);
-
     bool center_caption = false;
 
     // center caption on Windows 8 or 8.1
@@ -987,14 +1009,17 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     }
 
     int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
-
-    RECT rect;
-    get_system_button_bounds(_hwnd, &rect);
+    
+    Win32Themes::MARGINS nc;
+    get_nc_margins(&nc);
+    RECT menu, rect, buttons;
+    get_system_button_bounds(_hwnd, &buttons);
+    get_system_menu_bounds(_hwnd, &menu);
     if(center_caption) {
       flags |= DT_CENTER;
 
       RECT calc_rect = {0};
-      //calc_rect.right = rect.right;
+      //calc_rect.right = buttons.right;
 
       dtt_opts.dwFlags |= DTT_CALCRECT;
 
@@ -1009,21 +1034,20 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
 
       dtt_opts.dwFlags &= ~DTT_CALCRECT;
 
-      int buttons_left = rect.left;
-      rect.left   = rect.right - buttons_left;
-      rect.right  = buttons_left;
-      rect.top    = 0;
-      rect.bottom = frame_y + caption_h;
+      rect.left   = buttons.right - buttons.left;
+      rect.right  = buttons.left;
+      rect.top    = MAX(0, buttons.top - 1); 
+      rect.bottom = nc.cyTopHeight;
 
       if(calc_rect.right + 8 > rect.right - rect.left) {
-        rect.left = frame_x + GetSystemMetrics(SM_CXSMICON) + 5;
+        rect.left = menu.right + 4;
       }
     }
     else {
-      rect.right  = rect.left;
-      rect.left   = frame_x + GetSystemMetrics(SM_CXSMICON) + 5;
-      rect.top    = 0;
-      rect.bottom = frame_y + caption_h;
+      rect.right  = buttons.left;
+      rect.left   = menu.right + 4;
+      rect.top    = MAX(0, buttons.top - 1); 
+      rect.bottom = nc.cyTopHeight;
     }
 
     Win32Themes::DrawThemeTextEx(
@@ -1044,16 +1068,13 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
       if(!icon)
         icon = wndcl.hIcon;
       if(icon) {
-        int icon_w = GetSystemMetrics(SM_CXSMICON);
-        int icon_h = GetSystemMetrics(SM_CYSMICON);
-
         DrawIconEx(
           hdc_bitmap,
-          1 + frame_x,
-          (frame_y + caption_h - icon_h) / 2,
+          menu.left,
+          menu.top,
           icon,
-          icon_w,
-          icon_h,
+          menu.right - menu.left,
+          menu.bottom - menu.top,
           0,
           nullptr,
           DI_NORMAL);
@@ -1439,17 +1460,19 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
 
   Win32Themes::MARGINS margins;
   get_nc_margins(&margins);
-  margins.cxLeftWidth    += _extra_glass.cxLeftWidth;
-  margins.cxRightWidth   += _extra_glass.cxRightWidth;
-  margins.cyTopHeight    += _extra_glass.cyTopHeight;
-  margins.cyBottomHeight += _extra_glass.cyBottomHeight;
+//  margins.cxLeftWidth    += _extra_glass.cxLeftWidth;
+//  margins.cxRightWidth   += _extra_glass.cxRightWidth;
+//  margins.cyTopHeight    += _extra_glass.cyTopHeight;
+//  margins.cyBottomHeight += _extra_glass.cyBottomHeight;
 
   RECT rcWindow;
   GetWindowRect(_hwnd, &rcWindow);
-
+  
+  DWORD style    = GetWindowLongW(_hwnd, GWL_STYLE);
+  DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
   RECT rcFrame = { 0, 0, 0, 0 };
-  AdjustWindowRectEx(&rcFrame, WS_OVERLAPPEDWINDOW & ~WS_CAPTION, FALSE, 0);
-
+  AdjustWindowRectEx(&rcFrame, style & ~WS_CAPTION, FALSE, ex_style);
+  
   USHORT uRow = 1;
   USHORT uCol = 1;
   bool fOnResizeBorder = false;
@@ -1476,14 +1499,20 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   {
     uCol = 2;
   }
-
-  if( !fOnResizeBorder &&
-      ptMouse.x <= rcWindow.left + GetSystemMetrics(SM_CXSMICON) - rcFrame.left &&
-      ptMouse.y <= rcWindow.top  + GetSystemMetrics(SM_CYSMICON) - rcFrame.top)
-  {
-    return HTSYSMENU;
+  
+  if(!fOnResizeBorder) {
+    POINT pt = { 0, 0 };
+    ClientToScreen(_hwnd, &pt);
+    
+    RECT menu;
+    get_system_menu_bounds(_hwnd, &menu);
+    if( ptMouse.x < pt.x + menu.right &&
+        ptMouse.y < pt.y + menu.bottom)
+    {
+      return HTSYSMENU;
+    }
   }
-
+  
   LRESULT hitTests[3][3] = {
     { fOnResizeBorder ? HTTOPLEFT : HTLEFT, fOnResizeBorder ? HTTOP : HTCAPTION, fOnResizeBorder ? HTTOPRIGHT : HTRIGHT },
     { HTLEFT,                               HTCLIENT,                            HTRIGHT       },
