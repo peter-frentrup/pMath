@@ -940,7 +940,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = 10;
     
-    if(Win32Themes::DwmGetColorizationParameters) {
+    if(Win32Themes::check_osversion(10, 0) && Win32Themes::DwmGetColorizationParameters) {
       Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
       Win32Themes::DwmGetColorizationParameters(&params);
       
