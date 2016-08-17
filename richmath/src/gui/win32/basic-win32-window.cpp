@@ -91,6 +91,39 @@ static void remove_basic_window() {
   }
 }
 
+static bool is_left_right_bottom_frame_themed(BasicWin32Window *win) {
+  /* On Windows 10 we let the OS handle left/right/bottom frame, which means those
+     are completely transparent.
+     If we announced in WM_NCCALCSIZE that our painting area is also in these regions,
+     Win10 would not make the frame transparent, but completely opaque.
+     
+     On Vista/7/8/8.1 there is a visible thick frame around each window.
+     We would like to put our theme image there, too (return true from here).
+     But BitBlt in paint_themed() occasionally fails (?) to transfer the alpha channel,
+     resulting in a black frame. (or the alpha channel is ignored...?)
+     (this bug occurs on Windows 7, with two monitors sometimes when the window is enlarged
+     or maximized. With the `if(rect.right - rect.left > 600)` code below it seems to happen
+     always when one slowly enlarges the width above 600).
+     
+     To workaround this bug, we never draw into left/right/bottom frame, which is not very 
+     nice, but ok :(
+   */
+  return false;
+//  if(Win32Themes::check_osversion(10, 0))
+//    return false;
+//  
+////  DWORD style = GetWindowLongW(win->hwnd(), GWL_STYLE);
+////  if(style & WS_MAXIMIZE)
+////    return false;
+//  
+////  RECT rect = {0};
+////  GetWindowRect(win->hwnd(), &rect);
+////  if(rect.right - rect.left > 600)
+////    return false;
+//  
+//  return true;
+}
+
 //{ class BasicWin32Window ...
 
 static BasicWin32Window *_first_window = nullptr;
@@ -166,23 +199,27 @@ void BasicWin32Window::get_client_rect(RECT *rect) {
   if(_themed_frame) {
     Win32Themes::MARGINS margins;
     RECT winrect;
-
+    
     GetWindowRect(_hwnd, &winrect);
+    POINT *pt = (POINT*)&winrect;
+    ScreenToClient(_hwnd, &pt[0]);
+    ScreenToClient(_hwnd, &pt[1]);
+    
     get_nc_margins(&margins);
 
-    rect->left   = 0;
+    /* If WM_NCCALCSIZE was not yet sent by Windows, GetWindowRect assumes the default,
+       i.e. default window frame. But our calculations here should be based on our
+       window frame calculations for WM_NCCALCSIZE, even if that was not called yet.
+     */
+    rect->left   = margins.cxLeftWidth;
     rect->top    = margins.cyTopHeight;
-    rect->right  = winrect.right  - winrect.left - margins.cxLeftWidth - margins.cxRightWidth;
-    rect->bottom = winrect.bottom - winrect.top                        - margins.cyBottomHeight;
-
-//    int cx = GetSystemMetrics(SM_CXFRAME);
-//    //int cy = GetSystemMetrics(SM_CYFRAME);
-//    int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
-//
-//    rect->left   = margins.cxLeftWidth - cx - padd;
-//    rect->top    = margins.cyTopHeight;
-//    rect->right  = winrect.right  - winrect.left - (cx + padd) - margins.cxRightWidth;
-//    rect->bottom = winrect.bottom - winrect.top                - margins.cyBottomHeight;
+    
+    if(!is_left_right_bottom_frame_themed(this)) {
+      rect->left+= winrect.left;
+    }
+    
+    rect->right  = rect->left + winrect.right  - winrect.left - margins.cxRightWidth   - margins.cxLeftWidth;
+    rect->bottom = rect->top  + winrect.bottom - winrect.top  - margins.cyBottomHeight - margins.cyTopHeight;
   }
   else
     GetClientRect(_hwnd, rect);
@@ -1101,17 +1138,17 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
       memset(&nc, 0, sizeof(nc));
       if(_themed_frame)
         get_nc_margins(&nc);
-
-//      int cx = GetSystemMetrics(SM_CXFRAME);
-//      int cy = GetSystemMetrics(SM_CYFRAME);
-//      int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
-//      nc.cxLeftWidth +=    margins->cxLeftWidth    - cx - padd;
-//      nc.cxRightWidth +=   margins->cxRightWidth   - cx - padd;
-//      nc.cyBottomHeight += margins->cyBottomHeight - cy - padd;
-      nc.cxLeftWidth = margins->cxLeftWidth;
-      nc.cxRightWidth = margins->cxRightWidth;
+      
+      if(!is_left_right_bottom_frame_themed(this)) {
+        nc.cxLeftWidth = 0;
+        nc.cxRightWidth = 0;
+        nc.cyBottomHeight = 0;
+      }
+      
+      nc.cxLeftWidth += margins->cxLeftWidth;
+      nc.cxRightWidth += margins->cxRightWidth;
       nc.cyTopHeight += margins->cyTopHeight;
-      nc.cyBottomHeight = margins->cyBottomHeight;
+      nc.cyBottomHeight += margins->cyBottomHeight;
 
       Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);
     }
@@ -1819,20 +1856,17 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_NCCALCSIZE: {
           if(wParam && _themed_frame) {
             NCCALCSIZE_PARAMS *calcsize_params = (NCCALCSIZE_PARAMS*)lParam;
-            //return 0;//WVR_ALIGNTOP | WVR_ALIGNRIGHT;
-            Win32Themes::MARGINS margins = {0};
-            get_nc_margins(&margins);
-            //int cx = GetSystemMetrics(SM_CXFRAME);
-            //int cy = GetSystemMetrics(SM_CYFRAME);
-            //int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
-            //
-            //calcsize_params->rgrc[0].left+= cx + padd;
-            //calcsize_params->rgrc[0].right-= cx + padd;
-            //calcsize_params->rgrc[0].bottom-= cy + padd;
-
-            calcsize_params->rgrc[0].left+= margins.cxLeftWidth;
-            calcsize_params->rgrc[0].right-= margins.cxRightWidth;
-            calcsize_params->rgrc[0].bottom-= margins.cyBottomHeight;
+            
+            if(!is_left_right_bottom_frame_themed(this)) {
+              Win32Themes::MARGINS margins = {0};
+              get_nc_margins(&margins);
+              
+              calcsize_params->rgrc[0].left+= margins.cxLeftWidth;
+              calcsize_params->rgrc[0].right-= margins.cxRightWidth;
+              calcsize_params->rgrc[0].bottom-= margins.cyBottomHeight;
+            }
+            SetRectEmpty(&calcsize_params->rgrc[1]);
+            SetRectEmpty(&calcsize_params->rgrc[2]);
 
             return WVR_VALIDRECTS | WVR_REDRAW;
           }
