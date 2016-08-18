@@ -41,7 +41,7 @@ BasicWin32Widget::BasicWin32Widget(
   int height,
   HWND *parent)
   : Base(),
-    _hwnd(0),
+    _hwnd(nullptr),
     _allow_drop(true),
     _is_dragging_over(false),
     init_data(new InitData),
@@ -58,7 +58,7 @@ BasicWin32Widget::BasicWin32Widget(
   init_data->width             = width;
   init_data->height            = height;
   init_data->parent            = parent;
-  init_data->window_class_name = 0;
+  init_data->window_class_name = nullptr;
   
   
   HRESULT hr = CoCreateFreeThreadedMarshaler(
@@ -92,8 +92,9 @@ void BasicWin32Widget::after_construction() {
         init_data->parent ? *init_data->parent : 0,
         0,
         GetModuleHandle(0),
-        this)
-    ) {
+        this) ||
+    _hwnd == nullptr)
+  {
     fprintf(stderr, "Error Creating Widget\n");
   }
   

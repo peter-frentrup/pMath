@@ -109,6 +109,14 @@ Win32Widget::Win32Widget(
 void Win32Widget::after_construction() {
   BasicWin32Widget::after_construction();
   
+  if(_hwnd) {
+    DWORD style_ex = GetWindowLong(_hwnd, GWL_EXSTYLE);
+    if(style_ex & WS_EX_LAYOUTRTL) {
+      style_ex &= ~WS_EX_LAYOUTRTL;
+      SetWindowLong(_hwnd, GWL_EXSTYLE, style_ex);
+    }
+  }
+  
   stylus = StylusUtil::create_stylus_for_window(_hwnd);
   if(stylus) {
     auto stylus3 = stylus.as<IRealTimeStylus3>();
@@ -199,6 +207,7 @@ void Win32Widget::scroll_to(float x, float y) {
   
   if(oldx != newx || oldy != newy) {
     RECT norect = {0, 0, 0, 0};
+    
     ScrollWindow(_hwnd, oldx - newx, oldy - newy, &norect, &norect);
     invalidate();
   }
@@ -936,6 +945,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           {
             PAINTSTRUCT paintStruct;
             HDC dc = BeginPaint(_hwnd, &paintStruct);
+            SetLayout(dc, 0);
             on_paint(dc, true);
             EndPaint(_hwnd, &paintStruct);
           }

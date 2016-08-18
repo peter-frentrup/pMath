@@ -201,9 +201,7 @@ void BasicWin32Window::get_client_rect(RECT *rect) {
     RECT winrect;
     
     GetWindowRect(_hwnd, &winrect);
-    POINT *pt = (POINT*)&winrect;
-    ScreenToClient(_hwnd, &pt[0]);
-    ScreenToClient(_hwnd, &pt[1]);
+    MapWindowPoints(nullptr, _hwnd, (POINT*)&winrect, 2);
     
     get_nc_margins(&margins);
 
@@ -904,6 +902,8 @@ void BasicWin32Window::paint_themed(HDC hdc) {
                                  CAIRO_FORMAT_ARGB32,
                                  rect.right  - rect.left,
                                  rect.bottom - rect.top);
+    HDC bmp_dc = cairo_win32_surface_get_dc(surface);
+    SetLayout(bmp_dc, GetLayout(hdc));
 
     cairo_t *cr = cairo_create(surface);
     {
@@ -914,7 +914,6 @@ void BasicWin32Window::paint_themed(HDC hdc) {
     cairo_destroy(cr);
 
     cairo_surface_flush(surface);
-    HDC bmp_dc = cairo_win32_surface_get_dc(surface);
 
     paint_themed_caption(bmp_dc);
     BitBlt(
@@ -947,9 +946,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
   for(int i = 2; i <= 5; ++i)
     UnionRect(rect, rect, &tbi.rgrect[i]);
 
-  POINT *pt = (POINT *)rect;
-  ScreenToClient(hwnd, &pt[0]);
-  ScreenToClient(hwnd, &pt[1]);
+  MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
 }
 
 static void get_system_menu_bounds(HWND hwnd, RECT *rect) {
@@ -959,7 +956,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect) {
   
   RECT buttons;
   get_system_button_bounds(hwnd, &buttons);
-  ClientToScreen(hwnd, (POINT *)&buttons);
+  MapWindowPoints(hwnd, nullptr, (POINT *)&buttons, 2);
   int invisible_top = buttons.top - rect->top - 1;
   
   DWORD style    = GetWindowLongW(hwnd, GWL_STYLE);
@@ -973,20 +970,27 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect) {
   
   int visible_top = -neg_margins.top - invisible_top;
   
-  rect->left += -neg_margins.left + 1;
   rect->top+= invisible_top + (visible_top - icon_h) / 2;
-  
-  if(Win32Themes::check_osversion(10, 0)) {
-    /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more. */
-    rect->left+= -neg_margins.left;
-  }
-  
-  rect->right = rect->left + icon_w;
   rect->bottom = rect->top + icon_h;
   
-  POINT *pt = (POINT *)rect;
-  ScreenToClient(hwnd, &pt[0]);
-  ScreenToClient(hwnd, &pt[1]);
+  if(ex_style & WS_EX_LAYOUTRTL) {
+    rect->right-= -neg_margins.left + 1;
+    if(Win32Themes::check_osversion(10, 0)) {
+      /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more. */
+      rect->right-= -neg_margins.left;
+    }
+    rect->left = rect->right - icon_w;
+  }
+  else {
+    rect->left += -neg_margins.left + 1;
+    if(Win32Themes::check_osversion(10, 0)) {
+      /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more. */
+      rect->left+= -neg_margins.left;
+    }
+    rect->right = rect->left + icon_w;
+  }
+  
+  MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
 }
 
 void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
@@ -1216,7 +1220,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
 
     RECT rect;
     GetWindowRect(_hwnd, &rect);
-    ScreenToClient(_hwnd, (POINT *)&rect);
+    MapWindowPoints(nullptr, _hwnd, (POINT *)&rect, 2);
 
     canvas->translate(-x, -y);
 
@@ -1288,6 +1292,18 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       LONG style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
       GetClientRect(_hwnd, &rect);
       get_glassfree_rect(&glassfree);
+      
+      CanvasAutoSave saved(canvas);
+      if(style_ex & WS_EX_LAYOUTRTL) {
+        /* RTL layout: Windows client coordinates are right-to-left (0,0) is at top right,
+           but Cairo coordinates are left-to-right.
+           Temporarily make Cairo use Windows client coordinates.
+         */
+        canvas->translate(
+          rect.right - rect.left,
+          0);
+        canvas->scale(-1, 1);
+      }
 
       cairo_reset_clip(canvas->cairo());
 
@@ -1413,9 +1429,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         {
           RECT window_rect;
           GetWindowRect(_hwnd, &window_rect);
-          POINT *pt = (POINT*)&window_rect;
-          ScreenToClient(_hwnd, &pt[0]);
-          ScreenToClient(_hwnd, &pt[1]);
+          MapWindowPoints(nullptr, _hwnd, (POINT*)&window_rect, 2);
           //InflateRect(&rect, -1, -1);
           window_rect.top+= 1;
 
@@ -1438,46 +1452,48 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
 }
 
 void BasicWin32Window::on_paint_background(Canvas *canvas) {
-  if( _themed_frame          &&
-      background_image.ptr() &&
-      cairo_surface_status(background_image.ptr()) == CAIRO_STATUS_SUCCESS)
+  if( !_themed_frame          ||
+      !background_image.ptr() ||
+      cairo_surface_status(background_image.ptr()) != CAIRO_STATUS_SUCCESS)
   {
-    RECT rect, glassfree;
-    GetClientRect(_hwnd, &rect);
-    get_glassfree_rect(&glassfree);
+    return;
+  }
+  
+  RECT rect, glassfree;
+  GetClientRect(_hwnd, &rect);
+  get_glassfree_rect(&glassfree);
+  
+  int x = rect.right - cairo_image_surface_get_width(background_image.ptr());
+  cairo_set_source_surface(canvas->cairo(), background_image.ptr(), x, 0);
+  //canvas->set_color(0xff0000);
 
-    int x = rect.right - cairo_image_surface_get_width(background_image.ptr());
-    cairo_set_source_surface(canvas->cairo(), background_image.ptr(), x, 0);
-    //canvas->set_color(0xff0000);
+  canvas->move_to(rect.left,  rect.top);
+  canvas->line_to(rect.right, rect.top);
+  canvas->line_to(rect.right, rect.bottom);
+  canvas->line_to(rect.left,  rect.bottom);
+  canvas->close_path();
 
-    canvas->move_to(rect.left,  rect.top);
-    canvas->line_to(rect.right, rect.top);
-    canvas->line_to(rect.right, rect.bottom);
-    canvas->line_to(rect.left,  rect.bottom);
+  if(!IsRectEmpty(&glassfree)) {
+    canvas->move_to(glassfree.left,  glassfree.top);
+    canvas->line_to(glassfree.left,  glassfree.bottom);
+    canvas->line_to(glassfree.right, glassfree.bottom);
+    canvas->line_to(glassfree.right, glassfree.top);
     canvas->close_path();
+  }
 
-    if(!IsRectEmpty(&glassfree)) {
-      canvas->move_to(glassfree.left,  glassfree.top);
-      canvas->line_to(glassfree.left,  glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.top);
-      canvas->close_path();
-    }
+  canvas->clip();
+  canvas->paint_with_alpha(0.8);
 
+  if(!IsRectEmpty(&glassfree)) {
+    cairo_reset_clip(canvas->cairo());
+    canvas->move_to(glassfree.left,  glassfree.top);
+    canvas->line_to(glassfree.left,  glassfree.bottom);
+    canvas->line_to(glassfree.right, glassfree.bottom);
+    canvas->line_to(glassfree.right, glassfree.top);
+    canvas->close_path();
     canvas->clip();
-    canvas->paint_with_alpha(0.8);
 
-    if(!IsRectEmpty(&glassfree)) {
-      cairo_reset_clip(canvas->cairo());
-      canvas->move_to(glassfree.left,  glassfree.top);
-      canvas->line_to(glassfree.left,  glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.top);
-      canvas->close_path();
-      canvas->clip();
-
-      canvas->paint_with_alpha(0.25);
-    }
+    canvas->paint_with_alpha(0.25);
   }
 }
 
@@ -1490,7 +1506,7 @@ BasicWin32Window *BasicWin32Window::first_window() {
 }
 
 LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
-  POINT ptMouse = { (short)LOWORD(lParam), (short)HIWORD(lParam)};
+  POINT mouse_screen = { (short)LOWORD(lParam), (short)HIWORD(lParam)};
 
   Win32Themes::MARGINS margins;
   get_nc_margins(&margins);
@@ -1499,8 +1515,8 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
 //  margins.cyTopHeight    += _extra_glass.cyTopHeight;
 //  margins.cyBottomHeight += _extra_glass.cyBottomHeight;
 
-  RECT rcWindow;
-  GetWindowRect(_hwnd, &rcWindow);
+  RECT rect;
+  GetWindowRect(_hwnd, &rect);
   
   DWORD style    = GetWindowLongW(_hwnd, GWL_STYLE);
   DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
@@ -1511,38 +1527,39 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   USHORT uCol = 1;
   bool fOnResizeBorder = false;
 
-  if( ptMouse.y >= rcWindow.top &&
-      ptMouse.y < rcWindow.top + margins.cyTopHeight)
+  if( mouse_screen.y >= rect.top &&
+      mouse_screen.y < rect.top + margins.cyTopHeight)
   {
-    fOnResizeBorder = (ptMouse.y < (rcWindow.top - rcFrame.top));
+    fOnResizeBorder = (mouse_screen.y < (rect.top - rcFrame.top));
     uRow = 0;
   }
-  else if(ptMouse.y < rcWindow.bottom &&
-          ptMouse.y >= rcWindow.bottom - margins.cyBottomHeight)
+  else if(mouse_screen.y < rect.bottom &&
+          mouse_screen.y >= rect.bottom - margins.cyBottomHeight)
   {
     uRow = 2;
   }
 
-  if( ptMouse.x >= rcWindow.left &&
-      ptMouse.x < rcWindow.left + margins.cxLeftWidth)
+  if( mouse_screen.x >= rect.left &&
+      mouse_screen.x < rect.left + margins.cxLeftWidth)
   {
     uCol = 0;
   }
-  else if(ptMouse.x < rcWindow.right &&
-          ptMouse.x >= rcWindow.right - margins.cxRightWidth)
+  else if(mouse_screen.x < rect.right &&
+          mouse_screen.x >= rect.right - margins.cxRightWidth)
   {
     uCol = 2;
   }
   
   if(!fOnResizeBorder) {
-    POINT pt = { 0, 0 };
-    ClientToScreen(_hwnd, &pt);
+    POINT mouse_client = mouse_screen;
+    ScreenToClient(_hwnd, &mouse_client);
     
     RECT menu;
     get_system_menu_bounds(_hwnd, &menu);
-    if( ptMouse.x < pt.x + menu.right &&
-        ptMouse.y < pt.y + menu.bottom)
-    {
+//    if( mouse_screen.x < pt.x + menu.right &&
+//        mouse_screen.y < pt.y + menu.bottom)
+    if(PtInRect(&menu, mouse_client)) {
+      // TODO: allow y above icon to mouse at snap monitor edge onto icon for maximized windows.
       return HTSYSMENU;
     }
   }
@@ -1552,7 +1569,7 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
     { HTLEFT,                               HTCLIENT,                            HTRIGHT       },
     { HTBOTTOMLEFT,                         HTBOTTOM,                            HTBOTTOMRIGHT },
   };
-
+  
   return hitTests[uRow][uCol];
 }
 
@@ -1676,9 +1693,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           struct redraw_glass_info_t info;
 
           get_glassfree_rect(&info.inner);
-          POINT *pt = (POINT *)&info.inner;
-          ClientToScreen(_hwnd, &pt[0]);
-          ClientToScreen(_hwnd, &pt[1]);
+          MapWindowPoints(_hwnd, nullptr, (POINT*)&info.inner, 2);
 
           EnumChildWindows(_hwnd, redraw_glass_callback, (LPARAM)&info);
         }
