@@ -1014,11 +1014,24 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = 10;
     
-    if(Win32Themes::check_osversion(10, 0) && Win32Themes::DwmGetColorizationParameters) {
-      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
-      Win32Themes::DwmGetColorizationParameters(&params);
-      
-      dtt_opts.crText = Win32Themes::get_window_title_text_color(&params, _active);
+//    if(Win32Themes::check_osversion(10, 0) && Win32Themes::DwmGetColorizationParameters) {
+//      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
+//      Win32Themes::DwmGetColorizationParameters(&params);
+//      
+//      // TODO: only use text-on-accent-backgound color if HKCU\SOFTWARE\Microsoft\Windows\DWM\ColorPrevalence = 1
+//      dtt_opts.crText = Win32Themes::get_window_title_text_color(&params, _active);
+//    }
+    if(_active) {
+      Win32Themes::ColorizationInfo colorization;
+      if(Win32Themes::try_read_win10_colorization(&colorization)) {
+        if(colorization.has_accent_color_in_active_titlebar)
+          dtt_opts.crText = colorization.text_on_accent_color;
+      }
+    }
+    else {
+      /* Inactive titlebar text color seems to be 0x999999u on Windows 10.
+         What does COLOR_INACTIVECAPTIONTEXT give? Should we hard-code 0x999999u?
+       */
     }
 
 #define MAX_STR_LEN 1024

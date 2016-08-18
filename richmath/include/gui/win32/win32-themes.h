@@ -173,6 +173,12 @@ namespace richmath {
         BOOL  opaque_blend;
       } DWM_COLORIZATION_PARAMS;
       
+      typedef struct {
+        COLORREF accent_color;
+        COLORREF text_on_accent_color;
+        bool     has_accent_color_in_active_titlebar;
+      } ColorizationInfo;
+      
     public:
       static HRESULT(WINAPI *DwmEnableComposition)(UINT);
       static HRESULT(WINAPI *DwmExtendFrameIntoClientArea)(HWND, const MARGINS*);
@@ -217,6 +223,8 @@ namespace richmath {
       static bool check_osversion(int min_major, int min_minor);
       
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
+      
+      static bool try_read_win10_colorization(ColorizationInfo *info);
       
     private:
       static HMODULE dwmapi;
