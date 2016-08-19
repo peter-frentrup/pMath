@@ -2,6 +2,7 @@
 
 #include <editline/readline.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifdef WIN32
 #  define USE_WINEDITLINE 1
@@ -18,6 +19,7 @@
 #  define EL_LINE_BUFFER _el_line_buffer
 #else
 #  define EL_LINE_BUFFER rl_line_buffer
+#  define rl_free free
 #endif
 
 
@@ -30,7 +32,7 @@ static pmath_string_t _completing_readline(const char *prompt);
 static pmath_bool_t initialized_auto_completion = FALSE;
 static pmath_expr_t all_char_names = PMATH_STATIC_NULL;
 
-static char **pmath_completion(const char *text , int start,  int end);
+static char **pmath_completion(const char *text, int start,  int end);
 
 struct _rl_data_t {
   const char      *prompt;
@@ -43,8 +45,8 @@ struct _rl_data_t {
 static void _readline_locked_callback(void *_data) {
   struct _rl_data_t *data = _data;
   
-  rl_completion_func_t *old_rl_attempted_completion_function;
-  const char           *old_rl_completer_word_break_characters;
+  char       **(*old_rl_attempted_completion_function)(const char *, int, int);
+  const char    *old_rl_completer_word_break_characters;
   
   old_rl_attempted_completion_function   = rl_attempted_completion_function;
   old_rl_completer_word_break_characters = rl_completer_word_break_characters;
