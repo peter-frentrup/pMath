@@ -12,6 +12,8 @@
 #include <pmath-util/io-varint-private.h>
 #include <pmath-util/memory.h>
 
+#include <limits.h>
+
 
 #define TAG_NULL          0
 #define TAG_NEWREF        1
