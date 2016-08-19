@@ -114,11 +114,14 @@ static void insert_tab(void) {
 #endif
 }
 
-static char **no_matches(void) {
-  char **matches = malloc(1 * sizeof(char *));
+static char **no_matches(const char *text, int start, int end) {
+/* Editline crashes when we give it an empty array. So we return the text it gave us.
+ */
+  char **matches = malloc(2 * sizeof(char *));
   
   if(matches) {
-    matches[0] = NULL;
+    matches[0] = strdup(text);
+    matches[1] = NULL;
   }
   
   return matches;
@@ -289,7 +292,7 @@ static char **complete_char_name(const char *text, int start, int end) {
                      
     matches = try_convert_matches(char_names, text, prefix_len, ""); // "]"
     pmath_unref(char_names);
-    return matches ? matches : no_matches();
+    return matches ? matches : no_matches(text, start, end);
   }
   
   return NULL;
@@ -361,7 +364,7 @@ static char **pmath_completion(const char *text, int start, int end) {
   
   if(start == end && is_at_start(start)) {
     insert_tab();
-    return no_matches();
+    return no_matches(text, start, end);
   }
   
   need_auto_completion();
@@ -378,7 +381,7 @@ static char **pmath_completion(const char *text, int start, int end) {
   if(matches)
     return matches;
     
-  return no_matches();
+  return no_matches(text, start, end);
 }
 
 static pmath_string_t _simple_readline(const char *prompt) {
