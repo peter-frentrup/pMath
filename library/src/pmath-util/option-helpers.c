@@ -53,6 +53,9 @@ pmath_expr_t _pmath_option_find_rule(pmath_t name, pmath_t option_set) {
     const pmath_t *items = pmath_expr_read_item_data(option_set);
     
     if(!items) {
+      if(pmath_is_packed_array(option_set))
+        return PMATH_NULL;
+      
       pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
       return PMATH_NULL;
     }
@@ -122,6 +125,9 @@ pmath_bool_t _pmath_options_check_subset_of(
     const pmath_t *items = pmath_expr_read_item_data(set);
     
     if(!items) {
+      if(pmath_is_packed_array(set))
+        return FALSE;
+      
       pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
       return FALSE;
     }
@@ -149,6 +155,9 @@ pmath_t _pmath_options_from_expr(pmath_t expr) {
     const pmath_t *items = pmath_expr_read_item_data(expr);
     
     if(!items) {
+      if(pmath_is_packed_array(expr))
+        return pmath_ref(_pmath_object_emptylist);
+  
       pmath_debug_print("[pmath_expr_read_item_data() gave NULL in %s:%d]\n", __FILE__, __LINE__);
       return pmath_ref(_pmath_object_emptylist);
     }

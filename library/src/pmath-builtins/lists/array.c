@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
@@ -155,46 +156,36 @@ static pmath_t array(struct _array_data_t *data) {
   return list;
 }
 
-// precondition: INT32_MIN < start + len * delta < INT32_MAX
+// precondition: INT32_MIN < start <= start + len * delta < INT32_MAX
 static pmath_t array_range_int(int start, int delta, size_t len) {
-  pmath_t expr;
-  struct _pmath_expr_t *list = _pmath_expr_new_noinit(len);
+  pmath_t arr = pmath_packed_array_new(PMATH_NULL, PMATH_PACKED_INT32, 1, &len, NULL, 0);
+  int32_t *data = pmath_packed_array_begin_write(&arr, NULL, 0);
   size_t i;
   
-  if(!list)
+  if(!data) 
     return PMATH_NULL;
-    
-  list->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
-  for(i = 1; i <= len; ++i) {
-    list->items[i] = PMATH_FROM_INT32(start);
-    
-    start += delta;
-  }
   
-  expr = PMATH_FROM_PTR(list);
-  _pmath_expr_update(expr);
-  return expr;
+  for(i = 0; i < len; ++i) {
+    data[i] = start;
+    start+= delta;
+  }
+  return arr;
 }
 
-// precondition: -Infinity < start + len * delta < Infinity; no NaN's.
+// precondition: -Infinity < start <= start + len * delta < Infinity; no NaN's.
 static pmath_t array_range_double(double start, double delta, size_t len) {
-  pmath_t expr;
-  struct _pmath_expr_t *list = _pmath_expr_new_noinit(len);
+  pmath_t arr = pmath_packed_array_new(PMATH_NULL, PMATH_PACKED_DOUBLE, 1, &len, NULL, 0);
+  double *data = pmath_packed_array_begin_write(&arr, NULL, 0);
   size_t i;
   
-  if(!list)
+  if(!data) 
     return PMATH_NULL;
-    
-  list->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
-  for(i = 1; i <= len; ++i) {
-    list->items[i] = PMATH_FROM_DOUBLE(start);
-    
-    start += delta;
-  }
   
-  expr = PMATH_FROM_PTR(list);
-  _pmath_expr_update(expr);
-  return expr;
+  for(i = 0; i < len; ++i) {
+    data[i] = start;
+    start+= delta;
+  }
+  return arr;
 }
 
 PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {

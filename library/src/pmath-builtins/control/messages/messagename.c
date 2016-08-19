@@ -36,14 +36,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
   return TRUE;
 }
 
-PMATH_PRIVATE pmath_t builtin_iscriticalmessage(pmath_expr_t expr){
-  if(pmath_expr_length(expr) != 1){
+PMATH_PRIVATE pmath_t builtin_criticalmessagetag(pmath_expr_t expr){
+  if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(PMATH_NULL);
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){

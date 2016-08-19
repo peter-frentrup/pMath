@@ -173,9 +173,10 @@ void pmath_native_writer(void *user, const uint16_t *data, int len);
 /**\brief Insert a byte string into a pMath string using a translation array.
    \memberof pmath_string_t
    \param str A pMath String or PMATH_NULL. It will be freed.
-   \param inspos The position, at which \c ins should be inserted in \c str.
+   \param inspos The position, at which \c ins should be inserted in \c str. 
+                 It will be clamped to `0..pmath_string_length(str)`.
    \param ins A byte string.
-   \param inslen The length of \c ins or -1 if it is zero-terminated.
+   \param inslen The length of \c ins or -1 if \c ins is zero-terminated.
    \param cp An array of 256 uint16_t values that are used to convert bytes to
           UCS-2 characters.
    \return PMATH_NULL on failure or a pMath String. You must destroy it.
@@ -194,7 +195,8 @@ pmath_string_t pmath_string_insert_codepage(
 /**\brief Insert a UCS-2 buffer into a pMath String.
    \memberof pmath_string_t
    \param str A pMath String or PMATH_NULL. It will be freed.
-   \param inspos The position, at which \c ins should be inserted in \c str.
+   \param inspos The position, at which \c ins should be inserted in \c str. 
+                 It will be clamped to `0..pmath_string_length(str)`.
    \param ins A uint16_t string. This is \em not a wchar_t string.
    \param inslen The length of \c ins or -1 if it is zero-terminated.
    \return PMATH_NULL on failure or a pMath String. You must destroy it.
@@ -212,7 +214,8 @@ pmath_string_t pmath_string_insert_ucs2(
 /**\brief Insert one pMath String into another pMath String.
    \memberof pmath_string_t
    \param str A pMath String or PMATH_NULL. It will be freed.
-   \param inspos The position, at which \c ins should be inserted in \c str.
+   \param inspos The position, at which \c ins should be inserted in \c str. 
+                 It will be clamped to `0..pmath_string_length(str)`.
    \param ins A pMath String or PMATH_NULL. It will be freed.
    \return PMATH_NULL on failure or a pMath String. You must destroy it.
  */
@@ -267,7 +270,7 @@ pmath_string_t pmath_string_part(
 
 PMATH_API
 PMATH_ATTRIBUTE_PURE
-const uint16_t *pmath_string_buffer(pmath_string_t *string);
+const uint16_t *pmath_string_buffer(const pmath_string_t *string);
 
 /**\brief Get a string's length.
    \memberof pmath_string_t

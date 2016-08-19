@@ -174,6 +174,20 @@ pmath_packed_array_t pmath_packed_array_new(
   const size_t         *steps,
   size_t                offset);
 
+/**\brief Try to convert an expression to a packed array.
+   \memberof pmath_packed_array_t
+   \param obj            Any object. It will be freed.
+   \param expected_type  The requested array element type or 0 to mean "don't care".
+   
+   If \a obj is not representing a rectangular array or if one of its elements is 
+   incompatible with \a expected_type, the expression will be returned unmodified. 
+   This function is essentially <tt>Developer`ToPackedArray(obj, type)</tt> for type 
+   being Automatic, Real or Integer.
+ */
+PMATH_API 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_to_packed_array(pmath_t obj, pmath_packed_type_t expected_type);
+
 /**\brief Get the number of dimensions of a packed array.
    \memberof pmath_packed_array_t
    \param array  A packed array. It wont be freed.

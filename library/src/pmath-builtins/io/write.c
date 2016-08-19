@@ -1,4 +1,4 @@
-#include <pmath-util/files.h>
+#include <pmath-util/files/abstract-file.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>

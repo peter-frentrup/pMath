@@ -104,23 +104,15 @@ namespace pmath {
       }
       
       /**\brief Copy an Expr. Increments the new value's reference counter and frees the old one. */
-      Expr &operator=(const Expr &src) throw() {
-        pmath_t tmp = _obj;
-        _obj = pmath_ref(src._obj);
-        pmath_unref(tmp);
+      Expr &operator=(Expr other) throw() {
+        swap(*this, other);
         return *this;
       }
       
-#ifdef PMATH_CPP_USE_RVALUE_REF
-      Expr &operator=(Expr && src) throw() {
-        if(this != &src) {
-          pmath_unref(_obj);
-          _obj     = src._obj;
-          src._obj = PMATH_NULL;
-        }
-        return *this;
+      friend void swap(Expr &first, Expr &second) throw() {
+        using std::swap;
+        swap(first._obj, second._obj);
       }
-#endif
       
       bool is_custom()       const throw() { return pmath_is_custom(_obj); }
       bool is_double()       const throw() { return pmath_is_double(_obj); }
@@ -213,9 +205,9 @@ namespace pmath {
       
       /**\brief Length of the expression or 0 on error. */
       size_t expr_length() const throw() {
-        if(is_expr())
-          return pmath_expr_length(_obj);
-        return 0;
+        if(!is_expr())
+          return 0;
+        return pmath_expr_length(_obj);
       }
       
       /**\brief Get the i-th argument of the expression.
@@ -225,9 +217,21 @@ namespace pmath {
          last argument.
        */
       Expr operator[](size_t i) const throw() {
-        if(is_expr())
-          return Expr(pmath_expr_get_item(_obj, i));
-        return Expr();
+        if(!is_expr())
+          return Expr();
+        return Expr(pmath_expr_get_item(_obj, i));
+      }
+      
+      /**\brief Get the i-th argument of the expression.
+         \param i Index. Values outside 0..expr_length() give PMATH_NULL.
+         \return The i-th argument if the object is a \ref pmath_expr_t.
+       */
+      Expr operator[](int i) const throw() {
+        if(i < 0)
+          return Expr();
+        if(!is_expr())
+          return Expr();
+        return Expr(pmath_expr_get_item(_obj, (size_t)i));
       }
       
       /**\brief Change the i-th argument of an expression
@@ -239,21 +243,52 @@ namespace pmath {
           _obj = pmath_expr_set_item(_obj, i, e.release());
       }
       
+      /**\brief Change the i-th argument of an expression
+         \param i Index. Values outside 0..expr_length() are ignored.
+         \param e The new element.
+       */
+      void set(int i, Expr e) throw() {
+        if(i < 0)
+          return;
+        if(is_expr())
+          _obj = pmath_expr_set_item(_obj, (size_t)i, e.release());
+      }
+      
       /**\brief Change the (i,j)-th argument of a matrix
          \param i The matrix row.
          \param j The matrix column.
          \param e The new element.
        */
       void set(size_t i, size_t j, Expr e) throw() {
-        if(is_expr()) {
-          pmath_t item = pmath_expr_extract_item(_obj, i);
-          if(pmath_is_expr(item)) {
-            item = pmath_expr_set_item(item, j, e.release());
-            _obj = pmath_expr_set_item(_obj, i, item);
-          }
-          else {
-            _obj = pmath_expr_set_item(_obj, i, item);
-          }
+        if(!is_expr())
+          return;
+          
+        pmath_t item = pmath_expr_extract_item(_obj, i);
+        if(pmath_is_expr(item)) {
+          item = pmath_expr_set_item(item, j, e.release());
+          _obj = pmath_expr_set_item(_obj, i, item);
+        }
+        else {
+          _obj = pmath_expr_set_item(_obj, i, item);
+        }
+      }
+      
+      /**\brief Change the (i,j)-th argument of a matrix
+         \param i The matrix row.
+         \param j The matrix column.
+         \param e The new element.
+       */
+      void set(int i, int j, Expr e) throw() {
+        if(i < 0 || j < 0 || !is_expr())
+          return;
+          
+        pmath_t item = pmath_expr_extract_item(_obj, (size_t)i);
+        if(pmath_is_expr(item)) {
+          item = pmath_expr_set_item(item, (size_t)j, e.release());
+          _obj = pmath_expr_set_item(_obj, (size_t)i, item);
+        }
+        else {
+          _obj = pmath_expr_set_item(_obj, (size_t)i, item);
         }
       }
       
@@ -261,23 +296,20 @@ namespace pmath {
          \param e The new element.
         */
       void append(Expr e) throw() {
-        if(is_expr()) {
+        if(is_expr())
           _obj = pmath_expr_append(_obj, 1, e.release());
-        }
       }
       
       void expr_remove_all(Expr rem) throw() {
-        if(is_expr()) {
+        if(is_expr())
           _obj = pmath_expr_remove_all(_obj, rem.get());
-        }
       }
       
       /**\brief Sort the expression
         */
       void sort() throw() {
-        if(is_expr()) {
+        if(is_expr())
           _obj = pmath_expr_sort(_obj);
-        }
       }
       
       /**\brief Convert to a double.
@@ -314,9 +346,10 @@ namespace pmath {
       
       /**\brief Serialize to a binary file/stream.
          \param file The binary file/stream. It must be writeable.
+         \param flags Serialization options.
          \return An error number.
        */
-      pmath_serialize_error_t serialize(WriteableBinaryFile file) const throw();
+      pmath_serialize_error_t serialize(WriteableBinaryFile file, int flags = 0) const throw();
       
       /**\brief Deserialize an Expr from a binary file/stream.
          \param file The binary file/stream. It must be writeable.
@@ -337,7 +370,7 @@ namespace pmath {
       ) throw() {
         *(pmath_string_t *)user = pmath_string_insert_ucs2(
                                     *(pmath_string_t *)user,
-                                    pmath_string_length(*(pmath_string_t *)user),
+                                    INT_MAX,
                                     data,
                                     len);
       }
@@ -400,7 +433,7 @@ namespace pmath {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      explicit String(Expr  &&src) throw()
+      explicit String(Expr &&src) throw()
         : Expr(src.is_string() ? std::move(src) : Expr())
       {
       }
@@ -463,25 +496,31 @@ namespace pmath {
       
       /**\brief Append a string. */
       String &operator+=(const String &src) throw() {
-        _obj = pmath_string_concat(_obj, (pmath_string_t)pmath_ref(src._obj));
+        _obj = pmath_string_concat(_obj, (pmath_string_t)pmath_ref(src.get()));
         return *this;
       }
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      String &operator+=(String &&src) throw() {
+        _obj = pmath_string_concat(_obj, (pmath_string_t)src.release());
+        return *this;
+      }
+#endif
       
       /**\brief Append a C string. */
       String &operator+=(const char *latin1) throw() {
-        _obj = pmath_string_insert_latin1(_obj, pmath_string_length(_obj), latin1, -1);
+        _obj = pmath_string_insert_latin1(_obj, INT_MAX, latin1, -1);
         return *this;
       }
       
       /**\brief Append a UTF-16-string. */
       String &operator+=(const uint16_t *ucs2) throw() {
-        _obj = pmath_string_insert_ucs2(_obj, pmath_string_length(_obj), ucs2, -1);
+        _obj = pmath_string_insert_ucs2(_obj, INT_MAX, ucs2, -1);
         return *this;
       }
       
       /**\brief Append a single unicode character. */
       String &operator+=(uint16_t ch) throw() {
-        _obj = pmath_string_insert_ucs2(_obj, pmath_string_length(_obj), &ch, 1);
+        _obj = pmath_string_insert_ucs2(_obj, INT_MAX, &ch, 1);
         return *this;
       }
       
@@ -489,13 +528,20 @@ namespace pmath {
       String operator+(const String &other) const throw() {
         return String(pmath_string_concat(
                         (pmath_string_t)pmath_ref(_obj),
-                        (pmath_string_t)pmath_ref(other._obj)));
+                        (pmath_string_t)pmath_ref(other.get())));
       }
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      String operator+(String &&other) const throw() {
+        return String(pmath_string_concat(
+                        (pmath_string_t)pmath_ref(_obj),
+                        (pmath_string_t)other.release()));
+      }
+#endif
       
       String operator+(const char *latin1) const throw() {
         return String(pmath_string_insert_latin1(
                         (pmath_string_t)pmath_ref(_obj),
-                        pmath_string_length(_obj),
+                        INT_MAX,
                         latin1,
                         -1));
       }
@@ -503,7 +549,7 @@ namespace pmath {
       String operator+(const uint16_t *ucs2) const throw() {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
-                        pmath_string_length(_obj),
+                        INT_MAX,
                         ucs2,
                         -1));
       }
@@ -512,7 +558,7 @@ namespace pmath {
       String operator+(uint16_t ch) const throw() {
         return String(pmath_string_insert_ucs2(
                         (pmath_string_t)pmath_ref(_obj),
-                        pmath_string_length(_obj),
+                        INT_MAX,
                         &ch,
                         1));
       }
@@ -530,64 +576,26 @@ namespace pmath {
       
       /**\brief Check for prefix equality. */
       bool starts_with(const String &s) const throw() {
-        int len = s.length();
-        if(len > length())
-          return false;
-          
-        const uint16_t *buf   = buffer();
-        const uint16_t *other = s.buffer();
-        
-        while(len-- > 0)
-          if(*buf++ != *other++)
-            return false;
-            
-        return true;
+        return starts_with_buffer(s.buffer(), s.length());
       }
       
       bool starts_with(const char *latin1, int len = -1) const throw() {
-        if(len < 0) {
-          const char *tmp = latin1;
-          len = 0;
-          while(*tmp++)
-            ++len;
-        }
-        
-        if(len > length())
-          return false;
-          
-        const uint16_t *buf   = buffer();
-        
-        while(len-- > 0)
-          if(*buf++ != *(unsigned char *)latin1++)
-            return false;
-            
-        return true;
+        return starts_with_buffer((const unsigned char*)latin1, len);
       }
       
       bool starts_with(const uint16_t *ucs2, int len = -1) const throw() {
-        if(len < 0) {
-          const uint16_t *tmp = ucs2;
-          len = 0;
-          while(*tmp++)
-            ++len;
-        }
-        
-        if(len > length())
-          return false;
-          
-        const uint16_t *buf = buffer();
-        
-        while(len-- > 0)
-          if(*buf++ != *ucs2++)
-            return false;
-            
-        return true;
+        return starts_with_buffer(ucs2, len);
       }
       
       /**\brief Insert a substring. Changes the object itself. */
       void insert(int pos, const String &other) throw() {
-        _obj = pmath_string_insert(_obj, pos, pmath_ref(other._obj));
+        _obj = pmath_string_insert(_obj, pos, pmath_ref(other.get()));
       }
+#ifdef PMATH_CPP_USE_RVALUE_REF
+      void insert(int pos, String &&other) throw() {
+        _obj = pmath_string_insert(_obj, pos, other.release());
+      }
+#endif
       
       void insert(int pos, const char *latin1, int len = -1) throw() {
         _obj = pmath_string_insert_latin1(_obj, pos, latin1, len);
@@ -597,7 +605,7 @@ namespace pmath {
         _obj = pmath_string_insert_ucs2(_obj, pos, ucs2, len);
       }
       
-      /**\brief Remove a substring. */
+      /**\brief Remove a substring. Changes the object itself. */
       void remove(int start, int length) throw() {
         pmath_string_t prefix = pmath_string_part(
                                   (pmath_string_t)pmath_ref(_obj), 0, start);
@@ -646,10 +654,30 @@ namespace pmath {
       const pmath_string_t get_as_string() const throw() { return (pmath_string_t)_obj; }
       
     private:
+      template<class UnsignedCharType>
+      bool starts_with_buffer(const UnsignedCharType *prefix, int len = -1) const throw() {
+        if(len < 0) {
+          const UnsignedCharType *tmp = prefix;
+          len = 0;
+          while(*tmp++)
+            ++len;
+        }
+        
+        if(len > length())
+          return false;
+          
+        const uint16_t *buf = buffer();
+        while(len-- > 0)
+          if(*buf++ != *(UnsignedCharType *)prefix++)
+            return false;
+            
+        return true;
+      }
+      
+    private:
       String &operator=(const Expr &src) { // use explicit cast instead
         return *this;
       }
-      
 #ifdef PMATH_CPP_USE_RVALUE_REF
       String &operator=(Expr && src) { // use explicit cast instead
         return *this;
@@ -1234,8 +1262,8 @@ namespace pmath {
 #endif
       
       /**\brief Create binary file object whose content is uncompressed from another binary file. */
-      static ReadableBinaryFile create_uncompressor(ReadableBinaryFile srcfile) throw() {
-        return ReadableBinaryFile(pmath_file_create_uncompressor(srcfile.release()));
+      static ReadableBinaryFile create_decompressor(ReadableBinaryFile srcfile, struct pmath_decompressor_settings_t *settings = nullptr) throw() {
+        return ReadableBinaryFile(pmath_file_create_decompressor(srcfile.release(), settings));
       }
       
       /**\brief Read some bytes from the file. See pmath_file_read(). */
@@ -1295,8 +1323,8 @@ namespace pmath {
 #endif
       
       /**\brief Create binary file object whose content is compressed into another binary file. */
-      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile) throw() {
-        return WriteableBinaryFile(pmath_file_create_compressor(dstfile.get()));
+      static WriteableBinaryFile create_compressor(WriteableBinaryFile dstfile, struct pmath_compressor_settings_t *settings = nullptr) throw() {
+        return WriteableBinaryFile(pmath_file_create_compressor(dstfile.get(), settings));
       }
       
       /**\brief Write some bytes to the file. See pmath_file_write(). */
@@ -1677,7 +1705,7 @@ namespace pmath {
           api.read_function = read_function<BinaryUserStream>;
         if(writeable)
           api.write_function = write_function<BinaryUserStream>;
-        
+          
         return BinaryFile(pmath_file_create_binary(this, destructor_function<BinaryFile>, &api));
       }
       
@@ -1741,7 +1769,7 @@ namespace pmath {
           api.read_function = read_function<SeekableBinaryUserStream>;
         if(writeable)
           api.write_function = write_function<SeekableBinaryUserStream>;
-        
+          
         api.get_pos_function = get_pos_function<SeekableBinaryUserStream>;
         api.set_pos_function = set_pos_function<SeekableBinaryUserStream>;
         
@@ -1794,7 +1822,7 @@ namespace pmath {
           api.readln_function = readln_function<TextUserStream>;
         if(writeable)
           api.write_function = write_function<TextUserStream>;
-        
+          
         return TextFile(pmath_file_create_text(this, destructor_function<TextFile>, &api));
       }
       
@@ -1846,8 +1874,8 @@ namespace pmath {
     pmath_file_write_object(file.get(), _obj, options);
   }
   
-  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file) const throw() {
-    return pmath_serialize(file.get(), _obj);
+  inline pmath_serialize_error_t Expr::serialize(WriteableBinaryFile file, int flags) const throw() {
+    return pmath_serialize(file.get(), _obj, flags);
   }
   
   inline Expr Expr::deserialize(ReadableBinaryFile file, pmath_serialize_error_t *error) throw() {

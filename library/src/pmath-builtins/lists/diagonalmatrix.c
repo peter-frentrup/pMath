@@ -201,9 +201,9 @@ PMATH_PRIVATE pmath_t builtin_diagonalmatrix(pmath_expr_t expr) {
   pmath_unref(expr);
 
   if(has_inexact_machine_number(list))
-    list = _pmath_expr_pack_array(list, PMATH_PACKED_DOUBLE);
+    list = pmath_to_packed_array(list, PMATH_PACKED_DOUBLE);
   else
-    list = _pmath_expr_pack_array(list, PMATH_PACKED_INT32);
+    list = pmath_to_packed_array(list, 0);
 
   if(pmath_is_packed_array(list) && pmath_packed_array_get_dimensions(list) == 1)
     return packed_diagonal_matrix(list, diag);
