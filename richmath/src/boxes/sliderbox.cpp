@@ -10,7 +10,9 @@ using namespace richmath;
 using namespace std;
 
 #ifdef _MSC_VER
-#  define isnan  _isnan
+namespace std {
+  static bool isnan(double d) {return _isnan(d);}
+}
 #endif
 
 #ifndef NAN
@@ -87,13 +89,13 @@ bool SliderBox::try_load_from_object(Expr expr, int opts) {
   else
     return false;
     
-  if(isnan(new_range_min))
+  if(std::isnan(new_range_min))
     return false;
     
-  if(isnan(new_range_max))
+  if(std::isnan(new_range_max))
     return false;
     
-  if(isnan(new_range_step))
+  if(std::isnan(new_range_step))
     return false;
     
   /* now success is guaranteed */
@@ -187,7 +189,7 @@ void SliderBox::paint(Context *context) {
   
   float thumb_x = x + calc_thumb_pos(range_value);
   
-  if(isnan(range_value)) {
+  if(std::isnan(range_value)) {
     float rx = x + _extents.width / 2;
     
     int old_color = context->canvas->get_color();
@@ -284,7 +286,7 @@ void SliderBox::paint(Context *context) {
 }
 
 float SliderBox::calc_thumb_pos(double val) {
-  if(isnan(val))
+  if(std::isnan(val))
     return _extents.width / 2 - thumb_width / 2;
     
   if(range_min < range_max) {

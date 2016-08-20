@@ -6,14 +6,6 @@
 #include <cmath>
 #include <limits>
 
-#ifdef _MSC_VER
-#  define isnan  _isnan
-#endif
-
-#ifndef NAN
-#  define NAN  (std::numeric_limits<double>::quiet_NaN())
-#endif
-
 
 using namespace richmath;
 
