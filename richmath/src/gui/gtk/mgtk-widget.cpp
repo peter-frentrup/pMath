@@ -1049,7 +1049,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     if(capslock_active_before) {
       int capslock_mask = 0;
       
-      SpecialKey::Code capslock_keycode = XKeysymToKeycode(display, XK_Caps_Lock);
+      KeyCode capslock_keycode = XKeysymToKeycode(display, XK_Caps_Lock);
       XModifierKeymap *map = XGetModifierMapping(display);
       for(int i = 0; i < 8; ++i) {
         if(map->modifiermap[map->max_keypermod * i] == capslock_keycode)
