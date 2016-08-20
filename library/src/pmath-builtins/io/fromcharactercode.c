@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <iconv.h>
 #include <limits.h>
+#include <string.h>
 
 
 // PMATH_UNDEFINED on error

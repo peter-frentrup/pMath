@@ -21,6 +21,7 @@
     pthread_cond_t  cond;
     pthread_mutex_t mutex;
     pmath_atomic_t  is_signaled; // we don't want to loose a signal
+    clockid_t       cond_clock_id;
   } pmath_event_t;
 
 #endif

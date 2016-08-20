@@ -217,7 +217,6 @@
 					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
@@ -243,7 +242,6 @@
 					<Add option="-Wall" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
@@ -270,7 +268,6 @@
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
-					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />
@@ -298,7 +295,6 @@
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
 					<Add option="-mcx16" />
-					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-rpath,?ORIGIN" />

@@ -306,6 +306,7 @@ void *pmath_packed_array_begin_write(
    array.
  */
 PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
 pmath_packed_array_t pmath_packed_array_reshape(
   pmath_packed_array_t  array,
   size_t                new_dimensions,

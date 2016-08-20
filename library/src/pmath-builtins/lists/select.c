@@ -221,16 +221,6 @@ static pmath_t select_slow(
   return result;
 }
 
-static pmath_bool_t eval_test(pmath_t item, void *context) {
-  pmath_t *crit = context;
-  
-  item = pmath_expr_new_extended(pmath_ref(*crit), 1, pmath_ref(item));
-  item = pmath_evaluate(item);
-  pmath_unref(item);
-  
-  return pmath_same(item, PMATH_SYMBOL_TRUE);
-}
-
 PMATH_PRIVATE pmath_t builtin_select(pmath_expr_t expr) {
   /* Select(list, crit, n)
      Select(list, crit)    = Select(list, crit, Infinity)

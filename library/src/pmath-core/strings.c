@@ -113,7 +113,6 @@ struct _pmath_string_t *enlarge_string(
       pmath_atomic_read_aquire(&string->inherited.refcount) == 1)
   {
     size_t newcap;
-    size_t bytes;
 
     unsigned new_length = (unsigned)string->length + (unsigned)extralen;
     if(new_length < (unsigned)string->length || new_length > INT_MAX) {
@@ -132,7 +131,6 @@ struct _pmath_string_t *enlarge_string(
     }
 
     newcap = LENGTH_TO_CAPACITY(new_length);
-    bytes = newcap * sizeof(uint16_t);
     if( newcap > (INT_MAX - STRING_HEADER_SIZE) / sizeof(uint16_t) ||
         (newcap * sizeof(uint16_t)) / sizeof(uint16_t) != newcap)
     {

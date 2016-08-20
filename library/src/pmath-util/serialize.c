@@ -12,6 +12,8 @@
 #include <pmath-util/io-varint-private.h>
 #include <pmath-util/memory.h>
 
+#include <limits.h>
+
 
 #define TAG_NULL          0
 #define TAG_NEWREF        1
@@ -202,6 +204,7 @@ static void serialize_string_object(struct serializer_t *info, pmath_string_t st
       pmath_file_write(info->file, tmp_buf, sizeof(tmp_buf));
     }
     
+    assert(len <= sizeof(tmp_buf));
     for(i = 0; i < len; ++i) {
       tmp_buf[i] = (uint8_t) * orig_buf++;
     }

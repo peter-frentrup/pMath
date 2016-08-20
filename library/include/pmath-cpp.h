@@ -2,6 +2,7 @@
 #define __PMATH_CPP_H__
 
 #include <limits>
+#include <climits>
 
 #include <pmath.h>
 
