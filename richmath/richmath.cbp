@@ -497,6 +497,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=gnu++11" />
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -516,9 +517,6 @@
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add directory="../library/bin/linux/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x86 x86  gcc-debug-x86" />
@@ -531,11 +529,12 @@
 				<Option object_output="obj/linux/gcc-debug-x64" />
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_x64_compiler" />
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add option="-std=gnu++11" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mcx16" />
 					<Add option="-Wno-unused-but-set-variable" />
@@ -554,9 +553,6 @@
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add directory="../library/bin/linux/gcc-debug-x64" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x64 x64  gcc-debug-x64" />
@@ -571,6 +567,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=gnu++11" />
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -592,9 +589,6 @@
 					<Add library="fontconfig" />
 					<Add library="freetype" />
 					<Add directory="../library/bin/linux/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x86 x86  gcc-debug-x86-gtk3" />
@@ -1283,7 +1277,7 @@
 			<debugger>
 				<search_path add="../library/src" />
 				<remote_debugging>
-					<options conn_type="-1" additional_cmds="python import sys&#x0A;python sys.path.insert(0, &apos;../gdb&apos;)&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+					<options conn_type="-1" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
 				</remote_debugging>
 			</debugger>
 			<DoxyBlocks>
