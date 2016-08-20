@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <iconv.h>
 #include <limits.h>
+#include <string.h>
 
 
 struct _bintext_extra_t {

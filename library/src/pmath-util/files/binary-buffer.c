@@ -1,6 +1,8 @@
 #include <pmath-util/files/binary-buffer.h>
 #include <pmath-util/memory.h>
 
+#include <string.h>
+
 
 struct binbuf_t {
   uint8_t *data;

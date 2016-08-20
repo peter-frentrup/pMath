@@ -5,6 +5,7 @@
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
 
+#include <string.h>
 #include <zlib.h>
 
 

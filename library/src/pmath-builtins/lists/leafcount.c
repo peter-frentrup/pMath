@@ -1,4 +1,5 @@
 #include <pmath-core/numbers.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/messages.h>
 
