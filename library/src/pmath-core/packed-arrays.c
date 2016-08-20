@@ -1717,8 +1717,7 @@ static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location
 #undef TO_TYPE
 
 
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT
+PMATH_API
 pmath_t pmath_to_packed_array(pmath_t obj, pmath_packed_type_t expected_type) {
   int                   elem_type;
   pmath_t               dims_expr;
