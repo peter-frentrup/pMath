@@ -204,6 +204,7 @@ static void serialize_string_object(struct serializer_t *info, pmath_string_t st
       pmath_file_write(info->file, tmp_buf, sizeof(tmp_buf));
     }
     
+    assert(len <= sizeof(tmp_buf));
     for(i = 0; i < len; ++i) {
       tmp_buf[i] = (uint8_t) * orig_buf++;
     }
