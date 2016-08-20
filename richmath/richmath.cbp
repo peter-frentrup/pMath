@@ -595,6 +595,43 @@
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
+			<Target title="Linux-GCC-Debug-x64-Gtk3">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/gcc-debug-x64-gtk3/richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-debug-x64-gtk3" />
+				<Option external_deps="../library/pmath.cbp;" />
+				<Option type="1" />
+				<Option compiler="gnu_gcc_x64_compiler" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-std=gnu++11" />
+					<Add option="-fno-exceptions" />
+					<Add option="-mcx16" />
+					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="`pkg-config gtk+-3.0 --cflags`" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DRICHMATH_USE_FT_FONT" />
+					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="../library/include" />
+				</Compiler>
+				<Linker>
+					<Add option="`pkg-config gtk+-3.0 --libs`" />
+					<Add option="-lX11" />
+					<Add option="-Wl,-rpath,?ORIGIN" />
+					<Add library="pmath" />
+					<Add library="fontconfig" />
+					<Add library="freetype" />
+					<Add directory="../library/bin/linux/gcc-debug-x64" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="./post-build-linux.sh gcc-debug-x64 x64  gcc-debug-x64-gtk3" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
 		</Build>
 		<Unit filename="include/boxes/box.h" />
 		<Unit filename="include/boxes/buttonbox.h" />
@@ -669,6 +706,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-clipboard.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -676,6 +714,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-colordialog.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -683,6 +722,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-control-painter.h" />
 		<Unit filename="include/gui/gtk/mgtk-cursors.h">
@@ -691,6 +731,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-document-window.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -698,6 +739,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-filedialog.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -705,6 +747,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-fontdialog.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -712,6 +755,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-icons.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -719,6 +763,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-menu-builder.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -726,6 +771,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-tooltip-window.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -733,6 +779,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-widget.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -740,6 +787,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/native-widget.h" />
 		<Unit filename="include/gui/win32/basic-win32-widget.h">
@@ -1019,6 +1067,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-clipboard.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1026,6 +1075,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-colordialog.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1033,6 +1083,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-control-painter.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1040,6 +1091,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-cursors.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1047,6 +1099,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-document-window.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1054,6 +1107,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-filedialog.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1061,6 +1115,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-fontdialog.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1068,6 +1123,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-icons.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1075,6 +1131,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-menu-builder.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1082,6 +1139,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-tooltip-window.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1089,6 +1147,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1096,6 +1155,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/native-widget.cpp" />
 		<Unit filename="src/gui/win32/basic-win32-widget.cpp">
