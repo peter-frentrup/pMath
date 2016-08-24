@@ -975,16 +975,16 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect) {
   
   if(ex_style & WS_EX_LAYOUTRTL) {
     rect->right-= -neg_margins.left + 1;
-    if(Win32Themes::check_osversion(10, 0)) {
-      /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more. */
+    if(Win32Themes::check_osversion(10, 0) && (style & WS_MAXIMIZE) == 0) {
+      /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more when not maximized. */
       rect->right-= -neg_margins.left;
     }
     rect->left = rect->right - icon_w;
   }
   else {
     rect->left += -neg_margins.left + 1;
-    if(Win32Themes::check_osversion(10, 0)) {
-      /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more. */
+    if(Win32Themes::check_osversion(10, 0) && (style & WS_MAXIMIZE) == 0) {
+      /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more when not maximized. */
       rect->left+= -neg_margins.left;
     }
     rect->right = rect->left + icon_w;
