@@ -124,6 +124,19 @@ static bool is_left_right_bottom_frame_themed(BasicWin32Window *win) {
 //  return true;
 }
 
+static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
+  DWORD style    = GetWindowLongW(hwnd, GWL_STYLE);
+  DWORD ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
+
+  RECT frame = {0, 0, 0, 0};
+  AdjustWindowRectEx(&frame, style, FALSE, ex_style);
+
+  margins->cxLeftWidth    = -frame.left;
+  margins->cyTopHeight    = -frame.top;
+  margins->cxRightWidth   = frame.right;
+  margins->cyBottomHeight = frame.bottom;
+}
+
 //{ class BasicWin32Window ...
 
 static BasicWin32Window *_first_window = nullptr;
@@ -249,19 +262,36 @@ void BasicWin32Window::get_glassfree_rect(RECT *rect) {
 }
 
 void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins) {
-  DWORD style    = GetWindowLongW(_hwnd, GWL_STYLE);
-  DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
-
-  RECT frame = {0, 0, 0, 0};
-  AdjustWindowRectEx(&frame, style, FALSE, ex_style);
-
-  margins->cxLeftWidth    = -frame.left;
-  margins->cyTopHeight    = -frame.top;
-  margins->cxRightWidth   = frame.right;
-  margins->cyBottomHeight = frame.bottom;
+  ::get_nc_margins(_hwnd, margins);
 }
 
 //{ snapping windows & alignment ...
+
+static void get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
+  memset(margins, 0, sizeof(Win32Themes::MARGINS));
+  
+  if(Win32Themes::check_osversion(10, 0)) {
+    get_nc_margins(hwnd, margins);
+    margins->cyTopHeight    = 0;
+    margins->cxLeftWidth    = 1 - margins->cxLeftWidth;
+    margins->cxRightWidth   = 1 - margins->cxRightWidth;
+    margins->cyBottomHeight = 1 - margins->cyBottomHeight;
+  }
+}
+
+static void adjust_snap_rect(HWND hwnd, RECT *rect) {
+  Win32Themes::MARGINS margins;
+  get_snap_margins(hwnd, &margins);
+  rect->left-= margins.cxLeftWidth;
+  rect->top-= margins.cyTopHeight;
+  rect->right+= margins.cxLeftWidth;
+  rect->bottom+= margins.cyBottomHeight;
+}
+
+static void get_snap_rect(HWND hwnd, RECT *rect) {
+  GetWindowRect(hwnd, rect);
+  adjust_snap_rect(hwnd, rect);
+}
 
 static bool snap_inside(
   const RECT &orig,
@@ -384,12 +414,10 @@ static BOOL CALLBACK snap_monitor(
 static BOOL CALLBACK snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct snap_info_t *info = (struct snap_info_t *)lParam;
 
-  if(hwnd != info->src
-      && IsWindowVisible(hwnd)
-      && !info->dont_snap->search(hwnd)) {
+  if(hwnd != info->src && IsWindowVisible(hwnd) && !info->dont_snap->search(hwnd)) {
     RECT rect;
-    GetWindowRect(hwnd, &rect);
-
+    get_snap_rect(hwnd, &rect);
+    
     int tmp = rect.left;
     rect.left = rect.right;
     rect.right = tmp;
@@ -409,33 +437,33 @@ static BOOL CALLBACK snap_hwnd(HWND hwnd, LPARAM lParam) {
   return TRUE;
 }
 
-void BasicWin32Window::snap_rect_or_pt(RECT *windowrect, POINT *pt) {
+void BasicWin32Window::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
   RECT current_rect;
-  GetWindowRect(_hwnd, &current_rect);
+  get_snap_rect(_hwnd, &current_rect);
 
-  windowrect->left -=   snap_correction_x;
-  windowrect->right -=  snap_correction_x;
-  windowrect->top -=    snap_correction_y;
-  windowrect->bottom -= snap_correction_y;
+  snapping_rect->left -=   snap_correction_x;
+  snapping_rect->right -=  snap_correction_x;
+  snapping_rect->top -=    snap_correction_y;
+  snapping_rect->bottom -= snap_correction_y;
 
   if(pt) {
     pt->x -= snap_correction_x;
     pt->y -= snap_correction_y;
   }
 
-  int old_dx = current_rect.left - windowrect->left;
-  int old_dy = current_rect.top  - windowrect->top;
+  int old_dx = current_rect.left - snapping_rect->left;
+  int old_dy = current_rect.top  - snapping_rect->top;
 
   snap_correction_x = 0;
   snap_correction_y = 0;
 
   int max_dx = 10;
   int max_dy = 10;
-
+  
   struct snap_info_t info;
   info.src = _hwnd;
   info.dont_snap = &all_snappers;
-  info.orig_rect = windowrect;
+  info.orig_rect = snapping_rect;
   info.orig_pt = pt;
   info.dx = &snap_correction_x;
   info.dy = &snap_correction_y;
@@ -457,12 +485,12 @@ void BasicWin32Window::snap_rect_or_pt(RECT *windowrect, POINT *pt) {
       ++count;
 
       RECT rect;
-      GetWindowRect(e->key, &rect);
+      get_snap_rect(e->key, &rect);
       rect.left -=   old_dx;
       rect.right -=  old_dx;
       rect.top -=    old_dy;
       rect.bottom -= old_dy;
-
+      
       info.orig_rect = &rect;
 
       EnumDisplayMonitors(
@@ -475,10 +503,10 @@ void BasicWin32Window::snap_rect_or_pt(RECT *windowrect, POINT *pt) {
     }
   }
 
-  windowrect->left +=   snap_correction_x;
-  windowrect->right +=  snap_correction_x;
-  windowrect->top +=    snap_correction_y;
-  windowrect->bottom += snap_correction_y;
+  snapping_rect->left +=   snap_correction_x;
+  snapping_rect->right +=  snap_correction_x;
+  snapping_rect->top +=    snap_correction_y;
+  snapping_rect->bottom += snap_correction_y;
 
   if(pt) {
     pt->x += snap_correction_x;
@@ -504,21 +532,17 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
       return TRUE;
 
     RECT rect;
-    GetWindowRect(hwnd, &rect);
+    get_snap_rect(hwnd, &rect);
 
-    if(rect.left  == info->dst_rect.right
-        || rect.right == info->dst_rect.left) {
-      if(rect.bottom > info->dst_rect.top
-          && rect.top    < info->dst_rect.bottom) {
+    if(rect.left == info->dst_rect.right || rect.right == info->dst_rect.left) {
+      if(rect.bottom > info->dst_rect.top && rect.top < info->dst_rect.bottom) {
         info->snappers->set(hwnd, Void());
         return TRUE;
       }
     }
 
-    if(rect.top    == info->dst_rect.bottom
-        || rect.bottom == info->dst_rect.top) {
-      if(rect.right > info->dst_rect.left
-          && rect.left  < info->dst_rect.right) {
+    if(rect.top == info->dst_rect.bottom || rect.bottom == info->dst_rect.top) {
+      if(rect.right > info->dst_rect.left && rect.left < info->dst_rect.right) {
         info->snappers->set(hwnd, Void());
         return TRUE;
       }
@@ -535,7 +559,7 @@ void BasicWin32Window::find_all_snappers() {
 
   info.dst = _hwnd;
   info.min_level = zorder_level();
-  GetWindowRect(info.dst, &info.dst_rect);
+  get_snap_rect(info.dst, &info.dst_rect);
   info.snappers = &all_snappers;
 
   all_snappers.set(_hwnd, Void());
@@ -555,7 +579,7 @@ void BasicWin32Window::find_all_snappers() {
         ++count;
 
         info.dst = e->key;
-        GetWindowRect(info.dst, &info.dst_rect);
+        get_snap_rect(info.dst, &info.dst_rect);
         info.snappers = &more_snappers;
 
         EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
@@ -609,7 +633,7 @@ static BOOL CALLBACK find_align_hwnd(HWND hwnd, LPARAM lParam) {
 
   if(hwnd != info->dst && IsWindowVisible(hwnd)) {
     RECT rect;
-    GetWindowRect(hwnd, &rect);
+    get_snap_rect(hwnd, &rect);
 
     if(info->dst_rect.left == rect.right)
       info->align_left = true;
@@ -635,7 +659,7 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
 
   memset(&info, 0, sizeof(info));
   info.dst = _hwnd;
-  GetWindowRect(info.dst, &info.dst_rect);
+  get_snap_rect(info.dst, &info.dst_rect);
   EnumThreadWindows(GetCurrentThreadId(), find_align_hwnd, (LPARAM)&info);
 
   *right  = info.align_right  && !info.align_left;
@@ -714,44 +738,51 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
     return;
 
   POINT pt = {0, 0};
+//  RECT snapping_rect = *lParam;
+//  adjust_snap_rect(_hwnd, &snapping_rect);
+  Win32Themes::MARGINS snap_margins;
+  get_snap_margins(_hwnd, &snap_margins);
   RECT snapping_rect;
-  memcpy(&snapping_rect, lParam, sizeof(snapping_rect));
+  snapping_rect.left   = lParam->left   - snap_margins.cxLeftWidth;
+  snapping_rect.top    = lParam->top    - snap_margins.cyTopHeight;
+  snapping_rect.right  = lParam->right  + snap_margins.cxRightWidth;
+  snapping_rect.bottom = lParam->bottom + snap_margins.cyBottomHeight;
 
   switch(wParam) {
     case WMSZ_BOTTOM:
-      pt.y = lParam->bottom;
+      pt.y = snapping_rect.bottom;
       break;
 
     case WMSZ_BOTTOMLEFT:
-      pt.x = lParam->left;
-      pt.y = lParam->bottom;
+      pt.x = snapping_rect.left;
+      pt.y = snapping_rect.bottom;
       break;
 
     case WMSZ_BOTTOMRIGHT:
-      pt.x = lParam->right;
-      pt.y = lParam->bottom;
+      pt.x = snapping_rect.right;
+      pt.y = snapping_rect.bottom;
       break;
 
     case WMSZ_TOP:
-      pt.y = lParam->top;
+      pt.y = snapping_rect.top;
       break;
 
     case WMSZ_TOPLEFT:
-      pt.x = lParam->left;
-      pt.y = lParam->top;
+      pt.x = snapping_rect.left;
+      pt.y = snapping_rect.top;
       break;
 
     case WMSZ_TOPRIGHT:
-      pt.x = lParam->right;
-      pt.y = lParam->top;
+      pt.x = snapping_rect.right;
+      pt.y = snapping_rect.top;
       break;
 
     case WMSZ_LEFT:
-      pt.x = lParam->left;
+      pt.x = snapping_rect.left;
       break;
 
     case WMSZ_RIGHT:
-      pt.x = lParam->right;
+      pt.x = snapping_rect.right;
       break;
   }
 
@@ -765,42 +796,42 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   switch(wParam) {
     case WMSZ_BOTTOM:
       snap_correction_x = old_snap_dx;
-      lParam->bottom = pt.y;
+      lParam->bottom = pt.y - snap_margins.cyBottomHeight;
       break;
 
     case WMSZ_BOTTOMLEFT:
-      lParam->left   = pt.x;
-      lParam->bottom = pt.y;
+      lParam->left   = pt.x + snap_margins.cxLeftWidth;
+      lParam->bottom = pt.y - snap_margins.cyBottomHeight;
       break;
 
     case WMSZ_BOTTOMRIGHT:
-      lParam->right  = pt.x;
-      lParam->bottom = pt.y;
+      lParam->right  = pt.x - snap_margins.cxRightWidth;
+      lParam->bottom = pt.y - snap_margins.cyBottomHeight;
       break;
 
     case WMSZ_TOP:
       snap_correction_x = old_snap_dx;
-      lParam->top = pt.y;
+      lParam->top = pt.y + snap_margins.cyTopHeight;
       break;
 
     case WMSZ_TOPLEFT:
-      lParam->left = pt.x;
-      lParam->top  = pt.y;
+      lParam->left = pt.x + snap_margins.cxLeftWidth;
+      lParam->top  = pt.y + snap_margins.cyTopHeight;
       break;
 
     case WMSZ_TOPRIGHT:
-      lParam->right = pt.x;
-      lParam->top   = pt.y;
+      lParam->right = pt.x - snap_margins.cxRightWidth;
+      lParam->top   = pt.y + snap_margins.cyTopHeight;
       break;
 
     case WMSZ_LEFT:
       snap_correction_y = old_snap_dy;
-      lParam->left = pt.x;
+      lParam->left = pt.x + snap_margins.cxLeftWidth;
       break;
 
     case WMSZ_RIGHT:
       snap_correction_y = old_snap_dy;
-      lParam->right = pt.x;
+      lParam->right = pt.x - snap_margins.cxRightWidth;
       break;
   }
 }
@@ -808,12 +839,30 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
 void BasicWin32Window::on_moving(RECT *lParam) {
   RECT rect;
   GetWindowRect(_hwnd, &rect);
-
-  snap_rect_or_pt(lParam, 0);
-
-//  move_all_snappers(
-//    rect.left - last_moving_x,
-//    rect.top  - last_moving_y);
+  
+  Win32Themes::MARGINS snap_margins;
+  get_snap_margins(_hwnd, &snap_margins);
+  
+  if( rect.right - rect.left != lParam->right - lParam->left ||
+      rect.bottom - rect.top != lParam->bottom - lParam->top)
+  {
+    /* Width and/or height does not match. So lParam represents Aero Snap rectangle.
+       That does not have invisible window borders, so we remove our additional margins
+     */
+     memset(&snap_margins, 0, sizeof(snap_margins));
+  }
+  
+  RECT snapping_rect;
+  snapping_rect.left   = lParam->left   - snap_margins.cxLeftWidth;
+  snapping_rect.top    = lParam->top    - snap_margins.cyTopHeight;
+  snapping_rect.right  = lParam->right  + snap_margins.cxRightWidth;
+  snapping_rect.bottom = lParam->bottom + snap_margins.cyBottomHeight;
+  
+  snap_rect_or_pt(&snapping_rect, nullptr);
+  lParam->left   = snapping_rect.left   + snap_margins.cxLeftWidth;
+  lParam->top    = snapping_rect.top    + snap_margins.cyTopHeight;
+  lParam->right  = snapping_rect.right  - snap_margins.cxRightWidth;
+  lParam->bottom = snapping_rect.bottom - snap_margins.cyBottomHeight;
 
   HDWP hdwp = BeginDeferWindowPos(all_snappers.size());
 
