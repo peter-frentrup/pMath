@@ -48,6 +48,7 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
+					<Add library="advapi32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -101,6 +102,7 @@
 					<Add library="ole32" />
 					<Add library="user32" />
 					<Add library="uuid" />
+					<Add library="advapi32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -261,6 +263,7 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
+					<Add library="advapi32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -300,7 +303,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
-					<Add library="pmath.lib" />
+					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
 					<Add library="gobject-2.0" />
@@ -314,6 +317,7 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
+					<Add library="advapi32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_32.lib)" />
 					<Add directory="$(#glib_32.lib)" />
@@ -369,6 +373,7 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
+					<Add library="advapi32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_32.lib)" />
 					<Add directory="$(#pango_32.lib)" />
@@ -409,7 +414,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
-					<Add library="pmath.lib" />
+					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
 					<Add library="gobject-2.0" />
@@ -423,6 +428,7 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
+					<Add library="advapi32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_64.lib)" />
 					<Add directory="$(#glib_64.lib)" />
@@ -465,7 +471,7 @@
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
 					<Add option="/LTCG" />
-					<Add library="pmath.lib" />
+					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
 					<Add library="gobject-2.0" />
@@ -479,6 +485,7 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
+					<Add library="advapi32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_64.lib)" />
 					<Add directory="$(#glib_64.lib)" />
