@@ -300,16 +300,18 @@ bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
   HKEY key;
   LONG status = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\DWM", 0, KEY_READ, &key);
   if(status == ERROR_SUCCESS) {
-    DWORD accent_color = 0;
-    LONG status_ac = RegGetValueW(key, nullptr, L"AccentColor", RRF_RT_REG_DWORD, nullptr, &accent_color, nullptr);
+    DWORD accent_color_bgr = 0;
+    DWORD size = sizeof(DWORD);
+    LONG status_ac = RegGetValueW(key, nullptr, L"AccentColor", RRF_RT_REG_DWORD, nullptr, &accent_color_bgr, &size);
     
     DWORD color_prevalence = 0;
-    LONG status_cp = RegGetValueW(key, nullptr, L"ColorPrevalence", RRF_RT_REG_DWORD, nullptr, &color_prevalence, nullptr);
+    size = sizeof(DWORD);
+    LONG status_cp = RegGetValueW(key, nullptr, L"ColorPrevalence", RRF_RT_REG_DWORD, nullptr, &color_prevalence, &size);
     
     if(status_ac == ERROR_SUCCESS && status_cp == ERROR_SUCCESS) {
-      int red   = (accent_color & 0xFF0000) >> 16;
-      int green = (accent_color & 0x00FF00) >> 8;
-      int blue  = (accent_color & 0x0000FF);
+      int blue  = (accent_color_bgr & 0xFF0000) >> 16;
+      int green = (accent_color_bgr & 0x00FF00) >> 8;
+      int red   = (accent_color_bgr & 0x0000FF);
       
       double gray = (30.0 * red + 59.0 * green + 11.0 * blue) / 25500.0;
       if(gray >= 0.5)
@@ -317,7 +319,7 @@ bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
       else
         info->text_on_accent_color = 0xFFFFFF;
       
-      info->accent_color = accent_color & 0xFFFFFFu;
+      info->accent_color = (red << 16) | (green << 8) | blue;
       info->has_accent_color_in_active_titlebar = color_prevalence == 1;
       result = true;
     }
