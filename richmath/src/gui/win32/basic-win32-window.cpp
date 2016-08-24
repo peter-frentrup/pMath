@@ -1568,6 +1568,9 @@ BasicWin32Window *BasicWin32Window::first_window() {
 }
 
 LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
+  /* Note that this function does not return HTCLOSE, HTMAXBUTTON, HTMINBUTTON because 
+     DwmDefWindowProc() already did the job when the mouse is over one of these buttons
+   */
   POINT mouse_screen = { (short)LOWORD(lParam), (short)HIWORD(lParam)};
 
   Win32Themes::MARGINS margins;
@@ -1585,20 +1588,23 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   RECT rcFrame = { 0, 0, 0, 0 };
   AdjustWindowRectEx(&rcFrame, style & ~WS_CAPTION, FALSE, ex_style);
   
-  USHORT uRow = 1;
+  USHORT uRow = 2;
   USHORT uCol = 1;
-  bool fOnResizeBorder = false;
 
   if( mouse_screen.y >= rect.top &&
-      mouse_screen.y < rect.top + margins.cyTopHeight)
+      mouse_screen.y < rect.top - rcFrame.top)
   {
-    fOnResizeBorder = (mouse_screen.y < (rect.top - rcFrame.top));
     uRow = 0;
+  }
+  else if(mouse_screen.y >= rect.top - rcFrame.top &&
+          mouse_screen.y < rect.top + margins.cyTopHeight)
+  {
+    uRow = 1;
   }
   else if(mouse_screen.y < rect.bottom &&
           mouse_screen.y >= rect.bottom - margins.cyBottomHeight)
   {
-    uRow = 2;
+    uRow = 3;
   }
 
   if( mouse_screen.x >= rect.left &&
@@ -1612,7 +1618,16 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
     uCol = 2;
   }
   
-  if(!fOnResizeBorder) {
+  LRESULT hit_tests[4][3] = {
+    { HTTOPLEFT,    HTTOP,     HTTOPRIGHT    },
+    { HTLEFT,       HTCAPTION, HTRIGHT       },
+    { HTLEFT,       HTCLIENT,  HTRIGHT       },
+    { HTBOTTOMLEFT, HTBOTTOM,  HTBOTTOMRIGHT },
+  };
+  
+  LRESULT result = hit_tests[uRow][uCol];
+  
+  if(result == HTCAPTION) {
     POINT mouse_client = mouse_screen;
     ScreenToClient(_hwnd, &mouse_client);
     
@@ -1623,13 +1638,7 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
     }
   }
   
-  LRESULT hitTests[3][3] = {
-    { fOnResizeBorder ? HTTOPLEFT : HTLEFT, fOnResizeBorder ? HTTOP : HTCAPTION, fOnResizeBorder ? HTTOPRIGHT : HTRIGHT },
-    { HTLEFT,                               HTCLIENT,                            HTRIGHT       },
-    { HTBOTTOMLEFT,                         HTBOTTOM,                            HTBOTTOMRIGHT },
-  };
-  
-  return hitTests[uRow][uCol];
+  return result;
 }
 
 struct remove_child_rgn_info_t {
