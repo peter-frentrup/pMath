@@ -1569,10 +1569,7 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
     
     RECT menu;
     get_system_menu_bounds(_hwnd, &menu);
-//    if( mouse_screen.x < pt.x + menu.right &&
-//        mouse_screen.y < pt.y + menu.bottom)
-    if(PtInRect(&menu, mouse_client)) {
-      // TODO: allow y above icon to mouse at snap monitor edge onto icon for maximized windows.
+    if( mouse_client.x < menu.right && mouse_client.y < menu.bottom) {
       return HTSYSMENU;
     }
   }
