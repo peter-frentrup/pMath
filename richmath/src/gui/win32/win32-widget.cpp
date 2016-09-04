@@ -1016,8 +1016,19 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             return 0;
             
           int rel_wheel = (int16_t)HIWORD(wParam);
+          float delta = (float)num_chars * -10 * rel_wheel / (float)WHEEL_DELTA;
           
-          scroll_by((float)num_chars * -10 * rel_wheel / (float)WHEEL_DELTA, 0);
+          SCROLLINFO si;
+          si.cbSize = sizeof(si);
+          si.fMask  = SIF_ALL;
+          GetScrollInfo(_hwnd, SB_HORZ, &si);
+          float max_scroll = si.nPage / scale_factor();
+          if(delta > max_scroll)
+            delta = max_scroll;
+          if(delta < -max_scroll)
+              delta = -max_scroll;
+          
+          scroll_by(delta, 0);
         } return 0;
         
       case WM_MOUSEWHEEL: {
@@ -1045,8 +1056,20 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               
             if(num_lines == 0)
               return 0;
-              
-            scroll_by(0, (float)num_lines * -20 * rel_wheel / (float)WHEEL_DELTA);
+            
+            float delta = (float)num_lines * -20 * rel_wheel / (float)WHEEL_DELTA;
+            
+            SCROLLINFO si;
+            si.cbSize = sizeof(si);
+            si.fMask  = SIF_ALL;
+            GetScrollInfo(_hwnd, SB_VERT, &si);
+            float max_scroll = si.nPage / scale_factor();
+            if(delta > max_scroll)
+              delta = max_scroll;
+            if(delta < -max_scroll)
+              delta = -max_scroll;
+            
+            scroll_by(0, delta);
           }
         } return 0;
         
