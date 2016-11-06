@@ -28,13 +28,6 @@ namespace richmath {
     private:
       GtkFileChooserDialog *_dialog;
       GtkFileChooser       *_chooser;
-      
-    public:
-      static pmath::Expr show(
-        bool           save,
-        pmath::String  initialfile,
-        pmath::Expr    filter,
-        pmath::String  title);
   };
 }
 

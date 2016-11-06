@@ -229,18 +229,4 @@ Expr Win32FileDialog::show_dialog() {
   return Win32FileDialogImpl(*this).show_dialog();
 }
 
-Expr Win32FileDialog::show(
-  bool    save,
-  String  initialfile,
-  Expr    filter,
-  String  title
-) {
-  Win32FileDialog dialog(save);
-  
-  dialog.set_title(title);
-  dialog.set_initial_file(initialfile);
-  dialog.set_filter(filter);
-  return dialog.show_dialog();
-}
-
 //} ... class Win32FileDialog

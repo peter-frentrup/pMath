@@ -28,13 +28,6 @@ namespace richmath {
       pmath::String _default_extension_z;
       pmath::String _initialfile;
       bool          _to_save;
-      
-    public:
-      static pmath::Expr show(
-        bool           save,
-        pmath::String  initialfile,
-        pmath::Expr    filter,
-        pmath::String  title);
   };
 }
 

@@ -1006,21 +1006,20 @@ Expr Application::run_filedialog(Expr data) {
   double gui_start_time = pmath_tickcount();
   
 #if RICHMATH_USE_WIN32_GUI
-  result = Win32FileDialog::show(
-             head == GetSymbol(FileSaveDialogSymbol),
-             filename,
-             filter,
-             title);
+  Win32FileDialog
+#elif RICHMATH_USE_GTK_GUI
+  MathGtkFileDialog
+#else
+#  error "No GUI"
 #endif
-             
-#ifdef RICHMATH_USE_GTK_GUI
-  result = MathGtkFileDialog::show(
-             head == GetSymbol(FileSaveDialogSymbol),
-             filename,
-             filter,
-             title);
-#endif
-             
+  dialog(head == GetSymbol(FileSaveDialogSymbol));
+  
+
+  dialog.set_title(title);
+  dialog.set_initial_file(filename);
+  dialog.set_filter(filter);
+  result = dialog.show_dialog();  
+  
   double gui_end_time = pmath_tickcount();
   if(gui_start_time < gui_end_time)
     total_time_waited_for_gui += gui_end_time - gui_start_time;

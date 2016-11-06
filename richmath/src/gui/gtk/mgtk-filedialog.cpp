@@ -184,19 +184,5 @@ Expr MathGtkFileDialog::show_dialog() {
   
   return Symbol(PMATH_SYMBOL_CANCELED);
 }
-      
-Expr MathGtkFileDialog::show(
-  bool    save,
-  String  initialfile,
-  Expr    filter,
-  String  title
-) {
-  MathGtkFileDialog dialog(save);
-  
-  dialog.set_title(title);
-  dialog.set_initial_file(initialfile);
-  dialog.set_filter(filter);
-  return dialog.show_dialog();
-}
 
 //} ... class MathGtkFileDialog
