@@ -17,6 +17,16 @@
 
 
 PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
+/* Clock()                  = Clock(   0..1,    1,         Infinity)
+   Clock(t)                 = Clock(   0..t,    t,         Infinity)
+   Clock(xmin..xmax)        = Clock(xmin..xmax, xmax-xmin, Infinity)
+   Clock(xmax, t)           = Clock(   0..xmax, t,         Infinity)
+   Clock(xmin..xmax, t)     = Clock(xmin..xmax, t,         Infinity)
+   
+   Clock(xmin..xmax..dx)    = Clock(xmin..xmax..dx, dx, Infinity)  
+   Clock(xmin..xmax..dx, t) = Clock(xmin..xmax..dx, t,  Infinity)
+   Clock(values, t, n)
+ */
   size_t exprlen = pmath_expr_length(expr);
   pmath_thread_t thread = pmath_thread_get_current();
   pmath_t obj;

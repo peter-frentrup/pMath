@@ -51,6 +51,11 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr) {
   return expr;
 }
 
+/** Get the TrackedSymbols option value in a Dynamic(...).
+    
+    \param dynamic  Won't be freed.
+    \return PMATH_NULL means none, PMATH_UNDEFINED means automatic, an expr/list to track otherwise.
+ */
 static pmath_t find_tracked_symbols(pmath_t dynamic, size_t start) {
   size_t i;
   
@@ -96,6 +101,10 @@ static pmath_t find_tracked_symbols(pmath_t dynamic, size_t start) {
   return PMATH_UNDEFINED;
 }
 
+/** Replace Dynamic(...) by Internal`DynamicEvaluate(...) as appropriate for its TrackedSymbols option.
+    \param expr    An expression containing (possibly multiple) Dynamic(...) expressions. Will be freed.
+    \param id_obj  The dynamic object identifier. Usually an integer. Won't be freed.
+ */
 static pmath_t replace_dynamic(
   pmath_t expr,   // will be freed
   pmath_t id_obj  // wont be freed
