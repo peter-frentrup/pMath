@@ -62,10 +62,24 @@ struct _pmath_symbol_t {
   pmath_symbol_attributes_t  attributes;
   pmath_locked_t             value;
   
-  pmath_atomic_t             rules; // struct _pmath_symbol_rules_t *
+  /** The Up-, Down-, Sub-, ...-Rules as a  struct _pmath_symbol_rules_t *
+   */
+  pmath_atomic_t rules;
   
-  pmath_atomic_t             current_dynamic_id;
-  pmath_atomic_t             ignore_dynamic_id;
+  /** Identifier of the last dynamic object that was interrested in this symbol but was not 
+      yet informed about a change.
+  
+      A value of 0 means that no dynamic object is currently interrested in this symbol
+      and thus no change notifications should be performed.
+   */
+  pmath_atomic_t current_dynamic_id;
+  
+  /** Identifier of a dynamic object that this symbol cannot be bound to.
+      
+      This is set by pmath_symbol_create_temporary() to allow for assignments to local symbols
+      during a dynamic evaluation.
+   */
+  pmath_atomic_t ignore_dynamic_id;
 };
 
 //{ global symbol table ...
