@@ -878,6 +878,7 @@ static void discard_all_timed_msgs(void) {
 
 static void kill_timer_thread(void *dummy) {
   stop_threadpool = TRUE;
+  pmath_thread_wakeup(timer_thread_mq);
 }
 
 static void timer_thread_proc(void *dummy) {
