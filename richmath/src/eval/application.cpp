@@ -1080,13 +1080,8 @@ static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
     /* We must filter out CNT_DYNAMICUPDATE because that could update a parent
        DynamicBox of the DynamicBox that is currently updated during its
        paint() event. That would cause a memory corruption/crash.
-    
-       We must filter out CNT_EXECUTEFOR because the point of CNT_EXECUTEFOR is
-       to be executed by the main message loop.
      */
-    if( cn.type == CNT_DYNAMICUPDATE ||
-        cn.type == CNT_EXECUTEFOR)
-    {
+    if( cn.type == CNT_DYNAMICUPDATE) {
       suppressed_notifications->put_front(cn);
       continue;
     }
@@ -1154,9 +1149,6 @@ Expr Application::interrupt_cached(Expr expr) {
 }
 
 void Application::execute_for(Expr expr, Box *box, double seconds) {
-//  if(box)
-//    print_pos = EvaluationPosition(box);
-
   EvaluationPosition pos(box);
   
   expr = Call(
@@ -1165,13 +1157,17 @@ void Application::execute_for(Expr expr, Box *box, double seconds) {
            pos.document_id,
            pos.section_id,
            pos.box_id);
-           
-  if(seconds < Infinity) {
-    notify(CNT_EXECUTEFOR, List(expr, Number(seconds)));
-  }
-  else
-    Server::local_server->interrupt(expr);
+  
+  pmath_debug_print("[execute %f ...\n", seconds);
+  
+  bool old_is_executing_for_sth = is_executing_for_sth;
+  is_executing_for_sth = true;
+  
+  interrupt(expr, seconds);
     
+  is_executing_for_sth = old_is_executing_for_sth;
+    
+  pmath_debug_print("...exec]\n");
 }
 
 void Application::execute_for(Expr expr, Box *box) {
@@ -1359,44 +1355,6 @@ static void cnt_end(Expr data) {
   }
   
   Application::eval_cache.clear();
-}
-
-static pmath_bool_t execute_for_idle(double *end_tick, void *closure) {
-  double gui_start_time = total_time_waited_for_gui;
-  
-  Application::doevents();
-  
-  double gui_end_time = total_time_waited_for_gui;
-  if(gui_start_time < gui_end_time) {
-    pmath_debug_print("[execute_for_idle: delay timeout by %f sec]\n", gui_end_time - gui_start_time);
-    *end_tick += gui_end_time - gui_start_time;
-  }
-  
-  return TRUE;
-}
-
-static void cnt_executefor(Expr data) {
-  double seconds = data[2].to_double(Infinity);
-  Expr expr = data[1];
-  data = Expr();
-  
-  pmath_debug_print("[execute %f ...\n", seconds);
-  
-  if(seconds < Infinity) {
-    bool old_is_executing_for_sth = is_executing_for_sth;
-    
-    Server::local_server->interrupt_wait(
-      expr,
-      seconds,
-      execute_for_idle,
-      nullptr);
-      
-    is_executing_for_sth = old_is_executing_for_sth;
-  }
-  else
-    Server::local_server->interrupt(expr);
-    
-  pmath_debug_print("...exec]\n");
 }
 
 static void cnt_return(Expr data) {
@@ -1801,10 +1759,6 @@ static void execute(ClientNotification &cn) {
       
     case CNT_END:
       cnt_end(cn.data);
-      break;
-      
-    case CNT_EXECUTEFOR:
-      cnt_executefor(cn.data);
       break;
       
     case CNT_RETURN:
