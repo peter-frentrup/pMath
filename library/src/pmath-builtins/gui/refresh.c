@@ -11,6 +11,13 @@
 
 
 PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
+/** Refresh(body, None)  = Refresh(body, TrackedSymbols->None)
+    Refresh(body, options)
+    
+    default options are
+      TrackedSymbols->Autormatic (means any in body; None means no tracking, {sym1,sym2,...} tracks only those symbols)
+      UpdateInterval->Infinity   (seconds after which to refresh current dynamic object automatically again)
+ */
   size_t exprlen = pmath_expr_length(expr);
   pmath_thread_t thread = pmath_thread_get_current();
   pmath_t body, options, opt;
