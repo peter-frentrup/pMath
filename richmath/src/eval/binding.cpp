@@ -889,7 +889,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
     return false;
     
   // non-blocking interrupt
-  Application::execute_for(
+  Application::interrupt_for(
     Call(Symbol(PMATH_SYMBOL_DIALOG)),
     0,
     Infinity);
@@ -1339,7 +1339,7 @@ static bool similar_section_below_cmd(Expr cmd) {
 
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
   // non-blocking interrupt
-  Application::execute_for(
+  Application::interrupt_for(
     Call(Symbol(PMATH_SYMBOL_DIALOG),
          Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
               String("EvaluateSectionsAndReturn"))),

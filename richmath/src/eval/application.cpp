@@ -1148,7 +1148,7 @@ Expr Application::interrupt_cached(Expr expr) {
   return interrupt_cached(expr, interrupt_timeout);
 }
 
-void Application::execute_for(Expr expr, Box *box, double seconds) {
+void Application::interrupt_for(Expr expr, Box *box, double seconds) {
   EvaluationPosition pos(box);
   
   expr = Call(
@@ -1158,20 +1158,16 @@ void Application::execute_for(Expr expr, Box *box, double seconds) {
            pos.section_id,
            pos.box_id);
   
-  pmath_debug_print("[execute %f ...\n", seconds);
-  
   bool old_is_executing_for_sth = is_executing_for_sth;
   is_executing_for_sth = true;
   
   interrupt(expr, seconds);
     
   is_executing_for_sth = old_is_executing_for_sth;
-    
-  pmath_debug_print("...exec]\n");
 }
 
-void Application::execute_for(Expr expr, Box *box) {
-  execute_for(expr, box, interrupt_timeout);
+void Application::interrupt_for(Expr expr, Box *box) {
+  interrupt_for(expr, box, interrupt_timeout);
 }
 
 Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box) {

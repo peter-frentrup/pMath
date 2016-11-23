@@ -103,8 +103,8 @@ namespace richmath {
       static Expr interrupt_cached(Expr expr, double seconds);
       static Expr interrupt_cached(Expr expr);
       
-      static void execute_for(Expr expr, Box *box, double seconds);
-      static void execute_for(Expr expr, Box *box);
+      static void interrupt_for(Expr expr, Box *box, double seconds);
+      static void interrupt_for(Expr expr, Box *box);
       
       // callable from non-gui thread:
       static Expr internal_execute_for(Expr expr, int doc, int sect, int box);

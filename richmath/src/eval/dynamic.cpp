@@ -85,7 +85,7 @@ void Dynamic::assign(Expr value) {
     run = Call(Symbol(PMATH_SYMBOL_ASSIGN), _expr[1], value);
     
   run = _owner->prepare_dynamic(run);
-  Application::execute_for(run, _owner, Application::dynamic_timeout);
+  Application::interrupt_for(run, _owner, Application::dynamic_timeout);
 }
 
 Expr Dynamic::get_value_now() {
