@@ -7,6 +7,7 @@
 
 namespace richmath {
   class SliderBox: public EmptyWidgetBox {
+      friend class SliderBoxImpl;
     public:
       explicit SliderBox();
       virtual ~SliderBox();
@@ -43,11 +44,6 @@ namespace richmath {
       virtual void on_mouse_move(MouseEvent &event) override;
       virtual void on_mouse_up(MouseEvent &event) override;
       //virtual void on_mouse_cancel() override;
-      
-    protected:
-      float calc_thumb_pos(double val);
-      double mouse_to_val(double mouse_x);
-      void assign_dynamic_value(double d);
       
     protected:
       double range_min;

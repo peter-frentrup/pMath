@@ -19,6 +19,240 @@ namespace std {
 #  define NAN  (std::numeric_limits<double>::quiet_NaN())
 #endif
 
+namespace richmath {
+  class SliderBoxImpl {
+    private:
+      SliderBox &self;
+    public:
+      SliderBoxImpl(SliderBox &_self)
+        : self(_self)
+      {
+      }
+      
+    public:
+      double mouse_to_val(double mouse_x) {
+        mouse_x -= self.thumb_width / 2;
+        if(mouse_x < 0)
+          mouse_x = 0;
+        if(mouse_x > self._extents.width - self.thumb_width)
+          mouse_x = self._extents.width - self.thumb_width;
+          
+        double val;
+        if(self.range_min != self.range_max) {
+          val = (mouse_x / (self._extents.width - self.thumb_width)) * (self.range_max - self.range_min);
+          
+          if(self.range_step != 0) {
+            val = self.range_min + floor(val / self.range_step + 0.5) * self.range_step;
+            
+            if(self.range_min < self.range_max) {
+              if(val > self.range_max)
+                val -= self.range_step;
+            }
+            else {
+              if(val < self.range_max)
+                val += self.range_step;
+            }
+          }
+          else
+            val += self.range_min;
+        }
+        else
+          val = self.range_min;
+          
+        return val;
+      }
+      
+    public:
+      float calc_thumb_pos(double val) {
+        if(std::isnan(val))
+          return self._extents.width / 2 - self.thumb_width / 2;
+          
+        if(self.range_min < self.range_max) {
+          if(val < self.range_min)
+            return 0;
+            
+          if(val > self.range_max)
+            return self._extents.width - self.thumb_width;
+            
+          return (val - self.range_min) / (self.range_max - self.range_min) * (self._extents.width - self.thumb_width);
+        }
+        
+        if(self.range_min > self.range_max) {
+          if(val < self.range_max)
+            return 0;
+            
+          if(val > self.range_min)
+            return self._extents.width - self.thumb_width;
+            
+          return (val - self.range_min) / (self.range_max - self.range_min) * (self._extents.width - self.thumb_width);
+        }
+        
+        return self._extents.width / 2 - self.thumb_width / 2;
+      }
+      
+    public:
+      void assign_dynamic_value(double d) {
+        if(!self.have_drawn) 
+          return;
+        
+        self.have_drawn = false;
+        if(self.range[0] == PMATH_SYMBOL_LIST) {
+          self.dynamic.assign(self.range[(size_t)d]);
+        }
+        else if(self.use_double_values) {
+          self.dynamic.assign(d);
+        }
+        else {
+          self.dynamic.assign(Plus(self.range[1], Round(Minus(d, self.range[1]), self.range[3])));
+        }
+      }
+      
+    public:
+      void finish_update_value() {
+        if(!self.must_update)
+          return;
+          
+        self.must_update = false;
+        
+        Expr val;
+        if(self.dynamic.get_value(&val)) {
+          if(self.range[0] == PMATH_SYMBOL_LIST) {
+            self.range_value = self.range_min;
+            
+            size_t i;
+            for(i = 1; i <= self.range.expr_length(); ++i)
+              if(self.range[i] == val) {
+                self.range_value = i;
+                break;
+              }
+          }
+          else {
+            self.range_value = val.to_double(NAN);
+          }
+        }
+      }
+      
+    public:
+      void paint_error_indicator_if_necessary(Canvas *canvas, float x, float y) {
+        if(std::isnan(self.range_value)) {
+          paint_error_indicator(canvas, x, y);
+        }
+        else if(self.range_value < self.range_min && self.range_value < self.range_max) {
+          paint_underflow_indicator(canvas, x, y);
+        }
+        else if(self.range_value > self.range_max && self.range_value > self.range_min) {
+          paint_overflow_indicator(canvas, x, y);
+        }
+      }
+      
+    private:
+      void paint_error_indicator(Canvas *canvas, float x, float y) {
+        float rx = x + self._extents.width / 2;
+        float h = self._extents.height();
+        
+        int old_color = canvas->get_color();
+        canvas->save();
+        canvas->set_color(0xFF0000, 0.2);
+        for(int i = -2; i <= 2; ++i) {
+          canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
+          canvas->fill();
+        }
+        canvas->restore();
+        canvas->set_color(old_color);
+      }
+      
+      void paint_underflow_indicator(Canvas *canvas, float x, float y) {
+        float h = self._extents.height();
+        float rx = x + h / 2;
+        
+        int old_color = canvas->get_color();
+        canvas->save();
+        canvas->set_color(0xFF0000, 0.2);
+        for(int i = 0; i <= 2; ++i) {
+          canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
+          canvas->fill();
+        }
+        canvas->restore();
+        canvas->set_color(old_color);
+      }
+      
+      void paint_overflow_indicator(Canvas *canvas, float x, float y) {
+        float h = self._extents.height();
+        float rx = x + self._extents.width - h / 2;
+        
+        int old_color = canvas->get_color();
+        canvas->save();
+        canvas->set_color(0xFF0000, 0.2);
+        for(int i = -2; i <= 0; ++i) {
+          canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
+          canvas->fill();
+        }
+        canvas->restore();
+        canvas->set_color(old_color);
+      }
+      
+    public:
+      void paint_channel(Canvas *canvas, float x, float y) {
+        float h = self._extents.height();
+        ControlPainter::std->draw_container(
+          canvas,
+          SliderHorzChannel,
+          Normal,
+          x,
+          y + h / 2 - self.channel_width / 2,
+          self._extents.width,
+          self.channel_width);
+      }
+      
+      void animate_thumb(Context *context, float x, float y, double old_value) {
+        ControlState new_state = self.calc_state(context);
+        
+        if(old_value == self.range_value) {
+          if(new_state != self.old_state || !self.animation) {
+            self.animation = SliderBoxImpl(*this).create_thumb_animation(context->canvas, x, y, self.old_state, new_state);
+            self.old_state = new_state;
+          }
+          
+          if(self.animation) {
+            if(self.animation->paint(context->canvas))
+              return;
+              
+            self.animation = SliderBoxImpl(*this).create_thumb_animation(context->canvas, x, y, new_state, new_state);
+          }
+        }
+        
+        float h = self._extents.height();
+        float thumb_x = x + calc_thumb_pos(self.range_value);
+        ControlPainter::std->draw_container(
+          context->canvas,
+          SliderHorzThumb,
+          new_state,
+          thumb_x,
+          y,
+          self.thumb_width,
+          h);
+      }
+      
+    public:
+      SharedPtr<BoxAnimation> create_thumb_animation(Canvas *canvas, float x, float y, ControlState state1, ControlState state2) {
+        float h = self._extents.height();
+        float thumb_x = x + calc_thumb_pos(self.range_value);
+        
+        return ControlPainter::std->control_transition(
+                 self.id(),
+                 canvas,
+                 SliderHorzThumb,
+                 SliderHorzThumb,
+                 state1,
+                 state2,
+                 thumb_x,
+                 y,
+                 self.thumb_width,
+                 h);
+      }
+  };
+}
+
 //{ class SliderBox ...
 
 SliderBox::SliderBox()
@@ -156,193 +390,18 @@ void SliderBox::paint(Context *context) {
   if(style)
     style->update_dynamic(this);
     
-  have_drawn = true;
-  
   double old_value = range_value;
   
-  if(must_update) {
-    must_update = false;
-    
-    Expr val;
-    if(dynamic.get_value(&val)) {
-      if(range[0] == PMATH_SYMBOL_LIST) {
-        range_value = range_min;
-        
-        size_t i;
-        for(i = 1; i <= range.expr_length(); ++i)
-          if(range[i] == val) {
-            range_value = i;
-            break;
-          }
-      }
-      else {
-        range_value = val.to_double(NAN);
-      }
-    }
-  }
+  have_drawn = true;
+  SliderBoxImpl(*this).finish_update_value();
   
   float x, y;
   context->canvas->current_pos(&x, &y);
-  
   y -= _extents.ascent;
-  float h = _extents.height();
   
-  float thumb_x = x + calc_thumb_pos(range_value);
-  
-  if(std::isnan(range_value)) {
-    float rx = x + _extents.width / 2;
-    
-    int old_color = context->canvas->get_color();
-    context->canvas->save();
-    context->canvas->set_color(0xFF0000, 0.2);
-    for(int i = -2; i <= 2; ++i) {
-      context->canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
-      context->canvas->fill();
-    }
-    context->canvas->restore();
-    context->canvas->set_color(old_color);
-  }
-  else if(range_value < range_min && range_value < range_max) {
-    float rx = x + h / 2;
-    
-    int old_color = context->canvas->get_color();
-    context->canvas->save();
-    context->canvas->set_color(0xFF0000, 0.2);
-    for(int i = 0; i <= 2; ++i) {
-      context->canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
-      context->canvas->fill();
-    }
-    context->canvas->restore();
-    context->canvas->set_color(old_color);
-  }
-  else if(range_value > range_max && range_value > range_min) {
-    float rx = x + _extents.width - h / 2;
-    
-    int old_color = context->canvas->get_color();
-    context->canvas->save();
-    context->canvas->set_color(0xFF0000, 0.2);
-    for(int i = -2; i <= 0; ++i) {
-      context->canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
-      context->canvas->fill();
-    }
-    context->canvas->restore();
-    context->canvas->set_color(old_color);
-  }
-  
-  ControlPainter::std->draw_container(
-    context->canvas,
-    SliderHorzChannel,
-    Normal,
-    x,
-    y + h / 2 - channel_width / 2,
-    _extents.width,
-    channel_width);
-    
-  ControlState new_state = calc_state(context);
-  
-  if(old_value == range_value) {
-    if(new_state != old_state || !animation) {
-      animation = ControlPainter::std->control_transition(
-                    id(),
-                    context->canvas,
-                    SliderHorzThumb,
-                    SliderHorzThumb,
-                    old_state,
-                    new_state,
-                    thumb_x,
-                    y,
-                    thumb_width,
-                    h);
-                    
-      old_state = new_state;
-    }
-    
-    if(animation) {
-      if(animation->paint(context->canvas))
-        return;
-        
-      animation = ControlPainter::std->control_transition(
-                    id(),
-                    context->canvas,
-                    SliderHorzThumb,
-                    SliderHorzThumb,
-                    new_state,
-                    new_state,
-                    thumb_x,
-                    y,
-                    thumb_width,
-                    h);
-    }
-  }
-  
-  ControlPainter::std->draw_container(
-    context->canvas,
-    SliderHorzThumb,
-    new_state,
-    thumb_x,
-    y,
-    thumb_width,
-    h);
-}
-
-float SliderBox::calc_thumb_pos(double val) {
-  if(std::isnan(val))
-    return _extents.width / 2 - thumb_width / 2;
-    
-  if(range_min < range_max) {
-    if(val < range_min)
-      return 0;
-      
-    if(val > range_max)
-      return _extents.width - thumb_width;
-      
-    return (val - range_min) / (range_max - range_min) * (_extents.width - thumb_width);
-  }
-  
-  if(range_min > range_max) {
-    if(val < range_max)
-      return 0;
-      
-    if(val > range_min)
-      return _extents.width - thumb_width;
-      
-    return (val - range_min) / (range_max - range_min) * (_extents.width - thumb_width);
-  }
-  
-  return _extents.width / 2 - thumb_width / 2;
-}
-
-double SliderBox::mouse_to_val(double mouse_x) {
-  mouse_x -= thumb_width / 2;
-  if(mouse_x < 0)
-    mouse_x = 0;
-  if(mouse_x > _extents.width - thumb_width)
-    mouse_x = _extents.width - thumb_width;
-    
-  double val;
-  
-  if(range_min != range_max) {
-    val = (mouse_x / (_extents.width - thumb_width)) * (range_max - range_min);
-    
-    if(range_step != 0) {
-      val = range_min + floor(val / range_step + 0.5) * range_step;
-      
-      if(range_min < range_max) {
-        if(val > range_max)
-          val -= range_step;
-      }
-      else {
-        if(val < range_max)
-          val += range_step;
-      }
-    }
-    else
-      val += range_min;
-  }
-  else
-    val = range_min;
-    
-  return val;
+  SliderBoxImpl(*this).paint_error_indicator_if_necessary(context->canvas, x, y);
+  SliderBoxImpl(*this).paint_channel(context->canvas, x, y);
+  SliderBoxImpl(*this).animate_thumb(context, x, y, old_value);
 }
 
 Expr SliderBox::to_pmath(int flags) {
@@ -390,22 +449,6 @@ Box *SliderBox::dynamic_to_literal(int *start, int *end) {
   return this;
 }
 
-void SliderBox::assign_dynamic_value(double d) {
-  if(!have_drawn)
-    return;
-    
-  have_drawn = false;
-  if(range[0] == PMATH_SYMBOL_LIST) {
-    dynamic.assign(range[(size_t)d]);
-  }
-  else if(use_double_values) {
-    dynamic.assign(d);
-  }
-  else {
-    dynamic.assign(Plus(range[1], Round(Minus(d, range[1]), range[3])));
-  }
-}
-
 void SliderBox::on_mouse_exit() {
   EmptyWidgetBox::on_mouse_exit();
 }
@@ -419,10 +462,10 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
     if(dynamic.is_dynamic())
       Application::activated_control(this);
       
-    double val = mouse_to_val(event.x);
+    double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     
     if(val != range_value && get_own_style(ContinuousAction, true))
-      assign_dynamic_value(val);
+      SliderBoxImpl(*this).assign_dynamic_value(val);
     else
       range_value = val;
   }
@@ -434,11 +477,11 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
   event.set_origin(this);
   
   if(mouse_left_down) {
-    double val = mouse_to_val(event.x);
+    double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     
     if(val != range_value) {
       if(get_own_style(ContinuousAction, true))
-        assign_dynamic_value(val);
+        SliderBoxImpl(*this).assign_dynamic_value(val);
       else
         range_value = val;
         
@@ -446,7 +489,7 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
     }
   }
   else {
-    float tx = calc_thumb_pos(range_value);
+    float tx = SliderBoxImpl(*this).calc_thumb_pos(range_value);
     
     bool old_mot = mouse_over_thumb;
     mouse_over_thumb = (tx <= event.x && event.x <= tx + thumb_width);
@@ -459,12 +502,12 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
 void SliderBox::on_mouse_up(MouseEvent &event) {
   if(event.left) {
     event.set_origin(this);
-    double val = mouse_to_val(event.x);
+    double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     if( val != range_value                  ||
         dynamic.synchronous_updating() == 2 ||
         !get_own_style(ContinuousAction, true))
     {
-      assign_dynamic_value(val);
+      SliderBoxImpl(*this).assign_dynamic_value(val);
     }
     
     Application::deactivated_control(this);
