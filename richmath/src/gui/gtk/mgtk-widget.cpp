@@ -526,7 +526,12 @@ void MathGtkWidget::update_im_cursor_location() {
 }
 
 void MathGtkWidget::on_im_commit(const char *str) {
-  document()->insert_string(String::FromUtf8(str), false);
+  String s = String::FromUtf8(str);
+  if(s.length() == 1) {
+    document()->key_press(s[0]);
+    return;
+  }
+  document()->insert_string(s, false);
 }
 
 void MathGtkWidget::on_im_preedit_changed() {
