@@ -3227,7 +3227,7 @@ void Document::paste_from_boxes(Expr boxes) {
         move_to(sel, sel->length());
         grid->invalidate();
         
-        delete tmp;
+        tmp->safe_destroy();
         return;
       }
     }
@@ -3882,7 +3882,7 @@ void Document::insert_string(String text, bool autoformat) {
       
       if(seq2) {
         seq2->insert(seq2->length(), text.part(last, len - last));
-        delete seq;
+        seq->safe_destroy();
         seq = seq2;
       }
     }
@@ -3900,7 +3900,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
     }
     else {
       native()->beep();
-      delete box;
+      box->safe_destroy();
     }
     
     return;
@@ -4015,7 +4015,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
     
     seq = dynamic_cast<AbstractSequence *>(context.selection.get());
     if(!seq) {
-      delete box;
+      box->safe_destroy();
       return;
     }
     
@@ -4047,7 +4047,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
     return;
   }
   
-  delete box;
+  box->safe_destroy();
 }
 
 void Document::insert_fraction() {

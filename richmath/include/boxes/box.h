@@ -94,13 +94,29 @@ namespace richmath {
       Box();
       virtual ~Box();
       
+      /*  Mark the object for deletion.
+          
+          TODO:
+          While destruction suppression is in effect, boxes will be remembered in a free 
+          list (the limbo). When destruction mode is resumed, all objects in the limbo are 
+          actually deleted.
+          
+          During mouse_down() handlers or paint(), the document might change.
+          This could cause a parent box to be removed. Since it is still referenced
+          on the stack, such a box should not be wiped out until the call stack is clean.
+          
+          Hence, the widget which forwards all calls to Box/Document should suppress
+          destruction of Boxes during event handling.
+       */
+      void safe_destroy() { delete this; }
+      
       template<class T>
       static T *try_create(Expr expr, int options){
         T *box = new T();
         
         if(!box->try_load_from_object(expr, options)){
           delete box;
-          return 0;
+          return nullptr;
         }
         
         return box;

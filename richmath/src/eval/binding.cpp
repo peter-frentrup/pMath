@@ -796,7 +796,7 @@ static bool edit_boxes_cmd(Expr cmd) {
           Section *sect = Section::create_from_object(parsed);
           sect->swap_id(edit);
           
-          delete doc->swap(i, sect);
+          doc->swap(i, sect)->safe_destroy();
         }
       }
       else {

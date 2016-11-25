@@ -165,14 +165,14 @@ bool GraphicsDirective::try_load_from_object(Expr expr, int opts) {
     GraphicsElement *elem      = _items[i];
     
     if(!elem->try_load_from_object(elem_expr, opts)) {
-      delete elem;
+      elem->safe_destroy();
       elem = GraphicsElement::create(elem_expr, opts);
       _items.set(i, elem);
     }
   }
   
   for(int i = newlen; i < oldlen; ++i)
-    delete _items[i];
+    _items[i]->safe_destroy();
     
   _items.length(newlen);
   
@@ -204,7 +204,7 @@ void GraphicsDirective::remove(int i) {
   assert(0 <= i);
   assert(i < count());
   
-  delete _items[i];
+  _items[i]->safe_destroy();
   _items.remove(i, 1);
 }
 

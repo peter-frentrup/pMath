@@ -53,7 +53,7 @@ LineBox *LineBox::create(Expr expr, int opts) {
   
   if(!box->try_load_from_object(expr, opts)) {
     delete box;
-    return 0;
+    return nullptr;
   }
   
   return box;

@@ -3516,7 +3516,7 @@ int MathSequence::insert(int pos, Box *box) {
     
   if(MathSequence *sequence = dynamic_cast<MathSequence *>(box)) {
     pos = insert(pos, sequence, 0, sequence->length());
-    delete sequence;
+    sequence->safe_destroy();
     return pos;
   }
   
@@ -3546,7 +3546,7 @@ void MathSequence::remove(int start, int end) {
     
   int j = i;
   while(j < boxes.length() && boxes[j]->index() < end)
-    delete boxes[j++];
+    boxes[j++]->safe_destroy();
     
   boxes_invalid = i < boxes.length();
   boxes.remove(i, j - i);
@@ -3778,7 +3778,7 @@ class SpanSynchronizer: public Base {
       
       if(rem > 0) {
         for(int i = 0; i < rem; ++i)
-          delete old_boxes[old_next_box + i];
+          old_boxes[old_next_box + i]->safe_destroy();
           
         old_boxes.remove(old_next_box, rem);
       }
@@ -3870,7 +3870,7 @@ class SpanSynchronizer: public Base {
       
       if(rem > 0) {
         for(int i = 0; i < rem; ++i)
-          delete old_boxes[old_next_box + i];
+          old_boxes[old_next_box + i]->safe_destroy();
           
         old_boxes.remove(old_next_box, rem);
       }

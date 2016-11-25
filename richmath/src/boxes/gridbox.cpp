@@ -225,7 +225,7 @@ void GridBox::remove_rows(int yindex, int count) {
     
   for(int x = 0; x < items.cols(); ++x)
     for(int y = 0; y < count; ++y)
-      delete item(yindex + y, x);
+      item(yindex + y, x)->safe_destroy();
       
   items.remove_rows(yindex, count);
   for(int i = 0; i < items.length(); ++i)
@@ -243,7 +243,7 @@ void GridBox::remove_cols(int xindex, int count) {
     
   for(int x = 0; x < count; ++x)
     for(int y = 0; y < rows(); ++y)
-      delete item(y, xindex + x);
+      item(y, xindex + x)->safe_destroy();
       
   items.remove_cols(xindex, count);
   for(int i = 0; i < items.length(); ++i)

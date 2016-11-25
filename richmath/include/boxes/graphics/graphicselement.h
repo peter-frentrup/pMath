@@ -48,6 +48,8 @@ namespace richmath {
       static GraphicsElement *create(Expr expr, int opts);
       virtual ~GraphicsElement();
       
+      void safe_destroy() { delete this; }
+      
       virtual bool try_load_from_object(Expr expr, int opts) = 0;
       
       virtual void find_extends(GraphicsBounds &bounds) = 0;

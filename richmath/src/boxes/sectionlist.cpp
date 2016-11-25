@@ -668,7 +668,7 @@ void SectionList::internal_remove(int start, int end) {
     return;
     
   for(int i = start; i < end; ++i)
-    delete _sections[i];
+    _sections[i]->safe_destroy();
     
   if(end < _sections.length()) {
     double y = 0;

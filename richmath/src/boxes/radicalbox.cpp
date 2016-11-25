@@ -46,8 +46,8 @@ bool RadicalBox::try_load_from_object(Expr expr, int opts){
       return false;
     
     if(_exponent){
-      delete _exponent;
-      _exponent = 0;
+      _exponent->safe_destroy();
+      _exponent = nullptr;
     }
     
     _radicand->load_from_object(expr[1], opts);
@@ -153,8 +153,8 @@ void RadicalBox::paint(Context *context) {
 Box *RadicalBox::remove(int *index) {
   if(_exponent && *index == 1) {
     if(_exponent->length() == 0) {
-      delete _exponent;
-      _exponent = 0;
+      _exponent->safe_destroy();
+      _exponent = nullptr;
       invalidate();
     }
     return move_logical(LogicalDirection::Backward, false, index);

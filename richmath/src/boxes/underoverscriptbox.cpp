@@ -57,8 +57,8 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, int opts) {
       return false;
       
     if(_underscript) {
-      delete _underscript;
-      _underscript = 0;
+      _underscript->safe_destroy();
+      _underscript = nullptr;
     }
     
     if(!_overscript)
@@ -77,8 +77,8 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, int opts) {
       return false;
       
     if(_overscript) {
-      delete _overscript;
-      _overscript = 0;
+      _overscript->safe_destroy();
+      _overscript = nullptr;
     }
     
     if(!_underscript)
@@ -291,8 +291,8 @@ Box *UnderoverscriptBox::remove(int *index) {
   if(_underscript && _overscript) {
     if(*index == 1) {
       if(_underscript->length() == 0) {
-        delete _underscript;
-        _underscript = 0;
+        _underscript->safe_destroy();
+        _underscript = nullptr;
         adopt(_overscript, 1);
         invalidate();
       }
@@ -301,8 +301,8 @@ Box *UnderoverscriptBox::remove(int *index) {
     }
     
     if(_overscript->length() == 0) {
-      delete _overscript;
-      _overscript = 0;
+      _overscript->safe_destroy();
+      _overscript = nullptr;
       invalidate();
     }
     return move_logical(LogicalDirection::Backward, false, index);

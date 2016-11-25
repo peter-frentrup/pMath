@@ -543,7 +543,7 @@ Expr TextSequence::to_pmath(int flags, int start, int end) {
 
 void TextSequence::load_from_object(Expr object, int options) { // BoxOptionXXX
   for(int i = 0; i < boxes.length(); ++i)
-    delete boxes[i];
+    boxes[i]->safe_destroy();
     
   boxes.length(0);
   text.remove(0, text.length());
@@ -689,7 +689,7 @@ int TextSequence::insert(int pos, Box *box) {
     
   if(TextSequence *txt = dynamic_cast<TextSequence *>(box)) {
     pos = insert(pos, txt, 0, txt->length());
-    delete txt;
+    txt->safe_destroy();
     return pos;
   }
   
@@ -759,7 +759,7 @@ void TextSequence::remove(int start, int end) {
     
   int j = i;
   while(j < boxes.length() && boxes[j]->index() < end)
-    delete boxes[j++];
+    boxes[j++]->safe_destroy();
     
   boxes_invalid = i < boxes.length();
   text_invalid = start < end;
