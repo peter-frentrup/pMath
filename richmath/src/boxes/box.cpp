@@ -5,6 +5,8 @@
 #include <graphics/context.h>
 #include <gui/native-widget.h>
 
+#include <stdio.h>
+
 
 using namespace pmath;
 using namespace richmath;
@@ -47,6 +49,41 @@ void MouseEvent::set_origin(Box *new_origin) {
 
 //} ... class MouseEvent
 
+//{ class AutoMemorySuspension ...
+
+static int deletion_suspensions = 0;
+static Box *box_limbo = nullptr;
+
+bool AutoMemorySuspension::are_deletions_suspended() {
+  return deletion_suspensions > 0;
+}
+
+void AutoMemorySuspension::suspend_deletions() {
+  ++deletion_suspensions;
+}
+
+void AutoMemorySuspension::resume_deletions() {
+  if(--deletion_suspensions > 0)
+    return;
+  
+  int count = 0;
+  while(box_limbo) {
+    Box *tmp = box_limbo;
+    box_limbo = tmp->_parent;
+    
+//    Expr expr = tmp->to_pmath(0);
+//    pmath_debug_print_object("[limbo deletion: \n  ", expr.get(), "\n]\n");
+    
+    delete tmp;
+    ++count;
+  }
+  
+  if(count > 0)
+    fprintf(stderr, "[deleted %d objects from limbo]\n", count);
+}
+
+//} ... class AutoMemorySuspension
+
 //{ class Box ...
 
 Box::Box()
@@ -58,7 +95,21 @@ Box::Box()
 }
 
 Box::~Box() {
+  if(AutoMemorySuspension::are_deletions_suspended()) {
+    fprintf(stderr, "[warning: delete Box during memory suspension]\n");
+  }
   Application::deactivated_control(this);
+}
+
+void Box::safe_destroy() {
+  if(AutoMemorySuspension::are_deletions_suspended()) {
+    _index = 0;
+    _parent = box_limbo;
+    box_limbo = this;
+    return;
+  }
+  
+  delete this; 
 }
 
 bool Box::is_parent_of(Box *child) {

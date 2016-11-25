@@ -1744,6 +1744,8 @@ static Expr cnt_save(Expr data) {
 }
 
 static void execute(ClientNotification &cn) {
+  AutoMemorySuspension ams;
+  
   switch(cn.type) {
     case CNT_STARTSESSION:
       cnt_startsession();

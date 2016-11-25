@@ -6,6 +6,7 @@
 #endif
 
 #include <util/base.h>
+#include <boxes/box.h>
 
 #include <pmath-cpp.h>
 #include <gtk/gtk.h>
@@ -72,6 +73,7 @@ namespace richmath {
 //          && event->type != GDK_FOCUS_CHANGE)
 //            pmath_debug_print("[%s %p] event %d\n", G_OBJECT_TYPE_NAME(wid), wid, event->type);
 
+          AutoMemorySuspension ams;
           C *_this = (C*)BasicGtkWidget::from_widget(wid);
           if(_this)
             return (_this->*method)(arg);
@@ -89,6 +91,7 @@ namespace richmath {
 //          && event->type != GDK_FOCUS_CHANGE)
 //            pmath_debug_print("[%s %p] event %d\n", G_OBJECT_TYPE_NAME(wid), wid, event->type);
 
+          AutoMemorySuspension ams;
           C *_this = (C*)BasicGtkWidget::from_widget(wid);
           if(_this)
             return (_this->*method)();

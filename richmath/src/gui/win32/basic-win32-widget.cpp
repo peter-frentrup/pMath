@@ -2,6 +2,7 @@
 
 #include <gui/win32/basic-win32-widget.h>
 #include <gui/win32/win32-themes.h>
+#include <boxes/box.h>
 #include <resources.h>
 
 #include <cstdio>
@@ -232,8 +233,7 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
   memset(&info, 0, sizeof(info));
   info.cbSize = sizeof(info);
   
-  if(GetWindowInfo(hwnd, &info)
-      && info.atomWindowType == win32_widget_class) {
+  if(GetWindowInfo(hwnd, &info) && info.atomWindowType == win32_widget_class) {
     return (BasicWin32Widget *)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   }
   
@@ -241,6 +241,8 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
 }
 
 LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
+  AutoMemorySuspension ams;
+  
   switch(message) {
     case WM_CREATE: {
         SetMenu(_hwnd, 0);

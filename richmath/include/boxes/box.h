@@ -89,26 +89,43 @@ namespace richmath {
     BoxOptionFormatNumbers = 1
   };
   
+  /** Suspending deletions of Boxes.
+    
+      While destruction suspended is in effect, boxes will be remembered in a free 
+      list (the limbo). When destruction mode is resumed, all objects in the limbo are 
+      actually deleted.
+      
+      During mouse_down()/paint()/... handlers, the document might change.
+      This could cause a parent box to be removed. Since it is still referenced
+      on the stack, such a box should not be wiped out until the call stack is clean.
+      
+      Hence, the widget which forwards all calls to Box/Document should suppress
+      destruction of Boxes during event handling.
+   */
+  class AutoMemorySuspension {
+    public:
+      AutoMemorySuspension() { suspend_deletions(); }
+      ~AutoMemorySuspension() { resume_deletions(); }
+      
+      static bool are_deletions_suspended();
+    
+    private:
+      static void suspend_deletions();
+      static void resume_deletions();
+  };
+  
   class Box: public FrontEndObject {
+    friend class AutoMemorySuspension;
     public:
       Box();
       virtual ~Box();
       
-      /*  Mark the object for deletion.
-          
-          TODO:
-          While destruction suppression is in effect, boxes will be remembered in a free 
-          list (the limbo). When destruction mode is resumed, all objects in the limbo are 
-          actually deleted.
-          
-          During mouse_down() handlers or paint(), the document might change.
-          This could cause a parent box to be removed. Since it is still referenced
-          on the stack, such a box should not be wiped out until the call stack is clean.
-          
-          Hence, the widget which forwards all calls to Box/Document should suppress
-          destruction of Boxes during event handling.
+      /** Mark the box for deletion.
+      
+          You should normally use this function instead of delete.
+          \see AutoMemorySuspension
        */
-      void safe_destroy() { delete this; }
+      void safe_destroy();
       
       template<class T>
       static T *try_create(Expr expr, int options){

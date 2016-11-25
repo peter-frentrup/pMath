@@ -909,6 +909,8 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
 }
 
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
+  AutoMemorySuspension ams;
+  
   switch(message) {
     case WM_SIZE: {
         RECT rect;
