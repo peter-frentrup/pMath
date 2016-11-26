@@ -5,6 +5,8 @@
 #include <graphics/context.h>
 #include <gui/native-widget.h>
 
+#include <stdio.h>
+
 
 using namespace pmath;
 using namespace richmath;
@@ -14,36 +16,73 @@ using namespace richmath;
 MouseEvent::MouseEvent()
   : x(0),
     y(0),
+    id(0),
+    device(DeviceKind::Mouse),
     left(false),
     middle(false),
     right(false),
-    source(0)
+    origin(0)
 {
 }
 
-void MouseEvent::set_source(Box *new_source) {
-  if(source == new_source)
+void MouseEvent::set_origin(Box *new_origin) {
+  if(origin == new_origin)
     return;
     
-  Box *common = 0;//Box::common_parent(source, new_source);
+  Box *common = nullptr;//Box::common_parent(origin, new_origin);
   
   cairo_matrix_t mat;
   cairo_matrix_init_identity(&mat);
   
-  if(new_source) {
-    new_source->transformation(common, &mat);
+  if(new_origin) {
+    new_origin->transformation(common, &mat);
     cairo_matrix_invert(&mat);
   }
   
-  if(source)
-    source->transformation(common, &mat);
+  if(origin)
+    origin->transformation(common, &mat);
     
   Canvas::transform_point(mat, &x, &y);
   
-  source = new_source;
+  origin = new_origin;
 }
 
 //} ... class MouseEvent
+
+//{ class AutoMemorySuspension ...
+
+static int deletion_suspensions = 0;
+static Box *box_limbo = nullptr;
+
+bool AutoMemorySuspension::are_deletions_suspended() {
+  return deletion_suspensions > 0;
+}
+
+void AutoMemorySuspension::suspend_deletions() {
+  ++deletion_suspensions;
+}
+
+void AutoMemorySuspension::resume_deletions() {
+  if(--deletion_suspensions > 0)
+    return;
+  
+  int count = 0;
+  while(box_limbo) {
+    Box *tmp = box_limbo;
+    box_limbo = tmp->_parent;
+    
+//    Expr expr = tmp->to_pmath(0);
+//    pmath_debug_print_object("[limbo deletion: \n  ", expr.get(), "\n]\n");
+    
+    delete tmp;
+    ++count;
+  }
+  
+  if(count > 0)
+    fprintf(stderr, "[deleted %d objects from limbo]\n", count);
+}
+
+//} ... class AutoMemorySuspension
 
 //{ class Box ...
 
@@ -56,7 +95,21 @@ Box::Box()
 }
 
 Box::~Box() {
+  if(AutoMemorySuspension::are_deletions_suspended()) {
+    fprintf(stderr, "[warning: delete Box during memory suspension]\n");
+  }
   Application::deactivated_control(this);
+}
+
+void Box::safe_destroy() {
+  if(AutoMemorySuspension::are_deletions_suspended()) {
+    _index = 0;
+    _parent = box_limbo;
+    box_limbo = this;
+    return;
+  }
+  
+  delete this; 
 }
 
 bool Box::is_parent_of(Box *child) {
@@ -191,21 +244,21 @@ Box *Box::move_logical(
   bool              jumping,
   int              *index
 ) {
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     int b = *index;
     if(b < 0 || jumping)
       ++b;
       
     if(b < count()) {
       *index = -1;
-      return item(b)->move_logical(Forward, false, index);
+      return item(b)->move_logical(LogicalDirection::Forward, false, index);
     }
     
     if(!_parent)
       return this;
       
     *index = _index;
-    return _parent->move_logical(Forward, true, index);
+    return _parent->move_logical(LogicalDirection::Forward, true, index);
   }
   
   int b = *index - 1;
@@ -216,14 +269,14 @@ Box *Box::move_logical(
     
   if(b >= 0) {
     *index = item(b)->length() + 1;
-    return item(b)->move_logical(Backward, false, index);
+    return item(b)->move_logical(LogicalDirection::Backward, false, index);
   }
   
   if(!_parent)
     return this;
     
   *index = _index + 1;
-  return _parent->move_logical(Backward, true, index);
+  return _parent->move_logical(LogicalDirection::Backward, true, index);
 }
 
 Box *Box::move_vertical(

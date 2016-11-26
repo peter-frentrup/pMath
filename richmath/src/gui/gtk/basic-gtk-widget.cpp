@@ -39,7 +39,7 @@ void BasicGtkWidget::after_construction() {
 }
 
 void BasicGtkWidget::destroy_widget_key_callback(BasicGtkWidget *_this) {
-  //g_object_set_data(G_OBJECT(_this->widget()), widget_key, NULL);
+  //g_object_set_data(G_OBJECT(_this->widget()), widget_key, nullptr);
   if(!_this->destroying()) {
     _this->_widget = 0;
     _this->destroy();

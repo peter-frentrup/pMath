@@ -7,6 +7,7 @@
 
 #include <windows.h>
 #include <ole2.h>
+#include <rtscom.h>
 
 #include <util/base.h>
 
@@ -19,7 +20,7 @@ namespace richmath {
   };
   
   // Must call init() immediately init after the construction of a derived object!
-  class BasicWin32Widget: public IDropTarget, public virtual Base {
+  class BasicWin32Widget: public IDropTarget, public IStylusSyncPlugin, public virtual Base {
       struct InitData {
         DWORD style_ex;
         DWORD style;
@@ -58,18 +59,43 @@ namespace richmath {
       //
       // IUnknown members
       //
-      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject);
-      STDMETHODIMP_(ULONG) AddRef(void);
-      STDMETHODIMP_(ULONG) Release(void);
+      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject) override;
+      STDMETHODIMP_(ULONG) AddRef(void) override;
+      STDMETHODIMP_(ULONG) Release(void) override;
       
       //
       // IDropTarget members
       //
-      STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect);
-      STDMETHODIMP DragOver(DWORD key_state, POINTL pt, DWORD *effect);
-      STDMETHODIMP DragLeave(void);
-      STDMETHODIMP Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect);
+      STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
+      STDMETHODIMP DragOver(DWORD key_state, POINTL pt, DWORD *effect) override;
+      STDMETHODIMP DragLeave(void) override;
+      STDMETHODIMP Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
       
+      //
+      // IStylusSyncPlugin members
+      //
+      STDMETHODIMP RealTimeStylusEnabled(IRealTimeStylus*, ULONG, const TABLET_CONTEXT_ID*) override { return S_OK; }
+      STDMETHODIMP RealTimeStylusDisabled(IRealTimeStylus*, ULONG, const TABLET_CONTEXT_ID*) override { return S_OK; }
+      STDMETHODIMP StylusInRange(IRealTimeStylus*, TABLET_CONTEXT_ID, STYLUS_ID) override { return S_OK; }
+      STDMETHODIMP StylusOutOfRange(IRealTimeStylus*, TABLET_CONTEXT_ID, STYLUS_ID) override { return S_OK; }
+      STDMETHODIMP StylusDown(IRealTimeStylus*, const StylusInfo*, ULONG, LONG*, LONG**) override { return S_OK; }
+      STDMETHODIMP StylusUp(IRealTimeStylus*, const StylusInfo*, ULONG, LONG*, LONG**) override { return S_OK; }
+      STDMETHODIMP StylusButtonUp(IRealTimeStylus*, STYLUS_ID, const GUID*, POINT*) override { return S_OK; }
+      STDMETHODIMP StylusButtonDown(IRealTimeStylus*, STYLUS_ID, const GUID*, POINT*) override { return S_OK; }
+      STDMETHODIMP InAirPackets(IRealTimeStylus*, const StylusInfo*, ULONG, ULONG, LONG*, ULONG*, LONG**) override { return S_OK; }
+      STDMETHODIMP Packets(IRealTimeStylus* piSrcRtp, const StylusInfo* pStylusInfo, ULONG cPktCount, ULONG cPktBuffLength, LONG* pPackets, ULONG* pcInOutPkts, LONG** ppInOutPkts) override { return S_OK; }
+      STDMETHODIMP SystemEvent(IRealTimeStylus*, TABLET_CONTEXT_ID, STYLUS_ID, SYSTEM_EVENT, SYSTEM_EVENT_DATA) override { return S_OK; }
+      STDMETHODIMP TabletAdded(IRealTimeStylus*, IInkTablet*) override { return S_OK; }
+      STDMETHODIMP TabletRemoved(IRealTimeStylus*, LONG) override { return S_OK; }
+      STDMETHODIMP CustomStylusDataAdded(IRealTimeStylus*, const GUID*, ULONG, const BYTE*) override { return S_OK; }
+      STDMETHODIMP Error(IRealTimeStylus*, IStylusPlugin*, RealTimeStylusDataInterest, HRESULT, LONG_PTR*) override { return S_OK; }
+      STDMETHODIMP UpdateMapping(IRealTimeStylus*) override { return S_OK; }
+      
+      STDMETHODIMP DataInterest(RealTimeStylusDataInterest* pEventInterest) override { 
+        *pEventInterest = RTSDI_None;
+        return S_OK; 
+      };
+
     public:
       HWND &hwnd() { return _hwnd; }
       
@@ -108,6 +134,7 @@ namespace richmath {
     private:
       InitData *init_data;
       bool _initializing;
+      IUnknown *freeThreadedMarshaller;
       
       static void init_window_class();
   };

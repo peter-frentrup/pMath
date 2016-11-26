@@ -64,7 +64,7 @@ STDMETHODIMP EnumFormatEtc::QueryInterface(REFIID iid, void **ppvObject) {
 //
 //  IEnumFORMATETC::Next
 //
-//  If the returned FORMATETC structure contains a non-null "ptd" member, then
+//  If the returned FORMATETC structure contains a non-nullptr "ptd" member, then
 //  the caller must free this using CoTaskMemFree (stated in the COM
 //  documentation)
 //

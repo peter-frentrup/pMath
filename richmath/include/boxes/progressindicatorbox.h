@@ -13,33 +13,33 @@ namespace richmath {
       virtual ~ProgressIndicatorBox();
       
       // Box::try_create<ProgressIndicatorBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual Box *item(int i) { return 0; }
-      virtual int count() { return 0; }
-      virtual int length() { return 0; }
+      virtual Box *item(int i) override { return nullptr; }
+      virtual int count() override { return 0; }
+      virtual int length() override { return 0; }
       
-      virtual bool expand(const BoxSize &size);
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
-      virtual Box *remove(int *index) { return this; }
+      virtual bool expand(const BoxSize &size) override;
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
+      virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_PROGRESSINDICATORBOX); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_PROGRESSINDICATORBOX); }
+      virtual Expr to_pmath(int flags) override;
       
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
-      virtual void dynamic_updated();
-      virtual void dynamic_finished(Expr info, Expr result);
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      virtual void dynamic_updated() override;
+      virtual void dynamic_finished(Expr info, Expr result) override;
+      virtual Box *dynamic_to_literal(int *start, int *end) override;
       
-      virtual Box *mouse_sensitive() { return this; }
-      virtual void on_mouse_move(MouseEvent &event);
+      virtual Box *mouse_sensitive() override { return this; }
+      virtual void on_mouse_move(MouseEvent &event) override;
       
     protected:
       double range_min;

@@ -18,7 +18,7 @@ namespace richmath {
   // Must call init() immediately after the construction of a derived object!
   class Win32DocumentWindow: public BasicWin32Window {
     protected:
-      virtual void after_construction();
+      virtual void after_construction() override;
       
     public:
       Win32DocumentWindow(
@@ -46,7 +46,7 @@ namespace richmath {
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }
       
-      virtual bool is_closed();
+      virtual bool is_closed() override;
       
       virtual String filename() { return _filename; }
       virtual void filename(String new_filename);
@@ -76,12 +76,12 @@ namespace richmath {
       String          _filename;
       
     protected:
-      virtual void on_theme_changed();
+      virtual void on_theme_changed() override;
       
       void title(       String          text);
       void window_frame(WindowFrameType type);
       
-      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
+      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
   };
 }
 

@@ -11,25 +11,25 @@ namespace richmath {
       explicit SetterBox(MathSequence *content = 0);
       
       // Box::try_create<SetterBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual ControlState calc_state(Context *context);
+      virtual ControlState calc_state(Context *context) override;
       
-      virtual bool expand(const BoxSize &size);
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual bool expand(const BoxSize &size) override;
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_SETTERBOX); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_SETTERBOX); }
+      virtual Expr to_pmath(int flags) override;
       
-      virtual void on_mouse_down(MouseEvent &event);
-      virtual void on_mouse_up(MouseEvent &event);
+      virtual void on_mouse_down(MouseEvent &event) override;
+      virtual void on_mouse_up(MouseEvent &event) override;
       
       virtual void click();
       
-      virtual void dynamic_updated();
-      virtual void dynamic_finished(Expr info, Expr result);
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      virtual void dynamic_updated() override;
+      virtual void dynamic_finished(Expr info, Expr result) override;
+      virtual Box *dynamic_to_literal(int *start, int *end) override;
     
     protected:
       Dynamic dynamic;

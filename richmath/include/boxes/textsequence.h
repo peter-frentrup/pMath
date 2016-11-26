@@ -42,71 +42,71 @@ namespace richmath {
       TextSequence();
       virtual ~TextSequence();
       
-      virtual AbstractSequence *create_similar(){ return new TextSequence(); }
+      virtual AbstractSequence *create_similar() override { return new TextSequence(); }
       
-      virtual Box *item(int i) { return boxes[i]; }
-      virtual int count() {      return boxes.length(); }
-      virtual int length() {     return text.length(); }
+      virtual Box *item(int i) override { return boxes[i]; }
+      virtual int count() override {      return boxes.length(); }
+      virtual int length() override {     return text.length(); }
       
-      virtual String raw_substring(int start, int length);
-      virtual uint32_t char_at(int pos) { return text.char_at(pos); }
-      virtual bool is_placeholder(int i);
+      virtual String raw_substring(int start, int length) override;
+      virtual uint32_t char_at(int pos) override { return text.char_at(pos); }
+      virtual bool is_placeholder(int i) override;
       
       const TextBuffer &text_buffer() { return text; }
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       
-      virtual void selection_path(Canvas *canvas, int start, int end);
+      virtual void selection_path(Canvas *canvas, int start, int end) override;
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags);
-      virtual Expr to_pmath(int flags, int start, int end);
-      virtual void load_from_object(Expr object, int options); // BoxOptionXXX
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(int flags, int start, int end) override;
+      virtual void load_from_object(Expr object, int options) override; // BoxOptionXXX
       
-      virtual void ensure_boxes_valid();
+      virtual void ensure_boxes_valid() override;
       void ensure_text_valid();
       
       int insert(int pos, const char *utf8, int len);
       int insert(int pos, TextSequence *txt, int start, int end);
-      virtual int insert(int pos, const String &s); // unsafe: allows PMATH_BOX_CHAR
-      virtual int insert(int pos, Box *box);
-      virtual int insert(int pos, AbstractSequence *seq, int start, int end);
+      virtual int insert(int pos, const String &s) override; // unsafe: allows PMATH_BOX_CHAR
+      virtual int insert(int pos, Box *box) override;
+      virtual int insert(int pos, AbstractSequence *seq, int start, int end) override;
       
-      virtual void remove(int start, int end);
-      virtual Box *remove(int *index);
+      virtual void remove(int start, int end) override;
+      virtual Box *remove(int *index) override;
       
-      virtual Box *extract_box(int boxindex);
+      virtual Box *extract_box(int boxindex) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
         bool              jumping,
-        int              *index);
+        int              *index) override;
         
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
         int              *index,
-        bool              called_from_child);
+        bool              called_from_child) override;
         
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,
-        cairo_matrix_t *matrix);
+        cairo_matrix_t *matrix) override;
         
-      virtual Box *normalize_selection(int *start, int *end);
+      virtual Box *normalize_selection(int *start, int *end) override;
       
       PangoLayoutIter *get_iter();
       PangoLayout     *get_layout() { return _layout; }
-      virtual int get_line(int index, int guide = 0); // 0, 1, 2, ...
+      virtual int get_line(int index, int guide = 0) override; // 0, 1, 2, ...
       
-      virtual void get_line_heights(int line, float *ascent, float *descent);
+      virtual void get_line_heights(int line, float *ascent, float *descent) override;
       
       void line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size);
       void line_extents(int line, float *x, float *y, BoxSize *size);

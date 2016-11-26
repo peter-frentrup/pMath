@@ -6,15 +6,6 @@
 #include <limits>
 
 
-#ifdef _MSC_VER
-#  define isnan  _isnan
-#endif
-
-#ifndef NAN
-#  define NAN  (std::numeric_limits<double>::quiet_NaN())
-#endif
-
-
 using namespace richmath;
 using namespace std;
 
@@ -62,7 +53,7 @@ LineBox *LineBox::create(Expr expr, int opts) {
   
   if(!box->try_load_from_object(expr, opts)) {
     delete box;
-    return 0;
+    return nullptr;
   }
   
   return box;

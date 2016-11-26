@@ -47,7 +47,7 @@ bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
   if(!pub->range.id)
     return false;
     
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     ++current_index;
     if((size_t)current_index > current_boxes_list.expr_length())
       current_index = 1;
@@ -285,7 +285,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       current_boxes_list = expr;
       
       if(str == current_boxes_list[1]) {
-        if(direction == Forward)
+        if(direction == LogicalDirection::Forward)
           current_index = 1;
         else
           current_index = current_boxes_list.expr_length() + 1;
@@ -293,7 +293,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       else {
         current_boxes_list.append(str);
         
-        if(direction == Forward)
+        if(direction == LogicalDirection::Forward)
           current_index = 0;
         else
           current_index = current_boxes_list.expr_length();
@@ -479,7 +479,7 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
 
 void AutoCompletion::Private::add_completion_if_needed(const Expr &input, LogicalDirection direction) {
   if(input == current_boxes_list[1]) {
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       current_index = 1;
     else
       current_index = current_boxes_list.expr_length() + 1;
@@ -487,7 +487,7 @@ void AutoCompletion::Private::add_completion_if_needed(const Expr &input, Logica
   else {
     current_boxes_list.append(input);
     
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       current_index = 0;
     else
       current_index = current_boxes_list.expr_length();

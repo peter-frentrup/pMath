@@ -104,7 +104,7 @@ Box *AbstractStyleBox::move_logical(
 ) {
   if(style && _parent) {
     if(!get_own_style(Selectable, true)) {
-      if(direction == Forward)
+      if(direction == LogicalDirection::Forward)
         *index = _index + 1;
       else
         *index = _index;

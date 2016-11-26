@@ -246,11 +246,11 @@ Box *SectionList::move_logical(
   bool              jumping,
   int              *index
 ) {
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     if(*index >= count()) {
       if(_parent) {
         *index = _index;
-        return _parent->move_logical(Forward, true, index);
+        return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
@@ -262,13 +262,13 @@ Box *SectionList::move_logical(
     
     int b = *index;
     *index = -1;
-    return _sections[b]->move_logical(Forward, true, index);
+    return _sections[b]->move_logical(LogicalDirection::Forward, true, index);
   }
   
   if(*index <= 0) {
     if(_parent) {
       *index = _index + 1;
-      return _parent->move_logical(Backward, true, index);
+      return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
     return this;
   }
@@ -280,7 +280,7 @@ Box *SectionList::move_logical(
   
   int b = *index - 1;
   *index = _sections[b]->length() + 1;
-  return _sections[b]->move_logical(Backward, true, index);
+  return _sections[b]->move_logical(LogicalDirection::Backward, true, index);
 }
 
 Box *SectionList::move_vertical(
@@ -292,14 +292,14 @@ Box *SectionList::move_vertical(
   int s = *index;
   
   if(s < 0) {
-    if(direction == Backward)
+    if(direction == LogicalDirection::Backward)
       *index = _sections.length();
     else
       *index = 0;
     return this;
   }
   
-  if(direction == Backward) {
+  if(direction == LogicalDirection::Backward) {
     if(s == 0) {
       *index = s;
       return this;
@@ -614,7 +614,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
 }
 
 void SectionList::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {
-  assert(pos != NULL);
+  assert(pos != nullptr);
   assert(*pos >= 0);
   
   int start = *pos;
@@ -668,7 +668,7 @@ void SectionList::internal_remove(int start, int end) {
     return;
     
   for(int i = start; i < end; ++i)
-    delete _sections[i];
+    _sections[i]->safe_destroy();
     
   if(end < _sections.length()) {
     double y = 0;
@@ -1160,7 +1160,7 @@ void SectionList::paint_single_section_bracket(
       context->canvas->set_color(0x000000);
       context->canvas->stroke_preserve();
       
-      cairo_set_dash(context->canvas->cairo(), NULL, 0, 0.0);
+      cairo_set_dash(context->canvas->cairo(), nullptr, 0, 0.0);
     }
     else if(style & BorderEval) {
       cairo_set_line_width(context->canvas->cairo(), 3.0);

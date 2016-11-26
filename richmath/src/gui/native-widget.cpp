@@ -12,66 +12,66 @@ class DummyNativeWidget: public NativeWidget {
     DummyNativeWidget(): NativeWidget(0) {
     }
     
-    virtual void window_size(float *w, float *h) {
+    virtual void window_size(float *w, float *h) override {
       *w = *h = 0;
     }
     
-    virtual void page_size(float *w, float *h) {
+    virtual void page_size(float *w, float *h) override {
       *w = *h = 0;
     }
     
-    virtual bool is_scrollable() { return false; }
-    virtual bool autohide_vertical_scrollbar() { return false; }
-    virtual void scroll_pos(float *x, float *y) {
+    virtual bool is_scrollable() override { return false; }
+    virtual bool autohide_vertical_scrollbar() override { return false; }
+    virtual void scroll_pos(float *x, float *y) override {
       *x = *y = 0;
     }
     
-    virtual void scroll_to(float x, float y) {}
+    virtual void scroll_to(float x, float y) override {}
     
-    virtual void show_tooltip(Expr boxes) {}
-    virtual void hide_tooltip() {}
+    virtual void show_tooltip(Expr boxes) override {}
+    virtual void hide_tooltip() override {}
     
-    virtual bool is_scaleable() { return false; }
+    virtual bool is_scaleable() override { return false; }
     
-    virtual double double_click_time() { return 0; }
-    virtual double message_time() { return 0; }
-    virtual void double_click_dist(float *dx, float *dy) {
+    virtual double double_click_time() override { return 0; }
+    virtual double message_time() override { return 0; }
+    virtual void double_click_dist(float *dx, float *dy) override {
       *dx = *dy = 0;
     }
-    virtual void do_drag_drop(Box *src, int start, int end) {
+    virtual void do_drag_drop(Box *src, int start, int end) override {
     }
-    virtual bool cursor_position(float *x, float *y) {
+    virtual bool cursor_position(float *x, float *y) override {
       *x = *y = 0;
       return false;
     }
     
-    virtual void bring_to_front() {}
+    virtual void bring_to_front() override {}
     
-    virtual void close() {}
+    virtual void close() override {}
     
-    virtual void invalidate() {}
+    virtual void invalidate() override {}
     
-    virtual void invalidate_options() {}
+    virtual void invalidate_options() override {}
     
-    virtual void force_redraw() {}
+    virtual void force_redraw() override {}
     
-    virtual void set_cursor(CursorType type) {}
+    virtual void set_cursor(CursorType type) override {}
     
-    virtual void running_state_changed() {}
+    virtual void running_state_changed() override {}
     
-    virtual bool is_mouse_down() { return false; }
+    virtual bool is_mouse_down() override { return false; }
     
-    virtual void beep() {};
+    virtual void beep() override {};
     
-    virtual bool register_timed_event(SharedPtr<TimedEvent> event) {
+    virtual bool register_timed_event(SharedPtr<TimedEvent> event) override {
       return false;
     }
     
-    virtual String filename(){ return String(); }
-    virtual void filename(String new_filename) {}
+    virtual String filename() override { return String(); }
+    virtual void filename(String new_filename) override {}
     
-    virtual void on_editing() {}
-    virtual void on_saved() {}
+    virtual void on_editing() override {}
+    virtual void on_saved() override {}
 };
 
 static DummyNativeWidget staticdummy;
@@ -234,9 +234,10 @@ CursorType NativeWidget::size_cursor(Box *box, CursorType base) {
 }
 
 void NativeWidget::adopt(Document *doc) {
-  if(_document)
+  if(_document) {
     _document->_native = dummy;
-  delete _document;
+    _document->safe_destroy();
+  }
   
   assert(!doc || doc->_native == dummy || doc->_native == this);
   if(doc)

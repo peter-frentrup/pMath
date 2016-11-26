@@ -10,7 +10,9 @@ using namespace richmath;
 using namespace std;
 
 #ifdef _MSC_VER
-#  define isnan  _isnan
+namespace std {
+  static bool isnan(double d) {return _isnan(d);}
+}
 #endif
 
 #ifndef NAN
@@ -54,10 +56,10 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, int opts) {
   double new_range_min = new_range[1].to_double(NAN);
   double new_range_max = new_range[2].to_double(NAN);
   
-  if(isnan(new_range_min))
+  if(std::isnan(new_range_min))
     return false;
     
-  if(isnan(new_range_max))
+  if(std::isnan(new_range_max))
     return false;
     
   /* now success is guaranteed */

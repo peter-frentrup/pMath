@@ -37,7 +37,7 @@ static Expr color_chooser_dialog_show(int initialcolor) {
     }
   }
   
-  dialog = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new(NULL, parent_window));
+  dialog = GTK_COLOR_CHOOSER_DIALOG(gtk_color_chooser_dialog_new(nullptr, parent_window));
   chooser = GTK_COLOR_CHOOSER(dialog);
   
   gtk_color_chooser_set_use_alpha(chooser, FALSE);
@@ -86,7 +86,7 @@ static Expr color_selection_dialog_show(int initialcolor) {
   GtkColorSelectionDialog *dialog;
   GtkColorSelection       *widget;
 
-  dialog = GTK_COLOR_SELECTION_DIALOG(gtk_color_selection_dialog_new(NULL));
+  dialog = GTK_COLOR_SELECTION_DIALOG(gtk_color_selection_dialog_new(nullptr));
   widget = GTK_COLOR_SELECTION(       gtk_color_selection_dialog_get_color_selection(dialog));
 
   gtk_color_selection_set_has_opacity_control(widget, FALSE);

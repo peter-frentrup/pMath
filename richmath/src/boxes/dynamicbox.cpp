@@ -51,7 +51,7 @@ DynamicBox::DynamicBox()
 }
 
 DynamicBox::~DynamicBox() {
-  Application::execute_for(
+  Application::interrupt_for(
     Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 
     0,
     Application::interrupt_timeout);

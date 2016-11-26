@@ -122,7 +122,7 @@ void ButtonBox::click() {
              _content->to_pmath(BoxFlagDefault)));
              
     if(method.equals("Preemptive")) {
-      Application::execute_for(fn, this, Application::button_timeout);
+      Application::interrupt_for(fn, this, Application::button_timeout);
     }
     else
       Application::add_job(new EvaluationJob(fn, this));
