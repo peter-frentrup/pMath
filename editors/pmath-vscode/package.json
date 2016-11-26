@@ -1,0 +1,31 @@
+{
+    "name": "pmath",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "*"
+    },
+    "publisher": "Peter Frentrup",
+    "contributes": {
+        "languages": [
+            {
+                "id": "pMath",
+                "aliases": [ "pMath", "pmath" ],
+                "extensions": [ ".pmath" ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "pMath",
+                "scopeName": "source.pmath",
+                "path": "./syntaxes/pmath.tmLanguage"
+            }
+        ],
+        "snippets": [
+            {
+                "language": "pMath",
+                "path": "./snippets/pmath.json"
+            }
+        ]
+    }
+}

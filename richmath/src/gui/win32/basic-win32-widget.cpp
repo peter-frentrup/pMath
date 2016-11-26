@@ -2,6 +2,7 @@
 
 #include <gui/win32/basic-win32-widget.h>
 #include <gui/win32/win32-themes.h>
+#include <boxes/box.h>
 #include <resources.h>
 
 #include <cstdio>
@@ -16,7 +17,7 @@ static void add_remove_window(int count) {
   static int global_window_count = 0;
   
   if(global_window_count == 0) {
-    HRESULT ole_status = OleInitialize(NULL);
+    HRESULT ole_status = OleInitialize(nullptr);
     
     if(ole_status != S_OK && ole_status != S_FALSE) {
       fprintf(stderr, "OleInitialize failed.\n");
@@ -41,11 +42,12 @@ BasicWin32Widget::BasicWin32Widget(
   int height,
   HWND *parent)
   : Base(),
-    _hwnd(0),
+    _hwnd(nullptr),
     _allow_drop(true),
     _is_dragging_over(false),
     init_data(new InitData),
-    _initializing(true)
+    _initializing(true),
+    freeThreadedMarshaller(nullptr)
 {
   init_window_class();
   add_remove_window(+1);
@@ -57,7 +59,16 @@ BasicWin32Widget::BasicWin32Widget(
   init_data->width             = width;
   init_data->height            = height;
   init_data->parent            = parent;
-  init_data->window_class_name = 0;
+  init_data->window_class_name = nullptr;
+  
+  
+  HRESULT hr = CoCreateFreeThreadedMarshaler(
+                 static_cast<IStylusSyncPlugin*>(this), 
+                 &freeThreadedMarshaller);
+  if(FAILED(hr)) {
+    fprintf(stderr, "BasicWin32Widget: cannot create free-threaded marshaller for IStylusSyncPlugin");
+    freeThreadedMarshaller = nullptr;
+  }
 }
 
 void BasicWin32Widget::set_window_class_name(const wchar_t *static_name) {
@@ -82,8 +93,9 @@ void BasicWin32Widget::after_construction() {
         init_data->parent ? *init_data->parent : 0,
         0,
         GetModuleHandle(0),
-        this)
-    ) {
+        this) ||
+    _hwnd == nullptr)
+  {
     fprintf(stderr, "Error Creating Widget\n");
   }
   
@@ -123,7 +135,17 @@ STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject) {
     return S_OK;
   }
   
-  *ppvObject = 0;
+  if(iid == IID_IStylusSyncPlugin) {
+    AddRef();
+    *ppvObject = static_cast<IStylusSyncPlugin *>(this);
+    return S_OK;
+  }
+  
+  if((iid == IID_IMarshal) && (freeThreadedMarshaller != NULL)) {
+    return freeThreadedMarshaller->QueryInterface(iid, ppvObject);
+  }
+  
+  *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 
@@ -211,8 +233,7 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
   memset(&info, 0, sizeof(info));
   info.cbSize = sizeof(info);
   
-  if(GetWindowInfo(hwnd, &info)
-      && info.atomWindowType == win32_widget_class) {
+  if(GetWindowInfo(hwnd, &info) && info.atomWindowType == win32_widget_class) {
     return (BasicWin32Widget *)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   }
   
@@ -220,6 +241,8 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
 }
 
 LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
+  AutoMemorySuspension ams;
+  
   switch(message) {
     case WM_CREATE: {
         SetMenu(_hwnd, 0);
@@ -285,8 +308,8 @@ void BasicWin32Widget::init_window_class() {
                                      GetSystemMetrics(SM_CXSMICON),
                                      GetSystemMetrics(SM_CYSMICON),
                                      LR_DEFAULTCOLOR);
-//  wincl.hIcon     = LoadIcon(NULL, IDI_APPLICATION);
-//  wincl.hIconSm   = (HICON)LoadImage(NULL, IDI_APPLICATION,
+//  wincl.hIcon     = LoadIcon(nullptr, IDI_APPLICATION);
+//  wincl.hIconSm   = (HICON)LoadImage(nullptr, IDI_APPLICATION,
 //                                     IMAGE_ICON,
 //                                     GetSystemMetrics(SM_CXSMICON),
 //                                     GetSystemMetrics(SM_CYSMICON),
@@ -313,11 +336,8 @@ LRESULT CALLBACK BasicWin32Widget::window_proc(HWND hwnd, UINT message, WPARAM w
     if(!widget)
       return FALSE;
       
-    SetWindowLongPtr(
-      hwnd,
-      GWLP_USERDATA,
-      (LONG)widget);
-      
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)widget);
+    
     widget->_hwnd = hwnd;
   }
   

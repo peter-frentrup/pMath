@@ -36,7 +36,7 @@ namespace {
       ) {
         ClipboardData *self = (ClipboardData *)user_data;
         
-        assert(self != NULL);
+        assert(self != nullptr);
         
         if(info == PixbufInfoIndex) {
           gtk_selection_data_set_pixbuf(selection_data, self->pixbuf);
@@ -86,7 +86,7 @@ namespace {
         : OpenedClipboard(),
           clipboard(_clipboard),
           clipboard_data(new ClipboardData),
-          targets(gtk_target_list_new(NULL, 0))
+          targets(gtk_target_list_new(nullptr, 0))
       {
       }
       
@@ -110,7 +110,7 @@ namespace {
           delete clipboard_data;
       }
       
-      virtual bool add_binary(String mimetype, void *data, size_t size) {
+      virtual bool add_binary(String mimetype, void *data, size_t size) override {
         if(size >= INT_MAX / 2)
           return false;
         unsigned info = clipboard_data->add((const char *)data, (int)size);
@@ -120,7 +120,7 @@ namespace {
         return true;
       }
       
-      virtual bool add_text(String mimetype, String data) {
+      virtual bool add_text(String mimetype, String data) override {
         int len;
         char *str = pmath_string_to_utf8(data.get(), &len);
         bool result = add_binary(mimetype, str, (size_t)len);
@@ -128,7 +128,7 @@ namespace {
         return result;
       }
       
-      virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) {
+      virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) override {
         if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_IMAGE) {
           int width  = cairo_image_surface_get_width( image);
           int height = cairo_image_surface_get_height(image);
@@ -141,7 +141,7 @@ namespace {
           }
 #else
           {
-            GdkPixmap *pixmap = gdk_pixmap_new(NULL, width, height,
+            GdkPixmap *pixmap = gdk_pixmap_new(nullptr, width, height,
                                                gdk_visual_get_best_depth());
           
             cairo_t *cr = gdk_cairo_create(pixmap);
@@ -150,7 +150,7 @@ namespace {
             cairo_destroy(cr);
           
             pixbuf = gdk_pixbuf_get_from_drawable(
-                       NULL,
+                       nullptr,
                        GDK_PIXMAP(pixmap),
                        gdk_colormap_get_system(),
                        0, 0,
@@ -285,7 +285,7 @@ cairo_surface_t *MathGtkClipboard::create_image(String mimetype, double width, d
 GdkAtom MathGtkClipboard::mimetype_to_atom(String mimetype) {
   GdkAtom atom;
   
-  char *str = pmath_string_to_utf8(mimetype.get(), NULL);
+  char *str = pmath_string_to_utf8(mimetype.get(), nullptr);
   atom = gdk_atom_intern(str, TRUE);
   pmath_mem_free(str);
   

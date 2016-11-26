@@ -9,7 +9,7 @@ namespace richmath {
   class AbstractDynamicBox: public OwnerBox {
     public:
       virtual ~AbstractDynamicBox();
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      virtual Box *dynamic_to_literal(int *start, int *end) override;
       
     protected:
       explicit AbstractDynamicBox();
@@ -21,18 +21,18 @@ namespace richmath {
       virtual ~DynamicBox();
       
       // Box::try_create<DynamicBox>(expr, options)
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual void resize(Context *context);
-      virtual void paint_content(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void paint_content(Context *context) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_DYNAMICBOX); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DYNAMICBOX); }
+      virtual Expr to_pmath(int flags) override;
       
-      virtual void dynamic_updated();
-      virtual void dynamic_finished(Expr info, Expr result);
+      virtual void dynamic_updated() override;
+      virtual void dynamic_finished(Expr info, Expr result) override;
       
-      virtual bool edit_selection(Context *context);
+      virtual bool edit_selection(Context *context) override;
       
     public:
       Dynamic dynamic;

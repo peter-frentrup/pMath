@@ -14,36 +14,36 @@ namespace richmath {
       
       MathSequence *content() { return _content; }
       
-      virtual Box *item(int i);
-      virtual int count() { return 1; }
+      virtual Box *item(int i) override;
+      virtual int count() override { return 1; }
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       virtual void paint_content(Context *context);
       
-      virtual Box *remove(int *index);
+      virtual Box *remove(int *index) override;
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
         int              *index,
-        bool              called_from_child);
+        bool              called_from_child) override;
         
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,
-        cairo_matrix_t *matrix);
+        cairo_matrix_t *matrix) override;
         
-      virtual bool edit_selection(Context *context);
+      virtual bool edit_selection(Context *context) override;
       
     protected:
       MathSequence *_content;
@@ -53,13 +53,13 @@ namespace richmath {
   
   class InlineSequenceBox: public OwnerBox {
     public:
-      virtual bool try_load_from_object(Expr expr, int options);
+      virtual bool try_load_from_object(Expr expr, int options) override;
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       
-      virtual void on_enter();
-      virtual void on_exit();
+      virtual void on_enter() override;
+      virtual void on_exit() override;
   };
 }
 

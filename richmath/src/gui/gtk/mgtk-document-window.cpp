@@ -25,14 +25,14 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     
     MathGtkDocumentWindow *parent() { return _parent; }
     
-    virtual void page_size(float *w, float *h) {
+    virtual void page_size(float *w, float *h) override {
       MathGtkWidget::page_size(w, h);
       
       if(_parent->window_frame() != WindowFrameNormal)
         *w = HUGE_VAL;
     }
     
-    virtual void bring_to_front() {
+    virtual void bring_to_front() override {
       _parent->bring_to_front();
       gtk_widget_grab_focus(_widget);
     }
@@ -41,12 +41,12 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
       _parent->close();
     }
     
-    virtual void invalidate_options() {
+    virtual void invalidate_options() override {
       if(_parent)
         _parent->invalidate_options();
     }
     
-    virtual void running_state_changed() {
+    virtual void running_state_changed() override {
       _parent->reset_title();
     }
     
@@ -64,14 +64,14 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
       return h;
     }
     
-    virtual String filename() { return _parent->filename(); }
-    virtual void filename(String new_filename) { _parent->filename(new_filename); }
+    virtual String filename() override { return _parent->filename(); }
+    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() { _parent->on_editing(); }
-    virtual void on_saved() {   _parent->on_saved(); }
+    virtual void on_editing() override { _parent->on_editing(); }
+    virtual void on_saved() override {   _parent->on_saved(); }
     
   protected:
-    virtual void paint_background(Canvas *canvas) {
+    virtual void paint_background(Canvas *canvas) override {
       if(!_parent->is_palette())
         MathGtkWidget::paint_background(canvas);
     }
@@ -94,7 +94,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
       }
     }
     
-    virtual bool on_draw(cairo_t *cr) {
+    virtual bool on_draw(cairo_t *cr) override {
       bool result = MathGtkWidget::on_draw(cr);
       rearrange();
       return result;
@@ -127,15 +127,15 @@ class richmath::MathGtkDock: public MathGtkWidget {
     
     MathGtkDocumentWindow *parent() { return _parent; }
     
-    virtual void page_size(float *w, float *h) {
+    virtual void page_size(float *w, float *h) override {
       MathGtkWidget::page_size(w, h);
       
       *w = HUGE_VAL;
     }
     
-    virtual bool is_scrollable() { return false; }
+    virtual bool is_scrollable() override { return false; }
     
-    virtual void invalidate() {
+    virtual void invalidate() override {
       if(document()->length() > 0) {
         gtk_widget_set_size_request(_widget, 1, 1);
         if(!gtk_widget_get_visible(_widget))
@@ -149,12 +149,12 @@ class richmath::MathGtkDock: public MathGtkWidget {
       MathGtkWidget::invalidate();
     }
     
-    virtual void bring_to_front() {
+    virtual void bring_to_front() override {
       _parent->bring_to_front();
       gtk_widget_grab_focus(_widget);
     }
     
-    virtual void close() {
+    virtual void close() override {
       _parent->close();
     }
     
@@ -169,18 +169,18 @@ class richmath::MathGtkDock: public MathGtkWidget {
       return (int)(document()->unfilled_width * scale_factor() + 0.5f);
     }
     
-    virtual void running_state_changed() {
+    virtual void running_state_changed() override {
       _parent->reset_title();
     }
     
-    virtual String filename() { return _parent->filename(); }
-    virtual void filename(String new_filename) { _parent->filename(new_filename); }
+    virtual String filename() override { return _parent->filename(); }
+    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() { _parent->on_editing(); }
-    virtual void on_saved() {   _parent->on_saved(); }
+    virtual void on_editing() override { _parent->on_editing(); }
+    virtual void on_saved() override {   _parent->on_saved(); }
     
   protected:
-    virtual void after_construction() {
+    virtual void after_construction() override {
       MathGtkWidget::after_construction();
       
       if(!document()->style)
@@ -193,7 +193,7 @@ class richmath::MathGtkDock: public MathGtkWidget {
       document()->select(0, 0, 0);
     }
     
-    virtual void paint_background(Canvas *canvas) {
+    virtual void paint_background(Canvas *canvas) override {
     }
     
     void rearrange() {
@@ -206,7 +206,7 @@ class richmath::MathGtkDock: public MathGtkWidget {
       }
     }
     
-    virtual bool on_draw(cairo_t *cr) {
+    virtual bool on_draw(cairo_t *cr) override {
       bool result = MathGtkWidget::on_draw(cr);
       rearrange();
       return result;
@@ -228,7 +228,7 @@ static void adjustment_changed_callback(
   self->adjustment_changed(adjustment);
 }
 
-static MathGtkDocumentWindow *_first_window = NULL;
+static MathGtkDocumentWindow *_first_window = nullptr;
 
 MathGtkDocumentWindow::MathGtkDocumentWindow()
   : BasicGtkWidget(),
@@ -313,7 +313,7 @@ void MathGtkDocumentWindow::after_construction() {
   gtk_widget_show_all(_table);
   gtk_widget_set_can_focus(_widget, FALSE);
   
-  GList *focus_chain = NULL;
+  GList *focus_chain = nullptr;
   focus_chain = g_list_prepend(focus_chain, _working_area->widget());
   gtk_container_set_focus_chain(GTK_CONTAINER(_table), focus_chain);
   g_list_free(focus_chain);
@@ -446,7 +446,7 @@ void MathGtkDocumentWindow::title(String text) {
   if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
     
-  char *str = pmath_string_to_utf8(text.get(), NULL);
+  char *str = pmath_string_to_utf8(text.get(), nullptr);
   if(str)
     gtk_window_set_title(GTK_WINDOW(_widget), str);
     
@@ -548,7 +548,7 @@ void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment) {
                "lower",     &lo,
                "page-size", &page,
                "upper",     &hi,
-               NULL);
+               nullptr);
                
   gtk_widget_set_visible(scrollbar, (window_frame() == WindowFrameNormal) && lo + page < hi);
 }
@@ -819,7 +819,7 @@ bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e) {
           
           int dx = SnapDistance;
           int dy = SnapDistance;
-          if(test_rects_touch(rect, other_rect, &dx, &dy, NULL))
+          if(test_rects_touch(rect, other_rect, &dx, &dy, nullptr))
             main->_snapped_documents.add(DocumentPosition(win->document()->id(), other_rect.x, other_rect.y));
         }
       }

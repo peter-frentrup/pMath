@@ -58,39 +58,39 @@ namespace richmath {
       Section *section(int i) { return _sections[i]; }
       const SectionGroupInfo &group_info(int i) { return _group_info[i]; }
       
-      virtual Box *item(int i);
-      virtual int count() { return _sections.length(); }
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
-      virtual void selection_path(Canvas *canvas, int start, int end);
+      virtual Box *item(int i) override;
+      virtual int count() override { return _sections.length(); }
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
+      virtual void selection_path(Canvas *canvas, int start, int end) override;
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags);
-      virtual Expr to_pmath(int flags, int start, int end);
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(int flags, int start, int end) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
         bool              jumping,
-        int              *index);
+        int              *index) override;
         
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
         int              *index,
-        bool              called_from_child);
+        bool              called_from_child) override;
         
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,
-        cairo_matrix_t *matrix);
+        cairo_matrix_t *matrix) override;
         
-      virtual Box *normalize_selection(int *start, int *end);
+      virtual Box *normalize_selection(int *start, int *end) override;
       
       void set_open_close_group(int i, bool open);
       void toggle_open_close_group(int i);
@@ -101,7 +101,7 @@ namespace richmath {
       virtual void insert(int pos, Section *section);
       virtual Section *swap(int pos, Section *section);
       virtual void remove(int start, int end); // not including end
-      virtual Box *remove(int *index);
+      virtual Box *remove(int *index) override;
       
     protected:
       void internal_insert_pmath(int *pos, Expr boxes, int overwrite_until_index);
@@ -115,7 +115,7 @@ namespace richmath {
       void update_group_nesting_part(int *pos, int current_nesting);
       void update_section_visibility();
       
-      virtual bool request_repaint_range(int start, int end);
+      virtual bool request_repaint_range(int start, int end) override;
       
       float get_content_scroll_correction_x(int i);
       

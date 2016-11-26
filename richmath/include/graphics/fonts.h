@@ -17,8 +17,8 @@ namespace richmath {
       {}
       
       FontStyle(bool i, bool b)
-        : italic(i),
-          bold(b)
+        : italic(i ? 1u : 0),
+          bold(b ? 1u : 0)
       {}
       
       FontStyle &operator|=(const FontStyle &other) {

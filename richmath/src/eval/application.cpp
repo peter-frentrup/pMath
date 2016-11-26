@@ -70,7 +70,7 @@ namespace {
       
       void done() {
         if(finished) {
-          result_ptr = NULL;
+          result_ptr = nullptr;
           pmath_atomic_write_release(finished, 1);
           pmath_thread_wakeup(notify_queue.get());
         }
@@ -196,7 +196,7 @@ class ClientInfoWindow: public BasicWin32Widget {
     }
     
   protected:
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) {
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       if(!initializing()) {
         switch(message) {
           case WM_CLIENTNOTIFY:
@@ -255,7 +255,7 @@ void Application::notify(ClientNotificationType type, Expr data) {
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, NULL, NULL);
+  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, nullptr, nullptr);
 #endif
 }
 
@@ -299,7 +299,7 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, NULL, NULL);
+  g_idle_add_full(G_PRIORITY_DEFAULT, on_client_notify, nullptr, nullptr);
 #endif
   
   while(!pmath_atomic_read_aquire(&finished)) {
@@ -629,7 +629,7 @@ void Application::doevents() {
 #ifdef RICHMATH_USE_WIN32_GUI
   {
     MSG msg;
-    while(PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE)) {
+    while(PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
       if(msg.message == WM_QUIT) {
         PostQuitMessage(0);
         break;
@@ -665,7 +665,7 @@ int Application::run() {
   {
     MSG msg;
     BOOL bRet;
-    while((bRet = GetMessageW(&msg, NULL, 0, 0)) != 0) {
+    while((bRet = GetMessageW(&msg, nullptr, 0, 0)) != 0) {
       if(bRet == -1) {
         pmath_atomic_write_release(&state, Quitting);
         return 1;
@@ -733,7 +733,7 @@ void Application::add_job(SharedPtr<Job> job) {
 #endif
     
 #ifdef RICHMATH_USE_GTK_GUI
-    g_idle_add_full(G_PRIORITY_DEFAULT, on_add_job, NULL, NULL);
+    g_idle_add_full(G_PRIORITY_DEFAULT, on_add_job, nullptr, nullptr);
 #endif
   }
 }
@@ -868,7 +868,7 @@ Document *Application::create_document() {
       Win32Widget *wid = dynamic_cast<Win32Widget *>(doc->native());
       if(wid) {
         HWND hwnd = wid->hwnd();
-        while(GetParent(hwnd) != NULL)
+        while(GetParent(hwnd) != nullptr)
           hwnd = GetParent(hwnd);
           
         int dx = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
@@ -1006,21 +1006,20 @@ Expr Application::run_filedialog(Expr data) {
   double gui_start_time = pmath_tickcount();
   
 #if RICHMATH_USE_WIN32_GUI
-  result = Win32FileDialog::show(
-             head == GetSymbol(FileSaveDialogSymbol),
-             filename,
-             filter,
-             title);
+  Win32FileDialog
+#elif RICHMATH_USE_GTK_GUI
+  MathGtkFileDialog
+#else
+#  error "No GUI"
 #endif
-             
-#ifdef RICHMATH_USE_GTK_GUI
-  result = MathGtkFileDialog::show(
-             head == GetSymbol(FileSaveDialogSymbol),
-             filename,
-             filter,
-             title);
-#endif
-             
+  dialog(head == GetSymbol(FileSaveDialogSymbol));
+  
+
+  dialog.set_title(title);
+  dialog.set_initial_file(filename);
+  dialog.set_filter(filter);
+  result = dialog.show_dialog();  
+  
   double gui_end_time = pmath_tickcount();
   if(gui_start_time < gui_end_time)
     total_time_waited_for_gui += gui_end_time - gui_start_time;
@@ -1081,13 +1080,8 @@ static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
     /* We must filter out CNT_DYNAMICUPDATE because that could update a parent
        DynamicBox of the DynamicBox that is currently updated during its
        paint() event. That would cause a memory corruption/crash.
-    
-       We must filter out CNT_EXECUTEFOR because the point of CNT_EXECUTEFOR is
-       to be executed by the main message loop.
      */
-    if( cn.type == CNT_DYNAMICUPDATE ||
-        cn.type == CNT_EXECUTEFOR)
-    {
+    if( cn.type == CNT_DYNAMICUPDATE) {
       suppressed_notifications->put_front(cn);
       continue;
     }
@@ -1154,10 +1148,7 @@ Expr Application::interrupt_cached(Expr expr) {
   return interrupt_cached(expr, interrupt_timeout);
 }
 
-void Application::execute_for(Expr expr, Box *box, double seconds) {
-//  if(box)
-//    print_pos = EvaluationPosition(box);
-
+void Application::interrupt_for(Expr expr, Box *box, double seconds) {
   EvaluationPosition pos(box);
   
   expr = Call(
@@ -1166,17 +1157,17 @@ void Application::execute_for(Expr expr, Box *box, double seconds) {
            pos.document_id,
            pos.section_id,
            pos.box_id);
-           
-  if(seconds < Infinity) {
-    notify(CNT_EXECUTEFOR, List(expr, Number(seconds)));
-  }
-  else
-    Server::local_server->interrupt(expr);
+  
+  bool old_is_executing_for_sth = is_executing_for_sth;
+  is_executing_for_sth = true;
+  
+  interrupt(expr, seconds);
     
+  is_executing_for_sth = old_is_executing_for_sth;
 }
 
-void Application::execute_for(Expr expr, Box *box) {
-  execute_for(expr, box, interrupt_timeout);
+void Application::interrupt_for(Expr expr, Box *box) {
+  interrupt_for(expr, box, interrupt_timeout);
 }
 
 Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box) {
@@ -1362,44 +1353,6 @@ static void cnt_end(Expr data) {
   Application::eval_cache.clear();
 }
 
-static pmath_bool_t execute_for_idle(double *end_tick, void *closure) {
-  double gui_start_time = total_time_waited_for_gui;
-  
-  Application::doevents();
-  
-  double gui_end_time = total_time_waited_for_gui;
-  if(gui_start_time < gui_end_time) {
-    pmath_debug_print("[execute_for_idle: delay timeout by %f sec]\n", gui_end_time - gui_start_time);
-    *end_tick += gui_end_time - gui_start_time;
-  }
-  
-  return TRUE;
-}
-
-static void cnt_executefor(Expr data) {
-  double seconds = data[2].to_double(Infinity);
-  Expr expr = data[1];
-  data = Expr();
-  
-  pmath_debug_print("[execute %f ...\n", seconds);
-  
-  if(seconds < Infinity) {
-    bool old_is_executing_for_sth = is_executing_for_sth;
-    
-    Server::local_server->interrupt_wait(
-      expr,
-      seconds,
-      execute_for_idle,
-      NULL);
-      
-    is_executing_for_sth = old_is_executing_for_sth;
-  }
-  else
-    Server::local_server->interrupt(expr);
-    
-  pmath_debug_print("...exec]\n");
-}
-
 static void cnt_return(Expr data) {
   if(session->current_job) {
     session->current_job->returned(data);
@@ -1532,7 +1485,7 @@ static void cnt_dynamicupate(Expr data) {
 #endif
         
 #ifdef RICHMATH_USE_GTK_GUI
-      if(g_timeout_add_full(G_PRIORITY_DEFAULT, milliseconds, on_dynamic_update_delay_timeout, NULL, NULL))
+      if(g_timeout_add_full(G_PRIORITY_DEFAULT, milliseconds, on_dynamic_update_delay_timeout, nullptr, nullptr))
         dynamic_update_delay_timer_active = true;
 #endif
     }
@@ -1572,7 +1525,7 @@ static Expr cnt_currentvalue(Expr data) {
   Box *box = 0;
   
   if(data.expr_length() == 1) {
-    box = FrontEndObject::find_cast<Box>(Dynamic::current_evaluation_box_id);
+    box = Application::get_evaluation_box();
     item = data[1];
   }
   else if(data.expr_length() == 2) {
@@ -1791,6 +1744,8 @@ static Expr cnt_save(Expr data) {
 }
 
 static void execute(ClientNotification &cn) {
+  AutoMemorySuspension ams;
+  
   switch(cn.type) {
     case CNT_STARTSESSION:
       cnt_startsession();
@@ -1802,10 +1757,6 @@ static void execute(ClientNotification &cn) {
       
     case CNT_END:
       cnt_end(cn.data);
-      break;
-      
-    case CNT_EXECUTEFOR:
-      cnt_executefor(cn.data);
       break;
       
     case CNT_RETURN:

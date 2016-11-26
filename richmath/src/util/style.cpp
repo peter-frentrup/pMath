@@ -6,14 +6,6 @@
 #include <cmath>
 #include <limits>
 
-#ifdef _MSC_VER
-#  define isnan  _isnan
-#endif
-
-#ifndef NAN
-#  define NAN  (std::numeric_limits<double>::quiet_NaN())
-#endif
-
 
 using namespace richmath;
 
@@ -1506,13 +1498,13 @@ SharedPtr<Stylesheet> Stylesheet::Default;
 
 SharedPtr<Style> Stylesheet::find_parent_style(SharedPtr<Style> s) {
   if(!s.is_valid())
-    return NULL;
+    return nullptr;
     
   String inherited;
   if(s->get(BaseStyleName, &inherited))
     return styles[inherited];
     
-  return NULL;
+  return nullptr;
 }
 
 template<typename N, typename T>

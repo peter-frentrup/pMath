@@ -12,38 +12,13 @@ namespace richmath {
     public:
       explicit ScopeColorizer(MathSequence *_sequence);
       
-      int symbol_colorize(
-        SyntaxState *state,
-        int          start,
-        SymbolKind   kind);
-        
-      void symdef_colorize_spanexpr(
-        SyntaxState *state,
-        SpanExpr    *se,    // "x"  "x:=y"
-        SymbolKind   kind);
-        
-      void symdeflist_colorize_spanexpr(
-        SyntaxState *state,
-        SpanExpr    *se,    // "{symdefs ...}"
-        SymbolKind   kind);
-        
-      void replacement_colorize_spanexpr(
-        SyntaxState *state,
-        SpanExpr    *se,    // "x->value"
-        SymbolKind   kind);
-      
       void scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se);
-      
-      
       
       void comments_colorize_span(Span span, int *pos);
       
       void syntax_colorize_spanexpr(SpanExpr *se);
       
-      void arglist_errors_colorize_spanexpr(          SpanExpr *se, float error_indicator_height);
-      void arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se, float error_indicator_height);
-      
-      void unknown_option_colorize_spanexpr(SpanExpr *se, Expr options);
+      void arglist_errors_colorize_spanexpr(SpanExpr *se, float error_indicator_height);
       
     private:
       MathSequence *sequence;

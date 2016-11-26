@@ -14,6 +14,7 @@ function ln-copy {
 }
 
 cp ../library/bin/linux/$1/*.so.0.1  bin/linux/$3/
+cp dependencies/default/*            bin/linux/$3/
 cp dependencies/linux/$2/*           bin/linux/$3/
 
 function ln-copy-all {

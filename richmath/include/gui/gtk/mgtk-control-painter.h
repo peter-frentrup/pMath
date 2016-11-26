@@ -20,11 +20,11 @@ namespace richmath {
       virtual void calc_container_size(
         Canvas        *canvas,
         ContainerType  type,
-        BoxSize       *extents);
+        BoxSize       *extents) override;
       
-      virtual int control_font_color(ContainerType type, ControlState state);
+      virtual int control_font_color(ContainerType type, ControlState state) override;
       
-      virtual bool is_very_transparent(ContainerType type, ControlState state);
+      virtual bool is_very_transparent(ContainerType type, ControlState state) override;
       
       virtual void draw_container(
         Canvas        *canvas,
@@ -33,17 +33,17 @@ namespace richmath {
         float          x,
         float          y,
         float          width,
-        float          height);
+        float          height) override;
     
       virtual void container_content_move(
         ContainerType  type,
         ControlState   state,
         float         *x,
-        float         *y);
+        float         *y) override;
         
-      virtual bool container_hover_repaint(ContainerType type);
+      virtual bool container_hover_repaint(ContainerType type) override;
       
-      virtual void system_font_style(Style *style);
+      virtual void system_font_style(Style *style) override;
       
     public:
       GtkStyleContext *get_control_theme(ContainerType type);

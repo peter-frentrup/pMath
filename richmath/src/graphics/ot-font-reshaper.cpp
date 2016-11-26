@@ -491,7 +491,7 @@ void OTFontReshaper::apply_context_substitution(
       if(const SubClassSet *class_set = ctxsub->format2_search_class_set(glyphs[position])) {
         const ClassDef *classdef = ctxsub->format2_get_classdef();
         
-        OT_ASSERT(classdef != NULL);
+        OT_ASSERT(classdef != nullptr);
         
         static Array<int> rest_glyph_classes;
         rest_glyph_classes.length(0);
@@ -637,9 +637,9 @@ void OTFontReshaper::apply_chaining_context_substitution(
         const ClassDef *i_classdef = ctxsub->format2_get_input_classdef();
         const ClassDef *l_classdef = ctxsub->format2_get_lookahead_classdef();
         
-        OT_ASSERT(b_classdef != NULL);
-        OT_ASSERT(i_classdef != NULL);
-        OT_ASSERT(l_classdef != NULL);
+        OT_ASSERT(b_classdef != nullptr);
+        OT_ASSERT(i_classdef != nullptr);
+        OT_ASSERT(l_classdef != nullptr);
         
         static Array<int> backward_glyph_classes;
         backward_glyph_classes.length(0);
@@ -957,7 +957,7 @@ const Script *ScriptList::search_script(uint32_t tag) const {
     }
   }
   
-  return NULL;
+  return nullptr;
 }
 
 int ScriptList::count() const {
@@ -988,7 +988,7 @@ const LangSys *Script::search_default_lang_sys() const {
   uint16_t offset = BigEndian::read(_default_lang_sys_offset);
   
   if(offset == 0)
-    return NULL;
+    return nullptr;
     
   return (const LangSys *)((const uint8_t *)this + offset);
 }
@@ -1006,7 +1006,7 @@ const LangSys *Script::search_lang_sys(uint32_t tag) const {
     }
   }
   
-  return NULL;
+  return nullptr;
 }
 
 int Script::lang_sys_count() const {
@@ -1217,7 +1217,7 @@ const GlyphSequence *MultipleSubstitution::search(uint16_t glyph) const {
         
         int i = coverage->find_glyph(glyph);
         if(i < 0)
-          return NULL;
+          return nullptr;
           
         OT_ASSERT(i < (int)BigEndian::read(table->count));
         
@@ -1227,7 +1227,7 @@ const GlyphSequence *MultipleSubstitution::search(uint16_t glyph) const {
       }
   }
   
-  return NULL;
+  return nullptr;
 }
 
 //} ... class MultipleSubstitution
@@ -1261,7 +1261,7 @@ const LookupSubTable *ExtensionSubstitution::extension_sub_table() const {
       }
   }
   
-  return NULL;
+  return nullptr;
 }
 
 //} ... class ExtensionSubstitution
@@ -1281,7 +1281,7 @@ const AlternateGlyphSet *AlternateSubstitution::search(uint16_t glyph) const {
         
         int i = coverage->find_glyph(glyph);
         if(i < 0)
-          return NULL;
+          return nullptr;
           
         OT_ASSERT(i < (int)BigEndian::read(table->count));
         
@@ -1291,7 +1291,7 @@ const AlternateGlyphSet *AlternateSubstitution::search(uint16_t glyph) const {
       }
   }
   
-  return NULL;
+  return nullptr;
 }
 
 /*int16_t AlternateSubstitution::apply(uint16_t glyph, int index) const {
@@ -1326,7 +1326,7 @@ const LigatureSet *LigatureSubstitution::search(uint16_t glyph) const {
         
         int i = coverage->find_glyph(glyph);
         if(i < 0)
-          return NULL;
+          return nullptr;
           
         OT_ASSERT(i < (int)BigEndian::read(table->count));
         
@@ -1336,7 +1336,7 @@ const LigatureSet *LigatureSubstitution::search(uint16_t glyph) const {
       }
   }
   
-  return NULL;
+  return nullptr;
 }
 
 //} ... class LigatureSubstitution
@@ -1354,7 +1354,7 @@ const SubRuleSet *ContextSubstitution::format1_search_rule_set( uint16_t first_g
   
   int i = coverage->find_glyph(first_glyph);
   if(i < 0)
-    return NULL;
+    return nullptr;
     
   OT_ASSERT(i < (int)BigEndian::read(table->count));
   
@@ -1384,7 +1384,7 @@ const SubClassSet *ContextSubstitution::format2_search_class_set(uint16_t first_
   
   int i = coverage->find_glyph(first_glyph);
   if(i < 0)
-    return NULL;
+    return nullptr;
     
   uint16_t classdef_offset = BigEndian::read(table->classdef_offset);
   
@@ -1454,7 +1454,7 @@ const ChainSubRuleSet *ChainingContextSubstitution::format1_search_chain_rule_se
   
   int i = coverage->find_glyph(first_glyph);
   if(i < 0)
-    return NULL;
+    return nullptr;
     
   OT_ASSERT(i < (int)BigEndian::read(table->count));
   
@@ -1504,7 +1504,7 @@ const ChainSubClassRuleSet *ChainingContextSubstitution::format2_search_class_se
   
   int i = coverage->find_glyph(first_glyph);
   if(i < 0)
-    return NULL;
+    return nullptr;
     
   uint16_t input_classdef_offset = BigEndian::read(table->input_classdef_offset);
   

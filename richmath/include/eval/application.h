@@ -14,7 +14,6 @@ namespace richmath {
     CNT_RETURNBOX,
     CNT_STARTSESSION,
     CNT_ENDSESSION,
-    CNT_EXECUTEFOR,
     
     CNT_GETDOCUMENTS,
     CNT_MENUCOMMAND,
@@ -88,7 +87,7 @@ namespace richmath {
       static Box      *get_evaluation_box();
       static Expr      run_filedialog(Expr data);
       
-      /* These may return NULL (no gui available ...)
+      /* These may return nullptr (no gui available ...)
          The document will not be visible, call invslidate_options() to
          recognize the "Visible" style option.
       */
@@ -104,8 +103,8 @@ namespace richmath {
       static Expr interrupt_cached(Expr expr, double seconds);
       static Expr interrupt_cached(Expr expr);
       
-      static void execute_for(Expr expr, Box *box, double seconds);
-      static void execute_for(Expr expr, Box *box);
+      static void interrupt_for(Expr expr, Box *box, double seconds);
+      static void interrupt_for(Expr expr, Box *box);
       
       // callable from non-gui thread:
       static Expr internal_execute_for(Expr expr, int doc, int sect, int box);

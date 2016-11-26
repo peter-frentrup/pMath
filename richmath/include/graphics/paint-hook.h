@@ -40,7 +40,7 @@ namespace richmath {
     public:
       SelectionFillHook(int _start, int _end, int _color, float _alpha = 1.0);
       
-      virtual void run(Box *box, Context *context);
+      virtual void run(Box *box, Context *context) override;
       
     public:
       int start;

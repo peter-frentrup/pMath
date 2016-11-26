@@ -31,15 +31,15 @@ namespace richmath {
   
   class PointBox: public GraphicsElement {
     public:
-      static PointBox *create(Expr expr, int opts); // may return NULL
+      static PointBox *create(Expr expr, int opts); // may return nullptr
       virtual ~PointBox();
       
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual void find_extends(GraphicsBounds &bounds);
-      virtual void paint(GraphicsBoxContext *context);
+      virtual void find_extends(GraphicsBounds &bounds) override;
+      virtual void paint(GraphicsBoxContext *context) override;
       
-      virtual Expr to_pmath(int flags); // BoxFlagXXX
+      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
       
     protected:
       Expr               _uncompressed_expr;

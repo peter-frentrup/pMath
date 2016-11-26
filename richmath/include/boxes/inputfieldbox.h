@@ -11,46 +11,46 @@ namespace richmath {
       InputFieldBox(MathSequence *content = 0);
       
       // Box::try_create<InputFieldBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual ControlState calc_state(Context *context);
+      virtual ControlState calc_state(Context *context) override;
       
-      virtual bool expand(const BoxSize &size);
-      virtual void resize(Context *context);
-      virtual void paint_content(Context *context);
+      virtual bool expand(const BoxSize &size) override;
+      virtual void resize(Context *context) override;
+      virtual void paint_content(Context *context) override;
       
-      virtual void reset_style();
+      virtual void reset_style() override;
       
-      virtual void scroll_to(float x, float y, float w, float h);
-      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
+      virtual void scroll_to(float x, float y, float w, float h) override;
+      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end) override;
       
-      virtual Box *remove(int *index);
+      virtual Box *remove(int *index) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_INPUTFIELDBOX); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_INPUTFIELDBOX); }
+      virtual Expr to_pmath(int flags) override;
       
-      virtual void dynamic_updated();
-      virtual void dynamic_finished(Expr info, Expr result);
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      virtual void dynamic_updated() override;
+      virtual void dynamic_finished(Expr info, Expr result) override;
+      virtual Box *dynamic_to_literal(int *start, int *end) override;
       
-      virtual void invalidate();
+      virtual void invalidate() override;
       
-      virtual bool remove_inserts_placeholder() { return false; }
+      virtual bool remove_inserts_placeholder() override { return false; }
       
-      virtual bool exitable();
-      virtual bool selectable(int i = -1);
+      virtual bool exitable() override;
+      virtual bool selectable(int i = -1) override;
       
-      virtual bool edit_selection(Context *context) { return true; }
+      virtual bool edit_selection(Context *context) override { return true; }
       
-      virtual void on_mouse_down(MouseEvent &event);
-      virtual void on_mouse_move(MouseEvent &event);
+      virtual void on_mouse_down(MouseEvent &event) override;
+      virtual void on_mouse_move(MouseEvent &event) override;
       
-      virtual void on_enter();
-      virtual void on_exit();
-      virtual void on_finish_editing();
+      virtual void on_enter() override;
+      virtual void on_exit() override;
+      virtual void on_finish_editing() override;
       
-      virtual void on_key_down(SpecialKeyEvent &event);
-      virtual void on_key_press(uint32_t unichar);
+      virtual void on_key_down(SpecialKeyEvent &event) override;
+      virtual void on_key_press(uint32_t unichar) override;
       
       bool assign_dynamic();
       

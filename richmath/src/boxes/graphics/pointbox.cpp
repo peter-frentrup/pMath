@@ -7,7 +7,9 @@
 
 
 #ifdef _MSC_VER
-#  define isnan  _isnan
+namespace std {
+  static bool isnan(double d) {return _isnan(d);}
+}
 #endif
 
 #ifndef NAN
@@ -31,7 +33,7 @@ bool DoublePoint::load_point(DoublePoint &point, Expr coords) {
   point.x = coords[1].to_double(NAN);
   point.y = coords[2].to_double(NAN);
   
-  return !isnan(point.x) && !isnan(point.y);
+  return !std::isnan(point.x) && !std::isnan(point.y);
 }
 
 bool DoublePoint::load_point_or_points(Array<DoublePoint> &points, Expr coords) {
@@ -133,7 +135,7 @@ PointBox *PointBox::create(Expr expr, int opts) {
   
   if(!box->try_load_from_object(expr, opts)) {
     delete box;
-    return 0;
+    return nullptr;
   }
   
   return box;

@@ -6,19 +6,19 @@ using namespace richmath;
 
 class DummyClipboard: public Clipboard {
   public:
-    virtual bool has_format(String mimetype) {
+    virtual bool has_format(String mimetype) override {
       return false;
     }
     
-    virtual ReadableBinaryFile read_as_binary_file(String mimetype) {
+    virtual ReadableBinaryFile read_as_binary_file(String mimetype) override {
       return ReadableBinaryFile();
     }
     
-    virtual String read_as_text(String mimetype) {
+    virtual String read_as_text(String mimetype) override {
       return String();
     }
     
-    virtual SharedPtr<OpenedClipboard> open_write() {
+    virtual SharedPtr<OpenedClipboard> open_write() override {
       return 0;
     }
 };

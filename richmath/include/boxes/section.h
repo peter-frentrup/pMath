@@ -24,19 +24,19 @@ namespace richmath {
         LogicalDirection  direction,
         float            *index_rel_x,
         int              *index,
-        bool              called_from_child);
+        bool              called_from_child) override;
         
-      virtual bool exitable() { return false; }
-      virtual bool remove_inserts_placeholder() { return false; }
+      virtual bool exitable() override { return false; }
+      virtual bool remove_inserts_placeholder() override { return false; }
       
-      virtual bool selectable(int i = -1);
+      virtual bool selectable(int i = -1) override;
       
-      virtual Box *get_highlight_child(Box *src, int *start, int *end);
-      virtual bool request_repaint(float x, float y, float w, float h);
-      virtual void invalidate();
-      virtual bool edit_selection(Context *context);
+      virtual Box *get_highlight_child(Box *src, int *start, int *end) override;
+      virtual bool request_repaint(float x, float y, float w, float h) override;
+      virtual void invalidate() override;
+      virtual bool edit_selection(Context *context) override;
       
-      virtual bool changes_children_style() { return true; }
+      virtual bool changes_children_style() override { return true; }
       
     public:
       float y_offset;
@@ -58,25 +58,25 @@ namespace richmath {
     public:
       ErrorSection(const Expr object);
       
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual Box *item(int i) { return 0; }
-      virtual int count() { return 0; }
+      virtual Box *item(int i) override { return 0; }
+      virtual int count() override { return 0; }
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       
-      virtual Box *remove(int *index) { return this; }
+      virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags) { return _object; }
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override { return _object; }
       
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
     private:
       Expr _object;
@@ -89,33 +89,33 @@ namespace richmath {
       
       AbstractSequence *abstract_content() {return _content; };
       
-      virtual Box *item(int i);
-      virtual int count() { return 1; }
+      virtual Box *item(int i) override;
+      virtual int count() override { return 1; }
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       
-      virtual Box *remove(int *index);
+      virtual Box *remove(int *index) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_SECTION); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_SECTION); }
+      virtual Expr to_pmath(int flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
         int              *index,
-        bool              called_from_child);
+        bool              called_from_child) override;
         
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,
-        cairo_matrix_t *matrix);
+        cairo_matrix_t *matrix) override;
         
     protected:
       AbstractSequence *_content; // TextSequence or MathSequence
@@ -127,7 +127,7 @@ namespace richmath {
       MathSection();
       explicit MathSection(SharedPtr<Style> _style);
       
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
       MathSequence *content() { return (MathSequence*)_content; }
   };
@@ -137,7 +137,7 @@ namespace richmath {
       TextSection();
       explicit TextSection(SharedPtr<Style> _style);
       
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
       TextSection *content() { return (TextSection*)_content; }
   };
@@ -147,10 +147,10 @@ namespace richmath {
       EditSection();
       virtual ~EditSection();
       
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override;
       
     public:
       Section *original;

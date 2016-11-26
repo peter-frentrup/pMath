@@ -20,27 +20,27 @@
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
 					<Add option="-std=gnu++11" />
+					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_WIN32_FONT" />
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangowin32-1.0" />
 					<Add library="comctl32" />
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
@@ -48,14 +48,11 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
-					<Add directory="../library/bin/windows/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
-					<Add directory="$(#gtk.lib)" />
+					<Add library="advapi32" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-debug-x86 x86  gcc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -73,45 +70,43 @@
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
 					<Add option="-std=gnu++11" />
+					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#gtk.include)/fontconfig" />
-					<Add directory="$(#gtk.include)/freetype2" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
+					<Add directory="$(#fontconfig_32.include)" />
+					<Add directory="$(#freetype_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangoft2-1.0.dll&quot;' />
+					<Add option='&quot;$(#fontconfig_32.bin)/fontconfig.dll&quot;' />
+					<Add option='&quot;$(#freetype_32.bin)/freetype.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangowin32-1.0" />
-					<Add library="pangoft2-1.0" />
 					<Add library="comctl32" />
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
 					<Add library="ole32" />
 					<Add library="user32" />
 					<Add library="uuid" />
-					<Add library="fontconfig" />
-					<Add library="freetype" />
-					<Add directory="../library/bin/windows/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add library="advapi32" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-debug-x86 x86 gcc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#fontconfig_32.bin);$(#freetype_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -129,46 +124,43 @@
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
 					<Add option="-std=gnu++11" />
+					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#pango.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#gtk.include)" />
-					<Add directory="$(#gtk.include)/fontconfig" />
-					<Add directory="$(#gtk.include)/freetype2" />
-					<Add directory="$(#gtk.include)/gtk-2.0" />
-					<Add directory="$(#gtk.lib)/gtk-2.0/include" />
-					<Add directory="$(#gtk.include)/gdk" />
-					<Add directory="$(#gtk.include)/atk-1.0" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#pango_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#fontconfig_32.include)" />
+					<Add directory="$(#gtk_32.include)" />
+					<Add directory="$(#gtk_32.include)/gtk-2.0" />
+					<Add directory="$(#gtk_32.include)/gdk-pixbuf-2.0" />
+					<Add directory="$(#gtk_32.lib)/gtk-2.0/include" />
+					<Add directory="$(#gtk_32.include)/atk-1.0" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
+					<Add option='&quot;$(#fontconfig_32.bin)/fontconfig.dll&quot;' />
+					<Add option='&quot;$(#freetype_32.bin)/freetype.dll&quot;' />
+					<Add option='&quot;$(#gtk_32.bin)/gdk-win32-2.0.dll&quot;' />
+					<Add option='&quot;$(#gtk_32.bin)/gdk_pixbuf-2.0.dll&quot;' />
+					<Add option='&quot;$(#gtk_32.bin)/gtk-win32-2.0.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangoft2-1.0" />
 					<Add library="user32" />
-					<Add library="fontconfig" />
-					<Add library="freetype" />
-					<Add library="gdk-win32-2.0" />
-					<Add library="gtk-win32-2.0" />
-					<Add library="gdk_pixbuf-2.0" />
-					<Add directory="../library/bin/windows/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-debug-x86 x86  gcc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#fontconfig_32.bin);$(#freetype_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -186,47 +178,43 @@
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
 					<Add option="-std=gnu++11" />
+					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
 					<Add option="-DRICHMATH_USE_GTK_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#pango.include)" />
-					<Add directory="$(#glib3.include)" />
-					<Add directory="$(#glib3.lib)/glib-2.0/include" />
-					<Add directory="$(#gtk3.include)" />
-					<Add directory="$(#gtk3.include)/fontconfig" />
-					<Add directory="$(#gtk3.include)/freetype2" />
-					<Add directory="$(#gtk3.include)/gtk-3.0" />
-					<Add directory="$(#gtk3.lib)/gtk-3.0/include" />
-					<Add directory="$(#gtk3.include)/gdk" />
-					<Add directory="$(#gtk3.include)/atk-1.0" />
-					<Add directory="$(#gtk3.include)/gdk-pixbuf-2.0" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#pango_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#fontconfig_32.include)" />
+					<Add directory="$(#gtk3_32.include)" />
+					<Add directory="$(#gtk3_32.include)/gtk-3.0" />
+					<Add directory="$(#gtk3_32.include)/gdk-pixbuf-2.0" />
+					<Add directory="$(#gtk3_32.lib)/gtk-3.0/include" />
+					<Add directory="$(#gtk3_32.include)/atk-1.0" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
+					<Add option='&quot;$(#fontconfig_32.bin)/fontconfig.dll&quot;' />
+					<Add option='&quot;$(#freetype_32.bin)/freetype.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gdk-win32-3.0.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gdk_pixbuf-2.0.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gtk-win32-3.0.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangoft2-1.0" />
 					<Add library="user32" />
-					<Add library="fontconfig" />
-					<Add library="freetype" />
-					<Add library="gdk-win32-3.0" />
-					<Add library="gtk-win32-3.0" />
-					<Add library="gdk_pixbuf-2.0" />
-					<Add directory="../library/bin/windows/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib3.lib)" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-debug-x86 x86  gcc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#fontconfig_32.bin);$(#freetype_32.bin);$(#gtk3_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -244,29 +232,30 @@
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
 					<Add option="-std=gnu++11" />
+					<Add option="-Wsuggest-override" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DRICHMATH_USE_WIN32_FONT" />
 					<Add option="-DRICHMATH_USE_WIN32_GUI" />
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add option="-flto" />
 					<Add option="-O3" />
+					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
+					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
 					<Add library="pmath" />
-					<Add library="cairo" />
-					<Add library="glib-2.0" />
-					<Add library="gobject-2.0" />
-					<Add library="pango-1.0" />
-					<Add library="pangocairo-1.0" />
-					<Add library="pangowin32-1.0" />
 					<Add library="comctl32" />
 					<Add library="comdlg32" />
 					<Add library="gdi32" />
@@ -274,13 +263,11 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
-					<Add directory="../library/bin/windows/gcc-release-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add library="advapi32" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat gcc-release-x86 x86  gcc-release-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -290,19 +277,17 @@
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="1" />
-				<Option compiler="msvc10" />
+				<Option compiler="msvc_2015" />
 				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="/MDd" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
-					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add option="/wd4800 /wd4710 /wd4711 /wd4738 /wd4244 /wd4146 /wd4305" />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
 					<Add option="/DPMATH_DEBUG_LOG" />
-					<Add option="/D_STATIC_CPPLIB" />
-					<Add option="/D_DISABLE_DEPRECATE_STATIC_CPPLIB" />
 					<Add option="/D_HAS_EXCEPTIONS=0" />
 					<Add option="/D_USE_MATH_DEFINES" />
 					<Add option="/DRICHMATH_USE_WIN32_FONT" />
@@ -310,14 +295,13 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
-					<Add directory="../msvc-c99" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
-					<Add option="/DEBUG" />
+					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
 					<Add library="pmath" />
 					<Add library="cairo" />
@@ -333,13 +317,14 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
-					<Add directory="../library/bin/windows/msvc-release-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add library="advapi32" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_32.lib)" />
+					<Add directory="$(#glib_32.lib)" />
+					<Add directory="$(#pango_32.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat msvc-debug-x86 x86  msvc-debug-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -349,18 +334,16 @@
 				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="0" />
-				<Option compiler="msvc10" />
+				<Option compiler="msvc_2015" />
 				<Compiler>
 					<Add option="/MD" />
 					<Add option="/arch:SSE2" />
 					<Add option="/Gd" />
 					<Add option="/GF" />
-					<Add option="/W3" />
 					<Add option="/Zi" />
-					<Add option="/wd4800 /wd4710 /wd4711 /wd4738 /wd4244 /wd4146 /wd4305" />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
 					<Add option="/DNDEBUG" />
-					<Add option="/D_STATIC_CPPLIB" />
-					<Add option="/D_DISABLE_DEPRECATE_STATIC_CPPLIB" />
 					<Add option="/D_HAS_EXCEPTIONS=0" />
 					<Add option="/D_USE_MATH_DEFINES" />
 					<Add option="/DRICHMATH_USE_WIN32_FONT" />
@@ -368,14 +351,13 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
-					<Add directory="$(#cairo.include)" />
-					<Add directory="$(#glib.include)" />
-					<Add directory="$(#glib.lib)/glib-2.0/include" />
-					<Add directory="$(#pango.include)" />
-					<Add directory="../msvc-c99" />
+					<Add directory="$(#cairo_32.include)" />
+					<Add directory="$(#glib_32.include)" />
+					<Add directory="$(#glib_32.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
-					<Add option="/DEBUG" />
+					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
 					<Add library="pmath" />
 					<Add library="cairo" />
@@ -391,13 +373,126 @@
 					<Add library="user32" />
 					<Add library="uuid" />
 					<Add library="usp10" />
-					<Add directory="../library/bin/windows/msvc-release-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
+					<Add library="advapi32" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_32.lib)" />
+					<Add directory="$(#pango_32.lib)" />
+					<Add directory="$(#glib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="post-build-windows.bat msvc-release-x86 x86  msvc-release-x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_32.bin);$(#pango_32.bin);$(#glib_32.bin);$(#gtk_32.bin)&quot; -ErrorAction Stop -Verbose' />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Windows-MSVC-Debug-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-debug-x64/richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-debug-x64/" />
+				<Option external_deps="../library/pmath.cbp;" />
+				<Option type="1" />
+				<Option compiler="msvc_2015_x64" />
+				<Compiler>
+					<Add option="/MDd" />
+					<Add option="/Gd" />
+					<Add option="/GF" />
+					<Add option="/Zi" />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
+					<Add option="/DPMATH_DEBUG_LOG" />
+					<Add option="/D_HAS_EXCEPTIONS=0" />
+					<Add option="/D_USE_MATH_DEFINES" />
+					<Add option="/DRICHMATH_USE_WIN32_FONT" />
+					<Add option="/DRICHMATH_USE_WIN32_GUI" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="../library/include" />
+					<Add directory="$(#cairo_64.include)" />
+					<Add directory="$(#glib_64.include)" />
+					<Add directory="$(#glib_64.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_64.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/ENTRY:mainCRTStartup" />
+					<Add library="pmath" />
+					<Add library="cairo" />
+					<Add library="glib-2.0" />
+					<Add library="gobject-2.0" />
+					<Add library="pango-1.0" />
+					<Add library="pangocairo-1.0" />
+					<Add library="pangowin32-1.0" />
+					<Add library="comctl32" />
+					<Add library="comdlg32" />
+					<Add library="gdi32" />
+					<Add library="ole32" />
+					<Add library="user32" />
+					<Add library="uuid" />
+					<Add library="usp10" />
+					<Add library="advapi32" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_64.lib)" />
+					<Add directory="$(#glib_64.lib)" />
+					<Add directory="$(#pango_64.lib)" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_64.bin);$(#pango_64.bin);$(#glib_64.bin);$(#gtk_64.bin)&quot; -ErrorAction Stop -Verbose' />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Windows-MSVC-Release-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-release-x64/richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/windows/msvc-release-x64/" />
+				<Option external_deps="../library/pmath.cbp;" />
+				<Option type="0" />
+				<Option compiler="msvc_2015_x64" />
+				<Compiler>
+					<Add option="/MD" />
+					<Add option="/Gd" />
+					<Add option="/GL" />
+					<Add option="/GF" />
+					<Add option="/Zi" />
+					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
+					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_HAS_EXCEPTIONS=0" />
+					<Add option="/D_USE_MATH_DEFINES" />
+					<Add option="/DRICHMATH_USE_WIN32_FONT" />
+					<Add option="/DRICHMATH_USE_WIN32_GUI" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="../library/include" />
+					<Add directory="$(#cairo_64.include)" />
+					<Add directory="$(#glib_64.include)" />
+					<Add directory="$(#glib_64.lib)/glib-2.0/include" />
+					<Add directory="$(#pango_64.include)" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/LTCG" />
+					<Add library="pmath" />
+					<Add library="cairo" />
+					<Add library="glib-2.0" />
+					<Add library="gobject-2.0" />
+					<Add library="pango-1.0" />
+					<Add library="pangocairo-1.0" />
+					<Add library="pangowin32-1.0" />
+					<Add library="comctl32" />
+					<Add library="comdlg32" />
+					<Add library="gdi32" />
+					<Add library="ole32" />
+					<Add library="user32" />
+					<Add library="uuid" />
+					<Add library="usp10" />
+					<Add library="advapi32" />
+					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
+					<Add directory="$(#cairo_64.lib)" />
+					<Add directory="$(#glib_64.lib)" />
+					<Add directory="$(#pango_64.lib)" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File post-build-windows.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(PROJECT_DIR)..\library\$(TARGET_OUTPUT_DIR);$(#cairo_64.bin);$(#pango_64.bin);$(#glib_64.bin);$(#gtk_64.bin)&quot; -ErrorAction Stop -Verbose' />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -409,6 +504,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=gnu++11" />
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -428,9 +524,6 @@
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add directory="../library/bin/linux/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x86 x86  gcc-debug-x86" />
@@ -443,11 +536,12 @@
 				<Option object_output="obj/linux/gcc-debug-x64" />
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_x64_compiler" />
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-Wall" />
 					<Add option="-g" />
+					<Add option="-std=gnu++11" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mcx16" />
 					<Add option="-Wno-unused-but-set-variable" />
@@ -466,9 +560,6 @@
 					<Add option="-Wl,-rpath,?ORIGIN" />
 					<Add library="pmath" />
 					<Add directory="../library/bin/linux/gcc-debug-x64" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x64 x64  gcc-debug-x64" />
@@ -483,6 +574,7 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-std=gnu++11" />
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -504,12 +596,46 @@
 					<Add library="fontconfig" />
 					<Add library="freetype" />
 					<Add directory="../library/bin/linux/gcc-debug-x86" />
-					<Add directory="$(#cairo.lib)" />
-					<Add directory="$(#pango.lib)" />
-					<Add directory="$(#glib.lib)" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="./post-build-linux.sh gcc-debug-x86 x86  gcc-debug-x86-gtk3" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Linux-GCC-Debug-x64-Gtk3">
+				<Option platforms="Unix;" />
+				<Option output="bin/linux/gcc-debug-x64-gtk3/richmath" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/linux/gcc-debug-x64-gtk3" />
+				<Option external_deps="../library/pmath.cbp;" />
+				<Option type="1" />
+				<Option compiler="gnu_gcc_x64_compiler" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-std=gnu++11" />
+					<Add option="-fno-exceptions" />
+					<Add option="-mcx16" />
+					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="`pkg-config gtk+-3.0 --cflags`" />
+					<Add option="-DPMATH_DEBUG_LOG" />
+					<Add option="-DRICHMATH_USE_FT_FONT" />
+					<Add option="-DRICHMATH_USE_GTK_GUI" />
+					<Add directory="include" />
+					<Add directory="resources" />
+					<Add directory="../library/include" />
+				</Compiler>
+				<Linker>
+					<Add option="`pkg-config gtk+-3.0 --libs`" />
+					<Add option="-lX11" />
+					<Add option="-Wl,-rpath,?ORIGIN" />
+					<Add library="pmath" />
+					<Add library="fontconfig" />
+					<Add library="freetype" />
+					<Add directory="../library/bin/linux/gcc-debug-x64" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="./post-build-linux.sh gcc-debug-x64 x64  gcc-debug-x64-gtk3" />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
@@ -573,8 +699,10 @@
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/clipboard.h" />
 		<Unit filename="include/gui/control-painter.h" />
@@ -585,6 +713,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-clipboard.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -592,6 +721,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-colordialog.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -599,6 +729,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-control-painter.h" />
 		<Unit filename="include/gui/gtk/mgtk-cursors.h">
@@ -607,6 +738,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-document-window.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -614,6 +746,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-filedialog.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -621,6 +754,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-fontdialog.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -628,6 +762,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-icons.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -635,6 +770,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-menu-builder.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -642,6 +778,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-tooltip-window.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -649,6 +786,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-widget.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -656,126 +794,179 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="include/gui/native-widget.h" />
 		<Unit filename="include/gui/win32/basic-win32-widget.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/basic-win32-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/ole/combase.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/dataobject.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/dropsource.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/enumformatetc.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/stylus/stylusutil.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-clipboard.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-colordialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-control-painter.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-document-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-filedialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-fontdialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-menu.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-menubar.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-themes.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-tooltip-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-touch.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-widget.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/util/array.h" />
 		<Unit filename="include/util/autocompletion.h" />
@@ -794,16 +985,20 @@
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="resources/richmath.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="scripts/frontinit.pmath" />
 		<Unit filename="src/boxes/box.cpp" />
@@ -865,8 +1060,10 @@
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/clipboard.cpp" />
 		<Unit filename="src/gui/control-painter.cpp" />
@@ -877,6 +1074,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-clipboard.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -884,6 +1082,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-colordialog.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -891,6 +1090,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-control-painter.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -898,6 +1098,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-cursors.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -905,6 +1106,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-document-window.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -912,6 +1114,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-filedialog.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -919,6 +1122,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-fontdialog.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -926,6 +1130,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-icons.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -933,6 +1138,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-menu-builder.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -940,6 +1146,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-tooltip-window.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -947,6 +1154,7 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -954,126 +1162,170 @@
 			<Option target="Linux-GCC-Debug-x86" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/native-widget.cpp" />
 		<Unit filename="src/gui/win32/basic-win32-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/basic-win32-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/dataobject.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/dropsource.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/enumformatetc.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/stylus/stylusutil.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-clipboard.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-colordialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-control-painter.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-document-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-filedialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-fontdialog.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-menu.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-menubar.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-themes.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-tooltip-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-touch.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
 			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/util/autocompletion.cpp" />
@@ -1092,7 +1344,7 @@
 			<debugger>
 				<search_path add="../library/src" />
 				<remote_debugging>
-					<options conn_type="-1" additional_cmds="python import sys&#x0A;python sys.path.insert(0, &apos;../gdb&apos;)&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+					<options conn_type="-1" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
 				</remote_debugging>
 			</debugger>
 			<DoxyBlocks>

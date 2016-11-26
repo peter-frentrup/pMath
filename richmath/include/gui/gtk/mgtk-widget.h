@@ -15,55 +15,55 @@ namespace richmath {
   // Must call init() immediately init after the construction of a derived object!
   class MathGtkWidget: public NativeWidget, public BasicGtkWidget {
     protected:
-      virtual void after_construction();
+      virtual void after_construction() override;
       
     public:
       MathGtkWidget(Document *doc);
       virtual ~MathGtkWidget();
       
-      virtual void window_size(float *w, float *h);
-      virtual void page_size(float *w, float *h) {
+      virtual void window_size(float *w, float *h) override;
+      virtual void page_size(float *w, float *h) override {
         window_size(w, h);
       }
       
-      virtual bool is_scrollable() { return true; }
-      virtual bool autohide_vertical_scrollbar() { return _autohide_vertical_scrollbar; }
-      virtual void scroll_pos(float *x, float *y);
-      virtual void scroll_to(float x, float y);
+      virtual bool is_scrollable() override { return true; }
+      virtual bool autohide_vertical_scrollbar() override { return _autohide_vertical_scrollbar; }
+      virtual void scroll_pos(float *x, float *y) override;
+      virtual void scroll_to(float x, float y) override;
       
-      virtual void show_tooltip(Expr boxes);
-      virtual void hide_tooltip();
+      virtual void show_tooltip(Expr boxes) override;
+      virtual void hide_tooltip() override;
       
-      virtual bool is_scaleable() { return true; }
+      virtual bool is_scaleable() override { return true; }
       
-      virtual double message_time();
-      virtual double double_click_time();
-      virtual void double_click_dist(float *dx, float *dy);
-      virtual void do_drag_drop(Box *src, int start, int end);
-      virtual bool cursor_position(float *x, float *y);
+      virtual double message_time() override;
+      virtual double double_click_time() override;
+      virtual void double_click_dist(float *dx, float *dy) override;
+      virtual void do_drag_drop(Box *src, int start, int end) override;
+      virtual bool cursor_position(float *x, float *y) override;
       
-      virtual void bring_to_front();
-      virtual void close() {}
-      virtual void invalidate();
-      virtual void invalidate_options();
-      virtual void invalidate_rect(float x, float y, float w, float h);
-      virtual void force_redraw();
+      virtual void bring_to_front() override;
+      virtual void close() override {}
+      virtual void invalidate() override;
+      virtual void invalidate_options() override;
+      virtual void invalidate_rect(float x, float y, float w, float h) override;
+      virtual void force_redraw() override;
       
-      virtual void set_cursor(CursorType type);
+      virtual void set_cursor(CursorType type) override;
       
-      virtual void running_state_changed();
+      virtual void running_state_changed() override;
       
-      virtual bool is_mouse_down();
+      virtual bool is_mouse_down() override;
       
-      virtual void beep();
+      virtual void beep() override;
       
-      virtual bool register_timed_event(SharedPtr<TimedEvent> event);
+      virtual bool register_timed_event(SharedPtr<TimedEvent> event) override;
       
-      virtual String filename(){ return String(); }
-      virtual void filename(String new_filename) {}
+      virtual String filename() override { return String(); }
+      virtual void filename(String new_filename) override {}
       
-      virtual void on_editing() {}
-      virtual void on_saved() {}
+      virtual void on_editing() override {}
+      virtual void on_saved() override {}
       
       GtkMenu *popup_menu();
       GtkAdjustment *hadjustment() { return _hadjustment; }

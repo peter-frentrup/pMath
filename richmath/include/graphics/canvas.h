@@ -120,6 +120,22 @@ namespace richmath {
       int                _color;
   };
   
+  class CanvasAutoSave {
+    public:
+      CanvasAutoSave(Canvas *_canvas)
+      : canvas(_canvas) 
+      {
+        canvas->save();
+      }
+      
+      ~CanvasAutoSave() {
+        canvas->restore();
+      }
+    
+    private:
+      Canvas *canvas;
+  };
+  
   typedef AutoRefBase < cairo_surface_t, cairo_surface_reference, cairo_surface_destroy > AutoCairoSurface;
 }
 

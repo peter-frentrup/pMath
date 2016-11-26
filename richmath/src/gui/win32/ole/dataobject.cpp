@@ -148,7 +148,7 @@ STDMETHODIMP DataObject::QueryGetData(FORMATETC *pFormatEtc) {
 //  IDataObject::GetCanonicalFormatEtc
 //
 STDMETHODIMP DataObject::GetCanonicalFormatEtc(FORMATETC *pFormatEct, FORMATETC *pFormatEtcOut) {
-  pFormatEtcOut->ptd = NULL;
+  pFormatEtcOut->ptd = nullptr;
   return E_NOTIMPL;
 }
 

@@ -15,13 +15,13 @@ namespace richmath {
       
       GridBox *grid() { return (GridBox*)_parent; }
       
-      virtual bool expand(const BoxSize &size);
-      virtual void resize(Context *context);
+      virtual bool expand(const BoxSize &size) override;
+      virtual void resize(Context *context) override;
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override;
       
-      virtual bool try_load_from_object(Expr object, int options);
+      virtual bool try_load_from_object(Expr object, int options) override;
       void             load_from_object(Expr object, int options);
       
       bool span_from_left();
@@ -48,14 +48,14 @@ namespace richmath {
       virtual ~GridBox();
       
       // Box::try_create<GridBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
       const Matrix<GridItem*> &matrix() { return items; }
       const Array<float> &xpos_array() { need_pos_vectors(); return xpos; }
       const Array<float> &ypos_array() { need_pos_vectors(); return ypos; }
       
-      virtual Box *item(int i) { return items[i]; }
-      virtual int count() { return items.length(); }
+      virtual Box *item(int i) override { return items[i]; }
+      virtual int count() override { return items.length(); }
       GridItem *item(int row, int col) { return items.get(row, col); }
       
       int rows() { return items.rows(); }
@@ -67,35 +67,35 @@ namespace richmath {
       void remove_rows(int yindex, int count);
       void remove_cols(int xindex, int count);
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
-      virtual void selection_path(Canvas *canvas, int start, int end);
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
+      virtual void selection_path(Canvas *canvas, int start, int end) override;
       
       Box *remove_range(int *start, int end);
-      virtual Box *remove(int *index);
+      virtual Box *remove(int *index) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_GRIDBOX); }
-      virtual Expr to_pmath(int flags);
-      virtual Expr to_pmath(int flags, int start, int end);
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_GRIDBOX); }
+      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(int flags, int start, int end) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
         int              *index,
-        bool              called_from_child);
+        bool              called_from_child) override;
         
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,
-        cairo_matrix_t *matrix);
+        cairo_matrix_t *matrix) override;
         
-      virtual Box *normalize_selection(int *start, int *end);
+      virtual Box *normalize_selection(int *start, int *end) override;
       
     protected:
       float rowspacing;

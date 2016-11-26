@@ -48,7 +48,7 @@ namespace richmath {
       {
         ARRAY_ASSERT(_length >= 0);
         if(_length > 0)
-          _items = new T[_capacity];
+          _items = new T[(size_t)_capacity];
       }
       
       Array(int length, T *src)
