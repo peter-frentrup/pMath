@@ -63,6 +63,10 @@
                 </dict>
                 <dict>
                     <key>include</key>
+                    <string>#callnames</string>
+                </dict>
+                <dict>
+                    <key>include</key>
                     <string>#names</string>
                 </dict>
                 <dict>
@@ -88,7 +92,7 @@
             <key>end</key>
             <string>\n</string>
             
-			<key>name</key>
+            <key>name</key>
             <string>comment.line.pmath</string>
         </dict>
 
@@ -100,46 +104,65 @@
             <key>end</key>
             <string>\*/</string>
             
-			<key>name</key>
+            <key>name</key>
             <string>comment.block.pmath</string>
         </dict>
 
         <key>string</key>
         <dict>
-            <key>begin</key>
-            <string>"</string>
-            
-			<key>beginCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.string.begin.pmath</string>
-				</dict>
-            </dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    (?:
+                        (?<=::)
+                    |   (?<=<<)
+                    |   (?<=\?\?)
+                    )
+                    [$a-zA-Z][$a-zA-Z0-9]*
+                    </string>
 
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>#stringcontent</string>
-				</dict>
+                    <key>name</key>
+                    <string>string.implicit.pmath</string>
+                </dict>
+                <dict>
+                    <key>begin</key>
+                    <string>"</string>
+                    
+                    <key>beginCaptures</key>
+                    <dict>
+                        <key>0</key>
+                        <dict>
+                            <key>name</key>
+                            <string>punctuation.definition.string.begin.pmath</string>
+                        </dict>
+                    </dict>
+
+                    <key>patterns</key>
+                    <array>
+                        <dict>
+                            <key>include</key>
+                            <string>#stringcontent</string>
+                        </dict>
+                    </array>
+
+                    <key>end</key>
+                    <string>"</string>
+                    
+                    <key>endCaptures</key>
+                    <dict>
+                        <key>0</key>
+                        <dict>
+                            <key>name</key>
+                            <string>punctuation.definition.string.end.pmath</string>
+                        </dict>
+                    </dict>
+
+                    <key>name</key>
+                    <string>string.quoted.double.pmath</string>
+                </dict>
             </array>
-
-            <key>end</key>
-            <string>"</string>
-            
-			<key>endCaptures</key>
-			<dict>
-				<key>0</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.definition.string.end.pmath</string>
-				</dict>
-            </dict>
-
-			<key>name</key>
-            <string>string.quoted.double.pmath</string>
         </dict>
 
         <key>stringcontent</key>
@@ -200,8 +223,8 @@
                 </dict>
                 <dict>
                     <key>match</key>
-					<string>\\.</string>
-					<key>name</key>
+                    <string>\\.</string>
+                    <key>name</key>
                     <string>invalid.illegal.unrecognized-string-escape.pmath</string>
                 </dict>
                 <dict>
@@ -295,6 +318,41 @@
             </array>
         </dict>
         
+        <key>callnames</key>
+        <dict>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    (?<=\.)
+                    [$a-zA-Z][$a-zA-Z0-9]*
+                    (?:
+                        `
+                        [$a-zA-Z][$a-zA-Z0-9]*
+                    )*
+                    </string>
+                    
+                    <key>name</key>
+                    <string>entity.name.function.function-call.property.pmath</string>
+                </dict>
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    [$a-zA-Z][$a-zA-Z0-9]*
+                    (?:
+                        `
+                        [$a-zA-Z][$a-zA-Z0-9]*
+                    )*
+                    (?=\()
+                    </string>
+                    
+                    <key>name</key>
+                    <string>entity.name.function.function-call.pmath</string>
+                </dict>
+            </array>
+        </dict>
+
         <key>names</key>
         <dict>
             <key>match</key>
@@ -306,7 +364,7 @@
             )*
             </string>
             
-			<key>name</key>
+            <key>name</key>
             <string>name.other.pmath</string>
         </dict>
 
@@ -338,7 +396,7 @@
                     )?
                     </string>
                     
-			        <key>name</key>
+                    <key>name</key>
                     <string>constant.numeric.decimal.pmath</string>
                 </dict>
 
@@ -364,7 +422,7 @@
                     )?
                     </string>
                     
-			        <key>name</key>
+                    <key>name</key>
                     <string>constant.numeric.binary.json</string>
                 </dict>
                 
@@ -390,7 +448,7 @@
                     )?
                     </string>
                     
-			        <key>name</key>
+                    <key>name</key>
                     <string>constant.numeric.hexadecimal.pmath</string>
                 </dict>-->
                 
@@ -417,7 +475,7 @@
                     )?
                     </string>
                     
-			        <key>name</key>
+                    <key>name</key>
                     <string>constant.numeric.otherbase.pmath</string>
                 </dict>
             </array>
@@ -524,15 +582,15 @@
             <key>captures</key>
             <dict>
                 <key>1</key>
-				<dict>
-					<key>name</key>
-					<string>keyword.control.pmath</string>
+                <dict>
+                    <key>name</key>
+                    <string>keyword.control.pmath</string>
                 </dict>
 
                 <key>2</key>
                 <dict>
-					<key>name</key>
-					<string>entity.name.function.pmath</string>
+                    <key>name</key>
+                    <string>entity.name.function.pmath</string>
                 </dict>
             </dict>
         </dict>
