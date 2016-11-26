@@ -91,7 +91,7 @@ static size_t test_all_slow(
     return next - first;
   }
   
-  bool_array = pmath_mem_alloc(max_successes);
+  bool_array = pmath_mem_alloc(length - first);
   *success_list = bool_array;
   if(!bool_array) {
     *first_success = first;
@@ -101,7 +101,7 @@ static size_t test_all_slow(
   
   count = next - first;
   memset(bool_array, 1, count);
-  memset(bool_array + next - first, 0, max_successes - count);
+  memset(bool_array + count, 0, length - next);
   
   bool_array[gap - first] = 1;
   ++count;
