@@ -1,6 +1,7 @@
 
 BeginPackage("System`")
 
+<<ExperimentalSyntax`
 
 Normalize
 
@@ -27,30 +28,34 @@ isScalar(~s)::= !Match(s, ~:List)
 
 Normalize(~v ? IsVector)::= With({n:= Norm(v)}, If((n=0)===True, v, v/n))
 Normalize(~s ? isScalar)::= With({n:= Abs(s)},  If((n=0)===True, s, s/n))
-Normalize(~x, ~f)::= 
-	With({fx:= f(x)}, 
-		If(isScalar(fx),
-			If(fx = 0, 
-				Return(x * fx));
-			Return(x/fx));
-		Message(Normalize::nonorm, f);
-		$Failed /? False)
+Function Normalize(~x, ~f) { 
+	With(fx:= f(x))
+	If(isScalar(fx)) {
+		If(fx = 0) {
+			Return(x * fx)
+		}
+		Return(x/fx)
+	}
+	Message(Normalize::nonorm, f);
+	$Failed /? False
+}
 
 Normalize::nonorm:= "The second argument `1` is not a norm function that always returns a \
 	non-negative real number for any numeric argument."
 
 
 
-RotationMatrix(~angle ? isScalar)::=
-	With({c:= Cos(angle), s:= Sin(angle)},
-		{{c, -s}, {s, c}})
+Function RotationMatrix(~angle ? isScalar) {
+	With(c:= Cos(angle), s:= Sin(angle))
+	Return({{c, -s}, {s, c}})
+}
 
-RotationMatrix(~angle ? isScalar, ~vector ? IsVector) /? Length(vector) = 3 ::=
-	With({c:= Cos(angle), s:= Sin(angle), nvec:= Normalize(vector)},
-		(1-c) Dot(Transpose({nvec}), {nvec}) + 
-			+ c IdentityMatrix(3) + 
-			+ s * Plus @@ Array(Dot(Transpose({Cross(nvec, UnitVector(3,#))}), {UnitVector(3,#)}) &, 3)
-		)
+Function RotationMatrix(~angle ? isScalar, ~vector ? IsVector /? Length(vector) = 3) {
+	With(c:= Cos(angle), s:= Sin(angle), nvec:= Normalize(vector))
+	Return((1-c) Dot(Transpose({nvec}), {nvec}) + 
+		+ c IdentityMatrix(3) + 
+		+ s * Plus @@ Array(Dot(Transpose({Cross(nvec, UnitVector(3,#))}), {UnitVector(3,#)}) &, 3))
+}
 
 RotationMatrix(~~~) /? (Message(RotationMatrix::input); False)::= $Failed
 
@@ -62,11 +67,12 @@ RotationMatrix::input:= "The input is expected to be of one of the forms Rotatio
 
 ScalingMatrix(~s ? IsVector)::= DiagonalMatrix(s)
 
-ScalingMatrix(~s ? isScalar, ~vector ? IsVector)::=
-	With({nv:= Normalize(vector)},
-		s {nv}.Transpose.Dot(Conjugate({nv})) + 
-			+ (IdentityMatrix(Length(nv)) - {nv}.Transpose.Dot(Conjugate({nv})))
-	)
+Function ScalingMatrix(~s ? isScalar, ~vector ? IsVector) {
+	With(nv:= Normalize(vector))
+	Return(s {nv}.Transpose.Dot(Conjugate({nv})) + 
+		+ IdentityMatrix(Length(nv)) +
+		- {nv}.Transpose.Dot(Conjugate({nv})))
+}
 
 ScalingMatrix(~~~) /? (Message(ScalingMatrix::input); False)::= $Failed
 
@@ -86,11 +92,11 @@ ReflectionMatrix::input:= "The input is expected to be of one of the form Reflec
 
 
 
-ShearingMatrix(~angle ? isScalar, ~v, ~n) /? IsMatrix({v,n})::=
-	With({nv:= Normalize(v), nn:= Normalize(n)},
-		With({ne:= Normalize(nv - Dot(Conjugate(nv), nn) nn)},
-			IdentityMatrix(Length(nn)) + Tan(angle) {ne}.Transpose.Dot(Conjugate({nn}))
-		))
+ShearingMatrix(~angle ? isScalar, ~v, ~n) /? IsMatrix({v,n})::= Block {
+	With(nv:= Normalize(v), nn:= Normalize(n))
+	With(ne:= Normalize(nv - Dot(Conjugate(nv), nn) nn))
+	Return(IdentityMatrix(Length(nn)) + Tan(angle) {ne}.Transpose.Dot(Conjugate({nn})))
+}
 
 ShearingMatrix(~~~) /? (Message(ShearingMatrix::input); False)::= $Failed
 
@@ -101,26 +107,30 @@ ShearingMatrix::input:= "The input is expected to be of one of the forms \
 
 
 
-tryLinearFractionalTransform(~A, ~b, ~c, ~d)::=
-	With({dims:= Dimensions(A)},
-		If(dims[1] =!= Length(b),
-			Message(LinearFractionalTransform::rowdim, A, b);
-			Return($Failed));
-		If(dims[2] =!= Length(c),
-			Message(LinearFractionalTransform::coldim, A, c);
-			Return($Failed));
-		Return(TransformationFunction(A.PadRight(dims + {0,1}, b).Append(c.Append(d))))
-	)
+Function tryLinearFractionalTransform(~A, ~b, ~c, ~d) {
+	With(dims:= Dimensions(A))
+	If(dims[1] =!= Length(b)) {
+		Message(LinearFractionalTransform::rowdim, A, b)
+		Return($Failed)
+	}
+	If(dims[2] =!= Length(c)) {
+		Message(LinearFractionalTransform::coldim, A, c);
+		Return($Failed)
+	}
+	Return(TransformationFunction(A.PadRight(dims + {0,1}, b).Append(c.Append(d))))
+}
 
 LinearFractionalTransform(~m ? IsMatrix)::= TransformationFunction(m)
 
-LinearFractionalTransform({~A ? IsMatrix, ~b ? IsVector, ~c ? IsVector, ~d ? isScalar})::=
-	With({result:= tryLinearFractionalTransform(A, b, c, d)},
-		result /? result =!= $Failed)
+Function LinearFractionalTransform({~A ? IsMatrix, ~b ? IsVector, ~c ? IsVector, ~d ? isScalar}) {
+	With(result:= tryLinearFractionalTransform(A, b, c, d))
+	result /? result =!= $Failed
+}
 
-LinearFractionalTransform({~A ? IsMatrix, ~b ? IsVector, ~c ? IsVector})::=
-	With({result:= tryLinearFractionalTransform(A, b, c, 1)},
-		result /? result =!= $Failed)
+Function LinearFractionalTransform({~A ? IsMatrix, ~b ? IsVector, ~c ? IsVector}) {
+	With(result:= tryLinearFractionalTransform(A, b, c, 1))
+	result /? result =!= $Failed
+}
 
 LinearFractionalTransform(~~~) /? (Message(LinearFractionalTransform::input); False)::= $Failed
 
@@ -134,22 +144,29 @@ LinearFractionalTransform::input:= "The input is expected to be one of the forms
 
 
 
-tryAffineTransform(~A, ~b)::=
-	With({dims:= Dimensions(A)},
-		If(dims[1] =!= Length(b),
-			Message(AffineTransform::rowdim, A, b);
-			Return($Failed));
-		Return(TransformationFunction(A.PadRight(dims + {0,1}, b).Append(UnitVector(dims[2] + 1, dims[2] + 1))))
-	)
+Function tryAffineTransform(~A, ~b) {
+	With(dims:= Dimensions(A))
+	If(dims[1] =!= Length(b)) {
+		Message(AffineTransform::rowdim, A, b)
+		Return($Failed)
+	}
+	Return(TransformationFunction(
+		A.PadRight(dims + {0,1}, b).Append(UnitVector(dims[2] + 1, dims[2] + 1))
+		))
+}
 
-AffineTransform({~A ? IsMatrix, ~b ? IsVector})::=
-	With({result:= tryAffineTransform(A, b)},
-		result /? result =!= $Failed)
+Function AffineTransform({~A ? IsMatrix, ~b ? IsVector}) {
+	With(result:= tryAffineTransform(A, b))
+	result /? result =!= $Failed
+}
 
-AffineTransform({~A ? IsMatrix})::=
-	With({dims:= Dimensions(A)},
-		Return(TransformationFunction(A.PadRight(dims + {0,1}).Append(UnitVector(dims[2] + 1, dims[2] + 1)))))
-		
+Function AffineTransform({~A ? IsMatrix}) {
+	With(dims:= Dimensions(A))
+	Return(TransformationFunction(
+		A.PadRight(dims + {0,1}).Append(UnitVector(dims[2] + 1, dims[2] + 1))
+		))
+}
+
 AffineTransform(~~~) /? (Message(AffineTransform::input); False)::= $Failed
 
 AffineTransform::rowdim:= "The number of rows in `1` is not equal to the length of `2`."
@@ -239,32 +256,40 @@ ShearingTransform::input:= "The input is expected be one of the forms \
 
 
 
-checkTransformationFunctionApply({~rows, ~cols}, ~x ? IsVector)::= (
-		If(IsVector(x),
-			If(Length(x) = cols - 1,
-				Return(True)));
-		
-		If(IsMatrix(x),
-			If(Length(x[1]) = cols - 1,
-				Return(True)));
-		
-		Message(TransformationFunction::fdim, x, cols - 1);
-		Return(False);
-	)
+Function checkTransformationFunctionApply({~rows, ~cols}, ~x ? IsVector) {
+	If(IsVector(x)) {
+		If(Length(x) = cols - 1) {
+			Return(True)
+		}
+	}
+	
+	If(IsMatrix(x)) {
+		If(Length(x[1]) = cols - 1) {
+			Return(True)
+		}
+	}
+
+	Message(TransformationFunction::fdim, x, cols - 1)
+	Return(False)
+}
 	
 TransformationFunction(~m ? IsMatrix)(~x ? IsVector) /? checkTransformationFunctionApply(Dimensions(m), x) ::=
-	With({r:= Dot(m, x.Append(SetPrecision(1, Precision(x))))},
-		Most(r)/Last(r))
+	With(r:= Dot(m, x.Append(SetPrecision(1, Precision(x))))) {
+		Most(r)/Last(r)
+	}
 
 TransformationFunction(~m ? IsMatrix)(~xs ? IsMatrix) /? checkTransformationFunctionApply(Dimensions(m), xs) ::=
-	With({r:= Dot(PadRight(xs, Dimensions(xs) + {0,1}, SetPrecision(1, Precision(x))), Conjugate(Transpose(m)))},
-		r[All,1..-2] / r[All, -1])
+	With(r:= Dot(PadRight(xs, Dimensions(xs) + {0,1}, SetPrecision(1, Precision(x))), Conjugate(Transpose(m)))) {
+		r[All,1..-2] / r[All, -1]
+	}
 
-checkTransformComposition(~m1, ~m2)::= (
-	If(Last(Dimensions(m1)) =!= Length(m2),
-		Message(TransformationFunction::comp, HoldForm @ TransformationFunction(m1), HoldForm @ TransformationFunction(m2));
-		Return(False));
-	Return(True))
+Function checkTransformComposition(~m1, ~m2) {
+	If(Last(Dimensions(m1)) =!= Length(m2)) {
+		Message(TransformationFunction::comp, HoldForm @ TransformationFunction(m1), HoldForm @ TransformationFunction(m2))
+		Return(False)
+	}
+	Return(True)
+}
 
 TransformationFunction /: Dot(~~~a, TransformationFunction(~m1 ? IsMatrix), TransformationFunction(~m2 ? IsMatrix), ~~~b) /? checkTransformComposition(m1, m2) ::=
 	Dot(a, TransformationFunction(Dot(m1, m2)), b)
@@ -280,10 +305,11 @@ TransformationFunction::fdim:= "`1` is not a vector of length `2` or a list of l
 TransformationMatrix(TransformationFunction(~m ? IsMatrix))::= m
 
 TransformationMatrix(~~~s) /? (
-	If(Length({s}) === 1,
-		Message(TransformationMatrix::input, s));
-	,
-		Message(TransformationMatrix::arg1, TransformationMatrix, Length({s}));
+	If(Length({s}) === 1) {
+		Message(TransformationMatrix::input, s)
+	} Else {
+		Message(TransformationMatrix::arg1, TransformationMatrix, Length({s}))
+	}
 	False)::= $Failed
 
 TransformationMatrix::input:= "`1` is not a TransformationFunction object."
