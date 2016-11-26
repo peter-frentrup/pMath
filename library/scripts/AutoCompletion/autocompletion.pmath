@@ -1,6 +1,8 @@
 
 BeginPackage("AutoCompletion`")
 
+<<ExperimentalSyntax`
+
 AutoCompletion`AutoCompleteName
 AutoCompletion`AutoCompleteNamespaceGet
 AutoCompletion`AutoCompleteOther
@@ -8,94 +10,93 @@ AutoCompletion`AutoCompleteFullFilename
 
 Begin("AutoCompletion`Private`")
 
-AutoCompleteName(~fullnames:List, ~part:String)::= 
-	With({/*fullnames:= Names(),*/ np:= namespacePattern(part)},
-		With({namespaces:= Union(fullnames.StringCases(~~~ns ++ "`" :> ns, 1).Apply(Join), allNamespacesFromPath())},
-			With({byPrefix:= fullnames.selectByPrefix(np, part),
-					byCamelCase:= fullnames.selectByCamelCase(np, part),
-					nsByPrefix:= namespaces.selectByPrefix(StartOfString, part).Map(# ++ "`" &)
-				},
-				Join(
-					byPrefix
-						.makeShortNameList(part)
-						.Sort()[All,2],
-					nsByPrefix, 
-					byCamelCase
-						.Complement(byPrefix)
-						.makeShortNameList(part)
-						.Sort()[All,2])
-				)
-			)
-		)
-
-AutoCompleteNamespaceGet(~part:String)::= 
-	allNamespacesFromPath().selectByPrefix(StartOfString, part).Map(# ++ "`" &)
-
-AutoCompleteOther(~list:List, ~part:String)::= (
-	list.StringCases(
-			StartOfString ++ part ++ ~~~, 
-			1, IgnoreCase -> True)
-		.Apply(Join)
-		.Sort
-	)
-
-AutoCompleteFullFilename(~part:String)::=
-	With({split:= part.StringCases(~~~dir ++ ("/"|$PathnameSeparator) ++ (file:Except("/"|$PathnameSeparator)***) :> {dir,file})},
-		If(split.Length =!= 1,
-			Return({}));
-		
-		Return(FileNames(split[1,1], split[1,2] ++ "*"));
-	)
+Function AutoCompleteName(~fullnames:List, ~part:String) {
+	With(np:= namespacePattern(part))
+	With(namespaces:= Union(fullnames.StringCases(~~~ns ++ "`" :> ns, 1).Apply(Join), allNamespacesFromPath()))
+	With(byPrefix:= fullnames.selectByPrefix(np, part))
+	With(byCamelCase:= fullnames.selectByCamelCase(np, part))
+	With(nsByPrefix:= namespaces.selectByPrefix(StartOfString, part).Map(# ++ "`" &))
 	
-namespacePattern(~part:String)::= 
-	If(part.containsSubstring("`"), 
-		StartOfString
-	,/*else*/ 
-		StartOfString ++ Prepend($NamespacePath, $Namespace))
+	Return(Join(
+		byPrefix.makeShortNameList(part).Sort()[All,2],
+		nsByPrefix, 
+		byCamelCase.Complement(byPrefix).makeShortNameList(part).Sort()[All,2]))
+}
 
-selectByPrefix(~list, ~np, ~part)::= (
-		list.StringCases(
-				np ++ part ++ Except("`")*** ++ EndOfString, 
-				1, IgnoreCase -> True)
-			.Apply(Join)
-	)
+Function AutoCompleteNamespaceGet(~part:String) {
+	Return(allNamespacesFromPath().selectByPrefix(StartOfString, part).Map(# ++ "`" &))
+}
 
-selectByCamelCase(~list, ~np, ~part)::= (
+Function AutoCompleteOther(~list:List, ~part:String) {
+	Return(
 		list.StringCases(
-				np ++ makeCamelCasePattern(part) ++ Except("`")*** ++ EndOfString,
+			StartOfString ++ part ++ ~~~, 
+			1, IgnoreCase -> True
+		).Apply(Join).Sort)
+}
+
+Function AutoCompleteFullFilename(~part:String) {
+	With(split:= part.StringCases(~~~dir ++ ("/"|$PathnameSeparator) ++ (file:Except("/"|$PathnameSeparator)***) :> {dir,file}))
+	
+	If(split.Length =!= 1) {
+		Return({})
+	}
+	Return(FileNames(split[1,1], split[1,2] ++ "*"));
+}
+	
+	
+Function namespacePattern(~part:String) {
+	If(part.containsSubstring("`")) {
+		Return(StartOfString)
+	} Else {
+		Return(StartOfString ++ Prepend($NamespacePath, $Namespace))
+	}
+}
+
+Function selectByPrefix(~list, ~np, ~part) {
+	Return(list.StringCases(
+		np ++ part ++ Except("`")*** ++ EndOfString, 
+		1, 
+		IgnoreCase -> True).Apply(Join))
+}
+
+Function selectByCamelCase(~list, ~np, ~part) {
+	Return(list.StringCases(
+		np ++ makeCamelCasePattern(part) ++ Except("`")*** ++ EndOfString,
+		1).Apply(Join))
+}
+
+Function allNamespacesFromPath() {
+	Return(Union(
+		$Path
+			.FileNames(WordCharacter*** ++ ".pmath")
+			.StringCases(
+				$PathnameSeparator ++ (s: "A".."Z" ++ Except($PathnameSeparator)**) ++ ".pmath" :> s,
+				1)
+			.Apply(Join),
+		$Path
+			.FileNames(WordCharacter***)
+			.FileNames("init.pmath")
+			.StringCases(
+				$PathnameSeparator ++ (s:"A".."Z" ++ Except($PathnameSeparator)**) ++ $PathnameSeparator ++ "init.pmath" :> s,
 				1)
 			.Apply(Join)
-	)
-
-allNamespacesFromPath()::= Union(
-	$Path
-		.FileNames(WordCharacter*** ++ ".pmath")
-		.StringCases(
-			$PathnameSeparator ++ (s: "A".."Z" ++ Except($PathnameSeparator)**) ++ ".pmath" :> s,
-			1)
-		.Apply(Join),
-	$Path
-		.FileNames(WordCharacter***)
-		.FileNames("init.pmath")
-		.StringCases(
-			$PathnameSeparator ++ (s:"A".."Z" ++ Except($PathnameSeparator)**) ++ $PathnameSeparator ++ "init.pmath" :> s,
-			1)
-		.Apply(Join)
-	)
+		))
+}
 	
-/* stringLength(~str:String)::= str.StringPosition(EndOfString)[1,-1] */
+% stringLength(~str:String)::= str.StringPosition(EndOfString)[1,-1]
 
-makeCamelCasePattern(~str:String)::= 
-	With({anyNonUpper:= "a".."z" /*If(str.containsSubstring("`"), Except("A".."Z"|"`"), Except("A".."Z"))*/},
-		str.StringReplace({
-			s: "A".."Z" ++ ("a".."z")*** ++ EndOfString :> s,
-			s: "A".."Z" ++ ("a".."z")*** :> s ++ anyNonUpper***,
-			WordBoundary ++ (char: "a".."z") ++ (s: ("a".."z")*** ++ RegularExpression("(?=[^a-z])")) :> ((WordBoundary ++ char) | upperCaseChar(char)) ++ s ++ anyNonUpper***,
-			char: "a".."z" ++ EndOfString :> upperCaseChar(char),
-			char: "a".."z" :> upperCaseChar(char) ++ anyNonUpper***})
-		)
+Function makeCamelCasePattern(~str:String) {
+	With(interWordPattern:= Shortest(Except("`")***))
+	Return(str.StringReplace({
+		(StartOfString|RegularExpression("(?<=`)")) ++ c: RegularExpression("[a-zA-Z]") :> RegularExpression("(?i:^" ++ c ++ ")") | RegularExpression("(?i:[^a-z]" ++ c ++ ")") | upperCaseChar(c),
+		c: RegularExpression("[a-zA-Z]") :> c | (interWordPattern ++ (RegularExpression("(?i:[^a-z]" ++ c ++ ")")) | upperCaseChar(c)),
+		c: RegularExpression("[^a-zA-Z]") :> interWordPattern ++ c}))
+}
 
-escapeRegex(~str:String)::= str.StringReplace(c: Characters("\[RawBackslash]^$.[|()?*+{") :> "\[RawBackslash]" ++ c)
+Function escapeRegex(~str:String) {
+	Return(str.StringReplace(c: Characters("\[RawBackslash]^$.[|()?*+{") :> "\[RawBackslash]" ++ c))
+}
 
 upperCaseChar("a"):= "A"
 upperCaseChar("b"):= "B"
@@ -127,24 +128,28 @@ upperCaseChar(~c)::= c
 
 containsSubstring(~str:String, ~sub:String)::= str.StringPosition(sub, 1).Length > 0
 
-makeShortNameList(~list:List, ~part:String)::=
-	If(StringPosition(part, "`", 1).Length > 0,
-		list.Map({#,#}&)
-	, /* else */
-		list.Map(makeShortName)
-	)
-makeShortName(~fullname:String)::= 
-	fullname.StringReplace({
+Function makeShortNameList(~list:List, ~part:String) {
+	If(StringPosition(part, "`", 1).Length > 0) {
+		Return(list.Map({#,#}&))
+	} Else {
+		Return(list.Map(makeShortName))
+	}
+}
+Function makeShortName(~fullname:String) {
+	Return(fullname.StringReplace({
 			long: ~~~ ++ "`" ++ (short: Except("`")**) :> 
 				{short, 
-					If(Names(short).Length===1, 
+					If(Names(short).Length===1) { 
 						short
-					,
+					} Else {
 						long
-					)},
+					}
+				},
 			~~long :> {long, long}
 		},
-		IgnoreCase -> True)
+		IgnoreCase -> True))
+}
+
 
 End()
 
