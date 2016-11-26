@@ -346,7 +346,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_BYTECOUNT                              PMATH_SYMBOL_BUILTIN(252)
 #define PMATH_SYMBOL_STRINGFORM                             PMATH_SYMBOL_BUILTIN(253)
 #define PMATH_SYMBOL_GRID                                   PMATH_SYMBOL_BUILTIN(254)
-#define PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE             PMATH_SYMBOL_BUILTIN(255)
+#define PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG            PMATH_SYMBOL_BUILTIN(255)
 #define PMATH_SYMBOL_TRY                                    PMATH_SYMBOL_BUILTIN(256)
 #define PMATH_SYMBOL_PLAIN                                  PMATH_SYMBOL_BUILTIN(257)
 #define PMATH_SYMBOL_ISNUMERIC                              PMATH_SYMBOL_BUILTIN(258)
@@ -890,6 +890,8 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_MAGNIFICATION                          PMATH_SYMBOL_BUILTIN(796)
 #define PMATH_SYMBOL_BINARYREADLIST                         PMATH_SYMBOL_BUILTIN(797)
 #define PMATH_SYMBOL_FORMAT                                 PMATH_SYMBOL_BUILTIN(798)
+#define PMATH_SYMBOL_MESSAGEGROUPS                          PMATH_SYMBOL_BUILTIN(799)
+#define PMATH_SYMBOL_INTERNAL_MESSAGETHROWN                 PMATH_SYMBOL_BUILTIN(800)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

@@ -41,10 +41,6 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_unpack_array(pmath_packed_array_t array, pmath_bool_t recursive);
 
 PMATH_PRIVATE 
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_pack_array(pmath_expr_t expr, pmath_packed_type_t expected_type);
-
-PMATH_PRIVATE 
 void *_pmath_packed_array_repack_to(pmath_packed_array_t array, void *buffer);
 
 #define PMATH_ARRAYS_INCOMPATIBLE_CMP  (2)

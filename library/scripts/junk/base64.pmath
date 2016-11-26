@@ -1,0 +1,83 @@
+
+BeginPackage("Developer`Util`")
+
+<<ExperimentalSyntax`
+
+Function convert256to64(~bytes) {
+	With(len:= Length(bytes))
+	With(numTriplets:= Floor(len/3))
+	Local(i, j)
+	Local(val)
+	Local(out:= Array(1..Ceiling(len * 4 / 3)))
+	
+	j:= 0
+	Do(i -> 1..numTriplets) {
+		val:= bytes[3 * i - 2] * 16^^10000 + bytes[3 * i - 1] * 16^^100 + bytes[3 * i];
+		out[++j]:= BitAnd(BitShiftRight(val, 18), 2^^111111)
+		out[++j]:= BitAnd(BitShiftRight(val, 12), 2^^111111)
+		out[++j]:= BitAnd(BitShiftRight(val, 6),  2^^111111)
+		out[++j]:= BitAnd(val, 2^^111111)
+	}
+	
+	i:= len - 3 * numTriplets;
+	If(i = 1) {
+		val:= bytes[len] * 16^^10000
+		out[++j]:= BitAnd(BitShiftRight(val, 18), 2^^111111)
+		out[++j]:= BitAnd(BitShiftRight(val, 12), 2^^111111)
+	} Else If(i = 2) {
+		val:= bytes[len - 1] * 16^^10000 + bytes[len] * 16^^100
+		out[++j]:= BitAnd(BitShiftRight(val, 18), 2^^111111)
+		out[++j]:= BitAnd(BitShiftRight(val, 12), 2^^111111)
+		out[++j]:= BitAnd(BitShiftRight(val, 6),  2^^111111)
+	}
+	
+	Return(out)
+}
+
+Function convert64to256(~digits) {
+	With(len:= Length(digits))
+	With(numQuads:= Floor(len / 4))
+	Local(i, j)
+	Local(val)
+	Local(out:= Array(1..Floor(len * 3 / 4)))
+	
+	j:= 0
+	Do(i -> 1..numQuads) {
+		val:= digits[4 * i - 3] * 2^^1*^18 + digits[4 * i - 2] * 2^^1*^12 + digits[4 * i - 1] * 2^^1*^6 + digits[4 * i]
+		out[++j]:= BitAnd(BitShiftRight(val, 16), 16^^FF)
+		out[++j]:= BitAnd(BitShiftRight(val, 8),  16^^FF)
+		out[++j]:= BitAnd(val, 16^^FF)
+	}
+	
+	i:= len - 4 * numQuads;
+	If(i = 2) {
+		val:= digits[len - 1] * 2^^1*^18 + digits[len] * 2^^1*^12
+		out[++j]:= BitAnd(BitShiftRight(val, 16), 16^^FF)
+	} Else If(i = 3) {
+		val:= digits[len - 2] * 2^^1*^18 + digits[len - 1] * 2^^1*^12 + digits[len] * 2^^1*^6 
+		out[++j]:= BitAnd(BitShiftRight(val, 16), 16^^FF)
+		out[++j]:= BitAnd(BitShiftRight(val, 8),  16^^FF)
+	}
+	
+	Return(out)
+}
+
+$base64Alphabet::= $base64Alphabet:= {"A".."Z","a".."z","0".."9","+","/"}.Replace(
+		{~s:String:>ToCharacterCode(s)}
+	).Replace(
+		{~a}..{~b}:>Array(a..b)
+	).Flatten.List.Thread.FromCharacterCode
+
+$base64AlphabetInverse::= $base64AlphabetInverse:= Array(0..255).Replace(
+	Thread($base64Alphabet.ToCharacterCode.Flatten -> Array(0..63)).Append(~ -> 0),
+	1)
+
+Function toBase64String(~bytes) {
+	Return($base64Alphabet[1 + convert256to64(bytes)].Apply(StringExpression))
+}
+
+Function fromBase64String(~string:String) {
+	Return(convert64to256($base64AlphabetInverse[1 + ToCharacterCode(string)]))
+}
+
+EndPackage()

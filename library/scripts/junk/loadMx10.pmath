@@ -67,27 +67,28 @@ readPackedArray::tag:= "(at `1`) unknown array element type tag `2`"
 % Larger integers between -8192..8191 = -2^13..2^13-1 need two bytes.
 % Larger integers between -1048576 .. 1048575 = -2^20..2^20-1 need three bytes.
 Function readInteger(~mx) {
-	With(pos:= mx.StreamPosition)
-	
-	Local(byte:= mx.BinaryRead("Byte"))
-	Local(absValue:= 0)
-	Local(shift:= 6)
-	
-	With(signBit:= BitGet(byte, 0))
-	absValue:= BitShiftRight(BitAnd(byte, 2^^01111110), 1)
-	
-	While(BitGet(byte, 7) != 0) {
-		byte:= mx.BinaryRead("Byte")
-		
-		absValue+= BitShiftLeft(BitAnd(byte, 2^^01111111), shift)
-		shift+= 7
-	}
-	
-	If(signBit != 0) {
-		Return(-1 - absValue)
-	} Else {
-		Return(absValue)
-	}
+	Return(mx.BinaryRead(Integer))
+%	With(pos:= mx.StreamPosition)
+%	
+%	Local(byte:= mx.BinaryRead("Byte"))
+%	Local(absValue:= 0)
+%	Local(shift:= 6)
+%	
+%	With(signBit:= BitGet(byte, 0))
+%	absValue:= BitShiftRight(BitAnd(byte, 2^^01111110), 1)
+%	
+%	While(BitGet(byte, 7) != 0) {
+%		byte:= mx.BinaryRead("Byte")
+%		
+%		absValue+= BitShiftLeft(BitAnd(byte, 2^^01111111), shift)
+%		shift+= 7
+%	}
+%	
+%	If(signBit != 0) {
+%		Return(-1 - absValue)
+%	} Else {
+%		Return(absValue)
+%	}
 }
 
 Function readString(~mx) {

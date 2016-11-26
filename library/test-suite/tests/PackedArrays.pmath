@@ -41,3 +41,17 @@ AssertEqual(mixedList // N, packMixedAsReal)
 
 AssertEqual(Hash(mixedList // N), Hash(packMixedAsReal))
 
+
+
+Assert(IsPackedArray(Array(3)))
+AssertEqual(Select(Array(3), True &), {1, 2, 3})
+AssertEqual(Select({1,2,3}, True &), {1, 2, 3})
+
+AssertEqual(Select(Array(6), IsEven), {2,4,6})
+AssertEqual(Select({1,2,3,4,5,6}, IsEven), {2,4,6})
+
+Assert(Select(Array(6), IsEven).IsPackedArray)
+AssertEqual(Select(ToPackedArray({{1}, {2}, {3}, {4}, {5}, {6}}), IsEven(#[1]) &), {{2}, {4}, {6}})
+Assert(     Select(ToPackedArray({{1}, {2}, {3}, {4}, {5}, {6}}), IsEven(#[1]) &).IsPackedArray)
+
+

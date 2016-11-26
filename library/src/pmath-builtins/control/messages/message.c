@@ -13,39 +13,63 @@ static const int max_message_count = 3;
 
 PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg) {
 //  return pmath_equals(msg, _pmath_object_newsym_message);
+  if(!pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2))
+    return FALSE;
+    
   return pmath_equals(msg, _pmath_object_loadlibrary_load_message) ||
          pmath_equals(msg, _pmath_object_get_load_message);
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg) {
-  pmath_thread_t thread;
-  pmath_t is_off;
+// msg won't be freed
+static pmath_bool_t is_known_on_off(pmath_thread_t thread, pmath_t msg, pmath_bool_t *is_on) {
+  pmath_t val;
+  assert(is_on != NULL);
   
-  thread = pmath_thread_get_current();
-  is_off = _pmath_thread_local_load_with(msg, thread);
-  pmath_unref(is_off);
+  val = _pmath_thread_local_load_with(msg, thread);
+  pmath_unref(val);
   
-  if(pmath_same(is_off, PMATH_SYMBOL_ON))
+  if(pmath_same(val, PMATH_SYMBOL_ON)) {
+    *is_on = TRUE;
     return TRUE;
-    
-  if( pmath_same(is_off, PMATH_SYMBOL_OFF) ||
+  }
+  
+  if( pmath_same(val, PMATH_SYMBOL_OFF) ||
       _pmath_message_is_default_off(msg))
   {
-    return FALSE;
+    *is_on = FALSE;
+    return TRUE;
   }
   
-  is_off = PMATH_UNDEFINED;
-  if(pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2)) {
-    pmath_t varname = pmath_expr_set_item(pmath_ref(msg), 2, PMATH_NULL);
-    
-    is_off = _pmath_thread_local_load_with(varname, thread);
-    pmath_unref(is_off);
-    pmath_unref(varname);
-  }
+  *is_on = TRUE;
+  return FALSE;
+}
+
+PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg) {
+  pmath_thread_t thread;
+  pmath_t tmp;
+  pmath_bool_t result;
   
-  if(pmath_same(is_off, PMATH_SYMBOL_OFF))
-    return FALSE;
+  thread = pmath_thread_get_current();
+  if(is_known_on_off(thread, msg, &result))
+    return result;
     
+  if(!pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2))
+    return TRUE;
+    
+  tmp = pmath_expr_set_item(pmath_ref(msg), 2, PMATH_NULL);
+  if(is_known_on_off(thread, tmp, &result)) {
+    pmath_unref(tmp);
+    return result;
+  }
+  pmath_unref(tmp);
+  
+  tmp = pmath_expr_set_item(pmath_ref(msg), 1, pmath_ref(PMATH_SYMBOL_GENERAL));
+  if(is_known_on_off(thread, tmp, &result)) {
+    pmath_unref(tmp);
+    return result;
+  }
+  pmath_unref(tmp);
+  
   return TRUE;
 }
 
@@ -96,15 +120,15 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   
   thread = pmath_thread_get_current();
   if(thread && thread->critical_messages) {
-    pmath_t dothrow = pmath_evaluate(
-                        pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE), 1,
-                          pmath_ref(name)));
-    pmath_unref(dothrow);
+    pmath_t throw_tag = pmath_evaluate(
+                          pmath_expr_new_extended(
+                            pmath_ref(PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG), 1,
+                            pmath_ref(name)));
     
-    if(pmath_same(dothrow, PMATH_SYMBOL_TRUE)) {
+    if(!pmath_is_null(throw_tag)) {
       pmath_unref(expr);//pmath_unref(pmath_evaluate(expr));
-      pmath_throw(name);
+      pmath_unref(name);
+      pmath_throw(throw_tag);
       return PMATH_NULL;
     }
   }

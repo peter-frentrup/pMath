@@ -115,14 +115,14 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
   ignore_array_elem = FALSE;
   if(!pmath_is_expr(c)) {
     ignore_array_elem = TRUE;
-    c = _pmath_expr_pack_array(
+    c = pmath_to_packed_array(
           pmath_expr_new_extended(
             pmath_ref(PMATH_SYMBOL_LIST), 1,
             c),
           PMATH_PACKED_INT32);
   }
   else
-    c = _pmath_expr_pack_array(c, PMATH_PACKED_INT32);
+    c = pmath_to_packed_array(c, PMATH_PACKED_INT32);
 
   if(pmath_is_packed_array(c)) {
     size_t dimensions;

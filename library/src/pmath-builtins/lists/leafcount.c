@@ -1,4 +1,5 @@
 #include <pmath-core/numbers.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/messages.h>
 
@@ -6,6 +7,21 @@
 
 
 static size_t leafcount(pmath_t obj) { // obj will be freed
+  if(pmath_is_packed_array(obj)) {
+    size_t dims = pmath_packed_array_get_dimensions(obj);
+    const size_t *sizes = pmath_packed_array_get_sizes(obj);
+    
+    size_t i, total;
+    total = 1;
+    i = dims;
+    while(i-- > 0) {
+      total = sizes[i] * total + 1;
+    }
+    
+    pmath_unref(obj);
+    return total;
+  }
+  
   if(pmath_is_expr(obj)) {
     size_t result = 0;
     size_t i;

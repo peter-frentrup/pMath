@@ -920,10 +920,16 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void) {
   {
     struct timespec ts = {0, 0};
     
-    _pmath_tickcount_clockid = CLOCK_MONOTONIC;
+    _pmath_tickcount_clockid = CLOCK_REALTIME;
     
-    if(clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
-      pmath_debug_print("[clock_gettime(CLOCK_MONOTONIC, ...) failed with errno=%d]\n", errno);
+    if(clock_getres(CLOCK_MONOTONIC, &ts) == 0) {
+      _pmath_tickcount_clockid = CLOCK_MONOTONIC;
+      if(clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+        pmath_debug_print("[clock_gettime(CLOCK_MONOTONIC, ...) failed with errno=%d]\n", errno);
+      }
+    }
+    else {
+      pmath_debug_print("[system does not support CLOCK_MONOTONIC clock, using CLOCK_REALTIME which can jump]\n");
     }
 
 #  ifdef CLOCK_MONOTONIC_RAW

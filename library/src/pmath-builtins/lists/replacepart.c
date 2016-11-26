@@ -354,7 +354,6 @@ static pmath_t replace_pattern_part_recursive(
     pmath_expr_t           expr           // will be freed
 ) {
   pmath_t old_value = pmath_ref(info->value);
-  size_t len = pmath_expr_length(expr);
   size_t *indices;
   size_t short_multiindex[4];
   size_t indices_count;

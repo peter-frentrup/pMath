@@ -698,6 +698,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN_ARGS("$MinMachineNumber:=`1`", "(f)", (double)DBL_MIN);
       PMATH_RUN("$MaxExtraPrecision:=50");
       
+      PMATH_RUN("$MessageGroups:={\"Packing\" :> {General::punpack, General::punpack1}}");
+      
       init_pagewidth();
       
       PMATH_RUN("$Path:={\".\"}");
@@ -836,6 +838,14 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "Method->\"Preemptive\"}");
           
       PMATH_RUN("Options(Complement):={SameTest->Automatic}");
+      
+      PMATH_RUN("Options(CompressStream):={"
+          "\"WindowBits\"->Automatic,"
+          "\"RawDeflate\"->False,"
+          "Level->Automatic}");
+      PMATH_RUN("Options(UncompressStream):={"
+          "\"WindowBits\"->Automatic,"
+          "\"RawInflate\"->False}");
       
       PMATH_RUN("Options(CreateDocument):=Options(Document):={"
           "Antialiasing->Inherited,"
@@ -977,7 +987,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(StringCases):=Options(StringCount):={IgnoreCase->False,Overlaps->False}");
       PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
       
-      PMATH_RUN("Options(StringToBoxes):={Whitespace->False}");
+      PMATH_RUN("Options(StringToBoxes):={\"IgnoreSyntaxErrors\"->False,\"Tokens\"->String,Whitespace->False}");
       
       PMATH_RUN("Options(Style):=Options(StyleBox):={"
           "Antialiasing->Inherited,"

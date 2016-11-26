@@ -1,6 +1,8 @@
 
 BeginPackage("System`Graphics`")
 
+<<ExperimentalSyntax`
+
 MakeGraphicsBoxes
 MakeGraphicsBoxesOptions
 
@@ -39,7 +41,14 @@ isHeldNumericList(~val:Range)::= And @@ val.Unevaluated.Map(isHeldNumericList)
 Attributes(isHeldNumeric):= {HoldAllComplete}
 isHeldNumeric(~val)::= IsNumeric @ Unevaluated(val)
 
-cache(~t) ::= With({nt:= N(t)}, If(nt === t, t, NCache(t, nt)))
+Function cache(~t) {
+	With(nt:= N(t))
+	If(nt === t) {
+		t
+	} Else {
+		NCache(t, nt)
+	}
+}
 
 Attributes(heldTickToBoxes):= {HoldAllComplete}
 tickToBoxes(~t)::= {0.0, MakeBoxes(t), {0.0, 0.02}} /* error */
@@ -49,22 +58,24 @@ tickToBoxes({~t ? isHeldNumeric, ~lbl, len: (~ | {~,~}) ? isHeldNumericList})::=
 
 Attributes(tickListsToBoxes):= {HoldAllComplete}
 tickListsToBoxes(0, {~~~ticks})::= List @@ HoldComplete(ticks).Map(tickToBoxes)
-tickListsToBoxes(~depth, {~~~lists})::= 
-	With({depth:= depth - 1}, 
-		List @@ HoldComplete(lists).Map(Function(l, tickListsToBoxes(depth, l),{HoldAllComplete}))
-		)
+Function tickListsToBoxes(~depth, {~~~lists}) {
+	With(depth:= depth - 1)
+	Return(List @@ HoldComplete(lists).Map(Function(l, tickListsToBoxes(depth, l),{HoldAllComplete})))
+}
+
 tickListsToBoxes(~, other: (True | All | None | Automatic))::= other
 tickListsToBoxes(~, RawBoxes(~other))::= other
 tickListsToBoxes(~, ~other)::= HoldComplete(other) /* error */
 
 Attributes(makeHeldGraphicsBoxOption):= {HoldAllComplete}
 makeHeldGraphicsBoxOption(~r)::= HoldComplete(r)
-makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(~lhs ? isNumericCachableOption, ~rhs ? isHeldNumericList))::=
-	With({num:= N(rhs)},
-		If(HoldComplete(num) === HoldComplete(rhs),
-			Return(HoldComplete(h(lhs, rhs))));
-		Return(HoldComplete(h(lhs, NCache(rhs, num))))
-		)
+Function makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(~lhs ? isNumericCachableOption, ~rhs ? isHeldNumericList)) {
+	With(num:= N(rhs))
+	If(HoldComplete(num) === HoldComplete(rhs)) {
+		Return @ HoldComplete(h(lhs, rhs))
+	}
+	Return @ HoldComplete(h(lhs, NCache(rhs, num)))
+}
 makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(Ticks, ~rhs))::=      HoldComplete @@ {h(Ticks,      tickListsToBoxes(1, rhs))}
 makeHeldGraphicsBoxOption((h: Rule|RuleDelayed)(FrameTicks, ~rhs))::= HoldComplete @@ {h(FrameTicks, tickListsToBoxes(2, rhs))}
 

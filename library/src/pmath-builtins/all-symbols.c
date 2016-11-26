@@ -232,7 +232,7 @@ PMATH_PRIVATE pmath_t builtin_messagename(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_messages(       pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_iscriticalmessage(   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_criticalmessagetag(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_message(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_messagecount(        pmath_expr_t expr); // in message.c
@@ -685,13 +685,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE            = NEW_SYMBOL("Internal`AbortMessage"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_CONDITION               = NEW_SYMBOL("Internal`Condition"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_COPYSIGN                = NEW_SYMBOL("Internal`CopySign"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID             = NEW_SYMBOL("Internal`GetThreadId"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG      = NEW_SYMBOL("Internal`CriticalMessageTag"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE         = NEW_SYMBOL("Internal`DynamicEvaluate"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE = NEW_SYMBOL("Internal`DynamicEvaluateMultiple"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE           = NEW_SYMBOL("Internal`DynamicRemove"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED          = NEW_SYMBOL("Internal`DynamicUpdated"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE       = NEW_SYMBOL("Internal`IsCriticalMessage"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID             = NEW_SYMBOL("Internal`GetThreadId"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL          = NEW_SYMBOL("Internal`IsRealInterval"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_MESSAGETHROWN           = NEW_SYMBOL("Internal`MessageThrown"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK      = NEW_SYMBOL("Internal`$NamespacePathStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD              = NEW_SYMBOL("Internal`NextToward"))
@@ -1121,6 +1122,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_MEMORYUSAGE                      = NEW_SYSTEM_SYMBOL("MemoryUsage"))
   VERIFY(   PMATH_SYMBOL_MESSAGE                          = NEW_SYSTEM_SYMBOL("Message"))
   VERIFY(   PMATH_SYMBOL_MESSAGECOUNT                     = NEW_SYSTEM_SYMBOL("$MessageCount"))
+  VERIFY(   PMATH_SYMBOL_MESSAGEGROUPS                    = NEW_SYSTEM_SYMBOL("$MessageGroups"))
   VERIFY(   PMATH_SYMBOL_MESSAGENAME                      = NEW_SYSTEM_SYMBOL("MessageName"))
   VERIFY(   PMATH_SYMBOL_MESSAGES                         = NEW_SYSTEM_SYMBOL("Messages"))
   VERIFY(   PMATH_SYMBOL_METHOD                           = NEW_SYSTEM_SYMBOL("Method"))
@@ -1541,11 +1543,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,            builtin_internal_abortmessage)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_COPYSIGN,                builtin_internal_copysign)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG,      builtin_criticalmessagetag)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         builtin_internal_dynamicevaluate)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, builtin_internal_dynamicevaluatemultiple)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,           builtin_internal_dynamicremove)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,             builtin_getthreadid)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,       builtin_iscriticalmessage)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL,          builtin_internal_isrealinterval)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,              builtin_internal_nexttoward)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALINTERVAL,            builtin_internal_realinterval)
@@ -1953,7 +1955,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,       HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CONDITION,          HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE,  HOLDALL | THREADLOCAL);
+  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG, HOLDALL | THREADLOCAL);
   
   SET_ATTRIB( PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION,  HOLDALL);
   
@@ -2203,7 +2205,7 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
   UNPROTECT( PMATH_SYMBOL_DIALOGLEVEL);
   UNPROTECT( PMATH_SYMBOL_HISTORY);
   UNPROTECT( PMATH_SYMBOL_HISTORYLENGTH);
-  UNPROTECT( PMATH_SYMBOL_INTERNAL_ISCRITICALMESSAGE);
+  UNPROTECT( PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG);
   UNPROTECT( PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK);
   UNPROTECT( PMATH_SYMBOL_INTERNAL_NAMESPACESTACK);
   UNPROTECT( PMATH_SYMBOL_LINE);
