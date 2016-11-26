@@ -909,10 +909,10 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
 }
 
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
-  AutoMemorySuspension ams;
-  
+
   switch(message) {
     case WM_SIZE: {
+        AutoMemorySuspension ams;
         RECT rect;
         GetClientRect(_hwnd, &rect);
         _width  = rect.right;
@@ -928,6 +928,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   }
   
   if(!initializing()) {
+    AutoMemorySuspension ams;
     switch(message) {
       case WM_ERASEBKGND:
         return 1;
@@ -1028,8 +1029,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(delta > max_scroll)
             delta = max_scroll;
           if(delta < -max_scroll)
-              delta = -max_scroll;
-          
+            delta = -max_scroll;
+            
           scroll_by(delta, 0);
         } return 0;
         
@@ -1058,7 +1059,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               
             if(num_lines == 0)
               return 0;
-            
+              
             float delta = (float)num_lines * -20 * rel_wheel / (float)WHEEL_DELTA;
             
             SCROLLINFO si;
@@ -1070,7 +1071,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               delta = max_scroll;
             if(delta < -max_scroll)
               delta = -max_scroll;
-            
+              
             scroll_by(0, delta);
           }
         } return 0;

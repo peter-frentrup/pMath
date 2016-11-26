@@ -241,8 +241,6 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
 }
 
 LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
-  AutoMemorySuspension ams;
-  
   switch(message) {
     case WM_CREATE: {
         SetMenu(_hwnd, 0);
