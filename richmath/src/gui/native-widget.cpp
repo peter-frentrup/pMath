@@ -234,9 +234,10 @@ CursorType NativeWidget::size_cursor(Box *box, CursorType base) {
 }
 
 void NativeWidget::adopt(Document *doc) {
-  if(_document)
+  if(_document) {
     _document->_native = dummy;
-  _document->safe_destroy();
+    _document->safe_destroy();
+  }
   
   assert(!doc || doc->_native == dummy || doc->_native == this);
   if(doc)
