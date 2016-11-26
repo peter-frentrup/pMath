@@ -47,8 +47,8 @@ RotationMatrix(~angle ? isScalar)::=
 
 RotationMatrix(~angle ? isScalar, ~vector ? IsVector) /? Length(vector) = 3 ::=
 	With({c:= Cos(angle), s:= Sin(angle), nvec:= Normalize(vector)},
-		(1-c) Dot(Transpose({nvec}), {nvec}) 
-			+ c IdentityMatrix(3) 
+		(1-c) Dot(Transpose({nvec}), {nvec}) + 
+			+ c IdentityMatrix(3) + 
 			+ s * Plus @@ Array(Dot(Transpose({Cross(nvec, UnitVector(3,#))}), {UnitVector(3,#)}) &, 3)
 		)
 
@@ -64,7 +64,7 @@ ScalingMatrix(~s ? IsVector)::= DiagonalMatrix(s)
 
 ScalingMatrix(~s ? isScalar, ~vector ? IsVector)::=
 	With({nv:= Normalize(vector)},
-		s {nv}.Transpose.Dot(Conjugate({nv})) 
+		s {nv}.Transpose.Dot(Conjugate({nv})) + 
 			+ (IdentityMatrix(Length(nv)) - {nv}.Transpose.Dot(Conjugate({nv})))
 	)
 

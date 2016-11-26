@@ -2,6 +2,7 @@
 
 #include <editline/readline.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifdef WIN32
 #  define USE_WINEDITLINE 1
@@ -18,6 +19,7 @@
 #  define EL_LINE_BUFFER _el_line_buffer
 #else
 #  define EL_LINE_BUFFER rl_line_buffer
+#  define rl_free free
 #endif
 
 
@@ -30,7 +32,7 @@ static pmath_string_t _completing_readline(const char *prompt);
 static pmath_bool_t initialized_auto_completion = FALSE;
 static pmath_expr_t all_char_names = PMATH_STATIC_NULL;
 
-static char **pmath_completion(const char *text , int start,  int end);
+static char **pmath_completion(const char *text, int start,  int end);
 
 struct _rl_data_t {
   const char      *prompt;
@@ -43,8 +45,8 @@ struct _rl_data_t {
 static void _readline_locked_callback(void *_data) {
   struct _rl_data_t *data = _data;
   
-  rl_completion_func_t *old_rl_attempted_completion_function;
-  const char           *old_rl_completer_word_break_characters;
+  char       **(*old_rl_attempted_completion_function)(const char *, int, int);
+  const char    *old_rl_completer_word_break_characters;
   
   old_rl_attempted_completion_function   = rl_attempted_completion_function;
   old_rl_completer_word_break_characters = rl_completer_word_break_characters;
@@ -112,11 +114,14 @@ static void insert_tab(void) {
 #endif
 }
 
-static char **no_matches(void) {
-  char **matches = malloc(1 * sizeof(char *));
+static char **no_matches(const char *text, int start, int end) {
+/* Editline crashes when we give it an empty array. So we return the text it gave us.
+ */
+  char **matches = malloc(2 * sizeof(char *));
   
   if(matches) {
-    matches[0] = NULL;
+    matches[0] = strdup(text);
+    matches[1] = NULL;
   }
   
   return matches;
@@ -287,7 +292,7 @@ static char **complete_char_name(const char *text, int start, int end) {
                      
     matches = try_convert_matches(char_names, text, prefix_len, ""); // "]"
     pmath_unref(char_names);
-    return matches ? matches : no_matches();
+    return matches ? matches : no_matches(text, start, end);
   }
   
   return NULL;
@@ -359,7 +364,7 @@ static char **pmath_completion(const char *text, int start, int end) {
   
   if(start == end && is_at_start(start)) {
     insert_tab();
-    return no_matches();
+    return no_matches(text, start, end);
   }
   
   need_auto_completion();
@@ -376,7 +381,7 @@ static char **pmath_completion(const char *text, int start, int end) {
   if(matches)
     return matches;
     
-  return no_matches();
+  return no_matches(text, start, end);
 }
 
 static pmath_string_t _simple_readline(const char *prompt) {
