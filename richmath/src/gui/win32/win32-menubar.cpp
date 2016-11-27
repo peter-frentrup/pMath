@@ -87,7 +87,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
             parent,
             0/* id */,
             GetModuleHandle(0),
-            NULL);
+            nullptr);
             
   SendMessageW(_hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
   
@@ -160,7 +160,7 @@ Win32Menubar::~Win32Menubar() {
 void Win32Menubar::init_image_list() {
   image_list = ImageList_Create(16, 16, ILC_COLOR24 | ILC_MASK, 2, 0);
   
-  HBITMAP hbmp = LoadBitmapW((HINSTANCE)GetModuleHandle(NULL), MAKEINTRESOURCEW(BMP_PIN));
+  HBITMAP hbmp = LoadBitmapW((HINSTANCE)GetModuleHandle(nullptr), MAKEINTRESOURCEW(BMP_PIN));
   ImageList_AddMasked(image_list, hbmp, RGB(0xFF, 0, 0xFF));
   DeleteObject(hbmp);
   
@@ -373,7 +373,7 @@ void Win32Menubar::set_focus(int item) {
   if(!visible()) {
     ShowWindow(_hwnd, SW_SHOWNOACTIVATE);
     _window->rearrange();
-    InvalidateRect(_hwnd, NULL, FALSE);
+    InvalidateRect(_hwnd, nullptr, FALSE);
     UpdateWindow(_hwnd);
   }
   
@@ -419,7 +419,7 @@ HHOOK Win32Menubar::register_hook(int item) {
   return SetWindowsHookEx(
            WH_MSGFILTER,
            &menu_hook_proc,
-           NULL,
+           nullptr,
            GetCurrentThreadId());
 }
 
@@ -744,7 +744,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
           _window->rearrange();
         }
         else {
-          InvalidateRect(_hwnd, NULL, FALSE);
+          InvalidateRect(_hwnd, nullptr, FALSE);
         }
       } break;
   }

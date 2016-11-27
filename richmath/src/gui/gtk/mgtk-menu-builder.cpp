@@ -130,14 +130,14 @@ gboolean MathGtkMenuBuilder::on_map_menu(GtkWidget *menu, GdkEventAny *event, vo
   // todo: handle tearoff menus
   Application::delay_dynamic_updates(true);
   
-  gtk_container_foreach(GTK_CONTAINER(menu), on_map_menu_callback, NULL);
+  gtk_container_foreach(GTK_CONTAINER(menu), on_map_menu_callback, nullptr);
   return FALSE;
 }
 
 gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *dummy) {
   Application::delay_dynamic_updates(false);
   
-  gtk_container_foreach(GTK_CONTAINER(menu), on_unmap_menu_callback, NULL);
+  gtk_container_foreach(GTK_CONTAINER(menu), on_unmap_menu_callback, nullptr);
   return FALSE;
 }
 
@@ -187,7 +187,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
         }
         
         String accel_path = add_command(cmd);
-        char *accel_path_str = pmath_string_to_utf8(accel_path.get(), NULL);
+        char *accel_path_str = pmath_string_to_utf8(accel_path.get(), nullptr);
         if(accel_path_str) {
           gtk_menu_item_set_accel_path(GTK_MENU_ITEM(menu_item), accel_path_str);
           pmath_mem_free(accel_path_str);
@@ -229,14 +229,14 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
           pmath_mem_free(label);
         }
         
-        //g_signal_connect(menu_item, "activate-item", G_CALLBACK(on_show_menu), NULL);
+        //g_signal_connect(menu_item, "activate-item", G_CALLBACK(on_show_menu), nullptr);
         
         GtkWidget *submenu = gtk_menu_new();
         
         gtk_widget_add_events(GTK_WIDGET(submenu), GDK_STRUCTURE_MASK);
         
-        g_signal_connect(GTK_WIDGET(submenu), "map-event",   G_CALLBACK(on_map_menu),   NULL);
-        g_signal_connect(GTK_WIDGET(submenu), "unmap-event", G_CALLBACK(on_unmap_menu), NULL);
+        g_signal_connect(GTK_WIDGET(submenu), "map-event",   G_CALLBACK(on_map_menu),   nullptr);
+        g_signal_connect(GTK_WIDGET(submenu), "unmap-event", G_CALLBACK(on_unmap_menu), nullptr);
         
         gtk_menu_set_accel_group(
           GTK_MENU(submenu),
@@ -368,8 +368,8 @@ void MathGtkAccelerators::load(Expr expr) {
     Expr item = expr[i];
     Expr cmd(item[2]);
     
-    guint           accel_key;
-    GdkModifierType accel_mod;
+    guint           accel_key = 0;
+    GdkModifierType accel_mod = (GdkModifierType)0;
     
     if( item[0] == GetSymbol(ItemSymbol)               &&
         item.expr_length() == 2                        &&
@@ -379,7 +379,7 @@ void MathGtkAccelerators::load(Expr expr) {
       String accel_path = add_command(cmd);
       
       while(true) {
-        char *str = pmath_string_to_utf8(accel_path.get(), NULL);
+        char *str = pmath_string_to_utf8(accel_path.get(), nullptr);
         if(!str)
           break;
           
@@ -397,8 +397,8 @@ void MathGtkAccelerators::load(Expr expr) {
         }
       }
     }
-    else
-      pmath_debug_print_object("Cannot add shortcut ", item.get(), ".\n");
+    else 
+      pmath_debug_print_object("Cannot add shortcut ", item.get(), "\n");
   }
 }
 

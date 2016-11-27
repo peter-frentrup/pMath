@@ -6,6 +6,8 @@
 
 Begin("System`BernoulliB`")
 
+<<ExperimentalSyntax`
+
 System`BernoulliB`cache;
 
 /* Ramanujan's congruences:
@@ -18,14 +20,17 @@ System`BernoulliB`cache;
 BernoulliB(0):= 1;
 BernoulliB(1):= -1/2;
 BernoulliB(~ ? IsOdd ? IsPositive):= 0;
-BernoulliB(~n ? IsEven ? IsPositive)::= Local({sum, j},
-	If(IsNumber(cache(n)), Return(cache(n)));
+Function BernoulliB(~n ? IsEven ? IsPositive) { 
+	Local(sum, j)
+	If(IsNumber(cache(n))) {
+		Return(cache(n))
+	}
 	
 	sum:= If(Mod(n, 6) === 4, -(n+3)/6, (n+3)/3);
 	sum-= Sum(Binomial(n+3, n-6j) * BernoulliB(n-6j), j -> Quotient(n,6)..1..-1);
 	
 	sum / Binomial(n+3, n)
-	)
+}
 b:BernoulliB(~?IsNegative) /? (Message(BernoulliB::intnm, 1, HoldForm(b));False):= $Failed;
 
 End()

@@ -8,32 +8,32 @@
 namespace richmath {
   class EmptyWidgetBox: public Box {
     public:
-      virtual Box *item(int i) { return 0; }
-      virtual int count() { return 0; }
-      virtual int length() { return 0; }
+      virtual Box *item(int i) override { return 0; }
+      virtual int count() override { return 0; }
+      virtual int length() override { return 0; }
       
       virtual ControlState calc_state(Context *context);
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
-      virtual Box *remove(int *index) { return this; }
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
+      virtual Box *remove(int *index) override { return this; }
       
-      void dynamic_updated();
+      virtual void dynamic_updated() override;
       
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
-      virtual Box *mouse_sensitive() { return this; }
-      virtual void on_mouse_enter();
-      virtual void on_mouse_exit();
-      virtual void on_mouse_down(MouseEvent &event);
-      virtual void on_mouse_move(MouseEvent &event);
-      virtual void on_mouse_up(MouseEvent &event);
-      virtual void on_mouse_cancel();
+      virtual Box *mouse_sensitive() override { return this; }
+      virtual void on_mouse_enter() override;
+      virtual void on_mouse_exit() override;
+      virtual void on_mouse_down(MouseEvent &event) override;
+      virtual void on_mouse_move(MouseEvent &event) override;
+      virtual void on_mouse_up(MouseEvent &event) override;
+      virtual void on_mouse_cancel() override;
       
       virtual void click();
       

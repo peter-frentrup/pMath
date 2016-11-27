@@ -27,10 +27,10 @@
 #include <resources.h>
 
 #ifndef WM_MOUSEHWHEEL
-#define WM_MOUSEHWHEEL  0x020E
+#  define WM_MOUSEHWHEEL  0x020E
 #endif
 #ifndef SPI_GETWHEELSCROLLCHARS
-#define SPI_GETWHEELSCROLLCHARS   0x006C
+#  define SPI_GETWHEELSCROLLCHARS   0x006C
 #endif
 
 #define TID_SCROLL         1
@@ -43,33 +43,33 @@ using namespace richmath;
 
 SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
   switch(vkey) {
-    case VK_LEFT:     return KeyLeft;
-    case VK_RIGHT:    return KeyRight;
-    case VK_UP:       return KeyUp;
-    case VK_DOWN:     return KeyDown;
-    case VK_HOME:     return KeyHome;
-    case VK_END:      return KeyEnd;
-    case VK_PRIOR:    return KeyPageUp;
-    case VK_NEXT:     return KeyPageDown;
-    case VK_BACK:     return KeyBackspace;
-    case VK_DELETE:   return KeyDelete;
-    case VK_RETURN:   return KeyReturn;
-    case VK_ESCAPE:   return KeyEscape;
-    case VK_TAB:      return KeyTab;
-    case VK_F1:       return KeyF1;
-    case VK_F2:       return KeyF2;
-    case VK_F3:       return KeyF3;
-    case VK_F4:       return KeyF4;
-    case VK_F5:       return KeyF5;
-    case VK_F6:       return KeyF6;
-    case VK_F7:       return KeyF7;
-    case VK_F8:       return KeyF8;
-    case VK_F9:       return KeyF9;
-    case VK_F10:      return KeyF10;
-    case VK_F11:      return KeyF11;
-    case VK_F12:      return KeyF12;
+    case VK_LEFT:     return SpecialKey::Left;
+    case VK_RIGHT:    return SpecialKey::Right;
+    case VK_UP:       return SpecialKey::Up;
+    case VK_DOWN:     return SpecialKey::Down;
+    case VK_HOME:     return SpecialKey::Home;
+    case VK_END:      return SpecialKey::End;
+    case VK_PRIOR:    return SpecialKey::PageUp;
+    case VK_NEXT:     return SpecialKey::PageDown;
+    case VK_BACK:     return SpecialKey::Backspace;
+    case VK_DELETE:   return SpecialKey::Delete;
+    case VK_RETURN:   return SpecialKey::Return;
+    case VK_ESCAPE:   return SpecialKey::Escape;
+    case VK_TAB:      return SpecialKey::Tab;
+    case VK_F1:       return SpecialKey::F1;
+    case VK_F2:       return SpecialKey::F2;
+    case VK_F3:       return SpecialKey::F3;
+    case VK_F4:       return SpecialKey::F4;
+    case VK_F5:       return SpecialKey::F5;
+    case VK_F6:       return SpecialKey::F6;
+    case VK_F7:       return SpecialKey::F7;
+    case VK_F8:       return SpecialKey::F8;
+    case VK_F9:       return SpecialKey::F9;
+    case VK_F10:      return SpecialKey::F10;
+    case VK_F11:      return SpecialKey::F11;
+    case VK_F12:      return SpecialKey::F12;
     
-    default: return KeyUnknown;
+    default: return SpecialKey::Unknown;
   }
 }
 
@@ -97,17 +97,72 @@ Win32Widget::Win32Widget(
     is_dragging(false),
     is_drop_over(false)
 {
-  if (HDC hdc = GetDC(NULL))
+  if (HDC hdc = GetDC(nullptr))
   {
     //int dpi_x = GetDeviceCaps(hdc, LOGPIXELSX);
     //int dpi_y = GetDeviceCaps(hdc, LOGPIXELSY);
     _dpi = GetDeviceCaps(hdc, LOGPIXELSY);
-    ReleaseDC(NULL, hdc);
+    ReleaseDC(nullptr, hdc);
   }
 }
 
 void Win32Widget::after_construction() {
   BasicWin32Widget::after_construction();
+  
+  if(_hwnd) {
+    DWORD style_ex = GetWindowLong(_hwnd, GWL_EXSTYLE);
+    if(style_ex & WS_EX_LAYOUTRTL) {
+      style_ex &= ~WS_EX_LAYOUTRTL;
+      SetWindowLong(_hwnd, GWL_EXSTYLE, style_ex);
+    }
+  }
+  
+  stylus = StylusUtil::create_stylus_for_window(_hwnd);
+  if(stylus) {
+    auto stylus3 = stylus.as<IRealTimeStylus3>();
+    if(stylus3) {
+      /* RealTimeStylus with MultiTouchEnabled disables WM_GESTURE */
+      //HRbool(stylus3->put_MultiTouchEnabled(TRUE));
+    }
+    
+//    GUID props[] = {
+//      GUID_PACKETPROPERTY_GUID_X,
+//      GUID_PACKETPROPERTY_GUID_Y,
+//      GUID_PACKETPROPERTY_GUID_NORMAL_PRESSURE,
+//
+//      GUID_PACKETPROPERTY_GUID_Z,
+//      GUID_PACKETPROPERTY_GUID_PACKET_STATUS,
+//      GUID_PACKETPROPERTY_GUID_TIMER_TICK,
+//      GUID_PACKETPROPERTY_GUID_SERIAL_NUMBER,
+//      GUID_PACKETPROPERTY_GUID_TANGENT_PRESSURE,
+//      GUID_PACKETPROPERTY_GUID_BUTTON_PRESSURE,
+//      GUID_PACKETPROPERTY_GUID_X_TILT_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_Y_TILT_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_AZIMUTH_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_ALTITUDE_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_TWIST_ORIENTATION,
+//      GUID_PACKETPROPERTY_GUID_PITCH_ROTATION,
+//      GUID_PACKETPROPERTY_GUID_ROLL_ROTATION,
+//      GUID_PACKETPROPERTY_GUID_YAW_ROTATION,
+//      GUID_PACKETPROPERTY_GUID_WIDTH,
+//      GUID_PACKETPROPERTY_GUID_HEIGHT,
+//      GUID_PACKETPROPERTY_GUID_FINGERCONTACTCONFIDENCE,
+//      GUID_PACKETPROPERTY_GUID_DEVICE_CONTACT_ID,
+//    };
+//    HRbool(stylus->SetDesiredPacketDescription(ARRAYSIZE(props), props));
+
+    /* RealTimeStylus disables single-finger WM_GESTURE */
+    HRbool(stylus->put_Enabled(TRUE));
+    
+    HRbool(stylus->AddStylusSyncPlugin(
+             StylusUtil::get_stylus_sync_plugin_count(stylus),
+             this));
+    fprintf(stderr, "[%lu RTS plugins]\n", StylusUtil::get_stylus_sync_plugin_count(stylus));
+  }
+  
+  /* Enabling WM_TOUCH disables WM_GESTURE */
+//  if(Win32Touch::RegisterTouchWindow)
+//    Win32Touch::RegisterTouchWindow(_hwnd, 0);
 }
 
 Win32Widget::~Win32Widget() {
@@ -152,6 +207,7 @@ void Win32Widget::scroll_to(float x, float y) {
   
   if(oldx != newx || oldy != newy) {
     RECT norect = {0, 0, 0, 0};
+    
     ScrollWindow(_hwnd, oldx - newx, oldy - newy, &norect, &norect);
     invalidate();
   }
@@ -365,7 +421,7 @@ bool Win32Widget::register_timed_event(SharedPtr<TimedEvent> event) {
     
   animations.set(event, Void());
   if(!animation_running) {
-    animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, NULL);
+    animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
     
     if(!animation_running) {
       animations.remove(event);
@@ -404,6 +460,68 @@ STDMETHODIMP Win32Widget::DragLeave(void) {
   return BasicWin32Widget::DragLeave();
 }
 
+STDMETHODIMP Win32Widget::DataInterest(RealTimeStylusDataInterest* pEventInterest) {
+  *pEventInterest = (RealTimeStylusDataInterest)(
+                      RTSDI_StylusDown |
+                      RTSDI_StylusUp);
+  return S_OK;
+}
+
+STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo *pStylusInfo, ULONG cPropCountPerPkt, LONG *pPacket, LONG **ppInOutPkt) {
+  ComBase<IInkTablet> tablet;
+  HR(piRtsSrc->GetTabletFromTabletContextId(pStylusInfo->tcid, tablet.get_address_of()));
+  
+  TabletDeviceKind kind = (TabletDeviceKind) - 1;
+  auto tablet2 = tablet.as<IInkTablet2>();
+  if(tablet2) {
+    HR(tablet2->get_DeviceKind(&kind));
+  }
+  
+  // ink space is in 0.01mm. 72pt = 1inch = 25.4mm So 0.01mm = 72/2540 pt
+  float x_pt = pPacket[0] * 72.0f / 2540.0f;
+  float y_pt = pPacket[1] * 72.0f / 2540.0f;
+  
+  fprintf(
+    stderr,
+    "[StylusDown tablet %u (%s), cid %u %sat (%f,%f)]\n",
+    pStylusInfo->tcid,
+    kind == TDK_Mouse ? "mouse" : (kind == TDK_Pen ? "pen" : (kind == TDK_Touch ? "touch" : "???")),
+    pStylusInfo->cid,
+    pStylusInfo->bIsInvertedCursor ? "(inverted) " : " ",
+    (double)x_pt,
+    (double)y_pt);
+    
+  //StylusUtil::debug_describe_packet_data_definition(piRtsSrc, pStylusInfo->tcid);
+  StylusUtil::debug_describe_packet_data(piRtsSrc, pStylusInfo->tcid, pPacket);
+  return S_OK;
+}
+
+STDMETHODIMP Win32Widget::StylusUp(IRealTimeStylus *piRtsSrc, const StylusInfo *pStylusInfo, ULONG cPropCountPerPkt, LONG *pPacket, LONG **ppInOutPkt) {
+  fprintf(
+    stderr,
+    "[StylusUp tablet %u, stylus %u %s]\n",
+    pStylusInfo->tcid,
+    pStylusInfo->cid,
+    pStylusInfo->bIsInvertedCursor ? "inverted" : "");
+  return S_OK;
+}
+
+static const char *describe_system_event(SYSTEM_EVENT event) {
+  switch(event) {
+    case ISG_Tap:        return "ISG_Tap";
+    case ISG_DoubleTap:  return "ISG_DoubleTap";
+    case ISG_RightTap:   return "ISG_RightTap";
+    case ISG_Drag:       return "ISG_Drag";
+    case ISG_RightDrag:  return "ISG_RightDrag";
+    case ISG_HoldEnter:  return "ISG_HoldEnter";
+    case ISG_HoldLeave:  return "ISG_HoldLeave";
+    case ISG_HoverEnter: return "ISG_HoverEnter";
+    case ISG_HoverLeave: return "ISG_HoverLeave";
+    case ISG_Flick:      return "ISG_Flick";
+  }
+  return "???";
+}
+
 void Win32Widget::paint_background(Canvas *canvas) {
   canvas->set_color(0xffffff);
   canvas->paint();
@@ -434,7 +552,7 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
       document()->selection_length() == 0 &&
       GetCaretBlinkTime() != INFINITE)
   {
-    SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), NULL);
+    SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
   }
   
   canvas->scale(1 / scale_factor(), 1 / scale_factor());
@@ -754,7 +872,7 @@ void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
   SpecialKeyEvent event;
   event.key = win32_virtual_to_special_key(virtkey);
   
-  if(event.key) {
+  if(event.key != SpecialKey::Unknown) {
     event.ctrl  = ctrl;
     event.alt   = alt;
     event.shift = shift;
@@ -787,10 +905,12 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
     screen_pt.x,
     screen_pt.y,
     _hwnd,
-    NULL);
+    nullptr);
 }
 
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
+  AutoMemorySuspension ams;
+  
   switch(message) {
     case WM_SIZE: {
         RECT rect;
@@ -827,6 +947,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           {
             PAINTSTRUCT paintStruct;
             HDC dc = BeginPaint(_hwnd, &paintStruct);
+            SetLayout(dc, 0);
             on_paint(dc, true);
             EndPaint(_hwnd, &paintStruct);
           }
@@ -884,7 +1005,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             ScreenToClient(_hwnd, &pt);
             
             if(!PtInRect(&rect, pt)) {
-              HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWL_HWNDPARENT);
+              HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
               return SendMessageW(parent, message, wParam, lParam);
             }
           }
@@ -897,8 +1018,19 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             return 0;
             
           int rel_wheel = (int16_t)HIWORD(wParam);
+          float delta = (float)num_chars * -10 * rel_wheel / (float)WHEEL_DELTA;
           
-          scroll_by((float)num_chars * -10 * rel_wheel / (float)WHEEL_DELTA, 0);
+          SCROLLINFO si;
+          si.cbSize = sizeof(si);
+          si.fMask  = SIF_ALL;
+          GetScrollInfo(_hwnd, SB_HORZ, &si);
+          float max_scroll = si.nPage / scale_factor();
+          if(delta > max_scroll)
+            delta = max_scroll;
+          if(delta < -max_scroll)
+              delta = -max_scroll;
+          
+          scroll_by(delta, 0);
         } return 0;
         
       case WM_MOUSEWHEEL: {
@@ -915,7 +1047,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               ScreenToClient(_hwnd, &pt);
               
               if(!PtInRect(&rect, pt)) {
-                HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWL_HWNDPARENT);
+                HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
                 return SendMessageW(parent, message, wParam, lParam);
               }
             }
@@ -926,8 +1058,20 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               
             if(num_lines == 0)
               return 0;
-              
-            scroll_by(0, (float)num_lines * -20 * rel_wheel / (float)WHEEL_DELTA);
+            
+            float delta = (float)num_lines * -20 * rel_wheel / (float)WHEEL_DELTA;
+            
+            SCROLLINFO si;
+            si.cbSize = sizeof(si);
+            si.fMask  = SIF_ALL;
+            GetScrollInfo(_hwnd, SB_VERT, &si);
+            float max_scroll = si.nPage / scale_factor();
+            if(delta > max_scroll)
+              delta = max_scroll;
+            if(delta < -max_scroll)
+              delta = -max_scroll;
+            
+            scroll_by(0, delta);
           }
         } return 0;
         
@@ -946,6 +1090,16 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.x /= scale_factor();
           event.y /= scale_factor();
           
+          event.device = Win32Touch::get_mouse_message_source(&event.id);
+          fprintf(
+            stderr,
+            "[WM_%sBUTTONDOWN: %s id %d at (%f,%f)]\n",
+            message == WM_LBUTTONDOWN ? "L" : (message == WM_MBUTTONDOWN ? "M" : "R"),
+            event.device == DeviceKind::Mouse ? "mouse" : (event.device == DeviceKind::Pen ? "pen" : "touch"),
+            event.id,
+            (double)event.x,
+            (double)event.y);
+            
           on_mousedown(event);
         } return 0;
         
@@ -954,6 +1108,14 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_RBUTTONUP: {
           MouseEvent event;
           
+          event.device = Win32Touch::get_mouse_message_source(&event.id);
+          fprintf(
+            stderr,
+            "[WM_%sBUTTONUP: %s id %d]\n",
+            message == WM_LBUTTONUP ? "L" : (message == WM_MBUTTONUP ? "M" : "R"),
+            event.device == DeviceKind::Mouse ? "mouse" : (event.device == DeviceKind::Pen ? "pen" : "touch"),
+            event.id);
+            
           event.left   = message == WM_LBUTTONUP;
           event.middle = message == WM_MBUTTONUP;
           event.right  = message == WM_RBUTTONUP;
@@ -978,7 +1140,14 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         
       case WM_MOUSEMOVE: {
           MouseEvent event;
-          
+          event.device = Win32Touch::get_mouse_message_source(&event.id);
+//          int cursorId;
+//          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
+//          pmath_debug_print(
+//            "[WM_MOUSEMOVE: %s id %d]\n",
+//            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
+//            cursorId);
+
           event.left   = (wParam & MK_LBUTTON) != 0;
           event.middle = (wParam & MK_MBUTTON) != 0;
           event.right  = (wParam & MK_RBUTTON) != 0;
@@ -1000,11 +1169,37 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           tme.dwHoverTime = HOVER_DEFAULT;
           
           TrackMouseEvent(&tme);
+          
+          // NOTE: The internet says, WM_MOUSEMOVE messages must be passed on to
+          // DefWindowProc for WM_TOUCH messages to be emitted.
+          // This does not seem to be necessary on Windows 7, but maybe later?
         } return 0;
         
       case WM_MOUSELEAVE: {
           document()->mouse_exit();
         } return 0;
+        
+      case WM_GESTURENOTIFY: {
+          //Win32Touch::GESTURENOTIFYSTRUCT *note = (Win32Touch::GESTURENOTIFYSTRUCT*)lParam;
+          if(Win32Touch::SetGestureConfig) {
+            Win32Touch::GESTURECONFIG gc[] = {
+              { GID_ZOOM,
+                GC_ZOOM, 0
+              },
+              { GID_PAN,
+                GC_PAN | GC_PAN_WITH_INERTIA | GC_PAN_WITH_GUTTER | GC_PAN_WITH_SINGLE_FINGER_VERTICALLY,
+                GC_PAN_WITH_SINGLE_FINGER_HORIZONTALLY
+              },
+              { GID_TWOFINGERTAP,
+                GC_TWOFINGERTAP, 0
+              },
+              { GID_PRESSANDTAP,
+                GC_PRESSANDTAP, 0
+              }
+            };
+            Win32Touch::SetGestureConfig(_hwnd, 0, ARRAYSIZE(gc), gc, sizeof(gc[0]));
+          }
+        } break;
         
       case WM_GESTURE:
         if(Win32Touch::GetGestureInfo) {
@@ -1015,12 +1210,12 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           
           if(Win32Touch::GetGestureInfo((HANDLE)lParam, &gi)) {
             bool handled = false;
-          
+            
             switch(gi.dwID) {
               case GID_ZOOM: {
                   handled = true;
                   
-                  if(gi.dwFlags == GF_BEGIN) {
+                  if(gi.dwFlags & GF_BEGIN) {
                     gesture_zoom_factor = custom_scale_factor() / (double)(uint32_t)(gi.ullArguments);
                   }
                   else {
@@ -1033,9 +1228,22 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 //                                      (int)gi.ullArguments,
 //                                      (int)gi.ptsLocation.x,
 //                                      (int)gi.ptsLocation.y);
-                                      
+
                     set_custom_scale(relzoom);
                   }
+                } break;
+                
+              case GID_TWOFINGERTAP: {
+                  handled = true;
+                  set_custom_scale(1.0f);
+//                  pmath_debug_print(
+//                    "[%s%s%s2-finger tap gesture (finger distance %llu) at (%d,%d)]\n",
+//                    (gi.dwFlags & GF_BEGIN)   ? "begin " : "",
+//                    (gi.dwFlags & GF_INERTIA) ? "inerta " : "",
+//                    (gi.dwFlags & GF_END)     ? "end " : "",
+//                    gi.ullArguments,
+//                    (int)gi.ptsLocation.x,
+//                    (int)gi.ptsLocation.y);
                 } break;
             }
             
@@ -1047,6 +1255,54 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         }
         break;
         
+//      case WM_TOUCH:
+//        if(Win32Touch::GetTouchInputInfo) {
+//          UINT cInputs = LOWORD(wParam);
+//          Array<Win32Touch::TOUCHINPUT> inputs((int)cInputs);
+//
+//          if(Win32Touch::GetTouchInputInfo((HANDLE)lParam, cInputs, inputs.items(), sizeof(Win32Touch::TOUCHINPUT))) {
+//            bool handled = false;
+//
+//            bool allMoveOnly = true;
+//            for(int i = 0;i < inputs.length();++i) {
+//              Win32Touch::TOUCHINPUT &ti = inputs[i];
+//              if((ti.dwFlags & (TOUCHEVENTF_UP | TOUCHEVENTF_DOWN)) != 0) {
+//                allMoveOnly = false;
+//              }
+//            }
+//
+//            if(!allMoveOnly) {
+//              pmath_debug_print("[WM_TOUCH: %u inputs]\n", cInputs);
+//              for(int i = 0;i < inputs.length();++i) {
+//                Win32Touch::TOUCHINPUT &ti = inputs[i];
+//
+//                pmath_debug_print(
+//                  "  [id %u %s%s%s%s%s%s%s%sat (%.2f,%.2f) %s%.2fx%.2f]\n",
+//                  ti.dwID,
+//                  (ti.dwFlags & TOUCHEVENTF_PEN)        ? "pen "           : "", // does not happen?
+//                  (ti.dwFlags & TOUCHEVENTF_PRIMARY)    ? "primary "       : "",
+//                  (ti.dwFlags & TOUCHEVENTF_MOVE)       ? "move "          : "",
+//                  (ti.dwFlags & TOUCHEVENTF_DOWN)       ? "down "          : "",
+//                  (ti.dwFlags & TOUCHEVENTF_UP)         ? "up "            : "",
+//                  (ti.dwFlags & TOUCHEVENTF_INRANGE)    ? "inrange "       : "",
+//                  (ti.dwFlags & TOUCHEVENTF_NOCOALESCE) ? "non-coalesced " : "coalesced ",
+//                  (ti.dwFlags & TOUCHEVENTF_PALM)       ? "palm "          : "",
+//                  ti.x / 100.0f,
+//                  ti.y / 100.0f,
+//                  (ti.dwMask & TOUCHINPUTMASKF_CONTACTAREA) ? "contact area ": "ignore area ",
+//                  ti.cxContact / 100.0f,
+//                  ti.cyContact / 100.0f);
+//              }
+//            }
+//
+//            if(handled) {
+//              Win32Touch::CloseTouchInputHandle((HANDLE)lParam);
+//              return 0;
+//            }
+//          }
+//        }
+//        break;
+
       case WM_TIMER: {
           switch(wParam) {
             case TID_SCROLL: {
@@ -1128,7 +1384,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                       te->execute_event();
                     }
                     else if(!animation_running) {
-                      animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, NULL);
+                      animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
                       
                       if(!animation_running) {
                         animations.remove(te);
@@ -1171,7 +1427,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_KEYUP: if(!is_drop_over) {
           SpecialKeyEvent event;
           event.key = win32_virtual_to_special_key(wParam);
-          if(event.key) {
+          if(event.key != SpecialKey::Unknown) {
             event.ctrl  = GetKeyState(VK_CONTROL) & ~1;
             event.alt   = GetKeyState(VK_MENU)    & ~1;
             event.shift = GetKeyState(VK_SHIFT)   & ~1;
@@ -1218,7 +1474,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               document()->selection_length() == 0 &&
               GetCaretBlinkTime() != INFINITE)
           {
-            SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), NULL);
+            SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
           }
         } return 0;
         
@@ -1234,7 +1490,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         }
       /* fall through */
       case WM_SYSKEYDOWN: {
-          HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWL_HWNDPARENT);
+          HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
           if(parent) {
             return SendMessageW(parent, message, wParam, lParam);
           }
@@ -1259,7 +1515,7 @@ bool Win32Widget::is_data_droppable(IDataObject *data_object) {
   
   fmt.dwAspect = DVASPECT_CONTENT;
   fmt.lindex   = -1;
-  fmt.ptd      = NULL;
+  fmt.ptd      = nullptr;
   fmt.tymed    = TYMED_HGLOBAL;
   
   fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
@@ -1306,7 +1562,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   
   fmt.dwAspect = DVASPECT_CONTENT;
   fmt.lindex   = -1;
-  fmt.ptd      = NULL;
+  fmt.ptd      = nullptr;
   fmt.tymed    = TYMED_HGLOBAL;
   
   do {

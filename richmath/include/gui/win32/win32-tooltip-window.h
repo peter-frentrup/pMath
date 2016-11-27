@@ -18,9 +18,9 @@ namespace richmath {
       static void hide_global_tooltip();
       static void delete_global_tooltip();
       
-      virtual void page_size(float *w, float *h);
+      virtual void page_size(float *w, float *h) override;
       
-      virtual bool is_scrollable() { return false; }
+      virtual bool is_scrollable() override { return false; }
       
     protected:
       Expr  _content_expr;
@@ -30,13 +30,13 @@ namespace richmath {
       
     protected:
       Win32TooltipWindow();
-      virtual void after_construction();
+      virtual void after_construction() override;
       
       void resize(bool just_move);
-      virtual void paint_background(Canvas *canvas);
-      virtual void paint_canvas(Canvas *canvas, bool resize_only);
+      virtual void paint_background(Canvas *canvas) override;
+      virtual void paint_canvas(Canvas *canvas, bool resize_only) override;
       
-      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
+      virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       
     private:
       void init_tooltip_class();

@@ -37,7 +37,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
     }
   }
 
-  dialog  = GTK_FONT_CHOOSER_DIALOG(gtk_font_chooser_dialog_new(NULL, parent_window));
+  dialog  = GTK_FONT_CHOOSER_DIALOG(gtk_font_chooser_dialog_new(nullptr, parent_window));
   chooser = GTK_FONT_CHOOSER(dialog);
 
   if(initial_style) {
@@ -59,7 +59,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
         }
       }
       
-      char *utf8_name = pmath_string_to_utf8(family.get_as_string(), NULL);
+      char *utf8_name = pmath_string_to_utf8(family.get_as_string(), nullptr);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
     }
@@ -174,7 +174,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
   GtkFontSelectionDialog *dialog;
   GtkFontSelection       *widget;
 
-  dialog = GTK_FONT_SELECTION_DIALOG(gtk_font_selection_dialog_new(NULL));
+  dialog = GTK_FONT_SELECTION_DIALOG(gtk_font_selection_dialog_new(nullptr));
   widget = GTK_FONT_SELECTION(       gtk_font_selection_dialog_get_font_selection(dialog));
 
   if(initial_style) {
@@ -200,7 +200,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
         }
       }
       
-      utf8_name = pmath_string_to_utf8(family.get_as_string(), NULL);
+      utf8_name = pmath_string_to_utf8(family.get_as_string(), nullptr);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
     }

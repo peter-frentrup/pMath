@@ -320,8 +320,8 @@ void AxisTicks::set_count(int new_count) {
   int old_count = _labels.length();
   
   for(int i = new_count; i < old_count; ++i) {
-    delete _labels[i];
-    _labels[i] = 0;
+    _labels[i]->safe_destroy();
+    _labels[i] = nullptr;
   }
   
   _labels.length(new_count, 0);

@@ -15,17 +15,17 @@ namespace richmath {
       //
       // IUnknown members
       //
-      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject);
-      STDMETHODIMP_(ULONG) AddRef(void);
-      STDMETHODIMP_(ULONG) Release(void);
+      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject) override;
+      STDMETHODIMP_(ULONG) AddRef(void) override;
+      STDMETHODIMP_(ULONG) Release(void) override;
       
       //
       // IEnumFormatEtc members
       //
-      STDMETHODIMP Next(ULONG celt, FORMATETC *rgelt, ULONG *pceltFetched);
-      STDMETHODIMP Skip(ULONG celt);
-      STDMETHODIMP Reset(void);
-      STDMETHODIMP Clone(IEnumFORMATETC **ppEnumFormatEtc);
+      STDMETHODIMP Next(ULONG celt, FORMATETC *rgelt, ULONG *pceltFetched) override;
+      STDMETHODIMP Skip(ULONG celt) override;
+      STDMETHODIMP Reset(void) override;
+      STDMETHODIMP Clone(IEnumFORMATETC **ppEnumFormatEtc) override;
       
     public:
       EnumFormatEtc(DataObject *_src);

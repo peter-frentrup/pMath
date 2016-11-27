@@ -43,6 +43,10 @@
 #include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threadpool.h>
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/files/abstract-file.h>
+#include <pmath-util/files/binary-buffer.h>
+#include <pmath-util/files/mixed-buffer.h>
+#include <pmath-util/files/text-from-binary.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
@@ -51,7 +55,6 @@
 #include <pmath-util/line-writer.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
-#include <pmath-util/mixed-file.h>
 #include <pmath-util/option-helpers.h>
 #include <pmath-util/serialize.h>
 #include <pmath-util/stacks.h>

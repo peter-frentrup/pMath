@@ -1,6 +1,7 @@
 
 BeginPackage("System`Graphics`Plot`")
 
+<<ExperimentalSyntax`
 
 System`Plot
 
@@ -35,120 +36,116 @@ Protect(Plot)
 Attributes(isNotHeldOption):= {HoldAll}
 isNotHeldOption(~x)::= !IsOption(Unevaluated(x))
 
-getPlotRange(~xys, ~xmin .. ~xmax)::=
-	Local({ymin, ymax, ndxs, ndys, tans, is, mi, ma},
-		With({xs:= xys[All, 1], ys:= xys[All, 2], maxTan:= Tan(80.0 Degree)}, 
-			{ymin, ymax}:= getRangeList(ys);
-			ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin); /* Differences */
-			ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin); /* Differences */
-			tans:= ndys / ndxs;
-			
-			is:= Flatten @ Position(tans, ~t /? Abs(t) < maxTan, 1..1);
-			is:= Union(is, is + 1);
-			{mi, ma}:= ({Min(#), Max(#)} &)(ys[is]);
-			/*{mi, ma}:= (mi + ma)/2 + (ma - mi)/2 * {-1.02, 1.02};*/
-			
-			If(mi - (ma - mi)/5 < 0 < mi,
-				Return(0 .. ma));
-			
-			If(ma < 0 < ma + (ma - mi)/5,
-				Return(mi .. 0));
-			
-			If(mi < ma,
-				Return(mi .. ma));
-			
-			If(IsNumber(mi) && IsReal(mi),
-				Return(mi - 1 .. mi + 1));
-			
-			Return(-1 .. 1);
-			)
-		)
+Function getPlotRange(~xys, ~xmin .. ~xmax) {
+	Local(ymin, ymax, ndxs, ndys, tans, is, mi, ma)
+	With(xs:= xys[All, 1], ys:= xys[All, 2], maxTan:= Tan(80.0 Degree))
+	
+	{ymin, ymax}:= getRangeList(ys);
+	ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin); /* Differences */
+	ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin); /* Differences */
+	tans:= ndys / ndxs;
+	
+	is:= Flatten @ Position(tans, ~t /? Abs(t) < maxTan, 1..1);
+	is:= Union(is, is + 1);
+	{mi, ma}:= ({Min(#), Max(#)} &)(ys[is]);
+	/*{mi, ma}:= (mi + ma)/2 + (ma - mi)/2 * {-1.02, 1.02};*/
+	
+	If(mi - (ma - mi)/5 < 0 < mi) {
+		Return(0 .. ma)
+	} Else If(ma < 0 < ma + (ma - mi)/5) {
+		Return(mi .. 0)
+	} Else If(mi < ma) {
+		Return(mi .. ma)
+	} Else If(IsNumber(mi) && IsReal(mi)) {
+		Return(mi - 1 .. mi + 1)
+	}
+	Return(-1 .. 1)
+}
 
-getRangeList(~ys)::= 
-	With({nys:= ys.Cases(Except(Undefined))},
-		If(nys === {},
-			Return({-1, 1}));
-		If(Length(nys) = 1,
-			Return(First(nys) + {-1, 1}));
-		
-		With({mima:= Quantile(nys, {0.05, 0.95}, {{0,0},{0,1}})}, /* linear interpolation */
-			If(First(mima) = Last(mima),
-				Return(First(mima) + {-1, 1}));
-				
-			Return(mima);
-			);
-		)
+Function getRangeList(~ys) {
+	With(nys:= ys.Cases(Except(Undefined)))
+	
+	If(nys === {}) {
+		Return({-1, 1})
+	} Else If(Length(nys) = 1) {
+		Return(First(nys) + {-1, 1})
+	}
+	
+	% linear interpolation
+	With(mima:= Quantile(nys, {0.05, 0.95}, {{0,0},{0,1}}))
 
-initData(~f, ~xmin .. ~xmax, ~numPoints, ~prec)::= 
-	With({ts:= Array(0 .. numPoints - 1) / (numPoints - 1)},
-		With({xs:= N(SetPrecision(xmax ts + xmin (1 - ts), prec), prec)},
-			Return(xs.Map({#, f(#)} &))
-			)
-		)
+	If(First(mima) = Last(mima)) {
+			Return(First(mima) + {-1, 1})
+	}
+	Return(mima)
+}
 
-calcCosines(~xys, ~xmin .. ~xmax)::= 
-	Local({ymin, ymax, ndxs, ndys, tans, cos2s},
-		With({xs:= xys[All, 1], ys:= xys[All, 2]}, 
-			{ymin, ymax}:= getRangeList(ys);
-			ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin); /* Differences */
-			ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin); /* Differences */
-			tans:= ndys / ndxs;
-			With({tas:= Most(tans), tbs:= Rest(tans)}, 
-				cos2s:= (1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2));
-				cos2s:= cos2s.Replace(Undefined -> -1 /* Cos(180 Degree) */, 1..1);
-				Return(cos2s);
-				);
-			)
-		)
+Function initData(~f, ~xmin .. ~xmax, ~numPoints, ~prec) {
+	With(ts:= Array(0 .. numPoints - 1) / (numPoints - 1))
+	With(xs:= N(SetPrecision(xmax ts + xmin (1 - ts), prec), prec))
+	Return(xs.Map({#, f(#)} &))
+}
 
-cosMinFunction(~stepNumber, ~numPoints)::=
+Function calcCosines(~xys, ~xmin .. ~xmax) {
+	Local(ymin, ymax, cos2s)
+	With(xs:= xys[All, 1], ys:= xys[All, 2])
+	{ymin, ymax}:= getRangeList(ys);
+	With(ndxs:= xs.ListConvolve({1, -1}) / (xmax - xmin))  % Differences
+	With(ndys:= ys.ListConvolve({1, -1}) / (ymax - ymin))  % Differences
+	With(tans:= ndys / ndxs)
+	With(tas:= Most(tans), tbs:= Rest(tans))
+	cos2s:= (1 + tas tbs) / Sqrt((1 + tas^2)*(1 + tbs^2));
+	cos2s:= cos2s.Replace(Undefined -> -1 /* Cos(180 Degree) */, 1..1);
+	Return(cos2s)
+}
+
+Function cosMinFunction(~stepNumber, ~numPoints) {
 	Max(
 		With({n:= numPoints}, Cos(180.0 Degree * Piecewise({{1, n < 2000}, {1 - ((n - 2000) / (4000 - 2000))^3, n < 4000}}, 0))),
 		With({n:= stepNumber}, Cos(180.0 Degree * Piecewise({{1, n < 10}, {1 - ((n - 10) / (20 - 10))^2, n < 20}}, 0))))
+}
 
-refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber)::=
-	With({
-			cosines:= calcCosines(xys, xrange),
-			cosMax:= Cos(5.0 Degree), 
-			cosMin:= cosMinFunction(stepNumber, Length(xs))
-		},
-		Local({is, newxs},
-			is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False);
-			
-			If(Length(is) = 0,
-				Return({}));
-			
-			/*Print(StringForm("step `1`: cos: `2`..`3`, actual: `4`..`5`, marks: `6` of `7` (`8`%)", 
-				stepNumber, 
-				cosMin, 
-				cosMax, 
-				Min(cosines),
-				Max(cosines),
-				Length(is), 
-				Length(cosines), 
-				100.0 Length(is) / Length(cosines)));*/
-			is:= Union(is, is + 1);
-			
-			newxs:= N(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec);
-			Return(newxs.Map({#, f(#)} &))
-			)
-		)
+Function refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber) {
+	With(cosines:= calcCosines(xys, xrange))
+	With(cosMax:= Cos(5.0 Degree))
+	With(cosMin:= cosMinFunction(stepNumber, Length(xs)))
+	
+	Local(is, newxs)
+	is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False);
+	
+	If(Length(is) = 0) {
+		Return({})
+	}
+	
+	% Print(StringForm("step `1`: cos: `2`..`3`, actual: `4`..`5`, marks: `6` of `7` (`8`%)", 
+	% 	stepNumber, 
+	% 	cosMin, 
+	% 	cosMax, 
+	% 	Min(cosines),
+	% 	Max(cosines),
+	% 	Length(is), 
+	% 	Length(cosines), 
+	% 	100.0 Length(is) / Length(cosines)));
+	is:= Union(is, is + 1);
+	
+	newxs:= N(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec);
+	Return(newxs.Map({#, f(#)} &))
+}
 
-generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs)::= 
-	Local({xys, newxys, step},
-		xys:= initData(f, xrange, numPoints, prec);
-		step:= 0;
-		While(step < maxrecurs,
-			step+= 1;
-			newxys:= refineData(f, xrange, xys, prec, step);
-			If(newxys === {},
-				Break());
-			xys:= SortBy(Join(xys, newxys), First);
-			);
-		
-		Return(xys);
-		)
-
+Function generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs) {
+	Local(xys, newxys, step)
+	xys:= initData(f, xrange, numPoints, prec)
+	step:= 0
+	While(step < maxrecurs) {
+		step+= 1;
+		newxys:= refineData(f, xrange, xys, prec, step);
+		If(newxys === {}) {
+			Break()
+		}
+		xys:= SortBy(Join(xys, newxys), First);
+	}
+	Return(xys);
+}
 
 joinLists():= {}
 joinLists(~~~args)::= Join(args)
@@ -158,49 +155,52 @@ normalizePlotRange(~xyDatas, ~xrange, Automatic)::= {xrange, getPlotRange(joinLi
 normalizePlotRange(~xyDatas, ~xrange, {~xr, Automatic})::= {xr, getPlotRange(joinLists @@ xyDatas, xrange)}
 normalizePlotRange(~xyDatas, ~xrange, ~r)::= r /* TODO: handle errors */
 
-tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot))::= 
-	Local({allRules, plotPoints, workingPrecision, maxRecursion, plotRange, xyDatas, gRules},
-		allRules:= Flatten({opts});
-		allRules:= Join(allRules, FilterRules(Options(Plot), Except(allRules)));
-		
-		plotPoints:= PlotPoints.Replace(allRules);
-		If(plotPoints === Automatic,
-			plotPoints:= 15);
-		If(!IsInteger(plotPoints) || plotPoints < 2,
-			/* error message ... */
-			plotPoints:= 15);
-		
-		maxRecursion:= MaxRecursion.Replace(allRules);
-		If(maxRecursion === Automatic,
-			maxRecursion:= Infinity);
-		
-		workingPrecision:= WorkingPrecision.Replace(allRules);
-		If(Try(SetPrecision(1, workingPrecision), $Failed, SetPrecision::invprec) === $Failed,
-			Message(Plot::invprec, workingPrecision);
-			Return($PlotFailed);
-			);
-		
-		xyDatas:= fs.Map(generateData(#, xrange, plotPoints, workingPrecision, maxRecursion) &);
-		
-		plotRange:= normalizePlotRange(xyDatas, xrange, PlotRange.Replace(allRules));
-		allRules:= Join(FilterRules(allRules, Except(PlotRange)), {PlotRange -> plotRange});
-		gRules:= FilterRules(allRules, Options(ListLinePlot));
-		gRules:= Complement(gRules, Options(ListLinePlot));
-		
-		Return(ListLinePlot(xyDatas, gRules));
-		)
+Function tryPlotFunction(~fs, ~xrange, opts: OptionsPattern(Plot)) {
+	Local(allRules, plotPoints, workingPrecision, maxRecursion, plotRange, xyDatas, gRules)
+	
+	allRules:= Flatten({opts})
+	allRules:= Join(allRules, FilterRules(Options(Plot), Except(allRules)))
+	
+	plotPoints:= PlotPoints.Replace(allRules)
+	If(plotPoints === Automatic) {
+		plotPoints:= 15
+	} Else If(!IsInteger(plotPoints) || plotPoints < 2) {
+		% error message ...
+		plotPoints:= 15
+	}
+	
+	maxRecursion:= MaxRecursion.Replace(allRules)
+	If(maxRecursion === Automatic) {
+		maxRecursion:= Infinity
+	}
+	
+	workingPrecision:= WorkingPrecision.Replace(allRules)
+	If(Try(SetPrecision(1, workingPrecision), $Failed, SetPrecision::invprec) === $Failed) {
+		Message(Plot::invprec, workingPrecision)
+		Return($PlotFailed)
+	}
+	
+	xyDatas:= fs.Map(generateData(#, xrange, plotPoints, workingPrecision, maxRecursion) &)
+	
+	plotRange:= normalizePlotRange(xyDatas, xrange, PlotRange.Replace(allRules))
+	allRules:= Join(FilterRules(allRules, Except(PlotRange)), {PlotRange -> plotRange})
+	gRules:= FilterRules(allRules, Options(ListLinePlot))
+	gRules:= Complement(gRules, Options(ListLinePlot))
+	
+	Return(ListLinePlot(xyDatas, gRules))
+}
 
 Attributes(checkRange):= {HoldAll}
 checkRange(spec: (~x:Symbol -> ~range))::= checkRangeRest(Hold(x), range)
 checkRange(~spec)::= (Message(Plot::pllim, HoldForm(spec)); Throw($PlotFailed))
-checkRangeRest(Hold(~x), ~xmin..~xmax)::=
-	With({evalxmin:= xmin, evalxmax:= xmax},
-		If((evalxmin < evalxmax) =!= True,
-			Message(Plot::plld, HoldForm(x), HoldForm(spec));
-			Throw($PlotFailed);
-			);
-		Return(evalxmin .. evalxmax);
-		)
+Function checkRangeRest(Hold(~x), ~xmin..~xmax) {
+	With(evalxmin:= xmin, evalxmax:= xmax)
+	If((evalxmin < evalxmax) =!= True) {
+		Message(Plot::plld, HoldForm(x), HoldForm(spec));
+		Throw($PlotFailed);
+	}
+	Return(evalxmin .. evalxmax);
+}
 
 
 /* Attributes(makeFunction):= {HoldAll}

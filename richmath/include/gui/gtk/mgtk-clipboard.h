@@ -19,13 +19,13 @@ namespace richmath {
       MathGtkClipboard();
       virtual ~MathGtkClipboard();
       
-      virtual bool has_format(String mimetype);
+      virtual bool has_format(String mimetype) override;
       
-      virtual ReadableBinaryFile read_as_binary_file(String mimetype);
-      virtual String             read_as_text(String mimetype);
+      virtual ReadableBinaryFile read_as_binary_file(String mimetype) override;
+      virtual String             read_as_text(String mimetype) override;
       
-      virtual SharedPtr<OpenedClipboard> open_write();
-      virtual cairo_surface_t *create_image(String mimetype, double width, double height);
+      virtual SharedPtr<OpenedClipboard> open_write() override;
+      virtual cairo_surface_t *create_image(String mimetype, double width, double height) override;
       
       static GdkAtom mimetype_to_atom(String mimetype);
       static void add_to_target_list(GtkTargetList *targets, String mimetype, int info);

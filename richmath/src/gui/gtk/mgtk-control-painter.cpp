@@ -71,7 +71,7 @@ void MathGtkControlPainter::calc_container_size(
       case RadioButtonChecked:
         {
           int size;
-          gtk_style_context_get_style(context, "indicator-size", &size, NULL);
+          gtk_style_context_get_style(context, "indicator-size", &size, nullptr);
           
           extents->width   = 0.75f * size;
           extents->ascent  = 0.75f * extents->width;
@@ -89,7 +89,7 @@ void MathGtkControlPainter::calc_container_size(
       case SliderHorzThumb:
         {
           int w;
-          gtk_style_context_get_style(context, "slider-width", &w, NULL);
+          gtk_style_context_get_style(context, "slider-width", &w, nullptr);
           
           extents->ascent  = w * 0.75f * 0.75f;
           extents->descent = w * 0.25f * 0.75f;
@@ -222,7 +222,7 @@ void MathGtkControlPainter::draw_container(
       case ProgressIndicatorBar:
         {
           int radius = 0;
-          gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL, "border-radius", &radius, NULL);
+          gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL, "border-radius", &radius, nullptr);
           
           float r = 0.75f * radius;
           if(width < 1.5)
@@ -273,7 +273,7 @@ void MathGtkControlPainter::container_content_move(
           gtk_style_context_get_style(context,
                                       "child-displacement-x", &dx,
                                       "child-displacement-y", &dy,
-                                      NULL);
+                                      nullptr);
                                       
           *x += 0.75f * dx;
           *y += 0.75f * dy;

@@ -1,7 +1,7 @@
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/messages.h>
-#include <pmath-util/files.h>
+#include <pmath-util/files/abstract-file.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/io-private.h>

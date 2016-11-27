@@ -1,8 +1,8 @@
 #include <pmath-core/custom.h>
 
+#include <pmath-util/files/mixed-buffer.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/memory.h>
-#include <pmath-util/mixed-file.h>
 
 #include <limits.h>
 #include <string.h>
@@ -208,48 +208,43 @@ static void encode_base85(const uint8_t *in4, char *out5) {
 
 static size_t decode_base85(const uint16_t *in5, uint8_t *out4) {
   uint32_t ui;
+  uint8_t full5[5];
+  size_t result;
   
-  ui =         base85_value[in5[0] & 0x7F];
-  ui = ui * 85 + base85_value[in5[1] & 0x7F];
+  full5[0] = in5[0] & 0x7F;
+  full5[1] = in5[1] & 0x7F;
+  full5[2] = in5[2] & 0x7F;
+  full5[3] = in5[3] & 0x7F;
+  full5[4] = in5[4] & 0x7F;
   
-  if(in5[4] != '~') {
-    ui = ui * 85 + base85_value[in5[2] & 0x7F];
-    ui = ui * 85 + base85_value[in5[3] & 0x7F];
-    ui = ui * 85 + base85_value[in5[4] & 0x7F];
-    
-    out4[3] = ui & 0xFF;
-    ui = ui >> 8;
-    out4[2] = ui & 0xFF;
-    ui = ui >> 8;
-    out4[1] = ui & 0xFF;
-    ui = ui >> 8;
-    out4[0] = ui & 0xFF;
-    return 4;
+  result = 4;
+  if(full5[4] == (unsigned char)'~') {
+    full5[4] = base85_char[84];
+    result = 3;
+    if(full5[3] == (unsigned char)'~') {
+      full5[3] = base85_char[84];
+      result = 2;
+      if(full5[2] == (unsigned char)'~') {
+        full5[2] = base85_char[84];
+        result = 1;
+      }
+    }
   }
   
-  if(in5[3] != '~') {
-    ui = ui * 85 + base85_value[in5[2] & 0x7F];
-    ui = ui * 85 + base85_value[in5[3] & 0x7F];
-    
-    out4[2] = ui & 0xFF;
-    ui = ui >> 8;
-    out4[1] = ui & 0xFF;
-    ui = ui >> 8;
-    out4[0] = ui & 0xFF;
-    return 3;
-  }
+  ui =           base85_value[full5[0]];
+  ui = ui * 85 + base85_value[full5[1]];
+  ui = ui * 85 + base85_value[full5[2]];
+  ui = ui * 85 + base85_value[full5[3]];
+  ui = ui * 85 + base85_value[full5[4]];
   
-  if(in5[2] != '~') {
-    ui = ui * 85 + base85_value[in5[2] & 0x7F];
-    
-    out4[1] = ui & 0xFF;
-    ui = ui >> 8;
-    out4[0] = ui & 0xFF;
-    return 2;
-  }
-  
+  out4[3] = ui & 0xFF;
+  ui = ui >> 8;
+  out4[2] = ui & 0xFF;
+  ui = ui >> 8;
+  out4[1] = ui & 0xFF;
+  ui = ui >> 8;
   out4[0] = ui & 0xFF;
-  return 1;
+  return result;
 }
 
 static size_t textbuffer_write_base85(void *extra, const void *buffer, size_t buffer_size) {
@@ -377,8 +372,8 @@ static void textbuffer_flush_base85(void *extra) {
     memset(tb->out, 0, out_avail);
     encode_base85(tb->outbuffer, block5);
     
-    tb->text = pmath_string_insert_latin1(tb->text, INT_MAX, block5 + out_avail, 5 - out_avail);
-    tb->text = pmath_string_insert_latin1(tb->text, INT_MAX, base85_flush,       out_avail);
+    tb->text = pmath_string_insert_latin1(tb->text, INT_MAX, block5,       5 - (int)out_avail);
+    tb->text = pmath_string_insert_latin1(tb->text, INT_MAX, base85_flush, (int)out_avail);
   }
 }
 

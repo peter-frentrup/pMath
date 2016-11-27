@@ -135,7 +135,7 @@ Box *FractionBox::remove(int *index) {
     }
   }
   
-  return move_logical(Backward, false, index);
+  return move_logical(LogicalDirection::Backward, false, index);
 }
 
 Expr FractionBox::to_pmath(int flags) {
@@ -154,7 +154,7 @@ Box *FractionBox::move_vertical(
   MathSequence *dst = 0;
   
   if(*index < 0) {
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       dst = _numerator;
     else
       dst = _denominator;
@@ -162,13 +162,13 @@ Box *FractionBox::move_vertical(
   else if(*index == 0) { // comming from numerator
     *index_rel_x += (_extents.width - _numerator->extents().width) / 2;
     
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       dst = _denominator;
   }
   else { // comming from denominator
     *index_rel_x += (_extents.width - _denominator->extents().width) / 2;
     
-    if(direction == Backward)
+    if(direction == LogicalDirection::Backward)
       dst = _numerator;
   }
   

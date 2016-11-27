@@ -17,13 +17,13 @@ namespace richmath {
     public:
       virtual ~Win32Clipboard();
       
-      virtual bool has_format(String mimetype);
+      virtual bool has_format(String mimetype) override;
       
-      virtual ReadableBinaryFile read_as_binary_file(String mimetype);
-      virtual String             read_as_text(String mimetype);
+      virtual ReadableBinaryFile read_as_binary_file(String mimetype) override;
+      virtual String             read_as_text(String mimetype) override;
       
-      virtual SharedPtr<OpenedClipboard> open_write();
-      virtual cairo_surface_t *create_image(String mimetype, double width, double height);
+      virtual SharedPtr<OpenedClipboard> open_write() override;
+      virtual cairo_surface_t *create_image(String mimetype, double width, double height) override;
       
     public:
       static Hashtable<String, unsigned int> mime_to_win32cbformat;

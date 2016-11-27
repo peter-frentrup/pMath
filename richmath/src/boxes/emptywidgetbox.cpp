@@ -162,7 +162,7 @@ void EmptyWidgetBox::on_mouse_exit() {
 }
 
 void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
-  event.set_source(this);
+  event.set_origin(this);
   
   mouse_left_down   = mouse_left_down   || event.left;
   mouse_middle_down = mouse_middle_down || event.middle;
@@ -175,7 +175,7 @@ void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
 
 void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
   Document *doc = find_parent<Document>(false);
-  event.set_source(this);
+  event.set_origin(this);
   
   if(mouse_inside && doc)
     doc->native()->set_cursor(DefaultCursor);

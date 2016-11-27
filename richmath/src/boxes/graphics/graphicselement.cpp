@@ -26,17 +26,17 @@ namespace {
       {
       }
       
-      virtual bool try_load_from_object(Expr expr, int opts) {
+      virtual bool try_load_from_object(Expr expr, int opts) override {
         return false;
       }
       
-      virtual void find_extends(GraphicsBounds &bounds) {
+      virtual void find_extends(GraphicsBounds &bounds) override {
       }
       
-      virtual void paint(GraphicsBoxContext *context) {
+      virtual void paint(GraphicsBoxContext *context) override {
       }
       
-      virtual Expr to_pmath(int flags) { // BoxFlagXXX
+      virtual Expr to_pmath(int flags) override { // BoxFlagXXX
         return _expr;
       }
       
@@ -165,14 +165,14 @@ bool GraphicsDirective::try_load_from_object(Expr expr, int opts) {
     GraphicsElement *elem      = _items[i];
     
     if(!elem->try_load_from_object(elem_expr, opts)) {
-      delete elem;
+      elem->safe_destroy();
       elem = GraphicsElement::create(elem_expr, opts);
       _items.set(i, elem);
     }
   }
   
   for(int i = newlen; i < oldlen; ++i)
-    delete _items[i];
+    _items[i]->safe_destroy();
     
   _items.length(newlen);
   
@@ -187,13 +187,13 @@ bool GraphicsDirective::try_load_from_object(Expr expr, int opts) {
 }
 
 void GraphicsDirective::add(GraphicsElement *g) {
-  assert(g != NULL);
+  assert(g != nullptr);
   
   _items.add(g);
 }
 
 void GraphicsDirective::insert(int i, GraphicsElement *g) {
-  assert(g != NULL);
+  assert(g != nullptr);
   
   assert(0 <= i);
   assert(i <= count());
@@ -204,7 +204,7 @@ void GraphicsDirective::remove(int i) {
   assert(0 <= i);
   assert(i < count());
   
-  delete _items[i];
+  _items[i]->safe_destroy();
   _items.remove(i, 1);
 }
 

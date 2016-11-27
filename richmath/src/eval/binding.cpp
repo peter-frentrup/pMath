@@ -122,8 +122,6 @@ static pmath_t builtin_documentget(pmath_expr_t _expr) {
   }
   
   return Application::notify_wait(CNT_DOCUMENTGET, expr).release();
-  
-  return PMATH_NULL;
 }
 
 static pmath_t builtin_documentread(pmath_expr_t _expr) {
@@ -135,8 +133,6 @@ static pmath_t builtin_documentread(pmath_expr_t _expr) {
   }
   
   return Application::notify_wait(CNT_DOCUMENTREAD, expr).release();
-  
-  return PMATH_NULL;
 }
 
 static pmath_t builtin_documents(pmath_expr_t expr) {
@@ -800,7 +796,7 @@ static bool edit_boxes_cmd(Expr cmd) {
           Section *sect = Section::create_from_object(parsed);
           sect->swap_id(edit);
           
-          delete doc->swap(i, sect);
+          doc->swap(i, sect)->safe_destroy();
         }
       }
       else {
@@ -893,7 +889,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
     return false;
     
   // non-blocking interrupt
-  Application::execute_for(
+  Application::interrupt_for(
     Call(Symbol(PMATH_SYMBOL_DIALOG)),
     0,
     Infinity);
@@ -1333,7 +1329,7 @@ static bool similar_section_below_cmd(Expr cmd) {
       
     doc->insert(box->index() + 1, section);
     doc->move_to(doc, box->index() + 1);
-    doc->move_horizontal(Forward, false);
+    doc->move_horizontal(LogicalDirection::Forward, false);
     return true;
   }
   
@@ -1343,7 +1339,7 @@ static bool similar_section_below_cmd(Expr cmd) {
 
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
   // non-blocking interrupt
-  Application::execute_for(
+  Application::interrupt_for(
     Call(Symbol(PMATH_SYMBOL_DIALOG),
          Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
               String("EvaluateSectionsAndReturn"))),

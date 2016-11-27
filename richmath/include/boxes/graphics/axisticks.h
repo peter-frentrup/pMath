@@ -11,11 +11,11 @@ namespace richmath {
       AxisTicks();
       virtual ~AxisTicks();
       
-      virtual bool try_load_from_object(Expr object, int options); // BoxOptionXXX
+      virtual bool try_load_from_object(Expr object, int options) override; // BoxOptionXXX
       void             load_from_object(Expr object, int options); // BoxOptionXXX
       
-      virtual Box *item(int i) { return _labels[i];       }
-      virtual int count() {      return _labels.length(); }
+      virtual Box *item(int i) override { return _labels[i];       }
+      virtual int count() override {      return _labels.length(); }
       
       AbstractSequence *label(   int i) { return _labels[   i]; }
       double           &position(int i) { return _positions[i]; }
@@ -23,29 +23,29 @@ namespace richmath {
       
       bool is_visible(double t);
       
-      virtual void resize(Context *context);
-      virtual void paint(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void paint(Context *context) override;
       
       void calc_bounds(float *x1, float *y1, float *x2, float *y2);
       BoxSize all_labels_extents();
       
-      virtual Box *remove(int *index);
+      virtual Box *remove(int *index) override;
       
-      virtual Expr to_pmath_symbol() { return Symbol(PMATH_SYMBOL_LIST); }
-      virtual Expr to_pmath(int flags); // BoxFlagXXX
+      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_LIST); }
+      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
       
       virtual Box *mouse_selection(
         float  x,
         float  y,
         int   *start,
         int   *end,
-        bool  *was_inside_start);
+        bool  *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,
-        cairo_matrix_t *matrix);
+        cairo_matrix_t *matrix) override;
         
-      virtual bool selectable(int i = -1) { return false; }
+      virtual bool selectable(int i = -1) override { return false; }
       
       void get_tick_position(
         double  t,

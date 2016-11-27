@@ -14,15 +14,15 @@ namespace richmath {
       //
       // IUnknown members
       //
-      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject);
-      STDMETHODIMP_(ULONG) AddRef(void);
-      STDMETHODIMP_(ULONG) Release(void);
+      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject) override;
+      STDMETHODIMP_(ULONG) AddRef(void) override;
+      STDMETHODIMP_(ULONG) Release(void) override;
       
       //
       // IDropSource members
       //
-      STDMETHODIMP QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState);
-      STDMETHODIMP GiveFeedback(DWORD dwEffect);
+      STDMETHODIMP QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState) override;
+      STDMETHODIMP GiveFeedback(DWORD dwEffect) override;
       
     public:
       DropSource();

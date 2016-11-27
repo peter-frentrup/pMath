@@ -289,7 +289,7 @@ START_SET_PRECISION:
           return obj;
 
         if(data->prec == -HUGE_VAL)
-          return _pmath_expr_pack_array(obj, PMATH_PACKED_DOUBLE);
+          return pmath_to_packed_array(obj, PMATH_PACKED_DOUBLE);
 
         break;
 

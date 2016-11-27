@@ -119,6 +119,17 @@ pmath_expr_t _pmath_dimensions(
   pmath_t obj,           // wont be freed
   size_t  maxdepth);
 
+/**\brief Create an expression with same head as expr and given length.
+   \param expr The prototype expression. It wont be freed.
+   \param length The length.
+   
+   If \a expr is a packed array, then a new packed array of the same dimensions
+   (except the outermost dimension, which will be length) will be returned.
+ */
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_expr_t _pmath_expr_create_similar(pmath_t expr, size_t length);
+
 struct _pmath_map_info_t {
   pmath_bool_t with_heads;
   pmath_t      function;

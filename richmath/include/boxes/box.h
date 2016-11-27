@@ -8,58 +8,66 @@
 
 
 namespace richmath {
-  typedef enum {
+  enum class LogicalDirection {
     Forward,
     Backward
-  } LogicalDirection;
+  };
   
   class Box;
   class SyntaxState;
+  
+  enum class DeviceKind: char {
+    Mouse,
+    Pen,
+    Touch
+  };
   
   class MouseEvent {
     public:
       MouseEvent();
       
-      void set_source(Box *new_source);
+      void set_origin(Box *new_origin);
       
     public:
-      float x, y;
-      bool left;
-      bool middle;
-      bool right;
+      float      x, y;
+      int        id;
+      DeviceKind device;
+      bool       left;
+      bool       middle;
+      bool       right;
       
-      Box *source;
+      Box *origin;
   };
   
-  typedef enum {
-    KeyUnknown = 0,
+  enum class SpecialKey {
+    Unknown = 0,
     
-    KeyLeft,
-    KeyRight,
-    KeyUp,
-    KeyDown,
-    KeyHome,
-    KeyEnd,
-    KeyPageUp,
-    KeyPageDown,
-    KeyBackspace,
-    KeyDelete,
-    KeyReturn,
-    KeyTab,
-    KeyEscape,
-    KeyF1,
-    KeyF2,
-    KeyF3,
-    KeyF4,
-    KeyF5,
-    KeyF6,
-    KeyF7,
-    KeyF8,
-    KeyF9,
-    KeyF10,
-    KeyF11,
-    KeyF12
-  } SpecialKey;
+    Left,
+    Right,
+    Up,
+    Down,
+    Home,
+    End,
+    PageUp,
+    PageDown,
+    Backspace,
+    Delete,
+    Return,
+    Tab,
+    Escape,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12
+  };
   
   class SpecialKeyEvent {
     public:
@@ -81,10 +89,43 @@ namespace richmath {
     BoxOptionFormatNumbers = 1
   };
   
+  /** Suspending deletions of Boxes.
+    
+      While destruction suspended is in effect, boxes will be remembered in a free 
+      list (the limbo). When destruction mode is resumed, all objects in the limbo are 
+      actually deleted.
+      
+      During mouse_down()/paint()/... handlers, the document might change.
+      This could cause a parent box to be removed. Since it is still referenced
+      on the stack, such a box should not be wiped out until the call stack is clean.
+      
+      Hence, the widget which forwards all calls to Box/Document should suppress
+      destruction of Boxes during event handling.
+   */
+  class AutoMemorySuspension {
+    public:
+      AutoMemorySuspension() { suspend_deletions(); }
+      ~AutoMemorySuspension() { resume_deletions(); }
+      
+      static bool are_deletions_suspended();
+    
+    private:
+      static void suspend_deletions();
+      static void resume_deletions();
+  };
+  
   class Box: public FrontEndObject {
+    friend class AutoMemorySuspension;
     public:
       Box();
       virtual ~Box();
+      
+      /** Mark the box for deletion.
+      
+          You should normally use this function instead of delete.
+          \see AutoMemorySuspension
+       */
+      void safe_destroy();
       
       template<class T>
       static T *try_create(Expr expr, int options){
@@ -92,7 +133,7 @@ namespace richmath {
         
         if(!box->try_load_from_object(expr, options)){
           delete box;
-          return 0;
+          return nullptr;
         }
         
         return box;
@@ -178,7 +219,7 @@ namespace richmath {
       virtual Box *normalize_selection(int *start, int *end);
       
       virtual Expr prepare_dynamic(Expr expr);
-      virtual void dynamic_updated();
+      virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) {}
       
       virtual bool try_load_from_object(Expr object, int options) = 0; // BoxOptionXXX
@@ -247,19 +288,19 @@ namespace richmath {
       DummyBox(): Box() {}
       virtual ~DummyBox() {}
       
-      virtual bool try_load_from_object(Expr expr, int options) { return false; }
+      virtual bool try_load_from_object(Expr expr, int options) override { return false; }
       
-      virtual Box *item(int i) { return 0; }
-      virtual int  count() {     return 0; }
-      virtual int  length() {    return 0; }
+      virtual Box *item(int i) override { return nullptr; }
+      virtual int  count() override {     return 0; }
+      virtual int  length() override {    return 0; }
       
-      virtual void resize(Context *context) {}
-      virtual void paint(Context *context) {}
+      virtual void resize(Context *context) override {}
+      virtual void paint(Context *context) override {}
       
-      virtual Box *remove(int *index) { return this; }
+      virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags) { return Expr(); }
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override { return Expr(); }
   };
   
   class AbstractSequence: public Box {
@@ -283,10 +324,10 @@ namespace richmath {
       virtual void remove(int start, int end) = 0;
       
       virtual Box *extract_box(int boxindex) = 0;
-      virtual bool try_load_from_object(Expr object, int options);
+      virtual bool try_load_from_object(Expr object, int options) override;
       virtual void load_from_object(Expr object, int options) = 0; // BoxOptionXXX
       
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      virtual Box *dynamic_to_literal(int *start, int *end) override;
       
       BoxSize &var_extents() { return _extents; }
       
@@ -295,7 +336,7 @@ namespace richmath {
       
       virtual void get_line_heights(int line, float *ascent, float *descent) = 0;
       
-      virtual bool request_repaint_range(int start, int end);
+      virtual bool request_repaint_range(int start, int end) override;
       
     protected:
       float em;

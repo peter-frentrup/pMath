@@ -25,13 +25,13 @@ using namespace richmath;
 class Win32ControlPainterInfo: public BasicWin32Widget {
   public:
     Win32ControlPainterInfo()
-      : BasicWin32Widget(0, 0, 0, 0, 0, 0, NULL)
+      : BasicWin32Widget(0, 0, 0, 0, 0, 0, nullptr)
     {
       init(); // total exception!!! normally not callable in constructor
     }
     
   protected:
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) {
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       switch(message) {
         case WM_DWMCOMPOSITIONCHANGED:
         case WM_THEMECHANGED: {
@@ -123,7 +123,7 @@ void Win32ControlPainter::calc_container_size(
     if(theme
         && SUCCEEDED(
           Win32Themes::GetThemeMargins(
-            theme, NULL, theme_part, theme_state, 3602, NULL, &mar))
+            theme, nullptr, theme_part, theme_state, 3602, nullptr, &mar))
         && (mar.cxLeftWidth > 0
             || mar.cxRightWidth > 0
             || mar.cyBottomHeight > 0
@@ -134,7 +134,7 @@ void Win32ControlPainter::calc_container_size(
       extents->descent += 0.75f * mar.cyBottomHeight;
       
       Win32Themes::GetThemePartSize(
-        theme, NULL, theme_part, theme_state, NULL, Win32Themes::TS_TRUE, &size);
+        theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size);
         
       if(extents->width < 0.75 * size.cx)
         extents->width = 0.75 * size.cx;
@@ -863,7 +863,7 @@ void Win32ControlPainter::system_font_style(Style *style) {
   
   if(Win32Themes::GetThemeSysFont) {
     logfont = &nonclientmetrics.lfMessageFont;
-    if(!Win32Themes::GetThemeSysFont(NULL, 0x0325/*TMT_MSGBOXFONT*/, logfont))
+    if(!Win32Themes::GetThemeSysFont(nullptr, 0x0325/*TMT_MSGBOXFONT*/, logfont))
       logfont = 0;
   }
   

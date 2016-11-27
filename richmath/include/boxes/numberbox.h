@@ -11,16 +11,16 @@ namespace richmath {
       explicit NumberBox(String number);
       
       // Box::try_create<NumberBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts);
+      virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      virtual bool edit_selection(Context *context);
+      virtual bool edit_selection(Context *context) override;
       
-      virtual void resize(Context *context);
-      virtual void colorize_scope(SyntaxState *state) {}
-      virtual void paint(Context *context);
+      virtual void resize(Context *context) override;
+      virtual void colorize_scope(SyntaxState *state) override {}
+      virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() { return Expr(); }
-      virtual Expr to_pmath(int flags);
+      virtual Expr to_pmath_symbol() override { return Expr(); }
+      virtual Expr to_pmath(int flags) override;
       
       static Expr prepare_boxes(Expr boxes);
       

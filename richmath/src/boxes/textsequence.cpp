@@ -63,11 +63,11 @@ uint32_t TextBuffer::char_at(int pos) {
     
   switch(len) {
     case 1:
-      return _buffer[pos];
+      return (unsigned char)_buffer[pos];
       
     case 2: {
-        uint32_t c1 = _buffer[pos];
-        uint32_t c2 = _buffer[pos + 1];
+        uint32_t c1 = (unsigned char)_buffer[pos];
+        uint32_t c2 = (unsigned char)_buffer[pos + 1];
         
         c1 = c1 & 0x1Fu;
         c2 = c2 & 0x3Fu;
@@ -76,9 +76,9 @@ uint32_t TextBuffer::char_at(int pos) {
       }
       
     case 3: {
-        uint32_t c1 = _buffer[pos];
-        uint32_t c2 = _buffer[pos + 1];
-        uint32_t c3 = _buffer[pos + 2];
+        uint32_t c1 = (unsigned char)_buffer[pos];
+        uint32_t c2 = (unsigned char)_buffer[pos + 1];
+        uint32_t c3 = (unsigned char)_buffer[pos + 2];
         
         c1 = c1 & 0x0Fu;
         c2 = c2 & 0x3Fu;
@@ -88,10 +88,10 @@ uint32_t TextBuffer::char_at(int pos) {
       }
       
     case 4: {
-        uint32_t c1 = _buffer[pos];
-        uint32_t c2 = _buffer[pos + 1];
-        uint32_t c3 = _buffer[pos + 2];
-        uint32_t c4 = _buffer[pos + 3];
+        uint32_t c1 = (unsigned char)_buffer[pos];
+        uint32_t c2 = (unsigned char)_buffer[pos + 1];
+        uint32_t c3 = (unsigned char)_buffer[pos + 2];
+        uint32_t c4 = (unsigned char)_buffer[pos + 3];
         
         c1 = c1 & 0x07u;
         c2 = c2 & 0x3Fu;
@@ -144,6 +144,8 @@ int TextBuffer::insert(int pos, const String &s) {
 }
 
 void TextBuffer::remove(int pos, int len) {
+  assert(len >= 0);
+  assert(pos + len <= _length);
   memmove(_buffer + pos, _buffer + pos + len, _length - pos - len);
   _length -= len;
 }
@@ -156,25 +158,29 @@ bool TextBuffer::is_box_at(int i) {
 
 //} ... class TextBuffer
 
-class GlobalPangoContext {
+static void update_pango_context(Context *ctx) {
+}
+
+class PangoContextUtil {
   public:
-    static PangoContext *get_context() {
-      if(!singleton.context) {
-        PangoCairoFontMap *fontmap = (PangoCairoFontMap *)pango_cairo_font_map_get_default();
+    static PangoContext *create_context() {
+      PangoCairoFontMap *fontmap = (PangoCairoFontMap *)pango_cairo_font_map_get_default();
         
-        singleton.context = pango_cairo_font_map_create_context(fontmap);
-      }
-      
-      return singleton.context;
+      return pango_cairo_font_map_create_context(fontmap);
     }
     
-    static void update(Context *ctx) {
-      get_context();
-      
-      pango_cairo_update_context(ctx->canvas->cairo(), singleton.context);
+    static PangoLayout *create_layout() {
+      PangoContext *context = create_context();
+      PangoLayout *layout = pango_layout_new(context);
+      g_object_unref(context);
+      return layout;
+    }
+    
+    static void update(PangoContext *pango, Context *ctx) {
+      pango_cairo_update_context(ctx->canvas->cairo(), pango);
       
       pango_cairo_context_set_shape_renderer(
-        singleton.context,
+        pango,
         box_shape_renderer,
         ctx,
         0);
@@ -191,7 +197,7 @@ class GlobalPangoContext {
         name += fn;
       }
       
-      char *utf8_name = pmath_string_to_utf8(name.get_as_string(), NULL);
+      char *utf8_name = pmath_string_to_utf8(name.get_as_string(), nullptr);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
         
@@ -199,7 +205,7 @@ class GlobalPangoContext {
       pango_font_description_set_style(        desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
       pango_font_description_set_weight(       desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
       
-      pango_context_set_font_description(singleton.context, desc);
+      pango_context_set_font_description(pango, desc);
       
       pango_font_description_free(desc);
       pmath_mem_free(utf8_name);
@@ -216,34 +222,14 @@ class GlobalPangoContext {
       ctx->canvas->rel_move_to(pango_units_to_double(shape->ink_rect.x), 0);
       box->paint(ctx);
     }
-    
-  private:
-    GlobalPangoContext() {
-      // lazy initialization, because main() wants to add some fonts to the
-      // system.
-      context = 0;
-    }
-    
-    ~GlobalPangoContext() {
-      if(context)
-        g_object_unref(context);
-    }
-    
-  private:
-    PangoContext *context;
-    
-  public:
-    static GlobalPangoContext singleton;
 };
-
-GlobalPangoContext GlobalPangoContext::singleton;
 
 //{ class TextSequence ...
 
 TextSequence::TextSequence()
   : AbstractSequence(),
     text(0, 0),
-    _layout(pango_layout_new(GlobalPangoContext::get_context()))
+    _layout(PangoContextUtil::create_layout())
 {
   pango_layout_set_spacing(_layout, pango_units_from_double(1.5));
   pango_layout_set_wrap(_layout, PANGO_WRAP_WORD_CHAR);
@@ -284,7 +270,8 @@ void TextSequence::resize(Context *context) {
   text_invalid = true;
   ensure_text_valid();
   
-  GlobalPangoContext::update(context);
+  PangoContext *pango = pango_layout_get_context(_layout);
+  PangoContextUtil::update(pango, context);
   pango_layout_context_changed(_layout);
   
   if(context->width < Infinity) {
@@ -348,7 +335,8 @@ void TextSequence::paint(Context *context) {
   ensure_text_valid();
   
   AutoCallPaintHooks auto_hooks(this, context);
-  GlobalPangoContext::update(context);
+  PangoContext *pango = pango_layout_get_context(_layout);
+  PangoContextUtil::update(pango, context);
   
   y0 -= _extents.ascent;
   double clip_x1, clip_y1, clip_x2, clip_y2;
@@ -434,7 +422,7 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
     PangoLayoutIter *iter = get_iter();
     
     // adjust start...
-    PangoLayoutLine *prev = NULL;
+    PangoLayoutLine *prev = nullptr;
     do {
       PangoLayoutLine *line = pango_layout_iter_get_line_readonly(iter);
       
@@ -448,7 +436,7 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
       prev = line;
     } while(pango_layout_iter_next_line(iter));
     pango_layout_iter_free(iter);
-    prev = NULL;
+    prev = nullptr;
     
     iter = get_iter();
     do {
@@ -555,7 +543,7 @@ Expr TextSequence::to_pmath(int flags, int start, int end) {
 
 void TextSequence::load_from_object(Expr object, int options) { // BoxOptionXXX
   for(int i = 0; i < boxes.length(); ++i)
-    delete boxes[i];
+    boxes[i]->safe_destroy();
     
   boxes.length(0);
   text.remove(0, text.length());
@@ -701,7 +689,7 @@ int TextSequence::insert(int pos, Box *box) {
     
   if(TextSequence *txt = dynamic_cast<TextSequence *>(box)) {
     pos = insert(pos, txt, 0, txt->length());
-    delete txt;
+    txt->safe_destroy();
     return pos;
   }
   
@@ -771,7 +759,7 @@ void TextSequence::remove(int start, int end) {
     
   int j = i;
   while(j < boxes.length() && boxes[j]->index() < end)
-    delete boxes[j++];
+    boxes[j++]->safe_destroy();
     
   boxes_invalid = i < boxes.length();
   text_invalid = start < end;
@@ -803,11 +791,11 @@ Box *TextSequence::move_logical(
 ) {
   ensure_text_valid();
   
-  if(direction == Forward) {
+  if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
       if(_parent) {
         *index = _index;
-        return _parent->move_logical(Forward, true, index);
+        return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
@@ -837,7 +825,7 @@ Box *TextSequence::move_logical(
         ++b;
         
       *index = -1;
-      return boxes[b]->move_logical(Forward, true, index);
+      return boxes[b]->move_logical(LogicalDirection::Forward, true, index);
     }
     
     if(jumping) { // next word
@@ -870,7 +858,7 @@ Box *TextSequence::move_logical(
   if(*index <= 0) {
     if(_parent) {
       *index = _index + 1;
-      return _parent->move_logical(Backward, true, index);
+      return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
     return this;
   }
@@ -897,7 +885,7 @@ Box *TextSequence::move_logical(
       ++b;
       
     *index = boxes[b]->length() + 1;
-    return boxes[b]->move_logical(Backward, true, index);
+    return boxes[b]->move_logical(LogicalDirection::Backward, true, index);
   }
   
   if(jumping) { // prev. word
@@ -932,7 +920,7 @@ Box *TextSequence::move_vertical(
   float x = *index_rel_x;
   
   if(*index < 0) {
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       line = 0;
     else
       line = numlines - 1;
@@ -945,7 +933,7 @@ Box *TextSequence::move_vertical(
     line_extents(line, &lx, 0, 0);
     
     x += lx + pango_units_to_double(px);
-    if(direction == Forward)
+    if(direction == LogicalDirection::Forward)
       ++line;
     else
       --line;

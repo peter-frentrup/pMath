@@ -7,46 +7,47 @@
 
 using namespace richmath;
 
-HRESULT(WINAPI * Win32Themes::DwmEnableComposition)(UINT) = 0;
-HRESULT(WINAPI * Win32Themes::DwmExtendFrameIntoClientArea)(HWND, const MARGINS *) = 0;
-HRESULT(WINAPI * Win32Themes::DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD) = 0;
-HRESULT(WINAPI * Win32Themes::DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO *) = 0;
-HRESULT(WINAPI * Win32Themes::DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT *) = 0;
+HRESULT(WINAPI * Win32Themes::DwmEnableComposition)(UINT) = nullptr;
+HRESULT(WINAPI * Win32Themes::DwmExtendFrameIntoClientArea)(HWND, const MARGINS *) = nullptr;
+HRESULT(WINAPI * Win32Themes::DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD) = nullptr;
+HRESULT(WINAPI * Win32Themes::DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO *) = nullptr;
+HRESULT(WINAPI * Win32Themes::DwmGetColorizationParameters)(Win32Themes::DWM_COLORIZATION_PARAMS *) = nullptr;
+HRESULT(WINAPI * Win32Themes::DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT *) = nullptr;
 
-HANDLE(WINAPI * Win32Themes::OpenThemeData)(HWND, LPCWSTR) = 0;
-HRESULT(WINAPI * Win32Themes::CloseThemeData)(HANDLE) = 0;
-HRESULT(WINAPI * Win32Themes::DrawThemeBackground)(HANDLE, HDC, int, int, const RECT *, const RECT *) = 0;
-HRESULT(WINAPI * Win32Themes::DrawThemeEdge)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT) = 0;
-HRESULT(WINAPI * Win32Themes::DrawThemeTextEx)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeSysFont)(HANDLE, int, LOGFONTW *) = 0;
-COLORREF(WINAPI * Win32Themes::GetThemeSysColor)(HANDLE, int) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeBackgroundExtent)(HANDLE, HDC, int, int, LPCRECT, LPRECT) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeBackgroundContentRect)(HANDLE, HDC hdc, int, int, LPCRECT, LPRECT) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeBool)(HANDLE, int, int, int, BOOL *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeColor)(HANDLE, int, int, int, COLORREF *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeMargins)(HANDLE, HDC, int, int, int, LPRECT, MARGINS *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeMetric)(HANDLE, HDC, int, int, int, int *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeInt)(HANDLE, int, int, int, int *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeIntList)(HANDLE, int, int, int, INTLIST *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemePartSize)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemePosition)(HANDLE, int, int, int, POINT *) = 0;
-HRESULT(WINAPI * Win32Themes::GetThemeTransitionDuration)(HANDLE, int, int, int, int, DWORD *) = 0;
-HRESULT(WINAPI * Win32Themes::GetCurrentThemeName)(LPWSTR, int, LPWSTR, int, LPWSTR, int) = 0;
-BOOL (WINAPI * Win32Themes::IsThemePartDefined)(HANDLE, int, int) = 0;
-int (WINAPI * Win32Themes::GetThemeSysSize)(HANDLE, int) = 0;
-HRESULT(WINAPI * Win32Themes::SetWindowTheme)(HWND, LPCWSTR, LPCWSTR) = 0;
+HANDLE(WINAPI * Win32Themes::OpenThemeData)(HWND, LPCWSTR) = nullptr;
+HRESULT(WINAPI * Win32Themes::CloseThemeData)(HANDLE) = nullptr;
+HRESULT(WINAPI * Win32Themes::DrawThemeBackground)(HANDLE, HDC, int, int, const RECT *, const RECT *) = nullptr;
+HRESULT(WINAPI * Win32Themes::DrawThemeEdge)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT) = nullptr;
+HRESULT(WINAPI * Win32Themes::DrawThemeTextEx)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeSysFont)(HANDLE, int, LOGFONTW *) = nullptr;
+COLORREF(WINAPI * Win32Themes::GetThemeSysColor)(HANDLE, int) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeBackgroundExtent)(HANDLE, HDC, int, int, LPCRECT, LPRECT) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeBackgroundContentRect)(HANDLE, HDC hdc, int, int, LPCRECT, LPRECT) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeBool)(HANDLE, int, int, int, BOOL *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeColor)(HANDLE, int, int, int, COLORREF *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeMargins)(HANDLE, HDC, int, int, int, LPRECT, MARGINS *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeMetric)(HANDLE, HDC, int, int, int, int *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeInt)(HANDLE, int, int, int, int *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeIntList)(HANDLE, int, int, int, INTLIST *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemePartSize)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemePosition)(HANDLE, int, int, int, POINT *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetThemeTransitionDuration)(HANDLE, int, int, int, int, DWORD *) = nullptr;
+HRESULT(WINAPI * Win32Themes::GetCurrentThemeName)(LPWSTR, int, LPWSTR, int, LPWSTR, int) = nullptr;
+BOOL (WINAPI * Win32Themes::IsThemePartDefined)(HANDLE, int, int) = nullptr;
+int (WINAPI * Win32Themes::GetThemeSysSize)(HANDLE, int) = nullptr;
+HRESULT(WINAPI * Win32Themes::SetWindowTheme)(HWND, LPCWSTR, LPCWSTR) = nullptr;
 
-HRESULT(WINAPI * Win32Themes::BufferedPaintInit)(void) = 0;
-HRESULT(WINAPI * Win32Themes::BufferedPaintUnInit)(void) = 0;
-HRESULT(WINAPI * Win32Themes::BufferedPaintStopAllAnimations)(HWND) = 0;
-HANDLE(WINAPI * Win32Themes::BeginBufferedPaint)(HDC, const RECT *, BP_BUFFERFORMAT, BP_PAINTPARAMS *, HDC *) = 0;
-HANDLE(WINAPI * Win32Themes::EndBufferedPaint)(HANDLE, BOOL) = 0;
-BOOL (WINAPI * Win32Themes::IsCompositionActive)(void) = 0;
-BOOL (WINAPI * Win32Themes::IsThemeActive)(void) = 0;
+HRESULT(WINAPI * Win32Themes::BufferedPaintInit)(void) = nullptr;
+HRESULT(WINAPI * Win32Themes::BufferedPaintUnInit)(void) = nullptr;
+HRESULT(WINAPI * Win32Themes::BufferedPaintStopAllAnimations)(HWND) = nullptr;
+HANDLE(WINAPI * Win32Themes::BeginBufferedPaint)(HDC, const RECT *, BP_BUFFERFORMAT, BP_PAINTPARAMS *, HDC *) = nullptr;
+HANDLE(WINAPI * Win32Themes::EndBufferedPaint)(HANDLE, BOOL) = nullptr;
+BOOL (WINAPI * Win32Themes::IsCompositionActive)(void) = nullptr;
+BOOL (WINAPI * Win32Themes::IsThemeActive)(void) = nullptr;
 
-HMODULE Win32Themes::dwmapi = 0;
-HMODULE Win32Themes::uxtheme = 0;
-HMODULE Win32Themes::usp10dll = 0;
+HMODULE Win32Themes::dwmapi = nullptr;
+HMODULE Win32Themes::uxtheme = nullptr;
+HMODULE Win32Themes::usp10dll = nullptr;
 
 void Win32Themes::init() {
   static Win32Themes w;
@@ -65,6 +66,9 @@ Win32Themes::Win32Themes(): Base() {
     DwmSetWindowAttribute = (HRESULT(WINAPI *)(HWND, DWORD, LPCVOID, DWORD))
                             GetProcAddress(dwmapi, "DwmSetWindowAttribute");
                             
+    DwmGetColorizationParameters = (HRESULT(WINAPI *)(DWM_COLORIZATION_PARAMS*))
+                                  GetProcAddress(dwmapi, (LPCSTR)127);
+                                  
     DwmGetCompositionTimingInfo = (HRESULT(WINAPI *)(HWND, DWM_TIMING_INFO *))
                                   GetProcAddress(dwmapi, "DwmGetCompositionTimingInfo");
                                   
@@ -172,46 +176,47 @@ Win32Themes::~Win32Themes() {
   if(BufferedPaintUnInit)
     BufferedPaintUnInit();
     
-  FreeLibrary(dwmapi);   dwmapi = 0;
-  FreeLibrary(uxtheme);  uxtheme = 0;
-  FreeLibrary(usp10dll); usp10dll = 0;
+  FreeLibrary(dwmapi);   dwmapi = nullptr;
+  FreeLibrary(uxtheme);  uxtheme = nullptr;
+  FreeLibrary(usp10dll); usp10dll = nullptr;
   
-  DwmEnableComposition = 0;
-  DwmExtendFrameIntoClientArea = 0;
-  DwmSetWindowAttribute = 0;
-  DwmGetCompositionTimingInfo = 0;
-  DwmDefWindowProc = 0;
+  DwmEnableComposition = nullptr;
+  DwmExtendFrameIntoClientArea = nullptr;
+  DwmSetWindowAttribute = nullptr;
+  DwmGetColorizationParameters = nullptr;
+  DwmGetCompositionTimingInfo = nullptr;
+  DwmDefWindowProc = nullptr;
   
-  OpenThemeData = 0;
-  CloseThemeData = 0;
-  DrawThemeBackground = 0;
-  DrawThemeEdge = 0;
-  DrawThemeTextEx = 0;
-  GetThemeSysFont = 0;
-  GetThemeSysColor = 0;
-  GetThemeBackgroundExtent = 0;
-  GetThemeBackgroundContentRect = 0;
-  GetThemeBool = 0;
-  GetThemeColor = 0;
-  GetThemeMargins = 0;
-  GetThemeMetric = 0;
-  GetThemeInt = 0;
-  GetThemeIntList = 0;
-  GetThemePartSize = 0;
-  GetThemePosition = 0;
-  GetThemeTransitionDuration = 0;
-  GetCurrentThemeName = 0;
-  IsThemePartDefined = 0;
-  GetThemeSysSize = 0;
-  SetWindowTheme = 0;
+  OpenThemeData = nullptr;
+  CloseThemeData = nullptr;
+  DrawThemeBackground = nullptr;
+  DrawThemeEdge = nullptr;
+  DrawThemeTextEx = nullptr;
+  GetThemeSysFont = nullptr;
+  GetThemeSysColor = nullptr;
+  GetThemeBackgroundExtent = nullptr;
+  GetThemeBackgroundContentRect = nullptr;
+  GetThemeBool = nullptr;
+  GetThemeColor = nullptr;
+  GetThemeMargins = nullptr;
+  GetThemeMetric = nullptr;
+  GetThemeInt = nullptr;
+  GetThemeIntList = nullptr;
+  GetThemePartSize = nullptr;
+  GetThemePosition = nullptr;
+  GetThemeTransitionDuration = nullptr;
+  GetCurrentThemeName = nullptr;
+  IsThemePartDefined = nullptr;
+  GetThemeSysSize = nullptr;
+  SetWindowTheme = nullptr;
   
-  BufferedPaintInit = 0;
-  BufferedPaintUnInit = 0;
-  BufferedPaintStopAllAnimations = 0;
-  BeginBufferedPaint = 0;
-  EndBufferedPaint = 0;
-  IsCompositionActive = 0;
-  IsThemeActive = 0;
+  BufferedPaintInit = nullptr;
+  BufferedPaintUnInit = nullptr;
+  BufferedPaintStopAllAnimations = nullptr;
+  BeginBufferedPaint = nullptr;
+  EndBufferedPaint = nullptr;
+  IsCompositionActive = nullptr;
+  IsThemeActive = nullptr;
 }
 
 bool Win32Themes::current_theme_is_aero() {
@@ -257,3 +262,70 @@ bool Win32Themes::check_osversion(int min_major, int min_minor) {
     
   return (int)osvi.dwMajorVersion == min_major && (int)osvi.dwMinorVersion >= min_minor;
 }
+
+DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active) {
+  assert(params);
+  
+  /* See PaintDotNet.SystemLayer.UIUtil.TryGetWindowColorizationInfo() which uses registry key */
+  
+//  fprintf(stderr, "[colorization:                      color=%x]\n", params->color);
+//  fprintf(stderr, "[colorization:                  afterglow=%x]\n", params->afterglow);
+//  fprintf(stderr, "[colorization:              color_balance=%x]\n", params->color_balance);
+//  fprintf(stderr, "[colorization:          afterglow_balance=%x]\n", params->afterglow_balance);
+//  fprintf(stderr, "[colorization:               blur_balance=%x]\n", params->blur_balance);
+//  fprintf(stderr, "[colorization: glass_reflection_intensity=%x]\n", params->glass_reflection_intensity);
+//  fprintf(stderr, "[colorization:               opaque_blend=%x]\n", params->opaque_blend);
+  
+  if(!active)
+    return 0x999999u;
+  
+  DWORD accent_color = params->color & 0xFFFFFFu;
+  
+  int red   = (accent_color & 0xFF0000) >> 16;
+  int green = (accent_color & 0x00FF00) >> 8;
+  int blue  = (accent_color & 0x0000FF);
+  
+  double gray = (30.0 * red + 59.0 * green + 11.0 * blue) / 25500.0;
+  if(gray >= 0.5)
+    return 0x000000;
+  
+  return 0xFFFFFF;
+}
+
+bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
+  if(!info || !check_osversion(10, 0))
+    return false;
+  
+  bool result = false;
+  HKEY key;
+  LONG status = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\DWM", 0, KEY_READ, &key);
+  if(status == ERROR_SUCCESS) {
+    DWORD accent_color_bgr = 0;
+    DWORD size = sizeof(DWORD);
+    LONG status_ac = RegGetValueW(key, nullptr, L"AccentColor", RRF_RT_REG_DWORD, nullptr, &accent_color_bgr, &size);
+    
+    DWORD color_prevalence = 0;
+    size = sizeof(DWORD);
+    LONG status_cp = RegGetValueW(key, nullptr, L"ColorPrevalence", RRF_RT_REG_DWORD, nullptr, &color_prevalence, &size);
+    
+    if(status_ac == ERROR_SUCCESS && status_cp == ERROR_SUCCESS) {
+      int blue  = (accent_color_bgr & 0xFF0000) >> 16;
+      int green = (accent_color_bgr & 0x00FF00) >> 8;
+      int red   = (accent_color_bgr & 0x0000FF);
+      
+      double gray = (30.0 * red + 59.0 * green + 11.0 * blue) / 25500.0;
+      if(gray >= 0.5)
+        info->text_on_accent_color = 0x000000;
+      else
+        info->text_on_accent_color = 0xFFFFFF;
+      
+      info->accent_color = (red << 16) | (green << 8) | blue;
+      info->has_accent_color_in_active_titlebar = color_prevalence == 1;
+      result = true;
+    }
+  }
+  
+  RegCloseKey(key);
+  return result;
+}
+      

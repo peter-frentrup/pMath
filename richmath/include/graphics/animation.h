@@ -30,7 +30,7 @@ namespace richmath {
       BoxRepaintEvent(int _box_id, double _min_wait_seconds);
       
       bool register_event() { return register_for(box_id); }
-      virtual void execute_event();
+      virtual void execute_event() override;
       
     public:
       int box_id;
@@ -60,7 +60,7 @@ namespace richmath {
         float x, float y, float w, float h,
         double _seconds);
         
-      virtual bool paint(Canvas *canvas);
+      virtual bool paint(Canvas *canvas) override;
       
     public:
       double seconds;
