@@ -1217,7 +1217,88 @@ namespace richmath {
         for(int i = 0; i < se->count(); ++i)
           arglist_errors_colorize_spanexpr(se->item(i));
       }
-      
+  };
+  
+  class SyntaxColorizerImpl {
+    public:
+      static void colorize_quoted_string(SpanExpr *se) {
+        if(se->first_char() != '"') 
+          return;
+        
+        if(se->count() != 0 && se->item_pos(0) == se->start()) 
+          return;
+          
+        const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+        for(int i = 1 + se->start(); i < se->end(); ++i) {
+          if(se->sequence()->text()[i] == '\\') {
+            const uint16_t *buf = se->sequence()->text().buffer() + i;
+            int maxlen = se->end() - i;
+            uint32_t encoded_char;
+            const uint16_t *next = pmath_char_parse(buf, maxlen, &encoded_char);
+            
+            int len = next - buf;
+            for(int j = 0; j < len; ++j)
+              glyphs[i + j].style = GlyphStyleSpecialStringPart;
+              
+            i += len - 1;
+            
+            continue;
+          }
+          
+          glyphs[i].style = GlyphStyleString;
+        }
+        
+        if(se->sequence()->text()[se->end()] != '"')
+          glyphs[se->end()].style = GlyphStyleString;
+      }
+  
+      static bool colorize_single_token(SpanExpr *se) {
+        if(se->count() > 0) 
+          return false;
+          
+        const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+        
+        uint16_t ch = se->as_char();
+        if(pmath_char_is_left(ch)) {
+          SpanExpr *parent = se->parent();
+          
+          if( !parent ||
+              !pmath_char_is_right(parent->item_as_char(parent->count() - 1)))
+          {
+            if(pmath_right_fence(se->as_char()) != 0) {
+              glyphs[se->start()].style = GlyphStyleSyntaxError;
+              return true;
+            }
+          }
+          
+          return true;
+        }
+        
+        if(pmath_char_is_right(ch)) {
+          SpanExpr *parent = se->parent();
+          
+          if(!parent) {
+            glyphs[se->start()].style = GlyphStyleSyntaxError;
+            return true;
+          }
+          
+          for(int i = parent->count() - 1; i >= 0; --i)
+            if(pmath_right_fence(parent->item_as_char(i)) == ch) 
+              return true;
+              
+          glyphs[se->start()].style = GlyphStyleSyntaxError;
+          return true;
+        }
+        
+//        if(se->first_char() == '\\') { /* outside a string or in a box in a string */
+//          for(int i = se->start(); i <= se->end(); ++i)
+//            glyphs[i].style = GlyphStyleSpecialStringPart;
+//    
+//          return true;
+//        }
+
+        return true;
+      }
   };
 }
 
@@ -1277,74 +1358,9 @@ void ScopeColorizer::comments_colorize_span(Span span, int *pos) {
 void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
   const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
   
-  if(se->first_char() == '"') {
-    if(se->count() == 0 || se->item_pos(0) > se->start()) {
-      for(int i = 1 + se->start(); i < se->end(); ++i) {
-      
-        if(se->sequence()->text()[i] == '\\') {
-          const uint16_t *buf = se->sequence()->text().buffer() + i;
-          int maxlen = se->end() - i;
-          uint32_t encoded_char;
-          const uint16_t *next = pmath_char_parse(buf, maxlen, &encoded_char);
-          
-          int len = next - buf;
-          for(int j = 0; j < len; ++j)
-            glyphs[i + j].style = GlyphStyleSpecialStringPart;
-            
-          i += len - 1;
-          
-          continue;
-        }
-        
-        glyphs[i].style = GlyphStyleString;
-      }
-      
-      if(se->sequence()->text()[se->end()] != '"')
-        glyphs[se->end()].style = GlyphStyleString;
-    }
-  }
-  
-  if(se->count() == 0) {
-    if(pmath_char_is_left( se->as_char())) {
-      SpanExpr *parent = se->parent();
-      
-      if( !parent ||
-          !pmath_char_is_right(parent->item_as_char(parent->count() - 1)))
-      {
-        if(pmath_right_fence(se->as_char()) != 0) {
-          glyphs[se->start()].style = GlyphStyleSyntaxError;
-          return;
-        }
-      }
-      
-      return;
-    }
-    
-    if(pmath_char_is_right(se->as_char())) {
-      SpanExpr *parent = se->parent();
-      
-      if(!parent) {
-        glyphs[se->start()].style = GlyphStyleSyntaxError;
-        return;
-      }
-      
-      for(int i = parent->count() - 1; i >= 0; --i)
-        if(pmath_char_is_left(parent->item_as_char(i)))
-          return;
-          
-      glyphs[se->start()].style = GlyphStyleSyntaxError;
-      return;
-    }
-    
-//    if(se->first_char() == '\\') { /* outside a string or in a box in a string */
-//      for(int i = se->start(); i <= se->end(); ++i)
-//        glyphs[i].style = GlyphStyleSpecialStringPart;
-//
-//      return;
-//    }
-
+  SyntaxColorizerImpl::colorize_quoted_string(se);
+  if(SyntaxColorizerImpl::colorize_single_token(se))
     return;
-  }
   
   if( se->count() == 3 &&
       se->item_as_text(1).equals("::") &&
