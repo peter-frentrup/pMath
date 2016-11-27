@@ -1034,7 +1034,8 @@ namespace richmath {
         }
         
         if(se->count() == 3) {
-          if(se->item(0)->as_token() != PMATH_TOK_NAME)
+          SpanExpr *name_span = span_as_name(se->item(0));
+          if(!name_span)
             return;
             
           if( se->item_as_char(1) == PMATH_CHAR_RULE        ||
@@ -1042,7 +1043,7 @@ namespace richmath {
               se->item_as_text(1).equals("->")              ||
               se->item_as_text(1).equals(":>"))
           {
-            String          name = se->item_as_text(0);
+            String          name = name_span->as_text();
             const uint16_t *buf  = name.buffer();
             int             len  = name.length();
             
