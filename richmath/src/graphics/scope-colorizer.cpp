@@ -212,6 +212,7 @@ namespace richmath {
       
       
       void colorize_keyword(SpanExpr *se) {
+        se = span_as_name(se);
         if(!se)
           return;
           
@@ -752,6 +753,33 @@ namespace richmath {
         state->current_pos = next_scope;
       }
       
+      void colorize_if_blocks(FunctionCallSpan &head, SpanExpr *se) {
+        scope_colorize_spanexpr(head.span());
+        colorize_keyword(head.function_head());
+        
+        for(int i = 1; i < se->count(); ++i) {
+          SpanExpr *item = se->item(i);
+          
+          SpanExpr *name = span_as_name(item);
+          if(name && name->equals("Else")) {
+            colorize_keyword(name);
+            continue;
+          }
+          
+          if(FunctionCallSpan::is_simple_call(item)) {
+            FunctionCallSpan else_if(item);
+            name = span_as_name(else_if.function_head());
+            if(name && name->equals("If")) {
+              scope_colorize_spanexpr(item);
+              colorize_keyword(name);
+              continue;
+            }
+          }
+          
+          colorize_block_body(item);
+        }
+      }
+      
       void colorize_block(SpanExpr *se) {
         assert(se->count() >= 2);
         
@@ -769,6 +797,17 @@ namespace richmath {
                 colorize_scoping_block(head_call, se, &ScopeColorizerImpl::replacement_special_colorize_spanexpr);
                 return;
               }
+              if(name->equals("While") || name->equals("Switch") || name->equals("Case") || name->equals("If")) {
+                scope_colorize_spanexpr(head_call.span());
+                colorize_keyword(head_call.function_head());
+                colorize_block_body(se->item(1));
+                return;
+              }
+            }
+            
+            if(name->equals("If")) {
+              colorize_if_blocks(head_call, se);
+              return;
             }
           }
         }
@@ -806,6 +845,23 @@ namespace richmath {
             colorize_block_body(se->item(se->count() - 1)); // {...}
             
             state->current_pos = next_scope;
+            return;
+          }
+        }
+        
+        if(name && se->count() == 2 && name->equals("Block")) { // Block { ... }
+          colorize_keyword(name);
+          colorize_block_body(se->item(1));
+          return;
+        }
+        
+        if(name && se->count() == 4 && name->equals("Try")) { // Try { ... } Finally { ... }
+          SpanExpr *finally = span_as_name(se->item(2));
+          if(finally && finally->equals("Finally")) {
+            colorize_keyword(name);
+            colorize_block_body(se->item(1));
+            colorize_keyword(finally);
+            colorize_block_body(se->item(3));
             return;
           }
         }
