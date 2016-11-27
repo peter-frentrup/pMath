@@ -33,6 +33,13 @@
             <key>include</key>
             <string>#expression</string>
         </dict>
+        <dict>
+            <key>match</key>
+            <string>\)|\]|\}</string>
+
+            <key>name</key>
+            <string>invalid.unmatched-closing-bracket.pmath</string>
+        </dict>
     </array>
 
     <key>repository</key>
@@ -115,16 +122,24 @@
                 <dict>
                     <key>match</key>
                     <string>(?x)
-                    (?:
-                        (?<=::)
-                    |   (?<=<<)
-                    |   (?<=\?\?)
-                    )
-                    [$a-zA-Z][$a-zA-Z0-9]*
+                    (?<=::)[$a-zA-Z][$a-zA-Z0-9]*
                     </string>
 
                     <key>name</key>
-                    <string>string.implicit.pmath</string>
+                    <string>string.implicit.word.pmath</string>
+                </dict>
+                <dict>
+                    <key>match</key>
+                    <string>(?x)
+                    (?:
+                        (?<=<<)
+                    |   (?<=\?\?)
+                    )
+                    [$a-zA-Z0-9`\-_+./\\~*?!:]+
+                    </string>
+
+                    <key>name</key>
+                    <string>string.implicit.filename.pmath</string>
                 </dict>
                 <dict>
                     <key>begin</key>
@@ -243,14 +258,41 @@
             <array>
                 <dict>
                     <key>match</key>
-                    <string>\b(Block|Break|Case|Catch|Continue|Do|Else|Finally|Function|If|Local|Return|Switch|Throw|Try|While|With)\b</string>
+                    <string>(?x)
+                    \b(
+                    (?:     Block
+                        |   Try
+                    ) (?= \s* \{ )
+                    |   (?<= \} )
+                        \s*
+                        Else 
+                        (?= \s* (?: If\( | \{ ))
+                    |   (?<= \} )
+                        \s*
+                        Finally 
+                        (?= \s* \{ )
+                    |(?:    Break
+                        |   Case
+                        |   Catch
+                        |   Continue
+                        |   Do
+                        |   If
+                        |   Local
+                        |   Return
+                        |   Switch
+                        |   Throw
+                        |   While
+                        |   With
+                    ) (?= \( )
+                    )\b
+                    </string>
 
                     <key>name</key>
                     <string>keyword.control.pmath</string>
                 </dict>
                 <dict>
                     <key>match</key>
-                    <string>/\\/|True|False|Automatic|None|\$Failed</string>
+                    <string>/\\/|True|False|Automatic|None|\$Failed|Undefined</string>
 
                     <key>name</key>
                     <string>constant.language.pmath</string>
@@ -509,19 +551,8 @@
             <key>patterns</key>
             <array>
                 <dict>
-                    <key>begin</key>
-                    <string>\(</string>
-                    
-                    <key>patterns</key>
-                    <array>
-                        <dict>
-                            <key>include</key>
-                            <string>#expression</string>
-                        </dict>
-                    </array>
-
-                    <key>end</key>
-                    <string>\)</string>
+                    <key>include</key>
+                    <string>#parenthesis-nesting</string>
                 </dict>
                 
                 <dict>
@@ -537,7 +568,16 @@
                     </array>
 
                     <key>end</key>
-                    <string>\]</string>
+                    <string>(\])|(\)|\})</string>
+                    
+                    <key>endCaptures</key>
+                    <dict>
+                        <key>2</key>
+                        <dict>
+                            <key>name</key>
+                            <string>bracket.invalid.pmath</string>
+                        </dict>
+                    </dict>
                 </dict>
                 
                 <dict>
@@ -557,14 +597,49 @@
                     </array>
 
                     <key>end</key>
-                    <string>\}</string>
+                    <string>(\})|(\)|\])</string>
+                    
+                    <key>endCaptures</key>
+                    <dict>
+                        <key>2</key>
+                        <dict>
+                            <key>name</key>
+                            <string>bracket.invalid.pmath</string>
+                        </dict>
+                    </dict>
                 </dict>
             </array>
         </dict>
 
+        <key>parenthesis-nesting</key>
+        <dict>
+            <key>begin</key>
+            <string>\(</string>
+            
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>include</key>
+                    <string>#expression</string>
+                </dict>
+            </array>
+
+            <key>end</key>
+            <string>(\))|(\]|\})</string>
+
+            <key>endCaptures</key>
+            <dict>
+                <key>2</key>
+                <dict>
+                    <key>name</key>
+                    <string>invalid.bracket.pmath</string>
+                </dict>
+            </dict>
+        </dict>
+                
         <key>functiondef</key>
         <dict>
-            <key>match</key>
+            <key>begin</key>
             <string>(?x)
             ^\s*
             (Function)
@@ -579,14 +654,46 @@
             (?=\()
             </string>
 
-            <key>captures</key>
+            <key>patterns</key>
+            <array>
+                <dict>
+                    <key>match</key>
+                    <string>(?<=\W)\(</string>
+                    
+                    <key>name</key>
+                    <string>function.definition.invalid.pmath</string>
+                </dict>
+                <dict>
+                    <key>include</key>
+                    <string>#parenthesis-nesting</string>
+                </dict>
+                <dict>
+                    <key>match</key>
+                    <string>\bWhere(?=\()</string>
+
+                    <key>name</key>
+                    <string>keyword.control.pmath</string>
+                </dict>
+                <dict>
+                    <key>match</key>
+                    <string>\S</string>
+
+                    <key>name</key>
+                    <string>function.definition.invalid.pmath</string>
+                </dict>
+            </array>
+
+            <key>end</key>
+            <string>(?=\{|^\s*$)</string>
+
+            <key>beginCaptures</key>
             <dict>
                 <key>1</key>
                 <dict>
                     <key>name</key>
                     <string>keyword.control.pmath</string>
                 </dict>
-
+                
                 <key>2</key>
                 <dict>
                     <key>name</key>
