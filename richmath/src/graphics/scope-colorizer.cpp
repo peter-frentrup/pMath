@@ -643,7 +643,7 @@ namespace richmath {
         state->current_pos = next_scope;
       }
       
-      bool colorize_simple_call(SpanExpr *head_name, SpanExpr *se) {
+      void colorize_simple_call(SpanExpr *head_name, SpanExpr *se) {
         assert(se->count() >= 3 && se->item_as_char(1) == '(');
         
         String name = head_name->as_text();
@@ -654,21 +654,28 @@ namespace richmath {
         switch(info.locals_form) {
           case LocalSpec:
             colorize_localspec_call(se, info);
-            return true;
+            return;
             
           case FunctionSpec:
             colorize_functionspec_call(se, info);
-            return true;
+            return;
             
           case TableSpec:
             colorize_tablespec_call(se, info);
-            return true;
+            return;
             
           case NoSpec:
             break;
         }
         
-        return false;
+        if(name.equals("Break") || name.equals("Continue") || name.equals("Return"))
+          colorize_keyword(head_name);
+        
+        for(int i = 1; i < se->count(); ++i) {
+          SpanExpr *sub = se->item(i);
+          
+          scope_colorize_spanexpr(sub);
+        }
       }
       
       void colorize_block_body_line(SpanExpr *se, SharedPtr<ScopePos> &scope_after_block) {
@@ -958,8 +965,8 @@ namespace richmath {
           if( se->item_as_char(1) == '(') {
             SpanExpr *head_name = span_as_name(se->item(0));
             if(head_name) {
-              if(colorize_simple_call(head_name, se))
-                return;
+              colorize_simple_call(head_name, se);
+              return;
             }
           }
           
