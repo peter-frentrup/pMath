@@ -1,98 +1,125 @@
 
 BeginPackage("Enumerators`")
 
+<<ExperimentalSyntax`
+
 Yield
 MakeEnumerator
 
 Begin("Enumerators`Private`")
 
 /* transform an anonymous function to a function with explicit argument names */
-MakeEnumerator(Function(~body))::= Local(
-	{names, f, args, h},
-	names(~n)::= (Emit({n, names(n):= Local({arg}, arg)});names(n));
+Function MakeEnumerator(Function(~body)) { 
+	Local(names, f, args, h)
+	names(~n)::= (Emit({n, names(n):= Local({arg}, arg)}); names(n));
 	h.Attributes:= HoldAllComplete;
 	{f, args}:= Gather(
-		HoldComplete(body).Replace({PureArgument(~n) :> names(n), ~f(~~~a) :> h(f)(a)}, Heads -> True)
-		);
-	MakeEnumerator(Function @@ f.Prepend(args)).Replace(HoldPattern(args) -> args.Sort[All,2], HoldPattern(f) -> f).Replace(h(~f)(~~~a) :> f(a))
+		HoldComplete(body).Replace(
+			{
+				PureArgument(~n) :> names(n), ~f(~~~a) :> h(f)(a)
+			}, 
+			Heads -> True
+		)
 	)
+	MakeEnumerator(
+		Function @@ f.Prepend(args)
+	).Replace({
+		HoldPattern(args) -> args.Sort[All,2], 
+		HoldPattern(f) -> f
+	}).Replace(
+		h(~f)(~~~a) :> f(a)
+	)
+}
 
 emitFlatStmt.Attributes:= HoldAllComplete
 emitFlatStmt(~x)::= Emit(HoldComplete(x))
 emitFlatStmt(EvaluationSequence(~~~es))::= HoldComplete(es).Scan(emitFlatStmt)
-emitFlatStmt(If(~c,~t))::= Local(
-	{brX}, 
-	Emit(HoldComplete(If(!c,Goto(brX))));
-	emitFlatStmt(t);
+Function emitFlatStmt(If(~c,~t)) {
+	Local(brX) 
+	Emit(HoldComplete(If(!c,Goto(brX))))
+	emitFlatStmt(t)
 	Emit(HoldComplete(Label(brX)))
-	)
-emitFlatStmt(If(~c,~t,~f))::= Local(
-	{brT, brX}, 
-	Emit(HoldComplete(If(c,Goto(brT))));
-	emitFlatStmt(f);
-	Emit(HoldComplete(Goto(brX)));
-	Emit(HoldComplete(Label(brT)));
-	emitFlatStmt(t);
+}
+Function emitFlatStmt(If(~c,~t,~f)) { 
+	Local(brT, brX) 
+	Emit(HoldComplete(If(c,Goto(brT))))
+	emitFlatStmt(f)
+	Emit(HoldComplete(Goto(brX)))
+	Emit(HoldComplete(Label(brT)))
+	emitFlatStmt(t)
 	Emit(HoldComplete(Label(brX)))
-	)
-emitFlatStmt(If(~c,~t,~f,~u))::= Local(
-	{brT, brF, brX}, 
-	Emit(HoldComplete(If(c,Goto(brT),Goto(brF))));
-	emitFlatStmt(u);
-	Emit(HoldComplete(Goto(brX)));
-	Emit(HoldComplete(Label(brT)));
-	emitFlatStmt(t);
-	Emit(HoldComplete(Goto(brX)));
-	Emit(HoldComplete(Label(brF)));
-	emitFlatStmt(f);
+}
+Function emitFlatStmt(If(~c,~t,~f,~u)) { 
+	Local(brT, brF, brX) 
+	Emit(HoldComplete(If(c,Goto(brT),Goto(brF))))
+	emitFlatStmt(u)
+	Emit(HoldComplete(Goto(brX)))
+	Emit(HoldComplete(Label(brT)))
+	emitFlatStmt(t)
+	Emit(HoldComplete(Goto(brX)))
+	Emit(HoldComplete(Label(brF)))
+	emitFlatStmt(f)
 	Emit(HoldComplete(Label(brX)))
-	)
-emitFlatStmt(While(~c,~b))::= Local(
-	{brN, brX},
-	Emit(HoldComplete(Label(brN)));
-	Emit(HoldComplete(If(!c,Goto(brX))));
-	emitFlatStmt(b);
-	Emit(HoldComplete(Goto(brN)));
+}
+Function emitFlatStmt(While(~c,~b)) {
+	Local(brN, brX)
+	Emit(HoldComplete(Label(brN)))
+	Emit(HoldComplete(If(!c,Goto(brX))))
+	emitFlatStmt(b)
+	Emit(HoldComplete(Goto(brN)))
 	Emit(HoldComplete(Label(brX)))
-	)
-emitFlatStmt(Do(~b, iter: (~i -> ~s..~e..~d)))::= Local(
-	{brN, brX},
-	Emit(i, VARS);
-	Emit(HoldComplete(If((d > 0 && e < s) || (d < 0 && s < e) || d = 0, Message(Do::iterb, HoldForm(iter)); Goto(brX))));
-	Emit(HoldComplete(i:= s));
-	Emit(HoldComplete(Label(brN)));
-	emitFlatStmt(b);
-	Emit(HoldComplete(i+= d));
-	Emit(HoldComplete(If((d > 0 && i > e) || (d < 0 && i < e), Goto(brX))));
-	Emit(HoldComplete(Goto(brN)));
+}
+Function emitFlatStmt(Do(~b, iter: (~i -> ~s..~e..~d))) { 
+	Local(brN, brX)
+	Emit(i, VARS)
+	Emit(HoldComplete(If((d > 0 && e < s) || (d < 0 && s < e) || d = 0, Message(Do::iterb, HoldForm(iter)); Goto(brX))))
+	Emit(HoldComplete(i:= s))
+	Emit(HoldComplete(Label(brN)))
+	emitFlatStmt(b)
+	Emit(HoldComplete(i+= d))
+	Emit(HoldComplete(If((d > 0 && i > e) || (d < 0 && i < e), Goto(brX))))
+	Emit(HoldComplete(Goto(brN)))
 	Emit(HoldComplete(Label(brX)))
-	)
-emitFlatStmt(Do(~b, ~v -> vals: {~~~}))::= Local(
-	{i,list},
-	Emit(i, VARS);
-	Emit(list, VARS);
-	Emit(HoldComplete(list:= vals));
+}
+Function emitFlatStmt(Do(~b, ~v -> vals: {~~~})) { 
+	Local(i,list)
+	Emit(i, VARS)
+	Emit(list, VARS)
+	Emit(HoldComplete(list:= vals))
 	emitFlatStmt(Do(v:= list[i];b, i -> Length(list)))
-	)
-emitFlatStmt(Do(~b, i -> s:Except(Range(~~))..~e))::= emitFlatStmt(Do(b, i -> s..e..1))
-emitFlatStmt(Do(~b, i -> n:Except(Range|List)(~~))))::=     emitFlatStmt(Do(b, i -> 1..n..1))
-emitFlatStmt(Do(~b, n:Except(Range(~~))))::=     Local({i}, emitFlatStmt(Do(b, i -> 1..n..1)))
+}
+Function emitFlatStmt(Do(~b, i -> s:Except(Range(~~))..~e)) {
+	emitFlatStmt(Do(b, i -> s..e..1))
+}
+Function emitFlatStmt(Do(~b, i -> n:Except(Range|List)(~~))) {
+	emitFlatStmt(Do(b, i -> 1..n..1))
+}
+Function emitFlatStmt(Do(~b, n:Except(Range(~~)))) {
+	Local(i)
+	emitFlatStmt(Do(b, i -> 1..n..1))
+}
 
 flatStmt.Attributes:= HoldAllComplete,
-flatStmt(~e)::= Local(
-	{s,v,E,L},
-	E.Attributes:= HoldAllComplete;
-	L.Attributes:= HoldAllComplete;
+Function flatStmt(~e) {
+	Local(s,v,E,L)
+	E.Attributes:= HoldAllComplete
+	L.Attributes:= HoldAllComplete
 	s:= Gather(
 		v:= Gather(
 			emitFlatStmt(e),
 			VARS
 			)[2]
-		)[2].Apply(E)[All,1];
-	Print(s);
-	Print(v);
-	HoldComplete(L(v, s)).Replace({HoldPattern(s) -> s, HoldPattern(v) -> v}).Evaluate.Replace({E -> EvaluationSequence, L -> Local}, Heads -> True)
-	)
+		)[2].Apply(E)[All,1]
+	Print(s)
+	Print(v)
+	HoldComplete(L(v, s)).Replace({
+		HoldPattern(s) -> s, 
+		HoldPattern(v) -> v
+	}).Evaluate.Replace({
+		E -> EvaluationSequence, 
+		L -> Local
+	}, Heads -> True)
+}
 
 End()
 
