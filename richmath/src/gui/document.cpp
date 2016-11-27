@@ -33,7 +33,7 @@ Hashtable<String, Expr, object_hash> richmath::global_macros;
 
 Box *richmath::expand_selection(Box *box, int *start, int *end) {
   if(!box)
-    return 0;
+    return nullptr;
     
   if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
     for(int i = *start; i < *end; ++i) {
@@ -77,6 +77,10 @@ Box *richmath::expand_selection(Box *box, int *start, int *end) {
       }
     }
     
+    int orig_start = *start;
+    int orig_end = *end;
+    const uint16_t *buf = seq->text().buffer();
+    
     int a = *start;
     while(--a >= 0) {
       Span s = seq->span_array()[a];
@@ -90,7 +94,14 @@ Box *richmath::expand_selection(Box *box, int *start, int *end) {
         
         if(e + 1 >= *end) {
           *start = a;
+          while(*start < orig_start && buf[*start] == '\n')
+            ++*start;
           *end = e + 1;
+          if(*start == orig_start && *end == orig_end && orig_end < seq->length()) {
+            ++*end;
+            ++a;
+            continue;
+          }
           return seq;
         }
       }
