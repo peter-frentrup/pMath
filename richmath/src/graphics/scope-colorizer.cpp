@@ -765,25 +765,32 @@ namespace richmath {
         }
         
         SpanExpr *name = span_as_name(se->item(0));
-        if(name && name->equals("Function") && se->count() == 3) {
-          /* Function name(...) {...}  is syntactic suggar for  name(...)::=...
-           */
-          scope_colorize_spanexpr(se->item(0));
-          
-          SharedPtr<ScopePos> next_scope = state->new_scope();
-          state->new_scope();
-          
-          bool old_in_pattern = state->in_pattern;
-          state->in_pattern = true;
-          
-          scope_colorize_spanexpr(se->item(1)); // name(...)
-          
-          state->in_pattern = old_in_pattern;
-          
-          colorize_block_body(se->item(2)); // {...}
-          
-          state->current_pos = next_scope;
-          return;
+        if(name && name->equals("Function")) {
+          if(se->count() >= 3) {
+            /* Function name(...) {...}  is syntactic suggar for  name(...)::=...
+               Function name(...) Where(...) {...} is abbrev. of  name(...) /? ... ::= ...
+             */
+            scope_colorize_spanexpr(se->item(0));
+            
+            SharedPtr<ScopePos> next_scope = state->new_scope();
+            state->new_scope();
+            
+            bool old_in_pattern = state->in_pattern;
+            state->in_pattern = true;
+            
+            scope_colorize_spanexpr(se->item(1)); // name(...)
+            
+            state->in_pattern = old_in_pattern;
+            
+            for(int i = 2; i < se->count() - 1; ++i) {
+              scope_colorize_spanexpr(se->item(i)); // Where(...)
+            }
+            
+            colorize_block_body(se->item(se->count() - 1)); // {...}
+            
+            state->current_pos = next_scope;
+            return;
+          }
         }
         
         for(int i = 0; i < se->count(); ++i) {
@@ -1222,10 +1229,10 @@ namespace richmath {
   class SyntaxColorizerImpl {
     public:
       static void colorize_quoted_string(SpanExpr *se) {
-        if(se->first_char() != '"') 
+        if(se->first_char() != '"')
           return;
-        
-        if(se->count() != 0 && se->item_pos(0) == se->start()) 
+          
+        if(se->count() != 0 && se->item_pos(0) == se->start())
           return;
           
         const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
@@ -1251,9 +1258,9 @@ namespace richmath {
         if(se->sequence()->text()[se->end()] != '"')
           glyphs[se->end()].style = GlyphStyleString;
       }
-  
+      
       static bool colorize_single_token(SpanExpr *se) {
-        if(se->count() > 0) 
+        if(se->count() > 0)
           return false;
           
         const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
@@ -1283,7 +1290,7 @@ namespace richmath {
           }
           
           for(int i = parent->count() - 1; i >= 0; --i)
-            if(pmath_right_fence(parent->item_as_char(i)) == ch) 
+            if(pmath_right_fence(parent->item_as_char(i)) == ch)
               return true;
               
           glyphs[se->start()].style = GlyphStyleSyntaxError;
@@ -1293,7 +1300,7 @@ namespace richmath {
 //        if(se->first_char() == '\\') { /* outside a string or in a box in a string */
 //          for(int i = se->start(); i <= se->end(); ++i)
 //            glyphs[i].style = GlyphStyleSpecialStringPart;
-//    
+//
 //          return true;
 //        }
 
@@ -1361,7 +1368,7 @@ void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
   SyntaxColorizerImpl::colorize_quoted_string(se);
   if(SyntaxColorizerImpl::colorize_single_token(se))
     return;
-  
+    
   if( se->count() == 3 &&
       se->item_as_text(1).equals("::") &&
       se->item(2)->count() == 0)
