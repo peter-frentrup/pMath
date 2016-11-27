@@ -78,6 +78,10 @@
                 </dict>
                 <dict>
                     <key>include</key>
+                    <string>#purearguments</string>
+                </dict>
+                <dict>
+                    <key>include</key>
                     <string>#numbers</string>
                 </dict>
                 <dict>
@@ -412,6 +416,15 @@
             
             <key>name</key>
             <string>name.other.pmath</string>
+        </dict>
+
+        <key>purearguments</key>
+        <dict>
+            <key>match</key>
+            <string>#[0-9]*</string>
+            
+            <key>name</key>
+            <string>variable.pure.parameter.pmath</string>
         </dict>
 
         <key>numbers</key>
