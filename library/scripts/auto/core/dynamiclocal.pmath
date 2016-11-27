@@ -14,10 +14,12 @@ symDefs(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
 	)[2])
 
 
-DynamicLocal({def: (~:Symbol | (Assign|AssignDelayed)(~:Symbol,~))***}, ~body, opt:OptionsPattern()) /? (
-		FilterRules(Flatten({opt}), DynamicLocalValues) = {}
-	)::= 
-Local(heldsyms, heldlocalsyms, content, head, vals, unsaved) {
+Function DynamicLocal(
+	{def: (~:Symbol | (Assign|AssignDelayed)(~:Symbol,~))***}, ~body, opt:OptionsPattern()
+) Where(
+	FilterRules(Flatten({opt}), DynamicLocalValues) = {}
+) {
+	Local(heldsyms, heldlocalsyms, content, head, vals, unsaved) 
 	unsaved:= HoldComplete(UnsavedVariables).Replace(
 		Flatten({opt, UnsavedVariables -> {}, HoldComplete({~~~x}) :> HoldComplete(x)}));
 	
@@ -72,11 +74,11 @@ DynamicLocalBox/: MakeExpression(DynamicLocalBox(~s, ~b, ~~~o))::=
 
 Unprotect(System`Setting`$Rules);
 
-System`Setting`$Rules:= Join(System`Setting`$Rules, {
+System`Setting`$Rules:= System`Setting`$Rules.Append(
 	DynamicLocal(syms: {(~:Symbol | (Assign|AssignDelayed)(~:Symbol,~))***}, ~body, opt: OptionsPattern()) :> 
 		With({syms:= syms}, 
 			Local(syms, OptionValue(DynamicLocalValues); body))
-	})
+	)
 
 Protect(System`Setting`$Rules);
 

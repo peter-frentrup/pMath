@@ -92,7 +92,7 @@ ReflectionMatrix::input:= "The input is expected to be of one of the form Reflec
 
 
 
-ShearingMatrix(~angle ? isScalar, ~v, ~n) /? IsMatrix({v,n})::= Block {
+Function ShearingMatrix(~angle ? isScalar, ~v, ~n) Where(IsMatrix({v,n})) {
 	With(nv:= Normalize(v), nn:= Normalize(n))
 	With(ne:= Normalize(nv - Dot(Conjugate(nv), nn) nn))
 	Return(IdentityMatrix(Length(nn)) + Tan(angle) {ne}.Transpose.Dot(Conjugate({nn})))
@@ -273,10 +273,10 @@ Function checkTransformationFunctionApply({~rows, ~cols}, ~x ? IsVector) {
 	Return(False)
 }
 	
-TransformationFunction(~m ? IsMatrix)(~x ? IsVector) /? checkTransformationFunctionApply(Dimensions(m), x) ::=
-	With(r:= Dot(m, x.Append(SetPrecision(1, Precision(x))))) {
-		Most(r)/Last(r)
-	}
+TransformationFunction(~m ? IsMatrix)(~x ? IsVector) /? checkTransformationFunctionApply(Dimensions(m), x) {
+	With(r:= Dot(m, x.Append(SetPrecision(1, x.Precision))))
+	Most(r)/Last(r)
+}
 
 TransformationFunction(~m ? IsMatrix)(~xs ? IsMatrix) /? checkTransformationFunctionApply(Dimensions(m), xs) ::=
 	With(r:= Dot(PadRight(xs, Dimensions(xs) + {0,1}, SetPrecision(1, Precision(x))), Conjugate(Transpose(m)))) {
@@ -285,7 +285,9 @@ TransformationFunction(~m ? IsMatrix)(~xs ? IsMatrix) /? checkTransformationFunc
 
 Function checkTransformComposition(~m1, ~m2) {
 	If(Last(Dimensions(m1)) =!= Length(m2)) {
-		Message(TransformationFunction::comp, HoldForm @ TransformationFunction(m1), HoldForm @ TransformationFunction(m2))
+		Message(TransformationFunction::comp, 
+			HoldForm @ TransformationFunction(m1), 
+			HoldForm @ TransformationFunction(m2))
 		Return(False)
 	}
 	Return(True)
@@ -304,13 +306,16 @@ TransformationFunction::fdim:= "`1` is not a vector of length `2` or a list of l
 
 TransformationMatrix(TransformationFunction(~m ? IsMatrix))::= m
 
-TransformationMatrix(~~~s) /? (
+Function TransformationMatrix(~~~s) Where(
 	If(Length({s}) === 1) {
 		Message(TransformationMatrix::input, s)
 	} Else {
 		Message(TransformationMatrix::arg1, TransformationMatrix, Length({s}))
 	}
-	False)::= $Failed
+	False
+) {
+	$Failed
+}
 
 TransformationMatrix::input:= "`1` is not a TransformationFunction object."
 
