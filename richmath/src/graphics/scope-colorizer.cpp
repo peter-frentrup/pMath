@@ -210,12 +210,11 @@ namespace richmath {
         }
       }
       
-      
       void colorize_keyword(SpanExpr *se) {
         se = span_as_name(se);
         if(!se)
           return;
-          
+        
         for(int i = se->start(); i <= se->end(); ++i)
           glyphs[i].style = GlyphStyleKeyword;
       }
@@ -667,9 +666,6 @@ namespace richmath {
           case NoSpec:
             break;
         }
-        
-        if(name.equals("Break") || name.equals("Continue") || name.equals("Return"))
-          colorize_keyword(head_name);
         
         for(int i = 1; i < se->count(); ++i) {
           SpanExpr *sub = se->item(i);
@@ -1130,6 +1126,15 @@ namespace richmath {
         return;
       }
       
+      void colorize_name(SpanExpr *se, unsigned style) {
+        if(!se)
+          return;
+          
+        const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+        for(int i = se->start(); i <= se->end(); ++i)
+          glyphs[i].style = style;
+      }
+      
       void arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se) {
         if(!FunctionCallSpan::is_call(se))
           return;
@@ -1146,6 +1151,11 @@ namespace richmath {
           
         String name = head_name->as_text();
         SyntaxInformation info(name);
+        
+        if(info.is_keyword) 
+          colorize_name(head_name, GlyphStyleKeyword);
+        else
+          colorize_name(head_name, GlyphStyleFunctionCall);
         
         if(info.minargs == 0 && info.maxargs == INT_MAX)
           return;

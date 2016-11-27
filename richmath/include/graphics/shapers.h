@@ -29,7 +29,7 @@ namespace richmath {
     GlyphStyleInvalidOption,
     GlyphStyleSpecialStringPart,
     GlyphStyleKeyword,
-    GlyphStyleUnused2
+    GlyphStyleFunctionCall
   };
   
   enum {
