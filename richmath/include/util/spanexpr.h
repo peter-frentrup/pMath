@@ -240,6 +240,8 @@ namespace richmath {
       SpanExpr(SpanExpr *parent, int start, Span span, MathSequence *sequence);
       void init(SpanExpr *parent, int start, Span span, MathSequence *sequence);
       
+      Span item_span(int i);
+      
     private:
       SpanExpr *_parent;
       int       _start;

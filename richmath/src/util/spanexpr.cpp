@@ -256,16 +256,16 @@ SpanExpr *SpanExpr::expand(bool self_destruction) {
   return result;
 }
 
+Span SpanExpr::item_span(int i) {
+  if(_items_pos[i] == _start && _span)
+    return _span.next();
+  else
+    return _sequence->span_array()[_items_pos[i]];
+}
+
 SpanExpr *SpanExpr::item(int i) {
   if(!_items[i]) {
-    Span subspan(nullptr);
-    
-    if(_items_pos[i] == _start && _span)
-      subspan = _span.next();
-    else
-      subspan = _sequence->span_array()[_items_pos[i]];
-      
-    _items[i] = new SpanExpr(this, _items_pos[i], subspan, _sequence);
+    _items[i] = new SpanExpr(this, _items_pos[i], item_span(i), _sequence);
   }
   
   return _items[i];
@@ -597,7 +597,11 @@ uint16_t SpanExpr::item_first_char(int i) {
 uint16_t SpanExpr::item_as_char(int i) {
   if(_items[i])
     return _items[i]->as_char();
-    
+  
+  Span subspan = item_span(i);
+  if(subspan)
+    return 0;
+  
   if(!_sequence->span_array().is_token_end(_items_pos[i]))
     return 0;
     
