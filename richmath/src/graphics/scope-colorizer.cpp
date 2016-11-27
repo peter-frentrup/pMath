@@ -211,6 +211,14 @@ namespace richmath {
       }
       
       
+      void colorize_keyword(SpanExpr *se) {
+        if(!se)
+          return;
+          
+        for(int i = se->start(); i <= se->end(); ++i)
+          glyphs[i].style = GlyphStyleKeyword;
+      }
+      
       void colorize_identifier(SpanExpr *se) { // identifiers   #   ~
         assert(se->count() == 0);
         
@@ -720,6 +728,7 @@ namespace richmath {
       
       void colorize_scoping_block_head(FunctionCallSpan &head, SharedPtr<ScopePos> &scope_after_block, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*)) {
         scope_colorize_spanexpr(head.span());
+        colorize_keyword(head.function_head());
         
         if(!scope_after_block)
           scope_after_block = state->new_scope();
@@ -770,7 +779,7 @@ namespace richmath {
             /* Function name(...) {...}  is syntactic suggar for  name(...)::=...
                Function name(...) Where(...) {...} is abbrev. of  name(...) /? ... ::= ...
              */
-            scope_colorize_spanexpr(se->item(0));
+            colorize_keyword(name);
             
             SharedPtr<ScopePos> next_scope = state->new_scope();
             state->new_scope();
@@ -783,7 +792,15 @@ namespace richmath {
             state->in_pattern = old_in_pattern;
             
             for(int i = 2; i < se->count() - 1; ++i) {
-              scope_colorize_spanexpr(se->item(i)); // Where(...)
+              SpanExpr *item = se->item(i);
+              scope_colorize_spanexpr(item); // Where(...)
+              
+              if(FunctionCallSpan::is_simple_call(item)) {
+                FunctionCallSpan more_call(item);
+                SpanExpr *more_name = span_as_name(more_call.function_head());
+                if(more_name && more_name->equals("Where"))
+                  colorize_keyword(more_name);
+              }
             }
             
             colorize_block_body(se->item(se->count() - 1)); // {...}
@@ -1033,7 +1050,7 @@ namespace richmath {
             int arg1_end   = call.function_argument(1)->end();
             
             for(int pos = arg1_start; pos <= arg1_end; ++pos)
-              glyphs[pos].style = GlyphStyleExcessArg;
+              glyphs[pos].style = GlyphStyleExcessOrMissingArg;
           }
         }
         else if(max_args == 1 && call.is_complex_call()) {
@@ -1044,7 +1061,7 @@ namespace richmath {
         }
         
         for(int pos = start; pos <= end; ++pos)
-          glyphs[pos].style = GlyphStyleExcessArg;
+          glyphs[pos].style = GlyphStyleExcessOrMissingArg;
           
         return;
       }

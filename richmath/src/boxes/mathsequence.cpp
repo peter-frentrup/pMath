@@ -2734,7 +2734,7 @@ void MathSequence::paint(Context *context) {
             
             context->canvas->close_path();
             context->canvas->set_color(
-              context->syntax->glyph_style_colors[GlyphStyleMissingArg]);
+              context->syntax->glyph_style_colors[GlyphStyleExcessOrMissingArg]);
             context->canvas->fill();
             
             have_style = true;

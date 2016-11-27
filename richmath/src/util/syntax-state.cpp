@@ -17,20 +17,20 @@ GeneralSyntaxInfo::GeneralSyntaxInfo()
 {
   memset(&glyph_style_colors, 0, sizeof(glyph_style_colors));
   
-  glyph_style_colors[GlyphStyleImplicit]          = 0x999999;
-  glyph_style_colors[GlyphStyleString]            = 0x808080;//0xFF0080;
-  glyph_style_colors[GlyphStyleComment]           = 0x008000;
-  glyph_style_colors[GlyphStyleParameter]         = 0x438958;
-  glyph_style_colors[GylphStyleLocal]             = 0x438958;
-  glyph_style_colors[GylphStyleScopeError]        = 0xCC0000;
-  glyph_style_colors[GlyphStyleNewSymbol]         = 0x002CC3;
-  glyph_style_colors[GlyphStyleShadowError]       = 0xFF3333;
-  glyph_style_colors[GlyphStyleSyntaxError]       = 0xC254CC;
-  glyph_style_colors[GlyphStyleSpecialUse]        = 0x3C7D91;
-  glyph_style_colors[GlyphStyleExcessArg]         = 0xFF3333;
-  glyph_style_colors[GlyphStyleMissingArg]        = 0xFF3333;
-  glyph_style_colors[GlyphStyleInvalidOption]     = 0xFF3333;
-  glyph_style_colors[GlyphStyleSpecialStringPart] = 0xD95355;
+  glyph_style_colors[GlyphStyleImplicit]           = 0x999999;
+  glyph_style_colors[GlyphStyleString]             = 0x808080;//0xFF0080;
+  glyph_style_colors[GlyphStyleComment]            = 0x008000;
+  glyph_style_colors[GlyphStyleParameter]          = 0x438958;
+  glyph_style_colors[GylphStyleLocal]              = 0x438958;
+  glyph_style_colors[GylphStyleScopeError]         = 0xCC0000;
+  glyph_style_colors[GlyphStyleNewSymbol]          = 0x002CC3;
+  glyph_style_colors[GlyphStyleShadowError]        = 0xFF3333;
+  glyph_style_colors[GlyphStyleSyntaxError]        = 0xC254CC;
+  glyph_style_colors[GlyphStyleSpecialUse]         = 0x3C7D91;
+  glyph_style_colors[GlyphStyleExcessOrMissingArg] = 0xFF3333;
+  glyph_style_colors[GlyphStyleInvalidOption]      = 0xFF3333;
+  glyph_style_colors[GlyphStyleSpecialStringPart]  = 0xD95355;
+  glyph_style_colors[GlyphStyleKeyword]            = 0xAF00DB;
 }
 
 GeneralSyntaxInfo::~GeneralSyntaxInfo() {

@@ -25,10 +25,10 @@ namespace richmath {
     GlyphStyleShadowError,
     GlyphStyleSyntaxError,
     GlyphStyleSpecialUse,
-    GlyphStyleExcessArg,
-    GlyphStyleMissingArg,
+    GlyphStyleExcessOrMissingArg,
     GlyphStyleInvalidOption,
     GlyphStyleSpecialStringPart,
+    GlyphStyleKeyword,
     GlyphStyleUnused2
   };
   

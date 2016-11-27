@@ -31,7 +31,7 @@ namespace richmath {
       virtual ~GeneralSyntaxInfo();
       
     public:
-      int glyph_style_colors[256];
+      int glyph_style_colors[16];
   };
   
   class ScopePos: public Shareable {
