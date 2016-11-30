@@ -180,6 +180,12 @@ static pmath_bool_t symbol_entry_keys_equal(void *e1, void *e2) {
   struct _pmath_symbol_t *symbol1 = e1;
   struct _pmath_symbol_t *symbol2 = e2;
   
+  if(e1 == e2)
+    return TRUE;
+  if(symbol1->attributes & PMATH_SYMBOL_ATTRIBUTE_REMOVED)
+    return FALSE;
+  if(symbol2->attributes & PMATH_SYMBOL_ATTRIBUTE_REMOVED)
+    return FALSE;
   return pmath_equals(symbol1->name, symbol2->name);
 }
 
@@ -189,6 +195,14 @@ static unsigned int symbol_entry_key_hash(void *key) {
 
 static pmath_bool_t symbol_entry_equals_key(void *e, void *key) {
   struct _pmath_symbol_t *symbol = e;
+  
+  /* Allow to remove the symbol with pmath_ht_remove(..., &symbol->name) 
+     even if it already has the REMOVED attribute, which makes it invisible.
+   */
+  if(key == &symbol->name)
+    return TRUE;
+  if(symbol->attributes & PMATH_SYMBOL_ATTRIBUTE_REMOVED)
+    return FALSE;
   return pmath_equals(symbol->name, *(pmath_t *)key);
 }
 
@@ -985,59 +999,6 @@ void pmath_symbol_remove(pmath_symbol_t symbol) {
       attr | PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_REMOVED);
     _pmath_clear(symbol, TRUE);
     
-    {
-      unsigned int i, cap;
-      pmath_t replacement;
-      
-      // We do not have to reevaluate pmath_ht_capacity() in the loop,
-      // because a hashtable never shrinks.
-      PMATH_DEBUG_TIMING(
-        pmath_atomic_lock(&global_symbol_table_lock);
-      {
-        cap = pmath_ht_capacity(global_symbol_table);
-      }
-      pmath_atomic_unlock(&global_symbol_table_lock);
-      );
-      
-      replacement = pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
-                      pmath_symbol_name(symbol));
-                      
-      for(i = 0; i < cap && pmath_refcount(symbol) > 1; ++i) {
-        pmath_symbol_t entry;
-        
-        PMATH_DEBUG_TIMING(
-          pmath_atomic_lock(&global_symbol_table_lock);
-        {
-          entry = pmath_ref(PMATH_FROM_PTR(pmath_ht_entry(global_symbol_table, i)));
-        }
-        pmath_atomic_unlock(&global_symbol_table_lock);
-        );
-        
-        if(!pmath_is_null(entry)) {
-          pmath_t value;
-          struct _pmath_symbol_rules_t *rules;
-          
-          value = pmath_symbol_get_value(entry);
-          value = _pmath_symbol_value_remove_all(value, symbol, replacement);
-          pmath_symbol_set_value(entry, value);
-          
-          rules = _pmath_symbol_get_rules(entry, RULES_READ);
-          if(rules)
-            _pmath_symbol_rules_remove_all(rules, symbol, replacement);
-            
-          pmath_unref(entry);
-        }
-      }
-      
-      pmath_unref(replacement);
-    }
-    
-//    pmath_thread_call_locked(
-//      &global_symbol_table_threadlock,
-//      (pmath_callback_t)symbol_remove_callback,
-//      symbol);
-
     pmath_unref(symbol);
   }
 }
@@ -1174,7 +1135,7 @@ static void write_symbol(struct pmath_write_ex_t *info, pmath_t symbol) {
   str = pmath_string_buffer(&name);
   
   if(pmath_symbol_get_attributes(symbol) & PMATH_SYMBOL_ATTRIBUTE_REMOVED) {
-    _pmath_write_cstr("Symbol(", info->write, info->user);
+    _pmath_write_cstr("Removed(", info->write, info->user);
     pmath_write_ex(info, name);
     _pmath_write_cstr(")", info->write, info->user);
     pmath_unref(name);

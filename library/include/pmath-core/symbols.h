@@ -300,17 +300,10 @@ void pmath_symbol_update(pmath_symbol_t symbol);
 
    Symbols with attribute protected wont be removed.
 
-   This function walks through the internal list of all known symbols and
-   replaces any occurencies with `Symbol("name")`.
-
-   There might be more references (e.g. on the stack or in other thread's local
-   variable tables), so it is possible that the symbol still exists in the
-   system.
-
-   Note that all builtin symbols (the PMATH_SYMBOL_XXX) are also referenced in
-   a seperate list and so cannot be removed completely from the system. However,
-   their appearences in all other places will be removed. So this is a very
-   dangerous function.
+   This function clear the symbol's value (not considering thread-local storage)
+   and sets the attributes Temporary and Removed. The former makes it 
+   auto-deleting when its reference count reaches 0. The latter makes it 
+   unaccessible via its name and causes it to display as `Removed("symbol")`.
  */
 PMATH_API
 void pmath_symbol_remove(pmath_symbol_t symbol);
