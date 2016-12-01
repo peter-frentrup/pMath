@@ -676,7 +676,7 @@ SpanExpr *richmath::span_as_name(SpanExpr *span) {
 
 SequenceSpan::SequenceSpan(SpanExpr *span, bool take_ownership)
   : _span(span),
-    _has_ownership (take_ownership)
+    _has_ownership(take_ownership)
 {
   init(span);
 }
@@ -763,18 +763,18 @@ void SequenceSpan::init(SpanExpr *span) {
 
 void SequenceSpan::reset() {
   for(int i = 0; i < _items.length(); ++i)
-    if(_items[i] != _span && _items[i]->parent() == 0)
+    if(_items[i] != _span && _items[i]->parent() == nullptr)
       delete _items[i];
       
   if(_has_ownership)
     delete _span;
     
   _items.length(0);
-  _span        = 0;
+  _span        = nullptr;
   _is_sequence = false;
 }
 
-SpanExpr *SequenceSpan::item(int i) { // 1-based; always may return 0
+SpanExpr *SequenceSpan::item(int i) { // 1-based; always may return nullptr
   if(i <= 0 || i > _items.length())
     return nullptr;
     

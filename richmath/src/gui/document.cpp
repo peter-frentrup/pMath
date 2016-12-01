@@ -132,7 +132,7 @@ MULTIPLE_TOKENS:
 }
 
 Box *expand_selection_text(TextSequence *seq, int *start, int *end) {
-  if(*start == 0 && *end == seq->length()) 
+  if(*start == 0 && *end == seq->length())
     return expand_selection_default(seq, start, end);
     
   PangoLogAttr *attrs;
@@ -691,63 +691,66 @@ namespace richmath {
             
           for(; span; span = span->expand(true)) {
             if(FunctionCallSpan::is_simple_call(span)) {
-              FunctionCallSpan call(span);
-              
-              SpanExpr *head = call.function_head();
-              if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
-                  box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
               {
-                continue;
-              }
-              seq = span->sequence();
-              
-              // head without white space
-              while(head->count() == 1)
-                head = head->item(0);
+                FunctionCallSpan call(span);
                 
-              add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
-              
-              // opening parenthesis, always exists
-              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
-              
-              // closing parenthesis, last item, might not exist
-              int clos = span->count() - 1;
-              if(clos >= 2 && span->item_equals(clos, ")")) {
-                add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
-              }
-              
+                SpanExpr *head = call.function_head();
+                if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
+                    box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
+                {
+                  continue;
+                }
+                seq = span->sequence();
+                
+                // head without white space
+                while(head->count() == 1)
+                  head = head->item(0);
+                  
+                add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
+                
+                // opening parenthesis, always exists
+                add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
+                
+                // closing parenthesis, last item, might not exist
+                int clos = span->count() - 1;
+                if(clos >= 2 && span->item_equals(clos, ")")) {
+                  add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
+                }
+                
+              } // destroy call before deleting span
               delete span;
               return;
             }
             
             if(FunctionCallSpan::is_complex_call(span)) {
-              FunctionCallSpan call(span);
-              
-              SpanExpr *head = span->item(2);
-              if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
-                  box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
               {
-                continue;
-              }
-              seq = span->sequence();
-              
-              // head, always exists
-              add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
-              
-              // dot, always exists
-              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
-              
-              // opening parenthesis, might not exist
-              if(span->count() > 3) {
-                add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, 0xFFFF00, 0.5);
-              }
-              
-              // closing parenthesis, last item, might not exist
-              int clos = span->count() - 1;
-              if(clos >= 2 && span->item_equals(clos, ")")) {
-                add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
-              }
-              
+                FunctionCallSpan call(span);
+                
+                SpanExpr *head = span->item(2);
+                if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
+                    box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
+                {
+                  continue;
+                }
+                seq = span->sequence();
+                
+                // head, always exists
+                add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
+                
+                // dot, always exists
+                add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
+                
+                // opening parenthesis, might not exist
+                if(span->count() > 3) {
+                  add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, 0xFFFF00, 0.5);
+                }
+                
+                // closing parenthesis, last item, might not exist
+                int clos = span->count() - 1;
+                if(clos >= 2 && span->item_equals(clos, ")")) {
+                  add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
+                }
+              } // destroy call before deleting span
               delete span;
               return;
             }
@@ -1078,7 +1081,7 @@ namespace richmath {
       void handle_key_pageup_pagedown(SpecialKeyEvent &event, LogicalDirection direction) {
         if(!self.native()->is_scrollable())
           return;
-        
+          
         float w, h;
         self.native()->window_size(&w, &h);
         if(direction == LogicalDirection::Backward)
@@ -2019,11 +2022,11 @@ void Document::on_key_down(SpecialKeyEvent &event) {
       DocumentImpl(*this).handle_key_backspace(event);
       return;
       
-    case SpecialKey::Delete: 
+    case SpecialKey::Delete:
       DocumentImpl(*this).handle_key_delete(event);
       return;
       
-    case SpecialKey::Escape: 
+    case SpecialKey::Escape:
       DocumentImpl(*this).handle_key_escape(event);
       return;
       
