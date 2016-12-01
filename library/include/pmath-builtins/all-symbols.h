@@ -892,6 +892,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_FORMAT                                 PMATH_SYMBOL_BUILTIN(798)
 #define PMATH_SYMBOL_MESSAGEGROUPS                          PMATH_SYMBOL_BUILTIN(799)
 #define PMATH_SYMBOL_INTERNAL_MESSAGETHROWN                 PMATH_SYMBOL_BUILTIN(800)
+#define PMATH_SYMBOL_POWERMOD                               PMATH_SYMBOL_BUILTIN(801)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

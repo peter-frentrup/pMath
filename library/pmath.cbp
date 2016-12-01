@@ -943,6 +943,9 @@
 		<Unit filename="src/pmath-builtins/arithmetic/power.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/arithmetic/powermod.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/precision.c">
 			<Option compilerVar="CC" />
 		</Unit>

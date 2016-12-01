@@ -1,0 +1,6 @@
+
+AssertEqual(PowerMod(2, 10, 3), 1)
+
+AssertEqual(PowerMod(2, 10^9, 18), 16)
+
+AssertEqual(PowerMod(2, {10,11,12,13,14}, 5), {4, 3, 1, 2, 4})
