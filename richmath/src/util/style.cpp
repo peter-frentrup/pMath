@@ -154,6 +154,36 @@ int richmath::pmath_to_color(Expr obj) {
 static bool keep_dynamic = false;
 
 namespace {
+  class StyleEnumConverter: public Shareable {
+    public:
+      StyleEnumConverter();
+      
+      bool is_valid_int(int val) {
+        return _int_to_expr.search(val) != 0;
+      }
+      
+      bool is_valid_expr(Expr expr) {
+        return _expr_to_int.search(expr) != 0;
+      }
+      
+      int  to_int(Expr expr) {
+        return _expr_to_int[expr];
+      }
+      
+      Expr to_expr(int val) {
+        return _int_to_expr[val];
+      }
+      
+      const Hashtable<Expr, int> &expr_to_int(){ return _expr_to_int; }
+      
+    protected:
+      void add(int val, Expr expr);
+      
+    protected:
+      Hashtable<int, Expr, cast_hash> _int_to_expr;
+      Hashtable<Expr, int>            _expr_to_int;
+  };
+  
   class ButtonFrameStyleEnumConverter: public StyleEnumConverter {
     public:
       ButtonFrameStyleEnumConverter()
