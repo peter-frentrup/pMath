@@ -1866,11 +1866,11 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 if(active_window == _hwnd)
                   pos->hwndInsertAfter = all_higher[0]->hwnd();
 
-                for(int i = 0; i < all_higher.length(); ++i) {
-                  if(!all_higher[i]->is_closed()) {
+                for(auto window : all_higher) {
+                  if(!window->is_closed()) {
                     hdwp = tryDeferWindowPos(
                              hdwp,
-                             all_higher[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
+                             window->hwnd(), HWND_TOP, 0, 0, 0, 0,
                              SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
                   }
                 }

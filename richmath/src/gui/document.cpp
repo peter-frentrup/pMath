@@ -491,14 +491,10 @@ namespace richmath {
               self.selection_start(),
               self.selection_end());
               
-          for(int i = 0; i < self.additional_selection.length(); ++i) {
-            b = self.additional_selection[i].get();
-            if(b)
-              b->request_repaint_range(
-                self.additional_selection[i].start,
-                self.additional_selection[i].end);
+          for(auto sel : self.additional_selection) {
+            if(Box *b = sel.get())
+              b->request_repaint_range(sel.start, sel.end);
           }
-          
           self.additional_selection.length(0);
           
           if(self.auto_completion.range.id) {
@@ -4803,11 +4799,10 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     if(last_paint_sel != context.selection) {
       last_paint_sel = context.selection;
       
-      for(int i = 0; i < additional_selection.length(); ++i) {
-        if(Box *b = additional_selection[i].get())
-          b->request_repaint_range(additional_selection[i].start, additional_selection[i].end);
+      for(auto sel : additional_selection) {
+        if(Box *b = sel.get())
+          b->request_repaint_range(sel.start, sel.end);
       }
-      
       additional_selection.length(0);
     }
   }

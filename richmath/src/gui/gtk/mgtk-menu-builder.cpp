@@ -434,8 +434,8 @@ static gboolean closure_callback(
 }
 
 void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, int document_id) {
-  for(int i = 0; i < all_accelerators.length(); ++i) {
-    char *path = pmath_string_to_utf8(all_accelerators[i].get_as_string(), 0);
+  for(auto accel : all_accelerators) {
+    char *path = pmath_string_to_utf8(accel.get_as_string(), 0);
     AccelData *accel_data = new AccelData;
     
     if(path && accel_data) {

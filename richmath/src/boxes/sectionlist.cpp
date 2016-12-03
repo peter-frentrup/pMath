@@ -36,8 +36,8 @@ SectionList::SectionList()
 }
 
 SectionList::~SectionList() {
-  for(int i = 0; i < _sections.length(); ++i)
-    delete _sections[i];
+  for(auto section : _sections)
+    delete section;
 }
 
 Box *SectionList::item(int i) {

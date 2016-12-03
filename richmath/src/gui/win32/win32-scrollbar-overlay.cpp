@@ -44,8 +44,8 @@ namespace richmath {
         RECT rect;
         GetClientRect(self.hwnd(), &rect);
         
-        for(int i = 0; i < self.indicators.length(); ++i) {
-          if(auto rgn = get_indicator_region(self.indicators[i], rect, range)) {
+        for(auto indicator : self.indicators) {
+          if(auto rgn = get_indicator_region(indicator, rect, range)) {
             CombineRgn(region, region, rgn, RGN_OR);
             DeleteObject(rgn);
           }

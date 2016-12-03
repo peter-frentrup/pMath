@@ -126,17 +126,17 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
 
 SpanExpr::~SpanExpr() {
   if(_parent) {
-    for(int i = 0; i < _parent->_items.length(); ++i)
-      if(_parent->_items[i] == this) {
-        _parent->_items[i] = nullptr;
+    for(auto &item : _parent->_items)
+      if(item == this) {
+        item = nullptr;
         break;
       }
   }
   
-  for(int i = 0; i < _items.length(); ++i)
-    if(_items[i]) {
-      _items[i]->_parent = nullptr;
-      delete _items[i];
+  for(auto &item : _items)
+    if(item) {
+      item->_parent = nullptr;
+      delete item;
     }
 }
 
@@ -760,9 +760,9 @@ void SequenceSpan::init(SpanExpr *span) {
 }
 
 void SequenceSpan::reset() {
-  for(int i = 0; i < _items.length(); ++i)
-    if(_items[i] != _span && _items[i]->parent() == nullptr)
-      delete _items[i];
+  for(auto &item : _items)
+    if(item != _span && item->parent() == nullptr)
+      delete item;
       
   if(_has_ownership)
     delete _span;

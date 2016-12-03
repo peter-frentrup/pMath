@@ -77,8 +77,8 @@ void Section::resize_label(Context *context) {
     label_glyphs.items());
     
   float x = 0;
-  for(int i = 0; i < label_glyphs.length(); ++i)
-    label_glyphs[i].right = x += label_glyphs[i].right;
+  for(auto &glyph : label_glyphs)
+    glyph.right = x += glyph.right;
     
   context->canvas->set_font_size(fs);
 }

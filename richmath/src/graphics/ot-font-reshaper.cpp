@@ -251,11 +251,9 @@ void OTFontReshaper::apply_lookups(
   
   current_lookup_list = gsub_table->lookup_list();
   
-  for(int i = 0; i < lookups.length(); ++i) {
-    const IndexAndValue iav = lookups[i];
-    
-    if(iav.value > 0 && 0 <= iav.index && iav.index < current_lookup_list->count()) {
-      const Lookup *lookup = current_lookup_list->lookup(iav.index);
+  for(auto index_and_value : lookups) {
+    if(index_and_value.value > 0 && 0 <= index_and_value.index && index_and_value.index < current_lookup_list->count()) {
+      const Lookup *lookup = current_lookup_list->lookup(index_and_value.index);
       
       int pos = 0;
       while(pos < glyphs.length()) {
@@ -263,7 +261,7 @@ void OTFontReshaper::apply_lookups(
         
         apply_lookup_at(
           lookup,
-          iav.value,
+          index_and_value.value,
           pos);
           
         pos = next_position;
