@@ -740,9 +740,7 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
 }
 
 int TextSequence::insert(int pos, AbstractSequence *seq, int start, int end) {
-  TextSequence *ts = dynamic_cast<TextSequence *>(seq);
-  
-  if(ts)
+  if(auto ts = dynamic_cast<TextSequence *>(seq))
     return insert(pos, ts, start, end);
     
   return AbstractSequence::insert(pos, seq, start, end);
@@ -811,7 +809,6 @@ Box *TextSequence::move_logical(
     if(text.is_box_at(*index)) {
       if(jumping) {
         s = g_utf8_find_next_char(s, s_end);
-        
         if(s)
           *index = (int)((size_t)s - (size_t)text.buffer());
         else

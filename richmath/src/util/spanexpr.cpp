@@ -351,8 +351,7 @@ pmath_token_t SpanExpr::as_token(int *prec) {
   if(count() == 1)
     return item(0)->as_token((prec));
     
-  Box *b = as_box();
-  if(b) {
+  if(Box *b = as_box()) {
     if(dynamic_cast<SubsuperscriptBox *>(b)) {
       if(prec)
         *prec = PMATH_PREC_POW;
@@ -363,7 +362,7 @@ pmath_token_t SpanExpr::as_token(int *prec) {
         dynamic_cast<StyleBox *>(b)           ||
         dynamic_cast<InterpretationBox *>(b))
     {
-      MathSequence *seq = dynamic_cast<MathSequence *>(b->item(0));
+      auto seq = dynamic_cast<MathSequence*>(b->item(0));
       assert(seq);
       
       seq->ensure_spans_valid();
@@ -397,13 +396,12 @@ int SpanExpr::as_prefix_prec(int defprec) {
   if(count() == 1)
     return item(0)->as_prefix_prec(defprec);
     
-  Box *b = as_box();
-  if(b) {
+  if(Box *b = as_box()) {
     if( dynamic_cast<UnderoverscriptBox *>(b) ||
         dynamic_cast<StyleBox *>(b)           ||
         dynamic_cast<InterpretationBox *>(b))
     {
-      MathSequence *seq = dynamic_cast<MathSequence *>(b->item(0));
+      auto seq = dynamic_cast<MathSequence*>(b->item(0));
       assert(seq);
       
       seq->ensure_spans_valid();

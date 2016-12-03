@@ -37,7 +37,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
       gtk_widget_grab_focus(_widget);
     }
     
-    virtual void close() {
+    virtual void close() override {
       _parent->close();
     }
     
@@ -512,15 +512,13 @@ void MathGtkDocumentWindow::run_menucommand(Expr cmd) {
   if(cmd_str.starts_with("@shaper=")) {
     cmd_str = cmd_str.part(sizeof("@shaper=") - 1, -1);
     
-    SharedPtr<MathShaper> *ms = MathShaper::available_shapers.search(cmd);
-    
-    if(ms) {
-      _top_area->document_context()->math_shaper     = *ms;
-      _top_area->document_context()->text_shaper     = *ms;
-      _bottom_area->document_context()->math_shaper  = *ms;
-      _bottom_area->document_context()->text_shaper  = *ms;
-      _working_area->document_context()->math_shaper = *ms;
-      _working_area->document_context()->text_shaper = *ms;
+    if(auto math_shaper = MathShaper::available_shapers.search(cmd)) {
+      _top_area->document_context()->math_shaper     = *math_shaper;
+      _top_area->document_context()->text_shaper     = *math_shaper;
+      _bottom_area->document_context()->math_shaper  = *math_shaper;
+      _bottom_area->document_context()->text_shaper  = *math_shaper;
+      _working_area->document_context()->math_shaper = *math_shaper;
+      _working_area->document_context()->text_shaper = *math_shaper;
       
       _top_area->document()->invalidate_all();
       _bottom_area->document()->invalidate_all();
@@ -734,11 +732,11 @@ void MathGtkDocumentWindow::move_palettes() {
   if(dx != 0 || dy != 0) {
     for(int i = 1; i < _snapped_documents.length(); ++i) {
       const DocumentPosition &pos = _snapped_documents[i];
-      Document *doc = dynamic_cast<Document *>(Box::find(pos.id));
+      auto doc = dynamic_cast<Document*>(Box::find(pos.id));
       if(!doc)
         continue;
         
-      MathGtkWorkingArea *wid = dynamic_cast<MathGtkWorkingArea *>(doc->native());
+      auto wid = dynamic_cast<MathGtkWorkingArea*>(doc->native());
       if(!wid)
         continue;
         

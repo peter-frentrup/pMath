@@ -119,8 +119,7 @@ void Win32Widget::after_construction() {
   
   stylus = StylusUtil::create_stylus_for_window(_hwnd);
   if(stylus) {
-    auto stylus3 = stylus.as<IRealTimeStylus3>();
-    if(stylus3) {
+    if(auto stylus3 = stylus.as<IRealTimeStylus3>()) {
       /* RealTimeStylus with MultiTouchEnabled disables WM_GESTURE */
       //HRbool(stylus3->put_MultiTouchEnabled(TRUE));
     }
@@ -471,9 +470,8 @@ STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo
   ComBase<IInkTablet> tablet;
   HR(piRtsSrc->GetTabletFromTabletContextId(pStylusInfo->tcid, tablet.get_address_of()));
   
-  TabletDeviceKind kind = (TabletDeviceKind) - 1;
-  auto tablet2 = tablet.as<IInkTablet2>();
-  if(tablet2) {
+  auto kind = (TabletDeviceKind) - 1;
+  if(auto tablet2 = tablet.as<IInkTablet2>()) {
     HR(tablet2->get_DeviceKind(&kind));
   }
   
@@ -1373,9 +1371,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 
                 unsigned int count, i;
                 for(count = 0, i = 0; count < animations.size(); ++i) {
-                  Entry<SharedPtr<TimedEvent>, Void> *e = animations.entry(i);
-                  
-                  if(e) {
+                  if(auto e = animations.entry(i)) {
                     ++count;
                     
                     SharedPtr<TimedEvent> te = e->key;
@@ -1410,8 +1406,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 else
                   ctx->old_selection = ctx->selection;
                   
-                Box *box = ctx->selection.get();
-                if(box)
+                if(Box *box = ctx->selection.get())
                   box->request_repaint_all();
               } break;
           }
@@ -1491,8 +1486,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         }
       /* fall through */
       case WM_SYSKEYDOWN: {
-          HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
-          if(parent) {
+          if(HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT)) {
             return SendMessageW(parent, message, wParam, lParam);
           }
         } break;
@@ -1616,9 +1610,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     int oldend   = document()->selection_start();
     
     if(effect & DROPEFFECT_MOVE && is_dragging) {
-    
-      Box *src = drag_source_reference().get();
-      if(src) {
+      if(Box *src = drag_source_reference().get()) {
         int s = drag_source_reference().start;
         int e = drag_source_reference().end;
         

@@ -118,9 +118,7 @@ void FractionBox::paint(Context *context) {
 }
 
 Box *FractionBox::remove(int *index) {
-  MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
-  
-  if(seq) {
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(_parent)) {
     if(*index == 0 && _numerator->length() == 0) {
       *index = _index;
       seq->insert(_index + 1, _denominator, 0, _denominator->length());

@@ -44,9 +44,7 @@ BoxRepaintEvent::BoxRepaintEvent(int _box_id, double _min_wait_seconds)
 }
 
 void BoxRepaintEvent::execute_event() {
-  Box *box = FrontEndObject::find_cast<Box>(box_id);
-  
-  if(box)
+  if(auto box = FrontEndObject::find_cast<Box>(box_id))
     box->request_repaint_all();
 }
 

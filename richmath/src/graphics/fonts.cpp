@@ -624,8 +624,7 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch) {
     case CAIRO_FONT_TYPE_FT: {
         uint16_t index = 0;
         
-        FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font);
-        if(face) {
+        if(FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font)) {
           index = FT_Get_Char_Index(face, ch);
         }
         cairo_ft_scaled_font_unlock_face(priv->scaled_font);
@@ -667,8 +666,7 @@ size_t FontInfo::get_truetype_table(
       
 #ifdef RICHMATH_USE_FT_FONT
     case CAIRO_FONT_TYPE_FT: {
-        FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font);
-        if(face) {
+        if(FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font)) {
           name = ((name & 0xFF000000) >> 24) | ((name & 0xFF0000) >> 8) | ((name & 0xFF00) << 8) | ((name & 0xFF) << 24);
           
           FT_ULong len = length;

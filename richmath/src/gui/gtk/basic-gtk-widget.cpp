@@ -73,9 +73,7 @@ BasicGtkWidget *BasicGtkWidget::parent() {
   GtkWidget *wid = gtk_widget_get_parent(_widget);
   
   while(wid) {
-    BasicGtkWidget *parent = (BasicGtkWidget*)g_object_get_data(G_OBJECT(wid), widget_key);
-    
-    if(parent)
+    if(auto parent = static_cast<BasicGtkWidget*>(g_object_get_data(G_OBJECT(wid), widget_key)))
       return parent;
       
     wid = gtk_widget_get_parent(wid);

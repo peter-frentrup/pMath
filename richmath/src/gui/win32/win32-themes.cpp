@@ -55,7 +55,6 @@ void Win32Themes::init() {
 
 Win32Themes::Win32Themes(): Base() {
   dwmapi = LoadLibrary("dwmapi.dll");
-  
   if(dwmapi) {
     DwmEnableComposition = (HRESULT(WINAPI *)(UINT))
                            GetProcAddress(dwmapi, "DwmEnableComposition");

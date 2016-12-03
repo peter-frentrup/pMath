@@ -143,11 +143,8 @@ bool NativeWidget::may_drop_into(Box *dst, int start, int end, bool self_is_sour
     return false;
     
   if(self_is_source) {
-    Box *src = drag_source_reference().get();
-    
-    if(src) {
+    if(Box *src = drag_source_reference().get()) {
       Box *box = Box::common_parent(src, dst);
-      
       if(box == src) {
         int s = start;
         int e = end;

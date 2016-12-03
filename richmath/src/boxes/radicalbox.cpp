@@ -161,9 +161,8 @@ Box *RadicalBox::remove(int *index) {
   }
   
   if(_parent) {
-    MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
     *index = _index;
-    if(seq) {
+    if(auto seq = dynamic_cast<MathSequence*>(_parent)) {
       if(_exponent) {
         if(_radicand->length() > 0)
           return move_logical(LogicalDirection::Backward, false, index);

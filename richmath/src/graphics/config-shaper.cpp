@@ -74,9 +74,7 @@ class GlyphGetter: public Base {
       if(expr.is_expr()
           && expr[0] == PMATH_SYMBOL_ALTERNATIVES) {
         for(size_t i = 1; i <= expr.expr_length(); ++i) {
-          uint16_t res = expr_to_glyph(expr[i], font);
-          
-          if(res)
+          if(uint16_t res = expr_to_glyph(expr[i], font))
             return res;
         }
         
@@ -185,9 +183,7 @@ void ConfigShaperDB::clear_cache() {
 void ConfigShaperDB::clear_all() {
   int c = registered.size();
   for(int i = 0; c > 0; ++i) {
-    Entry<String, SharedPtr<ConfigShaperDB> > *e = registered.entry(i);
-    
-    if(e) {
+    if(auto e = registered.entry(i)) {
       --c;
       
       e->value->clear_cache();
@@ -258,9 +254,7 @@ bool ConfigShaperDB::verify() {
   
   int c = stretched_glyphs.size();
   for(int i = 0; c > 0; ++i) {
-    Entry<uint32_t, StretchGlyphArray> *e = stretched_glyphs.entry(i);
-    
-    if(e) {
+    if(auto e = stretched_glyphs.entry(i)) {
       --c;
       
       if(e->value.glyphs.length() == 0) {
@@ -296,9 +290,7 @@ bool ConfigShaperDB::verify() {
   
   c = composed_glyphs.size();
   for(int i = 0; c > 0; ++i) {
-    Entry<uint32_t, ComposedGlyph> *e = composed_glyphs.entry(i);
-    
-    if(e) {
+    if(auto e = composed_glyphs.entry(i)) {
       --c;
       
       if(e->value.tbms_font >= math_fontnames.length()) {
@@ -342,9 +334,7 @@ bool ConfigShaperDB::verify() {
   
   c = char_to_glyph_map.size();
   for(int i = 0; c > 0; ++i) {
-    Entry<uint32_t, GlyphFontOffset> *e = char_to_glyph_map.entry(i);
-    
-    if(e) {
+    if(auto e = char_to_glyph_map.entry(i)) {
       --c;
       
       if(e->value.glyph == 0) {
@@ -364,9 +354,7 @@ bool ConfigShaperDB::verify() {
   
   c = ligatures.size();
   for(int i = 0; c > 0; ++i) {
-    Entry<String, Array<GlyphFontOffset> > *e = ligatures.entry(i);
-    
-    if(e) {
+    if(auto e = ligatures.entry(i)) {
       --c;
       
       if(e->value.length() > e->key.length()) {
@@ -385,9 +373,7 @@ bool ConfigShaperDB::verify() {
   
   c = complex_glyphs.size();
   for(int i = 0; c > 0; ++i) {
-    Entry<uint32_t, Array<GlyphFontOffset> > *e = complex_glyphs.entry(i);
-    
-    if(e) {
+    if(auto e = complex_glyphs.entry(i)) {
       --c;
       
       for(int j = 0; j < e->value.length(); ++j) {
@@ -939,9 +925,7 @@ void ConfigShaper::decode_token(
       ch = 0;
       
     if(ch) {
-      GlyphFontOffset *gfo = db->char_to_glyph_map.search(ch);
-      
-      if(gfo) {
+      if(GlyphFontOffset *gfo = db->char_to_glyph_map.search(ch)) {
         if(style.italic) {
           result->slant = FontSlantPlain;
           math_set_style(style - Italic)->decode_token(context, len, str, result);
@@ -1084,7 +1068,7 @@ void ConfigShaper::decode_token(
   while(len > 0) {
     int sub_len = 0;
     int char_len = 1;
-    GlyphFontOffset *gfo = 0;
+    GlyphFontOffset *gfo = nullptr;
     
     while(sub_len < len && !gfo) {
       char_len = 1;
@@ -1119,9 +1103,9 @@ void ConfigShaper::decode_token(
       for(int i = 0; i < sub_len; ++i)
         result[i].fontinfo += math_font_faces.length();
         
-      str   += sub_len;
+      str    += sub_len;
       result += sub_len;
-      len   -= sub_len;
+      len    -= sub_len;
     }
     
     if(gfo) {
@@ -1150,9 +1134,9 @@ void ConfigShaper::decode_token(
                          * GlyphFontOffset::EmPerOffset;
       }
       
-      str   += char_len;
+      str    += char_len;
       result += char_len;
-      len   -= char_len;
+      len    -= char_len;
     }
     else {
       assert(len == 0);
@@ -1265,15 +1249,13 @@ float ConfigShaper::italic_correction(
   else
     key = (uint32_t)info.index | (((uint32_t)info.fontinfo) << 16);
     
-  ScriptIndent *si = db->script_indents.search(key);
-  if(si)
+  if(ScriptIndent *si = db->script_indents.search(key))
     return result + si->center * GlyphFontOffset::EmPerOffset;
     
   if(!info.composed) {
     key = (1 << 31) | ch;
     
-    si = db->script_indents.search(key);
-    if(si)
+    if(ScriptIndent *si = db->script_indents.search(key))
       return result + si->center * GlyphFontOffset::EmPerOffset;
   }
   
@@ -1324,24 +1306,20 @@ void ConfigShaper::script_corrections(
     key = (3 << 30) | base_char;
   else
     key = (uint32_t)base_info.index | (((uint32_t)base_info.fontinfo) << 16);
-    
-  ScriptIndent *si = db->script_indents.search(key);
-  if(si) {
+  
+  if(ScriptIndent *si = db->script_indents.search(key)) {
     *super_x += si->super  * GlyphFontOffset::EmPerOffset * em;
 //    *center+= si->center * GlyphFontOffset::EmPerOffset * em;
     *sub_x   += si->sub    * GlyphFontOffset::EmPerOffset * em;
-    
     return;
   }
   else if(!base_info.composed) {
     key = (1 << 31) | base_char;
     
-    si = db->script_indents.search(key);
-    if(si) {
+    if(ScriptIndent *si = db->script_indents.search(key)) {
       *super_x += si->super  * GlyphFontOffset::EmPerOffset * em;
 //      *center+= si->center * GlyphFontOffset::EmPerOffset * em;
       *sub_x   += si->sub    * GlyphFontOffset::EmPerOffset * em;
-      
       return;
     }
   }

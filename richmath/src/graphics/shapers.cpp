@@ -281,9 +281,7 @@ void FallbackTextShaper::add(SharedPtr<TextShaper> fallback) {
   
   int own_num = num_fonts();
   if(own_num + fallback->num_fonts() > FontsPerGlyphCount) {
-    FallbackTextShaper *fts = dynamic_cast<FallbackTextShaper *>(fallback.ptr());
-    
-    if(fts) {
+    if(auto fts = dynamic_cast<FallbackTextShaper *>(fallback.ptr())) {
       for(int i = 0; i < fts->_shapers.length(); ++i)
         add(fts->_shapers[i]);
     }

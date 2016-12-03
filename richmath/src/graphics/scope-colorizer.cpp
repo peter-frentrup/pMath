@@ -452,9 +452,8 @@ namespace richmath {
           have_integral = true;
         }
         else {
-          UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox *>(se->item_as_box(0));
-          
-          if(uo &&
+          auto uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
+          if( uo &&
               uo->base()->length() == 1 &&
               pmath_char_is_integral(uo->base()->text()[0]))
           {
@@ -500,16 +499,13 @@ namespace richmath {
         MathSequence *bigop_init = 0;
         int next_item = 1;
         if(pmath_char_maybe_bigop(se->item_as_char(0))) {
-          SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(se->item_as_box(1));
-          
-          if(subsup) {
+          if(auto subsup = dynamic_cast<SubsuperscriptBox *>(se->item_as_box(1))) {
             bigop_init = subsup->subscript();
             ++next_item;
           }
         }
         else {
-          UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox *>(se->item_as_box(0));
-          
+          auto uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
           if( uo &&
               uo->base()->length() == 1 &&
               pmath_char_maybe_bigop(uo->base()->text()[0]))
@@ -680,9 +676,7 @@ namespace richmath {
           
         if(FunctionCallSpan::is_simple_call(se)) {
           FunctionCallSpan call(se);
-          
-          SpanExpr *name = span_as_name(call.function_head());
-          if(name) {
+          if(SpanExpr *name = span_as_name(call.function_head())) {
             if(name->equals("Local") || name->equals("With")) {
               colorize_scoping_block_head(call, scope_after_block, &ScopeColorizerImpl::symdef_local_colorize_spanexpr);
               return;
@@ -788,9 +782,7 @@ namespace richmath {
         
         if(FunctionCallSpan::is_simple_call(se->item(0))) {
           FunctionCallSpan head_call(se->item(0));
-          
-          SpanExpr *name = span_as_name(head_call.function_head());
-          if(name) {
+          if(SpanExpr *name = span_as_name(head_call.function_head())) {
             if(se->count() == 2) {
               if(name->equals("Local") || name->equals("With")) {
                 colorize_scoping_block(head_call, se, &ScopeColorizerImpl::symdef_local_colorize_spanexpr);
@@ -959,8 +951,7 @@ namespace richmath {
         
         if(se->count() >= 3 && se->count() <= 4) { // F(x)   ~x:t
           if( se->item_as_char(1) == '(') {
-            SpanExpr *head_name = span_as_name(se->item(0));
-            if(head_name) {
+            if(SpanExpr *head_name = span_as_name(se->item(0))) {
               colorize_simple_call(head_name, se);
               return;
             }
@@ -1220,9 +1211,7 @@ namespace richmath {
           
         if(FunctionCallSpan::is_simple_call(se)) {
           FunctionCallSpan call(se);
-          
-          SpanExpr *name = span_as_name(call.function_head());
-          if(name) {
+          if(SpanExpr *name = span_as_name(call.function_head())) {
             if(name->equals("Local") || name->equals("With")) {
               colorize_block_body_errors(se);
               return;
@@ -1256,8 +1245,7 @@ namespace richmath {
           
         if(FunctionCallSpan::is_simple_call(se)) {
           FunctionCallSpan call(se);
-          SpanExpr *name = span_as_name(call.function_head());
-          if(name) {
+          if(SpanExpr *name = span_as_name(call.function_head())) {
             int arg_count = call.function_argument_count();
             int argmin, argmax;
             

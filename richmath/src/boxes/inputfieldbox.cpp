@@ -158,8 +158,7 @@ void InputFieldBox::paint_content(Context *context) {
       
       if(was_parent) {
         context->selection = SelectionReference();
-        Document *doc = find_parent<Document>(false);
-        if(doc)
+        if(auto doc = find_parent<Document>(false))
           doc->select(content(), content()->length(), content()->length());
       }
       
@@ -324,8 +323,7 @@ bool InputFieldBox::selectable(int i) {
 }
 
 void InputFieldBox::on_mouse_down(MouseEvent &event) {
-  Document *doc = find_parent<Document>(false);
-  if(doc) {
+  if(auto doc = find_parent<Document>(false)) {
     if(event.left) {
       event.set_origin(0);
       float gx = event.x;
@@ -367,9 +365,7 @@ void InputFieldBox::on_mouse_down(MouseEvent &event) {
 }
 
 void InputFieldBox::on_mouse_move(MouseEvent &event) {
-  Document *doc = find_parent<Document>(false);
-  
-  if(doc) {
+  if(auto doc = find_parent<Document>(false)) {
     event.set_origin(this);
     
     int start, end;
@@ -416,8 +412,7 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
         dynamic_updated();
         
       if(!assign_dynamic()) {
-        Document *doc = find_parent<Document>(false);
-        if(doc)
+        if(auto doc = find_parent<Document>(false))
           doc->native()->beep();
           
         must_update = true;

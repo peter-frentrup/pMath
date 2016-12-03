@@ -29,18 +29,17 @@ using namespace richmath;
   do{ \
     BasicWin32Window *_FOREACH_WINDOW_FIRST = BasicWin32Window::first_window(); \
     \
-    if(_FOREACH_WINDOW_FIRST){ \
+    if(_FOREACH_WINDOW_FIRST) { \
       bool _FOREACH_WINDOW_FIRST_TIME = true; \
       \
       for( \
            BasicWin32Window *_FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_FIRST; \
            _FOREACH_WINDOW_FIRST_TIME || _FOREACH_WINDOW_NEXT != _FOREACH_WINDOW_FIRST; \
            _FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_NEXT->next_window() \
-         ){ \
+         ) { \
         _FOREACH_WINDOW_FIRST_TIME = false; \
-        Win32DocumentWindow *NAME = dynamic_cast<Win32DocumentWindow*>(_FOREACH_WINDOW_NEXT); \
         \
-        if(NAME){ \
+        if(auto NAME = dynamic_cast<Win32DocumentWindow*>(_FOREACH_WINDOW_NEXT)) { \
           PROC \
         } \
       } \
@@ -71,7 +70,6 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
     virtual void page_size(float *w, float *h) override {
       Win32Widget::page_size(w, h);
-      
       if(auto_size)
         *w = HUGE_VAL;
     }
@@ -1129,10 +1127,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
               
               HWND next_hwnd = GetWindow(_hwnd, GW_HWNDFIRST);
               while(next_hwnd) {
-                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
-                                          BasicWin32Widget::from_hwnd(next_hwnd));
-                                          
-                if(wnd)// && wnd->zorder_level() <= zorder_level())
+                if(auto wnd = dynamic_cast<BasicWin32Window *>(BasicWin32Widget::from_hwnd(next_hwnd)))// && wnd->zorder_level() <= zorder_level())
                   all_lower.add(wnd);
                   
                 next_hwnd = GetWindow(next_hwnd, GW_HWNDNEXT);
@@ -1171,7 +1166,6 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           }
           else {
             already_activated = false;
-            
             if(current_doc)
               current_doc->focus_killed();
           }
@@ -1190,19 +1184,17 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             if(cmd_string.starts_with("@shaper=")) {
               cmd_string = cmd_string.part(sizeof("@shaper=") - 1, -1);
               
-              SharedPtr<MathShaper> *ms = MathShaper::available_shapers.search(cmd_string);
-              
-              if(ms) {
-                _top_glass_area->document_context()->math_shaper    = *ms;
-                _top_glass_area->document_context()->text_shaper    = *ms;
-                _top_area->document_context()->math_shaper          = *ms;
-                _top_area->document_context()->text_shaper          = *ms;
-                _bottom_area->document_context()->math_shaper       = *ms;
-                _bottom_area->document_context()->text_shaper       = *ms;
-                _bottom_glass_area->document_context()->math_shaper = *ms;
-                _bottom_glass_area->document_context()->text_shaper = *ms;
-                _working_area->document_context()->math_shaper      = *ms;
-                _working_area->document_context()->text_shaper      = *ms;
+              if(auto math_shaper = MathShaper::available_shapers.search(cmd_string)) {
+                _top_glass_area->document_context()->math_shaper    = *math_shaper;
+                _top_glass_area->document_context()->text_shaper    = *math_shaper;
+                _top_area->document_context()->math_shaper          = *math_shaper;
+                _top_area->document_context()->text_shaper          = *math_shaper;
+                _bottom_area->document_context()->math_shaper       = *math_shaper;
+                _bottom_area->document_context()->text_shaper       = *math_shaper;
+                _bottom_glass_area->document_context()->math_shaper = *math_shaper;
+                _bottom_glass_area->document_context()->text_shaper = *math_shaper;
+                _working_area->document_context()->math_shaper      = *math_shaper;
+                _working_area->document_context()->text_shaper      = *math_shaper;
                 
                 _top_glass_area->document()->invalidate_all();
                 _top_area->document()->invalidate_all();

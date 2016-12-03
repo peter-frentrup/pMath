@@ -193,8 +193,7 @@ bool Section::edit_selection(Context *context) {
   }
   
   if(style && get_style(SectionEditDuplicate)) {
-    SectionList *slist = dynamic_cast<SectionList *>(parent());
-    if(slist) {
+    if(auto slist = dynamic_cast<SectionList *>(parent())) {
       slist->set_open_close_group(index(), true);
       
       if(get_style(SectionEditDuplicateMakesCopy)) {

@@ -265,9 +265,7 @@ class LocalServer: public Server {
       Data *me = (Data *)arg;
       pmath_atomic_write_release(&me->do_quit, TRUE);
       
-      LocalServer *ls = dynamic_cast<LocalServer *>(local_server.ptr());
-      
-      if(ls)
+      if(auto ls = dynamic_cast<LocalServer *>(local_server.ptr()))
         pmath_thread_wakeup(ls->message_queue.get());
     }
     
@@ -277,8 +275,7 @@ class LocalServer: public Server {
         return expr;
       }
       
-      LocalServer *ls = dynamic_cast<LocalServer *>(local_server.ptr());
-      
+      auto ls = dynamic_cast<LocalServer*>(local_server.ptr());
       if(!ls || !ls->is_accessable())
         return expr;
         

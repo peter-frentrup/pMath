@@ -219,9 +219,7 @@ void OTMathShaperDB::clear_cache() {
 void OTMathShaperDB::clear_all() {
   int c = registered.size();
   for(int i = 0; c > 0; ++i) {
-    Entry<String, SharedPtr<OTMathShaperDB> > *e = registered.entry(i);
-
-    if(e) {
+    if(auto e = registered.entry(i)) {
       --c;
 
       e->value->clear_cache();
@@ -233,9 +231,7 @@ void OTMathShaperDB::clear_all() {
 
 bool OTMathShaperDB::set_private_char(uint32_t ch, uint32_t fallback) {
   if(fi) {
-    uint16_t glyph;
-    glyph = fi->char_to_glyph(fallback);
-    if(glyph) {
+    if(uint16_t glyph = fi->char_to_glyph(fallback)) {
       private_characters.set(ch, glyph);
       alt_glyphs.set(ch, glyph);
       return true;
@@ -247,9 +243,7 @@ bool OTMathShaperDB::set_private_char(uint32_t ch, uint32_t fallback) {
 
 bool OTMathShaperDB::set_alt_char(uint32_t ch, uint32_t fallback) {
   if(fi) {
-    uint16_t glyph;
-    glyph = fi->char_to_glyph(fallback);
-    if(glyph) {
+    if(uint16_t glyph = fi->char_to_glyph(fallback)) {
       alt_glyphs.set(ch, glyph);
       return true;
     }
@@ -644,7 +638,7 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
   }
 
   db->clear_cache();
-  return 0;
+  return nullptr;
 }
 
 SharedPtr<OTMathShaper> OTMathShaperDB::find(FontStyle style) {
@@ -661,50 +655,41 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(FontStyle style) {
 }
 
 Array<MathGlyphVariantRecord> *OTMathShaperDB::get_vert_variants(uint32_t ch, uint16_t glyph) {
-  Array<MathGlyphVariantRecord> *res = vert_variants.search(glyph);
-  if(res)
+  if(auto res = vert_variants.search(glyph))
     return res;
 
-  uint16_t alt = alt_glyphs[ch];
-  if(alt)
+  if(uint16_t alt = alt_glyphs[ch])
     return vert_variants.search(alt);
 
-  return 0;
+  return nullptr;
 }
 
 Array<MathGlyphVariantRecord> *OTMathShaperDB::get_horz_variants(uint32_t ch, uint16_t glyph) {
-  Array<MathGlyphVariantRecord> *res = horz_variants.search(glyph);
-  if(res)
+  if(auto res = horz_variants.search(glyph))
     return res;
 
-  uint16_t alt = alt_glyphs[ch];
-  if(alt)
+  if(uint16_t alt = alt_glyphs[ch])
     return horz_variants.search(alt);
 
   return 0;
 }
 
 Array<MathGlyphPartRecord> *OTMathShaperDB::get_vert_assembly(uint32_t ch, uint16_t glyph) {
-  Array<MathGlyphPartRecord> *res = vert_assembly.search(glyph);
-  if(res)
+  if(auto res = vert_assembly.search(glyph))
     return res;
 
-  uint16_t alt = alt_glyphs[ch];
-  if(alt)
+  if(uint16_t alt = alt_glyphs[ch])
     return vert_assembly.search(alt);
 
   return 0;
 }
 
 Array<MathGlyphPartRecord> *OTMathShaperDB::get_horz_assembly(uint32_t ch, uint16_t glyph) {
-  Array<MathGlyphPartRecord> *res = horz_assembly.search(glyph);
-  if(res)
+  if(auto res = horz_assembly.search(glyph))
     return res;
 
-  uint16_t alt = alt_glyphs[ch];
-  if(alt) {
-    res = horz_assembly.search(alt);
-    if(res)
+  if(uint16_t alt = alt_glyphs[ch]) {
+    if(auto res = horz_assembly.search(alt))
       return res;
   }
 
@@ -760,8 +745,7 @@ void OTMathShaper::decode_token(
       ch = 0;
 
     if(ch) {
-      uint16_t glyph = db->private_characters[ch];
-      if(glyph) {
+      if(uint16_t glyph = db->private_characters[ch]) {
         if(style.italic) {
           math_set_style(style - Italic)->decode_token(context, len, str, result);
           result->slant = FontSlantPlain;
@@ -855,7 +839,6 @@ void OTMathShaper::decode_token(
         ch = str[sub_len];
 
       glyph_ptr = db->private_characters.search(ch);
-
       if(glyph_ptr)
         break;
 
@@ -960,9 +943,7 @@ void OTMathShaper::vertical_glyph_size(
     cg.y = 0;
 
     if(info.horizontal_stretch) {
-      Array<MathGlyphPartRecord> *ass = db->get_horz_assembly(ch, glyph);
-
-      if(ass) {
+      if(auto ass = db->get_horz_assembly(ch, glyph)) {
         for(int i = 0; i < ass->length(); ++i) {
           cg.index = ass->get(i).glyph;
           context->canvas->glyph_extents(&cg, 1, &cte);
@@ -977,8 +958,7 @@ void OTMathShaper::vertical_glyph_size(
       }
     }
     else {
-      Array<MathGlyphPartRecord> *ass = db->get_vert_assembly(ch, glyph);
-      if(ass) {
+      if(auto ass = db->get_vert_assembly(ch, glyph)) {
         float em      = context->canvas->get_font_size();
         float axis    = db->consts.axis_height.value * em / db->units_per_em;
         float overlap = db->min_connector_overlap    * em / db->units_per_em;
@@ -1043,8 +1023,7 @@ void OTMathShaper::show_glyph(
     cg.y = y;
 
     if(info.horizontal_stretch) {
-      Array<MathGlyphPartRecord> *ass = db->get_horz_assembly(ch, glyph);
-      if(ass) {
+      if(auto ass = db->get_horz_assembly(ch, glyph)) {
         for(int i = 0; i < ass->length(); ++i) {
           cg.index = ass->get(i).glyph;
 
@@ -1065,33 +1044,30 @@ void OTMathShaper::show_glyph(
         return;
       }
     }
-    else {
-      Array<MathGlyphPartRecord> *ass = db->get_vert_assembly(ch, glyph);
-      if(ass) {
-        float a = 0;
-        float d = 0;
-        vertical_glyph_size(context, ch, info, &a, &d);
+    else if(auto ass = db->get_vert_assembly(ch, glyph)) {
+      float a = 0;
+      float d = 0;
+      vertical_glyph_size(context, ch, info, &a, &d);
 
-        cg.y += d;
-        for(int i = 0; i < ass->length(); ++i) {
-          cg.index = ass->get(i).glyph;
+      cg.y += d;
+      for(int i = 0; i < ass->length(); ++i) {
+        cg.index = ass->get(i).glyph;
 
-          if(ass->get(i).flags & MGPRF_Extender) {
-            for(uint16_t repeat = info.index; repeat > 0; --repeat) {
-              context->canvas->show_glyphs(&cg, 1);
-              cg.y -= ass->get(i).full_advance * em / db->units_per_em;
-              cg.y += overlap;
-            }
-          }
-          else {
+        if(ass->get(i).flags & MGPRF_Extender) {
+          for(uint16_t repeat = info.index; repeat > 0; --repeat) {
             context->canvas->show_glyphs(&cg, 1);
             cg.y -= ass->get(i).full_advance * em / db->units_per_em;
             cg.y += overlap;
           }
         }
-
-        return;
+        else {
+          context->canvas->show_glyphs(&cg, 1);
+          cg.y -= ass->get(i).full_advance * em / db->units_per_em;
+          cg.y += overlap;
+        }
       }
+
+      return;
     }
   }
 
@@ -1114,7 +1090,6 @@ bool OTMathShaper::horizontal_stretch_char(
 
   uint16_t glyph = result->index;
   Array<MathGlyphVariantRecord> *var = db->get_horz_variants(ch, glyph);
-
   if(var) {
     cairo_text_extents_t cte;
     cairo_glyph_t        cg;
@@ -1137,8 +1112,7 @@ bool OTMathShaper::horizontal_stretch_char(
     }
   }
 
-  Array<MathGlyphPartRecord> *ass = db->get_horz_assembly(ch, glyph);
-  if(ass) {
+  if(auto ass = db->get_horz_assembly(ch, glyph)) {
     stretch_glyph_assembly(context, width, ass, result);
     return true;
   }
@@ -1298,8 +1272,7 @@ void OTMathShaper::vertical_stretch_char(
   if(!full_stretch)
     return;
 
-  Array<MathGlyphPartRecord> *ass = db->get_vert_assembly(ch, glyph);
-  if(ass) {
+  if(auto ass = db->get_vert_assembly(ch, glyph)) {
     int extenders = 0;
     float ext_h = 0;
     float non_ext_h = 0;
@@ -1743,8 +1716,7 @@ void OTMathShaper::shape_radical(
   *exponent_y = db->consts.radical_degree_bottom_raise_percent / 100.0f;
 
   uint16_t glyph = fi.char_to_glyph(SqrtChar);
-  Array<MathGlyphVariantRecord> *var = db->get_vert_variants(SqrtChar, glyph);
-  if(var) {
+  if(auto var = db->get_vert_variants(SqrtChar, glyph)) {
     for(int i = 0; i < var->length(); ++i) {
       cg.index = var->get(i).glyph;
       context->canvas->glyph_extents(&cg, 1, &cte);
@@ -1770,8 +1742,7 @@ void OTMathShaper::shape_radical(
     }
   }
 
-  Array<MathGlyphPartRecord> *ass = db->get_vert_assembly(SqrtChar, glyph);
-  if(ass) {
+  if(auto ass = db->get_vert_assembly(SqrtChar, glyph)) {
     int extenders = 0;
     float ext_h = 0;
     float non_ext_h = 0;
@@ -1868,8 +1839,7 @@ void OTMathShaper::show_radical(
   y1 = y + info.y_offset - a;
   if(gi.composed) {
     x1 = 0;
-    Array<MathGlyphPartRecord> *ass = db->get_vert_assembly(SqrtChar, fi.char_to_glyph(SqrtChar));
-    if(ass) {
+    if(auto ass = db->get_vert_assembly(SqrtChar, fi.char_to_glyph(SqrtChar))) {
       for(int i = 0; i < ass->length(); ++i) {
         cg.index = ass->get(i).glyph;
         context->canvas->glyph_extents(&cg, 1, &cte);

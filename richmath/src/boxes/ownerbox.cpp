@@ -51,9 +51,8 @@ void OwnerBox::paint_content(Context *context) {
 
 Box *OwnerBox::remove(int *index) {
   if(_parent) {
-    AbstractSequence *seq = dynamic_cast<AbstractSequence*>(_parent);
     *index = _index;
-    if(seq) {
+    if(auto seq = dynamic_cast<AbstractSequence*>(_parent)) {
       int s = _index;
       int e = _index + 1;
       seq->normalize_selection(&s, &e);
@@ -117,9 +116,7 @@ bool OwnerBox::edit_selection(Context *context) {
       
     Box *selbox = context->selection.get();
     if(auto_delete && selbox != this) {
-      MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
-      
-      if(seq) {
+      if(auto seq = dynamic_cast<MathSequence*>(_parent)) {
         if(selbox == _content) {
           context->selection.set(seq,
                                  context->selection.start + _index,

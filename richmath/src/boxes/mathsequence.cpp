@@ -108,8 +108,7 @@ namespace richmath {
         int start = data->current_box;
         while(data->current_box < data->sequence->boxes.length()) {
           if(data->sequence->boxes[data->current_box]->index() == i) {
-            SubsuperscriptBox *b = dynamic_cast<SubsuperscriptBox *>(
-                                     data->sequence->boxes[data->current_box]);
+            auto b = dynamic_cast<SubsuperscriptBox*>(data->sequence->boxes[data->current_box]);
             return 0 != b;
           }
           ++data->current_box;
@@ -132,10 +131,7 @@ namespace richmath {
         int start = data->current_box;
         while(data->current_box < data->sequence->boxes.length()) {
           if(data->sequence->boxes[data->current_box]->index() == i) {
-            UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox *>(
-                                        data->sequence->boxes[data->current_box]);
-                                        
-            if(box)
+            if(auto box = dynamic_cast<UnderoverscriptBox *>(data->sequence->boxes[data->current_box]))
               return pmath_ref(box->base()->text().get_as_string());
           }
           ++data->current_box;
@@ -144,10 +140,7 @@ namespace richmath {
         data->current_box = 0;
         while(data->current_box < start) {
           if(data->sequence->boxes[data->current_box]->index() == i) {
-            UnderoverscriptBox *box = dynamic_cast<UnderoverscriptBox *>(
-                                        data->sequence->boxes[data->current_box]);
-                                        
-            if(box)
+            if(auto box = dynamic_cast<UnderoverscriptBox *>(data->sequence->boxes[data->current_box]))
               return pmath_ref(box->base()->text().get_as_string());
           }
           ++data->current_box;
@@ -518,7 +511,7 @@ namespace richmath {
             }
             
             if(ch == PMATH_CHAR_BOX) {
-              UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(self.boxes[*box]);
+              auto underover = dynamic_cast<UnderoverscriptBox*>(self.boxes[*box]);
               if(underover && underover->base()->length() == 1)
                 ch = underover->base()->str[0];
             }
@@ -578,9 +571,7 @@ namespace richmath {
                 if( *pos < self.glyphs.length() &&
                     buf[*pos] == PMATH_CHAR_BOX)
                 {
-                  SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(self.boxes[startbox]);
-                  
-                  if(subsup) {
+                  if(dynamic_cast<SubsuperscriptBox *>(self.boxes[startbox])) {
                     ++*box;
                     ++*pos;
                   }
@@ -591,7 +582,7 @@ namespace richmath {
                 stretch_span(context, self.spans[*pos], pos, box, &a, &d, ascent, descent);
                 
               if(buf[start] == PMATH_CHAR_BOX) {
-                UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(self.boxes[startbox]);
+                auto underover = dynamic_cast<UnderoverscriptBox*>(self.boxes[startbox]);
                 
                 assert(underover != 0);
                 
@@ -642,9 +633,7 @@ namespace richmath {
                 if( start + 1 < self.glyphs.length() &&
                     buf[start + 1] == PMATH_CHAR_BOX)
                 {
-                  SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(self.boxes[startbox]);
-                  
-                  if(subsup) {
+                  if(auto subsup = dynamic_cast<SubsuperscriptBox *>(self.boxes[startbox])) {
                     subsup->stretch(context, size);
                     subsup->extents().bigger_y(ascent, descent);
                     
@@ -753,7 +742,7 @@ namespace richmath {
         }
         
         if(buf[*pos] == PMATH_CHAR_BOX) {
-          SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(self.boxes[*box]);
+          auto subsup = dynamic_cast<SubsuperscriptBox*>(self.boxes[*box]);
           
           if(subsup && *pos > 0) {
             if(buf[*pos - 1] == PMATH_CHAR_BOX) {
@@ -774,9 +763,7 @@ namespace richmath {
             subsup->extents().bigger_y(core_ascent, core_descent);
           }
           else {
-            UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(self.boxes[*box]);
-            
-            if(underover) {
+            if(auto underover = dynamic_cast<UnderoverscriptBox *>(self.boxes[*box])) {
               uint16_t ch = 0;
               
               if(underover->base()->length() == 1)
@@ -918,9 +905,8 @@ namespace richmath {
           
           FontFace face = shaper->font(self.glyphs[run_start].fontinfo);
           FontInfo info(face);
-          const GlyphSubstitutions *gsub = info.get_gsub_table();
-          
-          if(gsub) {
+
+          if(const auto gsub = info.get_gsub_table()) {
             static Array<OTFontReshaper::IndexAndValue> lookups;
             lookups.length(0);
             
@@ -1641,7 +1627,7 @@ namespace richmath {
               while(self.boxes[box]->index() < pos)
                 ++box;
                 
-              FillBox *fillbox = dynamic_cast<FillBox *>(self.boxes[box]);
+              auto fillbox = dynamic_cast<FillBox*>(self.boxes[box]);
               if(fillbox && fillbox->weight > 0) {
                 total_fill_weight += fillbox->weight;
                 white += fillbox->extents().width;
@@ -1669,7 +1655,7 @@ namespace richmath {
                   while(self.boxes[box]->index() < pos)
                     ++box;
                     
-                  FillBox *fillbox = dynamic_cast<FillBox *>(self.boxes[box]);
+                  auto fillbox = dynamic_cast<FillBox*>(self.boxes[box]);
                   if(fillbox && fillbox->weight > 0) {
                     BoxSize size = fillbox->extents();
                     dx -= size.width;
@@ -2246,13 +2232,14 @@ namespace richmath {
           if(self.lines[line].end > 0 && buf[self.lines[line].end - 1] == PMATH_CHAR_BOX) {
             while(self.boxes[box]->index() < self.lines[line].end - 1)
               ++box;
-              
-            FillBox *fb = dynamic_cast<FillBox *>(self.boxes[box]);
-            if(fb) {
-              if(buf[self.lines[line].end] == PMATH_CHAR_BOX
-                  && dynamic_cast<FillBox *>(self.boxes[box + 1]))
+            
+            if(auto fb = dynamic_cast<FillBox *>(self.boxes[box])) {
+              if( buf[self.lines[line].end] == PMATH_CHAR_BOX && 
+                  dynamic_cast<FillBox *>(self.boxes[box + 1]))
+              {
                 continue;
-                
+              }
+
               float w = self.glyphs[self.lines[line + 1].end - 1].right - self.glyphs[self.lines[line].end - 1].right;
               
               if(fb->extents().width + w + self.indention_width(self.lines[line + 1].indent) <= context->width) {
@@ -3574,8 +3561,7 @@ Box *MathSequence::extract_box(int boxindex) {
 
 template <class T>
 static Box *create_or_error(Expr expr, int options) {
-  T *box = Box::try_create<T>(expr, options);
-  if(box)
+  if(auto box = Box::try_create<T>(expr, options))
     return box;
     
   return new ErrorBox(expr);

@@ -39,8 +39,7 @@ namespace richmath {
             GtkFileFilter *next_filter = gtk_file_filter_new();
             
             String str = String(caption);
-            char *utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr);
-            if(utf8) {
+            if(char *utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr)) {
               gtk_file_filter_set_name(next_filter, utf8);
               pmath_mem_free(utf8);
             }
@@ -52,8 +51,7 @@ namespace richmath {
                 gtk_file_filter_add_pattern(next_filter, "*");
               }
               else {
-                utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr);
-                if(utf8) {
+                if(char *utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr)) {
                   gtk_file_filter_add_pattern(next_filter, utf8);
                   pmath_mem_free(utf8);
                 }
@@ -78,7 +76,7 @@ namespace richmath {
         if(!doc)
           return nullptr;
           
-        MathGtkWidget *widget = dynamic_cast<MathGtkWidget *>(doc->native());
+        auto widget = dynamic_cast<MathGtkWidget*>(doc->native());
         if(!widget)
           return nullptr;
           
@@ -118,9 +116,7 @@ MathGtkFileDialog::~MathGtkFileDialog() {
 
 void MathGtkFileDialog::set_title(String title) {
   if(title.is_valid()) {
-    char *utf8 = pmath_string_to_utf8(title.get_as_string(), nullptr);
-    
-    if(utf8) {
+    if(char *utf8 = pmath_string_to_utf8(title.get_as_string(), nullptr)) {
       gtk_window_set_title(GTK_WINDOW(_dialog), utf8);
       pmath_mem_free(utf8);
     }
@@ -146,16 +142,14 @@ void MathGtkFileDialog::set_initial_file(String initialfile) {
   // TODO: This should only be used when the file already exists.
   // gtk_file_chooser_set_current_folder() + gtk_file_chooser_set_current_name() should be used for not-yet existing files!
   
-  char *utf8 = pmath_string_to_utf8(initialfile.get_as_string(), nullptr);
-  if(utf8) {
+  if(char *utf8 = pmath_string_to_utf8(initialfile.get_as_string(), nullptr)) {
     gtk_file_chooser_set_filename(_chooser, utf8);
     pmath_mem_free(utf8);
   }
 }
 
 Expr MathGtkFileDialog::show_dialog() {
-  GtkWindow *parent = MathGtkFileDialogImpl(*this).get_parent_window();
-  if(parent)
+  if(GtkWindow *parent = MathGtkFileDialogImpl(*this).get_parent_window())
     gtk_window_set_transient_for(GTK_WINDOW(_dialog), parent);
   
   // TODO: goto working directory when no initialfile was given

@@ -60,13 +60,9 @@ InputJob::InputJob(MathSection *section)
 }
 
 void InputJob::enqueued() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
                     
-  Section *section = dynamic_cast<Section *>(
-                       Box::find(_position.section_id));
-                       
-  if(section) {
+  if(auto section = dynamic_cast<Section*>(Box::find(_position.section_id))) {
     if(section->evaluating) {
       _position = EvaluationPosition(0);
     }
@@ -82,11 +78,8 @@ void InputJob::enqueued() {
 }
 
 bool InputJob::start() {
-  MathSection *section = dynamic_cast<MathSection *>(
-                           Box::find(_position.section_id));
-                           
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
+  auto section = dynamic_cast<MathSection*>(Box::find(_position.section_id));
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
                     
   if(!section || !doc || section->parent() != doc) {
     if(section) {
@@ -141,18 +134,12 @@ void InputJob::returned_boxes(Expr expr) {
 }
 
 void InputJob::end() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-                    
-  if(doc)
+  if(auto doc = dynamic_cast<Document *>(Box::find(_position.document_id)))
     doc->native()->running_state_changed();
 }
 
 void InputJob::dequeued() {
-  MathSection *section = dynamic_cast<MathSection *>(
-                           Box::find(_position.section_id));
-                           
-  if(section) {
+  if(auto section = dynamic_cast<MathSection *>(Box::find(_position.section_id))) {
     section->evaluating = false;
     section->request_repaint_all();
   }
@@ -170,8 +157,7 @@ EvaluationJob::EvaluationJob(Expr expr, Box *box)
 }
 
 bool EvaluationJob::start() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
                     
   Server::local_server->run(_expr);
   
@@ -231,14 +217,9 @@ ReplacementJob::ReplacementJob(MathSequence *seq, int start, int end)
 }
 
 bool ReplacementJob::start() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-                    
-  Section *section = dynamic_cast<Section *>(
-                       Box::find(_position.section_id));
-                       
-  MathSequence *sequence = dynamic_cast<MathSequence *>(
-                             Box::find(_position.box_id));
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
+  auto section = dynamic_cast<Section*>(Box::find(_position.section_id));
+  auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.box_id));
                              
   if( !section                           ||
       !doc                               ||
@@ -271,12 +252,9 @@ void ReplacementJob::returned_boxes(Expr expr) {
 }
 
 void ReplacementJob::end() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-  Section *section = dynamic_cast<Section *>(
-                       Box::find(_position.section_id));
-  MathSequence *sequence = dynamic_cast<MathSequence *>(
-                             Box::find(_position.box_id));
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
+  auto section = dynamic_cast<Section*>(Box::find(_position.section_id));
+  auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.box_id));
                              
   if(section) {
     section->evaluating = false;

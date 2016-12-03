@@ -41,14 +41,11 @@ static AutoCairoSurface get_background_image() {
   if(key.is_null())
     key = Application::application_directory + "\\frame.png";
 
-  AutoCairoSurface *result = background_image_cache.search(key);
-  if(result)
+  if(auto result = background_image_cache.search(key))
     return *result;
 
   int len;
-  char *imgname = pmath_string_to_utf8(key.get(), &len);
-
-  if(imgname) {
+  if(char *imgname = pmath_string_to_utf8(key.get(), &len)) {
     AutoCairoSurface img(cairo_image_surface_create_from_png(imgname));
 
     pmath_mem_free(imgname);
@@ -479,9 +476,7 @@ void BasicWin32Window::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
 
   unsigned int i, count;
   for(i = count = 0; count < all_snappers.size(); ++i) {
-    Entry<HWND, Void> *e = all_snappers.entry(i);
-
-    if(e) {
+    if(auto e = all_snappers.entry(i)) {
       ++count;
 
       RECT rect;
@@ -525,7 +520,7 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct find_snap_info_t *info = (struct find_snap_info_t *)lParam;
 
   if(hwnd != info->dst && IsWindowVisible(hwnd)) {
-    BasicWin32Window *win = dynamic_cast<BasicWin32Window *>(
+    auto win = dynamic_cast<BasicWin32Window*>(
                               BasicWin32Widget::from_hwnd(hwnd));
 
     if(win && win->zorder_level() <= info->min_level)
@@ -573,9 +568,7 @@ void BasicWin32Window::find_all_snappers() {
     Hashtable<HWND, Void, cast_hash> more_snappers;
 
     for(unsigned i = 0, count = 0; count < all_snappers.size(); ++i) {
-      Entry<HWND, Void> *e = all_snappers.entry(i);
-
-      if(e) {
+      if(auto e = all_snappers.entry(i)) {
         ++count;
 
         info.dst = e->key;
@@ -596,9 +589,7 @@ HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, int dx, int dy) {
   if(dx != 0 || dy != 0) {
     unsigned int i, count;
     for(i = count = 0; count < all_snappers.size(); ++i) {
-      Entry<HWND, Void> *e = all_snappers.entry(i);
-
-      if(e) {
+      if(auto e = all_snappers.entry(i)) {
         ++count;
 
         RECT rect;
@@ -1696,10 +1687,9 @@ struct redraw_glass_info_t {
 };
 
 static BOOL CALLBACK redraw_glass_callback(HWND hwnd, LPARAM lParam) {
-  struct redraw_glass_info_t *info = (struct redraw_glass_info_t *)lParam;
+  auto info = (struct redraw_glass_info_t *)lParam;
 
-  Win32Widget *wid = dynamic_cast<Win32Widget *>(BasicWin32Widget::from_hwnd(hwnd));
-  if(wid) {
+  if(auto wid = dynamic_cast<Win32Widget *>(BasicWin32Widget::from_hwnd(hwnd))) {
     RECT rect, rect2;
     GetWindowRect(hwnd, &rect);
     UnionRect(&rect2, &rect, &info->inner);
@@ -1730,8 +1720,7 @@ static BOOL CALLBACK find_popup_callback(HWND hwnd, LPARAM lParam) {
   if(!IsWindowEnabled(hwnd))
     return TRUE;
 
-  Win32Widget *wid = dynamic_cast<Win32Widget *>(BasicWin32Widget::from_hwnd(hwnd));
-  if(wid)
+  if(dynamic_cast<Win32Widget *>(BasicWin32Widget::from_hwnd(hwnd)))
     return TRUE;
 
   if(GetWindow(hwnd, GW_OWNER) != 0) {
@@ -1848,8 +1837,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               if(last_higher) {
                 HWND next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDNEXT);
                 while(next_hwnd) {
-                  BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
-                                            BasicWin32Widget::from_hwnd(next_hwnd));
+                  auto wnd = dynamic_cast<BasicWin32Window*>(BasicWin32Widget::from_hwnd(next_hwnd));
 
                   if(wnd && wnd->zorder_level() > zorder_level())
                     last_higher = wnd;
@@ -1861,8 +1849,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
                 next_hwnd = GetNextWindow(last_higher->hwnd(), GW_HWNDPREV);
                 while(next_hwnd) {
-                  BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
-                                            BasicWin32Widget::from_hwnd(next_hwnd));
+                  auto wnd = dynamic_cast<BasicWin32Window*>(BasicWin32Widget::from_hwnd(next_hwnd));
 
                   if(wnd && wnd->zorder_level() > zorder_level())
                     all_higher.add(wnd);
@@ -1981,9 +1968,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
       case WM_NCRBUTTONUP: {
           if(_themed_frame && (wParam == HTCAPTION || wParam == HTSYSMENU)) {
-            HMENU menu = GetSystemMenu(_hwnd, FALSE);
-
-            if(menu) {
+            if(HMENU menu = GetSystemMenu(_hwnd, FALSE)) {
               POINT pt;
               pt.x = (short)LOWORD(lParam);
               pt.y = (short)HIWORD(lParam);
@@ -2006,9 +1991,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
       case WM_NCLBUTTONUP: {
           if(_themed_frame && wParam == HTSYSMENU) {
-            HMENU menu = GetSystemMenu(_hwnd, FALSE);
-
-            if(menu) {
+            if(HMENU menu = GetSystemMenu(_hwnd, FALSE)) {
               TPMPARAMS tpm;
               memset(&tpm, 0, sizeof(tpm));
               tpm.cbSize = sizeof(tpm);

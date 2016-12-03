@@ -98,9 +98,7 @@ bool InterpretationBox::edit_selection(Context *context) {
     return false;
     
   if(get_own_style(AutoDelete)) {
-    MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
-    
-    if(seq) {
+    if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
       int len = _content->length();
       
       if(context->selection.get() == _content) {

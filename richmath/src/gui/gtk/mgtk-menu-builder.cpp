@@ -24,13 +24,10 @@ static bool ignore_activate_signal = false;
 
 
 static String add_command(Expr cmd) {
-  String *ap_ptr = cmd_to_accel_path.search(cmd);
-  
-  if(ap_ptr)
+  if(auto ap_ptr = cmd_to_accel_path.search(cmd))
     return *ap_ptr;
     
   String ap;
-  
   if(cmd.is_string()) {
     ap = String(accel_path_prefix) + cmd;
   }
@@ -57,13 +54,10 @@ static void on_menu_item_activate(GtkMenuItem *menuitem, void *id_ptr) {
     
   Expr cmd = accel_path_to_cmd[String(accel_path_str)];
   if(!cmd.is_null()) {
-    Document *doc = dynamic_cast<Document *>(Box::find((int)(uintptr_t)id_ptr));
-    if(doc) {
-      BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget *>(doc->native());
-      
+    if(auto doc = dynamic_cast<Document *>(Box::find((int)(uintptr_t)id_ptr))) {
+      auto wid = dynamic_cast<BasicGtkWidget *>(doc->native());
       while(wid) {
-        MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow *>(wid);
-        if(win) {
+        if(auto win = dynamic_cast<MathGtkDocumentWindow *>(wid)) {
           win->run_menucommand(cmd);
           return;
         }
@@ -176,8 +170,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
         GtkWidget *menu_item;
         
         int len;
-        char *label = pmath_string_to_utf8(name.get(), &len);
-        if(label) {
+        if(char *label = pmath_string_to_utf8(name.get(), &len)) {
           for(int i = 0; i < len; ++i) {
             if(label[i] == '&')
               label[i] = '_';
@@ -187,8 +180,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
         }
         
         String accel_path = add_command(cmd);
-        char *accel_path_str = pmath_string_to_utf8(accel_path.get(), nullptr);
-        if(accel_path_str) {
+        if(char *accel_path_str = pmath_string_to_utf8(accel_path.get(), nullptr)) {
           gtk_menu_item_set_accel_path(GTK_MENU_ITEM(menu_item), accel_path_str);
           pmath_mem_free(accel_path_str);
         }
@@ -219,8 +211,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
         GtkWidget *menu_item;
         
         int len;
-        char *label = pmath_string_to_utf8(name.get(), &len);
-        if(label) {
+        if(char *label = pmath_string_to_utf8(name.get(), &len)) {
           for(int i = 0; i < len; ++i) {
             if(label[i] == '&')
               label[i] = '_';
@@ -423,13 +414,10 @@ static gboolean closure_callback(
 ) {
   AccelData *accel_data = (AccelData *)user_data;
   
-  Document *doc = dynamic_cast<Document *>(Box::find(accel_data->document_id));
-  if(doc) {
-    BasicGtkWidget *wid = dynamic_cast<BasicGtkWidget *>(doc->native());
-    
+  if(auto doc = dynamic_cast<Document *>(Box::find(accel_data->document_id))) {
+    auto wid = dynamic_cast<BasicGtkWidget *>(doc->native());
     while(wid) {
-      MathGtkDocumentWindow *win = dynamic_cast<MathGtkDocumentWindow *>(wid);
-      if(win) {
+      if(auto win = dynamic_cast<MathGtkDocumentWindow *>(wid)) {
         win->run_menucommand(accel_data->cmd);
         return TRUE;
       }

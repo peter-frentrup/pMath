@@ -444,7 +444,7 @@ namespace {
           }
           
           SharedPtr<StyleEnumConverter> sec = _key_to_enum_converter[super_key];
-          SubRuleConverter *sur = dynamic_cast<SubRuleConverter *>(sec.ptr());
+          auto sur = dynamic_cast<SubRuleConverter*>(sec.ptr());
           if(!sur) {
             pmath_debug_print_object("[invalid StyleEnumConverter: ", super_name.get(), "]\n");
             return;
@@ -707,9 +707,7 @@ bool Style::update_dynamic(Box *parent) {
   
   unsigned cnt = object_values.size();
   for(unsigned ui = 0; cnt > 0; ++ui) {
-    Entry<int, Expr> *e = object_values.entry(ui);
-    
-    if(e) {
+    if(auto e = object_values.entry(ui)) {
       --cnt;
       
       if(e->key >= DynamicOffset)
@@ -1243,7 +1241,6 @@ Expr Style::get_pmath_bool_auto(IntStyleOptionName n) const {
 
 Expr Style::get_pmath_bool(IntStyleOptionName n) const {
   int i;
-  
   if(get(n, &i)) {
     if(i)
       return Symbol(PMATH_SYMBOL_TRUE);

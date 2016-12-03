@@ -211,9 +211,7 @@ STDMETHODIMP BasicWin32Widget::Drop(IDataObject *data_object, DWORD key_state, P
 }
 
 BasicWin32Widget *BasicWin32Widget::parent() {
-  HWND p = GetParent(_hwnd);
-  
-  if(p)
+  if(HWND p = GetParent(_hwnd))
     return (BasicWin32Widget *)GetWindowLongPtrW(p, GWLP_USERDATA);
     
   return 0;

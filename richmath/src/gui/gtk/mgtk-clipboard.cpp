@@ -234,9 +234,7 @@ ReadableBinaryFile MathGtkClipboard::read_as_binary_file(String mimetype) {
 
 String MathGtkClipboard::read_as_text(String mimetype) {
   if(mimetype.equals(Clipboard::PlainText)) {
-    char *str = gtk_clipboard_wait_for_text(clipboard());
-    
-    if(str) {
+    if(char *str = gtk_clipboard_wait_for_text(clipboard())) {
       String result = String::FromUtf8(str);
       g_free(str);
       return result;

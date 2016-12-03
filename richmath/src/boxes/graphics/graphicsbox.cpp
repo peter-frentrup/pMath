@@ -236,7 +236,7 @@ int GraphicsBox::count() {
 }
 
 bool GraphicsBox::expand(const BoxSize &size) {
-  MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
+  auto seq = dynamic_cast<MathSequence*>(_parent);
   if(_parent && seq->length() == 1) {
     if(dynamic_cast<FillBox *>(seq->parent())) {
       BoxSize old_size = _extents;
@@ -1189,18 +1189,14 @@ Box *GraphicsBox::mouse_sensitive() {
 
 void GraphicsBox::on_mouse_enter() {
   if(error_boxes_expr.is_valid()) {
-    Document *doc = find_parent<Document>(false);
-    
-    if(doc)
+    if(auto doc = find_parent<Document>(false))
       doc->native()->show_tooltip(error_boxes_expr);
   }
 }
 
 void GraphicsBox::on_mouse_exit() {
   if(error_boxes_expr.is_valid()) {
-    Document *doc = find_parent<Document>(false);
-    
-    if(doc)
+    if(auto doc = find_parent<Document>(false))
       doc->native()->hide_tooltip();
   }
 }
@@ -1212,8 +1208,7 @@ void GraphicsBox::on_mouse_down(MouseEvent &event) {
   
   mouse_over_part = part == GraphicsPartNone ? GraphicsPartNone : GraphicsPartBackground;
   
-  Document *doc = find_parent<Document>(false);
-  if(doc) {
+  if(auto doc = find_parent<Document>(false)) {
     if(doc->selection_box() != this)
       doc->select(this, 0, 0);
     else
@@ -1308,11 +1303,9 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
     event.set_origin(this);
     
     int part = calc_mouse_over_part(event.x, event.y);
-    
     mouse_over_part = part == GraphicsPartNone ? GraphicsPartNone : GraphicsPartBackground;
     
-    Document *doc = find_parent<Document>(false);
-    if(doc) {
+    if(auto doc = find_parent<Document>(false)) {
       if(doc->selection_box() == this) {
         mouse_over_part = part;
       }

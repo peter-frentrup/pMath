@@ -517,9 +517,7 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
 }
 
 /*void SliderBox::on_mouse_cancel() {
-  Document *doc = find_parent<Document>(false);
-
-  if(doc)
+  if(auto doc = find_parent<Document>(false))
     doc->native()->beep();
 
   EmptyWidgetBox::on_mouse_cancel();
