@@ -14,6 +14,7 @@
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-menubar.h>
+#include <gui/win32/win32-scrollbar-overlay.h>
 #include <gui/win32/win32-themes.h>
 #include <resources.h>
 
@@ -62,6 +63,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       Win32DocumentWindow *parent)
       : Win32Widget(doc, style_ex, style, x, y, width, height, &parent->hwnd()),
         _parent(parent),
+        _overlay(&parent->hwnd(), &hwnd()),
         auto_size(false),
         best_width(1),
         best_height(1)
@@ -101,6 +103,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
   private:
     Win32DocumentWindow *_parent;
+    Win32ScrollBarOverlay _overlay;
     
   public:
     bool auto_size;
@@ -109,6 +112,20 @@ class richmath::Win32WorkingArea: public Win32Widget {
     int best_height;
     
   protected:
+    virtual void after_construction() override {
+      Win32Widget::after_construction();
+      
+      fprintf(stderr, "[Win32WorkingArea::after_construction, hwnd = %p]\n", hwnd());
+      _overlay.init();
+      SetWindowText(_overlay.hwnd(), "Scrollbar overlay");
+      _overlay.update();
+    }
+    
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
+      _overlay.handle_scrollbar_owner_callback(message, wParam, lParam);
+      return Win32Widget::callback(message, wParam, lParam);
+    }
+    
     void rearrange() {
       if(auto_size) {
         RECT rect;
@@ -137,7 +154,29 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
+      _overlay.clear();
       Win32Widget::paint_canvas(canvas, resize_only);
+      
+      _overlay.set_scale(scale_factor());
+      if(Box *sel = document()->selection_box()) {
+        cairo_matrix_t mat;
+        cairo_matrix_init_identity(&mat);
+        sel->transformation(nullptr, &mat);
+        
+        canvas->save();
+        canvas->transform(mat);
+        canvas->move_to(0, 0);
+        sel->selection_path(canvas, document()->selection_start(), document()->selection_end());
+        canvas->restore();
+        
+        double x1,y1,x2,y2;
+        cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
+        canvas->new_path();
+        
+        _overlay.add(y1, 0x800000);
+        _overlay.add(y2, 0x800000);
+      }
+      _overlay.update();
       
       if(auto_size) {
         int old_bh = best_height;

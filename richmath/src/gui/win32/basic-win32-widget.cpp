@@ -252,7 +252,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_DESTROY: {
         RevokeDragDrop(_hwnd);
         SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
-        _hwnd = 0;
+        _hwnd = nullptr;
       } return 0;
   }
   
