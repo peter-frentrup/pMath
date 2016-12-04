@@ -67,11 +67,26 @@ namespace richmath {
           
         if(indicator.position < 0 || indicator.position > range)
           return nullptr;
-          
-        int dx = w / 4;
-        int dy = w / 4;
-        int x = rect.left + w / 2 - dx / 2;
-        int y = (int)(dy / 2 + (h - dy) * indicator.position / range);
+        
+        int x, dx, dy;
+        switch(indicator.lane) {
+          case IndicatorLane::All:
+            dx = w;
+            dy = w / 8;
+            x = rect.left;
+            break;
+          case IndicatorLane::Middle:
+          default:
+            dx = w / 3;
+            dy = w / 3;
+            x = rect.left + w / 2 - dx / 2; 
+            break;
+        }
+        
+        if(dx < 1) dx = 1;
+        if(dy < 1) dy = 1;
+        
+        int y = (int)(-dy / 2 + h * indicator.position / range);
         
         return CreateRectRgn(x, y, x + dx, y + dy);
       }
@@ -95,9 +110,9 @@ namespace richmath {
           
         for(auto indicator : self.indicators) {
           if(auto rgn = get_indicator_region(indicator, rect, range)) {
-            int color = (  (indicator.color & 0xFF0000) >> 16)
-                        |  (indicator.color & 0x00FF00)
-                        | ((indicator.color & 0x0000FF) << 16);
+            unsigned color = (  (indicator.color & 0xFF0000) >> 16)
+                             |  (indicator.color & 0x00FF00)
+                             | ((indicator.color & 0x0000FF) << 16);
             HBRUSH brush = CreateSolidBrush(color);
             FillRgn(dc, rgn, brush);
             DeleteObject(rgn);
@@ -151,7 +166,7 @@ namespace richmath {
         
         fprintf(
           stderr,
-          "[update overlay bounds: (%d, %d) %d x %d, %d indicators]\n",
+          "[update overlay bounds (%d, %d) %d x %d, %d indicators]\n",
           new_overlay_left,
           new_overlay_top,
           new_overlay_width,
@@ -205,8 +220,8 @@ void Win32ScrollBarOverlay::clear() {
   indicators.length(0);
 }
 
-void Win32ScrollBarOverlay::add(float position, int style) {
-  indicators.add(Indicator{position, (unsigned)style});
+void Win32ScrollBarOverlay::add(float position, unsigned color, IndicatorLane lane) {
+  indicators.add(Indicator{position, color & 0xFFFFFF, (unsigned)lane});
 }
 
 void Win32ScrollBarOverlay::handle_scrollbar_owner_callback(UINT message, WPARAM wParam, LPARAM lParam) {

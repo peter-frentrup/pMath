@@ -10,9 +10,15 @@
 
 
 namespace richmath {
+  enum class IndicatorLane: uint8_t {
+    Middle,
+    All
+  };
+  
   struct Indicator {
-    float    position;
-    uint32_t color;
+    float     position;
+    unsigned  color: 24;
+    unsigned  lane: 8;
   };
   
   class Win32ScrollBarOverlay: public BasicWin32Widget {
@@ -23,7 +29,7 @@ namespace richmath {
       void set_scale(float _scale);
       void update();
       void clear();
-      void add(float position, int style);
+      void add(float position, unsigned color, IndicatorLane lane);
       
       void handle_scrollbar_owner_callback(UINT message, WPARAM wParam, LPARAM lParam);
       

@@ -159,11 +159,11 @@ class richmath::Win32WorkingArea: public Win32Widget {
       
       _overlay.set_scale(scale_factor());
       if(Box *sel = document()->selection_box()) {
-        add_overlay(canvas, sel, document()->selection_start(), document()->selection_end(), 0x000080);
+        add_overlay(canvas, sel, document()->selection_start(), document()->selection_end(), 0x000080, IndicatorLane::All);
       }
       for(auto ref : document()->current_word_references()) {
         if(Box *box = ref.get()) {
-         add_overlay(canvas, box, ref.start, ref.end, 0xFF8000);
+         add_overlay(canvas, box, ref.start, ref.end, 0xFF8000, IndicatorLane::Middle);
         }
       }
       _overlay.update();
@@ -195,7 +195,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
         best_width = best_height = 1;
     }
     
-    void add_overlay(Canvas *canvas, Box *box, int start, int end, int color) {
+    void add_overlay(Canvas *canvas, Box *box, int start, int end, unsigned color, IndicatorLane lane) {
       cairo_matrix_t mat;
       cairo_matrix_init_identity(&mat);
       box->transformation(nullptr, &mat);
@@ -210,7 +210,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
       canvas->new_path();
       
-      _overlay.add((y1 + y2)/2, color);
+      _overlay.add((y1 + y2)/2, color, lane);
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint) override {
