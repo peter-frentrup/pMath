@@ -1407,7 +1407,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                   ctx->old_selection = ctx->selection;
                   
                 if(Box *box = ctx->selection.get())
-                  box->request_repaint_all();
+                  box->request_repaint_range(ctx->selection.start, ctx->selection.end);
               } break;
           }
         } return 0;
