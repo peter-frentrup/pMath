@@ -73,8 +73,6 @@ namespace richmath {
         int x = rect.left + w / 2 - dx / 2;
         int y = (int)(dy / 2 + (h - dy) * indicator.position / range);
         
-        fprintf(stderr, "[indic (%d,%d) %d x %d]", x, y, dx, dy);
-        
         return CreateRectRgn(x, y, x + dx, y + dy);
       }
       
@@ -227,6 +225,9 @@ LRESULT Win32ScrollBarOverlay::callback(UINT message, WPARAM wParam, LPARAM lPar
   switch(message) {
     case WM_NCHITTEST:
       return HTTRANSPARENT;
+      
+    case WM_ERASEBKGND:
+      return 1;
       
     case WM_PAINT:
       Win32ScrollBarOverlayImpl(*this).on_paint(wParam, lParam);

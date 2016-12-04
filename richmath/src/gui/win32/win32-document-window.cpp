@@ -580,8 +580,8 @@ Win32DocumentWindow::Win32DocumentWindow(
 {
   _working_area = new Win32WorkingArea(
     doc,
-    0,
-    WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE,
+    WS_EX_COMPOSITED,
+    WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_CLIPSIBLINGS,
     0, 0, 0, 0,
     this);
     
