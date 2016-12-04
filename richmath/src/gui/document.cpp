@@ -561,109 +561,112 @@ namespace richmath {
       }
       
       void add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section) {
-        // highlight the current selected word in the whole document:
-        if(self.selection_length() > 0) {
-          MathSequence *seq = dynamic_cast<MathSequence *>(self.selection_box());
-          int start = self.selection_start();
-          int end   = self.selection_end();
-          int len   = self.selection_length();
+        self._current_word_references.length(0);
+        
+        if(self.selection_length() == 0)
+          return;
           
-          if( seq &&
-              !seq->is_placeholder(start) &&
-              (start == 0 || seq->span_array().is_token_end(start - 1)) &&
-              seq->span_array().is_token_end(end - 1))
+        MathSequence *seq = dynamic_cast<MathSequence *>(self.selection_box());
+        int start = self.selection_start();
+        int end   = self.selection_end();
+        int len   = self.selection_length();
+        
+        if( seq &&
+            !seq->is_placeholder(start) &&
+            (start == 0 || seq->span_array().is_token_end(start - 1)) &&
+            seq->span_array().is_token_end(end - 1))
+        {
+          if(!selection_is_name(&self))
+            return;
+            
+          String str = seq->text().part(start, len);
+          if(str.length() == 0)
+            return;
+            
+          Box *find = &self;
+          int index = first_visible_section;
+          
+          PaintHookManager temp_hooks;
+          int num_occurencies = 0;
+          int old_additional_selection_length = self.additional_selection.length();
+          
+          while(0 != (find = search_string(
+                               find,
+                               &index,
+                               &self,
+                               last_visible_section + 1,
+                               str,
+                               true)))
           {
-            if(selection_is_name(&self)) {
-              String s = seq->text().part(start, len);
-              
-              if(s.length() > 0) {
-                Box *find = &self;
-                int index = first_visible_section;
-                
-                PaintHookManager temp_hooks;
-                int num_occurencies = 0;
-                int oldlen = self.additional_selection.length();
-                
-                while(0 != (find = search_string(
-                                     find,
-                                     &index,
-                                     &self,
-                                     last_visible_section + 1,
-                                     s,
-                                     true)))
-                {
-                  int s = index - len;
-                  int e = index;
-                  Box *b = find->get_highlight_child(find, &s, &e);
-                  
-                  if(b == find) {
-                    add_fill(temp_hooks, b, s, e, 0xFF9933);
-                    ++num_occurencies;
-                  }
-                }
-                
-                bool do_fill = false;
-                
-                if(num_occurencies == 1) {
-                  int sel_sect = -1;
-                  Box *b = self.context.selection.get();
-                  while(b && b != &self) {
-                    sel_sect = b->index();
-                    b = b->parent();
-                  }
-                  
-                  if( sel_sect >= first_visible_section &&
-                      sel_sect <= last_visible_section)
-                  {
-                    // The one found occurency is the selection. Search for more
-                    // occurencies outside the visible range.
-                    find = &self;
-                    index = 0;
-                    
-                    while(0 != (find = search_string(
-                                         find,
-                                         &index,
-                                         &self,
-                                         first_visible_section,
-                                         s,
-                                         true)))
-                    {
-                      do_fill = true;
-                      break;
-                    }
-                    
-                    if(!do_fill) {
-                      find = &self;
-                      index = last_visible_section + 1;
-                      
-                      while(0 != (find = search_string(
-                                           find,
-                                           &index,
-                                           &self,
-                                           self.length(),
-                                           s,
-                                           true)))
-                      {
-                        do_fill = true;
-                        break;
-                      }
-                      
-                    }
-                  }
-                  else
-                    do_fill = true;
-                }
-                else
-                  do_fill = (num_occurencies > 1);
-                  
-                if(do_fill)
-                  temp_hooks.move_into(self.context.pre_paint_hooks);
-                else
-                  self.additional_selection.length(oldlen);
-              }
+            int s = index - len;
+            int e = index;
+            Box *box = find->get_highlight_child(find, &s, &e);
+            
+            if(box == find) {
+              self._current_word_references.add(SelectionReference(box->id(), s, e));
+              add_fill(temp_hooks, box, s, e, 0xFF9933);
+              ++num_occurencies;
             }
           }
+          
+          bool do_fill = false;
+          
+          if(num_occurencies == 1) {
+            int sel_sect = -1;
+            Box *box = self.context.selection.get();
+            while(box && box != &self) {
+              sel_sect = box->index();
+              box = box->parent();
+            }
+            
+            if(sel_sect >= first_visible_section && sel_sect <= last_visible_section) {
+              // The one found occurency is the selection. Search for more
+              // occurencies outside the visible range.
+              do_fill = word_occurs_outside_visible_range(str, first_visible_section, last_visible_section);
+            }
+            else
+              do_fill = true;
+          }
+          else
+            do_fill = (num_occurencies > 1);
+            
+          if(do_fill)
+            temp_hooks.move_into(self.context.pre_paint_hooks);
+          else
+            self.additional_selection.length(old_additional_selection_length);
+            
         }
+      }
+      
+      bool word_occurs_outside_visible_range(String str, int first_visible_section, int last_visible_section) {
+        Box *find = &self;
+        int index = 0;
+        
+        while(nullptr != (find = search_string(
+                                   find,
+                                   &index,
+                                   &self,
+                                   first_visible_section,
+                                   str,
+                                   true)))
+        {
+          return true;
+        }
+        
+        find = &self;
+        index = last_visible_section + 1;
+        while(nullptr != (find = search_string(
+                                   find,
+                                   &index,
+                                   &self,
+                                   self.length(),
+                                   str,
+                                   true)))
+        {
+          return true;
+        }
+        
+        return false;
       }
       
       void add_matching_bracket_hook() {
@@ -4691,8 +4694,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   }
   
   if(!resize_only) {
-    DocumentImpl(*this).add_selection_highlights(first_visible_section, last_visible_section);
-    
+    DocumentImpl(*this).add_selection_highlights(0, length());
+//    DocumentImpl(*this).add_selection_highlights(first_visible_section, last_visible_section);
+
     {
       float y = 0;
       if(first_visible_section < length())

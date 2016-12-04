@@ -145,6 +145,8 @@ namespace richmath {
       int selection_end() {    return context.selection.end;   }
       int selection_length() { return context.selection.end - context.selection.start; }
       
+      const Array<SelectionReference> &current_word_references() { return _current_word_references; }
+      
       int clicked_box_id() {   return context.clicked_box_id; }
       int mouseover_box_id() { return context.mouseover_box_id; }
       void reset_mouse();
@@ -193,6 +195,8 @@ namespace richmath {
       
       /* When the selection changes, these ranges need to be repainted, too. */
       Array<SelectionReference> additional_selection;
+      
+      Array<SelectionReference> _current_word_references;
       
       SelectionReference        last_paint_sel;
       

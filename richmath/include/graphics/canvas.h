@@ -103,6 +103,7 @@ namespace richmath {
       void hair_stroke();
       void stroke();
       void stroke_preserve();
+      void path_extents(float *x1, float *y1, float *x2, float *y2);
       
       void paint();
       void paint_with_alpha(float alpha);

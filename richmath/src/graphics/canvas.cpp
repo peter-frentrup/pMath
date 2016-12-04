@@ -677,6 +677,15 @@ void Canvas::stroke_preserve() {
   cairo_stroke_preserve(_cr);
 }
 
+void Canvas::path_extents(float *x1, float *y1, float *x2, float *y2) {
+  double _x1, _y1, _x2, _y2;
+  cairo_path_extents(_cr, &_x1, &_y1, &_x2, &_y2);
+  *x1 = _x1;
+  *y1 = _y1;
+  *x2 = _x2;
+  *y2 = _y2;
+}
+
 void Canvas::paint() {
   if(show_only_text)
     return;

@@ -24,21 +24,11 @@ namespace richmath {
       void update_regions() {
         if(!IsWindowVisible(self.hwnd()))
           return;
-        
-        SCROLLINFO si;
-        si.cbSize = sizeof(si);
-        si.fMask  = SIF_RANGE | SIF_PAGE;
-        GetScrollInfo(scrollbar_owner(), SB_VERT, &si);
-        
-        fprintf(stderr, "[update_regions %d..%d, %d]\n", si.nMin, si.nMax, si.nPage);
-        
-        if(si.nMax - si.nMin <= si.nPage)
-          return;
-        
-        float range = (si.nMax - si.nMin) / self.scale;
+          
+        float range = get_range();
         if(range <= 0)
           return;
-        
+          
         HRGN region = CreateRectRgn(0, 0, 0, 0);
         
         RECT rect;
@@ -56,6 +46,18 @@ namespace richmath {
       }
       
     private:
+      float get_range() {
+        SCROLLINFO si;
+        si.cbSize = sizeof(si);
+        si.fMask  = SIF_RANGE | SIF_PAGE;
+        GetScrollInfo(scrollbar_owner(), SB_VERT, &si);
+        
+        if(si.nMax - si.nMin <= si.nPage)
+          return 0.0;
+          
+        return (si.nMax - si.nMin) / self.scale;
+      }
+      
       HRGN get_indicator_region(const Indicator &indicator, const RECT &rect, float range) {
         int w = rect.right - rect.left;
         int h = rect.bottom - rect.top;
@@ -71,7 +73,7 @@ namespace richmath {
         int x = rect.left + w / 2 - dx / 2;
         int y = (int)(dy / 2 + (h - dy) * indicator.position / range);
         
-        fprintf(stderr, "[indic (%d,%d) %d x %d]", x,y,dx,dy);
+        fprintf(stderr, "[indic (%d,%d) %d x %d]", x, y, dx, dy);
         
         return CreateRectRgn(x, y, x + dx, y + dy);
       }
@@ -88,10 +90,22 @@ namespace richmath {
       void on_paint(HDC dc, bool from_wmpaint) {
         RECT rect;
         GetClientRect(self.hwnd(), &rect);
-        // TODO: use indicator colors
-        HBRUSH brush = CreateSolidBrush(0xFF0000);
-        FillRect(dc, &rect, brush);
-        DeleteObject(brush);
+        
+        float range = get_range();
+        if(range <= 0)
+          return;
+          
+        for(auto indicator : self.indicators) {
+          if(auto rgn = get_indicator_region(indicator, rect, range)) {
+            int color = (  (indicator.color & 0xFF0000) >> 16)
+                        |  (indicator.color & 0x00FF00)
+                        | ((indicator.color & 0x0000FF) << 16);
+            HBRUSH brush = CreateSolidBrush(color);
+            FillRgn(dc, rgn, brush);
+            DeleteObject(rgn);
+            DeleteObject(brush);
+          }
+        }
       }
       
     public:
@@ -145,7 +159,7 @@ namespace richmath {
           new_overlay_width,
           new_overlay_height,
           self.indicators.length());
-        
+          
         bool same_pos = new_overlay_left == old_overlay.left &&
                         new_overlay_top == old_overlay.top;
         bool same_size = new_overlay_width == old_overlay.right - old_overlay.left &&

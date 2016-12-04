@@ -2,6 +2,8 @@
 
 #include<boxes/mathsequence.h>
 #include<graphics/context.h>
+#include<gui/document.h>
+#include<gui/native-widget.h>
 
 
 using namespace richmath;
