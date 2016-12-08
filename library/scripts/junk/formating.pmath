@@ -18,38 +18,38 @@ Protect(ShowDefinition, showdef);
 
 
 
-Unprotect(RunParser);
+Unprotect(MakeExpression);
 
-RunParser({~a, "\[U+21A6]", ~b})::= RunParser({"Function", "(", {{"{", a, "}"}, ",", b}, ")"})
+MakeExpression({~a, "\[U+21A6]", ~b})::= MakeExpression({"Function", "(", {{"{", a, "}"}, ",", b}, ")"})
 
-RunParser({UnderoverscriptBox("\[U+220F]", {~i, "=", ~a}, ~b), ~c})::= 
-  RunParser({"Product", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
+MakeExpression({UnderoverscriptBox("\[U+220F]", {~i, "=", ~a}, ~b), ~c})::= 
+  MakeExpression({"Product", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
 
-RunParser({"\[U+220F]", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
-  RunParser({"Product", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
+MakeExpression({"\[U+220F]", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
+  MakeExpression({"Product", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
 
-RunParser({UnderoverscriptBox("\[u+2211]", {~i, "=", ~a}, ~b), ~c})::= 
-  RunParser({"Sum", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
+MakeExpression({UnderoverscriptBox("\[u+2211]", {~i, "=", ~a}, ~b), ~c})::= 
+  MakeExpression({"Sum", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
 
-RunParser({"\[u+2211]", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
-  RunParser({"Sum", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
+MakeExpression({"\[u+2211]", SubsuperscriptBox({~i, "=", ~a}, ~b), ~c})::=
+  MakeExpression({"Sum", "(", {c, ",", {i, "->", {a, "..", b}}}, ")"})
 
-RunParser({~x, SubscriptBox("+")})::= RunParser("SubPlus", "(", x, ")")
-RunParser({~x, SubscriptBox("-")})::= RunParser("SubMinus", "(", x, ")")
-RunParser({~x, SubscriptBox("*")})::= RunParser("SubStar", "(", x, ")")
+MakeExpression({~x, SubscriptBox("+")})::= MakeExpression("SubPlus", "(", x, ")")
+MakeExpression({~x, SubscriptBox("-")})::= MakeExpression("SubMinus", "(", x, ")")
+MakeExpression({~x, SubscriptBox("*")})::= MakeExpression("SubStar", "(", x, ")")
 
-RunParser({~x, SuperscriptBox("+")})::= RunParser("SuperPlus", "(", x, ")")
-RunParser({~x, SuperscriptBox("-")})::= RunParser("SuperMinus", "(", x, ")")
-RunParser({~x, SuperscriptBox("*")})::= RunParser("SuperStar", "(", x, ")")
+MakeExpression({~x, SuperscriptBox("+")})::= MakeExpression("SuperPlus", "(", x, ")")
+MakeExpression({~x, SuperscriptBox("-")})::= MakeExpression("SuperMinus", "(", x, ")")
+MakeExpression({~x, SuperscriptBox("*")})::= MakeExpression("SuperStar", "(", x, ")")
 
-RunParser(OverscriptBox(~x, "_"))::= RunParser("OverBar", "(", x, ")")
-RunParser(OverscriptBox(~x, "^"))::= RunParser("OverHat", "(", x, ")")
-RunParser(OverscriptBox(~x, "~"))::= RunParser("OverTilde", "(", x, ")")
-RunParser(OverscriptBox(~x, "."))::= RunParser("OverDot", "(", x, ")")
+MakeExpression(OverscriptBox(~x, "_"))::= MakeExpression("OverBar", "(", x, ")")
+MakeExpression(OverscriptBox(~x, "^"))::= MakeExpression("OverHat", "(", x, ")")
+MakeExpression(OverscriptBox(~x, "~"))::= MakeExpression("OverTilde", "(", x, ")")
+MakeExpression(OverscriptBox(~x, "."))::= MakeExpression("OverDot", "(", x, ")")
 
-RunParser(UnderscriptBox(~x, "_"))::= RunParser("UnderBar", "(", x, ")")
+MakeExpression(UnderscriptBox(~x, "_"))::= MakeExpression("UnderBar", "(", x, ")")
 
-Protect(RunParser);
+Protect(MakeExpression);
 
 MakeBoxes(Sum(~c, ~i -> ~a..~b))::= 
   ParenthesizeBoxes(

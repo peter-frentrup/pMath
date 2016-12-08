@@ -4,11 +4,12 @@
 	- BUG: arithmetic on intervals should always round the lower bound
 		down and the upper bound up. At the moment, round-to-nearest is used in 
 		all cases.
-		This needs pMath-kernel support.
+		This needs pMath-kernel support, which is available with Internal`RealInterval
  */
 
 BeginPackage("System`")
 
+<<ExperimentalSyntax`
 
 Interval
 
@@ -27,12 +28,12 @@ SortRanges(ranges: {(~ .. ~)***})::= ranges.Map(#.Sort(Less) &).Sort(First(#1) <
 
 CompressSortedRanges(~done, {})  ::= done
 CompressSortedRanges(~done, {~x})::= done.Append(x)
-CompressSortedRanges(~done, {~a1 .. ~a2, ~b1 .. ~b2, ~~~rest})::= (
-	If(b1 <= a2,
-		Return(CompressSortedRanges(done, {a1 .. Max(a2, b2), rest})));
-	Return(CompressSortedRanges(done.Append(a1 .. a2), {b1 .. b2, rest}));
-	)
-
+Function CompressSortedRanges(~done, {~a1 .. ~a2, ~b1 .. ~b2, ~~~rest}) {
+	If(b1 <= a2) {
+		Return(CompressSortedRanges(done, {a1 .. Max(a2, b2), rest}))
+	}
+	Return(CompressSortedRanges(done.Append(a1 .. a2), {b1 .. b2, rest}))
+}
 
 Attributes(IsInterval):= {HoldAll}
 IsInterval(Interval(ranges: (~?IsRealOrInfinity .. ~?IsRealOrInfinity)***))::= True
@@ -56,11 +57,12 @@ Interval/: Intersection(~a:Interval ? IsInterval, ~b:Interval ? IsInterval)::=
 	Interval @@ Flatten @ (List @@ a).Map(IntervalIntersectRange(b, #) &)
 
 IntervalIntersectRange(~i, ~r)::= (List @@ i).Map(IntervalIntersectRanges(#, r) &)
-IntervalIntersectRanges(~a .. ~b, ~c .. ~d)::= (
-	If(b < c || d < a,
-		Return({}));
-	Return(Max(a, c) .. Min(b, d));
-	)
+Function IntervalIntersectRanges(~a .. ~b, ~c .. ~d) {
+	If(b < c || d < a) {
+		Return({})
+	}
+	Return(Max(a, c) .. Min(b, d))
+}
 	
 	
 MinMax(~list)::= Min(list) .. Max(list)
@@ -96,11 +98,12 @@ IsIntervalInteriorElement(~elem, ~i ? IsInterval)::=
 Interval/: Abs(~a:Interval ? IsInterval) ::= IntervalAbs(a)
 
 IntervalAbs(~i)::= i.Map(IntervalRangeAbs)
-IntervalRangeAbs(~a .. ~b)::= (
-	If(a <= 0 <= b,
-		Return(0 .. Max(-a, b)));
-	Return(Min(Abs(a), Abs(b)) .. Max(Abs(a), Abs(b)));
-	)
+Function IntervalRangeAbs(~a .. ~b) {
+	If(a <= 0 <= b) {
+		Return(0 .. Max(-a, b))
+	}
+	Return(Min(Abs(a), Abs(b)) .. Max(Abs(a), Abs(b)))
+}
 
 
 /* IntervalDisjoint */
@@ -115,27 +118,33 @@ Interval/: Less(~~~a, ~i:Interval ? IsInterval, ~~~b)::= With({r:= IntervalLess(
 IntervalLess(~):= True
 IntervalLess(~a, ~b, ~~~c)::= IntervalLess2(a, b) && IntervalLess(b, c)
 
-IntervalLess2(~a ? IsRealOrInfinity, ~b ? IsInterval) ::= (
-	If(a < Min(b),
-		Return(True));
-	If(Max(b) < a,
-		Return(False));
-	Return(Undefined);
-	)
-IntervalLess2(~a ? IsInterval, ~b ? IsRealOrInfinity) ::= (
-	If(Max(a) < b,
-		Return(True));
-	If(b < Min(a),
-		Return(False));
-	Return(Undefined);
-	)
-IntervalLess2(~a ? IsInterval, ~b ? IsInterval) ::= (
-	If(Max(a) < Min(b),
-		Return(True));
-	If(Max(b) < Min(a),
-		Return(False));
-	Return(Undefined);
-	)
+Function IntervalLess2(~a ? IsRealOrInfinity, ~b ? IsInterval) {
+	If(a < Min(b)) {
+		Return(True)
+	}
+	If(Max(b) < a) {
+		Return(False)
+	}
+	Return(Undefined)
+}
+Function IntervalLess2(~a ? IsInterval, ~b ? IsRealOrInfinity) {
+	If(Max(a) < b) {
+		Return(True)
+	}
+	If(b < Min(a)) {
+		Return(False)
+	}
+	Return(Undefined)
+}
+Function IntervalLess2(~a ? IsInterval, ~b ? IsInterval) {
+	If(Max(a) < Min(b)) {
+		Return(True)
+	}
+	If(Max(b) < Min(a)) {
+		Return(False)
+	}
+	Return(Undefined)
+}
 IntervalLess2(~, ~)::= Undefined
 
 
@@ -145,27 +154,33 @@ Interval/: LessEqual(~~~a, ~i:Interval ? IsInterval, ~~~b)::= With({r:= Interval
 IntervalLessEqual(~):= True
 IntervalLessEqual(~a, ~b, ~~~c)::= IntervalLessEqual2(a, b) && IntervalLessEqual(b, c)
 
-IntervalLessEqual2(~a ? IsRealOrInfinity, ~b ? IsInterval) ::= (
-	If(a <= Min(b),
-		Return(True));
-	If(Max(b) <= a,
-		Return(False));
-	Return(Undefined);
-	)
-IntervalLessEqual2(~a ? IsInterval, ~b ? IsRealOrInfinity) ::= (
-	If(Max(a) <= b,
-		Return(True));
-	If(b <= Min(a),
-		Return(False));
-	Return(Undefined);
-	)
-IntervalLessEqual2(~a ? IsInterval, ~b ? IsInterval) ::= (
-	If(Max(a) <= Min(b),
-		Return(True));
-	If(Max(b) <= Min(a),
-		Return(False));
-	Return(Undefined);
-	)
+Function IntervalLessEqual2(~a ? IsRealOrInfinity, ~b ? IsInterval) {
+	If(a <= Min(b)) {
+		Return(True)
+	}
+	If(Max(b) <= a) {
+		Return(False)
+	}
+	Return(Undefined)
+}
+Function IntervalLessEqual2(~a ? IsInterval, ~b ? IsRealOrInfinity) {
+	If(Max(a) <= b) {
+		Return(True)
+	}
+	If(b <= Min(a)) {
+		Return(False)
+	}
+	Return(Undefined)
+}
+Function IntervalLessEqual2(~a ? IsInterval, ~b ? IsInterval) {
+	If(Max(a) <= Min(b)) {
+		Return(True)
+	}
+	If(Max(b) <= Min(a)) {
+		Return(False)
+	}
+	Return(Undefined)
+}
 IntervalLessEqual2(~, ~)::= Undefined
 
 
@@ -180,13 +195,15 @@ Interval/: ~a:Interval != ~b:Interval ::= With({r:= IntervalUnequal(a, b)}, r /?
 Interval/: ~a:Interval != ~b          ::= With({r:= IntervalUnequal(a, b)}, r /? r === True || r === False)
 Interval/: ~a          != ~b:Interval ::= With({r:= IntervalUnequal(a, b)}, r /? r === True || r === False)
 
-IntervalUnequal(~a, ~b)::= (
-	If(a = b,
-		Return(False));
-	If(IntervalDisjoint(a, b),
-		Return(True));
-	Return($Failed);
-	)
+Function IntervalUnequal(~a, ~b) {
+	If(a = b) {
+		Return(False)
+	}
+	If(IntervalDisjoint(a, b)) {
+		Return(True)
+	}
+	Return($Failed)
+}
 
 
 /* IntervalSin, IntervalCos */
@@ -199,25 +216,29 @@ Interval/: Sec(~i:Interval ? IsInterval)::= 1 / IntervalCos(i)
 
 IntervalSin(~i)::= Interval @@ (List @@ i).Map(IntervalSinRange(f))
 IntervalSinRange(~)::= -1 .. 1
-IntervalSinRange(~a?IsReal .. ~b?IsReal)::= 
-	With({nextExtremumA:= Ceiling(a - Pi/2, Pi) + Pi/2},
-		If(b >= nextExtremumA + Pi,
-			Return(-1 .. 1));
-		If(b <= nextExtremumA,
-			Return(Sin(a) .. Sin(b)));
-		Return(MinMax({Sin(a), Sin(b), Sin(nextExtremumA)}))
-		)
+Function IntervalSinRange(~a?IsReal .. ~b?IsReal) {
+	With(nextExtremumA:= Ceiling(a - Pi/2, Pi) + Pi/2)
+	If(b >= nextExtremumA + Pi) {
+		Return(-1 .. 1)
+	}
+	If(b <= nextExtremumA) {
+		Return(Sin(a) .. Sin(b))
+	}
+	Return(MinMax({Sin(a), Sin(b), Sin(nextExtremumA)}))
+}
 
 IntervalCos(~i)::= Interval @@ (List @@ i).Map(IntervalCosRange(f))
 IntervalCosRange(~)::= -1 .. 1
-IntervalCosRange(~a?IsReal .. ~b?IsReal)::= 
-	With({nextExtremumA:= Ceiling(a, Pi)},
-		If(b >= nextExtremumA + Pi,
-			Return(-1 .. 1));
-		If(b <= nextExtremumA,
-			Return(Cos(a) .. Cos(b)));
-		Return(MinMax({Cos(a), Cos(b), Cos(nextExtremumA)}))
-		)
+Function IntervalCosRange(~a?IsReal .. ~b?IsReal) {
+	With(nextExtremumA:= Ceiling(a, Pi))
+	If(b >= nextExtremumA + Pi) {
+		Return(-1 .. 1)
+	}
+	If(b <= nextExtremumA) {
+		Return(Cos(a) .. Cos(b))
+	}
+	Return(MinMax({Cos(a), Cos(b), Cos(nextExtremumA)}))
+}
 
 /* IntervalArcTan(y,x) */
 Interval/: ArcTan(~y:Interval ? IsInterval, ~x:Interval ? IsInterval)::= IntervalArcTan(y, x)
@@ -228,25 +249,30 @@ IntervalArcTan(~y, ~x)::= Union @@ (List @@ x).Map(IntervalArcTanRange(y, #) &)
 
 IntervalArcTanRange(~y, ~x)::= y.Map(IntervalRangesArcTan(#, x) &)
 
-IntervalRangesArcTan(~y1 .. ~y2, ~x1 .. ~x2)::= (
-	If(0 <= y1,
-		If(0 <= x1,
-			Return(ArcTan(y1, x2) .. ArcTan(y2, x1)));
-		If(x2 <= 0,
-			Return(ArcTan(y2, x2) .. ArcTan(y1, x1)));
-		Return(ArcTan(y1, x2) .. ArcTan(y1, x1));
-		);
-	If(y2 <= 0,
-		If(0 <= x1,
-			Return(ArcTan(y1, x1) .. ArcTan(y2, x2)));
-		If(x2 <= 0,
-			Return(ArcTan(y2, x1) .. ArcTan(y1, x2)));
-		Return(ArcTan(y2, x1) .. ArcTan(y2, x2));
-		);
-	If(0 <= x1,
-		Return(ArcTan(y1, x1) .. ArcTan(y2, x1)));
-	Return(-Pi .. Pi);
-	)
+Function IntervalRangesArcTan(~y1 .. ~y2, ~x1 .. ~x2) {
+	If(0 <= y1) {
+		If(0 <= x1) {
+			Return(ArcTan(y1, x2) .. ArcTan(y2, x1))
+		}
+		If(x2 <= 0) {
+			Return(ArcTan(y2, x2) .. ArcTan(y1, x1))
+		}
+		Return(ArcTan(y1, x2) .. ArcTan(y1, x1))
+	}
+	If(y2 <= 0) {
+		If(0 <= x1) {
+			Return(ArcTan(y1, x1) .. ArcTan(y2, x2))
+		}
+		If(x2 <= 0) {
+			Return(ArcTan(y2, x1) .. ArcTan(y1, x2))
+		}
+		Return(ArcTan(y2, x1) .. ArcTan(y2, x2))
+	}
+	If(0 <= x1) {
+		Return(ArcTan(y1, x1) .. ArcTan(y2, x1))
+	}
+	Return(-Pi .. Pi)
+}
 
 
 /* IntervalMonotone */
@@ -276,12 +302,12 @@ Interval/: Cosh(  ~i:Interval ? IsInterval)::= IntervalCosh(i)
 Interval/: Sech(  ~i:Interval ? IsInterval)::= 1 / IntervalCosh(i)
 
 IntervalCosh(~i)::= Interval @@ (List @@ i).Map(IntervalCoshRange)
-IntervalCoshRange(~a ? IsRealOrInfinity .. ~b ? IsRealOrInfinity)::= (
-	If(a <= 0 <= b,
-		Return(MinMax({Cosh(a), Cosh(0), Cosh(b)})));
+Function IntervalCoshRange(~a ? IsRealOrInfinity .. ~b ? IsRealOrInfinity) {
+	If(a <= 0 <= b ) {
+		Return(MinMax({Cosh(a), Cosh(0), Cosh(b)}))
+	}
 	Return(Cosh(a) .. Cosh(b))
-	)
-
+}
 
 /* IntervalPlus */
 Interval/: (h:Plus)(~a:Interval ? IsInterval, ~b:Interval ? IsInterval)       ::= IntervalPlus(a, b)
@@ -316,30 +342,37 @@ IntervalPower(~i1, ~i2)::= Interval @@ Flatten @ (List @@ i2).Map(IntervalPowerR
 
 IntervalPowerRange(~i, ~r)::= (List @@ i).Map(IntervalRangesPower(#, r) &)
 
-IntervalRangesPower(~a1 .. ~a2, ~b .. ~b)::= (
-	If(a2 < 0 || 0 < a1,
-		Return(MinMax({a1^b, a2^b})));
-	If(b > 0,
-		Return(MinMax({0, a1^b, a2^b})));
-	If(b = 0,
-		Return(1..1));
-	If(a1 = 0,
-		Return(a2^b .. Infinity));
-	If(!IsInteger(b),
-		Return($Failed));
-	If(IsEven(b),
-		Return(Min(a1^b, a2^b) .. Infinity));
-	Return({-Infinity .. a1^b, a2^b .. Infinity});
-	)
+Function IntervalRangesPower(~a1 .. ~a2, ~b .. ~b) {
+	If(a2 < 0 || 0 < a1) {
+		Return(MinMax({a1^b, a2^b}))
+	}
+	If(b > 0) {
+		Return(MinMax({0, a1^b, a2^b}))
+	}
+	If(b = 0) {
+		Return(1..1)
+	}
+	If(a1 = 0) {
+		Return(a2^b .. Infinity)
+	}
+	If(!IsInteger(b)) {
+		Return($Failed)
+	}
+	If(IsEven(b)) {
+		Return(Min(a1^b, a2^b) .. Infinity)
+	}
+	Return({-Infinity .. a1^b, a2^b .. Infinity})
+}
 
-IntervalRangesPower(~a1 .. ~a2, ~b1 .. ~b2)::= (
-	If(a1 <= 0 <= a2,
-		If(b1 < 0,
-			Return($Failed));
-		Return(MinMax({0, Try(a1^b1), Try(a1^b2), Try(a2^b1), Try(a2^b2)}.Select(IsRealOrInfinity)));
-		);
-	Return(MinMax({a1^b1, a1^b2, a2^b1, a2^b2}));
-	)
+Function IntervalRangesPower(~a1 .. ~a2, ~b1 .. ~b2) {
+	If(a1 <= 0 <= a2) {
+		If(b1 < 0) {
+			Return($Failed)
+		}
+		Return(MinMax({0, Try(a1^b1), Try(a1^b2), Try(a2^b1), Try(a2^b2)}.Select(IsRealOrInfinity)))
+	}
+	Return(MinMax({a1^b1, a1^b2, a2^b1, a2^b2}))
+}
 
 Protect(Interval);
 

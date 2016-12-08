@@ -103,6 +103,7 @@ PMATH_PRIVATE pmath_t builtin_mod(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_plus(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_polygamma(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_power(           pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_powermod(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_precision(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_product(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_quotient(        pmath_expr_t expr);
@@ -1241,6 +1242,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_POSTDECREMENT                    = NEW_SYSTEM_SYMBOL("PostDecrement"))
   VERIFY(   PMATH_SYMBOL_POSTINCREMENT                    = NEW_SYSTEM_SYMBOL("PostIncrement"))
   VERIFY(   PMATH_SYMBOL_POWER                            = NEW_SYSTEM_SYMBOL("Power"))
+  VERIFY(   PMATH_SYMBOL_POWERMOD                         = NEW_SYSTEM_SYMBOL("PowerMod"))
   VERIFY(   PMATH_SYMBOL_PRECEDES                         = NEW_SYSTEM_SYMBOL("Precedes"))
   VERIFY(   PMATH_SYMBOL_PRECEDESEQUAL                    = NEW_SYSTEM_SYMBOL("PrecedesEqual"))
   VERIFY(   PMATH_SYMBOL_PRECEDESTILDE                    = NEW_SYSTEM_SYMBOL("PrecedesTilde"))
@@ -1812,6 +1814,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_POSITION,                    builtin_position)
   BIND_DOWN(   PMATH_SYMBOL_POSTDECREMENT,               builtin_dec_or_inc_or_postdec_or_postinc)
   BIND_DOWN(   PMATH_SYMBOL_POSTINCREMENT,               builtin_dec_or_inc_or_postdec_or_postinc)
+  BIND_DOWN(   PMATH_SYMBOL_POWERMOD,                    builtin_powermod)
   BIND_DOWN(   PMATH_SYMBOL_PRECISION,                   builtin_precision)
   BIND_DOWN(   PMATH_SYMBOL_PREPEND,                     builtin_prepend)
   BIND_DOWN(   PMATH_SYMBOL_PRINT,                       builtin_print)
@@ -2103,6 +2106,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_POSTDECREMENT,                    HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_POSTINCREMENT,                    HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_POWER,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY);
+  SET_ATTRIB( PMATH_SYMBOL_POWERMOD,                         DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_PRODUCT,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_PROTECT,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_PUREARGUMENT,                     NHOLDFIRST);

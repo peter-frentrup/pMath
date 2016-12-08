@@ -18,6 +18,7 @@
 #include <limits.h>
 #include <string.h>
 
+#define MIN(A, B)  ((A) < (B) ? (A) : (B))
 
 //{ spans ...
 
@@ -282,9 +283,9 @@ static int next_token_pos(struct parser_t *parser) {
     
   span = SPAN_PTR(parser->spans->items[parser->tokens.pos]);
   
-  if(span)
-    return span->end + 1;
-    
+  if(span) 
+    return MIN(span->end + 1, parser->tokens.len);
+  
   next = parser->tokens.pos;
   while( next < parser->tokens.len &&
          !pmath_span_array_is_token_end(parser->spans, next))

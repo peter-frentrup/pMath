@@ -227,6 +227,9 @@ Partition::pdep:= "Depth `1` requested in object with dimensions `2`."
 
 Piecewise::pairs:= "The first argument `1` of Piecewise is not a list of pairs."
 
+PowerMod::ninv:= "`1` is not invertible modulo `2`."
+PowerMod::pmod:= "The base, exponent and modulus arguments in `1` must be integers."
+
 Quantile::nquan:= "The Quantile specification `1` should be a number or a list of numbers between 0 and 1."
 Quantile::parm:= "The Quantile parameters `1` should be given as a 2 x 2 matrix of real numbers {{a,b},{c,d}} or as a pair of real plot point parameters {a,b}."
 						

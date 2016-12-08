@@ -4,6 +4,7 @@
 
 BeginPackage("Polynoms`")
 
+<<ExperimentalSyntax`
 
 Monom
 Polynom
@@ -28,7 +29,7 @@ Monom(~c, ~n:Integer ? IsNonNegative)::= Polynom(PadRight({c}, n+1))
 
 ToPolynom(~term, ~x:Symbol)::= Replace(term, x -> Monom(1,1))
 
-PolyDegree(Polynom({})):= -Infinity
+PolyDegree(Polynom({})):= 0
 PolyDegree(Polynom(~xs))::= Length(xs)-1
 
 PolyLeadingCoefficient(Polynom({})):= 0
@@ -48,67 +49,76 @@ Polynom/: Polynom(~xs) + Polynom(~ys)::= With({n:= Max(Length(xs), Length(ys))},
 
 /* Polynom/: Polynom(~xs) * Polynom(~ys)::= Polynom(Table(Sum(xs[i] ys[k-i+2], i -> k), k -> Length(xs) + Length(ys) - 1)) */
 polyMul(Polynom({}), ~)::= Polynom({})
-polyMul(Polynom(~xs), Polynom(~ys))::= (
-	If(PolyIsMonom(Polynom(xs)),
-		Return(Polynom(Join(First(xs) ys, Rest(xs)))));
-	If(PolyIsMonom(Polynom(ys)),
-		Return(Polynom(Join(First(ys) xs, Rest(ys)))));
-	With({
-		as:= PadLeft(         xs,  Length(xs) + Length(ys) - 1), 
-		bs:= PadRight(Reverse(ys), Length(xs) + Length(ys) - 1)}, 
-	Polynom(Table(Plus @@ (Take(as, -k) * Take(bs, k)), k -> Length(xs)+Length(ys)-1 .. 1 .. -1)))
-	)
+Function polyMul(Polynom(~xs), Polynom(~ys)) {
+	If(PolyIsMonom(Polynom(xs))) {
+		Return(Polynom(Join(First(xs) ys, Rest(xs))))
+	}
+	If(PolyIsMonom(Polynom(ys))) {
+		Return(Polynom(Join(First(ys) xs, Rest(ys))))
+	}
+	With(as:= PadLeft(         xs,  Length(xs) + Length(ys) - 1))
+	With(bs:= PadRight(Reverse(ys), Length(xs) + Length(ys) - 1))
+	Return(Polynom(
+		Table(
+			Plus @@ (Take(as, -k) * Take(bs, k)), 
+			k -> Length(xs)+Length(ys)-1 .. 1 .. -1)))
+}
 
 Polynom/: ~a:Polynom * ~b:Polynom::= polyMul(a, b)
 
-Polynom/: ~p:Polynom^(~n:Integer ? IsPositive)::= 
-	If(PolyIsMonom(p), 
+Polynom/: ~p:Polynom^(~n:Integer ? IsPositive)::= Block {
+	If(PolyIsMonom(p)) {
 		Monom(PolyLeadingCoefficient(p), n * PolyDegree(p))
-	,
-		polyMul(p, p^(n-1)))
+	} Else {
+		polyMul(p, p^(n-1))
+	}
+}
 
-PolyQuotientRemainder(~u:Polynom, ~v:Polynom)::= Local(
-		{q,r,s},
-	q:= Monom(0,0); 
-	r:= u;
-	While(PolyDegree(r) >= PolyDegree(v),
-		s:= Monom(PolyLeadingCoefficient(r)/PolyLeadingCoefficient(v), PolyDegree(r) - PolyDegree(v));
-		q:= q + s;
-		r:= r - s*v;
-		);
-	{q, r}
-	)
+Function PolyQuotientRemainder(~u:Polynom, ~v:Polynom) {
+	Local(q,r,s)
+	q:= Monom(0,0) 
+	r:= u
+	While(PolyDegree(r) >= PolyDegree(v)) {
+		s:= Monom(PolyLeadingCoefficient(r)/PolyLeadingCoefficient(v), PolyDegree(r) - PolyDegree(v))
+		q:= q + s
+		r:= r - s*v
+	}
+	Return({q, r})
+}
 
-PolyGCD(~a:Polynom, ~b:Polynom)::= Local(
-		{aa:= a, bb:= b, q, r},
-	If(PolyLeadingCoefficient(a) = 0,
-		Return(b));
-	While(PolyLeadingCoefficient(bb) != 0,
-		{q, r}:= PolyQuotientRemainder(aa, bb);
-		aa:= bb;
-		bb:= r;
-		);
-	aa / PolyLeadingCoefficient(aa)
-	)
+Function PolyGCD(~a:Polynom, ~b:Polynom) {
+	If(PolyLeadingCoefficient(a) = 0) {
+		Return(b)
+	}
+	Local(aa:= a, bb:= b, q, r)
+	While(PolyLeadingCoefficient(bb) != 0) {
+		{q, r}:= PolyQuotientRemainder(aa, bb)
+		aa:= bb
+		bb:= r
+	}
+	Return(aa / PolyLeadingCoefficient(aa))
+}
 
-PolyExtendedGCD(~a:Polynom, ~b:Polynom)::= Local(
-		{aa, bb, q, r, x, lastx, y, lasy},
-	If(PolyLeadingCoefficient(a) = 0,
-		{b, {Monom(0, 0), Monom(1, 0)}});
-	If(PolyLeadingCoefficient(b) = 0,
-		{a, {Monom(1, 0), Monom(0, 0)}});
-	x:= lasty:= Monom(0, 0);
-	y:= lastx:= Monom(1, 0);
-	aa:= a;
-	bb:= b;
-	While(PolyLeadingCoefficient(bb) != 0,
-		{q, r}:= PolyQuotientRemainder(aa, bb);
-		{aa, bb}:= {bb, r};
-		{x, lastx}:= {lastx - q * x, x};
-		{y, lasty}:= {lasty - q * y, y};
-		);
-	{aa / PolyLeadingCoefficient(aa), PolyLeadingCoefficient(aa) {lastx, lasty}}
-	)
+Function PolyExtendedGCD(~a:Polynom, ~b:Polynom) {
+	If(PolyLeadingCoefficient(a) = 0) {
+		Return({b, {Monom(0, 0), Monom(1, 0)}})
+	}
+	If(PolyLeadingCoefficient(b) = 0) {
+		Return({a, {Monom(1, 0), Monom(0, 0)}})
+	}
+	Local(aa, bb, q, r, x, lastx, y, lasy)
+	x:= lasty:= Monom(0, 0)
+	y:= lastx:= Monom(1, 0)
+	aa:= a
+	bb:= b
+	While(PolyLeadingCoefficient(bb) != 0) {
+		{q, r}:= PolyQuotientRemainder(aa, bb)
+		{aa, bb}:= {bb, r}
+		{x, lastx}:= {lastx - q * x, x}
+		{y, lasty}:= {lasty - q * y, y}
+	}
+	Return({aa / PolyLeadingCoefficient(aa), PolyLeadingCoefficient(aa) {lastx, lasty}})
+}
 
 
 End()

@@ -12,6 +12,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 #include <pcre.h>
+#include <inttypes.h>
 
 
 static pmath_bool_t has_namespace_tick(pmath_t obj) {
@@ -62,7 +63,8 @@ static pmath_t collect_names(struct _regex_t *regex) {
       pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(sym);
       
       if(attr & PMATH_SYMBOL_ATTRIBUTE_REMOVED) {
-        pmath_debug_print_object("removed: ", sym, "\n");
+        pmath_debug_print("[removed (refcount = %" PRIdPTR "): ", pmath_refcount(sym) - 1);
+        pmath_debug_print_object("", sym, "]\n");
       }
       else {
         pmath_string_t name = pmath_symbol_name(sym);

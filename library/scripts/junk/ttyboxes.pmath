@@ -1,6 +1,8 @@
 
 BeginPackage("TTYBoxes`")
 
+<<ExperimentalSyntax`
+
 BoxesToText;
 
 Begin("TTYBoxes`Private`")
@@ -25,83 +27,99 @@ getHeight(c: char(~lines:List, ~~~))::=
 getWidth(c: char({}, ~~~))::= 0
 getWidth(c: char(~lines:List, ~~~))::= Length(lines[1])
 
-getLine(c: char(~lines:List, ~~~), ~y:Integer)::= 
-	With({i:= y + getAscent(c)}, 
-		If(i < 1 || i > Length(lines), StringExpression @@ ConstantArray(" ", getWidth(c)), lines[i]))
+Function getLine(c: char(~lines:List, ~~~), ~y:Integer) { 
+	With(i:= y + getAscent(c)) 
+	If(i < 1 || i > Length(lines)) {
+		StringExpression @@ ConstantArray(" ", getWidth(c))
+	} Else {
+		lines[i]
+	}
+}
 
 concat({})::= char({})
-concat(~cs:List)::=
-	Local({y},  
-		With({a := Max(cs.Map(getAscent)), d:= Max(cs.Map(getDescent))},
-			char(
-				Table(
-					StringExpression @@ cs.Map(getLine(#, y) &), 
-					y -> 1-a .. d), 
-				BaseLine->a)))
+Function concat(~cs:List) {
+	Local(y)  
+	With(a := Max(cs.Map(getAscent)), d:= Max(cs.Map(getDescent)))
+	Return(char(
+		Table(
+			StringExpression @@ cs.Map(getLine(#, y) &), 
+			y -> 1-a .. d), 
+		BaseLine->a))
+}
 
-alignCenter(c: char(~lines:List, ~~~opt), ~width)::=
-	With({w:= getWidth(c)},
-		If(w < width,
-			With({s1:= StringExpression @@ ConstantArray(" ", Floor((width - w)/2)), 
-			      s2:= StringExpression @@ ConstantArray(" ", Ceiling((width - w)/2))},
-				Return(char(lines.Map(s1 ++ # ++ s2 &), opt))));
-		c)
-alignLeft(c: char(~lines:List, ~~~opt), ~width)::=
-	With({w:= getWidth(c)},
-		If(w < width,
-			With({s:= StringExpression @@ ConstantArray(" ", (width - w))},
-				Return(char(lines.Map(# ++ s &), opt))));
-		c)
+Function alignCenter(c: char(~lines:List, ~~~opt), ~width) {
+	With(w:= getWidth(c))
+	If(w < width) {
+		With(s1:= StringExpression @@ ConstantArray(" ", Floor((width - w)/2)))
+		With(s2:= StringExpression @@ ConstantArray(" ", Ceiling((width - w)/2)))
+		Return(char(lines.Map(s1 ++ # ++ s2 &), opt))
+	}
+	Return(c)
+}
+Function alignLeft(c: char(~lines:List, ~~~opt), ~width) {
+	With(w:= getWidth(c))
+	If(w < width) {
+		With(s:= StringExpression @@ ConstantArray(" ", (width - w)))
+		Return(char(lines.Map(# ++ s &), opt))
+	}
+	Return(c)
+}
 
-insertSpace(~boxRow:List)::= boxRow.ReplaceRepeated(
+Function insertSpace(~boxRow:List) {
+	boxRow.ReplaceRepeated(
 		{~~a, o:("+"|"-"|"="|"<"|">"|"!="|"<="|">="|"&&"|"||"), ~~b} :> {a, " ", op(o), " ", b}
 	).Replace(op(~x) :> x)
+}
 
 box2char(~s:String)::= char(s.StringReplace("\\\\" -> b, "\\\"" -> q).Replace({b->"\\", q->"\""}))
 box2char(~row:List)::= concat(row.insertSpace.Map(box2char))
 box2char(InterpretationBox(~x,~~~))::= box2char(x)
 box2char(StyleBox(~x,~~~))::= box2char(x)
 box2char(TagBox(~x,~~~))::= box2char(x)
-box2char(FractionBox(~x, ~y))::= 
-	With({cx:= box2char(x), cy:= box2char(y)},
-		With({w:= Max(getWidth(cx), getWidth(cy))},
-			char(Join(
-					First(alignCenter(cx, w)), 
-					{StringExpression @@ ConstantArray("-", w)}, 
-					First(alignCenter(cy, w))), 
-				BaseLine -> getHeight(cx) + 1)))
+Function box2char(FractionBox(~x, ~y)) { 
+	With(cx:= box2char(x), cy:= box2char(y))
+	With(w:= Max(getWidth(cx), getWidth(cy)))
+	Return(char(Join(
+			First(alignCenter(cx, w)), 
+			{StringExpression @@ ConstantArray("-", w)}, 
+			First(alignCenter(cy, w))), 
+		BaseLine -> getHeight(cx) + 1))
+}
+Function box2char(GridBox(~m, ~~~)) {
+	Local(cm, wm, wcols, numrows, numcols, i, s, lines)
+	{numrows, numcols}:= Dimensions(m)
+	cm:= m.Map(box2char, 2)
+	wm:= cm.Map(getWidth, 2)
+	wcols:= Array(numcols).Map(Max(wm[All, #]) &)
+	Do(i -> 1..numcols) {
+		cm[All, i]:= cm[All, i].Map(alignLeft(#, wcols[i] + Boole(i < numcols)) &) 
+	}
+	cm:= cm.Map(concat);
+	s:= StringExpression @@ ConstantArray(" ", getWidth(First(cm)))
+	lines:= cm.Map({s, First(#)}&).Flatten
+	Return(char(lines[2..], BaseLine -> Ceiling((Length(lines) - 1) / 2)))
+}
 
-box2char(GridBox(~m, ~~~))::=
-	Local({cm, wm, wcols, numrows, numcols, i, s, lines},
-		{numrows, numcols}:= Dimensions(m);
-		cm:= m.Map(box2char, 2);
-		wm:= cm.Map(getWidth, 2);
-		wcols:= Array(numcols).Map(Max(wm[All, #]) &);
-		Do(
-			cm[All, i]:= cm[All, i].Map(alignLeft(#, wcols[i] + Boole(i < numcols)) &), 
-			i -> 1..numcols);
-		cm:= cm.Map(concat);
-		s:= StringExpression @@ ConstantArray(" ", getWidth(First(cm)));
-		lines:= cm.Map({s, First(#)}&).Flatten;
-		char(lines[2..], BaseLine -> Ceiling((Length(lines) - 1) / 2))
-		)
+Function box2char(SubscriptBox(~x)) { 
+	With(cx:= box2char(x))
+	Return(char(First(cx), BaseLine -> 0))
+}
 
-box2char(SubscriptBox(~x))::= 
-	With({cx:= box2char(x)},
-		char(First(cx), BaseLine -> 0))
+Function box2char(SuperscriptBox(~y)) { 
+	With(cy:= box2char(y))
+	Return(char(First(cy), BaseLine -> getHeight(cy) + 1))
+}
 
-box2char(SuperscriptBox(~y))::= 
-	With({cy:= box2char(y)},
-		char(First(cy), BaseLine -> getHeight(cy) + 1))
-		
-box2char(SubsuperscriptBox(~x,~y))::= 
-	With({cx:= box2char(x), cx:= box2char(y)},
-		With({w:= Max(getWidth(cx), getWidth(cy))},
-			char(Join(
-					First(alignLeft(cy, w)),
-					{StringExpression @@ ConstantArray(" ", w)},
-					First(alignLeft(cx, w))),
-				BaseLine -> getHeight(cy) + 1)))
+Function box2char(SubsuperscriptBox(~x,~y)) { 
+	With(cx:= box2char(x), cx:= box2char(y))
+	With(w:= Max(getWidth(cx), getWidth(cy)))
+	Return(char(Join(
+			First(alignLeft(cy, w)),
+			{StringExpression @@ ConstantArray(" ", w)},
+			First(alignLeft(cx, w))),
+		BaseLine -> getHeight(cy) + 1))
+}
+
 
 End()
 
