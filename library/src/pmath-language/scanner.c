@@ -18,8 +18,6 @@
 #include <limits.h>
 #include <string.h>
 
-#define MIN(A, B)  ((A) < (B) ? (A) : (B))
-
 //{ spans ...
 
 struct _pmath_span_t {
@@ -166,7 +164,8 @@ struct scanner_t {
   int              pos;
   uintptr_t       *span_items;
   
-  int comment_level;
+  unsigned comment_level: 31;
+  unsigned in_line_comment: 1;
   
   //pmath_bool_t in_comment;
   pmath_bool_t in_string;
@@ -242,7 +241,7 @@ HAVE_MULTIPLE_TOKENS: ;
 }
 
 static void handle_error(struct parser_t *parser) {
-  if(/*parser->tokens.have_error || */ parser->tokens.comment_level > 0)
+  if(/*parser->tokens.have_error || */ parser->tokens.comment_level > 0 || parser->tokens.in_line_comment)
     return;
     
   parser->tokens.have_error = TRUE;
@@ -283,8 +282,10 @@ static int next_token_pos(struct parser_t *parser) {
     
   span = SPAN_PTR(parser->spans->items[parser->tokens.pos]);
   
-  if(span) 
-    return MIN(span->end + 1, parser->tokens.len);
+  if(span) {
+    assert(span->end < parser->tokens.len);
+    return span->end + 1;
+  }
   
   next = parser->tokens.pos;
   while( next < parser->tokens.len &&
@@ -814,6 +815,8 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
       
     case '%':
       tokens->span_items[tokens->pos] |= 2;
+      if(!tokens->in_string)
+        tokens->in_line_comment = TRUE;
     /* fall through */
     case '@':
     case '.': {
@@ -851,6 +854,17 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
             while( tokens->pos < tokens->len &&
                    (k > 0 || tokens->str[tokens->pos] != '"'))
             {
+              if(tokens->str[tokens->pos] == '\n' && tokens->in_line_comment)
+                break;
+              
+              if( tokens->pos + 1 < tokens->len && 
+                  tokens->str[tokens->pos] == '*' &&
+                  tokens->str[tokens->pos + 1] == '/' &&
+                  tokens->comment_level > 0)
+              {
+                break;
+              }
+            
               if(tokens->str[tokens->pos] == PMATH_CHAR_LEFT_BOX) {
                 ++k;
                 tokens->pos++;
@@ -863,7 +877,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
                 scan_next(tokens, parser);
             }
             
-            if(tokens->pos < tokens->len)
+            if(tokens->pos < tokens->len || tokens->comment_level > 0 || tokens->in_line_comment)
               break;
               
             if(!read_more(parser)) {
@@ -1008,7 +1022,10 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         }
       }
       break;
-      
+    
+    case '\n':
+      tokens->in_line_comment = FALSE;
+    /* fall through */
     default: {
         pmath_token_t tok;
         uint32_t u;
