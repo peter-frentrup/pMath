@@ -1280,13 +1280,25 @@ namespace richmath {
             return PMATH_TOK_NAME2;
           }
           
+          int get_string_end(int pos) {
+            Span span = self.spans[pos];
+            if(!span)
+              return pos + 1;
+            for(;;) {
+              Span next = span.next();
+              if(!next) 
+                return span.end();
+              span = next;
+            }
+          }
+          
         public:
           void run() {
             if(context->script_indent > 0)
               return;
               
             int box = 0;
-            bool in_string = false;
+            int string_end = -1;
             bool in_alias = false;
             bool last_was_factor = false;
             //bool last_was_number = false;
@@ -1307,12 +1319,12 @@ namespace richmath {
               skip_subsuperscript(e, box);
               
               if(buf[i] == '\t') {
-                show_tab_character(i, in_string);
+                show_tab_character(i, i <= string_end);
                 continue;
               }
               
-              if(buf[i] == '"') {
-                in_string = !in_string;
+              if(string_end < i && buf[i] == '"') {
+                string_end = get_string_end(i);
                 last_was_factor = false;
                 continue;
               }
@@ -1323,7 +1335,7 @@ namespace richmath {
                 continue;
               }
               
-              if(in_string || in_alias || e >= self.glyphs.length())
+              if(i <= string_end || in_alias || e >= self.glyphs.length())
                 continue;
                 
               const uint16_t *op = buf;
@@ -1516,16 +1528,13 @@ namespace richmath {
                   } break;
                   
                 case PMATH_TOK_DIGIT:
-                  {
-                    if(!in_string)
-                      group_number_digits(i, e);
-                  }
-                /* no break */
+                  group_number_digits(i, e);
+                /* fall through */
                 case PMATH_TOK_STRING:
                 case PMATH_TOK_NAME:
                 case PMATH_TOK_NAME2:
                   lwf = true;
-                /* no break */
+                /* fall through */
                 case PMATH_TOK_SLOT:
                   if(last_was_factor) {
                     space_left = self.em * 3 / 18;
