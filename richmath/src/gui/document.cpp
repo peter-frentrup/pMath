@@ -522,7 +522,6 @@ namespace richmath {
         self.best_index_rel_x = 0;
       }
       
-      
       void after_resize_section(int i) {
         Section *sect = self.section(i);
         sect->y_offset = self._extents.descent;
@@ -918,6 +917,82 @@ namespace richmath {
       //}
       
       //{ insertion
+      bool is_inside_string() {
+        return is_inside_string(self.context.selection.get(), self.context.selection.start);
+      }
+      
+      static bool is_inside_string(Box *box, int index) {
+        while(box) {
+          if(auto seq = dynamic_cast<MathSequence *>(box)) {
+            if(seq->is_inside_string((index)))
+              return true;
+              
+          }
+          index = box->index();
+          box = box->parent();
+        }
+        
+        return false;
+      }
+      
+      bool is_inside_alias() {
+        bool result = false;
+        Box *box = self.context.selection.get();
+        int index = self.context.selection.start;
+        while(box) {
+          if(auto seq = dynamic_cast<MathSequence *>(box)) {
+            const uint16_t *buf = seq->text().buffer();
+            for(int i = 0; i < index; ++i) {
+              if(buf[i] == PMATH_CHAR_ALIASDELIMITER)
+                result = !result;
+            }
+          }
+          index = box->index();
+          box = box->parent();
+        }
+        return result;
+      }
+      
+      // substart and subend may lie outside 0..subbox->length()
+      bool is_inside_selection(Box *subbox, int substart, int subend) {
+        if(self.selection_box() && self.selection_length() > 0) {
+          // section selections are only at the right margin, the section content is
+          // not inside the selection-frame
+          if(self.selection_box() == &self && subbox != &self)
+            return false;
+            
+          if(substart == subend)
+            return false;
+            
+          Box *b = subbox;
+          while(b && b != self.selection_box()) {
+            substart = b->index();
+            subend   = substart + 1;
+            b = b->parent();
+          }
+          
+          if( b == self.selection_box() &&
+              self.selection_start() <= substart &&
+              subend <= self.selection_end())
+          {
+            return true;
+          }
+        }
+        
+        return false;
+      }
+
+      bool is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start) {
+        if(subbox && subbox != &self && substart == subend) {
+          if(was_inside_start)
+            subend = substart + 1;
+          else
+            --substart;
+        }
+        
+        return self.selection_box() && is_inside_selection(subbox, substart, subend);
+      }
+
       void set_prev_sel_line() {
         if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box())) {
           self.prev_sel_line = seq->get_line(self.selection_end(), self.prev_sel_line);
@@ -1078,7 +1153,7 @@ namespace richmath {
       }
       
       void handle_key_tab(SpecialKeyEvent &event) {
-        if(self.is_tabkey_only_moving()) {
+        if(is_tabkey_only_moving()) {
           SelectionReference oldpos = self.context.selection;
           
           if(!event.ctrl) {
@@ -1100,6 +1175,51 @@ namespace richmath {
         event.key = SpecialKey::Unknown;
       }
       
+    private:
+      bool is_tabkey_only_moving() {
+        Box *selbox = self.context.selection.get();
+        
+        if(self.context.selection.start != self.context.selection.end)
+          return true;
+          
+        if(!selbox || selbox == &self)
+          return false;
+          
+        if(!dynamic_cast<Section *>(selbox->parent()))
+          return true;
+          
+        if(auto seq = dynamic_cast<MathSequence *>(selbox)) {
+          const uint16_t *buf = seq->text().buffer();
+          
+          for(int i = self.context.selection.start - 1; i >= 0; --i) {
+            if(buf[i] == '\n')
+              return false;
+              
+            if(buf[i] != '\t' && buf[i] != ' ')
+              return true;
+          }
+          
+          return false;
+        }
+        
+        if(auto seq = dynamic_cast<TextSequence *>(selbox)) {
+          const char *buf = seq->text_buffer().buffer();
+          
+          for(int i = self.context.selection.start - 1; i >= 0; --i) {
+            if(buf[i] == '\n')
+              return false;
+              
+            if(buf[i] != '\t' && buf[i] != ' ')
+              return true;
+          }
+          
+          return false;
+        }
+        
+        return true;
+      }
+      
+    public:
       void handle_key_backspace(SpecialKeyEvent &event) {
         set_prev_sel_line();
         if(self.selection_length() > 0) {
@@ -1851,7 +1971,7 @@ void Document::on_mouse_down(MouseEvent &event) {
         select(selbox, start, end);
       }
     }
-    else if(is_inside_selection(box, start, end, was_inside_start)) {
+    else if(DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start)) {
       // maybe drag & drop
       drag_status = DragStatusMayDrag;
     }
@@ -1891,7 +2011,7 @@ void Document::on_mouse_move(MouseEvent &event) {
     return;
   }
   
-  if(!event.left && is_inside_selection(box, start, end, was_inside_start)) {
+  if(!event.left && DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start)) {
     native()->set_cursor(DefaultCursor);
   }
   else if(box->selectable()) {
@@ -1940,7 +2060,7 @@ void Document::on_mouse_up(MouseEvent &event) {
                  &start, &end,
                  &was_inside_start);
                  
-    if( is_inside_selection(box, start, end, was_inside_start) &&
+    if( DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start) &&
         box &&
         box->selectable())
     {
@@ -2224,8 +2344,8 @@ void Document::on_key_press(uint32_t unichar) {
     
     MathSequence *mseq = dynamic_cast<MathSequence *>(seq);
     
-    bool was_inside_string = is_inside_string();
-    bool was_inside_alias  = is_inside_alias();
+    bool was_inside_string = DocumentImpl(*this).is_inside_string();
+    bool was_inside_alias  = DocumentImpl(*this).is_inside_alias();
     
     if(!was_inside_string && !was_inside_alias) {
       DocumentImpl(*this).handle_immediate_macros();
@@ -2293,49 +2413,6 @@ void Document::on_key_press(uint32_t unichar) {
 }
 
 //} ... event handlers
-
-// substart and subend may lie outside 0..subbox->length()
-bool Document::is_inside_selection(Box *subbox, int substart, int subend) {
-  if( selection_box() &&
-      selection_length() > 0)
-  {
-    // section selections are only at the right margin, the section content is
-    // not inside the selection-frame
-    if(selection_box() == this && subbox != this)
-      return false;
-      
-    if(substart == subend)
-      return false;
-      
-    Box *b = subbox;
-    while(b && b != selection_box()) {
-      substart = b->index();
-      subend   = substart + 1;
-      b = b->parent();
-    }
-    
-    if( b == selection_box() &&
-        selection_start() <= substart &&
-        subend <= selection_end())
-    {
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-bool Document::is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start) {
-  if(subbox && subbox != this && substart == subend) {
-    if(was_inside_start)
-      subend = substart + 1;
-    else
-      --substart;
-  }
-  
-  return selection_box() && is_inside_selection(subbox, substart, subend);
-}
-
 
 void Document::select(Box *box, int start, int end) {
   if(box && !box->selectable())
@@ -2741,85 +2818,6 @@ void Document::move_tab(LogicalDirection direction) {
       return;
       
   }
-}
-
-bool Document::is_inside_string() {
-  return is_inside_string(context.selection.get(), context.selection.start);
-}
-
-bool Document::is_inside_string(Box *box, int index) {
-  while(box) {
-    if(auto seq = dynamic_cast<MathSequence *>(box)) {
-      if(seq->is_inside_string((index)))
-        return true;
-        
-    }
-    index = box->index();
-    box = box->parent();
-  }
-  
-  return false;
-}
-
-bool Document::is_inside_alias() {
-  bool result = false;
-  Box *box = context.selection.get();
-  int index = context.selection.start;
-  while(box) {
-    if(auto seq = dynamic_cast<MathSequence *>(box)) {
-      const uint16_t *buf = seq->text().buffer();
-      for(int i = 0; i < index; ++i) {
-        if(buf[i] == PMATH_CHAR_ALIASDELIMITER)
-          result = !result;
-      }
-    }
-    index = box->index();
-    box = box->parent();
-  }
-  return result;
-}
-
-bool Document::is_tabkey_only_moving() {
-  Box *selbox = context.selection.get();
-  
-  if(context.selection.start != context.selection.end)
-    return true;
-    
-  if(!selbox || selbox == this)
-    return false;
-    
-  if(!dynamic_cast<Section *>(selbox->parent()))
-    return true;
-    
-  if(auto seq = dynamic_cast<MathSequence *>(selbox)) {
-    const uint16_t *buf = seq->text().buffer();
-    
-    for(int i = context.selection.start - 1; i >= 0; --i) {
-      if(buf[i] == '\n')
-        return false;
-        
-      if(buf[i] != '\t' && buf[i] != ' ')
-        return true;
-    }
-    
-    return false;
-  }
-  
-  if(auto seq = dynamic_cast<TextSequence *>(selbox)) {
-    const char *buf = seq->text_buffer().buffer();
-    
-    for(int i = context.selection.start - 1; i >= 0; --i) {
-      if(buf[i] == '\n')
-        return false;
-        
-      if(buf[i] != '\t' && buf[i] != ' ')
-        return true;
-    }
-    
-    return false;
-  }
-  
-  return true;
 }
 
 void Document::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {
@@ -3672,7 +3670,7 @@ void Document::insert_string(String text, bool autoformat) {
   }
   
   if(autoformat) {
-    if(is_inside_string()) {
+    if(DocumentImpl(*this).is_inside_string()) {
       bool have_sth_to_escape = false;
       
       for(int i = 0; i < len; ++i) {
@@ -3826,7 +3824,7 @@ void Document::insert_string(String text, bool autoformat) {
     auto seq = new MathSequence;
     seq->insert(0, text);
     
-    if(autoformat && !is_inside_string()) { // replace tokens from global_immediate_macros ...
+    if(autoformat && !DocumentImpl(*this).is_inside_string()) { // replace tokens from global_immediate_macros ...
       seq->ensure_spans_valid();
       const SpanArray &spans = seq->span_array();
       
@@ -3899,8 +3897,8 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
   
   assert(box->parent() == 0);
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4055,8 +4053,8 @@ void Document::insert_fraction() {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4103,8 +4101,8 @@ void Document::insert_matrix_column() {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4196,8 +4194,8 @@ void Document::insert_matrix_row() {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4292,8 +4290,8 @@ void Document::insert_sqrt() {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4337,8 +4335,8 @@ void Document::insert_subsuperscript(bool sub) {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4398,8 +4396,8 @@ void Document::insert_underoverscript(bool under) {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4723,7 +4721,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     if(DebugFollowMouse) {
       if(Box *b = mouse_move_sel.get()) {
         ::selection_path(canvas, b, mouse_move_sel.start, mouse_move_sel.end);
-        if(is_inside_string(b, mouse_move_sel.start))
+        if(DocumentImpl::is_inside_string(b, mouse_move_sel.start))
           canvas->set_color(0x8000ff);
         else
           canvas->set_color(0xff0000);

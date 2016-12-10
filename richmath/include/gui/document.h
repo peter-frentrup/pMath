@@ -63,10 +63,6 @@ namespace richmath {
       virtual void on_key_up(SpecialKeyEvent &event) override;
       virtual void on_key_press(uint32_t unichar) override;
       
-      // substart and subend may lie outside 0..subbox->length()
-      bool is_inside_selection(Box *subbox, int substart, int subend);
-      bool is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start);
-      
       void select(Box *box, int start, int end);
       void select_to(Box *box, int start, int end);
       void select_range(
@@ -89,11 +85,6 @@ namespace richmath {
         bool             selecting = false);
         
       void move_tab(LogicalDirection direction);
-      
-      bool is_inside_string();
-      bool is_inside_string(Box *box, int index);
-      bool is_inside_alias();
-      bool is_tabkey_only_moving();
       
       void select_prev(bool operands_only);
       
