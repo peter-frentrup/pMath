@@ -1,11 +1,15 @@
 BeginPackage("Windows`", {"ExperimentalSyntax`"})
 
-Windows`SHGetKnownFolderPath
 Windows`HandleHResultError
-
-General::hresult:= "Error `1` encounted: `2`"
+Windows`$KnownFolders
+Windows`SHGetKnownFolderPath
 
 Begin("Windows`Private`")
+
+
+General::hresult:= "Error `1` encounted: `2`"
+SHGetKnownFolderPath::unk:= "`1` is not known folder. See $KnownFolders."
+
 
 Options(HandleHResultError):= {Head -> General, "HResult" -> 0, "Description" -> "No description available."}
 Function HandleHResultError(opt:OptionsPattern()) {
