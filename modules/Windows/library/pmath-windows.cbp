@@ -220,6 +220,7 @@
 			<Add library="pmath" />
 			<Add library="shell32" />
 			<Add library="ole32" />
+			<Add library="oleaut32" />
 			<Add directory="../../../library/$(TARGET_OUTPUT_DIR)" />
 		</Linker>
 		<ExtraCommands>
@@ -230,9 +231,16 @@
 		<Unit filename="src/SHGetKnownFolderPath.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/error-util.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/string-util.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/util.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

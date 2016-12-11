@@ -27,6 +27,7 @@ pmath_bool_t check_succeeded(HRESULT hr) {
   pmath_t description, options;
   WORD facility;
   WORD code;
+  IErrorInfo *iei;
   
   if(SUCCEEDED(hr))
     return TRUE;
@@ -36,7 +37,7 @@ pmath_bool_t check_succeeded(HRESULT hr) {
   facility = HRESULT_FACILITY(hr);
   code = HRESULT_CODE(hr);
   
-  IErrorInfo *iei = NULL;
+  iei = NULL;
   if(SUCCEEDED(GetErrorInfo(0, &iei)) && iei) {
     BSTR bstr = NULL;
     if(SUCCEEDED(IErrorInfo_GetDescription(iei, &bstr))) {

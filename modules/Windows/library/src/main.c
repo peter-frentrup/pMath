@@ -5,22 +5,6 @@
 extern pmath_t windows_SHGetKnownFolderPath(pmath_expr_t expr);
 extern pmath_t windows_GetAllKnownFolders(pmath_expr_t expr);
 
-static pmath_bool_t bind_down(const char *name, pmath_t (*func)(pmath_expr_t)) {
-  pmath_symbol_t symbol = pmath_symbol_get(PMATH_C_STRING(name), TRUE);
-  
-  if(pmath_is_null(symbol))
-    return FALSE;
-    
-  if(!pmath_register_code(symbol, func, PMATH_CODE_USAGE_DOWNCALL)) {
-    pmath_unref(symbol);
-    return FALSE;
-  }
-  
-  pmath_symbol_set_attributes(symbol, PMATH_SYMBOL_ATTRIBUTE_PROTECTED);
-  pmath_unref(symbol);
-  return TRUE;
-}
-
 static void protect_all(pmath_symbol_t *start, size_t size) {
   pmath_symbol_t *end = start + size / sizeof(pmath_symbol_t);
   for(; start != end; ++start) {
@@ -58,7 +42,7 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
   BIND_DOWN(symbols.Windows_Private_GetAllKnownFolders, windows_GetAllKnownFolders);
   
   PMATH_RUN("Windows`$KnownFolders::= Windows`Private`GetAllKnownFolders()");
-  PMATH_RUN("Options(Windows`SHGetKnownFolderPath)::= {\"Create\"->False}");
+  PMATH_RUN("Options(Windows`SHGetKnownFolderPath)::= {CreateDirectory->False}");
   
   protect_all((pmath_symbol_t*)&symbols, sizeof(symbols));
   free_all((pmath_symbol_t*)&symbols, sizeof(symbols));
