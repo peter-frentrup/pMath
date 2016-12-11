@@ -1,0 +1,20 @@
+BeginPackage("Windows`", {"ExperimentalSyntax`"})
+
+Windows`SHGetKnownFolderPath
+Windows`HandleHResultError
+
+General::hresult:= "Error `1` encounted: `2`"
+
+Begin("Windows`Private`")
+
+Options(HandleHResultError):= {Head -> General, "HResult" -> 0, "Description" -> "No description available."}
+Function HandleHResultError(opt:OptionsPattern()) {
+   With(head:= OptionValue(Head), hr:= OptionValue("HResult"), descr:= OptionValue("Description"))
+   Message(head::hresult, BaseForm(hr, 16), descr)
+}
+
+LoadLibrary(ToFileName({DirectoryName($Input), "bin", $ProcessorType}, "pmath-windows.dll"))
+
+End()
+
+EndPackage()
