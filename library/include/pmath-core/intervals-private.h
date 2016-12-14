@@ -19,9 +19,41 @@ struct _pmath_interval_t {
 #define PMATH_AS_MP_INTERVAL(obj)  (((struct _pmath_interval_t*) PMATH_AS_PTR(obj))->value)
 
 
+/** Create a new interval object with given precision.
+ */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_interval_t _pmath_create_interval(mpfr_prec_t precision);
+
+/** Obtain a new interval object compatible with a given one.
+    \param val A non-NULL interval object. It won't be freed.
+    \return A writable interval object, possibly \a val itself.
+    
+    If \a val has a reference count of 1, then its reference count is increased to 2 and it is returned.
+    Otherwise, a new interval object with same precision as \a val will be returned.
+    
+    You can use the returned object migh be an alias for \a val, you can only use \a val once
+    in a call like mpfi_add(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(val), other) but not afterwards.
+ */
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_interval_t _pmath_create_interval_for_result(pmath_interval_t val);
+
+/** Obtain a new interval object compatible with a given one and precision
+    \param val            A non-NULL interval object. It won't be freed.
+    \param min_precision  Minimum precision of the returned interval.
+    \return A writable interval object, possibly \a val itself.
+    
+    If \a val has a reference count of 1 and its precision is at least \a min_precision, 
+    then its reference count is increased to 2 and it is returned.
+    Otherwise, a new interval object with same precision as \a val will be returned.
+    
+    You can use the returned object migh be an alias for \a val, you can only use \a val once
+    in a call like mpfi_add(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(val), other) but not afterwards.
+ */
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_interval_t _pmath_create_interval_for_result_with_prec(pmath_interval_t val, mp_prec_t min_precision);
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_interval_set_point(

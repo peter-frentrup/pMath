@@ -96,6 +96,21 @@ PMATH_PRIVATE pmath_interval_t _pmath_create_interval(mpfr_prec_t precision) {
   return PMATH_FROM_PTR(interval);
 }
 
+PMATH_PRIVATE pmath_interval_t _pmath_create_interval_for_result(pmath_interval_t val) {
+  assert(pmath_is_interval(val));
+  if(pmath_refcount(val) == 1)
+    return pmath_ref(val);
+  
+  return _pmath_create_interval(mpfi_get_prec(PMATH_AS_MP_INTERVAL(val)));
+}
+
+PMATH_PRIVATE pmath_interval_t _pmath_create_interval_for_result_with_prec(pmath_interval_t val, mp_prec_t min_precision) {
+  if(pmath_refcount(val) == 1 && mpfi_get_prec(PMATH_AS_MP_INTERVAL(val)) >= min_precision)
+    return pmath_ref(val);
+  
+  return _pmath_create_interval(min_precision);
+}
+
 //} ============================================================================
 
 PMATH_PRIVATE

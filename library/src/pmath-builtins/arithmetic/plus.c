@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/evaluation.h>
@@ -8,6 +9,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
+#define MAX(x, y) ((x) >= (y) ? (x) : (y))
+
 
 
 static pmath_integer_t _addmul_iii( // intA + intB * intC
@@ -606,6 +610,121 @@ PMATH_PRIVATE pmath_t _add_nn(
   return PMATH_NULL;
 }
 
+
+static pmath_interval_t _add_RR(pmath_interval_t intervalA, pmath_interval_t intervalB) {
+  pmath_interval_t result;
+  mp_prec_t aprec;
+  mp_prec_t bprec;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_interval(intervalB));
+  
+  aprec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(intervalA));
+  bprec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(intervalB));
+  result = _pmath_create_interval_for_result_with_prec(intervalA, MAX(aprec, bprec));
+  if(!pmath_is_null(result)) {
+    mpfi_add(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_MP_INTERVAL(intervalB));
+  }
+  pmath_unref(intervalA);
+  pmath_unref(intervalB);
+  return result;
+}
+
+static pmath_interval_t _add_Rs(pmath_interval_t intervalA, pmath_integer_t int32B) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_int32(int32B));
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_add_si(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_INT32(int32B));
+  }
+  pmath_unref(intervalA);
+  //pmath_unref(int32B);
+  return result;
+}
+
+static pmath_interval_t _add_Ri(pmath_interval_t intervalA, pmath_integer_t mpintB) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_mpint(mpintB));
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_add_z(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_MPZ(mpintB));
+  }
+  pmath_unref(intervalA);
+  pmath_unref(mpintB);
+  return result;
+}
+
+static pmath_interval_t _add_Rq(pmath_interval_t intervalA, pmath_quotient_t quotB) {
+  pmath_interval_t result;
+  mpq_t mpQuotB;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_quotient(quotB));
+  
+  mpq_init(mpQuotB);
+  
+  if(pmath_is_int32(PMATH_QUOT_NUM(quotB))) {
+    mpz_set_si(mpq_numref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_NUM(quotB)));
+  }
+  else {
+    assert(pmath_is_mpint(PMATH_QUOT_NUM(quotB)));
+    mpz_set(mpq_numref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)));
+  }
+  
+  if(pmath_is_int32(PMATH_QUOT_DEN(quotB))) {
+    mpz_set_si(mpq_denref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_DEN(quotB)));
+  }
+  else {
+    assert(pmath_is_mpint(PMATH_QUOT_DEN(quotB)));
+    mpz_set(mpq_denref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)));
+  }
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_add_q(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), mpQuotB);
+  }
+  pmath_unref(intervalA);
+  pmath_unref(quotB);
+  mpq_clear(mpQuotB);
+  return result;
+}
+
+static pmath_interval_t _add_Rf(pmath_interval_t intervalA, pmath_mpfloat_t floatB) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_mpfloat(floatB));
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_add_fr(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_MP_VALUE(floatB));
+  }
+  pmath_unref(intervalA);
+  pmath_unref(floatB);
+  return result;
+}
+
+static pmath_interval_t _add_Rm(pmath_interval_t intervalA, pmath_float_t doubleB) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_double(doubleB));
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_add_d(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_DOUBLE(doubleB));
+  }
+  pmath_unref(intervalA);
+  //pmath_unref(doubleB);
+  return result;
+}
+
 PMATH_PRIVATE void _pmath_split_summand(
   pmath_t  summand,         // wont be freed
   pmath_t *out_num_factor,
@@ -656,6 +775,48 @@ PMATH_PRIVATE void _pmath_split_summand(
   
   *out_num_factor = PMATH_FROM_INT32(1);
   *out_rest = pmath_ref(summand);
+}
+
+static pmath_bool_t try_add_interval_to(pmath_interval_t *a, pmath_t *b) {
+  mp_prec_t aprec;
+  
+  if(!pmath_is_interval(*a))
+    return FALSE;
+  
+  aprec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(*a));
+    
+  if(pmath_is_interval(*b)) {
+    *a = _add_RR(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_int32(*b)) {
+    *a = _add_Rs(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_mpint(*b)) {
+    *a = _add_Ri(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_quotient(*b)) {
+    *a = _add_Rq(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_mpfloat(*b)) {
+    *a = _add_Rf(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_double(*b)) {
+    *a = _add_Rm(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  return FALSE;
 }
 
 static pmath_bool_t try_add_real_number_to(pmath_number_t *a, pmath_t *b) {
@@ -874,6 +1035,9 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
     if(try_add_nonreal_complex_to_noncomplex(b, a))
       return;
   }
+  
+  if(try_add_interval_to(a, b))
+    return;
   
   if(try_add_overflow(a, b))
     return;
