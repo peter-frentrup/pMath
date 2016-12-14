@@ -70,11 +70,10 @@ pmath_bool_t _pmath_is_imaginary(
   pmath_t *z);
 
 PMATH_PRIVATE
-void split_summand(
+void _pmath_split_summand(
   pmath_t  summand,         // wont be freed
   pmath_t *out_num_factor,  // may also become a complex number
-  pmath_t *out_rest
-);
+  pmath_t *out_rest);
 
 
 PMATH_PRIVATE

@@ -341,7 +341,7 @@ static void split_factor(
   if(pmath_is_expr_of_len(factor, PMATH_SYMBOL_POWER, 2)) {
     pmath_t exponent = pmath_expr_get_item(factor, 2);
     *out_base        = pmath_expr_get_item(factor, 1);
-    split_summand(exponent, out_num_power, out_rest_power);
+    _pmath_split_summand(exponent, out_num_power, out_rest_power);
     pmath_unref(exponent);
     return;
   }

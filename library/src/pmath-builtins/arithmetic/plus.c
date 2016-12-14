@@ -9,6 +9,7 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
+
 static pmath_integer_t _addmul_iii( // intA + intB * intC
   pmath_integer_t intA, // will be freed. not PMATH_NULL!
   pmath_integer_t intB, // will be freed. not PMATH_NULL!
@@ -605,7 +606,7 @@ PMATH_PRIVATE pmath_t _add_nn(
   return PMATH_NULL;
 }
 
-PMATH_PRIVATE void split_summand(
+PMATH_PRIVATE void _pmath_split_summand(
   pmath_t  summand,         // wont be freed
   pmath_t *out_num_factor,
   pmath_t *out_rest
@@ -834,8 +835,8 @@ static pmath_bool_t try_add_common_factors(pmath_t *a, pmath_t *b) {
   pmath_number_t numFactorB;
   pmath_t restA;
   pmath_t restB;
-  split_summand(*a, &numFactorA, &restA);
-  split_summand(*b, &numFactorB, &restB);
+  _pmath_split_summand(*a, &numFactorA, &restA);
+  _pmath_split_summand(*b, &numFactorB, &restB);
   
   if(pmath_equals(restA, restB)) {
     pmath_unref(*a);
