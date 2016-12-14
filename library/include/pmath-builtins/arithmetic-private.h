@@ -43,6 +43,7 @@ pmath_rational_t _pmath_factor_rationals(
   pmath_rational_t *b);  // not PMATH_NULL!  integer on successful output
 
 PMATH_PRIVATE
+PMATH_ATTRIBUTE_PURE
 pmath_bool_t _pmath_is_infinite(pmath_t obj);
 
 // PMATH_NULL if obj is no DirectedInfinity:
@@ -59,6 +60,7 @@ pmath_bool_t _pmath_re_im( // whether operation succeded
 
 // is z = Complex(a, b) with numbers a, b?
 PMATH_PRIVATE
+PMATH_ATTRIBUTE_PURE
 pmath_bool_t _pmath_is_nonreal_complex(
   pmath_t z); // wont be freed
 
@@ -76,11 +78,13 @@ void split_summand(
 
 
 PMATH_PRIVATE
+PMATH_ATTRIBUTE_PURE
 pmath_bool_t _pmath_equals_rational(
   pmath_t obj,       // wont be freed
   int n, int d);
 
 PMATH_PRIVATE
+PMATH_ATTRIBUTE_PURE
 pmath_bool_t _pmath_equals_rational_at(
   pmath_expr_t expr,  // wont be freed
   size_t i,
