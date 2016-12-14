@@ -760,6 +760,15 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
       pmath_t sum;
       
       if(pmath_equals(ainfdir, binfdir)) {
+        if(pmath_equals(ainfdir, PMATH_FROM_INT32(0))) {
+          pmath_unref(ainfdir);
+          pmath_unref(binfdir);
+          pmath_unref(*a);
+          pmath_unref(*b);
+          *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+          *b = PMATH_UNDEFINED;
+          return;
+        }
         pmath_unref(ainfdir);
         pmath_unref(binfdir);
         pmath_unref(*b);
