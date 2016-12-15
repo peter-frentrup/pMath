@@ -1,3 +1,5 @@
+#include <pmath-builtins/logic-private.h>
+
 #include <pmath-util/approximate.h>
 
 #include <pmath-util/concurrency/threads-private.h>
@@ -15,11 +17,6 @@
 #endif
 
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
-
-
-#define DIRECTION_LESS      (1<<0)
-#define DIRECTION_EQUAL     (1<<1)
-#define DIRECTION_GREATER   (1<<2)
 
 #define TOLERANCE_EXPONENT   6
 #define TOLERANCE_FACTOR     (1 << TOLERANCE_EXPONENT)
@@ -143,9 +140,7 @@ static pmath_bool_t slow_almost_equal_numbers(pmath_number_t x, pmath_number_t y
   return pmath_equals(x, y);
 }
 
-#define UNKNOWN (-1)
-
-// TRUE, FALSE or UNKNOWN
+// TRUE, FALSE or PMATH_MAYBE_ORDERED
 static int test_almost_equal(pmath_t a, pmath_t b) {
   if(pmath_is_number(a) && pmath_is_number(b))
     return slow_almost_equal_numbers(a, b) ? TRUE : FALSE;
@@ -180,7 +175,7 @@ static int test_almost_equal(pmath_t a, pmath_t b) {
       if(eq_im == TRUE && eq_re == TRUE)
         return TRUE;
 
-      return UNKNOWN;
+      return PMATH_MAYBE_ORDERED;
     }
 
     pmath_unref(re_a);
@@ -189,7 +184,7 @@ static int test_almost_equal(pmath_t a, pmath_t b) {
     pmath_unref(im_b);
   }
 
-  return pmath_equals(a, b) ? TRUE : UNKNOWN;
+  return pmath_equals(a, b) ? TRUE : PMATH_MAYBE_ORDERED;
 }
 
 static pmath_bool_t almost_equal(pmath_t a, pmath_t b) {
@@ -206,8 +201,9 @@ static int pmath_fuzzy_compare(pmath_t a, pmath_t b) {
   return pmath_compare(a, b);
 }
 
-// TRUE, FALSE or UNKNOWN
-static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
+// TRUE, FALSE or PMATH_MAYBE_ORDERED or PMATH_UNORDERED
+PMATH_PRIVATE
+int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
   if(pmath_is_double(prev) && pmath_is_numeric(next)) {
     pmath_t n = pmath_set_precision(pmath_ref(next), -HUGE_VAL);
     int c;
@@ -217,32 +213,32 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       pmath_unref(n);
 
       if(c == FALSE) {
-        if(directions == DIRECTION_EQUAL)
+        if(directions == PMATH_DIRECTION_EQUAL)
           return FALSE;
 
         if(directions == 0) // no < or >
           return TRUE;
 
-        return UNKNOWN;
+        return PMATH_MAYBE_ORDERED;
       }
 
       if(c == TRUE) {
-        if(directions == DIRECTION_EQUAL)
+        if(directions == PMATH_DIRECTION_EQUAL)
           return TRUE;
 
         if(directions == 0) // no < or >
           return FALSE;
       }
 
-      return UNKNOWN;
+      return PMATH_MAYBE_ORDERED;
     }
 
     c = pmath_fuzzy_compare(prev, n);
     pmath_unref(n);
 
-    if( (c <  0 && (directions & DIRECTION_LESS)  == 0) ||
-        (c == 0 && (directions & DIRECTION_EQUAL) == 0) ||
-        (c >  0 && (directions & DIRECTION_GREATER) == 0))
+    if( (c <  0 && (directions & PMATH_DIRECTION_LESS)  == 0) ||
+        (c == 0 && (directions & PMATH_DIRECTION_EQUAL) == 0) ||
+        (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
     {
       return FALSE;
     }
@@ -259,32 +255,32 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       pmath_unref(p);
 
       if(c == FALSE) {
-        if(directions == DIRECTION_EQUAL)
+        if(directions == PMATH_DIRECTION_EQUAL)
           return FALSE;
 
         if(directions == 0) // no < or >
           return TRUE;
 
-        return UNKNOWN;
+        return PMATH_MAYBE_ORDERED;
       }
 
       if(c == TRUE) {
-        if(directions == DIRECTION_EQUAL)
+        if(directions == PMATH_DIRECTION_EQUAL)
           return TRUE;
 
         if(directions == 0) // no < or >
           return FALSE;
       }
 
-      return UNKNOWN;
+      return PMATH_MAYBE_ORDERED;
     }
 
     c = pmath_fuzzy_compare(p, next);
     pmath_unref(p);
 
-    if( (c <  0 && (directions & DIRECTION_LESS)  == 0) ||
-        (c == 0 && (directions & DIRECTION_EQUAL) == 0) ||
-        (c >  0 && (directions & DIRECTION_GREATER) == 0))
+    if( (c <  0 && (directions & PMATH_DIRECTION_LESS)  == 0) ||
+        (c == 0 && (directions & PMATH_DIRECTION_EQUAL) == 0) ||
+        (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
     {
       return FALSE;
     }
@@ -295,9 +291,9 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   if(pmath_is_number(prev) && pmath_is_number(next)) {
     int c = pmath_fuzzy_compare(prev, next);
 
-    if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
-        (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
-        (c >  0 && (directions & DIRECTION_GREATER) == 0))
+    if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
+        (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) ||
+        (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
     {
       return FALSE;
     }
@@ -308,10 +304,10 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   /*if(pmath_is_string(prev) && pmath_is_string(next)) {
     pmath_bool_t equal = pmath_equals(prev, next);
 
-    if( ( equal && (directions & DIRECTION_EQUAL) == 0) ||
-        (!equal && (directions & (DIRECTION_LESS |
-                                  DIRECTION_EQUAL |
-                                  DIRECTION_GREATER)) == DIRECTION_EQUAL))
+    if( ( equal && (directions & PMATH_DIRECTION_EQUAL) == 0) ||
+        (!equal && (directions & (PMATH_DIRECTION_LESS |
+                                  PMATH_DIRECTION_EQUAL |
+                                  PMATH_DIRECTION_GREATER)) == PMATH_DIRECTION_EQUAL))
     {
       pmath_unref(prev);
       pmath_unref(next);
@@ -323,7 +319,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
   }*/
 
   if(pmath_equals(prev, next)) { // symbols, expressions
-    if(directions & DIRECTION_EQUAL)
+    if(directions & PMATH_DIRECTION_EQUAL)
       return TRUE;
 
     return FALSE;
@@ -349,7 +345,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
           pmath_unref(next_infdir);
           pmath_unref(n);
 
-          if(directions & DIRECTION_LESS)
+          if(directions & PMATH_DIRECTION_LESS)
             return TRUE;
 
           return FALSE;
@@ -358,7 +354,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         pmath_unref(prev_infdir);
         pmath_unref(next_infdir);
         pmath_unref(n);
-        return UNKNOWN;
+        return PMATH_MAYBE_ORDERED;
       }
 
       if(pmath_equals(prev_infdir, PMATH_FROM_INT32(1))) {
@@ -374,7 +370,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
           pmath_unref(next_infdir);
           pmath_unref(n);
 
-          if(directions & DIRECTION_GREATER)
+          if(directions & PMATH_DIRECTION_GREATER)
             return TRUE;
 
           return FALSE;
@@ -383,7 +379,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         pmath_unref(prev_infdir);
         pmath_unref(next_infdir);
         pmath_unref(n);
-        return UNKNOWN;
+        return PMATH_MAYBE_ORDERED;
       }
 
       if(pmath_equals(next_infdir, PMATH_FROM_INT32(-1))) {
@@ -399,7 +395,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
           pmath_unref(next_infdir);
           pmath_unref(p);
 
-          if(directions & DIRECTION_GREATER)
+          if(directions & PMATH_DIRECTION_GREATER)
             return TRUE;
 
           return FALSE;
@@ -408,7 +404,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         pmath_unref(prev_infdir);
         pmath_unref(next_infdir);
         pmath_unref(p);
-        return UNKNOWN;
+        return PMATH_MAYBE_ORDERED;
       }
 
       if(pmath_equals(next_infdir, PMATH_FROM_INT32(1))) {
@@ -424,7 +420,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
           pmath_unref(next_infdir);
           pmath_unref(p);
 
-          if(directions & DIRECTION_LESS)
+          if(directions & PMATH_DIRECTION_LESS)
             return TRUE;
 
           return FALSE;
@@ -433,12 +429,12 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         pmath_unref(prev_infdir);
         pmath_unref(next_infdir);
         pmath_unref(p);
-        return UNKNOWN;
+        return PMATH_MAYBE_ORDERED;
       }
 
       pmath_unref(prev_infdir);
       pmath_unref(next_infdir);
-      return UNKNOWN;
+      return PMATH_MAYBE_ORDERED;
     }
   }
 
@@ -462,9 +458,9 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
         pmath_unref(p);
         pmath_unref(n);
 
-        if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
-            (c == 0 && (directions & DIRECTION_EQUAL)   == 0) ||
-            (c >  0 && (directions & DIRECTION_GREATER) == 0))
+        if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
+            (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) ||
+            (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
         {
           return FALSE;
         }
@@ -475,7 +471,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
       pmath_unref(p);
       pmath_unref(n);
 
-      return UNKNOWN;
+      return PMATH_MAYBE_ORDERED;
     }
     else {
       double prec, startprec;
@@ -483,7 +479,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
 
       pmath_thread_t me = pmath_thread_get_current();
       if(me == NULL)
-        return UNKNOWN;
+        return PMATH_MAYBE_ORDERED;
 
       prec = startprec = DBL_MANT_DIG;
 
@@ -495,7 +491,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
           pmath_unref(p);
           pmath_unref(n);
 
-          return UNKNOWN;
+          return PMATH_MAYBE_ORDERED;
         }
 
         c = pmath_fuzzy_compare(p, n);
@@ -506,7 +502,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
           break;
 
         if(pmath_aborting())
-          return UNKNOWN;
+          return PMATH_MAYBE_ORDERED;
 
         if(prec >= startprec + me->max_extra_precision) {
           pmath_t expr = pmath_expr_new_extended(
@@ -518,15 +514,15 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
                         pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
                         expr);
 
-          return UNKNOWN;
+          return PMATH_MAYBE_ORDERED;
         }
 
         prec*= 1.414;
       }
 
-      if( (c <  0 && (directions & DIRECTION_LESS)    == 0) ||
-          (c == 0 && (directions & DIRECTION_EQUAL)   == 0) || // c==0 should not happen
-          (c >  0 && (directions & DIRECTION_GREATER) == 0))
+      if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
+          (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) || // c==0 should not happen
+          (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
       {
         return FALSE;
       }
@@ -535,7 +531,7 @@ static int ordered_pair(pmath_t prev, pmath_t next, int directions) {
     }
   }
 
-  return UNKNOWN;
+  return PMATH_MAYBE_ORDERED;
 }
 
 static pmath_t ordered(
@@ -560,16 +556,16 @@ static pmath_t ordered(
     for(i = 2; i <= len; i++) {
       pmath_t next = pmath_expr_get_item(expr, i);
 
-      int test = ordered_pair(prev, next, directions);
+      int test = _pmath_numeric_order(prev, next, directions);
 
-      if(test == 0) {
+      if(test == FALSE) {
         pmath_unref(next);
         pmath_unref(prev);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FALSE);
       }
 
-      if(test > 0) {
+      if(test == TRUE) {
         if(start == i - 1) {
           start++;
         }
@@ -623,23 +619,23 @@ static pmath_t ordered(
 }
 
 PMATH_PRIVATE pmath_t builtin_less(pmath_expr_t expr) {
-  return ordered(expr, DIRECTION_LESS);
+  return ordered(expr, PMATH_DIRECTION_LESS);
 }
 
 PMATH_PRIVATE pmath_t builtin_lessequal(pmath_expr_t expr) {
-  return ordered(expr, DIRECTION_LESS | DIRECTION_EQUAL);
+  return ordered(expr, PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL);
 }
 
 PMATH_PRIVATE pmath_t builtin_greater(pmath_expr_t expr) {
-  return ordered(expr, DIRECTION_GREATER);
+  return ordered(expr, PMATH_DIRECTION_GREATER);
 }
 
 PMATH_PRIVATE pmath_t builtin_greaterequal(pmath_expr_t expr) {
-  return ordered(expr, DIRECTION_GREATER | DIRECTION_EQUAL);
+  return ordered(expr, PMATH_DIRECTION_GREATER | PMATH_DIRECTION_EQUAL);
 }
 
 PMATH_PRIVATE pmath_t builtin_equal(pmath_expr_t expr) {
-  return ordered(expr, DIRECTION_EQUAL);
+  return ordered(expr, PMATH_DIRECTION_EQUAL);
 }
 
 PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
@@ -693,11 +689,11 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
 }
 
 static int relation_direction(pmath_t rel) {
-  if(pmath_same(rel, PMATH_SYMBOL_EQUAL))        return DIRECTION_EQUAL;
-  if(pmath_same(rel, PMATH_SYMBOL_LESS))         return DIRECTION_LESS;
-  if(pmath_same(rel, PMATH_SYMBOL_LESSEQUAL))    return DIRECTION_LESS | DIRECTION_EQUAL;
-  if(pmath_same(rel, PMATH_SYMBOL_GREATER))      return DIRECTION_GREATER;
-  if(pmath_same(rel, PMATH_SYMBOL_GREATEREQUAL)) return DIRECTION_GREATER | DIRECTION_EQUAL;
+  if(pmath_same(rel, PMATH_SYMBOL_EQUAL))        return PMATH_DIRECTION_EQUAL;
+  if(pmath_same(rel, PMATH_SYMBOL_LESS))         return PMATH_DIRECTION_LESS;
+  if(pmath_same(rel, PMATH_SYMBOL_LESSEQUAL))    return PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL;
+  if(pmath_same(rel, PMATH_SYMBOL_GREATER))      return PMATH_DIRECTION_GREATER;
+  if(pmath_same(rel, PMATH_SYMBOL_GREATEREQUAL)) return PMATH_DIRECTION_GREATER | PMATH_DIRECTION_EQUAL;
   return 0;
 }
 
@@ -823,10 +819,10 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr) {
       }
       else if( direction == 0                               ||
                new_direction == 0                           ||
-               ((new_direction & DIRECTION_LESS)    != 0 &&
-                (direction     & DIRECTION_GREATER) != 0)   ||
-               ((new_direction & DIRECTION_GREATER) != 0 &&
-                (direction     & DIRECTION_LESS)    != 0))
+               ((new_direction & PMATH_DIRECTION_LESS)    != 0 &&
+                (direction     & PMATH_DIRECTION_GREATER) != 0)   ||
+               ((new_direction & PMATH_DIRECTION_GREATER) != 0 &&
+                (direction     & PMATH_DIRECTION_LESS)    != 0))
       {
         pmath_expr_t until_here;
         pmath_t rest;

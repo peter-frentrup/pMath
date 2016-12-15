@@ -406,6 +406,7 @@ PMATH_PRIVATE pmath_t builtin_mapthread(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_max(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mean(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_min(                          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_minmax(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_most(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_nest(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_nestlist(                     pmath_expr_t expr);
@@ -1128,6 +1129,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_MESSAGES                         = NEW_SYSTEM_SYMBOL("Messages"))
   VERIFY(   PMATH_SYMBOL_METHOD                           = NEW_SYSTEM_SYMBOL("Method"))
   VERIFY(   PMATH_SYMBOL_MIN                              = NEW_SYSTEM_SYMBOL("Min"))
+  VERIFY(   PMATH_SYMBOL_MINMAX                           = NEW_SYSTEM_SYMBOL("MinMax"))
   VERIFY(   PMATH_SYMBOL_MINMACHINENUMBER                 = NEW_SYSTEM_SYMBOL("$MinMachineNumber"))
   VERIFY(   PMATH_SYMBOL_MINUSPLUS                        = NEW_SYSTEM_SYMBOL("MinusPlus"))
   VERIFY(   PMATH_SYMBOL_MOD                              = NEW_SYSTEM_SYMBOL("Mod"))
@@ -1772,6 +1774,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_MESSAGENAME,                 builtin_messagename)
   BIND_DOWN(   PMATH_SYMBOL_MESSAGES,                    builtin_messages)
   BIND_DOWN(   PMATH_SYMBOL_MIN,                         builtin_min)
+  BIND_DOWN(   PMATH_SYMBOL_MINMAX,                      builtin_minmax)
   BIND_DOWN(   PMATH_SYMBOL_MOD,                         builtin_mod)
   BIND_DOWN(   PMATH_SYMBOL_MOST,                        builtin_most)
   BIND_DOWN(   PMATH_SYMBOL_NAMES,                       builtin_names)
