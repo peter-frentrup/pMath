@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads-private.h>
@@ -10,6 +11,8 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
+#define MAX(x, y) ((x) >= (y) ? (x) : (y))
 
 
 static pmath_rational_t _mul_qi(
@@ -332,6 +335,121 @@ PMATH_PRIVATE pmath_number_t _mul_nn(
   return PMATH_NULL;
 }
 
+
+static pmath_interval_t _mul_RR(pmath_interval_t intervalA, pmath_interval_t intervalB) {
+  pmath_interval_t result;
+  mp_prec_t aprec;
+  mp_prec_t bprec;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_interval(intervalB));
+  
+  aprec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(intervalA));
+  bprec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(intervalB));
+  result = _pmath_create_interval_for_result_with_prec(intervalA, MAX(aprec, bprec));
+  if(!pmath_is_null(result)) {
+    mpfi_mul(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_MP_INTERVAL(intervalB));
+  }
+  pmath_unref(intervalA);
+  pmath_unref(intervalB);
+  return result;
+}
+
+static pmath_interval_t _mul_Rs(pmath_interval_t intervalA, pmath_integer_t int32B) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_int32(int32B));
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_mul_si(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_INT32(int32B));
+  }
+  pmath_unref(intervalA);
+  //pmath_unref(int32B);
+  return result;
+}
+
+static pmath_interval_t _mul_Ri(pmath_interval_t intervalA, pmath_integer_t mpintB) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_mpint(mpintB));
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_mul_z(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_MPZ(mpintB));
+  }
+  pmath_unref(intervalA);
+  pmath_unref(mpintB);
+  return result;
+}
+
+static pmath_interval_t _mul_Rq(pmath_interval_t intervalA, pmath_quotient_t quotB) {
+  pmath_interval_t result;
+  mpq_t mpQuotB;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_quotient(quotB));
+  
+  mpq_init(mpQuotB);
+  
+  if(pmath_is_int32(PMATH_QUOT_NUM(quotB))) {
+    mpz_set_si(mpq_numref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_NUM(quotB)));
+  }
+  else {
+    assert(pmath_is_mpint(PMATH_QUOT_NUM(quotB)));
+    mpz_set(mpq_numref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)));
+  }
+  
+  if(pmath_is_int32(PMATH_QUOT_DEN(quotB))) {
+    mpz_set_si(mpq_denref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_DEN(quotB)));
+  }
+  else {
+    assert(pmath_is_mpint(PMATH_QUOT_DEN(quotB)));
+    mpz_set(mpq_denref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)));
+  }
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_mul_q(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), mpQuotB);
+  }
+  pmath_unref(intervalA);
+  pmath_unref(quotB);
+  mpq_clear(mpQuotB);
+  return result;
+}
+
+static pmath_interval_t _mul_Rf(pmath_interval_t intervalA, pmath_mpfloat_t floatB) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_mpfloat(floatB));
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_mul_fr(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_MP_VALUE(floatB));
+  }
+  pmath_unref(intervalA);
+  pmath_unref(floatB);
+  return result;
+}
+
+static pmath_interval_t _mul_Rm(pmath_interval_t intervalA, pmath_float_t doubleB) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(intervalA));
+  assert(pmath_is_double(doubleB));
+  
+  result = _pmath_create_interval_for_result(intervalA);
+  if(!pmath_is_null(result)) {
+    mpfi_mul_d(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(intervalA), PMATH_AS_DOUBLE(doubleB));
+  }
+  pmath_unref(intervalA);
+  //pmath_unref(doubleB);
+  return result;
+}
+
 static void split_factor(
   pmath_t  factor,
   pmath_t *out_base,
@@ -352,139 +470,178 @@ static void split_factor(
 
 static pmath_bool_t times_2_arg(pmath_t *a, pmath_t *b);
 
-static pmath_bool_t times_2_arg_num(pmath_t *a, pmath_t *b) {
-  if(pmath_is_number(*a)) {
-    if(pmath_is_number(*b)) {
-      *a = _mul_nn(*a, *b);
-      *a = _pmath_float_exceptions(*a);
-      *b = PMATH_UNDEFINED;
-      return TRUE;
-    }
-    
-    if(_pmath_is_nonreal_complex(*b)) { // a * (x + yi) = ax + ayi
-      pmath_number_t re = _mul_nn(
-                            pmath_ref(*a),
-                            pmath_expr_get_item(*b, 1));
-      pmath_number_t im = _mul_nn(
-                            pmath_ref(*a),
-                            pmath_expr_get_item(*b, 2));
-      pmath_unref(*a);
-      re = _pmath_float_exceptions(re);
-      im = _pmath_float_exceptions(im);
-      *a = pmath_expr_set_item(*b, 1, re);
-      *a = pmath_expr_set_item(*a, 2, im);
-      *b = PMATH_UNDEFINED;
-      return TRUE;
-    }
-    
-    if( pmath_equals(*b, _pmath_object_overflow) ||
-        pmath_equals(*b, _pmath_object_underflow))
-    {
-      pmath_unref(*a);
-      *a = *b;
-      *b = PMATH_UNDEFINED;
-      return TRUE;
-    }
-    
-    if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
-      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
-      return TRUE;
-    }
-    
-    if(pmath_equals(*a, INT(1))) {
-      pmath_unref(*a);
-      *a = *b;
-      *b = PMATH_UNDEFINED;
-      return TRUE;
-    }
-    
-    if(pmath_number_sign(*a) == 0) {
-      pmath_t binfdir = _pmath_directed_infinity_direction(*b);
-      
-      if(!pmath_is_null(binfdir)) {
-        pmath_message(PMATH_SYMBOL_INFINITY, "indet", 1, TIMES(*a, *b));
-        *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
-        *b = PMATH_UNDEFINED;
-        pmath_unref(binfdir);
-        return TRUE;
-      }
-      
-      pmath_unref(*b);
-      *b = PMATH_UNDEFINED;
-      return TRUE;
-    }
-    
-    if( pmath_equals(*a, INT(-1)) &&
-        pmath_is_expr_of(*b, PMATH_SYMBOL_PLUS))
-    {
-      size_t i;
-      
-      pmath_unref(*a);
-      for(i = 1; i <= pmath_expr_length(*b); i++) {
-        pmath_t bi = pmath_expr_extract_item(*b, i);
-        
-        *b = pmath_expr_set_item(*b, i, NEG(bi));
-      }
-      
-      *a = *b;
-      *b = PMATH_UNDEFINED;
-      return TRUE;
-    }
-    
-    return FALSE;
-  }
+static pmath_bool_t try_multiply_interval_to(pmath_interval_t *a, pmath_t *b) {
+  assert(pmath_is_interval(*a));
   
-  if(_pmath_is_nonreal_complex(*a)) {
-    if(pmath_is_number(*b)) { // (x + yi) * b = bx + byi
-      pmath_number_t re = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 1));
-      pmath_number_t im = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 2));
-      pmath_unref(*b);
-      re = _pmath_float_exceptions(re);
-      im = _pmath_float_exceptions(im);
-      *a = pmath_expr_set_item(*a, 1, re);
-      *a = pmath_expr_set_item(*a, 2, im);
-      *b = PMATH_UNDEFINED;
-      return TRUE;
-    }
-    
-    if(_pmath_is_nonreal_complex(*b)) {
-      // (u + vi)*(x + yi) = (ux - vy) + (uy + vx)i
-      pmath_number_t u = pmath_expr_get_item(*a, 1);
-      pmath_number_t v = pmath_expr_get_item(*a, 2);
-      pmath_number_t x = pmath_expr_get_item(*b, 1);
-      pmath_number_t y = pmath_expr_get_item(*b, 2);
-      
-      pmath_unref(*b);
-      *a = pmath_expr_set_item(
-             *a, 1,
-             _add_nn(
-               _mul_nn(pmath_ref(u), pmath_ref(x)),
-               pmath_number_neg(
-                 _mul_nn(pmath_ref(v), pmath_ref(y)))));
-      *a = pmath_expr_set_item(
-             *a, 2,
-             _add_nn(
-               _mul_nn(pmath_ref(u), pmath_ref(y)),
-               _mul_nn(pmath_ref(v), pmath_ref(x))));
-      pmath_unref(u);
-      pmath_unref(v);
-      pmath_unref(x);
-      pmath_unref(y);
-      *a = _pmath_float_exceptions(*a);
-      *b = PMATH_UNDEFINED;
-      return TRUE;
-    }
-    
-    if(_pmath_is_inexact(*a) && pmath_is_numeric(*b)) {
-      *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
-      return TRUE;
-    }
+  if(pmath_is_interval(*b)) {
+    *a = _mul_RR(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_int32(*b)) {
+    *a = _mul_Rs(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_mpint(*b)) {
+    *a = _mul_Ri(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_quotient(*b)) {
+    *a = _mul_Rq(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_mpfloat(*b)) {
+    *a = _mul_Rf(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  if(pmath_is_double(*b)) {
+    *a = _mul_Rm(*a, *b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
   }
   
   return FALSE;
 }
 
-static pmath_bool_t times_2_arg_inf(pmath_t *a, pmath_t *b) {
+static pmath_bool_t try_multiply_real_number_to(pmath_number_t *a, pmath_t *b) {
+  assert(pmath_is_number(*a));
+  
+  if(pmath_is_number(*b)) {
+    *a = _mul_nn(*a, *b);
+    *a = _pmath_float_exceptions(*a);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  if(_pmath_is_nonreal_complex(*b)) { // a * (x + yi) = ax + ayi
+    pmath_number_t re = _mul_nn(
+                          pmath_ref(*a),
+                          pmath_expr_get_item(*b, 1));
+    pmath_number_t im = _mul_nn(
+                          pmath_ref(*a),
+                          pmath_expr_get_item(*b, 2));
+    pmath_unref(*a);
+    re = _pmath_float_exceptions(re);
+    im = _pmath_float_exceptions(im);
+    *a = pmath_expr_set_item(*b, 1, re);
+    *a = pmath_expr_set_item(*a, 2, im);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  if( pmath_equals(*b, _pmath_object_overflow) ||
+      pmath_equals(*b, _pmath_object_underflow))
+  {
+    pmath_unref(*a);
+    *a = *b;
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
+    *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
+    return TRUE;
+  }
+  
+  if(pmath_equals(*a, INT(1))) {
+    pmath_unref(*a);
+    *a = *b;
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  if(pmath_number_sign(*a) == 0) {
+    pmath_t binfdir = _pmath_directed_infinity_direction(*b);
+    
+    if(!pmath_is_null(binfdir)) {
+      pmath_message(PMATH_SYMBOL_INFINITY, "indet", 1, TIMES(*a, *b));
+      *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      *b = PMATH_UNDEFINED;
+      pmath_unref(binfdir);
+      return TRUE;
+    }
+    
+    pmath_unref(*b);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  if( pmath_equals(*a, INT(-1)) &&
+      pmath_is_expr_of(*b, PMATH_SYMBOL_PLUS))
+  {
+    size_t i;
+    
+    pmath_unref(*a);
+    for(i = 1; i <= pmath_expr_length(*b); i++) {
+      pmath_t bi = pmath_expr_extract_item(*b, i);
+      
+      *b = pmath_expr_set_item(*b, i, NEG(bi));
+    }
+    
+    *a = *b;
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+static pmath_bool_t try_multiply_nonreal_complex_to(pmath_t *a, pmath_t *b) {
+  assert(_pmath_is_nonreal_complex(*a));
+  
+  if(pmath_is_number(*b)) { // (x + yi) * b = bx + byi
+    pmath_number_t re = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 1));
+    pmath_number_t im = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 2));
+    pmath_unref(*b);
+    re = _pmath_float_exceptions(re);
+    im = _pmath_float_exceptions(im);
+    *a = pmath_expr_set_item(*a, 1, re);
+    *a = pmath_expr_set_item(*a, 2, im);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  if(_pmath_is_nonreal_complex(*b)) {
+    // (u + vi)*(x + yi) = (ux - vy) + (uy + vx)i
+    pmath_number_t u = pmath_expr_get_item(*a, 1);
+    pmath_number_t v = pmath_expr_get_item(*a, 2);
+    pmath_number_t x = pmath_expr_get_item(*b, 1);
+    pmath_number_t y = pmath_expr_get_item(*b, 2);
+    
+    pmath_unref(*b);
+    *a = pmath_expr_set_item(
+           *a, 1,
+           _add_nn(
+             _mul_nn(pmath_ref(u), pmath_ref(x)),
+             pmath_number_neg(
+               _mul_nn(pmath_ref(v), pmath_ref(y)))));
+    *a = pmath_expr_set_item(
+           *a, 2,
+           _add_nn(
+             _mul_nn(pmath_ref(u), pmath_ref(y)),
+             _mul_nn(pmath_ref(v), pmath_ref(x))));
+    pmath_unref(u);
+    pmath_unref(v);
+    pmath_unref(x);
+    pmath_unref(y);
+    *a = _pmath_float_exceptions(*a);
+    *b = PMATH_UNDEFINED;
+    return TRUE;
+  }
+  
+  if(_pmath_is_inexact(*a) && pmath_is_numeric(*b)) {
+    *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+static pmath_bool_t try_multiply_infinities(pmath_t *a, pmath_t *b) {
   pmath_t infdir = _pmath_directed_infinity_direction(*a);
   
   if(!pmath_is_null(infdir)) {
@@ -542,7 +699,7 @@ static pmath_t expand_product_power(pmath_t base, pmath_t exponent) {
               POW(pmath_ref(base), pmath_ref(exponent)));
 }
 
-static pmath_bool_t times_2_arg_pow(pmath_t *a, pmath_t *b) {
+static pmath_bool_t try_multiply_common_powers(pmath_t *a, pmath_t *b) {
   pmath_t baseA;
   pmath_t baseB;
   pmath_number_t numPowerA;
@@ -837,7 +994,7 @@ static pmath_bool_t times_2_arg_pow(pmath_t *a, pmath_t *b) {
   return FALSE;
 }
 
-static pmath_bool_t times_2_arg_overflow(pmath_t *a, pmath_t *b) {
+static pmath_bool_t try_multiply_overflow(pmath_t *a, pmath_t *b) {
   if( (pmath_equals(*a, _pmath_object_overflow) &&
        pmath_equals(*b, _pmath_object_underflow)) ||
       (pmath_equals(*a, _pmath_object_underflow) &&
@@ -877,16 +1034,27 @@ static pmath_bool_t times_2_arg_overflow(pmath_t *a, pmath_t *b) {
 }
 
 static pmath_bool_t times_2_arg(pmath_t *a, pmath_t *b) {
-  if(times_2_arg_num(a, b))
+  if(pmath_is_number(*a)) {
+    if(try_multiply_real_number_to(a, b))
+      return TRUE;
+  }
+  else if(_pmath_is_nonreal_complex(*a)) {
+    if(try_multiply_nonreal_complex_to(a, b))
+      return TRUE;
+  }
+    
+  if(pmath_is_interval(*a)) {
+    if(try_multiply_interval_to(a, b))
+      return TRUE;
+  }
+  
+  if(try_multiply_infinities(a, b))
     return TRUE;
     
-  if(times_2_arg_inf(a, b))
+  if(try_multiply_common_powers(a, b))
     return TRUE;
     
-  if(times_2_arg_pow(a, b))
-    return TRUE;
-    
-  return times_2_arg_overflow(a, b);
+  return try_multiply_overflow(a, b);
 }
 
 PMATH_PRIVATE pmath_t builtin_times(pmath_expr_t expr) {

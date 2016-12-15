@@ -778,13 +778,8 @@ PMATH_PRIVATE void _pmath_split_summand(
 }
 
 static pmath_bool_t try_add_interval_to(pmath_interval_t *a, pmath_t *b) {
-  mp_prec_t aprec;
+  assert(pmath_is_interval(*a));
   
-  if(!pmath_is_interval(*a))
-    return FALSE;
-  
-  aprec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(*a));
-    
   if(pmath_is_interval(*b)) {
     *a = _add_RR(*a, *b);
     *b = PMATH_UNDEFINED;
@@ -1036,8 +1031,10 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
       return;
   }
   
-  if(try_add_interval_to(a, b))
-    return;
+  if(pmath_is_interval(*a)) {
+    if(try_add_interval_to(a, b))
+      return;
+  }
   
   if(try_add_overflow(a, b))
     return;
