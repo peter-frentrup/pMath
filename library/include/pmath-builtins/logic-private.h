@@ -18,7 +18,7 @@
 
 
 #define  PMATH_MAYBE_ORDERED  (-1)
-#define  PMATH_UNORDERED      (-2)  // not yet used
+#define  PMATH_UNORDERED      (-2)
 
 /** Compare to values.
     \param prev       The first value. It won't be freed.
