@@ -710,13 +710,14 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
     
     for(j = i + 1; j <= len; j++) {
       pmath_t b = pmath_expr_get_item(expr, j);
-      if(pmath_equals(a, b)) {
+      int unequal = _pmath_numeric_order(a, b, 0);
+      if(unequal == FALSE) {
         pmath_unref(a);
         pmath_unref(b);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FALSE);
       }
-      else if(!pmath_is_symbol(a) && !pmath_is_expr(a)) {
+      if (unequal == TRUE) {
         have_marker = TRUE;
         expr = pmath_expr_set_item(expr, j, PMATH_UNDEFINED);
       }
