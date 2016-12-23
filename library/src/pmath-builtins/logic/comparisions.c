@@ -1,7 +1,8 @@
 #include <pmath-builtins/logic-private.h>
 
-#include <pmath-util/approximate.h>
+#include <pmath-core/intervals-private.h>
 
+#include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
@@ -263,6 +264,127 @@ static pmath_bool_t check_complex_is_real(pmath_t z, pmath_t *out_re_only) {
   return FALSE;
 }
 
+enum known_direction_t {
+  KNOWN_DIR_LESS,
+  KNOWN_DIR_LESSEQUAL,
+  KNOWN_DIR_EQUAL,
+  KNOWN_DIR_GREATEREQUAL,
+  KNOWN_DIR_GREATER,
+  KNOWN_DIR_OVERLAP
+};
+
+#define MAYBE  PMATH_MAYBE_ORDERED
+// first index is KNOWN_DIR_XXX, second index is PMATH_DIRECTION_YYY bitset
+static const int8_t known_and_direction_result[6][8] = {
+/*         0: !=   1: <   2: =   3: <=   4: >   5: ><   6: >=   7: >=< */
+/* <  */ { TRUE,   TRUE,  FALSE, TRUE,   FALSE, TRUE,   FALSE,  TRUE   },
+/* <= */ { MAYBE,  MAYBE, MAYBE, TRUE,   FALSE, MAYBE,  MAYBE,  TRUE   },
+/*  = */ { FALSE,  FALSE, TRUE,  MAYBE,  FALSE, MAYBE,  MAYBE,  MAYBE  },
+/* >= */ { MAYBE,  FALSE, MAYBE, MAYBE,  MAYBE, MAYBE,  TRUE,   TRUE   },
+/* >  */ { TRUE,   FALSE, FALSE, FALSE,  TRUE,  TRUE,   TRUE,   TRUE   },
+/* ?? */ { MAYBE,  MAYBE, MAYBE, MAYBE,  MAYBE, MAYBE,  MAYBE,  MAYBE  }
+};
+#undef MAYBE
+
+static int to_comparison_result(enum known_direction_t known, int directions) {
+  return known_and_direction_result[known][directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL | PMATH_DIRECTION_GREATER)];
+}
+
+static int8_t flip_direction_result[8] = {
+  /* 0: !=  */  0,
+  /* 1: <   */  4,
+  /* 2: =   */  2,
+  /* 3: <=  */  6,
+  /* 4: >   */  1,
+  /* 5: ><  */  5,
+  /* 6: >=  */  3,
+  /* 7: >=< */  7
+};
+static int flip_direction(int direction) {
+  return flip_direction_result[direction & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL | PMATH_DIRECTION_GREATER)];
+}
+
+static enum known_direction_t compare_interval_endpoints(mpfr_srcptr a_left, mpfr_srcptr a_right, mpfr_srcptr b_left, mpfr_srcptr b_right) {
+  int cmp_aR_bL;
+  int cmp_aL_bR;
+  
+  if(mpfr_equal_p(a_left, b_left) && mpfr_equal_p(a_right, b_right))
+    return KNOWN_DIR_EQUAL;
+  
+  cmp_aR_bL = mpfr_cmp(a_right, b_left);
+  if(cmp_aR_bL < 0)
+    return KNOWN_DIR_LESS;
+  if(cmp_aR_bL == 0)
+    return KNOWN_DIR_LESSEQUAL;
+    
+  cmp_aL_bR = mpfr_cmp(a_left, b_right);
+  if(cmp_aL_bR > 0)
+    return KNOWN_DIR_GREATER;
+  if(cmp_aL_bR == 0)
+    return KNOWN_DIR_GREATEREQUAL;
+  
+  return KNOWN_DIR_OVERLAP;
+}
+
+static enum known_direction_t compare_interval_with_number(pmath_interval_t a, pmath_number_t b) {
+  struct _pmath_mp_float_t  a_left_data;
+  struct _pmath_mp_float_t  a_right_data;
+  int cmp_left;
+  int cmp_right;
+  pmath_t a_left;
+  pmath_t a_right;
+  
+  assert(pmath_is_number(b));
+  
+  a_left_data.inherited.type_shift = PMATH_TYPE_SHIFT_MP_FLOAT;
+  a_left_data.inherited.refcount._data = 2;
+  a_left_data.value[0] = PMATH_AS_MP_INTERVAL(a)->left;
+  a_left = PMATH_FROM_PTR(&a_left_data);
+  
+  a_right_data.inherited.type_shift = PMATH_TYPE_SHIFT_MP_FLOAT;
+  a_right_data.inherited.refcount._data = 2;
+  a_right_data.value[0] = PMATH_AS_MP_INTERVAL(a)->right;
+  a_right = PMATH_FROM_PTR(&a_right_data);
+  
+  cmp_left = _pmath_numbers_compare(a_left, b);
+  cmp_right = _pmath_numbers_compare(a_right, b);
+  
+  if(cmp_left == 0 && cmp_right == 0)
+    return KNOWN_DIR_EQUAL;
+  
+  if(cmp_right < 0)
+    return KNOWN_DIR_LESS;
+  if(cmp_right == 0)
+    return KNOWN_DIR_LESSEQUAL;
+  
+  if(cmp_left > 0)
+    return KNOWN_DIR_GREATER;
+  if(cmp_left == 0)
+    return KNOWN_DIR_GREATEREQUAL;
+  
+  return KNOWN_DIR_OVERLAP;
+}
+
+static int compare_interval(pmath_interval_t a, pmath_t b, int directions) {
+  assert(pmath_is_interval(a));
+  
+  if(pmath_is_interval(b)) {
+    mpfr_srcptr a_left = &PMATH_AS_MP_INTERVAL(a)->left;
+    mpfr_srcptr a_right = &PMATH_AS_MP_INTERVAL(a)->right;
+    mpfr_srcptr b_left = &PMATH_AS_MP_INTERVAL(b)->left;
+    mpfr_srcptr b_right = &PMATH_AS_MP_INTERVAL(b)->right;
+    enum known_direction_t known = compare_interval_endpoints(a_left, a_right, b_left, b_right);
+    return to_comparison_result(known, directions);
+  }
+  
+  if(pmath_is_number(b)) {
+    enum known_direction_t known = compare_interval_with_number(a, b);
+    return to_comparison_result(known, directions);
+  }
+  
+  return PMATH_MAYBE_ORDERED;
+}
+
 // TRUE, FALSE or PMATH_MAYBE_ORDERED or PMATH_UNORDERED
 PMATH_PRIVATE
 int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
@@ -351,22 +473,10 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
     }
   }
   
-  /*if(pmath_is_string(prev) && pmath_is_string(next)) {
-    pmath_bool_t equal = pmath_equals(prev, next);
-  
-    if( ( equal && (directions & PMATH_DIRECTION_EQUAL) == 0) ||
-        (!equal && (directions & (PMATH_DIRECTION_LESS |
-                                  PMATH_DIRECTION_EQUAL |
-                                  PMATH_DIRECTION_GREATER)) == PMATH_DIRECTION_EQUAL))
-    {
-      pmath_unref(prev);
-      pmath_unref(next);
-      pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FALSE);
-    }
-  
-    continue;
-  }*/
+  if(pmath_is_interval(prev)) 
+    return compare_interval(prev, next, directions);
+  else if(pmath_is_interval(next)) 
+    return compare_interval(next, prev, flip_direction(directions));
   
   if(pmath_equals(prev, next)) { // symbols, expressions
     if(directions & PMATH_DIRECTION_EQUAL)
