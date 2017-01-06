@@ -1057,46 +1057,53 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
 
   if(pmath_is_mpint(exponent)) { // not fitting to int32_t !
     if(pmath_is_number(base)) {
+      pmath_bool_t base_is_negone = FALSE;
+      pmath_bool_t base_is_zero = FALSE;
+      pmath_bool_t base_is_posone = FALSE;
       pmath_unref(expr);
 
       if(pmath_is_int32(base)) {
-        if(PMATH_AS_INT32(base) == -1) {
-          if(mpz_odd_p(PMATH_AS_MPZ(exponent))) {
-            pmath_unref(exponent);
-            return base;
-          }
-
-          pmath_unref(exponent);
-          return PMATH_FROM_INT32(1);
-        }
-
-        if(PMATH_AS_INT32(base) == 0 || PMATH_AS_INT32(base) == 1) {
-          pmath_unref(exponent);
-          return base;
-        }
+        if(PMATH_AS_INT32(base) == -1)
+          base_is_negone = TRUE;
+        else if(PMATH_AS_INT32(base) == 0)
+          base_is_zero = TRUE;
+        else if(PMATH_AS_INT32(base) == +1)
+          base_is_posone = TRUE;
       }
-
-      if(pmath_is_double(base)) {
+      else if(pmath_is_double(base)) {
         double d = PMATH_AS_DOUBLE(base);
 
-        if(d == -1) {
-          if(mpz_odd_p(PMATH_AS_MPZ(exponent))) {
-            pmath_unref(exponent);
-            return base;
-          }
-
-          pmath_unref(exponent);
-          pmath_unref(base);
-          return PMATH_FROM_DOUBLE(1.0);
-        }
-
-        if(d == 0 || d == 1) {
-          pmath_unref(exponent);
-          return base;
-        }
+        if(d == -1.0) 
+          base_is_negone = TRUE;
+        else if(d == 0.0)
+          base_is_zero = TRUE;
+        else if(d == +1.0)
+          base_is_posone = TRUE;
+      }
+      else if(pmath_is_mpfloat(base)) {
+        if(mpfr_cmp_si(PMATH_AS_MP_VALUE(base), -1) == 0)
+          base_is_negone = TRUE;
+        else if(mpfr_cmp_si(PMATH_AS_MP_VALUE(base), 0) == 0)
+          base_is_zero = TRUE;
+        else if(mpfr_cmp_si(PMATH_AS_MP_VALUE(base), 1) == 0)
+          base_is_posone = TRUE;
       }
 
       pmath_unref(base);
+      if(base_is_negone) {
+        if(mpz_odd_p(PMATH_AS_MPZ(exponent))) {
+          pmath_unref(exponent);
+          return base;
+        }
+
+        pmath_unref(exponent);
+        return PMATH_FROM_INT32(1);
+      }
+      if(base_is_zero || base_is_posone) {
+        pmath_unref(exponent);
+        return base;
+      }
+      
       if(mpz_sgn(PMATH_AS_MPZ(exponent)) < 0) {
         pmath_unref(exponent);
         pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
