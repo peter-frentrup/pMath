@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/emit-and-gather.h>
@@ -217,7 +218,7 @@ static pmath_integer_t int_root(
   return PMATH_NULL;
 }
 
-static pmath_t _pow_ri(
+static pmath_t _pow_qi(
   pmath_rational_t base,     // will be freed. not PMATH_NULL!
   long             exponent
 ) {
@@ -346,6 +347,119 @@ pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
     pmath_unref(base);
     return _pmath_float_exceptions(result);
   }
+}
+
+static void _mpfi_pow_si(mpfi_ptr result, mpfi_srcptr base, long exponent) {
+  pmath_bool_t has_zero = mpfi_has_zero(base);
+  
+  if(mpfi_nan_p(base)) {
+    mpfr_set_nan(&result->left);
+    mpfr_set_nan(&result->right);
+    return;
+  }
+  
+  if(exponent > 0) {
+    if(exponent & 1) { // positive odd, hence increasing
+      mpfr_pow_si(&result->left,  &base->left,  exponent, MPFR_RNDD);
+      mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDU);
+    }
+    else { // even
+      if( !mpfr_nan_p(&base->left) && !mpfr_nan_p(&base->right)) {
+        if(mpfr_cmpabs(&base->left, &base->right) < 0) {
+          mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDU);
+          if(has_zero) {
+            mpfr_set_ui(&result->left, 0, MPFR_RNDD);
+          }
+          else {
+            mpfr_pow_si(&result->left, &base->left, exponent, MPFR_RNDD);
+          }
+        }
+        else {
+          // should go to right, but that might alias base.right, we swap later
+          mpfr_pow_si(&result->left, &base->left, exponent, MPFR_RNDU);
+          if(has_zero) {
+            // should go to left, but that might alias base.left, we swap later
+            mpfr_set_ui(&result->right, 0, MPFR_RNDD);
+          }
+          else {
+            // should go to left, but that might alias base.left, we swap later
+            mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
+          }
+          
+          // swapping left and right is needed now!
+          mpfi_revert_if_needed(result);
+        }
+      }
+    }
+  }
+  else if(exponent == 0) {
+    mpfi_set_ui(result, 1);
+    if(has_zero) {
+      // TODO: what should RealInterval(0,0)^0 yield? Indeterminate like 0^0, or RealInterval(0,1) ?
+      mpfi_put_ui(result, 0);
+    }
+  }
+  else { // exponent < 0
+    if(has_zero) {
+      if(mpfi_is_zero(base)) {
+        // TODO: what should RealInterval(0,0)^-n yield? Indeterminate like 0^-n, or RealInterval(-Infinity,Infinity) ?
+        mpfr_set_inf(&result->left, -1);
+        mpfr_set_inf(&result->right, 1);
+        return;
+      }
+      
+      if(!mpfi_is_nonneg(base) && !mpfi_is_nonpos(base)) { // base contains negative and positive numbers
+        mpfr_set_inf(&result->left, -1);
+        mpfr_set_inf(&result->right, 1);
+        return;
+      }
+    }
+    
+    if(exponent & 1) { // negative odd, hence decreasing
+      // should go to right, but that might alias base.right, we swap later
+      mpfr_pow_si(&result->left, &base->left, exponent, MPFR_RNDU);
+      
+      // should go to left, but that might alias base.left, we swap later
+      mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
+        
+      // swapping left and right is needed now!
+      mpfi_revert_if_needed(result);
+    }
+    else { // even
+      if(mpfr_sgn(&result->left) >= 0) { // right of zero, hence decreasing
+        // should go to right, but that might alias base.right, we swap later
+        mpfr_pow_si(&result->left, &base->left, exponent, MPFR_RNDU);
+        
+        // should go to left, but that might alias base.left, we swap later
+        mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
+        
+        // swapping left and right is needed now!
+        mpfi_revert_if_needed(result);
+      }
+      else { // left of zero, hence increasing
+        mpfr_pow_si(&result->left,  &base->left,  exponent, MPFR_RNDD);
+        mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDU);
+      }
+    }
+  }
+}
+
+static
+pmath_t _pow_Ri(
+  pmath_interval_t base,  // will be freed. not PMATH_NULL!
+  long             exponent
+) {
+  pmath_bool_t has_zero = mpfi_has_zero(PMATH_AS_MP_INTERVAL(base));
+  pmath_interval_t result = _pmath_create_interval_for_result(base);
+  if(pmath_is_null(result)) {
+    pmath_unref(base);
+    return result;
+  }
+  
+  _mpfi_pow_si(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(base), exponent);
+  
+  pmath_unref(base);
+  return result;
 }
 
 static pmath_number_t evaluate_natural_power_of_number(
@@ -854,12 +968,17 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
         return _pow_fi(base, PMATH_AS_INT32(exponent), FALSE);
       }
     }
+    
+    if(pmath_is_interval(base)) {
+      pmath_unref(expr);
+      return _pow_Ri(base, PMATH_AS_INT32(exponent));
+    }
 
     if( pmath_is_rational(base) &&
         !pmath_equals(base, PMATH_FROM_INT32(0)))
     { // (p / q) ^ n
       pmath_unref(expr);
-      return _pow_ri(base, PMATH_AS_INT32(exponent));
+      return _pow_qi(base, PMATH_AS_INT32(exponent));
     }
 
     if(pmath_is_expr_of_len(base, PMATH_SYMBOL_COMPLEX, 2)) {
