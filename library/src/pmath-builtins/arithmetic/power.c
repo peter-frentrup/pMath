@@ -386,8 +386,7 @@ static void _mpfi_pow_si(mpfi_ptr result, mpfi_srcptr base, long exponent) {
             mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
           }
           
-          // swapping left and right is needed now!
-          mpfi_revert_if_needed(result);
+          mpfr_swap(&result->left, &result->right);
         }
       }
     }
@@ -422,8 +421,7 @@ static void _mpfi_pow_si(mpfi_ptr result, mpfi_srcptr base, long exponent) {
       // should go to left, but that might alias base.left, we swap later
       mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
       
-      // swapping left and right is needed now!
-      mpfi_revert_if_needed(result);
+      mpfr_swap(&result->left, &result->right);
     }
     else { // even
       if(mpfr_sgn(&result->left) >= 0) { // right of zero, hence decreasing
@@ -433,8 +431,7 @@ static void _mpfi_pow_si(mpfi_ptr result, mpfi_srcptr base, long exponent) {
         // should go to left, but that might alias base.left, we swap later
         mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
         
-        // swapping left and right is needed now!
-        mpfi_revert_if_needed(result);
+        mpfr_swap(&result->left, &result->right);
       }
       else { // left of zero, hence increasing
         mpfr_pow_si(&result->left,  &base->left,  exponent, MPFR_RNDD);
