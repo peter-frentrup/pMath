@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/evaluation.h>
@@ -8,6 +9,200 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
 
+
+static mpfr_rnd_t get_rounding_mode(pmath_t head) {
+  if(pmath_same(head, PMATH_SYMBOL_CEILING))
+    return MPFR_RNDU;
+    
+  if(pmath_same(head, PMATH_SYMBOL_FLOOR))
+    return MPFR_RNDD;
+    
+  if(pmath_same(head, PMATH_SYMBOL_INTEGERPART))
+    return MPFR_RNDZ;
+    
+  /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */
+  return MPFR_RNDN;
+}
+
+static pmath_t round_q(pmath_quotient_t x, pmath_t head) {
+  pmath_mpint_t num, den, result;
+  
+  assert(pmath_is_quotient(x));
+  
+  num = pmath_ref(PMATH_QUOT_NUM(x));
+  den = pmath_ref(PMATH_QUOT_DEN(x));
+  result = _pmath_create_mp_int(0);
+  
+  if(pmath_is_int32(num))
+    num = _pmath_create_mp_int(PMATH_AS_INT32(num));
+    
+  if(pmath_is_int32(den))
+    den = _pmath_create_mp_int(PMATH_AS_INT32(den));
+    
+  if(pmath_is_null(result) || pmath_is_null(num) || pmath_is_null(den)) {
+    pmath_unref(x);
+    pmath_unref(num);
+    pmath_unref(den);
+    pmath_unref(head);
+    return PMATH_NULL;
+  }
+  
+  assert(pmath_is_mpint(num));
+  assert(pmath_is_mpint(den));
+  
+  if(pmath_same(head, PMATH_SYMBOL_CEILING)) {
+    mpz_cdiv_q(
+      PMATH_AS_MPZ(result),
+      PMATH_AS_MPZ(num),
+      PMATH_AS_MPZ(den));
+  }
+  else if(pmath_same(head, PMATH_SYMBOL_FLOOR)) {
+    mpz_fdiv_q(
+      PMATH_AS_MPZ(result),
+      PMATH_AS_MPZ(num),
+      PMATH_AS_MPZ(den));
+  }
+  else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
+    mpz_tdiv_q(
+      PMATH_AS_MPZ(result),
+      PMATH_AS_MPZ(num),
+      PMATH_AS_MPZ(den));
+  }
+  else { /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */
+    pmath_bool_t even;
+    int cmp;
+    pmath_mpint_t rem  = _pmath_create_mp_int(0);
+    pmath_mpint_t half = _pmath_create_mp_int(0);
+    
+    if(!pmath_is_null(rem) && !pmath_is_null(half)) {
+      mpz_fdiv_qr(
+        PMATH_AS_MPZ(result),
+        PMATH_AS_MPZ(rem),
+        PMATH_AS_MPZ(num),
+        PMATH_AS_MPZ(den));
+        
+      even = mpz_even_p(PMATH_AS_MPZ(den));
+      
+      mpz_fdiv_q_2exp(
+        PMATH_AS_MPZ(half),
+        PMATH_AS_MPZ(den),
+        1);
+        
+      cmp = mpz_cmp(PMATH_AS_MPZ(rem), PMATH_AS_MPZ(half));
+      if( cmp > 0 ||
+          (cmp == 0 &&
+           even &&
+           mpz_odd_p(PMATH_AS_MPZ(result))))
+      {
+        mpz_add_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), 1);
+      }
+    }
+    else {
+      pmath_unref(result);
+      result = PMATH_NULL;
+    }
+    
+    pmath_unref(rem);
+    pmath_unref(half);
+  }
+  
+  pmath_unref(num);
+  pmath_unref(den);
+  pmath_unref(x);
+  pmath_unref(head);
+  return _pmath_mp_int_normalize(result);
+}
+
+static pmath_t round_d(double x, pmath_t head) {
+  pmath_mpint_t result = _pmath_create_mp_int(0);
+  
+  if(pmath_is_null(result)) {
+    pmath_unref(head);
+    return PMATH_NULL;
+  }
+  
+  if(pmath_same(head, PMATH_SYMBOL_CEILING)) {
+    // TODO: prevent overflow
+    mpz_set_d(
+      PMATH_AS_MPZ(result),
+      ceil(x));
+  }
+  else if(pmath_same(head, PMATH_SYMBOL_FLOOR)) {
+    // TODO: prevent overflow
+    mpz_set_d(
+      PMATH_AS_MPZ(result),
+      floor(x));
+  }
+  else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
+    mpz_set_d(
+      PMATH_AS_MPZ(result),
+      x); // mpz_set_d truncates x
+  }
+  else { /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */
+    double f = floor(x);
+    
+    mpz_set_d(PMATH_AS_MPZ(result), f);
+    f = x - f;
+    
+    if( f > 0.5 ||
+        (f == 0.5 &&
+         mpz_odd_p(PMATH_AS_MPZ(result))))
+    {
+      mpz_add_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), 1);
+    }
+  }
+  
+  pmath_unref(head);
+  return _pmath_mp_int_normalize(result);
+}
+
+static pmath_t round_f(pmath_mpfloat_t x, pmath_t head) {
+  pmath_mpint_t result = _pmath_create_mp_int(0);
+  
+  assert(pmath_is_mpfloat(x));
+  
+  if(pmath_is_null(result)) {
+    pmath_unref(x);
+    pmath_unref(head);
+    return PMATH_NULL;
+  }
+  
+  mpfr_get_z(
+    PMATH_AS_MPZ(result),
+    PMATH_AS_MP_VALUE(x),
+    get_rounding_mode(head));
+    
+  pmath_unref(x);
+  pmath_unref(head);
+  return _pmath_mp_int_normalize(result);
+}
+
+static pmath_t round_R(pmath_interval_t x, pmath_t head) {
+  pmath_interval_t result;
+  pmath_mpint_t    tmp = _pmath_create_mp_int(0);
+  mpfr_rnd_t       rnd = get_rounding_mode(head);
+  pmath_unref(head);
+  
+  assert(pmath_is_interval(x));
+  
+  result = _pmath_create_interval_for_result(x);
+  if(pmath_is_null(result) || pmath_is_null(tmp)) {
+    pmath_unref(x);
+    pmath_unref(result);
+    pmath_unref(tmp);
+    return PMATH_NULL;
+  }
+  
+  mpfr_get_z(PMATH_AS_MPZ(tmp), &PMATH_AS_MP_INTERVAL(x)->left, rnd);
+  mpfr_set_z(&PMATH_AS_MP_INTERVAL(result)->left, PMATH_AS_MPZ(tmp), MPFR_RNDD);
+  
+  mpfr_get_z(PMATH_AS_MPZ(tmp), &PMATH_AS_MP_INTERVAL(x)->right, rnd);
+  mpfr_set_z(&PMATH_AS_MP_INTERVAL(result)->right, PMATH_AS_MPZ(tmp), MPFR_RNDU);
+  
+  pmath_unref(tmp);
+  pmath_unref(x);
+  return result;
+}
 
 PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
   /* Ceiling(x)           smallest integer greater than or equal to x
@@ -21,7 +216,7 @@ PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
      Round(x)             integer closest to x, ties to even
      Round(x, a)          nearest multiple of a to x
      Round(a + b*I)       = Round(a) + Round(b)*I
-     
+  
      IntegerPart(x)       round to zero
      IntegerPart(a + b*I) = IntegerPart(a) + IntegerPart(b)*I
   
@@ -51,173 +246,23 @@ PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
     }
     
     if(pmath_is_quotient(x)) {
-      pmath_mpint_t num = pmath_ref(PMATH_QUOT_NUM(x));
-      pmath_mpint_t den = pmath_ref(PMATH_QUOT_DEN(x));
-      pmath_mpint_t result = _pmath_create_mp_int(0);
       pmath_unref(expr);
-      
-      if(pmath_is_int32(num))
-        num = _pmath_create_mp_int(PMATH_AS_INT32(num));
-        
-      if(pmath_is_int32(den))
-        den = _pmath_create_mp_int(PMATH_AS_INT32(den));
-        
-      if(pmath_is_null(result) || pmath_is_null(num) || pmath_is_null(den)) {
-        pmath_unref(x);
-        pmath_unref(num);
-        pmath_unref(den);
-        pmath_unref(head);
-        return PMATH_NULL;
-      }
-      
-      assert(pmath_is_mpint(num));
-      assert(pmath_is_mpint(den));
-      
-      if(pmath_same(head, PMATH_SYMBOL_CEILING)) {
-        mpz_cdiv_q(
-          PMATH_AS_MPZ(result),
-          PMATH_AS_MPZ(num),
-          PMATH_AS_MPZ(den));
-      }
-      else if(pmath_same(head, PMATH_SYMBOL_FLOOR)) {
-        mpz_fdiv_q(
-          PMATH_AS_MPZ(result),
-          PMATH_AS_MPZ(num),
-          PMATH_AS_MPZ(den));
-      }
-      else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
-        mpz_tdiv_q(
-          PMATH_AS_MPZ(result),
-          PMATH_AS_MPZ(num),
-          PMATH_AS_MPZ(den));
-      }
-      else /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */{
-        pmath_bool_t even;
-        int cmp;
-        pmath_mpint_t rem  = _pmath_create_mp_int(0);
-        pmath_mpint_t half = _pmath_create_mp_int(0);
-        
-        if(!pmath_is_null(rem) && !pmath_is_null(half)) {
-          mpz_fdiv_qr(
-            PMATH_AS_MPZ(result),
-            PMATH_AS_MPZ(rem),
-            PMATH_AS_MPZ(num),
-            PMATH_AS_MPZ(den));
-            
-          even = mpz_even_p(PMATH_AS_MPZ(den));
-          
-          mpz_fdiv_q_2exp(
-            PMATH_AS_MPZ(half),
-            PMATH_AS_MPZ(den),
-            1);
-            
-          cmp = mpz_cmp(PMATH_AS_MPZ(rem), PMATH_AS_MPZ(half));
-          if( cmp > 0 ||
-              (cmp == 0 &&
-               even &&
-               mpz_odd_p(PMATH_AS_MPZ(result))))
-          {
-            mpz_add_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), 1);
-          }
-        }
-        else {
-          pmath_unref(result);
-          result = PMATH_NULL;
-        }
-        
-        pmath_unref(rem);
-        pmath_unref(half);
-      }
-      
-      pmath_unref(num);
-      pmath_unref(den);
-      pmath_unref(x);
-      pmath_unref(head);
-      return _pmath_mp_int_normalize(result);
+      return round_q(x, head);
     }
     
     if(pmath_is_double(x)) {
-      pmath_mpint_t result = _pmath_create_mp_int(0);
       pmath_unref(expr);
-      if(pmath_is_null(result)) {
-        pmath_unref(x);
-        pmath_unref(head);
-        return PMATH_NULL;
-      }
-      
-      if(pmath_same(head, PMATH_SYMBOL_CEILING)) {
-        // TODO: prevent overflow
-        mpz_set_d(
-          PMATH_AS_MPZ(result),
-          ceil(PMATH_AS_DOUBLE(x)));
-      }
-      else if(pmath_same(head, PMATH_SYMBOL_FLOOR)) {
-        // TODO: prevent overflow
-        mpz_set_d(
-          PMATH_AS_MPZ(result),
-          floor(PMATH_AS_DOUBLE(x)));
-      }
-      else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
-        mpz_set_d(
-          PMATH_AS_MPZ(result),
-          PMATH_AS_DOUBLE(x)); // mpz_set_d truncates x
-      }
-      else /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */{
-        double f = floor(PMATH_AS_DOUBLE(x));
-        
-        mpz_set_d(PMATH_AS_MPZ(result), f);
-        f = PMATH_AS_DOUBLE(x) - f;
-        
-        if( f > 0.5 ||
-            (f == 0.5 &&
-             mpz_odd_p(PMATH_AS_MPZ(result))))
-        {
-          mpz_add_ui(PMATH_AS_MPZ(result), PMATH_AS_MPZ(result), 1);
-        }
-      }
-      
-      pmath_unref(x);
-      pmath_unref(head);
-      return _pmath_mp_int_normalize(result);
+      return round_d(PMATH_AS_DOUBLE(x), head);
     }
     
     if(pmath_is_mpfloat(x)) {
-      pmath_mpint_t result = _pmath_create_mp_int(0);
       pmath_unref(expr);
-      if(pmath_is_null(result)) {
-        pmath_unref(x);
-        pmath_unref(head);
-        return PMATH_NULL;
-      }
-      
-      if(pmath_same(head, PMATH_SYMBOL_CEILING)) {
-        mpfr_get_z(
-          PMATH_AS_MPZ(result),
-          PMATH_AS_MP_VALUE(x),
-          MPFR_RNDU);
-      }
-      else if(pmath_same(head, PMATH_SYMBOL_FLOOR)) {
-        mpfr_get_z(
-          PMATH_AS_MPZ(result),
-          PMATH_AS_MP_VALUE(x),
-          MPFR_RNDD);
-      }
-      else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
-        mpfr_get_z(
-          PMATH_AS_MPZ(result),
-          PMATH_AS_MP_VALUE(x),
-          MPFR_RNDZ);
-      }
-      else /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */{
-        mpfr_get_z(
-          PMATH_AS_MPZ(result),
-          PMATH_AS_MP_VALUE(x),
-          MPFR_RNDN);
-      }
-      
-      pmath_unref(x);
-      pmath_unref(head);
-      return _pmath_mp_int_normalize(result);
+      return round_f(x, head);
+    }
+    
+    if(pmath_is_interval(x)) {
+      pmath_unref(expr);
+      return round_R(x, head);
     }
     
     { // TODO: use higher/adapted precision/interval arithmetic
@@ -233,7 +278,7 @@ PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
         
       if( _pmath_re_im(x, &re, &im) && // frees x
           pmath_is_float(re) &&
-          pmath_is_float(im)) 
+          pmath_is_float(im))
       {
         return pmath_expr_set_item(expr, 1, x);
       }
