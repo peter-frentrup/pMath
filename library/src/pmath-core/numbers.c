@@ -723,6 +723,8 @@ pmath_t _pmath_mpfloat_call(
   int             (*func)(mpfr_ptr, mpfr_srcptr,mpfr_rnd_t)
 ) {
   pmath_mpfloat_t result;
+  if(pmath_is_null(arg))
+    return arg;
   
   assert(pmath_is_mpfloat(arg));
   
