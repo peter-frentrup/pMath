@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
@@ -35,8 +36,12 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
   
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
-    x = _pmath_mpfloat_call(x, mpfr_cos);
-    return x;
+    return _pmath_mpfloat_call(x, mpfr_cos);
+  }
+  
+  if(pmath_is_interval(x)) {
+    pmath_unref(expr);
+    return _pmath_interval_call(x, mpfi_cos);
   }
   
   if(pmath_is_number(x)) {

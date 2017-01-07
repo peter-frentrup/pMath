@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -34,6 +35,11 @@ PMATH_PRIVATE pmath_t builtin_tan(pmath_expr_t expr) {
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
     return _pmath_mpfloat_call(x, mpfr_tan);
+  }
+  
+  if(pmath_is_interval(x)) {
+    pmath_unref(expr);
+    return _pmath_interval_call(x, mpfi_tan);
   }
   
   if(pmath_is_number(x)) {

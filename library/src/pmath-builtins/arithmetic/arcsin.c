@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -24,6 +25,22 @@ static pmath_mpfloat_t mp_arcsin(pmath_mpfloat_t x) {
   }
   
   return _pmath_mpfloat_call(x, mpfr_asin);
+}
+
+static pmath_integer_t interval_arcsin(pmath_interval_t x) {
+  if(pmath_is_null(x))
+    return PMATH_NULL;
+  
+  assert(pmath_is_interval(x));
+  
+  if( mpfr_cmp_si(&PMATH_AS_MP_INTERVAL(x)->left, -1) >= 0 &&
+      mpfr_cmp_si(&PMATH_AS_MP_INTERVAL(x)->left, 1) <= 0
+  ) {
+    return _pmath_interval_call(x, mpfi_asin);
+  }
+  
+  pmath_unref(x);
+  return PMATH_NULL;
 }
 
 static pmath_t arcsin_as_log(pmath_t x) {
@@ -76,6 +93,17 @@ PMATH_PRIVATE pmath_t builtin_arcsin(pmath_expr_t expr) {
     pmath_unref(expr);
     
     expr = mp_arcsin(pmath_ref(x));
+    if(pmath_is_null(expr))
+      return arcsin_as_log(x);
+    
+    pmath_unref(x);
+    return expr;
+  }
+  
+  if(pmath_is_interval(x)) {
+    pmath_unref(expr);
+    
+    expr = interval_arcsin(pmath_ref(x));
     if(pmath_is_null(expr))
       return arcsin_as_log(x);
     

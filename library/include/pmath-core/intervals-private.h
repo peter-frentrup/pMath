@@ -67,8 +67,14 @@ pmath_t _pmath_interval_exceptions(pmath_interval_t x);
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_interval_get_value(
-  pmath_interval_t interval, // wont be freed
-  int (*get_fn)(mpfr_ptr, mpfi_srcptr));
+  pmath_interval_t   interval, // wont be freed
+  int              (*get_fn)(mpfr_ptr, mpfi_srcptr));
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_interval_call(
+  pmath_interval_t   arg, // will be freed
+  int              (*func)(mpfi_ptr, mpfi_srcptr));
 
 
 PMATH_PRIVATE void _pmath_intervals_memory_panic(void);

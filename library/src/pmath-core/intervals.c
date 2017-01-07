@@ -453,6 +453,23 @@ pmath_t pmath_interval_get_right(pmath_interval_t interval) {
   return _pmath_interval_get_value(interval, mpfi_get_right);
 }
 
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_interval_call(
+  pmath_interval_t   arg, // will be freed
+  int              (*func)(mpfi_ptr, mpfi_srcptr)
+) {
+  pmath_interval_t result;
+  
+  assert(pmath_is_interval(arg));
+  result = _pmath_create_interval_for_result(arg);
+  if(!pmath_is_null(result))
+    func(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(arg));
+  
+  pmath_unref(arg);
+  return result;
+}
+
 // =============================================================================
 
 PMATH_PRIVATE void _pmath_intervals_memory_panic(void) {

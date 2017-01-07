@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/messages.h>
 
@@ -33,6 +34,11 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr) {
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
     return _pmath_mpfloat_call(x, mpfr_cosh);
+  }
+  
+  if(pmath_is_interval(x)) {
+    pmath_unref(expr);
+    return _pmath_interval_call(x, mpfi_cosh);
   }
   
   if(pmath_is_number(x)) {

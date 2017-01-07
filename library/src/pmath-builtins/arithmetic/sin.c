@@ -31,8 +31,12 @@ PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr) {
   
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
-    x = _pmath_mpfloat_call(x, mpfr_sin);
-    return x;
+    return _pmath_mpfloat_call(x, mpfr_sin);
+  }
+  
+  if(pmath_is_interval(x)) {
+    pmath_unref(expr);
+    return _pmath_interval_call(x, mpfi_sin);
   }
   
   if(pmath_is_number(x)) {
