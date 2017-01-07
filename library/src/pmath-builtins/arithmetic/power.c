@@ -466,6 +466,17 @@ static pmath_t _pow_Ri(
   return result;
 }
 
+static pmath_t exp_R(pmath_interval_t exponent) { // will be freed;
+  pmath_interval_t result = _pmath_create_interval_for_result(exponent);
+  
+  if(!pmath_is_null(result)) {
+    mpfi_exp(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(exponent));
+  }
+  
+  pmath_unref(exponent);
+  return result;
+}
+
 static pmath_number_t evaluate_natural_power_of_number(
   pmath_number_t base, // will be freed
   unsigned long  exponent
@@ -1463,6 +1474,14 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     }
     
     pmath_unref(num);
+  }
+  
+  if(pmath_is_interval(exponent)) {
+    if(pmath_equals(base, PMATH_SYMBOL_E)) {
+      pmath_unref(base);
+      pmath_unref(expr);
+      return exp_R(exponent);
+    }
   }
   
   if(_pmath_is_inexact(exponent)) {
