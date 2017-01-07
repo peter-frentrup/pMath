@@ -28,24 +28,14 @@ double pmath_precision(pmath_t obj) { // will be freed
 
   if(pmath_is_mpfloat(obj)) {
     mpfr_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(obj));
-
     pmath_unref(obj);
-
     return prec;
-
-//    long val_exp, err_exp;
-//    double val_d, err_d;
-//
-//    if(mpfr_zero_p(PMATH_AS_MP_VALUE(obj))) {
-//      pmath_unref(obj);
-//      return 0.0;
-//    }
-//
-//    val_d = mpfr_get_d_2exp(&val_exp, PMATH_AS_MP_VALUE(obj), MPFR_RNDN);
-//    err_d = mpfr_get_d_2exp(&err_exp, PMATH_AS_MP_ERROR(obj), MPFR_RNDN);
-//
-//    pmath_unref(obj);
-//    return log2(fabs(val_d)) + val_exp - (log2(err_d) + err_exp);
+  }
+  
+  if(pmath_is_interval(obj)) {
+    mpfr_prec_t prec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(obj));
+    pmath_unref(obj);
+    return prec;
   }
 
   if(pmath_is_packed_array(obj)) {

@@ -1,4 +1,5 @@
 #include <pmath-core/expressions-private.h>
+#include <pmath-core/intervals-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/strings-private.h>
@@ -24,6 +25,11 @@ size_t pmath_object_bytecount(pmath_t obj) {
     case PMATH_TYPE_SHIFT_MP_FLOAT:
       return (PMATH_AS_MP_VALUE(obj)->_mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
            + sizeof(struct _pmath_mp_float_t);
+    
+    case PMATH_TYPE_SHIFT_INTERVAL:
+      return (PMATH_AS_MP_INTERVAL(obj)->left._mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
+           + (PMATH_AS_MP_INTERVAL(obj)->right._mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
+           + sizeof(struct _pmath_interval_t);
     
     case PMATH_TYPE_SHIFT_BIGSTRING:
       return LENGTH_TO_CAPACITY(pmath_string_length(obj)) * sizeof(uint16_t)
