@@ -469,14 +469,14 @@ static void _mpfi_fr_pow(mpfi_ptr result, mpfr_srcptr base, mpfi_srcptr exponent
     }
     
     if(mpfr_sgn(&exponent->left) < 0) {
-      if(mpfr_signbit(base)) { // (-0.0)^-x 
+      if(mpfr_signbit(base)) { // (-0.0)^-x
         // TODO: for integer exponent, [-Infinity, 0] respectively [0, +Infinity] would be a correct result
         mpfr_set_nan(&result->left);
         mpfr_set_nan(&result->right);
         return;
       }
       
-      if(mpfr_sgn(&exponent->right) >= 0) { 
+      if(mpfr_sgn(&exponent->right) >= 0) {
         // (+0.0)^[-x, +y] = (+0.0)^[-x, 0] = [0, +Infinity]
         mpfr_set_ui(&result->left, 0, MPFR_RNDD);
         mpfr_set_inf(&result->right, +1);
@@ -503,7 +503,7 @@ static void _mpfi_fr_pow(mpfi_ptr result, mpfr_srcptr base, mpfi_srcptr exponent
     return;
   }
   
-  /* Note that result.left and/or result.right might alias with base and/or exponent.left and/or 
+  /* Note that result.left and/or result.right might alias with base and/or exponent.left and/or
      exponent.right. Hence we need to use temporaries.
    */
   
@@ -574,8 +574,8 @@ static pmath_t _pow_Ri(
 }
 
 static pmath_t _pow_RR(
-  pmath_expr_t     expr, 
-  pmath_interval_t base, 
+  pmath_expr_t     expr,
+  pmath_interval_t base,
   pmath_interval_t exponent
 ) {
   if(mpfi_is_nonneg(PMATH_AS_MP_INTERVAL(base))) {
@@ -589,6 +589,8 @@ static pmath_t _pow_RR(
     pmath_unref(exponent);
     return result;
   }
+  
+  // TODO: give a complex interval
   
   pmath_unref(base);
   pmath_unref(exponent);
@@ -1612,8 +1614,39 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       return exp_R(exponent);
     }
     
-    if(pmath_is_interval(base)) 
+    if(pmath_is_interval(base))
       return _pow_RR(expr, base, exponent);
+      
+    if(pmath_is_numeric(base)) {
+      pmath_unref(expr);
+      base = pmath_set_precision_interval(base, mpfi_get_prec(PMATH_AS_MP_INTERVAL(exponent)));
+      
+      expr = pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_POWER), 2,
+               base,
+               exponent);
+      
+      if(pmath_is_interval(base)) 
+        return _pow_RR(expr, pmath_ref(base), pmath_ref(exponent));
+      
+      return expr;
+    }
+  }
+  else if(pmath_is_interval(base)) {
+    if(pmath_is_numeric(exponent)) {
+      pmath_unref(expr);
+      exponent = pmath_set_precision_interval(exponent, mpfi_get_prec(PMATH_AS_MP_INTERVAL(base)));
+      
+      expr = pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_POWER), 2,
+               base,
+               exponent);
+      
+      if(pmath_is_interval(exponent)) 
+        return _pow_RR(expr, pmath_ref(base), pmath_ref(exponent));
+      
+      return expr;
+    }
   }
   
   if(_pmath_is_inexact(exponent)) {
