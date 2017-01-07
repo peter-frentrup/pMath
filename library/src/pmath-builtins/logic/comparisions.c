@@ -388,6 +388,11 @@ static int compare_interval(pmath_interval_t a, pmath_t b, int directions) {
 // TRUE, FALSE or PMATH_MAYBE_ORDERED or PMATH_UNORDERED
 PMATH_PRIVATE
 int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
+  if(pmath_is_interval(prev)) 
+    return compare_interval(prev, next, directions);
+  else if(pmath_is_interval(next)) 
+    return compare_interval(next, prev, flip_direction(directions));
+  
   if(pmath_is_double(prev) && pmath_is_numeric(next)) {
     pmath_t n = pmath_set_precision(pmath_ref(next), -HUGE_VAL);
     
@@ -472,11 +477,6 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
       return PMATH_UNORDERED;
     }
   }
-  
-  if(pmath_is_interval(prev)) 
-    return compare_interval(prev, next, directions);
-  else if(pmath_is_interval(next)) 
-    return compare_interval(next, prev, flip_direction(directions));
   
   if(pmath_equals(prev, next)) { // symbols, expressions
     if(directions & PMATH_DIRECTION_EQUAL)
