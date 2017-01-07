@@ -461,6 +461,9 @@ pmath_t _pmath_interval_call(
 ) {
   pmath_interval_t result;
   
+  if(pmath_is_null(arg))
+    return arg;
+  
   assert(pmath_is_interval(arg));
   result = _pmath_create_interval_for_result(arg);
   if(!pmath_is_null(result))

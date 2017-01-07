@@ -1,4 +1,5 @@
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/helpers.h>
@@ -169,6 +170,38 @@ static pmath_t mp_log(pmath_mpfloat_t x) {
   return _pmath_mpfloat_call(x, mpfr_log);
 }
 
+static pmath_t interval_log(pmath_interval_t x) {
+  pmath_bool_t has_zero;
+  mpfr_prec_t prec;
+  pmath_interval_t re, im;
+  
+  if(pmath_is_null(x))
+    return PMATH_NULL;
+  
+  assert(pmath_is_interval(x));
+  
+  if(mpfi_is_nonneg(PMATH_AS_MP_INTERVAL(x))) 
+    return _pmath_interval_call(x, mpfi_log);
+  
+  has_zero = mpfi_has_zero(PMATH_AS_MP_INTERVAL(x));
+  prec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(x));
+  
+  x = _pmath_interval_call(x, mpfi_abs);
+  re = _pmath_interval_call(x, mpfi_log);
+  
+  //im = pmath_set_precision_interval(pmath_ref(PMATH_SYMBOL_PI), prec);
+  im = _pmath_create_interval(prec);
+  if(has_zero) {
+    mpfr_set_ui(&PMATH_AS_MP_INTERVAL(im)->left, 0, MPFR_RNDD);
+    mpfr_const_pi(&PMATH_AS_MP_INTERVAL(im)->right, MPFR_RNDU);
+  }
+  else{
+    mpfi_const_pi(PMATH_AS_MP_INTERVAL(im));
+  }
+  
+  return COMPLEX(re, im);
+}
+
 PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
   /* Log(base, x)
      Log(x)       = Log(E, x)
@@ -245,9 +278,12 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
   
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
-    
-    x = mp_log(x);
-    return x;
+    return mp_log(x);
+  }
+  
+  if(pmath_is_interval(x)) {
+    pmath_unref(expr);
+    return interval_log(x);
   }
   
   if(_pmath_is_nonreal_complex(x)) {
