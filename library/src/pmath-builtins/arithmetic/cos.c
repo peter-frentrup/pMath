@@ -11,28 +11,6 @@
 #include <pmath-builtins/lists-private.h>
 
 
-static pmath_t mp_cos(pmath_mpfloat_t x) {
-  pmath_mpfloat_t val;
-  
-  assert(pmath_is_mpfloat(x));
-  
-  val = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-  
-  if(pmath_is_null(val)) {
-    pmath_unref(x);
-    return val;
-  }
-  
-  mpfr_cos(
-    PMATH_AS_MP_VALUE(val),
-    PMATH_AS_MP_VALUE(x),
-    _pmath_current_rounding_mode());
-    
-  pmath_unref(x);
-  
-  return val;
-}
-
 PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
   pmath_t x;
   pmath_thread_t me = pmath_thread_get_current();
@@ -57,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
   
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
-    x = mp_cos(x);
+    x = _pmath_mpfloat_call(x, mpfr_cos);
     return x;
   }
   

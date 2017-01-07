@@ -166,23 +166,7 @@ static pmath_t mp_log(pmath_mpfloat_t x) {
     return val;
   }
   
-  val = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-  
-  if(pmath_is_null(val)) {
-    pmath_unref(x);
-    return val;
-  }
-  
-  mpfr_log(
-    PMATH_AS_MP_VALUE(val),
-    PMATH_AS_MP_VALUE(x),
-    _pmath_current_rounding_mode());
-    
-  pmath_unref(x);
-  
-  val = _pmath_float_exceptions(val);
-  
-  return val;
+  return _pmath_mpfloat_call(x, mpfr_log);
 }
 
 PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {

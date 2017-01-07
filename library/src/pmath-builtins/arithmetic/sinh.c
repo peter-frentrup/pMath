@@ -7,33 +7,6 @@
 #include <pmath-builtins/build-expr-private.h>
 
 
-// x will be freed, x may be PMATH_NULL
-static pmath_mpfloat_t mp_sinh(pmath_mpfloat_t x) {
-  pmath_mpfloat_t val;
-  
-  if(pmath_is_null(x))
-    return PMATH_NULL;
-    
-  assert(pmath_is_mpfloat(x));
-  
-  val = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-  
-  if(pmath_is_null(val)) {
-    pmath_unref(x);
-    return val;
-  }
-  
-  mpfr_sinh(
-    PMATH_AS_MP_VALUE(val),
-    PMATH_AS_MP_VALUE(x),
-    _pmath_current_rounding_mode());
-    
-  pmath_unref(x);
-  
-  val = _pmath_float_exceptions(val);
-  return val;
-}
-
 PMATH_PRIVATE pmath_t builtin_sinh(pmath_expr_t expr) {
   pmath_t x;
   
@@ -59,8 +32,7 @@ PMATH_PRIVATE pmath_t builtin_sinh(pmath_expr_t expr) {
   
   if(pmath_is_mpfloat(x)) {
     pmath_unref(expr);
-    x = mp_sinh(x);
-    return x;
+    return _pmath_mpfloat_call(x, mpfr_sinh);
   }
   
   if(pmath_is_number(x)) {

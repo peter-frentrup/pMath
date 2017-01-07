@@ -11,8 +11,6 @@
 
 // x will be freed, x may be PMATH_NULL
 static pmath_mpfloat_t mp_arcsin(pmath_mpfloat_t x) {
-  pmath_mpfloat_t val;
-  
   if(pmath_is_null(x))
     return PMATH_NULL;
     
@@ -25,22 +23,7 @@ static pmath_mpfloat_t mp_arcsin(pmath_mpfloat_t x) {
     return PMATH_NULL;
   }
   
-  val = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-  
-  if(pmath_is_null(val)) {
-    pmath_unref(x);
-    return val;
-  }
-  
-  mpfr_asin(
-    PMATH_AS_MP_VALUE(val),
-    PMATH_AS_MP_VALUE(x),
-    _pmath_current_rounding_mode());
-    
-  pmath_unref(x);
-  
-  val = _pmath_float_exceptions(val);
-  return val;
+  return _pmath_mpfloat_call(x, mpfr_asin);
 }
 
 static pmath_t arcsin_as_log(pmath_t x) {
