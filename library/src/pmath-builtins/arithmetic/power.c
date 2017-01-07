@@ -449,6 +449,113 @@ static void _mpfi_pow_si(mpfi_ptr result, mpfi_srcptr base, long exponent) {
   }
 }
 
+static void _mpfi_fr_pow(mpfi_ptr result, mpfr_srcptr base, mpfi_srcptr exponent) {
+  int cmp_1;
+  mpfr_t inf;
+  mpfr_t sup;
+  
+  if(mpfr_nan_p(base) || mpfi_nan_p(exponent)) {
+    mpfr_set_nan(&result->left);
+    mpfr_set_nan(&result->right);
+    return;
+  }
+  
+  if(mpfr_zero_p(base)) {
+    if(mpfr_zero_p(&exponent->left)) {
+      // (+-0.0)^[0,y] = [0,1]
+      mpfr_set_ui(&result->left,  0, MPFR_RNDD);
+      mpfr_set_ui(&result->right, 1, MPFR_RNDU);
+      return;
+    }
+    
+    if(mpfr_sgn(&exponent->left) < 0) {
+      if(mpfr_signbit(base)) { // (-0.0)^-x 
+        // TODO: for integer exponent, [-Infinity, 0] respectively [0, +Infinity] would be a correct result
+        mpfr_set_nan(&result->left);
+        mpfr_set_nan(&result->right);
+        return;
+      }
+      
+      if(mpfr_sgn(&exponent->right) >= 0) { 
+        // (+0.0)^[-x, +y] = (+0.0)^[-x, 0] = [0, +Infinity]
+        mpfr_set_ui(&result->left, 0, MPFR_RNDD);
+        mpfr_set_inf(&result->right, +1);
+        return;
+      }
+      
+      // (+0.0)^[-x, -y] = [+Infinity, +Infinity]
+      mpfr_set_inf(&result->left, +1);
+      mpfr_set_inf(&result->right, +1);
+      return;
+    }
+  }
+  
+  if(mpfr_sgn(base) < 0) { // (-x)^[a,b]
+    // TODO: if exponent [a,b] is a single integer, then the result would be real
+    mpfr_set_nan(&result->left);
+    mpfr_set_nan(&result->right);
+    return;
+  }
+  
+  cmp_1 = mpfr_cmp_ui(base, 1);
+  if(cmp_1 == 0) {
+    mpfi_set_ui(result, 1);
+    return;
+  }
+  
+  /* Note that result.left and/or result.right might alias with base and/or exponent.left and/or 
+     exponent.right. Hence we need to use temporaries.
+   */
+  
+  mpfr_init2(inf, mpfi_get_prec(result));
+  mpfr_init2(sup, mpfi_get_prec(result));
+  
+  if(cmp_1 < 0) { // base < 1, hence base^y is decreasing in y
+    mpfr_pow(sup, base, &exponent->left,  MPFR_RNDU);
+    mpfr_pow(inf, base, &exponent->right, MPFR_RNDD);
+  }
+  else { // base > 1, hence base^y is increasing in y
+    mpfr_pow(inf, base, &exponent->left,  MPFR_RNDD);
+    mpfr_pow(sup, base, &exponent->right, MPFR_RNDU);
+  }
+  
+  mpfi_set_fr(result, inf);
+  mpfi_put_fr(result, sup);
+  
+  mpfr_clear(inf);
+  mpfr_clear(sup);
+}
+
+static void _mpfi_pow(mpfi_ptr result, mpfi_srcptr base, mpfi_srcptr exponent) {
+  if(mpfi_nan_p(base) || mpfi_nan_p(exponent)) {
+    mpfr_set_nan(&result->left);
+    mpfr_set_nan(&result->right);
+    return;
+  }
+  
+  if(!mpfi_is_nonneg(base)) {
+    // TODO: if exponent is a single integer, then the result would be real
+    mpfr_set_nan(&result->left);
+    mpfr_set_nan(&result->right);
+    return;
+  }
+  
+  if(mpfr_equal_p(&base->left, &base->right)) {
+    _mpfi_fr_pow(result, &base->left, exponent);
+    return;
+  }
+  else {
+    mpfi_t tmp;
+    mpfi_init2(tmp, mpfi_get_prec(result));
+    
+    _mpfi_fr_pow(tmp,    &base->left, exponent);
+    _mpfi_fr_pow(result, &base->right, exponent);
+    
+    mpfi_union(result, result, tmp);
+    mpfi_clear(tmp);
+  }
+}
+
 static pmath_t _pow_Ri(
   pmath_interval_t base,  // will be freed. not PMATH_NULL!
   long             exponent
@@ -464,6 +571,28 @@ static pmath_t _pow_Ri(
   
   pmath_unref(base);
   return result;
+}
+
+static pmath_t _pow_RR(
+  pmath_expr_t     expr, 
+  pmath_interval_t base, 
+  pmath_interval_t exponent
+) {
+  if(mpfi_is_nonneg(PMATH_AS_MP_INTERVAL(base))) {
+    pmath_interval_t result;
+    pmath_unref(expr);
+    result = _pmath_create_interval_for_result(base);
+    if(!pmath_is_null(result)) {
+      _mpfi_pow(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(base), PMATH_AS_MP_INTERVAL(exponent));
+    }
+    pmath_unref(base);
+    pmath_unref(exponent);
+    return result;
+  }
+  
+  pmath_unref(base);
+  pmath_unref(exponent);
+  return expr;
 }
 
 static pmath_t exp_R(pmath_interval_t exponent) { // will be freed;
@@ -1482,6 +1611,9 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       pmath_unref(expr);
       return exp_R(exponent);
     }
+    
+    if(pmath_is_interval(base)) 
+      return _pow_RR(expr, base, exponent);
   }
   
   if(_pmath_is_inexact(exponent)) {
