@@ -10,13 +10,12 @@ Begin("System`BernoulliB`")
 
 System`BernoulliB`cache;
 
-/* Ramanujan's congruences:
-   if n != 0 even:
-   BernoulliB(2n) = a(n) - Sum(Binomial(n+3, n-6j) * BernoulliB(n-6j) , j->1..Floor(n/6))
-   
-   a(n) = -(n+3)/6 iff n = 4 (mod 6)
-   a(n) = (n+3)/3  otherwise
- */
+% Ramanujan's congruences:
+%  if n != 0 even:
+%  BernoulliB(2n) = a(n) - Sum(Binomial(n+3, n-6j) * BernoulliB(n-6j) , j->1..Floor(n/6))
+%  
+%  a(n) = -(n+3)/6 iff n = 4 (mod 6)
+%  a(n) = (n+3)/3  otherwise
 BernoulliB(0):= 1;
 BernoulliB(1):= -1/2;
 BernoulliB(~ ? IsOdd ? IsPositive):= 0;
@@ -36,39 +35,50 @@ b:BernoulliB(~?IsNegative) /? (Message(BernoulliB::intnm, 1, HoldForm(b));False)
 End()
 
 
-Begin("System`Gamma`")
-/* Spouge's  Formula
-	
-	for a --> Infinity
-	                                     a-1       k-1
-	                      z+1/2         .---.  (-1)         k-1/2 Exp(-k)
-	Gamma(z+1) <-- (z + a)      Exp(-z)  >    -------- (a-k)      -------
-										'---'  (k-1)!               z+k
-	                                     k=1
-   TODO: increase working precision, calculate final precision in advance
-*/
-/*
-gammapos(~zz)::= Local({a,sum,k,z},
-	z:= zz;
-	a:= Ceiling(*//*Accuracy*//*Precision(zz) * Log(10)/Log(2 Pi));
-	*//* If(!IsMachineNumber(zz), z:= SetAccuracy(zz,Accuracy(zz)+20)); *//*
-	z-= 1;
-	
-	Return((z+a)^(z+1/2) Exp(-z) Sum((-1)^(k-1) / (k-1)! (a-k)^(k-1/2) Exp(-k) / (z+k), k -> 1..a-1))
-	)
-
-Gamma(~z ? IsInexactNumber)::= 
-	If(Re(z) > 0, 
-		gammapos(z)
-	, 
-		With({y:= Sin(Pi z)}, 
-			If((y = 0) === True, 
-				ComplexInfinity
-			, 
-				Pi/(y Gamma(1-z)))))
-
-LogGamma(~z)::= With({y:= Log(Gamma(z))}, y /? HoldComplete(y) =!= HoldComplete(Log(Gamma(z))))
-*/
-
-End()
-
+%Begin("System`Gamma`")
+%
+%<<ExperimentalSyntax`
+%
+%% Spouge's  Formula
+%%	
+%%	for a --> Infinity
+%%	                                     a-1       k-1
+%%	                      z+1/2         .---.  (-1)         k-1/2 Exp(-k)
+%%	Gamma(z+1) <-- (z + a)      Exp(-z)  >    -------- (a-k)      -------
+%%	                                    '---'  (k-1)!               z+k
+%%	                                     k=1
+%% TODO: increase working precision, calculate final precision in advance
+%
+%Function gammapos(~zz) {
+%   Local(a, sum, k, z)
+%	z:= zz;
+%	a:= Ceiling(/*Accuracy*/Precision(zz) * Log(10)/Log(2 Pi));
+%	%If(!IsMachineNumber(zz)) {
+%	%   z:= SetAccuracy(zz,Accuracy(zz)+20)
+%	%}
+%	z-= 1;
+%	
+%	Return((z+a)^(z+1/2) Exp(-z) Sum((-1)^(k-1) / (k-1)! (a-k)^(k-1/2) Exp(-k) / (z+k), k -> 1..a-1))
+%}
+%
+%Function Gamma(~z ? IsInexactNumber) {
+%	If(Re(z) > 0) {
+%		gammapos(z)
+%   } Else {
+%		With(y:= Sin(Pi z)) 
+%		If((y = 0) === True) {
+%			ComplexInfinity
+%		} Else {
+%			Pi/(y Gamma(1-z))
+%		}
+%	}
+%}
+%
+%Function LogGamma(~z) {
+%	With(y:= Log(Gamma(z)))
+%	
+%	y /? HoldComplete(y) =!= HoldComplete(Log(Gamma(z)))
+%}
+%
+%End()
+/\/
