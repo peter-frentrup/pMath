@@ -271,6 +271,42 @@ START_SET_PRECISION:
 
     return set_finite_precision_number(obj, prec);
   }
+  
+  if(pmath_is_interval(obj)) {
+    double prec = data->prec;
+    pmath_interval_t result;
+    
+    if(!isfinite(prec)) {
+      if(prec > 0) { // return interval with rational endpoints
+        pmath_t inf = pmath_interval_get_left(obj);
+        pmath_t sup = pmath_interval_get_right(obj);
+        
+        pmath_unref(obj);
+        inf = set_precision(inf, dummy_index, _data);
+        sup = set_precision(inf, dummy_index, _data);
+        
+        return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_INTERVAL), 2, inf, sup);
+      }
+      else
+        prec = DBL_MANT_DIG;
+    }
+    
+    if(prec >= PMATH_MP_PREC_MAX) {
+      pmath_unref(obj);
+      return PMATH_NULL; // overflow message?
+    }
+
+    if(prec < 0)
+      prec = 0; // error message?
+
+    result = _pmath_create_interval((mpfr_prec_t)ceil(prec));
+    if(!pmath_is_null(result)) {
+      mpfi_set(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(obj));
+    }
+    
+    pmath_unref(obj);
+    return result;
+  }
 
   if(pmath_is_packed_array(obj)) {
     switch(pmath_packed_array_get_element_type(obj)) {
