@@ -1,5 +1,8 @@
+#include <pmath-core/intervals-private.h>
+
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -8,6 +11,7 @@
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
 
 static void destroy_symset_entry(void *p) {
   pmath_t entry = PMATH_FROM_PTR(p);
@@ -52,6 +56,47 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj) {
   }
   
   return FALSE;
+}
+
+static int _mpfr_simple_real_class(mpfr_srcptr x) {
+  int sign;
+  if(mpfr_nan_p(x))
+    return PMATH_CLASS_UNKNOWN;
+  
+  sign = mpfr_sgn(x);
+  if(sign < 0) {
+    int one = mpfr_cmp_si(x, -1);
+    
+    if(one < 0) {
+      if(mpfr_number_p(x))
+        return PMATH_CLASS_NEGBIG;
+      else
+        return PMATH_CLASS_NEGINF;
+    }
+      
+    if(one == 0)
+      return PMATH_CLASS_NEGONE;
+      
+    return PMATH_CLASS_NEGSMALL;
+  }
+  
+  if(sign > 0) {
+    int one = mpfr_cmp_si(x, 1);
+    
+    if(one > 0) {
+      if(mpfr_number_p(x))
+        return PMATH_CLASS_POSBIG;
+      else
+        return PMATH_CLASS_POSINF;
+    }
+      
+    if(one == 0)
+      return PMATH_CLASS_POSONE;
+      
+    return PMATH_CLASS_POSSMALL;
+  }
+  
+  return PMATH_CLASS_ZERO;
 }
 
 static int _simple_real_class(pmath_t obj) {
@@ -138,35 +183,8 @@ static int _simple_real_class(pmath_t obj) {
     return PMATH_CLASS_POSBIG;
   }
   
-  if(pmath_is_mpfloat(obj)) {
-    int sign = mpfr_sgn(PMATH_AS_MP_VALUE(obj));
-    
-    if(sign < 0) {
-      int one = mpfr_cmp_si(PMATH_AS_MP_VALUE(obj), -1);
-      
-      if(one < 0)
-        return PMATH_CLASS_NEGBIG;
-        
-      if(one == 0)
-        return PMATH_CLASS_NEGONE;
-        
-      return PMATH_CLASS_NEGSMALL;
-    }
-    
-    if(sign > 0) {
-      int one = mpfr_cmp_si(PMATH_AS_MP_VALUE(obj), 1);
-      
-      if(one > 0)
-        return PMATH_CLASS_POSBIG;
-        
-      if(one == 0)
-        return PMATH_CLASS_POSONE;
-        
-      return PMATH_CLASS_POSSMALL;
-    }
-    
-    return PMATH_CLASS_ZERO;
-  }
+  if(pmath_is_mpfloat(obj)) 
+    return _mpfr_simple_real_class(PMATH_AS_MP_VALUE(obj));
   
   if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_COMPLEX, 2)) {
     pmath_t re = pmath_expr_get_item(obj, 1);
@@ -225,9 +243,52 @@ PMATH_PRIVATE int _pmath_number_class(pmath_t obj) {
   int result = _simple_real_class(obj);
   
   if((result & PMATH_CLASS_UNKNOWN) && pmath_is_numeric(obj)) {
-    pmath_t n_obj = pmath_set_precision(pmath_ref(obj), -HUGE_VAL);
-    result = _simple_real_class(n_obj);
-    pmath_unref(n_obj);
+    pmath_thread_t me = pmath_thread_get_current();
+    if(me) {
+      double prec = me->min_precision;
+      double maxprec = me->max_precision;
+      
+      if(prec < DBL_MANT_DIG)
+        prec = DBL_MANT_DIG;
+      
+      if(maxprec > prec + me->max_extra_precision)
+        maxprec = prec + me->max_extra_precision;
+      
+      while(!pmath_thread_aborting(me)) {
+        pmath_t obj_ival = pmath_set_precision_interval(pmath_ref(obj), prec);
+        int left_class;
+        int right_class;
+        
+        if(!pmath_is_interval(obj_ival)) {
+          pmath_unref(obj_ival);
+          break;
+        }
+        
+        left_class  = _mpfr_simple_real_class(&PMATH_AS_MP_INTERVAL(obj_ival)->left);
+        right_class = _mpfr_simple_real_class(&PMATH_AS_MP_INTERVAL(obj_ival)->right);
+        pmath_unref(obj_ival);
+        
+        if(left_class == right_class)
+          return left_class;
+        
+        if(prec >= maxprec) {
+          pmath_message(
+            PMATH_SYMBOL_N, "meprec", 2, 
+            _pmath_from_precision(me->max_extra_precision),
+            pmath_ref(obj));
+          break;
+        }
+        
+        // TODO: adapt precision to interval diameter ...
+        prec = 2 * prec;
+        if(prec > maxprec)
+          prec = maxprec;
+      }
+    }
+    
+    //pmath_t n_obj = pmath_set_precision(pmath_ref(obj), -HUGE_VAL);
+    //result = _simple_real_class(n_obj);
+    //pmath_unref(n_obj);
   }
   
   return result;

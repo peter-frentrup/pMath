@@ -80,6 +80,7 @@ static const pmath_ht_class_t function_table_class = {
 
 //{ builtins from src/pmath-builtins/arithmetic/ ...
 PMATH_PRIVATE pmath_t builtin_abs(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_approximate(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arcsin(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arctan(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arg(             pmath_expr_t expr);
@@ -599,11 +600,8 @@ pmath_bool_t _pmath_run_approx_code(
     
   UNLOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX, table);
   
-  if(func) {
+  if(func) 
     return func(in_out, prec, interval);
-    
-    return TRUE;
-  }
   
   return FALSE;
 }
@@ -1777,6 +1775,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_MINMAX,                      builtin_minmax)
   BIND_DOWN(   PMATH_SYMBOL_MOD,                         builtin_mod)
   BIND_DOWN(   PMATH_SYMBOL_MOST,                        builtin_most)
+  BIND_DOWN(   PMATH_SYMBOL_N,                           builtin_approximate)
   BIND_DOWN(   PMATH_SYMBOL_NAMES,                       builtin_names)
   BIND_DOWN(   PMATH_SYMBOL_NAMESPACE,                   builtin_namespace)
   BIND_DOWN(   PMATH_SYMBOL_NEST,                        builtin_nest)

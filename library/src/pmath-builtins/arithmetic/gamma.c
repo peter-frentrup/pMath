@@ -144,10 +144,6 @@ static int _mpfi_gamma(mpfi_ptr result, mpfi_srcptr x) {
     mpz_clear(tmp_z);
   }
   
-  /* The extrema of Gamma have an absolute value |Gamma(x*)| < 4
-     Proof?
-   */
-  
   mpfi_init2(tmp,  10 + prec);
   mpfr_init2(val,  10 + prec);
   for(;;) {
@@ -205,41 +201,6 @@ static int _mpfi_gamma(mpfi_ptr result, mpfi_srcptr x) {
       return 0;
     }
   
-    //mpfi_diam_abs(val, ival);
-    //if(mpfr_cmp_ui_2exp(val, 1, -prec) < 0) {
-    //  if(result_is_positive) {
-    //    if(has_infinite_endpoint) {
-    //      mpfr_set_inf(&result->right, +1);
-    //    }
-    //    else {
-    //      mpfr_gamma(&tmp->left,  &x->left,  MPFR_RNDU);
-    //      mpfr_gamma(&tmp->right, &x->right, MPFR_RNDU);
-    //      mpfr_max(&result->right, &tmp->left, &tmp->right, MPFR_RNDU);
-    //    }
-    //    
-    //    mpfr_gamma(&tmp->left, &ival->right, MPFR_RNDD);
-    //    mpfr_sub(&result->left, &tmp->left, val, MPFR_RNDD);
-    //  }
-    //  else {
-    //    if(has_infinite_endpoint) {
-    //      mpfr_set_inf(&result->left, -1);
-    //    }
-    //    else {
-    //      mpfr_gamma(&tmp->left,  &x->left,  MPFR_RNDD);
-    //      mpfr_gamma(&tmp->right, &x->right, MPFR_RNDD);
-    //      mpfr_min(&result->left, &tmp->left, &tmp->right, MPFR_RNDD);
-    //    }
-    //    
-    //    mpfr_gamma(&tmp->right, &ival->right, MPFR_RNDU);
-    //    mpfr_add(&result->right, &tmp->right, val, MPFR_RNDU);
-    //  }
-    //  
-    //  mpfi_clear(ival);
-    //  mpfi_clear(tmp);
-    //  mpfr_clear(val);
-    //  return 0; // 3
-    //}
-  
     mpfi_bisect(ival, tmp, ival);
     mpfr_digamma(val, &ival->right, MPFR_RNDU);
     if(mpfr_sgn(val) <= 0) {
@@ -247,6 +208,12 @@ static int _mpfi_gamma(mpfi_ptr result, mpfi_srcptr x) {
       mpfr_abs(val, val, MPFR_RNDU);
     }
     
+    /* Inside ival, |Gamma(x)| <= |Gamma(ival.right)| + |Gamma'(ival.right)| * (ival.right - ival.left)
+       with Gamma'(x) = Digamma(x) Gamma(x)
+       The extrema of Gamma have an absolute value |Gamma(x*)| < 4
+       Proof?
+     */
+  
     mpfi_diam_abs(&tmp->right, ival);
     mpfr_mul(val, val, &tmp->right, MPFR_RNDU);
     mpfr_mul_ui(val, val, 4, MPFR_RNDU); /* val * sup |Gamma(x^*)| where Gamma'(x*) = 0  */
@@ -459,7 +426,10 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr) {
   if(pmath_is_integer(z)) {
     pmath_unref(expr);
     
-    return LOG(GAMMA(z));
+    if(pmath_number_sign(z) > 0) 
+      return LOG(GAMMA(z));
+    
+    return pmath_ref(LOG(pmath_ref(_pmath_object_complex_infinity)));
   }
   
   if(pmath_is_quotient(z)) {
@@ -468,6 +438,17 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr) {
     if(pmath_equals(den, PMATH_FROM_INT32(2))) {
       pmath_unref(den);
       pmath_unref(expr);
+      
+      if(pmath_number_sign(z) < 0) {
+        /* LogGamm(x) = Log(Abs(Gamma(x))) + I * Pi * Floor(x) for x < 0
+         */
+        //pmath_t floor = pmath_expr_new_extended(
+        //  pmath_ref(PMATH_SYMBOL_FLOOR), 1,
+        //  pmath_ref(z));
+        pmath_t floor = MINUS(pmath_ref(z), ONE_HALF); // = Floor(z)
+        
+        return PLUS(TIMES3(COMPLEX(INT(0), INT(1)), pmath_ref(PMATH_SYMBOL_PI), floor), LOG(ABS(GAMMA(z))));
+      } 
       
       return LOG(GAMMA(z));
     }

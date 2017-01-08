@@ -2146,29 +2146,31 @@ PMATH_PRIVATE pmath_bool_t builtin_approximate_power(
     return FALSE;
     
   base = pmath_expr_extract_item(*obj, 1);
-  exp  = pmath_expr_get_item(*obj, 2);
+  exp  = pmath_expr_extract_item(*obj, 2);
   
-  if(pmath_is_rational(exp)) {
-    pmath_unref(exp);
-    
+  if(pmath_same(base, PMATH_SYMBOL_E)) {
+    if(interval)
+      exp = pmath_set_precision_interval(exp, prec);
+    else
+      exp = pmath_set_precision(exp, prec);
+      
+  }
+  else if(pmath_is_rational(exp)) {
     if(interval)
       base = pmath_set_precision_interval(base, prec);
     else
       base = pmath_set_precision(base, prec);
-      
-    *obj = pmath_expr_set_item(*obj, 1, base);
-    return TRUE;
-  }
-  
-  if(interval) {
-    base = pmath_set_precision_interval(base, prec);
-    exp  = pmath_set_precision_interval(exp, prec);
   }
   else {
-    base = pmath_set_precision(base, prec);
-    exp  = pmath_set_precision(exp, prec);
+    if(interval) {
+      base = pmath_set_precision_interval(base, prec);
+      exp = pmath_set_precision_interval(exp, prec);
+    }
+    else {
+      base = pmath_set_precision(base, prec);
+      exp = pmath_set_precision(exp, prec);
+    }
   }
-  
   *obj = pmath_expr_set_item(*obj, 1, base);
   *obj = pmath_expr_set_item(*obj, 2, exp);
   return TRUE;

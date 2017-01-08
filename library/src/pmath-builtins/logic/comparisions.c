@@ -393,39 +393,39 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
   else if(pmath_is_interval(next)) 
     return compare_interval(next, prev, flip_direction(directions));
   
-  if(pmath_is_double(prev) && pmath_is_numeric(next)) {
-    pmath_t n = pmath_set_precision(pmath_ref(next), -HUGE_VAL);
-    
-    if(_pmath_is_nonreal_complex(n)) {
-      pmath_t re;
-      if(check_complex_is_real(n, &re)) {
-        pmath_unref(n);
-        n = re;
-      }
-      else if(directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_GREATER)) {
-        pmath_message(PMATH_NULL, "nord", 1, n);
-        return PMATH_UNORDERED;
-      }
-    }
-    return compare_double_with_numeric(pmath_ref(prev), n, directions);
-  }
-  
-  if(pmath_is_double(next) && pmath_is_numeric(prev)) {
-    pmath_t p = pmath_set_precision(pmath_ref(prev), -HUGE_VAL);
-    
-    if(_pmath_is_nonreal_complex(p)) {
-      pmath_t re;
-      if(check_complex_is_real(p, &re)) {
-        pmath_unref(p);
-        p = re;
-      }
-      else if(directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_GREATER)) {
-        pmath_message(PMATH_NULL, "nord", 1, p);
-        return PMATH_UNORDERED;
-      }
-    }
-    return compare_double_with_numeric(p, pmath_ref(next), directions);
-  }
+//  if(pmath_is_double(prev) && pmath_is_numeric(next)) {
+//    pmath_t n = pmath_set_precision(pmath_ref(next), -HUGE_VAL);
+//    
+//    if(_pmath_is_nonreal_complex(n)) {
+//      pmath_t re;
+//      if(check_complex_is_real(n, &re)) {
+//        pmath_unref(n);
+//        n = re;
+//      }
+//      else if(directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_GREATER)) {
+//        pmath_message(PMATH_NULL, "nord", 1, n);
+//        return PMATH_UNORDERED;
+//      }
+//    }
+//    return compare_double_with_numeric(pmath_ref(prev), n, directions);
+//  }
+//  
+//  if(pmath_is_double(next) && pmath_is_numeric(prev)) {
+//    pmath_t p = pmath_set_precision(pmath_ref(prev), -HUGE_VAL);
+//    
+//    if(_pmath_is_nonreal_complex(p)) {
+//      pmath_t re;
+//      if(check_complex_is_real(p, &re)) {
+//        pmath_unref(p);
+//        p = re;
+//      }
+//      else if(directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_GREATER)) {
+//        pmath_message(PMATH_NULL, "nord", 1, p);
+//        return PMATH_UNORDERED;
+//      }
+//    }
+//    return compare_double_with_numeric(p, pmath_ref(next), directions);
+//  }
   
   if(pmath_is_number(prev) && pmath_is_number(next)) {
     int c = pmath_fuzzy_compare(prev, next);
@@ -599,97 +599,155 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
   }
   
   if(pmath_is_numeric(prev) && pmath_is_numeric(next)) {
-    double pprec = pmath_precision(pmath_ref(prev));
-    double nprec = pmath_precision(pmath_ref(next));
-    
-    if(pprec < HUGE_VAL && nprec < HUGE_VAL) {
-      pmath_t p = pmath_ref(prev);
-      pmath_t n = pmath_ref(next);
+    pmath_thread_t me = pmath_thread_get_current();
+    if(me) {
+      pmath_t diff;
+      double prec, maxprec;
       
-      if(!pmath_is_number(p))
-        p = pmath_set_precision(p, MIN(pprec, nprec));
-        
-      if(!pmath_is_number(n))
-        n = pmath_set_precision(n, MIN(pprec, nprec));
-        
-      if(pmath_is_number(p) && pmath_is_number(n)) {
-        int c = pmath_fuzzy_compare(p, n);
-        
-        pmath_unref(p);
-        pmath_unref(n);
-        
-        if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
-            (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) ||
-            (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
-        {
-          return FALSE;
-        }
-        
-        return TRUE;
-      }
+      if(pmath_same(next, INT(0)))
+        diff = pmath_ref(prev);
+      else if(pmath_same(prev, INT(0)))
+        diff = NEG(pmath_ref(next));
+      else
+        diff = MINUS(pmath_ref(prev), pmath_ref(next));
       
-      pmath_unref(p);
-      pmath_unref(n);
+      prec = pmath_precision(pmath_ref(diff));
+      maxprec = me->max_precision;
       
-      return PMATH_MAYBE_ORDERED;
-    }
-    else {
-      double prec, startprec;
-      int c = 0;
+      if(!isfinite(prec))
+        prec = DBL_MANT_DIG;
+      else if(prec < DBL_MANT_DIG)
+        prec = DBL_MANT_DIG;
+      if(prec < me->min_precision)
+        prec = me->min_precision;
       
-      pmath_thread_t me = pmath_thread_get_current();
-      if(me == NULL)
-        return PMATH_MAYBE_ORDERED;
-        
-      prec = startprec = DBL_MANT_DIG;
+      if(maxprec > prec + me->max_extra_precision)
+        maxprec = prec + me->max_extra_precision;
       
-      for(;;) {
-        pmath_t p = pmath_set_precision(pmath_ref(prev), prec);
-        pmath_t n = pmath_set_precision(pmath_ref(next), prec);
+      while(!pmath_thread_aborting(me)) {
+        pmath_t n_diff = pmath_set_precision_interval(pmath_ref(diff), prec);
+        int result;
         
-        if(!pmath_is_number(p) || !pmath_is_number(n)) {
-          pmath_unref(p);
-          pmath_unref(n);
-          
-          return PMATH_MAYBE_ORDERED;
-        }
-        
-        c = pmath_fuzzy_compare(p, n);
-        pmath_unref(p);
-        pmath_unref(n);
-        
-        if(c != 0)
+        if(!pmath_is_interval(n_diff)) {
+          pmath_unref(n_diff);
           break;
-          
-        if(pmath_aborting())
-          return PMATH_MAYBE_ORDERED;
-          
-        if(prec >= startprec + me->max_extra_precision) {
-          pmath_t expr = pmath_expr_new_extended(
-                           pmath_current_head(), 2,
-                           pmath_ref(prev),
-                           pmath_ref(next));
-                           
-          pmath_message(PMATH_NULL, "meprec", 2,
-                        pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
-                        expr);
-                        
-          return PMATH_MAYBE_ORDERED;
         }
         
-        prec *= 1.414;
+        result = compare_interval(n_diff, INT(0), directions);
+        pmath_unref(n_diff);
+        if(result == TRUE || result == FALSE)
+          return result;
+          
+        if(prec >= maxprec) {
+          pmath_message(
+            PMATH_SYMBOL_N, "meprec", 2, 
+            _pmath_from_precision(me->max_extra_precision),
+            pmath_ref(diff));
+          break;
+        }
+        
+        // TODO: adapt precision to interval diameters ...
+        prec = 2 * prec;
+        if(prec > maxprec)
+          prec = maxprec;
       }
       
-      if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
-          (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) || // c==0 should not happen
-          (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
-      {
-        return FALSE;
-      }
-      
-      return TRUE;
+      pmath_unref(diff);
     }
   }
+  
+//  if(pmath_is_numeric(prev) && pmath_is_numeric(next)) {
+//    double pprec = pmath_precision(pmath_ref(prev));
+//    double nprec = pmath_precision(pmath_ref(next));
+//    
+//    if(pprec < HUGE_VAL && nprec < HUGE_VAL) {
+//      pmath_t p = pmath_ref(prev);
+//      pmath_t n = pmath_ref(next);
+//      
+//      if(!pmath_is_number(p))
+//        p = pmath_set_precision(p, MIN(pprec, nprec));
+//        
+//      if(!pmath_is_number(n))
+//        n = pmath_set_precision(n, MIN(pprec, nprec));
+//        
+//      if(pmath_is_number(p) && pmath_is_number(n)) {
+//        int c = pmath_fuzzy_compare(p, n);
+//        
+//        pmath_unref(p);
+//        pmath_unref(n);
+//        
+//        if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
+//            (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) ||
+//            (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
+//        {
+//          return FALSE;
+//        }
+//        
+//        return TRUE;
+//      }
+//      
+//      pmath_unref(p);
+//      pmath_unref(n);
+//      
+//      return PMATH_MAYBE_ORDERED;
+//    }
+//    else {
+//      double prec, startprec;
+//      int c = 0;
+//      
+//      pmath_thread_t me = pmath_thread_get_current();
+//      if(me == NULL)
+//        return PMATH_MAYBE_ORDERED;
+//        
+//      prec = startprec = DBL_MANT_DIG;
+//      
+//      for(;;) {
+//        pmath_t p = pmath_set_precision(pmath_ref(prev), prec);
+//        pmath_t n = pmath_set_precision(pmath_ref(next), prec);
+//        
+//        if(!pmath_is_number(p) || !pmath_is_number(n)) {
+//          pmath_unref(p);
+//          pmath_unref(n);
+//          
+//          return PMATH_MAYBE_ORDERED;
+//        }
+//        
+//        c = pmath_fuzzy_compare(p, n);
+//        pmath_unref(p);
+//        pmath_unref(n);
+//        
+//        if(c != 0)
+//          break;
+//          
+//        if(pmath_aborting())
+//          return PMATH_MAYBE_ORDERED;
+//          
+//        if(prec >= startprec + me->max_extra_precision) {
+//          pmath_t expr = pmath_expr_new_extended(
+//                           pmath_current_head(), 2,
+//                           pmath_ref(prev),
+//                           pmath_ref(next));
+//                           
+//          pmath_message(PMATH_NULL, "meprec", 2,
+//                        pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
+//                        expr);
+//                        
+//          return PMATH_MAYBE_ORDERED;
+//        }
+//        
+//        prec *= 1.414;
+//      }
+//      
+//      if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
+//          (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) || // c==0 should not happen
+//          (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
+//      {
+//        return FALSE;
+//      }
+//      
+//      return TRUE;
+//    }
+//  }
   
   return PMATH_MAYBE_ORDERED;
 }

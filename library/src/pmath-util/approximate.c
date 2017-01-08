@@ -383,30 +383,29 @@ START_SET_PRECISION:
       pmath_unref(result);
     }
 
-    result = pmath_ref(obj);
-    if(_pmath_run_approx_code(sym, &result, data->prec, data->interval)) {
-//      if(!pmath_equals(result, obj)) {
-
-      if(data->interval) {
-        if(!pmath_is_interval(result)) {
-          pmath_debug_print_object("[interval expected from approximating ", obj , ", ");
-          pmath_debug_print_object("but ", result , " given]\n");
-        }
-      }
-
-      pmath_unref(obj);
-      pmath_unref(sym);
-      return result;
-      //obj = pmath_evaluate(result);
-      //if(pmath_aborting())
-      //  return obj;
-      //
-      //goto START_SET_PRECISION;
+    if(_pmath_run_approx_code(sym, &obj, data->prec, data->interval)) {
+//      if(data->interval) {
+//        if(pmath_is_expr(obj))
+//          obj = pmath_evaluate(obj);
+//        
+//        if(!pmath_is_interval(obj)) {
+//          pmath_debug_print_object("[interval expected, but ", obj , " given]\n");
+//        }
 //      }
+//      else {
+//        if(pmath_is_expr(obj))
+//          obj = pmath_evaluate(obj);
+//          
+//        if(!pmath_is_float(obj)) {
+//          pmath_debug_print_object("[floating point number expected, but ", obj , " given]\n");
+//        }
+//      }
+
+      pmath_unref(sym);
+      return obj;
     }
 
     pmath_unref(sym);
-    pmath_unref(result);
   }
 
   if(pmath_is_expr(obj)) {
@@ -429,6 +428,7 @@ pmath_t pmath_set_precision(pmath_t obj, double prec) {
   obj = set_precision(obj, 1, &data);
 
   pmath_unref(data.prec_obj);
+  obj = pmath_evaluate(obj);
   return obj;
 }
 
@@ -443,5 +443,6 @@ pmath_t pmath_set_precision_interval(pmath_t obj, double prec) {
   obj = set_precision(obj, 1, &data);
 
   pmath_unref(data.prec_obj);
+  obj = pmath_evaluate(obj);
   return obj;
 }

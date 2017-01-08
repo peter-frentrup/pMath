@@ -342,8 +342,10 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
       return INT(0);
     }
   
-    expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_ABS));
-    return DIV(x, expr);
+    //expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_ABS));
+    //return DIV(x, expr);
+    pmath_unref(x);
+    return expr;
   }
   
   pmath_unref(x);

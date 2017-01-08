@@ -886,7 +886,7 @@
 		<Unit filename="src/pmath-builtins/arithmetic/abs-and-sign.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/approximate.c">
+		<Unit filename="src/pmath-builtins/arithmetic/approximate-constants.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/arcsin.c">
