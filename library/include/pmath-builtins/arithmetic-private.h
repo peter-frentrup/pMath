@@ -58,13 +58,13 @@ pmath_bool_t _pmath_re_im( // whether operation succeded
   pmath_t *re,  // optional output
   pmath_t *im); // optional output
 
-/* Check if z = Complex(a, b) with numbers a, b
+/**Check if z = Complex(a, b) with numbers a, b
    
    Note that despite this function's name, z = Complex(1.0, 0.0) will yield TRUE.
  */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_PURE
-pmath_bool_t _pmath_is_nonreal_complex(
+pmath_bool_t _pmath_is_nonreal_complex_number(
   pmath_t z); // wont be freed
 
 // If *z == x * I => *z:= x

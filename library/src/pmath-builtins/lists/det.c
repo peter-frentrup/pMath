@@ -253,7 +253,7 @@ static pmath_bool_t use_symbolic_det(pmath_expr_t matrix) { // wont be freed
       pmath_t obj = pmath_expr_get_item(row, j);
       
       if(!pmath_is_number(obj)) {
-        if(!_pmath_is_nonreal_complex(obj)) {
+        if(!_pmath_is_nonreal_complex_number(obj)) {
           if(!pmath_is_numeric(obj)) { // non-numeric entity found
             pmath_unref(obj);
             pmath_unref(row);

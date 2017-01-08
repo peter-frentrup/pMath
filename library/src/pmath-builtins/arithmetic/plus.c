@@ -740,7 +740,7 @@ PMATH_PRIVATE void _pmath_split_summand(
       if(len > 1) {
         pmath_t first = pmath_expr_get_item(summand, 1);
         if( pmath_is_number(first) ||
-            _pmath_is_nonreal_complex(first))
+            _pmath_is_nonreal_complex_number(first))
         {
           *out_num_factor = first;
           
@@ -760,7 +760,7 @@ PMATH_PRIVATE void _pmath_split_summand(
       return;
     }
     
-    if(_pmath_is_nonreal_complex(summand)) {
+    if(_pmath_is_nonreal_complex_number(summand)) {
       *out_num_factor = pmath_ref(summand);
       *out_rest = PMATH_UNDEFINED;
       return;
@@ -830,7 +830,7 @@ static pmath_bool_t try_add_real_number_to(pmath_number_t *a, pmath_t *b) {
     return TRUE;
   }
   
-  if(_pmath_is_nonreal_complex(*b)) {
+  if(_pmath_is_nonreal_complex_number(*b)) {
     *a = pmath_expr_set_item(*b, 1,
                              _add_nn(
                                *a,
@@ -857,7 +857,7 @@ static pmath_bool_t try_add_real_number_to(pmath_number_t *a, pmath_t *b) {
 }
 
 static pmath_bool_t try_add_nonreal_complex_to_noncomplex(pmath_t *a, pmath_t *b) {
-  assert(_pmath_is_nonreal_complex(*a));
+  assert(_pmath_is_nonreal_complex_number(*a));
   
   if(_pmath_is_inexact(*a)) {
     *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
@@ -868,7 +868,7 @@ static pmath_bool_t try_add_nonreal_complex_to_noncomplex(pmath_t *a, pmath_t *b
 }
 
 static pmath_bool_t try_add_nonreal_complex_to(pmath_t *a, pmath_t *b) {
-  assert(_pmath_is_nonreal_complex(*a));
+  assert(_pmath_is_nonreal_complex_number(*a));
   
   if(pmath_is_number(*b)) {
     *a = pmath_expr_set_item(*a, 1,
@@ -879,7 +879,7 @@ static pmath_bool_t try_add_nonreal_complex_to(pmath_t *a, pmath_t *b) {
     return TRUE;
   }
   
-  if(_pmath_is_nonreal_complex(*b)) {
+  if(_pmath_is_nonreal_complex_number(*b)) {
     pmath_t re = _add_nn(
                    pmath_expr_get_item(*a, 1),
                    pmath_expr_get_item(*b, 1));
@@ -1022,11 +1022,11 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
     if(try_add_real_number_to(a, b))
       return;
   }
-  else if(_pmath_is_nonreal_complex(*a)) {
+  else if(_pmath_is_nonreal_complex_number(*a)) {
     if(try_add_nonreal_complex_to(a, b))
       return;
   }
-  else if(_pmath_is_nonreal_complex(*b)) {
+  else if(_pmath_is_nonreal_complex_number(*b)) {
     if(try_add_nonreal_complex_to_noncomplex(b, a))
       return;
   }

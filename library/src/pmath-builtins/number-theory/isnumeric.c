@@ -39,7 +39,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj) {
   if(pmath_is_float(obj))
     return TRUE;
     
-  if(_pmath_is_nonreal_complex(obj)) {
+  if(_pmath_is_nonreal_complex_number(obj)) {
     pmath_t part = pmath_expr_get_item(obj, 1);
     if(pmath_is_float(part)) {
       pmath_unref(part);

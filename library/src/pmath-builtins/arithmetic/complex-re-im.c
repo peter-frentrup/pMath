@@ -100,7 +100,7 @@ pmath_bool_t _pmath_is_imaginary(
   for(i = len; i > 0; --i) {
     pmath_t item = pmath_expr_get_item(*expr, i);
 
-    if(_pmath_is_nonreal_complex(item)) {
+    if(_pmath_is_nonreal_complex_number(item)) {
       pmath_expr_t tmp = *expr;
 
       for(; i < len; ++i) {
@@ -364,7 +364,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   return FALSE;
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_nonreal_complex(
+PMATH_PRIVATE pmath_bool_t _pmath_is_nonreal_complex_number(
   pmath_t z
 ) {
   pmath_t re, im;

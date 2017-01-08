@@ -143,7 +143,7 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
     return _pmath_interval_call(x, mpfi_abs);
   }
   
-  if(_pmath_is_nonreal_complex(x)) {
+  if(_pmath_is_nonreal_complex_number(x)) {
     pmath_t re = pmath_expr_get_item(x, 1);
     pmath_t im = pmath_expr_get_item(x, 2);
     

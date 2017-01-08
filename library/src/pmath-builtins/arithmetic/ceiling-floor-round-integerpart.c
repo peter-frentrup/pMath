@@ -227,7 +227,7 @@ PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
   head = pmath_expr_get_item(expr, 0);
   x    = pmath_expr_get_item(expr, 1);
   if(len == 1) {
-    if(_pmath_is_nonreal_complex(x)) {
+    if(_pmath_is_nonreal_complex_number(x)) {
       pmath_t re = pmath_expr_get_item(x, 1);
       pmath_t im = pmath_expr_get_item(x, 2);
       pmath_unref(x);
@@ -305,7 +305,7 @@ PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
     
     a = pmath_expr_get_item(expr, 2);
     
-//    if(_pmath_is_nonreal_complex(x)){
+//    if(_pmath_is_nonreal_complex_number(x)){
 //      pmath_t re = pmath_expr_get_item((pmath_expr_t)x, 1);
 //      pmath_t im = pmath_expr_get_item((pmath_expr_t)x, 2);
 //      pmath_unref(x);

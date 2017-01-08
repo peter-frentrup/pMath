@@ -1258,7 +1258,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       return pmath_ref(_pmath_object_overflow);
     }
     
-    if(_pmath_is_nonreal_complex(base)) {
+    if(_pmath_is_nonreal_complex_number(base)) {
       pmath_unref(expr);
       
       expr = pmath_expr_get_item(base, 1); // real part
@@ -1667,7 +1667,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
         }
       }
       
-      if(_pmath_is_nonreal_complex(exponent)) { // E^(x + I y) = E^x (Cos(y) + I Sin(y))
+      if(_pmath_is_nonreal_complex_number(exponent)) { // E^(x + I y) = E^x (Cos(y) + I Sin(y))
         pmath_t re = pmath_expr_get_item(exponent, 1);
         pmath_t im = pmath_expr_get_item(exponent, 2);
         
@@ -1797,8 +1797,8 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       }
     }
     
-    if( _pmath_is_nonreal_complex(exponent) ||
-        _pmath_is_nonreal_complex(base))
+    if( _pmath_is_nonreal_complex_number(exponent) ||
+        _pmath_is_nonreal_complex_number(base))
     {
       // x^y = Exp(y Log(x))
       

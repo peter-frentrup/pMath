@@ -181,7 +181,7 @@ static int pmath_fuzzy_compare(pmath_t a, pmath_t b) {
 }
 
 static pmath_t check_comparator(pmath_t real_or_complex_number, int directions) {
-  if(_pmath_is_nonreal_complex(real_or_complex_number)) {
+  if(_pmath_is_nonreal_complex_number(real_or_complex_number)) {
     pmath_t im = pmath_expr_get_item(real_or_complex_number, 2);
     
     if(pmath_is_number(im)) {
@@ -248,7 +248,7 @@ static int compare_double_with_numeric(pmath_t p, pmath_t n, int directions) { /
 static pmath_bool_t check_complex_is_real(pmath_t z, pmath_t *out_re_only) {
   pmath_t im;
   
-  assert(_pmath_is_nonreal_complex(z));
+  assert(_pmath_is_nonreal_complex_number(z));
   
   im = pmath_expr_get_item(z, 2);
   
@@ -396,7 +396,7 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
 //  if(pmath_is_double(prev) && pmath_is_numeric(next)) {
 //    pmath_t n = pmath_set_precision(pmath_ref(next), -HUGE_VAL);
 //    
-//    if(_pmath_is_nonreal_complex(n)) {
+//    if(_pmath_is_nonreal_complex_number(n)) {
 //      pmath_t re;
 //      if(check_complex_is_real(n, &re)) {
 //        pmath_unref(n);
@@ -413,7 +413,7 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
 //  if(pmath_is_double(next) && pmath_is_numeric(prev)) {
 //    pmath_t p = pmath_set_precision(pmath_ref(prev), -HUGE_VAL);
 //    
-//    if(_pmath_is_nonreal_complex(p)) {
+//    if(_pmath_is_nonreal_complex_number(p)) {
 //      pmath_t re;
 //      if(check_complex_is_real(p, &re)) {
 //        pmath_unref(p);
@@ -440,7 +440,7 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
     return TRUE;
   }
   
-  if(_pmath_is_nonreal_complex(prev)) {
+  if(_pmath_is_nonreal_complex_number(prev)) {
     pmath_t re;
     if(check_complex_is_real(prev, &re)) {
       int result = _pmath_numeric_order(re, next, directions);
@@ -459,7 +459,7 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
     }
   }
   
-  if(_pmath_is_nonreal_complex(next)) {
+  if(_pmath_is_nonreal_complex_number(next)) {
     pmath_t re;
     if(check_complex_is_real(prev, &re)) {
       int result = _pmath_numeric_order(re, next, directions);

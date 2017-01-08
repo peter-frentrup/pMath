@@ -517,7 +517,7 @@ static pmath_bool_t try_multiply_real_number_to(pmath_number_t *a, pmath_t *b) {
     return TRUE;
   }
   
-  if(_pmath_is_nonreal_complex(*b)) { // a * (x + yi) = ax + ayi
+  if(_pmath_is_nonreal_complex_number(*b)) { // a * (x + yi) = ax + ayi
     pmath_number_t re = _mul_nn(
                           pmath_ref(*a),
                           pmath_expr_get_item(*b, 1));
@@ -591,7 +591,7 @@ static pmath_bool_t try_multiply_real_number_to(pmath_number_t *a, pmath_t *b) {
 }
 
 static pmath_bool_t try_multiply_nonreal_complex_to(pmath_t *a, pmath_t *b) {
-  assert(_pmath_is_nonreal_complex(*a));
+  assert(_pmath_is_nonreal_complex_number(*a));
   
   if(pmath_is_number(*b)) { // (x + yi) * b = bx + byi
     pmath_number_t re = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 1));
@@ -605,7 +605,7 @@ static pmath_bool_t try_multiply_nonreal_complex_to(pmath_t *a, pmath_t *b) {
     return TRUE;
   }
   
-  if(_pmath_is_nonreal_complex(*b)) {
+  if(_pmath_is_nonreal_complex_number(*b)) {
     // (u + vi)*(x + yi) = (ux - vy) + (uy + vx)i
     pmath_number_t u = pmath_expr_get_item(*a, 1);
     pmath_number_t v = pmath_expr_get_item(*a, 2);
@@ -1038,7 +1038,7 @@ static pmath_bool_t times_2_arg(pmath_t *a, pmath_t *b) {
     if(try_multiply_real_number_to(a, b))
       return TRUE;
   }
-  else if(_pmath_is_nonreal_complex(*a)) {
+  else if(_pmath_is_nonreal_complex_number(*a)) {
     if(try_multiply_nonreal_complex_to(a, b))
       return TRUE;
   }
