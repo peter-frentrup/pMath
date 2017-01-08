@@ -342,26 +342,24 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     }
   }
   
-  if(!pmath_is_numeric(z)) {
-    pmath_unref(z);
-    return FALSE;
+  if(pmath_is_numeric(z)) {
+    int z_class = _pmath_number_class(z);
+    
+    if(z_class & PMATH_CLASS_REAL) {
+      if(re) *re = pmath_ref(z);
+      if(im) *im = PMATH_FROM_INT32(0);
+      pmath_unref(z);
+      return TRUE;
+    }
+    
+    if(z_class & PMATH_CLASS_IMAGINARY) {
+      if(re) *re = PMATH_FROM_INT32(0);
+      if(im) *im = pmath_ref(z);
+      pmath_unref(z);
+      return TRUE;
+    }
   }
   
-  /* Check if it is a real number by approximating to MachinePrecision */
-  //z2 = pmath_approximate(pmath_ref(z), -HUGE_VAL, NULL);
-  z2 = pmath_set_precision(pmath_ref(z), -HUGE_VAL);
-  
-  if(pmath_is_number(z2)) {
-    pmath_unref(z2);
-    
-    if(re) *re = pmath_ref(z);
-    if(im) *im = PMATH_FROM_INT32(0);
-    
-    pmath_unref(z);
-    return TRUE;
-  }
-  
-  pmath_unref(z2);
   pmath_unref(z);
   return FALSE;
 }
