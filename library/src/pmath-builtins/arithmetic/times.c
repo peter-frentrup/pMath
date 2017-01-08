@@ -503,9 +503,15 @@ static pmath_bool_t try_multiply_interval_to(pmath_interval_t *a, pmath_t *b) {
     *b = PMATH_UNDEFINED;
     return TRUE;
   }
+  if(pmath_is_numeric(*b)) {
+    *b = pmath_set_precision_interval(*b, pmath_precision(pmath_ref(*a)));
+    return TRUE;
+  }
   
   return FALSE;
 }
+
+static pmath_bool_t try_multiply_nonreal_complex_to_noncomplex(pmath_t *a, pmath_t *b);
 
 static pmath_bool_t try_multiply_real_number_to(pmath_number_t *a, pmath_t *b) {
   assert(pmath_is_number(*a));
@@ -517,21 +523,11 @@ static pmath_bool_t try_multiply_real_number_to(pmath_number_t *a, pmath_t *b) {
     return TRUE;
   }
   
-  if(_pmath_is_nonreal_complex_number(*b)) { // a * (x + yi) = ax + ayi
-    pmath_number_t re = _mul_nn(
-                          pmath_ref(*a),
-                          pmath_expr_get_item(*b, 1));
-    pmath_number_t im = _mul_nn(
-                          pmath_ref(*a),
-                          pmath_expr_get_item(*b, 2));
-    pmath_unref(*a);
-    re = _pmath_float_exceptions(re);
-    im = _pmath_float_exceptions(im);
-    *a = pmath_expr_set_item(*b, 1, re);
-    *a = pmath_expr_set_item(*a, 2, im);
-    *b = PMATH_UNDEFINED;
-    return TRUE;
-  }
+  if(pmath_is_interval(*b))
+    return try_multiply_interval_to(b, a);
+  
+  if(_pmath_is_nonreal_complex_interval_or_number(*b)) 
+    return try_multiply_nonreal_complex_to_noncomplex(b, a);
   
   if( pmath_equals(*b, _pmath_object_overflow) ||
       pmath_equals(*b, _pmath_object_underflow))
@@ -590,20 +586,83 @@ static pmath_bool_t try_multiply_real_number_to(pmath_number_t *a, pmath_t *b) {
   return FALSE;
 }
 
-static pmath_bool_t try_multiply_nonreal_complex_to(pmath_t *a, pmath_t *b) {
-  assert(_pmath_is_nonreal_complex_number(*a));
+static pmath_bool_t try_multiply_nonreal_complex_to_noncomplex(pmath_t *a, pmath_t *b) {
+  pmath_t re, im;
+  
+  assert(_pmath_is_nonreal_complex_interval_or_number(*a));
+  
+  re = pmath_expr_get_item(*a, 1);
+  im = pmath_expr_get_item(*a, 2);
   
   if(pmath_is_number(*b)) { // (x + yi) * b = bx + byi
-    pmath_number_t re = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 1));
-    pmath_number_t im = _mul_nn(pmath_ref(*b), pmath_expr_get_item(*a, 2));
-    pmath_unref(*b);
-    re = _pmath_float_exceptions(re);
-    im = _pmath_float_exceptions(im);
+    pmath_t copy_b = pmath_ref(*b);
+    if(pmath_is_interval(re)) {
+      if(!try_multiply_interval_to(&re, &copy_b)) {
+        pmath_unref(re);
+        pmath_unref(im);
+        pmath_unref(copy_b);
+        return FALSE;
+      }
+      pmath_unref(copy_b);
+    }
+    else {
+      re = _add_nn(re, copy_b);
+      re = _pmath_float_exceptions(re);
+    }
+    
+    if(pmath_is_interval(im)) {
+      if(!try_multiply_interval_to(&im, b)) {
+        pmath_unref(re);
+        pmath_unref(im);
+        return FALSE;
+      }
+    }
+    else {
+      im = _add_nn(im, *b);
+      im = _pmath_float_exceptions(im);
+      *b = PMATH_UNDEFINED;
+    }
+  
     *a = pmath_expr_set_item(*a, 1, re);
     *a = pmath_expr_set_item(*a, 2, im);
-    *b = PMATH_UNDEFINED;
     return TRUE;
   }
+  
+  if(pmath_is_interval(*b)) {
+    pmath_t copy_b = pmath_ref(*b);
+    if(!try_multiply_interval_to(&copy_b, &re)) {
+      pmath_unref(re);
+      pmath_unref(im);
+      pmath_unref(copy_b);
+      return FALSE;
+    }
+    pmath_unref(re);
+    re = copy_b;
+    
+    if(!try_multiply_interval_to(b, &im)) {
+      pmath_unref(re);
+      pmath_unref(im);
+      return FALSE;
+    }
+    copy_b = im;
+    im = *b;
+    *b = copy_b;
+    
+    *a = pmath_expr_set_item(*a, 1, re);
+    *a = pmath_expr_set_item(*a, 2, im);
+    return TRUE;
+  }
+  
+  if(_pmath_is_inexact(*a) && pmath_is_numeric(*b)) {
+    *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+static pmath_bool_t try_multiply_nonreal_complex_to(pmath_t *a, pmath_t *b) {
+  assert(_pmath_is_nonreal_complex_number(*a));
   
   if(_pmath_is_nonreal_complex_number(*b)) {
     // (u + vi)*(x + yi) = (ux - vy) + (uy + vx)i
@@ -633,12 +692,7 @@ static pmath_bool_t try_multiply_nonreal_complex_to(pmath_t *a, pmath_t *b) {
     return TRUE;
   }
   
-  if(_pmath_is_inexact(*a) && pmath_is_numeric(*b)) {
-    *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
-    return TRUE;
-  }
-  
-  return FALSE;
+  return try_multiply_nonreal_complex_to_noncomplex(a, b);
 }
 
 static pmath_bool_t try_multiply_infinities(pmath_t *a, pmath_t *b) {
@@ -1040,6 +1094,10 @@ static pmath_bool_t times_2_arg(pmath_t *a, pmath_t *b) {
   }
   else if(_pmath_is_nonreal_complex_number(*a)) {
     if(try_multiply_nonreal_complex_to(a, b))
+      return TRUE;
+  }
+  else if(_pmath_is_nonreal_complex_interval_or_number(*b)) {
+    if(try_multiply_nonreal_complex_to_noncomplex(b, a))
       return TRUE;
   }
     
