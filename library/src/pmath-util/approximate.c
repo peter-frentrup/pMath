@@ -213,6 +213,10 @@ static pmath_t set_finite_precision_number(pmath_number_t obj, double prec) {
         } break;
 
       case PMATH_TYPE_SHIFT_MP_FLOAT: {
+          if(mpfr_get_prec(PMATH_AS_MP_VALUE(result)) == mpfr_get_prec(PMATH_AS_MP_VALUE(obj))) {
+            pmath_unref(result);
+            return obj;
+          }
           mpfr_set(
             PMATH_AS_MP_VALUE(result),
             PMATH_AS_MP_VALUE(obj),
@@ -301,6 +305,10 @@ START_SET_PRECISION:
 
     result = _pmath_create_interval((mpfr_prec_t)ceil(prec));
     if(!pmath_is_null(result)) {
+      if(mpfi_get_prec(PMATH_AS_MP_INTERVAL(result)) == mpfi_get_prec(PMATH_AS_MP_INTERVAL(obj))) {
+        pmath_unref(result);
+        return obj;
+      }
       mpfi_set(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(obj));
     }
     
