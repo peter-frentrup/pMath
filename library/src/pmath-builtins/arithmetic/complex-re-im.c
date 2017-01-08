@@ -364,9 +364,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   return FALSE;
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_nonreal_complex_number(
-  pmath_t z
-) {
+PMATH_PRIVATE pmath_bool_t _pmath_is_nonreal_complex_number(pmath_t z) {
   pmath_t re, im;
   pmath_bool_t both_numbers;
   
@@ -381,6 +379,30 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_nonreal_complex_number(
   pmath_unref(re);
   pmath_unref(im);
   return both_numbers;
+}
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t _pmath_is_nonreal_complex_interval_or_number(pmath_t z) {
+  pmath_t re, im;
+
+  if(!pmath_is_expr_of_len(z, PMATH_SYMBOL_COMPLEX, 2))
+    return FALSE;
+    
+  re = pmath_expr_get_item(z, 1);
+  im = pmath_expr_get_item(z, 2);
+  
+  if(pmath_is_number(re) || pmath_is_interval(re)) {
+    if(pmath_is_number(im) || pmath_is_interval(im)) {
+      pmath_unref(re);
+      pmath_unref(im);
+      return TRUE;
+    }
+  }
+  
+  pmath_unref(re);
+  pmath_unref(im);
+  return FALSE;
 }
 
 PMATH_PRIVATE pmath_t builtin_complex(pmath_expr_t expr) {

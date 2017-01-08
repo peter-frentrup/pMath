@@ -857,44 +857,102 @@ static pmath_bool_t try_add_real_number_to(pmath_number_t *a, pmath_t *b) {
 }
 
 static pmath_bool_t try_add_nonreal_complex_to_noncomplex(pmath_t *a, pmath_t *b) {
-  assert(_pmath_is_nonreal_complex_number(*a));
+  pmath_t re, im;
   
-  if(_pmath_is_inexact(*a)) {
-    *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
+  assert(_pmath_is_nonreal_complex_interval_or_number(*a));
+  
+  re = pmath_expr_get_item(*a, 1);
+  im = pmath_expr_get_item(*a, 2);
+  
+  if(pmath_is_interval(re) || pmath_is_interval(im)) {
+    *b = pmath_set_precision_interval(*b, pmath_precision(pmath_ref(*a)));
+    pmath_unref(re);
+    pmath_unref(im);
     return TRUE;
   }
   
+  if(pmath_is_float(re) || pmath_is_float(im)) {
+    *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
+    pmath_unref(re);
+    pmath_unref(im);
+    return TRUE;
+  }
+  
+  pmath_unref(re);
+  pmath_unref(im);
   return FALSE;
 }
 
 static pmath_bool_t try_add_nonreal_complex_to(pmath_t *a, pmath_t *b) {
-  assert(_pmath_is_nonreal_complex_number(*a));
+  pmath_t reim_a[2];
+  
+  assert(_pmath_is_nonreal_complex_interval_or_number(*a));
+  
+  reim_a[0] = pmath_expr_get_item(*a, 1);
+  reim_a[1] = pmath_expr_get_item(*a, 2);
   
   if(pmath_is_number(*b)) {
-    *a = pmath_expr_set_item(*a, 1,
-                             _add_nn(
-                               *b,
-                               pmath_expr_get_item(*a, 1)));
+    pmath_unref(reim_a[1]);
+    if(pmath_is_interval(reim_a[0])) {
+      if(!try_add_interval_to(&reim_a[0], b)) {
+        pmath_unref(reim_a[0]);
+        return FALSE;
+      }
+    }
+    else
+      reim_a[0] = _add_nn(reim_a[0], *b);
+      
+    *a = pmath_expr_set_item(*a, 1, reim_a[0]);
     *b = PMATH_UNDEFINED;
     return TRUE;
   }
   
-  if(_pmath_is_nonreal_complex_number(*b)) {
-    pmath_t re = _add_nn(
-                   pmath_expr_get_item(*a, 1),
-                   pmath_expr_get_item(*b, 1));
-                   
-    pmath_t im = _add_nn(
-                   pmath_expr_get_item(*a, 2),
-                   pmath_expr_get_item(*b, 2));
-                   
+  if(_pmath_is_nonreal_complex_interval_or_number(*b)) {
+    pmath_t reim_b[2];
+    int i;
+    pmath_bool_t success = TRUE;
+    
+    reim_b[0] = pmath_expr_get_item(*b, 1);
+    reim_b[1] = pmath_expr_get_item(*b, 2);
+    
+    for(i = 0; i < 2 && success; ++i) {
+    
+      if(pmath_is_interval(reim_a[i])) {
+        success = try_add_interval_to(&reim_a[i], &reim_b[i]);
+      }
+      else if(pmath_is_interval(reim_b[i])) {
+        success = try_add_interval_to(&reim_b[i], &reim_a[i]);
+        if(success) {
+          pmath_unref(reim_a[i]);
+          reim_a[i] = reim_b[i];
+          reim_b[i] = PMATH_UNDEFINED;
+        }
+      }
+      else {
+        reim_a[i] = _add_nn(reim_a[i], reim_b[i]);
+        reim_b[i] = PMATH_UNDEFINED;
+        success = TRUE;
+      }
+    }
+    
+    pmath_unref(reim_b[0]);
+    pmath_unref(reim_b[1]);
+    
+    if(!success) {
+      pmath_unref(reim_a[0]);
+      pmath_unref(reim_a[1]);
+      return FALSE;
+    }
+    
     pmath_unref(*b);
     *b = PMATH_UNDEFINED;
-    *a = pmath_expr_set_item(*a, 1, re);
-    *a = pmath_expr_set_item(*a, 2, im);
+    *a = pmath_expr_set_item(*a, 1, reim_a[0]);
+    *a = pmath_expr_set_item(*a, 2, reim_a[1]);
     return TRUE;
   }
   
+  pmath_unref(reim_a[0]);
+  pmath_unref(reim_a[1]);
   return try_add_nonreal_complex_to_noncomplex(a, b);
 }
 
@@ -1022,7 +1080,7 @@ static void plus_2_arg(pmath_t *a, pmath_t *b) {
     if(try_add_real_number_to(a, b))
       return;
   }
-  else if(_pmath_is_nonreal_complex_number(*a)) {
+  else if(_pmath_is_nonreal_complex_interval_or_number(*a)) {
     if(try_add_nonreal_complex_to(a, b))
       return;
   }
