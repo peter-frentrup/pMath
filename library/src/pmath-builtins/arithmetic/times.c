@@ -606,7 +606,7 @@ static pmath_bool_t try_multiply_nonreal_complex_to_noncomplex(pmath_t *a, pmath
       pmath_unref(copy_b);
     }
     else {
-      re = _add_nn(re, copy_b);
+      re = _mul_nn(re, copy_b);
       re = _pmath_float_exceptions(re);
     }
     
@@ -618,7 +618,7 @@ static pmath_bool_t try_multiply_nonreal_complex_to_noncomplex(pmath_t *a, pmath
       }
     }
     else {
-      im = _add_nn(im, *b);
+      im = _mul_nn(im, *b);
       im = _pmath_float_exceptions(im);
       *b = PMATH_UNDEFINED;
     }
@@ -661,15 +661,112 @@ static pmath_bool_t try_multiply_nonreal_complex_to_noncomplex(pmath_t *a, pmath
   return FALSE;
 }
 
-static pmath_bool_t try_multiply_nonreal_complex_to(pmath_t *a, pmath_t *b) {
-  assert(_pmath_is_nonreal_complex_number(*a));
+static pmath_bool_t is_interval_get_prec(pmath_t obj, mpfr_prec_t *prec) {
+  if(pmath_is_interval(obj)) {
+    *prec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(obj));
+    return TRUE;
+  }
+  return FALSE;
+}
+
+static pmath_interval_t number_or_interval_to_interval(pmath_t obj, mpfr_prec_t prec) {
+  pmath_interval_t result;
   
-  if(_pmath_is_nonreal_complex_number(*b)) {
+  if(pmath_is_null(obj) || pmath_is_interval(obj))
+    return obj;
+  
+  assert(pmath_is_number(obj));
+  result = _pmath_create_interval(prec);
+  if(!pmath_is_null(result))
+    _pmath_interval_set_point(PMATH_AS_MP_INTERVAL(result), obj);
+  
+  pmath_unref(obj);
+  return result;
+}
+
+static pmath_bool_t try_multiply_nonreal_complex_to(pmath_t *a, pmath_t *b) {
+  assert(_pmath_is_nonreal_complex_interval_or_number(*a));
+  
+  if(_pmath_is_nonreal_complex_interval_or_number(*b)) {
     // (u + vi)*(x + yi) = (ux - vy) + (uy + vx)i
-    pmath_number_t u = pmath_expr_get_item(*a, 1);
-    pmath_number_t v = pmath_expr_get_item(*a, 2);
-    pmath_number_t x = pmath_expr_get_item(*b, 1);
-    pmath_number_t y = pmath_expr_get_item(*b, 2);
+    pmath_t u = pmath_expr_get_item(*a, 1);
+    pmath_t v = pmath_expr_get_item(*a, 2);
+    pmath_t x = pmath_expr_get_item(*b, 1);
+    pmath_t y = pmath_expr_get_item(*b, 2);
+    mpfr_prec_t ival_prec;
+    
+    if( is_interval_get_prec(u, &ival_prec) ||
+        is_interval_get_prec(v, &ival_prec) ||
+        is_interval_get_prec(x, &ival_prec) ||
+        is_interval_get_prec(y, &ival_prec)
+    ) {
+      pmath_interval_t re = _pmath_create_interval(ival_prec);
+      pmath_interval_t im = _pmath_create_interval(ival_prec);
+      pmath_interval_t tmp = _pmath_create_interval(ival_prec);
+      u = number_or_interval_to_interval(u, ival_prec);
+      v = number_or_interval_to_interval(v, ival_prec);
+      x = number_or_interval_to_interval(x, ival_prec);
+      y = number_or_interval_to_interval(y, ival_prec);
+      
+      if( pmath_is_null(re) || 
+          pmath_is_null(im) || 
+          pmath_is_null(tmp) || 
+          pmath_is_null(u) || 
+          pmath_is_null(v) || 
+          pmath_is_null(x) || 
+          pmath_is_null(y)
+      ) {
+        pmath_unref(re);
+        pmath_unref(im);
+        pmath_unref(tmp);
+        pmath_unref(u);
+        pmath_unref(v);
+        pmath_unref(x);
+        pmath_unref(y);
+        return TRUE;
+      }
+      
+      mpfi_mul(
+        PMATH_AS_MP_INTERVAL(re),
+        PMATH_AS_MP_INTERVAL(u),
+        PMATH_AS_MP_INTERVAL(x));
+      mpfi_mul(
+        PMATH_AS_MP_INTERVAL(tmp),
+        PMATH_AS_MP_INTERVAL(v),
+        PMATH_AS_MP_INTERVAL(y));
+      mpfi_sub(
+        PMATH_AS_MP_INTERVAL(re),
+        PMATH_AS_MP_INTERVAL(re),
+        PMATH_AS_MP_INTERVAL(tmp));
+      
+      mpfi_mul(
+        PMATH_AS_MP_INTERVAL(im),
+        PMATH_AS_MP_INTERVAL(v),
+        PMATH_AS_MP_INTERVAL(x));
+      
+      mpfi_mul(
+        PMATH_AS_MP_INTERVAL(tmp),
+        PMATH_AS_MP_INTERVAL(u),
+        PMATH_AS_MP_INTERVAL(y));
+      mpfi_add(
+        PMATH_AS_MP_INTERVAL(im),
+        PMATH_AS_MP_INTERVAL(im),
+        PMATH_AS_MP_INTERVAL(tmp));
+      
+      re = _pmath_interval_exceptions(re);
+      im = _pmath_interval_exceptions(im);
+      
+      pmath_unref(*b);
+      *b = PMATH_UNDEFINED;
+      *a = pmath_expr_set_item(*a, 1, re);
+      *a = pmath_expr_set_item(*a, 2, im);
+      pmath_unref(tmp);
+      pmath_unref(u);
+      pmath_unref(v);
+      pmath_unref(x);
+      pmath_unref(y);
+      return TRUE;
+    }
     
     pmath_unref(*b);
     *a = pmath_expr_set_item(
@@ -1092,7 +1189,7 @@ static pmath_bool_t times_2_arg(pmath_t *a, pmath_t *b) {
     if(try_multiply_real_number_to(a, b))
       return TRUE;
   }
-  else if(_pmath_is_nonreal_complex_number(*a)) {
+  else if(_pmath_is_nonreal_complex_interval_or_number(*a)) {
     if(try_multiply_nonreal_complex_to(a, b))
       return TRUE;
   }
