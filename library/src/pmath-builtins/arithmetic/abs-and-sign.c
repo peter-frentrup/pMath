@@ -143,6 +143,27 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
     return _pmath_interval_call(x, mpfi_abs);
   }
   
+  if(_pmath_is_nonreal_complex(x)) {
+    pmath_t re = pmath_expr_get_item(x, 1);
+    pmath_t im = pmath_expr_get_item(x, 2);
+    
+    pmath_unref(x);
+    pmath_unref(expr);
+    if(pmath_number_sign(im) == 0) {
+      pmath_unref(im);
+      if(pmath_number_sign(re) >= 0)
+        return re;
+      return pmath_number_neg(re);
+    }
+    if(pmath_number_sign(re) == 0) {
+      pmath_unref(re);
+      if(pmath_number_sign(im) >= 0)
+        return im;
+      return pmath_number_neg(im);
+    }
+    return SQRT(PLUS(POW(re, INT(2)), POW(im, INT(2))));
+  }
+  
   clazz = _pmath_number_class(x);
   
   if(clazz & PMATH_CLASS_ZERO) {
@@ -189,15 +210,6 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
   if(clazz & PMATH_CLASS_IMAGINARY) {
     pmath_unref(expr);
     return TIMES(COMPLEX(INT(0), INT(-1)), x);
-  }
-  
-  if(_pmath_is_nonreal_complex(x)) {
-    pmath_t re = pmath_expr_get_item(x, 1);
-    pmath_t im = pmath_expr_get_item(x, 2);
-    
-    pmath_unref(x);
-    pmath_unref(expr);
-    return SQRT(PLUS(POW(re, INT(2)), POW(im, INT(2))));
   }
   
   if( pmath_equals(x, _pmath_object_overflow) ||
