@@ -739,8 +739,9 @@ PMATH_PRIVATE void _pmath_split_summand(
       
       if(len > 1) {
         pmath_t first = pmath_expr_get_item(summand, 1);
-        if( pmath_is_number(first) ||
-            _pmath_is_nonreal_complex_number(first))
+        if( pmath_is_number(first) || 
+            pmath_is_interval(first) ||
+            _pmath_is_nonreal_complex_interval_or_number(first))
         {
           *out_num_factor = first;
           
@@ -760,14 +761,14 @@ PMATH_PRIVATE void _pmath_split_summand(
       return;
     }
     
-    if(_pmath_is_nonreal_complex_number(summand)) {
+    if(_pmath_is_nonreal_complex_interval_or_number(summand)) {
       *out_num_factor = pmath_ref(summand);
       *out_rest = PMATH_UNDEFINED;
       return;
     }
   }
   
-  if(pmath_is_number(summand)) {
+  if(pmath_is_number(summand) || pmath_is_interval(summand)) {
     *out_num_factor = pmath_ref(summand);
     *out_rest = PMATH_UNDEFINED;
     return;
@@ -818,6 +819,8 @@ static pmath_bool_t try_add_interval_to(pmath_interval_t *a, pmath_t *b) {
   return FALSE;
 }
 
+static pmath_bool_t try_add_nonreal_complex_to_noncomplex(pmath_t *a, pmath_t *b);
+
 static pmath_bool_t try_add_real_number_to(pmath_number_t *a, pmath_t *b) {
   assert(pmath_is_number(*a));
   
@@ -834,15 +837,6 @@ static pmath_bool_t try_add_real_number_to(pmath_number_t *a, pmath_t *b) {
     return TRUE;
   }
   
-  if(_pmath_is_nonreal_complex_number(*b)) {
-    *a = pmath_expr_set_item(*b, 1,
-                             _add_nn(
-                               *a,
-                               pmath_expr_get_item(*b, 1)));
-    *b = PMATH_UNDEFINED;
-    return TRUE;
-  }
-  
   if( pmath_equals(*b, _pmath_object_overflow) ||
       pmath_equals(*b, _pmath_object_underflow))
   {
@@ -851,6 +845,12 @@ static pmath_bool_t try_add_real_number_to(pmath_number_t *a, pmath_t *b) {
     *b = PMATH_UNDEFINED;
     return TRUE;
   }
+  
+  if(pmath_is_interval(*b)) 
+    return try_add_interval_to(b, a);
+  
+  if(_pmath_is_nonreal_complex_interval_or_number(*b)) 
+    return try_add_nonreal_complex_to_noncomplex(b, a);
   
   if(pmath_is_float(*a) && pmath_is_numeric(*b)) {
     *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
