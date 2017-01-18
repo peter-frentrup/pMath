@@ -189,7 +189,8 @@ static void mp_cache_clear(void) {
     if(f) {
       assert(f->inherited.refcount._data == 0);
       
-      mpfr_clear(f->value);
+      mpfr_clear(f->value_old);
+      arb_clear(f->value_new);
       pmath_mem_free(f);
     }
   }
@@ -216,7 +217,8 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
     assert(f->inherited.refcount._data == 0);
     pmath_atomic_write_release(&f->inherited.refcount, 1);
     
-    mpfr_set_prec(f->value, precision);
+    mpfr_set_prec(f->value_old, precision);
+    f->working_precision = (slong)precision;
     return PMATH_FROM_PTR(f);
   }
   else {
@@ -232,7 +234,9 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
   if(!f)
     return PMATH_NULL;
     
-  mpfr_init2(f->value, precision);
+  mpfr_init2(f->value_old, precision);
+  arb_init(f->value_new);
+  f->working_precision = (slong)precision;
   
   return PMATH_FROM_PTR(f);
 }
@@ -1260,7 +1264,8 @@ static void destroy_mp_float(pmath_t f) {
   if(f_ptr) {
     assert(f_ptr->inherited.refcount._data == 0);
     
-    mpfr_clear(f_ptr->value);
+    mpfr_clear(f_ptr->value_old);
+    arb_clear(f_ptr->value_new);
     pmath_mem_free(f_ptr);
   }
 }
@@ -1916,6 +1921,7 @@ PMATH_PRIVATE void _pmath_numbers_memory_panic(void) {
   int_cache_clear();
   mp_cache_clear();
   mpfr_free_cache();
+  flint_cleanup();
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {

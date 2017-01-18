@@ -338,12 +338,12 @@ static enum known_direction_t compare_interval_with_number(pmath_interval_t a, p
   
   a_left_data.inherited.type_shift = PMATH_TYPE_SHIFT_MP_FLOAT;
   a_left_data.inherited.refcount._data = 2;
-  a_left_data.value[0] = PMATH_AS_MP_INTERVAL(a)->left;
+  a_left_data.value_old[0] = PMATH_AS_MP_INTERVAL(a)->left;
   a_left = PMATH_FROM_PTR(&a_left_data);
   
   a_right_data.inherited.type_shift = PMATH_TYPE_SHIFT_MP_FLOAT;
   a_right_data.inherited.refcount._data = 2;
-  a_right_data.value[0] = PMATH_AS_MP_INTERVAL(a)->right;
+  a_right_data.value_old[0] = PMATH_AS_MP_INTERVAL(a)->right;
   a_right = PMATH_FROM_PTR(&a_right_data);
   
   cmp_left = _pmath_numbers_compare(a_left, b);

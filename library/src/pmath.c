@@ -1079,6 +1079,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
     }
     
+    flint_set_num_threads(_pmath_processor_count());
     _pmath_symbol_builtins_protect_all();
     
     { // loading maininit.pmath
@@ -1269,6 +1270,7 @@ PMATH_API void pmath_done(void) {
     _pmath_thread_set_current(NULL);
     _pmath_thread_free(thread);
     mpfr_free_cache();
+    flint_cleanup();
   }
 }
 
