@@ -154,6 +154,16 @@ PMATH_ATTRIBUTE_USE_RESULT
 //struct _pmath_mp_float_t *
 pmath_mpfloat_t _pmath_create_mp_float_from_d(double value);
 
+/** \brief Create an mp float from a rational number.
+    \param value      An integer or quotient. It will be freed.
+    \param precision  Working precision of the result (and precision of the approximation)
+    \return A new _pmath_mp_float_t* or PMATH_NULL.
+ */
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+//struct _pmath_mp_float_t *
+pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong precision);
+
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_mp_float_t*

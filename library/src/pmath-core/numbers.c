@@ -68,7 +68,7 @@ static struct _pmath_mp_int_t *int_cache_swap(
   uintptr_t               i,
   struct _pmath_mp_int_t *value
 ) {
-  i = i &CACHE_MASK;
+  i = i & CACHE_MASK;
   
   assert(!value || value->inherited.refcount._data == 0);
   
@@ -175,7 +175,7 @@ static struct _pmath_mp_float_t *mp_cache_swap(
   uintptr_t                 i,
   struct _pmath_mp_float_t *f
 ) {
-  i = i &CACHE_MASK;
+  i = i & CACHE_MASK;
   
   return (void *)pmath_atomic_fetch_set(&mp_cache[i], (intptr_t)f);
 }
@@ -250,6 +250,61 @@ pmath_float_t _pmath_create_mp_float_from_d(double value) {
     mpfr_set_d(PMATH_AS_MP_VALUE(result), value, MPFR_RNDN);
   }
   
+  return result;
+}
+
+PMATH_PRIVATE
+pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong precision) {
+  pmath_mpfloat_t result = _pmath_create_mp_float(precision);
+  
+  if(!pmath_is_null(result)) {
+    if(pmath_is_int32(value)) {
+      arb_set_si(PMATH_AS_ARB(result), PMATH_AS_INT32(value));
+      arb_set_round(PMATH_AS_ARB(result), PMATH_AS_ARB(result), precision);
+    }
+    else if(pmath_is_mpint(value)) {
+      fmpz_t tmp;
+      fmpz_init(tmp);
+      fmpz_set_mpz(tmp, PMATH_AS_MPZ(value));
+      
+      arb_set_round_fmpz(PMATH_AS_ARB(result), tmp, precision);
+      
+      fmpz_clear(tmp);
+    }
+    else {
+      fmpz_t tmp_num;
+      fmpz_t tmp_den;
+      fmpz_init(tmp_num);
+      fmpz_init(tmp_den);
+      
+      assert(pmath_is_quotient(value));
+      
+      if(pmath_is_int32(PMATH_QUOT_NUM(value))) {
+        fmpz_set_si(tmp_num, PMATH_AS_INT32(PMATH_QUOT_NUM(value)));
+      }
+      else {
+        assert(pmath_is_mpint(PMATH_QUOT_NUM(value)));
+        fmpz_set_mpz(tmp_num, PMATH_AS_MPZ(PMATH_QUOT_NUM(value)));
+      }
+      
+      if(pmath_is_int32(PMATH_QUOT_DEN(value))) {
+        fmpz_set_si(tmp_den, PMATH_AS_INT32(PMATH_QUOT_DEN(value)));
+      }
+      else {
+        assert(pmath_is_mpint(PMATH_QUOT_DEN(value)));
+        fmpz_set_mpz(tmp_den, PMATH_AS_MPZ(PMATH_QUOT_DEN(value)));
+      }
+      
+      arb_fmpz_div_fmpz(PMATH_AS_ARB(result), tmp_num, tmp_den, precision);
+      
+      fmpz_clear(tmp_num);
+      fmpz_clear(tmp_den);
+    }
+    
+    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
+  }
+  
+  pmath_unref(value);
   return result;
 }
 
@@ -548,7 +603,7 @@ pmath_number_t pmath_float_new_str(
   
   if(base < 2 || base > 36)
     return PMATH_NULL;
-  
+    
   len = (int)strlen(str);
   
   int_digits = 0;
@@ -725,12 +780,12 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_mpfloat_call(
   pmath_mpfloat_t   arg,  // will be freed
-  int             (*func)(mpfr_ptr, mpfr_srcptr,mpfr_rnd_t)
+  int             (*func)(mpfr_ptr, mpfr_srcptr, mpfr_rnd_t)
 ) {
   pmath_mpfloat_t result;
   if(pmath_is_null(arg))
     return arg;
-  
+    
   assert(pmath_is_mpfloat(arg));
   
   result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(arg)));
@@ -750,7 +805,7 @@ mpfr_rnd_t _pmath_current_rounding_mode(void) {
   
   if(me == NULL)
     return MPFR_RNDN;
-  
+    
   return me->mp_rounding_mode;
 }
 
@@ -1369,7 +1424,7 @@ static void write_mp_float_ex(
   if(allow_round_trip) {
     /* MPFR documentation says:
        To recover f, we need (in most cases ...) a representation with
-       m = 1 + ceil(precbits * log(2) / log(base)) digits (with precbits 
+       m = 1 + ceil(precbits * log(2) / log(base)) digits (with precbits
        replaced by  precbits-1  if base is a power of 2).
      */
     
@@ -1378,7 +1433,7 @@ static void write_mp_float_ex(
     else
       max_digits = (size_t)(1 + ceil( base_prec ));
   }
-  else{
+  else {
     max_digits = (size_t)round(base_prec);
   }
   
@@ -1576,9 +1631,9 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
 PMATH_PRIVATE
 void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
   pmath_mpfloat_t mpf = _pmath_create_mp_float_from_d(PMATH_AS_DOUBLE(f));
-    
+  
   write_mp_float_ex(info, mpf, TRUE);
-    
+  
   pmath_unref(mpf);
 }
 
@@ -1756,34 +1811,34 @@ int _pmath_numbers_compare(
 //      mp_size_t  nB;
 //      mp_limb_t *pA;
 //      mp_limb_t *pB;
-//      
+//
 //      if(mpfr_zero_p(PMATH_AS_MP_VALUE(numA)) && mpfr_zero_p(PMATH_AS_MP_VALUE(numB)))
 //        return 0;
-//        
+//
 //      sgnA = mpfr_sgn(PMATH_AS_MP_VALUE(numA));
 //      sgnB = mpfr_sgn(PMATH_AS_MP_VALUE(numB));
-//      
+//
 //      if(sgnA < sgnB)
 //        return -1;
-//        
+//
 //      if(sgnA > sgnB)
 //        return 1;
-//        
+//
 //      expA = mpfr_get_exp(PMATH_AS_MP_VALUE(numA));
 //      expB = mpfr_get_exp(PMATH_AS_MP_VALUE(numB));
-//      
+//
 //      if(expA > expB)
 //        return sgnA;
-//        
+//
 //      if(expA < expB)
 //        return -sgnA;
-//        
+//
 //      nA = (mpfr_get_prec(PMATH_AS_MP_VALUE(numA)) - 1) / GMP_NUMB_BITS;
 //      nB = (mpfr_get_prec(PMATH_AS_MP_VALUE(numB)) - 1) / GMP_NUMB_BITS;
-//      
+//
 //      pA = MPFR_MANT(PMATH_AS_MP_VALUE(numA));
 //      pB = MPFR_MANT(PMATH_AS_MP_VALUE(numB));
-//      
+//
 //      for (; nA >= 0 && nB >= 0; --nA, --nB)
 //      {
 //        if (pA[nA] > pB[nB])
@@ -1791,7 +1846,7 @@ int _pmath_numbers_compare(
 //        if (pA[nA] < pB[nB])
 //          return -sgnA;
 //      }
-//      
+//
 //      return 0;
 
       mpfr_rnd_t rounding_mode = _pmath_current_rounding_mode();
@@ -1875,7 +1930,7 @@ pmath_bool_t _pmath_numbers_equal(
     
   if( pmath_is_mpfloat(numA) &&
       pmath_is_mpfloat(numB))
-  { 
+  {
     mpfr_rnd_t rounding_mode = _pmath_current_rounding_mode();
     
     mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
@@ -1935,10 +1990,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
   pmath_debug_print("[gmp %s]\n", gmp_version);
 #endif
   
-  pmath_debug_print("[mpfr %s%s]\n", 
-    mpfr_get_version(),
-    mpfr_buildopt_tls_p() ? "" : ", flags are not thrad safe");
-  
+  pmath_debug_print("[mpfr %s%s]\n",
+                    mpfr_get_version(),
+                    mpfr_buildopt_tls_p() ? "" : ", flags are not thrad safe");
+                    
   pmath_debug_print("[flint %s]\n", FLINT_VERSION);
   pmath_debug_print("[arb %s]\n", arb_version);
   
