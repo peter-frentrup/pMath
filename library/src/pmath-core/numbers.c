@@ -246,6 +246,7 @@ pmath_float_t _pmath_create_mp_float_from_d(double value) {
   pmath_float_t result = _pmath_create_mp_float(DBL_MANT_DIG);
   
   if(!pmath_is_null(result)) {
+    arb_set_d(PMATH_AS_ARB(result), value);
     mpfr_set_d(PMATH_AS_MP_VALUE(result), value, MPFR_RNDN);
   }
   
