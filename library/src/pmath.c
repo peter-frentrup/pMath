@@ -335,12 +335,14 @@ static pmath_expr_t get_system_information(void) {
       SETTINGS_RULE(
           "ThirdPartyLibraries",
           pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_LIST), 5,
+              pmath_ref(PMATH_SYMBOL_LIST), 7,
               gmp_info,
-              SETTINGS_RULE("mpfr", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfr_get_version())) )),
-              SETTINGS_RULE("mpfi", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfi_get_version())) )),
-              SETTINGS_RULE("pcre", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(pcre16_version()))   )),
-              SETTINGS_RULE("zlib", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(zlib_version))       ))
+              SETTINGS_RULE("mpfr",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfr_get_version())) )),
+              SETTINGS_RULE("mpfi",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfi_get_version())) )),
+              SETTINGS_RULE("flint", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(FLINT_VERSION))      )),
+              SETTINGS_RULE("arb",   LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(arb_version))        )),
+              SETTINGS_RULE("pcre",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(pcre16_version()))   )),
+              SETTINGS_RULE("zlib",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(zlib_version))       ))
           ))
       );
       

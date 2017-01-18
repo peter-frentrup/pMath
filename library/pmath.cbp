@@ -43,12 +43,16 @@
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#flint_32.include)" />
+					<Add directory="$(#arb_32.include)" />
 					<Add directory="$(#pcre_32.include)" />
 					<Add directory="$(#iconv_32.include)" />
 					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#arb_32.bin)/arb.dll&quot;' />
+					<Add option='&quot;$(#flint_32.bin)/dll_flint.dll&quot;' />
 					<Add option='&quot;$(#mpfi_32.bin)/mpfi.dll&quot;' />
 					<Add option='&quot;$(#mpfr_32.bin)/mpfr.dll&quot;' />
 					<Add option='&quot;$(#gmp_32.bin)/mpir.dll&quot;' />
@@ -61,6 +65,9 @@
 					<Add after='cmd /c COPY /Y &quot;$(#gmp_32.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfr_32.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#flint_32.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#arb_32.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pthreads_32.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -99,6 +106,8 @@
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#flint_32.include)" />
+					<Add directory="$(#arb_32.include)" />
 					<Add directory="$(#pcre_32.include)" />
 					<Add directory="$(#iconv_32.include)" />
 					<Add directory="$(#zlib_32.include)" />
@@ -108,6 +117,8 @@
 					<Add option="-static-libgcc" />
 					<Add option="-flto" />
 					<Add option="-O3" />
+					<Add option='&quot;$(#arb_32.bin)/arb.dll&quot;' />
+					<Add option='&quot;$(#flint_32.bin)/dll_flint.dll&quot;' />
 					<Add option='&quot;$(#mpfi_32.bin)/mpfi.dll&quot;' />
 					<Add option='&quot;$(#mpfr_32.bin)/mpfr.dll&quot;' />
 					<Add option='&quot;$(#gmp_32.bin)/mpir.dll&quot;' />
@@ -120,6 +131,9 @@
 					<Add after='cmd /c COPY /Y &quot;$(#gmp_32.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfr_32.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#flint_32.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#arb_32.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pthreads_32.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -159,12 +173,16 @@
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
 					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#flint_64.include)" />
+					<Add directory="$(#arb_64.include)" />
 					<Add directory="$(#pcre_64.include)" />
 					<Add directory="$(#iconv_64.include)" />
 					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option='&quot;$(#arb_64.bin)/arb.dll&quot;' />
+					<Add option='&quot;$(#flint_64.bin)/dll_flint.dll&quot;' />
 					<Add option='&quot;$(#mpfi_64.bin)/mpfi.dll&quot;' />
 					<Add option='&quot;$(#mpfr_64.bin)/mpfr.dll&quot;' />
 					<Add option='&quot;$(#gmp_64.bin)/mpir.dll&quot;' />
@@ -177,6 +195,9 @@
 					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#flint_64.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#arb_64.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pthreads_64.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -215,6 +236,8 @@
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
 					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#flint_64.include)" />
+					<Add directory="$(#arb_64.include)" />
 					<Add directory="$(#pcre_64.include)" />
 					<Add directory="$(#iconv_64.include)" />
 					<Add directory="$(#zlib_64.include)" />
@@ -224,6 +247,8 @@
 					<Add option="-static-libgcc" />
 					<Add option="-flto" />
 					<Add option="-O3" />
+					<Add option='&quot;$(#arb_64.bin)/arb.dll&quot;' />
+					<Add option='&quot;$(#flint_64.bin)/dll_flint.dll&quot;' />
 					<Add option='&quot;$(#mpfi_64.bin)/mpfi.dll&quot;' />
 					<Add option='&quot;$(#mpfr_64.bin)/mpfr.dll&quot;' />
 					<Add option='&quot;$(#gmp_64.bin)/mpir.dll&quot;' />
@@ -236,6 +261,9 @@
 					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#flint_64.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#arb_64.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pthreads_64.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -270,6 +298,8 @@
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#flint_32.include)" />
+					<Add directory="$(#arb_32.include)" />
 					<Add directory="$(#pcre_32.include)" />
 					<Add directory="$(#iconv_32.include)" />
 					<Add directory="$(#zlib_32.include)" />
@@ -278,6 +308,8 @@
 					<Add option="/debug" />
 					<Add option="/LTCG" />
 					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
+					<Add library="arb.lib" />
+					<Add library="dll_flint.lib" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
@@ -288,6 +320,8 @@
 					<Add directory="$(#gmp_32.lib)" />
 					<Add directory="$(#mpfr_32.lib)" />
 					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#flint_32.lib)" />
+					<Add directory="$(#arb_32.lib)" />
 					<Add directory="$(#pcre_32.lib)" />
 					<Add directory="$(#iconv_32.lib)" />
 					<Add directory="$(#zlib_32.lib)" />
@@ -296,6 +330,9 @@
 					<Add after='cmd /c COPY /Y &quot;$(#gmp_32.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfr_32.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#flint_32.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#arb_32.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pthreads_32.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -326,6 +363,8 @@
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#flint_32.include)" />
+					<Add directory="$(#arb_32.include)" />
 					<Add directory="$(#pcre_32.include)" />
 					<Add directory="$(#iconv_32.include)" />
 					<Add directory="$(#zlib_32.include)" />
@@ -333,6 +372,8 @@
 				<Linker>
 					<Add option="/LTCG" />
 					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
+					<Add library="arb.lib" />
+					<Add library="dll_flint.lib" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
@@ -343,6 +384,8 @@
 					<Add directory="$(#gmp_32.lib)" />
 					<Add directory="$(#mpfr_32.lib)" />
 					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#flint_32.lib)" />
+					<Add directory="$(#arb_32.lib)" />
 					<Add directory="$(#pcre_32.lib)" />
 					<Add directory="$(#iconv_32.lib)" />
 					<Add directory="$(#zlib_32.lib)" />
@@ -351,6 +394,9 @@
 					<Add after='cmd /c COPY /Y &quot;$(#gmp_32.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfr_32.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#flint_32.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#arb_32.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pthreads_32.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -385,6 +431,8 @@
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
 					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#flint_64.include)" />
+					<Add directory="$(#arb_64.include)" />
 					<Add directory="$(#pcre_64.include)" />
 					<Add directory="$(#iconv_64.include)" />
 					<Add directory="$(#zlib_64.include)" />
@@ -393,6 +441,8 @@
 					<Add option="/debug" />
 					<Add option="/LTCG" />
 					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
+					<Add library="arb.lib" />
+					<Add library="dll_flint.lib" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
@@ -403,6 +453,8 @@
 					<Add directory="$(#gmp_64.lib)" />
 					<Add directory="$(#mpfr_64.lib)" />
 					<Add directory="$(#mpfi_64.lib)" />
+					<Add directory="$(#flint_64.lib)" />
+					<Add directory="$(#arb_64.lib)" />
 					<Add directory="$(#pcre_64.lib)" />
 					<Add directory="$(#iconv_64.lib)" />
 					<Add directory="$(#zlib_64.lib)" />
@@ -411,6 +463,9 @@
 					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#flint_64.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#arb_64.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pthreads_64.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -442,6 +497,8 @@
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
 					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#flint_64.include)" />
+					<Add directory="$(#arb_64.include)" />
 					<Add directory="$(#pcre_64.include)" />
 					<Add directory="$(#iconv_64.include)" />
 					<Add directory="$(#zlib_64.include)" />
@@ -450,6 +507,8 @@
 					<Add option="/debug" />
 					<Add option="/LTCG" />
 					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
+					<Add library="arb.lib" />
+					<Add library="dll_flint.lib" />
 					<Add library="mpfi.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
@@ -460,6 +519,8 @@
 					<Add directory="$(#gmp_64.lib)" />
 					<Add directory="$(#mpfr_64.lib)" />
 					<Add directory="$(#mpfi_64.lib)" />
+					<Add directory="$(#flint_64.lib)" />
+					<Add directory="$(#arb_64.lib)" />
 					<Add directory="$(#pcre_64.lib)" />
 					<Add directory="$(#iconv_64.lib)" />
 					<Add directory="$(#zlib_64.lib)" />
@@ -468,6 +529,9 @@
 					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#flint_64.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#arb_64.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c COPY /Y &quot;$(#pthreads_64.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -503,6 +567,8 @@
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#flint_32.include)" />
+					<Add directory="$(#arb_32.include)" />
 					<Add directory="$(#pcre_32.include)" />
 					<Add directory="$(#iconv_32.include)" />
 					<Add directory="$(#zlib_32.include)" />
@@ -510,6 +576,8 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
+					<Add library="arb" />
+					<Add library="dll_flint" />
 					<Add library="mpfi" />
 					<Add library="mpfr" />
 					<Add library="mpir" />
@@ -520,6 +588,8 @@
 					<Add directory="$(#gmp_32.lib)" />
 					<Add directory="$(#mpfr_32.lib)" />
 					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#flint_32.lib)" />
+					<Add directory="$(#arb_32.lib)" />
 					<Add directory="$(#pcre_32.lib)" />
 					<Add directory="$(#iconv_32.lib)" />
 					<Add directory="$(#zlib_32.lib)" />
@@ -562,6 +632,8 @@
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#flint_32.include)" />
+					<Add directory="$(#arb_32.include)" />
 					<Add directory="$(#pcre_32.include)" />
 					<Add directory="$(#iconv_32.include)" />
 					<Add directory="$(#zlib_32.include)" />
@@ -570,6 +642,8 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add library="arb" />
+					<Add library="flint" />
 					<Add library="mpfi" />
 					<Add library="mpfr" />
 					<Add library="gmp" />
@@ -583,6 +657,8 @@
 					<Add directory="$(#gmp_32.lib)" />
 					<Add directory="$(#mpfr_32.lib)" />
 					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#flint_32.lib)" />
+					<Add directory="$(#arb_32.lib)" />
 					<Add directory="$(#pcre_32.lib)" />
 					<Add directory="$(#iconv_32.lib)" />
 					<Add directory="$(#zlib_32.lib)" />
@@ -625,12 +701,16 @@
 					<Add directory="$(#gmp_32.include)" />
 					<Add directory="$(#mpfr_32.include)" />
 					<Add directory="$(#mpfi_32.include)" />
+					<Add directory="$(#flint_32.include)" />
+					<Add directory="$(#arb_32.include)" />
 					<Add directory="$(#pcre_32.include)" />
 					<Add directory="$(#iconv_32.include)" />
 					<Add directory="$(#zlib_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add library="arb" />
+					<Add library="flint" />
 					<Add library="mpfi" />
 					<Add library="mpfr" />
 					<Add library="gmp" />
@@ -644,6 +724,8 @@
 					<Add directory="$(#gmp_32.lib)" />
 					<Add directory="$(#mpfr_32.lib)" />
 					<Add directory="$(#mpfi_32.lib)" />
+					<Add directory="$(#flint_32.lib)" />
+					<Add directory="$(#arb_32.lib)" />
 					<Add directory="$(#pcre_32.lib)" />
 					<Add directory="$(#iconv_32.lib)" />
 					<Add directory="$(#zlib_32.lib)" />
@@ -688,12 +770,16 @@
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
 					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#flint_64.include)" />
+					<Add directory="$(#arb_64.include)" />
 					<Add directory="$(#pcre_64.include)" />
 					<Add directory="$(#iconv_64.include)" />
 					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add library="arb" />
+					<Add library="flint" />
 					<Add library="mpfi" />
 					<Add library="mpfr" />
 					<Add library="gmp" />
@@ -706,6 +792,8 @@
 					<Add directory="$(#gmp_64.lib)" />
 					<Add directory="$(#mpfr_64.lib)" />
 					<Add directory="$(#mpfi_64.lib)" />
+					<Add directory="$(#flint_64.lib)" />
+					<Add directory="$(#arb_64.lib)" />
 					<Add directory="$(#pcre_64.lib)" />
 					<Add directory="$(#iconv_64.lib)" />
 					<Add directory="$(#zlib_64.lib)" />
@@ -748,12 +836,16 @@
 					<Add directory="$(#gmp_64.include)" />
 					<Add directory="$(#mpfr_64.include)" />
 					<Add directory="$(#mpfi_64.include)" />
+					<Add directory="$(#flint_64.include)" />
+					<Add directory="$(#arb_64.include)" />
 					<Add directory="$(#pcre_64.include)" />
 					<Add directory="$(#iconv_64.include)" />
 					<Add directory="$(#zlib_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add library="arb" />
+					<Add library="flint" />
 					<Add library="mpfi" />
 					<Add library="mpfr" />
 					<Add library="gmp" />
@@ -766,6 +858,8 @@
 					<Add directory="$(#gmp_64.lib)" />
 					<Add directory="$(#mpfr_64.lib)" />
 					<Add directory="$(#mpfi_64.lib)" />
+					<Add directory="$(#flint_64.lib)" />
+					<Add directory="$(#arb_64.lib)" />
 					<Add directory="$(#pcre_64.lib)" />
 					<Add directory="$(#iconv_64.lib)" />
 					<Add directory="$(#zlib_64.lib)" />

@@ -21,9 +21,11 @@
 // In mpz_get_ui(): Converting 'mp_limb_t' to 'unsigned long': possible data loss.
 #    pragma warning(disable: 4244)
 #    include <gmp.h>
+#    include <arb.h>
 #  pragma warning(pop)
 #else
 #  include <gmp.h>
+#  include <arb.h>
 #endif // _MSC_VER
 
 #include <mpfr.h>
