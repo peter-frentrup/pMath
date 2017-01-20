@@ -255,7 +255,7 @@ pmath_float_t _pmath_create_mp_float_from_d(double value) {
 
 PMATH_PRIVATE
 pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong precision) {
-  pmath_mpfloat_t result = _pmath_create_mp_float(precision);
+  pmath_mpfloat_t result = _pmath_create_mp_float((mpfr_prec_t)precision);
   
   if(!pmath_is_null(result)) {
     if(pmath_is_int32(value)) {
@@ -590,6 +590,200 @@ PMATH_API pmath_integer_t pmath_rational_denominator(
 //} ============================================================================
 //{ float constructors and exception handling ...
 
+/**\brief Parse a floating point number string to integer mantissa and exponents.
+   \param mantissa  Gets the mantissa.
+   \param exponent  Gets the exponent.
+   \param str       A string representing the number. The format is
+                    `(+|-)?<basedigits>[.<basedigits>][<exp>(+|-)?<decimaldigits>]`
+                    where the exponent prefix <exp> may be `*^`, `@` or, for bases
+                    up to 10, `e` or `E`.
+                    The exponent is always in decimal digits.
+   \param base      The base, between 2 and 36 (inclusive).
+   \return The total number of digits in the mantissa (ignoring a possible signle
+           leading zero digit) or -1 on error.
+ */
+static slong parse_number_to_mantissa_and_exponent(fmpz_t mantissa, fmpz_t exponent, const char *str, int base) {
+  const char *exp_mark;
+  const char *exp_start;
+  char *buffer;
+  slong int_digits, frac_digits, i, digits;
+  int frac_indicator;
+  
+  if(base < 2 || base > 36)
+    return -1;
+    
+  if(*str == '+')
+    return parse_number_to_mantissa_and_exponent(mantissa, exponent, str + 1, base);
+    
+  if(*str == '-') {
+    digits = parse_number_to_mantissa_and_exponent(mantissa, exponent, str + 1, base);
+    fmpz_neg(mantissa, mantissa);
+    return digits;
+  }
+  
+  buffer = pmath_mem_alloc(strlen(str) + 1);
+  if(!buffer)
+    return -1;
+    
+  if(base <= 10) {
+    exp_mark = strchr(str, 'e');
+    if(!exp_mark)
+      exp_mark = strchr(str, 'E');
+    if(!exp_mark)
+      exp_mark = strchr(str, '@');
+  }
+  else
+    exp_mark = strchr(str, '@');
+    
+  if(exp_mark) {
+    exp_start = exp_mark + 1;
+  }
+  else {
+    exp_mark = strstr(str, "*^");
+    if(exp_mark)
+      exp_start = exp_mark + 2;
+  }
+  
+  if(exp_mark) {
+    if(exp_start[0] == '+') {
+      if(fmpz_set_str(exponent, exp_start + 1, base) != 0)
+        goto FAIL;
+    }
+    else {
+      if(fmpz_set_str(exponent, exp_start, base) != 0)
+        goto FAIL;
+    }
+  }
+  else
+    fmpz_set_si(exponent, 0);
+    
+  int_digits = 0;
+  frac_digits = 0;
+  frac_indicator = 0;
+  for(i = 0; str + i != exp_mark && str[i]; ++i) {
+    if(str[i] == '.' && !frac_indicator) {
+      frac_indicator = 1;
+    }
+    else if(pmath_char_is_basedigit(base, str[i])) {
+      buffer[int_digits + frac_digits] = str[i];
+      frac_digits += frac_indicator;
+      int_digits += !frac_indicator; // !0 = 1
+    }
+    else
+      goto FAIL;
+  }
+  
+  digits = int_digits + frac_digits;
+  if(str[0] == '0')
+    --digits;
+    
+  buffer[int_digits + frac_digits] = '\0';
+  while(int_digits + frac_digits > 1 && buffer[int_digits + frac_digits - 1] == '0') {
+    buffer[int_digits + frac_digits - 1] = '\0';
+    --frac_digits;
+  }
+  
+  fmpz_sub_si(exponent, exponent, frac_digits);
+  if(fmpz_set_str(mantissa, buffer, base) != 0)
+    goto FAIL;
+    
+  pmath_mem_free(buffer);
+  return digits;
+FAIL:
+  pmath_mem_free(buffer);
+  return -1;
+}
+
+/**\brief Calculate an upper bound for  num_digits*log_2(base)
+ */
+static slong bits_for_basedigits(int base, arb_t num_digits) {
+  slong bits;
+  arb_t tmp;
+  mag_t tmp2;
+  arb_init(tmp);
+  mag_init(tmp2);
+  
+  arb_set_si(tmp, base);
+  arb_pow(tmp, tmp, num_digits, 10);
+  arb_get_mag(tmp2, tmp);
+  bits = 1 + fmpz_get_si(MAG_EXPREF(tmp2));
+  
+  arb_clear(tmp);
+  mag_clear(tmp2);
+  return bits;
+}
+
+static pmath_number_t parse_auto_prec(const char *str, int base, slong bit_prec) {
+  pmath_number_t result = PMATH_NULL;
+  fmpz_t mantissa;
+  fmpz_t exponent;
+  arb_t tmp;
+  slong digits;
+  
+  fmpz_init(mantissa);
+  fmpz_init(exponent);
+  arb_init(tmp);
+  
+  digits = parse_number_to_mantissa_and_exponent(mantissa, exponent, str, base);
+  if(digits < 0)
+    goto CLEANUP;
+    
+  if(bit_prec < 0) {
+    arb_set_si(tmp, digits);
+    bit_prec = bits_for_basedigits(base, tmp);
+    if(bit_prec <= DBL_MANT_DIG)
+      bit_prec = DBL_MANT_DIG;
+  }
+  
+  result = _pmath_create_mp_float((mpfr_prec_t)bit_prec);
+  if(pmath_is_null(result))
+    goto CLEANUP;
+    
+  if(fmpz_is_zero(mantissa)) {
+    arb_zero(PMATH_AS_ARB(result));
+  }
+  else if(fmpz_is_zero(exponent)) {
+    arb_set_round_fmpz(PMATH_AS_ARB(result), mantissa, bit_prec);
+  }
+  else {
+    arb_set_si(tmp, base);
+    arb_set_fmpz(PMATH_AS_ARB(result), mantissa);
+    
+    if(fmpz_sgn(exponent) > 0) {
+      arb_pow_fmpz_binexp(tmp, tmp, exponent, bit_prec + 4);
+      arb_mul(PMATH_AS_ARB(result), PMATH_AS_ARB(result), tmp, bit_prec);
+    }
+    else {
+      fmpz_neg(exponent, exponent);
+      arb_pow_fmpz_binexp(tmp, tmp, exponent, bit_prec + 4);
+      arb_div(PMATH_AS_ARB(result), PMATH_AS_ARB(result), tmp, bit_prec);
+    }
+  }
+  
+  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
+  
+CLEANUP:
+  arb_clear(tmp);
+  fmpz_clear(mantissa);
+  fmpz_clear(exponent);
+  return result;
+}
+
+static pmath_number_t to_double_if_low_prec(pmath_t number) {
+  if(!pmath_is_mpfloat(number))
+    return number;
+    
+  if(PMATH_AS_ARB_WORKING_PREC(number) <= DBL_MANT_DIG) {
+    double d = arf_get_d(arb_midref(PMATH_AS_ARB(number)), ARF_RND_NEAR);
+    if(isfinite(d)) {
+      pmath_unref(number);
+      return PMATH_FROM_DOUBLE(d);
+    }
+  }
+  
+  return number;
+}
+
 PMATH_API
 pmath_number_t pmath_float_new_str(
   const char               *str, // digits.digits
@@ -597,132 +791,36 @@ pmath_number_t pmath_float_new_str(
   pmath_precision_control_t precision_control,
   double                    base_precision_accuracy
 ) {
-  int i, len, int_digits, frac_digits;
-  double log2_base = log2(base);
-  pmath_mpfloat_t f;
-  
   if(base < 2 || base > 36)
     return PMATH_NULL;
     
-  len = (int)strlen(str);
-  
-  int_digits = 0;
-  for(i = 0; i < len && !pmath_char_is_basedigit(base, str[i]); ++i) {
-  }
-  
-  for(; i < len && str[i] != '.'; ++i)
-    ++int_digits;
-    
-  frac_digits = 0;
-  if(i < len && str[i] == '.') {
-    for(++i; i < len && pmath_char_is_basedigit(base, str[i]); ++i)
-      ++frac_digits;
-  }
-  
-  if(str[i] == '@' || str[i] == 'e' || str[i] == 'E') {
-    long exp = strtol(str + (i + 1), 0, 10);
-    
-    if(exp >= INT_MAX - int_digits)
-      return PMATH_NULL;
-      
-    if(exp <= frac_digits - INT_MAX)
-      return PMATH_NULL;
-      
-    int_digits += exp;
-    if(int_digits < 0)
-      int_digits = 0;
-      
-    frac_digits -= exp;
-    if(frac_digits < 0)
-      frac_digits = 0;
-  }
-  
-  if(precision_control == PMATH_PREC_CTRL_AUTO) {
-    if((int_digits + frac_digits) * log2_base <= DBL_MANT_DIG) {
-      precision_control = PMATH_PREC_CTRL_MACHINE_PREC;
-    }
-    else {
-      precision_control = PMATH_PREC_CTRL_GIVEN_ACC;
-      base_precision_accuracy = frac_digits;
-    }
-  }
-  
   switch(precision_control) {
-    case PMATH_PREC_CTRL_MACHINE_PREC: {
-        double x;
-        
-//        if(base == 10) {
-//          /* We use strtod() because the the formating of machine float numbers is
-//             done based on strtod to print the smallest number of fractional digits
-//             possible such that the output would produce the exact same value as
-//             input (see _pmath_write_machine_float()).
-//
-//             Example -- Why we avoid mpfr_set_str():
-//             The input 34643574574574947.427457` equals the double number
-//                       34643574574574948 and is printed as "3.464357457457495`*^16".
-//             When that string is given to MakeExpression(), this function will be
-//             called with str = "3.464357457457495e16".
-//
-//             mpfr_set_str() would generate the number 34643574574574952, but
-//             strtod() generates the value             34643574574574948, which we
-//             want.
-//           */
-//          x = pmath_strtod(str, NULL);
-//          if(isfinite(x))
-//            return PMATH_FROM_DOUBLE(x);
-//        }
-
-        f = _pmath_create_mp_float(DBL_MANT_DIG);
-        if(pmath_is_null(f))
-          return PMATH_NULL;
-          
-        mpfr_set_str(PMATH_AS_MP_VALUE(f), str, base, MPFR_RNDN);
-        
-        x = mpfr_get_d(PMATH_AS_MP_VALUE(f), MPFR_RNDN);
-        pmath_unref(f);
-        return PMATH_FROM_DOUBLE(x);
-      };
+    case PMATH_PREC_CTRL_AUTO:
+      return to_double_if_low_prec(parse_auto_prec(str, base, -1));
+      
+    case PMATH_PREC_CTRL_MACHINE_PREC:
+      return to_double_if_low_prec(parse_auto_prec(str, base, DBL_MANT_DIG));
       
     case PMATH_PREC_CTRL_GIVEN_PREC: {
-        double bits = base_precision_accuracy * log2_base;
+        slong bit_prec;
+        pmath_mpfloat_t result;
+        arb_t tmp;
+        arb_init(tmp);
         
-        if(bits >= PMATH_MP_PREC_MAX)
-          return PMATH_NULL;
-          
-        if(bits < 0)
-          bits = 0;
-          
-        f = _pmath_create_mp_float((mpfr_prec_t)ceil(bits));
-        if(pmath_is_null(f))
-          return PMATH_NULL;
-          
-        mpfr_set_str(PMATH_AS_MP_VALUE(f), str, base, MPFR_RNDN);
+        arb_set_d(tmp, base_precision_accuracy);
+        bit_prec = bits_for_basedigits(base, tmp);
+        result = parse_auto_prec(str, base, bit_prec);
         
-        return f;
-      };
+        arb_clear(tmp);
+        return result;
+      }
       
-    case PMATH_PREC_CTRL_GIVEN_ACC: {
-        double bits = (int_digits + base_precision_accuracy) * log2_base;
-        
-        if(bits >= PMATH_MP_PREC_MAX)
-          return PMATH_NULL;
-          
-        if(bits < 0)
-          bits = 0;
-          
-        f = _pmath_create_mp_float(1 + (mpfr_prec_t)ceil(bits));
-        if(pmath_is_null(f))
-          return PMATH_NULL;
-          
-        mpfr_set_str(PMATH_AS_MP_VALUE(f), str, base, MPFR_RNDN);
-        
-        return f;
-      };
-      
-    default: ;
+    // TODO: support creating an exact quotient for "infinite" precision
+    
+    case PMATH_PREC_CTRL_GIVEN_ACC: // TODO: PMATH_PREC_CTRL_GIVEN_ACC is not supported, delete it.
+    default:
+      return PMATH_NULL;
   }
-  
-  return PMATH_NULL;
 }
 
 PMATH_PRIVATE
@@ -2066,6 +2164,7 @@ PMATH_PRIVATE void _pmath_numbers_done(void) {
   int_cache_clear();
   mp_cache_clear();
   mpfr_free_cache();
+  flint_cleanup();
   gmp_randclear(_pmath_randstate);
   
 #ifdef PMATH_DEBUG_LOG

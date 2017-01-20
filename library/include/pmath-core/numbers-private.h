@@ -74,7 +74,11 @@
 #define LOG2_10   3.3219280948873623478703194294894
 #define LOG10_2   0.30102999566398119521373889472449
 
-#define PMATH_MP_PREC_MAX    1000000
+#ifdef PMATH_32BIT
+#  define PMATH_MP_PREC_MAX    0x1000000
+#else
+#  define PMATH_MP_PREC_MAX    0x1000000/*0x1000000000*/
+#endif 
 
 struct _pmath_mp_int_t {
   struct _pmath_t  inherited;
