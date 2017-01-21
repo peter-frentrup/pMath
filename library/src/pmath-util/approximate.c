@@ -32,8 +32,8 @@ double pmath_precision(pmath_t obj) { // will be freed
     slong err_prec = arb_rel_accuracy_bits(PMATH_AS_ARB(obj));
     pmath_unref(obj);
     if(err_prec > prec)
-      return prec;
-    return err_prec;
+      return (double)prec;
+    return (double)err_prec;
   }
   
   if(pmath_is_interval(obj)) {
