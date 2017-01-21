@@ -1473,7 +1473,7 @@ static void delete_trailing_zeros(char *s) {
 
 static void write_mp_float_ex(
   struct pmath_write_ex_t *info,
-  pmath_t f,
+  pmath_mpfloat_t f,
   pmath_bool_t for_machine_float
 ) {
   pmath_thread_t thread = pmath_thread_get_current();
@@ -1717,6 +1717,17 @@ static void write_mp_float_ex(
   }
   
   pmath_mem_free(str);
+  
+  if(!for_machine_float) {
+    slong max_digit_count = (slong)ceil(base_prec + 2);
+    str = arb_get_str(PMATH_AS_ARB(f), max_digit_count, 0);
+    
+    _pmath_write_cstr("/* ", info->write, info->user);
+    _pmath_write_cstr(str, info->write, info->user);
+    _pmath_write_cstr(" */", info->write, info->user);
+    
+    flint_free(str);
+  }
 }
 
 static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
