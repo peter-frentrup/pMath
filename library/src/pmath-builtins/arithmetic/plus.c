@@ -306,7 +306,7 @@ static pmath_t _add_fi(
   assert(pmath_is_mpfloat(floatA));
   assert(pmath_is_integer(intB));
   
-  result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
+  result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(floatA));
   
   if(pmath_is_null(result)) {
     pmath_unref(floatA);
@@ -315,76 +315,24 @@ static pmath_t _add_fi(
   }
   
   if(pmath_is_int32(intB)) {
-    mpfr_add_si(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(floatA),
-      PMATH_AS_INT32(intB),
-      _pmath_current_rounding_mode());
+    arb_add_si(PMATH_AS_ARB(result), PMATH_AS_ARB(floatA), PMATH_AS_INT32(intB), PMATH_AS_ARB_WORKING_PREC(result));
   }
   else {
+    fmpz_t tmpB;
     assert(pmath_is_mpint(intB));
     
-    mpfr_add_z(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(floatA),
-      PMATH_AS_MPZ(intB),
-      _pmath_current_rounding_mode());
-      
+    fmpz_init(tmpB);
+    fmpz_set_mpz(tmpB, PMATH_AS_MPZ(intB));
+    
+    arb_add_fmpz(PMATH_AS_ARB(result), PMATH_AS_ARB(floatA), tmpB, PMATH_AS_ARB_WORKING_PREC(result));
+    
+    fmpz_clear(tmpB);
     pmath_unref(intB);
   }
   
+  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
+  
   pmath_unref(floatA);
-  return _pmath_float_exceptions(result);
-}
-
-static pmath_t _add_fq(
-  pmath_mpfloat_t  floatA, // will be freed. not PMATH_NULL!
-  pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
-) {
-  pmath_mpfloat_t result;
-  mpq_t mpQuotB;
-  
-  assert(pmath_is_mpfloat(floatA));
-  assert(pmath_is_quotient(quotB));
-  
-  result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)));
-  if(pmath_is_null(result)) {
-    pmath_unref(result);
-    pmath_unref(floatA);
-    pmath_unref(quotB);
-    return PMATH_NULL;
-  }
-  
-  mpq_init(mpQuotB);
-  
-  if(pmath_is_int32(PMATH_QUOT_NUM(quotB))) {
-    mpz_set_si(mpq_numref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_NUM(quotB)));
-  }
-  else {
-    assert(pmath_is_mpint(PMATH_QUOT_NUM(quotB)));
-    
-    mpz_set(mpq_numref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_NUM(quotB)));
-  }
-  
-  if(pmath_is_int32(PMATH_QUOT_DEN(quotB))) {
-    mpz_set_si(mpq_denref(mpQuotB), PMATH_AS_INT32(PMATH_QUOT_DEN(quotB)));
-  }
-  else {
-    assert(pmath_is_mpint(PMATH_QUOT_DEN(quotB)));
-    
-    mpz_set(mpq_denref(mpQuotB), PMATH_AS_MPZ(PMATH_QUOT_DEN(quotB)));
-  }
-  
-  mpfr_add_q(
-    PMATH_AS_MP_VALUE(result),
-    PMATH_AS_MP_VALUE(floatA),
-    mpQuotB,
-    _pmath_current_rounding_mode());
-    
-  pmath_unref(floatA);
-  pmath_unref(quotB);
-  mpq_clear(mpQuotB);
-  
   return _pmath_float_exceptions(result);
 }
 
@@ -393,14 +341,12 @@ static pmath_t _add_ff(
   pmath_mpfloat_t floatB  // will be freed. not PMATH_NULL!
 ) {
   pmath_mpfloat_t result;
-  mpfr_prec_t prec;
+  slong prec;
   
   assert(pmath_is_mpfloat(floatA));
   assert(pmath_is_mpfloat(floatB));
   
-  prec = min_prec(mpfr_get_prec(PMATH_AS_MP_VALUE(floatA)),
-                  mpfr_get_prec(PMATH_AS_MP_VALUE(floatB)));
-                  
+  prec = FLINT_MAX(PMATH_AS_ARB_WORKING_PREC(floatA), PMATH_AS_ARB_WORKING_PREC(floatB));
   result = _pmath_create_mp_float(prec);
   if(pmath_is_null(result)) {
     pmath_unref(floatA);
@@ -408,15 +354,30 @@ static pmath_t _add_ff(
     return PMATH_NULL;
   }
   
-  mpfr_add(
-    PMATH_AS_MP_VALUE(result),
-    PMATH_AS_MP_VALUE(floatA),
-    PMATH_AS_MP_VALUE(floatB),
-    _pmath_current_rounding_mode());
+  arb_add(PMATH_AS_ARB(result), PMATH_AS_ARB(floatA), PMATH_AS_ARB(floatB), prec);
+  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
     
   pmath_unref(floatA);
   pmath_unref(floatB);
   return _pmath_float_exceptions(result);
+}
+
+static pmath_t _add_fq(
+  pmath_mpfloat_t  floatA, // will be freed. not PMATH_NULL!
+  pmath_quotient_t quotB   // will be freed. not PMATH_NULL!
+) {
+  pmath_mpfloat_t floatB;
+  
+  assert(pmath_is_mpfloat(floatA));
+  assert(pmath_is_quotient(quotB));
+  
+  floatB = _pmath_create_mp_float_from_q(quotB, PMATH_AS_ARB_WORKING_PREC(floatA));
+  if(pmath_is_null(floatB)) {
+    pmath_unref(floatA);
+    return PMATH_NULL;
+  }
+  
+  return _add_ff(floatA, floatB);
 }
 
 static pmath_t _add_mi(
