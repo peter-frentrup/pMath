@@ -90,13 +90,13 @@ pmath_bool_t _pmath_complex_float_extract_acb(
   pmath_t       complex);
 
 /** \brief Create a floating point real or complex number object from an Arb complex ball.
-    \param value A valid Arb complex ball.
-    \param prec The working precision or a newgative value to get machine floating point numbers.
+    \param value           A valid Arb complex ball.
+    \param prec_or_double The working precision or a negative value to get machine floating point numbers.
     \return A new pMath object.
  */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec);
+pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec_or_double);
   
 PMATH_PRIVATE
 void _pmath_split_summand(

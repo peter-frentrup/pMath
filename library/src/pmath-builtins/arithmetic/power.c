@@ -696,7 +696,14 @@ static pmath_bool_t number_contains_zero(pmath_t x) {
     return PMATH_AS_DOUBLE(x) == 0;
   if(pmath_is_mpfloat(x))
     return arb_contains_zero(PMATH_AS_ARB(x));
-  // TODO: complex
+  if(pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+    pmath_t re = pmath_expr_get_item(x, 1);
+    pmath_t im = pmath_expr_get_item(x, 2);
+    pmath_bool_t zero = number_contains_zero(re) && number_contains_zero(im);
+    pmath_unref(re);
+    pmath_unref(im);
+    return zero;
+  }
   return FALSE;
 }
 
@@ -1018,6 +1025,9 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
 // assuming that exponent is non-integer
 static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
   pmath_t base = pmath_expr_get_item(*expr, 1);
+  acb_t z;
+  slong precision;
+  pmath_bool_t is_machine_precision;
   
   if(number_contains_zero(base)) {
     if(fmpq_sgn(exponent) <= 0) { // 0 cannot happen for non-integer exponent. TODO: return interval?
@@ -1103,6 +1113,34 @@ static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
     pmath_unref(root_factor);
     pmath_unref(rest_factor);
   }
+  
+  if(pmath_is_double(base)) {
+    double exp = fmpz_get_d(fmpq_numref(exponent)) / fmpz_get_d(fmpq_denref(exponent));
+    double d = pow(PMATH_AS_DOUBLE(base), exp);
+    if(isfinite(d)) {
+      pmath_unref(base);
+      pmath_unref(*expr);
+      *expr = PMATH_FROM_DOUBLE(d);
+      return TRUE;
+    }
+  }
+  
+  acb_init(z);
+  if(_pmath_complex_float_extract_acb(z, &precision, &is_machine_precision, base)) {
+    arb_t exp;
+    arb_init(exp);
+    
+    arb_set_fmpq(exp, exponent, precision);
+    acb_pow_arb(z, z, exp, precision);
+    arb_clear(exp);
+    acb_clear(z);
+    
+    pmath_unref(base);
+    pmath_unref(*expr);
+    *expr = _pmath_complex_new_from_acb(z, is_machine_precision ? -1 : precision);
+    return TRUE; 
+  }
+  acb_clear(z);
   
   // TODO: exact complex base
   
