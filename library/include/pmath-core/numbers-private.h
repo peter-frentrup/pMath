@@ -22,10 +22,12 @@
 #    pragma warning(disable: 4244)
 #    include <gmp.h>
 #    include <arb.h>
+#    include <acb.h>
 #  pragma warning(pop)
 #else
 #  include <gmp.h>
 #  include <arb.h>
+#  include <acb.h>
 #endif // _MSC_VER
 
 #include <mpfr.h>
@@ -144,10 +146,19 @@ pmath_mpint_t _pmath_create_mp_int(signed long value);
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_quotient_t_ *
+pmath_integer_t _pmath_integer_from_fmpz(fmpz_t integer);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+// struct _pmath_quotient_t_ *
 pmath_quotient_t _pmath_create_quotient(
   pmath_integer_t numerator,    // will be freed; must not be divisible by denominator and must not be 0
   pmath_integer_t denominator); // will be freed; must be > 1
 
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_rational_t _pmath_rational_from_fmpq(fmpq_t rational);
+  
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 //struct _pmath_mp_float_t *
@@ -198,7 +209,7 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_mpfloat_call(
   pmath_mpfloat_t   arg,  // will be freed
-  int             (*func)(mpfr_ptr, mpfr_srcptr,mpfr_rnd_t));
+  int             (*func)(mpfr_ptr, mpfr_srcptr, mpfr_rnd_t));
 
 // returns pmath_thread_current()->mp_rounding_mode; and MPFR_RNDN on error.
 PMATH_PRIVATE
@@ -206,6 +217,28 @@ mpfr_rnd_t _pmath_current_rounding_mode(void);
 
 PMATH_PRIVATE
 pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t f);
+
+/** \brief Copy a pMath integer to a FLINT integer.
+    \param result  An initialized FLINT integer reference to take the value.
+    \param integer An integer object, mnust not be PMATH_NULL.
+ */
+PMATH_PRIVATE
+void _pmath_integer_get_fmpz(fmpz_t result, pmath_integer_t integer);
+
+/** \brief Copy a pMath rational to a FLINT quotient.
+    \param result  An initialized FLINT quotient reference to take the value.
+    \param rational An integer or quotient object, mnust not be PMATH_NULL.
+ */
+PMATH_PRIVATE
+void _pmath_rational_get_fmpq(fmpq_t result, pmath_rational_t rational);
+
+/** \brief Copy a pMath number to an Arb real ball.
+    \param result  An initialized Arb real ball reference to take the value.
+    \param real An number object, must not be PMATH_NULL.
+    \param precision The precision to use for approximating quotients.
+ */
+PMATH_PRIVATE
+void _pmath_number_get_arb(arb_t result, pmath_number_t real, slong precision);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT

@@ -126,6 +126,26 @@ PMATH_PRIVATE pmath_mpint_t _pmath_create_mp_int(signed long value) {
   return PMATH_FROM_PTR(integer);
 }
 
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+// struct _pmath_quotient_t_ *
+pmath_integer_t _pmath_integer_from_fmpz(fmpz_t integer) {
+  pmath_mpint_t result;
+  
+  if( fmpz_cmp_si(integer, MAXINT32) <= 0 &&
+      fmpz_cmp_si(integer, MININT32) >= 0
+  ) {
+    slong value = fmpz_get_si(integer);
+    return PMATH_FROM_INT32((int32_t)value);
+  }
+  
+  result = _pmath_create_mp_int(0);
+  if(!pmath_is_null(result)) 
+    fmpz_get_mpz(PMATH_AS_MPZ(result), integer);
+  
+  return result;
+}
+
 //} ============================================================================
 //{ creating quotients ...
 
@@ -156,6 +176,17 @@ PMATH_PRIVATE pmath_quotient_t _pmath_create_quotient(
   return PMATH_FROM_PTR(quotient);
 }
 
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_rational_t _pmath_rational_from_fmpq(fmpq_t rational) {
+  if(fmpz_is_one(fmpq_denref(rational))) 
+    return _pmath_integer_from_fmpz(fmpq_numref(rational));
+  
+  return _pmath_create_quotient(
+    _pmath_integer_from_fmpz(fmpq_numref(rational)),
+    _pmath_integer_from_fmpz(fmpq_denref(rational)));
+}
+  
 //} ============================================================================
 //{ caching unused mp floats ...
 
@@ -875,7 +906,6 @@ pmath_t _pmath_float_exceptions(
 }
 
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_mpfloat_call(
   pmath_mpfloat_t   arg,  // will be freed
   int             (*func)(mpfr_ptr, mpfr_srcptr, mpfr_rnd_t)
@@ -1050,6 +1080,65 @@ PMATH_API double pmath_number_get_d(pmath_number_t number) {
   
   assert("invalid number type" && 0);
   return 0.0;
+}
+
+PMATH_PRIVATE
+void _pmath_integer_get_fmpz(fmpz_t result, pmath_integer_t integer) {
+  if(pmath_is_int32(integer)) {
+    fmpz_set_si(result, PMATH_AS_INT32(integer));
+    return;
+  }
+  
+  assert(pmath_is_mpint(integer));
+  fmpz_set_mpz(result, PMATH_AS_MPZ(integer));
+}
+
+PMATH_PRIVATE
+void _pmath_rational_get_fmpq(fmpq_t result, pmath_rational_t rational) {
+  if(pmath_is_quotient(rational)) {
+    _pmath_integer_get_fmpz(fmpq_numref(result), PMATH_QUOT_NUM(rational));
+    _pmath_integer_get_fmpz(fmpq_denref(result), PMATH_QUOT_DEN(rational));
+    return;
+  }
+  
+  assert(pmath_is_integer(rational));
+  _pmath_integer_get_fmpz(fmpq_numref(result), rational);
+  fmpz_set_ui(fmpq_denref(result), 1);
+}
+
+PMATH_PRIVATE
+void _pmath_number_get_arb(arb_t result, pmath_number_t real, slong precision) {
+  if(pmath_is_int32(real)) {
+    arb_set_si(result, PMATH_AS_INT32(real));
+    return;
+  }
+  
+  if(pmath_is_mpint(real)) {
+    fmpz_t tmp;
+    fmpz_init(tmp);
+    fmpz_set_mpz(tmp, PMATH_AS_MPZ(real));
+    arb_set_fmpz(result, tmp);
+    fmpz_clear(tmp);
+    return;
+  }
+  
+  if(pmath_is_quotient(real)) {
+    fmpq_t tmp;
+    fmpq_init(tmp);
+    _pmath_integer_get_fmpz(fmpq_numref(tmp), PMATH_QUOT_NUM(real));
+    _pmath_integer_get_fmpz(fmpq_denref(tmp), PMATH_QUOT_DEN(real));
+    arb_set_fmpq(result, tmp, precision);
+    fmpq_clear(tmp);
+    return;
+  }
+  
+  if(pmath_is_double(real)) {
+    arb_set_d(result, PMATH_AS_DOUBLE(real));
+    return;
+  }
+  
+  assert(pmath_is_mpfloat(real));
+  arb_set(result, PMATH_AS_ARB(real));
 }
 
 //} ============================================================================

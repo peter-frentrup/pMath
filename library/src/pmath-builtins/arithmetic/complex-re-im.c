@@ -405,6 +405,98 @@ pmath_bool_t _pmath_is_nonreal_complex_interval_or_number(pmath_t z) {
   return FALSE;
 }
 
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_float_extract_acb(
+  acb_t         result, 
+  slong        *precision, 
+  pmath_bool_t *is_machine_prec, 
+  pmath_t       complex
+) {
+  if(pmath_is_double(complex)) {
+    _pmath_number_get_arb(acb_realref(result), complex, DBL_MANT_DIG);
+    arb_set_ui(acb_imagref(result), 0);
+  
+    if(precision) *precision = DBL_MANT_DIG;
+    if(precision) *is_machine_prec = TRUE;
+    
+    return TRUE;
+  }
+  
+  if(pmath_is_mpfloat(complex)) {
+    _pmath_number_get_arb(acb_realref(result), complex, PMATH_AS_ARB_WORKING_PREC(complex));
+    arb_set_ui(acb_imagref(result), 0);
+  
+    if(precision) *precision = PMATH_AS_ARB_WORKING_PREC(complex);
+    if(precision) *is_machine_prec = FALSE;
+    
+    return TRUE;
+  }
+  
+  if(pmath_is_expr_of_len(complex, PMATH_SYMBOL_COMPLEX, 2)) {
+    pmath_t re = pmath_expr_get_item(complex, 1);
+    pmath_t im = pmath_expr_get_item(complex, 2);
+    
+    if(pmath_is_float(re) || pmath_is_float(im)) {
+      slong prec = 0;
+      if(pmath_is_double(re))       prec = DBL_MANT_DIG;
+      else if(pmath_is_mpfloat(re)) prec = PMATH_AS_ARB_WORKING_PREC(re);
+      
+      if(pmath_is_double(im))       prec = FLINT_MAX(prec, DBL_MANT_DIG);
+      else if(pmath_is_mpfloat(im)) prec = FLINT_MAX(prec, PMATH_AS_ARB_WORKING_PREC(im));
+      
+      if(prec == 0) {
+        pmath_unref(re);
+        pmath_unref(im);
+        return FALSE;
+      }
+      
+      _pmath_number_get_arb(acb_realref(result), re, prec);
+      _pmath_number_get_arb(acb_imagref(result), im, prec);
+      
+      if(precision) *precision = prec;
+      if(precision) *is_machine_prec = pmath_is_double(re) || pmath_is_double(im);
+      
+      pmath_unref(re);
+      pmath_unref(im);
+      
+      return TRUE;
+    }
+    
+    pmath_unref(re);
+    pmath_unref(im);
+  }
+  
+  return FALSE;
+}
+
+static pmath_float_t new_float_from_arb(const arb_t value, slong prec) {
+  pmath_mpfloat_t result;
+  
+  if(prec < 0) {
+    double d = arf_get_d(arb_midref(value), ARF_RND_NEAR);
+    if(isfinite(d))
+      return PMATH_FROM_DOUBLE(d);
+    
+    prec = DBL_MANT_DIG;
+  }
+  
+  result = _pmath_create_mp_float((mpfr_prec_t)prec);
+  if(!pmath_is_null(result)) {
+    arb_set(PMATH_AS_ARB(result), value, prec);
+    arf_get_mpfr(PMATH_AS_MP_VALUE(result), value, MPFR_RNDN);
+  }
+  return result;
+}
+
+PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb(acb_t value, slong prec) {
+  if(acb_is_real(value)) 
+    return new_float_from_arb(acb_realref(value), prec);
+  
+  return COMPLEX(
+    new_float_from_arb(acb_realref(value), prec),
+    new_float_from_arb(acb_imagref(value), prec));
+}
+
 PMATH_PRIVATE pmath_t builtin_complex(pmath_expr_t expr) {
   pmath_t x;
   if(pmath_expr_length(expr) != 2) {

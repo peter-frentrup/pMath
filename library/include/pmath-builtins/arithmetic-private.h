@@ -27,12 +27,6 @@ pmath_number_t _mul_nn(
   pmath_number_t numB);  // will be freed.
 
 PMATH_PRIVATE
-pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
-  pmath_mpfloat_t base,  // will be freed. not PMATH_NULL!
-  long            exponent,
-  pmath_bool_t    null_on_errors);
-  
-PMATH_PRIVATE
 pmath_integer_t _pmath_factor_gcd_int(
   pmath_integer_t *a,   // not PMATH_NULL!  never PMATH_NULL on output
   pmath_integer_t *b);  // not PMATH_NULL!  never PMATH_NULL on output
@@ -81,25 +75,34 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(
   pmath_t *z);
 
+/** \brief Convert a real or complex number to an Arb complex ball.
+    \param result          An initialized Arb complex ball reference to take the value.
+    \param precision       Pointer to an slong taking the working precision of \a complex.
+    \param is_machine_prec Pointer to a boolean taking whether \a complex is machine precision.
+    \param complex         A real or complex number.
+    \return Whether the conversion was successfull.
+ */
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_float_extract_acb(
+  acb_t         result, 
+  slong        *precision, 
+  pmath_bool_t *is_machine_prec, 
+  pmath_t       complex);
+
+/** \brief Create a floating point real or complex number object from an Arb complex ball.
+    \param value A valid Arb complex ball.
+    \param prec The working precision or a newgative value to get machine floating point numbers.
+    \return A new pMath object.
+ */
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec);
+  
 PMATH_PRIVATE
 void _pmath_split_summand(
   pmath_t  summand,         // wont be freed
   pmath_t *out_num_factor,  // may also become a complex number
   pmath_t *out_rest);
-
-
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t _pmath_equals_rational(
-  pmath_t obj,       // wont be freed
-  int n, int d);
-
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t _pmath_equals_rational_at(
-  pmath_expr_t expr,  // wont be freed
-  size_t i,
-  int n, int d);
 
 
 PMATH_PRIVATE
