@@ -1,0 +1,4 @@
+
+AssertEqual( 16^^3e.ad961ed0cb92`.InputForm.ToString.ToExpression, 16^^3e.ad961ed0cb92` )
+
+AssertEqual( 16^^21.3822cbd80c4e`.InputForm.ToString.ToExpression, 16^^21.3822cbd80c4e` )
