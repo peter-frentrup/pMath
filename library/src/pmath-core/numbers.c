@@ -129,7 +129,7 @@ PMATH_PRIVATE pmath_mpint_t _pmath_create_mp_int(signed long value) {
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_quotient_t_ *
-pmath_integer_t _pmath_integer_from_fmpz(fmpz_t integer) {
+pmath_integer_t _pmath_integer_from_fmpz(const fmpz_t integer) {
   pmath_mpint_t result;
   
   if( fmpz_cmp_si(integer, _I32_MAX) <= 0 &&
@@ -178,7 +178,7 @@ PMATH_PRIVATE pmath_quotient_t _pmath_create_quotient(
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_rational_t _pmath_rational_from_fmpq(fmpq_t rational) {
+pmath_rational_t _pmath_rational_from_fmpq(const fmpq_t rational) {
   if(fmpz_is_one(fmpq_denref(rational))) 
     return _pmath_integer_from_fmpz(fmpq_numref(rational));
   

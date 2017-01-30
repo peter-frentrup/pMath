@@ -15,103 +15,6 @@
 #include <limits.h> // LONG_MAX
 
 
-static void _mpfi_pow_si(mpfi_ptr result, mpfi_srcptr base, long exponent) {
-  pmath_bool_t has_zero = mpfi_has_zero(base);
-  
-  if(mpfi_nan_p(base)) {
-    mpfr_set_nan(&result->left);
-    mpfr_set_nan(&result->right);
-    return;
-  }
-  
-  if(exponent > 0) {
-    if(exponent & 1) { // positive odd, hence increasing
-      mpfr_pow_si(&result->left,  &base->left,  exponent, MPFR_RNDD);
-      mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDU);
-    }
-    else { // even
-      if( !mpfr_nan_p(&base->left) && !mpfr_nan_p(&base->right)) {
-        if(mpfr_cmpabs(&base->left, &base->right) < 0) {
-          mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDU);
-          if(has_zero) {
-            mpfr_set_ui(&result->left, 0, MPFR_RNDD);
-          }
-          else {
-            mpfr_pow_si(&result->left, &base->left, exponent, MPFR_RNDD);
-          }
-        }
-        else {
-          // should go to right, but that might alias base.right, we swap later
-          mpfr_pow_si(&result->left, &base->left, exponent, MPFR_RNDU);
-          if(has_zero) {
-            // should go to left, but that might alias base.left, we swap later
-            mpfr_set_ui(&result->right, 0, MPFR_RNDD);
-          }
-          else {
-            // should go to left, but that might alias base.left, we swap later
-            mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
-          }
-          
-          mpfr_swap(&result->left, &result->right);
-        }
-      }
-    }
-  }
-  else if(exponent == 0) {
-    mpfi_set_ui(result, 1);
-    if(has_zero) {
-      // TODO: what should RealInterval(0,0)^0 yield? Indeterminate like 0^0, or RealInterval(0,1) ?
-      mpfi_put_ui(result, 0);
-    }
-  }
-  else { // exponent < 0
-    if(has_zero) {
-      if(mpfi_is_zero(base)) {
-        // TODO: what should RealInterval(0,0)^-n yield? Indeterminate like 0^-n, or RealInterval(-Infinity,Infinity) ?
-        mpfr_set_inf(&result->left, -1);
-        mpfr_set_inf(&result->right, 1);
-        return;
-      }
-      
-      if(!mpfi_is_nonneg(base) && !mpfi_is_nonpos(base)) { // base contains negative and positive numbers
-        mpfr_set_inf(&result->left, -1);
-        mpfr_set_inf(&result->right, 1);
-        return;
-      }
-    }
-    
-    if(exponent & 1) { // negative odd, hence decreasing
-      // should go to right, but that might alias base.right, we swap later
-      mpfr_pow_si(&result->left, &base->left, exponent, MPFR_RNDU);
-      
-      // should go to left, but that might alias base.left, we swap later
-      mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
-      
-      mpfr_swap(&result->left, &result->right);
-    }
-    else { // even
-      if(mpfr_sgn(&result->left) >= 0) { // right of zero, hence decreasing
-        // should go to right, but that might alias base.right, we swap later
-        mpfr_pow_si(&result->left, &base->left, exponent, MPFR_RNDU);
-        
-        // should go to left, but that might alias base.left, we swap later
-        mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDD);
-        
-        mpfr_swap(&result->left, &result->right);
-      }
-      else { // left of zero, hence increasing
-        mpfr_pow_si(&result->left,  &base->left,  exponent, MPFR_RNDD);
-        mpfr_pow_si(&result->right, &base->right, exponent, MPFR_RNDU);
-      }
-    }
-  }
-  
-  // MPFI convention: Do not allow +0 as upper bound.
-  if(mpfr_zero_p(&result->right) && !mpfr_signbit(&result->right)) {
-    mpfr_neg(&result->right, &result->right, MPFR_RNDD);
-  }
-}
-
 static void _mpfi_fr_pow(mpfi_ptr result, mpfr_srcptr base, mpfi_srcptr exponent) {
   int cmp_1;
   mpfr_t inf;
@@ -217,23 +120,6 @@ static void _mpfi_pow(mpfi_ptr result, mpfi_srcptr base, mpfi_srcptr exponent) {
     mpfi_union(result, result, tmp);
     mpfi_clear(tmp);
   }
-}
-
-static pmath_t _pow_Ri(
-  pmath_interval_t base,  // will be freed. not PMATH_NULL!
-  long             exponent
-) {
-  pmath_bool_t has_zero = mpfi_has_zero(PMATH_AS_MP_INTERVAL(base));
-  pmath_interval_t result = _pmath_create_interval_for_result(base);
-  if(pmath_is_null(result)) {
-    pmath_unref(base);
-    return result;
-  }
-  
-  _mpfi_pow_si(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(base), exponent);
-  
-  pmath_unref(base);
-  return result;
 }
 
 static pmath_t _pow_RR(
@@ -524,41 +410,109 @@ static pmath_rational_t factor_complex(pmath_expr_t *z) {
   return INT(1);
 }
 
-static void integer_root(fmpz_t root, fmpz_t remainder, const fmpz_t base, ulong radix) {
+/** calculate (base^(1/radix))^exponent assuming gcd(exponent, radix) == 1 and exponent > 0 */
+static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t exponent) {
   fmpz_factor_t factors;
   fmpz_t tmp;
+  fmpz_t root;
+  fmpz_t reduced_exp;
+  pmath_t result;
   slong i;
   
+  assert(fmpz_sgn(exponent) > 0);
   assert(radix > 0);
-  if(radix == 1) {
-    fmpz_set(root, base);
-    fmpz_set_ui(remainder, 1);
-    return;
-  }
+  if(radix == 1)
+    return _pmath_integer_from_fmpz(base);
+    
+  pmath_gather_begin(PMATH_NULL); // gather remaining factors
   
   fmpz_factor_init(factors);
   fmpz_init(tmp);
+  fmpz_init(root);
+  fmpz_init(reduced_exp);
   fmpz_factor(factors, base);
   
-  fmpz_set_si(remainder, factors->sign);
+  if(fmpz_cmp_ui(exponent, radix) > 0) {
+    pmath_t factor;
+    fmpz_set_ui(tmp, radix);
+    fmpz_tdiv_qr(tmp, reduced_exp, exponent, tmp);
+    if(fmpz_fits_si(tmp)) {
+      fmpz_pow_ui(tmp, base, fmpz_get_ui(tmp));
+      factor = _pmath_integer_from_fmpz(tmp);
+    }
+    else
+      factor = POW(_pmath_integer_from_fmpz(base), _pmath_integer_from_fmpz(tmp));
+    
+    pmath_emit(factor, PMATH_NULL);
+  }
+  else
+    fmpz_set(reduced_exp, exponent);
+  
+  if(fmpz_sgn(base) < 0) {
+    pmath_t factor;
+    if(radix == 2) {
+      factor = COMPLEX(INT(0), INT(1));
+    }
+    else {
+      factor = POW(INT(-1),
+                   pmath_rational_new(
+                     _pmath_integer_from_fmpz(reduced_exp),
+                     pmath_integer_new_uiptr(radix)));
+    }
+    pmath_emit(factor, PMATH_NULL);
+  }
+  
   fmpz_set_ui(root, 1);
   for(i = 0; i < factors->num; ++i) {
     ulong q = factors->exp[i] / radix;
     ulong r = factors->exp[i] % radix;
     
-    if(q != 0) {
+    if(q > 0) {
       fmpz_pow_ui(tmp, &factors->p[i], q);
       fmpz_mul(root, root, tmp);
     }
-    
-    if(r != 0) {
-      fmpz_pow_ui(tmp, &factors->p[i], r);
-      fmpz_mul(remainder, remainder, tmp);
+    if(r > 0) {
+      pmath_t factor;
+      fmpz_mul_ui(tmp, reduced_exp, r);
+      factor = POW(
+                 _pmath_integer_from_fmpz(&factors->p[i]),
+                 pmath_rational_new(
+                   _pmath_integer_from_fmpz(tmp),
+                   pmath_integer_new_uiptr(radix)));
+      pmath_emit(factor, PMATH_NULL);
     }
   }
   
+  if(!fmpz_is_one(root)) {
+    pmath_t factor;
+    if(fmpz_fits_si(reduced_exp)) {
+      fmpz_pow_ui(root, root, fmpz_get_ui(reduced_exp));
+      factor = _pmath_integer_from_fmpz(root);
+    }
+    else
+      factor = POW(_pmath_integer_from_fmpz(root), _pmath_integer_from_fmpz(reduced_exp));
+    pmath_emit(factor, PMATH_NULL);
+  }
+  
+  result = pmath_gather_end();
+  if(pmath_expr_length(result) == 0) {
+    pmath_unref(result);
+    result = INT(1);
+  }
+  else if(pmath_expr_length(result) == 1) {
+    pmath_t factor = pmath_expr_get_item(result, 1);
+    pmath_unref(result);
+    result = factor;
+  }
+  else
+    result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_TIMES));
+  
+  fmpz_clear(reduced_exp);
+  fmpz_clear(root);
   fmpz_clear(tmp);
   fmpz_factor_clear(factors);
+  
+  return result;
 }
 
 static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
@@ -1022,6 +976,30 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
   return FALSE;
 }
 
+static pmath_bool_t is_rational_power(pmath_t expr, fmpq_t exponent) {
+  pmath_t exp;
+  fmpq_t exp_q;
+  
+  if(!pmath_is_expr_of_len(expr, PMATH_SYMBOL_POWER, 2))
+    return FALSE;
+    
+  exp = pmath_expr_get_item(expr, 2);
+  if(!pmath_is_rational(exp)) {
+    pmath_unref(exp);
+    return FALSE;
+  }
+  
+  fmpq_init(exp_q);
+  _pmath_rational_get_fmpq(exp_q, exp);
+  pmath_unref(exp);
+  if(!fmpq_equal(exp_q, exponent)) {
+    fmpq_clear(exp_q);
+    return FALSE;
+  }
+  fmpq_clear(exp_q);
+  return TRUE;
+}
+
 // assuming that exponent is non-integer
 static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
   pmath_t base = pmath_expr_get_item(*expr, 1);
@@ -1042,92 +1020,140 @@ static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
       fmpz_fits_si(fmpq_denref(exponent)) &&
       fmpz_sgn(fmpq_denref(exponent)) > 0)
   {
-    fmpq_t quot;
-    fmpq_t root;
-    fmpq_t remainder;
-    fmpz_t exp_int;
-    fmpz_t exp_rem;
     ulong radix = fmpz_get_ui(fmpq_denref(exponent));
-    slong exp_rem_si;
-    pmath_t int_factor, root_factor, rest_factor;
+    pmath_t root_num;
+    pmath_t root_den;
+    fmpq_t base_quot;
+    fmpz_t exp;
     
-    fmpq_init(quot);
-    fmpq_init(root);
-    fmpq_init(remainder);
-    fmpz_init(exp_int);
-    fmpz_init(exp_rem);
-    fmpz_tdiv_qr(exp_int, exp_rem, fmpq_numref(exponent), fmpq_denref(exponent));
-    exp_rem_si = fmpz_get_si(exp_rem);
-    
-    _pmath_rational_get_fmpq(quot, base);
-    integer_root(fmpq_numref(root), fmpq_numref(remainder), fmpq_numref(quot), radix);
-    integer_root(fmpq_denref(root), fmpq_denref(remainder), fmpq_denref(quot), radix);
-    fmpq_canonicalise(root);
-    fmpq_canonicalise(remainder);
-    
-    if(fmpz_fits_si(exp_int)) {
-      fmpq_pow_si(quot, quot, fmpz_get_si(exp_int));
-      fmpz_set_ui(exp_int, 1);
+    fmpz_init(exp);
+    fmpz_abs(exp, fmpq_numref(exponent));
+    fmpq_init(base_quot);
+    _pmath_rational_get_fmpq(base_quot, base);
+    if(fmpq_sgn(exponent) > 0) {
+      root_num = integer_root(fmpq_numref(base_quot), radix, exp);
+      root_den = integer_root(fmpq_denref(base_quot), radix, exp);
     }
-    
-    int_factor = _pmath_rational_from_fmpq(quot);
-    if(!fmpz_is_one(exp_int))
-      int_factor = POW(int_factor, _pmath_integer_from_fmpz(exp_int));
-    
-    fmpq_pow_si(root, root, exp_rem_si);
-    if(fmpz_is_one(exp_int)) {
-      pmath_unref(int_factor);
-      int_factor = PMATH_FROM_INT32(1);
-      fmpq_mul(root, root, quot);
+    else {
+      root_den = integer_root(fmpq_numref(base_quot), radix, exp);
+      root_num = integer_root(fmpq_denref(base_quot), radix, exp);
     }
-    root_factor = _pmath_rational_from_fmpq(root);
+    fmpq_clear(base_quot);
+    fmpz_clear(exp);
     
-    rest_factor = _pmath_rational_from_fmpq(remainder);
-    if(!pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
-      if(fmpq_sgn(remainder) < 0) {
-        root_factor = COMPLEX(INT(0), root_factor);
-        rest_factor = pmath_number_neg(rest_factor);
-      }
-      if(!pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
-        rest_factor = POW(
-          rest_factor, 
-          pmath_rational_new(
-            pmath_integer_new_siptr(exp_rem_si),
-            pmath_integer_new_uiptr(radix)));
+    if(pmath_same(root_den, PMATH_FROM_INT32(1))) {
+      if(!is_rational_power(root_num, exponent)) {
+        pmath_unref(base);
+        pmath_unref(*expr);
+        *expr = root_num;
+        return TRUE;
       }
     }
-    
-    fmpz_clear(exp_rem);
-    fmpz_clear(exp_int);
-    fmpq_clear(remainder);
-    fmpq_clear(root);
-    fmpq_clear(quot);
-    
-    if(!pmath_same(int_factor, PMATH_FROM_INT32(1)) || !pmath_same(root_factor, PMATH_FROM_INT32(1))) {
+    else if(pmath_is_integer(root_num) && pmath_is_integer(root_den)) {
       pmath_unref(base);
       pmath_unref(*expr);
-      if(pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
-        if(pmath_same(int_factor, PMATH_FROM_INT32(1)))
-          *expr = root_factor;
-        else if(pmath_same(root_factor, PMATH_FROM_INT32(1)))
-          *expr = int_factor;
-        else
-          *expr = TIMES(int_factor, root_factor);
-      }
-      else {
-        if(pmath_same(int_factor, PMATH_FROM_INT32(1)))
-          *expr = TIMES(root_factor, rest_factor);
-        else if(pmath_same(root_factor, PMATH_FROM_INT32(1)))
-          *expr = TIMES(int_factor, rest_factor);
-        else
-          *expr = TIMES3(int_factor, root_factor, rest_factor);
-      }
+      *expr = pmath_rational_new(root_num, root_den);
+      return TRUE;
+    }
+    else if( !is_rational_power(root_num, exponent) ||
+             !is_rational_power(root_den, exponent))
+    {
+      pmath_unref(base);
+      pmath_unref(*expr);
+      *expr = DIV(root_num, root_den);
       return TRUE;
     }
     
-    pmath_unref(int_factor);
-    pmath_unref(root_factor);
-    pmath_unref(rest_factor);
+    pmath_unref(root_num);
+    pmath_unref(root_den);
+//    fmpq_t quot;
+//    fmpq_t root;
+//    fmpq_t remainder;
+//    fmpz_t exp_int;
+//    fmpz_t exp_rem;
+//
+//    slong exp_rem_si;
+//    pmath_t int_factor, root_factor, rest_factor;
+//
+//    fmpq_init(quot);
+//    fmpq_init(root);
+//    fmpq_init(remainder);
+//    fmpz_init(exp_int);
+//    fmpz_init(exp_rem);
+//    fmpz_tdiv_qr(exp_int, exp_rem, fmpq_numref(exponent), fmpq_denref(exponent));
+//    exp_rem_si = fmpz_get_si(exp_rem);
+//
+//    // TODO: simplify 4^(1/4) = 2^(1/2)
+//
+//    _pmath_rational_get_fmpq(quot, base);
+//    simplify_integer_root(fmpq_numref(root), fmpq_numref(remainder), fmpq_numref(quot), radix);
+//    simplify_integer_root(fmpq_denref(root), fmpq_denref(remainder), fmpq_denref(quot), radix);
+//    fmpq_canonicalise(root);
+//    fmpq_canonicalise(remainder);
+//
+//    if(fmpz_fits_si(exp_int)) {
+//      fmpq_pow_si(quot, quot, fmpz_get_si(exp_int));
+//      fmpz_set_ui(exp_int, 1);
+//    }
+//
+//    int_factor = _pmath_rational_from_fmpq(quot);
+//    if(!fmpz_is_one(exp_int))
+//      int_factor = POW(int_factor, _pmath_integer_from_fmpz(exp_int));
+//
+//    fmpq_pow_si(root, root, exp_rem_si);
+//    if(fmpz_is_one(exp_int)) {
+//      pmath_unref(int_factor);
+//      int_factor = PMATH_FROM_INT32(1);
+//      fmpq_mul(root, root, quot);
+//    }
+//    root_factor = _pmath_rational_from_fmpq(root);
+//
+//    rest_factor = _pmath_rational_from_fmpq(remainder);
+//    if(!pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
+//      if(fmpq_sgn(remainder) < 0) {
+//        root_factor = COMPLEX(INT(0), root_factor);
+//        rest_factor = pmath_number_neg(rest_factor);
+//      }
+//      if(!pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
+//        rest_factor = POW(
+//                        rest_factor,
+//                        pmath_rational_new(
+//                          pmath_integer_new_siptr(exp_rem_si),
+//                          pmath_integer_new_uiptr(radix)));
+//      }
+//    }
+//
+//    fmpz_clear(exp_rem);
+//    fmpz_clear(exp_int);
+//    fmpq_clear(remainder);
+//    fmpq_clear(root);
+//    fmpq_clear(quot);
+//
+//    if(!pmath_same(int_factor, PMATH_FROM_INT32(1)) || !pmath_same(root_factor, PMATH_FROM_INT32(1))) {
+//      pmath_unref(base);
+//      pmath_unref(*expr);
+//      if(pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
+//        if(pmath_same(int_factor, PMATH_FROM_INT32(1)))
+//          *expr = root_factor;
+//        else if(pmath_same(root_factor, PMATH_FROM_INT32(1)))
+//          *expr = int_factor;
+//        else
+//          *expr = TIMES(int_factor, root_factor);
+//      }
+//      else {
+//        if(pmath_same(int_factor, PMATH_FROM_INT32(1)))
+//          *expr = TIMES(root_factor, rest_factor);
+//        else if(pmath_same(root_factor, PMATH_FROM_INT32(1)))
+//          *expr = TIMES(int_factor, rest_factor);
+//        else
+//          *expr = TIMES3(int_factor, root_factor, rest_factor);
+//      }
+//      return TRUE;
+//    }
+//
+//    pmath_unref(int_factor);
+//    pmath_unref(root_factor);
+//    pmath_unref(rest_factor);
   }
   
   if(pmath_is_double(base)) {
@@ -1154,7 +1180,7 @@ static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
     pmath_unref(base);
     pmath_unref(*expr);
     *expr = _pmath_complex_new_from_acb(z, is_machine_precision ? -1 : precision);
-    return TRUE; 
+    return TRUE;
   }
   acb_clear(z);
   
