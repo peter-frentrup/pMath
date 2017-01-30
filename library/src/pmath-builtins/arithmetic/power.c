@@ -540,7 +540,7 @@ static void integer_root(fmpz_t root, fmpz_t remainder, const fmpz_t base, ulong
   fmpz_init(tmp);
   fmpz_factor(factors, base);
   
-  fmpz_set_ui(remainder, factors->sign);
+  fmpz_set_si(remainder, factors->sign);
   fmpz_set_ui(root, 1);
   for(i = 0; i < factors->num; ++i) {
     ulong q = factors->exp[i] / radix;
@@ -1083,12 +1083,18 @@ static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
     root_factor = _pmath_rational_from_fmpq(root);
     
     rest_factor = _pmath_rational_from_fmpq(remainder);
-    if(!fmpq_is_one(remainder)) {
-      rest_factor = POW(
-        rest_factor, 
-        pmath_rational_new(
-          pmath_integer_new_siptr(exp_rem_si),
-          pmath_integer_new_uiptr(radix)));
+    if(!pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
+      if(fmpq_sgn(remainder) < 0) {
+        root_factor = COMPLEX(INT(0), root_factor);
+        rest_factor = pmath_number_neg(rest_factor);
+      }
+      if(!pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
+        rest_factor = POW(
+          rest_factor, 
+          pmath_rational_new(
+            pmath_integer_new_siptr(exp_rem_si),
+            pmath_integer_new_uiptr(radix)));
+      }
     }
     
     fmpz_clear(exp_rem);
@@ -1100,12 +1106,22 @@ static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
     if(!pmath_same(int_factor, PMATH_FROM_INT32(1)) || !pmath_same(root_factor, PMATH_FROM_INT32(1))) {
       pmath_unref(base);
       pmath_unref(*expr);
-      if(pmath_same(int_factor, PMATH_FROM_INT32(1)))
-        *expr = TIMES(root_factor, rest_factor);
-      else if(pmath_same(rest_factor, PMATH_FROM_INT32(1)))
-        *expr = TIMES(int_factor, rest_factor);
-      else
-        *expr = TIMES3(int_factor, root_factor, rest_factor);
+      if(pmath_same(rest_factor, PMATH_FROM_INT32(1))) {
+        if(pmath_same(int_factor, PMATH_FROM_INT32(1)))
+          *expr = root_factor;
+        else if(pmath_same(root_factor, PMATH_FROM_INT32(1)))
+          *expr = int_factor;
+        else
+          *expr = TIMES(int_factor, root_factor);
+      }
+      else {
+        if(pmath_same(int_factor, PMATH_FROM_INT32(1)))
+          *expr = TIMES(root_factor, rest_factor);
+        else if(pmath_same(root_factor, PMATH_FROM_INT32(1)))
+          *expr = TIMES(int_factor, rest_factor);
+        else
+          *expr = TIMES3(int_factor, root_factor, rest_factor);
+      }
       return TRUE;
     }
     

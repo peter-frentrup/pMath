@@ -132,8 +132,8 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t _pmath_integer_from_fmpz(fmpz_t integer) {
   pmath_mpint_t result;
   
-  if( fmpz_cmp_si(integer, MAXINT32) <= 0 &&
-      fmpz_cmp_si(integer, MININT32) >= 0
+  if( fmpz_cmp_si(integer, _I32_MAX) <= 0 &&
+      fmpz_cmp_si(integer, _I32_MIN) >= 0
   ) {
     slong value = fmpz_get_si(integer);
     return PMATH_FROM_INT32((int32_t)value);

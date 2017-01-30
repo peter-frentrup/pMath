@@ -482,13 +482,13 @@ static pmath_float_t new_float_from_arb(const arb_t value, slong prec_or_double)
   
   result = _pmath_create_mp_float((mpfr_prec_t)prec_or_double);
   if(!pmath_is_null(result)) {
-    arb_set(PMATH_AS_ARB(result), value, prec_or_double);
-    arf_get_mpfr(PMATH_AS_MP_VALUE(result), value, MPFR_RNDN);
+    arb_set(PMATH_AS_ARB(result), value);
+    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(value), MPFR_RNDN);
   }
   return result;
 }
 
-PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb(acb_t value, slong prec_or_double) {
+PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec_or_double) {
   if(acb_is_real(value)) 
     return new_float_from_arb(acb_realref(value), prec_or_double);
   
