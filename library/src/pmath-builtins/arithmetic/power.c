@@ -1207,6 +1207,19 @@ static pmath_bool_t try_power_of_rational(pmath_t *expr, pmath_quotient_t base, 
     pmath_unref(num);
     *expr = pmath_expr_set_item(*expr, 1, pmath_rational_denominator(base));
     *expr = pmath_expr_set_item(*expr, 2, NEG(pmath_ref(exponent)));
+    return TRUE;
+  }
+  
+  if(pmath_is_expr_of(exponent, PMATH_SYMBOL_TIMES)) {
+    pmath_t factor = pmath_expr_get_item(exponent, 1);
+    if(pmath_is_number(factor) && pmath_number_sign(factor) < 0) {
+      pmath_integer_t den = pmath_rational_denominator(base);
+      factor = pmath_number_neg(factor);
+      *expr = pmath_expr_set_item(*expr, 1, pmath_rational_new(den, num));
+      *expr = pmath_expr_set_item(*expr, 2, pmath_expr_set_item(pmath_ref(exponent), 1, factor));
+      return TRUE;
+    }
+    pmath_unref(factor);
   }
   
   pmath_unref(num);
