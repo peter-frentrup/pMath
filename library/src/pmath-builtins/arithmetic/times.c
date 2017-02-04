@@ -610,6 +610,9 @@ static pmath_bool_t try_multiply_nonreal_complex_to_noncomplex(pmath_t *a, pmath
     return TRUE;
   }
   
+  pmath_unref(re);
+  pmath_unref(im);
+  
   if(_pmath_is_inexact(*a) && pmath_is_numeric(*b)) {
     *b = pmath_set_precision(*b, pmath_precision(pmath_ref(*a)));
     return TRUE;
