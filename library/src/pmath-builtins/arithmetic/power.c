@@ -1,5 +1,4 @@
 #include <pmath-core/numbers-private.h>
-#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/emit-and-gather.h>
@@ -14,148 +13,6 @@
 
 #include <limits.h> // LONG_MAX
 
-
-static void _mpfi_fr_pow(mpfi_ptr result, mpfr_srcptr base, mpfi_srcptr exponent) {
-  int cmp_1;
-  mpfr_t inf;
-  mpfr_t sup;
-  
-  if(mpfr_nan_p(base) || mpfi_nan_p(exponent)) {
-    mpfr_set_nan(&result->left);
-    mpfr_set_nan(&result->right);
-    return;
-  }
-  
-  if(mpfr_zero_p(base)) {
-    if(mpfr_zero_p(&exponent->left)) {
-      // (+-0.0)^[0,y] = [0,1]
-      mpfr_set_ui(&result->left,  0, MPFR_RNDD);
-      mpfr_set_ui(&result->right, 1, MPFR_RNDU);
-      return;
-    }
-    
-    if(mpfr_sgn(&exponent->left) < 0) {
-      if(mpfr_signbit(base)) { // (-0.0)^-x
-        // TODO: for integer exponent, [-Infinity, 0] respectively [0, +Infinity] would be a correct result
-        mpfr_set_nan(&result->left);
-        mpfr_set_nan(&result->right);
-        return;
-      }
-      
-      if(mpfr_sgn(&exponent->right) >= 0) {
-        // (+0.0)^[-x, +y] = (+0.0)^[-x, 0] = [0, +Infinity]
-        mpfr_set_ui(&result->left, 0, MPFR_RNDD);
-        mpfr_set_inf(&result->right, +1);
-        return;
-      }
-      
-      // (+0.0)^[-x, -y] = [+Infinity, +Infinity]
-      mpfr_set_inf(&result->left, +1);
-      mpfr_set_inf(&result->right, +1);
-      return;
-    }
-  }
-  
-  if(mpfr_sgn(base) < 0) { // (-x)^[a,b]
-    // TODO: if exponent [a,b] is a single integer, then the result would be real
-    mpfr_set_nan(&result->left);
-    mpfr_set_nan(&result->right);
-    return;
-  }
-  
-  cmp_1 = mpfr_cmp_ui(base, 1);
-  if(cmp_1 == 0) {
-    mpfi_set_ui(result, 1);
-    return;
-  }
-  
-  /* Note that result.left and/or result.right might alias with base and/or exponent.left and/or
-     exponent.right. Hence we need to use temporaries.
-   */
-  
-  mpfr_init2(inf, mpfi_get_prec(result));
-  mpfr_init2(sup, mpfi_get_prec(result));
-  
-  if(cmp_1 < 0) { // base < 1, hence base^y is decreasing in y
-    mpfr_pow(sup, base, &exponent->left,  MPFR_RNDU);
-    mpfr_pow(inf, base, &exponent->right, MPFR_RNDD);
-  }
-  else { // base > 1, hence base^y is increasing in y
-    mpfr_pow(inf, base, &exponent->left,  MPFR_RNDD);
-    mpfr_pow(sup, base, &exponent->right, MPFR_RNDU);
-  }
-  
-  mpfi_set_fr(result, inf);
-  mpfi_put_fr(result, sup);
-  
-  mpfr_clear(inf);
-  mpfr_clear(sup);
-}
-
-static void _mpfi_pow(mpfi_ptr result, mpfi_srcptr base, mpfi_srcptr exponent) {
-  if(mpfi_nan_p(base) || mpfi_nan_p(exponent)) {
-    mpfr_set_nan(&result->left);
-    mpfr_set_nan(&result->right);
-    return;
-  }
-  
-  if(!mpfi_is_nonneg(base)) {
-    // TODO: if exponent is a single integer, then the result would be real
-    mpfr_set_nan(&result->left);
-    mpfr_set_nan(&result->right);
-    return;
-  }
-  
-  if(mpfr_equal_p(&base->left, &base->right)) {
-    _mpfi_fr_pow(result, &base->left, exponent);
-    return;
-  }
-  else {
-    mpfi_t tmp;
-    mpfi_init2(tmp, mpfi_get_prec(result));
-    
-    _mpfi_fr_pow(tmp,    &base->left, exponent);
-    _mpfi_fr_pow(result, &base->right, exponent);
-    
-    mpfi_union(result, result, tmp);
-    mpfi_clear(tmp);
-  }
-}
-
-static pmath_t _pow_RR(
-  pmath_expr_t     expr,
-  pmath_interval_t base,
-  pmath_interval_t exponent
-) {
-  if(mpfi_is_nonneg(PMATH_AS_MP_INTERVAL(base))) {
-    pmath_interval_t result;
-    pmath_unref(expr);
-    result = _pmath_create_interval_for_result(base);
-    if(!pmath_is_null(result)) {
-      _mpfi_pow(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(base), PMATH_AS_MP_INTERVAL(exponent));
-    }
-    pmath_unref(base);
-    pmath_unref(exponent);
-    return result;
-  }
-  
-  // TODO: give a complex interval
-  
-  pmath_unref(base);
-  pmath_unref(exponent);
-  return expr;
-}
-
-static pmath_t exp_R(pmath_interval_t exponent) { // will be freed;
-  pmath_interval_t result = _pmath_create_interval_for_result(exponent);
-  
-  if(!pmath_is_null(result)) {
-    mpfi_exp(PMATH_AS_MP_INTERVAL(result), PMATH_AS_MP_INTERVAL(exponent));
-  }
-  
-  pmath_unref(exponent);
-  return result;
-}
 
 static void ui_power_of_complex_rational(fmpq_t re, fmpq_t im, ulong exponent) {
   acb_t num_c;
@@ -442,12 +299,12 @@ static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t e
     }
     else
       factor = POW(_pmath_integer_from_fmpz(base), _pmath_integer_from_fmpz(tmp));
-    
+      
     pmath_emit(factor, PMATH_NULL);
   }
   else
     fmpz_set(reduced_exp, exponent);
-  
+    
   if(fmpz_sgn(base) < 0) {
     pmath_t factor;
     if(radix == 2) {
@@ -506,7 +363,7 @@ static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t e
   }
   else
     result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_TIMES));
-  
+    
   fmpz_clear(reduced_exp);
   fmpz_clear(root);
   fmpz_clear(tmp);
@@ -703,7 +560,7 @@ static pmath_expr_t spread_over_factors(pmath_expr_t product, pmath_t exponent) 
 /** \brief Try to evaluate an expression of the form Power(~, exponent) with small integer exponent.
     \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
     \param exponent An int32 exponent. It may be zero.
-    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it 
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
 static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
@@ -895,7 +752,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
     \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
     \param exponent An big integer exponent. It is assumed, that this does not fit an int32_t.
                     In particular it is not zero.
-    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it 
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
 static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
@@ -1000,7 +857,7 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
 
 /** \brief Test if an expression is of the form Power(~, exponent) with a given rational exponent.
     \param expr     The expression to test. It won't be freed.
-    \param exponent A rational number.
+    \param exponent A rational number. May also be integer.
  */
 static pmath_bool_t is_rational_power(pmath_t expr, fmpq_t exponent) {
   pmath_t exp;
@@ -1028,9 +885,9 @@ static pmath_bool_t is_rational_power(pmath_t expr, fmpq_t exponent) {
 
 /** \brief Try to evaluate an expression of the form Power(~, exponent) with non-integer rational exponent.
     \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
-    \param exponent A rational exponent. This function assumes, that the exponent is non-integer. 
+    \param exponent A rational exponent. This function assumes, that the exponent is non-integer.
                     In particular it is not zero.
-    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it 
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
 static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
@@ -1222,6 +1079,28 @@ static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
   return FALSE;
 }
 
+/** \brief Try to evaluate an expression of the form Power(base, ...) with non-integer rational base.
+    \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
+    \param base     A non-integer rational number. It won't be freed.
+    \param exponent A pMath object. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+static pmath_bool_t try_power_of_rational(pmath_t *expr, pmath_quotient_t base, pmath_t exponent) {
+  pmath_integer_t num;
+  
+  assert(pmath_is_quotient(base));
+  num = pmath_rational_numerator(base);
+  if(pmath_same(num, PMATH_FROM_INT32(1))) {
+    pmath_unref(num);
+    *expr = pmath_expr_set_item(*expr, 1, pmath_rational_denominator(base));
+    *expr = pmath_expr_set_item(*expr, 2, NEG(pmath_ref(exponent)));
+  }
+  
+  pmath_unref(num);
+  return FALSE;
+}
+
 PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   pmath_t base;
   pmath_t exponent;
@@ -1234,16 +1113,12 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   }
   
   exponent = pmath_expr_get_item(expr, 2);
-  if(pmath_is_int32(exponent)) {
-    if(try_integer_power(&expr, PMATH_AS_INT32(exponent)))
-      return expr;
-  }
-  
-  if(pmath_is_mpint(exponent)) {
-    if(try_bigint_power(&expr, PMATH_AS_MPZ(exponent))) {
-      pmath_unref(exponent);
-      return expr;
-    }
+  if(pmath_is_int32(exponent) && try_integer_power(&expr, PMATH_AS_INT32(exponent)))
+    return expr;
+    
+  if(pmath_is_mpint(exponent) && try_bigint_power(&expr, PMATH_AS_MPZ(exponent))) {
+    pmath_unref(exponent);
+    return expr;
   }
   
   if(pmath_is_quotient(exponent)) {
@@ -1260,60 +1135,10 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   
   base = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_quotient(base)) {
-    pmath_integer_t num = pmath_rational_numerator(base);
-    
-    if(pmath_equals(num, PMATH_FROM_INT32(1))) {
-      pmath_unref(num);
-      expr = pmath_expr_set_item(expr, 1, pmath_rational_denominator(base));
-      pmath_unref(base);
-      
-      return pmath_expr_set_item(expr, 2, NEG(exponent));
-    }
-    
-    pmath_unref(num);
-  }
-  
-  if(pmath_is_interval(exponent)) {
-    if(pmath_equals(base, PMATH_SYMBOL_E)) {
-      pmath_unref(base);
-      pmath_unref(expr);
-      return exp_R(exponent);
-    }
-    
-    if(pmath_is_interval(base))
-      return _pow_RR(expr, base, exponent);
-      
-    if(pmath_is_numeric(base)) {
-      pmath_unref(expr);
-      base = pmath_set_precision_interval(base, mpfi_get_prec(PMATH_AS_MP_INTERVAL(exponent)));
-      
-      expr = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_POWER), 2,
-               base,
-               exponent);
-               
-      if(pmath_is_interval(base))
-        return _pow_RR(expr, pmath_ref(base), pmath_ref(exponent));
-        
-      return expr;
-    }
-  }
-  else if(pmath_is_interval(base)) {
-    if(pmath_is_numeric(exponent)) {
-      pmath_unref(expr);
-      exponent = pmath_set_precision_interval(exponent, mpfi_get_prec(PMATH_AS_MP_INTERVAL(base)));
-      
-      expr = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_POWER), 2,
-               base,
-               exponent);
-               
-      if(pmath_is_interval(exponent))
-        return _pow_RR(expr, pmath_ref(base), pmath_ref(exponent));
-        
-      return expr;
-    }
+  if(pmath_is_quotient(base) && try_power_of_rational(&expr, base, exponent)) {
+    pmath_unref(base);
+    pmath_unref(exponent);
+    return expr;
   }
   
   if(_pmath_is_inexact(exponent)) {
