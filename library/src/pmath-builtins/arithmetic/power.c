@@ -1079,7 +1079,119 @@ static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
   return FALSE;
 }
 
-/** \brief Try to evaluate an expression of the form Power(base, ...) with non-integer rational base.
+/** \brief Compute a complex floating point power.
+    \param expr                 The corresponding Power(...) expression. It will be freed.
+    \param base                 The base complex number. It will be cleared.
+    \param base                 The exponent complex number. It will be cleared.
+    \param precision            The working precision of the operation in bits.
+    \param is_machine_precision Whether to return doubles or an arbitrary precision result.
+    \return The result of the operation. A real or complex number, infinity or Undefined.
+ */
+static pmath_t complex_power(pmath_t expr, acb_t base, acb_t exponent, slong precision, pmath_bool_t is_machine_precision) {
+  acb_pow(base, base, exponent, precision);
+  
+  if(acb_is_finite(base)) {
+    pmath_unref(expr);
+    expr = _pmath_complex_new_from_acb(base, is_machine_precision ? -1 : precision);
+  }
+  else if(arf_is_nan(arb_midref(acb_realref(base))) || arf_is_nan(arb_midref(acb_imagref(base)))) {
+    pmath_message(PMATH_NULL, "indet", 1, expr);
+    expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+  }
+  else {
+    pmath_message(PMATH_NULL, "infy", 1, expr);
+    expr = pmath_ref(_pmath_object_complex_infinity);
+  }
+  
+  acb_clear(base);
+  acb_clear(exponent);
+  return expr;
+}
+
+/** \brief Try to evaluate an expression of the form Power(~, exponent) with floating point real or complex exponent.
+    \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
+    \param exponent A pMath object. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+static pmath_bool_t try_inexact_power(pmath_t *expr, pmath_t exponent) {
+  acb_t        exp_z;
+  slong        exp_prec;
+  pmath_bool_t exp_is_machine_prec;
+  acb_init(exp_z);
+  if(_pmath_complex_float_extract_acb(exp_z, &exp_prec, &exp_is_machine_prec, exponent)) {
+    pmath_t base = pmath_expr_get_item(*expr, 1);
+    acb_t        base_z;
+    slong        base_prec;
+    pmath_bool_t base_is_machine_prec;
+    
+    if(pmath_same(base, PMATH_SYMBOL_E)) {
+      acb_exp(exp_z, exp_z, exp_prec);
+      pmath_unref(base);
+      pmath_unref(*expr);
+      *expr = _pmath_complex_new_from_acb(exp_z, exp_is_machine_prec ? -1 : exp_prec);
+      acb_clear(exp_z);
+      return TRUE;
+    }
+    
+    acb_init(base_z);
+    if(_pmath_complex_float_extract_acb(base_z, &base_prec, &base_is_machine_prec, base)) {
+      pmath_unref(base);
+      *expr = complex_power(*expr, base_z, exp_z, FLINT_MAX(base_prec, exp_prec), base_is_machine_prec || exp_is_machine_prec);
+      return TRUE;
+    }
+    
+    base = pmath_set_precision(base, exp_is_machine_prec ? -HUGE_VAL : (double)exp_prec);
+    if(_pmath_complex_float_extract_acb(base_z, &base_prec, &base_is_machine_prec, base)) {
+      pmath_unref(base);
+      *expr = complex_power(*expr, base_z, exp_z, FLINT_MAX(base_prec, exp_prec), base_is_machine_prec || exp_is_machine_prec);
+      return TRUE;
+    }
+    
+    acb_clear(base_z);
+    pmath_unref(base);
+  }
+  acb_clear(exp_z);
+  return FALSE;
+}
+
+/** \brief Try to evaluate an expression of the form Power(base, ~) with floating point real or complex base.
+    
+    This function assumes that the exponent is not an explicit, i.e. \see try_inexact_power(), \see try_rational_power()
+    and similar failed.
+    
+    \param expr Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
+    \param base A pMath object. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+static pmath_bool_t try_power_of_inexact(pmath_t *expr, pmath_t base) {
+  acb_t        base_z;
+  slong        base_prec;
+  pmath_bool_t base_is_machine_prec;
+  acb_init(base_z);
+  if(_pmath_complex_float_extract_acb(base_z, &base_prec, &base_is_machine_prec, base)) {
+    pmath_t exponent = pmath_expr_get_item(*expr, 2);
+    acb_t        exp_z;
+    slong        exp_prec;
+    pmath_bool_t exp_is_machine_prec;
+    
+    exponent = pmath_set_precision(exponent, base_is_machine_prec ? -HUGE_VAL : (double)base_prec);
+    
+    acb_init(exp_z);
+    if(_pmath_complex_float_extract_acb(exp_z, &exp_prec, &exp_is_machine_prec, exponent)) {
+      pmath_unref(exponent);
+      *expr = complex_power(*expr, base_z, exp_z, FLINT_MAX(base_prec, exp_prec), base_is_machine_prec || exp_is_machine_prec);
+      return TRUE;
+    }
+    acb_clear(exp_z);
+    pmath_unref(exponent);
+  }
+  acb_clear(base_z);
+  return FALSE;
+}
+
+/** \brief Try to evaluate an expression of the form Power(base, ~) with non-integer rational base.
     \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
     \param base     A non-integer rational number. It won't be freed.
     \param exponent A pMath object. It won't be freed.
@@ -1133,191 +1245,23 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     fmpq_clear(quot);
   }
   
+  if(try_inexact_power(&expr, exponent)) {
+    pmath_unref(exponent);
+    return expr;
+  }
+  
   base = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_quotient(base) && try_power_of_rational(&expr, base, exponent)) {
+  if(try_power_of_inexact(&expr, base)) {
     pmath_unref(base);
     pmath_unref(exponent);
     return expr;
   }
   
-  if(_pmath_is_inexact(exponent)) {
-    if(pmath_equals(base, PMATH_SYMBOL_E)) {
-      if(pmath_is_mpfloat(exponent)) {
-        // dy = d(e^x) = e^x dx
-        pmath_mpfloat_t result;
-        
-        result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(exponent)));
-        if(!pmath_is_null(result)) {
-          mpfr_exp(
-            PMATH_AS_MP_VALUE(result),
-            PMATH_AS_MP_VALUE(exponent),
-            _pmath_current_rounding_mode());
-            
-          pmath_unref(exponent);
-          pmath_unref(base);
-          pmath_unref(expr);
-          
-          return _pmath_float_exceptions(result);
-        }
-      }
-      
-      if(_pmath_is_nonreal_complex_number(exponent)) { // E^(x + I y) = E^x (Cos(y) + I Sin(y))
-        pmath_t re = pmath_expr_get_item(exponent, 1);
-        pmath_t im = pmath_expr_get_item(exponent, 2);
-        
-        expr = pmath_expr_set_item(expr, 2, re);
-        
-        expr = TIMES(expr, COMPLEX(COS(pmath_ref(im)), SIN(pmath_ref(im))));
-        
-        pmath_unref(im);
-        pmath_unref(exponent);
-        pmath_unref(base);
-        return expr;
-      }
-    }
-    
-    if( (pmath_is_double(base) && pmath_is_number(exponent)) ||
-        (pmath_is_number(base) && pmath_is_double(exponent)))
-    {
-      double b = pmath_number_get_d(base);
-      double e = pmath_number_get_d(exponent);
-      
-      if(b < 0) {
-        double re = cos(M_PI * e);
-        double im = sin(M_PI * e);
-        double r = pow(-b, e);
-        
-        re *= r;
-        im *= r;
-        if(isfinite(re) && isfinite(im)) {
-          pmath_unref(expr);
-          pmath_unref(base);
-          pmath_unref(exponent);
-          return pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
-                   PMATH_FROM_DOUBLE(re),
-                   PMATH_FROM_DOUBLE(im));
-        }
-      }
-      else {
-        double result = pow(b, e);
-        
-        if(isfinite(result)) {
-          pmath_unref(expr);
-          pmath_unref(base);
-          pmath_unref(exponent);
-          return PMATH_FROM_DOUBLE(result);
-        }
-      }
-      
-      expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
-      base = pmath_set_precision(base, LOG10_2 * DBL_MANT_DIG);
-      expr = pmath_expr_set_item(expr, 1, base);
-      
-      if(pmath_is_double(exponent)) {
-        expr = pmath_expr_set_item(expr, 2, PMATH_NULL);
-        exponent = pmath_set_precision(exponent, LOG10_2 * DBL_MANT_DIG);
-        expr = pmath_expr_set_item(expr, 2, exponent);
-      }
-      
-      return expr;
-    }
-    
-    if( pmath_is_mpfloat(base) &&
-        pmath_is_mpfloat(exponent))
-    {
-      int basesign = mpfr_sgn(PMATH_AS_MP_VALUE(base));
-      
-      if(basesign < 0 && !mpfr_integer_p(PMATH_AS_MP_VALUE(exponent))) {
-        // (-x)^y = E^(y Log(-x)) = E^(y (I Pi + Log(x))) = x^y * E^(I Pi y)
-        //        = x^y * (Cos(Pi y) + I Sin(Pi y))
-        pmath_unref(expr);
-        
-        expr = COMPLEX(
-                 COS(TIMES(pmath_ref(exponent), pmath_ref(PMATH_SYMBOL_PI))),
-                 SIN(TIMES(pmath_ref(exponent), pmath_ref(PMATH_SYMBOL_PI))));
-                 
-        if(mpfr_cmp_si(PMATH_AS_MP_VALUE(base), -1) == 0) {
-          pmath_unref(base);
-          pmath_unref(exponent);
-          return expr;
-        }
-        
-        return TIMES(POW(pmath_number_neg(base), exponent), expr);
-      }
-      
-      if(basesign != 0) {
-        pmath_mpfloat_t result;
-        mpfr_prec_t prec;
-        
-        prec = min_prec(mpfr_get_prec(PMATH_AS_MP_VALUE(base)),
-                        mpfr_get_prec(PMATH_AS_MP_VALUE(exponent)));
-                        
-        result = _pmath_create_mp_float(prec);
-        if(!pmath_is_null(result)) {
-//          if(mpfr_zero_p(PMATH_AS_MP_ERROR(result))) {
-//            pmath_unref(result);
-//            pmath_unref(exponent);
-//            pmath_unref(base);
-//            pmath_unref(expr);
-//            pmath_message(PMATH_SYMBOL_GENERAL, "unfl", 0);
-//            return pmath_ref(_pmath_object_underflow);
-//          }
-//
-//          if(!mpfr_number_p(PMATH_AS_MP_ERROR(result))) {
-//            pmath_unref(result);
-//            pmath_unref(exponent);
-//            pmath_unref(base);
-//            pmath_unref(expr);
-//            pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
-//            return pmath_ref(_pmath_object_overflow);
-//          }
-
-          mpfr_pow(
-            PMATH_AS_MP_VALUE(result),
-            PMATH_AS_MP_VALUE(base),
-            PMATH_AS_MP_VALUE(exponent),
-            _pmath_current_rounding_mode());
-            
-          pmath_unref(exponent);
-          pmath_unref(base);
-          pmath_unref(expr);
-          
-          result = _pmath_float_exceptions(result);
-          
-          return result;
-        }
-        
-      }
-    }
-    
-    if( _pmath_is_nonreal_complex_number(exponent) ||
-        _pmath_is_nonreal_complex_number(base))
-    {
-      // x^y = Exp(y Log(x))
-      
-      expr = pmath_expr_set_item(expr, 1, pmath_ref(PMATH_SYMBOL_E));
-      expr = pmath_expr_set_item(expr, 2, TIMES(exponent, LOG(base)));
-      return expr;
-    }
-    
-    if(!_pmath_is_inexact(base) && !pmath_same(base, PMATH_FROM_INT32(0))) {
-      double prec = pmath_precision(exponent); // frees exponent
-      
-      base = pmath_set_precision(base, prec);
-      expr = pmath_expr_set_item(expr, 1, base);
-      return expr;
-    }
-  }
-  else if(_pmath_is_inexact(base)) {
-    if(!_pmath_is_inexact(exponent)) {
-      double prec = pmath_precision(base); // frees base
-      
-      exponent = pmath_set_precision(exponent, prec);
-      expr     = pmath_expr_set_item(expr, 2, exponent);
-      return expr;
-    }
+  if(pmath_is_quotient(base) && try_power_of_rational(&expr, base, exponent)) {
+    pmath_unref(base);
+    pmath_unref(exponent);
+    return expr;
   }
   
   if(pmath_is_expr_of_len(base, PMATH_SYMBOL_POWER, 2)) { // (x^y)^exponent
