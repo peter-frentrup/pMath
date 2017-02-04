@@ -641,6 +641,10 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
   return power;
 }
 
+/** \brief Test whether a real or complex number object is zero (respectively contains zero for the case of real/complex balls)
+    \param x The object to test. It won't be freed. If it is not a number or Complex(~,~) expression, FALSE will be returned.
+    \return Whether \a x represents the number zero or a real/complex ball containing zero.
+ */
 static pmath_bool_t number_contains_zero(pmath_t x) {
   if(pmath_is_int32(x))
     return PMATH_AS_INT32(x) == 0;
@@ -661,6 +665,11 @@ static pmath_bool_t number_contains_zero(pmath_t x) {
   return FALSE;
 }
 
+/** \brief convert an integer object to a writable bigint object.
+    \param i The integer object (int32 or bigint). It will be freed.
+    \return A bigint with the value of \a i and a reference count of 1, i.e. it is directly writable.
+            On out-of-memory, PMATH_NULL is returned.
+ */
 static pmath_mpint_t to_writable_bigint(pmath_integer_t i) {
   pmath_mpint_t result;
   if(pmath_is_int32(i))
@@ -691,6 +700,12 @@ static pmath_expr_t spread_over_factors(pmath_expr_t product, pmath_t exponent) 
   return product;
 }
 
+/** \brief Try to evaluate an expression of the form Power(~, exponent) with small integer exponent.
+    \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
+    \param exponent An int32 exponent. It may be zero.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it 
+            remains unchanged.
+ */
 static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
   pmath_t base = pmath_expr_get_item(*expr, 1);
   
@@ -876,6 +891,13 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
 }
 
 // assuming, that exponent does not fit to int32
+/** \brief Try to evaluate an expression of the form Power(~, exponent) with large (in absulute value) integer exponent.
+    \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
+    \param exponent An big integer exponent. It is assumed, that this does not fit an int32_t.
+                    In particular it is not zero.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it 
+            remains unchanged.
+ */
 static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
   pmath_t base = pmath_expr_get_item(*expr, 1);
   
@@ -976,6 +998,10 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
   return FALSE;
 }
 
+/** \brief Test if an expression is of the form Power(~, exponent) with a given rational exponent.
+    \param expr     The expression to test. It won't be freed.
+    \param exponent A rational number.
+ */
 static pmath_bool_t is_rational_power(pmath_t expr, fmpq_t exponent) {
   pmath_t exp;
   fmpq_t exp_q;
@@ -1000,7 +1026,13 @@ static pmath_bool_t is_rational_power(pmath_t expr, fmpq_t exponent) {
   return TRUE;
 }
 
-// assuming that exponent is non-integer
+/** \brief Try to evaluate an expression of the form Power(~, exponent) with non-integer rational exponent.
+    \param expr     Pointer to the Power-expression. On success, this will be replaced by the evaluation result.
+    \param exponent A rational exponent. This function assumes, that the exponent is non-integer. 
+                    In particular it is not zero.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it 
+            remains unchanged.
+ */
 static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
   pmath_t base = pmath_expr_get_item(*expr, 1);
   acb_t z;
