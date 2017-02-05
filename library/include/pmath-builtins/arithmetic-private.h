@@ -74,7 +74,7 @@ pmath_bool_t _pmath_is_nonreal_complex_interval_or_number(pmath_t z);
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(
   pmath_t *z);
-
+  
 /** \brief Convert a real or complex number to an Arb complex ball.
     \param result          An initialized Arb complex ball reference to take the value.
     \param precision       Pointer to an slong taking the working precision of \a complex.
@@ -97,7 +97,17 @@ pmath_bool_t _pmath_complex_float_extract_acb(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec_or_double);
-  
+
+/** \brief Try to evaluate a function F(x) with floating point real or complex x.
+    \param expr  Pointer to the F-expression. On success, this will be replaced by the evaluation result.
+    \param x     The only argument of \a expr. It won't be freed.
+    \param func  An function for evaluating F(x) with complex ball.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong));
+
 PMATH_PRIVATE
 void _pmath_split_summand(
   pmath_t  summand,         // wont be freed

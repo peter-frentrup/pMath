@@ -90,36 +90,28 @@ pmath_bool_t _pmath_is_imaginary(
   return FALSE;
 }
 
-/*static pmath_expr_t extract_complex(
-  pmath_expr_t *expr
-) { // returns PMATH_NULL if there is no nonreal complex
-  size_t i, len;
-
-  len = pmath_expr_length(*expr);
-
-  for(i = len; i > 0; --i) {
-    pmath_t item = pmath_expr_get_item(*expr, i);
-
-    if(_pmath_is_nonreal_complex_number(item)) {
-      pmath_expr_t tmp = *expr;
-
-      for(; i < len; ++i) {
-        tmp = pmath_expr_set_item(tmp, i,
-                                  pmath_expr_get_item(tmp, i + 1));
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong)) {
+  if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+    acb_t z;
+    slong prec;
+    pmath_bool_t is_machine_prec;
+    
+    acb_init(z);
+    if(_pmath_complex_float_extract_acb(z, &prec, &is_machine_prec, x)) {
+      func(z, z, prec);
+      if(acb_is_finite(z)) {
+        pmath_unref(*expr);
+        *expr = _pmath_complex_new_from_acb(z, is_machine_prec ? -1 : prec);
+        acb_clear(z);
+        return TRUE;
       }
-
-      *expr = pmath_expr_get_item_range(tmp, 1, len - 1);
-
-      pmath_unref(tmp);
-
-      return item;
     }
-
-    pmath_unref(item);
+    acb_clear(z);
   }
-
-  return PMATH_NULL;
-}*/
+  
+  return FALSE;
+}
 
 PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   pmath_t  z,   // will be freed
@@ -385,7 +377,7 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t _pmath_is_nonreal_complex_interval_or_number(pmath_t z) {
   pmath_t re, im;
-
+  
   if(!pmath_is_expr_of_len(z, PMATH_SYMBOL_COMPLEX, 2))
     return FALSE;
     
@@ -407,15 +399,15 @@ pmath_bool_t _pmath_is_nonreal_complex_interval_or_number(pmath_t z) {
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_complex_float_extract_acb(
-  acb_t         result, 
-  slong        *precision, 
-  pmath_bool_t *is_machine_prec, 
+  acb_t         result,
+  slong        *precision,
+  pmath_bool_t *is_machine_prec,
   pmath_t       complex
 ) {
   if(pmath_is_double(complex)) {
     _pmath_number_get_arb(acb_realref(result), complex, DBL_MANT_DIG);
     arb_set_ui(acb_imagref(result), 0);
-  
+    
     if(precision) *precision = DBL_MANT_DIG;
     if(precision) *is_machine_prec = TRUE;
     
@@ -425,7 +417,7 @@ pmath_bool_t _pmath_complex_float_extract_acb(
   if(pmath_is_mpfloat(complex)) {
     _pmath_number_get_arb(acb_realref(result), complex, PMATH_AS_ARB_WORKING_PREC(complex));
     arb_set_ui(acb_imagref(result), 0);
-  
+    
     if(precision) *precision = PMATH_AS_ARB_WORKING_PREC(complex);
     if(precision) *is_machine_prec = FALSE;
     
@@ -476,7 +468,7 @@ static pmath_float_t new_float_from_arb(const arb_t value, slong prec_or_double)
     double d = arf_get_d(arb_midref(value), ARF_RND_NEAR);
     if(isfinite(d))
       return PMATH_FROM_DOUBLE(d);
-    
+      
     prec_or_double = DBL_MANT_DIG;
   }
   
@@ -489,12 +481,12 @@ static pmath_float_t new_float_from_arb(const arb_t value, slong prec_or_double)
 }
 
 PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec_or_double) {
-  if(acb_is_real(value)) 
+  if(acb_is_real(value))
     return new_float_from_arb(acb_realref(value), prec_or_double);
-  
+    
   return COMPLEX(
-    new_float_from_arb(acb_realref(value), prec_or_double),
-    new_float_from_arb(acb_imagref(value), prec_or_double));
+           new_float_from_arb(acb_realref(value), prec_or_double),
+           new_float_from_arb(acb_imagref(value), prec_or_double));
 }
 
 PMATH_PRIVATE pmath_t builtin_complex(pmath_expr_t expr) {
