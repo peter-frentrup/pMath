@@ -1,6 +1,5 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
-#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads-private.h>
@@ -247,11 +246,6 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
     return number_abs(x);
   }
   
-  if(pmath_is_interval(x)) {
-    pmath_unref(expr);
-    return _pmath_interval_call(x, mpfi_abs);
-  }
-  
   if(_pmath_is_nonreal_complex_number(x)) {
     pmath_t re, im;
     acb_t z;
@@ -336,48 +330,6 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
   return simplify_abs_sign(expr);
 }
 
-static int _mpfi_sign(mpfi_ptr rop, mpfi_srcptr op) {
-  pmath_bool_t has_neg;
-  pmath_bool_t has_zero;
-  pmath_bool_t has_pos;
-  pmath_bool_t need_init;
-  
-  if(mpfi_nan_p(op)) {
-    mpfr_set_nan(&rop->left);
-    mpfr_set_nan(&rop->right);
-    mpfr_set_nanflag();
-    return 0;
-  }
-  
-  has_neg = !mpfi_is_nonneg(op);
-  has_zero = mpfi_has_zero(op);
-  has_pos = !mpfi_is_nonpos(op);
-  
-  need_init = TRUE;
-  if(has_neg) {
-    mpfi_set_si(rop, -1);
-    need_init = FALSE;
-  }
-  if(has_zero) {
-    if(need_init) {
-      mpfi_set_si(rop, 0);
-      need_init = FALSE;
-    }
-    else
-      mpfi_put_si(rop, 0);
-  }
-  if(has_pos) {
-    if(need_init) {
-      mpfi_set_si(rop, 1);
-      need_init = FALSE;
-    }
-    else
-      mpfi_put_si(rop, 1);
-  }
-  
-  return 0;
-}
-
 static pmath_number_t number_sign(pmath_number_t x) {
   int sign;
   assert(pmath_is_number(x));
@@ -427,23 +379,6 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
   if(pmath_is_number(x)) {
     pmath_unref(expr);
     return number_sign(x);
-  }
-  
-  if(pmath_is_interval(x)) {
-    pmath_unref(expr);
-    if(mpfr_sgn(&PMATH_AS_MP_INTERVAL(x)->left) > 0) {
-      pmath_unref(x);
-      return INT(1);
-    }
-    else if(mpfr_sgn(&PMATH_AS_MP_INTERVAL(x)->right) < 0) {
-      pmath_unref(x);
-      return INT(-1);
-    }
-    else if(mpfi_is_zero(PMATH_AS_MP_INTERVAL(x))) {
-      pmath_unref(x);
-      return INT(0);
-    }
-    return _pmath_interval_call(x, _mpfi_sign);
   }
   
   if(_pmath_is_nonreal_complex_number(x)) {
