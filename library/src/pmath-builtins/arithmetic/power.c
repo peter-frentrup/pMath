@@ -859,7 +859,7 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
     \param expr     The expression to test. It won't be freed.
     \param exponent A rational number. May also be integer.
  */
-static pmath_bool_t is_rational_power(pmath_t expr, fmpq_t exponent) {
+static pmath_bool_t is_rational_power(pmath_t expr, const fmpq_t exponent) {
   pmath_t exp;
   fmpq_t exp_q;
   
@@ -890,7 +890,7 @@ static pmath_bool_t is_rational_power(pmath_t expr, fmpq_t exponent) {
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
-static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
+static pmath_bool_t try_rational_power(pmath_t *expr, const fmpq_t exponent) {
   pmath_t base = pmath_expr_get_item(*expr, 1);
   acb_t z;
   slong precision;
@@ -944,10 +944,18 @@ static pmath_bool_t try_rational_power(pmath_t *expr, fmpq_t exponent) {
       *expr = pmath_rational_new(root_num, root_den);
       return TRUE;
     }
-    else if( !is_rational_power(root_num, exponent) ||
-             !is_rational_power(root_den, exponent))
-    {
+    else if( !is_rational_power(root_num, exponent) || !is_rational_power(root_den, exponent)) {
       pmath_unref(base);
+      if(pmath_same(root_num, PMATH_FROM_INT32(1))) {
+        if(pmath_is_expr_of(root_den, PMATH_SYMBOL_POWER)) {
+          pmath_unref(root_num);
+          pmath_unref(root_den);
+          return FALSE;
+        }
+        pmath_unref(*expr);
+        *expr = INV(root_den);
+        return TRUE;
+      }
       pmath_unref(*expr);
       *expr = DIV(root_num, root_den);
       return TRUE;
