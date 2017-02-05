@@ -269,12 +269,12 @@ static pmath_t approximate_via_interval_to_finite_precision(pmath_t obj, double 
   double prec = pmath_precision(pmath_ref(obj));
   double maxprec;
   pmath_mpfloat_t error_goal;
+  pmath_thread_t me = pmath_thread_get_current();
+  
+  if(!me)
+    return obj;
     
   if(!pmath_is_numeric(obj))
-    return obj;
-  
-  pmath_thread_t me = pmath_thread_get_current();
-  if(!me)
     return obj;
   
   if(isfinite(prec)) {

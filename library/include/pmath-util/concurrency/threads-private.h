@@ -77,13 +77,8 @@ struct _pmath_thread_t {
   pmath_t message_queue;      // the pmath_messages_t (message queue)
   pmath_t abortable_messages; // pmath_custom_t -> _pmath_abortable_message_t
   
-  PMATH_DEPRECATED
   double max_extra_precision; // in bits
-  
-  PMATH_DEPRECATED
   double min_precision;       // in bits
-  
-  PMATH_DEPRECATED
   double max_precision;       // in bits
   
   intptr_t current_dynamic_id;

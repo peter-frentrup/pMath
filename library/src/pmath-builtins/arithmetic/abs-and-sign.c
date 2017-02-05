@@ -156,11 +156,15 @@ static pmath_number_t number_abs(pmath_number_t x) {
 static pmath_t approximate_sign(pmath_t x) {
   pmath_thread_t me = pmath_thread_get_current();
   double precision;
+  double max_precision;
   
   if(!me) 
     return PMATH_NULL;
   
   precision = FLINT_MIN(16, me->max_extra_precision);
+  precision = FLINT_MAX(me->min_precision, precision);
+  max_precision = FLINT_MIN(me->max_precision, me->min_precision + me->max_extra_precision);
+  
   while(!pmath_aborting()) {
     pmath_t approx = pmath_set_precision(pmath_ref(x), precision);
     
@@ -180,9 +184,9 @@ static pmath_t approximate_sign(pmath_t x) {
     }
     else if(pmath_is_expr_of_len(approx, PMATH_SYMBOL_COMPLEX, 2)) {
       acb_t z;
-      acb_init(z);
       slong prec;
       pmath_bool_t is_machine_prec;
+      acb_init(z);
       if(_pmath_complex_float_extract_acb(z, &prec, &is_machine_prec, approx)) {
         if(acb_is_real(z)) {
           if(arb_is_positive(acb_realref(z))) {
@@ -222,10 +226,10 @@ static pmath_t approximate_sign(pmath_t x) {
     }
     
     pmath_unref(approx);
-    if(precision >= me->max_extra_precision)
+    if(precision >= max_precision)
       break;
     
-    precision = FLINT_MIN(2 * precision, me->max_extra_precision);
+    precision = FLINT_MIN(2 * precision, max_precision);
   }
   
   return PMATH_NULL;
