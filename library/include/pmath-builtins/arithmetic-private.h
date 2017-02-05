@@ -61,6 +61,17 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t _pmath_is_nonreal_complex_number(pmath_t z);
 
+
+#define PMATH_UNKNOWN_REAL_SIGN  (2)
+
+/** \brief Try to get the sign of a real numeric number.
+    \param x A numeric expression. It won't be freed.
+    \return \c PMATH_UNKNOWN_REAL_SIGN if the sign could not be determined or is complex, 
+            otherwise the real sign (-1,0,1) of \a x.
+ */
+PMATH_PRIVATE
+int _pmath_numeric_sign(pmath_t x);
+
 /**\brief Check if z = Complex(a, b) with numbers or intervals (RealInterval) a, b
    \param z A pMath expression. It won't be freed.
    

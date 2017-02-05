@@ -235,6 +235,65 @@ static pmath_t approximate_sign(pmath_t x) {
   return PMATH_NULL;
 }
 
+static pmath_number_t number_sign(pmath_number_t x) {
+  int sign;
+  assert(pmath_is_number(x));
+  
+  if(pmath_is_mpfloat(x)) {
+    pmath_mpfloat_t result;
+    if(arb_is_positive(PMATH_AS_ARB(x))) {
+      pmath_unref(x);
+      return PMATH_FROM_INT32(1);
+    }
+    if(arb_is_negative(PMATH_AS_ARB(x))) {
+      pmath_unref(x);
+      return PMATH_FROM_INT32(-1);
+    }
+    if(arb_is_zero(PMATH_AS_ARB(x))) {
+      pmath_unref(x);
+      return PMATH_FROM_INT32(0);
+    }
+    
+    if(pmath_refcount(x) > 1)
+      result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(x));
+    else
+      result = pmath_ref(x);
+      
+    if(!pmath_is_null(result)) {
+      arb_sgn(PMATH_AS_ARB(result), PMATH_AS_ARB(x));
+      arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
+    }
+    pmath_unref(x);
+    return result;
+  }
+  
+  sign = pmath_number_sign(x);
+  pmath_unref(x);
+  return PMATH_FROM_INT32(sign);
+}
+
+PMATH_PRIVATE
+int _pmath_numeric_sign(pmath_t x) {
+  if(pmath_is_mpfloat(x)) {
+    if(arb_is_positive(PMATH_AS_ARB(x)))
+      return 1;
+    if(arb_is_negative(PMATH_AS_ARB(x)))
+      return -1;
+    if(arb_is_zero(PMATH_AS_ARB(x)))
+      return 0;
+    return PMATH_UNKNOWN_REAL_SIGN;
+  }
+  else { // if(pmath_is_numeric(x))
+    pmath_t sgn = approximate_sign(x);
+    if(pmath_is_int32(sgn))
+      return PMATH_AS_INT32(sgn);
+    pmath_unref(sgn);
+    return PMATH_UNKNOWN_REAL_SIGN;
+  }
+  
+  return PMATH_UNKNOWN_REAL_SIGN;
+}
+
 PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
   pmath_t x;
   
@@ -332,43 +391,6 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
   
   pmath_unref(x);
   return simplify_abs_sign(expr);
-}
-
-static pmath_number_t number_sign(pmath_number_t x) {
-  int sign;
-  assert(pmath_is_number(x));
-  
-  if(pmath_is_mpfloat(x)) {
-    pmath_mpfloat_t result;
-    if(arb_is_positive(PMATH_AS_ARB(x))) {
-      pmath_unref(x);
-      return PMATH_FROM_INT32(1);
-    }
-    if(arb_is_negative(PMATH_AS_ARB(x))) {
-      pmath_unref(x);
-      return PMATH_FROM_INT32(-1);
-    }
-    if(arb_is_zero(PMATH_AS_ARB(x))) {
-      pmath_unref(x);
-      return PMATH_FROM_INT32(0);
-    }
-    
-    if(pmath_refcount(x) > 1)
-      result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(x));
-    else
-      result = pmath_ref(x);
-      
-    if(!pmath_is_null(result)) {
-      arb_sgn(PMATH_AS_ARB(result), PMATH_AS_ARB(x));
-      arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-    }
-    pmath_unref(x);
-    return result;
-  }
-  
-  sign = pmath_number_sign(x);
-  pmath_unref(x);
-  return PMATH_FROM_INT32(sign);
 }
 
 PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
