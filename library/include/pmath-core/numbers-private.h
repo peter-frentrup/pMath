@@ -220,21 +220,21 @@ pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t f);
 
 /** \brief Copy a pMath integer to a FLINT integer.
     \param result  An initialized FLINT integer reference to take the value.
-    \param integer An integer object, mnust not be PMATH_NULL.
+    \param integer An integer object, must not be PMATH_NULL. It won't be freed.
  */
 PMATH_PRIVATE
 void _pmath_integer_get_fmpz(fmpz_t result, pmath_integer_t integer);
 
 /** \brief Copy a pMath rational to a FLINT quotient.
     \param result  An initialized FLINT quotient reference to take the value.
-    \param rational An integer or quotient object, mnust not be PMATH_NULL.
+    \param rational An integer or quotient object, must not be PMATH_NULL. It won't be freed.
  */
 PMATH_PRIVATE
 void _pmath_rational_get_fmpq(fmpq_t result, pmath_rational_t rational);
 
 /** \brief Copy a pMath number to an Arb real ball.
     \param result  An initialized Arb real ball reference to take the value.
-    \param real An number object, must not be PMATH_NULL.
+    \param real An number object, must not be PMATH_NULL. It won't be freed.
     \param precision The precision to use for approximating quotients.
  */
 PMATH_PRIVATE
