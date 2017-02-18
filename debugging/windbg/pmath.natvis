@@ -160,7 +160,7 @@
 		<DisplayString Condition="length==0">{items[0]}()</DisplayString>
 		<DisplayString>{items[0]}(&lt;&lt;{length,d}&gt;&gt;)</DisplayString>
 		<Expand HideRawView="true">
-			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple" Condition="inherited.inherited.inherited.type_shift == 5">
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple" Condition="inherited.inherited.inherited.type_shift == 6">
 				*(pmath!_pmath_expr_part_t*)this,!
 			</Item>
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
