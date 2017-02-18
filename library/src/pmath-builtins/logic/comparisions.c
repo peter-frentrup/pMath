@@ -635,8 +635,10 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
         
         result = compare_interval(n_diff, INT(0), directions);
         pmath_unref(n_diff);
-        if(result == TRUE || result == FALSE)
+        if(result == TRUE || result == FALSE) {
+          pmath_unref(diff);
           return result;
+        }
           
         if(prec >= maxprec) {
           pmath_message(
