@@ -1,7 +1,6 @@
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/intervals-private.h>
 
-#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -14,37 +13,19 @@
 
 PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
   pmath_t x;
-  pmath_thread_t me = pmath_thread_get_current();
   
-  if(!me)
-    return expr;
-    
   if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
   
   x = pmath_expr_get_item(expr, 1);
-  if(pmath_is_double(x)) {
-    double d = PMATH_AS_DOUBLE(x);
-    double res = cos(d);
-    
+  if(_pmath_complex_try_evaluate_acb(&expr, x, acb_cos)) {
     pmath_unref(x);
-    pmath_unref(expr);
-    return PMATH_FROM_DOUBLE(res);
+    return expr;
   }
   
-  if(pmath_is_mpfloat(x)) {
-    pmath_unref(expr);
-    return _pmath_mpfloat_call(x, mpfr_cos);
-  }
-  
-  if(pmath_is_interval(x)) {
-    pmath_unref(expr);
-    return _pmath_interval_call(x, mpfi_cos);
-  }
-  
-  if(pmath_is_number(x)) {
+  if(pmath_is_rational(x)) {
     int sign = pmath_number_sign(x);
     
     if(sign < 0) {
@@ -284,21 +265,6 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
         pmath_unref(x);
         
         return FUNC(pmath_ref(PMATH_SYMBOL_COSH), im);
-      }
-      
-      if(pmath_is_float(re) || pmath_is_float(im)) {
-        pmath_unref(expr);
-        pmath_unref(x);
-        
-        expr = TIMES(
-                 ONE_HALF,
-                 PLUS(
-                   EXP(COMPLEX(pmath_ref(im),  NEG(pmath_ref(re)))),
-                   EXP(COMPLEX(NEG(pmath_ref(im)),     pmath_ref(re)))));
-                   
-        pmath_unref(re);
-        pmath_unref(im);
-        return expr;
       }
       
       pmath_unref(re);
