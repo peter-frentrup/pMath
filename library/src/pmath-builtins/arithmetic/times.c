@@ -890,6 +890,8 @@ static pmath_bool_t try_multiply_common_powers(pmath_t *a, pmath_t *b) {
           //pmath_unref(restPowerA); // those are PMATH_UNDEFINED
           //pmath_unref(restPowerB); // those are PMATH_UNDEFINED
           
+          pmath_unref(*a);
+          pmath_unref(*b);
           *a = _pmath_expr_shrink_associative(expanded_a, PMATH_UNDEFINED);
           *b = _pmath_expr_shrink_associative(expanded_b, PMATH_UNDEFINED);
           return TRUE;
