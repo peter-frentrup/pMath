@@ -86,7 +86,6 @@ PMATH_PRIVATE pmath_t builtin_arctan(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arg(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binomial(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_chop(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_clip(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_complex(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_conjugate(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_cos(             pmath_expr_t expr);
@@ -1607,7 +1606,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_CLEAR,                       builtin_clear)
   BIND_DOWN(   PMATH_SYMBOL_CLEARALL,                    builtin_clear)
   BIND_DOWN(   PMATH_SYMBOL_CLEARATTRIBUTES,             builtin_clearattributes)
-  BIND_DOWN(   PMATH_SYMBOL_CLIP,                        builtin_clip)
   BIND_DOWN(   PMATH_SYMBOL_CLOCK,                       builtin_clock)
   BIND_DOWN(   PMATH_SYMBOL_CLOSE,                       builtin_close)
   BIND_DOWN(   PMATH_SYMBOL_COMPLEMENT,                  builtin_complement)
@@ -2011,6 +2009,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_CLEAR,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CLEARALL,                         HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CLEARATTRIBUTES,                  HOLDFIRST);
+  SET_ATTRIB( PMATH_SYMBOL_CLIP,                             LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_CLOSE,                            LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_COMPLEX,                          DEFINITEFUNCTION | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CONDITION,                        HOLDALL);

@@ -1,0 +1,53 @@
+
+BeginPackage("System`")
+
+<<ExperimentalSyntax`
+
+Clip
+
+Begin("System`Private`")
+
+Function Clip(~x) {
+    With(y:= Clip(x, 0..1, 0..1))
+    y /? Hold(y) =!= Hold(Clip(x, 0..1, 0..1))
+}
+
+Function Clip(~x, xrange: ~..~) {
+    With(y:= Clip(x, xrange, xrange))
+    y /? Hold(y) =!= Hold(Clip(x, xrange, xrange))
+}
+
+Function Clip(~x, ~xmin..~xmax, ~vmin..~vmax) {
+    % TODO: clip real intervals (Arb numbers) that *partially* overlap xmin, xmax
+    Switch({xmin <= x, x <= xmax}) {
+        Case({True, True}) {
+            Return(x)
+        }
+        Case({False, True}) {
+            Return(vmin)
+        }
+        Case({True, False}) {
+            Return(vmax)
+        }
+    }
+    $Failed /? False
+}
+
+Function Clip(~, r: Except(~..~), ~~~) {
+    Message(Clip::rtwo, r, 2)
+    $Failed /? False
+}
+
+Function Clip(~, ~..~, r: Except(~..~)) {
+    Message(Clip::rtwo, r, 3)
+    $Failed /? False
+}
+
+Function Clip(~~~args) Where(IsValidArgumentCount(Clip, Length(Hold(args)), 1, 3) && False) {
+    $Failed
+}
+
+
+End()
+
+EndPackage()

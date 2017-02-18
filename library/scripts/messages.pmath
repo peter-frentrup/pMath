@@ -136,6 +136,8 @@ $NamespacePath::nslist:= "Cannot set $NamespacePath to `1`; value must be a list
 
 Clear::ssym:= Update::ssym:= "`1` is neither a symbol nor a string."
 
+Clip::rtwo:= "The argument `1` at position `2` is expected to be of the form min..max."
+
 Clock::inf:= "It is not allowed to specify the period or count with an infinite clock."
 Clock::length:= "The length of the Clock, `1`, cannot be computed."
 Clock::period:= "Clock period `1` is not a finite positive number."
