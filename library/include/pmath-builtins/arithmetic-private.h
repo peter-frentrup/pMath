@@ -86,7 +86,7 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(
   pmath_t *z);
   
-/** \brief Convert a real or complex number to an Arb complex ball.
+/** \brief Convert a real or complex floating point number to an Arb complex ball.
     \param result          An initialized Arb complex ball reference to take the value.
     \param precision       Pointer to an slong taking the working precision of \a complex.
     \param is_machine_prec Pointer to a boolean taking whether \a complex is machine precision.
@@ -99,6 +99,18 @@ pmath_bool_t _pmath_complex_float_extract_acb(
   slong        *precision, 
   pmath_bool_t *is_machine_prec, 
   pmath_t       complex);
+
+/** \brief Convert a real or complex number to an Arb complex ball, approximating to a given precision if necessary.
+    \param result     An initialized Arb complex ball reference to take the value.
+    \param complex    A real or complex number.
+    \param precision  The precision to use for converting exact to floating point numbers.    
+    \return Whether the conversion was successfull.
+ */
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_float_extract_acb_for_precision(
+  acb_t         result, 
+  pmath_t       complex,
+  slong         precision);
 
 /** \brief Create a floating point real or complex number object from an Arb complex ball.
     \param value           A valid Arb complex ball.
@@ -119,7 +131,7 @@ pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec_or_double);
 PMATH_PRIVATE
 pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong));
 
-/** \brief Try to evaluate a function F(x, y) with floating point real or complex x.
+/** \brief Try to evaluate a function F(x, y) with floating point real or complex x and/or y.
     \param expr  Pointer to the F-expression. On success, this will be replaced by the evaluation result.
     \param x     The first argument of \a expr. It won't be freed.
     \param y     The second argument of \a expr. It won't be freed.

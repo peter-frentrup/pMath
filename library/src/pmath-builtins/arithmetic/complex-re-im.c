@@ -114,33 +114,51 @@ pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*fu
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong)) {
-  if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
-    if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
-      acb_t x_c;
-      acb_t y_c;
-      slong x_prec;
-      slong y_prec;
-      pmath_bool_t x_is_machine_prec;
-      pmath_bool_t y_is_machine_prec;
+  if( pmath_is_number(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2) ||
+      pmath_is_number(y) || pmath_is_expr_of_len(y, PMATH_SYMBOL_COMPLEX, 2))
+  {
+    double x_precicion = pmath_precision(pmath_ref(x));
+    double y_precicion = pmath_precision(pmath_ref(y));
+    double precision = FLINT_MIN(x_precicion, y_precicion);
+    pmath_t x_approx;
+    pmath_t y_approx;
+    slong prec;
+    acb_t x_c;
+    acb_t y_c;
+    
+    if(!(precision < HUGE_VAL))
+      return FALSE;
       
-      acb_init(x_c);
-      acb_init(y_c);
-      if( _pmath_complex_float_extract_acb(x_c, &x_prec, &x_is_machine_prec, x) &&
-          _pmath_complex_float_extract_acb(y_c, &y_prec, &y_is_machine_prec, y)) 
-      {
-        slong prec = FLINT_MAX(x_prec, y_prec);
-        func(x_c, x_c, y_c, prec);
-        if(acb_is_finite(x_c)) {
-          pmath_unref(*expr);
-          *expr = _pmath_complex_new_from_acb(x_c, x_is_machine_prec || y_is_machine_prec ? -1 : prec);
-          acb_clear(y_c);
-          acb_clear(x_c);
-          return TRUE;
-        }
+    x_approx = pmath_ref(x);
+    y_approx = pmath_ref(y);
+    if(x_precicion == HUGE_VAL) x_approx = pmath_set_precision(x_approx, precision);
+    if(y_precicion == HUGE_VAL) y_approx = pmath_set_precision(y_approx, precision);
+    
+    if(precision == -HUGE_VAL)              prec = DBL_MANT_DIG;
+    else if(precision < 2)                  prec = 2;
+    else if(precision < PMATH_MP_PREC_MAX)  prec = (slong)precision;
+    else                                    prec = PMATH_MP_PREC_MAX;
+    
+    acb_init(x_c);
+    acb_init(y_c);
+    if( _pmath_complex_float_extract_acb_for_precision(x_c, x_approx, prec) &&
+        _pmath_complex_float_extract_acb_for_precision(y_c, y_approx, prec))
+    {
+      func(x_c, x_c, y_c, prec);
+      if(acb_is_finite(x_c)) {
+        pmath_unref(x_approx);
+        pmath_unref(y_approx);
+        pmath_unref(*expr);
+        *expr = _pmath_complex_new_from_acb(x_c, precision == -HUGE_VAL ? -1 : prec);
+        acb_clear(y_c);
+        acb_clear(x_c);
+        return TRUE;
       }
-      acb_clear(y_c);
-      acb_clear(x_c);
     }
+    pmath_unref(x_approx);
+    pmath_unref(y_approx);
+    acb_clear(y_c);
+    acb_clear(x_c);
   }
   return FALSE;
 }
@@ -490,6 +508,35 @@ pmath_bool_t _pmath_complex_float_extract_acb(
     pmath_unref(im);
   }
   
+  return FALSE;
+}
+
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_float_extract_acb_for_precision(
+  acb_t         result,
+  pmath_t       complex,
+  slong         precision
+) {
+  if(pmath_is_number(complex)) {
+    _pmath_number_get_arb(acb_realref(result), complex, precision);
+    arb_set_ui(acb_imagref(result), 0);
+    return TRUE;
+  }
+  if(pmath_is_expr_of_len(complex, PMATH_SYMBOL_COMPLEX, 2)) {
+    pmath_t re = pmath_expr_get_item(complex, 1);
+    pmath_t im = pmath_expr_get_item(complex, 2);
+    
+    if(pmath_is_number(re) && pmath_is_number(im)) {
+      _pmath_number_get_arb(acb_realref(result), re, precision);
+      _pmath_number_get_arb(acb_imagref(result), im, precision);
+      pmath_unref(re);
+      pmath_unref(im);
+      return TRUE;
+    }
+    
+    pmath_unref(re);
+    pmath_unref(im);
+  }
   return FALSE;
 }
 
