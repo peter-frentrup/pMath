@@ -36,10 +36,10 @@ static pmath_integer_t logii(pmath_integer_t base, pmath_integer_t z) {
     
     if(!pmath_is_null(tmp)) {
       mp_bitcnt_t result = mpz_remove(
-                               PMATH_AS_MPZ(tmp),
-                               PMATH_AS_MPZ(z),
-                               PMATH_AS_MPZ(base));
-                               
+                             PMATH_AS_MPZ(tmp),
+                             PMATH_AS_MPZ(z),
+                             PMATH_AS_MPZ(base));
+                             
       if(mpz_cmp_ui(PMATH_AS_MPZ(tmp), 1) == 0) {
         pmath_unref(tmp);
         return pmath_integer_new_uiptr(result);
@@ -151,7 +151,7 @@ static pmath_t mp_log(pmath_mpfloat_t x) {
   
   if(pmath_is_null(x))
     return PMATH_NULL;
-  
+    
   assert(pmath_is_mpfloat(x));
   
   if(mpfr_zero_p(PMATH_AS_MP_VALUE(x))) {
@@ -177,12 +177,12 @@ static pmath_t interval_log(pmath_interval_t x) {
   
   if(pmath_is_null(x))
     return PMATH_NULL;
-  
+    
   assert(pmath_is_interval(x));
   
-  if(mpfi_is_nonneg(PMATH_AS_MP_INTERVAL(x))) 
+  if(mpfi_is_nonneg(PMATH_AS_MP_INTERVAL(x)))
     return _pmath_interval_call(x, mpfi_log);
-  
+    
   has_zero = mpfi_has_zero(PMATH_AS_MP_INTERVAL(x));
   prec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(x));
   
@@ -195,11 +195,147 @@ static pmath_t interval_log(pmath_interval_t x) {
     mpfr_set_ui(&PMATH_AS_MP_INTERVAL(im)->left, 0, MPFR_RNDD);
     mpfr_const_pi(&PMATH_AS_MP_INTERVAL(im)->right, MPFR_RNDU);
   }
-  else{
+  else {
     mpfi_const_pi(PMATH_AS_MP_INTERVAL(im));
   }
   
   return COMPLEX(re, im);
+}
+
+static void _pmath_acb_log_with_base(acb_t res, const acb_t base, const acb_t x, slong prec) {
+  acb_t log_base;
+  acb_init(log_base);
+  acb_log(log_base, base, prec);
+  acb_log(res, x, prec);
+  acb_div(res, res, log_base, prec);
+  acb_clear(log_base);
+}
+
+/** \brief Try to evaluate Log(x) of an exact or inexact zero value x
+    \param expr  Pointer to the Log-expression. On success, this will be replaced by the evaluation result.
+    \param x     A pMath object. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+static pmath_bool_t try_log_of_zero(pmath_t *expr, pmath_t x) {
+  if(pmath_is_int32(x)) {
+    if(!pmath_same(x, INT(0)))
+      return FALSE;
+      
+    pmath_unref(*expr);
+    *expr = pmath_ref(_pmath_object_neg_infinity);
+    return TRUE;
+  }
+  if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+    acb_t z;
+    acb_init(z);
+    if(_pmath_complex_float_extract_acb(z, NULL, NULL, x)) {
+      if(acb_is_zero(z)) {
+        pmath_unref(*expr);
+        *expr = pmath_ref(_pmath_object_neg_infinity);
+        acb_clear(z);
+        return TRUE;
+      }
+      if(acb_contains_zero(z)) {
+        pmath_unref(*expr);
+        *expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+        acb_clear(z);
+        return TRUE;
+      }
+    }
+    acb_clear(z);
+  }
+  return FALSE;
+}
+
+/** \brief Try to evaluate Log(x) of a non-zero rational number x
+    \param expr  Pointer to the Log-expression. On success, this will be replaced by the evaluation result.
+    \param x     A pMath object. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+static pmath_bool_t try_log_of_nonzero_rational(pmath_t *expr, pmath_t x) {
+  if(pmath_same(x, INT(1))) {
+    pmath_unref(*expr);
+    *expr = INT(0);
+    return TRUE;
+  }
+  if(pmath_same(x, INT(-1))) {
+    pmath_unref(*expr);
+    *expr = TIMES(COMPLEX(INT(0), INT(1)), pmath_ref(PMATH_SYMBOL_PI));
+    return TRUE;
+  }
+  if(pmath_is_rational(x)) {
+    int sign = pmath_number_sign(x);
+    pmath_integer_t num, den;
+    
+    if(sign == 0)
+      return FALSE;
+      
+    if(sign < 0) {
+      pmath_unref(*expr);
+      *expr = PLUS(TIMES(COMPLEX(INT(0), INT(1)), pmath_ref(PMATH_SYMBOL_PI)), LOG(pmath_number_neg(pmath_ref(x))));
+      return TRUE;
+    }
+    
+    num = pmath_rational_numerator(x);
+    den = pmath_rational_denominator(x);
+    if(pmath_compare(num, den) < 0) {
+      pmath_unref(num);
+      pmath_unref(den);
+      pmath_unref(*expr);
+      *expr = NEG(LOG(pmath_rational_new(den, num)));
+      return TRUE;
+    }
+    pmath_unref(num);
+    pmath_unref(den);
+  }
+  return FALSE;
+}
+
+static pmath_bool_t try_log_of_nonreal_exact_complex(pmath_t *expr, pmath_t x) {
+  pmath_t im = pmath_ref(x);
+  if(_pmath_is_imaginary(&im) && pmath_is_rational(im)) {
+    if(pmath_same(im, INT(1))) {
+      pmath_unref(*expr);
+      *expr = TIMES(COMPLEX(INT(0), ONE_HALF), pmath_ref(PMATH_SYMBOL_PI));
+      return TRUE;
+    }
+    if(pmath_same(im, INT(-1))) {
+      pmath_unref(*expr);
+      *expr = TIMES(COMPLEX(INT(0), QUOT(-1, 2)), pmath_ref(PMATH_SYMBOL_PI));
+      return TRUE;
+    }
+    if(pmath_number_sign(im) > 0) {
+      pmath_unref(*expr);
+      *expr = PLUS(TIMES(COMPLEX(INT(0), ONE_HALF), pmath_ref(PMATH_SYMBOL_PI)), LOG(im));
+      return TRUE;
+    }
+    if(pmath_number_sign(im) > 0) {
+      pmath_unref(*expr);
+      *expr = PLUS(TIMES(COMPLEX(INT(0), QUOT(-1, 2)), pmath_ref(PMATH_SYMBOL_PI)), LOG(pmath_number_neg(im)));
+      return TRUE;
+    }
+  }
+  pmath_unref(im);
+  return FALSE;
+}
+
+/** \brief Try to evaluate Log(x) of an infinite value x
+    \param expr  Pointer to the Log-expression. On success, this will be replaced by the evaluation result.
+    \param x     A pMath object. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+static pmath_bool_t try_log_of_infinity(pmath_t *expr, pmath_t x) {
+  pmath_t infdir = _pmath_directed_infinity_direction(x);
+  if(pmath_same(infdir, PMATH_NULL))
+    return FALSE;
+    
+  pmath_unref(infdir);
+  pmath_unref(*expr);
+  *expr = pmath_ref(_pmath_object_pos_infinity);
+  return TRUE;
 }
 
 PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
@@ -207,7 +343,6 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
      Log(x)       = Log(E, x)
    */
   pmath_t base, x;
-  int xclass;
   
   if(pmath_expr_length(expr) == 1) {
     x = pmath_expr_get_item(expr, 1);
@@ -228,6 +363,18 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     return expr;
   }
   
+  if(pmath_same(base, PMATH_SYMBOL_E) && _pmath_complex_try_evaluate_acb(&expr, x, acb_log)) {
+    pmath_unref(x);
+    pmath_unref(base);
+    return expr;
+  }
+  
+  if(_pmath_complex_try_evaluate_acb_2(&expr, base, x, _pmath_acb_log_with_base)) {
+    pmath_unref(x);
+    pmath_unref(base);
+    return expr;
+  }
+  
   if( pmath_is_rational(base)     &&
       pmath_is_rational(x)        &&
       pmath_number_sign(base) > 0 &&
@@ -243,9 +390,8 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     }
   }
   
-  if( pmath_equals(base, x) &&
-      !pmath_equals(base, PMATH_FROM_INT32(1)))
-  {
+  if(pmath_equals(base, x) && !pmath_equals(base, PMATH_FROM_INT32(1))) {
+    /* BUG: Log(0,0) should be Undefined instead of 1 */
     pmath_unref(expr);
     pmath_unref(base);
     pmath_unref(x);
@@ -276,16 +422,6 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
   }
   pmath_unref(base); base = PMATH_NULL;
   
-  if(pmath_is_mpfloat(x)) {
-    pmath_unref(expr);
-    return mp_log(x);
-  }
-  
-  if(pmath_is_interval(x)) {
-    pmath_unref(expr);
-    return interval_log(x);
-  }
-  
   if(_pmath_is_nonreal_complex_number(x)) {
     pmath_t re = pmath_expr_get_item(x, 1);
     pmath_t im = pmath_expr_get_item(x, 2);
@@ -314,56 +450,14 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
       expr = pmath_expr_set_item(expr, 1, im);
       return PLUS(re, expr);
     }
-    
-    if( _pmath_is_inexact(re) ||
-        _pmath_is_inexact(im))
-    {
-      pmath_unref(re);
-      pmath_unref(im);
-      
-      expr = pmath_expr_set_item(expr, 1, ABS(pmath_ref(x)));
-      
-      return pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
-               expr,
-               ARG(x));
-    }
   }
   
-  if(pmath_is_number(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
-    xclass = _pmath_number_class(x);
-    if(xclass & PMATH_CLASS_INF) {
-      pmath_unref(expr);
-      pmath_unref(x);
-      return pmath_ref(_pmath_object_pos_infinity);
-    }
-    
-    if(xclass & PMATH_CLASS_ZERO) {
-      pmath_unref(expr);
-      pmath_unref(x);
-      return pmath_ref(_pmath_object_neg_infinity);
-    }
-    
-    if(xclass & PMATH_CLASS_POSSMALL) {
-      return NEG(pmath_expr_set_item(expr, 1, INV(x)));
-    }
-    
-    if(xclass & PMATH_CLASS_NEG) {
-      expr = pmath_expr_set_item(expr, 1, NEG(x));
-      return PLUS(
-               expr,
-               TIMES(
-                 pmath_ref(PMATH_SYMBOL_I),
-                 pmath_ref(PMATH_SYMBOL_PI)));
-    }
-    
-    if(xclass == PMATH_CLASS_POSONE) {
-      pmath_unref(expr);
-      pmath_unref(x);
-      return INT(0);
-    }
-  }
+  if(try_log_of_zero(&expr, x))                  goto FINISH;
+  if(try_log_of_nonzero_rational(&expr, x))      goto FINISH;
+  if(try_log_of_nonreal_exact_complex(&expr, x)) goto FINISH;
+  if(try_log_of_infinity(&expr, x))              goto FINISH;
   
+FINISH:
   pmath_unref(x);
   return expr;
 }
