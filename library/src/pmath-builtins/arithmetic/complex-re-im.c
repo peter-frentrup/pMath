@@ -458,8 +458,8 @@ pmath_bool_t _pmath_complex_float_extract_acb(
     _pmath_number_get_arb(acb_realref(result), complex, DBL_MANT_DIG);
     arb_set_ui(acb_imagref(result), 0);
     
-    if(precision) *precision = DBL_MANT_DIG;
-    if(precision) *is_machine_prec = TRUE;
+    if(precision)       *precision = DBL_MANT_DIG;
+    if(is_machine_prec) *is_machine_prec = TRUE;
     
     return TRUE;
   }
@@ -468,8 +468,8 @@ pmath_bool_t _pmath_complex_float_extract_acb(
     _pmath_number_get_arb(acb_realref(result), complex, PMATH_AS_ARB_WORKING_PREC(complex));
     arb_set_ui(acb_imagref(result), 0);
     
-    if(precision) *precision = PMATH_AS_ARB_WORKING_PREC(complex);
-    if(precision) *is_machine_prec = FALSE;
+    if(precision)       *precision = PMATH_AS_ARB_WORKING_PREC(complex);
+    if(is_machine_prec) *is_machine_prec = FALSE;
     
     return TRUE;
   }
@@ -495,8 +495,8 @@ pmath_bool_t _pmath_complex_float_extract_acb(
       _pmath_number_get_arb(acb_realref(result), re, prec);
       _pmath_number_get_arb(acb_imagref(result), im, prec);
       
-      if(precision) *precision = prec;
-      if(precision) *is_machine_prec = pmath_is_double(re) || pmath_is_double(im);
+      if(precision)       *precision = prec;
+      if(is_machine_prec) *is_machine_prec = pmath_is_double(re) || pmath_is_double(im);
       
       pmath_unref(re);
       pmath_unref(im);

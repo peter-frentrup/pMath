@@ -88,8 +88,8 @@ pmath_bool_t _pmath_is_imaginary(
   
 /** \brief Convert a real or complex floating point number to an Arb complex ball.
     \param result          An initialized Arb complex ball reference to take the value.
-    \param precision       Pointer to an slong taking the working precision of \a complex.
-    \param is_machine_prec Pointer to a boolean taking whether \a complex is machine precision.
+    \param precision       Optional pointer to an slong taking the working precision of \a complex.
+    \param is_machine_prec Optional pointer to a boolean taking whether \a complex is machine precision.
     \param complex         A real or complex number.
     \return Whether the conversion was successfull.
  */
