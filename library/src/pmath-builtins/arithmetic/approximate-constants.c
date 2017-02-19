@@ -62,11 +62,6 @@ static pmath_t approx_const_generic_interval(
   return result;
 }
 
-static int mpfr_const_exp1(mpfr_ptr rop, mpfr_rnd_t rnd) {
-  mpfr_set_ui(rop, 1, rnd);
-  return mpfr_exp(rop, rop, rnd);
-}
-
 static int mpfi_const_exp1(mpfi_ptr rop) {
   mpfi_set_ui(rop, 1);
   return mpfi_exp(rop, rop);

@@ -178,20 +178,6 @@ static arf_func_t get_rounding_function(pmath_t head) {
   return _pmath_round_arf_to_nearest;
 }
 
-static mpfr_rnd_t get_rounding_mode(pmath_t head) {
-  if(pmath_same(head, PMATH_SYMBOL_CEILING))
-    return MPFR_RNDU;
-    
-  if(pmath_same(head, PMATH_SYMBOL_FLOOR))
-    return MPFR_RNDD;
-    
-  if(pmath_same(head, PMATH_SYMBOL_INTEGERPART))
-    return MPFR_RNDZ;
-    
-  /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */
-  return MPFR_RNDN;
-}
-
 static pmath_integer_t round_q(pmath_quotient_t x, pmath_t head) {
   pmath_mpint_t num, den, result;
   
