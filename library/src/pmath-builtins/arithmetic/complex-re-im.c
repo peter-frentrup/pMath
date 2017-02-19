@@ -109,7 +109,39 @@ pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*fu
     }
     acb_clear(z);
   }
-  
+  return FALSE;
+}
+
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong)) {
+  if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+    if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+      acb_t x_c;
+      acb_t y_c;
+      slong x_prec;
+      slong y_prec;
+      pmath_bool_t x_is_machine_prec;
+      pmath_bool_t y_is_machine_prec;
+      
+      acb_init(x_c);
+      acb_init(y_c);
+      if( _pmath_complex_float_extract_acb(x_c, &x_prec, &x_is_machine_prec, x) &&
+          _pmath_complex_float_extract_acb(y_c, &y_prec, &y_is_machine_prec, y)) 
+      {
+        slong prec = FLINT_MAX(x_prec, y_prec);
+        func(x_c, x_c, y_c, prec);
+        if(acb_is_finite(x_c)) {
+          pmath_unref(*expr);
+          *expr = _pmath_complex_new_from_acb(x_c, x_is_machine_prec || y_is_machine_prec ? -1 : prec);
+          acb_clear(y_c);
+          acb_clear(x_c);
+          return TRUE;
+        }
+      }
+      acb_clear(y_c);
+      acb_clear(x_c);
+    }
+  }
   return FALSE;
 }
 
