@@ -29,9 +29,11 @@ static int _pmath_signbit(pmath_t x) {
   }
   
   if(pmath_is_mpfloat(x)) {
-    int sb = mpfr_signbit(PMATH_AS_MP_VALUE(x));
-    
-    return sb ? -1 : +1;
+    if(arb_is_positive(PMATH_AS_ARB(x)))
+      return +1;
+    if(arb_is_negative(PMATH_AS_ARB(x)))
+      return -1;
+    return 0;
   }
   
   if(pmath_is_rational(x)) {
@@ -79,19 +81,24 @@ PMATH_PRIVATE pmath_t builtin_internal_copysign(pmath_expr_t expr) {
   }
   
   if(pmath_is_mpfloat(x)) {
-    pmath_mpfloat_t result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-    
+    pmath_mpfloat_t result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(x));
     if(pmath_is_null(result)) {
       pmath_unref(x);
       return expr;
     }
     
-    mpfr_setsign(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(x),
-      new_sb < 0 ? 1 : 0,
-      MPFR_RNDN); // conversion is exact because both precisions are equal
-      
+    if(new_sb > 0) {
+      arb_abs(PMATH_AS_ARB(result), PMATH_AS_ARB(x));
+    }
+    else if(new_sb < 0) {
+      arb_abs(PMATH_AS_ARB(result), PMATH_AS_ARB(x));
+      arb_neg(PMATH_AS_ARB(result), PMATH_AS_ARB(result));
+    }
+    else
+      arb_zero(PMATH_AS_ARB(result));
+    
+    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
+    
     pmath_unref(x);
     pmath_unref(expr);
     return result;
