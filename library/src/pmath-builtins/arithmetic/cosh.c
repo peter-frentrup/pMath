@@ -64,7 +64,7 @@ static pmath_bool_t try_cosh_of_exact_complex(pmath_t *expr, pmath_t x) {
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
-static pmath_bool_t try_cos_of_product(pmath_t *expr) {
+static pmath_bool_t try_cosh_of_product(pmath_t *expr) {
   pmath_t x, fst;
   assert(pmath_is_expr(*expr));
   x = pmath_expr_get_item(*expr, 1);
@@ -176,7 +176,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr) {
   }
   
   pmath_unref(x);
-  if(try_cos_of_product(&expr))
+  if(try_cosh_of_product(&expr))
     return expr;
   return expr;
 }
