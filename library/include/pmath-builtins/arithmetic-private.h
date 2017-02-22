@@ -148,6 +148,14 @@ void _pmath_split_summand(
   pmath_t *out_num_factor,  // may also become a complex number
   pmath_t *out_rest);
 
+/** \brief Evaluate a function by converting degrees to radians.
+    \param expr  Pointer to the function expression. On success, this will be replaced by the evaluation result.
+    \param x     The function argument. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+PMATH_PRIVATE
+pmath_bool_t _pmath_try_simplify_degree(pmath_t *expr, pmath_t x);
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_to_precision(

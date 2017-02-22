@@ -32,18 +32,22 @@ static pmath_t cos_of_rational(pmath_expr_t expr, pmath_rational_t x) {
   return expr;
 }
 
-/** \brief Evaluate a cosine by converting degrees to radians.
-    \param expr  Pointer to the Cos-expression. On success, this will be replaced by the evaluation result.
-    \param x     The cosine argument. It won't be freed.
-    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
-            remains unchanged.
- */
-static pmath_bool_t try_cos_of_degree(pmath_t *expr, pmath_t x) {
+PMATH_PRIVATE
+pmath_bool_t _pmath_try_simplify_degree(pmath_t *expr, pmath_t x) {
   pmath_t y;
+  pmath_symbol_t head;
+  
+  assert(pmath_is_expr(*expr));
   
   if(!_pmath_contains_symbol(x, PMATH_SYMBOL_DEGREE))
     return FALSE;
-    
+  
+  head = pmath_expr_get_item(*expr, 0);
+  if(!pmath_is_symbol(head)) {
+    pmath_unref(head);
+    return FALSE;
+  }
+  
   y = pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_WITH), 2,
         pmath_expr_new_extended(
@@ -55,12 +59,14 @@ static pmath_bool_t try_cos_of_degree(pmath_t *expr, pmath_t x) {
         pmath_ref(*expr));
         
   y = pmath_evaluate(y);
-  if(!pmath_is_expr_of(y, PMATH_SYMBOL_COS)) {
+  if(!pmath_is_expr_of(y, head)) {
+    pmath_unref(head);
     pmath_unref(*expr);
     *expr = y;
     return TRUE;
   }
   
+  pmath_unref(head);
   pmath_unref(y);
   return FALSE;
 }
@@ -371,7 +377,7 @@ PMATH_PRIVATE pmath_t builtin_cos(pmath_expr_t expr) {
     return INT(-1);
   }
   
-  if(try_cos_of_degree(&expr, x)) {
+  if(_pmath_try_simplify_degree(&expr, x)) {
     pmath_unref(x);
     return expr;
   }
