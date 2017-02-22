@@ -12,7 +12,7 @@
 /** \brief Simplify the hyperbolic cosine of a rational number considering the number's sign.
     \param expr The Cosh(x) expression. It will be freed.
     \param x    The rational number argument. It will be freed.
-    \return The simplified Cos(...) expression.
+    \return The simplified Cosh(...) expression.
  */
 static pmath_t cosh_of_rational(pmath_expr_t expr, pmath_rational_t x) {
   int sign;
@@ -33,7 +33,7 @@ static pmath_t cosh_of_rational(pmath_expr_t expr, pmath_rational_t x) {
 
 /** \brief Simplify the hyperbolic cosine of an exact complex number.
     \param expr  Pointer to the Cosh-expression. On success, this will be replaced by the evaluation result.
-    \param x     The cosine argument. It won't be freed.
+    \param x     The hyperbolic cosine argument. It won't be freed.
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
@@ -100,7 +100,7 @@ static pmath_bool_t try_cosh_of_product(pmath_t *expr) {
 
 /** \brief Evaluate Cosh(ArcCosh(u)), Cosh(ArcTanh(u)), etc.
     \param expr  Pointer to the Cosh-expression. On success, this will be replaced by the evaluation result.
-    \param x     The cosine argument. It won't be freed.
+    \param x     The hyperbolic cosine argument. It won't be freed.
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
@@ -157,7 +157,7 @@ PMATH_PRIVATE pmath_t builtin_cosh(pmath_expr_t expr) {
   }
   
   x = pmath_expr_get_item(expr, 1);
-  if(_pmath_complex_try_evaluate_acb(&expr, x, acb_cos)) {
+  if(_pmath_complex_try_evaluate_acb(&expr, x, acb_cosh)) {
     pmath_unref(x);
     return expr;
   }
