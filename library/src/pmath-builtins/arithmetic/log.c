@@ -145,63 +145,6 @@ static pmath_t logrr(pmath_rational_t base, pmath_rational_t z) {
   return PMATH_NULL;
 }
 
-// x will be freed, x may be PMATH_NULL
-static pmath_t mp_log(pmath_mpfloat_t x) {
-  pmath_mpfloat_t val;
-  
-  if(pmath_is_null(x))
-    return PMATH_NULL;
-    
-  assert(pmath_is_mpfloat(x));
-  
-  if(mpfr_zero_p(PMATH_AS_MP_VALUE(x))) {
-    pmath_unref(x);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-  }
-  
-  if(mpfr_sgn(PMATH_AS_MP_VALUE(x)) < 0) {
-    x = pmath_number_neg(x);
-    
-    val = mp_log(x);
-    val = PLUS(val, TIMES(COMPLEX(INT(0), INT(1)), pmath_ref(PMATH_SYMBOL_PI)));
-    return val;
-  }
-  
-  return _pmath_mpfloat_call(x, mpfr_log);
-}
-
-static pmath_t interval_log(pmath_interval_t x) {
-  pmath_bool_t has_zero;
-  mpfr_prec_t prec;
-  pmath_interval_t re, im;
-  
-  if(pmath_is_null(x))
-    return PMATH_NULL;
-    
-  assert(pmath_is_interval(x));
-  
-  if(mpfi_is_nonneg(PMATH_AS_MP_INTERVAL(x)))
-    return _pmath_interval_call(x, mpfi_log);
-    
-  has_zero = mpfi_has_zero(PMATH_AS_MP_INTERVAL(x));
-  prec = mpfi_get_prec(PMATH_AS_MP_INTERVAL(x));
-  
-  x = _pmath_interval_call(x, mpfi_abs);
-  re = _pmath_interval_call(x, mpfi_log);
-  
-  //im = pmath_set_precision_interval(pmath_ref(PMATH_SYMBOL_PI), prec);
-  im = _pmath_create_interval(prec);
-  if(has_zero) {
-    mpfr_set_ui(&PMATH_AS_MP_INTERVAL(im)->left, 0, MPFR_RNDD);
-    mpfr_const_pi(&PMATH_AS_MP_INTERVAL(im)->right, MPFR_RNDU);
-  }
-  else {
-    mpfi_const_pi(PMATH_AS_MP_INTERVAL(im));
-  }
-  
-  return COMPLEX(re, im);
-}
-
 static void _pmath_acb_log_with_base(acb_t res, const acb_t base, const acb_t x, slong prec) {
   acb_t log_base;
   acb_init(log_base);
