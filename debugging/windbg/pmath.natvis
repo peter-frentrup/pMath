@@ -8,12 +8,12 @@
 		<DisplayString Condition="s.tag == 0x7FF30000">{(wchar_t*)s.u.as_chars,[0]}</DisplayString>
 		<DisplayString Condition="s.tag == 0x7FF40000">{(wchar_t*)s.u.as_chars,[1]}</DisplayString>
 		<DisplayString Condition="s.tag == 0x7FF50000">{(wchar_t*)s.u.as_chars,[2]}</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((as_bits &lt;&lt; 12) == 0)">(null)</DisplayString>
-		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000)">{*(pmath!_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)}</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((as_bits * 0x1000) == 0)">(null)</DisplayString>
+		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000)">{*(pmath.dll!_pmath_t*)((as_bits * 0x1000) / 0x1000)}</DisplayString>
 		<DisplayString>magic {s.tag,x} value {s.u.as_int32,x}</DisplayString>
 		<Expand HideRawView="true">
-			<ExpandedItem Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((as_bits &lt;&lt; 12) != 0)">
-				*(pmath!_pmath_t*)((as_bits &lt;&lt; 12) &gt;&gt; 12)
+			<ExpandedItem Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((as_bits * 0x1000) != 0)">
+				*(pmath.dll!_pmath_t*)((as_bits * 0x1000) / 0x1000)
 			</ExpandedItem>
 			<Synthetic Name="length" Condition="s.tag == 0x7FF30000" ExcludeView="simple">
 				<DisplayString>0</DisplayString>
@@ -27,74 +27,74 @@
 		</Expand>
 	</Type>
 	<!--<Type Name="_pmath_t*">
-		<DisplayString>{*(_pmath_t*)((((uint64_t)this) &lt;&lt; 12) &gt;&gt; 12)}</DisplayString>
+		<DisplayString>{*(_pmath_t*)((((uint64_t)this) * 0x1000) / 0x1000)}</DisplayString>
 		<Expand>
 			<Item Name="[deref]" Condition="((uint64_t)this &gt;&gt; 52) == 0xFFF">
-				*(_pmath_t*)((((uint64_t)this) &lt;&lt; 12) &gt;&gt; 12)
+				*(_pmath_t*)((((uint64_t)this) * 0x1000) / 0x1000)
 			</Item>
 		</Expand>
 	</Type>-->
 	<Type Name="_pmath_t">
-		<DisplayString Condition="type_shift ==  0">{*(pmath!_pmath_mp_float_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  1">{*(pmath!_pmath_mp_int_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  2">{*(pmath!_pmath_quotient_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  3">{*(pmath!_pmath_string_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  4">{*(pmath!_pmath_symbol_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  5">{*(pmath!_pmath_expr_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  6">{*(pmath!_pmath_expr_part_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  7">{*(pmath!_pmath_multirule_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  8">{*(pmath!_pmath_custom_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  9">{*(pmath!_pmath_blob_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift == 10">{*(pmath!_pmath_packed_array_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift == 11">{*(pmath!_pmath_interval_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  0">{*(pmath.dll!_pmath_mp_float_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  1">{*(pmath.dll!_pmath_mp_int_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  2">{*(pmath.dll!_pmath_quotient_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  3">{*(pmath.dll!_pmath_string_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  4">{*(pmath.dll!_pmath_symbol_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  5">{*(pmath.dll!_pmath_expr_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  6">{*(pmath.dll!_pmath_expr_part_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  7">{*(pmath.dll!_pmath_multirule_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  8">{*(pmath.dll!_pmath_custom_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift ==  9">{*(pmath.dll!_pmath_blob_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift == 10">{*(pmath.dll!_pmath_packed_array_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift == 11">{*(pmath.dll!_pmath_interval_t*)this}</DisplayString>
 		<DisplayString>object tag {type_shift}</DisplayString>
 		<Expand HideRawView="true">
 			<Item Name="[deref]" Condition="type_shift == 0">
-				*(pmath!_pmath_mp_float_t*)this
+				*(pmath.dll!_pmath_mp_float_t*)this
 			</Item>
 			
 			<Item Name="[deref]" Condition="type_shift == 1">
-				*(pmath!_pmath_mp_int_t*)this
+				*(pmath.dll!_pmath_mp_int_t*)this
 			</Item>
 			
 			<ExpandedItem Condition="type_shift == 2">
-				*(pmath!_pmath_quotient_t*)this
+				*(pmath.dll!_pmath_quotient_t*)this
 			</ExpandedItem>
 			
 			<ExpandedItem Condition="type_shift == 3">
-				*(pmath!_pmath_string_t*)this
+				*(pmath.dll!_pmath_string_t*)this
 			</ExpandedItem>
 			
 			<ExpandedItem Condition="type_shift == 4">
-				*(pmath!_pmath_symbol_t*)this
+				*(pmath.dll!_pmath_symbol_t*)this
 			</ExpandedItem>
 			
 			<ExpandedItem Condition="type_shift == 5">
-				*(pmath!_pmath_expr_t*)this
+				*(pmath.dll!_pmath_expr_t*)this
 			</ExpandedItem>
 			
 			<ExpandedItem Condition="type_shift == 6">
-				*(pmath!_pmath_expr_part_t*)this
+				*(pmath.dll!_pmath_expr_part_t*)this
 			</ExpandedItem>
 			
 			<Item Name="[deref]" Condition="type_shift == 7">
-				*(pmath!_pmath_multirule_t*)this
+				*(pmath.dll!_pmath_multirule_t*)this
 			</Item>
 			
 			<Item Name="[deref]" Condition="type_shift == 8">
-				*(pmath!_pmath_custom_t*)this
+				*(pmath.dll!_pmath_custom_t*)this
 			</Item>
 			
 			<Item Name="[deref]" Condition="type_shift == 9">
-				*(pmath!_pmath_blob_t*)this
+				*(pmath.dll!_pmath_blob_t*)this
 			</Item>
 			
 			<ExpandedItem Condition="type_shift == 10">
-				*(pmath!_pmath_packed_array_t*)this
+				*(pmath.dll!_pmath_packed_array_t*)this
 			</ExpandedItem>
 			
 			<Item Name="[deref]" Condition="type_shift == 11">
-				*(pmath!_pmath_interval_t*)this
+				*(pmath.dll!_pmath_interval_t*)this
 			</Item>
 		</Expand>
 	</Type>
@@ -107,26 +107,26 @@
 	<Type Name="_pmath_quotient_t">
 		<DisplayString>quotient</DisplayString>
 		<Expand>
-			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath!_pmath_quotient_t*)this,!</Item>
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_quotient_t*)this,!</Item>
 			<Item Name="numerator">numerator</Item>
 			<Item Name="denominator">denominator</Item>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_string_t">
-		<DisplayString Condition="buffer == 0">{(wchar_t*)((char*)this + ((sizeof(pmath!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)),[length]}</DisplayString>
-		<DisplayString Condition="buffer != 0">{(wchar_t*)((char*)buffer + ((sizeof(pmath!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + capacity_or_start,[length]}</DisplayString>
+		<DisplayString Condition="buffer == 0">{(wchar_t*)((char*)this + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)),[length]}</DisplayString>
+		<DisplayString Condition="buffer != 0">{(wchar_t*)((char*)buffer + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + capacity_or_start,[length]}</DisplayString>
 		<Expand HideRawView="true">
 			<!--
-			<Item Name="[header size]">((sizeof(pmath!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)</Item>
+			<Item Name="[header size]">((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)</Item>
 			-->
-			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath!_pmath_string_t*)this,!</Item>
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_string_t*)this,!</Item>
 			<Item Name="length" ExcludeView="simple">length</Item>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_symbol_t">
 		<DisplayString>{name,sub}</DisplayString>
 		<Expand HideRawView="true">
-			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath!_pmath_symbol_t*)this,!</Item>
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_symbol_t*)this,!</Item>
 			<Synthetic Name="attributes">
 				<DisplayString>{attributes,b}</DisplayString>
 				<Expand>
@@ -151,7 +151,7 @@
 				</Expand>
 			</Synthetic>
 			<Item Name="value">value</Item>
-			<Item Name="rules">*(pmath!_pmath_symbol_rules_t*)rules._data</Item>
+			<Item Name="rules">*(pmath.dll!_pmath_symbol_rules_t*)rules._data</Item>
 			<Item Name="prev">*prev</Item>
 			<Item Name="next">*next</Item>
 		</Expand>
@@ -161,10 +161,10 @@
 		<DisplayString>{items[0]}(&lt;&lt;{length,d}&gt;&gt;)</DisplayString>
 		<Expand HideRawView="true">
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple" Condition="inherited.inherited.inherited.type_shift == 6">
-				*(pmath!_pmath_expr_part_t*)this,!
+				*(pmath.dll!_pmath_expr_part_t*)this,!
 			</Item>
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
-				*(pmath!_pmath_expr_t*)this,!
+				*(pmath.dll!_pmath_expr_t*)this,!
 			</Item>
 			<Item Name="[length]" ExcludeView="simple">length,d</Item>
 			<Item Name="debug_info">*debug_ptr</Item>
@@ -181,7 +181,7 @@
 		<DisplayString>{inherited.items[0]}(&lt;&lt;{inherited.length,d}&gt;&gt;)</DisplayString>
 		<Expand HideRawView="true">
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
-				*(pmath!_pmath_expr_part_t*)this,!
+				*(pmath.dll!_pmath_expr_part_t*)this,!
 			</Item>
 			<Item Name="[length]" ExcludeView="simple">inherited.length,d</Item>
 			<Item Name="debug_info">*inherited.debug_ptr</Item>
@@ -216,9 +216,9 @@
 		<DisplayString>packed array</DisplayString>
 		<Expand>
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
-				*(pmath!_pmath_packed_array_t*)this,!
+				*(pmath.dll!_pmath_packed_array_t*)this,!
 			</Item>
-			<Item Name="element_type">(pmath!pmath_packed_type_t)element_type</Item>
+			<Item Name="element_type">(pmath.dll!pmath_packed_type_t)element_type</Item>
 			<Item Name="dimensions">dimensions,d</Item>
 			<Synthetic Name="sizes">
 				<DisplayString Condition="dimensions == 1">[{(intptr_t)sizes_and_steps[0]}]</DisplayString>
@@ -284,10 +284,9 @@
 	</Type>-->
 	
 	<Type Name="_memory_header_t">
-		<Version Name="pmath.dll" />
-		<DisplayString>debug header for {((uintptr_t)this + ((sizeof(pmath!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),!}</DisplayString>
+		<DisplayString>debug header for {((uintptr_t)this + ((sizeof(pmath.dll!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),!}</DisplayString>
 		<Expand>
-			<Item Name="[ptr]">(void*)((char*)this + ((sizeof(pmath!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),[size]</Item>
+			<Item Name="[ptr]">(void*)((char*)this + ((sizeof(pmath.dll!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),[size]</Item>
 			<Item Name="size">size</Item>
 			<Item Name="alloc_time">alloc_time</Item>
 			<Item Name="prev">prev</Item>
