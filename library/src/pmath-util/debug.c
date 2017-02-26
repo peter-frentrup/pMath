@@ -592,6 +592,10 @@ PMATH_PRIVATE
 pmath_symbol_t *_pmath_List_symbol = &PMATH_SYMBOL_LIST;
 PMATH_PRIVATE
 pmath_symbol_t *_pmath_Range_symbol = &PMATH_SYMBOL_RANGE;
+PMATH_PRIVATE
+pmath_symbol_t *_pmath_Rule_symbol = &PMATH_SYMBOL_RULE;
+PMATH_PRIVATE
+pmath_symbol_t *_pmath_RuleDelayed_symbol = &PMATH_SYMBOL_RULEDELAYED;
 
 PMATH_PRIVATE
 struct _pmath_debug_symbol_attribute_t {
