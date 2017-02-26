@@ -130,7 +130,8 @@
 		<Expand HideRawView="true">
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_symbol_t*)this,!</Item>
 			<Synthetic Name="attributes">
-				<DisplayString>{attributes,b}</DisplayString>
+				<!--<DisplayString>{attributes,b}</DisplayString>-->
+				<DisplayString>{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestProtected)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldFirst)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldRest)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestSymmetric)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestAssociative)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNHoldFirst)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNHoldRest)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestTemporary)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestListable)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestDeepHoldAll)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldAllComplete)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestOneIdentity)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestThreadLocal)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNumericFunction)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestReadProtected)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestSequenceHold)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestRemoved)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestDefiniteFunction)}</DisplayString>
 				<Expand>
 					<Synthetic Name="Protected"        Condition="attributes &amp;     0x1"><DisplayString>yes</DisplayString></Synthetic>
 					<Synthetic Name="HoldFirst"        Condition="attributes &amp;     0x2"><DisplayString>yes</DisplayString></Synthetic>
@@ -150,12 +151,38 @@
 					<Synthetic Name="SequenceHold"     Condition="attributes &amp;  0x8000"><DisplayString>yes</DisplayString></Synthetic>
 					<Synthetic Name="Removed"          Condition="attributes &amp; 0x10000"><DisplayString>yes</DisplayString></Synthetic>
 					<Synthetic Name="DefiniteFunction" Condition="attributes &amp; 0x20000"><DisplayString>yes</DisplayString></Synthetic>
+					<Synthetic Name="[value]"><DisplayString>{attributes,b}</DisplayString></Synthetic>
 				</Expand>
 			</Synthetic>
 			<Item Name="value">value</Item>
 			<Item Name="rules">*(pmath.dll!_pmath_symbol_rules_t*)rules._data</Item>
 			<Item Name="prev">*prev</Item>
 			<Item Name="next">*next</Item>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_debug_symbol_attribute_t">
+		<DisplayString Condition="value == 0">none</DisplayString>
+		<DisplayString Condition="value &amp;     0x1" IncludeView="TestProtected"        >+ Protected</DisplayString>
+		<DisplayString Condition="value &amp;     0x2" IncludeView="TestHoldFirst"        >+ HoldFirst</DisplayString>
+		<DisplayString Condition="value &amp;     0x4" IncludeView="TestHoldRest"         >+ HoldRest</DisplayString>
+		<DisplayString Condition="value &amp;     0x4" IncludeView="TestHoldRest"         >+ HoldRest</DisplayString>
+		<DisplayString Condition="value &amp;     0x8" IncludeView="TestSymmetric"        >+ Symmetric</DisplayString>
+		<DisplayString Condition="value &amp;    0x10" IncludeView="TestAssociative"      >+ Associative</DisplayString>
+		<DisplayString Condition="value &amp;    0x20" IncludeView="TestNHoldFirst"       >+ NHoldFirst</DisplayString>
+		<DisplayString Condition="value &amp;    0x40" IncludeView="TestNHoldRest"        >+ NHoldRest</DisplayString>
+		<DisplayString Condition="value &amp;    0x80" IncludeView="TestTemporary"        >+ Temporary</DisplayString>
+		<DisplayString Condition="value &amp;   0x100" IncludeView="TestListable"         >+ Listable</DisplayString>
+		<DisplayString Condition="value &amp;   0x200" IncludeView="TestDeepHoldAll"      >+ DeepHoldAll</DisplayString>
+		<DisplayString Condition="value &amp;   0x400" IncludeView="TestHoldAllComplete"  >+ HoldAllComplete</DisplayString>
+		<DisplayString Condition="value &amp;   0x800" IncludeView="TestOneIdentity"      >+ OneIdentity</DisplayString>
+		<DisplayString Condition="value &amp;  0x1000" IncludeView="TestThreadLocal"      >+ ThreadLocal</DisplayString>
+		<DisplayString Condition="value &amp;  0x2000" IncludeView="TestNumericFunction"  >+ NumericFunction</DisplayString>
+		<DisplayString Condition="value &amp;  0x4000" IncludeView="TestReadProtected"    >+ ReadProtected</DisplayString>
+		<DisplayString Condition="value &amp;  0x8000" IncludeView="TestSequenceHold"     >+ SequenceHold</DisplayString>
+		<DisplayString Condition="value &amp; 0x10000" IncludeView="TestRemoved"          >+ Removed</DisplayString>
+		<DisplayString Condition="value &amp; 0x20000" IncludeView="TestDefiniteFunction" >+ DefiniteFunction</DisplayString>
+		<DisplayString></DisplayString>
+		<Expand HideRawView="true">
 		</Expand>
 	</Type>
 	<Type Name="_pmath_expr_t">

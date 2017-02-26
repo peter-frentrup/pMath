@@ -593,6 +593,11 @@ pmath_symbol_t *_pmath_List_symbol = &PMATH_SYMBOL_LIST;
 PMATH_PRIVATE
 pmath_symbol_t *_pmath_Range_symbol = &PMATH_SYMBOL_RANGE;
 
+PMATH_PRIVATE
+struct _pmath_debug_symbol_attribute_t{
+  pmath_symbol_attributes_t value;
+} _pmath_debug_symbol_attribute_other_t_dummy_var;
+
 /*============================================================================*/
 
 PMATH_PRIVATE pmath_bool_t _pmath_debug_library_init(void) {
