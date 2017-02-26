@@ -290,6 +290,55 @@
 	<!--<Type Name="pmath_atomic_t">
 		<DisplayString>{_data}</DisplayString>
 	</Type>-->
+	<Type Name="_pmath_symbol_rules_t">
+		<DisplayString Condition="_messages._data == 0">{{ up={up_rules}, down={down_rules}, sub={sub_rules}, approx={approx_rules}, default={default_rules}, format={format_rules} }}</DisplayString>
+		<DisplayString                                 >{{ up={up_rules}, down={down_rules}, sub={sub_rules}, approx={approx_rules}, default={default_rules}, format={format_rules}, messages={(pmath.dll!_pmath_hashtable_t*)_messages._data} }}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="up">up_rules</Item>
+			<Item Name="down">down_rules</Item>
+			<Item Name="sub">sub_rules</Item>
+			<Item Name="approx">approx_rules</Item>
+			<Item Name="default">default_rules</Item>
+			<Item Name="format">format_rules</Item>
+			<Item      Name="messages" Condition="_messages._data != 0">(pmath.dll!_pmath_hashtable_t*)_messages._data,view(EntriesOnly)</Item>
+			<Synthetic Name="messages" Condition="_messages._data == 0"><DisplayString>none</DisplayString></Synthetic>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_rulecache_t">
+		<DisplayString Condition="_table._data == 0 &amp;&amp; _more._data.as_bits == 0xFFF0000000000000ULL">none</DisplayString>
+		<DisplayString Condition="_table._data == 0">{{ 0 literal, more={_more._data} }}</DisplayString>
+		<DisplayString Condition="_table._data != 0 &amp;&amp; _more._data.as_bits == 0xFFF0000000000000ULL">{{ {((pmath.dll!_pmath_hashtable_t*)_table._data)-&gt;used_count} literal }}</DisplayString>
+		<DisplayString Condition="_table._data != 0">{{ {((pmath.dll!_pmath_hashtable_t*)_table._data)-&gt;used_count} literal, more={_more._data} }}</DisplayString>
+		<DisplayString>rule_cache</DisplayString>
+		<Expand HideRawView="true">
+			<ExpandedItem>(pmath.dll!_pmath_hashtable_t*)_table._data,view(EntriesOnly)</ExpandedItem>
+			<Item Name="more" Condition="_more._data.as_bits != 0xFFF0000000000000ULL">_more._data</Item>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_hashtable_t">
+		<DisplayString>{{ count={used_count} }}</DisplayString>
+		<Expand>
+			<Item Name="class" ExcludeView="EntriesOnly">klass</Item>
+			<Item Name="capacity" ExcludeView="EntriesOnly">capacity</Item>
+			<Item Name="count" ExcludeView="EntriesOnly">used_count</Item>
+			<!--<Item Name="entries" ExcludeView="EntriesOnly" Condition="klass == &amp;pmath.dll!pmath_ht_obj_class">(_pmath_object_entry_t**)table,[capacity]</Item>
+			<Item Name="entries" ExcludeView="EntriesOnly">table,[capacity]</Item>-->
+			<CustomListItems Condition="klass == &amp;pmath.dll!pmath_ht_obj_class" MaxItemsPerView="1000">
+				<Variable Name="pBucket" InitialValue="(_pmath_object_entry_t**)table" />
+				
+				<Size>used_count</Size>
+				<Loop>
+					<If Condition="((uintptr_t)*pBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*pBucket) + (uintptr_t)1 != (uintptr_t)0)">
+						<Item Name="[{pBucket[0][0].key}]">pBucket[0][0]</Item>
+					</If>
+					<Exec>pBucket = pBucket + 1</Exec>  
+				</Loop>  
+			</CustomListItems>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_object_entry_t">
+		<DisplayString>{value}</DisplayString>
+	</Type>
 	
 	<Type Name="_memory_header_t">
 		<DisplayString>debug header for {((uintptr_t)this + ((sizeof(pmath.dll!_memory_header_t) + 9 + 2*sizeof(size_t) - 1) / (2*sizeof(size_t))) * 2*sizeof(size_t)),!}</DisplayString>
