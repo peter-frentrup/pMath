@@ -3,7 +3,14 @@
 	<Type Name="pmath_t">
 		<DisplayString Condition="((s.tag &amp; 0x7FF00000) != 0x7FF00000)">{as_double}</DisplayString>
 		<DisplayString Condition="s.tag == 0x7FFFFFFF">invalid (locked) {s.u.as_int32}</DisplayString>
-		<DisplayString Condition="s.tag == 0x7FF10000">magic {s.u.as_int32}</DisplayString>
+		
+		<DisplayString Condition="s.tag == 0x7FF10000 &amp;&amp; s.u.as_int32 == 255">undefined</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF10000 &amp;&amp; s.u.as_int32 == 254">{{ magic abort exception }}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF10000 &amp;&amp; s.u.as_int32 == 253">{{ magic parser arguments }}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF10000 &amp;&amp; s.u.as_int32 == 252">{{ magic parse symbols }}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF10000 &amp;&amp; s.u.as_int32 == 2">{{ magic pattern sequence }}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF10000">{{ magic {s.u.as_int32} }}</DisplayString>
+		
 		<DisplayString Condition="s.tag == 0x7FF20000">{s.u.as_int32}</DisplayString>
 		<DisplayString Condition="s.tag == 0x7FF30000">{(wchar_t*)s.u.as_chars,[0]}</DisplayString>
 		<DisplayString Condition="s.tag == 0x7FF40000">{(wchar_t*)s.u.as_chars,[1]}</DisplayString>
@@ -49,13 +56,13 @@
 		<DisplayString Condition="type_shift == 11">{*(pmath.dll!_pmath_interval_t*)this}</DisplayString>
 		<DisplayString>object tag {type_shift}</DisplayString>
 		<Expand HideRawView="true">
-			<Item Name="[deref]" Condition="type_shift == 0">
+			<ExpandedItem Condition="type_shift == 0">
 				*(pmath.dll!_pmath_mp_float_t*)this
-			</Item>
+			</ExpandedItem>
 			
-			<Item Name="[deref]" Condition="type_shift == 1">
+			<ExpandedItem Condition="type_shift == 1">
 				*(pmath.dll!_pmath_mp_int_t*)this
-			</Item>
+			</ExpandedItem>
 			
 			<ExpandedItem Condition="type_shift == 2">
 				*(pmath.dll!_pmath_quotient_t*)this
@@ -77,25 +84,25 @@
 				*(pmath.dll!_pmath_expr_part_t*)this
 			</ExpandedItem>
 			
-			<Item Name="[deref]" Condition="type_shift == 7">
+			<ExpandedItem Condition="type_shift == 7">
 				*(pmath.dll!_pmath_multirule_t*)this
-			</Item>
+			</ExpandedItem>
 			
-			<Item Name="[deref]" Condition="type_shift == 8">
+			<ExpandedItem Condition="type_shift == 8">
 				*(pmath.dll!_pmath_custom_t*)this
-			</Item>
+			</ExpandedItem>
 			
-			<Item Name="[deref]" Condition="type_shift == 9">
+			<ExpandedItem Condition="type_shift == 9">
 				*(pmath.dll!_pmath_blob_t*)this
-			</Item>
+			</ExpandedItem>
 			
 			<ExpandedItem Condition="type_shift == 10">
 				*(pmath.dll!_pmath_packed_array_t*)this
 			</ExpandedItem>
 			
-			<Item Name="[deref]" Condition="type_shift == 11">
+			<ExpandedItem Condition="type_shift == 11">
 				*(pmath.dll!_pmath_interval_t*)this
-			</Item>
+			</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_mp_float_t">
@@ -131,7 +138,7 @@
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_symbol_t*)this,!</Item>
 			<Synthetic Name="attributes">
 				<!--<DisplayString>{attributes,b}</DisplayString>-->
-				<DisplayString>{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestProtected)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldFirst)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldRest)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestSymmetric)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestAssociative)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNHoldFirst)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNHoldRest)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestTemporary)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestListable)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestDeepHoldAll)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldAllComplete)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestOneIdentity)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestThreadLocal)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNumericFunction)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestReadProtected)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestSequenceHold)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestRemoved)}{*(_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestDefiniteFunction)}</DisplayString>
+				<DisplayString>{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestProtected)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldFirst)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldRest)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestSymmetric)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestAssociative)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNHoldFirst)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNHoldRest)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestTemporary)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestListable)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestDeepHoldAll)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldAllComplete)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestOneIdentity)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestThreadLocal)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNumericFunction)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestReadProtected)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestSequenceHold)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestRemoved)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestDefiniteFunction)}</DisplayString>
 				<Expand>
 					<Synthetic Name="Protected"        Condition="attributes &amp;     0x1"><DisplayString>yes</DisplayString></Synthetic>
 					<Synthetic Name="HoldFirst"        Condition="attributes &amp;     0x2"><DisplayString>yes</DisplayString></Synthetic>
@@ -155,7 +162,7 @@
 				</Expand>
 			</Synthetic>
 			<Item Name="value">value</Item>
-			<Item Name="rules">*(pmath.dll!_pmath_symbol_rules_t*)rules._data</Item>
+			<Item Name="rules">(pmath.dll!_pmath_symbol_rules_t*)rules._data,na</Item>
 			<Item Name="prev">*prev</Item>
 			<Item Name="next">*next</Item>
 		</Expand>
@@ -232,7 +239,49 @@
 		<DisplayString>multirule</DisplayString>
 	</Type>
 	<Type Name="_pmath_custom_t">
+		<DisplayString Condition="destructor == pmath.dll!destroy_binary_file">binary file</DisplayString>
+		<DisplayString Condition="destructor == pmath.dll!destroy_text_file">text file</DisplayString>
+		<DisplayString Condition="destructor == pmath.dll!textbuffer_destroy_custom_data">text buffer</DisplayString>
+		<DisplayString Condition="destructor == pmath.dll!destroy_module">module</DisplayString>
+		<DisplayString Condition="destructor == pmath.dll!_pmath_destroy_abortable_message">abortable message</DisplayString>
+		<DisplayString Condition="destructor == pmath.dll!destroy_msg_queue">message queue</DisplayString>
+		<DisplayString Condition="destructor == pmath.dll!_pmath_custom_task_destroy">task</DisplayString>
 		<DisplayString>custom object</DisplayString>
+		<Expand>
+			<ExpandedItem Condition="destructor == pmath.dll!destroy_binary_file">
+				*(pmath.dll!_pmath_binary_file_t*)data
+			</ExpandedItem>
+			<ExpandedItem Condition="destructor == pmath.dll!destroy_text_file">
+				*(pmath.dll!_pmath_text_file_t*)data
+			</ExpandedItem>
+			<ExpandedItem Condition="destructor == pmath.dll!textbuffer_destroy_custom_data">
+				*(pmath.dll!textbuffer_t*)data
+			</ExpandedItem>
+			<ExpandedItem Condition="destructor == pmath.dll!destroy_module">
+				*(pmath.dll!_module_t*)data
+			</ExpandedItem>
+			<ExpandedItem Condition="destructor == pmath.dll!_pmath_destroy_abortable_message">
+				*(pmath.dll!_pmath_abortable_message_t*)data
+			</ExpandedItem>
+			<ExpandedItem Condition="destructor == pmath.dll!destroy_msg_queue">
+				*(pmath.dll!msg_queue_t*)data
+			</ExpandedItem>
+			<ExpandedItem Condition="destructor == pmath.dll!_pmath_custom_task_destroy">
+				*(pmath.dll!pmath_task_t)data
+			</ExpandedItem>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_text_file_t">
+		<Expand>
+			<Synthetic Name="access" Condition="readln_function != 0 &amp;&amp; write_function != 0"><DisplayString>read | write</DisplayString></Synthetic>
+			<Synthetic Name="access" Condition="readln_function != 0 &amp;&amp; write_function == 0"><DisplayString>read only</DisplayString></Synthetic>
+			<Synthetic Name="access" Condition="readln_function == 0 &amp;&amp; write_function != 0"><DisplayString>write only</DisplayString></Synthetic>
+			<Synthetic Name="access" Condition="readln_function == 0 &amp;&amp; write_function == 0"><DisplayString>none</DisplayString></Synthetic>
+			<Item Name="buffer">buffer</Item>
+			<Item Name="extra" Condition="inherited.extra_destructor == pmath.dll!destroy_bintext_extra">
+				*(pmath.dll!_bintext_extra_t*)inherited.extra
+			</Item>
+		</Expand>
 	</Type>
 	<Type Name="_pmath_blob_t">
 		<DisplayString>blob</DisplayString>
