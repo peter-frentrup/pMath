@@ -244,7 +244,23 @@
 		</Expand>
 	</Type>
 	<Type Name="_pmath_multirule_t">
-		<DisplayString>multirule</DisplayString>
+		<DisplayString IncludeView="single">{pattern} :&gt; {body}</DisplayString>
+		<DisplayString ExcludeView="single">multirule</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="pattern" IncludeView="single">pattern</Item>
+			<Item Name="body"    IncludeView="single">body</Item>
+			<CustomListItems MaxItemsPerView="10" ExcludeView="single">
+				<Variable Name="pBucket" InitialValue="this" />
+				<Variable Name="iBucket" InitialValue="-1" />
+				
+				<Loop>
+					<Exec>iBucket = iBucket + 1</Exec>
+					<Item Name="[{iBucket}]">pBucket[0],view(single)</Item>
+					<Break Condition="pBucket[0].next._data.as_bits == 0xFFF0000000000000ULL" />
+					<Exec>pBucket = (pmath.dll!_pmath_multirule_t*)((pBucket[0].next._data.as_bits * 0x1000) / 0x1000)</Exec>
+				</Loop>  
+			</CustomListItems>
+		</Expand>
 	</Type>
 	<Type Name="_pmath_custom_t">
 		<DisplayString Condition="destructor == pmath.dll!destroy_binary_file">binary file</DisplayString>
