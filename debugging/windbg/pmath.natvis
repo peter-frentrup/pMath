@@ -12,9 +12,9 @@
 		<DisplayString Condition="s.tag == 0x7FF10000">{{ magic {s.u.as_int32} }}</DisplayString>
 		
 		<DisplayString Condition="s.tag == 0x7FF20000">{s.u.as_int32}</DisplayString>
-		<DisplayString Condition="s.tag == 0x7FF30000">{(wchar_t*)s.u.as_chars,[0]}</DisplayString>
-		<DisplayString Condition="s.tag == 0x7FF40000">{(wchar_t*)s.u.as_chars,[1]}</DisplayString>
-		<DisplayString Condition="s.tag == 0x7FF50000">{(wchar_t*)s.u.as_chars,[2]}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF30000">{(wchar_t*)s.u.as_chars,[0]na}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF40000">{(wchar_t*)s.u.as_chars,[1]na}</DisplayString>
+		<DisplayString Condition="s.tag == 0x7FF50000">{(wchar_t*)s.u.as_chars,[2]na}</DisplayString>
 		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; ((as_bits * 0x1000) == 0)">(null)</DisplayString>
 		<DisplayString Condition="((s.tag &amp; 0xFFF00000) == 0xFFF00000)">{*(pmath.dll!_pmath_t*)((as_bits * 0x1000) / 0x1000)}</DisplayString>
 		<DisplayString>magic {s.tag,x} value {s.u.as_int32,x}</DisplayString>
@@ -130,6 +130,12 @@
 			-->
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_string_t*)this,!</Item>
 			<Item Name="length" ExcludeView="simple">length</Item>
+			<ExpandedItem Condition="buffer == 0">
+				(wchar_t*)((char*)this + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)),[length]na
+			</ExpandedItem>
+			<ExpandedItem Condition="buffer != 0">
+				(wchar_t*)((char*)buffer + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + capacity_or_start,[length]na
+			</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_symbol_t">
@@ -208,7 +214,7 @@
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
 				*(pmath.dll!_pmath_expr_t*)this,!
 			</Item>
-			<Item Name="[length]" ExcludeView="simple">length,d</Item>
+			<Item Name="length" ExcludeView="simple">length,d</Item>
 			<Item Name="debug_info" Condition="debug_ptr != 0">*debug_ptr</Item>
 			<Item Name="head">items[0]</Item>
 			<ArrayItems Condition="inherited.inherited.inherited.type_shift == 5">
@@ -225,7 +231,7 @@
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
 				*(pmath.dll!_pmath_expr_part_t*)this,!
 			</Item>
-			<Item Name="[length]" ExcludeView="simple">inherited.length,d</Item>
+			<Item Name="length" ExcludeView="simple">inherited.length,d</Item>
 			<Item Name="debug_info" Condition="inherited.debug_ptr != 0">*inherited.debug_ptr</Item>
 			<Item Name="head">inherited.items[0]</Item>
 			<ArrayItems>
@@ -414,6 +420,29 @@
 	</Type>
 	<Type Name="_pmath_object_entry_t">
 		<DisplayString>{value}</DisplayString>
+	</Type>
+	
+	<Type Name="_pmath_span_array_t">
+		<DisplayString>{{ length={length} }}</DisplayString>
+		<Expand>
+			<ArrayItems>
+				<Size>length</Size>
+				<ValuePointer>(pmath.dll!_pmath_debug_span_t*)items</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	<Type Name="_pmath_debug_span_t">
+		<DisplayString Condition="value == 0">-</DisplayString>
+		<DisplayString Condition="(value &amp; 3) == 0 &amp;&amp; value/4 != 0">end={((pmath.dll!_pmath_span_t*)((value / 4) * 4))-&gt;end}</DisplayString>
+		<DisplayString Condition="(value &amp; 3) == 1 &amp;&amp; value/4 != 0">token end, end={((pmath.dll!_pmath_span_t*)((value / 4) * 4))-&gt;end}</DisplayString>
+		<DisplayString Condition="(value &amp; 3) == 2 &amp;&amp; value/4 != 0">operand start, end={((pmath.dll!_pmath_span_t*)((value / 4) * 4))-&gt;end}</DisplayString>
+		<DisplayString Condition="(value &amp; 3) == 3 &amp;&amp; value/4 != 0">operand start, token end, end={((pmath.dll!_pmath_span_t*)((value / 4) * 4))-&gt;end}</DisplayString>
+		<DisplayString Condition="(value &amp; 3) == 1">token end</DisplayString>
+		<DisplayString Condition="(value &amp; 3) == 2">operand start</DisplayString>
+		<DisplayString Condition="(value &amp; 3) == 3">operand start, token end</DisplayString>
+		<Expand HideRawView="true">
+			<ExpandedItem Condition="value / 4 != 0">*(pmath.dll!_pmath_span_t*)((value / 4) * 4)</ExpandedItem>
+		</Expand>
 	</Type>
 	
 	<Type Name="_memory_header_t">
