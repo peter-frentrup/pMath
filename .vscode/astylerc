@@ -1,0 +1,18 @@
+# indentation options ...
+--indent=spaces=2
+--indent-cases
+--indent-classes
+--indent-labels
+--indent-namespaces
+--indent-switches
+--min-conditional-indent=2
+--max-instatement-indent=40
+
+# formatting options ...
+--keep-one-line-blocks
+--keep-one-line-statements
+--convert-tabs
+
+# padding options ...
+--pad-oper
+--fill-empty-lines
