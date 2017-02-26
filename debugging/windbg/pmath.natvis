@@ -115,6 +115,8 @@
 	<Type Name="_pmath_string_t">
 		<DisplayString Condition="buffer == 0">{(wchar_t*)((char*)this + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)),[length]na}</DisplayString>
 		<DisplayString Condition="buffer != 0">{(wchar_t*)((char*)buffer + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + capacity_or_start,[length]na}</DisplayString>
+		<StringView    Condition="buffer == 0" >(wchar_t*)((char*)this + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)),[length]na</StringView>
+		<StringView    Condition="buffer != 0" >(wchar_t*)((char*)buffer + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + capacity_or_start,[length]na</StringView>
 		<Expand HideRawView="true">
 			<!--
 			<Item Name="[header size]">((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)</Item>
