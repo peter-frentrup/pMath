@@ -1,4 +1,5 @@
 #include <pmath-core/objects-private.h>
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/strings-private.h>
 
 #include <pmath-util/debug.h>
@@ -579,6 +580,18 @@ void pmath_debug_print_debug_info(
 
   pmath_unref(info);
 }
+
+/*============================================================================*/
+
+/* The following variables are used by the debugger visualizer (pmath.natvis) only.
+ */
+
+PMATH_PRIVATE
+pmath_symbol_t *_pmath_DebugInfoSource_symbol = &PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE;
+PMATH_PRIVATE
+pmath_symbol_t *_pmath_List_symbol = &PMATH_SYMBOL_LIST;
+PMATH_PRIVATE
+pmath_symbol_t *_pmath_Range_symbol = &PMATH_SYMBOL_RANGE;
 
 /*============================================================================*/
 
