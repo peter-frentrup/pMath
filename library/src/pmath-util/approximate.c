@@ -27,13 +27,27 @@ double pmath_precision(pmath_t obj) { // will be freed
   }
   
   if(pmath_is_mpfloat(obj)) {
-    //mpfr_prec_t prec = mpfr_get_prec(PMATH_AS_MP_VALUE(obj));
     slong prec = PMATH_AS_ARB_WORKING_PREC(obj);
-    slong err_prec = arb_rel_accuracy_bits(PMATH_AS_ARB(obj));
+    slong acc;
+    if(arf_is_zero(arb_midref(PMATH_AS_ARB(obj)))) {
+      if(fmpz_cmp_si(MAG_EXPREF(arb_radref(PMATH_AS_ARB(obj))), -ARF_PREC_EXACT) >= 0 &&
+         fmpz_cmp_si(MAG_EXPREF(arb_radref(PMATH_AS_ARB(obj))), ARF_PREC_EXACT) <= 0) 
+      {
+        acc = - fmpz_get_si(MAG_EXPREF(arb_radref(PMATH_AS_ARB(obj))));
+      }
+      else if(fmpz_sgn(MAG_EXPREF(arb_radref(PMATH_AS_ARB(obj)))) < 0)
+        acc = ARF_PREC_EXACT; // small error
+      else
+        acc = -ARF_PREC_EXACT; // huge error
+    }
+    else
+      acc = arb_rel_accuracy_bits(PMATH_AS_ARB(obj));
     pmath_unref(obj);
-    if(err_prec > prec)
+    if(prec < acc)
       return (double)prec;
-    return (double)err_prec;
+    if(acc < 0)
+      return 0; // (double)prec;
+    return (double)acc;
   }
   
   if(pmath_is_interval(obj)) {
