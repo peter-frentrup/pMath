@@ -612,6 +612,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
       arb_pow_ui(PMATH_AS_ARB(result), PMATH_AS_ARB(base), -(ulong)exponent, PMATH_AS_ARB_WORKING_PREC(result));
       arb_ui_div(PMATH_AS_ARB(result), 1, PMATH_AS_ARB(result), PMATH_AS_ARB_WORKING_PREC(result));
     }
+    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
     
     pmath_unref(base);
     pmath_unref(*expr);
@@ -815,6 +816,7 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
     mag_set_ui(arb_radref(PMATH_AS_ARB(exp)), 0);
     
     arb_pow(PMATH_AS_ARB(result), PMATH_AS_ARB(base), PMATH_AS_ARB(exp), PMATH_AS_ARB_WORKING_PREC(result));
+    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
     
     pmath_unref(base);
     pmath_unref(*expr);
