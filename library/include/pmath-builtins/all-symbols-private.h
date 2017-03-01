@@ -41,8 +41,7 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_run_approx_code(
   pmath_t       key,   // wont be freed
   pmath_t      *in_out,
-  double        prec,
-  pmath_bool_t  interval);
+  double        prec);
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void);

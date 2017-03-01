@@ -14,6 +14,8 @@
 // float or complex
 PMATH_PRIVATE pmath_bool_t _pmath_is_inexact(pmath_t obj);
 
+/** \deprecated Use special-case predicates instead.
+ */
 PMATH_PRIVATE int _pmath_number_class(pmath_t obj);
 
 enum {

@@ -1597,11 +1597,7 @@ PMATH_PRIVATE pmath_t builtin_sqrt(pmath_expr_t expr) {
            pmath_ref(_pmath_one_half));
 }
 
-PMATH_PRIVATE pmath_bool_t builtin_approximate_power(
-  pmath_t *obj,
-  double prec,
-  pmath_bool_t interval
-) {
+PMATH_PRIVATE pmath_bool_t builtin_approximate_power(pmath_t *obj, double prec) {
   pmath_t base, exp;
   
   if(!pmath_is_expr_of_len(*obj, PMATH_SYMBOL_POWER, 2))
@@ -1611,27 +1607,14 @@ PMATH_PRIVATE pmath_bool_t builtin_approximate_power(
   exp  = pmath_expr_extract_item(*obj, 2);
   
   if(pmath_same(base, PMATH_SYMBOL_E)) {
-    if(interval)
-      exp = pmath_set_precision_interval(exp, prec);
-    else
-      exp = pmath_set_precision(exp, prec);
-      
+    exp = pmath_set_precision(exp, prec);
   }
   else if(pmath_is_rational(exp)) {
-    if(interval)
-      base = pmath_set_precision_interval(base, prec);
-    else
-      base = pmath_set_precision(base, prec);
+    base = pmath_set_precision(base, prec);
   }
   else {
-    if(interval) {
-      base = pmath_set_precision_interval(base, prec);
-      exp = pmath_set_precision_interval(exp, prec);
-    }
-    else {
-      base = pmath_set_precision(base, prec);
-      exp = pmath_set_precision(exp, prec);
-    }
+    base = pmath_set_precision(base, prec);
+    exp = pmath_set_precision(exp, prec);
   }
   *obj = pmath_expr_set_item(*obj, 1, base);
   *obj = pmath_expr_set_item(*obj, 2, exp);

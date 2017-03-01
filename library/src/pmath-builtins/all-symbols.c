@@ -120,11 +120,11 @@ PMATH_PRIVATE pmath_t builtin_tan(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tanh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_times(           pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_bool_t builtin_approximate_e(               pmath_t *obj, double prec, pmath_bool_t interval);
-PMATH_PRIVATE pmath_bool_t builtin_approximate_eulergamma(      pmath_t *obj, double prec, pmath_bool_t interval);
-PMATH_PRIVATE pmath_bool_t builtin_approximate_machineprecision(pmath_t *obj, double prec, pmath_bool_t interval);
-PMATH_PRIVATE pmath_bool_t builtin_approximate_pi(              pmath_t *obj, double prec, pmath_bool_t interval);
-PMATH_PRIVATE pmath_bool_t builtin_approximate_power(           pmath_t *obj, double prec, pmath_bool_t interval);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_e(               pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_eulergamma(      pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_machineprecision(pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_pi(              pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_power(           pmath_t *obj, double prec);
 
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_setprecision(     pmath_expr_t expr);
@@ -584,23 +584,22 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_run_approx_code(
   pmath_t       key,   // wont be freed
   pmath_t      *in_out,
-  double        prec,
-  pmath_bool_t  interval
+  double        prec
 ) {
   func_entry_t         *entry;
   pmath_hashtable_t     table;
-  pmath_bool_t        (*func)(pmath_t*, double, pmath_bool_t) = NULL;
+  pmath_bool_t        (*func)(pmath_t*, double) = NULL;
   
   table = LOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX);
   
   entry = pmath_ht_search(table, &key);
   if(entry)
-    func = (pmath_bool_t(*)(pmath_t*, double, pmath_bool_t))entry->function;
+    func = (pmath_bool_t(*)(pmath_t*, double))entry->function;
     
   UNLOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX, table);
   
   if(func) 
-    return func(in_out, prec, interval);
+    return func(in_out, prec);
   
   return FALSE;
 }
@@ -649,7 +648,7 @@ pmath_bool_t pmath_register_code(
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_bool_t   (*func)(pmath_t*, double, pmath_bool_t)
+  pmath_bool_t   (*func)(pmath_t*, double)
 ) {
   return pmath_register_code(
            symbol,
@@ -696,7 +695,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD              = NEW_SYMBOL("Internal`NextToward"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_REALINTERVAL            = NEW_SYMBOL("Internal`RealInterval"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL    = NEW_SYMBOL("Internal`SetPrecisionInterval"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                 = NEW_SYMBOL("Internal`SignBit"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE              = NEW_SYMBOL("Internal`ThreadIdle"))
   
@@ -1534,7 +1532,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_UP(     PMATH_SYMBOL_OWNRULES,                         builtin_assign_ownrules)
   BIND_UP(     PMATH_SYMBOL_PART,                             builtin_assign_part)
   BIND_UP(     PMATH_SYMBOL_SETPRECISION,                     builtin_assign_setprecision)
-  BIND_UP(     PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL,    builtin_assign_setprecision)
   BIND_UP(     PMATH_SYMBOL_SUBRULES,                         builtin_assign_symbol_rules)
   BIND_UP(     PMATH_SYMBOL_SYNTAXINFORMATION,                builtin_assign_syntaxinformation)
   BIND_UP(     PMATH_SYMBOL_UPRULES,                          builtin_assign_symbol_rules)
@@ -1552,7 +1549,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL,          builtin_internal_isrealinterval)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,              builtin_internal_nexttoward)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALINTERVAL,            builtin_internal_realinterval)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL,    builtin_setprecision)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                 builtin_internal_signbit)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
   

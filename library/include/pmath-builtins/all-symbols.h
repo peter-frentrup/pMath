@@ -83,7 +83,7 @@ pmath_bool_t pmath_register_code(
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_bool_t   (*func)(pmath_t *, double, pmath_bool_t));
+  pmath_bool_t   (*func)(pmath_t *, double));
 
 /** @} */
 
@@ -884,7 +884,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_INTERNAL_NEXTTOWARD                    PMATH_SYMBOL_BUILTIN(790)
 #define PMATH_SYMBOL_DEVELOPER_SYSTEMINFORMATION            PMATH_SYMBOL_BUILTIN(791)
 #define PMATH_SYMBOL_INTERNAL_REALINTERVAL                  PMATH_SYMBOL_BUILTIN(792)
-#define PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL          PMATH_SYMBOL_BUILTIN(793)
+//#define PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL          PMATH_SYMBOL_BUILTIN(793)
 #define PMATH_SYMBOL_ISATOM                                 PMATH_SYMBOL_BUILTIN(794)
 #define PMATH_SYMBOL_INTERNAL_ISREALINTERVAL                PMATH_SYMBOL_BUILTIN(795)
 #define PMATH_SYMBOL_MAGNIFICATION                          PMATH_SYMBOL_BUILTIN(796)
