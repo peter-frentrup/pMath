@@ -37,7 +37,7 @@ static pmath_integer_t double_factorial(unsigned long n) {
   if(n <= 1)
     return INT(1);
     
-  if(n <= 166057019) { // 166057019!! >= 2^31
+  if(n <= 166057019) { // 166057019!! >= 2^(2^31)
     pmath_mpint_t result = _pmath_create_mp_int(0);
     
     if(!pmath_is_null(result)) {
@@ -53,6 +53,49 @@ static pmath_integer_t double_factorial(unsigned long n) {
   }
   
   return PMATH_NULL;
+}
+
+/** \brief Try to evaluate Gamma(z) of an infinite value z
+    \param expr  Pointer to the Gamma-expression. On success, this will be replaced by the evaluation result.
+    \param z     A pMath object. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+static pmath_bool_t try_gamma_of_infinity(pmath_t *expr, pmath_t z) {
+  pmath_t dir = _pmath_directed_infinity_direction(z);
+  if(pmath_same(dir, PMATH_NULL))
+    return FALSE;
+  if(pmath_same(dir, INT(1))) {
+    pmath_unref(dir);
+    pmath_unref(*expr);
+    *expr = pmath_ref(z);
+    return TRUE;
+  }
+  if(pmath_same(dir, INT(-1))) {
+    pmath_unref(dir);
+    pmath_unref(*expr);
+    *expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return TRUE;
+  }
+  if(pmath_same(dir, INT(0))) {
+    pmath_unref(dir);
+    pmath_unref(*expr);
+    *expr = pmath_ref(_pmath_object_complex_infinity);
+    return TRUE;
+  }
+  if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)) {
+    pmath_t re = pmath_expr_get_item(dir, 1);
+    if(pmath_same(re, INT(0))) {
+      pmath_unref(re);
+      pmath_unref(dir);
+      pmath_unref(*expr);
+      *expr = pmath_ref(_pmath_object_complex_infinity);
+      return TRUE;
+    }
+    pmath_unref(re);
+  }
+  pmath_unref(dir);
+  return FALSE;
 }
 
 PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
@@ -161,34 +204,38 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
     
     pmath_unref(den);
   }
-  
-  { // infinite values
-    int num_class = _pmath_number_class(z);
-    
-    if(num_class & PMATH_CLASS_POSINF) {
+
+  if(_pmath_is_infinite(z)) {
+    pmath_t dir = _pmath_directed_infinity_direction(z);
+    if(pmath_same(dir, INT(1))) {
+      pmath_unref(dir);
       pmath_unref(expr);
       return z;
     }
-    
-    if(num_class & PMATH_CLASS_NEGINF) {
+    if(pmath_same(dir, INT(-1))) {
+      pmath_unref(dir);
       pmath_unref(z);
       pmath_unref(expr);
       return pmath_ref(PMATH_SYMBOL_UNDEFINED);
     }
-    
-    if(num_class & PMATH_CLASS_UINF) {
+    if(pmath_same(dir, INT(0))) {
+      pmath_unref(dir);
       pmath_unref(z);
       pmath_unref(expr);
       return pmath_ref(_pmath_object_complex_infinity);
     }
-    
-    if( (num_class & PMATH_CLASS_CINF) &&
-        (num_class & PMATH_CLASS_IMAGINARY))
-    {
-      pmath_unref(z);
-      pmath_unref(expr);
-      return INT(0);
+    if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)) {
+      pmath_t re = pmath_expr_get_item(dir, 1);
+      if(pmath_same(re, INT(0))) {
+        pmath_unref(re);
+        pmath_unref(dir);
+        pmath_unref(z);
+        pmath_unref(expr);
+        return INT(0);
+      }
+      pmath_unref(re);
     }
+    pmath_unref(dir);
   }
   
   pmath_unref(z);
@@ -244,33 +291,9 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr) {
     return expr;
   }
   
-  { // infinite values
-    int num_class = _pmath_number_class(z);
-    
-    if(num_class & PMATH_CLASS_POSINF) {
-      pmath_unref(expr);
-      return z;
-    }
-    
-    if(num_class & PMATH_CLASS_NEGINF) {
-      pmath_unref(z);
-      pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-    }
-    
-    if(num_class & PMATH_CLASS_UINF) {
-      pmath_unref(z);
-      pmath_unref(expr);
-      return pmath_ref(_pmath_object_complex_infinity);
-    }
-    
-    if( (num_class & PMATH_CLASS_CINF) &&
-        (num_class & PMATH_CLASS_IMAGINARY))
-    {
-      pmath_unref(z);
-      pmath_unref(expr);
-      return INT(0);
-    }
+  if(try_gamma_of_infinity(&expr, z)) {
+    pmath_unref(z);
+    return expr;
   }
   
   pmath_unref(z);
@@ -387,19 +410,24 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr) {
     }
   }
   
-  { // infinite values
-    int num_class = _pmath_number_class(z);
-    
-    if(num_class & PMATH_CLASS_POSINF) {
+  if(_pmath_is_infinite(z)) {
+    pmath_t dir = _pmath_directed_infinity_direction(z);
+    if(pmath_same(dir, INT(1))) {
+      pmath_unref(dir);
       pmath_unref(expr);
+      if(n >= 1) {
+        pmath_unref(z);
+        return INT(0);
+      }
       return z;
     }
-    
-    if(num_class & PMATH_CLASS_UINF) {
+    if(pmath_same(dir, INT(0))) {
+      pmath_unref(dir);
       pmath_unref(expr);
       pmath_unref(z);
       return pmath_ref(PMATH_SYMBOL_UNDEFINED);
     }
+    pmath_unref(dir);
   }
   
   pmath_unref(z);
@@ -481,33 +509,9 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr) {
     return expr;
   }
   
-  { // infinite values
-    int num_class = _pmath_number_class(n);
-    
-    if(num_class & PMATH_CLASS_POSINF) {
-      pmath_unref(expr);
-      return n;
-    }
-    
-    if(num_class & PMATH_CLASS_NEGINF) {
-      pmath_unref(n);
-      pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-    }
-    
-    if(num_class & PMATH_CLASS_UINF) {
-      pmath_unref(n);
-      pmath_unref(expr);
-      return pmath_ref(_pmath_object_complex_infinity);
-    }
-    
-    if( (num_class & PMATH_CLASS_CINF) &&
-        (num_class & PMATH_CLASS_IMAGINARY))
-    {
-      pmath_unref(n);
-      pmath_unref(expr);
-      return INT(0);
-    }
+  if(try_gamma_of_infinity(&expr, n)) {
+    pmath_unref(n);
+    return expr;
   }
   
   pmath_unref(n);
@@ -603,33 +607,31 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr) {
     return expr;
   }
   
-  { // infinite values
-    int num_class = _pmath_number_class(n);
-    
-    if(num_class & PMATH_CLASS_POSINF) {
+  if(_pmath_is_infinite(n)) {
+    pmath_t dir = _pmath_directed_infinity_direction(n);
+    if(pmath_same(dir, INT(1))) {
+      pmath_unref(dir);
       pmath_unref(expr);
       return n;
     }
-    
-    if(num_class & PMATH_CLASS_NEGINF) {
-      pmath_unref(n);
+    if(pmath_same(dir, INT(0)) || pmath_same(dir, INT(-1))) {
+      pmath_unref(dir);
       pmath_unref(expr);
+      pmath_unref(n);
       return pmath_ref(PMATH_SYMBOL_UNDEFINED);
     }
-    
-    if(num_class & PMATH_CLASS_UINF) {
-      pmath_unref(n);
-      pmath_unref(expr);
-      return pmath_ref(_pmath_object_complex_infinity);
+    if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)) {
+      pmath_t re = pmath_expr_get_item(dir, 1);
+      if(pmath_same(re, INT(0))) {
+        pmath_unref(re);
+        pmath_unref(dir);
+        pmath_unref(expr);
+        pmath_unref(n);
+        return pmath_ref(_pmath_object_complex_infinity);
+      }
+      pmath_unref(re);
     }
-    
-    if( (num_class & PMATH_CLASS_CINF) &&
-        (num_class & PMATH_CLASS_IMAGINARY))
-    {
-      pmath_unref(n);
-      pmath_unref(expr);
-      return INT(0);
-    }
+    pmath_unref(dir);
   }
   
   pmath_unref(n);
