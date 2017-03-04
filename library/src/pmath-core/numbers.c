@@ -906,28 +906,6 @@ pmath_t _pmath_float_exceptions(
 }
 
 PMATH_PRIVATE
-pmath_t _pmath_mpfloat_call(
-  pmath_mpfloat_t   arg,  // will be freed
-  int             (*func)(mpfr_ptr, mpfr_srcptr, mpfr_rnd_t)
-) {
-  pmath_mpfloat_t result;
-  if(pmath_is_null(arg))
-    return arg;
-    
-  assert(pmath_is_mpfloat(arg));
-  
-  result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(arg)));
-  if(pmath_is_null(result)) {
-    pmath_unref(arg);
-    return result;
-  }
-  
-  func(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(arg), _pmath_current_rounding_mode());
-  pmath_unref(arg);
-  return _pmath_float_exceptions(result);
-}
-
-PMATH_PRIVATE
 mpfr_rnd_t _pmath_current_rounding_mode(void) {
   pmath_thread_t me = pmath_thread_get_current();
   

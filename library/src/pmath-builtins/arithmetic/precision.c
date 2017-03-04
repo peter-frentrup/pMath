@@ -1,5 +1,4 @@
 #include <pmath-core/numbers-private.h>
-#include <pmath-core/intervals-private.h>
 #include <pmath-core/packed-arrays.h>
 #include <pmath-core/symbols-private.h>
 
@@ -197,57 +196,6 @@ PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
   _pmath_rulecache_change(&rules->approx_rules, lhs, rhs);
   
   return PMATH_NULL;
-}
-
-static pmath_t _mpfi_get_representative(mpfi_srcptr ival) {
-  pmath_mpfloat_t tmp;
-  double d;
-  long exp;
-  
-  if(mpfi_nan_p(ival)) 
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-  
-  tmp = _pmath_create_mp_float(mpfi_get_prec(ival));
-  if(pmath_is_null(tmp)) 
-    return PMATH_NULL;
-  
-  if(!mpfi_bounded_p(ival)) {
-    if(mpfr_number_p(&ival->left)) {
-      mpfr_set(PMATH_AS_MP_VALUE(tmp), &ival->left, MPFR_RNDN);
-      tmp = _pmath_float_exceptions(tmp);
-      return pmath_set_precision(tmp, 0);
-    }
-    
-    if(mpfr_number_p(&ival->right)) {
-      mpfr_set(PMATH_AS_MP_VALUE(tmp), &ival->right, MPFR_RNDN);
-      tmp = _pmath_float_exceptions(tmp);
-      return pmath_set_precision(tmp, 0);
-    }
-    
-    mpfr_set_ui(PMATH_AS_MP_VALUE(tmp), 0, MPFR_RNDN);
-    return pmath_set_precision(tmp, 0);
-  }
-  
-  mpfi_diam(PMATH_AS_MP_VALUE(tmp), ival);
-  
-  if(!mpfr_number_p(PMATH_AS_MP_VALUE(tmp))) {
-    pmath_unref(tmp);
-    return pmath_ref(_pmath_object_overflow);
-  }
-  
-  d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(tmp), MPFR_RNDD);
-  mpfi_get_fr(PMATH_AS_MP_VALUE(tmp), ival);
-  tmp = _pmath_float_exceptions(tmp);
-  
-  if(d == 0)
-    return tmp;
-  
-  if(exp > 0) {
-    mpfr_set_ui(PMATH_AS_MP_VALUE(tmp), 0, MPFR_RNDN);
-    return pmath_set_precision(tmp, 0);
-  }
-  
-  return pmath_set_precision(tmp, -exp);
 }
 
 static pmath_t approximate_to_finite_precision(pmath_t obj, double precision_goal) {

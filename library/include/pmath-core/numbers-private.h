@@ -205,12 +205,6 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
   
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_mpfloat_call(
-  pmath_mpfloat_t   arg,  // will be freed
-  int             (*func)(mpfr_ptr, mpfr_srcptr, mpfr_rnd_t));
-
 // returns pmath_thread_current()->mp_rounding_mode; and MPFR_RNDN on error.
 PMATH_PRIVATE
 mpfr_rnd_t _pmath_current_rounding_mode(void);
