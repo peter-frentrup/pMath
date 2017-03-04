@@ -1,5 +1,4 @@
 #include <pmath-core/numbers-private.h>
-#include <pmath-core/intervals-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays-private.h>
 
@@ -129,30 +128,6 @@ static void packed_array_minmax(pmath_packed_array_t array, pmath_t *optout_min,
   return;
 }
 
-static void interval_minmax(pmath_interval_t interval, pmath_t *optout_min, pmath_t *optout_max) { // array will be freed
-  mpfr_srcptr left  = &(PMATH_AS_MP_INTERVAL(interval)->left);
-  mpfr_srcptr right = &(PMATH_AS_MP_INTERVAL(interval)->right);
-  pmath_mpfloat_t min = _pmath_create_mp_float(mpfr_get_prec(left));
-  pmath_mpfloat_t max = _pmath_create_mp_float(mpfr_get_prec(right));
-  if(pmath_is_null(min) || pmath_is_null(max)) {
-    pmath_unref(min);
-    pmath_unref(max);
-    pmath_unref(interval);
-    if(optout_min) *optout_min = PMATH_UNDEFINED;
-    if(optout_max) *optout_max = PMATH_UNDEFINED;
-    return;
-  }
-  mpfr_set(PMATH_AS_MP_VALUE(min), left,  MPFR_RNDD);
-  mpfr_set(PMATH_AS_MP_VALUE(max), right, MPFR_RNDU);
-  
-  if(optout_min) *optout_min = pmath_ref(min);
-  if(optout_max) *optout_max = pmath_ref(max);
-  
-  pmath_unref(min);
-  pmath_unref(max);
-  pmath_unref(interval);
-}
-
 static void minmax(pmath_t item, pmath_t *optout_min, pmath_t *optout_max);
 
 // return first index after start, where comparison failed.
@@ -220,22 +195,38 @@ static pmath_expr_t list_min_or_max_rest(pmath_expr_t list, int directions) {
       size_t next;
       for(next = start + 1; next <= len; ++next) {
         pmath_t next_item = pmath_expr_get_item(list, next);
-        int cmp;
         
         if(pmath_same(next_item, PMATH_UNDEFINED))
           continue;
         
-        cmp = _pmath_numeric_order(item, next_item, directions);
-        if(cmp == TRUE) {
-          list = pmath_expr_set_item(list, next, PMATH_UNDEFINED);
-          pmath_unref(next_item);
+        if(pmath_is_mpfloat(item) && pmath_is_mpfloat(next_item)) {
+          pmath_mpfloat_t result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(item));
+          if(!pmath_is_null(result)) {            
+            if(directions == PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL)
+              arb_min(PMATH_AS_ARB(result), PMATH_AS_ARB(item), PMATH_AS_ARB(next_item), PMATH_AS_ARB_WORKING_PREC(result));
+            else
+              arb_max(PMATH_AS_ARB(result), PMATH_AS_ARB(item), PMATH_AS_ARB(next_item), PMATH_AS_ARB_WORKING_PREC(result));
+            
+            list = pmath_expr_set_item(list, next, PMATH_UNDEFINED);
+            pmath_unref(next_item);
+            pmath_unref(item);
+            item = result;
+          }
         }
-        else if(cmp == FALSE) {
-          list = pmath_expr_set_item(list, next, PMATH_UNDEFINED);
-          item = next_item;
+        else {
+          int cmp = _pmath_numeric_order(item, next_item, directions);
+          if(cmp == TRUE) {
+            list = pmath_expr_set_item(list, next, PMATH_UNDEFINED);
+            pmath_unref(next_item);
+          }
+          else if(cmp == FALSE) {
+            list = pmath_expr_set_item(list, next, PMATH_UNDEFINED);
+            pmath_unref(item);
+            item = next_item;
+          }
+          else
+            pmath_unref(next_item);
         }
-        else
-          pmath_unref(next_item);
       }
     }
     list = pmath_expr_set_item(list, start, item);
@@ -297,10 +288,6 @@ static void list_minmax(pmath_expr_t list, pmath_t *optout_min, pmath_t *optout_
 static void minmax(pmath_t item, pmath_t *optout_min, pmath_t *optout_max) { // item will be freed
   if(pmath_is_packed_array(item)) {
     packed_array_minmax(item, optout_min, optout_max);
-    return;
-  }
-  if(pmath_is_interval(item)) {
-    interval_minmax(item, optout_min, optout_max);
     return;
   }
   if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
