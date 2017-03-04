@@ -453,7 +453,7 @@ static pmath_t _add_mf(
   assert(pmath_is_double(floatA));
   assert(pmath_is_mpfloat(floatB));
   
-  d = PMATH_AS_DOUBLE(floatA) + mpfr_get_d(PMATH_AS_MP_VALUE(floatB), MPFR_RNDN);
+  d = PMATH_AS_DOUBLE(floatA) + arf_get_d(arb_midref(PMATH_AS_ARB(floatB)), ARF_RND_NEAR);
   
   if(!isfinite(d))
     return _add_nn(_pmath_convert_to_mp_float(floatA), floatB);

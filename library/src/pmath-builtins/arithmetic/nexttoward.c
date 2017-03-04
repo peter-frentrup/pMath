@@ -117,7 +117,7 @@ PMATH_PRIVATE pmath_t builtin_internal_nexttoward(pmath_expr_t expr) {
   
   if(pmath_is_mpfloat(x)) {
     if(pmath_is_number(y) && !pmath_is_mpfloat(y))
-      y = pmath_set_precision(y, mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
+      y = pmath_set_precision(y, PMATH_AS_ARB_WORKING_PREC(x));
       
     if(pmath_is_mpfloat(y)) {
       if(arb_lt(PMATH_AS_ARB(x), PMATH_AS_ARB(y))) {

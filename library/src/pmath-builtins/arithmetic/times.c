@@ -180,7 +180,7 @@ static pmath_t _mul_mf(
   pmath_float_t   floatA, // will be freed. not PMATH_NULL!
   pmath_mpfloat_t floatB  // will be freed. not PMATH_NULL!
 ) {
-  double d = PMATH_AS_DOUBLE(floatA) * mpfr_get_d(PMATH_AS_MP_VALUE(floatB), MPFR_RNDN);
+  double d = PMATH_AS_DOUBLE(floatA) * arf_get_d(arb_midref(PMATH_AS_ARB(floatB)), ARF_RND_NEAR);
   
   if(!isfinite(d))
     return _mul_nn(_pmath_convert_to_mp_float(floatA), floatB);

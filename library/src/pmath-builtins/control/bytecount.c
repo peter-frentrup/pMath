@@ -23,7 +23,8 @@ size_t pmath_object_bytecount(pmath_t obj) {
            + sizeof(struct _pmath_quotient_t);
     
     case PMATH_TYPE_SHIFT_MP_FLOAT:
-      return (PMATH_AS_MP_VALUE(obj)->_mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
+      return arb_allocated_bytes(PMATH_AS_ARB(obj))
+           + (PMATH_AS_MP_VALUE(obj)->_mpfr_prec + 8 * sizeof(mp_limb_t) - 1) / 8
            + sizeof(struct _pmath_mp_float_t);
     
     case PMATH_TYPE_SHIFT_INTERVAL:
