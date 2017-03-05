@@ -327,15 +327,24 @@
 					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /c COPY /Y &quot;$(#gmp_32.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#mpfr_32.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#flint_32.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#arb_32.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#pthreads_32.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                              COPY /Y &quot;$(#gmp_32.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#gmp_32.bin)\mpir.pdb&quot; COPY /Y &quot;$(#gmp_32.bin)\mpir.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                               COPY /Y &quot;$(#mpfr_32.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#mpfr_32.bin)\mpfr.pdb&quot; COPY /Y &quot;$(#mpfr_32.bin)\mpfr.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                               COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#mpfi_32.bin)\mpfi.pdb&quot; COPY /Y &quot;$(#mpfi_32.bin)\mpfi.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                     COPY /Y &quot;$(#flint_32.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#flint_32.bin)\dll_flint.pdb&quot; COPY /Y &quot;$(#flint_32.bin)\dll_flint.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                             COPY /Y &quot;$(#arb_32.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#arb_32.bin)\arb.pdb&quot; COPY /Y &quot;$(#arb_32.bin)\arb.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                       COPY /Y &quot;$(#pthreads_32.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#pthreads_32.bin)\pthreads.pdb&quot; COPY /Y &quot;$(#pthreads_32.bin)\pthreads.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                 COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#iconv_32.bin)\iconv.pdb&quot; COPY /Y &quot;$(#iconv_32.bin)\iconv.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                 COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#pcre_32.bin)\pcre16.pdb&quot; COPY /Y &quot;$(#pcre_32.bin)\pcre16.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#zlib_32.bin)\zlib1.pdb&quot; COPY /Y &quot;$(#zlib_32.bin)\zlib1.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -391,15 +400,24 @@
 					<Add directory="$(#zlib_32.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /c COPY /Y &quot;$(#gmp_32.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#mpfr_32.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#flint_32.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#arb_32.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#pthreads_32.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                              COPY /Y &quot;$(#gmp_32.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#gmp_32.bin)\mpir.pdb&quot; COPY /Y &quot;$(#gmp_32.bin)\mpir.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                               COPY /Y &quot;$(#mpfr_32.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#mpfr_32.bin)\mpfr.pdb&quot; COPY /Y &quot;$(#mpfr_32.bin)\mpfr.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                               COPY /Y &quot;$(#mpfi_32.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#mpfi_32.bin)\mpfi.pdb&quot; COPY /Y &quot;$(#mpfi_32.bin)\mpfi.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                     COPY /Y &quot;$(#flint_32.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#flint_32.bin)\dll_flint.pdb&quot; COPY /Y &quot;$(#flint_32.bin)\dll_flint.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                             COPY /Y &quot;$(#arb_32.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#arb_32.bin)\arb.pdb&quot; COPY /Y &quot;$(#arb_32.bin)\arb.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                       COPY /Y &quot;$(#pthreads_32.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#pthreads_32.bin)\pthreads.pdb&quot; COPY /Y &quot;$(#pthreads_32.bin)\pthreads.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                 COPY /Y &quot;$(#iconv_32.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#iconv_32.bin)\iconv.pdb&quot; COPY /Y &quot;$(#iconv_32.bin)\iconv.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                 COPY /Y &quot;$(#pcre_32.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#pcre_32.bin)\pcre16.pdb&quot; COPY /Y &quot;$(#pcre_32.bin)\pcre16.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                COPY /Y &quot;$(#zlib_32.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#zlib_32.bin)\zlib1.pdb&quot; COPY /Y &quot;$(#zlib_32.bin)\zlib1.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -460,15 +478,24 @@
 					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#flint_64.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#arb_64.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#pthreads_64.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                              COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#gmp_64.bin)\mpir.pdb&quot; COPY /Y &quot;$(#gmp_64.bin)\mpir.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                               COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#mpfr_64.bin)\mpfr.pdb&quot; COPY /Y &quot;$(#mpfr_64.bin)\mpfr.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                               COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#mpfi_64.bin)\mpfi.pdb&quot; COPY /Y &quot;$(#mpfi_64.bin)\mpfi.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                     COPY /Y &quot;$(#flint_64.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#flint_64.bin)\dll_flint.pdb&quot; COPY /Y &quot;$(#flint_64.bin)\dll_flint.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                             COPY /Y &quot;$(#arb_64.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#arb_64.bin)\arb.pdb&quot; COPY /Y &quot;$(#arb_64.bin)\arb.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                       COPY /Y &quot;$(#pthreads_64.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#pthreads_64.bin)\pthreads.pdb&quot; COPY /Y &quot;$(#pthreads_64.bin)\pthreads.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                 COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#iconv_64.bin)\iconv.pdb&quot; COPY /Y &quot;$(#iconv_64.bin)\iconv.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                 COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#pcre_64.bin)\pcre16.pdb&quot; COPY /Y &quot;$(#pcre_64.bin)\pcre16.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#zlib_64.bin)\zlib1.pdb&quot; COPY /Y &quot;$(#zlib_64.bin)\zlib1.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
 				</ExtraCommands>
@@ -526,15 +553,24 @@
 					<Add directory="$(#zlib_64.lib)" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='cmd /c COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#flint_64.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#arb_64.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#pthreads_64.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
-					<Add after='cmd /c COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                              COPY /Y &quot;$(#gmp_64.bin)\mpir.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#gmp_64.bin)\mpir.pdb&quot; COPY /Y &quot;$(#gmp_64.bin)\mpir.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                               COPY /Y &quot;$(#mpfr_64.bin)\mpfr.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#mpfr_64.bin)\mpfr.pdb&quot; COPY /Y &quot;$(#mpfr_64.bin)\mpfr.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                               COPY /Y &quot;$(#mpfi_64.bin)\mpfi.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#mpfi_64.bin)\mpfi.pdb&quot; COPY /Y &quot;$(#mpfi_64.bin)\mpfi.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                     COPY /Y &quot;$(#flint_64.bin)\dll_flint.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#flint_64.bin)\dll_flint.pdb&quot; COPY /Y &quot;$(#flint_64.bin)\dll_flint.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                             COPY /Y &quot;$(#arb_64.bin)\arb.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#arb_64.bin)\arb.pdb&quot; COPY /Y &quot;$(#arb_64.bin)\arb.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                       COPY /Y &quot;$(#pthreads_64.bin)\pthreads.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#pthreads_64.bin)\pthreads.pdb&quot; COPY /Y &quot;$(#pthreads_64.bin)\pthreads.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                 COPY /Y &quot;$(#iconv_64.bin)\iconv.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#iconv_64.bin)\iconv.pdb&quot; COPY /Y &quot;$(#iconv_64.bin)\iconv.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                 COPY /Y &quot;$(#pcre_64.bin)\pcre16.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#pcre_64.bin)\pcre16.pdb&quot; COPY /Y &quot;$(#pcre_64.bin)\pcre16.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c                                                COPY /Y &quot;$(#zlib_64.bin)\zlib1.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
+					<Add after='cmd /c IF EXIST &quot;$(#zlib_64.bin)\zlib1.pdb&quot; COPY /Y &quot;$(#zlib_64.bin)\zlib1.pdb&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
 					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
 				</ExtraCommands>
