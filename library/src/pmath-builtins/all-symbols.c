@@ -129,8 +129,6 @@ PMATH_PRIVATE pmath_bool_t builtin_approximate_power(           pmath_t *obj, do
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_setprecision(     pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_internal_realinterval(pmath_expr_t expr);
-
 PMATH_PRIVATE pmath_t builtin_internal_copysign(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_nexttoward(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_signbit(pmath_expr_t expr);
@@ -327,8 +325,6 @@ PMATH_PRIVATE pmath_t builtin_developer_topackedarray(  pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_assign_namespace(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
-
-PMATH_PRIVATE pmath_t builtin_internal_isrealinterval(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_isatom(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iscomplex(        pmath_expr_t expr);
@@ -689,12 +685,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE           = NEW_SYMBOL("Internal`DynamicRemove"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED          = NEW_SYMBOL("Internal`DynamicUpdated"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID             = NEW_SYMBOL("Internal`GetThreadId"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL          = NEW_SYMBOL("Internal`IsRealInterval"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_MESSAGETHROWN           = NEW_SYMBOL("Internal`MessageThrown"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK      = NEW_SYMBOL("Internal`$NamespacePathStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD              = NEW_SYMBOL("Internal`NextToward"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_REALINTERVAL            = NEW_SYMBOL("Internal`RealInterval"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                 = NEW_SYMBOL("Internal`SignBit"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE              = NEW_SYMBOL("Internal`ThreadIdle"))
   
@@ -1546,9 +1540,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, builtin_internal_dynamicevaluatemultiple)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,           builtin_internal_dynamicremove)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,             builtin_getthreadid)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL,          builtin_internal_isrealinterval)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,              builtin_internal_nexttoward)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALINTERVAL,            builtin_internal_realinterval)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                 builtin_internal_signbit)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
   

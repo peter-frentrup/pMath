@@ -6,7 +6,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/packed-arrays-private.h>
 #include <pmath-core/custom-private.h>
-#include <pmath-core/intervals-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
 
@@ -338,7 +337,6 @@ static pmath_expr_t get_system_information(void) {
               pmath_ref(PMATH_SYMBOL_LIST), 7,
               gmp_info,
               SETTINGS_RULE("mpfr",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfr_get_version())) )),
-              SETTINGS_RULE("mpfi",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfi_get_version())) )),
               SETTINGS_RULE("flint", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(FLINT_VERSION))      )),
               SETTINGS_RULE("arb",   LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(arb_version))        )),
               SETTINGS_RULE("pcre",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(pcre16_version()))   )),
@@ -481,7 +479,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
     if(!_pmath_numbers_init())                goto FAIL_NUMBERS;
     if(!_pmath_expressions_init())            goto FAIL_EXPRESSIONS;
     if(!_pmath_packed_arrays_init())          goto FAIL_PACKED_ARRAYS;
-    if(!_pmath_intervals_init())              goto FAIL_INTERVALS;
     if(!_pmath_symbols_init())                goto FAIL_SYMBOLS;
     if(!_pmath_numeric_init())                goto FAIL_NUMERIC;
     if(!_pmath_symbol_values_init())          goto FAIL_SYMBOL_VALUES;
@@ -1157,8 +1154,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
   FAIL_BUILTINS:          _pmath_symbol_values_done();
   FAIL_SYMBOL_VALUES:     _pmath_numeric_done();
   FAIL_NUMERIC:           _pmath_symbols_done();
-  FAIL_SYMBOLS:           _pmath_intervals_done();
-  FAIL_INTERVALS:         _pmath_packed_arrays_done();
+  FAIL_SYMBOLS:           _pmath_packed_arrays_done();
   FAIL_PACKED_ARRAYS:     _pmath_expressions_done();
   FAIL_EXPRESSIONS:       _pmath_numbers_done();
   FAIL_NUMBERS:           _pmath_strings_done();
@@ -1250,7 +1246,6 @@ PMATH_API void pmath_done(void) {
     _pmath_symbol_values_done();
     _pmath_numeric_done();
     _pmath_symbols_done();
-    _pmath_intervals_done();
     _pmath_packed_arrays_done();
     _pmath_expressions_done();
     _pmath_numbers_done();

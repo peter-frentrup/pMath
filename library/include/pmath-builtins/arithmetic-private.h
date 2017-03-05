@@ -72,15 +72,6 @@ pmath_bool_t _pmath_is_nonreal_complex_number(pmath_t z);
 PMATH_PRIVATE
 int _pmath_numeric_sign(pmath_t x);
 
-/**\brief Check if z = Complex(a, b) with numbers or intervals (RealInterval) a, b
-   \param z A pMath expression. It won't be freed.
-   
-   Note that despite this function's name, z = Complex(1.0, 0.0) will yield TRUE.
- */
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t _pmath_is_nonreal_complex_interval_or_number(pmath_t z);
-  
 // If *z == x * I => *z:= x
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(

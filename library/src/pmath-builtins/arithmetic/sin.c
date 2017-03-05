@@ -1,5 +1,4 @@
 #include <pmath-core/numbers-private.h>
-#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>

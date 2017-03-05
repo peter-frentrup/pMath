@@ -118,8 +118,7 @@ pmath_t builtin_precision(pmath_expr_t expr) {
 
 PMATH_PRIVATE
 pmath_t builtin_setprecision(pmath_expr_t expr) {
-  /* SetPrecision(                 obj, p)
-     Internal`SetPrecisionInterval(obj, p)
+  /* SetPrecision(obj, p)
    */
   pmath_t obj;
   double prec;

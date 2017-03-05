@@ -140,7 +140,7 @@ static pmath_bool_t try_round_numeric(pmath_t *x, arf_func_t round_func) {
       return TRUE;
     }
     
-    if(!pmath_is_float(approx) && !_pmath_is_nonreal_complex_interval_or_number(approx)) {
+    if(!pmath_is_float(approx) && !_pmath_is_nonreal_complex_number(approx)) {
       pmath_unref(approx);
       break;
     }

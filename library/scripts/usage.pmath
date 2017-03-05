@@ -817,7 +817,5 @@ Developer`SetDebugInfoAt::usage:= "SetDebugInfoAt(\(StyleBox(\"expr\", \"Arg\")\
 Developer`$SystemInformation::usage:= "$SystemInformation contains version information about the compiler and included third-party libraries during \(StyleBox(\"pMath\", \"TI\")\) build time."
 Developer`ToPackedArray::usage:= "ToPackedArray(\(StyleBox(\"expr\", \"Arg\")\)) converts the internal representation of \(StyleBox(\"expr\", \"Arg\")\) to a packed array if possible.\nToPackedArray(\(StyleBox(\"expr\", \"Arg\")\), \(StyleBox(\"type\", \"Arg\")\)) tries to convert elements to \(StyleBox(\"type\", \"Arg\")\)."
 Internal`CopySign::usage:= "CopySign(\(StyleBox(\"x\", \"Arg\")\), \(StyleBox(\"y\", \"Arg\")\)) returns the floating-point number \(StyleBox(\"x\", \"Arg\")\), but with sign of \(StyleBox(\"y\", \"Arg\")\)."
-Internal`IsRealInterval::usage:= "IsRealInterval(\(StyleBox(\"x\", \"Arg\")\)) yields True if \(StyleBox(\"x\", \"Arg\")\) is an interval object and False otherwise."
 Internal`NextToward::usage:= "NextToward(\(StyleBox(\"x\", \"Arg\")\), \(StyleBox(\"y\", \"Arg\")\)) returns the next floating-point number after \(StyleBox(\"x\", \"Arg\")\) (in the precision of \(StyleBox(\"x\", \"Arg\")\)) in direction towards \(StyleBox(\"y\", \"Arg\")\)."
-Internal`RealInterval::usage:= "RealInterval is the head used for interval objects."
 Internal`SignBit::usage:= "SignBit(\(StyleBox(\"x\", \"Arg\")\)) returns True if the floating-point number \(StyleBox(\"x\", \"Arg\")\) has negative sign and False if not."

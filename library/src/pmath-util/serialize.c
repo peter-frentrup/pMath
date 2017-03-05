@@ -1,7 +1,6 @@
 #include <pmath-util/serialize.h>
 
 #include <pmath-core/expressions.h>
-#include <pmath-core/intervals.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays.h>
 #include <pmath-core/strings-private.h>
@@ -28,7 +27,7 @@
 #define TAG_QUOT         10
 #define TAG_DOUBLE       11
 #define TAG_MPFLOAT      12
-#define TAG_INTERVAL     13
+//#define TAG_INTERVAL     13
 #define TAG_ARRAY        14
 
 /* Data format
@@ -65,8 +64,6 @@
    - multi floats       12, precision, exponent, mantissa
                                (precision and exponent are integers)
                                (mantissa = value's serialized integer mantissa including sign)
-
-   - real intervals     13, interval_expr
 
    - packed arrays:     14, type, depth, size1, ... sizeN, V,V,...
                                                            \_____/ = size1*..*sizeN many values (double or int32_t: 8 or 4 bytes, little endian)
@@ -524,12 +521,6 @@ static void serialize(
       
     case PMATH_TYPE_SHIFT_MP_FLOAT:
       serialize_mp_float(info, object);
-      return;
-      
-    case PMATH_TYPE_SHIFT_INTERVAL:
-      write_tag(info->file, TAG_INTERVAL);
-      serialize(info, pmath_interval_get_expr(object));
-      pmath_unref(object);
       return;
     
     case PMATH_TYPE_SHIFT_PACKED_ARRAY:
@@ -1025,7 +1016,6 @@ static pmath_t deserialize(struct deserializer_t *info) {
     case TAG_QUOT:     return read_quotient(info);
     case TAG_DOUBLE:   return read_double_object(info);
     case TAG_MPFLOAT:  return read_mp_float(info);
-    case TAG_INTERVAL: return pmath_interval_from_expr(deserialize(info));
     case TAG_ARRAY:    return read_packed_array(info);
   }
   

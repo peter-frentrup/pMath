@@ -53,7 +53,6 @@
 		<DisplayString Condition="type_shift ==  8">{*(pmath.dll!_pmath_custom_t*)this}</DisplayString>
 		<DisplayString Condition="type_shift ==  9">{*(pmath.dll!_pmath_blob_t*)this}</DisplayString>
 		<DisplayString Condition="type_shift == 10">{*(pmath.dll!_pmath_packed_array_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift == 11">{*(pmath.dll!_pmath_interval_t*)this}</DisplayString>
 		<DisplayString>object tag {type_shift}</DisplayString>
 		<Expand HideRawView="true">
 			<ExpandedItem Condition="type_shift == 0">
@@ -98,10 +97,6 @@
 			
 			<ExpandedItem Condition="type_shift == 10">
 				*(pmath.dll!_pmath_packed_array_t*)this
-			</ExpandedItem>
-			
-			<ExpandedItem Condition="type_shift == 11">
-				*(pmath.dll!_pmath_interval_t*)this
 			</ExpandedItem>
 		</Expand>
 	</Type>
@@ -376,9 +371,6 @@
 				<ValuePointer Condition="element_type == 2">(int*)((char*)blob-&gt;data + offset)</ValuePointer>
 			</ArrayItems>
 		</Expand>
-	</Type>
-	<Type Name="_pmath_interval_t">
-		<DisplayString>interval</DisplayString>
 	</Type>
 	
 	<Type Name="pmath_locked_t">

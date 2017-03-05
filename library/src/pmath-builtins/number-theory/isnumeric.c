@@ -1,4 +1,3 @@
-#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/atomic-private.h>
@@ -297,9 +296,6 @@ PMATH_PRIVATE int _pmath_number_class(pmath_t obj) {
 
 PMATH_API pmath_bool_t pmath_is_numeric(pmath_t obj) {
   if(pmath_is_number(obj))
-    return TRUE;
-    
-  if(pmath_is_interval(obj))
     return TRUE;
     
   if(pmath_is_expr(obj)) {

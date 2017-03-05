@@ -32,9 +32,6 @@ PMATH_PRIVATE pmath_t _pmath_object_head(pmath_t obj) { // obj wont be freed
     
     case PMATH_TYPE_SHIFT_PACKED_ARRAY:
       return pmath_ref(PMATH_SYMBOL_LIST);
-      
-    case PMATH_TYPE_SHIFT_INTERVAL: 
-      return pmath_ref(PMATH_SYMBOL_INTERNAL_REALINTERVAL);
   }
   
   return pmath_ref(PMATH_SYMBOL_UNDEFINED);

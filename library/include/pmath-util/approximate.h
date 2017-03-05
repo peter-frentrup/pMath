@@ -10,8 +10,7 @@
 
 /**\brief Test whether an expression is a numeric quantity.
    \param obj An object. It wont be freed.
-   \return Whether calling pmath_set_precision[_interval]() may return an approximate
-           floating point number or interval.
+   \return Whether calling pmath_set_precision() may return an approximate floating point number.
  */
 PMATH_API pmath_bool_t pmath_is_numeric(pmath_t obj);
 
