@@ -548,12 +548,16 @@ PMATH_API void *pmath_mem_alloc(size_t size) {
 }
 
 static void *pmath_mem_calloc(size_t num, size_t size) {
+  void *result;
   pmath_bool_t error = FALSE;
   size_t total_size = _pmath_mul_size(num, size, &error);
   if(error)
     return NULL;
   
-  return pmath_mem_alloc(total_size);
+  result = pmath_mem_alloc(total_size);
+  if(result)
+    memset(result, 0, total_size);
+  return result;
 }
 
 PMATH_API void *pmath_mem_realloc(void *p, size_t new_size) {
