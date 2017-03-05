@@ -184,7 +184,6 @@ static int _simple_real_class(pmath_t obj) {
   }
   
   if(pmath_is_mpfloat(obj)) {
-    //return _mpfr_simple_real_class(PMATH_AS_MP_VALUE(obj));
     arf_t tmp;
     int lclass;
     int uclass;

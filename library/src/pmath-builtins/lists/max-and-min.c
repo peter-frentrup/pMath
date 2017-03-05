@@ -202,7 +202,7 @@ static pmath_expr_t list_min_or_max_rest(pmath_expr_t list, int directions) {
         if(pmath_is_mpfloat(item) && pmath_is_mpfloat(next_item)) {
           pmath_mpfloat_t result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(item));
           if(!pmath_is_null(result)) {            
-            if(directions == PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL)
+            if(directions == (PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL))
               arb_min(PMATH_AS_ARB(result), PMATH_AS_ARB(item), PMATH_AS_ARB(next_item), PMATH_AS_ARB_WORKING_PREC(result));
             else
               arb_max(PMATH_AS_ARB(result), PMATH_AS_ARB(item), PMATH_AS_ARB(next_item), PMATH_AS_ARB_WORKING_PREC(result));
