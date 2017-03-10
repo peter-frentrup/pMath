@@ -575,6 +575,7 @@
 {"Internal`",{
 {"CopySign", {"ArgumentCount" -> 2}},
 {"NextToward", {"ArgumentCount" -> 2}},
+{"RealBallBounds", {"ArgumentCount" -> 1}},
 {"SignBit", {"ArgumentCount" -> 1}}
 }},
 {"System`Util`",{
