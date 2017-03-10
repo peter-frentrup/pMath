@@ -132,6 +132,7 @@ PMATH_PRIVATE pmath_t builtin_assign_setprecision(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_copysign(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_nexttoward(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_realballmidpointradius(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_signbit(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/ ...
@@ -691,6 +692,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD              = NEW_SYMBOL("Internal`NextToward"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS          = NEW_SYMBOL("Internal`RealBallBounds"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS  = NEW_SYMBOL("Internal`RealBallMidpointRadius"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                 = NEW_SYMBOL("Internal`SignBit"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE              = NEW_SYMBOL("Internal`ThreadIdle"))
   
@@ -1544,6 +1546,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,             builtin_getthreadid)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,              builtin_internal_nexttoward)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS,          builtin_internal_realballbounds)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,  builtin_internal_realballmidpointradius)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                 builtin_internal_signbit)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
   
@@ -2155,6 +2158,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_ZETA,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS,          LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,  LISTABLE);
   
 #undef SET_ATTRIB
 #undef ASSOCIATIVE
