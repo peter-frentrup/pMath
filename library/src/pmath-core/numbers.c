@@ -132,17 +132,15 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t _pmath_integer_from_fmpz(const fmpz_t integer) {
   pmath_mpint_t result;
   
-  if( fmpz_cmp_si(integer, _I32_MAX) <= 0 &&
-      fmpz_cmp_si(integer, _I32_MIN) >= 0
-  ) {
+  if(fmpz_cmp_si(integer, _I32_MAX) <= 0 && fmpz_cmp_si(integer, _I32_MIN) >= 0) {
     slong value = fmpz_get_si(integer);
     return PMATH_FROM_INT32((int32_t)value);
   }
   
   result = _pmath_create_mp_int(0);
-  if(!pmath_is_null(result)) 
+  if(!pmath_is_null(result))
     fmpz_get_mpz(PMATH_AS_MPZ(result), integer);
-  
+    
   return result;
 }
 
@@ -179,14 +177,14 @@ PMATH_PRIVATE pmath_quotient_t _pmath_create_quotient(
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_rational_t _pmath_rational_from_fmpq(const fmpq_t rational) {
-  if(fmpz_is_one(fmpq_denref(rational))) 
+  if(fmpz_is_one(fmpq_denref(rational)))
     return _pmath_integer_from_fmpz(fmpq_numref(rational));
-  
+    
   return _pmath_create_quotient(
-    _pmath_integer_from_fmpz(fmpq_numref(rational)),
-    _pmath_integer_from_fmpz(fmpq_denref(rational)));
+           _pmath_integer_from_fmpz(fmpq_numref(rational)),
+           _pmath_integer_from_fmpz(fmpq_denref(rational)));
 }
-  
+
 //} ============================================================================
 //{ caching unused mp floats ...
 
@@ -853,6 +851,64 @@ pmath_number_t pmath_float_new_str(
       return PMATH_NULL;
   }
 }
+
+static int digit_value(char c) {
+  if(c >= '0' && c <= '9')
+    return c - '0';
+  if(c >= 'A' && c <= 'Z')
+    return c - 'A' + 10;
+  if(c >= 'a' && c <= 'z')
+    return c - 'a' + 10;
+  return -1;
+}
+
+PMATH_API
+const char *pmath_rational_parse_floating_point(
+  pmath_integer_t *out_mantissa,
+  intptr_t        *out_factional_digits,
+  const char      *str,
+  int              base
+) {
+  fmpz_t mantissa;
+  
+  assert(out_mantissa         != NULL);
+  assert(out_factional_digits != NULL);
+  assert(str                  != NULL);
+  assert(2 <= base);
+  assert(base <= 36);
+  
+  fmpz_init(mantissa); // setting to zero
+  
+  while(*str) {
+    int digit = digit_value(*str);
+    if(digit < 0 || digit >= base) 
+      break;
+    
+    fmpz_mul_si(mantissa, mantissa, base);
+    fmpz_add_si(mantissa, mantissa, digit);
+    ++str;
+  }
+  
+  *out_factional_digits = 0;
+  if(*str == '.' && digit_value(*str + 1) >= 0 && digit_value(*str + 1) < base) {
+    ++str;
+    while(*str) {
+      int digit = digit_value(*str);
+      if(digit < 0 || digit >= base) 
+        break;
+      
+      ++*out_factional_digits;
+      fmpz_mul_si(mantissa, mantissa, base);
+      fmpz_add_si(mantissa, mantissa, digit);
+      ++str;
+    }
+  }
+  
+  *out_mantissa = _pmath_integer_from_fmpz(mantissa);
+  fmpz_clear(mantissa);
+  return str;
+}
+
 
 PMATH_PRIVATE
 pmath_t _pmath_float_exceptions(

@@ -902,6 +902,7 @@
 		<Unit filename="include/pmath-core/symbols.h" />
 		<Unit filename="include/pmath-cpp.h" />
 		<Unit filename="include/pmath-language/charnames.h" />
+		<Unit filename="include/pmath-language/number-parsing-private.h" />
 		<Unit filename="include/pmath-language/patterns-private.h" />
 		<Unit filename="include/pmath-language/regex-private.h" />
 		<Unit filename="include/pmath-language/scanner.h" />
@@ -1360,6 +1361,9 @@
 		<Unit filename="src/pmath-builtins/language/namespace.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/language/parserealball.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/language/remove.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1685,6 +1689,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-language/charnames.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-language/number-parsing-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-language/patterns-private.c">

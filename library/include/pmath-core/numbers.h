@@ -358,6 +358,23 @@ pmath_number_t pmath_float_new_str(
   pmath_precision_control_t precision_control,
   double                    base_precision_accuracy);
 
+/** \brief Parse a simple floating point number to its mantissa and exponent.
+    \param out_mantissa         Receives the mantissa, i.e the given number as if it had no decimal dot.
+    \param out_factional_digits Receives the number of digits after the decimal dot or 0.
+    \param str                  The floating point number of the form `ddd.ddd` or `ddd` with digits `d` in the given \a base.
+    \param base                 The number base of the digits. May be between 2 and 36 (inclusive)
+    \return The end in \a str of the parsed floating point number.
+    
+    Parsing stops at the first non-valid digit or non-digit (or decimal point if that is not followed by a valid digit).
+    Hence, if \a out_factional_digits is 0 on output, \a str did not contain a decimal point before the end.
+ */
+PMATH_API
+const char *pmath_rational_parse_floating_point(
+  pmath_integer_t *out_mantissa,
+  intptr_t        *out_factional_digits,
+  const char      *str,
+  int              base);
+
 /*============================================================================*/
 
 /**\brief Check whether a pMath integer is in range -2^31 .. 2^31-1.

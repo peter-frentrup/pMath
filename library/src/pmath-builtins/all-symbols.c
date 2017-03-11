@@ -352,6 +352,8 @@ PMATH_PRIVATE pmath_t builtin_remove(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringtoboxes(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_symbolname(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_toexpression(     pmath_expr_t expr);
+
+PMATH_PRIVATE pmath_t builtin_internal_parserealball(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/lists/ ...
 PMATH_PRIVATE pmath_t builtin_part(         pmath_expr_t expr);
@@ -691,6 +693,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK      = NEW_SYMBOL("Internal`$NamespacePathStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD              = NEW_SYMBOL("Internal`NextToward"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_PARSEREALBALL           = NEW_SYMBOL("Internal`ParseRealBall"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS          = NEW_SYMBOL("Internal`RealBallBounds"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS  = NEW_SYMBOL("Internal`RealBallMidpointRadius"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                 = NEW_SYMBOL("Internal`SignBit"))
@@ -1545,6 +1548,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,           builtin_internal_dynamicremove)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,             builtin_getthreadid)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,              builtin_internal_nexttoward)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_PARSEREALBALL,           builtin_internal_parserealball)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS,          builtin_internal_realballbounds)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,  builtin_internal_realballmidpointradius)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                 builtin_internal_signbit)
