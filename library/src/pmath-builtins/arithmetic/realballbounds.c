@@ -25,8 +25,11 @@ PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr) {
       return PMATH_NULL;
     }
     
-    arb_get_lbound_arf(arb_midref(PMATH_AS_ARB(lower)), PMATH_AS_ARB(x), ARF_PREC_EXACT);
-    arb_get_ubound_arf(arb_midref(PMATH_AS_ARB(upper)), PMATH_AS_ARB(x), ARF_PREC_EXACT);
+    _pmath_arb_bounds(
+      arb_midref(PMATH_AS_ARB(lower)), 
+      arb_midref(PMATH_AS_ARB(upper)), 
+      PMATH_AS_ARB(x), 
+      ARF_PREC_EXACT);
     mag_zero(arb_radref(PMATH_AS_ARB(lower)));
     mag_zero(arb_radref(PMATH_AS_ARB(upper)));
     

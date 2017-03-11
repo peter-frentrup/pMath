@@ -183,15 +183,17 @@ static int _simple_real_class(pmath_t obj) {
   }
   
   if(pmath_is_mpfloat(obj)) {
-    arf_t tmp;
+    arf_t lower;
+    arf_t upper;
     int lclass;
     int uclass;
-    arf_init(tmp);
-    arb_get_lbound_arf(tmp, PMATH_AS_ARB(obj), ARF_PREC_EXACT);
-    lclass = _pmath_arf_simple_real_class(tmp);
-    arb_get_ubound_arf(tmp, PMATH_AS_ARB(obj), ARF_PREC_EXACT);
-    uclass = _pmath_arf_simple_real_class(tmp);
-    arf_clear(tmp);
+    arf_init(lower);
+    arf_init(upper);
+    _pmath_arb_bounds(lower, upper, PMATH_AS_ARB(obj), ARF_PREC_EXACT);
+    lclass = _pmath_arf_simple_real_class(lower);
+    uclass = _pmath_arf_simple_real_class(upper);
+    arf_clear(lower);
+    arf_clear(upper);
     if(lclass == uclass)
       return lclass;
     return PMATH_CLASS_REAL;

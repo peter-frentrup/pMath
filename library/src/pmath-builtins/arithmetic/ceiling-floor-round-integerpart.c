@@ -78,8 +78,7 @@ static pmath_bool_t try_arb_to_integer(pmath_t *x, const arb_t value, slong prec
     
     arf_init(a);
     arf_init(b);
-    arb_get_lbound_arf(a, value, precision);
-    arb_get_ubound_arf(b, value, precision);
+    _pmath_arb_bounds(a, b, value, precision);
     round_func(a, a);
     round_func(b, b);
     if(arf_equal(a, b)) {

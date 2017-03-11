@@ -118,13 +118,20 @@ struct _pmath_mp_float_t {
 #define PMATH_AS_ARB(obj)                (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value_new)
 #define PMATH_AS_ARB_WORKING_PREC(obj)   (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->working_precision)
 
-PMATH_FORCE_INLINE mpfr_prec_t min_prec(mpfr_prec_t a, mpfr_prec_t b) {
-  if(a < b)
-    return a;
-  return b;
+/** \brief Get the interval bounds of an Arb number.
+    \param lower Receives the lower bound (rounded downwards if necessary).
+    \param upper Receives the upper bound (rounded upwards if necessary).
+    \param value The given arb number.
+    \param precision The workinbg precision. May be \c ARF_PREC_EXACT.
+ */
+PMATH_FORCE_INLINE void _pmath_arb_bounds(arf_t lower, arf_t upper, const arb_t value, slong precision) {
+  arf_t radius;
+  arf_init_set_mag_shallow(radius, arb_radref(value));
+  
+  arf_sub(lower, arb_midref(value), radius, precision, ARF_RND_FLOOR);
+  arf_add(upper, arb_midref(value), radius, precision, ARF_RND_CEIL);
 }
 
-/*============================================================================*/
 
 extern PMATH_PRIVATE pmath_quotient_t _pmath_one_half; /* readonly */
 
