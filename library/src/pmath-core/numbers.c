@@ -881,9 +881,9 @@ const char *pmath_rational_parse_floating_point(
   
   while(*str) {
     int digit = digit_value(*str);
-    if(digit < 0 || digit >= base) 
+    if(digit < 0 || digit >= base)
       break;
-    
+      
     fmpz_mul_si(mantissa, mantissa, base);
     fmpz_add_si(mantissa, mantissa, digit);
     ++str;
@@ -894,9 +894,9 @@ const char *pmath_rational_parse_floating_point(
     ++str;
     while(*str) {
       int digit = digit_value(*str);
-      if(digit < 0 || digit >= base) 
+      if(digit < 0 || digit >= base)
         break;
-      
+        
       ++*out_factional_digits;
       fmpz_mul_si(mantissa, mantissa, base);
       fmpz_add_si(mantissa, mantissa, digit);
@@ -2209,6 +2209,56 @@ typedef struct {
 } _pmath_fmpz_t;
 PMATH_PRIVATE _pmath_fmpz_t _pmath_fmpz_t_dummy;
 
+typedef struct {
+  uint8_t value;
+} _pmath_uint8_t;
+PMATH_PRIVATE _pmath_uint8_t _pmath_uint8_t_dummy;
+
+typedef struct {
+#if PMATH_BYTE_ORDER < 0
+  _pmath_uint8_t lo;
+  _pmath_uint8_t hi;
+#else
+  _pmath_uint8_t hi;
+  _pmath_uint8_t lo;
+#endif
+} _pmath_uint16_t;
+PMATH_PRIVATE _pmath_uint16_t _pmath_uint16_t_dummy;
+
+typedef struct {
+#if PMATH_BYTE_ORDER < 0
+  _pmath_uint16_t lo;
+  _pmath_uint16_t hi;
+#else
+  _pmath_uint16_t hi;
+  _pmath_uint16_t lo;
+#endif
+} _pmath_uint32_t;
+PMATH_PRIVATE _pmath_uint32_t _pmath_uint32_t_dummy;
+
+typedef struct {
+#if PMATH_BYTE_ORDER < 0
+  _pmath_uint32_t lo;
+  _pmath_uint32_t hi;
+#else
+  _pmath_uint32_t hi;
+  _pmath_uint32_t lo;
+#endif
+} _pmath_uint64_t;
+PMATH_PRIVATE _pmath_uint64_t _pmath_uint64_t_dummy;
+
+typedef union {
+  mp_limb_t value;
+#if GMP_LIMB_BITS == 64
+  _pmath_uint64_t parts;
+#elif GMP_LIMB_BITS == 32
+  _pmath_uint32_t parts;
+#endif
+} _pmath_limb_t;
+PMATH_PRIVATE _pmath_limb_t _pmath_limb_t_dummy;
+
+PMATH_PRIVATE const char *_pmath_debug_hex = "0123456789abcdef";
+
 //}
 //{ module handling functions ...
 
@@ -2276,7 +2326,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
     destroy_mp_float,
     _pmath_numbers_equal,
     write_mp_float);
-  
+    
   _pmath_one_half = _pmath_create_quotient(
                       PMATH_FROM_INT32(1),
                       PMATH_FROM_INT32(2));

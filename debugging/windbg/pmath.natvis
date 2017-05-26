@@ -480,10 +480,14 @@
 		<DisplayString Condition="size==0 &amp;&amp; (4 * (1-exp) == 0)">nan</DisplayString>
 		<DisplayString Condition="size==0 &amp;&amp; (4 * (2-exp) == 0)">+inf</DisplayString>
 		<DisplayString Condition="size==0 &amp;&amp; (4 * (3-exp) == 0)">-inf</DisplayString>
-		<DisplayString Condition="size == 2">{d.noptr.d[0],x} *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*) * (size/2)})</DisplayString>
-		<DisplayString Condition="size == 3">-{d.noptr.d[0],x} *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*) * (size/2)})</DisplayString>
-		<DisplayString Condition="size &amp; 1">-({size/2} limbs) *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*) * (size/2)})</DisplayString>
-		<DisplayString                         >({size/2} limbs) *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*) * (size/2)})</DisplayString>
+		<DisplayString Condition="size == 2">0.{((pmath.dll!_pmath_limb_t*)d.noptr.d)[0],x} *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>
+		<DisplayString Condition="size == 3">-0.{((pmath.dll!_pmath_limb_t*)d.noptr.d)[0],x} *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>
+		<!--<DisplayString Condition="size &amp; 1">-0.({size/2} limbs) *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>
+		<DisplayString                         >0.({size/2} limbs) *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>-->
+		<DisplayString Condition="size == 4">0.{((pmath.dll!_pmath_limb_t*)d.noptr.d)[1],x}... *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>
+		<DisplayString Condition="size == 5">-0.{((pmath.dll!_pmath_limb_t*)d.noptr.d)[1],x}... *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>
+		<DisplayString Condition="size &amp; 1">-0.{((pmath.dll!_pmath_limb_t*)d.ptr.d)[size/2 - 1],x}... *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>
+		<DisplayString>0.{((pmath.dll!_pmath_limb_t*)d.ptr.d)[size/2 - 1],x}... *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>
 		<Expand>
 			<Item Name="sign">((size &amp; 1) == 1) ? -1 : 1</Item>
 			<Synthetic Name="mantissa">
@@ -506,10 +510,23 @@
 	<Type Name="mag_struct">
 		<DisplayString Condition="man==0 &amp;&amp; exp==0">0</DisplayString>
 		<DisplayString Condition="man==0 &amp;&amp; exp!=0">inf</DisplayString>
-		<DisplayString>{man,x} *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*)})</DisplayString>
+		<!--<DisplayString>{man,x} *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - 30)</DisplayString>-->
+		<DisplayString>0.{
+			(pmath.dll!_pmath_debug_hex + ((((uint32_t)man*4) &amp; 0xF0000000UL) / 0x10000000UL)),1sb}{
+			(pmath.dll!_pmath_debug_hex + ((((uint32_t)man*4) &amp; 0xF000000UL) / 0x1000000UL)),1sb}{
+			(pmath.dll!_pmath_debug_hex + ((((uint32_t)man*4) &amp; 0xF00000UL) / 0x100000UL)),1sb}{
+			(pmath.dll!_pmath_debug_hex + ((((uint32_t)man*4) &amp; 0xF0000UL) / 0x10000UL)),1sb}{
+			(pmath.dll!_pmath_debug_hex + ((((uint32_t)man*4) &amp; 0xF000UL) / 0x1000UL)),1sb}{
+			(pmath.dll!_pmath_debug_hex + ((((uint32_t)man*4) &amp; 0xF00UL) / 0x100UL)),1sb}{
+			(pmath.dll!_pmath_debug_hex + ((((uint32_t)man*4) &amp; 0xF0UL) / 0x10UL)),1sb}{
+			(pmath.dll!_pmath_debug_hex + (((uint32_t)man*4) &amp; 0xFUL)),1sb} *2^ {*(pmath.dll!_pmath_fmpz_t*)&amp;exp}</DisplayString>
 		<Expand>
-			<Item Name="mantissa">man</Item>
+			<!-- only least 30 bit of mantissa are used -->
+			<Item Name="mantissa">(uint32_t)man*4</Item>
 			<Item Name="exp">*(pmath.dll!_pmath_fmpz_t*)&amp;exp</Item>
+			<Synthetic Name="alt">
+				<DisplayString>{man,x} *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - 30)</DisplayString>
+			</Synthetic>
 		</Expand>
 	</Type>
 	
@@ -534,4 +551,29 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
+	
+	<Type Name="_pmath_uint8_t">
+		<DisplayString>{(pmath.dll!_pmath_debug_hex + (value / 16)),1sb}{(pmath.dll!_pmath_debug_hex + (value &amp; 0xF)),1sb}</DisplayString>
+		<Expand HideRawView="true">
+		</Expand>
+	</Type>
+	<Type Name="_pmath_uint16_t">
+		<DisplayString>{hi}{lo}</DisplayString>
+		<Expand HideRawView="true">
+		</Expand>
+	</Type>
+	<Type Name="_pmath_uint32_t">
+		<DisplayString>{hi}{lo}</DisplayString>
+		<Expand HideRawView="true">
+		</Expand>
+	</Type>
+	<Type Name="_pmath_uint64_t">
+		<DisplayString>{hi}_{lo}</DisplayString>
+		<Expand HideRawView="true">
+		</Expand>
+	</Type>
+	<Type Name="_pmath_limb_t">
+		<DisplayString>{parts}</DisplayString>
+	</Type>
+	
 </AutoVisualizer>
