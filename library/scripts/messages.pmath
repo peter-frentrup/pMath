@@ -122,7 +122,7 @@ Attributes::noattr:= "`1` is neither a valid attribute nor a list of valid attri
 
 Array::plen:= "`1` and `2` should have the same length."
 
-BaseForm::basf:= "Requested base `1` should be an integer between 2 and `2`."
+BaseForm::basf:= Internal`WriteRealBall::basf:= "Requested base `1` should be an integer between 2 and `2`."
 
 BinaryRead::format:= BinaryReadList::format:= BinaryWrite::format:= "`1` is not a recognized binary format."
 BinaryWrite::nocoerce:= "`1` cannot be coerced to the specified format `2`."
@@ -346,3 +346,5 @@ Uncompress::corrupt:= "Compressed data `1` is corrupt and does not represent an 
 UnitVector::dir:= "There is no `1` dimensional unit vector in direction `2`."
 
 Which::argct:= "Which called with `1` arguments. Which must be called with an even number of arguments."
+
+Internal`WriteRealBall::maxdig:= "Option \"MaxDigits\"->`1` should be a positive integer or Automatic."

@@ -1,6 +1,10 @@
 #ifndef __PMATH_LANGUAGE__NUMBER_PARSING_PRIVATE_H__
 #define __PMATH_LANGUAGE__NUMBER_PARSING_PRIVATE_H__
 
+#ifndef BUILDING_PMATH
+#  error This header file is not part of the public pMath API
+#endif
+
 /** \defgroup float-format The format of floating point numbers.
     
     pMath represents arbitrary precision numbers as real balls with a midpoint, a zero or
@@ -34,6 +38,12 @@
  */
 
 #include <pmath-core/numbers-private.h>
+
+/** \brief Calculate the binary logarithm of a positive integer.
+    \param b The integer to take the logarithm of.
+    \return The exact result if \a b is a power of 2 between 2 and 32, otherwise <c>log(b)/log(2)</c>.
+ */
+PMATH_PRIVATE double _pmath_log2_of(int b);
 
 /** \brief Parse a pMath number (real ball) to its components.
     \param out_midpoint_mantissa Receives the midpoint's mantissa.

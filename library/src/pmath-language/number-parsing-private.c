@@ -210,7 +210,7 @@ FAIL:
   return start;
 }
 
-static double log2_of(int b) {
+PMATH_PRIVATE double _pmath_log2_of(int b) {
   if(b == 2)
     return 1.0;
   if(b == 4)
@@ -286,13 +286,13 @@ const uint16_t *_pmath_parse_float_ball(
     fmpz_clear(prec_mant);
   }
   else if(default_min_precision == -HUGE_VAL) {
-    if(mid_significant_digits < DBL_MANT_DIG / log2_of(*out_base))
+    if(mid_significant_digits < DBL_MANT_DIG / _pmath_log2_of(*out_base))
       *out_precision_in_base = -HUGE_VAL;
     else
       *out_precision_in_base = (double)mid_significant_digits;
   }
   else {
-    double min_digits = default_min_precision / log2_of(*out_base); 
+    double min_digits = default_min_precision / _pmath_log2_of(*out_base); 
     if(mid_significant_digits < min_digits)
       *out_precision_in_base = min_digits;
     else
@@ -361,7 +361,7 @@ pmath_t _pmath_compose_number(
   }
   
   if(precision_digits < HUGE_VAL) {
-    double prec_bits = ceil(precision_digits * log2_of(base));
+    double prec_bits = ceil(precision_digits * _pmath_log2_of(base));
     slong prec;
     pmath_mpfloat_t result;
     

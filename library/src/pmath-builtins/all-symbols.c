@@ -354,6 +354,7 @@ PMATH_PRIVATE pmath_t builtin_symbolname(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_toexpression(     pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_internal_parserealball(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_writerealball(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/lists/ ...
 PMATH_PRIVATE pmath_t builtin_part(         pmath_expr_t expr);
@@ -698,6 +699,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS  = NEW_SYMBOL("Internal`RealBallMidpointRadius"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                 = NEW_SYMBOL("Internal`SignBit"))
   VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE              = NEW_SYMBOL("Internal`ThreadIdle"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_WRITEREALBALL           = NEW_SYMBOL("Internal`WriteRealBall"))
   
   VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
   
@@ -1553,6 +1555,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,  builtin_internal_realballmidpointradius)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                 builtin_internal_signbit)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_WRITEREALBALL,           builtin_internal_writerealball)
   
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION,     builtin_developer_fileinformation)
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY,     builtin_developer_frompackedarray)
