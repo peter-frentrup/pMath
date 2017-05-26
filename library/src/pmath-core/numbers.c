@@ -2202,6 +2202,14 @@ pmath_bool_t _pmath_numbers_equal(
 }
 
 //} ============================================================================
+//{ debug typedefs for *.natvis support
+
+typedef struct {
+  fmpz_t value;
+} _pmath_fmpz_t;
+PMATH_PRIVATE _pmath_fmpz_t _pmath_fmpz_t_dummy;
+
+//}
 //{ module handling functions ...
 
 PMATH_PRIVATE void _pmath_numbers_memory_panic(void) {
@@ -2268,7 +2276,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
     destroy_mp_float,
     _pmath_numbers_equal,
     write_mp_float);
-    
+  
   _pmath_one_half = _pmath_create_quotient(
                       PMATH_FROM_INT32(1),
                       PMATH_FROM_INT32(2));

@@ -101,7 +101,12 @@
 		</Expand>
 	</Type>
 	<Type Name="_pmath_mp_float_t">
-		<DisplayString>mp float</DisplayString>
+		<DisplayString>{*value_new}</DisplayString>
+		<Expand>
+			<Item Name="mid">value_new->mid</Item>
+			<Item Name="radius">value_new->rad</Item>
+			<Item Name="prec">working_precision</Item>
+		</Expand>
 	</Type>
 	<Type Name="_pmath_mp_int_t">
 		<DisplayString>mp int</DisplayString>
@@ -463,6 +468,70 @@
 			<Item Name="alloc_time">alloc_time</Item>
 			<Item Name="prev">prev</Item>
 			<Item Name="next">next</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="arb_struct">
+		<DisplayString>[ {mid} +/- {rad} ]</DisplayString>
+	</Type>
+	
+	<Type Name="arf_struct">
+		<DisplayString Condition="size==0 &amp;&amp; exp==0">0</DisplayString>
+		<DisplayString Condition="size==0 &amp;&amp; (4 * (1-exp) == 0)">nan</DisplayString>
+		<DisplayString Condition="size==0 &amp;&amp; (4 * (2-exp) == 0)">+inf</DisplayString>
+		<DisplayString Condition="size==0 &amp;&amp; (4 * (3-exp) == 0)">-inf</DisplayString>
+		<DisplayString Condition="size == 2">{d.noptr.d[0],x} *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*) * (size/2)})</DisplayString>
+		<DisplayString Condition="size == 3">-{d.noptr.d[0],x} *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*) * (size/2)})</DisplayString>
+		<DisplayString Condition="size &amp; 1">-({size/2} limbs) *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*) * (size/2)})</DisplayString>
+		<DisplayString                         >({size/2} limbs) *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*) * (size/2)})</DisplayString>
+		<Expand>
+			<Item Name="sign">((size &amp; 1) == 1) ? -1 : 1</Item>
+			<Synthetic Name="mantissa">
+				<DisplayString Condition="size/2 == 1">{d.noptr.d[0],x}</DisplayString>
+				<DisplayString Condition="size/2 == 2">{d.noptr.d[1],x}_{d.noptr.d[0],x}</DisplayString>
+				<DisplayString>({size/2} limbs)</DisplayString>
+				<Expand>
+					<!--<Item Name="limbs">size / 2</Item>-->
+					<ArrayItems>
+						<Size>size / 2</Size>
+						<ValuePointer Condition="size/2 &lt;= 2">d.noptr.d,x</ValuePointer>
+						<ValuePointer Condition="size/2 &gt; 2">d.ptr.d,x</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+			<Item Name="exp">*(pmath.dll!_pmath_fmpz_t*)&amp;exp</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="mag_struct">
+		<DisplayString Condition="man==0 &amp;&amp; exp==0">0</DisplayString>
+		<DisplayString Condition="man==0 &amp;&amp; exp!=0">inf</DisplayString>
+		<DisplayString>{man,x} *2^ ({*(pmath.dll!_pmath_fmpz_t*)&amp;exp} - {8 * sizeof(void*)})</DisplayString>
+		<Expand>
+			<Item Name="mantissa">man</Item>
+			<Item Name="exp">*(pmath.dll!_pmath_fmpz_t*)&amp;exp</Item>
+		</Expand>
+	</Type>
+	
+	<Type Name="_pmath_fmpz_t">
+		<DisplayString Condition="1 == ((sizeof(void*) == 8) ? (value[0] / 0x4000000000000000ULL) : (value[0] / 0x40000000UL))">{(pmath.dll!__mpz_struct*)(value[0] * 4)}</DisplayString>
+		<DisplayString>{value[0]}</DisplayString>
+		<Expand HideRawView="true">
+			<Item Name="hex" Condition="0 == ((sizeof(void*) == 8) ? (value[0] / 0x4000000000000000ULL) : (value[0] / 0x40000000UL))">value[0],x</Item>
+			<ExpandedItem Condition="1 == ((sizeof(void*) == 8) ? (value[0] / 0x4000000000000000ULL) : (value[0] / 0x40000000UL))">
+				(pmath.dll!__mpz_struct*)(value[0] * 4)
+			</ExpandedItem>
+		</Expand>
+	</Type>
+	
+	<Type Name="__mpz_struct">
+		<Expand>
+			<Item Name="sign">(_mp_size &lt; 0) ? -1 : 1</Item>
+			<Item Name="limbs">(_mp_size &lt; 0) ? -_mp_size : _mp_size</Item>
+			<ArrayItems>
+				<Size>((_mp_size &lt; 0) ? -_mp_size : _mp_size)</Size>
+				<ValuePointer>_mp_d,x</ValuePointer>
+			</ArrayItems>
 		</Expand>
 	</Type>
 </AutoVisualizer>
