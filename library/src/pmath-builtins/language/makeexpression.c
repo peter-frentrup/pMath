@@ -2123,9 +2123,6 @@ static pmath_t make_simple_call(pmath_expr_t boxes) {
                boxes,
                pmath_expr_set_item(args, 0, f));
     }
-    
-    pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
   }
   
   pmath_unref(args);
