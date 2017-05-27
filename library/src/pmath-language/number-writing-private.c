@@ -540,7 +540,11 @@ void _pmath_mpfloat_get_string_parts(
   result->midpoint_fractional_mantissa_digits = split_digits(mid_digits, num_mid_digits, num_mid_frac_digits);
   flint_free(mid_digits);
   
-  fmpz_sub(rad_exp, rad_exp, mid_exp);
+  if(num_rad_digits == 1 && *rad_digits == '0') {
+    fmpz_zero(rad_exp);
+  }
+  else
+    fmpz_sub(rad_exp, rad_exp, mid_exp);
   
   num_rad_frac_digits = num_rad_digits - 1;
   fmpz_add_si(rad_exp, rad_exp, num_rad_frac_digits);
