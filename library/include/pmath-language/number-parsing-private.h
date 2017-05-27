@@ -94,7 +94,27 @@ pmath_t _pmath_compose_number(
   fmpz_t  exponent,
   int     base,
   double  precision_digits);
- 
+
+/** \brief Convert an arf_t to a mag_t.
+    \param y An initialized magnitude.
+    \param x A valid floating point number.
+    
+    This function is like arf_get_mag() but unlike the latter, does not add an ulp to \a y 
+    if \a x fits into a mag_t exactly (i.e. if \a x consists of a signle limb with at most MAG_BITS set).
+ */
+PMATH_PRIVATE
+void _pmath_arf_get_mag_exact(mag_t y, const arf_t x);
+
+/** \brief Increase an Arb radius by a given error.
+    \param x The Arb number whose radius is to be increased.
+    \param err An Arb number, whose absolute value should be added to the radius of \a x.
+    
+    Unlike arb_add_error(), this function uses _pmath_arf_get_mag_exact() instead of arf_get_mag() 
+    in order to avoid increasing the radius unconditionally by 1 ulp.
+ */
+PMATH_PRIVATE
+void _pmath_arb_add_error_exact(arb_t x, const arb_t err);
+
 /** @} */
 
 #endif // __PMATH_LANGUAGE__NUMBER_PARSING_PRIVATE_H__

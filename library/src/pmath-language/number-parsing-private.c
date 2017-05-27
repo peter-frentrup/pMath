@@ -292,13 +292,13 @@ const uint16_t *_pmath_parse_float_ball(
       *out_precision_in_base = (double)mid_significant_digits;
   }
   else {
-    double min_digits = default_min_precision / _pmath_log2_of(*out_base); 
+    double min_digits = default_min_precision / _pmath_log2_of(*out_base);
     if(mid_significant_digits < min_digits)
       *out_precision_in_base = min_digits;
     else
       *out_precision_in_base = (double)mid_significant_digits;
   }
-    
+  
   str = parse_exponent(out_midpoint_exponent, str, str_end);
   fmpz_add(out_radius_exponent, out_radius_exponent, out_midpoint_exponent);
   fmpz_sub_ui(out_midpoint_exponent, out_midpoint_exponent, mid_frac_digits);
@@ -381,4 +381,45 @@ pmath_t _pmath_compose_number(
   }
   
   return TIMES(_pmath_integer_from_fmpz(mantissa), POW(INT(base), _pmath_integer_from_fmpz(exponent)));
+}
+
+PMATH_PRIVATE
+void _pmath_arf_get_mag_exact(mag_t y, const arf_t x) {
+  if(ARF_SIZE(x) == 1) { // non-zero x with exactly one limb
+    mp_limb_t limb, topmost;
+    ARF_GET_TOP_LIMB(limb, x); // FLINT_BITS many bits in the limb,
+    topmost = (limb >> (FLINT_BITS - MAG_BITS));
+    if(limb == (topmost << (FLINT_BITS - MAG_BITS))) { // lower FLINT_BITS - MAG_BITS bits were 0
+      fmpz_set(MAG_EXPREF(y), ARF_EXPREF(x));
+      MAG_MAN(y) = topmost;
+      return;
+    }
+  }
+  arf_get_mag(y, x);
+}
+
+static void _pmath_arb_get_mag_exact(mag_t z, const arb_t x) {
+  mag_t t;
+  mag_init(t);
+  _pmath_arf_get_mag_exact(t, arb_midref(x));
+  mag_add(z, t, arb_radref(x));
+  mag_clear(t);
+}
+
+PMATH_PRIVATE
+void _pmath_arb_add_error_exact(arb_t x, const arb_t err) {
+  mag_t u;
+  
+  if(arb_is_zero(err))
+    return;
+    
+  if(mag_is_zero(arb_radref(x))) {
+    _pmath_arb_get_mag_exact(arb_radref(x), err);
+    return;
+  }
+  
+  mag_init(u);
+  _pmath_arb_get_mag_exact(u, err);
+  mag_add(arb_radref(x), arb_radref(x), u);
+  mag_clear(u);
 }

@@ -98,7 +98,12 @@ pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
     val = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(mid));
     if(!pmath_is_null(val)) {
       arb_set(PMATH_AS_ARB(val), PMATH_AS_ARB(mid));
-      arb_add_error(PMATH_AS_ARB(val), PMATH_AS_ARB(rad));
+      ///* TODO: arb_add_error() calls arf_get_mag() to convert midpoint of rad to mag_t,
+      //  but that function unconditionally adds one ulp. See Arb's get_mag.c, line 30: t = ... + LIMB_ONE
+      // */
+      //arb_add_error(PMATH_AS_ARB(val), PMATH_AS_ARB(rad));
+      _pmath_arb_add_error_exact(PMATH_AS_ARB(val), PMATH_AS_ARB(rad));
+      
       arf_get_mpfr(PMATH_AS_MP_VALUE(val), arb_midref(PMATH_AS_ARB(val)), MPFR_RNDN);
     }
   }
