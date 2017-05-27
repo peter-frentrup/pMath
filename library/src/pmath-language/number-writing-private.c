@@ -320,7 +320,7 @@ static void get_str_parts(
   }
   else {
     *out_rad_digits = fmpz_get_str(NULL, in_base, rad);
-    if((in_base & (in_base-1)) != 0){ // not a power of 2: at most RADIUS_DIGITS many radius digits, since we round anyway.
+    if((in_base & (in_base - 1)) != 0) { // not a power of 2: at most RADIUS_DIGITS many radius digits, since we round anyway.
       mp_bitcnt_t shift;
       round_digits_inplace(*out_rad_digits, &shift, err, in_base, RADIUS_DIGITS, ARF_RND_UP);
       fmpz_add_ui(out_rad_exp, exp, shift);
@@ -408,7 +408,7 @@ void _pmath_mpfloat_get_string_parts(
   fmpz_init(rad_exp);
   
   precision_digits = PMATH_AS_ARB_WORKING_PREC(value) / _pmath_log2_of(base);
-  max_digits = (int)FLINT_MIN((slong)max_digits, (slong)ceil(precision_digits));
+  //max_digits = (int)FLINT_MIN((slong)max_digits, (slong)ceil(precision_digits));
   
   result->base = base;
   get_str_parts(

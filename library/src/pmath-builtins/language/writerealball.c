@@ -21,7 +21,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   pmath_mpfloat_t value;
   pmath_t obj;
   int base = 10;
-  int max_digits = INT_MAX;
+  int max_digits;
   pmath_bool_t allow_inexact_digits = FALSE;
   struct _pmath_number_string_parts_t parts;
   
@@ -68,6 +68,8 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
     pmath_unref(value);
     return expr;
   }
+  
+  max_digits = FLINT_MIN(max_digits, PMATH_MP_PREC_MAX);
   
   str = PMATH_C_STRING("AllowInexactDigits");
   obj = pmath_option_value(PMATH_NULL, str, options);
