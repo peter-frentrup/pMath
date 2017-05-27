@@ -348,3 +348,5 @@ UnitVector::dir:= "There is no `1` dimensional unit vector in direction `2`."
 Which::argct:= "Which called with `1` arguments. Which must be called with an even number of arguments."
 
 Internal`WriteRealBall::maxdig:= "Option \"MaxDigits\"->`1` should be a positive integer or Automatic."
+Internal`WriteRealBall::mpf:= "Multi-precision floating point number or InputForm(...) thereof expected at position `1` in `2`."
+Internal`WriteRealBall::loss:= "Ignoring InputForm(...) adornment for base `1`."

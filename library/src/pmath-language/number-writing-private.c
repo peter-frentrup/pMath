@@ -258,6 +258,10 @@ static void get_str_parts(
 ) {
   fmpz_t mid, rad, exp, err;
   
+  assert(out_negative != NULL);
+  assert(out_mid_digits != NULL);
+  assert(out_rad_digits != NULL);
+  
   *out_negative = FALSE;
   *out_mid_digits = NULL;
   fmpz_zero(out_mid_exp);
@@ -357,6 +361,58 @@ static void get_str_parts(
   fmpz_clear(err);
 }
 
+/** \brief Losslessly convert an Arb number to hexadecimal string representation parts.
+ */
+static void get_str_hex_parts(
+  pmath_bool_t  *out_negative,
+  char         **out_mid_digits, // to be freed with flint_free()
+  fmpz_t         out_mid_exp,
+  char         **out_rad_digits, // to be freed with flint_free()
+  fmpz_t         out_rad_exp,
+  const arb_t    in_value
+) {
+  fmpz_t mant;
+  ulong remainder;
+  arf_t tmp;
+  
+  assert(out_negative != NULL);
+  assert(out_mid_digits != NULL);
+  assert(out_rad_digits != NULL);
+  
+  *out_negative = FALSE;
+  *out_mid_digits = NULL;
+  fmpz_zero(out_mid_exp);
+  *out_rad_digits = NULL;
+  fmpz_zero(out_rad_exp);
+  
+  if(!arb_is_finite(in_value))
+    return;
+    
+  *out_negative = arf_sgn(arb_midref(in_value)) < 0;
+  
+  fmpz_init(mant);
+  
+  arf_get_fmpz_2exp(mant, out_mid_exp, arb_midref(in_value));
+  fmpz_abs(mant, mant);
+  // out_mid_exp is in power of 2 instead of 16 (1 << (1 << 2)). Convert to power of 16:
+  remainder = fmpz_fdiv_ui(out_mid_exp, 1 << 2);
+  fmpz_fdiv_q_2exp(out_mid_exp, out_mid_exp, 2);
+  fmpz_mul_2exp(mant, mant, remainder);
+  
+  *out_mid_digits = fmpz_get_str(NULL, 16, mant);
+  
+  arf_init_set_mag_shallow(tmp, arb_radref(in_value));
+  arf_get_fmpz_2exp(mant, out_rad_exp, tmp);
+  // out_rad_exp is in power of 2 instead of 16 (2^4). Convert to power of 16:
+  remainder = fmpz_fdiv_ui(out_rad_exp, 1 << 2);
+  fmpz_fdiv_q_2exp(out_rad_exp, out_rad_exp, 2);
+  fmpz_mul_2exp(mant, mant, remainder);
+  
+  *out_rad_digits = fmpz_get_str(NULL, 16, mant);
+  
+  fmpz_clear(mant);
+}
+
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_string_t precision_to_string(double precision_digits, slong precision_bits) {
   double factor = precision_digits / precision_bits;
@@ -407,9 +463,8 @@ PMATH_PRIVATE
 void _pmath_mpfloat_get_string_parts(
   struct _pmath_number_string_parts_t *result,
   pmath_mpfloat_t                      value,
-  int                                  base,
   int                                  max_digits,
-  pmath_bool_t                         allow_inaccurate_digits
+  int                                  base_flags
 ) {
   char *mid_digits;
   char *rad_digits;
@@ -420,6 +475,9 @@ void _pmath_mpfloat_get_string_parts(
   int num_rad_digits;
   int num_mid_frac_digits;
   int num_rad_frac_digits;
+  
+  int base = base_flags & PMATH_BASE_FLAGS_BASE_MASK;
+  pmath_bool_t allow_inaccurate_digits = (base_flags & PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS) != 0;
   
   assert(result != NULL);
   assert(base >= 2 && base <= 36);
@@ -433,17 +491,28 @@ void _pmath_mpfloat_get_string_parts(
   //max_digits = (int)FLINT_MIN((slong)max_digits, (slong)ceil(precision_digits));
   
   result->base = base;
-  get_str_parts(
-    &result->is_negative,
-    &mid_digits,
-    mid_exp,
-    &rad_digits,
-    rad_exp,
-    PMATH_AS_ARB(value),
-    max_digits,
-    allow_inaccurate_digits,
-    base);
-    
+  if(base == 16 && (base_flags & PMATH_BASE_FLAG_ALL_DIGITS)) {
+    get_str_hex_parts(
+      &result->is_negative,
+      &mid_digits,
+      mid_exp,
+      &rad_digits,
+      rad_exp,
+      PMATH_AS_ARB(value));
+  }
+  else {
+    get_str_parts(
+      &result->is_negative,
+      &mid_digits,
+      mid_exp,
+      &rad_digits,
+      rad_exp,
+      PMATH_AS_ARB(value),
+      max_digits,
+      allow_inaccurate_digits,
+      base);
+  }
+  
   result->precision_decimal_digits = precision_to_string(precision_digits, PMATH_AS_ARB_WORKING_PREC(value));
   
   result->midpoint_fractional_mantissa_digits = PMATH_NULL;

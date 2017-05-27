@@ -18,12 +18,17 @@ struct _pmath_number_string_parts_t {
   pmath_string_t precision_decimal_digits;
 };
 
+enum {
+  PMATH_BASE_FLAGS_BASE_MASK           =  0xFF,
+  PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS = 0x100,
+  PMATH_BASE_FLAG_ALL_DIGITS           = 0x200,
+};
+
 PMATH_PRIVATE
 void _pmath_mpfloat_get_string_parts(
   struct _pmath_number_string_parts_t *result,
   pmath_mpfloat_t                      value,
-  int                                  base,
   int                                  max_digits,
-  pmath_bool_t                         allow_inaccurate_digits);
+  int                                  base_flags);
 
 #endif // __PMATH_LANGUAGE__NUMBER_WRITING_PRIVATE_H__

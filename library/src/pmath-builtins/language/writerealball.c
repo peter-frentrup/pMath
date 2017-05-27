@@ -8,6 +8,7 @@
 #include <pmath-language/number-parsing-private.h>
 #include <pmath-language/number-writing-private.h>
 
+#include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
 
@@ -21,6 +22,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   pmath_mpfloat_t value;
   pmath_t obj;
   int base = 10;
+  int base_flags;
   int max_digits;
   pmath_bool_t allow_inexact_digits = FALSE;
   struct _pmath_number_string_parts_t parts;
@@ -34,7 +36,16 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   if(pmath_is_null(options))
     return expr;
   
+  base_flags = 0;
+  
   value = pmath_expr_get_item(expr, 1);
+  if(pmath_is_expr_of_len(value, PMATH_SYMBOL_INPUTFORM, 1)) {
+    pmath_t tmp;
+    tmp = pmath_expr_get_item(value, 1);
+    pmath_unref(value);
+    value = tmp; 
+    base_flags|= PMATH_BASE_FLAG_ALL_DIGITS;
+  }
   if(!pmath_is_mpfloat(value)) {
     pmath_unref(value);
     pmath_message(PMATH_NULL, "mpf", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
@@ -71,15 +82,24 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   
   max_digits = FLINT_MIN(max_digits, PMATH_MP_PREC_MAX);
   
+  if(base_flags & PMATH_BASE_FLAG_ALL_DIGITS)  {
+    if(base != 16) {
+      pmath_message(PMATH_NULL, "loss", 1, INT(base));
+      base_flags &= ~PMATH_BASE_FLAG_ALL_DIGITS;
+    }
+  }
+  
+  base_flags |= base;
+  
   str = PMATH_C_STRING("AllowInexactDigits");
   obj = pmath_option_value(PMATH_NULL, str, options);
   pmath_unref(str);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
-    allow_inexact_digits = TRUE;
+    base_flags |= PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS;
     pmath_unref(obj);
   }
   else if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
-    allow_inexact_digits = FALSE;
+    //base_flags &= ~PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS;
     pmath_unref(obj);
   }
   else {
@@ -90,7 +110,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   
   pmath_unref(options);
   
-  _pmath_mpfloat_get_string_parts(&parts, value, base, max_digits, allow_inexact_digits);
+  _pmath_mpfloat_get_string_parts(&parts, value, max_digits, base_flags);
   pmath_unref(value);
   pmath_unref(expr);
   
@@ -98,9 +118,9 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   if(parts.is_negative)
     str = pmath_string_insert_latin1(str, INT_MAX, "-", 1);
     
-  if(base != 10) {
+  if(parts.base != 10) {
     char buf[3];
-    itoa(base, buf, 10);
+    itoa(parts.base, buf, 10);
     str = pmath_string_insert_latin1(str, INT_MAX, buf, -1);
     str = pmath_string_insert_latin1(str, INT_MAX, "^^", 2);
   }
