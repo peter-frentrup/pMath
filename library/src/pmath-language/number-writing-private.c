@@ -442,18 +442,19 @@ pmath_string_t precision_to_string(double precision_digits, slong precision_bits
 }
 
 PMATH_ATTRIBUTE_USE_RESULT
-static pmath_string_t split_digits(const char *integer_digits, int length, int frac_digits) {
+static pmath_string_t split_digits(const char *integer_digits, int length, int num_frac_digits) {
   pmath_string_t result;
   
   assert(integer_digits != NULL);
-  assert(integer_digits > 0);
-  assert(frac_digits >= 0);
+  assert(length > 0);
+  assert(num_frac_digits >= 0);
+  assert(num_frac_digits <= length);
   
   result = pmath_string_new(length + 2);
-  result = pmath_string_insert_latin1(result, INT_MAX, integer_digits, length - frac_digits);
+  result = pmath_string_insert_latin1(result, INT_MAX, integer_digits, length - num_frac_digits);
   result = pmath_string_insert_latin1(result, INT_MAX, ".", 1);
-  result = pmath_string_insert_latin1(result, INT_MAX, integer_digits + length - frac_digits, frac_digits);
-  if(frac_digits == 0)
+  result = pmath_string_insert_latin1(result, INT_MAX, integer_digits + length - num_frac_digits, num_frac_digits);
+  if(num_frac_digits == 0)
     result = pmath_string_insert_latin1(result, INT_MAX, "0", 1);
     
   return result;
