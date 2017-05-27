@@ -79,14 +79,36 @@ static void get_fmpz_mid_rad_basis_exp(
   
   prec = (slong)(in_num_digits * _pmath_log2_of(in_base) + 30);
   
-  if(fmpz_sgn(m) >= 0) {
-    pow_ui_fmpz(t, in_base, m, prec);
-    arb_mul(t, in_value, t, prec);
+  if(in_base == 1 << 1) {
+    arb_mul_2exp_fmpz(t, in_value, m);
+  }
+  else if(in_base == 1 << 2) {
+    fmpz_mul_ui(m, m,     2);
+    arb_mul_2exp_fmpz(t, in_value, m);
+  }
+  else if(in_base == 1 << 3) {
+    fmpz_mul_ui(m, m,     3);
+    arb_mul_2exp_fmpz(t, in_value, m);
+  }
+  else if(in_base == 1 << 4) {
+    fmpz_mul_ui(m, m,     4);
+    arb_mul_2exp_fmpz(t, in_value, m);
+  }
+  else if(in_base == 1 << 5) {
+    fmpz_mul_ui(m, m,     5);
+    arb_mul_2exp_fmpz(t, in_value, m);
   }
   else {
-    fmpz_neg(m, m);
-    pow_ui_fmpz(t, in_base, m, prec);
-    arb_div(t, in_value, t, prec);
+    // arb_mul() can round even if factor t is an exact power of 2
+    if(fmpz_sgn(m) >= 0) {
+      pow_ui_fmpz(t, in_base, m, prec);
+      arb_mul(t, in_value, t, prec);
+    }
+    else {
+      fmpz_neg(m, m);
+      pow_ui_fmpz(t, in_base, m, prec);
+      arb_div(t, in_value, t, prec);
+    }
   }
   
   roundmid = arf_get_fmpz_fixed_si(out_mid, arb_midref(t), 0);
