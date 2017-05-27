@@ -441,21 +441,52 @@ pmath_string_t precision_to_string(double precision_digits, slong precision_bits
   return PMATH_C_STRING(s);
 }
 
-PMATH_ATTRIBUTE_USE_RESULT
-static pmath_string_t split_digits(const char *integer_digits, int length, int num_frac_digits) {
+#define MAX_INTEGER_DIGITS  5
+#define MAX_LEADING_ZEROS   4
+
+static pmath_string_t place_decimal_dot(const char *integer_digits, fmpz_t inout_exp) {
   pmath_string_t result;
+  int length = (int)strlen(integer_digits);
+  int int_digits = 1;
+  int frac_digits;
   
-  assert(integer_digits != NULL);
-  assert(length > 0);
-  assert(num_frac_digits >= 0);
-  assert(num_frac_digits <= length);
+  if(length >= 2 && fmpz_sgn(inout_exp) < 0) {
+    if(fmpz_cmp_si(inout_exp, -length) <= 0 && fmpz_cmp_si(inout_exp, -(length + MAX_LEADING_ZEROS)) >= 0) { 
+      // -(length + MAX_LEADING_ZEROS) <= inout_exp <= -length
+      int leading_zeros = -(int)fmpz_get_si(inout_exp) - length;
+      
+      int trailing_zeros = 0;
+      while(trailing_zeros < FLINT_MIN(length, MAX_LEADING_ZEROS) && integer_digits[length - trailing_zeros - 1] == '0')
+        ++trailing_zeros;
+      
+      if(leading_zeros < trailing_zeros) {
+        pmath_string_t result = pmath_string_new(length + 1);
+        result = pmath_string_insert_latin1(result, INT_MAX, "0.", 2);
+        result = pmath_string_insert_latin1(result, INT_MAX, integer_digits + length - leading_zeros, leading_zeros);
+        result = pmath_string_insert_latin1(result, INT_MAX, integer_digits, length - leading_zeros - 1);
+        fmpz_zero(inout_exp);
+        return result;
+      }
+    }
+    else if(fmpz_cmp_si(inout_exp, - length) > 0) { // -length < inout_exp < 0
+      frac_digits = (int)-fmpz_get_si(inout_exp);
+      int_digits = length - frac_digits;
+      if(int_digits > MAX_INTEGER_DIGITS)
+        int_digits = 1;
+    }
+  }
+  
+  frac_digits = length - int_digits;
+  fmpz_add_si(inout_exp, inout_exp, length - int_digits);
   
   result = pmath_string_new(length + 2);
-  result = pmath_string_insert_latin1(result, INT_MAX, integer_digits, length - num_frac_digits);
-  result = pmath_string_insert_latin1(result, INT_MAX, ".", 1);
-  result = pmath_string_insert_latin1(result, INT_MAX, integer_digits + length - num_frac_digits, num_frac_digits);
-  if(num_frac_digits == 0)
-    result = pmath_string_insert_latin1(result, INT_MAX, "0", 1);
+  result = pmath_string_insert_latin1(result, INT_MAX, integer_digits, int_digits);
+  if(int_digits < length) {
+    result = pmath_string_insert_latin1(result, INT_MAX, ".", 1);
+    result = pmath_string_insert_latin1(result, INT_MAX, integer_digits + int_digits, length - int_digits);
+  }
+  else
+    result = pmath_string_insert_latin1(result, INT_MAX, ".0", 2);
     
   return result;
 }
@@ -472,10 +503,6 @@ void _pmath_mpfloat_get_string_parts(
   fmpz_t mid_exp;
   fmpz_t rad_exp;
   double precision_digits;
-  int num_mid_digits;
-  int num_rad_digits;
-  int num_mid_frac_digits;
-  int num_rad_frac_digits;
   
   int base = base_flags & PMATH_BASE_FLAGS_BASE_MASK;
   pmath_bool_t allow_inaccurate_digits = (base_flags & PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS) != 0;
@@ -529,26 +556,16 @@ void _pmath_mpfloat_get_string_parts(
     return;
   }
   
-  num_mid_digits = (int)strlen(mid_digits);
-  num_rad_digits = (int)strlen(rad_digits);
-  
-  assert(num_mid_digits > 0);
-  assert(num_rad_digits > 0);
-  
-  num_mid_frac_digits = num_mid_digits - 1;
-  fmpz_add_si(mid_exp, mid_exp, num_mid_frac_digits);
-  result->midpoint_fractional_mantissa_digits = split_digits(mid_digits, num_mid_digits, num_mid_frac_digits);
+  result->midpoint_fractional_mantissa_digits = place_decimal_dot(mid_digits, mid_exp);
   flint_free(mid_digits);
   
-  if(num_rad_digits == 1 && *rad_digits == '0') {
+  if(rad_digits[0] == '0' && rad_digits[1] == '\0') {
     fmpz_zero(rad_exp);
   }
   else
     fmpz_sub(rad_exp, rad_exp, mid_exp);
   
-  num_rad_frac_digits = num_rad_digits - 1;
-  fmpz_add_si(rad_exp, rad_exp, num_rad_frac_digits);
-  result->radius_fractional_mantissa_digits = split_digits(rad_digits, num_rad_digits, num_rad_frac_digits);
+  result->radius_fractional_mantissa_digits = place_decimal_dot(rad_digits, rad_exp);
   flint_free(rad_digits);
   
   if(fmpz_is_zero(mid_exp)) {
