@@ -416,18 +416,18 @@ static void get_str_hex_parts(
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_string_t precision_to_string(double precision_digits, slong precision_bits) {
   double factor = precision_digits / precision_bits;
-  double min = precision_digits - 0.4 * factor;
-  double max = precision_digits + 0.4 * factor;
+  double min = precision_digits - 0.99 * factor;
+  double max = precision_digits;
   char s[100];
   int len;
   double test;
   
-  for(len = 1; len < sizeof(s); ++len) {
+  for(len = 0; len < sizeof(s); ++len) {
     snprintf(s, sizeof(s), "%.*f", len, precision_digits);
     
     // not pmath_strtod() because sprintf gives locale specific result
     test = strtod(s, NULL);
-    if(min < test && test < max)
+    if(min < test && test <= max)
       break;
   }
   
