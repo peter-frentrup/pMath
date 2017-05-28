@@ -47,8 +47,9 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
     base_flags|= PMATH_BASE_FLAG_ALL_DIGITS;
   }
   if(!pmath_is_mpfloat(value)) {
-    pmath_unref(value);
     pmath_message(PMATH_NULL, "mpf", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
+    pmath_unref(value);
+    pmath_unref(options);
     return expr;
   }
     
@@ -61,6 +62,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   else {
     pmath_message(PMATH_NULL, "basf", 2, obj, PMATH_FROM_INT32(36));
     pmath_unref(value);
+    pmath_unref(options);
     return expr;
   }
   
@@ -77,6 +79,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   else {
     pmath_message(PMATH_NULL, "maxdig", 1, obj);
     pmath_unref(value);
+    pmath_unref(options);
     return expr;
   }
   
@@ -105,6 +108,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   else {
     pmath_message(PMATH_NULL, "opttf", 2, PMATH_C_STRING("AllowInexactDigits"), obj);
     pmath_unref(value);
+    pmath_unref(options);
     return expr;
   }
   
