@@ -662,87 +662,125 @@ static pmath_bool_t scan_next_string(struct scanner_t *tokens, struct parser_t *
   return TRUE;
 }
 
-static void scan_next_number(struct scanner_t *tokens, struct parser_t *parser) {
-  assert(!parser || &parser->tokens == tokens);
-  assert(tokens->pos < tokens->len);
-  assert(tokens->str[tokens->pos] >= '0' && tokens->str[tokens->pos] <= '9');
+static pmath_bool_t scan_number_base_specifier(struct scanner_t *tokens, struct parser_t *parser) {
+  int i;
   
-  tokens->span_items[tokens->pos] |= 2;
+  assert(tokens->pos < tokens->len);
+  assert(pmath_char_is_digit(tokens->str[tokens->pos]));
+  
+  i = tokens->pos + 1;
+  if(i < tokens->len && pmath_char_is_digit(tokens->str[i]))
+    ++i;
+    
+  if(i + 2 >= tokens->len)
+    return FALSE;
+    
+  if(tokens->str[i] != '^' || tokens->str[i + 1] != '^' || !pmath_char_is_36digit(tokens->str[i + 2]))
+    return FALSE;
+    
+  tokens->pos = i + 2;
+  return TRUE;
+}
+
+#define SCAN_FLOAT_DIGITS_REST(DIGIT_TEST) \
+do {                                                                          \
+  ++tokens->pos;                                                              \
+  while(tokens->pos < tokens->len && DIGIT_TEST(tokens->str[tokens->pos]))    \
+    ++tokens->pos;                                                            \
+                                                                              \
+  if( tokens->pos + 1 < tokens->len   &&                                      \
+      tokens->str[tokens->pos] == '.' &&                                      \
+      DIGIT_TEST(tokens->str[tokens->pos + 1]))                               \
+  {                                                                           \
+    tokens->pos += 2;                                                         \
+    while( tokens->pos < tokens->len && DIGIT_TEST(tokens->str[tokens->pos])) \
+      ++tokens->pos;                                                          \
+  }                                                                           \
+} while(0)
+
+static void scan_float_decimal_digits_rest(struct scanner_t *tokens, struct parser_t *parser) {
+  SCAN_FLOAT_DIGITS_REST(pmath_char_is_digit);
+}
+
+static void scan_float_base36_digits_rest(struct scanner_t *tokens, struct parser_t *parser) {
+  SCAN_FLOAT_DIGITS_REST(pmath_char_is_36digit);
+}
+
+static void scan_precision_specifier(struct scanner_t *tokens, struct parser_t *parser) {
+  if(tokens->pos >= tokens->len)
+    return;
+    
+  if(tokens->str[tokens->pos] != '`')
+    return;
+    
   ++tokens->pos;
   
-  while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
-    ++tokens->pos;
-  
-  if( tokens->pos + 2 < tokens->len       &&
-      tokens->str[tokens->pos]     == '^' &&
-      tokens->str[tokens->pos + 1] == '^' &&
-      pmath_char_is_36digit(tokens->str[tokens->pos + 2]))
-  {
-    tokens->pos += 3;
-    while(tokens->pos < tokens->len && pmath_char_is_36digit(tokens->str[tokens->pos]))
-      ++tokens->pos;
-    
-    if( tokens->pos + 1 < tokens->len   &&
-        tokens->str[tokens->pos] == '.' &&
-        pmath_char_is_36digit(tokens->str[tokens->pos + 1]))
-    {
-      tokens->pos += 2;
-      while( tokens->pos < tokens->len && pmath_char_is_36digit(tokens->str[tokens->pos]))
-        ++tokens->pos;
-    }
-  }
-  else if(tokens->pos + 1 < tokens->len   &&
-          tokens->str[tokens->pos] == '.' &&
-          pmath_char_is_digit(tokens->str[tokens->pos + 1]))
-  {
-    tokens->pos += 2;
-    while( tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
-      ++tokens->pos;
-  }
-  
-  if( tokens->pos < tokens->len && tokens->str[tokens->pos] == '`') {
+  if( tokens->pos < tokens->len && tokens->str[tokens->pos] == '`')
     ++tokens->pos;
     
-    if( tokens->pos < tokens->len && tokens->str[tokens->pos] == '`')
-      ++tokens->pos;
-    
-    if( tokens->pos + 1 < tokens->len     &&
-        (tokens->str[tokens->pos] == '+' ||
-         tokens->str[tokens->pos] == '-') &&
-        pmath_char_is_digit(tokens->str[tokens->pos + 1]))
-    {
-      ++tokens->pos;
-    }
-    
-    if(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos])) {
-      ++tokens->pos;
-      while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
-        ++tokens->pos;
-      
-      if( tokens->pos + 1 < tokens->len &&
-          tokens->str[tokens->pos] == '.' &&
-          pmath_char_is_digit(tokens->str[tokens->pos + 1]))
-      {
-        tokens->pos += 2;
-        while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
-          ++tokens->pos;
-      }
-    }
+  if( tokens->pos + 1 < tokens->len     &&
+      (tokens->str[tokens->pos] == '+' ||
+       tokens->str[tokens->pos] == '-') &&
+      pmath_char_is_digit(tokens->str[tokens->pos + 1]))
+  {
+    ++tokens->pos;
   }
   
-  if( tokens->pos + 2 < tokens->len &&
-      tokens->str[tokens->pos]   == '*' &&
-      tokens->str[tokens->pos + 1] == '^' &&
-      (pmath_char_is_digit(tokens->str[tokens->pos + 2]) ||
-       (tokens->pos + 3 < tokens->len &&
-        (tokens->str[tokens->pos + 2] == '-' ||
-         tokens->str[tokens->pos + 2] == '+') &&
-        pmath_char_is_digit(tokens->str[tokens->pos + 3]))))
-  {
+  if(tokens->pos >= tokens->len)
+    return;
+    
+  if(!pmath_char_is_digit(tokens->str[tokens->pos]))
+    return;
+    
+  scan_float_decimal_digits_rest(tokens, parser);
+}
+
+static void scan_number_exponent(struct scanner_t *tokens, struct parser_t *parser) {
+  if(tokens->pos + 2 >= tokens->len)
+    return;
+    
+  if(tokens->str[tokens->pos] != '*' || tokens->str[tokens->pos + 1] != '^')
+    return;
+    
+  if(pmath_char_is_digit(tokens->str[tokens->pos + 2])) {
     tokens->pos += 3;
     while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
       ++tokens->pos;
+      
+    return;
   }
+  
+  if(tokens->pos + 3 >= tokens->len)
+    return;
+    
+  if(tokens->str[tokens->pos + 2] != '+' && tokens->str[tokens->pos + 2] != '-')
+    return;
+    
+  if(!pmath_char_is_digit(tokens->str[tokens->pos + 3]))
+    return;
+    
+  tokens->pos += 4;
+  while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
+    ++tokens->pos;
+}
+
+static void scan_next_number(struct scanner_t *tokens, struct parser_t *parser) {
+  pmath_bool_t have_explicit_base;
+  
+  assert(!parser || &parser->tokens == tokens);
+  assert(tokens->pos < tokens->len);
+  assert(pmath_char_is_digit(tokens->str[tokens->pos]));
+  
+  tokens->span_items[tokens->pos] |= 2;
+  
+  have_explicit_base = scan_number_base_specifier(tokens, parser);
+  if(have_explicit_base) 
+    scan_float_base36_digits_rest(tokens, parser);
+  else 
+    scan_float_decimal_digits_rest(tokens, parser);
+  
+  scan_precision_specifier(tokens, parser);
+  scan_number_exponent(tokens, parser);
 }
 
 static void scan_next_as_name(struct scanner_t *tokens, struct parser_t *parser) {
