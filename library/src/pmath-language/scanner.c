@@ -662,6 +662,7 @@ static pmath_bool_t scan_next_string(struct scanner_t *tokens, struct parser_t *
   return TRUE;
 }
 
+// Skip the "dd^^" base specifier if that is followed by a digit. Return if such a base specifier was found.
 static pmath_bool_t scan_number_base_specifier(struct scanner_t *tokens, struct parser_t *parser) {
   int i;
   
@@ -684,6 +685,7 @@ static pmath_bool_t scan_number_base_specifier(struct scanner_t *tokens, struct 
 
 #define SCAN_FLOAT_DIGITS_REST(DIGIT_TEST) \
 do {                                                                          \
+  assert(tokens->pos < tokens->len);                                          \
   ++tokens->pos;                                                              \
   while(tokens->pos < tokens->len && DIGIT_TEST(tokens->str[tokens->pos]))    \
     ++tokens->pos;                                                            \
@@ -698,14 +700,19 @@ do {                                                                          \
   }                                                                           \
 } while(0)
 
+// Skip a "ddd.ddd" decimal floating point number. Skips at least one character.
 static void scan_float_decimal_digits_rest(struct scanner_t *tokens, struct parser_t *parser) {
   SCAN_FLOAT_DIGITS_REST(pmath_char_is_digit);
 }
 
+// Skip a "xxx.xxx" base-36 floating point number. Skips at least one character.
 static void scan_float_base36_digits_rest(struct scanner_t *tokens, struct parser_t *parser) {
   SCAN_FLOAT_DIGITS_REST(pmath_char_is_36digit);
 }
 
+#undef SCAN_FLOAT_DIGITS_REST
+
+// Skip a "`ddd.ddd" precision specifier, if any. Digits are optional.
 static void scan_precision_specifier(struct scanner_t *tokens, struct parser_t *parser) {
   if(tokens->pos >= tokens->len)
     return;
@@ -715,9 +722,11 @@ static void scan_precision_specifier(struct scanner_t *tokens, struct parser_t *
     
   ++tokens->pos;
   
+  // deprecated: ``
   if( tokens->pos < tokens->len && tokens->str[tokens->pos] == '`')
     ++tokens->pos;
     
+  // deprecated: ``-ddd.ddd
   if( tokens->pos + 1 < tokens->len     &&
       (tokens->str[tokens->pos] == '+' ||
        tokens->str[tokens->pos] == '-') &&
@@ -735,6 +744,7 @@ static void scan_precision_specifier(struct scanner_t *tokens, struct parser_t *
   scan_float_decimal_digits_rest(tokens, parser);
 }
 
+// Skip a "*^-ddd" exponent speifier, if any. The sign is optional.
 static void scan_number_exponent(struct scanner_t *tokens, struct parser_t *parser) {
   if(tokens->pos + 2 >= tokens->len)
     return;
@@ -764,6 +774,63 @@ static void scan_number_exponent(struct scanner_t *tokens, struct parser_t *pars
     ++tokens->pos;
 }
 
+// Skip a "[+/-xxx.xxx*^-ddd]" real ball radius specification, if present.
+static void scan_number_radius(struct scanner_t *tokens, struct parser_t *parser, pmath_bool_t is_base36) {
+  int start = tokens->pos;
+  
+  if(tokens->pos >= tokens->len || tokens->str[tokens->pos] != '[')
+    return;
+    
+  ++tokens->pos;
+  
+  if( tokens->pos + 2 < tokens->len &&
+      tokens->str[tokens->pos]   == '+' &&
+      tokens->str[tokens->pos + 1] == '/' &&
+      tokens->str[tokens->pos + 2] == '-')
+  {
+    tokens->pos += 3;
+  }
+  else if(tokens->pos < tokens->len && tokens->str[tokens->pos] == PMATH_CHAR_PLUSMINUS) {
+    ++tokens->pos;
+  }
+  else if(tokens->pos < tokens->len && tokens->str[tokens->pos] == '\\') {  // \[PlusMinus] escape sequence
+    uint32_t chr;
+    scan_next_escaped_char(tokens, parser, &chr);
+    if(chr != PMATH_CHAR_PLUSMINUS) 
+      goto FAIL;
+  }
+  else
+    goto FAIL;
+    
+  if(tokens->pos >= tokens->len)
+    goto FAIL;
+    
+  if(is_base36) {
+    if(!pmath_char_is_digit(tokens->str[tokens->pos]))
+      goto FAIL;
+      
+    scan_float_decimal_digits_rest(tokens, parser);
+  }
+  else {
+    if(!pmath_char_is_36digit(tokens->str[tokens->pos]))
+      goto FAIL;
+      
+    scan_float_base36_digits_rest(tokens, parser);
+  }
+  
+  scan_number_exponent(tokens, parser);
+  
+  if(tokens->pos >= tokens->len || tokens->str[tokens->pos] != ']')
+    goto FAIL;
+    
+  ++tokens->pos;
+  return;
+  
+FAIL:
+  tokens->pos = start;
+  return;
+}
+
 static void scan_next_number(struct scanner_t *tokens, struct parser_t *parser) {
   pmath_bool_t have_explicit_base;
   
@@ -774,10 +841,12 @@ static void scan_next_number(struct scanner_t *tokens, struct parser_t *parser) 
   tokens->span_items[tokens->pos] |= 2;
   
   have_explicit_base = scan_number_base_specifier(tokens, parser);
-  if(have_explicit_base) 
+  if(have_explicit_base)
     scan_float_base36_digits_rest(tokens, parser);
-  else 
+  else
     scan_float_decimal_digits_rest(tokens, parser);
+  
+  scan_number_radius(tokens, parser, have_explicit_base);
   
   scan_precision_specifier(tokens, parser);
   scan_number_exponent(tokens, parser);

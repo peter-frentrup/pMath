@@ -6,8 +6,6 @@
 #include <pmath-language/tokens.h>
 
 
-static const uint16_t PLUS_MINUS_SIGN = 0x00B1;
-
 static int digit_value(uint16_t ch) {
   if(ch >= '0' && ch <= '9')
     return ch - '0';
@@ -180,7 +178,7 @@ static const uint16_t *parse_radius(
     goto FAIL;
     
   ++str;
-  if(str < str_end && *str == PLUS_MINUS_SIGN)
+  if(str < str_end && *str == PMATH_CHAR_PLUSMINUS)
     ++str;
   else if(str + 2 < str_end && str[0] == '+' && str[1] == '/' && str[2] == '-')
     str += 3;
