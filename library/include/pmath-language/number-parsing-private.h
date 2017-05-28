@@ -10,7 +10,7 @@
     pMath represents arbitrary precision numbers as real balls with a midpoint, a zero or
     posivive radius and a working precision. The general format for such numbers is e.g.
     \code
-16^^1a.b23[+-3b.7*^-2]`10.2*^-15
+16^^1a.b23[+/-3b.7*^-2]`10.2*^-15
     \endcode
     which represents the closed interval with midpoint `(1*16 + 10 + 11/16 + 2/16^2 + 3/16^3) * 16^-15`,
     radius `(3*16 + 12 + 7/16) * 16^-17` and working precision of `10.2 * ln(16)/ln(2)` bits.
@@ -21,7 +21,7 @@
       <li> The mantissa (<tt>1a.b23</tt>) is mandatory. It is a string of digits in the given base.
       <li> The radius specification (<tt>[+-3b.7*^-2]</tt>) is again optional.
            If specified, it starts with an opening square bracket <tt>[</tt>, followed by either the string
-           <tt>+-</tt> or the unicode PLUS-MINUS SIGN character U+00B1, followed by a string of digits (<tt>3b.7</tt>) 
+           <tt>+/-</tt> or the unicode PLUS-MINUS SIGN character U+00B1, followed by a string of digits (<tt>3b.7</tt>) 
            in the given base, floowed by an optional exponent specifier (<tt>*^-2</tt>).
       <li> The precision specifier (<tt>`10.2</tt>) is also optional. 
            It consitst of a starting <tt>`</tt> followed by a decimal integer or floating point number.

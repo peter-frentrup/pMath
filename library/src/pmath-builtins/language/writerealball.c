@@ -130,7 +130,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   }
   
   str = pmath_string_concat(str, pmath_ref(parts.midpoint_fractional_mantissa_digits));
-  str = pmath_string_insert_latin1(str, INT_MAX, "[+-", 3);
+  str = pmath_string_insert_latin1(str, INT_MAX, "[+/-", 4);
   str = pmath_string_concat(str, pmath_ref(parts.radius_fractional_mantissa_digits));
   if(pmath_string_length(parts.radius_exponent_part_decimal_digits) > 0) {
     str = pmath_string_insert_latin1(str, INT_MAX, "*^", 2);

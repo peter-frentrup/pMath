@@ -14,7 +14,7 @@
 
 /** \brief Represents the variable parts that constitute an arbitrary precision real ball.
 
-  For example, the number "16^^1a.b23[+-3b.7*^-2]`10.2*^-15" consists of the parts
+  For example, the number "16^^1a.b23[+/-3b.7*^-2]`10.2*^-15" consists of the parts
   - \see is_negative = FALSE
   - \see base = 16
   - \see midpoint_fractional_mantissa_digits = "1a.b23"

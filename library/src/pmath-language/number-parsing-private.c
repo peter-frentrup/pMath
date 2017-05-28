@@ -158,7 +158,7 @@ static const uint16_t *parse_exponent(
 
 /** \brief Parse a radius specification.
 
-    A radius specification is a string of the form <tt>[+-xxx.xxx*^ddd]</tt> with optional decimal
+    A radius specification is a string of the form <tt>[+/-xxx.xxx*^ddd]</tt> with optional decimal
     exponent <tt>*^ddd</tt> or <tt>*^-ddd</tt> and mantissa <tt>xxx.xxx</tt> given as \a base digits.
  */
 static const uint16_t *parse_radius(
@@ -182,8 +182,8 @@ static const uint16_t *parse_radius(
   ++str;
   if(str < str_end && *str == PLUS_MINUS_SIGN)
     ++str;
-  else if(str + 1 < str_end && str[0] == '+' && str[1] == '-')
-    str += 2;
+  else if(str + 2 < str_end && str[0] == '+' && str[1] == '/' && str[2] == '-')
+    str += 3;
   else
     goto FAIL;
     
