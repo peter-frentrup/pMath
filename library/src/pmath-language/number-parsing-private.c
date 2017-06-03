@@ -48,6 +48,10 @@ static const uint16_t *parse_base(
       return str + 2;
     }
   }
+  else if(str + 2 < str_end && str[0] == '0' && str[1] == 'x') {
+    *out_base = 16;
+    return str + 2;
+  }
   
   *out_base = 10;
   return start;
@@ -110,7 +114,7 @@ static const uint16_t *parse_simple_float(
     *inout_is_floating_point = TRUE;
     
     *out_frac_digits = frac_end - (int_end + 1);
-      
+    
     *out_significant_digits += *out_frac_digits;
     if(*str == '0') // leading 0
       --*out_significant_digits;
@@ -126,7 +130,8 @@ static const uint16_t *parse_simple_float(
 static const uint16_t *parse_exponent(
   fmpz_t          out_exponent,
   const uint16_t *str,
-  const uint16_t *str_end
+  const uint16_t *str_end,
+  int             base
 ) {
   const uint16_t *start = str;
   const uint16_t *end;
@@ -136,10 +141,21 @@ static const uint16_t *parse_exponent(
   assert(str_end != NULL);
   
   fmpz_zero(out_exponent);
-  if(str + 1 >= str_end || str[0] != '*' || str[1] != '^')
+  if(str + 1 < str_end && str[0] == '*' && str[1] == '^') {
+    str += 2;
+  }
+  else if(str < str_end && (*str == 'e' || *str == 'E'/* || *str == 'p' || *str == 'P'*/)) {
+    /* TODO: like C/C++, base 16 should treat P+ddd as exponent in power of 2 instead of 16. 
+       So we need to divide out_exponent by 4 and return a correction factor (exp mod 4)
+     */
+    if(base == 10)
+      ++str;
+    else
+      return str;
+  }
+  else
     return str;
     
-  str += 2;
   if(str < str_end && *str == '-') {
     negative = TRUE;
     ++str;
@@ -202,7 +218,7 @@ static const uint16_t *parse_radius(
   if(significant_digits == 0)
     goto FAIL;
     
-  str = parse_exponent(out_radius_exponent, str, str_end);
+  str = parse_exponent(out_radius_exponent, str, str_end, base);
   if(str < str_end && *str == ']') {
     fmpz_sub_ui(out_radius_exponent, out_radius_exponent, frac_digits);
     return str + 1;
@@ -329,7 +345,7 @@ const uint16_t *_pmath_parse_real_ball(
   else
     result->precision_in_base = HUGE_VAL;
     
-  str = parse_exponent(result->midpoint_exponent, str, str_end);
+  str = parse_exponent(result->midpoint_exponent, str, str_end, result->base);
   fmpz_add(result->radius_exponent, result->radius_exponent, result->midpoint_exponent);
   fmpz_sub_ui(result->midpoint_exponent, result->midpoint_exponent, mid_frac_digits);
   return str;
