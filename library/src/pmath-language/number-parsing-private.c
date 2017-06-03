@@ -101,24 +101,23 @@ static const uint16_t *parse_simple_float(
   *out_significant_digits = int_end - str;
   *out_frac_digits = 0;
   
-  if(str < int_end) {
-    if(int_end + 1 < str_end && *int_end == '.') {
-      const uint16_t *frac_end = parse_integer_remainder(out_mantissa, int_end + 1, str_end, base);
+  if(int_end < str_end && *int_end == '.') {
+    const uint16_t *frac_end = parse_integer_remainder(out_mantissa, int_end + 1, str_end, base);
+    
+    if(frac_end == str + 1) // do not acept sole "." without any digit
+      return int_end;
       
-      *inout_is_floating_point = TRUE;
+    *inout_is_floating_point = TRUE;
+    
+    *out_frac_digits = frac_end - (int_end + 1);
       
-      *out_frac_digits = frac_end - (int_end + 1);
-      if(*out_frac_digits == 0)
-        return int_end;
-        
-      *out_significant_digits += *out_frac_digits;
-      if(*str == '0') // leading 0
-        --*out_significant_digits;
-      else if(*out_frac_digits == 1 && int_end[1] == '0') // trailing .0
-        --*out_significant_digits;
-        
-      return frac_end;
-    }
+    *out_significant_digits += *out_frac_digits;
+    if(*str == '0') // leading 0
+      --*out_significant_digits;
+    else if(*out_frac_digits == 1 && int_end[1] == '0') // trailing .0
+      --*out_significant_digits;
+      
+    return frac_end;
   }
   
   return int_end;
