@@ -81,6 +81,7 @@ static const uint16_t *parse_simple_float(
   fmpz_t          out_mantissa,
   ulong          *out_frac_digits,
   ulong          *out_significant_digits,
+  pmath_bool_t   *inout_is_floating_point,
   const uint16_t *str,
   const uint16_t *str_end,
   int             base
@@ -89,6 +90,7 @@ static const uint16_t *parse_simple_float(
   
   assert(out_frac_digits != NULL);
   assert(out_significant_digits != NULL);
+  assert(inout_is_floating_point != NULL);
   assert(str != NULL);
   assert(str_end != NULL);
   assert(base >= 2 && base <= 36);
@@ -102,6 +104,8 @@ static const uint16_t *parse_simple_float(
   if(str < int_end) {
     if(int_end + 1 < str_end && *int_end == '.') {
       const uint16_t *frac_end = parse_integer_remainder(out_mantissa, int_end + 1, str_end, base);
+      
+      *inout_is_floating_point = TRUE;
       
       *out_frac_digits = frac_end - (int_end + 1);
       if(*out_frac_digits == 0)
@@ -162,6 +166,7 @@ static const uint16_t *parse_exponent(
 static const uint16_t *parse_radius(
   fmpz_t          out_radius_mantissa,
   fmpz_t          out_radius_exponent,
+  pmath_bool_t   *inout_is_floating_point,
   const uint16_t *str,
   const uint16_t *str_end,
   int             base
@@ -170,6 +175,7 @@ static const uint16_t *parse_radius(
   ulong frac_digits;
   ulong significant_digits;
   
+  assert(inout_is_floating_point != NULL);
   assert(str != NULL);
   assert(str_end != NULL);
   assert(base >= 2 && base <= 36);
@@ -189,6 +195,7 @@ static const uint16_t *parse_radius(
           out_radius_mantissa,
           &frac_digits,
           &significant_digits,
+          inout_is_floating_point,
           str,
           str_end,
           base);
@@ -222,51 +229,72 @@ PMATH_PRIVATE double _pmath_log2_of(int b) {
   return log((double)b) / LOGE_2;
 }
 
+PMATH_PRIVATE void _pmath_real_ball_parts_init(struct _pmath_real_ball_parts_t *parts) {
+  assert(parts != NULL);
+  fmpz_init(parts->midpoint_mantissa);
+  fmpz_init(parts->midpoint_exponent);
+  fmpz_init(parts->radius_mantissa);
+  fmpz_init(parts->radius_exponent);
+  parts->precision_in_base = 0.0;
+  parts->base = 0;
+}
+
+PMATH_PRIVATE void _pmath_real_ball_parts_clear(struct _pmath_real_ball_parts_t *parts) {
+  assert(parts != NULL);
+  fmpz_clear(parts->midpoint_mantissa);
+  fmpz_clear(parts->midpoint_exponent);
+  fmpz_clear(parts->radius_mantissa);
+  fmpz_clear(parts->radius_exponent);
+}
+
 PMATH_PRIVATE
-const uint16_t *_pmath_parse_float_ball(
-  fmpz_t           out_midpoint_mantissa,
-  fmpz_t           out_midpoint_exponent,
-  fmpz_t           out_radius_mantissa,
-  fmpz_t           out_radius_exponent,
-  int             *out_base,
-  double          *out_precision_in_base,
-  const uint16_t  *str,
-  const uint16_t  *str_end,
-  double           default_min_precision
+const uint16_t *_pmath_parse_real_ball(
+  struct _pmath_real_ball_parts_t *result,
+  const uint16_t                  *str,
+  const uint16_t                  *str_end,
+  double                           default_min_precision
 ) {
   const uint16_t *mid_mant_start;
   ulong mid_frac_digits;
   ulong mid_significant_digits;
+  pmath_bool_t is_floating_point;
   
-  assert(out_base != NULL);
-  assert(out_precision_in_base != NULL);
+  assert(result != NULL);
   assert(str != NULL);
   
   if(str_end == NULL)
     str_end = (const uint16_t*)((uint64_t)0 - (uint64_t)1);
     
-  str = parse_base(out_base, str, str_end);
-  assert(*out_base >= 2 && *out_base <= 36);
+  str = parse_base(&result->base, str, str_end);
+  assert(result->base >= 2 && result->base <= 36);
   
+  is_floating_point = FALSE;
   mid_mant_start = str;
   str = parse_simple_float(
-          out_midpoint_mantissa,
+          result->midpoint_mantissa,
           &mid_frac_digits,
           &mid_significant_digits,
+          &is_floating_point,
           str,
           str_end,
-          *out_base);
+          result->base);
           
   if(str == mid_mant_start) {
-    fmpz_zero(out_midpoint_exponent);
-    fmpz_zero(out_radius_mantissa);
-    fmpz_zero(out_radius_exponent);
-    *out_precision_in_base = 0.0;
+    fmpz_zero(result->midpoint_exponent);
+    fmpz_zero(result->radius_mantissa);
+    fmpz_zero(result->radius_exponent);
+    result->precision_in_base = 0.0;
     return str;
   }
   
-  str = parse_radius(out_radius_mantissa, out_radius_exponent, str, str_end, *out_base);
-  
+  str = parse_radius(
+          result->radius_mantissa,
+          result->radius_exponent,
+          &is_floating_point,
+          str,
+          str_end,
+          result->base);
+          
   if(str < str_end && *str == '`') {
     const uint16_t *prec_start = str + 1;
     slong prec_frac;
@@ -275,31 +303,36 @@ const uint16_t *_pmath_parse_float_ball(
     fmpz_t prec_mant;
     fmpz_init(prec_mant);
     
-    str = parse_simple_float(prec_mant, &prec_frac, &prec_significant, prec_start, str_end, 10);
+    str = parse_simple_float(prec_mant, &prec_frac, &prec_significant, &is_floating_point, prec_start, str_end, 10);
     if(str == prec_start)
-      *out_precision_in_base = -HUGE_VAL;
+      result->precision_in_base = -HUGE_VAL;
     else
-      *out_precision_in_base = fmpz_get_d(prec_mant) / pow(10.0, (double)prec_frac);
+      result->precision_in_base = fmpz_get_d(prec_mant) / pow(10.0, (double)prec_frac);
       
+    is_floating_point = TRUE;
     fmpz_clear(prec_mant);
   }
-  else if(default_min_precision == -HUGE_VAL) {
-    if(mid_significant_digits < DBL_MANT_DIG / _pmath_log2_of(*out_base))
-      *out_precision_in_base = -HUGE_VAL;
-    else
-      *out_precision_in_base = (double)mid_significant_digits;
+  else if(is_floating_point) {
+    if(default_min_precision == -HUGE_VAL) {
+      if(mid_significant_digits < DBL_MANT_DIG / _pmath_log2_of(result->base))
+        result->precision_in_base = -HUGE_VAL;
+      else
+        result->precision_in_base = (double)mid_significant_digits;
+    }
+    else {
+      double min_digits = default_min_precision / _pmath_log2_of(result->base);
+      if(mid_significant_digits < min_digits)
+        result->precision_in_base = min_digits;
+      else
+        result->precision_in_base = (double)mid_significant_digits;
+    }
   }
-  else {
-    double min_digits = default_min_precision / _pmath_log2_of(*out_base);
-    if(mid_significant_digits < min_digits)
-      *out_precision_in_base = min_digits;
-    else
-      *out_precision_in_base = (double)mid_significant_digits;
-  }
-  
-  str = parse_exponent(out_midpoint_exponent, str, str_end);
-  fmpz_add(out_radius_exponent, out_radius_exponent, out_midpoint_exponent);
-  fmpz_sub_ui(out_midpoint_exponent, out_midpoint_exponent, mid_frac_digits);
+  else
+    result->precision_in_base = HUGE_VAL;
+    
+  str = parse_exponent(result->midpoint_exponent, str, str_end);
+  fmpz_add(result->radius_exponent, result->radius_exponent, result->midpoint_exponent);
+  fmpz_sub_ui(result->midpoint_exponent, result->midpoint_exponent, mid_frac_digits);
   return str;
 }
 

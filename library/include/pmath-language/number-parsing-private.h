@@ -45,13 +45,19 @@
  */
 PMATH_PRIVATE double _pmath_log2_of(int b);
 
+struct _pmath_real_ball_parts_t {
+  fmpz_t       midpoint_mantissa;
+  fmpz_t       midpoint_exponent;
+  fmpz_t       radius_mantissa;
+  fmpz_t       radius_exponent;
+  double       precision_in_base; // -HUGE_VAL for machine precision, +HUGE_VAL for exact numbers
+  int          base;
+};
+
+PMATH_PRIVATE void _pmath_real_ball_parts_init(struct _pmath_real_ball_parts_t *parts);
+PMATH_PRIVATE void _pmath_real_ball_parts_clear(struct _pmath_real_ball_parts_t *parts);
+
 /** \brief Parse a pMath number (real ball) to its components.
-    \param out_midpoint_mantissa Receives the midpoint's mantissa.
-    \param out_midpoint_exponent Recsives the midpoint's exponent.
-    \param out_radius_mantissa   Receives the radius' mantissa.
-    \param out_radius_exponent   Recsives the radius' exponent.
-    \param out_base              Receives the base.
-    \param out_precision_in_base Receives the working precision, -HUGE_VAL for machine precision.
     \param str                   The number string.
     \param str_end               (optional) The end of the string. If this is NULL, \a str is assumed to be zero-terminated.
     \param default_min_precision The default precision if no explicit precision is specified and there are only a few digits given.
@@ -65,16 +71,11 @@ PMATH_PRIVATE double _pmath_log2_of(int b);
     - Otherwise, \a out_precision_in_base will be set to the number of significant digits.
  */
 PMATH_PRIVATE
-const uint16_t *_pmath_parse_float_ball(
-  fmpz_t           out_midpoint_mantissa,
-  fmpz_t           out_midpoint_exponent,
-  fmpz_t           out_radius_mantissa,
-  fmpz_t           out_radius_exponent,
-  int             *out_base,
-  double          *out_precision_in_base,
-  const uint16_t  *str,
-  const uint16_t  *str_end,
-  double           default_min_precision);
+const uint16_t *_pmath_parse_real_ball(
+  struct _pmath_real_ball_parts_t *result,
+  const uint16_t                  *str,
+  const uint16_t                  *str_end,
+  double                           default_min_precision);
 
 /** \brief Calculate mantissa*base^exponent.
     \param mantissa         An integer.

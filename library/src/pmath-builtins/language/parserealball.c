@@ -34,12 +34,7 @@ pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
   pmath_t min_prec_obj;
   pmath_t options;
   pmath_t mid, rad, val;
-  fmpz_t mid_mant;
-  fmpz_t mid_exp;
-  fmpz_t rad_mant;
-  fmpz_t rad_exp;
-  int base;
-  double prec;
+  struct _pmath_real_ball_parts_t parts;
   double min_prec = -HUGE_VAL;
   const uint16_t *buf;
   const uint16_t *buf_end;
@@ -73,12 +68,9 @@ pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
   buf = pmath_string_buffer(&str);
   buf_end = buf + pmath_string_length(str);
   
-  fmpz_init(mid_mant);
-  fmpz_init(mid_exp);
-  fmpz_init(rad_mant);
-  fmpz_init(rad_exp);
+  _pmath_real_ball_parts_init(&parts);
   
-  end = _pmath_parse_float_ball(mid_mant, mid_exp, rad_mant, rad_exp, &base, &prec, buf, buf_end, min_prec);
+  end = _pmath_parse_real_ball(&parts, buf, buf_end, min_prec);
   if(end != buf_end) {
     if(buf < end) {
       int index = (int)(end - buf);
@@ -91,8 +83,8 @@ pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
       pmath_message(PMATH_NULL, "bgn", 1, pmath_ref(str));
   }
   
-  mid = _pmath_compose_number(mid_mant, mid_exp, base, prec);
-  rad = _pmath_compose_number(rad_mant, rad_exp, base, prec);
+  mid = _pmath_compose_number(parts.midpoint_mantissa, parts.midpoint_exponent, parts.base, parts.precision_in_base);
+  rad = _pmath_compose_number(parts.radius_mantissa,   parts.radius_exponent,   parts.base, parts.precision_in_base);
   
   if(pmath_is_mpfloat(mid) && pmath_is_mpfloat(rad)) {
     val = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(mid));
@@ -107,37 +99,36 @@ pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
       arf_get_mpfr(PMATH_AS_MP_VALUE(val), arb_midref(PMATH_AS_ARB(val)), MPFR_RNDN);
     }
   }
-  else if(fmpz_is_zero(rad_mant))
+  else if(fmpz_is_zero(parts.radius_mantissa)) {
     val = pmath_ref(mid);
-  else
+  }
+  else {
     val = pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_INTERVAL), 1,
       LIST2(
         MINUS(pmath_ref(mid), pmath_ref(rad)),
         PLUS(pmath_ref(mid), pmath_ref(rad))));
+  }
   
   pmath_unref(str);
   pmath_unref(expr);
   expr = LIST5(
            RULE("Value", val),
-           RULE("Base", INT(base)),
+           RULE("Base", INT(parts.base)),
            RULE("Midpoint",
                 LIST3(
-                  RULE("Mantissa", _pmath_integer_from_fmpz(mid_mant)),
-                  RULE("Exponent", _pmath_integer_from_fmpz(mid_exp)),
+                  RULE("Mantissa", _pmath_integer_from_fmpz(parts.midpoint_mantissa)),
+                  RULE("Exponent", _pmath_integer_from_fmpz(parts.midpoint_exponent)),
                   RULE("Value",    mid))),
            RULE("Radius",
                 LIST3(
-                  RULE("Mantissa", _pmath_integer_from_fmpz(rad_mant)),
-                  RULE("Exponent", _pmath_integer_from_fmpz(rad_exp)),
+                  RULE("Mantissa", _pmath_integer_from_fmpz(parts.radius_mantissa)),
+                  RULE("Exponent", _pmath_integer_from_fmpz(parts.radius_exponent)),
                   RULE("Value",    rad))),
-           RULE("SignificantDigits", precision_from_digits(prec))
+           RULE("SignificantDigits", precision_from_digits(parts.precision_in_base))
          );
          
-  fmpz_clear(mid_mant);
-  fmpz_clear(mid_exp);
-  fmpz_clear(rad_mant);
-  fmpz_clear(rad_exp);
+  _pmath_real_ball_parts_clear(&parts);
   
   return expr;
 }
