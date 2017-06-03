@@ -129,6 +129,7 @@ static const uint16_t *parse_simple_float(
 
 static const uint16_t *parse_exponent(
   fmpz_t          out_exponent,
+  ulong          *out_mantissa_factor,
   const uint16_t *str,
   const uint16_t *str_end,
   int             base
@@ -136,22 +137,28 @@ static const uint16_t *parse_exponent(
   const uint16_t *start = str;
   const uint16_t *end;
   pmath_bool_t negative;
+  slong factor = 1;
   
+  assert(out_mantissa_factor != NULL);
   assert(str != NULL);
   assert(str_end != NULL);
   
+  *out_mantissa_factor = 1;
   fmpz_zero(out_exponent);
   if(str + 1 < str_end && str[0] == '*' && str[1] == '^') {
     str += 2;
   }
-  else if(str < str_end && (*str == 'e' || *str == 'E'/* || *str == 'p' || *str == 'P'*/)) {
-    /* TODO: like C/C++, base 16 should treat P+ddd as exponent in power of 2 instead of 16. 
+  else if(str < str_end && (*str == 'e' || *str == 'E' || *str == 'p' || *str == 'P')) {
+    /* Like C/C++, base 16 should treat P+ddd as exponent in power of 2 instead of 16.
        So we need to divide out_exponent by 4 and return a correction factor (exp mod 4)
      */
-    if(base == 10)
-      ++str;
-    else
+    if(base == 16) {
+      factor = 4;
+    }
+    else if(base != 10)
       return str;
+      
+    ++str;
   }
   else
     return str;
@@ -170,6 +177,16 @@ static const uint16_t *parse_exponent(
   if(negative)
     fmpz_neg(out_exponent, out_exponent);
     
+  if(factor != 1) {
+    fmpz_t rem;
+    fmpz_t div;
+    fmpz_init_set_si(div, factor);
+    fmpz_init(rem);
+    fmpz_fdiv_qr(out_exponent, rem, out_exponent, div);
+    *out_mantissa_factor = ((ulong)1 << fmpz_get_ui(rem));
+    fmpz_clear(div);
+    fmpz_clear(rem);
+  }
   return end;
 }
 
@@ -189,6 +206,7 @@ static const uint16_t *parse_radius(
   const uint16_t *start = str;
   ulong frac_digits;
   ulong significant_digits;
+  ulong mantissa_factor;
   
   assert(inout_is_floating_point != NULL);
   assert(str != NULL);
@@ -218,7 +236,8 @@ static const uint16_t *parse_radius(
   if(significant_digits == 0)
     goto FAIL;
     
-  str = parse_exponent(out_radius_exponent, str, str_end, base);
+  str = parse_exponent(out_radius_exponent, &mantissa_factor, str, str_end, base);
+  fmpz_mul_ui(out_radius_mantissa, out_radius_mantissa, mantissa_factor);
   if(str < str_end && *str == ']') {
     fmpz_sub_ui(out_radius_exponent, out_radius_exponent, frac_digits);
     return str + 1;
@@ -273,6 +292,7 @@ const uint16_t *_pmath_parse_real_ball(
   ulong mid_frac_digits;
   ulong mid_significant_digits;
   pmath_bool_t is_floating_point;
+  ulong mantissa_factor;
   
   assert(result != NULL);
   assert(str != NULL);
@@ -345,7 +365,8 @@ const uint16_t *_pmath_parse_real_ball(
   else
     result->precision_in_base = HUGE_VAL;
     
-  str = parse_exponent(result->midpoint_exponent, str, str_end, result->base);
+  str = parse_exponent(result->midpoint_exponent, &mantissa_factor, str, str_end, result->base);
+  fmpz_mul_ui(result->midpoint_mantissa, result->midpoint_mantissa, mantissa_factor);
   fmpz_add(result->radius_exponent, result->radius_exponent, result->midpoint_exponent);
   fmpz_sub_ui(result->midpoint_exponent, result->midpoint_exponent, mid_frac_digits);
   return str;
