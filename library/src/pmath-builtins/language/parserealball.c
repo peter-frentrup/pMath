@@ -86,29 +86,7 @@ pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
   mid = _pmath_compose_number(parts.midpoint_mantissa, parts.midpoint_exponent, parts.base, parts.precision_in_base);
   rad = _pmath_compose_number(parts.radius_mantissa,   parts.radius_exponent,   parts.base, parts.precision_in_base);
   
-  if(pmath_is_mpfloat(mid) && pmath_is_mpfloat(rad)) {
-    val = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(mid));
-    if(!pmath_is_null(val)) {
-      arb_set(PMATH_AS_ARB(val), PMATH_AS_ARB(mid));
-      ///* TODO: arb_add_error() calls arf_get_mag() to convert midpoint of rad to mag_t,
-      //  but that function unconditionally adds one ulp. See Arb's get_mag.c, line 30: t = ... + LIMB_ONE
-      // */
-      //arb_add_error(PMATH_AS_ARB(val), PMATH_AS_ARB(rad));
-      _pmath_arb_add_error_exact(PMATH_AS_ARB(val), PMATH_AS_ARB(rad));
-      
-      arf_get_mpfr(PMATH_AS_MP_VALUE(val), arb_midref(PMATH_AS_ARB(val)), MPFR_RNDN);
-    }
-  }
-  else if(fmpz_is_zero(parts.radius_mantissa)) {
-    val = pmath_ref(mid);
-  }
-  else {
-    val = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_INTERVAL), 1,
-      LIST2(
-        MINUS(pmath_ref(mid), pmath_ref(rad)),
-        PLUS(pmath_ref(mid), pmath_ref(rad))));
-  }
+  val = _pmath_real_ball_from_midpoint_radius(pmath_ref(mid), pmath_ref(rad));
   
   pmath_unref(str);
   pmath_unref(expr);

@@ -38,6 +38,7 @@
  */
 
 #include <pmath-core/numbers-private.h>
+#include <pmath-core/strings.h> // only for typedef pmath_string_t
 
 /** \brief Calculate the binary logarithm of a positive integer.
     \param b The integer to take the logarithm of.
@@ -77,6 +78,14 @@ const uint16_t *_pmath_parse_real_ball(
   const uint16_t                  *str_end,
   double                           default_min_precision);
 
+/** \brief Create an Arb real ball, exact number or Interval() from midpoint and radius.
+    \param mid The midpoint. Will be freed.
+    \param rad The radius. Will be freed.
+ */
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_real_ball_from_midpoint_radius(pmath_t mid, pmath_t rad);
+  
 /** \brief Calculate mantissa*base^exponent.
     \param mantissa         An integer.
     \param exponent         An integer.
@@ -96,6 +105,15 @@ pmath_t _pmath_compose_number(
   int     base,
   double  precision_digits);
 
+
+/** \brief Shortcut for _pmath_parse_real_ball() followed by _pmath_compose_number() and _pmath_real_ball_from_midpoint_radius()
+    \param string The number string. It will be freed.
+    \return PMATH_NULL on error 
+ */
+PMATH_PRIVATE 
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_parse_number(pmath_string_t string);
+  
 /** \brief Convert an arf_t to a mag_t.
     \param y An initialized magnitude.
     \param x A valid floating point number.

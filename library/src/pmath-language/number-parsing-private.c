@@ -5,6 +5,8 @@
 
 #include <pmath-language/tokens.h>
 
+#include <pmath-util/messages.h>
+
 
 static int digit_value(uint16_t ch) {
   if(ch >= '0' && ch <= '9')
@@ -447,7 +449,112 @@ pmath_t _pmath_compose_number(
     return result;
   }
   
+  if(fmpz_is_zero(mantissa))
+    return INT(0);
+    
+  if(fmpz_is_zero(exponent))
+    return _pmath_integer_from_fmpz(mantissa);
+    
   return TIMES(_pmath_integer_from_fmpz(mantissa), POW(INT(base), _pmath_integer_from_fmpz(exponent)));
+}
+
+static pmath_bool_t is_zero(pmath_t rad) {
+  if(pmath_same(rad, INT(0)))
+    return TRUE;
+    
+  if(pmath_is_double(rad))
+    return PMATH_AS_DOUBLE(rad) == 0.0;
+    
+  if(pmath_is_mpfloat(rad))
+    return arb_is_zero(PMATH_AS_ARB(rad));
+    
+  return FALSE;
+}
+
+PMATH_PRIVATE
+pmath_t _pmath_real_ball_from_midpoint_radius(pmath_t mid, pmath_t rad) {
+  pmath_t result;
+  
+  if(is_zero(rad)) {
+    pmath_unref(rad);
+    return mid;
+  }
+  
+  if(pmath_is_mpfloat(mid) && pmath_is_mpfloat(rad)) {
+    result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(mid));
+    if(PMATH_LIKELY(!pmath_is_null(result))) {
+      arb_set(PMATH_AS_ARB(result), PMATH_AS_ARB(mid));
+      ///* TODO: arb_add_error() calls arf_get_mag() to convert midpoint of rad to mag_t,
+      //  but that function unconditionally adds one ulp. See Arb's get_mag.c, line 30: t = ... + LIMB_ONE
+      // */
+      //arb_add_error(PMATH_AS_ARB(result), PMATH_AS_ARB(rad));
+      _pmath_arb_add_error_exact(PMATH_AS_ARB(result), PMATH_AS_ARB(rad));
+      
+      arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
+    }
+  }
+  else {
+    result = pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_INTERVAL), 1,
+               pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_LIST), 2,
+                 MINUS(pmath_ref(mid), pmath_ref(rad)),
+                 PLUS(pmath_ref(mid), pmath_ref(rad))));
+  }
+  
+  pmath_unref(mid);
+  pmath_unref(rad);
+  return result;
+}
+
+PMATH_PRIVATE pmath_t _pmath_parse_number(pmath_string_t string) {
+  struct _pmath_real_ball_parts_t parts;
+  const uint16_t *buf;
+  const uint16_t *end;
+  int len;
+  pmath_t result;
+  
+  if(PMATH_UNLIKELY(pmath_is_null(string)))
+    return PMATH_NULL;
+    
+  assert(pmath_is_string(string));
+  buf = pmath_string_buffer(&string);
+  len = pmath_string_length(string);
+  
+  _pmath_real_ball_parts_init(&parts);
+  end = _pmath_parse_real_ball(&parts, buf, buf + len, -HUGE_VAL);
+  if(end < buf + len) {
+    int index = (int)(end - buf);
+    if(pmath_char_is_36digit(*end) && !pmath_char_is_basedigit(parts.base, *end)) {
+      pmath_message( // MakeExpression::digit
+        PMATH_NULL, "digit", 2,
+        INT(index),
+        string);
+    }
+    else if(index == 0) {
+      pmath_message(
+        PMATH_SYMBOL_SYNTAX, "bgn", 1,
+        string);
+    }
+    else {
+      pmath_message(
+        PMATH_SYMBOL_SYNTAX, "nxt", 2,
+        pmath_string_part(pmath_ref(string), 0, index),
+        pmath_string_part(pmath_ref(string), index, INT_MAX));
+      pmath_unref(string);
+    }
+    result = PMATH_NULL;
+  }
+  else {
+    pmath_t mid = _pmath_compose_number(parts.midpoint_mantissa, parts.midpoint_exponent, parts.base, parts.precision_in_base);
+    pmath_t rad = _pmath_compose_number(parts.radius_mantissa,   parts.radius_exponent,   parts.base, parts.precision_in_base);
+    
+    pmath_unref(string);
+    
+    result = _pmath_real_ball_from_midpoint_radius(mid, rad);
+  }
+  _pmath_real_ball_parts_clear(&parts);
+  return result;
 }
 
 PMATH_PRIVATE
