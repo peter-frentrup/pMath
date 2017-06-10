@@ -59,17 +59,20 @@ PMATH_PRIVATE void _pmath_real_ball_parts_init(struct _pmath_real_ball_parts_t *
 PMATH_PRIVATE void _pmath_real_ball_parts_clear(struct _pmath_real_ball_parts_t *parts);
 
 /** \brief Parse a pMath number (real ball) to its components.
+    \param result                Where to store the resulting parts. Must already be initialized with _pmath_real_ball_parts_init().
     \param str                   The number string.
     \param str_end               (optional) The end of the string. If this is NULL, \a str is assumed to be zero-terminated.
     \param default_min_precision The default precision if no explicit precision is specified and there are only a few digits given.
     \return The end of the parsed number, i.e. the positition of a syntax error or end of the string if no error occurs.
     
-    If \a str does not specify a precision, then \a out_precision_in_base will be calculated as follows:
+    If \a str does not specify a precision, then \a result.precision_in_base will be calculated as follows:
+    - If \a str contains no decimal dot, \a result.precision_in_base will be `HUGE_VAL`.
     - If \a default_min_precision is `-HUGE_VAL` and less than `DBL_MANT_DIG * log(2) / log(out_base)` significant
-      digits are given, \a out_precision_in_base will be set to `-HUGE_VAL`.
+      digits are given, then \a result.precision_in_base will be set to `-HUGE_VAL` if no radius specification was given, 
+      and to `DBL_MANT_DIG * log(2) / log(out_base)` is an explicit radius specification (including [+/-0]) was given.
     - Otherwise, if less than `default_min_precision * log(2) / log(out_base)` significant digits are given, then
-      \a out_precision_in_base will be set to `default_min_precision * log(2) / log(out_base)`.
-    - Otherwise, \a out_precision_in_base will be set to the number of significant digits.
+      \a result.precision_in_base will be set to `default_min_precision * log(2) / log(out_base)`.
+    - Otherwise, \a result.precision_in_base will be set to the number of significant digits.
  */
 PMATH_PRIVATE
 const uint16_t *_pmath_parse_real_ball(
@@ -78,9 +81,13 @@ const uint16_t *_pmath_parse_real_ball(
   const uint16_t                  *str_end,
   double                           default_min_precision);
 
-/** \brief Create an Arb real ball, exact number or Interval() from midpoint and radius.
+/** \brief Create an Arb real ball, exact number or machine precision from midpoint and possibly radius.
     \param mid The midpoint. Will be freed.
     \param rad The radius. Will be freed.
+    Note that \a rad is only considered, if both \a mid and \a rad are floating point numbers.
+    If \a rad is non-zero and \a mid is a machine precision float (\see pmath_is_double), then
+    an arbitrary precision float with DBL_MANT_DIG bits working precision is returned instead of
+    a double.
  */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT

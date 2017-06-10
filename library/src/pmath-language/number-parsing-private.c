@@ -291,6 +291,8 @@ const uint16_t *_pmath_parse_real_ball(
   double                           default_min_precision
 ) {
   const uint16_t *mid_mant_start;
+  const uint16_t *radius_start;
+  const uint16_t *radius_end;
   ulong mid_frac_digits;
   ulong mid_significant_digits;
   pmath_bool_t is_floating_point;
@@ -324,6 +326,7 @@ const uint16_t *_pmath_parse_real_ball(
     return str;
   }
   
+  radius_start = str;
   str = parse_radius(
           result->radius_mantissa,
           result->radius_exponent,
@@ -331,7 +334,8 @@ const uint16_t *_pmath_parse_real_ball(
           str,
           str_end,
           result->base);
-          
+  radius_end = str;
+  
   if(str < str_end && *str == '`') {
     const uint16_t *prec_start = str + 1;
     slong prec_frac;
@@ -351,8 +355,13 @@ const uint16_t *_pmath_parse_real_ball(
   }
   else if(is_floating_point) {
     if(default_min_precision == -HUGE_VAL) {
-      if(mid_significant_digits < DBL_MANT_DIG / _pmath_log2_of(result->base))
-        result->precision_in_base = -HUGE_VAL;
+      double dbl_digits = DBL_MANT_DIG / _pmath_log2_of(result->base);
+      if(mid_significant_digits < dbl_digits) {
+        if(radius_start == radius_end)
+          result->precision_in_base = -HUGE_VAL;
+        else
+          result->precision_in_base = dbl_digits;
+      }
       else
         result->precision_in_base = (double)mid_significant_digits;
     }
@@ -471,40 +480,52 @@ static pmath_bool_t is_zero(pmath_t rad) {
   return FALSE;
 }
 
+static pmath_mpfloat_t arb_from_mid_rad(arb_t mid, arb_t rad, slong prec) {
+  pmath_mpfloat_t result;
+  
+  result = _pmath_create_mp_float(prec);
+  
+  if(PMATH_LIKELY(!pmath_is_null(result))) {
+    arb_set(PMATH_AS_ARB(result), mid);
+    _pmath_arb_add_error_exact(PMATH_AS_ARB(result), rad);
+    
+    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
+  }
+  return result;
+}
+
 PMATH_PRIVATE
 pmath_t _pmath_real_ball_from_midpoint_radius(pmath_t mid, pmath_t rad) {
-  pmath_t result;
-  
   if(is_zero(rad)) {
     pmath_unref(rad);
     return mid;
   }
   
   if(pmath_is_mpfloat(mid) && pmath_is_mpfloat(rad)) {
-    result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(mid));
-    if(PMATH_LIKELY(!pmath_is_null(result))) {
-      arb_set(PMATH_AS_ARB(result), PMATH_AS_ARB(mid));
-      ///* TODO: arb_add_error() calls arf_get_mag() to convert midpoint of rad to mag_t,
-      //  but that function unconditionally adds one ulp. See Arb's get_mag.c, line 30: t = ... + LIMB_ONE
-      // */
-      //arb_add_error(PMATH_AS_ARB(result), PMATH_AS_ARB(rad));
-      _pmath_arb_add_error_exact(PMATH_AS_ARB(result), PMATH_AS_ARB(rad));
-      
-      arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-    }
-  }
-  else {
-    result = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_INTERVAL), 1,
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_LIST), 2,
-                 MINUS(pmath_ref(mid), pmath_ref(rad)),
-                 PLUS(pmath_ref(mid), pmath_ref(rad))));
+    pmath_mpfloat_t result = arb_from_mid_rad(PMATH_AS_ARB(mid), PMATH_AS_ARB(rad), PMATH_AS_ARB_WORKING_PREC(mid));
+    pmath_unref(mid);
+    pmath_unref(rad);
+    return result;
   }
   
-  pmath_unref(mid);
+  if(pmath_is_float(mid) || pmath_is_float(rad)) {
+    arb_t arb_mid;
+    arb_t arb_rad;
+    pmath_mpfloat_t result;
+    arb_init(arb_mid);
+    arb_init(arb_rad);
+    _pmath_number_get_arb(arb_mid, mid, DBL_MANT_DIG);
+    _pmath_number_get_arb(arb_rad, rad, DBL_MANT_DIG);
+    result = arb_from_mid_rad(arb_mid, arb_rad, DBL_MANT_DIG);
+    pmath_unref(mid);
+    pmath_unref(rad);
+    arb_clear(arb_mid);
+    arb_clear(arb_rad);
+    return result;
+  }
+  
   pmath_unref(rad);
-  return result;
+  return mid;
 }
 
 PMATH_PRIVATE pmath_t _pmath_parse_number(pmath_string_t string) {
