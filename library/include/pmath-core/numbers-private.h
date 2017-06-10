@@ -188,6 +188,10 @@ pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong prec
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
+pmath_mpfloat_t _pmath_create_mp_float_from_midrad_arb(arb_t mid, arb_t rad, slong prec);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_mp_float_t*
 pmath_mpfloat_t _pmath_convert_to_mp_float(pmath_float_t n); // n will be freed
 

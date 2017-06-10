@@ -340,6 +340,22 @@ pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong prec
 }
 
 PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_mpfloat_t _pmath_create_mp_float_from_midrad_arb(arb_t mid, arb_t rad, slong prec) {
+  pmath_mpfloat_t result;
+  
+  result = _pmath_create_mp_float(prec);
+  
+  if(PMATH_LIKELY(!pmath_is_null(result))) {
+    arb_set(PMATH_AS_ARB(result), mid);
+    _pmath_arb_add_error_exact(PMATH_AS_ARB(result), rad);
+    
+    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
+  }
+  return result;
+}
+
+PMATH_PRIVATE
 pmath_float_t _pmath_convert_to_mp_float(pmath_float_t n) { // n will be freed
   pmath_float_t result;
   

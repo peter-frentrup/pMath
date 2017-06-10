@@ -484,20 +484,6 @@ static pmath_bool_t is_zero(pmath_t rad) {
   return FALSE;
 }
 
-static pmath_mpfloat_t arb_from_mid_rad(arb_t mid, arb_t rad, slong prec) {
-  pmath_mpfloat_t result;
-  
-  result = _pmath_create_mp_float(prec);
-  
-  if(PMATH_LIKELY(!pmath_is_null(result))) {
-    arb_set(PMATH_AS_ARB(result), mid);
-    _pmath_arb_add_error_exact(PMATH_AS_ARB(result), rad);
-    
-    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-  }
-  return result;
-}
-
 PMATH_PRIVATE
 pmath_t _pmath_real_ball_from_midpoint_radius(pmath_t mid, pmath_t rad) {
   if(is_zero(rad)) {
@@ -506,7 +492,7 @@ pmath_t _pmath_real_ball_from_midpoint_radius(pmath_t mid, pmath_t rad) {
   }
   
   if(pmath_is_mpfloat(mid) && pmath_is_mpfloat(rad)) {
-    pmath_mpfloat_t result = arb_from_mid_rad(PMATH_AS_ARB(mid), PMATH_AS_ARB(rad), PMATH_AS_ARB_WORKING_PREC(mid));
+    pmath_mpfloat_t result = _pmath_create_mp_float_from_midrad_arb(PMATH_AS_ARB(mid), PMATH_AS_ARB(rad), PMATH_AS_ARB_WORKING_PREC(mid));
     pmath_unref(mid);
     pmath_unref(rad);
     return result;
@@ -520,7 +506,7 @@ pmath_t _pmath_real_ball_from_midpoint_radius(pmath_t mid, pmath_t rad) {
     arb_init(arb_rad);
     _pmath_number_get_arb(arb_mid, mid, DBL_MANT_DIG);
     _pmath_number_get_arb(arb_rad, rad, DBL_MANT_DIG);
-    result = arb_from_mid_rad(arb_mid, arb_rad, DBL_MANT_DIG);
+    result = _pmath_create_mp_float_from_midrad_arb(arb_mid, arb_rad, DBL_MANT_DIG);
     pmath_unref(mid);
     pmath_unref(rad);
     arb_clear(arb_mid);

@@ -894,6 +894,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_POWERMOD                               PMATH_SYMBOL_BUILTIN(801)
 #define PMATH_SYMBOL_MINMAX                                 PMATH_SYMBOL_BUILTIN(802)
 #define PMATH_SYMBOL_INTERNAL_WRITEREALBALL                 PMATH_SYMBOL_BUILTIN(803)
+#define PMATH_SYMBOL_INTERNAL_REALBALLFROMMIDPOINTRADIUS    PMATH_SYMBOL_BUILTIN(804)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */
