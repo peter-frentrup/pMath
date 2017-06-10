@@ -345,8 +345,12 @@ const uint16_t *_pmath_parse_real_ball(
     fmpz_init(prec_mant);
     
     str = parse_simple_float(prec_mant, &prec_frac, &prec_significant, &is_floating_point, prec_start, str_end, 10);
-    if(str == prec_start)
-      result->precision_in_base = -HUGE_VAL;
+    if(str == prec_start) {
+      if(radius_start == radius_end)
+        result->precision_in_base = -HUGE_VAL;
+      else
+        result->precision_in_base = DBL_MANT_DIG / _pmath_log2_of(result->base);
+    }
     else
       result->precision_in_base = fmpz_get_d(prec_mant) / pow(10.0, (double)prec_frac);
       
