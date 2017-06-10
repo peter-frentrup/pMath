@@ -2,6 +2,8 @@
 #include <pmath-core/objects-private.h>
 #include <pmath-core/strings-private.h>
 
+#include <pmath-language/number-parsing-private.h> // for _pmath_log2_of
+#include <pmath-language/number-writing-private.h>
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/approximate.h>
@@ -1594,6 +1596,12 @@ static void delete_trailing_zeros(char *s) {
   s2[1] = '\0';
 }
 
+static void write_raw_string(struct pmath_write_ex_t *info, pmath_string_t str) {
+  const uint16_t *buf = pmath_string_buffer(&str);
+  int len = pmath_string_length(str);
+  info->write(info->user, buf, len);
+}
+
 static void write_mp_float_ex(
   struct pmath_write_ex_t *info,
   pmath_mpfloat_t f,
@@ -1608,7 +1616,7 @@ static void write_mp_float_ex(
   double prec2 = pmath_precision(pmath_ref(f));
   double base_prec;
   pmath_bool_t allow_round_trip = 0 != (info->options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR));
-  pmath_bool_t exact_log2_base; // =0 if base is no power of 2, otherwise = log2(base)
+  int exact_log2_base; // =0 if base is no power of 2, otherwise = log2(base)
   
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
     base = thread->numberbase;
@@ -1842,14 +1850,59 @@ static void write_mp_float_ex(
   pmath_mem_free(str);
   
   if(!for_machine_float) {
-    slong max_digit_count = (slong)ceil(base_prec + 2);
-    str = arb_get_str(PMATH_AS_ARB(f), max_digit_count, 0);
+    slong max_digit_count = (int)(PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(base) + 2);
+    int base_flags = base;
+    struct _pmath_number_string_parts_t parts;
+    pmath_bool_t show_radius_and_precision = FALSE;
     
+    if(info->options & PMATH_WRITE_OPTIONS_FULLEXPR) {
+      // changing base
+      base_flags = 16 | PMATH_BASE_FLAG_ALL_DIGITS;
+      show_radius_and_precision = TRUE;
+    }
+    else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
+      // not changing base: PMATH_BASE_FLAG_ALL_DIGITS only used if base was 16.
+      base_flags = base | PMATH_BASE_FLAG_ALL_DIGITS;
+      show_radius_and_precision = TRUE;
+    }
+    
+    _pmath_mpfloat_get_string_parts(&parts, f, max_digit_count, base_flags);
+    
+    if(!show_radius_and_precision) {
+      show_radius_and_precision =  pmath_string_equals_latin1(parts.midpoint_fractional_mantissa_digits, "0.0")
+                                   && !pmath_string_equals_latin1(parts.radius_fractional_mantissa_digits, "0.0");
+    }
     _pmath_write_cstr("/* ", info->write, info->user);
-    _pmath_write_cstr(str, info->write, info->user);
-    _pmath_write_cstr(" */", info->write, info->user);
     
-    flint_free(str);
+    if(parts.is_negative)
+      _pmath_write_cstr("-", info->write, info->user);
+      
+    if(parts.base != 10) {
+      char buf[3];
+      itoa(parts.base, buf, 10);
+      _pmath_write_cstr(buf, info->write, info->user);
+      _pmath_write_cstr("^^", info->write, info->user);
+    }
+    
+    write_raw_string(info, parts.midpoint_fractional_mantissa_digits);
+    if(show_radius_and_precision) {
+      _pmath_write_cstr("[+/-", info->write, info->user);
+      write_raw_string(info, parts.radius_fractional_mantissa_digits);
+      if(pmath_string_length(parts.radius_exponent_part_decimal_digits) > 0) {
+        _pmath_write_cstr("*^", info->write, info->user);
+        write_raw_string(info, parts.radius_exponent_part_decimal_digits);
+      }
+      _pmath_write_cstr("]`", info->write, info->user);
+      write_raw_string(info, parts.precision_decimal_digits);
+    }
+    
+    if(pmath_string_length(parts.exponent_decimal_digits) > 0) {
+      _pmath_write_cstr("*^", info->write, info->user);
+      write_raw_string(info, parts.exponent_decimal_digits);
+    }
+    _pmath_number_string_parts_clear(&parts);
+    
+    _pmath_write_cstr(" */", info->write, info->user);
   }
 }
 

@@ -24,7 +24,6 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   int base = 10;
   int base_flags;
   int max_digits;
-  pmath_bool_t allow_inexact_digits = FALSE;
   struct _pmath_number_string_parts_t parts;
   
   if(pmath_expr_length(expr) < 1) {
@@ -148,11 +147,12 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
            RULE("String", str),
            RULE("Sign", parts.is_negative ? PMATH_C_STRING("-") : PMATH_C_STRING("")),
            RULE("Base", PMATH_FROM_INT32(parts.base)),
-           RULE("MidpointMantissa", parts.midpoint_fractional_mantissa_digits),
-           RULE("RadiusMantissa", parts.radius_fractional_mantissa_digits),
-           RULE("RadiusExponentExtra", parts.radius_exponent_part_decimal_digits),
-           RULE("Precision", parts.precision_decimal_digits),
-           RULE("Exponent", parts.exponent_decimal_digits));
-           
+           RULE("MidpointMantissa", pmath_ref(parts.midpoint_fractional_mantissa_digits)),
+           RULE("RadiusMantissa", pmath_ref(parts.radius_fractional_mantissa_digits)),
+           RULE("RadiusExponentExtra", pmath_ref(parts.radius_exponent_part_decimal_digits)),
+           RULE("Precision", pmath_ref(parts.precision_decimal_digits)),
+           RULE("Exponent", pmath_ref(parts.exponent_decimal_digits)));
+  
+  _pmath_number_string_parts_clear(&parts);
   return expr;
 }

@@ -1,6 +1,16 @@
 #include <pmath-language/number-writing-private.h>
 #include <pmath-language/number-parsing-private.h> // for _pmath_log2_of
 
+
+PMATH_PRIVATE void _pmath_number_string_parts_clear(struct _pmath_number_string_parts_t *parts) {
+  assert(parts != NULL);
+  pmath_unref(parts->midpoint_fractional_mantissa_digits);
+  pmath_unref(parts->radius_fractional_mantissa_digits);
+  pmath_unref(parts->radius_exponent_part_decimal_digits);
+  pmath_unref(parts->precision_decimal_digits);
+  pmath_unref(parts->exponent_decimal_digits);
+}
+
 static void pow_ui_fmpz(arb_t res, int base, const fmpz_t e, slong prec) {
   assert(base > 0);
   

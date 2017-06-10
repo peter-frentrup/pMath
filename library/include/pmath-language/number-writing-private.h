@@ -66,6 +66,8 @@ struct _pmath_number_string_parts_t {
   pmath_string_t exponent_decimal_digits;
 };
 
+PMATH_PRIVATE void _pmath_number_string_parts_clear(struct _pmath_number_string_parts_t *parts);
+
 enum {
   PMATH_BASE_FLAGS_BASE_MASK           =  0xFF,
   PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS = 0x100,
@@ -73,7 +75,8 @@ enum {
 };
 
 /** \brief Convert an arbitrary precision float to string.
-    \param result     Where to store the resulting string's parts. May be uninitialized.
+    \param result     Where to store the resulting string's parts. Should be uninitialized.
+                      Must be freed with _pmath_number_string_parts_clear().
     \param value      The number to convert. Must not be PMATH_NULL. Won't be freed.
     \param max_digits The maximum number of digits for the midpoint's mantissa. See notes.
     \param base_flags Radix and formatting flags. 
