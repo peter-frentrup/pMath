@@ -2074,9 +2074,9 @@ static int compare_quotient_to_number(pmath_quotient_t numA, pmath_number_t numB
     return result;
   }
   
-  if(pmath_is_mpfloat(numB)) 
+  if(pmath_is_mpfloat(numB))
     return -compare_mpfloat_to_quotient(numB, numA);
-  
+    
   return -_pmath_numbers_compare(numB, numA);
 }
 
@@ -2100,7 +2100,7 @@ static int compare_arb_to_integer(const arb_t numA, pmath_integer_t numB) {
   _pmath_number_get_arb(tmpB, numB, 0); // precision is ignored for integers, supply 0
   
   result = compare_arb_to_arb(numA, tmpB);
-    
+  
   arb_clear(tmpB);
   return result;
 }
@@ -2120,7 +2120,7 @@ static int compare_mpfloat_to_quotient(pmath_mpfloat_t numA, pmath_quotient_t nu
   _pmath_number_get_arb(tmpB, PMATH_QUOT_NUM(numB), 0); // precision is ignored for integers, supply 0
   
   result = compare_arb_to_arb(tmpA, tmpB);
-    
+  
   arb_clear(tmpA);
   arb_clear(tmpB);
   return result;
@@ -2129,15 +2129,15 @@ static int compare_mpfloat_to_quotient(pmath_mpfloat_t numA, pmath_quotient_t nu
 static int compare_mpfloat_to_number(pmath_mpfloat_t numA, pmath_number_t numB) {
   assert(pmath_is_mpfloat(numA));
   
-  if(pmath_is_mpfloat(numB)) 
+  if(pmath_is_mpfloat(numB))
     return compare_arb_to_arb(PMATH_AS_ARB(numA), PMATH_AS_ARB(numB));
-  
-  if(pmath_is_quotient(numB)) 
+    
+  if(pmath_is_quotient(numB))
     return compare_mpfloat_to_quotient(numA, numB);
-  
+    
   if(pmath_is_integer(numB))
     return compare_arb_to_integer(PMATH_AS_ARB(numA), numB);
-  
+    
   assert(pmath_is_double(numB));
   return -compare_double_to_number(PMATH_AS_DOUBLE(numB), numA);
 }
@@ -2176,6 +2176,22 @@ int _pmath_numbers_compare(
   return 0;
 }
 
+static pmath_bool_t double_structurally_equals_number(double a, pmath_number_t numB) {
+  assert(pmath_is_number(numB));
+  
+  if(pmath_is_double(numB))
+    return a == PMATH_AS_DOUBLE(numB);
+    
+  if(pmath_is_mpfloat(numB)) {
+    if(!mag_is_zero(arb_radref(PMATH_AS_ARB(numB))))
+      return FALSE;
+      
+    return 0 == arf_cmp_d(arb_midref(PMATH_AS_ARB(numB)), a);
+  }
+  
+  return FALSE;
+}
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numA,
@@ -2211,47 +2227,24 @@ pmath_bool_t _pmath_numbers_equal(
   }
   
   if(pmath_is_quotient(numB))
-    return _pmath_numbers_equal(numB, numA);
+    return FALSE;
     
-  if( pmath_is_mpfloat(numA) &&
-      pmath_is_mpfloat(numB))
-  {
-    mpfr_rnd_t rounding_mode = _pmath_current_rounding_mode();
+  if(pmath_is_double(numA))
+    return double_structurally_equals_number(PMATH_AS_DOUBLE(numA), numB);
     
-    mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
-    mpfr_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
+  if(pmath_is_double(numB))
+    return double_structurally_equals_number(PMATH_AS_DOUBLE(numB), numA);
     
-    if(precA < precB) {
-      pmath_float_t tmp = _pmath_create_mp_float(precA);
-      pmath_bool_t result;
-      
-      if(!pmath_is_null(tmp)) {
-        mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numB), rounding_mode);
-        
-        result = mpfr_equal_p(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(tmp));
-        
-        pmath_unref(tmp);
-        return result;
-      }
-    }
-    else if(precA > precB) {
-      pmath_float_t tmp = _pmath_create_mp_float(precB);
-      pmath_bool_t result;
-      
-      if(!pmath_is_null(tmp)) {
-        mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numA), rounding_mode);
-        
-        result = mpfr_equal_p(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numA));
-        
-        pmath_unref(tmp);
-        return result;
-      }
-    }
-    
-    return mpfr_equal_p(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(numB));
-  }
+  assert(pmath_is_mpfloat(numA));
+  assert(pmath_is_mpfloat(numB));
   
-  return 0 == _pmath_numbers_compare(numA, numB);
+  if(!arf_equal(arb_midref(PMATH_AS_ARB(numA)), arb_midref(PMATH_AS_ARB(numB))))
+    return FALSE;
+    
+  if(!mag_equal(arb_radref(PMATH_AS_ARB(numA)), arb_radref(PMATH_AS_ARB(numB))))
+    return FALSE;
+    
+  return TRUE;
 }
 
 //} ============================================================================

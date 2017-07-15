@@ -1,0 +1,43 @@
+% Maybe it would be better to testC function _pmath_numbers_equal() directly.
+
+xArb:=     1.5`10
+xArbCopy:= 1.5`10
+xArb2:=     1.5`22
+xArb2Copy:= 1.5`22
+xArbRadius:=     1.5[+/-1*^-20]`33
+xArbRadiusCopy:= 1.5[+/-1*^-20]`33
+xArbRadius2:=    1.5[+/-5*^-20]`33
+xMachine:= 1.5`
+xRat:=     3/2
+xRatCopy:= 3/2
+
+
+AssertEqual(xArb, xArbCopy)
+AssertEqual(xArb2, xArb2Copy)
+AssertEqual(xArbRadius, xArbRadiusCopy)
+AssertEqual(xMachine, xMachine)
+AssertEqual(xRat, xRatCopy)
+
+
+% different types: float, rational
+AssertUnequal(xArb, xRat)
+AssertUnequal(xMachine, xRat)
+
+
+% ignoring working precision
+AssertEqual(xArb, xMachine)
+AssertEqual(xArb2, xMachine)
+AssertUnequal(xArbRadius, xMachine)
+
+AssertEqual(xArb, xArb2)
+
+
+% non-matching radius
+AssertUnequal(xArb, xArbRadius)
+AssertUnequal(xArb2, xArbRadius)
+AssertUnequal(xMachine, xArbRadius)
+AssertUnequal(xArbRadius2, xArbRadius)
+
+
+
+

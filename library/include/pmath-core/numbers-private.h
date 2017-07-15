@@ -215,11 +215,13 @@ int _pmath_numbers_compare(
   pmath_number_t numB);
 
 /** \brief Compare two real numbers for structural equality.
-    Note that real balls may are considered equal by this function if they have the same midpoint and radius and 
-    working precision. This is set equality, not value equality.
+    Note that real balls are considered equal by this function if they have the same midpoint and radius. 
+    This is set equality, not value equality. 
+    Their working precision is ignored though, which might be considered as a bug or as a feature, 
+    depending of your use-case.
+    A double is considered as a real ball with radius 0, disregarding signed zero doubles.
     
     pmath_float_t and pmath_rational_t values are considered unequal, even if they represent the same value.
-    double and pmath_mpfloat_t values are also considered unequal, even if they represent the same value.
  */
 PMATH_PRIVATE
 pmath_bool_t _pmath_numbers_equal(
