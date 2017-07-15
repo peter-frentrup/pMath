@@ -27,6 +27,8 @@
     
     \return Either TRUE or FALSE or PMATH_MAYBE_ORDERED or PMATH_UNORDERED.
  */
+PMATH_PRIVATE
 int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions);
+
 
 #endif /* __PMATH_BUILTINS__LOGIC_PRIVATE_H__ */

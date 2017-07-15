@@ -17,9 +17,6 @@
 
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
-#define TOLERANCE_EXPONENT   6
-#define TOLERANCE_FACTOR     (1 << TOLERANCE_EXPONENT)
-
 
 static pmath_bool_t check_complex_is_real(pmath_t z, pmath_t *out_re_only) {
   pmath_t im;

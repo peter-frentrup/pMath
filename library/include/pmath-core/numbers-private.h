@@ -201,11 +201,26 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f);
 PMATH_PRIVATE
 void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer);
 
+/** \brief Compare two real numbers by value.
+    \return -1 if \a numA is less than \a numB, +1 if \a numA is greater than \a numB, 
+            and 0 if \a numA and \a numB are equal or overlap (for real balls).
+    
+    Note that this function considers its arguments as sets of real numbers.
+    Intersecting sets are reported as "equal" (this is only relevant for pmath_mpfloat_t,
+    since that is the only real number type which can represent multiple values).
+ */
 PMATH_PRIVATE
 int _pmath_numbers_compare(
   pmath_number_t numA,
   pmath_number_t numB);
 
+/** \brief Compare two real numbers for structural equality.
+    Note that real balls may are considered equal by this function if they have the same midpoint and radius and 
+    working precision. This is set equality, not value equality.
+    
+    pmath_float_t and pmath_rational_t values are considered unequal, even if they represent the same value.
+    double and pmath_mpfloat_t values are also considered unequal, even if they represent the same value.
+ */
 PMATH_PRIVATE
 pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numA,
