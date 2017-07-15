@@ -451,8 +451,8 @@ pmath_string_t precision_to_string(double precision_digits, slong precision_bits
   return PMATH_C_STRING(s);
 }
 
-#define MAX_INTEGER_DIGITS  5
-#define MAX_LEADING_ZEROS   4
+#define MAX_INTEGER_DIGITS  6
+#define MAX_LEADING_ZEROS   5
 
 static pmath_string_t place_decimal_dot(const char *integer_digits, fmpz_t inout_exp) {
   pmath_string_t result;
