@@ -2078,52 +2078,6 @@ int _pmath_numbers_compare(
   
   if(pmath_is_mpfloat(numA)) {
     if(pmath_is_mpfloat(numB)) {
-//      int        sgnA;
-//      int        sgnB;
-//      mpfr_exp_t expA;
-//      mpfr_exp_t expB;
-//      mp_size_t  nA;
-//      mp_size_t  nB;
-//      mp_limb_t *pA;
-//      mp_limb_t *pB;
-//
-//      if(mpfr_zero_p(PMATH_AS_MP_VALUE(numA)) && mpfr_zero_p(PMATH_AS_MP_VALUE(numB)))
-//        return 0;
-//
-//      sgnA = mpfr_sgn(PMATH_AS_MP_VALUE(numA));
-//      sgnB = mpfr_sgn(PMATH_AS_MP_VALUE(numB));
-//
-//      if(sgnA < sgnB)
-//        return -1;
-//
-//      if(sgnA > sgnB)
-//        return 1;
-//
-//      expA = mpfr_get_exp(PMATH_AS_MP_VALUE(numA));
-//      expB = mpfr_get_exp(PMATH_AS_MP_VALUE(numB));
-//
-//      if(expA > expB)
-//        return sgnA;
-//
-//      if(expA < expB)
-//        return -sgnA;
-//
-//      nA = (mpfr_get_prec(PMATH_AS_MP_VALUE(numA)) - 1) / GMP_NUMB_BITS;
-//      nB = (mpfr_get_prec(PMATH_AS_MP_VALUE(numB)) - 1) / GMP_NUMB_BITS;
-//
-//      pA = MPFR_MANT(PMATH_AS_MP_VALUE(numA));
-//      pB = MPFR_MANT(PMATH_AS_MP_VALUE(numB));
-//
-//      for (; nA >= 0 && nB >= 0; --nA, --nB)
-//      {
-//        if (pA[nA] > pB[nB])
-//          return sgnA;
-//        if (pA[nA] < pB[nB])
-//          return -sgnA;
-//      }
-//
-//      return 0;
-
       mpfr_rnd_t rounding_mode = _pmath_current_rounding_mode();
       
       mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
