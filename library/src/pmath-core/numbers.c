@@ -1127,7 +1127,7 @@ PMATH_API double pmath_number_get_d(pmath_number_t number) {
              / pmath_number_get_d(PMATH_QUOT_DEN(number));
              
     case PMATH_TYPE_SHIFT_MP_FLOAT:
-      return mpfr_get_d(PMATH_AS_MP_VALUE(number), MPFR_RNDN);
+      return arf_get_d(arb_midref(PMATH_AS_ARB(number)), ARF_RND_NEAR);
   }
   
   assert("invalid number type" && 0);
@@ -1225,7 +1225,11 @@ PMATH_API int pmath_number_sign(pmath_number_t num) {
       return pmath_number_sign(PMATH_QUOT_NUM(num));
       
     case PMATH_TYPE_SHIFT_MP_FLOAT:
-      return mpfr_sgn(PMATH_AS_MP_VALUE(num));
+      if(arb_is_positive(PMATH_AS_ARB(num)))
+        return 1;
+      if(arb_is_negative(PMATH_AS_ARB(num)))
+        return -1;
+      return 0;
   }
   
   assert("invalid number type" && 0);
@@ -1301,13 +1305,12 @@ PMATH_API pmath_number_t pmath_number_neg(pmath_number_t num) {
         if(pmath_refcount(num) == 1)
           result = pmath_ref(num);
         else
-          result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(num)));
+          result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(num));
           
         if(!pmath_is_null(result)) {
-          mpfr_neg(
-            PMATH_AS_MP_VALUE(result),
-            PMATH_AS_MP_VALUE(num),
-            MPFR_RNDN); // always exact  since result and num have same precision
+          arb_neg(PMATH_AS_ARB(result), PMATH_AS_ARB(num));
+          
+          arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
         }
         
         pmath_unref(num);

@@ -505,7 +505,8 @@ double pmath_number_get_d(pmath_number_t number);
 /**\brief Get a number's sign.
    \memberof pmath_number_t
    \param num A pMath number. It wont be freed.
-   \return The number's sign (-1, 0 or 1)
+   \return +1 if the number is positive, -1 if it is negative, 0 otherwise (if 
+           it is zero or if it is a real ball containing zero).
  */
 PMATH_API
 PMATH_ATTRIBUTE_PURE
