@@ -1918,22 +1918,14 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
 //} ============================================================================
 //{ common pMath object functions for all number types ...
 
-static void integer_set_fmpz(fmpz_t result, pmath_integer_t src) {
-  if(pmath_is_int32(src)) {
-    fmpz_set_si(result, PMATH_AS_INT32(src));
-  }
-  else {
-    assert(pmath_is_mpint(src));
-    fmpz_set_mpz(result, PMATH_AS_MPZ(src));
-  }
-}
-
-static void quotient_set_fmpq(fmpq_t res, pmath_quotient_t quot) {
-  assert(pmath_is_quotient(quot));
-  
-  integer_set_fmpz(fmpq_numref(res), PMATH_QUOT_NUM(quot));
-  integer_set_fmpz(fmpq_denref(res), PMATH_QUOT_DEN(quot));
-}
+static int compare_int_to_number(int32_t a, pmath_number_t numB);
+static int compare_double_to_number(double a, pmath_number_t numB);
+static int compare_mpint_to_mp_number(pmath_mpint_t numA, pmath_number_t numB);
+static int compare_quotient_to_number(pmath_quotient_t numA, pmath_number_t numB);
+static int compare_arb_to_arb(const arb_t a, const arb_t b);
+static int compare_arb_to_integer(const arb_t numA, pmath_integer_t numB);
+static int compare_mpfloat_to_quotient(pmath_mpfloat_t numA, pmath_quotient_t numB);
+static int compare_mpfloat_to_number(pmath_mpfloat_t numA, pmath_number_t numB);
 
 #define RETURN_SIMPLE_CMP \
   if(a < b)    \
@@ -1960,7 +1952,7 @@ static int compare_int_to_number(int32_t a, pmath_number_t numB) {
       return -mpz_cmp_si(PMATH_AS_MPZ(numB), a);
       
     case PMATH_TYPE_SHIFT_MP_FLOAT:
-      return -mpfr_cmp_si(PMATH_AS_MP_VALUE(numB), a);
+      return -compare_arb_to_integer(PMATH_AS_ARB(numB), PMATH_FROM_INT32(a));
       
     case PMATH_TYPE_SHIFT_QUOTIENT: {
         fmpq_t qa;
@@ -1971,7 +1963,7 @@ static int compare_int_to_number(int32_t a, pmath_number_t numB) {
         fmpq_init(qb);
         
         fmpq_set_si(qa, a, 1);
-        quotient_set_fmpq(qb, numB);
+        _pmath_rational_get_fmpq(qb, numB);
         
         res = fmpq_cmp(qa, qb);
         
@@ -1999,22 +1991,37 @@ static int compare_double_to_number(double a, pmath_number_t numB) {
     RETURN_SIMPLE_CMP
   }
   
-  switch(PMATH_AS_PTR(numB)->type_shift) {
-    case PMATH_TYPE_SHIFT_MP_INT:
-      return -mpz_cmp_d(PMATH_AS_MPZ(numB), a);
-      
-    case PMATH_TYPE_SHIFT_MP_FLOAT:
-      return -mpfr_cmp_d(PMATH_AS_MP_VALUE(numB), a);
-      
-    case PMATH_TYPE_SHIFT_QUOTIENT: {
-        double b = pmath_number_get_d(PMATH_QUOT_NUM(numB)) / pmath_number_get_d(PMATH_QUOT_DEN(numB));
-        
-        RETURN_SIMPLE_CMP
-      } return 0;
+  if(pmath_is_mpint(numB)) {
+    return -mpz_cmp_d(PMATH_AS_MPZ(numB), a);
   }
-  
-  assert("unknown number type" && 0);
-  return 0;
+  else {
+    arb_t tmpA;
+    int result;
+    assert(pmath_is_mpfloat(numB) || pmath_is_quotient(numB));
+    
+    arb_init(tmpA);
+    arb_set_d(tmpA, a);
+    
+    if(pmath_is_mpfloat(numB)) {
+      result = compare_arb_to_arb(tmpA, PMATH_AS_ARB(numB));
+    }
+    else {
+      assert(pmath_is_quotient(numB));
+      if(pmath_is_int32(PMATH_QUOT_DEN(numB))) {
+        arb_mul_si(tmpA, tmpA, PMATH_AS_INT32(PMATH_QUOT_DEN(numB)), ARF_PREC_EXACT);
+      }
+      else {
+        fmpz_t den;
+        assert(pmath_is_mpint(PMATH_QUOT_DEN(numB)));
+        fmpz_init_set_readonly(den, PMATH_AS_MPZ(PMATH_QUOT_DEN(numB)));
+        arb_mul_fmpz(tmpA, tmpA, den, ARF_PREC_EXACT);
+      }
+      result = compare_arb_to_integer(tmpA, PMATH_QUOT_NUM(numB));
+    }
+    
+    arb_clear(tmpA);
+    return result;
+  }
 }
 
 static int compare_mpint_to_mp_number(pmath_mpint_t numA, pmath_number_t numB) {
@@ -2031,10 +2038,10 @@ static int compare_mpint_to_mp_number(pmath_mpint_t numA, pmath_number_t numB) {
     fmpq_init(qa);
     fmpq_init(qb);
     
-    integer_set_fmpz(fmpq_numref(qa), numA);
+    _pmath_integer_get_fmpz(fmpq_numref(qa), numA);
     fmpz_set_ui(fmpq_denref(qa), 1);
     
-    quotient_set_fmpq(qa, numB);
+    _pmath_rational_get_fmpq(qa, numB);
     
     result = fmpq_cmp(qa, qb);
     
@@ -2044,13 +2051,10 @@ static int compare_mpint_to_mp_number(pmath_mpint_t numA, pmath_number_t numB) {
   }
   
   assert(pmath_is_mpfloat(numB));
-  
-  return -mpfr_cmp_z(
-           PMATH_AS_MP_VALUE(numB),
-           PMATH_AS_MPZ(numA));
+  return -compare_arb_to_integer(PMATH_AS_ARB(numB), numA);
 }
 
-static int compare_quotien_to_mp_number(pmath_quotient_t numA, pmath_number_t numB) {
+static int compare_quotient_to_number(pmath_quotient_t numA, pmath_number_t numB) {
   assert(pmath_is_quotient(numA));
   
   if(pmath_is_quotient(numB)) {
@@ -2061,8 +2065,8 @@ static int compare_quotien_to_mp_number(pmath_quotient_t numA, pmath_number_t nu
     fmpq_init(qa);
     fmpq_init(qb);
     
-    quotient_set_fmpq(qa, numA);
-    quotient_set_fmpq(qa, numB);
+    _pmath_rational_get_fmpq(qa, numA);
+    _pmath_rational_get_fmpq(qa, numB);
     result = fmpq_cmp(qa, qb);
     
     fmpq_clear(qb);
@@ -2070,78 +2074,72 @@ static int compare_quotien_to_mp_number(pmath_quotient_t numA, pmath_number_t nu
     return result;
   }
   
-  if(pmath_is_mpfloat(numB)) {
-    mpq_t qA;
-    int result;
-    
-    if(pmath_is_int32(PMATH_QUOT_NUM(numA))) {
-      mpz_init_set_si(mpq_numref(qA), PMATH_AS_INT32(PMATH_QUOT_NUM(numA)));
-    }
-    else {
-      assert(pmath_is_mpint(PMATH_QUOT_NUM(numA)));
-      
-      mpz_init_set(mpq_numref(qA), PMATH_AS_MPZ(PMATH_QUOT_NUM(numA)));
-    }
-    
-    if(pmath_is_int32(PMATH_QUOT_DEN(numA))) {
-      mpz_init_set_si(mpq_denref(qA), PMATH_AS_INT32(PMATH_QUOT_DEN(numA)));
-    }
-    else {
-      assert(pmath_is_mpint(PMATH_QUOT_DEN(numA)));
-      
-      mpz_init_set(mpq_denref(qA), PMATH_AS_MPZ(PMATH_QUOT_DEN(numA)));
-    }
-    
-    result = mpfr_cmp_q(PMATH_AS_MP_VALUE(numB), qA);
-    
-    mpq_clear(qA);
-    
-    return result;
-  }
+  if(pmath_is_mpfloat(numB)) 
+    return -compare_mpfloat_to_quotient(numB, numA);
   
   return -_pmath_numbers_compare(numB, numA);
 }
 
-static int compare_mpfloat_to_mp_number(pmath_mpfloat_t numA, pmath_number_t numB) {
+static int compare_arb_to_arb(const arb_t a, const arb_t b) {
+  if(arb_lt(a, b))
+    return -1;
+    
+  if(arb_gt(a, b))
+    return 1;
+    
+  return 0; // overlapping
+}
+
+static int compare_arb_to_integer(const arb_t numA, pmath_integer_t numB) {
+  arb_t tmpB;
+  int result;
+  
+  assert(pmath_is_integer(numB));
+  
+  arb_init(tmpB);
+  _pmath_number_get_arb(tmpB, numB, 0); // precision is ignored for integers, supply 0
+  
+  result = compare_arb_to_arb(numA, tmpB);
+    
+  arb_clear(tmpB);
+  return result;
+}
+
+static int compare_mpfloat_to_quotient(pmath_mpfloat_t numA, pmath_quotient_t numB) {
+  arb_t tmpA;
+  arb_t tmpB;
+  int result;
+  
+  assert(pmath_is_mpfloat(numA));
+  assert(pmath_is_quotient(numB));
+  
+  arb_init(tmpA);
+  arb_init(tmpB);
+  _pmath_number_get_arb(tmpA, PMATH_QUOT_DEN(numB), 0); // precision is ignored for integers, supply 0
+  arb_mul(tmpA, PMATH_AS_ARB(numA), tmpA, ARF_PREC_EXACT);
+  _pmath_number_get_arb(tmpB, PMATH_QUOT_NUM(numB), 0); // precision is ignored for integers, supply 0
+  
+  result = compare_arb_to_arb(tmpA, tmpB);
+    
+  arb_clear(tmpA);
+  arb_clear(tmpB);
+  return result;
+}
+
+static int compare_mpfloat_to_number(pmath_mpfloat_t numA, pmath_number_t numB) {
   assert(pmath_is_mpfloat(numA));
   
-  if(pmath_is_mpfloat(numB)) {
-    mpfr_rnd_t rounding_mode = _pmath_current_rounding_mode();
-    
-    mpfr_prec_t precA = mpfr_get_prec(PMATH_AS_MP_VALUE(numA));
-    mpfr_prec_t precB = mpfr_get_prec(PMATH_AS_MP_VALUE(numB));
-    
-    if(precA < precB) {
-      pmath_float_t tmp = _pmath_create_mp_float(precA);
-      int result;
-      
-      if(!pmath_is_null(tmp)) {
-        mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numB), rounding_mode);
-        
-        result = mpfr_cmp(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(tmp));
-        
-        pmath_unref(tmp);
-        return result;
-      }
-    }
-    else if(precA > precB) {
-      pmath_float_t tmp = _pmath_create_mp_float(precB);
-      int result;
-      
-      if(!pmath_is_null(tmp)) {
-        mpfr_set(PMATH_AS_MP_VALUE(tmp), PMATH_AS_MP_VALUE(numA), rounding_mode);
-        
-        result = mpfr_cmp(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(tmp));
-        
-        pmath_unref(tmp);
-        return result;
-      }
-    }
-    
-    return mpfr_cmp(PMATH_AS_MP_VALUE(numA), PMATH_AS_MP_VALUE(numB));
-  }
+  if(pmath_is_mpfloat(numB)) 
+    return compare_arb_to_arb(PMATH_AS_ARB(numA), PMATH_AS_ARB(numB));
   
-  return -_pmath_numbers_compare(numB, numA);
+  if(pmath_is_quotient(numB)) 
+    return compare_mpfloat_to_quotient(numA, numB);
+  
+  if(pmath_is_integer(numB))
+    return compare_arb_to_integer(PMATH_AS_ARB(numA), numB);
+  
+  assert(pmath_is_double(numB));
+  return -compare_double_to_number(PMATH_AS_DOUBLE(numB), numA);
 }
 
 #undef RETURN_SIMPLE_CMP
@@ -2169,10 +2167,10 @@ int _pmath_numbers_compare(
     return compare_mpint_to_mp_number(numA, numB);
     
   if(pmath_is_quotient(numA))
-    return compare_quotien_to_mp_number(numA, numB);
+    return compare_quotient_to_number(numA, numB);
     
   if(pmath_is_mpfloat(numA))
-    return compare_mpfloat_to_mp_number(numA, numB);
+    return compare_mpfloat_to_number(numA, numB);
     
   assert("unknown number type" && 0);
   return 0;
