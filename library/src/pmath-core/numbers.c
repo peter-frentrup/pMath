@@ -1918,6 +1918,23 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
 //} ============================================================================
 //{ common pMath object functions for all number types ...
 
+static void integer_set_fmpz(fmpz_t result, pmath_integer_t src) {
+  if(pmath_is_int32(src)) {
+    fmpz_set_si(result, PMATH_AS_INT32(src));
+  }
+  else {
+    assert(pmath_is_mpint(src));
+    fmpz_set_mpz(result, PMATH_AS_MPZ(src));
+  }
+}
+
+static void quotient_set_fmpq(fmpq_t res, pmath_quotient_t quot) {
+  assert(pmath_is_quotient(quot));
+  
+  integer_set_fmpz(fmpq_numref(res), PMATH_QUOT_NUM(quot));
+  integer_set_fmpz(fmpq_denref(res), PMATH_QUOT_DEN(quot));
+}
+
 #define RETURN_SIMPLE_CMP \
   if(a < b)    \
     return -1; \
@@ -1946,10 +1963,23 @@ static int compare_int_to_number(int32_t a, pmath_number_t numB) {
       return -mpfr_cmp_si(PMATH_AS_MP_VALUE(numB), a);
       
     case PMATH_TYPE_SHIFT_QUOTIENT: {
-        double b = pmath_number_get_d(PMATH_QUOT_NUM(numB)) / pmath_number_get_d(PMATH_QUOT_DEN(numB));
+        fmpq_t qa;
+        fmpq_t qb;
+        int res;
         
-        RETURN_SIMPLE_CMP
-      } return 0;
+        fmpq_init(qa);
+        fmpq_init(qb);
+        
+        fmpq_set_si(qa, a, 1);
+        quotient_set_fmpq(qb, numB);
+        
+        res = fmpq_cmp(qa, qb);
+        
+        fmpq_clear(qb);
+        fmpq_clear(qa);
+        
+        return res;
+      }
   }
   
   assert("unknown number type" && 0);
@@ -1994,14 +2024,22 @@ static int compare_mpint_to_mp_number(pmath_mpint_t numA, pmath_number_t numB) {
     return mpz_cmp(PMATH_AS_MPZ(numA), PMATH_AS_MPZ(numB));
     
   if(pmath_is_quotient(numB)) {
-    // cmp(u, w/x) = cmp(u*x,w)  because x > 0
-    pmath_integer_t lhs = _mul_ii(
-                            pmath_ref(numA),
-                            pmath_rational_denominator(numB));
-    pmath_integer_t rhs = pmath_rational_numerator(numB);
-    int result = pmath_compare(lhs, rhs);
-    pmath_unref(lhs);
-    pmath_unref(rhs);
+    fmpq_t qa;
+    fmpq_t qb;
+    int result;
+    
+    fmpq_init(qa);
+    fmpq_init(qb);
+    
+    integer_set_fmpz(fmpq_numref(qa), numA);
+    fmpz_set_ui(fmpq_denref(qa), 1);
+    
+    quotient_set_fmpq(qa, numB);
+    
+    result = fmpq_cmp(qa, qb);
+    
+    fmpq_clear(qb);
+    fmpq_clear(qa);
     return result;
   }
   
@@ -2016,19 +2054,19 @@ static int compare_quotien_to_mp_number(pmath_quotient_t numA, pmath_number_t nu
   assert(pmath_is_quotient(numA));
   
   if(pmath_is_quotient(numB)) {
-    // cmp(u/v, w/x) = cmp(u*x,v*w)  because v > 0 && x > 0
-    pmath_integer_t lhs = _mul_ii(
-                            pmath_rational_numerator(numA),
-                            pmath_rational_denominator(numB));
-                            
-    pmath_integer_t rhs = _mul_ii(
-                            pmath_rational_numerator(numB),
-                            pmath_rational_denominator(numA));
-                            
-    int result = pmath_compare(lhs, rhs);
+    fmpq_t qa;
+    fmpq_t qb;
+    int result;
     
-    pmath_unref(lhs);
-    pmath_unref(rhs);
+    fmpq_init(qa);
+    fmpq_init(qb);
+    
+    quotient_set_fmpq(qa, numA);
+    quotient_set_fmpq(qa, numB);
+    result = fmpq_cmp(qa, qb);
+    
+    fmpq_clear(qb);
+    fmpq_clear(qa);
     return result;
   }
   
@@ -2135,7 +2173,7 @@ int _pmath_numbers_compare(
     
   if(pmath_is_mpfloat(numA))
     return compare_mpfloat_to_mp_number(numA, numB);
-  
+    
   assert("unknown number type" && 0);
   return 0;
 }
