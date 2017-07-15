@@ -1618,18 +1618,14 @@ static void write_raw_string(struct pmath_write_ex_t *info, pmath_string_t str) 
   info->write(info->user, buf, len);
 }
 
-static void write_mp_float_ex(
-  struct pmath_write_ex_t *info,
-  pmath_mpfloat_t f,
-  pmath_bool_t for_machine_float
-) {
+static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
   pmath_thread_t thread = pmath_thread_get_current();
   int base = 10;
   char basestr[10];
   mp_exp_t exp;
   size_t max_digits, size;
   char *str;
-  double prec2 = pmath_precision(pmath_ref(f));
+  double prec2 = DBL_MANT_DIG;
   double base_prec;
   pmath_bool_t allow_round_trip = 0 != (info->options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR));
   int exact_log2_base; // =0 if base is no power of 2, otherwise = log2(base)
@@ -1695,12 +1691,11 @@ static void write_mp_float_ex(
     return;
   }
   
-  mpfr_get_str(str, &exp, base, max_digits, PMATH_AS_MP_VALUE(f), MPFR_RNDN);
+  mpfr_get_str(str, &exp, base, max_digits, f, MPFR_RNDN);
   
   if(exp == 0) {
     if(*str == '-') {
-      if(for_machine_float)
-        delete_trailing_zeros(str + 1);
+      delete_trailing_zeros(str + 1);
         
       if(base != 10) {
         snprintf(basestr, sizeof(basestr), "-%d^^0.", base);
@@ -1712,8 +1707,7 @@ static void write_mp_float_ex(
       _pmath_write_cstr(str + 1, info->write, info->user);
     }
     else {
-      if(for_machine_float)
-        delete_trailing_zeros(str);
+      delete_trailing_zeros(str);
         
       if(base != 10) {
         snprintf(basestr, sizeof(basestr), "%d^^0.", base);
@@ -1725,12 +1719,8 @@ static void write_mp_float_ex(
       _pmath_write_cstr(str,    info->write, info->user);
     }
     
-    if(allow_round_trip) {
+    if(allow_round_trip) 
       _pmath_write_cstr("`", info->write, info->user);
-      
-      if(!for_machine_float)
-        write_short_double(base_prec, info->write, info->user);
-    }
   }
   else if(exp > 0 && exp <= 6 && (size_t)exp < strlen(str)) {
     char c;
@@ -1756,17 +1746,11 @@ static void write_mp_float_ex(
     _pmath_write_cstr(".", info->write, info->user);
     str[exp] = c;
     
-    if(for_machine_float)
-      delete_trailing_zeros(str + exp);
-      
+    delete_trailing_zeros(str + exp);
     _pmath_write_cstr(str + exp, info->write, info->user);
     
-    if(allow_round_trip) {
+    if(allow_round_trip) 
       _pmath_write_cstr("`", info->write, info->user);
-      
-      if(!for_machine_float)
-        write_short_double(base_prec, info->write, info->user);
-    }
   }
   else if(exp < 0 && exp > -5) {
     static const uint16_t zero_char = '0';
@@ -1795,17 +1779,12 @@ static void write_mp_float_ex(
       info->write(info->user, &zero_char, 1);
     } while(++exp < 0);
     
-    if(for_machine_float)
-      delete_trailing_zeros(str + start);
+    delete_trailing_zeros(str + start);
       
     _pmath_write_cstr(str + start, info->write, info->user);
     
-    if(allow_round_trip) {
+    if(allow_round_trip) 
       _pmath_write_cstr("`", info->write, info->user);
-      
-      if(!for_machine_float)
-        write_short_double(base_prec, info->write, info->user);
-    }
   }
   else {
     int start;
@@ -1844,17 +1823,10 @@ static void write_mp_float_ex(
       --exp;
     }
     
-    if(for_machine_float)
-      delete_trailing_zeros(str + start);
-      
+    delete_trailing_zeros(str + start);
     _pmath_write_cstr(str + start, info->write, info->user);
-    
-    if(allow_round_trip) {
+    if(allow_round_trip) 
       _pmath_write_cstr("`", info->write, info->user);
-      
-      if(!for_machine_float)
-        write_short_double(base_prec, info->write, info->user);
-    }
     
     if(exp != 0) {
       char s[30];
@@ -1931,11 +1903,13 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
 
 PMATH_PRIVATE
 void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f) {
-  pmath_mpfloat_t mpf = _pmath_create_mp_float_from_d(PMATH_AS_DOUBLE(f));
+  mpfr_t mpf;
+  mpfr_init2(mpf, DBL_MANT_DIG);
+  mpfr_set_d(mpf, PMATH_AS_DOUBLE(f), MPFR_RNDN);
   
-  write_mp_float_ex(info, mpf, TRUE);
+  write_as_machine_float(info, mpf);
   
-  pmath_unref(mpf);
+  mpfr_clear(mpf);
 }
 
 //} ============================================================================
