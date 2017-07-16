@@ -25,8 +25,8 @@ AssertUnequal(xMachine, xRat)
 
 
 % ignoring working precision
-AssertEqual(xArb, xMachine)
-AssertEqual(xArb2, xMachine)
+AssertUnequal(xArb, xMachine)
+AssertUnequal(xArb2, xMachine)
 AssertUnequal(xArbRadius, xMachine)
 
 AssertEqual(xArb, xArb2)

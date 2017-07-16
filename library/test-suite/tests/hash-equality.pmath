@@ -2,7 +2,38 @@
 
 xArb:=  1.5`10
 xArb2:= 1.5`200
-
+xMachine:= 1.5`
 
 AssertEqual(xArb, xArb2)
 AssertEqual(Hash(xArb), Hash(xArb2))
+
+AssertUnequal(xArb, xMachine)
+%AssertEqual(xArb, xMachine)
+%AssertEqual(Hash(xArb), Hash(xMachine))
+
+
+% Since signed zeros -0.0 and +0.0 are considered identical, they must
+% produce the same Hash(), this also infects packed arrays.
+
+posZero:= 0.0
+negZero:= -0.0
+
+posZeroArray:= {posZero}
+negZeroArray:= {negZero}
+posZeroPackedArray:= Developer`ToPackedArray(posZeroArray, Real)
+negZeroPackedArray:= Developer`ToPackedArray(negZeroArray, Real)
+
+
+AssertEqual(posZero, negZero)
+AssertEqual(Hash(posZero), Hash(negZero))
+
+AssertEqual(posZeroArray, negZeroArray)
+AssertEqual(Hash(posZeroArray), Hash(negZeroArray))
+
+AssertTrue(Developer`IsPackedArray(posZeroPackedArray))
+AssertTrue(Developer`IsPackedArray(negZeroPackedArray))
+AssertEqual(posZeroPackedArray, negZeroPackedArray)
+AssertEqual(Hash(posZeroPackedArray), Hash(negZeroPackedArray))
+
+AssertEqual(negZeroArray, negZeroPackedArray)
+AssertEqual(Hash(negZeroArray), Hash(negZeroPackedArray))

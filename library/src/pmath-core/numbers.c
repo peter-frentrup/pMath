@@ -1428,6 +1428,9 @@ static unsigned int hash_mpz(mpz_srcptr mpz, unsigned h) {
 static unsigned int hash_init;
 
 static unsigned int hash_mp_int(pmath_t integer) {
+  /* Note that an mp integer never holds a value that fits int32, so the hash calculation does not 
+     need to be compatible with that for pmath_is_int32()-values.
+   */
   return hash_mpz(PMATH_AS_MPZ(integer), hash_init);
 }
 
@@ -1622,7 +1625,11 @@ static unsigned int hash_mag(const mag_t x, unsigned int h) {
 
 static unsigned int hash_mp_float(pmath_t f) {
   unsigned int h = 0;
-  
+  /* Note that the hash calculation is incompatible with double-values, which could also be seen
+     as real balls with 
+     
+     Also note that the working precision is ignored, because pmath_equal() also ignores it.
+   */
   h = hash_arf(arb_midref(PMATH_AS_ARB(f)), h);
   h = hash_mag(arb_radref(PMATH_AS_ARB(f)), h);
   return h;
@@ -2224,22 +2231,6 @@ int _pmath_numbers_compare(
   return 0;
 }
 
-static pmath_bool_t double_structurally_equals_number(double a, pmath_number_t numB) {
-  assert(pmath_is_number(numB));
-  
-  if(pmath_is_double(numB))
-    return a == PMATH_AS_DOUBLE(numB);
-    
-  if(pmath_is_mpfloat(numB)) {
-    if(!mag_is_zero(arb_radref(PMATH_AS_ARB(numB))))
-      return FALSE;
-      
-    return 0 == arf_cmp_d(arb_midref(PMATH_AS_ARB(numB)), a);
-  }
-  
-  return FALSE;
-}
-
 PMATH_PRIVATE
 pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numA,
@@ -2277,11 +2268,15 @@ pmath_bool_t _pmath_numbers_equal(
   if(pmath_is_quotient(numB))
     return FALSE;
     
-  if(pmath_is_double(numA))
-    return double_structurally_equals_number(PMATH_AS_DOUBLE(numA), numB);
+  if(pmath_is_double(numA)) {
+    if(pmath_is_double(numB))
+      return PMATH_AS_DOUBLE(numA) == PMATH_AS_DOUBLE(numB);
+    
+    return FALSE;
+  }
     
   if(pmath_is_double(numB))
-    return double_structurally_equals_number(PMATH_AS_DOUBLE(numB), numA);
+    return FALSE;
     
   assert(pmath_is_mpfloat(numA));
   assert(pmath_is_mpfloat(numB));
