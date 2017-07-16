@@ -268,6 +268,7 @@ static void serialize_mp_int(struct serializer_t *info, pmath_mpint_t value) {
     if(!info->error)
       info->error = PMATH_SERIALIZE_BAD_OBJECT;
     serialize(info, PMATH_UNDEFINED);
+    pmath_unref(value);
     return;
   }
   
@@ -276,6 +277,7 @@ static void serialize_mp_int(struct serializer_t *info, pmath_mpint_t value) {
     if(!info->error)
       info->error = PMATH_SERIALIZE_NO_MEMORY;
     serialize(info, PMATH_UNDEFINED);
+    pmath_unref(value);
     return;
   }
   
@@ -301,6 +303,7 @@ static void serialize_mp_int(struct serializer_t *info, pmath_mpint_t value) {
   pmath_unref(value);
 }
 
+// value will be freed
 static void serialize_mp_float(struct serializer_t *info, pmath_mpfloat_t value) {
   fmpz_t mant;
   fmpz_t exp;
