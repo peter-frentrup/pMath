@@ -338,8 +338,8 @@ const uint16_t *_pmath_parse_real_ball(
   
   if(str < str_end && *str == '`') {
     const uint16_t *prec_start = str + 1;
-    slong prec_frac;
-    slong prec_significant;
+    ulong prec_frac;
+    ulong prec_significant;
     
     fmpz_t prec_mant;
     fmpz_init(prec_mant);
