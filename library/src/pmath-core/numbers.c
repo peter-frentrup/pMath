@@ -1602,32 +1602,6 @@ static unsigned int hash_mp_float(pmath_t f) {
   return h;
 }
 
-static void write_short_double(
-  double   d,
-  void (*write)(void *, const uint16_t *, int),
-  void    *user
-) {
-  char s[100];
-  double test;
-  int maxprec = 1 + (int)ceil(DBL_MANT_DIG * LOG10_2);
-  int len, i;
-  
-  for(len = 1; len <= maxprec; ++len) {
-    snprintf(s, sizeof(s), "%.*f", len, d);
-    
-    // not pmath_strtod() because sprintf gives locale specific result
-    test = strtod(s, NULL);
-    if(test == d)
-      break;
-  }
-  
-  for(i = 0; i < len; ++i)
-    if(s[i] == ',')
-      s[i] = '.';
-      
-  _pmath_write_cstr(s, write, user);
-}
-
 static void delete_trailing_zeros(char *s) {
   char *s2 = s + strlen(s) - 1;
   
