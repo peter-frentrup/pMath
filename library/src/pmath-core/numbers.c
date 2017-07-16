@@ -960,16 +960,6 @@ pmath_t _pmath_float_exceptions(
   return result;
 }
 
-PMATH_PRIVATE
-mpfr_rnd_t _pmath_current_rounding_mode(void) {
-  pmath_thread_t me = pmath_thread_get_current();
-  
-  if(me == NULL)
-    return MPFR_RNDN;
-    
-  return me->mp_rounding_mode;
-}
-
 //}
 //{ number conversion functions ...
 

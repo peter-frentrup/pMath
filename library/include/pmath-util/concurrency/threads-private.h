@@ -83,8 +83,6 @@ struct _pmath_thread_t {
   
   intptr_t current_dynamic_id;
   
-  int mp_rounding_mode; // MPFR_RND* constant
-  
   uint8_t critical_messages;         // TRUE / FALSE
   uint8_t is_daemon;                 // TRUE / FALSE
   uint8_t boxform;                   // BOXFORM_XXX
