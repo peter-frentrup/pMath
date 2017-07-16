@@ -104,7 +104,6 @@ struct _pmath_quotient_t {
  */
 struct _pmath_mp_float_t {
   struct _pmath_t  inherited;
-  mpfr_t           value_old; // deprecated
   arb_t            value_new;
   slong            working_precision;        
 };
@@ -113,7 +112,6 @@ struct _pmath_mp_float_t {
 #define PMATH_QUOT_DEN(obj)       (((struct _pmath_quotient_t*)     PMATH_AS_PTR(obj))->denominator)
 
 #define PMATH_AS_MPZ(obj)         (((struct _pmath_mp_int_t*)       PMATH_AS_PTR(obj))->value)
-#define PMATH_AS_MP_VALUE(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value_old)
 
 #define PMATH_AS_ARB(obj)                (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value_new)
 #define PMATH_AS_ARB_WORKING_PREC(obj)   (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->working_precision)
@@ -239,6 +237,7 @@ pmath_t _pmath_float_exceptions(
   
 // returns pmath_thread_current()->mp_rounding_mode; and MPFR_RNDN on error.
 PMATH_PRIVATE
+PMATH_DEPRECATED
 mpfr_rnd_t _pmath_current_rounding_mode(void);
 
 PMATH_PRIVATE

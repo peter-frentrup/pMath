@@ -220,7 +220,6 @@ static void mp_cache_clear(void) {
     if(f) {
       assert(f->inherited.refcount._data == 0);
       
-      mpfr_clear(f->value_old);
       arb_clear(f->value_new);
       pmath_mem_free(f);
     }
@@ -248,7 +247,6 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
     assert(f->inherited.refcount._data == 0);
     pmath_atomic_write_release(&f->inherited.refcount, 1);
     
-    mpfr_set_prec(f->value_old, precision);
     f->working_precision = (slong)precision;
     return PMATH_FROM_PTR(f);
   }
@@ -265,7 +263,6 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
   if(!f)
     return PMATH_NULL;
     
-  mpfr_init2(f->value_old, precision);
   arb_init(f->value_new);
   f->working_precision = (slong)precision;
   
@@ -276,10 +273,8 @@ PMATH_PRIVATE
 pmath_float_t _pmath_create_mp_float_from_d(double value) {
   pmath_float_t result = _pmath_create_mp_float(DBL_MANT_DIG);
   
-  if(!pmath_is_null(result)) {
+  if(PMATH_LIKELY(!pmath_is_null(result)))
     arb_set_d(PMATH_AS_ARB(result), value);
-    mpfr_set_d(PMATH_AS_MP_VALUE(result), value, MPFR_RNDN);
-  }
   
   return result;
 }
@@ -331,8 +326,6 @@ pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong prec
       fmpz_clear(tmp_num);
       fmpz_clear(tmp_den);
     }
-    
-    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
   }
   
   pmath_unref(value);
@@ -349,8 +342,6 @@ pmath_mpfloat_t _pmath_create_mp_float_from_midrad_arb(arb_t mid, arb_t rad, slo
   if(PMATH_LIKELY(!pmath_is_null(result))) {
     arb_set(PMATH_AS_ARB(result), mid);
     _pmath_arb_add_error_exact(PMATH_AS_ARB(result), rad);
-    
-    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
   }
   return result;
 }
@@ -807,8 +798,6 @@ static pmath_number_t parse_auto_prec(const char *str, int base, slong bit_prec)
     }
   }
   
-  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-  
 CLEANUP:
   arb_clear(tmp);
   fmpz_clear(mantissa);
@@ -947,34 +936,26 @@ pmath_t _pmath_float_exceptions(
   if(!pmath_is_mpfloat(x))
     return x;
     
-  /* MPFR flags "invalid" and "erange" are ignored.
-   */
+  if(arb_is_finite(PMATH_AS_ARB(x))) 
+    return x;
   
-  if(mpfr_nan_p(PMATH_AS_MP_VALUE(x))) {
+  if(arf_is_nan(arb_midref(PMATH_AS_ARB(x)))) {
     result = pmath_ref(PMATH_SYMBOL_UNDEFINED);
     pmath_message(PMATH_NULL, "indet", 1, pmath_ref(result));
   }
-  else if(mpfr_underflow_p()) {
-    pmath_message(PMATH_NULL, "unfl", 0);
-    result = pmath_ref(_pmath_object_underflow);
-  }
-  else if(mpfr_overflow_p())
-  {
-    pmath_message(PMATH_NULL, "ovfl", 0);
-    result = pmath_ref(_pmath_object_overflow);
-  }
-  else if(mpfr_inf_p(PMATH_AS_MP_VALUE(x))) {
+  else {
+    int inf_sign;
+    if(!mag_is_finite(arb_radref(PMATH_AS_ARB(x))))
+      inf_sign = 0;
+    else 
+      inf_sign = arf_sgn(arb_midref(PMATH_AS_ARB(x)));
+      
     result = pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
-               PMATH_FROM_INT32(mpfr_sgn(PMATH_AS_MP_VALUE(x))));
+               PMATH_FROM_INT32(inf_sign));
     pmath_message(PMATH_NULL, "infy", 1, pmath_ref(result));
   }
-  else {
-    mpfr_clear_flags();
-    return x;
-  }
   
-  mpfr_clear_flags();
   pmath_unref(x);
   return result;
 }
@@ -1307,11 +1288,8 @@ PMATH_API pmath_number_t pmath_number_neg(pmath_number_t num) {
         else
           result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(num));
           
-        if(!pmath_is_null(result)) {
+        if(!pmath_is_null(result)) 
           arb_neg(PMATH_AS_ARB(result), PMATH_AS_ARB(num));
-          
-          arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-        }
         
         pmath_unref(num);
         return result;
@@ -1569,7 +1547,6 @@ static void destroy_mp_float(pmath_t f) {
   if(f_ptr) {
     assert(f_ptr->inherited.refcount._data == 0);
     
-    mpfr_clear(f_ptr->value_old);
     arb_clear(f_ptr->value_new);
     pmath_mem_free(f_ptr);
   }

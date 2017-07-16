@@ -60,8 +60,6 @@ static pmath_t next_toward_infinity(pmath_expr_t expr, pmath_t x, int inf_sign) 
     fmpz_clear(mant);
     fmpz_clear(exp);
     
-    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-    
     pmath_unref(x);
     pmath_unref(expr);
     return result;

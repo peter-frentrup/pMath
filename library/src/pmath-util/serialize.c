@@ -950,8 +950,6 @@ static pmath_mpfloat_t read_simple_mp_float(struct deserializer_t *info) {
   
   pmath_unref(exp_obj);
   pmath_unref(mant_obj);
-  
-  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
   return result;
 }
 

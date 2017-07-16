@@ -31,7 +31,6 @@ static pmath_t approx_const_generic(
     return PMATH_NULL;
     
   generator(PMATH_AS_ARB(result), PMATH_AS_ARB_WORKING_PREC(result));
-  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
   return result;
 }
 

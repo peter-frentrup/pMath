@@ -400,7 +400,6 @@ static pmath_t binary_read_real128(
       if(neg) 
         arb_neg(PMATH_AS_ARB(f), PMATH_AS_ARB(f));
       
-      arf_get_mpfr(PMATH_AS_MP_VALUE(f), arb_midref(PMATH_AS_ARB(f)), MPFR_RNDN);
       pmath_unref(mant);
       return f;
     }
@@ -431,8 +430,6 @@ static pmath_t binary_read_real128(
       fmpz_clear(tmp);
       if(neg) 
         arb_neg(PMATH_AS_ARB(f), PMATH_AS_ARB(f));
-      
-      arf_get_mpfr(PMATH_AS_MP_VALUE(f), arb_midref(PMATH_AS_ARB(f)), MPFR_RNDN);
       
       pmath_unref(mant);
       return f;

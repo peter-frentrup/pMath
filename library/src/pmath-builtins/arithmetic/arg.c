@@ -38,7 +38,6 @@ PMATH_PRIVATE pmath_t builtin_arg(pmath_expr_t expr) {
             return PMATH_FROM_DOUBLE(d);
           }
         }
-        arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
         return result;
       }
     }

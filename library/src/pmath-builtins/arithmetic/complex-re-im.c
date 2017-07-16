@@ -528,10 +528,9 @@ static pmath_float_t new_float_from_arb(const arb_t value, slong prec_or_double)
   }
   
   result = _pmath_create_mp_float((mpfr_prec_t)prec_or_double);
-  if(!pmath_is_null(result)) {
+  if(!pmath_is_null(result)) 
     arb_set(PMATH_AS_ARB(result), value);
-    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(value), MPFR_RNDN);
-  }
+
   return result;
 }
 

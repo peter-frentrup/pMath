@@ -329,8 +329,6 @@ static pmath_t _add_fi(
     pmath_unref(intB);
   }
   
-  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-  
   pmath_unref(floatA);
   return _pmath_float_exceptions(result);
 }
@@ -354,7 +352,6 @@ static pmath_t _add_ff(
   }
   
   arb_add(PMATH_AS_ARB(result), PMATH_AS_ARB(floatA), PMATH_AS_ARB(floatB), prec);
-  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
     
   pmath_unref(floatA);
   pmath_unref(floatB);

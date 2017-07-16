@@ -71,7 +71,6 @@ static pmath_t make_random_mpfloat(struct random_mpfloat_info_t *info) {
   if(info->min) 
     arb_add(PMATH_AS_ARB(result), PMATH_AS_ARB(result), info->min, info->round_bit_prec);
   
-  arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
   return result;
 }
 

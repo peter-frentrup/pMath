@@ -33,9 +33,6 @@ PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr) {
     mag_zero(arb_radref(PMATH_AS_ARB(lower)));
     mag_zero(arb_radref(PMATH_AS_ARB(upper)));
     
-    arf_get_mpfr(PMATH_AS_MP_VALUE(lower), arb_midref(PMATH_AS_ARB(lower)), MPFR_RNDN);
-    arf_get_mpfr(PMATH_AS_MP_VALUE(upper), arb_midref(PMATH_AS_ARB(upper)), MPFR_RNDN);
-    
     pmath_unref(x);
     return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, lower, upper);
   }

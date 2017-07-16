@@ -138,7 +138,6 @@ static pmath_number_t number_abs(pmath_number_t x) {
       
     if(!pmath_is_null(result)) {
       arb_abs(PMATH_AS_ARB(result), PMATH_AS_ARB(x));
-      arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
     }
     pmath_unref(x);
     return result;
@@ -261,7 +260,6 @@ static pmath_number_t number_sign(pmath_number_t x) {
       
     if(!pmath_is_null(result)) {
       arb_sgn(PMATH_AS_ARB(result), PMATH_AS_ARB(x));
-      arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
     }
     pmath_unref(x);
     return result;
@@ -332,7 +330,6 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
             return PMATH_FROM_DOUBLE(d);
           }
         }
-        arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
         return result;
       }
     }

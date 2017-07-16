@@ -144,25 +144,15 @@ static pmath_t set_finite_precision_number(pmath_number_t obj, double prec) {
   if(pmath_is_double(obj)) {
     arb_set_d(PMATH_AS_ARB(result), PMATH_AS_DOUBLE(obj));
     arb_set_round(PMATH_AS_ARB(result), PMATH_AS_ARB(result), PMATH_AS_ARB_WORKING_PREC(result));
-    mpfr_set_d(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_DOUBLE(obj),
-      _pmath_current_rounding_mode());
   }
   else {
     assert(pmath_is_mpfloat(obj));
     
-    if( mpfr_get_prec(PMATH_AS_MP_VALUE(result)) == mpfr_get_prec(PMATH_AS_MP_VALUE(obj)) &&
-        PMATH_AS_ARB_WORKING_PREC(result) == PMATH_AS_ARB_WORKING_PREC(obj)
-      ) {
+    if(PMATH_AS_ARB_WORKING_PREC(result) == PMATH_AS_ARB_WORKING_PREC(obj)) {
       pmath_unref(result);
       return obj;
     }
     arb_set_round(PMATH_AS_ARB(result), PMATH_AS_ARB(obj), PMATH_AS_ARB_WORKING_PREC(result));
-    mpfr_set(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(obj),
-      _pmath_current_rounding_mode());
   }
   
   pmath_unref(obj);

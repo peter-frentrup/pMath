@@ -145,9 +145,6 @@ PMATH_PRIVATE pmath_t builtin_internal_realballmidpointradius(pmath_expr_t expr)
     mag_zero(arb_radref(PMATH_AS_ARB(mid)));
     mag_zero(arb_radref(PMATH_AS_ARB(rad)));
     
-    arf_get_mpfr(PMATH_AS_MP_VALUE(mid), arb_midref(PMATH_AS_ARB(mid)), MPFR_RNDN);
-    arf_get_mpfr(PMATH_AS_MP_VALUE(rad), arb_midref(PMATH_AS_ARB(rad)), MPFR_RNDN);
-    
     pmath_unref(x);
     return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, mid, rad);
   }

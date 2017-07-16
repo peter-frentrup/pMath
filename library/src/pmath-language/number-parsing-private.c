@@ -455,10 +455,9 @@ pmath_t _pmath_compose_number(
       prec = 2;
       
     result = _pmath_create_mp_float(prec);
-    if(!pmath_is_null(result)) {
+    if(!pmath_is_null(result)) 
       compose_arb(PMATH_AS_ARB(result), mantissa, exponent, base, PMATH_AS_ARB_WORKING_PREC(result));
-      arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-    }
+
     return result;
   }
   

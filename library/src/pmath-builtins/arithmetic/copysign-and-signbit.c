@@ -97,8 +97,6 @@ PMATH_PRIVATE pmath_t builtin_internal_copysign(pmath_expr_t expr) {
     else
       arb_zero(PMATH_AS_ARB(result));
     
-    arf_get_mpfr(PMATH_AS_MP_VALUE(result), arb_midref(PMATH_AS_ARB(result)), MPFR_RNDN);
-    
     pmath_unref(x);
     pmath_unref(expr);
     return result;
