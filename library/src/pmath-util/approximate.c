@@ -11,6 +11,7 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/lists-private.h>
 
@@ -95,34 +96,26 @@ static pmath_t set_infinite_precision_number(pmath_number_t obj) {
   }
   
   if(pmath_is_mpfloat(obj)) {
-    pmath_mpint_t num;
-    mpfr_exp_t exp;
+    fmpz_t mant;
+    fmpz_t exp;
+    pmath_integer_t mant_obj;
+    pmath_integer_t exp_obj;
     
-    num = _pmath_create_mp_int(0);
-    if(!pmath_is_null(num)) {
-      exp = mpfr_get_z_2exp(PMATH_AS_MPZ(num), PMATH_AS_MP_VALUE(obj));
-      
-      if(exp < 0 && mpz_sgn(PMATH_AS_MPZ(num)) != 0) {
-        pmath_mpint_t den = _pmath_create_mp_int(0);
-        
-        if(!pmath_is_null(den)) {
-          mpz_set_ui(PMATH_AS_MPZ(den), 1);
-          mpz_mul_2exp(PMATH_AS_MPZ(den), PMATH_AS_MPZ(den), (unsigned long int) - exp);
-          
-          pmath_unref(obj);
-          return pmath_rational_new(_pmath_mp_int_normalize(num), _pmath_mp_int_normalize(den));
-        }
-      }
-      else {
-        mpz_mul_2exp(PMATH_AS_MPZ(num), PMATH_AS_MPZ(num), (unsigned long int)exp);
-        pmath_unref(obj);
-        return _pmath_mp_int_normalize(num);
-      }
-      
-      pmath_unref(num);
-    }
+    fmpz_init(mant);
+    fmpz_init(exp);
     
-    return obj;
+    arf_get_fmpz_2exp(mant, exp, arb_midref(PMATH_AS_ARB(obj)));
+    mant_obj = _pmath_integer_from_fmpz(mant);
+    exp_obj = _pmath_integer_from_fmpz(exp);
+    
+    fmpz_clear(mant);
+    fmpz_clear(exp);
+    
+    pmath_unref(obj);
+    if(pmath_same(exp_obj, PMATH_FROM_INT32(0)))
+      return mant_obj;
+    
+    return TIMES(mant_obj, POW(INT(2), exp_obj));
   }
   
   return obj;
