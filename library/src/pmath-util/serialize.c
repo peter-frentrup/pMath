@@ -129,14 +129,6 @@ static void write_size(pmath_t file, size_t size) {
   _pmath_serialize_raw_integer_ui(file, size);
 }
 
-static void write_prec(pmath_t file, mpfr_prec_t prec) {
-  _pmath_serialize_raw_integer_si(file, prec);
-}
-
-static void write_exp(pmath_t file, mpfr_exp_t exp) {
-  _pmath_serialize_raw_integer_si(file, exp);
-}
-
 static void write_si32(pmath_t file, int32_t i) {
   _pmath_serialize_raw_integer_si(file, i);
 }
@@ -635,7 +627,7 @@ static int read_int(struct deserializer_t *info) {
   return (int)si;
 }
 
-static mpfr_prec_t read_prec(struct deserializer_t *info) {
+static slong read_prec(struct deserializer_t *info) {
   intptr_t si;
   if( !_pmath_deserialize_raw_integer_si(info->file, &si) ||
       si < MPFR_PREC_MIN || si > MPFR_PREC_MAX)
@@ -645,7 +637,7 @@ static mpfr_prec_t read_prec(struct deserializer_t *info) {
     return 0;
   }
   
-  return (mpfr_prec_t)si;
+  return si;
 }
 
 static double read_double(struct deserializer_t *info) {
@@ -892,7 +884,7 @@ static pmath_mpfloat_t read_simple_mp_float(struct deserializer_t *info) {
   pmath_mpfloat_t result;
   pmath_integer_t mant_obj;
   pmath_integer_t exp_obj;
-  mpfr_prec_t prec;
+  slong prec;
   fmpz_t mant;
   fmpz_t exp;
   

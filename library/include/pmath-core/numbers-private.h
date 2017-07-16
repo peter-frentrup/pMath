@@ -167,7 +167,7 @@ pmath_rational_t _pmath_rational_from_fmpq(const fmpq_t rational);
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 //struct _pmath_mp_float_t *
-pmath_mpfloat_t _pmath_create_mp_float(mpfr_prec_t precision);
+pmath_mpfloat_t _pmath_create_mp_float(slong precision);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT

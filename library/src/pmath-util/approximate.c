@@ -135,7 +135,7 @@ static pmath_t set_finite_precision_number(pmath_number_t obj, double prec) {
   if(pmath_is_rational(obj))
     return _pmath_create_mp_float_from_q(obj, (slong)ceil(prec));
     
-  result = _pmath_create_mp_float((mpfr_prec_t)ceil(prec));
+  result = _pmath_create_mp_float((slong)ceil(prec));
   if(pmath_is_null(result)) {
     pmath_unref(obj);
     return PMATH_NULL;

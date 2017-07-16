@@ -527,7 +527,7 @@ static pmath_float_t new_float_from_arb(const arb_t value, slong prec_or_double)
     prec_or_double = DBL_MANT_DIG;
   }
   
-  result = _pmath_create_mp_float((mpfr_prec_t)prec_or_double);
+  result = _pmath_create_mp_float(prec_or_double);
   if(!pmath_is_null(result)) 
     arb_set(PMATH_AS_ARB(result), value);
 

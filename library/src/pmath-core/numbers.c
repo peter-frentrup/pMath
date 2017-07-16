@@ -226,7 +226,7 @@ static void mp_cache_clear(void) {
   }
 }
 
-PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
+PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(slong precision) {
   struct _pmath_mp_float_t *f;
   uintptr_t i;
   
@@ -247,7 +247,7 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(mpfr_prec_t precision) {
     assert(f->inherited.refcount._data == 0);
     pmath_atomic_write_release(&f->inherited.refcount, 1);
     
-    f->working_precision = (slong)precision;
+    f->working_precision = precision;
     return PMATH_FROM_PTR(f);
   }
   else {
@@ -281,7 +281,7 @@ pmath_float_t _pmath_create_mp_float_from_d(double value) {
 
 PMATH_PRIVATE
 pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong precision) {
-  pmath_mpfloat_t result = _pmath_create_mp_float((mpfr_prec_t)precision);
+  pmath_mpfloat_t result = _pmath_create_mp_float(precision);
   
   if(!pmath_is_null(result)) {
     if(pmath_is_int32(value)) {
@@ -773,7 +773,7 @@ static pmath_number_t parse_auto_prec(const char *str, int base, slong bit_prec)
       bit_prec = DBL_MANT_DIG;
   }
   
-  result = _pmath_create_mp_float((mpfr_prec_t)bit_prec);
+  result = _pmath_create_mp_float(bit_prec);
   if(pmath_is_null(result))
     goto CLEANUP;
     
