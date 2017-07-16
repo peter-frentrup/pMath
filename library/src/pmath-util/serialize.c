@@ -118,6 +118,10 @@ static void write_ref(pmath_t file, intptr_t refno) {
   _pmath_serialize_raw_integer_si(file, refno);
 }
 
+static void write_slong(pmath_t file, slong i) {
+  _pmath_serialize_raw_integer_si(file, i);
+}
+
 static void write_size(pmath_t file, size_t size) {
   _pmath_serialize_raw_integer_ui(file, size);
 }
@@ -298,35 +302,42 @@ static void serialize_mp_int(struct serializer_t *info, pmath_mpint_t value) {
 }
 
 static void serialize_mp_float(struct serializer_t *info, pmath_mpfloat_t value) {
-  pmath_mpint_t mantissa = _pmath_create_mp_int(0);
-  mpfr_prec_t prec;
-  mp_exp_t exp;
+  fmpz_t mant;
+  fmpz_t exp;
+  pmath_integer_t mant_obj;
+  pmath_integer_t exp_obj;
   
-  if(pmath_is_null(mantissa)) {
+//  pmath_mpint_t mantissa = _pmath_create_mp_int(0);
+//  mpfr_prec_t prec;
+//  mp_exp_t exp;
+  
+  fmpz_init(mant);
+  fmpz_init(exp);
+  
+  arf_get_fmpz_2exp(mant, exp, arb_midref(PMATH_AS_ARB(value)));
+  
+  mant_obj = _pmath_integer_from_fmpz(mant);
+  exp_obj = _pmath_integer_from_fmpz(exp);
+  
+  fmpz_clear(exp);
+  fmpz_clear(mant);
+  
+  if(pmath_is_null(mant_obj) || pmath_is_null(exp_obj)) {
+    pmath_unref(mant_obj);
+    pmath_unref(exp_obj);
     if(!info->error)
       info->error = PMATH_SERIALIZE_NO_MEMORY;
     serialize(info, PMATH_UNDEFINED);
+    pmath_unref(value);
     return;
   }
   
-  prec = mpfr_get_prec(PMATH_AS_MP_VALUE(value));
-  
-  if(mpfr_zero_p(PMATH_AS_MP_VALUE(value))) {
-    exp = 0;
-    mpz_set_ui(PMATH_AS_MPZ(mantissa), 0);
-  }
-  else {
-    exp = mpfr_get_z_exp(
-            PMATH_AS_MPZ(mantissa),
-            PMATH_AS_MP_VALUE(value));
-  }
-  
   write_tag( info->file, TAG_MPFLOAT);
-  write_prec(info->file, prec);
-  write_exp(info->file, exp);
-  serialize(info, _pmath_mp_int_normalize(pmath_ref(mantissa)));
+  write_slong(info->file, PMATH_AS_ARB_WORKING_PREC(value));
+  _pmath_serialize_raw_integer(info->file, exp_obj);
+  serialize(info, mant_obj); // frees mant_obj
   
-  pmath_unref(mantissa);
+  pmath_unref(exp_obj);
   pmath_unref(value);
 }
 
