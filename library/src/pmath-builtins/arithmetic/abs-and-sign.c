@@ -1,8 +1,8 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
-#include <pmath-core/intervals-private.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -12,6 +12,9 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/language-private.h>
 #include <pmath-builtins/number-theory-private.h>
+
+#include <limits.h>
+
 
 /** Assumes that for expr == f(...), the following is true:
       f(f(x)) = f(x)
@@ -120,11 +123,177 @@ static pmath_t simplify_abs_sign(pmath_expr_t expr) {
   return expr;
 }
 
-/*============================================================================*/
+static pmath_number_t number_abs(pmath_number_t x) {
+  assert(pmath_is_number(x));
+  
+  if(pmath_is_double(x))
+    return PMATH_FROM_DOUBLE(fabs(PMATH_AS_DOUBLE(x)));
+    
+  if(pmath_is_mpfloat(x)) {
+    pmath_mpfloat_t result;
+    if(pmath_refcount(x) > 1)
+      result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(x));
+    else
+      result = pmath_ref(x);
+      
+    if(!pmath_is_null(result)) {
+      arb_abs(PMATH_AS_ARB(result), PMATH_AS_ARB(x));
+    }
+    pmath_unref(x);
+    return result;
+  }
+  
+  if(pmath_number_sign(x) < 0)
+    return pmath_number_neg(x);
+  return x;
+}
+
+/** \brief Try to get the sign of a real numeric value x.
+    \param x A numeric pMath object. It won't be freed.
+    \return The real or complex sign if it can be proven, or PMATH_NULL if no prove is possible
+ */
+static pmath_t approximate_sign(pmath_t x) {
+  pmath_thread_t me = pmath_thread_get_current();
+  double precision;
+  double max_precision;
+  
+  if(!me) 
+    return PMATH_NULL;
+  
+  precision = FLINT_MIN(16, me->max_extra_precision);
+  precision = FLINT_MAX(me->min_precision, precision);
+  max_precision = FLINT_MIN(me->max_precision, me->min_precision + me->max_extra_precision);
+  
+  while(!pmath_aborting()) {
+    pmath_t approx = pmath_set_precision(pmath_ref(x), precision);
+    
+    if(pmath_is_mpfloat(approx)) {
+      if(arb_is_positive(PMATH_AS_ARB(approx))) {
+        pmath_unref(approx);
+        return INT(1);
+      }
+      if(arb_is_negative(PMATH_AS_ARB(approx))) {
+        pmath_unref(approx);
+        return INT(-1);
+      }
+      if(arb_is_zero(PMATH_AS_ARB(approx))) {
+        pmath_unref(approx);
+        return INT(0);
+      }
+    }
+    else if(pmath_is_expr_of_len(approx, PMATH_SYMBOL_COMPLEX, 2)) {
+      acb_t z;
+      slong prec;
+      pmath_bool_t is_machine_prec;
+      acb_init(z);
+      if(_pmath_complex_float_extract_acb(z, &prec, &is_machine_prec, approx)) {
+        if(acb_is_real(z)) {
+          if(arb_is_positive(acb_realref(z))) {
+            pmath_unref(approx);
+            acb_clear(z);
+            return INT(1);
+          }
+          if(arb_is_negative(acb_realref(z))) {
+            pmath_unref(approx);
+            acb_clear(z);
+            return INT(-1);
+          }
+          if(arb_is_zero(acb_realref(z))) {
+            pmath_unref(approx);
+            acb_clear(z);
+            return INT(0);
+          }
+        }
+        else if(arb_is_zero(acb_realref(z))) {
+          if(arb_is_positive(acb_imagref(z))) {
+            pmath_unref(approx);
+            acb_clear(z);
+            return COMPLEX(INT(0), INT(1));
+          }
+          if(arb_is_negative(acb_imagref(z))) {
+            pmath_unref(approx);
+            acb_clear(z);
+            return COMPLEX(INT(0), INT(-1));
+          }
+        }
+      }
+      acb_clear(z);
+    }
+    else {
+      pmath_unref(approx);
+      break;
+    }
+    
+    pmath_unref(approx);
+    if(precision >= max_precision)
+      break;
+    
+    precision = FLINT_MIN(2 * precision, max_precision);
+  }
+  
+  return PMATH_NULL;
+}
+
+static pmath_number_t number_sign(pmath_number_t x) {
+  int sign;
+  assert(pmath_is_number(x));
+  
+  if(pmath_is_mpfloat(x)) {
+    pmath_mpfloat_t result;
+    if(arb_is_positive(PMATH_AS_ARB(x))) {
+      pmath_unref(x);
+      return PMATH_FROM_INT32(1);
+    }
+    if(arb_is_negative(PMATH_AS_ARB(x))) {
+      pmath_unref(x);
+      return PMATH_FROM_INT32(-1);
+    }
+    if(arb_is_zero(PMATH_AS_ARB(x))) {
+      pmath_unref(x);
+      return PMATH_FROM_INT32(0);
+    }
+    
+    if(pmath_refcount(x) > 1)
+      result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(x));
+    else
+      result = pmath_ref(x);
+      
+    if(!pmath_is_null(result)) {
+      arb_sgn(PMATH_AS_ARB(result), PMATH_AS_ARB(x));
+    }
+    pmath_unref(x);
+    return result;
+  }
+  
+  sign = pmath_number_sign(x);
+  pmath_unref(x);
+  return PMATH_FROM_INT32(sign);
+}
+
+PMATH_PRIVATE
+int _pmath_numeric_sign(pmath_t x) {
+  if(pmath_is_mpfloat(x)) {
+    if(arb_is_positive(PMATH_AS_ARB(x)))
+      return 1;
+    if(arb_is_negative(PMATH_AS_ARB(x)))
+      return -1;
+    if(arb_is_zero(PMATH_AS_ARB(x)))
+      return 0;
+    return PMATH_UNKNOWN_REAL_SIGN;
+  }
+  else { // if(pmath_is_numeric(x))
+    pmath_t sgn = approximate_sign(x);
+    if(pmath_is_int32(sgn))
+      return PMATH_AS_INT32(sgn);
+    pmath_unref(sgn);
+    return PMATH_UNKNOWN_REAL_SIGN;
+  }
+  
+  return PMATH_UNKNOWN_REAL_SIGN;
+}
 
 PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
   pmath_t x;
-  int clazz;
   
   if(pmath_expr_length(expr) != 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
@@ -133,22 +302,43 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
   
   x = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_double(x)) {
+  if(pmath_is_number(x)) {
     pmath_unref(expr);
-    return PMATH_FROM_DOUBLE(fabs(PMATH_AS_DOUBLE(x)));
-  }
-  
-  if(pmath_is_interval(x)) {
-    pmath_unref(expr);
-    return _pmath_interval_call(x, mpfi_abs);
+    return number_abs(x);
   }
   
   if(_pmath_is_nonreal_complex_number(x)) {
-    pmath_t re = pmath_expr_get_item(x, 1);
-    pmath_t im = pmath_expr_get_item(x, 2);
+    pmath_t re, im;
+    acb_t z;
+    slong prec;
+    pmath_bool_t is_machine_prec;
+    
+    pmath_unref(expr);
+    
+    acb_init(z);
+    if(_pmath_complex_float_extract_acb(z, &prec, &is_machine_prec, x)) {
+      pmath_mpfloat_t result = _pmath_create_mp_float(prec);
+      if(!pmath_is_null(result)) {
+        pmath_unref(x);
+        acb_abs(PMATH_AS_ARB(result), z, prec);
+        acb_clear(z);
+        
+        if(is_machine_prec) {
+          double d = arf_get_d(arb_midref(PMATH_AS_ARB(result)), ARF_RND_NEAR);
+          if(isfinite(d)) {
+            pmath_unref(result);
+            return PMATH_FROM_DOUBLE(d);
+          }
+        }
+        return result;
+      }
+    }
+    acb_clear(z);
+    
+    re = pmath_expr_get_item(x, 1);
+    im = pmath_expr_get_item(x, 2);
     
     pmath_unref(x);
-    pmath_unref(expr);
     if(pmath_number_sign(im) == 0) {
       pmath_unref(im);
       if(pmath_number_sign(re) >= 0)
@@ -164,52 +354,17 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
     return SQRT(PLUS(POW(re, INT(2)), POW(im, INT(2))));
   }
   
-  clazz = _pmath_number_class(x);
-  
-  if(clazz & PMATH_CLASS_ZERO) {
-    pmath_unref(expr);
-    
-    if(pmath_is_number(x))
-      return x;
-      
-    // 0.0 + 0.0*I
-    if(_pmath_is_machinenumber(x)) {
-      pmath_unref(x);
-      
-      return PMATH_FROM_DOUBLE(0.0);
-    }
-    
-    // 0`200 + 0`100*I
-    if(_pmath_is_inexact(x)) {
-      double prec = pmath_precision(x); // frees x
-      
-      return pmath_float_new_str("0", 2, PMATH_PREC_CTRL_GIVEN_PREC, prec);
-    }
-    
+  if(pmath_is_expr_of_len(x, PMATH_SYMBOL_CONJUGATE, 1)) {
+    expr = pmath_expr_set_item(expr, 1,
+                               pmath_expr_get_item(x, 1));
     pmath_unref(x);
-    return INT(0);
+    return expr;
   }
   
-  if(clazz & PMATH_CLASS_POS) {
-    pmath_unref(expr);
-    
-    return x;
-  }
-  
-  if(clazz & PMATH_CLASS_NEG) {
-    pmath_unref(expr);
-    return NEG(x);
-  }
-  
-  if(clazz & PMATH_CLASS_INF) {
+  if(pmath_is_expr_of(x, PMATH_SYMBOL_DIRECTEDINFINITY)) {
     pmath_unref(expr);
     pmath_unref(x);
     return pmath_ref(_pmath_object_pos_infinity);
-  }
-  
-  if(clazz & PMATH_CLASS_IMAGINARY) {
-    pmath_unref(expr);
-    return TIMES(COMPLEX(INT(0), INT(-1)), x);
   }
   
   if( pmath_equals(x, _pmath_object_overflow) ||
@@ -219,57 +374,20 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
     return x;
   }
   
-  if(pmath_is_expr_of_len(x, PMATH_SYMBOL_CONJUGATE, 1)) {
-    expr = pmath_expr_set_item(expr, 1,
-                               pmath_expr_get_item(x, 1));
-    pmath_unref(x);
-    return expr;
+  if(pmath_is_numeric(x)) {
+    pmath_t sgn = approximate_sign(x);
+    if(!pmath_is_null(sgn)) {
+      pmath_unref(expr);
+      if(pmath_same(sgn, PMATH_FROM_INT32(0))) {
+        pmath_unref(x);
+        return sgn;
+      }
+      return DIV(x, sgn);
+    }
   }
   
   pmath_unref(x);
   return simplify_abs_sign(expr);
-}
-
-static int _mpfi_sign(mpfi_ptr rop, mpfi_srcptr op) {
-  pmath_bool_t has_neg;
-  pmath_bool_t has_zero;
-  pmath_bool_t has_pos;
-  pmath_bool_t need_init;
-  
-  if(mpfi_nan_p(op)) {
-    mpfr_set_nan(&rop->left);
-    mpfr_set_nan(&rop->right);
-    mpfr_set_nanflag();
-    return 0;
-  }
-  
-  has_neg = !mpfi_is_nonneg(op);
-  has_zero = mpfi_has_zero(op);
-  has_pos = !mpfi_is_nonpos(op);
-  
-  need_init = TRUE;
-  if(has_neg) {
-    mpfi_set_si(rop, -1);
-    need_init = FALSE;
-  }
-  if(has_zero) {
-    if(need_init) {
-      mpfi_set_si(rop, 0);
-      need_init = FALSE;
-    }
-    else
-      mpfi_put_si(rop, 0);
-  }
-  if(has_pos) {
-    if(need_init) {
-      mpfi_set_si(rop, 1);
-      need_init = FALSE;
-    }
-    else
-      mpfi_put_si(rop, 1);
-  }
-  
-  return 0;
 }
 
 PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
@@ -282,29 +400,41 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
   x = pmath_expr_get_item(expr, 1);
   
   if(pmath_is_number(x)) {
-    int sign;
-    
     pmath_unref(expr);
-    sign = pmath_number_sign(x);
-    pmath_unref(x);
-    return PMATH_FROM_INT32(sign);
+    return number_sign(x);
   }
   
-  if(pmath_is_interval(x)) {
+  if(_pmath_is_nonreal_complex_number(x)) {
+    pmath_t re, im;
+    int im_sign, re_sign;
+    acb_t z;
+    slong prec;
+    pmath_bool_t is_machine_prec;
+    
     pmath_unref(expr);
-    if(mpfr_sgn(&PMATH_AS_MP_INTERVAL(x)->left) > 0) {
+    
+    acb_init(z);
+    if(_pmath_complex_float_extract_acb(z, &prec, &is_machine_prec, x)) {
       pmath_unref(x);
-      return INT(1);
+      acb_sgn(z, z, prec);
+      x = _pmath_complex_new_from_acb(z, is_machine_prec ? -1 : prec);
+      acb_clear(z);
+      return x;
     }
-    else if(mpfr_sgn(&PMATH_AS_MP_INTERVAL(x)->right) < 0) {
+    acb_clear(z);
+    
+    re = pmath_expr_get_item(x, 1);
+    im = pmath_expr_get_item(x, 2);
+    
+    im_sign = pmath_number_sign(im);
+    re_sign = pmath_number_sign(im);
+    if(im_sign == 0 || re_sign == 0) {
+      pmath_unref(re);
+      pmath_unref(im);
       pmath_unref(x);
-      return INT(-1);
+      return COMPLEX(INT(re_sign), INT(im_sign));
     }
-    else if(mpfi_is_zero(PMATH_AS_MP_INTERVAL(x))) {
-      pmath_unref(x);
-      return INT(0);
-    }
-    return _pmath_interval_call(x, _mpfi_sign);
+    return DIV(x, SQRT(PLUS(POW(re, INT(2)), POW(im, INT(2)))));
   }
   
   if( pmath_equals(x, _pmath_object_overflow) ||
@@ -331,33 +461,12 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
   }
   
   if(pmath_is_numeric(x)) {
-    int clazz = _pmath_number_class(x);
-    
-    if(clazz & PMATH_CLASS_POS){
+    pmath_t sgn = approximate_sign(x);
+    if(!pmath_is_null(sgn)) {
       pmath_unref(expr);
       pmath_unref(x);
-      
-      return INT(1);
+      return sgn;
     }
-  
-    if(clazz & PMATH_CLASS_NEG){
-      pmath_unref(expr);
-      pmath_unref(x);
-      
-      return INT(-1);
-    }
-  
-    if(clazz & PMATH_CLASS_ZERO){
-      pmath_unref(expr);
-      pmath_unref(x);
-      
-      return INT(0);
-    }
-  
-    //expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_ABS));
-    //return DIV(x, expr);
-    pmath_unref(x);
-    return expr;
   }
   
   pmath_unref(x);

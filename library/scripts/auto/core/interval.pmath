@@ -4,7 +4,8 @@
 	- BUG: arithmetic on intervals should always round the lower bound
 		down and the upper bound up. At the moment, round-to-nearest is used in 
 		all cases.
-		This needs pMath-kernel support, which is available with Internal`RealInterval
+		This needs pMath-kernel support, which is available with Arb ball arithmetic
+		for arbitrary precision floating point numbers.
  */
 
 BeginPackage("System`")

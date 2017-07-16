@@ -38,11 +38,20 @@ Attributes(AssertEqual)::= HoldAll;
 Function AssertEqual(~lhs, ~rhs) {
 	With(evalLhs := lhs, evalRhs:= rhs)
 	If(evalLhs =!= evalRhs) {
+		Local(formatLhs:= HoldForm(evalLhs), formatRhs:= HoldForm(evalRhs))
+		If(ToString(formatLhs) === ToString(formatRhs)) {
+			formatLhs:= HoldForm @ InputForm(evalLhs)
+			formatRhs:= HoldForm @ InputForm(evalRhs)
+			If(ToString(formatLhs) === ToString(formatRhs)) {
+				formatLhs:= HoldForm @ FullForm(evalLhs)
+				formatRhs:= HoldForm @ FullForm(evalRhs)
+			}
+		}
 		suppressDebugInfo @ Message(AssertEqual::fail,
 			HoldForm(lhs),
 			HoldForm(rhs),
-			HoldForm(evalLhs),
-			HoldForm(evalRhs))
+			formatLhs,
+			formatRhs)
 	}
 	
 	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.

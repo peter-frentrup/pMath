@@ -516,22 +516,3 @@ PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(pmath_expr_t expr) {
   return pmath_ref(PMATH_SYMBOL_TRUE);
 }
 
-PMATH_PRIVATE pmath_t builtin_internal_isrealinterval(pmath_expr_t expr) {
-  pmath_t obj;
-  
-  if(pmath_expr_length(expr) != 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-    return expr;
-  }
-  
-  obj = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
-  
-  if(pmath_is_interval(obj)) {
-    pmath_unref(obj);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
-  }
-  pmath_unref(obj);
-  return pmath_ref(PMATH_SYMBOL_FALSE);
-}
-

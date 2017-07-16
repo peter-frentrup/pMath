@@ -211,9 +211,6 @@ static const char *get_description(pmath_t obj) {
         
       case PMATH_TYPE_SHIFT_PACKED_ARRAY:
         return "packed-array";
-        
-      case PMATH_TYPE_SHIFT_INTERVAL:
-        return "interval";
     }
   }
   

@@ -21,9 +21,13 @@
 // In mpz_get_ui(): Converting 'mp_limb_t' to 'unsigned long': possible data loss.
 #    pragma warning(disable: 4244)
 #    include <gmp.h>
+#    include <arb.h>
+#    include <acb.h>
 #  pragma warning(pop)
 #else
 #  include <gmp.h>
+#  include <arb.h>
+#  include <acb.h>
 #endif // _MSC_VER
 
 #include <mpfr.h>
@@ -72,7 +76,11 @@
 #define LOG2_10   3.3219280948873623478703194294894
 #define LOG10_2   0.30102999566398119521373889472449
 
-#define PMATH_MP_PREC_MAX    1000000
+#ifdef PMATH_32BIT
+#  define PMATH_MP_PREC_MAX    0x1000000
+#else
+#  define PMATH_MP_PREC_MAX    0x1000000/*0x1000000000*/
+#endif 
 
 struct _pmath_mp_int_t {
   struct _pmath_t  inherited;
@@ -96,22 +104,32 @@ struct _pmath_quotient_t {
  */
 struct _pmath_mp_float_t {
   struct _pmath_t  inherited;
-  mpfr_t           value;
+  arb_t            value_new;
+  slong            working_precision;        
 };
 
 #define PMATH_QUOT_NUM(obj)       (((struct _pmath_quotient_t*)     PMATH_AS_PTR(obj))->numerator)
 #define PMATH_QUOT_DEN(obj)       (((struct _pmath_quotient_t*)     PMATH_AS_PTR(obj))->denominator)
 
 #define PMATH_AS_MPZ(obj)         (((struct _pmath_mp_int_t*)       PMATH_AS_PTR(obj))->value)
-#define PMATH_AS_MP_VALUE(obj)    (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value)
 
-PMATH_FORCE_INLINE mpfr_prec_t min_prec(mpfr_prec_t a, mpfr_prec_t b) {
-  if(a < b)
-    return a;
-  return b;
+#define PMATH_AS_ARB(obj)                (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->value_new)
+#define PMATH_AS_ARB_WORKING_PREC(obj)   (((struct _pmath_mp_float_t*)     PMATH_AS_PTR(obj))->working_precision)
+
+/** \brief Get the interval bounds of an Arb number.
+    \param lower Receives the lower bound (rounded downwards if necessary).
+    \param upper Receives the upper bound (rounded upwards if necessary).
+    \param value The given arb number.
+    \param precision The workinbg precision. May be \c ARF_PREC_EXACT.
+ */
+PMATH_FORCE_INLINE void _pmath_arb_bounds(arf_t lower, arf_t upper, const arb_t value, slong precision) {
+  arf_t radius;
+  arf_init_set_mag_shallow(radius, arb_radref(value));
+  
+  arf_sub(lower, arb_midref(value), radius, precision, ARF_RND_FLOOR);
+  arf_add(upper, arb_midref(value), radius, precision, ARF_RND_CEIL);
 }
 
-/*============================================================================*/
 
 extern PMATH_PRIVATE pmath_quotient_t _pmath_one_half; /* readonly */
 
@@ -133,19 +151,42 @@ pmath_mpint_t _pmath_create_mp_int(signed long value);
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 // struct _pmath_quotient_t_ *
+pmath_integer_t _pmath_integer_from_fmpz(const fmpz_t integer);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+// struct _pmath_quotient_t_ *
 pmath_quotient_t _pmath_create_quotient(
   pmath_integer_t numerator,    // will be freed; must not be divisible by denominator and must not be 0
   pmath_integer_t denominator); // will be freed; must be > 1
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
+pmath_rational_t _pmath_rational_from_fmpq(const fmpq_t rational);
+  
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
 //struct _pmath_mp_float_t *
-pmath_mpfloat_t _pmath_create_mp_float(mpfr_prec_t precision);
+pmath_mpfloat_t _pmath_create_mp_float(slong precision);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 //struct _pmath_mp_float_t *
 pmath_mpfloat_t _pmath_create_mp_float_from_d(double value);
+
+/** \brief Create an mp float from a rational number.
+    \param value      An integer or quotient. It will be freed.
+    \param precision  Working precision of the result (and precision of the approximation)
+    \return A new _pmath_mp_float_t* or PMATH_NULL.
+ */
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+//struct _pmath_mp_float_t *
+pmath_mpfloat_t _pmath_create_mp_float_from_q(pmath_rational_t value, slong precision);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_mpfloat_t _pmath_create_mp_float_from_midrad_arb(arb_t mid, arb_t rad, slong prec);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
@@ -158,11 +199,32 @@ void _pmath_write_machine_float(struct pmath_write_ex_t *info, pmath_t f);
 PMATH_PRIVATE
 void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer);
 
+/** \brief Compare two real numbers by value.
+    \return -1 if \a numA is less than \a numB, +1 if \a numA is greater than \a numB, 
+            and 0 if \a numA and \a numB are equal or overlap (for real balls).
+    
+    Note that this function considers its arguments as sets of real numbers.
+    Intersecting sets are reported as "equal" (this is only relevant for pmath_mpfloat_t,
+    since that is the only real number type which can represent multiple values).
+ */
 PMATH_PRIVATE
 int _pmath_numbers_compare(
   pmath_number_t numA,
   pmath_number_t numB);
 
+/** \brief Compare two real numbers for structural equality.
+    Note that real balls are considered equal by this function if they have the same midpoint and radius. 
+    This is set equality, not value equality. 
+    Their working precision is ignored though, which might be considered as a bug or as a feature, 
+    depending of your use-case.
+    
+    pmath_mpfloat_t and double are considered unequal, even if the mp float represents the same single value
+    as the double. This reason for this design choice is that it would be difficult/slow to ensure 
+    that Hash(1.5`) and Hash(1.5`100) coincide, because we want Hash() of doubles to be fast, in order to have
+    a fast PackedArray-Hash that is compatibt with List-of-double.
+    
+    pmath_float_t and pmath_rational_t values are considered unequal, even if they represent the same value.
+ */
 PMATH_PRIVATE
 pmath_bool_t _pmath_numbers_equal(
   pmath_number_t numA,
@@ -172,19 +234,31 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_float_exceptions(
   pmath_number_t x);  // will be freed.
-  
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_mpfloat_call(
-  pmath_mpfloat_t   arg,  // will be freed
-  int             (*func)(mpfr_ptr, mpfr_srcptr,mpfr_rnd_t));
-
-// returns pmath_thread_current()->mp_rounding_mode; and MPFR_RNDN on error.
-PMATH_PRIVATE
-mpfr_rnd_t _pmath_current_rounding_mode(void);
 
 PMATH_PRIVATE
 pmath_integer_t _pmath_mp_int_normalize(pmath_mpint_t f);
+
+/** \brief Copy a pMath integer to a FLINT integer.
+    \param result  An initialized FLINT integer reference to take the value.
+    \param integer An integer object, must not be PMATH_NULL. It won't be freed.
+ */
+PMATH_PRIVATE
+void _pmath_integer_get_fmpz(fmpz_t result, pmath_integer_t integer);
+
+/** \brief Copy a pMath rational to a FLINT quotient.
+    \param result  An initialized FLINT quotient reference to take the value.
+    \param rational An integer or quotient object, must not be PMATH_NULL. It won't be freed.
+ */
+PMATH_PRIVATE
+void _pmath_rational_get_fmpq(fmpq_t result, pmath_rational_t rational);
+
+/** \brief Copy a pMath number to an Arb real ball.
+    \param result  An initialized Arb real ball reference to take the value.
+    \param real An number object, must not be PMATH_NULL. It won't be freed.
+    \param precision The precision to use for approximating quotients.
+ */
+PMATH_PRIVATE
+void _pmath_number_get_arb(arb_t result, pmath_number_t real, slong precision);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT

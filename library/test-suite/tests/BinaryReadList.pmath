@@ -43,8 +43,8 @@ AssertEqual(
 
 AssertEqual(
 	BinaryReadList(blobFile, "Real64", ByteOrdering -> -1),
-	{62.67807190511264`, 33.219280948873624`})
+	{16^^3e.ad961ed0cb92`, 16^^21.3822cbd80c4e`})
 
 AssertEqual(
 	BinaryReadList(blobFile, "Complex128", ByteOrdering -> -1),
-	{62.67807190511264` + 33.219280948873624` I})
+	{16^^3e.ad961ed0cb92` + 16^^21.3822cbd80c4e` I})

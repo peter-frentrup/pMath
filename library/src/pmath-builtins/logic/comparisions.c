@@ -1,7 +1,5 @@
 #include <pmath-builtins/logic-private.h>
 
-#include <pmath-core/intervals-private.h>
-
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
@@ -19,231 +17,6 @@
 
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
-#define TOLERANCE_EXPONENT   6
-#define TOLERANCE_FACTOR     (1 << TOLERANCE_EXPONENT)
-
-/* Two positive numbers X, Y are "almost equal" if
-      Max(X,Y) / Min(X,Y) <= (1 + TOLERANCE_FACTOR * epsilon)
-   where epsilon = DBL_EPSILON if one of X,Y is a machine float, and
-   epsilon = Max(error(X), error(Y)) otherwise.
-
-   A number X is "almost equal" zero if Abs(X) <= error(X).
-
-   Two numbers with opposite sign are never "almost equal".
-
-   To negative numbers are "almost equal" if their absolute values are so.
-
-   "almost equal" is of course not transitive.
- */
-
-// x and y must have the same sign
-static pmath_bool_t slow_almost_equal_mpf(mpfr_srcptr x, mpfr_srcptr y) {
-  double tol_x = 1 + TOLERANCE_FACTOR * pow(0.5, mpfr_get_prec(x));
-  double tol_y = 1 + TOLERANCE_FACTOR * pow(0.5, mpfr_get_prec(y));
-  double tol = tol_x > tol_y ? tol_x : tol_y;
-  MPFR_DECL_INIT(rhs, DBL_MANT_DIG);
-  
-  if(mpfr_cmpabs(x, y) <= 0) {
-    mpfr_mul_d(rhs, y, tol, GMP_RNDU);
-    
-    return mpfr_cmpabs(x, rhs) <= 0;
-  }
-  else {
-    mpfr_mul_d(rhs, x, tol, GMP_RNDU);
-    
-    return mpfr_cmpabs(y, rhs) <= 0;
-  }
-}
-
-// reference implementation without fast paths:
-static pmath_bool_t slow_almost_equal_numbers(pmath_number_t x, pmath_number_t y) {
-  int sign_x, sign_y;
-  pmath_bool_t is_mp_x, is_mp_y;
-  
-  assert(pmath_is_number(x));
-  assert(pmath_is_number(y));
-  
-  sign_x = pmath_number_sign(x);
-  sign_y = pmath_number_sign(y);
-  
-  if(sign_x != sign_y)
-    return FALSE;
-    
-  if(sign_x == 0)
-    return TRUE;
-    
-  if(pmath_is_double(x) || pmath_is_double(y)) {
-    double dx = fabs(pmath_number_get_d(x));
-    double dy = fabs(pmath_number_get_d(y));
-    
-    if(dx < dy)
-      return dy <= dx * (1 + TOLERANCE_FACTOR * DBL_EPSILON);
-      
-    return dx <= dy * (1 + TOLERANCE_FACTOR * DBL_EPSILON);
-  }
-  
-  is_mp_x = pmath_is_mpfloat(x);
-  is_mp_y = pmath_is_mpfloat(y);
-  if(is_mp_x || is_mp_y) {
-    x = pmath_ref(x);
-    y = pmath_ref(y);
-    
-    if(!is_mp_x) {
-      x = pmath_set_precision(x, mpfr_get_prec(PMATH_AS_MP_VALUE(y)));
-      is_mp_x = pmath_is_mpfloat(x);
-    }
-    
-    if(!is_mp_y) {
-      y = pmath_set_precision(y, mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-      is_mp_y = pmath_is_mpfloat(y);
-    }
-    
-    if(is_mp_x && is_mp_y) {
-      pmath_bool_t eq = slow_almost_equal_mpf(PMATH_AS_MP_VALUE(x), PMATH_AS_MP_VALUE(y));
-      
-      pmath_unref(x);
-      pmath_unref(y);
-      return eq;
-    }
-    
-    if(!is_mp_x)
-      pmath_debug_print_object("[pmath_set_precision gave no mp float, but ", x, "]");
-    if(!is_mp_y)
-      pmath_debug_print_object("[pmath_set_precision gave no mp float, but ", y, "]");
-      
-    pmath_unref(x);
-    pmath_unref(y);
-    return FALSE;
-  }
-  
-  return pmath_equals(x, y);
-}
-
-// TRUE, FALSE or PMATH_MAYBE_ORDERED
-static int test_almost_equal(pmath_t a, pmath_t b) {
-  if(pmath_is_number(a) && pmath_is_number(b))
-    return slow_almost_equal_numbers(a, b) ? TRUE : FALSE;
-    
-  if( pmath_is_expr_of_len(a, PMATH_SYMBOL_COMPLEX, 2) ||
-      pmath_is_expr_of_len(b, PMATH_SYMBOL_COMPLEX, 2))
-  {
-    pmath_t re_a, re_b, im_a, im_b;
-    
-    if( _pmath_re_im(pmath_ref(a), &re_a, &im_a) &&
-        _pmath_re_im(pmath_ref(b), &re_b, &im_b) &&
-        (!pmath_is_null(im_a) || !pmath_is_null(im_b)))
-    {
-      int eq_re, eq_im;
-      eq_re = test_almost_equal(re_a, re_b);
-      pmath_unref(re_a);
-      pmath_unref(re_b);
-      
-      if(eq_re == FALSE) {
-        pmath_unref(im_a);
-        pmath_unref(im_b);
-        return FALSE;
-      }
-      
-      eq_im = test_almost_equal(im_a, im_b);
-      pmath_unref(im_a);
-      pmath_unref(im_b);
-      
-      if(eq_im == FALSE)
-        return FALSE;
-        
-      if(eq_im == TRUE && eq_re == TRUE)
-        return TRUE;
-        
-      return PMATH_MAYBE_ORDERED;
-    }
-    
-    pmath_unref(re_a);
-    pmath_unref(im_a);
-    pmath_unref(re_b);
-    pmath_unref(im_b);
-  }
-  
-  return pmath_equals(a, b) ? TRUE : PMATH_MAYBE_ORDERED;
-}
-
-static pmath_bool_t almost_equal(pmath_t a, pmath_t b) {
-  int test = test_almost_equal(a, b);
-  if(test > 0)
-    return TRUE;
-  return FALSE;
-}
-
-static int pmath_fuzzy_compare(pmath_t a, pmath_t b) {
-  if(almost_equal(a, b))
-    return 0;
-    
-  return pmath_compare(a, b);
-}
-
-static pmath_t check_comparator(pmath_t real_or_complex_number, int directions) {
-  if(_pmath_is_nonreal_complex_number(real_or_complex_number)) {
-    pmath_t im = pmath_expr_get_item(real_or_complex_number, 2);
-    
-    if(pmath_is_number(im)) {
-      if(pmath_number_sign(im) == 0) {
-        pmath_t re = pmath_expr_get_item(real_or_complex_number, 1);
-        pmath_unref(real_or_complex_number);
-        pmath_unref(im);
-        return re;
-      }
-      
-      if(directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_GREATER)) {
-        pmath_message(PMATH_NULL, "nord", 1, pmath_ref(real_or_complex_number));
-      }
-    }
-    
-    pmath_unref(im);
-  }
-  
-  return real_or_complex_number;
-}
-
-static int compare_double_with_numeric(pmath_t p, pmath_t n, int directions) { // p, n will be freed
-  if(pmath_is_number(n)) {
-    int c = pmath_fuzzy_compare(p, n);
-    pmath_unref(p);
-    pmath_unref(n);
-    
-    if( (c <  0 && (directions & PMATH_DIRECTION_LESS)  == 0) ||
-        (c == 0 && (directions & PMATH_DIRECTION_EQUAL) == 0) ||
-        (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
-    {
-      return FALSE;
-    }
-    
-    return TRUE;
-  }
-  else {
-    int c = test_almost_equal(p, n);
-    pmath_unref(p);
-    pmath_unref(n);
-    
-    if(c == FALSE) {
-      if(directions == PMATH_DIRECTION_EQUAL)
-        return FALSE;
-        
-      if(directions == 0) // no < or >
-        return TRUE;
-        
-      return PMATH_MAYBE_ORDERED;
-    }
-    
-    if(c == TRUE) {
-      if(directions == PMATH_DIRECTION_EQUAL)
-        return TRUE;
-        
-      if(directions == 0) // no < or >
-        return FALSE;
-    }
-    
-    return PMATH_MAYBE_ORDERED;
-  }
-}
 
 static pmath_bool_t check_complex_is_real(pmath_t z, pmath_t *out_re_only) {
   pmath_t im;
@@ -273,24 +46,7 @@ enum known_direction_t {
   KNOWN_DIR_OVERLAP
 };
 
-#define MAYBE  PMATH_MAYBE_ORDERED
-// first index is KNOWN_DIR_XXX, second index is PMATH_DIRECTION_YYY bitset
-static const int8_t known_and_direction_result[6][8] = {
-/*         0: !=   1: <   2: =   3: <=   4: >   5: ><   6: >=   7: >=< */
-/* <  */ { TRUE,   TRUE,  FALSE, TRUE,   FALSE, TRUE,   FALSE,  TRUE   },
-/* <= */ { MAYBE,  MAYBE, MAYBE, TRUE,   FALSE, MAYBE,  MAYBE,  TRUE   },
-/*  = */ { FALSE,  FALSE, TRUE,  MAYBE,  FALSE, MAYBE,  MAYBE,  MAYBE  },
-/* >= */ { MAYBE,  FALSE, MAYBE, MAYBE,  MAYBE, MAYBE,  TRUE,   TRUE   },
-/* >  */ { TRUE,   FALSE, FALSE, FALSE,  TRUE,  TRUE,   TRUE,   TRUE   },
-/* ?? */ { MAYBE,  MAYBE, MAYBE, MAYBE,  MAYBE, MAYBE,  MAYBE,  MAYBE  }
-};
-#undef MAYBE
-
-static int to_comparison_result(enum known_direction_t known, int directions) {
-  return known_and_direction_result[known][directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL | PMATH_DIRECTION_GREATER)];
-}
-
-static int8_t flip_direction_result[8] = {
+static const int8_t flip_direction_result[8] = {
   /* 0: !=  */  0,
   /* 1: <   */  4,
   /* 2: =   */  2,
@@ -304,142 +60,113 @@ static int flip_direction(int direction) {
   return flip_direction_result[direction & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL | PMATH_DIRECTION_GREATER)];
 }
 
-static enum known_direction_t compare_interval_endpoints(mpfr_srcptr a_left, mpfr_srcptr a_right, mpfr_srcptr b_left, mpfr_srcptr b_right) {
-  int cmp_aR_bL;
-  int cmp_aL_bR;
+static int pmath_arb_comparator_false(const arb_t x, const arb_t y) {
+  return FALSE;
+}
+
+static int pmath_arb_comparator_true(const arb_t x, const arb_t y) {
+  return TRUE;
+}
+
+typedef int (*pmath_arb_comparator_t)(const arb_t, const arb_t);
+static const pmath_arb_comparator_t direction_arb_true[8] = {
+  /* 0: !=  */ arb_ne,
+  /* 1: <   */ arb_lt,
+  /* 2: =   */ arb_eq,
+  /* 3: <=  */ arb_le,
+  /* 4: >   */ arb_gt,
+  /* 5: ><  */ arb_ne,
+  /* 6: >=  */ arb_ge,
+  /* 7: >=< */ pmath_arb_comparator_true
+};
+static const pmath_arb_comparator_t direction_arb_false[8] = {
+  /* 0: !=  */ arb_eq,
+  /* 1: <   */ arb_ge,
+  /* 2: =   */ arb_ne,
+  /* 3: <=  */ arb_gt,
+  /* 4: >   */ arb_le,
+  /* 5: ><  */ arb_eq,
+  /* 6: >=  */ arb_lt,
+  /* 7: >=< */ pmath_arb_comparator_false
+};
+
+// TRUE, FALSE or PMATH_MAYBE_ORDERED
+static int compare_arb_with_arb(const arb_t a, const arb_t b, int directions) {
+  directions &= (PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL | PMATH_DIRECTION_GREATER);
   
-  if(mpfr_equal_p(a_left, b_left) && mpfr_equal_p(a_right, b_right))
-    return KNOWN_DIR_EQUAL;
-  
-  cmp_aR_bL = mpfr_cmp(a_right, b_left);
-  if(cmp_aR_bL < 0)
-    return KNOWN_DIR_LESS;
-  if(cmp_aR_bL == 0)
-    return KNOWN_DIR_LESSEQUAL;
+  if(direction_arb_true[directions](a, b))
+    return TRUE;
     
-  cmp_aL_bR = mpfr_cmp(a_left, b_right);
-  if(cmp_aL_bR > 0)
-    return KNOWN_DIR_GREATER;
-  if(cmp_aL_bR == 0)
-    return KNOWN_DIR_GREATEREQUAL;
-  
-  return KNOWN_DIR_OVERLAP;
+  if(direction_arb_false[directions](a, b))
+    return FALSE;
+    
+  return PMATH_MAYBE_ORDERED;
 }
 
-static enum known_direction_t compare_interval_with_number(pmath_interval_t a, pmath_number_t b) {
-  struct _pmath_mp_float_t  a_left_data;
-  struct _pmath_mp_float_t  a_right_data;
-  int cmp_left;
-  int cmp_right;
-  pmath_t a_left;
-  pmath_t a_right;
+// TRUE, FALSE or PMATH_MAYBE_ORDERED
+static int compare_arb(pmath_mpfloat_t a, pmath_t b, int directions) {
+  assert(pmath_is_mpfloat(a));
   
-  assert(pmath_is_number(b));
-  
-  a_left_data.inherited.type_shift = PMATH_TYPE_SHIFT_MP_FLOAT;
-  a_left_data.inherited.refcount._data = 2;
-  a_left_data.value[0] = PMATH_AS_MP_INTERVAL(a)->left;
-  a_left = PMATH_FROM_PTR(&a_left_data);
-  
-  a_right_data.inherited.type_shift = PMATH_TYPE_SHIFT_MP_FLOAT;
-  a_right_data.inherited.refcount._data = 2;
-  a_right_data.value[0] = PMATH_AS_MP_INTERVAL(a)->right;
-  a_right = PMATH_FROM_PTR(&a_right_data);
-  
-  cmp_left = _pmath_numbers_compare(a_left, b);
-  cmp_right = _pmath_numbers_compare(a_right, b);
-  
-  if(cmp_left == 0 && cmp_right == 0)
-    return KNOWN_DIR_EQUAL;
-  
-  if(cmp_right < 0)
-    return KNOWN_DIR_LESS;
-  if(cmp_right == 0)
-    return KNOWN_DIR_LESSEQUAL;
-  
-  if(cmp_left > 0)
-    return KNOWN_DIR_GREATER;
-  if(cmp_left == 0)
-    return KNOWN_DIR_GREATEREQUAL;
-  
-  return KNOWN_DIR_OVERLAP;
-}
-
-static int compare_interval(pmath_interval_t a, pmath_t b, int directions) {
-  assert(pmath_is_interval(a));
-  
-  if(pmath_is_interval(b)) {
-    mpfr_srcptr a_left = &PMATH_AS_MP_INTERVAL(a)->left;
-    mpfr_srcptr a_right = &PMATH_AS_MP_INTERVAL(a)->right;
-    mpfr_srcptr b_left = &PMATH_AS_MP_INTERVAL(b)->left;
-    mpfr_srcptr b_right = &PMATH_AS_MP_INTERVAL(b)->right;
-    enum known_direction_t known = compare_interval_endpoints(a_left, a_right, b_left, b_right);
-    return to_comparison_result(known, directions);
+  if(pmath_is_mpfloat(b)) {
+    return compare_arb_with_arb(PMATH_AS_ARB(a), PMATH_AS_ARB(b), directions);
   }
-  
-  if(pmath_is_number(b)) {
-    enum known_direction_t known = compare_interval_with_number(a, b);
-    return to_comparison_result(known, directions);
+  else if(pmath_is_quotient(b)) {
+    fmpq_t quot;
+    arb_t tmp;
+    arb_t num;
+    int result;
+    fmpq_init(quot);
+    arb_init(tmp);
+    arb_init(num);
+    _pmath_rational_get_fmpq(quot, b);
+    arb_mul_fmpz(tmp, PMATH_AS_ARB(a), fmpq_denref(quot), ARF_PREC_EXACT);
+    arb_set_fmpz(num, fmpq_numref(quot));
+    result = compare_arb_with_arb(tmp, num, directions);
+    arb_clear(num);
+    arb_clear(tmp);
+    fmpq_clear(quot);
+    return result;
+  }
+  else if(pmath_is_number(b)) {
+    arb_t tmp;
+    int result;
+    arb_init(tmp);
+    _pmath_number_get_arb(tmp, b, PMATH_AS_ARB_WORKING_PREC(a));
+    result = compare_arb_with_arb(PMATH_AS_ARB(a), tmp, directions);
+    arb_clear(tmp);
+    return result;
   }
   
   return PMATH_MAYBE_ORDERED;
 }
 
-// TRUE, FALSE or PMATH_MAYBE_ORDERED or PMATH_UNORDERED
-PMATH_PRIVATE
-int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
-  if(pmath_is_interval(prev)) 
-    return compare_interval(prev, next, directions);
-  else if(pmath_is_interval(next)) 
-    return compare_interval(next, prev, flip_direction(directions));
-  
-//  if(pmath_is_double(prev) && pmath_is_numeric(next)) {
-//    pmath_t n = pmath_set_precision(pmath_ref(next), -HUGE_VAL);
-//    
-//    if(_pmath_is_nonreal_complex_number(n)) {
-//      pmath_t re;
-//      if(check_complex_is_real(n, &re)) {
-//        pmath_unref(n);
-//        n = re;
-//      }
-//      else if(directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_GREATER)) {
-//        pmath_message(PMATH_NULL, "nord", 1, n);
-//        return PMATH_UNORDERED;
-//      }
-//    }
-//    return compare_double_with_numeric(pmath_ref(prev), n, directions);
-//  }
-//  
-//  if(pmath_is_double(next) && pmath_is_numeric(prev)) {
-//    pmath_t p = pmath_set_precision(pmath_ref(prev), -HUGE_VAL);
-//    
-//    if(_pmath_is_nonreal_complex_number(p)) {
-//      pmath_t re;
-//      if(check_complex_is_real(p, &re)) {
-//        pmath_unref(p);
-//        p = re;
-//      }
-//      else if(directions & (PMATH_DIRECTION_LESS | PMATH_DIRECTION_GREATER)) {
-//        pmath_message(PMATH_NULL, "nord", 1, p);
-//        return PMATH_UNORDERED;
-//      }
-//    }
-//    return compare_double_with_numeric(p, pmath_ref(next), directions);
-//  }
-  
-  if(pmath_is_number(prev) && pmath_is_number(next)) {
-    int c = pmath_fuzzy_compare(prev, next);
+// TRUE, FALSE or PMATH_MAYBE_ORDERED
+static int test_real_numbers_ordering(pmath_t prev, pmath_t next, int directions) {
+  if(pmath_is_mpfloat(prev))
+    return compare_arb(prev, next, directions);
+  if(pmath_is_mpfloat(next))
+    return compare_arb(next, prev, flip_direction(directions));
     
+  if(pmath_is_number(prev) && pmath_is_number(next)) {
+    int c = pmath_compare(prev, next);
     if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
         (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) ||
         (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
     {
       return FALSE;
     }
-    
     return TRUE;
   }
-  
+  return PMATH_UNORDERED;
+}
+
+// TRUE, FALSE or PMATH_MAYBE_ORDERED or PMATH_UNORDERED
+PMATH_PRIVATE
+int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
+  int result = test_real_numbers_ordering(prev, next, directions);
+  if(result == TRUE || result == FALSE)
+    return result;
+    
   if(_pmath_is_nonreal_complex_number(prev)) {
     pmath_t re;
     if(check_complex_is_real(prev, &re)) {
@@ -598,7 +325,11 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
     }
   }
   
-  if(pmath_is_numeric(prev) && pmath_is_numeric(next)) {
+  if(!(pmath_is_number(prev) && pmath_is_number(next)) &&
+      pmath_is_numeric(prev) &&
+      pmath_is_numeric(next) &&
+      directions != PMATH_DIRECTION_EQUAL)
+  {
     pmath_thread_t me = pmath_thread_get_current();
     if(me) {
       pmath_t diff;
@@ -610,7 +341,7 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
         diff = NEG(pmath_ref(next));
       else
         diff = MINUS(pmath_ref(prev), pmath_ref(next));
-      
+        
       prec = pmath_precision(pmath_ref(diff));
       maxprec = me->max_precision;
       
@@ -620,33 +351,31 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
         prec = DBL_MANT_DIG;
       if(prec < me->min_precision)
         prec = me->min_precision;
-      
+        
       if(maxprec > prec + me->max_extra_precision)
         maxprec = prec + me->max_extra_precision;
-      
-      while(!pmath_thread_aborting(me)) {
-        pmath_t n_diff = pmath_set_precision_interval(pmath_ref(diff), prec);
-        int result;
         
-        if(!pmath_is_interval(n_diff)) {
+      while(!pmath_thread_aborting(me)) {
+        pmath_t n_diff = pmath_set_precision(pmath_ref(diff), prec);
+        result = test_real_numbers_ordering(prev, next, directions);
+        if(result == TRUE || result == FALSE) {
+          pmath_unref(n_diff);
+          pmath_unref(diff);
+          return result;
+        }
+        if(!pmath_is_mpfloat(n_diff)) {
           pmath_unref(n_diff);
           break;
         }
-        
-        result = compare_interval(n_diff, INT(0), directions);
         pmath_unref(n_diff);
-        if(result == TRUE || result == FALSE)
-          return result;
-          
         if(prec >= maxprec) {
           pmath_message(
-            PMATH_SYMBOL_N, "meprec", 2, 
+            PMATH_SYMBOL_N, "meprec", 2,
             _pmath_from_precision(me->max_extra_precision),
             pmath_ref(diff));
           break;
         }
         
-        // TODO: adapt precision to interval diameters ...
         prec = 2 * prec;
         if(prec > maxprec)
           prec = maxprec;
@@ -655,99 +384,6 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
       pmath_unref(diff);
     }
   }
-  
-//  if(pmath_is_numeric(prev) && pmath_is_numeric(next)) {
-//    double pprec = pmath_precision(pmath_ref(prev));
-//    double nprec = pmath_precision(pmath_ref(next));
-//    
-//    if(pprec < HUGE_VAL && nprec < HUGE_VAL) {
-//      pmath_t p = pmath_ref(prev);
-//      pmath_t n = pmath_ref(next);
-//      
-//      if(!pmath_is_number(p))
-//        p = pmath_set_precision(p, MIN(pprec, nprec));
-//        
-//      if(!pmath_is_number(n))
-//        n = pmath_set_precision(n, MIN(pprec, nprec));
-//        
-//      if(pmath_is_number(p) && pmath_is_number(n)) {
-//        int c = pmath_fuzzy_compare(p, n);
-//        
-//        pmath_unref(p);
-//        pmath_unref(n);
-//        
-//        if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
-//            (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) ||
-//            (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
-//        {
-//          return FALSE;
-//        }
-//        
-//        return TRUE;
-//      }
-//      
-//      pmath_unref(p);
-//      pmath_unref(n);
-//      
-//      return PMATH_MAYBE_ORDERED;
-//    }
-//    else {
-//      double prec, startprec;
-//      int c = 0;
-//      
-//      pmath_thread_t me = pmath_thread_get_current();
-//      if(me == NULL)
-//        return PMATH_MAYBE_ORDERED;
-//        
-//      prec = startprec = DBL_MANT_DIG;
-//      
-//      for(;;) {
-//        pmath_t p = pmath_set_precision(pmath_ref(prev), prec);
-//        pmath_t n = pmath_set_precision(pmath_ref(next), prec);
-//        
-//        if(!pmath_is_number(p) || !pmath_is_number(n)) {
-//          pmath_unref(p);
-//          pmath_unref(n);
-//          
-//          return PMATH_MAYBE_ORDERED;
-//        }
-//        
-//        c = pmath_fuzzy_compare(p, n);
-//        pmath_unref(p);
-//        pmath_unref(n);
-//        
-//        if(c != 0)
-//          break;
-//          
-//        if(pmath_aborting())
-//          return PMATH_MAYBE_ORDERED;
-//          
-//        if(prec >= startprec + me->max_extra_precision) {
-//          pmath_t expr = pmath_expr_new_extended(
-//                           pmath_current_head(), 2,
-//                           pmath_ref(prev),
-//                           pmath_ref(next));
-//                           
-//          pmath_message(PMATH_NULL, "meprec", 2,
-//                        pmath_evaluate(pmath_ref(PMATH_SYMBOL_MAXEXTRAPRECISION)),
-//                        expr);
-//                        
-//          return PMATH_MAYBE_ORDERED;
-//        }
-//        
-//        prec *= 1.414;
-//      }
-//      
-//      if( (c <  0 && (directions & PMATH_DIRECTION_LESS)    == 0) ||
-//          (c == 0 && (directions & PMATH_DIRECTION_EQUAL)   == 0) || // c==0 should not happen
-//          (c >  0 && (directions & PMATH_DIRECTION_GREATER) == 0))
-//      {
-//        return FALSE;
-//      }
-//      
-//      return TRUE;
-//    }
-//  }
   
   return PMATH_MAYBE_ORDERED;
 }

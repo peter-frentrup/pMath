@@ -90,6 +90,7 @@ enum {
   PMATH_PREC_PRIM =   1000
 };
 
+#define PMATH_CHAR_PLUSMINUS                 0x00B1 ///< The "+/-" character
 #define PMATH_CHAR_INVISIBLECALL             0x2061 ///< The Function application character
 #define PMATH_CHAR_VECTOR                    0x21C0 ///< The arrow above names to indicate a vector
 #define PMATH_CHAR_RULE                      0x2192 ///< The "->" operator

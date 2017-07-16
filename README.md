@@ -24,12 +24,18 @@ The variables correspond to
     Set *lib* to the library directory (containing mpfr.lib or libmpfr.a).  
     Set *bin* to the binary directory (containing mpfr.dll).
 
-* **mpfi_32**/**mpfi_64** points to the [MPFI][] (Multiple Precision Floating-point Intervals) installation directory.
+* **flint_32**/**flint_64** points to the [FLINT][] (Fast Library for Number Theory) installation directory.
   
-    Set *include* to the include directory (containing mpfi.h).  
-    Set *lib* to the library directory (containing mpfi.lib or libmpfi.a).  
-    Set *bin* to the binary directory (containing mpfi.dll).
+    Set *include* to the include directory (containing flint.h).  
+    Set *lib* to the library directory (containing dll_flint.lib or libflint.a).  
+    Set *bin* to the binary directory (containing dll_flint.dll).
+
+* **arb_32**/**arb_64** points to the [Arb][] (Arbitrary-precision interval arithmetic using Real Balls) installation directory.
   
+    Set *include* to the include directory (containing arb.h).  
+    Set *lib* to the library directory (containing arb.lib or libarb.a).  
+    Set *bin* to the binary directory (containing arb.dll).
+
 * **iconv_32**/**iconv_64** points to an [iconv][] installation directory for character set conversion. On Windows, [win_iconv][] is a good choice.
   
     Set *include* to the include directory (containing iconv.h).  
@@ -52,15 +58,15 @@ The variables correspond to
 
 ### Building the required libraries from source on Windows ###
 It is recommended to use Visual C++ 2015 (MSVC for short) to build the libraries.
-For MPIR and MPFR there are MSVC projects available at github.com/BrianGladman/mpir and github.com/BrianGladman/mpfr, respectively.
-For MPFI, you have to create an MSVC project on your own :-( (TODO: publish used project files).
+For MPIR and MPFR there are MSVC projects available at [http://www.github.com/BrianGladman/mpir]() and [http://www.github.com/BrianGladman/mpfr](), respectively.
 
 
 [Mathematica]:  https://en.wikipedia.org/wiki/Mathematica
 [Code::Blocks]: http://www.codeblocks.org/
 [MPIR]:         http://mpir.org/
 [MPFR]:         http://www.mpfr.org/
-[MPFI]:         http://gforge.inria.fr/projects/mpfi/
+[FLINT]:        http://www.flintlib.org/
+[Arb]:          http://arblib.org/
 [iconv]:        https://en.wikipedia.org/wiki/Iconv
 [win_iconv]:    https://github.com/win-iconv/win-iconv
 [PCRE]:         http://www.pcre.org/

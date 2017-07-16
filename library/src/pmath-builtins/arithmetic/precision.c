@@ -1,5 +1,4 @@
 #include <pmath-core/numbers-private.h>
-#include <pmath-core/intervals-private.h>
 #include <pmath-core/packed-arrays.h>
 #include <pmath-core/symbols-private.h>
 
@@ -119,8 +118,7 @@ pmath_t builtin_precision(pmath_expr_t expr) {
 
 PMATH_PRIVATE
 pmath_t builtin_setprecision(pmath_expr_t expr) {
-  /* SetPrecision(                 obj, p)
-     Internal`SetPrecisionInterval(obj, p)
+  /* SetPrecision(obj, p)
    */
   pmath_t obj;
   double prec;
@@ -135,25 +133,12 @@ pmath_t builtin_setprecision(pmath_expr_t expr) {
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_expr_of(expr, PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL)) {
-    if(prec == -HUGE_VAL) {
-      pmath_unref(obj);
-      obj = pmath_expr_get_item(expr, 2);
-      pmath_message(PMATH_NULL, "invprec", 1, obj);
-      return expr;
-    }
-    
-    pmath_unref(expr);
-    return pmath_set_precision_interval(obj, prec);
-  }
-  
   pmath_unref(expr);
   return pmath_set_precision(obj, prec);
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
-  /* SetPrecision(                 sym, ~prec)::= ...
-     Internal`SetPrecisionInterval(sym, ~prec)::= ...
+  /* SetPrecision(sym, ~prec)::= ...
    */
   struct _pmath_symbol_rules_t *rules;
   pmath_t tag;
@@ -165,9 +150,7 @@ PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(pmath_is_expr_of(lhs, PMATH_SYMBOL_SETPRECISION) ||
-      pmath_is_expr_of(lhs, PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL))
-  {
+  if(pmath_is_expr_of(lhs, PMATH_SYMBOL_SETPRECISION)) {
     if(pmath_expr_length(lhs) != 2) {
       pmath_unref(tag);
       pmath_unref(lhs);
@@ -214,69 +197,14 @@ PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
-static pmath_t _mpfi_get_representative(mpfi_srcptr ival) {
-  pmath_mpfloat_t tmp;
-  double d;
-  long exp;
-  
-  if(mpfi_nan_p(ival)) 
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
-  
-  tmp = _pmath_create_mp_float(mpfi_get_prec(ival));
-  if(pmath_is_null(tmp)) 
-    return PMATH_NULL;
-  
-  if(!mpfi_bounded_p(ival)) {
-    if(mpfr_number_p(&ival->left)) {
-      mpfr_set(PMATH_AS_MP_VALUE(tmp), &ival->left, MPFR_RNDN);
-      tmp = _pmath_float_exceptions(tmp);
-      return pmath_set_precision(tmp, 0);
-    }
-    
-    if(mpfr_number_p(&ival->right)) {
-      mpfr_set(PMATH_AS_MP_VALUE(tmp), &ival->right, MPFR_RNDN);
-      tmp = _pmath_float_exceptions(tmp);
-      return pmath_set_precision(tmp, 0);
-    }
-    
-    mpfr_set_ui(PMATH_AS_MP_VALUE(tmp), 0, MPFR_RNDN);
-    return pmath_set_precision(tmp, 0);
-  }
-  
-  mpfi_diam(PMATH_AS_MP_VALUE(tmp), ival);
-  
-  if(!mpfr_number_p(PMATH_AS_MP_VALUE(tmp))) {
-    pmath_unref(tmp);
-    return pmath_ref(_pmath_object_overflow);
-  }
-  
-  d = mpfr_get_d_2exp(&exp, PMATH_AS_MP_VALUE(tmp), MPFR_RNDD);
-  mpfi_get_fr(PMATH_AS_MP_VALUE(tmp), ival);
-  tmp = _pmath_float_exceptions(tmp);
-  
-  if(d == 0)
-    return tmp;
-  
-  if(exp > 0) {
-    mpfr_set_ui(PMATH_AS_MP_VALUE(tmp), 0, MPFR_RNDN);
-    return pmath_set_precision(tmp, 0);
-  }
-  
-  return pmath_set_precision(tmp, -exp);
-}
-
-static pmath_t approximate_via_interval_to_finite_precision(pmath_t obj, double precision_goal, pmath_bool_t return_interval) {
+static pmath_t approximate_to_finite_precision(pmath_t obj, double precision_goal) {
   double prec = pmath_precision(pmath_ref(obj));
   double maxprec;
-  pmath_mpfloat_t error_goal;
-    
-  if(!pmath_is_numeric(obj))
-    return obj;
-  
   pmath_thread_t me = pmath_thread_get_current();
+  
   if(!me)
     return obj;
-  
+    
   if(isfinite(prec)) {
     if(prec <= precision_goal)
       return obj;
@@ -291,177 +219,31 @@ static pmath_t approximate_via_interval_to_finite_precision(pmath_t obj, double 
   if(maxprec > me->max_precision)
     maxprec = me->max_precision;
   
-  error_goal = _pmath_create_mp_float(1 + (long)ceil(precision_goal));
-  if(pmath_is_null(error_goal))
-    return obj;
-  
-  mpfr_set_d(PMATH_AS_MP_VALUE(error_goal), -precision_goal, MPFR_RNDD);
-  mpfr_exp2(PMATH_AS_MP_VALUE(error_goal), PMATH_AS_MP_VALUE(error_goal), MPFR_RNDD);
-  
   while(!pmath_thread_aborting(me)) {
-    pmath_t ival = pmath_set_precision_interval(pmath_ref(obj), prec);
+    pmath_t n_obj = pmath_set_precision(pmath_ref(obj), prec);
+    double n_prec = pmath_precision(pmath_ref(n_obj));
     
-    if(pmath_is_interval(ival)) {
-      long iprec = (long)ceil(prec);
-      pmath_mpfloat_t diam = _pmath_create_mp_float(1 + (mpfr_prec_t)iprec);
-      if(!pmath_is_null(diam)) {
-        mpfi_diam(PMATH_AS_MP_VALUE(diam), PMATH_AS_MP_INTERVAL(ival));
-        if(mpfr_lessequal_p(PMATH_AS_MP_VALUE(diam), PMATH_AS_MP_VALUE(error_goal))) {
-          pmath_unref(obj);
-          pmath_unref(error_goal);
-          
-          //pmath_debug_print_object("[stop at ", ival, "]\n");
-          
-          if(return_interval) {
-            pmath_unref(diam);
-            return ival;
-          }
-          
-          mpfi_get_fr(PMATH_AS_MP_VALUE(diam), PMATH_AS_MP_INTERVAL(ival));
-          pmath_unref(ival);
-          diam = _pmath_float_exceptions(diam);
-          return pmath_set_precision(diam, precision_goal);
-        }
-        
-        //pmath_debug_print_object("[diam = ", result, "]\n");
-        
-        if(prec < maxprec) {
-          // TODO: adapt precision to interval diameters ...
-          prec = 2 * prec;
-          if(prec > maxprec)
-            prec = maxprec;
-          
-          pmath_unref(diam);
-          pmath_unref(ival);
-          continue;
-        }
-      }
-      pmath_unref(diam);
-      
-      pmath_message(
-        PMATH_SYMBOL_N, "meprec", 2, 
-        _pmath_from_precision(me->max_extra_precision),
-        obj);
-      
-      pmath_unref(error_goal);
-      if(return_interval) 
-        return ival;
-      
-      obj = _mpfi_get_representative(PMATH_AS_MP_INTERVAL(ival));
-      pmath_unref(ival);
-      return obj;
+    if(n_prec >= precision_goal) {
+      pmath_unref(obj);
+      return n_obj;
     }
     
-    if(pmath_is_expr_of_len(ival, PMATH_SYMBOL_COMPLEX, 2)) {
-      pmath_t re = pmath_expr_get_item(ival, 1);
-      pmath_t im = pmath_expr_get_item(ival, 2);
+    pmath_unref(n_obj);
+    if(prec < maxprec) {
+      prec = 2 * prec;
+      if(prec > maxprec)
+        prec = maxprec;
       
-      if(pmath_is_interval(re) && pmath_is_interval(im)) {
-        long iprec = (long)ceil(prec);
-        pmath_mpfloat_t diam_re = _pmath_create_mp_float(1 + (mpfr_prec_t)iprec);
-        pmath_mpfloat_t diam_im = _pmath_create_mp_float(1 + (mpfr_prec_t)iprec);
-        
-        if(!pmath_is_null(diam_re) && !pmath_is_null(diam_im)) {
-          mpfi_diam(PMATH_AS_MP_VALUE(diam_re), PMATH_AS_MP_INTERVAL(re));
-          mpfi_diam(PMATH_AS_MP_VALUE(diam_im), PMATH_AS_MP_INTERVAL(im));
-          
-          if( mpfr_lessequal_p(PMATH_AS_MP_VALUE(diam_re), PMATH_AS_MP_VALUE(error_goal)) &&
-              mpfr_lessequal_p(PMATH_AS_MP_VALUE(diam_im), PMATH_AS_MP_VALUE(error_goal))) 
-          {
-            pmath_unref(obj);
-            pmath_unref(error_goal);
-            
-            //pmath_debug_print_object("[stop at ", ival, "]\n");
-            
-            if(return_interval) {
-              pmath_unref(re);
-              pmath_unref(im);
-              pmath_unref(diam_re);
-              pmath_unref(diam_im);
-              return ival;
-            }
-                    
-            mpfi_get_fr(PMATH_AS_MP_VALUE(diam_re), PMATH_AS_MP_INTERVAL(re));
-            mpfi_get_fr(PMATH_AS_MP_VALUE(diam_im), PMATH_AS_MP_INTERVAL(im));
-            pmath_unref(ival);
-            diam_re = _pmath_float_exceptions(diam_re);
-            diam_re = pmath_set_precision(diam_re, precision_goal);
-            diam_im = _pmath_float_exceptions(diam_im);
-            diam_im = pmath_set_precision(diam_im, precision_goal);
-            return COMPLEX(diam_re, diam_im);
-          }
-          
-          if(prec < maxprec) {
-            // TODO: adapt precision to interval diameters ...
-            prec = 2 * prec;
-            if(prec > maxprec)
-              prec = maxprec;
-            
-            pmath_unref(diam_re);
-            pmath_unref(diam_im);
-            pmath_unref(re);
-            pmath_unref(im);
-            pmath_unref(ival);
-            continue;
-          }
-        }
-        
-        pmath_unref(diam_re);
-        pmath_unref(diam_im);
-        
-        pmath_message(
-          PMATH_SYMBOL_N, "meprec", 2, 
-          _pmath_from_precision(me->max_extra_precision),
-          obj);
-        
-        if(return_interval) {
-          pmath_unref(re);
-          pmath_unref(im);
-          return ival;
-        }
-        
-        diam_re = _mpfi_get_representative(PMATH_AS_MP_INTERVAL(re));
-        diam_im = _mpfi_get_representative(PMATH_AS_MP_INTERVAL(im));
-        pmath_unref(ival);
-        return COMPLEX(diam_re, diam_im);
-      }
-      
-      pmath_unref(re);
-      pmath_unref(im);
+      continue;
     }
     
-    pmath_unref(ival);
     break;
   }
   
-  pmath_message(PMATH_NULL, "ival", 1, pmath_ref(obj));
-  pmath_unref(error_goal);
-  return obj;
-}
-
-static pmath_t approximate_to_finite_precision(pmath_t obj, double precision_goal) {
-  if(pmath_is_numeric(obj)) {
-    obj = approximate_via_interval_to_finite_precision(obj, precision_goal, FALSE);
-  }
-  
-  if(pmath_is_expr(obj)) {
-    size_t i, len;
-    
-    if(pmath_is_packed_array(obj)) {
-      switch(pmath_packed_array_get_element_type(obj)) {
-        case PMATH_PACKED_INT32:  break;
-        case PMATH_PACKED_DOUBLE: return obj;
-      }
-    }
-    
-    len = pmath_expr_length(obj);
-    for(i = 0; i <= len; ++i) {
-      pmath_t item = pmath_expr_extract_item(obj, i);
-      item = approximate_to_finite_precision(item, precision_goal);
-      obj = pmath_expr_set_item(obj, i, item);
-    }
-  }
-  
+  pmath_message(
+    PMATH_NULL, "meprec", 2, 
+    _pmath_from_precision(me->max_extra_precision), 
+    pmath_ref(obj)); // N(obj)
   return obj;
 }
 

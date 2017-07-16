@@ -1,6 +1,7 @@
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-language/scanner.h>
+#include <pmath-language/number-parsing-private.h>
 
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/threads.h>
@@ -168,7 +169,7 @@ static pmath_string_t read_word(pmath_t file, pmath_bool_t *eol) {
 }
 
 static pmath_t word_to_number(pmath_string_t word) {
-  pmath_t result = _pmath_parse_number(word, TRUE);
+  pmath_t result = _pmath_parse_number(word);
   
   if(pmath_is_null(result)) {
     pmath_message(PMATH_NULL, "readn", 0);

@@ -90,36 +90,78 @@ pmath_bool_t _pmath_is_imaginary(
   return FALSE;
 }
 
-/*static pmath_expr_t extract_complex(
-  pmath_expr_t *expr
-) { // returns PMATH_NULL if there is no nonreal complex
-  size_t i, len;
-
-  len = pmath_expr_length(*expr);
-
-  for(i = len; i > 0; --i) {
-    pmath_t item = pmath_expr_get_item(*expr, i);
-
-    if(_pmath_is_nonreal_complex_number(item)) {
-      pmath_expr_t tmp = *expr;
-
-      for(; i < len; ++i) {
-        tmp = pmath_expr_set_item(tmp, i,
-                                  pmath_expr_get_item(tmp, i + 1));
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong)) {
+  if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+    acb_t z;
+    slong prec;
+    pmath_bool_t is_machine_prec;
+    
+    acb_init(z);
+    if(_pmath_complex_float_extract_acb(z, &prec, &is_machine_prec, x)) {
+      func(z, z, prec);
+      if(acb_is_finite(z)) {
+        pmath_unref(*expr);
+        *expr = _pmath_complex_new_from_acb(z, is_machine_prec ? -1 : prec);
+        acb_clear(z);
+        return TRUE;
       }
-
-      *expr = pmath_expr_get_item_range(tmp, 1, len - 1);
-
-      pmath_unref(tmp);
-
-      return item;
     }
-
-    pmath_unref(item);
+    acb_clear(z);
   }
+  return FALSE;
+}
 
-  return PMATH_NULL;
-}*/
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong)) {
+  if( pmath_is_number(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2) ||
+      pmath_is_number(y) || pmath_is_expr_of_len(y, PMATH_SYMBOL_COMPLEX, 2))
+  {
+    double x_precicion = pmath_precision(pmath_ref(x));
+    double y_precicion = pmath_precision(pmath_ref(y));
+    double precision = FLINT_MIN(x_precicion, y_precicion);
+    pmath_t x_approx;
+    pmath_t y_approx;
+    slong prec;
+    acb_t x_c;
+    acb_t y_c;
+    
+    if(!(precision < HUGE_VAL))
+      return FALSE;
+      
+    x_approx = pmath_ref(x);
+    y_approx = pmath_ref(y);
+    if(x_precicion == HUGE_VAL) x_approx = pmath_set_precision(x_approx, precision);
+    if(y_precicion == HUGE_VAL) y_approx = pmath_set_precision(y_approx, precision);
+    
+    if(precision == -HUGE_VAL)              prec = DBL_MANT_DIG;
+    else if(precision < 2)                  prec = 2;
+    else if(precision < PMATH_MP_PREC_MAX)  prec = (slong)precision;
+    else                                    prec = PMATH_MP_PREC_MAX;
+    
+    acb_init(x_c);
+    acb_init(y_c);
+    if( _pmath_complex_float_extract_acb_for_precision(x_c, x_approx, prec) &&
+        _pmath_complex_float_extract_acb_for_precision(y_c, y_approx, prec))
+    {
+      func(x_c, x_c, y_c, prec);
+      if(acb_is_finite(x_c)) {
+        pmath_unref(x_approx);
+        pmath_unref(y_approx);
+        pmath_unref(*expr);
+        *expr = _pmath_complex_new_from_acb(x_c, precision == -HUGE_VAL ? -1 : prec);
+        acb_clear(y_c);
+        acb_clear(x_c);
+        return TRUE;
+      }
+    }
+    pmath_unref(x_approx);
+    pmath_unref(y_approx);
+    acb_clear(y_c);
+    acb_clear(x_c);
+  }
+  return FALSE;
+}
 
 PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   pmath_t  z,   // will be freed
@@ -382,27 +424,123 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_nonreal_complex_number(pmath_t z) {
 }
 
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_PURE
-pmath_bool_t _pmath_is_nonreal_complex_interval_or_number(pmath_t z) {
-  pmath_t re, im;
-
-  if(!pmath_is_expr_of_len(z, PMATH_SYMBOL_COMPLEX, 2))
-    return FALSE;
+pmath_bool_t _pmath_complex_float_extract_acb(
+  acb_t         result,
+  slong        *precision,
+  pmath_bool_t *is_machine_prec,
+  pmath_t       complex
+) {
+  if(pmath_is_double(complex)) {
+    _pmath_number_get_arb(acb_realref(result), complex, DBL_MANT_DIG);
+    arb_set_ui(acb_imagref(result), 0);
     
-  re = pmath_expr_get_item(z, 1);
-  im = pmath_expr_get_item(z, 2);
+    if(precision)       *precision = DBL_MANT_DIG;
+    if(is_machine_prec) *is_machine_prec = TRUE;
+    
+    return TRUE;
+  }
   
-  if(pmath_is_number(re) || pmath_is_interval(re)) {
-    if(pmath_is_number(im) || pmath_is_interval(im)) {
+  if(pmath_is_mpfloat(complex)) {
+    _pmath_number_get_arb(acb_realref(result), complex, PMATH_AS_ARB_WORKING_PREC(complex));
+    arb_set_ui(acb_imagref(result), 0);
+    
+    if(precision)       *precision = PMATH_AS_ARB_WORKING_PREC(complex);
+    if(is_machine_prec) *is_machine_prec = FALSE;
+    
+    return TRUE;
+  }
+  
+  if(pmath_is_expr_of_len(complex, PMATH_SYMBOL_COMPLEX, 2)) {
+    pmath_t re = pmath_expr_get_item(complex, 1);
+    pmath_t im = pmath_expr_get_item(complex, 2);
+    
+    if(pmath_is_float(re) || pmath_is_float(im)) {
+      slong prec = 0;
+      if(pmath_is_double(re))       prec = DBL_MANT_DIG;
+      else if(pmath_is_mpfloat(re)) prec = PMATH_AS_ARB_WORKING_PREC(re);
+      
+      if(pmath_is_double(im))       prec = FLINT_MAX(prec, DBL_MANT_DIG);
+      else if(pmath_is_mpfloat(im)) prec = FLINT_MAX(prec, PMATH_AS_ARB_WORKING_PREC(im));
+      
+      if(prec == 0) {
+        pmath_unref(re);
+        pmath_unref(im);
+        return FALSE;
+      }
+      
+      _pmath_number_get_arb(acb_realref(result), re, prec);
+      _pmath_number_get_arb(acb_imagref(result), im, prec);
+      
+      if(precision)       *precision = prec;
+      if(is_machine_prec) *is_machine_prec = pmath_is_double(re) || pmath_is_double(im);
+      
+      pmath_unref(re);
+      pmath_unref(im);
+      
+      return TRUE;
+    }
+    
+    pmath_unref(re);
+    pmath_unref(im);
+  }
+  
+  return FALSE;
+}
+
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_float_extract_acb_for_precision(
+  acb_t         result,
+  pmath_t       complex,
+  slong         precision
+) {
+  if(pmath_is_number(complex)) {
+    _pmath_number_get_arb(acb_realref(result), complex, precision);
+    arb_set_ui(acb_imagref(result), 0);
+    return TRUE;
+  }
+  if(pmath_is_expr_of_len(complex, PMATH_SYMBOL_COMPLEX, 2)) {
+    pmath_t re = pmath_expr_get_item(complex, 1);
+    pmath_t im = pmath_expr_get_item(complex, 2);
+    
+    if(pmath_is_number(re) && pmath_is_number(im)) {
+      _pmath_number_get_arb(acb_realref(result), re, precision);
+      _pmath_number_get_arb(acb_imagref(result), im, precision);
       pmath_unref(re);
       pmath_unref(im);
       return TRUE;
     }
+    
+    pmath_unref(re);
+    pmath_unref(im);
+  }
+  return FALSE;
+}
+
+static pmath_float_t new_float_from_arb(const arb_t value, slong prec_or_double) {
+  pmath_mpfloat_t result;
+  
+  if(prec_or_double < 0) {
+    double d = arf_get_d(arb_midref(value), ARF_RND_NEAR);
+    if(isfinite(d))
+      return PMATH_FROM_DOUBLE(d);
+      
+    prec_or_double = DBL_MANT_DIG;
   }
   
-  pmath_unref(re);
-  pmath_unref(im);
-  return FALSE;
+  result = _pmath_create_mp_float(prec_or_double);
+  if(!pmath_is_null(result)) 
+    arb_set(PMATH_AS_ARB(result), value);
+
+  return result;
+}
+
+PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec_or_double) {
+  if(acb_is_real(value))
+    return new_float_from_arb(acb_realref(value), prec_or_double);
+    
+  return COMPLEX(
+           new_float_from_arb(acb_realref(value), prec_or_double),
+           new_float_from_arb(acb_imagref(value), prec_or_double));
 }
 
 PMATH_PRIVATE pmath_t builtin_complex(pmath_expr_t expr) {

@@ -6,7 +6,6 @@
 #include <pmath-util/memory.h>
 
 #include <pmath-core/expressions-private.h>
-#include <pmath-core/intervals-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/symbols-private.h>
 
@@ -15,6 +14,7 @@
 #include <pmath-util/concurrency/threadlocks-private.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
+#include <pmath-util/overflow-calc-private.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -510,7 +510,6 @@ static void memory_panic(void) {
                     
   _pmath_regex_memory_panic();
   _pmath_numbers_memory_panic();
-  _pmath_intervals_memory_panic();
   _pmath_symbols_memory_panic();
   _pmath_threadlocks_memory_panic();
   
@@ -544,6 +543,19 @@ PMATH_API void *pmath_mem_alloc(size_t size) {
       return p;
   }
   return p;
+}
+
+static void *pmath_mem_calloc(size_t num, size_t size) {
+  void *result;
+  pmath_bool_t error = FALSE;
+  size_t total_size = _pmath_mul_size(num, size, &error);
+  if(error)
+    return NULL;
+  
+  result = pmath_mem_alloc(total_size);
+  if(result)
+    memset(result, 0, total_size);
+  return result;
 }
 
 PMATH_API void *pmath_mem_realloc(void *p, size_t new_size) {
@@ -653,7 +665,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void) {
     pmath_mem_alloc,
     pmath_gmp_realloc,
     pmath_gmp_free);
-    
+  
+  __flint_set_memory_functions(
+    pmath_mem_alloc,
+    pmath_mem_calloc,
+    pmath_mem_realloc,
+    pmath_mem_free);
+  
   return TRUE;
 #ifdef PMATH_DEBUG_MEMORY
 FAIL_MEM_LIST_MUTEX:

@@ -9,12 +9,21 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
-#include <pmath-builtins/number-theory-private.h>
 
 #include <math.h>
 #include <limits.h>
 
+
+static pmath_bool_t is_positive_infinity(pmath_t obj) {
+  pmath_t dir = _pmath_directed_infinity_direction(obj);
+  if(pmath_same(dir, PMATH_FROM_INT32(1)))
+    return TRUE;
+  
+  pmath_unref(dir);
+  return FALSE;
+} 
 
 PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
 /* Clock()                  = Clock(   0..1,    1,         Infinity)
@@ -70,7 +79,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
     if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
       max_cycles = (unsigned)PMATH_AS_INT32(obj);
     }
-    else if(!(_pmath_number_class(obj) & PMATH_CLASS_POSINF)) {
+    else if(!is_positive_infinity(obj)) {
       pmath_unref(obj);
       pmath_message(PMATH_NULL, "innf", 2, INT(3), pmath_ref(expr));
       return expr;
@@ -151,7 +160,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
     steps = 0;
     pmath_unref(obj);
 
-    if(_pmath_number_class(max) & PMATH_CLASS_POSINF) {
+    if(is_positive_infinity(max)) {
       steps = UINT_MAX;
       pmath_unref(delta);
       delta = PMATH_FROM_INT32(1);
@@ -177,7 +186,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
       steps = (unsigned)PMATH_AS_INT32(obj);
       pmath_unref(obj);
     }
-    else if(_pmath_number_class(obj) & PMATH_CLASS_POSINF) {
+    else if(is_positive_infinity(obj)) {
       steps = UINT_MAX;
       pmath_unref(obj);
 

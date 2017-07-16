@@ -86,7 +86,6 @@ PMATH_PRIVATE pmath_t builtin_arctan(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arg(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binomial(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_chop(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_clip(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_complex(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_conjugate(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_cos(             pmath_expr_t expr);
@@ -121,19 +120,20 @@ PMATH_PRIVATE pmath_t builtin_tan(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tanh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_times(           pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_bool_t builtin_approximate_e(               pmath_t *obj, double prec, pmath_bool_t interval);
-PMATH_PRIVATE pmath_bool_t builtin_approximate_eulergamma(      pmath_t *obj, double prec, pmath_bool_t interval);
-PMATH_PRIVATE pmath_bool_t builtin_approximate_machineprecision(pmath_t *obj, double prec, pmath_bool_t interval);
-PMATH_PRIVATE pmath_bool_t builtin_approximate_pi(              pmath_t *obj, double prec, pmath_bool_t interval);
-PMATH_PRIVATE pmath_bool_t builtin_approximate_power(           pmath_t *obj, double prec, pmath_bool_t interval);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_e(               pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_eulergamma(      pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_machineprecision(pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_pi(              pmath_t *obj, double prec);
+PMATH_PRIVATE pmath_bool_t builtin_approximate_power(           pmath_t *obj, double prec);
 
 PMATH_PRIVATE pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_setprecision(     pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_internal_realinterval(pmath_expr_t expr);
-
 PMATH_PRIVATE pmath_t builtin_internal_copysign(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_nexttoward(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_realballfrommidpointradius(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_realballmidpointradius(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_signbit(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/ ...
@@ -329,8 +329,6 @@ PMATH_PRIVATE pmath_t builtin_developer_topackedarray(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespace(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_internal_isrealinterval(pmath_expr_t expr);
-
 PMATH_PRIVATE pmath_t builtin_isatom(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iscomplex(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_iseven(           pmath_expr_t expr);
@@ -355,6 +353,9 @@ PMATH_PRIVATE pmath_t builtin_remove(           pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringtoboxes(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_symbolname(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_toexpression(     pmath_expr_t expr);
+
+PMATH_PRIVATE pmath_t builtin_internal_parserealball(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_writerealball(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/lists/ ...
 PMATH_PRIVATE pmath_t builtin_part(         pmath_expr_t expr);
@@ -585,23 +586,22 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_run_approx_code(
   pmath_t       key,   // wont be freed
   pmath_t      *in_out,
-  double        prec,
-  pmath_bool_t  interval
+  double        prec
 ) {
   func_entry_t         *entry;
   pmath_hashtable_t     table;
-  pmath_bool_t        (*func)(pmath_t*, double, pmath_bool_t) = NULL;
+  pmath_bool_t        (*func)(pmath_t*, double) = NULL;
   
   table = LOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX);
   
   entry = pmath_ht_search(table, &key);
   if(entry)
-    func = (pmath_bool_t(*)(pmath_t*, double, pmath_bool_t))entry->function;
+    func = (pmath_bool_t(*)(pmath_t*, double))entry->function;
     
   UNLOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX, table);
   
   if(func) 
-    return func(in_out, prec, interval);
+    return func(in_out, prec);
   
   return FALSE;
 }
@@ -650,7 +650,7 @@ pmath_bool_t pmath_register_code(
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_bool_t   (*func)(pmath_t*, double, pmath_bool_t)
+  pmath_bool_t   (*func)(pmath_t*, double)
 ) {
   return pmath_register_code(
            symbol,
@@ -682,24 +682,26 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
 #define NEW_SYSTEM_SYMBOL(name) NEW_SYMBOL("System`" name)
   
   //{ setting symbol names ...
-  VERIFY(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE            = NEW_SYMBOL("Internal`AbortMessage"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_CONDITION               = NEW_SYMBOL("Internal`Condition"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_COPYSIGN                = NEW_SYMBOL("Internal`CopySign"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG      = NEW_SYMBOL("Internal`CriticalMessageTag"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE         = NEW_SYMBOL("Internal`DynamicEvaluate"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE = NEW_SYMBOL("Internal`DynamicEvaluateMultiple"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE           = NEW_SYMBOL("Internal`DynamicRemove"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED          = NEW_SYMBOL("Internal`DynamicUpdated"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID             = NEW_SYMBOL("Internal`GetThreadId"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL          = NEW_SYMBOL("Internal`IsRealInterval"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_MESSAGETHROWN           = NEW_SYMBOL("Internal`MessageThrown"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK      = NEW_SYMBOL("Internal`$NamespacePathStack"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK          = NEW_SYMBOL("Internal`$NamespaceStack"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD              = NEW_SYMBOL("Internal`NextToward"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_REALINTERVAL            = NEW_SYMBOL("Internal`RealInterval"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL    = NEW_SYMBOL("Internal`SetPrecisionInterval"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                 = NEW_SYMBOL("Internal`SignBit"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE              = NEW_SYMBOL("Internal`ThreadIdle"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE               = NEW_SYMBOL("Internal`AbortMessage"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_CONDITION                  = NEW_SYMBOL("Internal`Condition"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_COPYSIGN                   = NEW_SYMBOL("Internal`CopySign"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG         = NEW_SYMBOL("Internal`CriticalMessageTag"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE            = NEW_SYMBOL("Internal`DynamicEvaluate"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE    = NEW_SYMBOL("Internal`DynamicEvaluateMultiple"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE              = NEW_SYMBOL("Internal`DynamicRemove"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED             = NEW_SYMBOL("Internal`DynamicUpdated"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID                = NEW_SYMBOL("Internal`GetThreadId"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_MESSAGETHROWN              = NEW_SYMBOL("Internal`MessageThrown"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK         = NEW_SYMBOL("Internal`$NamespacePathStack"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK             = NEW_SYMBOL("Internal`$NamespaceStack"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD                 = NEW_SYMBOL("Internal`NextToward"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_PARSEREALBALL              = NEW_SYMBOL("Internal`ParseRealBall"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLFROMMIDPOINTRADIUS = NEW_SYMBOL("Internal`RealBallFromMidpointRadius"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS             = NEW_SYMBOL("Internal`RealBallBounds"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS     = NEW_SYMBOL("Internal`RealBallMidpointRadius"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                    = NEW_SYMBOL("Internal`SignBit"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_THREADIDLE                 = NEW_SYMBOL("Internal`ThreadIdle"))
+  VERIFY(   PMATH_SYMBOL_INTERNAL_WRITEREALBALL              = NEW_SYMBOL("Internal`WriteRealBall"))
   
   VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
   
@@ -1535,7 +1537,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_UP(     PMATH_SYMBOL_OWNRULES,                         builtin_assign_ownrules)
   BIND_UP(     PMATH_SYMBOL_PART,                             builtin_assign_part)
   BIND_UP(     PMATH_SYMBOL_SETPRECISION,                     builtin_assign_setprecision)
-  BIND_UP(     PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL,    builtin_assign_setprecision)
   BIND_UP(     PMATH_SYMBOL_SUBRULES,                         builtin_assign_symbol_rules)
   BIND_UP(     PMATH_SYMBOL_SYNTAXINFORMATION,                builtin_assign_syntaxinformation)
   BIND_UP(     PMATH_SYMBOL_UPRULES,                          builtin_assign_symbol_rules)
@@ -1543,19 +1544,21 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_UP(     PMATH_SYMBOL_CONDITIONALEXPRESSION,            builtin_operate_conditionalexpression)
   BIND_UP(     PMATH_SYMBOL_UNDEFINED,                        builtin_operate_undefined)
   
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,            builtin_internal_abortmessage)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_COPYSIGN,                builtin_internal_copysign)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG,      builtin_criticalmessagetag)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,         builtin_internal_dynamicevaluate)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, builtin_internal_dynamicevaluatemultiple)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,           builtin_internal_dynamicremove)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,             builtin_getthreadid)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ISREALINTERVAL,          builtin_internal_isrealinterval)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,              builtin_internal_nexttoward)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALINTERVAL,            builtin_internal_realinterval)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL,    builtin_setprecision)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                 builtin_internal_signbit)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,              builtin_internal_threadidle)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,               builtin_internal_abortmessage)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_COPYSIGN,                   builtin_internal_copysign)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG,         builtin_criticalmessagetag)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,            builtin_internal_dynamicevaluate)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE,    builtin_internal_dynamicevaluatemultiple)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,              builtin_internal_dynamicremove)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,                builtin_getthreadid)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,                 builtin_internal_nexttoward)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_PARSEREALBALL,              builtin_internal_parserealball)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLFROMMIDPOINTRADIUS, builtin_internal_realballfrommidpointradius)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS,             builtin_internal_realballbounds)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,     builtin_internal_realballmidpointradius)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                    builtin_internal_signbit)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,                 builtin_internal_threadidle)
+  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_WRITEREALBALL,              builtin_internal_writerealball)
   
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION,     builtin_developer_fileinformation)
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY,     builtin_developer_frompackedarray)
@@ -1607,7 +1610,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_CLEAR,                       builtin_clear)
   BIND_DOWN(   PMATH_SYMBOL_CLEARALL,                    builtin_clear)
   BIND_DOWN(   PMATH_SYMBOL_CLEARATTRIBUTES,             builtin_clearattributes)
-  BIND_DOWN(   PMATH_SYMBOL_CLIP,                        builtin_clip)
   BIND_DOWN(   PMATH_SYMBOL_CLOCK,                       builtin_clock)
   BIND_DOWN(   PMATH_SYMBOL_CLOSE,                       builtin_close)
   BIND_DOWN(   PMATH_SYMBOL_COMPLEMENT,                  builtin_complement)
@@ -2011,6 +2013,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_CLEAR,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CLEARALL,                         HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_CLEARATTRIBUTES,                  HOLDFIRST);
+  SET_ATTRIB( PMATH_SYMBOL_CLIP,                             LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_CLOSE,                            LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_COMPLEX,                          DEFINITEFUNCTION | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CONDITION,                        HOLDALL);
@@ -2163,6 +2166,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_WITH,                             HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_XOR,                              ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_ZETA,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
+  
+  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS,          LISTABLE);
+  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,  LISTABLE);
   
 #undef SET_ATTRIB
 #undef ASSOCIATIVE
