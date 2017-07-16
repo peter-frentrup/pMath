@@ -1418,13 +1418,17 @@ static void destroy_mp_int(pmath_t integer) {
   }
 }
 
+static unsigned int hash_mpz(mpz_srcptr mpz, unsigned h) {
+  return incremental_hash(
+           mpz[0]._mp_d,
+           sizeof(mpz[0]._mp_d[0]) * (size_t)abs(mpz[0]._mp_size),
+           h);
+}
+
 static unsigned int hash_init;
 
 static unsigned int hash_mp_int(pmath_t integer) {
-  return incremental_hash(
-           PMATH_AS_MPZ(integer)[0]._mp_d,
-           sizeof(PMATH_AS_MPZ(integer)[0]._mp_d[0]) * (size_t)abs(PMATH_AS_MPZ(integer)[0]._mp_size),
-           hash_init);
+  return hash_mpz(PMATH_AS_MPZ(integer), hash_init);
 }
 
 static char alphabet[] = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -1568,16 +1572,60 @@ static void destroy_mp_float(pmath_t f) {
   }
 }
 
+static unsigned int hash_fmpz(const fmpz_t x, unsigned int h) {
+  fmpz coeff = *x;
+    
+  if(!COEFF_IS_MPZ(coeff)) {
+    /** Give the same hash as if COEFF_IS_MPZ(x) was true with the same (small) value in an mpz.
+    
+        Is this compatibility really necessary?
+        If Flint can guarantee that small values never appear in COEFF_IS_MPZ(x), then 
+        we could do some totally different calculation for small values here.
+     */
+    PMATH_STATIC_ASSERT(GMP_NAIL_BITS == 0);
+    PMATH_STATIC_ASSERT(sizeof(mp_limb_t) == sizeof(fmpz));
+    
+    mpz_t mpz;
+    mp_limb_t limb = (coeff > 0 ? coeff : -coeff);
+    int size = (limb != 0);
+    
+    mpz[0]._mp_d = &limb;
+    mpz[0]._mp_alloc = 1;
+    mpz[0]._mp_size = coeff >= 0 ? size : -size;
+    
+    return hash_mpz(mpz, h);
+  }
+  
+   return hash_mpz(COEFF_TO_PTR(coeff), h);
+}
+
+static unsigned int hash_arf(const arf_t x, unsigned int h) {
+  const mp_limb_t *mant;
+  mp_size_t mant_len;
+  
+  h = hash_fmpz(ARF_EXPREF(x), h);
+  h = incremental_hash(&ARF_XSIZE(x), sizeof(mp_size_t), h);
+  
+  ARF_GET_MPN_READONLY(mant, mant_len, x);
+  h = incremental_hash(mant, sizeof(mant[0]) * mant_len, h);
+  return h;
+}
+
+static unsigned int hash_mag(const mag_t x, unsigned int h) {
+  const mp_limb_t *mant = &MAG_MAN(x);
+  const mp_size_t mant_len = 1;
+  
+  h = hash_fmpz(MAG_EXPREF(x), h);
+  h = incremental_hash(mant, sizeof(mant[0]) * mant_len, h);
+  return h;
+}
+
 static unsigned int hash_mp_float(pmath_t f) {
   unsigned int h = 0;
-  h = incremental_hash(&PMATH_AS_MP_VALUE(f)[0]._mpfr_prec, sizeof(mpfr_prec_t), h);
-  h = incremental_hash(&PMATH_AS_MP_VALUE(f)[0]._mpfr_sign, sizeof(mpfr_sign_t), h);
-  h = incremental_hash(&PMATH_AS_MP_VALUE(f)[0]._mpfr_exp,  sizeof(mp_exp_t), h);
   
-  return incremental_hash(
-           PMATH_AS_MP_VALUE(f)[0]._mpfr_d,
-           sizeof(mp_limb_t) * (size_t)ceil(PMATH_AS_MP_VALUE(f)[0]._mpfr_prec / (double)mp_bits_per_limb),
-           h);
+  h = hash_arf(arb_midref(PMATH_AS_ARB(f)), h);
+  h = hash_mag(arb_radref(PMATH_AS_ARB(f)), h);
+  return h;
 }
 
 static void write_short_double(
