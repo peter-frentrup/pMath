@@ -1,7 +1,6 @@
 #include <pmath-util/serialize.h>
 
 #include <pmath-core/expressions.h>
-#include <pmath-core/intervals.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays.h>
 #include <pmath-core/strings-private.h>
@@ -27,8 +26,8 @@
 #define TAG_MPINT         9
 #define TAG_QUOT         10
 #define TAG_DOUBLE       11
-#define TAG_MPFLOAT      12
-#define TAG_INTERVAL     13
+#define TAG_OLD_MPFLOAT  12
+#define TAG_MPFLOAT_BALL 13
 #define TAG_ARRAY        14
 
 /* Data format
@@ -62,11 +61,12 @@
 
    - machine floats     11, D   (D = ieee 754 double bits, little endian)
 
-   - multi floats       12, precision, exponent, mantissa
+   - old multi floats   12, precision, exponent, mantissa
                                (precision and exponent are integers)
-                               (mantissa = value's serialized integer mantissa including sign)
+                               (mantissa = value's serialized integer mantissa *object* including sign)
 
-   - real intervals     13, interval_expr
+   - multi float balls  13, midpoint, radius
+                               midpoint and radius are "old multi floats"
 
    - packed arrays:     14, type, depth, size1, ... sizeN, V,V,...
                                                            \_____/ = size1*..*sizeN many values (double or int32_t: 8 or 4 bytes, little endian)
@@ -121,16 +121,12 @@ static void write_ref(pmath_t file, intptr_t refno) {
   _pmath_serialize_raw_integer_si(file, refno);
 }
 
+static void write_slong(pmath_t file, slong i) {
+  _pmath_serialize_raw_integer_si(file, i);
+}
+
 static void write_size(pmath_t file, size_t size) {
   _pmath_serialize_raw_integer_ui(file, size);
-}
-
-static void write_prec(pmath_t file, mpfr_prec_t prec) {
-  _pmath_serialize_raw_integer_si(file, prec);
-}
-
-static void write_exp(pmath_t file, mpfr_exp_t exp) {
-  _pmath_serialize_raw_integer_si(file, exp);
 }
 
 static void write_si32(pmath_t file, int32_t i) {
@@ -267,6 +263,7 @@ static void serialize_mp_int(struct serializer_t *info, pmath_mpint_t value) {
     if(!info->error)
       info->error = PMATH_SERIALIZE_BAD_OBJECT;
     serialize(info, PMATH_UNDEFINED);
+    pmath_unref(value);
     return;
   }
   
@@ -275,6 +272,7 @@ static void serialize_mp_int(struct serializer_t *info, pmath_mpint_t value) {
     if(!info->error)
       info->error = PMATH_SERIALIZE_NO_MEMORY;
     serialize(info, PMATH_UNDEFINED);
+    pmath_unref(value);
     return;
   }
   
@@ -300,36 +298,55 @@ static void serialize_mp_int(struct serializer_t *info, pmath_mpint_t value) {
   pmath_unref(value);
 }
 
-static void serialize_mp_float(struct serializer_t *info, pmath_mpfloat_t value) {
-  pmath_mpint_t mantissa = _pmath_create_mp_int(0);
-  mpfr_prec_t prec;
-  mp_exp_t exp;
+static void serialize_old_mpfloat_from_mant_exp(struct serializer_t *info, slong prec, const fmpz_t mant, const fmpz_t exp) {
+  pmath_integer_t mant_obj;
+  pmath_integer_t exp_obj;
   
-  if(pmath_is_null(mantissa)) {
+  mant_obj = _pmath_integer_from_fmpz(mant);
+  exp_obj = _pmath_integer_from_fmpz(exp);
+  
+  if(pmath_is_null(mant_obj) || pmath_is_null(exp_obj)) {
+    pmath_unref(mant_obj);
+    pmath_unref(exp_obj);
     if(!info->error)
       info->error = PMATH_SERIALIZE_NO_MEMORY;
     serialize(info, PMATH_UNDEFINED);
     return;
   }
   
-  prec = mpfr_get_prec(PMATH_AS_MP_VALUE(value));
+  write_tag( info->file, TAG_OLD_MPFLOAT);
+  write_slong(info->file, prec);
+  _pmath_serialize_raw_integer(info->file, exp_obj); // frees exp_obj
+  serialize(info, mant_obj); // frees mant_obj
+}
+
+static void serialize_old_mpfloat_from_arf(struct serializer_t *info, slong prec, const arf_t x) {
+  fmpz_t mant;
+  fmpz_t exp;
   
-  if(mpfr_zero_p(PMATH_AS_MP_VALUE(value))) {
-    exp = 0;
-    mpz_set_ui(PMATH_AS_MPZ(mantissa), 0);
+  fmpz_init(mant);
+  fmpz_init(exp);
+  arf_get_fmpz_2exp(mant, exp, x);
+  serialize_old_mpfloat_from_mant_exp(info, prec, mant, exp);
+  fmpz_clear(exp);
+  fmpz_clear(mant);
+}
+
+// value will be freed
+static void serialize_mp_float(struct serializer_t *info, pmath_mpfloat_t value) {
+  slong prec = PMATH_AS_ARB_WORKING_PREC(value);
+  if(mag_is_zero(arb_radref(PMATH_AS_ARB(value)))) {
+    serialize_old_mpfloat_from_arf(info, prec, arb_midref(PMATH_AS_ARB(value)));
   }
   else {
-    exp = mpfr_get_z_exp(
-            PMATH_AS_MPZ(mantissa),
-            PMATH_AS_MP_VALUE(value));
+    arf_t rad;
+    arf_init_set_mag_shallow(rad, arb_radref(PMATH_AS_ARB(value)));
+    
+    write_tag( info->file, TAG_MPFLOAT_BALL);
+    serialize_old_mpfloat_from_arf(info, prec, arb_midref(PMATH_AS_ARB(value)));
+    serialize_old_mpfloat_from_arf(info, prec, rad);
   }
   
-  write_tag( info->file, TAG_MPFLOAT);
-  write_prec(info->file, prec);
-  write_exp(info->file, exp);
-  serialize(info, _pmath_mp_int_normalize(pmath_ref(mantissa)));
-  
-  pmath_unref(mantissa);
   pmath_unref(value);
 }
 
@@ -445,7 +462,7 @@ static void serialize_packed_array(struct serializer_t *info, pmath_packed_array
     write_size(info->file, sizes[i]);
     
   write_array_data(info, sizes, steps, depth, non_cont, bytes);
-    
+  
   pmath_unref(array);
 }
 
@@ -526,12 +543,6 @@ static void serialize(
       serialize_mp_float(info, object);
       return;
       
-    case PMATH_TYPE_SHIFT_INTERVAL:
-      write_tag(info->file, TAG_INTERVAL);
-      serialize(info, pmath_interval_get_expr(object));
-      pmath_unref(object);
-      return;
-    
     case PMATH_TYPE_SHIFT_PACKED_ARRAY:
       serialize_packed_array(info, object);
       return;
@@ -616,7 +627,7 @@ static int read_int(struct deserializer_t *info) {
   return (int)si;
 }
 
-static mpfr_prec_t read_prec(struct deserializer_t *info) {
+static slong read_prec(struct deserializer_t *info) {
   intptr_t si;
   if( !_pmath_deserialize_raw_integer_si(info->file, &si) ||
       si < MPFR_PREC_MIN || si > MPFR_PREC_MAX)
@@ -626,20 +637,7 @@ static mpfr_prec_t read_prec(struct deserializer_t *info) {
     return 0;
   }
   
-  return (mpfr_prec_t)si;
-}
-
-static mpfr_exp_t read_exp(struct deserializer_t *info) {
-  intptr_t si;
-  if( !_pmath_deserialize_raw_integer_si(info->file, &si) ||
-      si < MPFR_EMIN_DEFAULT || si > MPFR_EMAX_DEFAULT)
-  {
-    if(!info->error)
-      info->error = PMATH_SERIALIZE_BAD_BYTE;
-    return 0;
-  }
-  
-  return (mpfr_exp_t)si;
+  return si;
 }
 
 static double read_double(struct deserializer_t *info) {
@@ -882,11 +880,13 @@ static pmath_t read_double_object(struct deserializer_t *info) {
   return PMATH_UNDEFINED;
 }
 
-static pmath_t read_mp_float(struct deserializer_t *info) {
+static pmath_mpfloat_t read_simple_mp_float(struct deserializer_t *info) {
   pmath_mpfloat_t result;
-  pmath_mpint_t mant;
-  mpfr_prec_t prec;
-  mp_exp_t exp;
+  pmath_integer_t mant_obj;
+  pmath_integer_t exp_obj;
+  slong prec;
+  fmpz_t mant;
+  fmpz_t exp;
   
   prec = read_prec(info);
   if(prec < MPFR_PREC_MIN || prec > PMATH_MP_PREC_MAX) {
@@ -896,14 +896,21 @@ static pmath_t read_mp_float(struct deserializer_t *info) {
     return PMATH_UNDEFINED;
   }
   
-  exp = read_exp(info);
-  mant = deserialize(info);
-  
-  if(pmath_is_int32(mant))
-    mant = _pmath_create_mp_int(PMATH_AS_INT32(mant));
+  exp_obj = _pmath_deserialize_raw_integer(info->file);
+  if(!pmath_is_integer(exp_obj)) {
+    pmath_unref(exp_obj);
     
-  if(!pmath_is_mpint(mant)) {
-    pmath_unref(mant);
+    if(!info->error)
+      info->error = PMATH_SERIALIZE_NO_MEMORY;
+      
+    return PMATH_UNDEFINED;
+  }
+  
+  mant_obj = deserialize(info);
+  
+  if(!pmath_is_integer(mant_obj)) {
+    pmath_unref(mant_obj);
+    pmath_unref(exp_obj);
     
     if(!info->error)
       info->error = PMATH_SERIALIZE_BAD_BYTE;
@@ -916,14 +923,56 @@ static pmath_t read_mp_float(struct deserializer_t *info) {
     if(!info->error)
       info->error = PMATH_SERIALIZE_NO_MEMORY;
       
-    pmath_unref(mant);
+    pmath_unref(mant_obj);
+    pmath_unref(exp_obj);
     return PMATH_UNDEFINED;
   }
   
-  mpfr_set_z(  PMATH_AS_MP_VALUE(result), PMATH_AS_MPZ(mant), MPFR_RNDN);
-  mpfr_mul_2si(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(result), exp, MPFR_RNDN);
-  pmath_unref(mant);
+  fmpz_init(mant);
+  fmpz_init(exp);
+  
+  _pmath_integer_get_fmpz(mant, mant_obj);
+  _pmath_integer_get_fmpz(exp, exp_obj);
+  
+  arf_set_fmpz_2exp(arb_midref(PMATH_AS_ARB(result)), mant, exp);
+  mag_zero(arb_radref(PMATH_AS_ARB(result)));
+  
+  fmpz_clear(exp);
+  fmpz_clear(mant);
+  
+  pmath_unref(exp_obj);
+  pmath_unref(mant_obj);
   return result;
+}
+
+static pmath_t read_mp_float_ball(struct deserializer_t *info) {
+  pmath_t mid = deserialize(info);
+  pmath_t rad = deserialize(info);
+  
+  if( pmath_is_mpfloat(mid) &&
+      pmath_is_mpfloat(rad) &&
+      mag_is_zero(arb_radref(PMATH_AS_ARB(mid))) &&
+      mag_is_zero(arb_radref(PMATH_AS_ARB(rad))) &&
+      PMATH_AS_ARB_WORKING_PREC(mid) == PMATH_AS_ARB_WORKING_PREC(rad) &&
+      arb_is_nonnegative(PMATH_AS_ARB(rad)))
+  {
+    pmath_t obj = _pmath_create_mp_float_from_midrad_arb(
+                    PMATH_AS_ARB(mid),
+                    PMATH_AS_ARB(rad),
+                    (slong)PMATH_AS_ARB_WORKING_PREC(mid));
+                    
+    pmath_unref(mid);
+    pmath_unref(rad);
+    return obj;
+  }
+  
+  pmath_unref(mid);
+  pmath_unref(rad);
+  
+  if(!info->error)
+    info->error = PMATH_SERIALIZE_BAD_BYTE;
+    
+  return PMATH_UNDEFINED;
 }
 
 static pmath_t read_packed_array(struct deserializer_t *info) {
@@ -948,7 +997,7 @@ static pmath_t read_packed_array(struct deserializer_t *info) {
   
   if(info->error)
     return PMATH_UNDEFINED;
-  
+    
   if(depth == 0 || depth > SIZE_MAX / sizeof(size_t)) {
     info->error = PMATH_SERIALIZE_BAD_BYTE;
     return PMATH_UNDEFINED;
@@ -960,9 +1009,9 @@ static pmath_t read_packed_array(struct deserializer_t *info) {
     return PMATH_UNDEFINED;
   }
   
-  for(i = 0;i < depth;++i)
+  for(i = 0; i < depth; ++i)
     sizes[i] = read_size(info);
-  
+    
   if(info->error) {
     pmath_mem_free(sizes);
     return PMATH_UNDEFINED;
@@ -979,9 +1028,9 @@ static pmath_t read_packed_array(struct deserializer_t *info) {
   }
   
   total_elems = 1;
-  for(i = 0;i < depth;++i)
-    total_elems*= sizes[i];
-  
+  for(i = 0; i < depth; ++i)
+    total_elems *= sizes[i];
+    
   i = pmath_file_read(info->file, data, total_elems * elem_size, FALSE);
   if(i != total_elems * elem_size) {
     info->error = PMATH_SERIALIZE_EOF;
@@ -993,7 +1042,7 @@ static pmath_t read_packed_array(struct deserializer_t *info) {
     if(elem_size == 8) {
       uint64_t *elems = data;
       
-      for(i = 0;i < total_elems;++i) 
+      for(i = 0; i < total_elems; ++i)
         flip_endianness_64(elems++);
     }
     else {
@@ -1001,7 +1050,7 @@ static pmath_t read_packed_array(struct deserializer_t *info) {
       
       assert(elem_size == 4);
       
-      for(i = 0;i < total_elems;++i) 
+      for(i = 0; i < total_elems; ++i)
         flip_endianness_32(elems++);
     }
   }
@@ -1012,21 +1061,21 @@ static pmath_t read_packed_array(struct deserializer_t *info) {
 static pmath_t deserialize(struct deserializer_t *info) {
   const uint8_t tag = read_tag(info);
   switch(tag) {
-    case TAG_NULL:     return PMATH_NULL;
-    case TAG_NEWREF:   return read_new_ref(info);
-    case TAG_REF:      return read_back_ref(info);
-    case TAG_MAGIC:    return PMATH_FROM_TAG(PMATH_TAG_MAGIC, read_si32(info));
-    case TAG_STR8:     return read_latin1_string(info);
-    case TAG_STR16:    return read_ucs2_string(info);
-    case TAG_SYMBOL:   return read_symbol(info);
-    case TAG_EXPR:     return read_general_expr(info);
-    case TAG_INT32:    return PMATH_FROM_INT32(read_si32(info));
-    case TAG_MPINT:    return read_mp_int(info);
-    case TAG_QUOT:     return read_quotient(info);
-    case TAG_DOUBLE:   return read_double_object(info);
-    case TAG_MPFLOAT:  return read_mp_float(info);
-    case TAG_INTERVAL: return pmath_interval_from_expr(deserialize(info));
-    case TAG_ARRAY:    return read_packed_array(info);
+    case TAG_NULL:         return PMATH_NULL;
+    case TAG_NEWREF:       return read_new_ref(info);
+    case TAG_REF:          return read_back_ref(info);
+    case TAG_MAGIC:        return PMATH_FROM_TAG(PMATH_TAG_MAGIC, read_si32(info));
+    case TAG_STR8:         return read_latin1_string(info);
+    case TAG_STR16:        return read_ucs2_string(info);
+    case TAG_SYMBOL:       return read_symbol(info);
+    case TAG_EXPR:         return read_general_expr(info);
+    case TAG_INT32:        return PMATH_FROM_INT32(read_si32(info));
+    case TAG_MPINT:        return read_mp_int(info);
+    case TAG_QUOT:         return read_quotient(info);
+    case TAG_DOUBLE:       return read_double_object(info);
+    case TAG_OLD_MPFLOAT:  return read_simple_mp_float(info);
+    case TAG_MPFLOAT_BALL: return read_mp_float_ball(info);
+    case TAG_ARRAY:        return read_packed_array(info);
   }
   
   if(!info->error)

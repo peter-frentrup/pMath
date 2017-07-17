@@ -4,7 +4,8 @@
 	- BUG: arithmetic on intervals should always round the lower bound
 		down and the upper bound up. At the moment, round-to-nearest is used in 
 		all cases.
-		This needs pMath-kernel support, which is available with Internal`RealInterval
+		This needs pMath-kernel support, which is available with Arb ball arithmetic
+		for arbitrary precision floating point numbers.
  */
 
 BeginPackage("System`")
@@ -65,7 +66,7 @@ Function IntervalIntersectRanges(~a .. ~b, ~c .. ~d) {
 }
 	
 	
-MinMax(~list)::= Min(list) .. Max(list)
+minMaxRange(~list)::= Min(list) .. Max(list)
 
 
 /* Interval Min */
@@ -214,7 +215,7 @@ Interval/: Cot(~i:Interval ? IsInterval)::= IntervalCos(i) / IntervalSin(i)
 Interval/: Csc(~i:Interval ? IsInterval)::= 1 / IntervalSin(i)
 Interval/: Sec(~i:Interval ? IsInterval)::= 1 / IntervalCos(i)
 
-IntervalSin(~i)::= Interval @@ (List @@ i).Map(IntervalSinRange(f))
+IntervalSin(~i)::= Interval @@ (List @@ i).Map(IntervalSinRange)
 IntervalSinRange(~)::= -1 .. 1
 Function IntervalSinRange(~a?IsReal .. ~b?IsReal) {
 	With(nextExtremumA:= Ceiling(a - Pi/2, Pi) + Pi/2)
@@ -224,10 +225,10 @@ Function IntervalSinRange(~a?IsReal .. ~b?IsReal) {
 	If(b <= nextExtremumA) {
 		Return(Sin(a) .. Sin(b))
 	}
-	Return(MinMax({Sin(a), Sin(b), Sin(nextExtremumA)}))
+	Return(minMaxRange({Sin(a), Sin(b), Sin(nextExtremumA)}))
 }
 
-IntervalCos(~i)::= Interval @@ (List @@ i).Map(IntervalCosRange(f))
+IntervalCos(~i)::= Interval @@ (List @@ i).Map(IntervalCosRange)
 IntervalCosRange(~)::= -1 .. 1
 Function IntervalCosRange(~a?IsReal .. ~b?IsReal) {
 	With(nextExtremumA:= Ceiling(a, Pi))
@@ -237,7 +238,7 @@ Function IntervalCosRange(~a?IsReal .. ~b?IsReal) {
 	If(b <= nextExtremumA) {
 		Return(Cos(a) .. Cos(b))
 	}
-	Return(MinMax({Cos(a), Cos(b), Cos(nextExtremumA)}))
+	Return(minMaxRange({Cos(a), Cos(b), Cos(nextExtremumA)}))
 }
 
 /* IntervalArcTan(y,x) */
@@ -304,7 +305,7 @@ Interval/: Sech(  ~i:Interval ? IsInterval)::= 1 / IntervalCosh(i)
 IntervalCosh(~i)::= Interval @@ (List @@ i).Map(IntervalCoshRange)
 Function IntervalCoshRange(~a ? IsRealOrInfinity .. ~b ? IsRealOrInfinity) {
 	If(a <= 0 <= b ) {
-		Return(MinMax({Cosh(a), Cosh(0), Cosh(b)}))
+		Return(minMaxRange({Cosh(a), Cosh(0), Cosh(b)}))
 	}
 	Return(Cosh(a) .. Cosh(b))
 }
@@ -344,10 +345,10 @@ IntervalPowerRange(~i, ~r)::= (List @@ i).Map(IntervalRangesPower(#, r) &)
 
 Function IntervalRangesPower(~a1 .. ~a2, ~b .. ~b) {
 	If(a2 < 0 || 0 < a1) {
-		Return(MinMax({a1^b, a2^b}))
+		Return(minMaxRange({a1^b, a2^b}))
 	}
 	If(b > 0) {
-		Return(MinMax({0, a1^b, a2^b}))
+		Return(minMaxRange({0, a1^b, a2^b}))
 	}
 	If(b = 0) {
 		Return(1..1)
@@ -369,9 +370,9 @@ Function IntervalRangesPower(~a1 .. ~a2, ~b1 .. ~b2) {
 		If(b1 < 0) {
 			Return($Failed)
 		}
-		Return(MinMax({0, Try(a1^b1), Try(a1^b2), Try(a2^b1), Try(a2^b2)}.Select(IsRealOrInfinity)))
+		Return(minMaxRange({0, Try(a1^b1), Try(a1^b2), Try(a2^b1), Try(a2^b2)}.Select(IsRealOrInfinity)))
 	}
-	Return(MinMax({a1^b1, a1^b2, a2^b1, a2^b2}))
+	Return(minMaxRange({a1^b1, a1^b2, a2^b1, a2^b2}))
 }
 
 Protect(Interval);

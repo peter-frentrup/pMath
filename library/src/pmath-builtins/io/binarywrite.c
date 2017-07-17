@@ -335,10 +335,7 @@ static pmath_bool_t binary_write(
             }
           }
           
-          if( pmath_is_float(value) &&
-              out_type == REAL)
-          {
-            pmath_mpfloat_t f  = PMATH_NULL;
+          if(pmath_is_float(value) && out_type == REAL) {
             pmath_mpint_t mant = _pmath_create_mp_int(0);
             long bits = 10;
             
@@ -352,17 +349,30 @@ static pmath_bool_t binary_write(
               case 16: bits = 112; break;
             }
             
-            f = _pmath_create_mp_float(bits + 1);
-            
-            if(!pmath_is_null(f) && !pmath_is_null(mant)) {
+            if(!pmath_is_null(mant)) {
               mp_exp_t exp;
               
-              if(pmath_is_mpfloat(value))
-                mpfr_set(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(value), MPFR_RNDN);
-              else
-                mpfr_set_d(PMATH_AS_MP_VALUE(f), PMATH_AS_DOUBLE(value), MPFR_RNDN);
-                
-              exp = bits + mpfr_get_z_exp(PMATH_AS_MPZ(mant), PMATH_AS_MP_VALUE(f));
+              if(pmath_is_mpfloat(value)) {
+                mpfr_t tmp_value;
+                mpfr_init2(tmp_value, bits + 1);
+                arf_get_mpfr(tmp_value, arb_midref(PMATH_AS_ARB(value)), MPFR_RNDN);
+                if(mpfr_zero_p(tmp_value) || mpfr_number_p(tmp_value)) {
+                  exp = bits + mpfr_get_z_exp(PMATH_AS_MPZ(mant), tmp_value);
+                }
+                else {
+                  mpz_set_si(PMATH_AS_MPZ(mant), mpfr_sgn(tmp_value));
+                  mpfr_clear(tmp_value);
+                  exp = 0;
+                  goto MAKE_INFINTE;
+                }
+              }
+              else {
+                mpfr_t tmp_value;
+                mpfr_init2(tmp_value, bits + 1);
+                mpfr_set_d(tmp_value, PMATH_AS_DOUBLE(value), MPFR_RNDN);
+                exp = bits + mpfr_get_z_exp(PMATH_AS_MPZ(mant), tmp_value);
+                mpfr_clear(tmp_value);
+              }
               
               switch(size) {
                 case 2: {
@@ -522,7 +532,6 @@ static pmath_bool_t binary_write(
                     if(re_dir == 0)
                       re_dir = 1;
                       
-                    pmath_unref(f);
                     pmath_unref(mant);
                   } goto INFINITE_IM_RE;
               }
@@ -531,7 +540,6 @@ static pmath_bool_t binary_write(
             }
             
             pmath_unref(value);
-            pmath_unref(f);
             pmath_unref(mant);
             return TRUE;
           }

@@ -1,6 +1,7 @@
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/expressions.h>
 
+#include <pmath-util/approximate.h>
 #include <pmath-util/messages.h>
 
 

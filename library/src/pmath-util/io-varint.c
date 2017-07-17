@@ -24,8 +24,10 @@ void _pmath_serialize_raw_integer(pmath_t file, pmath_integer_t value) {
   }
   else if(pmath_refcount(value) > 1) {
     mp = _pmath_create_mp_int(0);
-    if(pmath_is_null(mp))
+    if(pmath_is_null(mp)) {
+      pmath_unref(value);
       return;
+    }
     
     mpz_set(PMATH_AS_MPZ(mp), PMATH_AS_MPZ(value));
   }

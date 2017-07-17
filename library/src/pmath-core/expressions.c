@@ -3304,7 +3304,7 @@ else INPUTFORM:
       pmath_number_t re, im;
       pmath_bool_t lparen = FALSE;
       
-      if(!_pmath_is_nonreal_complex(expr))
+      if(!_pmath_is_nonreal_complex_number(expr))
         goto FULLFORM;
         
       re = pmath_expr_get_item(expr, 1);

@@ -2,7 +2,6 @@
 BeginPackage("System`")
 
 AbsArg
-MinMax
 ReIm
 TakeDrop
 
@@ -11,13 +10,6 @@ Begin("System`Private`")
 AbsArg(~z)::= {Abs(z), Arg(z)}
 ReIm(~z)::= {Re(z), Im(z)}
 TakeDrop(~list, ~~ns)::= With({t:= Take(list, ns), d:= Drop(list, ns)}, {t,d} /? Head(t) =!= Take && Head(d) =!= Drop)
-
-% TODO: disallow list of length != 1 as `err` argument
-MinMax(~list)::= {Min(list), Max(list)}
-MinMax(~list, ~err)::= {Min(list) - err, Max(list) + err}
-MinMax(~list, {~minerr, ~maxerr})::= {Min(list) - minerr, Max(list) + maxerr}
-% System`Scaled is not defined
-%MinMax(~list, Scaled(~relerr))::= With({min:= Min(list), max:= Max(list)}, {min, max} + {-1,1} * relerr * (max - min))
 
 End()
 

@@ -1,0 +1,14 @@
+
+x:= 1.5`10
+x20:= 1.5`20
+xMachine:= 1.5
+xRational:= 3/2
+
+% comparing ToString(FullForm(...)) in order to also consider precision, which === ignores.
+AssertEqual(x.SetPrecision(MachinePrecision).FullForm.ToString, xMachine.FullForm.ToString)
+
+AssertUnequal(x.SetPrecision(20).FullForm.ToString, xMachine.FullForm.ToString)
+
+AssertEqual(x.SetPrecision(20).FullForm.ToString, x20.FullForm.ToString)
+
+AssertEqual(x.SetPrecision(Infinity).FullForm.ToString, xRational.FullForm.ToString)

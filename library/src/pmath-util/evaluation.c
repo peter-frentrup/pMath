@@ -94,10 +94,7 @@ static pmath_t evaluate(
     }
 #endif
     
-    if( !pmath_is_string(obj) &&
-        !pmath_is_number(obj) &&
-        !pmath_is_interval(obj))
-    {
+    if(!pmath_is_string(obj) && !pmath_is_number(obj)) {
       obj = PMATH_NULL;
       break;
     }

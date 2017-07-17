@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="pmath-windows" />
+		<Option platforms="Windows;" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Windows-GCC-Debug-x86">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/gcc-debug-x86/pmath-windows.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/windows/gcc-debug-x86" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+				</Linker>
+				<Environment>
+					<Variable name="ARCH_NAME" value="x86" />
+				</Environment>
+			</Target>
+			<Target title="Windows-GCC-Release-x86">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/gcc-release-x86/pmath-windows.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/windows/gcc-release-x86" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="-march=i686" />
+					<Add option="-O3" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+					<Add option="-DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libgcc" />
+				</Linker>
+				<Environment>
+					<Variable name="ARCH_NAME" value="x86" />
+				</Environment>
+			</Target>
+			<Target title="Windows-GCC-Debug-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/gcc-debug-x64/pmath-windows.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/windows/gcc-debug-x64" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_x64_compiler" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+				</Linker>
+				<Environment>
+					<Variable name="ARCH_NAME" value="x86-64" />
+				</Environment>
+			</Target>
+			<Target title="Windows-GCC-Release-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/gcc-release-x64/pmath-windows.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/windows/gcc-release-x64" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_x64_compiler" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="-march=core2" />
+					<Add option="-O3" />
+					<Add option="-Wundef" />
+					<Add option="-Wall" />
+					<Add option="-mthreads" />
+					<Add option="-mms-bitfields" />
+					<Add option="-Wdeclaration-after-statement" />
+					<Add option="-Wpointer-arith" />
+					<Add option="-DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libgcc" />
+				</Linker>
+				<Environment>
+					<Variable name="ARCH_NAME" value="x86-64" />
+				</Environment>
+			</Target>
+			<Target title="Windows-MSVC-Debug-x86">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-debug-x86/pmath-windows.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/windows/msvc-debug-x86" />
+				<Option type="3" />
+				<Option compiler="msvc_2015" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="/MDd" />
+					<Add option="/arch:SSE2" />
+					<Add option="/Gd" />
+					<Add option="/GL" />
+					<Add option="/GF" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/LTCG" />
+				</Linker>
+				<Environment>
+					<Variable name="ARCH_NAME" value="x86" />
+				</Environment>
+			</Target>
+			<Target title="Windows-MSVC-Release-x86">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-release-x86/pmath-windows.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/windows/msvc-release-x86" />
+				<Option type="3" />
+				<Option compiler="msvc_2015" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="/MD" />
+					<Add option="/arch:SSE2" />
+					<Add option="/Gd" />
+					<Add option="/GL" />
+					<Add option="/GF" />
+					<Add option="/Ox" />
+					<Add option="/W3" />
+					<Add option="/DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="/LTCG" />
+				</Linker>
+				<Environment>
+					<Variable name="ARCH_NAME" value="x86" />
+				</Environment>
+			</Target>
+			<Target title="Windows-MSVC-Debug-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-debug-x64/pmath-windows.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/windows/msvc-debug-x64" />
+				<Option type="3" />
+				<Option compiler="msvc_2015_x64" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="/MDd" />
+					<Add option="/Gd" />
+					<Add option="/GL" />
+					<Add option="/GF" />
+					<Add option="/W3" />
+					<Add option="/Zi" />
+				</Compiler>
+				<Linker>
+					<Add option="/debug" />
+					<Add option="/LTCG" />
+				</Linker>
+				<Environment>
+					<Variable name="ARCH_NAME" value="x86-64" />
+				</Environment>
+			</Target>
+			<Target title="Windows-MSVC-Release-x64">
+				<Option platforms="Windows;" />
+				<Option output="bin/windows/msvc-release-x64/pmath-windows.dll" prefix_auto="0" extension_auto="0" />
+				<Option object_output="obj/windows/msvc-release-x64" />
+				<Option type="3" />
+				<Option compiler="msvc_2015_x64" />
+				<Option host_application="../../../library/test/$(TARGET_OUTPUT_DIR)test.exe" />
+				<Option run_host_application_in_terminal="1" />
+				<Compiler>
+					<Add option="/MD" />
+					<Add option="/Gd" />
+					<Add option="/GL" />
+					<Add option="/GF" />
+					<Add option="/Ox" />
+					<Add option="/W3" />
+					<Add option="/DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add option="/LTCG" />
+				</Linker>
+				<Environment>
+					<Variable name="ARCH_NAME" value="x86-64" />
+				</Environment>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All-Windows" targets="Windows-GCC-Debug-x86;Windows-GCC-Release-x86;Windows-GCC-Debug-x64;Windows-GCC-Release-x64;Windows-MSVC-Debug-x86;Windows-MSVC-Release-x86;Windows-MSVC-Debug-x64;Windows-MSVC-Release-x64;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add directory="../../../library/include" />
+		</Compiler>
+		<Linker>
+			<Add library="pmath" />
+			<Add library="shell32" />
+			<Add library="ole32" />
+			<Add library="oleaut32" />
+			<Add directory="../../../library/$(TARGET_OUTPUT_DIR)" />
+		</Linker>
+		<ExtraCommands>
+			<Add after='cmd /C if exist &quot;..\bin\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
+			<Add after='cmd /C if not exist &quot;..\bin\$(ARCH_NAME)&quot; mkdir &quot;..\bin\$(ARCH_NAME)&quot;' />
+			<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\$(ARCH_NAME)\*&quot;' />
+		</ExtraCommands>
+		<Unit filename="src/SHGetKnownFolderPath.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/error-util.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/string-util.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/util.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

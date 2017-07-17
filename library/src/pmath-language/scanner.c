@@ -18,8 +18,6 @@
 #include <limits.h>
 #include <string.h>
 
-#define MIN(A, B)  ((A) < (B) ? (A) : (B))
-
 //{ spans ...
 
 struct _pmath_span_t {
@@ -166,7 +164,8 @@ struct scanner_t {
   int              pos;
   uintptr_t       *span_items;
   
-  int comment_level;
+  unsigned comment_level: 31;
+  unsigned in_line_comment: 1;
   
   //pmath_bool_t in_comment;
   pmath_bool_t in_string;
@@ -242,7 +241,7 @@ HAVE_MULTIPLE_TOKENS: ;
 }
 
 static void handle_error(struct parser_t *parser) {
-  if(/*parser->tokens.have_error || */ parser->tokens.comment_level > 0)
+  if(/*parser->tokens.have_error || */ parser->tokens.comment_level > 0 || parser->tokens.in_line_comment)
     return;
     
   parser->tokens.have_error = TRUE;
@@ -283,8 +282,10 @@ static int next_token_pos(struct parser_t *parser) {
     
   span = SPAN_PTR(parser->spans->items[parser->tokens.pos]);
   
-  if(span) 
-    return MIN(span->end + 1, parser->tokens.len);
+  if(span) {
+    assert(span->end < parser->tokens.len);
+    return span->end + 1;
+  }
   
   next = parser->tokens.pos;
   while( next < parser->tokens.len &&
@@ -572,6 +573,313 @@ START:
   return PMATH_TOK_NONE;
 }
 
+static void scan_next_backtick_insertion(struct scanner_t *tokens, struct parser_t *parser) {
+  assert(!parser || &parser->tokens == tokens);
+  assert(tokens->pos < tokens->len);
+  assert(tokens->str[tokens->pos] == '`');
+  
+  ++tokens->pos;
+  while( tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
+    ++tokens->pos;
+    
+  if( tokens->pos < tokens->len && tokens->str[tokens->pos] == '`')
+    ++tokens->pos;
+}
+
+// returns whether goto END_SCAN should be executed
+PMATH_ATTRIBUTE_USE_RESULT
+static pmath_bool_t scan_next_string(struct scanner_t *tokens, struct parser_t *parser) {
+  int k;
+  int start;
+  
+  assert(!parser || &parser->tokens == tokens);
+  assert(tokens->pos < tokens->len);
+  assert(tokens->str[tokens->pos] == '"');
+  
+  if(tokens->in_string) {
+    ++tokens->pos;
+    return TRUE;
+  }
+  
+  k = 0;
+  start = tokens->pos;
+  tokens->in_string = TRUE;
+  
+  ++tokens->pos;
+  for(;;) {
+    while( tokens->pos < tokens->len &&
+           (k > 0 || tokens->str[tokens->pos] != '"'))
+    {
+      if(tokens->str[tokens->pos] == '\n' && tokens->in_line_comment)
+        break;
+        
+      if( tokens->pos + 1 < tokens->len &&
+          tokens->str[tokens->pos] == '*' &&
+          tokens->str[tokens->pos + 1] == '/' &&
+          tokens->comment_level > 0)
+      {
+        break;
+      }
+      
+      if(tokens->str[tokens->pos] == PMATH_CHAR_LEFT_BOX) {
+        ++k;
+        tokens->pos++;
+      }
+      else if(tokens->str[tokens->pos] == PMATH_CHAR_RIGHT_BOX) {
+        --k;
+        tokens->pos++;
+      }
+      else
+        scan_next(tokens, parser);
+    }
+    
+    if(tokens->pos < tokens->len || tokens->comment_level > 0 || tokens->in_line_comment)
+      break;
+      
+    if(!read_more(parser)) {
+      if(tokens->span_items)
+        tokens->span_items[start] |= 3;
+        
+      span(tokens, start);
+      return FALSE; // i.e. goto END_SCAN;
+    }
+  }
+  
+  if( tokens->pos < tokens->len &&
+      tokens->str[tokens->pos] == '"')
+  {
+    scan_next(tokens, parser);
+  }
+  else if(parser)
+    handle_error(parser);
+    
+  tokens->in_string = FALSE;
+  
+  if(tokens->span_items)
+    tokens->span_items[start] |= 3;
+    
+  span(tokens, start);
+  return TRUE;
+}
+
+// Skip the "dd^^" base specifier if that is followed by a digit. Return if such a base specifier was found.
+static pmath_bool_t scan_number_base_specifier(struct scanner_t *tokens, struct parser_t *parser) {
+  int i;
+  
+  assert(tokens->pos < tokens->len);
+  assert(pmath_char_is_digit(tokens->str[tokens->pos]));
+  
+  i = tokens->pos + 1;
+  if(i < tokens->len && pmath_char_is_digit(tokens->str[i]))
+    ++i;
+    
+  if(i + 2 >= tokens->len)
+    return FALSE;
+    
+  if(tokens->str[i] != '^' || tokens->str[i + 1] != '^' || !pmath_char_is_36digit(tokens->str[i + 2]))
+    return FALSE;
+    
+  tokens->pos = i + 2;
+  return TRUE;
+}
+
+#define SCAN_FLOAT_DIGITS_REST(DIGIT_TEST) \
+do {                                                                          \
+  assert(tokens->pos < tokens->len);                                          \
+  ++tokens->pos;                                                              \
+  while(tokens->pos < tokens->len && DIGIT_TEST(tokens->str[tokens->pos]))    \
+    ++tokens->pos;                                                            \
+                                                                              \
+  if( tokens->pos + 1 < tokens->len   &&                                      \
+      tokens->str[tokens->pos] == '.' &&                                      \
+      DIGIT_TEST(tokens->str[tokens->pos + 1]))                               \
+  {                                                                           \
+    tokens->pos += 2;                                                         \
+    while( tokens->pos < tokens->len && DIGIT_TEST(tokens->str[tokens->pos])) \
+      ++tokens->pos;                                                          \
+  }                                                                           \
+} while(0)
+
+// Skip a "ddd.ddd" decimal floating point number. Skips at least one character.
+static void scan_float_decimal_digits_rest(struct scanner_t *tokens, struct parser_t *parser) {
+  SCAN_FLOAT_DIGITS_REST(pmath_char_is_digit);
+}
+
+// Skip a "xxx.xxx" base-36 floating point number. Skips at least one character.
+static void scan_float_base36_digits_rest(struct scanner_t *tokens, struct parser_t *parser) {
+  SCAN_FLOAT_DIGITS_REST(pmath_char_is_36digit);
+}
+
+#undef SCAN_FLOAT_DIGITS_REST
+
+// Skip a "`ddd.ddd" precision specifier, if any. Digits are optional.
+static void scan_precision_specifier(struct scanner_t *tokens, struct parser_t *parser) {
+  if(tokens->pos >= tokens->len)
+    return;
+    
+  if(tokens->str[tokens->pos] != '`')
+    return;
+    
+  ++tokens->pos;
+  
+  // deprecated: ``
+  if( tokens->pos < tokens->len && tokens->str[tokens->pos] == '`')
+    ++tokens->pos;
+    
+  // deprecated: ``-ddd.ddd
+  if( tokens->pos + 1 < tokens->len     &&
+      (tokens->str[tokens->pos] == '+' ||
+       tokens->str[tokens->pos] == '-') &&
+      pmath_char_is_digit(tokens->str[tokens->pos + 1]))
+  {
+    ++tokens->pos;
+  }
+  
+  if(tokens->pos >= tokens->len)
+    return;
+    
+  if(!pmath_char_is_digit(tokens->str[tokens->pos]))
+    return;
+    
+  scan_float_decimal_digits_rest(tokens, parser);
+}
+
+// Skip a "*^-ddd" exponent speifier, if any. The sign is optional.
+static void scan_number_exponent(struct scanner_t *tokens, struct parser_t *parser) {
+  if(tokens->pos + 2 >= tokens->len)
+    return;
+    
+  if(tokens->str[tokens->pos] != '*' || tokens->str[tokens->pos + 1] != '^')
+    return;
+    
+  if(pmath_char_is_digit(tokens->str[tokens->pos + 2])) {
+    tokens->pos += 3;
+    while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
+      ++tokens->pos;
+      
+    return;
+  }
+  
+  if(tokens->pos + 3 >= tokens->len)
+    return;
+    
+  if(tokens->str[tokens->pos + 2] != '+' && tokens->str[tokens->pos + 2] != '-')
+    return;
+    
+  if(!pmath_char_is_digit(tokens->str[tokens->pos + 3]))
+    return;
+    
+  tokens->pos += 4;
+  while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
+    ++tokens->pos;
+}
+
+// Skip a "[+/-xxx.xxx*^-ddd]" real ball radius specification, if present.
+static void scan_number_radius(struct scanner_t *tokens, struct parser_t *parser, pmath_bool_t is_base36) {
+  int start = tokens->pos;
+  
+  if(tokens->pos >= tokens->len || tokens->str[tokens->pos] != '[')
+    return;
+    
+  ++tokens->pos;
+  
+  if( tokens->pos + 2 < tokens->len &&
+      tokens->str[tokens->pos]   == '+' &&
+      tokens->str[tokens->pos + 1] == '/' &&
+      tokens->str[tokens->pos + 2] == '-')
+  {
+    tokens->pos += 3;
+  }
+  else if(tokens->pos < tokens->len && tokens->str[tokens->pos] == PMATH_CHAR_PLUSMINUS) {
+    ++tokens->pos;
+  }
+  else if(tokens->pos < tokens->len && tokens->str[tokens->pos] == '\\') {  // \[PlusMinus] escape sequence
+    uint32_t chr;
+    scan_next_escaped_char(tokens, parser, &chr);
+    if(chr != PMATH_CHAR_PLUSMINUS) 
+      goto FAIL;
+  }
+  else
+    goto FAIL;
+    
+  if(tokens->pos >= tokens->len)
+    goto FAIL;
+    
+  if(is_base36) {
+    if(!pmath_char_is_36digit(tokens->str[tokens->pos]))
+      goto FAIL;
+      
+    scan_float_base36_digits_rest(tokens, parser);
+  }
+  else {
+    if(!pmath_char_is_digit(tokens->str[tokens->pos]))
+      goto FAIL;
+      
+    scan_float_decimal_digits_rest(tokens, parser);
+  }
+  
+  scan_number_exponent(tokens, parser);
+  
+  if(tokens->pos >= tokens->len || tokens->str[tokens->pos] != ']')
+    goto FAIL;
+    
+  ++tokens->pos;
+  return;
+  
+FAIL:
+  tokens->pos = start;
+  return;
+}
+
+static void scan_next_number(struct scanner_t *tokens, struct parser_t *parser) {
+  pmath_bool_t have_explicit_base;
+  
+  assert(!parser || &parser->tokens == tokens);
+  assert(tokens->pos < tokens->len);
+  assert(pmath_char_is_digit(tokens->str[tokens->pos]));
+  
+  tokens->span_items[tokens->pos] |= 2;
+  
+  have_explicit_base = scan_number_base_specifier(tokens, parser);
+  if(have_explicit_base)
+    scan_float_base36_digits_rest(tokens, parser);
+  else
+    scan_float_decimal_digits_rest(tokens, parser);
+  
+  scan_number_radius(tokens, parser, have_explicit_base);
+  
+  scan_precision_specifier(tokens, parser);
+  scan_number_exponent(tokens, parser);
+}
+
+static void scan_next_as_name(struct scanner_t *tokens, struct parser_t *parser) {
+  pmath_token_t tok;
+  uint32_t u;
+  int prev;
+  
+  assert(!parser || &parser->tokens == tokens);
+  assert(tokens->pos < tokens->len);
+  
+  
+  prev = tokens->pos;
+  tok = scan_next_escaped_char(tokens, parser, &u);
+  
+  if(tok != PMATH_TOK_NAME)
+    return;
+    
+  tokens->span_items[prev] |= 2;
+  
+  while(tokens->pos < tokens->len) {
+    prev = tokens->pos;
+    tok = scan_next_escaped_char(tokens, parser, &u);
+    
+    if(tok != PMATH_TOK_NAME && tok != PMATH_TOK_DIGIT) {
+      tokens->pos = prev;
+      break;
+    }
+  }
+}
+
 static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
   assert(!parser || &parser->tokens == tokens);
   
@@ -579,55 +887,55 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
     return;
     
   switch(tokens->str[tokens->pos]) {
-    case '#': {
+    case '#': { //  #  ##
         tokens->span_items[tokens->pos] |= 2;
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
           break;
           
-        if(tokens->str[tokens->pos] == '#') { // ##
+        if(tokens->str[tokens->pos] == '#') { //  ##
           ++tokens->pos;
           break;
         }
       } break;
       
-    case '+': { // ++ +=
+    case '+': { //  ++  +=
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
           break;
           
-        if( tokens->str[tokens->pos] == '+' || // ++
-            tokens->str[tokens->pos] == '=')   // +=
+        if( tokens->str[tokens->pos] == '+' || //  ++
+            tokens->str[tokens->pos] == '=')   //  +=
         {
           ++tokens->pos;
           break;
         }
       } break;
       
-    case '-': {
+    case '-': { //  --  -=  ->
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
           break;
           
-        if( tokens->str[tokens->pos] == '-' || // --
-            tokens->str[tokens->pos] == '=' || // -=
-            tokens->str[tokens->pos] == '>')   // ->
+        if( tokens->str[tokens->pos] == '-' || //  --
+            tokens->str[tokens->pos] == '=' || //  -=
+            tokens->str[tokens->pos] == '>')   //  ->
         {
           ++tokens->pos;
           break;
         }
       } break;
       
-    case '*': {
+    case '*': { //  *  **  ***  *=  */
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
           break;
           
-        if(tokens->str[tokens->pos] == '=') { // *=
+        if(tokens->str[tokens->pos] == '=') { //  *=
           ++tokens->pos;
           break;
         }
@@ -635,7 +943,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         if(tokens->str[tokens->pos] == '*') {
           ++tokens->pos;
           
-          if(tokens->pos == tokens->len) // **
+          if(tokens->pos == tokens->len) //  **
             break;
             
           if(tokens->str[tokens->pos] == '*') {
@@ -643,7 +951,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
             
             if( tokens->comment_level > 0  &&
                 tokens->pos < tokens->len &&
-                tokens->str[tokens->pos] == '/') // ***/   ===   ** */
+                tokens->str[tokens->pos] == '/') //  ***/   ===   ** */
             {
               tokens->comment_level--;
               if(tokens->span_items)
@@ -656,7 +964,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
           }
           
           if( tokens->comment_level > 0 &&
-              tokens->str[tokens->pos] == '/') // **/   ===   * */
+              tokens->str[tokens->pos] == '/') //  **/   ===   * */
           {
             tokens->comment_level--;
             if(tokens->span_items)
@@ -669,7 +977,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         }
         
         if( tokens->comment_level > 0 &&
-            tokens->str[tokens->pos] == '/') // */
+            tokens->str[tokens->pos] == '/') //  */
         {
           tokens->comment_level--;
           ++tokens->pos;
@@ -678,7 +986,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         
       } break;
       
-    case '/': {
+    case '/': { //  /  /*  /=  /?  /@  /.  /:  //@  //.  /\/
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
@@ -686,18 +994,18 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
           
         if( //!tokens->in_comment &&
           !tokens->in_string &&
-          tokens->str[tokens->pos] == '*') // /*
+          tokens->str[tokens->pos] == '*') //  /*
         {
           tokens->comment_level++;
           ++tokens->pos;
           break;
         }
         
-        if( tokens->str[tokens->pos] == '=' || // /=
-            tokens->str[tokens->pos] == '?' || // /?
-            tokens->str[tokens->pos] == '@' || // /@
-            tokens->str[tokens->pos] == '.' || // /.
-            tokens->str[tokens->pos] == ':')   // /:
+        if( tokens->str[tokens->pos] == '=' || //  /=
+            tokens->str[tokens->pos] == '?' || //  /?
+            tokens->str[tokens->pos] == '@' || //  /@
+            tokens->str[tokens->pos] == '.' || //  /.
+            tokens->str[tokens->pos] == ':')   //  /:
         {
           ++tokens->pos;
           break;
@@ -706,11 +1014,11 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         if(tokens->str[tokens->pos] == '/') {
           ++tokens->pos;
           
-          if(tokens->pos == tokens->len) // //
+          if(tokens->pos == tokens->len) //  //
             break;
             
-          if( tokens->str[tokens->pos] == '@' || // //@
-              tokens->str[tokens->pos] == '.')   // //.
+          if( tokens->str[tokens->pos] == '@' || //  //@
+              tokens->str[tokens->pos] == '.')   //  //.
           {
             ++tokens->pos;
             break;
@@ -721,7 +1029,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         
         if( tokens->pos + 1 < tokens->len        &&
             tokens->str[tokens->pos]     == '\\' &&
-            tokens->str[tokens->pos + 1] == '/')
+            tokens->str[tokens->pos + 1] == '/')  //  /\/
         {
           tokens->pos += 2;
         }
@@ -730,21 +1038,21 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
       
     case '<':
     case '>':
-    case '!': {
+    case '!': { //  <  <<  <=  >  >>  >=  !  !!  !=
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
           break;
           
-        if( tokens->str[tokens->pos] == '=' ||                         // <= >= !=
-            tokens->str[tokens->pos] == tokens->str[tokens->pos - 1])  // << >> !!
+        if( tokens->str[tokens->pos] == '=' ||                         //  <= >= !=
+            tokens->str[tokens->pos] == tokens->str[tokens->pos - 1])  //  << >> !!
         {
           ++tokens->pos;
           break;
         }
       } break;
       
-    case '=': {
+    case '=': { //  =  =!=
         ++tokens->pos;
         
         if( tokens->pos + 1 < tokens->len     &&
@@ -756,7 +1064,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         }
       } break;
       
-    case '~': {
+    case '~': { //  ~  ~~  ~~~
         ++tokens->pos;
         
         if( tokens->pos < tokens->len &&
@@ -772,7 +1080,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         }
       } break;
       
-    case ':': {
+    case ':': { //  :  ::  ::=  :=  :>
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
@@ -781,10 +1089,10 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         if(tokens->str[tokens->pos] == ':') {
           ++tokens->pos;
           
-          if(tokens->pos == tokens->len) // ::
+          if(tokens->pos == tokens->len) //  ::
             break;
             
-          if(tokens->str[tokens->pos] == '=') { // ::=
+          if(tokens->str[tokens->pos] == '=') { //  ::=
             ++tokens->pos;
             break;
           }
@@ -792,8 +1100,8 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
           break; // ::
         }
         
-        if( tokens->str[tokens->pos] == '=' || // :=
-            tokens->str[tokens->pos] == '>')   // :>
+        if( tokens->str[tokens->pos] == '=' || //  :=
+            tokens->str[tokens->pos] == '>')   //  :>
         {
           ++tokens->pos;
           break;
@@ -802,21 +1110,23 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
       
     case '?':
     case '|':
-    case '&': {
+    case '&': { //  ?  ??  |  ||  &  &&
         ++tokens->pos;
         
         if( tokens->pos < tokens->len &&
-            tokens->str[tokens->pos] == tokens->str[tokens->pos - 1]) // ?? || &&
+            tokens->str[tokens->pos] == tokens->str[tokens->pos - 1]) //  ??  ||  &&
         {
           ++tokens->pos;
         }
       } break;
       
-    case '%':
+    case '%': //  %  %%  %%%  %%%%  etc.
       tokens->span_items[tokens->pos] |= 2;
+      if(!tokens->in_string)
+        tokens->in_line_comment = TRUE;
     /* fall through */
     case '@':
-    case '.': {
+    case '.': { //  @  @@  @@@  @@@@  .  ..  ...  .... etc.
         ++tokens->pos;
         while( tokens->pos < tokens->len &&
                tokens->str[tokens->pos] == tokens->str[tokens->pos - 1])
@@ -825,74 +1135,14 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         }
       } break;
       
-    case '`': {
-        ++tokens->pos;
-        while( tokens->pos < tokens->len &&
-               pmath_char_is_digit(tokens->str[tokens->pos]))
-        {
-          ++tokens->pos;
-        }
-        
-        if( tokens->pos < tokens->len &&
-            tokens->str[tokens->pos] == '`')
-        {
-          ++tokens->pos;
-        }
-      } break;
+    case '`':
+      scan_next_backtick_insertion(tokens, parser);
+      break;
       
-    case '"': {
-        if(!tokens->in_string) {
-          int k = 0;
-          int start = tokens->pos;
-          tokens->in_string = TRUE;
-          
-          ++tokens->pos;
-          for(;;) {
-            while( tokens->pos < tokens->len &&
-                   (k > 0 || tokens->str[tokens->pos] != '"'))
-            {
-              if(tokens->str[tokens->pos] == PMATH_CHAR_LEFT_BOX) {
-                ++k;
-                tokens->pos++;
-              }
-              else if(tokens->str[tokens->pos] == PMATH_CHAR_RIGHT_BOX) {
-                --k;
-                tokens->pos++;
-              }
-              else
-                scan_next(tokens, parser);
-            }
-            
-            if(tokens->pos < tokens->len)
-              break;
-              
-            if(!read_more(parser)) {
-              if(tokens->span_items)
-                tokens->span_items[start] |= 3;
-                
-              span(tokens, start);
-              goto END_SCAN;
-            }
-          }
-          
-          if( tokens->pos < tokens->len &&
-              tokens->str[tokens->pos] == '"')
-          {
-            scan_next(tokens, parser);
-          }
-          else if(parser)
-            handle_error(parser);
-            
-          tokens->in_string = FALSE;
-          
-          if(tokens->span_items)
-            tokens->span_items[start] |= 3;
-            
-          span(tokens, start);
-        }
-        else
-          ++tokens->pos;
-      } break;
+    case '"':
+      if(!scan_next_string(tokens, parser))
+        goto END_SCAN;
+      break;
       
     case '0':
     case '1':
@@ -903,135 +1153,15 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
     case '6':
     case '7':
     case '8':
-    case '9': {
-        tokens->span_items[tokens->pos] |= 2;
-        ++tokens->pos;
-        
-        while(tokens->pos < tokens->len &&
-              pmath_char_is_digit(tokens->str[tokens->pos]))
-        {
-          ++tokens->pos;
-        }
-        
-        if( tokens->pos + 2 < tokens->len       &&
-            tokens->str[tokens->pos]     == '^' &&
-            tokens->str[tokens->pos + 1] == '^' &&
-            pmath_char_is_36digit(tokens->str[tokens->pos + 2]))
-        {
-          tokens->pos += 3;
-          while(tokens->pos < tokens->len &&
-                pmath_char_is_36digit(tokens->str[tokens->pos]))
-          {
-            ++tokens->pos;
-          }
-          
-          if( tokens->pos + 1 < tokens->len   &&
-              tokens->str[tokens->pos] == '.' &&
-              pmath_char_is_36digit(tokens->str[tokens->pos + 1]))
-          {
-            tokens->pos += 2;
-            while( tokens->pos < tokens->len &&
-                   pmath_char_is_36digit(tokens->str[tokens->pos]))
-            {
-              ++tokens->pos;
-            }
-          }
-        }
-        else if(tokens->pos + 1 < tokens->len   &&
-                tokens->str[tokens->pos] == '.' &&
-                pmath_char_is_digit(tokens->str[tokens->pos + 1]))
-        {
-          tokens->pos += 2;
-          while( tokens->pos < tokens->len &&
-                 pmath_char_is_digit(tokens->str[tokens->pos]))
-          {
-            ++tokens->pos;
-          }
-        }
-        
-        if( tokens->pos < tokens->len &&
-            tokens->str[tokens->pos] == '`')
-        {
-          ++tokens->pos;
-          
-          if( tokens->pos < tokens->len &&
-              tokens->str[tokens->pos] == '`')
-          {
-            ++tokens->pos;
-          }
-          
-          if( tokens->pos + 1 < tokens->len     &&
-              (tokens->str[tokens->pos] == '+' ||
-               tokens->str[tokens->pos] == '-') &&
-              pmath_char_is_digit(tokens->str[tokens->pos + 1]))
-          {
-            ++tokens->pos;
-          }
-          
-          if(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos])) {
-            ++tokens->pos;
-            while(tokens->pos < tokens->len &&
-                  pmath_char_is_digit(tokens->str[tokens->pos]))
-            {
-              ++tokens->pos;
-            }
-            
-            if( tokens->pos + 1 < tokens->len &&
-                tokens->str[tokens->pos] == '.' &&
-                pmath_char_is_digit(tokens->str[tokens->pos + 1]))
-            {
-              tokens->pos += 2;
-              while(tokens->pos < tokens->len &&
-                    pmath_char_is_digit(tokens->str[tokens->pos]))
-              {
-                ++tokens->pos;
-              }
-            }
-          }
-        }
-        
-        if( tokens->pos + 2 < tokens->len &&
-            tokens->str[tokens->pos]   == '*' &&
-            tokens->str[tokens->pos + 1] == '^' &&
-            (pmath_char_is_digit(tokens->str[tokens->pos + 2]) ||
-             (tokens->pos + 3 < tokens->len &&
-              (tokens->str[tokens->pos + 2] == '-' ||
-               tokens->str[tokens->pos + 2] == '+') &&
-              pmath_char_is_digit(tokens->str[tokens->pos + 3]))))
-        {
-          tokens->pos += 3;
-          while(tokens->pos < tokens->len &&
-                pmath_char_is_digit(tokens->str[tokens->pos]))
-          {
-            ++tokens->pos;
-          }
-        }
-      }
+    case '9':
+      scan_next_number(tokens, parser);
       break;
       
-    default: {
-        pmath_token_t tok;
-        uint32_t u;
-        
-        int prev = tokens->pos;
-        tok = scan_next_escaped_char(tokens, parser, &u);
-        
-        if(tok == PMATH_TOK_NAME) {
-          tokens->span_items[prev] |= 2;
-          
-          while(tokens->pos < tokens->len) {
-            prev = tokens->pos;
-            tok = scan_next_escaped_char(tokens, parser, &u);
-            
-            if( tok != PMATH_TOK_NAME &&
-                tok != PMATH_TOK_DIGIT)
-            {
-              tokens->pos = prev;
-              break;
-            }
-          }
-        }
-      }
+    case '\n':
+      tokens->in_line_comment = FALSE;
+    /* fall through */
+    default:
+      scan_next_as_name(tokens, parser);
   }
   
 END_SCAN:
@@ -1254,7 +1384,7 @@ static void parse_sequence(struct parser_t *parser) {
     
     if(tok == PMATH_TOK_NEWLINE && parser->fencelevel == 0)
       break;
-    
+      
     parse_prim(parser, FALSE);
     parse_rest(parser, start, PMATH_PREC_ANY);
     
@@ -1491,7 +1621,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
       /* Check whether the token after the line break can start an expression.
          If it can start an expression, then this line break is significant and
          essentially serves as an implicit `;`.
-         If the next token can only continue but not start an expression, then this 
+         If the next token can only continue but not start an expression, then this
          line break is non-significant.
        */
       int oldpos = parser->tokens.pos;
@@ -1651,7 +1781,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
             next = next_token_pos(parser);
             tok  = token_analyse(parser, next, &cur_prec);
           }
-        
+          
           --parser->fencelevel;
           
           if(tok == PMATH_TOK_RIGHT) {
@@ -1692,17 +1822,17 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
       case PMATH_TOK_INTEGRAL: {
           if(PMATH_PREC_MUL < min_prec)
             break;
-          
+            
           cur_prec = PMATH_PREC_MUL;
           tok      = PMATH_TOK_NARY;
           next     = parser->tokens.pos;
         } goto NARY;
-      
+        
       case PMATH_TOK_NEWLINE: {
           if(parser->fencelevel == 0)
             break;
         }
-        /* no break */
+      /* no break */
       case PMATH_TOK_NARY_AUTOARG: {
           pmath_token_t tok2;
           int           next2;
@@ -1794,10 +1924,10 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
             last_tok_end   = next;
             
             skip_to(parser, -1, next, tok == PMATH_TOK_NARY_AUTOARG);
-                     
+            
             rhs = parser->tokens.pos;
             parse_prim(parser, tok == PMATH_TOK_NARY_AUTOARG);
-               
+            
             next = next_token_pos(parser);
             oldpos = parser->tokens.pos;
             while(oldpos != next) {
@@ -1811,7 +1941,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
                 
                 /* Skip subsequent newlines (multiple empty lines).
                    If the next token after that cannot start an expression but can
-                   continue an expression, then the newline was not significant and 
+                   continue an expression, then the newline was not significant and
                    that token should be considered.
                    Otherwise the newline is significant (and acts as an implicit `;`)
                  */
@@ -2664,7 +2794,7 @@ static void ungroup(
         
         if(!old || old->end != g->pos - 1) {
           int i;
-        
+          
           pmath_bool_t have_mutliple_tokens = FALSE;
           for(i = start; i < g->pos - 1; ++i) {
             if(1 == SPAN_TOK(g->spans->items[i])) {

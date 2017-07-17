@@ -19,11 +19,20 @@
     "define function": {
         "prefix": "function",
         "body": [
-            "Function ${Name}(${~parameter}}) {",
+            "Function ${Name}(${~parameter}) {",
             "\t$1",
             "}"
         ],
         "description": "Function definition (block syntax)"
+    },
+    "define conditional function": {
+        "prefix": "functionwhere",
+        "body": [
+            "Function ${Name}(${~parameter}) Where(${condition}) {",
+            "\t$1",
+            "}"
+        ],
+        "description": "Conditional function definition (block syntax)"
     },
     "while block": {
         "prefix": "while",
