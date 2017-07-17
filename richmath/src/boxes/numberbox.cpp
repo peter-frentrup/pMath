@@ -16,18 +16,287 @@
 
 using namespace richmath;
 
+
+namespace {
+  static const uint16_t MULTIPLICATION_SPACE_CHAR = 0x2006;
+  static const uint16_t TIMES_CHAR = 0x00D7;
+  
+  
+  struct NumberPartPositions {
+    String _number;
+    
+    int mid_mant_start;
+    int mid_mant_end;
+    int radius_mant_start;
+    int radius_mant_end;
+    int radius_exp_start;
+    int radius_exp_end;
+    int prec_start;
+    int prec_end;
+    int exp_start;
+    int exp_end;
+    
+    explicit NumberPartPositions(String number) {
+      _number = number;
+      
+      const uint16_t *buf = _number.buffer();
+      const int       len = _number.length();
+      
+      mid_mant_start = 0;
+      while(mid_mant_start < len && pmath_char_is_digit(buf[mid_mant_start])) 
+        ++mid_mant_start;
+      
+      if( mid_mant_start + 1 < len        &&
+          buf[mid_mant_start]     == '^' &&
+          buf[mid_mant_start + 1] == '^')
+      {
+        mid_mant_start += 2;
+      }
+      else {
+        mid_mant_start = 0;
+      }
+      
+      mid_mant_end = mid_mant_start;
+      while(mid_mant_end < len && buf[mid_mant_end] != '`' && buf[mid_mant_end] != '[')
+        ++mid_mant_end;
+        
+      if(mid_mant_end < len && buf[mid_mant_end] == '[') {
+        radius_mant_start = mid_mant_end;
+        while(radius_mant_start < len && !pmath_char_is_36digit(buf[radius_mant_start]))
+          ++radius_mant_start;
+          
+        // TODO: support "p" or "e" exponent specifiers
+        radius_mant_end = radius_mant_start;
+        while(radius_mant_end < len && buf[radius_mant_end] != '*' && buf[radius_mant_end] != ']')
+          ++radius_mant_end;
+          
+        radius_exp_start = radius_mant_end;
+        if(radius_exp_start + 1 < len && buf[radius_mant_end] == '*' && buf[radius_mant_end + 1] == '^')
+          radius_exp_start += 2;
+          
+        radius_exp_end = radius_exp_start;
+        while(radius_exp_end < len && buf[radius_exp_end] != ']')
+          ++radius_exp_end;
+      }
+      else {
+        radius_mant_start = mid_mant_end;
+        radius_mant_end = mid_mant_end;
+        radius_exp_start = mid_mant_end;
+        radius_exp_end = mid_mant_end;
+      }
+      
+      prec_start = radius_exp_end;
+      while(prec_start < len && buf[prec_start] == '`')
+        ++prec_start;
+        
+      // TODO: support "p" or "e" exponent specifiers
+      prec_end = prec_start;
+      while(prec_end < len && buf[prec_end] != '*')
+        ++prec_end;
+        
+      exp_start = prec_end;
+      if(exp_start + 1 < len && buf[exp_start] == '*' && buf[exp_start + 1] == '^')
+        exp_start += 2;
+        
+      exp_end = len;
+    }
+    
+    bool has_radix() { return mid_mant_start > 2; }
+    int radix_end() { return (mid_mant_start > 2) ? mid_mant_start - 2 : 0; }
+    String radix() { return (mid_mant_start > 2) ? _number.part(0, radix_end()) : String(); } // TODO: support "0x" base as "16^^"
+    
+    String midpoint_mantissa() { return _number.part(mid_mant_start, mid_mant_end - mid_mant_start); }
+    
+    bool has_radius() { return radius_mant_start < radius_mant_end; }
+    String radius_mantissa() { return _number.part(radius_mant_start, radius_mant_end - radius_mant_start); }
+    
+    bool has_radius_exponent() { return radius_exp_start < radius_exp_end; }
+    String radius_exponent() { return _number.part(radius_exp_start, radius_exp_end - radius_exp_start); }
+    
+    bool has_exponent() { return exp_start < exp_end; }
+    String exponent() { return _number.part(exp_start, exp_end - exp_start); }
+  };
+  
+  struct PositionInRange {
+    int pos;
+    int start;
+    int end;
+    
+    PositionInRange(int _pos, int _start, int _end)
+      : pos(_pos),
+        start(_start),
+        end(_end)
+    {
+    }
+    
+    bool is_valid() { return start <= pos && pos <= end; }
+  };
+  
+}
+
+namespace richmath {
+  class NumberBoxImpl {
+    private:
+      NumberBox &self;
+      
+    public:
+      NumberBoxImpl(NumberBox &_self)
+        : self(_self)
+      {
+      }
+      
+    private:
+      void append(uint16_t chr) {
+        self._content->insert(self._content->length(), chr);
+      }
+      
+      void append(const uint16_t *ucs2, int len) {
+        self._content->insert(self._content->length(), ucs2, len);
+      }
+      
+      void append(const char *latin1, int len) {
+        self._content->insert(self._content->length(), latin1, len);
+      }
+      
+      void append(String s) {
+        self._content->insert(self._content->length(), s);
+      }
+      
+      void append(Box *box) {
+        self._content->insert(self._content->length(), box);
+      }
+      
+      MathSequence *append_radix(NumberPartPositions &parts) {
+        if(!parts.has_radix())
+          return nullptr;
+          
+        SubsuperscriptBox *bas = new SubsuperscriptBox(new MathSequence, 0);
+        MathSequence *seq = bas->subscript();
+        seq->insert(0, parts.radix());
+        append(bas);
+        return seq;
+      }
+      
+      MathSequence *append_superscript(NumberPartPositions &parts, String s) {
+        SubsuperscriptBox *exp = new SubsuperscriptBox(0, new MathSequence);
+        MathSequence *seq = exp->superscript();
+        seq->insert(0, s);
+        
+        const uint16_t times[3] = { MULTIPLICATION_SPACE_CHAR, TIMES_CHAR, MULTIPLICATION_SPACE_CHAR };
+        append(times, 3);
+        
+        if(parts.has_radix())
+          append(parts.radix());
+        else
+          append("10");
+          
+        append(exp);
+        return exp->superscript();
+      }
+      
+    public:
+      void set_number(String n) {
+        self._number = n;
+        self._base = nullptr;
+        self._radius_base = nullptr;
+        self._radius_exponent = nullptr;
+        self._exponent = nullptr;
+        
+        NumberPartPositions parts{ n };
+        
+        self._content->remove(0, self._content->length());
+        
+        append(parts.midpoint_mantissa());
+        self._base = append_radix(parts);
+        
+        if(parts.has_radius()) {
+          const uint16_t opening[2] = { '[', PMATH_CHAR_PLUSMINUS };
+          append(opening, 2);
+          
+          append(parts.radius_mantissa());
+          self._radius_base = append_radix(parts);
+          
+          if(parts.has_radius_exponent())
+            self._radius_exponent = append_superscript(parts, parts.radius_exponent());
+            
+          append(']');
+        }
+        
+        if(parts.has_exponent())
+          self._exponent = append_superscript(parts, parts.exponent());
+      }
+      
+    public:
+      PositionInRange selection_to_string_index(Box *selbox, int selpos) {
+        NumberPartPositions parts{ self._number };
+        
+        if(selbox == nullptr)
+          return PositionInRange(-1, 0, 0); // error
+          
+        if(selbox == self._exponent)
+          return PositionInRange(parts.exp_start + selpos, parts.exp_start, parts.exp_end);
+          
+        if(selbox == self._radius_exponent)
+          return PositionInRange(parts.radius_exp_start + selpos, parts.radius_exp_start, parts.radius_exp_end);
+          
+        if(selbox == self._base || selbox == self._radius_base)
+          return PositionInRange(selpos, 0, parts.radix_end());
+          
+        // we should be in the midpoint mantissa, radius mantissa or one of the "[+/-", "]" or "*10" parts
+        if(selbox != self._content)
+          return PositionInRange(-1, 0, 0); // error
+          
+        int len = self._content->length();
+        if(selpos <= 0)
+          return PositionInRange(0, 0, parts.mid_mant_end);
+          
+        if(selpos >= len)
+          return PositionInRange(self._number.length(), parts.exp_start, parts.exp_end);
+          
+        const uint16_t *buf = self._content->text().buffer();
+        int i = selpos;
+        while(i > 0 && (buf[i - 1] == '.' || pmath_char_is_36digit(buf[i - 1])))
+          --i;
+          
+        if(i == 0)
+          return PositionInRange(parts.mid_mant_start + selpos, parts.mid_mant_start, parts.mid_mant_end);
+          
+        if(buf[i - 1] == PMATH_CHAR_PLUSMINUS)
+          return PositionInRange(parts.radius_mant_start + selpos - i, parts.radius_mant_start, parts.radius_mant_end);
+          
+        if(buf[i - 1] == '[')
+          return PositionInRange(parts.mid_mant_end + selpos - i, parts.mid_mant_end + 1, parts.radius_mant_start);
+          
+        if(buf[i - 1] == MULTIPLICATION_SPACE_CHAR || buf[i - 1] == TIMES_CHAR) {
+          // in onw of the two "*^" exponent specifiers
+          int j = selpos;
+          while(j < len && (buf[j] == '.' || pmath_char_is_36digit(buf[j]) || buf[j] == PMATH_CHAR_BOX))
+            ++j;
+            
+          if(j == len)
+            return PositionInRange(self._number.length(), parts.prec_end, parts.exp_start);
+            
+          if(buf[j] == ']')
+            return PositionInRange(parts.radius_mant_end, parts.radius_mant_end, parts.radius_exp_start);
+        }
+        
+        return PositionInRange(-1, 0, 0); // error
+      }
+  };
+}
+
 //{ class NumberBox ...
 
 NumberBox::NumberBox()
   : OwnerBox()
 {
-  set_number(String(""));
+  NumberBoxImpl(*this).set_number(String(""));
 }
 
 NumberBox::NumberBox(String number)
   : OwnerBox()
 {
-  set_number(number);
+  NumberBoxImpl(*this).set_number(number);
 }
 
 bool NumberBox::try_load_from_object(Expr expr, int opts) {
@@ -41,7 +310,7 @@ bool NumberBox::try_load_from_object(Expr expr, int opts) {
   if(s.is_null())
     return false;
     
-  set_number(s);
+  NumberBoxImpl(*this).set_number(s);
   return true;
 }
 
@@ -52,93 +321,19 @@ bool NumberBox::edit_selection(Context *context) {
       return false;
       
     Box *selbox = context->selection.get();
-    if(_exponent && selbox == _exponent) {
-      int s = context->selection.start + _index + _expstart;
-      int e = context->selection.end   + _index + _expstart;
-      context->selection.set(seq, s, e);
-      
-      if(_number[_number.length() - 1] == '`') {
-        if( pmath_char_is_digit(seq->text()[_index + 1]) ||
-            seq->text()[_index + 1] == '-'               ||
-            seq->text()[_index + 1] == '+')
-        {
-          seq->insert(_index + 1, " ");
-        }
-      }
-      seq->insert(_index + 1, _number);
-      seq->remove(_index, _index + 1); // deletes this
-      return true;
-    }
+    PositionInRange pos_start = NumberBoxImpl(*this).selection_to_string_index(selbox, context->selection.start);
+    PositionInRange pos_end = NumberBoxImpl(*this).selection_to_string_index(selbox, context->selection.end);
     
-    if(_base && selbox == _base) {
-      int s = context->selection.start + _index;
-      int e = context->selection.end   + _index;
-      context->selection.set(seq, s, e);
-      
-      if(_number[_number.length() - 1] == '`') {
-        if(pmath_char_is_digit(seq->text()[_index + 1]) ||
-            seq->text()[_index + 1] == '-'              ||
-            seq->text()[_index + 1] == '+')
-        {
-          seq->insert(_index + 1, " ");
-        }
-      }
-      seq->insert(_index + 1, _number);
-      seq->remove(_index, _index + 1); // deletes this
-      return true;
-    }
+    if(!pos_start.is_valid() || !pos_end.is_valid())
+      return false;
     
-    if(selbox == _content) {
-      int s = context->selection.start;
-      int e = context->selection.end;
-      if(s == _content->length())
-        s = _index + _number.length();
-      else
-        s += _index + _numstart;
-        
-      if(e == _content->length())
-        e = _index + _number.length();
-      else
-        e += _index + _numstart;
-        
-      context->selection.set(seq, s, e);
-      
-      if(_number[_number.length() - 1] == '`') {
-        if(pmath_char_is_digit(seq->text()[_index + 1]) ||
-            seq->text()[_index + 1] == '-'              ||
-            seq->text()[_index + 1] == '+')
-        {
-          seq->insert(_index + 1, " ");
-        }
-      }
-      seq->insert(_index + 1, _number);
-      seq->remove(_index, _index + 1); // deletes this
-      return true;
-    }
+    int i = _index;
     
-    if(selbox == seq) {
-      int s = context->selection.start;
-      int e = context->selection.end;
-      if(s > _index)
-        s += _number.length();
-        
-      if(e > _index)
-        e += _number.length();
-        
-      if(_number[_number.length() - 1] == '`') {
-        if(pmath_char_is_digit(seq->text()[_index + 1]) ||
-            seq->text()[_index + 1] == '-'              ||
-            seq->text()[_index + 1] == '+')
-        {
-          seq->insert(_index + 1, " ");
-        }
-      }
-      seq->insert(_index + 1, _number);
-      seq->remove(_index, _index + 1); // deletes this
-      
-      context->selection.set(selbox, s, e);
-      return true;
-    }
+    seq->insert(_index + 1, _number);
+    seq->remove(_index, _index + 1); // deletes this
+    
+    context->selection.set(seq, i + pos_start.pos, i + pos_end.pos);
+    return true;
   }
   
   return false;
@@ -214,297 +409,6 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
   }
   
   return boxes;
-}
-
-static int base36_value(uint16_t ch) {
-  if('0' <= ch && ch <= '9')
-    return (int)(ch - '0');
-    
-  if('a' <= ch && ch <= 'z')
-    return (int)(ch - 'a' + 10);
-    
-  if('A' <= ch && ch <= 'Z')
-    return (int)(ch - 'A' + 10);
-    
-  return 0;
-}
-
-static String round_digits(String number, int maxdigits, int base) { // xxx.xxx, without sign or exponent or trailing "`"
-  static const char alphabet_low[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-  
-  static Array<uint16_t> newbuf_array;
-  
-  const uint16_t *buf = number.buffer();
-  int             len  = number.length();
-  
-  if(maxdigits < 1)
-    maxdigits = 1;
-    
-  int decimal_point = 0;
-  while(decimal_point < len && pmath_char_is_36digit(buf[decimal_point]))
-    ++decimal_point;
-    
-  if(decimal_point == len || buf[decimal_point] != '.')
-    return number;
-    
-  if(buf[0] == '0')
-    ++maxdigits;
-    
-  newbuf_array.length(len);
-  uint16_t *newbuf = newbuf_array.items();
-  memcpy(newbuf, buf, decimal_point * sizeof(uint16_t));
-  
-  int i;
-  for(i = decimal_point + 1; i < len && pmath_char_is_36digit(buf[i]); ++i)
-    newbuf[i - 1] = buf[i];
-    
-  if(i != len || len <= maxdigits + 1)
-    return number;
-    
-  bool round_up = base36_value(newbuf[maxdigits]) >= base - base / 2; // round base/2 up
-  
-  i = maxdigits - 1;
-  if(round_up) {
-    while(i >= 0) {
-      int val = base36_value(newbuf[i]);
-      
-      if(val >= base - 1) {
-        newbuf[i] = '0';
-        --i;
-      }
-      else {
-        newbuf[i] = alphabet_low[val + 1];
-        break;
-      }
-    }
-  }
-  
-  while(maxdigits > decimal_point + 1 && newbuf[maxdigits - 1] == '0')
-    --maxdigits;
-    
-  String num;
-  if(maxdigits <= decimal_point)
-    num = String::FromUcs2(newbuf, decimal_point) + ".0";
-  else
-    num = String::FromUcs2(newbuf, decimal_point) + "." + String::FromUcs2(newbuf + decimal_point, maxdigits - decimal_point);
-    
-  if(i < 0)
-    return String("1") + num;
-  return num;
-}
-
-static double parse_double(const uint16_t *buf, int len) {
-  int i = 0;
-  double value = 0.0;
-  double div = 1.0;
-  int sign = 1;
-  
-  if(i == len)
-    return 0.0;
-    
-  if(buf[i] == '-') {
-    sign = -1;
-    ++i;
-  }
-  else if(buf[i] == '+')
-    ++i;
-  
-  while(i < len && pmath_char_is_digit(buf[i])) {
-    value = 10 * value + (buf[i] - '0');
-    ++i;
-  }
-  
-  if(i == len)
-    return sign * value;
-    
-  if(buf[i] == '.') {
-    ++i;
-    while(i < len && pmath_char_is_digit(buf[i])) {
-      value = 10 * value + (buf[i] - '0');
-      div = 10 * div;
-      ++i;
-    }
-    
-    value /= div;
-  }
-  
-  return sign * value;
-}
-
-void NumberBox::set_number(String n) {
-  _number = n;
-  _base     = 0;
-  _exponent = 0;
-  unsigned numbase = 0;
-  
-  const uint16_t *buf = _number.buffer();
-  const int       len = _number.length();
-  
-  _numstart = 0;
-  while(_numstart < len && pmath_char_is_digit(buf[_numstart])) {
-    numbase = 10 * numbase + (unsigned)(buf[_numstart] - '0');
-    ++_numstart;
-  }
-  
-  if(_numstart + 1 < len        &&
-      buf[_numstart]     == '^' &&
-      buf[_numstart + 1] == '^')
-  {
-    _numstart += 2;
-  }
-  else {
-    numbase = 10;
-    _numstart = 0;
-  }
-  
-  _numend = _numstart;
-  while(_numend < len && buf[_numend] != '`')
-    ++_numend;
-    
-  _content->remove(0, _content->length());
-  
-  _expstart = _numend;
-  while(_expstart < len && buf[_expstart] != '^')
-    ++_expstart;
-    
-  if(numbase >= 2 && numbase <= 36) {
-    if(_numend + 2 < len && buf[_numend + 1] == '`') { // 1.2``3   1.2``3*^4
-      if(_expstart == len) {
-        double accuracy = parse_double(buf + (_numend + 2), len - (_numend + 2));
-        
-        if(fabs(accuracy) < 1e9) {
-          int i = _content->insert(0, _number.part(_numstart, _numend - _numstart));
-          
-          if(_numstart > 2) {
-            SubsuperscriptBox *bas = new SubsuperscriptBox(new MathSequence, 0);
-            _base = bas->subscript();
-            
-            _base->insert(0, _number.part(0, _numstart - 2));
-            _content->insert(i, bas);
-          }
-          
-          SubsuperscriptBox *exp = new SubsuperscriptBox(0, new MathSequence);
-          _exponent = exp->superscript();
-          
-          _expstart = _numend + 2;
-          
-          char s[20];
-          snprintf(s, sizeof(s), "%d", (int)-ceil(accuracy));
-          _exponent->insert(_exponent->length(), s);
-          
-          i = _content->insert(i, 0x2006);
-          i = _content->insert(i, 0x00D7);
-          i = _content->insert(i, 0x2006);
-          if(_numstart > 2) {
-            _content->insert(i, _number.part(0, _numstart - 2));
-            _content->insert(i + _numstart - 2, exp);
-          }
-          else {
-            _content->insert(i, "10");
-            _content->insert(i + 2, exp);
-          }
-          
-          return;
-        }
-        else {
-          _numend = _expstart;
-          _content->insert(0, _number.part(_numstart, _numend - _numstart));
-        }
-      }
-      else {
-        _numend = _expstart;
-        _content->insert(0, _number.part(_numstart, _numend - _numstart));
-      }
-    }
-    else if((_numend + 1 == len ||
-             (_numend + 1 < len &&
-              buf[_numend + 1] != '`' &&
-              !pmath_char_is_digit(buf[_numend + 1])))) // 1.2`3   1.2`3*^4
-    {
-      // machine number: do not show all digits
-      int digits = 6;
-      
-      if(numbase != 10) {
-        digits = (int)ceil(digits * log(10.0) / log((double)numbase));
-      }
-      
-      _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, (int)numbase));
-    }
-    else if(_numend + 1 < len && pmath_char_is_digit(buf[_numend + 1])) {
-      int digits = 0;
-      
-      int i = _numend + 1;
-      while(i < len && digits < 1000000 && pmath_char_is_digit(buf[i])) {
-        digits = 10 * digits + (buf[i] - '0');
-        ++i;
-      }
-      
-      if(numbase != 10) {
-        digits = (int)ceil(digits * log(10.0) / log((double)numbase));
-      }
-//      else if(i < len && buf[i] == '.') {
-//        ++i;
-//        while(i < len){
-//          if(buf[i] >= '1' && buf[i] <= '9') {
-//            ++digits;
-//            break;
-//          }
-//
-//          if(buf[i] != '0')
-//            break;
-//
-//          ++i;
-//        }
-//      }
-
-      if(_numend - _numstart - 1 >= digits) {
-        _content->insert(0, round_digits(_number.part(_numstart, _numend - _numstart), digits, numbase));
-      }
-      else {
-        _content->insert(0, _number.part(_numstart, _numend - _numstart));
-        
-        i = digits - (_numend - _numstart - 1);
-        while(i-- > 0)
-          _content->insert(_content->length(), '0');
-      }
-    }
-    else
-      _content->insert(0, _number.part(_numstart, _numend - _numstart));
-  }
-  else
-    _content->insert(0, _number.part(_numstart, _numend - _numstart));
-    
-  if(_numstart > 2) {
-    SubsuperscriptBox *bas = new SubsuperscriptBox(new MathSequence, 0);
-    _base = bas->subscript();
-    
-    _base->insert(0, _number.part(0, _numstart - 2));
-    _content->insert(_content->length(), bas);
-  }
-  
-  if(_expstart + 1 < len && buf[_expstart] == '^') {
-    _expstart++;
-    
-    SubsuperscriptBox *exp = new SubsuperscriptBox(0, new MathSequence);
-    _exponent = exp->superscript();
-    
-    _exponent->insert(0, _number.part(_expstart, -1));
-    
-    int i = _content->length();
-    _content->insert(i++, 0x2006);
-    _content->insert(i++, 0x00D7);
-    _content->insert(i++, 0x2006);
-    if(_numstart > 2) {
-      _content->insert(i, _number.part(0, _numstart - 2));
-      _content->insert(i + _numstart - 2, exp);
-    }
-    else {
-      _content->insert(i, "10");
-      _content->insert(i + 2, exp);
-    }
-  }
-  else
-    _expstart = -1;
 }
 
 //} ... class NumberBox

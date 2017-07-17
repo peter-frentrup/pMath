@@ -6,6 +6,7 @@
 
 namespace richmath {
   class NumberBox: public OwnerBox {
+      friend class NumberBoxImpl;
     public:
       NumberBox();
       explicit NumberBox(String number);
@@ -25,16 +26,11 @@ namespace richmath {
       static Expr prepare_boxes(Expr boxes);
       
     private:
-      void set_number(String n);
-      
-    private:
       String        _number;
       MathSequence *_base;
+      MathSequence *_radius_base;
+      MathSequence *_radius_exponent;
       MathSequence *_exponent;
-      
-      int _numstart;
-      int _numend;
-      int _expstart;
   };
 }
 
