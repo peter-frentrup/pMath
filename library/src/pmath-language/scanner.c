@@ -806,16 +806,16 @@ static void scan_number_radius(struct scanner_t *tokens, struct parser_t *parser
     goto FAIL;
     
   if(is_base36) {
-    if(!pmath_char_is_digit(tokens->str[tokens->pos]))
-      goto FAIL;
-      
-    scan_float_decimal_digits_rest(tokens, parser);
-  }
-  else {
     if(!pmath_char_is_36digit(tokens->str[tokens->pos]))
       goto FAIL;
       
     scan_float_base36_digits_rest(tokens, parser);
+  }
+  else {
+    if(!pmath_char_is_digit(tokens->str[tokens->pos]))
+      goto FAIL;
+      
+    scan_float_decimal_digits_rest(tokens, parser);
   }
   
   scan_number_exponent(tokens, parser);
