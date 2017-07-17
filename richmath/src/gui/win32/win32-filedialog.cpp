@@ -186,8 +186,7 @@ namespace richmath {
         if(!doc) 
           return nullptr;
         
-        Win32Widget *widget = dynamic_cast<Win32Widget *>(doc->native());
-        if(widget) 
+        if(auto widget = dynamic_cast<Win32Widget *>(doc->native())) 
           return GetAncestor(widget->hwnd(), GA_ROOT);
         
         return nullptr;

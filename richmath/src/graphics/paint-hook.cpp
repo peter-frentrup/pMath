@@ -2,6 +2,8 @@
 
 #include<boxes/mathsequence.h>
 #include<graphics/context.h>
+#include<gui/document.h>
+#include<gui/native-widget.h>
 
 
 using namespace richmath;
@@ -37,8 +39,7 @@ void PaintHookManager::add(Box *box, SharedPtr<PaintHook> hook) {
   HOOK_ASSERT(hook.is_valid());
   HOOK_ASSERT(!hook->_next.is_valid());
   
-  Entry<Box *, SharedPtr<PaintHook> > *entry = _hooks.search_entry(box);
-  if(entry) {
+  if(auto entry = _hooks.search_entry(box)) {
     hook->_next = entry->value;
     entry->value = hook;
     return;
@@ -52,8 +53,7 @@ void PaintHookManager::run(Box *box, Context *context) {
   HOOK_ASSERT(box);
   HOOK_ASSERT(context);
   
-  Entry<Box *, SharedPtr<PaintHook> > *entry = _hooks.search_entry(box);
-  if(entry) {
+  if(auto entry = _hooks.search_entry(box)) {
     SharedPtr<PaintHook> hook = entry->value;
     
     float x0, y0;
@@ -74,13 +74,10 @@ void PaintHookManager::run(Box *box, Context *context) {
 
 void PaintHookManager::move_into(PaintHookManager &other) {
   for(unsigned i = 0, u = 0; u < _hooks.size(); ++i) {
-    Entry<Box *, SharedPtr<PaintHook> > *my = _hooks.entry(i);
-    
-    if(my) {
+    if(auto my = _hooks.entry(i)) {
       ++u;
       
-      Entry<Box *, SharedPtr<PaintHook> > *their = other._hooks.search_entry(my->key);
-      if(their) {
+      if(auto their = other._hooks.search_entry(my->key)) {
         SharedPtr<PaintHook> hook = my->value;
         
         while(hook.is_valid()) {

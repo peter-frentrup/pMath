@@ -36,8 +36,8 @@ SectionList::SectionList()
 }
 
 SectionList::~SectionList() {
-  for(int i = 0; i < _sections.length(); ++i)
-    delete _sections[i];
+  for(auto section : _sections)
+    delete section;
 }
 
 Box *SectionList::item(int i) {
@@ -580,10 +580,8 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
     }
   }
   else {
-    Section *section;
-    
     if(*pos < overwrite_until_index) {
-      section = _sections[*pos];
+      Section *section = _sections[*pos];
       
       if(section->try_load_from_object(boxes, BoxOptionDefault)) {
         _group_info[*pos].precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
@@ -594,8 +592,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       }
     }
     
-    section = Section::create_from_object(boxes);
-    if(section) {
+    if(auto section = Section::create_from_object(boxes)) {
       //insert(*pos, s);
       _sections.insert(*pos, 1, &section);
       adopt(section, *pos);

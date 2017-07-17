@@ -14,6 +14,7 @@
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-menubar.h>
+#include <gui/win32/win32-scrollbar-overlay.h>
 #include <gui/win32/win32-themes.h>
 #include <resources.h>
 
@@ -29,18 +30,17 @@ using namespace richmath;
   do{ \
     BasicWin32Window *_FOREACH_WINDOW_FIRST = BasicWin32Window::first_window(); \
     \
-    if(_FOREACH_WINDOW_FIRST){ \
+    if(_FOREACH_WINDOW_FIRST) { \
       bool _FOREACH_WINDOW_FIRST_TIME = true; \
       \
       for( \
            BasicWin32Window *_FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_FIRST; \
            _FOREACH_WINDOW_FIRST_TIME || _FOREACH_WINDOW_NEXT != _FOREACH_WINDOW_FIRST; \
            _FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_NEXT->next_window() \
-         ){ \
+         ) { \
         _FOREACH_WINDOW_FIRST_TIME = false; \
-        Win32DocumentWindow *NAME = dynamic_cast<Win32DocumentWindow*>(_FOREACH_WINDOW_NEXT); \
         \
-        if(NAME){ \
+        if(auto NAME = dynamic_cast<Win32DocumentWindow*>(_FOREACH_WINDOW_NEXT)) { \
           PROC \
         } \
       } \
@@ -63,6 +63,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       Win32DocumentWindow *parent)
       : Win32Widget(doc, style_ex, style, x, y, width, height, &parent->hwnd()),
         _parent(parent),
+        _overlay(&parent->hwnd(), &hwnd()),
         auto_size(false),
         best_width(1),
         best_height(1)
@@ -71,7 +72,6 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
     virtual void page_size(float *w, float *h) override {
       Win32Widget::page_size(w, h);
-      
       if(auto_size)
         *w = HUGE_VAL;
     }
@@ -103,6 +103,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
   private:
     Win32DocumentWindow *_parent;
+    Win32ScrollBarOverlay _overlay;
     
   public:
     bool auto_size;
@@ -111,6 +112,20 @@ class richmath::Win32WorkingArea: public Win32Widget {
     int best_height;
     
   protected:
+    virtual void after_construction() override {
+      Win32Widget::after_construction();
+      
+      fprintf(stderr, "[Win32WorkingArea::after_construction, hwnd = %p]\n", hwnd());
+      _overlay.init();
+      SetWindowText(_overlay.hwnd(), "Scrollbar overlay");
+      _overlay.update();
+    }
+    
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
+      _overlay.handle_scrollbar_owner_callback(message, wParam, lParam);
+      return Win32Widget::callback(message, wParam, lParam);
+    }
+    
     void rearrange() {
       if(auto_size) {
         RECT rect;
@@ -139,7 +154,19 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
+      _overlay.clear();
       Win32Widget::paint_canvas(canvas, resize_only);
+      
+      _overlay.set_scale(scale_factor());
+      if(Box *sel = document()->selection_box()) {
+        add_overlay(canvas, sel, document()->selection_start(), document()->selection_end(), 0x000080, IndicatorLane::All);
+      }
+      for(auto ref : document()->current_word_references()) {
+        if(Box *box = ref.get()) {
+         add_overlay(canvas, box, ref.start, ref.end, 0xFF8000, IndicatorLane::Middle);
+        }
+      }
+      _overlay.update();
       
       if(auto_size) {
         int old_bh = best_height;
@@ -166,6 +193,24 @@ class richmath::Win32WorkingArea: public Win32Widget {
       }
       else
         best_width = best_height = 1;
+    }
+    
+    void add_overlay(Canvas *canvas, Box *box, int start, int end, unsigned color, IndicatorLane lane) {
+      cairo_matrix_t mat;
+      cairo_matrix_init_identity(&mat);
+      box->transformation(nullptr, &mat);
+      
+      canvas->save();
+      canvas->transform(mat);
+      canvas->move_to(0, 0);
+      box->selection_path(canvas, start, end);
+      canvas->restore();
+      
+      double x1,y1,x2,y2;
+      cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
+      canvas->new_path();
+      
+      _overlay.add((y1 + y2)/2, color, lane);
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint) override {
@@ -535,8 +580,8 @@ Win32DocumentWindow::Win32DocumentWindow(
 {
   _working_area = new Win32WorkingArea(
     doc,
-    0,
-    WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE,
+    WS_EX_COMPOSITED,
+    WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_CLIPSIBLINGS,
     0, 0, 0, 0,
     this);
     
@@ -1129,10 +1174,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
               
               HWND next_hwnd = GetWindow(_hwnd, GW_HWNDFIRST);
               while(next_hwnd) {
-                BasicWin32Window *wnd = dynamic_cast<BasicWin32Window *>(
-                                          BasicWin32Widget::from_hwnd(next_hwnd));
-                                          
-                if(wnd)// && wnd->zorder_level() <= zorder_level())
+                if(auto wnd = dynamic_cast<BasicWin32Window *>(BasicWin32Widget::from_hwnd(next_hwnd)))// && wnd->zorder_level() <= zorder_level())
                   all_lower.add(wnd);
                   
                 next_hwnd = GetWindow(next_hwnd, GW_HWNDNEXT);
@@ -1171,7 +1213,6 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           }
           else {
             already_activated = false;
-            
             if(current_doc)
               current_doc->focus_killed();
           }
@@ -1190,19 +1231,17 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             if(cmd_string.starts_with("@shaper=")) {
               cmd_string = cmd_string.part(sizeof("@shaper=") - 1, -1);
               
-              SharedPtr<MathShaper> *ms = MathShaper::available_shapers.search(cmd_string);
-              
-              if(ms) {
-                _top_glass_area->document_context()->math_shaper    = *ms;
-                _top_glass_area->document_context()->text_shaper    = *ms;
-                _top_area->document_context()->math_shaper          = *ms;
-                _top_area->document_context()->text_shaper          = *ms;
-                _bottom_area->document_context()->math_shaper       = *ms;
-                _bottom_area->document_context()->text_shaper       = *ms;
-                _bottom_glass_area->document_context()->math_shaper = *ms;
-                _bottom_glass_area->document_context()->text_shaper = *ms;
-                _working_area->document_context()->math_shaper      = *ms;
-                _working_area->document_context()->text_shaper      = *ms;
+              if(auto math_shaper = MathShaper::available_shapers.search(cmd_string)) {
+                _top_glass_area->document_context()->math_shaper    = *math_shaper;
+                _top_glass_area->document_context()->text_shaper    = *math_shaper;
+                _top_area->document_context()->math_shaper          = *math_shaper;
+                _top_area->document_context()->text_shaper          = *math_shaper;
+                _bottom_area->document_context()->math_shaper       = *math_shaper;
+                _bottom_area->document_context()->text_shaper       = *math_shaper;
+                _bottom_glass_area->document_context()->math_shaper = *math_shaper;
+                _bottom_glass_area->document_context()->text_shaper = *math_shaper;
+                _working_area->document_context()->math_shaper      = *math_shaper;
+                _working_area->document_context()->text_shaper      = *math_shaper;
                 
                 _top_glass_area->document()->invalidate_all();
                 _top_area->document()->invalidate_all();

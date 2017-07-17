@@ -17,20 +17,21 @@ GeneralSyntaxInfo::GeneralSyntaxInfo()
 {
   memset(&glyph_style_colors, 0, sizeof(glyph_style_colors));
   
-  glyph_style_colors[GlyphStyleImplicit]          = 0x999999;
-  glyph_style_colors[GlyphStyleString]            = 0x808080;//0xFF0080;
-  glyph_style_colors[GlyphStyleComment]           = 0x008000;
-  glyph_style_colors[GlyphStyleParameter]         = 0x438958;
-  glyph_style_colors[GylphStyleLocal]             = 0x438958;
-  glyph_style_colors[GylphStyleScopeError]        = 0xCC0000;
-  glyph_style_colors[GlyphStyleNewSymbol]         = 0x002CC3;
-  glyph_style_colors[GlyphStyleShadowError]       = 0xFF3333;
-  glyph_style_colors[GlyphStyleSyntaxError]       = 0xC254CC;
-  glyph_style_colors[GlyphStyleSpecialUse]        = 0x3C7D91;
-  glyph_style_colors[GlyphStyleExcessArg]         = 0xFF3333;
-  glyph_style_colors[GlyphStyleMissingArg]        = 0xFF3333;
-  glyph_style_colors[GlyphStyleInvalidOption]     = 0xFF3333;
-  glyph_style_colors[GlyphStyleSpecialStringPart] = 0xD95355;
+  glyph_style_colors[GlyphStyleImplicit]           = 0x999999;
+  glyph_style_colors[GlyphStyleString]             = 0x808080;//0xFF0080;
+  glyph_style_colors[GlyphStyleComment]            = 0x008000;
+  glyph_style_colors[GlyphStyleParameter]          = 0x438958;
+  glyph_style_colors[GylphStyleLocal]              = 0x438958;
+  glyph_style_colors[GylphStyleScopeError]         = 0xCC0000;
+  glyph_style_colors[GlyphStyleNewSymbol]          = 0x002CC3;
+  glyph_style_colors[GlyphStyleShadowError]        = 0xFF3333;
+  glyph_style_colors[GlyphStyleSyntaxError]        = 0xFF0000;
+  glyph_style_colors[GlyphStyleSpecialUse]         = 0x3C7D91;
+  glyph_style_colors[GlyphStyleExcessOrMissingArg] = 0xFF3333;
+  glyph_style_colors[GlyphStyleInvalidOption]      = 0xFF3333;
+  glyph_style_colors[GlyphStyleSpecialStringPart]  = 0xD95355;
+  glyph_style_colors[GlyphStyleKeyword]            = 0xAF00DB;
+  glyph_style_colors[GlyphStyleFunctionCall]       = 0x795E26;
 }
 
 GeneralSyntaxInfo::~GeneralSyntaxInfo() {
@@ -69,9 +70,9 @@ SymbolInfo::SymbolInfo(
   SharedPtr<ScopePos>   _pos,
   SharedPtr<SymbolInfo> _next)
   : Shareable(),
-  kind(_kind),
-  pos(_pos ? _pos : dummy_pos),
-  next(_next)
+    kind(_kind),
+    pos(_pos ? _pos : dummy_pos),
+    next(_next)
 {
 }
 
@@ -88,14 +89,93 @@ void SymbolInfo::add(SymbolKind _kind, SharedPtr<ScopePos> _pos) {
 
 //} ... class SymbolInfo
 
+class SyntaxInformationImpl {
+  private:
+    SyntaxInformation &self;
+    
+  public:
+    SyntaxInformationImpl(SyntaxInformation &_self)
+      : self(_self)
+    {
+    }
+    
+    void init_argument_count(Expr value) {
+      if(value.is_int32() && PMATH_AS_INT32(value.get()) >= 0) {
+        self.minargs = self.maxargs = PMATH_AS_INT32(value.get());
+      }
+      else if( value.is_expr()                &&
+               value[0] == PMATH_SYMBOL_RANGE &&
+               value.expr_length() == 2)
+      {
+        if( value[1].is_int32() &&
+            PMATH_AS_INT32(value[1].get()) >= 0)
+        {
+          self.minargs = PMATH_AS_INT32(value[1].get());
+        }
+        
+        if( value[2].is_int32() &&
+            PMATH_AS_INT32(value[2].get()) >= 0)
+        {
+          self.maxargs = PMATH_AS_INT32(value[2].get());
+        }
+      }
+    }
+    
+    void init_local_variables(Expr value) {
+      if( !value.is_expr() || value.expr_length() != 2 || value[0] != PMATH_SYMBOL_LIST)
+        return;
+      
+      String form(value[1]);
+      if(form.equals("Function"))
+        self.locals_form = FunctionSpec;
+      else if(form.equals("Local"))
+        self.locals_form = LocalSpec;
+      else if(form.equals("Table"))
+        self.locals_form = TableSpec;
+        
+      if(self.locals_form != NoSpec) {
+        value = value[2];
+        
+        if( value.is_int32() &&
+            PMATH_AS_INT32(value.get()) >= 0)
+        {
+          self.locals_min = self.locals_max = PMATH_AS_INT32(value.get());
+        }
+        else if( value.is_expr()                &&
+                 value[0] == PMATH_SYMBOL_RANGE &&
+                 value.expr_length() == 2)
+        {
+          if( value[1].is_int32() &&
+              PMATH_AS_INT32(value[1].get()) >= 0)
+          {
+            self.locals_min = PMATH_AS_INT32(value[1].get());
+          }
+          
+          if( value[2].is_int32() &&
+              PMATH_AS_INT32(value[2].get()) >= 0)
+          {
+            self.locals_max = PMATH_AS_INT32(value[2].get());
+          }
+        }
+      }
+    }
+    
+    void init_category(Expr value) {
+      String str(value);
+      if(str.equals("Keyword"))
+        self.is_keyword = true;
+    }
+};
+
 //{ class SyntaxInformation ...
 
 SyntaxInformation::SyntaxInformation(Expr name)
   : minargs(0),
-  maxargs(INT_MAX),
-  locals_form(NoSpec),
-  locals_min(1),
-  locals_max(INT_MAX)
+    maxargs(INT_MAX),
+    locals_form(NoSpec),
+    locals_min(1),
+    locals_max(INT_MAX),
+    is_keyword(false)
 {
   Expr expr = Application::interrupt_cached(Call(
                 Symbol(PMATH_SYMBOL_SYNTAXINFORMATION),
@@ -111,72 +191,13 @@ SyntaxInformation::SyntaxInformation(Expr name)
         String key(opt[1]);
         
         if(key.equals("ArgumentCount")) {
-          Expr value = opt[2];
-          
-          if( value.is_int32() &&
-              PMATH_AS_INT32(value.get()) >= 0)
-          {
-            minargs = maxargs = PMATH_AS_INT32(value.get());
-          }
-          else if( value.is_expr()                &&
-                   value[0] == PMATH_SYMBOL_RANGE &&
-                   value.expr_length() == 2)
-          {
-            if( value[1].is_int32() &&
-                PMATH_AS_INT32(value[1].get()) >= 0)
-            {
-              minargs = PMATH_AS_INT32(value[1].get());
-            }
-            
-            if( value[2].is_int32() &&
-                PMATH_AS_INT32(value[2].get()) >= 0)
-            {
-              maxargs = PMATH_AS_INT32(value[2].get());
-            }
-          }
+          SyntaxInformationImpl(*this).init_argument_count(opt[2]);
         }
         else if(key.equals("LocalVariables")) {
-          Expr value = opt[2];
-          
-          if( value.is_expr()          &&
-              value.expr_length() == 2 &&
-              value[0] == PMATH_SYMBOL_LIST)
-          {
-            String form(value[1]);
-            
-            if(form.equals("Function"))
-              locals_form = FunctionSpec;
-            else if(form.equals("Local"))
-              locals_form = LocalSpec;
-            else if(form.equals("Table"))
-              locals_form = TableSpec;
-              
-            if(locals_form != NoSpec) {
-              value = value[2];
-              
-              if( value.is_int32() &&
-                  PMATH_AS_INT32(value.get()) >= 0)
-              {
-                locals_min = locals_max = PMATH_AS_INT32(value.get());
-              }
-              else if( value.is_expr()                &&
-                       value[0] == PMATH_SYMBOL_RANGE &&
-                       value.expr_length() == 2)
-              {
-                if( value[1].is_int32() &&
-                    PMATH_AS_INT32(value[1].get()) >= 0)
-                {
-                  locals_min = PMATH_AS_INT32(value[1].get());
-                }
-                
-                if( value[2].is_int32() &&
-                    PMATH_AS_INT32(value[2].get()) >= 0)
-                {
-                  locals_max = PMATH_AS_INT32(value[2].get());
-                }
-              }
-            }
-          }
+          SyntaxInformationImpl(*this).init_local_variables(opt[2]);
+        }
+        else if(key.equals("Category")) {
+          SyntaxInformationImpl(*this).init_category(opt[2]);
         }
       }
     }
@@ -189,8 +210,8 @@ SyntaxInformation::SyntaxInformation(Expr name)
 
 SyntaxState::SyntaxState()
   : Base(),
-  in_pattern(false),
-  in_function(false)
+    in_pattern(false),
+    in_function(false)
 {
 }
 

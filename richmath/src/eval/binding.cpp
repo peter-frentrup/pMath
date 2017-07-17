@@ -19,9 +19,7 @@ static int current_document_id = 0;
 
 static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
   double start = pmath_tickcount();
-  
   Expr filename(pmath_expr_get_item(expr, 1));
-  
   Expr data = Expr(
                 pmath_evaluate(
                   pmath_expr_new_extended(
@@ -89,7 +87,6 @@ static pmath_t builtin_createdocument(pmath_expr_t expr) {
 
 static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
   Expr expr(_expr);
-  
   if(expr.expr_length() != 2) {
     pmath_message_argxxx(expr.expr_length(), 2, 2);
     return expr.release();
@@ -102,7 +99,6 @@ static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
 
 static pmath_t builtin_documentdelete(pmath_expr_t _expr) {
   Expr expr(_expr);
-  
   if(expr.expr_length() > 1) {
     pmath_message_argxxx(expr.expr_length(), 0, 1);
     return expr.release();
@@ -115,7 +111,6 @@ static pmath_t builtin_documentdelete(pmath_expr_t _expr) {
 
 static pmath_t builtin_documentget(pmath_expr_t _expr) {
   Expr expr(_expr);
-  
   if(expr.expr_length() > 1) {
     pmath_message_argxxx(expr.expr_length(), 0, 1);
     return expr.release();
@@ -274,7 +269,6 @@ static MenuCommandStatus can_abort(Expr cmd) {
 
 static MenuCommandStatus can_convert_dynamic_to_literal(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc || doc->selection_length() == 0)
     return MenuCommandStatus(false);
     
@@ -287,7 +281,6 @@ static MenuCommandStatus can_convert_dynamic_to_literal(Expr cmd) {
 
 static MenuCommandStatus can_copy_cut(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc || !doc->can_copy())
     return MenuCommandStatus(false);
     
@@ -302,7 +295,6 @@ static MenuCommandStatus can_copy_cut(Expr cmd) {
 
 static MenuCommandStatus can_open_close_group(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc || doc->selection_length() == 0)
     return MenuCommandStatus(false);
     
@@ -311,7 +303,6 @@ static MenuCommandStatus can_open_close_group(Expr cmd) {
 
 static MenuCommandStatus can_do_scoped(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -323,7 +314,6 @@ static MenuCommandStatus can_do_scoped(Expr cmd) {
 
 static MenuCommandStatus can_document_write(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -333,7 +323,6 @@ static MenuCommandStatus can_document_write(Expr cmd) {
 
 static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -350,7 +339,7 @@ static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
   bool input = String(cmd).equals("DuplicatePreviousInput");
   
   for(int i = a - 1; i >= 0; --i) {
-    MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
+    auto math = dynamic_cast<MathSection*>(doc->item(i));
     
     if(math &&
         (( input && math->get_style(Evaluatable)) ||
@@ -365,7 +354,6 @@ static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
 
 static MenuCommandStatus can_edit_boxes(Expr cmd) {
   Document *doc = get_current_document();
-  
   return MenuCommandStatus(doc && (doc->selection_length() > 0 || doc->selection_box() != doc) && doc->get_style(Editable));
 }
 
@@ -377,7 +365,6 @@ static MenuCommandStatus can_expand_selection(Expr cmd) {
 
 static MenuCommandStatus can_evaluate_in_place(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -394,10 +381,9 @@ static MenuCommandStatus can_evaluate_sections(Expr cmd) {
     return MenuCommandStatus(false);
     
   Box *box = doc->selection_box();
-  
   if(box == doc) {
     for(int i = doc->selection_start(); i < doc->selection_end(); ++i) {
-      MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
+      auto math = dynamic_cast<MathSection*>(doc->item(i));
       
       if(math && math->get_style(Evaluatable))
         return MenuCommandStatus(true);
@@ -407,7 +393,7 @@ static MenuCommandStatus can_evaluate_sections(Expr cmd) {
     while(box && !dynamic_cast<MathSection *>(box))
       box = box->parent();
       
-    MathSection *math = dynamic_cast<MathSection *>(box);
+    auto math = dynamic_cast<MathSection*>(box);
     if(math && math->get_style(Evaluatable))
       return MenuCommandStatus(true);
   }
@@ -417,7 +403,6 @@ static MenuCommandStatus can_evaluate_sections(Expr cmd) {
 
 static MenuCommandStatus can_find_evaluating_section(Expr cmd) {
   Box *box = Application::find_current_job();
-  
   if(!box)
     return MenuCommandStatus(false);
     
@@ -434,13 +419,10 @@ static MenuCommandStatus can_find_evaluating_section(Expr cmd) {
 
 static MenuCommandStatus can_find_matching_fence(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
-  MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
-  
-  if(seq) {
+  if(auto seq = dynamic_cast<MathSequence *>(doc->selection_box())) {
     int pos = doc->selection_end() - 1;
     int match = seq->matching_fence(pos);
     
@@ -457,7 +439,6 @@ static MenuCommandStatus can_find_matching_fence(Expr cmd) {
 
 static MenuCommandStatus can_graphics_original_size(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -469,7 +450,6 @@ static MenuCommandStatus can_graphics_original_size(Expr cmd) {
 
 static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -495,7 +475,6 @@ static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd) {
 
 static MenuCommandStatus can_section_merge(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -504,7 +483,6 @@ static MenuCommandStatus can_section_merge(Expr cmd) {
 
 static MenuCommandStatus can_section_split(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -513,7 +491,6 @@ static MenuCommandStatus can_section_split(Expr cmd) {
 
 static MenuCommandStatus can_set_style(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -553,7 +530,6 @@ static MenuCommandStatus can_set_style(Expr cmd) {
 
 static MenuCommandStatus can_similar_section_below(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc || !doc->get_style(Editable))
     return MenuCommandStatus(false);
     
@@ -580,7 +556,6 @@ static bool abort_cmd(Expr cmd) {
 
 static bool close_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -590,7 +565,6 @@ static bool close_cmd(Expr cmd) {
 
 static bool convert_dynamic_to_literal(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc || doc->selection_length() == 0)
     return false;
     
@@ -608,7 +582,6 @@ static bool convert_dynamic_to_literal(Expr cmd) {
 
 static bool copy_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc || !doc->can_copy())
     return false;
     
@@ -618,7 +591,6 @@ static bool copy_cmd(Expr cmd) {
 
 static bool copy_special_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc || !doc->can_copy())
     return false;
     
@@ -632,7 +604,6 @@ static bool copy_special_cmd(Expr cmd) {
 
 static bool cut_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc || !doc->can_copy())
     return false;
     
@@ -642,7 +613,6 @@ static bool cut_cmd(Expr cmd) {
 
 static bool do_scoped_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -653,8 +623,7 @@ static bool do_scoped_cmd(Expr cmd) {
 }
 
 static bool document_apply_cmd(Expr cmd) {
-  Document *doc = dynamic_cast<Document *>(Box::find(cmd[1]));
-  
+  auto doc = dynamic_cast<Document*>(Box::find(cmd[1]));
   if(!doc)
     return false;
     
@@ -705,7 +674,7 @@ static bool document_delete_cmd(Expr cmd) {
 }
 
 static bool document_write_cmd(Expr cmd) {
-  Document *doc = dynamic_cast<Document *>(Box::find(cmd[1]));
+  auto doc = dynamic_cast<Document*>(Box::find(cmd[1]));
   
   if(!doc)
     return false;
@@ -742,7 +711,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
   bool input = String(cmd).equals("DuplicatePreviousInput");
   
   for(int i = a - 1; i >= 0; --i) {
-    MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
+    auto math = dynamic_cast<MathSection*>(doc->item(i));
     
     if( math &&
         (( input && math->get_style(Evaluatable)) ||
@@ -783,10 +752,9 @@ static bool edit_boxes_cmd(Expr cmd) {
     doc->select(0, 0, 0);
     
     for(int i = a; i < b; ++i) {
-      EditSection *edit = dynamic_cast<EditSection *>(doc->section(i));
       pmath_continue_after_abort();
       
-      if(edit) {
+      if(auto edit = dynamic_cast<EditSection *>(doc->section(i))) {
         Expr parsed(edit->to_pmath(BoxFlagDefault));
         
         if(parsed == 0) {
@@ -831,7 +799,7 @@ static bool evaluate_in_place_cmd(Expr cmd) {
   if(!doc)
     return false;
     
-  MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
+  auto seq = dynamic_cast<MathSequence*>(doc->selection_box());
   
   if(seq && doc->selection_length() > 0) {
     Application::add_job(new ReplacementJob(
@@ -853,8 +821,7 @@ static bool evaluate_sections_cmd(Expr cmd) {
   
   if(box == doc) {
     for(int i = doc->selection_start(); i < doc->selection_end(); ++i) {
-      MathSection *math = dynamic_cast<MathSection *>(doc->item(i));
-      
+      auto math = dynamic_cast<MathSection*>(doc->item(i));
       if(math && math->get_style(Evaluatable))
         Application::add_job(new InputJob(math));
       else
@@ -865,7 +832,7 @@ static bool evaluate_sections_cmd(Expr cmd) {
     while(box && !dynamic_cast<MathSection *>(box))
       box = box->parent();
       
-    MathSection *math = dynamic_cast<MathSection *>(box);
+    auto math = dynamic_cast<MathSection*>(box);
     if(math && math->get_style(Evaluatable)) {
       Application::add_job(new InputJob(math));
     }
@@ -923,14 +890,14 @@ static bool find_evaluating_section(Expr cmd) {
     return false;
   }
   
-  Section *sect = box->find_parent<Section>(true);
+  auto sect = box->find_parent<Section>(true);
   if(!sect) {
     if(current_doc)
       current_doc->native()->beep();
     return false;
   }
   
-  Document *doc = sect->find_parent<Document>(false);
+  auto doc = sect->find_parent<Document>(false);
   if(!doc) {
     if(current_doc)
       current_doc->native()->beep();
@@ -944,13 +911,10 @@ static bool find_evaluating_section(Expr cmd) {
 
 static bool find_matching_fence_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
-    
-  MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
   
-  if(seq) {
+  if(auto seq = dynamic_cast<MathSequence *>(doc->selection_box())) {
     int pos = doc->selection_start();
     int match = seq->matching_fence(pos);
     
@@ -969,7 +933,6 @@ static bool find_matching_fence_cmd(Expr cmd) {
 
 static bool graphics_original_size_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -979,7 +942,6 @@ static bool graphics_original_size_cmd(Expr cmd) {
 
 static bool insert_column_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -989,7 +951,6 @@ static bool insert_column_cmd(Expr cmd) {
 
 static bool insert_fraction_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -999,7 +960,6 @@ static bool insert_fraction_cmd(Expr cmd) {
 
 static bool insert_opposite_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1009,7 +969,6 @@ static bool insert_opposite_cmd(Expr cmd) {
 
 static bool insert_overscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1019,7 +978,6 @@ static bool insert_overscript_cmd(Expr cmd) {
 
 static bool insert_radical_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1029,7 +987,6 @@ static bool insert_radical_cmd(Expr cmd) {
 
 static bool insert_row_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1039,7 +996,6 @@ static bool insert_row_cmd(Expr cmd) {
 
 static bool insert_subscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1049,7 +1005,6 @@ static bool insert_subscript_cmd(Expr cmd) {
 
 static bool insert_superscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1059,7 +1014,6 @@ static bool insert_superscript_cmd(Expr cmd) {
 
 static bool insert_underscript_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1150,7 +1104,6 @@ static bool open_cmd(Expr cmd) {
 
 static bool open_close_group_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1160,7 +1113,6 @@ static bool open_close_group_cmd(Expr cmd) {
 
 static bool paste_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1170,7 +1122,6 @@ static bool paste_cmd(Expr cmd) {
 
 static bool remove_from_evaluation_queue(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1216,7 +1167,6 @@ static bool saveas_cmd(Expr cmd) {
 
 static bool section_merge_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1229,7 +1179,6 @@ static bool section_merge_cmd(Expr cmd) {
 
 static bool section_split_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1242,7 +1191,6 @@ static bool section_split_cmd(Expr cmd) {
 
 static bool select_all_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1271,7 +1219,6 @@ static bool select_all_cmd(Expr cmd) {
 
 static bool set_style_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1305,7 +1252,6 @@ static bool set_style_cmd(Expr cmd) {
 
 static bool similar_section_below_cmd(Expr cmd) {
   Document *doc = get_current_document();
-  
   if(!doc)
     return false;
     
@@ -1489,9 +1435,7 @@ Expr richmath::GetSymbol(FrontEndSymbolIndex i) {
 }
 
 void richmath::set_current_document(Document *document) {
-  Document *old = get_current_document();
-  
-  if(old)
+  if(auto old = get_current_document())
     old->focus_killed();
     
   if(document)

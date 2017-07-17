@@ -55,8 +55,7 @@ static void abf_flush(
 }
 
 bool OpenedClipboard::add_image(String suggested_mimetype, cairo_surface_t *image) {
-  CairoStream *stream = CairoStream::from_surface(image);
-  if(stream) {
+  if(auto stream = CairoStream::from_surface(image)) {
     cairo_surface_type_t type = cairo_surface_get_type(image);
     
     cairo_status_t status = cairo_surface_status(image);

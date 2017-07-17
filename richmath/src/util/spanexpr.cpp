@@ -126,17 +126,17 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
 
 SpanExpr::~SpanExpr() {
   if(_parent) {
-    for(int i = 0; i < _parent->_items.length(); ++i)
-      if(_parent->_items[i] == this) {
-        _parent->_items[i] = nullptr;
+    for(auto &item : _parent->_items)
+      if(item == this) {
+        item = nullptr;
         break;
       }
   }
   
-  for(int i = 0; i < _items.length(); ++i)
-    if(_items[i]) {
-      _items[i]->_parent = nullptr;
-      delete _items[i];
+  for(auto &item : _items)
+    if(item) {
+      item->_parent = nullptr;
+      delete item;
     }
 }
 
@@ -256,16 +256,16 @@ SpanExpr *SpanExpr::expand(bool self_destruction) {
   return result;
 }
 
+Span SpanExpr::item_span(int i) {
+  if(_items_pos[i] == _start && _span)
+    return _span.next();
+  else
+    return _sequence->span_array()[_items_pos[i]];
+}
+
 SpanExpr *SpanExpr::item(int i) {
   if(!_items[i]) {
-    Span subspan(nullptr);
-    
-    if(_items_pos[i] == _start && _span)
-      subspan = _span.next();
-    else
-      subspan = _sequence->span_array()[_items_pos[i]];
-      
-    _items[i] = new SpanExpr(this, _items_pos[i], subspan, _sequence);
+    _items[i] = new SpanExpr(this, _items_pos[i], item_span(i), _sequence);
   }
   
   return _items[i];
@@ -351,8 +351,7 @@ pmath_token_t SpanExpr::as_token(int *prec) {
   if(count() == 1)
     return item(0)->as_token((prec));
     
-  Box *b = as_box();
-  if(b) {
+  if(Box *b = as_box()) {
     if(dynamic_cast<SubsuperscriptBox *>(b)) {
       if(prec)
         *prec = PMATH_PREC_POW;
@@ -363,7 +362,7 @@ pmath_token_t SpanExpr::as_token(int *prec) {
         dynamic_cast<StyleBox *>(b)           ||
         dynamic_cast<InterpretationBox *>(b))
     {
-      MathSequence *seq = dynamic_cast<MathSequence *>(b->item(0));
+      auto seq = dynamic_cast<MathSequence*>(b->item(0));
       assert(seq);
       
       seq->ensure_spans_valid();
@@ -397,13 +396,12 @@ int SpanExpr::as_prefix_prec(int defprec) {
   if(count() == 1)
     return item(0)->as_prefix_prec(defprec);
     
-  Box *b = as_box();
-  if(b) {
+  if(Box *b = as_box()) {
     if( dynamic_cast<UnderoverscriptBox *>(b) ||
         dynamic_cast<StyleBox *>(b)           ||
         dynamic_cast<InterpretationBox *>(b))
     {
-      MathSequence *seq = dynamic_cast<MathSequence *>(b->item(0));
+      auto seq = dynamic_cast<MathSequence*>(b->item(0));
       assert(seq);
       
       seq->ensure_spans_valid();
@@ -597,7 +595,11 @@ uint16_t SpanExpr::item_first_char(int i) {
 uint16_t SpanExpr::item_as_char(int i) {
   if(_items[i])
     return _items[i]->as_char();
-    
+  
+  Span subspan = item_span(i);
+  if(subspan)
+    return 0;
+  
   if(!_sequence->span_array().is_token_end(_items_pos[i]))
     return 0;
     
@@ -672,7 +674,7 @@ SpanExpr *richmath::span_as_name(SpanExpr *span) {
 
 SequenceSpan::SequenceSpan(SpanExpr *span, bool take_ownership)
   : _span(span),
-    _has_ownership (take_ownership)
+    _has_ownership(take_ownership)
 {
   init(span);
 }
@@ -758,19 +760,19 @@ void SequenceSpan::init(SpanExpr *span) {
 }
 
 void SequenceSpan::reset() {
-  for(int i = 0; i < _items.length(); ++i)
-    if(_items[i] != _span && _items[i]->parent() == 0)
-      delete _items[i];
+  for(auto &item : _items)
+    if(item != _span && item->parent() == nullptr)
+      delete item;
       
   if(_has_ownership)
     delete _span;
     
   _items.length(0);
-  _span        = 0;
+  _span        = nullptr;
   _is_sequence = false;
 }
 
-SpanExpr *SequenceSpan::item(int i) { // 1-based; always may return 0
+SpanExpr *SequenceSpan::item(int i) { // 1-based; always may return nullptr
   if(i <= 0 || i > _items.length())
     return nullptr;
     

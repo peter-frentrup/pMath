@@ -84,7 +84,7 @@ bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
 }
 
 bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
-  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(document->selection_box());
+  auto seq = dynamic_cast<AbstractSequence*>(document->selection_box());
   if(!seq)
     return false;
     
@@ -112,9 +112,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     Gather g;
     
     for(unsigned i = 0, rest = global_macros.size(); rest > 0; ++i) {
-      Entry<String, Expr> *e = global_macros.entry(i);
-      
-      if(e) {
+      if(auto e = global_macros.entry(i)) {
         --rest;
         
         Gather::emit(e->key);
@@ -122,9 +120,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     }
     
     for(unsigned i = 0, rest = global_immediate_macros.size(); rest > 0; ++i) {
-      Entry<String, Expr> *e = global_immediate_macros.entry(i);
-      
-      if(e) {
+      if(auto e = global_immediate_macros.entry(i)) {
         --rest;
         
         Gather::emit(e->key);
@@ -214,7 +210,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
 }
 
 bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
-  MathSequence *seq = dynamic_cast<MathSequence *>(document->selection_box());
+  auto seq = dynamic_cast<MathSequence*>(document->selection_box());
   if(!seq)
     return false;
     
@@ -438,7 +434,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
 }
 
 bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
-  MathSequence *seq = dynamic_cast<MathSequence *>(document->selection_box());
+  auto seq = dynamic_cast<MathSequence*>(document->selection_box());
   if(!seq)
     return false;
     

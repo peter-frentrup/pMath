@@ -97,16 +97,12 @@ GraphicsElement *GraphicsElement::create(Expr expr, int opts) {
   Expr head = expr[0];
   
   if(head == PMATH_SYMBOL_POINTBOX) {
-    GraphicsElement *ge = PointBox::create(expr, opts);
-    
-    if(ge)
+    if(auto ge = PointBox::create(expr, opts))
       return ge;
   }
   
   if(head == PMATH_SYMBOL_LINEBOX) {
-    GraphicsElement *ge = LineBox::create(expr, opts);
-    
-    if(ge)
+    if(auto ge = LineBox::create(expr, opts))
       return ge;
   }
   
@@ -114,20 +110,18 @@ GraphicsElement *GraphicsElement::create(Expr expr, int opts) {
       head == PMATH_SYMBOL_HUE       ||
       head == PMATH_SYMBOL_GRAYLEVEL)
   {
-    GraphicsElement *ge = ColorBox::create(expr, opts);
-    
-    if(ge)
+    if(auto ge = ColorBox::create(expr, opts))
       return ge;
   }
   
   if(head == PMATH_SYMBOL_LIST) {
-    GraphicsElementCollection *coll = new GraphicsElementCollection;
+    auto coll = new GraphicsElementCollection;
     coll->load_from_object(expr, opts);
     return coll;
   }
   
   if(head == PMATH_SYMBOL_DIRECTIVE) {
-    GraphicsDirective *dir = new GraphicsDirective;
+    auto dir = new GraphicsDirective;
     
     if(dir->try_load_from_object(expr, opts))
       return dir;

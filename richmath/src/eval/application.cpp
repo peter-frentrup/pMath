@@ -865,7 +865,7 @@ Document *Application::create_document() {
     
     doc = get_current_document();
     if(doc) {
-      Win32Widget *wid = dynamic_cast<Win32Widget *>(doc->native());
+      auto wid = dynamic_cast<Win32Widget*>(doc->native());
       if(wid) {
         HWND hwnd = wid->hwnd();
         while(GetParent(hwnd) != nullptr)
@@ -1005,6 +1005,8 @@ Expr Application::run_filedialog(Expr data) {
   Expr result = Symbol(PMATH_SYMBOL_FAILED);
   double gui_start_time = pmath_tickcount();
   
+  pmath_debug_print("run_filedialog...\n");
+  
 #if RICHMATH_USE_WIN32_GUI
   Win32FileDialog
 #elif RICHMATH_USE_GTK_GUI
@@ -1014,11 +1016,15 @@ Expr Application::run_filedialog(Expr data) {
 #endif
   dialog(head == GetSymbol(FileSaveDialogSymbol));
   
-
+  pmath_debug_print("  set_title...\n");
   dialog.set_title(title);
+  pmath_debug_print("  set_initial_file...\n");
   dialog.set_initial_file(filename);
+  pmath_debug_print("  set_filter...\n");
   dialog.set_filter(filter);
+  pmath_debug_print("  show_dialog...\n");
   result = dialog.show_dialog();  
+  pmath_debug_print("...run_filedialog\n");
   
   double gui_end_time = pmath_tickcount();
   if(gui_start_time < gui_end_time)
@@ -1340,8 +1346,7 @@ static void cnt_end(Expr data) {
         assert(doc);
         
         for(int s = 0; s < doc->count(); ++s) {
-          MathSection *math = dynamic_cast<MathSection *>(doc->section(s));
-          
+          auto math = dynamic_cast<MathSection*>(doc->section(s));
           if(math && math->get_style(ShowAutoStyles)) {
             math->invalidate();
           }

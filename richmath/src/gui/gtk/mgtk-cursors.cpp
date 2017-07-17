@@ -509,7 +509,6 @@ MathGtkCursors::~MathGtkCursors() {
 
 GdkCursor *MathGtkCursors::get_gdk_cursor(CursorType type) {
   GdkCursor *c = all_cursors[type].cursor;
-  
   if(c)
     gdk_cursor_ref(c);
     

@@ -33,7 +33,6 @@ void Win32Touch::init() {
 
 Win32Touch::Win32Touch(): Base() {
   user32 = LoadLibrary("user32.dll");
-  
   if(user32) {
     GetGestureInfo = (BOOL (WINAPI *)(HANDLE, PGESTUREINFO))
                      GetProcAddress(user32, "GetGestureInfo");

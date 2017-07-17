@@ -47,8 +47,7 @@ bool NumberBox::try_load_from_object(Expr expr, int opts) {
 
 bool NumberBox::edit_selection(Context *context) {
   if(Box::edit_selection(context)) {
-    MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
-    
+    auto seq = dynamic_cast<MathSequence*>(_parent);
     if(!seq)
       return false;
       

@@ -25,11 +25,11 @@ namespace richmath {
     GlyphStyleShadowError,
     GlyphStyleSyntaxError,
     GlyphStyleSpecialUse,
-    GlyphStyleExcessArg,
-    GlyphStyleMissingArg,
+    GlyphStyleExcessOrMissingArg,
     GlyphStyleInvalidOption,
     GlyphStyleSpecialStringPart,
-    GlyphStyleUnused2
+    GlyphStyleKeyword,
+    GlyphStyleFunctionCall
   };
   
   enum {

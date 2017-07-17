@@ -77,8 +77,8 @@ void Section::resize_label(Context *context) {
     label_glyphs.items());
     
   float x = 0;
-  for(int i = 0; i < label_glyphs.length(); ++i)
-    label_glyphs[i].right = x += label_glyphs[i].right;
+  for(auto &glyph : label_glyphs)
+    glyph.right = x += glyph.right;
     
   context->canvas->set_font_size(fs);
 }
@@ -193,8 +193,7 @@ bool Section::edit_selection(Context *context) {
   }
   
   if(style && get_style(SectionEditDuplicate)) {
-    SectionList *slist = dynamic_cast<SectionList *>(parent());
-    if(slist) {
+    if(auto slist = dynamic_cast<SectionList *>(parent())) {
       slist->set_open_close_group(index(), true);
       
       if(get_style(SectionEditDuplicateMakesCopy)) {

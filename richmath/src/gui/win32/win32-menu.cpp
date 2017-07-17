@@ -62,7 +62,7 @@ static HMENU create_menu(Expr expr, bool is_popup) {
   expr = expr[2];
   if(expr[0] != PMATH_SYMBOL_LIST)
     return nullptr;
-    
+  
   HMENU menu = is_popup ? CreatePopupMenu() : CreateMenu();
   if(menu) {
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
@@ -110,9 +110,7 @@ static HMENU create_menu(Expr expr, bool is_popup) {
         String name(item[1]);
         
         if(name.length() > 0) {
-          HMENU submenu = create_menu(item, true);
-          
-          if(submenu) {
+          if(HMENU submenu = create_menu(item, true)) {
             name += String::FromChar(0);
             AppendMenuW(
               menu,

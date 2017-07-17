@@ -52,10 +52,12 @@ STDMETHODIMP DataObject::QueryInterface(REFIID iid, void **ppvObject) {
 
 int DataObject::lookup_format_etc(FORMATETC *pFormatEtc) {
   for(int i = 0; i < formats.length(); ++i) {
-    if((pFormatEtc->tymed   &  formats[i].tymed)
-        && pFormatEtc->cfFormat == formats[i].cfFormat
-        && pFormatEtc->dwAspect == formats[i].dwAspect)
+    if( (pFormatEtc->tymed   &  formats[i].tymed) &&
+        pFormatEtc->cfFormat == formats[i].cfFormat &&
+        pFormatEtc->dwAspect == formats[i].dwAspect)
+    {
       return i;
+    }
   }
   
   return -1;

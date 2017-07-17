@@ -26,13 +26,13 @@ static T clip(const T &x, const T &min, const T &max) {
   return min;
 }
 
-static void get_tick_length(Expr expr, float *plen, float *nlen){
+static void get_tick_length(Expr expr, float *plen, float *nlen) {
   *plen = 0.0;
   *nlen = 0.02;
   
   if(expr[0] == PMATH_SYMBOL_NCACHE)
     expr = expr[2];
-  
+    
   if(expr.is_number()) {
     *plen = clip((float)expr.to_double(), -1000.0f, 1000.0f);
     *nlen = *plen;
@@ -44,18 +44,18 @@ static void get_tick_length(Expr expr, float *plen, float *nlen){
     
     if(sub[0] == PMATH_SYMBOL_NCACHE)
       sub = sub[2];
-    
-    if(sub.is_number()) 
+      
+    if(sub.is_number())
       *plen = clip((float)sub.to_double(), -1000.0f, 1000.0f);
-    
+      
     sub = expr[2];
     
     if(sub[0] == PMATH_SYMBOL_NCACHE)
       sub = sub[2];
-    
-    if(sub.is_number()) 
+      
+    if(sub.is_number())
       *nlen = clip((float)sub.to_double(), -1000.0f, 1000.0f);
-    
+      
     return;
   }
   
@@ -65,19 +65,19 @@ static void get_tick_length(Expr expr, float *plen, float *nlen){
 
 AxisTicks::AxisTicks()
   : Box(),
-  start_x(0),
-  start_y(0),
-  end_x(0),
-  end_y(0),
-  label_direction_x(0),
-  label_direction_y(0),
-  label_center_distance_min(0),
-  tick_length_factor(0),
-  extra_offset(0),
-  start_position(0),
-  end_position(0),
-  ignore_label_position(NAN),
-  axis_hidden(false)
+    start_x(0),
+    start_y(0),
+    end_x(0),
+    end_y(0),
+    label_direction_x(0),
+    label_direction_y(0),
+    label_center_distance_min(0),
+    tick_length_factor(0),
+    extra_offset(0),
+    start_position(0),
+    end_position(0),
+    ignore_label_position(NAN),
+    axis_hidden(false)
 {
 }
 
@@ -114,7 +114,7 @@ void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
         position(i) = pos_expr.to_double();
       else
         position(i) = 0.0;
-      
+        
       seq->load_from_object(tick[2], options);
       
       float ptic, ntic;
@@ -124,8 +124,8 @@ void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
       _rel_tick_neg[i] = ntic;
       
       if(_max_rel_tick < ptic)
-         _max_rel_tick = ptic;
-      
+        _max_rel_tick = ptic;
+        
       continue;
     }
     
@@ -136,10 +136,10 @@ void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
   }
 }
 
-bool AxisTicks::is_visible(double t){ 
+bool AxisTicks::is_visible(double t) {
   double err = (end_position - start_position) * 1.0e-4;
   
-  return start_position - err <= t && t <= end_position + err; 
+  return start_position - err <= t && t <= end_position + err;
 }
 
 void AxisTicks::resize(Context *context) {
@@ -150,9 +150,9 @@ void AxisTicks::resize(Context *context) {
   
   context->canvas->set_font_size(0.8 * old_fs);
   
-  for(int i = 0; i < _labels.length(); ++i)
-    _labels[i]->resize(context);
-    
+  for(auto label : _labels)
+    label->resize(context);
+  
   context->canvas->set_font_size(old_fs);
   context->width = old_w;
   
@@ -186,7 +186,7 @@ void AxisTicks::paint(Context *context) {
       
       Box *lbl = label(i);
       
-      if(have_ilp){
+      if(have_ilp) {
         Point ign;
         
         get_label_center(
@@ -194,11 +194,11 @@ void AxisTicks::paint(Context *context) {
           lbl->extents().width,
           lbl->extents().height(),
           &ign.x, &ign.y);
-        
+          
         if(lbl->extents().to_rectangle(p).contains(ign))
           continue;
       }
-    
+      
       context->canvas->move_to(x + p.x, y + p.y);
       lbl->paint(context);
     }
@@ -366,7 +366,7 @@ void AxisTicks::draw_tick(Canvas *canvas, float x, float y, float length) {
     
     canvas->move_to(x1, y1);
     canvas->line_to(x2, y2);
-  
+    
     canvas->hair_stroke();
   }
   canvas->restore();

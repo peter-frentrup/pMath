@@ -61,16 +61,12 @@ Expr TooltipBox::to_pmath(int flags) {
 }
 
 void TooltipBox::on_mouse_enter() {
-  Document *doc = find_parent<Document>(false);
-  
-  if(doc)
+  if(auto doc = find_parent<Document>(false))
     doc->native()->show_tooltip(tooltip_boxes);
 }
 
 void TooltipBox::on_mouse_exit() {
-  Document *doc = find_parent<Document>(false);
-  
-  if(doc)
+  if(auto doc = find_parent<Document>(false))
     doc->native()->hide_tooltip();
 }
 

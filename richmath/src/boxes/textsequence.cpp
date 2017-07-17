@@ -237,8 +237,8 @@ TextSequence::TextSequence()
 
 TextSequence::~TextSequence() {
   g_object_unref(_layout);
-  for(int i = 0; i < boxes.length(); ++i)
-    delete boxes[i];
+  for(auto box : boxes)
+    delete box;
 }
 
 String TextSequence::raw_substring(int start, int length) {
@@ -264,8 +264,8 @@ void TextSequence::resize(Context *context) {
   pango_tab_array_free(tabs);
   
   ensure_boxes_valid();
-  for(int i = 0; i < boxes.length(); ++i)
-    boxes[i]->resize(context);
+  for(auto box : boxes)
+    box->resize(context);
     
   text_invalid = true;
   ensure_text_valid();
@@ -542,8 +542,8 @@ Expr TextSequence::to_pmath(int flags, int start, int end) {
 }
 
 void TextSequence::load_from_object(Expr object, int options) { // BoxOptionXXX
-  for(int i = 0; i < boxes.length(); ++i)
-    boxes[i]->safe_destroy();
+  for(auto box : boxes)
+    box->safe_destroy();
     
   boxes.length(0);
   text.remove(0, text.length());
@@ -649,15 +649,14 @@ void TextSequence::ensure_text_valid() {
     PangoAttrList *attrs;
     attrs = pango_attr_list_new();
     
-    for(int i = 0; i < boxes.length(); ++i) {
-      rect.y      = pango_units_from_double(-boxes[i]->extents().ascent);
-      rect.width  = pango_units_from_double(boxes[i]->extents().width);
-      rect.height = pango_units_from_double(boxes[i]->extents().height());
+    for(auto box : boxes) {
+      rect.y      = pango_units_from_double(-box->extents().ascent);
+      rect.width  = pango_units_from_double(box->extents().width);
+      rect.height = pango_units_from_double(box->extents().height());
       
-      PangoAttribute *shape = pango_attr_shape_new_with_data(
-                                &rect, &rect, boxes[i], 0, 0);
+      PangoAttribute *shape = pango_attr_shape_new_with_data(&rect, &rect, box, 0, 0);
                                 
-      shape->start_index = boxes[i]->index();
+      shape->start_index = box->index();
       shape->end_index   = shape->start_index + Utf8BoxCharLen;
       pango_attr_list_insert(attrs, shape);
     }
@@ -740,9 +739,7 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
 }
 
 int TextSequence::insert(int pos, AbstractSequence *seq, int start, int end) {
-  TextSequence *ts = dynamic_cast<TextSequence *>(seq);
-  
-  if(ts)
+  if(auto ts = dynamic_cast<TextSequence *>(seq))
     return insert(pos, ts, start, end);
     
   return AbstractSequence::insert(pos, seq, start, end);
@@ -811,7 +808,6 @@ Box *TextSequence::move_logical(
     if(text.is_box_at(*index)) {
       if(jumping) {
         s = g_utf8_find_next_char(s, s_end);
-        
         if(s)
           *index = (int)((size_t)s - (size_t)text.buffer());
         else

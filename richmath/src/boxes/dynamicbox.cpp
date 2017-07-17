@@ -28,7 +28,7 @@ Box *AbstractDynamicBox::dynamic_to_literal(int *start, int *end) {
   int e = content()->length();
   content()->dynamic_to_literal(&s, &e);
   
-  MathSequence *seq = dynamic_cast<MathSequence*>(parent());
+  auto seq = dynamic_cast<MathSequence*>(parent());
   if(!seq)
     return this;
     

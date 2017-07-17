@@ -139,12 +139,12 @@ namespace richmath {
       MathSequence *sequence() { return _sequence; }
       
       /** Get a sub-span or token by index.
-          \param i An index between 0 and count()
+          \param i An index between 0 and count()-1
        */
       SpanExpr *item(int i);
       
       /** Get the start index of a sub-span or token.
-          \param i An index between 0 and count()
+          \param i An index between 0 and count()-1
        */
       int item_pos(int i) { return _items_pos[i]; }
       
@@ -205,40 +205,42 @@ namespace richmath {
       bool is_operand() { return _start <= _end && _sequence->span_array().is_operand_start(_start); }
       
       /** Get the first character of a sub-span or token.
-          \param i A sub-span/token index between 0 and count()
+          \param i A sub-span/token index between 0 and count()-1
        */
       uint16_t item_first_char(int i);
       
       /** Get the character of a single-character sub-span/token.
-          \param i A sub-span/token index between 0 and count()
+          \param i A sub-span/token index between 0 and count()-1
        */
       uint16_t item_as_char(int i);
       
       /** Get the content of a sub-span or token.
-          \param i A sub-span/token index between 0 and count()
+          \param i A sub-span/token index between 0 and count()-1
        */
       String item_as_text(int i);
       
       /** Get the box represented by a sub-span or token.
-          \param i A sub-span/token index between 0 and count()
+          \param i A sub-span/token index between 0 and count()-1
           
           \see item_is_box()
        */
       Box *item_as_box(int i);
       
       /** Test whether a sub-span or token is a box.
-          \param i A sub-span/token index between 0 and count()
+          \param i A sub-span/token index between 0 and count()-1
        */
       bool item_is_box(int i) { return item_as_char(i) == PMATH_CHAR_BOX; }
       
       /** Test whether a sub-span or token is an operand rather than an operator.
-          \param i A sub-span/token index between 0 and count()
+          \param i A sub-span/token index between 0 and count()-1
        */
       bool item_is_operand(int i) { return _sequence->span_array().is_operand_start(item_pos(i)); }
       
     private:
       SpanExpr(SpanExpr *parent, int start, Span span, MathSequence *sequence);
       void init(SpanExpr *parent, int start, Span span, MathSequence *sequence);
+      
+      Span item_span(int i);
       
     private:
       SpanExpr *_parent;

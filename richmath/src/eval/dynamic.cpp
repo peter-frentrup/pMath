@@ -144,11 +144,8 @@ bool Dynamic::get_value(Expr *result) {
   int sync = _synchronous_updating;
   
   if(sync == 2) {
-    Document *doc = _owner->find_parent<Document>(true);
-    
     sync = 1;
-    
-    if(doc)
+    if(auto doc = _owner->find_parent<Document>(true))
       sync = doc->is_mouse_down();
   }
   

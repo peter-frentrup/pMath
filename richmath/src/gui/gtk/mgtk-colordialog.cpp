@@ -17,21 +17,15 @@ static Expr color_chooser_dialog_show(int initialcolor) {
   GtkColorChooserDialog *dialog;
   GtkColorChooser       *chooser;
   
-  GtkWindow *parent_window = 0;
+  GtkWindow *parent_window = nullptr;
   Box *box = Application::get_evaluation_box();
   if(!box)
     box = get_current_document();
     
   if(box) {
-    Document *doc = box->find_parent<Document>(true);
-    
-    if(doc) {
-      MathGtkWidget *widget = dynamic_cast<MathGtkWidget *>(doc->native());
-      
-      if(widget) {
-        GtkWidget *wid = widget->widget();
-        
-        if(wid)
+    if(auto doc = box->find_parent<Document>(true)) {
+      if(auto widget = dynamic_cast<MathGtkWidget *>(doc->native())) {
+        if(GtkWidget *wid = widget->widget())
           parent_window = GTK_WINDOW(gtk_widget_get_ancestor(wid, GTK_TYPE_WINDOW));
       }
     }

@@ -695,9 +695,7 @@ Box *GridBox::remove_range(int *start, int end) {
     if(cols() == 1) {
       if(ay == 1 && by == rows() - 1) {
         *start = _index;
-        MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
-        
-        if(seq) {
+        if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[0]->content();
           seq->insert(
             _index,
@@ -711,9 +709,7 @@ Box *GridBox::remove_range(int *start, int end) {
       }
       else if(ay == 0 && by == rows() - 2) {
         *start = _index;
-        MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
-        
-        if(seq) {
+        if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[items.length() - 1]->content();
           seq->insert(
             _index,
@@ -734,9 +730,7 @@ Box *GridBox::remove_range(int *start, int end) {
     if(rows() == 1) {
       if(ax == 1 && bx == cols() - 1) {
         *start = _index;
-        MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
-        
-        if(seq) {
+        if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[0]->content();
           seq->insert(
             _index,
@@ -750,9 +744,7 @@ Box *GridBox::remove_range(int *start, int end) {
       }
       else if(ax == 0 && bx == cols() - 2) {
         *start = _index;
-        MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
-        
-        if(seq) {
+        if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[items.length() - 1]->content();
           seq->insert(
             _index,

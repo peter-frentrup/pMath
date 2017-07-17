@@ -252,9 +252,7 @@ static void load_math_shapers() {
   }
   else if(MathShaper::available_shapers.size() > 0) {
     for(int i = 0;; ++i) {
-      Entry<String, SharedPtr<MathShaper> > *e = MathShaper::available_shapers.entry(i);
-      
-      if(e) {
+      if(auto e = MathShaper::available_shapers.entry(i)) {
         MathShaper::available_shapers.default_value = e->value;
         break;
       }

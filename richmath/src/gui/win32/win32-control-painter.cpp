@@ -424,7 +424,7 @@ void Win32ControlPainter::draw_container(
   canvas->align_point(&x, &y, false);
   
   HDC dc = cairo_win32_surface_get_dc(canvas->target());
-  cairo_surface_t *surface = 0;
+  cairo_surface_t *surface = nullptr;
   
   if(dc) {
     cairo_matrix_t ctm;
@@ -931,7 +931,7 @@ void Win32ControlPainter::paint_scrollbar_part(
   canvas->align_point(&x, &y, true);
   
   HDC dc = cairo_win32_surface_get_dc(cairo_get_target(canvas->cairo()));
-  cairo_surface_t *surface = 0;
+  cairo_surface_t *surface = nullptr;
   
   if(dc) {
     cairo_matrix_t ctm;
