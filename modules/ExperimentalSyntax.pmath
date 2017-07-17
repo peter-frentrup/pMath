@@ -72,11 +72,16 @@
 %		block
 %	}
 %
-% Defining functions also has a new syntax
+% Defining functions also has a new syntax. A short-hand for name(~arg)::= Block{body} is:
 %	Function name(~arg) {
 %		body
 %	}
-%
+% 
+% Conditional functions are supported as well. Instead of name(~arg) /? condition(arg)::= Block{body}
+% you may write: 
+%	Function name(~arg) Where(condition(arg)) {
+%		body
+%	}
 %
 % Moreover, within such a `block`, automatic scope nesting is applied
 %	Do(1) {
@@ -86,6 +91,9 @@
 %		Local(y, z:= 7)
 %		Print(y, " ", z)
 %	}
+%
+% Note that this makes it impossible to use the function-call syntax for With and Local 
+% directly within blocks.
 %
 BeginPackage("ExperimentalSyntax`", {"Developer`"})
 
@@ -189,6 +197,19 @@ MakeExpression({"Function" | {"\[RawNewline]"**, "Function"}, lhs: {~:String, "(
 		MakeExpression(lhs),
 		makeBlockExpression(body))
 
+
+%
+% Function name(~arg) Where(cond) { body }
+%
+MakeExpression({"Function" | {"\[RawNewline]"**, "Function"}, lhs: {~:String, "(", ~~~}, {"Where", "(", ~cond, ")"}, {"{", ~body, "}"}}) /? $HaveExperimentalSyntax ::=
+	composeHeldExpr(
+		AssignDelayed,
+		composeHeldExpr(
+			Condition,
+			MakeExpression(lhs),
+			MakeExpression(cond)
+		),
+		makeBlockExpression(body))
 
 %
 % If(cond) {trueBlock}

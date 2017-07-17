@@ -122,7 +122,7 @@ Attributes::noattr:= "`1` is neither a valid attribute nor a list of valid attri
 
 Array::plen:= "`1` and `2` should have the same length."
 
-BaseForm::basf:= "Requested base `1` should be an integer between 2 and `2`."
+BaseForm::basf:= Internal`WriteRealBall::basf:= "Requested base `1` should be an integer between 2 and `2`."
 
 BinaryRead::format:= BinaryReadList::format:= BinaryWrite::format:= "`1` is not a recognized binary format."
 BinaryWrite::nocoerce:= "`1` cannot be coerced to the specified format `2`."
@@ -135,6 +135,8 @@ $CurrentNamespace::nsset:= "Cannot set $CurrentNamespace to `1`; value is not a 
 $NamespacePath::nslist:= "Cannot set $NamespacePath to `1`; value must be a list of strings ending in `"
 
 Clear::ssym:= Update::ssym:= "`1` is neither a symbol nor a string."
+
+Clip::rtwo:= "The argument `1` at position `2` is expected to be of the form min..max."
 
 Clock::inf:= "It is not allowed to specify the period or count with an infinite clock."
 Clock::length:= "The length of the Clock, `1`, cannot be computed."
@@ -226,6 +228,9 @@ Partition::ohpdm:= "The `1`-dimensional overhang parameter cannot indicate posit
 Partition::pdep:= "Depth `1` requested in object with dimensions `2`."
 
 Piecewise::pairs:= "The first argument `1` of Piecewise is not a list of pairs."
+
+PowerMod::ninv:= "`1` is not invertible modulo `2`."
+PowerMod::pmod:= "The base, exponent and modulus arguments in `1` must be integers."
 
 Quantile::nquan:= "The Quantile specification `1` should be a number or a list of numbers between 0 and 1."
 Quantile::parm:= "The Quantile parameters `1` should be given as a 2 x 2 matrix of real numbers {{a,b},{c,d}} or as a pair of real plot point parameters {a,b}."
@@ -341,3 +346,11 @@ Uncompress::corrupt:= "Compressed data `1` is corrupt and does not represent an 
 UnitVector::dir:= "There is no `1` dimensional unit vector in direction `2`."
 
 Which::argct:= "Which called with `1` arguments. Which must be called with an even number of arguments."
+
+Internal`RealBallFromMidpointRadius::numpa:= "Number or Pair of numbers expected at position `1` in `2`."
+Internal`RealBallFromMidpointRadius::num:= "Number expected at position `1` in `2`."
+Internal`RealBallFromMidpointRadius::prec:= "Cannot determine working precision for midpoint `1` and radius `2`."
+
+Internal`WriteRealBall::maxdig:= "Option \"MaxDigits\"->`1` should be a positive integer or Automatic."
+Internal`WriteRealBall::mpf:= "Multi-precision floating point number or InputForm(...) thereof expected at position `1` in `2`."
+Internal`WriteRealBall::loss:= "Ignoring InputForm(...) adornment for base `1`."

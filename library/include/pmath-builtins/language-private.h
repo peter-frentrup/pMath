@@ -10,11 +10,6 @@
 /* This header exports definitions of the sources in
    src/pmath-builtins/language/
  */
-
-// PMATH_NULL on error
-PMATH_PRIVATE pmath_t _pmath_parse_number(
-  pmath_string_t  string, // will be freed
-  pmath_bool_t    alternative);
   
 // evaluates MakeExpression(box) but also retains debug information
 PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box);

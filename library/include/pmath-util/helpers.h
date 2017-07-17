@@ -6,7 +6,7 @@
 #include <stdarg.h>
 
 /**\defgroup helpers Object Utility Functions
-   \brief Utility functuions for pMath Objects and Expressions.
+   \brief Utility functions for pMath Objects and Expressions.
 
    Here are some utility functions that simplify access to Expressions (or pMath
    Objects in general), but do not realy fit one of these topics.

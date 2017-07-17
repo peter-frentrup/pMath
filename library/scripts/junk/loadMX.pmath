@@ -6,6 +6,8 @@
 %
 BeginPackage("Developer`LoadMX`")
 
+<<ExperimentalSyntax`
+
 Developer`LoadMX`readString
 Developer`LoadMX`readMagicString
 Developer`LoadMX`readMagicUI32
@@ -22,157 +24,154 @@ Developer`LoadMX`findExprReferences
 
 Begin("Developer`LoadMX`Private`")
 
-readString(~mx)::= 
-	With({len:= mx.BinaryRead("UnsignedInteger32")},
-		If(len < 1,
-			Message(readString::"0len");
-			Return($Failed);
-			);
-		With({bytes:= mx.BinaryRead(ConstantArray("Byte", BitAnd(len + 3, BitNot(3))))},
-			If(bytes[len] != 0,
-				
-				Message(readString::"0term");
-				Return($Failed);
-				);
-			
-			Return(FromCharacterCode(bytes[1 .. len-1]));
-			)
-		)
+Function readString(~mx) {
+	With(len:= mx.BinaryRead("UnsignedInteger32"))
+	If(len < 1) {
+		Message(readString::"0len")
+		Return($Failed)
+	}
+	With(bytes:= mx.BinaryRead(ConstantArray("Byte", BitAnd(len + 3, BitNot(3)))) )
+	If(bytes[len] != 0) {
+		Message(readString::"0term");
+		Return($Failed);
+	}
+	Return(FromCharacterCode(bytes[1 .. len-1]))
+}
 
-readMagicString(~mx, ~str, ~errsym)::= 
-	With({pos:= mx.StreamPosition, read:= mx.readString()},
-		If(read =!= str, 
-			Message(errsym::"magic", BaseForm(pos, 16), str, read);
-			mx.SetStreamPosition(pos);
-			Return(False));
-		Return(True);
-		)
+Function readMagicString(~mx, ~str, ~errsym) {
+	With(pos:= mx.StreamPosition, read:= mx.readString())
+	If(read =!= str) {
+		Message(errsym::"magic", BaseForm(pos, 16), str, read)
+		mx.SetStreamPosition(pos)
+		Return(False)
+	}
+	Return(True)
+}
 
-readMagicUI32(~mx, ~val, ~errsym)::= 
-	With({pos:= mx.StreamPosition, read:= mx.BinaryRead("UnsignedInteger32")},
-		If(read =!= val, 
-			Message(errsym::"magic", BaseForm(pos, 16), BaseForm(val, 16), BaseForm(read, 16));
-			mx.SetStreamPosition(pos);
-			Return(False));
-		Return(True);
-		)
+Function readMagicUI32(~mx, ~val, ~errsym) {
+	With(pos:= mx.StreamPosition, read:= mx.BinaryRead("UnsignedInteger32"))
+	If(read =!= val) {
+		Message(errsym::"magic", BaseForm(pos, 16), BaseForm(val, 16), BaseForm(read, 16))
+		mx.SetStreamPosition(pos)
+		Return(False)
+	}
+	Return(True)
+}
 
 %
 % Returns an array of constants
 %
-doStage1(~mx)::= 
-	Local({constantCache, numConsts, typeId, subTypeId, val, i, len, sgn, exp, prec1, prec2, total, dims},
-		If(!mx.readMagicString("Stage 1", doStage1),
-			Return({});
-			);
+Function doStage1(~mx) {
+	Local(constantCache, numConsts, typeId, subTypeId, val, i, len, sgn, exp, prec1, prec2, total, dims)
+	If(!mx.readMagicString("Stage 1", doStage1)) {
+		Return({})
+	}
+	
+	numConsts:= mx.BinaryRead("UnsignedInteger32")
+	constantCache:= ConstantArray($Failed, numConsts)
+	Do(i -> numConsts) {
+		typeId:= mx.BinaryRead("Integer32");
 		
-		numConsts:= mx.BinaryRead("UnsignedInteger32");
-		constantCache:= ConstantArray($Failed, numConsts);
-		
-		Do(
-			typeId:= mx.BinaryRead("Integer32");
-			
-			Switch(typeId,
-				-1, constantCache[i]:= mx.BinaryRead("Real64"),
-				
-				-2, constantCache[i]:= mx.BinaryRead("Integer32"),
-				
-				-3, ( /* packed array of ... */
-					subTypeId:= mx.BinaryRead("Integer32");
-					
-					Switch(subTypeId,
-						2, ( /* packed array of Integer32 */
-							len:= mx.BinaryRead("UnsignedInteger32");
-							total:= mx.BinaryRead("UnsignedInteger32");
-							dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
-							
-							If(Times @@ dims =!= total,
-								Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims); 
-								Break();
-								);
-							
-							val:= mx.BinaryRead(ConstantArray("Integer32", dims));
-							constantCache[i]:= val;
-							),
+		Switch(typeId) {
+			Case(-1) {
+				constantCache[i]:= mx.BinaryRead("Real64")
+			}
+			Case(-2) {
+				constantCache[i]:= mx.BinaryRead("Integer32")
+			}
+			Case(-3) { % packed array of ...
+				subTypeId:= mx.BinaryRead("Integer32")
+				Switch(subTypeId) {
+					Case(2) { % packed array of Integer32
+						len:= mx.BinaryRead("UnsignedInteger32")
+						total:= mx.BinaryRead("UnsignedInteger32")
+						dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
 						
-						3, ( /* packed array of Real64 */
-							len:= mx.BinaryRead("UnsignedInteger32");
-							total:= mx.BinaryRead("UnsignedInteger32");
-							dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
-							
-							If(Times @@ dims =!= total,
-								Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims); 
-								Break();
-								);
-							
-							val:= mx.BinaryRead(ConstantArray("Real64", dims));
-							constantCache[i]:= val;
-							),
+						If(Times @@ dims =!= total) {
+							Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims) 
+							Break()
+						}
 						
-						4, ( /* packed array of Complex128 */
-							len:= mx.BinaryRead("UnsignedInteger32");
-							total:= mx.BinaryRead("UnsignedInteger32");
-							dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
-							
-							If(Times @@ dims =!= total,
-								Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims); 
-								Break();
-								);
-							
-							val:= mx.BinaryRead(ConstantArray("Complex128", dims));
-							constantCache[i]:= val;
-							),
-							
-						~, (
-							Message(doStage1::"arrtyp", i, typeId, subTypeId); 
-							Break();
-							));
-					),
-				
-				-6, constantCache[i]:= mx.readString(),
-				
-				-7, ( /* bigint */
-					len:= mx.BinaryRead("UnsignedInteger32");
-					sgn:= mx.BinaryRead("UnsignedInteger32"); /* 0 or 1 */
-					If(sgn =!= 0 && sgn =!= 1,
-						Message(doStage1::"invsign", i, typeId, sgn); 
+						val:= mx.BinaryRead(ConstantArray("Integer32", dims))
+						constantCache[i]:= val
+					}
+					Case(3) { % packed array of Real64
+						len:= mx.BinaryRead("UnsignedInteger32")
+						total:= mx.BinaryRead("UnsignedInteger32")
+						dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
+						
+						If(Times @@ dims =!= total) {
+							Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims) 
+							Break()
+						}
+						
+						val:= mx.BinaryRead(ConstantArray("Real64", dims))
+						constantCache[i]:= val
+					}
+					Case(4) { % packed array of Complex128
+						len:= mx.BinaryRead("UnsignedInteger32")
+						total:= mx.BinaryRead("UnsignedInteger32")
+						dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
+						
+						If(Times @@ dims =!= total) {
+							Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims) 
+							Break()
+						}
+						
+						val:= mx.BinaryRead(ConstantArray("Complex128", dims))
+						constantCache[i]:= val
+					}
+					Case(~) {
+						Message(doStage1::"arrtyp", i, typeId, subTypeId); 
 						Break();
-						);
-					val:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
-					val:= Total(val * 2^(32 Array(0 .. len-1)));
-					If(sgn === 1,
-						val:= -val);
-					constantCache[i]:= val;
-					),
-				
-				-8, ( /* bigfloat */
-					len:= mx.BinaryRead("UnsignedInteger32");
-					sgn:= mx.BinaryRead("UnsignedInteger32"); /* 0 or 1 */
-					If(sgn =!= 0 && sgn =!= 1,
-						Message(doStage1::"invsign", i, typeId, sgn); 
-						Break();
-						);
-					exp:= mx.BinaryRead("Integer32"); 
-					prec1:= mx.BinaryRead("Real64"); 
-					prec2:= mx.BinaryRead("Real64"); 
-					val:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len));
-					val:= Total(val * 2^(-32 Array(len .. 1 .. -1)));
-					val:= val * 2^(32 exp);
-					If(sgn === 1,
-						val:= -val);
-					val:= SetPrecision(val, ((len - 1) * prec1 - prec2) Log(10, 2));
-					constantCache[i]:= val;
-					),
-					
-				~, (
-					Message(doStage1::"invtyp", BaseForm(mx.StreamPosition, 16), i, typeId); 
-					mx.SetStreamPosition(mx.StreamPosition - 4);
-					Break();
-					));
-			,i -> numConsts);
-		
-		Return(constantCache);
-		)
+					}
+				}
+			}
+			Case(-6) {
+				constantCache[i]:= mx.readString()
+			}
+			Case(-7) { % bigint
+				len:= mx.BinaryRead("UnsignedInteger32")
+				sgn:= mx.BinaryRead("UnsignedInteger32") % 0 or 1
+				If(sgn =!= 0 && sgn =!= 1) {
+					Message(doStage1::"invsign", i, typeId, sgn) 
+					Break()
+				}
+				val:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
+				val:= Total(val * 2^(32 Array(0 .. len-1)))
+				If(sgn === 1) {
+					val:= -val
+				}
+				constantCache[i]:= val
+			}
+			Case(-8) { % bigfloat
+				len:= mx.BinaryRead("UnsignedInteger32")
+				sgn:= mx.BinaryRead("UnsignedInteger32") % 0 or 1
+				If(sgn =!= 0 && sgn =!= 1) {
+					Message(doStage1::"invsign", i, typeId, sgn) 
+					Break()
+				}
+				exp:= mx.BinaryRead("Integer32") 
+				prec1:= mx.BinaryRead("Real64") 
+				prec2:= mx.BinaryRead("Real64") 
+				val:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
+				val:= Total(val * 2^(-32 Array(len .. 1 .. -1)))
+				val:= val * 2^(32 exp)
+				If(sgn === 1) {
+					val:= -val
+				}
+				val:= SetPrecision(val, ((len - 1) * prec1 - prec2) Log(10, 2))
+				constantCache[i]:= val
+			}
+			Case(~) {
+				Message(doStage1::"invtyp", BaseForm(mx.StreamPosition, 16), i, typeId); 
+				mx.SetStreamPosition(mx.StreamPosition - 4);
+				Break();
+			}
+		}
+	}
+	Return(constantCache)
+}
 
 %
 % Returns an array of symbols entries, each of which is a list of five fields (32bit ints),
@@ -201,32 +200,28 @@ doStage1(~mx)::=
 %	  
 % The stream position of the n'th symbol is at byte  start(Stage 2) + 4 + 5*4*(n-1).
 %
-doStage2(~mx, ~constantCache)::= 
-	Local({symbolCache, numSymbols, i, fields},
-		If(!mx.readMagicString("Stage 2", doStage2),
-			Return({});
-			);
+Function doStage2(~mx, ~constantCache) {
+	Local(symbolCache, numSymbols, i, fields)
+	If(!mx.readMagicString("Stage 2", doStage2)) {
+		Return({})
+	}
+	
+	numSymbols:= mx.BinaryRead("UnsignedInteger32");
+	symbolCache:= ConstantArray($Failed, numSymbols);
+	Do(i -> numSymbols) {
+		fields:= mx.BinaryRead({
+			"UnsignedInteger32",
+			"UnsignedInteger32",
+			"UnsignedInteger32",
+			"UnsignedInteger32",
+			"UnsignedInteger32"})
 		
-		numSymbols:= mx.BinaryRead("UnsignedInteger32");
-		symbolCache:= ConstantArray($Failed, numSymbols);
-		
-		Do(
-			fields:= mx.BinaryRead({
-				"UnsignedInteger32",
-				"UnsignedInteger32",
-				"UnsignedInteger32",
-				"UnsignedInteger32",
-				"UnsignedInteger32"});
-			
-			fields[1]:= constantCache[fields[1]];
-			fields[2]:= constantCache[fields[2]];
-			
-			symbolCache[i]:= fields;
-			
-			,i -> numSymbols);
-		
-		Return(symbolCache);
-		)
+		fields[1]:= constantCache[fields[1]]
+		fields[2]:= constantCache[fields[2]]
+		symbolCache[i]:= fields
+	}
+	Return(symbolCache)
+}
 		
 % Returns a dictionary of expressions. exprCache(Length) is the number of expressions.
 % exprCache(n) contains information about the n'th expression. It is list of three entries, 
@@ -236,151 +231,198 @@ doStage2(~mx, ~constantCache)::=
 %	MxConst(value, constIndex, type), 
 %	MxSym(name, symbolIndex), 
 %	MxExpr(previousIndex), MxConstExpr({}, -num)
-doStage3(~mx, ~constantCache, ~symbolCache)::= 
-	Local({exprCache, numExpr, i},
-		exprCache(~p)::= (Message(doStage3::noexpr, p); $Failed);
-		
-		If(!mx.readMagicString("Stage 3", doStage3),
-			Return(exprCache);
-			);
-		
-		numExpr:= mx.BinaryRead("UnsignedInteger32");
-		exprCache(Length):= numExpr;
-		
-		Do(
-			exprCache(i):= doExpr(mx, i, constantCache, symbolCache);
-			,i -> numExpr);
-		
-		Return(exprCache);
-		)
+Function doStage3(~mx, ~constantCache, ~symbolCache) {
+	Local(exprCache, numExpr, i)
+	
+	exprCache(~p)::= (Message(doStage3::noexpr, p); $Failed)
+	If(!mx.readMagicString("Stage 3", doStage3)) {
+		Return(exprCache)
+	}
 
-doExpr(~mx, ~exprIndex, ~constantCache, ~symbolCache)::= 
-	Local({len, flags, exprItems, j, pos},
-		pos:= mx.StreamPosition;
-		len:= mx.BinaryRead("Integer32");
-		
-		If(len === -9,
-			Message(doStage3::"skip", BaseForm(pos, 16), exprIndex, len);
-			Return(doExpr(mx, exprIndex, constantCache, symbolCache));
-			);
-		
-		If(len < 0,
-			Message(doStage3::neglen, BaseForm(pos, 16), exprIndex, len);
-			Return({MxConstExpr({}, len), {}, pos});
-			);
-			
-		flags:= mx.BinaryRead({"UnsignedInteger32", "UnsignedInteger32", "UnsignedInteger32"});
-		
-		exprItems:= ConstantArray($Failed, len);
-		exprItems[0]:= $Failed;
-		
-		Do(
-			exprItems[j]:= doExprPart(mx, exprIndex, j, constantCache, symbolCache);
-			,j -> 0 .. len);
-			
-		Return({exprItems, flags, pos});
-		)
+	numExpr:= mx.BinaryRead("UnsignedInteger32")
+	exprCache(Length):= numExpr
+	Do(i -> numExpr) {
+		exprCache(i):= doExpr(mx, i, constantCache, symbolCache)
+	}
+	Return(exprCache)
+}
 
-doExprPart(~mx, ~exprIndex, ~itemIndex, ~constantCache, ~symbolCache)::=
-	Local({typeId, ptr},
-		typeId:= mx.BinaryRead("Integer32");
-		Switch(typeId,
-			0 | 2 | 6 | 7, ( /* i32, real, string, packed */
-				ptr:= mx.BinaryRead("UnsignedInteger32");
-				If(ptr > constantCache.Length || ptr < 1,
-					Message(doStage3::invconst, exprIndex, itemIndex, typeId, ptr);
-					Return($Failed));
-				Return(MxConst(constantCache[ptr], ptr, typeId));
-				),
-				
-			4, ( % expr
-				ptr:= mx.BinaryRead("UnsignedInteger32");
-				If(ptr >= exprIndex || ptr < 1,
-					Message(doStage3::invexpr, exprIndex, itemIndex, typeId, ptr);
-					Return($Failed));
-				Return(MxExpr(ptr)); /* exprCache(ptr) */
-				),
-				
-			5, ( % symbol
-				ptr:= mx.BinaryRead("UnsignedInteger32");
-				If(ptr > symbolCache.Length || ptr < 1,
-					Message(doStage3::invsym, exprIndex, itemIndex, typeId, ptr);
-					Return($Failed));
-				Return(MxSym(symbolCache[ptr, 1] ++ symbolCache[ptr, 2], ptr));
-				)
-			);
-			
-			Message(doStage3::"typeId", exprIndex, itemIndex, typeId);
-			Return(MxOther(typeId, mx.BinaryRead("UnsignedInteger32")));
-		)
+Function doExpr(~mx, ~exprIndex, ~constantCache, ~symbolCache) {
+	Local(len, flags, exprItems, j, pos)
+	pos:= mx.StreamPosition;
+	len:= mx.BinaryRead("Integer32");
+	
+	If(len === -9) {
+		Message(doStage3::"skip", BaseForm(pos, 16), exprIndex, len)
+		Return(doExpr(mx, exprIndex, constantCache, symbolCache))
+	}
+	
+	If(len < 0) {
+		Message(doStage3::neglen, BaseForm(pos, 16), exprIndex, len)
+		Return({MxConstExpr({}, len), {}, pos})
+	}
+		
+	flags:= mx.BinaryRead({"UnsignedInteger32", "UnsignedInteger32", "UnsignedInteger32"})
+	exprItems:= ConstantArray($Failed, len)
+	exprItems[0]:= $Failed
+	
+	Do(j -> 0 .. len) {
+		exprItems[j]:= doExprPart(mx, exprIndex, j, constantCache, symbolCache)
+	}
+	
+	Return({exprItems, flags, pos})
+}
+
+Function doExprPart(~mx, ~exprIndex, ~itemIndex, ~constantCache, ~symbolCache) {
+	Local(typeId, ptr)
+	typeId:= mx.BinaryRead("Integer32")
+	Switch(typeId) {
+		Case(0 | 2 | 6 | 7) { % i32, real, string, packed
+			ptr:= mx.BinaryRead("UnsignedInteger32")
+			If(ptr > constantCache.Length || ptr < 1) {
+				Message(doStage3::invconst, exprIndex, itemIndex, typeId, ptr)
+				Return($Failed)
+			}
+			Return(MxConst(constantCache[ptr], ptr, typeId))
+		}
+		Case(4) { % expr
+			ptr:= mx.BinaryRead("UnsignedInteger32");
+			If(ptr >= exprIndex || ptr < 1) {
+				Message(doStage3::invexpr, exprIndex, itemIndex, typeId, ptr)
+				Return($Failed)
+			}
+			Return(MxExpr(ptr)); % exprCache(ptr)
+		}
+		Case(5) { % symbol
+			ptr:= mx.BinaryRead("UnsignedInteger32")
+			If(ptr > symbolCache.Length || ptr < 1) {
+				Message(doStage3::invsym, exprIndex, itemIndex, typeId, ptr)
+				Return($Failed)
+			}
+			Return(MxSym(symbolCache[ptr, 1] ++ symbolCache[ptr, 2], ptr))
+		}
+	}
+	Message(doStage3::"typeId", exprIndex, itemIndex, typeId)
+	Return(MxOther(typeId, mx.BinaryRead("UnsignedInteger32")))
+}
 
 %
 % Returns a list of top-level expression references. Each item is a list of four fields, 
 %	{MxSymbol(symbolIndex), ?, MxExpr(exprIndex), ?}
 %
-doStage4(~mx, ~constantCache, ~symbolCache)::= 
-	Local({i, sym, b, c, d},
-		If(!mx.readMagicString("Stage 4", doStage4),
-			Return({});
-			);
-		
-		Return(Last @ Gather(
-			While(True,
-				sym:= mx.BinaryRead("Integer32");
-				If(sym < 0, Break());
-				If(sym === EndOfFile,
-					Message(doStage4::"eof");
-					Break());
+Function doStage4(~mx, ~constantCache, ~symbolCache) { 
+	Local(i, sym, b, c, d)
+	If(!mx.readMagicString("Stage 4", doStage4)) {
+		Return({})
+	}
+	
+	Return(Last @ Gather(
+		While(True) {
+			sym:= mx.BinaryRead("Integer32")
+			If(sym < 0) {
+				Break()
+			}
+			If(sym === EndOfFile) {
+				Message(doStage4::"eof")
+				Break()
+			}
+			
+			If(sym > symbolCache.Length || sym < 1) {
+				Message(doStage4::invsym, sym)
+			} Else {
+				sym:= MxSym(symbolCache[sym, 1] ++ symbolCache[sym, 2], sym)
+			}
 				
-				If(sym > symbolCache.Length || sym < 1,
-					Message(doStage4::invsym, sym);
-				,
-					sym:= MxSym(symbolCache[sym, 1] ++ symbolCache[sym, 2], sym);
-					);
-					
-				{b, c, d}:= mx.BinaryRead({"Integer32", "Integer32", "Integer32"});
-				c:= MxExpr(c);
-				If(b === 4,
-					d:= d.Replace({0 -> "OwnValues", 3 -> "DownValues", 5 -> "FormatValues"});
-					);
-				Emit({sym, b, c, d});
-				)
-			));
-		)
+			{b, c, d}:= mx.BinaryRead({"Integer32", "Integer32", "Integer32"})
+			c:= MxExpr(c)
+			If(b === 4) {
+				d:= d.Replace({0 -> "OwnValues", 3 -> "DownValues", 5 -> "FormatValues"})
+			}
+			Emit({sym, b, c, d})
+		}))
+}
 
 niceObj(~exprCache, MxConst(~c, ~, ~), ~)::= If(c.IsString, c.InputForm.ToString, c, c);
 niceObj(~exprCache, MxSym(~s, ~), ~)::= s.StringReplace({StartOfString ++ ~~ ++ "`" ++ n:(("a".."z") ++ Except("`")*** ++ EndOfString) :> n})
 niceObj(~exprCache, MxOther(~id, ~ptr), ~)::= StringForm("[other `1`: `2`]", id, ptr);
 niceObj(~exprCache, MxExpr(~p), ~d)::= niceExpr(exprCache, p, d);
 niceExpr(~exprCache, ~ptr, 0)::= StringForm("[`1`]", ptr)
-niceExpr(~exprCache, ~ptr, ~maxDepth)::=
-	(
-		If(exprCache(ptr)[1, 0] === MxConstExpr,
-			Return(exprCache(ptr)[1,1]));
-		
-		With({expr:= exprCache(ptr)[1].Map(niceObj(exprCache, #, maxDepth - 1) &, Heads->True)},
-			Switch(expr[0],
-				"System`List", Return(expr.ReplacePart(0 -> List)),
-				"System`Set",                If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> Assign))),
-				"System`SetDelayed",         If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> AssignDelayed))),
-				"System`Rule",               If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> Rule))),
-				"System`RuleDelayed",        If(expr.Length === 2,     Return(HoldForm(expr).ReplacePart({1,0} -> RuleDelayed))),
-				"System`Pattern",
-					If(expr.Length===2,
-						If(expr[2]===HoldForm(~)&&expr[1].IsString,
-							Return(Row({"~",expr[1]})));
-						Return(HoldForm(expr).ReplacePart({1,0}->Pattern))),
-				"System`Blank",              If(expr.Length <= 1,      Return(HoldForm(expr).ReplacePart({1,0} -> SingleMatch))),
-				"System`Equal",              If(expr.Length >= 2,      Return(HoldForm(expr).ReplacePart({1,0} -> Equal))),
-				"System`Unequal",            If(expr.Length = 2,       Return(HoldForm(expr).ReplacePart({1,0} -> Unequal))),
-				"System`SameQ",              If(expr.Length >= 2,      Return(HoldForm(expr).ReplacePart({1,0} -> Identical))),
-				"System`UnsameQ",            If(expr.Length >= 2,      Return(HoldForm(expr).ReplacePart({1,0} -> Unidentical))),
-				"System`If",                 If(2 <= expr.Length <= 3, Return(HoldForm(expr).ReplacePart({1,0} -> If))),
-				"System`CompoundExpression", If(expr.Length > 0,       Return(HoldForm(expr).ReplacePart({1,0} -> EvaluationSequence)))
-				);
-			Return(expr);
-			);
-	)
+Function niceExpr(~exprCache, ~ptr, ~maxDepth) {
+	If(exprCache(ptr)[1, 0] === MxConstExpr) {
+		Return(exprCache(ptr)[1,1])
+	}
+	
+	With(expr:= exprCache(ptr)[1].Map(niceObj(exprCache, #, maxDepth - 1) &, Heads->True))
+	Switch(expr[0]) {
+		Case("System`List") {
+			Return(expr.ReplacePart(0 -> List))
+		}
+		Case("System`Set") {
+		    If(expr.Length === 2) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> Assign))
+			}
+		}   
+		Case("System`SetDelayed") {
+			If(expr.Length === 2) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> AssignDelayed))
+			}
+		}
+		Case("System`Rule") {
+			If(expr.Length === 2) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> Rule))
+			}
+		}
+		Case("System`RuleDelayed") {
+			If(expr.Length === 2) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> RuleDelayed))
+			}
+		}
+		Case("System`Pattern") {
+			If(expr.Length === 2) {
+				If(expr[2] === HoldForm(~) && expr[1].IsString) {
+					Return(Row({"~",expr[1]}))
+				}
+				Return(HoldForm(expr).ReplacePart({1,0}->Pattern))
+			}
+		}
+		Case("System`Blank") {
+			If(expr.Length <= 1) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> SingleMatch))
+			}
+		}
+		Case("System`Equal") {
+			If(expr.Length >= 2) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> Equal))
+			}
+		}
+		Case("System`Unequal") {
+			If(expr.Length = 2) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> Unequal))
+			}
+		}
+		Case("System`SameQ") {
+			If(expr.Length >= 2) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> Identical))
+			}
+		}
+		Case("System`UnsameQ") {
+			If(expr.Length >= 2) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> Unidentical))
+			}
+		}
+		Case("System`If") {
+			If(2 <= expr.Length <= 3) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> If))
+			}
+		}
+		Case("System`CompoundExpression") {
+			If(expr.Length > 0) {
+				Return(HoldForm(expr).ReplacePart({1,0} -> EvaluationSequence))
+			}
+		}
+	}
+	Return(expr)
+}
 
 findExprReferences(~exprCache, ~exprIndex)::= 
 	Array((exprIndex+1)..exprCache(Length)).Select(Position(exprCache(#),MxExpr(exprIndex))=!={} &)

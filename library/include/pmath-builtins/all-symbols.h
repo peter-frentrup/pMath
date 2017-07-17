@@ -70,8 +70,7 @@ pmath_bool_t pmath_register_code(
    \param symbol The symbol. It wont be freed.
    \param func A native function that replaces its first argument by an
                approximation (precision according to its second argument) and
-               returns TRUE on success. If the third argument is TRUE, this
-               should generate an Internal`RealInterval
+               returns TRUE on success
    \return Whether the binding succeded.
 
    Any previous approximation-binding to the symbol will be overwritten.
@@ -83,7 +82,7 @@ pmath_bool_t pmath_register_code(
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
   pmath_symbol_t   symbol,
-  pmath_bool_t   (*func)(pmath_t *, double, pmath_bool_t));
+  pmath_bool_t   (*func)(pmath_t *, double));
 
 /** @} */
 
@@ -883,15 +882,19 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_INTERNAL_COPYSIGN                      PMATH_SYMBOL_BUILTIN(789)
 #define PMATH_SYMBOL_INTERNAL_NEXTTOWARD                    PMATH_SYMBOL_BUILTIN(790)
 #define PMATH_SYMBOL_DEVELOPER_SYSTEMINFORMATION            PMATH_SYMBOL_BUILTIN(791)
-#define PMATH_SYMBOL_INTERNAL_REALINTERVAL                  PMATH_SYMBOL_BUILTIN(792)
-#define PMATH_SYMBOL_INTERNAL_SETPRECISIONINTERVAL          PMATH_SYMBOL_BUILTIN(793)
+#define PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS                PMATH_SYMBOL_BUILTIN(792)
+#define PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS        PMATH_SYMBOL_BUILTIN(793)
 #define PMATH_SYMBOL_ISATOM                                 PMATH_SYMBOL_BUILTIN(794)
-#define PMATH_SYMBOL_INTERNAL_ISREALINTERVAL                PMATH_SYMBOL_BUILTIN(795)
+#define PMATH_SYMBOL_INTERNAL_PARSEREALBALL                 PMATH_SYMBOL_BUILTIN(795)
 #define PMATH_SYMBOL_MAGNIFICATION                          PMATH_SYMBOL_BUILTIN(796)
 #define PMATH_SYMBOL_BINARYREADLIST                         PMATH_SYMBOL_BUILTIN(797)
 #define PMATH_SYMBOL_FORMAT                                 PMATH_SYMBOL_BUILTIN(798)
 #define PMATH_SYMBOL_MESSAGEGROUPS                          PMATH_SYMBOL_BUILTIN(799)
 #define PMATH_SYMBOL_INTERNAL_MESSAGETHROWN                 PMATH_SYMBOL_BUILTIN(800)
+#define PMATH_SYMBOL_POWERMOD                               PMATH_SYMBOL_BUILTIN(801)
+#define PMATH_SYMBOL_MINMAX                                 PMATH_SYMBOL_BUILTIN(802)
+#define PMATH_SYMBOL_INTERNAL_WRITEREALBALL                 PMATH_SYMBOL_BUILTIN(803)
+#define PMATH_SYMBOL_INTERNAL_REALBALLFROMMIDPOINTRADIUS    PMATH_SYMBOL_BUILTIN(804)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

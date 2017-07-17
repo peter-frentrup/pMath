@@ -29,23 +29,6 @@ static pmath_t double_result(double x) {
   return pmath_ref(_pmath_object_pos_infinity);
 }
 
-static pmath_t mp_result(pmath_mpfloat_t x) {
-  int sgn;
-  
-  if(mpfr_number_p(PMATH_AS_MP_VALUE(x)))
-    return x;
-    
-  // TODO: generate overflow message?
-  
-  sgn = mpfr_sgn(PMATH_AS_MP_VALUE(x));
-  pmath_unref(x);
-  
-  if(sgn < 0)
-    return pmath_ref(_pmath_object_neg_infinity);
-    
-  return pmath_ref(_pmath_object_pos_infinity);
-}
-
 static pmath_t next_toward_infinity(pmath_expr_t expr, pmath_t x, int inf_sign) {
   if(pmath_is_double(x)) {
     double x_double;
@@ -63,27 +46,23 @@ static pmath_t next_toward_infinity(pmath_expr_t expr, pmath_t x, int inf_sign) 
   }
   
   if(pmath_is_mpfloat(x)) {
-    pmath_mpfloat_t result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-    
+    pmath_mpfloat_t result = _pmath_create_mp_float(PMATH_AS_ARB_WORKING_PREC(x));
+    fmpz_t mant, exp;
     if(pmath_is_null(result)) {
       pmath_unref(x);
       return expr;
     }
+    fmpz_init(exp);
+    fmpz_init(mant);
+    fmpz_sub_si(exp, ARF_EXPREF(arb_midref(PMATH_AS_ARB(x))), PMATH_AS_ARB_WORKING_PREC(x));
+    fmpz_set_si(mant, inf_sign);
+    arb_add_fmpz_2exp(PMATH_AS_ARB(result), PMATH_AS_ARB(x), mant, exp, ARF_PREC_EXACT);
+    fmpz_clear(mant);
+    fmpz_clear(exp);
     
-    mpfr_set(
-      PMATH_AS_MP_VALUE(result),
-      PMATH_AS_MP_VALUE(x),
-      MPFR_RNDN); // conversion is exact because both precisions are equal
-      
     pmath_unref(x);
     pmath_unref(expr);
-    
-    if(inf_sign < 0)
-      mpfr_nextbelow(PMATH_AS_MP_VALUE(result));
-    else
-      mpfr_nextabove(PMATH_AS_MP_VALUE(result));
-      
-    return mp_result(result);
+    return result;
   }
   
   return expr;
@@ -136,28 +115,20 @@ PMATH_PRIVATE pmath_t builtin_internal_nexttoward(pmath_expr_t expr) {
   
   if(pmath_is_mpfloat(x)) {
     if(pmath_is_number(y) && !pmath_is_mpfloat(y))
-      y = pmath_set_precision(y, mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
+      y = pmath_set_precision(y, PMATH_AS_ARB_WORKING_PREC(x));
       
     if(pmath_is_mpfloat(y)) {
-      pmath_mpfloat_t result = _pmath_create_mp_float(mpfr_get_prec(PMATH_AS_MP_VALUE(x)));
-      
-      if(pmath_is_null(result)) {
-        pmath_unref(x);
+      if(arb_lt(PMATH_AS_ARB(x), PMATH_AS_ARB(y))) {
         pmath_unref(y);
-        return expr;
+        return next_toward_infinity(expr, x, +1);
       }
-      
-      mpfr_set(
-        PMATH_AS_MP_VALUE(result),
-        PMATH_AS_MP_VALUE(x),
-        MPFR_RNDN); // conversion is exact because both precisions are equal
-      
-      mpfr_nexttoward(PMATH_AS_MP_VALUE(result), PMATH_AS_MP_VALUE(y));
-      
-      pmath_unref(x);
+      if(arb_gt(PMATH_AS_ARB(x), PMATH_AS_ARB(y))) {
+        pmath_unref(y);
+        return next_toward_infinity(expr, x, -1);
+      }
       pmath_unref(y);
       pmath_unref(expr);
-      return mp_result(result);
+      return x;
     }
     
     pmath_unref(x);

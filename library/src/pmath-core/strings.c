@@ -1321,7 +1321,7 @@ pmath_string_t pmath_string_insert(
     result = pmath_ref(PMATH_FROM_PTR(_str->buffer));
     result = pmath_string_part(
         result,
-        _str->capacity_or_start + inspos,
+        _str->capacity_or_start,
         _str->length + _ins->length);
     pmath_unref(str);
     pmath_unref(ins);

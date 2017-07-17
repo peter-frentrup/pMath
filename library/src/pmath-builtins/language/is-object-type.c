@@ -214,7 +214,7 @@ PMATH_PRIVATE pmath_t builtin_isexactnumber(pmath_expr_t expr) {
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
   
-  if(_pmath_is_nonreal_complex(obj)) {
+  if(_pmath_is_nonreal_complex_number(obj)) {
     pmath_t part = pmath_expr_get_item(obj, 1);
     if(pmath_is_rational(obj)) {
       pmath_unref(part);
@@ -292,7 +292,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_machinenumber(pmath_t x) {
   if(pmath_is_double(x))
     return TRUE;
     
-  if(_pmath_is_nonreal_complex(x)) {
+  if(_pmath_is_nonreal_complex_number(x)) {
     pmath_t part = pmath_expr_get_item(x, 1);
     
     if(pmath_is_double(part)) {
@@ -343,7 +343,7 @@ PMATH_PRIVATE pmath_t builtin_isnumber(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   
-  if(pmath_is_number(obj) || _pmath_is_nonreal_complex(obj)) {
+  if(pmath_is_number(obj) || _pmath_is_nonreal_complex_number(obj)) {
     pmath_unref(obj);
     return pmath_ref(PMATH_SYMBOL_TRUE);
   }
@@ -514,24 +514,5 @@ PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(pmath_expr_t expr) {
   pmath_unref(expr);
   pmath_unref(obj);
   return pmath_ref(PMATH_SYMBOL_TRUE);
-}
-
-PMATH_PRIVATE pmath_t builtin_internal_isrealinterval(pmath_expr_t expr) {
-  pmath_t obj;
-  
-  if(pmath_expr_length(expr) != 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
-    return expr;
-  }
-  
-  obj = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
-  
-  if(pmath_is_interval(obj)) {
-    pmath_unref(obj);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
-  }
-  pmath_unref(obj);
-  return pmath_ref(PMATH_SYMBOL_FALSE);
 }
 

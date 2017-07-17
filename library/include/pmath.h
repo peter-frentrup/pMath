@@ -3,9 +3,10 @@
 
 /**\mainpage The pMath Computer Algebra System Library
    \author Peter Frentrup
-   \date 2014
+   \date 2017
 
    \par Introduction
+   
    pMath is a free CAS for Windows and Unix like systems. The whole CAS consists
    of three projects:
     - The pMath library documented here, which implements the parser,
@@ -20,8 +21,11 @@
    This document does not cover the pMath \em Language itself.
    
    \par Links/Depencies
+   
    pMath is build on top of several open source libraries:
-    - GMP (http://gmplib.org)
+    - Arb (http://www.arblib.org)
+    - FLINT (http://www.flintlib.org)
+    - MPIR/GMP (http://www.mpir.org or http://www.gmplib.org)
     - MPFR (http://www.mpfr.org)
     - PCRE (http://www.pcre.org)
    
