@@ -1,5 +1,6 @@
 #define _WIN32_WINNT  0x0600
 
+#include "registry.h"
 #include "util.h"
 
 #include <pmath.h>
@@ -10,11 +11,12 @@
   (CSTR_EQUAL == CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE, BUF, LEN, STR, sizeof(STR)/sizeof(STR[0])))
 
 
-// fullname will be freed
-static pmath_string_t split_subkey(HKEY *out_base, pmath_string_t fullname) {
+pmath_string_t registry_split_subkey(HKEY *out_base, pmath_string_t fullname) {
   const wchar_t *buf = pmath_string_buffer(&fullname);
   int len = pmath_string_length(fullname);
   int i;
+  
+  assert(out_base != NULL);
   
   i = 0;
   while(i < len && buf[i] != L'\\')
@@ -130,7 +132,7 @@ static pmath_t reg_data_to_pmath(DWORD type, const void *data, DWORD size) {
 }
 
 pmath_t windows_RegGetValue(pmath_expr_t expr) {
-  /*  RegGetValue(keyName, valueName)
+  /*  Windows`RegGetValue(keyName, valueName)
    */
   pmath_string_t key_name;
   pmath_string_t value_name;
@@ -165,7 +167,7 @@ pmath_t windows_RegGetValue(pmath_expr_t expr) {
     return expr;
   }
   
-  key_name = split_subkey(&root, key_name);
+  key_name = registry_split_subkey(&root, key_name);
   if(pmath_is_null(key_name))
     return expr;
     
