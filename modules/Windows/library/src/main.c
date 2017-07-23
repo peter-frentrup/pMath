@@ -6,6 +6,7 @@ extern pmath_t windows_SHGetKnownFolderPath(pmath_expr_t expr);
 extern pmath_t windows_GetAllKnownFolders(pmath_expr_t expr);
 extern pmath_t windows_RegGetValue(pmath_expr_t expr);
 extern pmath_t windows_RegEnumKeys(pmath_expr_t expr);
+extern pmath_t windows_RegEnumValues(pmath_expr_t expr);
 
 static void protect_all(pmath_symbol_t *start, size_t size) {
   pmath_symbol_t *end = start + size / sizeof(pmath_symbol_t);
@@ -34,6 +35,7 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
     pmath_symbol_t Windows_Private_GetAllKnownFolders;
     pmath_symbol_t Windows_RegGetValue;
     pmath_symbol_t Windows_RegEnumKeys;
+    pmath_symbol_t Windows_RegEnumValues;
   } symbols;
   memset(&symbols, 0, sizeof(symbols));
   
@@ -43,11 +45,13 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
   VERIFY( symbols.Windows_Private_GetAllKnownFolders  = NEW_SYMBOL("Windows`Private`GetAllKnownFolders"));
   VERIFY( symbols.Windows_RegGetValue                 = NEW_SYMBOL("Windows`RegGetValue"));
   VERIFY( symbols.Windows_RegEnumKeys                 = NEW_SYMBOL("Windows`RegEnumKeys"));
+  VERIFY( symbols.Windows_RegEnumValues               = NEW_SYMBOL("Windows`RegEnumValues"));
   
   BIND_DOWN(symbols.Windows_SHGetKnownFolderPath,       windows_SHGetKnownFolderPath);
   BIND_DOWN(symbols.Windows_Private_GetAllKnownFolders, windows_GetAllKnownFolders);
   BIND_DOWN(symbols.Windows_RegGetValue,                windows_RegGetValue);
   BIND_DOWN(symbols.Windows_RegEnumKeys,                windows_RegEnumKeys);
+  BIND_DOWN(symbols.Windows_RegEnumValues,              windows_RegEnumValues);
   
   PMATH_RUN("Windows`$KnownFolders::= Windows`Private`GetAllKnownFolders()");
   PMATH_RUN("Options(Windows`SHGetKnownFolderPath)::= {CreateDirectory->False}");

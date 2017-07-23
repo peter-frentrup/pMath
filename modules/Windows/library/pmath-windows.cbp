@@ -232,6 +232,9 @@
 		<Unit filename="src/RegEnumKeys.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/RegEnumValues.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/RegGetValue.c">
 			<Option compilerVar="CC" />
 		</Unit>
