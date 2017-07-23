@@ -3,6 +3,8 @@ BeginPackage("Windows`", {"ExperimentalSyntax`"})
 Windows`HandleHResultError
 Windows`$KnownFolders
 Windows`SHGetKnownFolderPath
+Windows`RegGetValue
+Windows`RegEnumKeys
 
 Begin("Windows`Private`")
 
@@ -16,6 +18,9 @@ Function HandleHResultError(opt:OptionsPattern()) {
    With(head:= OptionValue(Head), hr:= OptionValue("HResult"), descr:= OptionValue("Description"))
    Message(head::hresult, BaseForm(hr, 16), descr)
 }
+
+SetAttributes(RegGetValue, Listable)
+SetAttributes(RegEnumKeys, Listable)
 
 LoadLibrary(ToFileName({DirectoryName($Input), "bin", $ProcessorType}, "pmath-windows.dll"))
 
