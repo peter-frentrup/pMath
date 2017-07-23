@@ -221,6 +221,7 @@
 			<Add library="shell32" />
 			<Add library="ole32" />
 			<Add library="oleaut32" />
+			<Add library="advapi32" />
 			<Add directory="../../../library/$(TARGET_OUTPUT_DIR)" />
 		</Linker>
 		<ExtraCommands>
@@ -228,6 +229,9 @@
 			<Add after='cmd /C if not exist &quot;..\bin\$(ARCH_NAME)&quot; mkdir &quot;..\bin\$(ARCH_NAME)&quot;' />
 			<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\$(ARCH_NAME)\*&quot;' />
 		</ExtraCommands>
+		<Unit filename="src/RegGetValue.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/SHGetKnownFolderPath.c">
 			<Option compilerVar="CC" />
 		</Unit>

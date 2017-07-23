@@ -25,5 +25,9 @@ extern pmath_string_t guid_to_string(const GUID *guid);
  */
 extern pmath_bool_t check_succeeded(HRESULT hr);
 
+/** Test whether a win32 error code indicates success and print a message if not.
+ */
+extern pmath_bool_t check_succeeded_win32(DWORD error_code);
+
 
 #endif // __PMATH_WINDOWS__ERROR_UTIL_H__
