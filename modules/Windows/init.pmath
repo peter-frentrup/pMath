@@ -5,6 +5,7 @@ Windows`$KnownFolders
 Windows`SHGetKnownFolderPath
 Windows`RegGetValue
 Windows`RegEnumKeys
+Windows`RegEnumValues
 
 Begin("Windows`Private`")
 
@@ -21,6 +22,7 @@ Function HandleHResultError(opt:OptionsPattern()) {
 
 SetAttributes(RegGetValue, Listable)
 SetAttributes(RegEnumKeys, Listable)
+SetAttributes(RegEnumValues, Listable)
 
 LoadLibrary(ToFileName({DirectoryName($Input), "bin", $ProcessorType}, "pmath-windows.dll"))
 

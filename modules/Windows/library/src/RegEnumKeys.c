@@ -7,7 +7,7 @@
 #include <windows.h>
 
 
-static pmath_t enum_subkeys(HKEY key) {
+static pmath_t enum_subkeys(HKEY key, pmath_string_t key_path) {
   wchar_t small_buffer[16];
   wchar_t *data = small_buffer;
   DWORD capacity = sizeof(small_buffer) / sizeof(small_buffer[0]);
@@ -23,12 +23,14 @@ static pmath_t enum_subkeys(HKEY key) {
       break;
       
     if(error_code == ERROR_SUCCESS) {
-      pmath_string_t name = pmath_string_insert_ucs2(PMATH_NULL, 0, data, (int)size);
+      pmath_string_t name = pmath_string_insert_latin1(pmath_ref(key_path), INT_MAX, "\\", 1);
+      name = pmath_string_insert_ucs2(name, INT_MAX, data, (int)size);
       pmath_emit(name, PMATH_NULL);
       continue;
     }
     
     if(error_code == ERROR_MORE_DATA) {
+      --i;
       capacity*= 2;
       if(data == small_buffer)
         data = pmath_mem_alloc(capacity * sizeof(wchar_t));
@@ -55,7 +57,8 @@ pmath_t windows_RegEnumKeys(pmath_expr_t expr) {
   /*  Windows`RegEnumKeys(keyName)
    */
   pmath_string_t key_name;
-  const wchar_t *key_name_buf;
+  pmath_string_t sub_key_name;
+  const wchar_t *sub_key_name_buf;
   HKEY root;
   HKEY key;
   DWORD error_code;
@@ -72,26 +75,30 @@ pmath_t windows_RegEnumKeys(pmath_expr_t expr) {
     return expr;
   }
   
-  key_name = registry_split_subkey(&root, key_name);
-  if(pmath_is_null(key_name))
+  sub_key_name = registry_split_subkey(&root, pmath_ref(key_name));
+  if(pmath_is_null(sub_key_name))
     return expr;
     
-  key_name = pmath_string_insert_latin1(key_name, INT_MAX, "", 1);
-  key_name_buf = pmath_string_buffer(&key_name);
-  if(!key_name_buf) {
+  sub_key_name = pmath_string_insert_latin1(sub_key_name, INT_MAX, "", 1);
+  sub_key_name_buf = pmath_string_buffer(&sub_key_name);
+  if(!sub_key_name_buf) {
     pmath_unref(key_name);
+    pmath_unref(sub_key_name);
     return expr;
   }
   
-  error_code = RegOpenKeyExW(root, key_name_buf, 0, KEY_READ, &key);
-  pmath_unref(key_name);
+  error_code = RegOpenKeyExW(root, sub_key_name_buf, 0, KEY_READ, &key);
+  pmath_unref(sub_key_name);
   
   pmath_unref(expr);
-  if(!check_succeeded_win32(error_code)) 
+  if(!check_succeeded_win32(error_code)) {
+    pmath_unref(key_name);
     return pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+  }
   
-  expr = enum_subkeys(key);
+  expr = enum_subkeys(key, key_name);
   
+  pmath_unref(key_name);
   RegCloseKey(key);
   return expr;
 }
