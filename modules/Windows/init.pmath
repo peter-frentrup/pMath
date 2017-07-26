@@ -3,12 +3,15 @@ BeginPackage("Windows`", {"ExperimentalSyntax`"})
 Windows`HandleHResultError
 Windows`$KnownFolders
 Windows`SHGetKnownFolderPath
+Windows`RegGetValue
+Windows`RegEnumKeys
+Windows`RegEnumValues
 
 Begin("Windows`Private`")
 
 
 General::hresult:= "Error `1` encounted: `2`"
-SHGetKnownFolderPath::unk:= "`1` is not known folder. See $KnownFolders."
+SHGetKnownFolderPath::unk:= "`1` is not a known folder. See $KnownFolders."
 
 
 Options(HandleHResultError):= {Head -> General, "HResult" -> 0, "Description" -> "No description available."}
@@ -16,6 +19,10 @@ Function HandleHResultError(opt:OptionsPattern()) {
    With(head:= OptionValue(Head), hr:= OptionValue("HResult"), descr:= OptionValue("Description"))
    Message(head::hresult, BaseForm(hr, 16), descr)
 }
+
+SetAttributes(RegGetValue, Listable)
+SetAttributes(RegEnumKeys, Listable)
+SetAttributes(RegEnumValues, Listable)
 
 LoadLibrary(ToFileName({DirectoryName($Input), "bin", $ProcessorType}, "pmath-windows.dll"))
 
