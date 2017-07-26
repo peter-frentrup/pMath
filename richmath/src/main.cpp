@@ -189,20 +189,20 @@ static void message_dialog(const char *title, const char *content) {
 }
 
 static void load_fonts() {
-  Expr fontlist = FontInfo::all_fonts();
-  PMATH_RUN_ARGS("FE`Private`$AllStartupFonts:= Union(`1`)", "(o)", pmath_ref(fontlist.get()));
+  Expr font_files = Evaluate(Parse("FE`$PrivateStartupFontFiles"));
   
-  Hashtable<String, Void> fonttable;
-  for(size_t i = fontlist.expr_length(); i > 0; --i) {
-    fonttable.set(String(fontlist[i]), Void());
-  }
-  
-  if(!fonttable.search("Asana Math")) {
-    FontInfo::add_private_font(Application::application_directory + "/Asana-Math.otf");
-  }
-  
-  if(!fonttable.search("pMathFallback")) {
-    FontInfo::add_private_font(Application::application_directory + "/pMathFallback.ttf");
+  if(font_files[0] == PMATH_SYMBOL_LIST) {
+    for(size_t i = 1;i <= font_files.expr_length();++i) {
+      String filename(font_files[i]);
+      
+      if(FontInfo::add_private_font(filename)) {
+        pmath_debug_print_object("add private font ", filename.get(), "\n");
+      }
+      else {
+        Expr arg = font_files[i];
+        pmath_debug_print_object("failed to add private font ", arg.get(), "\n");
+      }
+    }
   }
 }
 

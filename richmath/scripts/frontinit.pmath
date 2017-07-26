@@ -4,6 +4,7 @@ BeginPackage("FE`")
 $FrontEndDirectory;
 $MathShapers;
 $FallbackFonts;
+$PrivateStartupFontFiles;
 SymbolInfo;
 SymbolDefinitions;
 BoxesToText;
@@ -42,6 +43,10 @@ Protect($MathShapers)
 /* should not contain more than 6 fonts: */
 $FallbackFonts:= {"pMathFallback", "Asana Math", "Arial Unicode MS", "Unifont"}
 Protect($FallbackFonts)
+
+$PrivateStartupFontFiles:= {
+	$ApplicationFileName.DirectoryName.ToFileName("Asana-Math.otf"),
+	$ApplicationFileName.DirectoryName.ToFileName("pMathFallback.ttf")}
 
 
 $Path:= Prepend($Path, $FrontEndDirectory)

@@ -56,7 +56,7 @@ class PrivateWin32Font: public Shareable {
         file.buffer(),
         guard->filename.length() * sizeof(uint16_t));
         
-      if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, 0) > 0) {
+      if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, nullptr) > 0) {
         return true;
       }
       
@@ -74,7 +74,7 @@ class PrivateWin32Font: public Shareable {
     
     ~PrivateWin32Font() {
       if(filename.length() > 0) {
-        RemoveFontResourceExW(filename.items(), FR_PRIVATE, 0);
+        RemoveFontResourceExW(filename.items(), FR_PRIVATE, nullptr);
       }
     }
     
@@ -85,7 +85,7 @@ class PrivateWin32Font: public Shareable {
     SharedPtr<PrivateWin32Font> next;
 };
 
-SharedPtr<PrivateWin32Font> PrivateWin32Font::guard = 0;
+SharedPtr<PrivateWin32Font> PrivateWin32Font::guard = nullptr;
 
 #endif
 
@@ -425,19 +425,20 @@ Expr FontInfo::all_fonts() {
 #endif
 }
 
-void FontInfo::add_private_font(String filename) {
-#ifdef RICHMATH_USE_WIN32_FONT
-  PrivateWin32Font::load(filename);
-#endif
-  
-#ifdef RICHMATH_USE_FT_FONT
+bool FontInfo::add_private_font(String filename) {
+#if defined(RICHMATH_USE_WIN32_FONT)
+  return PrivateWin32Font::load(filename);
+#elif defined(RICHMATH_USE_FT_FONT)
   {
     char *file = pmath_string_to_utf8(filename.get(), nullptr);
     
-    FcConfigAppFontAddFile(nullptr, (const FcChar8 *)file);
+    FcBool result = FcConfigAppFontAddFile(nullptr, (const FcChar8 *)file);
     
     pmath_mem_free(file);
+    return result;
   }
+#else
+  return false;
 #endif
 }
 
