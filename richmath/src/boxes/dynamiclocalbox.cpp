@@ -180,7 +180,7 @@ void DynamicLocalBox::emit_values(Expr symbol) {
   // todo: fetch variables from Server, maybe after each paint()
   
   Expr rules =  Application::interrupt(
-                  Call(GetSymbol(SymbolDefinitionsSymbol), prepare_dynamic(symbol)),
+                  Call(GetSymbol(FESymbolIndex::SymbolDefinitions), prepare_dynamic(symbol)),
                   Application::dynamic_timeout);
                   
   if(rules[0] == PMATH_SYMBOL_HOLDCOMPLETE && rules.expr_length() > 0) {

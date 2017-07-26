@@ -558,7 +558,7 @@ static void update_control_active(bool value) {
     Application::interrupt(
       /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_ASSIGN),
-           GetSymbol(ControlActiveSymbol),
+           GetSymbol(FESymbolIndex::ControlActive),
            Symbol(PMATH_SYMBOL_TRUE)));
   }
   else {
@@ -566,7 +566,7 @@ static void update_control_active(bool value) {
       /*Parse("FE`$ControlActiveSymbol:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
            Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                GetSymbol(ControlActiveSymbol),
+                GetSymbol(FESymbolIndex::ControlActive),
                 Symbol(PMATH_SYMBOL_FALSE)),
            Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
                 Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),
@@ -1014,7 +1014,7 @@ Expr Application::run_filedialog(Expr data) {
 #else
 #  error "No GUI"
 #endif
-  dialog(head == GetSymbol(FileSaveDialogSymbol));
+  dialog(head == GetSymbol(FESymbolIndex::FileSaveDialog));
   
   pmath_debug_print("  set_title...\n");
   dialog.set_title(title);
@@ -1158,7 +1158,7 @@ void Application::interrupt_for(Expr expr, Box *box, double seconds) {
   EvaluationPosition pos(box);
   
   expr = Call(
-           GetSymbol(InternalExecuteForSymbol),
+           GetSymbol(FESymbolIndex::InternalExecuteFor),
            expr,
            pos.document_id,
            pos.section_id,
@@ -1717,7 +1717,7 @@ static Expr cnt_save(Expr data) {
 
     filename = Application::run_filedialog(
                  Call(
-                   GetSymbol(FileSaveDialogSymbol),
+                   GetSymbol(FESymbolIndex::FileSaveDialog),
                    filter));
   }
   

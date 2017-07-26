@@ -78,7 +78,7 @@ namespace richmath {
           
           if(!info) {
             Expr syminfo = Application::interrupt_cached(Call(
-                             GetSymbol(SymbolInfoSymbol),
+                             GetSymbol(FESymbolIndex::SymbolInfo),
                              name));
                              
             if(syminfo == PMATH_SYMBOL_FALSE)

@@ -3683,7 +3683,7 @@ static Box *create_box(Expr expr, int options) {
   if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == GetSymbol( NumberBoxSymbol))
+  if(head == GetSymbol( FESymbolIndex::NumberBox ))
     return create_or_error<NumberBox>(expr, options);
     
   return new ErrorBox(expr);

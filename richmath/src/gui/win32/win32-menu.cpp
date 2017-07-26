@@ -52,7 +52,7 @@ static void add_remove_menu(int delta) {
 //{ class Win32Menu ...
 
 static HMENU create_menu(Expr expr, bool is_popup) {
-  if(expr[0] != GetSymbol(MenuSymbol) || expr.expr_length() != 2)
+  if(expr[0] != GetSymbol(FESymbolIndex::Menu) || expr.expr_length() != 2)
     return nullptr;
     
   String name(expr[1]);
@@ -68,7 +68,7 @@ static HMENU create_menu(Expr expr, bool is_popup) {
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
       
-      if( item[0] == GetSymbol(ItemSymbol) &&
+      if( item[0] == GetSymbol(FESymbolIndex::Item) &&
           item.expr_length() == 2)
       {
         String name(item[1]);
@@ -95,7 +95,7 @@ static HMENU create_menu(Expr expr, bool is_popup) {
         continue;
       }
       
-      if(item == GetSymbol(DelimiterSymbol)) {
+      if(item == GetSymbol(FESymbolIndex::Delimiter)) {
         AppendMenuW(
           menu,
           MF_SEPARATOR,
@@ -104,7 +104,7 @@ static HMENU create_menu(Expr expr, bool is_popup) {
         continue;
       }
       
-      if( item[0] == GetSymbol(MenuSymbol) &&
+      if( item[0] == GetSymbol(FESymbolIndex::Menu) &&
           item.expr_length() == 2)
       {
         String name(item[1]);
@@ -181,7 +181,7 @@ void Win32Menu::init_popupmenu(HMENU sub) {
 //{ class Win32AcceleratorTable ...
 
 static bool set_accel_key(Expr expr, ACCEL *accel) {
-  if(expr[0] != GetSymbol(KeyEventSymbol) || expr.expr_length() != 2)
+  if(expr[0] != GetSymbol(FESymbolIndex::KeyEvent) || expr.expr_length() != 2)
     return false;
     
   Expr modifiers = expr[2];
@@ -192,11 +192,11 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   for(size_t i = modifiers.expr_length(); i > 0; --i) {
     Expr item = modifiers[i];
     
-    if(item == GetSymbol(KeyAltSymbol))
+    if(item == GetSymbol(FESymbolIndex::KeyAlt))
       accel->fVirt |= FALT;
-    else if(item == GetSymbol(KeyControlSymbol))
+    else if(item == GetSymbol(FESymbolIndex::KeyControl))
       accel->fVirt |= FCONTROL;
-    else if(item == GetSymbol(KeyShiftSymbol))
+    else if(item == GetSymbol(FESymbolIndex::KeyShift))
       accel->fVirt |= FSHIFT;
     else
       return false;
@@ -412,7 +412,7 @@ static HACCEL create_accel(Expr expr) {
     Expr item(expr[i]);
     Expr cmd( item[2]);
     
-    if( item[0] == GetSymbol(ItemSymbol) &&
+    if( item[0] == GetSymbol(FESymbolIndex::Item) &&
         item.expr_length() == 2          &&
         set_accel_key(item[1], &accel[j]))
     {

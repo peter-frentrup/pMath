@@ -144,7 +144,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
   
   expr = Application::interrupt_cached(
            Call(
-             GetSymbol(AutoCompleteOtherSymbol),
+             GetSymbol(FESymbolIndex::AutoCompleteOther),
              expr,
              alias),
            Application::button_timeout);
@@ -269,7 +269,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       str = seq->text();
       expr = Application::interrupt_cached(
                Call(
-                 GetSymbol(AutoCompleteFileSymbol),
+                 GetSymbol(FESymbolIndex::AutoCompleteFile),
                  str),
                Application::button_timeout);
                
@@ -392,7 +392,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
     
   expr = Application::interrupt_cached(
            Call(
-             GetSymbol(AutoCompleteFileSymbol),
+             GetSymbol(FESymbolIndex::AutoCompleteFile),
              str),
            Application::button_timeout);
            
@@ -452,7 +452,7 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
   String text = span->as_text();
   current_boxes_list = Application::interrupt_cached(
                          Call(
-                           GetSymbol(AutoCompleteNameSymbol),
+                           GetSymbol(FESymbolIndex::AutoCompleteName),
                            text),
                          Application::button_timeout);
                          
