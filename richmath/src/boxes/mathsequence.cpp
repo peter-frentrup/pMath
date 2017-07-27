@@ -1098,14 +1098,17 @@ namespace richmath {
           }
           
           void italic_correction(int token_end) {
-            if(self.glyphs[token_end].slant != FontSlantItalic)
-              return;
+            if(self.glyphs[token_end].slant != FontSlantItalic) {
+              if(!pmath_char_is_integral(buf[token_end]))
+                return;
+            }
               
             if(buf[token_end] == PMATH_CHAR_BOX)
               return;
               
             if( token_end + 1 == self.glyphs.length() ||
-                self.glyphs[token_end + 1].slant != FontSlantItalic)
+                self.glyphs[token_end + 1].slant != FontSlantItalic ||
+                pmath_char_is_integral(buf[token_end]))
             {
               float ital_corr = context->math_shaper->italic_correction(
                                   context,

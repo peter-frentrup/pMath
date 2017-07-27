@@ -1297,8 +1297,8 @@ void ConfigShaper::script_corrections(
   *sub_x = *super_x = 0;
   
   if(style.italic) {
-    *super_x += db->italic_script_indent.super  * GlyphFontOffset::EmPerOffset * em;
-    *sub_x   += db->italic_script_indent.center * GlyphFontOffset::EmPerOffset * em;
+    *super_x += db->italic_script_indent.super * GlyphFontOffset::EmPerOffset * em;
+    *sub_x   += db->italic_script_indent.sub * GlyphFontOffset::EmPerOffset * em;
   }
   
   uint32_t key;
