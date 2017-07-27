@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="richmath::Array&lt;*&gt;">
+		<DisplayString>{{ length={_length} }}</DisplayString>
+		<Expand>
+			<Item Name="capacity" ExcludeView="simple">_capacity</Item>
+			<Item Name="length" ExcludeView="simple">_length</Item>
+			<ArrayItems>
+				<Size>_length</Size>
+				<ValuePointer>_items</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::Hashtable&lt;*&gt;">
+		<DisplayString>{{ size={used_count} }}</DisplayString>
+		<Expand>
+			<Item Name="capacity" ExcludeView="EntriesOnly">capacity</Item>
+			<Item Name="size" ExcludeView="EntriesOnly">used_count</Item>
+			<CustomListItems MaxItemsPerView="1000">
+				<Variable Name="pBucket" InitialValue="table" />
+				
+				<Size>used_count</Size>
+				<Loop>
+					<If Condition="((uintptr_t)*pBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*pBucket) + (uintptr_t)1 != (uintptr_t)0)">
+						<Item Name="[{pBucket[0][0].key}]">pBucket[0][0]</Item>
+					</If>
+					<Exec>pBucket = pBucket + 1</Exec>  
+				</Loop>  
+			</CustomListItems>
+		</Expand>
+	</Type>
+	
+	<Type Name="richmath::SharedPtr&lt;*&gt;">
+		<SmartPointer Usage="Minimal">_ptr</SmartPointer>
+		<DisplayString>{_ptr}</DisplayString>
+		<Expand>
+			<ExpandedItem>_ptr</ExpandedItem>
+		</Expand>
+	</Type>
+	
+	<Type Name="richmath::SpanExpr">
+		<DisplayString Condition="_sequence != 0 &amp;&amp; (_sequence-&gt;str._obj.s.tag == 0x7FF30000 || _sequence-&gt;str._obj.s.tag == 0x7FF40000 || _sequence-&gt;str._obj.s.tag == 0x7FF50000)"
+		>[{_start} .. {_end}]: {(wchar_t*)_sequence-&gt;str._obj.s.u.as_chars + _start,[_end-_start+1]na}</DisplayString>
+		<DisplayString Condition="_sequence != 0 &amp;&amp; ((_sequence-&gt;str._obj.s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; (_sequence-&gt;str._obj.as_bits * 0x1000 != 0) &amp;&amp; ((*(pmath.dll!_pmath_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).type_shift == 3) &amp;&amp; ((*(pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).buffer == 0)"
+		>[{_start} .. {_end}]: {(wchar_t*)((char*)((pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)) + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + _start,[_end-_start+1]na}</DisplayString>
+		<DisplayString Condition="_sequence != 0 &amp;&amp; ((_sequence-&gt;str._obj.s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; (_sequence-&gt;str._obj.as_bits * 0x1000 != 0) &amp;&amp; ((*(pmath.dll!_pmath_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).type_shift == 3) &amp;&amp; ((*(pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).buffer != 0)"
+		>[{_start} .. {_end}]: {(wchar_t*)((char*)(*(pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).buffer + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + (*(pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).capacity_or_start + _start,[_end-_start+1]na}</DisplayString>
+		<DisplayString>[{_start} .. {_end}]</DisplayString>
+		<Expand>
+			<Synthetic Name="range"><DisplayString>{_start} .. {_end}</DisplayString></Synthetic>
+			<Synthetic Name="text">
+				<DisplayString Condition="_sequence != 0 &amp;&amp; (_sequence-&gt;str._obj.s.tag == 0x7FF30000 || _sequence-&gt;str._obj.s.tag == 0x7FF40000 || _sequence-&gt;str._obj.s.tag == 0x7FF50000)"
+				>{(wchar_t*)_sequence-&gt;str._obj.s.u.as_chars + _start,[_end-_start+1]na}</DisplayString>
+				<DisplayString Condition="_sequence != 0 &amp;&amp; ((_sequence-&gt;str._obj.s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; (_sequence-&gt;str._obj.as_bits * 0x1000 != 0) &amp;&amp; ((*(pmath.dll!_pmath_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).type_shift == 3) &amp;&amp; ((*(pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).buffer == 0)"
+				>{(wchar_t*)((char*)((pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)) + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + _start,[_end-_start+1]na}</DisplayString>
+				<DisplayString Condition="_sequence != 0 &amp;&amp; ((_sequence-&gt;str._obj.s.tag &amp; 0xFFF00000) == 0xFFF00000) &amp;&amp; (_sequence-&gt;str._obj.as_bits * 0x1000 != 0) &amp;&amp; ((*(pmath.dll!_pmath_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).type_shift == 3) &amp;&amp; ((*(pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).buffer != 0)"
+				>{(wchar_t*)((char*)(*(pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).buffer + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + (*(pmath.dll!_pmath_string_t*)((_sequence-&gt;str._obj.as_bits * 0x1000) / 0x1000)).capacity_or_start + _start,[_end-_start+1]na}</DisplayString>
+				<DisplayString>???</DisplayString>
+			</Synthetic>
+			<Synthetic Name="items">
+				<DisplayString>{{ count={_items._length} }}</DisplayString>
+				<Expand>
+					<Item Name="count">_items._length</Item>
+					<CustomListItems MaxItemsPerView="1000">
+						<Variable Name="theIndex" InitialValue="0" />
+						
+						<Size>_items._length</Size>
+						<Loop>
+							<If Condition="_items._items[theIndex] == 0">
+								<Item Name="[{theIndex}] at">_items_pos._items[theIndex]</Item>
+							</If>
+							<Else>
+								<Item Name="[{theIndex}]">_items._items[theIndex]</Item>
+							</Else>
+							<Exec>theIndex = theIndex + 1</Exec>  
+						</Loop>  
+					</CustomListItems>
+				</Expand>
+			</Synthetic>
+			<Synthetic Name="items_pos">
+				<DisplayString>{_items_pos._items,[_items_pos._length]na}</DisplayString>
+				<Expand>
+					<ArrayItems>
+						<Size>_items_pos._length</Size>
+						<ValuePointer>_items_pos._items</ValuePointer>
+					</ArrayItems>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+</AutoVisualizer>

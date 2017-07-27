@@ -303,6 +303,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
 					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
@@ -359,6 +360,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
 					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
@@ -414,6 +416,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
 					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
@@ -470,6 +473,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
 					<Add option="/LTCG" />
 					<Add library="pmath" />
 					<Add library="cairo" />

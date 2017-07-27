@@ -16,4 +16,5 @@ aS ${/v:pmath-dbg-path} ${$arg0}\..
 	aS ${/v:debugpmath}   $$>a<"${pmath-dbg-path}\debugpmath.wds"
 	
 	.nvload "${pmath-dbg-path}\pmath.natvis"
+	.nvload "${pmath-dbg-path}\richmath.natvis"
 }

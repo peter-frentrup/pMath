@@ -23,13 +23,14 @@
             "cwd": "${workspaceRoot}",
             "environment": [],
             "externalConsole": true,
-            "visualizerFile": "${workspaceRoot}/debugging/windbg/pmath.natvis"
+            "visualizerFile": "${workspaceRoot}/debugging/windbg/all.natvis"
         },
         {
             "name": "C++ Attach (Windows)",
             "type": "cppvsdbg",
             "request": "attach",
-            "processId": "${command:pickProcess}"
+            "processId": "${command:pickProcess}",
+            "visualizerFile": "${workspaceRoot}/debugging/windbg/all.natvis"
         }
     ]
 }
