@@ -139,7 +139,7 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, int opts) override;
       
-      TextSection *content() { return (TextSection*)_content; }
+      TextSequence *content() { return (TextSequence*)_content; }
   };
   
   class EditSection: public MathSection {
