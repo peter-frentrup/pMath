@@ -696,11 +696,14 @@ static const struct pmath_named_char_t named_char_array[] = {
   { 0x230A, "LeftFloor"},
   { 0x230B, "RightFloor"},
   
-  { 0x2329, "LeftAngleBracket"},
-  { 0x232A, "RightAngleBracket"},
+  //{ 0x2329, "LeftAngleTextBracket"},
+  //{ 0x232A, "RightAngleTextBracket"},
   
   { 0x27E6, "LeftDoubleBracket"},
   { 0x27E7, "RightDoubleBracket"},
+  
+  { 0x27E8, "LeftAngleBracket"},
+  { 0x27E9, "RightAngleBracket"},
   
   { 0x23B4, "OverBracket"},
   { 0x23B5, "UnderBracket"},
