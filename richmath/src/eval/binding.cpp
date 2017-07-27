@@ -33,20 +33,20 @@ static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
   pmath_debug_print("[%f sec reading ", end - start);
   pmath_debug_print_object("", filename.get(), "]\n");
   
-  Application::notify(CNT_ADDCONFIGSHAPER, data);
+  Application::notify(ClientNotification::AddConfigShaper, data);
   return PMATH_NULL;
 }
 
 static pmath_t builtin_colordialog(pmath_expr_t _expr) {
-  return Application::notify_wait(CNT_COLORDIALOG, Expr(_expr)).release();
+  return Application::notify_wait(ClientNotification::ColorDialog, Expr(_expr)).release();
 }
 
 static pmath_t builtin_filedialog(pmath_expr_t _expr) {
-  return Application::notify_wait(CNT_FILEDIALOG, Expr(_expr)).release();
+  return Application::notify_wait(ClientNotification::FileDialog, Expr(_expr)).release();
 }
 
 static pmath_t builtin_fontdialog(pmath_expr_t _expr) {
-  return Application::notify_wait(CNT_FONTDIALOG, Expr(_expr)).release();
+  return Application::notify_wait(ClientNotification::FontDialog, Expr(_expr)).release();
 }
 
 static pmath_t builtin_internalexecutefor(pmath_expr_t expr) {
@@ -82,7 +82,7 @@ static pmath_t builtin_internalexecutefor(pmath_expr_t expr) {
 }
 
 static pmath_t builtin_createdocument(pmath_expr_t expr) {
-  return Application::notify_wait(CNT_CREATEDOCUMENT, Expr(expr)).release();
+  return Application::notify_wait(ClientNotification::CreateDocument, Expr(expr)).release();
 }
 
 static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
@@ -92,7 +92,7 @@ static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
     return expr.release();
   }
   
-  Application::notify_wait(CNT_MENUCOMMAND, expr);
+  Application::notify_wait(ClientNotification::MenuCommand, expr);
   
   return PMATH_NULL;
 }
@@ -104,7 +104,7 @@ static pmath_t builtin_documentdelete(pmath_expr_t _expr) {
     return expr.release();
   }
   
-  Application::notify_wait(CNT_MENUCOMMAND, expr);
+  Application::notify_wait(ClientNotification::MenuCommand, expr);
   
   return PMATH_NULL;
 }
@@ -116,7 +116,7 @@ static pmath_t builtin_documentget(pmath_expr_t _expr) {
     return expr.release();
   }
   
-  return Application::notify_wait(CNT_DOCUMENTGET, expr).release();
+  return Application::notify_wait(ClientNotification::DocumentGet, expr).release();
 }
 
 static pmath_t builtin_documentread(pmath_expr_t _expr) {
@@ -127,7 +127,7 @@ static pmath_t builtin_documentread(pmath_expr_t _expr) {
     return expr.release();
   }
   
-  return Application::notify_wait(CNT_DOCUMENTREAD, expr).release();
+  return Application::notify_wait(ClientNotification::DocumentRead, expr).release();
 }
 
 static pmath_t builtin_documents(pmath_expr_t expr) {
@@ -138,7 +138,7 @@ static pmath_t builtin_documents(pmath_expr_t expr) {
   
   pmath_unref(expr);
   
-  return Application::notify_wait(CNT_GETDOCUMENTS, Expr()).release();
+  return Application::notify_wait(ClientNotification::GetDocuments, Expr()).release();
 }
 
 static pmath_t builtin_documentsave(pmath_expr_t _expr) {
@@ -147,28 +147,28 @@ static pmath_t builtin_documentsave(pmath_expr_t _expr) {
     return _expr;
   }
   
-  return Application::notify_wait(CNT_SAVE, Expr(_expr)).release();
+  return Application::notify_wait(ClientNotification::Save, Expr(_expr)).release();
 }
 
 static pmath_t builtin_currentvalue(pmath_expr_t expr) {
-  return Application::notify_wait(CNT_CURRENTVALUE, Expr(expr)).release();
+  return Application::notify_wait(ClientNotification::CurrentValue, Expr(expr)).release();
 }
 
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr) {
-  Application::notify(CNT_DYNAMICUPDATE, Expr(expr));
+  Application::notify(ClientNotification::DynamicUpdate, Expr(expr));
   return PMATH_NULL;
 }
 
 static Expr cpp_builtin_feo_options(Expr expr) {
   if(expr[0] == PMATH_SYMBOL_OPTIONS) {
     if(expr.expr_length() == 1) {
-      return Application::notify_wait(CNT_GETOPTIONS, expr[1]);
+      return Application::notify_wait(ClientNotification::GetOptions, expr[1]);
     }
     
     if( expr.expr_length() == 2 &&
         expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
     {
-      Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
+      Expr opts = Application::notify_wait(ClientNotification::GetOptions, expr[1]);
       
       expr.set(1, opts);
     }
@@ -177,7 +177,7 @@ static Expr cpp_builtin_feo_options(Expr expr) {
     if( expr.expr_length() >= 1 &&
         expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
     {
-      return Application::notify_wait(CNT_SETOPTIONS, expr);
+      return Application::notify_wait(ClientNotification::SetOptions, expr);
     }
   }
   
@@ -227,7 +227,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
                pmath_ref(PMATH_SYMBOL_SECTIONGENERATED),
                pmath_ref(PMATH_SYMBOL_TRUE)));
                
-    Application::notify_wait(CNT_PRINTSECTION, Expr(expr));
+    Application::notify_wait(ClientNotification::PrintSection, Expr(expr));
     
     return PMATH_NULL;
   }
@@ -243,7 +243,7 @@ static pmath_t builtin_evaluationdocument(pmath_expr_t expr) {
   
   pmath_unref(expr);
   
-  return Application::notify_wait(CNT_GETEVALUATIONDOCUMENT, Expr()).release();
+  return Application::notify_wait(ClientNotification::GetEvaluationDocument, Expr()).release();
 }
 
 static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
@@ -1023,7 +1023,7 @@ static bool insert_underscript_cmd(Expr cmd) {
 
 static bool new_cmd(Expr cmd) {
 //  Application::notify(
-//    CNT_CREATEDOCUMENT,
+//    ClientNotification::CreateDocument,
 //    Call(Symbol(PMATH_SYMBOL_CREATEDOCUMENT), List()));
   Document *doc = Application::create_document();
   if(!doc)
@@ -1154,13 +1154,13 @@ static bool remove_from_evaluation_queue(Expr cmd) {
 }
 
 static bool save_cmd(Expr cmd) {
-  Application::notify_wait(CNT_SAVE, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_AUTOMATIC)));
+  Application::notify_wait(ClientNotification::Save, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_AUTOMATIC)));
   
   return true;
 }
 
 static bool saveas_cmd(Expr cmd) {
-  Application::notify_wait(CNT_SAVE, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_NONE)));
+  Application::notify_wait(ClientNotification::Save, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_NONE)));
   
   return true;
 }
@@ -1234,7 +1234,7 @@ static bool set_style_cmd(Expr cmd) {
 //    if(!box)
 //      box = doc;
 //
-//    // see also CNT_GETOPTIONS
+//    // see also ClientNotification::GetOptions
 //    Expr box_symbol = box->to_pmath_symbol();
 //    if(!box_symbol.is_symbol()) // TODO: generate StyleBox inside sequences ...
 //      return false;

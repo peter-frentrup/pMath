@@ -64,9 +64,9 @@
 using namespace richmath;
 
 namespace {
-  class ClientNotification {
+  class ClientNotificationData {
     public:
-      ClientNotification(): finished(0), result_ptr(0) {}
+      ClientNotificationData(): finished(0), result_ptr(0) {}
       
       void done() {
         if(finished) {
@@ -77,7 +77,7 @@ namespace {
       }
       
     public:
-      ClientNotificationType  type;
+      ClientNotification  type;
       Expr                    data;
       Expr                    notify_queue;
       pmath_atomic_t         *finished;
@@ -109,7 +109,7 @@ enum ClientState {
 
 static pmath_atomic_t state = { Starting }; // ClientState
 
-static ConcurrentQueue<ClientNotification> notifications;
+static ConcurrentQueue<ClientNotificationData> notifications;
 
 static SharedPtr<Session> session = new Session(0);
 
@@ -123,7 +123,7 @@ static double last_dynamic_evaluation = 0.0;
 
 static bool is_executing_for_sth = false;
 
-static void execute(ClientNotification &cn);
+static void execute(ClientNotificationData &cn);
 
 static pmath_atomic_t     print_pos_lock = PMATH_ATOMIC_STATIC_INIT;
 static EvaluationPosition print_pos;
@@ -134,7 +134,7 @@ static double total_time_waited_for_gui = 0.0;
 
 // also a GSourceFunc, must return 0
 static int on_client_notify(void *data) {
-  ClientNotification cn;
+  ClientNotificationData cn;
   
   if(notifications.get(&cn) && session)
     execute(cn);
@@ -239,11 +239,11 @@ String Application::application_directory;
 
 Hashtable<Expr, Expr, object_hash> Application::eval_cache;
 
-void Application::notify(ClientNotificationType type, Expr data) {
+void Application::notify(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) == Quitting)
     return;
     
-  ClientNotification cn;
+  ClientNotificationData cn;
   cn.type = type;
   cn.data = data;
   
@@ -259,7 +259,7 @@ void Application::notify(ClientNotificationType type, Expr data) {
 #endif
 }
 
-Expr Application::notify_wait(ClientNotificationType type, Expr data) {
+Expr Application::notify_wait(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) != Running)
     return Symbol(PMATH_SYMBOL_FAILED);
     
@@ -275,7 +275,7 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
     notify(type, data);
     return Symbol(PMATH_SYMBOL_FAILED);
     
-//    ClientNotification cn;
+//    ClientNotificationData cn;
 //    cn.type = type;
 //    cn.data = data;
 //    cn.result_ptr = &result;
@@ -284,7 +284,7 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
   }
   
   pmath_atomic_t finished = PMATH_ATOMIC_STATIC_INIT;
-  ClientNotification cn;
+  ClientNotificationData cn;
   cn.finished = &finished;
   cn.notify_queue = Expr(pmath_thread_get_queue());
   cn.type = type;
@@ -708,7 +708,7 @@ void Application::done() {
     session = session->next;
   }
   
-  ClientNotification cn;
+  ClientNotificationData cn;
   while(notifications.get(&cn)) {
     cn.done();
 //    if(cn.sem)
@@ -1070,12 +1070,12 @@ bool Application::is_running_job_for(Box *box) {
 static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
   double gui_start_time = total_time_waited_for_gui;
   
-  ConcurrentQueue<ClientNotification> *suppressed_notifications;
-  suppressed_notifications = (ConcurrentQueue<ClientNotification> *)data;
+  ConcurrentQueue<ClientNotificationData> *suppressed_notifications;
+  suppressed_notifications = (ConcurrentQueue<ClientNotificationData> *)data;
   
-  ClientNotification cn;
+  ClientNotificationData cn;
   while(notifications.get(&cn)) {
-//    if(cn.type == CNT_END || cn.type == CNT_ENDSESSION) {
+//    if(cn.type == ClientNotification::End || cn.type == ClientNotification::EndSession) {
 //      //notifications.put_front(cn);
 //      //break;
 //
@@ -1083,11 +1083,11 @@ static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
 //      continue;
 //    }
 
-    /* We must filter out CNT_DYNAMICUPDATE because that could update a parent
+    /* We must filter out ClientNotification::DynamicUpdate because that could update a parent
        DynamicBox of the DynamicBox that is currently updated during its
        paint() event. That would cause a memory corruption/crash.
      */
-    if( cn.type == CNT_DYNAMICUPDATE) {
+    if( cn.type == ClientNotification::DynamicUpdate) {
       suppressed_notifications->put_front(cn);
       continue;
     }
@@ -1105,13 +1105,13 @@ static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
 }
 
 Expr Application::interrupt(Expr expr, double seconds) {
-  ConcurrentQueue<ClientNotification>  suppressed_notifications;
+  ConcurrentQueue<ClientNotificationData>  suppressed_notifications;
   
   last_dynamic_evaluation = pmath_tickcount();
   
   Expr result = Server::local_server->interrupt_wait(expr, seconds, interrupt_wait_idle, &suppressed_notifications);
   
-  ClientNotification cn;
+  ClientNotificationData cn;
   while(suppressed_notifications.get(&cn)) {
     notifications.put_front(cn);
   }
@@ -1748,106 +1748,106 @@ static Expr cnt_save(Expr data) {
   return filename;
 }
 
-static void execute(ClientNotification &cn) {
+static void execute(ClientNotificationData &cn) {
   AutoMemorySuspension ams;
   
   switch(cn.type) {
-    case CNT_STARTSESSION:
+    case ClientNotification::StartSession:
       cnt_startsession();
       break;
       
-    case CNT_ENDSESSION:
+    case ClientNotification::EndSession:
       cnt_endsession();
       break;
       
-    case CNT_END:
+    case ClientNotification::End:
       cnt_end(cn.data);
       break;
       
-    case CNT_RETURN:
+    case ClientNotification::Return:
       cnt_return(cn.data);
       break;
       
-    case CNT_RETURNBOX:
+    case ClientNotification::ReturnBox:
       cnt_returnbox(cn.data);
       break;
       
-    case CNT_PRINTSECTION:
+    case ClientNotification::PrintSection:
       cnt_printsection(cn.data);
       break;
       
-    case CNT_GETDOCUMENTS:
+    case ClientNotification::GetDocuments:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getdocuments().release();
       break;
       
-    case CNT_MENUCOMMAND:
+    case ClientNotification::MenuCommand:
       cnt_menucommand(cn.data);
       break;
       
-    case CNT_ADDCONFIGSHAPER:
+    case ClientNotification::AddConfigShaper:
       cnt_addconfigshaper(cn.data);
       break;
       
-    case CNT_GETOPTIONS:
+    case ClientNotification::GetOptions:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getoptions(cn.data).release();
       break;
       
-    case CNT_SETOPTIONS:
+    case ClientNotification::SetOptions:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_setoptions(cn.data).release();
       else
         cnt_setoptions(cn.data);
       break;
       
-    case CNT_DYNAMICUPDATE:
+    case ClientNotification::DynamicUpdate:
       cnt_dynamicupate(cn.data);
       break;
       
-    case CNT_CREATEDOCUMENT:
+    case ClientNotification::CreateDocument:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_createdocument(cn.data).release();
       else
         cnt_createdocument(cn.data);
       break;
       
-    case CNT_CURRENTVALUE:
+    case ClientNotification::CurrentValue:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_currentvalue(cn.data).release();
       break;
       
-    case CNT_GETEVALUATIONDOCUMENT:
+    case ClientNotification::GetEvaluationDocument:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getevaluationdocument(cn.data).release();
       break;
       
-    case CNT_DOCUMENTGET:
+    case ClientNotification::DocumentGet:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentget(cn.data).release();
       break;
       
-    case CNT_DOCUMENTREAD:
+    case ClientNotification::DocumentRead:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentread(cn.data).release();
       break;
       
-    case CNT_COLORDIALOG:
+    case ClientNotification::ColorDialog:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_colordialog(cn.data).release();
       break;
       
-    case CNT_FONTDIALOG:
+    case ClientNotification::FontDialog:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_fontdialog(cn.data).release();
       break;
       
-    case CNT_FILEDIALOG:
+    case ClientNotification::FileDialog:
       if(cn.result_ptr)
         *cn.result_ptr = Application::run_filedialog(cn.data).release();
       break;
       
-    case CNT_SAVE:
+    case ClientNotification::Save:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_save(cn.data).release();
       else
