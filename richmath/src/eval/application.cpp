@@ -352,7 +352,7 @@ MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
     if(status.enabled)
       return status;
   }
-    
+  
   func = menu_command_testers[cmd[0]];
   if(func) {
     MenuCommandStatus status(func(cmd));
@@ -1023,7 +1023,7 @@ Expr Application::run_filedialog(Expr data) {
   pmath_debug_print("  set_filter...\n");
   dialog.set_filter(filter);
   pmath_debug_print("  show_dialog...\n");
-  result = dialog.show_dialog();  
+  result = dialog.show_dialog();
   pmath_debug_print("...run_filedialog\n");
   
   double gui_end_time = pmath_tickcount();
@@ -1110,7 +1110,6 @@ Expr Application::interrupt(Expr expr, double seconds) {
   last_dynamic_evaluation = pmath_tickcount();
   
   Expr result = Server::local_server->interrupt_wait(expr, seconds, interrupt_wait_idle, &suppressed_notifications);
-  
   ClientNotificationData cn;
   while(suppressed_notifications.get(&cn)) {
     notifications.put_front(cn);
@@ -1163,12 +1162,12 @@ void Application::interrupt_for(Expr expr, Box *box, double seconds) {
            pos.document_id,
            pos.section_id,
            pos.box_id);
-  
+           
   bool old_is_executing_for_sth = is_executing_for_sth;
   is_executing_for_sth = true;
   
   interrupt(expr, seconds);
-    
+  
   is_executing_for_sth = old_is_executing_for_sth;
 }
 
@@ -1680,74 +1679,114 @@ static Expr cnt_fontdialog(Expr data) {
   return result;
 }
 
-static Expr cnt_save(Expr data) {
-  // data = {document, filename}
-  // data = {document, None} = always ask for new file name
-  // data = {document}       = use document file name if available, ask otherwise
-  // data = {Automatic, ...}
-  
-  Document *doc = 0;
-  
-  if(data[1].is_expr()) {
-    Box *box = FrontEndObject::find_cast<Box>(data[1]);
-    
-    if(box)
-      doc = box->find_parent<Document>(true);
-  }
-  else
-    doc = get_current_document();
-    
-  if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  Expr filename = data[2];
-  
-  if(!filename.is_string() && filename != PMATH_SYMBOL_NONE)
-    filename = doc->native()->filename();
-    
-  if(!filename.is_string()) {
-    String initialfile = doc->native()->filename();
-    
-    if(initialfile.is_null())
-      initialfile = String("untitled.pmathdoc");
+namespace {
+  class SaveOperation {
+    private:
+      static String section_to_string(Section *sec) {
+        // TODO: convert only the first line to boxes
+        Expr boxes = sec->to_pmath(BoxFlagDefault);
+        Expr text = Application::interrupt(
+                      Parse("FE`BoxesToText(`1`, \"PlainText\")", boxes),
+                      Application::edit_interrupt_timeout);
+                      
+        String str = text.to_string();
+        const uint16_t *buf = str.buffer();
+        const int len = str.length();
+        for(int i = 0;i < len;++i) {
+          if(buf[i] == L'\n')
+            return str.part(0, i);
+        }
+        return str;
+      }
       
-    Expr filter = List(
-                    Rule(String("pMath Documents (*.pmathdoc)"), String("*.pmathdoc"))/*,
+      static String guess_best_title(Document *doc) {
+        assert(doc != nullptr);
+        
+        for(int i = 0; i < doc->count(); ++i) {
+          Section *sec = doc->section(i);
+          String stylename = sec->get_style(BaseStyleName);
+          if(stylename.equals("Title"))
+            return section_to_string(sec);
+        }
+        
+        return String();
+      }
+      
+    public:
+      static Expr do_save(Expr data) {
+        // data = {document, filename}
+        // data = {document, None} = always ask for new file name
+        // data = {document}       = use document file name if available, ask otherwise
+        // data = {Automatic, ...}
+        
+        Document *doc = 0;
+        
+        if(data[1].is_expr()) {
+          Box *box = FrontEndObject::find_cast<Box>(data[1]);
+          
+          if(box)
+            doc = box->find_parent<Document>(true);
+        }
+        else
+          doc = get_current_document();
+          
+        if(!doc)
+          return Symbol(PMATH_SYMBOL_FAILED);
+          
+        Expr filename = data[2];
+        
+        if(!filename.is_string() && filename != PMATH_SYMBOL_NONE)
+          filename = doc->native()->filename();
+          
+        if(!filename.is_string()) {
+          String initialfile = doc->native()->filename();
+          
+          if(initialfile.is_null()) {
+            String title = guess_best_title(doc);
+            if(title.length() == 0)
+              title = String("untitled");
+            initialfile = title + ".pmathdoc";
+          }
+            
+          Expr filter = List(
+                          Rule(String("pMath Documents (*.pmathdoc)"), String("*.pmathdoc"))/*,
                     Rule(String("All Files (*.*)"),              String("*.*"))*/);
 
-    filename = Application::run_filedialog(
-                 Call(
-                   GetSymbol(FESymbolIndex::FileSaveDialog),
-                   filter));
-  }
-  
-  if(!filename.is_string())
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  WriteableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENWRITE), filename)));
-  if(!file.is_file())
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  Expr nsp(pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH));
-  Expr ns( pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE));
-  Expr boxes = doc->to_pmath(BoxOptionDefault);
-  
-  file.write("/* pMath Document */\n\n");
-  
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, List().release());
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     String("Symbol`").release());
-  
-  boxes.write_to_file(file, PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
-  
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, nsp.release());
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     ns.release());
-  
-  file.close();
-  doc->native()->filename(filename);
-  doc->native()->on_saved();
-  return filename;
+          filename = Application::run_filedialog(
+                       Call(
+                         GetSymbol(FESymbolIndex::FileSaveDialog),
+                         initialfile,
+                         filter));
+        }
+        
+        if(!filename.is_string())
+          return Symbol(PMATH_SYMBOL_FAILED);
+          
+        WriteableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENWRITE), filename)));
+        if(!file.is_file())
+          return Symbol(PMATH_SYMBOL_FAILED);
+          
+        Expr nsp(pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH));
+        Expr ns( pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE));
+        Expr boxes = doc->to_pmath(BoxOptionDefault);
+        
+        file.write("/* pMath Document */\n\n");
+        
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, List().release());
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     String("Symbol`").release());
+        
+        boxes.write_to_file(file, PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
+        
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, nsp.release());
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     ns.release());
+        
+        file.close();
+        doc->native()->filename(filename);
+        doc->native()->on_saved();
+        return filename;
+      }
+  };
 }
-
 static void execute(ClientNotificationData &cn) {
   AutoMemorySuspension ams;
   
@@ -1849,9 +1888,9 @@ static void execute(ClientNotificationData &cn) {
       
     case ClientNotification::Save:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_save(cn.data).release();
+        *cn.result_ptr = SaveOperation::do_save(cn.data).release();
       else
-        cnt_save(cn.data);
+        SaveOperation::do_save(cn.data);
       break;
   }
   
