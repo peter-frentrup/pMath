@@ -177,7 +177,10 @@ ScriptIndent::ScriptIndent(Expr expr)
 
 Hashtable<String, SharedPtr<ConfigShaperDB> > ConfigShaperDB::registered;
 
-ConfigShaperDB::ConfigShaperDB(): Shareable() {
+ConfigShaperDB::ConfigShaperDB()
+  : Shareable(),
+    disposed(false)
+{
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
   script_size_multipliers.length(1, 0.71f);
@@ -187,18 +190,24 @@ ConfigShaperDB::ConfigShaperDB(): Shareable() {
 ConfigShaperDB::~ConfigShaperDB() {
 }
 
-void ConfigShaperDB::clear_cache() {
+void ConfigShaperDB::dispose() {
+  if(disposed) {
+    printf("duplicate ConfigShaperDB::dispose()\n");
+  }
+  
+  disposed = true;
+  
   for(int i = 0; i < FontStyle::Permutations; ++i)
     shapers[i] = nullptr;
 }
 
-void ConfigShaperDB::clear_all() {
+void ConfigShaperDB::dispose_all() {
   int c = registered.size();
   for(int i = 0; c > 0; ++i) {
     if(auto e = registered.entry(i)) {
       --c;
       
-      e->value->clear_cache();
+      e->value->dispose();
     }
   }
   
@@ -857,6 +866,10 @@ SharedPtr<ConfigShaper> ConfigShaperDB::find(FontStyle style) {
   if(shapers[i].is_valid())
     return shapers[i];
     
+  if(disposed) {
+    printf("ConfigShaperDB is already disposed\n");
+  }
+  
   ref();
   shapers[i] = new ConfigShaper(this, style);
   
@@ -872,7 +885,8 @@ ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperDB> _db, FontStyle _style)
     db(_db),
     text_shaper(new FallbackTextShaper(TextShaper::find(db->text_fontnames[0], _style))),
     math_font_faces(_db->math_fontnames.length()),
-    style(_style)
+    style(_style),
+    warned_dispose(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -1341,6 +1355,20 @@ void ConfigShaper::get_script_size_multis(Array<float> *arr) {
 }
 
 SharedPtr<TextShaper> ConfigShaper::set_style(FontStyle _style) {
+  if(db->is_disposed()) {
+    if(!warned_dispose) {
+      /* The printf() function may yield some Win32 event handling, 
+         which causes a repaint, which causes set_style() to be called again,
+         which ... causes a stack overflow if we call printf() again...
+      */
+      printf("ConfigShaper::set_style() failed: DB already disposed\n");
+      warned_dispose = true;
+    }
+    ref();
+    style = _style; // HACK!!! Otherwise we cause stack overflow elsewhere: code assumes that the returned shaper has the given style.
+    return this;
+  }
+  
   return db->find(_style);
 }
 

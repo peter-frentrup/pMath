@@ -352,6 +352,19 @@ void TextSequence::paint(Context *context) {
   int line = 0;
   PangoLayoutIter *iter = get_iter();
   do {
+    if(line >= line_y_corrections.length()) {
+      /* It might happen that pango_layout_iter_next_line() gives more lines than during resize().
+         This could happen if the current font/text_shaper was disposed since the last resize()
+         and its set_style() thus does not yield the same fonts any more.
+
+         For example, this scenario happened while the current math shaper was "Matematica 10 Sans" 
+         (a ConfigShaper) and FE`AddConfigShaper("...path\to\mathematica10_sans.pmath") was called:
+         The call to FE`AddConfigShaper disposed the old ConfigShaperDB, but some of the shapers 
+         where still in use by the document. 
+      */
+      break;
+    }
+
     PangoRectangle rect;
     pango_layout_iter_get_line_extents(iter, &rect, 0);
     

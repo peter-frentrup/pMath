@@ -769,7 +769,7 @@ QUIT:
   MathShaper::available_shapers.clear();
   MathShaper::available_shapers.default_value = nullptr;
   
-  ConfigShaperDB::clear_all();
+  ConfigShaperDB::dispose_all();
   OTMathShaperDB::clear_all();
   
   TextShaper::clear_cache();

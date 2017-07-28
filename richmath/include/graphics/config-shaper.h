@@ -100,7 +100,8 @@ namespace richmath {
   class ConfigShaperDB: public Shareable {
     public:
       virtual ~ConfigShaperDB();
-      void clear_cache();
+      void dispose();
+      bool is_disposed() { return disposed; }
       
       bool verify();
       static SharedPtr<ConfigShaperDB> load_from_object(const Expr expr);
@@ -108,13 +109,14 @@ namespace richmath {
       SharedPtr<ConfigShaper> find(FontStyle style);
       
       static Hashtable<String, SharedPtr<ConfigShaperDB> > registered;
-      static void clear_all();
+      static void dispose_all();
       
     private:
       ConfigShaperDB();
       
     private:
       SharedPtr<ConfigShaper> shapers[FontStyle::Permutations];
+      bool disposed;
       
     public:
       Hashtable<uint32_t, GlyphFontOffset, cast_hash>
@@ -245,6 +247,9 @@ namespace richmath {
       SharedPtr<FallbackTextShaper>  text_shaper;
       Array<FontFace>                math_font_faces;
       FontStyle                      style;
+    
+    private:
+      bool warned_dispose;
   };
 }
 

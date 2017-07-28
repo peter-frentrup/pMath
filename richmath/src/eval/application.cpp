@@ -1400,7 +1400,7 @@ static void cnt_addconfigshaper(Expr data) {
     
     olddb = ConfigShaperDB::registered.search(db->shaper_name);
     if(olddb) {
-      olddb->ptr()->clear_cache();
+      olddb->ptr()->dispose();
     }
     
     ConfigShaperDB::registered.set(db->shaper_name, db);
