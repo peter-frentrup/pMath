@@ -39,7 +39,7 @@ namespace richmath {
       Box *origin;
   };
   
-  enum class SpecialKey {
+  enum class SpecialKey: char {
     Unknown = 0,
     
     Left,
