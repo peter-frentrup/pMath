@@ -195,9 +195,12 @@ namespace richmath {
       friend class OTMathShaper;
     public:
       virtual ~OTMathShaperDB();
-      void clear_cache();
+      void dispose();
+      bool is_disposed() { return disposed; }
       
-      static void clear_all();
+      static void dispose_all();
+      
+      void clear_cache();
       
       static SharedPtr<OTMathShaper> find(String name, FontStyle style);
       SharedPtr<OTMathShaper> find(FontStyle style);
@@ -241,6 +244,7 @@ namespace richmath {
       String name;
       
       FontInfo *fi;
+      bool disposed;
   };
   
   class OTMathShaper: public MathShaper {

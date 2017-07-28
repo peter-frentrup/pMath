@@ -199,7 +199,8 @@ Hashtable<String, SharedPtr<OTMathShaperDB> > OTMathShaperDB::registered;
 
 OTMathShaperDB::OTMathShaperDB()
   : Shareable(),
-    fi(0)
+    fi(nullptr),
+    disposed(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -212,23 +213,33 @@ OTMathShaperDB::OTMathShaperDB()
 OTMathShaperDB::~OTMathShaperDB() {
 }
 
-void OTMathShaperDB::clear_cache() {
-  fi = 0;
-  for(int i = 0; i < FontStyle::Permutations; ++i)
-    shapers[i] = 0;
+void OTMathShaperDB::dispose() {
+  if(disposed) {
+    printf("duplicate ConfigShaperDB::dispose()\n");
+  }
+  
+  disposed = true;
+  
+  clear_cache();
 }
 
-void OTMathShaperDB::clear_all() {
+void OTMathShaperDB::dispose_all() {
   int c = registered.size();
   for(int i = 0; c > 0; ++i) {
     if(auto e = registered.entry(i)) {
       --c;
 
-      e->value->clear_cache();
+      e->value->dispose();
     }
   }
 
   registered.clear();
+}
+
+void OTMathShaperDB::clear_cache() {
+  fi = nullptr;
+  for(int i = 0; i < FontStyle::Permutations; ++i)
+    shapers[i] = nullptr;
 }
 
 bool OTMathShaperDB::set_private_char(uint32_t ch, uint32_t fallback) {
@@ -644,16 +655,22 @@ SharedPtr<OTMathShaper> OTMathShaperDB::find(String name, FontStyle style) {
 }
 
 SharedPtr<OTMathShaper> OTMathShaperDB::find(FontStyle style) {
-  if(shapers[(int)style].is_valid())
-    return shapers[(int)style];
+  int i = (int)style;
+  
+  if(shapers[i].is_valid())
+    return shapers[i];
 
+  if(disposed) {
+    printf("MEMORY LEAK: OTMathShaperDB %p is already disposed\n", this);
+  }
+  
   ref();
-  shapers[(int)style] = new OTMathShaper(this, style);
+  shapers[i] = new OTMathShaper(this, style);
 
   if(!fi)
-    fi = &shapers[(int)style]->fi;
+    fi = &shapers[i]->fi;
 
-  return shapers[(int)style];
+  return shapers[i];
 }
 
 Array<MathGlyphVariantRecord> *OTMathShaperDB::get_vert_variants(uint32_t ch, uint16_t glyph) {
@@ -1888,6 +1905,13 @@ void OTMathShaper::get_script_size_multis(Array<float> *arr) {
 }
 
 SharedPtr<TextShaper> OTMathShaper::set_style(FontStyle _style) {
+  if(db->is_disposed()) {
+    style = _style; // HACK!!! Otherwise we cause stack overflow elsewhere: code assumes that the returned shaper has the given style.
+
+    ref();
+    return this;
+  }
+  
   return db->find(_style);
 }
 

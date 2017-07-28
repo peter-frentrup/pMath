@@ -867,7 +867,7 @@ SharedPtr<ConfigShaper> ConfigShaperDB::find(FontStyle style) {
     return shapers[i];
     
   if(disposed) {
-    printf("ConfigShaperDB is already disposed\n");
+    printf("MEMORY LEAK: ConfigShaperDB %p is already disposed\n", this);
   }
   
   ref();

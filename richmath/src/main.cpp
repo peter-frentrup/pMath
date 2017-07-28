@@ -770,7 +770,7 @@ QUIT:
   MathShaper::available_shapers.default_value = nullptr;
   
   ConfigShaperDB::dispose_all();
-  OTMathShaperDB::clear_all();
+  OTMathShaperDB::dispose_all();
   
   TextShaper::clear_cache();
   FontInfo::remove_all_private_fonts();
