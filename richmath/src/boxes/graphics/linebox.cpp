@@ -19,7 +19,7 @@ LineBox::LineBox()
 LineBox::~LineBox() {
 }
 
-bool LineBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_LINEBOX)
     return false;
     
@@ -48,7 +48,7 @@ bool LineBox::try_load_from_object(Expr expr, BoxOptions opts) {
   return false;
 }
 
-LineBox *LineBox::create(Expr expr, BoxOptions opts) {
+LineBox *LineBox::create(Expr expr, BoxInputFlags opts) {
   LineBox *box = new LineBox;
   
   if(!box->try_load_from_object(expr, opts)) {
@@ -98,7 +98,7 @@ void LineBox::paint(GraphicsBoxContext *context) {
   cairo_set_line_cap(context->ctx->canvas->cairo(), cap);
 }
 
-Expr LineBox::to_pmath(BoxFlags flags) {  // BoxFlagXXX
+Expr LineBox::to_pmath(BoxOutputFlags flags) { 
   if(_uncompressed_expr.expr_length() != 1)
     return _uncompressed_expr;
     

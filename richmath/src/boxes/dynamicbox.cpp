@@ -57,7 +57,7 @@ DynamicBox::~DynamicBox() {
     Application::interrupt_timeout);
 }
 
-bool DynamicBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_DYNAMICBOX)
     return false;
     
@@ -108,9 +108,9 @@ void DynamicBox::paint_content(Context *context) {
     
     Expr result;
     if(dynamic.get_value(&result)) {
-      BoxOptions opt = BoxOptions::Default;
+      BoxInputFlags opt = BoxInputFlags::Default;
       if(get_style(AutoNumberFormating))
-        opt |= BoxOptions::FormatNumbers;
+        opt |= BoxInputFlags::FormatNumbers;
         
       content()->load_from_object(result, opt);
       must_resize = true;
@@ -119,8 +119,8 @@ void DynamicBox::paint_content(Context *context) {
   }
 }
 
-Expr DynamicBox::to_pmath(BoxFlags flags) {
-  if(has(flags, BoxFlags::Literal))
+Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::Literal))
     return content()->to_pmath(flags);
     
   Expr e = dynamic.expr();
@@ -137,9 +137,9 @@ void DynamicBox::dynamic_updated() {
 }
 
 void DynamicBox::dynamic_finished(Expr info, Expr result) {
-  BoxOptions opt = BoxOptions::Default;
+  BoxInputFlags opt = BoxInputFlags::Default;
   if(get_style(AutoNumberFormating))
-    opt |= BoxOptions::FormatNumbers;
+    opt |= BoxInputFlags::FormatNumbers;
     
   content()->load_from_object(result, opt);
   must_resize = true;

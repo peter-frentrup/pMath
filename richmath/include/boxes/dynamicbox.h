@@ -21,13 +21,13 @@ namespace richmath {
       virtual ~DynamicBox();
       
       // Box::try_create<DynamicBox>(expr, options)
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DYNAMICBOX); }
-      virtual Expr to_pmath(BoxFlags flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;

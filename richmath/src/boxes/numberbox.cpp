@@ -299,7 +299,7 @@ NumberBox::NumberBox(String number)
   NumberBoxImpl(*this).set_number(number);
 }
 
-bool NumberBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != GetSymbol(FESymbolIndex::NumberBox))
     return false;
     
@@ -375,8 +375,8 @@ void NumberBox::paint(Context *context) {
   context->text_shaper      = old_text_shaper;
 }
 
-Expr NumberBox::to_pmath(BoxFlags flags) {
-  if(has(flags, BoxFlags::ShortNumbers))
+Expr NumberBox::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::ShortNumbers))
     return content()->to_pmath(flags);
     
   return _number;

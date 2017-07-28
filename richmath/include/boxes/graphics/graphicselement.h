@@ -11,8 +11,8 @@
 namespace richmath {
   class Context;
   class GraphicsBox;
-  enum class BoxFlags;
-  enum class BoxOptions;
+  enum class BoxOutputFlags;
+  enum class BoxInputFlags;
   
   class GraphicsBoxContext: public Base {
     public:
@@ -48,16 +48,16 @@ namespace richmath {
   
   class GraphicsElement: public Base {
     public:
-      static GraphicsElement *create(Expr expr, BoxOptions opts);
+      static GraphicsElement *create(Expr expr, BoxInputFlags opts);
       virtual ~GraphicsElement();
       
       void safe_destroy() { delete this; }
       
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) = 0;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) = 0;
       
       virtual void find_extends(GraphicsBounds &bounds) = 0;
       virtual void paint(GraphicsBoxContext *context) = 0;
-      virtual Expr to_pmath(BoxFlags flags) = 0;
+      virtual Expr to_pmath(BoxOutputFlags flags) = 0;
       
     protected:
       GraphicsElement();
@@ -68,7 +68,7 @@ namespace richmath {
       GraphicsDirective();
       virtual ~GraphicsDirective();
       
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       int              count() {     return _items.length(); }
       GraphicsElement *item(int i) { return _items[i]; }
@@ -79,7 +79,7 @@ namespace richmath {
       
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsBoxContext *context) override;
-      virtual Expr to_pmath(BoxFlags flags) override; // BoxFlagXXX
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     private:
       Array<GraphicsElement *> _items;
@@ -90,11 +90,11 @@ namespace richmath {
       GraphicsElementCollection();
       virtual ~GraphicsElementCollection();
       
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
-      void load_from_object(Expr expr, BoxOptions opts);
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
+      void load_from_object(Expr expr, BoxInputFlags opts);
       
       virtual void paint(GraphicsBoxContext *context) override;
-      virtual Expr to_pmath(BoxFlags flags) override; // BoxFlagXXX
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
   };
 }
 

@@ -12,7 +12,7 @@ namespace richmath {
       explicit NumberBox(String number);
       
       // Box::try_create<NumberBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual bool edit_selection(Context *context) override;
       
@@ -21,7 +21,7 @@ namespace richmath {
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxFlags flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       static Expr prepare_boxes(Expr boxes);
       

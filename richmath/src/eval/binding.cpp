@@ -651,7 +651,7 @@ static bool document_apply_cmd(Expr cmd) {
   else
     seq = new MathSequence;
     
-  seq->load_from_object(boxes, BoxOptions::Default);
+  seq->load_from_object(boxes, BoxInputFlags::Default);
   doc->insert_box(seq, true);
   
   return true;
@@ -686,7 +686,7 @@ static bool document_write_cmd(Expr cmd) {
   else
     seq = new MathSequence;
     
-  seq->load_from_object(cmd[2], BoxOptions::Default);
+  seq->load_from_object(cmd[2], BoxInputFlags::Default);
   doc->insert_box(seq, false);
   
   return true;
@@ -718,7 +718,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
          (!input && math->get_style(SectionGenerated))))
     {
       MathSequence *seq = new MathSequence;
-      seq->load_from_object(Expr(math->content()->to_pmath(BoxFlags::Default)), BoxOptions::Default);
+      seq->load_from_object(Expr(math->content()->to_pmath(BoxOutputFlags::Default)), BoxInputFlags::Default);
       doc->insert_box(seq);
       
       return true;
@@ -755,7 +755,7 @@ static bool edit_boxes_cmd(Expr cmd) {
       pmath_continue_after_abort();
       
       if(auto edit = dynamic_cast<EditSection *>(doc->section(i))) {
-        Expr parsed(edit->to_pmath(BoxFlags::Default));
+        Expr parsed(edit->to_pmath(BoxOutputFlags::Default));
         
         if(parsed == 0) {
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
@@ -776,7 +776,7 @@ static bool edit_boxes_cmd(Expr cmd) {
         edit->swap_id(sect);
         edit->original = doc->swap(i, edit);
         
-        Expr obj(sect->to_pmath(BoxFlags::Default));
+        Expr obj(sect->to_pmath(BoxOutputFlags::Default));
         
         Expr tmp = Call(Symbol(PMATH_SYMBOL_FULLFORM), obj);
         pmath_debug_print_object("\n fullform: ", tmp.get(), "\n");
@@ -1067,7 +1067,7 @@ static bool open_cmd(Expr cmd) {
                           
       if( held_boxes.expr_length() == 1 &&
           held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
-          doc->try_load_from_object(held_boxes[1], BoxOptions::Default))
+          doc->try_load_from_object(held_boxes[1], BoxInputFlags::Default))
       {
         if(!doc->selectable())
           doc->select(0, 0, 0);

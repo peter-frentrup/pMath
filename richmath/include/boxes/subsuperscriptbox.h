@@ -14,7 +14,7 @@ namespace richmath {
       virtual ~SubsuperscriptBox();
       
       // Box::try_create<SubsuperscriptBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       MathSequence *subscript() {   return _subscript; }
       MathSequence *superscript() { return _superscript; }
@@ -35,7 +35,7 @@ namespace richmath {
       void complete();
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxFlags flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,

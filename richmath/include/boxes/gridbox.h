@@ -19,10 +19,10 @@ namespace richmath {
       virtual void resize(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxFlags flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
-      virtual bool try_load_from_object(Expr object, BoxOptions options) override;
-      void             load_from_object(Expr object, BoxOptions options);
+      virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
+      void             load_from_object(Expr object, BoxInputFlags options);
       
       bool span_from_left();
       bool span_from_above();
@@ -48,7 +48,7 @@ namespace richmath {
       virtual ~GridBox();
       
       // Box::try_create<GridBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       const Matrix<GridItem*> &matrix() { return items; }
       const Array<float> &xpos_array() { need_pos_vectors(); return xpos; }
@@ -75,8 +75,8 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_GRIDBOX); }
-      virtual Expr to_pmath(BoxFlags flags) override;
-      virtual Expr to_pmath(BoxFlags flags, int start, int end) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,

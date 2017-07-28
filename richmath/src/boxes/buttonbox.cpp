@@ -17,7 +17,7 @@ ButtonBox::ButtonBox(MathSequence *content)
 {
 }
 
-bool ButtonBox::try_load_from_object(Expr expr, BoxOptions opts){
+bool ButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts){
   if(expr[0] != PMATH_SYMBOL_BUTTONBOX)
     return false;
   
@@ -66,7 +66,7 @@ void ButtonBox::resize(Context *context) {
   context->width = old_width;
 }
 
-Expr ButtonBox::to_pmath(BoxFlags flags) {
+Expr ButtonBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));
@@ -119,7 +119,7 @@ void ButtonBox::click() {
            fn,
            Call(
              Symbol(PMATH_SYMBOL_BOXDATA),
-             _content->to_pmath(BoxFlags::Default)));
+             _content->to_pmath(BoxOutputFlags::Default)));
              
     if(method.equals("Preemptive")) {
       Application::interrupt_for(fn, this, Application::button_timeout);

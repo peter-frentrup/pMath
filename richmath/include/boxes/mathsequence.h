@@ -46,8 +46,8 @@ namespace richmath {
       void selection_path(Context *opt_context, Canvas *canvas, int start, int end);
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxFlags flags) override;
-      virtual Expr to_pmath(BoxFlags flags, int start, int end) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
@@ -99,7 +99,7 @@ namespace richmath {
       
       virtual Box *extract_box(int boxindex) override;
       
-      virtual void load_from_object(Expr object, BoxOptions options) override;
+      virtual void load_from_object(Expr object, BoxInputFlags options) override;
       
       const String           &text() {        return str;    }
       const SpanArray        &span_array() {  return spans;  }

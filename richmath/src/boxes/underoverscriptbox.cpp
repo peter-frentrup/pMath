@@ -51,7 +51,7 @@ UnderoverscriptBox::~UnderoverscriptBox() {
   delete _overscript;
 }
 
-bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] == PMATH_SYMBOL_OVERSCRIPTBOX) {
     if(expr.expr_length() != 2)
       return false;
@@ -343,7 +343,7 @@ Expr UnderoverscriptBox::to_pmath_symbol() {
   return Symbol(PMATH_SYMBOL_OVERSCRIPTBOX);
 }
 
-Expr UnderoverscriptBox::to_pmath(BoxFlags flags) {
+Expr UnderoverscriptBox::to_pmath(BoxOutputFlags flags) {
   if(_underscript) {
     if(_overscript)
       return Call(

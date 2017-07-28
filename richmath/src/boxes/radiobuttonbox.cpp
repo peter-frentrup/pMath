@@ -11,7 +11,7 @@ RadioButtonBox::RadioButtonBox()
   dynamic.init(this, Expr());
 }
 
-bool RadioButtonBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_RADIOBUTTONBOX)
     return false;
     
@@ -69,11 +69,11 @@ void RadioButtonBox::paint(Context *context) {
   first_paint = false;
 }
 
-Expr RadioButtonBox::to_pmath(BoxFlags flags) {
+Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
   Gather gather;
   
   Expr val = dynamic.expr();
-  if(has(flags, BoxFlags::Literal) && dynamic.is_dynamic())
+  if(has(flags, BoxOutputFlags::Literal) && dynamic.is_dynamic())
     val = val[1];
     
   Gather::emit(val);

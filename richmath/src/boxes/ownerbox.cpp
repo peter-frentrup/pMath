@@ -64,7 +64,7 @@ Box *OwnerBox::remove(int *index) {
   return _content;
 }
 
-Expr OwnerBox::to_pmath(BoxFlags flags) {
+Expr OwnerBox::to_pmath(BoxOutputFlags flags) {
   return _content->to_pmath(flags);
 }
 
@@ -138,7 +138,7 @@ bool OwnerBox::edit_selection(Context *context) {
 
 //{ ... class InlineSequenceBox
 
-bool InlineSequenceBox::try_load_from_object(Expr expr, BoxOptions options){
+bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options){
   if(expr[0] == PMATH_SYMBOL_LIST) {
     _content->load_from_object(expr, options);
     

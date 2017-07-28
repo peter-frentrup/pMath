@@ -14,7 +14,7 @@ SetterBox::SetterBox(MathSequence *content)
   dynamic.init(this, Expr());
 }
 
-bool SetterBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_SETTERBOX)
     return false;
     
@@ -91,12 +91,12 @@ void SetterBox::paint(Context *context) {
   ContainerWidgetBox::paint(context);
 }
 
-Expr SetterBox::to_pmath(BoxFlags flags) {
+Expr SetterBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(dynamic.expr());
   g.emit(value);
-  g.emit(_content->to_pmath(flags - BoxFlags::Parseable));
+  g.emit(_content->to_pmath(flags - BoxOutputFlags::Parseable));
   
   if(style)
     style->emit_to_pmath();

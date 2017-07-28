@@ -38,9 +38,9 @@ Section *Section::create_from_object(const Expr expr) {
     Section *section = 0;
     
     if(content.expr_length() == 1 && content[0] == PMATH_SYMBOL_BOXDATA)
-      section = Box::try_create<MathSection>(expr, BoxOptions::Default);
+      section = Box::try_create<MathSection>(expr, BoxInputFlags::Default);
     else
-      section = Box::try_create<TextSection>(expr, BoxOptions::Default);
+      section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
       
     if(section)
       return section;
@@ -197,7 +197,7 @@ bool Section::edit_selection(Context *context) {
       slist->set_open_close_group(index(), true);
       
       if(get_style(SectionEditDuplicateMakesCopy)) {
-        slist->insert(index(), Section::create_from_object(to_pmath(BoxFlags::Default)));
+        slist->insert(index(), Section::create_from_object(to_pmath(BoxOutputFlags::Default)));
       }
     }
     
@@ -242,7 +242,7 @@ ErrorSection::ErrorSection(const Expr object)
 {
 }
 
-bool ErrorSection::try_load_from_object(Expr expr, BoxOptions opts) {
+bool ErrorSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return false;
 }
 
@@ -485,10 +485,10 @@ Box *AbstractSequenceSection::remove(int *index) {
   return _content;
 }
 
-Expr AbstractSequenceSection::to_pmath(BoxFlags flags) {
+Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
-  Expr cont = _content->to_pmath(flags/* & ~BoxFlags::Parseable*/);
+  Expr cont = _content->to_pmath(flags/* & ~BoxOutputFlags::Parseable*/);
   if(dynamic_cast<MathSequence *>(_content))
     cont = Call(Symbol(PMATH_SYMBOL_BOXDATA), cont);
     
@@ -567,7 +567,7 @@ MathSection::MathSection(SharedPtr<Style> _style)
     style = new Style;
 }
 
-bool MathSection::try_load_from_object(Expr expr, BoxOptions opts) {
+bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_SECTION)
     return false;
     
@@ -589,9 +589,9 @@ bool MathSection::try_load_from_object(Expr expr, BoxOptions opts) {
   style->add_pmath(options);
   style->set(BaseStyleName, stylename);
   
-  opts = BoxOptions::Default;
+  opts = BoxInputFlags::Default;
   if(get_own_style(AutoNumberFormating))
-    opts |= BoxOptions::FormatNumbers;
+    opts |= BoxInputFlags::FormatNumbers;
     
   _content->load_from_object(content, opts);
   return true;
@@ -613,7 +613,7 @@ TextSection::TextSection(SharedPtr<Style> _style)
     style = new Style;
 }
 
-bool TextSection::try_load_from_object(Expr expr, BoxOptions opts) {
+bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_SECTION)
     return false;
     
@@ -633,9 +633,9 @@ bool TextSection::try_load_from_object(Expr expr, BoxOptions opts) {
   style->add_pmath(options);
   style->set(BaseStyleName, stylename);
   
-  opts = BoxOptions::Default;
+  opts = BoxInputFlags::Default;
   if(get_own_style(AutoNumberFormating))
-    opts |= BoxOptions::FormatNumbers;
+    opts |= BoxInputFlags::FormatNumbers;
     
   _content->load_from_object(content, opts);
   return true;
@@ -655,12 +655,12 @@ EditSection::~EditSection() {
   delete original;
 }
 
-bool EditSection::try_load_from_object(Expr expr, BoxOptions opts) {
+bool EditSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return false;
 }
 
-Expr EditSection::to_pmath(BoxFlags flags) {
-  Expr result = content()->to_pmath(BoxFlags::Parseable);
+Expr EditSection::to_pmath(BoxOutputFlags flags) {
+  Expr result = content()->to_pmath(BoxOutputFlags::Parseable);
   
   result = Application::interrupt(Call(
                                     Symbol(PMATH_SYMBOL_MAKEEXPRESSION),

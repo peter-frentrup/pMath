@@ -10,7 +10,7 @@ CheckboxBox::CheckboxBox()
   dynamic.init(this, Expr());
 }
       
-bool CheckboxBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_CHECKBOXBOX)
     return false;
   
@@ -66,11 +66,11 @@ void CheckboxBox::paint(Context *context) {
   EmptyWidgetBox::paint(context);
 }
 
-Expr CheckboxBox::to_pmath(BoxFlags flags) {
+Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
   Gather gather;
   
   Expr val = dynamic.expr();
-  if(has(flags, BoxFlags::Literal) && dynamic.is_dynamic())
+  if(has(flags, BoxOutputFlags::Literal) && dynamic.is_dynamic())
     val = val[1];
     
   Gather::emit(val);

@@ -118,7 +118,7 @@ bool InputJob::start() {
   section->style->set(SectionLabel, label + line.to_string() + String("]:"));
   section->invalidate();
   
-  Server::local_server->run_boxes(section->content()->to_pmath(BoxFlags::Parseable));
+  Server::local_server->run_boxes(section->content()->to_pmath(BoxOutputFlags::Parseable));
   
   doc->native()->running_state_changed();
   
@@ -243,7 +243,7 @@ bool ReplacementJob::start() {
   }
   
   Server::local_server->run_boxes(
-    Expr(sequence->to_pmath(BoxFlags::Parseable, selection_start, selection_end)));
+    Expr(sequence->to_pmath(BoxOutputFlags::Parseable, selection_start, selection_end)));
     
   doc->native()->running_state_changed();
   
@@ -277,9 +277,9 @@ void ReplacementJob::end() {
   {
     sequence->remove(selection_start, selection_end);
     
-    BoxOptions opts = BoxOptions::Default;
+    BoxInputFlags opts = BoxInputFlags::Default;
     if(sequence->get_style(AutoNumberFormating))
-      opts |= BoxOptions::FormatNumbers;
+      opts |= BoxInputFlags::FormatNumbers;
       
     MathSequence *insert_seq = new MathSequence;
     insert_seq->load_from_object(result, opts);

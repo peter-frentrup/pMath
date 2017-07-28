@@ -517,11 +517,11 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
   }
 }
 
-Expr TextSequence::to_pmath(BoxFlags flags) {
+Expr TextSequence::to_pmath(BoxOutputFlags flags) {
   return to_pmath(flags, 0, text.length());
 }
 
-Expr TextSequence::to_pmath(BoxFlags flags, int start, int end) {
+Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(end <= start || start < 0 || end > text.length())
     return String("");
     
@@ -555,7 +555,7 @@ Expr TextSequence::to_pmath(BoxFlags flags, int start, int end) {
   return g.end();
 }
 
-void TextSequence::load_from_object(Expr object, BoxOptions options) {
+void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
   for(auto box : boxes)
     box->safe_destroy();
     

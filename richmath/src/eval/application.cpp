@@ -1608,7 +1608,7 @@ static Expr cnt_documentget(Expr data) {
   if(box == 0)
     return Symbol(PMATH_SYMBOL_FAILED);
     
-  return box->to_pmath(BoxFlags::Default);
+  return box->to_pmath(BoxOutputFlags::Default);
 }
 
 static Expr cnt_documentread(Expr data) {
@@ -1627,7 +1627,7 @@ static Expr cnt_documentread(Expr data) {
   if(!doc || !doc->selection_box() || doc->selection_length() == 0)
     return String("");
     
-  return doc->selection_box()->to_pmath(BoxFlags::Default,
+  return doc->selection_box()->to_pmath(BoxOutputFlags::Default,
                                         doc->selection_start(),
                                         doc->selection_end());
 }
@@ -1685,7 +1685,7 @@ namespace {
     private:
       static String section_to_string(Section *sec) {
         // TODO: convert only the first line to boxes
-        Expr boxes = sec->to_pmath(BoxFlags::Default);
+        Expr boxes = sec->to_pmath(BoxOutputFlags::Default);
         Expr text = Application::interrupt(
                       Parse("FE`BoxesToText(`1`, \"PlainText\")", boxes),
                       Application::edit_interrupt_timeout);
@@ -1769,7 +1769,7 @@ namespace {
           
         Expr nsp(pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH));
         Expr ns( pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE));
-        Expr boxes = doc->to_pmath(BoxFlags::Default);
+        Expr boxes = doc->to_pmath(BoxOutputFlags::Default);
         
         file.write("/* pMath Document */\n\n");
         

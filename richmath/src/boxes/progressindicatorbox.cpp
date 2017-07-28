@@ -35,7 +35,7 @@ ProgressIndicatorBox::ProgressIndicatorBox()
 ProgressIndicatorBox::~ProgressIndicatorBox() {
 }
 
-bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_PROGRESSINDICATORBOX)
     return false;
     
@@ -158,10 +158,10 @@ void ProgressIndicatorBox::paint(Context *context) {
     content_size.height());
 }
 
-Expr ProgressIndicatorBox::to_pmath(BoxFlags flags) {
+Expr ProgressIndicatorBox::to_pmath(BoxOutputFlags flags) {
   Expr val = dynamic.expr();
   
-  if(has(flags, BoxFlags::Literal) && dynamic.is_dynamic())
+  if(has(flags, BoxOutputFlags::Literal) && dynamic.is_dynamic())
     val = val[1];
     
   return Call(

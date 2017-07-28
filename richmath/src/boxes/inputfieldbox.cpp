@@ -28,7 +28,7 @@ InputFieldBox::InputFieldBox(MathSequence *content)
   cx = 0;
 }
 
-bool InputFieldBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_INPUTFIELDBOX)
     return false;
     
@@ -109,9 +109,9 @@ void InputFieldBox::paint_content(Context *context) {
     
     Expr result;
     if(dynamic.get_value(&result)) {
-      BoxOptions opt = BoxOptions::Default;
+      BoxInputFlags opt = BoxInputFlags::Default;
       if(get_style(AutoNumberFormating))
-        opt |= BoxOptions::FormatNumbers;
+        opt |= BoxInputFlags::FormatNumbers;
         
       invalidated = true;
       
@@ -259,7 +259,7 @@ Box *InputFieldBox::remove(int *index) {
   return _content;
 }
 
-Expr InputFieldBox::to_pmath(BoxFlags flags) {
+Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
   if(invalidated)
     assign_dynamic();
     
@@ -284,9 +284,9 @@ void InputFieldBox::dynamic_updated() {
 }
 
 void InputFieldBox::dynamic_finished(Expr info, Expr result) {
-  BoxOptions opt = BoxOptions::Default;
+  BoxInputFlags opt = BoxInputFlags::Default;
   if(get_style(AutoNumberFormating))
-    opt |= BoxOptions::FormatNumbers;
+    opt |= BoxInputFlags::FormatNumbers;
     
   content()->load_from_object(result, opt);
   invalidate();
@@ -458,7 +458,7 @@ bool InputFieldBox::assign_dynamic() {
   invalidated = false;
   
   if(input_type == PMATH_SYMBOL_EXPRESSION || input_type[0] == PMATH_SYMBOL_HOLD) { // Expression or Hold(Expression)
-    Expr boxes = _content->to_pmath(BoxFlags::Parseable);
+    Expr boxes = _content->to_pmath(BoxOutputFlags::Parseable);
     
     Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
                       Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes),
@@ -483,7 +483,7 @@ bool InputFieldBox::assign_dynamic() {
   }
   
   if(input_type == PMATH_SYMBOL_NUMBER) {
-    Expr boxes = _content->to_pmath(BoxFlags::Parseable);
+    Expr boxes = _content->to_pmath(BoxOutputFlags::Parseable);
     
     Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
                       Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes));
@@ -502,7 +502,7 @@ bool InputFieldBox::assign_dynamic() {
   }
   
   if(input_type == PMATH_SYMBOL_RAWBOXES) {
-    Expr boxes = _content->to_pmath(BoxFlags::Default);
+    Expr boxes = _content->to_pmath(BoxOutputFlags::Default);
     
     dynamic.assign(boxes);
     return true;
@@ -510,7 +510,7 @@ bool InputFieldBox::assign_dynamic() {
   
   if(input_type == PMATH_SYMBOL_STRING) {
     if(_content->count() > 0) {
-      Expr boxes = _content->to_pmath(BoxFlags::Parseable);
+      Expr boxes = _content->to_pmath(BoxOutputFlags::Parseable);
       
       Expr value = Call(Symbol(PMATH_SYMBOL_TOSTRING),
                         Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));

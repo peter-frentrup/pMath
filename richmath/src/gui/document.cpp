@@ -1405,7 +1405,7 @@ namespace richmath {
             
             if(s.is_null()) {
               MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxOptions::Default);
+              repl_seq->load_from_object(repl, BoxInputFlags::Default);
               
               seq->remove(i, e);
               self.move_to(self.selection_box(), i);
@@ -1495,7 +1495,7 @@ namespace richmath {
               }
               else {
                 MathSequence *repl_seq = new MathSequence();
-                repl_seq->load_from_object(repl, BoxOptions::Default);
+                repl_seq->load_from_object(repl, BoxInputFlags::Default);
                 
                 seq->remove(i, e);
                 self.move_to(self.selection_box(), i);
@@ -1552,7 +1552,7 @@ Document::Document()
 Document::~Document() {
 }
 
-bool Document::try_load_from_object(Expr expr, BoxOptions options) {
+bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr[0] != PMATH_SYMBOL_DOCUMENT)
     return false;
     
@@ -2321,7 +2321,7 @@ void Document::on_key_press(uint32_t unichar) {
             }
             else {
               MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxOptions::Default);
+              repl_seq->load_from_object(repl, BoxInputFlags::Default);
               
               insert_box(repl_seq, true);
               int sel_start = selection_start();
@@ -2926,9 +2926,9 @@ String Document::copy_to_text(String mimetype) {
     return String();
   }
   
-  BoxFlags flags = BoxFlags::Default;
+  BoxOutputFlags flags = BoxOutputFlags::Default;
   if(mimetype.equals(Clipboard::PlainText))
-    flags |= BoxFlags::Literal | BoxFlags::ShortNumbers;
+    flags |= BoxOutputFlags::Literal | BoxOutputFlags::ShortNumbers;
     
   Expr boxes = selbox->to_pmath(flags, start, end);
   if(mimetype.equals(Clipboard::BoxesText))
@@ -2967,7 +2967,7 @@ void Document::copy_to_binary(String mimetype, Expr file) {
       return;
     }
     
-    Expr boxes = selbox->to_pmath(BoxFlags::Default, start, end);
+    Expr boxes = selbox->to_pmath(BoxOutputFlags::Default, start, end);
     file = Expr(pmath_file_create_compressor(file.release(), nullptr));
     pmath_serialize(file.get(), boxes.release(), 0);
     pmath_file_close(file.release());
@@ -3179,9 +3179,9 @@ void Document::paste_from_boxes(Expr boxes) {
     int w = col2 - col1 + 1;
     int h = row2 - row1 + 1;
     
-    BoxOptions options = BoxOptions::Default;
+    BoxInputFlags options = BoxInputFlags::Default;
     if(grid->get_style(AutoNumberFormating))
-      options |= BoxOptions::FormatNumbers;
+      options |= BoxInputFlags::FormatNumbers;
       
     MathSequence *tmp = new MathSequence;
     tmp->load_from_object(boxes, options);
@@ -3199,13 +3199,13 @@ void Document::paste_from_boxes(Expr boxes) {
                 row < tmpgrid->rows())
             {
               grid->item(row1 + row, col1 + col)->load_from_object(
-                Expr(tmpgrid->item(row, col)->to_pmath(BoxFlags::Default)),
-                BoxOptions::FormatNumbers);
+                Expr(tmpgrid->item(row, col)->to_pmath(BoxOutputFlags::Default)),
+                BoxInputFlags::FormatNumbers);
             }
             else {
               grid->item(row1 + row, col1 + col)->load_from_object(
                 String::FromChar(PMATH_CHAR_BOX),
-                BoxOptions::Default);
+                BoxInputFlags::Default);
             }
           }
         }
@@ -3226,7 +3226,7 @@ void Document::paste_from_boxes(Expr boxes) {
       for(int row = 0; row < h; ++row) {
         grid->item(row1 + row, col1 + col)->load_from_object(
           String::FromChar(PMATH_CHAR_BOX),
-          BoxOptions::Default);
+          BoxInputFlags::Default);
       }
     }
     
@@ -3241,9 +3241,9 @@ void Document::paste_from_boxes(Expr boxes) {
   
   GraphicsBox *graphics = dynamic_cast<GraphicsBox *>(context.selection.get());
   if(graphics && graphics->get_style(Editable)) {
-    BoxOptions options = BoxOptions::Default;
+    BoxInputFlags options = BoxInputFlags::Default;
     if(graphics->get_style(AutoNumberFormating))
-      options |= BoxOptions::FormatNumbers;
+      options |= BoxInputFlags::FormatNumbers;
       
     if(graphics->try_load_from_object(boxes, options))
       return;
@@ -3256,9 +3256,9 @@ void Document::paste_from_boxes(Expr boxes) {
   if(DocumentImpl(*this).prepare_insert()) {
     if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
     
-      BoxOptions options = BoxOptions::Default;
+      BoxInputFlags options = BoxInputFlags::Default;
       if(seq->get_style(AutoNumberFormating))
-        options |= BoxOptions::FormatNumbers;
+        options |= BoxInputFlags::FormatNumbers;
         
       MathSequence *tmp = new MathSequence;
       tmp->load_from_object(boxes, options);
@@ -3273,9 +3273,9 @@ void Document::paste_from_boxes(Expr boxes) {
     
     if(auto seq = dynamic_cast<TextSequence *>(context.selection.get())) {
     
-      BoxOptions options = BoxOptions::Default;
+      BoxInputFlags options = BoxInputFlags::Default;
       if(seq->get_style(AutoNumberFormating))
-        options |= BoxOptions::FormatNumbers;
+        options |= BoxInputFlags::FormatNumbers;
         
       TextSequence *tmp = new TextSequence;
       tmp->load_from_object(boxes, options);
@@ -3860,7 +3860,7 @@ void Document::insert_string(String text, bool autoformat) {
           seq2->insert(seq2->length(), text.part(last, pos - last));
           
           auto seq_tmp = new MathSequence;
-          seq_tmp->load_from_object(*e, BoxOptions::Default);
+          seq_tmp->load_from_object(*e, BoxInputFlags::Default);
           seq2->insert(seq2->length(), seq_tmp);
           
           last = next;
@@ -4813,7 +4813,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   must_resize_min = 0;
 }
 
-Expr Document::to_pmath(BoxFlags flags) {
+Expr Document::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   Expr content = SectionList::to_pmath(flags);

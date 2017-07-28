@@ -24,7 +24,7 @@ DynamicLocalBox::~DynamicLocalBox() {
   }
 }
 
-bool DynamicLocalBox::try_load_from_object(Expr expr, BoxOptions options) {
+bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr[0] != PMATH_SYMBOL_DYNAMICLOCALBOX)
     return false;
     
@@ -122,10 +122,10 @@ static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, cons
   return expr;
 }
 
-Expr DynamicLocalBox::to_pmath(BoxFlags flags) {
+Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
   ensure_init();
   
-  if(has(flags, BoxFlags::Literal))
+  if(has(flags, BoxOutputFlags::Literal))
     return content()->to_pmath(flags);
     
   Gather g;

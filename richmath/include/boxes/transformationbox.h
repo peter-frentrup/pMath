@@ -34,7 +34,7 @@ namespace richmath {
       RotationBox();
       
       // Box::try_create<RotationBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       Expr angle() { return _angle; }
       bool angle(Expr a);
@@ -42,7 +42,7 @@ namespace richmath {
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_ROTATIONBOX); }
-      virtual Expr to_pmath(BoxFlags flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     private:
       Expr _angle;
@@ -53,7 +53,7 @@ namespace richmath {
       TransformationBox();
       
       // Box::try_create<TransformationBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       Expr matrix() { return _matrix; }
       bool matrix(Expr m);
@@ -61,7 +61,7 @@ namespace richmath {
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX); }
-      virtual Expr to_pmath(BoxFlags flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     private:
       Expr _matrix;

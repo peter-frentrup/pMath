@@ -77,51 +77,51 @@ namespace richmath {
       bool shift;
   };
   
-  enum class BoxFlags {
+  enum class BoxOutputFlags {
     Default      = 0,
     Parseable    = 1, // no StyleBox with StripOnInput->True, ...
     Literal      = 2, // no DynamicBox
     ShortNumbers = 4  // not the internal representation of NumberBox, but the content()
   };
   
-  inline bool has(BoxFlags lhs, BoxFlags rhs) {
+  inline bool has(BoxOutputFlags lhs, BoxOutputFlags rhs) {
     return ((int)lhs & (int)rhs) == (int)rhs;
   }
-  inline BoxFlags operator |(BoxFlags lhs, BoxFlags rhs) {
-    return (BoxFlags)((int)lhs | (int)rhs);
+  inline BoxOutputFlags operator |(BoxOutputFlags lhs, BoxOutputFlags rhs) {
+    return (BoxOutputFlags)((int)lhs | (int)rhs);
   }
-  inline BoxFlags &operator |=(BoxFlags &lhs, BoxFlags rhs) {
-    lhs = (BoxFlags)((int)lhs | (int)rhs);
+  inline BoxOutputFlags &operator |=(BoxOutputFlags &lhs, BoxOutputFlags rhs) {
+    lhs = (BoxOutputFlags)((int)lhs | (int)rhs);
     return lhs;
   }
-  inline BoxFlags operator -(BoxFlags lhs, BoxFlags rhs) {
-    return (BoxFlags)((int)lhs & ~(int)rhs);
+  inline BoxOutputFlags operator -(BoxOutputFlags lhs, BoxOutputFlags rhs) {
+    return (BoxOutputFlags)((int)lhs & ~(int)rhs);
   }
-  inline BoxFlags &operator -=(BoxFlags &lhs, BoxFlags rhs) {
-    lhs = (BoxFlags)((int)lhs & ~(int)rhs);
+  inline BoxOutputFlags &operator -=(BoxOutputFlags &lhs, BoxOutputFlags rhs) {
+    lhs = (BoxOutputFlags)((int)lhs & ~(int)rhs);
     return lhs;
   }
   
-  enum class BoxOptions{
+  enum class BoxInputFlags {
     Default       = 0,
     FormatNumbers = 1
   };
   
-  inline bool has(BoxOptions lhs, BoxOptions rhs) {
+  inline bool has(BoxInputFlags lhs, BoxInputFlags rhs) {
     return ((int)lhs & (int)rhs) == (int)rhs;
   }
-  inline BoxOptions operator |(BoxOptions lhs, BoxOptions rhs) {
-    return (BoxOptions)((int)lhs | (int)rhs);
+  inline BoxInputFlags operator |(BoxInputFlags lhs, BoxInputFlags rhs) {
+    return (BoxInputFlags)((int)lhs | (int)rhs);
   }
-  inline BoxOptions &operator |=(BoxOptions &lhs, BoxOptions rhs) {
-    lhs = (BoxOptions)((int)lhs | (int)rhs);
+  inline BoxInputFlags &operator |=(BoxInputFlags &lhs, BoxInputFlags rhs) {
+    lhs = (BoxInputFlags)((int)lhs | (int)rhs);
     return lhs;
   }
-  inline BoxOptions operator -(BoxOptions lhs, BoxOptions rhs) {
-    return (BoxOptions)((int)lhs & ~(int)rhs);
+  inline BoxInputFlags operator -(BoxInputFlags lhs, BoxInputFlags rhs) {
+    return (BoxInputFlags)((int)lhs & ~(int)rhs);
   }
-  inline BoxOptions &operator -=(BoxOptions &lhs, BoxOptions rhs) {
-    lhs = (BoxOptions)((int)lhs & ~(int)rhs);
+  inline BoxInputFlags &operator -=(BoxInputFlags &lhs, BoxInputFlags rhs) {
+    lhs = (BoxInputFlags)((int)lhs & ~(int)rhs);
     return lhs;
   }
   
@@ -164,7 +164,7 @@ namespace richmath {
       void safe_destroy();
       
       template<class T>
-      static T *try_create(Expr expr, BoxOptions options) {
+      static T *try_create(Expr expr, BoxInputFlags options) {
         T *box = new T();
         
         if(!box->try_load_from_object(expr, options)) {
@@ -214,8 +214,8 @@ namespace richmath {
       virtual Box *remove(int *index) = 0;
       
       virtual Expr to_pmath_symbol() = 0;
-      virtual Expr to_pmath(BoxFlags flags) = 0;
-      virtual Expr to_pmath(BoxFlags flags, int start, int end) {
+      virtual Expr to_pmath(BoxOutputFlags flags) = 0;
+      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) {
         return to_pmath(flags);
       }
       
@@ -258,7 +258,7 @@ namespace richmath {
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) {}
       
-      virtual bool try_load_from_object(Expr object, BoxOptions options) = 0;
+      virtual bool try_load_from_object(Expr object, BoxInputFlags options) = 0;
       virtual Box *dynamic_to_literal(int *start, int *end);
       
       bool         request_repaint_all();
@@ -324,7 +324,7 @@ namespace richmath {
       DummyBox(): Box() {}
       virtual ~DummyBox() {}
       
-      virtual bool try_load_from_object(Expr expr, BoxOptions options) override { return false; }
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override { return false; }
       
       virtual Box *item(int i) override { return nullptr; }
       virtual int  count() override {     return 0; }
@@ -336,7 +336,7 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxFlags flags) override { return Expr(); }
+      virtual Expr to_pmath(BoxOutputFlags flags) override { return Expr(); }
   };
   
   class AbstractSequence: public Box {
@@ -360,8 +360,8 @@ namespace richmath {
       virtual void remove(int start, int end) = 0;
       
       virtual Box *extract_box(int boxindex) = 0;
-      virtual bool try_load_from_object(Expr object, BoxOptions options) override;
-      virtual void load_from_object(Expr object, BoxOptions options) = 0;
+      virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
+      virtual void load_from_object(Expr object, BoxInputFlags options) = 0;
       
       virtual Box *dynamic_to_literal(int *start, int *end) override;
       

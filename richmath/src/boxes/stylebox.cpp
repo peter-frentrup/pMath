@@ -206,7 +206,7 @@ StyleBox::StyleBox(MathSequence *content)
   style = new Style;
 }
 
-bool StyleBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_STYLEBOX)
     return false;
   
@@ -244,9 +244,9 @@ bool StyleBox::try_load_from_object(Expr expr, BoxOptions opts) {
     int i;
     if(style->get(AutoNumberFormating, &i)) {
       if(i)
-        opts |= BoxOptions::FormatNumbers;
+        opts |= BoxInputFlags::FormatNumbers;
       else
-        opts -= BoxOptions::FormatNumbers;
+        opts -= BoxInputFlags::FormatNumbers;
     }
   }
   
@@ -255,8 +255,8 @@ bool StyleBox::try_load_from_object(Expr expr, BoxOptions opts) {
   return true;
 }
 
-Expr StyleBox::to_pmath(BoxFlags flags) {
-  if(has(flags, BoxFlags::Parseable) && get_own_style(StripOnInput, true)) {
+Expr StyleBox::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, true)) {
     return _content->to_pmath(flags);
   }
   
@@ -297,7 +297,7 @@ TagBox::TagBox(MathSequence *content, Expr _tag)
   style = new Style();
 }
 
-bool TagBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_TAGBOX)
     return false;
   
@@ -323,9 +323,9 @@ bool TagBox::try_load_from_object(Expr expr, BoxOptions opts) {
   int i;
   if(style->get(AutoNumberFormating, &i)) {
     if(i)
-      opts |= BoxOptions::FormatNumbers;
+      opts |= BoxInputFlags::FormatNumbers;
     else
-      opts -= BoxOptions::FormatNumbers;
+      opts -= BoxInputFlags::FormatNumbers;
   }
   
   _content->load_from_object(expr[1], opts);
@@ -338,7 +338,7 @@ void TagBox::resize(Context *context) {
   ExpandableAbstractStyleBox::resize(context);
 }
 
-Expr TagBox::to_pmath(BoxFlags flags) {
+Expr TagBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));

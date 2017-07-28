@@ -273,7 +273,7 @@ SliderBox::SliderBox()
 SliderBox::~SliderBox() {
 }
 
-bool SliderBox::try_load_from_object(Expr expr, BoxOptions opts) {
+bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_SLIDERBOX)
     return false;
     
@@ -404,10 +404,10 @@ void SliderBox::paint(Context *context) {
   SliderBoxImpl(*this).animate_thumb(context, x, y, old_value);
 }
 
-Expr SliderBox::to_pmath(BoxFlags flags) {
+Expr SliderBox::to_pmath(BoxOutputFlags flags) {
   Expr val = dynamic.expr();
   
-  if(has(flags, BoxFlags::Literal) && dynamic.is_dynamic())
+  if(has(flags, BoxOutputFlags::Literal) && dynamic.is_dynamic())
     val = val[1];
     
   return Call(

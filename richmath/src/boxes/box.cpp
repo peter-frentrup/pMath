@@ -723,7 +723,7 @@ int AbstractSequence::insert(int pos, AbstractSequence *seq, int start, int end)
   return pos;
 }
 
-bool AbstractSequence::try_load_from_object(Expr object, BoxOptions options) {
+bool AbstractSequence::try_load_from_object(Expr object, BoxInputFlags options) {
   load_from_object(object, options);
   return true;
 }

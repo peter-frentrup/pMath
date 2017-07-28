@@ -63,7 +63,7 @@ class ScanData {
   public:
     MathSequence *sequence;
     int current_box; // for box_at_index
-    BoxFlags flags;
+    BoxOutputFlags flags;
     int start;
     int end;
 };
@@ -179,9 +179,9 @@ namespace richmath {
       static pmath_t box_at_index(int i, void *_data) {
         ScanData *data = (ScanData *)_data;
         
-        BoxFlags flags = data->flags;
-        if(has(flags, BoxFlags::Parseable) && data->sequence->is_inside_string(i)) {
-          flags -= BoxFlags::Parseable;
+        BoxOutputFlags flags = data->flags;
+        if(has(flags, BoxOutputFlags::Parseable) && data->sequence->is_inside_string(i)) {
+          flags -= BoxOutputFlags::Parseable;
         }
         
         if(i < data->start || data->end <= i)
@@ -2925,7 +2925,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   }
 }
 
-Expr MathSequence::to_pmath(BoxFlags flags) {
+Expr MathSequence::to_pmath(BoxOutputFlags flags) {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
@@ -2940,7 +2940,7 @@ Expr MathSequence::to_pmath(BoxFlags flags) {
   settings.box_at_index   = MathSequenceImpl::box_at_index;
   settings.add_debug_info = MathSequenceImpl::add_debug_info;
   
-  if(has(flags, BoxFlags::Parseable))
+  if(has(flags, BoxOutputFlags::Parseable))
     settings.flags |= PMATH_BFS_PARSEABLE;
     
   settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
@@ -2950,7 +2950,7 @@ Expr MathSequence::to_pmath(BoxFlags flags) {
   return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
 }
 
-Expr MathSequence::to_pmath(BoxFlags flags, int start, int end) {
+Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
@@ -2965,7 +2965,7 @@ Expr MathSequence::to_pmath(BoxFlags flags, int start, int end) {
   settings.box_at_index   = MathSequenceImpl::box_at_index;
   settings.add_debug_info = MathSequenceImpl::add_debug_info;
   
-  if(has(flags, BoxFlags::Parseable))
+  if(has(flags, BoxOutputFlags::Parseable))
     settings.flags |= PMATH_BFS_PARSEABLE;
     
   settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
@@ -3398,7 +3398,7 @@ void MathSequence::ensure_spans_valid() {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
-  data.flags       = BoxFlags::Default;
+  data.flags       = BoxOutputFlags::Default;
   data.start       = 0;
   data.end         = str.length();
   
@@ -3572,14 +3572,14 @@ Box *MathSequence::extract_box(int boxindex) {
 ////} ... insert/remove
 
 template <class T>
-static Box *create_or_error(Expr expr, BoxOptions options) {
+static Box *create_or_error(Expr expr, BoxInputFlags options) {
   if(auto box = Box::try_create<T>(expr, options))
     return box;
     
   return new ErrorBox(expr);
 }
 
-static Box *create_box(Expr expr, BoxOptions options) {
+static Box *create_box(Expr expr, BoxInputFlags options) {
   if(expr.is_string()) {
     InlineSequenceBox *box = new InlineSequenceBox;
     box->content()->load_from_object(expr, options);
@@ -3719,7 +3719,7 @@ static void defered_make_box(int pos, pmath_t obj, void *data) {
 class SpanSynchronizer: public Base {
   public:
     SpanSynchronizer(
-      BoxOptions             _new_load_options,
+      BoxInputFlags             _new_load_options,
       Array<Box *>          &_old_boxes,
       SpanArray             &_old_spans,
       Array<PositionedExpr> &_new_boxes,
@@ -3894,14 +3894,14 @@ class SpanSynchronizer: public Base {
     int              old_pos;
     int              old_next_box;
     
-    BoxOptions                   new_load_options;
+    BoxInputFlags                   new_load_options;
     const Array<PositionedExpr> &new_boxes;
     const SpanArray             &new_spans;
     int                          new_pos;
     int                          new_next_box;
 };
 
-void MathSequence::load_from_object(Expr object, BoxOptions options) {
+void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   ensure_boxes_valid();
   
   Array<PositionedExpr> new_boxes;
@@ -3913,7 +3913,7 @@ void MathSequence::load_from_object(Expr object, BoxOptions options) {
   if(obj[0] == PMATH_SYMBOL_BOXDATA && obj.expr_length() == 1)
     obj = obj[1];
     
-  if(has(options, BoxOptions::FormatNumbers))
+  if(has(options, BoxInputFlags::FormatNumbers))
     obj = NumberBox::prepare_boxes(obj);
     
   new_spans = pmath_spans_from_boxes(
