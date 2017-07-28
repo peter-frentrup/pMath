@@ -13,7 +13,7 @@ namespace richmath {
       virtual ~ProgressIndicatorBox();
       
       // Box::try_create<ProgressIndicatorBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }

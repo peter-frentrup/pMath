@@ -58,7 +58,7 @@ namespace richmath {
     public:
       ErrorSection(const Expr object);
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual Box *item(int i) override { return 0; }
       virtual int count() override { return 0; }
@@ -127,7 +127,7 @@ namespace richmath {
       MathSection();
       explicit MathSection(SharedPtr<Style> _style);
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       MathSequence *content() { return (MathSequence*)_content; }
   };
@@ -137,7 +137,7 @@ namespace richmath {
       TextSection();
       explicit TextSection(SharedPtr<Style> _style);
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       TextSequence *content() { return (TextSequence*)_content; }
   };
@@ -147,7 +147,7 @@ namespace richmath {
       EditSection();
       virtual ~EditSection();
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxFlags flags) override;

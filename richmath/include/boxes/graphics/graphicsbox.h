@@ -30,7 +30,7 @@ namespace richmath {
       virtual ~GraphicsBox();
       
       // Box::try_create<GraphicsBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       void reset_user_options();
       void set_user_default_options(Expr rules);

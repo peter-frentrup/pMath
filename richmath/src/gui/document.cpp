@@ -1405,7 +1405,7 @@ namespace richmath {
             
             if(s.is_null()) {
               MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxOptionDefault);
+              repl_seq->load_from_object(repl, BoxOptions::Default);
               
               seq->remove(i, e);
               self.move_to(self.selection_box(), i);
@@ -1495,7 +1495,7 @@ namespace richmath {
               }
               else {
                 MathSequence *repl_seq = new MathSequence();
-                repl_seq->load_from_object(repl, BoxOptionDefault);
+                repl_seq->load_from_object(repl, BoxOptions::Default);
                 
                 seq->remove(i, e);
                 self.move_to(self.selection_box(), i);
@@ -1552,7 +1552,7 @@ Document::Document()
 Document::~Document() {
 }
 
-bool Document::try_load_from_object(Expr expr, int options) {
+bool Document::try_load_from_object(Expr expr, BoxOptions options) {
   if(expr[0] != PMATH_SYMBOL_DOCUMENT)
     return false;
     
@@ -2321,7 +2321,7 @@ void Document::on_key_press(uint32_t unichar) {
             }
             else {
               MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxOptionDefault);
+              repl_seq->load_from_object(repl, BoxOptions::Default);
               
               insert_box(repl_seq, true);
               int sel_start = selection_start();
@@ -3179,9 +3179,9 @@ void Document::paste_from_boxes(Expr boxes) {
     int w = col2 - col1 + 1;
     int h = row2 - row1 + 1;
     
-    int options = BoxOptionDefault;
+    BoxOptions options = BoxOptions::Default;
     if(grid->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxOptions::FormatNumbers;
       
     MathSequence *tmp = new MathSequence;
     tmp->load_from_object(boxes, options);
@@ -3200,12 +3200,12 @@ void Document::paste_from_boxes(Expr boxes) {
             {
               grid->item(row1 + row, col1 + col)->load_from_object(
                 Expr(tmpgrid->item(row, col)->to_pmath(BoxFlags::Default)),
-                BoxOptionFormatNumbers);
+                BoxOptions::FormatNumbers);
             }
             else {
               grid->item(row1 + row, col1 + col)->load_from_object(
                 String::FromChar(PMATH_CHAR_BOX),
-                BoxOptionDefault);
+                BoxOptions::Default);
             }
           }
         }
@@ -3226,7 +3226,7 @@ void Document::paste_from_boxes(Expr boxes) {
       for(int row = 0; row < h; ++row) {
         grid->item(row1 + row, col1 + col)->load_from_object(
           String::FromChar(PMATH_CHAR_BOX),
-          BoxOptionDefault);
+          BoxOptions::Default);
       }
     }
     
@@ -3241,9 +3241,9 @@ void Document::paste_from_boxes(Expr boxes) {
   
   GraphicsBox *graphics = dynamic_cast<GraphicsBox *>(context.selection.get());
   if(graphics && graphics->get_style(Editable)) {
-    int options = BoxOptionDefault;
+    BoxOptions options = BoxOptions::Default;
     if(graphics->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxOptions::FormatNumbers;
       
     if(graphics->try_load_from_object(boxes, options))
       return;
@@ -3256,9 +3256,9 @@ void Document::paste_from_boxes(Expr boxes) {
   if(DocumentImpl(*this).prepare_insert()) {
     if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
     
-      int options = BoxOptionDefault;
+      BoxOptions options = BoxOptions::Default;
       if(seq->get_style(AutoNumberFormating))
-        options |= BoxOptionFormatNumbers;
+        options |= BoxOptions::FormatNumbers;
         
       MathSequence *tmp = new MathSequence;
       tmp->load_from_object(boxes, options);
@@ -3273,9 +3273,9 @@ void Document::paste_from_boxes(Expr boxes) {
     
     if(auto seq = dynamic_cast<TextSequence *>(context.selection.get())) {
     
-      int options = BoxOptionDefault;
+      BoxOptions options = BoxOptions::Default;
       if(seq->get_style(AutoNumberFormating))
-        options |= BoxOptionFormatNumbers;
+        options |= BoxOptions::FormatNumbers;
         
       TextSequence *tmp = new TextSequence;
       tmp->load_from_object(boxes, options);
@@ -3860,7 +3860,7 @@ void Document::insert_string(String text, bool autoformat) {
           seq2->insert(seq2->length(), text.part(last, pos - last));
           
           auto seq_tmp = new MathSequence;
-          seq_tmp->load_from_object(*e, BoxOptionDefault);
+          seq_tmp->load_from_object(*e, BoxOptions::Default);
           seq2->insert(seq2->length(), seq_tmp);
           
           last = next;

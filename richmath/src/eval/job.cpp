@@ -277,9 +277,9 @@ void ReplacementJob::end() {
   {
     sequence->remove(selection_start, selection_end);
     
-    int opts = BoxOptionDefault;
+    BoxOptions opts = BoxOptions::Default;
     if(sequence->get_style(AutoNumberFormating))
-      opts |= BoxOptionFormatNumbers;
+      opts |= BoxOptions::FormatNumbers;
       
     MathSequence *insert_seq = new MathSequence;
     insert_seq->load_from_object(result, opts);

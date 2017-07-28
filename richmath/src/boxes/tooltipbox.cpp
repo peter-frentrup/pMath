@@ -15,7 +15,7 @@ TooltipBox::TooltipBox()
 {
 }
 
-bool TooltipBox::try_load_from_object(Expr expr, int opts) {
+bool TooltipBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_TOOLTIPBOX)
     return false;
   

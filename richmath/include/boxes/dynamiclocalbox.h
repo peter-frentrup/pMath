@@ -11,7 +11,7 @@ namespace richmath {
       virtual ~DynamicLocalBox();
       
       // Box::try_create<DynamicLocalBox>(expr, options)
-      virtual bool try_load_from_object(Expr expr, int options) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions options) override;
       
       virtual void paint(Context *context) override;
       

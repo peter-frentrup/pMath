@@ -19,7 +19,7 @@ LineBox::LineBox()
 LineBox::~LineBox() {
 }
 
-bool LineBox::try_load_from_object(Expr expr, int opts) {
+bool LineBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_LINEBOX)
     return false;
     
@@ -48,7 +48,7 @@ bool LineBox::try_load_from_object(Expr expr, int opts) {
   return false;
 }
 
-LineBox *LineBox::create(Expr expr, int opts) {
+LineBox *LineBox::create(Expr expr, BoxOptions opts) {
   LineBox *box = new LineBox;
   
   if(!box->try_load_from_object(expr, opts)) {

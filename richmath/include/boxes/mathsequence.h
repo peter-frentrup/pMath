@@ -99,7 +99,7 @@ namespace richmath {
       
       virtual Box *extract_box(int boxindex) override;
       
-      virtual void load_from_object(Expr object, int options) override; // BoxOptionXXX
+      virtual void load_from_object(Expr object, BoxOptions options) override;
       
       const String           &text() {        return str;    }
       const SpanArray        &span_array() {  return spans;  }

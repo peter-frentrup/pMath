@@ -10,7 +10,7 @@ namespace richmath {
       explicit ButtonBox(MathSequence *content = 0);
       
       // Box::try_create<ButtonBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context *context) override;

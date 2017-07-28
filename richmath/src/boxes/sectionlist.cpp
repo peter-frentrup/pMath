@@ -583,7 +583,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
     if(*pos < overwrite_until_index) {
       Section *section = _sections[*pos];
       
-      if(section->try_load_from_object(boxes, BoxOptionDefault)) {
+      if(section->try_load_from_object(boxes, BoxOptions::Default)) {
         _group_info[*pos].precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
         
         ++*pos;

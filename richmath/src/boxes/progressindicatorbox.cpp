@@ -35,7 +35,7 @@ ProgressIndicatorBox::ProgressIndicatorBox()
 ProgressIndicatorBox::~ProgressIndicatorBox() {
 }
 
-bool ProgressIndicatorBox::try_load_from_object(Expr expr, int opts) {
+bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_PROGRESSINDICATORBOX)
     return false;
     

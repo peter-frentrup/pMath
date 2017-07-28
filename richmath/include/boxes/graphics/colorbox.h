@@ -8,10 +8,10 @@ namespace richmath {
   class ColorBox: public GraphicsElement {
     friend class Box;
     public:
-      static ColorBox *create(Expr expr, int opts); // may return nullptr
+      static ColorBox *create(Expr expr, BoxOptions opts); // may return nullptr
       virtual ~ColorBox();
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual void find_extends(GraphicsBounds &bounds) override {}
       virtual void paint(GraphicsBoxContext *context) override;

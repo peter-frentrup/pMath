@@ -11,7 +11,7 @@ namespace richmath {
       InputFieldBox(MathSequence *content = 0);
       
       // Box::try_create<InputFieldBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual ControlState calc_state(Context *context) override;
       

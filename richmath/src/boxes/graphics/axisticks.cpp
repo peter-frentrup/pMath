@@ -85,12 +85,12 @@ AxisTicks::~AxisTicks() {
   set_count(0);
 }
 
-bool AxisTicks::try_load_from_object(Expr object, int options) {
+bool AxisTicks::try_load_from_object(Expr object, BoxOptions options) {
   load_from_object(object, options);
   return true;
 }
 
-void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
+void AxisTicks::load_from_object(Expr expr, BoxOptions options) {
   /* {{pos1, label1, __ignored_rest__}, {pos2, label2, __ignored_rest__}, ...}
    */
   if(expr[0] != PMATH_SYMBOL_LIST)

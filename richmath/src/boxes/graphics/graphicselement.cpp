@@ -26,7 +26,7 @@ namespace {
       {
       }
       
-      virtual bool try_load_from_object(Expr expr, int opts) override {
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override {
         return false;
       }
       
@@ -94,7 +94,7 @@ GraphicsElement::GraphicsElement()
 GraphicsElement::~GraphicsElement() {
 }
 
-GraphicsElement *GraphicsElement::create(Expr expr, int opts) {
+GraphicsElement *GraphicsElement::create(Expr expr, BoxOptions opts) {
   Expr head = expr[0];
   
   if(head == PMATH_SYMBOL_POINTBOX) {
@@ -148,7 +148,7 @@ GraphicsDirective::~GraphicsDirective()
     delete _items[i];
 }
 
-bool GraphicsDirective::try_load_from_object(Expr expr, int opts) {
+bool GraphicsDirective::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_DIRECTIVE)
     return false;
     
@@ -237,7 +237,7 @@ GraphicsElementCollection::~GraphicsElementCollection()
 {
 }
 
-bool GraphicsElementCollection::try_load_from_object(Expr expr, int opts) {
+bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_LIST)
     return false;
     
@@ -245,7 +245,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, int opts) {
   return GraphicsDirective::try_load_from_object(expr, opts);
 }
 
-void GraphicsElementCollection::load_from_object(Expr expr, int opts) {
+void GraphicsElementCollection::load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] == PMATH_SYMBOL_LIST)
     expr.set(0, Symbol(PMATH_SYMBOL_DIRECTIVE));
   else

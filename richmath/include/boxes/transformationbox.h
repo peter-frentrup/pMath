@@ -34,7 +34,7 @@ namespace richmath {
       RotationBox();
       
       // Box::try_create<RotationBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       Expr angle() { return _angle; }
       bool angle(Expr a);
@@ -53,7 +53,7 @@ namespace richmath {
       TransformationBox();
       
       // Box::try_create<TransformationBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       Expr matrix() { return _matrix; }
       bool matrix(Expr m);

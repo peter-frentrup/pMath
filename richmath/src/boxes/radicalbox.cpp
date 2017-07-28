@@ -24,7 +24,7 @@ RadicalBox::~RadicalBox() {
   delete _exponent;
 }
 
-bool RadicalBox::try_load_from_object(Expr expr, int opts){
+bool RadicalBox::try_load_from_object(Expr expr, BoxOptions opts){
   if(expr[0] == PMATH_SYMBOL_RADICALBOX){
     if(expr.expr_length() != 2)
       return false;

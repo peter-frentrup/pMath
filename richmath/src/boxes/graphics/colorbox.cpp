@@ -17,7 +17,7 @@ ColorBox::ColorBox(int color)
 ColorBox::~ColorBox() {
 }
 
-bool ColorBox::try_load_from_object(Expr expr, int opts) {
+bool ColorBox::try_load_from_object(Expr expr, BoxOptions opts) {
   int c = pmath_to_color(expr);
   if(c < 0)
     return false;
@@ -26,7 +26,7 @@ bool ColorBox::try_load_from_object(Expr expr, int opts) {
   return true;
 }
 
-ColorBox *ColorBox::create(Expr expr, int opts) {
+ColorBox *ColorBox::create(Expr expr, BoxOptions opts) {
   ColorBox *box = new ColorBox;
   
   if(!box->try_load_from_object(expr, opts)) {

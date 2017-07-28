@@ -299,7 +299,7 @@ NumberBox::NumberBox(String number)
   NumberBoxImpl(*this).set_number(number);
 }
 
-bool NumberBox::try_load_from_object(Expr expr, int opts) {
+bool NumberBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != GetSymbol(FESymbolIndex::NumberBox))
     return false;
     

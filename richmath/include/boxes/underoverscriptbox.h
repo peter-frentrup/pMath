@@ -14,7 +14,7 @@ namespace richmath {
       virtual ~UnderoverscriptBox();
       
       // Box::try_create<UnderoverscriptBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       MathSequence *base() {        return _base; }
       MathSequence *underscript() { return _underscript; }

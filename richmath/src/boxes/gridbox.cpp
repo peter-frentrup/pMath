@@ -43,12 +43,12 @@ Expr GridItem::to_pmath(BoxFlags flags) {
   return _content->to_pmath(flags);
 }
 
-bool GridItem::try_load_from_object(Expr object, int options) {
+bool GridItem::try_load_from_object(Expr object, BoxOptions options) {
   load_from_object(object, options);
   return true;
 }
 
-void GridItem::load_from_object(const Expr object, int opts) {
+void GridItem::load_from_object(const Expr object, BoxOptions opts) {
   _content->load_from_object(object, opts);
 }
 
@@ -103,7 +103,7 @@ GridBox::~GridBox() {
     delete items[i];
 }
 
-bool GridBox::try_load_from_object(Expr expr, int opts) {
+bool GridBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_GRIDBOX)
     return false;
     

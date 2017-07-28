@@ -162,7 +162,7 @@ GraphicsBox::~GraphicsBox() {
     delete ticks[part];
 }
 
-bool GraphicsBox::try_load_from_object(Expr expr, int opts) {
+bool GraphicsBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_GRAPHICSBOX)
     return false;
     
@@ -920,9 +920,9 @@ void GraphicsBox::resize_axes(Context *context) {
       set_axis_ends((AxisIndex)part, bounds);
       
       if(have_axis[part])
-        ticks[part]->load_from_object(generate_ticks(bounds, (AxisIndex)part), BoxOptionFormatNumbers);
+        ticks[part]->load_from_object(generate_ticks(bounds, (AxisIndex)part), BoxOptions::FormatNumbers);
       else
-        ticks[part]->load_from_object(List(), BoxOptionDefault);
+        ticks[part]->load_from_object(List(), BoxOptions::Default);
         
       ticks[part]->resize(context);
     }

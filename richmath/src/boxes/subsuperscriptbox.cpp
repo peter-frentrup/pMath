@@ -37,7 +37,7 @@ SubsuperscriptBox::~SubsuperscriptBox() {
   delete _superscript;
 }
 
-bool SubsuperscriptBox::try_load_from_object(Expr expr, int opts) {
+bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] == PMATH_SYMBOL_SUBSCRIPTBOX) {
     if(expr.expr_length() != 1)
       return false;

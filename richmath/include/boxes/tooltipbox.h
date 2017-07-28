@@ -10,7 +10,7 @@ namespace richmath {
       TooltipBox();
       
       // Box::try_create<TooltipBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TOOLTIPBOX); }
       virtual Expr to_pmath(BoxFlags flags) override;

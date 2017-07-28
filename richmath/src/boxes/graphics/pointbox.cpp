@@ -101,7 +101,7 @@ PointBox::PointBox()
 PointBox::~PointBox() {
 }
 
-bool PointBox::try_load_from_object(Expr expr, int opts) {
+bool PointBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_POINTBOX)
     return false;
     
@@ -130,7 +130,7 @@ bool PointBox::try_load_from_object(Expr expr, int opts) {
   return false;
 }
 
-PointBox *PointBox::create(Expr expr, int opts) {
+PointBox *PointBox::create(Expr expr, BoxOptions opts) {
   PointBox *box = new PointBox;
   
   if(!box->try_load_from_object(expr, opts)) {

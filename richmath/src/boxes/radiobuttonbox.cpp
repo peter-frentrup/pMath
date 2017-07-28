@@ -11,7 +11,7 @@ RadioButtonBox::RadioButtonBox()
   dynamic.init(this, Expr());
 }
 
-bool RadioButtonBox::try_load_from_object(Expr expr, int opts) {
+bool RadioButtonBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_RADIOBUTTONBOX)
     return false;
     

@@ -13,7 +13,7 @@ namespace richmath {
       virtual ~RadicalBox();
       
       // Box::try_create<RadicalBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       MathSequence *radicand() { return _radicand; }
       MathSequence *exponent() { return _exponent; }

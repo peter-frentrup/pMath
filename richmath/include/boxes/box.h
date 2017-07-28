@@ -102,10 +102,28 @@ namespace richmath {
     return lhs;
   }
   
-  enum {
-    BoxOptionDefault       = 0,
-    BoxOptionFormatNumbers = 1
+  enum class BoxOptions{
+    Default       = 0,
+    FormatNumbers = 1
   };
+  
+  inline bool has(BoxOptions lhs, BoxOptions rhs) {
+    return ((int)lhs & (int)rhs) == (int)rhs;
+  }
+  inline BoxOptions operator |(BoxOptions lhs, BoxOptions rhs) {
+    return (BoxOptions)((int)lhs | (int)rhs);
+  }
+  inline BoxOptions &operator |=(BoxOptions &lhs, BoxOptions rhs) {
+    lhs = (BoxOptions)((int)lhs | (int)rhs);
+    return lhs;
+  }
+  inline BoxOptions operator -(BoxOptions lhs, BoxOptions rhs) {
+    return (BoxOptions)((int)lhs & ~(int)rhs);
+  }
+  inline BoxOptions &operator -=(BoxOptions &lhs, BoxOptions rhs) {
+    lhs = (BoxOptions)((int)lhs & ~(int)rhs);
+    return lhs;
+  }
   
   /** Suspending deletions of Boxes.
   
@@ -146,7 +164,7 @@ namespace richmath {
       void safe_destroy();
       
       template<class T>
-      static T *try_create(Expr expr, int options) {
+      static T *try_create(Expr expr, BoxOptions options) {
         T *box = new T();
         
         if(!box->try_load_from_object(expr, options)) {
@@ -240,7 +258,7 @@ namespace richmath {
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) {}
       
-      virtual bool try_load_from_object(Expr object, int options) = 0; // BoxOptionXXX
+      virtual bool try_load_from_object(Expr object, BoxOptions options) = 0;
       virtual Box *dynamic_to_literal(int *start, int *end);
       
       bool         request_repaint_all();
@@ -306,7 +324,7 @@ namespace richmath {
       DummyBox(): Box() {}
       virtual ~DummyBox() {}
       
-      virtual bool try_load_from_object(Expr expr, int options) override { return false; }
+      virtual bool try_load_from_object(Expr expr, BoxOptions options) override { return false; }
       
       virtual Box *item(int i) override { return nullptr; }
       virtual int  count() override {     return 0; }
@@ -342,8 +360,8 @@ namespace richmath {
       virtual void remove(int start, int end) = 0;
       
       virtual Box *extract_box(int boxindex) = 0;
-      virtual bool try_load_from_object(Expr object, int options) override;
-      virtual void load_from_object(Expr object, int options) = 0; // BoxOptionXXX
+      virtual bool try_load_from_object(Expr object, BoxOptions options) override;
+      virtual void load_from_object(Expr object, BoxOptions options) = 0;
       
       virtual Box *dynamic_to_literal(int *start, int *end) override;
       

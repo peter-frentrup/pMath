@@ -14,7 +14,7 @@ namespace richmath {
       virtual ~FractionBox();
       
       // Box::try_create<FractionBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       MathSequence *numerator() {   return _numerator; }
       MathSequence *denominator() { return _denominator; }

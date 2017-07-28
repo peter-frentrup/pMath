@@ -38,9 +38,9 @@ Section *Section::create_from_object(const Expr expr) {
     Section *section = 0;
     
     if(content.expr_length() == 1 && content[0] == PMATH_SYMBOL_BOXDATA)
-      section = Box::try_create<MathSection>(expr, BoxOptionDefault);
+      section = Box::try_create<MathSection>(expr, BoxOptions::Default);
     else
-      section = Box::try_create<TextSection>(expr, BoxOptionDefault);
+      section = Box::try_create<TextSection>(expr, BoxOptions::Default);
       
     if(section)
       return section;
@@ -242,7 +242,7 @@ ErrorSection::ErrorSection(const Expr object)
 {
 }
 
-bool ErrorSection::try_load_from_object(Expr expr, int opts) {
+bool ErrorSection::try_load_from_object(Expr expr, BoxOptions opts) {
   return false;
 }
 
@@ -567,7 +567,7 @@ MathSection::MathSection(SharedPtr<Style> _style)
     style = new Style;
 }
 
-bool MathSection::try_load_from_object(Expr expr, int opts) {
+bool MathSection::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_SECTION)
     return false;
     
@@ -589,9 +589,9 @@ bool MathSection::try_load_from_object(Expr expr, int opts) {
   style->add_pmath(options);
   style->set(BaseStyleName, stylename);
   
-  opts = BoxOptionDefault;
+  opts = BoxOptions::Default;
   if(get_own_style(AutoNumberFormating))
-    opts |= BoxOptionFormatNumbers;
+    opts |= BoxOptions::FormatNumbers;
     
   _content->load_from_object(content, opts);
   return true;
@@ -613,7 +613,7 @@ TextSection::TextSection(SharedPtr<Style> _style)
     style = new Style;
 }
 
-bool TextSection::try_load_from_object(Expr expr, int opts) {
+bool TextSection::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_SECTION)
     return false;
     
@@ -633,9 +633,9 @@ bool TextSection::try_load_from_object(Expr expr, int opts) {
   style->add_pmath(options);
   style->set(BaseStyleName, stylename);
   
-  opts = BoxOptionDefault;
+  opts = BoxOptions::Default;
   if(get_own_style(AutoNumberFormating))
-    opts |= BoxOptionFormatNumbers;
+    opts |= BoxOptions::FormatNumbers;
     
   _content->load_from_object(content, opts);
   return true;
@@ -655,7 +655,7 @@ EditSection::~EditSection() {
   delete original;
 }
 
-bool EditSection::try_load_from_object(Expr expr, int opts) {
+bool EditSection::try_load_from_object(Expr expr, BoxOptions opts) {
   return false;
 }
 

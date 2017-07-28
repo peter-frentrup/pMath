@@ -53,7 +53,7 @@ namespace richmath {
   
   class InlineSequenceBox: public OwnerBox {
     public:
-      virtual bool try_load_from_object(Expr expr, int options) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions options) override;
       
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;

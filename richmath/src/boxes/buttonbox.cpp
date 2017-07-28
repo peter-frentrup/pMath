@@ -17,7 +17,7 @@ ButtonBox::ButtonBox(MathSequence *content)
 {
 }
 
-bool ButtonBox::try_load_from_object(Expr expr, int opts){
+bool ButtonBox::try_load_from_object(Expr expr, BoxOptions opts){
   if(expr[0] != PMATH_SYMBOL_BUTTONBOX)
     return false;
   

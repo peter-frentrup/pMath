@@ -37,7 +37,7 @@ FractionBox::~FractionBox() {
   delete _denominator;
 }
 
-bool FractionBox::try_load_from_object(Expr expr, int opts) {
+bool FractionBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_FRACTIONBOX)
     return false;
     

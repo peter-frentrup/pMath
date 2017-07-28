@@ -273,7 +273,7 @@ SliderBox::SliderBox()
 SliderBox::~SliderBox() {
 }
 
-bool SliderBox::try_load_from_object(Expr expr, int opts) {
+bool SliderBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_SLIDERBOX)
     return false;
     

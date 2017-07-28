@@ -10,7 +10,7 @@ CheckboxBox::CheckboxBox()
   dynamic.init(this, Expr());
 }
       
-bool CheckboxBox::try_load_from_object(Expr expr, int opts) {
+bool CheckboxBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_CHECKBOXBOX)
     return false;
   

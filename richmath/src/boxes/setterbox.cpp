@@ -14,7 +14,7 @@ SetterBox::SetterBox(MathSequence *content)
   dynamic.init(this, Expr());
 }
 
-bool SetterBox::try_load_from_object(Expr expr, int opts) {
+bool SetterBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_SETTERBOX)
     return false;
     

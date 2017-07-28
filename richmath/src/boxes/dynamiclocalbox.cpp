@@ -24,7 +24,7 @@ DynamicLocalBox::~DynamicLocalBox() {
   }
 }
 
-bool DynamicLocalBox::try_load_from_object(Expr expr, int options) {
+bool DynamicLocalBox::try_load_from_object(Expr expr, BoxOptions options) {
   if(expr[0] != PMATH_SYMBOL_DYNAMICLOCALBOX)
     return false;
     

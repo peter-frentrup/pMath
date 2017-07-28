@@ -3572,14 +3572,14 @@ Box *MathSequence::extract_box(int boxindex) {
 ////} ... insert/remove
 
 template <class T>
-static Box *create_or_error(Expr expr, int options) {
+static Box *create_or_error(Expr expr, BoxOptions options) {
   if(auto box = Box::try_create<T>(expr, options))
     return box;
     
   return new ErrorBox(expr);
 }
 
-static Box *create_box(Expr expr, int options) {
+static Box *create_box(Expr expr, BoxOptions options) {
   if(expr.is_string()) {
     InlineSequenceBox *box = new InlineSequenceBox;
     box->content()->load_from_object(expr, options);
@@ -3719,7 +3719,7 @@ static void defered_make_box(int pos, pmath_t obj, void *data) {
 class SpanSynchronizer: public Base {
   public:
     SpanSynchronizer(
-      int                    _new_load_options,
+      BoxOptions             _new_load_options,
       Array<Box *>          &_old_boxes,
       SpanArray             &_old_spans,
       Array<PositionedExpr> &_new_boxes,
@@ -3894,14 +3894,14 @@ class SpanSynchronizer: public Base {
     int              old_pos;
     int              old_next_box;
     
-    int                         new_load_options;
+    BoxOptions                   new_load_options;
     const Array<PositionedExpr> &new_boxes;
     const SpanArray             &new_spans;
     int                          new_pos;
     int                          new_next_box;
 };
 
-void MathSequence::load_from_object(Expr object, int options) {
+void MathSequence::load_from_object(Expr object, BoxOptions options) {
   ensure_boxes_valid();
   
   Array<PositionedExpr> new_boxes;
@@ -3913,7 +3913,7 @@ void MathSequence::load_from_object(Expr object, int options) {
   if(obj[0] == PMATH_SYMBOL_BOXDATA && obj.expr_length() == 1)
     obj = obj[1];
     
-  if(options & BoxOptionFormatNumbers)
+  if(has(options, BoxOptions::FormatNumbers))
     obj = NumberBox::prepare_boxes(obj);
     
   new_spans = pmath_spans_from_boxes(

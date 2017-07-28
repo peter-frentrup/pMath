@@ -11,7 +11,7 @@ namespace richmath {
       CheckboxBox();
       
       // Box::try_create<CheckboxBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual void paint(Context *context) override;
       

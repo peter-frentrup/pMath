@@ -11,8 +11,8 @@ namespace richmath {
       AxisTicks();
       virtual ~AxisTicks();
       
-      virtual bool try_load_from_object(Expr object, int options) override; // BoxOptionXXX
-      void             load_from_object(Expr object, int options); // BoxOptionXXX
+      virtual bool try_load_from_object(Expr object, BoxOptions options) override;
+      void             load_from_object(Expr object, BoxOptions options);
       
       virtual Box *item(int i) override { return _labels[i];       }
       virtual int count() override {      return _labels.length(); }

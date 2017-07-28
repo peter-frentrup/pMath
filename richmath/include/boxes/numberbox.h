@@ -12,7 +12,7 @@ namespace richmath {
       explicit NumberBox(String number);
       
       // Box::try_create<NumberBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual bool edit_selection(Context *context) override;
       

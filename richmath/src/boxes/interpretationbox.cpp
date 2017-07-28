@@ -37,7 +37,7 @@ void InterpretationBox::reset_style() {
   style->set(Editable, false);
 }
 
-bool InterpretationBox::try_load_from_object(Expr expr, int opts) {
+bool InterpretationBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_INTERPRETATIONBOX)
     return false;
     

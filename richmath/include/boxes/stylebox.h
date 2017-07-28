@@ -54,7 +54,7 @@ namespace richmath {
       explicit StyleBox(MathSequence *content = 0);
       
       // Box::try_create<StyleBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_STYLEBOX); }
       virtual Expr to_pmath(BoxFlags flags) override;
@@ -68,7 +68,7 @@ namespace richmath {
       TagBox(MathSequence *content, Expr _tag);
       
       // Box::try_create<TagBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions opts) override;
       
       virtual void resize(Context *context) override;
       

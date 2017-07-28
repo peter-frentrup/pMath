@@ -74,7 +74,7 @@ void MathGtkTooltipWindow::show_global_tooltip(Expr boxes) {
                       String("TooltipWindow")));
                       
     MathSection *section = new MathSection(style);
-    section->content()->load_from_object(boxes, BoxOptionFormatNumbers);
+    section->content()->load_from_object(boxes, BoxOptions::FormatNumbers);
     doc->insert(0, section);
   }
   

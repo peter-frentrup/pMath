@@ -18,7 +18,7 @@ FillBox::FillBox(MathSequence *content, float _weight)
 FillBox::~FillBox() {
 }
 
-bool FillBox::try_load_from_object(Expr expr, int opts) {
+bool FillBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_FILLBOX)
     return false;
     

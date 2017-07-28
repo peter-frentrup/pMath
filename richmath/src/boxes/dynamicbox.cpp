@@ -57,7 +57,7 @@ DynamicBox::~DynamicBox() {
     Application::interrupt_timeout);
 }
 
-bool DynamicBox::try_load_from_object(Expr expr, int opts) {
+bool DynamicBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_DYNAMICBOX)
     return false;
     
@@ -108,9 +108,9 @@ void DynamicBox::paint_content(Context *context) {
     
     Expr result;
     if(dynamic.get_value(&result)) {
-      int opt = BoxOptionDefault;
+      BoxOptions opt = BoxOptions::Default;
       if(get_style(AutoNumberFormating))
-        opt |= BoxOptionFormatNumbers;
+        opt |= BoxOptions::FormatNumbers;
         
       content()->load_from_object(result, opt);
       must_resize = true;
@@ -137,9 +137,9 @@ void DynamicBox::dynamic_updated() {
 }
 
 void DynamicBox::dynamic_finished(Expr info, Expr result) {
-  int opt = BoxOptionDefault;
+  BoxOptions opt = BoxOptions::Default;
   if(get_style(AutoNumberFormating))
-    opt |= BoxOptionFormatNumbers;
+    opt |= BoxOptions::FormatNumbers;
     
   content()->load_from_object(result, opt);
   must_resize = true;

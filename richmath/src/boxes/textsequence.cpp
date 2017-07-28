@@ -555,7 +555,7 @@ Expr TextSequence::to_pmath(BoxFlags flags, int start, int end) {
   return g.end();
 }
 
-void TextSequence::load_from_object(Expr object, int options) { // BoxOptionXXX
+void TextSequence::load_from_object(Expr object, BoxOptions options) {
   for(auto box : boxes)
     box->safe_destroy();
     

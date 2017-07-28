@@ -206,7 +206,7 @@ StyleBox::StyleBox(MathSequence *content)
   style = new Style;
 }
 
-bool StyleBox::try_load_from_object(Expr expr, int opts) {
+bool StyleBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_STYLEBOX)
     return false;
   
@@ -244,9 +244,9 @@ bool StyleBox::try_load_from_object(Expr expr, int opts) {
     int i;
     if(style->get(AutoNumberFormating, &i)) {
       if(i)
-        opts |= BoxOptionFormatNumbers;
+        opts |= BoxOptions::FormatNumbers;
       else
-        opts &= ~BoxOptionFormatNumbers;
+        opts -= BoxOptions::FormatNumbers;
     }
   }
   
@@ -297,7 +297,7 @@ TagBox::TagBox(MathSequence *content, Expr _tag)
   style = new Style();
 }
 
-bool TagBox::try_load_from_object(Expr expr, int opts) {
+bool TagBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_TAGBOX)
     return false;
   
@@ -323,9 +323,9 @@ bool TagBox::try_load_from_object(Expr expr, int opts) {
   int i;
   if(style->get(AutoNumberFormating, &i)) {
     if(i)
-      opts |= BoxOptionFormatNumbers;
+      opts |= BoxOptions::FormatNumbers;
     else
-      opts &= ~BoxOptionFormatNumbers;
+      opts -= BoxOptions::FormatNumbers;
   }
   
   _content->load_from_object(expr[1], opts);

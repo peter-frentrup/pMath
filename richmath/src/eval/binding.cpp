@@ -651,7 +651,7 @@ static bool document_apply_cmd(Expr cmd) {
   else
     seq = new MathSequence;
     
-  seq->load_from_object(boxes, BoxOptionDefault);
+  seq->load_from_object(boxes, BoxOptions::Default);
   doc->insert_box(seq, true);
   
   return true;
@@ -686,7 +686,7 @@ static bool document_write_cmd(Expr cmd) {
   else
     seq = new MathSequence;
     
-  seq->load_from_object(cmd[2], BoxOptionDefault);
+  seq->load_from_object(cmd[2], BoxOptions::Default);
   doc->insert_box(seq, false);
   
   return true;
@@ -718,7 +718,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
          (!input && math->get_style(SectionGenerated))))
     {
       MathSequence *seq = new MathSequence;
-      seq->load_from_object(Expr(math->content()->to_pmath(BoxFlags::Default)), 0);
+      seq->load_from_object(Expr(math->content()->to_pmath(BoxFlags::Default)), BoxOptions::Default);
       doc->insert_box(seq);
       
       return true;
@@ -1067,7 +1067,7 @@ static bool open_cmd(Expr cmd) {
                           
       if( held_boxes.expr_length() == 1 &&
           held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
-          doc->try_load_from_object(held_boxes[1], BoxOptionDefault))
+          doc->try_load_from_object(held_boxes[1], BoxOptions::Default))
       {
         if(!doc->selectable())
           doc->select(0, 0, 0);

@@ -62,7 +62,7 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxFlags flags) override;
       virtual Expr to_pmath(BoxFlags flags, int start, int end) override;
-      virtual void load_from_object(Expr object, int options) override; // BoxOptionXXX
+      virtual void load_from_object(Expr object, BoxOptions options) override;
       
       virtual void ensure_boxes_valid() override;
       void ensure_text_valid();

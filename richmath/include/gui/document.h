@@ -28,7 +28,7 @@ namespace richmath {
       Document();
       ~Document();
       
-      virtual bool try_load_from_object(Expr expr, int options) override;
+      virtual bool try_load_from_object(Expr expr, BoxOptions options) override;
       
       virtual bool request_repaint(float x, float y, float w, float h) override;
       virtual void invalidate() override;

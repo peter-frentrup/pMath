@@ -14,7 +14,7 @@ FrameBox::FrameBox(MathSequence *content)
 {
 }
 
-bool FrameBox::try_load_from_object(Expr expr, int options) {
+bool FrameBox::try_load_from_object(Expr expr, BoxOptions options) {
   if(expr[0] != PMATH_SYMBOL_FRAMEBOX)
     return false;
     

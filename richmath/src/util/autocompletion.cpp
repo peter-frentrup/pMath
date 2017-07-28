@@ -64,9 +64,9 @@ bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
     if(!seq->get_style(Editable))
       return false;
       
-    int options = BoxOptionDefault;
+    BoxOptions options = BoxOptions::Default;
     if(seq->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxOptions::FormatNumbers;
       
     AbstractSequence *tmp = seq->create_similar();
     tmp->load_from_object(boxes, options);

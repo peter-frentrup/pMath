@@ -14,7 +14,7 @@ ErrorBox::ErrorBox(const Expr object)
 ErrorBox::~ErrorBox() {
 }
 
-bool ErrorBox::try_load_from_object(Expr expr, int options){
+bool ErrorBox::try_load_from_object(Expr expr, BoxOptions options){
   _object = expr;
   return true;
 }

@@ -147,7 +147,7 @@ RotationBox::RotationBox()
     style = new Style;
 }
 
-bool RotationBox::try_load_from_object(Expr expr, int opts) {
+bool RotationBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_ROTATIONBOX)
     return false;
     
@@ -215,7 +215,7 @@ TransformationBox::TransformationBox()
 {
 }
 
-bool TransformationBox::try_load_from_object(Expr expr, int opts) {
+bool TransformationBox::try_load_from_object(Expr expr, BoxOptions opts) {
   if(expr[0] != PMATH_SYMBOL_TRANSFORMATIONBOX)
     return false;
     
