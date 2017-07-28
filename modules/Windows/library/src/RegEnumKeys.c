@@ -55,15 +55,20 @@ static pmath_t enum_subkeys(HKEY key, pmath_string_t key_path) {
 
 pmath_t windows_RegEnumKeys(pmath_expr_t expr) {
   /*  Windows`RegEnumKeys(keyName)
+      
+      options:
+        Win64Version -> Automatic (or True or False)
    */
   pmath_string_t key_name;
   pmath_string_t sub_key_name;
+  pmath_expr_t options;
   const wchar_t *sub_key_name_buf;
   HKEY root;
   HKEY key;
   DWORD error_code;
+  REGSAM desired_access = KEY_READ;
   
-  if(pmath_expr_length(expr) != 1) {
+  if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     return expr;
   }
@@ -87,7 +92,16 @@ pmath_t windows_RegEnumKeys(pmath_expr_t expr) {
     return expr;
   }
   
-  error_code = RegOpenKeyExW(root, sub_key_name_buf, 0, KEY_READ, &key);
+  options = pmath_options_extract(expr, 1);
+  if(!registry_set_wow64_access_option(&desired_access, options)) {
+    pmath_unref(key_name);
+    pmath_unref(sub_key_name);
+    pmath_unref(options);
+    return expr;
+  }
+  pmath_unref(options);
+  
+  error_code = RegOpenKeyExW(root, sub_key_name_buf, 0, desired_access, &key);
   pmath_unref(sub_key_name);
   
   pmath_unref(expr);

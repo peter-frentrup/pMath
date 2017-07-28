@@ -6,6 +6,7 @@ Windows`SHGetKnownFolderPath
 Windows`RegGetValue
 Windows`RegEnumKeys
 Windows`RegEnumValues
+Windows`Win64Version
 
 Begin("Windows`Private`")
 
