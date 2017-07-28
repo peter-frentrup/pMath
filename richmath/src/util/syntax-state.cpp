@@ -15,6 +15,7 @@ SharedPtr<GeneralSyntaxInfo> GeneralSyntaxInfo::std;
 GeneralSyntaxInfo::GeneralSyntaxInfo()
   : Shareable()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   memset(&glyph_style_colors, 0, sizeof(glyph_style_colors));
   
   glyph_style_colors[GlyphStyleImplicit]           = 0x999999;
@@ -74,6 +75,7 @@ SymbolInfo::SymbolInfo(
     pos(_pos ? _pos : dummy_pos),
     next(_next)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 SymbolInfo::~SymbolInfo() {
@@ -124,7 +126,7 @@ class SyntaxInformationImpl {
     void init_local_variables(Expr value) {
       if( !value.is_expr() || value.expr_length() != 2 || value[0] != PMATH_SYMBOL_LIST)
         return;
-      
+        
       String form(value[1]);
       if(form.equals("Function"))
         self.locals_form = FunctionSpec;

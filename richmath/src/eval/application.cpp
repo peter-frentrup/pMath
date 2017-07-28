@@ -91,6 +91,7 @@ namespace {
         : Shareable(),
           next(_next)
       {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
       }
       
     public:
@@ -1692,7 +1693,7 @@ namespace {
         String str = text.to_string();
         const uint16_t *buf = str.buffer();
         const int len = str.length();
-        for(int i = 0;i < len;++i) {
+        for(int i = 0; i < len; ++i) {
           if(buf[i] == L'\n')
             return str.part(0, i);
         }
@@ -1747,7 +1748,7 @@ namespace {
               title = String("untitled");
             initialfile = title + ".pmathdoc";
           }
-            
+          
           Expr filter = List(
                           Rule(String("pMath Documents (*.pmathdoc)"), String("*.pmathdoc"))/*,
                     Rule(String("All Files (*.*)"),              String("*.*"))*/);

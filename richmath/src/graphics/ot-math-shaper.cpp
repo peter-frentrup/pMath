@@ -201,6 +201,8 @@ OTMathShaperDB::OTMathShaperDB()
   : Shareable(),
     fi(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   private_characters.default_value = 0;
   alt_glyphs.default_value = 0;
   italics_correction.default_value = 0;
@@ -707,6 +709,8 @@ OTMathShaper::OTMathShaper(SharedPtr<OTMathShaperDB> _db, FontStyle _style)
     style(_style),
     fi(text_shaper->font(0))
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   text_shaper->add_default();
 }
 

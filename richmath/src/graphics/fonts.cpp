@@ -70,6 +70,7 @@ class PrivateWin32Font: public Shareable {
         filename(0),
         next(_next)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
     }
     
     ~PrivateWin32Font() {
@@ -133,12 +134,12 @@ class PangoSettings {
 //#ifdef WIN32
 //      {
 //        char system_font_dir[PATH_MAX];
-//        
+//
 //        if(FAILED(SHGetFolderPathA(nullptr, CSIDL_FONTS, nullptr, SHGFP_TYPE_CURRENT, system_font_dir))) {
 //          fprintf(stderr, "SHGetFolderPathA failed. Using \n");
 //          strcpy(system_font_dir, "C:\\Windows\\Fonts");
 //        }
-//        
+//
 //        FcConfigAppFontAddDir(nullptr, (const FcChar8*)system_font_dir);
 //      }
 //#endif
@@ -309,6 +310,8 @@ class richmath::FontInfoPrivate: public Shareable {
         scaled_font(0),
         gsub_table_data(0)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
+      
       static_canvas.canvas->set_font_face(font.cairo());
       scaled_font = cairo_scaled_font_reference(
                       cairo_get_scaled_font(
@@ -333,13 +336,14 @@ FontInfo::FontInfo(FontFace font)
   : Base(),
     priv(new FontInfoPrivate(font))
 {
-
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 FontInfo::FontInfo(FontInfo &src)
   : Base(),
     priv(src.priv)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   src.priv->ref();
 }
 
@@ -431,9 +435,9 @@ bool FontInfo::add_private_font(String filename) {
 #elif defined(RICHMATH_USE_FT_FONT)
   {
     char *file = pmath_string_to_utf8(filename.get(), nullptr);
-    
+  
     FcBool result = FcConfigAppFontAddFile(nullptr, (const FcChar8 *)file);
-    
+  
     pmath_mem_free(file);
     return result;
   }

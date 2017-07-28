@@ -19,6 +19,7 @@ using namespace richmath;
 PaintHook::PaintHook()
   : Shareable()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 //} ... class PaintHook

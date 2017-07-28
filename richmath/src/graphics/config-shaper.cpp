@@ -10,6 +10,7 @@
 #include <util/style.h>
 #include <util/syntax-state.h>
 
+
 using namespace richmath;
 
 static uint8_t expr_to_ui8(const Expr expr, uint8_t def = 0) {
@@ -57,6 +58,8 @@ static uint32_t expr_to_char(const Expr expr) {
 class GlyphGetter: public Base {
   public:
     GlyphGetter() {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
+      
       surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
       cr = cairo_create(surface);
       
@@ -93,6 +96,11 @@ class GlyphGetter: public Base {
       }
       
       return expr_to_ui16(expr);
+    }
+    
+    void clear() {
+      for(int i = 0; i < FontsPerGlyphCount; ++i)
+        ps2g[i].clear();
     }
     
   public:
@@ -168,6 +176,8 @@ ScriptIndent::ScriptIndent(Expr expr)
 Hashtable<String, SharedPtr<ConfigShaperDB> > ConfigShaperDB::registered;
 
 ConfigShaperDB::ConfigShaperDB(): Shareable() {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   script_size_multipliers.length(1, 0.71f);
   radical.small_glyphs.length(1, SmallRadicalGlyph(0, 0, 0, 0, 0));
 }
@@ -177,7 +187,7 @@ ConfigShaperDB::~ConfigShaperDB() {
 
 void ConfigShaperDB::clear_cache() {
   for(int i = 0; i < FontStyle::Permutations; ++i)
-    shapers[i] = 0;
+    shapers[i] = nullptr;
 }
 
 void ConfigShaperDB::clear_all() {
@@ -192,8 +202,7 @@ void ConfigShaperDB::clear_all() {
   
   registered.clear();
   
-  for(int i = 0; i < (int)(sizeof(GG.ps2g) / sizeof(GG.ps2g[0])); ++i)
-    GG.ps2g[i].clear();
+  GG.clear();
 }
 
 bool ConfigShaperDB::verify() {
@@ -437,9 +446,7 @@ static String find_font(Expr name) {
 SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
   SharedPtr<ConfigShaperDB> db = new ConfigShaperDB();
   
-  for(int i = 0; i < (int)(sizeof(GG.ps2g) / sizeof(GG.ps2g[0])); ++i)
-    GG.ps2g[i].clear();
-    
+  GG.clear();
   for(size_t i = 1; i <= expr.expr_length(); ++i) {
     if(expr[i].is_rule()) {
       String lhs = expr[i][1];
@@ -865,6 +872,8 @@ ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperDB> _db, FontStyle _style)
     math_font_faces(_db->math_fontnames.length()),
     style(_style)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   for(int i = 1; i < db->text_fontnames.length(); ++i)
     text_shaper->add(TextShaper::find(db->text_fontnames[i], style));
     
@@ -1306,7 +1315,7 @@ void ConfigShaper::script_corrections(
     key = (3 << 30) | base_char;
   else
     key = (uint32_t)base_info.index | (((uint32_t)base_info.fontinfo) << 16);
-  
+    
   if(ScriptIndent *si = db->script_indents.search(key)) {
     *super_x += si->super  * GlyphFontOffset::EmPerOffset * em;
 //    *center+= si->center * GlyphFontOffset::EmPerOffset * em;

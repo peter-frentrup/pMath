@@ -11,7 +11,7 @@ namespace richmath {
      The constructor of T should set its reference counter to 1. */
   template<class T> class SharedPtr {
     public:
-      SharedPtr(T *ptr = 0)
+      SharedPtr(T *ptr = nullptr)
         : _ptr(ptr)
       {
       }

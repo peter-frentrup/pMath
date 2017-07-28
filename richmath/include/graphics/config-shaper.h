@@ -53,13 +53,13 @@ namespace richmath {
     public:
       ComposedGlyph()
         : top(0),
-        bottom(0),
-        middle(0),
-        special_center(0),
-        upper(0),
-        lower(0),
-        tbms_font(0),
-        ul_font(0)
+          bottom(0),
+          middle(0),
+          special_center(0),
+          upper(0),
+          lower(0),
+          tbms_font(0),
+          ul_font(0)
       {
       }
       
@@ -117,34 +117,23 @@ namespace richmath {
       SharedPtr<ConfigShaper> shapers[FontStyle::Permutations];
       
     public:
-      Hashtable <
-      uint32_t,
-      GlyphFontOffset,
-      cast_hash > char_to_glyph_map;
+      Hashtable<uint32_t, GlyphFontOffset, cast_hash>
+      char_to_glyph_map;
       
-      Hashtable <
-      String,
-      Array<GlyphFontOffset> > ligatures;
+      Hashtable<String, Array<GlyphFontOffset> > 
+      ligatures;
       
-      Hashtable <
-      uint32_t,
-      Array<GlyphFontOffset>,
-      cast_hash > complex_glyphs;
+      Hashtable<uint32_t, Array<GlyphFontOffset>, cast_hash> 
+      complex_glyphs;
       
-      Hashtable <
-      uint32_t,
-      StretchGlyphArray,
-      cast_hash > stretched_glyphs;
+      Hashtable<uint32_t, StretchGlyphArray, cast_hash>
+      stretched_glyphs;
       
-      Hashtable <
-      uint32_t,
-      ComposedGlyph,
-      cast_hash > composed_glyphs;
+      Hashtable<uint32_t, ComposedGlyph, cast_hash>
+      composed_glyphs;
       
-      Hashtable <
-      uint32_t,
-      ScriptIndent,
-      cast_hash > script_indents;
+      Hashtable<uint32_t, ScriptIndent, cast_hash>
+      script_indents;
       
       Array<float> script_size_multipliers;
       

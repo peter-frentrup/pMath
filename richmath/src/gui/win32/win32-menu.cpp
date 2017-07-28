@@ -133,6 +133,8 @@ SharedPtr<Win32Menu>  Win32Menu::popup_menu;
 Win32Menu::Win32Menu(Expr expr, bool is_popup)
   : Shareable()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   add_remove_menu(1);
   _hmenu = create_menu(expr, is_popup);
 }
@@ -442,6 +444,8 @@ SharedPtr<Win32AcceleratorTable>  Win32AcceleratorTable::main_table;
 Win32AcceleratorTable::Win32AcceleratorTable(Expr expr)
   : Shareable()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   add_remove_menu(+1);
   _haccel = create_accel(expr);
 }
