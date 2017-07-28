@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <cstdio>
-#include <inttypes.h>
 
 #include <new>         // placement new
 #include <type_traits> // aligned_storage
@@ -30,11 +29,11 @@ namespace richmath {
       }
       ~BaseDebugImpl() {
         if(pmath_atomic_read_aquire(&count) != 0) {
-          printf("%" PRIdPTR " OBJECTS NOT FREED\n", pmath_atomic_read_aquire(&count));
+          printf("%d OBJECTS NOT FREED\n", (int)pmath_atomic_read_aquire(&count));
           
           Base *obj = non_freed_objects_list;
           for(int max_count = 10; obj && max_count > 0; --max_count, obj = obj->debug_next) {
-            printf("  AT %p (time %" PRIdPTR "): %s\n", obj, obj->debug_alloc_time, obj->debug_tag);
+            printf("  AT %p (time %d): %s\n", obj, (int)obj->debug_alloc_time, obj->debug_tag);
           }
           if(obj)
             printf("  ...and more\n");

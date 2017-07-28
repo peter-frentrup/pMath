@@ -1297,7 +1297,7 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
 
 //} ... menu commands
 
-static pmath_symbol_t fe_symbols[FESymbolIndex::FrontEndSymbolsCount];
+static pmath_symbol_t fe_symbols[(int)FESymbolIndex::FrontEndSymbolsCount];
 
 bool richmath::init_bindings() {
   Application::register_menucommand(String("New"),                        new_cmd);

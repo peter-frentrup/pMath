@@ -3,6 +3,7 @@
 #include <graphics/ot-math-shaper.h>
 
 #include <cmath>
+#include <cstdio>
 
 #include <boxes/mathsequence.h>
 
