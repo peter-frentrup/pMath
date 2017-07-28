@@ -25,6 +25,7 @@ TextBuffer::TextBuffer(char *buf, int len)
     _length(len),
     _buffer(buf)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   if(len < 0) {
     _capacity = _length = strlen(buf);
   }

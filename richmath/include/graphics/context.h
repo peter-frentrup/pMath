@@ -24,9 +24,9 @@ namespace richmath {
       void draw_error_rect(
         float x1,
         float y1,
-        float x2, 
+        float x2,
         float y2);
-      
+        
       void draw_selection_path();
       
       float get_script_size(float oldem);
@@ -127,15 +127,16 @@ namespace richmath {
           _box(box),
           _context(context)
       {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
         _context->canvas->current_pos(&_x0, &_y0);
         _context->pre_paint_hooks.run(_box, _context);
       }
       
-      ~AutoCallPaintHooks(){
+      ~AutoCallPaintHooks() {
         _context->canvas->move_to(_x0, _y0);
         _context->post_paint_hooks.run(_box, _context);
       }
-    
+      
     private:
       float _x0, _y0;
       Box     *_box;

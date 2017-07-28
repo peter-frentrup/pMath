@@ -123,7 +123,11 @@ namespace richmath {
       static Hashtable<Expr, Expr, object_hash> eval_cache;
       
     private:
-      Application() {}
+      Application()
+        : Base()
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+      }
   };
 }
 

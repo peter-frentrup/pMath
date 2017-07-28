@@ -16,6 +16,7 @@ Dynamic::Dynamic()
   _owner(0),
   _synchronous_updating(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 Dynamic::Dynamic(Box *owner, Expr expr)
@@ -23,6 +24,7 @@ Dynamic::Dynamic(Box *owner, Expr expr)
   _owner(0),
   _synchronous_updating(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   init(owner, expr);
 }
 

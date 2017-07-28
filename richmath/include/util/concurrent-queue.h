@@ -21,9 +21,10 @@ namespace richmath {
     public:
       ConcurrentQueue()
         : Base(),
-        head(new Item),
-        tail(head)
+          head(new Item),
+          tail(head)
       {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
         pmath_atomic_write_release(&head_spin, 0);
         pmath_atomic_write_release(&tail_spin, 0);
       }

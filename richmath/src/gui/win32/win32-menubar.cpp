@@ -70,6 +70,8 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     current_item(0),
     next_item(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   INITCOMMONCONTROLSEX icex;
   icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
   icex.dwICC  = 0;//ICC_BAR_CLASSES;

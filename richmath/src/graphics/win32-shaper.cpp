@@ -16,8 +16,17 @@ using namespace richmath;
 
 class AutoDC: public Base {
   public:
-    AutoDC(HDC dc): handle(dc) {}
-    ~AutoDC() { DeleteDC(handle); }
+    AutoDC(HDC dc)
+      : Base(),
+        handle(dc)
+    {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
+    }
+    
+    ~AutoDC() {
+      DeleteDC(handle);
+    }
+    
     HDC handle;
 };
 
@@ -29,9 +38,9 @@ WindowsFontShaper::WindowsFontShaper(
   const String  &name,
   FontStyle      style)
   : TextShaper(),
-  _name(name),
-  _style(style),
-  _font(name, style)
+    _name(name),
+    _style(style),
+    _font(name, style)
 {
 }
 
@@ -114,7 +123,7 @@ void WindowsFontShaper::decode_token(
           result[i + 1].index = 0;
         }
         else {
-          result[i].index = result[i+1].index = UnknownGlyph;
+          result[i].index = result[i + 1].index = UnknownGlyph;
           result[i].right = 0.0;
         }
         

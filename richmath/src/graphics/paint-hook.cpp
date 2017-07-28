@@ -29,6 +29,7 @@ PaintHook::PaintHook()
 PaintHookManager::PaintHookManager()
   : Base()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 void PaintHookManager::clear() {

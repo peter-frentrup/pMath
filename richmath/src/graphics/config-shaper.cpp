@@ -57,7 +57,9 @@ static uint32_t expr_to_char(const Expr expr) {
 
 class GlyphGetter: public Base {
   public:
-    GlyphGetter() {
+    GlyphGetter()
+      : Base()
+    {
       SET_BASE_DEBUG_TAG(typeid(*this).name());
       
       surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);

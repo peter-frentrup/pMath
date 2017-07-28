@@ -84,6 +84,8 @@ NativeWidget::NativeWidget(Document *doc)
     _dpi(96),
     _document(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   adopt(doc);
 }
 

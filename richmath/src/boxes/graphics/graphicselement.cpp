@@ -88,6 +88,7 @@ void GraphicsBounds::add_point(double elem_x, double elem_y) {
 GraphicsElement::GraphicsElement()
   : Base()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 GraphicsElement::~GraphicsElement() {

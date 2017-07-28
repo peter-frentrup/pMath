@@ -16,7 +16,8 @@ using namespace richmath;
 //{ class Context ...
 
 Context::Context()
-  : canvas(0),
+  : Base(),
+    canvas(0),
     width(HUGE_VAL),
     section_content_window_width(HUGE_VAL),
     sequence_unfilled_width(0),
@@ -36,6 +37,8 @@ Context::Context()
     clicked_box_id(0),
     active(true)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   script_size_multis.length(1, 0.71f);
 }
 
@@ -360,7 +363,7 @@ void ContextState::begin(SharedPtr<Style> style) {
             if(FontInfo::font_exists(s)) {
               if(--max_fallbacks == 0)
                 break;
-              
+                
               if(fts)
                 fts->add(TextShaper::find(s, fs));
               else
@@ -368,7 +371,7 @@ void ContextState::begin(SharedPtr<Style> style) {
             }
           }
           
-          if(fts){
+          if(fts) {
             fts->add(ctx->math_shaper);
             ctx->text_shaper = fts;
           }
@@ -426,8 +429,8 @@ void ContextState::end() {
     
   if(old_script_size_multis.length() > 0)
     old_script_size_multis.swap(ctx->script_size_multis);
-  
-  if(have_font_feature_set){
+    
+  if(have_font_feature_set) {
     ctx->fontfeatures.clear();
     ctx->fontfeatures.add(old_font_feature_set);
   }

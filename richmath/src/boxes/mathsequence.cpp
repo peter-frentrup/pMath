@@ -905,7 +905,7 @@ namespace richmath {
           
           FontFace face = shaper->font(self.glyphs[run_start].fontinfo);
           FontInfo info(face);
-
+          
           if(const auto gsub = info.get_gsub_table()) {
             static Array<OTFontReshaper::IndexAndValue> lookups;
             lookups.length(0);
@@ -1102,7 +1102,7 @@ namespace richmath {
               if(!pmath_char_is_integral(buf[token_end]))
                 return;
             }
-              
+            
             if(buf[token_end] == PMATH_CHAR_BOX)
               return;
               
@@ -1289,7 +1289,7 @@ namespace richmath {
               return pos + 1;
             for(;;) {
               Span next = span.next();
-              if(!next) 
+              if(!next)
                 return span.end();
               span = next;
             }
@@ -1728,7 +1728,7 @@ namespace richmath {
       int fill_block_body_penalty_array(Span span, int depth, int pos, int *box) {
         if(!span)
           return fill_penalty_array(span, depth, pos, box);
-        
+          
         int next = fill_penalty_array(span, depth, pos, box);
         
         const uint16_t *buf = self.str.buffer();
@@ -1991,7 +1991,7 @@ namespace richmath {
           indention_array[next - 1] = MAX(0, depth - 1);
         }
         else if(buf[next - 1] == ')') {
-          /* Unindent closing parenthesis of a block header. 
+          /* Unindent closing parenthesis of a block header.
                If(
                  cond
                ) {
@@ -2244,14 +2244,14 @@ namespace richmath {
           if(self.lines[line].end > 0 && buf[self.lines[line].end - 1] == PMATH_CHAR_BOX) {
             while(self.boxes[box]->index() < self.lines[line].end - 1)
               ++box;
-            
+              
             if(auto fb = dynamic_cast<FillBox *>(self.boxes[box])) {
-              if( buf[self.lines[line].end] == PMATH_CHAR_BOX && 
+              if( buf[self.lines[line].end] == PMATH_CHAR_BOX &&
                   dynamic_cast<FillBox *>(self.boxes[box + 1]))
               {
                 continue;
               }
-
+              
               float w = self.glyphs[self.lines[line + 1].end - 1].right - self.glyphs[self.lines[line].end - 1].right;
               
               if(fb->extents().width + w + self.indention_width(self.lines[line + 1].indent) <= context->width) {
@@ -2608,25 +2608,25 @@ void MathSequence::paint(Context *context) {
       for(; line < lines.length() && y < clip_y2; ++line) {
         float x_extra = x0 + indention_width(lines[line].indent);
         
-        #ifndef NDEBUG
+#ifndef NDEBUG
         {
           int old_color = context->canvas->get_color();
           context->canvas->save();
           context->canvas->set_color(0x808080);
-
-          for(int i = 0;i < lines[line].indent;++i) {
+          
+          for(int i = 0; i < lines[line].indent; ++i) {
             context->canvas->move_to(
               x0 + i * (x_extra - x0) / lines[line].indent,
               y + lines[line].ascent);
             context->canvas->rel_line_to(0, -0.75);
           }
           context->canvas->stroke();
-
+          
           context->canvas->set_color(old_color);
           context->canvas->restore();
         }
-        #endif
-
+#endif
+        
         if(pos > 0)
           x_extra -= glyphs[pos - 1].right;
           
@@ -3735,6 +3735,7 @@ class SpanSynchronizer: public Base {
       new_pos(         0),
       new_next_box(    0)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
     }
     
     bool is_in_range() {

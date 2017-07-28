@@ -20,18 +20,22 @@ DeviceKind Win32Touch::get_mouse_message_source(int *id, LPARAM messageExtraInfo
   // Distinguishing Pen Input from Mouse and Touch
   if(id)
     *id = (messageExtraInfo & 0x7F);
-  
+    
   bool isPenOrTouch = (messageExtraInfo & 0xFFFFFF00) == 0xFF515700;
   bool isTouch = isPenOrTouch && ((messageExtraInfo & 0x80) != 0);
   
-  return isPenOrTouch ? (isTouch ? DeviceKind::Touch : DeviceKind::Pen) : DeviceKind::Mouse; 
+  return isPenOrTouch ? (isTouch ? DeviceKind::Touch : DeviceKind::Pen) : DeviceKind::Mouse;
 }
 
 void Win32Touch::init() {
   static Win32Touch w;
 }
 
-Win32Touch::Win32Touch(): Base() {
+Win32Touch::Win32Touch()
+  : Base()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   user32 = LoadLibrary("user32.dll");
   if(user32) {
     GetGestureInfo = (BOOL (WINAPI *)(HANDLE, PGESTUREINFO))
@@ -39,22 +43,22 @@ Win32Touch::Win32Touch(): Base() {
                      
     CloseGestureInfoHandle = (BOOL (WINAPI *)(HANDLE))
                              GetProcAddress(user32, "CloseGestureInfoHandle");
-    
+                             
     SetGestureConfig = (BOOL (WINAPI *)(HWND, DWORD, UINT, PGESTURECONFIG, UINT))
                        GetProcAddress(user32, "SetGestureConfig");
-    
+                       
     GetGestureConfig = (BOOL (WINAPI *)(HWND, DWORD, DWORD, PUINT, PGESTURECONFIG, UINT))
                        GetProcAddress(user32, "GetGestureConfig");
-    
+                       
     RegisterTouchWindow = (BOOL (WINAPI *)(HWND, ULONG))
                           GetProcAddress(user32, "RegisterTouchWindow");
                           
     UnregisterTouchWindow = (BOOL (WINAPI *)(HWND))
                             GetProcAddress(user32, "UnregisterTouchWindow");
-                          
+                            
     GetTouchInputInfo = (BOOL (WINAPI *)(HANDLE, UINT, PTOUCHINPUT, int))
                         GetProcAddress(user32, "GetTouchInputInfo");
-                          
+                        
     CloseTouchInputHandle = (BOOL (WINAPI *)(HANDLE))
                             GetProcAddress(user32, "CloseTouchInputHandle");
   }

@@ -251,8 +251,10 @@ namespace {
       }
   };
   
-  class StyleInformation: public Base {
+  class StyleInformation {
     public:
+      StyleInformation() = delete;
+
       static void add_style() {
         if(_num_styles++ == 0) {
           _name_to_key.default_value = -1;

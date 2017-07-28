@@ -1398,6 +1398,7 @@ ScopeColorizer::ScopeColorizer(MathSequence *_sequence)
   : Base(),
     sequence(_sequence)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 void ScopeColorizer::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se) {

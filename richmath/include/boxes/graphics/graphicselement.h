@@ -19,6 +19,7 @@ namespace richmath {
           box(_box),
           ctx(_ctx)
       {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
       }
       
     public:

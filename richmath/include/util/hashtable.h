@@ -63,8 +63,8 @@ namespace richmath {
   template<typename K> Void Entry<K, Void>::value;
   
   template < typename K,
-           typename V,
-           unsigned int (*hash_function)(const K &key) = object_hash >
+             typename V,
+             unsigned int (*hash_function)(const K &key) = object_hash >
   class Hashtable: public Base {
     private:
       static const unsigned int MINSIZE = 8; // power of 2, >= 2
@@ -159,7 +159,11 @@ namespace richmath {
       }
       
     public:
-      Hashtable() {
+      Hashtable()
+        : Base()
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+        
         nonnull_count = 0;
         used_count    = 0;
         capacity      = MINSIZE;

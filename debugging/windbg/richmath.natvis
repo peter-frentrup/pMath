@@ -89,4 +89,21 @@
 			</Synthetic>
 		</Expand>
 	</Type>
+
+	<Type Name="richmath::BaseDebugImpl">
+		<DisplayString>{{ {count._data} live objects }}</DisplayString>
+		<Expand>
+			<Item Name="count">count._data</Item>
+			<LinkedListItems>
+				<Size>count._data</Size>
+				<HeadPointer>non_freed_objects_list</HeadPointer>
+				<NextPointer>debug_next</NextPointer>
+				<ValueNode>this</ValueNode>
+			</LinkedListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::Base">
+		<DisplayString>{{ {debug_tag,na} }}</DisplayString>
+	</Type>
 </AutoVisualizer>

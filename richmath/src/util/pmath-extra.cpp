@@ -120,8 +120,10 @@ Expr richmath::expand_string_boxes(String s) {
 //{ class SpanArray ...
 
 SpanArray::SpanArray(pmath_span_array_t *spans)
-  : _array(spans)
+  : Base(),
+    _array(spans)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 SpanArray::~SpanArray() {

@@ -215,6 +215,7 @@ SyntaxState::SyntaxState()
     in_pattern(false),
     in_function(false)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 SyntaxState::~SyntaxState() {

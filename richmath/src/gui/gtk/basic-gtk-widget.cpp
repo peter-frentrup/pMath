@@ -21,6 +21,7 @@ BasicGtkWidget::BasicGtkWidget()
   _initializing(true),
   _destroying(false)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   add_remove_window(+1);
 }
 
