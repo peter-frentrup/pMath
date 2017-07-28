@@ -1840,14 +1840,16 @@ static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
 static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
   pmath_thread_t thread = pmath_thread_get_current();
   int base = 10;
+  slong max_digit_count;
+  int base_flags;
+  struct _pmath_number_string_parts_t parts;
+  pmath_bool_t show_radius_and_precision = FALSE;
   
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
     base = thread->numberbase;
     
-  slong max_digit_count = (int)(PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(base) + 2);
-  int base_flags = base;
-  struct _pmath_number_string_parts_t parts;
-  pmath_bool_t show_radius_and_precision = FALSE;
+  max_digit_count = (int)(PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(base) + 2);
+  base_flags = base;
   
   if(info->options & PMATH_WRITE_OPTIONS_FULLEXPR) {
     // changing base

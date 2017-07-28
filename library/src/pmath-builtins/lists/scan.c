@@ -104,13 +104,6 @@ PMATH_PRIVATE pmath_t builtin_scan(pmath_expr_t expr) {
   pmath_unref(expr);
   if(_pmath_scan(&info, obj, 0)) {
     pmath_unref(info.function);
-    
-    if(pmath_is_expr_of_len(info.result, PMATH_SYMBOL_RETURN, 1)) {
-      pmath_t r = pmath_expr_get_item(info.result, 1);
-      
-      pmath_unref(info.result);
-      return r;
-    }
     return info.result;
   }
   
