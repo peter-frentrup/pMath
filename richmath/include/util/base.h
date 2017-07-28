@@ -23,7 +23,8 @@ namespace richmath {
 #ifdef RICHMATH_DEBUG_MEMORY
       friend class BaseDebugImpl;
     private:
-      const char *debug_tag;
+      const char   *debug_tag;
+      intptr_t      debug_alloc_time;
       mutable Base *debug_prev;
       mutable Base *debug_next;
     protected:

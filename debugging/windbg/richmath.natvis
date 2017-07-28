@@ -104,6 +104,6 @@
 	</Type>
 
 	<Type Name="richmath::Base">
-		<DisplayString>{{ {debug_tag,na} }}</DisplayString>
+		<DisplayString>{{ t={debug_alloc_time} {debug_tag,na} }}</DisplayString>
 	</Type>
 </AutoVisualizer>

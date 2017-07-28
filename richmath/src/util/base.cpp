@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstdio>
+#include <inttypes.h>
 
 #include <new>         // placement new
 #include <type_traits> // aligned_storage
@@ -24,15 +25,16 @@ namespace richmath {
       BaseDebugImpl() {
         pmath_atomic_write_release(&count, 0);
         pmath_atomic_write_release(&lock, 0);
+        pmath_atomic_write_release(&timer, 0);
         non_freed_objects_list = nullptr;
       }
       ~BaseDebugImpl() {
         if(pmath_atomic_read_aquire(&count) != 0) {
-          printf("%d OBJECTS NOT FREED\n", (int)pmath_atomic_read_aquire(&count));
+          printf("%" PRIdPTR " OBJECTS NOT FREED\n", pmath_atomic_read_aquire(&count));
           
           Base *obj = non_freed_objects_list;
           for(int max_count = 10; obj && max_count > 0; --max_count, obj = obj->debug_next) {
-            printf("  AT %p: %s\n", obj, obj->debug_tag);
+            printf("  AT %p (time %" PRIdPTR "): %s\n", obj, obj->debug_alloc_time, obj->debug_tag);
           }
           if(obj)
             printf("  ...and more\n");
@@ -41,6 +43,7 @@ namespace richmath {
       
       pmath_atomic_t count;
       pmath_atomic_t lock;
+      pmath_atomic_t timer;
       Base *non_freed_objects_list;
   };
 }
@@ -98,6 +101,7 @@ BaseInitializer::~BaseInitializer() {
 Base::Base() {
 #ifdef RICHMATH_DEBUG_MEMORY
   SET_BASE_DEBUG_TAG(typeid(*this).name());
+  debug_alloc_time = pmath_atomic_fetch_add(&TheCounter.timer, 1);
   
   (void)pmath_atomic_fetch_add(&TheCounter.count, 1);
   {
