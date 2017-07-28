@@ -10,6 +10,8 @@
 #define EQUAL_IGNORECASE(BUF, LEN, STR) \
   (CSTR_EQUAL == CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE, BUF, LEN, STR, sizeof(STR)/sizeof(STR[0])))
 
+extern const pmath_symbol_t *Windows_Win64Version;
+
 
 pmath_string_t registry_split_subkey(HKEY *out_base, pmath_string_t fullname) {
   const wchar_t *buf = pmath_string_buffer(&fullname);
@@ -45,8 +47,55 @@ pmath_string_t registry_split_subkey(HKEY *out_base, pmath_string_t fullname) {
   
   if(i < len)
     ++i;
-  
+    
   return pmath_string_part(fullname, i, -1);
+}
+
+pmath_bool_t registry_set_wow64_access_option(REGSAM *inout_acces_rights, pmath_t options) {
+  pmath_t opt;
+  if(pmath_is_null(options))
+    return FALSE;
+    
+  opt = pmath_option_value(PMATH_NULL, *Windows_Win64Version, options);
+  
+  if(pmath_same(opt, PMATH_SYMBOL_TRUE)) {
+    *inout_acces_rights |= KEY_WOW64_64KEY;
+    pmath_unref(opt);
+    return TRUE;
+  }
+  
+  if(pmath_same(opt, PMATH_SYMBOL_FALSE)) {
+    *inout_acces_rights |= KEY_WOW64_32KEY;
+    pmath_unref(opt);
+    return TRUE;
+  }
+  
+  if(pmath_same(opt, PMATH_SYMBOL_AUTOMATIC)) {
+    pmath_unref(opt);
+    return TRUE;
+  }
+  
+  pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(*Windows_Win64Version), opt);
+  return FALSE;
+}
+
+static pmath_bool_t set_noexpand_flag(DWORD *inout_flags, pmath_t options) {
+  pmath_t opt;
+  if(pmath_is_null(options))
+    return FALSE;
+    
+  opt = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_EXPAND, options);
+  
+  if(pmath_same(opt, PMATH_SYMBOL_FALSE)) {
+    *inout_flags |= RRF_NOEXPAND;
+  }
+  else if(!pmath_same(opt, PMATH_SYMBOL_TRUE)) {
+    pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(PMATH_SYMBOL_EXPAND), opt);
+    return FALSE;
+  }
+  
+  pmath_unref(opt);
+  return TRUE;
 }
 
 static pmath_t binary_to_pmath(const uint8_t *data, DWORD size) {
@@ -65,7 +114,7 @@ static pmath_t reg_string_to_pmath(const wchar_t *str, DWORD size_in_bytes) {
   int len = (int)(size_in_bytes / sizeof(wchar_t));
   if(len > 0 && str[len - 1] == L'\0')
     --len;
-  
+    
   return pmath_string_insert_ucs2(PMATH_NULL, 0, str, len);
 }
 
@@ -81,11 +130,11 @@ static pmath_t stringlist_to_pmath(const wchar_t *str, DWORD size_in_bytes) {
     
     if(str + 2 == end && !str[0] && !str[1])
       break;
-    
+      
     next = str;
     while(next != end && *next)
       ++next;
-    
+      
     substring = pmath_string_insert_ucs2(PMATH_NULL, 0, str, (int)(next - str));
     pmath_emit(substring, PMATH_NULL);
     
@@ -133,13 +182,20 @@ static pmath_t reg_data_to_pmath(DWORD type, const void *data, DWORD size) {
 
 pmath_t windows_RegGetValue(pmath_expr_t expr) {
   /*  Windows`RegGetValue(keyName, valueName)
+  
+      options:
+        Expand -> True
+        Win64Version -> Automatic (or True or False)
    */
   pmath_string_t key_name;
   pmath_string_t value_name;
+  pmath_t options;
   const wchar_t *key_name_buf;
   const wchar_t *value_name_buf;
   HKEY root;
-  DWORD flags;
+  HKEY key;
+  REGSAM desired_access = KEY_QUERY_VALUE;
+  DWORD flags = RRF_RT_ANY;
   DWORD type;
   void *data;
   char default_data[8];
@@ -147,7 +203,7 @@ pmath_t windows_RegGetValue(pmath_expr_t expr) {
   LONG error_code;
   
   size_t exprlen = pmath_expr_length(expr);
-  if(exprlen != 2) {
+  if(exprlen < 2) {
     pmath_message_argxxx(exprlen, 2, 2);
     return expr;
   }
@@ -182,11 +238,28 @@ pmath_t windows_RegGetValue(pmath_expr_t expr) {
     return expr;
   }
   
-  flags = RRF_RT_ANY;
+  options = pmath_options_extract(expr, 2);
+  if( !registry_set_wow64_access_option(&desired_access, options) ||
+      !set_noexpand_flag(&flags, options))
+  {
+    pmath_unref(key_name);
+    pmath_unref(value_name);
+    pmath_unref(options);
+    return expr;
+  }
+  pmath_unref(options);
   
   data = default_data;
+  
+  /* Since RRF_SUBKEY_WOW6464KEY and RRF_SUBKEY_WOW6432KEY are Windows 10 only, we have to open the
+     key manually with KEY_WOW64_64KEY or KEY_WOW64_32KEY access.
+   */
+  error_code = RegOpenKeyExW(root, key_name_buf, 0, desired_access, &key);
+  if(!check_succeeded_win32(error_code))
+    goto FAIL_OPENKEY;
+    
   required_size = sizeof(default_data);
-  error_code = RegGetValueW(root, key_name_buf, value_name_buf, flags, &type, data, &required_size);
+  error_code = RegGetValueW(key, NULL, value_name_buf, flags, &type, data, &required_size);
   if(error_code == ERROR_MORE_DATA) {
     DWORD size;
     if(root == HKEY_PERFORMANCE_DATA)
@@ -197,7 +270,7 @@ pmath_t windows_RegGetValue(pmath_expr_t expr) {
     data = pmath_mem_alloc(size);
     while(data && !pmath_aborting()) {
       required_size = size;
-      error_code = RegGetValueW(root, key_name_buf, value_name_buf, flags, &type, data, &required_size);
+      error_code = RegGetValueW(key, NULL, value_name_buf, flags, &type, data, &required_size);
       if(error_code != ERROR_MORE_DATA)
         break;
         
@@ -206,15 +279,10 @@ pmath_t windows_RegGetValue(pmath_expr_t expr) {
     }
   }
   
-  if(!check_succeeded_win32(error_code)) {
-    pmath_unref(key_name);
-    pmath_unref(value_name);
-    pmath_unref(expr);
-    if(data != default_data)
-      pmath_mem_free(data);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
-  }
-  
+  if(!check_succeeded_win32(error_code))
+    goto FAIL_GETVALUE;
+    
+  RegCloseKey(key);
   pmath_unref(expr);
   
   expr = reg_data_to_pmath(type, data, required_size);
@@ -225,4 +293,14 @@ pmath_t windows_RegGetValue(pmath_expr_t expr) {
     pmath_mem_free(data);
     
   return expr;
+  
+FAIL_GETVALUE:
+  RegCloseKey(key);
+FAIL_OPENKEY:
+  pmath_unref(expr);
+  pmath_unref(key_name);
+  pmath_unref(value_name);
+  if(data != default_data)
+    pmath_mem_free(data);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
 }

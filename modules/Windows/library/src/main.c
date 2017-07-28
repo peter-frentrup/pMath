@@ -22,6 +22,17 @@ static void free_all(pmath_symbol_t *start, size_t size) {
   }
 }
 
+static struct {
+  pmath_symbol_t Windows_SHGetKnownFolderPath;
+  pmath_symbol_t Windows_Private_GetAllKnownFolders;
+  pmath_symbol_t Windows_RegGetValue;
+  pmath_symbol_t Windows_RegEnumKeys;
+  pmath_symbol_t Windows_RegEnumValues;
+  pmath_symbol_t Windows_Win64Version;
+} symbols;
+
+const pmath_symbol_t *Windows_Win64Version = &symbols.Windows_Win64Version;
+
 PMATH_MODULE
 pmath_bool_t pmath_module_init(pmath_string_t filename) {
 #define VERIFY(x)             do{ if(pmath_is_null(x)) goto FAIL; }while(0)
@@ -30,13 +41,6 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
 #define BIND(sym, func, use)  do{ if(!pmath_register_code((sym), (func), (use))) goto FAIL; }while(0)
 #define BIND_DOWN(sym, func)  BIND((sym), (func), PMATH_CODE_USAGE_DOWNCALL)
 
-  struct {
-    pmath_symbol_t Windows_SHGetKnownFolderPath;
-    pmath_symbol_t Windows_Private_GetAllKnownFolders;
-    pmath_symbol_t Windows_RegGetValue;
-    pmath_symbol_t Windows_RegEnumKeys;
-    pmath_symbol_t Windows_RegEnumValues;
-  } symbols;
   memset(&symbols, 0, sizeof(symbols));
   
   //if(FAILED(CoInitializeEx(NULL, ...)))
@@ -46,6 +50,7 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
   VERIFY( symbols.Windows_RegGetValue                 = NEW_SYMBOL("Windows`RegGetValue"));
   VERIFY( symbols.Windows_RegEnumKeys                 = NEW_SYMBOL("Windows`RegEnumKeys"));
   VERIFY( symbols.Windows_RegEnumValues               = NEW_SYMBOL("Windows`RegEnumValues"));
+  VERIFY( symbols.Windows_Win64Version                = NEW_SYMBOL("Windows`Win64Version"));
   
   BIND_DOWN(symbols.Windows_SHGetKnownFolderPath,       windows_SHGetKnownFolderPath);
   BIND_DOWN(symbols.Windows_Private_GetAllKnownFolders, windows_GetAllKnownFolders);
@@ -54,10 +59,16 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
   BIND_DOWN(symbols.Windows_RegEnumValues,              windows_RegEnumValues);
   
   PMATH_RUN("Windows`$KnownFolders::= Windows`Private`GetAllKnownFolders()");
-  PMATH_RUN("Options(Windows`SHGetKnownFolderPath)::= {CreateDirectory->False}");
+  PMATH_RUN("Options(Windows`SHGetKnownFolderPath):= {CreateDirectory->False}");
+  PMATH_RUN(
+    "Options(Windows`RegGetValue):="
+    "{Windows`Win64Version->Automatic,Expand->True}");
+  PMATH_RUN(
+    "Options(Windows`RegEnumKeys):="
+    "Options(Windows`RegEnumValues):="
+    "{Windows`Win64Version->Automatic}");
   
   protect_all((pmath_symbol_t*)&symbols, sizeof(symbols));
-  free_all((pmath_symbol_t*)&symbols, sizeof(symbols));
   return TRUE;
   
 FAIL:
@@ -72,4 +83,5 @@ FAIL:
 
 PMATH_MODULE
 void pmath_module_done(void) {
+  free_all((pmath_symbol_t*)&symbols, sizeof(symbols));
 }

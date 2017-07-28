@@ -11,5 +11,6 @@
  */
 extern pmath_string_t registry_split_subkey(HKEY *out_base, pmath_string_t fullname);
 
+extern pmath_bool_t registry_set_wow64_access_option(REGSAM *inout_acces_rights, pmath_t options);
 
 #endif // __PMATH_WINDOWS__REGISTRY_H__
