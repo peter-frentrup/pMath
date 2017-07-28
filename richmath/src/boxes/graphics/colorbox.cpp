@@ -41,7 +41,7 @@ void ColorBox::paint(GraphicsBoxContext *context) {
   context->ctx->canvas->set_color(_color);
 }
 
-Expr ColorBox::to_pmath(int flags) {
+Expr ColorBox::to_pmath(BoxFlags flags) {
   return color_to_pmath(_color);
 }
 

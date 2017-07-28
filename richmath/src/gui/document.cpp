@@ -2926,9 +2926,9 @@ String Document::copy_to_text(String mimetype) {
     return String();
   }
   
-  int flags = BoxFlagDefault;
+  BoxFlags flags = BoxFlags::Default;
   if(mimetype.equals(Clipboard::PlainText))
-    flags |= BoxFlagLiteral | BoxFlagShortNumbers;
+    flags |= BoxFlags::Literal | BoxFlags::ShortNumbers;
     
   Expr boxes = selbox->to_pmath(flags, start, end);
   if(mimetype.equals(Clipboard::BoxesText))
@@ -2967,7 +2967,7 @@ void Document::copy_to_binary(String mimetype, Expr file) {
       return;
     }
     
-    Expr boxes = selbox->to_pmath(BoxFlagDefault, start, end);
+    Expr boxes = selbox->to_pmath(BoxFlags::Default, start, end);
     file = Expr(pmath_file_create_compressor(file.release(), nullptr));
     pmath_serialize(file.get(), boxes.release(), 0);
     pmath_file_close(file.release());
@@ -3199,7 +3199,7 @@ void Document::paste_from_boxes(Expr boxes) {
                 row < tmpgrid->rows())
             {
               grid->item(row1 + row, col1 + col)->load_from_object(
-                Expr(tmpgrid->item(row, col)->to_pmath(BoxFlagDefault)),
+                Expr(tmpgrid->item(row, col)->to_pmath(BoxFlags::Default)),
                 BoxOptionFormatNumbers);
             }
             else {
@@ -4813,7 +4813,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   must_resize_min = 0;
 }
 
-Expr Document::to_pmath(int flags) {
+Expr Document::to_pmath(BoxFlags flags) {
   Gather g;
   
   Expr content = SectionList::to_pmath(flags);

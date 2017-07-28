@@ -196,7 +196,7 @@ void RotationBox::paint(Context *context) {
   }
 }
 
-Expr RotationBox::to_pmath(int flags) {
+Expr RotationBox::to_pmath(BoxFlags flags) {
   return Call(
            Symbol(PMATH_SYMBOL_ROTATIONBOX),
            _content->to_pmath(flags),
@@ -283,7 +283,7 @@ void TransformationBox::paint(Context *context) {
   }
 }
 
-Expr TransformationBox::to_pmath(int flags) {
+Expr TransformationBox::to_pmath(BoxFlags flags) {
   return Call(
            Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX),
            _content->to_pmath(flags),

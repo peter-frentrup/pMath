@@ -1080,7 +1080,7 @@ void GraphicsBox::reset_style() {
   style->set(BaseStyleName, "Graphics");
 }
 
-Expr GraphicsBox::to_pmath(int flags) {
+Expr GraphicsBox::to_pmath(BoxFlags flags) {
   Gather g;
   
   Gather::emit(elements.to_pmath(flags));

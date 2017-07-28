@@ -19,7 +19,7 @@ namespace richmath {
       virtual void resize(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
       virtual bool try_load_from_object(Expr object, int options) override;
       void             load_from_object(Expr object, int options);
@@ -75,8 +75,8 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_GRIDBOX); }
-      virtual Expr to_pmath(int flags) override;
-      virtual Expr to_pmath(int flags, int start, int end) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
+      virtual Expr to_pmath(BoxFlags flags, int start, int end) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,

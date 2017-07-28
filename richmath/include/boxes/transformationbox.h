@@ -42,7 +42,7 @@ namespace richmath {
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_ROTATIONBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
     private:
       Expr _angle;
@@ -61,7 +61,7 @@ namespace richmath {
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
     private:
       Expr _matrix;

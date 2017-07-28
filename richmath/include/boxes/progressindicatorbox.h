@@ -25,7 +25,7 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_PROGRESSINDICATORBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
       virtual Box *mouse_selection(
         float  x,

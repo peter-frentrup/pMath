@@ -13,7 +13,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, int opts) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TOOLTIPBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
       virtual void on_mouse_enter() override;
       virtual void on_mouse_exit() override;

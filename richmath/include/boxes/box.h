@@ -16,7 +16,7 @@ namespace richmath {
   class Box;
   class SyntaxState;
   
-  enum class DeviceKind: char {
+  enum class DeviceKind : char {
     Mouse,
     Pen,
     Touch
@@ -77,12 +77,30 @@ namespace richmath {
       bool shift;
   };
   
-  enum {
-    BoxFlagDefault      = 0,
-    BoxFlagParseable    = 1, // no StyleBox with StripOnInput->True, ...
-    BoxFlagLiteral      = 2, // no DynamicBox
-    BoxFlagShortNumbers = 4  // not the internal representation of NumberBox, but the content()
+  enum class BoxFlags {
+    Default      = 0,
+    Parseable    = 1, // no StyleBox with StripOnInput->True, ...
+    Literal      = 2, // no DynamicBox
+    ShortNumbers = 4  // not the internal representation of NumberBox, but the content()
   };
+  
+  inline bool has(BoxFlags lhs, BoxFlags rhs) {
+    return ((int)lhs & (int)rhs) == (int)rhs;
+  }
+  inline BoxFlags operator |(BoxFlags lhs, BoxFlags rhs) {
+    return (BoxFlags)((int)lhs | (int)rhs);
+  }
+  inline BoxFlags &operator |=(BoxFlags &lhs, BoxFlags rhs) {
+    lhs = (BoxFlags)((int)lhs | (int)rhs);
+    return lhs;
+  }
+  inline BoxFlags operator -(BoxFlags lhs, BoxFlags rhs) {
+    return (BoxFlags)((int)lhs & ~(int)rhs);
+  }
+  inline BoxFlags &operator -=(BoxFlags &lhs, BoxFlags rhs) {
+    lhs = (BoxFlags)((int)lhs & ~(int)rhs);
+    return lhs;
+  }
   
   enum {
     BoxOptionDefault       = 0,
@@ -90,15 +108,15 @@ namespace richmath {
   };
   
   /** Suspending deletions of Boxes.
-    
-      While destruction suspended is in effect, boxes will be remembered in a free 
-      list (the limbo). When destruction mode is resumed, all objects in the limbo are 
+  
+      While destruction suspended is in effect, boxes will be remembered in a free
+      list (the limbo). When destruction mode is resumed, all objects in the limbo are
       actually deleted.
-      
+  
       During mouse_down()/paint()/... handlers, the document might change.
       This could cause a parent box to be removed. Since it is still referenced
       on the stack, such a box should not be wiped out until the call stack is clean.
-      
+  
       Hence, the widget which forwards all calls to Box/Document should suppress
       destruction of Boxes during event handling.
    */
@@ -108,14 +126,14 @@ namespace richmath {
       ~AutoMemorySuspension() { resume_deletions(); }
       
       static bool are_deletions_suspended();
-    
+      
     private:
       static void suspend_deletions();
       static void resume_deletions();
   };
   
   class Box: public FrontEndObject {
-    friend class AutoMemorySuspension;
+      friend class AutoMemorySuspension;
     public:
       Box();
       virtual ~Box();
@@ -128,10 +146,10 @@ namespace richmath {
       void safe_destroy();
       
       template<class T>
-      static T *try_create(Expr expr, int options){
+      static T *try_create(Expr expr, int options) {
         T *box = new T();
         
-        if(!box->try_load_from_object(expr, options)){
+        if(!box->try_load_from_object(expr, options)) {
           delete box;
           return nullptr;
         }
@@ -178,8 +196,8 @@ namespace richmath {
       virtual Box *remove(int *index) = 0;
       
       virtual Expr to_pmath_symbol() = 0;
-      virtual Expr to_pmath(int flags) = 0; // BoxFlagXXX
-      virtual Expr to_pmath(int flags, int start, int end) {
+      virtual Expr to_pmath(BoxFlags flags) = 0;
+      virtual Expr to_pmath(BoxFlags flags, int start, int end) {
         return to_pmath(flags);
       }
       
@@ -252,7 +270,7 @@ namespace richmath {
       String get_own_style(StringStyleOptionName n);
       Expr   get_own_style(ObjectStyleOptionName n);
       
-      virtual void reset_style(){ if(style) style->clear(); }
+      virtual void reset_style() { if(style) style->clear(); }
       
       virtual Box *mouse_sensitive();
       virtual void on_mouse_enter();
@@ -300,7 +318,7 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override { return Expr(); }
+      virtual Expr to_pmath(BoxFlags flags) override { return Expr(); }
   };
   
   class AbstractSequence: public Box {

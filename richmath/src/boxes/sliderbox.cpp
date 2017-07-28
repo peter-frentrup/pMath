@@ -404,10 +404,10 @@ void SliderBox::paint(Context *context) {
   SliderBoxImpl(*this).animate_thumb(context, x, y, old_value);
 }
 
-Expr SliderBox::to_pmath(int flags) {
+Expr SliderBox::to_pmath(BoxFlags flags) {
   Expr val = dynamic.expr();
   
-  if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
+  if(has(flags, BoxFlags::Literal) && dynamic.is_dynamic())
     val = val[1];
     
   return Call(

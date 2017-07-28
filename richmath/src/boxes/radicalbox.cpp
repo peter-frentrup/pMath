@@ -193,7 +193,7 @@ Expr RadicalBox::to_pmath_symbol(){
   return Symbol(PMATH_SYMBOL_SQRTBOX);
 }
 
-Expr RadicalBox::to_pmath(int flags) {
+Expr RadicalBox::to_pmath(BoxFlags flags) {
   if(_exponent)
     return Call(
              Symbol(PMATH_SYMBOL_RADICALBOX),

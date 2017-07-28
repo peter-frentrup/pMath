@@ -39,7 +39,7 @@ void GridItem::resize(Context *context) {
   _really_span_from_above = false;
 }
 
-Expr GridItem::to_pmath(int flags) {
+Expr GridItem::to_pmath(BoxFlags flags) {
   return _content->to_pmath(flags);
 }
 
@@ -885,11 +885,11 @@ Box *GridBox::remove(int *index) {
   return move_logical(LogicalDirection::Backward, false, index);
 }
 
-Expr GridBox::to_pmath(int flags) {
+Expr GridBox::to_pmath(BoxFlags flags) {
   return to_pmath(flags, 0, count());
 }
 
-Expr GridBox::to_pmath(int flags, int start, int end) {
+Expr GridBox::to_pmath(BoxFlags flags, int start, int end) {
   int ax, ay, bx, by;
   items.index_to_yx(start,   &ay, &ax);
   items.index_to_yx(end - 1, &by, &bx);

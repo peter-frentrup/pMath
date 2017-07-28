@@ -177,7 +177,7 @@ void PointBox::paint(GraphicsBoxContext *context) {
   context->ctx->canvas->fill();
 }
 
-Expr PointBox::to_pmath(int flags) {  // BoxFlagXXX
+Expr PointBox::to_pmath(BoxFlags flags) {  // BoxFlagXXX
   if(_uncompressed_expr.expr_length() != 1)
     return _uncompressed_expr;
     

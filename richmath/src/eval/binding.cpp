@@ -718,7 +718,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
          (!input && math->get_style(SectionGenerated))))
     {
       MathSequence *seq = new MathSequence;
-      seq->load_from_object(Expr(math->content()->to_pmath(BoxFlagDefault)), 0);
+      seq->load_from_object(Expr(math->content()->to_pmath(BoxFlags::Default)), 0);
       doc->insert_box(seq);
       
       return true;
@@ -755,7 +755,7 @@ static bool edit_boxes_cmd(Expr cmd) {
       pmath_continue_after_abort();
       
       if(auto edit = dynamic_cast<EditSection *>(doc->section(i))) {
-        Expr parsed(edit->to_pmath(BoxFlagDefault));
+        Expr parsed(edit->to_pmath(BoxFlags::Default));
         
         if(parsed == 0) {
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
@@ -776,7 +776,7 @@ static bool edit_boxes_cmd(Expr cmd) {
         edit->swap_id(sect);
         edit->original = doc->swap(i, edit);
         
-        Expr obj(sect->to_pmath(BoxFlagDefault));
+        Expr obj(sect->to_pmath(BoxFlags::Default));
         
         Expr tmp = Call(Symbol(PMATH_SYMBOL_FULLFORM), obj);
         pmath_debug_print_object("\n fullform: ", tmp.get(), "\n");

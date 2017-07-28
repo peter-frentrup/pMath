@@ -33,7 +33,7 @@ namespace richmath {
       void complete();
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,

@@ -119,8 +119,8 @@ void DynamicBox::paint_content(Context *context) {
   }
 }
 
-Expr DynamicBox::to_pmath(int flags) {
-  if(flags & BoxFlagLiteral)
+Expr DynamicBox::to_pmath(BoxFlags flags) {
+  if(has(flags, BoxFlags::Literal))
     return content()->to_pmath(flags);
     
   Expr e = dynamic.expr();

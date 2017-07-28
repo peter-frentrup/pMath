@@ -36,7 +36,7 @@ namespace {
       virtual void paint(GraphicsBoxContext *context) override {
       }
       
-      virtual Expr to_pmath(int flags) override { // BoxFlagXXX
+      virtual Expr to_pmath(BoxFlags flags) override { // BoxFlagXXX
         return _expr;
       }
       
@@ -213,7 +213,7 @@ void GraphicsDirective::paint(GraphicsBoxContext *context) {
     item(i)->paint(context);
 }
 
-Expr GraphicsDirective::to_pmath(int flags) { // BoxFlagXXX
+Expr GraphicsDirective::to_pmath(BoxFlags flags) { // BoxFlagXXX
   Gather g;
   
   for(int i = 0; i < count(); ++i)
@@ -264,7 +264,7 @@ void GraphicsElementCollection::paint(GraphicsBoxContext *context) {
   context->ctx->canvas->restore();
 }
 
-Expr GraphicsElementCollection::to_pmath(int flags) { // BoxFlagXXX
+Expr GraphicsElementCollection::to_pmath(BoxFlags flags) { // BoxFlagXXX
   Expr e = GraphicsDirective::to_pmath(flags);
   e.set(0, Symbol(PMATH_SYMBOL_LIST));
   return e;

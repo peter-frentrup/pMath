@@ -375,8 +375,8 @@ void NumberBox::paint(Context *context) {
   context->text_shaper      = old_text_shaper;
 }
 
-Expr NumberBox::to_pmath(int flags) {
-  if(flags & BoxFlagShortNumbers)
+Expr NumberBox::to_pmath(BoxFlags flags) {
+  if(has(flags, BoxFlags::ShortNumbers))
     return content()->to_pmath(flags);
     
   return _number;

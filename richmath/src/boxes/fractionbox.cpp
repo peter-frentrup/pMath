@@ -136,7 +136,7 @@ Box *FractionBox::remove(int *index) {
   return move_logical(LogicalDirection::Backward, false, index);
 }
 
-Expr FractionBox::to_pmath(int flags) {
+Expr FractionBox::to_pmath(BoxFlags flags) {
   return Call(
            Symbol(PMATH_SYMBOL_FRACTIONBOX),
            _numerator->to_pmath(flags),

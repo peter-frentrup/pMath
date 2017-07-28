@@ -91,12 +91,12 @@ void SetterBox::paint(Context *context) {
   ContainerWidgetBox::paint(context);
 }
 
-Expr SetterBox::to_pmath(int flags) {
+Expr SetterBox::to_pmath(BoxFlags flags) {
   Gather g;
   
   g.emit(dynamic.expr());
   g.emit(value);
-  g.emit(_content->to_pmath(flags & ~BoxFlagParseable));
+  g.emit(_content->to_pmath(flags - BoxFlags::Parseable));
   
   if(style)
     style->emit_to_pmath();

@@ -61,8 +61,8 @@ void FillBox::paint_content(Context *context) {
   }
 }
 
-Expr FillBox::to_pmath(int flags) {
-  if(flags & BoxFlagParseable)
+Expr FillBox::to_pmath(BoxFlags flags) {
+  if(has(flags, BoxFlags::Parseable))
     return _content->to_pmath(flags);
     
   if(weight == 1) {

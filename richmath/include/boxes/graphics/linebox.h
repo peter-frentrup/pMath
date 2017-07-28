@@ -15,7 +15,7 @@ namespace richmath {
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsBoxContext *context) override;
       
-      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
+      virtual Expr to_pmath(BoxFlags flags) override; // BoxFlagXXX
       
     protected:
       Expr                        _uncompressed_expr;

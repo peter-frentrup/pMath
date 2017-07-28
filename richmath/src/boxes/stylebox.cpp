@@ -255,8 +255,8 @@ bool StyleBox::try_load_from_object(Expr expr, int opts) {
   return true;
 }
 
-Expr StyleBox::to_pmath(int flags) {
-  if((flags & BoxFlagParseable) && get_own_style(StripOnInput, true)) {
+Expr StyleBox::to_pmath(BoxFlags flags) {
+  if(has(flags, BoxFlags::Parseable) && get_own_style(StripOnInput, true)) {
     return _content->to_pmath(flags);
   }
   
@@ -338,7 +338,7 @@ void TagBox::resize(Context *context) {
   ExpandableAbstractStyleBox::resize(context);
 }
 
-Expr TagBox::to_pmath(int flags) {
+Expr TagBox::to_pmath(BoxFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));

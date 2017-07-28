@@ -266,7 +266,7 @@ Expr SubsuperscriptBox::to_pmath_symbol() {
   return Symbol(PMATH_SYMBOL_SUPERSCRIPTBOX);
 }
 
-Expr SubsuperscriptBox::to_pmath(int flags) {
+Expr SubsuperscriptBox::to_pmath(BoxFlags flags) {
   if(_subscript) {
     if(_superscript)
       return Call(

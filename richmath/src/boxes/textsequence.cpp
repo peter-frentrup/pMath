@@ -517,11 +517,11 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
   }
 }
 
-Expr TextSequence::to_pmath(int flags) {
+Expr TextSequence::to_pmath(BoxFlags flags) {
   return to_pmath(flags, 0, text.length());
 }
 
-Expr TextSequence::to_pmath(int flags, int start, int end) {
+Expr TextSequence::to_pmath(BoxFlags flags, int start, int end) {
   if(end <= start || start < 0 || end > text.length())
     return String("");
     

@@ -42,8 +42,8 @@ bool TooltipBox::try_load_from_object(Expr expr, int opts) {
   return true;
 }
 
-Expr TooltipBox::to_pmath(int flags) {
-  if((flags & BoxFlagParseable) && get_own_style(StripOnInput, true)) {
+Expr TooltipBox::to_pmath(BoxFlags flags) {
+  if(has(flags, BoxFlags::Parseable) && get_own_style(StripOnInput, true)) {
     return _content->to_pmath(flags);
   }
   

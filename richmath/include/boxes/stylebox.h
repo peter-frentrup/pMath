@@ -57,7 +57,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, int opts) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_STYLEBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
       virtual bool changes_children_style() override { return true; }
   };
@@ -73,7 +73,7 @@ namespace richmath {
       virtual void resize(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TAGBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
     public:
       Expr tag;

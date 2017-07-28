@@ -21,7 +21,7 @@ namespace richmath {
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       
       static Expr prepare_boxes(Expr boxes);
       

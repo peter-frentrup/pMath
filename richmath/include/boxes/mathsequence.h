@@ -46,8 +46,8 @@ namespace richmath {
       void selection_path(Context *opt_context, Canvas *canvas, int start, int end);
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override;
-      virtual Expr to_pmath(int flags, int start, int end) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
+      virtual Expr to_pmath(BoxFlags flags, int start, int end) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,

@@ -103,7 +103,7 @@ void FrameBox::paint(Context *context) {
   //paint_content(context);
 }
 
-Expr FrameBox::to_pmath(int flags) {
+Expr FrameBox::to_pmath(BoxFlags flags) {
   Gather g;
   
   Gather::emit(_content->to_pmath(flags));

@@ -122,10 +122,10 @@ static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, cons
   return expr;
 }
 
-Expr DynamicLocalBox::to_pmath(int flags) {
+Expr DynamicLocalBox::to_pmath(BoxFlags flags) {
   ensure_init();
   
-  if(flags & BoxFlagLiteral)
+  if(has(flags, BoxFlags::Literal))
     return content()->to_pmath(flags);
     
   Gather g;

@@ -148,10 +148,10 @@ namespace richmath {
       
       void paint_resize(Canvas *canvas, bool resize_only);
       
-      Expr section_list_to_pmath(int flags, int start, int end) {
+      Expr section_list_to_pmath(BoxFlags flags, int start, int end) {
         return SectionList::to_pmath(flags, start, end);
       }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxFlags flags) override;
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DOCUMENT); }
       
     public:

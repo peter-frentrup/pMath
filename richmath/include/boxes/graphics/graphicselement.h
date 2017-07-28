@@ -11,6 +11,7 @@
 namespace richmath {
   class Context;
   class GraphicsBox;
+  enum class BoxFlags;
   
   class GraphicsBoxContext: public Base {
     public:
@@ -55,7 +56,7 @@ namespace richmath {
       
       virtual void find_extends(GraphicsBounds &bounds) = 0;
       virtual void paint(GraphicsBoxContext *context) = 0;
-      virtual Expr to_pmath(int flags) = 0; // BoxFlagXXX
+      virtual Expr to_pmath(BoxFlags flags) = 0; // BoxFlagXXX
       
     protected:
       GraphicsElement();
@@ -77,7 +78,7 @@ namespace richmath {
       
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsBoxContext *context) override;
-      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
+      virtual Expr to_pmath(BoxFlags flags) override; // BoxFlagXXX
       
     private:
       Array<GraphicsElement *> _items;
@@ -92,7 +93,7 @@ namespace richmath {
       void load_from_object(Expr expr, int opts);
       
       virtual void paint(GraphicsBoxContext *context) override;
-      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
+      virtual Expr to_pmath(BoxFlags flags) override; // BoxFlagXXX
   };
 }
 

@@ -66,11 +66,11 @@ void CheckboxBox::paint(Context *context) {
   EmptyWidgetBox::paint(context);
 }
 
-Expr CheckboxBox::to_pmath(int flags) {
+Expr CheckboxBox::to_pmath(BoxFlags flags) {
   Gather gather;
   
   Expr val = dynamic.expr();
-  if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
+  if(has(flags, BoxFlags::Literal) && dynamic.is_dynamic())
     val = val[1];
     
   Gather::emit(val);

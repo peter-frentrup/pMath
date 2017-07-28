@@ -63,7 +63,7 @@ class ScanData {
   public:
     MathSequence *sequence;
     int current_box; // for box_at_index
-    int flags;
+    BoxFlags flags;
     int start;
     int end;
 };
@@ -179,9 +179,9 @@ namespace richmath {
       static pmath_t box_at_index(int i, void *_data) {
         ScanData *data = (ScanData *)_data;
         
-        int flags = data->flags;
-        if((flags & BoxFlagParseable) && data->sequence->is_inside_string(i)) {
-          flags &= ~BoxFlagParseable;
+        BoxFlags flags = data->flags;
+        if(has(flags, BoxFlags::Parseable) && data->sequence->is_inside_string(i)) {
+          flags -= BoxFlags::Parseable;
         }
         
         if(i < data->start || data->end <= i)
@@ -2925,7 +2925,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   }
 }
 
-Expr MathSequence::to_pmath(int flags) {
+Expr MathSequence::to_pmath(BoxFlags flags) {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
@@ -2940,7 +2940,7 @@ Expr MathSequence::to_pmath(int flags) {
   settings.box_at_index   = MathSequenceImpl::box_at_index;
   settings.add_debug_info = MathSequenceImpl::add_debug_info;
   
-  if(flags & BoxFlagParseable)
+  if(has(flags, BoxFlags::Parseable))
     settings.flags |= PMATH_BFS_PARSEABLE;
     
   settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
@@ -2950,7 +2950,7 @@ Expr MathSequence::to_pmath(int flags) {
   return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
 }
 
-Expr MathSequence::to_pmath(int flags, int start, int end) {
+Expr MathSequence::to_pmath(BoxFlags flags, int start, int end) {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
@@ -2965,7 +2965,7 @@ Expr MathSequence::to_pmath(int flags, int start, int end) {
   settings.box_at_index   = MathSequenceImpl::box_at_index;
   settings.add_debug_info = MathSequenceImpl::add_debug_info;
   
-  if(flags & BoxFlagParseable)
+  if(has(flags, BoxFlags::Parseable))
     settings.flags |= PMATH_BFS_PARSEABLE;
     
   settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
@@ -3398,7 +3398,7 @@ void MathSequence::ensure_spans_valid() {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
-  data.flags       = 0;
+  data.flags       = BoxFlags::Default;
   data.start       = 0;
   data.end         = str.length();
   

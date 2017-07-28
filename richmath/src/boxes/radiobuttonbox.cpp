@@ -69,11 +69,11 @@ void RadioButtonBox::paint(Context *context) {
   first_paint = false;
 }
 
-Expr RadioButtonBox::to_pmath(int flags) {
+Expr RadioButtonBox::to_pmath(BoxFlags flags) {
   Gather gather;
   
   Expr val = dynamic.expr();
-  if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
+  if(has(flags, BoxFlags::Literal) && dynamic.is_dynamic())
     val = val[1];
     
   Gather::emit(val);

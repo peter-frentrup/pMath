@@ -197,7 +197,7 @@ bool Section::edit_selection(Context *context) {
       slist->set_open_close_group(index(), true);
       
       if(get_style(SectionEditDuplicateMakesCopy)) {
-        slist->insert(index(), Section::create_from_object(to_pmath(BoxOptionDefault)));
+        slist->insert(index(), Section::create_from_object(to_pmath(BoxFlags::Default)));
       }
     }
     
@@ -485,10 +485,10 @@ Box *AbstractSequenceSection::remove(int *index) {
   return _content;
 }
 
-Expr AbstractSequenceSection::to_pmath(int flags) {
+Expr AbstractSequenceSection::to_pmath(BoxFlags flags) {
   Gather g;
   
-  Expr cont = _content->to_pmath(flags/* & ~BoxFlagParseable*/);
+  Expr cont = _content->to_pmath(flags/* & ~BoxFlags::Parseable*/);
   if(dynamic_cast<MathSequence *>(_content))
     cont = Call(Symbol(PMATH_SYMBOL_BOXDATA), cont);
     
@@ -659,8 +659,8 @@ bool EditSection::try_load_from_object(Expr expr, int opts) {
   return false;
 }
 
-Expr EditSection::to_pmath(int flags) {
-  Expr result = content()->to_pmath(BoxFlagParseable);
+Expr EditSection::to_pmath(BoxFlags flags) {
+  Expr result = content()->to_pmath(BoxFlags::Parseable);
   
   result = Application::interrupt(Call(
                                     Symbol(PMATH_SYMBOL_MAKEEXPRESSION),

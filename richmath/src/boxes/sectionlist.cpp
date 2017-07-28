@@ -187,11 +187,11 @@ void SectionList::selection_path(Canvas *canvas, int start, int end) {
   }
 }
 
-Expr SectionList::to_pmath(int flags) {
+Expr SectionList::to_pmath(BoxFlags flags) {
   return to_pmath(flags, 0, length());
 }
 
-Expr SectionList::to_pmath(int flags, int start, int end) {
+Expr SectionList::to_pmath(BoxFlags flags, int start, int end) {
   Gather g;
   
   emit_pmath(flags, start, end);
@@ -203,7 +203,7 @@ Expr SectionList::to_pmath(int flags, int start, int end) {
   return Call(Symbol(PMATH_SYMBOL_SECTIONGROUP), e, Symbol(PMATH_SYMBOL_ALL));
 }
 
-void SectionList::emit_pmath(int flags, int start, int end) {
+void SectionList::emit_pmath(BoxFlags flags, int start, int end) {
   while(start < end) {
     if(_group_info[start].end == start) {
       Gather::emit(_sections[start]->to_pmath(flags));

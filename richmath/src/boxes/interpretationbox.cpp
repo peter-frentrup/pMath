@@ -65,7 +65,7 @@ bool InterpretationBox::try_load_from_object(Expr expr, int opts) {
   return true;
 }
 
-Expr InterpretationBox::to_pmath(int flags) {
+Expr InterpretationBox::to_pmath(BoxFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));

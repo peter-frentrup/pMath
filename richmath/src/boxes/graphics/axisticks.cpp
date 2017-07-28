@@ -266,7 +266,7 @@ Box *AxisTicks::remove(int *index) {
   return this;
 }
 
-Expr AxisTicks::to_pmath(int flags) { // BoxFlagXXX
+Expr AxisTicks::to_pmath(BoxFlags flags) { // BoxFlagXXX
   Gather g;
   
   for(int i = 0; i < count(); ++i) {

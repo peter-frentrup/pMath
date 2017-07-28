@@ -64,7 +64,7 @@ Box *OwnerBox::remove(int *index) {
   return _content;
 }
 
-Expr OwnerBox::to_pmath(int flags) {
+Expr OwnerBox::to_pmath(BoxFlags flags) {
   return _content->to_pmath(flags);
 }
 

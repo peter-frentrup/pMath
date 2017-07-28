@@ -158,10 +158,10 @@ void ProgressIndicatorBox::paint(Context *context) {
     content_size.height());
 }
 
-Expr ProgressIndicatorBox::to_pmath(int flags) {
+Expr ProgressIndicatorBox::to_pmath(BoxFlags flags) {
   Expr val = dynamic.expr();
   
-  if((flags & BoxFlagLiteral) && dynamic.is_dynamic())
+  if(has(flags, BoxFlags::Literal) && dynamic.is_dynamic())
     val = val[1];
     
   return Call(
