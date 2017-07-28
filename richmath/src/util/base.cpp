@@ -3,6 +3,9 @@
 #include <cmath>
 #include <cstdio>
 
+#include <new>         // placement new
+#include <type_traits> // aligned_storage
+
 #include <pmath-util/concurrency/atomic.h>
 
 
@@ -14,29 +17,7 @@ void richmath::assert_failed() {
 
 const double richmath::Infinity = HUGE_VAL;
 
-//{ class Base ...
-
 #ifdef RICHMATH_DEBUG_MEMORY
-namespace {
-  class Locked {
-    public:
-      Locked(pmath_atomic_t *atom_ptr)
-        : _atom_ptr(atom_ptr)
-      {
-        pmath_atomic_lock(_atom_ptr);
-      }
-      ~Locked() {
-        pmath_atomic_unlock(_atom_ptr);
-      }
-      
-      Locked() = delete;
-      Locked(const Locked &src) = delete;
-      Locked& operator=(const Locked&) = delete;
-    private:
-      pmath_atomic_t *_atom_ptr;
-  };
-}
-
 namespace richmath {
   class BaseDebugImpl {
     public:
@@ -62,10 +43,57 @@ namespace richmath {
       pmath_atomic_t lock;
       Base *non_freed_objects_list;
   };
-  
-  static BaseDebugImpl TheCounter;
 }
+
+namespace {
+  class Locked {
+    public:
+      Locked(pmath_atomic_t *atom_ptr)
+        : _atom_ptr(atom_ptr)
+      {
+        pmath_atomic_lock(_atom_ptr);
+      }
+      ~Locked() {
+        pmath_atomic_unlock(_atom_ptr);
+      }
+      
+      Locked() = delete;
+      Locked(const Locked &src) = delete;
+      Locked& operator=(const Locked&) = delete;
+    private:
+      pmath_atomic_t *_atom_ptr;
+  };
+  
+  static int NiftyBaseInitializerCounter; // zero initialized at load time
+  static typename std::aligned_storage<sizeof(BaseDebugImpl), alignof(BaseDebugImpl)>::type TheCounter_Buffer;
+  static BaseDebugImpl &TheCounter = reinterpret_cast<BaseDebugImpl&>(TheCounter_Buffer);
+}
+
+//{ struct BaseInitializer ...
+
+BaseInitializer::BaseInitializer() {
+  /* All static objects are created in the same thread, in arbitrary order.
+     BaseInitializer only exists as static objects.
+     So, no locking is needed .
+   */
+  if(NiftyBaseInitializerCounter++ == 0)
+    new(&TheCounter) BaseDebugImpl();
+}
+
+BaseInitializer::~BaseInitializer() {
+  /* All static objects are destructed in the same thread, in arbitrary order.
+     BaseInitializer only exists as static objects.
+     So, no locking is needed .
+   */
+  if(--NiftyBaseInitializerCounter == 0)
+    (&TheCounter)->~BaseDebugImpl();
+}
+
+//} ... struct BaseInitializer
+
 #endif
+
+//{ class Base ...
 
 Base::Base() {
 #ifdef RICHMATH_DEBUG_MEMORY

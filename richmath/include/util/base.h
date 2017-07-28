@@ -89,6 +89,14 @@ namespace richmath {
     private:
       T *_ptr;
   };
+  
+#ifdef RICHMATH_DEBUG_MEMORY
+  // http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Nifty_Counter
+  static struct BaseInitializer {
+    BaseInitializer();
+    ~BaseInitializer();
+  } TheBaseInitializer;
+#endif
 }
 
 #endif // __UTIL__BASE_H__
