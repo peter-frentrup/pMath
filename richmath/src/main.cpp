@@ -667,7 +667,7 @@ int main(int argc, char **argv) {
   
   PMATH_RUN("EndPackage()"); /* FE` */
   
-  Document *main_doc    = 0;
+  Document *main_doc = nullptr;
   int result = 0;
   
   if(!MathShaper::available_shapers.default_value) {
@@ -767,27 +767,28 @@ QUIT:
 #endif
   
   MathShaper::available_shapers.clear();
-  MathShaper::available_shapers.default_value = 0;
+  MathShaper::available_shapers.default_value = nullptr;
   
   ConfigShaperDB::clear_all();
   OTMathShaperDB::clear_all();
   
   TextShaper::clear_cache();
+  FontInfo::remove_all_private_fonts();
   
   global_immediate_macros.clear();
   global_macros.clear();
   
-  Stylesheet::Default = 0;
+  Stylesheet::Default = nullptr;
   
-  GeneralSyntaxInfo::std = 0;
+  GeneralSyntaxInfo::std = nullptr;
   
   Application::done();
   
 #ifdef RICHMATH_USE_WIN32_GUI
   Win32Clipboard::done();
-  Win32Menu::main_menu              = 0;
-  Win32Menu::popup_menu             = 0;
-  Win32AcceleratorTable::main_table = 0;
+  Win32Menu::main_menu              = nullptr;
+  Win32Menu::popup_menu             = nullptr;
+  Win32AcceleratorTable::main_table = nullptr;
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
@@ -798,7 +799,7 @@ QUIT:
 #endif
   
   // needed to clear the message_queue member:
-  Server::local_server = 0;
+  Server::local_server = nullptr;
   
   done_bindings();
   

@@ -64,6 +64,10 @@ class PrivateWin32Font: public Shareable {
       return false;
     }
     
+    static void unload_all() {
+      guard = nullptr;
+    }
+    
   private:
     PrivateWin32Font(SharedPtr<PrivateWin32Font> _next)
       : Shareable(),
@@ -443,6 +447,12 @@ bool FontInfo::add_private_font(String filename) {
   }
 #else
   return false;
+#endif
+}
+
+void FontInfo::remove_all_private_fonts() {
+#if defined(RICHMATH_USE_WIN32_FONT)
+  PrivateWin32Font::unload_all();
 #endif
 }
 

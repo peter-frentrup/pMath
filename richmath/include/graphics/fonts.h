@@ -140,6 +140,7 @@ namespace richmath {
       
       static Expr all_fonts();
       static bool add_private_font(String filename);
+      static void remove_all_private_fonts();
       static bool font_exists(String name);
       
       uint16_t char_to_glyph(uint32_t ch);
