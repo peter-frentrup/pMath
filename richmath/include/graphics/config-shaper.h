@@ -247,9 +247,6 @@ namespace richmath {
       SharedPtr<FallbackTextShaper>  text_shaper;
       Array<FontFace>                math_font_faces;
       FontStyle                      style;
-    
-    private:
-      bool warned_dispose;
   };
 }
 

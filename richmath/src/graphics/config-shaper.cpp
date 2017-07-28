@@ -885,8 +885,7 @@ ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperDB> _db, FontStyle _style)
     db(_db),
     text_shaper(new FallbackTextShaper(TextShaper::find(db->text_fontnames[0], _style))),
     math_font_faces(_db->math_fontnames.length()),
-    style(_style),
-    warned_dispose(false)
+    style(_style)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -1356,16 +1355,9 @@ void ConfigShaper::get_script_size_multis(Array<float> *arr) {
 
 SharedPtr<TextShaper> ConfigShaper::set_style(FontStyle _style) {
   if(db->is_disposed()) {
-    if(!warned_dispose) {
-      /* The printf() function may yield some Win32 event handling, 
-         which causes a repaint, which causes set_style() to be called again,
-         which ... causes a stack overflow if we call printf() again...
-      */
-      printf("ConfigShaper::set_style() failed: DB already disposed\n");
-      warned_dispose = true;
-    }
-    ref();
     style = _style; // HACK!!! Otherwise we cause stack overflow elsewhere: code assumes that the returned shaper has the given style.
+
+    ref();
     return this;
   }
   
