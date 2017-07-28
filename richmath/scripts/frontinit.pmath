@@ -17,6 +17,10 @@ AutoCompleteFile;
 
 Begin("FE`Private`")
 
+If($SystemId === "Windows") {
+	<<Windows`
+}
+
 oldNamespacePath:= $NamespacePath;
 $NamespacePath:= Prepend($NamespacePath, "FE`")
 
@@ -107,14 +111,20 @@ Protect($ControlActiveSetting)
 
 Function mmaInstallPaths() {
 	If($SystemId === "Windows") {
-		<<Windows`
-		With(installKeys:= Try(
-			Windows`RegEnumKeys("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wolfram Research\\Installations"),
-			{},
-			{General::hresult}))
+		Local(win64ver)
 		
-		% TODO: sort by product version, decending
-		Return(installKeys.Windows`RegGetValue("ExecutablePath").Map(DirectoryName))
+		Do(win64ver -> {True, False}) {
+			With(installKeys:= Try(
+				Windows`RegEnumKeys("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wolfram Research\\Installations", Windows`Win64Version -> win64ver),
+				{},
+				{General::hresult}))
+			
+			If(installKeys =!= {}) {
+				% TODO: sort by product version, decending
+				With(path:= installKeys.Windows`RegGetValue("ExecutablePath", Windows`Win64Version -> win64ver).Map(DirectoryName))
+				Return(path)
+			}
+		}
 	}
 	Return({})
 }
