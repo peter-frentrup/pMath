@@ -130,7 +130,7 @@ namespace richmath {
       OTMathShaper(SharedPtr<OTMathShaperImpl> _impl, FontStyle _style);
       
     protected:
-      SharedPtr<OTMathShaperImpl>  db;
+      SharedPtr<OTMathShaperImpl>  impl;
       FontStyle                    style;
   };
 };

@@ -409,53 +409,53 @@ namespace richmath {
       
     public:
       static SharedPtr<OTMathShaperImpl> try_load(String name, FontStyle style) {
-        SharedPtr<OTMathShaperImpl> db = new OTMathShaperImpl(name, style);
+        SharedPtr<OTMathShaperImpl> impl = new OTMathShaperImpl(name, style);
         
-        size_t size = db->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, 0, 0);
+        size_t size = impl->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, 0, 0);
         
         if(!size)
           return nullptr;
           
-//        db->private_characters.set(0x2061, 0); // function application
-        db->set_private_char(0x2061, ' ');
+//        impl->private_characters.set(0x2061, 0); // function application
+        impl->set_private_char(0x2061, ' ');
         
-        db->set_private_char(PMATH_CHAR_LEFTINVISIBLEBRACKET,     0x200B);
-        db->set_private_char(PMATH_CHAR_RIGHTINVISIBLEBRACKET,    0x200B);
-        db->set_private_char(PMATH_CHAR_LEFTBRACKETINGBAR,        0x2223);
-        db->set_private_char(PMATH_CHAR_RIGHTBRACKETINGBAR,       0x2223);
-        db->set_private_char(PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR,  0x2225);
-        db->set_private_char(PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR, 0x2225);
-        db->set_private_char(PMATH_CHAR_PIECEWISE, '{');
-        db->set_private_char(PMATH_CHAR_ALIASDELIMITER, 0x21E9);
-        db->set_private_char(PMATH_CHAR_ALIASINDICATOR, 0x21E9);
-        db->set_private_char(CHAR_REPLACEMENT,       0x220E);
-        db->set_private_char(CHAR_LINE_CONTINUATION, 0x22F1);
-        if(!db->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x29E0))
-          if(!db->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x25A1))
-            db->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x2B1A);
-        db->set_private_char('-', 0x2212);
-        db->set_private_char(0x2145, 0x1D403); // DD
-        db->set_private_char(0x2146, 0x1D41D); // dd
-        db->set_private_char(0x2147, 0x1D41E); // ee
-        db->set_private_char(0x2148, 0x1D422); // ii
-        db->set_private_char(0x2149, 0x1D423); // jj
+        impl->set_private_char(PMATH_CHAR_LEFTINVISIBLEBRACKET,     0x200B);
+        impl->set_private_char(PMATH_CHAR_RIGHTINVISIBLEBRACKET,    0x200B);
+        impl->set_private_char(PMATH_CHAR_LEFTBRACKETINGBAR,        0x2223);
+        impl->set_private_char(PMATH_CHAR_RIGHTBRACKETINGBAR,       0x2223);
+        impl->set_private_char(PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR,  0x2225);
+        impl->set_private_char(PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR, 0x2225);
+        impl->set_private_char(PMATH_CHAR_PIECEWISE, '{');
+        impl->set_private_char(PMATH_CHAR_ALIASDELIMITER, 0x21E9);
+        impl->set_private_char(PMATH_CHAR_ALIASINDICATOR, 0x21E9);
+        impl->set_private_char(CHAR_REPLACEMENT,       0x220E);
+        impl->set_private_char(CHAR_LINE_CONTINUATION, 0x22F1);
+        if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x29E0))
+          if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x25A1))
+            impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x2B1A);
+        impl->set_private_char('-', 0x2212);
+        impl->set_private_char(0x2145, 0x1D403); // DD
+        impl->set_private_char(0x2146, 0x1D41D); // dd
+        impl->set_private_char(0x2147, 0x1D41E); // ee
+        impl->set_private_char(0x2148, 0x1D422); // ii
+        impl->set_private_char(0x2149, 0x1D423); // jj
         
-        db->set_alt_char('^',    0x0302);
-        db->set_alt_char('~',    0x0303);
-        db->set_alt_char('_',    0x0305);
-        db->set_alt_char(0x02C7, 0x030C); // caron
-        db->set_alt_char(0x21C0, 0x20D1); // vector
+        impl->set_alt_char('^',    0x0302);
+        impl->set_alt_char('~',    0x0303);
+        impl->set_alt_char('_',    0x0305);
+        impl->set_alt_char(0x02C7, 0x030C); // caron
+        impl->set_alt_char(0x21C0, 0x20D1); // vector
         
-        db->set_alt_char(0x2227, 0x22C0); // and
-        db->set_alt_char(0x2228, 0x22C1); // or
-        db->set_alt_char(0x2229, 0x22C2); // intersect
-        db->set_alt_char(0x222A, 0x22C3); // union
-        db->set_alt_char(0x2299, 0x2A00); // c.
-        db->set_alt_char(0x2295, 0x2A01); // c+
-        db->set_alt_char(0x2297, 0x2A02); // c*
-        db->set_alt_char(0x2293, 0x2A05); // cap
-        db->set_alt_char(0x2294, 0x2A06); // cup
-        db->set_alt_char(0x00D7, 0x2A09); // times
+        impl->set_alt_char(0x2227, 0x22C0); // and
+        impl->set_alt_char(0x2228, 0x22C1); // or
+        impl->set_alt_char(0x2229, 0x22C2); // intersect
+        impl->set_alt_char(0x222A, 0x22C3); // union
+        impl->set_alt_char(0x2299, 0x2A00); // c.
+        impl->set_alt_char(0x2295, 0x2A01); // c+
+        impl->set_alt_char(0x2297, 0x2A02); // c*
+        impl->set_alt_char(0x2293, 0x2A05); // cap
+        impl->set_alt_char(0x2294, 0x2A06); // cup
+        impl->set_alt_char(0x00D7, 0x2A09); // times
         
         /* Ugly workaround to access cross product character. Glyph 941 is a small
            cross, but it has no character mapping. Fontforge doesn't even list this
@@ -465,10 +465,10 @@ namespace richmath {
            A better workaround would be to specify some fallback font.
          */
         if(name.equals("Cambria Math")) {
-          db->private_characters.set(0x2A2F, 941);
+          impl->private_characters.set(0x2A2F, 941);
         }
-        else if(db->fi.char_to_glyph(0x2A2F) == 0) { // cross
-          db->set_private_char(0x2A2F, 0x00D7);
+        else if(impl->fi.char_to_glyph(0x2A2F) == 0) { // cross
+          impl->set_private_char(0x2A2F, 0x00D7);
         }
         
         /* Ugly workaround to access degree character in Asana Math. The font
@@ -478,22 +478,22 @@ namespace richmath {
            sign in that font.
          */
         if(name.equals("Asana Math")) {
-//      pmath_debug_print("Asana Math degree glyph: %d\n", db->fi.char_to_glyph(0x00B0));
-          db->set_private_char(0x00B0, 0x00BA);
+//      pmath_debug_print("Asana Math degree glyph: %d\n", impl->fi.char_to_glyph(0x00B0));
+          impl->set_private_char(0x00B0, 0x00BA);
         }
         
-        db->units_per_em = 1024;
-        db->fi.get_truetype_table(FONT_TABLE_NAME('h', 'e', 'a', 'd'), 18, &db->units_per_em, 2);
-        db->units_per_em = BigEndian::read(db->units_per_em);
+        impl->units_per_em = 1024;
+        impl->fi.get_truetype_table(FONT_TABLE_NAME('h', 'e', 'a', 'd'), 18, &impl->units_per_em, 2);
+        impl->units_per_em = BigEndian::read(impl->units_per_em);
         
         Array<uint8_t> data(size);
-        db->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, data.items(), size);
+        impl->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, data.items(), size);
         const uint8_t *table = data.items();
         
         const MathTableHeader *math_header = (const MathTableHeader *)table;
         
         {
-          uint16_t       *db_consts = (uint16_t *)&db->consts;
+          uint16_t       *db_consts = (uint16_t *)&impl->consts;
           const uint16_t *consts    = (const uint16_t *)(table + BigEndian::read(math_header->constants_offset));
           for(size_t i = 0; i < sizeof(MathConstants) / 2; ++i)
             db_consts[i] = BigEndian::read(consts[i]);
@@ -523,7 +523,7 @@ namespace richmath {
                         vertex = (const MathKernVertex *)
                                  (((const char *)kern_info) + BigEndian::read(kern_info->offsets[i][edge]));
                                  
-                        db->math_kern[edge].set(
+                        impl->math_kern[edge].set(
                           BigEndian::read(glyphs[i]),
                           KernVertexObject(vertex));
                       }
@@ -550,7 +550,7 @@ namespace richmath {
                           vertex = (const MathKernVertex *)
                                    (((const char *)kern_info) + BigEndian::read(kern_info->offsets[i][edge]));
                                    
-                          db->math_kern[edge].set(g, KernVertexObject(vertex));
+                          impl->math_kern[edge].set(g, KernVertexObject(vertex));
                         }
                       }
                     }
@@ -572,7 +572,7 @@ namespace richmath {
                                            (((const char *)coverage) + 4); // skip format, count
                                            
                   for(uint16_t i = 0; i < BigEndian::read(ital_corr_info->count); ++i) {
-                    db->italics_correction.set(
+                    impl->italics_correction.set(
                       BigEndian::read(glyphs[i]),
                       BigEndian::read(ital_corr_info->italics_corrections[i].value));
                   }
@@ -591,7 +591,7 @@ namespace richmath {
                       int16_t value = BigEndian::read(
                                         ital_corr_info->italics_corrections[start_index + g - start_glyph].value);
                                         
-                      db->italics_correction.set(g, value);
+                      impl->italics_correction.set(g, value);
                     }
                   }
                 } break;
@@ -611,7 +611,7 @@ namespace richmath {
                                            (((const char *)coverage) + 4); // skip format, count
                                            
                   for(uint16_t i = 0; i < BigEndian::read(top_acc->count); ++i) {
-                    db->top_accents.set(
+                    impl->top_accents.set(
                       BigEndian::read(glyphs[i]),
                       BigEndian::read(top_acc->top_accent_attachment[i].value));
                   }
@@ -630,7 +630,7 @@ namespace richmath {
                       int16_t value = BigEndian::read(
                                         top_acc->top_accent_attachment[start_index + g - start_glyph].value);
                                         
-                      db->top_accents.set(g, value);
+                      impl->top_accents.set(g, value);
                     }
                   }
                 } break;
@@ -645,7 +645,7 @@ namespace richmath {
           const MathVariants *variants = (const MathVariants *)
                                          (table + BigEndian::read(math_header->variants_offset));
                                          
-          db->min_connector_overlap = BigEndian::read(variants->min_connector_overlap);
+          impl->min_connector_overlap = BigEndian::read(variants->min_connector_overlap);
           
           uint16_t vert_count = BigEndian::read(variants->vert_glyph_count);
           for(uint16_t i = 0; i < vert_count; ++i) {
@@ -668,7 +668,7 @@ namespace richmath {
                       dst[k] = BigEndian::read(src[k]);
                   }
                   
-                  db->vert_assembly.set(
+                  impl->vert_assembly.set(
                     BigEndian::read(construction->variants[0].glyph),
                     assambly_array);
                 }
@@ -681,7 +681,7 @@ namespace richmath {
                   variant_array[j].advance = BigEndian::read(construction->variants[j].advance);
                 }
                 
-                db->vert_variants.set(
+                impl->vert_variants.set(
                   BigEndian::read(construction->variants[0].glyph),
                   variant_array);
               }
@@ -709,7 +709,7 @@ namespace richmath {
                       dst[k] = BigEndian::read(src[k]);
                   }
                   
-                  db->horz_assembly.set(
+                  impl->horz_assembly.set(
                     BigEndian::read(construction->variants[0].glyph),
                     assambly_array);
                 }
@@ -722,7 +722,7 @@ namespace richmath {
                   variant_array[j].advance = BigEndian::read(construction->variants[j].advance);
                 }
                 
-                db->horz_variants.set(
+                impl->horz_variants.set(
                   BigEndian::read(construction->variants[0].glyph),
                   variant_array);
               }
@@ -731,16 +731,16 @@ namespace richmath {
           
         }
         
-        if(db->fi.char_to_glyph(PMATH_CHAR_ASSIGNDELAYED) == 0) { // ::= (it is needed, but not in Cambria Math)
+        if(impl->fi.char_to_glyph(PMATH_CHAR_ASSIGNDELAYED) == 0) { // ::= (it is needed, but not in Cambria Math)
           Array<MathGlyphPartRecord> lig;
           
           lig.length(3);
           lig.zeromem();
-          lig[0].glyph = lig[1].glyph = db->fi.char_to_glyph(0x2236); //colon
-          lig[2].glyph = db->fi.char_to_glyph('=');
+          lig[0].glyph = lig[1].glyph = impl->fi.char_to_glyph(0x2236); //colon
+          lig[2].glyph = impl->fi.char_to_glyph('=');
           
-          static_canvas.canvas->set_font_face(db->text_shaper->font(0));
-          static_canvas.canvas->set_font_size(db->units_per_em);
+          static_canvas.canvas->set_font_face(impl->text_shaper->font(0));
+          static_canvas.canvas->set_font_size(impl->units_per_em);
           cairo_text_extents_t cte;
           cairo_glyph_t cg;
           cg.x = 0;
@@ -748,25 +748,25 @@ namespace richmath {
           cg.index = lig[0].glyph;
           static_canvas.canvas->glyph_extents(&cg, 1, &cte);
           lig[0].full_advance = lig[1].full_advance =
-                                  (uint16_t)cte.x_advance + db->min_connector_overlap;
+                                  (uint16_t)cte.x_advance + impl->min_connector_overlap;
                                   
           cg.index = lig[lig.length() - 1].glyph;
           static_canvas.canvas->glyph_extents(&cg, 1, &cte);
           lig[lig.length() - 1].full_advance = (uint16_t)cte.x_advance;
           
-          db->private_ligatures.set(PMATH_CHAR_ASSIGNDELAYED, lig);
+          impl->private_ligatures.set(PMATH_CHAR_ASSIGNDELAYED, lig);
         }
         
-        if(db->fi.char_to_glyph(PMATH_CHAR_RULEDELAYED) == 0) { // :-> (it is needed, but not in Cambria Math)
+        if(impl->fi.char_to_glyph(PMATH_CHAR_RULEDELAYED) == 0) { // :-> (it is needed, but not in Cambria Math)
           Array<MathGlyphPartRecord> lig;
           
           lig.length(2);
           lig.zeromem();
-          lig[0].glyph = db->fi.char_to_glyph(0x2236); //colon
-          lig[1].glyph = db->fi.char_to_glyph(PMATH_CHAR_RULE);
+          lig[0].glyph = impl->fi.char_to_glyph(0x2236); //colon
+          lig[1].glyph = impl->fi.char_to_glyph(PMATH_CHAR_RULE);
           
-          static_canvas.canvas->set_font_face(db->text_shaper->font(0));
-          static_canvas.canvas->set_font_size(db->units_per_em);
+          static_canvas.canvas->set_font_face(impl->text_shaper->font(0));
+          static_canvas.canvas->set_font_size(impl->units_per_em);
           cairo_text_extents_t cte;
           cairo_glyph_t cg;
           cg.x = 0;
@@ -775,16 +775,16 @@ namespace richmath {
           cg.index = lig[0].glyph;
           static_canvas.canvas->glyph_extents(&cg, 1, &cte);
           lig[0].full_advance = //lig[1].full_advance =
-            (uint16_t)cte.x_advance + db->min_connector_overlap;
+            (uint16_t)cte.x_advance + impl->min_connector_overlap;
             
           cg.index = lig[1].glyph;
           static_canvas.canvas->glyph_extents(&cg, 1, &cte);
           lig[1].full_advance = (uint16_t)cte.x_advance;
           
-          db->private_ligatures.set(PMATH_CHAR_RULEDELAYED, lig);
+          impl->private_ligatures.set(PMATH_CHAR_RULEDELAYED, lig);
         }
         
-        return db;
+        return impl;
       }
       
       Array<MathGlyphVariantRecord> *get_vert_variants(uint32_t ch, uint16_t glyph) {
@@ -957,7 +957,7 @@ namespace richmath {
             assert(0 && "invalid OTMathShaperDB");
           }
           
-          impl = shapers[(int)NoStyle]->db;
+          impl = shapers[(int)NoStyle]->impl;
         }
         
         shapers[i] = new OTMathShaper(impl, style);
@@ -988,7 +988,7 @@ namespace richmath {
 
 OTMathShaper::OTMathShaper(SharedPtr<OTMathShaperImpl> _impl, FontStyle _style)
   : MathShaper(),
-    db(_impl),
+    impl(_impl),
     style(_style)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
@@ -998,7 +998,7 @@ OTMathShaper::~OTMathShaper() {
 }
 
 String OTMathShaper::name() {
-  return db->name;
+  return impl->name;
 }
 
 SharedPtr<OTMathShaper> OTMathShaper::try_register(String name) {
@@ -1010,15 +1010,15 @@ void OTMathShaper::dispose_all() {
 }
 
 uint8_t OTMathShaper::num_fonts() {
-  return db->text_shaper->num_fonts();
+  return impl->text_shaper->num_fonts();
 }
 
 FontFace OTMathShaper::font(uint8_t fontinfo) {
-  return db->text_shaper->font(fontinfo);
+  return impl->text_shaper->font(fontinfo);
 }
 
 String OTMathShaper::font_name(uint8_t fontinfo) {
-  return db->text_shaper->font_name(fontinfo);
+  return impl->text_shaper->font_name(fontinfo);
 }
 
 void OTMathShaper::decode_token(
@@ -1053,7 +1053,7 @@ void OTMathShaper::decode_token(
       ch = 0;
       
     if(ch) {
-      if(uint16_t glyph = db->private_characters[ch]) {
+      if(uint16_t glyph = impl->private_characters[ch]) {
         if(style.italic) {
           math_set_style(style - Italic)->decode_token(context, len, str, result);
           result->slant = FontSlantPlain;
@@ -1094,7 +1094,7 @@ void OTMathShaper::decode_token(
       
       bool old_boxchar_fallback_enabled = context->boxchar_fallback_enabled;
       context->boxchar_fallback_enabled = false;
-      db->text_shaper->decode_token(
+      impl->text_shaper->decode_token(
         context,
         ch <= 0xFFFF ? 1 : 2,
         utf16,
@@ -1146,11 +1146,11 @@ void OTMathShaper::decode_token(
       else
         ch = str[sub_len];
         
-      glyph_ptr = db->private_characters.search(ch);
+      glyph_ptr = impl->private_characters.search(ch);
       if(glyph_ptr)
         break;
         
-      lig = db->private_ligatures.search(ch);
+      lig = impl->private_ligatures.search(ch);
       if(lig)
         break;
         
@@ -1158,7 +1158,7 @@ void OTMathShaper::decode_token(
     }
     
     if(sub_len > 0) {
-      db->text_shaper->decode_token(
+      impl->text_shaper->decode_token(
         context,
         sub_len,
         str,
@@ -1202,7 +1202,7 @@ void OTMathShaper::decode_token(
       }
       
       result->index = 0;
-      db->stretch_glyph_assembly(context, 0, lig, result);
+      impl->stretch_glyph_assembly(context, 0, lig, result);
 //      result->index    = 1;
 //      result->fontinfo = 0;
 //      result->horizontal_stretch = 1;
@@ -1226,7 +1226,7 @@ void OTMathShaper::vertical_glyph_size(
   float           *descent
 ) {
   if(info.fontinfo > 0) {
-    db->text_shaper->vertical_glyph_size(context, ch, info, ascent, descent);
+    impl->text_shaper->vertical_glyph_size(context, ch, info, ascent, descent);
     return;
   }
   
@@ -1243,7 +1243,7 @@ void OTMathShaper::vertical_glyph_size(
     
     context->canvas->set_font_face(font(0));
     
-    uint16_t glyph = db->fi.char_to_glyph(ch);
+    uint16_t glyph = impl->fi.char_to_glyph(ch);
     
     cairo_text_extents_t cte;
     cairo_glyph_t        cg;
@@ -1251,7 +1251,7 @@ void OTMathShaper::vertical_glyph_size(
     cg.y = 0;
     
     if(info.horizontal_stretch) {
-      if(auto ass = db->get_horz_assembly(ch, glyph)) {
+      if(auto ass = impl->get_horz_assembly(ch, glyph)) {
         for(int i = 0; i < ass->length(); ++i) {
           cg.index = ass->get(i).glyph;
           context->canvas->glyph_extents(&cg, 1, &cte);
@@ -1266,19 +1266,19 @@ void OTMathShaper::vertical_glyph_size(
       }
     }
     else {
-      if(auto ass = db->get_vert_assembly(ch, glyph)) {
+      if(auto ass = impl->get_vert_assembly(ch, glyph)) {
         float em      = context->canvas->get_font_size();
-        float axis    = db->consts.axis_height.value * em / db->units_per_em;
-        float overlap = db->min_connector_overlap    * em / db->units_per_em;
+        float axis    = impl->consts.axis_height.value * em / impl->units_per_em;
+        float overlap = impl->min_connector_overlap    * em / impl->units_per_em;
         float height = 0;
         
         for(int i = 0; i < ass->length(); ++i) {
           if(ass->get(i).flags & MGPRF_Extender) {
-            height += info.index * (ass->get(i).full_advance * em / db->units_per_em);
+            height += info.index * (ass->get(i).full_advance * em / impl->units_per_em);
             height -= info.index * overlap;
           }
           else {
-            height += ass->get(i).full_advance * em / db->units_per_em;
+            height += ass->get(i).full_advance * em / impl->units_per_em;
             height -= overlap;
           }
         }
@@ -1305,7 +1305,7 @@ void OTMathShaper::show_glyph(
   const GlyphInfo &info
 ) {
   if(info.fontinfo > 0) {
-    db->text_shaper->show_glyph(context, x, y, ch, info);
+    impl->text_shaper->show_glyph(context, x, y, ch, info);
     return;
   }
   
@@ -1322,29 +1322,29 @@ void OTMathShaper::show_glyph(
     
     context->canvas->set_font_face(font(0));
     
-    uint16_t glyph = db->fi.char_to_glyph(ch);
+    uint16_t glyph = impl->fi.char_to_glyph(ch);
     float    em    = context->canvas->get_font_size();
-    float overlap  = db->min_connector_overlap * em / db->units_per_em;
+    float overlap  = impl->min_connector_overlap * em / impl->units_per_em;
     
     cairo_glyph_t cg;
     cg.x = x + info.x_offset;
     cg.y = y;
     
     if(info.horizontal_stretch) {
-      if(auto ass = db->get_horz_assembly(ch, glyph)) {
+      if(auto ass = impl->get_horz_assembly(ch, glyph)) {
         for(int i = 0; i < ass->length(); ++i) {
           cg.index = ass->get(i).glyph;
           
           if(ass->get(i).flags & MGPRF_Extender) {
             for(uint16_t repeat = info.index; repeat > 0; --repeat) {
               context->canvas->show_glyphs(&cg, 1);
-              cg.x += ass->get(i).full_advance * em / db->units_per_em;
+              cg.x += ass->get(i).full_advance * em / impl->units_per_em;
               cg.x -= overlap;
             }
           }
           else {
             context->canvas->show_glyphs(&cg, 1);
-            cg.x += ass->get(i).full_advance * em / db->units_per_em;
+            cg.x += ass->get(i).full_advance * em / impl->units_per_em;
             cg.x -= overlap;
           }
         }
@@ -1352,7 +1352,7 @@ void OTMathShaper::show_glyph(
         return;
       }
     }
-    else if(auto ass = db->get_vert_assembly(ch, glyph)) {
+    else if(auto ass = impl->get_vert_assembly(ch, glyph)) {
       float a = 0;
       float d = 0;
       vertical_glyph_size(context, ch, info, &a, &d);
@@ -1364,13 +1364,13 @@ void OTMathShaper::show_glyph(
         if(ass->get(i).flags & MGPRF_Extender) {
           for(uint16_t repeat = info.index; repeat > 0; --repeat) {
             context->canvas->show_glyphs(&cg, 1);
-            cg.y -= ass->get(i).full_advance * em / db->units_per_em;
+            cg.y -= ass->get(i).full_advance * em / impl->units_per_em;
             cg.y += overlap;
           }
         }
         else {
           context->canvas->show_glyphs(&cg, 1);
-          cg.y -= ass->get(i).full_advance * em / db->units_per_em;
+          cg.y -= ass->get(i).full_advance * em / impl->units_per_em;
           cg.y += overlap;
         }
       }
@@ -1397,7 +1397,7 @@ bool OTMathShaper::horizontal_stretch_char(
 //  }
   
   uint16_t glyph = result->index;
-  Array<MathGlyphVariantRecord> *var = db->get_horz_variants(ch, glyph);
+  Array<MathGlyphVariantRecord> *var = impl->get_horz_variants(ch, glyph);
   if(var) {
     cairo_text_extents_t cte;
     cairo_glyph_t        cg;
@@ -1414,14 +1414,14 @@ bool OTMathShaper::horizontal_stretch_char(
       context->canvas->glyph_extents(&cg, 1, &cte);
       
       result->index = cg.index;
-      result->right = cte.x_advance;//var->get(i).advance * em / db->units_per_em;
+      result->right = cte.x_advance;//var->get(i).advance * em / impl->units_per_em;
       if(width <= cte.x_advance)
         return true;
     }
   }
   
-  if(auto ass = db->get_horz_assembly(ch, glyph)) {
-    db->stretch_glyph_assembly(context, width, ass, result);
+  if(auto ass = impl->get_horz_assembly(ch, glyph)) {
+    impl->stretch_glyph_assembly(context, width, ass, result);
     return true;
   }
   else if(var)
@@ -1452,13 +1452,13 @@ void OTMathShaper::vertical_stretch_char(
   
   uint16_t glyph = result->index;
   if(!glyph) {
-    glyph = db->fi.char_to_glyph(ch);
+    glyph = impl->fi.char_to_glyph(ch);
   }
   
-  Array<MathGlyphVariantRecord> *var = db->get_vert_variants(ch, glyph);
+  Array<MathGlyphVariantRecord> *var = impl->get_vert_variants(ch, glyph);
   
   float em = context->canvas->get_font_size();
-  float axis = (em * db->consts.axis_height.value) / db->units_per_em;
+  float axis = (em * impl->consts.axis_height.value) / impl->units_per_em;
   
   if(pmath_char_maybe_bigop(ch)) {
     ascent -=  0.1 * em;
@@ -1477,7 +1477,7 @@ void OTMathShaper::vertical_stretch_char(
 //  float min = 0;
 //  if(context->script_indent == 0
 //  && (pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))){
-//    min = (em * db->consts.display_operator_min_height) / db->units_per_em;
+//    min = (em * impl->consts.display_operator_min_height) / impl->units_per_em;
 //
 //    min = 2 * floorf(min/2);
 //  }
@@ -1519,11 +1519,11 @@ void OTMathShaper::vertical_stretch_char(
   if(!full_stretch)
     return;
     
-  if(auto ass = db->get_vert_assembly(ch, glyph)) {
+  if(auto ass = impl->get_vert_assembly(ch, glyph)) {
     int extenders = 0;
     float ext_h = 0;
     float non_ext_h = 0;
-    float overlap  = db->min_connector_overlap * em / db->units_per_em;
+    float overlap  = impl->min_connector_overlap * em / impl->units_per_em;
     
     context->canvas->set_font_face(font(0));
     result->fontinfo           = 0;
@@ -1536,11 +1536,11 @@ void OTMathShaper::vertical_stretch_char(
     for(int i = 0; i < ass->length(); ++i) {
       if(ass->get(i).flags & MGPRF_Extender) {
         ++extenders;
-        ext_h += ass->get(i).full_advance * em / db->units_per_em;
+        ext_h += ass->get(i).full_advance * em / impl->units_per_em;
         ext_h -= overlap;
       }
       else {
-        non_ext_h += ass->get(i).full_advance * em / db->units_per_em;
+        non_ext_h += ass->get(i).full_advance * em / impl->units_per_em;
         non_ext_h -= overlap;
       }
     }
@@ -1590,7 +1590,7 @@ void OTMathShaper::accent_positions(
   float             *over_x,
   float             *over_y
 ) {
-  float pt = context->canvas->get_font_size() / db->units_per_em;
+  float pt = context->canvas->get_font_size() / impl->units_per_em;
   uint16_t base_char = 0;
   if(base->length() == 1)
     base_char = base->text()[0];
@@ -1617,10 +1617,10 @@ void OTMathShaper::accent_positions(
   
   *under_y = base->extents().descent;
   if(under) {
-    float gap = db->consts.lower_limit_gap_min.value * pt;
+    float gap = impl->consts.lower_limit_gap_min.value * pt;
     
-    if(*under_y < db->consts.lower_limit_baseline_drop_min.value * pt)
-      *under_y  = db->consts.lower_limit_baseline_drop_min.value * pt;
+    if(*under_y < impl->consts.lower_limit_baseline_drop_min.value * pt)
+      *under_y  = impl->consts.lower_limit_baseline_drop_min.value * pt;
       
     if(*under_y < base->extents().descent + gap + under->extents().ascent)
       *under_y = base->extents().descent + gap + under->extents().ascent;
@@ -1628,13 +1628,13 @@ void OTMathShaper::accent_positions(
   
   *over_y = -base->extents().ascent;
   if(over) {
-    float gap = db->consts.upper_limit_gap_min.value * pt;
+    float gap = impl->consts.upper_limit_gap_min.value * pt;
     
     if(over->extents().descent < 0)
       *over_y -= over->extents().descent;
       
-    if(*over_y > -db->consts.upper_limit_baseline_rise_min.value * pt)
-      *over_y  = -db->consts.upper_limit_baseline_rise_min.value * pt;
+    if(*over_y > -impl->consts.upper_limit_baseline_rise_min.value * pt)
+      *over_y  = -impl->consts.upper_limit_baseline_rise_min.value * pt;
       
     if(*over_y > -base->extents().ascent - gap - over->extents().descent)
       *over_y  = -base->extents().ascent - gap - over->extents().descent;
@@ -1678,7 +1678,7 @@ void OTMathShaper::accent_positions(
     
   if(over) {
     if(base_char && over->length() == 1) {
-      int16_t *val = db->top_accents.search(base->glyph_array()[0].index);
+      int16_t *val = impl->top_accents.search(base->glyph_array()[0].index);
       
       float base_acc;
       if(val)
@@ -1688,7 +1688,7 @@ void OTMathShaper::accent_positions(
         
       float over_acc;
       if(over->length() == 1) {
-        val = db->top_accents.search(over->glyph_array()[0].index);
+        val = impl->top_accents.search(over->glyph_array()[0].index);
         if(val && *val < 0)
           over_acc = *val * pt;
         else
@@ -1715,37 +1715,37 @@ void OTMathShaper::script_positions(
   float             *sub_y,
   float             *super_y
 ) {
-  float pt = context->canvas->get_font_size() / db->units_per_em;
+  float pt = context->canvas->get_font_size() / impl->units_per_em;
   
-  *sub_y = db->consts.subscript_shift_down.value * pt;
-  if(*sub_y < base_descent + db->consts.subscript_baseline_drop_min.value * pt)
-    *sub_y = base_descent + db->consts.subscript_baseline_drop_min.value * pt;
+  *sub_y = impl->consts.subscript_shift_down.value * pt;
+  if(*sub_y < base_descent + impl->consts.subscript_baseline_drop_min.value * pt)
+    *sub_y = base_descent + impl->consts.subscript_baseline_drop_min.value * pt;
     
   if(sub) {
-    if(*sub_y < -db->consts.subscript_top_max.value * pt + sub->extents().ascent)
-      *sub_y = -db->consts.subscript_top_max.value * pt + sub->extents().ascent;
+    if(*sub_y < -impl->consts.subscript_top_max.value * pt + sub->extents().ascent)
+      *sub_y = -impl->consts.subscript_top_max.value * pt + sub->extents().ascent;
   }
   
   if(context->script_indent > 0)
-    *super_y = -db->consts.superscript_shift_up_cramped.value * pt;
+    *super_y = -impl->consts.superscript_shift_up_cramped.value * pt;
   else
-    *super_y = -db->consts.superscript_shift_up.value * pt;
+    *super_y = -impl->consts.superscript_shift_up.value * pt;
     
-  if(*super_y > -base_ascent + db->consts.superscript_baseline_drop_max.value * pt)
-    *super_y = -base_ascent + db->consts.superscript_baseline_drop_max.value * pt;
+  if(*super_y > -base_ascent + impl->consts.superscript_baseline_drop_max.value * pt)
+    *super_y = -base_ascent + impl->consts.superscript_baseline_drop_max.value * pt;
     
   if(super) {
-    if(*super_y > -db->consts.superscript_bottom_min.value * pt - super->extents().descent)
-      *super_y = -db->consts.superscript_bottom_min.value * pt - super->extents().descent;
+    if(*super_y > -impl->consts.superscript_bottom_min.value * pt - super->extents().descent)
+      *super_y = -impl->consts.superscript_bottom_min.value * pt - super->extents().descent;
   }
   
   if(sub && super) {
     float gap = *sub_y - *super_y - sub->extents().ascent - super->extents().descent;
-    if(gap < db->consts.sub_superscript_gap_min.value * pt) {
-      gap = db->consts.sub_superscript_gap_min.value * pt - gap;
+    if(gap < impl->consts.sub_superscript_gap_min.value * pt) {
+      gap = impl->consts.sub_superscript_gap_min.value * pt - gap;
       
       *super_y -= gap;
-      float max_super_bottom = -db->consts.superscript_bottom_max_with_subscript.value * pt;
+      float max_super_bottom = -impl->consts.superscript_bottom_max_with_subscript.value * pt;
       if(*super_y + super->extents().descent < max_super_bottom) {
         gap = max_super_bottom - *super_y - super->extents().descent;
         
@@ -1768,7 +1768,7 @@ void OTMathShaper::script_corrections(
   float             *super_x
 ) {
   KernVertexObject *kern;
-  float pt = context->canvas->get_font_size() / db->units_per_em;
+  float pt = context->canvas->get_font_size() / impl->units_per_em;
   
   *sub_x = *super_x = 0;
   
@@ -1776,9 +1776,9 @@ void OTMathShaper::script_corrections(
     if(base_info.horizontal_stretch)
       return;
       
-    uint16_t glyph = db->fi.char_to_glyph(base_char);
+    uint16_t glyph = impl->fi.char_to_glyph(base_char);
     
-    Array<MathGlyphPartRecord> *ass = db->get_vert_assembly(base_char, glyph);
+    Array<MathGlyphPartRecord> *ass = impl->get_vert_assembly(base_char, glyph);
     if(ass && ass->length() > 0) {
       cairo_text_extents_t  cte;
       
@@ -1806,14 +1806,14 @@ void OTMathShaper::script_corrections(
   if(sub)
     sub_a = sub->extents().ascent;
     
-  kern = db->math_kern[MKE_BOTTOM_RIGHT].search(base_info.index);
+  kern = impl->math_kern[MKE_BOTTOM_RIGHT].search(base_info.index);
   if(kern) {
     *sub_x = pt * kern->height_to_kern(
                (int16_t)((sub_a - sub_y) / pt),
                false);
   }
   else {
-    *sub_x = -db->italics_correction[base_info.index] * pt;
+    *sub_x = -impl->italics_correction[base_info.index] * pt;
   }
   
   
@@ -1821,7 +1821,7 @@ void OTMathShaper::script_corrections(
   if(super)
     super_d = super->extents().descent;
     
-  kern = db->math_kern[MKE_TOP_RIGHT].search(base_info.index);
+  kern = impl->math_kern[MKE_TOP_RIGHT].search(base_info.index);
   if(kern) {
     *super_x = pt * kern->height_to_kern(
                  (int16_t)((-super_y - super_d) / pt),
@@ -1838,25 +1838,25 @@ void OTMathShaper::shape_fraction(
   float          *width
 ) {
   float rule_y1, rule_y2, num_gap, den_gap;
-  float pt = context->canvas->get_font_size() / db->units_per_em;
+  float pt = context->canvas->get_font_size() / impl->units_per_em;
   
-  rule_y1 = rule_y2 = - db->consts.axis_height.value * pt;
-  rule_y1 -= db->consts.fraction_rule_thickness.value * pt / 2;
-  rule_y2 += db->consts.fraction_rule_thickness.value * pt / 2;
+  rule_y1 = rule_y2 = - impl->consts.axis_height.value * pt;
+  rule_y1 -= impl->consts.fraction_rule_thickness.value * pt / 2;
+  rule_y2 += impl->consts.fraction_rule_thickness.value * pt / 2;
   
   if(context->script_indent > 0) {
-    num_gap = db->consts.fraction_numerator_gap_min.value   * pt;
-    den_gap = db->consts.fraction_denominator_gap_min.value * pt;
+    num_gap = impl->consts.fraction_numerator_gap_min.value   * pt;
+    den_gap = impl->consts.fraction_denominator_gap_min.value * pt;
     
-    *num_y = -db->consts.fraction_numerator_shift_up.value     * pt;
-    *den_y =  db->consts.fraction_denominator_shift_down.value * pt;
+    *num_y = -impl->consts.fraction_numerator_shift_up.value     * pt;
+    *den_y =  impl->consts.fraction_denominator_shift_down.value * pt;
   }
   else {
-    num_gap = db->consts.fraction_num_display_style_gap_min.value   * pt;
-    den_gap = db->consts.fraction_denom_display_style_gap_min.value * pt;
+    num_gap = impl->consts.fraction_num_display_style_gap_min.value   * pt;
+    den_gap = impl->consts.fraction_denom_display_style_gap_min.value * pt;
     
-    *num_y = -db->consts.fraction_numerator_display_style_shift_up.value     * pt;
-    *den_y =  db->consts.fraction_denominator_display_style_shift_down.value * pt;
+    *num_y = -impl->consts.fraction_numerator_display_style_shift_up.value     * pt;
+    *den_y =  impl->consts.fraction_denominator_display_style_shift_down.value * pt;
   }
   
   if(*num_y > rule_y1 - num_gap - num.descent)
@@ -1866,22 +1866,22 @@ void OTMathShaper::shape_fraction(
     *den_y = rule_y2 + den_gap + den.ascent;
     
   if(num.width > den.width)
-    *width = num.width + 0.2f * pt * db->units_per_em;
+    *width = num.width + 0.2f * pt * impl->units_per_em;
   else
-    *width = den.width + 0.2f * pt * db->units_per_em;
+    *width = den.width + 0.2f * pt * impl->units_per_em;
 }
 
 void OTMathShaper::show_fraction(
   Context        *context,
   float           width
 ) {
-  float pt = context->canvas->get_font_size() / db->units_per_em;
+  float pt = context->canvas->get_font_size() / impl->units_per_em;
   float x1, y1, x2, y2;
   context->canvas->current_pos(&x1, &y1);
   
-  y2 = y1 -= db->consts.axis_height.value * pt;
-  y1 -= db->consts.fraction_rule_thickness.value * pt / 2;
-  y2 += db->consts.fraction_rule_thickness.value * pt / 2;
+  y2 = y1 -= impl->consts.axis_height.value * pt;
+  y1 -= impl->consts.fraction_rule_thickness.value * pt / 2;
+  y2 += impl->consts.fraction_rule_thickness.value * pt / 2;
   
   x2 = x1 + width;
   
@@ -1915,7 +1915,7 @@ float OTMathShaper::italic_correction(
 ) {
   if(info.slant == FontSlantItalic /*|| style.italic*/) {
     float em = context->canvas->get_font_size();
-    return db->italics_correction[info.index] * em / db->units_per_em;
+    return impl->italics_correction[info.index] * em / impl->units_per_em;
   }
   
   return 0;
@@ -1947,23 +1947,23 @@ void OTMathShaper::shape_radical(
   cg.y = 0;
   
   float em = context->canvas->get_font_size();
-  float pt = em / db->units_per_em;
-  float axis = db->consts.axis_height.value * pt;
+  float pt = em / impl->units_per_em;
+  float axis = impl->consts.axis_height.value * pt;
   
-  float gap_and_rule = db->consts.radical_rule_thickness.value * pt;
+  float gap_and_rule = impl->consts.radical_rule_thickness.value * pt;
   if(context->script_indent > 0)
-    gap_and_rule += db->consts.radical_vertical_gap.value * pt;
+    gap_and_rule += impl->consts.radical_vertical_gap.value * pt;
   else
-    gap_and_rule += db->consts.radical_display_style_vertical_gap.value * pt;
+    gap_and_rule += impl->consts.radical_display_style_vertical_gap.value * pt;
     
   float height = box->height();// + gap_and_rule;
   
   info->hbar = (int)ceilf(box->width + 0.2f * em);
-  *exponent_x = db->consts.radical_kern_after_degree.value * pt;
-  *exponent_y = db->consts.radical_degree_bottom_raise_percent / 100.0f;
+  *exponent_x = impl->consts.radical_kern_after_degree.value * pt;
+  *exponent_y = impl->consts.radical_degree_bottom_raise_percent / 100.0f;
   
-  uint16_t glyph = db->fi.char_to_glyph(SqrtChar);
-  if(auto var = db->get_vert_variants(SqrtChar, glyph)) {
+  uint16_t glyph = impl->fi.char_to_glyph(SqrtChar);
+  if(auto var = impl->get_vert_variants(SqrtChar, glyph)) {
     for(int i = 0; i < var->length(); ++i) {
       cg.index = var->get(i).glyph;
       context->canvas->glyph_extents(&cg, 1, &cte);
@@ -1982,18 +1982,18 @@ void OTMathShaper::shape_radical(
         *exponent_y = -*exponent_y * cte.height + box->descent;
         
         box->ascent = cte.height - box->descent;
-        box->ascent += db->consts.radical_extra_ascender.value * pt;
+        box->ascent += impl->consts.radical_extra_ascender.value * pt;
         box->width = info->hbar + *radicand_x;
         return;
       }
     }
   }
   
-  if(auto ass = db->get_vert_assembly(SqrtChar, glyph)) {
+  if(auto ass = impl->get_vert_assembly(SqrtChar, glyph)) {
     int extenders = 0;
     float ext_h = 0;
     float non_ext_h = 0;
-    float overlap  = db->min_connector_overlap * pt;
+    float overlap  = impl->min_connector_overlap * pt;
     
     for(int i = 0; i < ass->length(); ++i) {
       if(ass->get(i).flags & MGPRF_Extender) {
@@ -2038,7 +2038,7 @@ void OTMathShaper::shape_radical(
     }
     
     height += overlap;
-    height += db->consts.radical_extra_ascender.value * pt;
+    height += impl->consts.radical_extra_ascender.value * pt;
     box->ascent = height - box->descent;
     box->width = info->hbar + *radicand_x;
     info->y_offset = box->descent - height / 2 + axis;
@@ -2086,12 +2086,12 @@ void OTMathShaper::show_radical(
   cg.y = 0;
   
   float em = context->canvas->get_font_size();
-  float overlap  = db->min_connector_overlap * em / db->units_per_em;
+  float overlap  = impl->min_connector_overlap * em / impl->units_per_em;
   float x1, y1, x2, y2;
   y1 = y + info.y_offset - a;
   if(gi.composed) {
     x1 = 0;
-    if(auto ass = db->get_vert_assembly(SqrtChar, db->fi.char_to_glyph(SqrtChar))) {
+    if(auto ass = impl->get_vert_assembly(SqrtChar, impl->fi.char_to_glyph(SqrtChar))) {
       for(int i = 0; i < ass->length(); ++i) {
         cg.index = ass->get(i).glyph;
         context->canvas->glyph_extents(&cg, 1, &cte);
@@ -2113,7 +2113,7 @@ void OTMathShaper::show_radical(
   x2 = x1 + info.hbar;
   if(gi.composed)
     x1 -= overlap;
-  y2 = y1 + db->consts.radical_rule_thickness.value * em / db->units_per_em;
+  y2 = y1 + impl->consts.radical_rule_thickness.value * em / impl->units_per_em;
   
   bool sot = context->canvas->show_only_text;
   context->canvas->show_only_text = false;
@@ -2128,8 +2128,8 @@ void OTMathShaper::show_radical(
 void OTMathShaper::get_script_size_multis(Array<float> *arr) {
   arr->length(2);
   
-  float sm1 = db->consts.script_percent_scale_down        / 100.0f;
-  float sm2 = db->consts.script_script_percent_scale_down / 100.0f;
+  float sm1 = impl->consts.script_percent_scale_down        / 100.0f;
+  float sm2 = impl->consts.script_script_percent_scale_down / 100.0f;
   
   arr->set(0, sm1);
   arr->set(1, sm1 > 0 ? sm2 / sm1 : sm2);
@@ -2151,10 +2151,10 @@ SharedPtr<TextShaper> OTMathShaper::set_style(FontStyle _style) {
 
 float OTMathShaper::get_center_height(Context *context, uint8_t fontinfo) {
   if(fontinfo > 0)
-    return db->text_shaper->get_center_height(context, fontinfo - 1);
+    return impl->text_shaper->get_center_height(context, fontinfo - 1);
     
   float em = context->canvas->get_font_size();
-  return db->consts.axis_height.value * em / db->units_per_em;
+  return impl->consts.axis_height.value * em / impl->units_per_em;
 }
 
 //} ... class OTMathShaper
