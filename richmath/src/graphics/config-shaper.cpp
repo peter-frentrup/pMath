@@ -862,7 +862,7 @@ namespace richmath {
 
 //{ class ConfigShaperDB ...
 
-Hashtable<String, SharedPtr<ConfigShaperDB> > ConfigShaperDB::registered;
+static Hashtable<String, SharedPtr<ConfigShaperDB> > registered_config_shaper_dbs;
 
 ConfigShaperDB::ConfigShaperDB()
   : Shareable()
@@ -873,22 +873,25 @@ ConfigShaperDB::ConfigShaperDB()
 ConfigShaperDB::~ConfigShaperDB() {
 }
 
-void ConfigShaperDB::dispose_all() {
-  registered.clear();
-  GG.clear();
-}
-
-SharedPtr<ConfigShaperDB> ConfigShaperDB::load_from_object(const Expr expr) {
+SharedPtr<ConfigShaper> ConfigShaperDB::try_register(const Expr expr) {
   SharedPtr<ConfigShaperTables> tables = ConfigShaperTables::try_load_from_object(expr, NoStyle);
   if(!tables.is_valid())
     return nullptr;
     
-  SharedPtr<ConfigShaperDB> db = new ConfigShaperDB();
-  db->shaper_name = tables->shaper_name;
-  db->definition = expr;
-  db->shapers[(int)NoStyle] = new ConfigShaper(tables, NoStyle);
+  SharedPtr<ConfigShaper> plain_shaper = new ConfigShaper(tables, NoStyle);
   
-  return db;
+  SharedPtr<ConfigShaperDB> db = new ConfigShaperDB();
+  db->definition = expr;
+  db->shapers[(int)NoStyle] = plain_shaper;
+  
+  registered_config_shaper_dbs.set(tables->shaper_name, db);
+  
+  return plain_shaper;
+}
+
+void ConfigShaperDB::dispose_all() {
+  registered_config_shaper_dbs.clear();
+  GG.clear();
 }
 
 SharedPtr<ConfigShaper> ConfigShaperDB::find(FontStyle style) {
@@ -936,6 +939,10 @@ ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperTables> _db, FontStyle _style)
 }
 
 ConfigShaper::~ConfigShaper() {
+}
+
+String ConfigShaper::name() {
+  return db->shaper_name;
 }
 
 uint8_t ConfigShaper::num_fonts() {
@@ -1391,7 +1398,7 @@ void ConfigShaper::get_script_size_multis(Array<float> *arr) {
 }
 
 SharedPtr<TextShaper> ConfigShaper::set_style(FontStyle _style) {
-  SharedPtr<ConfigShaperDB> *hub = ConfigShaperDB::registered.search(db->shaper_name);
+  SharedPtr<ConfigShaperDB> *hub = registered_config_shaper_dbs.search(db->shaper_name);
   
   if(!hub || !hub->is_valid()) {
     pmath_debug_print_object("Lost ConfigShaperDB for ", db->shaper_name.get(), "\n");

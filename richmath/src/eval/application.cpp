@@ -1393,13 +1393,12 @@ static void cnt_menucommand(Expr data) {
 }
 
 static void cnt_addconfigshaper(Expr data) {
-  SharedPtr<ConfigShaperDB> db = ConfigShaperDB::load_from_object(data);
+  SharedPtr<ConfigShaper> shaper = ConfigShaperDB::try_register(data);
   
-  if(db) {
-    ConfigShaperDB::registered.set(db->shaper_name, db);
-    MathShaper::available_shapers.set(db->shaper_name, db->find(NoStyle));
+  if(shaper) {
+    MathShaper::available_shapers.set(shaper->name(), shaper);
     
-    pmath_debug_print_object("loaded ", db->shaper_name.get(), "\n");
+    pmath_debug_print_object("loaded ", shaper->name().get(), "\n");
   }
   else {
     pmath_debug_print("adding config shaper failed.\n");

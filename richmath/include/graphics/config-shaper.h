@@ -101,12 +101,10 @@ namespace richmath {
     public:
       virtual ~ConfigShaperDB();
       
-      static SharedPtr<ConfigShaperDB> load_from_object(const Expr expr);
+      static SharedPtr<ConfigShaper> try_register(const Expr expr);
+      static void dispose_all();
       
       SharedPtr<ConfigShaper> find(FontStyle style);
-      
-      static Hashtable<String, SharedPtr<ConfigShaperDB> > registered;
-      static void dispose_all();
       
     private:
       ConfigShaperDB();
@@ -115,7 +113,6 @@ namespace richmath {
       SharedPtr<ConfigShaper> shapers[FontStyle::Permutations];
       
     public:
-      String shaper_name;
       Expr definition;
   };
   
@@ -124,6 +121,8 @@ namespace richmath {
       friend class ConfigShaperTables;
     public:
       virtual ~ConfigShaper();
+      
+      String name();
       
       virtual uint8_t num_fonts() override;
       virtual FontFace font(uint8_t fontinfo) override;
