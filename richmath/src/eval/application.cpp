@@ -1393,7 +1393,7 @@ static void cnt_menucommand(Expr data) {
 }
 
 static void cnt_addconfigshaper(Expr data) {
-  SharedPtr<ConfigShaper> shaper = ConfigShaperDB::try_register(data);
+  SharedPtr<ConfigShaper> shaper = ConfigShaper::try_register(data);
   
   if(shaper) {
     MathShaper::available_shapers.set(shaper->name(), shaper);

@@ -13,166 +13,49 @@
 
 using namespace richmath;
 
-static uint8_t expr_to_ui8(const Expr expr, uint8_t def = 0) {
-  if(expr.is_int32() && PMATH_AS_INT32(expr.get()) >= 0) {
-    unsigned res = PMATH_AS_INT32(expr.get());
-    
-    if((res & 0xFF) == res)
-      return res;
-  }
-  
-  return def;
-}
-
-static uint16_t expr_to_ui16(const Expr expr, uint16_t def = 0) {
-  if(expr.is_int32() && PMATH_AS_INT32(expr.get()) >= 0) {
-    unsigned res = PMATH_AS_INT32(expr.get());
-    
-    if((res & 0xFFFF) == res)
-      return res;
-  }
-  
-  return def;
-}
-
-static uint32_t expr_to_char(const Expr expr) {
-  if(expr.is_string()) {
-    String s(expr);
-    
-    if(s.length() == 1)
-      return s[0];
-      
-    if(s.length() == 2) {
-      uint32_t hi = s[0];
-      uint32_t lo = s[1];
-      
-      if(is_utf16_high(hi)
-          && is_utf16_low(lo))
-        return 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
-    }
-  }
-  
-  return -(uint32_t)1;
-}
-
-class GlyphGetter: public Base {
-  public:
-    GlyphGetter()
-      : Base()
-    {
-      SET_BASE_DEBUG_TAG(typeid(*this).name());
-      
-      surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
-      cr = cairo_create(surface);
-      
-      context.canvas = new Canvas(cr);
-    }
-    
-    ~GlyphGetter() {
-      delete context.canvas;
-      
-      cairo_destroy(cr);
-      cairo_surface_destroy(surface);
-    }
-    
-    uint16_t expr_to_glyph(const Expr expr, uint8_t font) {
-      if(expr.is_expr() && expr[0] == PMATH_SYMBOL_ALTERNATIVES) {
-        for(size_t i = 1; i <= expr.expr_length(); ++i) {
-          if(uint16_t res = expr_to_glyph(expr[i], font))
-            return res;
-        }
-        
-        return 0;
-      }
-      
-      if(expr.is_string()) {
-        uint16_t res = ps2g[font & (FontsPerGlyphCount - 1)][String(expr)];
-        
-//        if(!res){
-//          pmath_debug_print_object("Unknown glyph ", expr.get(), "");
-//          pmath_debug_print(" in font %d\n", font+1);
-//        }
-
-        return res;
-      }
-      
-      return expr_to_ui16(expr);
-    }
-    
-    void clear() {
-      for(int i = 0; i < FontsPerGlyphCount; ++i)
-        ps2g[i].clear();
-    }
-    
-  public:
-    Hashtable<String, uint16_t> ps2g[FontsPerGlyphCount];
-    cairo_surface_t *surface;
-    cairo_t         *cr;
-    Context          context;
-    
-//    Array<SharedPtr<TextShaper> > shapers;
-};
-
-static GlyphGetter GG;
-
-//{ class GlyphFontOffset ...
-
-const float GlyphFontOffset::EmPerOffset = 1 / 72.0f;
-
-GlyphFontOffset::GlyphFontOffset(Expr expr)
-  : glyph(0), font(0), offset(0)
-{
-  if(expr[0] == PMATH_SYMBOL_LIST) {
-    if(expr.expr_length() == 2) {
-      font  = expr_to_ui8(expr[2]) - 1;
-      glyph = GG.expr_to_glyph(expr[1], font);
-    }
-    else if(expr.expr_length() == 3) {
-      font  = expr_to_ui8(expr[2]) - 1;
-      glyph = GG.expr_to_glyph(expr[1], font);
-      
-      float o = expr[3].to_double();
-      offset = (uint8_t)(o / EmPerOffset + 0.5f);
-    }
-  }
-  else {
-    glyph = GG.expr_to_glyph(expr, font);
-  }
-}
-
-//} ... class GlyphFontOffset
-
-//{ class ScriptIndent ...
-
-ScriptIndent::ScriptIndent(Expr expr)
-  : super(0), sub(0), center(0)
-{
-  float f;
-  
-  if(expr[0] == PMATH_SYMBOL_LIST) {
-    if(expr.expr_length() == 2) {
-      f = expr[1].to_double();
-      super = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
-      
-      f = expr[2].to_double();
-      sub = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
-    }
-    else if(expr.expr_length() == 3) {
-      f = expr[1].to_double();
-      super = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
-      
-      f = expr[2].to_double();
-      sub = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
-      
-      f = expr[3].to_double();
-      center = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
-    }
-  }
-}
-
-//} ... class ScriptIndent
-
 namespace {
+  static uint8_t expr_to_ui8(const Expr expr, uint8_t def = 0) {
+    if(expr.is_int32() && PMATH_AS_INT32(expr.get()) >= 0) {
+      unsigned res = PMATH_AS_INT32(expr.get());
+      
+      if((res & 0xFF) == res)
+        return res;
+    }
+    
+    return def;
+  }
+  
+  static uint16_t expr_to_ui16(const Expr expr, uint16_t def = 0) {
+    if(expr.is_int32() && PMATH_AS_INT32(expr.get()) >= 0) {
+      unsigned res = PMATH_AS_INT32(expr.get());
+      
+      if((res & 0xFFFF) == res)
+        return res;
+    }
+    
+    return def;
+  }
+  
+  static uint32_t expr_to_char(const Expr expr) {
+    if(expr.is_string()) {
+      String s(expr);
+      
+      if(s.length() == 1)
+        return s[0];
+        
+      if(s.length() == 2) {
+        uint32_t hi = s[0];
+        uint32_t lo = s[1];
+        
+        if(is_utf16_high(hi)
+            && is_utf16_low(lo))
+          return 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
+      }
+    }
+    
+    return -(uint32_t)1;
+  }
+  
   static uint16_t default_vertical_composed_glyphs[11][5] = {
     // {char, top, bottom, middle, special_center}
     {'(',                  0x239B, 0x239D, 0x239C, 0},
@@ -186,6 +69,199 @@ namespace {
     {0x2309,               0x23A4, 0x23A5, 0x23A5, 0}, // right ceiling
     {0x230A,               0x23A2, 0x23A3, 0x23A2, 0}, // left floor
     {0x230B,               0x23A5, 0x23A6, 0x23A5, 0}  // right floor
+  };
+  
+  class GlyphGetter: public Base {
+    public:
+      GlyphGetter()
+        : Base()
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+        
+        surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
+        cr = cairo_create(surface);
+        
+        context.canvas = new Canvas(cr);
+      }
+      
+      ~GlyphGetter() {
+        delete context.canvas;
+        
+        cairo_destroy(cr);
+        cairo_surface_destroy(surface);
+      }
+      
+      uint16_t expr_to_glyph(const Expr expr, uint8_t font) {
+        if(expr.is_expr() && expr[0] == PMATH_SYMBOL_ALTERNATIVES) {
+          for(size_t i = 1; i <= expr.expr_length(); ++i) {
+            if(uint16_t res = expr_to_glyph(expr[i], font))
+              return res;
+          }
+          
+          return 0;
+        }
+        
+        if(expr.is_string()) {
+          uint16_t res = ps2g[font & (FontsPerGlyphCount - 1)][String(expr)];
+          
+//        if(!res){
+//          pmath_debug_print_object("Unknown glyph ", expr.get(), "");
+//          pmath_debug_print(" in font %d\n", font+1);
+//        }
+
+          return res;
+        }
+        
+        return expr_to_ui16(expr);
+      }
+      
+      void clear() {
+        for(int i = 0; i < FontsPerGlyphCount; ++i)
+          ps2g[i].clear();
+      }
+      
+    public:
+      Hashtable<String, uint16_t> ps2g[FontsPerGlyphCount];
+      cairo_surface_t *surface;
+      cairo_t         *cr;
+      Context          context;
+      
+//    Array<SharedPtr<TextShaper> > shapers;
+  };
+  
+  static GlyphGetter GG;
+  
+  class GlyphFontOffset {
+    public:
+      GlyphFontOffset(
+        uint16_t g = 0,
+        uint8_t  f = 0,
+        int8_t   o = 0)
+        : glyph(g), font(f), offset(o)
+      {
+      }
+      
+      explicit GlyphFontOffset(Expr expr)
+        : glyph(0), font(0), offset(0)
+      {
+        if(expr[0] == PMATH_SYMBOL_LIST) {
+          if(expr.expr_length() == 2) {
+            font  = expr_to_ui8(expr[2]) - 1;
+            glyph = GG.expr_to_glyph(expr[1], font);
+          }
+          else if(expr.expr_length() == 3) {
+            font  = expr_to_ui8(expr[2]) - 1;
+            glyph = GG.expr_to_glyph(expr[1], font);
+            
+            float o = expr[3].to_double();
+            offset = (uint8_t)(o / EmPerOffset + 0.5f);
+          }
+        }
+        else {
+          glyph = GG.expr_to_glyph(expr, font);
+        }
+      }
+      
+    public:
+      uint16_t glyph;
+      uint8_t  font;
+      int8_t   offset;
+      
+      static const float EmPerOffset;
+  };
+  
+  const float GlyphFontOffset::EmPerOffset = 1 / 72.0f;
+  
+  class ScriptIndent {
+    public:
+      int8_t super;
+      int8_t sub;
+      int8_t center;
+      
+      ScriptIndent(int8_t _super = 0, int8_t _sub = 0, int8_t _center = 0)
+        : super(_super), sub(_sub), center(_center)
+      {
+      }
+      
+      explicit ScriptIndent(Expr expr)
+        : super(0), sub(0), center(0)
+      {
+        float f;
+        
+        if(expr[0] == PMATH_SYMBOL_LIST) {
+          if(expr.expr_length() == 2) {
+            f = expr[1].to_double();
+            super = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
+            
+            f = expr[2].to_double();
+            sub = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
+          }
+          else if(expr.expr_length() == 3) {
+            f = expr[1].to_double();
+            super = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
+            
+            f = expr[2].to_double();
+            sub = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
+            
+            f = expr[3].to_double();
+            center = (uint8_t)(f / GlyphFontOffset::EmPerOffset + 0.5f);
+          }
+        }
+      }
+      
+  };
+  
+  class StretchGlyphArray {
+    public:
+      Array<uint16_t>  glyphs;
+      Array<uint8_t>   fonts;
+      bool             vertical;
+  };
+  
+  class ComposedGlyph {
+    public:
+      ComposedGlyph()
+        : top(0),
+          bottom(0),
+          middle(0),
+          special_center(0),
+          upper(0),
+          lower(0),
+          tbms_font(0),
+          ul_font(0)
+      {
+      }
+      
+    public:
+      uint16_t top;
+      uint16_t bottom;
+      uint16_t middle;
+      uint16_t special_center;
+      
+      uint16_t upper;
+      uint16_t lower;
+      
+      uint8_t tbms_font;
+      uint8_t ul_font;
+      
+      bool vertical;
+  };
+  
+  class BigRadicalGlyph {
+    public:
+      uint16_t  bottom;
+      uint16_t  vertical;
+      uint16_t  edge;
+      uint16_t  horizontal;
+      float     rel_exp_x;
+      float     rel_exp_y;
+  };
+  
+  class RadicalGlyphs {
+    public:
+      Array<SmallRadicalGlyph>  small_glyphs;
+      BigRadicalGlyph           big_glyph;
+      uint8_t                   font;
   };
 }
 
@@ -858,65 +934,82 @@ namespace richmath {
         return true;
       }
   };
+  
+  class ConfigShaperDB: public Shareable {
+    public:
+      virtual ~ConfigShaperDB() {
+      }
+      
+      static SharedPtr<ConfigShaper> try_register(const Expr expr) {
+        SharedPtr<ConfigShaperTables> tables = ConfigShaperTables::try_load_from_object(expr, NoStyle);
+        if(!tables.is_valid())
+          return nullptr;
+          
+        SharedPtr<ConfigShaper> plain_shaper = new ConfigShaper(tables, NoStyle);
+        
+        SharedPtr<ConfigShaperDB> db = new ConfigShaperDB();
+        db->definition = expr;
+        db->shapers[(int)NoStyle] = plain_shaper;
+        
+        registered.set(tables->shaper_name, db);
+        
+        return plain_shaper;
+      }
+      
+      static void dispose_all() {
+        registered.clear();
+        GG.clear();
+      }
+      
+      static SharedPtr<ConfigShaper> try_find(String name, FontStyle style) {
+        SharedPtr<ConfigShaperDB> *db = registered.search(name);
+        
+        if(!db || !db->is_valid()) 
+          return nullptr;
+        
+        return (*db)->find(style);
+      }
+      
+    private:
+      ConfigShaperDB()
+        : Shareable()
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+      }
+      
+      SharedPtr<ConfigShaper> find(FontStyle style) {
+        int i = (int)style;
+        
+        if(shapers[i].is_valid())
+          return shapers[i];
+          
+        SharedPtr<ConfigShaperTables> tables = ConfigShaperTables::try_load_from_object(definition, style);
+        
+        if(!tables.is_valid()) {
+          printf("ConfigShaperTables::try_load_from_object failed for style %x\n", (unsigned)style);
+          
+          if(!shapers[(int)NoStyle].is_valid()) {
+            assert(0 && "invalid ConfigShaperDB");
+          }
+          
+          tables = shapers[(int)NoStyle]->tables;
+        }
+        
+        shapers[i] = new ConfigShaper(tables, style);
+        return shapers[i];
+      }
+      
+    private:
+      SharedPtr<ConfigShaper> shapers[FontStyle::Permutations];
+      Expr definition;
+      
+      static Hashtable<String, SharedPtr<ConfigShaperDB> > registered;
+  };
+  
+  Hashtable<String, SharedPtr<ConfigShaperDB> > ConfigShaperDB::registered;
+  
 }
 
-//{ class ConfigShaperDB ...
-
-static Hashtable<String, SharedPtr<ConfigShaperDB> > registered_config_shaper_dbs;
-
-ConfigShaperDB::ConfigShaperDB()
-  : Shareable()
-{
-  SET_BASE_DEBUG_TAG(typeid(*this).name());
-}
-
-ConfigShaperDB::~ConfigShaperDB() {
-}
-
-SharedPtr<ConfigShaper> ConfigShaperDB::try_register(const Expr expr) {
-  SharedPtr<ConfigShaperTables> tables = ConfigShaperTables::try_load_from_object(expr, NoStyle);
-  if(!tables.is_valid())
-    return nullptr;
-    
-  SharedPtr<ConfigShaper> plain_shaper = new ConfigShaper(tables, NoStyle);
-  
-  SharedPtr<ConfigShaperDB> db = new ConfigShaperDB();
-  db->definition = expr;
-  db->shapers[(int)NoStyle] = plain_shaper;
-  
-  registered_config_shaper_dbs.set(tables->shaper_name, db);
-  
-  return plain_shaper;
-}
-
-void ConfigShaperDB::dispose_all() {
-  registered_config_shaper_dbs.clear();
-  GG.clear();
-}
-
-SharedPtr<ConfigShaper> ConfigShaperDB::find(FontStyle style) {
-  int i = (int)style;
-  
-  if(shapers[i].is_valid())
-    return shapers[i];
-    
-  SharedPtr<ConfigShaperTables> tables = ConfigShaperTables::try_load_from_object(definition, style);
-  
-  if(!tables.is_valid()) {
-    printf("ConfigShaperTables::try_load_from_object failed for style %x\n", (unsigned)style);
-    
-    if(!shapers[(int)NoStyle].is_valid()) {
-      assert(0 && "invalid ConfigShaperDB");
-    }
-    
-    tables = shapers[(int)NoStyle]->tables;
-  }
-  
-  shapers[i] = new ConfigShaper(tables, style);
-  return shapers[i];
-}
-
-//} ... class ConfigShaperDB
 
 //{ class ConfigShaper ...
 
@@ -943,6 +1036,14 @@ ConfigShaper::~ConfigShaper() {
 
 String ConfigShaper::name() {
   return tables->shaper_name;
+}
+
+SharedPtr<ConfigShaper> ConfigShaper::try_register(const Expr expr) {
+  return ConfigShaperDB::try_register(expr);
+}
+
+void ConfigShaper::dispose_all() {
+  ConfigShaperDB::dispose_all();
 }
 
 uint8_t ConfigShaper::num_fonts() {
@@ -1398,9 +1499,8 @@ void ConfigShaper::get_script_size_multis(Array<float> *arr) {
 }
 
 SharedPtr<TextShaper> ConfigShaper::set_style(FontStyle _style) {
-  SharedPtr<ConfigShaperDB> *db = registered_config_shaper_dbs.search(name());
-  
-  if(!db || !db->is_valid()) {
+  SharedPtr<ConfigShaper> result = ConfigShaperDB::try_find(name(), _style);
+  if(!result.is_valid()) {
     pmath_debug_print_object("Lost ConfigShaperDB for ", name().get(), "\n");
     
     style = _style; // HACK!!! Otherwise we cause stack overflow elsewhere: code assumes that the returned shaper has the given style.
@@ -1409,7 +1509,7 @@ SharedPtr<TextShaper> ConfigShaper::set_style(FontStyle _style) {
     return this;
   }
   
-  return (*db)->find(_style);
+  return result;
 }
 
 int ConfigShaper::h_stretch_glyphs(

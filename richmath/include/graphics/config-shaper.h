@@ -8,113 +8,7 @@
 
 
 namespace richmath {
-  class GlyphFontOffset {
-    public:
-      GlyphFontOffset(
-        uint16_t g = 0,
-        uint8_t  f = 0,
-        int8_t   o = 0)
-        : glyph(g), font(f), offset(o)
-      {
-      }
-      
-      explicit GlyphFontOffset(Expr expr);
-      
-    public:
-      uint16_t glyph;
-      uint8_t  font;
-      int8_t   offset;
-      
-      static const float EmPerOffset;
-  };
-  
-  class ScriptIndent {
-    public:
-      int8_t super;
-      int8_t sub;
-      int8_t center;
-      
-      ScriptIndent(int8_t _super = 0, int8_t _sub = 0, int8_t _center = 0)
-        : super(_super), sub(_sub), center(_center)
-      {
-      }
-      
-      explicit ScriptIndent(Expr expr);
-  };
-  
-  class StretchGlyphArray {
-    public:
-      Array<uint16_t>  glyphs;
-      Array<uint8_t>   fonts;
-      bool             vertical;
-  };
-  
-  class ComposedGlyph {
-    public:
-      ComposedGlyph()
-        : top(0),
-          bottom(0),
-          middle(0),
-          special_center(0),
-          upper(0),
-          lower(0),
-          tbms_font(0),
-          ul_font(0)
-      {
-      }
-      
-    public:
-      uint16_t top;
-      uint16_t bottom;
-      uint16_t middle;
-      uint16_t special_center;
-      
-      uint16_t upper;
-      uint16_t lower;
-      
-      uint8_t tbms_font;
-      uint8_t ul_font;
-      
-      bool vertical;
-  };
-  
-  class BigRadicalGlyph {
-    public:
-      uint16_t  bottom;
-      uint16_t  vertical;
-      uint16_t  edge;
-      uint16_t  horizontal;
-      float     rel_exp_x;
-      float     rel_exp_y;
-  };
-  
-  class RadicalGlyphs {
-    public:
-      Array<SmallRadicalGlyph>  small_glyphs;
-      BigRadicalGlyph           big_glyph;
-      uint8_t                   font;
-  };
-  
-  class ConfigShaper;
-  
-  class ConfigShaperDB: public Shareable {
-    public:
-      virtual ~ConfigShaperDB();
-      
-      static SharedPtr<ConfigShaper> try_register(const Expr expr);
-      static void dispose_all();
-      
-      SharedPtr<ConfigShaper> find(FontStyle style);
-      
-    private:
-      ConfigShaperDB();
-      
-    private:
-      SharedPtr<ConfigShaper> shapers[FontStyle::Permutations];
-      
-    public:
-      Expr definition;
-  };
+  class ConfigShaperTables;
   
   class ConfigShaper: public SimpleMathShaper {
       friend class ConfigShaperDB;
@@ -123,6 +17,8 @@ namespace richmath {
       virtual ~ConfigShaper();
       
       String name();
+      static SharedPtr<ConfigShaper> try_register(const Expr expr);
+      static void dispose_all();
       
       virtual uint8_t num_fonts() override;
       virtual FontFace font(uint8_t fontinfo) override;
