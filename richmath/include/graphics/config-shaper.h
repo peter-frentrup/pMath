@@ -214,7 +214,7 @@ namespace richmath {
         float        *_rel_exp_y) override;
         
     protected:
-      SharedPtr<ConfigShaperTables>  db;
+      SharedPtr<ConfigShaperTables>  tables;
       SharedPtr<FallbackTextShaper>  text_shaper;
       Array<FontFace>                math_font_faces;
       FontStyle                      style;

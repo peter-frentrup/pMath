@@ -222,7 +222,7 @@ namespace richmath {
       
     public:
       static SharedPtr<ConfigShaperTables> try_load_from_object(const Expr expr, FontStyle style) {
-        SharedPtr<ConfigShaperTables> db = new ConfigShaperTables();
+        SharedPtr<ConfigShaperTables> tables = new ConfigShaperTables();
         
         GG.clear();
         for(size_t i = 1; i <= expr.expr_length(); ++i) {
@@ -232,18 +232,18 @@ namespace richmath {
             
             if(lhs.equals("MathFonts")) {
               if(rhs.is_string()) {
-                db->math_fontnames.length(1);
-                db->math_fontnames[0] = find_font(rhs);
-                if(db->math_fontnames[0].length() == 0)
+                tables->math_fontnames.length(1);
+                tables->math_fontnames[0] = find_font(rhs);
+                if(tables->math_fontnames[0].length() == 0)
                   return nullptr;
               }
               
               if(rhs[0] == PMATH_SYMBOL_LIST) {
-                db->math_fontnames.length(rhs.expr_length());
+                tables->math_fontnames.length(rhs.expr_length());
                 
-                for(int j = 0; j < db->math_fontnames.length(); ++j) {
-                  db->math_fontnames[j] = find_font(rhs[j + 1]);
-                  if(db->math_fontnames[j].length() == 0)
+                for(int j = 0; j < tables->math_fontnames.length(); ++j) {
+                  tables->math_fontnames[j] = find_font(rhs[j + 1]);
+                  if(tables->math_fontnames[j].length() == 0)
                     return nullptr;
                 }
               }
@@ -253,18 +253,18 @@ namespace richmath {
             
             if(lhs.equals("TextFonts")) {
               if(rhs.is_string()) {
-                db->text_fontnames.length(1);
-                db->text_fontnames[0] = find_font(rhs);
-                if(db->math_fontnames[0].length() == 0)
+                tables->text_fontnames.length(1);
+                tables->text_fontnames[0] = find_font(rhs);
+                if(tables->math_fontnames[0].length() == 0)
                   return nullptr;
               }
               
               if(rhs[0] == PMATH_SYMBOL_LIST) {
-                db->text_fontnames.length(rhs.expr_length());
+                tables->text_fontnames.length(rhs.expr_length());
                 
-                for(int j = 0; j < db->text_fontnames.length(); ++j) {
-                  db->text_fontnames[j] = find_font(rhs[j + 1]);
-                  if(db->math_fontnames[j].length() == 0)
+                for(int j = 0; j < tables->text_fontnames.length(); ++j) {
+                  tables->text_fontnames[j] = find_font(rhs[j + 1]);
+                  if(tables->math_fontnames[j].length() == 0)
                     return nullptr;
                 }
               }
@@ -273,44 +273,44 @@ namespace richmath {
             }
             
             if(lhs.equals("RadicalFont")) {
-              db->radical.font = expr_to_ui8(rhs) - 1;
+              tables->radical.font = expr_to_ui8(rhs) - 1;
               
               continue;
             }
             
             if(lhs.equals("ScriptSizeMultipliers")) {
               if(rhs[0] == PMATH_SYMBOL_LIST) {
-                db->script_size_multipliers.length(rhs.expr_length());
+                tables->script_size_multipliers.length(rhs.expr_length());
                 
-                for(int i = 0; i < db->script_size_multipliers.length(); ++i) {
-                  db->script_size_multipliers[i] = rhs[i + 1].to_double();
+                for(int i = 0; i < tables->script_size_multipliers.length(); ++i) {
+                  tables->script_size_multipliers[i] = rhs[i + 1].to_double();
                 }
               }
               else
-                db->script_size_multipliers.length(1, rhs.to_double());
+                tables->script_size_multipliers.length(1, rhs.to_double());
                 
               continue;
             }
             
             if(lhs.equals("SmallRadical")) {
               if(rhs[0] == PMATH_SYMBOL_LIST) {
-                db->radical.small_glyphs.length(rhs.expr_length() + 1);
+                tables->radical.small_glyphs.length(rhs.expr_length() + 1);
                 
-                for(int j = 0; j < db->radical.small_glyphs.length() - 1; ++j) {
+                for(int j = 0; j < tables->radical.small_glyphs.length() - 1; ++j) {
                   Expr g = rhs[j + 1];
                   
                   if(g[0] == PMATH_SYMBOL_LIST && g.expr_length() == 5) {
-                    db->radical.small_glyphs[j].index      = GG.expr_to_glyph(g[1], db->radical.font);
-                    db->radical.small_glyphs[j].hbar_index = GG.expr_to_glyph(g[2], db->radical.font);
-                    db->radical.small_glyphs[j].rel_ascent = g[3].to_double();
-                    db->radical.small_glyphs[j].rel_exp_x  = g[4].to_double();
-                    db->radical.small_glyphs[j].rel_exp_y  = g[5].to_double();
+                    tables->radical.small_glyphs[j].index      = GG.expr_to_glyph(g[1], tables->radical.font);
+                    tables->radical.small_glyphs[j].hbar_index = GG.expr_to_glyph(g[2], tables->radical.font);
+                    tables->radical.small_glyphs[j].rel_ascent = g[3].to_double();
+                    tables->radical.small_glyphs[j].rel_exp_x  = g[4].to_double();
+                    tables->radical.small_glyphs[j].rel_exp_y  = g[5].to_double();
                   }
                   else
                     break;
                 }
                 
-                db->radical.small_glyphs[db->radical.small_glyphs.length() - 1] =
+                tables->radical.small_glyphs[tables->radical.small_glyphs.length() - 1] =
                   SmallRadicalGlyph(0, 0, 0, 0, 0);
               }
               
@@ -319,12 +319,12 @@ namespace richmath {
             
             if(lhs.equals("BigRadical")) {
               if(rhs[0] == PMATH_SYMBOL_LIST && rhs.expr_length() == 6) {
-                db->radical.big_glyph.bottom     = GG.expr_to_glyph(rhs[1], db->radical.font);
-                db->radical.big_glyph.vertical   = GG.expr_to_glyph(rhs[2], db->radical.font);
-                db->radical.big_glyph.edge       = GG.expr_to_glyph(rhs[3], db->radical.font);
-                db->radical.big_glyph.horizontal = GG.expr_to_glyph(rhs[4], db->radical.font);
-                db->radical.big_glyph.rel_exp_x  = rhs[5].to_double();
-                db->radical.big_glyph.rel_exp_y  = rhs[6].to_double();
+                tables->radical.big_glyph.bottom     = GG.expr_to_glyph(rhs[1], tables->radical.font);
+                tables->radical.big_glyph.vertical   = GG.expr_to_glyph(rhs[2], tables->radical.font);
+                tables->radical.big_glyph.edge       = GG.expr_to_glyph(rhs[3], tables->radical.font);
+                tables->radical.big_glyph.horizontal = GG.expr_to_glyph(rhs[4], tables->radical.font);
+                tables->radical.big_glyph.rel_exp_x  = rhs[5].to_double();
+                tables->radical.big_glyph.rel_exp_y  = rhs[6].to_double();
               }
               
               continue;
@@ -339,7 +339,7 @@ namespace richmath {
                     GlyphFontOffset gfo(rule[2]);
                     
                     if(gfo.glyph) {
-                      db->char_to_glyph_map.set(
+                      tables->char_to_glyph_map.set(
                         expr_to_char(rule[1]),
                         gfo);
                     }
@@ -367,9 +367,9 @@ namespace richmath {
                       
                     uint32_t ch = expr_to_char(rule[1]);
                     if(ch + 1 == 0)
-                      db->ligatures.set(rule[1], arr);
+                      tables->ligatures.set(rule[1], arr);
                     else
-                      db->complex_glyphs.set(ch, arr);
+                      tables->complex_glyphs.set(ch, arr);
                   }
                 }
               }
@@ -404,7 +404,7 @@ namespace richmath {
                       }
                     }
                     
-                    db->stretched_glyphs.set(expr_to_char(rule[1]), sga);
+                    tables->stretched_glyphs.set(expr_to_char(rule[1]), sga);
                   }
                 }
               }
@@ -458,7 +458,7 @@ namespace richmath {
                       }
                     }
                     
-                    db->composed_glyphs.set(
+                    tables->composed_glyphs.set(
                       expr_to_char(rule[1]),
                       cg);
                   }
@@ -503,7 +503,7 @@ namespace richmath {
                       cg.lower = 0;
                     }
                     
-                    db->composed_glyphs.set(
+                    tables->composed_glyphs.set(
                       expr_to_char(rule[1]),
                       cg);
                   }
@@ -524,7 +524,7 @@ namespace richmath {
                     
                     if(lhs.is_string()) {
                       if(String(lhs).equals("Italic")) {
-                        db->italic_script_indent = ScriptIndent(rule[2]);
+                        tables->italic_script_indent = ScriptIndent(rule[2]);
                         continue;
                       }
                       
@@ -544,7 +544,7 @@ namespace richmath {
                       }
                     }
                     
-                    db->script_indents.set(key, ScriptIndent(rule[2]));
+                    tables->script_indents.set(key, ScriptIndent(rule[2]));
                   }
                 }
               }
@@ -553,7 +553,7 @@ namespace richmath {
             }
             
             if(lhs.equals("Name")) {
-              db->shaper_name = String(rhs);
+              tables->shaper_name = String(rhs);
               
               continue;
             }
@@ -563,8 +563,8 @@ namespace richmath {
                 for(size_t j = 1; j <= rhs.expr_length(); ++j) {
                   uint8_t font = expr_to_ui8(rhs[j]) - 1;
                   
-                  if(font < db->math_fontnames.length()) {
-                    FontInfo(FontFace(db->math_fontnames[font], style)).get_postscript_names(
+                  if(font < tables->math_fontnames.length()) {
+                    FontInfo(FontFace(tables->math_fontnames[font], style)).get_postscript_names(
                       &GG.ps2g[font], 0);
                   }
                 }
@@ -572,8 +572,8 @@ namespace richmath {
               else {
                 uint8_t font = expr_to_ui8(rhs) - 1;
                 
-                if(font < db->math_fontnames.length()) {
-                  FontInfo(FontFace(db->math_fontnames[font], style)).get_postscript_names(
+                if(font < tables->math_fontnames.length()) {
+                  FontInfo(FontFace(tables->math_fontnames[font], style)).get_postscript_names(
                     &GG.ps2g[font], 0);
                 }
               }
@@ -585,8 +585,8 @@ namespace richmath {
           }
         }
         
-        if(db->math_fontnames.length() > 0) {
-          SharedPtr<TextShaper> shaper = TextShaper::find(db->math_fontnames[0], style);
+        if(tables->math_fontnames.length() > 0) {
+          SharedPtr<TextShaper> shaper = TextShaper::find(tables->math_fontnames[0], style);
           GlyphInfo glyphs[4];
           uint16_t  str[4];
           ComposedGlyph cg;
@@ -595,7 +595,7 @@ namespace richmath {
           cg.vertical = true;
           
           for(size_t i = 0; i < sizeof(default_vertical_composed_glyphs) / sizeof(default_vertical_composed_glyphs[0]); ++i) {
-            if(!db->composed_glyphs.search(default_vertical_composed_glyphs[i][0])) {
+            if(!tables->composed_glyphs.search(default_vertical_composed_glyphs[i][0])) {
               str[0] = default_vertical_composed_glyphs[i][1];
               str[1] = default_vertical_composed_glyphs[i][2];
               str[2] = default_vertical_composed_glyphs[i][3];
@@ -613,14 +613,14 @@ namespace richmath {
                 cg.middle         = str[2] ? glyphs[2].index : 0;
                 cg.special_center = str[3] ? glyphs[3].index : 0;
                 
-                db->composed_glyphs.set(default_vertical_composed_glyphs[i][0], cg);
+                tables->composed_glyphs.set(default_vertical_composed_glyphs[i][0], cg);
               }
             }
           }
         }
         
-        if(db->verify())
-          return db;
+        if(tables->verify())
+          return tables;
           
         return nullptr;
       }
@@ -909,7 +909,7 @@ SharedPtr<ConfigShaper> ConfigShaperDB::find(FontStyle style) {
       assert(0 && "invalid ConfigShaperDB");
     }
     
-    tables = shapers[(int)NoStyle]->db;
+    tables = shapers[(int)NoStyle]->tables;
   }
   
   shapers[i] = new ConfigShaper(tables, style);
@@ -920,29 +920,29 @@ SharedPtr<ConfigShaper> ConfigShaperDB::find(FontStyle style) {
 
 //{ class ConfigShaper ...
 
-ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperTables> _db, FontStyle _style)
-  : SimpleMathShaper(_db->radical.font),
-    db(_db),
-    text_shaper(new FallbackTextShaper(TextShaper::find(db->text_fontnames[0], _style))),
-    math_font_faces(_db->math_fontnames.length()),
+ConfigShaper::ConfigShaper(SharedPtr<ConfigShaperTables> _tables, FontStyle _style)
+  : SimpleMathShaper(_tables->radical.font),
+    tables(_tables),
+    text_shaper(new FallbackTextShaper(TextShaper::find(tables->text_fontnames[0], _style))),
+    math_font_faces(_tables->math_fontnames.length()),
     style(_style)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  for(int i = 1; i < db->text_fontnames.length(); ++i)
-    text_shaper->add(TextShaper::find(db->text_fontnames[i], style));
+  for(int i = 1; i < tables->text_fontnames.length(); ++i)
+    text_shaper->add(TextShaper::find(tables->text_fontnames[i], style));
     
   text_shaper->add_default();
   
   for(int i = 0; i < math_font_faces.length(); ++i)
-    math_font_faces[i] = FontFace(db->math_fontnames[i], style);
+    math_font_faces[i] = FontFace(tables->math_fontnames[i], style);
 }
 
 ConfigShaper::~ConfigShaper() {
 }
 
 String ConfigShaper::name() {
-  return db->shaper_name;
+  return tables->shaper_name;
 }
 
 uint8_t ConfigShaper::num_fonts() {
@@ -957,10 +957,10 @@ FontFace ConfigShaper::font(uint8_t fontinfo) {
 }
 
 String ConfigShaper::font_name(uint8_t fontinfo) {
-  if(fontinfo >= db->math_fontnames.length())
+  if(fontinfo >= tables->math_fontnames.length())
     return text_shaper->font_name(fontinfo - (uint8_t)math_font_faces.length());
     
-  return db->math_fontnames[fontinfo];
+  return tables->math_fontnames[fontinfo];
 }
 
 void ConfigShaper::decode_token(
@@ -993,7 +993,7 @@ void ConfigShaper::decode_token(
       ch = 0;
       
     if(ch) {
-      if(GlyphFontOffset *gfo = db->char_to_glyph_map.search(ch)) {
+      if(GlyphFontOffset *gfo = tables->char_to_glyph_map.search(ch)) {
         if(style.italic) {
           result->slant = FontSlantPlain;
           math_set_style(style - Italic)->decode_token(context, len, str, result);
@@ -1064,8 +1064,8 @@ void ConfigShaper::decode_token(
     }
   }
   
-  if(len == 1 && db->complex_glyphs.size() > 0) {
-    Array<GlyphFontOffset> *arr = db->complex_glyphs.search(*str);
+  if(len == 1 && tables->complex_glyphs.size() > 0) {
+    Array<GlyphFontOffset> *arr = tables->complex_glyphs.search(*str);
     
     if(arr && arr->length() > 0) {
       cairo_text_extents_t cte;
@@ -1097,8 +1097,8 @@ void ConfigShaper::decode_token(
     }
   }
   
-  if(len > 1 && db->ligatures.size() > 0) {
-    Array<GlyphFontOffset> *arr = db->ligatures.search(String::FromUcs2(str, len));
+  if(len > 1 && tables->ligatures.size() > 0) {
+    Array<GlyphFontOffset> *arr = tables->ligatures.search(String::FromUcs2(str, len));
     
     if(arr && arr->length() <= len) {
       int i;
@@ -1150,10 +1150,10 @@ void ConfigShaper::decode_token(
         uint32_t ch = 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
         
         char_len = 2;
-        gfo = db->char_to_glyph_map.search(ch);
+        gfo = tables->char_to_glyph_map.search(ch);
       }
       else
-        gfo = db->char_to_glyph_map.search(str[sub_len]);
+        gfo = tables->char_to_glyph_map.search(str[sub_len]);
         
       if(gfo)
         break;
@@ -1230,7 +1230,7 @@ void ConfigShaper::vertical_glyph_size(
   }
   
   if(info.composed) {
-    Array<GlyphFontOffset> *arr = db->complex_glyphs.search(ch);
+    Array<GlyphFontOffset> *arr = tables->complex_glyphs.search(ch);
     
     if(arr && arr->length() > 0) {
       cairo_text_extents_t cte;
@@ -1273,7 +1273,7 @@ void ConfigShaper::show_glyph(
   }
   
   if(info.composed) {
-    Array<GlyphFontOffset> *arr = db->complex_glyphs.search(ch);
+    Array<GlyphFontOffset> *arr = tables->complex_glyphs.search(ch);
     
     if(arr && arr->length() > 0) {
       cairo_text_extents_t cte;
@@ -1309,7 +1309,7 @@ float ConfigShaper::italic_correction(
   uint16_t          ch,
   const GlyphInfo  &info
 ) {
-  float result = db->italic_script_indent.center * GlyphFontOffset::EmPerOffset;
+  float result = tables->italic_script_indent.center * GlyphFontOffset::EmPerOffset;
   
   uint32_t key;
   if(info.composed)
@@ -1317,13 +1317,13 @@ float ConfigShaper::italic_correction(
   else
     key = (uint32_t)info.index | (((uint32_t)info.fontinfo) << 16);
     
-  if(ScriptIndent *si = db->script_indents.search(key))
+  if(ScriptIndent *si = tables->script_indents.search(key))
     return result + si->center * GlyphFontOffset::EmPerOffset;
     
   if(!info.composed) {
     key = (1 << 31) | ch;
     
-    if(ScriptIndent *si = db->script_indents.search(key))
+    if(ScriptIndent *si = tables->script_indents.search(key))
       return result + si->center * GlyphFontOffset::EmPerOffset;
   }
   
@@ -1365,8 +1365,8 @@ void ConfigShaper::script_corrections(
   *sub_x = *super_x = 0;
   
   if(style.italic) {
-    *super_x += db->italic_script_indent.super * GlyphFontOffset::EmPerOffset * em;
-    *sub_x   += db->italic_script_indent.sub * GlyphFontOffset::EmPerOffset * em;
+    *super_x += tables->italic_script_indent.super * GlyphFontOffset::EmPerOffset * em;
+    *sub_x   += tables->italic_script_indent.sub * GlyphFontOffset::EmPerOffset * em;
   }
   
   uint32_t key;
@@ -1375,7 +1375,7 @@ void ConfigShaper::script_corrections(
   else
     key = (uint32_t)base_info.index | (((uint32_t)base_info.fontinfo) << 16);
     
-  if(ScriptIndent *si = db->script_indents.search(key)) {
+  if(ScriptIndent *si = tables->script_indents.search(key)) {
     *super_x += si->super  * GlyphFontOffset::EmPerOffset * em;
 //    *center+= si->center * GlyphFontOffset::EmPerOffset * em;
     *sub_x   += si->sub    * GlyphFontOffset::EmPerOffset * em;
@@ -1384,7 +1384,7 @@ void ConfigShaper::script_corrections(
   else if(!base_info.composed) {
     key = (1 << 31) | base_char;
     
-    if(ScriptIndent *si = db->script_indents.search(key)) {
+    if(ScriptIndent *si = tables->script_indents.search(key)) {
       *super_x += si->super  * GlyphFontOffset::EmPerOffset * em;
 //      *center+= si->center * GlyphFontOffset::EmPerOffset * em;
       *sub_x   += si->sub    * GlyphFontOffset::EmPerOffset * em;
@@ -1394,14 +1394,14 @@ void ConfigShaper::script_corrections(
 }
 
 void ConfigShaper::get_script_size_multis(Array<float> *arr) {
-  arr->operator=(db->script_size_multipliers);
+  arr->operator=(tables->script_size_multipliers);
 }
 
 SharedPtr<TextShaper> ConfigShaper::set_style(FontStyle _style) {
-  SharedPtr<ConfigShaperDB> *hub = registered_config_shaper_dbs.search(db->shaper_name);
+  SharedPtr<ConfigShaperDB> *db = registered_config_shaper_dbs.search(name());
   
-  if(!hub || !hub->is_valid()) {
-    pmath_debug_print_object("Lost ConfigShaperDB for ", db->shaper_name.get(), "\n");
+  if(!db || !db->is_valid()) {
+    pmath_debug_print_object("Lost ConfigShaperDB for ", name().get(), "\n");
     
     style = _style; // HACK!!! Otherwise we cause stack overflow elsewhere: code assumes that the returned shaper has the given style.
     
@@ -1409,7 +1409,7 @@ SharedPtr<TextShaper> ConfigShaper::set_style(FontStyle _style) {
     return this;
   }
   
-  return (*hub)->find(_style);
+  return (*db)->find(_style);
 }
 
 int ConfigShaper::h_stretch_glyphs(
@@ -1417,7 +1417,7 @@ int ConfigShaper::h_stretch_glyphs(
   const uint8_t  **fonts,
   const uint16_t **glyphs
 ) {
-  StretchGlyphArray *arr = db->stretched_glyphs.search(ch);
+  StretchGlyphArray *arr = tables->stretched_glyphs.search(ch);
   
   if(arr && !arr->vertical) {
     *fonts  = arr->fonts.items();
@@ -1435,7 +1435,7 @@ int ConfigShaper::h_stretch_big_glyphs(
   uint16_t *right,
   uint16_t *special_center
 ) {
-  ComposedGlyph *cg = db->composed_glyphs.search(ch);
+  ComposedGlyph *cg = tables->composed_glyphs.search(ch);
   
   if(cg && !cg->vertical) {
     *left           = cg->top;
@@ -1455,7 +1455,7 @@ int ConfigShaper::v_stretch_glyphs(
   const uint8_t  **fonts,
   const uint16_t **glyphs
 ) {
-  StretchGlyphArray *arr = db->stretched_glyphs.search(ch);
+  StretchGlyphArray *arr = tables->stretched_glyphs.search(ch);
   
   if(arr && arr->vertical) {
     *fonts  = arr->fonts.items();
@@ -1471,7 +1471,7 @@ int ConfigShaper::v_stretch_pair_glyphs(
   uint16_t *upper,
   uint16_t *lower
 ) {
-  ComposedGlyph *cg = db->composed_glyphs.search(ch);
+  ComposedGlyph *cg = tables->composed_glyphs.search(ch);
   
   if(cg && cg->vertical) {
     *upper = cg->upper;
@@ -1490,7 +1490,7 @@ int ConfigShaper::v_stretch_big_glyphs(
   uint16_t *bottom,
   uint16_t *special_center
 ) {
-  ComposedGlyph *cg = db->composed_glyphs.search(ch);
+  ComposedGlyph *cg = tables->composed_glyphs.search(ch);
   
   if(cg && cg->vertical) {
     *top            = cg->top;
@@ -1505,7 +1505,7 @@ int ConfigShaper::v_stretch_big_glyphs(
 }
 
 const SmallRadicalGlyph *ConfigShaper::small_radical_glyphs() { // zero terminated
-  return db->radical.small_glyphs.items();
+  return tables->radical.small_glyphs.items();
 }
 
 void ConfigShaper::big_radical_glyphs(
@@ -1516,12 +1516,12 @@ void ConfigShaper::big_radical_glyphs(
   float        *_rel_exp_x,
   float        *_rel_exp_y
 ) {
-  *bottom     = db->radical.big_glyph.bottom;
-  *vertical   = db->radical.big_glyph.vertical;
-  *edge       = db->radical.big_glyph.edge;
-  *horizontal = db->radical.big_glyph.horizontal;
-  *_rel_exp_x = db->radical.big_glyph.rel_exp_x;
-  *_rel_exp_y = db->radical.big_glyph.rel_exp_y;
+  *bottom     = tables->radical.big_glyph.bottom;
+  *vertical   = tables->radical.big_glyph.vertical;
+  *edge       = tables->radical.big_glyph.edge;
+  *horizontal = tables->radical.big_glyph.horizontal;
+  *_rel_exp_x = tables->radical.big_glyph.rel_exp_x;
+  *_rel_exp_y = tables->radical.big_glyph.rel_exp_y;
 }
 
 //} ... class ConfigShaper
