@@ -231,8 +231,8 @@ static void load_math_shapers() {
         double start_font = pmath_tickcount();
 #endif
         
-        shaper = OTMathShaperDB::find(s, NoStyle);
-        if(shaper) {
+        shaper = OTMathShaper::try_register(s);
+        if(shaper.is_valid()) {
           MathShaper::available_shapers.set(s, shaper);
           
 #ifdef PMATH_DEBUG_LOG
@@ -770,7 +770,7 @@ QUIT:
   MathShaper::available_shapers.default_value = nullptr;
   
   ConfigShaper::dispose_all();
-  OTMathShaperDB::dispose_all();
+  OTMathShaper::dispose_all();
   
   TextShaper::clear_cache();
   FontInfo::remove_all_private_fonts();
