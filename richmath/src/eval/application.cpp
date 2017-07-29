@@ -1396,13 +1396,6 @@ static void cnt_addconfigshaper(Expr data) {
   SharedPtr<ConfigShaperDB> db = ConfigShaperDB::load_from_object(data);
   
   if(db) {
-    SharedPtr<ConfigShaperDB> *olddb;
-    
-    olddb = ConfigShaperDB::registered.search(db->shaper_name);
-    if(olddb) {
-      olddb->ptr()->dispose();
-    }
-    
     ConfigShaperDB::registered.set(db->shaper_name, db);
     MathShaper::available_shapers.set(db->shaper_name, db->find(NoStyle));
     

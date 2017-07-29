@@ -100,10 +100,7 @@ namespace richmath {
   class ConfigShaperDB: public Shareable {
     public:
       virtual ~ConfigShaperDB();
-      void dispose();
-      bool is_disposed() { return disposed; }
       
-      bool verify();
       static SharedPtr<ConfigShaperDB> load_from_object(const Expr expr);
       
       SharedPtr<ConfigShaper> find(FontStyle style);
@@ -116,40 +113,15 @@ namespace richmath {
       
     private:
       SharedPtr<ConfigShaper> shapers[FontStyle::Permutations];
-      bool disposed;
       
     public:
-      Hashtable<uint32_t, GlyphFontOffset, cast_hash>
-      char_to_glyph_map;
-      
-      Hashtable<String, Array<GlyphFontOffset> > 
-      ligatures;
-      
-      Hashtable<uint32_t, Array<GlyphFontOffset>, cast_hash> 
-      complex_glyphs;
-      
-      Hashtable<uint32_t, StretchGlyphArray, cast_hash>
-      stretched_glyphs;
-      
-      Hashtable<uint32_t, ComposedGlyph, cast_hash>
-      composed_glyphs;
-      
-      Hashtable<uint32_t, ScriptIndent, cast_hash>
-      script_indents;
-      
-      Array<float> script_size_multipliers;
-      
-      ScriptIndent italic_script_indent;
-      
-      RadicalGlyphs radical;
-      
-      Array<String> math_fontnames;
-      Array<String> text_fontnames;
       String shaper_name;
+      Expr definition;
   };
   
   class ConfigShaper: public SimpleMathShaper {
       friend class ConfigShaperDB;
+      friend class ConfigShaperTables;
     public:
       virtual ~ConfigShaper();
       
@@ -200,7 +172,7 @@ namespace richmath {
       virtual FontStyle get_style() override { return style; }
       
     protected:
-      ConfigShaper(SharedPtr<ConfigShaperDB> _db, FontStyle _style);
+      ConfigShaper(SharedPtr<ConfigShaperTables> _db, FontStyle _style);
       
       virtual int h_stretch_glyphs(
         uint16_t         ch,
@@ -243,7 +215,7 @@ namespace richmath {
         float        *_rel_exp_y) override;
         
     protected:
-      SharedPtr<ConfigShaperDB>      db;
+      SharedPtr<ConfigShaperTables>  db;
       SharedPtr<FallbackTextShaper>  text_shaper;
       Array<FontFace>                math_font_faces;
       FontStyle                      style;
