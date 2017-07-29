@@ -559,6 +559,20 @@ namespace richmath {
             }
           }
           
+          if(style.italic) {
+            /* The synthesized italics font seems to get an horizontal shear of about x:= 0.33, 
+              meaning that 
+              RawBoxes@TransformationBox(
+                ToBoxes@Style("ff",FontSlant->Plain,72),
+                BoxTransformation->{{1,x},{0,1}})
+              looks like Style("ff",FontSlant->Italic,72) for Cambria Math on Windows 7.
+              
+              Since a glyphs accent height is typically not 1em, but about 0.5em, we further 
+              multiply by that factor to not spread glyphs too much
+             */
+            impl->italics_correction.default_value = (int)(impl->units_per_em * 0.33 * 0.5);
+          }
+          
           if(glyphinfo->italics_correction_info_offset) {
             const MathItalicsCorrectionInfo *ital_corr_info = (const MathItalicsCorrectionInfo *)
                 (((const char *)glyphinfo) + BigEndian::read(glyphinfo->italics_correction_info_offset));
@@ -1913,10 +1927,14 @@ float OTMathShaper::italic_correction(
   uint16_t          ch,
   const GlyphInfo  &info
 ) {
-  if(info.slant == FontSlantItalic /*|| style.italic*/) {
-    float em = context->canvas->get_font_size();
-    return impl->italics_correction[info.index] * em / impl->units_per_em;
-  }
+  if(info.slant == FontSlantPlain)
+    return 0;
+  
+  if(info.slant == FontSlantItalic && !style.italic) 
+    return math_set_style(style | Italic)->italic_correction(context, ch, info);
+
+  if(style.italic) 
+    return impl->italics_correction[info.index] * 1.0f / impl->units_per_em;
   
   return 0;
 }

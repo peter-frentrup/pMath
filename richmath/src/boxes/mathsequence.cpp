@@ -1097,17 +1097,28 @@ namespace richmath {
             }
           }
           
+          bool slant_is_italic(int glyph_slant) {
+            switch(glyph_slant) {
+              case FontSlantPlain:
+                return false;
+              case FontSlantItalic:
+                return true;
+            }
+            return context->math_shaper->get_style().italic;
+          }
+
           void italic_correction(int token_end) {
-            if(self.glyphs[token_end].slant != FontSlantItalic) {
+            if(buf[token_end] == PMATH_CHAR_BOX)
+              return;
+              
+            if(!slant_is_italic(self.glyphs[token_end].slant)) {
               if(!pmath_char_is_integral(buf[token_end]))
                 return;
             }
             
-            if(buf[token_end] == PMATH_CHAR_BOX)
-              return;
-              
             if( token_end + 1 == self.glyphs.length() ||
-                self.glyphs[token_end + 1].slant != FontSlantItalic ||
+                !slant_is_italic(self.glyphs[token_end + 1].slant) ||
+                buf[token_end + 1] == PMATH_CHAR_BOX ||
                 pmath_char_is_integral(buf[token_end]))
             {
               float ital_corr = context->math_shaper->italic_correction(
