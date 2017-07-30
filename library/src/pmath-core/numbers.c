@@ -2064,7 +2064,7 @@ static int compare_quotient_to_number(pmath_quotient_t numA, pmath_number_t numB
     fmpq_init(qb);
     
     _pmath_rational_get_fmpq(qa, numA);
-    _pmath_rational_get_fmpq(qa, numB);
+    _pmath_rational_get_fmpq(qb, numB);
     result = fmpq_cmp(qa, qb);
     
     fmpq_clear(qb);
