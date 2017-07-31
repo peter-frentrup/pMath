@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <pmath.h>
 
+extern pmath_t windows_CommandLineToArgv(pmath_expr_t expr);
 extern pmath_t windows_GetAllKnownFolders(pmath_expr_t expr);
 extern pmath_t windows_RegGetValue(pmath_expr_t expr);
 extern pmath_t windows_RegEnumKeys(pmath_expr_t expr);
@@ -27,6 +28,7 @@ static void free_all(pmath_symbol_t *start, size_t size) {
 
 static struct {
   pmath_symbol_t Windows_Internal_ComInitializer;
+  pmath_symbol_t Windows_CommandLineToArgv;
   pmath_symbol_t Windows_ComMultiThreadedAppartment;
   pmath_symbol_t Windows_Private_GetAllKnownFolders;
   pmath_symbol_t Windows_RegGetValue;
@@ -85,6 +87,7 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
   memset(&symbols, 0, sizeof(symbols));
   
   VERIFY( symbols.Windows_Internal_ComInitializer     = NEW_SYMBOL("Windows`Internal`ComInitializer"));
+  VERIFY( symbols.Windows_CommandLineToArgv           = NEW_SYMBOL("Windows`CommandLineToArgv"));
   VERIFY( symbols.Windows_ComMultiThreadedAppartment  = NEW_SYMBOL("Windows`$ComMultiThreadedAppartment"));
   VERIFY( symbols.Windows_Private_GetAllKnownFolders  = NEW_SYMBOL("Windows`Private`GetAllKnownFolders"));
   VERIFY( symbols.Windows_RegGetValue                 = NEW_SYMBOL("Windows`RegGetValue"));
@@ -94,6 +97,7 @@ pmath_bool_t pmath_module_init(pmath_string_t filename) {
   VERIFY( symbols.Windows_SHGetKnownFolderPath        = NEW_SYMBOL("Windows`SHGetKnownFolderPath"));
   VERIFY( symbols.Windows_Win64Version                = NEW_SYMBOL("Windows`Win64Version"));
   
+  BIND_DOWN(symbols.Windows_CommandLineToArgv,          windows_CommandLineToArgv);
   BIND_DOWN(symbols.Windows_Private_GetAllKnownFolders, windows_GetAllKnownFolders);
   BIND_DOWN(symbols.Windows_RegGetValue,                windows_RegGetValue);
   BIND_DOWN(symbols.Windows_RegEnumKeys,                windows_RegEnumKeys);
