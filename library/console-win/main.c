@@ -117,15 +117,6 @@ static pmath_string_t read_line(void) {
 
 
 struct styled_writer_info_t {
-  int default_color;
-  int symbol_color;
-  int string_color;
-  int number_color;
-  
-  int in_symbol_count;
-  int in_string_count;
-  int in_number_count;
-  
   pmath_t current_hyperlink_obj;
   pmath_t current_hyperlink_label;
   
@@ -244,34 +235,6 @@ static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t opti
   if(bytes_since_last_abortcheck >= ABORT_CHECK_BYTE_COUNT && pmath_aborting())
     return;
     
-  if(pmath_is_symbol(obj)) {
-    if(info->in_symbol_count++ == 0) {
-      if( info->in_string_count == 0 &&
-          info->in_number_count == 0)
-      {
-        set_output_color(info->symbol_color);
-      }
-    }
-  }
-  else if(pmath_is_string(obj)) {
-    if(info->in_string_count++ == 0) {
-      if( info->in_symbol_count == 0 &&
-          info->in_number_count == 0)
-      {
-        set_output_color(info->string_color);
-      }
-    }
-  }
-  else if(pmath_is_number(obj)) {
-    if(info->in_number_count++ == 0) {
-      if( info->in_symbol_count == 0 &&
-          info->in_string_count == 0)
-      {
-        set_output_color(info->number_color);
-      }
-    }
-  }
-  
   if(info->skipping_hyperlink_data && pmath_same(obj, info->current_hyperlink_label))
     info->skipping_hyperlink_data = FALSE;
     
@@ -344,25 +307,6 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
       info->current_hyperlink_label = PMATH_UNDEFINED;
     }
   }
-  
-  if(pmath_is_symbol(obj)) {
-    --info->in_symbol_count;
-  }
-  else if(pmath_is_string(obj)) {
-    --info->in_string_count;
-  }
-  else if(pmath_is_number(obj)) {
-    --info->in_number_count;
-  }
-  else
-    return;
-    
-  if( info->in_symbol_count == 0 &&
-      info->in_string_count == 0 &&
-      info->in_number_count == 0)
-  {
-    set_output_color(info->default_color);
-  }
 }
 
 static pmath_threadlock_t print_lock = NULL;
@@ -379,15 +323,6 @@ static void write_output_locked_callback(void *_context) {
   int indent_length;
   
   memset(&info, 0, sizeof(info));
-  info.default_color = get_default_output_color();
-  info.symbol_color = 0x0F; // white on black
-  info.string_color = 0x09; // light blue on black
-  info.number_color = 0x0E; // yellow on black
-  if(info.default_color >= 0) {
-    info.symbol_color = (info.default_color & 0xF0) | 0xF; // white on default background
-    info.string_color = (info.default_color & 0xF0) | 0x9; // light blue on default background
-    info.number_color = (info.default_color & 0xF0) | 0xE; // yellow on default background
-  }
   info.current_hyperlink_obj = PMATH_UNDEFINED;
   info.current_hyperlink_label = PMATH_UNDEFINED;
   
@@ -418,8 +353,6 @@ static void write_output_locked_callback(void *_context) {
     hyper_console_end_link();
   pmath_unref(info.current_hyperlink_obj);
   pmath_unref(info.current_hyperlink_label);
-  
-  set_output_color(info.default_color);
   
   printf("\n");
   fflush(stdout);
@@ -945,15 +878,25 @@ static pmath_t builtin_quit(pmath_expr_t expr) {
 static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   pmath_t style;
   const char *indent = "";
+  int default_color = get_default_output_color();
+  int color = default_color;
   
   if(pmath_expr_length(expr) < 2)
     return expr;
     
   style = pmath_expr_get_item(expr, 1);
-  if(pmath_is_string(style) && pmath_string_equals_latin1(style, "Echo")) {
-    indent = ">> ";
+  if(pmath_is_string(style)) {
+    if(pmath_string_equals_latin1(style, "Echo")) {
+      indent = ">> ";
+    }
+    else if(pmath_string_equals_latin1(style, "Message")) {
+      color = (default_color & 0xF0) | 0xC; // red on default background
+    }
   }
   pmath_unref(style);
+  
+  if(color != default_color) 
+    set_output_color(color);
   
   if(pmath_expr_length(expr) == 2) {
     pmath_t item = pmath_expr_get_item(expr, 2);
@@ -972,6 +915,9 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     write_output(indent, row);
     pmath_unref(row);
   }
+  
+  if(color != default_color) 
+    set_output_color(default_color);
   
   write_line("\n");
   return PMATH_NULL;
