@@ -204,7 +204,7 @@ static pmath_bool_t is_helpline_token(pmath_string_t str) {
       continue;
     if(buf[i] == '*' || buf[i] == '`' || buf[i] == '$')
       continue;
-    
+      
     return FALSE;
   }
   
@@ -363,6 +363,25 @@ static void write_line_locked_callback(void *s) {
   fflush(stdout);
 }
 
+static void write_wchar_link_locked_callback(void *_s) {
+  const wchar_t *s = _s;
+  int oldmode;
+  
+  hyper_console_start_link(s);
+  hyper_console_set_link_input_text(s);
+  
+  fflush(stdout);
+  oldmode = _setmode(_fileno(stdout), _O_U8TEXT);
+  /* Note that printf and other char* functions do not work at all in _O_U8TEXT mode. */
+  
+  fwrite(s, 2, wcslen(s), stdout);
+  
+  fflush(stdout);
+  _setmode(_fileno(stdout), oldmode);
+  
+  hyper_console_end_link();
+}
+
 static void indent_locked_callback(void *s) {
   int i = dialog_depth;
   while(i-- > 0)
@@ -387,6 +406,13 @@ static void write_line(const char *s) {
   pmath_thread_call_locked(
     &print_lock,
     write_line_locked_callback,
+    (void *)s);
+}
+
+static void write_simple_link(const wchar_t *s) {
+  pmath_thread_call_locked(
+    &print_lock,
+    write_wchar_link_locked_callback,
     (void *)s);
 }
 
@@ -792,7 +818,9 @@ static void interrupt_callback(void *dummy) {
     {
       pmath_messages_t mq ;
       
-      write_line("entering interactive dialog (finish with `Return()`) ...\n");
+      write_line("entering interactive dialog (finish with `");
+      write_wchar_link_locked_callback(L"Return()");
+      write_line("`) ...\n");
       
       mq = get_main_mq();
       pmath_thread_send(
@@ -808,10 +836,22 @@ static void interrupt_callback(void *dummy) {
     
     write_line(
       "possible commands are:\n"
-      "  a, abort       Abort the current evaluation.\n"
-      "  bt, backtrace  Show the current evaluation stack.\n"
-      "  c, continue    Continue the current evaluation.\n"
-      "  i, inspect     Enter an interactive dialog and continue afterwards.\n");
+      "  a, ");
+    write_wchar_link_locked_callback(L"abort");
+    write_line(
+      /**/      "       Abort the current evaluation.\n"
+      "  bt, ");
+    write_wchar_link_locked_callback(L"backtrace");
+    write_line(
+      /**/           "  Show the current evaluation stack.\n"
+      "  c, ");
+    write_wchar_link_locked_callback(L"continue");
+    write_line(
+      /**/         "    Continue the current evaluation.\n"
+      "  i, ");
+    write_wchar_link_locked_callback(L"inspect");
+    write_line(
+      /**/        "     Enter an interactive dialog and continue afterwards.\n");
   }
   
   pmath_unref(line);
@@ -895,9 +935,9 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   }
   pmath_unref(style);
   
-  if(color != default_color) 
+  if(color != default_color)
     set_output_color(color);
-  
+    
   if(pmath_expr_length(expr) == 2) {
     pmath_t item = pmath_expr_get_item(expr, 2);
     pmath_unref(expr);
@@ -916,9 +956,9 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     pmath_unref(row);
   }
   
-  if(color != default_color) 
+  if(color != default_color)
     set_output_color(default_color);
-  
+    
   write_line("\n");
   return PMATH_NULL;
 }
@@ -973,7 +1013,9 @@ int main(int argc, const char **argv) {
   
   if(!quitting) {
     write_line("Welcome to pMath.\n"
-               "Type `??symbol` to get Help about a symbol. Exit with `Quit()`.\n");
+               "Type `??symbol` to get Help about a symbol. Exit with `");
+    write_simple_link(L"Quit()");
+    write_line("`.\n");
   }
   
   pmath_unref(dialog(PMATH_NULL));
