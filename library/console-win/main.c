@@ -1012,10 +1012,7 @@ int main(int argc, const char **argv) {
   handle_options(argc, argv);
   
   if(!quitting) {
-    write_line("Welcome to pMath.\n"
-               "Type `??symbol` to get Help about a symbol. Exit with `");
-    write_simple_link(L"Quit()");
-    write_line("`.\n");
+   PMATH_RUN("System`Con`PrintWelcomeMessage()");
   }
   
   pmath_unref(dialog(PMATH_NULL));

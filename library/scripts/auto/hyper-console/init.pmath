@@ -3,6 +3,8 @@ BeginPackage("System`Con`", {"ExperimentalSyntax`"})
 
 $HaveHyperlinks:= True
 
+PrintWelcomeMessage
+
 Begin("System`Con`Private`")
 
 Unprotect(ShowDefinition)
@@ -41,6 +43,21 @@ Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
 		Return(Windows`Editors`OpenTextFile(filename, opts))
 	}
 	$Failed
+}
+
+Function PrintWelcomeMessage() {
+    Print("Welcome to pMath.");
+
+	With(names:= Names("System`*"))
+	With(i:= RandomInteger(1..Length(names)))
+	With(randomName:= names[i])
+
+	Print(
+		"Type `",  
+		Button("??symbol", ShowDefinition(randomName)),
+		"` to get help about a symbol. Exit with `",  
+		Button("Quit()", Quit()),
+		"`.")
 }
 
 End()
