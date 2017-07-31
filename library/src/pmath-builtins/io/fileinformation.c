@@ -68,7 +68,6 @@ PMATH_PRIVATE pmath_t builtin_developer_fileinformation(pmath_expr_t expr) {
       
       if(GetFileInformationByHandle(h, &info)) {
         DWORD size[2];
-        CloseHandle(h);
 
         name = pmath_string_part(name, 0, pmath_string_length(name) - 1);
         
