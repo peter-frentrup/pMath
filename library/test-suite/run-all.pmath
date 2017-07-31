@@ -3,6 +3,10 @@ BeginPackage("TestSuite`", {"ExperimentalSyntax`"})
 
 TestSuite`Assert
 TestSuite`AssertEqual
+TestSuite`AssertUnequal
+TestSuite`AssertTrue
+TestSuite`AssertFalse
+TestSuite`AssertHead
 
 Begin("TestSuite`Private`")
 
@@ -11,6 +15,9 @@ ClearAll(Assert, AssertEqual);
 Assert::fail:= "Assertion `1` failed with `2`."
 AssertEqual::fail:= "`1` and `2` should equal, but found `3` =!= `4`."
 AssertUnequal::fail:= "`1` and `2` should not equal, but found `3` === `4`."
+AssertTrue::fail:= "`1` should give True, but found `2`."
+AssertFalse::fail:= "`1` should give False, but found `2`."
+AssertHead::fail:= "`1` should give expression with head `2`, but found `3`."
 
 Attributes(suppressDebugInfo):= {HoldFirst}
 suppressDebugInfo(~expr)::= ReleaseHold(Developer`SetDebugInfoAt(HoldComplete(expr), /\/, 1))
@@ -31,11 +38,20 @@ Attributes(AssertEqual)::= HoldAll;
 Function AssertEqual(~lhs, ~rhs) {
 	With(evalLhs := lhs, evalRhs:= rhs)
 	If(evalLhs =!= evalRhs) {
+		Local(formatLhs:= HoldForm(evalLhs), formatRhs:= HoldForm(evalRhs))
+		If(ToString(formatLhs) === ToString(formatRhs)) {
+			formatLhs:= HoldForm @ InputForm(evalLhs)
+			formatRhs:= HoldForm @ InputForm(evalRhs)
+			If(ToString(formatLhs) === ToString(formatRhs)) {
+				formatLhs:= HoldForm @ FullForm(evalLhs)
+				formatRhs:= HoldForm @ FullForm(evalRhs)
+			}
+		}
 		suppressDebugInfo @ Message(AssertEqual::fail,
 			HoldForm(lhs),
 			HoldForm(rhs),
-			HoldForm(evalLhs),
-			HoldForm(evalRhs))
+			formatLhs,
+			formatRhs)
 	}
 	
 	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
@@ -58,6 +74,50 @@ Function AssertUnequal(~lhs, ~rhs) {
 	/\/ /? True
 }
 AssertUnequal(~~~args) /? IsValidArgumentCount(AssertUnequal, Length @ HoldComplete(args), 2, 2)::= $Failed
+
+Attributes(AssertTrue)::= HoldFirst;
+Function AssertTrue(~value) {
+	With(eval := value)
+	If(eval =!= True) {
+		suppressDebugInfo @ Message(AssertTrue::fail,
+			HoldForm(value),
+			HoldForm(eval))
+	}
+	
+	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
+	/\/ /? True
+}
+AssertTrue(~~~args) /? IsValidArgumentCount(AssertTrue, Length @ HoldComplete(args), 1, 1)::= $Failed
+
+Attributes(AssertFalse)::= HoldFirst;
+Function AssertFalse(~value) {
+	With(eval := value)
+	If(eval =!= False) {
+		suppressDebugInfo @ Message(AssertFalse::fail,
+			HoldForm(value),
+			HoldForm(eval))
+	}
+	
+	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
+	/\/ /? True
+}
+AssertFalse(~~~args) /? IsValidArgumentCount(AssertFalse, Length @ HoldComplete(args), 1, 1)::= $Failed
+
+Attributes(AssertHead)::= HoldFirst;
+Function AssertHead(~value, ~head) {
+	With(eval := value)
+	If(Head(eval) =!= head) {
+		suppressDebugInfo @ Message(AssertHead::fail,
+			HoldForm(value),
+			HoldForm(head),
+			HoldForm(eval))
+	}
+	
+	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
+	/\/ /? True
+}
+AssertHead(~~~args) /? IsValidArgumentCount(AssertHead, Length @ HoldComplete(args), 2, 2)::= $Failed
+
 
 testFiles:= $Input.DirectoryName.ToFileName("tests").FileNames("*.pmath")
 

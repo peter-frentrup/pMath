@@ -27,12 +27,6 @@ pmath_number_t _mul_nn(
   pmath_number_t numB);  // will be freed.
 
 PMATH_PRIVATE
-pmath_t _pow_fi( // returns struct _pmath_mp_float_t* iff null_on_errors is TRUE
-  pmath_mpfloat_t base,  // will be freed. not PMATH_NULL!
-  long            exponent,
-  pmath_bool_t    null_on_errors);
-  
-PMATH_PRIVATE
 pmath_integer_t _pmath_factor_gcd_int(
   pmath_integer_t *a,   // not PMATH_NULL!  never PMATH_NULL on output
   pmath_integer_t *b);  // not PMATH_NULL!  never PMATH_NULL on output
@@ -43,6 +37,7 @@ pmath_rational_t _pmath_factor_rationals(
   pmath_rational_t *b);  // not PMATH_NULL!  integer on successful output
 
 PMATH_PRIVATE
+PMATH_ATTRIBUTE_PURE
 pmath_bool_t _pmath_is_infinite(pmath_t obj);
 
 // PMATH_NULL if obj is no DirectedInfinity:
@@ -57,35 +52,101 @@ pmath_bool_t _pmath_re_im( // whether operation succeded
   pmath_t *re,  // optional output
   pmath_t *im); // optional output
 
-// is z = Complex(a, b) with numbers a, b?
+/**\brief Check if z = Complex(a, b) with numbers a, b
+   \param z A pMath expression. It won't be freed.
+   
+   Note that despite this function's name, z = Complex(1.0, 0.0) will yield TRUE.
+ */
 PMATH_PRIVATE
-pmath_bool_t _pmath_is_nonreal_complex(
-  pmath_t z); // wont be freed
+PMATH_ATTRIBUTE_PURE
+pmath_bool_t _pmath_is_nonreal_complex_number(pmath_t z);
+
+
+#define PMATH_UNKNOWN_REAL_SIGN  (2)
+
+/** \brief Try to get the sign of a real numeric number.
+    \param x A numeric expression. It won't be freed.
+    \return \c PMATH_UNKNOWN_REAL_SIGN if the sign could not be determined or is complex, 
+            otherwise the real sign (-1,0,1) of \a x.
+ */
+PMATH_PRIVATE
+int _pmath_numeric_sign(pmath_t x);
 
 // If *z == x * I => *z:= x
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(
   pmath_t *z);
+  
+/** \brief Convert a real or complex floating point number to an Arb complex ball.
+    \param result          An initialized Arb complex ball reference to take the value.
+    \param precision       Optional pointer to an slong taking the working precision of \a complex.
+    \param is_machine_prec Optional pointer to a boolean taking whether \a complex is machine precision.
+    \param complex         A real or complex number.
+    \return Whether the conversion was successfull.
+ */
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_float_extract_acb(
+  acb_t         result, 
+  slong        *precision, 
+  pmath_bool_t *is_machine_prec, 
+  pmath_t       complex);
+
+/** \brief Convert a real or complex number to an Arb complex ball, approximating to a given precision if necessary.
+    \param result     An initialized Arb complex ball reference to take the value.
+    \param complex    A real or complex number.
+    \param precision  The precision to use for converting exact to floating point numbers.    
+    \return Whether the conversion was successfull.
+ */
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_float_extract_acb_for_precision(
+  acb_t         result, 
+  pmath_t       complex,
+  slong         precision);
+
+/** \brief Create a floating point real or complex number object from an Arb complex ball.
+    \param value           A valid Arb complex ball.
+    \param prec_or_double The working precision or a negative value to get machine floating point numbers.
+    \return A new pMath object.
+ */
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec_or_double);
+
+/** \brief Try to evaluate a function F(x) with floating point real or complex x.
+    \param expr  Pointer to the F-expression. On success, this will be replaced by the evaluation result.
+    \param x     The only argument of \a expr. It won't be freed.
+    \param func  An function for evaluating F(x) with complex ball.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong));
+
+/** \brief Try to evaluate a function F(x, y) with floating point real or complex x and/or y.
+    \param expr  Pointer to the F-expression. On success, this will be replaced by the evaluation result.
+    \param x     The first argument of \a expr. It won't be freed.
+    \param y     The second argument of \a expr. It won't be freed.
+    \param func  An function for evaluating F(x,y) with complex ball.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+PMATH_PRIVATE
+pmath_bool_t _pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong));
 
 PMATH_PRIVATE
-void split_summand(
+void _pmath_split_summand(
   pmath_t  summand,         // wont be freed
   pmath_t *out_num_factor,  // may also become a complex number
-  pmath_t *out_rest
-);
+  pmath_t *out_rest);
 
-
+/** \brief Evaluate a function by converting degrees to radians.
+    \param expr  Pointer to the function expression. On success, this will be replaced by the evaluation result.
+    \param x     The function argument. It won't be freed.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
 PMATH_PRIVATE
-pmath_bool_t _pmath_equals_rational(
-  pmath_t obj,       // wont be freed
-  int n, int d);
-
-PMATH_PRIVATE
-pmath_bool_t _pmath_equals_rational_at(
-  pmath_expr_t expr,  // wont be freed
-  size_t i,
-  int n, int d);
-
+pmath_bool_t _pmath_try_simplify_degree(pmath_t *expr, pmath_t x);
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_to_precision(

@@ -10,8 +10,7 @@
 
 /**\brief Test whether an expression is a numeric quantity.
    \param obj An object. It wont be freed.
-   \return Whether calling pmath_set_precision() may return an approximate
-           floating point number.
+   \return Whether calling pmath_set_precision() may return an approximate floating point number.
  */
 PMATH_API pmath_bool_t pmath_is_numeric(pmath_t obj);
 
@@ -44,18 +43,6 @@ double pmath_precision(pmath_t obj);
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_set_precision(pmath_t obj, double prec);
-
-/**\brief Excange numbers by containing intervals with given precision.
-   \param obj An object. It will be freed.
-   \param prec The new number of known bits.
-   \return The new object.
-
-   Note that the builtin function Internal`SetPrecisionInterval() uses base 10, 
-   but this function operates on base 2.
- */
-PMATH_API
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_set_precision_interval(pmath_t obj, double prec);
 
 /** @} */
 

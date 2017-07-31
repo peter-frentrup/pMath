@@ -106,8 +106,8 @@ SetAttributes({ControlActive, $ControlActiveSetting}, {Protected, ReadProtected}
 
 End()
 
-AutoLoad(Hold(N), 
-	ToFileName({$BaseDirectory, "auto", "core"}, "approx.pmath"))
+AutoLoad(Hold(Clip),
+	ToFileName({$BaseDirectory, "auto", "core"}, "clip.pmath"))
 AutoLoad(Hold(DynamicLocal, DynamicLocalBox), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "dynamiclocal.pmath"))
 AutoLoad(Hold(ArcCos,ArcCot,ArcCsc,ArcSec,ArcSin,ArcTan, Cos,Cot,Csc,Sec,Sin,Tan, ArcCosh,ArcCoth,ArcCsch,ArcSech,ArcSinh,ArcTanh, Cosh,Coth,Csch,Sech,Sinh,Tanh), 
@@ -124,7 +124,7 @@ AutoLoad(Hold(Normalize, RotationMatrix, ScalingMatrix, ReflectionMatrix, Sheari
 	ToFileName({$BaseDirectory, "auto", "core"}, "geotrans.pmath"))
 AutoLoad(Hold(Echo, EchoFunction), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "echo.pmath"))
-AutoLoad(Hold(AbsArg, MinMax, TakeDrop, ReIm), 
+AutoLoad(Hold(AbsArg, TakeDrop, ReIm), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "thisthat.pmath"))
 AutoLoad(Hold(UpTo), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "upto.pmath"))

@@ -42,8 +42,7 @@ static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
   "symbol rule",
   "custom",
   "memory blob",
-  "packed array",
-  "real interval"
+  "packed array"
 };
 #endif
 
@@ -234,14 +233,6 @@ PMATH_API int pmath_compare(pmath_t objA, pmath_t objB) {
   if(cmpA && cmpA == cmpB) {
     return cmpA(objA, objB);
   }
-  
-  
-  if(pmath_is_interval(objA))
-    return -1;
-  
-  if(pmath_is_interval(objB))
-    return 1;
-    
   
   if(pmath_is_double(objA))
     return -1;

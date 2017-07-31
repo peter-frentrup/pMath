@@ -387,20 +387,18 @@ static pmath_t binary_read_real128(
     
     if(uexp == 0) {
       if(mpz_sgn(PMATH_AS_MPZ(mant)) == 0) {
-        mpfr_set_ui(PMATH_AS_MP_VALUE(f), 0, MPFR_RNDN);
+        arb_zero(PMATH_AS_ARB(f));
       }
       else {
-        mpfr_set_ui_2exp(PMATH_AS_MP_VALUE(f), 1, -112, MPFR_RNDU);
-        mpfr_mul_z(
-          PMATH_AS_MP_VALUE(f),
-          PMATH_AS_MP_VALUE(f),
-          PMATH_AS_MPZ(mant),
-          MPFR_RNDN);
+        fmpz_t tmp;
+        fmpz_init(tmp);
+        fmpz_set_mpz(tmp, PMATH_AS_MPZ(mant));
+        arb_set_fmpz(PMATH_AS_ARB(f), tmp);
+        arb_mul_2exp_si(PMATH_AS_ARB(f), PMATH_AS_ARB(f), -112);
+        fmpz_clear(tmp);
       }
-      
-      if(neg) {
-        mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
-      }
+      if(neg) 
+        arb_neg(PMATH_AS_ARB(f), PMATH_AS_ARB(f));
       
       pmath_unref(mant);
       return f;
@@ -411,9 +409,8 @@ static pmath_t binary_read_real128(
         pmath_unref(f);
         pmath_unref(mant);
         
-        if(neg) {
+        if(neg) 
           return pmath_ref(_pmath_object_neg_infinity);
-        }
         
         return pmath_ref(_pmath_object_pos_infinity);
       }
@@ -423,18 +420,17 @@ static pmath_t binary_read_real128(
       return pmath_ref(PMATH_SYMBOL_UNDEFINED);
     }
     else {
+      fmpz_t tmp;
       mpz_setbit(PMATH_AS_MPZ(mant), 112);
       
-      mpfr_set_ui_2exp(PMATH_AS_MP_VALUE(f), 1, ((int)uexp) - 16383 - 112, MPFR_RNDU);
-      mpfr_mul_z(
-        PMATH_AS_MP_VALUE(f),
-        PMATH_AS_MP_VALUE(f),
-        PMATH_AS_MPZ(mant),
-        MPFR_RNDN);
-        
-      if(neg)
-        mpfr_neg(PMATH_AS_MP_VALUE(f), PMATH_AS_MP_VALUE(f), MPFR_RNDN);
-        
+      fmpz_init(tmp);
+      fmpz_set_mpz(tmp, PMATH_AS_MPZ(mant));
+      arb_set_fmpz(PMATH_AS_ARB(f), tmp);
+      arb_mul_2exp_si(PMATH_AS_ARB(f), PMATH_AS_ARB(f), ((int)uexp) - 16383 - 112);
+      fmpz_clear(tmp);
+      if(neg) 
+        arb_neg(PMATH_AS_ARB(f), PMATH_AS_ARB(f));
+      
       pmath_unref(mant);
       return f;
     }
