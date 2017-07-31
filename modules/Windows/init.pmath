@@ -9,6 +9,8 @@ Windows`RegEnumValues
 Windows`Win64Version
 Windows`$ComMultiThreadedAppartment
 
+Windows`Editors`OpenTextFile
+
 Begin("Windows`Private`")
 
 
@@ -30,6 +32,9 @@ SetAttributes(RegEnumKeys, Listable)
 SetAttributes(RegEnumValues, Listable)
 
 LoadLibrary(ToFileName({DirectoryName($Input), "bin", $ProcessorType}, "pmath-windows.dll"))
+
+AutoLoad(Hold(Windows`Editors`OpenTextFile),
+	ToFileName(DirectoryName($Input), "editors.pmath"))
 
 End()
 
