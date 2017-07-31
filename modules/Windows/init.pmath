@@ -7,6 +7,7 @@ Windows`RegGetValue
 Windows`RegEnumKeys
 Windows`RegEnumValues
 Windows`Win64Version
+Windows`$ComMultiThreadedAppartment
 
 Begin("Windows`Private`")
 
@@ -14,6 +15,9 @@ Begin("Windows`Private`")
 General::hresult:= "Error `1` encounted: `2`"
 SHGetKnownFolderPath::unk:= "`1` is not a known folder. See $KnownFolders."
 
+If(Hold($ComMultiThreadedAppartment) =!= Hold @@ List @ $ComMultiThreadedAppartment) {
+    $ComMultiThreadedAppartment:= Automatic
+}
 
 Options(HandleHResultError):= {Head -> General, "HResult" -> 0, "Description" -> "No description available."}
 Function HandleHResultError(opt:OptionsPattern()) {
