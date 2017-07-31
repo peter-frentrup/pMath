@@ -242,6 +242,9 @@
 		<Unit filename="src/SHGetKnownFolderPath.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/ShellExecute.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/error-util.c">
 			<Option compilerVar="CC" />
 		</Unit>
