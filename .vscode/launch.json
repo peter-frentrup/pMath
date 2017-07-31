@@ -14,6 +14,18 @@
             "visualizerFile": "${workspaceRoot}/debugging/windbg/pmath.natvis"
         },
         {
+            "name": "Launch console-win.exe (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/library/console-win/bin/windows/msvc-debug-x64/console-win.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "visualizerFile": "${workspaceRoot}/debugging/windbg/pmath.natvis"
+        },
+        {
             "name": "C++ Attach (Windows)",
             "type": "cppvsdbg",
             "request": "attach",
