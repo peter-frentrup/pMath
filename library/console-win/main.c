@@ -338,8 +338,11 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
       hyper_console_end_link();
     }
     
-    if(!info->skipping_hyperlink_data && pmath_same(obj, info->current_hyperlink_label))
+    if(!info->skipping_hyperlink_data && pmath_same(obj, info->current_hyperlink_label)) {
       info->skipping_hyperlink_data = TRUE;
+      pmath_unref(info->current_hyperlink_label);
+      info->current_hyperlink_label = PMATH_UNDEFINED;
+    }
   }
   
   if(pmath_is_symbol(obj)) {
@@ -1017,6 +1020,8 @@ int main(int argc, const char **argv) {
       NULL));
       
   main_mq = pmath_thread_get_queue();
+  
+  PMATH_RUN("Get(ToFileName({$BaseDirectory, \"auto\", \"hyper-console\"}, \"init.pmath\"))");
   
   handle_options(argc, argv);
   

@@ -1,0 +1,17 @@
+
+BeginPackage("System`Con`", {"ExperimentalSyntax`"})
+
+$HaveHyperlinks:= True
+
+Begin("System`Con`Private`")
+
+Unprotect(ShowDefinition)
+Function ShowDefinition(~s:String) {
+	With(n:= Names(s))
+	SectionPrint("PrintUsage", n.Sort.Map(Button(#, ShowDefinition(#)) &).Row("\n")) /? Length(n) > 1
+}
+Protect(ShowDefinition)
+
+End()
+
+EndPackage()
