@@ -12,6 +12,37 @@ Function ShowDefinition(~s:String) {
 }
 Protect(ShowDefinition)
 
+
+Attributes($DescribeLocationOverload):= {ThreadLocal}
+$DescribeLocationOverload:= True
+
+Function Developer`DescribeLocation(
+	src: Developer`DebugInfoSource(
+		~filename:String, 
+		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
+) Where($DescribeLocationOverload) {
+	Block({$DescribeLocationOverload:= False}, 
+	Block {
+		With(label:= Developer`DescribeLocation(src))
+		
+		If(Developer`FileInformation(filename) =!= {}) {
+			Return(Button(label, OpenTextFile(filename, Line->fromLine, Column->fromColumn)))
+		}
+		Return(label)
+	})
+}
+
+
+Options(OpenTextFile):= {Line->Automatic, Column->Automatic}
+Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
+	If($SystemId === "Windows") {
+		With(path:= $NamespacePath)
+		Block({$NamespacePath:= path}, Get("Windows`"))
+		Return(Windows`Editors`OpenTextFile(filename, opts))
+	}
+	$Failed
+}
+
 End()
 
 EndPackage()
