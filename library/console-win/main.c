@@ -94,7 +94,7 @@ static pmath_messages_t get_main_mq(void) {
 }
 
 // Reads a line from stdin without the ending "\n".
-static pmath_string_t read_line(void) {
+static pmath_string_t readline_simple(void) {
   struct hyper_console_settings_t settings;
   
   memset(&settings, 0, sizeof(settings));
@@ -115,6 +115,53 @@ static pmath_string_t read_line(void) {
   return PMATH_NULL;
 }
 
+
+static pmath_string_t need_more_pmath_input_read(void *data) {
+  pmath_bool_t *need_more_input = data;
+  *need_more_input = TRUE;
+  return PMATH_NULL;
+}
+
+static BOOL need_more_pmath_input(void *dummy, const wchar_t *buffer, int len, int cursor_pos) {
+  pmath_string_t code = pmath_string_insert_ucs2(PMATH_NULL, 0, buffer, len);
+  pmath_span_array_t *spans;
+  pmath_bool_t need_more_input = FALSE;
+  
+  spans = pmath_spans_from_string(
+            &code,
+            need_more_pmath_input_read,
+            NULL,
+            NULL,
+            NULL,
+            &need_more_input);
+            
+  pmath_span_array_free(spans);
+  pmath_unref(code);
+  return need_more_input;
+}
+
+// Reads a line from stdin without the ending "\n".
+static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
+  struct hyper_console_settings_t settings;
+  
+  memset(&settings, 0, sizeof(settings));
+  settings.size = sizeof(settings);
+  settings.flags = HYPER_CONSOLE_FLAGS_MULTILINE;
+  settings.default_input = L"";
+  settings.history = history;
+  settings.need_more_input_predicate = need_more_pmath_input;
+  //settings.auto_completion = auto_completion;
+  settings.line_continuation_prompt = continuation_prompt;
+  
+  wchar_t *str = hyper_console_readline(&settings);
+  if(str) {
+    pmath_string_t result = pmath_string_insert_ucs2(PMATH_NULL, 0, str, -1);
+    hyper_console_free_memory(str);
+    return result;
+  }
+  
+  return PMATH_NULL;
+}
 
 struct styled_writer_info_t {
   pmath_t current_hyperlink_obj;
@@ -477,25 +524,6 @@ struct parse_data_t {
   unsigned error: 1;
 };
 
-static pmath_string_t scanner_read(void *_data) {
-  struct parse_data_t *data = _data;
-  pmath_string_t result;
-  
-  if(pmath_aborting())
-    return PMATH_NULL;
-    
-  write_indent("     > ");
-  
-  result = read_line();
-  if(pmath_string_length(result) == 0) {
-    pmath_unref(result);
-    return PMATH_NULL;
-  }
-  
-  data->numlines++;
-  return result;
-}
-
 static void scanner_error(pmath_string_t code, int pos, void *_data, pmath_bool_t critical) {
   struct parse_data_t *data = _data;
   
@@ -600,12 +628,22 @@ static pmath_t add_debug_info(
 static pmath_t dialog(pmath_t first_eval) {
   pmath_t result = PMATH_NULL;
   pmath_t old_dialog = pmath_session_start();
+  pmath_string_t continuation_prompt;
+  int i;
+  const wchar_t *continuation_prompt_buf;
   
   first_eval = pmath_evaluate(first_eval);
   result = check_dialog_return(first_eval);
   pmath_unref(first_eval);
   
   PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth));
+  
+  continuation_prompt = pmath_string_new(dialog_depth + 7 + 1);
+  for(i = dialog_depth; i > 0; --i)
+    continuation_prompt = pmath_string_insert_latin1(continuation_prompt, INT_MAX, " ", 1);
+  continuation_prompt = pmath_string_insert_latin1(continuation_prompt, INT_MAX, "     > ", -1);
+  continuation_prompt = pmath_string_insert_latin1(continuation_prompt, INT_MAX, "", 1); // zero-terminate
+  continuation_prompt_buf = pmath_string_buffer(&continuation_prompt);
   
   if(pmath_same(result, PMATH_UNDEFINED)) {
     struct pmath_boxes_from_spans_ex_t parse_settings;
@@ -633,7 +671,7 @@ static pmath_t dialog(pmath_t first_eval) {
       parse_data.start_line += parse_data.numlines;
       parse_data.numlines = 1;
       parse_data.error = FALSE;
-      parse_data.code = read_line();
+      parse_data.code = readline_pmath(continuation_prompt_buf);
       
       if(dialog_depth > 0 && pmath_aborting()) {
         pmath_unref(parse_data.code);
@@ -642,7 +680,7 @@ static pmath_t dialog(pmath_t first_eval) {
       
       spans = pmath_spans_from_string(
                 &parse_data.code,
-                scanner_read,
+                NULL,
                 NULL,
                 NULL,
                 scanner_error,
@@ -709,6 +747,7 @@ static pmath_t dialog(pmath_t first_eval) {
   
   PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth - 1));
   
+  pmath_unref(continuation_prompt);
   pmath_session_end(old_dialog);
   return result;
 }
@@ -788,7 +827,7 @@ static void interrupt_callback(void *dummy) {
     
     write_line("\ninterrupt: ");
     
-    line = read_line();
+    line = readline_simple();
     word = next_word(&line);
     
     if( pmath_string_equals_latin1(word, "a") ||
@@ -979,7 +1018,8 @@ int main(int argc, const char **argv) {
   
   if(sem_init(&interrupt_semaphore, 0, 0) < 0) {
     fprintf(stderr, "Out of System resoures (sem_init failed).\n");
-    return 1;
+    quit_result = 1;
+    goto FAIL_SEM_INIT;
   }
   
   signal(SIGINT, signal_handler);
@@ -992,7 +1032,8 @@ int main(int argc, const char **argv) {
       !pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0))
   {
     fprintf(stderr, "Cannot initialize pMath.\n");
-    return 1;
+    quit_result = 1;
+    goto FAIL_PMATH_INIT;
   }
   
   init_console_width();
@@ -1012,7 +1053,7 @@ int main(int argc, const char **argv) {
   handle_options(argc, argv);
   
   if(!quitting) {
-   PMATH_RUN("System`Con`PrintWelcomeMessage()");
+    PMATH_RUN("System`Con`PrintWelcomeMessage()");
   }
   
   pmath_unref(dialog(PMATH_NULL));
@@ -1043,10 +1084,11 @@ int main(int argc, const char **argv) {
   }
   
   signal(SIGINT, signal_dummy);
-  sem_destroy(&interrupt_semaphore);
   
   hyper_console_done_hyperlink_system();
   hyper_console_history_free(history);
-  
+FAIL_PMATH_INIT:
+  sem_destroy(&interrupt_semaphore);
+FAIL_SEM_INIT:
   return quit_result;
 }
