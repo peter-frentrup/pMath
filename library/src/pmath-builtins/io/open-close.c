@@ -539,6 +539,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   if(pmath_is_symbol(filename)) {
     if(kind == OPEN_APPEND) {
       pmath_message(PMATH_NULL, "fstr", 1, filename);
+      pmath_unref(options);
       return expr;
     }
     
@@ -546,18 +547,21 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       if(!pmath_file_test(filename, PMATH_FILE_PROP_WRITE)) {
         pmath_message(PMATH_NULL, "iow", 1, filename);
         pmath_unref(expr);
+        pmath_unref(options);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
       if(!pmath_file_test(filename, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)) {
         pmath_message(PMATH_NULL, "iob", 1, filename);
         pmath_unref(expr);
+        pmath_unref(options);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
       if(binary_format) {
         pmath_message(PMATH_NULL, "text", 1, filename);
         pmath_unref(expr);
+        pmath_unref(options);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
     }
@@ -565,18 +569,21 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       if(!pmath_file_test(filename, PMATH_FILE_PROP_READ)) {
         pmath_message(PMATH_NULL, "ior", 1, filename);
         pmath_unref(expr);
+        pmath_unref(options);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
       if(!pmath_file_test(filename, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
         pmath_message(PMATH_NULL, "iob", 1, filename);
         pmath_unref(expr);
+        pmath_unref(options);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
       
       if(binary_format) {
         pmath_message(PMATH_NULL, "text", 1, filename);
         pmath_unref(expr);
+        pmath_unref(options);
         return pmath_ref(PMATH_SYMBOL_FAILED);
       }
     }
@@ -586,6 +593,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   }
   else {
     pmath_message(PMATH_NULL, "fstr", 1, filename);
+    pmath_unref(options);
     return expr;
   }
   
@@ -694,6 +702,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       pmath_expr_get_item(expr, 1));
       
     pmath_unref(encoding);
+    pmath_unref(filename);
     pmath_unref(page_width);
     pmath_unref(expr);
     return pmath_ref(PMATH_SYMBOL_FAILED);
@@ -736,6 +745,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     else {
       pmath_unref(file);
       pmath_unref(encoding);
+      pmath_unref(filename);
       pmath_unref(page_width);
       pmath_unref(expr);
       return PMATH_NULL;
@@ -747,6 +757,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
         pmath_expr_get_item(expr, 1));
         
       pmath_unref(encoding);
+      pmath_unref(filename);
       pmath_unref(page_width);
       pmath_unref(expr);
       return pmath_ref(PMATH_SYMBOL_FAILED);
