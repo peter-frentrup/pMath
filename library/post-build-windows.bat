@@ -26,5 +26,10 @@ COPY /Y %1\*.dll                            console\%1\*
 COPY /Y %1\*.pdb                            console\%1\*
 COPY /Y scripts\maininit.5.txt              console\%1\maininit.pmath
 
+MKDIR console-win\%1
+COPY /Y %1\*.dll                            console-win\%1\*
+COPY /Y %1\*.pdb                            console-win\%1\*
+COPY /Y scripts\maininit.5.txt              console-win\%1\maininit.pmath
+
 rem Only generate pmath.lib if we did a gcc build:
 IF EXIST %1\pmath.def  LIB /DEF:%1\pmath.def /OUT:%1\pmath.lib
