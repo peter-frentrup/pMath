@@ -2333,6 +2333,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
 #endif
   
   gmp_randinit_default(_pmath_randstate);
+  gmp_randseed_ui(_pmath_randstate, (unsigned)rand());
   pmath_atomic_write_release(&_pmath_rand_spinlock, 0);
   
   _pmath_init_special_type(

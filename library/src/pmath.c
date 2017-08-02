@@ -988,6 +988,9 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(ReplacePart):={Heads->Automatic}");
       
       PMATH_RUN("Options(RotationBox):={BoxRotation->0}");
+      
+      PMATH_RUN("Options(SeedRandom):={Method->Automatic}");
+      
       PMATH_RUN("Options(StringCases):=Options(StringCount):={IgnoreCase->False,Overlaps->False}");
       PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
       

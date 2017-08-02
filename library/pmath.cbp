@@ -1644,6 +1644,9 @@
 		<Unit filename="src/pmath-builtins/number-theory/random.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/number-theory/seedrandom.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/parallel/abort.c">
 			<Option compilerVar="CC" />
 		</Unit>
