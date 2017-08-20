@@ -140,6 +140,312 @@ static BOOL need_more_pmath_input(void *dummy, const wchar_t *buffer, int len, i
   return need_more_input;
 }
 
+static int find_char_name_start(const wchar_t *buffer, int pos) {
+  for(; pos > 0; --pos) {
+    if(buffer[pos - 1] >= 'a' && buffer[pos - 1] <= 'z')
+      continue;
+    if(buffer[pos - 1] >= 'A' && buffer[pos - 1] <= 'Z')
+      continue;
+    if(buffer[pos - 1] >= '0' && buffer[pos - 1] <= '9')
+      continue;
+    break;
+  }
+  
+  if(pos >= 2 && buffer[pos - 1] == '[' && buffer[pos - 2] == '\\')
+    return pos;
+    
+  return -1;
+}
+
+static int find_char_name_end(const wchar_t *buffer, int pos, int len) {
+  for(; pos < len; ++pos) {
+    if(buffer[pos] >= 'a' && buffer[pos] <= 'z')
+      continue;
+    if(buffer[pos] >= 'A' && buffer[pos] <= 'Z')
+      continue;
+    if(buffer[pos] >= '0' && buffer[pos] <= '9')
+      continue;
+    break;
+  }
+  
+  //if(pos + 1 < len && buffer[pos] == L']')
+  //  return pos + 1;
+  
+  return pos;
+}
+
+static int find_string_start(const wchar_t *buffer, int pos) {
+  pmath_bool_t is_in_string = FALSE;
+  int i;
+  int last_string_start = -1;
+  for(i = 0; i < pos; ++i) {
+    if(buffer[i] == L'"') {
+      is_in_string = !is_in_string;
+      if(is_in_string)
+        last_string_start = i;
+    }
+    else if(buffer[i] == L'\\') {
+      ++i;
+    }
+  }
+  
+  if(is_in_string)
+    return last_string_start;
+  return -1;
+}
+
+static int find_string_end(const wchar_t *buffer, int start, int len) {
+  if(buffer[start] == L'"')
+    ++start;
+    
+  while(start < len) {
+    if(buffer[start] == L'"')
+      return start + 1;
+      
+    if(buffer[start] == L'\\') {
+      ++start;
+      if(start == len)
+        return len;
+    }
+    ++start;
+  }
+  
+  return start;
+}
+
+static pmath_atomic_t ac_lock = PMATH_ATOMIC_STATIC_INIT;
+static pmath_bool_t initialized_auto_completion = FALSE;
+static pmath_expr_t all_char_names = PMATH_STATIC_NULL;
+
+void cleanup_input_cache(void) {
+  pmath_atomic_lock(&ac_lock);
+  {
+    pmath_unref(all_char_names);
+    all_char_names = PMATH_NULL;
+    
+    initialized_auto_completion = FALSE;
+  }
+  pmath_atomic_unlock(&ac_lock);
+}
+
+static void need_auto_completion(void) {
+  pmath_bool_t init;
+  pmath_atomic_lock(&ac_lock);
+  {
+    init = initialized_auto_completion;
+  }
+  pmath_atomic_unlock(&ac_lock);
+  
+  if(init)
+    return;
+    
+  PMATH_RUN("Block({$NamespacePath:= {\"System`\"}}, <<AutoCompletion` )");
+  
+  pmath_atomic_lock(&ac_lock);
+  {
+    initialized_auto_completion = TRUE;
+  }
+  pmath_atomic_unlock(&ac_lock);
+}
+
+static pmath_expr_t get_all_char_names(void) {
+  if(pmath_is_null(all_char_names)) {
+    const struct pmath_named_char_t *nc_data;
+    size_t                           nc_count, i;
+    
+    nc_data = pmath_get_char_names(&nc_count);
+    
+    all_char_names = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), nc_count);
+    
+    for(i = 0; i < nc_count; ++i) {
+      all_char_names = pmath_expr_set_item(
+                         all_char_names, i + 1,
+                         PMATH_C_STRING(nc_data[i].name));
+    }
+  }
+  
+  return pmath_ref(all_char_names);
+}
+
+static wchar_t *hc_concat3(const wchar_t *prefix, int prefix_len, const wchar_t *s, int s_len, const wchar_t *suffix, int suffix_len) {
+  wchar_t *res = hyper_console_allocate_memory((prefix_len + s_len + suffix_len + 1) * sizeof(wchar_t));
+  if(!res)
+    return NULL;
+    
+  memcpy(res, prefix, prefix_len * sizeof(wchar_t));
+  memcpy(res + prefix_len, s, s_len * sizeof(wchar_t));
+  memcpy(res + prefix_len + s_len, suffix, suffix_len * sizeof(wchar_t));
+  res[prefix_len + s_len + suffix_len] = '\0';
+  return res;
+}
+
+static wchar_t **try_convert_matches(pmath_t list, const wchar_t *prefix, int prefix_len, const wchar_t *suffix) {
+  wchar_t **matches;
+  size_t len;
+  size_t i;
+  size_t j;
+  int suffix_len = (int)wcslen(suffix);
+  
+  assert(prefix_len >= 0);
+  
+  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST))
+    return NULL;
+    
+  if(pmath_expr_length(list) == 0)
+    return NULL;
+    
+  len = pmath_expr_length(list);
+  matches = hyper_console_allocate_memory((len + 1) * sizeof(wchar_t *));
+  if(!matches)
+    return NULL;
+    
+  j = 0;
+  for(i = 1; i <= len; ++i) {
+    pmath_t item = pmath_expr_get_item(list, i);
+    
+    if(pmath_is_string(item)) {
+      int s_len = pmath_string_length(item);
+      const wchar_t *s = pmath_string_buffer(&item);
+      
+      matches[j] = hc_concat3(prefix, prefix_len, s, s_len, suffix, suffix_len);
+      if(!matches[j]) {
+        pmath_unref(item);
+        return matches;
+      }
+      
+      ++j;
+    }
+    
+    pmath_unref(item);
+  }
+  
+  matches[j] = NULL;
+  return matches;
+}
+
+static wchar_t **auto_complete_pmath(void *context, const wchar_t *buffer, int len, int cursor_pos, int *completion_start, int *completion_end) {
+  pmath_string_t code;
+  pmath_span_array_t *spans;
+  int token_start;
+  int token_end;
+  pmath_token_t token;
+  
+  need_auto_completion();
+  
+  token_start = find_char_name_start(buffer, cursor_pos);
+  if(token_start >= 2 && token_start <= cursor_pos) {
+    pmath_t char_names;
+    wchar_t **matches;
+    token_end = find_char_name_end(buffer, cursor_pos, len);
+    if(token_end < len && buffer[token_end] == L']')
+      ++token_end;
+      
+    char_names = get_all_char_names();
+    char_names = pmath_evaluate(
+                   pmath_parse_string_args(
+                     "AutoCompletion`AutoCompleteOther(`1`, `2`)",
+                     "(oo)",
+                     char_names,
+                     pmath_string_insert_ucs2(PMATH_NULL, 0, buffer + token_start, cursor_pos - token_start)));
+                     
+    matches = try_convert_matches(char_names, L"\\[", 2, L"]");
+    pmath_unref(char_names);
+    *completion_start = token_start - 2;
+    *completion_end = token_end;
+    return matches;
+  }
+  
+  token_start = find_string_start(buffer, cursor_pos);
+  if(token_start >= 0) {
+    pmath_string_t escaped_string_until_cursor;
+    pmath_t results;
+    wchar_t **matches;
+    int backslash = cursor_pos;
+    while(backslash > token_start && buffer[backslash - 1] == '\\')
+      --backslash;
+      
+    token_end = find_string_end(buffer, backslash, len);
+    
+    escaped_string_until_cursor = pmath_string_insert_ucs2(PMATH_NULL, 0, buffer + token_start, cursor_pos - token_start);
+    if((cursor_pos - backslash) % 2 == 1)
+      escaped_string_until_cursor = pmath_string_insert_latin1(escaped_string_until_cursor, INT_MAX, "\\\"", 2);
+    else
+      escaped_string_until_cursor = pmath_string_insert_latin1(escaped_string_until_cursor, INT_MAX, "\"", 1);
+      
+    results = pmath_evaluate(
+                pmath_parse_string_args(
+                  "Try("
+                  "  AutoCompletion`AutoCompleteFullFilename("
+                  "    ToExpression(`1`)"
+                  "  ).Map("
+                  "    #.InputForm.ToString.StringTake(2..-2) &"
+                  "  )"
+                  ")",
+                  "(o)",
+                  escaped_string_until_cursor));
+                  
+    matches = try_convert_matches(results, L"", 0, L"");
+    pmath_unref(results);
+    *completion_start = token_start + 1;
+    *completion_end = token_end - 1;
+    return matches;
+  }
+  
+  code = pmath_string_insert_ucs2(PMATH_NULL, 0, buffer, len);
+  spans = pmath_spans_from_string(&code, NULL, NULL, NULL, NULL, NULL);
+  token_start = cursor_pos;
+  if(token_start > 0)
+    --token_start;
+  while(token_start > 0 && !pmath_span_array_is_token_end(spans, token_start - 1))
+    --token_start;
+    
+  token_end = cursor_pos;
+  while(token_end < len && !pmath_span_array_is_token_end(spans, token_end))
+    ++token_end;
+    
+  if(token_end < len)
+    ++token_end;
+    
+  if(token_start >= 2 && buffer[token_start - 1] == '<' && buffer[token_start - 2] == '<') {
+    wchar_t **matches;
+    pmath_string_t text = pmath_string_part(code, token_start, cursor_pos - token_start); // frees `code`
+    pmath_t namespaces = pmath_evaluate(
+                           pmath_parse_string_args(
+                             "AutoCompletion`AutoCompleteNamespaceGet(`1`)",
+                             "(o)",
+                             text));
+                             
+    matches = try_convert_matches(namespaces, L"", 0, L"");
+    pmath_unref(namespaces);
+    *completion_start = token_start;
+    *completion_end = token_end;
+    pmath_span_array_free(spans);
+    return matches;
+  }
+  
+  token = pmath_token_analyse(buffer + token_start, token_end - token_start, NULL);
+  if(token == PMATH_TOK_NAME) {
+    wchar_t **matches;
+    pmath_string_t text = pmath_string_part(code, token_start, cursor_pos - token_start); // frees `code`
+    pmath_t names = pmath_evaluate(
+                      pmath_parse_string_args(
+                        "AutoCompletion`AutoCompleteName(Names(), `1`)",
+                        "(o)",
+                        text));
+                        
+    matches = try_convert_matches(names, L"", 0, L"");
+    pmath_unref(names);
+    *completion_start = token_start;
+    *completion_end = token_end;
+    pmath_span_array_free(spans);
+    return matches;
+  }
+  
+  pmath_span_array_free(spans);
+  pmath_unref(code);
+  return NULL;
+}
+
 // Reads a line from stdin without the ending "\n".
 static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   struct hyper_console_settings_t settings;
@@ -150,7 +456,7 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   settings.default_input = L"";
   settings.history = history;
   settings.need_more_input_predicate = need_more_pmath_input;
-  //settings.auto_completion = auto_completion;
+  settings.auto_completion = auto_complete_pmath;
   settings.line_continuation_prompt = continuation_prompt;
   
   wchar_t *str = hyper_console_readline(&settings);
@@ -1058,6 +1364,8 @@ int main(int argc, const char **argv) {
   
   pmath_unref(dialog(PMATH_NULL));
   pmath_continue_after_abort();
+  
+  cleanup_input_cache();
   
   { // freeing main_mq
     pmath_t mq;
