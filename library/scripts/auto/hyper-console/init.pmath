@@ -28,22 +28,12 @@ Function Developer`DescribeLocation(
 		With(label:= Developer`DescribeLocation(src))
 		
 		If(Developer`FileInformation(filename) =!= {}) {
-			Return(Button(label, OpenTextFile(filename, Line->fromLine, Column->fromColumn)))
+			Return(Button(label, Developer`OpenTextFile(filename, Line->fromLine, Column->fromColumn)))
 		}
 		Return(label)
 	})
 }
 
-
-Options(OpenTextFile):= {Line->Automatic, Column->Automatic}
-Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
-	If($SystemId === "Windows") {
-		With(path:= $NamespacePath)
-		Block({$NamespacePath:= path}, Get("Windows`"))
-		Return(Windows`Editors`OpenTextFile(filename, opts))
-	}
-	$Failed
-}
 
 Function PrintWelcomeMessage() {
     Print("Welcome to pMath.");

@@ -91,7 +91,7 @@ Function openNotepadPlusPlus(~editor:String, ~filename:String, ~line, ~col) {
     ShellExecute("open", editor, args)
 }
 
-Function opneNotepad(~editor:String, ~filename:String, ~line, ~col) {
+Function openNotepad(~editor:String, ~filename:String, ~line, ~col) {
     ShellExecute("open", editor, {filename})
 }
 
