@@ -597,7 +597,7 @@ static void linewriter_post_write(void *user, pmath_t item, pmath_write_options_
       if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST))
         lw->expr_depth--;
     }
-    else
+    else if(!is_row(item))
       lw->expr_depth--;
       
     if( 0 == (flags & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
