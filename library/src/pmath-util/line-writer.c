@@ -403,7 +403,6 @@ static void flush_line(struct linewriter_t *lw) {
     }
   }
   
-  
   nl = find_best_linebreak(lw, &is_inside_string, &is_inside_token);
   
   ignore_linebreak = FALSE;
@@ -438,8 +437,9 @@ static void flush_line(struct linewriter_t *lw) {
   if(ignore_linebreak)
     return;
     
+  i = depth;
   depth = get_expr_indention_depth(lw);
-  if(depth >= nl)
+  if(depth >= i + nl)
     return;
     
   if(hyphenate) {
