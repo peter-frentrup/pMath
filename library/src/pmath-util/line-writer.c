@@ -446,25 +446,34 @@ static void flush_line(struct linewriter_t *lw) {
     _pmath_write_cstr("\\\n", lw->write, lw->user);
     
     if(is_inside_string) {
-      if( lw->pos > 0                         &&
-          lw->pos < lw->buffer_length - 4 + 1 &&
+      // replace initial space with \[U+00xx]
+      if( lw->pos > 0                     &&
+          lw->pos < lw->buffer_length - 8 &&
           lw->buffer[0] <= ' ')
       {
         char hex_hi = HEX_DIGITS[lw->buffer[0] >> 4];
         char hex_lo = HEX_DIGITS[lw->buffer[0] & 0xF];
         
-        injection_adjust_write_pos(lw, 1, 3);
-        memmove(lw->buffer     + 3, lw->buffer,     sizeof(lw->buffer[    0]) * (lw->buffer_length - 3));
-        memmove(lw->depths     + 3, lw->depths,     sizeof(lw->depths[    0]) * (lw->buffer_length - 3));
-        memmove(lw->char_flags + 3, lw->char_flags, sizeof(lw->char_flags[0]) * (lw->buffer_length - 3));
-        lw->pos += 3;
+        injection_adjust_write_pos(lw, 1, 8);
+        memmove(lw->buffer     + 8, lw->buffer,     sizeof(lw->buffer[    0]) * (lw->buffer_length - 8));
+        memmove(lw->depths     + 8, lw->depths,     sizeof(lw->depths[    0]) * (lw->buffer_length - 8));
+        memmove(lw->char_flags + 8, lw->char_flags, sizeof(lw->char_flags[0]) * (lw->buffer_length - 8));
+        lw->pos += 8;
         
-        lw->depths[0]     = lw->depths[1]     = lw->depths[2]     = lw->depths[3];
-        lw->char_flags[0] = lw->char_flags[1] = lw->char_flags[2] = lw->char_flags[3];
+        for(i = 0; i <= 8; ++i)
+          lw->depths[i] = lw->depths[0];
+        for(i = 0; i <= 8; ++i)
+          lw->char_flags[i] = lw->char_flags[0];
+          
         lw->buffer[0] = '\\';
-        lw->buffer[1] = 'x';
-        lw->buffer[2] = hex_hi;
-        lw->buffer[3] = hex_lo;
+        lw->buffer[1] = '[';
+        lw->buffer[2] = 'U';
+        lw->buffer[3] = '+';
+        lw->buffer[4] = '0';
+        lw->buffer[5] = '0';
+        lw->buffer[6] = hex_hi;
+        lw->buffer[7] = hex_lo;
+        lw->buffer[8] = ']';
       }
     }
   }
