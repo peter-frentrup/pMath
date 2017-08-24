@@ -227,13 +227,44 @@ static int get_expr_indention_depth(struct linewriter_t *lw) {
   return depth;
 }
 
+static const uint16_t *get_next_string_token(const uint16_t *tok, const uint16_t *end) {
+  assert(tok != NULL);
+  assert(tok <= end);
+  
+  if(tok == end)
+    return tok;
+    
+  if(*tok != '\\')
+    return tok + 1;
+    
+  ++tok;
+  if(tok == end)
+    return tok;
+    
+  if(*tok == '[') {
+    while(tok != end && *tok != ']')
+      ++tok;
+      
+    if(tok != end)
+      ++tok;
+      
+    return tok;
+  }
+  
+  ++tok;
+  return tok;
+}
+
 static void get_string_token_bounds(
   struct linewriter_t *lw,
-  int                  pos,
-  int                 *start,
-  int                 *next
+  int                pos,
+  int               *start,
+  int               *next
 ) {
-  int i;
+  int str_start;
+  const uint16_t *tok;
+  const uint16_t *buf_end;
+  
   assert(pos <= lw->line_length);
   
   if(pos >= lw->line_length) {
@@ -242,64 +273,19 @@ static void get_string_token_bounds(
     return;
   }
   
-  *start = pos;
-  *next  = pos + 1;
+  str_start = pos;
+  while(str_start > 0 && (lw->newlines[str_start - 1] & NEWLINE_INSTRING))
+    --str_start;
+    
+  tok = lw->buffer + str_start;
+  buf_end = lw->buffer + lw->line_length;
   
-  for(i = pos; i > 0; --i) {
-    if((lw->newlines[i] & NEWLINE_INSTRING) == 0)
-      break;
-      
-    if(lw->buffer[i - 1] <= ' ')
-      break;
-      
-    if(lw->buffer[i - 1] == '\\') {
-      int s = i;
-      while(s > 0 && lw->buffer[s - 1] == '\\')
-        --s;
-        
-      if((i - s) % 2 == 0)
-        return;
-        
-      switch(lw->buffer[i]) {
-        case 'x':
-          if(pos - i >= 3)
-            return;
-            
-          *start = i - 1;
-          *next  = i + 3;
-          if(*next > lw->buffer_length)
-            *next = lw->buffer_length;
-          return;
-          
-        case 'u':
-          if(pos - i >= 5)
-            return;
-            
-          *start = i - 1;
-          *next  = i + 5;
-          if(*next > lw->buffer_length)
-            *next = lw->buffer_length;
-          return;
-          
-        case 'U':
-          if(pos - i >= 9)
-            return;
-            
-          *start = i - 1;
-          *next  = i + 9;
-          if(*next > lw->buffer_length)
-            *next = lw->buffer_length;
-          return;
-      }
-      
-      if(pos > i)
-        return;
-        
-      *start = i - 1;
-      *next  = i + 1;
-      return;
-    }
+  while(tok <= lw->buffer + pos) {
+    *start = (int)(tok - lw->buffer);
+    tok = get_next_string_token(tok, buf_end);
   }
+  
+  *next = (int)(tok - lw->buffer);
 }
 
 static int find_best_linebreak(
@@ -559,7 +545,7 @@ static void linewriter_pre_write(void *user, pmath_t item, pmath_write_options_t
   struct write_pos_t  *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
   
   if(!pmath_is_string(item)) {
-    if( 0 == (flags & PMATH_WRITE_OPTIONS_INPUTEXPR) && 
+    if( 0 == (flags & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
         pmath_is_expr_of_len(item, PMATH_SYMBOL_RAWBOXES, 1))
     {
       lw->rawboxes_depth++;
