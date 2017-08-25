@@ -220,7 +220,7 @@ Function newSimpleConstLookup(~constPool:List, ~headPattern) {
 	With(values:= constPool[indices, 1])
 	
 	{indices, values}.MapThread((consts(#1):= #2) &)
-	consts(~i)::= (Message(newSimpleConstLookup::notyp, i, headPattern); $Failed)
+	consts(~i)::= (Message(newSimpleConstLookup::notyp, headPattern, BaseForm(i, 16)); $Failed)
 	
 	Return(consts)
 }
@@ -382,23 +382,24 @@ Function readSymbol(~mx, ~stringLookup) {
 }
 
 Function expandAttributeFlags(~attrflags) {
+	With(absflags:= Abs(attrflags))
 	Return({
-		If(BitGet(attrflags, 0) === 1, HoldFirst, Nothing),
-		If(BitGet(attrflags, 1) === 1, HoldRest, Nothing),
-		If(BitGet(attrflags, 2) === 1, Associative, Nothing), % Flat
-		If(BitGet(attrflags, 3) === 1, Symmetric, Nothing), % Orderless
-		If(BitGet(attrflags, 4) === 1, OneIdentity, Nothing),
-		If(BitGet(attrflags, 5) === 1, Listable, Nothing),
-		If(BitGet(attrflags, 6) === 1, "Constant", Nothing),
-		If(BitGet(attrflags, 7) === 1, Protected, Nothing),
-		If(BitGet(attrflags, 8) === 1, ReadProtected, Nothing),
-		If(BitGet(attrflags, 9) === 1, NHoldFirst, Nothing),
-		If(BitGet(attrflags, 10) === 1, NHoldRest, Nothing),
-		If(BitGet(attrflags, 11) === 1, NumericFunction, Nothing),
-		If(BitGet(attrflags, 12) === 1, SequenceHold, Nothing),
-		If(BitGet(attrflags, 13) === 1, HoldAllComplete, Nothing),
-		If(BitGet(attrflags, 14) === 1, Temporary, Nothing),
-		If(BitOr(attrflags, 16^^7fff) =!= 16^^7fff, "unknown" -> BitOr(attrflags, 16^^7fff)-16^^7fff, Nothing)
+		If(BitGet(absflags, 0) === 1, HoldFirst, Nothing),
+		If(BitGet(absflags, 1) === 1, HoldRest, Nothing),
+		If(BitGet(absflags, 2) === 1, Associative, Nothing), % Flat
+		If(BitGet(absflags, 3) === 1, Symmetric, Nothing), % Orderless
+		If(BitGet(absflags, 4) === 1, OneIdentity, Nothing),
+		If(BitGet(absflags, 5) === 1, Listable, Nothing),
+		If(BitGet(absflags, 6) === 1, "Constant", Nothing),
+		If(BitGet(absflags, 7) === 1, Protected, Nothing),
+		If(BitGet(absflags, 8) === 1, ReadProtected, Nothing),
+		If(BitGet(absflags, 9) === 1, NHoldFirst, Nothing),
+		If(BitGet(absflags, 10) === 1, NHoldRest, Nothing),
+		If(BitGet(absflags, 11) === 1, NumericFunction, Nothing),
+		If(BitGet(absflags, 12) === 1, SequenceHold, Nothing),
+		If(BitGet(absflags, 13) === 1, HoldAllComplete, Nothing),
+		If(BitGet(absflags, 14) === 1, Temporary, Nothing),
+		If(BitOr(attrflags, 16^^7fff) =!= 16^^7fff, attrflags, Nothing)
 	})
 }
 
