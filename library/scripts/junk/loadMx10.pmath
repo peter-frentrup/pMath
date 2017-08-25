@@ -37,7 +37,9 @@ Developer`LoadMx10`doStage4
 
 Developer`LoadMx10`MxComplex
 Developer`LoadMx10`MxComplexRef
+Developer`LoadMx10`MxEmptyExpr
 Developer`LoadMx10`MxExpr
+Developer`LoadMx10`MxConstExpr
 Developer`LoadMx10`MxInteger
 Developer`LoadMx10`MxLargeInteger
 Developer`LoadMx10`MxLargeReal
@@ -315,7 +317,12 @@ Function readConstant(~mx) {
 		Case(-3) { % 16^^05 = -3: packed array
 			Return(MxPackedArray(mx.readPackedArray))
 		}
-		
+		Case(-4) { % 16^^07 = -4: Underflow()
+			Return(MxConstExpr(Underflow()))
+		}
+		Case(-5) { % 16^^09 = -5: Overflow()
+			Return(MxConstExpr(Overflow()))
+		}
 		Case(-6) { % 16^^0b = -6: A string
 			Return(MxString(mx.readString))
 		}
@@ -449,7 +456,7 @@ Function readExpr(~mx, ~constLookup, ~symbolLookup) {
 		%
 		% negative lengths seem to be special cases of empty lists ?
 		%
-		Return({pos, {}, length})
+		Return({pos, MxEmptyExpr(length), {}, /\/})
 	}
 	
 	With(flags:= mx.readInteger)
@@ -477,7 +484,7 @@ Function readExprPart(~mx, ~constLookup, ~symbolLookup) {
 			% tag 00 = 0 = integer
 			% tag 02 = 1 = large integer 
 			% tag 04 = 2 = double
-			% tag 06 = 3 = large real 
+			% tag 06 = 3 = large real or Underflow() or Overflow()
 			% tag 10 = 8 = string
 			% tag 12 = 9 = packed array
 			With(ptr:= mx.readInteger)
