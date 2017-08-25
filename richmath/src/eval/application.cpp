@@ -1765,8 +1765,8 @@ namespace {
         
         file.write("/* pMath Document */\n\n");
         
-        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, List().release());
-        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     String("Symbol`").release());
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, List(String("System`")).release());
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     String("System`").release());
         
         boxes.write_to_file(file, PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
         
