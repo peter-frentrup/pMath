@@ -855,11 +855,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
   if(Application::is_idle())
     return false;
     
-  // non-blocking interrupt
-  Application::interrupt_wait_for(
-    Call(Symbol(PMATH_SYMBOL_DIALOG)),
-    0,
-    Infinity);
+  Application::async_interrupt(Call(Symbol(PMATH_SYMBOL_DIALOG)));
     
   return true;
 }
@@ -1284,13 +1280,10 @@ static bool similar_section_below_cmd(Expr cmd) {
 }
 
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
-  // non-blocking interrupt
-  Application::interrupt_wait_for(
+  Application::async_interrupt(
     Call(Symbol(PMATH_SYMBOL_DIALOG),
          Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
-              String("EvaluateSectionsAndReturn"))),
-    0,
-    Infinity);
+              String("EvaluateSectionsAndReturn"))));
     
   return false;
 }
