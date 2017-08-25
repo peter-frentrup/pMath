@@ -168,7 +168,7 @@ pmath_expr_t pmath_expr_get_item_range(
    arrays (not implemented yet).
    This function is for fast reading access to multiple items. You have to do 
    all the error checking alone. 
-   Note that result[0] === pmath_expr_get_item(expr, 1), a.s.o.
+   Note that result[0] === pmath_expr_get_item(expr, 1), e.t.c.
  */
 PMATH_API
 const pmath_t *pmath_expr_read_item_data(pmath_expr_t expr);
