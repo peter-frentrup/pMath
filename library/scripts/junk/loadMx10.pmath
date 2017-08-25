@@ -376,9 +376,30 @@ Function readSymbol(~mx, ~stringLookup) {
 	With(nameRef:= mx.readInteger)
 	With(unknown1:= mx.readInteger)
 	With(unknown2:= mx.readInteger)
-	With(attr:= mx.readInteger)
+	With(attrflags:= mx.readInteger)
 	
-	Return({pos, stringLookup(contextRef), stringLookup(nameRef), {unknown1, unknown2}, attr})
+	Return({pos, stringLookup(contextRef), stringLookup(nameRef), {unknown1, unknown2}, expandAttributeFlags(attrflags)})
+}
+
+Function expandAttributeFlags(~attrflags) {
+	Return({
+		If(BitGet(attrflags, 0) === 1, HoldFirst, Nothing),
+		If(BitGet(attrflags, 1) === 1, HoldRest, Nothing),
+		If(BitGet(attrflags, 2) === 1, Associative, Nothing), % Flat
+		If(BitGet(attrflags, 3) === 1, Symmetric, Nothing), % Orderless
+		If(BitGet(attrflags, 4) === 1, OneIdentity, Nothing),
+		If(BitGet(attrflags, 5) === 1, Listable, Nothing),
+		If(BitGet(attrflags, 6) === 1, "Constant", Nothing),
+		If(BitGet(attrflags, 7) === 1, Protected, Nothing),
+		If(BitGet(attrflags, 8) === 1, ReadProtected, Nothing),
+		If(BitGet(attrflags, 9) === 1, NHoldFirst, Nothing),
+		If(BitGet(attrflags, 10) === 1, NHoldRest, Nothing),
+		If(BitGet(attrflags, 11) === 1, NumericFunction, Nothing),
+		If(BitGet(attrflags, 12) === 1, SequenceHold, Nothing),
+		If(BitGet(attrflags, 13) === 1, HoldAllComplete, Nothing),
+		If(BitGet(attrflags, 14) === 1, Temporary, Nothing),
+		If(BitOr(attrflags, 16^^7fff) =!= 16^^7fff, "unknown" -> BitOr(attrflags, 16^^7fff)-16^^7fff, Nothing)
+	})
 }
 
 %
@@ -430,13 +451,20 @@ Function readExpr(~mx, ~constLookup, ~symbolLookup) {
 		Return({pos, {}, length})
 	}
 	
-	With(unknown1:= mx.readInteger)
+	With(flags:= mx.readInteger)
 	With(unknown2:= mx.readInteger)
 	
 	With(head:= mx.readExprPart(constLookup, symbolLookup))
 	With(arguments:= Table(mx.readExprPart(constLookup, symbolLookup), length))
 	
-	Return({pos, head @@ arguments, {unknown1, unknown2}})
+	Return({pos, head @@ arguments, expandExprFlags(flags), unknown2})
+}
+
+Function expandExprFlags(~flags) {
+	Return({
+		If(BitGet(flags, 3) === 1, IsAtom, Nothing),
+		If(BitOr(flags, 16^^8) =!= 16^^8, "unknown" -> BitOr(flags, 16^^8) - 16^^8, Nothing)
+	})
 }
 
 Function readExprPart(~mx, ~constLookup, ~symbolLookup) {
