@@ -142,7 +142,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     expr = g.end();
   }
   
-  expr = Application::interrupt_cached(
+  expr = Application::interrupt_wait_cached(
            Call(
              GetSymbol(FESymbolIndex::AutoCompleteOther),
              expr,
@@ -267,7 +267,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       }
       
       str = seq->text();
-      expr = Application::interrupt_cached(
+      expr = Application::interrupt_wait_cached(
                Call(
                  GetSymbol(FESymbolIndex::AutoCompleteFile),
                  str),
@@ -390,7 +390,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
   if(!str.is_valid())
     return false;
     
-  expr = Application::interrupt_cached(
+  expr = Application::interrupt_wait_cached(
            Call(
              GetSymbol(FESymbolIndex::AutoCompleteFile),
              str),
@@ -450,7 +450,7 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
   }
   
   String text = span->as_text();
-  current_boxes_list = Application::interrupt_cached(
+  current_boxes_list = Application::interrupt_wait_cached(
                          Call(
                            GetSymbol(FESymbolIndex::AutoCompleteName),
                            text),

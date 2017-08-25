@@ -662,11 +662,12 @@ bool EditSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 Expr EditSection::to_pmath(BoxOutputFlags flags) {
   Expr result = content()->to_pmath(BoxOutputFlags::Parseable);
   
-  result = Application::interrupt(Call(
-                                    Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
-                                    result),
-                                  Application::edit_interrupt_timeout);
-                                  
+  result = Application::interrupt_wait(
+             Call(
+               Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
+               result),
+             Application::edit_interrupt_timeout);
+             
   if(result.expr_length() == 1
       && result[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
     return result[1];

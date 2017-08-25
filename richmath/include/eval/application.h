@@ -97,14 +97,14 @@ namespace richmath {
       static bool is_idle();
       static bool is_running_job_for(Box *box);
       
-      static Expr interrupt(Expr expr, double seconds);
-      static Expr interrupt(Expr expr);
+      static Expr interrupt_wait(Expr expr, double seconds);
+      static Expr interrupt_wait(Expr expr);
       
-      static Expr interrupt_cached(Expr expr, double seconds);
-      static Expr interrupt_cached(Expr expr);
+      static Expr interrupt_wait_cached(Expr expr, double seconds);
+      static Expr interrupt_wait_cached(Expr expr);
       
-      static void interrupt_for(Expr expr, Box *box, double seconds);
-      static void interrupt_for(Expr expr, Box *box);
+      static Expr interrupt_wait_for(Expr expr, Box *box, double seconds);
+      static Expr interrupt_wait_for(Expr expr, Box *box);
       
       // callable from non-gui thread:
       static Expr internal_execute_for(Expr expr, int doc, int sect, int box);

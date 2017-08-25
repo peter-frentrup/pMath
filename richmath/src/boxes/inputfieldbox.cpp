@@ -118,7 +118,7 @@ void InputFieldBox::paint_content(Context *context) {
       if(input_type == PMATH_SYMBOL_NUMBER) {
         if(result.is_number()) {
           result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
-          result = Application::interrupt(result, Application::dynamic_timeout);
+          result = Application::interrupt_wait(result, Application::dynamic_timeout);
         }
         else
           result = String("");
@@ -133,11 +133,11 @@ void InputFieldBox::paint_content(Context *context) {
         else
           result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
           
-        result = Application::interrupt(result, Application::dynamic_timeout);
+        result = Application::interrupt_wait(result, Application::dynamic_timeout);
       }
       else if(input_type != PMATH_SYMBOL_RAWBOXES) {
         result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
-        result = Application::interrupt(result, Application::dynamic_timeout);
+        result = Application::interrupt_wait(result, Application::dynamic_timeout);
       }
       
       if(result.is_null())

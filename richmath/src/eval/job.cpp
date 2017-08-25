@@ -104,8 +104,8 @@ bool InputJob::start() {
   
   doc->move_to(doc, i);
   
-  Expr line = Application::interrupt(Plus(Symbol(PMATH_SYMBOL_LINE), 1));
-  Expr dlvl = Application::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
+  Expr line = Application::interrupt_wait(Plus(Symbol(PMATH_SYMBOL_LINE), 1));
+  Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
   
   String label = String("in [");
   if(dlvl == PMATH_FROM_INT32(1))

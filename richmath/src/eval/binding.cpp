@@ -856,7 +856,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
     return false;
     
   // non-blocking interrupt
-  Application::interrupt_for(
+  Application::interrupt_wait_for(
     Call(Symbol(PMATH_SYMBOL_DIALOG)),
     0,
     Infinity);
@@ -1060,7 +1060,7 @@ static bool open_cmd(Expr cmd) {
     doc->native()->filename(filename);
     
     if(filename.part(filename.length() - 9).equals(".pmathdoc")) {
-      Expr held_boxes = Application::interrupt(
+      Expr held_boxes = Application::interrupt_wait(
                           Parse("Get(`1`, Head->HoldComplete)", filename),
                           Application::button_timeout);
                           
@@ -1285,7 +1285,7 @@ static bool similar_section_below_cmd(Expr cmd) {
 
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
   // non-blocking interrupt
-  Application::interrupt_for(
+  Application::interrupt_wait_for(
     Call(Symbol(PMATH_SYMBOL_DIALOG),
          Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
               String("EvaluateSectionsAndReturn"))),

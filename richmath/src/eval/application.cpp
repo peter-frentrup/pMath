@@ -556,14 +556,14 @@ static void update_control_active(bool value) {
     
   original_value = value;
   if(value) {
-    Application::interrupt(
+    Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_ASSIGN),
            GetSymbol(FESymbolIndex::ControlActive),
            Symbol(PMATH_SYMBOL_TRUE)));
   }
   else {
-    Application::interrupt(
+    Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
            Call(Symbol(PMATH_SYMBOL_ASSIGN),
@@ -952,7 +952,7 @@ Document *Application::create_document(Expr data) {
       {
         item = Call(Symbol(PMATH_SYMBOL_SECTION),
                     Call(Symbol(PMATH_SYMBOL_BOXDATA),
-                         Application::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
+                         Application::interrupt_wait(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
                     String("Input"));
       }
       
@@ -1105,7 +1105,7 @@ static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
   return FALSE; // not busy
 }
 
-Expr Application::interrupt(Expr expr, double seconds) {
+Expr Application::interrupt_wait(Expr expr, double seconds) {
   ConcurrentQueue<ClientNotificationData>  suppressed_notifications;
   
   last_dynamic_evaluation = pmath_tickcount();
@@ -1119,11 +1119,11 @@ Expr Application::interrupt(Expr expr, double seconds) {
   return result;
 }
 
-Expr Application::interrupt(Expr expr) {
-  return interrupt(expr, interrupt_timeout);
+Expr Application::interrupt_wait(Expr expr) {
+  return interrupt_wait(expr, interrupt_timeout);
 }
 
-Expr Application::interrupt_cached(Expr expr, double seconds) {
+Expr Application::interrupt_wait_cached(Expr expr, double seconds) {
   if(!expr.is_pointer_of(PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION))
     return expr;
     
@@ -1131,7 +1131,7 @@ Expr Application::interrupt_cached(Expr expr, double seconds) {
   if(cached)
     return *cached;
     
-  Expr result = interrupt(expr, seconds);
+  Expr result = interrupt_wait(expr, seconds);
   if( result != PMATH_SYMBOL_ABORTED &&
       result != PMATH_SYMBOL_FAILED)
   {
@@ -1150,11 +1150,11 @@ Expr Application::interrupt_cached(Expr expr, double seconds) {
   return result;
 }
 
-Expr Application::interrupt_cached(Expr expr) {
-  return interrupt_cached(expr, interrupt_timeout);
+Expr Application::interrupt_wait_cached(Expr expr) {
+  return interrupt_wait_cached(expr, interrupt_timeout);
 }
 
-void Application::interrupt_for(Expr expr, Box *box, double seconds) {
+Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   EvaluationPosition pos(box);
   
   expr = Call(
@@ -1167,13 +1167,14 @@ void Application::interrupt_for(Expr expr, Box *box, double seconds) {
   bool old_is_executing_for_sth = is_executing_for_sth;
   is_executing_for_sth = true;
   
-  interrupt(expr, seconds);
+  Expr result = interrupt_wait(expr, seconds);
   
   is_executing_for_sth = old_is_executing_for_sth;
+  return result;
 }
 
-void Application::interrupt_for(Expr expr, Box *box) {
-  interrupt_for(expr, box, interrupt_timeout);
+Expr Application::interrupt_wait_for(Expr expr, Box *box) {
+  return interrupt_wait_for(expr, box, interrupt_timeout);
 }
 
 Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box) {
@@ -1678,7 +1679,7 @@ namespace {
       static String section_to_string(Section *sec) {
         // TODO: convert only the first line to boxes
         Expr boxes = sec->to_pmath(BoxOutputFlags::Default);
-        Expr text = Application::interrupt(
+        Expr text = Application::interrupt_wait(
                       Parse("FE`BoxesToText(`1`, \"PlainText\")", boxes),
                       Application::edit_interrupt_timeout);
                       

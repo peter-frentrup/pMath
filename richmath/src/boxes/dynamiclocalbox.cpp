@@ -20,7 +20,7 @@ DynamicLocalBox::~DynamicLocalBox() {
       !_init_call.is_valid())
   {
     // only call Deinitialization if the initialization was called
-    Application::interrupt(prepare_dynamic(_deinitialization), Application::dynamic_timeout);
+    Application::interrupt_wait(prepare_dynamic(_deinitialization), Application::dynamic_timeout);
   }
 }
 
@@ -171,7 +171,7 @@ Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
 
 void DynamicLocalBox::ensure_init() {
   if(_init_call.is_valid()) {
-    Application::interrupt(prepare_dynamic(_init_call), Application::dynamic_timeout);
+    Application::interrupt_wait(prepare_dynamic(_init_call), Application::dynamic_timeout);
     _init_call = Expr();
   }
 }
@@ -179,7 +179,7 @@ void DynamicLocalBox::ensure_init() {
 void DynamicLocalBox::emit_values(Expr symbol) {
   // todo: fetch variables from Server, maybe after each paint()
   
-  Expr rules =  Application::interrupt(
+  Expr rules =  Application::interrupt_wait(
                   Call(GetSymbol(FESymbolIndex::SymbolDefinitions), prepare_dynamic(symbol)),
                   Application::dynamic_timeout);
                   

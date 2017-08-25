@@ -981,7 +981,7 @@ namespace richmath {
         
         return false;
       }
-
+      
       bool is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start) {
         if(subbox && subbox != &self && substart == subend) {
           if(was_inside_start)
@@ -992,7 +992,7 @@ namespace richmath {
         
         return self.selection_box() && is_inside_selection(subbox, substart, subend);
       }
-
+      
       void set_prev_sel_line() {
         if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box())) {
           self.prev_sel_line = seq->get_line(self.selection_end(), self.prev_sel_line);
@@ -2938,7 +2938,7 @@ String Document::copy_to_text(String mimetype) {
       mimetype.equals(Clipboard::PlainText) ||
       mimetype.equals("PlainText"))
   {
-    Expr text = Application::interrupt(
+    Expr text = Application::interrupt_wait(
                   Parse("FE`BoxesToText(`1`, `2`)", boxes, mimetype),
                   Application::edit_interrupt_timeout);
                   
@@ -3165,7 +3165,7 @@ void Document::paste_from_boxes(Expr boxes) {
     }
   }
   
-  boxes = Application::interrupt(
+  boxes = Application::interrupt_wait(
             Parse("FE`SectionsToBoxes(`1`)", boxes),
             Application::edit_interrupt_timeout);
             
@@ -3295,10 +3295,11 @@ void Document::paste_from_boxes(Expr boxes) {
 
 void Document::paste_from_text(String mimetype, String data) {
   if(mimetype.equals(Clipboard::BoxesText)) {
-    Expr parsed = Application::interrupt(Expr(
-                                           pmath_parse_string(data.release())),
-                                         Application::edit_interrupt_timeout);
-                                         
+    Expr parsed = Application::interrupt_wait(
+                    Expr(
+                      pmath_parse_string(data.release())),
+                    Application::edit_interrupt_timeout);
+                    
     paste_from_boxes(parsed);
     return;
   }

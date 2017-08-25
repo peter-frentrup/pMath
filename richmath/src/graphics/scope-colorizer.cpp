@@ -78,7 +78,7 @@ namespace richmath {
           };
           
           if(!info) {
-            Expr syminfo = Application::interrupt_cached(Call(
+            Expr syminfo = Application::interrupt_wait_cached(Call(
                              GetSymbol(FESymbolIndex::SymbolInfo),
                              name));
                              
@@ -1158,7 +1158,7 @@ namespace richmath {
         int arg_count = call.function_argument_count();
         
         if(arg_count > info.maxargs) {
-          Expr options = Application::interrupt_cached(
+          Expr options = Application::interrupt_wait_cached(
                            Call(Symbol(PMATH_SYMBOL_OPTIONS), name));
                            
           if( options.expr_length() == 0 ||

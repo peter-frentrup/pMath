@@ -25,8 +25,8 @@ Expr richmath::generate_section(String style, Expr boxes) {
     Rule(Symbol(PMATH_SYMBOL_SECTIONGENERATED), Symbol(PMATH_SYMBOL_TRUE)));
     
   if(style.equals("Output")) {
-    Expr line = Application::interrupt(Symbol(PMATH_SYMBOL_LINE));
-    Expr dlvl = Application::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
+    Expr line = Application::interrupt_wait(Symbol(PMATH_SYMBOL_LINE));
+    Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
     
     if(line == PMATH_UNDEFINED)
       line = Symbol(PMATH_SYMBOL_ABORTED);

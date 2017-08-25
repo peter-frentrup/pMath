@@ -179,10 +179,11 @@ SyntaxInformation::SyntaxInformation(Expr name)
     locals_max(INT_MAX),
     is_keyword(false)
 {
-  Expr expr = Application::interrupt_cached(Call(
-                Symbol(PMATH_SYMBOL_SYNTAXINFORMATION),
-                name));
-                
+  Expr expr = Application::interrupt_wait_cached(
+                Call(
+                  Symbol(PMATH_SYMBOL_SYNTAXINFORMATION),
+                  name));
+                  
   if( expr.is_expr() &&
       expr[0] == PMATH_SYMBOL_LIST)
   {
