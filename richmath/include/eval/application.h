@@ -97,6 +97,8 @@ namespace richmath {
       static bool is_idle();
       static bool is_running_job_for(Box *box);
       
+      static void async_interrupt(Expr expr);
+      
       static Expr interrupt_wait(Expr expr, double seconds);
       static Expr interrupt_wait(Expr expr);
       

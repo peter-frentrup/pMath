@@ -218,7 +218,7 @@ class LocalServer: public Server {
         return Expr();
     }
     
-    virtual void interrupt(Expr expr) override {
+    virtual void async_interrupt(Expr expr) override {
       if(data && !pmath_atomic_read_aquire(&data->do_quit)) {
         pmath_thread_send(message_queue.get(), expr.release());
       }

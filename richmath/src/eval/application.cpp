@@ -693,7 +693,7 @@ int Application::run() {
 }
 
 void Application::done() {
-  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
   
   while(session) {
     SharedPtr<Job> job;
@@ -703,7 +703,7 @@ void Application::done() {
         job->dequeued();
     }
     
-    Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+    Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
     //Server::local_server->abort_all();
     
     session = session->next;
@@ -818,7 +818,7 @@ void Application::abort_all_jobs() {
     }
   }
   
-  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
   //Server::local_server->abort_all();
 }
 
@@ -1066,6 +1066,10 @@ bool Application::is_running_job_for(Box *box) {
   }
   
   return false;
+}
+
+void Application::async_interrupt(Expr expr) {
+  Server::local_server->async_interrupt(expr);
 }
 
 static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
