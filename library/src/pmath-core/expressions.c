@@ -2068,6 +2068,12 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
               int cmp = pmath_compare(namea, nameb);
               pmath_unref(namea);
               pmath_unref(nameb);
+              if(cmp == 0) {
+                if(PMATH_AS_PTR(a) < PMATH_AS_PTR(b))
+                  cmp = -1;
+                else if(PMATH_AS_PTR(a) > PMATH_AS_PTR(b))
+                  cmp = 1;
+              }
               return cmp;
             } break;
         }

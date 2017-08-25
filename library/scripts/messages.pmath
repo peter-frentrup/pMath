@@ -319,6 +319,8 @@ ResetDirectory::dtop:= "Directory stack is empty."
 
 Rest::norest:= "Cannot take the rest of expression `1` with length zero."
 
+SeedRandom::nogen:= "`1` is not one of the built-in random number generators `2`."
+
 SetOptions::changebf:= "The BinaryFormat option of stream `1` cannot be changed to `2`."
 
 SetStreamPosition::stmrng:= "Cannot set current point in stream `2` to position `1`. The requested position exceeds the number of bytes in the file."

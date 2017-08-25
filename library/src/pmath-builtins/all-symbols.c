@@ -485,6 +485,7 @@ PMATH_PRIVATE pmath_t builtin_lcm(                             pmath_expr_t expr
 PMATH_PRIVATE pmath_t builtin_nextprime(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_randominteger(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_randomreal(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_seedrandom(                      pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/parallel/ ...
 PMATH_PRIVATE pmath_t builtin_abort(             pmath_expr_t expr);
@@ -1327,6 +1328,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_SECTIONLABEL                     = NEW_SYSTEM_SYMBOL("SectionLabel"))
   VERIFY(   PMATH_SYMBOL_SECTIONLABELAUTODELETE           = NEW_SYSTEM_SYMBOL("SectionLabelAutoDelete"))
   VERIFY(   PMATH_SYMBOL_SECTIONPRINT                     = NEW_SYSTEM_SYMBOL("SectionPrint"))
+  VERIFY(   PMATH_SYMBOL_SEEDRANDOM                       = NEW_SYSTEM_SYMBOL("SeedRandom"))
   VERIFY(   PMATH_SYMBOL_SELECT                           = NEW_SYSTEM_SYMBOL("Select"))
   VERIFY(   PMATH_SYMBOL_SELECTABLE                       = NEW_SYSTEM_SYMBOL("Selectable"))
   VERIFY(   PMATH_SYMBOL_SELECTEDDOCUMENT                 = NEW_SYSTEM_SYMBOL("SelectedDocument"))
@@ -1851,6 +1853,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_ROUND,                       builtin_round_functions)
   BIND_DOWN(   PMATH_SYMBOL_SCAN,                        builtin_scan)
   BIND_DOWN(   PMATH_SYMBOL_SECTIONPRINT,                builtin_sectionprint)
+  BIND_DOWN(   PMATH_SYMBOL_SEEDRANDOM,                  builtin_seedrandom)
   BIND_DOWN(   PMATH_SYMBOL_SELECT,                      builtin_select)
   BIND_DOWN(   PMATH_SYMBOL_SELECTEDDOCUMENT,            general_builtin_nofront);
   BIND_DOWN(   PMATH_SYMBOL_SETATTRIBUTES,               builtin_setattributes)

@@ -2,6 +2,7 @@
 BeginPackage("Developer`", {"ExperimentalSyntax`"})
 
 Developer`PrintMessageOverload
+Developer`DescribeLocation
 
 Begin("Developer`Private`")
 
@@ -39,12 +40,12 @@ Function stackEntryForm(OptionsPattern()) {
 	If(location === None) {
 		Return @ head
 	} Else {
-		Return @ Row @ {head, " in ", describeLocation(location)}
+		Return @ Row @ {head, " in ", DescribeLocation(location)}
 	}
 }
 
-describeLocation(~expr)::= expr
-Function describeLocation(
+DescribeLocation(~expr)::= expr
+Function DescribeLocation(
 	DebugInfoSource(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})

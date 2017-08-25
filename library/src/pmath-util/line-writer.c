@@ -227,13 +227,44 @@ static int get_expr_indention_depth(struct linewriter_t *lw) {
   return depth;
 }
 
+static const uint16_t *get_next_string_token(const uint16_t *tok, const uint16_t *end) {
+  assert(tok != NULL);
+  assert(tok <= end);
+  
+  if(tok == end)
+    return tok;
+    
+  if(*tok != '\\')
+    return tok + 1;
+    
+  ++tok;
+  if(tok == end)
+    return tok;
+    
+  if(*tok == '[') {
+    while(tok != end && *tok != ']')
+      ++tok;
+      
+    if(tok != end)
+      ++tok;
+      
+    return tok;
+  }
+  
+  ++tok;
+  return tok;
+}
+
 static void get_string_token_bounds(
   struct linewriter_t *lw,
-  int                  pos,
-  int                 *start,
-  int                 *next
+  int                pos,
+  int               *start,
+  int               *next
 ) {
-  int i;
+  int str_start;
+  const uint16_t *tok;
+  const uint16_t *buf_end;
+  
   assert(pos <= lw->line_length);
   
   if(pos >= lw->line_length) {
@@ -242,64 +273,19 @@ static void get_string_token_bounds(
     return;
   }
   
-  *start = pos;
-  *next  = pos + 1;
+  str_start = pos;
+  while(str_start > 0 && (lw->newlines[str_start - 1] & NEWLINE_INSTRING))
+    --str_start;
+    
+  tok = lw->buffer + str_start;
+  buf_end = lw->buffer + lw->line_length;
   
-  for(i = pos; i > 0; --i) {
-    if((lw->newlines[i] & NEWLINE_INSTRING) == 0)
-      break;
-      
-    if(lw->buffer[i - 1] <= ' ')
-      break;
-      
-    if(lw->buffer[i - 1] == '\\') {
-      int s = i;
-      while(s > 0 && lw->buffer[s - 1] == '\\')
-        --s;
-        
-      if((i - s) % 2 == 0)
-        return;
-        
-      switch(lw->buffer[i]) {
-        case 'x':
-          if(pos - i >= 3)
-            return;
-            
-          *start = i - 1;
-          *next  = i + 3;
-          if(*next > lw->buffer_length)
-            *next = lw->buffer_length;
-          return;
-          
-        case 'u':
-          if(pos - i >= 5)
-            return;
-            
-          *start = i - 1;
-          *next  = i + 5;
-          if(*next > lw->buffer_length)
-            *next = lw->buffer_length;
-          return;
-          
-        case 'U':
-          if(pos - i >= 9)
-            return;
-            
-          *start = i - 1;
-          *next  = i + 9;
-          if(*next > lw->buffer_length)
-            *next = lw->buffer_length;
-          return;
-      }
-      
-      if(pos > i)
-        return;
-        
-      *start = i - 1;
-      *next  = i + 1;
-      return;
-    }
+  while(tok <= lw->buffer + pos) {
+    *start = (int)(tok - lw->buffer);
+    tok = get_next_string_token(tok, buf_end);
   }
+  
+  *next = (int)(tok - lw->buffer);
 }
 
 static int find_best_linebreak(
@@ -417,7 +403,6 @@ static void flush_line(struct linewriter_t *lw) {
     }
   }
   
-  
   nl = find_best_linebreak(lw, &is_inside_string, &is_inside_token);
   
   ignore_linebreak = FALSE;
@@ -452,33 +437,43 @@ static void flush_line(struct linewriter_t *lw) {
   if(ignore_linebreak)
     return;
     
+  i = depth;
   depth = get_expr_indention_depth(lw);
-  if(depth >= nl)
+  if(depth >= i + nl)
     return;
     
   if(hyphenate) {
     _pmath_write_cstr("\\\n", lw->write, lw->user);
     
     if(is_inside_string) {
-      if( lw->pos > 0                         &&
-          lw->pos < lw->buffer_length - 4 + 1 &&
+      // replace initial space with \[U+00xx]
+      if( lw->pos > 0                     &&
+          lw->pos < lw->buffer_length - 8 &&
           lw->buffer[0] <= ' ')
       {
         char hex_hi = HEX_DIGITS[lw->buffer[0] >> 4];
         char hex_lo = HEX_DIGITS[lw->buffer[0] & 0xF];
         
-        injection_adjust_write_pos(lw, 1, 3);
-        memmove(lw->buffer     + 3, lw->buffer,     sizeof(lw->buffer[    0]) * (lw->buffer_length - 3));
-        memmove(lw->depths     + 3, lw->depths,     sizeof(lw->depths[    0]) * (lw->buffer_length - 3));
-        memmove(lw->char_flags + 3, lw->char_flags, sizeof(lw->char_flags[0]) * (lw->buffer_length - 3));
-        lw->pos += 3;
+        injection_adjust_write_pos(lw, 1, 8);
+        memmove(lw->buffer     + 8, lw->buffer,     sizeof(lw->buffer[    0]) * (lw->buffer_length - 8));
+        memmove(lw->depths     + 8, lw->depths,     sizeof(lw->depths[    0]) * (lw->buffer_length - 8));
+        memmove(lw->char_flags + 8, lw->char_flags, sizeof(lw->char_flags[0]) * (lw->buffer_length - 8));
+        lw->pos += 8;
         
-        lw->depths[0]     = lw->depths[1]     = lw->depths[2]     = lw->depths[3];
-        lw->char_flags[0] = lw->char_flags[1] = lw->char_flags[2] = lw->char_flags[3];
+        for(i = 0; i <= 8; ++i)
+          lw->depths[i] = lw->depths[0];
+        for(i = 0; i <= 8; ++i)
+          lw->char_flags[i] = lw->char_flags[0];
+          
         lw->buffer[0] = '\\';
-        lw->buffer[1] = 'x';
-        lw->buffer[2] = hex_hi;
-        lw->buffer[3] = hex_lo;
+        lw->buffer[1] = '[';
+        lw->buffer[2] = 'U';
+        lw->buffer[3] = '+';
+        lw->buffer[4] = '0';
+        lw->buffer[5] = '0';
+        lw->buffer[6] = hex_hi;
+        lw->buffer[7] = hex_lo;
+        lw->buffer[8] = ']';
       }
     }
   }
@@ -559,7 +554,7 @@ static void linewriter_pre_write(void *user, pmath_t item, pmath_write_options_t
   struct write_pos_t  *wp = pmath_mem_alloc(sizeof(struct write_pos_t));
   
   if(!pmath_is_string(item)) {
-    if( 0 == (flags & PMATH_WRITE_OPTIONS_INPUTEXPR) && 
+    if( 0 == (flags & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
         pmath_is_expr_of_len(item, PMATH_SYMBOL_RAWBOXES, 1))
     {
       lw->rawboxes_depth++;
@@ -597,7 +592,7 @@ static void linewriter_post_write(void *user, pmath_t item, pmath_write_options_
       if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST))
         lw->expr_depth--;
     }
-    else
+    else if(!is_row(item))
       lw->expr_depth--;
       
     if( 0 == (flags & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
