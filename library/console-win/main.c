@@ -446,6 +446,16 @@ static wchar_t **auto_complete_pmath(void *context, const wchar_t *buffer, int l
   return NULL;
 }
 
+static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er) {
+  if(er->bKeyDown) {
+    if(er->wVirtualKeyCode == VK_F1) {
+      PMATH_RUN("System`Con`PrintHelpMessage()");
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 // Reads a line from stdin without the ending "\n".
 static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   struct hyper_console_settings_t settings;
@@ -458,6 +468,7 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   settings.need_more_input_predicate = need_more_pmath_input;
   settings.auto_completion = auto_complete_pmath;
   settings.line_continuation_prompt = continuation_prompt;
+  settings.key_event_filter = key_event_filter_for_pmath;
   
   wchar_t *str = hyper_console_readline(&settings);
   if(str) {
@@ -1260,15 +1271,18 @@ static pmath_t builtin_quit(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
-static pmath_t builtin_sectionprint(pmath_expr_t expr) {
+static void sectionprint_callback(void *arg) {
+  pmath_expr_t *expr_ptr = (pmath_expr_t*)arg;
+  pmath_expr_t expr = *expr_ptr;
+  
   pmath_t style;
   const char *indent = "";
   int default_color = get_default_output_color();
   int color = default_color;
   
   if(pmath_expr_length(expr) < 2)
-    return expr;
-    
+    return;
+  
   style = pmath_expr_get_item(expr, 1);
   if(pmath_is_string(style)) {
     if(pmath_string_equals_latin1(style, "Echo")) {
@@ -1286,6 +1300,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   if(pmath_expr_length(expr) == 2) {
     pmath_t item = pmath_expr_get_item(expr, 2);
     pmath_unref(expr);
+    *expr_ptr = PMATH_NULL;
     
     write_output(indent, item);
     pmath_unref(item);
@@ -1293,6 +1308,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   else {
     pmath_t row = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
     pmath_unref(expr);
+    *expr_ptr = PMATH_NULL;
     
     row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_LIST));
     row = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 1, row);
@@ -1305,7 +1321,11 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     set_output_color(default_color);
     
   write_line("\n");
-  return PMATH_NULL;
+}
+
+static pmath_t builtin_sectionprint(pmath_expr_t expr) {
+  hyper_console_interrupt(sectionprint_callback, &expr);
+  return expr;
 }
 
 static void init_console_width(void) {
