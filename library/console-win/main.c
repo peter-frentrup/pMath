@@ -13,6 +13,10 @@
 #  undef pmath_debug_print_stack
 #endif
 
+
+#define MIN(A, B)  ((A) < (B) ? (A) : (B))
+#define MAX(A, B)  ((A) > (B) ? (A) : (B))
+
 static void os_init(void);
 
 #ifdef PMATH_OS_WIN32
@@ -138,6 +142,65 @@ static BOOL need_more_pmath_input(void *dummy, const wchar_t *buffer, int len, i
   pmath_span_array_free(spans);
   pmath_unref(code);
   return need_more_input;
+}
+
+static void expand_pmath_selection(void) {
+  int length;
+  const wchar_t *buffer = hyper_console_get_current_input(&length);
+  pmath_t code = pmath_string_insert_ucs2(PMATH_NULL, 0, buffer, length);
+  pmath_span_array_t *spans = pmath_spans_from_string(&code, NULL, NULL, NULL, NULL, NULL);
+  
+  if(spans) {
+    int pos, anchor;
+    int start, end;
+    hyper_console_get_current_selection(&pos, &anchor);
+    
+    start = MIN(pos, anchor);
+    end = MAX(pos, anchor);
+    
+    if(start > 0 || end < length) {
+      int s = start;
+      int e;
+      while(s > 0 && !pmath_span_array_is_token_end(spans, s-1))
+        --s;
+      
+      e = MIN(start + 1, length);
+      while(e < length && !pmath_span_array_is_token_end(spans, e - 1))
+        ++e;
+      
+      if(e >= end && (s != start || e != end)) {
+        hyper_console_set_current_selection(e, s);
+      }
+      else{
+        for(;s >= 0; --s) {
+          pmath_span_t *span = pmath_span_at(spans, s);
+          pmath_bool_t found = FALSE;
+          
+          while(span) {
+            int after = 1 + pmath_span_end(span);
+            if(after < end)
+              break;
+            
+            if(after == end && s == start)
+              break;
+            
+            found = TRUE;
+            e = after;
+            span = pmath_span_next(span);
+          }
+          
+          if(found) {
+            hyper_console_set_current_selection(e, s);
+            break;
+          }
+        }
+      }
+    }
+    
+    pmath_span_array_free(spans);
+  }
+  
+  pmath_unref(code);
 }
 
 static int find_char_name_start(const wchar_t *buffer, int pos) {
@@ -448,9 +511,20 @@ static wchar_t **auto_complete_pmath(void *context, const wchar_t *buffer, int l
 
 static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er) {
   if(er->bKeyDown) {
-    if(er->wVirtualKeyCode == VK_F1) {
-      PMATH_RUN("System`Con`PrintHelpMessage()");
-      return TRUE;
+    switch(er->wVirtualKeyCode) {
+      case VK_F1:
+        PMATH_RUN("System`Con`PrintHelpMessage()");
+        return TRUE;
+        
+      case VK_OEM_PERIOD:
+        pmath_bool_t ctrl_pressed = (er->dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0;
+        pmath_bool_t alt_pressed = (er->dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) != 0;
+        pmath_bool_t shift_pressed = (er->dwControlKeyState & SHIFT_PRESSED) != 0;
+        if(ctrl_pressed && !alt_pressed && !shift_pressed) {
+          expand_pmath_selection();
+          return TRUE;
+        }
+        break;
     }
   }
   return FALSE;
@@ -1282,7 +1356,7 @@ static void sectionprint_callback(void *arg) {
   
   if(pmath_expr_length(expr) < 2)
     return;
-  
+    
   style = pmath_expr_get_item(expr, 1);
   if(pmath_is_string(style)) {
     if(pmath_string_equals_latin1(style, "Echo")) {
