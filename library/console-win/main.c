@@ -624,6 +624,7 @@ struct styled_writer_info_t {
   pmath_t current_hyperlink_label;
   
   unsigned skipping_hyperlink_data: 1;
+  unsigned raw_boxes: 1;
 };
 
 static size_t bytes_since_last_abortcheck = 0;
@@ -732,6 +733,135 @@ static pmath_string_t action_to_input_string(pmath_t action) { // `action` will 
   return str;
 }
 
+static void pre_write_button(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
+  pmath_t label = pmath_expr_get_item(obj, 1);
+  pmath_string_t action_str = action_to_input_string(pmath_expr_get_item(obj, 2));
+  const uint16_t *action_buf;
+  
+  action_str = pmath_string_insert_latin1(action_str, INT_MAX, "", 1); // zero-terminate
+  action_buf = pmath_string_buffer(&action_str);
+  if(action_buf) {
+    pmath_string_t tooltip_str = PMATH_NULL;
+    const uint16_t *tooltip_buf = action_buf;
+    
+    pmath_unref(info->current_hyperlink_label);
+    info->current_hyperlink_label = pmath_ref(label);
+    info->current_hyperlink_obj = pmath_ref(obj);
+    info->skipping_hyperlink_data = TRUE;
+    
+    if(pmath_is_expr_of(label, PMATH_SYMBOL_TOOLTIP) && pmath_expr_length(label) >= 2) {
+      pmath_t tooltip_obj = pmath_expr_get_item(label, 2);
+      
+      pmath_write(tooltip_obj, 0, concat_to_string, &tooltip_str);
+      pmath_unref(tooltip_obj);
+      
+      tooltip_str = pmath_string_insert_latin1(tooltip_str, INT_MAX, "", 1); // zero-terminate
+      tooltip_buf = pmath_string_buffer(&tooltip_str);
+      if(tooltip_buf) {
+        pmath_unref(info->current_hyperlink_label);
+        info->current_hyperlink_label = pmath_expr_get_item(label, 1);
+      }
+      else
+        tooltip_buf = action_buf;
+    }
+    
+    hyper_console_start_link(tooltip_buf);
+    hyper_console_set_link_input_text(action_buf);
+    
+    pmath_unref(tooltip_str);
+  }
+  
+  pmath_unref(action_str);
+  pmath_unref(label);
+}
+
+static pmath_t find_button_function(pmath_expr_t expr, size_t first_option) {
+  size_t len = pmath_expr_length(expr);
+  size_t i;
+  
+  for(i = first_option;i <= len;++i) {
+    pmath_t item = pmath_expr_get_item(expr, i);
+    
+    if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RULE, 2) || pmath_is_expr_of_len(item, PMATH_SYMBOL_RULEDELAYED, 2)) {
+      pmath_t lhs = pmath_expr_get_item(item, 1);
+      pmath_unref(lhs);
+      if(pmath_same(lhs, PMATH_SYMBOL_BUTTONFUNCTION)) {
+        pmath_t rhs = pmath_expr_get_item(item, 2);
+        pmath_unref(item);
+        return rhs;
+      }
+    }
+    
+    pmath_unref(item);
+  }
+  
+  return PMATH_NULL;
+}
+
+static pmath_t button_function_to_action(pmath_t func) {
+  if(pmath_is_null(func))
+    return func;
+  
+  if(pmath_is_expr_of_len(func, PMATH_SYMBOL_FUNCTION, 1)) {
+    pmath_t body = pmath_expr_get_item(func, 1);
+    pmath_unref(func);
+    return body;
+  }
+  
+  return pmath_expr_new(func, 0);
+}
+
+static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
+  pmath_t label_box;
+  pmath_t action;
+  const uint16_t *action_buf;
+  
+  if(!info->raw_boxes)
+    return;
+  
+  label_box = pmath_expr_get_item(obj, 1);
+  action = find_button_function(obj, 2);
+  action = button_function_to_action(action);
+  action = action_to_input_string(action);
+  
+  action = pmath_string_insert_latin1(action, INT_MAX, "", 1); // zero-terminate
+  action_buf = pmath_string_buffer(&action);
+  if(action_buf) {
+    pmath_string_t tooltip_str = PMATH_NULL;
+    const uint16_t *tooltip_buf = action_buf;
+    
+    pmath_unref(info->current_hyperlink_label);
+    info->current_hyperlink_label = pmath_ref(label_box);
+    info->current_hyperlink_obj = pmath_ref(obj);
+    info->skipping_hyperlink_data = TRUE;
+    
+    if(pmath_is_expr_of(label_box, PMATH_SYMBOL_TOOLTIPBOX) && pmath_expr_length(label_box) >= 2) {
+      pmath_t tooltip_obj = pmath_expr_get_item(label_box, 2);
+      tooltip_obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, tooltip_obj);
+      
+      pmath_write(tooltip_obj, 0, concat_to_string, &tooltip_str);
+      pmath_unref(tooltip_obj);
+      
+      tooltip_str = pmath_string_insert_latin1(tooltip_str, INT_MAX, "", 1); // zero-terminate
+      tooltip_buf = pmath_string_buffer(&tooltip_str);
+      if(tooltip_buf) {
+        pmath_unref(info->current_hyperlink_label);
+        info->current_hyperlink_label = pmath_expr_get_item(label_box, 1);
+      }
+      else
+        tooltip_buf = action_buf;
+    }
+    
+    hyper_console_start_link(tooltip_buf);
+    hyper_console_set_link_input_text(action_buf);
+    
+    pmath_unref(tooltip_str);
+  }
+  
+  pmath_unref(action);
+  pmath_unref(label_box);
+}
+
 static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct styled_writer_info_t *info = user;
   
@@ -743,48 +873,16 @@ static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t opti
     
   if(0 == (options & (PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_INPUTEXPR))) {
     if(pmath_same(info->current_hyperlink_obj, PMATH_UNDEFINED)) {
-      if(pmath_is_expr_of(obj, PMATH_SYMBOL_BUTTON) && pmath_expr_length(obj) >= 2) {
-        pmath_t label = pmath_expr_get_item(obj, 1);
-        pmath_string_t action_str = action_to_input_string(pmath_expr_get_item(obj, 2));
-        const uint16_t *action_buf;
-        
-        action_str = pmath_string_insert_latin1(action_str, INT_MAX, "", 1); // zero-terminate
-        action_buf = pmath_string_buffer(&action_str);
-        if(action_buf) {
-          pmath_string_t tooltip_str = PMATH_NULL;
-          const uint16_t *tooltip_buf = action_buf;
-          
-          pmath_unref(info->current_hyperlink_label);
-          info->current_hyperlink_label = pmath_ref(label);
-          info->current_hyperlink_obj = pmath_ref(obj);
-          info->skipping_hyperlink_data = TRUE;
-          
-          if(pmath_is_expr_of(label, PMATH_SYMBOL_TOOLTIP) && pmath_expr_length(label) >= 2) {
-            pmath_t tooltip_obj = pmath_expr_get_item(label, 2);
-            
-            pmath_write(tooltip_obj, 0, concat_to_string, &tooltip_str);
-            pmath_unref(tooltip_obj);
-            
-            tooltip_str = pmath_string_insert_latin1(tooltip_str, INT_MAX, "", 1); // zero-terminate
-            tooltip_buf = pmath_string_buffer(&tooltip_str);
-            if(tooltip_buf) {
-              pmath_unref(info->current_hyperlink_label);
-              info->current_hyperlink_label = pmath_expr_get_item(label, 1);
-            }
-            else
-              tooltip_buf = action_buf;
-          }
-          
-          hyper_console_start_link(tooltip_buf);
-          hyper_console_set_link_input_text(action_buf);
-          
-          pmath_unref(tooltip_str);
-        }
-        
-        pmath_unref(action_str);
-        pmath_unref(label);
-      }
+      if(pmath_is_expr_of(obj, PMATH_SYMBOL_BUTTON) && pmath_expr_length(obj) >= 2) 
+        pre_write_button(info, obj, options);
+      if(pmath_is_expr_of(obj, PMATH_SYMBOL_BUTTONBOX) && pmath_expr_length(obj) >= 2) 
+        pre_write_button_box(info, obj, options);
     }
+  }
+  
+  if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
+    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
+      info->raw_boxes = TRUE;
   }
 }
 
@@ -793,7 +891,12 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
   
   if(bytes_since_last_abortcheck >= ABORT_CHECK_BYTE_COUNT && pmath_aborting())
     return;
-    
+  
+  if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
+    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
+      info->raw_boxes = FALSE;
+  }
+  
   if(!pmath_same(info->current_hyperlink_obj,  PMATH_UNDEFINED)) {
     if(pmath_same(obj, info->current_hyperlink_obj)) {
       pmath_unref(info->current_hyperlink_obj);
