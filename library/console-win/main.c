@@ -608,6 +608,8 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   settings.auto_completion = auto_complete_pmath;
   settings.line_continuation_prompt = continuation_prompt;
   settings.key_event_filter = key_event_filter_for_pmath;
+  settings.tab_width = 4;
+  settings.first_tab_column = (int)wcslen(continuation_prompt);
   
   wchar_t *str = hyper_console_readline(&settings);
   if(str) {
