@@ -161,9 +161,9 @@ makeBlockExpression(~boxes)::=
 
 emitMakeStatements({}):= /\/
 emitMakeStatements({~boxes})::= emitMakeStatements(boxes)
-emitMakeStatements({"With" | {"\[RawNewline]"**, "With"}, "(", ~vars, ")"})::= 
+emitMakeStatements({"With", "(", ~vars, ")"})::= 
 	Emit @ STARTBLOCK(With, MakeExpression({"{", vars, "}"}))
-emitMakeStatements({"Local" | {"\[RawNewline]"**, "Local"}, "(", ~vars, ")"})::= 
+emitMakeStatements({"Local", "(", ~vars, ")"})::= 
 	Emit @ STARTBLOCK(Local, MakeExpression({"{", vars, "}"}))
 emitMakeStatements(stmts: {~~~, ";" | "\[RawNewline]", ~~~})::= stmts.Map(emitMakeStatements)
 emitMakeStatements(";")::= Emit @ HoldComplete(/\/)
@@ -191,7 +191,7 @@ asHeldSwitchExpression(p: HoldComplete(~~~))::=
 % TODO: support type annotations, for example `Function add(x -> Real, y -> Real) -> Real { x+y }`
 % Caution, ` ` binds stronger than `->`:       \________________________________/    \__________/
 %
-MakeExpression({"Function" | {"\[RawNewline]"**, "Function"}, lhs: {~:String, "(", ~~~}, {"{", ~body, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({"Function", lhs: {~:String, "(", ~~~}, {"{", ~body, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		AssignDelayed,
 		MakeExpression(lhs),
@@ -201,7 +201,7 @@ MakeExpression({"Function" | {"\[RawNewline]"**, "Function"}, lhs: {~:String, "(
 %
 % Function name(~arg) Where(cond) { body }
 %
-MakeExpression({"Function" | {"\[RawNewline]"**, "Function"}, lhs: {~:String, "(", ~~~}, {"Where", "(", ~cond, ")"}, {"{", ~body, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({"Function", lhs: {~:String, "(", ~~~}, {"Where", "(", ~cond, ")"}, {"{", ~body, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		AssignDelayed,
 		composeHeldExpr(
@@ -214,7 +214,7 @@ MakeExpression({"Function" | {"\[RawNewline]"**, "Function"}, lhs: {~:String, "(
 %
 % If(cond) {trueBlock}
 %
-MakeExpression({{"If" | {"\[RawNewline]"**, "If"}, "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		If,
 		asHeldCondition @ MakeExpression(cond),
@@ -223,7 +223,7 @@ MakeExpression({{"If" | {"\[RawNewline]"**, "If"}, "(", ~cond, ")"}, {"{", ?true
 %
 % If(cond) {trueBlock} Else {falseBlock}
 %
-MakeExpression({{"If" | {"\[RawNewline]"**, "If"}, "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", {"{", ?falseBlock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", {"{", ?falseBlock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		If,
 		asHeldCondition @ MakeExpression(cond),
@@ -233,7 +233,7 @@ MakeExpression({{"If" | {"\[RawNewline]"**, "If"}, "(", ~cond, ")"}, {"{", ?true
 %
 % If(cond) {trueBlock} Else If(cond2) ...
 %
-MakeExpression({{"If" | {"\[RawNewline]"**, "If"}, "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", rest: PatternSequence({"If", "(", ~, ")"}, ~~)}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", rest: PatternSequence({"If", "(", ~, ")"}, ~~)}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		If,
 		asHeldCondition @ MakeExpression(cond),
@@ -245,7 +245,7 @@ MakeExpression({{"If" | {"\[RawNewline]"**, "If"}, "(", ~cond, ")"}, {"{", ?true
 %
 getSwitchCases({})::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***, ~inner:List})::= getSwitchCases(inner)
-getSwitchCases({{"Case" | {"\[RawNewline]"**, "Case"}, "(", ~pattern, ")"}, {"{", ~block, "}"}, ~~~more})::=
+getSwitchCases({{"Case", "(", ~pattern, ")"}, {"{", ~block, "}"}, ~~~more})::=
 	Join(
 		First @ composeHeldExpr(
 			HoldComplete,
@@ -257,7 +257,7 @@ getSwitchCases(~other)::= (
 	Message(Syntax::switchcase, other)
 	HoldComplete()
 	)
-MakeExpression({{"Switch" | {"\[RawNewline]"**, "Switch"}, "(", ~expr, ")"}, {"{", ?cases:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"Switch", "(", ~expr, ")"}, {"{", ?cases:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		Switch,
 		asHeldSwitchExpression @ MakeExpression(expr),
@@ -267,7 +267,7 @@ MakeExpression({{"Switch" | {"\[RawNewline]"**, "Switch"}, "(", ~expr, ")"}, {"{
 %
 % While(cond) { block } 
 %
-MakeExpression({{"While" | {"\[RawNewline]"**, "While"}, "(", ~cond, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"While", "(", ~cond, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		While,
 		asHeldCondition @ MakeExpression(cond),
@@ -276,7 +276,7 @@ MakeExpression({{"While" | {"\[RawNewline]"**, "While"}, "(", ~cond, ")"}, {"{",
 %
 % Do(iter) { block } 
 %
-MakeExpression({{"Do" | {"\[RawNewline]"**, "Do"}, "(", ~iter, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"Do", "(", ~iter, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		Do,
 		makeBlockExpression(block),
@@ -285,13 +285,13 @@ MakeExpression({{"Do" | {"\[RawNewline]"**, "Do"}, "(", ~iter, ")"}, {"{", ?bloc
 %
 % Block { block } 
 %
-MakeExpression({"Block" | {"\[RawNewline]"**, "Block"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({"Block", {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	makeBlockExpression(block)
 
 %
 % Try { block } Finally { endblock }
 %
-MakeExpression({"Try" | {"\[RawNewline]"**, "Try"}, {"{", ?block:{}, "}"}, "Finally", {"{", ?endblock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({"Try", {"{", ?block:{}, "}"}, "Finally", {"{", ?endblock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		Finally,
 		makeBlockExpression(block),
@@ -300,7 +300,7 @@ MakeExpression({"Try" | {"\[RawNewline]"**, "Try"}, {"{", ?block:{}, "}"}, "Fina
 %
 % Local(vars) { block } 
 %
-MakeExpression({{"Local" | {"\[RawNewline]"**, "Local"}, "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"Local", "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		Local,
 		MakeExpression({"{", vars, "}"}),
@@ -309,7 +309,7 @@ MakeExpression({{"Local" | {"\[RawNewline]"**, "Local"}, "(", ~vars, ")"}, {"{",
 %
 % With(vars) { block } 
 %
-MakeExpression({{"With" | {"\[RawNewline]"**, "With"}, "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+MakeExpression({{"With", "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
 	composeHeldExpr(
 		With,
 		MakeExpression({"{", vars, "}"}),
