@@ -144,6 +144,70 @@ static BOOL need_more_pmath_input(void *dummy, const wchar_t *buffer, int len, i
   return need_more_input;
 }
 
+static void expand_spans_selection(pmath_span_array_t *spans, int *start, int *end) {
+  int length;
+  int s;
+  int e;
+  
+  assert(start != NULL);
+  assert(end != NULL);
+  
+  if(*start > *end) {
+    int tmp = *start;
+    *start = *end;
+    *end = tmp;
+  }
+  
+  if(!spans)
+    return;
+    
+  length = pmath_span_array_length(spans);
+  if(*start <= 0 && *end >= length)
+    return;
+    
+  s = *start;
+  while(s > 0 && !pmath_span_array_is_token_end(spans, s - 1))
+    --s;
+    
+  e = MIN(*start + 1, length);
+  while(e < length && !pmath_span_array_is_token_end(spans, e - 1))
+    ++e;
+    
+  if(e >= *end && (s != *start || e != *end)) {
+    *start = s;
+    *end = e;
+    return;
+  }
+  
+  for(; s >= 0; --s) {
+    pmath_span_t *span = pmath_span_at(spans, s);
+    pmath_bool_t found = FALSE;
+    
+    while(span) {
+      int after = 1 + pmath_span_end(span);
+      if(after < *end)
+        break;
+        
+      if(after == *end && s == *start)
+        break;
+        
+      found = TRUE;
+      e = after;
+      span = pmath_span_next(span);
+    }
+    
+    if(found) {
+      *start = s;
+      *end = e;
+      return;
+    }
+  }
+  
+  *start = 0;
+  *end = length;
+}
+
+static int selection_shrink_pos = -1;
 static void expand_pmath_selection(void) {
   int length;
   const wchar_t *buffer = hyper_console_get_current_input(&length);
@@ -154,49 +218,46 @@ static void expand_pmath_selection(void) {
     int pos, anchor;
     int start, end;
     hyper_console_get_current_selection(&pos, &anchor);
-    
     start = MIN(pos, anchor);
     end = MAX(pos, anchor);
-    
-    if(start > 0 || end < length) {
-      int s = start;
-      int e;
-      while(s > 0 && !pmath_span_array_is_token_end(spans, s-1))
-        --s;
-      
-      e = MIN(start + 1, length);
-      while(e < length && !pmath_span_array_is_token_end(spans, e - 1))
-        ++e;
-      
-      if(e >= end && (s != start || e != end)) {
-        hyper_console_set_current_selection(e, s);
-      }
-      else{
-        for(;s >= 0; --s) {
-          pmath_span_t *span = pmath_span_at(spans, s);
-          pmath_bool_t found = FALSE;
-          
-          while(span) {
-            int after = 1 + pmath_span_end(span);
-            if(after < end)
-              break;
-            
-            if(after == end && s == start)
-              break;
-            
-            found = TRUE;
-            e = after;
-            span = pmath_span_next(span);
-          }
-          
-          if(found) {
-            hyper_console_set_current_selection(e, s);
-            break;
-          }
-        }
-      }
+    if(selection_shrink_pos < start || end < selection_shrink_pos) {
+      selection_shrink_pos = pos;
     }
-    
+    expand_spans_selection(spans, &start, &end);
+    hyper_console_set_current_selection(end, start);
+    pmath_span_array_free(spans);
+  }
+  
+  pmath_unref(code);
+}
+
+static void shrink_pmath_selection(void) {
+  int length;
+  const wchar_t *buffer = hyper_console_get_current_input(&length);
+  pmath_t code = pmath_string_insert_ucs2(PMATH_NULL, 0, buffer, length);
+  pmath_span_array_t *spans = pmath_spans_from_string(&code, NULL, NULL, NULL, NULL, NULL);
+  
+  if(spans) {
+    int pos, anchor;
+    int start, end;
+    hyper_console_get_current_selection(&pos, &anchor);
+    start = MIN(pos, anchor);
+    end = MAX(pos, anchor);
+    if(selection_shrink_pos < start || end < selection_shrink_pos) {
+      selection_shrink_pos = pos;
+    }
+    pos = anchor = selection_shrink_pos;
+    for(;;) {
+      int next_start = pos;
+      int next_end = anchor;
+      expand_spans_selection(spans, &next_start, &next_end);
+      if(next_start <= start && next_end >= end)
+        break;
+      
+      pos = next_start;
+      anchor = next_end;
+    }
+    hyper_console_set_current_selection(pos, anchor);
     pmath_span_array_free(spans);
   }
   
@@ -522,6 +583,10 @@ static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er
         pmath_bool_t shift_pressed = (er->dwControlKeyState & SHIFT_PRESSED) != 0;
         if(ctrl_pressed && !alt_pressed && !shift_pressed) {
           expand_pmath_selection();
+          return TRUE;
+        }
+        if(ctrl_pressed && shift_pressed && !alt_pressed) {
+          shrink_pmath_selection();
           return TRUE;
         }
         break;
