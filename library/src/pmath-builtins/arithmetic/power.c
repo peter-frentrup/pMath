@@ -1072,7 +1072,6 @@ static pmath_bool_t try_rational_power(pmath_t *expr, const fmpq_t exponent) {
     arb_set_fmpq(exp, exponent, precision);
     acb_pow_arb(z, z, exp, precision);
     arb_clear(exp);
-    acb_clear(z);
     
     pmath_unref(base);
     pmath_unref(*expr);
