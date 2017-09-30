@@ -102,8 +102,7 @@ pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*fu
       func(z, z, prec);
       if(acb_is_finite(z)) {
         pmath_unref(*expr);
-        *expr = _pmath_complex_new_from_acb(z, is_machine_prec ? -1 : prec);
-        acb_clear(z);
+        *expr = _pmath_complex_new_from_acb_destructive(z, is_machine_prec ? -1 : prec);
         return TRUE;
       }
     }
@@ -149,9 +148,8 @@ pmath_bool_t _pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t
         pmath_unref(x_approx);
         pmath_unref(y_approx);
         pmath_unref(*expr);
-        *expr = _pmath_complex_new_from_acb(x_c, precision == -HUGE_VAL ? -1 : prec);
         acb_clear(y_c);
-        acb_clear(x_c);
+        *expr = _pmath_complex_new_from_acb_destructive(x_c, precision == -HUGE_VAL ? -1 : prec);
         return TRUE;
       }
     }
@@ -516,31 +514,36 @@ pmath_bool_t _pmath_complex_float_extract_acb_for_precision(
   return FALSE;
 }
 
-static pmath_float_t new_float_from_arb(const arb_t value, slong prec_or_double) {
+static pmath_float_t new_float_from_arb_destructive(arb_t value, slong prec_or_double) {
   pmath_mpfloat_t result;
   
   if(prec_or_double < 0) {
     double d = arf_get_d(arb_midref(value), ARF_RND_NEAR);
-    if(isfinite(d))
+    if(isfinite(d)) {
+      arb_clear(value);
       return PMATH_FROM_DOUBLE(d);
+    }
       
     prec_or_double = DBL_MANT_DIG;
   }
   
   result = _pmath_create_mp_float(prec_or_double);
   if(!pmath_is_null(result)) 
-    arb_set(PMATH_AS_ARB(result), value);
-
+    arb_swap(PMATH_AS_ARB(result), value);
+  
+  arb_clear(value);
   return result;
 }
 
-PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb(const acb_t value, slong prec_or_double) {
-  if(acb_is_real(value))
-    return new_float_from_arb(acb_realref(value), prec_or_double);
+PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb_destructive(acb_t value, slong prec_or_double) {
+  if(acb_is_real(value)) {
+    arb_clear(acb_imagref(value));
+    return new_float_from_arb_destructive(acb_realref(value), prec_or_double);
+  }
     
   return COMPLEX(
-           new_float_from_arb(acb_realref(value), prec_or_double),
-           new_float_from_arb(acb_imagref(value), prec_or_double));
+           new_float_from_arb_destructive(acb_realref(value), prec_or_double),
+           new_float_from_arb_destructive(acb_imagref(value), prec_or_double));
 }
 
 PMATH_PRIVATE pmath_t builtin_complex(pmath_expr_t expr) {
