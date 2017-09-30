@@ -839,7 +839,7 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
       pmath_unref(base);
       pmath_unref(*expr);
       *expr = _pmath_complex_new_from_acb(z, is_machine_precision ? -1 : precision);
-      
+      acb_clear(z);
       acb_clear(exp);
       return TRUE;
     }
@@ -1077,6 +1077,7 @@ static pmath_bool_t try_rational_power(pmath_t *expr, const fmpq_t exponent) {
     pmath_unref(base);
     pmath_unref(*expr);
     *expr = _pmath_complex_new_from_acb(z, is_machine_precision ? -1 : precision);
+    acb_clear(z);
     return TRUE;
   }
   acb_clear(z);
