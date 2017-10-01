@@ -100,6 +100,7 @@ static pmath_messages_t get_main_mq(void) {
 // Reads a line from stdin without the ending "\n".
 static pmath_string_t readline_simple(void) {
   struct hyper_console_settings_t settings;
+  wchar_t *str;
   
   memset(&settings, 0, sizeof(settings));
   settings.size = sizeof(settings);
@@ -109,7 +110,7 @@ static pmath_string_t readline_simple(void) {
   //settings.auto_completion = auto_completion;
   //settings.line_continuation_prompt = L"...>";
   
-  wchar_t *str = hyper_console_readline(&settings);
+  str = hyper_console_readline(&settings);
   if(str) {
     pmath_string_t result = pmath_string_insert_ucs2(PMATH_NULL, 0, str, -1);
     hyper_console_free_memory(str);
@@ -571,6 +572,10 @@ static wchar_t **auto_complete_pmath(void *context, const wchar_t *buffer, int l
 }
 
 static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er) {
+  pmath_bool_t ctrl_pressed = (er->dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0;
+  pmath_bool_t alt_pressed = (er->dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) != 0;
+  pmath_bool_t shift_pressed = (er->dwControlKeyState & SHIFT_PRESSED) != 0;
+  
   if(er->bKeyDown) {
     switch(er->wVirtualKeyCode) {
       case VK_F1:
@@ -578,9 +583,6 @@ static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er
         return TRUE;
         
       case VK_OEM_PERIOD:
-        pmath_bool_t ctrl_pressed = (er->dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0;
-        pmath_bool_t alt_pressed = (er->dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) != 0;
-        pmath_bool_t shift_pressed = (er->dwControlKeyState & SHIFT_PRESSED) != 0;
         if(ctrl_pressed && !alt_pressed && !shift_pressed) {
           expand_pmath_selection();
           return TRUE;
@@ -598,6 +600,7 @@ static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er
 // Reads a line from stdin without the ending "\n".
 static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   struct hyper_console_settings_t settings;
+  wchar_t *str;
   
   memset(&settings, 0, sizeof(settings));
   settings.size = sizeof(settings);
@@ -611,7 +614,7 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   settings.tab_width = 4;
   settings.first_tab_column = (int)wcslen(continuation_prompt);
   
-  wchar_t *str = hyper_console_readline(&settings);
+  str = hyper_console_readline(&settings);
   if(str) {
     pmath_string_t result = pmath_string_insert_ucs2(PMATH_NULL, 0, str, -1);
     hyper_console_free_memory(str);
@@ -629,7 +632,7 @@ struct styled_writer_info_t {
   unsigned raw_boxes: 1;
 };
 
-static size_t bytes_since_last_abortcheck = 0;
+static int bytes_since_last_abortcheck = 0;
 const int ABORT_CHECK_BYTE_COUNT = 100;
 
 static void styled_write(void *user, const uint16_t *data, int len) {
@@ -1014,13 +1017,6 @@ static void write_line(const char *s) {
   pmath_thread_call_locked(
     &print_lock,
     write_line_locked_callback,
-    (void *)s);
-}
-
-static void write_simple_link(const wchar_t *s) {
-  pmath_thread_call_locked(
-    &print_lock,
-    write_wchar_link_locked_callback,
     (void *)s);
 }
 
