@@ -2093,7 +2093,8 @@ PREDEFINED             = DEBUG_PROTOCOL \
                          va_start \
                          PMATH_DOXYGEN \
                          PMATH_API= \
-                         PMATH_FORCE_INLINE:=inline
+                         PMATH_FORCE_INLINE:=inline \
+                         ACB_H
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
