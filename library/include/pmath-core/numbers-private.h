@@ -5,7 +5,8 @@
 #  error This header file is not part of the public pMath API
 #endif
 
-#include <pmath-core/numbers.h>
+#include <pmath-config.h>
+
 
 #include <float.h>
 #include <math.h>
@@ -31,6 +32,8 @@
 #endif // _MSC_VER
 
 #include <mpfr.h>
+
+#include <pmath-core/numbers.h>
 
 
 #ifdef PMATH_OS_WIN32

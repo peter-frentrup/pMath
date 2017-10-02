@@ -332,7 +332,7 @@ PMATH_PRIVATE pmath_t builtin_sin(pmath_expr_t expr) {
   }
   
   x = pmath_expr_get_item(expr, 1);
-  if(_pmath_complex_try_evaluate_acb(&expr, x, acb_sin)) {
+  if(pmath_complex_try_evaluate_acb(&expr, x, acb_sin)) {
     pmath_unref(x);
     return expr;
   }
