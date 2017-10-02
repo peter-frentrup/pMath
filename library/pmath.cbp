@@ -23,7 +23,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -86,7 +85,6 @@
 					<Add option="-march=i686" />
 					<Add option="-flto" />
 					<Add option="-O3" />
-					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
@@ -147,7 +145,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -210,7 +207,6 @@
 					<Add option="-march=core2" />
 					<Add option="-flto" />
 					<Add option="-O3" />
-					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
