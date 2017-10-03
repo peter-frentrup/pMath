@@ -8,16 +8,16 @@ extern pmath_symbol_t pmath_System_ArcCsc;
 extern pmath_symbol_t pmath_System_ArcSec;
 extern pmath_symbol_t pmath_System_ArcSin;
 extern pmath_symbol_t pmath_System_ArcTan;
-extern pmath_symbol_t pmath_System_Sin;
-extern pmath_symbol_t pmath_System_Sinh;
+extern pmath_symbol_t pmath_System_Cos;
+extern pmath_symbol_t pmath_System_Cosh;
 
-static pmath_t sin_of_rational(pmath_expr_t expr, pmath_rational_t x);
-static pmath_bool_t try_sin_of_exact_complex(pmath_t *expr, pmath_t x);
-static pmath_bool_t try_sin_of_triginverse(pmath_t *expr, pmath_t x);
-static pmath_bool_t try_sin_of_product(pmath_t *expr);
-static pmath_bool_t try_sin_of_sum(pmath_t *expr);
+static pmath_t cos_of_rational(pmath_expr_t expr, pmath_rational_t x);
+static pmath_bool_t try_cos_of_exact_complex(pmath_t *expr, pmath_t x);
+static pmath_bool_t try_cos_of_triginverse(pmath_t *expr, pmath_t x);
+static pmath_bool_t try_cos_of_product(pmath_t *expr);
+static pmath_bool_t try_cos_of_sum(pmath_t *expr);
 
-PMATH_PRIVATE pmath_t eval_System_Sin(pmath_expr_t expr) {
+PMATH_PRIVATE pmath_t eval_System_Cos(pmath_expr_t expr) {
   pmath_t x;
   
   if(pmath_expr_length(expr) != 1) {
@@ -26,18 +26,18 @@ PMATH_PRIVATE pmath_t eval_System_Sin(pmath_expr_t expr) {
   }
   
   x = pmath_expr_get_item(expr, 1);
-  if(pmath_complex_try_evaluate_acb(&expr, x, acb_sin)) {
+  if(pmath_complex_try_evaluate_acb(&expr, x, acb_cos)) {
     pmath_unref(x);
     return expr;
   }
   
   if(pmath_is_rational(x))
-    return sin_of_rational(expr, x);
+    return cos_of_rational(expr, x);
     
   if(pmath_same(x, PMATH_SYMBOL_PI)) {
     pmath_unref(expr);
     pmath_unref(x);
-    return INT(0);
+    return INT(-1);
   }
   
   if(pnum_try_simplify_degree(&expr, x)) {
@@ -45,52 +45,54 @@ PMATH_PRIVATE pmath_t eval_System_Sin(pmath_expr_t expr) {
     return expr;
   }
   
-  if(try_sin_of_exact_complex(&expr, x)) {
+  if(try_cos_of_exact_complex(&expr, x)) {
     pmath_unref(x);
     return expr;
   }
   
-  if(try_sin_of_triginverse(&expr, x)) {
+  if(try_cos_of_triginverse(&expr, x)) {
     pmath_unref(x);
     return expr;
   }
   
   pmath_unref(x);
-  if(try_sin_of_product(&expr))
+  if(try_cos_of_product(&expr))
     return expr;
-  if(try_sin_of_sum(&expr))
+  if(try_cos_of_sum(&expr))
     return expr;
+    
   return expr;
 }
 
-/** \brief Simplify the sine of a rational number considering the number's sign.
-    \param expr The Sin(x) expression. It will be freed.
+/** \brief Simplify the cosine of a rational number considering the number's sign.
+    \param expr The Cos(x) expression. It will be freed.
     \param x    The rational number argument. It will be freed.
     \return The simplified Cos(...) expression.
  */
-static pmath_t sin_of_rational(pmath_expr_t expr, pmath_rational_t x) {
+static pmath_t cos_of_rational(pmath_expr_t expr, pmath_rational_t x) {
   int sign;
   assert(pmath_is_rational(x));
   sign = pmath_number_sign(x);
   if(sign < 0) {
     expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
-    return NEG(pmath_expr_set_item(expr, 1, pmath_number_neg(x)));
+    return pmath_expr_set_item(expr, 1, pmath_number_neg(x));
   }
   if(sign == 0) {
     pmath_unref(expr);
-    return x;
+    pmath_unref(x);
+    return INT(1);
   }
   pmath_unref(x);
   return expr;
 }
 
-/** \brief Simplify the sine of an exact complex number.
-    \param expr  Pointer to the Sin-expression. On success, this will be replaced by the evaluation result.
-    \param x     The sine argument. It won't be freed.
+/** \brief Simplify the cosine of an exact complex number.
+    \param expr  Pointer to the Cos-expression. On success, this will be replaced by the evaluation result.
+    \param x     The cosine argument. It won't be freed.
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
-static pmath_bool_t try_sin_of_exact_complex(pmath_t *expr, pmath_t x) {
+static pmath_bool_t try_cos_of_exact_complex(pmath_t *expr, pmath_t x) {
   pmath_t re, im;
   
   if(!pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2))
@@ -102,9 +104,7 @@ static pmath_bool_t try_sin_of_exact_complex(pmath_t *expr, pmath_t x) {
   if(pmath_equals(re, PMATH_FROM_INT32(0))) {
     pmath_unref(re);
     pmath_unref(*expr);
-    *expr = TIMES(
-              COMPLEX(INT(0), INT(1)),
-              FUNC(pmath_ref(pmath_System_Sinh), im));
+    *expr = FUNC(pmath_ref(pmath_System_Cosh), im);
     return TRUE;
   }
   
@@ -113,13 +113,13 @@ static pmath_bool_t try_sin_of_exact_complex(pmath_t *expr, pmath_t x) {
   return FALSE;
 }
 
-/** \brief Evaluate Sin(ArcCos(u)), Sin(ArcTan(u)), etc.
-    \param expr  Pointer to the Sin-expression. On success, this will be replaced by the evaluation result.
+/** \brief Evaluate Cos(ArcCos(u)), Cos(ArcTan(u)), etc.
+    \param expr  Pointer to the Cos-expression. On success, this will be replaced by the evaluation result.
     \param x     The cosine argument. It won't be freed.
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
-static pmath_bool_t try_sin_of_triginverse(pmath_t *expr, pmath_t x) {
+static pmath_bool_t try_cos_of_triginverse(pmath_t *expr, pmath_t x) {
   pmath_t head, u;
   
   if(!pmath_is_expr(x) || pmath_expr_length(x) != 1)
@@ -131,48 +131,44 @@ static pmath_bool_t try_sin_of_triginverse(pmath_t *expr, pmath_t x) {
   
   if(pmath_same(head, pmath_System_ArcCos)) {
     pmath_unref(*expr);
-    *expr = SQRT(MINUS(INT(1), POW(u, INT(2)))); // Sqrt(1 - u^2)
+    *expr = u;
     return TRUE;
   }
   if(pmath_same(head, pmath_System_ArcCot)) {
     pmath_unref(*expr);
-    // 1/u * 1/Sqrt(1 + 1/u^2))
-    *expr = TIMES(INV(pmath_ref(u)), INVSQRT(PLUS(INT(1), POW(pmath_ref(u), INT(-2)))));
-    pmath_unref(u);
+    *expr = INVSQRT(PLUS(INT(1), POW(u, INT(-2)))); // 1/Sqrt(1 + 1/u^2)
     return TRUE;
   }
   if(pmath_same(head, pmath_System_ArcCsc)) {
     pmath_unref(*expr);
-    *expr = INV(u); // 1/u
+    *expr = SQRT(MINUS(INT(1), POW(u, INT(-2)))); // Sqrt(1 - 1/u^2)
     return TRUE;
   }
   if(pmath_same(head, pmath_System_ArcSec)) {
     pmath_unref(*expr);
-    *expr = SQRT(MINUS(INT(1), POW(u, INT(-2)))); // Sqrt(1 - 1/u^2)
+    *expr = INV(u); // 1/u
     return TRUE;
   }
   if(pmath_same(head, pmath_System_ArcSin)) {
     pmath_unref(*expr);
-    *expr = u;
+    *expr = SQRT(MINUS(INT(1), POW(u, INT(2)))); // Sqrt(1 - u^2)
     return TRUE;
   }
   if(pmath_same(head, pmath_System_ArcTan)) {
     pmath_unref(*expr);
-    // u / Sqrt(1 + u^2)
-    *expr = TIMES(pmath_ref(u), INVSQRT(PLUS(INT(1), POW(pmath_ref(u), INT(2)))));
-    pmath_unref(u);
+    *expr = INVSQRT(PLUS(INT(1), POW(u, INT(2)))); // 1 / Sqrt(1 + u^2)
     return TRUE;
   }
   pmath_unref(u);
   return FALSE;
 }
 
-/** \brief Simplify the sine of a product.
-    \param expr  Pointer to the Sin-expression. On success, this will be replaced by the evaluation result.
+/** \brief Simplify the cosine of a product.
+    \param expr  Pointer to the Cos-expression. On success, this will be replaced by the evaluation result.
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
-static pmath_bool_t try_sin_of_product(pmath_t *expr) {
+static pmath_bool_t try_cos_of_product(pmath_t *expr) {
   pmath_t x, fst;
   assert(pmath_is_expr(*expr));
   x = pmath_expr_get_item(*expr, 1);
@@ -186,16 +182,14 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
   if(pmath_is_number(fst)) {
     if(pmath_number_sign(fst) < 0) {
       *expr = pmath_expr_set_item(*expr, 1, PMATH_NULL);
-      *expr = NEG(pmath_expr_set_item(*expr, 1, pmath_expr_set_item(x, 1, pmath_number_neg(fst))));
+      *expr = pmath_expr_set_item(*expr, 1, pmath_expr_set_item(x, 1, pmath_number_neg(fst)));
       return TRUE;
     }
   }
-  
   if(pnum_is_imaginary(&x)) {
-    pmath_unref(fst);
-    *expr = pmath_expr_set_item(*expr, 0, pmath_ref(pmath_System_Sinh));
+    *expr = pmath_expr_set_item(*expr, 0, pmath_ref(pmath_System_Cosh));
     *expr = pmath_expr_set_item(*expr, 1, x);
-    *expr = TIMES(COMPLEX(INT(0), INT(1)), *expr);
+    pmath_unref(fst);
     return TRUE;
   }
   if(pmath_expr_length(x) == 2) {
@@ -211,7 +205,7 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
         pmath_unref(x);
         pmath_unref(fst);
         pmath_unref(*expr);
-        *expr = INT(1);
+        *expr = INT(0);
         return TRUE;
       }
       
@@ -232,7 +226,7 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
               pmath_unref(x);
               pmath_unref(fst);
               pmath_unref(*expr);
-              *expr = TIMES(ONE_HALF, SQRT(INT(3)));
+              *expr = ONE_HALF;
               return TRUE;
               
             case 4:
@@ -247,16 +241,16 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
               pmath_unref(fst);
               pmath_unref(*expr);
               if(num == 1)
-                *expr = SQRT(PLUS(QUOT(5, 8), TIMES(QUOT(-1, 8), SQRT(INT(5)))));
+                *expr = PLUS(QUOT(1, 4), TIMES(QUOT(1, 4), SQRT(INT(5))));
               else
-                *expr = SQRT(PLUS(QUOT(5, 8), TIMES(QUOT(1, 8), SQRT(INT(5)))));
+                *expr = PLUS(QUOT(-1, 4), TIMES(QUOT(1, 4), SQRT(INT(5))));
               return TRUE;
               
             case 6:
               pmath_unref(x);
               pmath_unref(fst);
               pmath_unref(*expr);
-              *expr = ONE_HALF;
+              *expr = TIMES(ONE_HALF, SQRT(INT(3)));
               return TRUE;
               
             case 10:
@@ -264,9 +258,9 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
               pmath_unref(fst);
               pmath_unref(*expr);
               if(num == 1)
-                *expr = PLUS(QUOT(-1, 4), TIMES(QUOT(1, 4), SQRT(INT(5))));
+                *expr = SQRT(PLUS(QUOT(5, 8), TIMES(QUOT(1, 8), SQRT(INT(5)))));
               else
-                *expr = PLUS(QUOT(1, 4), TIMES(QUOT(1, 4), SQRT(INT(5))));
+                *expr = SQRT(PLUS(QUOT(5, 8), TIMES(QUOT(-1, 8), SQRT(INT(5)))));
               return TRUE;
               
             case 12:
@@ -274,21 +268,13 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
               pmath_unref(fst);
               pmath_unref(*expr);
               if(num == 1)
-                *expr = DIV(PLUS(INT(-1), SQRT(INT(3))), TIMES(INT(2), SQRT(INT(2))));
+                *expr = TIMES3(ONE_HALF, PLUS(INT(1), SQRT(INT(3))), INVSQRT(INT(2)));
               else
-                *expr = DIV(PLUS(INT(1), SQRT(INT(3))), TIMES(INT(2), SQRT(INT(2))));
+                *expr = TIMES3(ONE_HALF, PLUS(INT(-1), SQRT(INT(3))), INVSQRT(INT(2)));
               return TRUE;
           }
       }
       else if(pmath_same(cmp, PMATH_SYMBOL_FALSE)) { // 1/2 Pi <= x
-        if(pmath_is_integer(fst)) {
-          pmath_unref(fst);
-          pmath_unref(x);
-          pmath_unref(*expr);
-          *expr = INT(0);
-          return TRUE;
-        }
-        
         *expr = pmath_expr_set_item(*expr, 1, PMATH_NULL);
         
         cmp = pmath_evaluate(
@@ -300,8 +286,9 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
         pmath_unref(cmp);
         if(pmath_same(cmp, PMATH_SYMBOL_TRUE)) { // 1/2 Pi <= x < Pi
           fst = MINUS(INT(1), fst);
-          x     = pmath_expr_set_item(x,     1, fst);
-          *expr = pmath_expr_set_item(*expr, 1, x); // return Sin((1-fst)*PI)
+          
+          x = pmath_expr_set_item(x, 1, fst);
+          *expr = NEG(pmath_expr_set_item(*expr, 1, x)); // return -Cos((1-fst)*PI)
           return TRUE;
         }
         
@@ -314,8 +301,9 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
         pmath_unref(cmp);
         if(pmath_same(cmp, PMATH_SYMBOL_TRUE)) { // Pi <= x < 2 Pi
           fst = MINUS(INT(2), fst);
+          
           x = pmath_expr_set_item(x, 1, fst);
-          *expr = NEG(pmath_expr_set_item(*expr, 1, x)); // return -Sin((2-fst)*PI)
+          *expr = pmath_expr_set_item(*expr, 1, x); // return Cos((2-fst)*PI)
           return TRUE;
         }
         
@@ -325,10 +313,10 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
                   pmath_ref(fst),
                   PMATH_FROM_INT32(2)));
                   
-        fst = PLUS(fst, TIMES(INT(-2), cmp));
+        fst = MINUS(fst, cmp);
         
-        x     = pmath_expr_set_item(x,     1, fst);
-        *expr = pmath_expr_set_item(*expr, 1, x); // return Sin((fst - Floor(fst, 2))*PI)
+        x    = pmath_expr_set_item(x,    1, fst);
+        *expr = pmath_expr_set_item(*expr, 1, x); // return Cos((fst - Floor(fst, 2))*PI)
         return TRUE;
       }
     }
@@ -339,12 +327,12 @@ static pmath_bool_t try_sin_of_product(pmath_t *expr) {
   return FALSE;
 }
 
-/** \brief Simplify the sine of a sum (containing Pi).
-    \param expr  Pointer to the Sin-expression. On success, this will be replaced by the evaluation result.
+/** \brief Simplify the cosine of a sum (containing Pi).
+    \param expr  Pointer to the Cos-expression. On success, this will be replaced by the evaluation result.
     \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
             remains unchanged.
  */
-static pmath_bool_t try_sin_of_sum(pmath_t *expr) {
+static pmath_bool_t try_cos_of_sum(pmath_t *expr) {
   pmath_t x;
   size_t i;
   assert(pmath_is_expr(*expr));
@@ -353,19 +341,24 @@ static pmath_bool_t try_sin_of_sum(pmath_t *expr) {
     pmath_unref(x);
     return FALSE;
   }
-    
+  
   for(i = pmath_expr_length(x); i > 0; --i) {
     pmath_t tmp = pmath_expr_get_item(x, i);
+    
     tmp = pmath_evaluate(DIV(tmp, pmath_ref(PMATH_SYMBOL_PI)));
+    
     if(pmath_is_integer(tmp)) {
       tmp = POW(INT(-1), tmp);
+      
       *expr = pmath_expr_set_item(*expr, 1, PMATH_NULL);
-      x     = pmath_expr_set_item(x, i, PMATH_UNDEFINED);
-      x     = pmath_expr_remove_all(x, PMATH_UNDEFINED);
+      x = pmath_expr_set_item(x, i, PMATH_UNDEFINED);
+      x = pmath_expr_remove_all(x, PMATH_UNDEFINED);
       *expr = pmath_expr_set_item(*expr, 1, x);
+      
       *expr = TIMES(tmp, *expr);
       return TRUE;
     }
+    
     pmath_unref(tmp);
   }
   

@@ -366,6 +366,9 @@
 			<Add library="pmath" />
 			<Add directory="../../library/$(TARGET_OUTPUT_DIR)" />
 		</Linker>
+		<Unit filename="src/cos.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/main.c">
 			<Option compilerVar="CC" />
 		</Unit>
