@@ -7,29 +7,42 @@
 #  define PMATH_NUMERICS_SYMBOL_DOWNFUNC(sym, name_str, func)  PMATH_NUMERICS_SYMBOL(sym, name_str)
 #endif
 
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcCos,  "System`ArcCos")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcCosh, "System`ArcCosh")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcCot,  "System`ArcCot")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcCoth, "System`ArcCoth")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcCsc,  "System`ArcCsc")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcCsch, "System`ArcCsch")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcSec,  "System`ArcSec")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcSech, "System`ArcSech")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcSin,  "System`ArcSin")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcSinh, "System`ArcSinh")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcTan,  "System`ArcTan")
-PMATH_NUMERICS_SYMBOL(         pmath_System_ArcTanh, "System`ArcTanh")
-PMATH_NUMERICS_SYMBOL_DOWNFUNC(pmath_System_Cos,     "System`Cos",      eval_System_Cos)
-PMATH_NUMERICS_SYMBOL_DOWNFUNC(pmath_System_Cosh,    "System`Cosh",     eval_System_Cosh)
-PMATH_NUMERICS_SYMBOL(         pmath_System_Cot,     "System`Cot")
-PMATH_NUMERICS_SYMBOL(         pmath_System_Coth,    "System`Coth")
-PMATH_NUMERICS_SYMBOL(         pmath_System_Csc,     "System`Csc")
-PMATH_NUMERICS_SYMBOL(         pmath_System_Csch,    "System`Csch")
-PMATH_NUMERICS_SYMBOL(         pmath_System_Sec,     "System`Sec")
-PMATH_NUMERICS_SYMBOL(         pmath_System_Sech,    "System`Sech")
-PMATH_NUMERICS_SYMBOL_DOWNFUNC(pmath_System_Sin,     "System`Sin",      eval_System_Sin)
-PMATH_NUMERICS_SYMBOL(         pmath_System_Sinh,    "System`Sinh")
-PMATH_NUMERICS_SYMBOL(         pmath_System_Tan,     "System`Tan")
-PMATH_NUMERICS_SYMBOL(         pmath_System_Tanh,    "System`Tanh")
+#define PNUM_DECLARE_SYSTEM_SYMBOL(name) \
+  PMATH_NUMERICS_SYMBOL( \
+    pmath_System_ ## name, \
+    "System`" #name \
+  )
+#define PNUM_DECLARE_SYSTEM_FUNC(name) \
+  PMATH_NUMERICS_SYMBOL_DOWNFUNC( \
+    pmath_System_ ## name, \
+    "System`" #name, \
+    eval_System_ ## name \
+  )
 
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcCos  )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcCosh )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcCot  )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcCoth )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcCsc  )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcCsch )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcSec  )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcSech )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcSin  )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcSinh )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcTan  )
+PNUM_DECLARE_SYSTEM_SYMBOL( ArcTanh )
+PNUM_DECLARE_SYSTEM_FUNC(   Cos     )
+PNUM_DECLARE_SYSTEM_FUNC(   Cosh    )
+PNUM_DECLARE_SYSTEM_SYMBOL( Cot     )
+PNUM_DECLARE_SYSTEM_SYMBOL( Coth    )
+PNUM_DECLARE_SYSTEM_SYMBOL( Csc     )
+PNUM_DECLARE_SYSTEM_SYMBOL( Csch    )
+PNUM_DECLARE_SYSTEM_SYMBOL( Sec     )
+PNUM_DECLARE_SYSTEM_SYMBOL( Sech    )
+PNUM_DECLARE_SYSTEM_FUNC(   Sin     )
+PNUM_DECLARE_SYSTEM_SYMBOL( Sinh    )
+PNUM_DECLARE_SYSTEM_SYMBOL( Tan     )
+PNUM_DECLARE_SYSTEM_SYMBOL( Tanh    )
+
+#undef PNUM_DECLARE_SYSTEM_SYMBOL
 #undef PMATH_NUMERICS_SYMBOL_DOWNFUNC
