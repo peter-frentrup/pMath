@@ -399,6 +399,10 @@
 		<Unit filename="src/tanh.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/trig-of-triginverse.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/trig-of-triginverse.h" />
 		<Unit filename="src/trigonometry.c">
 			<Option compilerVar="CC" />
 		</Unit>
