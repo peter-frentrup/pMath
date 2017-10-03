@@ -243,7 +243,8 @@ MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", rest
 %
 % Switch(expr) {Case(pat1) {block1} \[RawNewline] Case(pat2) {block2}  Case(pat3) {block3}}
 %
-getSwitchCases({})::= HoldComplete()
+getSwitchCases("\[RawNewline]")::= HoldComplete()
+getSwitchCases({"\[RawNewline]"***})::= HoldComplete()
 getSwitchCases({"\[RawNewline]"***, ~inner:List})::= getSwitchCases(inner)
 getSwitchCases({{"Case", "(", ~pattern, ")"}, {"{", ~block, "}"}, ~~~more})::=
 	Join(
