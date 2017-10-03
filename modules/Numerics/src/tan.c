@@ -17,6 +17,13 @@ static pmath_bool_t try_tan_of_triginverse(pmath_t *expr, pmath_t x);
 static pmath_bool_t try_tan_of_product(pmath_t *expr);
 static pmath_bool_t try_tan_of_sum(pmath_t *expr);
 
+static pmath_t do_Tan_of_ArcCos_of_x(pmath_t x);
+static pmath_t do_Tan_of_ArcCot_of_x(pmath_t x);
+static pmath_t do_Tan_of_ArcCsc_of_x(pmath_t x);
+static pmath_t do_Tan_of_ArcSec_of_x(pmath_t x);
+static pmath_t do_Tan_of_ArcSin_of_x(pmath_t x);
+static pmath_t do_Tan_of_ArcTan_of_x(pmath_t x);
+
 PMATH_PRIVATE pmath_t eval_System_Tan(pmath_expr_t expr) {
   pmath_t x;
   
@@ -126,47 +133,57 @@ static pmath_bool_t try_tan_of_triginverse(pmath_t *expr, pmath_t x) {
   head = pmath_expr_get_item(x, 0);
   pmath_unref(head);
   u = pmath_expr_get_item(x, 1);
-  if(pmath_same(head, pmath_System_ArcCos)) {
-    pmath_unref(*expr);
-    // Sqrt(1 - u^2)/u
-    *expr = DIV(SQRT(MINUS(INT(1), POW(pmath_ref(u), INT(2)))), pmath_ref(u));
-    pmath_unref(u);
-    return TRUE;
+  
+#define TRY_TRIGINVERSE( func, invfunc ) \
+  if(pmath_same(head, pmath_System_ ## invfunc )) { \
+    pmath_unref(*expr); \
+    *expr = do_ ## func ## _of_ ## invfunc ## _of_x(u); \
+    pmath_unref(u); \
+    return TRUE; \
   }
-  if(pmath_same(head, pmath_System_ArcCot)) {
-    pmath_unref(*expr);
-    *expr = INV(u); // 1/u
-    return TRUE;
-  }
-  if(pmath_same(head, pmath_System_ArcCsc)) {
-    pmath_unref(*expr);
-    // 1/u * 1/Sqrt(1 - 1/u^2))
-    *expr = TIMES(INV(pmath_ref(u)), INVSQRT(MINUS(INT(1), POW(pmath_ref(u), INT(-2)))));
-    pmath_unref(u);
-    return TRUE;
-  }
-  if(pmath_same(head, pmath_System_ArcSec)) {
-    pmath_unref(*expr);
-    // u Sqrt(1 - 1/u^2)
-    *expr = TIMES(pmath_ref(u), SQRT(MINUS(INT(1), POW(pmath_ref(u), INT(-2)))));
-    pmath_unref(u);
-    return TRUE;
-  }
-  if(pmath_same(head, pmath_System_ArcSin)) {
-    pmath_unref(*expr);
-    // u / Sqrt(1 - u^2)
-    *expr = DIV(pmath_ref(u), SQRT(MINUS(INT(1), POW(pmath_ref(u), INT(2)))));
-    pmath_unref(u);
-    return TRUE;
-  }
-  if(pmath_same(head, pmath_System_ArcTan)) {
-    pmath_unref(*expr);
-    *expr = u;
-    return TRUE;
-  }
+  
+  TRY_TRIGINVERSE( Tan, ArcCos )
+  TRY_TRIGINVERSE( Tan, ArcCot )
+  TRY_TRIGINVERSE( Tan, ArcCsc )
+  TRY_TRIGINVERSE( Tan, ArcSec )
+  TRY_TRIGINVERSE( Tan, ArcSin )
+  TRY_TRIGINVERSE( Tan, ArcTan )
+  
   pmath_unref(u);
   return FALSE;
 }
+
+#define X pmath_ref(xx)
+
+static pmath_t do_Tan_of_ArcCos_of_x(pmath_t xx) { // does not free xx
+  // Sqrt(1 - x^2)/x
+  return DIV(SQRT(MINUS(INT(1), POW(X, INT(2)))), X);
+}
+
+static pmath_t do_Tan_of_ArcCot_of_x(pmath_t xx) { // does not free xx
+  return INV(X); 
+}
+
+static pmath_t do_Tan_of_ArcCsc_of_x(pmath_t xx) { // does not free xx
+  // 1/x * 1/Sqrt(1 - 1/x^2))
+  return TIMES(INV(X), INVSQRT(MINUS(INT(1), POW(X, INT(-2)))));
+}
+
+static pmath_t do_Tan_of_ArcSec_of_x(pmath_t xx) { // does not free xx
+  // x Sqrt(1 - 1/x^2)
+  return TIMES(X, SQRT(MINUS(INT(1), POW(X, INT(-2)))));
+}
+
+static pmath_t do_Tan_of_ArcSin_of_x(pmath_t xx) { // does not free xx
+  // x / Sqrt(1 - x^2)
+  return DIV(X, SQRT(MINUS(INT(1), POW(X, INT(2)))));
+}
+
+static pmath_t do_Tan_of_ArcTan_of_x(pmath_t xx) { // does not free xx
+  return X;
+}
+
+#undef X
 
 /** \brief Simplify the tangent of a product.
     \param expr  Pointer to the Tan-expression. On success, this will be replaced by the evaluation result.

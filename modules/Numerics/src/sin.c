@@ -17,6 +17,13 @@ static pmath_bool_t try_sin_of_triginverse(pmath_t *expr, pmath_t x);
 static pmath_bool_t try_sin_of_product(pmath_t *expr);
 static pmath_bool_t try_sin_of_sum(pmath_t *expr);
 
+static pmath_t do_Sin_of_ArcCos_of_x(pmath_t x);
+static pmath_t do_Sin_of_ArcCot_of_x(pmath_t x);
+static pmath_t do_Sin_of_ArcCsc_of_x(pmath_t x);
+static pmath_t do_Sin_of_ArcSec_of_x(pmath_t x);
+static pmath_t do_Sin_of_ArcSin_of_x(pmath_t x);
+static pmath_t do_Sin_of_ArcTan_of_x(pmath_t x);
+
 PMATH_PRIVATE pmath_t eval_System_Sin(pmath_expr_t expr) {
   pmath_t x;
   
@@ -129,43 +136,57 @@ static pmath_bool_t try_sin_of_triginverse(pmath_t *expr, pmath_t x) {
   pmath_unref(head);
   u = pmath_expr_get_item(x, 1);
   
-  if(pmath_same(head, pmath_System_ArcCos)) {
-    pmath_unref(*expr);
-    *expr = SQRT(MINUS(INT(1), POW(u, INT(2)))); // Sqrt(1 - u^2)
-    return TRUE;
+#define TRY_TRIGINVERSE( func, invfunc ) \
+  if(pmath_same(head, pmath_System_ ## invfunc )) { \
+    pmath_unref(*expr); \
+    *expr = do_ ## func ## _of_ ## invfunc ## _of_x(u); \
+    pmath_unref(u); \
+    return TRUE; \
   }
-  if(pmath_same(head, pmath_System_ArcCot)) {
-    pmath_unref(*expr);
-    // 1/u * 1/Sqrt(1 + 1/u^2))
-    *expr = TIMES(INV(pmath_ref(u)), INVSQRT(PLUS(INT(1), POW(pmath_ref(u), INT(-2)))));
-    pmath_unref(u);
-    return TRUE;
-  }
-  if(pmath_same(head, pmath_System_ArcCsc)) {
-    pmath_unref(*expr);
-    *expr = INV(u); // 1/u
-    return TRUE;
-  }
-  if(pmath_same(head, pmath_System_ArcSec)) {
-    pmath_unref(*expr);
-    *expr = SQRT(MINUS(INT(1), POW(u, INT(-2)))); // Sqrt(1 - 1/u^2)
-    return TRUE;
-  }
-  if(pmath_same(head, pmath_System_ArcSin)) {
-    pmath_unref(*expr);
-    *expr = u;
-    return TRUE;
-  }
-  if(pmath_same(head, pmath_System_ArcTan)) {
-    pmath_unref(*expr);
-    // u / Sqrt(1 + u^2)
-    *expr = TIMES(pmath_ref(u), INVSQRT(PLUS(INT(1), POW(pmath_ref(u), INT(2)))));
-    pmath_unref(u);
-    return TRUE;
-  }
+  
+  TRY_TRIGINVERSE( Sin, ArcCos )
+  TRY_TRIGINVERSE( Sin, ArcCot )
+  TRY_TRIGINVERSE( Sin, ArcCsc )
+  TRY_TRIGINVERSE( Sin, ArcSec )
+  TRY_TRIGINVERSE( Sin, ArcSin )
+  TRY_TRIGINVERSE( Sin, ArcTan )
+  
   pmath_unref(u);
   return FALSE;
 }
+
+#define X pmath_ref(xx)
+
+static pmath_t do_Sin_of_ArcCos_of_x(pmath_t xx) { // does not free xx
+  // Sqrt(1 - x^2)
+  return SQRT(MINUS(INT(1), POW(X, INT(2))));
+}
+
+static pmath_t do_Sin_of_ArcCot_of_x(pmath_t xx) { // does not free xx
+  // 1/x * 1/Sqrt(1 + 1/x^2))
+  return TIMES(INV(X), INVSQRT(PLUS(INT(1), POW(X, INT(-2)))));
+}
+
+static pmath_t do_Sin_of_ArcCsc_of_x(pmath_t xx) { // does not free xx
+  // 1/x
+  return INV(X);
+}
+
+static pmath_t do_Sin_of_ArcSec_of_x(pmath_t xx) { // does not free xx
+  // Sqrt(1 - 1/x^2)
+  return SQRT(MINUS(INT(1), POW(X, INT(-2))));
+}
+
+static pmath_t do_Sin_of_ArcSin_of_x(pmath_t xx) { // does not free xx
+  return X;
+}
+
+static pmath_t do_Sin_of_ArcTan_of_x(pmath_t xx) { // does not free xx
+  // x / Sqrt(1 + x^2)
+  return TIMES(X, INVSQRT(PLUS(INT(1), POW(X, INT(2)))));
+}
+
+#undef X
 
 /** \brief Simplify the sine of a product.
     \param expr  Pointer to the Sin-expression. On success, this will be replaced by the evaluation result.
