@@ -995,12 +995,6 @@
 		<Unit filename="src/pmath-builtins/arithmetic/copysign-and-signbit.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/cos.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/cosh.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/fractionalpart.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1037,19 +1031,7 @@
 		<Unit filename="src/pmath-builtins/arithmetic/rescale.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/sin.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/sinh.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/sum-and-product.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/tan.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/tanh.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/times.c">

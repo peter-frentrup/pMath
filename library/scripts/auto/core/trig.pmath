@@ -1,8 +1,14 @@
-/* inverse trigonometric functions ArcCos, ArcCot, ArcCsc, ArcSec, ArsSin, ArcTan
- */
+% Trigonometric, hyperbolic and their inverse functions
+%
+%      Cos,     Cot,     Csc,     Sec,     Sin,     Tan,
+%   ArcCos,  ArcCot,  ArcCsc,  ArcSec,  ArcSin,  ArcTan,
+%      Cosh,    Coth,    Csch,    Sech,    Sinh,    Tanh,
+%   ArcCosh, ArcCoth, ArcCsch, ArcSech, ArcSinh, ArcTanh
+%
 
 BeginPackage("System`")
 
+<<Numerics`
 
 Begin("System`Trigonometry`Private`")
 

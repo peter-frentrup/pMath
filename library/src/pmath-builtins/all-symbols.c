@@ -88,8 +88,6 @@ PMATH_PRIVATE pmath_t builtin_binomial(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_chop(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_complex(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_conjugate(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_cos(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_cosh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_exp(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_factorial(       pmath_expr_t expr);
@@ -112,12 +110,8 @@ PMATH_PRIVATE pmath_t builtin_rescale(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_round_functions( pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setprecision(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sign(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sin(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sinh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sqrt(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sum(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_tan(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_tanh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_times(           pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_bool_t builtin_approximate_e(               pmath_t *obj, double prec);
@@ -1624,8 +1618,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_CONTINUE,                    general_builtin_zeroonearg)
   BIND_DOWN(   PMATH_SYMBOL_COPYDIRECTORY,               builtin_copydirectory_and_copyfile)
   BIND_DOWN(   PMATH_SYMBOL_COPYFILE,                    builtin_copydirectory_and_copyfile)
-  BIND_DOWN(   PMATH_SYMBOL_COS,                         builtin_cos)
-  BIND_DOWN(   PMATH_SYMBOL_COSH,                        builtin_cosh)
   BIND_DOWN(   PMATH_SYMBOL_COUNT,                       builtin_count)
   BIND_DOWN(   PMATH_SYMBOL_CREATEDIRECTORY,             builtin_createdirectory)
   BIND_DOWN(   PMATH_SYMBOL_CREATEDOCUMENT,              general_builtin_nofront)
@@ -1863,8 +1855,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_SETSTREAMPOSITION,           builtin_setstreamposition)
   BIND_DOWN(   PMATH_SYMBOL_SHOWDEFINITION,              builtin_showdefinition)
   BIND_DOWN(   PMATH_SYMBOL_SIGN,                        builtin_sign)
-  BIND_DOWN(   PMATH_SYMBOL_SIN,                         builtin_sin)
-  BIND_DOWN(   PMATH_SYMBOL_SINH,                        builtin_sinh)
   BIND_DOWN(   PMATH_SYMBOL_SINGLEMATCH,                 general_builtin_zeroonearg)
   BIND_DOWN(   PMATH_SYMBOL_SORT,                        builtin_sort)
   BIND_DOWN(   PMATH_SYMBOL_SORTBY,                      builtin_sortby)
@@ -1894,8 +1884,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_TAGUNASSIGN,                 builtin_tagunassign)
   BIND_DOWN(   PMATH_SYMBOL_TAKE,                        builtin_take)
   BIND_DOWN(   PMATH_SYMBOL_TAKEWHILE,                   builtin_takewhile)
-  BIND_DOWN(   PMATH_SYMBOL_TAN,                         builtin_tan)
-  BIND_DOWN(   PMATH_SYMBOL_TANH,                        builtin_tanh)
   BIND_DOWN(   PMATH_SYMBOL_THREAD,                      builtin_thread)
   BIND_DOWN(   PMATH_SYMBOL_THROUGH,                     builtin_through)
   BIND_DOWN(   PMATH_SYMBOL_THROW,                       builtin_throw)
