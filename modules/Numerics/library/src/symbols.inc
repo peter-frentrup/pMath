@@ -18,6 +18,14 @@
     "System`" #name, \
     eval_System_ ## name \
   )
+  
+#define PNUM_DECLARE_SYSTEM_PRIVATE_SYMBOL(name) \
+  PMATH_NUMERICS_SYMBOL( \
+    pmath_System_Private_ ## name, \
+    "System`Private`" #name \
+  )
+  
+PNUM_DECLARE_SYSTEM_PRIVATE_SYMBOL( AutoSimplifyTrig )
 
 PNUM_DECLARE_SYSTEM_SYMBOL( ArcCos  )
 PNUM_DECLARE_SYSTEM_SYMBOL( ArcCosh )
@@ -44,5 +52,7 @@ PNUM_DECLARE_SYSTEM_FUNC(   Sinh    )
 PNUM_DECLARE_SYSTEM_FUNC(   Tan     )
 PNUM_DECLARE_SYSTEM_FUNC(   Tanh    )
 
+#undef PNUM_DECLARE_SYSTEM_SIMPLIFY_PRIVATE_SYMBOL
+#undef PNUM_DECLARE_SYSTEM_FUNC
 #undef PNUM_DECLARE_SYSTEM_SYMBOL
 #undef PMATH_NUMERICS_SYMBOL_DOWNFUNC

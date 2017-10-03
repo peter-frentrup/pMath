@@ -8,4 +8,11 @@ LoadLibrary(ToFileName(
 		"pmath-numerics.dll",
 		"pmath-numerics.so")))
 
+Begin("System`Private`")
+
+AutoLoad(Hold(AutoSimplifyTrig), 
+	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
+
+End()
+
 EndPackage()
