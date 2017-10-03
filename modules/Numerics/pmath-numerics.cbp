@@ -378,6 +378,9 @@
 		<Unit filename="src/sin.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/sinh.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/stdafx.c">
 			<Option compilerVar="CC" />
 			<Option weight="0" />
