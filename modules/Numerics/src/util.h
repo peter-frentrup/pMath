@@ -18,7 +18,8 @@ pmath_bool_t pnum_contains_nonhead_symbol(pmath_t obj, pmath_symbol_t sub);
 //#include <pmath-builtins/build-expr-private.h>
 
 #define INT(I)          PMATH_FROM_INT32(I)
-#define CINFTY          pmath_ref(_pmath_object_complex_infinity)
+//#define CINFTY          pmath_ref(_pmath_object_complex_infinity)
+#define CINFTY          pmath_expr_new(pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 0)
 #define QUOT(N,D)       pmath_rational_new(INT(N), INT(D))
 //#define ONE_HALF        pmath_ref(_pmath_one_half)
 #define ONE_HALF        QUOT(1, 2)

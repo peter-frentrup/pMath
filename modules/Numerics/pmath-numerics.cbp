@@ -393,6 +393,9 @@
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="src/symbols.inc" />
+		<Unit filename="src/tan.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/trigonometry.c">
 			<Option compilerVar="CC" />
 		</Unit>
