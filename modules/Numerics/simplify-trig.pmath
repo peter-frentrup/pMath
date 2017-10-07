@@ -32,16 +32,37 @@ trigOfRational(~f, ~q)::= $Failed
 trigOfRational(Cos, 0)::= 1
 trigOfRational(Cos, ~q)::= If(IsNegative(q), Cos(-q), $Failed)
 trigOfRational(Cosh, 0)::= 1
+trigOfRational(Cosh, ~q)::= If(IsNegative(q), Cosh(-q), $Failed)
+trigOfRational(Cot, 0)::= ComplexInfinity
+trigOfRational(Cot, ~q)::= If(IsNegative(q), -Cot(-q), $Failed)
+trigOfRational(Coth, 0)::= ComplexInfinity
+trigOfRational(Coth, ~q)::= If(IsNegative(q), -Coth(-q), $Failed)
+trigOfRational(Csc, 0)::= ComplexInfinity
+trigOfRational(Csc, ~q)::= If(IsNegative(q), -Csc(-q), $Failed)
+trigOfRational(Csch, 0)::= ComplexInfinity
+trigOfRational(Csch, ~q)::= If(IsNegative(q), -Csch(-q), $Failed)
+trigOfRational(Sec, 0)::= 1
+trigOfRational(Sec, ~q)::= If(IsNegative(q), Sec(-q), $Failed)
+trigOfRational(Sech, 0)::= 1
+trigOfRational(Sech, ~q)::= If(IsNegative(q), Sech(-q), $Failed)
 trigOfRational(Sin, 0)::= 0
 trigOfRational(Sin, ~q)::= If(IsNegative(q), -Sin(-q), $Failed)
 trigOfRational(Sinh, 0)::= 0
+trigOfRational(Sinh, ~q)::= If(IsNegative(q), -Sinh(-q), $Failed)
 trigOfRational(Tan, 0)::= 0
-trigOfRational(Tan, ~q)::= If(IsNegative(q), Cos(-q), $Failed)
+trigOfRational(Tan, ~q)::= If(IsNegative(q), -Tan(-q), $Failed)
 trigOfRational(Tanh, 0)::= 0
+trigOfRational(Tanh, ~q)::= If(IsNegative(q), -Tanh(-q), $Failed)
 
 trigOfComplex(~f, ~x)::= $Failed
 trigOfComplex(Cos,  Complex(0, ~y))::= Cosh(y)
 trigOfComplex(Cosh, Complex(0, ~y))::= Cos(y)
+trigOfComplex(Cot,  Complex(0, ~y))::= -I Coth(y)
+trigOfComplex(Coth, Complex(0, ~y))::= -I Cot(y)
+trigOfComplex(Csc,  Complex(0, ~y))::= -I Csch(y)
+trigOfComplex(Csch, Complex(0, ~y))::= -I Csc(y)
+trigOfComplex(Sec,  Complex(0, ~y))::= Sech(y)
+trigOfComplex(Sech, Complex(0, ~y))::= Sec(y)
 trigOfComplex(Sin,  Complex(0, ~y))::= I Sinh(y)
 trigOfComplex(Sinh, Complex(0, ~y))::= I Sin(y)
 trigOfComplex(Tan,  Complex(0, ~y))::= I Tanh(y)
@@ -135,6 +156,21 @@ Function trigOfRationalPiFactor(Cos, ~q) {
     }
     Return($Failed)
 }
+Function trigOfRationalPiFactor(Sec, ~q) {
+    With(x:= Mod(q, 2))
+    If(x >= 1) { Return( -Sec((x-1) Pi) ) }
+    If(x > 1/2) { Return( -Csc((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Csc((1/2-x) Pi) ) }
+    Switch(x) {
+        Case(1/4) { Return( Sqrt(2) ) }
+        Case(1/5) { Return( -1 + Sqrt(5) ) }
+        Case(1/6) { Return( 2 / Sqrt(3) ) }
+        Case(1/10) { Return( Sqrt(2 - 2/Sqrt(5)) ) }
+        Case(1/12) { Return( Sqrt(2) (-1 + Sqrt(3)) ) }
+    }
+    Return($Failed)
+}
+
 Function trigOfRationalPiFactor(Sin, ~q) {
     With(x:= Mod(q, 2))
     If(x >= 1) { Return( -Sin((x-1) Pi) ) }
@@ -154,6 +190,21 @@ Function trigOfRationalPiFactor(Sin, ~q) {
     }
     Return($Failed)
 }
+Function trigOfRationalPiFactor(Csc, ~q) {
+    With(x:= Mod(q, 2))
+    If(x >= 1) { Return( -Csc((x-1) Pi) ) }
+    If(x > 1/2) { Return( Sec((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Sec((1/2-x) Pi) ) }
+    Switch(x) {
+        Case(1/4) { Return( Sqrt(2) ) }
+        Case(1/5) { Return( Sqrt(2 + 2/Sqrt(5)) ) }
+        Case(1/6) { Return( 2 ) }
+        Case(1/10) { Return( 1 + Sqrt(5) ) }
+        Case(1/12) { Return( Sqrt(2) + Sqrt(6) ) }
+    }
+    Return($Failed)
+}
+
 Function trigOfRationalPiFactor(Tan, ~q) {
     With(x:= Mod(q, 1))
     Switch(x) {
@@ -166,6 +217,20 @@ Function trigOfRationalPiFactor(Tan, ~q) {
     }
     If(x > 1/2) { Return( -Cot((x-1/2) Pi) ) }
     If(x > 1/4) { Return( Cot((1/2-x) Pi) ) }
+    Return($Failed)
+}
+Function trigOfRationalPiFactor(Cot, ~q) {
+    With(x:= Mod(q, 1))
+    Switch(x) {
+        Case(1/2) { Return( 0 ) }
+        Case(1/4) { Return( 1 ) }
+        Case(1/5) { Return( Sqrt(1 + 2/Sqrt(5)) ) }
+        Case(1/6) { Return( Sqrt(3) ) }
+        Case(1/10) { Return( Sqrt(5 + 2 Sqrt(5)) ) }
+        Case(1/12) { Return( 2 + Sqrt(3) ) }
+    }
+    If(x > 1/2) { Return( -Tan((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Tan((1/2-x) Pi) ) }
     Return($Failed)
 }
 
@@ -269,6 +334,9 @@ trigAtInfinity(Tanh, inf: DirectedInfinity(~dir))::=
         I Interval(-Infinity..Infinity), 
         Sign(Re(dir)), 
         $Failed)
+trigAtInfinity(Cot, ~inf)::= With({y:= trigAtInfinity(Tan, inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Csc, ~inf)::= With({y:= trigAtInfinity(Sin, inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Sec, ~inf)::= With({y:= trigAtInfinity(Cos, inf)}, If(y === $Failed, y, 1/y))
 
 End()
 

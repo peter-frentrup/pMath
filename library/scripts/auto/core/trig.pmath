@@ -40,10 +40,6 @@ ArcCot(~x)::= With({y:= ArcTan(x)}, Pi/2 - y /? y.IsFreeOf(ArcTan) && y.IsFreeOf
 /* ArcCot(~x /? x=0):= Pi/2
 ArcCsc(~x)::= With({y:= ArcTan(1/x)}, y /? y.IsFreeOf(ArcTan))*/
 
-Cot(~x)::= With({y:= Tan(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Tan))
-Csc(~x)::= With({y:= Sin(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Sin))
-Sec(~x)::= With({y:= Cos(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Cos))
-
 Coth(~x)::= With({y:= Tanh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Tanh))
 Csch(~x)::= With({y:= Sinh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Sinh))
 Sech(~x)::= With({y:= Cosh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Cosh))
