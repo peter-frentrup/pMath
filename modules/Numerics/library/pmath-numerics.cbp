@@ -508,10 +508,7 @@
 		<Unit filename="src/tanh.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/trigonometry.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/trigonometry.h" />
+
 		<Unit filename="src/util.c">
 			<Option compilerVar="CC" />
 		</Unit>

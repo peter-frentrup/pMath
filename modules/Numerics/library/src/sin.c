@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "util.h"
-#include "trigonometry.h"
 
 extern pmath_symbol_t pmath_System_Private_AutoSimplifyTrig;
 
@@ -17,12 +16,7 @@ PMATH_PRIVATE pmath_t eval_System_Sin(pmath_expr_t expr) {
     pmath_unref(x);
     return expr;
   }
-  
-  if(pnum_try_simplify_degree(&expr, x)) {
-    pmath_unref(x);
-    return expr;
-  }
-  
+    
   x = pmath_expr_new_extended(
         pmath_ref(pmath_System_Private_AutoSimplifyTrig), 2,
         pmath_expr_get_item(expr, 0),

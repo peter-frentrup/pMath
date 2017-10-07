@@ -94,6 +94,13 @@ Function trigOfProduct(~f, ~x * Pi) {
     }
     Return(trigOfNonPiProduct(f, x Pi))
 }
+Function trigOfProduct(~f, ~x * Degree) {
+    With(result:= trigOfPiFactor(f, x / 180))
+    If(result =!= $Failed) {
+        Return(result)
+    }
+    Return(trigOfNonPiProduct(f, x Degree))
+}
 trigOfProduct(~f, ~x)::= trigOfNonPiProduct(f, x)
 
 trigOfPiFactor(~f, ~x)::= $Failed
@@ -195,6 +202,8 @@ trigOfSum(Sec, ~x) ::= evenTrig2PiOfSum(Sec, Csc, x)
 trigOfSum(Tan, ~x) ::= tanLikeOfSum(Tan, Cot, x)
 trigOfSum(Cot, ~x) ::= tanLikeOfSum(Cot, Tan, x)
 
+evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
+    evenTrig2PiOfSum(fun, cofun, x + y * Pi/180)
 Function evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(0 < y <= 1/4) { Return($Failed) }
     With(z:= Mod(y, 2)) % gives 0 <= z < 2
@@ -203,6 +212,9 @@ Function evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(1   < z) {        Return( -fun(x + (z-1) Pi) ) }
     Return( fun(x + z Pi) )
 }
+
+oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
+    oddTrig2PiOfSum(fun, cofun, x + y * Pi/180)
 Function oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(0 < y <= 1/4) { Return($Failed) }
     With(z:= Mod(y, 2)) % gives 0 <= z < 2
@@ -211,6 +223,9 @@ Function oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(1   < z) {        Return( -fun(x + (z-1) Pi) ) }
     Return( fun(x + z Pi) )
 }
+
+tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
+    tanLikeOfSum(fun, cofun, x + y * Pi/180)
 Function tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(0 < y <= 1/4) { Return($Failed) }
     With(z:= Mod(y, 1)) % gives 0 <= z < 1
