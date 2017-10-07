@@ -475,16 +475,10 @@
 			<Add library="pmath" />
 			<Add directory="../../../library/$(TARGET_OUTPUT_DIR)" />
 		</Linker>
-		<Unit filename="src/cos.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/cosh.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/main.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/sin.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/sinh.c">
@@ -502,13 +496,13 @@
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="src/symbols.inc" />
-		<Unit filename="src/tan.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/tanh.c">
 			<Option compilerVar="CC" />
 		</Unit>
-
+		<Unit filename="src/trig-impl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/trig-impl.inc" />
 		<Unit filename="src/util.c">
 			<Option compilerVar="CC" />
 		</Unit>
