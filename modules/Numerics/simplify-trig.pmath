@@ -29,6 +29,11 @@ System`Private`AutoSimplifyTrig(~f, ~x:Plus)::= trigOfSum(f, x)
 System`Private`AutoSimplifyTrig(~f, ~inf:DirectedInfinity)::= trigAtInfinity(f, inf)
 
 trigOfRational(~f, ~q)::= $Failed
+trigOfRational(ArcTan, 0)::= 0
+trigOfRational(ArcTan, 1):= Pi/4
+trigOfRational(ArcTan, ~q)::= If(IsNegative(q), -ArcTan(-q), $Failed)
+trigOfRational(ArcTanh, 0)::= 0
+trigOfRational(ArcTanh, ~q)::= If(IsNegative(q), -ArcTanh(-q), $Failed)
 trigOfRational(Cos, 0)::= 1
 trigOfRational(Cos, ~q)::= If(IsNegative(q), Cos(-q), $Failed)
 trigOfRational(Cosh, 0)::= 1
@@ -55,6 +60,8 @@ trigOfRational(Tanh, 0)::= 0
 trigOfRational(Tanh, ~q)::= If(IsNegative(q), -Tanh(-q), $Failed)
 
 trigOfComplex(~f, ~x)::= $Failed
+trigOfComplex(ArcTan, Complex(0, ~y))::= I ArcTanh(y)
+trigOfComplex(ArcTanh, Complex(0, ~y))::= I ArcTan(y)
 trigOfComplex(Cos,  Complex(0, ~y))::= Cosh(y)
 trigOfComplex(Cosh, Complex(0, ~y))::= Cos(y)
 trigOfComplex(Cot,  Complex(0, ~y))::= -I Coth(y)
@@ -244,6 +251,8 @@ trigOfSimpleProduct(~f, ~x:Real,     ~y)::= trigOfRealFactor(f, x, y)
 trigOfSimpleProduct(~f, ~z:Complex, ~y)::= trigOfComplexFactor(f, z, y)
 
 trigOfRealFactor(~f, ~x, ~y)::= $Failed
+trigOfRealFactor(ArcTan, ~x,  ~y)::= If(x < 0, -ArcTan(-x y), $Failed, $Failed)
+trigOfRealFactor(ArcTanh, ~x,  ~y)::= If(x < 0, -ArcTanh(-x y), $Failed, $Failed)
 trigOfRealFactor(Cos, ~x,  ~y)::= If(x < 0, Cos(-x y),  $Failed, $Failed)
 trigOfRealFactor(Cot, ~x,  ~y)::= If(x < 0, -Cot(-x y), $Failed, $Failed)
 trigOfRealFactor(Csc, ~x,  ~y)::= If(x < 0, -Csc(-x y), $Failed, $Failed)
@@ -304,6 +313,24 @@ Function tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
 %
 trigAtInfinity(~f, ~inf)::= $Failed
 trigAtInfinity(~f, ComplexInfinity)::= Undefined
+Function trigAtInfinity(ArcTan, inf: DirectedInfinity(~dir)) {
+    With(re:= Re(dir))
+    With(im:= Im(dir))
+    If(re < 0) {
+        Return(-Pi/2)
+    } Else If(re > 0) {
+        Return(Pi/2)
+    } Else If(re = 0) {
+        If(im < 0) {
+            Return(-Pi/2)
+        } Else If(im > 0) {
+            Return(Pi/2)
+        }
+    }
+    Return(Interval(-Pi/2..Pi/2))
+}
+trigAtInfinity(ArcTanh, inf: DirectedInfinity(~dir))::= 
+    I * trigAtInfinity(ArcTan, DirectedInfinity(-I dir))
 trigAtInfinity(Cos, inf: DirectedInfinity(~dir))::=
     If(IsReal(dir), 
         Interval(-1..1), 
