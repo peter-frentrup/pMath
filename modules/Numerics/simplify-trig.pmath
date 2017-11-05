@@ -24,6 +24,7 @@ System`Private`AutoSimplifyTrig(~f, ~x:ArcSec)::= trigOfTrigInverse(f, x)
 System`Private`AutoSimplifyTrig(~f, ~x:ArcSin)::= trigOfTrigInverse(f, x)
 System`Private`AutoSimplifyTrig(~f, ~x:ArcTan)::= trigOfTrigInverse(f, x)
 System`Private`AutoSimplifyTrig(~f, Pi)::= trigOfPiFactor(f, 1)
+System`Private`AutoSimplifyTrig(~f, ~x:Power)::= trigOfPower(f, x)
 System`Private`AutoSimplifyTrig(~f, ~x:Times)::= trigOfProduct(f, x)
 System`Private`AutoSimplifyTrig(~f, ~x:Plus)::= trigOfSum(f, x)
 System`Private`AutoSimplifyTrig(~f, ~inf:DirectedInfinity)::= trigAtInfinity(f, inf)
@@ -110,6 +111,18 @@ Scan(
         trigOfTrigInverse(Tan, #(~x)):= sin/cos
     })
 )
+
+
+trigOfPower(~f, ~x)::= $Failed
+trigOfPower(ArcTan, ~x)::= arcTanOfPower(x)
+
+arcTanOfPower(~):= $Failed
+arcTanOfPower(Sqrt(3)):= Pi/3
+arcTanOfPower(Sqrt(5 - 2 Sqrt(5))):= Pi/5
+arcTanOfPower(Sqrt(5 + 2 Sqrt(5))):= 2 Pi/5
+arcTanOfPower(1/Sqrt(3)):= Pi/6
+arcTanOfPower(Sqrt(1 - 2/Sqrt(5))):= Pi/10
+arcTanOfPower(Sqrt(1 + 2/Sqrt(5))):= 3 Pi/10
 
 
 %
@@ -276,6 +289,8 @@ trigOfSum(Sec, ~x) ::= evenTrig2PiOfSum(Sec, Csc, x)
 trigOfSum(Tan, ~x) ::= tanLikeOfSum(Tan, Cot, x)
 trigOfSum(Cot, ~x) ::= tanLikeOfSum(Cot, Tan, x)
 
+trigOfSum(ArcTan, ~x)::= arcTanOfSum(x)
+
 evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
     evenTrig2PiOfSum(fun, cofun, x + y * Pi/180)
 Function evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
@@ -307,6 +322,12 @@ Function tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(1/2 < z) {        Return( -cofun(x + (z-1/2) Pi) ) }
     Return( fun(x + z Pi) )
 }
+
+arcTanOfSum(~):= $Failed
+arcTanOfSum(2-Sqrt(3)):= Pi/12
+arcTanOfSum(-2+Sqrt(3)):= -Pi/12
+arcTanOfSum(2+Sqrt(3)):= 5 Pi/12
+arcTanOfSum(-2-Sqrt(3)):= -5 Pi/12
 
 %
 % Cos(Infinity) etc.
