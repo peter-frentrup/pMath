@@ -8,8 +8,18 @@ static void acb_csc(acb_t r, const acb_t z, slong prec) {
   acb_inv(r, r, prec);
 }
 
+static void acb_csch(acb_t r, const acb_t z, slong prec) {
+  acb_sinh(r, z, prec);
+  acb_inv(r, r, prec);
+}
+
 static void acb_sec(acb_t r, const acb_t z, slong prec) {
   acb_cos(r, z, prec);
+  acb_inv(r, r, prec);
+}
+
+static void acb_sech(acb_t r, const acb_t z, slong prec) {
+  acb_cosh(r, z, prec);
   acb_inv(r, r, prec);
 }
 
@@ -49,14 +59,32 @@ PMATH_PRIVATE pmath_t eval_System_Cot(pmath_expr_t expr) {
 #  undef ACB_FUNCTION
 }
 
+PMATH_PRIVATE pmath_t eval_System_Coth(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_coth
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
 PMATH_PRIVATE pmath_t eval_System_Csc(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_csc
 #    include "trig-impl.inc"
 #  undef ACB_FUNCTION
 }
 
+PMATH_PRIVATE pmath_t eval_System_Csch(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_csch
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
 PMATH_PRIVATE pmath_t eval_System_Sec(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_sec
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
+PMATH_PRIVATE pmath_t eval_System_Sech(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_sech
 #    include "trig-impl.inc"
 #  undef ACB_FUNCTION
 }

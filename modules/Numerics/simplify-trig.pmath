@@ -497,9 +497,12 @@ trigAtInfinity(Tanh, inf: DirectedInfinity(~dir))::=
         I Interval(-Infinity..Infinity), 
         Sign(Re(dir)), 
         $Failed)
-trigAtInfinity(Cot, ~inf)::= With({y:= trigAtInfinity(Tan, inf)}, If(y === $Failed, y, 1/y))
-trigAtInfinity(Csc, ~inf)::= With({y:= trigAtInfinity(Sin, inf)}, If(y === $Failed, y, 1/y))
-trigAtInfinity(Sec, ~inf)::= With({y:= trigAtInfinity(Cos, inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Cot,  ~inf)::= With({y:= trigAtInfinity(Tan,  inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Coth, ~inf)::= With({y:= trigAtInfinity(Tanh, inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Csc,  ~inf)::= With({y:= trigAtInfinity(Sin,  inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Csch, ~inf)::= With({y:= trigAtInfinity(Sinh, inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Sec,  ~inf)::= With({y:= trigAtInfinity(Cos,  inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Sech, ~inf)::= With({y:= trigAtInfinity(Cosh, inf)}, If(y === $Failed, y, 1/y))
 
 End()
 
