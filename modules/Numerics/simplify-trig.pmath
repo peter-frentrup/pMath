@@ -29,10 +29,8 @@ System`Private`AutoSimplifyTrig(~f, ~x:Times)::= trigOfProduct(f, x)
 System`Private`AutoSimplifyTrig(~f, ~x:Plus)::= trigOfSum(f, x)
 System`Private`AutoSimplifyTrig(~f, ~inf:DirectedInfinity)::= trigAtInfinity(f, inf)
 
-trigOfRational(~f, ~q)::= $Failed
-trigOfRational(ArcSin, 0)::= 0
-trigOfRational(ArcSin, 1):= Pi/2
-trigOfRational(ArcSin, ~q)::= If(IsNegative(q), -ArcSin(-q), $Failed)
+trigOfRational(~f, ~q):= $Failed
+trigOfRational(ArcSin, ~q)::= arcSinOfRational(q)
 trigOfRational(ArcSinh, 0)::= 0
 trigOfRational(ArcSinh, ~q)::= If(IsNegative(q), -ArcSinh(-q), $Failed)
 trigOfRational(ArcTan, 0)::= 0
@@ -64,6 +62,12 @@ trigOfRational(Tan, 0)::= 0
 trigOfRational(Tan, ~q)::= If(IsNegative(q), -Tan(-q), $Failed)
 trigOfRational(Tanh, 0)::= 0
 trigOfRational(Tanh, ~q)::= If(IsNegative(q), -Tanh(-q), $Failed)
+
+arcSinOfRational(~):= $Failed
+arcSinOfRational(0):= 0
+arcSinOfRational(1/2):= Pi/6
+arcSinOfRational(1):= Pi/2
+arcSinOfRational(~q)::= If(IsNegative(q), -ArcSin(-q), $Failed)
 
 trigOfComplex(~f, ~x)::= $Failed
 trigOfComplex(ArcSin, Complex(0, ~y))::= I ArcSinh(y)
@@ -121,7 +125,13 @@ Scan(
 
 
 trigOfPower(~f, ~x)::= $Failed
+trigOfPower(ArcSin, ~x)::= arcSinOfPower(x)
 trigOfPower(ArcTan, ~x)::= arcTanOfPower(x)
+
+arcSinOfPower(~):= $Failed
+arcSinOfPower(1/Sqrt(2)):= Pi/4
+arcSinOfPower(Sqrt(5/8 - Sqrt(5)/8)):= Pi/5
+arcSinOfPower(Sqrt(5/8 + Sqrt(5)/8)):= 2 Pi/5
 
 arcTanOfPower(~):= $Failed
 arcTanOfPower(Sqrt(3)):= Pi/3
@@ -271,7 +281,7 @@ trigOfSimpleProduct(~f, ~x:Real,     ~y)::= trigOfRealFactor(f, x, y)
 trigOfSimpleProduct(~f, ~z:Complex, ~y)::= trigOfComplexFactor(f, z, y)
 
 trigOfRealFactor(~f, ~x, ~y)::= $Failed
-trigOfRealFactor(ArcSin, ~x,  ~y)::= If(x < 0, -ArcSin(-x y), $Failed, $Failed)
+trigOfRealFactor(ArcSin, ~x,  ~y)::= arcSinOfRealFactor(x, y)
 trigOfRealFactor(ArcSinh, ~x,  ~y)::= If(x < 0, -ArcSinh(-x y), $Failed, $Failed)
 trigOfRealFactor(ArcTan, ~x,  ~y)::= If(x < 0, -ArcTan(-x y), $Failed, $Failed)
 trigOfRealFactor(ArcTanh, ~x,  ~y)::= If(x < 0, -ArcTanh(-x y), $Failed, $Failed)
@@ -281,6 +291,28 @@ trigOfRealFactor(Csc, ~x,  ~y)::= If(x < 0, -Csc(-x y), $Failed, $Failed)
 trigOfRealFactor(Sec, ~x,  ~y)::= If(x < 0, Sec(-x y),  $Failed, $Failed)
 trigOfRealFactor(Sin, ~x,  ~y)::= If(x < 0, -Sin(-x y), $Failed, $Failed)
 trigOfRealFactor(Tan, ~x,  ~y)::= If(x < 0, -Tan(-x y), $Failed, $Failed)
+
+Function arcSinOfRealFactor(~x, ~y) {
+    If(x < 0) {
+        Return(-ArcSin(-x y))
+    } Else If(x === 1/2) {
+        If(y === Sqrt(3)) {
+            Return(Pi/3)
+        } Else If(y === (Sqrt(3)-1)/Sqrt(2)) {
+            Return(Pi/12)
+        } Else If(y === (Sqrt(3)+1)/Sqrt(2)) {
+            Return(5 Pi/12)
+        }
+    } Else If(x === 1/4) {
+        % Note that Mma does not automatically simplify ArcSin(Sin(Pi/10))
+        If(y === Sqrt(5)-1) {
+            Return(Pi/10)
+        } Else If(y === Sqrt(5)+1) {
+            Return(3 Pi/10)
+        }
+    }
+    Return($Failed)
+}
 
 trigOfComplexFactor(~f, ~z, ~y)::= $Failed
 trigOfComplexFactor(~f, Complex(0, ~iz), ~y)::= trigOfComplex(f, Complex(0, iz y))
