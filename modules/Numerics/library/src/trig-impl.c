@@ -37,6 +37,12 @@ PMATH_PRIVATE pmath_t eval_System_Cos(pmath_expr_t expr) {
 #  undef ACB_FUNCTION
 }
 
+PMATH_PRIVATE pmath_t eval_System_Cosh(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_cosh
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
 PMATH_PRIVATE pmath_t eval_System_Cot(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_cot
 #    include "trig-impl.inc"
@@ -57,6 +63,12 @@ PMATH_PRIVATE pmath_t eval_System_Sec(pmath_expr_t expr) {
 
 PMATH_PRIVATE pmath_t eval_System_Sin(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_sin
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
+PMATH_PRIVATE pmath_t eval_System_Sinh(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_sinh
 #    include "trig-impl.inc"
 #  undef ACB_FUNCTION
 }
