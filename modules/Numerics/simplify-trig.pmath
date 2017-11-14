@@ -13,7 +13,8 @@ Begin("Numerics`Trigonometry`Private`")
 % If that returns $Failed, the original expression Sin(x) etc. remains unevaluated. 
 % Otherwise, the result of AutoSimplifyTrig will be returned.
 %
-System`Private`AutoSimplifyTrig(~, ~)::= $Failed
+System`Private`AutoSimplifyTrig(~, ~):= $Failed
+System`Private`AutoSimplifyTrig(ArcCos, ~x):= autoSimplifyArcCos(x)
 System`Private`AutoSimplifyTrig(~f, ~q:Rational)::= trigOfRational(f, q)
 System`Private`AutoSimplifyTrig(~f, ~q:Integer)::= trigOfRational(f, q)
 System`Private`AutoSimplifyTrig(~f, ~z:Complex)::= trigOfComplex(f, z)
@@ -28,6 +29,14 @@ System`Private`AutoSimplifyTrig(~f, ~x:Power)::= trigOfPower(f, x)
 System`Private`AutoSimplifyTrig(~f, ~x:Times)::= trigOfProduct(f, x)
 System`Private`AutoSimplifyTrig(~f, ~x:Plus)::= trigOfSum(f, x)
 System`Private`AutoSimplifyTrig(~f, ~inf:DirectedInfinity)::= trigAtInfinity(f, inf)
+
+Function autoSimplifyArcCos(~x) {
+    With(y:= System`Private`AutoSimplifyTrig(ArcSin, x))
+    If(y =!= $Failed && y.IsFreeOf(ArcSin) && y.IsFreeOf(ArcSinh)) {
+        Return(Pi/2 - y)
+    }
+    Return($Failed)
+}
 
 trigOfRational(~f, ~q):= $Failed
 trigOfRational(ArcSin, ~q)::= arcSinOfRational(q)

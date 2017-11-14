@@ -29,7 +29,6 @@ Tanh /: Tanh(~x)^(~n?IsInteger /? n < 0)::= Coth(x)^-n
 ArcCsc(~x /? x=0):= ComplexInfinity
 ArcCsc(~x)::= With({y:= ArcSin(1/x)}, y /? y.IsFreeOf(ArcSin))
 
-ArcCos(~x)::= With({y:= ArcSin(x)}, Pi/2 - y /? y.IsFreeOf(ArcSin) && y.IsFreeOf(ArcSinh))
 ArcSec(~x)::= With({y:= ArcCsc(x)}, Pi/2 - y /? y.IsFreeOf(ArcCsc) && y.IsFreeOf(ArcCsch))
 
 /* Mathematica and MuPAD define ArcCot(x) as ArcTan(1/x), Maple and Derive as Pi/2 - ArcTan(x). These differ for non-positive x! */
