@@ -1,0 +1,18 @@
+
+BeginPackage("Numerics`")
+
+% Print("Load pmath-numerics.dll")
+LoadLibrary(ToFileName(
+	{DirectoryName($Input), "bin", $SystemId, $ProcessorType},
+	If($SystemId === "Windows",
+		"pmath-numerics.dll",
+		"pmath-numerics.so")))
+
+Begin("System`Private`")
+
+AutoLoad(Hold(AutoSimplifyTrig), 
+	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
+
+End()
+
+EndPackage()

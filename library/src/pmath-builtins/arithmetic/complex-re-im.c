@@ -90,8 +90,8 @@ pmath_bool_t _pmath_is_imaginary(
   return FALSE;
 }
 
-PMATH_PRIVATE
-pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong)) {
+PMATH_API
+pmath_bool_t pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong)) {
   if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
     acb_t z;
     slong prec;
@@ -111,8 +111,8 @@ pmath_bool_t _pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*fu
   return FALSE;
 }
 
-PMATH_PRIVATE
-pmath_bool_t _pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong)) {
+PMATH_API
+pmath_bool_t pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong)) {
   if( pmath_is_number(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2) ||
       pmath_is_number(y) || pmath_is_expr_of_len(y, PMATH_SYMBOL_COMPLEX, 2))
   {
