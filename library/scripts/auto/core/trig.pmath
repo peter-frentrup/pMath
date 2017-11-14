@@ -40,25 +40,6 @@ Coth(~x)::= With({y:= Tanh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFre
 Csch(~x)::= With({y:= Sinh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Sinh))
 Sech(~x)::= With({y:= Cosh(x)}, If(Sign(y)===0, ComplexInfinity, 1/y) /? y.IsFreeOf(Cosh))
 
-Cosh(Infinity)::= Infinity
-Cosh(-Infinity)::= Infinity
-Cosh(I Infinity)::= Interval(-1..1)
-Cosh(-I Infinity)::= Interval(-1..1)
-Cosh(DirectedInfinity(~))::= ComplexInfinity
-Cosh(ComplexInfinity)::= Undefined
-
-Sinh(Infinity)::= Infinity
-Sinh(-Infinity)::= -Infinity
-Sinh(I Infinity)::= Interval(-1..1)
-Sinh(-I Infinity)::= Interval(-1..1)
-Sinh(DirectedInfinity(~))::= ComplexInfinity
-Sinh(ComplexInfinity)::= Undefined
-
-Tanh(I Infinity)::= I Interval(-Infinity..Infinity)
-Tanh(-I Infinity)::= I Interval(-Infinity..Infinity)
-Tanh(DirectedInfinity(~z))::= Sign(Re(z))
-Tanh(ComplexInfinity)::= Undefined
-
 End()
 
 
