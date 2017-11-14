@@ -35,8 +35,20 @@ PMATH_PRIVATE pmath_t eval_System_ArcSin(pmath_expr_t expr) {
 #  undef ACB_FUNCTION
 }
 
+PMATH_PRIVATE pmath_t eval_System_ArcSinh(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_asinh
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
 PMATH_PRIVATE pmath_t eval_System_ArcTan(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_atan
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
+PMATH_PRIVATE pmath_t eval_System_ArcTanh(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_atanh
 #    include "trig-impl.inc"
 #  undef ACB_FUNCTION
 }
