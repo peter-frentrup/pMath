@@ -66,3 +66,9 @@ PMATH_PRIVATE pmath_t eval_System_Tan(pmath_expr_t expr) {
 #    include "trig-impl.inc"
 #  undef ACB_FUNCTION
 }
+
+PMATH_PRIVATE pmath_t eval_System_Tanh(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_tanh
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}

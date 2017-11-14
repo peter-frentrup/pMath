@@ -496,9 +496,6 @@
 			<Option weight="0" />
 		</Unit>
 		<Unit filename="src/symbols.inc" />
-		<Unit filename="src/tanh.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/trig-impl.c">
 			<Option compilerVar="CC" />
 		</Unit>
