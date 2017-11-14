@@ -29,6 +29,12 @@ PMATH_PRIVATE pmath_t eval_System_ArcCos(pmath_expr_t expr) {
 #  undef ACB_FUNCTION
 }
 
+PMATH_PRIVATE pmath_t eval_System_ArcCosh(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_acosh
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
 PMATH_PRIVATE pmath_t eval_System_ArcSin(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_asin
 #    include "trig-impl.inc"

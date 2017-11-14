@@ -14,7 +14,8 @@ Begin("Numerics`Trigonometry`Private`")
 % Otherwise, the result of AutoSimplifyTrig will be returned.
 %
 System`Private`AutoSimplifyTrig(~, ~):= $Failed
-System`Private`AutoSimplifyTrig(ArcCos, ~x):= autoSimplifyArcCos(x)
+System`Private`AutoSimplifyTrig(ArcCos,  ~x):= autoSimplifyArcCos(x)
+System`Private`AutoSimplifyTrig(ArcCosh, ~x):= autoSimplifyArcCosh(x)
 System`Private`AutoSimplifyTrig(~f, ~q:Rational)::= trigOfRational(f, q)
 System`Private`AutoSimplifyTrig(~f, ~q:Integer)::= trigOfRational(f, q)
 System`Private`AutoSimplifyTrig(~f, ~z:Complex)::= trigOfComplex(f, z)
@@ -40,6 +41,17 @@ Function autoSimplifyArcCos(~x) {
     With(y:= System`Private`AutoSimplifyTrig(ArcSin, x))
     If(y =!= $Failed && y.IsFreeOf(ArcSin) && y.IsFreeOf(ArcSinh)) {
         Return(Pi/2 - y)
+    }
+    Return($Failed)
+}
+
+% ArcCosh(x) = I ArcCos(x) for real x in -1..1
+Function autoSimplifyArcCosh(~x) {
+    If(-1 <= x <= 1) {
+        With(y:= autoSimplifyArcCos(x)) % ArcCos(x)
+        If(y =!= $Failed && y.IsFreeOf(ArcCos) && y.IsFreeOf(ArcCosh)) {
+            Return(I y)
+        }
     }
     Return($Failed)
 }
