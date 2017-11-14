@@ -81,7 +81,6 @@ static const pmath_ht_class_t function_table_class = {
 //{ builtins from src/pmath-builtins/arithmetic/ ...
 PMATH_PRIVATE pmath_t builtin_abs(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_approximate(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_arcsin(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arg(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binomial(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_chop(            pmath_expr_t expr);
@@ -1568,7 +1567,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_AND,                         builtin_and)
   BIND_DOWN(   PMATH_SYMBOL_APPLY,                       builtin_apply)
   BIND_DOWN(   PMATH_SYMBOL_APPEND,                      builtin_append)
-  BIND_DOWN(   PMATH_SYMBOL_ARCSIN,                      builtin_arcsin)
   BIND_DOWN(   PMATH_SYMBOL_ARG,                         builtin_arg)
   BIND_DOWN(   PMATH_SYMBOL_ARRAY,                       builtin_array)
   BIND_DOWN(   PMATH_SYMBOL_ASSIGN,                      builtin_assign)

@@ -30,6 +30,11 @@ System`Private`AutoSimplifyTrig(~f, ~x:Plus)::= trigOfSum(f, x)
 System`Private`AutoSimplifyTrig(~f, ~inf:DirectedInfinity)::= trigAtInfinity(f, inf)
 
 trigOfRational(~f, ~q)::= $Failed
+trigOfRational(ArcSin, 0)::= 0
+trigOfRational(ArcSin, 1):= Pi/2
+trigOfRational(ArcSin, ~q)::= If(IsNegative(q), -ArcSin(-q), $Failed)
+trigOfRational(ArcSinh, 0)::= 0
+trigOfRational(ArcSinh, ~q)::= If(IsNegative(q), -ArcSinh(-q), $Failed)
 trigOfRational(ArcTan, 0)::= 0
 trigOfRational(ArcTan, 1):= Pi/4
 trigOfRational(ArcTan, ~q)::= If(IsNegative(q), -ArcTan(-q), $Failed)
@@ -61,6 +66,8 @@ trigOfRational(Tanh, 0)::= 0
 trigOfRational(Tanh, ~q)::= If(IsNegative(q), -Tanh(-q), $Failed)
 
 trigOfComplex(~f, ~x)::= $Failed
+trigOfComplex(ArcSin, Complex(0, ~y))::= I ArcSinh(y)
+trigOfComplex(ArcSinh, Complex(0, ~y))::= I ArcSin(y)
 trigOfComplex(ArcTan, Complex(0, ~y))::= I ArcTanh(y)
 trigOfComplex(ArcTanh, Complex(0, ~y))::= I ArcTan(y)
 trigOfComplex(Cos,  Complex(0, ~y))::= Cosh(y)
@@ -264,6 +271,8 @@ trigOfSimpleProduct(~f, ~x:Real,     ~y)::= trigOfRealFactor(f, x, y)
 trigOfSimpleProduct(~f, ~z:Complex, ~y)::= trigOfComplexFactor(f, z, y)
 
 trigOfRealFactor(~f, ~x, ~y)::= $Failed
+trigOfRealFactor(ArcSin, ~x,  ~y)::= If(x < 0, -ArcSin(-x y), $Failed, $Failed)
+trigOfRealFactor(ArcSinh, ~x,  ~y)::= If(x < 0, -ArcSinh(-x y), $Failed, $Failed)
 trigOfRealFactor(ArcTan, ~x,  ~y)::= If(x < 0, -ArcTan(-x y), $Failed, $Failed)
 trigOfRealFactor(ArcTanh, ~x,  ~y)::= If(x < 0, -ArcTanh(-x y), $Failed, $Failed)
 trigOfRealFactor(Cos, ~x,  ~y)::= If(x < 0, Cos(-x y),  $Failed, $Failed)
@@ -334,6 +343,24 @@ arcTanOfSum(-2-Sqrt(3)):= -5 Pi/12
 %
 trigAtInfinity(~f, ~inf)::= $Failed
 trigAtInfinity(~f, ComplexInfinity)::= Undefined
+Function trigAtInfinity(ArcSin, inf: DirectedInfinity(~dir)) {
+    With(re:= Re(dir))
+    With(im:= Im(dir))
+    If(im < 0) {
+        Return(DirectedInfinity(-I))
+    } Else If(im > 0) {
+        Return(DirectedInfinity(I))
+    } Else If(im = 0) {
+        If(re < 0) {
+            Return(DirectedInfinity(I))
+        } Else If(re > 0) {
+            Return(DirectedInfinity(-I))
+        }
+    }
+    Return(I Interval(-Infinity, Infinity))
+}
+trigAtInfinity(ArcSinh, inf: DirectedInfinity(~dir))::= 
+    I * trigAtInfinity(ArcSin, DirectedInfinity(-I dir))
 Function trigAtInfinity(ArcTan, inf: DirectedInfinity(~dir)) {
     With(re:= Re(dir))
     With(im:= Im(dir))

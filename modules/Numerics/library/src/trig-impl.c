@@ -13,6 +13,12 @@ static void acb_sec(acb_t r, const acb_t z, slong prec) {
   acb_inv(r, r, prec);
 }
 
+PMATH_PRIVATE pmath_t eval_System_ArcSin(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_asin
+#    include "trig-impl.inc"
+#  undef ACB_FUNCTION
+}
+
 PMATH_PRIVATE pmath_t eval_System_ArcTan(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_atan
 #    include "trig-impl.inc"

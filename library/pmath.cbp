@@ -968,9 +968,6 @@
 		<Unit filename="src/pmath-builtins/arithmetic/approximate-constants.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/arcsin.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/arg.c">
 			<Option compilerVar="CC" />
 		</Unit>
