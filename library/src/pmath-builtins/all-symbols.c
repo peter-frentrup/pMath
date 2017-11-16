@@ -653,6 +653,10 @@ pmath_bool_t pmath_register_approx_code(
 
 /*============================================================================*/
 
+#define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)   PMATH_PRIVATE pmath_symbol_t SYM = PMATH_STATIC_NULL;
+#  include "symbols.inc"
+#undef PMATH_DECLARE_SYMBOL
+
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   int i;
   
@@ -1485,6 +1489,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_WRITESTRING                      = NEW_SYSTEM_SYMBOL("WriteString"))
   VERIFY(   PMATH_SYMBOL_XOR                              = NEW_SYSTEM_SYMBOL("Xor"))
   VERIFY(   PMATH_SYMBOL_ZETA                             = NEW_SYSTEM_SYMBOL("Zeta"))
+  
+#  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    VERIFY( SYM = NEW_SYMBOL(NAME) );
+#    include "symbols.inc"
+#  undef PMATH_DECLARE_SYMBOL
   //} ... setting symbol names
   
 #ifdef PMATH_DEBUG_LOG
@@ -1946,7 +1954,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
 #define SEQUENCEHOLD          PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD
 #define SYMMETRIC             PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC
 #define THREADLOCAL           PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL
-  
+
+#define PMATH_DECLARE_SYMBOL( SYM, NAME, ATTRIB )  SET_ATTRIB( SYM, ATTRIB );
+#  include "symbols.inc"
+#undef PMATH_DECLARE_SYMBOL
+
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,       HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CONDITION,          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG, HOLDALL | THREADLOCAL);
@@ -2178,6 +2190,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   return TRUE;
   
 FAIL:
+#  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    pmath_unref(SYM); SYM = PMATH_NULL;
+#    include "symbols.inc"
+#  undef PMATH_DECLARE_SYMBOL
+
   for(i = 0; i < CODE_TABLES_COUNT; ++i)
     pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
     
@@ -2228,6 +2244,10 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
 PMATH_PRIVATE void _pmath_symbol_builtins_done(void) {
   int i;
   
+#  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    pmath_unref(SYM); SYM = PMATH_NULL;
+#    include "symbols.inc"
+#  undef PMATH_DECLARE_SYMBOL
+
   for(i = 0; i < CODE_TABLES_COUNT; ++i)
     pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
     

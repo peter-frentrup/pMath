@@ -1643,6 +1643,7 @@
 		<Unit filename="src/pmath-builtins/parallel/threadidle.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/symbols.inc" />
 		<Unit filename="src/pmath-core/custom.c">
 			<Option compilerVar="CC" />
 		</Unit>
