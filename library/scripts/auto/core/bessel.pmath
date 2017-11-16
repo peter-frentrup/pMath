@@ -1,4 +1,4 @@
-% Bessel functions BesselI, BesselJ, BesselK, BesselY
+% Bessel functions BesselI, BesselJ, BesselK, BesselY, HankelH1, HankelH2
 
 BeginPackage("System`")
 
