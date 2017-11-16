@@ -10,10 +10,12 @@ LoadLibrary(ToFileName(
 
 Begin("System`Private`")
 
-AutoLoad(Hold(AutoSimplifyTrig), 
-	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
 AutoLoad(Hold(AutoSimplifyAiry), 
 	ToFileName(DirectoryName($Input), "simplify-airy.pmath"))
+AutoLoad(Hold(AutoSimplifyBessel), 
+	ToFileName(DirectoryName($Input), "simplify-bessel.pmath"))
+AutoLoad(Hold(AutoSimplifyTrig), 
+	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
 
 End()
 
