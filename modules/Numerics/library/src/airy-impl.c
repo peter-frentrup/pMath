@@ -22,25 +22,25 @@ static void acb_airy_bi_prime(acb_t r, const acb_t z, slong prec) {
 
 PMATH_PRIVATE pmath_t eval_System_AiryAi(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_airy_ai
-#    include "simple-acb-impl.inc"
+#    include "acb-impl-onearg.inc"
 #  undef ACB_FUNCTION
 }
 
 PMATH_PRIVATE pmath_t eval_System_AiryAiPrime(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_airy_ai_prime
-#    include "simple-acb-impl.inc"
+#    include "acb-impl-onearg.inc"
 #  undef ACB_FUNCTION
 }
 
 PMATH_PRIVATE pmath_t eval_System_AiryBi(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_airy_bi
-#    include "simple-acb-impl.inc"
+#    include "acb-impl-onearg.inc"
 #  undef ACB_FUNCTION
 }
 
 PMATH_PRIVATE pmath_t eval_System_AiryBiPrime(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_airy_bi_prime
-#    include "simple-acb-impl.inc"
+#    include "acb-impl-onearg.inc"
 #  undef ACB_FUNCTION
 }
 
