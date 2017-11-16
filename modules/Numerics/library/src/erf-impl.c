@@ -21,3 +21,23 @@ PMATH_PRIVATE pmath_t eval_System_Erfi(pmath_expr_t expr) {
 #    include "acb-impl-onearg.inc"
 #  undef ACB_FUNCTION
 }
+
+static void acb_normalized_fresnel_s(acb_t res, const acb_t z, slong prec) {
+  acb_hypgeom_fresnel(res, NULL, z, 1, prec);
+}
+
+static void acb_normalized_fresnel_c(acb_t res, const acb_t z, slong prec) {
+  acb_hypgeom_fresnel(NULL, res, z, 1, prec);
+}
+
+PMATH_PRIVATE pmath_t eval_System_FresnelC(pmath_expr_t expr) {
+#  define ACB_FUNCTION  acb_normalized_fresnel_c
+#    include "acb-impl-onearg.inc"
+#  undef ACB_FUNCTION
+}
+
+PMATH_PRIVATE pmath_t eval_System_FresnelS(pmath_expr_t expr) {
+#  define ACB_FUNCTION  acb_normalized_fresnel_s
+#    include "acb-impl-onearg.inc"
+#  undef ACB_FUNCTION
+}
