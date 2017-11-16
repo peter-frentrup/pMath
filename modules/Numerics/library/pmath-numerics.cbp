@@ -507,6 +507,9 @@
 		<Unit filename="src/trig-impl.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/trig-integrals-impl.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/util.c">
 			<Option compilerVar="CC" />
 		</Unit>

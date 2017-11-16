@@ -20,6 +20,8 @@ AutoLoad(Hold(AutoSimplifyErf),
 	ToFileName(DirectoryName($Input), "simplify-erf.pmath"))
 AutoLoad(Hold(AutoSimplifyTrig), 
 	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
+AutoLoad(Hold(AutoSimplifyTrigIntegral), 
+	ToFileName(DirectoryName($Input), "simplify-trig-integral.pmath"))
 
 End()
 
