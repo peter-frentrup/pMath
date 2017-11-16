@@ -16,6 +16,8 @@ AutoLoad(Hold(AutoSimplifyBessel),
 	ToFileName(DirectoryName($Input), "simplify-bessel.pmath"))
 AutoLoad(Hold(AutoSimplifyOrthoPoly), 
 	ToFileName(DirectoryName($Input), "simplify-ortho-poly.pmath"))
+AutoLoad(Hold(AutoSimplifyErf), 
+	ToFileName(DirectoryName($Input), "simplify-erf.pmath"))
 AutoLoad(Hold(AutoSimplifyTrig), 
 	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
 

@@ -1,0 +1,22 @@
+BeginPackage("Numerics`Erf`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyErf
+
+Begin("Numerics`Erf`Private`")
+
+%
+% If direct (numerical) calculation of Erf(x), Erfc(x), etc. is not possible (because 
+% x is an expression or an exact number), System`Private`AutoSimplifyErf(Erf, x) 
+% etc. get called.
+% If that returns $Failed, the original expression Erf(x) etc. remains unevaluated. 
+% Otherwise, the result of AutoSimplifyErf will be returned.
+%
+System`Private`AutoSimplifyErf(~, ~):= $Failed
+
+
+
+End()
+
+EndPackage()
