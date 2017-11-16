@@ -114,6 +114,8 @@ AutoLoad(Hold(AiryAi, AiryAiPrime, AiryBi, AiryBiPrime),
 	ToFileName({$BaseDirectory, "auto", "core"}, "airy.pmath"))
 AutoLoad(Hold(BesselI, BesselJ, BesselK, BesselY, HankelH1, HankelH2),
 	ToFileName({$BaseDirectory, "auto", "core"}, "bessel.pmath"))
+AutoLoad(Hold(ChebyshevT, ChebyshevU, HermiteH),
+	ToFileName({$BaseDirectory, "auto", "core"}, "ortho-poly.pmath"))
 AutoLoad(Hold(ArcCos,ArcCot,ArcCsc,ArcSec,ArcSin,ArcTan, Cos,Cot,Csc,Sec,Sin,Tan, ArcCosh,ArcCoth,ArcCsch,ArcSech,ArcSinh,ArcTanh, Cosh,Coth,Csch,Sech,Sinh,Tanh), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "trig.pmath"))
 AutoLoad(Hold(BernoulliB,Gamma,LogGamma), 
