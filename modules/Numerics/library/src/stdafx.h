@@ -24,5 +24,7 @@
 
 #include <pmath.h>
 
+#include <acb_hypgeom.h>
+
 
 #endif // __MODULE__PMATH_NUMERICS__STDAFX_H__

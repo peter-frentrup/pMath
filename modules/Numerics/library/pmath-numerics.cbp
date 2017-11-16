@@ -475,9 +475,13 @@
 			<Add library="pmath" />
 			<Add directory="../../../library/$(TARGET_OUTPUT_DIR)" />
 		</Linker>
+		<Unit filename="src/airy-impl.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/simple-acb-impl.inc" />
 		<Unit filename="src/stdafx.c">
 			<Option compilerVar="CC" />
 			<Option weight="0" />
@@ -493,7 +497,6 @@
 		<Unit filename="src/trig-impl.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/trig-impl.inc" />
 		<Unit filename="src/util.c">
 			<Option compilerVar="CC" />
 		</Unit>

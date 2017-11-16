@@ -12,6 +12,8 @@ Begin("System`Private`")
 
 AutoLoad(Hold(AutoSimplifyTrig), 
 	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
+AutoLoad(Hold(AutoSimplifyAiry), 
+	ToFileName(DirectoryName($Input), "simplify-airy.pmath"))
 
 End()
 

@@ -1,5 +1,12 @@
+/* Implement unary functions F(x) of a single complex argument.
+   First try ACB_FUNCTION(x) in C and then fall back to SIMPLIFY_SYMBOL(F, x)
+   in pMath, returning unevaluated if that gives $Failed.
+ */
 #ifndef ACB_FUNCTION
 #  error ACB_FUNCTION not defined
+#endif
+#ifndef SIMPLIFY_SYMBOL
+#  error SIMPLIFY_SYMBOL not defined
 #endif
 
 pmath_t x;
@@ -16,7 +23,7 @@ if(pmath_complex_try_evaluate_acb(&expr, x, ACB_FUNCTION)) {
 }
   
 x = pmath_expr_new_extended(
-      pmath_ref(pmath_System_Private_AutoSimplifyTrig), 2,
+      pmath_ref(SIMPLIFY_SYMBOL), 2,
       pmath_expr_get_item(expr, 0),
       x);
 
