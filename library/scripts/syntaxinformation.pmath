@@ -479,6 +479,7 @@
 {"ShowDefinition", {"ArgumentCount" -> 1}},
 {"Sign", {"ArgumentCount" -> 1}},
 {"Sin", {"ArgumentCount" -> 1}},
+{"Sinc", {"ArgumentCount" -> 1}},
 {"SingleMatch", {"ArgumentCount" -> 0..1}},
 {"Sinh", {"ArgumentCount" -> 1}},
 {"SinhIntegral", {"ArgumentCount" -> 1}},

@@ -83,6 +83,8 @@ trigOfRational(Sech, 0)::= 1
 trigOfRational(Sech, ~q)::= If(IsNegative(q), Sech(-q), $Failed)
 trigOfRational(Sin, 0)::= 0
 trigOfRational(Sin, ~q)::= If(IsNegative(q), -Sin(-q), $Failed)
+trigOfRational(Sinc, 0)::= 1
+trigOfRational(Sinc, ~q)::= If(IsNegative(q), Sinc(-q), $Failed)
 trigOfRational(Sinh, 0)::= 0
 trigOfRational(Sinh, ~q)::= If(IsNegative(q), -Sinh(-q), $Failed)
 trigOfRational(Tan, 0)::= 0
@@ -233,6 +235,7 @@ trigOfIntegerPiFactor(Cot, ~n)::= ComplexInfinity
 trigOfIntegerPiFactor(Csc, ~n)::= ComplexInfinity
 trigOfIntegerPiFactor(Sec, ~n)::= If(IsEven(n), 1, -1, $Failed)
 trigOfIntegerPiFactor(Sin, ~n)::= 0
+trigOfIntegerPiFactor(Sinc, ~n)::= 0
 trigOfIntegerPiFactor(Tan, ~n)::= 0
 
 trigOfRationalPiFactor(~f, ~q)::= $Failed
@@ -289,6 +292,10 @@ Function trigOfRationalPiFactor(Sin, ~q) {
     }
     Return($Failed)
 }
+trigOfRationalPiFactor(Sinc, ~q)::=
+    With(sin:= trigOfRationalPiFactor(Sin, q)) {
+        If(sin =!= $Failed, sin/q, $Failed, $Failed)
+    }
 Function trigOfRationalPiFactor(Csc, ~q) {
     With(x:= Mod(q, 2))
     If(x >= 1) { Return( -Csc((x-1) Pi) ) }
@@ -493,6 +500,11 @@ trigAtInfinity(Sin, inf: DirectedInfinity(~dir))::=
     If(IsReal(dir), 
         Interval(-1..1), 
         If(IsImaginary(dir), inf, ComplexInfinity, $Failed), 
+        $Failed)
+trigAtInfinity(Sinc, inf: DirectedInfinity(~dir))::=
+    If(IsReal(dir), 
+        0, 
+        If(IsImaginary(dir), Infinity, ComplexInfinity, $Failed), 
         $Failed)
 trigAtInfinity(Sinh, inf: DirectedInfinity(~dir))::=
     If(IsReal(dir), 

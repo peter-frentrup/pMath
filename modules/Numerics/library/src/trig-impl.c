@@ -114,6 +114,12 @@ PMATH_PRIVATE pmath_t eval_System_Sin(pmath_expr_t expr) {
 #  undef ACB_FUNCTION
 }
 
+PMATH_PRIVATE pmath_t eval_System_Sinc(pmath_expr_t expr) {
+#  define ACB_FUNCTION acb_sinc
+#    include "acb-impl-onearg.inc"
+#  undef ACB_FUNCTION
+}
+
 PMATH_PRIVATE pmath_t eval_System_Sinh(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_sinh
 #    include "acb-impl-onearg.inc"
