@@ -3,6 +3,7 @@
 #include <pmath-util/approximate.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
+#include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -90,6 +91,19 @@ pmath_bool_t _pmath_is_imaginary(
   return FALSE;
 }
 
+static pmath_bool_t contains_float_or_complex(pmath_expr_t args) {
+  size_t i;
+  for(i = pmath_expr_length(args); i > 0; --i) {
+    pmath_t x = pmath_expr_get_item(args, i);
+    if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+      pmath_unref(x);
+      return TRUE;
+    }
+    pmath_unref(x);
+  }
+  return FALSE;
+}
+
 PMATH_API
 pmath_bool_t pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong)) {
   if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
@@ -116,9 +130,9 @@ pmath_bool_t pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t 
   if( pmath_is_number(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2) ||
       pmath_is_number(y) || pmath_is_expr_of_len(y, PMATH_SYMBOL_COMPLEX, 2))
   {
-    double x_precicion = pmath_precision(pmath_ref(x));
-    double y_precicion = pmath_precision(pmath_ref(y));
-    double precision = FLINT_MIN(x_precicion, y_precicion);
+    double x_precision = pmath_precision(pmath_ref(x));
+    double y_precision = pmath_precision(pmath_ref(y));
+    double precision = FLINT_MIN(x_precision, y_precision);
     pmath_t x_approx;
     pmath_t y_approx;
     slong prec;
@@ -130,8 +144,8 @@ pmath_bool_t pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t 
       
     x_approx = pmath_ref(x);
     y_approx = pmath_ref(y);
-    if(x_precicion == HUGE_VAL) x_approx = pmath_set_precision(x_approx, precision);
-    if(y_precicion == HUGE_VAL) y_approx = pmath_set_precision(y_approx, precision);
+    if(x_precision == HUGE_VAL) x_approx = pmath_set_precision(x_approx, precision);
+    if(y_precision == HUGE_VAL) y_approx = pmath_set_precision(y_approx, precision);
     
     if(precision == -HUGE_VAL)              prec = DBL_MANT_DIG;
     else if(precision < 2)                  prec = 2;
@@ -159,6 +173,88 @@ pmath_bool_t pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t 
     acb_clear(x_c);
   }
   return FALSE;
+}
+
+PMATH_API
+pmath_bool_t pmath_complex_try_evaluate_acb_ex(
+  pmath_t *expr,
+  pmath_t args, // won't be freed
+  void (*func)(acb_t, const acb_ptr args, size_t nargs, slong prec, void *context),
+  void *context
+) {
+  size_t i;
+  size_t num_args;
+  double precision;
+  slong prec;
+  acb_struct few_complex_args[4];
+  acb_ptr    complex_args;
+  acb_t result;
+  pmath_bool_t success;
+  
+  num_args = pmath_expr_length(args);
+  if(num_args < 1 || num_args >= SIZE_MAX / sizeof(acb_t))
+    return FALSE;
+    
+  if(!contains_float_or_complex(args))
+    return FALSE;
+    
+  precision = HUGE_VAL;
+  for(i = 0; i < num_args; ++i) {
+    pmath_t x = pmath_expr_get_item(args, i + 1);
+    double x_precision = pmath_precision(x); // frees x
+    precision = FLINT_MIN(precision, x_precision);
+  }
+  
+  if(!(precision < HUGE_VAL))
+    return FALSE;
+  
+  if(precision == -HUGE_VAL)              prec = DBL_MANT_DIG;
+  else if(precision < 2)                  prec = 2;
+  else if(precision < PMATH_MP_PREC_MAX)  prec = (slong)precision;
+  else                                    prec = PMATH_MP_PREC_MAX;
+    
+  if(num_args < sizeof(few_complex_args) / sizeof(few_complex_args[0]))
+    complex_args = few_complex_args;
+  else
+    complex_args = pmath_mem_alloc(sizeof(acb_t) * num_args);
+    
+  if(!complex_args)
+    return FALSE;
+    
+  success = FALSE;
+  for(size_t i = 0; i < num_args; ++i) {
+    pmath_t x = pmath_expr_get_item(args, i + 1);
+    double x_precision = pmath_precision(pmath_ref(x));
+    if(x_precision == HUGE_VAL)
+      x = pmath_set_precision(x, precision);
+    
+    acb_init(&complex_args[i]);
+    if(!_pmath_complex_float_extract_acb_for_precision(&complex_args[i], x, prec)) {
+      num_args = i + 1;
+      success = FALSE;
+      goto CLEANUP;
+    }
+    pmath_unref(x);
+  }
+  
+  acb_init(result);
+  func(result, complex_args, num_args, prec, context);
+  if(acb_is_finite(result)) {
+    pmath_unref(*expr);
+    *expr = _pmath_complex_new_from_acb_destructive(result, precision == -HUGE_VAL ? -1 : prec);
+    success = TRUE;
+  }
+  else
+    acb_clear(result);
+  
+CLEANUP:
+  for(size_t i = 0;i < num_args;++i)
+    acb_clear(&complex_args[i]);
+  
+  if(complex_args != few_complex_args)
+    pmath_mem_free(complex_args);
+    
+  return success;
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_re_im(
@@ -523,14 +619,14 @@ static pmath_float_t new_float_from_arb_destructive(arb_t value, slong prec_or_d
       arb_clear(value);
       return PMATH_FROM_DOUBLE(d);
     }
-      
+    
     prec_or_double = DBL_MANT_DIG;
   }
   
   result = _pmath_create_mp_float(prec_or_double);
-  if(!pmath_is_null(result)) 
+  if(!pmath_is_null(result))
     arb_swap(PMATH_AS_ARB(result), value);
-  
+    
   arb_clear(value);
   return result;
 }
@@ -540,7 +636,7 @@ PMATH_PRIVATE pmath_t _pmath_complex_new_from_acb_destructive(acb_t value, slong
     arb_clear(acb_imagref(value));
     return new_float_from_arb_destructive(acb_realref(value), prec_or_double);
   }
-    
+  
   return COMPLEX(
            new_float_from_arb_destructive(acb_realref(value), prec_or_double),
            new_float_from_arb_destructive(acb_imagref(value), prec_or_double));

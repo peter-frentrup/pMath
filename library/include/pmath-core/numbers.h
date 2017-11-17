@@ -547,6 +547,22 @@ PMATH_API
 pmath_bool_t pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong));
 
 
+/** \brief Try to evaluate a function F(...) with floating point real or complex arguments.
+    \param expr    Pointer to the F-expression. On success, this will be replaced by the evaluation result.
+    \param args    The argument list. It won't be freed.
+    \param func    An function for evaluating F(...) with complex ball.
+    \param context An additionbal pointer argument to supply to \a func.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+PMATH_API
+pmath_bool_t pmath_complex_try_evaluate_acb_ex(
+  pmath_t *expr,
+  pmath_t args, // won't be freed
+  void (*func)(acb_t, const acb_ptr args, size_t nargs, slong prec, void *context),
+  void *context);
+
+
 #endif
 
 /** @} */
