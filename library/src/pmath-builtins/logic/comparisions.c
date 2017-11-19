@@ -70,7 +70,7 @@ static int pmath_arb_comparator_true(const arb_t x, const arb_t y) {
 
 typedef int (*pmath_arb_comparator_t)(const arb_t, const arb_t);
 static const pmath_arb_comparator_t direction_arb_true[8] = {
-  /* 0: !=  */ arb_ne,
+  /* 0: neither <, nor =, nor > */ pmath_arb_comparator_false,
   /* 1: <   */ arb_lt,
   /* 2: =   */ arb_eq,
   /* 3: <=  */ arb_le,
@@ -80,7 +80,7 @@ static const pmath_arb_comparator_t direction_arb_true[8] = {
   /* 7: >=< */ pmath_arb_comparator_true
 };
 static const pmath_arb_comparator_t direction_arb_false[8] = {
-  /* 0: !=  */ arb_eq,
+  /* 0: neither <, nor =, nor > */ pmath_arb_comparator_true,
   /* 1: <   */ arb_ge,
   /* 2: =   */ arb_ne,
   /* 3: <=  */ arb_gt,
@@ -514,14 +514,14 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
     
     for(j = i + 1; j <= len; j++) {
       pmath_t b = pmath_expr_get_item(expr, j);
-      int unequal = _pmath_numeric_order(a, b, 0);
-      if(unequal == FALSE) {
+      int equal = _pmath_numeric_order(a, b, PMATH_DIRECTION_EQUAL);
+      if(equal == TRUE) {
         pmath_unref(a);
         pmath_unref(b);
         pmath_unref(expr);
         return pmath_ref(PMATH_SYMBOL_FALSE);
       }
-      if (unequal == TRUE) {
+      if (equal == FALSE) {
         have_marker = TRUE;
         expr = pmath_expr_set_item(expr, j, PMATH_UNDEFINED);
       }
@@ -543,6 +543,7 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
   return expr;
 }
 
+// note that this gives 0 for Unequal. Do not specify 0 for _pmath_numeric_order()!
 static int relation_direction(pmath_t rel) {
   if(pmath_same(rel, PMATH_SYMBOL_EQUAL))        return PMATH_DIRECTION_EQUAL;
   if(pmath_same(rel, PMATH_SYMBOL_LESS))         return PMATH_DIRECTION_LESS;
