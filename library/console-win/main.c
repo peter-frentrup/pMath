@@ -662,7 +662,10 @@ static void styled_write(void *user, const uint16_t *data, int len) {
   oldmode = _setmode(_fileno(stdout), _O_U8TEXT);
   /* Note that printf and other char* functions do not work at all in _O_U8TEXT mode. */
   
-  fwrite(data, 2, len, stdout);
+  /* fwrite works with MSVC, but not with Mingw */
+  //fwrite(data, 2, len, stdout);
+  
+  fwprintf(stdout, L"%.*s", len, data); // TODO: handle NUL chars
   
   fflush(stdout);
   _setmode(_fileno(stdout), oldmode);
