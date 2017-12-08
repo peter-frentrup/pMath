@@ -47,7 +47,17 @@ AutoLoad(~heldall:Hold, ~file)::=
 	Local({p},
 		(
 			p:= Unprotect @@ heldall;
-			AutoLoadContinue(heldall, ~heldsymbol)::= (AutoLoadContinue(heldall, ~hs):=.; AutoLoadFinish(heldall, heldsymbol, file));
+			AutoLoadContinue(heldall, ~heldsymbol)::= 
+				Local({success:= False}, 
+					(
+						AutoLoadContinue(heldall, ~hs):=.; 
+						AutoLoadFinish(heldall, heldsymbol, file);
+						success:= True;
+						Return(ReleaseHold @ heldsymbol)
+					).Finally(
+						% re-register if loading was aborted
+						If(!success, Clear @@ heldall; AutoLoad(heldall, file))
+					));
 			heldall.Scan(
 				Function(s, s ::= AutoLoadStart(Hold(s), heldall); SetAttributes(s, ReadProtected), {HoldAll}));
 		).Finally(Protect @@ p))
