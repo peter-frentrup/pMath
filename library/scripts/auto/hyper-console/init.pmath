@@ -35,6 +35,7 @@ Function Developer`DescribeLocation(
 	})
 }
 
+Developer`Private`errorButton(~eid)::= Button(Row @ {"[",eid,"]"}, Developer`PrintErrorDetails(eid))
 
 Function PrintWelcomeMessage() {
     Print("Welcome to pMath.");
