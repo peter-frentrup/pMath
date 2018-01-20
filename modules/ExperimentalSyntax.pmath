@@ -1,12 +1,12 @@
 %
 % Experimental syntax simplififcations.
 %
-% Reading and writing deeply nested expression trees (esp. nested With(...)) is hard. Espacially
+% Reading and writing deeply nested expression trees (esp. nested With(...)) is hard. Especially
 % imperative definitions are hard to read because one can easily overlook a comma or miscount 
 % parenthesis.
 % This file enhances the pMath syntax with some syntactic suggar for With, Local, If, Do, While, 
-% and related functions. This is highly experimental. Especially the performance impact on 
-% MakeExpression needs to be investigated.
+% and related functions. This is experimental. The performance impact on MakeExpression 
+% still needs to be investigated. Maybe a partial implementation in C is necessary
 %
 % These syntax enhancements are only active while ExperimentalSyntax` is in the current 
 % $NamespacePath. So any package may include <<ExperimentalSyntax` without breaking other packages.
@@ -183,6 +183,26 @@ asHeldSwitchExpression(p: HoldComplete(~~~))::=
 	composeHeldExpr(/\/, p)
 
 
+MakeExpression(boxes: {~~, {"{", ~~~}, ~~~})::= 
+	With({block:= tryMakeBlockExpressionIfAllowed(boxes)}, block /? block =!= $Failed)
+
+
+tryMakeBlockExpressionIfAllowed(~boxes)::=
+	If($HaveExperimentalSyntax, tryMakeBlockExpression(boxes), $Failed, $Failed)
+
+tryMakeBlockExpression(~)::= $Failed
+tryMakeBlockExpression(boxes: {"Function", ~~~})::= tryMakeFunctionBlock(boxes)
+tryMakeBlockExpression(boxes: {{"If", ~~~}, ~~~})::= tryMakeIfBlock(boxes)
+tryMakeBlockExpression(boxes: {{"Switch", ~~~}, ~~~})::= tryMakeSwitchBlock(boxes)
+tryMakeBlockExpression(boxes: {{"While", ~~~}, ~~~})::= tryMakeWhileBlock(boxes)
+tryMakeBlockExpression(boxes: {{"Do", ~~~},~~~})::= tryMakeDoBlock(boxes)
+tryMakeBlockExpression(boxes: {"Block", ~~~})::= tryMakeBlockBlock(boxes)
+tryMakeBlockExpression(boxes: {"Try", ~~~})::= tryMakeTryBlock(boxes)
+tryMakeBlockExpression(boxes: {{"Local", ~~~}, ~~~})::= tryMakeLocalBlock(boxes)
+tryMakeBlockExpression(boxes: {{"With", ~~~}, ~~~})::= tryMakeWithBlock(boxes)
+
+
+tryMakeFunctionBlock(~)::= $Failed
 %
 % Function name(~arg) { body }
 %
@@ -191,7 +211,7 @@ asHeldSwitchExpression(p: HoldComplete(~~~))::=
 % TODO: support type annotations, for example `Function add(x -> Real, y -> Real) -> Real { x+y }`
 % Caution, ` ` binds stronger than `->`:       \________________________________/    \__________/
 %
-MakeExpression({"Function", lhs: {~:String, "(", ~~~}, {"{", ~body, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeFunctionBlock({"Function", lhs: {~:String, "(", ~~~}, {"{", ~body, "}"}})::=
 	composeHeldExpr(
 		AssignDelayed,
 		MakeExpression(lhs),
@@ -201,7 +221,7 @@ MakeExpression({"Function", lhs: {~:String, "(", ~~~}, {"{", ~body, "}"}}) /? $H
 %
 % Function name(~arg) Where(cond) { body }
 %
-MakeExpression({"Function", lhs: {~:String, "(", ~~~}, {"Where", "(", ~cond, ")"}, {"{", ~body, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeFunctionBlock({"Function", lhs: {~:String, "(", ~~~}, {"Where", "(", ~cond, ")"}, {"{", ~body, "}"}})::=
 	composeHeldExpr(
 		AssignDelayed,
 		composeHeldExpr(
@@ -211,10 +231,11 @@ MakeExpression({"Function", lhs: {~:String, "(", ~~~}, {"Where", "(", ~cond, ")"
 		),
 		makeBlockExpression(body))
 
+tryMakeIfBlock(~)::= $Failed
 %
 % If(cond) {trueBlock}
 %
-MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeIfBlock({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}})::=
 	composeHeldExpr(
 		If,
 		asHeldCondition @ MakeExpression(cond),
@@ -223,7 +244,7 @@ MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}}) /? $HaveExp
 %
 % If(cond) {trueBlock} Else {falseBlock}
 %
-MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", {"{", ?falseBlock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeIfBlock({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", {"{", ?falseBlock:{}, "}"}})::=
 	composeHeldExpr(
 		If,
 		asHeldCondition @ MakeExpression(cond),
@@ -233,7 +254,7 @@ MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", {"{"
 %
 % If(cond) {trueBlock} Else If(cond2) ...
 %
-MakeExpression({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", rest: PatternSequence({"If", "(", ~, ")"}, ~~)}) /? $HaveExperimentalSyntax ::=
+tryMakeIfBlock({{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else", rest: PatternSequence({"If", "(", ~, ")"}, ~~)})::=
 	composeHeldExpr(
 		If,
 		asHeldCondition @ MakeExpression(cond),
@@ -258,59 +279,66 @@ getSwitchCases(~other)::= (
 	Message(Syntax::switchcase, other)
 	HoldComplete()
 	)
-MakeExpression({{"Switch", "(", ~expr, ")"}, {"{", ?cases:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeSwitchBlock(~)::= $Failed
+tryMakeSwitchBlock({{"Switch", "(", ~expr, ")"}, {"{", ?cases:{}, "}"}})::=
 	composeHeldExpr(
 		Switch,
 		asHeldSwitchExpression @ MakeExpression(expr),
 		getSwitchCases({cases}))
 
 
+tryMakeWhileBlock(~)::= $Failed
 %
 % While(cond) { block } 
 %
-MakeExpression({{"While", "(", ~cond, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeWhileBlock({{"While", "(", ~cond, ")"}, {"{", ?block:{}, "}"}})::=
 	composeHeldExpr(
 		While,
 		asHeldCondition @ MakeExpression(cond),
 		makeBlockExpression(block))
 
+tryMakeDoBlock(~)::= $Failed
 %
 % Do(iter) { block } 
 %
-MakeExpression({{"Do", "(", ~iter, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeDoBlock({{"Do", "(", ~iter, ")"}, {"{", ?block:{}, "}"}})::=
 	composeHeldExpr(
 		Do,
 		makeBlockExpression(block),
 		MakeExpression(iter))
 
+tryMakeBlockBlock(~)::= $Failed
 %
 % Block { block } 
 %
-MakeExpression({"Block", {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeBlockBlock({"Block", {"{", ?block:{}, "}"}})::=
 	makeBlockExpression(block)
 
+tryMakeTryBlock(~)::= $Failed
 %
 % Try { block } Finally { endblock }
 %
-MakeExpression({"Try", {"{", ?block:{}, "}"}, "Finally", {"{", ?endblock:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeTryBlock({"Try", {"{", ?block:{}, "}"}, "Finally", {"{", ?endblock:{}, "}"}})::=
 	composeHeldExpr(
 		Finally,
 		makeBlockExpression(block),
 		makeBlockExpression(endblock))
 
+tryMakeLocalBlock(~)::= $Failed
 %
 % Local(vars) { block } 
 %
-MakeExpression({{"Local", "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeLocalBlock({{"Local", "(", ~vars, ")"}, {"{", ?block:{}, "}"}})::=
 	composeHeldExpr(
 		Local,
 		MakeExpression({"{", vars, "}"}),
 		makeBlockExpression(block))
 
+tryMakeWithBlock(~)::= $Failed
 %
 % With(vars) { block } 
 %
-MakeExpression({{"With", "(", ~vars, ")"}, {"{", ?block:{}, "}"}}) /? $HaveExperimentalSyntax ::=
+tryMakeWithBlock({{"With", "(", ~vars, ")"}, {"{", ?block:{}, "}"}})::=
 	composeHeldExpr(
 		With,
 		MakeExpression({"{", vars, "}"}),
