@@ -55,8 +55,14 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr) {
       
       if(_pmath_is_rule(rule)) {
         pmath_t pattern = pmath_expr_get_item(rule, 1);
-        pmath_t rhs     = pmath_expr_get_item(rule, 2);
-        
+        pmath_t rhs;
+        if(!_pmath_pattern_validate(pattern)) {
+          pmath_throw(exception);
+          pmath_unref(rule);
+          pmath_unref(pattern);
+          return expr;
+        }
+        rhs = pmath_expr_get_item(rule, 2);
         if(_pmath_pattern_match(exception, pattern, &rhs)) {
           pmath_debug_print_object("[caught ", exception, "]\n");
           
@@ -71,7 +77,12 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr) {
       else {
         pmath_t pattern = pmath_ref(rule);
         pmath_t rhs     = PMATH_NULL;
-        
+        if(!_pmath_pattern_validate(pattern)) {
+          pmath_throw(exception);
+          pmath_unref(rule);
+          pmath_unref(pattern);
+          return expr;
+        }
         if(_pmath_pattern_match(exception, pattern, &rhs)) {
           pmath_debug_print_object("[caught ", exception, "]\n");
           

@@ -1,7 +1,5 @@
 #include <pmath-core/symbols-private.h>
 
-#include <pmath-language/patterns-private.h>
-
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -18,10 +16,8 @@ static pmath_bool_t assign_funcdef(
   pmath_t         lhs,         // will be freed
   pmath_t         rhs          // will be freed
 ) {
-  struct _pmath_symbol_rules_t *rules = NULL;
-  
-  if(_pmath_pattern_validate(lhs))
-    rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
+  struct _pmath_symbol_rules_t *rules;
+  rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
   
   if(!rules) {
     pmath_unref(lhs);

@@ -375,6 +375,10 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
   }
   
   info.pattern = pmath_expr_get_item(expr, 2);
+  if(!_pmath_pattern_validate(info.pattern)) {
+    pmath_unref(info.pattern);
+    return expr;
+  }
   
   options = pmath_options_extract(expr, last_nonoption);
   if(pmath_is_null(options)) {

@@ -86,9 +86,16 @@ PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr) {
   }
   
   if(exprlen >= 2) {
-    pmath_t levels_obj = pmath_integer_new_uiptr(levels);
-    pmath_t pat        = pmath_expr_get_item(expr, 2);
-    
+    pmath_t pat = pmath_expr_get_item(expr, 2);
+    pmath_t levels_obj;
+
+    if(!_pmath_pattern_validate(pat)) {
+      pmath_unref(obj);
+      pmath_unref(pat);
+      return expr;
+    }
+
+    levels_obj = pmath_integer_new_uiptr(levels);
     if(!_pmath_pattern_match(levels_obj, pat, NULL)) {
       pmath_unref(obj);
       pmath_unref(levels_obj);

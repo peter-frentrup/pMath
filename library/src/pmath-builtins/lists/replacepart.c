@@ -508,6 +508,12 @@ static pmath_t replace_part(
 ) {
   struct replace_info_t info;
 
+  if(!_pmath_pattern_validate(part_spec)) {
+    pmath_unref(part_spec);
+    pmath_unref(value);
+    return expr;
+  }
+
   memset(&info, 0, sizeof(info));
 
   info.part_spec  = part_spec;
