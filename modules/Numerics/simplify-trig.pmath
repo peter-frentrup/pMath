@@ -415,7 +415,8 @@ Function evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(1/4 < z <= 1/2) { Return( cofun(x + (1/2-z) Pi) ) }
     If(1/2 < z <= 1) {   Return( -cofun(x + (z-1/2) Pi) ) }
     If(1   < z) {        Return( -fun(x + (z-1) Pi) ) }
-    Return( fun(x + z Pi) )
+    If(y =!= z) {        Return( fun(x + z Pi) ) }
+    Return($Failed)
 }
 
 oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
@@ -426,7 +427,8 @@ Function oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(1/4 < z <= 1/2) { Return( cofun(x + (1/2-z) Pi) ) }
     If(1/2 < z <= 1) {   Return( cofun(x + (z-1/2) Pi) ) }
     If(1   < z) {        Return( -fun(x + (z-1) Pi) ) }
-    Return( fun(x + z Pi) )
+    If(y =!= z) {        Return( fun(x + z Pi) ) }
+    Return($Failed)
 }
 
 tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
@@ -436,7 +438,8 @@ Function tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     With(z:= Mod(y, 1)) % gives 0 <= z < 1
     If(1/4 < z <= 1/2) { Return( cofun(x + (1/2-z) Pi) ) }
     If(1/2 < z) {        Return( -cofun(x + (z-1/2) Pi) ) }
-    Return( fun(x + z Pi) )
+    If(y =!= z) {        Return( fun(x + z Pi) ) }
+    Return($Failed)
 }
 
 arcTanOfSum(~):= $Failed
