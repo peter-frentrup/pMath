@@ -74,6 +74,7 @@ pmath_bool_t _pmath_pattern_match(
   pmath_t  pattern,  // will be freed
   pmath_t *rhs);     // [optional] in/out (right hand side of assign, Rule, ...)
 
+// DEPRECATED, use contains_replacement_symbols with a different table
 PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
   pmath_t           object,         // wont be freed
   pmath_hashtable_t replacements);  // entries are pmath_ht_obj_[int_]entry_t*
