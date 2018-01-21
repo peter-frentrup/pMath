@@ -9,6 +9,7 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/option-helpers.h>
 #include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
 #include <pmath-util/concurrency/threads.h>
 
@@ -1542,6 +1543,45 @@ static match_kind_t match_atom(
   }
 
   return PMATH_MATCH_KIND_NONE;
+}
+
+static pmath_bool_t validate_pattern_and_free(pmath_t pattern) {
+  size_t i;
+  size_t exprlen;
+  pmath_t item;
+
+  if(!pmath_is_expr(pattern) || pmath_is_packed_array(pattern)) {
+    pmath_unref(pattern);
+    return TRUE;
+  }
+
+  exprlen = pmath_expr_length(pattern);
+  if(exprlen == 2 && pmath_is_expr_of(pattern, PMATH_SYMBOL_PATTERN)) {
+    item = pmath_expr_get_item(pattern, 1);
+    if(!pmath_is_symbol(item)) {
+      pmath_unref(item);
+      pmath_message(PMATH_SYMBOL_PATTERN, "patvar", 1, pattern);
+      return FALSE;
+    }
+     pmath_unref(item);
+  }
+  else {
+    for(i = 0; i < exprlen; ++i) {
+      item = pmath_expr_get_item(pattern, i);
+      if(!validate_pattern_and_free(item)) {
+        pmath_unref(pattern);
+        return FALSE;
+      }
+    }
+  }
+
+  item = pmath_expr_get_item(pattern, exprlen);
+  pmath_unref(pattern);
+  return validate_pattern_and_free(item);
+}
+
+PMATH_PRIVATE pmath_bool_t _pmath_pattern_validate(pmath_t pattern) {
+  return validate_pattern_and_free(pmath_ref(pattern));
 }
 
 PMATH_PRIVATE void _pmath_pattern_analyse(

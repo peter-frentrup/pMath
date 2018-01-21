@@ -61,6 +61,9 @@ typedef struct {
 } _pmath_pattern_analyse_output_t;
 
 PMATH_PRIVATE
+pmath_bool_t _pmath_pattern_validate(pmath_t pattern);
+
+PMATH_PRIVATE
 void _pmath_pattern_analyse(
   _pmath_pattern_analyse_input_t  *input,
   _pmath_pattern_analyse_output_t *output);

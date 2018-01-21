@@ -227,6 +227,8 @@ Partition::ohp:= "Overhang parameters in `1` must be nonzero machine-size intege
 Partition::ohpdm:= "The `1`-dimensional overhang parameter cannot indicate position in the `2`-dimensional block."
 Partition::pdep:= "Depth `1` requested in object with dimensions `2`."
 
+Pattern::patvar:= "First element in `1` is not a valid pattern name."
+
 Piecewise::pairs:= "The first argument `1` of Piecewise is not a list of pairs."
 
 PowerMod::ninv:= "`1` is not invertible modulo `2`."
