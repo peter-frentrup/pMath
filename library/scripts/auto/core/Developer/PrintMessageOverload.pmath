@@ -8,7 +8,6 @@ Developer`PrintErrorDetails
 Begin("Developer`Private`")
 
 $errorId:= 0
-SetAttributes($errorId, ThreadLocal)
 Function nextErrorId() {
 	Synchronize({$errorId}, $errorId+= 1; $errorId)
 }
