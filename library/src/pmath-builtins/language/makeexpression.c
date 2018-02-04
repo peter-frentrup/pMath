@@ -28,6 +28,11 @@
 #include <string.h>
 
 
+const uint16_t char_LeftCeiling  = 0x2308;
+const uint16_t char_RightCeiling = 0x2309;
+const uint16_t char_LeftFloor    = 0x230A;
+const uint16_t char_RightFloor   = 0x230B;
+
 // only handles BMP chars U+0001 .. U+ffff, 0 on error
 static uint16_t unichar_at(
   pmath_expr_t expr,
@@ -1461,14 +1466,17 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
              pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE)));
 }
 
-// {}  {args}
-static pmath_t make_list(pmath_expr_t boxes) {
+// {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
+static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t head) {
   pmath_t args;
   size_t exprlen = pmath_expr_length(boxes);
   
   if(exprlen == 2) {
     pmath_unref(boxes);
-    return HOLDCOMPLETE(pmath_ref(_pmath_object_emptylist));
+    if(pmath_same(head, PMATH_SYMBOL_LIST))
+      return HOLDCOMPLETE(pmath_ref(_pmath_object_emptylist));
+    else
+      return HOLDCOMPLETE(pmath_expr_new(pmath_ref(head), 0));
   }
   
   if(exprlen != 3) {
@@ -1481,7 +1489,7 @@ static pmath_t make_list(pmath_expr_t boxes) {
   if(pmath_is_expr(args)) {
     return wrap_hold_with_debuginfo_from(
              boxes,
-             pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST)));
+             pmath_expr_set_item(args, 0, pmath_ref(head)));
   }
   
   pmath_unref(boxes);
@@ -2726,6 +2734,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     // ()  and  (x) ...
     if(firstchar == '(' && unichar_at(expr, exprlen) == ')')
       return make_parenthesis(expr);
+    
+    // \[LeftInvisibleBracket]x\[RightInvisibleBracket]
+    if(firstchar == PMATH_CHAR_LEFTINVISIBLEBRACKET && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
+      return make_parenthesis(expr);
       
     // comma sepearted list ...
     if(firstchar == ',' || secondchar == ',')
@@ -2738,14 +2750,33 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(exprlen == 1)
       return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
       
-    // {}  and  {x}
-    if(firstchar == '{' && unichar_at(expr, exprlen) == '}')
-      return make_list(expr);
+    // {}  and  {x}  and  {grid\[RightInvisibleBracket]
+    if(firstchar == '{') {
+      uint16_t lastchar = unichar_at(expr, exprlen);
+      
+      if(lastchar == '}')
+        return make_matchfix(expr, PMATH_SYMBOL_LIST);
+      
+      if(lastchar == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
+        return make_matchfix(expr, PMATH_SYMBOL_PIECEWISE);
+    }
       
     // ?x  and  ?x:v
     if(firstchar == '?')
       return make_optional_pattern(expr);
+    
+    if(firstchar == char_LeftCeiling && unichar_at(expr, exprlen) == char_RightCeiling)
+      return make_matchfix(expr, PMATH_SYMBOL_CEILING);
       
+    if(firstchar == char_LeftFloor && unichar_at(expr, exprlen) == char_RightFloor)
+      return make_matchfix(expr, PMATH_SYMBOL_FLOOR);
+      
+    if(firstchar == PMATH_CHAR_LEFTBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTBRACKETINGBAR)
+      return make_matchfix(expr, PMATH_SYMBOL_BRACKETINGBAR);
+      
+    if(firstchar == PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR)
+      return make_matchfix(expr, PMATH_SYMBOL_DOUBLEBRACKETINGBAR);
+    
     // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
     if(exprlen == 2) {
       // x &
