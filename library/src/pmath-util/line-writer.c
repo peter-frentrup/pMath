@@ -656,7 +656,7 @@ void pmath_write_with_pagewidth_ex(
   assert(HAS_MEMBER(options, user));
   assert(&options->write != NULL);
   
-  if(&options->page_width < 0) {
+  if(options->page_width < 0) {
     pmath_t tmp = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
     
     if(pmath_is_int32(tmp))
