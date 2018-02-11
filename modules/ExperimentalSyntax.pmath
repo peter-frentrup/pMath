@@ -118,7 +118,7 @@ composeHeldExpr(~~~args)::= (
 	$Failed)
 
 
-Unprotect(MakeExpression)
+Unprotect(System`Private`MakeJuxtapositionExpression)
 
 STARTBLOCK
 BLOCK
@@ -183,12 +183,8 @@ asHeldSwitchExpression(p: HoldComplete(~~~))::=
 	composeHeldExpr(/\/, p)
 
 
-MakeExpression(boxes: {~~, {"{", ~~~}, ~~~})::= 
-	With({block:= tryMakeBlockExpressionIfAllowed(boxes)}, block /? block =!= $Failed)
-
-
-tryMakeBlockExpressionIfAllowed(~boxes)::=
-	If($HaveExperimentalSyntax, tryMakeBlockExpression(boxes), $Failed, $Failed)
+System`Private`MakeJuxtapositionExpression(boxes: {~~, {"{", ~~~}, ~~~})::= 
+	If($HaveExperimentalSyntax, tryMakeBlockExpression(boxes), Default, Default)
 
 tryMakeBlockExpression(~)::= $Failed
 tryMakeBlockExpression(boxes: {"Function", ~~~})::= tryMakeFunctionBlock(boxes)
@@ -346,7 +342,7 @@ tryMakeWithBlock({{"With", "(", ~vars, ")"}, {"{", ?block:{}, "}"}})::=
 
 
 
-Protect(MakeExpression)
+Protect(System`Private`MakeJuxtapositionExpression)
 
 
 End()

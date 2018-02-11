@@ -3,16 +3,37 @@
 
 Begin("System`Private`")
 
-Unprotect(MakeExpression)
+Unprotect(
+	System`Private`MakeLimitsExpression,
+	System`Private`MakeScriptsExpression)
 
-MakeExpression({UnderoverscriptBox("\[Sum]", {~i, "=", ~a}, ~b), ~body})::= 
-	MakeExpression({"Sum", "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
+System`Private`MakeLimitsExpression({UnderoverscriptBox(~op, ~sub, ~super), ~body})::= 
+	With({opName:= BigOpName(op)},
+		If(opName =!= None, 
+			MakeOpFromTo(opName, sub, super, body)
+		,
+			Default)
+	)
+	
+System`Private`MakeScriptsExpression({~op, SubsuperscriptBox(~sub, ~super), ~body})::= 
+	With({opName:= BigOpName(op)},
+		If(opName =!= None, 
+			MakeOpFromTo(opName, sub, super, body)
+		,
+			Default)
+	)
 
-MakeExpression({UnderoverscriptBox("\[Product]", {~i, "=", ~a}, ~b), ~body})::= 
-	MakeExpression({"Product", "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
+Protect(
+	System`Private`MakeLimitsExpression,
+	System`Private`MakeScriptsExpression)
 
-Protect(MakeExpression)
+BigOpName("\[Sum]"):= "System`Sum"
+BigOpName("\[Product]"):= "System`Product"
+BigOpName(~):= None
 
+MakeOpFromTo(~~~)::= Default
+MakeOpFromTo(~opName, {~i, "=", ~from}, ~to, ~body)::=
+	MakeExpression({opName, "(", {body, ",", {i, "->", {a, "..", b}}}, ")"})
 
 Unprotect(Sum, Product)
 
