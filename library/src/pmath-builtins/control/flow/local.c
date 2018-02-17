@@ -6,6 +6,43 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+static pmath_bool_t make_local(
+  pmath_t *body,
+  pmath_t *sym 
+) {
+  if(pmath_is_symbol(*sym)) {
+    pmath_t newsym = pmath_symbol_create_temporary(pmath_symbol_name(*sym), TRUE);
+    
+    *body = _pmath_replace_local(*body, *sym, newsym);
+    
+    pmath_unref(*sym);
+    *sym = newsym;
+    return TRUE;
+  }
+  
+  if(pmath_is_expr_of(*sym, PMATH_SYMBOL_LIST)) {
+    size_t i;
+    for(i = pmath_expr_length(*sym); i > 0; --i) {
+      pmath_t sym_i = pmath_expr_get_item(*sym, i);
+      if(make_local(body, &sym_i)) {
+        *sym = pmath_expr_set_item(*sym, i, sym_i);
+      }
+      else {
+        pmath_unref(sym_i);
+        return FALSE;
+      }
+    }
+    return TRUE;
+  }
+  
+  if(pmath_same(*sym, PMATH_NULL))
+    return TRUE;
+  
+  return FALSE;
+}
+
+
 PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr) {
   pmath_expr_t symbols;
   pmath_t      body;
@@ -32,14 +69,12 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr) {
   
   for(i = 1; i <= len; ++i) {
     pmath_t defi = pmath_expr_get_item(symbols, i);
-    pmath_symbol_t sym, localsym;
     
     if(pmath_is_expr(defi)) {
-      sym = pmath_expr_get_item(defi, 0);
+      pmath_t sym = pmath_expr_get_item(defi, 0);
       pmath_unref(sym);
       
-      if( (!pmath_same(sym, PMATH_SYMBOL_ASSIGN) &&
-           !pmath_same(sym, PMATH_SYMBOL_ASSIGNDELAYED)) ||
+      if( (!pmath_same(sym, PMATH_SYMBOL_ASSIGN) && !pmath_same(sym, PMATH_SYMBOL_ASSIGNDELAYED)) ||
           pmath_expr_length(defi) != 2)
       {
         pmath_unref(body);
@@ -48,37 +83,25 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr) {
       }
       
       sym = pmath_expr_get_item(defi, 1);
-      if(!pmath_is_symbol(sym)) {
+      if(make_local(&body, &sym)) {
+        defi = pmath_expr_set_item(defi, 1, sym);
+        symbols = pmath_expr_set_item(symbols, i, defi);
+      }
+      else {
         pmath_unref(body);
         pmath_unref(sym);
         pmath_message(PMATH_NULL, "nodef", 2, symbols, defi);
         return expr;
       }
     }
-    else if(pmath_is_symbol(defi)) {
-      sym = pmath_ref(defi);
+    else if(make_local(&body, &defi)) {
+      symbols = pmath_expr_set_item(symbols, i, defi);
     }
     else {
       pmath_unref(body);
       pmath_message(PMATH_NULL, "nodef", 2, symbols, defi);
       return expr;
     }
-    
-    localsym = pmath_symbol_create_temporary(pmath_symbol_name(sym), TRUE);
-    
-    body = _pmath_replace_local(body, sym, localsym);
-    
-    pmath_unref(sym);
-    
-    if(pmath_is_expr(defi)) {
-      defi = pmath_expr_set_item(defi, 1, localsym);
-    }
-    else {
-      pmath_unref(defi);
-      defi = localsym;
-    }
-    
-    symbols = pmath_expr_set_item(symbols, i, defi);
   }
   
   pmath_unref(expr);

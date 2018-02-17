@@ -2690,7 +2690,7 @@ static pmath_bool_t contains_replacement_symbols(
 }
 
 // retains debug-info
-static void preprocess_local_one(
+static void preprocess_local_assignment(
   pmath_expr_t *local_expr,
   pmath_t      *def
 ) {
@@ -2704,46 +2704,59 @@ static void preprocess_local_one(
     pmath_unref(*def);
     *def = newsym;
   }
-  else if(pmath_is_expr(*def) &&
-          pmath_expr_length(*def) == 2)
-  {
+  else if(pmath_is_expr_of(*def, PMATH_SYMBOL_LIST)) {
+    pmath_t debug_info = _pmath_expr_get_debug_info(*def);
+    size_t i;
+    
+    for(i = pmath_expr_length(*def); i > 0; --i) {
+      pmath_t item = pmath_expr_extract_item(*def, i);
+      
+      preprocess_local_assignment(local_expr, &item);
+      
+      *def = pmath_expr_set_item(*def, i, item);
+    }
+    
+    *def = _pmath_expr_set_debug_info(*def, debug_info);
+  }
+}
+
+// retains debug-info
+static void preprocess_local_one(
+  pmath_expr_t *local_expr,
+  pmath_t      *def
+) {
+  if(pmath_is_expr(*def) && pmath_expr_length(*def) == 2) {
     pmath_t obj = pmath_expr_get_item(*def, 0);
     pmath_unref(obj);
 
     if( pmath_same(obj, PMATH_SYMBOL_ASSIGN) ||
         pmath_same(obj, PMATH_SYMBOL_ASSIGNDELAYED))
     {
-      obj = pmath_expr_get_item(*def, 1);
-
-      if(pmath_is_symbol(obj)) {
-        pmath_t debug_info = _pmath_expr_get_debug_info(*def);
-        pmath_symbol_t newsym = pmath_symbol_create_temporary(
-                                  pmath_symbol_name(obj),
-                                  FALSE);
-
-        *local_expr = _pmath_replace_local(*local_expr, obj, newsym);
-
-        *def = pmath_expr_set_item(*def, 1, newsym);
-        *def = _pmath_expr_set_debug_info(*def, debug_info);
-      }
-
-      pmath_unref(obj);
+      pmath_t debug_info = _pmath_expr_get_debug_info(*def);
+      obj = pmath_expr_extract_item(*def, 1);
+      
+      preprocess_local_assignment(local_expr, &obj);
+      
+      *def = pmath_expr_set_item(*def, 1, obj);
+      *def = _pmath_expr_set_debug_info(*def, debug_info);
+      return;
     }
   }
+  
+  preprocess_local_assignment(local_expr, def);
 }
 
 // retains debug-info
 PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   pmath_expr_t local_expr // will be freed.
 ) {
+  pmath_t debug_info = _pmath_expr_get_debug_info(local_expr);
   pmath_expr_t defs = pmath_expr_get_item(local_expr, 1);
-  pmath_t debug_info;
-  size_t i;
-
   local_expr = pmath_expr_set_item(local_expr, 1, PMATH_NULL);
 
   if(pmath_is_expr_of(defs, PMATH_SYMBOL_LIST)) {
-    debug_info = _pmath_expr_get_debug_info(defs);
+    pmath_t defs_debug_info = _pmath_expr_get_debug_info(defs);
+    size_t i;
 
     for(i = pmath_expr_length(defs); i > 0; --i) {
       pmath_t def = pmath_expr_get_item(defs, i);
@@ -2753,12 +2766,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
       defs = pmath_expr_set_item(defs, i, def);
     }
 
-    defs = _pmath_expr_set_debug_info(defs, debug_info);
+    defs = _pmath_expr_set_debug_info(defs, defs_debug_info);
   }
-  else
+  else if(!pmath_same(defs, PMATH_NULL))
     preprocess_local_one(&local_expr, &defs);
 
-  debug_info = _pmath_expr_get_debug_info(local_expr);
   local_expr = pmath_expr_set_item(local_expr, 1, defs);
   local_expr = _pmath_expr_set_debug_info(local_expr, debug_info);
 
