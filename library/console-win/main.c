@@ -525,6 +525,8 @@ static wchar_t **auto_complete_pmath(void *context, const wchar_t *buffer, int l
     --token_start;
     
   token_end = cursor_pos;
+  if(token_end > 0)
+    --token_end;
   while(token_end < len && !pmath_span_array_is_token_end(spans, token_end))
     ++token_end;
     
