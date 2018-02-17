@@ -1,19 +1,6 @@
-/* Parsing Ceiling/Floor/... in traditional form
- */
+% Ceiling/Floor/... in traditional form
 
 Begin("System`Private`")
-
-Unprotect(MakeExpression)
-
-MakeExpression({"\[LeftCeiling]", ~x, "\[RightCeiling]"})::= MakeExpression({"Ceiling", "(", x, ")"})
-MakeExpression({"\[LeftFloor]", ~x, "\[RightFloor]"})::= MakeExpression({"Floor", "(", x, ")"})
-MakeExpression({"\[LeftBracketingBar]", ~x, "\[RightBracketingBar]"})::= MakeExpression({"BracketingBar", "(", x, ")"})
-MakeExpression({"\[LeftDoubleBracketingBar]", ~x, "\[RightDoubleBracketingBar]"})::= MakeExpression({"DoubleBracketingBar", "(", x, ")"})
-
-MakeExpression({"{", ~x, "\[RightInvisibleBracket]"})::= MakeExpression({"Piecewise", "(", x, ")"})
-
-Protect(MakeExpression)
-
 
 Unprotect(Ceiling, Floor, BracketingBar, DoubleBracketingBar)
 

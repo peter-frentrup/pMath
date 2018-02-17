@@ -16,6 +16,12 @@ PMATH_PRIVATE pmath_t builtin_match(pmath_expr_t expr){
   
   obj = pmath_expr_get_item(expr, 1);
   pat = pmath_expr_get_item(expr, 2);
+  if(!_pmath_pattern_validate(pat)) {
+    pmath_unref(obj);
+    pmath_unref(pat);
+    return expr;
+  }
+
   pmath_unref(expr);
   
   if(_pmath_pattern_match(obj, pat, NULL)){

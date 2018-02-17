@@ -25,7 +25,11 @@ PMATH_PRIVATE pmath_t builtin_switch(pmath_expr_t expr) {
   for(i = 2; i < exprlen; i += 2) {
     pmath_t pattern = pmath_expr_get_item(expr, i);
     pattern = pmath_evaluate(pattern);
-    
+    if(!_pmath_pattern_validate(pattern)) {
+      pmath_unref(value);
+      pmath_unref(pattern);
+      return expr;
+    }
     if(_pmath_pattern_match(value, pattern, NULL)) {
       pmath_unref(value);
       value = pmath_expr_get_item(expr, i + 1);

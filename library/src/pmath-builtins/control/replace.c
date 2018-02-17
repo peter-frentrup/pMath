@@ -39,14 +39,13 @@ static pmath_t apply_rule_list(
       pmath_expr_t rule_i  = pmath_expr_get_item(rules, i);
       pmath_t      pattern = pmath_expr_get_item(rule_i, 1);
       pmath_t      rhs     = pmath_expr_get_item(rule_i, 2);
+      pmath_unref(rule_i);
 
       if(_pmath_pattern_match(obj, pattern, &rhs)) {
         pmath_unref(obj);
-        pmath_unref(rule_i);
         return rhs;
       }
 
-      pmath_unref(rule_i);
       pmath_unref(rhs);
     }
   }
@@ -155,6 +154,12 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
       pmath_message(PMATH_NULL, "reps", 1, rules);
       return expr;
     }
+  }
+
+  if(!_pmath_pattern_validate(rules)) { 
+    // TODO: do not warn with if Pattern(99,~) appears in right-hand side of a rule
+    //pmath_unref(rules);
+    //return expr;
   }
 
   options = pmath_options_extract(expr, last_nonoption);

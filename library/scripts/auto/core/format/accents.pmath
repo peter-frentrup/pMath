@@ -3,11 +3,12 @@
 
 Begin("System`Private`")
 
-Unprotect(MakeExpression)
+Unprotect(System`Private`MakeScriptsExpression)
 
-MakeExpression({~x, SuperscriptBox("\[DownTee]")})::= MakeExpression({"Transpose", "(", x, ")"})
+System`Private`MakeScriptsExpression({~x, SuperscriptBox("\[DownTee]")})::= 
+    MakeExpression({"System`Transpose", "(", x, ")"})
 
-Protect(MakeExpression)
+Protect(System`Private`MakeScriptsExpression)
 
 
 Unprotect(Transpose)
