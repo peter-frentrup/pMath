@@ -63,7 +63,7 @@ class ScanData {
   public:
     MathSequence *sequence;
     int current_box; // for box_at_index
-    int flags;
+    BoxOutputFlags flags;
     int start;
     int end;
 };
@@ -179,9 +179,9 @@ namespace richmath {
       static pmath_t box_at_index(int i, void *_data) {
         ScanData *data = (ScanData *)_data;
         
-        int flags = data->flags;
-        if((flags & BoxFlagParseable) && data->sequence->is_inside_string(i)) {
-          flags &= ~BoxFlagParseable;
+        BoxOutputFlags flags = data->flags;
+        if(has(flags, BoxOutputFlags::Parseable) && data->sequence->is_inside_string(i)) {
+          flags -= BoxOutputFlags::Parseable;
         }
         
         if(i < data->start || data->end <= i)
@@ -905,7 +905,7 @@ namespace richmath {
           
           FontFace face = shaper->font(self.glyphs[run_start].fontinfo);
           FontInfo info(face);
-
+          
           if(const auto gsub = info.get_gsub_table()) {
             static Array<OTFontReshaper::IndexAndValue> lookups;
             lookups.length(0);
@@ -1097,15 +1097,29 @@ namespace richmath {
             }
           }
           
+          bool slant_is_italic(int glyph_slant) {
+            switch(glyph_slant) {
+              case FontSlantPlain:
+                return false;
+              case FontSlantItalic:
+                return true;
+            }
+            return context->math_shaper->get_style().italic;
+          }
+
           void italic_correction(int token_end) {
-            if(self.glyphs[token_end].slant != FontSlantItalic)
-              return;
-              
             if(buf[token_end] == PMATH_CHAR_BOX)
               return;
               
+            if(!slant_is_italic(self.glyphs[token_end].slant)) {
+              if(!pmath_char_is_integral(buf[token_end]))
+                return;
+            }
+            
             if( token_end + 1 == self.glyphs.length() ||
-                self.glyphs[token_end + 1].slant != FontSlantItalic)
+                !slant_is_italic(self.glyphs[token_end + 1].slant) ||
+                buf[token_end + 1] == PMATH_CHAR_BOX ||
+                pmath_char_is_integral(buf[token_end]))
             {
               float ital_corr = context->math_shaper->italic_correction(
                                   context,
@@ -1286,7 +1300,7 @@ namespace richmath {
               return pos + 1;
             for(;;) {
               Span next = span.next();
-              if(!next) 
+              if(!next)
                 return span.end();
               span = next;
             }
@@ -1725,7 +1739,7 @@ namespace richmath {
       int fill_block_body_penalty_array(Span span, int depth, int pos, int *box) {
         if(!span)
           return fill_penalty_array(span, depth, pos, box);
-        
+          
         int next = fill_penalty_array(span, depth, pos, box);
         
         const uint16_t *buf = self.str.buffer();
@@ -1988,7 +2002,7 @@ namespace richmath {
           indention_array[next - 1] = MAX(0, depth - 1);
         }
         else if(buf[next - 1] == ')') {
-          /* Unindent closing parenthesis of a block header. 
+          /* Unindent closing parenthesis of a block header.
                If(
                  cond
                ) {
@@ -2241,14 +2255,14 @@ namespace richmath {
           if(self.lines[line].end > 0 && buf[self.lines[line].end - 1] == PMATH_CHAR_BOX) {
             while(self.boxes[box]->index() < self.lines[line].end - 1)
               ++box;
-            
+              
             if(auto fb = dynamic_cast<FillBox *>(self.boxes[box])) {
-              if( buf[self.lines[line].end] == PMATH_CHAR_BOX && 
+              if( buf[self.lines[line].end] == PMATH_CHAR_BOX &&
                   dynamic_cast<FillBox *>(self.boxes[box + 1]))
               {
                 continue;
               }
-
+              
               float w = self.glyphs[self.lines[line + 1].end - 1].right - self.glyphs[self.lines[line].end - 1].right;
               
               if(fb->extents().width + w + self.indention_width(self.lines[line + 1].indent) <= context->width) {
@@ -2605,25 +2619,25 @@ void MathSequence::paint(Context *context) {
       for(; line < lines.length() && y < clip_y2; ++line) {
         float x_extra = x0 + indention_width(lines[line].indent);
         
-        #ifndef NDEBUG
+#ifndef NDEBUG
         {
           int old_color = context->canvas->get_color();
           context->canvas->save();
           context->canvas->set_color(0x808080);
-
-          for(int i = 0;i < lines[line].indent;++i) {
+          
+          for(int i = 0; i < lines[line].indent; ++i) {
             context->canvas->move_to(
               x0 + i * (x_extra - x0) / lines[line].indent,
               y + lines[line].ascent);
             context->canvas->rel_line_to(0, -0.75);
           }
           context->canvas->stroke();
-
+          
           context->canvas->set_color(old_color);
           context->canvas->restore();
         }
-        #endif
-
+#endif
+        
         if(pos > 0)
           x_extra -= glyphs[pos - 1].right;
           
@@ -2922,7 +2936,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   }
 }
 
-Expr MathSequence::to_pmath(int flags) {
+Expr MathSequence::to_pmath(BoxOutputFlags flags) {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
@@ -2937,7 +2951,7 @@ Expr MathSequence::to_pmath(int flags) {
   settings.box_at_index   = MathSequenceImpl::box_at_index;
   settings.add_debug_info = MathSequenceImpl::add_debug_info;
   
-  if(flags & BoxFlagParseable)
+  if(has(flags, BoxOutputFlags::Parseable))
     settings.flags |= PMATH_BFS_PARSEABLE;
     
   settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
@@ -2947,7 +2961,7 @@ Expr MathSequence::to_pmath(int flags) {
   return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
 }
 
-Expr MathSequence::to_pmath(int flags, int start, int end) {
+Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
@@ -2962,7 +2976,7 @@ Expr MathSequence::to_pmath(int flags, int start, int end) {
   settings.box_at_index   = MathSequenceImpl::box_at_index;
   settings.add_debug_info = MathSequenceImpl::add_debug_info;
   
-  if(flags & BoxFlagParseable)
+  if(has(flags, BoxOutputFlags::Parseable))
     settings.flags |= PMATH_BFS_PARSEABLE;
     
   settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
@@ -3395,7 +3409,7 @@ void MathSequence::ensure_spans_valid() {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
-  data.flags       = 0;
+  data.flags       = BoxOutputFlags::Default;
   data.start       = 0;
   data.end         = str.length();
   
@@ -3569,14 +3583,14 @@ Box *MathSequence::extract_box(int boxindex) {
 ////} ... insert/remove
 
 template <class T>
-static Box *create_or_error(Expr expr, int options) {
+static Box *create_or_error(Expr expr, BoxInputFlags options) {
   if(auto box = Box::try_create<T>(expr, options))
     return box;
     
   return new ErrorBox(expr);
 }
 
-static Box *create_box(Expr expr, int options) {
+static Box *create_box(Expr expr, BoxInputFlags options) {
   if(expr.is_string()) {
     InlineSequenceBox *box = new InlineSequenceBox;
     box->content()->load_from_object(expr, options);
@@ -3683,7 +3697,7 @@ static Box *create_box(Expr expr, int options) {
   if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == GetSymbol( NumberBoxSymbol))
+  if(head == GetSymbol( FESymbolIndex::NumberBox ))
     return create_or_error<NumberBox>(expr, options);
     
   return new ErrorBox(expr);
@@ -3716,7 +3730,7 @@ static void defered_make_box(int pos, pmath_t obj, void *data) {
 class SpanSynchronizer: public Base {
   public:
     SpanSynchronizer(
-      int                    _new_load_options,
+      BoxInputFlags             _new_load_options,
       Array<Box *>          &_old_boxes,
       SpanArray             &_old_spans,
       Array<PositionedExpr> &_new_boxes,
@@ -3732,6 +3746,7 @@ class SpanSynchronizer: public Base {
       new_pos(         0),
       new_next_box(    0)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
     }
     
     bool is_in_range() {
@@ -3890,14 +3905,14 @@ class SpanSynchronizer: public Base {
     int              old_pos;
     int              old_next_box;
     
-    int                         new_load_options;
+    BoxInputFlags                   new_load_options;
     const Array<PositionedExpr> &new_boxes;
     const SpanArray             &new_spans;
     int                          new_pos;
     int                          new_next_box;
 };
 
-void MathSequence::load_from_object(Expr object, int options) {
+void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   ensure_boxes_valid();
   
   Array<PositionedExpr> new_boxes;
@@ -3909,7 +3924,7 @@ void MathSequence::load_from_object(Expr object, int options) {
   if(obj[0] == PMATH_SYMBOL_BOXDATA && obj.expr_length() == 1)
     obj = obj[1];
     
-  if(options & BoxOptionFormatNumbers)
+  if(has(options, BoxInputFlags::FormatNumbers))
     obj = NumberBox::prepare_boxes(obj);
     
   new_spans = pmath_spans_from_boxes(

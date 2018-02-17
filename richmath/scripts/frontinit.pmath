@@ -1,9 +1,10 @@
 
-BeginPackage("FE`")
+BeginPackage("FE`", "ExperimentalSyntax`")
 
 $FrontEndDirectory;
 $MathShapers;
 $FallbackFonts;
+$PrivateStartupFontFiles;
 SymbolInfo;
 SymbolDefinitions;
 BoxesToText;
@@ -15,6 +16,10 @@ AutoCompleteName;
 AutoCompleteFile;
 
 Begin("FE`Private`")
+
+If($SystemId === "Windows") {
+	<<Windows`
+}
 
 oldNamespacePath:= $NamespacePath;
 $NamespacePath:= Prepend($NamespacePath, "FE`")
@@ -43,20 +48,31 @@ Protect($MathShapers)
 $FallbackFonts:= {"pMathFallback", "Asana Math", "Arial Unicode MS", "Unifont"}
 Protect($FallbackFonts)
 
+$PrivateStartupFontFiles:= {
+	$ApplicationFileName.DirectoryName.ToFileName("Asana-Math.otf"),
+	$ApplicationFileName.DirectoryName.ToFileName("pMathFallback.ttf")}
 
 $Path:= Prepend($Path, $FrontEndDirectory)
 
-SymbolInfo(~name:String)::= Try(
-	With(
-		{sym:= name.MakeExpression(ParseSymbols -> False)},
-		If(sym.Match(HoldComplete(Symbol(~))),
-			Return(False)); /* symbol does not exist */
+Function SymbolInfo(~name:String) { 
+	Try(
+	With(sym:= name.MakeExpression(ParseSymbols -> False)) {
+		If(sym.Match(HoldComplete(Symbol(~)))) {
+			Return(False) /* symbol does not exist */
+		}
 		
-		If(!sym.Match(HoldComplete(~s:Symbol)),
-			Return(True)); /* name parses to something not a symbol */
+		If(!sym.Match(HoldComplete(~s:Symbol))) {
+			Return(True) /* name parses to something not a symbol */
+		}
 		
-		If(Union($NamespacePath, {$Namespace}).Map(MakeExpression(# ++ name, ParseSymbols -> False)&).Cases(HoldComplete(Except(Symbol(~)))).Length() > 1,
-			Return(Alternatives)); /* multiple symbols with the same name */
+		If(Union($NamespacePath, {$Namespace}).Map(
+				MakeExpression(# ++ name, ParseSymbols -> False)&
+			).Cases(
+				HoldComplete(Except(Symbol(~)))
+			).Length() > 1
+		) {
+			Return(Alternatives) /* multiple symbols with the same name */
+		}
 		
 		/* todo: use Developer`HasBuiltinCode to distinguish functions from other symbols */
 		Return(Namespace @@ sym =!= "Global`"
@@ -65,8 +81,9 @@ SymbolInfo(~name:String)::= Try(
 			|| UpRules @@ sym =!= {} 
 			|| SubRules @@ sym =!= {} 
 			|| OwnRules @@ sym =!= {});
-		),
+	},
 	Syntax)
+}
 
 Attributes(SymbolDefinitions):= {HoldAllComplete}
 SymbolDefinitions(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
@@ -83,14 +100,45 @@ SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"
 
 $NamespacePath:= oldNamespacePath
 
-If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ".png" ++ EndOfString),
-	FE`$WindowFrameImage:= $CommandLine[2];
-	)
+If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ".png" ++ EndOfString)) {
+	FE`$WindowFrameImage:= $CommandLine[2]
+}
 
 Unprotect($ControlActiveSetting);
 FE`$ControlActive:= False
 $ControlActiveSetting::= Refresh(FE`$ControlActive === True, None)
 Protect($ControlActiveSetting)
+
+Function mmaInstallPaths() {
+	If($SystemId === "Windows") {
+		Local(win64ver)
+		
+		Do(win64ver -> {True, False}) {
+			With(installKeys:= Try(
+				Windows`RegEnumKeys("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wolfram Research\\Installations", Windows`Win64Version -> win64ver),
+				{},
+				{General::hresult}))
+			
+			If(installKeys =!= {}) {
+				% TODO: sort by product version, decending
+				With(path:= installKeys.Windows`RegGetValue("ExecutablePath", Windows`Win64Version -> win64ver).Map(DirectoryName))
+				Return(path)
+			}
+		}
+	}
+	Return({})
+}
+
+Function privateMmaFonts() {
+	With(ttfDirs:= mmaInstallPaths().FileNames("SystemFiles").FileNames("Fonts").FileNames("TrueType"))
+	With(ttfMmaSans:= ttfDirs.FileNames("MathematicaSans.ttf"))
+	If(Length(ttfMmaSans) === 0) {
+		Return({})
+	}
+	Return(ttfMmaSans[1].DirectoryName.FileNames("Mathematica*.ttf"))
+}
+
+$PrivateStartupFontFiles:= Join($PrivateStartupFontFiles, privateMmaFonts())
 
 End()
 

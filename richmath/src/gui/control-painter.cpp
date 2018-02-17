@@ -14,6 +14,12 @@ using namespace richmath;
 ControlPainter ControlPainter::generic_painter;
 ControlPainter *ControlPainter::std = &generic_painter;
 
+ControlPainter::ControlPainter()
+  : Base()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+}
+
 void ControlPainter::calc_container_size(
   Canvas        *canvas,
   ContainerType  type,
@@ -26,7 +32,7 @@ void ControlPainter::calc_container_size(
     case GenericButton:
     case PushButton:
     case PaletteButton:
-    case TooltipWindow: 
+    case TooltipWindow:
     case ListViewItem:
     case ListViewItemSelected: {
         if(extents->ascent < canvas->get_font_size() * 0.75f)

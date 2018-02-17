@@ -49,6 +49,8 @@ BasicWin32Widget::BasicWin32Widget(
     _initializing(true),
     freeThreadedMarshaller(nullptr)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   init_window_class();
   add_remove_window(+1);
   

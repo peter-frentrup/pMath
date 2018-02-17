@@ -50,14 +50,17 @@ class FontKey {
     FontStyle _style;
 };
 
-static Hashtable <
-FontKey,
-SharedPtr<TextShaper>
-> shapers;
+static Hashtable<FontKey, SharedPtr<TextShaper> > shapers;
 
 static Hashtable<uint32_t, uint32_t, cast_hash> accent_chars;
 
 //{ class TextShaper ...
+
+TextShaper::TextShaper()
+  : Shareable()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+}
 
 void TextShaper::vertical_glyph_size(
   Context         *context,
@@ -239,6 +242,8 @@ static int fallback_shaper_count = 0;
 FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
   : TextShaper()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   assert(default_shaper.is_valid());
   _shapers.add(default_shaper);
   
@@ -465,6 +470,8 @@ static int num_cbts = 0;
 CharBoxTextShaper::CharBoxTextShaper()
   : TextShaper()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   if(++num_cbts == 1) {
     digit_font = FontFace("sans", NoStyle);
   }
@@ -656,6 +663,7 @@ SimpleMathShaper::SimpleMathShaper(int radical_font)
   : MathShaper(),
     _radical_font(radical_font)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 SimpleMathShaper::~SimpleMathShaper() {

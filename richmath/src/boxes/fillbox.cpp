@@ -18,7 +18,7 @@ FillBox::FillBox(MathSequence *content, float _weight)
 FillBox::~FillBox() {
 }
 
-bool FillBox::try_load_from_object(Expr expr, int opts) {
+bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_FILLBOX)
     return false;
     
@@ -61,8 +61,8 @@ void FillBox::paint_content(Context *context) {
   }
 }
 
-Expr FillBox::to_pmath(int flags) {
-  if(flags & BoxFlagParseable)
+Expr FillBox::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::Parseable))
     return _content->to_pmath(flags);
     
   if(weight == 1) {

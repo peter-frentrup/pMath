@@ -189,20 +189,20 @@ static void message_dialog(const char *title, const char *content) {
 }
 
 static void load_fonts() {
-  Expr fontlist = FontInfo::all_fonts();
-  PMATH_RUN_ARGS("FE`Private`$AllStartupFonts:= Union(`1`)", "(o)", pmath_ref(fontlist.get()));
+  Expr font_files = Evaluate(Parse("FE`$PrivateStartupFontFiles"));
   
-  Hashtable<String, Void> fonttable;
-  for(size_t i = fontlist.expr_length(); i > 0; --i) {
-    fonttable.set(String(fontlist[i]), Void());
-  }
-  
-  if(!fonttable.search("Asana Math")) {
-    FontInfo::add_private_font(Application::application_directory + "/Asana-Math.otf");
-  }
-  
-  if(!fonttable.search("pMathFallback")) {
-    FontInfo::add_private_font(Application::application_directory + "/pMathFallback.ttf");
+  if(font_files[0] == PMATH_SYMBOL_LIST) {
+    for(size_t i = 1;i <= font_files.expr_length();++i) {
+      String filename(font_files[i]);
+      
+      if(FontInfo::add_private_font(filename)) {
+        pmath_debug_print_object("add private font ", filename.get(), "\n");
+      }
+      else {
+        Expr arg = font_files[i];
+        pmath_debug_print_object("failed to add private font ", arg.get(), "\n");
+      }
+    }
   }
 }
 
@@ -231,8 +231,8 @@ static void load_math_shapers() {
         double start_font = pmath_tickcount();
 #endif
         
-        shaper = OTMathShaperDB::find(s, NoStyle);
-        if(shaper) {
+        shaper = OTMathShaper::try_register(s);
+        if(shaper.is_valid()) {
           MathShaper::available_shapers.set(s, shaper);
           
 #ifdef PMATH_DEBUG_LOG
@@ -667,7 +667,7 @@ int main(int argc, char **argv) {
   
   PMATH_RUN("EndPackage()"); /* FE` */
   
-  Document *main_doc    = 0;
+  Document *main_doc = nullptr;
   int result = 0;
   
   if(!MathShaper::available_shapers.default_value) {
@@ -767,27 +767,28 @@ QUIT:
 #endif
   
   MathShaper::available_shapers.clear();
-  MathShaper::available_shapers.default_value = 0;
+  MathShaper::available_shapers.default_value = nullptr;
   
-  ConfigShaperDB::clear_all();
-  OTMathShaperDB::clear_all();
+  ConfigShaper::dispose_all();
+  OTMathShaper::dispose_all();
   
   TextShaper::clear_cache();
+  FontInfo::remove_all_private_fonts();
   
   global_immediate_macros.clear();
   global_macros.clear();
   
-  Stylesheet::Default = 0;
+  Stylesheet::Default = nullptr;
   
-  GeneralSyntaxInfo::std = 0;
+  GeneralSyntaxInfo::std = nullptr;
   
   Application::done();
   
 #ifdef RICHMATH_USE_WIN32_GUI
   Win32Clipboard::done();
-  Win32Menu::main_menu              = 0;
-  Win32Menu::popup_menu             = 0;
-  Win32AcceleratorTable::main_table = 0;
+  Win32Menu::main_menu              = nullptr;
+  Win32Menu::popup_menu             = nullptr;
+  Win32AcceleratorTable::main_table = nullptr;
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
@@ -798,7 +799,7 @@ QUIT:
 #endif
   
   // needed to clear the message_queue member:
-  Server::local_server = 0;
+  Server::local_server = nullptr;
   
   done_bindings();
   

@@ -113,7 +113,7 @@ namespace richmath {
   
   class TextShaper: public Shareable {
     public:
-      TextShaper(): Shareable() {}
+      TextShaper();
       virtual ~TextShaper() {}
       
       virtual uint8_t num_fonts() = 0;

@@ -174,7 +174,7 @@ namespace {
         return _int_to_expr[val];
       }
       
-      const Hashtable<Expr, int> &expr_to_int(){ return _expr_to_int; }
+      const Hashtable<Expr, int> &expr_to_int() { return _expr_to_int; }
       
     protected:
       void add(int val, Expr expr);
@@ -251,8 +251,10 @@ namespace {
       }
   };
   
-  class StyleInformation: public Base {
+  class StyleInformation {
     public:
+      StyleInformation() = delete;
+
       static void add_style() {
         if(_num_styles++ == 0) {
           _name_to_key.default_value = -1;
@@ -485,6 +487,8 @@ namespace {
 StyleEnumConverter::StyleEnumConverter()
   : Shareable()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   _expr_to_int.default_value = -1;
 }
 
@@ -497,13 +501,20 @@ void StyleEnumConverter::add(int val, Expr expr) {
 
 //{ class Style ...
 
-Style::Style(): Shareable() {
+Style::Style()
+  : Shareable()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   StyleInformation::add_style();
 }
 
-Style::Style(Expr options): Shareable() {
+Style::Style(Expr options)
+  : Shareable()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+
   StyleInformation::add_style();
-  
   add_pmath(options);
 }
 
@@ -1621,7 +1632,7 @@ Expr Stylesheet::get_pmath_with_base(SharedPtr<Style> s, Expr n) {
   Expr e = get_pmath(s, n);
   if(e != PMATH_SYMBOL_INHERITED)
     return e;
-  
+    
   return get_pmath(base, n);
 }
 

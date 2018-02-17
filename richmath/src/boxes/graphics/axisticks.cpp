@@ -85,12 +85,12 @@ AxisTicks::~AxisTicks() {
   set_count(0);
 }
 
-bool AxisTicks::try_load_from_object(Expr object, int options) {
+bool AxisTicks::try_load_from_object(Expr object, BoxInputFlags options) {
   load_from_object(object, options);
   return true;
 }
 
-void AxisTicks::load_from_object(Expr expr, int options) { // BoxOptionXXX
+void AxisTicks::load_from_object(Expr expr, BoxInputFlags options) {
   /* {{pos1, label1, __ignored_rest__}, {pos2, label2, __ignored_rest__}, ...}
    */
   if(expr[0] != PMATH_SYMBOL_LIST)
@@ -266,7 +266,7 @@ Box *AxisTicks::remove(int *index) {
   return this;
 }
 
-Expr AxisTicks::to_pmath(int flags) { // BoxFlagXXX
+Expr AxisTicks::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   for(int i = 0; i < count(); ++i) {

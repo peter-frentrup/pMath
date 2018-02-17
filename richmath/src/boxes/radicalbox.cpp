@@ -24,7 +24,7 @@ RadicalBox::~RadicalBox() {
   delete _exponent;
 }
 
-bool RadicalBox::try_load_from_object(Expr expr, int opts){
+bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts){
   if(expr[0] == PMATH_SYMBOL_RADICALBOX){
     if(expr.expr_length() != 2)
       return false;
@@ -193,7 +193,7 @@ Expr RadicalBox::to_pmath_symbol(){
   return Symbol(PMATH_SYMBOL_SQRTBOX);
 }
 
-Expr RadicalBox::to_pmath(int flags) {
+Expr RadicalBox::to_pmath(BoxOutputFlags flags) {
   if(_exponent)
     return Call(
              Symbol(PMATH_SYMBOL_RADICALBOX),

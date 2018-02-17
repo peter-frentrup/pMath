@@ -16,12 +16,15 @@ using namespace richmath;
 Buffer::Buffer(Canvas *dst, cairo_format_t format, float x, float y, float w, float h)
   : Shareable()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   init(dst, format, x, y, w, h);
 }
 
 Buffer::Buffer(Canvas *dst, cairo_format_t format, const BoxSize &size)
   : Shareable()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   float x0, y0;
   dst->current_pos(&x0, &y0);
   

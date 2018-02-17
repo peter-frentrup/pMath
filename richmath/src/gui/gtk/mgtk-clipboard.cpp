@@ -12,8 +12,10 @@ using namespace richmath;
 namespace {
   class ClipboardData: public Base {
     public:
-      ClipboardData(): Base()
+      ClipboardData()
+        : Base()
       {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
         pixbuf = 0;
       }
       

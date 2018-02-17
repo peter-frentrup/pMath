@@ -24,7 +24,7 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
@@ -53,7 +53,7 @@ namespace richmath {
   
   class InlineSequenceBox: public OwnerBox {
     public:
-      virtual bool try_load_from_object(Expr expr, int options) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;

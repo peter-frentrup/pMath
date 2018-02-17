@@ -39,16 +39,16 @@ void GridItem::resize(Context *context) {
   _really_span_from_above = false;
 }
 
-Expr GridItem::to_pmath(int flags) {
+Expr GridItem::to_pmath(BoxOutputFlags flags) {
   return _content->to_pmath(flags);
 }
 
-bool GridItem::try_load_from_object(Expr object, int options) {
+bool GridItem::try_load_from_object(Expr object, BoxInputFlags options) {
   load_from_object(object, options);
   return true;
 }
 
-void GridItem::load_from_object(const Expr object, int opts) {
+void GridItem::load_from_object(const Expr object, BoxInputFlags opts) {
   _content->load_from_object(object, opts);
 }
 
@@ -103,7 +103,7 @@ GridBox::~GridBox() {
     delete items[i];
 }
 
-bool GridBox::try_load_from_object(Expr expr, int opts) {
+bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_GRIDBOX)
     return false;
     
@@ -885,11 +885,11 @@ Box *GridBox::remove(int *index) {
   return move_logical(LogicalDirection::Backward, false, index);
 }
 
-Expr GridBox::to_pmath(int flags) {
+Expr GridBox::to_pmath(BoxOutputFlags flags) {
   return to_pmath(flags, 0, count());
 }
 
-Expr GridBox::to_pmath(int flags, int start, int end) {
+Expr GridBox::to_pmath(BoxOutputFlags flags, int start, int end) {
   int ax, ay, bx, by;
   items.index_to_yx(start,   &ay, &ax);
   items.index_to_yx(end - 1, &by, &bx);

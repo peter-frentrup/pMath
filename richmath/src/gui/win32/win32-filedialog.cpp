@@ -36,7 +36,7 @@ namespace richmath {
       void add_filter(Expr caption, Expr extensions) {
         if(!caption.is_string())
           return;
-        
+          
         if(self._filters_z.length() > 0) {
           assert_double_zero_terminated(self._filters_z);
           self._filters_z = self._filters_z.part(0, self._filters_z.length() - 1);
@@ -83,7 +83,7 @@ namespace richmath {
         if(self._filters_z.length() > 0)
           self._filters_z += String::FromChar(0);
       }
-    
+      
     private:
       static void assert_double_zero_terminated(String s) {
         assert(s.length() >= 2);
@@ -108,7 +108,7 @@ namespace richmath {
           data.Flags = OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
         else
           data.Flags = OFN_ALLOWMULTISELECT | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
-    
+          
         if(self._filters_z.length() > 0) {
           assert_double_zero_terminated(self._filters_z);
           data.lpstrFilter  = (const WCHAR *)self._filters_z.buffer();
@@ -172,23 +172,23 @@ namespace richmath {
           
         return Symbol(PMATH_SYMBOL_CANCELED);
       }
-  
+      
     private:
       HWND get_dialog_owner() {
         Box *box = Application::get_evaluation_box();
         if(!box)
           box = get_current_document();
           
-        if(!box) 
+        if(!box)
           return nullptr;
-        
+          
         Document *doc = box->find_parent<Document>(true);
-        if(!doc) 
+        if(!doc)
           return nullptr;
-        
-        if(auto widget = dynamic_cast<Win32Widget *>(doc->native())) 
+          
+        if(auto widget = dynamic_cast<Win32Widget *>(doc->native()))
           return GetAncestor(widget->hwnd(), GA_ROOT);
-        
+          
         return nullptr;
       }
   };
@@ -196,7 +196,11 @@ namespace richmath {
 
 //{ class Win32FileDialog ...
 
-Win32FileDialog::Win32FileDialog(bool to_save): _to_save(to_save) {
+Win32FileDialog::Win32FileDialog(bool to_save)
+  : Base(),
+    _to_save(to_save)
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 Win32FileDialog::~Win32FileDialog() {
@@ -210,11 +214,11 @@ void Win32FileDialog::set_title(String title) {
 void Win32FileDialog::set_filter(Expr filter) {
   if(filter.expr_length() == 0 || filter[0] != PMATH_SYMBOL_LIST)
     return;
-  
+    
   for(size_t i = 1; i <= filter.expr_length(); ++i) {
     Expr rule = filter[i];
     
-    if(rule.is_rule()) 
+    if(rule.is_rule())
       Win32FileDialogImpl(*this).add_filter(rule[1], rule[2]);
   }
 }

@@ -17,6 +17,7 @@ using namespace richmath;
 FontFeatureSet::FontFeatureSet()
   : Base()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   _tag_to_value.default_value = 0;
 }
 

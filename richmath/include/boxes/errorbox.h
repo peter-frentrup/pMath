@@ -10,7 +10,7 @@ namespace richmath {
       ErrorBox(const Expr object);
       virtual ~ErrorBox();
       
-      virtual bool try_load_from_object(Expr expr, int options) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
       virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }
@@ -21,7 +21,7 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override { return _object; }
+      virtual Expr to_pmath(BoxOutputFlags flags) override { return _object; }
       
     private:
       Expr _object;

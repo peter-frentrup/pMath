@@ -981,7 +981,7 @@ namespace richmath {
         
         return false;
       }
-
+      
       bool is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start) {
         if(subbox && subbox != &self && substart == subend) {
           if(was_inside_start)
@@ -992,7 +992,7 @@ namespace richmath {
         
         return self.selection_box() && is_inside_selection(subbox, substart, subend);
       }
-
+      
       void set_prev_sel_line() {
         if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box())) {
           self.prev_sel_line = seq->get_line(self.selection_end(), self.prev_sel_line);
@@ -1405,7 +1405,7 @@ namespace richmath {
             
             if(s.is_null()) {
               MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxOptionDefault);
+              repl_seq->load_from_object(repl, BoxInputFlags::Default);
               
               seq->remove(i, e);
               self.move_to(self.selection_box(), i);
@@ -1495,7 +1495,7 @@ namespace richmath {
               }
               else {
                 MathSequence *repl_seq = new MathSequence();
-                repl_seq->load_from_object(repl, BoxOptionDefault);
+                repl_seq->load_from_object(repl, BoxInputFlags::Default);
                 
                 seq->remove(i, e);
                 self.move_to(self.selection_box(), i);
@@ -1552,7 +1552,7 @@ Document::Document()
 Document::~Document() {
 }
 
-bool Document::try_load_from_object(Expr expr, int options) {
+bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr[0] != PMATH_SYMBOL_DOCUMENT)
     return false;
     
@@ -2321,7 +2321,7 @@ void Document::on_key_press(uint32_t unichar) {
             }
             else {
               MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxOptionDefault);
+              repl_seq->load_from_object(repl, BoxInputFlags::Default);
               
               insert_box(repl_seq, true);
               int sel_start = selection_start();
@@ -2926,9 +2926,9 @@ String Document::copy_to_text(String mimetype) {
     return String();
   }
   
-  int flags = BoxFlagDefault;
+  BoxOutputFlags flags = BoxOutputFlags::Default;
   if(mimetype.equals(Clipboard::PlainText))
-    flags |= BoxFlagLiteral | BoxFlagShortNumbers;
+    flags |= BoxOutputFlags::Literal | BoxOutputFlags::ShortNumbers;
     
   Expr boxes = selbox->to_pmath(flags, start, end);
   if(mimetype.equals(Clipboard::BoxesText))
@@ -2938,7 +2938,7 @@ String Document::copy_to_text(String mimetype) {
       mimetype.equals(Clipboard::PlainText) ||
       mimetype.equals("PlainText"))
   {
-    Expr text = Application::interrupt(
+    Expr text = Application::interrupt_wait(
                   Parse("FE`BoxesToText(`1`, `2`)", boxes, mimetype),
                   Application::edit_interrupt_timeout);
                   
@@ -2967,7 +2967,7 @@ void Document::copy_to_binary(String mimetype, Expr file) {
       return;
     }
     
-    Expr boxes = selbox->to_pmath(BoxFlagDefault, start, end);
+    Expr boxes = selbox->to_pmath(BoxOutputFlags::Default, start, end);
     file = Expr(pmath_file_create_compressor(file.release(), nullptr));
     pmath_serialize(file.get(), boxes.release(), 0);
     pmath_file_close(file.release());
@@ -3165,7 +3165,7 @@ void Document::paste_from_boxes(Expr boxes) {
     }
   }
   
-  boxes = Application::interrupt(
+  boxes = Application::interrupt_wait(
             Parse("FE`SectionsToBoxes(`1`)", boxes),
             Application::edit_interrupt_timeout);
             
@@ -3179,9 +3179,9 @@ void Document::paste_from_boxes(Expr boxes) {
     int w = col2 - col1 + 1;
     int h = row2 - row1 + 1;
     
-    int options = BoxOptionDefault;
+    BoxInputFlags options = BoxInputFlags::Default;
     if(grid->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxInputFlags::FormatNumbers;
       
     MathSequence *tmp = new MathSequence;
     tmp->load_from_object(boxes, options);
@@ -3199,13 +3199,13 @@ void Document::paste_from_boxes(Expr boxes) {
                 row < tmpgrid->rows())
             {
               grid->item(row1 + row, col1 + col)->load_from_object(
-                Expr(tmpgrid->item(row, col)->to_pmath(BoxFlagDefault)),
-                BoxOptionFormatNumbers);
+                Expr(tmpgrid->item(row, col)->to_pmath(BoxOutputFlags::Default)),
+                BoxInputFlags::FormatNumbers);
             }
             else {
               grid->item(row1 + row, col1 + col)->load_from_object(
                 String::FromChar(PMATH_CHAR_BOX),
-                BoxOptionDefault);
+                BoxInputFlags::Default);
             }
           }
         }
@@ -3226,7 +3226,7 @@ void Document::paste_from_boxes(Expr boxes) {
       for(int row = 0; row < h; ++row) {
         grid->item(row1 + row, col1 + col)->load_from_object(
           String::FromChar(PMATH_CHAR_BOX),
-          BoxOptionDefault);
+          BoxInputFlags::Default);
       }
     }
     
@@ -3241,9 +3241,9 @@ void Document::paste_from_boxes(Expr boxes) {
   
   GraphicsBox *graphics = dynamic_cast<GraphicsBox *>(context.selection.get());
   if(graphics && graphics->get_style(Editable)) {
-    int options = BoxOptionDefault;
+    BoxInputFlags options = BoxInputFlags::Default;
     if(graphics->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxInputFlags::FormatNumbers;
       
     if(graphics->try_load_from_object(boxes, options))
       return;
@@ -3256,9 +3256,9 @@ void Document::paste_from_boxes(Expr boxes) {
   if(DocumentImpl(*this).prepare_insert()) {
     if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
     
-      int options = BoxOptionDefault;
+      BoxInputFlags options = BoxInputFlags::Default;
       if(seq->get_style(AutoNumberFormating))
-        options |= BoxOptionFormatNumbers;
+        options |= BoxInputFlags::FormatNumbers;
         
       MathSequence *tmp = new MathSequence;
       tmp->load_from_object(boxes, options);
@@ -3273,9 +3273,9 @@ void Document::paste_from_boxes(Expr boxes) {
     
     if(auto seq = dynamic_cast<TextSequence *>(context.selection.get())) {
     
-      int options = BoxOptionDefault;
+      BoxInputFlags options = BoxInputFlags::Default;
       if(seq->get_style(AutoNumberFormating))
-        options |= BoxOptionFormatNumbers;
+        options |= BoxInputFlags::FormatNumbers;
         
       TextSequence *tmp = new TextSequence;
       tmp->load_from_object(boxes, options);
@@ -3295,10 +3295,11 @@ void Document::paste_from_boxes(Expr boxes) {
 
 void Document::paste_from_text(String mimetype, String data) {
   if(mimetype.equals(Clipboard::BoxesText)) {
-    Expr parsed = Application::interrupt(Expr(
-                                           pmath_parse_string(data.release())),
-                                         Application::edit_interrupt_timeout);
-                                         
+    Expr parsed = Application::interrupt_wait(
+                    Expr(
+                      pmath_parse_string(data.release())),
+                    Application::edit_interrupt_timeout);
+                    
     paste_from_boxes(parsed);
     return;
   }
@@ -3860,7 +3861,7 @@ void Document::insert_string(String text, bool autoformat) {
           seq2->insert(seq2->length(), text.part(last, pos - last));
           
           auto seq_tmp = new MathSequence;
-          seq_tmp->load_from_object(*e, BoxOptionDefault);
+          seq_tmp->load_from_object(*e, BoxInputFlags::Default);
           seq2->insert(seq2->length(), seq_tmp);
           
           last = next;
@@ -4813,7 +4814,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   must_resize_min = 0;
 }
 
-Expr Document::to_pmath(int flags) {
+Expr Document::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   Expr content = SectionList::to_pmath(flags);

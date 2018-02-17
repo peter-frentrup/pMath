@@ -33,20 +33,20 @@ static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
   pmath_debug_print("[%f sec reading ", end - start);
   pmath_debug_print_object("", filename.get(), "]\n");
   
-  Application::notify(CNT_ADDCONFIGSHAPER, data);
+  Application::notify(ClientNotification::AddConfigShaper, data);
   return PMATH_NULL;
 }
 
 static pmath_t builtin_colordialog(pmath_expr_t _expr) {
-  return Application::notify_wait(CNT_COLORDIALOG, Expr(_expr)).release();
+  return Application::notify_wait(ClientNotification::ColorDialog, Expr(_expr)).release();
 }
 
 static pmath_t builtin_filedialog(pmath_expr_t _expr) {
-  return Application::notify_wait(CNT_FILEDIALOG, Expr(_expr)).release();
+  return Application::notify_wait(ClientNotification::FileDialog, Expr(_expr)).release();
 }
 
 static pmath_t builtin_fontdialog(pmath_expr_t _expr) {
-  return Application::notify_wait(CNT_FONTDIALOG, Expr(_expr)).release();
+  return Application::notify_wait(ClientNotification::FontDialog, Expr(_expr)).release();
 }
 
 static pmath_t builtin_internalexecutefor(pmath_expr_t expr) {
@@ -82,7 +82,7 @@ static pmath_t builtin_internalexecutefor(pmath_expr_t expr) {
 }
 
 static pmath_t builtin_createdocument(pmath_expr_t expr) {
-  return Application::notify_wait(CNT_CREATEDOCUMENT, Expr(expr)).release();
+  return Application::notify_wait(ClientNotification::CreateDocument, Expr(expr)).release();
 }
 
 static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
@@ -92,7 +92,7 @@ static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
     return expr.release();
   }
   
-  Application::notify_wait(CNT_MENUCOMMAND, expr);
+  Application::notify_wait(ClientNotification::MenuCommand, expr);
   
   return PMATH_NULL;
 }
@@ -104,7 +104,7 @@ static pmath_t builtin_documentdelete(pmath_expr_t _expr) {
     return expr.release();
   }
   
-  Application::notify_wait(CNT_MENUCOMMAND, expr);
+  Application::notify_wait(ClientNotification::MenuCommand, expr);
   
   return PMATH_NULL;
 }
@@ -116,7 +116,7 @@ static pmath_t builtin_documentget(pmath_expr_t _expr) {
     return expr.release();
   }
   
-  return Application::notify_wait(CNT_DOCUMENTGET, expr).release();
+  return Application::notify_wait(ClientNotification::DocumentGet, expr).release();
 }
 
 static pmath_t builtin_documentread(pmath_expr_t _expr) {
@@ -127,7 +127,7 @@ static pmath_t builtin_documentread(pmath_expr_t _expr) {
     return expr.release();
   }
   
-  return Application::notify_wait(CNT_DOCUMENTREAD, expr).release();
+  return Application::notify_wait(ClientNotification::DocumentRead, expr).release();
 }
 
 static pmath_t builtin_documents(pmath_expr_t expr) {
@@ -138,7 +138,7 @@ static pmath_t builtin_documents(pmath_expr_t expr) {
   
   pmath_unref(expr);
   
-  return Application::notify_wait(CNT_GETDOCUMENTS, Expr()).release();
+  return Application::notify_wait(ClientNotification::GetDocuments, Expr()).release();
 }
 
 static pmath_t builtin_documentsave(pmath_expr_t _expr) {
@@ -147,28 +147,28 @@ static pmath_t builtin_documentsave(pmath_expr_t _expr) {
     return _expr;
   }
   
-  return Application::notify_wait(CNT_SAVE, Expr(_expr)).release();
+  return Application::notify_wait(ClientNotification::Save, Expr(_expr)).release();
 }
 
 static pmath_t builtin_currentvalue(pmath_expr_t expr) {
-  return Application::notify_wait(CNT_CURRENTVALUE, Expr(expr)).release();
+  return Application::notify_wait(ClientNotification::CurrentValue, Expr(expr)).release();
 }
 
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr) {
-  Application::notify(CNT_DYNAMICUPDATE, Expr(expr));
+  Application::notify(ClientNotification::DynamicUpdate, Expr(expr));
   return PMATH_NULL;
 }
 
 static Expr cpp_builtin_feo_options(Expr expr) {
   if(expr[0] == PMATH_SYMBOL_OPTIONS) {
     if(expr.expr_length() == 1) {
-      return Application::notify_wait(CNT_GETOPTIONS, expr[1]);
+      return Application::notify_wait(ClientNotification::GetOptions, expr[1]);
     }
     
     if( expr.expr_length() == 2 &&
         expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
     {
-      Expr opts = Application::notify_wait(CNT_GETOPTIONS, expr[1]);
+      Expr opts = Application::notify_wait(ClientNotification::GetOptions, expr[1]);
       
       expr.set(1, opts);
     }
@@ -177,7 +177,7 @@ static Expr cpp_builtin_feo_options(Expr expr) {
     if( expr.expr_length() >= 1 &&
         expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
     {
-      return Application::notify_wait(CNT_SETOPTIONS, expr);
+      return Application::notify_wait(ClientNotification::SetOptions, expr);
     }
   }
   
@@ -227,7 +227,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
                pmath_ref(PMATH_SYMBOL_SECTIONGENERATED),
                pmath_ref(PMATH_SYMBOL_TRUE)));
                
-    Application::notify_wait(CNT_PRINTSECTION, Expr(expr));
+    Application::notify_wait(ClientNotification::PrintSection, Expr(expr));
     
     return PMATH_NULL;
   }
@@ -243,7 +243,7 @@ static pmath_t builtin_evaluationdocument(pmath_expr_t expr) {
   
   pmath_unref(expr);
   
-  return Application::notify_wait(CNT_GETEVALUATIONDOCUMENT, Expr()).release();
+  return Application::notify_wait(ClientNotification::GetEvaluationDocument, Expr()).release();
 }
 
 static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
@@ -651,7 +651,7 @@ static bool document_apply_cmd(Expr cmd) {
   else
     seq = new MathSequence;
     
-  seq->load_from_object(boxes, BoxOptionDefault);
+  seq->load_from_object(boxes, BoxInputFlags::Default);
   doc->insert_box(seq, true);
   
   return true;
@@ -686,7 +686,7 @@ static bool document_write_cmd(Expr cmd) {
   else
     seq = new MathSequence;
     
-  seq->load_from_object(cmd[2], BoxOptionDefault);
+  seq->load_from_object(cmd[2], BoxInputFlags::Default);
   doc->insert_box(seq, false);
   
   return true;
@@ -718,7 +718,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
          (!input && math->get_style(SectionGenerated))))
     {
       MathSequence *seq = new MathSequence;
-      seq->load_from_object(Expr(math->content()->to_pmath(BoxFlagDefault)), 0);
+      seq->load_from_object(Expr(math->content()->to_pmath(BoxOutputFlags::Default)), BoxInputFlags::Default);
       doc->insert_box(seq);
       
       return true;
@@ -755,7 +755,7 @@ static bool edit_boxes_cmd(Expr cmd) {
       pmath_continue_after_abort();
       
       if(auto edit = dynamic_cast<EditSection *>(doc->section(i))) {
-        Expr parsed(edit->to_pmath(BoxFlagDefault));
+        Expr parsed(edit->to_pmath(BoxOutputFlags::Default));
         
         if(parsed == 0) {
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
@@ -776,7 +776,7 @@ static bool edit_boxes_cmd(Expr cmd) {
         edit->swap_id(sect);
         edit->original = doc->swap(i, edit);
         
-        Expr obj(sect->to_pmath(BoxFlagDefault));
+        Expr obj(sect->to_pmath(BoxOutputFlags::Default));
         
         Expr tmp = Call(Symbol(PMATH_SYMBOL_FULLFORM), obj);
         pmath_debug_print_object("\n fullform: ", tmp.get(), "\n");
@@ -855,11 +855,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
   if(Application::is_idle())
     return false;
     
-  // non-blocking interrupt
-  Application::interrupt_for(
-    Call(Symbol(PMATH_SYMBOL_DIALOG)),
-    0,
-    Infinity);
+  Application::async_interrupt(Call(Symbol(PMATH_SYMBOL_DIALOG)));
     
   return true;
 }
@@ -1023,7 +1019,7 @@ static bool insert_underscript_cmd(Expr cmd) {
 
 static bool new_cmd(Expr cmd) {
 //  Application::notify(
-//    CNT_CREATEDOCUMENT,
+//    ClientNotification::CreateDocument,
 //    Call(Symbol(PMATH_SYMBOL_CREATEDOCUMENT), List()));
   Document *doc = Application::create_document();
   if(!doc)
@@ -1042,7 +1038,7 @@ static bool open_cmd(Expr cmd) {
                   
   Expr filenames = Application::run_filedialog(
                      Call(
-                       GetSymbol(FileOpenDialogSymbol),
+                       GetSymbol(FESymbolIndex::FileOpenDialog),
                        filter));
                        
   if(filenames.is_string())
@@ -1060,14 +1056,14 @@ static bool open_cmd(Expr cmd) {
     doc->native()->filename(filename);
     
     if(filename.part(filename.length() - 9).equals(".pmathdoc")) {
-      Expr held_boxes = Application::interrupt(
+      Expr held_boxes = Application::interrupt_wait(
                           Parse("Get(`1`, Head->HoldComplete)", filename),
                           Application::button_timeout);
                           
                           
       if( held_boxes.expr_length() == 1 &&
           held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
-          doc->try_load_from_object(held_boxes[1], BoxOptionDefault))
+          doc->try_load_from_object(held_boxes[1], BoxInputFlags::Default))
       {
         if(!doc->selectable())
           doc->select(0, 0, 0);
@@ -1154,13 +1150,13 @@ static bool remove_from_evaluation_queue(Expr cmd) {
 }
 
 static bool save_cmd(Expr cmd) {
-  Application::notify_wait(CNT_SAVE, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_AUTOMATIC)));
+  Application::notify_wait(ClientNotification::Save, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_AUTOMATIC)));
   
   return true;
 }
 
 static bool saveas_cmd(Expr cmd) {
-  Application::notify_wait(CNT_SAVE, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_NONE)));
+  Application::notify_wait(ClientNotification::Save, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_NONE)));
   
   return true;
 }
@@ -1234,7 +1230,7 @@ static bool set_style_cmd(Expr cmd) {
 //    if(!box)
 //      box = doc;
 //
-//    // see also CNT_GETOPTIONS
+//    // see also ClientNotification::GetOptions
 //    Expr box_symbol = box->to_pmath_symbol();
 //    if(!box_symbol.is_symbol()) // TODO: generate StyleBox inside sequences ...
 //      return false;
@@ -1284,25 +1280,19 @@ static bool similar_section_below_cmd(Expr cmd) {
 }
 
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
-  // non-blocking interrupt
-  Application::interrupt_for(
+  Application::async_interrupt(
     Call(Symbol(PMATH_SYMBOL_DIALOG),
          Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
-              String("EvaluateSectionsAndReturn"))),
-    0,
-    Infinity);
+              String("EvaluateSectionsAndReturn"))));
     
   return false;
 }
 
 //} ... menu commands
 
-static pmath_symbol_t fe_symbols[FrontEndSymbolsCount];
+static pmath_symbol_t fe_symbols[(int)FESymbolIndex::FrontEndSymbolsCount];
 
 bool richmath::init_bindings() {
-#define BIND_DOWN(SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_DOWNCALL)
-#define BIND_UP(  SYMBOL, FUNC)  pmath_register_code(SYMBOL, FUNC, PMATH_CODE_USAGE_UPCALL)
-
   Application::register_menucommand(String("New"),                        new_cmd);
   Application::register_menucommand(String("Open"),                       open_cmd);
   Application::register_menucommand(String("Save"),                       save_cmd);
@@ -1349,71 +1339,75 @@ bool richmath::init_bindings() {
   Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTDELETE), document_delete_cmd, can_document_write);
   Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTWRITE),  document_write_cmd,  can_document_write);
   
-#define VERIFY(x)  if(0 == (x)) goto FAIL_SYMBOLS;
+#define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
 #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)
   
+#define BIND(SYMBOL, FUNC, USE)  if(!pmath_register_code((SYMBOL), (FUNC), (USE))) goto FAIL;
+#define BIND_DOWN(SYMBOL, FUNC)   BIND((SYMBOL), (FUNC), PMATH_CODE_USAGE_DOWNCALL)
+#define BIND_UP(SYMBOL, FUNC)     BIND((SYMBOL), (FUNC), PMATH_CODE_USAGE_UPCALL)
+
   memset(fe_symbols, 0, sizeof(fe_symbols));
-  VERIFY(fe_symbols[NumberBoxSymbol]          = NEW_SYMBOL("FE`NumberBox"))
-  VERIFY(fe_symbols[SymbolInfoSymbol]         = NEW_SYMBOL("FE`SymbolInfo"))
-  VERIFY(fe_symbols[AddConfigShaperSymbol]    = NEW_SYMBOL("FE`AddConfigShaper"))
-  VERIFY(fe_symbols[DelimiterSymbol]          = NEW_SYMBOL("FE`Delimiter"))
-  VERIFY(fe_symbols[ItemSymbol]               = NEW_SYMBOL("FE`Item"))
-  VERIFY(fe_symbols[KeyEventSymbol]           = NEW_SYMBOL("FE`KeyEvent"))
-  VERIFY(fe_symbols[KeyAltSymbol]             = NEW_SYMBOL("FE`KeyAlt"))
-  VERIFY(fe_symbols[KeyControlSymbol]         = NEW_SYMBOL("FE`KeyControl"))
-  VERIFY(fe_symbols[KeyShiftSymbol]           = NEW_SYMBOL("FE`KeyShift"))
-  VERIFY(fe_symbols[MenuSymbol]               = NEW_SYMBOL("FE`Menu"))
-  VERIFY(fe_symbols[InternalExecuteForSymbol] = NEW_SYMBOL("FE`InternalExecuteFor"))
-  VERIFY(fe_symbols[SymbolDefinitionsSymbol]  = NEW_SYMBOL("FE`SymbolDefinitions"))
-  VERIFY(fe_symbols[FileOpenDialogSymbol]     = NEW_SYMBOL("FE`FileOpenDialog"))
-  VERIFY(fe_symbols[FileSaveDialogSymbol]     = NEW_SYMBOL("FE`FileSaveDialog"))
-  VERIFY(fe_symbols[ColorDialogSymbol]        = NEW_SYMBOL("FE`ColorDialog"))
-  VERIFY(fe_symbols[FontDialogSymbol]         = NEW_SYMBOL("FE`FontDialog"))
-  VERIFY(fe_symbols[ControlActiveSymbol]      = NEW_SYMBOL("FE`$ControlActive"))
-  VERIFY(fe_symbols[CopySpecialSymbol]        = NEW_SYMBOL("FE`CopySpecial"))
-  VERIFY(fe_symbols[AutoCompleteNameSymbol]   = NEW_SYMBOL("FE`AutoCompleteName"))
-  VERIFY(fe_symbols[AutoCompleteFileSymbol]   = NEW_SYMBOL("FE`AutoCompleteFile"))
-  VERIFY(fe_symbols[AutoCompleteOtherSymbol]  = NEW_SYMBOL("FE`AutoCompleteOther"))
-  VERIFY(fe_symbols[ScopedCommandSymbol]      = NEW_SYMBOL("FE`ScopedCommand"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::NumberBox]          = NEW_SYMBOL("FE`NumberBox"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::SymbolInfo]         = NEW_SYMBOL("FE`SymbolInfo"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::AddConfigShaper]    = NEW_SYMBOL("FE`AddConfigShaper"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::Delimiter]          = NEW_SYMBOL("FE`Delimiter"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::Item]               = NEW_SYMBOL("FE`Item"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::KeyEvent]           = NEW_SYMBOL("FE`KeyEvent"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::KeyAlt]             = NEW_SYMBOL("FE`KeyAlt"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::KeyControl]         = NEW_SYMBOL("FE`KeyControl"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::KeyShift]           = NEW_SYMBOL("FE`KeyShift"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::Menu]               = NEW_SYMBOL("FE`Menu"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::InternalExecuteFor] = NEW_SYMBOL("FE`InternalExecuteFor"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::SymbolDefinitions]  = NEW_SYMBOL("FE`SymbolDefinitions"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::FileOpenDialog]     = NEW_SYMBOL("FE`FileOpenDialog"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::FileSaveDialog]     = NEW_SYMBOL("FE`FileSaveDialog"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::ColorDialog]        = NEW_SYMBOL("FE`ColorDialog"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::FontDialog]         = NEW_SYMBOL("FE`FontDialog"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::ControlActive]      = NEW_SYMBOL("FE`$ControlActive"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::CopySpecial]        = NEW_SYMBOL("FE`CopySpecial"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::AutoCompleteName]   = NEW_SYMBOL("FE`AutoCompleteName"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::AutoCompleteFile]   = NEW_SYMBOL("FE`AutoCompleteFile"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::AutoCompleteOther]  = NEW_SYMBOL("FE`AutoCompleteOther"))
+  VERIFY(fe_symbols[(int)FESymbolIndex::ScopedCommand]      = NEW_SYMBOL("FE`ScopedCommand"))
   
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated))
+  BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated)
   
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,           builtin_createdocument))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,             builtin_currentvalue))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTDELETE,           builtin_documentdelete))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTGET,              builtin_documentget))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,                builtin_documents))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint))
-  VERIFY(BIND_DOWN(PMATH_SYMBOL_SELECTEDDOCUMENT,         builtin_selecteddocument))
+  BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,           builtin_createdocument)
+  BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,             builtin_currentvalue)
+  BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite)
+  BIND_DOWN(PMATH_SYMBOL_DOCUMENTDELETE,           builtin_documentdelete)
+  BIND_DOWN(PMATH_SYMBOL_DOCUMENTGET,              builtin_documentget)
+  BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread)
+  BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite)
+  BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,                builtin_documents)
+  BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave)
+  BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument)
+  BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute)
+  BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
+  BIND_DOWN(PMATH_SYMBOL_SELECTEDDOCUMENT,         builtin_selecteddocument)
   
-  VERIFY(BIND_UP(PMATH_SYMBOL_FRONTENDOBJECT,             builtin_feo_options))
+  BIND_UP(PMATH_SYMBOL_FRONTENDOBJECT,             builtin_feo_options)
   
-  VERIFY(BIND_DOWN(fe_symbols[AddConfigShaperSymbol],     builtin_addconfigshaper))
-  VERIFY(BIND_DOWN(fe_symbols[InternalExecuteForSymbol],  builtin_internalexecutefor))
-  VERIFY(BIND_DOWN(fe_symbols[ColorDialogSymbol],         builtin_colordialog))
-  VERIFY(BIND_DOWN(fe_symbols[FileOpenDialogSymbol],      builtin_filedialog))
-  VERIFY(BIND_DOWN(fe_symbols[FileSaveDialogSymbol],      builtin_filedialog))
-  VERIFY(BIND_DOWN(fe_symbols[FontDialogSymbol],          builtin_fontdialog))
+  BIND_DOWN(fe_symbols[(int)FESymbolIndex::AddConfigShaper],     builtin_addconfigshaper)
+  BIND_DOWN(fe_symbols[(int)FESymbolIndex::InternalExecuteFor],  builtin_internalexecutefor)
+  BIND_DOWN(fe_symbols[(int)FESymbolIndex::ColorDialog],         builtin_colordialog)
+  BIND_DOWN(fe_symbols[(int)FESymbolIndex::FileOpenDialog],      builtin_filedialog)
+  BIND_DOWN(fe_symbols[(int)FESymbolIndex::FileSaveDialog],      builtin_filedialog)
+  BIND_DOWN(fe_symbols[(int)FESymbolIndex::FontDialog],          builtin_fontdialog)
   
   pmath_symbol_set_attributes(
-    fe_symbols[InternalExecuteForSymbol],
+    fe_symbols[(int)FESymbolIndex::InternalExecuteFor],
     pmath_symbol_get_attributes(
-      fe_symbols[InternalExecuteForSymbol]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
+      fe_symbols[(int)FESymbolIndex::InternalExecuteFor]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
       
-  Application::register_menucommand(GetSymbol(CopySpecialSymbol),   copy_special_cmd, can_copy_cut);
+  Application::register_menucommand(GetSymbol(FESymbolIndex::CopySpecial),   copy_special_cmd, can_copy_cut);
   Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),      set_style_cmd,    can_set_style);
-  Application::register_menucommand(GetSymbol(ScopedCommandSymbol), do_scoped_cmd,    can_do_scoped);
+  Application::register_menucommand(GetSymbol(FESymbolIndex::ScopedCommand), do_scoped_cmd,    can_do_scoped);
   
   return true;
   
-FAIL_SYMBOLS:
-  for(size_t i = 0; i < FrontEndSymbolsCount; ++i)
+FAIL:
+  for(size_t i = 0; i < (size_t)FESymbolIndex::FrontEndSymbolsCount; ++i)
     pmath_unref(fe_symbols[i]);
     
   memset(fe_symbols, 0, sizeof(fe_symbols));
@@ -1421,14 +1415,14 @@ FAIL_SYMBOLS:
 }
 
 void richmath::done_bindings() {
-  for(size_t i = 0; i < FrontEndSymbolsCount; ++i)
+  for(size_t i = 0; i < (size_t)FESymbolIndex::FrontEndSymbolsCount; ++i)
     pmath_unref(fe_symbols[i]);
     
   memset(fe_symbols, 0, sizeof(fe_symbols));
 }
 
-Expr richmath::GetSymbol(FrontEndSymbolIndex i) {
-  if((size_t)i >= (size_t)FrontEndSymbolsCount)
+Expr richmath::GetSymbol(FESymbolIndex i) {
+  if((size_t)i >= (size_t)FESymbolIndex::FrontEndSymbolsCount)
     return Expr();
     
   return Symbol(fe_symbols[(size_t)i]);

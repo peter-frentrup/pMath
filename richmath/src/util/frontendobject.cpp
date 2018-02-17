@@ -14,6 +14,8 @@ FrontEndObject::FrontEndObject()
   : Base(),
   _id(++next_front_end_object_id)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   front_end_object_cache.set(_id, this);
 }
 

@@ -17,12 +17,15 @@ SpanExpr::SpanExpr(int position, MathSequence *sequence)
     _span(nullptr),
     _sequence(sequence)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 SpanExpr::SpanExpr(int start, Span span, MathSequence *sequence)
   : Base(),
     _span(nullptr)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   init(nullptr, start, span, sequence);
 }
 
@@ -30,6 +33,8 @@ SpanExpr::SpanExpr(SpanExpr *parent, int start, Span span, MathSequence *sequenc
   : Base(),
     _span(nullptr)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   init(parent, start, span, sequence);
 }
 

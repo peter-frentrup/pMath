@@ -11,8 +11,8 @@ namespace richmath {
       AxisTicks();
       virtual ~AxisTicks();
       
-      virtual bool try_load_from_object(Expr object, int options) override; // BoxOptionXXX
-      void             load_from_object(Expr object, int options); // BoxOptionXXX
+      virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
+      void             load_from_object(Expr object, BoxInputFlags options);
       
       virtual Box *item(int i) override { return _labels[i];       }
       virtual int count() override {      return _labels.length(); }
@@ -32,7 +32,7 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_LIST); }
-      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *mouse_selection(
         float  x,

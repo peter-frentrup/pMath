@@ -15,7 +15,7 @@ TooltipBox::TooltipBox()
 {
 }
 
-bool TooltipBox::try_load_from_object(Expr expr, int opts) {
+bool TooltipBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_TOOLTIPBOX)
     return false;
   
@@ -42,8 +42,8 @@ bool TooltipBox::try_load_from_object(Expr expr, int opts) {
   return true;
 }
 
-Expr TooltipBox::to_pmath(int flags) {
-  if((flags & BoxFlagParseable) && get_own_style(StripOnInput, true)) {
+Expr TooltipBox::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, true)) {
     return _content->to_pmath(flags);
   }
   

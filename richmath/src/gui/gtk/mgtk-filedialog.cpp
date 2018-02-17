@@ -96,6 +96,8 @@ MathGtkFileDialog::MathGtkFileDialog(bool to_save)
     _dialog(nullptr),
     _chooser(nullptr)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   _dialog = GTK_FILE_CHOOSER_DIALOG(
               gtk_file_chooser_dialog_new(
                 to_save ? "Save" : "Open",

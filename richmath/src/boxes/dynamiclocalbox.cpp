@@ -20,11 +20,11 @@ DynamicLocalBox::~DynamicLocalBox() {
       !_init_call.is_valid())
   {
     // only call Deinitialization if the initialization was called
-    Application::interrupt(prepare_dynamic(_deinitialization), Application::dynamic_timeout);
+    Application::interrupt_wait(prepare_dynamic(_deinitialization), Application::dynamic_timeout);
   }
 }
 
-bool DynamicLocalBox::try_load_from_object(Expr expr, int options) {
+bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr[0] != PMATH_SYMBOL_DYNAMICLOCALBOX)
     return false;
     
@@ -122,10 +122,10 @@ static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, cons
   return expr;
 }
 
-Expr DynamicLocalBox::to_pmath(int flags) {
+Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
   ensure_init();
   
-  if(flags & BoxFlagLiteral)
+  if(has(flags, BoxOutputFlags::Literal))
     return content()->to_pmath(flags);
     
   Gather g;
@@ -171,7 +171,7 @@ Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
 
 void DynamicLocalBox::ensure_init() {
   if(_init_call.is_valid()) {
-    Application::interrupt(prepare_dynamic(_init_call), Application::dynamic_timeout);
+    Application::interrupt_wait(prepare_dynamic(_init_call), Application::dynamic_timeout);
     _init_call = Expr();
   }
 }
@@ -179,8 +179,8 @@ void DynamicLocalBox::ensure_init() {
 void DynamicLocalBox::emit_values(Expr symbol) {
   // todo: fetch variables from Server, maybe after each paint()
   
-  Expr rules =  Application::interrupt(
-                  Call(GetSymbol(SymbolDefinitionsSymbol), prepare_dynamic(symbol)),
+  Expr rules =  Application::interrupt_wait(
+                  Call(GetSymbol(FESymbolIndex::SymbolDefinitions), prepare_dynamic(symbol)),
                   Application::dynamic_timeout);
                   
   if(rules[0] == PMATH_SYMBOL_HOLDCOMPLETE && rules.expr_length() > 0) {

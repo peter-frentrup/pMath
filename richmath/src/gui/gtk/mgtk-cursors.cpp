@@ -472,6 +472,8 @@ static Hashtable<CursorType, CppGdkCursor, cast_hash> all_cursors;
 MathGtkCursors::MathGtkCursors()
   : Base()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   if(num_refs++ == 0) {
     all_cursors.set(FingerCursor,  gdk_cursor_new(GDK_HAND2));
     all_cursors.set(DefaultCursor, gdk_cursor_new(GDK_LEFT_PTR));

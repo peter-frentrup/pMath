@@ -338,6 +338,8 @@ static GdkPixbuf *icons[3] = {0};
 MathGtkIcons::MathGtkIcons()
   : Base()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   ++num_refs;
 }
 

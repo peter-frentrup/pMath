@@ -69,7 +69,7 @@ namespace richmath {
           return nullptr;
         
         int x, dx, dy;
-        switch(indicator.lane) {
+        switch((IndicatorLane)indicator.lane) {
           case IndicatorLane::All:
             dx = w;
             dy = w / 8;

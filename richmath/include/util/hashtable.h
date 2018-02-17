@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
+#include <utility>
 
 #include <util/base.h>
 
@@ -45,6 +46,7 @@ namespace richmath {
   class Entry {
     public:
       Entry(const K &k, const V &v): key(k), value(v) {}
+      Entry(const K &k, V &&v): key(k), value(std::move(v)) {}
       
       const K key;
       V value;
@@ -63,8 +65,8 @@ namespace richmath {
   template<typename K> Void Entry<K, Void>::value;
   
   template < typename K,
-           typename V,
-           unsigned int (*hash_function)(const K &key) = object_hash >
+             typename V,
+             unsigned int (*hash_function)(const K &key) = object_hash >
   class Hashtable: public Base {
     private:
       static const unsigned int MINSIZE = 8; // power of 2, >= 2
@@ -159,7 +161,11 @@ namespace richmath {
       }
       
     public:
-      Hashtable() {
+      Hashtable()
+        : Base()
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+        
         nonnull_count = 0;
         used_count    = 0;
         capacity      = MINSIZE;
@@ -260,22 +266,27 @@ namespace richmath {
       }
       
       void set(const K &key, const V &value) {
+        V tmp{value};
+        set(key, std::move(tmp));
+      }
+      
+      void set(const K &key, V &&value) {
         unsigned int i = lookup(key);
         if(is_used(table[i])) {
-          table[i]->value = value;
+          table[i]->value = std::move(value);
         }
         else {
           if((nonnull_count + 1) * 3 >= capacity * 2) {
             resize(2 * nonnull_count);
             
-            set(key, value);
+            set(key, std::move(value));
             return;
           }
           
           if(table[i] == 0)
             ++nonnull_count;
           ++used_count;
-          table[i] = new Entry<K, V>(key, value);
+          table[i] = new Entry<K, V>(key, std::move(value));
         }
       }
       

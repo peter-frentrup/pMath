@@ -171,7 +171,7 @@ namespace richmath {
         float               height);
         
     protected:
-      ControlPainter(): Base() {}
+      ControlPainter();
       virtual ~ControlPainter() {}
   };
 }

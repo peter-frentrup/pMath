@@ -30,6 +30,11 @@ namespace richmath {
       static const char *const SvgImage;
       
     public:
+      Clipboard()
+        : Base()
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+      }
       virtual ~Clipboard() {}
       
       virtual bool has_format(String mimetype) = 0;

@@ -30,7 +30,7 @@ namespace richmath {
       virtual ~GraphicsBox();
       
       // Box::try_create<GraphicsBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       void reset_user_options();
       void set_user_default_options(Expr rules);
@@ -51,7 +51,7 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_GRAPHICSBOX); }
-      virtual Expr to_pmath(int flags) override; // BoxFlagXXX
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *mouse_selection(
         float  x,

@@ -147,7 +147,7 @@ RotationBox::RotationBox()
     style = new Style;
 }
 
-bool RotationBox::try_load_from_object(Expr expr, int opts) {
+bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_ROTATIONBOX)
     return false;
     
@@ -196,7 +196,7 @@ void RotationBox::paint(Context *context) {
   }
 }
 
-Expr RotationBox::to_pmath(int flags) {
+Expr RotationBox::to_pmath(BoxOutputFlags flags) {
   return Call(
            Symbol(PMATH_SYMBOL_ROTATIONBOX),
            _content->to_pmath(flags),
@@ -215,7 +215,7 @@ TransformationBox::TransformationBox()
 {
 }
 
-bool TransformationBox::try_load_from_object(Expr expr, int opts) {
+bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_TRANSFORMATIONBOX)
     return false;
     
@@ -283,7 +283,7 @@ void TransformationBox::paint(Context *context) {
   }
 }
 
-Expr TransformationBox::to_pmath(int flags) {
+Expr TransformationBox::to_pmath(BoxOutputFlags flags) {
   return Call(
            Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX),
            _content->to_pmath(flags),

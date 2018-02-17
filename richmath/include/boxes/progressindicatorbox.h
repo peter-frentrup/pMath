@@ -13,7 +13,7 @@ namespace richmath {
       virtual ~ProgressIndicatorBox();
       
       // Box::try_create<ProgressIndicatorBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }
@@ -25,7 +25,7 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_PROGRESSINDICATORBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *mouse_selection(
         float  x,

@@ -101,7 +101,7 @@ PointBox::PointBox()
 PointBox::~PointBox() {
 }
 
-bool PointBox::try_load_from_object(Expr expr, int opts) {
+bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_POINTBOX)
     return false;
     
@@ -130,7 +130,7 @@ bool PointBox::try_load_from_object(Expr expr, int opts) {
   return false;
 }
 
-PointBox *PointBox::create(Expr expr, int opts) {
+PointBox *PointBox::create(Expr expr, BoxInputFlags opts) {
   PointBox *box = new PointBox;
   
   if(!box->try_load_from_object(expr, opts)) {
@@ -177,7 +177,7 @@ void PointBox::paint(GraphicsBoxContext *context) {
   context->ctx->canvas->fill();
 }
 
-Expr PointBox::to_pmath(int flags) {  // BoxFlagXXX
+Expr PointBox::to_pmath(BoxOutputFlags flags) { 
   if(_uncompressed_expr.expr_length() != 1)
     return _uncompressed_expr;
     

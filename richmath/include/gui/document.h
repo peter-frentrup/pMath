@@ -28,7 +28,7 @@ namespace richmath {
       Document();
       ~Document();
       
-      virtual bool try_load_from_object(Expr expr, int options) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
       virtual bool request_repaint(float x, float y, float w, float h) override;
       virtual void invalidate() override;
@@ -148,10 +148,10 @@ namespace richmath {
       
       void paint_resize(Canvas *canvas, bool resize_only);
       
-      Expr section_list_to_pmath(int flags, int start, int end) {
+      Expr section_list_to_pmath(BoxOutputFlags flags, int start, int end) {
         return SectionList::to_pmath(flags, start, end);
       }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DOCUMENT); }
       
     public:

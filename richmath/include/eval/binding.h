@@ -8,37 +8,37 @@
 namespace richmath {
   class Document;
   
-  typedef enum {
-    NumberBoxSymbol,
-    SymbolInfoSymbol,
-    AddConfigShaperSymbol,
-    InternalExecuteForSymbol,
-    MenuSymbol,
-    ItemSymbol,
-    DelimiterSymbol,
-    KeyEventSymbol,
-    KeyAltSymbol,
-    KeyControlSymbol,
-    KeyShiftSymbol,
-    SymbolDefinitionsSymbol,
-    FileOpenDialogSymbol,
-    FileSaveDialogSymbol,
-    ColorDialogSymbol,
-    FontDialogSymbol,
-    ControlActiveSymbol,
-    CopySpecialSymbol,
-    AutoCompleteNameSymbol,
-    AutoCompleteFileSymbol,
-    AutoCompleteOtherSymbol,
-    ScopedCommandSymbol,
+  enum class FESymbolIndex {
+    NumberBox,
+    SymbolInfo,
+    AddConfigShaper,
+    InternalExecuteFor,
+    Menu,
+    Item,
+    Delimiter,
+    KeyEvent,
+    KeyAlt,
+    KeyControl,
+    KeyShift,
+    SymbolDefinitions,
+    FileOpenDialog,
+    FileSaveDialog,
+    ColorDialog,
+    FontDialog,
+    ControlActive,
+    CopySpecial,
+    AutoCompleteName,
+    AutoCompleteFile,
+    AutoCompleteOther,
+    ScopedCommand,
     
     FrontEndSymbolsCount
-  } FrontEndSymbolIndex;
+  };
   
   bool init_bindings();
   void done_bindings();
   
-  Expr GetSymbol(FrontEndSymbolIndex i);
+  Expr GetSymbol(FESymbolIndex i);
   
   void set_current_document(Document *document);
   Document *get_current_document();

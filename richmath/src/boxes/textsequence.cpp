@@ -25,6 +25,7 @@ TextBuffer::TextBuffer(char *buf, int len)
     _length(len),
     _buffer(buf)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   if(len < 0) {
     _capacity = _length = strlen(buf);
   }
@@ -351,6 +352,19 @@ void TextSequence::paint(Context *context) {
   int line = 0;
   PangoLayoutIter *iter = get_iter();
   do {
+    if(line >= line_y_corrections.length()) {
+      /* It might happen that pango_layout_iter_next_line() gives more lines than during resize().
+         This could happen if the current font/text_shaper was disposed since the last resize()
+         and its set_style() thus does not yield the same fonts any more.
+
+         For example, this scenario happened while the current math shaper was "Matematica 10 Sans" 
+         (a ConfigShaper) and FE`AddConfigShaper("...path\to\mathematica10_sans.pmath") was called:
+         The call to FE`AddConfigShaper disposed the old ConfigShaperDB, but some of the shapers 
+         where still in use by the document. 
+      */
+      break;
+    }
+
     PangoRectangle rect;
     pango_layout_iter_get_line_extents(iter, &rect, 0);
     
@@ -503,11 +517,11 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
   }
 }
 
-Expr TextSequence::to_pmath(int flags) {
+Expr TextSequence::to_pmath(BoxOutputFlags flags) {
   return to_pmath(flags, 0, text.length());
 }
 
-Expr TextSequence::to_pmath(int flags, int start, int end) {
+Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(end <= start || start < 0 || end > text.length())
     return String("");
     
@@ -541,7 +555,7 @@ Expr TextSequence::to_pmath(int flags, int start, int end) {
   return g.end();
 }
 
-void TextSequence::load_from_object(Expr object, int options) { // BoxOptionXXX
+void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
   for(auto box : boxes)
     box->safe_destroy();
     

@@ -49,7 +49,8 @@ namespace richmath {
         if( glyphs[start].style != GlyphStyleNone      &&
             glyphs[start].style != GlyphStyleParameter &&
             glyphs[start].style != GylphStyleLocal     &&
-            glyphs[start].style != GlyphStyleNewSymbol)
+            glyphs[start].style != GlyphStyleNewSymbol &&
+            glyphs[start].style != GlyphStyleFunctionCall)
         {
           return end;
         }
@@ -77,8 +78,8 @@ namespace richmath {
           };
           
           if(!info) {
-            Expr syminfo = Application::interrupt_cached(Call(
-                             GetSymbol(SymbolInfoSymbol),
+            Expr syminfo = Application::interrupt_wait_cached(Call(
+                             GetSymbol(FESymbolIndex::SymbolInfo),
                              name));
                              
             if(syminfo == PMATH_SYMBOL_FALSE)
@@ -214,7 +215,7 @@ namespace richmath {
         se = span_as_name(se);
         if(!se)
           return;
-        
+          
         for(int i = se->start(); i <= se->end(); ++i)
           glyphs[i].style = GlyphStyleKeyword;
       }
@@ -222,9 +223,12 @@ namespace richmath {
       void colorize_identifier(SpanExpr *se) { // identifiers   #   ~
         assert(se->count() == 0);
         
-        if(glyphs[se->start()].style)
+        if( glyphs[se->start()].style != GlyphStyleNone &&
+            glyphs[se->start()].style != GlyphStyleFunctionCall)
+        {
           return;
-          
+        }
+        
         if(se->is_box()) {
           se->as_box()->colorize_scope(state);
           return;
@@ -1143,18 +1147,18 @@ namespace richmath {
         String name = head_name->as_text();
         SyntaxInformation info(name);
         
-        if(info.is_keyword) 
+        if(info.is_keyword)
           colorize_name(head_name, GlyphStyleKeyword);
         else
           colorize_name(head_name, GlyphStyleFunctionCall);
-        
+          
         if(info.minargs == 0 && info.maxargs == INT_MAX)
           return;
           
         int arg_count = call.function_argument_count();
         
         if(arg_count > info.maxargs) {
-          Expr options = Application::interrupt_cached(
+          Expr options = Application::interrupt_wait_cached(
                            Call(Symbol(PMATH_SYMBOL_OPTIONS), name));
                            
           if( options.expr_length() == 0 ||
@@ -1394,6 +1398,7 @@ ScopeColorizer::ScopeColorizer(MathSequence *_sequence)
   : Base(),
     sequence(_sequence)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 void ScopeColorizer::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se) {

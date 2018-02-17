@@ -64,9 +64,9 @@ bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
     if(!seq->get_style(Editable))
       return false;
       
-    int options = BoxOptionDefault;
+    BoxInputFlags options = BoxInputFlags::Default;
     if(seq->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxInputFlags::FormatNumbers;
       
     AbstractSequence *tmp = seq->create_similar();
     tmp->load_from_object(boxes, options);
@@ -142,9 +142,9 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     expr = g.end();
   }
   
-  expr = Application::interrupt_cached(
+  expr = Application::interrupt_wait_cached(
            Call(
-             GetSymbol(AutoCompleteOtherSymbol),
+             GetSymbol(FESymbolIndex::AutoCompleteOther),
              expr,
              alias),
            Application::button_timeout);
@@ -267,9 +267,9 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       }
       
       str = seq->text();
-      expr = Application::interrupt_cached(
+      expr = Application::interrupt_wait_cached(
                Call(
-                 GetSymbol(AutoCompleteFileSymbol),
+                 GetSymbol(FESymbolIndex::AutoCompleteFile),
                  str),
                Application::button_timeout);
                
@@ -390,9 +390,9 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
   if(!str.is_valid())
     return false;
     
-  expr = Application::interrupt_cached(
+  expr = Application::interrupt_wait_cached(
            Call(
-             GetSymbol(AutoCompleteFileSymbol),
+             GetSymbol(FESymbolIndex::AutoCompleteFile),
              str),
            Application::button_timeout);
            
@@ -450,9 +450,9 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
   }
   
   String text = span->as_text();
-  current_boxes_list = Application::interrupt_cached(
+  current_boxes_list = Application::interrupt_wait_cached(
                          Call(
-                           GetSymbol(AutoCompleteNameSymbol),
+                           GetSymbol(FESymbolIndex::AutoCompleteName),
                            text),
                          Application::button_timeout);
                          
