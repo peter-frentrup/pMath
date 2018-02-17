@@ -214,21 +214,5 @@ PMATH_PRIVATE pmath_t builtin_do(pmath_expr_t expr) {
     return expr;
     
   pmath_unref(expr);
-  
-  if(pmath_is_expr_of(data.result, PMATH_SYMBOL_RETURN)) {
-    size_t len = pmath_expr_length(data.result);
-    
-    if(len == 0) {
-      pmath_unref(data.result);
-      return PMATH_NULL;
-    }
-    
-    if(len == 1) {
-      expr = pmath_expr_get_item(data.result, 1);
-      pmath_unref(data.result);
-      return expr;
-    }
-  }
-  
   return data.result;
 }

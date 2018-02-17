@@ -1,0 +1,4 @@
+
+AssertFalse(1 = 0)
+
+AssertTrue(1 != 0)

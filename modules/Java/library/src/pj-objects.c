@@ -21,15 +21,18 @@ static unsigned int java_hash(jobject jobj) {
   if(env) {
     if(!midHashCode && (*env)->EnsureLocalCapacity(env, 1) == 0) {
       jclass clazz = (*env)->GetObjectClass(env, jobj);
+      pj_exception_to_pmath(env);
       
       if(clazz) {
         midHashCode = (*env)->GetMethodID(env, clazz, "hashCode", "()I");
+        pj_exception_to_pmath(env);
         (*env)->DeleteLocalRef(env, clazz);
       }
     }
     
     if(midHashCode) {
       int hash = (*env)->CallIntMethod(env, jobj, midHashCode);
+      pj_exception_to_pmath(env);
       
       return (unsigned int)hash;
     }
@@ -174,6 +177,7 @@ pmath_t pj_object_from_java(JNIEnv *env, jobject jobj) {
   if(env && (*env)->EnsureLocalCapacity(env, 1) == JNI_OK) {
     jclass clazz = (*env)->GetObjectClass(env, jobj);
     
+    pj_exception_to_pmath(env);
     if(clazz) {
       nice_classname = pj_class_get_nice_name(env, clazz);
       (*env)->DeleteLocalRef(env, clazz);
@@ -708,7 +712,6 @@ pmath_t pj_builtin_internal_javanew(pmath_expr_t expr) {
   pmath_t result;
   pmath_t exception;
   pmath_t companion = pj_thread_get_companion(NULL);
-  
   
   result = pmath_ref(PMATH_SYMBOL_FAILED);
   pjvm_ensure_started();

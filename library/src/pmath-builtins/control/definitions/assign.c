@@ -17,7 +17,6 @@ static pmath_bool_t assign_funcdef(
   pmath_t         rhs          // will be freed
 ) {
   struct _pmath_symbol_rules_t *rules;
-  
   rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
   
   if(!rules) {

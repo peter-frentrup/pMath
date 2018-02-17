@@ -80,6 +80,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr) {
   pmath_t obj;
   size_t len = pmath_expr_length(expr);
   int reldepth;
+  pmath_bool_t scan_returns_value = FALSE;
   
   if(len < 2 || len > 3) {
     pmath_message_argxxx(len, 2, 3);
@@ -144,6 +145,8 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr) {
         
         if(pmath_is_expr_of_len(exception, PMATH_SYMBOL_PARALLEL_RETURN, 1)) {
           obj = pmath_expr_get_item(exception, 1);
+          pmath_unref(exception);
+          scan_returns_value = TRUE;
         }
         else
           pmath_throw(exception);
@@ -169,19 +172,15 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr) {
     
     pmath_unref(expr);
     
-    _pmath_scan(&info2, obj, 0);
+    scan_returns_value = _pmath_scan(&info2, obj, 0);
     obj = info2.result;
   }
   else
     pmath_unref(expr);
     
   pmath_unref(info.function);
-  if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RETURN, 1)) {
-    pmath_t r = pmath_expr_get_item(obj, 1);
-    
-    pmath_unref(obj);
-    return r;
-  }
+  if(scan_returns_value) 
+    return obj;
   
   pmath_unref(obj);
   return PMATH_NULL;

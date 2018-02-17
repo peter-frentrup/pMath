@@ -81,15 +81,11 @@ static const pmath_ht_class_t function_table_class = {
 //{ builtins from src/pmath-builtins/arithmetic/ ...
 PMATH_PRIVATE pmath_t builtin_abs(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_approximate(     pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_arcsin(          pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_arctan(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_arg(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_binomial(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_chop(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_complex(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_conjugate(       pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_cos(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_cosh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_exp(             pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_factorial(       pmath_expr_t expr);
@@ -112,12 +108,8 @@ PMATH_PRIVATE pmath_t builtin_rescale(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_round_functions( pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setprecision(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sign(            pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sin(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_sinh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sqrt(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sum(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_tan(             pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_tanh(            pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_times(           pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_bool_t builtin_approximate_e(               pmath_t *obj, double prec);
@@ -485,6 +477,7 @@ PMATH_PRIVATE pmath_t builtin_lcm(                             pmath_expr_t expr
 PMATH_PRIVATE pmath_t builtin_nextprime(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_randominteger(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_randomreal(                      pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_seedrandom(                      pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/parallel/ ...
 PMATH_PRIVATE pmath_t builtin_abort(             pmath_expr_t expr);
@@ -659,6 +652,10 @@ pmath_bool_t pmath_register_approx_code(
 }
 
 /*============================================================================*/
+
+#define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)   PMATH_PRIVATE pmath_symbol_t SYM = PMATH_STATIC_NULL;
+#  include "symbols.inc"
+#undef PMATH_DECLARE_SYMBOL
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   int i;
@@ -1327,6 +1324,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_SECTIONLABEL                     = NEW_SYSTEM_SYMBOL("SectionLabel"))
   VERIFY(   PMATH_SYMBOL_SECTIONLABELAUTODELETE           = NEW_SYSTEM_SYMBOL("SectionLabelAutoDelete"))
   VERIFY(   PMATH_SYMBOL_SECTIONPRINT                     = NEW_SYSTEM_SYMBOL("SectionPrint"))
+  VERIFY(   PMATH_SYMBOL_SEEDRANDOM                       = NEW_SYSTEM_SYMBOL("SeedRandom"))
   VERIFY(   PMATH_SYMBOL_SELECT                           = NEW_SYSTEM_SYMBOL("Select"))
   VERIFY(   PMATH_SYMBOL_SELECTABLE                       = NEW_SYSTEM_SYMBOL("Selectable"))
   VERIFY(   PMATH_SYMBOL_SELECTEDDOCUMENT                 = NEW_SYSTEM_SYMBOL("SelectedDocument"))
@@ -1491,6 +1489,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_WRITESTRING                      = NEW_SYSTEM_SYMBOL("WriteString"))
   VERIFY(   PMATH_SYMBOL_XOR                              = NEW_SYSTEM_SYMBOL("Xor"))
   VERIFY(   PMATH_SYMBOL_ZETA                             = NEW_SYSTEM_SYMBOL("Zeta"))
+  
+#  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    VERIFY( SYM = NEW_SYMBOL(NAME) );
+#    include "symbols.inc"
+#  undef PMATH_DECLARE_SYMBOL
   //} ... setting symbol names
   
 #ifdef PMATH_DEBUG_LOG
@@ -1573,8 +1575,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_AND,                         builtin_and)
   BIND_DOWN(   PMATH_SYMBOL_APPLY,                       builtin_apply)
   BIND_DOWN(   PMATH_SYMBOL_APPEND,                      builtin_append)
-  BIND_DOWN(   PMATH_SYMBOL_ARCSIN,                      builtin_arcsin)
-  BIND_DOWN(   PMATH_SYMBOL_ARCTAN,                      builtin_arctan)
   BIND_DOWN(   PMATH_SYMBOL_ARG,                         builtin_arg)
   BIND_DOWN(   PMATH_SYMBOL_ARRAY,                       builtin_array)
   BIND_DOWN(   PMATH_SYMBOL_ASSIGN,                      builtin_assign)
@@ -1622,8 +1622,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_CONTINUE,                    general_builtin_zeroonearg)
   BIND_DOWN(   PMATH_SYMBOL_COPYDIRECTORY,               builtin_copydirectory_and_copyfile)
   BIND_DOWN(   PMATH_SYMBOL_COPYFILE,                    builtin_copydirectory_and_copyfile)
-  BIND_DOWN(   PMATH_SYMBOL_COS,                         builtin_cos)
-  BIND_DOWN(   PMATH_SYMBOL_COSH,                        builtin_cosh)
   BIND_DOWN(   PMATH_SYMBOL_COUNT,                       builtin_count)
   BIND_DOWN(   PMATH_SYMBOL_CREATEDIRECTORY,             builtin_createdirectory)
   BIND_DOWN(   PMATH_SYMBOL_CREATEDOCUMENT,              general_builtin_nofront)
@@ -1851,6 +1849,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_ROUND,                       builtin_round_functions)
   BIND_DOWN(   PMATH_SYMBOL_SCAN,                        builtin_scan)
   BIND_DOWN(   PMATH_SYMBOL_SECTIONPRINT,                builtin_sectionprint)
+  BIND_DOWN(   PMATH_SYMBOL_SEEDRANDOM,                  builtin_seedrandom)
   BIND_DOWN(   PMATH_SYMBOL_SELECT,                      builtin_select)
   BIND_DOWN(   PMATH_SYMBOL_SELECTEDDOCUMENT,            general_builtin_nofront);
   BIND_DOWN(   PMATH_SYMBOL_SETATTRIBUTES,               builtin_setattributes)
@@ -1860,8 +1859,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_SETSTREAMPOSITION,           builtin_setstreamposition)
   BIND_DOWN(   PMATH_SYMBOL_SHOWDEFINITION,              builtin_showdefinition)
   BIND_DOWN(   PMATH_SYMBOL_SIGN,                        builtin_sign)
-  BIND_DOWN(   PMATH_SYMBOL_SIN,                         builtin_sin)
-  BIND_DOWN(   PMATH_SYMBOL_SINH,                        builtin_sinh)
   BIND_DOWN(   PMATH_SYMBOL_SINGLEMATCH,                 general_builtin_zeroonearg)
   BIND_DOWN(   PMATH_SYMBOL_SORT,                        builtin_sort)
   BIND_DOWN(   PMATH_SYMBOL_SORTBY,                      builtin_sortby)
@@ -1891,8 +1888,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_TAGUNASSIGN,                 builtin_tagunassign)
   BIND_DOWN(   PMATH_SYMBOL_TAKE,                        builtin_take)
   BIND_DOWN(   PMATH_SYMBOL_TAKEWHILE,                   builtin_takewhile)
-  BIND_DOWN(   PMATH_SYMBOL_TAN,                         builtin_tan)
-  BIND_DOWN(   PMATH_SYMBOL_TANH,                        builtin_tanh)
   BIND_DOWN(   PMATH_SYMBOL_THREAD,                      builtin_thread)
   BIND_DOWN(   PMATH_SYMBOL_THROUGH,                     builtin_through)
   BIND_DOWN(   PMATH_SYMBOL_THROW,                       builtin_throw)
@@ -1959,7 +1954,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
 #define SEQUENCEHOLD          PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD
 #define SYMMETRIC             PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC
 #define THREADLOCAL           PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL
-  
+
+#define PMATH_DECLARE_SYMBOL( SYM, NAME, ATTRIB )  SET_ATTRIB( SYM, ATTRIB );
+#  include "symbols.inc"
+#undef PMATH_DECLARE_SYMBOL
+
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,       HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CONDITION,          HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG, HOLDALL | THREADLOCAL);
@@ -2191,6 +2190,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   return TRUE;
   
 FAIL:
+#  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    pmath_unref(SYM); SYM = PMATH_NULL;
+#    include "symbols.inc"
+#  undef PMATH_DECLARE_SYMBOL
+
   for(i = 0; i < CODE_TABLES_COUNT; ++i)
     pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
     
@@ -2241,6 +2244,10 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
 PMATH_PRIVATE void _pmath_symbol_builtins_done(void) {
   int i;
   
+#  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    pmath_unref(SYM); SYM = PMATH_NULL;
+#    include "symbols.inc"
+#  undef PMATH_DECLARE_SYMBOL
+
   for(i = 0; i < CODE_TABLES_COUNT; ++i)
     pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
     

@@ -17,13 +17,12 @@
 				<Option object_output="obj/windows/gcc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="console/bin/windows/gcc-debug-x86/pmathc.exe" />
+				<Option host_application="console-win/bin/windows/gcc-debug-x86/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -78,7 +77,7 @@
 				<Option object_output="obj/windows/gcc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
-				<Option host_application="console/bin/windows/gcc-release-x86/pmathc.exe" />
+				<Option host_application="console-win/bin/windows/gcc-release-x86/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -86,7 +85,6 @@
 					<Add option="-march=i686" />
 					<Add option="-flto" />
 					<Add option="-O3" />
-					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
@@ -141,13 +139,12 @@
 				<Option object_output="obj/windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
-				<Option host_application="console/bin/windows/gcc-debug-x86/pmathc.exe" />
+				<Option host_application="console-win/bin/windows/gcc-debug-x86/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -202,7 +199,7 @@
 				<Option object_output="obj/windows/gcc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
-				<Option host_application="console/bin/windows/gcc-release-x86/pmathc.exe" />
+				<Option host_application="console-win/bin/windows/gcc-release-x86/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -210,7 +207,6 @@
 					<Add option="-march=core2" />
 					<Add option="-flto" />
 					<Add option="-O3" />
-					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
@@ -265,7 +261,7 @@
 				<Option object_output="obj/windows/msvc-debug-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
-				<Option host_application="console/bin/windows/msvc-debug-x86/pmathc.exe" />
+				<Option host_application="console-win/bin/windows/msvc-debug-x86/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -338,7 +334,7 @@
 				<Option object_output="obj/windows/msvc-release-x86/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015" />
-				<Option host_application="console/bin/windows/msvc-release-x86/pmathc.exe" />
+				<Option host_application="console-win/bin/windows/msvc-release-x86/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -406,7 +402,7 @@
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
-				<Option host_application="console/bin/windows/msvc-debug-x64/pmathc.exe" />
+				<Option host_application="console-win/bin/windows/msvc-debug-x64/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -479,7 +475,7 @@
 				<Option object_output="obj/windows/msvc-release-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
-				<Option host_application="console/bin/windows/msvc-release-x64/pmathc.exe" />
+				<Option host_application="console-win/bin/windows/msvc-release-x64/pmathc.exe" />
 				<Option run_host_application_in_terminal="0" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
@@ -972,12 +968,6 @@
 		<Unit filename="src/pmath-builtins/arithmetic/approximate-constants.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/arcsin.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/arctan.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/arg.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -997,12 +987,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/copysign-and-signbit.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/cos.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/cosh.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/fractionalpart.c">
@@ -1041,19 +1025,7 @@
 		<Unit filename="src/pmath-builtins/arithmetic/rescale.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/sin.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/sinh.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/sum-and-product.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/tan.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/tanh.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/times.c">
@@ -1644,6 +1616,9 @@
 		<Unit filename="src/pmath-builtins/number-theory/random.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/number-theory/seedrandom.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/parallel/abort.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1668,6 +1643,7 @@
 		<Unit filename="src/pmath-builtins/parallel/threadidle.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/symbols.inc" />
 		<Unit filename="src/pmath-core/custom.c">
 			<Option compilerVar="CC" />
 		</Unit>

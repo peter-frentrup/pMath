@@ -1,0 +1,61 @@
+
+BeginPackage("System`Con`", {"ExperimentalSyntax`"})
+
+$HaveHyperlinks:= True
+
+PrintWelcomeMessage
+PrintHelpMessage
+
+Begin("System`Con`Private`")
+
+Unprotect(ShowDefinition)
+Function ShowDefinition(~s:String) {
+	With(n:= Names(s))
+	SectionPrint("PrintUsage", n.Sort.Map(Button(#, ShowDefinition(#)) &).Row("\n")) /? Length(n) > 1
+}
+Protect(ShowDefinition)
+
+
+Attributes($DescribeLocationOverload):= {ThreadLocal}
+$DescribeLocationOverload:= True
+
+Function Developer`DescribeLocation(
+	src: Developer`DebugInfoSource(
+		~filename:String, 
+		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
+) Where($DescribeLocationOverload) {
+	Block({$DescribeLocationOverload:= False}, 
+	Block {
+		With(label:= Developer`DescribeLocation(src))
+		
+		If(Developer`FileInformation(filename) =!= {}) {
+			Return(Button(label, Developer`OpenTextFile(filename, Line->fromLine, Column->fromColumn)))
+		}
+		Return(label)
+	})
+}
+
+Developer`Private`errorButton(~eid)::= Button(Row @ {"[",eid,"]"}, Developer`PrintErrorDetails(eid))
+
+Function PrintWelcomeMessage() {
+    Print("Welcome to pMath.");
+
+	PrintHelpMessage();
+}
+
+Function PrintHelpMessage() {
+	With(names:= Names("System`*"))
+	With(i:= RandomInteger(1..Length(names)))
+	With(randomName:= names[i])
+
+	Print(
+		"Type `",  
+		Button("??symbol", ShowDefinition(randomName)),
+		"` to get help about a symbol. Exit with `",  
+		Button("Quit()", Quit()),
+		"`.")
+}
+
+End()
+
+EndPackage()

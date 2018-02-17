@@ -515,14 +515,14 @@ static pmath_expr_t cache_methods(
     jobjectArray        jtypes;
     
     method = (*env)->GetObjectArrayElement(env, method_array, ji);
-    if(!method)
+    if(pj_exception_to_pmath(env) || !method)
       goto FAIL_METHOD;
-      
       
     modifiers = (*env)->CallIntMethod(
                   env, method,
                   constructors ? info->midConstructorGetModifiers : info->midMethodGetModifiers);
-    if(!(modifiers & PJ_MODIFIER_PUBLIC)  ||
+    if( pj_exception_to_pmath(env) ||
+        !(modifiers & PJ_MODIFIER_PUBLIC) ||
         (modifiers & PJ_MODIFIER_PRIVATE) ||
         (modifiers & PJ_MODIFIER_PROTECTED))
     {
@@ -530,7 +530,7 @@ static pmath_expr_t cache_methods(
     }
     
     mid = (*env)->FromReflectedMethod(env, method);
-    if(!mid)
+    if(pj_exception_to_pmath(env) || !mid)
       goto FAIL_MID;
       
       
@@ -542,7 +542,7 @@ static pmath_expr_t cache_methods(
     }
     else {
       jobj = (*env)->CallObjectMethod(env, method, info->midMethodGetReturnType);
-      if(!jobj)
+      if(pj_exception_to_pmath(env) || !jobj)
         goto FAIL_JRETURN;
         
       name = pj_class_get_name(env, (jclass)jobj);
@@ -557,7 +557,7 @@ static pmath_expr_t cache_methods(
       name = PMATH_NULL;
       
       jobj = (*env)->CallObjectMethod(env, method, info->midMethodGetName);
-      if(!jobj)
+      if(pj_exception_to_pmath(env) || !jobj)
         goto FAIL_JNAME;
         
       name = pj_string_from_java(env, (jstring)jobj);
@@ -571,12 +571,14 @@ static pmath_expr_t cache_methods(
                env,
                method,
                constructors ? info->midConstructorGetParameterTypes : info->midMethodGetParameterTypes);
-    if(!jtypes)
+    if(pj_exception_to_pmath(env) || !jtypes)
       goto FAIL_JTYPES;
       
     jlen2 = (*env)->GetArrayLength(env, jtypes);
     params = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)jlen2);
-    
+    if(pj_exception_to_pmath(env))
+      goto FAIL_PARAMS;
+      
     for(ji2 = 0; ji2 < jlen2; ++ji2) {
       jobj = (*env)->GetObjectArrayElement(env, jtypes, ji2);
       
@@ -586,6 +588,9 @@ static pmath_expr_t cache_methods(
         
         params = pmath_expr_set_item(params, 1 + (size_t)ji2, type);
       }
+      
+      if(pj_exception_to_pmath(env))
+        goto FAIL_PARAMS;
     }
     (*env)->DeleteLocalRef(env, jtypes);
     
@@ -660,6 +665,7 @@ static pmath_expr_t cache_methods(
     if(!constructors)
       pmath_emit(pmath_ref(name), PMATH_NULL);
       
+  FAIL_PARAMS:
     pmath_unref(params);
   FAIL_JTYPES:      pmath_unref(name);
   FAIL_NAME:
@@ -699,12 +705,12 @@ static pmath_expr_t cache_fields(
     pmath_t             type;
     
     field = (*env)->GetObjectArrayElement(env, field_array, ji);
-    if(!field)
+    if(pj_exception_to_pmath(env) || !field)
       goto FAIL_FIELD;
       
-      
     modifiers = (*env)->CallIntMethod(env, field, info->midFieldGetModifiers);
-    if(!(modifiers & PJ_MODIFIER_PUBLIC) ||
+    if( pj_exception_to_pmath(env) ||
+        !(modifiers & PJ_MODIFIER_PUBLIC) ||
         (modifiers & PJ_MODIFIER_PRIVATE) ||
         (modifiers & PJ_MODIFIER_PROTECTED))
     {
@@ -712,13 +718,13 @@ static pmath_expr_t cache_fields(
     }
     
     fid = (*env)->FromReflectedField(env, field);
-    if(!fid)
+    if(pj_exception_to_pmath(env) || !fid)
       goto FAIL_FID;
       
       
     { // field type
       jobj = (*env)->CallObjectMethod(env, field, info->midFieldGetType);
-      if(!jobj)
+      if(pj_exception_to_pmath(env) || !jobj)
         goto FAIL_JTYPE;
         
       type_name = pj_class_get_name(env, (jclass)jobj);
@@ -733,7 +739,7 @@ static pmath_expr_t cache_fields(
     
     { // field name
       jobj = (*env)->CallObjectMethod(env, field, info->midFieldGetName);
-      if(!jobj)
+      if(pj_exception_to_pmath(env) || !jobj)
         goto FAIL_JNAME;
         
       name = pj_string_from_java(env, (jstring)jobj);
@@ -811,6 +817,7 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz) {
     return;
     
   array = (jobjectArray)(*env)->CallObjectMethod(env, clazz, info.midGetConstructors);
+  pj_exception_to_pmath(env);
   if(array) {
     methods = cache_methods(env, &info, array, TRUE);
     
@@ -820,6 +827,7 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz) {
   }
   
   array = (jobjectArray)(*env)->CallObjectMethod(env, clazz, info.midGetMethods);
+  pj_exception_to_pmath(env);
   if(array) {
     methods = cache_methods(env, &info, array, FALSE);
     
@@ -829,6 +837,7 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz) {
     methods = PMATH_NULL;
     
   array = (jobjectArray)(*env)->CallObjectMethod(env, clazz, info.midGetFields);
+  pj_exception_to_pmath(env);
   if(array) {
     fields = cache_fields(env, &info, array);
     
@@ -845,9 +854,10 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz) {
                   pmath_ref(methods)),
                 pmath_ref(fields)));
                 
-  if(!pmath_aborting()
-      && !(*env)->ExceptionCheck(env)
-      && pmath_is_expr_of(members, PMATH_SYMBOL_LIST)) {
+  if( !pmath_aborting() &&
+      !(*env)->ExceptionCheck(env) &&
+      pmath_is_expr_of(members, PMATH_SYMBOL_LIST))
+  {
     cache_entry = pmath_mem_alloc(sizeof(struct pmath2id_t));
     
     if(cache_entry) {

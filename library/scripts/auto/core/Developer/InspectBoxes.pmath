@@ -1,7 +1,8 @@
 
-BeginPackage("Developer`")
+BeginPackage("Developer`", {"ExperimentalSyntax`"})
 
 Developer`InspectBoxes
+Hold(Developer`OpenTextFile)
 
 Begin("Developer`Private`")
 
@@ -16,81 +17,105 @@ toNiceInfo(DebugInfoSource(~file, ~s .. ~e))::=
 	Row({file, s..e}, ",")
 toNiceInfo(~x)::= x
 
+wrapHyperlinkBox(~content, DebugInfoSource(~file, {~l1, ~c1} .. {~l2, ~c2}))::= 
+	ButtonBox(
+		content, 
+		ButtonFunction -> (OpenTextFile(file, Line->l1, Column->c1) &),
+		ButtonFrame -> "Frameless")
+wrapHyperlinkBox(~content, ~)::= content
+
 isOperatorToken(";"):= True
 isOperatorToken(","):= True
-isOperatorToken(~s:String)::= Try(StringToBoxes(s)) === $Failed
 isOperatorToken(~):= False
+Function isOperatorToken(~s:String) {
+	With(boxes:= Try(StringToBoxes(s)))
+	If(boxes === $Failed) {
+		Return(True)
+	}
+	If(!IsString(boxes)) {
+		Return(False)
+	}
+	With(expr:= Try(MakeExpression(boxes, ParseSymbols->False)))
+	Return(expr === $Failed)
+}
 
 internalInspectBoxes(call: {~head:String, "(", ~args, ")"})::=
 	With({debugInfo:= Developer`GetDebugInfo(call)},
 		With({debugInfoBoxes:= {{head, "(", "\[Ellipsis]", ")"}, "\n", ToBoxes(toNiceInfo(debugInfo))}},
-			{TooltipBox(StyleBox(head, styleDebugInfoAvailable), debugInfoBoxes), 
-				TooltipBox(StyleBox("(", styleDebugInfoAvailable), debugInfoBoxes), 
+			{TooltipBox(head.StyleBox(styleDebugInfoAvailable).wrapHyperlinkBox(debugInfo), debugInfoBoxes), 
+				TooltipBox(StyleBox("(", styleDebugInfoAvailable).wrapHyperlinkBox(debugInfo), debugInfoBoxes), 
 				internalInspectBoxes(args), 
-				TooltipBox(StyleBox(")", styleDebugInfoAvailable), debugInfoBoxes)}) /? debugInfo =!= /\/
-		)
+				TooltipBox(StyleBox(")", styleDebugInfoAvailable).wrapHyperlinkBox(debugInfo), debugInfoBoxes)}
+		) /? debugInfo =!= /\/
+	)
 
-internalInspectBoxes(~span:List)::= 
-	With({debugInfo:= Developer`GetDebugInfo(span),
-			newSpan:= span.Map(internalInspectBoxes)},
-		If(debugInfo =!= /\/,
-			With({debugInfoBoxes:= {span.Map(If(isOperatorToken(#), #, "\[Ellipsis]")&), "\n", ToBoxes(toNiceInfo(debugInfo))}},
-				Return(
-					newSpan.Map(
-						If(isOperatorToken(#), 
-							TooltipBox(StyleBox(#, styleDebugInfoAvailable), debugInfoBoxes),
-							#) &))
-				));
-		Return(newSpan)
-		)
+Function internalInspectBoxes(~span:List) {
+	With(debugInfo:= Developer`GetDebugInfo(span), newSpan:= span.Map(internalInspectBoxes))
+	If(debugInfo =!= /\/) {
+		With(debugInfoBoxes:= {span.Map(If(isOperatorToken(#), #, "\[Ellipsis]")&), "\n", ToBoxes(toNiceInfo(debugInfo))})
+		Return(
+			newSpan.Map(
+				Function(Block {
+					If(isOperatorToken(#)) {
+						TooltipBox(
+							StyleBox(#, styleDebugInfoAvailable).wrapHyperlinkBox(debugInfo), 
+							debugInfoBoxes)
+					} Else {
+						#
+					}
+				})))
+	}
+	Return(newSpan)
+}
 		
 internalInspectBoxes(~str:ComplexStringBox)::= 
 	StyleBox(str.Map(internalInspectBoxes), styleString)
 
 internalInspectBoxes(";")::= {";", "\n"}
-internalInspectBoxes(~other)::= 
-	With({debugInfo:= Developer`GetDebugInfo(other)},
-		If(debugInfo =!= /\/,
-			Return(TooltipBox(other, ToBoxes(toNiceInfo(debugInfo)))));
-		Return(other)
-		)
+Function internalInspectBoxes(~other) {
+	With(debugInfo:= Developer`GetDebugInfo(other))
+	If(debugInfo =!= /\/) {
+		Return(TooltipBox(other.wrapHyperlinkBox(debugInfo), ToBoxes(toNiceInfo(debugInfo))))
+	}
+	Return(other)
+}
 
-internalInspectBoxes(box: (head: ButtonBox|FrameBox|SqrtBox|StyleBox|TagBox|InterpretationBox|RotationBox|SubscriptBox|SuperscriptBox)(~content, ~~~opts))::=
-	With({debugInfo:= Developer`GetDebugInfo(box)},
-		With({newBox:= head(internalInspectBoxes(content), opts)},
-			If(debugInfo =!= /\/,
-				Return(TooltipBox(newBox, ToBoxes(toNiceInfo(debugInfo)))));
-			Return(newBox);
-			)
-		)
+Function internalInspectBoxes(box: (head: ButtonBox|FrameBox|SqrtBox|StyleBox|TagBox|InterpretationBox|RotationBox|SubscriptBox|SuperscriptBox)(~content, ~~~opts)) {
+	With(debugInfo:= Developer`GetDebugInfo(box))
+	With(newBox:= head(internalInspectBoxes(content), opts))
+	If(debugInfo =!= /\/) {
+		Return(TooltipBox(newBox.wrapHyperlinkBox(debugInfo), ToBoxes(toNiceInfo(debugInfo))))
+	}
+	Return(newBox)
+}
 
-internalInspectBoxes(box: (head: UnderscriptBox|OverscriptBox|SubsuperscriptBox,RadicalBox)(~content1, ~content2, ~~~opts))::=
-	With({debugInfo:= Developer`GetDebugInfo(box)},
-		With({newBox:= head(internalInspectBoxes(content1), internalInspectBoxes(content2), opts)},
-			If(debugInfo =!= /\/,
-				Return(TooltipBox(newBox, ToBoxes(toNiceInfo(debugInfo)))));
-			Return(newBox);
-			)
-		)
+Function internalInspectBoxes(box: (head: UnderscriptBox|OverscriptBox|SubsuperscriptBox|RadicalBox|FractionBox)(~content1, ~content2, ~~~opts)) {
+	With(debugInfo:= Developer`GetDebugInfo(box))
+	With(newBox:= head(internalInspectBoxes(content1), internalInspectBoxes(content2), opts))
+	If(debugInfo =!= /\/) {
+		Return(TooltipBox(newBox.wrapHyperlinkBox(debugInfo), ToBoxes(toNiceInfo(debugInfo))))
+	}
+	Return(newBox)
+}
 
-internalInspectBoxes(box: (head: UnderoverscriptBox)(~content1, ~content2, ~content3, ~~~opts))::=
-	With({debugInfo:= Developer`GetDebugInfo(box)},
-		With({newBox:= head(internalInspectBoxes(content1), internalInspectBoxes(content2), internalInspectBoxes(content3), opts)},
-			If(debugInfo =!= /\/,
-				Return(TooltipBox(newBox, ToBoxes(toNiceInfo(debugInfo)))));
-			Return(newBox);
-			)
-		)
+Function internalInspectBoxes(box: (head: UnderoverscriptBox)(~content1, ~content2, ~content3, ~~~opts)) {
+	With(debugInfo:= Developer`GetDebugInfo(box))
+	With(newBox:= head(internalInspectBoxes(content1), internalInspectBoxes(content2), internalInspectBoxes(content3), opts))
+	If(debugInfo =!= /\/) {
+		Return(TooltipBox(newBox.wrapHyperlinkBox(debugInfo), ToBoxes(toNiceInfo(debugInfo))))
+	}
+	Return(newBox)
+}
 
-internalInspectBoxes(box: GridBox(~matrix, ~~~opts))::=
-	With({debugInfo:= Developer`GetDebugInfo(box)},
-		With({newBox:= GridBox(matrix.Map(internalInspectBoxes, 2), opts)},
-			If(debugInfo =!= /\/,
-				Return(TooltipBox(newBox, ToBoxes(toNiceInfo(debugInfo)))));
-			Return(newBox);
-			)
-		)
-		
+Function internalInspectBoxes(box: GridBox(~matrix, ~~~opts)) {
+	With(debugInfo:= Developer`GetDebugInfo(box))
+	With(newBox:= GridBox(matrix.Map(internalInspectBoxes, 2), opts))
+	If(debugInfo =!= /\/) {
+		Return(TooltipBox(newBox.wrapHyperlinkBox(debugInfo), ToBoxes(toNiceInfo(debugInfo))))
+	}
+	Return(newBox)
+}
+
 End()
 
 EndPackage()

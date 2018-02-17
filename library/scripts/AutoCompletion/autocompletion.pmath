@@ -24,7 +24,7 @@ Function AutoCompleteName(~fullnames:List, ~part:String) {
 }
 
 Function AutoCompleteNamespaceGet(~part:String) {
-	Return(allNamespacesFromPath().selectByPrefix(StartOfString, part).Map(# ++ "`" &))
+	Return(allNamespacesFromPath().selectByCamelCase(StartOfString, part).Map(# ++ "`" &))
 }
 
 Function AutoCompleteOther(~list:List, ~part:String) {
@@ -71,14 +71,14 @@ Function allNamespacesFromPath() {
 		$Path
 			.FileNames(WordCharacter*** ++ ".pmath")
 			.StringCases(
-				$PathnameSeparator ++ (s: "A".."Z" ++ Except($PathnameSeparator)**) ++ ".pmath" :> s,
+				$PathnameSeparator ++ (s: ("A".."Z" ++ Except($PathnameSeparator)**)) ++ ".pmath" :> s,
 				1)
 			.Apply(Join),
 		$Path
 			.FileNames(WordCharacter***)
 			.FileNames("init.pmath")
 			.StringCases(
-				$PathnameSeparator ++ (s:"A".."Z" ++ Except($PathnameSeparator)**) ++ $PathnameSeparator ++ "init.pmath" :> s,
+				$PathnameSeparator ++ (s: ("A".."Z" ++ Except($PathnameSeparator)**)) ++ $PathnameSeparator ++ "init.pmath" :> s,
 				1)
 			.Apply(Join)
 		))

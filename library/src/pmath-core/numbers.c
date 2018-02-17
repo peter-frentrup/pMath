@@ -7,6 +7,7 @@
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/incremental-hash-private.h>
@@ -1840,14 +1841,16 @@ static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
 static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
   pmath_thread_t thread = pmath_thread_get_current();
   int base = 10;
+  slong max_digit_count;
+  int base_flags;
+  struct _pmath_number_string_parts_t parts;
+  pmath_bool_t show_radius_and_precision = FALSE;
   
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
     base = thread->numberbase;
     
-  slong max_digit_count = (int)(PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(base) + 2);
-  int base_flags = base;
-  struct _pmath_number_string_parts_t parts;
-  pmath_bool_t show_radius_and_precision = FALSE;
+  max_digit_count = (int)(PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(base) + 2);
+  base_flags = base;
   
   if(info->options & PMATH_WRITE_OPTIONS_FULLEXPR) {
     // changing base
@@ -2062,7 +2065,7 @@ static int compare_quotient_to_number(pmath_quotient_t numA, pmath_number_t numB
     fmpq_init(qb);
     
     _pmath_rational_get_fmpq(qa, numA);
-    _pmath_rational_get_fmpq(qa, numB);
+    _pmath_rational_get_fmpq(qb, numB);
     result = fmpq_cmp(qa, qb);
     
     fmpq_clear(qb);
@@ -2331,6 +2334,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
 #endif
   
   gmp_randinit_default(_pmath_randstate);
+  //gmp_randseed_ui(_pmath_randstate, (unsigned)rand());
+  {
+    mpz_t now;
+    mpz_init_set_d(now, pmath_datetime() * 1000.0);
+    gmp_randseed(_pmath_randstate, now);
+    mpz_clear(now);
+  }
   pmath_atomic_write_release(&_pmath_rand_spinlock, 0);
   
   _pmath_init_special_type(

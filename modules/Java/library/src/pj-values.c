@@ -2,6 +2,7 @@
 #include "pj-classes.h"
 #include "pj-objects.h"
 #include "pj-symbols.h"
+#include "pjvm.h"
 
 #include <math.h>
 #include <string.h>
@@ -529,80 +530,104 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/Boolean;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "booleanValue", "()Z");
         
-        if(mid) {
+        if(!pj_exception_to_pmath(env) && mid) {
+          jboolean val;
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
-          return pmath_build_value("b", (int)(*env)->CallBooleanMethod(env, value->l, mid));
+          val = (*env)->CallBooleanMethod(env, value->l, mid);
+          pj_exception_to_pmath(env);
+          return pmath_build_value("b", (int)val);
         }
       }
       
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/Byte;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "byteValue", "()B");
         
-        if(mid) {
+        if(!pj_exception_to_pmath(env) && mid) {
+          jbyte val;
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
-          return pmath_build_value("i", (int)(*env)->CallByteMethod(env, value->l, mid));
+          val = (*env)->CallByteMethod(env, value->l, mid);
+          pj_exception_to_pmath(env);
+          return pmath_build_value("i", (int)val);
         }
       }
       
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/Character;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "charValue", "()C");
         
-        if(mid) {
+        if(!pj_exception_to_pmath(env) && mid) {
+          jchar val;
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
-          return pmath_build_value("i", (int)(*env)->CallCharMethod(env, value->l, mid));
+          val = (*env)->CallCharMethod(env, value->l, mid);
+          pj_exception_to_pmath(env);
+          return pmath_build_value("i", (int)val);
         }
       }
       
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/Short;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "shortValue", "()S");
         
-        if(mid) {
+        if(!pj_exception_to_pmath(env) && mid) {
+          jshort val;
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
-          return pmath_build_value("i", (int)(*env)->CallShortMethod(env, value->l, mid));
+          val = (*env)->CallShortMethod(env, value->l, mid);
+          pj_exception_to_pmath(env);
+          return pmath_build_value("i", (int)val);
         }
       }
       
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/Integer;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "intValue", "()I");
         
-        if(mid) {
+        if(!pj_exception_to_pmath(env) && mid) {
+          jint val;
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
-          return pmath_build_value("i", (int)(*env)->CallIntMethod(env, value->l, mid));
+          val = (*env)->CallIntMethod(env, value->l, mid);
+          pj_exception_to_pmath(env);
+          return pmath_build_value("i", (int)val);
         }
       }
       
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "longValue", "()J");
         
-        if(mid) {
+        if(!pj_exception_to_pmath(env) && mid) {
+          jlong val;
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
-          return pmath_build_value("k", (long long)(*env)->CallLongMethod(env, value->l, mid));
+          val = (*env)->CallLongMethod(env, value->l, mid);
+          pj_exception_to_pmath(env);
+          return pmath_build_value("k", (long long)val);
         }
       }
       
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "floatValue", "()F");
         
-        if(mid) {
+        if(!pj_exception_to_pmath(env) && mid) {
+          jfloat val;
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
-          return pmath_build_value("f", (double)(*env)->CallFloatMethod(env, value->l, mid));
+          val = (*env)->CallFloatMethod(env, value->l, mid);
+          pj_exception_to_pmath(env);
+          return pmath_build_value("f", (double)val);
         }
       }
       
       if(pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")) {
         jmethodID mid = (*env)->GetMethodID(env, clazz, "doubleValue", "()D");
         
-        if(mid) {
+        if(!pj_exception_to_pmath(env) && mid) {
+          jdouble val;
           pmath_unref(class_name);
           (*env)->DeleteLocalRef(env, clazz);
-          return pmath_build_value("f", (*env)->CallDoubleMethod(env, value->l, mid));
+          val = (*env)->CallDoubleMethod(env, value->l, mid);
+          pj_exception_to_pmath(env);
+          return pmath_build_value("f", val);
         }
       }
     }
@@ -647,6 +672,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
         pmath_t arr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)len);
         size_t item_size = 0;
         
+        pj_exception_to_pmath(env);
         switch(buf[1]) {
           case 'Z': item_size = sizeof(value->z); break;
           case 'B': item_size = sizeof(value->b); break;
@@ -664,6 +690,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
           
           for(i = len; i > 0; --i) {
             v.l = (*env)->GetObjectArrayElement(env, value->l, i - 1);
+            pj_exception_to_pmath(env);
             
             arr = pmath_expr_set_item(arr, (size_t)i,
                                       pj_value_from_java(env, (char)buf[1], &v));
@@ -674,6 +701,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
         else {
           uint8_t *data = (*env)->GetPrimitiveArrayCritical(env, value->l, NULL);
           
+          pj_exception_to_pmath(env);
           if(data) {
             size_t i;
             

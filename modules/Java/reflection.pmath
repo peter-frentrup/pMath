@@ -20,7 +20,7 @@ Function syntaxHighlight(~lines) {
 	).StringReplace(
 		" " ++ Shortest((WordCharacter | "$" | ".")**) ++ "." ++ (name:WordCharacter**) ++ "(" :> " " ++ stringStyle(name, Blue, Italic) ++ "("
 	).StringReplace(
-		(s: WordBoundary ++ ("Object" | "String") ++ WordBoundary) :> stringStyle(s, Bold)
+		(s: (WordBoundary ++ ("Object" | "String") ++ WordBoundary)) :> stringStyle(s, Bold)
 	).StringReplace(
 		WordBoundary ++ (s: "abstract" | "void" | "byte" | "char" | "boolean" | "short" | "int" | "long" | "throws" | "double" | "float" | "static" | "synchronized") ++ WordBoundary :> stringStyle(s, Brown, Bold)
 	)

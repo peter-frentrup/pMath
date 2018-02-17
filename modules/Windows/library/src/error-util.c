@@ -23,7 +23,7 @@ static pmath_t format_win32_message(DWORD errorCode) {
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
-pmath_bool_t check_succeeded(HRESULT hr) {
+static pmath_bool_t check_succeeded_internal(HRESULT hr, pmath_bool_t use_ierrorinfo) {
   pmath_t description, options;
   WORD facility;
   WORD code;
@@ -38,7 +38,7 @@ pmath_bool_t check_succeeded(HRESULT hr) {
   code = HRESULT_CODE(hr);
   
   iei = NULL;
-  if(SUCCEEDED(GetErrorInfo(0, &iei)) && iei) {
+  if(use_ierrorinfo && SUCCEEDED(GetErrorInfo(0, &iei)) && iei) {
     BSTR bstr = NULL;
     if(SUCCEEDED(IErrorInfo_GetDescription(iei, &bstr))) {
       description = bstr_to_string(bstr);
@@ -50,17 +50,6 @@ pmath_bool_t check_succeeded(HRESULT hr) {
     description = format_win32_message(code);
   }
   
-//  pmath_message(PMATH_NULL, "hr", 5,
-//    pmath_expr_new_extended(
-//      pmath_ref(PMATH_SYMBOL_BASEFORM), 2,
-//      pmath_integer_new_ui32((DWORD)hr),
-//      PMATH_FROM_INT32(16)),
-//    pmath_ref(description),
-//    PMATH_FROM_INT32(hr),
-//    PMATH_FROM_INT32(facility),
-//    PMATH_FROM_INT32(code));
-//  return FALSE;
-
   pmath_gather_begin(PMATH_NULL);
   
   pmath_emit(
@@ -69,21 +58,21 @@ pmath_bool_t check_succeeded(HRESULT hr) {
       pmath_ref(PMATH_SYMBOL_HEAD),
       pmath_current_head()),
     PMATH_NULL);
-      
+    
   pmath_emit(
     pmath_expr_new_extended(
       pmath_ref(PMATH_SYMBOL_RULE), 2,
       PMATH_C_STRING("HResult"),
       pmath_integer_new_ui32(hr)),
     PMATH_NULL);
-      
+    
   if(!pmath_is_null(description)) {
     pmath_emit(
       pmath_expr_new_extended(
         pmath_ref(PMATH_SYMBOL_RULE), 2,
         PMATH_C_STRING("Description"),
         description),
-    PMATH_NULL);
+      PMATH_NULL);
   }
   
   options = pmath_gather_end();
@@ -94,4 +83,12 @@ pmath_bool_t check_succeeded(HRESULT hr) {
     options);
     
   return FALSE;
+}
+
+pmath_bool_t check_succeeded(HRESULT hr) {
+  return check_succeeded_internal(hr, TRUE);
+}
+
+pmath_bool_t check_succeeded_win32(DWORD error_code) {
+  return check_succeeded_internal(HRESULT_FROM_WIN32(error_code), FALSE);
 }

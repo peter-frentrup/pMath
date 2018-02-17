@@ -164,6 +164,11 @@ PMATH_PRIVATE pmath_t builtin_cases(pmath_expr_t expr) {
     pmath_unref(info.lhs);
     info.lhs = obj;
   }
+  if(!_pmath_pattern_validate(info.lhs)) {
+    pmath_unref(info.lhs);
+    pmath_unref(info.rhs);
+    return expr;
+  }
   
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);

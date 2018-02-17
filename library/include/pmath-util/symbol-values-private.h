@@ -114,6 +114,13 @@ pmath_bool_t _pmath_rulecache_find(
   struct _pmath_rulecache_t *rc,
   pmath_t                   *inout);
 
+/** Add, remove or modify a rule.
+    \param rc The set of rules to modify. Must not be NULL
+    \param pattern The new pattern (rule left-hand side). Will be freed.
+    \param body The new right-hand side. Will be freed. PMATH_UNDEFINED means "remove the rule".
+
+    If validation of \a pattern with _pmath_pattern_validate() fails, \a rc will not be changed.
+ */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_rulecache_change(

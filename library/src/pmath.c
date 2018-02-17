@@ -334,7 +334,7 @@ static pmath_expr_t get_system_information(void) {
       SETTINGS_RULE(
           "ThirdPartyLibraries",
           pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_LIST), 7,
+              pmath_ref(PMATH_SYMBOL_LIST), 6,
               gmp_info,
               SETTINGS_RULE("mpfr",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfr_get_version())) )),
               SETTINGS_RULE("flint", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(FLINT_VERSION))      )),
@@ -988,6 +988,9 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(ReplacePart):={Heads->Automatic}");
       
       PMATH_RUN("Options(RotationBox):={BoxRotation->0}");
+      
+      PMATH_RUN("Options(SeedRandom):={Method->Automatic}");
+      
       PMATH_RUN("Options(StringCases):=Options(StringCount):={IgnoreCase->False,Overlaps->False}");
       PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
       

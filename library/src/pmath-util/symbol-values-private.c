@@ -774,6 +774,11 @@ void _pmath_rulecache_change(
   pmath_hashtable_t table;
   
   assert(rc != NULL);
+
+  if(!_pmath_pattern_validate(pattern)) {
+    pmath_unref(pattern);
+    pmath_unref(body);
+  }
   
   body_has_condition = _pmath_rhs_has_condition(&body, FALSE);
   

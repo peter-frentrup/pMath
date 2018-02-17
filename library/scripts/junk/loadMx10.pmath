@@ -37,7 +37,9 @@ Developer`LoadMx10`doStage4
 
 Developer`LoadMx10`MxComplex
 Developer`LoadMx10`MxComplexRef
+Developer`LoadMx10`MxEmptyExpr
 Developer`LoadMx10`MxExpr
+Developer`LoadMx10`MxConstExpr
 Developer`LoadMx10`MxInteger
 Developer`LoadMx10`MxLargeInteger
 Developer`LoadMx10`MxLargeReal
@@ -220,7 +222,7 @@ Function newSimpleConstLookup(~constPool:List, ~headPattern) {
 	With(values:= constPool[indices, 1])
 	
 	{indices, values}.MapThread((consts(#1):= #2) &)
-	consts(~i)::= (Message(newSimpleConstLookup::notyp, i, headPattern); $Failed)
+	consts(~i)::= (Message(newSimpleConstLookup::notyp, headPattern, BaseForm(i, 16)); $Failed)
 	
 	Return(consts)
 }
@@ -315,7 +317,12 @@ Function readConstant(~mx) {
 		Case(-3) { % 16^^05 = -3: packed array
 			Return(MxPackedArray(mx.readPackedArray))
 		}
-		
+		Case(-4) { % 16^^07 = -4: Underflow()
+			Return(MxConstExpr(Underflow()))
+		}
+		Case(-5) { % 16^^09 = -5: Overflow()
+			Return(MxConstExpr(Overflow()))
+		}
 		Case(-6) { % 16^^0b = -6: A string
 			Return(MxString(mx.readString))
 		}
@@ -376,9 +383,31 @@ Function readSymbol(~mx, ~stringLookup) {
 	With(nameRef:= mx.readInteger)
 	With(unknown1:= mx.readInteger)
 	With(unknown2:= mx.readInteger)
-	With(attr:= mx.readInteger)
+	With(attrflags:= mx.readInteger)
 	
-	Return({pos, stringLookup(contextRef), stringLookup(nameRef), {unknown1, unknown2}, attr})
+	Return({pos, stringLookup(contextRef), stringLookup(nameRef), {unknown1, unknown2}, expandAttributeFlags(attrflags)})
+}
+
+Function expandAttributeFlags(~attrflags) {
+	With(absflags:= Abs(attrflags))
+	Return({
+		If(BitGet(absflags, 0) === 1, HoldFirst, Nothing),
+		If(BitGet(absflags, 1) === 1, HoldRest, Nothing),
+		If(BitGet(absflags, 2) === 1, Associative, Nothing), % Flat
+		If(BitGet(absflags, 3) === 1, Symmetric, Nothing), % Orderless
+		If(BitGet(absflags, 4) === 1, OneIdentity, Nothing),
+		If(BitGet(absflags, 5) === 1, Listable, Nothing),
+		If(BitGet(absflags, 6) === 1, "Constant", Nothing),
+		If(BitGet(absflags, 7) === 1, Protected, Nothing),
+		If(BitGet(absflags, 8) === 1, ReadProtected, Nothing),
+		If(BitGet(absflags, 9) === 1, NHoldFirst, Nothing),
+		If(BitGet(absflags, 10) === 1, NHoldRest, Nothing),
+		If(BitGet(absflags, 11) === 1, NumericFunction, Nothing),
+		If(BitGet(absflags, 12) === 1, SequenceHold, Nothing),
+		If(BitGet(absflags, 13) === 1, HoldAllComplete, Nothing),
+		If(BitGet(absflags, 14) === 1, Temporary, Nothing),
+		If(BitOr(attrflags, 16^^7fff) =!= 16^^7fff, attrflags, Nothing)
+	})
 }
 
 %
@@ -427,16 +456,23 @@ Function readExpr(~mx, ~constLookup, ~symbolLookup) {
 		%
 		% negative lengths seem to be special cases of empty lists ?
 		%
-		Return({pos, {}, length})
+		Return({pos, MxEmptyExpr(length), {}, /\/})
 	}
 	
-	With(unknown1:= mx.readInteger)
+	With(flags:= mx.readInteger)
 	With(unknown2:= mx.readInteger)
 	
 	With(head:= mx.readExprPart(constLookup, symbolLookup))
 	With(arguments:= Table(mx.readExprPart(constLookup, symbolLookup), length))
 	
-	Return({pos, head @@ arguments, {unknown1, unknown2}})
+	Return({pos, head @@ arguments, expandExprFlags(flags), unknown2})
+}
+
+Function expandExprFlags(~flags) {
+	Return({
+		If(BitGet(flags, 3) === 1, IsAtom, Nothing),
+		If(BitOr(flags, 16^^8) =!= 16^^8, "unknown" -> BitOr(flags, 16^^8) - 16^^8, Nothing)
+	})
 }
 
 Function readExprPart(~mx, ~constLookup, ~symbolLookup) {
@@ -448,7 +484,7 @@ Function readExprPart(~mx, ~constLookup, ~symbolLookup) {
 			% tag 00 = 0 = integer
 			% tag 02 = 1 = large integer 
 			% tag 04 = 2 = double
-			% tag 06 = 3 = large real 
+			% tag 06 = 3 = large real or Underflow() or Overflow()
 			% tag 10 = 8 = string
 			% tag 12 = 9 = packed array
 			With(ptr:= mx.readInteger)

@@ -417,9 +417,7 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
     if(_pmath_complex_float_extract_acb(z, &prec, &is_machine_prec, x)) {
       pmath_unref(x);
       acb_sgn(z, z, prec);
-      x = _pmath_complex_new_from_acb(z, is_machine_prec ? -1 : prec);
-      acb_clear(z);
-      return x;
+      return _pmath_complex_new_from_acb_destructive(z, is_machine_prec ? -1 : prec);
     }
     acb_clear(z);
     

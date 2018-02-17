@@ -159,24 +159,24 @@
 #  define PMATH_EXTERN_C
 #endif
 
-/* PMATH_API, PMATH_PRIVATE
+/* PMATH_API, PMATH_MODULE, PMATH_PRIVATE
  */
 #ifdef PMATH_OS_WIN32
 #  ifdef __GNUC__
 #    define PMATH_MODULE     PMATH_EXTERN_C __attribute__((cdecl, dllexport))
+#    define PMATH_PRIVATE
 
 #    ifdef BUILDING_PMATH
 #      define PMATH_API      PMATH_EXTERN_C __attribute__((cdecl, dllexport))
-#      define PMATH_PRIVATE
 #    else
 #      define PMATH_API      PMATH_EXTERN_C __attribute__((cdecl, dllimport))
 #    endif
 #  else
 #    define PMATH_MODULE     PMATH_EXTERN_C __declspec(dllexport)
+#    define PMATH_PRIVATE
 
 #    ifdef BUILDING_PMATH
 #      define PMATH_API      PMATH_EXTERN_C __declspec(dllexport)
-#      define PMATH_PRIVATE
 #    else
 #      define PMATH_API      PMATH_EXTERN_C __declspec(dllimport)
 #    endif
@@ -186,9 +186,7 @@
 
 #  define PMATH_API        PMATH_EXTERN_C __attribute__((__visibility__("default")))
 
-#  ifdef BUILDING_PMATH
-#    define PMATH_PRIVATE  PMATH_EXTERN_C __attribute__((__visibility__("hidden")))
-#  endif
+#  define PMATH_PRIVATE    PMATH_EXTERN_C __attribute__((__visibility__("hidden")))
 #endif
 
 /* architecture     PMATH_X86  PMATH_AMD64  PMATH_SPARC32  PMATH_SPARC64

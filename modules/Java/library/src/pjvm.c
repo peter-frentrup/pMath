@@ -355,6 +355,12 @@ JNIEnv *pjvm_get_env(void) {
   return get_env(FALSE);
 }
 
+static void clear_exception(JNIEnv *env) {
+#ifdef PMATH_DEBUG_LOG
+  (*env)->ExceptionDescribe(env);
+#endif
+  (*env)->ExceptionClear(env);
+}
 
 pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
   jthrowable jex;
@@ -363,24 +369,24 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
     
   jex = (*env)->ExceptionOccurred(env);
   if(jex) {
-#ifdef PMATH_DEBUG_LOG
-    (*env)->ExceptionDescribe(env);
-#endif
-    (*env)->ExceptionClear(env);
+    clear_exception(env);
     
     if(!(*env)->IsSameObject(env, jex, pjvm_internal_exception)) {
       pmath_t pex = PMATH_UNDEFINED;
       
       if(JNI_OK == (*env)->EnsureLocalCapacity(env, 2)) {
         jclass wrapped_ex_class = (*env)->FindClass(env, "pmath/util/WrappedException");
+        clear_exception(env);
         
         if(wrapped_ex_class &&
             (*env)->IsInstanceOf(env, jex, wrapped_ex_class))
         {
           jmethodID mid = (*env)->GetMethodID(env, wrapped_ex_class, "getCode", "()Ljava/lang/String;");
+          clear_exception(env);
           
           if(mid) {
             jobject jobj = (*env)->CallObjectMethod(env, jex, mid);
+            clear_exception(env);
             
             pmath_string_t code = pj_string_from_java(env, jobj);
             pex = pmath_parse_string(code);
@@ -401,17 +407,25 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
                 
         if(JNI_OK == (*env)->EnsureLocalCapacity(env, 5)) {
           jclass ex_class = (*env)->GetObjectClass(env, jex);
+          clear_exception(env);
           
           if(ex_class) {
             jclass object_class = (*env)->FindClass(env, "java/lang/Object");
             
             if(object_class) {
-              jmethodID mid_tostring      = (*env)->GetMethodID(env, object_class, "toString",      "()Ljava/lang/String;");
-              jmethodID mig_getstacktrace = (*env)->GetMethodID(env, ex_class,     "getStackTrace", "()[Ljava/lang/StackTraceElement;");
+              jmethodID mid_tostring;
+              jmethodID mig_getstacktrace;
+              
+              mid_tostring      = (*env)->GetMethodID(env, object_class, "toString",      "()Ljava/lang/String;");
+              clear_exception(env);
+              
+              mig_getstacktrace = (*env)->GetMethodID(env, ex_class,     "getStackTrace", "()[Ljava/lang/StackTraceElement;");
+              clear_exception(env);
               
               if(mid_tostring && mig_getstacktrace) {
                 jobjectArray jarr;
                 jobject jstr = (*env)->CallObjectMethod(env, jex, mid_tostring);
+                clear_exception(env);
                 
                 if(jstr) {
                   pex = pmath_expr_set_item(pex, 2, pj_string_from_java(env, jstr));
@@ -419,17 +433,21 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
                   (*env)->DeleteLocalRef(env, jstr);
                   
                   jarr = (*env)->CallObjectMethod(env, jex, mig_getstacktrace);
+                  clear_exception(env);
                   if(jarr) {
-                    jsize len = (*env)->GetArrayLength(env, jarr);
                     jsize i;
+                    jsize len = (*env)->GetArrayLength(env, jarr);
                     pmath_t stack = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)len);
+                    clear_exception(env);
                     
                     for(i = 0; i < len; ++i) {
                       jobject jobj = (*env)->GetObjectArrayElement(env, jarr, i);
+                      clear_exception(env);
                       if(!jobj)
                         break;
                         
                       jstr = (*env)->CallObjectMethod(env, jobj, mid_tostring);
+                      clear_exception(env);
                       (*env)->DeleteLocalRef(env, jobj);
                       
                       if(!jstr)

@@ -521,6 +521,50 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_number_t pmath_number_neg(pmath_number_t num);
 
+#ifdef ACB_H
+
+
+/** \brief Try to evaluate a function F(x) with floating point real or complex x.
+    \param expr  Pointer to the F-expression. On success, this will be replaced by the evaluation result.
+    \param x     The only argument of \a expr. It won't be freed.
+    \param func  An function for evaluating F(x) with complex ball.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+PMATH_API
+pmath_bool_t pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong));
+
+
+/** \brief Try to evaluate a function F(x, y) with floating point real or complex x and/or y.
+    \param expr  Pointer to the F-expression. On success, this will be replaced by the evaluation result.
+    \param x     The first argument of \a expr. It won't be freed.
+    \param y     The second argument of \a expr. It won't be freed.
+    \param func  An function for evaluating F(x,y) with complex ball.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+PMATH_API
+pmath_bool_t pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong));
+
+
+/** \brief Try to evaluate a function F(...) with floating point real or complex arguments.
+    \param expr    Pointer to the F-expression. On success, this will be replaced by the evaluation result.
+    \param args    The argument list. It won't be freed.
+    \param func    An function for evaluating F(...) with complex ball.
+    \param context An additionbal pointer argument to supply to \a func.
+    \return Whether the evaluation succeeded. If TRUE is returned, \a expr will hold the result, otherwise it
+            remains unchanged.
+ */
+PMATH_API
+pmath_bool_t pmath_complex_try_evaluate_acb_ex(
+  pmath_t *expr,
+  pmath_t args, // won't be freed
+  void (*func)(acb_t, const acb_ptr args, size_t nargs, slong prec, void *context),
+  void *context);
+
+
+#endif
+
 /** @} */
 
 #endif /* __PMATH_CORE__NUMBERS_H__ */

@@ -221,14 +221,31 @@
 			<Add library="shell32" />
 			<Add library="ole32" />
 			<Add library="oleaut32" />
+			<Add library="advapi32" />
 			<Add directory="../../../library/$(TARGET_OUTPUT_DIR)" />
 		</Linker>
 		<ExtraCommands>
 			<Add after='cmd /C if exist &quot;..\bin\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*&quot; del /Q ..\bin\$(ARCH_NAME)\$(TARGET_OUTPUT_BASENAME).*' />
 			<Add after='cmd /C if not exist &quot;..\bin\$(ARCH_NAME)&quot; mkdir &quot;..\bin\$(ARCH_NAME)&quot;' />
 			<Add after='cmd /C copy /Y &quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dll&quot; &quot;..\bin\$(ARCH_NAME)\*&quot;' />
+			<Mode after="always" />
 		</ExtraCommands>
+		<Unit filename="src/CommandLineToArgv.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/RegEnumKeys.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/RegEnumValues.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/RegGetValue.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/SHGetKnownFolderPath.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/ShellExecute.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/error-util.c">
@@ -237,6 +254,7 @@
 		<Unit filename="src/main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/registry.h" />
 		<Unit filename="src/string-util.c">
 			<Option compilerVar="CC" />
 		</Unit>

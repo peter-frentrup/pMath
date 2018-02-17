@@ -37,17 +37,17 @@ static void debug_indent(void) {
 #endif
 
 static pmath_t evaluate_expression(
-  pmath_expr_t    expr,    // will be freed
-  pmath_thread_t *thread_ptr,
-  pmath_bool_t    apply_rules);
+  pmath_expr_t   expr,    // will be freed
+  pmath_thread_t current_thread,
+  pmath_bool_t   apply_rules);
 
 static pmath_t evaluate_symbol(
-  pmath_symbol_t  sym,         // wont be freed
-  pmath_thread_t *thread_ptr);
+  pmath_symbol_t sym,         // wont be freed
+  pmath_thread_t current_thread);
 
 static pmath_t evaluate(
-  pmath_t  obj,
-  pmath_thread_t *thread_ptr
+  pmath_t        obj,
+  pmath_thread_t current_thread
 ) {
 #ifdef DEBUG_LOG_EVAL
   int iter = 0;
@@ -71,12 +71,12 @@ static pmath_t evaluate(
       if(_pmath_expr_is_updated(obj))
         break;
         
-      obj = evaluate_expression(obj, thread_ptr, TRUE);
+      obj = evaluate_expression(obj, current_thread, TRUE);
       continue;
     }
     
     if(pmath_is_symbol(obj)) {
-      pmath_t result = evaluate_symbol(obj, thread_ptr);
+      pmath_t result = evaluate_symbol(obj, current_thread);
       
       if(pmath_same(result, PMATH_UNDEFINED))
         break;
@@ -154,10 +154,10 @@ static pmath_t handle_explicit_return(pmath_t expr) {
 }
 
 static pmath_expr_t evaluate_arguments(
-  pmath_expr_t     expr,
-  pmath_thread_t  *thread_ptr,
-  pmath_bool_t     hold_first,
-  pmath_bool_t     hold_rest
+  pmath_expr_t   expr,
+  pmath_thread_t current_thread,
+  pmath_bool_t   hold_first,
+  pmath_bool_t   hold_rest
 ) {
   pmath_t item;
   pmath_t debug_info;
@@ -171,10 +171,10 @@ static pmath_expr_t evaluate_arguments(
     pmath_unref(item);
     item = pmath_expr_extract_item(expr, 1);
     
-    item = evaluate(item, thread_ptr);
+    item = evaluate(item, current_thread);
     expr = pmath_expr_set_item(expr, 1, item);
   }
-  else 
+  else
     pmath_unref(item);
     
   if(hold_rest) {
@@ -182,7 +182,7 @@ static pmath_expr_t evaluate_arguments(
       item = pmath_expr_get_item(expr, i);
       
       if(pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
-        item = evaluate(item, thread_ptr);
+        item = evaluate(item, current_thread);
         expr = pmath_expr_set_item(expr, i, item);
       }
       else
@@ -192,7 +192,7 @@ static pmath_expr_t evaluate_arguments(
   else {
     for(i = 2; i <= exprlen; ++i) {
       item = pmath_expr_extract_item(expr, i);
-      item = evaluate(item, thread_ptr);
+      item = evaluate(item, current_thread);
       expr = pmath_expr_set_item(expr, i, item);
     }
   }
@@ -322,9 +322,9 @@ static pmath_expr_t evaluator_strip_unevaluated(
 }
 
 static pmath_t evaluate_expression(
-  pmath_expr_t     expr,
-  pmath_thread_t  *thread_ptr,
-  pmath_bool_t     apply_rules
+  pmath_expr_t   expr,
+  pmath_thread_t current_thread,
+  pmath_bool_t   apply_rules
 ) {
   struct _pmath_stack_info_t     stack_frame;
   struct _pmath_symbol_rules_t  *rules;
@@ -338,22 +338,18 @@ static pmath_t evaluate_expression(
   size_t                         exprlen;
   _pmath_timer_t                 expr_changes;
   
-  assert(thread_ptr != NULL);
   assert(pmath_is_expr(expr));
   
-  if(!*thread_ptr) {
-    *thread_ptr = pmath_thread_get_current();
-    if(!*thread_ptr) {
-      pmath_unref(expr);
-      return PMATH_NULL;
-    }
+  if(!current_thread) {
+    pmath_unref(expr);
+    return PMATH_NULL;
   }
   
-  if(pmath_maxrecursion < (*thread_ptr)->evaldepth) {
-    if(!(*thread_ptr)->critical_messages) {
-      int tmp = (*thread_ptr)->evaldepth;
-      (*thread_ptr)->evaldepth = 0;
-      (*thread_ptr)->critical_messages = TRUE;
+  if(pmath_maxrecursion < current_thread->evaldepth) {
+    if(!current_thread->critical_messages) {
+      int tmp = current_thread->evaldepth;
+      current_thread->evaldepth = 0;
+      current_thread->critical_messages = TRUE;
       
       pmath_debug_print("reclim with expr = ");
       pmath_debug_print_object("", expr, "\n");
@@ -362,8 +358,8 @@ static pmath_t evaluate_expression(
         PMATH_SYMBOL_GENERAL, "reclim", 1,
         PMATH_FROM_INT32(pmath_maxrecursion));
         
-      (*thread_ptr)->critical_messages = FALSE;
-      (*thread_ptr)->evaldepth = tmp;
+      current_thread->critical_messages = FALSE;
+      current_thread->evaldepth = tmp;
     }
     else {
       pmath_debug_print("[abort] reclim with expr = ");
@@ -380,13 +376,13 @@ static pmath_t evaluate_expression(
     return expr;
   }
   
-  (*thread_ptr)->evaldepth++;
+  current_thread->evaldepth++;
   stack_frame.head          = PMATH_NULL;
   stack_frame.debug_info    = pmath_get_debug_info(expr);
-  stack_frame.next          = (*thread_ptr)->stack_info;
-  (*thread_ptr)->stack_info = &stack_frame;
+  stack_frame.next          = current_thread->stack_info;
+  current_thread->stack_info = &stack_frame;
   
-  head             = evaluate(pmath_expr_get_item(expr, 0), thread_ptr);
+  head             = evaluate(pmath_expr_get_item(expr, 0), current_thread);
   expr             = pmath_expr_set_item(expr, 0, pmath_ref(head));
   stack_frame.head = pmath_ref(head);
   head_sym         = _pmath_topmost_symbol(head);
@@ -407,7 +403,7 @@ static pmath_t evaluate_expression(
     
     expr = evaluate_arguments(
              expr,
-             thread_ptr,
+             current_thread,
              hold_first,
              hold_rest);
              
@@ -445,9 +441,9 @@ static pmath_t evaluate_expression(
       exprlen = pmath_expr_length(expr);
     }
     
-    if(symmetric) 
+    if(symmetric)
       expr = pmath_expr_sort(expr);
-    
+      
     if(apply_rules) {
       expr = evaluator_strip_unevaluated(
                expr,
@@ -567,12 +563,12 @@ static pmath_t evaluate_expression(
   }
   
 FINISH:
-  (*thread_ptr)->stack_info = stack_frame.next;
+  current_thread->stack_info = stack_frame.next;
   pmath_unref(stack_frame.head);
   pmath_unref(stack_frame.debug_info);
   pmath_unref(head_sym);
   pmath_unref(head);
-  (*thread_ptr)->evaldepth--;
+  current_thread->evaldepth--;
   
   pmath_unref(expr_with_unevaluated);
   
@@ -580,43 +576,34 @@ FINISH:
 }
 
 static pmath_t evaluate_symbol(
-  pmath_symbol_t  sym,         // wont be freed
-  pmath_thread_t *thread_ptr
+  pmath_symbol_t sym,         // wont be freed
+  pmath_thread_t current_thread
 ) {
   pmath_symbol_attributes_t   attr;
   pmath_t                     value;
   
-  assert(thread_ptr != NULL);
   assert(pmath_is_symbol(sym));
   
   attr = pmath_symbol_get_attributes(sym);
   
   if((attr & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL) != 0) {
-    if(!*thread_ptr) {
-      *thread_ptr = pmath_thread_get_current();
+    if(!current_thread)
+      return PMATH_NULL;
       
-      if(!*thread_ptr)
-        return PMATH_NULL;
-    }
-    
-    value = _pmath_thread_local_load_with(sym, *thread_ptr);
+    value = _pmath_thread_local_load_with(sym, current_thread);
   }
   else {
     value = _pmath_symbol_get_global_value(sym);
   }
   
   if(pmath_atomic_read_aquire(&_pmath_dynamic_trackers)) {
-    if(!*thread_ptr) {
-      *thread_ptr = pmath_thread_get_current();
-      
-      if(!*thread_ptr) {
-        pmath_unref(value);
-        return PMATH_NULL;
-      }
+    if(!current_thread) {
+      pmath_unref(value);
+      return PMATH_NULL;
     }
     
-    if((*thread_ptr)->current_dynamic_id) {
-      _pmath_symbol_track_dynamic(sym, (*thread_ptr)->current_dynamic_id);
+    if(current_thread->current_dynamic_id) {
+      _pmath_symbol_track_dynamic(sym, current_thread->current_dynamic_id);
     }
   }
   
@@ -631,9 +618,9 @@ static pmath_t evaluate_symbol(
 
 PMATH_API
 pmath_t pmath_evaluate(pmath_t obj) {
-  pmath_thread_t current_thread = NULL;
+  pmath_thread_t current_thread = pmath_thread_get_current();
   
-  return evaluate(obj, &current_thread);
+  return evaluate(obj, current_thread);
 }
 
 PMATH_API
@@ -641,7 +628,7 @@ pmath_t pmath_evaluate_expression(
   pmath_expr_t  expr,    // will be freed
   pmath_bool_t  apply_rules
 ) {
-  pmath_thread_t current_thread = NULL;
+  pmath_thread_t current_thread = pmath_thread_get_current();
   
-  return evaluate_expression(expr, &current_thread, apply_rules);
+  return evaluate_expression(expr, current_thread, apply_rules);
 }

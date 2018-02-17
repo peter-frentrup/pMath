@@ -107,7 +107,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
   }
   
   z = pmath_expr_get_item(expr, 1);
-  if(_pmath_complex_try_evaluate_acb(&expr, z, acb_gamma)) {
+  if(pmath_complex_try_evaluate_acb(&expr, z, acb_gamma)) {
     pmath_unref(z);
     return expr;
   }
@@ -251,7 +251,7 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr) {
   }
   
   z = pmath_expr_get_item(expr, 1);
-  if(_pmath_complex_try_evaluate_acb(&expr, z, acb_lgamma)) {
+  if(pmath_complex_try_evaluate_acb(&expr, z, acb_lgamma)) {
     pmath_unref(z);
     return expr;
   }
@@ -319,7 +319,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr) {
   if(exprlen == 2) {
     pmath_t n_obj = pmath_expr_get_item(expr, 1);
     
-    if(_pmath_complex_try_evaluate_acb_2(&expr, n_obj, z, acb_polygamma)) {
+    if(pmath_complex_try_evaluate_acb_2(&expr, n_obj, z, acb_polygamma)) {
       pmath_unref(n_obj);
       pmath_unref(z);
       return expr;
@@ -335,7 +335,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr) {
   }
   
   if(n == 0) {
-    if(_pmath_complex_try_evaluate_acb(&expr, z, acb_digamma)) {
+    if(pmath_complex_try_evaluate_acb(&expr, z, acb_digamma)) {
       pmath_unref(z);
       return expr;
     }

@@ -1,0 +1,20 @@
+
+BeginPackage("Developer`", {"ExperimentalSyntax`"})
+
+Developer`OpenTextFile
+
+Begin("Developer`Private`")
+
+Options(OpenTextFile):= {Line->Automatic, Column->Automatic}
+Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
+	If($SystemId === "Windows") {
+		With(path:= $NamespacePath)
+		Block({$NamespacePath:= path}, Get("Windows`"))
+		Return(Windows`Editors`OpenTextFile(filename, opts))
+	}
+	$Failed
+}
+
+End()
+
+EndPackage()

@@ -15,6 +15,11 @@ PMATH_API void pmath_gather_begin(pmath_t pattern) {
     pmath_unref(pattern);
     return;
   }
+
+  if(!_pmath_pattern_validate(pattern)) {
+    pmath_unref(pattern);
+    pattern = pmath_expr_new_extended(PMATH_SYMBOL_CONDITION, 2, PMATH_NULL, pmath_ref(PMATH_SYMBOL_FALSE));
+  }
   
   if(thread->gather_failed) {
     pmath_unref(pattern);

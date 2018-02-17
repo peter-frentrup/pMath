@@ -65,6 +65,11 @@ PMATH_PRIVATE pmath_t builtin_filterrules(pmath_expr_t expr){
   }
   
   pattern = pmath_expr_get_item(expr, 2);
+  if(!_pmath_pattern_validate(pattern)) {
+    pmath_unref(pattern);
+    pmath_unref(rules);
+    return expr;
+  }
   pmath_unref(expr);
   
   pattern = prepare_pattern(pattern);

@@ -9,6 +9,7 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/option-helpers.h>
 #include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
 
 #include <pmath-util/concurrency/threads.h>
 
@@ -28,9 +29,42 @@ PMATH_PRIVATE pmath_t _pmath_object_empty_pattern_sequence; /* readonly */
 
 //{ compare patterns ...
 
+struct int_entry_t {
+  intptr_t key;
+};
+
+struct int_int_entry_t {
+  struct int_entry_t inherited;
+  intptr_t value;
+};
+
+static pmath_bool_t ht_int_class__entry_keys_equal(void *e1, void *e2) {
+  struct int_entry_t *entry1 = e1;
+  struct int_entry_t *entry2 = e2;
+  return entry1->key == entry2->key;
+}
+
+static unsigned int ht_int_class__entry_hash(void *e) {
+  struct int_entry_t *entry = e;
+  return _pmath_hash_pointer((void *)entry->key);
+}
+
+static pmath_bool_t ht_int_class__entry_equals_key(void *e, void *k) {
+  struct int_entry_t *entry = e;
+  return entry->key == (intptr_t)k;
+}
+
+static const pmath_ht_class_t ht_int_class = {
+  pmath_mem_free,
+  ht_int_class__entry_hash,
+  ht_int_class__entry_keys_equal,
+  _pmath_hash_pointer,
+  ht_int_class__entry_equals_key
+};
+
 typedef struct pattern_compare_status_t {
-  pmath_hashtable_t pat1_counts; // entries: struct _pmath_object_int_entry_t
-  pmath_hashtable_t pat2_counts; // entries: struct _pmath_object_int_entry_t
+  pmath_hashtable_t pat1_counts; // entries: struct int_int_entry_t
+  pmath_hashtable_t pat2_counts; // entries: struct int_int_entry_t
 } pattern_compare_status_t;
 
 static int pattern_compare(
@@ -45,8 +79,8 @@ PMATH_PRIVATE int _pmath_pattern_compare(
   pattern_compare_status_t status;
   int result;
 
-  status.pat1_counts = pmath_ht_create(&pmath_ht_obj_int_class, 0);
-  status.pat2_counts = pmath_ht_create(&pmath_ht_obj_int_class, 0);
+  status.pat1_counts = pmath_ht_create(&ht_int_class, 0);
+  status.pat2_counts = pmath_ht_create(&ht_int_class, 0);
 
   if(status.pat1_counts && status.pat2_counts) {
     result = pattern_compare(pat1, pat2, &status);
@@ -110,18 +144,22 @@ pmath_bool_t _pmath_rhs_has_condition(
 
 static size_t inc_object_count(pmath_hashtable_t table, pmath_t key) {
 // returns old object count
-  struct _pmath_object_int_entry_t *entry = pmath_ht_search(table, &key);
+  struct int_int_entry_t *entry;
+  
+  if(!pmath_is_symbol(key))
+    return 0;
 
+  entry = pmath_ht_search(table, PMATH_AS_PTR(key));
   if(!entry) {
-    entry = pmath_mem_alloc(sizeof(struct _pmath_object_int_entry_t));
+    entry = pmath_mem_alloc(sizeof(struct int_int_entry_t));
 
     if(entry) {
-      entry->key   = pmath_ref(key);
+      entry->inherited.key = (intptr_t)PMATH_AS_PTR(key);
       entry->value = 1;
       entry = pmath_ht_insert(table, entry);
 
       if(entry)
-        pmath_ht_obj_int_class.entry_destructor(entry);
+        pmath_mem_free(entry);
     }
     return 0;
   }
@@ -715,8 +753,8 @@ typedef struct pattern_info_t {
 } pattern_info_t;
 
 struct pattern_variable_entry_t {
-  struct _pmath_object_entry_t  inherited;
-
+  struct int_entry_t  inherited;
+  pmath_t       value;
   pmath_t       first_matched_pattern; // PMATH_UNDEFINED when not matched
   pmath_bool_t  is_currently_matching;
 };
@@ -724,10 +762,10 @@ struct pattern_variable_entry_t {
 static void pattern_variable_entry_destructor(void *e);
 static const pmath_ht_class_t ht_pattern_variable_class = {
   pattern_variable_entry_destructor,
-  pmath_ht_obj_class__entry_hash,
-  pmath_ht_obj_class__entry_keys_equal,
-  pmath_ht_obj_class__key_hash,
-  pmath_ht_obj_class__entry_equals_key
+  ht_int_class__entry_hash,
+  ht_int_class__entry_keys_equal,
+  _pmath_hash_pointer,
+  ht_int_class__entry_equals_key
 };
 
 typedef enum match_kind_t {
@@ -792,9 +830,9 @@ static pmath_t replace_option_value(
   pmath_expr_t optionvaluerules);  // form: <T> = <Function>(<OptionValueRules>,<T>)
 
 // retains debug-info
-static pmath_t replace_multiple(
+static pmath_t replace_multiple_symbols(
   pmath_t           object,        // will be freed
-  pmath_hashtable_t replacements); // entries are struct _pmath_object_entry_t*
+  pmath_hashtable_t replacements); // entries are struct pattern_variable_entry_t*
 
 //#define DEBUG_LOG_MATCH
 
@@ -909,7 +947,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_match(
     if(rhs) {
       if(!pmath_is_null(*rhs)) {
         if(info.pattern_variables) {
-          *rhs = replace_multiple(*rhs, info.pattern_variables);
+          *rhs = replace_multiple_symbols(*rhs, info.pattern_variables);
         }
 
         if(!pmath_is_null(info.options)) {
@@ -1010,9 +1048,10 @@ CLEANUP:
 
 static void pattern_variable_entry_destructor(void *e) {
   struct pattern_variable_entry_t *entry = e;
+  pmath_unref(entry->value);
   pmath_unref(entry->first_matched_pattern);
 
-  pmath_ht_obj_class.entry_destructor(e);
+  ht_int_class.entry_destructor(e);
 }
 
 static void init_pattern_variables(
@@ -1020,21 +1059,24 @@ static void init_pattern_variables(
   pmath_hashtable_t table
 ) {
   if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_PATTERN, 2)) {
-    struct pattern_variable_entry_t *entry;
+    pmath_t name = pmath_expr_get_item(pattern, 1);
+    if(pmath_is_symbol(name)) {
+      struct pattern_variable_entry_t *entry;
+      entry = pmath_mem_alloc(sizeof(struct pattern_variable_entry_t));
+      if(!entry)
+        return;
 
-    entry = pmath_mem_alloc(sizeof(struct pattern_variable_entry_t));
-    if(!entry)
-      return;
+      entry->inherited.key = (intptr_t)PMATH_AS_PTR(name);
+      entry->value = pmath_ref(_pmath_object_empty_pattern_sequence);
+      entry->first_matched_pattern = PMATH_UNDEFINED;
+      entry->is_currently_matching = FALSE;
 
-    entry->inherited.key = pmath_expr_get_item(pattern, 1);
-    entry->inherited.value = pmath_ref(_pmath_object_empty_pattern_sequence);
-    entry->first_matched_pattern = PMATH_UNDEFINED;
-    entry->is_currently_matching = FALSE;
+      entry = pmath_ht_insert(table, entry);
 
-    entry = pmath_ht_insert(table, entry);
-
-    if(entry)
-      pattern_variable_entry_destructor(entry);
+      if(entry)
+        pattern_variable_entry_destructor(entry);
+    }
+    pmath_unref(name);
   }
 
   if(pmath_is_expr(pattern)) {
@@ -1119,7 +1161,7 @@ static match_kind_t match_atom(
         test = pmath_expr_get_item(pat, 2);
 
         if(info->pattern_variables) {
-          test = replace_multiple(test, info->pattern_variables);
+          test = replace_multiple_symbols(test, info->pattern_variables);
         }
       }
 
@@ -1192,6 +1234,11 @@ static match_kind_t match_atom(
       match_kind_t kind;
 
       pmath_t pat_item = pmath_expr_get_item(pat, 1);
+      if(!pmath_is_symbol(pat_item)) {
+        pmath_debug_print_object("[Internal Pattern Error: ignore pattern with invalid name ", pat_item, "]\n");
+        pmath_unref(pat_item);
+        return PMATH_MATCH_KIND_NONE;
+      }
 
       if(!info->pattern_variables) {
         info->pattern_variables = pmath_ht_create(&ht_pattern_variable_class, 0);
@@ -1204,7 +1251,7 @@ static match_kind_t match_atom(
         init_pattern_variables(info->pattern, info->pattern_variables);
       }
 
-      entry = pmath_ht_search(info->pattern_variables, &pat_item);
+      entry = pmath_ht_search(info->pattern_variables, PMATH_AS_PTR(pat_item));
       if(!entry) {
         pmath_debug_print_object("[Internal Pattern Error: unknown pattern name ", pat_item, "]\n");
         pmath_unref(pat_item);
@@ -1240,8 +1287,8 @@ static match_kind_t match_atom(
             return kind;
           }
 
-          default_value = entry->inherited.value;
-          entry->inherited.value = pmath_ref(arg);
+          default_value = entry->value;
+          entry->value = pmath_ref(arg);
 
           if(recursive_matching) {
             pmath_unref(pat_item);
@@ -1263,8 +1310,8 @@ static match_kind_t match_atom(
             return PMATH_MATCH_KIND_GLOBAL;
           }
 
-          pmath_unref(entry->inherited.value);
-          entry->inherited.value = default_value;
+          pmath_unref(entry->value);
+          entry->value = default_value;
           entry->first_matched_pattern = PMATH_UNDEFINED;
         }
 
@@ -1272,7 +1319,7 @@ static match_kind_t match_atom(
         return PMATH_MATCH_KIND_NONE;
       }
       else { // Already matched a pattern with this name before.
-        if(!pmath_equals(arg, entry->inherited.value)) {
+        if(!pmath_equals(arg, entry->value)) {
           pmath_unref(pat_item);
           return PMATH_MATCH_KIND_NONE;
         }
@@ -1544,6 +1591,45 @@ static match_kind_t match_atom(
   return PMATH_MATCH_KIND_NONE;
 }
 
+static pmath_bool_t validate_pattern_and_free(pmath_t pattern) {
+  size_t i;
+  size_t exprlen;
+  pmath_t item;
+
+  if(!pmath_is_expr(pattern) || pmath_is_packed_array(pattern)) {
+    pmath_unref(pattern);
+    return TRUE;
+  }
+
+  exprlen = pmath_expr_length(pattern);
+  if(exprlen == 2 && pmath_is_expr_of(pattern, PMATH_SYMBOL_PATTERN)) {
+    item = pmath_expr_get_item(pattern, 1);
+    if(!pmath_is_symbol(item)) {
+      pmath_unref(item);
+      pmath_message(PMATH_SYMBOL_PATTERN, "patvar", 1, pattern);
+      return FALSE;
+    }
+     pmath_unref(item);
+  }
+  else {
+    for(i = 0; i < exprlen; ++i) {
+      item = pmath_expr_get_item(pattern, i);
+      if(!validate_pattern_and_free(item)) {
+        pmath_unref(pattern);
+        return FALSE;
+      }
+    }
+  }
+
+  item = pmath_expr_get_item(pattern, exprlen);
+  pmath_unref(pattern);
+  return validate_pattern_and_free(item);
+}
+
+PMATH_PRIVATE pmath_bool_t _pmath_pattern_validate(pmath_t pattern) {
+  return validate_pattern_and_free(pmath_ref(pattern));
+}
+
 PMATH_PRIVATE void _pmath_pattern_analyse(
   _pmath_pattern_analyse_input_t  *input,
   _pmath_pattern_analyse_output_t *output
@@ -1594,12 +1680,12 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
       output->options.no_sequence = FALSE;
     }
     else if(len == 2 && pmath_same(head, PMATH_SYMBOL_PATTERN)) { // name: pat
-      struct pattern_variable_entry_t *entry;
+      struct pattern_variable_entry_t *entry = NULL;
 
       if(input->pattern_variables) {
         pmath_t pat_name = pmath_expr_get_item(input->pat, 1);
-
-        entry = pmath_ht_search(input->pattern_variables, &pat_name);
+        if(pmath_is_symbol(pat_name)) 
+          entry = pmath_ht_search(input->pattern_variables, PMATH_AS_PTR(pat_name));
 
         if(!entry) {
           pmath_debug_print_object("[Internal Pattern Error: unknown pattern name ", pat_name, "]");
@@ -1607,23 +1693,21 @@ PMATH_PRIVATE void _pmath_pattern_analyse(
 
         pmath_unref(pat_name);
       }
-      else
-        entry = NULL;
 
       if(entry && !pmath_same(entry->first_matched_pattern, PMATH_UNDEFINED)) {
         // Already visited -> one definite size
 
-        if(pmath_is_expr(entry->inherited.value)) {
-          head = pmath_expr_get_item(entry->inherited.value, 0);
+        if(pmath_is_expr(entry->value)) {
+          head = pmath_expr_get_item(entry->value, 0);
           pmath_unref(head);
 
           if(input->associative && pmath_same(head, input->parent_pat_head)) {
             output->options.no_sequence = TRUE;
-            output->size.min = output->size.max = pmath_expr_length(entry->inherited.value);
+            output->size.min = output->size.max = pmath_expr_length(entry->value);
           }
           else if(pmath_same(head, PMATH_MAGIC_PATTERN_SEQUENCE)) {
             output->size.min =
-              output->size.max = pmath_expr_length(entry->inherited.value);
+              output->size.max = pmath_expr_length(entry->value);
           }
         }
       }
@@ -2578,8 +2662,35 @@ PMATH_PRIVATE pmath_bool_t _pmath_contains_any(
   return FALSE;
 }
 
+static pmath_bool_t contains_replacement_symbols(
+  pmath_t           object,       // wont be freed
+  pmath_hashtable_t replacements  // entries are struct int_entry_t
+) {
+  size_t i, len;
+  if(pmath_is_symbol(object)) 
+    return NULL != pmath_ht_search(replacements, PMATH_AS_PTR(object));
+
+  if(!pmath_is_expr(object))
+    return FALSE;
+  
+  if(pmath_is_packed_array(object)) 
+    return NULL != pmath_ht_search(replacements, PMATH_AS_PTR(PMATH_SYMBOL_LIST));
+
+  len = pmath_expr_length(object);
+  for(i = 0; i <= len; ++i) {
+    pmath_t item = pmath_expr_get_item(object, i);
+    pmath_bool_t result = contains_replacement_symbols(item, replacements);
+    pmath_unref(item);
+
+    if(result)
+      return TRUE;
+  }
+
+  return FALSE;
+}
+
 // retains debug-info
-static void preprocess_local_one(
+static void preprocess_local_assignment(
   pmath_expr_t *local_expr,
   pmath_t      *def
 ) {
@@ -2593,46 +2704,59 @@ static void preprocess_local_one(
     pmath_unref(*def);
     *def = newsym;
   }
-  else if(pmath_is_expr(*def) &&
-          pmath_expr_length(*def) == 2)
-  {
+  else if(pmath_is_expr_of(*def, PMATH_SYMBOL_LIST)) {
+    pmath_t debug_info = _pmath_expr_get_debug_info(*def);
+    size_t i;
+    
+    for(i = pmath_expr_length(*def); i > 0; --i) {
+      pmath_t item = pmath_expr_extract_item(*def, i);
+      
+      preprocess_local_assignment(local_expr, &item);
+      
+      *def = pmath_expr_set_item(*def, i, item);
+    }
+    
+    *def = _pmath_expr_set_debug_info(*def, debug_info);
+  }
+}
+
+// retains debug-info
+static void preprocess_local_one(
+  pmath_expr_t *local_expr,
+  pmath_t      *def
+) {
+  if(pmath_is_expr(*def) && pmath_expr_length(*def) == 2) {
     pmath_t obj = pmath_expr_get_item(*def, 0);
     pmath_unref(obj);
 
     if( pmath_same(obj, PMATH_SYMBOL_ASSIGN) ||
         pmath_same(obj, PMATH_SYMBOL_ASSIGNDELAYED))
     {
-      obj = pmath_expr_get_item(*def, 1);
-
-      if(pmath_is_symbol(obj)) {
-        pmath_t debug_info = _pmath_expr_get_debug_info(*def);
-        pmath_symbol_t newsym = pmath_symbol_create_temporary(
-                                  pmath_symbol_name(obj),
-                                  FALSE);
-
-        *local_expr = _pmath_replace_local(*local_expr, obj, newsym);
-
-        *def = pmath_expr_set_item(*def, 1, newsym);
-        *def = _pmath_expr_set_debug_info(*def, debug_info);
-      }
-
-      pmath_unref(obj);
+      pmath_t debug_info = _pmath_expr_get_debug_info(*def);
+      obj = pmath_expr_extract_item(*def, 1);
+      
+      preprocess_local_assignment(local_expr, &obj);
+      
+      *def = pmath_expr_set_item(*def, 1, obj);
+      *def = _pmath_expr_set_debug_info(*def, debug_info);
+      return;
     }
   }
+  
+  preprocess_local_assignment(local_expr, def);
 }
 
 // retains debug-info
 PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   pmath_expr_t local_expr // will be freed.
 ) {
+  pmath_t debug_info = _pmath_expr_get_debug_info(local_expr);
   pmath_expr_t defs = pmath_expr_get_item(local_expr, 1);
-  pmath_t debug_info;
-  size_t i;
-
   local_expr = pmath_expr_set_item(local_expr, 1, PMATH_NULL);
 
   if(pmath_is_expr_of(defs, PMATH_SYMBOL_LIST)) {
-    debug_info = _pmath_expr_get_debug_info(defs);
+    pmath_t defs_debug_info = _pmath_expr_get_debug_info(defs);
+    size_t i;
 
     for(i = pmath_expr_length(defs); i > 0; --i) {
       pmath_t def = pmath_expr_get_item(defs, i);
@@ -2642,12 +2766,11 @@ PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
       defs = pmath_expr_set_item(defs, i, def);
     }
 
-    defs = _pmath_expr_set_debug_info(defs, debug_info);
+    defs = _pmath_expr_set_debug_info(defs, defs_debug_info);
   }
-  else
+  else if(!pmath_same(defs, PMATH_NULL))
     preprocess_local_one(&local_expr, &defs);
 
-  debug_info = _pmath_expr_get_debug_info(local_expr);
   local_expr = pmath_expr_set_item(local_expr, 1, defs);
   local_expr = _pmath_expr_set_debug_info(local_expr, debug_info);
 
@@ -2715,21 +2838,27 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
 }
 
 // retains debug-info
-static pmath_t replace_multiple(
+static pmath_t replace_multiple_symbols(
   pmath_t           object,        // will be freed
-  pmath_hashtable_t replacements   // entries are _pmath_object_entry_t*
+  pmath_hashtable_t replacements   // entries are pattern_variable_entry_t*
 ) {
-  struct _pmath_object_entry_t *entry = pmath_ht_search(replacements, &object);
   pmath_bool_t do_flatten;
   pmath_t item, debug_info;
   size_t i, len;
 
-  if(entry) {
-    pmath_unref(object);
-    return pmath_ref(entry->value);
+  if(pmath_is_symbol(object)) {
+    struct pattern_variable_entry_t *entry;
+    entry = pmath_ht_search(replacements, PMATH_AS_PTR(object));
+    if(entry) {
+      pmath_unref(object);
+      return pmath_ref(entry->value);
+    }
   }
 
   if(!pmath_is_expr(object))
+    return object;
+  
+  if(pmath_is_packed_array(object) && !pmath_ht_search(replacements, PMATH_AS_PTR(PMATH_SYMBOL_LIST)))
     return object;
 
   debug_info = _pmath_expr_get_debug_info(object);
@@ -2739,14 +2868,14 @@ static pmath_t replace_multiple(
        pmath_same(item, PMATH_SYMBOL_LOCAL)    ||
        pmath_same(item, PMATH_SYMBOL_WITH)) &&
       pmath_expr_length(object) > 1         &&
-      _pmath_contains_any(object, replacements))
+      contains_replacement_symbols(object, replacements))
   {
     pmath_unref(item);
 
     object = _pmath_preprocess_local(object);
   }
   else {
-    item = replace_multiple(item, replacements);
+    item = replace_multiple_symbols(item, replacements);
 
     object = pmath_expr_set_item(object, 0, item);
   }
@@ -2757,7 +2886,7 @@ static pmath_t replace_multiple(
   for(i = 1; i <= len; ++i) {
     item = pmath_expr_extract_item(object, i);
 
-    item = replace_multiple(item, replacements);
+    item = replace_multiple_symbols(item, replacements);
 
     if(/*i != 0 && */!do_flatten && pmath_is_expr(item)) {
       pmath_t head = pmath_expr_get_item(item, 0);

@@ -25,5 +25,13 @@ extern pmath_string_t guid_to_string(const GUID *guid);
  */
 extern pmath_bool_t check_succeeded(HRESULT hr);
 
+/** Test whether a win32 error code indicates success and print a message if not.
+ */
+extern pmath_bool_t check_succeeded_win32(DWORD error_code);
+
+
+/** The inverse of CommandLineToArgvW. The list will be freed.
+ */
+extern pmath_t try_compose_arguments(pmath_expr_t list);
 
 #endif // __PMATH_WINDOWS__ERROR_UTIL_H__

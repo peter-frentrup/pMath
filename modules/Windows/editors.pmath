@@ -1,0 +1,101 @@
+
+BeginPackage("Windows`Editors`", {"Windows`", "ExperimentalSyntax`"})
+
+Windows`Editors`OpenTextFile
+
+Begin("Windows`Editors`Private`")
+
+findVSCode()::= Try(
+    RegGetValue("HKEY_CLASSES_ROOT\\vscode\\shell\\open\\command", "").CommandLineToArgv.First 
+    , 
+    $Failed)
+
+findNotepadPlusPlus()::= Try(
+    RegGetValue("HKEY_CLASSES_ROOT\\Applications\\notepad++.exe\\shell\\open\\command", "").CommandLineToArgv.First 
+    , 
+    $Failed)
+
+findNotepad()::= Try(
+    %RegGetValue("HKEY_CLASSES_ROOT\\Applications\\notepad.exe\\shell\\open\\command", "").CommandLineToArgv.First 
+    Environment("PATH").StringSplit($PathListSeparator).FileNames("notepad.exe").First
+    , 
+    $Failed)
+
+OpenTextFile::line:= "Invalid option Line -> `1`. Positive integer or Automatic expected."
+OpenTextFile::col:= "Invalid option Column -> `1`. Nonnegative integer or Automatic expected."
+
+Options(OpenTextFile):= {Line -> Automatic, Column -> Automatic}
+Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
+    Local(editor)
+    With(line:= OptionValue(Line))
+    With(col:= OptionValue(Column))
+    With(info:= Developer`FileInformation(filename))
+
+    If(FileType.Replace(info) =!= File) {
+        Message(OpenTextFile::noopen, filename)
+        Return($Failed)
+    }
+
+    If(line =!= Automatic && (!line.IsInteger || line <= 0)) {
+        Message(OpenTextFile::line, line)
+        Return($Failed)
+    }
+
+    If(col =!= Automatic && (!col.IsInteger || col < 0)) {
+        Message(OpenTextFile::col, col)
+        Return($Failed)
+    }
+
+    editor:= findVSCode()
+    If(editor =!= $Failed) {
+        Return(openVSCode(editor, filename, line, col))
+    }
+
+    editor:= findNotepadPlusPlus()
+    If(editor =!= $Failed) {
+        Return(openNotepadPlusPlus(editor, filename, line, col))
+    }
+
+    editor:= findNotepad()
+    If(editor =!= $Failed) {
+        Return(openNotepad(editor, filename, line, col))
+    }
+
+    Return($Failed)
+}
+
+Function openVSCode(~editor:String, ~filename:String, ~line, ~col) {
+    Local(file:= filename)
+
+    If(line.IsInteger && line > 0) {
+        If(col.IsInteger && col >= 0) {
+            file:= StringForm("`1`:`2`:`3`", filename, line, col + 1).ToString
+        } Else {
+            file:= StringForm("`1`:`2`", filename, line).ToString
+        }
+    }
+
+    ShellExecute("open", editor, {"--reuse-window", "--goto", file})
+}
+
+Function openNotepadPlusPlus(~editor:String, ~filename:String, ~line, ~col) {
+    Local(args:= {})
+
+    If(line.IsInteger && line > 0) {
+        % Notepad++'s "-cColumnNumber" is unreliable, since it take tabwidth into account
+        args:= args.Append(StringForm("-n`1`", line).ToString)
+    }
+
+    args:= args.Append(filename)
+
+    ShellExecute("open", editor, args)
+}
+
+Function openNotepad(~editor:String, ~filename:String, ~line, ~col) {
+    ShellExecute("open", editor, {filename})
+}
+
+End()
+
+
+EndPackage()

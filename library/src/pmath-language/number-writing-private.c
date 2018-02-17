@@ -12,10 +12,11 @@ PMATH_PRIVATE void _pmath_number_string_parts_clear(struct _pmath_number_string_
 }
 
 static void pow_ui_fmpz(arb_t res, int base, const fmpz_t e, slong prec) {
+  slong bits;
+  
   assert(base > 0);
   
-  slong bits = fmpz_bits(e);
-  
+  bits = fmpz_bits(e);
   arb_set_si(res, base);
   arb_pow_fmpz(res, res, e, prec + bits);
 }
