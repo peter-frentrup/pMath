@@ -102,7 +102,7 @@ static void post_write_short(void *user, pmath_t item, pmath_write_options_t opt
 
   assert(ws->current_span != NULL);
 
-  if(!pmath_same(item, ws->current_span->item)) {
+  if(!pmath_same(item, ws->current_span->item) || ws->current_span->end >= 0) {
     assert(ws->current_span->end >= 0);
 
     ws->current_span = ws->current_span->owner;

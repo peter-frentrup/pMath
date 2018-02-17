@@ -1,0 +1,13 @@
+% Airy functions AiryAi, AiryAiPrime, AiryBi, AiryBiPrime
+
+BeginPackage("System`")
+
+<<Numerics`
+
+Begin("System`Airy`Private`")
+
+
+
+End()
+
+EndPackage()

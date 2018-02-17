@@ -56,7 +56,7 @@ static void cothread_destructor(void *p) {
     pmath_thread_send(ct->pmath,
                       pmath_expr_new_extended(
                         pmath_ref(PJ_SYMBOL_INTERNAL_STOPPEDCOTHREAD), 1,
-                        pmath_ref(ct->pmath)));
+                        pmath_integer_new_uiptr((uintptr_t)PMATH_AS_PTR(ct->pmath))));
   }
   
   pmath_debug_print("[cothread_destructor companion refcount = %d]\n", (int)pmath_refcount(ct->pmath));
@@ -331,7 +331,10 @@ pmath_t pj_builtin_internal_stoppedcothread(pmath_expr_t expr) {
   pmath_t cookie = pmath_expr_get_item(expr, 1);
   pmath_messages_t me = pmath_thread_get_queue();
   
-  if(pmath_equals(me, cookie)) {
+  if( pmath_is_integer(cookie) &&
+      pmath_integer_fits_uiptr(cookie) &&
+      pmath_integer_get_uiptr(cookie) == (uintptr_t)PMATH_AS_PTR(me))
+  {
     pmath_debug_print("[%p : cothread stopping]\n", PMATH_AS_PTR(me));
     pmath_unref(pmath_thread_local_save(cothread_key, PMATH_UNDEFINED));
   }

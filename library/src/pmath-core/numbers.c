@@ -7,6 +7,7 @@
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/incremental-hash-private.h>
@@ -2333,7 +2334,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
 #endif
   
   gmp_randinit_default(_pmath_randstate);
-  gmp_randseed_ui(_pmath_randstate, (unsigned)rand());
+  //gmp_randseed_ui(_pmath_randstate, (unsigned)rand());
+  {
+    mpz_t now;
+    mpz_init_set_d(now, pmath_datetime() * 1000.0);
+    gmp_randseed(_pmath_randstate, now);
+    mpz_clear(now);
+  }
   pmath_atomic_write_release(&_pmath_rand_spinlock, 0);
   
   _pmath_init_special_type(

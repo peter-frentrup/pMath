@@ -836,7 +836,7 @@ static pmath_expr_t remove_all_fast(
     items = pmath_expr_read_item_data(expr);
     assert(items != NULL && "general expr always have items array");
     
-    while(srci0 <= len && pmath_equals(items[srci0], rem))
+    while(srci0 < len && pmath_equals(items[srci0], rem))
       ++srci0;
       
     if(srci0 >= len)

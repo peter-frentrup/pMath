@@ -684,8 +684,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
           pmath_unref(re);
           pmath_unref(im);
           pmath_unref(*expr);
-          *expr = _pmath_complex_new_from_acb(z, is_machine_precision ? -1 : precision);
-          acb_clear(z);
+          *expr = _pmath_complex_new_from_acb_destructive(z, is_machine_precision ? -1 : precision);
           return TRUE;
         }
         
@@ -838,9 +837,8 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
       
       pmath_unref(base);
       pmath_unref(*expr);
-      *expr = _pmath_complex_new_from_acb(z, is_machine_precision ? -1 : precision);
-      
       acb_clear(exp);
+      *expr = _pmath_complex_new_from_acb_destructive(z, is_machine_precision ? -1 : precision);
       return TRUE;
     }
     
@@ -1072,11 +1070,10 @@ static pmath_bool_t try_rational_power(pmath_t *expr, const fmpq_t exponent) {
     arb_set_fmpq(exp, exponent, precision);
     acb_pow_arb(z, z, exp, precision);
     arb_clear(exp);
-    acb_clear(z);
     
     pmath_unref(base);
     pmath_unref(*expr);
-    *expr = _pmath_complex_new_from_acb(z, is_machine_precision ? -1 : precision);
+    *expr = _pmath_complex_new_from_acb_destructive(z, is_machine_precision ? -1 : precision);
     return TRUE;
   }
   acb_clear(z);
@@ -1100,9 +1097,11 @@ static pmath_t complex_power(pmath_t expr, acb_t base, acb_t exponent, slong pre
   
   if(acb_is_finite(base)) {
     pmath_unref(expr);
-    expr = _pmath_complex_new_from_acb(base, is_machine_precision ? -1 : precision);
+    acb_clear(exponent);
+    return _pmath_complex_new_from_acb_destructive(base, is_machine_precision ? -1 : precision);
   }
-  else if(arf_is_nan(arb_midref(acb_realref(base))) || arf_is_nan(arb_midref(acb_imagref(base)))) {
+  
+  if(arf_is_nan(arb_midref(acb_realref(base))) || arf_is_nan(arb_midref(acb_imagref(base)))) {
     pmath_message(PMATH_NULL, "indet", 1, expr);
     expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
@@ -1137,8 +1136,7 @@ static pmath_bool_t try_inexact_power(pmath_t *expr, pmath_t exponent) {
       acb_exp(exp_z, exp_z, exp_prec);
       pmath_unref(base);
       pmath_unref(*expr);
-      *expr = _pmath_complex_new_from_acb(exp_z, exp_is_machine_prec ? -1 : exp_prec);
-      acb_clear(exp_z);
+      *expr = _pmath_complex_new_from_acb_destructive(exp_z, exp_is_machine_prec ? -1 : exp_prec);
       return TRUE;
     }
     

@@ -305,13 +305,13 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     return expr;
   }
   
-  if(pmath_same(base, PMATH_SYMBOL_E) && _pmath_complex_try_evaluate_acb(&expr, x, acb_log)) {
+  if(pmath_same(base, PMATH_SYMBOL_E) && pmath_complex_try_evaluate_acb(&expr, x, acb_log)) {
     pmath_unref(x);
     pmath_unref(base);
     return expr;
   }
   
-  if(_pmath_complex_try_evaluate_acb_2(&expr, base, x, _pmath_acb_log_with_base)) {
+  if(pmath_complex_try_evaluate_acb_2(&expr, base, x, _pmath_acb_log_with_base)) {
     pmath_unref(x);
     pmath_unref(base);
     return expr;

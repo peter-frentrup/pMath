@@ -49,9 +49,7 @@ static pmath_bool_t contains( // return = search more?
     }
   }
 
-  if( reldepth == 0 &&
-      _pmath_pattern_match(obj, pmath_ref(pattern), NULL))
-  {
+  if( reldepth == 0 && _pmath_pattern_match(obj, pmath_ref(pattern), NULL)) {
     pmath_unref(obj);
     return TRUE;
   }
@@ -100,6 +98,10 @@ PMATH_PRIVATE pmath_t builtin_isfreeof(pmath_expr_t expr) {
   }
 
   pattern = pmath_expr_get_item(expr, 2);
+  if(!_pmath_pattern_validate(pattern)) {
+    pmath_unref(pattern);
+    return expr; 
+  }
 
   options = pmath_options_extract(expr, last_nonoption);
   if(pmath_is_null(options)) {

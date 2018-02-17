@@ -113,6 +113,10 @@ PMATH_PRIVATE pmath_t builtin_count(pmath_expr_t expr){
 
 
   info.lhs = pmath_expr_get_item(expr, 2);
+  if(!_pmath_pattern_validate(info.lhs)) {
+    pmath_unref(info.lhs);
+    return expr;
+  }
   
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);

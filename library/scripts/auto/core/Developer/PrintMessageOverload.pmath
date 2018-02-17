@@ -3,9 +3,14 @@ BeginPackage("Developer`", {"ExperimentalSyntax`"})
 
 Developer`PrintMessageOverload
 Developer`DescribeLocation
+Developer`PrintErrorDetails
 
 Begin("Developer`Private`")
 
+$errorId:= 0
+Function nextErrorId() {
+	Synchronize({$errorId}, $errorId+= 1; $errorId)
+}
 
 $overloadMessagePrint:= False
 SetAttributes($overloadMessagePrint, ThreadLocal)
@@ -23,14 +28,19 @@ Function PrintMessageOverload(~expr) {
 	% the overloading/implementation of SectionPrint("Message", ~). So the stack outside 
 	% SectionPrint("Message", ~) is stack[..-3]
 	With(stack:= Stack())
-	
-	SectionPrint("Message", Row @ {expr, "\n at ", stack[..-3].Reverse.Map(stackEntryForm).Row("\n at ")})
+	With(eid:= nextErrorId())
+	PrintErrorDetails(eid)::=
+		Block({$overloadMessagePrint:= False},
+			SectionPrint("Message", Row @ {errorButton(eid), "\n", expr, "\n at ", stack[..-3].Reverse.Map(stackEntryForm).Row("\n at ")})
+		)
+	SectionPrint("Message", Row @ {expr, " ", errorButton(eid)})
 }
 
 Protect(PrintMessageOverload)
 
 $overloadMessagePrint:= True
 
+errorButton(~eid)::= Row @ {"[",eid,"]"}
 
 Options(stackEntryForm)::= {"Head" -> "?", "Location" -> None}
 Function stackEntryForm(OptionsPattern()) {

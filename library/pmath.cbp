@@ -23,7 +23,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-march=i686" />
-					<Add option="-Wundef" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -86,7 +85,6 @@
 					<Add option="-march=i686" />
 					<Add option="-flto" />
 					<Add option="-O3" />
-					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
@@ -147,7 +145,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-Wundef" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
 					<Add option="-g" />
@@ -210,7 +207,6 @@
 					<Add option="-march=core2" />
 					<Add option="-flto" />
 					<Add option="-O3" />
-					<Add option="-Wundef" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
@@ -972,12 +968,6 @@
 		<Unit filename="src/pmath-builtins/arithmetic/approximate-constants.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/arcsin.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/arctan.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/arg.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -997,12 +987,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/copysign-and-signbit.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/cos.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/cosh.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/fractionalpart.c">
@@ -1041,19 +1025,7 @@
 		<Unit filename="src/pmath-builtins/arithmetic/rescale.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/sin.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/sinh.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/sum-and-product.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/tan.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/arithmetic/tanh.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/arithmetic/times.c">
@@ -1671,6 +1643,7 @@
 		<Unit filename="src/pmath-builtins/parallel/threadidle.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/symbols.inc" />
 		<Unit filename="src/pmath-core/custom.c">
 			<Option compilerVar="CC" />
 		</Unit>

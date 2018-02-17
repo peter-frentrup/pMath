@@ -28,6 +28,15 @@
 #include <string.h>
 
 
+const uint16_t char_LeftCeiling  = 0x2308;
+const uint16_t char_RightCeiling = 0x2309;
+const uint16_t char_LeftFloor    = 0x230A;
+const uint16_t char_RightFloor   = 0x230B;
+
+extern pmath_symbol_t pmath_System_Private_MakeLimitsExpression;
+extern pmath_symbol_t pmath_System_Private_MakeScriptsExpression;
+extern pmath_symbol_t pmath_System_Private_MakeJuxtapositionExpression;
+
 // only handles BMP chars U+0001 .. U+ffff, 0 on error
 static uint16_t unichar_at(
   pmath_expr_t expr,
@@ -98,6 +107,38 @@ static pmath_bool_t is_string_at(
     
   pmath_unref(obj);
   return TRUE;
+}
+
+static pmath_bool_t is_subsuperscript_at(pmath_expr_t expr, size_t i) {
+  pmath_string_t obj = pmath_expr_get_item(expr, i);
+  pmath_t head;
+  
+  if(!pmath_is_expr(obj)) {
+    pmath_unref(obj);
+    return FALSE;
+  }
+  head = pmath_expr_get_item(obj, 0);
+  pmath_unref(obj);
+  pmath_unref(head);
+  return pmath_same(head, PMATH_SYMBOL_SUBSCRIPTBOX)
+         || pmath_same(head, PMATH_SYMBOL_SUPERSCRIPTBOX)
+         || pmath_same(head, PMATH_SYMBOL_SUBSUPERSCRIPTBOX);
+}
+
+static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i) {
+  pmath_string_t obj = pmath_expr_get_item(expr, i);
+  pmath_t head;
+  
+  if(!pmath_is_expr(obj)) {
+    pmath_unref(obj);
+    return FALSE;
+  }
+  head = pmath_expr_get_item(obj, 0);
+  pmath_unref(obj);
+  pmath_unref(head);
+  return pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX)
+         || pmath_same(head, PMATH_SYMBOL_OVERSCRIPTBOX)
+         || pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX);
 }
 
 #define HOLDCOMPLETE(result) pmath_expr_new_extended(\
@@ -1275,7 +1316,7 @@ static pmath_t make_expression_from_underscriptbox(pmath_expr_t box) {
                          pmath_ref(PMATH_SYMBOL_UNDERSCRIPT), 2,
                          base,
                          under);
-      
+                         
       return wrap_hold_with_debuginfo_from(box, result);
     }
     
@@ -1301,7 +1342,7 @@ static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box) {
                          base,
                          under,
                          over);
-      
+                         
       return wrap_hold_with_debuginfo_from(box, result);
     }
     
@@ -1461,14 +1502,17 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
              pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE)));
 }
 
-// {}  {args}
-static pmath_t make_list(pmath_expr_t boxes) {
+// {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
+static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t head) {
   pmath_t args;
   size_t exprlen = pmath_expr_length(boxes);
   
   if(exprlen == 2) {
     pmath_unref(boxes);
-    return HOLDCOMPLETE(pmath_ref(_pmath_object_emptylist));
+    if(pmath_same(head, PMATH_SYMBOL_LIST))
+      return HOLDCOMPLETE(pmath_ref(_pmath_object_emptylist));
+    else
+      return HOLDCOMPLETE(pmath_expr_new(pmath_ref(head), 0));
   }
   
   if(exprlen != 3) {
@@ -1481,7 +1525,7 @@ static pmath_t make_list(pmath_expr_t boxes) {
   if(pmath_is_expr(args)) {
     return wrap_hold_with_debuginfo_from(
              boxes,
-             pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST)));
+             pmath_expr_set_item(args, 0, pmath_ref(head)));
   }
   
   pmath_unref(boxes);
@@ -1586,7 +1630,7 @@ static pmath_t make_unary_minus(pmath_expr_t boxes) {
                boxes,
                pmath_number_neg(box));
     }
-      
+    
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
@@ -1687,11 +1731,32 @@ static pmath_t make_named_match(
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
+static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr) {
+  pmath_t call_helper = pmath_expr_new_extended(pmath_ref(helper), 1, pmath_ref(*expr));
+  call_helper = pmath_evaluate(call_helper);
+  if(pmath_is_expr_of(call_helper, PMATH_SYMBOL_HOLDCOMPLETE) ||
+      pmath_same(call_helper, PMATH_SYMBOL_FAILED))
+  {
+    pmath_unref(*expr);
+    *expr = call_helper;
+    return TRUE;
+  }
+  // TODO: warn if call_helper is not Default ?
+  pmath_unref(call_helper);
+  return FALSE;
+}
+
 static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box) {
   pmath_t base = pmath_expr_get_item(boxes, 1);
   pmath_t exp  = pmath_expr_get_item(superscript_box,  1);
   
   pmath_unref(superscript_box);
+  
+  if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &boxes)) {
+    pmath_unref(base);
+    pmath_unref(exp);
+    return boxes;
+  }
   
   if(parse(&base) && parse(&exp)) {
     return wrap_hold_with_debuginfo_from(boxes, POW(base, exp));
@@ -1705,6 +1770,12 @@ static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box
 
 static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
   pmath_t base = pmath_expr_get_item(boxes, 1);
+  
+  if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &boxes)) {
+    pmath_unref(base);
+    pmath_unref(subscript_box);
+    return boxes;
+  }
   
   if(parse(&base)) {
     pmath_t idx = pmath_expr_get_item(subscript_box, 1);
@@ -1720,15 +1791,15 @@ static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
         size_t exprlen = pmath_expr_length(idx) + 1;
         
         pmath_t result = pmath_expr_new(
-                 pmath_ref(PMATH_SYMBOL_SUBSCRIPT),
-                 exprlen);
-                 
+                           pmath_ref(PMATH_SYMBOL_SUBSCRIPT),
+                           exprlen);
+                           
         result = pmath_expr_set_item(result, 1, base);
         
         for(; exprlen > 1; --exprlen) {
           result = pmath_expr_set_item(
-                   result, exprlen,
-                   pmath_expr_get_item(idx, exprlen - 1));
+                     result, exprlen,
+                     pmath_expr_get_item(idx, exprlen - 1));
         }
         
         pmath_unref(idx);
@@ -1747,29 +1818,36 @@ static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
 }
 
 static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscript_box) {
-  pmath_t idx  = pmath_expr_get_item(subsuperscript_box,  1);
-  pmath_t exp  = pmath_expr_get_item(subsuperscript_box,  2);
+  pmath_t idx;
+  pmath_t exp;
   pmath_t debug_info;
   
+  if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &boxes)) {
+    pmath_unref(subsuperscript_box);
+    return boxes;
+  }
+  
+  idx        = pmath_expr_get_item(subsuperscript_box,  1);
+  exp        = pmath_expr_get_item(subsuperscript_box,  2);
   debug_info = pmath_get_debug_info(subsuperscript_box);
   pmath_unref(subsuperscript_box);
   subsuperscript_box = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_SUBSCRIPTBOX), 1,
-          idx);
+                         pmath_ref(PMATH_SYMBOL_SUBSCRIPTBOX), 1,
+                         idx);
   subsuperscript_box = pmath_try_set_debug_info(subsuperscript_box, debug_info);
-          
+  
   debug_info = pmath_get_debug_info(boxes);
   boxes = pmath_expr_set_item(boxes, 2, subsuperscript_box);
   boxes = pmath_try_set_debug_info(boxes, pmath_ref(debug_info));
   
   boxes = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_LIST), 2,
-           boxes,
-           pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
-             exp));
+            pmath_ref(PMATH_SYMBOL_LIST), 2,
+            boxes,
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
+              exp));
   boxes = pmath_try_set_debug_info(boxes, debug_info);
-             
+  
   return pmath_expr_new_extended(
            pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
            boxes);
@@ -2727,6 +2805,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(firstchar == '(' && unichar_at(expr, exprlen) == ')')
       return make_parenthesis(expr);
       
+    // \[LeftInvisibleBracket]x\[RightInvisibleBracket]
+    if(firstchar == PMATH_CHAR_LEFTINVISIBLEBRACKET && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
+      return make_parenthesis(expr);
+      
     // comma sepearted list ...
     if(firstchar == ',' || secondchar == ',')
       return make_comma_sequence(expr);
@@ -2738,13 +2820,32 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(exprlen == 1)
       return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
       
-    // {}  and  {x}
-    if(firstchar == '{' && unichar_at(expr, exprlen) == '}')
-      return make_list(expr);
+    // {}  and  {x}  and  {grid\[RightInvisibleBracket]
+    if(firstchar == '{') {
+      uint16_t lastchar = unichar_at(expr, exprlen);
       
+      if(lastchar == '}')
+        return make_matchfix(expr, PMATH_SYMBOL_LIST);
+        
+      if(lastchar == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
+        return make_matchfix(expr, PMATH_SYMBOL_PIECEWISE);
+    }
+    
     // ?x  and  ?x:v
     if(firstchar == '?')
       return make_optional_pattern(expr);
+      
+    if(firstchar == char_LeftCeiling && unichar_at(expr, exprlen) == char_RightCeiling)
+      return make_matchfix(expr, PMATH_SYMBOL_CEILING);
+      
+    if(firstchar == char_LeftFloor && unichar_at(expr, exprlen) == char_RightFloor)
+      return make_matchfix(expr, PMATH_SYMBOL_FLOOR);
+      
+    if(firstchar == PMATH_CHAR_LEFTBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTBRACKETINGBAR)
+      return make_matchfix(expr, PMATH_SYMBOL_BRACKETINGBAR);
+      
+    if(firstchar == PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR)
+      return make_matchfix(expr, PMATH_SYMBOL_DOUBLEBRACKETINGBAR);
       
     // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
     if(exprlen == 2) {
@@ -3024,6 +3125,19 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(pmath_is_expr_of(expr, PMATH_NULL))
       return obsolete_make_implicit_evaluation_sequence(expr);
       
+    if(is_underoverscript_at(expr, 1)) {
+      if(try_parse_helper(pmath_System_Private_MakeLimitsExpression, &expr))
+        return expr;
+    }
+    else if(exprlen > 2 && is_subsuperscript_at(expr, 2)) { // exprlen==2 case handled above
+      if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &expr))
+        return expr;
+    }
+    else if(secondchar != '*' && secondchar != 0x00D7) {
+      if(try_parse_helper(pmath_System_Private_MakeJuxtapositionExpression, &expr))
+        return expr;
+    }
+    
     // everything else is multiplication ...
     return make_multiplication(expr);
   }

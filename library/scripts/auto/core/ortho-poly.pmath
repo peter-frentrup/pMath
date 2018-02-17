@@ -1,0 +1,13 @@
+% Special families of orthogonal polynomials ChebyshevT, ChebyshevU, HermiteH
+
+BeginPackage("System`")
+
+<<Numerics`
+
+Begin("System`OrthogonalPolynomials`Private`")
+
+
+
+End()
+
+EndPackage()

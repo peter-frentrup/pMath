@@ -37,7 +37,7 @@ PMATH_PRIVATE pmath_t builtin_unitvector(pmath_expr_t expr) {
   }
   
   if(n < k) {
-    pmath_message(PMATH_NULL, "dir", 2, pmath_integer_new_uiptr(n), PMATH_FROM_INT32(k));
+    pmath_message(PMATH_NULL, "dir", 2, pmath_integer_new_uiptr(n), pmath_integer_new_uiptr(k));
     return expr;
   }
   

@@ -150,7 +150,7 @@ struct _pmath_string_t *enlarge_string(
           AFTER_STRING(result) + extra_start,
           (result->length - extra_start) * sizeof(uint16_t));
     }
-    result->capacity_or_start = newcap;
+    result->capacity_or_start = (int)newcap;
     result->length += extralen;
     return result;
   }

@@ -13,6 +13,10 @@
 #  undef pmath_debug_print_stack
 #endif
 
+
+#define MIN(A, B)  ((A) < (B) ? (A) : (B))
+#define MAX(A, B)  ((A) > (B) ? (A) : (B))
+
 static void os_init(void);
 
 #ifdef PMATH_OS_WIN32
@@ -96,6 +100,7 @@ static pmath_messages_t get_main_mq(void) {
 // Reads a line from stdin without the ending "\n".
 static pmath_string_t readline_simple(void) {
   struct hyper_console_settings_t settings;
+  wchar_t *str;
   
   memset(&settings, 0, sizeof(settings));
   settings.size = sizeof(settings);
@@ -105,7 +110,7 @@ static pmath_string_t readline_simple(void) {
   //settings.auto_completion = auto_completion;
   //settings.line_continuation_prompt = L"...>";
   
-  wchar_t *str = hyper_console_readline(&settings);
+  str = hyper_console_readline(&settings);
   if(str) {
     pmath_string_t result = pmath_string_insert_ucs2(PMATH_NULL, 0, str, -1);
     hyper_console_free_memory(str);
@@ -138,6 +143,126 @@ static BOOL need_more_pmath_input(void *dummy, const wchar_t *buffer, int len, i
   pmath_span_array_free(spans);
   pmath_unref(code);
   return need_more_input;
+}
+
+static void expand_spans_selection(pmath_span_array_t *spans, int *start, int *end) {
+  int length;
+  int s;
+  int e;
+  
+  assert(start != NULL);
+  assert(end != NULL);
+  
+  if(*start > *end) {
+    int tmp = *start;
+    *start = *end;
+    *end = tmp;
+  }
+  
+  if(!spans)
+    return;
+    
+  length = pmath_span_array_length(spans);
+  if(*start <= 0 && *end >= length)
+    return;
+    
+  s = *start;
+  while(s > 0 && !pmath_span_array_is_token_end(spans, s - 1))
+    --s;
+    
+  e = MIN(*start + 1, length);
+  while(e < length && !pmath_span_array_is_token_end(spans, e - 1))
+    ++e;
+    
+  if(e >= *end && (s != *start || e != *end)) {
+    *start = s;
+    *end = e;
+    return;
+  }
+  
+  for(; s >= 0; --s) {
+    pmath_span_t *span = pmath_span_at(spans, s);
+    pmath_bool_t found = FALSE;
+    
+    while(span) {
+      int after = 1 + pmath_span_end(span);
+      if(after < *end)
+        break;
+        
+      if(after == *end && s == *start)
+        break;
+        
+      found = TRUE;
+      e = after;
+      span = pmath_span_next(span);
+    }
+    
+    if(found) {
+      *start = s;
+      *end = e;
+      return;
+    }
+  }
+  
+  *start = 0;
+  *end = length;
+}
+
+static int selection_shrink_pos = -1;
+static void expand_pmath_selection(void) {
+  int length;
+  const wchar_t *buffer = hyper_console_get_current_input(&length);
+  pmath_t code = pmath_string_insert_ucs2(PMATH_NULL, 0, buffer, length);
+  pmath_span_array_t *spans = pmath_spans_from_string(&code, NULL, NULL, NULL, NULL, NULL);
+  
+  if(spans) {
+    int pos, anchor;
+    int start, end;
+    hyper_console_get_current_selection(&pos, &anchor);
+    start = MIN(pos, anchor);
+    end = MAX(pos, anchor);
+    if(selection_shrink_pos < start || end < selection_shrink_pos) {
+      selection_shrink_pos = pos;
+    }
+    expand_spans_selection(spans, &start, &end);
+    hyper_console_set_current_selection(end, start);
+    pmath_span_array_free(spans);
+  }
+  
+  pmath_unref(code);
+}
+
+static void shrink_pmath_selection(void) {
+  int length;
+  const wchar_t *buffer = hyper_console_get_current_input(&length);
+  pmath_t code = pmath_string_insert_ucs2(PMATH_NULL, 0, buffer, length);
+  pmath_span_array_t *spans = pmath_spans_from_string(&code, NULL, NULL, NULL, NULL, NULL);
+  
+  if(spans) {
+    int pos, anchor;
+    int start, end;
+    hyper_console_get_current_selection(&pos, &anchor);
+    start = MIN(pos, anchor);
+    end = MAX(pos, anchor);
+    if(selection_shrink_pos < start || end < selection_shrink_pos) {
+      selection_shrink_pos = pos;
+    }
+    pos = anchor = selection_shrink_pos;
+    for(;;) {
+      int next_start = pos;
+      int next_end = anchor;
+      expand_spans_selection(spans, &next_start, &next_end);
+      if(next_start <= start && next_end >= end)
+        break;
+      
+      pos = next_start;
+      anchor = next_end;
+    }
+    hyper_console_set_current_selection(pos, anchor);
+    pmath_span_array_free(spans);
+  }
+  
+  pmath_unref(code);
 }
 
 static int find_char_name_start(const wchar_t *buffer, int pos) {
@@ -400,6 +525,8 @@ static wchar_t **auto_complete_pmath(void *context, const wchar_t *buffer, int l
     --token_start;
     
   token_end = cursor_pos;
+  if(token_end > 0)
+    --token_end;
   while(token_end < len && !pmath_span_array_is_token_end(spans, token_end))
     ++token_end;
     
@@ -446,9 +573,36 @@ static wchar_t **auto_complete_pmath(void *context, const wchar_t *buffer, int l
   return NULL;
 }
 
+static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er) {
+  pmath_bool_t ctrl_pressed = (er->dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0;
+  pmath_bool_t alt_pressed = (er->dwControlKeyState & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)) != 0;
+  pmath_bool_t shift_pressed = (er->dwControlKeyState & SHIFT_PRESSED) != 0;
+  
+  if(er->bKeyDown) {
+    switch(er->wVirtualKeyCode) {
+      case VK_F1:
+        PMATH_RUN("System`Con`PrintHelpMessage()");
+        return TRUE;
+        
+      case VK_OEM_PERIOD:
+        if(ctrl_pressed && !alt_pressed && !shift_pressed) {
+          expand_pmath_selection();
+          return TRUE;
+        }
+        if(ctrl_pressed && shift_pressed && !alt_pressed) {
+          shrink_pmath_selection();
+          return TRUE;
+        }
+        break;
+    }
+  }
+  return FALSE;
+}
+
 // Reads a line from stdin without the ending "\n".
 static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   struct hyper_console_settings_t settings;
+  wchar_t *str;
   
   memset(&settings, 0, sizeof(settings));
   settings.size = sizeof(settings);
@@ -458,8 +612,11 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
   settings.need_more_input_predicate = need_more_pmath_input;
   settings.auto_completion = auto_complete_pmath;
   settings.line_continuation_prompt = continuation_prompt;
+  settings.key_event_filter = key_event_filter_for_pmath;
+  settings.tab_width = 4;
+  settings.first_tab_column = (int)wcslen(continuation_prompt);
   
-  wchar_t *str = hyper_console_readline(&settings);
+  str = hyper_console_readline(&settings);
   if(str) {
     pmath_string_t result = pmath_string_insert_ucs2(PMATH_NULL, 0, str, -1);
     hyper_console_free_memory(str);
@@ -474,9 +631,10 @@ struct styled_writer_info_t {
   pmath_t current_hyperlink_label;
   
   unsigned skipping_hyperlink_data: 1;
+  unsigned raw_boxes: 1;
 };
 
-static size_t bytes_since_last_abortcheck = 0;
+static int bytes_since_last_abortcheck = 0;
 const int ABORT_CHECK_BYTE_COUNT = 100;
 
 static void styled_write(void *user, const uint16_t *data, int len) {
@@ -506,7 +664,10 @@ static void styled_write(void *user, const uint16_t *data, int len) {
   oldmode = _setmode(_fileno(stdout), _O_U8TEXT);
   /* Note that printf and other char* functions do not work at all in _O_U8TEXT mode. */
   
-  fwrite(data, 2, len, stdout);
+  /* fwrite works with MSVC, but not with Mingw */
+  //fwrite(data, 2, len, stdout);
+  
+  fwprintf(stdout, L"%.*s", len, data); // TODO: handle NUL chars
   
   fflush(stdout);
   _setmode(_fileno(stdout), oldmode);
@@ -582,6 +743,135 @@ static pmath_string_t action_to_input_string(pmath_t action) { // `action` will 
   return str;
 }
 
+static void pre_write_button(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
+  pmath_t label = pmath_expr_get_item(obj, 1);
+  pmath_string_t action_str = action_to_input_string(pmath_expr_get_item(obj, 2));
+  const uint16_t *action_buf;
+  
+  action_str = pmath_string_insert_latin1(action_str, INT_MAX, "", 1); // zero-terminate
+  action_buf = pmath_string_buffer(&action_str);
+  if(action_buf) {
+    pmath_string_t tooltip_str = PMATH_NULL;
+    const uint16_t *tooltip_buf = action_buf;
+    
+    pmath_unref(info->current_hyperlink_label);
+    info->current_hyperlink_label = pmath_ref(label);
+    info->current_hyperlink_obj = pmath_ref(obj);
+    info->skipping_hyperlink_data = TRUE;
+    
+    if(pmath_is_expr_of(label, PMATH_SYMBOL_TOOLTIP) && pmath_expr_length(label) >= 2) {
+      pmath_t tooltip_obj = pmath_expr_get_item(label, 2);
+      
+      pmath_write(tooltip_obj, 0, concat_to_string, &tooltip_str);
+      pmath_unref(tooltip_obj);
+      
+      tooltip_str = pmath_string_insert_latin1(tooltip_str, INT_MAX, "", 1); // zero-terminate
+      tooltip_buf = pmath_string_buffer(&tooltip_str);
+      if(tooltip_buf) {
+        pmath_unref(info->current_hyperlink_label);
+        info->current_hyperlink_label = pmath_expr_get_item(label, 1);
+      }
+      else
+        tooltip_buf = action_buf;
+    }
+    
+    hyper_console_start_link(tooltip_buf);
+    hyper_console_set_link_input_text(action_buf);
+    
+    pmath_unref(tooltip_str);
+  }
+  
+  pmath_unref(action_str);
+  pmath_unref(label);
+}
+
+static pmath_t find_button_function(pmath_expr_t expr, size_t first_option) {
+  size_t len = pmath_expr_length(expr);
+  size_t i;
+  
+  for(i = first_option;i <= len;++i) {
+    pmath_t item = pmath_expr_get_item(expr, i);
+    
+    if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RULE, 2) || pmath_is_expr_of_len(item, PMATH_SYMBOL_RULEDELAYED, 2)) {
+      pmath_t lhs = pmath_expr_get_item(item, 1);
+      pmath_unref(lhs);
+      if(pmath_same(lhs, PMATH_SYMBOL_BUTTONFUNCTION)) {
+        pmath_t rhs = pmath_expr_get_item(item, 2);
+        pmath_unref(item);
+        return rhs;
+      }
+    }
+    
+    pmath_unref(item);
+  }
+  
+  return PMATH_NULL;
+}
+
+static pmath_t button_function_to_action(pmath_t func) {
+  if(pmath_is_null(func))
+    return func;
+  
+  if(pmath_is_expr_of_len(func, PMATH_SYMBOL_FUNCTION, 1)) {
+    pmath_t body = pmath_expr_get_item(func, 1);
+    pmath_unref(func);
+    return body;
+  }
+  
+  return pmath_expr_new(func, 0);
+}
+
+static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj, pmath_write_options_t options) {
+  pmath_t label_box;
+  pmath_t action;
+  const uint16_t *action_buf;
+  
+  if(!info->raw_boxes)
+    return;
+  
+  label_box = pmath_expr_get_item(obj, 1);
+  action = find_button_function(obj, 2);
+  action = button_function_to_action(action);
+  action = action_to_input_string(action);
+  
+  action = pmath_string_insert_latin1(action, INT_MAX, "", 1); // zero-terminate
+  action_buf = pmath_string_buffer(&action);
+  if(action_buf) {
+    pmath_string_t tooltip_str = PMATH_NULL;
+    const uint16_t *tooltip_buf = action_buf;
+    
+    pmath_unref(info->current_hyperlink_label);
+    info->current_hyperlink_label = pmath_ref(label_box);
+    info->current_hyperlink_obj = pmath_ref(obj);
+    info->skipping_hyperlink_data = TRUE;
+    
+    if(pmath_is_expr_of(label_box, PMATH_SYMBOL_TOOLTIPBOX) && pmath_expr_length(label_box) >= 2) {
+      pmath_t tooltip_obj = pmath_expr_get_item(label_box, 2);
+      tooltip_obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, tooltip_obj);
+      
+      pmath_write(tooltip_obj, 0, concat_to_string, &tooltip_str);
+      pmath_unref(tooltip_obj);
+      
+      tooltip_str = pmath_string_insert_latin1(tooltip_str, INT_MAX, "", 1); // zero-terminate
+      tooltip_buf = pmath_string_buffer(&tooltip_str);
+      if(tooltip_buf) {
+        pmath_unref(info->current_hyperlink_label);
+        info->current_hyperlink_label = pmath_expr_get_item(label_box, 1);
+      }
+      else
+        tooltip_buf = action_buf;
+    }
+    
+    hyper_console_start_link(tooltip_buf);
+    hyper_console_set_link_input_text(action_buf);
+    
+    pmath_unref(tooltip_str);
+  }
+  
+  pmath_unref(action);
+  pmath_unref(label_box);
+}
+
 static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct styled_writer_info_t *info = user;
   
@@ -593,48 +883,16 @@ static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t opti
     
   if(0 == (options & (PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_INPUTEXPR))) {
     if(pmath_same(info->current_hyperlink_obj, PMATH_UNDEFINED)) {
-      if(pmath_is_expr_of(obj, PMATH_SYMBOL_BUTTON) && pmath_expr_length(obj) >= 2) {
-        pmath_t label = pmath_expr_get_item(obj, 1);
-        pmath_string_t action_str = action_to_input_string(pmath_expr_get_item(obj, 2));
-        const uint16_t *action_buf;
-        
-        action_str = pmath_string_insert_latin1(action_str, INT_MAX, "", 1); // zero-terminate
-        action_buf = pmath_string_buffer(&action_str);
-        if(action_buf) {
-          pmath_string_t tooltip_str = PMATH_NULL;
-          const uint16_t *tooltip_buf = action_buf;
-          
-          pmath_unref(info->current_hyperlink_label);
-          info->current_hyperlink_label = pmath_ref(label);
-          info->current_hyperlink_obj = pmath_ref(obj);
-          info->skipping_hyperlink_data = TRUE;
-          
-          if(pmath_is_expr_of(label, PMATH_SYMBOL_TOOLTIP) && pmath_expr_length(label) >= 2) {
-            pmath_t tooltip_obj = pmath_expr_get_item(label, 2);
-            
-            pmath_write(tooltip_obj, 0, concat_to_string, &tooltip_str);
-            pmath_unref(tooltip_obj);
-            
-            tooltip_str = pmath_string_insert_latin1(tooltip_str, INT_MAX, "", 1); // zero-terminate
-            tooltip_buf = pmath_string_buffer(&tooltip_str);
-            if(tooltip_buf) {
-              pmath_unref(info->current_hyperlink_label);
-              info->current_hyperlink_label = pmath_expr_get_item(label, 1);
-            }
-            else
-              tooltip_buf = action_buf;
-          }
-          
-          hyper_console_start_link(tooltip_buf);
-          hyper_console_set_link_input_text(action_buf);
-          
-          pmath_unref(tooltip_str);
-        }
-        
-        pmath_unref(action_str);
-        pmath_unref(label);
-      }
+      if(pmath_is_expr_of(obj, PMATH_SYMBOL_BUTTON) && pmath_expr_length(obj) >= 2) 
+        pre_write_button(info, obj, options);
+      if(pmath_is_expr_of(obj, PMATH_SYMBOL_BUTTONBOX) && pmath_expr_length(obj) >= 2) 
+        pre_write_button_box(info, obj, options);
     }
+  }
+  
+  if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
+    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
+      info->raw_boxes = TRUE;
   }
 }
 
@@ -643,7 +901,12 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
   
   if(bytes_since_last_abortcheck >= ABORT_CHECK_BYTE_COUNT && pmath_aborting())
     return;
-    
+  
+  if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
+    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
+      info->raw_boxes = FALSE;
+  }
+  
   if(!pmath_same(info->current_hyperlink_obj,  PMATH_UNDEFINED)) {
     if(pmath_same(obj, info->current_hyperlink_obj)) {
       pmath_unref(info->current_hyperlink_obj);
@@ -759,13 +1022,6 @@ static void write_line(const char *s) {
   pmath_thread_call_locked(
     &print_lock,
     write_line_locked_callback,
-    (void *)s);
-}
-
-static void write_simple_link(const wchar_t *s) {
-  pmath_thread_call_locked(
-    &print_lock,
-    write_wchar_link_locked_callback,
     (void *)s);
 }
 
@@ -1260,14 +1516,17 @@ static pmath_t builtin_quit(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
-static pmath_t builtin_sectionprint(pmath_expr_t expr) {
+static void sectionprint_callback(void *arg) {
+  pmath_expr_t *expr_ptr = (pmath_expr_t*)arg;
+  pmath_expr_t expr = *expr_ptr;
+  
   pmath_t style;
   const char *indent = "";
   int default_color = get_default_output_color();
   int color = default_color;
   
   if(pmath_expr_length(expr) < 2)
-    return expr;
+    return;
     
   style = pmath_expr_get_item(expr, 1);
   if(pmath_is_string(style)) {
@@ -1286,6 +1545,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   if(pmath_expr_length(expr) == 2) {
     pmath_t item = pmath_expr_get_item(expr, 2);
     pmath_unref(expr);
+    *expr_ptr = PMATH_NULL;
     
     write_output(indent, item);
     pmath_unref(item);
@@ -1293,6 +1553,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   else {
     pmath_t row = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
     pmath_unref(expr);
+    *expr_ptr = PMATH_NULL;
     
     row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_LIST));
     row = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 1, row);
@@ -1305,7 +1566,11 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     set_output_color(default_color);
     
   write_line("\n");
-  return PMATH_NULL;
+}
+
+static pmath_t builtin_sectionprint(pmath_expr_t expr) {
+  hyper_console_interrupt(sectionprint_callback, &expr);
+  return expr;
 }
 
 static void init_console_width(void) {

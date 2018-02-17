@@ -1,0 +1,22 @@
+BeginPackage("Numerics`Bessel`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyBessel
+
+Begin("Numerics`Bessel`Private`")
+
+%
+% If direct (numerical) calculation of BesselJ(nu, x), HankelH1(nu, x), etc. is not possible (because 
+% x is an expression or an exact number), System`Private`AutoSimplifyBessel(BesselJ, nu, x) 
+% etc. get called.
+% If that returns $Failed, the original expression BesselJ(nu, x) etc. remains unevaluated. 
+% Otherwise, the result of AutoSimplifyBessel will be returned.
+%
+System`Private`AutoSimplifyBessel(~, ~, ~):= $Failed
+
+
+
+End()
+
+EndPackage()

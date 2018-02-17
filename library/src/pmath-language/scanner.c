@@ -269,6 +269,8 @@ static void leave(struct parser_t *parser) {
 static void scan_next(struct scanner_t *tokens, struct parser_t *parser);
 
 static void parse_sequence(struct parser_t *parser);
+static void skip_prim_newline(struct parser_t *parser, pmath_bool_t prim_optional);
+static int parse_prim_after_newline(struct parser_t *parser, pmath_bool_t prim_optional);
 static void parse_prim(    struct parser_t *parser, pmath_bool_t prim_optional);
 static void parse_rest(    struct parser_t *parser, int lhs_start, int min_prec);
 static void parse_textline(struct parser_t *parser);
@@ -796,7 +798,7 @@ static void scan_number_radius(struct scanner_t *tokens, struct parser_t *parser
   else if(tokens->pos < tokens->len && tokens->str[tokens->pos] == '\\') {  // \[PlusMinus] escape sequence
     uint32_t chr;
     scan_next_escaped_char(tokens, parser, &chr);
-    if(chr != PMATH_CHAR_PLUSMINUS) 
+    if(chr != PMATH_CHAR_PLUSMINUS)
       goto FAIL;
   }
   else
@@ -845,7 +847,7 @@ static void scan_next_number(struct scanner_t *tokens, struct parser_t *parser) 
     scan_float_base36_digits_rest(tokens, parser);
   else
     scan_float_decimal_digits_rest(tokens, parser);
-  
+    
   scan_number_radius(tokens, parser, have_explicit_base);
   
   scan_precision_specifier(tokens, parser);
@@ -1400,11 +1402,62 @@ static void parse_sequence(struct parser_t *parser) {
   leave(parser);
 }
 
+static void skip_prim_newline_impl(struct parser_t *parser, int next) {
+  pmath_token_t tok;
+  int start;
+  
+  start = parser->tokens.pos;
+  
+  parser->spans->items[start] |= 2; //operand start
+  for(;;) {
+    skip_to(parser, -1, next, FALSE);
+    next = next_token_pos(parser);
+    
+    if(next == parser->tokens.pos)
+      break;
+      
+    tok = token_analyse(parser, next, NULL);
+    if(tok != PMATH_TOK_NEWLINE)
+      break;
+  }
+}
+
+static void skip_prim_newline(struct parser_t *parser, pmath_bool_t prim_optional) {
+  pmath_token_t tok;
+  int next;
+  
+  next = next_token_pos(parser);
+  
+  if(next == parser->tokens.pos) {
+    if(!prim_optional || parser->fencelevel > 0)
+      handle_error(parser);
+    return;
+  }
+  
+  tok = token_analyse(parser, next, NULL);
+  
+  if(tok == PMATH_TOK_NEWLINE) {
+    if(prim_optional && parser->fencelevel == 0)
+      return;
+      
+    skip_prim_newline_impl(parser, next);
+  }
+}
+
+static int parse_prim_after_newline(struct parser_t *parser, pmath_bool_t prim_optional) {
+  int prim_pos;
+  skip_prim_newline(parser, prim_optional);
+  prim_pos = parser->tokens.pos;
+  parse_prim(parser, prim_optional);
+  return prim_pos;
+}
+
 static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
   pmath_token_t tok;
   int prec;
   int start;
   int next;
+  int after_nl;
   
   start = parser->tokens.pos;
   next  = next_token_pos(parser);
@@ -1436,8 +1489,10 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
         if(tok == PMATH_TOK_COLON) { // x:pattern
           skip_to(parser, -1, next, FALSE);
           next = parser->tokens.pos;
-          parse_prim(parser, FALSE);
-          parse_rest(parser, next, PMATH_PREC_ALT);
+          after_nl = parse_prim_after_newline(parser, FALSE);
+          parse_rest(parser, after_nl, PMATH_PREC_ALT);
+          if(next != after_nl)
+            span(&parser->tokens, next);
         }
       } break;
       
@@ -1503,8 +1558,10 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
         if(tok == PMATH_TOK_COLON) { // ?x:type  ?:type
           skip_to(parser, -1, next, FALSE);
           next = parser->tokens.pos;
-          parse_prim(parser, FALSE);
-          parse_rest(parser, next, PMATH_PREC_CIRCMUL);
+          after_nl = parse_prim_after_newline(parser, FALSE);
+          parse_rest(parser, after_nl, PMATH_PREC_CIRCMUL);
+          if(next != after_nl)
+            span(&parser->tokens, next);
         }
       } break;
       
@@ -1518,17 +1575,23 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
         ++parser->fencelevel;
         
         lhs = parser->tokens.pos;
-        parse_prim(parser, TRUE);
+        after_nl = parse_prim_after_newline(parser, TRUE);
         
         next = next_token_pos(parser);
         tok  = token_analyse(parser, next, &prec);
         
         if(tok != PMATH_TOK_RIGHT) {
+          if(lhs != after_nl) {
+            parse_rest(parser, after_nl, PMATH_PREC_SEQ + 1);
+          }
           parse_rest(parser, lhs, PMATH_PREC_ANY);
           
           next = next_token_pos(parser);
           tok  = token_analyse(parser, next, &prec);
         }
+        
+        if(lhs != after_nl)
+          span(&parser->tokens, lhs);
         
         --parser->fencelevel;
         
@@ -1545,18 +1608,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
         if(prim_optional && parser->fencelevel == 0)
           return;
           
-        parser->spans->items[start] |= 2; //operand start
-        for(;;) {
-          skip_to(parser, -1, next, FALSE);
-          next = next_token_pos(parser);
-          
-          if(next == parser->tokens.pos)
-            break;
-            
-          tok = token_analyse(parser, next, &prec);
-          if(tok != PMATH_TOK_NEWLINE)
-            break;
-        }
+        skip_prim_newline_impl(parser, next);
         
         parse_prim(parser, prim_optional);
         span(&parser->tokens, start);
@@ -1579,8 +1631,10 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
         parser->spans->items[start] |= 2; //operand start
         skip_to(parser, -1, next, FALSE);
         next = parser->tokens.pos;
-        parse_prim(parser, FALSE);
-        parse_rest(parser, next, prec);
+        after_nl = parse_prim_after_newline(parser, FALSE);
+        parse_rest(parser, after_nl, prec);
+        if(next != after_nl)
+          span(&parser->tokens, next);
       } break;
       
     case PMATH_TOK_PRETEXT: {
@@ -1608,6 +1662,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
   pmath_token_t tok;
   int rhs;
   int next;
+  int after_nl;
   
   if(!enter(parser)) {
     parse_skip_until_rightfence(parser);
@@ -1626,7 +1681,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
        */
       int oldpos = parser->tokens.pos;
       int next2 = next;
-      int tok2 = tok;
+      pmath_token_t tok2 = tok;
       int prec2 = cur_prec;
       while(next2 != parser->tokens.pos && tok2 == PMATH_TOK_NEWLINE) {
         skip_to(parser, -1, next2, TRUE);
@@ -1689,9 +1744,10 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           
           skip_to(parser, -1, next, FALSE);
           rhs = parser->tokens.pos;
-          
-          parse_prim(parser, FALSE);
-          parse_rest(parser, rhs, PMATH_PREC_ASS + 1);
+          after_nl = parse_prim_after_newline(parser, FALSE);
+          parse_rest(parser, after_nl, PMATH_PREC_ASS + 1);
+          if(rhs != after_nl)
+            span(&parser->tokens, rhs);
           
           next = next_token_pos(parser);
           token_analyse(parser, next, &prec);
@@ -1701,9 +1757,10 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           else {
             skip_to(parser, -1, next, FALSE);
             rhs = parser->tokens.pos;
-            
-            parse_prim(parser, FALSE);
-            parse_rest(parser, rhs, PMATH_PREC_ASS);
+            after_nl = parse_prim_after_newline(parser, FALSE);
+            parse_rest(parser, after_nl, PMATH_PREC_ASS);
+            if(rhs != after_nl)
+              span(&parser->tokens, rhs);
           }
           
           span(&parser->tokens, lhs);
@@ -1719,7 +1776,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           last_tok_end   = next;
           
           skip_to(parser, lhs, next, FALSE);
-          parse_prim(parser, FALSE);
+          parse_prim(parser, FALSE); // do not skip newline
           
           last_prec = cur_prec;
           
@@ -1770,17 +1827,23 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           skip_to(parser, -1, next, FALSE);
           
           arglhs = parser->tokens.pos;
-          parse_prim(parser, TRUE);
+          after_nl = parse_prim_after_newline(parser, TRUE);
           
           next = next_token_pos(parser);
           tok  = token_analyse(parser, next, &cur_prec);
           
           if(tok != PMATH_TOK_RIGHT) {
+            if(arglhs != after_nl) {
+              parse_rest(parser, after_nl, PMATH_PREC_SEQ + 1);
+            }
             parse_rest(parser, arglhs, PMATH_PREC_ANY);
             
             next = next_token_pos(parser);
             tok  = token_analyse(parser, next, &cur_prec);
           }
+          
+          if(arglhs != after_nl)
+            span(&parser->tokens, arglhs);
           
           --parser->fencelevel;
           
@@ -1926,7 +1989,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
             skip_to(parser, -1, next, tok == PMATH_TOK_NARY_AUTOARG);
             
             rhs = parser->tokens.pos;
-            parse_prim(parser, tok == PMATH_TOK_NARY_AUTOARG);
+            after_nl = parse_prim_after_newline(parser, tok == PMATH_TOK_NARY_AUTOARG);
             
             next = next_token_pos(parser);
             oldpos = parser->tokens.pos;
@@ -1967,7 +2030,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
               
               if(tok == PMATH_TOK_BINARY_RIGHT) {
                 if(next_prec >= cur_prec) {
-                  parse_rest(parser, rhs, next_prec); // =: rhs
+                  parse_rest(parser, after_nl, next_prec); // =: rhs
                   
                   next = next_token_pos(parser);
                   continue;
@@ -1988,14 +2051,14 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
                     pmath_token_maybe_rest(tok))
                 {
                   if(next_prec > cur_prec) {
-                    parse_rest(parser, rhs, next_prec); // =: rhs
+                    parse_rest(parser, after_nl, next_prec); // =: rhs
                     
                     next = next_token_pos(parser);
                     continue;
                   }
                 }
                 else if(PMATH_PREC_MUL > cur_prec) {
-                  parse_rest(parser, rhs, PMATH_PREC_MUL); // =: rhs
+                  parse_rest(parser, after_nl, PMATH_PREC_MUL); // =: rhs
                   
                   next = next_token_pos(parser);
                   continue;
@@ -2006,7 +2069,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
               
               if(pmath_token_maybe_rest(tok)) {
                 if(next_prec > cur_prec) {
-                  parse_rest(parser, rhs, next_prec); // =: rhs
+                  parse_rest(parser, after_nl, next_prec); // =: rhs
                   
                   next = next_token_pos(parser);
                   continue;
@@ -2017,6 +2080,9 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
               
               break;
             }
+            
+            if(rhs != after_nl)
+              span(&parser->tokens, rhs);
             
             next = next_token_pos(parser);
             last_prec = cur_prec;
