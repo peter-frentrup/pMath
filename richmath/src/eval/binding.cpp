@@ -820,24 +820,26 @@ static bool evaluate_sections_cmd(Expr cmd) {
   Box *box = doc->selection_box();
   
   if(box == doc) {
-    for(int i = doc->selection_start(); i < doc->selection_end(); ++i) {
+    bool found_any = false;
+    int start = doc->selection_start();
+    int end = doc->selection_end();
+    for(int i = start; i < end; ++i) {
       auto math = dynamic_cast<MathSection*>(doc->item(i));
-      if(math && math->get_style(Evaluatable))
+      if(math && math->get_style(Evaluatable)) {
         Application::add_job(new InputJob(math));
-      else
-        return false;
+        found_any = true;
+      }
     }
+    if(!found_any)
+      return false;
   }
-  else {
-    while(box && !dynamic_cast<MathSection *>(box))
-      box = box->parent();
-      
-    auto math = dynamic_cast<MathSection*>(box);
+  else if(box) {
+    auto math = box->find_parent<MathSection>(true);
     if(math && math->get_style(Evaluatable)) {
       Application::add_job(new InputJob(math));
     }
     else {
-      if(dynamic_cast<AbstractSequence *>(doc->selection_box()))
+      if(dynamic_cast<AbstractSequence *>(box))
         doc->insert_string("\n", false);
         
       return false;
