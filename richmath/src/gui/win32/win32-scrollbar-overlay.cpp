@@ -1,7 +1,5 @@
 #include <gui/win32/win32-scrollbar-overlay.h>
 
-#include <stdio.h>
-
 
 using namespace richmath;
 
@@ -164,15 +162,6 @@ namespace richmath {
         int new_overlay_width  = margin_right;
         int new_overlay_height = height - margin_bottom - margin_top - 2 * v_arrow_height;
         
-        fprintf(
-          stderr,
-          "[update overlay bounds (%d, %d) %d x %d, %d indicators]\n",
-          new_overlay_left,
-          new_overlay_top,
-          new_overlay_width,
-          new_overlay_height,
-          self.indicators.length());
-          
         bool same_pos = new_overlay_left == old_overlay.left &&
                         new_overlay_top == old_overlay.top;
         bool same_size = new_overlay_width == old_overlay.right - old_overlay.left &&
