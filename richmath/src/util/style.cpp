@@ -1535,6 +1535,183 @@ void Style::emit_to_pmath(bool with_inherited) const {
 
 SharedPtr<Stylesheet> Stylesheet::Default;
 
+static Hashtable<Expr, Stylesheet*> registered_stylesheets;
+
+namespace richmath {
+  class StylesheetImpl {
+    public:
+      StylesheetImpl(Stylesheet &_self) : self(_self) {}
+    
+    public:
+      void add(Expr expr) {
+        if(self._name.is_valid()) {
+          if(currently_loading.search(self._name)) {
+            // TODO: warn about recursive dependency
+            return;
+          }
+          currently_loading.set(self._name, Void());
+        }
+        
+        internal_add(expr);
+        
+        if(self._name.is_valid())
+          currently_loading.remove(self._name);
+      }
+      
+    private:
+      static Hashtable<Expr, Void> currently_loading;
+      
+      void internal_add(Expr expr) {
+        // TODO: detect stack overflow/infinite recursion
+        
+        while(expr.is_expr()){
+          if(expr[0] == PMATH_SYMBOL_DOCUMENT) {
+            expr = expr[1];
+            continue;
+          }
+          
+          if(expr[0] == PMATH_SYMBOL_SECTIONGROUP) {
+            expr = expr[1];
+            continue;
+          }
+          
+          if(expr[0] == PMATH_SYMBOL_LIST) {
+            size_t len = expr.expr_length();
+            for(size_t i = 1;i < len;++i) {
+              internal_add(expr[i]);
+            }
+            expr = expr[len];
+            continue;
+          }
+          
+          if(expr[0] == PMATH_SYMBOL_SECTION) {
+            add_section(expr);
+            return;
+          }
+          
+          break;
+        }
+      }
+      
+      void add_section(Expr expr) {
+        Expr name = expr[1];
+        if(name[0] == PMATH_SYMBOL_STYLEDATA) {
+          Expr data = name[1];
+          if(data.is_string()) {
+            Expr options(pmath_options_extract(expr.get(), 1));
+            if(options.is_null())
+              return;
+            
+            String stylename{data};
+            SharedPtr<Style> *style_ptr = self.styles.search(stylename);
+            if(style_ptr) {
+              (*style_ptr)->add_pmath(options);
+            }
+            else {
+              SharedPtr<Style> style = new Style(options);
+              style->set(BaseStyleName, stylename);
+              self.styles.set(stylename, style);
+            }
+            return;
+          }
+          
+          if(expr.expr_length() == 1 && data.is_rule() && data[1] == PMATH_SYMBOL_STYLEDEFINITIONS) {
+            SharedPtr<Stylesheet> stylesheet = Stylesheet::try_load(data[2]);
+            if(stylesheet) {
+              for(auto &other : stylesheet->styles.entries()) {
+                SharedPtr<Style> *mine = self.styles.search(other.key);
+                if(mine) {
+                  (*mine)->merge(other.value);
+                }
+                else {
+                  SharedPtr<Style> copy = new Style();
+                  copy->merge(other.value);
+                  self.styles.set(other.key, copy);
+                }
+              }
+            }
+          }
+        }
+      }
+      
+    private:
+      Stylesheet &self;
+  };
+  
+  Hashtable<Expr, Void> StylesheetImpl::currently_loading;
+}
+
+
+Stylesheet::~Stylesheet() {
+  unregister();
+}
+
+void Stylesheet::unregister() {
+  if(_name.is_valid()) {
+    // TODO: check that registered_stylesheets[_name] == this
+    registered_stylesheets.remove(_name);
+    _name = Expr();
+  }
+}
+
+bool Stylesheet::register_as(Expr name) {
+  unregister();
+  if(!name.is_valid())
+    return false;
+    
+  Stylesheet **old = registered_stylesheets.search(name);
+  if(old)
+    return false;
+    
+  _name = name;
+  registered_stylesheets.set(_name, this);
+  return true;
+}
+
+SharedPtr<Stylesheet> Stylesheet::find_registered(Expr name) {
+  Stylesheet *stylesheet = registered_stylesheets[name];
+  if(!stylesheet)
+    return nullptr;
+    
+  stylesheet->ref();
+  return stylesheet;
+}
+
+SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
+  if(expr.is_string()) {
+    SharedPtr<Stylesheet> stylesheet = find_registered(expr);
+    if(stylesheet)
+      return stylesheet;
+    
+    Expr held_boxes = Application::interrupt_wait(
+                        Parse("Get(ToFileName({FE`$FrontEndDirectory,\"resources\",\"StyleSheets\"},`1`), Head->HoldComplete)", expr),
+                        Application::button_timeout);
+    
+    if(held_boxes.expr_length() == 1 && held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
+      stylesheet = new Stylesheet(); 
+      stylesheet->base = Stylesheet::Default->base;
+      stylesheet->register_as(expr);
+      stylesheet->add(held_boxes[1]);
+      return stylesheet;
+    }
+    
+    return nullptr;
+  }
+  
+  if(expr[0] == PMATH_SYMBOL_DOCUMENT) {
+    SharedPtr<Stylesheet> stylesheet = new Stylesheet();
+    stylesheet->base = Stylesheet::Default->base;
+    stylesheet->add(expr);
+    return stylesheet;
+  }
+  
+  return nullptr;  
+}
+
+void Stylesheet::add(Expr expr) {
+  StylesheetImpl(*this).add(expr);
+}
+
 SharedPtr<Style> Stylesheet::find_parent_style(SharedPtr<Style> s) {
   if(!s.is_valid())
     return nullptr;

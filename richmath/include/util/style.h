@@ -293,10 +293,9 @@ namespace richmath {
   };
   
   class Stylesheet: public Shareable {
+      friend class StylesheetImpl;
     public:
-      Hashtable<String, SharedPtr<Style> > styles;
-      
-      SharedPtr<Style> base;
+      virtual ~Stylesheet() override;
       
       SharedPtr<Style> find_parent_style(SharedPtr<Style> s);
       
@@ -315,8 +314,22 @@ namespace richmath {
       
       Expr get_pmath_with_base(SharedPtr<Style> s, Expr n);
       
+      Expr name() { return _name; }
+      void unregister();
+      bool register_as(Expr name);
+      static SharedPtr<Stylesheet> find_registered(Expr name);
+      
+      static SharedPtr<Stylesheet> try_load(Expr expr);
+      void add(Expr expr);
+      
     public:
       static SharedPtr<Stylesheet> Default;
+      
+      Hashtable<String, SharedPtr<Style> > styles;
+      SharedPtr<Style> base;
+      
+    private:
+      Expr _name;
   };
 };
 
