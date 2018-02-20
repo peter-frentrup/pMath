@@ -1,6 +1,7 @@
 #include <util/style.h>
 
 #include <gui/control-painter.h>
+#include <eval/application.h>
 #include <eval/dynamic.h>
 
 #include <cmath>
@@ -254,7 +255,7 @@ namespace {
   class StyleInformation {
     public:
       StyleInformation() = delete;
-
+      
       static void add_style() {
         if(_num_styles++ == 0) {
           _name_to_key.default_value = -1;
@@ -513,7 +514,7 @@ Style::Style(Expr options)
   : Shareable()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
-
+  
   StyleInformation::add_style();
   add_pmath(options);
 }
@@ -574,7 +575,7 @@ void Style::merge(SharedPtr<Style> other) {
 }
 
 bool Style::get(IntStyleOptionName n, int *value) const {
-  IntFloatUnion *v = int_float_values.search(n);
+  const IntFloatUnion *v = int_float_values.search(n);
   
   if(!v)
     return false;
@@ -584,7 +585,7 @@ bool Style::get(IntStyleOptionName n, int *value) const {
 }
 
 bool Style::get(FloatStyleOptionName n, float *value) const {
-  IntFloatUnion *v = int_float_values.search(n);
+  const IntFloatUnion *v = int_float_values.search(n);
   
   if(!v)
     return false;
@@ -594,7 +595,7 @@ bool Style::get(FloatStyleOptionName n, float *value) const {
 }
 
 bool Style::get(StringStyleOptionName n, String *value) const {
-  Expr *v = object_values.search(n);
+  const Expr *v = object_values.search(n);
   
   if(!v || !v->is_string())
     return false;
@@ -604,7 +605,7 @@ bool Style::get(StringStyleOptionName n, String *value) const {
 }
 
 bool Style::get(ObjectStyleOptionName n, Expr *value) const {
-  Expr *v = object_values.search(n);
+  const Expr *v = object_values.search(n);
   
   if(!v)
     return false;

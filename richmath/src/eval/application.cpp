@@ -1210,18 +1210,13 @@ void Application::delay_dynamic_updates(bool delay) {
   dynamic_update_delay = delay;
   
   if(!delay) {
-    for(unsigned i = 0, cnt = 0; cnt < pending_dynamic_updates.size(); ++i) {
-      Entry<int, Void> *e = pending_dynamic_updates.entry(i);
-      
-      if(e) {
-        ++cnt;
-        
-        FrontEndObject *feo = FrontEndObject::find(e->key);
-        if(feo)
-          feo->dynamic_updated();
-      }
+    decltype(pending_dynamic_updates)  old_pending;
+    swap(pending_dynamic_updates, old_pending);
+    for(auto &e : old_pending.entries()) {
+      FrontEndObject *feo = FrontEndObject::find(e.key);
+      if(feo)
+        feo->dynamic_updated();
     }
-    pending_dynamic_updates.clear();
   }
 }
 
@@ -1342,11 +1337,8 @@ static void cnt_end(Expr data) {
   }
   
   if(!more) {
-    for(unsigned int count = 0, i = 0; count < all_document_ids.size(); ++i) {
-      if(all_document_ids.entry(i)) {
-        ++count;
-        
-        Document *doc = FrontEndObject::find_cast<Document>(all_document_ids.entry(i)->key);
+    for(auto &e : all_document_ids.entries()) {
+      Document *doc = FrontEndObject::find_cast<Document>(e.key);
         
         assert(doc);
         
@@ -1356,7 +1348,6 @@ static void cnt_end(Expr data) {
             math->invalidate();
           }
         }
-      }
     }
   }
   
@@ -1382,14 +1373,9 @@ static void cnt_printsection(Expr data) {
 static Expr cnt_getdocuments() {
   Gather gather;
   
-  for(unsigned int count = 0, i = 0; count < all_document_ids.size(); ++i)
-    if(all_document_ids.entry(i)) {
-      ++count;
-      Gather::emit(
-        Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT),
-             all_document_ids.entry(i)->key));
-    }
-    
+  for(auto &e : all_document_ids.entries()) 
+    Gather::emit(Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), e.key));
+  
   return gather.end();
 }
 

@@ -8,6 +8,19 @@
 
 #include <util/base.h>
 
+#ifndef NDEBUG
+#  define RICHMATH_DEBUG_HASHTABLES
+
+#  define HASHTABLE_ASSERT(a) \
+  do{if(!(a)){ \
+      richmath::assert_failed(); \
+      assert(a); \
+    }}while(0)
+#else
+#  define HASHTABLE_ASSERT(a)  ((void)0)
+#endif
+
+
 
 namespace richmath {
   template<class T>
@@ -48,6 +61,9 @@ namespace richmath {
       Entry(const K &k, const V &v): key(k), value(v) {}
       Entry(const K &k, V &&v): key(k), value(std::move(v)) {}
       
+      Entry(const Entry<K, V> &src) = delete;
+      const Entry &operator=(const Entry<K, V> &src) = delete;
+      
       const K key;
       V value;
   };
@@ -69,14 +85,17 @@ namespace richmath {
              unsigned int (*hash_function)(const K &key) = object_hash >
   class Hashtable: public Base {
     private:
+      typedef Hashtable<K, V, hash_function> self_t;
+      typedef Entry<K, V>                    entry_t;
+      
       static const unsigned int MINSIZE = 8; // power of 2, >= 2
       static Entry<K, V> *Deleted() { return (Entry<K, V> *)(-(size_t)1); }
       
-      static bool is_used(Entry<K, V> *e) {
+      static bool is_used(const Entry<K, V> *e) {
         return ((size_t)e) + 1 > 1;
       }
       
-      static bool is_deleted(Entry<K, V> *e) {
+      static bool is_deleted(const Entry<K, V> *e) {
         return ((size_t)e) + 1 == 0;
       }
       
@@ -86,9 +105,66 @@ namespace richmath {
       unsigned int   capacity;      // power of 2, >= MINSIZE
       Entry<K, V>   **table;
       Entry<K, V>    *small_table[MINSIZE];
+#ifdef RICHMATH_DEBUG_HASHTABLES
+      unsigned _debug_change_canary;
+      
+      void do_change() { ++_debug_change_canary; }
+#else
+      void do_change() { }
+#endif
       
     public:
       V default_value;
+      
+      template<class E>
+      class Iterator {
+          friend class Hashtable<K, V, hash_function>;
+        private:
+          Iterator(E **entries, unsigned int unused_count, Hashtable<K, V, hash_function> &owning_table)
+            : _entries(entries), _unused_count(unused_count)
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            , _owning_table(owning_table), _debug_change_canary(owning_table._debug_change_canary)
+#endif
+          {
+          }
+          
+        public:
+          bool operator!=(const Iterator &other) const {
+            return _unused_count != other._unused_count;
+          }
+          const E &operator*() const {
+            HASHTABLE_ASSERT(is_used(*_entries));
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            return **_entries;
+          }
+          E &operator*() {
+            HASHTABLE_ASSERT(is_used(*_entries));
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            return **_entries;
+          }
+          const Iterator &operator++() {
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            while(_unused_count > 0) {
+              ++_entries;
+              if(is_used(*_entries)) {
+                --_unused_count;
+                break;
+              }
+            }
+            return *this;
+          }
+          
+        private:
+          E **_entries;
+          unsigned int _unused_count;
+#ifdef RICHMATH_DEBUG_HASHTABLES
+          Hashtable<K, V, hash_function> &_owning_table;
+          unsigned _debug_change_canary;
+#endif
+      };
+      
+      typedef Iterator<Entry<K, V>> iterator_t;
+      typedef Iterator<const Entry<K, V>> const_iterator_t;
       
     private:
       unsigned int lookup(const K &key) const {
@@ -138,7 +214,7 @@ namespace richmath {
         else
           table = new Entry<K, V> *[capacity];
           
-        assert(table != oldtable);
+        HASHTABLE_ASSERT(table != oldtable);
         
         memset(table, 0, newsize * sizeof(Entry<K, V> *));
         
@@ -148,7 +224,7 @@ namespace richmath {
             --i;
             
             unsigned int i2 = lookup((*entry_ptr)->key);
-            assert(!is_used(table[i2]));
+            HASHTABLE_ASSERT(!is_used(table[i2]));
             
             table[i2] = *entry_ptr;
           }
@@ -172,8 +248,11 @@ namespace richmath {
         table         = small_table;
         memset(table, 0, capacity * sizeof(Entry<K, V> *));
         
-        assert(is_deleted(Deleted()));
-        assert(!is_used(Deleted()));
+        HASHTABLE_ASSERT(is_deleted(Deleted()));
+        HASHTABLE_ASSERT(!is_used(Deleted()));
+#ifdef RICHMATH_DEBUG_HASHTABLES
+        _debug_change_canary = 0;
+#endif
       }
       
       ~Hashtable() {
@@ -187,21 +266,35 @@ namespace richmath {
       
       unsigned int size() const { return used_count; }
       
-      const Entry<K, V> *entry(unsigned int i) const { return is_used(table[i]) ? table[i] : 0; }
-      Entry<K, V>       *entry(unsigned int i)       { return is_used(table[i]) ? table[i] : 0; }
+      const Entry<K, V> *entry(unsigned int i) const { return is_used(table[i]) ? table[i] : nullptr; }
+      Entry<K, V>       *entry(unsigned int i)       { return is_used(table[i]) ? table[i] : nullptr; }
       
-      V *search(const K &key) const {
+      const V *search(const K &key) const {
         unsigned int i = lookup(key);
         if(is_used(table[i]))
           return &table[i]->value;
-        return 0;
+        return nullptr;
       }
       
-      Entry<K, V> *search_entry(const K &key) const {
+      V *search(const K &key) {
+        unsigned int i = lookup(key);
+        if(is_used(table[i]))
+          return &table[i]->value;
+        return nullptr;
+      }
+      
+      const Entry<K, V> *search_entry(const K &key) const {
         unsigned int i = lookup(key);
         if(is_used(table[i]))
           return table[i];
-        return 0;
+        return nullptr;
+      }
+      
+      Entry<K, V> *search_entry(const K &key) {
+        unsigned int i = lookup(key);
+        if(is_used(table[i]))
+          return table[i];
+        return nullptr;
       }
       
       V &get(const K &key, V &def) const {
@@ -233,8 +326,9 @@ namespace richmath {
       }
       
       void clear() {
+        do_change();
         for(unsigned int i = 0; used_count > 0; ++i) {
-          assert(i < capacity);
+          HASHTABLE_ASSERT(i < capacity);
           
           if(is_used(table[i])) {
             --used_count;
@@ -242,7 +336,7 @@ namespace richmath {
           }
         }
         
-        assert(used_count == 0);
+        HASHTABLE_ASSERT(used_count == 0);
         
         if(table != small_table)
           delete[] table;
@@ -256,7 +350,7 @@ namespace richmath {
       
       void remove(const K &key) {
         unsigned int index = lookup(key);
-        
+        do_change();
         if(is_used(table[index])) {
           delete table[index];
           
@@ -272,6 +366,7 @@ namespace richmath {
       
       void set(const K &key, V &&value) {
         unsigned int i = lookup(key);
+        do_change();
         if(is_used(table[i])) {
           table[i]->value = std::move(value);
         }
@@ -297,7 +392,63 @@ namespace richmath {
             set(other.table[i]->key, other.table[i]->value);
         }
       }
+      
+      void swap(Hashtable<K, V, hash_function> &other) {
+        using std::swap;
+        swap(nonnull_count, other.nonnull_count);
+        swap(used_count, other.used_count);
+        swap(capacity, other.capacity);
+        //bool uses_small_table = table == small_table;
+        //bool other_uses_small_table = other.table == other.small_table;
+        //if(uses_small_table || other_uses_small_table)
+        swap(small_table, other.small_table);
+        swap(table, other.table);
+        if(other.table == small_table)
+          other.table = other.small_table;
+        if(table == other.small_table)
+          table = small_table;
+        swap(default_value, other.default_value);
+      }
+      
+      template <class HT, class E>
+      class EntryEnum {
+        public:
+          EntryEnum(HT &table): _table(table) {
+          }
+          
+          Iterator<E> begin() const {
+            E **entries = const_cast<E**>(_table.table);
+            if(_table.used_count > 0) {
+              while(!is_used(*entries))
+                ++entries;
+                
+              return Iterator<E> {entries, _table.used_count, _table};
+            }
+            return Iterator<E> {entries, 0, _table};
+          }
+          
+          Iterator<E> end() const {
+            E **entries = const_cast<E**>(_table.table);
+            return Iterator<E> {entries, 0, _table};
+          }
+          
+        private:
+          HT &_table;
+      };
+      
+      EntryEnum<const self_t, const entry_t> entries() const {
+        return EntryEnum<const self_t, const entry_t> {*this};
+      }
+      
+      EntryEnum<self_t, entry_t> entries() {
+        return EntryEnum<self_t, entry_t> {*this};
+      }
   };
+  
+  template <typename K, typename V, unsigned int (*h)(const K &)>
+  inline void swap(Hashtable<K, V, h> &lhs, Hashtable<K, V, h> &rhs) {
+    lhs.swap(rhs);
+  }
 }
 
 #endif // __UTIL__HASHTABLE_H__
