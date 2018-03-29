@@ -183,6 +183,107 @@ namespace richmath {
 #endif
       };
       
+      class MutableIterator {
+          friend self_t;
+        public:
+          class DeletableEntry {
+              friend class MutableIterator;
+            public:
+              const K & key;
+              V       & value;
+              
+            public:
+              void delete_self() {
+                // TODO: ensure that the owning_iter did not move forward
+                owning_iter.delete_current(this);
+              }
+              
+            private:
+              DeletableEntry(MutableIterator &owner, entry_t &entry)
+                : key(entry.key), value(entry.value), owning_iter(owner)
+              {
+              }
+              
+            private:
+              MutableIterator &owning_iter;
+          };
+          
+        private:
+          MutableIterator(entry_t **entries, unsigned int unused_count, self_t &owning_table)
+            : _entries(entries), 
+              _unused_count(unused_count),
+              _owning_table(owning_table)
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            , _debug_change_canary(owning_table._debug_change_canary)
+#endif
+          {
+            owning_table.added_iterator();
+          }
+          
+        public:
+          ~MutableIterator() {
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            _owning_table.removed_iterator();
+#endif
+          }
+          
+          bool operator!=(const MutableIterator &other) const {
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            return _unused_count != other._unused_count;
+          }
+          const entry_t operator*() const {
+            HASHTABLE_ASSERT(is_used(*_entries));
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            return **_entries;
+          }
+          DeletableEntry operator*() {
+            HASHTABLE_ASSERT(is_used(*_entries));
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            return DeletableEntry{ *this, **_entries };
+          }
+          const MutableIterator &operator++() {
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            while(_unused_count > 0) {
+              ++_entries;
+              if(is_used(*_entries)) {
+                --_unused_count;
+                break;
+              }
+            }
+            return *this;
+          }
+          
+          void delete_current(DeletableEntry *requester = nullptr) {
+            HASHTABLE_ASSERT(is_used(*_entries));
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            if(requester)
+              HASHTABLE_ASSERT(&requester->key == &(**_entries).key);
+            
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            _owning_table._debug_num_iterators-= 2; // this, end()
+#endif
+            
+            _owning_table.remove((**_entries).key);
+            
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            _owning_table._debug_num_iterators+= 2; // this, end()
+#endif
+            
+            HASHTABLE_ASSERT(!is_used(*_entries));
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            _debug_change_canary = _owning_table._debug_change_canary;
+#endif
+          }
+          
+        private:
+          entry_t **_entries;
+          unsigned int _unused_count;
+          self_t &_owning_table;
+#ifdef RICHMATH_DEBUG_HASHTABLES
+          unsigned _debug_change_canary;
+#endif
+      };
+      
       typedef Iterator<Entry<K, V>> iterator_t;
       typedef Iterator<const Entry<K, V>> const_iterator_t;
       
@@ -431,38 +532,42 @@ namespace richmath {
         swap(default_value, other.default_value);
       }
       
-      template <class HT, class E>
+      template <class HT, class It>
       class EntryEnum {
         public:
           EntryEnum(HT &table): _table(table) {
           }
           
-          Iterator<E> begin() const {
-            E **entries = const_cast<E**>(_table.table);
+          It begin() const {
+            entry_t **entries = _table.table;
             if(_table.used_count > 0) {
               while(!is_used(*entries))
                 ++entries;
                 
-              return Iterator<E> {entries, _table.used_count, _table};
+              return It {entries, _table.used_count, _table};
             }
-            return Iterator<E> {entries, 0, _table};
+            return It {entries, 0, _table};
           }
           
-          Iterator<E> end() const {
-            E **entries = const_cast<E**>(_table.table);
-            return Iterator<E> {entries, 0, _table};
+          It end() const {
+            //E **entries = const_cast<E**>(_table.table);
+            return It {_table.table, 0, _table};
           }
           
         private:
           HT &_table;
       };
       
-      EntryEnum<const self_t, const entry_t> entries() const {
-        return EntryEnum<const self_t, const entry_t> {*this};
+      EntryEnum<const self_t, const_iterator_t> entries() const {
+        return EntryEnum<const self_t, const_iterator_t> {*this};
       }
       
-      EntryEnum<self_t, entry_t> entries() {
-        return EntryEnum<self_t, entry_t> {*this};
+      EntryEnum<self_t, iterator_t> entries() {
+        return EntryEnum<self_t, iterator_t> {*this};
+      }
+      
+      EntryEnum<self_t, MutableIterator> deletable_entries() {
+        return EntryEnum<self_t, MutableIterator> {*this};
       }
   };
   

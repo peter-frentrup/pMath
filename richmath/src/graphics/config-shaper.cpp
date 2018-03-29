@@ -798,7 +798,7 @@ namespace richmath {
           return false;
         }
         
-        for(auto &e : stretched_glyphs.entries()) {
+        for(auto &e : stretched_glyphs.deletable_entries()) {
           if(e.value.glyphs.length() == 0) {
             printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
             return false;
@@ -813,8 +813,8 @@ namespace richmath {
             if(e.value.glyphs[j] == 0) {
               //printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e.key, j);
               //return false;
-              printf("strched glyph %x failed.\n", e.key);
-              stretched_glyphs.remove(e.key);
+              printf("streched glyph %x failed.\n", e.key);
+              e.delete_self();
               goto NEXT_STRETCHED;
             }
           }
@@ -868,10 +868,10 @@ namespace richmath {
           }
         }
         
-        for(auto &e : char_to_glyph_map.entries()) {
+        for(auto &e : char_to_glyph_map.deletable_entries()) {
           if(e.value.glyph == 0) {
             printf("not found: U+%04x\n", (int)e.key);
-            char_to_glyph_map.remove(e.key);
+            e.delete_self();
             continue;
           }
           
