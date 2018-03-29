@@ -107,22 +107,47 @@ namespace richmath {
       Entry<K, V>    *small_table[MINSIZE];
 #ifdef RICHMATH_DEBUG_HASHTABLES
       unsigned _debug_change_canary;
-      unsigned _debug_num_iterators;
+      unsigned _debug_num_freezers;
       
       void do_change() { 
-        HASHTABLE_ASSERT((_debug_num_iterators == 0) && "cannot mutate hashtable while there are still iterators to it");
+        HASHTABLE_ASSERT((_debug_num_freezers == 0) && "cannot mutate hashtable while there are still iterators to it/the table is freezed");
         ++_debug_change_canary; 
-      }
-      void added_iterator() { ++_debug_num_iterators; }
-      void removed_iterator() {
-        HASHTABLE_ASSERT(_debug_num_iterators > 0);
-        --_debug_num_iterators; 
       }
 #else
       void do_change() { }
-      void added_iterator() { }
-      void removed_iterator() { }
 #endif
+
+      class TableFreezer {
+        public:
+          TableFreezer(self_t &_table)
+          : table(_table)
+          {
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            table._debug_num_freezers++;
+#endif
+          }
+          
+          TableFreezer(const TableFreezer &src)
+          : table(src.table)
+          {
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            table._debug_num_freezers++;
+#endif
+          }
+          
+          ~TableFreezer() {
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            HASHTABLE_ASSERT(table._debug_num_freezers > 0);
+            table._debug_num_freezers--;
+#endif
+          }
+        
+        private:
+          TableFreezer const &operator=(TableFreezer const &src) = delete;
+          
+        public:
+          self_t &table;
+      };
       
     public:
       V default_value;
@@ -132,38 +157,32 @@ namespace richmath {
           friend self_t;
         private:
           Iterator(E **entries, unsigned int unused_count, self_t &owning_table)
-            : _entries(entries), _unused_count(unused_count)
+            : _entries(entries), 
+              _unused_count(unused_count),
+              _owner(owning_table)
 #ifdef RICHMATH_DEBUG_HASHTABLES
-            , _owning_table(owning_table),
-              _debug_change_canary(owning_table._debug_change_canary)
+            , _debug_change_canary(owning_table._debug_change_canary)
 #endif
           {
-            owning_table.added_iterator();
           }
           
         public:
-          ~Iterator() {
-#ifdef RICHMATH_DEBUG_HASHTABLES
-            _owning_table.removed_iterator();
-#endif
-          }
-          
           bool operator!=(const Iterator &other) const {
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return _unused_count != other._unused_count;
           }
           const E &operator*() const {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return **_entries;
           }
           E &operator*() {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return **_entries;
           }
           const Iterator &operator++() {
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             while(_unused_count > 0) {
               ++_entries;
               if(is_used(*_entries)) {
@@ -177,8 +196,8 @@ namespace richmath {
         private:
           E **_entries;
           unsigned int _unused_count;
+          TableFreezer _owner;
 #ifdef RICHMATH_DEBUG_HASHTABLES
-          self_t &_owning_table;
           unsigned _debug_change_canary;
 #endif
       };
@@ -212,37 +231,30 @@ namespace richmath {
           MutableIterator(entry_t **entries, unsigned int unused_count, self_t &owning_table)
             : _entries(entries), 
               _unused_count(unused_count),
-              _owning_table(owning_table)
+              _owner(owning_table)
 #ifdef RICHMATH_DEBUG_HASHTABLES
             , _debug_change_canary(owning_table._debug_change_canary)
 #endif
           {
-            owning_table.added_iterator();
           }
           
         public:
-          ~MutableIterator() {
-#ifdef RICHMATH_DEBUG_HASHTABLES
-            _owning_table.removed_iterator();
-#endif
-          }
-          
           bool operator!=(const MutableIterator &other) const {
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return _unused_count != other._unused_count;
           }
           const entry_t operator*() const {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return **_entries;
           }
           DeletableEntry operator*() {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return DeletableEntry{ *this, **_entries };
           }
           const MutableIterator &operator++() {
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             while(_unused_count > 0) {
               ++_entries;
               if(is_used(*_entries)) {
@@ -255,30 +267,31 @@ namespace richmath {
           
           void delete_current(DeletableEntry *requester = nullptr) {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
+            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             if(requester)
               HASHTABLE_ASSERT(&requester->key == &(**_entries).key);
             
 #ifdef RICHMATH_DEBUG_HASHTABLES
-            _owning_table._debug_num_iterators-= 2; // this, end()
+            _owner.table._debug_num_freezers-= 2; // this, end()
 #endif
             
-            _owning_table.remove((**_entries).key);
+            // TODO: directly set * _entries instead of a new lookup
+            _owner.table.remove((**_entries).key);
             
 #ifdef RICHMATH_DEBUG_HASHTABLES
-            _owning_table._debug_num_iterators+= 2; // this, end()
+            _owner.table._debug_num_freezers+= 2; // this, end()
 #endif
             
             HASHTABLE_ASSERT(!is_used(*_entries));
 #ifdef RICHMATH_DEBUG_HASHTABLES
-            _debug_change_canary = _owning_table._debug_change_canary;
+            _debug_change_canary = _owner.table._debug_change_canary;
 #endif
           }
           
         private:
           entry_t **_entries;
           unsigned int _unused_count;
-          self_t &_owning_table;
+          TableFreezer _owner;
 #ifdef RICHMATH_DEBUG_HASHTABLES
           unsigned _debug_change_canary;
 #endif
@@ -373,7 +386,7 @@ namespace richmath {
         HASHTABLE_ASSERT(!is_used(Deleted()));
 #ifdef RICHMATH_DEBUG_HASHTABLES
         _debug_change_canary = 0;
-        _debug_num_iterators = 0;
+        _debug_num_freezers = 0;
 #endif
       }
       
