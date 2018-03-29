@@ -106,15 +106,7 @@ namespace richmath {
       Entry<K, V>   **table;
       Entry<K, V>    *small_table[MINSIZE];
 #ifdef RICHMATH_DEBUG_HASHTABLES
-      unsigned _debug_change_canary;
       unsigned _debug_num_freezers;
-      
-      void do_change() { 
-        HASHTABLE_ASSERT((_debug_num_freezers == 0) && "cannot mutate hashtable while there are still iterators to it/the table is freezed");
-        ++_debug_change_canary; 
-      }
-#else
-      void do_change() { }
 #endif
 
       class TableFreezer {
@@ -160,29 +152,22 @@ namespace richmath {
             : _entries(entries), 
               _unused_count(unused_count),
               _owner(owning_table)
-#ifdef RICHMATH_DEBUG_HASHTABLES
-            , _debug_change_canary(owning_table._debug_change_canary)
-#endif
           {
           }
           
         public:
           bool operator!=(const Iterator &other) const {
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return _unused_count != other._unused_count;
           }
           const E &operator*() const {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return **_entries;
           }
           E &operator*() {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return **_entries;
           }
           const Iterator &operator++() {
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             while(_unused_count > 0) {
               ++_entries;
               if(is_used(*_entries)) {
@@ -197,9 +182,6 @@ namespace richmath {
           E **_entries;
           unsigned int _unused_count;
           TableFreezer _owner;
-#ifdef RICHMATH_DEBUG_HASHTABLES
-          unsigned _debug_change_canary;
-#endif
       };
       
       class MutableIterator {
@@ -232,29 +214,22 @@ namespace richmath {
             : _entries(entries), 
               _unused_count(unused_count),
               _owner(owning_table)
-#ifdef RICHMATH_DEBUG_HASHTABLES
-            , _debug_change_canary(owning_table._debug_change_canary)
-#endif
           {
           }
           
         public:
           bool operator!=(const MutableIterator &other) const {
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return _unused_count != other._unused_count;
           }
           const entry_t operator*() const {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return **_entries;
           }
           DeletableEntry operator*() {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             return DeletableEntry{ *this, **_entries };
           }
           const MutableIterator &operator++() {
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             while(_unused_count > 0) {
               ++_entries;
               if(is_used(*_entries)) {
@@ -267,7 +242,6 @@ namespace richmath {
           
           void delete_current(DeletableEntry *requester = nullptr) {
             HASHTABLE_ASSERT(is_used(*_entries));
-            HASHTABLE_ASSERT(_debug_change_canary == _owner.table._debug_change_canary);
             if(requester)
               HASHTABLE_ASSERT(&requester->key == &(**_entries).key);
             
@@ -283,24 +257,22 @@ namespace richmath {
 #endif
             
             HASHTABLE_ASSERT(!is_used(*_entries));
-#ifdef RICHMATH_DEBUG_HASHTABLES
-            _debug_change_canary = _owner.table._debug_change_canary;
-#endif
           }
           
         private:
           entry_t **_entries;
           unsigned int _unused_count;
           TableFreezer _owner;
-#ifdef RICHMATH_DEBUG_HASHTABLES
-          unsigned _debug_change_canary;
-#endif
       };
       
       typedef Iterator<Entry<K, V>> iterator_t;
       typedef Iterator<const Entry<K, V>> const_iterator_t;
       
     private:
+      void do_change() { 
+        HASHTABLE_ASSERT((_debug_num_freezers == 0) && "cannot mutate hashtable while there are still iterators to it/the table is freezed");
+      }
+
       unsigned int lookup(const K &key) const {
         unsigned int freeslot = -(unsigned int)1;
         unsigned int h        = hash_function(key);
@@ -385,7 +357,6 @@ namespace richmath {
         HASHTABLE_ASSERT(is_deleted(Deleted()));
         HASHTABLE_ASSERT(!is_used(Deleted()));
 #ifdef RICHMATH_DEBUG_HASHTABLES
-        _debug_change_canary = 0;
         _debug_num_freezers = 0;
 #endif
       }
