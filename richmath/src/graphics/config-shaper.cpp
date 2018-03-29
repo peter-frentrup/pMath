@@ -798,7 +798,7 @@ namespace richmath {
           return false;
         }
         
-        for(auto &e : stretched_glyphs.deletable_entries()) {
+        for(auto e : stretched_glyphs.deletable_entries()) {
           if(e.value.glyphs.length() == 0) {
             printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
             return false;
@@ -868,7 +868,7 @@ namespace richmath {
           }
         }
         
-        for(auto &e : char_to_glyph_map.deletable_entries()) {
+        for(auto e : char_to_glyph_map.deletable_entries()) {
           if(e.value.glyph == 0) {
             printf("not found: U+%04x\n", (int)e.key);
             e.delete_self();
