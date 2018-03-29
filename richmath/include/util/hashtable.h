@@ -107,10 +107,21 @@ namespace richmath {
       Entry<K, V>    *small_table[MINSIZE];
 #ifdef RICHMATH_DEBUG_HASHTABLES
       unsigned _debug_change_canary;
+      unsigned _debug_num_iterators;
       
-      void do_change() { ++_debug_change_canary; }
+      void do_change() { 
+        HASHTABLE_ASSERT((_debug_num_iterators == 0) && "cannot mutate hashtable while there are still iterators to it");
+        ++_debug_change_canary; 
+      }
+      void added_iterator() { ++_debug_num_iterators; }
+      void removed_iterator() {
+        HASHTABLE_ASSERT(_debug_num_iterators > 0);
+        --_debug_num_iterators; 
+      }
 #else
       void do_change() { }
+      void added_iterator() { }
+      void removed_iterator() { }
 #endif
       
     public:
@@ -118,18 +129,27 @@ namespace richmath {
       
       template<class E>
       class Iterator {
-          friend class Hashtable<K, V, hash_function>;
+          friend self_t;
         private:
-          Iterator(E **entries, unsigned int unused_count, Hashtable<K, V, hash_function> &owning_table)
+          Iterator(E **entries, unsigned int unused_count, self_t &owning_table)
             : _entries(entries), _unused_count(unused_count)
 #ifdef RICHMATH_DEBUG_HASHTABLES
-            , _owning_table(owning_table), _debug_change_canary(owning_table._debug_change_canary)
+            , _owning_table(owning_table),
+              _debug_change_canary(owning_table._debug_change_canary)
 #endif
           {
+            owning_table.added_iterator();
           }
           
         public:
+          ~Iterator() {
+#ifdef RICHMATH_DEBUG_HASHTABLES
+            _owning_table.removed_iterator();
+#endif
+          }
+          
           bool operator!=(const Iterator &other) const {
+            HASHTABLE_ASSERT(_debug_change_canary == _owning_table._debug_change_canary);
             return _unused_count != other._unused_count;
           }
           const E &operator*() const {
@@ -158,7 +178,7 @@ namespace richmath {
           E **_entries;
           unsigned int _unused_count;
 #ifdef RICHMATH_DEBUG_HASHTABLES
-          Hashtable<K, V, hash_function> &_owning_table;
+          self_t &_owning_table;
           unsigned _debug_change_canary;
 #endif
       };
@@ -252,6 +272,7 @@ namespace richmath {
         HASHTABLE_ASSERT(!is_used(Deleted()));
 #ifdef RICHMATH_DEBUG_HASHTABLES
         _debug_change_canary = 0;
+        _debug_num_iterators = 0;
 #endif
       }
       
