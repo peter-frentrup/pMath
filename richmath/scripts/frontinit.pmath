@@ -153,6 +153,8 @@ AutoLoad(Hold(ShowDefinition),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "showdefinition.pmath"));
 AutoLoad(Hold(FE`Graphics`DefaultAxesOrigin, FE`Graphics`DefaultTickBoxes), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "graphics.pmath"));
+AutoLoad(Hold(FE`Styles`MakeStyleDataBoxes), 
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "styles.pmath"));
 
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "autocompletion.pmath"))
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "boxestotext.pmath"))

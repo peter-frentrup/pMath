@@ -37,8 +37,10 @@ Section *Section::create_from_object(const Expr expr) {
     
     Section *section = 0;
     
-    if(content.expr_length() == 1 && content[0] == PMATH_SYMBOL_BOXDATA)
+    if(content[0] == PMATH_SYMBOL_BOXDATA)
       section = Box::try_create<MathSection>(expr, BoxInputFlags::Default);
+    else if(content[0] == PMATH_SYMBOL_STYLEDATA)
+      section = Box::try_create<StyleDataSection>(expr, BoxInputFlags::Default);
     else
       section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
       
@@ -139,10 +141,14 @@ Box *Section::move_vertical(
   return this;
 }
 
-bool Section::selectable(int i) {
-  if(i < 0)
-    return false;
-  return Box::selectable(i);
+Box *Section::normalize_selection(int *start, int *end) {
+  if(_parent) {
+    *start = _index;
+    *end = _index + 1;
+    return _parent->normalize_selection(start, end);
+  }
+  
+  return this;
 }
 
 Box *Section::get_highlight_child(Box *src, int *start, int *end) {
@@ -516,6 +522,8 @@ Box *AbstractSequenceSection::move_vertical(
   bool              called_from_child
 ) {
   if(*index < 0) {
+    if(!can_enter_content()) 
+      return Section::move_vertical(direction, index_rel_x, index, called_from_child);
     *index_rel_x -= cx;
     return _content->move_vertical(direction, index_rel_x, index, false);
   }
@@ -572,7 +580,7 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   Expr content = expr[1];
-  if(content[0] != PMATH_SYMBOL_BOXDATA)
+  if(content.expr_length() != 1 || content[0] != PMATH_SYMBOL_BOXDATA)
     return false;
     
   content = content[1];
@@ -647,7 +655,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 EditSection::EditSection()
   : MathSection(new Style(String("Edit"))),
-    original(0)
+    original(nullptr)
 {
 }
 
@@ -668,8 +676,7 @@ Expr EditSection::to_pmath(BoxOutputFlags flags) {
                result),
              Application::edit_interrupt_timeout);
              
-  if(result.expr_length() == 1
-      && result[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
+  if(result.expr_length() == 1 && result[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
     return result[1];
   }
   
@@ -677,3 +684,82 @@ Expr EditSection::to_pmath(BoxOutputFlags flags) {
 }
 
 //} ... class EditSection
+
+//{ class StyleDataSection ...
+
+StyleDataSection::StyleDataSection()
+  : AbstractSequenceSection(new MathSequence, new Style)
+{
+}
+
+/* FIXME: The StyleDataSection should not use its parent document stylesheet for display, 
+   but all the style definitions above itself. 
+   
+   One possibility is that each StyleDataSection `sds` has a Stylesheet that represents the all 
+   style definitions upto and including `sds`. 
+   When the `sds` needs to recalculate a style, it searches the previous StyleDataSection`s 
+   Stylesheet, obtains its previous Style `old_style` of the same name, creates a new merged 
+   copy of `old_style` and its own local definitions (Box::style) and stores that in its own 
+   Stylesheet.
+   The problem is to know when to recalculate a style. Maybe styles should be observable 
+   (like symbols are by `FrontEndObject`s).
+ */
+bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
+  if(expr[0] != PMATH_SYMBOL_SECTION)
+    return false;
+    
+  Expr style_data = expr[1];
+  if(style_data[0] != PMATH_SYMBOL_STYLEDATA)
+    return false;
+    
+  Expr options(pmath_options_extract(expr.get(), 1));
+  if(options.is_null())
+    return false;
+    
+  _style_data = style_data;
+  
+  reset_style();
+  style->add_pmath(options);
+  
+  opts = BoxInputFlags::Default;
+  if(get_own_style(AutoNumberFormating))
+    opts |= BoxInputFlags::FormatNumbers;
+    
+  Expr boxes = Application::interrupt_wait(
+                 Parse("FE`Styles`MakeStyleDataBoxes(HoldComplete(`1`))", style_data),
+                 Application::button_timeout);
+  _content->load_from_object(boxes, opts);
+  return true;
+}
+
+Expr StyleDataSection::to_pmath(BoxOutputFlags flags) {
+  Gather g;
+  
+  Gather::emit(_style_data);
+  style->emit_to_pmath(true);
+  
+  Expr e = g.end();
+  e.set(0, Symbol(PMATH_SYMBOL_SECTION));
+  return e;
+}
+
+Box *StyleDataSection::mouse_selection(
+  float  x,
+  float  y,
+  int   *start,
+  int   *end,
+  bool  *was_inside_start
+) {
+  *was_inside_start = true;
+//  if(_parent) {
+//    *start = _index;
+//    *end = *start + 1;
+//    return _parent;
+//  }
+  *start = 0;
+  *end = length();
+  return this;
+}
+
+
+//} ... class StyleDataSection

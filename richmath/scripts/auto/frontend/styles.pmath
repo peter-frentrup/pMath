@@ -1,0 +1,37 @@
+
+BeginPackage("FE`Styles`")
+
+MakeStyleDataBoxes
+
+Begin("FE`Styles`Private`")
+
+MakeStyleDataBoxes(~)::= asStyleDataLabelBox("\"Unknown StyleData syntax\"")
+MakeStyleDataBoxes(HoldComplete(StyleData(~name:String)))::= 
+    asStyleDataExampleBox(
+        MakeBoxes(StringForm("Local definition for style \"`1`\":", name)),
+        name
+    )
+    
+MakeStyleDataBoxes(HoldComplete(StyleData(StyleDefinitions -> ~name:String)))::= 
+    asStyleDataExampleBox(
+        MakeBoxes(StringForm("Include definitions from stylesheet \"`1`\":", name)),
+        name
+    )
+
+asStyleDataLabelBox(~labelTextBox)::=
+    StyleBox(
+        labelTextBox,
+        "_base", FontFamily->"Arial", ShowStringCharacters->False
+    )
+
+asStyleDataExampleBox(~labelTextBox, ~exampleBox)::=
+    StyleBox(
+        GridBox( 
+            {{asStyleDataLabelBox(labelTextBox)}, {exampleBox}},
+            GridBoxRowSpacing -> 0), 
+        AutoSpacing->False)
+
+End()
+
+EndPackage()
+

@@ -1609,7 +1609,6 @@ namespace richmath {
             }
             else {
               SharedPtr<Style> style = new Style(options);
-              style->set(BaseStyleName, stylename);
               self.styles.set(stylename, style);
             }
             return;
@@ -1648,6 +1647,7 @@ Stylesheet::~Stylesheet() {
 
 void Stylesheet::unregister() {
   if(_name.is_valid()) {
+    pmath_debug_print_object("Unregistering stylesheet `", _name.get(), "`\n");
     // TODO: check that registered_stylesheets[_name] == this
     registered_stylesheets.remove(_name);
     _name = Expr();
