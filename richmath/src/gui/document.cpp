@@ -2690,9 +2690,13 @@ void Document::move_start_end(
     index = context.selection.end;
   }
   
-  while(box->parent() && box->parent()->selectable()) {
+  while(box) {
+    auto parent = box->parent();
+    if(!parent || !parent->exitable() || !parent->selectable())
+      break;
+
     index = box->index();
-    box = box->parent();
+    box = parent;
   }
   
   if(auto seq = dynamic_cast<MathSequence *>(box)) {
