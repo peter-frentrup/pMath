@@ -209,7 +209,7 @@ class ClientInfoWindow: public BasicWin32Widget {
             return 0;
             
           case WM_TIMER:
-            on_dynamic_update_delay_timeout(0);
+            on_dynamic_update_delay_timeout(nullptr);
             KillTimer(_hwnd, TID_DYNAMIC_UPDATE);
             return 0;
         }
@@ -1213,7 +1213,7 @@ void Application::delay_dynamic_updates(bool delay) {
     decltype(pending_dynamic_updates)  old_pending;
     swap(pending_dynamic_updates, old_pending);
     for(auto &e : old_pending.entries()) {
-      FrontEndObject *feo = FrontEndObject::find(e.key);
+      auto feo = FrontEndObject::find(e.key);
       if(feo)
         feo->dynamic_updated();
     }
@@ -1456,12 +1456,9 @@ static void cnt_dynamicupate(Expr data) {
       if(!id_obj.is_int32())
         continue;
         
-      Box *box = FrontEndObject::find_cast<Box>(PMATH_AS_INT32(id_obj.get()));
-      
-      if(!box)
-        continue;
-        
-      pending_dynamic_updates.set(box->id(), Void());
+      auto obj = FrontEndObject::find(PMATH_AS_INT32(id_obj.get()));
+      if(obj)
+        pending_dynamic_updates.set(obj->id(), Void());
     }
     
     if(need_timer && !dynamic_update_delay_timer_active) {
@@ -1487,12 +1484,9 @@ static void cnt_dynamicupate(Expr data) {
     if(!id_obj.is_int32())
       continue;
       
-    Box *box = FrontEndObject::find_cast<Box>(PMATH_AS_INT32(id_obj.get()));
-    
-    if(!box)
-      continue;
-      
-    box->dynamic_updated();
+    auto obj = FrontEndObject::find(PMATH_AS_INT32(id_obj.get()));
+    if(!obj)
+      obj->dynamic_updated();
   }
 }
 

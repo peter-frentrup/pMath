@@ -356,7 +356,7 @@ Box *Box::normalize_selection(int *start, int *end) {
     return _parent->normalize_selection(start, end);
   }
   
-  return 0;
+  return nullptr;
 }
 
 Expr Box::prepare_dynamic(Expr expr) {
