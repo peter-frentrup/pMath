@@ -1027,6 +1027,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           
       PMATH_RUN("Options(Section):={"
           "Antialiasing->Automatic,"
+          "AspectRatio->Automatic," // only valid for StyleData-sections
           "AutoNumberFormating->Inherited,"
           "AutoSpacing->Inherited,"
           "Background->Automatic,"
@@ -1037,6 +1038,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "DefaultDuplicateSectionStyle->Inherited,"
           "DefaultNewSectionStyle->Inherited,"
           "DefaultReturnCreatedSectionStyle->Inherited,"
+          "DockedSections->Inherited,"
           "Editable->True,"
           "Evaluatable->False,"
           "FontColor->GrayLevel(0),"
@@ -1048,7 +1050,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "GeneratedSectionStyles->Inherited,"
           "GridBoxColumnSpacing->0.5,"
           "GridBoxRowSpacing->0.5,"
+          "LanguageCategory->Inherited,"
           "LineBreakWithin->True,"
+          "Magnification->Automatic," // only valid for StyleData-sections
+          "Placeholder->Automatic," // only valid for StyleData-sections
           "ReturnCreatesNewSection->Inherited,"
           "ScriptSizeMultipliers->Automatic,"
           "SectionEditDuplicate->Inherited,"
@@ -1065,11 +1070,11 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "ShowAutoStyles->True,"
           "ShowSectionBracket->True,"
           "ShowStringCharacters->True,"
-          "TextShadow->None,"
-          "DockedSections->Inherited,"
           "StyleDefinitions->None,"
-          "WindowFrame->Inherited,"
-          "WindowTitle->Inherited"
+          "TextShadow->None,"
+          "Visible->True," // only valid for StyleData-sections
+          "WindowFrame->Inherited," // only valid for StyleData-sections
+          "WindowTitle->Inherited" // only valid for StyleData-sections
           "}");
           
       PMATH_RUN("Options(Setter):=Options(SetterBox):={"
