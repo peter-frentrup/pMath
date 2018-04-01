@@ -10,6 +10,7 @@
 
 #include <cairo-win32.h>
 
+#include <eval/observable.h>
 #include <graphics/context.h>
 #include <gui/win32/basic-win32-widget.h>
 #include <gui/win32/win32-themes.h>
@@ -36,11 +37,15 @@ class Win32ControlPainterInfo: public BasicWin32Widget {
         case WM_DWMCOMPOSITIONCHANGED:
         case WM_THEMECHANGED: {
             Win32ControlPainter::win32_painter.clear_cache();
+            style_observations.notify_all();
           } break;
       }
       
       return BasicWin32Widget::callback(message, wParam, lParam);
     }
+  
+  public:
+    Observable style_observations;
 };
 
 static Win32ControlPainterInfo w32cpinfo;
@@ -1258,6 +1263,8 @@ HANDLE Win32ControlPainter::get_control_theme(
   int           *theme_part,
   int           *theme_state
 ) {
+  w32cpinfo.style_observations.register_observer();
+
   if(!theme_part) {
     static int dummy_part;
     theme_part = &dummy_part;

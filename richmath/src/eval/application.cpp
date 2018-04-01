@@ -1552,6 +1552,30 @@ static Expr cnt_currentvalue(Expr data) {
       return Symbol(PMATH_SYMBOL_FAILED);
     }
     
+    if(item_string.equals("ControlsFontFamily")) {
+      SharedPtr<Style> style = new Style();
+      ControlPainter::std->system_font_style(style.ptr());
+      return style->get_pmath(FontFamilies);
+    }
+    
+    if(item_string.equals("ControlsFontSize")) {
+      SharedPtr<Style> style = new Style();
+      ControlPainter::std->system_font_style(style.ptr());
+      return style->get_pmath(FontSize);
+    }
+    
+    if(item_string.equals("ControlsFontSlant")) {
+      SharedPtr<Style> style = new Style();
+      ControlPainter::std->system_font_style(style.ptr());
+      return style->get_pmath(FontSlant);
+    }
+    
+    if(item_string.equals("ControlsFontWeight")) {
+      SharedPtr<Style> style = new Style();
+      ControlPainter::std->system_font_style(style.ptr());
+      return style->get_pmath(FontWeight);
+    }
+    
 //    if(item_string.equals("MousePosition")){
 //      if(box && doc){
 //        if(!box->style)
