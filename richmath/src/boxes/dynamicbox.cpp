@@ -109,15 +109,8 @@ void DynamicBox::paint_content(Context *context) {
     must_update = false;
     
     Expr result;
-    if(dynamic.get_value(&result)) {
-      BoxInputFlags opt = BoxInputFlags::Default;
-      if(get_style(AutoNumberFormating))
-        opt |= BoxInputFlags::FormatNumbers;
-        
-      content()->load_from_object(result, opt);
-      must_resize = true;
-      invalidate();
-    }
+    if(dynamic.get_value(&result)) 
+      dynamic_finished(Expr(), result);
   }
 }
 
