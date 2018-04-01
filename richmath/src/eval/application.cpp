@@ -851,11 +851,11 @@ Box *Application::get_evaluation_box() {
   if(box)
     return box;
     
-  return 0;
+  return nullptr;
 }
 
 Document *Application::create_document() {
-  Document *doc = 0;
+  Document *doc = nullptr;
   
 #ifdef RICHMATH_USE_WIN32_GUI
   {
@@ -922,6 +922,7 @@ Document *Application::create_document() {
   }
 #endif
   
+  doc->style->set(StyleDefinitions, String("Default.pmathdoc"));
   return doc;
 }
 

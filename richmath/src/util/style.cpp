@@ -361,6 +361,7 @@ namespace {
       
       static bool is_window_option(int key) {
         return key == Magnification             ||
+               key == StyleDefinitions          ||
                key == Visible                   ||
                key == WindowFrame               ||
                key == WindowTitle               ||

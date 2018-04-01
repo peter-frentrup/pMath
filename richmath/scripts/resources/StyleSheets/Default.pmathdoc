@@ -1,0 +1,9 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section(StyleData(StyleDefinitions -> "Core.pmathdoc")), 
+    SectionGroup({Section("Default stylesheet", "Title"), 
+      Section(BoxData({"This", " ", "file", " ", "contains", " ", "default", 
+         " ", "style", " ", "definitions", " ", "to", " ", "apply", " ", "to", 
+         " ", "new", " ", {"documents", "."}}), "Input")}, All)}, All)}, 
+ StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)

@@ -178,7 +178,7 @@ namespace richmath {
         bool  *was_inside_start) override;
     
     protected:
-      virtual bool can_enter_content() { return false; }
+      virtual bool can_enter_content() override { return false; }
       
     private:
       Expr _style_data;

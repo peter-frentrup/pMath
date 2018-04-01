@@ -144,6 +144,8 @@ namespace richmath {
       bool is_mouse_down() { return mouse_down_counter > 0; }
       
       virtual SharedPtr<Stylesheet> stylesheet() override { return context.stylesheet; }
+      void stylesheet(SharedPtr<Stylesheet> new_stylesheet);
+      bool load_stylesheet();
       virtual void reset_style() override;
       
       void paint_resize(Canvas *canvas, bool resize_only);

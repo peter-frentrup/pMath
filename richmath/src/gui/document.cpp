@@ -1571,6 +1571,7 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   
   reset_style();
   style->add_pmath(options_expr);
+  load_stylesheet();
   return true;
 }
 
@@ -4605,6 +4606,28 @@ void Document::reset_mouse() {
   //Application::update_control_active(native()->is_mouse_down());
 }
 
+void Document::stylesheet(SharedPtr<Stylesheet> new_stylesheet) {
+  assert(new_stylesheet);
+  if(new_stylesheet != context.stylesheet) {
+    context.stylesheet = new_stylesheet;
+    invalidate_all();
+  }
+}
+
+bool Document::load_stylesheet() {
+  Expr styledef = get_own_style(StyleDefinitions);
+  Expr last_styledef = get_own_style(InternalLastStyleDefinitions);
+  if(styledef != last_styledef) {
+    SharedPtr<Stylesheet> new_stylesheet = Stylesheet::try_load(styledef);
+    if(new_stylesheet) {
+      context.stylesheet = new_stylesheet;
+      style->set(InternalLastStyleDefinitions, styledef);
+      return true;
+    }
+  }
+  return false;
+}
+      
 void Document::reset_style() {
   if(style)
     style->clear();

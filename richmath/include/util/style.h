@@ -133,6 +133,7 @@ namespace richmath {
     DockedSectionsBottomGlass,
     
     StyleDefinitions,
+    InternalLastStyleDefinitions,
     GeneratedSectionStyles
   };
   
