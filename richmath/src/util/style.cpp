@@ -770,6 +770,10 @@ unsigned int Style::count() const {
   return int_float_values.size() + object_values.size();
 }
 
+bool Style::is_style_name(Expr n) {
+  return StyleInformation::get_key(n) >= 0;
+}
+
 Expr Style::get_name(int n) {
   return StyleInformation::get_name(n);
 }

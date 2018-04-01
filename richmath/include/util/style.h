@@ -225,11 +225,12 @@ namespace richmath {
       
       void emit_to_pmath(bool with_inherited = false) const;
       
-      
       static bool modifies_size(IntStyleOptionName    style_name) { return modifies_size((int)style_name); }
       static bool modifies_size(FloatStyleOptionName  style_name) { return modifies_size((int)style_name); }
       static bool modifies_size(StringStyleOptionName style_name) { return modifies_size((int)style_name); }
       static bool modifies_size(ObjectStyleOptionName style_name) { return modifies_size((int)style_name); }
+      
+      static bool is_style_name(Expr n);
       
       static Expr get_name(IntStyleOptionName    n) { return get_name((int)n); }
       static Expr get_name(FloatStyleOptionName  n) { return get_name((int)n); }

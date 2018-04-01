@@ -1505,7 +1505,7 @@ static Expr cnt_createdocument(Expr data) {
 
 static Expr cnt_currentvalue(Expr data) {
   Expr item;
-  Box *box = 0;
+  Box *box = nullptr;
   
   if(data.expr_length() == 1) {
     box = Application::get_evaluation_box();
@@ -1517,9 +1517,11 @@ static Expr cnt_currentvalue(Expr data) {
   }
   else
     return Symbol(PMATH_SYMBOL_FAILED);
-    
-  Document *doc = box->find_parent<Document>(true);
   
+  if(box && Style::is_style_name(item))
+    return box->get_pmath_style(item);
+  
+  Document *doc = box->find_parent<Document>(true);
   if(item.is_string()) {
     String item_string { item };
     
@@ -1595,6 +1597,7 @@ static Expr cnt_currentvalue(Expr data) {
 //    }
 
     }
+  
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
