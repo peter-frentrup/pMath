@@ -1,34 +1,36 @@
 /* pMath Document */
 
-System`Document({
-  System`SectionGroup({System`Section("Math Shaper Test", "Title"), 
-    System`Section(System`BoxData({
-       System`SqrtBox(System`SqrtBox(
-         System`SqrtBox(System`SqrtBox(
-           System`SqrtBox(System`SqrtBox(
-             System`SqrtBox("\[Placeholder]"))))))), 
-       System`RadicalBox(System`RadicalBox(
-         System`RadicalBox(System`RadicalBox(
-           System`RadicalBox(System`RadicalBox({
-              System`RadicalBox("\[Placeholder]", "\[Placeholder]"), 
-              System`RadicalBox(System`SqrtBox("\[Placeholder]"), 
-               "\[Placeholder]")}, "\[Placeholder]"), "\[Placeholder]"), 
-           "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]"), 
-        "\[Placeholder]")}), "Text"), 
-    System`Section(System`BoxData({
-       {{System`UnderoverscriptBox({
-           System`UnderoverscriptBox(System`UnderoverscriptBox(
-             System`UnderoverscriptBox(System`UnderoverscriptBox(
-               System`UnderoverscriptBox(System`UnderoverscriptBox(".", 
+Document({
+  SectionGroup({Section("Math Shaper Test", "Title"), 
+    Section(
+     BoxData({
+       SqrtBox(
+        SqrtBox(
+         SqrtBox(SqrtBox(SqrtBox(SqrtBox(SqrtBox("\[Placeholder]"))))))), 
+       RadicalBox(
+        RadicalBox(
+         RadicalBox(
+          RadicalBox(
+           RadicalBox(RadicalBox({
+              RadicalBox("\[Placeholder]", "\[Placeholder]"), 
+              RadicalBox(SqrtBox("\[Placeholder]"), "\[Placeholder]")}, 
+             "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]"), 
+          "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]")}), "Text"), 
+    Section(
+     BoxData({
+       {{UnderoverscriptBox({
+           UnderoverscriptBox(UnderoverscriptBox(
+             UnderoverscriptBox(UnderoverscriptBox(
+               UnderoverscriptBox(UnderoverscriptBox(".", 
                  "\[UnderParenthesis]", "\[OverParenthesis]"), 
                 "\[UnderParenthesis]", "\[OverParenthesis]"), 
                "\[UnderParenthesis]", "\[OverParenthesis]"), 
               "\[UnderParenthesis]", "\[OverParenthesis]"), 
              "\[UnderParenthesis]", "\[OverParenthesis]"), 
             "\[UnderParenthesis]", "\[OverParenthesis]"), " ", 
-           System`UnderoverscriptBox(System`UnderoverscriptBox(
-             System`UnderoverscriptBox(System`UnderoverscriptBox(
-               System`UnderoverscriptBox(System`UnderoverscriptBox(".", 
+           UnderoverscriptBox(UnderoverscriptBox(
+             UnderoverscriptBox(UnderoverscriptBox(
+               UnderoverscriptBox(UnderoverscriptBox(".", 
                  "\[UnderParenthesis]", "\[OverParenthesis]"), 
                 "\[UnderParenthesis]", "\[OverParenthesis]"), 
                "\[UnderParenthesis]", "\[OverParenthesis]"), 
@@ -36,378 +38,377 @@ System`Document({
              "\[UnderParenthesis]", "\[OverParenthesis]"), 
             "\[UnderParenthesis]", "\[OverParenthesis]")}, 
           "\[UnderParenthesis]", "\[OverParenthesis]"), " ", 
-         System`UnderoverscriptBox({
-           System`UnderoverscriptBox(System`UnderoverscriptBox(
-             System`UnderoverscriptBox(System`UnderoverscriptBox(
-               System`UnderoverscriptBox(System`UnderoverscriptBox(".", 
-                 "\[UnderBracket]", "\[OverBracket]"), "\[UnderBracket]", 
-                "\[OverBracket]"), "\[UnderBracket]", "\[OverBracket]"), 
-              "\[UnderBracket]", "\[OverBracket]"), "\[UnderBracket]", 
-             "\[OverBracket]"), "\[UnderBracket]", "\[OverBracket]"), " ", 
-           System`UnderoverscriptBox(System`UnderoverscriptBox(
-             System`UnderoverscriptBox(System`UnderoverscriptBox(
-               System`UnderoverscriptBox(System`UnderoverscriptBox(".", 
-                 "\[UnderBracket]", "\[OverBracket]"), "\[UnderBracket]", 
-                "\[OverBracket]"), "\[UnderBracket]", "\[OverBracket]"), 
-              "\[UnderBracket]", "\[OverBracket]"), "\[UnderBracket]", 
-             "\[OverBracket]"), "\[UnderBracket]", "\[OverBracket]")}, 
-          "\[UnderBracket]", "\[OverBracket]"), " ", 
-         System`UnderoverscriptBox({
-           System`UnderoverscriptBox(System`UnderoverscriptBox(
-             System`UnderoverscriptBox(System`UnderoverscriptBox(
-               System`UnderoverscriptBox(System`UnderoverscriptBox(".", 
-                 "\[UnderBrace]", "\[OverBrace]"), "\[UnderBrace]", 
-                "\[OverBrace]"), "\[UnderBrace]", "\[OverBrace]"), 
-              "\[UnderBrace]", "\[OverBrace]"), "\[UnderBrace]", 
-             "\[OverBrace]"), "\[UnderBrace]", "\[OverBrace]"), " ", 
-           System`UnderoverscriptBox(System`UnderoverscriptBox(
-             System`UnderoverscriptBox(System`UnderoverscriptBox(
-               System`UnderoverscriptBox(System`UnderoverscriptBox(".", 
-                 "\[UnderBrace]", "\[OverBrace]"), "\[UnderBrace]", 
-                "\[OverBrace]"), "\[UnderBrace]", "\[OverBrace]"), 
-              "\[UnderBrace]", "\[OverBrace]"), "\[UnderBrace]", 
-             "\[OverBrace]"), "\[UnderBrace]", "\[OverBrace]")}, 
-          "\[UnderBrace]", "\[OverBrace]"), 
-         System`OverscriptBox({
-           System`OverscriptBox(System`OverscriptBox(
-             System`OverscriptBox(System`OverscriptBox(".", "~"), "~"), "~"), 
-            "~"), " ", System`OverscriptBox(
-            System`OverscriptBox(System`OverscriptBox(
-              System`OverscriptBox(".", "~"), "~"), "~"), "~")}, "~"), " ", 
-         System`OverscriptBox({
-           System`OverscriptBox(System`OverscriptBox(
-             System`OverscriptBox(System`OverscriptBox(".", "^"), "^"), "^"), 
-            "^"), " ", System`OverscriptBox(
-            System`OverscriptBox(System`OverscriptBox(
-              System`OverscriptBox(".", "^"), "^"), "^"), "^")}, "^"), " ", 
-         System`OverscriptBox({
-           System`OverscriptBox(System`OverscriptBox(
-             System`OverscriptBox(System`OverscriptBox(".", "_"), "_"), "_"), 
-            "_"), " ", System`OverscriptBox(
-            System`OverscriptBox(System`OverscriptBox(
-              System`OverscriptBox(".", "_"), "_"), "_"), "_")}, "_"), " ", 
-         System`OverscriptBox({
-           System`OverscriptBox(System`OverscriptBox(".", "\[Rule]"), 
-            "\[Rule]"), System`OverscriptBox(
-            System`OverscriptBox(".", "\[Rule]"), "\[Rule]")}, "\[Rule]")}, 
-        " ", System`OverscriptBox("\[Function]", "xxxxx")}, 
-       System`OverscriptBox("\[Rule]", "xxxxx")}), "Text"), 
-    System`Section(System`BoxData({
-       {"(", {"(", {"(", {"(", "\[Placeholder]", ")"}, ")"}, ")"}, ")"}, " ", 
-       " ", {"[", {"[", {"[", {"[", "\[Placeholder]", "]"}, "]"}, "]"}, "]"}, 
-       " ", " ", {"{", {"{", {"{", {"{", "\[Placeholder]", "}"}, "}"}, "}"}, 
-        "}"}, " ", {"\[LeftCeiling]", {
-         "\[LeftCeiling]", {"\[LeftCeiling]", {
-           "\[LeftCeiling]", "\[Placeholder]", "\[RightCeiling]"}, 
-          "\[RightCeiling]"}, "\[RightCeiling]"}, "\[RightCeiling]"}, " ", 
-       " ", {"\[LeftFloor]", {"\[LeftFloor]", {
+         UnderoverscriptBox({
+           UnderoverscriptBox(UnderoverscriptBox(
+             UnderoverscriptBox(UnderoverscriptBox(
+               UnderoverscriptBox(UnderoverscriptBox(".", "\[UnderBracket]", 
+                 "\[OverBracket]"), "\[UnderBracket]", "\[OverBracket]"), 
+               "\[UnderBracket]", "\[OverBracket]"), "\[UnderBracket]", 
+              "\[OverBracket]"), "\[UnderBracket]", "\[OverBracket]"), 
+            "\[UnderBracket]", "\[OverBracket]"), " ", 
+           UnderoverscriptBox(UnderoverscriptBox(
+             UnderoverscriptBox(UnderoverscriptBox(
+               UnderoverscriptBox(UnderoverscriptBox(".", "\[UnderBracket]", 
+                 "\[OverBracket]"), "\[UnderBracket]", "\[OverBracket]"), 
+               "\[UnderBracket]", "\[OverBracket]"), "\[UnderBracket]", 
+              "\[OverBracket]"), "\[UnderBracket]", "\[OverBracket]"), 
+            "\[UnderBracket]", "\[OverBracket]")}, "\[UnderBracket]", 
+          "\[OverBracket]"), " ", UnderoverscriptBox({
+           UnderoverscriptBox(UnderoverscriptBox(
+             UnderoverscriptBox(UnderoverscriptBox(
+               UnderoverscriptBox(UnderoverscriptBox(".", "\[UnderBrace]", 
+                 "\[OverBrace]"), "\[UnderBrace]", "\[OverBrace]"), 
+               "\[UnderBrace]", "\[OverBrace]"), "\[UnderBrace]", 
+              "\[OverBrace]"), "\[UnderBrace]", "\[OverBrace]"), 
+            "\[UnderBrace]", "\[OverBrace]"), " ", 
+           UnderoverscriptBox(UnderoverscriptBox(
+             UnderoverscriptBox(UnderoverscriptBox(
+               UnderoverscriptBox(UnderoverscriptBox(".", "\[UnderBrace]", 
+                 "\[OverBrace]"), "\[UnderBrace]", "\[OverBrace]"), 
+               "\[UnderBrace]", "\[OverBrace]"), "\[UnderBrace]", 
+              "\[OverBrace]"), "\[UnderBrace]", "\[OverBrace]"), 
+            "\[UnderBrace]", "\[OverBrace]")}, "\[UnderBrace]", 
+          "\[OverBrace]"), OverscriptBox({
+           OverscriptBox(OverscriptBox(OverscriptBox(OverscriptBox(".", "~"), 
+              "~"), "~"), "~"), " ", 
+           OverscriptBox(OverscriptBox(OverscriptBox(OverscriptBox(".", "~"), 
+              "~"), "~"), "~")}, "~"), " ", 
+         OverscriptBox({
+           OverscriptBox(OverscriptBox(OverscriptBox(OverscriptBox(".", "^"), 
+              "^"), "^"), "^"), " ", 
+           OverscriptBox(OverscriptBox(OverscriptBox(OverscriptBox(".", "^"), 
+              "^"), "^"), "^")}, "^"), " ", 
+         OverscriptBox({
+           OverscriptBox(OverscriptBox(OverscriptBox(OverscriptBox(".", "_"), 
+              "_"), "_"), "_"), " ", 
+           OverscriptBox(OverscriptBox(OverscriptBox(OverscriptBox(".", "_"), 
+              "_"), "_"), "_")}, "_"), " ", 
+         OverscriptBox({OverscriptBox(OverscriptBox(".", "\[Rule]"), 
+            "\[Rule]"), OverscriptBox(OverscriptBox(".", "\[Rule]"), 
+            "\[Rule]")}, "\[Rule]")}, " ", OverscriptBox("\[Function]", 
+         "xxxxx")}, OverscriptBox("\[Rule]", "xxxxx")}), "Text"), 
+    Section(
+     BoxData({{"(", {"(", {"(", {"(", "\[Placeholder]", ")"}, ")"}, ")"}, 
+        ")"}, " ", " ", {"[", {"[", {"[", {"[", "\[Placeholder]", "]"}, "]"}, 
+         "]"}, "]"}, " ", " ", {
+        "{", {"{", {"{", {"{", "\[Placeholder]", "}"}, "}"}, "}"}, "}"}, " ", {
+        "\[LeftCeiling]", {"\[LeftCeiling]", {
+          "\[LeftCeiling]", {"\[LeftCeiling]", "\[Placeholder]", 
+           "\[RightCeiling]"}, "\[RightCeiling]"}, "\[RightCeiling]"}, 
+        "\[RightCeiling]"}, " ", " ", {
+        "\[LeftFloor]", {"\[LeftFloor]", {
           "\[LeftFloor]", {"\[LeftFloor]", "\[Placeholder]", "\[RightFloor]"}, 
           "\[RightFloor]"}, "\[RightFloor]"}, "\[RightFloor]"}, " ", " ", {
         "\[LeftAngleBracket]", {"\[LeftAngleBracket]", {
           "\[LeftAngleBracket]", {"\[LeftAngleBracket]", "\[Placeholder]", 
            "\[RightAngleBracket]"}, "\[RightAngleBracket]"}, 
          "\[RightAngleBracket]"}, "\[RightAngleBracket]"}}), "Text"), 
-    System`Section(System`BoxData({
-       {"(", {{"(", {{"(", {{"(", {{"(", {{"(", {{"(", {{"(", {{"(", {{"(", "\[Placeholder]", ")"}, 
-                         System`SuperscriptBox("\[Placeholder]")}, ")"}, 
-                       System`SuperscriptBox("\[Placeholder]")}, ")"}, 
-                     System`SuperscriptBox("\[Placeholder]")}, ")"}, 
-                   System`SuperscriptBox("\[Placeholder]")}, ")"}, 
-                 System`SuperscriptBox("\[Placeholder]")}, ")"}, 
-               System`SuperscriptBox("\[Placeholder]")}, ")"}, 
-             System`SuperscriptBox("\[Placeholder]")}, ")"}, 
-           System`SuperscriptBox("\[Placeholder]")}, ")"}, 
-         System`SuperscriptBox("\[Placeholder]")}, ")"}, " ", " ", {
-        "(", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), ")"}, 
-       " ", " ", {
-        "(", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+    Section(
+     BoxData({
+       {"(", {
+         {"(", {
+           {"(", {
+             {"(", {
+               {"(", {
+                 {"(", {
+                   {"(", {
+                     {"(", {
+                       {"(", {{"(", "\[Placeholder]", ")"}, 
+                         SuperscriptBox("\[Placeholder]")}, ")"}, 
+                       SuperscriptBox("\[Placeholder]")}, ")"}, 
+                     SuperscriptBox("\[Placeholder]")}, ")"}, 
+                   SuperscriptBox("\[Placeholder]")}, ")"}, 
+                 SuperscriptBox("\[Placeholder]")}, ")"}, 
+               SuperscriptBox("\[Placeholder]")}, ")"}, 
+             SuperscriptBox("\[Placeholder]")}, ")"}, 
+           SuperscriptBox("\[Placeholder]")}, ")"}, 
+         SuperscriptBox("\[Placeholder]")}, ")"}, " ", " ", {
+        "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), ")"}, " ", 
+       " ", {"(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}}), ")"}, " ", " ", {
-        "(", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
-        ")"}, " ", " ", {
-        "(", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), ")"}, " ", 
+       " ", {"(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), ")"}, " ", " ", {
-        "(", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}}), ")"}, 
        " ", " ", {
-        "(", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
-        ")"}, " ", " ", {
-        "(", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), ")"}, " ", 
+       " ", {"(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}}), ")"}, " ", " ", {
-        "(", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), ")"}}), "Text"), 
-    System`Section(System`BoxData({
-       {"[", {{"[", {{"[", {{"[", {{"[", {{"[", {{"[", {{"[", {{"[", {{"[", "\[Placeholder]", "]"}, 
-                         System`SuperscriptBox("\[Placeholder]")}, "]"}, 
-                       System`SuperscriptBox("\[Placeholder]")}, "]"}, 
-                     System`SuperscriptBox("\[Placeholder]")}, "]"}, 
-                   System`SuperscriptBox("\[Placeholder]")}, "]"}, 
-                 System`SuperscriptBox("\[Placeholder]")}, "]"}, 
-               System`SuperscriptBox("\[Placeholder]")}, "]"}, 
-             System`SuperscriptBox("\[Placeholder]")}, "]"}, 
-           System`SuperscriptBox("\[Placeholder]")}, "]"}, 
-         System`SuperscriptBox("\[Placeholder]")}, "]"}, " ", " ", {
-        "[", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), "]"}, 
-       " ", " ", {
-        "[", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+    Section(
+     BoxData({
+       {"[", {
+         {"[", {
+           {"[", {
+             {"[", {
+               {"[", {
+                 {"[", {
+                   {"[", {
+                     {"[", {
+                       {"[", {{"[", "\[Placeholder]", "]"}, 
+                         SuperscriptBox("\[Placeholder]")}, "]"}, 
+                       SuperscriptBox("\[Placeholder]")}, "]"}, 
+                     SuperscriptBox("\[Placeholder]")}, "]"}, 
+                   SuperscriptBox("\[Placeholder]")}, "]"}, 
+                 SuperscriptBox("\[Placeholder]")}, "]"}, 
+               SuperscriptBox("\[Placeholder]")}, "]"}, 
+             SuperscriptBox("\[Placeholder]")}, "]"}, 
+           SuperscriptBox("\[Placeholder]")}, "]"}, 
+         SuperscriptBox("\[Placeholder]")}, "]"}, " ", " ", {
+        "[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), "]"}, " ", 
+       " ", {"[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}}), "]"}, " ", " ", {
-        "[", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
-        "]"}, " ", " ", {
-        "[", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), "]"}, " ", 
+       " ", {"[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), "]"}, " ", " ", {
-        "[", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}}), "]"}, 
        " ", " ", {
-        "[", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
-        "]"}, " ", " ", {
-        "[", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), "]"}, " ", 
+       " ", {"[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}}), "]"}, " ", " ", {
-        "[", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), "]"}}), "Text"), 
-    System`Section(System`BoxData({
-       {"{", {{"{", {{"{", {{"{", {{"{", {{"{", {{"{", {{"{", {{"{", {{"{", "\[Placeholder]", "}"}, 
-                         System`SuperscriptBox("\[Placeholder]")}, "}"}, 
-                       System`SuperscriptBox("\[Placeholder]")}, "}"}, 
-                     System`SuperscriptBox("\[Placeholder]")}, "}"}, 
-                   System`SuperscriptBox("\[Placeholder]")}, "}"}, 
-                 System`SuperscriptBox("\[Placeholder]")}, "}"}, 
-               System`SuperscriptBox("\[Placeholder]")}, "}"}, 
-             System`SuperscriptBox("\[Placeholder]")}, "}"}, 
-           System`SuperscriptBox("\[Placeholder]")}, "}"}, 
-         System`SuperscriptBox("\[Placeholder]")}, "}"}, " ", " ", {
-        "{", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), "}"}, 
-       " ", " ", {
-        "{", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+    Section(
+     BoxData({
+       {"{", {
+         {"{", {
+           {"{", {
+             {"{", {
+               {"{", {
+                 {"{", {
+                   {"{", {
+                     {"{", {
+                       {"{", {{"{", "\[Placeholder]", "}"}, 
+                         SuperscriptBox("\[Placeholder]")}, "}"}, 
+                       SuperscriptBox("\[Placeholder]")}, "}"}, 
+                     SuperscriptBox("\[Placeholder]")}, "}"}, 
+                   SuperscriptBox("\[Placeholder]")}, "}"}, 
+                 SuperscriptBox("\[Placeholder]")}, "}"}, 
+               SuperscriptBox("\[Placeholder]")}, "}"}, 
+             SuperscriptBox("\[Placeholder]")}, "}"}, 
+           SuperscriptBox("\[Placeholder]")}, "}"}, 
+         SuperscriptBox("\[Placeholder]")}, "}"}, " ", " ", {
+        "{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), "}"}, " ", 
+       " ", {"{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}}), "}"}, " ", " ", {
-        "{", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
-        "}"}, " ", " ", {
-        "{", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), "}"}, " ", 
+       " ", {"{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), "}"}, " ", " ", {
-        "{", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}}), "}"}, 
        " ", " ", {
-        "{", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
-        "}"}, " ", " ", {
-        "{", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), "}"}, " ", 
+       " ", {"{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}}), "}"}, " ", " ", {
-        "{", System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), "}"}}), "Text"), 
-    System`Section(System`BoxData({
+    Section(
+     BoxData({
        {"\[LeftCeiling]", {
          {"\[LeftCeiling]", {
            {"\[LeftCeiling]", {
              {"\[LeftCeiling]", {
                {"\[LeftCeiling]", {
                  {"\[LeftCeiling]", {
-                   {"\[LeftCeiling]", {{"\[LeftCeiling]", {{"\[LeftCeiling]", {{"\[LeftCeiling]", "\[Placeholder]", 
-                          "\[RightCeiling]"}, System`SuperscriptBox(
+                   {"\[LeftCeiling]", {
+                     {"\[LeftCeiling]", {
+                       {"\[LeftCeiling]", {
+                         {"\[LeftCeiling]", "\[Placeholder]", 
+                          "\[RightCeiling]"}, SuperscriptBox(
                           "\[Placeholder]")}, "\[RightCeiling]"}, 
-                       System`SuperscriptBox("\[Placeholder]")}, 
-                      "\[RightCeiling]"}, System`SuperscriptBox(
-                      "\[Placeholder]")}, "\[RightCeiling]"}, 
-                   System`SuperscriptBox("\[Placeholder]")}, 
-                  "\[RightCeiling]"}, System`SuperscriptBox(
-                  "\[Placeholder]")}, "\[RightCeiling]"}, 
-               System`SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
-             System`SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
-           System`SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
-         System`SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, " ", 
-       " ", {"\[LeftCeiling]", 
-        System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), 
+                       SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
+                     SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
+                   SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
+                 SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
+               SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
+             SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
+           SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, 
+         SuperscriptBox("\[Placeholder]")}, "\[RightCeiling]"}, " ", " ", {
+        "\[LeftCeiling]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), 
         "\[RightCeiling]"}, " ", " ", {
-        "\[LeftCeiling]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}}), 
-        "\[RightCeiling]"}, " ", " ", {
-        "\[LeftCeiling]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
-        "\[RightCeiling]"}, " ", " ", {
-        "\[LeftCeiling]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "\[LeftCeiling]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}}), "\[RightCeiling]"}, " ", " ", {
-        "\[LeftCeiling]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "\[LeftCeiling]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), 
+        "\[RightCeiling]"}, " ", " ", {
+        "\[LeftCeiling]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightCeiling]"}, " ", 
        " ", {"\[LeftCeiling]", 
-        System`GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
+        GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightCeiling]"}, " ", 
+       " ", {"\[LeftCeiling]", 
+        GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), 
         "\[RightCeiling]"}, " ", " ", {
-        "\[LeftCeiling]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}}), 
-        "\[RightCeiling]"}, " ", " ", {
-        "\[LeftCeiling]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "\[LeftCeiling]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}}), "\[RightCeiling]"}}), "Text"), 
-    System`Section(System`BoxData({
+           "\[Placeholder]"}}), "\[RightCeiling]"}, " ", " ", {
+        "\[LeftCeiling]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightCeiling]"}}), 
+     "Text"), 
+    Section(
+     BoxData({
        {"\[LeftFloor]", {
          {"\[LeftFloor]", {
            {"\[LeftFloor]", {
              {"\[LeftFloor]", {
                {"\[LeftFloor]", {
-                 {"\[LeftFloor]", {{"\[LeftFloor]", {{"\[LeftFloor]", {{"\[LeftFloor]", {{"\[LeftFloor]", "\[Placeholder]", "\[RightFloor]"}, 
-                         System`SuperscriptBox("\[Placeholder]")}, 
-                        "\[RightFloor]"}, System`SuperscriptBox(
-                        "\[Placeholder]")}, "\[RightFloor]"}, 
-                     System`SuperscriptBox("\[Placeholder]")}, 
-                    "\[RightFloor]"}, System`SuperscriptBox(
-                    "\[Placeholder]")}, "\[RightFloor]"}, 
-                 System`SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
-               System`SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
-             System`SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
-           System`SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
-         System`SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, " ", " ", 
-       {"\[LeftFloor]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightFloor]"}, " ", 
-       " ", {"\[LeftFloor]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}}), 
+                 {"\[LeftFloor]", {
+                   {"\[LeftFloor]", {
+                     {"\[LeftFloor]", {
+                       {"\[LeftFloor]", {
+                         {"\[LeftFloor]", "\[Placeholder]", "\[RightFloor]"}, 
+                         SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
+                       SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
+                     SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
+                   SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
+                 SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
+               SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
+             SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
+           SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, 
+         SuperscriptBox("\[Placeholder]")}, "\[RightFloor]"}, " ", " ", {
+        "\[LeftFloor]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}}), 
         "\[RightFloor]"}, " ", " ", {
-        "\[LeftFloor]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
-        "\[RightFloor]"}, " ", " ", {
-        "\[LeftFloor]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "\[LeftFloor]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}}), "\[RightFloor]"}, " ", " ", {
-        "\[LeftFloor]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "\[LeftFloor]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), 
+        "\[RightFloor]"}, " ", " ", {
+        "\[LeftFloor]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightFloor]"}, " ", 
-       " ", {"\[LeftFloor]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+       " ", {"\[LeftFloor]", 
+        GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightFloor]"}, " ", 
+       " ", {"\[LeftFloor]", 
+        GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {
-           {"\[Placeholder]", System`SuperscriptBox("\[Placeholder]")}}}), 
+           {"\[Placeholder]", SuperscriptBox("\[Placeholder]")}}}), 
         "\[RightFloor]"}, " ", " ", {
-        "\[LeftFloor]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}}), 
-        "\[RightFloor]"}, " ", " ", {
-        "\[LeftFloor]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+        "\[LeftFloor]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}}), "\[RightFloor]"}}), "Text"), 
-    System`Section(System`BoxData({"\[LeftAngleBracket]", {
+           "\[Placeholder]"}}), "\[RightFloor]"}, " ", " ", {
+        "\[LeftFloor]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightFloor]"}}), 
+     "Text"), 
+    Section(BoxData({"\[LeftAngleBracket]", {
         {"\[LeftAngleBracket]", {
           {"\[LeftAngleBracket]", {
             {"\[LeftAngleBracket]", {
               {"\[LeftAngleBracket]", {
                 {"\[LeftAngleBracket]", "\[Placeholder]", 
-                 "\[RightAngleBracket]"}, System`SuperscriptBox(
-                 "\[Placeholder]")}, "\[RightAngleBracket]"}, 
-              System`SuperscriptBox("\[Placeholder]")}, 
-             "\[RightAngleBracket]"}, System`SuperscriptBox(
-             "\[Placeholder]")}, "\[RightAngleBracket]"}, 
-          System`SuperscriptBox("\[Placeholder]")}, "\[RightAngleBracket]"}, 
-        System`SuperscriptBox("\[Placeholder]")}, "\[RightAngleBracket]"}), 
-     "Text"), System`Section(
-     System`BoxData({{"\[Piecewise]", "\[Placeholder]"}, " ", " ", {
-        "\[Piecewise]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}})}, " ", " ", {
-        "\[Piecewise]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}})}, " ", 
-       " ", {"\[Piecewise]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
+                 "\[RightAngleBracket]"}, SuperscriptBox("\[Placeholder]")}, 
+               "\[RightAngleBracket]"}, SuperscriptBox("\[Placeholder]")}, 
+             "\[RightAngleBracket]"}, SuperscriptBox("\[Placeholder]")}, 
+           "\[RightAngleBracket]"}, SuperscriptBox("\[Placeholder]")}, 
+         "\[RightAngleBracket]"}, SuperscriptBox("\[Placeholder]")}, 
+       "\[RightAngleBracket]"}), "Text"), 
+    Section(BoxData({{"\[Piecewise]", "\[Placeholder]"}, " ", " ", {
+        "\[Piecewise]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}})}, 
+       " ", " ", {"\[Piecewise]", 
+        GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}})}, " ", " ", {
-        "\[Piecewise]", System`GridBox({
-          {"\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}, {"\[Placeholder]"}})}}), "Text"), 
-    System`Section(System`BoxData({
-       {"\[Integral]", System`SubsuperscriptBox("\[Placeholder]", 
-         "\[Placeholder]"), {"\[DifferentialD]", "x"}}, ",", {
-        "\[Integral]", System`SubsuperscriptBox("\[Placeholder]", 
-         "\[Placeholder]"), {"x", System`SuperscriptBox("\[Placeholder]")}}, 
-       ",", {"\[Integral]", System`SubsuperscriptBox("\[Placeholder]", 
-         "\[Placeholder]"), {
-         {"x", System`SuperscriptBox({
-            "\[Placeholder]", System`SuperscriptBox({
-              "\[Placeholder]", System`SuperscriptBox("\[Placeholder]")})})}, {
+        "\[Piecewise]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}})}, " ", " ", {
+        "\[Piecewise]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
+           "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}})}}), 
+     "Text"), 
+    Section(
+     BoxData({
+       {"\[Integral]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]"), {
+         "\[DifferentialD]", "x"}}, ",", {
+        "\[Integral]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]"), {
+         "x", SuperscriptBox("\[Placeholder]")}}, ",", {
+        "\[Integral]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]"), {
+         {"x", SuperscriptBox({"\[Placeholder]", 
+            SuperscriptBox({"\[Placeholder]", 
+              SuperscriptBox("\[Placeholder]")})})}, {
           "\[DifferentialD]", "x"}}}, ",", {
-        "\[Integral]", System`SubsuperscriptBox("\[Placeholder]", 
-         "\[Placeholder]"), {
-         {"x", System`SuperscriptBox({
-            "\[Placeholder]", System`SuperscriptBox({
-              "\[Placeholder]", System`SuperscriptBox({
-                "\[Placeholder]", System`SuperscriptBox(
-                 "\[Placeholder]")})})})}, {"\[DifferentialD]", "x"}}}, ",", {
-        "\[Integral]", System`SubsuperscriptBox("\[Placeholder]", 
-         "\[Placeholder]"), {
-         {"x", System`SuperscriptBox({
-            "\[Placeholder]", System`SuperscriptBox({
-              "\[Placeholder]", System`SuperscriptBox({
-                "\[Placeholder]", System`SuperscriptBox({
-                  "\[Placeholder]", System`SuperscriptBox({
-                    "\[Placeholder]", System`SuperscriptBox(
-                     "\[Placeholder]")})})})})})}, {
+        "\[Integral]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]"), {
+         {"x", SuperscriptBox({"\[Placeholder]", 
+            SuperscriptBox({"\[Placeholder]", 
+              SuperscriptBox({"\[Placeholder]", 
+                SuperscriptBox("\[Placeholder]")})})})}, {
           "\[DifferentialD]", "x"}}}, ",", {
-        "\[Integral]", System`SubsuperscriptBox("\[Placeholder]", 
-         "\[Placeholder]"), {
-         {"x", System`SuperscriptBox({
-            "\[Placeholder]", System`SuperscriptBox({
-              "\[Placeholder]", System`SuperscriptBox({
-                "\[Placeholder]", System`SuperscriptBox({
-                  "\[Placeholder]", System`SuperscriptBox({
-                    "\[Placeholder]", System`SuperscriptBox({
-                      "\[Placeholder]", System`SuperscriptBox({
-                        "\[Placeholder]", System`SuperscriptBox({
-                          "\[Placeholder]", System`SuperscriptBox({
-                            "\[Placeholder]", System`SuperscriptBox(
+        "\[Integral]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]"), {
+         {"x", SuperscriptBox({"\[Placeholder]", 
+            SuperscriptBox({"\[Placeholder]", 
+              SuperscriptBox({"\[Placeholder]", 
+                SuperscriptBox({"\[Placeholder]", 
+                  SuperscriptBox({"\[Placeholder]", 
+                    SuperscriptBox("\[Placeholder]")})})})})})}, {
+          "\[DifferentialD]", "x"}}}, ",", {
+        "\[Integral]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]"), {
+         {"x", SuperscriptBox({"\[Placeholder]", 
+            SuperscriptBox({"\[Placeholder]", 
+              SuperscriptBox({"\[Placeholder]", 
+                SuperscriptBox({"\[Placeholder]", 
+                  SuperscriptBox({"\[Placeholder]", 
+                    SuperscriptBox({"\[Placeholder]", 
+                      SuperscriptBox({"\[Placeholder]", 
+                        SuperscriptBox({"\[Placeholder]", 
+                          SuperscriptBox({"\[Placeholder]", 
+                            SuperscriptBox(
                              "\[Placeholder]")})})})})})})})})})}, {
           "\[DifferentialD]", "x"}}}}), "Text"), 
-    System`Section(System`BoxData({{"\[Sum]", "x"}, ",", {
-        "\[Sum]", {"x", System`SuperscriptBox("\[Placeholder]")}}, ",", {
-        "\[Sum]", {"x", System`SuperscriptBox({
-           "\[Placeholder]", System`SuperscriptBox({
-             "\[Placeholder]", System`SuperscriptBox("\[Placeholder]")})})}}, 
-       ",", {"\[Sum]", {
-         "x", System`SuperscriptBox({
-           "\[Placeholder]", System`SuperscriptBox({
-             "\[Placeholder]", System`SuperscriptBox({
-               "\[Placeholder]", System`SuperscriptBox(
-                "\[Placeholder]")})})})}}, ",", {
-        "\[Sum]", {"x", System`SuperscriptBox({
-           "\[Placeholder]", System`SuperscriptBox({
-             "\[Placeholder]", System`SuperscriptBox({
-               "\[Placeholder]", System`SuperscriptBox({
-                 "\[Placeholder]", System`SuperscriptBox({
-                   "\[Placeholder]", System`SuperscriptBox(
-                    "\[Placeholder]")})})})})})}}}), "Text"), 
-    System`Section(System`BoxData({{"\[Product]", "x"}, ",", {
-        "\[Product]", {"x", System`SuperscriptBox("\[Placeholder]")}}, ",", {
+    Section(BoxData({{"\[Sum]", "x"}, ",", {
+        "\[Sum]", {"x", SuperscriptBox("\[Placeholder]")}}, ",", {
+        "\[Sum]", {
+         "x", SuperscriptBox({"\[Placeholder]", 
+           SuperscriptBox({"\[Placeholder]", 
+             SuperscriptBox("\[Placeholder]")})})}}, ",", {
+        "\[Sum]", {
+         "x", SuperscriptBox({"\[Placeholder]", 
+           SuperscriptBox({"\[Placeholder]", 
+             SuperscriptBox({"\[Placeholder]", 
+               SuperscriptBox("\[Placeholder]")})})})}}, ",", {
+        "\[Sum]", {
+         "x", SuperscriptBox({"\[Placeholder]", 
+           SuperscriptBox({"\[Placeholder]", 
+             SuperscriptBox({"\[Placeholder]", 
+               SuperscriptBox({"\[Placeholder]", 
+                 SuperscriptBox({"\[Placeholder]", 
+                   SuperscriptBox("\[Placeholder]")})})})})})}}}), "Text"), 
+    Section(BoxData({{"\[Product]", "x"}, ",", {
+        "\[Product]", {"x", SuperscriptBox("\[Placeholder]")}}, ",", {
         "\[Product]", {
-         "x", System`SuperscriptBox({
-           "\[Placeholder]", System`SuperscriptBox({
-             "\[Placeholder]", System`SuperscriptBox("\[Placeholder]")})})}}, 
-       ",", {"\[Product]", {
-         "x", System`SuperscriptBox({
-           "\[Placeholder]", System`SuperscriptBox({
-             "\[Placeholder]", System`SuperscriptBox({
-               "\[Placeholder]", System`SuperscriptBox(
-                "\[Placeholder]")})})})}}, ",", {
+         "x", SuperscriptBox({"\[Placeholder]", 
+           SuperscriptBox({"\[Placeholder]", 
+             SuperscriptBox("\[Placeholder]")})})}}, ",", {
         "\[Product]", {
-         "x", System`SuperscriptBox({
-           "\[Placeholder]", System`SuperscriptBox({
-             "\[Placeholder]", System`SuperscriptBox({
-               "\[Placeholder]", System`SuperscriptBox({
-                 "\[Placeholder]", System`SuperscriptBox({
-                   "\[Placeholder]", System`SuperscriptBox(
-                    "\[Placeholder]")})})})})})}}}), "Text"), 
-    System`Section(System`BoxData(
-      /\/({{{"\[LeftArrow]", " ", "\[UpArrow]"}, " ", "\[Rule]", " ", {
+         "x", SuperscriptBox({"\[Placeholder]", 
+           SuperscriptBox({"\[Placeholder]", 
+             SuperscriptBox({"\[Placeholder]", 
+               SuperscriptBox("\[Placeholder]")})})})}}, ",", {
+        "\[Product]", {
+         "x", SuperscriptBox({"\[Placeholder]", 
+           SuperscriptBox({"\[Placeholder]", 
+             SuperscriptBox({"\[Placeholder]", 
+               SuperscriptBox({"\[Placeholder]", 
+                 SuperscriptBox({"\[Placeholder]", 
+                   SuperscriptBox("\[Placeholder]")})})})})})}}}), "Text"), 
+    Section(
+     BoxData(/\/({{{"\[LeftArrow]", " ", "\[UpArrow]"}, " ", "\[Rule]", " ", {
           {{{{{{{{{{{{{{{{{{"\[DownArrow]", " ", "\[LeftRightArrow]"}, " ", 
                            "\[UpperLeftArrow]"}, " ", "\[UpperRightArrow]"}, 
                          " ", "\[LowerRightArrow]"}, " ", 
@@ -417,7 +418,8 @@ System`Document({
                   " ", "\[U+21DC]"}, " ", "\[U+21DD]"}, "\[U+27F5]"}, " ", 
                "\[U+27F6]"}, " ", "\[U+27F7]"}, " ", "\[U+27F8]"}, " ", 
             "\[U+27F9]"}, " ", "\[U+27FA]"}, " ", "\[RuleDelayed]"}}, ","}, 
-       "\n", {{{{{{"\[ForAll]", " ", {"\[PartialD]", " ", {
+       "\n", {
+        {{{{{"\[ForAll]", " ", {"\[PartialD]", " ", {
                "\[Exists]", " ", {"\[NotExists]", " ", {
                  "\[EmptySet]", " ", "\[Del]", " ", "\[Element]", " ", 
                  "\[NotElement]", " ", "\[U+220A]", " ", "\[ReverseElement]", 
@@ -472,283 +474,245 @@ System`Document({
         "\[Dagger]", " ", "\[DoubleDagger]", " ", "\[Ellipsis]", " ", 
         "\[Prime]", " ", "\[DoublePrime]", " ", "\[TriplePrime]", " ", 
         "\[QuadruplePrime]"}, " ")), "Text"), 
-    System`Section(System`BoxData(
-      /\/({{"\[CapitalAlpha]", System`SubsuperscriptBox("\[Placeholder]", 
+    Section(
+     BoxData(
+      /\/({{"\[CapitalAlpha]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalBeta]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[CapitalGamma]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[CapitalGamma]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalDelta]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[CapitalEpsilon]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[CapitalEpsilon]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalZeta]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[CapitalEta]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[CapitalEta]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalTheta]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[CapitalIota]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[CapitalIota]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalKappa]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[CapitalLambda]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[CapitalLambda]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[CapitalMu]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[CapitalMu]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[CapitalNu]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[CapitalNu]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[CapitalXi]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[CapitalXi]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalOmicron]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[CapitalPi]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[CapitalPi]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[CapitalRho]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[CapitalRho]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalSigma]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[CapitalTau]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[CapitalTau]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalUpsilon]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[CapitalPhi]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[CapitalPhi]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[CapitalChi]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[CapitalChi]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[CapitalPsi]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[CapitalPsi]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CapitalOmega]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}}, "\n", 
-       {{"\[Alpha]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}}, "\n", {
+        {"\[Alpha]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Beta]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Beta]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Gamma]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Delta]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Gamma]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Delta]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[CurlyEpsilon]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[Zeta]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[Zeta]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Eta]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Eta]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Theta]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Iota]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Theta]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Kappa]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Lambda]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Iota]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Mu]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        {"\[Nu]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        {"\[Xi]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        {"\[Omicron]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Pi]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Rho]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Kappa]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[FinalSigma]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Lambda]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Sigma]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Tau]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Mu]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Upsilon]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[CurlyPhi]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Nu]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Chi]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[Psi]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Xi]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Omega]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}}, 
+       "\n", {{"\[CurlyTheta]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Omicron]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Phi]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[CurlyPi]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Pi]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Stigma]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[CurlyKappa]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[Rho]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[CurlyRho]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[FinalSigma]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Sigma]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Tau]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Upsilon]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[CurlyPhi]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Chi]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Psi]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Omega]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[Epsilon]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}}, "\n", {
-        {"\[CurlyTheta]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Phi]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[CurlyPi]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Stigma]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[CurlyKappa]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[CurlyRho]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[Epsilon]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}}, "\n", {
-        {"\[ScriptCapitalA]", System`SubsuperscriptBox("\[Placeholder]", 
+        {"\[ScriptCapitalA]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalB]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalC]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalC]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalD]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalE]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalE]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalF]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalG]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalG]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalH]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalI]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalI]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalJ]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalK]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalK]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalL]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalM]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalM]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalN]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalO]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalO]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalP]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalQ]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalQ]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalR]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalS]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalS]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalT]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalU]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalU]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalV]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalW]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalW]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalX]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
-         "\[ScriptCapitalY]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", {
+         "\[ScriptCapitalY]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {"\[ScriptCapitalZ]", 
-         System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}}, "\n", 
-       {{"\[ScriptA]", System`SubsuperscriptBox("\[Placeholder]", 
+         SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}}, "\n", {
+        {"\[ScriptA]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptB]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptB]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptC]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptD]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptC]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptE]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptF]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptD]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptG]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptH]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptE]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptI]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptJ]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptF]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptK]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptL]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptG]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptM]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptN]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptH]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptO]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptP]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptI]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptQ]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptR]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptJ]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptS]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptT]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptK]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptU]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptV]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptL]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptW]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptX]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", {
-         "\[ScriptM]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptN]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptO]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptP]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptQ]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptR]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptS]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptT]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptU]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptV]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptW]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptX]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptY]", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", {
-         "\[ScriptZ]", System`SubsuperscriptBox("\[Placeholder]", 
+         "\[ScriptY]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", {"\[ScriptZ]", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}})), "Text"), 
-    System`Section(System`BoxData(
-      /\/({{"a", System`SubsuperscriptBox("\[Placeholder]", 
+    Section(
+     BoxData(
+      /\/({{"a", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"b", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"c", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "b", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"c", System`SubsuperscriptBox("\[Placeholder]", 
+         "d", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"e", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"f", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "d", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"e", System`SubsuperscriptBox("\[Placeholder]", 
+         "g", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"h", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"i", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "f", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"g", System`SubsuperscriptBox("\[Placeholder]", 
+         "j", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"k", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"l", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "h", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"i", System`SubsuperscriptBox("\[Placeholder]", 
+         "m", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"n", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"o", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "j", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"k", System`SubsuperscriptBox("\[Placeholder]", 
+         "p", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"q", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"r", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "l", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"m", System`SubsuperscriptBox("\[Placeholder]", 
+         "s", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"t", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"u", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "n", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"o", System`SubsuperscriptBox("\[Placeholder]", 
+         "v", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"w", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"x", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "p", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"q", System`SubsuperscriptBox("\[Placeholder]", 
+         "y", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"z", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}}, 
+       "\n", {{"A", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"B", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "r", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"s", System`SubsuperscriptBox("\[Placeholder]", 
+         "C", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"D", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"E", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "t", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"u", System`SubsuperscriptBox("\[Placeholder]", 
+         "F", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"G", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"H", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "v", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"w", System`SubsuperscriptBox("\[Placeholder]", 
+         "I", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"J", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"K", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "x", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"y", System`SubsuperscriptBox("\[Placeholder]", 
+         "L", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"M", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"N", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "z", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}}, 
-       "\n", {{"A", System`SubsuperscriptBox("\[Placeholder]", 
+         "O", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"P", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"Q", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "B", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"C", System`SubsuperscriptBox("\[Placeholder]", 
+         "R", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"S", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"T", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "D", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"E", System`SubsuperscriptBox("\[Placeholder]", 
+         "U", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"V", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"W", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}, " ", " ", {
-         "F", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"G", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "H", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"I", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "J", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"K", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "L", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"M", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "N", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"O", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "P", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"Q", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "R", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"S", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "T", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"U", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "V", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"W", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "X", System`SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
-        " ", " ", {"Y", System`SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}, " ", " ", {
-         "Z", System`SubsuperscriptBox("\[Placeholder]", 
+         "X", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
+        " ", {"Y", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
+        " ", " ", {"Z", SubsuperscriptBox("\[Placeholder]", 
           "\[Placeholder]")}})), "Text"), 
-    System`Section(System`BoxData(
-      /\/({"\[Aleph]", " ", "\[Beth]", " ", "\[Gimel]", " ", "\[Dalet]", " ", 
-        "\[U+213C]", " ", "\[U+213D]", " ", {
+    Section(BoxData(/\/({"\[Aleph]", " ", "\[Beth]", " ", "\[Gimel]", " ", 
+        "\[Dalet]", " ", "\[U+213C]", " ", "\[U+213D]", " ", {
          "\[CapitalDifferentialD]", " ", {"\[DifferentialD]", " ", 
           "\[ExponentialE]"}}, " ", "\[ImaginaryI]", " ", "\[ImaginaryJ]"}, 
        " ", "\n", {"\[GothicCapitalA]", " ", "\[GothicCapitalB]", " ", 
@@ -800,5 +764,6 @@ System`Document({
         "\[DoubleStruckThree]", " ", "\[DoubleStruckFour]", " ", 
         "\[DoubleStruckFive]", " ", "\[DoubleStruckSix]", " ", 
         "\[DoubleStruckSeven]", " ", "\[DoubleStruckEight]", " ", 
-        "\[DoubleStruckNine]"})), "Text")}, System`All)}, 
- System`Magnification -> 1.9999998807907104`, System`Visible -> System`True)
+        "\[DoubleStruckNine]"})), "Text")}, All)}, 
+ Magnification -> 1.9999998807907104`, StyleDefinitions -> "Default.pmathdoc", 
+ Visible -> True)
