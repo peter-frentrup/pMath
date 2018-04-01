@@ -1485,7 +1485,7 @@ static void cnt_dynamicupate(Expr data) {
       continue;
       
     auto obj = FrontEndObject::find(PMATH_AS_INT32(id_obj.get()));
-    if(!obj)
+    if(obj)
       obj->dynamic_updated();
   }
 }
