@@ -370,6 +370,17 @@ namespace richmath {
           delete[] table;
       }
       
+      Hashtable(self_t &&other)
+        : Hashtable()
+      {
+        this->swap(other);
+      }
+      
+      self_t &operator=(self_t &&other) {
+        this->swap(other);
+        return *this;
+      }
+      
       unsigned int size() const { return used_count; }
       
       const Entry<K, V> *entry(unsigned int i) const { return is_used(table[i]) ? table[i] : nullptr; }
@@ -499,7 +510,7 @@ namespace richmath {
         }
       }
       
-      void swap(Hashtable<K, V, hash_function> &other) {
+      void swap(self_t &other) {
         using std::swap;
         swap(nonnull_count, other.nonnull_count);
         swap(used_count, other.used_count);

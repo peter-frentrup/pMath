@@ -684,6 +684,7 @@
 		<Unit filename="include/eval/binding.h" />
 		<Unit filename="include/eval/dynamic.h" />
 		<Unit filename="include/eval/job.h" />
+		<Unit filename="include/eval/observable.h" />
 		<Unit filename="include/eval/server.h" />
 		<Unit filename="include/graphics/animation.h" />
 		<Unit filename="include/graphics/buffer.h" />
@@ -1054,6 +1055,7 @@
 		<Unit filename="src/eval/binding.cpp" />
 		<Unit filename="src/eval/dynamic.cpp" />
 		<Unit filename="src/eval/job.cpp" />
+		<Unit filename="src/eval/observable.cpp" />
 		<Unit filename="src/eval/server.cpp" />
 		<Unit filename="src/graphics/animation.cpp" />
 		<Unit filename="src/graphics/buffer.cpp" />

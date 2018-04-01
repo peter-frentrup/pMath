@@ -949,13 +949,14 @@ void Win32DocumentWindow::title(String text) {
   _title = text;
   
   if(text.is_null()) {
-    if(_filename.is_valid()) {
-      int c = _filename.length();
-      const uint16_t *buf = _filename.buffer();
+    String fname = filename();
+    if(fname.is_valid()) {
+      int c = fname.length();
+      const uint16_t *buf = fname.buffer();
       while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
         --c;
         
-      text = _filename.part(c + 1);
+      text = fname.part(c + 1);
     }
     else
       text = "untitled";

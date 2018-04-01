@@ -1340,15 +1340,15 @@ static void cnt_end(Expr data) {
   if(!more) {
     for(auto &e : all_document_ids.entries()) {
       Document *doc = FrontEndObject::find_cast<Document>(e.key);
-        
-        assert(doc);
-        
-        for(int s = 0; s < doc->count(); ++s) {
-          auto math = dynamic_cast<MathSection*>(doc->section(s));
-          if(math && math->get_style(ShowAutoStyles)) {
-            math->invalidate();
-          }
+      
+      assert(doc);
+      
+      for(int s = 0; s < doc->count(); ++s) {
+        auto math = dynamic_cast<MathSection*>(doc->section(s));
+        if(math && math->get_style(ShowAutoStyles)) {
+          math->invalidate();
         }
+      }
     }
   }
   
@@ -1374,9 +1374,9 @@ static void cnt_printsection(Expr data) {
 static Expr cnt_getdocuments() {
   Gather gather;
   
-  for(auto &e : all_document_ids.entries()) 
+  for(auto &e : all_document_ids.entries())
     Gather::emit(Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), e.key));
-  
+    
   return gather.end();
 }
 
@@ -1520,42 +1520,57 @@ static Expr cnt_currentvalue(Expr data) {
     
   Document *doc = box->find_parent<Document>(true);
   
-  if(String(item).equals("MouseOver")) {
-    if(box && doc) {
-      if(!box->style)
-        box->style = new Style();
+  if(item.is_string()) {
+    String item_string { item };
+    
+    if(item_string.equals("MouseOver")) {
+      if(box && doc) {
+        if(!box->style)
+          box->style = new Style();
+          
+        box->style->set(InternalUsesCurrentValueOfMouseOver, true);
         
-      box->style->set(InternalUsesCurrentValueOfMouseOver, true);
+        Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
+        while(mo && mo != box)
+          mo = mo->parent();
+          
+        if(mo)
+          return Symbol(PMATH_SYMBOL_TRUE);
+      }
       
-      Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
-      while(mo && mo != box)
-        mo = mo->parent();
-        
-      if(mo)
-        return Symbol(PMATH_SYMBOL_TRUE);
+      return Symbol(PMATH_SYMBOL_FALSE);
     }
     
-    return Symbol(PMATH_SYMBOL_FALSE);
-  }
-  
-//  if(String(item).equals("MousePosition")){
-//    if(box && doc){
-//      if(!box->style)
-//        box->style = new Style();
+    if(item_string.equals("Filename")) {
+      if(doc) {
+        String result = doc->native()->filename();
+        if(!result.is_valid())
+          return Symbol(PMATH_SYMBOL_NONE);
+        return result;
+      }
+      
+      return Symbol(PMATH_SYMBOL_FAILED);
+    }
+    
+//    if(item_string.equals("MousePosition")){
+//      if(box && doc){
+//        if(!box->style)
+//          box->style = new Style();
 //
-//      box->style->set(InternalUsesCurrentValueOfMousePosition, true);
+//        box->style->set(InternalUsesCurrentValueOfMousePosition, true);
 //
-//      MouseEvent ev;
-//      if(doc->native()->cursor_position(&ev.x, &ev.y)){
-//        ev.set_source(box);
+//        MouseEvent ev;
+//        if(doc->native()->cursor_position(&ev.x, &ev.y)){
+//          ev.set_source(box);
 //
-//        return List(ev.x, ev.y);
+//          return List(ev.x, ev.y);
+//        }
 //      }
-//    }
 //
-//    return Symbol(PMATH_SYMBOL_NONE);
-//  }
+//      return Symbol(PMATH_SYMBOL_NONE);
+//    }
 
+    }
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 

@@ -1,17 +1,20 @@
 /* pMath Document */
 
-Document({
-  SectionGroup({
-    SectionGroup({Section("Stylesheet for stylesheets", "Title"), 
-      Section(StyleData("Document"), DefaultNewSectionStyle -> "Input", 
-       DefaultReturnCreatedSectionStyle -> Automatic, 
-       DockedSections -> {"Top" -> {Section("Stylesheet", "Docked")}, 
-        "BottomGlass" -> Inherited, "TopGlass" -> Inherited, 
-        "Bottom" -> Inherited}, FontFeatures -> {"ssty" -> Automatic}, 
-       Magnification -> 1, Visible -> True, WindowFrame -> "Normal"), 
-      Section(StyleData("Text"), FontFamily -> {"Georgia", "Constantia", 
-        "Times New Roman"}, SectionMargins -> {50, Inherited, 7, 7}, 
-       ShowStringCharacters -> False)}, All), 
+Document({SectionGroup({Section("Stylesheet for stylesheets", "Title"), 
+    Section(StyleData("Document"), DefaultNewSectionStyle -> "Input", 
+     DefaultReturnCreatedSectionStyle -> Automatic, 
+     DockedSections -> {
+      "Top" -> {
+       Section({
+         DynamicBox(ToBoxes(StringReplace(CurrentValue("Filename"), 
+            StartOfString ++ Longest(~~~) ++ "/" | $PathnameSeparator -> 
+             ""))), " Stylesheet"}, "Docked")}, "BottomGlass" -> Inherited, 
+      "TopGlass" -> Inherited, "Bottom" -> Inherited}, 
+     FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
+     Visible -> True, WindowFrame -> "Normal"), 
+    Section(StyleData("Text"), FontFamily -> {"Georgia", "Constantia", 
+      "Times New Roman"}, SectionMargins -> {50, Inherited, 7, 7}, 
+     ShowStringCharacters -> False), 
     SectionGroup({Section(StyleData("Title"), BaseStyle -> "Text", 
        FontColor -> RGBColor(0, 0, 1), FontFamily -> {"Calibri", "Verdana", 
         "Arial"}, FontSize -> 22, FontWeight -> Bold, 

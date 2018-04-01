@@ -4,6 +4,7 @@
 #include <boxes/mathsequence.h>
 #include <eval/application.h>
 #include <eval/job.h>
+#include <eval/observable.h>
 #include <graphics/context.h>
 
 #include <cstdio>
@@ -55,6 +56,7 @@ DynamicBox::~DynamicBox() {
     Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 
     0,
     Application::interrupt_timeout);
+  Observable::unregister_oberserver(id());
 }
 
 bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {

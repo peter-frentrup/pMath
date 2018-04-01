@@ -9,6 +9,8 @@
 #include <gui/gtk/mgtk-icons.h>
 #include <gui/gtk/mgtk-widget.h>
 
+#include <eval/observable.h>
+
 
 namespace richmath {
   class MathGtkDock;
@@ -89,9 +91,9 @@ namespace richmath {
       virtual bool on_scroll(GdkEvent *e);
       
     private:
-      String          _title;
-      WindowFrameType _window_frame;
-      String          _filename;
+      String                  _title;
+      WindowFrameType         _window_frame;
+      ObservableValue<String> _filename;
       
       Array<DocumentPosition> _snapped_documents; // [0] = self
       

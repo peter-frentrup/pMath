@@ -13,7 +13,7 @@ int Dynamic::current_evaluation_box_id = 0;
 
 Dynamic::Dynamic()
   : Base(),
-  _owner(0),
+  _owner(nullptr),
   _synchronous_updating(0)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
@@ -21,7 +21,7 @@ Dynamic::Dynamic()
 
 Dynamic::Dynamic(Box *owner, Expr expr)
   : Base(),
-  _owner(0),
+  _owner(nullptr),
   _synchronous_updating(0)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());

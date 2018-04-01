@@ -89,7 +89,7 @@ void AutoMemorySuspension::resume_deletions() {
 Box::Box()
   : FrontEndObject(),
     _extents(0, 0, 0),
-    _parent(0),
+    _parent(nullptr),
     _index(0)
 {
 }
