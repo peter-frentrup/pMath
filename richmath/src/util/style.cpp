@@ -420,6 +420,8 @@ namespace {
         _key_to_name.set(key, name);
         _name_to_key.set(name, key);
         
+        Application::register_currentvalue_provider(name, get_current_style_value);
+        
         add_to_ruleset(key, name);
       }
       
@@ -466,6 +468,17 @@ namespace {
         _key_to_type.set(          key, StyleTypeRuleSet);
         _key_to_name.set(          key, symbol);
         _name_to_key.set(          symbol, key);
+      }
+      
+      static Expr get_current_style_value(FrontEndObject *obj, Expr item) {
+        Box *box = dynamic_cast<Box*>(obj);
+        if(!box)
+          return Symbol(PMATH_SYMBOL_FAILED);
+        
+        if(Style::is_style_name(item))
+          return box->get_pmath_style(item);
+        
+        return Symbol(PMATH_SYMBOL_FAILED);
       }
       
     private:

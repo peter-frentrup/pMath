@@ -114,8 +114,9 @@ static ConcurrentQueue<ClientNotificationData> notifications;
 
 static SharedPtr<Session> session = new Session(0);
 
-static Hashtable<Expr, bool              ( *)(Expr)> menu_commands;
-static Hashtable<Expr, MenuCommandStatus ( *)(Expr)> menu_command_testers;
+static Hashtable<Expr, bool              ( *)(Expr)>                  menu_commands;
+static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                  menu_command_testers;
+static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)> currentvalue_providers;
 
 static Hashtable<int, Void, cast_hash> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
@@ -312,6 +313,21 @@ Expr Application::notify_wait(ClientNotification type, Expr data) {
   return Expr(result);
 }
 
+Expr Application::current_value(Expr item) {
+  return current_value(Application::get_evaluation_box(), item);
+}
+
+Expr Application::current_value(FrontEndObject *obj, Expr item) {
+  auto func = currentvalue_providers[item];
+  if(!func && item[0] == PMATH_SYMBOL_LIST)
+    func = currentvalue_providers[item[1]];
+    
+  if(!func)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  return func(obj, item);
+}
+
 bool Application::run_recursive_menucommand(Expr cmd) {
   bool (*func)(Expr);
   
@@ -384,6 +400,16 @@ void Application::register_menucommand(
     menu_command_testers.set(cmd, test);
   else
     menu_command_testers.remove(cmd);
+}
+
+void Application::register_currentvalue_provider(
+  Expr   item,
+  Expr (*func)(FrontEndObject *obj, Expr item))
+{
+  if(func)
+    currentvalue_providers.set(item, func);
+  else
+    currentvalue_providers.remove(item);
 }
 
 static void write_data(void *user, const uint16_t *data, int len) {
@@ -595,6 +621,10 @@ void Application::deactivated_all_controls() {
   update_control_active(false);
 }
 
+static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
+static Expr get_current_value_of_Filename(FrontEndObject *obj, Expr item);
+static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
+
 void Application::init() {
   main_message_queue = Expr(pmath_thread_get_queue());
   
@@ -608,6 +638,14 @@ void Application::init() {
 #else
   main_thread = pthread_self();
 #endif
+  
+  register_currentvalue_provider(String("MouseOver"),         get_current_value_of_MouseOver);
+  register_currentvalue_provider(String("Filename"),          get_current_value_of_Filename);
+  register_currentvalue_provider(String("ControlFontFamily"), get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String("ControlFontSlant"),  get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String("ControlFontWeight"), get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String("ControlFontSize"),   get_current_value_of_ControlFont_data);
+  
   
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
   int             i   = application_filename.length() - 1;
@@ -719,6 +757,7 @@ void Application::done() {
   eval_cache.clear();
   menu_commands.clear();
   menu_command_testers.clear();
+  currentvalue_providers.clear();
   application_filename = String();
   application_directory = String();
   main_message_queue = Expr();
@@ -1505,79 +1544,23 @@ static Expr cnt_createdocument(Expr data) {
 
 static Expr cnt_currentvalue(Expr data) {
   Expr item;
-  Box *box = nullptr;
+  FrontEndObject *obj = nullptr;
   
   if(data.expr_length() == 1) {
-    box = Application::get_evaluation_box();
+    obj = Application::get_evaluation_box();
     item = data[1];
   }
   else if(data.expr_length() == 2) {
-    box = FrontEndObject::find_cast<Box>(data[1]);
+    obj = FrontEndObject::find(data[1]);
     item = data[2];
   }
   else
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  if(box && Style::is_style_name(item))
-    return box->get_pmath_style(item);
-  
-  Document *doc = box->find_parent<Document>(true);
-  if(item.is_string()) {
-    String item_string { item };
-    
-    if(item_string.equals("MouseOver")) {
-      if(box && doc) {
-        if(!box->style)
-          box->style = new Style();
-          
-        box->style->set(InternalUsesCurrentValueOfMouseOver, true);
-        
-        Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
-        while(mo && mo != box)
-          mo = mo->parent();
-          
-        if(mo)
-          return Symbol(PMATH_SYMBOL_TRUE);
-      }
-      
-      return Symbol(PMATH_SYMBOL_FALSE);
-    }
-    
-    if(item_string.equals("Filename")) {
-      if(doc) {
-        String result = doc->native()->filename();
-        if(!result.is_valid())
-          return Symbol(PMATH_SYMBOL_NONE);
-        return result;
-      }
-      
-      return Symbol(PMATH_SYMBOL_FAILED);
-    }
-    
-    if(item_string.equals("ControlsFontFamily")) {
-      SharedPtr<Style> style = new Style();
-      ControlPainter::std->system_font_style(style.ptr());
-      return style->get_pmath(FontFamilies);
-    }
-    
-    if(item_string.equals("ControlsFontSize")) {
-      SharedPtr<Style> style = new Style();
-      ControlPainter::std->system_font_style(style.ptr());
-      return style->get_pmath(FontSize);
-    }
-    
-    if(item_string.equals("ControlsFontSlant")) {
-      SharedPtr<Style> style = new Style();
-      ControlPainter::std->system_font_style(style.ptr());
-      return style->get_pmath(FontSlant);
-    }
-    
-    if(item_string.equals("ControlsFontWeight")) {
-      SharedPtr<Style> style = new Style();
-      ControlPainter::std->system_font_style(style.ptr());
-      return style->get_pmath(FontWeight);
-    }
-    
+//  Document *doc = box->find_parent<Document>(true);
+//  if(item.is_string()) {
+//    String item_string { item };
+//    
 //    if(item_string.equals("MousePosition")){
 //      if(box && doc){
 //        if(!box->style)
@@ -1595,10 +1578,9 @@ static Expr cnt_currentvalue(Expr data) {
 //
 //      return Symbol(PMATH_SYMBOL_NONE);
 //    }
-
-    }
+//  }
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Application::current_value(obj, item);
 }
 
 static Expr cnt_getevaluationdocument(Expr data) {
@@ -1918,5 +1900,56 @@ static void execute(ClientNotificationData &cn) {
   cn.done();
 }
 
+static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item) {
+  Box *box = dynamic_cast<Box*>(obj);
+  if(!box)
+    return Symbol(PMATH_SYMBOL_FALSE);
+    
+  Document *doc = box->find_parent<Document>(true);
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FALSE);
+    
+  if(!box->style)
+    box->style = new Style();
+    
+  box->style->set(InternalUsesCurrentValueOfMouseOver, true);
+  
+  Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
+  while(mo && mo != box)
+    mo = mo->parent();
+    
+  if(mo)
+    return Symbol(PMATH_SYMBOL_TRUE);
+  return Symbol(PMATH_SYMBOL_FALSE);
+}
+
+static Expr get_current_value_of_Filename(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FALSE);
+    
+  String result = doc->native()->filename();
+  if(!result.is_valid())
+    return Symbol(PMATH_SYMBOL_NONE);
+  return result;
+}
+
+static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item) {
+  SharedPtr<Style> style = new Style();
+  ControlPainter::std->system_font_style(style.ptr());
+  
+  String item_string {item};
+  if(item_string.equals("ControlsFontFamily")) 
+    return style->get_pmath(FontFamilies);
+  if(item_string.equals("ControlsFontSlant")) 
+    return style->get_pmath(FontSlant);
+  if(item_string.equals("ControlsFontWeight")) 
+    return style->get_pmath(FontWeight);
+  if(item_string.equals("ControlsFontSize")) 
+    return style->get_pmath(FontSize);
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
 
 

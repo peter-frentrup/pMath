@@ -45,6 +45,7 @@ namespace richmath {
       bool checked;
   };
   
+  class FrontEndObject;
   class Box;
   class Document;
   class Job;
@@ -53,6 +54,9 @@ namespace richmath {
     public:
       static void notify(     ClientNotification type, Expr data); // callable from non-GUI thread
       static Expr notify_wait(ClientNotification type, Expr data); // callable from non-GUI thread
+      
+      static Expr current_value(Expr item);
+      static Expr current_value(FrontEndObject *obj, Expr item);
       
       static void run_menucommand(Expr cmd) { // callable from non-GUI thread
         notify(ClientNotification::MenuCommand, cmd);
@@ -66,7 +70,11 @@ namespace richmath {
       static void register_menucommand(
         Expr cmd,
         bool              (*func)(Expr cmd),
-        MenuCommandStatus (*test)(Expr cmd) = 0);
+        MenuCommandStatus (*test)(Expr cmd) = nullptr);
+      
+      static void register_currentvalue_provider(
+        Expr   item,
+        Expr (*func)(FrontEndObject *obj, Expr item));
         
       static void gui_print_section(Expr expr);
       //static void update_control_active(bool value);
