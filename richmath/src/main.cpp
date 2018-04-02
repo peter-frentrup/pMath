@@ -338,7 +338,7 @@ static void init_stylesheet() {
 //  Stylesheet::Default->base->set(GeneratedSectionStyles,
 //                                 Parse("{~FE`Private`style :> FE`Private`style}"));
 
-  Stylesheet::Default->styles.set("_base", Stylesheet::Default->base);
+//  Stylesheet::Default->styles.set("SystemResetStyle", Stylesheet::Default->base);
 }
 
 static bool have_visible_documents() {

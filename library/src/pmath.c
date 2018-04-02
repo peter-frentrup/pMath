@@ -1028,6 +1028,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(Section):={"
           "Antialiasing->Automatic,"
           "AspectRatio->Automatic," // only valid for StyleData-sections
+          "AutoDelete->False," // only valid for StyleData-sections
           "AutoNumberFormating->Inherited,"
           "AutoSpacing->Inherited,"
           "Background->Automatic,"
@@ -1053,6 +1054,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "LanguageCategory->Inherited,"
           "LineBreakWithin->True,"
           "Magnification->Automatic," // only valid for StyleData-sections
+          "Method->\"Preemptive\"," // only valid for StyleData-sections
           "Placeholder->Automatic," // only valid for StyleData-sections
           "ReturnCreatesNewSection->Inherited,"
           "ScriptSizeMultipliers->Automatic,"

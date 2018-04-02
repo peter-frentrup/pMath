@@ -21,7 +21,7 @@ MakeStyleDataBoxes(HoldComplete(StyleData(StyleDefinitions -> ~name:String)))::=
 asStyleDataLabelBox(~labelTextBox)::=
     StyleBox(
         labelTextBox,
-        "_base", FontFamily->"Arial", ShowStringCharacters->False
+        "SystemResetStyle", FontFamily->"Arial", ShowStringCharacters->False
     )
 
 asStyleDataExampleBox(~labelTextBox, ~exampleBox)::=
