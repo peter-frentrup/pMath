@@ -250,12 +250,10 @@ static void load_math_shapers() {
   if(def) {
     MathShaper::available_shapers.default_value = def;
   }
-  else if(MathShaper::available_shapers.size() > 0) {
-    for(int i = 0;; ++i) {
-      if(auto e = MathShaper::available_shapers.entry(i)) {
-        MathShaper::available_shapers.default_value = e->value;
-        break;
-      }
+  else {
+    for(const auto &e : MathShaper::available_shapers.entries()) {
+      MathShaper::available_shapers.default_value = e.value;
+      break;
     }
   }
 }
@@ -342,17 +340,13 @@ static void init_stylesheet() {
 }
 
 static bool have_visible_documents() {
-  for(unsigned int count = 0, i = 0; count < all_document_ids.size(); ++i) {
-    if(all_document_ids.entry(i)) {
-      ++count;
-      
-      Document *doc = FrontEndObject::find_cast<Document>(all_document_ids.entry(i)->key);
-      
-      assert(doc);
-      
-      if(doc->get_style(Visible, true)) {
-        return true;
-      }
+  for(const auto &e : all_document_ids.entries()) {
+    Document *doc = FrontEndObject::find_cast<Document>(e.key);
+    
+    assert(doc);
+    
+    if(doc->get_style(Visible, true)) {
+      return true;
     }
   }
   
