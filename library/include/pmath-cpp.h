@@ -49,6 +49,108 @@ namespace pmath {
    */
   class Expr {
     public:
+      class ItemsEnum;
+      class ReverseItemsEnum;
+      
+      class Iterator {
+          friend class ItemsEnum;
+        public:
+          bool operator!=(const Iterator &other) const throw() {
+            return _expr_ptr != other._expr_ptr || _index != other._index;
+          }
+          Expr operator*() const {
+            return (*_expr_ptr)[_index];
+          }
+          const Iterator &operator++() {
+            ++_index;
+            return *this;
+          }
+          
+        private:
+          Iterator(const Expr *expr_ptr, const size_t index)
+            : _expr_ptr(expr_ptr), 
+              _index(index)
+          {
+          }
+          
+        private:
+          const Expr *_expr_ptr;
+          size_t      _index;
+      };
+      
+      class ReverseIterator {
+          friend class ReverseItemsEnum;
+        public:
+          bool operator!=(const ReverseIterator &other) const throw() {
+            return _expr_ptr != other._expr_ptr || _index_plus_1 != other._index_plus_1;
+          }
+          Expr operator*() const {
+            return (*_expr_ptr)[_index_plus_1 - 1];
+          }
+          const ReverseIterator &operator++() {
+            --_index_plus_1;
+            return *this;
+          }
+          
+        private:
+          ReverseIterator(const Expr *expr_ptr, const size_t index_plus_1)
+            : _expr_ptr(expr_ptr), 
+              _index_plus_1(index_plus_1)
+          {
+          }
+          
+        private:
+          const Expr *_expr_ptr;
+          size_t      _index_plus_1;
+      };
+      
+      class ItemsEnum {
+        public:
+          ItemsEnum(const Expr *expr_ptr, size_t first_index, size_t last_index) 
+            : _expr_ptr(expr_ptr),
+              _first_index(first_index),
+              _last_index(last_index < first_index ? first_index - 1 : last_index)
+          {
+          }
+          
+          Iterator begin() const throw() {
+            return Iterator(_expr_ptr, _first_index);
+          }
+          
+          Iterator end() const throw() {
+            return Iterator(_expr_ptr, _last_index + 1);
+          }
+        
+        private:
+          const Expr *_expr_ptr;
+          const size_t _first_index;
+          const size_t _last_index;
+      };
+      
+      class ReverseItemsEnum {
+        public:
+          ReverseItemsEnum(const Expr *expr_ptr, size_t smallest_index, size_t largest_index) 
+            : _expr_ptr(expr_ptr),
+              _smallest_index(smallest_index),
+              _largest_index(largest_index < smallest_index ? smallest_index - 1 : largest_index)
+          {
+          }
+          
+          ReverseIterator begin() const throw() {
+            return ReverseIterator(_expr_ptr, _largest_index + 1);
+          }
+          
+          ReverseIterator end() const throw() {
+            return ReverseIterator(_expr_ptr, _smallest_index);
+          }
+        
+        private:
+          const Expr *_expr_ptr;
+          const size_t _smallest_index;
+          const size_t _largest_index;
+      };
+      
+    public:
       /**\brief Initialize with PMATH_NULL */
       Expr() throw()
         : _obj(PMATH_NULL)
@@ -68,7 +170,7 @@ namespace pmath {
       }
       
 #ifdef PMATH_CPP_USE_RVALUE_REF
-      Expr(Expr  &&src) throw()
+      Expr(Expr &&src) throw()
         : _obj(src._obj)
       {
         src._obj = PMATH_NULL;
@@ -235,6 +337,34 @@ namespace pmath {
         return Expr(pmath_expr_get_item(_obj, (size_t)i));
       }
       
+      /**\brief Enumerate all items [1..length()] with C++ range based for loops
+       */
+      ItemsEnum items() const throw() {
+        return items((size_t)1, expr_length());
+      }
+      
+      /**\brief Enumerate some items with C++ range based for loops.
+         \param first Index of the first item, default is 1.
+         \param last  Index of the last item (inclusive), default is expr_length().
+       */
+      ItemsEnum items(size_t first, size_t last) const throw() {
+        return ItemsEnum(this, first, last);
+      }
+      
+      /**\brief Enumerate all items in reverse order with C++ range based for loops
+       */
+      ReverseItemsEnum items_reverse() const throw() {
+        return items_reverse((size_t)1, expr_length());
+      }
+      
+      /**\brief Enumerate some items in reverse with C++ range based for loops.
+         \param smallest Index of the first item (returned last), default is 1.
+         \param largest  Index of the last item (returned first), default is expr_length().
+       */
+      ReverseItemsEnum items_reverse(size_t smallest, size_t largest) const throw() {
+        return ReverseItemsEnum(this, smallest, largest);
+      }
+      
       /**\brief Change the i-th argument of an expression
          \param i Index. May be > expr_length().
          \param e The new element.
@@ -325,7 +455,7 @@ namespace pmath {
         pmath_t approx = pmath_set_precision(
                            pmath_ref(_obj),
                            -::std::numeric_limits<double>::infinity());
-        
+                           
         if(pmath_is_number(approx))
           def = pmath_number_get_d(approx);
           

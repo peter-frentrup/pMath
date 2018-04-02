@@ -91,8 +91,8 @@ int richmath::pmath_to_color(Expr obj) {
       }
       
       if(obj.expr_length() >= 1 && obj.expr_length() <= 3) {
-        for(int i = obj.expr_length(); i > 0; --i)
-          if(!obj[i].is_number())
+        for(auto item : obj.items())
+          if(!item.is_number())
             return -1;
             
         double h, s = 1, v = 1;

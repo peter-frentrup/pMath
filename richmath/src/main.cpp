@@ -102,8 +102,7 @@ static void load_aliases(
 #endif
   
   if(aliases[0] == PMATH_SYMBOL_LIST) {
-    for(size_t i = 1; i <= aliases.expr_length(); ++i) {
-      Expr rule = aliases[i];
+    for(auto rule : aliases.items()) {
       if(rule.is_rule()) {
         String lhs = rule[1];
         Expr   rhs = rule[2];
@@ -192,15 +191,12 @@ static void load_fonts() {
   Expr font_files = Evaluate(Parse("FE`$PrivateStartupFontFiles"));
   
   if(font_files[0] == PMATH_SYMBOL_LIST) {
-    for(size_t i = 1;i <= font_files.expr_length();++i) {
-      String filename(font_files[i]);
-      
-      if(FontInfo::add_private_font(filename)) {
-        pmath_debug_print_object("add private font ", filename.get(), "\n");
+    for(auto item : font_files.items()) {
+      if(FontInfo::add_private_font(String { item })) {
+        pmath_debug_print_object("add private font ", item.get(), "\n");
       }
       else {
-        Expr arg = font_files[i];
-        pmath_debug_print_object("failed to add private font ", arg.get(), "\n");
+        pmath_debug_print_object("failed to add private font ", item.get(), "\n");
       }
     }
   }
@@ -221,9 +217,7 @@ static void load_math_shapers() {
   SharedPtr<MathShaper> def;
   
   if(prefered_fonts[0] == PMATH_SYMBOL_LIST) {
-    for(size_t i = 1; i <= prefered_fonts.expr_length(); ++i) {
-      String s(prefered_fonts[i]);
-      
+    for(String s : prefered_fonts.items()) {
       shaper = MathShaper::available_shapers[s];
       
       if(!shaper) {

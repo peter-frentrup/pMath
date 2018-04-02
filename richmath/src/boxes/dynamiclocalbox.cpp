@@ -39,9 +39,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(symbols[0] != PMATH_SYMBOL_LIST)
     return false;
     
-  for(size_t i = symbols.expr_length(); i > 0; --i) {
-    Expr sym = symbols[i];
-    
+  for(auto sym : symbols.items()) {
     if(!sym.is_symbol())
       return false;
   }
@@ -97,14 +95,12 @@ void DynamicLocalBox::paint(Context *context) {
 
 static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms) {
   if(pmath_is_symbol(expr)) {
-    size_t i;
-    for(i = old_syms.expr_length(); i > 0; --i) {
-      if(old_syms[i] == expr) {
+    for(Expr item : old_syms.items_reverse()) {
+      if(item == expr) {
         pmath_unref(expr);
-        return new_syms[i].release();
+        return item.release();
       }
     }
-    
     return expr;
   }
   
@@ -139,11 +135,9 @@ Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
   {
     Gather g2;
     
-    for(size_t i = 1; i <= _public_symbols.expr_length(); ++i) {
-      Expr sym = _public_symbols[i];
-      
-      for(size_t j = _unsaved_variables.expr_length(); j > 0; --j) {
-        if(_unsaved_variables[j] == sym) {
+    for(auto sym : _public_symbols.items()) {
+      for(auto unsaved : _unsaved_variables.items_reverse()) {
+        if(unsaved == sym) {
           sym = Expr();
           break;
         }
