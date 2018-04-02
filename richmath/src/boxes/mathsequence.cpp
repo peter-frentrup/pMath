@@ -1106,7 +1106,7 @@ namespace richmath {
             }
             return context->math_shaper->get_style().italic;
           }
-
+          
           void italic_correction(int token_end) {
             if(buf[token_end] == PMATH_CHAR_BOX)
               return;
@@ -3026,25 +3026,30 @@ Box *MathSequence::move_logical(
   bool              jumping,
   int              *index
 ) {
+  const int len = length();
+  const uint16_t *buf = str.buffer();
+  
   if(direction == LogicalDirection::Forward) {
-    if(*index >= length()) {
+    if(*index >= len) {
       if(_parent) {
+        if(jumping && !_parent->exitable())
+          return this;
+        
         *index = _index;
         return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
     
-    if(jumping || *index < 0 || str[*index] != PMATH_CHAR_BOX) {
+    if(jumping || *index < 0 || buf[*index] != PMATH_CHAR_BOX) {
       if(jumping) {
-        while(*index + 1 < length() && !spans.is_token_end(*index))
+        while(*index + 1 < len && !spans.is_token_end(*index))
           ++*index;
           
         ++*index;
       }
       else {
-        if( is_utf16_high(str[*index]) &&
-            is_utf16_low(str[*index + 1]))
+        if(*index + 2 < len && is_utf16_high(buf[*index]) && is_utf16_low(buf[*index + 1]))
           ++*index;
           
         ++*index;
@@ -3064,6 +3069,9 @@ Box *MathSequence::move_logical(
   
   if(*index <= 0) {
     if(_parent) {
+      if(jumping && !_parent->exitable())
+        return this;
+          
       *index = _index + 1;
       return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
@@ -3078,11 +3086,10 @@ Box *MathSequence::move_logical(
     return this;
   }
   
-  if(str[*index - 1] != PMATH_CHAR_BOX) {
+  if(buf[*index - 1] != PMATH_CHAR_BOX) {
     --*index;
     
-    if( is_utf16_high(str[*index - 1]) &&
-        is_utf16_low(str[*index]))
+    if(*index > 0 && is_utf16_high(buf[*index - 1]) && is_utf16_low(buf[*index]))
       --*index;
       
     return this;
@@ -3099,7 +3106,7 @@ Box *MathSequence::move_logical(
 
 Box *MathSequence::move_vertical(
   LogicalDirection  direction,
-  float             *index_rel_x,
+  float            *index_rel_x,
   int              *index,
   bool              called_from_child
 ) {
