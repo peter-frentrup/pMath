@@ -17,6 +17,7 @@
 #include <eval/binding.h>
 #include <gui/clipboard.h>
 #include <gui/native-widget.h>
+#include <util/autovaluereset.h>
 #include <util/spanexpr.h>
 
 
@@ -3411,14 +3412,6 @@ void Document::set_selection_style(Expr options) {
     return;
   }
   
-  if(sel == this && start == end) {
-    //native()->on_editing();
-    style->add_pmath(options);
-    invalidate_options();
-    invalidate();
-    return;
-  }
-  
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel);
   if(seq && start < end) {
   
@@ -3466,7 +3459,11 @@ MenuCommandStatus Document::can_do_scoped(Expr cmd, Expr scope) {
   SelectionReference old_sel = context.selection;
   SelectionReference new_sel;
   
+  AutoValueReset<MenuCommandScope> auto_reset(Application::menu_command_scope);
+  Application::menu_command_scope = MenuCommandScope::Selection;
+  
   if(scope == PMATH_SYMBOL_DOCUMENT) {
+    Application::menu_command_scope = MenuCommandScope::Document;
     new_sel.set(this, 0, 0);
   }
   else if(scope == PMATH_SYMBOL_SECTION) {
@@ -3492,7 +3489,11 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
   SelectionReference old_sel = context.selection;
   SelectionReference new_sel;
   
+  AutoValueReset<MenuCommandScope> auto_reset(Application::menu_command_scope);
+  Application::menu_command_scope = MenuCommandScope::Selection;
+  
   if(scope == PMATH_SYMBOL_DOCUMENT) {
+    Application::menu_command_scope = MenuCommandScope::Document;
     new_sel.set(this, 0, 0);
   }
   else if(scope == PMATH_SYMBOL_SECTION) {

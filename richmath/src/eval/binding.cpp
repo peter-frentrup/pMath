@@ -522,7 +522,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
     }
     
     val = sel->get_pmath_style(lhs);
-    status.checked = val.compare(rhs) == 0;
+    status.checked = val == rhs;
   }
   
   return status;
@@ -1219,7 +1219,14 @@ static bool set_style_cmd(Expr cmd) {
   Document *doc = get_current_document();
   if(!doc)
     return false;
-    
+  
+  if(Application::menu_command_scope == MenuCommandScope::Document) {
+    doc->style->add_pmath(cmd);
+    doc->invalidate_options();
+    doc->invalidate();
+    return true;
+  }
+  
   doc->set_selection_style(cmd);
   return true;
   
@@ -1403,7 +1410,7 @@ bool richmath::init_bindings() {
       fe_symbols[(int)FESymbolIndex::InternalExecuteFor]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
       
   Application::register_menucommand(GetSymbol(FESymbolIndex::CopySpecial),   copy_special_cmd, can_copy_cut);
-  Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),      set_style_cmd,    can_set_style);
+  Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),               set_style_cmd,    can_set_style);
   Application::register_menucommand(GetSymbol(FESymbolIndex::ScopedCommand), do_scoped_cmd,    can_do_scoped);
   
   return true;

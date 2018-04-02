@@ -984,6 +984,7 @@
 		</Unit>
 		<Unit filename="include/util/array.h" />
 		<Unit filename="include/util/autocompletion.h" />
+		<Unit filename="include/util/autovaluereset.h" />
 		<Unit filename="include/util/base.h" />
 		<Unit filename="include/util/concurrent-queue.h" />
 		<Unit filename="include/util/frontendobject.h" />

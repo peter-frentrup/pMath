@@ -238,6 +238,7 @@ double Application::dynamic_timeout             = 4.0;
 double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
 String Application::application_directory;
+MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 
 Hashtable<Expr, Expr, object_hash> Application::eval_cache;
 
