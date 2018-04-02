@@ -731,14 +731,9 @@ bool Style::update_dynamic(Box *parent) {
   
   dynamic_options.length(0);
   
-  unsigned cnt = object_values.size();
-  for(unsigned ui = 0; cnt > 0; ++ui) {
-    if(auto e = object_values.entry(ui)) {
-      --cnt;
-      
-      if(e->key >= DynamicOffset)
-        dynamic_options.add(e->key - DynamicOffset);
-    }
+  for(const auto &e : object_values.entries()) {
+    if(e.key >= DynamicOffset)
+      dynamic_options.add(e.key - DynamicOffset);
   }
   
   if(dynamic_options.length() == 0)
@@ -1419,18 +1414,12 @@ Expr Style::get_pmath_ruleset(ObjectStyleOptionName n) const {
   bool all_inherited = true;
   Gather g;
   
-  for(unsigned int i = 0, count = table.size(); count > 0; ++i) {
-    const Entry<Expr, int> *entry = table.entry(i);
+  for(auto &entry : table.entries()) {
+    Expr value = get_pmath(entry.value);
+    Gather::emit(Rule(entry.key, value));
     
-    if(entry) {
-      --count;
-      
-      Expr value = get_pmath(entry->value);
-      Gather::emit(Rule(entry->key, value));
-      
-      if(value != PMATH_SYMBOL_INHERITED)
-        all_inherited = false;
-    }
+    if(value != PMATH_SYMBOL_INHERITED)
+      all_inherited = false;
   }
   
   Expr e = g.end();
@@ -1742,7 +1731,7 @@ SharedPtr<Style> Stylesheet::find_parent_style(SharedPtr<Style> s) {
 }
 
 template<typename N, typename T>
-bool Stylesheet_get(Stylesheet *self, SharedPtr<Style> s, N n, T *value) {
+static bool Stylesheet_get(Stylesheet *self, SharedPtr<Style> s, N n, T *value) {
   for(int count = 20; count && s; --count) {
     if(s->get(n, value))
       return true;
@@ -1766,17 +1755,12 @@ bool Stylesheet::get(SharedPtr<Style> s, StringStyleOptionName n, String *value)
 }
 
 bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
-  for(int count = 20; count && s; --count) {
-    if(s->get(n, value))
-      return true;
-      
-    s = find_parent_style(s);
-  }
-  
-  return false;
+  return Stylesheet_get(this, s, n, value);
 }
 
 Expr Stylesheet::get_pmath(SharedPtr<Style> s, Expr n) {
+ /* TODO: merge structure styles from the whole style hierarchy
+  */
   for(int count = 20; count && s; --count) {
     Expr e = s->get_pmath(n);
     if(e != PMATH_SYMBOL_INHERITED)

@@ -147,6 +147,8 @@ namespace richmath {
       template<class E>
       class Iterator {
           friend self_t;
+        public:
+          typedef E entry_t;
         private:
           Iterator(E **entries, unsigned int unused_count, self_t &owning_table)
             : _entries(entries), 
@@ -186,6 +188,8 @@ namespace richmath {
       
       class MutableIterator {
           friend self_t;
+        public:
+          typedef typename self_t::entry_t entry_t;
         public:
           class DeletableEntry {
               friend class MutableIterator;
@@ -529,24 +533,26 @@ namespace richmath {
       
       template <class HT, class It>
       class EntryEnum {
+        typedef typename It::entry_t entry_t;
+        typedef typename HT::self_t  mutable_table_t;
         public:
           EntryEnum(HT &table): _table(table) {
           }
           
           It begin() const {
-            entry_t **entries = _table.table;
+            entry_t **entries = const_cast<entry_t **>(_table.table);
             if(_table.used_count > 0) {
               while(!is_used(*entries))
                 ++entries;
                 
-              return It {entries, _table.used_count, _table};
+              return It {entries, _table.used_count, const_cast<mutable_table_t&>(_table)};
             }
-            return It {entries, 0, _table};
+            return It {entries, 0, const_cast<mutable_table_t&>(_table)};
           }
           
           It end() const {
-            //E **entries = const_cast<E**>(_table.table);
-            return It {_table.table, 0, _table};
+            entry_t **entries = const_cast<entry_t **>(_table.table);
+            return It {entries, 0, const_cast<mutable_table_t&>(_table)};
           }
           
         private:

@@ -477,13 +477,28 @@ static bool StyleName_is_FontSize(N name) {
 }
 
 template<>
-static bool StyleName_is_FontSize(FloatStyleOptionName name) {
+bool StyleName_is_FontSize(FloatStyleOptionName name) {
   return name == FloatStyleOptionName::FontSize;
 }
 
 template<>
-static bool StyleName_is_FontSize(Expr name) {
+bool StyleName_is_FontSize(Expr name) {
     return name == PMATH_SYMBOL_FONTSIZE;
+}
+
+template<typename T>
+bool StyleName_get_FontSize(Box *self, T *result) {
+  auto seq = self->find_parent<AbstractSequence>(true);
+  if(seq) {
+    *result = seq->get_em();
+    return true;
+  }
+  return false;
+}
+
+template<>
+bool StyleName_get_FontSize(Box *self, String *result) {
+  return false;
 }
 
 template<typename N, typename T>
@@ -498,9 +513,8 @@ T Box_get_style(
     return result;
   
   if(StyleName_is_FontSize(n)) {
-    auto seq = self->find_parent<AbstractSequence>(true);
-    if(seq)
-      return seq->get_em();
+    if(StyleName_get_FontSize(self, &result))
+      return result;
   }
   
   SharedPtr<Stylesheet> all = self->stylesheet();
