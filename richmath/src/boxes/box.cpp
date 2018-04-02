@@ -471,6 +471,21 @@ struct Stylesheet_get {
   }
 };
 
+template<typename N>
+static bool StyleName_is_FontSize(N name) {
+  return false;
+}
+
+template<>
+static bool StyleName_is_FontSize(FloatStyleOptionName name) {
+  return name == FloatStyleOptionName::FontSize;
+}
+
+template<>
+static bool StyleName_is_FontSize(Expr name) {
+    return name == PMATH_SYMBOL_FONTSIZE;
+}
+
 template<typename N, typename T>
 T Box_get_style(
   Box  *self,
@@ -479,17 +494,21 @@ T Box_get_style(
   bool(*Style_get_)(                            SharedPtr<Style>, N, T *) = Style_get<N, T>::impl,
   bool(*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<Style>, N, T *) = Stylesheet_get<N, T>::impl
 ) {
-  Box *box;
-  
   if(self->style && Style_get_(self->style, n, &result))
     return result;
+  
+  if(StyleName_is_FontSize(n)) {
+    auto seq = self->find_parent<AbstractSequence>(true);
+    if(seq)
+      return seq->get_em();
+  }
   
   SharedPtr<Stylesheet> all = self->stylesheet();
   if(all) {
     if(Stylesheet_get_(all, self->style, n, &result))
       return result;
       
-    box = self->parent();
+    Box *box = self->parent();
     while(box) {
       if( box->changes_children_style()   &&
           Stylesheet_get_(all, box->style, n, &result))
@@ -504,7 +523,7 @@ T Box_get_style(
       return result;
   }
   else {
-    box = self->parent();
+    Box *box = self->parent();
     while(box) {
       if( box->changes_children_style() &&
           box->style                    &&

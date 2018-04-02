@@ -31,14 +31,18 @@ namespace richmath {
       }
       
       const T &operator=(const T &new_value) {
-        _value = new_value;
-        notify_all();
+        if(_value != new_value) {
+          _value = new_value;
+          notify_all();
+        }
         return _value;
       }
       
       const T &operator=(T &&new_value) {
-        _value = std::move(new_value);
-        notify_all();
+        if(_value != new_value) {
+          _value = std::move(new_value);
+          notify_all();
+        }
         return _value;
       }
       

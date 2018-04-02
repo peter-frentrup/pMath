@@ -2,6 +2,7 @@
 #define __BOXES__BOX_H__
 
 #include <graphics/shapers.h>
+#include <eval/observable.h>
 #include <util/frontendobject.h>
 #include <util/sharedptr.h>
 #include <util/style.h>
@@ -375,7 +376,7 @@ namespace richmath {
       virtual bool request_repaint_range(int start, int end) override;
       
     protected:
-      float em;
+      ObservableValue<float> em;
   };
 }
 
