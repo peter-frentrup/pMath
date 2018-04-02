@@ -116,10 +116,12 @@ SetAttributes({ControlActive, $ControlActiveSetting}, {Protected, ReadProtected}
 
 End()
 
+Get(ToFileName({$BaseDirectory, "auto", "core", "gui"}, "options.pmath"))
+
 AutoLoad(Hold(Clip),
 	ToFileName({$BaseDirectory, "auto", "core"}, "clip.pmath"))
 AutoLoad(Hold(DynamicLocal, DynamicLocalBox), 
-	ToFileName({$BaseDirectory, "auto", "core"}, "dynamiclocal.pmath"))
+	ToFileName({$BaseDirectory, "auto", "core", "gui"}, "DynamicLocal.pmath"))
 AutoLoad(Hold(AiryAi, AiryAiPrime, AiryBi, AiryBiPrime),
 	ToFileName({$BaseDirectory, "auto", "core"}, "airy.pmath"))
 AutoLoad(Hold(BesselI, BesselJ, BesselK, BesselY, HankelH1, HankelH2),

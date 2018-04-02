@@ -1,0 +1,178 @@
+Begin("System`Private`")
+
+Options(Button):= {
+	ButtonFrame -> Automatic,
+	Method -> "Preemptive"}
+          
+Options(ButtonBox):= {
+	ButtonFrame -> Automatic,
+	ButtonFunction -> (/\/ &),
+	Method -> "Preemptive"}
+          
+Options(CreateDocument):= Options(Document):= {
+	Antialiasing -> Inherited,
+	AutoNumberFormating -> Inherited,
+	AutoSpacing -> Inherited,
+	Background -> Inherited,
+	BaseStyle -> None,
+	ButtonFrame -> Inherited,
+	ButtonFunction -> Inherited,
+	DefaultDuplicateSectionStyle -> Inherited,
+	DefaultNewSectionStyle -> Inherited,
+	DefaultReturnCreatedSectionStyle -> Inherited,
+	DockedSections -> Inherited,
+	Editable -> Inherited,
+	FontColor -> Inherited,
+	FontFamily -> Inherited,
+	FontFeatures -> Inherited,
+	FontSize -> Inherited,
+	FontSlant -> Inherited,
+	FontWeight -> Inherited,
+	GeneratedSectionStyles -> Inherited,
+	GridBoxColumnSpacing -> Inherited,
+	GridBoxRowSpacing -> Inherited,
+	LineBreakWithin -> Inherited,
+	Magnification -> Inherited,
+	ReturnCreatesNewSection -> Inherited,
+	ScriptSizeMultipliers -> Inherited,
+	SectionEditDuplicate -> Inherited,
+	SectionEditDuplicateMakesCopy -> Inherited,
+	Selectable -> Inherited,
+	ShowAutoStyles -> Inherited,
+	ShowSectionBracket -> Inherited,
+	ShowStringCharacters -> Inherited,
+	StyleDefinitions -> Inherited,
+	TextShadow -> Inherited,
+	Visible -> True,
+	WindowFrame -> Inherited,
+	WindowTitle -> Inherited
+	}
+          
+Options(Dynamic):= Options(DynamicBox):= {
+    SynchronousUpdating -> True,
+    TrackedSymbols -> Automatic}
+          
+Options(DynamicLocal):= Options(DynamicLocalBox):= {
+	Deinitialization -> None,
+	Initialization -> None,
+	DynamicLocalValues -> Automatic,
+	UnsavedVariables -> {}}
+
+Options(Framed):= Options(FrameBox):= { BorderRadius -> 0 }
+
+Options(Graphics):= Options(GraphicsBox):= {
+	AspectRatio -> Automatic,
+	Axes -> False,
+	AxesOrigin -> Automatic,
+	Frame -> False,
+	FrameTicks -> Automatic,
+	ImageSize -> Automatic,
+	PlotRange -> Automatic,
+	Ticks -> Automatic}
+          
+Options(Grid):= {
+	ColumnSpacing -> Inherited,
+	RowSpacing -> Inherited}
+          
+Options(GridBox):= {
+	GridBoxColumnSpacing -> Inherited,
+	GridBoxRowSpacing -> Inherited}
+          
+Options(InputField):= Options(InputFieldBox):= {
+	ContinuousAction -> False}
+          
+Options(InterpretationBox):=Options(Interpretation):={
+	AutoDelete -> False,
+	Editable -> False
+	}
+          
+Options(Style):= Options(StyleBox):= {
+    Antialiasing -> Inherited,
+    AutoDelete -> False,
+    AutoNumberFormating -> Inherited,
+    AutoSpacing -> Inherited,
+    Background -> None,
+    BaseStyle -> None,
+    BorderRadius -> 0,
+    ButtonFrame -> Inherited,
+    ButtonFunction -> Inherited,
+    Editable -> Inherited,
+    FontColor -> Inherited,
+    FontFamily -> Inherited,
+    FontFeatures -> Inherited,
+    FontSize -> Inherited,
+    FontSlant -> Inherited,
+    FontWeight -> Inherited,
+    GridBoxColumnSpacing -> Inherited,
+    GridBoxRowSpacing -> Inherited,
+    LineBreakWithin -> Inherited,
+    Placeholder -> Inherited,
+    ScriptSizeMultipliers -> Inherited,
+    Selectable -> Inherited,
+    ShowAutoStyles -> Inherited,
+    ShowStringCharacters -> Inherited,
+    StripOnInput -> True,
+    TextShadow -> Inherited}
+			 
+Options(Section):= {
+    Antialiasing -> Automatic,
+    AspectRatio -> Automatic, % only valid for StyleData-sections
+    AutoDelete -> False,      % only valid for StyleData-sections
+    AutoNumberFormating -> Inherited,
+    AutoSpacing -> Inherited,
+    Background -> Automatic,
+    BaseStyle -> None,
+    BorderRadius -> 0,
+    ButtonFrame -> Automatic,
+    ButtonFunction -> (/\/ &),
+    DefaultDuplicateSectionStyle -> Inherited,
+    DefaultNewSectionStyle -> Inherited,
+    DefaultReturnCreatedSectionStyle -> Inherited,
+    DockedSections -> Inherited,
+    Editable -> True,
+    Evaluatable -> False,
+    FontColor -> GrayLevel(0),
+    FontFamily -> "Times",
+    FontFeatures -> Inherited, % FontFeatures -> {"ssty" -> Automatic}
+    FontSize -> 10,
+    FontSlant -> Plain,
+    FontWeight -> Plain,
+    GeneratedSectionStyles -> Inherited,
+    GridBoxColumnSpacing -> 0.5,
+    GridBoxRowSpacing -> 0.5,
+    LanguageCategory -> Inherited,
+    LineBreakWithin -> True,
+    Magnification -> Automatic,  % only valid for StyleData-sections
+    Method -> "Preemptive",      % only valid for StyleData-sections
+    Placeholder -> Automatic,    % only valid for StyleData-sections
+    ReturnCreatesNewSection -> Inherited,
+    ScriptSizeMultipliers -> Automatic,
+    SectionEditDuplicate -> Inherited,
+    SectionEditDuplicateMakesCopy -> Inherited,
+    SectionFrame -> False,
+    SectionFrameColor -> GrayLevel(0),
+    SectionFrameMargins -> 8,
+    SectionGenerated -> False,
+    SectionGroupPrecedence -> 0,
+    SectionMargins -> {{60, 30}, {4, 4}},
+    SectionLabel -> None,
+    SectionLabelAutoDelete -> True,
+    Selectable -> Inherited,
+    ShowAutoStyles -> True,
+    ShowSectionBracket -> True,
+    ShowStringCharacters -> True,
+    StyleDefinitions -> None,
+    TextShadow -> None,
+    Visible -> True,             % only valid for StyleData-sections
+    WindowFrame -> Inherited,    % only valid for StyleData-sections
+    WindowTitle -> Inherited}    % only valid for StyleData-sections
+
+Options(Setter):= Options(SetterBox):= { ButtonFrame -> Automatic }
+          
+Options(Slider):= Options(SliderBox):= { ContinuousAction -> True }
+      
+Options(Tooltip):= Options(TooltipBox):= { StripOnInput -> True }
+      
+Options(TransformationBox):= { BoxTransformation -> {{1,0},{0,1}} }
+      
+End()
