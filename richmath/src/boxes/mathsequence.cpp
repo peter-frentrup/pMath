@@ -3047,6 +3047,8 @@ Box *MathSequence::move_logical(
           ++*index;
           
         ++*index;
+        while(*index < len && (buf[*index] == ' ' || buf[*index] == '\t'))
+          ++*index;
       }
       else {
         if(*index + 2 < len && is_utf16_high(buf[*index]) && is_utf16_low(buf[*index + 1]))
@@ -3079,6 +3081,11 @@ Box *MathSequence::move_logical(
   }
   
   if(jumping) {
+    do {
+      --*index;
+    } while(*index > 0 && (buf[*index] == ' ' || buf[*index] == '\t'));
+    ++*index;
+      
     do {
       --*index;
     } while(*index > 0 && !spans.is_token_end(*index - 1));
