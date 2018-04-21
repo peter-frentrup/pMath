@@ -16,6 +16,8 @@ namespace richmath {
       void notify_all();
   };
   
+  /** A variable, whose changes are observable by Dynamic() objects
+   */
   template<class T>
   class ObservableValue : public Observable {
     private:
