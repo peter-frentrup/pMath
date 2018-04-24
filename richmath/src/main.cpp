@@ -375,6 +375,7 @@ int main(int argc, char **argv) {
   }
   
 #ifdef PMATH_DEBUG_LOG
+  printf("main thread id %u\n", GetCurrentThreadId());
   printf("cairo version: %s\n", cairo_version_string());
   printf("pango version: %s\n", pango_version_string());
   
