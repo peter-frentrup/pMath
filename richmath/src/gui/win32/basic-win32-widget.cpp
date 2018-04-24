@@ -137,7 +137,7 @@ STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject) {
     return S_OK;
   }
   
-  if(iid == IID_IStylusSyncPlugin) {
+  if(iid == IID_IStylusSyncPlugin || iid == IID_IStylusPlugin) {
     AddRef();
     *ppvObject = static_cast<IStylusSyncPlugin *>(this);
     return S_OK;
