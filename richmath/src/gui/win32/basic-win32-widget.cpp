@@ -92,9 +92,9 @@ void BasicWin32Widget::after_construction() {
         init_data->y,
         init_data->width,
         init_data->height,
-        init_data->parent ? *init_data->parent : 0,
-        0,
-        GetModuleHandle(0),
+        init_data->parent ? *init_data->parent : nullptr,
+        nullptr,
+        GetModuleHandleW(nullptr),
         this) ||
     _hwnd == nullptr)
   {
@@ -102,7 +102,7 @@ void BasicWin32Widget::after_construction() {
   }
   
   delete init_data;
-  init_data = 0;
+  init_data = nullptr;
 }
 
 BasicWin32Widget::~BasicWin32Widget() {
@@ -143,7 +143,7 @@ STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject) {
     return S_OK;
   }
   
-  if((iid == IID_IMarshal) && (freeThreadedMarshaller != NULL)) {
+  if((iid == IID_IMarshal) && (freeThreadedMarshaller != nullptr)) {
     return freeThreadedMarshaller->QueryInterface(iid, ppvObject);
   }
   
