@@ -170,6 +170,15 @@ Options(Section):= {
 Options(Setter):= Options(SetterBox):= { ButtonFrame -> Automatic }
           
 Options(Slider):= Options(SliderBox):= { ContinuousAction -> True }
+
+Options(TemplateBox):= {
+    DisplayFunction ->None,
+    Editable -> Automatic,
+    InterpretationFunction -> Automatic,
+    Selectable -> Automatic,
+    SyntaxForm -> Automatic,
+    Tooltip -> None
+}
       
 Options(Tooltip):= Options(TooltipBox):= { StripOnInput -> True }
       
