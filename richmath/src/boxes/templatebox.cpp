@@ -51,7 +51,8 @@ namespace richmath {
 //{ class TemplateBox ...
 
 TemplateBox::TemplateBox()
-  : base()
+  : base(),
+    _is_content_loaded(false)
 {
   style = new Style();
 }
@@ -74,7 +75,7 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   _arguments = arguments;
   _tag = tag;
-  _display_function = Expr();
+  _is_content_loaded = false;
   style->clear();
   style->add_pmath(options);
   style->set_pmath(BaseStyleName, tag);
@@ -103,10 +104,10 @@ void TemplateBox::paint_content(Context *context) {
 
   base::paint_content(context);
   
-  Expr dispfun = get_own_style(DisplayFunction, Symbol(PMATH_SYMBOL_AUTOMATIC));
-  if(dispfun != _display_function) {
-    _display_function = dispfun;
-    TemplateBoxImpl(*this).load_content(_display_function);
+  if(!_is_content_loaded) {
+    Expr dispfun = get_own_style(DisplayFunction); 
+    TemplateBoxImpl(*this).load_content(dispfun);
+    _is_content_loaded = true;
     invalidate();
   }
 }

@@ -28,7 +28,7 @@ namespace richmath {
     private:
       Expr _arguments;
       Expr _tag;
-      Expr _display_function;
+      bool _is_content_loaded;
   };
   
   class TemplateBoxSlot: public OwnerBox {
