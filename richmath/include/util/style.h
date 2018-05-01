@@ -12,6 +12,8 @@ namespace richmath {
   Expr color_to_pmath(int color);
   int pmath_to_color(Expr obj); // -2 on error, -1=None
   
+  const int DynamicOffset = 10000000;
+  
   enum IntStyleOptionName {
     Background = 0,
     FontColor,
@@ -142,7 +144,67 @@ namespace richmath {
     GeneratedSectionStyles
   };
   
-  const int DynamicOffset = 1000000;
+  class StyleOptionName {
+    public:
+      StyleOptionName() = default;
+      
+      explicit StyleOptionName(int value) : _value(value) {}
+      StyleOptionName(IntStyleOptionName value) : _value((int)value) {}
+      StyleOptionName(FloatStyleOptionName value) : _value((int)value) {}
+      StyleOptionName(StringStyleOptionName value) : _value((int)value) {}
+      StyleOptionName(ObjectStyleOptionName value) : _value((int)value) {}
+      
+      explicit operator IntStyleOptionName() const {
+        return (IntStyleOptionName)_value;
+      }
+      explicit operator FloatStyleOptionName() const {
+        return (FloatStyleOptionName)_value;
+      }
+      explicit operator StringStyleOptionName() const {
+        return (StringStyleOptionName)_value;
+      }
+      explicit operator ObjectStyleOptionName() const {
+        return (ObjectStyleOptionName)_value;
+      }
+      explicit operator int() const {
+        return _value;
+      }
+      
+      bool is_valid() const {
+        return _value >= 0;
+      }
+      
+      bool is_dynamic() const {
+        return _value >= DynamicOffset;
+      }
+      StyleOptionName to_dynamic() const {
+        if(is_dynamic())
+          return *this;
+        else
+          return StyleOptionName { _value + DynamicOffset };
+      }
+      StyleOptionName to_literal() const {
+        if(is_dynamic())
+          return StyleOptionName { _value - DynamicOffset };
+        else
+          return *this;
+      }
+      
+      unsigned int hash() const {
+        return (unsigned int)_value;
+      }
+  
+      bool operator==(StyleOptionName other) const {
+        return _value == other._value;
+      }
+      
+      bool operator!=(StyleOptionName other) const {
+        return _value != other._value;
+      }
+      
+    private:
+      int _value;
+  };
   
   enum StyleType {
     StyleTypeNone,
@@ -191,69 +253,44 @@ namespace richmath {
       virtual void remove(StringStyleOptionName n);
       virtual void remove(ObjectStyleOptionName n);
       
-      bool get_dynamic(IntStyleOptionName    n, Expr *value) const { return get_dynamic((int)n, value); }
-      bool get_dynamic(FloatStyleOptionName  n, Expr *value) const { return get_dynamic((int)n, value); }
-      bool get_dynamic(StringStyleOptionName n, Expr *value) const { return get_dynamic((int)n, value); }
-      bool get_dynamic(ObjectStyleOptionName n, Expr *value) const { return get_dynamic((int)n, value); }
+      bool get_dynamic(StyleOptionName n, Expr *value) const {
+        return get((ObjectStyleOptionName)((int)n + DynamicOffset), value);
+      }
       
-      void set_dynamic(IntStyleOptionName    n, Expr value) { set_dynamic((int)n, value); }
-      void set_dynamic(FloatStyleOptionName  n, Expr value) { set_dynamic((int)n, value); }
-      void set_dynamic(StringStyleOptionName n, Expr value) { set_dynamic((int)n, value); }
-      void set_dynamic(ObjectStyleOptionName n, Expr value) { set_dynamic((int)n, value); }
+      void set_dynamic(StyleOptionName n, Expr value) {
+        remove((ObjectStyleOptionName)((int)n + DynamicOffset));
+        set(   (ObjectStyleOptionName)((int)n + DynamicOffset), value);
+        
+        set(InternalHasPendingDynamic, true);
+      }
       
-      void remove_dynamic(IntStyleOptionName    n) { remove_dynamic((int)n); }
-      void remove_dynamic(FloatStyleOptionName  n) { remove_dynamic((int)n); }
-      void remove_dynamic(StringStyleOptionName n) { remove_dynamic((int)n); }
-      void remove_dynamic(ObjectStyleOptionName n) { remove_dynamic((int)n); }
+      void remove_dynamic(StyleOptionName n) {
+        remove((ObjectStyleOptionName)((int)n + DynamicOffset));
+      }
       
       unsigned int count() const;
       
-      void set_pmath(IntStyleOptionName    n, Expr value) { set_pmath((int)n, value); }
-      void set_pmath(FloatStyleOptionName  n, Expr value) { set_pmath((int)n, value); }
-      void set_pmath(StringStyleOptionName n, Expr value) { set_pmath((int)n, value); }
-      void set_pmath(ObjectStyleOptionName n, Expr value) { set_pmath((int)n, value); }
-      void set_pmath(Expr lhs, Expr rhs);
+      void set_pmath(StyleOptionName n, Expr obj);
+      void set_pmath_by_unknown_key(Expr lhs, Expr rhs);
       
-      Expr get_pmath(IntStyleOptionName    n) const { return get_pmath((int)n); }
-      Expr get_pmath(FloatStyleOptionName  n) const { return get_pmath((int)n); }
-      Expr get_pmath(StringStyleOptionName n) const { return get_pmath((int)n); }
-      Expr get_pmath(ObjectStyleOptionName n) const { return get_pmath((int)n); }
-      Expr get_pmath(Expr lhs) const;
+      Expr get_pmath(StyleOptionName n) const;
       
       bool update_dynamic(Box *parent);
       
-      void emit_pmath(IntStyleOptionName    n) const { return emit_pmath((int)n); }
-      void emit_pmath(FloatStyleOptionName  n) const { return emit_pmath((int)n); }
-      void emit_pmath(StringStyleOptionName n) const { return emit_pmath((int)n); }
-      void emit_pmath(ObjectStyleOptionName n) const { return emit_pmath((int)n); }
-      void emit_pmath(Expr lhs) const;
+      void emit_pmath(StyleOptionName n) const;
       
       void emit_to_pmath(bool with_inherited = false) const;
       
-      static bool modifies_size(IntStyleOptionName    style_name) { return modifies_size((int)style_name); }
-      static bool modifies_size(FloatStyleOptionName  style_name) { return modifies_size((int)style_name); }
-      static bool modifies_size(StringStyleOptionName style_name) { return modifies_size((int)style_name); }
-      static bool modifies_size(ObjectStyleOptionName style_name) { return modifies_size((int)style_name); }
+      static bool modifies_size(StyleOptionName style_name);
       
       static bool is_style_name(Expr n);
+      static StyleOptionName get_key(Expr n);
       
-      static Expr get_name(IntStyleOptionName    n) { return get_name((int)n); }
-      static Expr get_name(FloatStyleOptionName  n) { return get_name((int)n); }
-      static Expr get_name(StringStyleOptionName n) { return get_name((int)n); }
-      static Expr get_name(ObjectStyleOptionName n) { return get_name((int)n); }
+      static Expr get_name(StyleOptionName n);
       
-      static enum StyleType get_type(IntStyleOptionName    n) { return get_type((int)n); }
-      static enum StyleType get_type(FloatStyleOptionName  n) { return get_type((int)n); }
-      static enum StyleType get_type(StringStyleOptionName n) { return get_type((int)n); }
-      static enum StyleType get_type(ObjectStyleOptionName n) { return get_type((int)n); }
+      static enum StyleType get_type(StyleOptionName n);
       
     protected:
-      static bool modifies_size(int style_name);
-      
-      static Expr           get_name(int n);
-      static enum StyleType get_type(int n);
-      
-      void set_pmath(           int                   n, Expr obj);
       void set_pmath_bool_auto( IntStyleOptionName    n, Expr obj);
       void set_pmath_bool(      IntStyleOptionName    n, Expr obj);
       void set_pmath_color(     IntStyleOptionName    n, Expr obj);
@@ -265,7 +302,6 @@ namespace richmath {
       void set_pmath_enum(      IntStyleOptionName    n, Expr obj);
       void set_pmath_ruleset(   ObjectStyleOptionName n, Expr obj);
       
-      Expr get_pmath(           int                   n) const;
       Expr get_pmath_bool_auto( IntStyleOptionName    n) const;
       Expr get_pmath_bool(      IntStyleOptionName    n) const;
       Expr get_pmath_color(     IntStyleOptionName    n) const;
@@ -277,26 +313,9 @@ namespace richmath {
       Expr get_pmath_enum(      IntStyleOptionName    n) const;
       Expr get_pmath_ruleset(   ObjectStyleOptionName n) const;
       
-      void emit_pmath(int n) const;
-      
-      bool get_dynamic(int n, Expr *value) const {
-        return get((ObjectStyleOptionName)(n + DynamicOffset), value);
-      }
-      
-      void set_dynamic(int n, Expr value) {
-        remove((ObjectStyleOptionName)(n + DynamicOffset));
-        set(   (ObjectStyleOptionName)(n + DynamicOffset), value);
-        
-        set(InternalHasPendingDynamic, true);
-      }
-      
-      void remove_dynamic(int n) {
-        remove((ObjectStyleOptionName)(n + DynamicOffset));
-      }
-      
     private:
-      Hashtable<int, IntFloatUnion, cast_hash> int_float_values;
-      Hashtable<int, Expr,          cast_hash> object_values;
+      Hashtable<StyleOptionName, IntFloatUnion> int_float_values;
+      Hashtable<StyleOptionName, Expr>          object_values;
   };
   
   class Stylesheet: public Shareable {
@@ -312,14 +331,14 @@ namespace richmath {
       bool get(SharedPtr<Style> s, StringStyleOptionName n, String *value);
       bool get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   *value);
       
-      Expr get_pmath(SharedPtr<Style> s, Expr n);
+      Expr get_pmath(SharedPtr<Style> s, StyleOptionName n);
       
       int    get_with_base(SharedPtr<Style> s, IntStyleOptionName    n);
       float  get_with_base(SharedPtr<Style> s, FloatStyleOptionName  n);
       String get_with_base(SharedPtr<Style> s, StringStyleOptionName n);
       Expr   get_with_base(SharedPtr<Style> s, ObjectStyleOptionName n);
       
-      Expr get_pmath_with_base(SharedPtr<Style> s, Expr n);
+      Expr get_pmath_with_base(SharedPtr<Style> s, StyleOptionName n);
       
       Expr name() { return _name; }
       void unregister();

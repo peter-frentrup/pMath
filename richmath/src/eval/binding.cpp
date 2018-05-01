@@ -502,7 +502,10 @@ static MenuCommandStatus can_set_style(Expr cmd) {
     int start = doc->selection_start();
     int end   = doc->selection_end();
     
-    Expr lhs = cmd[1];
+    StyleOptionName lhs_key = Style::get_key(cmd[1]);
+    if(!lhs_key.is_valid())
+      return status;
+    
     Expr rhs = cmd[2];
     Expr val;
     
@@ -511,7 +514,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
         status.checked = true;
         
         for(int i = start;i < end;++i) {
-          val = sel->item(i)->get_pmath_style(lhs);
+          val = sel->item(i)->get_pmath_style(lhs_key);
           status.checked = val == rhs;
           if(!status.checked)
             break;
@@ -521,7 +524,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
       }
     }
     
-    val = sel->get_pmath_style(lhs);
+    val = sel->get_pmath_style(lhs_key);
     status.checked = val == rhs;
   }
   

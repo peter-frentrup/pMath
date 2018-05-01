@@ -65,7 +65,7 @@ void AutoMemorySuspension::suspend_deletions() {
 void AutoMemorySuspension::resume_deletions() {
   if(--deletion_suspensions > 0)
     return;
-  
+    
   int count = 0;
   while(box_limbo) {
     Box *tmp = box_limbo;
@@ -73,7 +73,7 @@ void AutoMemorySuspension::resume_deletions() {
     
 //    Expr expr = tmp->to_pmath(0);
 //    pmath_debug_print_object("[limbo deletion: \n  ", expr.get(), "\n]\n");
-    
+
     delete tmp;
     ++count;
   }
@@ -109,7 +109,7 @@ void Box::safe_destroy() {
     return;
   }
   
-  delete this; 
+  delete this;
 }
 
 bool Box::is_parent_of(Box *child) {
@@ -458,32 +458,19 @@ SharedPtr<Stylesheet> Box::stylesheet() {
 }
 
 template<typename N, typename T>
-struct Style_get {
-  static bool impl(SharedPtr<Style> style, N n, T *result) {
-    return style->get(n, result);
-  }
-};
-
-template<typename N, typename T>
 struct Stylesheet_get {
   static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, N n, T *result) {
-    return all->get(style, n, result);
+    if(all)
+      return all->get(style, n, result);
+    else if(style)
+      return style->get(n, result);
+    else
+      return false;
   }
 };
 
-template<typename N>
-static bool StyleName_is_FontSize(N name) {
-  return false;
-}
-
-template<>
-bool StyleName_is_FontSize(FloatStyleOptionName name) {
+static bool StyleName_is_FontSize(StyleOptionName name) {
   return name == FloatStyleOptionName::FontSize;
-}
-
-template<>
-bool StyleName_is_FontSize(Expr name) {
-    return name == PMATH_SYMBOL_FONTSIZE;
 }
 
 template<typename T>
@@ -502,53 +489,47 @@ bool StyleName_get_FontSize(Box *self, String *result) {
 }
 
 template<typename N, typename T>
+bool Box_try_get_own_style(
+  Box *self, 
+  N n, 
+  T *result,
+  SharedPtr<Stylesheet> all,
+  bool(*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<Style>, N, T *) = Stylesheet_get<N, T>::impl
+) {
+  if(Stylesheet_get_(all, self->style, n, result))
+    return true;
+  
+  return false;
+}
+
+template<typename N, typename T>
 T Box_get_style(
   Box  *self,
   N     n,
   T     result,
-  bool(*Style_get_)(                            SharedPtr<Style>, N, T *) = Style_get<N, T>::impl,
   bool(*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<Style>, N, T *) = Stylesheet_get<N, T>::impl
 ) {
-  if(self->style && Style_get_(self->style, n, &result))
+  SharedPtr<Stylesheet> all = self->stylesheet();  
+  if(Box_try_get_own_style(self, n, &result, all, Stylesheet_get_))
     return result;
-  
+    
   if(StyleName_is_FontSize(n)) {
     if(StyleName_get_FontSize(self, &result))
       return result;
   }
   
-  SharedPtr<Stylesheet> all = self->stylesheet();
-  if(all) {
-    if(Stylesheet_get_(all, self->style, n, &result))
-      return result;
-      
-    Box *box = self->parent();
-    while(box) {
-      if( box->changes_children_style()   &&
-          Stylesheet_get_(all, box->style, n, &result))
-      {
+  Box *box = self->parent();
+  while(box) {
+    if(box->changes_children_style()) {
+      if(Box_try_get_own_style(box, n, &result, all, Stylesheet_get_))
         return result;
-      }
-      
-      box = box->parent();
     }
     
-    if(all->base && Style_get_(all->base, n, &result))
-      return result;
+    box = box->parent();
   }
-  else {
-    Box *box = self->parent();
-    while(box) {
-      if( box->changes_children_style() &&
-          box->style                    &&
-          Style_get_(box->style, n, &result))
-      {
-        return result;
-      }
-      
-      box = box->parent();
-    }
-  }
+  
+  if(all && all->base && Stylesheet_get_(all, all->base, n, &result))
+    return result;
   
   return result;
 }
@@ -577,60 +558,76 @@ Expr Box::get_style(ObjectStyleOptionName n) {
   return get_style(n, Expr());
 }
 
-struct Style_get_pmath {
-  static bool impl(SharedPtr<Style> style, Expr n, Expr *result) {
-    *result = style->get_pmath(n);
-    return *result != PMATH_SYMBOL_INHERITED;
-  }
-};
-
 struct Stylesheet_get_pmath {
-  static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, Expr n, Expr *result) {
-    *result = all->get_pmath(style, n);
+  static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, StyleOptionName n, Expr *result) {
+    if(all) 
+      *result = all->get_pmath(style, n);
+    else if(style)
+      *result = style->get_pmath(n);
+    else
+      return false;
     return *result != PMATH_SYMBOL_INHERITED;
   }
 };
 
-Expr Box::get_pmath_style(Expr n) {
+Expr Box::get_pmath_style(StyleOptionName n) {
   return Box_get_style(
            this,
            n,
            Symbol(PMATH_SYMBOL_INHERITED),
-           Style_get_pmath::impl,
            Stylesheet_get_pmath::impl);
 }
 
-template<typename N, typename T>
-T Box_get_own_style(Box *self, N n, T result) {
-  if(self->style && self->style->get(n, &result))
+int Box::get_own_style(IntStyleOptionName n, int fallback_result) {
+  auto all = stylesheet();
+  
+  int result;
+  if(Box_try_get_own_style(this, n, &result, all))
     return result;
     
-  SharedPtr<Stylesheet> all = self->stylesheet();
-  if(all) {
-    if(all->get(self->style, n, &result))
-      return result;
-      
-    if(all->base && all->base->get(n, &result))
-      return result;
-  }
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
+}
+
+float Box::get_own_style(FloatStyleOptionName n, float fallback_result) {
+  auto all = stylesheet();
   
-  return result;
+  float result;
+  if(Box_try_get_own_style(this, n, &result, all))
+    return result;
+    
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
 }
 
-int Box::get_own_style(IntStyleOptionName n, int result) {
-  return Box_get_own_style(this, n, result);
+String Box::get_own_style(StringStyleOptionName n, String fallback_result) {
+  auto all = stylesheet();
+  
+  String result;
+  if(Box_try_get_own_style(this, n, &result, all))
+    return result;
+    
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
 }
 
-float Box::get_own_style(FloatStyleOptionName n, float result) {
-  return Box_get_own_style(this, n, result);
-}
-
-String Box::get_own_style(StringStyleOptionName n, String result) {
-  return Box_get_own_style(this, n, result);
-}
-
-Expr Box::get_own_style(ObjectStyleOptionName n, Expr result) {
-  return Box_get_own_style(this, n, result);
+Expr Box::get_own_style(ObjectStyleOptionName n, Expr fallback_result) {
+  auto all = stylesheet();
+  
+  Expr result;
+  if(Box_try_get_own_style(this, n, &result, all))
+    return result;
+    
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
 }
 
 String Box::get_own_style(StringStyleOptionName n) {

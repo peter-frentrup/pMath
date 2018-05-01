@@ -280,13 +280,13 @@ namespace richmath {
       Expr   get_style(ObjectStyleOptionName n, Expr   result);
       String get_style(StringStyleOptionName n);
       Expr   get_style(ObjectStyleOptionName n);
-      Expr   get_pmath_style(Expr n);
+      Expr   get_pmath_style(StyleOptionName n);
       
       // ignore parents
-      int    get_own_style(IntStyleOptionName    n, int    result = 0);
-      float  get_own_style(FloatStyleOptionName  n, float  result = 0.0);
-      String get_own_style(StringStyleOptionName n, String result);
-      Expr   get_own_style(ObjectStyleOptionName n, Expr   result);
+      int    get_own_style(IntStyleOptionName    n, int    fallback_result = 0);
+      float  get_own_style(FloatStyleOptionName  n, float  fallback_result = 0.0);
+      String get_own_style(StringStyleOptionName n, String fallback_result);
+      Expr   get_own_style(ObjectStyleOptionName n, Expr   fallback_result);
       String get_own_style(StringStyleOptionName n);
       Expr   get_own_style(ObjectStyleOptionName n);
       

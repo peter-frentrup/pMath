@@ -159,15 +159,15 @@ namespace {
     public:
       StyleEnumConverter();
       
-      bool is_valid_int(int val) {
-        return _int_to_expr.search(val) != 0;
+      bool is_valid_key(int val) {
+        return _int_to_expr.search(val) != nullptr;
       }
       
       bool is_valid_expr(Expr expr) {
-        return _expr_to_int.search(expr) != 0;
+        return _expr_to_int.search(expr) != nullptr;
       }
       
-      int  to_int(Expr expr) {
+      int to_int(Expr expr) {
         return _expr_to_int[expr];
       }
       
@@ -247,8 +247,8 @@ namespace {
   
   class SubRuleConverter: public StyleEnumConverter {
     public:
-      void add(int val, Expr expr) {
-        StyleEnumConverter::add(val, expr);
+      void add(StyleOptionName val, Expr expr) {
+        StyleEnumConverter::add((int)val, expr);
       }
   };
   
@@ -258,7 +258,7 @@ namespace {
       
       static void add_style() {
         if(_num_styles++ == 0) {
-          _name_to_key.default_value = -1;
+          _name_to_key.default_value = StyleOptionName{-1};
           _key_to_type.default_value = StyleTypeNone;
           
           add_enum(ButtonFrame, Symbol( PMATH_SYMBOL_BUTTONFRAME), new ButtonFrameStyleEnumConverter);
@@ -266,7 +266,7 @@ namespace {
           add_enum(FontWeight,  Symbol( PMATH_SYMBOL_FONTWEIGHT),  new FontWeightStyleEnumConverter);
           add_enum(WindowFrame, Symbol( PMATH_SYMBOL_WINDOWFRAME), new WindowFrameStyleEnumConverter);
           
-          add_ruleset_head(DockedSections, Symbol( PMATH_SYMBOL_DOCKEDSECTIONS));
+          add_ruleset_head(DockedSections,     Symbol( PMATH_SYMBOL_DOCKEDSECTIONS));
           
           
           add(StyleTypeColor,           Background,                       Symbol( PMATH_SYMBOL_BACKGROUND));
@@ -362,7 +362,7 @@ namespace {
         }
       }
       
-      static bool is_window_option(int key) {
+      static bool is_window_option(StyleOptionName key) {
         return key == Magnification             ||
                key == StyleDefinitions          ||
                key == Visible                   ||
@@ -386,40 +386,27 @@ namespace {
         }
       }*/
       
-      static enum StyleType get_type(int key) {
+      static enum StyleType get_type(StyleOptionName key) {
         return _key_to_type[key];
       }
       
-      static Expr get_name(int key) {
+      static Expr get_name(StyleOptionName key) {
         return _key_to_name[key];
       }
       
-      static int get_key(Expr name) {
+      static StyleOptionName get_key(Expr name) {
         return _name_to_key[name];
       }
       
-      static SharedPtr<StyleEnumConverter> get_enum_converter(int key) {
+      static SharedPtr<StyleEnumConverter> get_enum_converter(StyleOptionName key) {
         return _key_to_enum_converter[key];
       }
       
     private:
-      static void add(StyleType type, IntStyleOptionName key, const Expr &name) {
-        add(type, (int)key, name);
-      }
-      static void add(StyleType type, FloatStyleOptionName key, const Expr &name) {
-        add(type, (int)key, name);
-      }
-      static void add(StyleType type, StringStyleOptionName key, const Expr &name) {
-        add(type, (int)key, name);
-      }
-      static void add(StyleType type, ObjectStyleOptionName key, const Expr &name) {
-        add(type, (int)key, name);
-      }
-      
-      static void add(StyleType type, int key, const Expr &name) {
+      static void add(StyleType type, StyleOptionName key, const Expr &name) {
         assert(type != StyleTypeEnum);
         
-        _key_to_type.set(  key, type);
+        _key_to_type.set(key, type);
         _key_to_name.set(key, name);
         _name_to_key.set(name, key);
         
@@ -441,12 +428,12 @@ namespace {
         add_to_ruleset(key, name);
       }
       
-      static void add_to_ruleset(int key, const Expr &name) {
+      static void add_to_ruleset(StyleOptionName key, const Expr &name) {
         if(name.is_rule()) {
           Expr super_name = name[1];
           Expr sub_name   = name[2];
           
-          int super_key = _name_to_key[super_name];
+          StyleOptionName super_key = _name_to_key[super_name];
           if(_key_to_type[super_key] != StyleTypeRuleSet) {
             pmath_debug_print_object("[not a StyleTypeRuleSet: ", super_name.get(), "]\n");
             return;
@@ -464,8 +451,8 @@ namespace {
       }
       
       static void add_ruleset_head(
-        int         key,
-        const Expr &symbol
+        StyleOptionName  key,
+        const Expr      &symbol
       ) {
         _key_to_enum_converter.set(key, new SubRuleConverter);
         _key_to_type.set(          key, StyleTypeRuleSet);
@@ -478,8 +465,9 @@ namespace {
         if(!box)
           return Symbol(PMATH_SYMBOL_FAILED);
         
-        if(Style::is_style_name(item))
-          return box->get_pmath_style(item);
+        StyleOptionName key = Style::get_key(item);
+        if(key.is_valid())
+          return box->get_pmath_style(key);
         
         return Symbol(PMATH_SYMBOL_FAILED);
       }
@@ -487,17 +475,17 @@ namespace {
     private:
       static int _num_styles;
       
-      static Hashtable<int, SharedPtr<StyleEnumConverter>, cast_hash> _key_to_enum_converter;
-      static Hashtable<int, enum StyleType, cast_hash>                _key_to_type;
-      static Hashtable<int, Expr,           cast_hash>                _key_to_name;
-      static Hashtable<Expr, int>                                     _name_to_key;
+      static Hashtable<StyleOptionName, SharedPtr<StyleEnumConverter>> _key_to_enum_converter;
+      static Hashtable<StyleOptionName, enum StyleType>                _key_to_type;
+      static Hashtable<StyleOptionName, Expr>                          _key_to_name;
+      static Hashtable<Expr, StyleOptionName>                          _name_to_key;
   };
   
-  int                                                      StyleInformation::_num_styles = 0;
-  Hashtable<int, SharedPtr<StyleEnumConverter>, cast_hash> StyleInformation::_key_to_enum_converter;
-  Hashtable<int, enum StyleType, cast_hash>                StyleInformation::_key_to_type;
-  Hashtable<int, Expr,           cast_hash>                StyleInformation::_key_to_name;
-  Hashtable<Expr, int>                                     StyleInformation::_name_to_key;
+  int                                                       StyleInformation::_num_styles = 0;
+  Hashtable<StyleOptionName, SharedPtr<StyleEnumConverter>> StyleInformation::_key_to_enum_converter;
+  Hashtable<StyleOptionName, enum StyleType>                StyleInformation::_key_to_type;
+  Hashtable<StyleOptionName, Expr>                          StyleInformation::_key_to_name;
+  Hashtable<Expr, StyleOptionName>                          StyleInformation::_name_to_key;
 }
 
 //{ class StyleEnumConverter ...
@@ -565,7 +553,7 @@ void Style::add_pmath(Expr options) {
     Expr lhs = options[1];
     Expr rhs = options[2];
     
-    set_pmath(lhs, rhs);
+    set_pmath_by_unknown_key(lhs, rhs);
   }
 }
 
@@ -680,8 +668,8 @@ void Style::remove(ObjectStyleOptionName n) {
 }
 
 
-bool Style::modifies_size(int style_name) {
-  switch(style_name) {
+bool Style::modifies_size(StyleOptionName style_name) {
+  switch((int)style_name) {
     case Background:
     case FontColor:
     case SectionFrameColor:
@@ -730,13 +718,13 @@ bool Style::update_dynamic(Box *parent) {
     
   set(InternalHasPendingDynamic, false);
   
-  static Array<int> dynamic_options(100);
+  static Array<StyleOptionName> dynamic_options(100);
   
   dynamic_options.length(0);
   
   for(const auto &e : object_values.entries()) {
-    if(e.key >= DynamicOffset)
-      dynamic_options.add(e.key - DynamicOffset);
+    if(e.key.is_dynamic())
+      dynamic_options.add(e.key.to_literal());
   }
   
   if(dynamic_options.length() == 0)
@@ -755,7 +743,7 @@ bool Style::update_dynamic(Box *parent) {
   {
     Gather g;
     for(i = 0; i < dynamic_options.length(); ++i) {
-      Expr e = object_values[DynamicOffset + dynamic_options[i]];
+      Expr e = object_values[dynamic_options[i].to_dynamic()];
       Dynamic dyn(parent, e);
       
       e = dyn.get_value_now();
@@ -782,21 +770,25 @@ unsigned int Style::count() const {
 }
 
 bool Style::is_style_name(Expr n) {
-  return StyleInformation::get_key(n) >= 0;
+  return StyleInformation::get_key(n).is_valid();
 }
 
-Expr Style::get_name(int n) {
+StyleOptionName Style::get_key(Expr n) {
+  return StyleInformation::get_key(n);
+}
+
+Expr Style::get_name(StyleOptionName n) {
   return StyleInformation::get_name(n);
 }
 
-enum StyleType Style::get_type(int n) {
+enum StyleType Style::get_type(StyleOptionName n) {
   return StyleInformation::get_type(n);
 }
 
-void Style::set_pmath(Expr lhs, Expr rhs) {
-  int key = StyleInformation::get_key(lhs);
+void Style::set_pmath_by_unknown_key(Expr lhs, Expr rhs) {
+  StyleOptionName key = StyleInformation::get_key(lhs);
   
-  if(key < 0) {
+  if(!key.is_valid()) {
     pmath_debug_print_object("[unknown option ", lhs.get(), "]\n");
     
     Expr sym;
@@ -835,7 +827,7 @@ void Style::set_pmath(Expr lhs, Expr rhs) {
   set_pmath(key, rhs);
 }
 
-void Style::set_pmath(int n, Expr obj) {
+void Style::set_pmath(StyleOptionName n, Expr obj) {
   if(StyleInformation::is_window_option(n))
     set(InternalHasModifiedWindowOption, true);
     
@@ -1184,30 +1176,18 @@ void Style::set_pmath_ruleset(ObjectStyleOptionName n, Expr obj) {
 //        if(rhs == PMATH_SYMBOL_INHERITED)
 //          continue;
 
-        int sub_key = key_converter->to_int(lhs);
-        if(sub_key < 0) {
-          pmath_debug_print_object("[ignoring unknown sub-option ", lhs.get(), "]\n");
-        }
-        else {
+        StyleOptionName sub_key = StyleOptionName{key_converter->to_int(lhs)};
+        if(sub_key.is_valid()) 
           set_pmath(sub_key, rhs);
-        }
+        else
+          pmath_debug_print_object("[ignoring unknown sub-option ", lhs.get(), "]\n");
       }
     }
   }
   
 }
 
-
-Expr Style::get_pmath(Expr lhs) const {
-  int key = StyleInformation::get_key(lhs);
-  
-  if(key >= 0)
-    return get_pmath(key);
-    
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath(int key) const {
+Expr Style::get_pmath(StyleOptionName key) const {
   enum StyleType type = StyleInformation::get_type(key);
   
   switch(type) {
@@ -1339,10 +1319,13 @@ Expr Style::get_pmath_size(FloatStyleOptionName n) const { // n + {0,1,2} ~= {Co
   bool have_horz, have_vert;
   Expr horz, vert;
   
-  have_horz = get_dynamic(n + 1, &horz);
+  FloatStyleOptionName horz_name = FloatStyleOptionName(n + 1);
+  FloatStyleOptionName vert_name = FloatStyleOptionName(n + 2);
+  
+  have_horz = get_dynamic(horz_name, &horz);
   if(!have_horz) {
     float h;
-    have_horz = get(FloatStyleOptionName(n + 1), &h);
+    have_horz = get(horz_name, &h);
     
     if(have_horz) {
       if(h > 0)
@@ -1354,10 +1337,10 @@ Expr Style::get_pmath_size(FloatStyleOptionName n) const { // n + {0,1,2} ~= {Co
       horz = Symbol(PMATH_SYMBOL_INHERITED);
   }
   
-  have_vert = get_dynamic(n + 2, &vert);
+  have_vert = get_dynamic(vert_name, &vert);
   if(!have_vert) {
     float v;
-    have_vert = get(FloatStyleOptionName(n + 2), &v);
+    have_vert = get(vert_name, &v);
     
     if(have_vert) {
       if(v > 0)
@@ -1418,7 +1401,7 @@ Expr Style::get_pmath_ruleset(ObjectStyleOptionName n) const {
   Gather g;
   
   for(auto &entry : table.entries()) {
-    Expr value = get_pmath(entry.value);
+    Expr value = get_pmath(StyleOptionName{entry.value});
     Gather::emit(Rule(entry.key, value));
     
     if(value != PMATH_SYMBOL_INHERITED)
@@ -1432,15 +1415,7 @@ Expr Style::get_pmath_ruleset(ObjectStyleOptionName n) const {
   return e;
 }
 
-
-void Style::emit_pmath(Expr lhs) const {
-  int key = StyleInformation::get_key(lhs);
-  
-  if(key >= 0)
-    return emit_pmath(key);
-}
-
-void Style::emit_pmath(int n) const {
+void Style::emit_pmath(StyleOptionName n) const {
   Expr e;
   
   if(get_dynamic(n, &e)) {
@@ -1475,6 +1450,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(DefaultDuplicateSectionStyle);
   emit_pmath(DefaultNewSectionStyle);
   emit_pmath(DefaultReturnCreatedSectionStyle);
+  emit_pmath(DisplayFunction);
   emit_pmath(DockedSections);
   emit_pmath(Editable);
   emit_pmath(Evaluatable);
@@ -1490,6 +1466,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(GridBoxColumnSpacing);
   emit_pmath(GridBoxRowSpacing);
   emit_pmath(ImageSizeCommon);
+  emit_pmath(InterpretationFunction);
   emit_pmath(LanguageCategory);
   emit_pmath(LineBreakWithin);
   emit_pmath(Magnification);
@@ -1514,8 +1491,10 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(ShowStringCharacters);
   emit_pmath(StripOnInput);
   emit_pmath(StyleDefinitions);
+  emit_pmath(SyntaxForm);
   emit_pmath(TextShadow);
   emit_pmath(Ticks);
+  emit_pmath(Tooltip);
   emit_pmath(Visible);
   emit_pmath(WindowFrame);
   emit_pmath(WindowTitle);
@@ -1761,7 +1740,7 @@ bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
   return Stylesheet_get(this, s, n, value);
 }
 
-Expr Stylesheet::get_pmath(SharedPtr<Style> s, Expr n) {
+Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
  /* TODO: merge structure styles from the whole style hierarchy
   */
   for(int count = 20; count && s; --count) {
@@ -1811,7 +1790,7 @@ Expr Stylesheet::get_with_base(SharedPtr<Style> s, ObjectStyleOptionName n) {
   return value;
 }
 
-Expr Stylesheet::get_pmath_with_base(SharedPtr<Style> s, Expr n) {
+Expr Stylesheet::get_pmath_with_base(SharedPtr<Style> s, StyleOptionName n) {
   Expr e = get_pmath(s, n);
   if(e != PMATH_SYMBOL_INHERITED)
     return e;
