@@ -22,6 +22,9 @@ namespace richmath {
       
       const Expr &arguments() { return _arguments; }
       
+    protected:
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
+      
     private:
       Expr _arguments;
       Expr _tag;

@@ -13,7 +13,8 @@ namespace richmath {
   int pmath_to_color(Expr obj); // -2 on error, -1=None
   
   enum class DefaultStyleOptionOffsets {
-    None = 0
+    None = 0,
+    TemplateBox = 100000
   };
   
   const int DynamicOffset = 10000000;
@@ -142,10 +143,14 @@ namespace richmath {
     InterpretationFunction,
     SyntaxForm,
     Tooltip,
+    TemplateBoxOptions,
     
     StyleDefinitions,
     InternalLastStyleDefinitions,
-    GeneratedSectionStyles
+    GeneratedSectionStyles,
+    
+    TemplateBoxDefaultDisplayFunction        = (int)DefaultStyleOptionOffsets::TemplateBox + DisplayFunction,
+    TemplateBoxDefaultInterpretationFunction = (int)DefaultStyleOptionOffsets::TemplateBox + InterpretationFunction
   };
   
   class StyleOptionName {

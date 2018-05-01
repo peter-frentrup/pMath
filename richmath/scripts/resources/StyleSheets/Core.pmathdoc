@@ -74,6 +74,9 @@ Document({
      FontColor -> GrayLevel(0.502`), FontSize -> 9, Placeholder -> True, 
      ShowAutoStyles -> False, ShowStringCharacters -> False), 
     Section("TemplateBox styles", "Subsection"), 
+    Section(StyleData("Det"), TemplateBoxOptions -> {
+      DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
+       "\[RightBracketingBar]"} &), InterpretationFunction -> Inherited}), 
     Section("Missing TemplateBox styles", "Subsubsection"), 
     Section(StyleData("TemplateBoxErrorDisplayStyle"), 
      Background -> RGBColor(1, 0.77000000000000002`, 0.77000000000000002`), 

@@ -902,6 +902,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_TEMPLATESLOT                           PMATH_SYMBOL_BUILTIN(809)
 #define PMATH_SYMBOL_TEMPLATESLOTSEQUENCE                   PMATH_SYMBOL_BUILTIN(810)
 #define PMATH_SYMBOL_SYNTAXFORM                             PMATH_SYMBOL_BUILTIN(811)
+#define PMATH_SYMBOL_TEMPLATEBOXOPTIONS                     PMATH_SYMBOL_BUILTIN(812)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

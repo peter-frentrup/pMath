@@ -1422,6 +1422,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_THREADID                         = NEW_SYSTEM_SYMBOL("$ThreadId"))
   VERIFY(   PMATH_SYMBOL_THREADLOCAL                      = NEW_SYSTEM_SYMBOL("ThreadLocal"))
   VERIFY(   PMATH_SYMBOL_TEMPLATEBOX                      = NEW_SYSTEM_SYMBOL("TemplateBox"))
+  VERIFY(   PMATH_SYMBOL_TEMPLATEBOXOPTIONS               = NEW_SYSTEM_SYMBOL("TemplateBoxOptions"))
   VERIFY(   PMATH_SYMBOL_TEMPLATESLOT                     = NEW_SYSTEM_SYMBOL("TemplateSlot"))
   VERIFY(   PMATH_SYMBOL_TEMPLATESLOTSEQUENCE             = NEW_SYSTEM_SYMBOL("TemplateSlotSequence"))
   VERIFY(   PMATH_SYMBOL_TEMPORARY                        = NEW_SYSTEM_SYMBOL("Temporary"))

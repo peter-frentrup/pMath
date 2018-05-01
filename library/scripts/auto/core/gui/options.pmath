@@ -162,6 +162,12 @@ Options(Section):= {
     ShowSectionBracket -> True,
     ShowStringCharacters -> True,
     StyleDefinitions -> None,
+    TemplateBoxOptions -> {
+        DisplayFunction -> None, 
+        Editable -> Automatic, 
+        InterpretationFunction -> Automatic,
+        Selectable -> Automatic,
+        Tooltip -> Automatic},
     TextShadow -> None,
     Visible -> True,             % only valid for StyleData-sections
     WindowFrame -> Inherited,    % only valid for StyleData-sections

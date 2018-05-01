@@ -267,7 +267,7 @@ namespace {
           add_enum(WindowFrame, Symbol( PMATH_SYMBOL_WINDOWFRAME), new WindowFrameStyleEnumConverter);
           
           add_ruleset_head(DockedSections,     Symbol( PMATH_SYMBOL_DOCKEDSECTIONS));
-          
+          add_ruleset_head(TemplateBoxOptions, Symbol( PMATH_SYMBOL_TEMPLATEBOXOPTIONS));
           
           add(StyleTypeColor,           Background,                       Symbol( PMATH_SYMBOL_BACKGROUND));
           add(StyleTypeColor,           FontColor,                        Symbol( PMATH_SYMBOL_FONTCOLOR));
@@ -350,6 +350,9 @@ namespace {
           add(StyleTypeAny, DockedSectionsTopGlass,    Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("TopGlass")));
           add(StyleTypeAny, DockedSectionsBottom,      Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("Bottom")));
           add(StyleTypeAny, DockedSectionsBottomGlass, Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("BottomGlass")));
+          
+          add(StyleTypeAny, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(PMATH_SYMBOL_TEMPLATEBOXOPTIONS), Symbol(PMATH_SYMBOL_DISPLAYFUNCTION)));
+          add(StyleTypeAny, TemplateBoxDefaultInterpretationFunction, Rule(Symbol(PMATH_SYMBOL_TEMPLATEBOXOPTIONS), Symbol(PMATH_SYMBOL_INTERPRETATIONFUNCTION)));
         }
       }
       
@@ -1492,6 +1495,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   emit_pmath(StripOnInput);
   emit_pmath(StyleDefinitions);
   emit_pmath(SyntaxForm);
+  emit_pmath(TemplateBoxOptions);
   emit_pmath(TextShadow);
   emit_pmath(Ticks);
   emit_pmath(Tooltip);
