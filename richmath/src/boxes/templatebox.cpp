@@ -23,6 +23,9 @@ namespace richmath {
     public:
       TemplateBoxSlotImpl(TemplateBoxSlot &_self);
       
+      static TemplateBox *find_owner(Box *box);
+      
+      void reload_content();
       Expr get_content();
       
       static Expr prepare_boxes(Expr boxes);
@@ -40,6 +43,7 @@ namespace richmath {
     public:
       TemplateBoxSlotSequenceImpl(TemplateBoxSlotSequence &_self);
       
+      void reload_content();
       Expr get_content();
       Expr get_single_mapped_argument(size_t i);
       
@@ -105,7 +109,7 @@ void TemplateBox::paint_content(Context *context) {
   base::paint_content(context);
   
   if(!_is_content_loaded) {
-    Expr dispfun = get_own_style(DisplayFunction); 
+    Expr dispfun = get_own_style(DisplayFunction);
     TemplateBoxImpl(*this).load_content(dispfun);
     _is_content_loaded = true;
     invalidate();
@@ -134,6 +138,10 @@ TemplateBoxSlot::TemplateBoxSlot()
     _argument(0),
     _is_content_loaded(false)
 {
+}
+
+TemplateBox *TemplateBoxSlot::find_owner() {
+  return TemplateBoxSlotImpl::find_owner(this);
 }
 
 Expr TemplateBoxSlot::prepare_boxes(Expr boxes) {
@@ -170,7 +178,7 @@ void TemplateBoxSlot::paint_content(Context *context) {
   base::paint_content(context);
   
   if(!_is_content_loaded) {
-    content()->load_from_object(TemplateBoxSlotImpl(*this).get_content(), BoxInputFlags::FormatNumbers);
+    TemplateBoxSlotImpl(*this).reload_content();
     _is_content_loaded = true;
     invalidate();
   }
@@ -190,25 +198,29 @@ TemplateBoxSlotSequence::TemplateBoxSlotSequence()
 {
 }
 
+TemplateBox *TemplateBoxSlotSequence::find_owner() {
+  return TemplateBoxSlotImpl::find_owner(this);
+}
+
 bool TemplateBoxSlotSequence::try_load_from_object(Expr expr, BoxInputFlags opts) {
   // TemplateBoxSlotSequence(range [[, modifier], separator])
   size_t exprlen = expr.expr_length();
   if(expr[0] != PMATH_SYMBOL_TEMPLATESLOTSEQUENCE || exprlen < 1 || exprlen > 3)
     return false;
-  
+    
   _first_arg = 1;
   _last_arg = -1;
   Expr range = expr[1];
   if(range[0] == PMATH_SYMBOL_PUREARGUMENT && range.expr_length() == 1)
     range = range[1];
-  
+    
   if(range.is_int32()) {
     _first_arg = PMATH_AS_INT32(range.get());
   }
   else if(range[0] == PMATH_SYMBOL_RANGE) {
     if(range.expr_length() != 2)
       return false;
-    
+      
     Expr start = range[1];
     Expr end = range[2];
     
@@ -216,7 +228,7 @@ bool TemplateBoxSlotSequence::try_load_from_object(Expr expr, BoxInputFlags opts
       _first_arg = PMATH_AS_INT32(start.get());
     else if(start != PMATH_SYMBOL_AUTOMATIC)
       return false;
-    
+      
     if(end.is_int32())
       _last_arg = PMATH_AS_INT32(end.get());
     else if(end != PMATH_SYMBOL_AUTOMATIC)
@@ -224,7 +236,7 @@ bool TemplateBoxSlotSequence::try_load_from_object(Expr expr, BoxInputFlags opts
   }
   else
     return false;
-  
+    
   if(exprlen >= 2)
     _separator = expr[exprlen];
   else
@@ -235,7 +247,7 @@ bool TemplateBoxSlotSequence::try_load_from_object(Expr expr, BoxInputFlags opts
   }
   else
     _modifier_function = Expr();
-  
+    
   return true;
 }
 
@@ -255,9 +267,7 @@ void TemplateBoxSlotSequence::paint_content(Context *context) {
   base::paint_content(context);
   
   if(!_is_content_loaded) {
-    content()->load_from_object(
-      TemplateBoxSlotSequenceImpl(*this).get_content(), 
-      /*BoxInputFlags::AllowTemplateSlots |*/ BoxInputFlags::FormatNumbers);
+    TemplateBoxSlotSequenceImpl(*this).reload_content();
     _is_content_loaded = true;
     invalidate();
   }
@@ -271,7 +281,7 @@ TemplateBoxImpl::TemplateBoxImpl(TemplateBox &_self)
   : self(_self)
 {
 }
-
+  
 void TemplateBoxImpl::load_content(Expr dispfun) {
   self.content()->load_from_object(
     display_function_body(dispfun),
@@ -302,11 +312,40 @@ TemplateBoxSlotImpl::TemplateBoxSlotImpl(TemplateBoxSlot &_self)
 {
 }
 
+TemplateBox *TemplateBoxSlotImpl::find_owner(Box *box) {
+  int nesting = 0;
+  box = box->parent();
+  while(box) {
+    if(auto slot = dynamic_cast<TemplateBoxSlot*>(box)) {
+      ++nesting;
+    }
+    else if(auto tb = dynamic_cast<TemplateBox*>(box)) {
+      if(nesting-- == 0)
+        return tb;
+    }
+    box = box->parent();
+  }
+  return nullptr;
+}
+    
+void TemplateBoxSlotImpl::reload_content() {
+  BoxInputFlags flags = BoxInputFlags::Default;
+  
+  TemplateBox *owner = self.find_owner();
+  if(owner) {
+    flags |= BoxInputFlags::FormatNumbers;
+    if(owner->find_parent<TemplateBox>(false))
+      flags |= BoxInputFlags::AllowTemplateSlots;
+  }
+  
+  self.content()->load_from_object(get_content(), flags);
+}
+
 Expr TemplateBoxSlotImpl::get_content() {
   if(self._argument < 1)
     return String::FromChar(PMATH_CHAR_PLACEHOLDER);
     
-  TemplateBox *tb = self.find_parent<TemplateBox>(false);
+  TemplateBox *tb = self.find_owner();
   if(!tb)
     return String::FromChar(PMATH_CHAR_PLACEHOLDER);
     
@@ -395,8 +434,12 @@ static size_t to_unsigned_index(int signed_index, size_t len) {
   return 0;
 }
 
+void TemplateBoxSlotSequenceImpl::reload_content() {
+  self.content()->load_from_object(get_content(), BoxInputFlags::AllowTemplateSlots | BoxInputFlags::FormatNumbers);
+}
+
 Expr TemplateBoxSlotSequenceImpl::get_content() {
-  TemplateBox *tb = self.find_parent<TemplateBox>(false);
+  TemplateBox *tb = self.find_owner();
   if(!tb)
     return String("");
     

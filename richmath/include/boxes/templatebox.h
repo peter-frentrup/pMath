@@ -38,6 +38,8 @@ namespace richmath {
     public:
       TemplateBoxSlot();
       
+      TemplateBox *find_owner();
+      
       static Expr prepare_boxes(Expr boxes);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
@@ -56,6 +58,8 @@ namespace richmath {
       
     public:
       TemplateBoxSlotSequence();
+      
+      TemplateBox *find_owner();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
     
