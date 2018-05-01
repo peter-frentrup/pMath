@@ -12,6 +12,10 @@ namespace richmath {
   Expr color_to_pmath(int color);
   int pmath_to_color(Expr obj); // -2 on error, -1=None
   
+  enum class DefaultStyleOptionOffsets {
+    None = 0
+  };
+  
   const int DynamicOffset = 10000000;
   
   enum IntStyleOptionName {

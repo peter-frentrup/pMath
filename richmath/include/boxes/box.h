@@ -290,6 +290,12 @@ namespace richmath {
       String get_own_style(StringStyleOptionName n);
       Expr   get_own_style(ObjectStyleOptionName n);
       
+      StyleOptionName       get_default_key(StyleOptionName n);
+      IntStyleOptionName    get_default_key(IntStyleOptionName n);
+      FloatStyleOptionName  get_default_key(FloatStyleOptionName n);
+      StringStyleOptionName get_default_key(StringStyleOptionName n);
+      ObjectStyleOptionName get_default_key(ObjectStyleOptionName n);
+      
       virtual void reset_style() { if(style) style->clear(); }
       
       virtual Box *mouse_sensitive();
@@ -314,6 +320,8 @@ namespace richmath {
     protected:
       void adopt(Box *child, int i);
       void abandon(Box *child);
+      
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() { return DefaultStyleOptionOffsets::None; }
       
     protected:
       BoxSize  _extents;

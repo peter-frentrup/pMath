@@ -499,6 +499,22 @@ bool Box_try_get_own_style(
   if(Stylesheet_get_(all, self->style, n, result))
     return true;
   
+  N defn = self->get_default_key(n);
+  if(defn != n) {
+    if(Stylesheet_get_(all, self->style, defn, result))
+      return true;
+    
+    Box *box = self->parent();
+    while(box) {
+      if(box->changes_children_style()) {
+        if(Stylesheet_get_(all, box->style, defn, result))
+          return result;
+      }
+      
+      box = box->parent();
+    }
+  }
+  
   return false;
 }
 
@@ -636,6 +652,26 @@ String Box::get_own_style(StringStyleOptionName n) {
 
 Expr Box::get_own_style(ObjectStyleOptionName n) {
   return get_own_style(n, Expr());
+}
+
+StyleOptionName Box::get_default_key(StyleOptionName n) {
+  return StyleOptionName { (int)get_default_styles_offset() + (int)n };
+}
+
+IntStyleOptionName Box::get_default_key(IntStyleOptionName n) {
+  return (IntStyleOptionName)get_default_key(StyleOptionName{n});
+}
+
+FloatStyleOptionName  Box::get_default_key(FloatStyleOptionName n) {
+  return (FloatStyleOptionName)get_default_key(StyleOptionName{n});
+}
+
+StringStyleOptionName Box::get_default_key(StringStyleOptionName n) {
+  return (StringStyleOptionName)get_default_key(StyleOptionName{n});
+}
+
+ObjectStyleOptionName Box::get_default_key(ObjectStyleOptionName n) {
+  return (ObjectStyleOptionName)get_default_key(StyleOptionName{n});
 }
 
 //} ... styles
