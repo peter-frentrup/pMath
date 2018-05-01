@@ -211,7 +211,7 @@ bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
   
   if(expr.expr_length() < 1)
-    return 0;
+    return false;
   
   Expr options;
   
