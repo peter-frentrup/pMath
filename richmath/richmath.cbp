@@ -676,6 +676,7 @@
 		<Unit filename="include/boxes/sliderbox.h" />
 		<Unit filename="include/boxes/stylebox.h" />
 		<Unit filename="include/boxes/subsuperscriptbox.h" />
+		<Unit filename="include/boxes/templatebox.h" />
 		<Unit filename="include/boxes/textsequence.h" />
 		<Unit filename="include/boxes/tooltipbox.h" />
 		<Unit filename="include/boxes/transformationbox.h" />
@@ -1048,6 +1049,7 @@
 		<Unit filename="src/boxes/sliderbox.cpp" />
 		<Unit filename="src/boxes/stylebox.cpp" />
 		<Unit filename="src/boxes/subsuperscriptbox.cpp" />
+		<Unit filename="src/boxes/templatebox.cpp" />
 		<Unit filename="src/boxes/textsequence.cpp" />
 		<Unit filename="src/boxes/tooltipbox.cpp" />
 		<Unit filename="src/boxes/transformationbox.cpp" />

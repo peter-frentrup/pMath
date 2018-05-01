@@ -24,6 +24,7 @@
 #include <boxes/sliderbox.h>
 #include <boxes/stylebox.h>
 #include <boxes/subsuperscriptbox.h>
+#include <boxes/templatebox.h>
 #include <boxes/tooltipbox.h>
 #include <boxes/transformationbox.h>
 #include <boxes/underoverscriptbox.h>
@@ -3696,6 +3697,9 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
   if(head == PMATH_SYMBOL_TAGBOX)
     return create_or_error<  TagBox>(expr, options);
     
+  if(head == PMATH_SYMBOL_TEMPLATEBOX)
+    return create_or_error<  TemplateBox>(expr, options);
+    
   if(head == PMATH_SYMBOL_TOOLTIPBOX)
     return create_or_error<  TooltipBox>(expr, options);
     
@@ -3713,6 +3717,12 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
     
   if(head == GetSymbol( FESymbolIndex::NumberBox ))
     return create_or_error<NumberBox>(expr, options);
+    
+  if(head == PMATH_SYMBOL_TEMPLATESLOT)
+    return create_or_error<TemplateBoxSlot>(expr, options);
+    
+  if(head == PMATH_SYMBOL_TEMPLATESLOTSEQUENCE)
+    return create_or_error<TemplateBoxSlotSequence>(expr, options);
     
   return new ErrorBox(expr);
 }
@@ -3940,6 +3950,9 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
     
   if(has(options, BoxInputFlags::FormatNumbers))
     obj = NumberBox::prepare_boxes(obj);
+    
+  if(has(options, BoxInputFlags::AllowTemplateSlots))
+    obj = TemplateBoxSlot::prepare_boxes(obj);
     
   new_spans = pmath_spans_from_boxes(
                 pmath_ref(obj.get()),

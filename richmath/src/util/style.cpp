@@ -340,6 +340,9 @@ namespace {
           add(StyleTypeAny,             DefaultDuplicateSectionStyle,     Symbol( PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE));
           add(StyleTypeAny,             DefaultNewSectionStyle,           Symbol( PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE));
           add(StyleTypeAny,             DefaultReturnCreatedSectionStyle, Symbol( PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE));
+          add(StyleTypeAny,             DisplayFunction,                  Symbol( PMATH_SYMBOL_DISPLAYFUNCTION));
+          add(StyleTypeAny,             InterpretationFunction,           Symbol( PMATH_SYMBOL_INTERPRETATIONFUNCTION));
+          add(StyleTypeAny,             SyntaxForm,                       Symbol( PMATH_SYMBOL_SYNTAXFORM));
           add(StyleTypeAny,             StyleDefinitions,                 Symbol( PMATH_SYMBOL_STYLEDEFINITIONS));
           add(StyleTypeAny,             GeneratedSectionStyles,           Symbol( PMATH_SYMBOL_GENERATEDSECTIONSTYLES));
           

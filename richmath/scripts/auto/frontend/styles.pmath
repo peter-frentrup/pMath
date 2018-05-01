@@ -2,6 +2,7 @@
 BeginPackage("FE`Styles`")
 
 MakeStyleDataBoxes
+$DefaultDisplayFunction
 
 Begin("FE`Styles`Private`")
 
@@ -30,6 +31,17 @@ asStyleDataExampleBox(~labelTextBox, ~exampleBox)::=
             {{asStyleDataLabelBox(labelTextBox)}, {exampleBox}},
             GridBoxRowSpacing -> 0), 
         AutoSpacing->False)
+
+
+$DefaultDisplayFunction(~tag:String)::= Function(
+    FrameBox(
+        {tag, "(", 
+            %TemplateSlotSequence(1, ","),
+            TemplateSlotSequence(##1, Function(FrameBox(#1).StyleBox("TemplateBoxErrorDisplayArgumentStyle")), ","),
+            %{##1}.Map(Function(FrameBox(#1).StyleBox("TemplateBoxErrorDisplayArgumentStyle"))).Riffle(","), 
+            ")"}
+    ).StyleBox("TemplateBoxErrorDisplayStyle")
+)
 
 End()
 

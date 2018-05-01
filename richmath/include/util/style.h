@@ -132,6 +132,11 @@ namespace richmath {
     DockedSectionsBottom,
     DockedSectionsBottomGlass,
     
+    DisplayFunction,
+    InterpretationFunction,
+    SyntaxForm,
+    Tooltip,
+    
     StyleDefinitions,
     InternalLastStyleDefinitions,
     GeneratedSectionStyles
