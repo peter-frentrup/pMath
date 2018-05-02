@@ -1969,7 +1969,7 @@ void Document::on_mouse_down(MouseEvent &event) {
         
         if(should_expand)
           selbox = expand_selection(selbox, &start, &end);
-          
+        
         select(selbox, start, end);
       }
     }
@@ -2446,14 +2446,8 @@ void Document::select_range(
   Box *box1, int start1, int end1,
   Box *box2, int start2, int end2
 ) {
-  if( (box1 && !box1->selectable()) ||
-      (box2 && !box2->selectable()))
-  {
-    sel_first.set(0, 0, 0);
-    sel_last = sel_first;
-    DocumentImpl(*this).raw_select(0, 0, 0);
+  if((box1 && !box1->selectable()) || (box2 && !box2->selectable()))
     return;
-  }
   
   sel_first.set(box1, start1, end1);
   sel_last.set( box2, start2, end2);
