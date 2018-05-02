@@ -158,11 +158,10 @@ namespace richmath {
       Box();
       virtual ~Box();
       
-      /** Mark the box for deletion.
-      
-          You should normally use this function instead of delete.
-          \see AutoMemorySuspension
-       */
+      /// Mark the box for deletion.
+      ///
+      /// You should normally use this function instead of delete.
+      /// \see AutoMemorySuspension
       void safe_destroy();
       
       template<class T>
@@ -178,7 +177,9 @@ namespace richmath {
       }
       
       Box *parent() { return _parent; }
-      int  index() {  return _index; }
+
+      /// The selection index within parent().
+      int index() {  return _index; }
       
       template<class T>
       T *find_parent(bool selfincluding) {
@@ -197,8 +198,15 @@ namespace richmath {
       
       static Box *common_parent(Box *a, Box *b);
       
+      /// Get the i-th child box for i bewteen 0 to count()-1.
+      ///
+      /// Note that i does not necessarily correspond to index() of the returned box.
       virtual Box *item(int i) = 0;
+
+      /// The number child boxes.
       virtual int count() = 0;
+      
+      /// The maximum selecion index.
       virtual int length() { return count(); }
       
       const BoxSize &extents() { return _extents; }
@@ -213,25 +221,61 @@ namespace richmath {
       virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
       void default_scroll_to(Canvas *canvas, Box *parent, Box *child, int start, int end);
       
+      /// Remove a child box and get the new selection. May also delete this box itself.
+      ///
+      /// \param index [inout] On input, selection index of the child-to-be-removed. 
+      ///              On output, new selection index relative to the returned box.
       virtual Box *remove(int *index) = 0;
       
+      /// Get the head symbol of to_pmath()
       virtual Expr to_pmath_symbol() = 0;
       virtual Expr to_pmath(BoxOutputFlags flags) = 0;
       virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) {
         return to_pmath(flags);
       }
       
+      /// Move the text cursor forward/backward in reading direction.
+      ///
+      /// \param direction     Forward or backward.
+      /// \param jumping       Whether to move by token/word (true) or by character (false).
+      /// \param index [inout] On input, where the cursor comes from. 0 <= *index <= length() means 
+      ///                      "from inside" and otherwise "from outside" ("from before" if *index < 0, 
+      ///                      "from after" if *index > length()).
+      ///                      On output, the new cursor position relative to the returned box.
+      /// \return The box that contains the new cursor position.
       virtual Box *move_logical(
         LogicalDirection  direction,
         bool              jumping,
         int              *index);
-        
+      
+      /// Move the text cursor up/down.
+      ///
+      /// \param direction           Forward means down, backward means up.
+      /// \param index_rel_x [inout] The x-displacement relative to *index.
+      /// \param index       [input] On input, where the cursor comes from: *index < 0 means "from outside"
+      ///                            and *index >= 0 means from the specified position inside.
+      ///                            On output, the new cursor position relative to the returned box.
+      /// \param called_from_child   Whether this function was called from a child during its own move_vertical() handling.
+      ///                            This is used by SectionList to allow the cursor to rest between sections.
+      /// \return The box that contains the new cursor position.
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,  // [in/out]
         int              *index,        // [in/out], -1 if called from parent
         bool              called_from_child);
-        
+      
+      /// Get the box/possible selection at a point.
+      ///
+      /// \param x The local x coordinate.
+      /// \param y The local y coordinate.
+      /// \param start [out] Set to the start index relative to the returned box.
+      /// \param end [out] Set to the end index relative to the returned box.
+      /// \param was_inside_start [out] Set to true if the returned [*start, *end] interval contains 
+      ///                         the point and fals if it is only near the point.
+      /// \return The box that contains the point.
+      ///
+      /// Note that further mouse event processing done by the result of ret->mouse_sensitive() where 
+      /// ret is the returned box, but text selection is subject to ret->selectable()
       virtual Box *mouse_selection(
         float  x,
         float  y,
@@ -239,25 +283,47 @@ namespace richmath {
         int   *end,
         bool  *was_inside_start);
         
-      // ?todo: rename to transform_from_child()
+      /// Append the child-to-parent coordinate transformation to a matrix (multiply from right). 
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix);
         
-      // ?todo: rename to transform_to_parent()
+      /// Append the child-to-parent coordinate transformation to a matrix.
+      ///
+      /// \param parent An owning box or this (otherwise nullptr is assumed, meaning 
+      ///               "all the way up to userspace coordinates")
       void transformation(
         Box            *parent,
         cairo_matrix_t *matrix);
         
       virtual bool remove_inserts_placeholder() { return true; }
       
+      /// Decides whether the selection can exit any (direct) child box via Left/Right/... keys
+      ///
+      /// Note that mouse and e.g. TAB selection are not subject to this restriction.
       virtual bool exitable() { return true; }
+
+      /// Decides whether this box (i = -1) or the child box at index i >= 0 may be selected.
+      ///
+      /// This usually first asks parent()->selectable(index())
       virtual bool selectable(int i = -1);
       
+      /// Adjust the to be selected range.
+      ///
+      /// On input, this box is to be selected between *start and *end.
+      /// On output, the returned box will be selected between *start and *end.
       virtual Box *normalize_selection(int *start, int *end);
       
+      /// Modify an expression before it gets evaluated in a child box' Dynamic() context. 
       virtual Expr prepare_dynamic(Expr expr);
+
+      /// Notifies that a Dynamic value changed which this box is tracking.
       virtual void dynamic_updated() override;
+      
+      /// An asynchronous dynamic evaluation was finished.
+      ///
+      /// \param info   The info argument given to the corresponding DynamicEvaluationJob. Usually null.
+      /// \param result The evaluation result.
       virtual void dynamic_finished(Expr info, Expr result) {}
       
       virtual bool try_load_from_object(Expr object, BoxInputFlags options) = 0;
@@ -266,8 +332,22 @@ namespace richmath {
       bool         request_repaint_all();
       virtual bool request_repaint_range(int start, int end);
       virtual bool request_repaint(float x, float y, float w, float h);
+
+      /// Something inside this box changed and needs a resize().
       virtual void invalidate();
+
+      /// A style option changed. Calls invalidate().
+      ///
+      /// TODO: Refactor to be more efficient, need not always call invalidate(),
+      ///       sometimes only need request_repaint_all(), depending on option.
       virtual void invalidate_options();
+
+      /// Perform any cleanup before the user edits the selection or block the operation.
+      /// 
+      /// This function usually first calls parent()->edit_selection(). It is only called before
+      /// user initiated operations.
+      ///
+      /// TODO: refactor this to not give the full Context, but only selection box, start and end. 
       virtual bool edit_selection(Context *context); // *not* automatically called
       
       virtual bool changes_children_style() { return false; }
@@ -282,7 +362,7 @@ namespace richmath {
       Expr   get_style(ObjectStyleOptionName n);
       Expr   get_pmath_style(StyleOptionName n);
       
-      // ignore parents
+      // ignore parents (except for search via get_default_key)
       int    get_own_style(IntStyleOptionName    n, int    fallback_result = 0);
       float  get_own_style(FloatStyleOptionName  n, float  fallback_result = 0.0);
       String get_own_style(StringStyleOptionName n, String fallback_result);
@@ -298,20 +378,48 @@ namespace richmath {
       
       virtual void reset_style() { if(style) style->clear(); }
       
+      /// Get the box that captures mouse input when the a mouse button is pressed at this box.
+      /// Capturing takes place until the last mouse button is released or until explicitly cancelled.
       virtual Box *mouse_sensitive();
+      
+      /// The mouse enters this box (with no button pressed).
       virtual void on_mouse_enter();
+      
+      /// The mouse exits this box (with no button pressed).
       virtual void on_mouse_exit();
+
+      /// A mouse button was pressed somewhere. Mouse events do not bubble up.
       virtual void on_mouse_down(MouseEvent &event);
+      
+      /// The mouse moved. Either over this box or somewhere else while this box has mouse capture.
+      /// Mouse events do not bubble up.
       virtual void on_mouse_move(MouseEvent &event);
+
+      /// A mouse button was released while mouse input is captured. Mouse events do not bubble up.
       virtual void on_mouse_up(MouseEvent &event);
+      
+      /// Mouse capturing was canceled (e.g. via ESCAPE key while the mouse was pressed).
       virtual void on_mouse_cancel();
       
+      /// Called when the selection moves from outside (possibly surounding) to inside this box.
       virtual void on_enter();
+      
+      /// Called when the selection moves from inside to outside (possibly surounding) of this box.
       virtual void on_exit();
+
+      /// Called when this box contains the text cursor and (mouse) input focus moves elsewhere.
+      ///
+      /// The text cursor (selection) may be in a child box. 
+      /// This is not called if the mouse input focur is a parent or child of this box.
       virtual void on_finish_editing();
       
+      /// A keyboard key was pressed. Key events do bubble up if unhandled.
       virtual void on_key_down(SpecialKeyEvent &event);
+      
+      /// A keyboard key was released. Key events do bubble up if unhandled.
       virtual void on_key_up(SpecialKeyEvent &event);
+      
+      /// A keyboard character key was pressed. Key events do bubble up if unhandled.
       virtual void on_key_press(uint32_t unichar);
       
     public:

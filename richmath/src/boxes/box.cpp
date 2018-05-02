@@ -21,7 +21,7 @@ MouseEvent::MouseEvent()
     left(false),
     middle(false),
     right(false),
-    origin(0)
+    origin(nullptr)
 {
 }
 
@@ -681,7 +681,7 @@ ObjectStyleOptionName Box::get_default_key(ObjectStyleOptionName n) {
 Box *Box::mouse_sensitive() {
   if(_parent)
     return _parent->mouse_sensitive();
-  return 0;
+  return nullptr;
 }
 
 void Box::on_mouse_enter() {
@@ -733,16 +733,16 @@ void Box::on_key_press(uint32_t unichar) {
 //} ... event handlers
 
 void Box::adopt(Box *child, int i) {
-  assert(child != 0);
-  assert(child->_parent == 0 || child->_parent == this);
+  assert(child != nullptr);
+  assert(child->_parent == nullptr || child->_parent == this);
   child->_parent = this;
   child->_index = i;
 }
 
 void Box::abandon(Box *child) {
-  assert(child != 0);
+  assert(child != nullptr);
   assert(child->_parent == this);
-  child->_parent = 0;
+  child->_parent = nullptr;
   child->_index = 0;
 }
 

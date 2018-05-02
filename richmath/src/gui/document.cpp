@@ -1687,7 +1687,7 @@ void Document::mouse_down(MouseEvent &event) {
                  &was_inside_start);
                  
     receiver = receiver ? receiver->mouse_sensitive() : this;
-    assert(receiver != 0);
+    assert(receiver != nullptr);
     context.clicked_box_id = receiver->id();
   }
   else {
@@ -1737,7 +1737,7 @@ void Document::finish_editing(Box *except_box) {
     --d2;
   }
   
-  if(b1 == b2)
+  if(b1 == b2) // selection overlaps except_box
     return;
     
   while(b1 != b2 && b1 && b2) {
@@ -1745,7 +1745,7 @@ void Document::finish_editing(Box *except_box) {
     b2 = b2->parent();
   }
   
-  b1 = selection_box();
+  b1 = selection_box(); // b2 = convex hull of selection and except_box
   while(b1 && b1 != b2) {
     b1->on_finish_editing();
     b1 = b1->parent();
