@@ -27,13 +27,13 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TEMPLATEBOX); }
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
-      const Expr &arguments() { return _arguments; }
-      
     protected:
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
       
+    public:
+      Expr arguments;
+      
     private:
-      Expr _arguments;
       Expr _tag;
       bool _is_content_loaded;
   };
@@ -60,12 +60,18 @@ namespace richmath {
       
       virtual Box *remove(int *index) override;
       
+      virtual void invalidate() override;
+      
       virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
+      
+      virtual void on_exit() override;
+      virtual void on_finish_editing() override;
       
     private:
       int _argument;
       bool _is_content_loaded;
+      bool _has_changed_content;
   };
   
   class TemplateBoxSlotSequence: public OwnerBox {

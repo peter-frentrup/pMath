@@ -28,6 +28,8 @@ namespace richmath {
       void reload_content();
       Expr get_content();
       
+      void assign_content();
+      
       static Expr prepare_boxes(Expr boxes);
       
     private:
@@ -139,8 +141,8 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < 2)
     return false;
     
-  Expr arguments = expr[1];
-  if(arguments[0] != PMATH_SYMBOL_LIST)
+  Expr args = expr[1];
+  if(args[0] != PMATH_SYMBOL_LIST)
     return false;
     
   Expr tag = expr[2];
@@ -148,7 +150,7 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(options.is_null())
     return false;
     
-  _arguments = arguments;
+  arguments = args;
   _tag = tag;
   _is_content_loaded = false;
   style->clear();
@@ -234,7 +236,7 @@ void TemplateBox::paint_content(Context *context) {
 Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
-  g.emit(_arguments);
+  g.emit(arguments);
   g.emit(_tag);
   
   style->emit_to_pmath(false);
@@ -251,7 +253,8 @@ Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
 TemplateBoxSlot::TemplateBoxSlot()
   : base(),
     _argument(0),
-    _is_content_loaded(false)
+    _is_content_loaded(false),
+    _has_changed_content(false)
 {
 }
 
@@ -363,6 +366,13 @@ Box *TemplateBoxSlot::remove(int *index) {
   return owner->parent();
 }
 
+void TemplateBoxSlot::invalidate() {
+  base::invalidate();
+  
+  if(_is_content_loaded)
+    _has_changed_content = true;
+}
+
 void TemplateBoxSlot::resize(Context *context) {
   base::resize(context);
   
@@ -379,10 +389,19 @@ void TemplateBoxSlot::paint_content(Context *context) {
   base::paint_content(context);
   
   if(!_is_content_loaded) {
-    TemplateBoxSlotImpl(*this).reload_content();
-    _is_content_loaded = true;
     invalidate();
+    TemplateBoxSlotImpl(*this).reload_content();
   }
+}
+
+void TemplateBoxSlot::on_exit() {
+  if(_has_changed_content)
+    TemplateBoxSlotImpl(*this).assign_content();
+}
+
+void TemplateBoxSlot::on_finish_editing() {
+  if(_has_changed_content)
+    TemplateBoxSlotImpl(*this).assign_content();
 }
 
 //} ... class TemplateBoxSlot
@@ -540,6 +559,8 @@ void TemplateBoxSlotImpl::reload_content() {
   }
   
   self.content()->load_from_object(get_content(), flags);
+  self._is_content_loaded = true;
+  self._has_changed_content = false;
 }
 
 Expr TemplateBoxSlotImpl::get_content() {
@@ -550,10 +571,20 @@ Expr TemplateBoxSlotImpl::get_content() {
   if(!tb)
     return String::FromChar(PMATH_CHAR_PLACEHOLDER);
     
-  if(tb->arguments().expr_length() < (size_t)self._argument)
+  if(tb->arguments.expr_length() < (size_t)self._argument)
     return String::FromChar(PMATH_CHAR_PLACEHOLDER);
     
-  return tb->arguments()[self._argument];
+  return tb->arguments[self._argument];
+}
+
+void TemplateBoxSlotImpl::assign_content() {
+  self._has_changed_content = false;
+  
+  TemplateBox *tb = self.find_owner();
+  if(!tb)
+    return;
+  
+  tb->arguments.set(self._argument, self.content()->to_pmath(BoxOutputFlags::Default));
 }
 
 Expr TemplateBoxSlotImpl::prepare_boxes(Expr boxes) {
@@ -644,7 +675,7 @@ Expr TemplateBoxSlotSequenceImpl::get_content() {
   if(!tb)
     return String("");
     
-  size_t len = tb->arguments().expr_length();
+  size_t len = tb->arguments.expr_length();
   size_t start = to_unsigned_index(self._first_arg, len);
   size_t end = to_unsigned_index(self._last_arg, len);
   
