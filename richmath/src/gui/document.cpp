@@ -2476,16 +2476,17 @@ void Document::select_range(
   
   while(d1 > d2) {
     if(b1->parent() && !b1->parent()->exitable()) {
-      int o1 = box_order(b1, s1, b2, e2);
-      int o2 = box_order(b1, e1, b2, s2);
-      
-      if(o1 > 0)
-        DocumentImpl(*this).raw_select(b1, 0, e1);
-      else if(o2 < 0)
-        DocumentImpl(*this).raw_select(b1, s1, b1->length());
-      else
-        DocumentImpl(*this).raw_select(b1, 0, b1->length());
+      if(b1->selectable()) {
+        int o1 = box_order(b1, s1, b2, e2);
+        int o2 = box_order(b1, e1, b2, s2);
         
+        if(o1 > 0)
+          DocumentImpl(*this).raw_select(b1, 0, e1);
+        else if(o2 < 0)
+          DocumentImpl(*this).raw_select(b1, s1, b1->length());
+        else
+          DocumentImpl(*this).raw_select(b1, 0, b1->length());
+      }
       return;
     }
     s1 = b1->index();
@@ -2505,13 +2506,14 @@ void Document::select_range(
   
   while(b1 != b2 && b1 && b2) {
     if(b1->parent() && !b1->parent()->exitable()) {
-      int o = box_order(b1, s1, b2, s2);
-      
-      if(o < 0)
-        DocumentImpl(*this).raw_select(b1, s1, b1->length());
-      else
-        DocumentImpl(*this).raw_select(b1, 0, e1);
+      if(b1->selectable()) {
+        int o = box_order(b1, s1, b2, s2);
         
+        if(o < 0)
+          DocumentImpl(*this).raw_select(b1, s1, b1->length());
+        else
+          DocumentImpl(*this).raw_select(b1, 0, e1);
+      }
       return;
     }
     
@@ -2527,9 +2529,18 @@ void Document::select_range(
   if(s2 < s1)
     s1 = s2;
   if(e1 < e2)
-    e1 =  e2;
+    e1 = e2;
+  
+  while(b1 && !b1->selectable()) {
+    if(!b1->exitable())
+      return;
     
-  DocumentImpl(*this).raw_select(b1, s1, e1);
+    s1 = b1->index();
+    e1 = s1 + 1;
+    b1 = b1->parent();
+  }
+  if(b1)
+    DocumentImpl(*this).raw_select(b1, s1, e1);
 }
 
 void Document::move_to(Box *box, int index, bool selecting) {
