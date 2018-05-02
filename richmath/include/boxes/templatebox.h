@@ -58,6 +58,8 @@ namespace richmath {
         bool              jumping,
         int              *index) override;
       
+      virtual Box *remove(int *index) override;
+      
       virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
       

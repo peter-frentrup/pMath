@@ -319,6 +319,50 @@ Box *TemplateBoxSlot::move_logical(
   return owner->move_logical(direction, true, index);
 }
 
+Box *TemplateBoxSlot::remove(int *index) {
+  TemplateBox *owner = find_owner();
+  if(!owner) 
+    return base::remove(index);
+  
+  if(content()->length() == 0) 
+    content()->insert(0, PMATH_CHAR_PLACEHOLDER);
+  
+  TemplateBoxSlot *prev = search_next_box<TemplateBoxSlot>(this, LogicalDirection::Backward, owner);
+  while(prev && prev->find_owner() != owner)
+    prev = search_next_box<TemplateBoxSlot>(prev, LogicalDirection::Backward, owner);
+  
+  if(prev) {
+    *index = prev->content()->length();
+    return prev->content();
+  }
+  
+  if(!owner->parent()) {
+    *index = 0;
+    return owner;
+  }
+  
+  bool all_empty_or_placeholders = true;
+  
+  TemplateBoxSlot *next = this;
+  while(next) {
+    if(next->find_owner() == owner) {
+      if(next->content()->length() > 0 && !next->content()->is_placeholder()) {
+        all_empty_or_placeholders = false;
+        break;
+      } 
+    }
+    next = search_next_box<TemplateBoxSlot>(next, LogicalDirection::Forward, owner);
+  }
+  
+  if(all_empty_or_placeholders) {
+    *index = owner->index();
+    return owner->parent()->remove(index);
+  }
+  
+  *index = owner->index();
+  return owner->parent();
+}
+
 void TemplateBoxSlot::resize(Context *context) {
   base::resize(context);
   
