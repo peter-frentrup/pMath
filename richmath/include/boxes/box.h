@@ -80,9 +80,9 @@ namespace richmath {
   
   enum class BoxOutputFlags {
     Default      = 0,
-    Parseable    = 1, // no StyleBox with StripOnInput->True, ...
-    Literal      = 2, // no DynamicBox
-    ShortNumbers = 4  // not the internal representation of NumberBox, but the content()
+    Parseable    = 1, ///< no StyleBox with StripOnInput->True, ...
+    Literal      = 2, ///< no DynamicBox
+    ShortNumbers = 4  ///< not the internal representation of NumberBox, but the content()
   };
   
   inline bool has(BoxOutputFlags lhs, BoxOutputFlags rhs) {
@@ -410,7 +410,7 @@ namespace richmath {
       /// Called when this box contains the text cursor and (mouse) input focus moves elsewhere.
       ///
       /// The text cursor (selection) may be in a child box. 
-      /// This is not called if the mouse input focur is a parent or child of this box.
+      /// This is not called if the mouse input focus is a parent or child of this box.
       virtual void on_finish_editing();
       
       /// A keyboard key was pressed. Key events do bubble up if unhandled.
