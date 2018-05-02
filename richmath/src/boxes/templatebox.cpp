@@ -157,6 +157,13 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+bool TemplateBox::selectable(int i) {
+  if(i >= 0)
+    return false;
+  
+  return base::selectable(i);
+}
+
 Box *TemplateBox::move_logical(
   LogicalDirection  direction,
   bool              jumping,
@@ -268,6 +275,19 @@ bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
   }
   
   return false;
+}
+
+bool TemplateBoxSlot::selectable(int i) {
+  if(i >= 0) {
+    TemplateBox *owner = find_owner();
+    if(owner) {
+      if(!owner->selectable())
+        return false;
+    }
+    return true;
+  }
+  
+  return base::selectable(i);
 }
 
 Box *TemplateBoxSlot::move_logical(

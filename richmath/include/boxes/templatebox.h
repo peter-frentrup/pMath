@@ -14,6 +14,8 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
+      virtual bool selectable(int i = -1) override;
+      
       virtual Box *move_logical(
         LogicalDirection  direction,
         bool              jumping,
@@ -48,6 +50,8 @@ namespace richmath {
       static Expr prepare_boxes(Expr boxes);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
+      
+      virtual bool selectable(int i = -1) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
