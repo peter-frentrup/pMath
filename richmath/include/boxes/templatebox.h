@@ -14,6 +14,11 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
+      virtual Box *move_logical(
+        LogicalDirection  direction,
+        bool              jumping,
+        int              *index) override;
+      
       virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
       
@@ -43,6 +48,11 @@ namespace richmath {
       static Expr prepare_boxes(Expr boxes);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
+      
+      virtual Box *move_logical(
+        LogicalDirection  direction,
+        bool              jumping,
+        int              *index) override;
       
       virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
