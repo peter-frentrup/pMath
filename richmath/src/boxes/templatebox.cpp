@@ -585,6 +585,16 @@ void TemplateBoxSlotImpl::assign_content() {
     return;
   
   tb->arguments.set(self._argument, self.content()->to_pmath(BoxOutputFlags::Default));
+  
+  TemplateBoxSlot *slot = search_box<TemplateBoxSlot>(tb, LogicalDirection::Forward, tb);
+  while(slot) {
+    if(slot != &self && slot->_argument == self._argument && slot->find_owner() == tb) {
+      //slot->_is_content_loaded = false;
+      slot->invalidate();
+      TemplateBoxSlotImpl(*slot).reload_content();
+    }
+    slot = search_next_box<TemplateBoxSlot>(slot, LogicalDirection::Forward, tb);
+  }
 }
 
 Expr TemplateBoxSlotImpl::prepare_boxes(Expr boxes) {
