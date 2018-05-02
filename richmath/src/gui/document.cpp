@@ -37,9 +37,11 @@ static Box *expand_selection_default(Box *box, int *start, int *end) {
   Box *box2 = box->parent();
   while(box2) {
     if(dynamic_cast<AbstractSequence *>(box2)) {
-      *start = index;
-      *end = index + 1;
-      return box2;
+      if(box2->selectable()) {
+        *start = index;
+        *end = index + 1;
+        return box2;
+      }
     }
     
     index = box2->index();
@@ -1970,6 +1972,7 @@ void Document::on_mouse_down(MouseEvent &event) {
         if(should_expand)
           selbox = expand_selection(selbox, &start, &end);
         
+        //select_range(selbox, start, start, selbox, end, end);
         select(selbox, start, end);
       }
     }
