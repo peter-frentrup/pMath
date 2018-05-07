@@ -3268,7 +3268,7 @@ Box *MathSequence::mouse_selection(
         int b = 0;
         while(b < boxes.length() && boxes[b]->index() < *start)
           ++b;
-          
+        
         if(x > prev - line_start + boxes[b]->extents().width) {
           *was_inside_start = false;
           ++*start;
@@ -3276,14 +3276,15 @@ Box *MathSequence::mouse_selection(
           return this;
         }
         
-        if(x < prev - line_start + glyphs[*start].x_offset) {
+        float xoff = glyphs[*start].x_offset;
+        if(x < prev - line_start + xoff) {
           *was_inside_start = false;
           *end = *start;
           return this;
         }
         
         return boxes[b]->mouse_selection(
-                 x - prev + line_start,
+                 x - (prev - line_start + xoff),
                  y,
                  start,
                  end,
