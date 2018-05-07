@@ -280,6 +280,14 @@ bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return false;
 }
 
+Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
+  TemplateBox *owner = find_owner();
+  if(owner)
+    return owner->prepare_dynamic(std::move(expr));
+    
+  return base::prepare_dynamic(std::move(expr));
+}
+
 bool TemplateBoxSlot::selectable(int i) {
   if(i >= 0) {
     TemplateBox *owner = find_owner();

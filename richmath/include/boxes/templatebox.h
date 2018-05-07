@@ -51,6 +51,8 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
+      virtual Expr prepare_dynamic(Expr expr) override;
+      
       virtual bool selectable(int i = -1) override;
       
       virtual Box *move_logical(
