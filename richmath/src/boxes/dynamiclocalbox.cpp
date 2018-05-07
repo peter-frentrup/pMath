@@ -95,18 +95,17 @@ void DynamicLocalBox::paint(Context *context) {
 
 static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms) {
   if(pmath_is_symbol(expr)) {
-    for(Expr item : old_syms.items_reverse()) {
-      if(item == expr) {
+    for(size_t i = old_syms.expr_length();i > 0;--i) {
+      if(old_syms[i] == expr) {
         pmath_unref(expr);
-        return item.release();
+        return new_syms[i].release();
       }
     }
     return expr;
   }
   
   if(pmath_is_expr(expr)) {
-    size_t i;
-    for(i = 0; i <= pmath_expr_length(expr); ++i) {
+    for(size_t i = 0; i <= pmath_expr_length(expr); ++i) {
       pmath_t item = pmath_expr_extract_item(expr, i);
       
       item = internal_replace_symbols(item, old_syms, new_syms);
