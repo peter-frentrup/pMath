@@ -91,8 +91,7 @@ void FractionBox::resize(Context *context) {
 }
 
 void FractionBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   float old_fs = context->canvas->get_font_size();
   float x, y;

@@ -29,7 +29,7 @@ Dynamic::Dynamic(Box *owner, Expr expr)
 }
 
 void Dynamic::init(Box *owner, Expr expr) {
-  assert(_owner == 0 && owner != 0);
+  assert(_owner == nullptr && owner != nullptr);
   
   _owner = owner;
   *this = expr;

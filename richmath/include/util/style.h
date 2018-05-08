@@ -237,6 +237,7 @@ namespace richmath {
   } IntFloatUnion;
   
   class Style: public Shareable {
+    friend class StyleImpl;
     public:
       Style();
       Style(Expr options);
@@ -263,18 +264,19 @@ namespace richmath {
       virtual void remove(ObjectStyleOptionName n);
       
       bool get_dynamic(StyleOptionName n, Expr *value) const {
-        return get((ObjectStyleOptionName)((int)n + DynamicOffset), value);
+        return get((ObjectStyleOptionName)n.to_dynamic(), value);
       }
       
       void set_dynamic(StyleOptionName n, Expr value) {
-        remove((ObjectStyleOptionName)((int)n + DynamicOffset));
-        set(   (ObjectStyleOptionName)((int)n + DynamicOffset), value);
+        ObjectStyleOptionName dn = (ObjectStyleOptionName)n.to_dynamic();
+        remove(dn);
+        set(dn, value);
         
         set(InternalHasPendingDynamic, true);
       }
       
       void remove_dynamic(StyleOptionName n) {
-        remove((ObjectStyleOptionName)((int)n + DynamicOffset));
+        remove((ObjectStyleOptionName)n.to_dynamic());
       }
       
       unsigned int count() const;
@@ -341,6 +343,8 @@ namespace richmath {
       bool get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   *value);
       
       Expr get_pmath(SharedPtr<Style> s, StyleOptionName n);
+      
+      bool update_dynamic(SharedPtr<Style> s, Box *parent);
       
       int    get_with_base(SharedPtr<Style> s, IntStyleOptionName    n);
       float  get_with_base(SharedPtr<Style> s, FloatStyleOptionName  n);

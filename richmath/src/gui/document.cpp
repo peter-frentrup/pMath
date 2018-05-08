@@ -4647,7 +4647,8 @@ void Document::reset_style() {
 }
 
 void Document::paint_resize(Canvas *canvas, bool resize_only) {
-  style->update_dynamic(this);
+  update_dynamic_styles(&context);
+  
   additional_selection.length(0);
   
   context.canvas = canvas;

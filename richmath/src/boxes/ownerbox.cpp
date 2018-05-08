@@ -33,8 +33,7 @@ void OwnerBox::resize(Context *context) {
 }
 
 void OwnerBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   paint_content(context);
 }

@@ -212,6 +212,7 @@ namespace richmath {
       const BoxSize &extents() { return _extents; }
       
       virtual bool expand(const BoxSize &size) { return false; }
+      bool update_dynamic_styles(Context *context);
       virtual void resize(Context *context) = 0;
       virtual void colorize_scope(SyntaxState *state);
       virtual void paint(Context *context) = 0;

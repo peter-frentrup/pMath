@@ -62,8 +62,7 @@ void FrameBox::resize(Context *context) {
 }
 
 void FrameBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   float x, y;
   context->canvas->current_pos(&x, &y);

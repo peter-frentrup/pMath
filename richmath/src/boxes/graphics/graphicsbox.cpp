@@ -934,7 +934,7 @@ void GraphicsBox::paint(Context *context) {
   GraphicsBoxContext gctx(this, context);
   error_boxes_expr = Expr();
   
-  style->update_dynamic(this);
+  update_dynamic_styles(context);
   
   float w = _extents.width;
   float h = _extents.height();

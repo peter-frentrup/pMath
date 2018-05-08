@@ -84,8 +84,7 @@ void AbstractTransformationBox::resize(Context *context) {
 }
 
 void AbstractTransformationBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   float x, y;
   context->canvas->current_pos(&x, &y);
@@ -185,7 +184,7 @@ bool RotationBox::angle(Expr a) {
 }
 
 void RotationBox::paint(Context *context) {
-  bool have_dynamic = style->update_dynamic(this);
+  bool have_dynamic = update_dynamic_styles(context);
   
   AbstractTransformationBox::paint(context);
   
@@ -272,7 +271,7 @@ bool TransformationBox::matrix(Expr m) {
 }
 
 void TransformationBox::paint(Context *context) {
-  bool have_dynamic = style->update_dynamic(this);
+  bool have_dynamic = update_dynamic_styles(context);
   
   AbstractTransformationBox::paint(context);
   

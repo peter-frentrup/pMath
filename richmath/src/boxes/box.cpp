@@ -152,6 +152,13 @@ Box *Box::common_parent(Box *a, Box *b) {
   return a;
 }
 
+bool Box::update_dynamic_styles(Context *context) {
+  if(context->stylesheet)
+    return context->stylesheet->update_dynamic(style, this);
+  
+  return false;
+}
+
 void Box::colorize_scope(SyntaxState *state) {
   for(int i = 0; i < count(); ++i)
     item(i)->colorize_scope(state);
