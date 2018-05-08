@@ -626,6 +626,13 @@ static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_Filename(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
 
+static const char s_MouseOver[] = "MouseOver";
+static const char s_Filename[] = "Filename";
+static const char s_ControlsFontFamily[] = "ControlsFontFamily";
+static const char s_ControlsFontSlant[] = "ControlsFontSlant";
+static const char s_ControlsFontWeight[] = "ControlsFontWeight";
+static const char s_ControlsFontSize[] = "ControlsFontSize";
+
 void Application::init() {
   main_message_queue = Expr(pmath_thread_get_queue());
   
@@ -640,12 +647,12 @@ void Application::init() {
   main_thread = pthread_self();
 #endif
   
-  register_currentvalue_provider(String("MouseOver"),         get_current_value_of_MouseOver);
-  register_currentvalue_provider(String("Filename"),          get_current_value_of_Filename);
-  register_currentvalue_provider(String("ControlFontFamily"), get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String("ControlFontSlant"),  get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String("ControlFontWeight"), get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String("ControlFontSize"),   get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_MouseOver),          get_current_value_of_MouseOver);
+  register_currentvalue_provider(String(s_Filename),           get_current_value_of_Filename);
+  register_currentvalue_provider(String(s_ControlsFontFamily), get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSlant),  get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontWeight), get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSize),   get_current_value_of_ControlFont_data);
   
   
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
@@ -1941,13 +1948,13 @@ static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item
   ControlPainter::std->system_font_style(style.ptr());
   
   String item_string {item};
-  if(item_string.equals("ControlsFontFamily")) 
+  if(item_string.equals(s_ControlsFontFamily)) 
     return style->get_pmath(FontFamilies);
-  if(item_string.equals("ControlsFontSlant")) 
+  if(item_string.equals(s_ControlsFontSlant)) 
     return style->get_pmath(FontSlant);
-  if(item_string.equals("ControlsFontWeight")) 
+  if(item_string.equals(s_ControlsFontWeight)) 
     return style->get_pmath(FontWeight);
-  if(item_string.equals("ControlsFontSize")) 
+  if(item_string.equals(s_ControlsFontSize)) 
     return style->get_pmath(FontSize);
   
   return Symbol(PMATH_SYMBOL_FAILED);
