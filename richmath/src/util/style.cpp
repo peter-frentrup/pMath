@@ -152,6 +152,31 @@ int richmath::pmath_to_color(Expr obj) {
   return -2;
 }
 
+static bool needs_ruledelayed(Expr expr) {
+  if(!expr.is_expr())
+    return false;
+  
+  Expr head = expr[0];
+  if(head == PMATH_SYMBOL_DYNAMIC || head == PMATH_SYMBOL_FUNCTION)
+    return false;
+  
+  if( head == PMATH_SYMBOL_LIST || 
+      head == PMATH_SYMBOL_RULE || 
+      head == PMATH_SYMBOL_RULEDELAYED || 
+      head == PMATH_SYMBOL_GRAYLEVEL || 
+      head == PMATH_SYMBOL_HUE|| 
+      head == PMATH_SYMBOL_RGBCOLOR) 
+  {
+    for(size_t i = expr.expr_length();i > 0;--i) {
+      if(needs_ruledelayed(expr[i]))
+        return true;
+    }
+    return false;
+  }
+  
+  return true;
+}
+
 static bool keep_dynamic = false;
 
 namespace {
@@ -1427,7 +1452,12 @@ void Style::emit_pmath(StyleOptionName n) const {
   }
   
   e = get_pmath(n);
-  if(e != PMATH_SYMBOL_INHERITED)
+  if(e == PMATH_SYMBOL_INHERITED)
+    return;
+  
+  if(needs_ruledelayed(e))
+    Gather::emit(RuleDelayed(get_name(n), e));
+  else
     Gather::emit(Rule(get_name(n), e));
 }
 
