@@ -14,13 +14,11 @@ namespace richmath {
   
   enum class DefaultStyleOptionOffsets {
     None = 0,
-    TemplateBox = 100000
+    TemplateBox = 0x00100000
   };
   
-  const int DynamicOffset = 10000000;
-  
   enum IntStyleOptionName {
-    Background = 0,
+    Background = 0x00000,
     FontColor,
     SectionFrameColor,
     
@@ -70,7 +68,7 @@ namespace richmath {
   static const float ImageSizeAutomatic = -1.0f;
   
   enum FloatStyleOptionName {
-    FontSize = 10000, // greater than any IntStyleOptionName value
+    FontSize = 0x10000, // greater than any IntStyleOptionName value
     
     AspectRatio,
     Magnification,
@@ -101,7 +99,7 @@ namespace richmath {
   };
   
   enum StringStyleOptionName {
-    BaseStyleName = 20000, // greater than any FloatStyleOptionName value
+    BaseStyleName = 0x20000, // greater than any FloatStyleOptionName value
     Method,
     
     LanguageCategory,
@@ -111,7 +109,7 @@ namespace richmath {
   };
   
   enum ObjectStyleOptionName {
-    Axes = 30000, // greater than any StringStyleOptionName value
+    Axes = 0x30000, // greater than any StringStyleOptionName value
     Ticks,
     Frame,
     FrameTicks,
@@ -154,6 +152,8 @@ namespace richmath {
   };
   
   class StyleOptionName {
+      static const int DynamicFlag = 0x10000000;
+  
     public:
       StyleOptionName() = default;
       
@@ -184,19 +184,13 @@ namespace richmath {
       }
       
       bool is_dynamic() const {
-        return _value >= DynamicOffset;
+        return (_value & DynamicFlag) != 0;
       }
       StyleOptionName to_dynamic() const {
-        if(is_dynamic())
-          return *this;
-        else
-          return StyleOptionName { _value + DynamicOffset };
+        return StyleOptionName { _value | DynamicFlag };
       }
       StyleOptionName to_literal() const {
-        if(is_dynamic())
-          return StyleOptionName { _value - DynamicOffset };
-        else
-          return *this;
+        return StyleOptionName { _value & ~DynamicFlag };
       }
       
       unsigned int hash() const {
