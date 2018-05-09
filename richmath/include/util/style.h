@@ -295,18 +295,6 @@ namespace richmath {
       
       static enum StyleType get_type(StyleOptionName n);
       
-    protected:
-      Expr get_pmath_bool_auto( IntStyleOptionName    n) const;
-      Expr get_pmath_bool(      IntStyleOptionName    n) const;
-      Expr get_pmath_color(     IntStyleOptionName    n) const;
-      Expr get_pmath_float(     FloatStyleOptionName  n) const;
-      Expr get_pmath_margin(    FloatStyleOptionName  n) const; // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      Expr get_pmath_size(      FloatStyleOptionName  n) const; // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-      Expr get_pmath_string(    StringStyleOptionName n) const;
-      Expr get_pmath_object(    ObjectStyleOptionName n) const;
-      Expr get_pmath_enum(      IntStyleOptionName    n) const;
-      Expr get_pmath_ruleset(   ObjectStyleOptionName n) const;
-      
     private:
       Hashtable<StyleOptionName, IntFloatUnion> int_float_values;
       Hashtable<StyleOptionName, Expr>          object_values;

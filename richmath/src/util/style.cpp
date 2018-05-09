@@ -577,6 +577,21 @@ namespace richmath {
       void set_pmath_enum(      StyleOptionName n, Expr obj);
       void set_pmath_ruleset(   StyleOptionName n, Expr obj);
       
+    public:
+      Expr raw_get_pmath(StyleOptionName key, Expr inherited) const;
+      
+    private:
+      Expr raw_get_pmath_bool_auto( StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_bool(      StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_color(     StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_float(     StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_margin(    StyleOptionName n, Expr inherited) const; // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      Expr raw_get_pmath_size(      StyleOptionName n, Expr inherited) const; // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      Expr raw_get_pmath_string(    StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_object(    StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_enum(      StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_ruleset(   StyleOptionName n, Expr inherited) const;
+      
     private:
       Style &self;
   };
@@ -795,13 +810,6 @@ void StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
   else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
     set_dynamic(n, obj);
 }
-
-void set_pmath_margin(    StyleOptionName n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-void set_pmath_size(      StyleOptionName n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-void set_pmath_string(    StyleOptionName n, Expr obj);
-void set_pmath_object(    StyleOptionName n, Expr obj);
-void set_pmath_enum(      StyleOptionName n, Expr obj);
-void set_pmath_ruleset(   StyleOptionName n, Expr obj);
 
 void StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
   STYLE_ASSERT(is_for_float(n));
@@ -1037,6 +1045,321 @@ void StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
       }
     }
   }
+}
+
+Expr StyleImpl::raw_get_pmath(StyleOptionName key, Expr inherited) const {
+  enum StyleType type = StyleInformation::get_type(key);
+  
+  switch(type) {
+    case StyleTypeNone:
+      break;
+      
+    case StyleTypeBool:
+      return raw_get_pmath_bool(key, std::move(inherited));
+      
+    case StyleTypeBoolAuto:
+      return raw_get_pmath_bool_auto(key, std::move(inherited));
+      
+    case StyleTypeColor:
+      return raw_get_pmath_color(key, std::move(inherited));
+      
+    case StyleTypeNumber:
+      return raw_get_pmath_float(key, std::move(inherited));
+      
+    case StyleTypeMargin:
+      return raw_get_pmath_margin(key, std::move(inherited));
+      
+    case StyleTypeSize:
+      return raw_get_pmath_size(key, std::move(inherited));
+      
+    case StyleTypeString:
+      return raw_get_pmath_string(key, std::move(inherited));
+      
+    case StyleTypeAny:
+      return raw_get_pmath_object(key, std::move(inherited));
+      
+    case StyleTypeEnum:
+      return raw_get_pmath_enum(key, std::move(inherited));
+      
+    case StyleTypeRuleSet:
+      return raw_get_pmath_ruleset(key, std::move(inherited));
+  }
+  
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_bool_auto(StyleOptionName n, Expr inherited) const {
+  STYLE_ASSERT(is_for_int(n));
+  
+  int i;
+  if(raw_get_int(n, &i)) {
+    switch(i) {
+      case 0:
+        return Symbol(PMATH_SYMBOL_FALSE);
+        
+      case 1:
+        return Symbol(PMATH_SYMBOL_TRUE);
+        
+      default:
+        return Symbol(PMATH_SYMBOL_AUTOMATIC);
+    }
+  }
+  
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_bool(StyleOptionName n, Expr inherited) const {
+  STYLE_ASSERT(is_for_int(n));
+  
+  int i;
+  if(raw_get_int(n, &i)) {
+    if(i)
+      return Symbol(PMATH_SYMBOL_TRUE);
+      
+    return Symbol(PMATH_SYMBOL_FALSE);
+  }
+  
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_color(StyleOptionName n, Expr inherited) const {
+  STYLE_ASSERT(is_for_int(n));
+  
+  int i;
+  if(raw_get_int(n, &i))
+    return color_to_pmath(i);
+    
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_float(StyleOptionName n, Expr inherited) const {
+  STYLE_ASSERT(is_for_float(n));
+  
+  float f;
+  
+  if(raw_get_float(n, &f))
+    return Number(f);
+    
+  return inherited;
+}
+
+static Expr inherited_list_member(Expr inherited, int index) {
+  assert(index >= 1);
+  
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if((size_t)index <= inherited.expr_length())
+      return inherited[index];
+  }
+  
+  if(inherited != PMATH_SYMBOL_INHERITED) {
+    pmath_debug_print("[Warning: partial redefition of item %d", index);
+    pmath_debug_print_object(" of ", inherited.get(), "]\n");
+  }
+  return Symbol(PMATH_SYMBOL_INHERITED);
+}
+
+static Expr inherited_ruleset_member(Expr inherited, Expr key) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    size_t len = inherited.expr_length();
+    for(size_t i = 1; i <= len; ++i) {
+      Expr item = inherited[i];
+      if(item.is_rule() && item[1] == key) 
+        return item[2];
+    }
+  }
+  else if(inherited != PMATH_SYMBOL_INHERITED) {
+    pmath_debug_print_object("[Warning: partial redefition of rule ", key.get(), "");
+    pmath_debug_print_object(" of ", inherited.get(), "]\n");
+  }
+  
+  return Symbol(PMATH_SYMBOL_INHERITED);
+}
+
+static Expr inherited_margin_left(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(inherited_list_member(std::move(inherited), 1), 1);
+  }
+  
+  return inherited_list_member(std::move(inherited), 1);
+}
+static Expr inherited_margin_right(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(inherited_list_member(std::move(inherited), 1), 2);
+  }
+  
+  return inherited_list_member(std::move(inherited), 2);
+}
+static Expr inherited_margin_top(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(inherited_list_member(std::move(inherited), 2), 1);
+  }
+  
+  return inherited_list_member(std::move(inherited), 3);
+}
+static Expr inherited_margin_bottom(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(inherited_list_member(std::move(inherited), 2), 2);
+  }
+  
+  return inherited_list_member(std::move(inherited), 4);
+}
+
+Expr StyleImpl::raw_get_pmath_margin(StyleOptionName n, Expr inherited) const { // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+  STYLE_ASSERT(is_for_float(n));
+  
+  StyleOptionName Left   = n;
+  StyleOptionName Right  = StyleOptionName((int)n + 1);
+  StyleOptionName Top    = StyleOptionName((int)n + 2);
+  StyleOptionName Bottom = StyleOptionName((int)n + 3);
+  
+  float left, right, top, bottom;
+  bool have_left, have_right, have_top, have_bottom;
+  
+  have_left   = raw_get_float(Left,   &left);
+  have_right  = raw_get_float(Right,  &right);
+  have_top    = raw_get_float(Top,    &top);
+  have_bottom = raw_get_float(Bottom, &bottom);
+  
+  if(have_left || have_right || have_top || have_bottom) {
+    Expr l, r, t, b;
+    
+    if(have_left)
+      l = Number(left);
+    else
+      l = inherited_margin_left(std::move(inherited));
+      
+    if(have_right)
+      r = Number(right);
+    else
+      r = inherited_margin_right(std::move(inherited));
+      
+    if(have_top)
+      t = Number(top);
+    else
+      t = inherited_margin_top(std::move(inherited));
+      
+    if(have_bottom)
+      b = Number(bottom);
+    else
+      b = inherited_margin_bottom(std::move(inherited));
+      
+    return List(l, r, t, b);
+  }
+  
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_size(StyleOptionName n, Expr inherited) const { // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+  STYLE_ASSERT(is_for_float(n));
+  
+  bool have_horz, have_vert;
+  Expr horz, vert;
+  
+  StyleOptionName Horizontal = StyleOptionName((int)n + 1);
+  StyleOptionName Vertical   = StyleOptionName((int)n + 2);
+  
+//  have_horz = get_dynamic(Horizontal, &horz);
+//  if(!have_horz) {
+  float h;
+  have_horz = raw_get_float(Horizontal, &h);
+  
+  if(have_horz) {
+    if(h > 0)
+      horz = Number(h);
+    else
+      horz = Symbol(PMATH_SYMBOL_AUTOMATIC);
+  }
+  else
+    horz = inherited_list_member(inherited, 1);
+//  }
+
+//  have_vert = get_dynamic(Vertical, &vert);
+//  if(!have_vert) {
+  float v;
+  have_vert = raw_get_float(Vertical, &v);
+  
+  if(have_vert) {
+    if(v > 0)
+      vert = Number(v);
+    else
+      vert = Symbol(PMATH_SYMBOL_AUTOMATIC);
+  }
+  else
+    vert = inherited_list_member(inherited, 2);
+//  }
+
+  if(have_horz || have_vert)
+    return List(horz, vert);
+    
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_string(StyleOptionName n, Expr inherited) const {
+  STYLE_ASSERT(is_for_string(n));
+  
+  String s;
+  if(raw_get_string(n, &s))
+    return s;
+    
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_object(StyleOptionName n, Expr inherited) const {
+  STYLE_ASSERT(is_for_expr(n));
+  
+  Expr e;
+  if(raw_get_expr(n, &e))
+    return e;
+    
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_enum(StyleOptionName n, Expr inherited) const {
+  STYLE_ASSERT(is_for_int(n));
+  
+  int i;
+  if(raw_get_int(n, &i)) {
+    SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
+    
+    assert(enum_converter.is_valid());
+    
+    return enum_converter->to_expr(i);
+  }
+  
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_ruleset(StyleOptionName n, Expr inherited) const {
+  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(n);
+  
+  assert(key_converter.is_valid());
+  
+  const Hashtable<Expr, int> &table = key_converter->expr_to_int();
+  
+  bool all_inherited = true;
+  Gather g;
+  
+  for(auto &entry : table.entries()) {
+    Expr inherited_value = inherited_ruleset_member(inherited, entry.key);
+    Expr value = raw_get_pmath(StyleOptionName{entry.value}, inherited_value);
+    
+    if(value != PMATH_SYMBOL_INHERITED) {
+      Gather::emit(Rule(entry.key, value));
+    
+      if(value != inherited_value)
+        all_inherited = false;
+    }
+  }
+  
+  Expr e = g.end();
+  if(all_inherited)
+    return inherited;
+    
+  return e;
 }
 
 //{ class StyleEnumConverter ...
@@ -1399,242 +1722,24 @@ void Style::set_pmath(StyleOptionName n, Expr obj) {
 }
 
 Expr Style::get_pmath(StyleOptionName key) const {
-  enum StyleType type = StyleInformation::get_type(key);
+  // STYLE_ASSERT(key.is_literal())
   
-  switch(type) {
-    case StyleTypeNone:
-      break;
-      
-    case StyleTypeBool:
-      return get_pmath_bool((IntStyleOptionName)key);
-      
-    case StyleTypeBoolAuto:
-      return get_pmath_bool_auto((IntStyleOptionName)key);
-      
-    case StyleTypeColor:
-      return get_pmath_color((IntStyleOptionName)key);
-      
-    case StyleTypeNumber:
-      return get_pmath_float((FloatStyleOptionName)key);
-      
-    case StyleTypeMargin:
-      return get_pmath_margin((FloatStyleOptionName)key);
-      
-    case StyleTypeSize:
-      return get_pmath_size((FloatStyleOptionName)key);
-      
-    case StyleTypeString:
-      return get_pmath_string((StringStyleOptionName)key);
-      
-    case StyleTypeAny:
-      return get_pmath_object((ObjectStyleOptionName)key);
-      
-    case StyleTypeEnum:
-      return get_pmath_enum((IntStyleOptionName)key);
-      
-    case StyleTypeRuleSet:
-      return get_pmath_ruleset((ObjectStyleOptionName)key);
-  }
-  
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_bool_auto(IntStyleOptionName n) const {
-  int i;
-  
-  if(get(n, &i)) {
-    switch(i) {
-      case 0:
-        return Symbol(PMATH_SYMBOL_FALSE);
-        
-      case 1:
-        return Symbol(PMATH_SYMBOL_TRUE);
-        
-      default:
-        return Symbol(PMATH_SYMBOL_AUTOMATIC);
-    }
-  }
-  
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_bool(IntStyleOptionName n) const {
-  int i;
-  if(get(n, &i)) {
-    if(i)
-      return Symbol(PMATH_SYMBOL_TRUE);
-      
-    return Symbol(PMATH_SYMBOL_FALSE);
-  }
-  
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_color(IntStyleOptionName n) const {
-  int i;
-  
-  if(get(n, &i))
-    return color_to_pmath(i);
-    
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_float(FloatStyleOptionName n) const {
-  float f;
-  
-  if(get(n, &f))
-    return Number(f);
-    
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_margin(FloatStyleOptionName n) const { // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-  float left, right, top, bottom;
-  bool have_left, have_right, have_top, have_bottom;
-  
-  have_left   = get(                     n,      &left);
-  have_right  = get(FloatStyleOptionName(n + 1), &right);
-  have_top    = get(FloatStyleOptionName(n + 2), &top);
-  have_bottom = get(FloatStyleOptionName(n + 3), &bottom);
-  
-  if(have_left || have_right || have_top || have_bottom) {
-    Expr l, r, t, b;
-    
-    if(have_left)
-      l = Number(left);
-    else
-      l = Symbol(PMATH_SYMBOL_INHERITED);
-      
-    if(have_right)
-      r = Number(right);
-    else
-      r = Symbol(PMATH_SYMBOL_INHERITED);
-      
-    if(have_top)
-      t = Number(top);
-    else
-      t = Symbol(PMATH_SYMBOL_INHERITED);
-      
-    if(have_bottom)
-      b = Number(bottom);
-    else
-      b = Symbol(PMATH_SYMBOL_INHERITED);
-      
-    return List(l, r, t, b);
-  }
-  
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_size(FloatStyleOptionName n) const { // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-  bool have_horz, have_vert;
-  Expr horz, vert;
-  
-  FloatStyleOptionName horz_name = FloatStyleOptionName(n + 1);
-  FloatStyleOptionName vert_name = FloatStyleOptionName(n + 2);
-  
-  have_horz = get_dynamic(horz_name, &horz);
-  if(!have_horz) {
-    float h;
-    have_horz = get(horz_name, &h);
-    
-    if(have_horz) {
-      if(h > 0)
-        horz = Number(h);
-      else
-        horz = Symbol(PMATH_SYMBOL_AUTOMATIC);
-    }
-    else
-      horz = Symbol(PMATH_SYMBOL_INHERITED);
-  }
-  
-  have_vert = get_dynamic(vert_name, &vert);
-  if(!have_vert) {
-    float v;
-    have_vert = get(vert_name, &v);
-    
-    if(have_vert) {
-      if(v > 0)
-        vert = Number(v);
-      else
-        vert = Symbol(PMATH_SYMBOL_AUTOMATIC);
-    }
-    else
-      vert = Symbol(PMATH_SYMBOL_INHERITED);
-  }
-  
-  if(have_horz || have_vert)
-    return List(horz, vert);
-    
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_string(StringStyleOptionName n) const {
-  String s;
-  
-  if(get(n, &s))
-    return s;
-    
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_object(ObjectStyleOptionName n) const {
-  Expr e;
-  
-  if(get(n, &e))
-    return e;
-    
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_enum(IntStyleOptionName n) const {
-  int i;
-  
-  if(get(n, &i)) {
-    SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
-    
-    assert(enum_converter.is_valid());
-    
-    return enum_converter->to_expr(i);
-  }
-  
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-Expr Style::get_pmath_ruleset(ObjectStyleOptionName n) const {
-  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(n);
-  
-  assert(key_converter.is_valid());
-  
-  const Hashtable<Expr, int> &table = key_converter->expr_to_int();
-  
-  bool all_inherited = true;
-  Gather g;
-  
-  for(auto &entry : table.entries()) {
-    Expr value = get_pmath(StyleOptionName{entry.value});
-    Gather::emit(Rule(entry.key, value));
-    
-    if(value != PMATH_SYMBOL_INHERITED)
-      all_inherited = false;
-  }
-  
-  Expr e = g.end();
-  if(all_inherited)
-    return Symbol(PMATH_SYMBOL_INHERITED);
-    
-  return e;
+  Expr result = Symbol(PMATH_SYMBOL_INHERITED);
+  result = StyleImpl::of(*this).raw_get_pmath(key, result);
+  result = StyleImpl::of(*this).raw_get_pmath(key.to_volatile(), result);
+  return result;
 }
 
 void Style::emit_pmath(StyleOptionName n) const {
+  STYLE_ASSERT(n.is_literal());
+
   Expr e;
-  
   if(get_dynamic(n, &e)) {
     Gather::emit(Rule(get_name(n), e));
     return;
   }
   
-  e = get_pmath(n);
+  e = StyleImpl::of(*this).raw_get_pmath(n, Symbol(PMATH_SYMBOL_INHERITED));
   if(e == PMATH_SYMBOL_INHERITED)
     return;
     
