@@ -183,6 +183,9 @@ namespace richmath {
         return _value >= 0;
       }
       
+      bool is_literal() const {
+        return (_value & DynamicFlag) == 0;
+      }
       bool is_dynamic() const {
         return (_value & DynamicFlag) != 0;
       }
@@ -296,17 +299,6 @@ namespace richmath {
       static enum StyleType get_type(StyleOptionName n);
       
     protected:
-      void set_pmath_bool_auto( IntStyleOptionName    n, Expr obj);
-      void set_pmath_bool(      IntStyleOptionName    n, Expr obj);
-      void set_pmath_color(     IntStyleOptionName    n, Expr obj);
-      void set_pmath_float(     FloatStyleOptionName  n, Expr obj);
-      void set_pmath_margin(    FloatStyleOptionName  n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-      void set_pmath_size(      FloatStyleOptionName  n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-      void set_pmath_string(    StringStyleOptionName n, Expr obj);
-      void set_pmath_object(    ObjectStyleOptionName n, Expr obj);
-      void set_pmath_enum(      IntStyleOptionName    n, Expr obj);
-      void set_pmath_ruleset(   ObjectStyleOptionName n, Expr obj);
-      
       Expr get_pmath_bool_auto( IntStyleOptionName    n) const;
       Expr get_pmath_bool(      IntStyleOptionName    n) const;
       Expr get_pmath_color(     IntStyleOptionName    n) const;

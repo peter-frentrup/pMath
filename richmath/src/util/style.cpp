@@ -8,6 +8,12 @@
 #include <limits>
 
 
+#define STYLE_ASSERT(a) \
+  do{if(!(a)){ \
+      assert_failed(); \
+      assert(a); \
+    }}while(0)
+
 using namespace richmath;
 
 double round_factor(double x, double f) {
@@ -518,7 +524,513 @@ namespace {
 
 namespace richmath {
   class StyleImpl {
+    private:
+      StyleImpl(Style &_self) : self(_self) {
+      }
+    
+    public:
+      static StyleImpl of(Style &_self);
+      static const StyleImpl of(const Style &_self);
+      
+      static bool is_for_int(   StyleOptionName n) { return ((int)n & 0x30000) == 0x00000; }
+      static bool is_for_float( StyleOptionName n) { return ((int)n & 0x30000) == 0x10000; }
+      static bool is_for_string(StyleOptionName n) { return ((int)n & 0x30000) == 0x20000; }
+      static bool is_for_expr(  StyleOptionName n) { return ((int)n & 0x30000) == 0x30000; }
+      
+    public:
+      bool raw_get_int(   StyleOptionName n, int *value) const;
+      bool raw_get_float( StyleOptionName n, float *value) const;
+      bool raw_get_string(StyleOptionName n, String *value) const;
+      bool raw_get_expr(  StyleOptionName n, Expr *value) const;
+      
+      void raw_set_int(   StyleOptionName n, int value);
+      void raw_set_float( StyleOptionName n, float value);
+      void raw_set_string(StyleOptionName n, String value);
+      void raw_set_expr(  StyleOptionName n, Expr value);
+      
+      void raw_remove(StyleOptionName n);
+      void raw_remove_int(   StyleOptionName n);
+      void raw_remove_float( StyleOptionName n);
+      void raw_remove_string(StyleOptionName n);
+      void raw_remove_expr(  StyleOptionName n);
+      
+      void remove_dynamic(StyleOptionName n);
+      void set_dynamic(StyleOptionName n, Expr value);
+      
+      void set_pmath(StyleOptionName n, Expr obj);
+    
+    private:
+      void set_pmath_bool_auto( StyleOptionName n, Expr obj);
+      void set_pmath_bool(      StyleOptionName n, Expr obj);
+      void set_pmath_color(     StyleOptionName n, Expr obj);
+      void set_pmath_float(     StyleOptionName n, Expr obj);
+      void set_pmath_margin(    StyleOptionName n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+      void set_pmath_size(      StyleOptionName n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      void set_pmath_string(    StyleOptionName n, Expr obj);
+      void set_pmath_object(    StyleOptionName n, Expr obj);
+      void set_pmath_enum(      StyleOptionName n, Expr obj);
+      void set_pmath_ruleset(   StyleOptionName n, Expr obj);
+      
+    private:
+      Style &self;
   };
+}
+
+StyleImpl StyleImpl::of(Style &_self) {
+  return StyleImpl(_self);
+}
+
+const StyleImpl StyleImpl::of(const Style &_self) {
+  return StyleImpl(const_cast<Style&>(_self));
+}
+
+bool StyleImpl::raw_get_int(StyleOptionName n, int *value) const {
+  const IntFloatUnion *v = self.int_float_values.search(n);
+  
+  if(!v)
+    return false;
+    
+  *value = v->int_value;
+  return true;
+}
+
+bool StyleImpl::raw_get_float(StyleOptionName n, float *value) const {
+  const IntFloatUnion *v = self.int_float_values.search(n);
+  
+  if(!v)
+    return false;
+    
+  *value = v->float_value;
+  return true;
+}
+
+bool StyleImpl::raw_get_string(StyleOptionName n, String *value) const {
+  const Expr *v = self.object_values.search(n);
+  
+  if(!v || !v->is_string())
+    return false;
+    
+  *value = String(*v);
+  return true;
+}
+
+bool StyleImpl::raw_get_expr(StyleOptionName n, Expr *value) const {
+  const Expr *v = self.object_values.search(n);
+  
+  if(!v)
+    return false;
+    
+  *value = *v;
+  return true;
+}
+
+void StyleImpl::raw_set_int(StyleOptionName n, int value) {
+  IntFloatUnion v;
+  v.int_value = value;
+  self.int_float_values.set(n, v);
+}
+
+void StyleImpl::raw_set_float(StyleOptionName n, float value) {
+  IntFloatUnion v;
+  v.float_value = value;
+  self.int_float_values.set(n, v);
+}
+
+void StyleImpl::raw_set_string(StyleOptionName n, String value) {
+  self.object_values.set(n, value);
+}
+
+void StyleImpl::raw_set_expr(StyleOptionName n, Expr value) {
+  self.object_values.set(n, value);
+}
+
+void StyleImpl::raw_remove(StyleOptionName n) {
+  self.int_float_values.remove(n);
+  self.object_values.remove(n);
+}
+
+void StyleImpl::raw_remove_int(StyleOptionName n) {
+  STYLE_ASSERT(!n.is_dynamic());
+  STYLE_ASSERT(is_for_int(n));
+  
+  self.int_float_values.remove(n);
+}
+
+void StyleImpl::raw_remove_float(StyleOptionName n) {
+  STYLE_ASSERT(!n.is_dynamic());
+  STYLE_ASSERT(is_for_float(n));
+  
+  self.int_float_values.remove(n);
+}
+
+void StyleImpl::raw_remove_string(StyleOptionName n) {
+  STYLE_ASSERT(!n.is_dynamic());
+  STYLE_ASSERT(is_for_string(n));
+  
+  self.object_values.remove(n);
+}
+
+void StyleImpl::raw_remove_expr(StyleOptionName n) {
+  STYLE_ASSERT(is_for_expr(n) || n.is_dynamic());
+  
+  self.object_values.remove(n);
+}
+
+void StyleImpl::remove_dynamic(StyleOptionName n) {
+  STYLE_ASSERT(n.is_literal());
+  
+  raw_remove_expr(n.to_dynamic());
+}
+
+void StyleImpl::set_dynamic(StyleOptionName n, Expr value) {
+  STYLE_ASSERT(n.is_literal());
+  
+  raw_remove(n);
+  raw_set_expr(n.to_dynamic(), value);
+  raw_set_int(InternalHasPendingDynamic, true);
+}
+
+void StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
+  if(StyleInformation::is_window_option(n))
+    raw_set_int(InternalHasModifiedWindowOption, true);
+    
+  enum StyleType type = StyleInformation::get_type(n);
+  
+  switch(type) {
+    case StyleTypeBool:
+      set_pmath_bool(n, obj);
+      break;
+      
+    case StyleTypeBoolAuto:
+      set_pmath_bool_auto(n, obj);
+      break;
+      
+    case StyleTypeColor:
+      set_pmath_color(n, obj);
+      break;
+      
+    case StyleTypeNumber:
+      set_pmath_float(n, obj);
+      break;
+      
+    case StyleTypeMargin:
+      set_pmath_margin(n, obj);
+      break;
+      
+    case StyleTypeSize:
+      set_pmath_size(n, obj);
+      break;
+      
+    case StyleTypeString:
+      set_pmath_string(n, obj);
+      break;
+      
+    case StyleTypeNone:
+    case StyleTypeAny:
+      set_pmath_object(n, obj);
+      break;
+      
+    case StyleTypeEnum:
+      set_pmath_enum(n, obj);
+      break;
+      
+    case StyleTypeRuleSet:
+      set_pmath_ruleset(n, obj);
+      break;
+  }
+}
+
+void StyleImpl::set_pmath_bool_auto(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_int(n));
+  
+  if(!keep_dynamic && n.is_literal())
+    remove_dynamic(n);
+  
+  if(obj == PMATH_SYMBOL_FALSE)
+    raw_set_int(n, 0);
+  else if(obj == PMATH_SYMBOL_TRUE)
+    raw_set_int(n, 1);
+  else if(obj == PMATH_SYMBOL_AUTOMATIC)
+    raw_set_int(n, 2);
+  else if(obj == PMATH_SYMBOL_INHERITED) 
+    raw_remove_int(n);
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+    set_dynamic(n, obj);
+}
+
+void StyleImpl::set_pmath_bool(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_int(n));
+  
+  if(!keep_dynamic && n.is_literal())
+    remove_dynamic(n);
+  
+  if(obj == PMATH_SYMBOL_FALSE)
+    raw_set_int(n, false);
+  else if(obj == PMATH_SYMBOL_TRUE)
+    raw_set_int(n, true);
+  else if(obj == PMATH_SYMBOL_INHERITED) 
+    raw_remove_int(n);
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+    set_dynamic(n, obj);
+}
+
+void StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_int(n));
+  
+  if(!keep_dynamic && n.is_literal())
+    remove_dynamic(n);
+  
+  int c = pmath_to_color(obj);
+  
+  if(c >= -1)
+    raw_set_int(n, c);
+  else if(obj == PMATH_SYMBOL_INHERITED) 
+    raw_remove_int(n);
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+    set_dynamic(n, obj);
+}
+
+void set_pmath_margin(    StyleOptionName n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
+void set_pmath_size(      StyleOptionName n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+void set_pmath_string(    StyleOptionName n, Expr obj);
+void set_pmath_object(    StyleOptionName n, Expr obj);
+void set_pmath_enum(      StyleOptionName n, Expr obj);
+void set_pmath_ruleset(   StyleOptionName n, Expr obj);
+
+void StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_float(n));
+  
+  if(!keep_dynamic && n.is_literal())
+    remove_dynamic(n);
+  
+  if(obj.is_number()) 
+    raw_set_float(n, obj.to_double());
+  else if(obj == PMATH_SYMBOL_INHERITED) 
+    raw_remove_float(n);
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC) 
+    set_dynamic(n, obj);
+  else if(obj[0] == PMATH_SYMBOL_NCACHE) {
+    raw_set_float(n, obj[2].to_double());
+    
+    if(!keep_dynamic && n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
+      raw_set_expr(n.to_dynamic(), obj);
+  }
+}
+
+void StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_float(n));
+  
+  StyleOptionName Left   = n;
+  StyleOptionName Right  = StyleOptionName((int)n + 1);
+  StyleOptionName Top    = StyleOptionName((int)n + 2);
+  StyleOptionName Bottom = StyleOptionName((int)n + 3);
+  
+  if(!keep_dynamic && n.is_literal()) {
+    remove_dynamic(Left);
+    remove_dynamic(Right);
+    remove_dynamic(Top);
+    remove_dynamic(Bottom);
+  }
+  
+  if(obj == PMATH_SYMBOL_TRUE) {
+    raw_set_float(Left,   1.0);
+    raw_set_float(Right,  1.0);
+    raw_set_float(Top,    1.0);
+    raw_set_float(Bottom, 1.0);
+  }
+  else if(obj == PMATH_SYMBOL_FALSE) {
+    raw_set_float(Left,   0.0);
+    raw_set_float(Right,  0.0);
+    raw_set_float(Top,    0.0);
+    raw_set_float(Bottom, 0.0);
+  }
+  else if(obj.is_number()) {
+    float f = obj.to_double();
+    raw_set_float(Left,   f);
+    raw_set_float(Right,  f);
+    raw_set_float(Top,    f);
+    raw_set_float(Bottom, f);
+  }
+  else if( obj.is_expr() && obj[0] == PMATH_SYMBOL_LIST) {
+    if(obj.expr_length() == 4) {
+      set_pmath_float(Left,   obj[1]);
+      set_pmath_float(Right,  obj[2]);
+      set_pmath_float(Top,    obj[3]);
+      set_pmath_float(Bottom, obj[4]);
+    }
+    else if(obj.expr_length() == 2) {
+      if(obj[1].is_number()) {
+        float f = obj[1].to_double();
+        raw_set_float(Left,  f);
+        raw_set_float(Right, f);
+      }
+      else if(obj[1].is_expr() &&
+              obj[1][0] == PMATH_SYMBOL_LIST &&
+              obj[1].expr_length() == 2)
+      {
+        set_pmath_float(Left,  obj[1][1]);
+        set_pmath_float(Right, obj[1][2]);
+      }
+      
+      if(obj[2].is_number()) {
+        float f = obj[2].to_double();
+        raw_set_float(Top,    f);
+        raw_set_float(Bottom, f);
+      }
+      else if(obj[2].is_expr() &&
+              obj[2][0] == PMATH_SYMBOL_LIST &&
+              obj[2].expr_length() == 2)
+      {
+        set_pmath_float(Top,    obj[2][1]);
+        set_pmath_float(Bottom, obj[2][2]);
+      }
+    }
+  }
+  else if(obj == PMATH_SYMBOL_INHERITED) {
+    raw_remove_float(Left);
+    raw_remove_float(Right);
+    raw_remove_float(Top);
+    raw_remove_float(Bottom);
+  }
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC) 
+    set_dynamic(n, obj);
+}
+
+void StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_float(n));
+  
+  StyleOptionName Horizontal = StyleOptionName((int)n + 1);
+  StyleOptionName Vertical   = StyleOptionName((int)n + 2);
+  
+  if(!keep_dynamic && n.is_literal()) {
+    remove_dynamic(n);
+    remove_dynamic(Horizontal);
+    remove_dynamic(Vertical);
+  }
+  
+  if(obj == PMATH_SYMBOL_AUTOMATIC) {
+    raw_remove_float(n);
+      
+    raw_set_float(Horizontal, ImageSizeAutomatic);
+    raw_set_float(Vertical,   ImageSizeAutomatic);
+  }
+  else if(obj.is_number()) {
+    raw_remove_float(n);
+      
+    float f = obj.to_double();
+    raw_set_float(Horizontal, f);
+    raw_set_float(Vertical,   ImageSizeAutomatic);
+  }
+  else if(obj[0] == PMATH_SYMBOL_LIST && obj.expr_length() == 2) {
+    raw_remove_float(n);
+    
+    if(obj[1] == PMATH_SYMBOL_AUTOMATIC)
+      raw_set_float(Horizontal, ImageSizeAutomatic);
+    else
+      set_pmath_float(Horizontal, obj[1]);
+      
+    if(obj[2] == PMATH_SYMBOL_AUTOMATIC)
+      raw_set_float(Vertical, ImageSizeAutomatic);
+    else
+      set_pmath_float(Vertical, obj[2]);
+  }
+  else if(obj == PMATH_SYMBOL_INHERITED) {
+    raw_remove_float(n);
+    raw_remove_float(Horizontal);
+    raw_remove_float(Vertical);
+    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic()) {
+      remove_dynamic(n);
+      remove_dynamic(Horizontal);
+      remove_dynamic(Vertical);
+    }
+  }
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC) {
+    raw_remove_float(n);
+    raw_remove_float(Horizontal);
+    raw_remove_float(Vertical);
+    remove_dynamic(Horizontal);
+    remove_dynamic(Vertical);
+    set_dynamic(n, obj);
+  }
+  else if(obj[0] == PMATH_SYMBOL_NCACHE) {
+    set_pmath_size(n, obj[2]);
+    
+    if(!keep_dynamic && n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
+      raw_set_expr(n.to_dynamic(), obj);
+  }
+}
+
+void StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_string(n));
+  
+  if(!keep_dynamic && n.is_literal()) 
+    remove_dynamic(n);
+  
+  if(obj.is_string())
+    raw_set_expr(n, obj);
+  else if(obj == PMATH_SYMBOL_INHERITED) 
+    raw_remove_string(n);
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC) 
+    set_dynamic(n, obj);
+}
+
+void StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_expr(n));
+  
+  if(!keep_dynamic && n.is_literal()) 
+    remove_dynamic(n);
+  
+  if(obj == PMATH_SYMBOL_INHERITED) 
+    raw_remove_expr(n);
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC) 
+    set_dynamic(n, obj);
+  else
+    raw_set_expr(n, obj);
+}
+
+void StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_int(n));
+  
+  if(!keep_dynamic && n.is_literal()) 
+    remove_dynamic(n);
+  
+  if(obj == PMATH_SYMBOL_INHERITED) 
+    raw_remove_int(n);
+  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC) 
+    set_dynamic(n, obj);
+  else {
+    SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
+    
+    assert(enum_converter.is_valid());
+    
+    if(enum_converter->is_valid_expr(obj))
+      raw_set_int(n, enum_converter->to_int(obj));
+  }
+}
+
+void StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
+  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(n);
+  assert(key_converter.is_valid());
+  
+  if(obj[0] == PMATH_SYMBOL_LIST) {
+    for(size_t i = 1; i <= obj.expr_length(); ++i) {
+      Expr rule = obj[i];
+      
+      if(rule.is_rule()) {
+        Expr lhs = rule[1];
+        Expr rhs = rule[2];
+        
+//        if(rhs == PMATH_SYMBOL_INHERITED)
+//          continue;
+
+        StyleOptionName sub_key = StyleOptionName{key_converter->to_int(lhs)};
+        if(sub_key.is_valid())
+          self.set_pmath(sub_key, rhs);
+        else
+          pmath_debug_print_object("[ignoring unknown sub-option ", lhs.get(), "]\n");
+      }
+    }
+  }
 }
 
 //{ class StyleEnumConverter ...
@@ -613,91 +1125,63 @@ void Style::merge(SharedPtr<Style> other) {
 }
 
 bool Style::get(IntStyleOptionName n, int *value) const {
-  const IntFloatUnion *v = int_float_values.search(n);
-  
-  if(!v)
-    return false;
-    
-  *value = v->int_value;
-  return true;
+  return StyleImpl::of(*this).raw_get_int(n, value);
 }
 
 bool Style::get(FloatStyleOptionName n, float *value) const {
-  const IntFloatUnion *v = int_float_values.search(n);
-  
-  if(!v)
-    return false;
-    
-  *value = v->float_value;
-  return true;
+  return StyleImpl::of(*this).raw_get_float(n, value);
 }
 
 bool Style::get(StringStyleOptionName n, String *value) const {
-  const Expr *v = object_values.search(n);
-  
-  if(!v || !v->is_string())
-    return false;
-    
-  *value = String(*v);
-  return true;
+  return StyleImpl::of(*this).raw_get_string(n, value);
 }
 
 bool Style::get(ObjectStyleOptionName n, Expr *value) const {
-  const Expr *v = object_values.search(n);
-  
-  if(!v)
-    return false;
-    
-  *value = *v;
-  return true;
+  return StyleImpl::of(*this).raw_get_expr(n, value);
 }
 
 void Style::set(IntStyleOptionName n, int value) {
-  IntFloatUnion v;
-  v.int_value = value;
-  int_float_values.set(n, v);
+  StyleImpl::of(*this).raw_set_int(n, value);
   
   if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
     remove_dynamic(n);
 }
 
 void Style::set(FloatStyleOptionName n, float value) {
-  IntFloatUnion v;
-  v.float_value = value;
-  int_float_values.set(n, v);
+  StyleImpl::of(*this).raw_set_float(n, value);
   
   if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
     remove_dynamic(n);
 }
 
 void Style::set(StringStyleOptionName n, String value) {
-  object_values.set(n, value);
+  StyleImpl::of(*this).raw_set_string(n, value);
   
   if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
     remove_dynamic(n);
 }
 
 void Style::set(ObjectStyleOptionName n, Expr value) {
-  object_values.set(n, value);
+  StyleImpl::of(*this).raw_set_expr(n, value);
   
   if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
     remove_dynamic(n);
 }
 
 void Style::remove(IntStyleOptionName n) {
-  int_float_values.remove(n);
+  StyleImpl::of(*this).raw_remove_int(n);
 }
 
 void Style::remove(FloatStyleOptionName n) {
-  int_float_values.remove(n);
+  StyleImpl::of(*this).raw_remove_float(n);
 }
 
 void Style::remove(StringStyleOptionName n) {
-  object_values.remove(n);
+  StyleImpl::of(*this).raw_remove_string(n);
 }
 
 void Style::remove(ObjectStyleOptionName n) {
-  object_values.remove(n);
+  StyleImpl::of(*this).raw_remove_expr(n);
 }
 
 
@@ -861,363 +1345,7 @@ void Style::set_pmath_by_unknown_key(Expr lhs, Expr rhs) {
 }
 
 void Style::set_pmath(StyleOptionName n, Expr obj) {
-  if(StyleInformation::is_window_option(n))
-    set(InternalHasModifiedWindowOption, true);
-    
-  enum StyleType type = StyleInformation::get_type(n);
-  
-  switch(type) {
-    case StyleTypeBool:
-      set_pmath_bool((IntStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeBoolAuto:
-      set_pmath_bool_auto((IntStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeColor:
-      set_pmath_color((IntStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeNumber:
-      set_pmath_float((FloatStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeMargin:
-      set_pmath_margin((FloatStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeSize:
-      set_pmath_size((FloatStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeString:
-      set_pmath_string((StringStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeNone:
-    case StyleTypeAny:
-      set_pmath_object((ObjectStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeEnum:
-      set_pmath_enum((IntStyleOptionName)n, obj);
-      break;
-      
-    case StyleTypeRuleSet:
-      set_pmath_ruleset((ObjectStyleOptionName)n, obj);
-      break;
-  }
-}
-
-void Style::set_pmath_bool_auto(IntStyleOptionName n, Expr obj) {
-  if(obj == PMATH_SYMBOL_FALSE)
-    set(n, 0);
-  else if(obj == PMATH_SYMBOL_TRUE)
-    set(n, 1);
-  else if(obj == PMATH_SYMBOL_AUTOMATIC)
-    set(n, 2);
-  else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
-    set_dynamic(n, obj);
-  else if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(n);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      remove_dynamic(n);
-  }
-}
-
-void Style::set_pmath_bool(IntStyleOptionName n, Expr obj) {
-  if(obj == PMATH_SYMBOL_TRUE)
-    set(n, true);
-  else if(obj == PMATH_SYMBOL_FALSE)
-    set(n, false);
-  else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
-    set_dynamic(n, obj);
-  else if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(n);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      remove_dynamic(n);
-  }
-}
-
-void Style::set_pmath_color(IntStyleOptionName n, Expr obj) {
-  int c = pmath_to_color(obj);
-  
-  if(c >= -1)
-    set(n, c);
-  else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
-    set_dynamic(n, obj);
-  else if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(n);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      remove_dynamic(n);
-  }
-}
-
-void Style::set_pmath_float(FloatStyleOptionName n, Expr obj) {
-  if(obj.is_number()) {
-    set(n, obj.to_double());
-    return;
-  }
-  
-  if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
-    set_dynamic(n, obj);
-    return;
-  }
-  
-  if(obj[0] == PMATH_SYMBOL_NCACHE) {
-    set(n, obj[2].to_double());
-    
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      set((ObjectStyleOptionName)StyleOptionName{n} .to_dynamic(), obj);
-      
-    return;
-  }
-  
-  if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(n);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      remove_dynamic(n);
-  }
-}
-
-void Style::set_pmath_size(FloatStyleOptionName n, Expr obj) {
-  FloatStyleOptionName Horizontal = FloatStyleOptionName(n + 1);
-  FloatStyleOptionName Vertical   = FloatStyleOptionName(n + 2);
-  
-  if(obj == PMATH_SYMBOL_AUTOMATIC) {
-    remove(n);
-    if(!keep_dynamic)
-      remove_dynamic(n);
-      
-    set(Horizontal, ImageSizeAutomatic);
-    set(Vertical,   ImageSizeAutomatic);
-    return;
-  }
-  
-  if(obj.is_number()) {
-    remove(n);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      remove_dynamic(n);
-      
-    float f = obj.to_double();
-    set(Horizontal, f);
-    set(Vertical,   ImageSizeAutomatic);
-    return;
-  }
-  
-  if(obj[0] == PMATH_SYMBOL_LIST &&
-      obj.expr_length() == 2)
-  {
-    remove(n);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      remove_dynamic(n);
-      
-    if(obj[1] == PMATH_SYMBOL_AUTOMATIC)
-      set(Horizontal, ImageSizeAutomatic);
-    else
-      set_pmath_float(Horizontal, obj[1]);
-      
-    if(obj[2] == PMATH_SYMBOL_AUTOMATIC)
-      set(Vertical, ImageSizeAutomatic);
-    else
-      set_pmath_float(Vertical, obj[2]);
-    return;
-  }
-  
-  if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
-    remove(n);
-    remove(Horizontal);
-    remove(Vertical);
-    remove_dynamic(Horizontal);
-    remove_dynamic(Vertical);
-    set_dynamic(n, obj);
-    return;
-  }
-  
-  if(obj[0] == PMATH_SYMBOL_NCACHE) {
-    set_pmath_size(n, obj[2]);
-    
-    if(!keep_dynamic)
-      set((ObjectStyleOptionName)StyleOptionName{n} .to_dynamic(), obj);
-      
-    return;
-  }
-  
-  if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(n);
-    remove(Horizontal);
-    remove(Vertical);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic()) {
-      remove_dynamic(n);
-      remove_dynamic(Horizontal);
-      remove_dynamic(Vertical);
-    }
-  }
-}
-
-void Style::set_pmath_margin(FloatStyleOptionName n, Expr obj) {
-  FloatStyleOptionName Left   = n;
-  FloatStyleOptionName Right  = FloatStyleOptionName(n + 1);
-  FloatStyleOptionName Top    = FloatStyleOptionName(n + 2);
-  FloatStyleOptionName Bottom = FloatStyleOptionName(n + 3);
-  
-  if(obj == PMATH_SYMBOL_TRUE) {
-    set(Left,   1.0);
-    set(Right,  1.0);
-    set(Top,    1.0);
-    set(Bottom, 1.0);
-    return;
-  }
-  
-  if(obj == PMATH_SYMBOL_FALSE) {
-    set(Left,   0.0);
-    set(Right,  0.0);
-    set(Top,    0.0);
-    set(Bottom, 0.0);
-    return;
-  }
-  
-  if(obj.is_number()) {
-    float f = obj.to_double();
-    set(Left,   f);
-    set(Right,  f);
-    set(Top,    f);
-    set(Bottom, f);
-    return;
-  }
-  
-  if( obj.is_expr() &&
-      obj[0] == PMATH_SYMBOL_LIST)
-  {
-    if(obj.expr_length() == 4) {
-      set_pmath_float(Left,   obj[1]);
-      set_pmath_float(Right,  obj[2]);
-      set_pmath_float(Top,    obj[3]);
-      set_pmath_float(Bottom, obj[4]);
-      return;
-    }
-    
-    if(obj.expr_length() == 2) {
-      if(obj[1].is_number()) {
-        float f = obj[1].to_double();
-        set(Left,  f);
-        set(Right, f);
-      }
-      else if(obj[1].is_expr() &&
-              obj[1][0] == PMATH_SYMBOL_LIST &&
-              obj[1].expr_length() == 2)
-      {
-        set_pmath_float(Left,  obj[1][1]);
-        set_pmath_float(Right, obj[1][2]);
-      }
-      
-      if(obj[2].is_number()) {
-        float f = obj[2].to_double();
-        set(Top,    f);
-        set(Bottom, f);
-      }
-      else if(obj[2].is_expr() &&
-              obj[2][0] == PMATH_SYMBOL_LIST &&
-              obj[2].expr_length() == 2)
-      {
-        set_pmath_float(Top,    obj[2][1]);
-        set_pmath_float(Bottom, obj[2][2]);
-      }
-      
-      return;
-    }
-  }
-  
-  if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
-    remove(Left);
-    remove(Right);
-    remove(Top);
-    remove(Bottom);
-    set_dynamic(Left, obj);
-  }
-  
-  if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(Left);
-    remove(Right);
-    remove(Top);
-    remove(Bottom);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic()) {
-      remove_dynamic(Left);
-      remove_dynamic(Right);
-      remove_dynamic(Top);
-      remove_dynamic(Bottom);
-    }
-  }
-}
-
-void Style::set_pmath_string(StringStyleOptionName n, Expr obj) {
-  if(obj.is_string())
-    set(n, String(obj));
-  else if(obj[0] == PMATH_SYMBOL_DYNAMIC)
-    set_dynamic(n, obj);
-  else if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(n);
-    if(!keep_dynamic)
-      remove_dynamic(n);
-  }
-}
-
-void Style::set_pmath_object(ObjectStyleOptionName n, Expr obj) {
-  if(obj[0] == PMATH_SYMBOL_DYNAMIC)
-    set_dynamic(n, obj);
-  else if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(n);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      remove_dynamic(n);
-  }
-  else
-    set(n, obj);
-}
-
-void Style::set_pmath_enum(IntStyleOptionName n, Expr obj) {
-  if(obj[0] == PMATH_SYMBOL_DYNAMIC) {
-    set_dynamic(n, obj);
-  }
-  else if(obj == PMATH_SYMBOL_INHERITED) {
-    remove(n);
-    if(!keep_dynamic && !StyleOptionName{n} .is_dynamic())
-      remove_dynamic(n);
-  }
-  else {
-    SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
-    
-    assert(enum_converter.is_valid());
-    
-    if(enum_converter->is_valid_expr(obj))
-      set((IntStyleOptionName)n, enum_converter->to_int(obj));
-  }
-}
-
-void Style::set_pmath_ruleset(ObjectStyleOptionName n, Expr obj) {
-  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(n);
-  assert(key_converter.is_valid());
-  
-  if(obj[0] == PMATH_SYMBOL_LIST) {
-    for(size_t i = 1; i <= obj.expr_length(); ++i) {
-      Expr rule = obj[i];
-      
-      if(rule.is_rule()) {
-        Expr lhs = rule[1];
-        Expr rhs = rule[2];
-        
-//        if(rhs == PMATH_SYMBOL_INHERITED)
-//          continue;
-
-        StyleOptionName sub_key = StyleOptionName{key_converter->to_int(lhs)};
-        if(sub_key.is_valid())
-          set_pmath(sub_key, rhs);
-        else
-          pmath_debug_print_object("[ignoring unknown sub-option ", lhs.get(), "]\n");
-      }
-    }
-  }
-  
+  StyleImpl::of(*this).set_pmath(n, obj);
 }
 
 Expr Style::get_pmath(StyleOptionName key) const {
