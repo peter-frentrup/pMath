@@ -445,6 +445,23 @@ namespace {
         assert(type != StyleTypeEnum);
         
         _key_to_type.set(key, type);
+        if(type == StyleTypeSize) { // {horz, vert} = {key+1, key+2}
+          StyleOptionName Horizontal = StyleOptionName((int)key + 1);
+          StyleOptionName Vertical   = StyleOptionName((int)key + 2);
+          _key_to_type.set(Horizontal, StyleTypeNumber);
+          _key_to_type.set(Vertical,   StyleTypeNumber);
+        }
+//        else if(type == StyleTypeMargin) { // {left, right, top, bottom} = {key, key+1, key+2, key+3}
+//          //StyleOptionName Left   = StyleOptionName((int)key + 1);
+//          StyleOptionName Right  = StyleOptionName((int)key + 1);
+//          StyleOptionName Top    = StyleOptionName((int)key + 2);
+//          StyleOptionName Bottom = StyleOptionName((int)key + 3);
+//          //_key_to_type.set(Left,   StyleTypeNumber);
+//          _key_to_type.set(Right,  StyleTypeNumber);
+//          _key_to_type.set(Top,    StyleTypeNumber);
+//          _key_to_type.set(Bottom, StyleTypeNumber);
+//        }
+        
         _key_to_name.set(key, name);
         _name_to_key.set(name, key);
         
@@ -578,6 +595,7 @@ namespace richmath {
       void set_pmath_ruleset(   StyleOptionName n, Expr obj);
       
     public:
+      void emit_definition(StyleOptionName key) const;
       Expr raw_get_pmath(StyleOptionName key, Expr inherited) const;
       
     private:
@@ -710,6 +728,10 @@ void StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
   enum StyleType type = StyleInformation::get_type(n);
   
   switch(type) {
+    case StyleTypeNone:
+      pmath_debug_print("[Cannot encode style %u]\n", (unsigned)(int)n);
+      break;
+      
     case StyleTypeBool:
       set_pmath_bool(n, obj);
       break;
@@ -738,7 +760,6 @@ void StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
       set_pmath_string(n, obj);
       break;
       
-    case StyleTypeNone:
     case StyleTypeAny:
       set_pmath_object(n, obj);
       break;
@@ -1045,6 +1066,52 @@ void StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
       }
     }
   }
+}
+
+void StyleImpl::emit_definition(StyleOptionName n) const {
+  STYLE_ASSERT(n.is_literal());
+
+  Expr e;
+  if(raw_get_expr(n.to_dynamic(), &e)) {
+    Gather::emit(Rule(StyleInformation::get_name(n), e));
+    return;
+  }
+  
+  e = Symbol(PMATH_SYMBOL_INHERITED);
+  
+  StyleType type = StyleInformation::get_type(n);
+  switch(type) {
+    case StyleTypeSize:
+      {
+        StyleOptionName Horizontal = StyleOptionName((int)n + 1);
+        StyleOptionName Vertical = StyleOptionName((int)n + 2);
+        
+        Expr horz;
+        bool have_horz = raw_get_expr(Horizontal.to_dynamic(), &horz);
+        if(!have_horz)
+          horz = Symbol(PMATH_SYMBOL_INHERITED);
+          
+        Expr vert;
+        bool have_vert = raw_get_expr(Vertical.to_dynamic(), &vert);
+        if(!have_vert)
+          vert = Symbol(PMATH_SYMBOL_INHERITED);
+        
+        if(have_horz || have_vert)
+          e = List(horz, vert);
+      }
+      break;
+    
+    //case StyleTypeMargin: ....
+  }
+  
+  e = raw_get_pmath(n, std::move(e));
+  if(e == PMATH_SYMBOL_INHERITED)
+    return;
+    
+  if(needs_ruledelayed(e))
+    Gather::emit(RuleDelayed(StyleInformation::get_name(n), e));
+  else
+    Gather::emit(Rule(StyleInformation::get_name(n), e));
 }
 
 Expr StyleImpl::raw_get_pmath(StyleOptionName key, Expr inherited) const {
@@ -1731,95 +1798,82 @@ Expr Style::get_pmath(StyleOptionName key) const {
 }
 
 void Style::emit_pmath(StyleOptionName n) const {
-  STYLE_ASSERT(n.is_literal());
-
-  Expr e;
-  if(get_dynamic(n, &e)) {
-    Gather::emit(Rule(get_name(n), e));
-    return;
-  }
-  
-  e = StyleImpl::of(*this).raw_get_pmath(n, Symbol(PMATH_SYMBOL_INHERITED));
-  if(e == PMATH_SYMBOL_INHERITED)
-    return;
-    
-  if(needs_ruledelayed(e))
-    Gather::emit(RuleDelayed(get_name(n), e));
-  else
-    Gather::emit(Rule(get_name(n), e));
+  return StyleImpl::of(*this).emit_definition(n);
 }
 
 void Style::emit_to_pmath(bool with_inherited) const {
-  emit_pmath(Antialiasing);
-  emit_pmath(AspectRatio);
-  emit_pmath(AutoDelete);
-  emit_pmath(AutoNumberFormating);
-  emit_pmath(AutoSpacing);
-  emit_pmath(Axes);
-  emit_pmath(AxesOrigin);
-  emit_pmath(Background);
+  auto impl = StyleImpl::of(*this);
+  
+  impl.emit_definition(Antialiasing);
+  impl.emit_definition(AspectRatio);
+  impl.emit_definition(AutoDelete);
+  impl.emit_definition(AutoNumberFormating);
+  impl.emit_definition(AutoSpacing);
+  impl.emit_definition(Axes);
+  impl.emit_definition(AxesOrigin);
+  impl.emit_definition(Background);
   
   if(with_inherited)
-    emit_pmath(BaseStyleName);
+    impl.emit_definition(BaseStyleName);
     
-  emit_pmath(BorderRadius);
-  emit_pmath(BoxRotation);
-  emit_pmath(BoxTransformation);
-  emit_pmath(ButtonFrame);
-  emit_pmath(ButtonFunction);
-  emit_pmath(ContinuousAction);
-  emit_pmath(DefaultDuplicateSectionStyle);
-  emit_pmath(DefaultNewSectionStyle);
-  emit_pmath(DefaultReturnCreatedSectionStyle);
-  emit_pmath(DisplayFunction);
-  emit_pmath(DockedSections);
-  emit_pmath(Editable);
-  emit_pmath(Evaluatable);
-  emit_pmath(FontColor);
-  emit_pmath(FontFamilies);
-  emit_pmath(FontFeatures);
-  emit_pmath(FontSize);
-  emit_pmath(FontSlant);
-  emit_pmath(FontWeight);
-  emit_pmath(Frame);
-  emit_pmath(FrameTicks);
-  emit_pmath(GeneratedSectionStyles);
-  emit_pmath(GridBoxColumnSpacing);
-  emit_pmath(GridBoxRowSpacing);
-  emit_pmath(ImageSizeCommon);
-  emit_pmath(InterpretationFunction);
-  emit_pmath(LanguageCategory);
-  emit_pmath(LineBreakWithin);
-  emit_pmath(Magnification);
-  emit_pmath(Method);
-  emit_pmath(Placeholder);
-  emit_pmath(PlotRange);
-  emit_pmath(ReturnCreatesNewSection);
-  emit_pmath(ScriptSizeMultipliers);
-  emit_pmath(SectionEditDuplicate);
-  emit_pmath(SectionEditDuplicateMakesCopy);
-  emit_pmath(SectionFrameLeft);
-  emit_pmath(SectionFrameColor);
-  emit_pmath(SectionFrameMarginLeft);
-  emit_pmath(SectionGenerated);
-  emit_pmath(SectionGroupPrecedence);
-  emit_pmath(SectionMarginLeft);
-  emit_pmath(SectionLabel);
-  emit_pmath(SectionLabelAutoDelete);
-  emit_pmath(Selectable);
-  emit_pmath(ShowAutoStyles);
-  emit_pmath(ShowSectionBracket);
-  emit_pmath(ShowStringCharacters);
-  emit_pmath(StripOnInput);
-  emit_pmath(StyleDefinitions);
-  emit_pmath(SyntaxForm);
-  emit_pmath(TemplateBoxOptions);
-  emit_pmath(TextShadow);
-  emit_pmath(Ticks);
-  emit_pmath(Tooltip);
-  emit_pmath(Visible);
-  emit_pmath(WindowFrame);
-  emit_pmath(WindowTitle);
+  impl.emit_definition(BorderRadius);
+  impl.emit_definition(BoxRotation);
+  impl.emit_definition(BoxTransformation);
+  impl.emit_definition(ButtonFrame);
+  impl.emit_definition(ButtonFunction);
+  impl.emit_definition(ContinuousAction);
+  impl.emit_definition(DefaultDuplicateSectionStyle);
+  impl.emit_definition(DefaultNewSectionStyle);
+  impl.emit_definition(DefaultReturnCreatedSectionStyle);
+  impl.emit_definition(DisplayFunction);
+  impl.emit_definition(DockedSections);
+  impl.emit_definition(Editable);
+  impl.emit_definition(Evaluatable);
+  impl.emit_definition(FontColor);
+  impl.emit_definition(FontFamilies);
+  impl.emit_definition(FontFeatures);
+  impl.emit_definition(FontSize);
+  impl.emit_definition(FontSlant);
+  impl.emit_definition(FontWeight);
+  impl.emit_definition(Frame);
+  impl.emit_definition(FrameTicks);
+  impl.emit_definition(GeneratedSectionStyles);
+  impl.emit_definition(GridBoxColumnSpacing);
+  impl.emit_definition(GridBoxRowSpacing);
+  impl.emit_definition(ImageSizeCommon);
+  impl.emit_definition(InterpretationFunction);
+  impl.emit_definition(LanguageCategory);
+  impl.emit_definition(LineBreakWithin);
+  impl.emit_definition(Magnification);
+  impl.emit_definition(Method);
+  impl.emit_definition(Placeholder);
+  impl.emit_definition(PlotRange);
+  impl.emit_definition(ReturnCreatesNewSection);
+  impl.emit_definition(ScriptSizeMultipliers);
+  impl.emit_definition(SectionEditDuplicate);
+  impl.emit_definition(SectionEditDuplicateMakesCopy);
+  impl.emit_definition(SectionFrameLeft);
+  impl.emit_definition(SectionFrameColor);
+  impl.emit_definition(SectionFrameMarginLeft);
+  impl.emit_definition(SectionGenerated);
+  impl.emit_definition(SectionGroupPrecedence);
+  impl.emit_definition(SectionMarginLeft);
+  impl.emit_definition(SectionLabel);
+  impl.emit_definition(SectionLabelAutoDelete);
+  impl.emit_definition(Selectable);
+  impl.emit_definition(ShowAutoStyles);
+  impl.emit_definition(ShowSectionBracket);
+  impl.emit_definition(ShowStringCharacters);
+  impl.emit_definition(StripOnInput);
+  impl.emit_definition(StyleDefinitions);
+  impl.emit_definition(SyntaxForm);
+  impl.emit_definition(TemplateBoxOptions);
+  impl.emit_definition(TextShadow);
+  impl.emit_definition(Ticks);
+  impl.emit_definition(Tooltip);
+  impl.emit_definition(Visible);
+  impl.emit_definition(WindowFrame);
+  impl.emit_definition(WindowTitle);
   
   Expr e;
   if(get(UnknownOptions, &e)) {
