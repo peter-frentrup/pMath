@@ -152,7 +152,8 @@ namespace richmath {
   };
   
   class StyleOptionName {
-      static const int DynamicFlag = 0x10000000;
+      static const int DynamicFlag  = 0x10000000;
+      static const int VolatileFlag = 0x20000000;
   
     public:
       StyleOptionName() = default;
@@ -184,16 +185,22 @@ namespace richmath {
       }
       
       bool is_literal() const {
-        return (_value & DynamicFlag) == 0;
+        return (_value & (DynamicFlag | VolatileFlag)) == 0;
       }
       bool is_dynamic() const {
         return (_value & DynamicFlag) != 0;
       }
-      StyleOptionName to_dynamic() const {
-        return StyleOptionName { _value | DynamicFlag };
+      bool is_volatile() const {
+        return (_value & VolatileFlag) != 0;
       }
       StyleOptionName to_literal() const {
-        return StyleOptionName { _value & ~DynamicFlag };
+        return StyleOptionName { _value & ~(DynamicFlag | VolatileFlag) };
+      }
+      StyleOptionName to_dynamic() const {
+        return StyleOptionName { (_value & ~VolatileFlag) | DynamicFlag };
+      }
+      StyleOptionName to_volatile() const {
+        return StyleOptionName { (_value & ~DynamicFlag) | VolatileFlag };
       }
       
       unsigned int hash() const {
@@ -262,18 +269,6 @@ namespace richmath {
       
       bool get_dynamic(StyleOptionName n, Expr *value) const {
         return get((ObjectStyleOptionName)n.to_dynamic(), value);
-      }
-      
-      void set_dynamic(StyleOptionName n, Expr value) {
-        ObjectStyleOptionName dn = (ObjectStyleOptionName)n.to_dynamic();
-        remove(dn);
-        set(dn, value);
-        
-        set(InternalHasPendingDynamic, true);
-      }
-      
-      void remove_dynamic(StyleOptionName n) {
-        remove((ObjectStyleOptionName)n.to_dynamic());
       }
       
       unsigned int count() const;
