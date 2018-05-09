@@ -3722,9 +3722,6 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
   if(head == PMATH_SYMBOL_TEMPLATESLOT)
     return create_or_error<TemplateBoxSlot>(expr, options);
     
-  if(head == PMATH_SYMBOL_TEMPLATESLOTSEQUENCE)
-    return create_or_error<TemplateBoxSlotSequence>(expr, options);
-    
   return new ErrorBox(expr);
 }
 

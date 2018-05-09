@@ -1,8 +1,11 @@
 
 BeginPackage("FE`Styles`")
 
+<<ExperimentalSyntax`
+
 MakeStyleDataBoxes
 $DefaultDisplayFunction
+FlattenTemplateSequence
 
 Begin("FE`Styles`Private`")
 
@@ -42,6 +45,46 @@ $DefaultDisplayFunction(~tag:String)::= Function(
             ")"}
     ).StyleBox("TemplateBoxErrorDisplayStyle")
 )
+
+
+FlattenTemplateSequence(~func, ~)::= func
+FlattenTemplateSequence(Function(~body), ~argnum)::= Function @@ bodyFlattenTemplateSequence(HoldComplete(body), argnum)
+
+Function makeArgumentList(~n, ~m) {
+    Local(i)
+
+    Return(Table(PureArgument(i), i->n..m))
+}
+
+Function bodyFlattenTemplateSequence(~heldBody, ~argnum) {
+    If(heldBody.IsFreeOf(PureArgument(~:Range) | TemplateSlotSequence)) {
+        Return(heldBody)
+    }
+
+    Local(SEQ, HELD)
+
+    Return(heldBody.Replace({
+            f: Function(~) | Function(/\/, ~~) :> f,
+            PureArgument(~n:Integer..) :> PureArgument(n..argnum),
+            TemplateSlotSequence(~n:Integer, ~~~rest) :> TemplateSlotSequence(n..argnum, rest),
+            TemplateSlotSequence(PureArgument(~n:Integer), ~~~rest) :> TemplateSlotSequence(n..n, rest),
+            TemplateSlotSequence(PureArgument(~n:Integer..), ~~~rest) :> TemplateSlotSequence(n..argnum, rest),
+            TemplateSlotSequence(PureArgument(~n:Integer..~m:Integer), ~~~rest) :> TemplateSlotSequence(n..m, rest)
+        }, (0..) % FIXME: Parsing error at 0..\[RawNewline]
+    ).Replace({
+            f: Function(~) | Function(/\/, ~~) :> f,
+            PureArgument(~n:Integer..~m:Integer) :> With({s:= SEQ @@ makeArgumentList(n, m)}, s /? True),
+            TemplateSlotSequence(~n:Integer..~m:Integer) :> With({s:= SEQ @@ makeArgumentList(n, m)}, s /? True),
+            TemplateSlotSequence(~n:Integer..~m:Integer, ~sep) :> With({s:= SEQ @@ makeArgumentList(n, m).Riffle(HELD(HoldComplete(sep)))}, s /? True),
+            TemplateSlotSequence(~n:Integer..~m:Integer, Function(~appl), ~sep) :> With({s:= SEQ @@ makeArgumentList(n, m).Map(Function(HELD(HoldComplete(appl)))).Riffle(HELD(HoldComplete(sep)))}, s /? True)
+        }, (0..) % FIXME: Parsing error at 0..\[RawNewline]
+    ).Replace(
+        HELD(HoldComplete(~h)) :> h
+    ).Replace(
+        ~f(~~~a,SEQ(~~~b),~~~c) :> f(a,b,c)
+    ))
+}
+
 
 End()
 

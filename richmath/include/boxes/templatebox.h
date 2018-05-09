@@ -75,28 +75,6 @@ namespace richmath {
       bool _is_content_loaded;
       bool _has_changed_content;
   };
-  
-  class TemplateBoxSlotSequence: public OwnerBox {
-      typedef OwnerBox base;
-      friend class TemplateBoxSlotSequenceImpl;
-      
-    public:
-      TemplateBoxSlotSequence();
-      
-      TemplateBox *find_owner();
-      
-      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
-    
-      virtual void resize(Context *context) override;
-      virtual void paint_content(Context *context) override;
-      
-    private:
-      Expr _separator;
-      Expr _modifier_function;
-      int _first_arg;
-      int _last_arg;
-      bool _is_content_loaded;
-  };
 }
 
 #endif // RICHMATH_BOXES_TEMPLATEBOX_H_INCLUDED
