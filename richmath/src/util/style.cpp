@@ -1163,51 +1163,75 @@ bool Style::get(ObjectStyleOptionName n, Expr *value) const {
 }
 
 void Style::set(IntStyleOptionName n, int value) {
-  StyleImpl::of(*this).raw_set_int(n, value);
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
   
-  if(!keep_dynamic && StyleOptionName(n).is_literal())
-    StyleImpl::of(*this).remove_dynamic(n);
+  StyleImpl::of(*this).raw_set_int(key, value);
+  
+  if(!keep_dynamic)
+    StyleImpl::of(*this).remove_dynamic(key);
 }
 
 void Style::set(FloatStyleOptionName n, float value) {
-  StyleImpl::of(*this).raw_set_float(n, value);
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
   
-  if(!keep_dynamic && StyleOptionName(n).is_literal())
-    StyleImpl::of(*this).remove_dynamic(n);
+  StyleImpl::of(*this).raw_set_float(key, value);
+  
+  if(!keep_dynamic)
+    StyleImpl::of(*this).remove_dynamic(key);
 }
 
 void Style::set(StringStyleOptionName n, String value) {
-  StyleImpl::of(*this).raw_set_string(n, value);
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
   
-  if(!keep_dynamic && StyleOptionName(n).is_literal())
-    StyleImpl::of(*this).remove_dynamic(n);
+  StyleImpl::of(*this).raw_set_string(key, value);
+  
+  if(!keep_dynamic)
+    StyleImpl::of(*this).remove_dynamic(key);
 }
 
 void Style::set(ObjectStyleOptionName n, Expr value) {
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
+  
   StyleImpl::of(*this).raw_set_expr(n, value);
   
-  if(!keep_dynamic && StyleOptionName(n).is_literal())
-    StyleImpl::of(*this).remove_dynamic(n);
+  if(!keep_dynamic)
+    StyleImpl::of(*this).remove_dynamic(key);
 }
 
 void Style::remove(IntStyleOptionName n) {
-  StyleImpl::of(*this).raw_remove_int(n);
-  StyleImpl::of(*this).raw_remove_int(StyleOptionName(n).to_volatile());
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
+  
+  StyleImpl::of(*this).raw_remove_int(key);
+  StyleImpl::of(*this).raw_remove_int(key.to_volatile());
 }
 
 void Style::remove(FloatStyleOptionName n) {
-  StyleImpl::of(*this).raw_remove_float(n);
-  StyleImpl::of(*this).raw_remove_float(StyleOptionName(n).to_volatile());
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
+  
+  StyleImpl::of(*this).raw_remove_float(key);
+  StyleImpl::of(*this).raw_remove_float(key.to_volatile());
 }
 
 void Style::remove(StringStyleOptionName n) {
-  StyleImpl::of(*this).raw_remove_string(n);
-  StyleImpl::of(*this).raw_remove_string(StyleOptionName(n).to_volatile());
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
+  
+  StyleImpl::of(*this).raw_remove_string(key);
+  StyleImpl::of(*this).raw_remove_string(key.to_volatile());
 }
 
 void Style::remove(ObjectStyleOptionName n) {
-  StyleImpl::of(*this).raw_remove_expr(n);
-  StyleImpl::of(*this).raw_remove_expr(StyleOptionName(n).to_volatile());
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
+  
+  StyleImpl::of(*this).raw_remove_expr(key);
+  StyleImpl::of(*this).raw_remove_expr(key.to_volatile());
 }
 
 

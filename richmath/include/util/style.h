@@ -267,6 +267,8 @@ namespace richmath {
       virtual void remove(StringStyleOptionName n);
       virtual void remove(ObjectStyleOptionName n);
       
+      void flag_pending_dynamic() { set(InternalHasPendingDynamic, true); }
+      
       bool get_dynamic(StyleOptionName n, Expr *value) const {
         return get((ObjectStyleOptionName)n.to_dynamic(), value);
       }
