@@ -109,6 +109,31 @@ static pmath_bool_t is_string_at(
   return TRUE;
 }
 
+static pmath_bool_t are_linebreaks_only_at(pmath_expr_t expr, size_t i) {
+  pmath_string_t obj = pmath_expr_get_item(expr, i);
+  
+  if(pmath_is_string(obj)) {
+    pmath_bool_t is_linebreak = pmath_string_equals_latin1(obj, "\n");
+    pmath_unref(obj);
+    return is_linebreak;
+  }
+  
+  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+    size_t objlen = pmath_expr_length(obj);
+    for(size_t i = objlen;i > 0;--i) {
+      if(!are_linebreaks_only_at(obj, i)) {
+        pmath_unref(obj);
+        return FALSE;
+      }
+    }
+    pmath_unref(obj);
+    return TRUE;
+  }
+  
+  pmath_unref(obj);
+  return FALSE;
+}
+
 static pmath_bool_t is_subsuperscript_at(pmath_expr_t expr, size_t i) {
   pmath_string_t obj = pmath_expr_get_item(expr, i);
   pmath_t head;
@@ -2633,7 +2658,11 @@ static pmath_t make_range(pmath_expr_t boxes) {
       
       have_arg = TRUE;
       
-      arg = parse_at(boxes, i);
+      if(are_linebreaks_only_at(boxes, i)) 
+        arg = pmath_ref(PMATH_SYMBOL_AUTOMATIC);
+      else
+        arg = parse_at(boxes, i);
+        
       if(is_parse_error(arg)) {
         pmath_unref(boxes);
         pmath_unref(pmath_gather_end());
@@ -2809,17 +2838,6 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(firstchar == PMATH_CHAR_LEFTINVISIBLEBRACKET && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
       return make_parenthesis(expr);
       
-    // comma sepearted list ...
-    if(firstchar == ',' || secondchar == ',')
-      return make_comma_sequence(expr);
-      
-    // evaluation sequence ...
-    if(firstchar == ';' || secondchar == ';' || firstchar == '\n' || secondchar == '\n')
-      return make_evaluation_sequence(expr);
-      
-    if(exprlen == 1)
-      return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
-      
     // {}  and  {x}  and  {grid\[RightInvisibleBracket]
     if(firstchar == '{') {
       uint16_t lastchar = unichar_at(expr, exprlen);
@@ -2831,10 +2849,6 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         return make_matchfix(expr, PMATH_SYMBOL_PIECEWISE);
     }
     
-    // ?x  and  ?x:v
-    if(firstchar == '?')
-      return make_optional_pattern(expr);
-      
     if(firstchar == char_LeftCeiling && unichar_at(expr, exprlen) == char_RightCeiling)
       return make_matchfix(expr, PMATH_SYMBOL_CEILING);
       
@@ -2846,6 +2860,21 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       
     if(firstchar == PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR)
       return make_matchfix(expr, PMATH_SYMBOL_DOUBLEBRACKETINGBAR);
+      
+    // comma sepearted list ...
+    if(firstchar == ',' || secondchar == ',')
+      return make_comma_sequence(expr);
+      
+    // evaluation sequence ...
+    if(firstchar == ';' || secondchar == ';' || firstchar == '\n' || secondchar == '\n')
+      return make_evaluation_sequence(expr);
+      
+    if(exprlen == 1)
+      return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
+      
+    // ?x  and  ?x:v
+    if(firstchar == '?')
+      return make_optional_pattern(expr);
       
     // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
     if(exprlen == 2) {
