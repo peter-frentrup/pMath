@@ -14,7 +14,7 @@ FrameBox::FrameBox(MathSequence *content)
 {
 }
 
-bool FrameBox::try_load_from_object(Expr expr, int options) {
+bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr[0] != PMATH_SYMBOL_FRAMEBOX)
     return false;
     
@@ -103,7 +103,7 @@ void FrameBox::paint(Context *context) {
   //paint_content(context);
 }
 
-Expr FrameBox::to_pmath(int flags) {
+Expr FrameBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   Gather::emit(_content->to_pmath(flags));

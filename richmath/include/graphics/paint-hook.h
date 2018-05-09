@@ -8,16 +8,34 @@
 namespace richmath {
   class Box;
   class Context;
+  class PaintHookList;
   
   class PaintHook: public Shareable {
-    friend class PaintHookManager;
+      friend class PaintHookList;
     public:
       PaintHook();
       
       virtual void run(Box *box, Context *context) = 0;
-    
+      
     private:
-      SharedPtr<PaintHook> _next;
+      PaintHook *_next;
+  };
+  
+  class PaintHookList {
+    public:
+      PaintHookList();
+      PaintHookList(const PaintHookList &other) = delete;
+      PaintHookList(PaintHookList &&other);
+      virtual ~PaintHookList();
+      
+      PaintHookList &operator=(const PaintHookList &other) = delete;
+      PaintHookList &operator=(PaintHookList &&other);
+      
+      void push(SharedPtr<PaintHook> hook);
+      SharedPtr<PaintHook> pop();
+      
+    private:
+      PaintHook * _first;
   };
   
   class PaintHookManager: public Base {
@@ -31,7 +49,7 @@ namespace richmath {
       void move_into(PaintHookManager &other);
       
     private:
-      Hashtable<Box *, SharedPtr<PaintHook>, cast_hash> _hooks;
+      Hashtable<Box *, PaintHookList, cast_hash> _hooks;
   };
   
   

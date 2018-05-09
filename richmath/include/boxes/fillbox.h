@@ -11,13 +11,13 @@ namespace richmath {
       ~FillBox();
       
       // Box::try_create<FillBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual bool expand(const BoxSize &size) override;
       virtual void paint_content(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_FILLBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,

@@ -17,6 +17,7 @@ using namespace richmath;
 FontFeatureSet::FontFeatureSet()
   : Base()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   _tag_to_value.default_value = 0;
 }
 
@@ -76,9 +77,7 @@ void FontFeatureSet::add(Expr features) {
     Expr expr = features[i];
     
     if(expr.is_string()) {
-      uint32_t tag = tag_from_name(String(expr));
-      
-      if(tag)
+      if(uint32_t tag = tag_from_name(String(expr)))
         set_feature(tag, 1);
         
       continue;
@@ -88,9 +87,7 @@ void FontFeatureSet::add(Expr features) {
       Expr name  = expr[1];
       
       if(name.is_string()) {
-        uint32_t tag = tag_from_name(String(name));
-        
-        if(tag) {
+        if(uint32_t tag = tag_from_name(String(name))) {
           Expr value = expr[2];
           
           if(value.is_int32()) {
@@ -187,7 +184,6 @@ void OTFontReshaper::get_lookups(
       uint32_t tag = feature_list->feature_tag(feature_index);
       
       int feature_value = features.feature_value(tag);
-      
       if(feature_value) {
         const Feature *feature = feature_list->feature(feature_index);
         
@@ -256,11 +252,9 @@ void OTFontReshaper::apply_lookups(
   
   current_lookup_list = gsub_table->lookup_list();
   
-  for(int i = 0; i < lookups.length(); ++i) {
-    const IndexAndValue iav = lookups[i];
-    
-    if(iav.value > 0 && 0 <= iav.index && iav.index < current_lookup_list->count()) {
-      const Lookup *lookup = current_lookup_list->lookup(iav.index);
+  for(auto index_and_value : lookups) {
+    if(index_and_value.value > 0 && 0 <= index_and_value.index && index_and_value.index < current_lookup_list->count()) {
+      const Lookup *lookup = current_lookup_list->lookup(index_and_value.index);
       
       int pos = 0;
       while(pos < glyphs.length()) {
@@ -268,7 +262,7 @@ void OTFontReshaper::apply_lookups(
         
         apply_lookup_at(
           lookup,
-          iav.value,
+          index_and_value.value,
           pos);
           
         pos = next_position;

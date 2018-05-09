@@ -46,9 +46,7 @@ static gboolean animation_timeout(gpointer data) {
   
   unsigned int count, i;
   for(count = 0, i = 0; count < animations.size(); ++i) {
-    Entry<SharedPtr<TimedEvent>, Void> *e = animations.entry(i);
-    
-    if(e) {
+    if(auto e = animations.entry(i)) {
       ++count;
       
       SharedPtr<TimedEvent> te = e->key;
@@ -375,9 +373,7 @@ void MathGtkWidget::set_cursor(CursorType type) {
     return;
     
   GdkWindow *win = gtk_widget_get_window(_widget);
-  
-  GdkCursor *cur = cursors.get_gdk_cursor(type);
-  if(cur)
+  if(GdkCursor *cur = cursors.get_gdk_cursor(type))
     gdk_window_set_cursor(win, cur);
 }
 
@@ -420,7 +416,7 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
 }
 
 void MathGtkWidget::popup_detached(GtkWidget *attach_widget, GtkMenu *menu) {
-  MathGtkWidget *wid = dynamic_cast<MathGtkWidget *>(BasicGtkWidget::from_widget(attach_widget));
+  auto wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget(attach_widget));
   
   if(wid && wid->_popup_menu != nullptr && GTK_MENU(wid->_popup_menu) == menu)
     wid->_popup_menu = nullptr;
@@ -1315,11 +1311,8 @@ bool MathGtkWidget::on_scroll(GdkEvent *e) {
 gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
   int id = (int)(intptr_t)id_as_ptr;
   
-  Document *doc = dynamic_cast<Document *>(Box::find(id));
-  if(doc) {
-    MathGtkWidget *wid = dynamic_cast<MathGtkWidget *>(doc->native());
-    
-    if(wid) {
+  if(auto doc = dynamic_cast<Document *>(Box::find(id))) {
+    if(auto wid = dynamic_cast<MathGtkWidget *>(doc->native())) {
       Context *ctx = wid->document_context();
       
       if( ctx->old_selection == ctx->selection ||
@@ -1331,10 +1324,8 @@ gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
       else
         ctx->old_selection = ctx->selection;
         
-      Box *box = ctx->selection.get();
-      if(box)
+      if(Box *box = ctx->selection.get())
         box->request_repaint_range(ctx->selection.start, ctx->selection.end);
-        
         
       wid->is_blinking = false;
     }

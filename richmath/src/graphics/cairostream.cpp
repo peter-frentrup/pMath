@@ -17,12 +17,14 @@ cairo_user_data_key_t CairoStreamUserDataKey;
 CairoStream::CairoStream()
   : Base()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 CairoStream::CairoStream(WriteableBinaryFile _file)
-  : Base()
-  , file(_file)
+  : Base(),
+    file(_file)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 CairoStream::~CairoStream() {
@@ -92,10 +94,10 @@ static void copy_to_string_utf8_callback(
 ) {
   pmath_string_t *result = (pmath_string_t *)closure;
   
-  size_t len = (size_t) *writable - (size_t)readable;
+  size_t len = (size_t) * writable - (size_t)readable;
   if(len < INT_MAX)
   
-  *result = pmath_string_from_utf8((const char*)readable, (int)len);
+    *result = pmath_string_from_utf8((const char*)readable, (int)len);
 }
 
 String CairoStream::copy_to_string_utf8() {

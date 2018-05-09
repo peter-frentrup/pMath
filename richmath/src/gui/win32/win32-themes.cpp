@@ -53,9 +53,12 @@ void Win32Themes::init() {
   static Win32Themes w;
 }
 
-Win32Themes::Win32Themes(): Base() {
-  dwmapi = LoadLibrary("dwmapi.dll");
+Win32Themes::Win32Themes()
+  : Base()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   
+  dwmapi = LoadLibrary("dwmapi.dll");
   if(dwmapi) {
     DwmEnableComposition = (HRESULT(WINAPI *)(UINT))
                            GetProcAddress(dwmapi, "DwmEnableComposition");
@@ -67,8 +70,8 @@ Win32Themes::Win32Themes(): Base() {
                             GetProcAddress(dwmapi, "DwmSetWindowAttribute");
                             
     DwmGetColorizationParameters = (HRESULT(WINAPI *)(DWM_COLORIZATION_PARAMS*))
-                                  GetProcAddress(dwmapi, (LPCSTR)127);
-                                  
+                                   GetProcAddress(dwmapi, (LPCSTR)127);
+                                   
     DwmGetCompositionTimingInfo = (HRESULT(WINAPI *)(HWND, DWM_TIMING_INFO *))
                                   GetProcAddress(dwmapi, "DwmGetCompositionTimingInfo");
                                   
@@ -275,10 +278,10 @@ DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *pa
 //  fprintf(stderr, "[colorization:               blur_balance=%x]\n", params->blur_balance);
 //  fprintf(stderr, "[colorization: glass_reflection_intensity=%x]\n", params->glass_reflection_intensity);
 //  fprintf(stderr, "[colorization:               opaque_blend=%x]\n", params->opaque_blend);
-  
+
   if(!active)
     return 0x999999u;
-  
+    
   DWORD accent_color = params->color & 0xFFFFFFu;
   
   int red   = (accent_color & 0xFF0000) >> 16;
@@ -288,14 +291,14 @@ DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *pa
   double gray = (30.0 * red + 59.0 * green + 11.0 * blue) / 25500.0;
   if(gray >= 0.5)
     return 0x000000;
-  
+    
   return 0xFFFFFF;
 }
 
 bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
   if(!info || !check_osversion(10, 0))
     return false;
-  
+    
   bool result = false;
   HKEY key;
   LONG status = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\DWM", 0, KEY_READ, &key);
@@ -318,7 +321,7 @@ bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
         info->text_on_accent_color = 0x000000;
       else
         info->text_on_accent_color = 0xFFFFFF;
-      
+        
       info->accent_color = (red << 16) | (green << 8) | blue;
       info->has_accent_color_in_active_titlebar = color_prevalence == 1;
       result = true;
@@ -328,4 +331,4 @@ bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
   RegCloseKey(key);
   return result;
 }
-      
+

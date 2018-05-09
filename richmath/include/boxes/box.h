@@ -16,7 +16,7 @@ namespace richmath {
   class Box;
   class SyntaxState;
   
-  enum class DeviceKind: char {
+  enum class DeviceKind : char {
     Mouse,
     Pen,
     Touch
@@ -39,7 +39,7 @@ namespace richmath {
       Box *origin;
   };
   
-  enum class SpecialKey {
+  enum class SpecialKey: char {
     Unknown = 0,
     
     Left,
@@ -77,28 +77,64 @@ namespace richmath {
       bool shift;
   };
   
-  enum {
-    BoxFlagDefault      = 0,
-    BoxFlagParseable    = 1, // no StyleBox with StripOnInput->True, ...
-    BoxFlagLiteral      = 2, // no DynamicBox
-    BoxFlagShortNumbers = 4  // not the internal representation of NumberBox, but the content()
+  enum class BoxOutputFlags {
+    Default      = 0,
+    Parseable    = 1, // no StyleBox with StripOnInput->True, ...
+    Literal      = 2, // no DynamicBox
+    ShortNumbers = 4  // not the internal representation of NumberBox, but the content()
   };
   
-  enum {
-    BoxOptionDefault       = 0,
-    BoxOptionFormatNumbers = 1
+  inline bool has(BoxOutputFlags lhs, BoxOutputFlags rhs) {
+    return ((int)lhs & (int)rhs) == (int)rhs;
+  }
+  inline BoxOutputFlags operator |(BoxOutputFlags lhs, BoxOutputFlags rhs) {
+    return (BoxOutputFlags)((int)lhs | (int)rhs);
+  }
+  inline BoxOutputFlags &operator |=(BoxOutputFlags &lhs, BoxOutputFlags rhs) {
+    lhs = (BoxOutputFlags)((int)lhs | (int)rhs);
+    return lhs;
+  }
+  inline BoxOutputFlags operator -(BoxOutputFlags lhs, BoxOutputFlags rhs) {
+    return (BoxOutputFlags)((int)lhs & ~(int)rhs);
+  }
+  inline BoxOutputFlags &operator -=(BoxOutputFlags &lhs, BoxOutputFlags rhs) {
+    lhs = (BoxOutputFlags)((int)lhs & ~(int)rhs);
+    return lhs;
+  }
+  
+  enum class BoxInputFlags {
+    Default       = 0,
+    FormatNumbers = 1
   };
+  
+  inline bool has(BoxInputFlags lhs, BoxInputFlags rhs) {
+    return ((int)lhs & (int)rhs) == (int)rhs;
+  }
+  inline BoxInputFlags operator |(BoxInputFlags lhs, BoxInputFlags rhs) {
+    return (BoxInputFlags)((int)lhs | (int)rhs);
+  }
+  inline BoxInputFlags &operator |=(BoxInputFlags &lhs, BoxInputFlags rhs) {
+    lhs = (BoxInputFlags)((int)lhs | (int)rhs);
+    return lhs;
+  }
+  inline BoxInputFlags operator -(BoxInputFlags lhs, BoxInputFlags rhs) {
+    return (BoxInputFlags)((int)lhs & ~(int)rhs);
+  }
+  inline BoxInputFlags &operator -=(BoxInputFlags &lhs, BoxInputFlags rhs) {
+    lhs = (BoxInputFlags)((int)lhs & ~(int)rhs);
+    return lhs;
+  }
   
   /** Suspending deletions of Boxes.
-    
-      While destruction suspended is in effect, boxes will be remembered in a free 
-      list (the limbo). When destruction mode is resumed, all objects in the limbo are 
+  
+      While destruction suspended is in effect, boxes will be remembered in a free
+      list (the limbo). When destruction mode is resumed, all objects in the limbo are
       actually deleted.
-      
+  
       During mouse_down()/paint()/... handlers, the document might change.
       This could cause a parent box to be removed. Since it is still referenced
       on the stack, such a box should not be wiped out until the call stack is clean.
-      
+  
       Hence, the widget which forwards all calls to Box/Document should suppress
       destruction of Boxes during event handling.
    */
@@ -108,14 +144,14 @@ namespace richmath {
       ~AutoMemorySuspension() { resume_deletions(); }
       
       static bool are_deletions_suspended();
-    
+      
     private:
       static void suspend_deletions();
       static void resume_deletions();
   };
   
   class Box: public FrontEndObject {
-    friend class AutoMemorySuspension;
+      friend class AutoMemorySuspension;
     public:
       Box();
       virtual ~Box();
@@ -128,10 +164,10 @@ namespace richmath {
       void safe_destroy();
       
       template<class T>
-      static T *try_create(Expr expr, int options){
+      static T *try_create(Expr expr, BoxInputFlags options) {
         T *box = new T();
         
-        if(!box->try_load_from_object(expr, options)){
+        if(!box->try_load_from_object(expr, options)) {
           delete box;
           return nullptr;
         }
@@ -178,8 +214,8 @@ namespace richmath {
       virtual Box *remove(int *index) = 0;
       
       virtual Expr to_pmath_symbol() = 0;
-      virtual Expr to_pmath(int flags) = 0; // BoxFlagXXX
-      virtual Expr to_pmath(int flags, int start, int end) {
+      virtual Expr to_pmath(BoxOutputFlags flags) = 0;
+      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) {
         return to_pmath(flags);
       }
       
@@ -222,7 +258,7 @@ namespace richmath {
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) {}
       
-      virtual bool try_load_from_object(Expr object, int options) = 0; // BoxOptionXXX
+      virtual bool try_load_from_object(Expr object, BoxInputFlags options) = 0;
       virtual Box *dynamic_to_literal(int *start, int *end);
       
       bool         request_repaint_all();
@@ -252,7 +288,7 @@ namespace richmath {
       String get_own_style(StringStyleOptionName n);
       Expr   get_own_style(ObjectStyleOptionName n);
       
-      virtual void reset_style(){ if(style) style->clear(); }
+      virtual void reset_style() { if(style) style->clear(); }
       
       virtual Box *mouse_sensitive();
       virtual void on_mouse_enter();
@@ -288,7 +324,7 @@ namespace richmath {
       DummyBox(): Box() {}
       virtual ~DummyBox() {}
       
-      virtual bool try_load_from_object(Expr expr, int options) override { return false; }
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override { return false; }
       
       virtual Box *item(int i) override { return nullptr; }
       virtual int  count() override {     return 0; }
@@ -300,7 +336,7 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override { return Expr(); }
+      virtual Expr to_pmath(BoxOutputFlags flags) override { return Expr(); }
   };
   
   class AbstractSequence: public Box {
@@ -324,8 +360,8 @@ namespace richmath {
       virtual void remove(int start, int end) = 0;
       
       virtual Box *extract_box(int boxindex) = 0;
-      virtual bool try_load_from_object(Expr object, int options) override;
-      virtual void load_from_object(Expr object, int options) = 0; // BoxOptionXXX
+      virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
+      virtual void load_from_object(Expr object, BoxInputFlags options) = 0;
       
       virtual Box *dynamic_to_literal(int *start, int *end) override;
       

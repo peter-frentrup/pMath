@@ -81,12 +81,8 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
     box = get_current_document();
     
   if(box) {
-    Document *doc = box->find_parent<Document>(true);
-    
-    if(doc) {
-      Win32Widget *widget = dynamic_cast<Win32Widget *>(doc->native());
-      
-      if(widget) {
+    if(auto doc = box->find_parent<Document>(true)) {
+      if(auto widget = dynamic_cast<Win32Widget *>(doc->native())) {
         data.hwndOwner = GetAncestor(widget->hwnd(), GA_ROOT);
       }
     }

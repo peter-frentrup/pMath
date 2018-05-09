@@ -64,9 +64,9 @@
 using namespace richmath;
 
 namespace {
-  class ClientNotification {
+  class ClientNotificationData {
     public:
-      ClientNotification(): finished(0), result_ptr(0) {}
+      ClientNotificationData(): finished(0), result_ptr(0) {}
       
       void done() {
         if(finished) {
@@ -77,7 +77,7 @@ namespace {
       }
       
     public:
-      ClientNotificationType  type;
+      ClientNotification  type;
       Expr                    data;
       Expr                    notify_queue;
       pmath_atomic_t         *finished;
@@ -91,6 +91,7 @@ namespace {
         : Shareable(),
           next(_next)
       {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
       }
       
     public:
@@ -109,7 +110,7 @@ enum ClientState {
 
 static pmath_atomic_t state = { Starting }; // ClientState
 
-static ConcurrentQueue<ClientNotification> notifications;
+static ConcurrentQueue<ClientNotificationData> notifications;
 
 static SharedPtr<Session> session = new Session(0);
 
@@ -123,7 +124,7 @@ static double last_dynamic_evaluation = 0.0;
 
 static bool is_executing_for_sth = false;
 
-static void execute(ClientNotification &cn);
+static void execute(ClientNotificationData &cn);
 
 static pmath_atomic_t     print_pos_lock = PMATH_ATOMIC_STATIC_INIT;
 static EvaluationPosition print_pos;
@@ -134,7 +135,7 @@ static double total_time_waited_for_gui = 0.0;
 
 // also a GSourceFunc, must return 0
 static int on_client_notify(void *data) {
-  ClientNotification cn;
+  ClientNotificationData cn;
   
   if(notifications.get(&cn) && session)
     execute(cn);
@@ -239,11 +240,11 @@ String Application::application_directory;
 
 Hashtable<Expr, Expr, object_hash> Application::eval_cache;
 
-void Application::notify(ClientNotificationType type, Expr data) {
+void Application::notify(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) == Quitting)
     return;
     
-  ClientNotification cn;
+  ClientNotificationData cn;
   cn.type = type;
   cn.data = data;
   
@@ -259,7 +260,7 @@ void Application::notify(ClientNotificationType type, Expr data) {
 #endif
 }
 
-Expr Application::notify_wait(ClientNotificationType type, Expr data) {
+Expr Application::notify_wait(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) != Running)
     return Symbol(PMATH_SYMBOL_FAILED);
     
@@ -275,7 +276,7 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
     notify(type, data);
     return Symbol(PMATH_SYMBOL_FAILED);
     
-//    ClientNotification cn;
+//    ClientNotificationData cn;
 //    cn.type = type;
 //    cn.data = data;
 //    cn.result_ptr = &result;
@@ -284,7 +285,7 @@ Expr Application::notify_wait(ClientNotificationType type, Expr data) {
   }
   
   pmath_atomic_t finished = PMATH_ATOMIC_STATIC_INIT;
-  ClientNotification cn;
+  ClientNotificationData cn;
   cn.finished = &finished;
   cn.notify_queue = Expr(pmath_thread_get_queue());
   cn.type = type;
@@ -352,7 +353,7 @@ MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
     if(status.enabled)
       return status;
   }
-    
+  
   func = menu_command_testers[cmd[0]];
   if(func) {
     MenuCommandStatus status(func(cmd));
@@ -555,18 +556,18 @@ static void update_control_active(bool value) {
     
   original_value = value;
   if(value) {
-    Application::interrupt(
+    Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_ASSIGN),
-           GetSymbol(ControlActiveSymbol),
+           GetSymbol(FESymbolIndex::ControlActive),
            Symbol(PMATH_SYMBOL_TRUE)));
   }
   else {
-    Application::interrupt(
+    Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
            Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                GetSymbol(ControlActiveSymbol),
+                GetSymbol(FESymbolIndex::ControlActive),
                 Symbol(PMATH_SYMBOL_FALSE)),
            Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
                 Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),
@@ -692,7 +693,7 @@ int Application::run() {
 }
 
 void Application::done() {
-  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
   
   while(session) {
     SharedPtr<Job> job;
@@ -702,13 +703,13 @@ void Application::done() {
         job->dequeued();
     }
     
-    Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+    Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
     //Server::local_server->abort_all();
     
     session = session->next;
   }
   
-  ClientNotification cn;
+  ClientNotificationData cn;
   while(notifications.get(&cn)) {
     cn.done();
 //    if(cn.sem)
@@ -817,7 +818,7 @@ void Application::abort_all_jobs() {
     }
   }
   
-  Server::local_server->interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
   //Server::local_server->abort_all();
 }
 
@@ -865,7 +866,7 @@ Document *Application::create_document() {
     
     doc = get_current_document();
     if(doc) {
-      Win32Widget *wid = dynamic_cast<Win32Widget *>(doc->native());
+      auto wid = dynamic_cast<Win32Widget*>(doc->native());
       if(wid) {
         HWND hwnd = wid->hwnd();
         while(GetParent(hwnd) != nullptr)
@@ -951,7 +952,7 @@ Document *Application::create_document(Expr data) {
       {
         item = Call(Symbol(PMATH_SYMBOL_SECTION),
                     Call(Symbol(PMATH_SYMBOL_BOXDATA),
-                         Application::interrupt(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
+                         Application::interrupt_wait(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
                     String("Input"));
       }
       
@@ -1005,6 +1006,8 @@ Expr Application::run_filedialog(Expr data) {
   Expr result = Symbol(PMATH_SYMBOL_FAILED);
   double gui_start_time = pmath_tickcount();
   
+  pmath_debug_print("run_filedialog...\n");
+  
 #if RICHMATH_USE_WIN32_GUI
   Win32FileDialog
 #elif RICHMATH_USE_GTK_GUI
@@ -1012,13 +1015,17 @@ Expr Application::run_filedialog(Expr data) {
 #else
 #  error "No GUI"
 #endif
-  dialog(head == GetSymbol(FileSaveDialogSymbol));
+  dialog(head == GetSymbol(FESymbolIndex::FileSaveDialog));
   
-
+  pmath_debug_print("  set_title...\n");
   dialog.set_title(title);
+  pmath_debug_print("  set_initial_file...\n");
   dialog.set_initial_file(filename);
+  pmath_debug_print("  set_filter...\n");
   dialog.set_filter(filter);
-  result = dialog.show_dialog();  
+  pmath_debug_print("  show_dialog...\n");
+  result = dialog.show_dialog();
+  pmath_debug_print("...run_filedialog\n");
   
   double gui_end_time = pmath_tickcount();
   if(gui_start_time < gui_end_time)
@@ -1061,15 +1068,19 @@ bool Application::is_running_job_for(Box *box) {
   return false;
 }
 
+void Application::async_interrupt(Expr expr) {
+  Server::local_server->async_interrupt(expr);
+}
+
 static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
   double gui_start_time = total_time_waited_for_gui;
   
-  ConcurrentQueue<ClientNotification> *suppressed_notifications;
-  suppressed_notifications = (ConcurrentQueue<ClientNotification> *)data;
+  ConcurrentQueue<ClientNotificationData> *suppressed_notifications;
+  suppressed_notifications = (ConcurrentQueue<ClientNotificationData> *)data;
   
-  ClientNotification cn;
+  ClientNotificationData cn;
   while(notifications.get(&cn)) {
-//    if(cn.type == CNT_END || cn.type == CNT_ENDSESSION) {
+//    if(cn.type == ClientNotification::End || cn.type == ClientNotification::EndSession) {
 //      //notifications.put_front(cn);
 //      //break;
 //
@@ -1077,11 +1088,11 @@ static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
 //      continue;
 //    }
 
-    /* We must filter out CNT_DYNAMICUPDATE because that could update a parent
+    /* We must filter out ClientNotification::DynamicUpdate because that could update a parent
        DynamicBox of the DynamicBox that is currently updated during its
        paint() event. That would cause a memory corruption/crash.
      */
-    if( cn.type == CNT_DYNAMICUPDATE) {
+    if( cn.type == ClientNotification::DynamicUpdate) {
       suppressed_notifications->put_front(cn);
       continue;
     }
@@ -1098,14 +1109,13 @@ static pmath_bool_t interrupt_wait_idle(double *end_tick, void *data) {
   return FALSE; // not busy
 }
 
-Expr Application::interrupt(Expr expr, double seconds) {
-  ConcurrentQueue<ClientNotification>  suppressed_notifications;
+Expr Application::interrupt_wait(Expr expr, double seconds) {
+  ConcurrentQueue<ClientNotificationData>  suppressed_notifications;
   
   last_dynamic_evaluation = pmath_tickcount();
   
   Expr result = Server::local_server->interrupt_wait(expr, seconds, interrupt_wait_idle, &suppressed_notifications);
-  
-  ClientNotification cn;
+  ClientNotificationData cn;
   while(suppressed_notifications.get(&cn)) {
     notifications.put_front(cn);
   }
@@ -1113,11 +1123,11 @@ Expr Application::interrupt(Expr expr, double seconds) {
   return result;
 }
 
-Expr Application::interrupt(Expr expr) {
-  return interrupt(expr, interrupt_timeout);
+Expr Application::interrupt_wait(Expr expr) {
+  return interrupt_wait(expr, interrupt_timeout);
 }
 
-Expr Application::interrupt_cached(Expr expr, double seconds) {
+Expr Application::interrupt_wait_cached(Expr expr, double seconds) {
   if(!expr.is_pointer_of(PMATH_TYPE_SYMBOL | PMATH_TYPE_EXPRESSION))
     return expr;
     
@@ -1125,7 +1135,7 @@ Expr Application::interrupt_cached(Expr expr, double seconds) {
   if(cached)
     return *cached;
     
-  Expr result = interrupt(expr, seconds);
+  Expr result = interrupt_wait(expr, seconds);
   if( result != PMATH_SYMBOL_ABORTED &&
       result != PMATH_SYMBOL_FAILED)
   {
@@ -1144,30 +1154,31 @@ Expr Application::interrupt_cached(Expr expr, double seconds) {
   return result;
 }
 
-Expr Application::interrupt_cached(Expr expr) {
-  return interrupt_cached(expr, interrupt_timeout);
+Expr Application::interrupt_wait_cached(Expr expr) {
+  return interrupt_wait_cached(expr, interrupt_timeout);
 }
 
-void Application::interrupt_for(Expr expr, Box *box, double seconds) {
+Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   EvaluationPosition pos(box);
   
   expr = Call(
-           GetSymbol(InternalExecuteForSymbol),
+           GetSymbol(FESymbolIndex::InternalExecuteFor),
            expr,
            pos.document_id,
            pos.section_id,
            pos.box_id);
-  
+           
   bool old_is_executing_for_sth = is_executing_for_sth;
   is_executing_for_sth = true;
   
-  interrupt(expr, seconds);
-    
+  Expr result = interrupt_wait(expr, seconds);
+  
   is_executing_for_sth = old_is_executing_for_sth;
+  return result;
 }
 
-void Application::interrupt_for(Expr expr, Box *box) {
-  interrupt_for(expr, box, interrupt_timeout);
+Expr Application::interrupt_wait_for(Expr expr, Box *box) {
+  return interrupt_wait_for(expr, box, interrupt_timeout);
 }
 
 Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box) {
@@ -1340,8 +1351,7 @@ static void cnt_end(Expr data) {
         assert(doc);
         
         for(int s = 0; s < doc->count(); ++s) {
-          MathSection *math = dynamic_cast<MathSection *>(doc->section(s));
-          
+          auto math = dynamic_cast<MathSection*>(doc->section(s));
           if(math && math->get_style(ShowAutoStyles)) {
             math->invalidate();
           }
@@ -1388,20 +1398,12 @@ static void cnt_menucommand(Expr data) {
 }
 
 static void cnt_addconfigshaper(Expr data) {
-  SharedPtr<ConfigShaperDB> db = ConfigShaperDB::load_from_object(data);
+  SharedPtr<ConfigShaper> shaper = ConfigShaper::try_register(data);
   
-  if(db) {
-    SharedPtr<ConfigShaperDB> *olddb;
+  if(shaper) {
+    MathShaper::available_shapers.set(shaper->name(), shaper);
     
-    olddb = ConfigShaperDB::registered.search(db->shaper_name);
-    if(olddb) {
-      olddb->ptr()->clear_cache();
-    }
-    
-    ConfigShaperDB::registered.set(db->shaper_name, db);
-    MathShaper::available_shapers.set(db->shaper_name, db->find(NoStyle));
-    
-    pmath_debug_print_object("loaded ", db->shaper_name.get(), "\n");
+    pmath_debug_print_object("loaded ", shaper->name().get(), "\n");
   }
   else {
     pmath_debug_print("adding config shaper failed.\n");
@@ -1603,7 +1605,7 @@ static Expr cnt_documentget(Expr data) {
   if(box == 0)
     return Symbol(PMATH_SYMBOL_FAILED);
     
-  return box->to_pmath(BoxFlagDefault);
+  return box->to_pmath(BoxOutputFlags::Default);
 }
 
 static Expr cnt_documentread(Expr data) {
@@ -1622,7 +1624,7 @@ static Expr cnt_documentread(Expr data) {
   if(!doc || !doc->selection_box() || doc->selection_length() == 0)
     return String("");
     
-  return doc->selection_box()->to_pmath(BoxFlagDefault,
+  return doc->selection_box()->to_pmath(BoxOutputFlags::Default,
                                         doc->selection_start(),
                                         doc->selection_end());
 }
@@ -1675,178 +1677,218 @@ static Expr cnt_fontdialog(Expr data) {
   return result;
 }
 
-static Expr cnt_save(Expr data) {
-  // data = {document, filename}
-  // data = {document, None} = always ask for new file name
-  // data = {document}       = use document file name if available, ask otherwise
-  // data = {Automatic, ...}
-  
-  Document *doc = 0;
-  
-  if(data[1].is_expr()) {
-    Box *box = FrontEndObject::find_cast<Box>(data[1]);
-    
-    if(box)
-      doc = box->find_parent<Document>(true);
-  }
-  else
-    doc = get_current_document();
-    
-  if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  Expr filename = data[2];
-  
-  if(!filename.is_string() && filename != PMATH_SYMBOL_NONE)
-    filename = doc->native()->filename();
-    
-  if(!filename.is_string()) {
-    String initialfile = doc->native()->filename();
-    
-    if(initialfile.is_null())
-      initialfile = String("untitled.pmathdoc");
+namespace {
+  class SaveOperation {
+    private:
+      static String section_to_string(Section *sec) {
+        // TODO: convert only the first line to boxes
+        Expr boxes = sec->to_pmath(BoxOutputFlags::Default);
+        Expr text = Application::interrupt_wait(
+                      Parse("FE`BoxesToText(`1`, \"PlainText\")", boxes),
+                      Application::edit_interrupt_timeout);
+                      
+        String str = text.to_string();
+        const uint16_t *buf = str.buffer();
+        const int len = str.length();
+        for(int i = 0; i < len; ++i) {
+          if(buf[i] == L'\n')
+            return str.part(0, i);
+        }
+        return str;
+      }
       
-    Expr filter = List(
-                    Rule(String("pMath Documents (*.pmathdoc)"), String("*.pmathdoc"))/*,
+      static String guess_best_title(Document *doc) {
+        assert(doc != nullptr);
+        
+        for(int i = 0; i < doc->count(); ++i) {
+          Section *sec = doc->section(i);
+          String stylename = sec->get_style(BaseStyleName);
+          if(stylename.equals("Title"))
+            return section_to_string(sec);
+        }
+        
+        return String();
+      }
+      
+    public:
+      static Expr do_save(Expr data) {
+        // data = {document, filename}
+        // data = {document, None} = always ask for new file name
+        // data = {document}       = use document file name if available, ask otherwise
+        // data = {Automatic, ...}
+        
+        Document *doc = 0;
+        
+        if(data[1].is_expr()) {
+          Box *box = FrontEndObject::find_cast<Box>(data[1]);
+          
+          if(box)
+            doc = box->find_parent<Document>(true);
+        }
+        else
+          doc = get_current_document();
+          
+        if(!doc)
+          return Symbol(PMATH_SYMBOL_FAILED);
+          
+        Expr filename = data[2];
+        
+        if(!filename.is_string() && filename != PMATH_SYMBOL_NONE)
+          filename = doc->native()->filename();
+          
+        if(!filename.is_string()) {
+          String initialfile = doc->native()->filename();
+          
+          if(initialfile.is_null()) {
+            String title = guess_best_title(doc);
+            if(title.length() == 0)
+              title = String("untitled");
+            initialfile = title + ".pmathdoc";
+          }
+          
+          Expr filter = List(
+                          Rule(String("pMath Documents (*.pmathdoc)"), String("*.pmathdoc"))/*,
                     Rule(String("All Files (*.*)"),              String("*.*"))*/);
 
-    filename = Application::run_filedialog(
-                 Call(
-                   GetSymbol(FileSaveDialogSymbol),
-                   filter));
-  }
-  
-  if(!filename.is_string())
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  WriteableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENWRITE), filename)));
-  if(!file.is_file())
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  Expr nsp(pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH));
-  Expr ns( pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE));
-  Expr boxes = doc->to_pmath(BoxOptionDefault);
-  
-  file.write("/* pMath Document */\n\n");
-  
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, List().release());
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     String("Symbol`").release());
-  
-  boxes.write_to_file(file, PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
-  
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, nsp.release());
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     ns.release());
-  
-  file.close();
-  doc->native()->filename(filename);
-  doc->native()->on_saved();
-  return filename;
+          filename = Application::run_filedialog(
+                       Call(
+                         GetSymbol(FESymbolIndex::FileSaveDialog),
+                         initialfile,
+                         filter));
+        }
+        
+        if(!filename.is_string())
+          return Symbol(PMATH_SYMBOL_FAILED);
+          
+        WriteableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENWRITE), filename)));
+        if(!file.is_file())
+          return Symbol(PMATH_SYMBOL_FAILED);
+          
+        Expr nsp(pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH));
+        Expr ns( pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE));
+        Expr boxes = doc->to_pmath(BoxOutputFlags::Default);
+        
+        file.write("/* pMath Document */\n\n");
+        
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, List(String("System`")).release());
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     String("System`").release());
+        
+        boxes.write_to_file(file, PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
+        
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, nsp.release());
+        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     ns.release());
+        
+        file.close();
+        doc->native()->filename(filename);
+        doc->native()->on_saved();
+        return filename;
+      }
+  };
 }
-
-static void execute(ClientNotification &cn) {
+static void execute(ClientNotificationData &cn) {
   AutoMemorySuspension ams;
   
   switch(cn.type) {
-    case CNT_STARTSESSION:
+    case ClientNotification::StartSession:
       cnt_startsession();
       break;
       
-    case CNT_ENDSESSION:
+    case ClientNotification::EndSession:
       cnt_endsession();
       break;
       
-    case CNT_END:
+    case ClientNotification::End:
       cnt_end(cn.data);
       break;
       
-    case CNT_RETURN:
+    case ClientNotification::Return:
       cnt_return(cn.data);
       break;
       
-    case CNT_RETURNBOX:
+    case ClientNotification::ReturnBox:
       cnt_returnbox(cn.data);
       break;
       
-    case CNT_PRINTSECTION:
+    case ClientNotification::PrintSection:
       cnt_printsection(cn.data);
       break;
       
-    case CNT_GETDOCUMENTS:
+    case ClientNotification::GetDocuments:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getdocuments().release();
       break;
       
-    case CNT_MENUCOMMAND:
+    case ClientNotification::MenuCommand:
       cnt_menucommand(cn.data);
       break;
       
-    case CNT_ADDCONFIGSHAPER:
+    case ClientNotification::AddConfigShaper:
       cnt_addconfigshaper(cn.data);
       break;
       
-    case CNT_GETOPTIONS:
+    case ClientNotification::GetOptions:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getoptions(cn.data).release();
       break;
       
-    case CNT_SETOPTIONS:
+    case ClientNotification::SetOptions:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_setoptions(cn.data).release();
       else
         cnt_setoptions(cn.data);
       break;
       
-    case CNT_DYNAMICUPDATE:
+    case ClientNotification::DynamicUpdate:
       cnt_dynamicupate(cn.data);
       break;
       
-    case CNT_CREATEDOCUMENT:
+    case ClientNotification::CreateDocument:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_createdocument(cn.data).release();
       else
         cnt_createdocument(cn.data);
       break;
       
-    case CNT_CURRENTVALUE:
+    case ClientNotification::CurrentValue:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_currentvalue(cn.data).release();
       break;
       
-    case CNT_GETEVALUATIONDOCUMENT:
+    case ClientNotification::GetEvaluationDocument:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getevaluationdocument(cn.data).release();
       break;
       
-    case CNT_DOCUMENTGET:
+    case ClientNotification::DocumentGet:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentget(cn.data).release();
       break;
       
-    case CNT_DOCUMENTREAD:
+    case ClientNotification::DocumentRead:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentread(cn.data).release();
       break;
       
-    case CNT_COLORDIALOG:
+    case ClientNotification::ColorDialog:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_colordialog(cn.data).release();
       break;
       
-    case CNT_FONTDIALOG:
+    case ClientNotification::FontDialog:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_fontdialog(cn.data).release();
       break;
       
-    case CNT_FILEDIALOG:
+    case ClientNotification::FileDialog:
       if(cn.result_ptr)
         *cn.result_ptr = Application::run_filedialog(cn.data).release();
       break;
       
-    case CNT_SAVE:
+    case ClientNotification::Save:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_save(cn.data).release();
+        *cn.result_ptr = SaveOperation::do_save(cn.data).release();
       else
-        cnt_save(cn.data);
+        SaveOperation::do_save(cn.data);
       break;
   }
   

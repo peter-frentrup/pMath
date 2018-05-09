@@ -70,6 +70,8 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     current_item(0),
     next_item(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   INITCOMMONCONTROLSEX icex;
   icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
   icex.dwICC  = 0;//ICC_BAR_CLASSES;
@@ -260,8 +262,7 @@ void Win32Menubar::show_menu(int item) {
   
   SetFocus(_hwnd);
   
-  HHOOK hook = register_hook(item);
-  if(hook) {
+  if(HHOOK hook = register_hook(item)) {
     current_popup = GetSubMenu(_menu->hmenu(), item - 1);
     
     pt.y = tpm.rcExclude.bottom;
@@ -326,8 +327,7 @@ void Win32Menubar::show_sysmenu() {
   tpm.rcExclude.right  = tpm.rcExclude.left + GetSystemMetrics(SM_CXSMICON);
   tpm.rcExclude.bottom = tpm.rcExclude.top  + GetSystemMetrics(SM_CYCAPTION);
   
-  HHOOK hook = register_hook(-1);
-  if(hook) {
+  if(HHOOK hook = register_hook(-1)) {
     current_popup = GetSystemMenu(parent, FALSE);
     
     int x;

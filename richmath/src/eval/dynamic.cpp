@@ -16,6 +16,7 @@ Dynamic::Dynamic()
   _owner(0),
   _synchronous_updating(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 Dynamic::Dynamic(Box *owner, Expr expr)
@@ -23,6 +24,7 @@ Dynamic::Dynamic(Box *owner, Expr expr)
   _owner(0),
   _synchronous_updating(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   init(owner, expr);
 }
 
@@ -85,7 +87,7 @@ void Dynamic::assign(Expr value) {
     run = Call(Symbol(PMATH_SYMBOL_ASSIGN), _expr[1], value);
     
   run = _owner->prepare_dynamic(run);
-  Application::interrupt_for(run, _owner, Application::dynamic_timeout);
+  Application::interrupt_wait_for(run, _owner, Application::dynamic_timeout);
 }
 
 Expr Dynamic::get_value_now() {
@@ -102,7 +104,7 @@ Expr Dynamic::get_value_now() {
   
   Expr call = _owner->prepare_dynamic(_expr);
   
-  Expr value = Application::interrupt(
+  Expr value = Application::interrupt_wait(
                  Call(
                    Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
                    call,
@@ -144,11 +146,8 @@ bool Dynamic::get_value(Expr *result) {
   int sync = _synchronous_updating;
   
   if(sync == 2) {
-    Document *doc = _owner->find_parent<Document>(true);
-    
     sync = 1;
-    
-    if(doc)
+    if(auto doc = _owner->find_parent<Document>(true))
       sync = doc->is_mouse_down();
   }
   

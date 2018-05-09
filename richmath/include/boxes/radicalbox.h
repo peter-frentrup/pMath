@@ -13,7 +13,7 @@ namespace richmath {
       virtual ~RadicalBox();
       
       // Box::try_create<RadicalBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       MathSequence *radicand() { return _radicand; }
       MathSequence *exponent() { return _exponent; }
@@ -29,7 +29,7 @@ namespace richmath {
       void complete();
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,

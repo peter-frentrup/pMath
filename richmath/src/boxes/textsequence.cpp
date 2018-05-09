@@ -25,6 +25,7 @@ TextBuffer::TextBuffer(char *buf, int len)
     _length(len),
     _buffer(buf)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   if(len < 0) {
     _capacity = _length = strlen(buf);
   }
@@ -237,8 +238,8 @@ TextSequence::TextSequence()
 
 TextSequence::~TextSequence() {
   g_object_unref(_layout);
-  for(int i = 0; i < boxes.length(); ++i)
-    delete boxes[i];
+  for(auto box : boxes)
+    delete box;
 }
 
 String TextSequence::raw_substring(int start, int length) {
@@ -264,8 +265,8 @@ void TextSequence::resize(Context *context) {
   pango_tab_array_free(tabs);
   
   ensure_boxes_valid();
-  for(int i = 0; i < boxes.length(); ++i)
-    boxes[i]->resize(context);
+  for(auto box : boxes)
+    box->resize(context);
     
   text_invalid = true;
   ensure_text_valid();
@@ -351,6 +352,19 @@ void TextSequence::paint(Context *context) {
   int line = 0;
   PangoLayoutIter *iter = get_iter();
   do {
+    if(line >= line_y_corrections.length()) {
+      /* It might happen that pango_layout_iter_next_line() gives more lines than during resize().
+         This could happen if the current font/text_shaper was disposed since the last resize()
+         and its set_style() thus does not yield the same fonts any more.
+
+         For example, this scenario happened while the current math shaper was "Matematica 10 Sans" 
+         (a ConfigShaper) and FE`AddConfigShaper("...path\to\mathematica10_sans.pmath") was called:
+         The call to FE`AddConfigShaper disposed the old ConfigShaperDB, but some of the shapers 
+         where still in use by the document. 
+      */
+      break;
+    }
+
     PangoRectangle rect;
     pango_layout_iter_get_line_extents(iter, &rect, 0);
     
@@ -503,11 +517,11 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
   }
 }
 
-Expr TextSequence::to_pmath(int flags) {
+Expr TextSequence::to_pmath(BoxOutputFlags flags) {
   return to_pmath(flags, 0, text.length());
 }
 
-Expr TextSequence::to_pmath(int flags, int start, int end) {
+Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(end <= start || start < 0 || end > text.length())
     return String("");
     
@@ -541,9 +555,9 @@ Expr TextSequence::to_pmath(int flags, int start, int end) {
   return g.end();
 }
 
-void TextSequence::load_from_object(Expr object, int options) { // BoxOptionXXX
-  for(int i = 0; i < boxes.length(); ++i)
-    boxes[i]->safe_destroy();
+void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
+  for(auto box : boxes)
+    box->safe_destroy();
     
   boxes.length(0);
   text.remove(0, text.length());
@@ -649,15 +663,14 @@ void TextSequence::ensure_text_valid() {
     PangoAttrList *attrs;
     attrs = pango_attr_list_new();
     
-    for(int i = 0; i < boxes.length(); ++i) {
-      rect.y      = pango_units_from_double(-boxes[i]->extents().ascent);
-      rect.width  = pango_units_from_double(boxes[i]->extents().width);
-      rect.height = pango_units_from_double(boxes[i]->extents().height());
+    for(auto box : boxes) {
+      rect.y      = pango_units_from_double(-box->extents().ascent);
+      rect.width  = pango_units_from_double(box->extents().width);
+      rect.height = pango_units_from_double(box->extents().height());
       
-      PangoAttribute *shape = pango_attr_shape_new_with_data(
-                                &rect, &rect, boxes[i], 0, 0);
+      PangoAttribute *shape = pango_attr_shape_new_with_data(&rect, &rect, box, 0, 0);
                                 
-      shape->start_index = boxes[i]->index();
+      shape->start_index = box->index();
       shape->end_index   = shape->start_index + Utf8BoxCharLen;
       pango_attr_list_insert(attrs, shape);
     }
@@ -740,9 +753,7 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
 }
 
 int TextSequence::insert(int pos, AbstractSequence *seq, int start, int end) {
-  TextSequence *ts = dynamic_cast<TextSequence *>(seq);
-  
-  if(ts)
+  if(auto ts = dynamic_cast<TextSequence *>(seq))
     return insert(pos, ts, start, end);
     
   return AbstractSequence::insert(pos, seq, start, end);
@@ -811,7 +822,6 @@ Box *TextSequence::move_logical(
     if(text.is_box_at(*index)) {
       if(jumping) {
         s = g_utf8_find_next_char(s, s_end);
-        
         if(s)
           *index = (int)((size_t)s - (size_t)text.buffer());
         else

@@ -36,8 +36,8 @@ SectionList::SectionList()
 }
 
 SectionList::~SectionList() {
-  for(int i = 0; i < _sections.length(); ++i)
-    delete _sections[i];
+  for(auto section : _sections)
+    delete section;
 }
 
 Box *SectionList::item(int i) {
@@ -187,11 +187,11 @@ void SectionList::selection_path(Canvas *canvas, int start, int end) {
   }
 }
 
-Expr SectionList::to_pmath(int flags) {
+Expr SectionList::to_pmath(BoxOutputFlags flags) {
   return to_pmath(flags, 0, length());
 }
 
-Expr SectionList::to_pmath(int flags, int start, int end) {
+Expr SectionList::to_pmath(BoxOutputFlags flags, int start, int end) {
   Gather g;
   
   emit_pmath(flags, start, end);
@@ -203,7 +203,7 @@ Expr SectionList::to_pmath(int flags, int start, int end) {
   return Call(Symbol(PMATH_SYMBOL_SECTIONGROUP), e, Symbol(PMATH_SYMBOL_ALL));
 }
 
-void SectionList::emit_pmath(int flags, int start, int end) {
+void SectionList::emit_pmath(BoxOutputFlags flags, int start, int end) {
   while(start < end) {
     if(_group_info[start].end == start) {
       Gather::emit(_sections[start]->to_pmath(flags));
@@ -580,12 +580,10 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
     }
   }
   else {
-    Section *section;
-    
     if(*pos < overwrite_until_index) {
-      section = _sections[*pos];
+      Section *section = _sections[*pos];
       
-      if(section->try_load_from_object(boxes, BoxOptionDefault)) {
+      if(section->try_load_from_object(boxes, BoxInputFlags::Default)) {
         _group_info[*pos].precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
         
         ++*pos;
@@ -594,8 +592,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       }
     }
     
-    section = Section::create_from_object(boxes);
-    if(section) {
+    if(auto section = Section::create_from_object(boxes)) {
       //insert(*pos, s);
       _sections.insert(*pos, 1, &section);
       adopt(section, *pos);

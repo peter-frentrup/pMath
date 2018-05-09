@@ -50,9 +50,7 @@ void MathGtkControlPainter::calc_container_size(
   ContainerType  type,
   BoxSize       *extents
 ) {
-  GtkStyleContext *context = get_control_theme(type);
-  
-  if(context) {
+  if(GtkStyleContext *context = get_control_theme(type)) {
     switch(type) {
       case DefaultPushButton:
       case PushButton:
@@ -138,9 +136,7 @@ void MathGtkControlPainter::calc_container_size(
 }
  
 int MathGtkControlPainter::control_font_color(ContainerType type, ControlState state) {
-  GtkStyleContext *context = get_control_theme(type);
-  
-  if(context) {
+  if(GtkStyleContext *context = get_control_theme(type)) {
     GdkRGBA color;
     gtk_style_context_get_color(context, get_state_flags(type, state), &color);
     
@@ -178,9 +174,7 @@ void MathGtkControlPainter::draw_container(
   if(type == PaletteButton && state == Normal)
     return;
     
-  GtkStyleContext *context = get_control_theme(type);
-  
-  if(context) {
+  if(GtkStyleContext *context = get_control_theme(type)) {
     canvas->save();
     gtk_style_context_save(context);
     
@@ -265,9 +259,7 @@ void MathGtkControlPainter::container_content_move(
     case DefaultPushButton:
     case PaletteButton:
       if(state == PressedHovered) {
-        GtkStyleContext *context = get_control_theme(type);
-        
-        if(context) {
+        if(GtkStyleContext *context = get_control_theme(type)) {
           int dx, dy;
           
           gtk_style_context_get_style(context,

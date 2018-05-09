@@ -25,7 +25,7 @@ namespace richmath {
   class Span {
     public:
       Span(pmath_span_t *data): _data(data) {}
-      operator bool() { return _data != 0; }
+      operator bool() { return _data != nullptr; }
       
       Span next() { return Span(pmath_span_next(_data)); }
       int  end() {  return pmath_span_end(_data); }
@@ -38,7 +38,7 @@ namespace richmath {
   
   class SpanArray: public Base {
     public:
-      SpanArray(pmath_span_array_t *spans = 0);
+      SpanArray(pmath_span_array_t *spans = nullptr);
       ~SpanArray();
       
       pmath_span_array_t *extract_array();

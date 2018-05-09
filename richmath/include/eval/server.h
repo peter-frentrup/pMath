@@ -20,7 +20,7 @@ namespace richmath {
         double         timeout_seconds, 
         pmath_bool_t (*idle_function)(double *end_tick,void *idle_data), 
         void          *idle_data) = 0;
-      virtual void interrupt(Expr expr) = 0;
+      virtual void async_interrupt(Expr expr) = 0;
       
       virtual void abort_all() = 0;
       

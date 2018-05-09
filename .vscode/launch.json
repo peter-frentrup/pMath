@@ -26,11 +26,23 @@
             "visualizerFile": "${workspaceRoot}/debugging/windbg/pmath.natvis"
         },
         {
+            "name": "Launch richmath.exe (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/richmath/bin/windows/msvc-debug-x64/richmath.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "visualizerFile": "${workspaceRoot}/debugging/windbg/all.natvis"
+        },
+        {
             "name": "C++ Attach (Windows)",
             "type": "cppvsdbg",
             "request": "attach",
             "processId": "${command:pickProcess}",
-            "visualizerFile": "${workspaceRoot}/debugging/windbg/pmath.natvis"
+            "visualizerFile": "${workspaceRoot}/debugging/windbg/all.natvis"
         }
     ]
 }

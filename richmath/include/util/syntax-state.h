@@ -31,7 +31,7 @@ namespace richmath {
       virtual ~GeneralSyntaxInfo();
       
     public:
-      int glyph_style_colors[256];
+      int glyph_style_colors[16];
   };
   
   class ScopePos: public Shareable {
@@ -71,6 +71,7 @@ namespace richmath {
       LocalVariableForm locals_form;
       int locals_min;
       int locals_max;
+      bool is_keyword;
   };
   
   class SyntaxState: public Base {

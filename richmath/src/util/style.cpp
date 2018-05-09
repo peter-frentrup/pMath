@@ -154,6 +154,36 @@ int richmath::pmath_to_color(Expr obj) {
 static bool keep_dynamic = false;
 
 namespace {
+  class StyleEnumConverter: public Shareable {
+    public:
+      StyleEnumConverter();
+      
+      bool is_valid_int(int val) {
+        return _int_to_expr.search(val) != 0;
+      }
+      
+      bool is_valid_expr(Expr expr) {
+        return _expr_to_int.search(expr) != 0;
+      }
+      
+      int  to_int(Expr expr) {
+        return _expr_to_int[expr];
+      }
+      
+      Expr to_expr(int val) {
+        return _int_to_expr[val];
+      }
+      
+      const Hashtable<Expr, int> &expr_to_int() { return _expr_to_int; }
+      
+    protected:
+      void add(int val, Expr expr);
+      
+    protected:
+      Hashtable<int, Expr, cast_hash> _int_to_expr;
+      Hashtable<Expr, int>            _expr_to_int;
+  };
+  
   class ButtonFrameStyleEnumConverter: public StyleEnumConverter {
     public:
       ButtonFrameStyleEnumConverter()
@@ -221,8 +251,10 @@ namespace {
       }
   };
   
-  class StyleInformation: public Base {
+  class StyleInformation {
     public:
+      StyleInformation() = delete;
+
       static void add_style() {
         if(_num_styles++ == 0) {
           _name_to_key.default_value = -1;
@@ -414,7 +446,7 @@ namespace {
           }
           
           SharedPtr<StyleEnumConverter> sec = _key_to_enum_converter[super_key];
-          SubRuleConverter *sur = dynamic_cast<SubRuleConverter *>(sec.ptr());
+          auto sur = dynamic_cast<SubRuleConverter*>(sec.ptr());
           if(!sur) {
             pmath_debug_print_object("[invalid StyleEnumConverter: ", super_name.get(), "]\n");
             return;
@@ -455,6 +487,8 @@ namespace {
 StyleEnumConverter::StyleEnumConverter()
   : Shareable()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   _expr_to_int.default_value = -1;
 }
 
@@ -467,13 +501,20 @@ void StyleEnumConverter::add(int val, Expr expr) {
 
 //{ class Style ...
 
-Style::Style(): Shareable() {
+Style::Style()
+  : Shareable()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   StyleInformation::add_style();
 }
 
-Style::Style(Expr options): Shareable() {
+Style::Style(Expr options)
+  : Shareable()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+
   StyleInformation::add_style();
-  
   add_pmath(options);
 }
 
@@ -677,9 +718,7 @@ bool Style::update_dynamic(Box *parent) {
   
   unsigned cnt = object_values.size();
   for(unsigned ui = 0; cnt > 0; ++ui) {
-    Entry<int, Expr> *e = object_values.entry(ui);
-    
-    if(e) {
+    if(auto e = object_values.entry(ui)) {
       --cnt;
       
       if(e->key >= DynamicOffset)
@@ -1213,7 +1252,6 @@ Expr Style::get_pmath_bool_auto(IntStyleOptionName n) const {
 
 Expr Style::get_pmath_bool(IntStyleOptionName n) const {
   int i;
-  
   if(get(n, &i)) {
     if(i)
       return Symbol(PMATH_SYMBOL_TRUE);
@@ -1594,7 +1632,7 @@ Expr Stylesheet::get_pmath_with_base(SharedPtr<Style> s, Expr n) {
   Expr e = get_pmath(s, n);
   if(e != PMATH_SYMBOL_INHERITED)
     return e;
-  
+    
   return get_pmath(base, n);
 }
 

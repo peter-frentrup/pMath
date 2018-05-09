@@ -31,173 +31,7 @@ static double MaxFlashingCursorTime = 0.15; /* seconds */
 Hashtable<String, Expr, object_hash> richmath::global_immediate_macros;
 Hashtable<String, Expr, object_hash> richmath::global_macros;
 
-Box *richmath::expand_selection(Box *box, int *start, int *end) {
-  if(!box)
-    return 0;
-    
-  if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
-    for(int i = *start; i < *end; ++i) {
-      if(seq->span_array().is_token_end(i))
-        goto MULTIPLE_TOKENS;
-    }
-    
-    if( *start == *end &&
-        *start > 0 &&
-        !seq->span_array().is_operand_start(*start))
-    {
-      --*start;
-      --*end;
-    }
-    
-    while(*start > 0 && !seq->span_array().is_token_end(*start - 1))
-      --*start;
-      
-    while(*end < seq->length() && !seq->span_array().is_token_end(*end))
-      ++*end;
-      
-    if(*end < seq->length())
-      ++*end;
-    return seq;
-    
-  MULTIPLE_TOKENS:
-    if(*start < seq->length()) {
-      Span s = seq->span_array()[*start];
-      
-      if(s) {
-        int e = s.end();
-        while(s && s.end() >= *end) {
-          e = s.end();
-          s = s.next();
-        }
-        
-        if(e >= *end) {
-          *end = e + 1;
-          return seq;
-        }
-      }
-    }
-    
-    int a = *start;
-    while(--a >= 0) {
-      Span s = seq->span_array()[a];
-      
-      if(s) {
-        int e = s.end();
-        while(s && s.end() + 1 >= *end) {
-          e = s.end();
-          s = s.next();
-        }
-        
-        if(e + 1 >= *end) {
-          *start = a;
-          *end = e + 1;
-          return seq;
-        }
-      }
-    }
-    
-    if( *start > 0 ||
-        *end < seq->length())
-    {
-      *start = 0;
-      *end = seq->length();
-      return seq;
-    }
-  }
-  else if(TextSequence *seq = dynamic_cast<TextSequence *>(box)) {
-    if(*start > 0 || *end < seq->length()) {
-      PangoLogAttr *attrs;
-      int n_attrs;
-      pango_layout_get_log_attrs(seq->get_layout(), &attrs, &n_attrs);
-      
-      const char *buf = seq->text_buffer().buffer();
-      const char *s              = buf;
-      const char *s_end          = buf + seq->length();
-      const char *word_start     = buf;
-      
-      int i = 0;
-      while(s && (size_t)s - (size_t)buf <= (size_t)*start) {
-        if(attrs[i].is_word_start)
-          word_start = s;
-          
-        ++i;
-        s = g_utf8_find_next_char(s, s_end);
-      }
-      
-      const char *word_end = nullptr;
-      
-      while(s && !word_end) {
-        if(attrs[i].is_word_boundary && word_end != word_start)
-          word_end = s;
-          
-        ++i;
-        s = g_utf8_find_next_char(s, s_end);
-      }
-      
-      g_free(attrs);
-      attrs = nullptr;
-      
-      if(!word_end)
-        word_end = s_end;
-        
-      if( (size_t)word_end - (size_t)buf       >= (size_t)*end &&
-          (size_t)word_end - (size_t)word_start > (size_t)*end - (size_t)*start)
-      {
-        *start = (int)((size_t)word_start - (size_t)buf);
-        *end   = (int)((size_t)word_end   - (size_t)buf);
-      }
-      else {
-        GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
-        
-        int prev_par_start = 0;
-        int paragraph_start = 0;
-        while(lines) {
-          PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
-          
-          if(line->is_paragraph_start && line->start_index <= *start) {
-            prev_par_start = paragraph_start;
-            paragraph_start = line->start_index;
-          }
-          
-          if(line->start_index + line->length >= *end) {
-            if(line->start_index <= *start && *end - *start < line->length) {
-              *start = line->start_index;
-              *end = line->start_index + line->length;
-              break;
-            }
-            
-            int old_end = *end;
-            
-            lines = lines->next;
-            while(lines) {
-              PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
-              if(line->is_paragraph_start && line->start_index >= *end) {
-                *end = line->start_index;
-                break;
-              }
-              
-              lines = lines->next;
-            }
-            
-            if(!lines)
-              *end = seq->length();
-              
-            if(old_end - *start < *end - paragraph_start)
-              *start = paragraph_start;
-            else
-              *start = prev_par_start;
-              
-            break;
-          }
-          
-          lines = lines->next;
-        }
-      }
-      
-      return seq;
-    }
-  }
-  
+static Box *expand_selection_default(Box *box, int *start, int *end) {
   int index = box->index();
   Box *box2 = box->parent();
   while(box2) {
@@ -212,6 +46,194 @@ Box *richmath::expand_selection(Box *box, int *start, int *end) {
   }
   
   return box;
+}
+
+Box *expand_selection_math(MathSequence *seq, int *start, int *end) {
+  for(int i = *start; i < *end; ++i) {
+    if(seq->span_array().is_token_end(i))
+      goto MULTIPLE_TOKENS;
+  }
+  
+  if( *start == *end &&
+      *start > 0 &&
+      !seq->span_array().is_operand_start(*start))
+  {
+    --*start;
+    --*end;
+  }
+  
+  while(*start > 0 && !seq->span_array().is_token_end(*start - 1))
+    --*start;
+    
+  while(*end < seq->length() && !seq->span_array().is_token_end(*end))
+    ++*end;
+    
+  if(*end < seq->length())
+    ++*end;
+  return seq;
+  
+MULTIPLE_TOKENS:
+  if(*start < seq->length()) {
+    if(Span s = seq->span_array()[*start]) {
+      int e = s.end();
+      while(s && s.end() >= *end) {
+        e = s.end();
+        s = s.next();
+      }
+      
+      if(e >= *end) {
+        *end = e + 1;
+        return seq;
+      }
+    }
+  }
+  
+  int orig_start = *start;
+  int orig_end = *end;
+  const uint16_t *buf = seq->text().buffer();
+  
+  int a = *start;
+  while(--a >= 0) {
+    if(Span s = seq->span_array()[a]) {
+      int e = s.end();
+      while(s && s.end() + 1 >= *end) {
+        e = s.end();
+        s = s.next();
+      }
+      
+      if(e + 1 >= *end) {
+        *start = a;
+        while(*start < orig_start && buf[*start] == '\n')
+          ++*start;
+        *end = e + 1;
+        if(*start == orig_start && *end == orig_end && orig_end < seq->length()) {
+          ++*end;
+          ++a;
+          continue;
+        }
+        return seq;
+      }
+    }
+  }
+  
+  if( *start > 0 ||
+      *end < seq->length())
+  {
+    *start = 0;
+    *end = seq->length();
+    return seq;
+  }
+  
+  return expand_selection_default(seq, start, end);
+}
+
+Box *expand_selection_text(TextSequence *seq, int *start, int *end) {
+  if(*start == 0 && *end == seq->length())
+    return expand_selection_default(seq, start, end);
+    
+  PangoLogAttr *attrs;
+  int n_attrs;
+  pango_layout_get_log_attrs(seq->get_layout(), &attrs, &n_attrs);
+  
+  const char *buf = seq->text_buffer().buffer();
+  const char *s              = buf;
+  const char *s_end          = buf + seq->length();
+  const char *word_start     = buf;
+  
+  int i = 0;
+  while(s && (size_t)s - (size_t)buf <= (size_t)*start) {
+    if(attrs[i].is_word_start)
+      word_start = s;
+      
+    ++i;
+    s = g_utf8_find_next_char(s, s_end);
+  }
+  
+  const char *word_end = nullptr;
+  
+  while(s && !word_end) {
+    if(attrs[i].is_word_boundary && word_end != word_start)
+      word_end = s;
+      
+    ++i;
+    s = g_utf8_find_next_char(s, s_end);
+  }
+  
+  g_free(attrs);
+  attrs = nullptr;
+  
+  if(!word_end)
+    word_end = s_end;
+    
+  if( (size_t)word_end - (size_t)buf       >= (size_t)*end &&
+      (size_t)word_end - (size_t)word_start > (size_t)*end - (size_t)*start)
+  {
+    *start = (int)((size_t)word_start - (size_t)buf);
+    *end   = (int)((size_t)word_end   - (size_t)buf);
+  }
+  else {
+    GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
+    
+    int prev_par_start = 0;
+    int paragraph_start = 0;
+    while(lines) {
+      PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
+      
+      if(line->is_paragraph_start && line->start_index <= *start) {
+        prev_par_start = paragraph_start;
+        paragraph_start = line->start_index;
+      }
+      
+      if(line->start_index + line->length >= *end) {
+        if(line->start_index <= *start && *end - *start < line->length) {
+          *start = line->start_index;
+          *end = line->start_index + line->length;
+          break;
+        }
+        
+        int old_end = *end;
+        
+        lines = lines->next;
+        while(lines) {
+          PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
+          if(line->is_paragraph_start && line->start_index >= *end) {
+            *end = line->start_index;
+            break;
+          }
+          
+          lines = lines->next;
+        }
+        
+        if(!lines)
+          *end = seq->length();
+          
+        if(old_end - *start < *end - paragraph_start)
+          *start = paragraph_start;
+        else
+          *start = prev_par_start;
+          
+        break;
+      }
+      
+      lines = lines->next;
+    }
+  }
+  
+  return seq;
+}
+
+Box *richmath::expand_selection(Box *box, int *start, int *end) {
+  if(!box)
+    return nullptr;
+    
+  if(auto seq = dynamic_cast<MathSequence *>(box)) {
+    return expand_selection_math(seq, start, end);
+  }
+  else if(auto seq = dynamic_cast<TextSequence *>(box)) {
+    return expand_selection_text(seq, start, end);
+  }
+  
+  return expand_selection_default(box, start, end);
 }
 
 int richmath::box_depth(Box *box) {
@@ -303,9 +325,7 @@ static MathSequence *search_string(
   bool complete_token
 ) {
 RESTART:
-  MathSequence *seq = dynamic_cast<MathSequence *>(box);
-  
-  if(seq) {
+  if(auto seq = dynamic_cast<MathSequence *>(box)) {
     const uint16_t *buf = string.buffer();
     int             len = string.length();
     
@@ -471,14 +491,10 @@ namespace richmath {
               self.selection_start(),
               self.selection_end());
               
-          for(int i = 0; i < self.additional_selection.length(); ++i) {
-            b = self.additional_selection[i].get();
-            if(b)
-              b->request_repaint_range(
-                self.additional_selection[i].start,
-                self.additional_selection[i].end);
+          for(auto sel : self.additional_selection) {
+            if(Box *b = sel.get())
+              b->request_repaint_range(sel.start, sel.end);
           }
-          
           self.additional_selection.length(0);
           
           if(self.auto_completion.range.id) {
@@ -505,7 +521,6 @@ namespace richmath {
         
         self.best_index_rel_x = 0;
       }
-      
       
       void after_resize_section(int i) {
         Section *sect = self.section(i);
@@ -545,183 +560,185 @@ namespace richmath {
       }
       
       void add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section) {
-        // highlight the current selected word in the whole document:
-        if(self.selection_length() > 0) {
-          MathSequence *seq = dynamic_cast<MathSequence *>(self.selection_box());
-          int start = self.selection_start();
-          int end   = self.selection_end();
-          int len   = self.selection_length();
+        self._current_word_references.length(0);
+        
+        if(self.selection_length() == 0)
+          return;
           
-          if( seq &&
-              !seq->is_placeholder(start) &&
-              (start == 0 || seq->span_array().is_token_end(start - 1)) &&
-              seq->span_array().is_token_end(end - 1))
-          {
-            if(selection_is_name(&self)) {
-              String s = seq->text().part(start, len);
-              
-              if(s.length() > 0) {
-                Box *find = &self;
-                int index = first_visible_section;
-                
-                PaintHookManager temp_hooks;
-                int num_occurencies = 0;
-                int oldlen = self.additional_selection.length();
-                
-                while(0 != (find = search_string(
-                                     find,
-                                     &index,
-                                     &self,
-                                     last_visible_section + 1,
-                                     s,
-                                     true)))
-                {
-                  int s = index - len;
-                  int e = index;
-                  Box *b = find->get_highlight_child(find, &s, &e);
-                  
-                  if(b == find) {
-                    add_fill(temp_hooks, b, s, e, 0xFF9933);
-                    ++num_occurencies;
-                  }
-                }
-                
-                bool do_fill = false;
-                
-                if(num_occurencies == 1) {
-                  int sel_sect = -1;
-                  Box *b = self.context.selection.get();
-                  while(b && b != &self) {
-                    sel_sect = b->index();
-                    b = b->parent();
-                  }
-                  
-                  if( sel_sect >= first_visible_section &&
-                      sel_sect <= last_visible_section)
-                  {
-                    // The one found occurency is the selection. Search for more
-                    // occurencies outside the visible range.
-                    find = &self;
-                    index = 0;
-                    
-                    while(0 != (find = search_string(
-                                         find,
-                                         &index,
-                                         &self,
-                                         first_visible_section,
-                                         s,
-                                         true)))
-                    {
-                      do_fill = true;
-                      break;
-                    }
-                    
-                    if(!do_fill) {
-                      find = &self;
-                      index = last_visible_section + 1;
-                      
-                      while(0 != (find = search_string(
-                                           find,
-                                           &index,
-                                           &self,
-                                           self.length(),
-                                           s,
-                                           true)))
-                      {
-                        do_fill = true;
-                        break;
-                      }
-                      
-                    }
-                  }
-                  else
-                    do_fill = true;
-                }
-                else
-                  do_fill = (num_occurencies > 1);
-                  
-                if(do_fill)
-                  temp_hooks.move_into(self.context.pre_paint_hooks);
-                else
-                  self.additional_selection.length(oldlen);
-              }
-            }
-          }
-        }
-      }
-      
-      void add_matching_bracket_hook() {
         MathSequence *seq = dynamic_cast<MathSequence *>(self.selection_box());
         int start = self.selection_start();
         int end   = self.selection_end();
+        int len   = self.selection_length();
         
+        if( seq &&
+            !seq->is_placeholder(start) &&
+            (start == 0 || seq->span_array().is_token_end(start - 1)) &&
+            seq->span_array().is_token_end(end - 1))
+        {
+          if(!selection_is_name(&self))
+            return;
+            
+          String str = seq->text().part(start, len);
+          if(str.length() == 0)
+            return;
+            
+          Box *find = &self;
+          int index = first_visible_section;
+          
+          PaintHookManager temp_hooks;
+          int num_occurencies = 0;
+          int old_additional_selection_length = self.additional_selection.length();
+          
+          while(0 != (find = search_string(
+                               find,
+                               &index,
+                               &self,
+                               last_visible_section + 1,
+                               str,
+                               true)))
+          {
+            int s = index - len;
+            int e = index;
+            Box *box = find->get_highlight_child(find, &s, &e);
+            
+            if(box == find) {
+              self._current_word_references.add(SelectionReference(box->id(), s, e));
+              add_fill(temp_hooks, box, s, e, 0xFF9933);
+              ++num_occurencies;
+            }
+          }
+          
+          bool do_fill = false;
+          
+          if(num_occurencies == 1) {
+            int sel_sect = -1;
+            Box *box = self.context.selection.get();
+            while(box && box != &self) {
+              sel_sect = box->index();
+              box = box->parent();
+            }
+            
+            if(sel_sect >= first_visible_section && sel_sect <= last_visible_section) {
+              // The one found occurency is the selection. Search for more
+              // occurencies outside the visible range.
+              do_fill = word_occurs_outside_visible_range(str, first_visible_section, last_visible_section);
+            }
+            else
+              do_fill = true;
+          }
+          else
+            do_fill = (num_occurencies > 1);
+            
+          if(do_fill)
+            temp_hooks.move_into(self.context.pre_paint_hooks);
+          else
+            self.additional_selection.length(old_additional_selection_length);
+            
+        }
+      }
+      
+      bool word_occurs_outside_visible_range(String str, int first_visible_section, int last_visible_section) {
+        Box *find = &self;
+        int index = 0;
+        
+        while(nullptr != (find = search_string(
+                                   find,
+                                   &index,
+                                   &self,
+                                   first_visible_section,
+                                   str,
+                                   true)))
+        {
+          return true;
+        }
+        
+        find = &self;
+        index = last_visible_section + 1;
+        while(nullptr != (find = search_string(
+                                   find,
+                                   &index,
+                                   &self,
+                                   self.length(),
+                                   str,
+                                   true)))
+        {
+          return true;
+        }
+        
+        return false;
+      }
+      
+      void add_matching_bracket_hook() {
+        int start = self.selection_start();
+        int end   = self.selection_end();
+        auto seq = dynamic_cast<MathSequence *>(self.selection_box());
         if(seq) {
-          SpanExpr *span;
-          
-          span = SpanExpr::find(seq, start, true);
-          
+          SpanExpr *span = SpanExpr::find(seq, start, true);
           while(span && span->end() + 1 < end)
             span = span->expand(true);
             
           for(; span; span = span->expand(true)) {
             if(FunctionCallSpan::is_simple_call(span)) {
-              FunctionCallSpan call(span);
-              
-              SpanExpr *head = call.function_head();
-              if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
-                  box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
               {
-                continue;
-              }
-              seq = span->sequence();
-              
-              // head without white space
-              while(head->count() == 1)
-                head = head->item(0);
+                FunctionCallSpan call(span);
                 
-              add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
-              
-              // opening parenthesis, always exists
-              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
-              
-              // closing parenthesis, last item, might not exist
-              int clos = span->count() - 1;
-              if(clos >= 2 && span->item_equals(clos, ")")) {
-                add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
-              }
-              
+                SpanExpr *head = call.function_head();
+                if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
+                    box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
+                {
+                  continue;
+                }
+                seq = span->sequence();
+                
+                // head without white space
+                while(head->count() == 1)
+                  head = head->item(0);
+                  
+                add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
+                
+                // opening parenthesis, always exists
+                add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
+                
+                // closing parenthesis, last item, might not exist
+                int clos = span->count() - 1;
+                if(clos >= 2 && span->item_equals(clos, ")")) {
+                  add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
+                }
+                
+              } // destroy call before deleting span
               delete span;
               return;
             }
             
             if(FunctionCallSpan::is_complex_call(span)) {
-              FunctionCallSpan call(span);
-              
-              SpanExpr *head = span->item(2);
-              if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
-                  box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
               {
-                continue;
-              }
-              seq = span->sequence();
-              
-              // head, always exists
-              add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
-              
-              // dot, always exists
-              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
-              
-              // opening parenthesis, might not exist
-              if(span->count() > 3) {
-                add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, 0xFFFF00, 0.5);
-              }
-              
-              // closing parenthesis, last item, might not exist
-              int clos = span->count() - 1;
-              if(clos >= 2 && span->item_equals(clos, ")")) {
-                add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
-              }
-              
+                FunctionCallSpan call(span);
+                
+                SpanExpr *head = span->item(2);
+                if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
+                    box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
+                {
+                  continue;
+                }
+                seq = span->sequence();
+                
+                // head, always exists
+                add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
+                
+                // dot, always exists
+                add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
+                
+                // opening parenthesis, might not exist
+                if(span->count() > 3) {
+                  add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, 0xFFFF00, 0.5);
+                }
+                
+                // closing parenthesis, last item, might not exist
+                int clos = span->count() - 1;
+                if(clos >= 2 && span->item_equals(clos, ")")) {
+                  add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
+                }
+              } // destroy call before deleting span
               delete span;
               return;
             }
@@ -900,9 +917,84 @@ namespace richmath {
       //}
       
       //{ insertion
+      bool is_inside_string() {
+        return is_inside_string(self.context.selection.get(), self.context.selection.start);
+      }
+      
+      static bool is_inside_string(Box *box, int index) {
+        while(box) {
+          if(auto seq = dynamic_cast<MathSequence *>(box)) {
+            if(seq->is_inside_string((index)))
+              return true;
+              
+          }
+          index = box->index();
+          box = box->parent();
+        }
+        
+        return false;
+      }
+      
+      bool is_inside_alias() {
+        bool result = false;
+        Box *box = self.context.selection.get();
+        int index = self.context.selection.start;
+        while(box) {
+          if(auto seq = dynamic_cast<MathSequence *>(box)) {
+            const uint16_t *buf = seq->text().buffer();
+            for(int i = 0; i < index; ++i) {
+              if(buf[i] == PMATH_CHAR_ALIASDELIMITER)
+                result = !result;
+            }
+          }
+          index = box->index();
+          box = box->parent();
+        }
+        return result;
+      }
+      
+      // substart and subend may lie outside 0..subbox->length()
+      bool is_inside_selection(Box *subbox, int substart, int subend) {
+        if(self.selection_box() && self.selection_length() > 0) {
+          // section selections are only at the right margin, the section content is
+          // not inside the selection-frame
+          if(self.selection_box() == &self && subbox != &self)
+            return false;
+            
+          if(substart == subend)
+            return false;
+            
+          Box *b = subbox;
+          while(b && b != self.selection_box()) {
+            substart = b->index();
+            subend   = substart + 1;
+            b = b->parent();
+          }
+          
+          if( b == self.selection_box() &&
+              self.selection_start() <= substart &&
+              subend <= self.selection_end())
+          {
+            return true;
+          }
+        }
+        
+        return false;
+      }
+      
+      bool is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start) {
+        if(subbox && subbox != &self && substart == subend) {
+          if(was_inside_start)
+            subend = substart + 1;
+          else
+            --substart;
+        }
+        
+        return self.selection_box() && is_inside_selection(subbox, substart, subend);
+      }
+      
       void set_prev_sel_line() {
-        AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box());
-        if(seq) {
+        if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box())) {
           self.prev_sel_line = seq->get_line(self.selection_end(), self.prev_sel_line);
           self.prev_sel_box_id = seq->id();
         }
@@ -930,8 +1022,7 @@ namespace richmath {
           
           String lang;
           if(!section_style->get(LanguageCategory, &lang)) {
-            SharedPtr<Stylesheet> all = self.stylesheet();
-            if(all)
+            if(auto all = self.stylesheet())
               all->get(section_style, LanguageCategory, &lang);
           }
           
@@ -969,9 +1060,7 @@ namespace richmath {
           return false;
           
         if(include_previous_word && self.selection_length() == 0) {
-          TextSequence *txt = dynamic_cast<TextSequence *>(seq);
-          
-          if(txt) {
+          if(auto txt = dynamic_cast<TextSequence *>(seq)) {
             const char *buf = txt->text_buffer().buffer();
             int i = self.selection_start();
             
@@ -1052,7 +1141,7 @@ namespace richmath {
       void handle_key_pageup_pagedown(SpecialKeyEvent &event, LogicalDirection direction) {
         if(!self.native()->is_scrollable())
           return;
-        
+          
         float w, h;
         self.native()->window_size(&w, &h);
         if(direction == LogicalDirection::Backward)
@@ -1064,7 +1153,7 @@ namespace richmath {
       }
       
       void handle_key_tab(SpecialKeyEvent &event) {
-        if(self.is_tabkey_only_moving()) {
+        if(is_tabkey_only_moving()) {
           SelectionReference oldpos = self.context.selection;
           
           if(!event.ctrl) {
@@ -1086,6 +1175,51 @@ namespace richmath {
         event.key = SpecialKey::Unknown;
       }
       
+    private:
+      bool is_tabkey_only_moving() {
+        Box *selbox = self.context.selection.get();
+        
+        if(self.context.selection.start != self.context.selection.end)
+          return true;
+          
+        if(!selbox || selbox == &self)
+          return false;
+          
+        if(!dynamic_cast<Section *>(selbox->parent()))
+          return true;
+          
+        if(auto seq = dynamic_cast<MathSequence *>(selbox)) {
+          const uint16_t *buf = seq->text().buffer();
+          
+          for(int i = self.context.selection.start - 1; i >= 0; --i) {
+            if(buf[i] == '\n')
+              return false;
+              
+            if(buf[i] != '\t' && buf[i] != ' ')
+              return true;
+          }
+          
+          return false;
+        }
+        
+        if(auto seq = dynamic_cast<TextSequence *>(selbox)) {
+          const char *buf = seq->text_buffer().buffer();
+          
+          for(int i = self.context.selection.start - 1; i >= 0; --i) {
+            if(buf[i] == '\n')
+              return false;
+              
+            if(buf[i] != '\t' && buf[i] != ' ')
+              return true;
+          }
+          
+          return false;
+        }
+        
+        return true;
+      }
+      
+    public:
       void handle_key_backspace(SpecialKeyEvent &event) {
         set_prev_sel_line();
         if(self.selection_length() > 0) {
@@ -1234,9 +1368,7 @@ namespace richmath {
       
       void handle_key_escape(SpecialKeyEvent &event) {
         if(self.context.clicked_box_id) {
-          Box *receiver = FrontEndObject::find_cast<Box>(self.context.clicked_box_id);
-          
-          if(receiver)
+          if(auto receiver = FrontEndObject::find_cast<Box>(self.context.clicked_box_id))
             receiver->on_mouse_cancel();
             
           self.context.clicked_box_id = 0;
@@ -1273,7 +1405,7 @@ namespace richmath {
             
             if(s.is_null()) {
               MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxOptionDefault);
+              repl_seq->load_from_object(repl, BoxInputFlags::Default);
               
               seq->remove(i, e);
               self.move_to(self.selection_box(), i);
@@ -1363,7 +1495,7 @@ namespace richmath {
               }
               else {
                 MathSequence *repl_seq = new MathSequence();
-                repl_seq->load_from_object(repl, BoxOptionDefault);
+                repl_seq->load_from_object(repl, BoxInputFlags::Default);
                 
                 seq->remove(i, e);
                 self.move_to(self.selection_box(), i);
@@ -1420,7 +1552,7 @@ Document::Document()
 Document::~Document() {
 }
 
-bool Document::try_load_from_object(Expr expr, int options) {
+bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr[0] != PMATH_SYMBOL_DOCUMENT)
     return false;
     
@@ -1627,7 +1759,6 @@ static void reverse_mouse_enter(Box *base, Box *child) {
 
 void Document::mouse_move(MouseEvent &event) {
   Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
-  
   if(receiver) {
     native()->set_cursor(CurrentCursor);
     
@@ -1700,9 +1831,7 @@ void Document::focus_killed() {
   context.active = false;
   reset_mouse();
   
-  Box *sel = selection_box();
-  
-  if(sel) {
+  if(Box *sel = selection_box()) {
     sel->on_exit();
     
     if(!sel->selectable())
@@ -1715,8 +1844,7 @@ void Document::focus_killed() {
 void Document::key_down(SpecialKeyEvent &event) {
   native()->hide_tooltip();
   
-  Box *selbox = context.selection.get();
-  if(selbox) {
+  if(Box *selbox = context.selection.get()) {
     selbox->on_key_down(event);
   }
   else {
@@ -1727,8 +1855,7 @@ void Document::key_down(SpecialKeyEvent &event) {
 }
 
 void Document::key_up(SpecialKeyEvent &event) {
-  Box *selbox = context.selection.get();
-  if(selbox) {
+  if(Box *selbox = context.selection.get()) {
     selbox->on_key_up(event);
   }
   else {
@@ -1751,8 +1878,7 @@ void Document::key_press(uint16_t unicode) {
     return;
   }
   
-  Box *selbox = context.selection.get();
-  if(selbox) {
+  if(Box *selbox = context.selection.get()) {
     selbox->on_key_press(unicode);
   }
   else {
@@ -1829,7 +1955,7 @@ void Document::on_mouse_down(MouseEvent &event) {
         if(!should_expand) {
           should_expand = true;
           
-          if(MathSequence *seq = dynamic_cast<MathSequence *>(selbox)) {
+          if(auto seq = dynamic_cast<MathSequence *>(selbox)) {
             should_expand = false;
             while(start > 0 && !seq->span_array().is_token_end(start - 1))
               --start;
@@ -1845,7 +1971,7 @@ void Document::on_mouse_down(MouseEvent &event) {
         select(selbox, start, end);
       }
     }
-    else if(is_inside_selection(box, start, end, was_inside_start)) {
+    else if(DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start)) {
       // maybe drag & drop
       drag_status = DragStatusMayDrag;
     }
@@ -1885,7 +2011,7 @@ void Document::on_mouse_move(MouseEvent &event) {
     return;
   }
   
-  if(!event.left && is_inside_selection(box, start, end, was_inside_start)) {
+  if(!event.left && DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start)) {
     native()->set_cursor(DefaultCursor);
   }
   else if(box->selectable()) {
@@ -1907,9 +2033,7 @@ void Document::on_mouse_move(MouseEvent &event) {
     native()->set_cursor(DefaultCursor);
     
   if(event.left && context.clicked_box_id) {
-    Box *mouse_down_box = mouse_down_sel.get();
-    
-    if(mouse_down_box) {
+    if(Box *mouse_down_box = mouse_down_sel.get()) {
       Section *sec1 = mouse_down_box->find_parent<Section>(true);
       Section *sec2 = box ? box->find_parent<Section>(true) : 0;
       
@@ -1936,7 +2060,7 @@ void Document::on_mouse_up(MouseEvent &event) {
                  &start, &end,
                  &was_inside_start);
                  
-    if( is_inside_selection(box, start, end, was_inside_start) &&
+    if( DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start) &&
         box &&
         box->selectable())
     {
@@ -1993,11 +2117,11 @@ void Document::on_key_down(SpecialKeyEvent &event) {
       DocumentImpl(*this).handle_key_backspace(event);
       return;
       
-    case SpecialKey::Delete: 
+    case SpecialKey::Delete:
       DocumentImpl(*this).handle_key_delete(event);
       return;
       
-    case SpecialKey::Escape: 
+    case SpecialKey::Escape:
       DocumentImpl(*this).handle_key_escape(event);
       return;
       
@@ -2075,12 +2199,12 @@ void Document::on_key_press(uint32_t unichar) {
     String selstr;
     
     bool can_surround = true;
-    if(TextSequence *seq = dynamic_cast<TextSequence *>(context.selection.get())) {
+    if(auto seq = dynamic_cast<TextSequence *>(context.selection.get())) {
       selstr = String::FromUtf8(
                  seq->text_buffer().buffer() + context.selection.start,
                  context.selection.end - context.selection.start);
     }
-    else if(MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get())) {
+    else if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
       selstr = seq->text().part(
                  context.selection.start,
                  context.selection.end - context.selection.start);
@@ -2096,8 +2220,7 @@ void Document::on_key_press(uint32_t unichar) {
     
     if(can_surround) {
       if(unichar == '/' && !selstr.starts_with("/*")) {
-        AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get());
-        if(seq) {
+        if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
           seq->insert(context.selection.end,   "*/");
           seq->insert(context.selection.start, "/*");
           select(seq, context.selection.start, context.selection.end + 4);
@@ -2136,8 +2259,7 @@ void Document::on_key_press(uint32_t unichar) {
   
   remove_selection(false);
   
-  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get());
-  if(seq) {
+  if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
   
     // handle "CAPSLOCK alias CAPSLOCK" macros:
     if(unichar == PMATH_CHAR_ALIASDELIMITER) {
@@ -2199,7 +2321,7 @@ void Document::on_key_press(uint32_t unichar) {
             }
             else {
               MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxOptionDefault);
+              repl_seq->load_from_object(repl, BoxInputFlags::Default);
               
               insert_box(repl_seq, true);
               int sel_start = selection_start();
@@ -2222,8 +2344,8 @@ void Document::on_key_press(uint32_t unichar) {
     
     MathSequence *mseq = dynamic_cast<MathSequence *>(seq);
     
-    bool was_inside_string = is_inside_string();
-    bool was_inside_alias  = is_inside_alias();
+    bool was_inside_string = DocumentImpl(*this).is_inside_string();
+    bool was_inside_alias  = DocumentImpl(*this).is_inside_alias();
     
     if(!was_inside_string && !was_inside_alias) {
       DocumentImpl(*this).handle_immediate_macros();
@@ -2291,49 +2413,6 @@ void Document::on_key_press(uint32_t unichar) {
 }
 
 //} ... event handlers
-
-// substart and subend may lie outside 0..subbox->length()
-bool Document::is_inside_selection(Box *subbox, int substart, int subend) {
-  if( selection_box() &&
-      selection_length() > 0)
-  {
-    // section selections are only at the right margin, the section content is
-    // not inside the selection-frame
-    if(selection_box() == this && subbox != this)
-      return false;
-      
-    if(substart == subend)
-      return false;
-      
-    Box *b = subbox;
-    while(b && b != selection_box()) {
-      substart = b->index();
-      subend   = substart + 1;
-      b = b->parent();
-    }
-    
-    if( b == selection_box() &&
-        selection_start() <= substart &&
-        subend <= selection_end())
-    {
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-bool Document::is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start) {
-  if(subbox && subbox != this && substart == subend) {
-    if(was_inside_start)
-      subend = substart + 1;
-    else
-      --substart;
-  }
-  
-  return selection_box() && is_inside_selection(subbox, substart, subend);
-}
-
 
 void Document::select(Box *box, int start, int end) {
   if(box && !box->selectable())
@@ -2510,10 +2589,8 @@ void Document::move_horizontal(
     select_to(box, i, i);
   }
   else {
-    MathSequence *seq = dynamic_cast<MathSequence *>(box);
     int j = i;
-    
-    if(seq) {
+    if(auto seq = dynamic_cast<MathSequence *>(box)) {
       if(direction == LogicalDirection::Forward) {
         if(seq->is_placeholder(i))
           ++j;
@@ -2577,8 +2654,7 @@ void Document::move_vertical(
   box = box->move_vertical(direction, &best_index_rel_x, &i, false);
   
   j = i;
-  MathSequence *seq = dynamic_cast<MathSequence *>(box);
-  if(seq) {
+  if(auto seq = dynamic_cast<MathSequence *>(box)) {
     if(seq->is_placeholder(i - 1)) {
       --i;
       best_index_rel_x += seq->glyph_array()[i].right;
@@ -2619,7 +2695,7 @@ void Document::move_start_end(
     box = box->parent();
   }
   
-  if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
+  if(auto seq = dynamic_cast<MathSequence *>(box)) {
     int l = seq->line_array().length() - 1;
     while(l > 0 && seq->line_array()[l - 1].end > index)
       --l;
@@ -2639,7 +2715,7 @@ void Document::move_start_end(
       }
     }
   }
-  else if(TextSequence *seq = dynamic_cast<TextSequence *>(box)) {
+  else if(auto seq = dynamic_cast<TextSequence *>(box)) {
     GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
     
     if(direction == LogicalDirection::Backward) {
@@ -2744,87 +2820,6 @@ void Document::move_tab(LogicalDirection direction) {
   }
 }
 
-bool Document::is_inside_string() {
-  return is_inside_string(context.selection.get(), context.selection.start);
-}
-
-bool Document::is_inside_string(Box *box, int index) {
-  while(box) {
-    MathSequence *seq = dynamic_cast<MathSequence *>(box);
-    if(seq) {
-      if(seq->is_inside_string((index)))
-        return true;
-        
-    }
-    index = box->index();
-    box = box->parent();
-  }
-  
-  return false;
-}
-
-bool Document::is_inside_alias() {
-  bool result = false;
-  Box *box = context.selection.get();
-  int index = context.selection.start;
-  while(box) {
-    MathSequence *seq = dynamic_cast<MathSequence *>(box);
-    if(seq) {
-      const uint16_t *buf = seq->text().buffer();
-      for(int i = 0; i < index; ++i) {
-        if(buf[i] == PMATH_CHAR_ALIASDELIMITER)
-          result = !result;
-      }
-    }
-    index = box->index();
-    box = box->parent();
-  }
-  return result;
-}
-
-bool Document::is_tabkey_only_moving() {
-  Box *selbox = context.selection.get();
-  
-  if(context.selection.start != context.selection.end)
-    return true;
-    
-  if(!selbox || selbox == this)
-    return false;
-    
-  if(!dynamic_cast<Section *>(selbox->parent()))
-    return true;
-    
-  if(MathSequence *seq = dynamic_cast<MathSequence *>(selbox)) {
-    const uint16_t *buf = seq->text().buffer();
-    
-    for(int i = context.selection.start - 1; i >= 0; --i) {
-      if(buf[i] == '\n')
-        return false;
-        
-      if(buf[i] != '\t' && buf[i] != ' ')
-        return true;
-    }
-    
-    return false;
-  }
-  
-  if(TextSequence *seq = dynamic_cast<TextSequence *>(selbox)) {
-    const char *buf = seq->text_buffer().buffer();
-    
-    for(int i = context.selection.start - 1; i >= 0; --i) {
-      if(buf[i] == '\n')
-        return false;
-        
-      if(buf[i] != '\t' && buf[i] != ' ')
-        return true;
-    }
-    
-    return false;
-  }
-  
-  return true;
-}
-
 void Document::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {
   must_resize_min = *pos + 1;
   invalidate();
@@ -2903,9 +2898,7 @@ Box *Document::prepare_copy(int *start, int *end) {
   
   Box *box = selection_box();
   if(box && !dynamic_cast<AbstractSequence *>(box)) {
-    AbstractSequence *parent = dynamic_cast<AbstractSequence *>(box->parent());
-    
-    if(parent) {
+    if(auto parent = dynamic_cast<AbstractSequence *>(box->parent())) {
       *start = box->index();
       *end   = *start + 1;
       return parent->normalize_selection(start, end);
@@ -2933,9 +2926,9 @@ String Document::copy_to_text(String mimetype) {
     return String();
   }
   
-  int flags = BoxFlagDefault;
+  BoxOutputFlags flags = BoxOutputFlags::Default;
   if(mimetype.equals(Clipboard::PlainText))
-    flags |= BoxFlagLiteral | BoxFlagShortNumbers;
+    flags |= BoxOutputFlags::Literal | BoxOutputFlags::ShortNumbers;
     
   Expr boxes = selbox->to_pmath(flags, start, end);
   if(mimetype.equals(Clipboard::BoxesText))
@@ -2945,7 +2938,7 @@ String Document::copy_to_text(String mimetype) {
       mimetype.equals(Clipboard::PlainText) ||
       mimetype.equals("PlainText"))
   {
-    Expr text = Application::interrupt(
+    Expr text = Application::interrupt_wait(
                   Parse("FE`BoxesToText(`1`, `2`)", boxes, mimetype),
                   Application::edit_interrupt_timeout);
                   
@@ -2974,7 +2967,7 @@ void Document::copy_to_binary(String mimetype, Expr file) {
       return;
     }
     
-    Expr boxes = selbox->to_pmath(BoxFlagDefault, start, end);
+    Expr boxes = selbox->to_pmath(BoxOutputFlags::Default, start, end);
     file = Expr(pmath_file_create_compressor(file.release(), nullptr));
     pmath_serialize(file.get(), boxes.release(), 0);
     pmath_file_close(file.release());
@@ -3108,8 +3101,7 @@ void Document::copy_to_clipboard(String mimetype) {
     return;
   }
   
-  cairo_surface_t *image = Clipboard::std->create_image(mimetype, 1, 1);
-  if(image) {
+  if(cairo_surface_t *image = Clipboard::std->create_image(mimetype, 1, 1)) {
     SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
     if(!cb) {
       native()->beep();
@@ -3121,7 +3113,6 @@ void Document::copy_to_clipboard(String mimetype) {
     
     cairo_surface_destroy(image);
     image = Clipboard::std->create_image(mimetype, dw, dh);
-    
     if(image) {
       copy_to_image(image, false, &dw, &dh);
       cb->add_image(mimetype, image);
@@ -3149,8 +3140,7 @@ void Document::cut_to_clipboard() {
   copy_to_clipboard();
   
   int start, end;
-  Box *box = prepare_copy(&start, &end);
-  if(box) {
+  if(Box *box = prepare_copy(&start, &end)) {
     select(box, start, end);
     
     remove_selection(false);
@@ -3175,7 +3165,7 @@ void Document::paste_from_boxes(Expr boxes) {
     }
   }
   
-  boxes = Application::interrupt(
+  boxes = Application::interrupt_wait(
             Parse("FE`SectionsToBoxes(`1`)", boxes),
             Application::edit_interrupt_timeout);
             
@@ -3189,9 +3179,9 @@ void Document::paste_from_boxes(Expr boxes) {
     int w = col2 - col1 + 1;
     int h = row2 - row1 + 1;
     
-    int options = BoxOptionDefault;
+    BoxInputFlags options = BoxInputFlags::Default;
     if(grid->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxInputFlags::FormatNumbers;
       
     MathSequence *tmp = new MathSequence;
     tmp->load_from_object(boxes, options);
@@ -3209,13 +3199,13 @@ void Document::paste_from_boxes(Expr boxes) {
                 row < tmpgrid->rows())
             {
               grid->item(row1 + row, col1 + col)->load_from_object(
-                Expr(tmpgrid->item(row, col)->to_pmath(BoxFlagDefault)),
-                BoxOptionFormatNumbers);
+                Expr(tmpgrid->item(row, col)->to_pmath(BoxOutputFlags::Default)),
+                BoxInputFlags::FormatNumbers);
             }
             else {
               grid->item(row1 + row, col1 + col)->load_from_object(
                 String::FromChar(PMATH_CHAR_BOX),
-                BoxOptionDefault);
+                BoxInputFlags::Default);
             }
           }
         }
@@ -3236,7 +3226,7 @@ void Document::paste_from_boxes(Expr boxes) {
       for(int row = 0; row < h; ++row) {
         grid->item(row1 + row, col1 + col)->load_from_object(
           String::FromChar(PMATH_CHAR_BOX),
-          BoxOptionDefault);
+          BoxInputFlags::Default);
       }
     }
     
@@ -3251,9 +3241,9 @@ void Document::paste_from_boxes(Expr boxes) {
   
   GraphicsBox *graphics = dynamic_cast<GraphicsBox *>(context.selection.get());
   if(graphics && graphics->get_style(Editable)) {
-    int options = BoxOptionDefault;
+    BoxInputFlags options = BoxInputFlags::Default;
     if(graphics->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxInputFlags::FormatNumbers;
       
     if(graphics->try_load_from_object(boxes, options))
       return;
@@ -3264,11 +3254,11 @@ void Document::paste_from_boxes(Expr boxes) {
   remove_selection(false);
   
   if(DocumentImpl(*this).prepare_insert()) {
-    if(MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get())) {
+    if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
     
-      int options = BoxOptionDefault;
+      BoxInputFlags options = BoxInputFlags::Default;
       if(seq->get_style(AutoNumberFormating))
-        options |= BoxOptionFormatNumbers;
+        options |= BoxInputFlags::FormatNumbers;
         
       MathSequence *tmp = new MathSequence;
       tmp->load_from_object(boxes, options);
@@ -3281,11 +3271,11 @@ void Document::paste_from_boxes(Expr boxes) {
       return;
     }
     
-    if(TextSequence *seq = dynamic_cast<TextSequence *>(context.selection.get())) {
+    if(auto seq = dynamic_cast<TextSequence *>(context.selection.get())) {
     
-      int options = BoxOptionDefault;
+      BoxInputFlags options = BoxInputFlags::Default;
       if(seq->get_style(AutoNumberFormating))
-        options |= BoxOptionFormatNumbers;
+        options |= BoxInputFlags::FormatNumbers;
         
       TextSequence *tmp = new TextSequence;
       tmp->load_from_object(boxes, options);
@@ -3305,10 +3295,11 @@ void Document::paste_from_boxes(Expr boxes) {
 
 void Document::paste_from_text(String mimetype, String data) {
   if(mimetype.equals(Clipboard::BoxesText)) {
-    Expr parsed = Application::interrupt(Expr(
-                                           pmath_parse_string(data.release())),
-                                         Application::edit_interrupt_timeout);
-                                         
+    Expr parsed = Application::interrupt_wait(
+                    Expr(
+                      pmath_parse_string(data.release())),
+                    Application::edit_interrupt_timeout);
+                    
     paste_from_boxes(parsed);
     return;
   }
@@ -3319,7 +3310,7 @@ void Document::paste_from_text(String mimetype, String data) {
     if(DocumentImpl(*this).prepare_insert()) {
       remove_selection(false);
       
-      data = String(Evaluate(Parse("`1`.StringReplace(\"\r\n\"->\"\n\")", data)));
+      data = String(Evaluate(Parse("`1`.StringReplace(\"\\r\\n\"->\"\\n\")", data)));
       
       if (doc_was_selected && data.length() > 0 && data[data.length() - 1] == '\n')
         data = data.part(0, data.length() - 1);
@@ -3673,14 +3664,14 @@ void Document::insert_string(String text, bool autoformat) {
     }
   }
   
-  if(TextSequence *seq = dynamic_cast<TextSequence *>(selection_box())) {
+  if(auto seq = dynamic_cast<TextSequence *>(selection_box())) {
     int i = seq->insert(selection_start(), text);
     move_to(seq, i);
     return;
   }
   
   if(autoformat) {
-    if(is_inside_string()) {
+    if(DocumentImpl(*this).is_inside_string()) {
       bool have_sth_to_escape = false;
       
       for(int i = 0; i < len; ++i) {
@@ -3831,10 +3822,10 @@ void Document::insert_string(String text, bool autoformat) {
   }
   
   if(len > 0) {
-    MathSequence *seq = new MathSequence;
+    auto seq = new MathSequence;
     seq->insert(0, text);
     
-    if(autoformat && !is_inside_string()) { // replace tokens from global_immediate_macros ...
+    if(autoformat && !DocumentImpl(*this).is_inside_string()) { // replace tokens from global_immediate_macros ...
       seq->ensure_spans_valid();
       const SpanArray &spans = seq->span_array();
       
@@ -3863,15 +3854,14 @@ void Document::insert_string(String text, bool autoformat) {
           ++next;
         ++next;
         
-        Expr *e = global_immediate_macros.search(text.part(pos, next - pos));
-        if(e) {
+        if(Expr *e = global_immediate_macros.search(text.part(pos, next - pos))) {
           if(!seq2)
             seq2 = new MathSequence;
             
           seq2->insert(seq2->length(), text.part(last, pos - last));
           
-          MathSequence *seq_tmp = new MathSequence;
-          seq_tmp->load_from_object(*e, BoxOptionDefault);
+          auto seq_tmp = new MathSequence;
+          seq_tmp->load_from_object(*e, BoxInputFlags::Default);
           seq2->insert(seq2->length(), seq_tmp);
           
           last = next;
@@ -3908,20 +3898,20 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
   
   assert(box->parent() == 0);
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
   }
   
-  if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
-    Box *new_sel_box = 0;
+  if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
+    Box *new_sel_box = nullptr;
     int new_sel_start = 0;
     int new_sel_end = 0;
     
     if(handle_placeholder) {
-      AbstractSequence *placeholder_seq = 0;
+      AbstractSequence *placeholder_seq = nullptr;
       int placeholder_pos = 0;
       
       int i = 0;
@@ -4064,8 +4054,8 @@ void Document::insert_fraction() {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4073,10 +4063,9 @@ void Document::insert_fraction() {
   
   select_prev(true);
   
-  MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
-  if(seq) {
-    MathSequence *num = new MathSequence;
-    MathSequence *den = new MathSequence;
+  if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
+    auto num = new MathSequence;
+    auto den = new MathSequence;
     
     seq->insert(context.selection.end, new FractionBox(num, den));
     
@@ -4113,8 +4102,8 @@ void Document::insert_matrix_column() {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4124,7 +4113,7 @@ void Document::insert_matrix_column() {
   
   MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
   
-  if(context.selection.start == context.selection.end ||
+  if( context.selection.start == context.selection.end ||
       (seq && seq->is_placeholder()))
   {
     Box *b = context.selection.get();
@@ -4206,8 +4195,8 @@ void Document::insert_matrix_row() {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4302,16 +4291,15 @@ void Document::insert_sqrt() {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
   }
   
-  MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
-  if(seq) {
-    MathSequence *content = new MathSequence;
+  if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
+    auto content = new MathSequence;
     seq->insert(context.selection.end, new RadicalBox(content, 0));
     
     if(context.selection.start < context.selection.end) {
@@ -4348,15 +4336,14 @@ void Document::insert_subsuperscript(bool sub) {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
   }
   
-  MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
-  if(seq) {
+  if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
     int pos = context.selection.end;
     
     if(context.selection.end == 0) {
@@ -4410,8 +4397,8 @@ void Document::insert_underoverscript(bool under) {
     return;
   }
   
-  if( !is_inside_string() &&
-      !is_inside_alias() &&
+  if( !DocumentImpl(*this).is_inside_string() &&
+      !DocumentImpl(*this).is_inside_alias() &&
       !DocumentImpl(*this).handle_immediate_macros())
   {
     DocumentImpl(*this).handle_macros();
@@ -4419,8 +4406,7 @@ void Document::insert_underoverscript(bool under) {
   
   select_prev(false);
   
-  MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
-  if(seq) {
+  if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
     MathSequence *base = new MathSequence;
     MathSequence *uo = new MathSequence;
     uo->insert(0, PMATH_CHAR_PLACEHOLDER);
@@ -4460,11 +4446,10 @@ bool Document::remove_selection(bool insert_default) {
     
   auto_completion.stop();
   
-  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get());
-  if(seq) {
+  if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
     native()->on_editing();
     
-    if(MathSequence *mseq = dynamic_cast<MathSequence *>(seq)) {
+    if(auto mseq = dynamic_cast<MathSequence *>(seq)) {
       bool was_empty = mseq->length() == 0 ||
                        (mseq->length() == 1 &&
                         mseq->text()[0] == PMATH_CHAR_PLACEHOLDER);
@@ -4510,8 +4495,7 @@ bool Document::remove_selection(bool insert_default) {
     return true;
   }
   
-  GridBox *grid = dynamic_cast<GridBox *>(context.selection.get());
-  if(grid) {
+  if(auto grid = dynamic_cast<GridBox *>(context.selection.get())) {
     int start = context.selection.start;
     Box *box = grid->remove_range(&start, context.selection.end);
     select(box, start, start);
@@ -4709,8 +4693,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   }
   
   if(!resize_only) {
-    DocumentImpl(*this).add_selection_highlights(first_visible_section, last_visible_section);
-    
+    DocumentImpl(*this).add_selection_highlights(0, length());
+//    DocumentImpl(*this).add_selection_highlights(first_visible_section, last_visible_section);
+
     {
       float y = 0;
       if(first_visible_section < length())
@@ -4735,10 +4720,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     }
     
     if(DebugFollowMouse) {
-      b = mouse_move_sel.get();
-      if(b) {
+      if(Box *b = mouse_move_sel.get()) {
         ::selection_path(canvas, b, mouse_move_sel.start, mouse_move_sel.end);
-        if(is_inside_string(b, mouse_move_sel.start))
+        if(DocumentImpl::is_inside_string(b, mouse_move_sel.start))
           canvas->set_color(0x8000ff);
         else
           canvas->set_color(0xff0000);
@@ -4747,9 +4731,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     }
     
     if(DebugSelectionBounds) {
-      Box *b = selection_box();
-      if(b) {
-      
+      if(Box *b = selection_box()) {
         canvas->save();
         {
           ::selection_path(canvas, b, selection_start(), selection_end());
@@ -4806,8 +4788,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     }
     
     if(selection_length() == 1 && best_index_rel_x == 0) {
-      MathSequence *seq = dynamic_cast<MathSequence *>(selection_box());
-      if(seq) {
+      if(auto seq = dynamic_cast<MathSequence *>(selection_box())) {
         best_index_rel_x = seq->glyph_array()[selection_end() - 1].right;
         if(selection_start() > 0)
           best_index_rel_x -= seq->glyph_array()[selection_start() - 1].right;
@@ -4821,13 +4802,10 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     if(last_paint_sel != context.selection) {
       last_paint_sel = context.selection;
       
-      for(int i = 0; i < additional_selection.length(); ++i) {
-        Box *b = additional_selection[i].get();
-        
-        if(b)
-          b->request_repaint_range(additional_selection[i].start, additional_selection[i].end);
+      for(auto sel : additional_selection) {
+        if(Box *b = sel.get())
+          b->request_repaint_range(sel.start, sel.end);
       }
-      
       additional_selection.length(0);
     }
   }
@@ -4836,7 +4814,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   must_resize_min = 0;
 }
 
-Expr Document::to_pmath(int flags) {
+Expr Document::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   Expr content = SectionList::to_pmath(flags);

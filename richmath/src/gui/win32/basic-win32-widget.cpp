@@ -49,6 +49,8 @@ BasicWin32Widget::BasicWin32Widget(
     _initializing(true),
     freeThreadedMarshaller(nullptr)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   init_window_class();
   add_remove_window(+1);
   
@@ -211,9 +213,7 @@ STDMETHODIMP BasicWin32Widget::Drop(IDataObject *data_object, DWORD key_state, P
 }
 
 BasicWin32Widget *BasicWin32Widget::parent() {
-  HWND p = GetParent(_hwnd);
-  
-  if(p)
+  if(HWND p = GetParent(_hwnd))
     return (BasicWin32Widget *)GetWindowLongPtrW(p, GWLP_USERDATA);
     
   return 0;
@@ -241,8 +241,6 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
 }
 
 LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
-  AutoMemorySuspension ams;
-  
   switch(message) {
     case WM_CREATE: {
         SetMenu(_hwnd, 0);
@@ -256,7 +254,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
     case WM_DESTROY: {
         RevokeDragDrop(_hwnd);
         SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
-        _hwnd = 0;
+        _hwnd = nullptr;
       } return 0;
   }
   

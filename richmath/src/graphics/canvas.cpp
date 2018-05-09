@@ -15,14 +15,16 @@ using namespace richmath;
 //{ class Canvas ...
 
 Canvas::Canvas(cairo_t *cr)
-  : pixel_device(true),
-  glass_background(false),
-  native_show_glyphs(true),
-  show_only_text(false),
-  _cr(cr),
-  _font_size(10),
-  _color(0)
+  : Base(),
+    pixel_device(true),
+    glass_background(false),
+    native_show_glyphs(true),
+    show_only_text(false),
+    _cr(cr),
+    _font_size(10),
+    _color(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 Canvas::~Canvas() {
@@ -204,7 +206,7 @@ void Canvas::arc(
     line_to(x, y);
     return;
   }
-
+  
   if(negative)
     cairo_arc_negative(_cr, x, y, radius, angle1, angle2);
   else
@@ -242,7 +244,7 @@ void Canvas::ellipse_arc(
   }
   restore();
 }
-        
+
 void Canvas::close_path() {
   cairo_close_path(_cr);
 }
@@ -675,6 +677,15 @@ void Canvas::stroke_preserve() {
     return;
     
   cairo_stroke_preserve(_cr);
+}
+
+void Canvas::path_extents(float *x1, float *y1, float *x2, float *y2) {
+  double _x1, _y1, _x2, _y2;
+  cairo_path_extents(_cr, &_x1, &_y1, &_x2, &_y2);
+  *x1 = _x1;
+  *y1 = _y1;
+  *x2 = _x2;
+  *y2 = _y2;
 }
 
 void Canvas::paint() {

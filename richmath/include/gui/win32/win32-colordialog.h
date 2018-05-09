@@ -10,8 +10,10 @@
 
 
 namespace richmath {
-  class Win32ColorDialog: public Base {
+  class Win32ColorDialog {
     public:
+      Win32ColorDialog() = delete;
+
       static pmath::Expr show(int initialcolor = -1); // 0xrrggbb
   };
 }

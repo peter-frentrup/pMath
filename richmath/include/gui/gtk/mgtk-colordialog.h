@@ -6,12 +6,13 @@
 #endif
 
 #include <pmath-cpp.h>
-#include <util/base.h>
 
 
 namespace richmath {
-  class MathGtkColorDialog: public Base {
+  class MathGtkColorDialog {
     public:
+      MathGtkColorDialog() = delete;
+
       static pmath::Expr show(int initialcolor = -1); // 0xrrggbb
   };
 }

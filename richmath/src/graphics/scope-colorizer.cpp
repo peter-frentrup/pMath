@@ -49,7 +49,8 @@ namespace richmath {
         if( glyphs[start].style != GlyphStyleNone      &&
             glyphs[start].style != GlyphStyleParameter &&
             glyphs[start].style != GylphStyleLocal     &&
-            glyphs[start].style != GlyphStyleNewSymbol)
+            glyphs[start].style != GlyphStyleNewSymbol &&
+            glyphs[start].style != GlyphStyleFunctionCall)
         {
           return end;
         }
@@ -77,8 +78,8 @@ namespace richmath {
           };
           
           if(!info) {
-            Expr syminfo = Application::interrupt_cached(Call(
-                             GetSymbol(SymbolInfoSymbol),
+            Expr syminfo = Application::interrupt_wait_cached(Call(
+                             GetSymbol(FESymbolIndex::SymbolInfo),
                              name));
                              
             if(syminfo == PMATH_SYMBOL_FALSE)
@@ -210,13 +211,24 @@ namespace richmath {
         }
       }
       
+      void colorize_keyword(SpanExpr *se) {
+        se = span_as_name(se);
+        if(!se)
+          return;
+          
+        for(int i = se->start(); i <= se->end(); ++i)
+          glyphs[i].style = GlyphStyleKeyword;
+      }
       
       void colorize_identifier(SpanExpr *se) { // identifiers   #   ~
         assert(se->count() == 0);
         
-        if(glyphs[se->start()].style)
+        if( glyphs[se->start()].style != GlyphStyleNone &&
+            glyphs[se->start()].style != GlyphStyleFunctionCall)
+        {
           return;
-          
+        }
+        
         if(se->is_box()) {
           se->as_box()->colorize_scope(state);
           return;
@@ -444,9 +456,8 @@ namespace richmath {
           have_integral = true;
         }
         else {
-          UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox *>(se->item_as_box(0));
-          
-          if(uo &&
+          auto uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
+          if( uo &&
               uo->base()->length() == 1 &&
               pmath_char_is_integral(uo->base()->text()[0]))
           {
@@ -492,16 +503,13 @@ namespace richmath {
         MathSequence *bigop_init = 0;
         int next_item = 1;
         if(pmath_char_maybe_bigop(se->item_as_char(0))) {
-          SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(se->item_as_box(1));
-          
-          if(subsup) {
+          if(auto subsup = dynamic_cast<SubsuperscriptBox *>(se->item_as_box(1))) {
             bigop_init = subsup->subscript();
             ++next_item;
           }
         }
         else {
-          UnderoverscriptBox *uo = dynamic_cast<UnderoverscriptBox *>(se->item_as_box(0));
-          
+          auto uo = dynamic_cast<UnderoverscriptBox*>(se->item_as_box(0));
           if( uo &&
               uo->base()->length() == 1 &&
               pmath_char_maybe_bigop(uo->base()->text()[0]))
@@ -634,7 +642,7 @@ namespace richmath {
         state->current_pos = next_scope;
       }
       
-      bool colorize_simple_call(SpanExpr *head_name, SpanExpr *se) {
+      void colorize_simple_call(SpanExpr *head_name, SpanExpr *se) {
         assert(se->count() >= 3 && se->item_as_char(1) == '(');
         
         String name = head_name->as_text();
@@ -645,21 +653,25 @@ namespace richmath {
         switch(info.locals_form) {
           case LocalSpec:
             colorize_localspec_call(se, info);
-            return true;
+            return;
             
           case FunctionSpec:
             colorize_functionspec_call(se, info);
-            return true;
+            return;
             
           case TableSpec:
             colorize_tablespec_call(se, info);
-            return true;
+            return;
             
           case NoSpec:
             break;
         }
         
-        return false;
+        for(int i = 1; i < se->count(); ++i) {
+          SpanExpr *sub = se->item(i);
+          
+          scope_colorize_spanexpr(sub);
+        }
       }
       
       void colorize_block_body_line(SpanExpr *se, SharedPtr<ScopePos> &scope_after_block) {
@@ -668,9 +680,7 @@ namespace richmath {
           
         if(FunctionCallSpan::is_simple_call(se)) {
           FunctionCallSpan call(se);
-          
-          SpanExpr *name = span_as_name(call.function_head());
-          if(name) {
+          if(SpanExpr *name = span_as_name(call.function_head())) {
             if(name->equals("Local") || name->equals("With")) {
               colorize_scoping_block_head(call, scope_after_block, &ScopeColorizerImpl::symdef_local_colorize_spanexpr);
               return;
@@ -720,6 +730,7 @@ namespace richmath {
       
       void colorize_scoping_block_head(FunctionCallSpan &head, SharedPtr<ScopePos> &scope_after_block, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*)) {
         scope_colorize_spanexpr(head.span());
+        colorize_keyword(head.function_head());
         
         if(!scope_after_block)
           scope_after_block = state->new_scope();
@@ -743,14 +754,39 @@ namespace richmath {
         state->current_pos = next_scope;
       }
       
+      void colorize_if_blocks(FunctionCallSpan &head, SpanExpr *se) {
+        scope_colorize_spanexpr(head.span());
+        colorize_keyword(head.function_head());
+        
+        for(int i = 1; i < se->count(); ++i) {
+          SpanExpr *item = se->item(i);
+          
+          SpanExpr *name = span_as_name(item);
+          if(name && name->equals("Else")) {
+            colorize_keyword(name);
+            continue;
+          }
+          
+          if(FunctionCallSpan::is_simple_call(item)) {
+            FunctionCallSpan else_if(item);
+            name = span_as_name(else_if.function_head());
+            if(name && name->equals("If")) {
+              scope_colorize_spanexpr(item);
+              colorize_keyword(name);
+              continue;
+            }
+          }
+          
+          colorize_block_body(item);
+        }
+      }
+      
       void colorize_block(SpanExpr *se) {
         assert(se->count() >= 2);
         
         if(FunctionCallSpan::is_simple_call(se->item(0))) {
           FunctionCallSpan head_call(se->item(0));
-          
-          SpanExpr *name = span_as_name(head_call.function_head());
-          if(name) {
+          if(SpanExpr *name = span_as_name(head_call.function_head())) {
             if(se->count() == 2) {
               if(name->equals("Local") || name->equals("With")) {
                 colorize_scoping_block(head_call, se, &ScopeColorizerImpl::symdef_local_colorize_spanexpr);
@@ -760,30 +796,73 @@ namespace richmath {
                 colorize_scoping_block(head_call, se, &ScopeColorizerImpl::replacement_special_colorize_spanexpr);
                 return;
               }
+              if(name->equals("While") || name->equals("Switch") || name->equals("Case") || name->equals("If")) {
+                scope_colorize_spanexpr(head_call.span());
+                colorize_keyword(head_call.function_head());
+                colorize_block_body(se->item(1));
+                return;
+              }
+            }
+            
+            if(name->equals("If")) {
+              colorize_if_blocks(head_call, se);
+              return;
             }
           }
         }
         
         SpanExpr *name = span_as_name(se->item(0));
-        if(name && name->equals("Function") && se->count() == 3) {
-          /* Function name(...) {...}  is syntactic suggar for  name(...)::=...
-           */
-          scope_colorize_spanexpr(se->item(0));
-          
-          SharedPtr<ScopePos> next_scope = state->new_scope();
-          state->new_scope();
-          
-          bool old_in_pattern = state->in_pattern;
-          state->in_pattern = true;
-          
-          scope_colorize_spanexpr(se->item(1)); // name(...)
-          
-          state->in_pattern = old_in_pattern;
-          
-          colorize_block_body(se->item(2)); // {...}
-          
-          state->current_pos = next_scope;
+        if(name && name->equals("Function")) {
+          if(se->count() >= 3) {
+            /* Function name(...) {...}  is syntactic suggar for  name(...)::=...
+               Function name(...) Where(...) {...} is abbrev. of  name(...) /? ... ::= ...
+             */
+            colorize_keyword(name);
+            
+            SharedPtr<ScopePos> next_scope = state->new_scope();
+            state->new_scope();
+            
+            bool old_in_pattern = state->in_pattern;
+            state->in_pattern = true;
+            
+            scope_colorize_spanexpr(se->item(1)); // name(...)
+            
+            state->in_pattern = old_in_pattern;
+            
+            for(int i = 2; i < se->count() - 1; ++i) {
+              SpanExpr *item = se->item(i);
+              scope_colorize_spanexpr(item); // Where(...)
+              
+              if(FunctionCallSpan::is_simple_call(item)) {
+                FunctionCallSpan more_call(item);
+                SpanExpr *more_name = span_as_name(more_call.function_head());
+                if(more_name && more_name->equals("Where"))
+                  colorize_keyword(more_name);
+              }
+            }
+            
+            colorize_block_body(se->item(se->count() - 1)); // {...}
+            
+            state->current_pos = next_scope;
+            return;
+          }
+        }
+        
+        if(name && se->count() == 2 && name->equals("Block")) { // Block { ... }
+          colorize_keyword(name);
+          colorize_block_body(se->item(1));
           return;
+        }
+        
+        if(name && se->count() == 4 && name->equals("Try")) { // Try { ... } Finally { ... }
+          SpanExpr *finally = span_as_name(se->item(2));
+          if(finally && finally->equals("Finally")) {
+            colorize_keyword(name);
+            colorize_block_body(se->item(1));
+            colorize_keyword(finally);
+            colorize_block_body(se->item(3));
+            return;
+          }
         }
         
         for(int i = 0; i < se->count(); ++i) {
@@ -876,10 +955,9 @@ namespace richmath {
         
         if(se->count() >= 3 && se->count() <= 4) { // F(x)   ~x:t
           if( se->item_as_char(1) == '(') {
-            SpanExpr *head_name = span_as_name(se->item(0));
-            if(head_name) {
-              if(colorize_simple_call(head_name, se))
-                return;
+            if(SpanExpr *head_name = span_as_name(se->item(0))) {
+              colorize_simple_call(head_name, se);
+              return;
             }
           }
           
@@ -954,7 +1032,8 @@ namespace richmath {
         }
         
         if(se->count() == 3) {
-          if(se->item(0)->as_token() != PMATH_TOK_NAME)
+          SpanExpr *name_span = span_as_name(se->item(0));
+          if(!name_span)
             return;
             
           if( se->item_as_char(1) == PMATH_CHAR_RULE        ||
@@ -962,7 +1041,7 @@ namespace richmath {
               se->item_as_text(1).equals("->")              ||
               se->item_as_text(1).equals(":>"))
           {
-            String          name = se->item_as_text(0);
+            String          name = name_span->as_text();
             const uint16_t *buf  = name.buffer();
             int             len  = name.length();
             
@@ -1026,7 +1105,7 @@ namespace richmath {
             int arg1_end   = call.function_argument(1)->end();
             
             for(int pos = arg1_start; pos <= arg1_end; ++pos)
-              glyphs[pos].style = GlyphStyleExcessArg;
+              glyphs[pos].style = GlyphStyleExcessOrMissingArg;
           }
         }
         else if(max_args == 1 && call.is_complex_call()) {
@@ -1037,9 +1116,18 @@ namespace richmath {
         }
         
         for(int pos = start; pos <= end; ++pos)
-          glyphs[pos].style = GlyphStyleExcessArg;
+          glyphs[pos].style = GlyphStyleExcessOrMissingArg;
           
         return;
+      }
+      
+      void colorize_name(SpanExpr *se, unsigned style) {
+        if(!se)
+          return;
+          
+        const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+        for(int i = se->start(); i <= se->end(); ++i)
+          glyphs[i].style = style;
       }
       
       void arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se) {
@@ -1059,13 +1147,18 @@ namespace richmath {
         String name = head_name->as_text();
         SyntaxInformation info(name);
         
+        if(info.is_keyword)
+          colorize_name(head_name, GlyphStyleKeyword);
+        else
+          colorize_name(head_name, GlyphStyleFunctionCall);
+          
         if(info.minargs == 0 && info.maxargs == INT_MAX)
           return;
           
         int arg_count = call.function_argument_count();
         
         if(arg_count > info.maxargs) {
-          Expr options = Application::interrupt_cached(
+          Expr options = Application::interrupt_wait_cached(
                            Call(Symbol(PMATH_SYMBOL_OPTIONS), name));
                            
           if( options.expr_length() == 0 ||
@@ -1122,9 +1215,7 @@ namespace richmath {
           
         if(FunctionCallSpan::is_simple_call(se)) {
           FunctionCallSpan call(se);
-          
-          SpanExpr *name = span_as_name(call.function_head());
-          if(name) {
+          if(SpanExpr *name = span_as_name(call.function_head())) {
             if(name->equals("Local") || name->equals("With")) {
               colorize_block_body_errors(se);
               return;
@@ -1158,8 +1249,7 @@ namespace richmath {
           
         if(FunctionCallSpan::is_simple_call(se)) {
           FunctionCallSpan call(se);
-          SpanExpr *name = span_as_name(call.function_head());
-          if(name) {
+          if(SpanExpr *name = span_as_name(call.function_head())) {
             int arg_count = call.function_argument_count();
             int argmin, argmax;
             
@@ -1217,7 +1307,88 @@ namespace richmath {
         for(int i = 0; i < se->count(); ++i)
           arglist_errors_colorize_spanexpr(se->item(i));
       }
+  };
+  
+  class SyntaxColorizerImpl {
+    public:
+      static void colorize_quoted_string(SpanExpr *se) {
+        if(se->first_char() != '"')
+          return;
+          
+        if(se->count() != 0 && se->item_pos(0) == se->start())
+          return;
+          
+        const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+        for(int i = 1 + se->start(); i < se->end(); ++i) {
+          if(se->sequence()->text()[i] == '\\') {
+            const uint16_t *buf = se->sequence()->text().buffer() + i;
+            int maxlen = se->end() - i;
+            uint32_t encoded_char;
+            const uint16_t *next = pmath_char_parse(buf, maxlen, &encoded_char);
+            
+            int len = next - buf;
+            for(int j = 0; j < len; ++j)
+              glyphs[i + j].style = GlyphStyleSpecialStringPart;
+              
+            i += len - 1;
+            
+            continue;
+          }
+          
+          glyphs[i].style = GlyphStyleString;
+        }
+        
+        if(se->sequence()->text()[se->end()] != '"')
+          glyphs[se->end()].style = GlyphStyleString;
+      }
       
+      static bool colorize_single_token(SpanExpr *se) {
+        if(se->count() > 0)
+          return false;
+          
+        const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
+        
+        uint16_t ch = se->as_char();
+        if(pmath_char_is_left(ch)) {
+          SpanExpr *parent = se->parent();
+          
+          if( !parent ||
+              !pmath_char_is_right(parent->item_as_char(parent->count() - 1)))
+          {
+            if(pmath_right_fence(se->as_char()) != 0) {
+              glyphs[se->start()].style = GlyphStyleSyntaxError;
+              return true;
+            }
+          }
+          
+          return true;
+        }
+        
+        if(pmath_char_is_right(ch)) {
+          SpanExpr *parent = se->parent();
+          
+          if(!parent) {
+            glyphs[se->start()].style = GlyphStyleSyntaxError;
+            return true;
+          }
+          
+          for(int i = parent->count() - 1; i >= 0; --i)
+            if(pmath_right_fence(parent->item_as_char(i)) == ch)
+              return true;
+              
+          glyphs[se->start()].style = GlyphStyleSyntaxError;
+          return true;
+        }
+        
+//        if(se->first_char() == '\\') { /* outside a string or in a box in a string */
+//          for(int i = se->start(); i <= se->end(); ++i)
+//            glyphs[i].style = GlyphStyleSpecialStringPart;
+//
+//          return true;
+//        }
+
+        return true;
+      }
   };
 }
 
@@ -1227,6 +1398,7 @@ ScopeColorizer::ScopeColorizer(MathSequence *_sequence)
   : Base(),
     sequence(_sequence)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 void ScopeColorizer::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se) {
@@ -1277,75 +1449,10 @@ void ScopeColorizer::comments_colorize_span(Span span, int *pos) {
 void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
   const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
   
-  if(se->first_char() == '"') {
-    if(se->count() == 0 || se->item_pos(0) > se->start()) {
-      for(int i = 1 + se->start(); i < se->end(); ++i) {
-      
-        if(se->sequence()->text()[i] == '\\') {
-          const uint16_t *buf = se->sequence()->text().buffer() + i;
-          int maxlen = se->end() - i;
-          uint32_t encoded_char;
-          const uint16_t *next = pmath_char_parse(buf, maxlen, &encoded_char);
-          
-          int len = next - buf;
-          for(int j = 0; j < len; ++j)
-            glyphs[i + j].style = GlyphStyleSpecialStringPart;
-            
-          i += len - 1;
-          
-          continue;
-        }
-        
-        glyphs[i].style = GlyphStyleString;
-      }
-      
-      if(se->sequence()->text()[se->end()] != '"')
-        glyphs[se->end()].style = GlyphStyleString;
-    }
-  }
-  
-  if(se->count() == 0) {
-    if(pmath_char_is_left( se->as_char())) {
-      SpanExpr *parent = se->parent();
-      
-      if( !parent ||
-          !pmath_char_is_right(parent->item_as_char(parent->count() - 1)))
-      {
-        if(pmath_right_fence(se->as_char()) != 0) {
-          glyphs[se->start()].style = GlyphStyleSyntaxError;
-          return;
-        }
-      }
-      
-      return;
-    }
-    
-    if(pmath_char_is_right(se->as_char())) {
-      SpanExpr *parent = se->parent();
-      
-      if(!parent) {
-        glyphs[se->start()].style = GlyphStyleSyntaxError;
-        return;
-      }
-      
-      for(int i = parent->count() - 1; i >= 0; --i)
-        if(pmath_char_is_left(parent->item_as_char(i)))
-          return;
-          
-      glyphs[se->start()].style = GlyphStyleSyntaxError;
-      return;
-    }
-    
-//    if(se->first_char() == '\\') { /* outside a string or in a box in a string */
-//      for(int i = se->start(); i <= se->end(); ++i)
-//        glyphs[i].style = GlyphStyleSpecialStringPart;
-//
-//      return;
-//    }
-
+  SyntaxColorizerImpl::colorize_quoted_string(se);
+  if(SyntaxColorizerImpl::colorize_single_token(se))
     return;
-  }
-  
+    
   if( se->count() == 3 &&
       se->item_as_text(1).equals("::") &&
       se->item(2)->count() == 0)

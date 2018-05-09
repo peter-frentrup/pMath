@@ -64,9 +64,9 @@ bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
     if(!seq->get_style(Editable))
       return false;
       
-    int options = BoxOptionDefault;
+    BoxInputFlags options = BoxInputFlags::Default;
     if(seq->get_style(AutoNumberFormating))
-      options |= BoxOptionFormatNumbers;
+      options |= BoxInputFlags::FormatNumbers;
       
     AbstractSequence *tmp = seq->create_similar();
     tmp->load_from_object(boxes, options);
@@ -84,7 +84,7 @@ bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
 }
 
 bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
-  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(document->selection_box());
+  auto seq = dynamic_cast<AbstractSequence*>(document->selection_box());
   if(!seq)
     return false;
     
@@ -112,9 +112,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     Gather g;
     
     for(unsigned i = 0, rest = global_macros.size(); rest > 0; ++i) {
-      Entry<String, Expr> *e = global_macros.entry(i);
-      
-      if(e) {
+      if(auto e = global_macros.entry(i)) {
         --rest;
         
         Gather::emit(e->key);
@@ -122,9 +120,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     }
     
     for(unsigned i = 0, rest = global_immediate_macros.size(); rest > 0; ++i) {
-      Entry<String, Expr> *e = global_immediate_macros.entry(i);
-      
-      if(e) {
+      if(auto e = global_immediate_macros.entry(i)) {
         --rest;
         
         Gather::emit(e->key);
@@ -146,9 +142,9 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     expr = g.end();
   }
   
-  expr = Application::interrupt_cached(
+  expr = Application::interrupt_wait_cached(
            Call(
-             GetSymbol(AutoCompleteOtherSymbol),
+             GetSymbol(FESymbolIndex::AutoCompleteOther),
              expr,
              alias),
            Application::button_timeout);
@@ -214,7 +210,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
 }
 
 bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
-  MathSequence *seq = dynamic_cast<MathSequence *>(document->selection_box());
+  auto seq = dynamic_cast<MathSequence*>(document->selection_box());
   if(!seq)
     return false;
     
@@ -271,9 +267,9 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       }
       
       str = seq->text();
-      expr = Application::interrupt_cached(
+      expr = Application::interrupt_wait_cached(
                Call(
-                 GetSymbol(AutoCompleteFileSymbol),
+                 GetSymbol(FESymbolIndex::AutoCompleteFile),
                  str),
                Application::button_timeout);
                
@@ -394,9 +390,9 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
   if(!str.is_valid())
     return false;
     
-  expr = Application::interrupt_cached(
+  expr = Application::interrupt_wait_cached(
            Call(
-             GetSymbol(AutoCompleteFileSymbol),
+             GetSymbol(FESymbolIndex::AutoCompleteFile),
              str),
            Application::button_timeout);
            
@@ -438,7 +434,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
 }
 
 bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
-  MathSequence *seq = dynamic_cast<MathSequence *>(document->selection_box());
+  auto seq = dynamic_cast<MathSequence*>(document->selection_box());
   if(!seq)
     return false;
     
@@ -454,9 +450,9 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
   }
   
   String text = span->as_text();
-  current_boxes_list = Application::interrupt_cached(
+  current_boxes_list = Application::interrupt_wait_cached(
                          Call(
-                           GetSymbol(AutoCompleteNameSymbol),
+                           GetSymbol(FESymbolIndex::AutoCompleteName),
                            text),
                          Application::button_timeout);
                          

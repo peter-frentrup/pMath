@@ -9,9 +9,11 @@
 
 
 namespace richmath {
-  class Win32FontDialog: public Base {
+  class Win32FontDialog {
     public:
-      static pmath::Expr show(SharedPtr<Style> initial_style = 0);
+      Win32FontDialog() = delete;
+
+      static pmath::Expr show(SharedPtr<Style> initial_style = nullptr);
   };
 }
 

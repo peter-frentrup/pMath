@@ -25,11 +25,11 @@ namespace richmath {
     GlyphStyleShadowError,
     GlyphStyleSyntaxError,
     GlyphStyleSpecialUse,
-    GlyphStyleExcessArg,
-    GlyphStyleMissingArg,
+    GlyphStyleExcessOrMissingArg,
     GlyphStyleInvalidOption,
     GlyphStyleSpecialStringPart,
-    GlyphStyleUnused2
+    GlyphStyleKeyword,
+    GlyphStyleFunctionCall
   };
   
   enum {
@@ -113,7 +113,7 @@ namespace richmath {
   
   class TextShaper: public Shareable {
     public:
-      TextShaper(): Shareable() {}
+      TextShaper();
       virtual ~TextShaper() {}
       
       virtual uint8_t num_fonts() = 0;

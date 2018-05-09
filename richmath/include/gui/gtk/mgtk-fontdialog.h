@@ -9,9 +9,11 @@
 
 
 namespace richmath {
-  class MathGtkFontDialog: public Base {
+  class MathGtkFontDialog {
     public:
-      static pmath::Expr show(SharedPtr<Style> initial_style = 0);
+      MathGtkFontDialog() = delete;
+
+      static pmath::Expr show(SharedPtr<Style> initial_style = nullptr);
   };
 }
 

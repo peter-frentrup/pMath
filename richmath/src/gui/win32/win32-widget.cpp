@@ -119,8 +119,7 @@ void Win32Widget::after_construction() {
   
   stylus = StylusUtil::create_stylus_for_window(_hwnd);
   if(stylus) {
-    auto stylus3 = stylus.as<IRealTimeStylus3>();
-    if(stylus3) {
+    if(auto stylus3 = stylus.as<IRealTimeStylus3>()) {
       /* RealTimeStylus with MultiTouchEnabled disables WM_GESTURE */
       //HRbool(stylus3->put_MultiTouchEnabled(TRUE));
     }
@@ -471,9 +470,8 @@ STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo
   ComBase<IInkTablet> tablet;
   HR(piRtsSrc->GetTabletFromTabletContextId(pStylusInfo->tcid, tablet.get_address_of()));
   
-  TabletDeviceKind kind = (TabletDeviceKind) - 1;
-  auto tablet2 = tablet.as<IInkTablet2>();
-  if(tablet2) {
+  auto kind = (TabletDeviceKind) - 1;
+  if(auto tablet2 = tablet.as<IInkTablet2>()) {
     HR(tablet2->get_DeviceKind(&kind));
   }
   
@@ -909,10 +907,10 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
 }
 
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
-  AutoMemorySuspension ams;
-  
+
   switch(message) {
     case WM_SIZE: {
+        AutoMemorySuspension ams;
         RECT rect;
         GetClientRect(_hwnd, &rect);
         _width  = rect.right;
@@ -928,6 +926,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   }
   
   if(!initializing()) {
+    AutoMemorySuspension ams;
     switch(message) {
       case WM_ERASEBKGND:
         return 1;
@@ -1028,8 +1027,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(delta > max_scroll)
             delta = max_scroll;
           if(delta < -max_scroll)
-              delta = -max_scroll;
-          
+            delta = -max_scroll;
+            
           scroll_by(delta, 0);
         } return 0;
         
@@ -1058,7 +1057,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               
             if(num_lines == 0)
               return 0;
-            
+              
             float delta = (float)num_lines * -20 * rel_wheel / (float)WHEEL_DELTA;
             
             SCROLLINFO si;
@@ -1070,7 +1069,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               delta = max_scroll;
             if(delta < -max_scroll)
               delta = -max_scroll;
-            
+              
             scroll_by(0, delta);
           }
         } return 0;
@@ -1372,9 +1371,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 
                 unsigned int count, i;
                 for(count = 0, i = 0; count < animations.size(); ++i) {
-                  Entry<SharedPtr<TimedEvent>, Void> *e = animations.entry(i);
-                  
-                  if(e) {
+                  if(auto e = animations.entry(i)) {
                     ++count;
                     
                     SharedPtr<TimedEvent> te = e->key;
@@ -1409,9 +1406,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 else
                   ctx->old_selection = ctx->selection;
                   
-                Box *box = ctx->selection.get();
-                if(box)
-                  box->request_repaint_all();
+                if(Box *box = ctx->selection.get())
+                  box->request_repaint_range(ctx->selection.start, ctx->selection.end);
               } break;
           }
         } return 0;
@@ -1490,8 +1486,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         }
       /* fall through */
       case WM_SYSKEYDOWN: {
-          HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
-          if(parent) {
+          if(HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT)) {
             return SendMessageW(parent, message, wParam, lParam);
           }
         } break;
@@ -1615,9 +1610,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     int oldend   = document()->selection_start();
     
     if(effect & DROPEFFECT_MOVE && is_dragging) {
-    
-      Box *src = drag_source_reference().get();
-      if(src) {
+      if(Box *src = drag_source_reference().get()) {
         int s = drag_source_reference().start;
         int e = drag_source_reference().end;
         

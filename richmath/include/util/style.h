@@ -159,36 +159,6 @@ namespace richmath {
     float float_value;
   } IntFloatUnion;
   
-  class StyleEnumConverter: public Shareable {
-    public:
-      StyleEnumConverter();
-      
-      bool is_valid_int(int val) {
-        return _int_to_expr.search(val) != 0;
-      }
-      
-      bool is_valid_expr(Expr expr) {
-        return _expr_to_int.search(expr) != 0;
-      }
-      
-      int  to_int(Expr expr) {
-        return _expr_to_int[expr];
-      }
-      
-      Expr to_expr(int val) {
-        return _int_to_expr[val];
-      }
-      
-      const Hashtable<Expr, int> &expr_to_int(){ return _expr_to_int; }
-      
-    protected:
-      void add(int val, Expr expr);
-      
-    protected:
-      Hashtable<int, Expr, cast_hash> _int_to_expr;
-      Hashtable<Expr, int>            _expr_to_int;
-  };
-  
   class Style: public Shareable {
     public:
       Style();
@@ -269,9 +239,6 @@ namespace richmath {
       static enum StyleType get_type(FloatStyleOptionName  n) { return get_type((int)n); }
       static enum StyleType get_type(StringStyleOptionName n) { return get_type((int)n); }
       static enum StyleType get_type(ObjectStyleOptionName n) { return get_type((int)n); }
-      
-      static SharedPtr<StyleEnumConverter> get_enum_values(IntStyleOptionName n);
-      static SharedPtr<StyleEnumConverter> get_sub_rules(ObjectStyleOptionName n);
       
     protected:
       static bool modifies_size(int style_name);

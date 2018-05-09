@@ -79,8 +79,7 @@ class OpenedWin32Clipboard: public OpenedClipboard {
         if(!img)
           return false;
           
-//        HDC dc = cairo_win32_surface_get_dc(image);
-//        if(dc) {
+//        if(HDC dc = cairo_win32_surface_get_dc(image)) {
 //          cairo_surface_flush(image);
 //
 //          int width  = cairo_image_surface_get_width( img);
@@ -188,9 +187,7 @@ Win32Clipboard::~Win32Clipboard() {
 }
 
 bool Win32Clipboard::has_format(String mimetype) {
-  unsigned int id = mime_to_win32cbformat[mimetype];
-  
-  if(id)
+  if(unsigned int id = mime_to_win32cbformat[mimetype])
     return 0 != IsClipboardFormatAvailable(id);
     
   return false;
@@ -206,10 +203,8 @@ ReadableBinaryFile Win32Clipboard::read_as_binary_file(String mimetype) {
     return ReadableBinaryFile();
     
   ReadableBinaryFile result;
-  HANDLE hglb = GetClipboardData(id);
-  if(hglb) {
-    void *data = GlobalLock(hglb);
-    if(data) {
+  if(HANDLE hglb = GetClipboardData(id)) {
+    if(void *data = GlobalLock(hglb)) {
       size_t size = GlobalSize(hglb);
       
       result = ReadableBinaryFile(pmath_file_create_binary_buffer(size));
@@ -233,10 +228,8 @@ String Win32Clipboard::read_as_text(String mimetype) {
     return Expr();
     
   String result;
-  HANDLE hglb = GetClipboardData(id);
-  if(hglb) {
-    uint16_t *data = (uint16_t *)GlobalLock(hglb);
-    if(data) {
+  if(HANDLE hglb = GetClipboardData(id)) {
+    if(auto data = (uint16_t *)GlobalLock(hglb)) {
       size_t size = GlobalSize(hglb);
       
       int len = 0;

@@ -37,7 +37,7 @@ FractionBox::~FractionBox() {
   delete _denominator;
 }
 
-bool FractionBox::try_load_from_object(Expr expr, int opts) {
+bool FractionBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_FRACTIONBOX)
     return false;
     
@@ -118,9 +118,7 @@ void FractionBox::paint(Context *context) {
 }
 
 Box *FractionBox::remove(int *index) {
-  MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
-  
-  if(seq) {
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(_parent)) {
     if(*index == 0 && _numerator->length() == 0) {
       *index = _index;
       seq->insert(_index + 1, _denominator, 0, _denominator->length());
@@ -138,7 +136,7 @@ Box *FractionBox::remove(int *index) {
   return move_logical(LogicalDirection::Backward, false, index);
 }
 
-Expr FractionBox::to_pmath(int flags) {
+Expr FractionBox::to_pmath(BoxOutputFlags flags) {
   return Call(
            Symbol(PMATH_SYMBOL_FRACTIONBOX),
            _numerator->to_pmath(flags),

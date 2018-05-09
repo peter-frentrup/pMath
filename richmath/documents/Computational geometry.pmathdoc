@@ -3,118 +3,119 @@
 System`Document({
   System`SectionGroup({System`Section("Computional Geometry", "Title"), 
     System`SectionGroup({System`Section("Code", "Section"), 
+      System`Section(System`BoxData({"<<", "ExperimentalSyntax`"}), "Input", 
+       System`SectionLabel -> "in [2]:"), 
       System`Section(System`BoxData(
-        /\/({"/*", " ", {{"left", " ", "\[Congruent]", " ", {"-", "1"}}, ",", 
+        /\/({"%", " ", {{"left", " ", "\[Congruent]", " ", {"-", "1"}}, ",", 
            " ", {"right", " ", "\[Congruent]", " ", {"+", "1"}}, ",", " ", {
-            {"on", " ", "line"}, " ", "\[Congruent]", " ", "0"}}, " ", "*/"}, 
-         "\n", {{"sideOfLine", "(", {{"~", "p"}, ",", {"~", "a"}, ",", {
-             "~", "b"}}, ")"}, "\[AssignDelayed]", {
-           "Sign", "(", {"Chop", "(", {
-             "Det", "(", {"{", {{"p", "-", "a"}, ",", {"b", "-", "a"}}, "}"}, 
-             ")"}, ")"}, ")"}})), "Input"), 
+            {"on", " ", "line"}, " ", "\[Congruent]", " ", "0"}}}, "\n", {
+          "Function", " ", {"sideOfLine", "(", {
+            {"~", "p"}, ",", {"~", "a"}, ",", {"~", "b"}}, ")"}, {
+           "{", {{{"\n", "Sign"}, "(", {
+              "Chop", "(", {"Det", "(", {
+                "{", {{"p", "-", "a"}, ",", {"b", "-", "a"}}, "}"}, ")"}, 
+              ")"}, ")"}, "\n"}, "}"}})), "Input", 
+       System`SectionLabel -> "in [3]:"), 
       System`Section(System`BoxData({
-         {{"sideOfTriangle", "(", {{"~", "p"}, ",", {"~", "a"}, ",", {
-             "~", "b"}, ",", {"~", "c"}}, ")"}, "\[AssignDelayed]", {
-           "Max", "(", {{"sideOfLine", "(", {"p", ",", "a", ",", "b"}, ")"}, 
-            ",", {"sideOfLine", "(", {"p", ",", "b", ",", "c"}, ")"}, ",", {
-             "sideOfLine", "(", {"p", ",", "c", ",", "a"}, ")"}}, ")"}}, 
-         ";"}), "Input", System`SectionLabel -> "in [5]:"), 
+         "Function", " ", {"sideOfTriangle", "(", {
+           {"~", "p"}, ",", {"~", "a"}, ",", {"~", "b"}, ",", {"~", "c"}}, 
+          ")"}, {"{", {{{"\n", "Max"}, "(", {
+             {"sideOfLine", "(", {"p", ",", "a", ",", "b"}, ")"}, ",", {
+              "sideOfLine", "(", {"p", ",", "b", ",", "c"}, ")"}, ",", {
+              "sideOfLine", "(", {"p", ",", "c", ",", "a"}, ")"}}, ")"}, 
+           "\n"}, "}"}}), "Input", System`SectionLabel -> "in [4]:"), 
       System`Section(System`BoxData({
          {"convexHull", "\[Assign]", "convexHullMonotoneChain"}, ";"}), 
-       "Input"), System`Section(
-       System`BoxData(
-        /\/({"/*", {{"Andrew", "'"}, "s", " ", "monotone", " ", "chain", " ", 
-           "convex", " ", "hull", " ", "algorithm"}, "*/"}, "\n", {
-          {"convexHullMonotoneChain", "(", {"~", "points"}, ")"}, 
-          "\[AssignDelayed]", "\n", {
-           "With", "(", {
-            {"{", {{"n", "\[Assign]", {"Length", "(", "points", ")"}}, ",", {
-               "xyData", "\[Assign]", {"N", "(", "points", ")"}}}, "}"}, ",", 
-            "\n", {"With", "(", {
-              {"{", {"sortedIndices", "\[Assign]", {
-                 {"Array", "(", "n", ")"}, ".", "SortBy", "(", {
-                  {"xyData", "[", "#", "]"}, "&"}, ")"}}, "}"}, ",", "\n", {
-               "Local", "(", {{"{", {"L", ",", "U", ",", "i", ",", "tos"}, 
-                 "}"}, ",", "\n", {
-                 {"L", "\[Assign]", {"ConstantArray", "(", {"0", ",", "n"}, 
-                   ")"}}, ";", {"tos", "\[Assign]", "0"}, ";", "\n", {
-                  "Do", "(", "\n", {{{"While", "(", {{{"tos", "\[GreaterEqual]", "2"}, "&&", {
-                        {"sideOfLine", "(", {{"xyData", "[", "i", "]"}, ",", {
-                           "xyData", "[", {"L", "[", {"tos", "-", "1"}, "]"}, 
-                           "]"}, ",", {"xyData", "[", {"L", "[", "tos", "]"}, 
-                           "]"}}, ")"}, "\[GreaterEqual]", "0"}}, ",", "\n", {
-                       {"--", "tos"}, ";"}}, "\n", ")"}, ";", "\n", {
-                     {"L", "[", {"++", "tos"}, "]"}, "\[Assign]", "i"}, ";"}, 
-                   "\n", ",", "\n", {"i", "\[Rule]", "sortedIndices"}}, ")"}, 
-                 ";", "\n", {"L", "\[Assign]", {
-                   "L", "[", {"1", "..", {"tos", "-", "1"}}, "]"}}, ";", "\n", 
-                 "\n", {"U", "\[Assign]", {"ConstantArray", "(", {
-                    "0", ",", "n"}, ")"}}, ";", {
-                  "tos", "\[Assign]", {"n", "+", "1"}}, ";", "\n", {
-                  "Do", "(", "\n", {{{"While", "(", {{{"tos", "\[LessEqual]", {"n", "-", "1"}}, 
-                       "&&", {{"sideOfLine", "(", {
-                          {"xyData", "[", "i", "]"}, ",", {
-                           "xyData", "[", {"U", "[", {"tos", "+", "1"}, "]"}, 
-                           "]"}, ",", {"xyData", "[", {"U", "[", "tos", "]"}, 
-                           "]"}}, ")"}, "\[LessEqual]", "0"}}, ",", "\n", {
-                       {"++", "tos"}, ";"}}, "\n", ")"}, ";", "\n", {
-                     {"U", "[", {"--", "tos"}, "]"}, "\[Assign]", "i"}, ";"}, 
-                   "\n", ",", "\n", {"i", "\[Rule]", "sortedIndices"}}, ")"}, 
-                 ";", "\n", "\n", {"U", "\[Assign]", {
-                   "U", "[", {"tos", "..", {"-", "2"}}, "]"}}, ";", "\n", {
-                  "Return", "(", {"Join", "(", {"L", ",", "U"}, ")"}, ")"}}}, 
-               "\n", ")"}}, ")"}}, ")"}})), "Input"), 
+       "Input", System`SectionLabel -> "in [5]:"), 
       System`Section(System`BoxData(
-        /\/({"/*", " ", {"Graham", " ", "Scan"}, " ", "*/"}, "\n", {
-          {"convexHullGrahamScan", "(", {"~", "points"}, ")"}, 
-          "\[AssignDelayed]", "\n", {
-           "With", "(", {
-            {"{", {"xyData", "\[Assign]", {"N", "(", "points", ")"}}, "}"}, 
-            ",", "\n", {"With", "(", {
-              {"{", {"startPos", "\[Assign]", {
-                 {"Sort", "(", "xyData", ")"}, ".", "First"}}, "}"}, ",", 
-              "\n", {"With", "(", {
-                {"{", {"startIndex", "\[Assign]", {
-                   {"Position", "(", {"xyData", ",", "startPos", ",", "1"}, 
-                    ")"}, "[", {"1", ",", "1"}, "]"}}, "}"}, ",", "\n", {
-                 "With", "(", {{"{", {"angSortedIndices", "\[Assign]", {
-                     {"Join", "(", {{"Array", "(", {"startIndex", "-", "1"}, 
-                        ")"}, ",", {"Array", "(", {{"startIndex", "+", "1"}, 
-                         "..", {"Length", "(", "xyData", ")"}}, ")"}}, ")"}, 
-                     ".", "SortBy", "(", {{"{", {{"Arg", "(", {"Complex", "@@", {
-                           "(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, 
-                           ")"}}, ")"}, ",", {"Total", "(", {
-                          {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, 
-                           ")"}, System`SuperscriptBox("2")}, ")"}}, "}"}, 
-                      "&"}, ")"}}, "}"}, ",", "\n", {
-                   "Local", "(", {{"{", {"stack", ",", "depth", ",", "p"}, 
-                     "}"}, ",", "\n", "\n", {
-                     {"stack", "\[Assign]", {
-                       "{", {{"{", {{"{", "}"}, ",", "startIndex"}, "}"}, ",", 
-                        {"First", "(", "angSortedIndices", ")"}}, "}"}}, ";", 
-                     "\n", {"depth", "\[Assign]", "2"}, ";", "\n", {
-                      "Do", "(", "\n", {{"If", "(", {{{"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", 
-                            {"xyData", "[", {"stack", "[", {"1", ",", "2"}, 
-                              "]"}, "]"}, ",", {"xyData", "[", {
-                              "stack", "[", "2", "]"}, "]"}}, ")"}, 
-                          "\[GreaterEqual]", "0"}, ",", "\n", {
-                          {"stack", "\[Assign]", {"stack", "[", "1", "]"}}, 
-                          ";", "\n", {"--", "depth"}, ";", "\n", {
-                           "While", "(", {{{"depth", "\[GreaterEqual]", "2"}, 
-                             "&&", {{"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {"xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, "]"}, ",", {
-                                 "xyData", "[", {"stack", "[", "2", "]"}, 
-                                 "]"}}, ")"}, "\[GreaterEqual]", "0"}}, ",", 
-                            "\n", {{"stack", "\[Assign]", {"stack", "[", "1", "]"}}, ";", "\n", {
-                              "--", "depth"}, ";"}}, "\n", ")"}, ";", "\n", {
-                           "stack", "\[Assign]", {"{", {"stack", ",", "p"}, 
-                            "}"}}, ";", "\n", {"++", "depth"}, ";"}, "\n", 
-                         ",", "\n", {{"stack", "\[Assign]", {"{", {"stack", ",", "p"}, 
-                            "}"}}, ";", "\n", {"++", "depth"}, ";"}}, "\n", 
-                        ")"}, "\n", ",", "\n", {"p", "\[Rule]", {
-                         "Rest", "(", "angSortedIndices", ")"}}}, ")"}, ";", 
-                     "\n", {"Return", "(", {"Flatten", "(", "stack", ")"}, 
-                      ")"}, ";"}}, "\n", ")"}}, "\n", ")"}}, ")"}}, ")"}}, 
-           ")"}})), "Input")}, System`All), 
+        /\/({"%", " ", {{"Andrew", "'"}, "s", " ", "monotone", " ", "chain", 
+           " ", "convex", " ", "hull", " ", "algorithm"}}, "\n", {
+          "Function", " ", {"convexHullMonotoneChain", "(", {"~", "points"}, 
+           ")"}, {"{", {{{{"\n", "With"}, "(", {"n", "\[Assign]", {
+                "Length", "(", "points", ")"}}, ")"}, "\n", {
+              "With", "(", {"xyData", "\[Assign]", {"N", "(", "points", ")"}}, 
+              ")"}, "\n", {"With", "(", {"sortedIndices", "\[Assign]", {
+                {"Array", "(", "n", ")"}, ".", "SortBy", "(", {
+                 {"xyData", "[", "#", "]"}, "&"}, ")"}}, ")"}, "\n", {
+              "Local", "(", {"L", ",", "U", ",", "i", ",", "tos"}, ")"}, "\n", 
+             {"L", "\[Assign]", {"ConstantArray", "(", {"0", ",", "n"}, ")"}}, 
+             "\n", {"tos", "\[Assign]", "0"}, "\n", {
+              {"Do", "(", {"i", "\[Rule]", "sortedIndices"}, ")"}, {
+               "{", {{{{{"\n", "While"}, "(", {{"tos", "\[GreaterEqual]", "2"}, 
+                    "&&", {{"sideOfLine", "(", {{"xyData", "[", "i", "]"}, 
+                       ",", {"xyData", "[", {"L", "[", {"tos", "-", "1"}, 
+                         "]"}, "]"}, ",", {"xyData", "[", {
+                         "L", "[", "tos", "]"}, "]"}}, ")"}, 
+                     "\[GreaterEqual]", "0"}}, ")"}, {
+                   "{", {{"\n", {"--", "tos"}}, "\n"}, "}"}}, "\n", {
+                  {"L", "[", {"++", "tos"}, "]"}, "\[Assign]", "i"}}, "\n"}, 
+               "}"}}, "\n", {"L", "\[Assign]", {
+               "L", "[", {"1", "..", {"tos", "-", "1"}}, "]"}}, "\n", {
+              {"\n", "U"}, "\[Assign]", {"ConstantArray", "(", {
+                "0", ",", "n"}, ")"}}, ";", {
+              "tos", "\[Assign]", {"n", "+", "1"}}, ";", {
+              {{"\n", "Do"}, "(", {"i", "\[Rule]", "sortedIndices"}, ")"}, {
+               "{", {{{{{"\n", "While"}, "(", {
+                    {"tos", "\[LessEqual]", {"n", "-", "1"}}, "&&", {
+                     {"sideOfLine", "(", {{"xyData", "[", "i", "]"}, ",", {
+                        "xyData", "[", {"U", "[", {"tos", "+", "1"}, "]"}, 
+                        "]"}, ",", {"xyData", "[", {"U", "[", "tos", "]"}, 
+                        "]"}}, ")"}, "\[LessEqual]", "0"}}, ")"}, {
+                   "{", {{"\n", {"++", "tos"}}, "\n"}, "}"}}, "\n", {
+                  {"U", "[", {"--", "tos"}, "]"}, "\[Assign]", "i"}}, "\n"}, 
+               "}"}}, "\n", {{"\n", "U"}, "\[Assign]", {
+               "U", "[", {"tos", "..", {"-", "2"}}, "]"}}, "\n", {
+              "Return", "(", {"Join", "(", {"L", ",", "U"}, ")"}, ")"}}, 
+            "\n"}, "}"}})), "Input"), 
+      System`Section(System`BoxData(/\/({"%", " ", {"Graham", " ", "Scan"}}, 
+         "\n", {"Function", " ", {"convexHullGrahamScan", "(", {
+            "~", "points"}, ")"}, {
+           "{", {{{{"\n", "With"}, "(", {"xyData", "\[Assign]", {
+                "N", "(", "points", ")"}}, ")"}, "\n", {
+              "With", "(", {"startPos", "\[Assign]", {
+                {"Sort", "(", "xyData", ")"}, ".", "First"}}, ")"}, "\n", {
+              "With", "(", {"startIndex", "\[Assign]", {
+                {"Position", "(", {"xyData", ",", "startPos", ",", "1"}, ")"}, 
+                "[", {"1", ",", "1"}, "]"}}, ")"}, "\n", {
+              "With", "(", {"angSortedIndices", "\[Assign]", {
+                {"Join", "(", {{{"\n", "Array"}, "(", {"startIndex", "-", "1"}, ")"}, ",", {
+                   {{"\n", "Array"}, "(", {{"startIndex", "+", "1"}, "..", {
+                      "Length", "(", "xyData", ")"}}, ")"}, "\n"}}, ")"}, ".", 
+                "SortBy", "(", {{"{", {{{"\n", "Arg"}, "(", {
+                     "Complex", "@@", {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, 
+                      ")"}}, ")"}, ",", {{{"\n", "Total"}, "(", {
+                      {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, 
+                       ")"}, System`SuperscriptBox("2")}, ")"}, "\n"}}, "}"}, 
+                 "&"}, ")"}}, ")"}, "\n", {
+              "Local", "(", {"stack", ",", "depth", ",", "p"}, ")"}, "\n", {
+              {"\n", "stack"}, "\[Assign]", {
+               "{", {{"{", {{"{", "}"}, ",", "startIndex"}, "}"}, ",", {
+                 "First", "(", "angSortedIndices", ")"}}, "}"}}, "\n", {
+              "depth", "\[Assign]", "2"}, "\n", {
+              {"Do", "(", {"p", "\[Rule]", {"Rest", "(", "angSortedIndices", 
+                 ")"}}, ")"}, {"{", {{{{"\n", "If"}, "(", {
+                   {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
+                      "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, 
+                      "]"}, ",", {"xyData", "[", {"stack", "[", "2", "]"}, 
+                      "]"}}, ")"}, "\[GreaterEqual]", "0"}, ")"}, {
+                  "{", {{{{"\n", "stack"}, "\[Assign]", {"stack", "[", "1", "]"}}, 
+                    "\n", {"--", "depth"}, "\n", {
+                     {"While", "(", {{"depth", "\[GreaterEqual]", "2"}, "&&", {
+                        {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
+                           "xyData", "[", {"stack", "[", {"1", ",", "2"}, 
+                            "]"}, "]"}, ",", {"xyData", "[", {
+                            "stack", "[", "2", "]"}, "]"}}, ")"}, 
+                        "\[GreaterEqual]", "0"}}, ")"}, {
+                      "{", {{{{"\n", "stack"}, "\[Assign]", {
+                          "stack", "[", "1", "]"}}, "\n", {"--", "depth"}}, 
+                       "\n"}, "}"}}, "\n", {"stack", "\[Assign]", {
+                      "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}}, 
+                   "\n"}, "}"}, "Else", {
+                  "{", {{{"\n", "stack"}, "\[Assign]", {
+                     "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}, 
+                   ";", "\n"}, "}"}}, "\n"}, "}"}}, "\n", {
+              "Return", "(", {"Flatten", "(", "stack", ")"}, ")"}}, "\n"}, 
+           "}"}})), "Input", System`SectionLabel -> "in [15]:")}, System`All), 
     System`SectionGroup({System`Section("Testing", "Section"), 
       System`SectionGroup({
         System`Section(System`BoxData(
@@ -125,44 +126,43 @@ System`Document({
             ";"}, "\n", {"Graphics", "(", {
              {"{", {"Blue", ",", {"Point", "(", "sample", ")"}}, "}"}, ",", {
               "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
-         System`SectionLabel -> "in [43]:"), 
+         System`SectionLabel -> "in [8]:"), 
         System`Section(System`BoxData(
           System`GraphicsBox({System`RGBColor(0, 0, 1), 
             System`PointBox(System`Uncompress(
-              "c${68X;{r!9LMiZ8#$;emC[MXMOsX1N]e;D##0kgmgz}vLV9#(N}Pp[vOQW+F2W\
-              >BlL,sdNs(NoMH}X(-&{2hS?aOO@$#Je;=H+^=lp-m_xn8{pg$!KdH]Qv5hl=6el\
-              k70_lAkK?(+B89wq}0AJC6]Cj5ZV=Y5{Ci2NrQ)tyit4LeXrK%NBzs^L*u-dO[$G\
-              )2_+$oCOYV1aG-R!Y}Ie?(AG++CX+-zcES0wEDDIy(wS2y%LqmYkP$8iNuGv^8Hd\
-              Twl?K(G^dtyU_{V1SYb;F_G_Yt{<Lb6twfGctrXJ!z32S$&PGaT,MK1LHb&D+,5B\
-              +G7DH(2a5!=ZxW<mbkcZ8T!vvX3m9]kKWKB4(m9kE9uGQFP5,lh$gHs^U(}uoqKV\
-              Rx2R%{(Q&=Ez,llJnsx27JAH3+0y{-epR2FEwoNKTzyoDh2XF-qWkro2eSYYBu@%\
-              iB}jTjxvR5U3!e?dTn+eM@$Jl+&akpGDV-_O}&6HsLV#[B4PDKEM(l5J2QxuV]VL\
-              C6A5JLDENRaIh?IXlA9)Vh(tbQTD;+MQi_x}*N_FSXo00qsJK1%ky_,,z^3VD$N}\
-              f[zslDhxAN;FfM)PGCnrMjgRI,QoGk4C>q*9tdJnw)7KZpj6&mo>5Ogg9TPt&rB>\
-              CqeaT=i>uEj^bpYGwmCaKy,W%#772+GVQ&}PnJjQx<D1-?q6&<v4%CU$D<uT9IN)\
-              mHv6*KZFcQn-v,uG*Fle)Y%*e]JLDqy(nMVJ?Ng-!2%whpai;+O7gtn>gB^Z{PT*\
-              IKl0%g8o154*zC#X*7uHcZAk3p9O5+dVj8iOPR1!#O88r}84L5]IGEoR2Z&+DM7U\
-              UZoB7t<p3Ss>5E<nMD9Pcagl8>wkscM-#EZWn^UwI6]835p5qT<qjmhhYv26g!LR\
-              9E_;5W{I4,rLKbn=5k#GkJ=60NF]VX)M&EQpE[Ec1vbueF&oS6BWR9U$f(ZRUJQm\
-              T;Ay8;_)wD?XPvi$VapG18gZ)D8]g,tI7(F=7FzslS{4Rl&RNYh(aq[52rB*NZk9\
-              GgRc*ooeo3#xpFHWM#?cOpT,8-_FpmYQ?!Srult$g{6f(XfJtGf;DYuKnN_DUORC\
-              2,*H[6!c(HqQIAZA%#OsDh_Mya2*JYJq@#4w-hV!@R5xysiFnic;&KHwECasijLE\
-              ,@HcuGE,t?*Hj@UT!B]&H_cDe%0AG>j;vy,IM-73=vq!0{-GQ-^iFkDwqbR%^lst\
-              7%W&Ix-{mXNe&fE*]j;]g_gwxEID^S7jDQJDJ5uN<CcKTv(GVDac%baG)-I;L(nZ\
-              %<H{+1beq;(fNYLX(UD{m6eq}cT,LAKEMkFy3(j78!j]9njz={)%GD6]iBr^G%ba\
-              }j,vh%^ZoTWOMnlYoyP;%_Qs#[P1QjS4_7rcW_Fv2b<H0JnNpoaW_8#[Ti&B2aV9\
-              OO*<Sw2id,?hoC8_k?H$cFSYjf$>*Tbz;FlsT44cARuF#OB{J1-yfcz>^%&LOprx\
-              M)+ro-@v!0O9<@^b-fNCEnT%ofsTA>)B]08;{XByc_cgoN$vqYD+l5c%3u;noK1(\
-              UQ+fh*_2Mwk?Ug3*jAO36!6cxJ@r?,w*)XJnB_qkmsH;p6m>o=qav<>fD;R[8dwG\
-              H3Z+RKqNF)_,B)bLXD&!j>D0QVQ2Xb!U%09jCBxvt0;0J-hhF?aNA2&D{8(4}FM*\
-              [pB$MTK9nE-%QD]6%mrMEO7+g8]Pq4F(GN<{l$hg(s{82A]Wh]Hf$Y#yi,c8sUch\
-              *{(>h@!BV*yE3h4*lEA2qLVdWwc3tzkI[=sSUuuMSO^%=5czY}?3)E4U!d@X^[-7\
-              k#q?cDIASAEr6!&Mhl4D#-a&8;zj1^Lt)K<q[xQ0kxXZzNNH_TlP;sKG;Kzvx?j1\
-              l@iUAfN)xaC]NI?+dKjuT*B0<hV1d9umAe}Qa@SH69T_*H;jvOH&xVNB(Yx?HdUR\
-              b{c5gFOMy}WK,Ta{;%8%rzLt>x0pvuWJL~~~"))}, 
-           System`ImageSize -> System`NCache(100, 100.0`))), "Output", 
-         System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [44]:")}, System`All), 
+              "1:c$_VidpOit7{_x,u3MWpQ7miSYAIQv)^?CuZ63)jD,}>mW#z7iLM[;3lB[@xG\
+              )1k5iZ(nh$3!C5h#@5!%(xqBHi?!!&-wN5=X-wV_rBlvdtR_)MV1r*ia=TxI!A_v\
+              9X-ynKNcDWmamYO29UEu^v}yabqL<N{dO)wRe*sk<qgvlF{[R*BbYB)RU9u>hk-o\
+              h8SAnYT;U{!55l+DNc3wFP^6r{)j6m7OfQ10Em>l[#M>CGpgh)7?uBOYGX$rj@?3\
+              W>ZA9Q[%587%6SZ6vA{f>XqnV,q0s}$=Ekuq#9cvdM*j>d}U$(Oa17*tX$]GlO9p\
+              +&;n}mPHX!BD9Amt-XEBBYq^ATjP-8RoZJ%)fP<-X4OT9s#c2r33?Y}L*TKwvH9>\
+              aUEI&96)#s2ZiU-(89PSDo?#mQrLv-5,cRn_Vt{wXPq7ZzyNk%]>aTl6rP2vGaN[\
+              hY,@C+=};8$AzUBreCYL7x!@h18vHeXxB?L+limu;pe%J*S}zShjPQr+?TC(J;aA\
+              N75<YjjDQ]Hvsq^0Qqlbgas-,y,O0G$7%;xEgzP*?1tuSceiC;KVz7boasxMxPSy\
+              Z}cRv4iN+?hIGNfGFC!}nslH8MTK2>}8>^TA(DX;Z%3Qmk]LeSVXHDNJt6aiz(O?\
+              -F9YAx-@(5lWQPtw}nfeGbzb,,muo+fj*dX(kR(}iL1Q^tq!=LwD<$,B0sUF;H<E\
+              JnbLa+[_7M}rg*58bwo;UBlRVPHYIqULY},_dSKY3rS,ZLE0+Y-8pnNU,+0E5eYK\
+              ;#GP?rXB-J%1b^qT%EHd{!iGx6B-;5BCwtDlNW2(_oN6xuYwPXbIKwNtSCPhBcq[\
+              BBRM[S82tI^hbIWwFut{,_3%7$5nSl0AK!jq3Ikip*(&$k7xM)O>QqHt=&}m=U>D\
+              {2ou&aegyd>2u_R&Y;xGnw%zP!RE<K&UFr3M[aek<J5,$kT50aa)Qi&oyvp(a4Kl\
+              qb6?I{nN@iPhzZo};{IPl=xlYSj2pSZ]xA6iNB6EwSH&mj>X0Y[QSOp_O%4vk=_e\
+              y=DgC5F5^C#L>MpUO?eeHfnDn}j6TDB&*5J1z8BQ+bh#;gci!DG[Zz4{pr)vgF0f\
+              g&cDK<1{m#uMh)w#<yo2$E6BI7}I,y*I1rQeDGk-+bQjoRQ,dWWtiMnbvH2vo}OC\
+              C8Weg>k74Ma<62@@M*Q)jTsS?@oLEQd7YM4eN[4J#U@?0jP]Iszau]rS-nYh$n$s\
+              {iLb;2*,[NJ>HSxjOLCZU}8UY_BpVcXyx#L0%h334D>_Cz?Hs!}4dPQ^o4H!0VFi\
+              dADze2#5neXlNlR9t7,;E0X;p$dYVc<u(7VC=sh2loy}D^lI)ax7s{3-w3dS+th1\
+              i9Z(wk$r+bOeI{%JaT+DN>&%KDYUmK0Ez!5P=[dBMNN<cdm{i=o^u#R$fWw62j!c\
+              Low6Bxd[tT)!eRyMdEW9bN?Psm84UouahBd{reV%5I8[((wdEr0uK)o}7#vbR-NM\
+              _5J9=0IN)Hl7s;D3Op7ejAUQcnxtXM-n){gSy>sU;x4hrY#]_M%FI^(*QH3,c{%a\
+              }&F,4f,Acm<^*Ve(Ou^GeIw2U{Zyh}9wN>RacDy=WfpDbL{d0*T53=-UUMrgFC<$\
+              kgv4wb7#xgEn]qnu%cu2ppgx{IXL>FDb=a%v(3&N9NbhK0c{X;RayuH?#;De2+dm\
+              #dojeLA-]$Wq*0lc4bZLj;l;VIg(PS=nb]djw=hr]Ca)wq*(<$gV03{G>(Vq8%(c\
+              be>P1Ybqnen!h(HIgo>)Mfk-yi%]8HX<z>F=+I^D&K3k6T)mBQXNckHj9,,Vr$qb\
+              o0O}a[UG}bzvN1Clq3tjyDW&EOg0*am,zOZ8>dj<?h-D]6W;-djJUSp-yO%VW#R%\
+              ^3olF1fdJGL@_JXO]#H$=eaLL!#FdrtaE5Dozf1T5dz%@n)3b@aEQP+*($cahA;f\
+              Y54KN;iH9s~~~"))}, System`ImageSize -> System`NCache(100, 
+            100.0`))), "Output", System`SectionGenerated -> System`True, 
+         System`SectionLabel -> "out [9]:")}, System`All), 
       System`SectionGroup({
         System`Section(System`BoxData(
           /\/({{"grid", "\[Assign]", {
@@ -175,35 +175,35 @@ System`Document({
            "\n", {"Graphics", "(", {
              {"{", {"Blue", ",", {"Point", "(", "grid", ")"}}, "}"}, ",", {
               "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
-         System`SectionLabel -> "in [41]:"), 
+         System`SectionLabel -> "in [10]:"), 
         System`Section(System`BoxData(
           System`GraphicsBox({System`RGBColor(0, 0, 1), 
             System`PointBox(System`Uncompress(
-              "c$}IIOKenC9LI6]I1ZFvTc$0AQYr29UFrjnswmFiqC&O4s9I=I5dp2XP;9H#2QL\
-              *+e6)&{gkVjKnz--Em@$R]6N4Kc3leo<7n&dog9}jEx4CnE=bq&JW)?R$?LTwRJ>\
-              T;gnH7HKOoSJa@RF3-;WbehUb;qyhPMxF>FgUCmdj>_X8tpKW+*7,SiiM&&2%Prb\
-              3P*p-@p%<;Lpr}e-BQH%H{6BtlTH)>OHf1V,qU%()$hBVDlGevXi^#tIYAPA)C7?\
-              Q<>,yObqmwp6ET74Zi+qDsgD;B9#K)H=NG]Bim{[,{(;gm3i(!w6+V,pz*J<j-8W\
-              BRSJENxRlMkW{pbV4&+}{tKd}!?NrP0T9qrjkI3LgioA<7Tb)oT_P%B&_ZEdJ^GU\
-              2}F)5W4iS^Ox{$tbo7O0fuja8viN@6AdSoia{3zw*rkyug9YLx{fR@;Hp_@?f(N;\
-              !!Y-PEZp^bI7,M9Ih^Zwn2UZy5h>>SR)-!do+wyD3sxOk(XhS=-uvp+u#U#EKqKu\
-              5u-bHT]<Q!RE2WDoaSLXtGMBip2Wl;@O_VrQwlVN@7Ke40p1c#OglMbMfC_!kw&f\
-              2h2gTc+<XpC{T;H)*UcAZ1L8SSioCPVgYXhi3PlkBo^>CkyyanOkx3V3yBrMsaIL\
-              %dyAA>yshql*&mDdD&HE4)Z)FG!]))H^2Q4BUQ1#D?{X3gcvp]Ez,K&f0^aLLtlx\
-              }Gt]{M?P+8>;n76Zd+kA^GQ;YX{cfgpncyA!FfcHic3wT$PSipM}i3PkjlUTsJhQ\
-              tEiTS%;EGTh0G?-3O-yy^[ZaTf2bzBQD,@V1j!z,K^j0^Zw5Ea1JJ!])(sNG#x8M\
-              ,8i*dJ=2&=*N8@?r2o$a0iSRi[z07H&n*(-sKLMgJkh,=8YBNy_>,W-g,(a;Juf,\
-              0^a*bEa1JL!])(8Bv!QACY3H<tm+uv2iyU33@qLUeKo6McpoCMfVZ2(0^W@z7VvH\
-              &v4FRS!]))45({,YlUVaAzM0(hdAO4gy8}Yo#rue_MNJIvqwautJBxP<i3Plmkyy\
-              aHmBa$x$4M;U-9[;o?{*Rkcz5KL)vWS_@7UMH@IL7dn6+8FeLffI7]ZEyEZ[{b!]\
-              ))a5({_-NG#ypNn!!-E)olP2T82sC(iz;=fa)b?GBi4ws@cMo$C4+-XV9uc(HhgN\
-              i5(UA+dn>SrQ9)pChq=_jwWvct=Sr;C+F_ie9rt<wf5QNK*{&OYVR<?H2FLzF(Mz\
-              7]VZ37Vz#Rv4D3Ui3Pm-Ni5(!Kw<&!D}uywNA6V;t2LbpN>(gWdCeU#XVv08==*(\
-              Wj^RDz4w#4*?_m-PcwZ;6fcFg&3wV!^Sit)xi3PlGkyya{Hi;D-m]bcGaR<!bE#5\
-              JAz$CDE$K3&Q+AZF9Ni5)fkHiArqa+sazE5HS?*xejydRKQz<Z3u,ts9N?Z1t*>i\
-              ^?Ppk{~~"))}, System`ImageSize -> System`NCache(100, 100.0`))), 
+              "1:c${t3e@K;A7{Kw]hl^N]TmINv_QToLOif]In]Z3?4>Gn28Bx&>jS<nJ!kSw))\
+              )-ABnzRTD5$T6YnG2DK$T6zzMo7svWvm}z=@%uV!pR6XR$Fc_@44qW&+]Bo>*bu+\
+              _nh;6Klfgk5bXhg42Y!rD}YRu,(WGp$[KzUAT1h+fIoT3;tknv4#$%hV{u4l<JaT\
+              <@A3cstnKv>CWYe@l7Ie+>Y;^eDkmaj@cR?]x(h>z_K&6@MEUa*$%,C>DdBj_wwm\
+              l?)uRdj^3C4Jm+8}Gve^A&34iCtg0G)ln[LuMj+^D4Cj7ZinwD&De+j{7&lyi7_c\
+              <G3S]#BE_9g#nTKUz}BLxW4,E%lQ0W<l!wnGFVkMA>{+}LUL,Ldf?C=($jyLAlIv\
+              <[z5h)}fSTP{M8?3VWE-P=D-orO>=yP2N(2&J-Hc}+#GwX0(YWwM*OC,6dg#v^D$\
+              #o=Y%2mM!;9]}uMOG8+}d&ZL&QH0lIx7]dOWff1e5XxmY^Bf=H4cTq@?s#oU({zM\
+              }vYWXf4,Gq)cJld1RbzJW9^aDP%([sOQFdGXRn_x<?gZzp2*>Sfa&F&d,=5x;?K}\
+              PPJ-&0hSau_]OJz55TPeGd+xKKQa=T1+Be%<CH*&jDb]CQ#Agp5h$wcRNO*n3k<J\
+              ?xU=SR,GT_?Md+xJs-3*4@k-N@}**^S(8l-<bfCfSYLZkF91PX6N6fmjj3)^OZz&\
+              $+E(>*k<yyFDDYT%Frm*^S(OEW450I@yifej>Y(+fQXTa{HO=Ms7cs-OLTad3Uqt\
+              <TAJQUN]X>Ik*iTTft{?_jocL(cSCGc4W8Flko,eK2O#oz56}xkN6(&WIyuT<jH,\
+              $non$L+cX#9keRTsoZx2uA2S%?7BgXAnKRt#rHU9JKCB{=;-e[eF>X^4$#I8@NRW\
+              @Kh$OjFMKrr8M(E-Z^O@ySX2QM(hq;^A&10H-R7B!@T16z!XH-N2eO5&z(dSe}BK\
+              ?huNT$D45hvyLw[03jocz3*uu&cAi@eorhWdLmVRz}JUs4eX^<@>2Q1_{bg!+n#N\
+              T]Z&L_+<8ib$w,N-41fVUY7FWT<]O6Lw99,WNmh#!z2Z5efB86_HT?sv;8VAr+BO\
+              -%=3?^&J(FP]TG#j]pAhfuq66@0$tx1c!Q<E1APk}7IqvGl%-2ib$v*tB8bpL,5X\
+              jqbeey{zFA1)K64ILOrG;n(dY%{KY>w#SHb}X2Pm*sGspqR1rh{uZl>h$5li^T@N\
+              xMp>6;fkx=ge8Ie%$g;WxQSKA0OVp%LRBWuCD;P=B!SOX6Aeqf)E5{CMKnXpkE>L\
+              !p83H2e65eaoO$cTix1!P1*-3l@yp+2l466&KWqIprl$=iT^Wz1u!JIsVl<WL_6_\
+              FYoSP<N_,gt}*bB-E!=L_*!IA,<Ez6_HS%RuKvH85QxnuGcFb>@36o0X3Uwvj~~~\
+              "))}, System`ImageSize -> System`NCache(100, 100.0`))), 
          "Output", System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [42]:")}, System`All), 
+         System`SectionLabel -> "out [11]:")}, System`All), 
       System`SectionGroup({
         System`Section(System`BoxData(
           /\/({{"grid2", "\[Assign]", {
@@ -212,996 +212,973 @@ System`Document({
            "\n", {"Graphics", "(", {
              {"{", {"Blue", ",", {"Point", "(", "grid2", ")"}}, "}"}, ",", {
               "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
-         System`SectionLabel -> "in [39]:"), 
+         System`SectionLabel -> "in [12]:"), 
         System`Section(System`BoxData(
           System`GraphicsBox({System`RGBColor(0, 0, 1), 
             System`PointBox(System`Uncompress(
-              "c${s}Wp9*07)D{HvfFkmxVyW%71yH0wMc;i#deY6?k<I&%g*^Q$t36f@FZ,p$(@\
-              ,qp!ya2t0#o&DTJEptt(YeXJ5I[-P_gCQ?7*C_$W$EeAJLms1u04p<W=agn]d^2[\
-              Oap5*h^JN@x^_E1^jsu7r}6TnWtraV50mP?O4A1t@P5pnRYJ<%0w$A1pxm5CO,E3\
-              Q#^wfb!u2l#j@vHkFSQpnQ[7<)Z]CA0t5dSOLn%2]a*>fbt0flus0(d{Pc}seG]k\
-              <x>PGpDIB4Gy%$}3s62ofby9Fl+O]Ne6}4Pb8@Ip<#PonpC>^1d;!WA2vELIfbvB\
-              GlrI*be2D<%O9d!jmO]+xFBhPEg#hI%1t?!7K>2C,%GU@,zE*(pbpn*H7ofa7hhi\
-              $<AVB#>0m?TCP,+7!@+}_CZxx_?n*in81t{MkK>5xb8dCW#0m^p^P]IUx,5pnv_X\
-              <$HPk{3M0+b&Rp![c!<()Y+rt(7qlphwL{D=VMM+GQ9CP4Xd0m@GZP<]Q?@>2qop\
-              U$Bvm7fuy{Hy@wT>_M!6QKOO0Oc11D8DE,dA9)Nmjo!koI@#<UlE}ZM[YFH0+e49\
-              p!]W3<-G!w-w>eurU2!)1Sr3qLvt#>BS3jsfbxm[<#z=rzb8QXeF4fJ2vFW9K>0%\
-              f${*#>lFA<oQ2s=K@[]lnKNFz*xd7!a1So$gK=]^H%3ljm{w9akRQ^_g@^=E1zZa\
-              nVg8=0p1t}X{K>23@%D)Iu{#AhTZ#lH3^6vta{[7=3rvT-@1StP4K=]g5%KHT<}0\
-              _WGKY>{OA4s=Lrr~~~"))}, System`ImageSize -> System`NCache(100, 
-            100.0`))), "Output", System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [40]:")}, System`All), 
+              "1:c$_uOVWiec7>4n>j4{R-V]it7k}arzBuSDaNm5Bxl2j^NQb#IDk{m]pBuSDa$\
+              &q9wNs=T<k}fDmNs=T<vXcJZ_qp9)e%v1[M&%J8;ljYG{d)#C@7S<x+nzyuc8=1G\
+              U])v0Cz%4-6e*@eHD#KqFkq^TF*U]a<hsT<lViNeGr<&?Xo^fSB_^9PQ%r@arph!\
+              ^V}q,%Ys@e?W}[;+Oo7>^$Q)B*t}>FmRG4q7EHE_}_7u9tB9mjW$+N^1SZazaGbN\
+              UrGAm4lm8QySQ)5j[v1_a]IsP(v)}mq9O_2?z#70wQlc[)9RM]23Z0{*,jlWHfoh\
+              HvNQ((6#GH6QdHD&gh3I}M;gQmuzo^sbXJlg0uB6^OBfn#E1NK6cind4&NgjhK#H\
+              cs,]{hSsZXGG6gF>p?doEH-p#LPvpa7nCO78_UktX=J@=(r}&M#R8%F>*sp+!Qna\
+              h=p5X<+j+k(,V]ycSXlN(Q{u6JP;!f#l#]q^H?lA5i3u{#<M;Ly4rKm@j]>x6a%l\
+              s$ZIk2M$Ehw3;&9h}HQ_-KF4&m_oCy2==mrHK8cafV&aRK,6?E^iIwkS<42!kyV_\
+              6D@xSQ#B?f+rk;51hN5srgv2aYR42g]5KF4*n<D%n)=s76{PKlAzV&aULIV%><iI\
+              wwW<3gX]yV^z3aY^)C76Vtr$W<}MP0Wmlh3jJFhS>f9&TEDS"))}, 
+           System`ImageSize -> System`NCache(100, 100.0`))), "Output", 
+         System`SectionGenerated -> System`True, 
+         System`SectionLabel -> "out [13]:")}, System`All), 
       System`SectionGroup({System`Section("Convex Hull", "Subsection"), 
         System`Section(System`BoxData({
-           {"testConvexHull", "(", {"~", "xyData"}, ")"}, "\[AssignDelayed]", {
-            "With", "(", {
-             {"{", {"ch", ":=", {"convexHull", "(", "xyData", ")"}}, "}"}, 
-             ",", "\n", {{"Print", "(", "ch", ")"}, ";", "\n", {
-               "Graphics", "(", {
-                {"{", {"Blue", ",", {"Point", "(", "xyData", ")"}, ",", 
-                  "Orange", ",", {"Line", "(", {
-                    "xyData", "[", {"ch", ".", "Append", "(", {
-                      "First", "(", "ch", ")"}, ")"}, "]"}, ")"}}, "}"}, ",", {
-                 "ImageSize", "\[Rule]", "200"}}, ")"}}}, ")"}}), "Input", 
-         System`SectionLabel -> "in [38]:"), 
+           "Function", " ", {"testConvexHull", "(", {"~", "xyData"}, ")"}, {
+            "{", {{{{"\n", "With"}, "(", {
+                "ch", ":=", {"convexHull", "(", "xyData", ")"}}, ")"}, "\n", {
+               "Print", "(", "ch", ")"}, ";", {
+               {"\n", "Graphics"}, "(", {
+                {"{", {{"\n", "Blue"}, ",", {{"\n", "Point"}, "(", "xyData", 
+                   ")"}, ",", {"\n", "Orange"}, ",", {
+                   {{"\n", "Line"}, "(", {"xyData", "[", {
+                      "ch", ".", "Append", "(", {"First", "(", "ch", ")"}, 
+                      ")"}, "]"}, ")"}, "\n"}}, "}"}, ",", {
+                 {"\n", "ImageSize"}, "\[Rule]", "200"}}, ")"}}, "\n"}, 
+            "}"}}), "Input", System`SectionLabel -> "in [16]:"), 
         System`SectionGroup({
           System`Section(System`BoxData({"testConvexHull", "(", "sample", 
-             ")"}), "Input", System`SectionLabel -> "in [57]:"), 
+             ")"}), "Input", System`SectionLabel -> "in [17]:"), 
           System`Section(System`BoxData(System`InterpretationBox({
-              "{", {"4", ",", "61", ",", "66", ",", "51", ",", "14", ",", 
-               "60", ",", "32", ",", "69", ",", "64", ",", "53", ",", "18", 
-               ",", "15", ",", "63", ",", "45", ",", "29", ",", "34", ",", 
-               "22"}, "}"}, System`Row({
-               {4, 61, 66, 51, 14, 60, 32, 69, 64, 53, 18, 15, 63, 45, 29, 34, 
-                22}}))), "Print", System`SectionGenerated -> System`True), 
-          System`Section(System`BoxData(
-            System`GraphicsBox({System`RGBColor(0, 0, 1), 
-              System`PointBox(System`Uncompress(
-                "c${68X;{r!9LMiZ8#$;emC[MXMOsX1N]e;D##0kgmgz}vLV9#(N}Pp[vOQW+F\
-                2W>BlL,sdNs(NoMH}X(-&{2hS?aOO@$#Je;=H+^=lp-m_xn8{pg$!KdH]Qv5hl\
-                =6elk70_lAkK?(+B89wq}0AJC6]Cj5ZV=Y5{Ci2NrQ)tyit4LeXrK%NBzs^L*u\
-                -dO[$G)2_+$oCOYV1aG-R!Y}Ie?(AG++CX+-zcES0wEDDIy(wS2y%LqmYkP$8i\
-                NuGv^8HdTwl?K(G^dtyU_{V1SYb;F_G_Yt{<Lb6twfGctrXJ!z32S$&PGaT,MK\
-                1LHb&D+,5B+G7DH(2a5!=ZxW<mbkcZ8T!vvX3m9]kKWKB4(m9kE9uGQFP5,lh$\
-                gHs^U(}uoqKVRx2R%{(Q&=Ez,llJnsx27JAH3+0y{-epR2FEwoNKTzyoDh2XF-\
-                qWkro2eSYYBu@%iB}jTjxvR5U3!e?dTn+eM@$Jl+&akpGDV-_O}&6HsLV#[B4P\
-                DKEM(l5J2QxuV]VLC6A5JLDENRaIh?IXlA9)Vh(tbQTD;+MQi_x}*N_FSXo00q\
-                sJK1%ky_,,z^3VD$N}f[zslDhxAN;FfM)PGCnrMjgRI,QoGk4C>q*9tdJnw)7K\
-                Zpj6&mo>5Ogg9TPt&rB>CqeaT=i>uEj^bpYGwmCaKy,W%#772+GVQ&}PnJjQx<\
-                D1-?q6&<v4%CU$D<uT9IN)mHv6*KZFcQn-v,uG*Fle)Y%*e]JLDqy(nMVJ?Ng-\
-                !2%whpai;+O7gtn>gB^Z{PT*IKl0%g8o154*zC#X*7uHcZAk3p9O5+dVj8iOPR\
-                1!#O88r}84L5]IGEoR2Z&+DM7UUZoB7t<p3Ss>5E<nMD9Pcagl8>wkscM-#EZW\
-                n^UwI6]835p5qT<qjmhhYv26g!LR9E_;5W{I4,rLKbn=5k#GkJ=60NF]VX)M&E\
-                QpE[Ec1vbueF&oS6BWR9U$f(ZRUJQmT;Ay8;_)wD?XPvi$VapG18gZ)D8]g,tI\
-                7(F=7FzslS{4Rl&RNYh(aq[52rB*NZk9GgRc*ooeo3#xpFHWM#?cOpT,8-_Fpm\
-                YQ?!Srult$g{6f(XfJtGf;DYuKnN_DUORC2,*H[6!c(HqQIAZA%#OsDh_Mya2*\
-                JYJq@#4w-hV!@R5xysiFnic;&KHwECasijLE,@HcuGE,t?*Hj@UT!B]&H_cDe%\
-                0AG>j;vy,IM-73=vq!0{-GQ-^iFkDwqbR%^lst7%W&Ix-{mXNe&fE*]j;]g_gw\
-                xEID^S7jDQJDJ5uN<CcKTv(GVDac%baG)-I;L(nZ%<H{+1beq;(fNYLX(UD{m6\
-                eq}cT,LAKEMkFy3(j78!j]9njz={)%GD6]iBr^G%ba}j,vh%^ZoTWOMnlYoyP;\
-                %_Qs#[P1QjS4_7rcW_Fv2b<H0JnNpoaW_8#[Ti&B2aV9OO*<Sw2id,?hoC8_k?\
-                H$cFSYjf$>*Tbz;FlsT44cARuF#OB{J1-yfcz>^%&LOprxM)+ro-@v!0O9<@^b\
-                -fNCEnT%ofsTA>)B]08;{XByc_cgoN$vqYD+l5c%3u;noK1(UQ+fh*_2Mwk?Ug\
-                3*jAO36!6cxJ@r?,w*)XJnB_qkmsH;p6m>o=qav<>fD;R[8dwGH3Z+RKqNF)_,\
-                B)bLXD&!j>D0QVQ2Xb!U%09jCBxvt0;0J-hhF?aNA2&D{8(4}FM*[pB$MTK9nE\
-                -%QD]6%mrMEO7+g8]Pq4F(GN<{l$hg(s{82A]Wh]Hf$Y#yi,c8sUch*{(>h@!B\
-                V*yE3h4*lEA2qLVdWwc3tzkI[=sSUuuMSO^%=5czY}?3)E4U!d@X^[-7k#q?cD\
-                IASAEr6!&Mhl4D#-a&8;zj1^Lt)K<q[xQ0kxXZzNNH_TlP;sKG;Kzvx?j1l@iU\
-                AfN)xaC]NI?+dKjuT*B0<hV1d9umAe}Qa@SH69T_*H;jvOH&xVNB(Yx?HdURb{\
-                c5gFOMy}WK,Ta{;%8%rzLt>x0pvuWJL~~~")), 
-              System`RGBColor(1, 0.5`, 0), 
-              System`LineBox({{-0.99101787295127308`, 0.024069556185570606`}, {
-                 -0.90840320736082614`, -0.28947534652842655`}, {
-                 -0.6931744724934763`, -0.68031989754056221`}, {
-                 -0.10592184499680624`, -0.93997417734130995`}, {
-                 -0.0039956830615595074`, -0.9444117530770022`}, {
-                 0.17645459155269982`, -0.90702154992096595`}, {
-                 0.2992088351902813`, -0.78965733806728933`}, {
-                 0.50358249061719462`, -0.58120288967346667`}, {
-                 0.88938594859165088`, -0.058342897283300443`}, {
-                 0.87921963644052359`, 0.0028780566334005719`}, {
-                 0.84756798979368608`, 0.1891793185021553`}, {
-                 0.58905942396783195`, 0.59773680397745244`}, {
-                 0.30586405016070994`, 0.89014943248087297`}, {
-                 -0.087897917689234273`, 0.96531694802122225`}, {
-                 -0.50500702876297554`, 0.83555972489707586`}, {
-                 -0.7088590474025227`, 0.66664026012708555`}, {
-                 -0.77181367860706551`, 0.59046306193344922`}, {
-                 -0.99101787295127308`, 0.024069556185570606`}})}, 
-             System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
-           System`SectionGenerated -> System`True, 
-           System`SectionLabel -> "out [57]:")}, System`All), 
-        System`SectionGroup({
-          System`Section(System`BoxData({"testConvexHull", "(", "grid", ")"}), 
-           "Input", System`SectionLabel -> "in [58]:"), 
-          System`Section(System`BoxData(System`InterpretationBox({
-              "{", {"10", ",", "1", ",", "141", ",", "150"}, "}"}, 
-             System`Row({{10, 1, 141, 150}}))), "Print", 
-           System`SectionGenerated -> System`True), 
-          System`Section(System`BoxData(
-            System`GraphicsBox({System`RGBColor(0, 0, 1), 
-              System`PointBox(System`Uncompress(
-                "c$}IIOKenC9LI6]I1ZFvTc$0AQYr29UFrjnswmFiqC&O4s9I=I5dp2XP;9H#2\
-                QL*+e6)&{gkVjKnz--Em@$R]6N4Kc3leo<7n&dog9}jEx4CnE=bq&JW)?R$?LT\
-                wRJ>T;gnH7HKOoSJa@RF3-;WbehUb;qyhPMxF>FgUCmdj>_X8tpKW+*7,SiiM&\
-                &2%Prb3P*p-@p%<;Lpr}e-BQH%H{6BtlTH)>OHf1V,qU%()$hBVDlGevXi^#tI\
-                YAPA)C7?Q<>,yObqmwp6ET74Zi+qDsgD;B9#K)H=NG]Bim{[,{(;gm3i(!w6+V\
-                ,pz*J<j-8WBRSJENxRlMkW{pbV4&+}{tKd}!?NrP0T9qrjkI3LgioA<7Tb)oT_\
-                P%B&_ZEdJ^GU2}F)5W4iS^Ox{$tbo7O0fuja8viN@6AdSoia{3zw*rkyug9YLx\
-                {fR@;Hp_@?f(N;!!Y-PEZp^bI7,M9Ih^Zwn2UZy5h>>SR)-!do+wyD3sxOk(Xh\
-                S=-uvp+u#U#EKqKu5u-bHT]<Q!RE2WDoaSLXtGMBip2Wl;@O_VrQwlVN@7Ke40\
-                p1c#OglMbMfC_!kw&f2h2gTc+<XpC{T;H)*UcAZ1L8SSioCPVgYXhi3PlkBo^>\
-                CkyyanOkx3V3yBrMsaIL%dyAA>yshql*&mDdD&HE4)Z)FG!]))H^2Q4BUQ1#D?\
-                {X3gcvp]Ez,K&f0^aLLtlx}Gt]{M?P+8>;n76Zd+kA^GQ;YX{cfgpncyA!FfcH\
-                ic3wT$PSipM}i3PkjlUTsJhQtEiTS%;EGTh0G?-3O-yy^[ZaTf2bzBQD,@V1j!\
-                z,K^j0^Zw5Ea1JJ!])(sNG#x8M,8i*dJ=2&=*N8@?r2o$a0iSRi[z07H&n*(-s\
-                KLMgJkh,=8YBNy_>,W-g,(a;Juf,0^a*bEa1JL!])(8Bv!QACY3H<tm+uv2iyU\
-                33@qLUeKo6McpoCMfVZ2(0^W@z7VvH&v4FRS!]))45({,YlUVaAzM0(hdAO4gy\
-                8}Yo#rue_MNJIvqwautJBxP<i3PlmkyyaHmBa$x$4M;U-9[;o?{*Rkcz5KL)vW\
-                S_@7UMH@IL7dn6+8FeLffI7]ZEyEZ[{b!]))a5({_-NG#ypNn!!-E)olP2T82s\
-                C(iz;=fa)b?GBi4ws@cMo$C4+-XV9uc(HhgNi5(UA+dn>SrQ9)pChq=_jwWvct\
-                =Sr;C+F_ie9rt<wf5QNK*{&OYVR<?H2FLzF(Mz7]VZ37Vz#Rv4D3Ui3Pm-Ni5(\
-                !Kw<&!D}uywNA6V;t2LbpN>(gWdCeU#XVv08==*(Wj^RDz4w#4*?_m-PcwZ;6f\
-                cFg&3wV!^Sit)xi3PlGkyya{Hi;D-m]bcGaR<!bE#5JAz$CDE$K3&Q+AZF9Ni5\
-                )fkHiArqa+sazE5HS?*xejydRKQz<Z3u,ts9N?Z1t*>i^?Ppk{~~")), 
-              System`RGBColor(1, 0.5`, 0), 
-              System`LineBox({{-2.2135943621178655`, 9.803060746521977`}, {
-                 0.63245553203367588`, 1.2649110640673518`}, {
-                 13.91402170474087`, 5.6920997883030831`}, {
-                 11.067971810589327`, 14.230249470757707`}, {
-                 -2.2135943621178655`, 9.803060746521977`}})}, 
-             System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
-           System`SectionGenerated -> System`True, 
-           System`SectionLabel -> "out [58]:")}, System`All), 
-        System`SectionGroup({
-          System`Section(System`BoxData({"testConvexHull", "(", "grid2", 
-             ")"}), "Input", System`SectionLabel -> "in [59]:"), 
-          System`Section(System`BoxData(System`InterpretationBox({
-              "{", {"1", ",", "141", ",", "150", ",", "10"}, "}"}, 
-             System`Row({{1, 141, 150, 10}}))), "Print", 
-           System`SectionGenerated -> System`True), 
-          System`Section(System`BoxData(
-            System`GraphicsBox({System`RGBColor(0, 0, 1), 
-              System`PointBox(System`Uncompress(
-                "c${s}Wp9*07)D{HvfFkmxVyW%71yH0wMc;i#deY6?k<I&%g*^Q$t36f@FZ,p$\
-                (@,qp!ya2t0#o&DTJEptt(YeXJ5I[-P_gCQ?7*C_$W$EeAJLms1u04p<W=agn]\
-                d^2[Oap5*h^JN@x^_E1^jsu7r}6TnWtraV50mP?O4A1t@P5pnRYJ<%0w$A1pxm\
-                5CO,E3Q#^wfb!u2l#j@vHkFSQpnQ[7<)Z]CA0t5dSOLn%2]a*>fbt0flus0(d{\
-                Pc}seG]k<x>PGpDIB4Gy%$}3s62ofby9Fl+O]Ne6}4Pb8@Ip<#PonpC>^1d;!W\
-                A2vELIfbvBGlrI*be2D<%O9d!jmO]+xFBhPEg#hI%1t?!7K>2C,%GU@,zE*(pb\
-                pn*H7ofa7hhi$<AVB#>0m?TCP,+7!@+}_CZxx_?n*in81t{MkK>5xb8dCW#0m^\
-                p^P]IUx,5pnv_X<$HPk{3M0+b&Rp![c!<()Y+rt(7qlphwL{D=VMM+GQ9CP4Xd\
-                0m@GZP<]Q?@>2qopU$Bvm7fuy{Hy@wT>_M!6QKOO0Oc11D8DE,dA9)Nmjo!koI\
-                @#<UlE}ZM[YFH0+e49p!]W3<-G!w-w>eurU2!)1Sr3qLvt#>BS3jsfbxm[<#z=\
-                rzb8QXeF4fJ2vFW9K>0%f${*#>lFA<oQ2s=K@[]lnKNFz*xd7!a1So$gK=]^H%\
-                3ljm{w9akRQ^_g@^=E1zZanVg8=0p1t}X{K>23@%D)Iu{#AhTZ#lH3^6vta{[7\
-                =3rvT-@1StP4K=]g5%KHT<}0_WGKY>{OA4s=Lrr~~~")), 
-              System`RGBColor(1, 0.5`, 0), 
-              System`LineBox({{1, 1}, {15, 1}, {15, 10}, {1, 10}, {1, 1}})}, 
-             System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
-           System`SectionGenerated -> System`True, 
-           System`SectionLabel -> "out [59]:")}, System`All)}, System`All)}, 
-     System`All), System`SectionGroup({System`Section("Old Ideas", "Section"), 
-      System`SectionGroup({
-        System`Section(System`BoxData({
-           "Local", "(", {
-            {"{", {{"ta", "\[Assign]", {"sample", "[", "1", "]"}}, ",", {
-               "tb", "\[Assign]", {"sample", "[", "2", "]"}}, ",", {
-               "tc", "\[Assign]", {"sample", "[", "3", "]"}}}, "}"}, ",", 
-            "\n", {{"If", "(", {{{"sideOfLine", "(", {"tc", ",", "ta", ",", "tb"}, ")"}, ">", 
-                "0"}, ",", {{"{", {"ta", ",", "tb", ",", "tc"}, "}"}, 
-                "\[Assign]", {"{", {"ta", ",", "tc", ",", "tb"}, "}"}}}, ")"}, 
-             ";", "\n", {"Graphics", "(", {
-               {"{", "\n", {"Red", ",", {
-                  "Point", "(", {"sample", ".", "Select", "(", {
-                    {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
-                       "tc"}, ")"}, "<", "0"}, "&"}, ")"}, ")"}, ",", "\n", 
-                 "Blue", ",", {"Point", "(", {"sample", ".", "Select", "(", {
-                    {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
-                       "tc"}, ")"}, ">", "0"}, "&"}, ")"}, ")"}, ",", "\n", 
-                 "Orange", ",", {"Point", "(", {"sample", ".", "Select", "(", {
-                    {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
-                       "tc"}, ")"}, "=", "0"}, "&"}, ")"}, ")"}, ",", "\n", {
-                  "Line", "(", {"{", {"ta", ",", "tb", ",", "tc", ",", "ta"}, 
-                   "}"}, ")"}}, "\n", "}"}, ",", {
-                "ImageSize", "\[Rule]", "200"}, ",", {
-                "Frame", "\[Rule]", "True"}, ",", {
-                "FrameTicks", "\[Rule]", "False"}}, ")"}}}, ")"}), "Input", 
-         System`SectionLabel -> "in [330]:"), 
-        System`Section(System`BoxData(
-          System`GraphicsBox({System`RGBColor(1, 0, 0), 
-            System`PointBox({{0.21301622687546051`, -0.35372241922429692`}, {
-               0.1155441209518222`, -0.57437606184577672`}, {
-               0.16567582960540217`, -0.35161436503567423`}, {
-               0.27972291568654661`, -0.33543870111851981`}, {
-               0.20087140780871104`, -0.45276967652585554`}, {
-               0.12655627122606039`, -0.38565459492667742`}, {
-               0.19100315901275433`, -0.44068341033182667`}, {
-               0.7006666674232942`, -0.33535326209602179`}, {
-               0.11863112497980022`, -0.52620940864874055`}, {
-               0.70434605132920192`, -0.34407981343284111`}, {
-               0.34212829412330925`, -0.66092288388410703`}}), 
+              "{", {"25", ",", "52", ",", "42", ",", "31", ",", "17", ",", 
+               "68", ",", "2", ",", "23", ",", "13", ",", "24", ",", "53", 
+               ",", "3"}, "}"}, System`Row({
+              {25, 52, 42, 31, 17, 68, 2, 23, 13, 24, 53, 3}}))), "Print", 
+          System`SectionGenerated -> System`True), 
+         System`Section(System`BoxData(
+           System`GraphicsBox({System`RGBColor(0, 0, 1), 
+             System`PointBox(System`Uncompress(
+               "1:c$_VidpOit7{_x,u3MWpQ7miSYAIQv)^?CuZ63)jD,}>mW#z7iLM[;3lB[@x\
+               G)1k5iZ(nh$3!C5h#@5!%(xqBHi?!!&-wN5=X-wV_rBlvdtR_)MV1r*ia=TxI!A\
+               _v9X-ynKNcDWmamYO29UEu^v}yabqL<N{dO)wRe*sk<qgvlF{[R*BbYB)RU9u>h\
+               k-oh8SAnYT;U{!55l+DNc3wFP^6r{)j6m7OfQ10Em>l[#M>CGpgh)7?uBOYGX$r\
+               j@?3W>ZA9Q[%587%6SZ6vA{f>XqnV,q0s}$=Ekuq#9cvdM*j>d}U$(Oa17*tX$]\
+               GlO9p+&;n}mPHX!BD9Amt-XEBBYq^ATjP-8RoZJ%)fP<-X4OT9s#c2r33?Y}L*T\
+               KwvH9>aUEI&96)#s2ZiU-(89PSDo?#mQrLv-5,cRn_Vt{wXPq7ZzyNk%]>aTl6r\
+               P2vGaN[hY,@C+=};8$AzUBreCYL7x!@h18vHeXxB?L+limu;pe%J*S}zShjPQr+\
+               ?TC(J;aAN75<YjjDQ]Hvsq^0Qqlbgas-,y,O0G$7%;xEgzP*?1tuSceiC;KVz7b\
+               oasxMxPSyZ}cRv4iN+?hIGNfGFC!}nslH8MTK2>}8>^TA(DX;Z%3Qmk]LeSVXHD\
+               NJt6aiz(O?-F9YAx-@(5lWQPtw}nfeGbzb,,muo+fj*dX(kR(}iL1Q^tq!=LwD<\
+               $,B0sUF;H<EJnbLa+[_7M}rg*58bwo;UBlRVPHYIqULY},_dSKY3rS,ZLE0+Y-8\
+               pnNU,+0E5eYK;#GP?rXB-J%1b^qT%EHd{!iGx6B-;5BCwtDlNW2(_oN6xuYwPXb\
+               IKwNtSCPhBcq[BBRM[S82tI^hbIWwFut{,_3%7$5nSl0AK!jq3Ikip*(&$k7xM)\
+               O>QqHt=&}m=U>D{2ou&aegyd>2u_R&Y;xGnw%zP!RE<K&UFr3M[aek<J5,$kT50\
+               aa)Qi&oyvp(a4Klqb6?I{nN@iPhzZo};{IPl=xlYSj2pSZ]xA6iNB6EwSH&mj>X\
+               0Y[QSOp_O%4vk=_ey=DgC5F5^C#L>MpUO?eeHfnDn}j6TDB&*5J1z8BQ+bh#;gc\
+               i!DG[Zz4{pr)vgF0fg&cDK<1{m#uMh)w#<yo2$E6BI7}I,y*I1rQeDGk-+bQjoR\
+               Q,dWWtiMnbvH2vo}OCC8Weg>k74Ma<62@@M*Q)jTsS?@oLEQd7YM4eN[4J#U@?0\
+               jP]Iszau]rS-nYh$n$s{iLb;2*,[NJ>HSxjOLCZU}8UY_BpVcXyx#L0%h334D>_\
+               Cz?Hs!}4dPQ^o4H!0VFidADze2#5neXlNlR9t7,;E0X;p$dYVc<u(7VC=sh2loy\
+               }D^lI)ax7s{3-w3dS+th1i9Z(wk$r+bOeI{%JaT+DN>&%KDYUmK0Ez!5P=[dBMN\
+               N<cdm{i=o^u#R$fWw62j!cLow6Bxd[tT)!eRyMdEW9bN?Psm84UouahBd{reV%5\
+               I8[((wdEr0uK)o}7#vbR-NM_5J9=0IN)Hl7s;D3Op7ejAUQcnxtXM-n){gSy>sU\
+               ;x4hrY#]_M%FI^(*QH3,c{%a}&F,4f,Acm<^*Ve(Ou^GeIw2U{Zyh}9wN>RacDy\
+               =WfpDbL{d0*T53=-UUMrgFC<$kgv4wb7#xgEn]qnu%cu2ppgx{IXL>FDb=a%v(3\
+               &N9NbhK0c{X;RayuH?#;De2+dm#dojeLA-]$Wq*0lc4bZLj;l;VIg(PS=nb]djw\
+               =hr]Ca)wq*(<$gV03{G>(Vq8%(cbe>P1Ybqnen!h(HIgo>)Mfk-yi%]8HX<z>F=\
+               +I^D&K3k6T)mBQXNckHj9,,Vr$qbo0O}a[UG}bzvN1Clq3tjyDW&EOg0*am,zOZ\
+               8>dj<?h-D]6W;-djJUSp-yO%VW#R%^3olF1fdJGL@_JXO]#H$=eaLL!#FdrtaE5\
+               Dozf1T5dz%@n)3b@aEQP+*($cahA;fY54KN;iH9s~~~")), 
+             System`RGBColor(1, 0.502`, 0), 
+             System`LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+                -0.65384193606448049`, -0.75642610101954721`}, {
+                -0.05672464713314973`, -0.98865037692613211`}, {
+                0.03780221509524484`, -0.98574777649525891`}, {
+                0.54650948422639001`, -0.81502192995596445`}, {
+                0.66027519045067695`, -0.68219441156137273`}, {
+                0.96839308538576385`, -0.14848359584348469`}, {
+                0.96685759476732325`, -0.031051088974141772`}, {
+                0.66754496465933855`, 0.7371662341034344`}, {
+                0.093586952377263`, 0.95440737331533243`}, {
+                -0.77931054929023391`, 0.6239622974784087`}, {
+                -0.90897609963654924`, 0.12621918423512346`}, {
+                -0.92978663953446294`, -0.25384317833329595`}})}, 
+            System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
+          System`SectionGenerated -> System`True, 
+          System`SectionLabel -> "out [17]:")}, System`All), 
+       System`SectionGroup({
+         System`Section(System`BoxData({"testConvexHull", "(", "grid", ")"}), 
+          "Input", System`SectionLabel -> "in [18]:"), 
+         System`Section(System`BoxData(System`InterpretationBox({
+             "{", {"10", ",", "1", ",", "141", ",", "150"}, "}"}, System`Row({
+             {10, 1, 141, 150}}))), "Print", System`SectionGenerated -> 
+          System`True), System`Section(
+         System`BoxData(System`GraphicsBox({
             System`RGBColor(0, 0, 1), 
             System`PointBox(System`Uncompress(
-              "c${6-eKgcr7zglqte3&9wAvc2LX=*JLK1bErJQOdY[A&+64}n[y-KrZHjy;RDXR\
-              #pH)l^$WJxc(*Jd$M83t{IM&8E6Oww9J?e*vV%^&xl,JCT*?(;nN3q1PM^PmR+J#\
-              ;]fp4x,=@Q>TKe,j>a#;AS!;j>9J,H$8lLf*UGtbCrfW0d#7COtT+h=4W=uDi-Q>\
-              L2%FBvV_@F7m3tpu>V{o6t{BHQfXWB;9^vwoMpxS>SjiH%%vVfFP+;;_yhxBLaFX\
-              I1(H-GFaY?QL9vQXV=je82BtubS^h67*rB;6fZab>p&9$eHLghYX31x+KEx{sZj5\
-              liEa!AEJ!>4EL9j*hmrX1rpki0,veSGU@kfwGfhxO(3V8$<HD^S7!V7@=?x1,YMK\
-              cW>qnly^>s3VDJ=Lt&&Xl#I(iE+I_DI$v=_rv7F0+B^j;a!PQDdYT->Q>ATW*7C{\
-              azWvFUS+(oT$qX9>y)7;%Qx_{i6!m)7uB*ki2LQW2QWg8n{#Rrth9j07X0Q!=WmF\
-              ?,N]xtGTxn<WZ@Rup$vnP?Okj9DOgt2O<giWX_[kDZ]NC7s0#7F^Ki?Q!yaicxvP\
-              rIABkjTpXQ0Z+AFKhWR[L8gM?#)r4*ux7Hr)YvPwdbb**iZVTk_uu&hX0c$UX^O8\
-              ]Odm!;!mNP}iwXh)7Rbc>f{4vZx-d#F}J9Ci0w$bk66f=mP4fvdm&AuQ+TFx3n+3\
-              bpc]<@]_KG0hMP=LltT+r,vfwbUG$(0;hM?Gc*XNv?dLM%+3yPi@G^HH8i;?5$y]\
-              {SH(MHW-!P?O!u=Y>-g$fTJo{E2oz+4tc&)gbQ*DEmcjDMov=SEk]j0G7N,V!RA4\
-              !ZW+ja(mSWEjjj,}xUhaz<?nM)t1JZO0?z7%W)e-ljIa7Eg;@T)(T(Y}R@2^H{LG\
-              $P!y6&{k*X?6631?<8Q!g8kuL<AJIUj7I+TyDHc1!eGS$U)Oy3MVCjk)jq>0UH=M\
-              (,78(;&l[njN{i&z#BA-0>%_2t1$kj*qaq,E&F[-M!sv7b0c#e-ijsU=_CBEFUOY\
-              H)^MeY*LQav@lJUB&&k5@J&fmIq=>UdBEEwLHU%KtvUYb!8W,miQ&oL[!L2hSGdX\
-              h^IL0z&2mn$o2Czo)psff[6k6MgE+OkXLh[tpOu)yc!_K!$OJIPC,&pIRjiGVE&j\
-              6$xJsfA^9n&(^ihIvX1OIh%K;rbV6!)S=zi0j#5a)<&u79{;QH)-3we!7$AX05k=\
-              NME--3sT-WH*e0JjG&ml8Ir1I49i%ss)huVETGT-Hxb,GWH!yH<t*UGWoGE?sH8;\
-              (X<Nvj(S&i[yzaB*If*sD&[(igXzzP{mVhJYZ4Q(qAJd^h,hI+@Hqe1au@egvhs#\
-              =1d9MjlIGr[D8f_-9f(6N^O9K*uXsg3p2K+{J>DoK9pf>a4C)Mxt3!eVAe#JN139\
-              RI7)R1gXOFhj=!EWcFsfX$axUe99Uv_0tv<f4udA91S*{uXtaRMYVRUxlw#YkEp=\
-              X(dx8eCa$e1qH}OxZ{SgjeisFa8yS8w>i+>GTKC{6sdcIDT5DlE7*f7&HlFR,zOw\
-              @[3L@N9Gg}Si@PEoV9<nOG*j)D9m]v7^^0LSs-b19N*B@h>>FEvA8Sog#_F=!?H*\
-              zJRuX)tge#W,8l]3g9oQbTML={OZqlvL_qX]Z}FV<IXSuWPNu,<T7p*Hb8vhYL-*\
-              k;P7D@rZi+CxjS+H?=h,PK$^R{<3<W~~")), 
-            System`RGBColor(1, 0.5`, 0), 
-            System`PointBox({{0.11725602716442207`, -0.84048567166899191`}, {
-               -0.17609956505464863`, -0.040216702194179055`}, {
-               0.82210218806085189`, -0.34319198018834984`}}), 
-            System`LineBox({{0.11725602716442207`, -0.84048567166899191`}, {
-               0.82210218806085189`, -0.34319198018834984`}, {
-               -0.17609956505464863`, -0.040216702194179055`}, {
-               0.11725602716442207`, -0.84048567166899191`}})}, 
-           System`Frame -> System`True, System`FrameTicks -> 
-            System`HoldComplete(System`False), 
+              "1:c${t3e@K;A7{Kw]hl^N]TmINv_QToLOif]In]Z3?4>Gn28Bx&>jS<nJ!kSw))\
+              )-ABnzRTD5$T6YnG2DK$T6zzMo7svWvm}z=@%uV!pR6XR$Fc_@44qW&+]Bo>*bu+\
+              _nh;6Klfgk5bXhg42Y!rD}YRu,(WGp$[KzUAT1h+fIoT3;tknv4#$%hV{u4l<JaT\
+              <@A3cstnKv>CWYe@l7Ie+>Y;^eDkmaj@cR?]x(h>z_K&6@MEUa*$%,C>DdBj_wwm\
+              l?)uRdj^3C4Jm+8}Gve^A&34iCtg0G)ln[LuMj+^D4Cj7ZinwD&De+j{7&lyi7_c\
+              <G3S]#BE_9g#nTKUz}BLxW4,E%lQ0W<l!wnGFVkMA>{+}LUL,Ldf?C=($jyLAlIv\
+              <[z5h)}fSTP{M8?3VWE-P=D-orO>=yP2N(2&J-Hc}+#GwX0(YWwM*OC,6dg#v^D$\
+              #o=Y%2mM!;9]}uMOG8+}d&ZL&QH0lIx7]dOWff1e5XxmY^Bf=H4cTq@?s#oU({zM\
+              }vYWXf4,Gq)cJld1RbzJW9^aDP%([sOQFdGXRn_x<?gZzp2*>Sfa&F&d,=5x;?K}\
+              PPJ-&0hSau_]OJz55TPeGd+xKKQa=T1+Be%<CH*&jDb]CQ#Agp5h$wcRNO*n3k<J\
+              ?xU=SR,GT_?Md+xJs-3*4@k-N@}**^S(8l-<bfCfSYLZkF91PX6N6fmjj3)^OZz&\
+              $+E(>*k<yyFDDYT%Frm*^S(OEW450I@yifej>Y(+fQXTa{HO=Ms7cs-OLTad3Uqt\
+              <TAJQUN]X>Ik*iTTft{?_jocL(cSCGc4W8Flko,eK2O#oz56}xkN6(&WIyuT<jH,\
+              $non$L+cX#9keRTsoZx2uA2S%?7BgXAnKRt#rHU9JKCB{=;-e[eF>X^4$#I8@NRW\
+              @Kh$OjFMKrr8M(E-Z^O@ySX2QM(hq;^A&10H-R7B!@T16z!XH-N2eO5&z(dSe}BK\
+              ?huNT$D45hvyLw[03jocz3*uu&cAi@eorhWdLmVRz}JUs4eX^<@>2Q1_{bg!+n#N\
+              T]Z&L_+<8ib$w,N-41fVUY7FWT<]O6Lw99,WNmh#!z2Z5efB86_HT?sv;8VAr+BO\
+              -%=3?^&J(FP]TG#j]pAhfuq66@0$tx1c!Q<E1APk}7IqvGl%-2ib$v*tB8bpL,5X\
+              jqbeey{zFA1)K64ILOrG;n(dY%{KY>w#SHb}X2Pm*sGspqR1rh{uZl>h$5li^T@N\
+              xMp>6;fkx=ge8Ie%$g;WxQSKA0OVp%LRBWuCD;P=B!SOX6Aeqf)E5{CMKnXpkE>L\
+              !p83H2e65eaoO$cTix1!P1*-3l@yp+2l466&KWqIprl$=iT^Wz1u!JIsVl<WL_6_\
+              FYoSP<N_,gt}*bB-E!=L_*!IA,<Ez6_HS%RuKvH85QxnuGcFb>@36o0X3Uwvj~~~\
+              ")), System`RGBColor(1, 0.502`, 0), 
+            System`LineBox({{-2.2135943621178655`, 9.803060746521977`}, {
+               0.63245553203367588`, 1.2649110640673518`}, {
+               13.91402170474087`, 5.6920997883030831`}, {
+               11.067971810589327`, 14.230249470757707`}, {
+               -2.2135943621178655`, 9.803060746521977`}})}, 
            System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
          System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [330]:")}, System`All), 
+         System`SectionLabel -> "out [18]:")}, System`All), 
       System`SectionGroup({
-        System`Section(System`BoxData({
-           "With", "(", {
-            {"{", {"sorted", "\[Assign]", {"Sort", "(", "sample", ")"}}, "}"}, 
-            ",", "\n", {"Graphics", "(", {
-              {"{", "\n", {"Blue", ",", {
-                 "Point", "(", {"sorted", ".", "Select", "(", {
-                   {{"sideOfLine", "(", {"#", ",", {"First", "(", "sorted", ")"}, ",", {
-                       "Last", "(", "sorted", ")"}}, ")"}, "<", "0"}, "&"}, 
-                  ")"}, ")"}, ",", "\n", "Green", ",", {
-                 "Point", "(", {"sorted", ".", "Select", "(", {
-                   {{"sideOfLine", "(", {"#", ",", {"First", "(", "sorted", ")"}, ",", {
-                       "Last", "(", "sorted", ")"}}, ")"}, ">", "0"}, "&"}, 
-                  ")"}, ")"}, ",", "\n", "Orange", ",", {
-                 "Point", "(", {"sorted", ".", "Select", "(", {
-                   {{"sideOfLine", "(", {"#", ",", {"First", "(", "sorted", ")"}, ",", {
-                       "Last", "(", "sorted", ")"}}, ")"}, "=", "0"}, "&"}, 
-                  ")"}, ")"}, ",", "\n", {
-                 "Line", "(", {"{", {{"First", "(", "sorted", ")"}, ",", {
-                    "Last", "(", "sorted", ")"}}, "}"}, ")"}}, "\n", "}"}, 
-              ",", {"ImageSize", "\[Rule]", "200"}, ",", {
-               "Frame", "\[Rule]", "True"}, ",", {
-               "FrameTicks", "\[Rule]", "False"}}, ")"}}, ")"}), "Input", 
-         System`SectionLabel -> "in [329]:"), 
-        System`Section(System`BoxData(
-          System`GraphicsBox({System`RGBColor(0, 0, 1), 
-            System`PointBox({{-0.9779694633689493`, 0.1056906649998639`}, {
-               -0.89774824328900205`, 0.1778000938203621`}, {
-               -0.72990165213050662`, 0.39279793307646704`}, {
-               -0.69452218081197592`, 0.30033188482708639`}, {
-               -0.68552350882364332`, 0.31530626387956451`}, {
-               -0.55577779544980177`, 0.26463228004417494`}, {
-               -0.51719160374074469`, 0.52918709422878041`}, {
-               -0.50472418358388116`, 0.72196972376325608`}, {
-               -0.49966019696250052`, 0.0062510813282077304`}, {
-               -0.39610576308323364`, 0.91197021179968085`}, {
-               -0.34274510184179263`, -0.011866924102723386`}, {
-               -0.29543376977124347`, 0.030762438236934031`}, {
-               -0.21167176192191395`, 0.54219713207946074`}, {
-               -0.21110564875549054`, 0.66251744885076258`}, {
-               -0.19707057794991067`, 0.037182451803485117`}, {
-               -0.086958808509166596`, 0.7695365116712618`}, {
-               -0.043187218627166013`, 0.058958601379139219`}, {
-               0.0082102393946716923`, 0.20729085409543102`}, {
-               0.02126892829086735`, -0.018443731513641204`}, {
-               0.099465061920311681`, 0.4150572283599161`}, {
-               0.11111201730681386`, 0.84322309110697402`}, {
-               0.20510876430830871`, 0.47638647594745542`}, {
-               0.20582620273772201`, 0.25042541597881596`}, {
-               0.23645656371070056`, 0.28549002914885646`}, {
-               0.349691141051101`, 0.60863177745906771`}, {
-               0.35611499114701362`, 0.30313226340961119`}, {
-               0.35713215184361391`, 0.72919865884904533`}, {
-               0.43734095462391909`, 0.17790485051585914`}, {
-               0.44969651154825563`, 0.2551441274833306`}, {
-               0.52538250886981874`, 0.5386853400667424`}, {
-               0.55985640900611466`, 0.62583334059280471`}, {
-               0.60590498575882501`, 0.76453846301938233`}, {
-               0.61821434435958666`, 0.68722881447716211`}, {
-               0.66497096990225413`, 0.72440729583503582`}, {
-               0.67557613033530228`, 0.34018232385800928`}, {
-               0.67882631791412895`, 0.41384332621158904`}, {
-               0.74375146965200156`, 0.12712670590541686`}, {
-               0.74737075159602417`, 0.40839744656057309`}, {
-               0.80957650833105688`, -0.0075259790000656857`}}), 
-            System`RGBColor(0, 1, 0), 
-            System`PointBox({{-0.94337692874853585`, -0.053935270634521304`}, {
-               -0.92492941137226703`, -0.200804825183168`}, {
-               -0.84501220526664156`, -0.32341070748987177`}, {
-               -0.77950050532592385`, -0.3196871580521401`}, {
-               -0.58458471297199677`, -0.47929032349684442`}, {
-               -0.56256812198605743`, -0.34336975175105344`}, {
-               -0.53326319477047335`, -0.51811850547134641`}, {
-               -0.34223015679825552`, -0.81285766493428291`}, {
-               -0.3408104002626775`, -0.21457087398342689`}, {
-               -0.20807499890978964`, -0.82616529651369963`}, {
-               -0.17609956505464863`, -0.040216702194179055`}, {
-               -0.15127630094043121`, -0.83884579132678949`}, {
-               -0.084180756769104415`, -0.95121381544058159`}, {
-               0.070486475787851388`, -0.76625853558070522`}, {
-               0.099542922557579239`, -0.85133346432710266`}, {
-               0.1155441209518222`, -0.57437606184577672`}, {
-               0.11725602716442207`, -0.84048567166899191`}, {
-               0.11863112497980022`, -0.52620940864874055`}, {
-               0.12655627122606039`, -0.38565459492667742`}, {
-               0.16567582960540217`, -0.35161436503567423`}, {
-               0.19100315901275433`, -0.44068341033182667`}, {
-               0.20087140780871104`, -0.45276967652585554`}, {
-               0.21301622687546051`, -0.35372241922429692`}, {
-               0.21396667456341278`, -0.10885118025155371`}, {
-               0.27972291568654661`, -0.33543870111851981`}, {
-               0.29518413190404469`, -0.057583912451304675`}, {
-               0.34212829412330925`, -0.66092288388410703`}, {
-               0.39233866220270674`, -0.094125413562805571`}, {
-               0.40840647744181413`, -0.7686841399352935`}, {
-               0.48134187258408589`, -0.064107810188018366`}, {
-               0.7006666674232942`, -0.33535326209602179`}, {
-               0.70434605132920192`, -0.34407981343284111`}, {
-               0.72080947334168144`, -0.27932110033176993`}, {
-               0.75993665127682597`, -0.30006344921242856`}, {
-               0.7948285649334883`, -0.12602507211387848`}, {
-               0.79725849468151067`, -0.60162502781615812`}, {
-               0.82210218806085189`, -0.34319198018834984`}, {
-               0.82588995175648416`, -0.44706080684093963`}}), 
-            System`RGBColor(1, 0.5`, 0), 
-            System`PointBox({{-0.99197674015867032`, -0.03327113393527581`}, {
-               0.95065614631366513`, -0.044466273396989831`}}), 
-            System`LineBox({{-0.99197674015867032`, -0.03327113393527581`}, {
-               0.95065614631366513`, -0.044466273396989831`}})}, 
-           System`Frame -> System`True, System`FrameTicks -> 
-            System`HoldComplete(System`False), 
-           System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
-         System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [329]:")}, System`All), 
-      System`SectionGroup({
-        System`Section(System`BoxData({
-           "Local", "(", {{"{", {"sorted", ",", "a", ",", "b", ",", "c"}, 
-             "}"}, ",", "\n", {
-             {"sorted", "\[Assign]", {"Sort", "(", "sample", ")"}}, ";", "\n", 
-             {"a", "\[Assign]", {"First", "(", "sorted", ")"}}, ";", "\n", {
-              "b", "\[Assign]", {"Last", "(", "sorted", ")"}}, ";", "\n", {
-              "c", "\[Assign]", {
-               {"sorted", ".", "SortBy", "(", {
-                 {"Total", "(", {{"(", {{{"(", {"a", "-", "#"}, ")"}, " ", {
-                       "Total", "(", {{"(", {"b", "-", "a"}, ")"}, 
-                        System`SuperscriptBox("2")}, ")"}}, "+", {
-                      {"Dot", "(", {{"#", "-", "a"}, ",", {"b", "-", "a"}}, 
-                       ")"}, " ", {"(", {"b", "-", "a"}, ")"}}}, ")"}, 
-                   System`SuperscriptBox("2")}, ")"}, "&"}, ")"}, ".", 
-               "Last"}}, ";", "\n", {"Graphics", "(", {
-               {"{", "\n", {"Blue", ",", {
-                  "Point", "(", {"sorted", ".", "Select", "(", {
-                    {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, "<", 
-                     "0"}, "&"}, ")"}, ")"}, ",", "\n", "Green", ",", {
-                  "Point", "(", {"sorted", ".", "Select", "(", {
-                    {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, ">", 
-                     "0"}, "&"}, ")"}, ")"}, ",", "\n", "Orange", ",", {
-                  "Point", "(", {"sorted", ".", "Select", "(", {
-                    {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, "=", 
-                     "0"}, "&"}, ")"}, ")"}, ",", "\n", {
-                  "Line", "(", {"{", {"a", ",", "b"}, "}"}, ")"}, ",", "\n", 
-                 "Red", ",", {"Point", "(", "c", ")"}, ",", {
-                  "Line", "(", {"{", {"a", ",", "c", ",", "b"}, "}"}, ")"}}, 
-                "\n", "}"}, ",", {"ImageSize", "\[Rule]", "200"}, ",", {
-                "Frame", "\[Rule]", "True"}, ",", {
-                "FrameTicks", "\[Rule]", "False"}}, ")"}}}, "\n", ")"}), 
-         "Input", System`SectionLabel -> "in [331]:"), 
-        System`Section(System`BoxData(
-          System`GraphicsBox({System`RGBColor(0, 0, 1), 
-            System`PointBox({{-0.9779694633689493`, 0.1056906649998639`}, {
-               -0.89774824328900205`, 0.1778000938203621`}, {
-               -0.72990165213050662`, 0.39279793307646704`}, {
-               -0.69452218081197592`, 0.30033188482708639`}, {
-               -0.68552350882364332`, 0.31530626387956451`}, {
-               -0.55577779544980177`, 0.26463228004417494`}, {
-               -0.51719160374074469`, 0.52918709422878041`}, {
-               -0.50472418358388116`, 0.72196972376325608`}, {
-               -0.49966019696250052`, 0.0062510813282077304`}, {
-               -0.39610576308323364`, 0.91197021179968085`}, {
-               -0.34274510184179263`, -0.011866924102723386`}, {
-               -0.29543376977124347`, 0.030762438236934031`}, {
-               -0.21167176192191395`, 0.54219713207946074`}, {
-               -0.21110564875549054`, 0.66251744885076258`}, {
-               -0.19707057794991067`, 0.037182451803485117`}, {
-               -0.086958808509166596`, 0.7695365116712618`}, {
-               -0.043187218627166013`, 0.058958601379139219`}, {
-               0.0082102393946716923`, 0.20729085409543102`}, {
-               0.02126892829086735`, -0.018443731513641204`}, {
-               0.099465061920311681`, 0.4150572283599161`}, {
-               0.11111201730681386`, 0.84322309110697402`}, {
-               0.20510876430830871`, 0.47638647594745542`}, {
-               0.20582620273772201`, 0.25042541597881596`}, {
-               0.23645656371070056`, 0.28549002914885646`}, {
-               0.349691141051101`, 0.60863177745906771`}, {
-               0.35611499114701362`, 0.30313226340961119`}, {
-               0.35713215184361391`, 0.72919865884904533`}, {
-               0.43734095462391909`, 0.17790485051585914`}, {
-               0.44969651154825563`, 0.2551441274833306`}, {
-               0.52538250886981874`, 0.5386853400667424`}, {
-               0.55985640900611466`, 0.62583334059280471`}, {
-               0.60590498575882501`, 0.76453846301938233`}, {
-               0.61821434435958666`, 0.68722881447716211`}, {
-               0.66497096990225413`, 0.72440729583503582`}, {
-               0.67557613033530228`, 0.34018232385800928`}, {
-               0.67882631791412895`, 0.41384332621158904`}, {
-               0.74375146965200156`, 0.12712670590541686`}, {
-               0.74737075159602417`, 0.40839744656057309`}, {
-               0.80957650833105688`, -0.0075259790000656857`}}), 
-            System`RGBColor(0, 1, 0), 
-            System`PointBox({{-0.94337692874853585`, -0.053935270634521304`}, {
-               -0.92492941137226703`, -0.200804825183168`}, {
-               -0.84501220526664156`, -0.32341070748987177`}, {
-               -0.77950050532592385`, -0.3196871580521401`}, {
-               -0.58458471297199677`, -0.47929032349684442`}, {
-               -0.56256812198605743`, -0.34336975175105344`}, {
-               -0.53326319477047335`, -0.51811850547134641`}, {
-               -0.34223015679825552`, -0.81285766493428291`}, {
-               -0.3408104002626775`, -0.21457087398342689`}, {
-               -0.20807499890978964`, -0.82616529651369963`}, {
-               -0.17609956505464863`, -0.040216702194179055`}, {
-               -0.15127630094043121`, -0.83884579132678949`}, {
-               -0.084180756769104415`, -0.95121381544058159`}, {
-               0.070486475787851388`, -0.76625853558070522`}, {
-               0.099542922557579239`, -0.85133346432710266`}, {
-               0.1155441209518222`, -0.57437606184577672`}, {
-               0.11725602716442207`, -0.84048567166899191`}, {
-               0.11863112497980022`, -0.52620940864874055`}, {
-               0.12655627122606039`, -0.38565459492667742`}, {
-               0.16567582960540217`, -0.35161436503567423`}, {
-               0.19100315901275433`, -0.44068341033182667`}, {
-               0.20087140780871104`, -0.45276967652585554`}, {
-               0.21301622687546051`, -0.35372241922429692`}, {
-               0.21396667456341278`, -0.10885118025155371`}, {
-               0.27972291568654661`, -0.33543870111851981`}, {
-               0.29518413190404469`, -0.057583912451304675`}, {
-               0.34212829412330925`, -0.66092288388410703`}, {
-               0.39233866220270674`, -0.094125413562805571`}, {
-               0.40840647744181413`, -0.7686841399352935`}, {
-               0.48134187258408589`, -0.064107810188018366`}, {
-               0.7006666674232942`, -0.33535326209602179`}, {
-               0.70434605132920192`, -0.34407981343284111`}, {
-               0.72080947334168144`, -0.27932110033176993`}, {
-               0.75993665127682597`, -0.30006344921242856`}, {
-               0.7948285649334883`, -0.12602507211387848`}, {
-               0.79725849468151067`, -0.60162502781615812`}, {
-               0.82210218806085189`, -0.34319198018834984`}, {
-               0.82588995175648416`, -0.44706080684093963`}}), 
-            System`RGBColor(1, 0.5`, 0), 
-            System`PointBox({{-0.99197674015867032`, -0.03327113393527581`}, {
-               0.95065614631366513`, -0.044466273396989831`}}), 
-            System`LineBox({{-0.99197674015867032`, -0.03327113393527581`}, {
-               0.95065614631366513`, -0.044466273396989831`}}), 
-            System`RGBColor(1, 0, 0), 
-            System`PointBox({-0.39610576308323364`, 0.91197021179968085`}), 
-            System`LineBox({{-0.99197674015867032`, -0.03327113393527581`}, {
-               -0.39610576308323364`, 0.91197021179968085`}, {
-               0.95065614631366513`, -0.044466273396989831`}})}, 
-           System`Frame -> System`True, System`FrameTicks -> 
-            System`HoldComplete(System`False), 
-           System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
-         System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [331]:")}, System`All)}, 1), 
-    System`SectionGroup({System`Section("Debug", "Section"), 
-      System`Section(System`BoxData({
-         {"debugGrahamScan", "(", {"~", "points"}, ")"}, "\[AssignDelayed]", 
-         "\n", {"With", "(", {
-           {"{", {"xyData", "\[Assign]", {"N", "(", "points", ")"}}, "}"}, 
-           ",", "\n", {"With", "(", {
-             {"{", {"startPos", "\[Assign]", {
-                {"Sort", "(", "xyData", ")"}, ".", "First"}}, "}"}, ",", "\n", 
-             {"With", "(", {{"{", {"startIndex", "\[Assign]", {
-                  {"Position", "(", {"xyData", ",", "startPos", ",", "1"}, 
-                   ")"}, "[", {"1", ",", "1"}, "]"}}, "}"}, ",", "\n", {
-                "With", "(", {{"{", {"angSortedIndices", "\[Assign]", {
-                    {"Join", "(", {{"Array", "(", {"startIndex", "-", "1"}, 
-                       ")"}, ",", {"Array", "(", {{"startIndex", "+", "1"}, 
-                        "..", {"Length", "(", "xyData", ")"}}, ")"}}, ")"}, 
-                    ".", "SortBy", "(", {{"{", {{"Arg", "(", {"Complex", "@@", {
-                          "(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, 
-                          ")"}}, ")"}, ",", {"Total", "(", {
-                         {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, 
-                          ")"}, System`SuperscriptBox("2")}, ")"}}, "}"}, 
-                     "&"}, ")"}}, "}"}, ",", "\n", "\n", {
-                  {"Print", "(", {System`ComplexStringBox("\"sorted: \""), 
-                    ",", "angSortedIndices"}, ")"}, ";", "\n", "\n", {
-                   "Print", "(", {"DynamicLocal", "(", {
-                     {"{", {"i", "\[Assign]", "1"}, "}"}, ",", "\n", {
-                      "With", "(", {{"{", {"n", "\[AssignDelayed]", {
-                          "angSortedIndices", "[", "i", "]"}}, "}"}, ",", 
-                       "\n", {"Column", "@", {"{", "\n", {{"Slider", "(", {{"Dynamic", "(", "i", ")"}, ",", {
-                             "1", "..", {"Length", "(", "angSortedIndices", 
-                              ")"}, "..", "1"}}, ")"}, ",", "\n", {
-                           "Dynamic", "(", {"{", {"n", ",", {"N", "@", {"xyData", "[", "n", "]"}}, ",", {
-                              {"(", {{"{", {{"Arg", "(", {"Complex", "@@", {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}}, ")"}, ",", {"Total", "(", {{"(", {{"xyData", "[", "#", "]"}, "-", 
-                                      "startPos"}, ")"}, System`SuperscriptBox(
-                                     "2")}, ")"}}, "}"}, "&"}, ")"}, "(", "n", 
-                              ")"}}, "}"}, ")"}, ",", "\n", {
-                           "Dynamic", "(", {"Graphics", "(", {
-                             {"{", "\n", {"Gray", ",", "\n", {
-                                "Point", "(", "xyData", ")"}, ",", "\n", {
-                                "Line", "(", {"xyData", "[", "angSortedIndices", "]"}, ")"}, ",", "\n", 
-                               "Black", ",", "\n", {"Line", "(", {"{", {"startPos", ",", {"xyData", "[", "n", "]"}}, "}"}, ")"}, ",", 
-                               "\n", {"Point", "(", {"xyData", "[", "n", "]"}, 
-                                ")"}}, "}"}, ",", "\n", {"ImageSize", "\[Rule]", "100"}, ",", "\n", {
-                              "Frame", "\[Rule]", "True"}}, ")"}, ")"}}, 
-                         "}"}}}, ")"}}, ")"}, ")"}, ";", "\n", "\n", {
-                   "Local", "(", {{"{", {"stack", ",", "depth", ",", "p"}, 
-                     "}"}, ",", "\n", "\n", {
-                     {"stack", "\[Assign]", {
-                       "{", {{"{", {{"{", "}"}, ",", "startIndex"}, "}"}, ",", 
-                        {"First", "(", "angSortedIndices", ")"}}, "}"}}, ";", 
-                     "\n", {"depth", "\[Assign]", "2"}, ";", "\n", {
-                      "Do", "(", "\n", {{"If", "(", {{{"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", 
-                            {"xyData", "[", {"stack", "[", {"1", ",", "2"}, 
-                              "]"}, "]"}, ",", {"xyData", "[", {
-                              "stack", "[", "2", "]"}, "]"}}, ")"}, 
-                          "\[GreaterEqual]", "0"}, ",", "\n", {
-                          {"stack", "\[Assign]", {"stack", "[", "1", "]"}}, 
-                          ";", "\n", {"--", "depth"}, ";", "\n", {
-                           "While", "(", {{{"depth", "\[GreaterEqual]", "2"}, 
-                             "&&", {{"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {"xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, "]"}, ",", {
-                                 "xyData", "[", {"stack", "[", "2", "]"}, 
-                                 "]"}}, ")"}, "\[GreaterEqual]", "0"}}, ",", 
-                            "\n", {{"stack", "\[Assign]", {"stack", "[", "1", "]"}}, ";", "\n", {
-                              "--", "depth"}, ";"}}, "\n", ")"}, ";", "\n", {
-                           "stack", "\[Assign]", {"{", {"stack", ",", "p"}, 
-                            "}"}}, ";", "\n", {"++", "depth"}, ";"}, "\n", 
-                         ",", "\n", {{"stack", "\[Assign]", {"{", {"stack", ",", "p"}, 
-                            "}"}}, ";", "\n", {"++", "depth"}, ";"}}, "\n", 
-                        ")"}, "\n", ",", "\n", {"p", "\[Rule]", {
-                         "Rest", "(", "angSortedIndices", ")"}}}, ")"}, ";", 
-                     "\n", {"Return", "(", {"Flatten", "(", "stack", ")"}, 
-                      ")"}, ";"}}, "\n", ")"}}}, "\n", ")"}}, ")"}}, ")"}}, 
-          ")"}}), "Input"), System`SectionGroup({
-        System`Section(System`BoxData({"debugConvexHull", "(", {
-            "Join", "@@", {"Array", "(", {
-              {{{{"{", {{"Re", "(", "#", ")"}, ",", {"Im", "(", "#", ")"}}, 
-                  "}"}, "&"}, "@", {
-                 "N", "(", {{"Complex", "(", {{"#", "1"}, ",", {"#", "2"}}, 
-                   ")"}, "*", {"Sign", "(", {"Complex", "(", {"3", ",", "1"}, 
-                    ")"}, ")"}}, ")"}}, "&"}, ",", {
-               "{", {"5", ",", "5"}, "}"}}, ")"}}, ")"}), "Input", 
-         System`SectionLabel -> "in [323]:"), 
+        System`Section(System`BoxData({"testConvexHull", "(", "grid2", ")"}), 
+         "Input", System`SectionLabel -> "in [19]:"), 
         System`Section(System`BoxData(System`InterpretationBox({
-            System`ComplexStringBox("\"sorted: \""), {
-             "{", {"4", ",", "3", ",", "2", ",", "1", ",", "6", ",", "7", ",", 
-              "8", ",", "11", ",", "12", ",", "16", ",", "9", ",", "13", ",", 
-              "21", ",", "17", ",", "22", ",", "18", ",", "14", ",", "23", 
-              ",", "19", ",", "24", ",", "25", ",", "10", ",", "15", ",", 
-              "20"}, "}"}}, System`Row({
-             "sorted: ", {4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 
-              18, 14, 23, 19, 24, 25, 10, 15, 20}}))), "Print", 
-         System`SectionGenerated -> System`True), 
-        System`Section(System`BoxData(System`InterpretationBox(
-           System`DynamicLocalBox({i}, 
-            System`TagBox(System`GridBox({
-               {System`SliderBox(System`Dynamic(i), 1 .. 24 .. 1)}, {
-                System`DynamicBox(System`ToBoxes({
-                   {4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                    14, 23, 19, 24, 25, 10, 15, 20}[i], 
-                   System`N({{0.63245553203367588`, 1.2649110640673518`}, {
-                      0.31622776601683794`, 2.2135943621178655`}, {
-                      0.0`, 3.1622776601683795`}, {
-                      -0.31622776601683794`, 4.1109609582188931`}, {
-                      -0.63245553203367588`, 5.0596442562694071`}, {
-                      1.5811388300841898`, 1.5811388300841898`}, {
-                      1.2649110640673518`, 2.5298221281347035`}, {
-                      0.94868329805051377`, 3.4785054261852175`}, {
-                      0.63245553203367588`, 4.4271887242357311`}, {
-                      0.31622776601683794`, 5.3758720222862451`}, {
-                      2.5298221281347035`, 1.8973665961010275`}, {
-                      2.2135943621178655`, 2.8460498941515415`}, {
-                      1.8973665961010275`, 3.7947331922020551`}, {
-                      1.5811388300841898`, 4.7434164902525691`}, {
-                      1.2649110640673518`, 5.6920997883030831`}, {
-                      3.4785054261852175`, 2.2135943621178655`}, {
-                      3.1622776601683795`, 3.1622776601683795`}, {
-                      2.8460498941515415`, 4.1109609582188931`}, {
-                      2.5298221281347035`, 5.0596442562694071`}, {
-                      2.2135943621178655`, 6.008327554319921`}, {
-                      4.4271887242357311`, 2.5298221281347035`}, {
-                      4.1109609582188931`, 3.4785054261852175`}, {
-                      3.7947331922020551`, 4.4271887242357311`}, {
-                      3.4785054261852175`, 5.3758720222862451`}, {
-                      3.1622776601683795`, 6.324555320336759`}}[{
-                      4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                      14, 23, 19, 24, 25, 10, 15, 20}[i]]), 
-                   ({System`Arg(System`Apply({
-                       {0.63245553203367588`, 1.2649110640673518`}, {
-                        0.31622776601683794`, 2.2135943621178655`}, {
-                        0.0`, 3.1622776601683795`}, {
-                        -0.31622776601683794`, 4.1109609582188931`}, {
-                        -0.63245553203367588`, 5.0596442562694071`}, {
-                        1.5811388300841898`, 1.5811388300841898`}, {
-                        1.2649110640673518`, 2.5298221281347035`}, {
-                        0.94868329805051377`, 3.4785054261852175`}, {
-                        0.63245553203367588`, 4.4271887242357311`}, {
-                        0.31622776601683794`, 5.3758720222862451`}, {
-                        2.5298221281347035`, 1.8973665961010275`}, {
-                        2.2135943621178655`, 2.8460498941515415`}, {
-                        1.8973665961010275`, 3.7947331922020551`}, {
-                        1.5811388300841898`, 4.7434164902525691`}, {
-                        1.2649110640673518`, 5.6920997883030831`}, {
-                        3.4785054261852175`, 2.2135943621178655`}, {
-                        3.1622776601683795`, 3.1622776601683795`}, {
-                        2.8460498941515415`, 4.1109609582188931`}, {
-                        2.5298221281347035`, 5.0596442562694071`}, {
-                        2.2135943621178655`, 6.008327554319921`}, {
-                        4.4271887242357311`, 2.5298221281347035`}, {
-                        4.1109609582188931`, 3.4785054261852175`}, {
-                        3.7947331922020551`, 4.4271887242357311`}, {
-                        3.4785054261852175`, 5.3758720222862451`}, {
-                        3.1622776601683795`, 6.324555320336759`}}[#1] - {
-                       -0.63245553203367588`, 5.0596442562694071`}, 
-                      System`Complex)), System`Total(
-                     ({{0.63245553203367588`, 1.2649110640673518`}, {
-                       0.31622776601683794`, 2.2135943621178655`}, {
-                       0.0`, 3.1622776601683795`}, {
-                       -0.31622776601683794`, 4.1109609582188931`}, {
-                       -0.63245553203367588`, 5.0596442562694071`}, {
-                       1.5811388300841898`, 1.5811388300841898`}, {
-                       1.2649110640673518`, 2.5298221281347035`}, {
-                       0.94868329805051377`, 3.4785054261852175`}, {
-                       0.63245553203367588`, 4.4271887242357311`}, {
-                       0.31622776601683794`, 5.3758720222862451`}, {
-                       2.5298221281347035`, 1.8973665961010275`}, {
-                       2.2135943621178655`, 2.8460498941515415`}, {
-                       1.8973665961010275`, 3.7947331922020551`}, {
-                       1.5811388300841898`, 4.7434164902525691`}, {
-                       1.2649110640673518`, 5.6920997883030831`}, {
-                       3.4785054261852175`, 2.2135943621178655`}, {
-                       3.1622776601683795`, 3.1622776601683795`}, {
-                       2.8460498941515415`, 4.1109609582188931`}, {
-                       2.5298221281347035`, 5.0596442562694071`}, {
-                       2.2135943621178655`, 6.008327554319921`}, {
-                       4.4271887242357311`, 2.5298221281347035`}, {
-                       4.1109609582188931`, 3.4785054261852175`}, {
-                       3.7947331922020551`, 4.4271887242357311`}, {
-                       3.4785054261852175`, 5.3758720222862451`}, {
-                       3.1622776601683795`, 6.324555320336759`}}[#1] - {
-                      -0.63245553203367588`, 5.0596442562694071`})^2)} &)({
-                     4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                     14, 23, 19, 24, 25, 10, 15, 20}[i])}))}, {
-                System`DynamicBox(System`ToBoxes(
-                  System`Graphics({System`Gray, 
-                    System`Point({{0.63245553203367588`, 1.2649110640673518`}, 
-                      {0.31622776601683794`, 2.2135943621178655`}, {
-                       0.0`, 3.1622776601683795`}, {
-                       -0.31622776601683794`, 4.1109609582188931`}, {
-                       -0.63245553203367588`, 5.0596442562694071`}, {
-                       1.5811388300841898`, 1.5811388300841898`}, {
-                       1.2649110640673518`, 2.5298221281347035`}, {
-                       0.94868329805051377`, 3.4785054261852175`}, {
-                       0.63245553203367588`, 4.4271887242357311`}, {
-                       0.31622776601683794`, 5.3758720222862451`}, {
-                       2.5298221281347035`, 1.8973665961010275`}, {
-                       2.2135943621178655`, 2.8460498941515415`}, {
-                       1.8973665961010275`, 3.7947331922020551`}, {
-                       1.5811388300841898`, 4.7434164902525691`}, {
-                       1.2649110640673518`, 5.6920997883030831`}, {
-                       3.4785054261852175`, 2.2135943621178655`}, {
-                       3.1622776601683795`, 3.1622776601683795`}, {
-                       2.8460498941515415`, 4.1109609582188931`}, {
-                       2.5298221281347035`, 5.0596442562694071`}, {
-                       2.2135943621178655`, 6.008327554319921`}, {
-                       4.4271887242357311`, 2.5298221281347035`}, {
-                       4.1109609582188931`, 3.4785054261852175`}, {
-                       3.7947331922020551`, 4.4271887242357311`}, {
-                       3.4785054261852175`, 5.3758720222862451`}, {
-                       3.1622776601683795`, 6.324555320336759`}}), 
-                    System`Line({{0.63245553203367588`, 1.2649110640673518`}, {
-                       0.31622776601683794`, 2.2135943621178655`}, {
-                       0.0`, 3.1622776601683795`}, {
-                       -0.31622776601683794`, 4.1109609582188931`}, {
-                       -0.63245553203367588`, 5.0596442562694071`}, {
-                       1.5811388300841898`, 1.5811388300841898`}, {
-                       1.2649110640673518`, 2.5298221281347035`}, {
-                       0.94868329805051377`, 3.4785054261852175`}, {
-                       0.63245553203367588`, 4.4271887242357311`}, {
-                       0.31622776601683794`, 5.3758720222862451`}, {
-                       2.5298221281347035`, 1.8973665961010275`}, {
-                       2.2135943621178655`, 2.8460498941515415`}, {
-                       1.8973665961010275`, 3.7947331922020551`}, {
-                       1.5811388300841898`, 4.7434164902525691`}, {
-                       1.2649110640673518`, 5.6920997883030831`}, {
-                       3.4785054261852175`, 2.2135943621178655`}, {
-                       3.1622776601683795`, 3.1622776601683795`}, {
-                       2.8460498941515415`, 4.1109609582188931`}, {
-                       2.5298221281347035`, 5.0596442562694071`}, {
-                       2.2135943621178655`, 6.008327554319921`}, {
-                       4.4271887242357311`, 2.5298221281347035`}, {
-                       4.1109609582188931`, 3.4785054261852175`}, {
-                       3.7947331922020551`, 4.4271887242357311`}, {
-                       3.4785054261852175`, 5.3758720222862451`}, {
-                       3.1622776601683795`, 6.324555320336759`}}[{
-                       4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                       14, 23, 19, 24, 25, 10, 15, 20}]), System`Black, 
-                    System`Line({{-0.63245553203367588`, 5.0596442562694071`}, 
-                      {{0.63245553203367588`, 1.2649110640673518`}, {
-                        0.31622776601683794`, 2.2135943621178655`}, {
-                        0.0`, 3.1622776601683795`}, {
-                        -0.31622776601683794`, 4.1109609582188931`}, {
-                        -0.63245553203367588`, 5.0596442562694071`}, {
-                        1.5811388300841898`, 1.5811388300841898`}, {
-                        1.2649110640673518`, 2.5298221281347035`}, {
-                        0.94868329805051377`, 3.4785054261852175`}, {
-                        0.63245553203367588`, 4.4271887242357311`}, {
-                        0.31622776601683794`, 5.3758720222862451`}, {
-                        2.5298221281347035`, 1.8973665961010275`}, {
-                        2.2135943621178655`, 2.8460498941515415`}, {
-                        1.8973665961010275`, 3.7947331922020551`}, {
-                        1.5811388300841898`, 4.7434164902525691`}, {
-                        1.2649110640673518`, 5.6920997883030831`}, {
-                        3.4785054261852175`, 2.2135943621178655`}, {
-                        3.1622776601683795`, 3.1622776601683795`}, {
-                        2.8460498941515415`, 4.1109609582188931`}, {
-                        2.5298221281347035`, 5.0596442562694071`}, {
-                        2.2135943621178655`, 6.008327554319921`}, {
-                        4.4271887242357311`, 2.5298221281347035`}, {
-                        4.1109609582188931`, 3.4785054261852175`}, {
-                        3.7947331922020551`, 4.4271887242357311`}, {
-                        3.4785054261852175`, 5.3758720222862451`}, {
-                        3.1622776601683795`, 6.324555320336759`}}[{
-                        4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 
-                        18, 14, 23, 19, 24, 25, 10, 15, 20}[i]]}), 
-                    System`Point({{0.63245553203367588`, 1.2649110640673518`}, 
-                      {0.31622776601683794`, 2.2135943621178655`}, {
-                       0.0`, 3.1622776601683795`}, {
-                       -0.31622776601683794`, 4.1109609582188931`}, {
-                       -0.63245553203367588`, 5.0596442562694071`}, {
-                       1.5811388300841898`, 1.5811388300841898`}, {
-                       1.2649110640673518`, 2.5298221281347035`}, {
-                       0.94868329805051377`, 3.4785054261852175`}, {
-                       0.63245553203367588`, 4.4271887242357311`}, {
-                       0.31622776601683794`, 5.3758720222862451`}, {
-                       2.5298221281347035`, 1.8973665961010275`}, {
-                       2.2135943621178655`, 2.8460498941515415`}, {
-                       1.8973665961010275`, 3.7947331922020551`}, {
-                       1.5811388300841898`, 4.7434164902525691`}, {
-                       1.2649110640673518`, 5.6920997883030831`}, {
-                       3.4785054261852175`, 2.2135943621178655`}, {
-                       3.1622776601683795`, 3.1622776601683795`}, {
-                       2.8460498941515415`, 4.1109609582188931`}, {
-                       2.5298221281347035`, 5.0596442562694071`}, {
-                       2.2135943621178655`, 6.008327554319921`}, {
-                       4.4271887242357311`, 2.5298221281347035`}, {
-                       4.1109609582188931`, 3.4785054261852175`}, {
-                       3.7947331922020551`, 4.4271887242357311`}, {
-                       3.4785054261852175`, 5.3758720222862451`}, {
-                       3.1622776601683795`, 6.324555320336759`}}[{
-                       4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                       14, 23, 19, 24, 25, 10, 15, 20}[i]])}, 
-                   System`ImageSize -> 100, System`Frame -> System`True)))}}), 
-             "Column"), System`Initialization :> System`None, 
-            System`Deinitialization :> System`None, 
-            System`UnsavedVariables :> {}, System`DynamicLocalValues :> {{
-              System`OwnRules(i):= {System`HoldPattern(i) :> 24}}}), 
-           System`Row({System`DynamicLocal({i}, 
-              System`Column({System`Slider(System`Dynamic(i), 1 .. 24 .. 1), 
-                System`Dynamic({{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 
-                   17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i], 
-                  System`N({{0.63245553203367588`, 1.2649110640673518`}, {
-                     0.31622776601683794`, 2.2135943621178655`}, {
-                     0.0`, 3.1622776601683795`}, {
-                     -0.31622776601683794`, 4.1109609582188931`}, {
-                     -0.63245553203367588`, 5.0596442562694071`}, {
-                     1.5811388300841898`, 1.5811388300841898`}, {
-                     1.2649110640673518`, 2.5298221281347035`}, {
-                     0.94868329805051377`, 3.4785054261852175`}, {
-                     0.63245553203367588`, 4.4271887242357311`}, {
-                     0.31622776601683794`, 5.3758720222862451`}, {
-                     2.5298221281347035`, 1.8973665961010275`}, {
-                     2.2135943621178655`, 2.8460498941515415`}, {
-                     1.8973665961010275`, 3.7947331922020551`}, {
-                     1.5811388300841898`, 4.7434164902525691`}, {
-                     1.2649110640673518`, 5.6920997883030831`}, {
-                     3.4785054261852175`, 2.2135943621178655`}, {
-                     3.1622776601683795`, 3.1622776601683795`}, {
-                     2.8460498941515415`, 4.1109609582188931`}, {
-                     2.5298221281347035`, 5.0596442562694071`}, {
-                     2.2135943621178655`, 6.008327554319921`}, {
-                     4.4271887242357311`, 2.5298221281347035`}, {
-                     4.1109609582188931`, 3.4785054261852175`}, {
-                     3.7947331922020551`, 4.4271887242357311`}, {
-                     3.4785054261852175`, 5.3758720222862451`}, {
-                     3.1622776601683795`, 6.324555320336759`}}[{
-                     4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                     14, 23, 19, 24, 25, 10, 15, 20}[i]]), 
-                  ({System`Arg(System`Apply({
-                      {0.63245553203367588`, 1.2649110640673518`}, {
-                       0.31622776601683794`, 2.2135943621178655`}, {
-                       0.0`, 3.1622776601683795`}, {
-                       -0.31622776601683794`, 4.1109609582188931`}, {
-                       -0.63245553203367588`, 5.0596442562694071`}, {
-                       1.5811388300841898`, 1.5811388300841898`}, {
-                       1.2649110640673518`, 2.5298221281347035`}, {
-                       0.94868329805051377`, 3.4785054261852175`}, {
-                       0.63245553203367588`, 4.4271887242357311`}, {
-                       0.31622776601683794`, 5.3758720222862451`}, {
-                       2.5298221281347035`, 1.8973665961010275`}, {
-                       2.2135943621178655`, 2.8460498941515415`}, {
-                       1.8973665961010275`, 3.7947331922020551`}, {
-                       1.5811388300841898`, 4.7434164902525691`}, {
-                       1.2649110640673518`, 5.6920997883030831`}, {
-                       3.4785054261852175`, 2.2135943621178655`}, {
-                       3.1622776601683795`, 3.1622776601683795`}, {
-                       2.8460498941515415`, 4.1109609582188931`}, {
-                       2.5298221281347035`, 5.0596442562694071`}, {
-                       2.2135943621178655`, 6.008327554319921`}, {
-                       4.4271887242357311`, 2.5298221281347035`}, {
-                       4.1109609582188931`, 3.4785054261852175`}, {
-                       3.7947331922020551`, 4.4271887242357311`}, {
-                       3.4785054261852175`, 5.3758720222862451`}, {
-                       3.1622776601683795`, 6.324555320336759`}}[#1] - {
-                      -0.63245553203367588`, 5.0596442562694071`}, 
-                     System`Complex)), System`Total(
-                    ({{0.63245553203367588`, 1.2649110640673518`}, {
-                      0.31622776601683794`, 2.2135943621178655`}, {
-                      0.0`, 3.1622776601683795`}, {
-                      -0.31622776601683794`, 4.1109609582188931`}, {
-                      -0.63245553203367588`, 5.0596442562694071`}, {
-                      1.5811388300841898`, 1.5811388300841898`}, {
-                      1.2649110640673518`, 2.5298221281347035`}, {
-                      0.94868329805051377`, 3.4785054261852175`}, {
-                      0.63245553203367588`, 4.4271887242357311`}, {
-                      0.31622776601683794`, 5.3758720222862451`}, {
-                      2.5298221281347035`, 1.8973665961010275`}, {
-                      2.2135943621178655`, 2.8460498941515415`}, {
-                      1.8973665961010275`, 3.7947331922020551`}, {
-                      1.5811388300841898`, 4.7434164902525691`}, {
-                      1.2649110640673518`, 5.6920997883030831`}, {
-                      3.4785054261852175`, 2.2135943621178655`}, {
-                      3.1622776601683795`, 3.1622776601683795`}, {
-                      2.8460498941515415`, 4.1109609582188931`}, {
-                      2.5298221281347035`, 5.0596442562694071`}, {
-                      2.2135943621178655`, 6.008327554319921`}, {
-                      4.4271887242357311`, 2.5298221281347035`}, {
-                      4.1109609582188931`, 3.4785054261852175`}, {
-                      3.7947331922020551`, 4.4271887242357311`}, {
-                      3.4785054261852175`, 5.3758720222862451`}, {
-                      3.1622776601683795`, 6.324555320336759`}}[#1] - {
-                     -0.63245553203367588`, 5.0596442562694071`})^2)} &)({
+            "{", {"1", ",", "141", ",", "150", ",", "10"}, "}"}, System`Row({
+            {1, 141, 150, 10}}))), "Print", System`SectionGenerated -> 
+         System`True), System`Section(
+        System`BoxData(System`GraphicsBox({
+           System`RGBColor(0, 0, 1), 
+           System`PointBox(System`Uncompress(
+             "1:c$_uOVWiec7>4n>j4{R-V]it7k}arzBuSDaNm5Bxl2j^NQb#IDk{m]pBuSDa$&\
+             q9wNs=T<k}fDmNs=T<vXcJZ_qp9)e%v1[M&%J8;ljYG{d)#C@7S<x+nzyuc8=1GU]\
+             )v0Cz%4-6e*@eHD#KqFkq^TF*U]a<hsT<lViNeGr<&?Xo^fSB_^9PQ%r@arph!^V}\
+             q,%Ys@e?W}[;+Oo7>^$Q)B*t}>FmRG4q7EHE_}_7u9tB9mjW$+N^1SZazaGbNUrGA\
+             m4lm8QySQ)5j[v1_a]IsP(v)}mq9O_2?z#70wQlc[)9RM]23Z0{*,jlWHfohHvNQ(\
+             (6#GH6QdHD&gh3I}M;gQmuzo^sbXJlg0uB6^OBfn#E1NK6cind4&NgjhK#Hcs,]{h\
+             SsZXGG6gF>p?doEH-p#LPvpa7nCO78_UktX=J@=(r}&M#R8%F>*sp+!Qnah=p5X<+\
+             j+k(,V]ycSXlN(Q{u6JP;!f#l#]q^H?lA5i3u{#<M;Ly4rKm@j]>x6a%ls$ZIk2M$\
+             Ehw3;&9h}HQ_-KF4&m_oCy2==mrHK8cafV&aRK,6?E^iIwkS<42!kyV_6D@xSQ#B?\
+             f+rk;51hN5srgv2aYR42g]5KF4*n<D%n)=s76{PKlAzV&aULIV%><iIwwW<3gX]yV\
+             ^z3aY^)C76Vtr$W<}MP0Wmlh3jJFhS>f9&TEDS")), 
+           System`RGBColor(1, 0.502`, 0), 
+           System`LineBox({{1, 1}, {15, 1}, {15, 10}, {1, 10}, {1, 1}})}, 
+          System`ImageSize -> System`NCache(200, 200.0`))), "Output", 
+        System`SectionGenerated -> System`True, 
+        System`SectionLabel -> "out [19]:")}, System`All)}, System`All)}, 
+  System`All), System`SectionGroup({System`Section("Old Ideas", "Section"), 
+   System`SectionGroup({
+     System`Section(System`BoxData({
+        {"Local", "(", {{"ta", "\[Assign]", {"sample", "[", "1", "]"}}, ",", {
+           "tb", "\[Assign]", {"sample", "[", "2", "]"}}, ",", {
+           "tc", "\[Assign]", {"sample", "[", "3", "]"}}}, ")"}, {
+         "{", {{{{{"\n", "If"}, "(", {
+              {"sideOfLine", "(", {"tc", ",", "ta", ",", "tb"}, ")"}, ">", 
+              "0"}, ")"}, {"{", {{{"\n", {"{", {"ta", ",", "tb", ",", "tc"}, "}"}}, 
+               "\[Assign]", {"{", {"ta", ",", "tc", ",", "tb"}, "}"}}, "\n"}, 
+             "}"}}, "\n", {"Graphics", "(", {
+             {"{", {{"\n", "Red"}, ",", {
+                "Point", "(", {"sample", ".", "Select", "(", {
+                  {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
+                     "tc"}, ")"}, "<", "0"}, "&"}, ")"}, ")"}, ",", {
+                "\n", "Blue"}, ",", {"Point", "(", {
+                 "sample", ".", "Select", "(", {
+                  {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
+                     "tc"}, ")"}, ">", "0"}, "&"}, ")"}, ")"}, ",", {
+                "\n", "Orange"}, ",", {
+                "Point", "(", {"sample", ".", "Select", "(", {
+                  {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
+                     "tc"}, ")"}, "=", "0"}, "&"}, ")"}, ")"}, ",", {
+                {{"\n", "Line"}, "(", {
+                  "{", {"ta", ",", "tb", ",", "tc", ",", "ta"}, "}"}, ")"}, 
+                "\n"}}, "}"}, ",", {{"\n", "ImageSize"}, "\[Rule]", "200"}, 
+             ",", {{"\n", "Frame"}, "\[Rule]", "True"}, ",", {
+              {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}}, "\n"}, 
+         "}"}}), "Input", System`SectionLabel -> "in [20]:"), 
+     System`Section(System`BoxData(
+       System`GraphicsBox({System`RGBColor(1, 0, 0), 
+         System`PointBox({{0.64230961598244862`, -0.26687791896538404`}, {
+            0.68193494773655683`, -0.22085632216246753`}, {
+            0.52062957114018782`, -0.30089462873269412`}, {
+            0.2489972685337245`, -0.11220012633047993`}, {
+            -0.217052972999493`, -0.015531725150659037`}, {
+            -0.025740417532282844`, -0.1399298317509563`}}), 
+         System`RGBColor(0, 0, 1), 
+         System`PointBox(System`Uncompress(
+           "1:c$_8FeKgcr7zc3Ol$UI6R=2cl)=FxTTA}i)CADL7WEpa-G@)5pc^wW#-tyXHNh{j\
+           zG@GeaQX6ffW5@NDmvoFW^dinMGu{pDZ1U1!@43H!Kle9xp8LJeeSpT=tQ7$00Znb_o\
+           fykId79&XDwYRUuhrB9P,cOqs,z}Af[A[is<6zP7-&;Z4bXYM<z6d-Gf6@px0P)O=u&\
+           5icIG9WkYG4h_G6yat}tiSQ6FtzceHv@iXeCMzC]%uI09>_hkBQr)MiN#)Qd8<E,KqE\
+           z^BxWUfUSh7fm9#DaquhpZ;?U^r_$B=qKK3l4BUPi(UB1=Ytp+Q0K4]_Gbqu5j>>N74\
+           {d8AONX5H*[^oz-kOH{r>oF+J_+wHc{6wZB[o2(S+cuxZH+E+g]EEnYv}h*]?B=A30a\
+           r25BP?BVa^*uEZ{GMe-nm0$I;MxxqLFUobgv6kMVDF(yBZomX}sF)*QCW8o_>D;YxY*\
+           2kaDDs;)YOsSiO#8jA1k$uYTr}Ykao+4mIy*}(@Iy1c;K^vd^jAh{%0_N0rhq}SjtQ^\
+           G9xrr@QclKalLH*XDO5c<j6@tzWOFa5Iu4Ax+$zkGYhUa?,f-yg<*lBqx1T3k$^nW=f\
+           sh,5}m8)mm2d6F!tf[j58EN7EGLB%ucCS*G{SpLhnER6P9m8%bG34+AtAn(fG1yJLYQ\
+           E*lf+NX)()FFfB1nONEt97tl{L^<iD2NJ_j(HkN([6%=bY0rHvg7<KPQua_vC#e0uD@\
+           WFAV!6{$&U*^)*j8U6{sTANBGc+Xx&(,ez[tDr5TM2nLSKJ*qjq=4O9lI9q%@cUU[yf\
+           fMy8omuA%NhD9sM}}v?a8i#mb>3{4RdjS0hBl{xzto+a%Z2*nAA*VDb)-+C<_;V_u9P\
+           C+O1;E3Z]4jaD27INE3^6MWEdP,>YNIx-Fa^S![uflMS&-Yv#1Ly{5RHKY{0NFXd6Ev\
+           nB4pK%=e<a<-!U9+5b_2og,F&fjg5=tH5*Rno10HPp2ENE+gmlV7_PRA5_==il8G;XR\
+           nd33Ik8-AvffTz?pFj!>{^Ou}(Y%cu,l(40U8Sk@{saaY<GCV+,2TFGuQnB,1y,s1bZ\
+           )!m6VH17GTFcfV,9z#Ec-w[(k^tQY[5rVqvZp0WuAh6;O0cWET)D[U-XtNN7-;Vl@p?\
+           XbMWF?fwY0Cf{i(Y6cs+DOh*e%ATd1PBCD}JZqc^57)d$5LCAF0>uRfJ0sQ6[!@ChUD\
+           25R^6KNL5@HW^@Iu+*{v&M2!<vU8,jj4{6m;]_tz_S@NUOYcBQO$X_@57W%fTDup#>_\
+           ssBt&*WeFJ!w7^@*WYOUF!F?)<Xrb4@t>Rq1j49?sUnVv17+kL!Gc7QG3keJ>UQcXal\
+           <18f;qW,&;E6jVi3Xff3I@?*qXN({^zKw+r8M0Kos?W>4E,XIGKC4i=nQ]mq{PSP;Ya\
+           nZ<u!,In)>?,JTdL4)Cb=u5Yr]x=iYsNxtTyW2i(Rp8CF)C3&wV,QN#%>Y,]}QfC6QP\
+           lt5C>_#,4V{UaBYrcMfz!]aG,FpaoTgiKmC{4Z;_BWYtNz[F1S47U6kb5_cRvyollJ}\
+           9v+2,T$LerjS2zvMgTb0d{+),IC59ac3YSWY<3{(HQ&DH26gDjm{=sF?D=GVPNu%7F1\
+           KYpA{#PiHT!Yahqav]+wBuA8*_LC!IF$;e19eePzW(+N]j)3W#B#RtofnC1M*nWhBXY\
+           g_%?#<PH1oD,LsEGTL=S{CL9F3o{9GPsx{{u%,ewq~~")), 
+         System`RGBColor(1, 0.502`, 0), 
+         System`PointBox({{0.153636193785613`, -0.5029873752475178`}, {
+            0.96839308538576385`, -0.14848359584348469`}, {
+            -0.90897609963654924`, 0.12621918423512346`}}), 
+         System`LineBox({{0.153636193785613`, -0.5029873752475178`}, {
+            0.96839308538576385`, -0.14848359584348469`}, {
+            -0.90897609963654924`, 0.12621918423512346`}, {
+            0.153636193785613`, -0.5029873752475178`}})}, 
+        System`Frame -> System`True, System`FrameTicks -> System`HoldComplete(
+         System`False), System`ImageSize -> System`NCache(200, 200.0`))), 
+      "Output", System`SectionGenerated -> System`True, 
+      System`SectionLabel -> "out [20]:")}, System`All), 
+   System`SectionGroup({
+     System`Section(System`BoxData({
+        {"With", "(", {"sorted", "\[Assign]", {"Sort", "(", "sample", ")"}}, 
+         ")"}, {"{", {{{"\n", "Graphics"}, "(", {
+            {"{", {{"\n", "Blue"}, ",", {
+               "Point", "(", {"sorted", ".", "Select", "(", {
+                 {{"sideOfLine", "(", {
+                    "#", ",", {"First", "(", "sorted", ")"}, ",", {
+                     "Last", "(", "sorted", ")"}}, ")"}, "<", "0"}, "&"}, 
+                ")"}, ")"}, ",", {"\n", "Green"}, ",", {
+               "Point", "(", {"sorted", ".", "Select", "(", {
+                 {{"sideOfLine", "(", {
+                    "#", ",", {"First", "(", "sorted", ")"}, ",", {
+                     "Last", "(", "sorted", ")"}}, ")"}, ">", "0"}, "&"}, 
+                ")"}, ")"}, ",", {"\n", "Orange"}, ",", {
+               "Point", "(", {"sorted", ".", "Select", "(", {
+                 {{"sideOfLine", "(", {
+                    "#", ",", {"First", "(", "sorted", ")"}, ",", {
+                     "Last", "(", "sorted", ")"}}, ")"}, "=", "0"}, "&"}, 
+                ")"}, ")"}, ",", {
+               {{"\n", "Line"}, "(", {
+                 "{", {{"First", "(", "sorted", ")"}, ",", {
+                   "Last", "(", "sorted", ")"}}, "}"}, ")"}, "\n"}}, "}"}, 
+            ",", {{"\n", "ImageSize"}, "\[Rule]", "200"}, ",", {
+             {"\n", "Frame"}, "\[Rule]", "True"}, ",", {
+             {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}, "\n"}, "}"}}), 
+      "Input", System`SectionLabel -> "in [21]:"), 
+     System`Section(System`BoxData(
+       System`GraphicsBox({System`RGBColor(0, 0, 1), 
+         System`PointBox({{-0.90897609963654924`, 0.12621918423512346`}, {
+            -0.77931054929023391`, 0.6239622974784087`}, {
+            -0.67693054033500477`, -0.15647538908260383`}, {
+            -0.60119371074670469`, 0.63698239054988681`}, {
+            -0.60097032232074898`, 0.148125324347127`}, {
+            -0.57801959590563712`, 0.12423708444993231`}, {
+            -0.45161226126822851`, 0.46257649919003652`}, {
+            -0.43822699961978695`, 0.31220692296569941`}, {
+            -0.41378953062047663`, 0.71854490379662583`}, {
+            -0.40638389936174701`, 0.11504191912383699`}, {
+            -0.38695187837377087`, -0.19472970670442824`}, {
+            -0.30677148590910663`, 0.067063064254659244`}, {
+            -0.30066097923198454`, 0.68324403731451522`}, {
+            -0.2569239562543324`, 0.24453215022081443`}, {
+            -0.24516255137808174`, 0.16556329017410554`}, {
+            -0.217052972999493`, -0.015531725150659037`}, {
+            -0.17520080779835601`, 0.39186872744236867`}, {
+            -0.025740417532282844`, -0.1399298317509563`}, {
+            0.093586952377263`, 0.95440737331533243`}, {
+            0.1548500004066824`, 0.36192101383298114`}, {
+            0.18500135142196328`, 0.18760029489292362`}, {
+            0.19282664711386222`, 0.032452052266729536`}, {
+            0.19929569276131609`, 0.8013913697674635`}, {
+            0.24629916281324005`, 0.58821496016344232`}, {
+            0.2489972685337245`, -0.11220012633047993`}, {
+            0.32786258222691211`, 0.82810448711172735`}, {
+            0.42631884630677308`, 0.1228753822119939`}, {
+            0.46122684546290071`, -0.042033521294892351`}, {
+            0.51156490563103074`, 0.62862752669088273`}, {
+            0.54639685332976562`, 0.63820808706794807`}, {
+            0.56019910321913735`, 0.20872876091601467`}, {
+            0.58107215228780884`, 0.563829651859028`}, {
+            0.60564408484853716`, 0.13698535863976558`}, {
+            0.62489564858747815`, 0.65930617342740838`}, {
+            0.62559074907603152`, 0.13442797397719608`}, {
+            0.6581911661242521`, 0.32649977064273283`}, {
+            0.66754496465933855`, 0.7371662341034344`}, {
+            0.68011751004771925`, -0.10073391179128377`}, {
+            0.73358026527010844`, -0.016400067812898378`}, {
+            0.79976218987336178`, 0.32395746706777695`}, {
+            0.83000506256300488`, 0.24417908178686476`}, {
+            0.96685759476732325`, -0.031051088974141772`}}), 
+         System`RGBColor(0, 1, 0), 
+         System`PointBox({{-0.84184212403222292`, -0.30806176581828626`}, {
+            -0.77817058477525602`, -0.51544786929787589`}, {
+            -0.65384193606448049`, -0.75642610101954721`}, {
+            -0.65376464566171344`, -0.33493657764927165`}, {
+            -0.61763499876817218`, -0.53455236801668882`}, {
+            -0.55554605686890546`, -0.55339554416131675`}, {
+            -0.53163170867924792`, -0.34075633094748881`}, {
+            -0.47938149738521219`, -0.51237419909965243`}, {
+            -0.24568932419940137`, -0.73607612344875339`}, {
+            -0.19785220457625496`, -0.62499944612204317`}, {
+            -0.15685669562860727`, -0.73900556994360489`}, {
+            -0.13713778152790912`, -0.60589244245337448`}, {
+            -0.10137393486036395`, -0.61962078782079777`}, {
+            -0.074565977279012152`, -0.59271320090637603`}, {
+            -0.05672464713314973`, -0.98865037692613211`}, {
+            -0.045197690648342448`, -0.92943121795243999`}, {
+            0.021224785891327702`, -0.94801150455499039`}, {
+            0.032558977550578128`, -0.63779411942750919`}, {
+            0.03780221509524484`, -0.98574777649525891`}, {
+            0.058127352095111107`, -0.65881063967874431`}, {
+            0.153636193785613`, -0.5029873752475178`}, {
+            0.18948289833537602`, -0.83586565867954388`}, {
+            0.22525436495144491`, -0.62385710587356313`}, {
+            0.4491301846005884`, -0.59112104628294304`}, {
+            0.4597446607110578`, -0.73690999375671717`}, {
+            0.52062957114018782`, -0.30089462873269412`}, {
+            0.54650948422639001`, -0.81502192995596445`}, {
+            0.64230961598244862`, -0.26687791896538404`}, {
+            0.64730917978849933`, -0.31701345422165916`}, {
+            0.66027519045067695`, -0.68219441156137273`}, {
+            0.68193494773655683`, -0.22085632216246753`}, {
+            0.89297059958952074`, -0.26674469479070373`}}), 
+         System`RGBColor(1, 0.502`, 0), 
+         System`PointBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+            0.96839308538576385`, -0.14848359584348469`}}), 
+         System`LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+            0.96839308538576385`, -0.14848359584348469`}})}, 
+        System`Frame -> System`True, System`FrameTicks -> System`HoldComplete(
+         System`False), System`ImageSize -> System`NCache(200, 200.0`))), 
+      "Output", System`SectionGenerated -> System`True, 
+      System`SectionLabel -> "out [21]:")}, System`All), 
+   System`SectionGroup({
+     System`Section(System`BoxData({
+        {"Local", "(", {"sorted", ",", "a", ",", "b", ",", "c"}, ")"}, {
+         "{", {{{{"\n", "sorted"}, "\[Assign]", {"Sort", "(", "sample", ")"}}, 
+           ";", {{"\n", "a"}, "\[Assign]", {"First", "(", "sorted", ")"}}, 
+           ";", {{"\n", "b"}, "\[Assign]", {"Last", "(", "sorted", ")"}}, ";", 
+           {{"\n", "c"}, "\[Assign]", {
+             {"sorted", ".", "SortBy", "(", {
+               {"Total", "(", {{"(", {{{"(", {"a", "-", "#"}, ")"}, " ", {
+                     "Total", "(", {{"(", {"b", "-", "a"}, ")"}, 
+                      System`SuperscriptBox("2")}, ")"}}, "+", {
+                    {"Dot", "(", {{"#", "-", "a"}, ",", {"b", "-", "a"}}, 
+                     ")"}, " ", {"(", {"b", "-", "a"}, ")"}}}, ")"}, 
+                 System`SuperscriptBox("2")}, ")"}, "&"}, ")"}, ".", "Last"}}, 
+           ";", {{"\n", "Graphics"}, "(", {
+             {"{", {{"\n", "Blue"}, ",", {
+                "Point", "(", {"sorted", ".", "Select", "(", {
+                  {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, "<", 
+                   "0"}, "&"}, ")"}, ")"}, ",", {"\n", "Green"}, ",", {
+                "Point", "(", {"sorted", ".", "Select", "(", {
+                  {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, ">", 
+                   "0"}, "&"}, ")"}, ")"}, ",", {"\n", "Orange"}, ",", {
+                "Point", "(", {"sorted", ".", "Select", "(", {
+                  {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, "=", 
+                   "0"}, "&"}, ")"}, ")"}, ",", {
+                {"\n", "Line"}, "(", {"{", {"a", ",", "b"}, "}"}, ")"}, ",", {
+                "\n", "Red"}, ",", {"Point", "(", "c", ")"}, ",", {
+                {"Line", "(", {"{", {"a", ",", "c", ",", "b"}, "}"}, ")"}, 
+                "\n"}}, "}"}, ",", {{"\n", "ImageSize"}, "\[Rule]", "200"}, 
+             ",", {{"\n", "Frame"}, "\[Rule]", "True"}, ",", {
+              {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}}, "\n"}, 
+         "}"}}), "Input", System`SectionLabel -> "in [22]:"), 
+     System`Section(System`BoxData(
+       System`GraphicsBox({System`RGBColor(0, 0, 1), 
+         System`PointBox({{-0.90897609963654924`, 0.12621918423512346`}, {
+            -0.77931054929023391`, 0.6239622974784087`}, {
+            -0.67693054033500477`, -0.15647538908260383`}, {
+            -0.60119371074670469`, 0.63698239054988681`}, {
+            -0.60097032232074898`, 0.148125324347127`}, {
+            -0.57801959590563712`, 0.12423708444993231`}, {
+            -0.45161226126822851`, 0.46257649919003652`}, {
+            -0.43822699961978695`, 0.31220692296569941`}, {
+            -0.41378953062047663`, 0.71854490379662583`}, {
+            -0.40638389936174701`, 0.11504191912383699`}, {
+            -0.38695187837377087`, -0.19472970670442824`}, {
+            -0.30677148590910663`, 0.067063064254659244`}, {
+            -0.30066097923198454`, 0.68324403731451522`}, {
+            -0.2569239562543324`, 0.24453215022081443`}, {
+            -0.24516255137808174`, 0.16556329017410554`}, {
+            -0.217052972999493`, -0.015531725150659037`}, {
+            -0.17520080779835601`, 0.39186872744236867`}, {
+            -0.025740417532282844`, -0.1399298317509563`}, {
+            0.093586952377263`, 0.95440737331533243`}, {
+            0.1548500004066824`, 0.36192101383298114`}, {
+            0.18500135142196328`, 0.18760029489292362`}, {
+            0.19282664711386222`, 0.032452052266729536`}, {
+            0.19929569276131609`, 0.8013913697674635`}, {
+            0.24629916281324005`, 0.58821496016344232`}, {
+            0.2489972685337245`, -0.11220012633047993`}, {
+            0.32786258222691211`, 0.82810448711172735`}, {
+            0.42631884630677308`, 0.1228753822119939`}, {
+            0.46122684546290071`, -0.042033521294892351`}, {
+            0.51156490563103074`, 0.62862752669088273`}, {
+            0.54639685332976562`, 0.63820808706794807`}, {
+            0.56019910321913735`, 0.20872876091601467`}, {
+            0.58107215228780884`, 0.563829651859028`}, {
+            0.60564408484853716`, 0.13698535863976558`}, {
+            0.62489564858747815`, 0.65930617342740838`}, {
+            0.62559074907603152`, 0.13442797397719608`}, {
+            0.6581911661242521`, 0.32649977064273283`}, {
+            0.66754496465933855`, 0.7371662341034344`}, {
+            0.68011751004771925`, -0.10073391179128377`}, {
+            0.73358026527010844`, -0.016400067812898378`}, {
+            0.79976218987336178`, 0.32395746706777695`}, {
+            0.83000506256300488`, 0.24417908178686476`}, {
+            0.96685759476732325`, -0.031051088974141772`}}), 
+         System`RGBColor(0, 1, 0), 
+         System`PointBox({{-0.84184212403222292`, -0.30806176581828626`}, {
+            -0.77817058477525602`, -0.51544786929787589`}, {
+            -0.65384193606448049`, -0.75642610101954721`}, {
+            -0.65376464566171344`, -0.33493657764927165`}, {
+            -0.61763499876817218`, -0.53455236801668882`}, {
+            -0.55554605686890546`, -0.55339554416131675`}, {
+            -0.53163170867924792`, -0.34075633094748881`}, {
+            -0.47938149738521219`, -0.51237419909965243`}, {
+            -0.24568932419940137`, -0.73607612344875339`}, {
+            -0.19785220457625496`, -0.62499944612204317`}, {
+            -0.15685669562860727`, -0.73900556994360489`}, {
+            -0.13713778152790912`, -0.60589244245337448`}, {
+            -0.10137393486036395`, -0.61962078782079777`}, {
+            -0.074565977279012152`, -0.59271320090637603`}, {
+            -0.05672464713314973`, -0.98865037692613211`}, {
+            -0.045197690648342448`, -0.92943121795243999`}, {
+            0.021224785891327702`, -0.94801150455499039`}, {
+            0.032558977550578128`, -0.63779411942750919`}, {
+            0.03780221509524484`, -0.98574777649525891`}, {
+            0.058127352095111107`, -0.65881063967874431`}, {
+            0.153636193785613`, -0.5029873752475178`}, {
+            0.18948289833537602`, -0.83586565867954388`}, {
+            0.22525436495144491`, -0.62385710587356313`}, {
+            0.4491301846005884`, -0.59112104628294304`}, {
+            0.4597446607110578`, -0.73690999375671717`}, {
+            0.52062957114018782`, -0.30089462873269412`}, {
+            0.54650948422639001`, -0.81502192995596445`}, {
+            0.64230961598244862`, -0.26687791896538404`}, {
+            0.64730917978849933`, -0.31701345422165916`}, {
+            0.66027519045067695`, -0.68219441156137273`}, {
+            0.68193494773655683`, -0.22085632216246753`}, {
+            0.89297059958952074`, -0.26674469479070373`}}), 
+         System`RGBColor(1, 0.502`, 0), 
+         System`PointBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+            0.96839308538576385`, -0.14848359584348469`}}), 
+         System`LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+            0.96839308538576385`, -0.14848359584348469`}}), 
+         System`RGBColor(1, 0, 0), 
+         System`PointBox({0.093586952377263`, 0.95440737331533243`}), 
+         System`LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+            0.093586952377263`, 0.95440737331533243`}, {
+            0.96839308538576385`, -0.14848359584348469`}})}, 
+        System`Frame -> System`True, System`FrameTicks -> System`HoldComplete(
+         System`False), System`ImageSize -> System`NCache(200, 200.0`))), 
+      "Output", System`SectionGenerated -> System`True, 
+      System`SectionLabel -> "out [22]:")}, System`All)}, System`All), 
+ System`SectionGroup({System`Section("Debug", "Section"), 
+   System`Section(System`BoxData({
+      "Function", " ", {"debugGrahamScan", "(", {"~", "points"}, ")"}, {
+       "{", {{{{"\n", "With"}, "(", {"xyData", "\[Assign]", {
+            "N", "(", "points", ")"}}, ")"}, "\n", {
+          "With", "(", {"startPos", "\[Assign]", {
+            {"Sort", "(", "xyData", ")"}, ".", "First"}}, ")"}, "\n", {
+          "With", "(", {"startIndex", "\[Assign]", {
+            {"Position", "(", {"xyData", ",", "startPos", ",", "1"}, ")"}, 
+            "[", {"1", ",", "1"}, "]"}}, ")"}, "\n", {
+          "With", "(", {"angSortedIndices", "\[Assign]", {
+            {"Join", "(", {{{"\n", "Array"}, "(", {"startIndex", "-", "1"}, 
+               ")"}, ",", {{{"\n", "Array"}, "(", {{"startIndex", "+", "1"}, "..", {
+                  "Length", "(", "xyData", ")"}}, ")"}, "\n"}}, ")"}, ".", 
+            "SortBy", "(", {
+             {"{", {{{"\n", "Arg"}, "(", {"Complex", "@@", {
+                  "(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}}, 
+                ")"}, ",", {{{"\n", "Total"}, "(", {
+                  {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}, 
+                  System`SuperscriptBox("2")}, ")"}, "\n"}}, "}"}, "&"}, 
+            ")"}}, ")"}, "\n", {{"\n", "Print"}, "(", {
+           System`ComplexStringBox("\"sorted: \""), ",", "angSortedIndices"}, 
+          ")"}, "\n", {{"\n", "Print"}, "@", {
+           "DynamicLocal", "(", {{"{", {"i", "\[Assign]", "1"}, "}"}, ",", {
+             {{{"\n", "With"}, "(", {"n", "\[AssignDelayed]", {
+                 "angSortedIndices", "[", "i", "]"}}, ")"}, {
+               "{", {{{"\n", "Column"}, "@", {
+                  "{", {{{"\n", "Slider"}, "(", {
+                     {"Dynamic", "(", "i", ")"}, ",", {
+                      "1", "..", {"Length", "(", "angSortedIndices", ")"}, 
+                      "..", "1"}}, ")"}, ",", {{"\n", "Dynamic"}, "(", {
+                     "{", {"n", ",", {"N", "@", {"xyData", "[", "n", "]"}}, 
+                      ",", {{"(", {{"{", {{{"\n", "Arg"}, "(", {"Complex", "@@", {"(", {{"xyData", "[", "#", "]"}, "-", 
+                               "startPos"}, ")"}}, ")"}, ",", {
+                            {{"\n", "Total"}, "(", {{"(", {{"xyData", "[", "#", "]"}, "-", 
+                                "startPos"}, ")"}, System`SuperscriptBox(
+                               "2")}, ")"}, "\n"}}, "}"}, "&"}, ")"}, "(", 
+                       "n", ")"}}, "}"}, ")"}, ",", {
+                    {{"\n", "Dynamic"}, "(", {
+                      "Graphics", "(", {{"{", {{"\n", "Gray"}, ",", {
+                          {"\n", "Point"}, "(", "xyData", ")"}, ",", {
+                          {"\n", "Line"}, "(", {"xyData", "[", 
+                           "angSortedIndices", "]"}, ")"}, ",", {
+                          "\n", "Black"}, ",", {{"\n", "Line"}, "(", {
+                           "{", {"startPos", ",", {"xyData", "[", "n", "]"}}, 
+                           "}"}, ")"}, ",", {{"\n", "Point"}, "(", {
+                           "xyData", "[", "n", "]"}, ")"}}, "}"}, ",", {
+                        {"\n", "ImageSize"}, "\[Rule]", "100"}, ",", {
+                        {"\n", "Frame"}, "\[Rule]", "True"}}, ")"}, ")"}, 
+                    "\n"}}, "}"}}, "\n"}, "}"}}, "\n"}}, ")"}}, ";", {
+          {"\n", "\n", "Local"}, "(", {"stack", ",", "depth", ",", "p"}, ")"}, 
+         "\n", {"stack", "\[Assign]", {
+           "{", {{"{", {{"{", "}"}, ",", "startIndex"}, "}"}, ",", {
+             "First", "(", "angSortedIndices", ")"}}, "}"}}, "\n", {
+          "depth", "\[Assign]", "2"}, "\n", {
+          {"Do", "(", {"p", "\[Rule]", {"Rest", "(", "angSortedIndices", 
+             ")"}}, ")"}, {
+           "{", {{{{"\n", "If"}, "(", {
+               {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
+                  "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, "]"}, 
+                 ",", {"xyData", "[", {"stack", "[", "2", "]"}, "]"}}, ")"}, 
+               "\[GreaterEqual]", "0"}, ")"}, {
+              "{", {{{{"\n", "stack"}, "\[Assign]", {"stack", "[", "1", "]"}}, 
+                "\n", {"--", "depth"}, "\n", {
+                 {"While", "(", {{"depth", "\[GreaterEqual]", "2"}, "&&", {
+                    {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
+                       "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, 
+                       "]"}, ",", {"xyData", "[", {"stack", "[", "2", "]"}, 
+                       "]"}}, ")"}, "\[GreaterEqual]", "0"}}, ")"}, {
+                  "{", {{{{"\n", "stack"}, "\[Assign]", {"stack", "[", "1", "]"}}, 
+                    "\n", {"--", "depth"}}, "\n"}, "}"}}, "\n", {
+                 "stack", "\[Assign]", {"{", {"stack", ",", "p"}, "}"}}, "\n", 
+                {"++", "depth"}}, "\n"}, "}"}, "Else", {
+              "{", {{{{"\n", "stack"}, "\[Assign]", {
+                  "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}}, 
+               "\n"}, "}"}}, "\n"}, "}"}}, "\n", {
+          "Return", "(", {"Flatten", "(", "stack", ")"}, ")"}}, "\n"}, "}"}}), 
+    "Input", System`SectionLabel -> "in [23]:"), 
+   System`SectionGroup({
+     System`Section(System`BoxData({"debugGrahamScan", "(", {
+         "Join", "@@", {"Array", "(", {
+           {{{{"{", {{"Re", "(", "#", ")"}, ",", {"Im", "(", "#", ")"}}, "}"}, 
+              "&"}, "@", {"N", "(", {{"Complex", "(", {{"#", "1"}, ",", {"#", "2"}}, ")"}, 
+               "*", {"Sign", "(", {"Complex", "(", {"3", ",", "1"}, ")"}, 
+                ")"}}, ")"}}, "&"}, ",", {"{", {"5", ",", "5"}, "}"}}, ")"}}, 
+        ")"}), "Input", System`SectionLabel -> "in [25]:"), 
+     System`Section(System`BoxData(System`InterpretationBox({
+         System`ComplexStringBox("\"sorted: \""), {
+          "{", {"4", ",", "3", ",", "2", ",", "1", ",", "6", ",", "7", ",", 
+           "8", ",", "11", ",", "12", ",", "16", ",", "9", ",", "13", ",", 
+           "21", ",", "17", ",", "22", ",", "18", ",", "14", ",", "23", ",", 
+           "19", ",", "24", ",", "25", ",", "10", ",", "15", ",", "20"}, 
+          "}"}}, System`Row({"sorted: ", {4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 
+          13, 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}}))), "Print", 
+     System`SectionGenerated -> System`True), 
+    System`Section(System`BoxData(System`InterpretationBox(
+       System`DynamicLocalBox({i}, 
+        System`TagBox(System`GridBox({
+           {System`SliderBox(System`Dynamic(i), 1 .. 24 .. 1)}, {
+            System`DynamicBox(System`ToBoxes({
+               {4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 14, 
+                23, 19, 24, 25, 10, 15, 20}[i], 
+               System`N({{0.63245553203367588`, 1.2649110640673518`}, {
+                  0.31622776601683794`, 2.2135943621178655`}, {
+                  0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
+                  4.1109609582188931`}, {-0.63245553203367588`, 
+                  5.0596442562694071`}, {1.5811388300841898`, 
+                  1.5811388300841898`}, {1.2649110640673518`, 
+                  2.5298221281347035`}, {0.94868329805051377`, 
+                  3.4785054261852175`}, {0.63245553203367588`, 
+                  4.4271887242357311`}, {0.31622776601683794`, 
+                  5.3758720222862451`}, {2.5298221281347035`, 
+                  1.8973665961010275`}, {2.2135943621178655`, 
+                  2.8460498941515415`}, {1.8973665961010275`, 
+                  3.7947331922020551`}, {1.5811388300841898`, 
+                  4.7434164902525691`}, {1.2649110640673518`, 
+                  5.6920997883030831`}, {3.4785054261852175`, 
+                  2.2135943621178655`}, {3.1622776601683795`, 
+                  3.1622776601683795`}, {2.8460498941515415`, 
+                  4.1109609582188931`}, {2.5298221281347035`, 
+                  5.0596442562694071`}, {2.2135943621178655`, 
+                  6.008327554319921`}, {4.4271887242357311`, 
+                  2.5298221281347035`}, {4.1109609582188931`, 
+                  3.4785054261852175`}, {3.7947331922020551`, 
+                  4.4271887242357311`}, {3.4785054261852175`, 
+                  5.3758720222862451`}, {3.1622776601683795`, 
+                  6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 
+                  13, 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i]]), 
+               ({System`Arg(System`Apply({
+                   {0.63245553203367588`, 1.2649110640673518`}, {
+                    0.31622776601683794`, 2.2135943621178655`}, {
+                    0.0`, 3.1622776601683795`}, {
+                    -0.31622776601683794`, 4.1109609582188931`}, {
+                    -0.63245553203367588`, 5.0596442562694071`}, {
+                    1.5811388300841898`, 1.5811388300841898`}, {
+                    1.2649110640673518`, 2.5298221281347035`}, {
+                    0.94868329805051377`, 3.4785054261852175`}, {
+                    0.63245553203367588`, 4.4271887242357311`}, {
+                    0.31622776601683794`, 5.3758720222862451`}, {
+                    2.5298221281347035`, 1.8973665961010275`}, {
+                    2.2135943621178655`, 2.8460498941515415`}, {
+                    1.8973665961010275`, 3.7947331922020551`}, {
+                    1.5811388300841898`, 4.7434164902525691`}, {
+                    1.2649110640673518`, 5.6920997883030831`}, {
+                    3.4785054261852175`, 2.2135943621178655`}, {
+                    3.1622776601683795`, 3.1622776601683795`}, {
+                    2.8460498941515415`, 4.1109609582188931`}, {
+                    2.5298221281347035`, 5.0596442562694071`}, {
+                    2.2135943621178655`, 6.008327554319921`}, {
+                    4.4271887242357311`, 2.5298221281347035`}, {
+                    4.1109609582188931`, 3.4785054261852175`}, {
+                    3.7947331922020551`, 4.4271887242357311`}, {
+                    3.4785054261852175`, 5.3758720222862451`}, {
+                    3.1622776601683795`, 6.324555320336759`}}[#1] - {
+                   -0.63245553203367588`, 5.0596442562694071`}, 
+                  System`Complex)), System`Total(
+                 ({{0.63245553203367588`, 1.2649110640673518`}, {
+                   0.31622776601683794`, 2.2135943621178655`}, {
+                   0.0`, 3.1622776601683795`}, {
+                   -0.31622776601683794`, 4.1109609582188931`}, {
+                   -0.63245553203367588`, 5.0596442562694071`}, {
+                   1.5811388300841898`, 1.5811388300841898`}, {
+                   1.2649110640673518`, 2.5298221281347035`}, {
+                   0.94868329805051377`, 3.4785054261852175`}, {
+                   0.63245553203367588`, 4.4271887242357311`}, {
+                   0.31622776601683794`, 5.3758720222862451`}, {
+                   2.5298221281347035`, 1.8973665961010275`}, {
+                   2.2135943621178655`, 2.8460498941515415`}, {
+                   1.8973665961010275`, 3.7947331922020551`}, {
+                   1.5811388300841898`, 4.7434164902525691`}, {
+                   1.2649110640673518`, 5.6920997883030831`}, {
+                   3.4785054261852175`, 2.2135943621178655`}, {
+                   3.1622776601683795`, 3.1622776601683795`}, {
+                   2.8460498941515415`, 4.1109609582188931`}, {
+                   2.5298221281347035`, 5.0596442562694071`}, {
+                   2.2135943621178655`, 6.008327554319921`}, {
+                   4.4271887242357311`, 2.5298221281347035`}, {
+                   4.1109609582188931`, 3.4785054261852175`}, {
+                   3.7947331922020551`, 4.4271887242357311`}, {
+                   3.4785054261852175`, 5.3758720222862451`}, {
+                   3.1622776601683795`, 6.324555320336759`}}[#1] - {
+                  -0.63245553203367588`, 5.0596442562694071`})^2)} &)({
+                 4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 14, 
+                 23, 19, 24, 25, 10, 15, 20}[i])}))}, {
+            System`DynamicBox(System`ToBoxes(
+              System`Graphics({System`Gray, 
+                System`Point({{0.63245553203367588`, 1.2649110640673518`}, {
+                   0.31622776601683794`, 2.2135943621178655`}, {
+                   0.0`, 3.1622776601683795`}, {
+                   -0.31622776601683794`, 4.1109609582188931`}, {
+                   -0.63245553203367588`, 5.0596442562694071`}, {
+                   1.5811388300841898`, 1.5811388300841898`}, {
+                   1.2649110640673518`, 2.5298221281347035`}, {
+                   0.94868329805051377`, 3.4785054261852175`}, {
+                   0.63245553203367588`, 4.4271887242357311`}, {
+                   0.31622776601683794`, 5.3758720222862451`}, {
+                   2.5298221281347035`, 1.8973665961010275`}, {
+                   2.2135943621178655`, 2.8460498941515415`}, {
+                   1.8973665961010275`, 3.7947331922020551`}, {
+                   1.5811388300841898`, 4.7434164902525691`}, {
+                   1.2649110640673518`, 5.6920997883030831`}, {
+                   3.4785054261852175`, 2.2135943621178655`}, {
+                   3.1622776601683795`, 3.1622776601683795`}, {
+                   2.8460498941515415`, 4.1109609582188931`}, {
+                   2.5298221281347035`, 5.0596442562694071`}, {
+                   2.2135943621178655`, 6.008327554319921`}, {
+                   4.4271887242357311`, 2.5298221281347035`}, {
+                   4.1109609582188931`, 3.4785054261852175`}, {
+                   3.7947331922020551`, 4.4271887242357311`}, {
+                   3.4785054261852175`, 5.3758720222862451`}, {
+                   3.1622776601683795`, 6.324555320336759`}}), 
+                System`Line({{0.63245553203367588`, 1.2649110640673518`}, {
+                   0.31622776601683794`, 2.2135943621178655`}, {
+                   0.0`, 3.1622776601683795`}, {
+                   -0.31622776601683794`, 4.1109609582188931`}, {
+                   -0.63245553203367588`, 5.0596442562694071`}, {
+                   1.5811388300841898`, 1.5811388300841898`}, {
+                   1.2649110640673518`, 2.5298221281347035`}, {
+                   0.94868329805051377`, 3.4785054261852175`}, {
+                   0.63245553203367588`, 4.4271887242357311`}, {
+                   0.31622776601683794`, 5.3758720222862451`}, {
+                   2.5298221281347035`, 1.8973665961010275`}, {
+                   2.2135943621178655`, 2.8460498941515415`}, {
+                   1.8973665961010275`, 3.7947331922020551`}, {
+                   1.5811388300841898`, 4.7434164902525691`}, {
+                   1.2649110640673518`, 5.6920997883030831`}, {
+                   3.4785054261852175`, 2.2135943621178655`}, {
+                   3.1622776601683795`, 3.1622776601683795`}, {
+                   2.8460498941515415`, 4.1109609582188931`}, {
+                   2.5298221281347035`, 5.0596442562694071`}, {
+                   2.2135943621178655`, 6.008327554319921`}, {
+                   4.4271887242357311`, 2.5298221281347035`}, {
+                   4.1109609582188931`, 3.4785054261852175`}, {
+                   3.7947331922020551`, 4.4271887242357311`}, {
+                   3.4785054261852175`, 5.3758720222862451`}, {
+                   3.1622776601683795`, 6.324555320336759`}}[{
+                   4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 14, 
+                   23, 19, 24, 25, 10, 15, 20}]), System`Black, 
+                System`Line({{-0.63245553203367588`, 5.0596442562694071`}, {
+                   {0.63245553203367588`, 1.2649110640673518`}, {
+                    0.31622776601683794`, 2.2135943621178655`}, {
+                    0.0`, 3.1622776601683795`}, {
+                    -0.31622776601683794`, 4.1109609582188931`}, {
+                    -0.63245553203367588`, 5.0596442562694071`}, {
+                    1.5811388300841898`, 1.5811388300841898`}, {
+                    1.2649110640673518`, 2.5298221281347035`}, {
+                    0.94868329805051377`, 3.4785054261852175`}, {
+                    0.63245553203367588`, 4.4271887242357311`}, {
+                    0.31622776601683794`, 5.3758720222862451`}, {
+                    2.5298221281347035`, 1.8973665961010275`}, {
+                    2.2135943621178655`, 2.8460498941515415`}, {
+                    1.8973665961010275`, 3.7947331922020551`}, {
+                    1.5811388300841898`, 4.7434164902525691`}, {
+                    1.2649110640673518`, 5.6920997883030831`}, {
+                    3.4785054261852175`, 2.2135943621178655`}, {
+                    3.1622776601683795`, 3.1622776601683795`}, {
+                    2.8460498941515415`, 4.1109609582188931`}, {
+                    2.5298221281347035`, 5.0596442562694071`}, {
+                    2.2135943621178655`, 6.008327554319921`}, {
+                    4.4271887242357311`, 2.5298221281347035`}, {
+                    4.1109609582188931`, 3.4785054261852175`}, {
+                    3.7947331922020551`, 4.4271887242357311`}, {
+                    3.4785054261852175`, 5.3758720222862451`}, {
+                    3.1622776601683795`, 6.324555320336759`}}[{
                     4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                    14, 23, 19, 24, 25, 10, 15, 20}[i])}), 
-                System`Dynamic(System`Graphics({
-                   System`Gray, System`Point({
-                     {0.63245553203367588`, 1.2649110640673518`}, {
-                      0.31622776601683794`, 2.2135943621178655`}, {
-                      0.0`, 3.1622776601683795`}, {
-                      -0.31622776601683794`, 4.1109609582188931`}, {
-                      -0.63245553203367588`, 5.0596442562694071`}, {
-                      1.5811388300841898`, 1.5811388300841898`}, {
-                      1.2649110640673518`, 2.5298221281347035`}, {
-                      0.94868329805051377`, 3.4785054261852175`}, {
-                      0.63245553203367588`, 4.4271887242357311`}, {
-                      0.31622776601683794`, 5.3758720222862451`}, {
-                      2.5298221281347035`, 1.8973665961010275`}, {
-                      2.2135943621178655`, 2.8460498941515415`}, {
-                      1.8973665961010275`, 3.7947331922020551`}, {
-                      1.5811388300841898`, 4.7434164902525691`}, {
-                      1.2649110640673518`, 5.6920997883030831`}, {
-                      3.4785054261852175`, 2.2135943621178655`}, {
-                      3.1622776601683795`, 3.1622776601683795`}, {
-                      2.8460498941515415`, 4.1109609582188931`}, {
-                      2.5298221281347035`, 5.0596442562694071`}, {
-                      2.2135943621178655`, 6.008327554319921`}, {
-                      4.4271887242357311`, 2.5298221281347035`}, {
-                      4.1109609582188931`, 3.4785054261852175`}, {
-                      3.7947331922020551`, 4.4271887242357311`}, {
-                      3.4785054261852175`, 5.3758720222862451`}, {
-                      3.1622776601683795`, 6.324555320336759`}}), 
-                   System`Line({{0.63245553203367588`, 1.2649110640673518`}, {
-                      0.31622776601683794`, 2.2135943621178655`}, {
-                      0.0`, 3.1622776601683795`}, {
-                      -0.31622776601683794`, 4.1109609582188931`}, {
-                      -0.63245553203367588`, 5.0596442562694071`}, {
-                      1.5811388300841898`, 1.5811388300841898`}, {
-                      1.2649110640673518`, 2.5298221281347035`}, {
-                      0.94868329805051377`, 3.4785054261852175`}, {
-                      0.63245553203367588`, 4.4271887242357311`}, {
-                      0.31622776601683794`, 5.3758720222862451`}, {
-                      2.5298221281347035`, 1.8973665961010275`}, {
-                      2.2135943621178655`, 2.8460498941515415`}, {
-                      1.8973665961010275`, 3.7947331922020551`}, {
-                      1.5811388300841898`, 4.7434164902525691`}, {
-                      1.2649110640673518`, 5.6920997883030831`}, {
-                      3.4785054261852175`, 2.2135943621178655`}, {
-                      3.1622776601683795`, 3.1622776601683795`}, {
-                      2.8460498941515415`, 4.1109609582188931`}, {
-                      2.5298221281347035`, 5.0596442562694071`}, {
-                      2.2135943621178655`, 6.008327554319921`}, {
-                      4.4271887242357311`, 2.5298221281347035`}, {
-                      4.1109609582188931`, 3.4785054261852175`}, {
-                      3.7947331922020551`, 4.4271887242357311`}, {
-                      3.4785054261852175`, 5.3758720222862451`}, {
-                      3.1622776601683795`, 6.324555320336759`}}[{
-                      4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                      14, 23, 19, 24, 25, 10, 15, 20}]), System`Black, 
-                   System`Line({{-0.63245553203367588`, 5.0596442562694071`}, {
-                      {0.63245553203367588`, 1.2649110640673518`}, {
-                       0.31622776601683794`, 2.2135943621178655`}, {
-                       0.0`, 3.1622776601683795`}, {
-                       -0.31622776601683794`, 4.1109609582188931`}, {
-                       -0.63245553203367588`, 5.0596442562694071`}, {
-                       1.5811388300841898`, 1.5811388300841898`}, {
-                       1.2649110640673518`, 2.5298221281347035`}, {
-                       0.94868329805051377`, 3.4785054261852175`}, {
-                       0.63245553203367588`, 4.4271887242357311`}, {
-                       0.31622776601683794`, 5.3758720222862451`}, {
-                       2.5298221281347035`, 1.8973665961010275`}, {
-                       2.2135943621178655`, 2.8460498941515415`}, {
-                       1.8973665961010275`, 3.7947331922020551`}, {
-                       1.5811388300841898`, 4.7434164902525691`}, {
-                       1.2649110640673518`, 5.6920997883030831`}, {
-                       3.4785054261852175`, 2.2135943621178655`}, {
-                       3.1622776601683795`, 3.1622776601683795`}, {
-                       2.8460498941515415`, 4.1109609582188931`}, {
-                       2.5298221281347035`, 5.0596442562694071`}, {
-                       2.2135943621178655`, 6.008327554319921`}, {
-                       4.4271887242357311`, 2.5298221281347035`}, {
-                       4.1109609582188931`, 3.4785054261852175`}, {
-                       3.7947331922020551`, 4.4271887242357311`}, {
-                       3.4785054261852175`, 5.3758720222862451`}, {
-                       3.1622776601683795`, 6.324555320336759`}}[{
-                       4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                       14, 23, 19, 24, 25, 10, 15, 20}[i]]}), 
-                   System`Point({{0.63245553203367588`, 1.2649110640673518`}, {
-                      0.31622776601683794`, 2.2135943621178655`}, {
-                      0.0`, 3.1622776601683795`}, {
-                      -0.31622776601683794`, 4.1109609582188931`}, {
-                      -0.63245553203367588`, 5.0596442562694071`}, {
-                      1.5811388300841898`, 1.5811388300841898`}, {
-                      1.2649110640673518`, 2.5298221281347035`}, {
-                      0.94868329805051377`, 3.4785054261852175`}, {
-                      0.63245553203367588`, 4.4271887242357311`}, {
-                      0.31622776601683794`, 5.3758720222862451`}, {
-                      2.5298221281347035`, 1.8973665961010275`}, {
-                      2.2135943621178655`, 2.8460498941515415`}, {
-                      1.8973665961010275`, 3.7947331922020551`}, {
-                      1.5811388300841898`, 4.7434164902525691`}, {
-                      1.2649110640673518`, 5.6920997883030831`}, {
-                      3.4785054261852175`, 2.2135943621178655`}, {
-                      3.1622776601683795`, 3.1622776601683795`}, {
-                      2.8460498941515415`, 4.1109609582188931`}, {
-                      2.5298221281347035`, 5.0596442562694071`}, {
-                      2.2135943621178655`, 6.008327554319921`}, {
-                      4.4271887242357311`, 2.5298221281347035`}, {
-                      4.1109609582188931`, 3.4785054261852175`}, {
-                      3.7947331922020551`, 4.4271887242357311`}, {
-                      3.4785054261852175`, 5.3758720222862451`}, {
-                      3.1622776601683795`, 6.324555320336759`}}[{
-                      4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                      14, 23, 19, 24, 25, 10, 15, 20}[i]])}, 
-                  System`ImageSize -> 100, System`Frame -> System`True))}), 
-              System`DynamicLocalValues :> {
-               System`OwnRules(i):= {i :> 1}})}))), "Print", 
-         System`SectionGenerated -> System`True), 
-        System`Section(System`BoxData({
-           "{", {"5", ",", "1", ",", "21", ",", "25", ",", "20"}, "}"}), 
-         "Output", System`SectionGenerated -> System`True, 
-         System`SectionLabel -> "out [323]:")}, System`All)}, 1)}, 
-   System`All)}, System`Visible -> System`True)
+                    14, 23, 19, 24, 25, 10, 15, 20}[i]]}), 
+                System`Point({{0.63245553203367588`, 1.2649110640673518`}, {
+                   0.31622776601683794`, 2.2135943621178655`}, {
+                   0.0`, 3.1622776601683795`}, {
+                   -0.31622776601683794`, 4.1109609582188931`}, {
+                   -0.63245553203367588`, 5.0596442562694071`}, {
+                   1.5811388300841898`, 1.5811388300841898`}, {
+                   1.2649110640673518`, 2.5298221281347035`}, {
+                   0.94868329805051377`, 3.4785054261852175`}, {
+                   0.63245553203367588`, 4.4271887242357311`}, {
+                   0.31622776601683794`, 5.3758720222862451`}, {
+                   2.5298221281347035`, 1.8973665961010275`}, {
+                   2.2135943621178655`, 2.8460498941515415`}, {
+                   1.8973665961010275`, 3.7947331922020551`}, {
+                   1.5811388300841898`, 4.7434164902525691`}, {
+                   1.2649110640673518`, 5.6920997883030831`}, {
+                   3.4785054261852175`, 2.2135943621178655`}, {
+                   3.1622776601683795`, 3.1622776601683795`}, {
+                   2.8460498941515415`, 4.1109609582188931`}, {
+                   2.5298221281347035`, 5.0596442562694071`}, {
+                   2.2135943621178655`, 6.008327554319921`}, {
+                   4.4271887242357311`, 2.5298221281347035`}, {
+                   4.1109609582188931`, 3.4785054261852175`}, {
+                   3.7947331922020551`, 4.4271887242357311`}, {
+                   3.4785054261852175`, 5.3758720222862451`}, {
+                   3.1622776601683795`, 6.324555320336759`}}[{
+                   4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 14, 
+                   23, 19, 24, 25, 10, 15, 20}[i]])}, System`ImageSize -> 100, 
+               System`Frame -> System`True)))}}), "Column"), 
+        System`Initialization :> System`None, 
+        System`Deinitialization :> System`None, System`UnsavedVariables :> {}, 
+        System`DynamicLocalValues :> {{
+          System`OwnRules(i):= {System`HoldPattern(i) :> 24}}}), System`Row({
+        System`DynamicLocal({i}, 
+         System`Column({System`Slider(System`Dynamic(i), 1 .. 24 .. 1), 
+           System`Dynamic({{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 
+              22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i], 
+             System`N({{0.63245553203367588`, 1.2649110640673518`}, {
+                0.31622776601683794`, 2.2135943621178655`}, {
+                0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
+                4.1109609582188931`}, {-0.63245553203367588`, 
+                5.0596442562694071`}, {1.5811388300841898`, 
+                1.5811388300841898`}, {1.2649110640673518`, 
+                2.5298221281347035`}, {0.94868329805051377`, 
+                3.4785054261852175`}, {0.63245553203367588`, 
+                4.4271887242357311`}, {0.31622776601683794`, 
+                5.3758720222862451`}, {2.5298221281347035`, 
+                1.8973665961010275`}, {2.2135943621178655`, 
+                2.8460498941515415`}, {1.8973665961010275`, 
+                3.7947331922020551`}, {1.5811388300841898`, 
+                4.7434164902525691`}, {1.2649110640673518`, 
+                5.6920997883030831`}, {3.4785054261852175`, 
+                2.2135943621178655`}, {3.1622776601683795`, 
+                3.1622776601683795`}, {2.8460498941515415`, 
+                4.1109609582188931`}, {2.5298221281347035`, 
+                5.0596442562694071`}, {2.2135943621178655`, 
+                6.008327554319921`}, {4.4271887242357311`, 
+                2.5298221281347035`}, {4.1109609582188931`, 
+                3.4785054261852175`}, {3.7947331922020551`, 
+                4.4271887242357311`}, {3.4785054261852175`, 
+                5.3758720222862451`}, {3.1622776601683795`, 
+                6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 
+                21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i]]), 
+             ({System`Arg(System`Apply({
+                 {0.63245553203367588`, 1.2649110640673518`}, {
+                  0.31622776601683794`, 2.2135943621178655`}, {
+                  0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
+                  4.1109609582188931`}, {-0.63245553203367588`, 
+                  5.0596442562694071`}, {1.5811388300841898`, 
+                  1.5811388300841898`}, {1.2649110640673518`, 
+                  2.5298221281347035`}, {0.94868329805051377`, 
+                  3.4785054261852175`}, {0.63245553203367588`, 
+                  4.4271887242357311`}, {0.31622776601683794`, 
+                  5.3758720222862451`}, {2.5298221281347035`, 
+                  1.8973665961010275`}, {2.2135943621178655`, 
+                  2.8460498941515415`}, {1.8973665961010275`, 
+                  3.7947331922020551`}, {1.5811388300841898`, 
+                  4.7434164902525691`}, {1.2649110640673518`, 
+                  5.6920997883030831`}, {3.4785054261852175`, 
+                  2.2135943621178655`}, {3.1622776601683795`, 
+                  3.1622776601683795`}, {2.8460498941515415`, 
+                  4.1109609582188931`}, {2.5298221281347035`, 
+                  5.0596442562694071`}, {2.2135943621178655`, 
+                  6.008327554319921`}, {4.4271887242357311`, 
+                  2.5298221281347035`}, {4.1109609582188931`, 
+                  3.4785054261852175`}, {3.7947331922020551`, 
+                  4.4271887242357311`}, {3.4785054261852175`, 
+                  5.3758720222862451`}, {3.1622776601683795`, 
+                  6.324555320336759`}}[#1] - {-0.63245553203367588`, 
+                 5.0596442562694071`}, System`Complex)), 
+              System`Total(({{0.63245553203367588`, 1.2649110640673518`}, {
+                 0.31622776601683794`, 2.2135943621178655`}, {
+                 0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
+                 4.1109609582188931`}, {-0.63245553203367588`, 
+                 5.0596442562694071`}, {1.5811388300841898`, 
+                 1.5811388300841898`}, {1.2649110640673518`, 
+                 2.5298221281347035`}, {0.94868329805051377`, 
+                 3.4785054261852175`}, {0.63245553203367588`, 
+                 4.4271887242357311`}, {0.31622776601683794`, 
+                 5.3758720222862451`}, {2.5298221281347035`, 
+                 1.8973665961010275`}, {2.2135943621178655`, 
+                 2.8460498941515415`}, {1.8973665961010275`, 
+                 3.7947331922020551`}, {1.5811388300841898`, 
+                 4.7434164902525691`}, {1.2649110640673518`, 
+                 5.6920997883030831`}, {3.4785054261852175`, 
+                 2.2135943621178655`}, {3.1622776601683795`, 
+                 3.1622776601683795`}, {2.8460498941515415`, 
+                 4.1109609582188931`}, {2.5298221281347035`, 
+                 5.0596442562694071`}, {2.2135943621178655`, 
+                 6.008327554319921`}, {4.4271887242357311`, 
+                 2.5298221281347035`}, {4.1109609582188931`, 
+                 3.4785054261852175`}, {3.7947331922020551`, 
+                 4.4271887242357311`}, {3.4785054261852175`, 
+                 5.3758720222862451`}, {3.1622776601683795`, 
+                 6.324555320336759`}}[#1] - {-0.63245553203367588`, 
+                5.0596442562694071`})^2)} &)({4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 
+               9, 13, 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i])}), 
+           System`Dynamic(System`Graphics({
+              System`Gray, System`Point({
+                {0.63245553203367588`, 1.2649110640673518`}, {
+                 0.31622776601683794`, 2.2135943621178655`}, {
+                 0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
+                 4.1109609582188931`}, {-0.63245553203367588`, 
+                 5.0596442562694071`}, {1.5811388300841898`, 
+                 1.5811388300841898`}, {1.2649110640673518`, 
+                 2.5298221281347035`}, {0.94868329805051377`, 
+                 3.4785054261852175`}, {0.63245553203367588`, 
+                 4.4271887242357311`}, {0.31622776601683794`, 
+                 5.3758720222862451`}, {2.5298221281347035`, 
+                 1.8973665961010275`}, {2.2135943621178655`, 
+                 2.8460498941515415`}, {1.8973665961010275`, 
+                 3.7947331922020551`}, {1.5811388300841898`, 
+                 4.7434164902525691`}, {1.2649110640673518`, 
+                 5.6920997883030831`}, {3.4785054261852175`, 
+                 2.2135943621178655`}, {3.1622776601683795`, 
+                 3.1622776601683795`}, {2.8460498941515415`, 
+                 4.1109609582188931`}, {2.5298221281347035`, 
+                 5.0596442562694071`}, {2.2135943621178655`, 
+                 6.008327554319921`}, {4.4271887242357311`, 
+                 2.5298221281347035`}, {4.1109609582188931`, 
+                 3.4785054261852175`}, {3.7947331922020551`, 
+                 4.4271887242357311`}, {3.4785054261852175`, 
+                 5.3758720222862451`}, {3.1622776601683795`, 
+                 6.324555320336759`}}), 
+              System`Line({{0.63245553203367588`, 1.2649110640673518`}, {
+                 0.31622776601683794`, 2.2135943621178655`}, {
+                 0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
+                 4.1109609582188931`}, {-0.63245553203367588`, 
+                 5.0596442562694071`}, {1.5811388300841898`, 
+                 1.5811388300841898`}, {1.2649110640673518`, 
+                 2.5298221281347035`}, {0.94868329805051377`, 
+                 3.4785054261852175`}, {0.63245553203367588`, 
+                 4.4271887242357311`}, {0.31622776601683794`, 
+                 5.3758720222862451`}, {2.5298221281347035`, 
+                 1.8973665961010275`}, {2.2135943621178655`, 
+                 2.8460498941515415`}, {1.8973665961010275`, 
+                 3.7947331922020551`}, {1.5811388300841898`, 
+                 4.7434164902525691`}, {1.2649110640673518`, 
+                 5.6920997883030831`}, {3.4785054261852175`, 
+                 2.2135943621178655`}, {3.1622776601683795`, 
+                 3.1622776601683795`}, {2.8460498941515415`, 
+                 4.1109609582188931`}, {2.5298221281347035`, 
+                 5.0596442562694071`}, {2.2135943621178655`, 
+                 6.008327554319921`}, {4.4271887242357311`, 
+                 2.5298221281347035`}, {4.1109609582188931`, 
+                 3.4785054261852175`}, {3.7947331922020551`, 
+                 4.4271887242357311`}, {3.4785054261852175`, 
+                 5.3758720222862451`}, {3.1622776601683795`, 
+                 6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 
+                 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}]), 
+              System`Black, System`Line({
+                {-0.63245553203367588`, 5.0596442562694071`}, {
+                 {0.63245553203367588`, 1.2649110640673518`}, {
+                  0.31622776601683794`, 2.2135943621178655`}, {
+                  0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
+                  4.1109609582188931`}, {-0.63245553203367588`, 
+                  5.0596442562694071`}, {1.5811388300841898`, 
+                  1.5811388300841898`}, {1.2649110640673518`, 
+                  2.5298221281347035`}, {0.94868329805051377`, 
+                  3.4785054261852175`}, {0.63245553203367588`, 
+                  4.4271887242357311`}, {0.31622776601683794`, 
+                  5.3758720222862451`}, {2.5298221281347035`, 
+                  1.8973665961010275`}, {2.2135943621178655`, 
+                  2.8460498941515415`}, {1.8973665961010275`, 
+                  3.7947331922020551`}, {1.5811388300841898`, 
+                  4.7434164902525691`}, {1.2649110640673518`, 
+                  5.6920997883030831`}, {3.4785054261852175`, 
+                  2.2135943621178655`}, {3.1622776601683795`, 
+                  3.1622776601683795`}, {2.8460498941515415`, 
+                  4.1109609582188931`}, {2.5298221281347035`, 
+                  5.0596442562694071`}, {2.2135943621178655`, 
+                  6.008327554319921`}, {4.4271887242357311`, 
+                  2.5298221281347035`}, {4.1109609582188931`, 
+                  3.4785054261852175`}, {3.7947331922020551`, 
+                  4.4271887242357311`}, {3.4785054261852175`, 
+                  5.3758720222862451`}, {3.1622776601683795`, 
+                  6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 
+                  13, 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i]]}), 
+              System`Point({{0.63245553203367588`, 1.2649110640673518`}, {
+                 0.31622776601683794`, 2.2135943621178655`}, {
+                 0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
+                 4.1109609582188931`}, {-0.63245553203367588`, 
+                 5.0596442562694071`}, {1.5811388300841898`, 
+                 1.5811388300841898`}, {1.2649110640673518`, 
+                 2.5298221281347035`}, {0.94868329805051377`, 
+                 3.4785054261852175`}, {0.63245553203367588`, 
+                 4.4271887242357311`}, {0.31622776601683794`, 
+                 5.3758720222862451`}, {2.5298221281347035`, 
+                 1.8973665961010275`}, {2.2135943621178655`, 
+                 2.8460498941515415`}, {1.8973665961010275`, 
+                 3.7947331922020551`}, {1.5811388300841898`, 
+                 4.7434164902525691`}, {1.2649110640673518`, 
+                 5.6920997883030831`}, {3.4785054261852175`, 
+                 2.2135943621178655`}, {3.1622776601683795`, 
+                 3.1622776601683795`}, {2.8460498941515415`, 
+                 4.1109609582188931`}, {2.5298221281347035`, 
+                 5.0596442562694071`}, {2.2135943621178655`, 
+                 6.008327554319921`}, {4.4271887242357311`, 
+                 2.5298221281347035`}, {4.1109609582188931`, 
+                 3.4785054261852175`}, {3.7947331922020551`, 
+                 4.4271887242357311`}, {3.4785054261852175`, 
+                 5.3758720222862451`}, {3.1622776601683795`, 
+                 6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 
+                 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i]])}, 
+             System`ImageSize -> 100, System`Frame -> System`True))}), 
+         System`DynamicLocalValues :> {System`OwnRules(i):= {
+           System`HoldPattern(i) :> 1}})}))), "Print", 
+    System`SectionGenerated -> System`True), 
+   System`Section(System`BoxData({
+      "{", {"5", ",", "1", ",", "21", ",", "25", ",", "20"}, "}"}), "Output", 
+    System`SectionGenerated -> System`True, 
+    System`SectionLabel -> "out [25]:")}, System`All)}, System`All)}, 
+System`All)}, System`Visible -> System`True)

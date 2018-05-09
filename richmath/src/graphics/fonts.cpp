@@ -36,8 +36,17 @@ using namespace richmath;
 
 class AutoDC: public Base {
   public:
-    AutoDC(HDC dc): handle(dc) {}
-    ~AutoDC() { DeleteDC(handle); }
+    AutoDC(HDC dc):
+      Base(),
+      handle(dc)
+    {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
+    }
+    
+    ~AutoDC() {
+      DeleteDC(handle);
+    }
+    
     HDC handle;
 };
 
@@ -56,12 +65,16 @@ class PrivateWin32Font: public Shareable {
         file.buffer(),
         guard->filename.length() * sizeof(uint16_t));
         
-      if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, 0) > 0) {
+      if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, nullptr) > 0) {
         return true;
       }
       
       guard = guard->next;
       return false;
+    }
+    
+    static void unload_all() {
+      guard = nullptr;
     }
     
   private:
@@ -70,11 +83,12 @@ class PrivateWin32Font: public Shareable {
         filename(0),
         next(_next)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
     }
     
     ~PrivateWin32Font() {
       if(filename.length() > 0) {
-        RemoveFontResourceExW(filename.items(), FR_PRIVATE, 0);
+        RemoveFontResourceExW(filename.items(), FR_PRIVATE, nullptr);
       }
     }
     
@@ -85,13 +99,17 @@ class PrivateWin32Font: public Shareable {
     SharedPtr<PrivateWin32Font> next;
 };
 
-SharedPtr<PrivateWin32Font> PrivateWin32Font::guard = 0;
+SharedPtr<PrivateWin32Font> PrivateWin32Font::guard = nullptr;
 
 #endif
 
 class StaticCanvas: public Base {
   public:
-    StaticCanvas() {
+    StaticCanvas()
+      : Base()
+    {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
+      
       surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
       cr = cairo_create(surface);
       
@@ -133,12 +151,12 @@ class PangoSettings {
 //#ifdef WIN32
 //      {
 //        char system_font_dir[PATH_MAX];
-//        
+//
 //        if(FAILED(SHGetFolderPathA(nullptr, CSIDL_FONTS, nullptr, SHGFP_TYPE_CURRENT, system_font_dir))) {
 //          fprintf(stderr, "SHGetFolderPathA failed. Using \n");
 //          strcpy(system_font_dir, "C:\\Windows\\Fonts");
 //        }
-//        
+//
 //        FcConfigAppFontAddDir(nullptr, (const FcChar8*)system_font_dir);
 //      }
 //#endif
@@ -309,6 +327,8 @@ class richmath::FontInfoPrivate: public Shareable {
         scaled_font(0),
         gsub_table_data(0)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
+      
       static_canvas.canvas->set_font_face(font.cairo());
       scaled_font = cairo_scaled_font_reference(
                       cairo_get_scaled_font(
@@ -333,13 +353,14 @@ FontInfo::FontInfo(FontFace font)
   : Base(),
     priv(new FontInfoPrivate(font))
 {
-
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 FontInfo::FontInfo(FontInfo &src)
   : Base(),
     priv(src.priv)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   src.priv->ref();
 }
 
@@ -425,19 +446,26 @@ Expr FontInfo::all_fonts() {
 #endif
 }
 
-void FontInfo::add_private_font(String filename) {
-#ifdef RICHMATH_USE_WIN32_FONT
-  PrivateWin32Font::load(filename);
-#endif
-  
-#ifdef RICHMATH_USE_FT_FONT
+bool FontInfo::add_private_font(String filename) {
+#if defined(RICHMATH_USE_WIN32_FONT)
+  return PrivateWin32Font::load(filename);
+#elif defined(RICHMATH_USE_FT_FONT)
   {
     char *file = pmath_string_to_utf8(filename.get(), nullptr);
-    
-    FcConfigAppFontAddFile(nullptr, (const FcChar8 *)file);
-    
+  
+    FcBool result = FcConfigAppFontAddFile(nullptr, (const FcChar8 *)file);
+  
     pmath_mem_free(file);
+    return result;
   }
+#else
+  return false;
+#endif
+}
+
+void FontInfo::remove_all_private_fonts() {
+#if defined(RICHMATH_USE_WIN32_FONT)
+  PrivateWin32Font::unload_all();
 #endif
 }
 
@@ -624,8 +652,7 @@ uint16_t FontInfo::char_to_glyph(uint32_t ch) {
     case CAIRO_FONT_TYPE_FT: {
         uint16_t index = 0;
         
-        FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font);
-        if(face) {
+        if(FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font)) {
           index = FT_Get_Char_Index(face, ch);
         }
         cairo_ft_scaled_font_unlock_face(priv->scaled_font);
@@ -667,8 +694,7 @@ size_t FontInfo::get_truetype_table(
       
 #ifdef RICHMATH_USE_FT_FONT
     case CAIRO_FONT_TYPE_FT: {
-        FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font);
-        if(face) {
+        if(FT_Face face = cairo_ft_scaled_font_lock_face(priv->scaled_font)) {
           name = ((name & 0xFF000000) >> 24) | ((name & 0xFF0000) >> 8) | ((name & 0xFF00) << 8) | ((name & 0xFF) << 24);
           
           FT_ULong len = length;

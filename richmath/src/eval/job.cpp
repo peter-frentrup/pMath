@@ -45,6 +45,7 @@ Job::Job()
   : Shareable(),
     have_printed(false)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 //} ... class Job
@@ -54,19 +55,16 @@ Job::Job()
 InputJob::InputJob(MathSection *section)
   : Job()
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   if(section && !section->evaluating) {
     _position = EvaluationPosition(section);
   }
 }
 
 void InputJob::enqueued() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-                    
-  Section *section = dynamic_cast<Section *>(
-                       Box::find(_position.section_id));
-                       
-  if(section) {
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
+  
+  if(auto section = dynamic_cast<Section*>(Box::find(_position.section_id))) {
     if(section->evaluating) {
       _position = EvaluationPosition(0);
     }
@@ -82,12 +80,9 @@ void InputJob::enqueued() {
 }
 
 bool InputJob::start() {
-  MathSection *section = dynamic_cast<MathSection *>(
-                           Box::find(_position.section_id));
-                           
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-                    
+  auto section = dynamic_cast<MathSection*>(Box::find(_position.section_id));
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
+  
   if(!section || !doc || section->parent() != doc) {
     if(section) {
       section->evaluating = false;
@@ -109,8 +104,8 @@ bool InputJob::start() {
   
   doc->move_to(doc, i);
   
-  Expr line = Application::interrupt(Plus(Symbol(PMATH_SYMBOL_LINE), 1));
-  Expr dlvl = Application::interrupt(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
+  Expr line = Application::interrupt_wait(Plus(Symbol(PMATH_SYMBOL_LINE), 1));
+  Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
   
   String label = String("in [");
   if(dlvl == PMATH_FROM_INT32(1))
@@ -123,8 +118,8 @@ bool InputJob::start() {
   section->style->set(SectionLabel, label + line.to_string() + String("]:"));
   section->invalidate();
   
-  Server::local_server->run_boxes(section->content()->to_pmath(BoxFlagParseable));
-    
+  Server::local_server->run_boxes(section->content()->to_pmath(BoxOutputFlags::Parseable));
+  
   doc->native()->running_state_changed();
   
   return true;
@@ -141,18 +136,12 @@ void InputJob::returned_boxes(Expr expr) {
 }
 
 void InputJob::end() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-                    
-  if(doc)
+  if(auto doc = dynamic_cast<Document *>(Box::find(_position.document_id)))
     doc->native()->running_state_changed();
 }
 
 void InputJob::dequeued() {
-  MathSection *section = dynamic_cast<MathSection *>(
-                           Box::find(_position.section_id));
-                           
-  if(section) {
+  if(auto section = dynamic_cast<MathSection *>(Box::find(_position.section_id))) {
     section->evaluating = false;
     section->request_repaint_all();
   }
@@ -166,13 +155,13 @@ EvaluationJob::EvaluationJob(Expr expr, Box *box)
   : InputJob(0),
     _expr(expr)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   _position = EvaluationPosition(box);
 }
 
 bool EvaluationJob::start() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-                    
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
+  
   Server::local_server->run(_expr);
   
   if(doc)
@@ -194,6 +183,7 @@ DynamicEvaluationJob::DynamicEvaluationJob(Expr info, Expr expr, Box *box)
     _info(info),
     old_eval_id(0)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 bool DynamicEvaluationJob::start() {
@@ -224,6 +214,8 @@ ReplacementJob::ReplacementJob(MathSequence *seq, int start, int end)
     selection_start(start),
     selection_end(end)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   assert(0 <= start);
   assert(start <= end);
   
@@ -231,15 +223,10 @@ ReplacementJob::ReplacementJob(MathSequence *seq, int start, int end)
 }
 
 bool ReplacementJob::start() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-                    
-  Section *section = dynamic_cast<Section *>(
-                       Box::find(_position.section_id));
-                       
-  MathSequence *sequence = dynamic_cast<MathSequence *>(
-                             Box::find(_position.box_id));
-                             
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
+  auto section = dynamic_cast<Section*>(Box::find(_position.section_id));
+  auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.box_id));
+  
   if( !section                           ||
       !doc                               ||
       !sequence                          ||
@@ -256,7 +243,7 @@ bool ReplacementJob::start() {
   }
   
   Server::local_server->run_boxes(
-    Expr(sequence->to_pmath(BoxFlagParseable, selection_start, selection_end)));
+    Expr(sequence->to_pmath(BoxOutputFlags::Parseable, selection_start, selection_end)));
     
   doc->native()->running_state_changed();
   
@@ -271,13 +258,10 @@ void ReplacementJob::returned_boxes(Expr expr) {
 }
 
 void ReplacementJob::end() {
-  Document *doc = dynamic_cast<Document *>(
-                    Box::find(_position.document_id));
-  Section *section = dynamic_cast<Section *>(
-                       Box::find(_position.section_id));
-  MathSequence *sequence = dynamic_cast<MathSequence *>(
-                             Box::find(_position.box_id));
-                             
+  auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
+  auto section = dynamic_cast<Section*>(Box::find(_position.section_id));
+  auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.box_id));
+  
   if(section) {
     section->evaluating = false;
     section->invalidate();
@@ -293,9 +277,9 @@ void ReplacementJob::end() {
   {
     sequence->remove(selection_start, selection_end);
     
-    int opts = BoxOptionDefault;
+    BoxInputFlags opts = BoxInputFlags::Default;
     if(sequence->get_style(AutoNumberFormating))
-      opts |= BoxOptionFormatNumbers;
+      opts |= BoxInputFlags::FormatNumbers;
       
     MathSequence *insert_seq = new MathSequence;
     insert_seq->load_from_object(result, opts);

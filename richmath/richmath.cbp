@@ -303,6 +303,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
 					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
@@ -359,6 +360,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
 					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
@@ -414,6 +416,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
 					<Add library="pmath" />
 					<Add library="cairo" />
 					<Add library="glib-2.0" />
@@ -470,6 +473,7 @@
 				<Linker>
 					<Add option="/debug" />
 					<Add option="/ENTRY:mainCRTStartup" />
+					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\richmath.natvis" />
 					<Add option="/LTCG" />
 					<Add library="pmath" />
 					<Add library="cairo" />
@@ -932,6 +936,15 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="include/gui/win32/win32-scrollbar-overlay.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="include/gui/win32/win32-themes.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1283,6 +1296,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-menubar.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/win32-scrollbar-overlay.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />

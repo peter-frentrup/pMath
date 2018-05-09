@@ -29,6 +29,11 @@ namespace richmath {
   
   template<typename T> class Array {
     public:
+      typedef Array<T>          self_type;
+      typedef T                 value_type;
+      typedef value_type       *iterator;
+      typedef const value_type *const_iterator;
+    public:
       Array(const Array &src)
         : _length(src._length),
         _capacity(best_capacity(src._length)),
@@ -85,6 +90,19 @@ namespace richmath {
       
       int length()   const { return _length;   }
       int capacity() const { return _capacity; }
+      
+      iterator begin() {
+        return iterator(_items);
+      }
+      iterator end() {
+        return iterator(_items + _length);
+      }
+      const_iterator begin() const {
+        return const_iterator(_items);
+      }
+      const_iterator end() const {
+        return const_iterator(_items + _length);
+      }
       
       Array<T> &length(int newlen) {
         ARRAY_ASSERT(newlen >= 0);

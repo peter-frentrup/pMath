@@ -24,7 +24,7 @@ RadicalBox::~RadicalBox() {
   delete _exponent;
 }
 
-bool RadicalBox::try_load_from_object(Expr expr, int opts){
+bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts){
   if(expr[0] == PMATH_SYMBOL_RADICALBOX){
     if(expr.expr_length() != 2)
       return false;
@@ -161,9 +161,8 @@ Box *RadicalBox::remove(int *index) {
   }
   
   if(_parent) {
-    MathSequence *seq = dynamic_cast<MathSequence*>(_parent);
     *index = _index;
-    if(seq) {
+    if(auto seq = dynamic_cast<MathSequence*>(_parent)) {
       if(_exponent) {
         if(_radicand->length() > 0)
           return move_logical(LogicalDirection::Backward, false, index);
@@ -194,7 +193,7 @@ Expr RadicalBox::to_pmath_symbol(){
   return Symbol(PMATH_SYMBOL_SQRTBOX);
 }
 
-Expr RadicalBox::to_pmath(int flags) {
+Expr RadicalBox::to_pmath(BoxOutputFlags flags) {
   if(_exponent)
     return Call(
              Symbol(PMATH_SYMBOL_RADICALBOX),

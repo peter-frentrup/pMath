@@ -28,7 +28,7 @@ namespace richmath {
       Document();
       ~Document();
       
-      virtual bool try_load_from_object(Expr expr, int options) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
       virtual bool request_repaint(float x, float y, float w, float h) override;
       virtual void invalidate() override;
@@ -63,10 +63,6 @@ namespace richmath {
       virtual void on_key_up(SpecialKeyEvent &event) override;
       virtual void on_key_press(uint32_t unichar) override;
       
-      // substart and subend may lie outside 0..subbox->length()
-      bool is_inside_selection(Box *subbox, int substart, int subend);
-      bool is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start);
-      
       void select(Box *box, int start, int end);
       void select_to(Box *box, int start, int end);
       void select_range(
@@ -89,11 +85,6 @@ namespace richmath {
         bool             selecting = false);
         
       void move_tab(LogicalDirection direction);
-      
-      bool is_inside_string();
-      bool is_inside_string(Box *box, int index);
-      bool is_inside_alias();
-      bool is_tabkey_only_moving();
       
       void select_prev(bool operands_only);
       
@@ -145,6 +136,8 @@ namespace richmath {
       int selection_end() {    return context.selection.end;   }
       int selection_length() { return context.selection.end - context.selection.start; }
       
+      const Array<SelectionReference> &current_word_references() { return _current_word_references; }
+      
       int clicked_box_id() {   return context.clicked_box_id; }
       int mouseover_box_id() { return context.mouseover_box_id; }
       void reset_mouse();
@@ -155,10 +148,10 @@ namespace richmath {
       
       void paint_resize(Canvas *canvas, bool resize_only);
       
-      Expr section_list_to_pmath(int flags, int start, int end) {
+      Expr section_list_to_pmath(BoxOutputFlags flags, int start, int end) {
         return SectionList::to_pmath(flags, start, end);
       }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DOCUMENT); }
       
     public:
@@ -193,6 +186,8 @@ namespace richmath {
       
       /* When the selection changes, these ranges need to be repainted, too. */
       Array<SelectionReference> additional_selection;
+      
+      Array<SelectionReference> _current_word_references;
       
       SelectionReference        last_paint_sel;
       

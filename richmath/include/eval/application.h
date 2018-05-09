@@ -7,36 +7,36 @@
 
 
 namespace richmath {
-  typedef enum {
-    CNT_END,
-    CNT_PRINTSECTION,
-    CNT_RETURN,
-    CNT_RETURNBOX,
-    CNT_STARTSESSION,
-    CNT_ENDSESSION,
+  enum class ClientNotification {
+    End,
+    PrintSection,
+    Return,
+    ReturnBox,
+    StartSession,
+    EndSession,
     
-    CNT_GETDOCUMENTS,
-    CNT_MENUCOMMAND,
-    CNT_ADDCONFIGSHAPER,
-    CNT_GETOPTIONS,
-    CNT_SETOPTIONS,
-    CNT_DYNAMICUPDATE,
-    CNT_CREATEDOCUMENT,
-    CNT_CURRENTVALUE,
-    CNT_GETEVALUATIONDOCUMENT,
-    CNT_DOCUMENTGET,
-    CNT_DOCUMENTREAD,
-    CNT_COLORDIALOG,
-    CNT_FONTDIALOG,
-    CNT_FILEDIALOG,
-    CNT_SAVE
-  } ClientNotificationType;
+    GetDocuments,
+    MenuCommand,
+    AddConfigShaper,
+    GetOptions,
+    SetOptions,
+    DynamicUpdate,
+    CreateDocument,
+    CurrentValue,
+    GetEvaluationDocument,
+    DocumentGet,
+    DocumentRead,
+    ColorDialog,
+    FontDialog,
+    FileDialog,
+    Save,
+  };
   
   class MenuCommandStatus {
     public:
       MenuCommandStatus(bool _enabled)
-      : enabled(_enabled),
-        checked(false)
+        : enabled(_enabled),
+          checked(false)
       {
       }
       
@@ -51,11 +51,11 @@ namespace richmath {
   
   class Application: public Base {
     public:
-      static void notify(     ClientNotificationType type, Expr data); // callable from non-GUI thread
-      static Expr notify_wait(ClientNotificationType type, Expr data); // callable from non-GUI thread
+      static void notify(     ClientNotification type, Expr data); // callable from non-GUI thread
+      static Expr notify_wait(ClientNotification type, Expr data); // callable from non-GUI thread
       
       static void run_menucommand(Expr cmd) { // callable from non-GUI thread
-        notify(CNT_MENUCOMMAND, cmd);
+        notify(ClientNotification::MenuCommand, cmd);
       }
       
       // bad design:
@@ -97,14 +97,16 @@ namespace richmath {
       static bool is_idle();
       static bool is_running_job_for(Box *box);
       
-      static Expr interrupt(Expr expr, double seconds);
-      static Expr interrupt(Expr expr);
+      static void async_interrupt(Expr expr);
       
-      static Expr interrupt_cached(Expr expr, double seconds);
-      static Expr interrupt_cached(Expr expr);
+      static Expr interrupt_wait(Expr expr, double seconds);
+      static Expr interrupt_wait(Expr expr);
       
-      static void interrupt_for(Expr expr, Box *box, double seconds);
-      static void interrupt_for(Expr expr, Box *box);
+      static Expr interrupt_wait_cached(Expr expr, double seconds);
+      static Expr interrupt_wait_cached(Expr expr);
+      
+      static Expr interrupt_wait_for(Expr expr, Box *box, double seconds);
+      static Expr interrupt_wait_for(Expr expr, Box *box);
       
       // callable from non-gui thread:
       static Expr internal_execute_for(Expr expr, int doc, int sect, int box);
@@ -123,7 +125,11 @@ namespace richmath {
       static Hashtable<Expr, Expr, object_hash> eval_cache;
       
     private:
-      Application() {}
+      Application()
+        : Base()
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+      }
   };
 }
 

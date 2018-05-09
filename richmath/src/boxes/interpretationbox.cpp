@@ -37,7 +37,7 @@ void InterpretationBox::reset_style() {
   style->set(Editable, false);
 }
 
-bool InterpretationBox::try_load_from_object(Expr expr, int opts) {
+bool InterpretationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != PMATH_SYMBOL_INTERPRETATIONBOX)
     return false;
     
@@ -65,7 +65,7 @@ bool InterpretationBox::try_load_from_object(Expr expr, int opts) {
   return true;
 }
 
-Expr InterpretationBox::to_pmath(int flags) {
+Expr InterpretationBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));
@@ -98,9 +98,7 @@ bool InterpretationBox::edit_selection(Context *context) {
     return false;
     
   if(get_own_style(AutoDelete)) {
-    MathSequence *seq = dynamic_cast<MathSequence *>(_parent);
-    
-    if(seq) {
+    if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
       int len = _content->length();
       
       if(context->selection.get() == _content) {

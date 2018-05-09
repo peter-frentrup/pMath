@@ -103,8 +103,8 @@
 	<Type Name="_pmath_mp_float_t">
 		<DisplayString>{*value_new}</DisplayString>
 		<Expand>
-			<Item Name="mid">value_new->mid</Item>
-			<Item Name="radius">value_new->rad</Item>
+			<Item Name="mid">value_new-&gt;mid</Item>
+			<Item Name="radius">value_new-&gt;rad</Item>
 			<Item Name="prec">working_precision</Item>
 		</Expand>
 	</Type>
@@ -576,4 +576,11 @@
 		<DisplayString>{parts}</DisplayString>
 	</Type>
 	
+    <Type Name="pmath::Expr">
+		<DisplayString>{_obj}</DisplayString>
+		<Expand HideRawView="true">
+			<ExpandedItem>_obj</ExpandedItem>
+		</Expand>
+	</Type>
+
 </AutoVisualizer>

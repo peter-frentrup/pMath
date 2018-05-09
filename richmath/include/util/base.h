@@ -4,6 +4,13 @@
 #include <pmath-util/concurrency/atomic.h>
 #include <stdint.h>
 
+#include <typeinfo>
+
+
+#ifndef NDEBUG
+#  define RICHMATH_DEBUG_MEMORY
+#endif
+
 
 namespace richmath {
   void assert_failed();
@@ -13,13 +20,25 @@ namespace richmath {
   extern const double Infinity;
   
   class Base {
+#ifdef RICHMATH_DEBUG_MEMORY
+      friend class BaseDebugImpl;
+    private:
+      const char   *debug_tag;
+      intptr_t      debug_alloc_time;
+      mutable Base *debug_prev;
+      mutable Base *debug_next;
+    protected:
+      void SET_BASE_DEBUG_TAG(const char *tag) { debug_tag = tag; }
+#else
+    #define SET_BASE_DEBUG_TAG(TAG_NAME) ((void)0)
+#endif
     public:
       Base();
       ~Base();
       
     private:
-      Base(const Base &src) {}
-      Base const &operator=(Base const &src) { return *this; }
+      Base(const Base &src) = delete;
+      Base const &operator=(Base const &src) = delete;
   };
   
   class Shareable: public Base {
@@ -36,10 +55,10 @@ namespace richmath {
   };
   
   template <
-  typename T,
-           T *(*ref_func)(T *),
-           void (*unref_func)(T *)
-           >
+    typename T,
+    T *(*ref_func)(T *),
+    void (*unref_func)(T *)
+    >
   class AutoRefBase {
     public:
       AutoRefBase(T *ptr = 0)
@@ -62,7 +81,7 @@ namespace richmath {
         
         if(old)
           unref_func(old);
-        
+          
         return *this;
       }
       
@@ -71,6 +90,14 @@ namespace richmath {
     private:
       T *_ptr;
   };
+  
+#ifdef RICHMATH_DEBUG_MEMORY
+  // http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Nifty_Counter
+  static struct BaseInitializer {
+    BaseInitializer();
+    ~BaseInitializer();
+  } TheBaseInitializer;
+#endif
 }
 
 #endif // __UTIL__BASE_H__

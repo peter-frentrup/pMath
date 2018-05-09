@@ -11,7 +11,7 @@ namespace richmath {
       InputFieldBox(MathSequence *content = 0);
       
       // Box::try_create<InputFieldBox>(expr, opts);
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual ControlState calc_state(Context *context) override;
       
@@ -27,7 +27,7 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_INPUTFIELDBOX); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;

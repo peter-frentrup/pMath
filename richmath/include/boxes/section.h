@@ -58,7 +58,7 @@ namespace richmath {
     public:
       ErrorSection(const Expr object);
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Box *item(int i) override { return 0; }
       virtual int count() override { return 0; }
@@ -69,7 +69,7 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override { return _object; }
+      virtual Expr to_pmath(BoxOutputFlags flags) override { return _object; }
       
       virtual Box *mouse_selection(
         float  x,
@@ -98,7 +98,7 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_SECTION); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
@@ -127,7 +127,7 @@ namespace richmath {
       MathSection();
       explicit MathSection(SharedPtr<Style> _style);
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       MathSequence *content() { return (MathSequence*)_content; }
   };
@@ -137,9 +137,9 @@ namespace richmath {
       TextSection();
       explicit TextSection(SharedPtr<Style> _style);
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      TextSection *content() { return (TextSection*)_content; }
+      TextSequence *content() { return (TextSequence*)_content; }
   };
   
   class EditSection: public MathSection {
@@ -147,10 +147,10 @@ namespace richmath {
       EditSection();
       virtual ~EditSection();
       
-      virtual bool try_load_from_object(Expr expr, int opts) override;
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(int flags) override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     public:
       Section *original;
