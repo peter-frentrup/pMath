@@ -109,6 +109,31 @@ static pmath_bool_t is_string_at(
   return TRUE;
 }
 
+static pmath_bool_t are_linebreaks_only_at(pmath_expr_t expr, size_t i) {
+  pmath_string_t obj = pmath_expr_get_item(expr, i);
+  
+  if(pmath_is_string(obj)) {
+    pmath_bool_t is_linebreak = pmath_string_equals_latin1(obj, "\n");
+    pmath_unref(obj);
+    return is_linebreak;
+  }
+  
+  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+    size_t objlen = pmath_expr_length(obj);
+    for(size_t i = objlen;i > 0;--i) {
+      if(!are_linebreaks_only_at(obj, i)) {
+        pmath_unref(obj);
+        return FALSE;
+      }
+    }
+    pmath_unref(obj);
+    return TRUE;
+  }
+  
+  pmath_unref(obj);
+  return FALSE;
+}
+
 static pmath_bool_t is_subsuperscript_at(pmath_expr_t expr, size_t i) {
   pmath_string_t obj = pmath_expr_get_item(expr, i);
   pmath_t head;
@@ -2633,7 +2658,11 @@ static pmath_t make_range(pmath_expr_t boxes) {
       
       have_arg = TRUE;
       
-      arg = parse_at(boxes, i);
+      if(are_linebreaks_only_at(boxes, i)) 
+        arg = pmath_ref(PMATH_SYMBOL_AUTOMATIC);
+      else
+        arg = parse_at(boxes, i);
+        
       if(is_parse_error(arg)) {
         pmath_unref(boxes);
         pmath_unref(pmath_gather_end());
