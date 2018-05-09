@@ -70,14 +70,14 @@ Function bodyFlattenTemplateSequence(~heldBody, ~argnum) {
             TemplateSlotSequence(PureArgument(~n:Integer), ~~~rest) :> TemplateSlotSequence(n..n, rest),
             TemplateSlotSequence(PureArgument(~n:Integer..), ~~~rest) :> TemplateSlotSequence(n..argnum, rest),
             TemplateSlotSequence(PureArgument(~n:Integer..~m:Integer), ~~~rest) :> TemplateSlotSequence(n..m, rest)
-        }, (0..) % FIXME: Parsing error at 0..\[RawNewline]
+        }, 0..
     ).Replace({
             f: Function(~) | Function(/\/, ~~) :> f,
             PureArgument(~n:Integer..~m:Integer) :> With({s:= SEQ @@ makeArgumentList(n, m)}, s /? True),
             TemplateSlotSequence(~n:Integer..~m:Integer) :> With({s:= SEQ @@ makeArgumentList(n, m)}, s /? True),
             TemplateSlotSequence(~n:Integer..~m:Integer, ~sep) :> With({s:= SEQ @@ makeArgumentList(n, m).Riffle(HELD(HoldComplete(sep)))}, s /? True),
             TemplateSlotSequence(~n:Integer..~m:Integer, Function(~appl), ~sep) :> With({s:= SEQ @@ makeArgumentList(n, m).Map(Function(HELD(HoldComplete(appl)))).Riffle(HELD(HoldComplete(sep)))}, s /? True)
-        }, (0..) % FIXME: Parsing error at 0..\[RawNewline]
+        }, 0..
     ).Replace(
         HELD(HoldComplete(~h)) :> h
     ).Replace(
