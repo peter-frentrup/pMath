@@ -280,8 +280,6 @@ namespace richmath {
       
       Expr get_pmath(StyleOptionName n) const;
       
-      bool update_dynamic(Box *parent);
-      
       void emit_pmath(StyleOptionName n) const;
       
       void emit_to_pmath(bool with_inherited = false) const;
