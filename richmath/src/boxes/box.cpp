@@ -585,12 +585,12 @@ Expr Box::get_style(ObjectStyleOptionName n) {
 struct Stylesheet_get_pmath {
   static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, StyleOptionName n, Expr *result) {
     if(all) 
-      *result = all->get_pmath(style, n);
+      *result = Style::merge_style_values(n, std::move(*result), all->get_pmath(style, n));
     else if(style)
-      *result = style->get_pmath(n);
+      *result = Style::merge_style_values(n, std::move(*result), style->get_pmath(n));
     else
       return false;
-    return *result != PMATH_SYMBOL_INHERITED;
+    return !Style::contains_inherited(*result);
   }
 };
 

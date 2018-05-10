@@ -251,6 +251,8 @@ namespace richmath {
       void add_pmath(Expr options);
       
       void merge(SharedPtr<Style> other);
+      static bool contains_inherited(Expr expr);
+      static Expr merge_style_values(StyleOptionName n, Expr newer, Expr older);
       
       virtual bool get(IntStyleOptionName    n, int    *value) const;
       virtual bool get(FloatStyleOptionName  n, float  *value) const;

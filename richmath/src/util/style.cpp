@@ -596,10 +596,25 @@ namespace richmath {
       void set_pmath_ruleset(   StyleOptionName n, Expr obj);
       
     public:
+      static Expr merge_style_values(StyleOptionName key, Expr newer, Expr older);
+
       void emit_definition(StyleOptionName key) const;
       Expr raw_get_pmath(StyleOptionName key, Expr inherited) const;
       
     private:
+      static Expr merge_ruleset_members(StyleOptionName key, Expr newer, Expr older);
+      static Expr merge_list_members(Expr newer, Expr older);
+      static Expr merge_margin_values(Expr newer, Expr older);
+      
+      static Expr inherited_list_member(Expr inherited, int index);
+      static Expr inherited_ruleset_member(Expr inherited, Expr key);
+      static Expr inherited_margin_leftright(Expr inherited);
+      static Expr inherited_margin_left(Expr inherited);
+      static Expr inherited_margin_right(Expr inherited);
+      static Expr inherited_margin_topbottom(Expr inherited);
+      static Expr inherited_margin_top(Expr inherited);
+      static Expr inherited_margin_bottom(Expr inherited);
+      
       Expr raw_get_pmath_bool_auto( StyleOptionName n, Expr inherited) const;
       Expr raw_get_pmath_bool(      StyleOptionName n, Expr inherited) const;
       Expr raw_get_pmath_color(     StyleOptionName n, Expr inherited) const;
@@ -1100,6 +1115,192 @@ void StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
   }
 }
 
+Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) {
+  if(newer == PMATH_SYMBOL_INHERITED)
+    return std::move(older);
+    
+  if(older == PMATH_SYMBOL_INHERITED)
+    return std::move(newer);
+  
+  enum StyleType type = StyleInformation::get_type(key);
+  
+  switch(type) {
+    case StyleTypeMargin:
+      return merge_margin_values(std::move(newer), std::move(older));
+    
+    case StyleTypeSize:
+      return merge_list_members(std::move(newer), std::move(older));
+      break;
+    
+    case StyleTypeRuleSet:
+      return merge_ruleset_members(key, std::move(newer), std::move(older));
+    
+    default:
+      break;
+  }
+  return std::move(newer);
+}
+
+Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr older) { // ignores all rules in older, whose keys do not appear in newer
+  if(newer == PMATH_SYMBOL_INHERITED)
+    return std::move(older);
+    
+  if(older == PMATH_SYMBOL_INHERITED)
+    return std::move(newer);
+  
+  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(key);
+  assert(key_converter.is_valid());
+  
+  if(newer[0] == PMATH_SYMBOL_LIST) {
+    for(size_t i = newer.expr_length(); i > 0; --i) {
+      Expr rule = newer[i];
+      
+      if(!rule.is_rule())
+        continue;
+        
+      Expr lhs = rule[1];
+      Expr rhs = rule[2];
+      
+      Expr new_rhs = rhs;
+      StyleOptionName sub_key = StyleOptionName{key_converter->to_int(lhs)};
+      if(sub_key.is_valid()) {
+        new_rhs = merge_style_values(sub_key, rhs, inherited_ruleset_member(older, lhs));
+      }
+      else {
+        pmath_debug_print_object("[unknown sub-option ", lhs.get(), "]\n");
+        if(rhs == PMATH_SYMBOL_INHERITED)
+          new_rhs = inherited_ruleset_member(older, lhs);
+      }
+        
+      if(new_rhs != rhs) {
+        rule[2] = std::move(new_rhs);
+        newer.set(i, std::move(rule));
+      }
+    }
+  }
+  
+  return std::move(newer);
+}
+
+Expr StyleImpl::merge_list_members(Expr newer, Expr older) {
+  if(newer == PMATH_SYMBOL_INHERITED)
+    return std::move(older);
+    
+  if(older == PMATH_SYMBOL_INHERITED)
+    return std::move(newer);
+  
+  if(newer[0] == PMATH_SYMBOL_LIST && older[0] == PMATH_SYMBOL_LIST && newer.expr_length() == older.expr_length()) {
+    for(size_t i = newer.expr_length(); i > 0; --i) {
+      Expr item = newer[i];
+      if(item == PMATH_SYMBOL_INHERITED)
+        newer.set(i, older[i]);
+      else if(item[0] == PMATH_SYMBOL_LIST)
+        newer.set(i, merge_list_members(item, older[i]));
+    }
+    return std::move(newer);
+  }
+  
+  pmath_debug_print_object("[Warning: cannot merge non-equally-sized lists ", newer.get(), "");
+  pmath_debug_print_object(" and ", older.get(), "]\n");
+  return std::move(newer);
+}
+
+Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
+  if(newer[0] == PMATH_SYMBOL_LIST) {
+    if(newer.expr_length() == 2) 
+      return merge_list_members(newer, List(inherited_margin_leftright(older), inherited_margin_topbottom(older)));
+    
+    return merge_list_members(std::move(newer), std::move(older));
+  }
+  return newer;
+}
+
+Expr StyleImpl::inherited_list_member(Expr inherited, int index) {
+  assert(index >= 1);
+  
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if((size_t)index <= inherited.expr_length())
+      return inherited[index];
+  }
+  
+  if(inherited != PMATH_SYMBOL_INHERITED) {
+    pmath_debug_print("[Warning: partial redefition of item %d", index);
+    pmath_debug_print_object(" of ", inherited.get(), "]\n");
+  }
+  return Symbol(PMATH_SYMBOL_INHERITED);
+}
+
+Expr StyleImpl::inherited_ruleset_member(Expr inherited, Expr key) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    size_t len = inherited.expr_length();
+    for(size_t i = 1; i <= len; ++i) {
+      Expr item = inherited[i];
+      if(item.is_rule() && item[1] == key) 
+        return item[2];
+    }
+  }
+  else if(inherited != PMATH_SYMBOL_INHERITED) {
+    pmath_debug_print_object("[Warning: partial redefition of rule ", key.get(), "");
+    pmath_debug_print_object(" of ", inherited.get(), "]\n");
+  }
+  
+  return Symbol(PMATH_SYMBOL_INHERITED);
+}
+
+Expr StyleImpl::inherited_margin_leftright(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(std::move(inherited), 1);
+  }
+  
+  return List(inherited_list_member(std::move(inherited), 1), inherited_list_member(std::move(inherited), 2));
+}
+
+Expr StyleImpl::inherited_margin_left(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(inherited_list_member(std::move(inherited), 1), 1);
+  }
+  
+  return inherited_list_member(std::move(inherited), 1);
+}
+
+Expr StyleImpl::inherited_margin_right(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(inherited_list_member(std::move(inherited), 1), 2);
+  }
+  
+  return inherited_list_member(std::move(inherited), 2);
+}
+
+Expr StyleImpl::inherited_margin_topbottom(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(std::move(inherited), 2);
+  }
+  
+  return List(inherited_list_member(std::move(inherited), 3), inherited_list_member(std::move(inherited), 4));
+}
+
+Expr StyleImpl::inherited_margin_top(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(inherited_list_member(std::move(inherited), 2), 1);
+  }
+  
+  return inherited_list_member(std::move(inherited), 3);
+}
+
+Expr StyleImpl::inherited_margin_bottom(Expr inherited) {
+  if(inherited[0] == PMATH_SYMBOL_LIST) {
+    if(inherited.expr_length() == 2)
+      return inherited_list_member(inherited_list_member(std::move(inherited), 2), 2);
+  }
+  
+  return inherited_list_member(std::move(inherited), 4);
+}
+
 void StyleImpl::emit_definition(StyleOptionName n) const {
   STYLE_ASSERT(n.is_literal());
 
@@ -1240,71 +1441,6 @@ Expr StyleImpl::raw_get_pmath_float(StyleOptionName n, Expr inherited) const {
     return Number(f);
     
   return inherited;
-}
-
-static Expr inherited_list_member(Expr inherited, int index) {
-  assert(index >= 1);
-  
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
-    if((size_t)index <= inherited.expr_length())
-      return inherited[index];
-  }
-  
-  if(inherited != PMATH_SYMBOL_INHERITED) {
-    pmath_debug_print("[Warning: partial redefition of item %d", index);
-    pmath_debug_print_object(" of ", inherited.get(), "]\n");
-  }
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-static Expr inherited_ruleset_member(Expr inherited, Expr key) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
-    size_t len = inherited.expr_length();
-    for(size_t i = 1; i <= len; ++i) {
-      Expr item = inherited[i];
-      if(item.is_rule() && item[1] == key) 
-        return item[2];
-    }
-  }
-  else if(inherited != PMATH_SYMBOL_INHERITED) {
-    pmath_debug_print_object("[Warning: partial redefition of rule ", key.get(), "");
-    pmath_debug_print_object(" of ", inherited.get(), "]\n");
-  }
-  
-  return Symbol(PMATH_SYMBOL_INHERITED);
-}
-
-static Expr inherited_margin_left(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
-    if(inherited.expr_length() == 2)
-      return inherited_list_member(inherited_list_member(std::move(inherited), 1), 1);
-  }
-  
-  return inherited_list_member(std::move(inherited), 1);
-}
-static Expr inherited_margin_right(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
-    if(inherited.expr_length() == 2)
-      return inherited_list_member(inherited_list_member(std::move(inherited), 1), 2);
-  }
-  
-  return inherited_list_member(std::move(inherited), 2);
-}
-static Expr inherited_margin_top(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
-    if(inherited.expr_length() == 2)
-      return inherited_list_member(inherited_list_member(std::move(inherited), 2), 1);
-  }
-  
-  return inherited_list_member(std::move(inherited), 3);
-}
-static Expr inherited_margin_bottom(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
-    if(inherited.expr_length() == 2)
-      return inherited_list_member(inherited_list_member(std::move(inherited), 2), 2);
-  }
-  
-  return inherited_list_member(std::move(inherited), 4);
 }
 
 Expr StyleImpl::raw_get_pmath_margin(StyleOptionName n, Expr inherited) const { // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
@@ -1552,6 +1688,26 @@ void Style::merge(SharedPtr<Style> other) {
   }
 }
 
+bool Style::contains_inherited(Expr expr) {
+  if(expr == PMATH_SYMBOL_INHERITED)
+    return true;
+    
+  if(expr.is_expr() && !expr.is_packed_array()) {
+    size_t len = expr.expr_length();
+    for(size_t i = 0; i <= len; ++i) {
+      if(contains_inherited(expr[i]))
+        return true;
+    }
+    return false;
+  }
+  
+  return false;
+}
+
+Expr Style::merge_style_values(StyleOptionName n, Expr newer, Expr older) {
+  return StyleImpl::merge_style_values(n, std::move(newer), std::move(older));
+}
+
 bool Style::get(IntStyleOptionName n, int *value) const {
   if(StyleImpl::of(*this).raw_get_int(n, value))
     return true;
@@ -1762,8 +1918,8 @@ Expr Style::get_pmath(StyleOptionName key) const {
   // STYLE_ASSERT(key.is_literal())
   
   Expr result = Symbol(PMATH_SYMBOL_INHERITED);
-  result = StyleImpl::of(*this).raw_get_pmath(key, result);
   result = StyleImpl::of(*this).raw_get_pmath(key.to_volatile(), result);
+  result = StyleImpl::of(*this).raw_get_pmath(key, result);
   return result;
 }
 
@@ -2144,15 +2300,15 @@ bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
 Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
   /* TODO: merge structure styles from the whole style hierarchy
    */
-  for(int count = 20; count && s; --count) {
-    Expr e = s->get_pmath(n);
-    if(e != PMATH_SYMBOL_INHERITED)
-      return e;
-      
+  Expr result = Symbol(PMATH_SYMBOL_INHERITED);
+  
+  for(int count = 20; count && s && Style::contains_inherited(result); --count) {
+    result = Style::merge_style_values(n, std::move(result), s->get_pmath(n));
+    
     s = find_parent_style(s);
   }
   
-  return Symbol(PMATH_SYMBOL_INHERITED);
+  return std::move(result);
 }
 
 bool Stylesheet::update_dynamic(SharedPtr<Style> s, Box *parent) {
