@@ -337,7 +337,8 @@ void Box::transformation(
 
 bool Box::selectable(int i) {
   if(_parent)
-    return _parent->selectable(_index);
+    if(!_parent->selectable(_index))
+      return false;
     
   int result;
   
