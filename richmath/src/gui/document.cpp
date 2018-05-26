@@ -1086,6 +1086,36 @@ namespace richmath {
         return true;
       }
       
+      Section *auto_make_text_or_math(Section *sect) {
+        assert(sect != nullptr);
+        assert(sect->parent() == &self);
+        
+        if(!dynamic_cast<AbstractSequenceSection*>(sect))
+          return sect;
+        
+        String langcat = sect->get_style(LanguageCategory);
+        if(langcat.equals("NaturalLanguage")) 
+          return convert_content<MathSection, TextSection>(sect);
+        else 
+          return convert_content<TextSection, MathSection>(sect);
+      }
+      
+      template<class FromSectionType, class ToSectionType>
+      Section *convert_content(Section *sect) {
+        assert(sect != nullptr);
+        assert(sect->parent() == &self);
+        
+        auto old_sect = dynamic_cast<FromSectionType*>(sect);
+        if(!old_sect)
+          return sect;
+        
+        auto old_content = old_sect->content();
+        auto new_sect = new ToSectionType(old_sect->style);
+        new_sect->swap_id(old_sect);
+        new_sect->content()->insert(0, old_content, 0, old_content->length());
+        self.swap(sect->index(), new_sect)->safe_destroy();
+        return new_sect;
+      }
       //}
       
       //{ key events
@@ -3413,7 +3443,13 @@ void Document::set_selection_style(Expr options) {
       if(!sect->style)
         sect->style = new Style();
         
+      String old_basestyle = sect->get_own_style(BaseStyleName);
+      
       sect->style->add_pmath(options);
+      
+      if(old_basestyle != sect->get_own_style(BaseStyleName)) 
+        sect = DocumentImpl(*this).auto_make_text_or_math(sect);
+      
       sect->invalidate();
     }
     
