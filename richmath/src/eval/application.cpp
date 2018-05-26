@@ -66,7 +66,7 @@ using namespace richmath;
 namespace {
   class ClientNotificationData {
     public:
-      ClientNotificationData(): finished(0), result_ptr(0) {}
+      ClientNotificationData(): finished(nullptr), result_ptr(nullptr) {}
       
       void done() {
         if(finished) {
@@ -112,7 +112,7 @@ static pmath_atomic_t state = { Starting }; // ClientState
 
 static ConcurrentQueue<ClientNotificationData> notifications;
 
-static SharedPtr<Session> session = new Session(0);
+static SharedPtr<Session> session = new Session(nullptr);
 
 static Hashtable<Expr, bool              ( *)(Expr)>                  menu_commands;
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                  menu_command_testers;
@@ -166,7 +166,7 @@ static int on_add_job(void *data) {
         }
       }
       
-      session->current_job = 0;
+      session->current_job = nullptr;
     }
   }
   
@@ -202,11 +202,11 @@ class ClientInfoWindow: public BasicWin32Widget {
       if(!initializing()) {
         switch(message) {
           case WM_CLIENTNOTIFY:
-            on_client_notify(0);
+            on_client_notify(nullptr);
             return 0;
             
           case WM_ADDJOB:
-            on_add_job(0);
+            on_add_job(nullptr);
             return 0;
             
           case WM_TIMER:
@@ -810,7 +810,7 @@ Box *Application::find_current_job() {
       return box;
   }
   
-  return 0;
+  return nullptr;
 }
 
 bool Application::remove_job(Box *input_box, bool only_check_possibility) {
@@ -981,7 +981,7 @@ Document *Application::create_document(Expr data) {
   Document *doc = Application::create_document();
   
   if(!doc)
-    return 0;
+    return nullptr;
     
   if(data.expr_length() >= 1) {
     Expr options(pmath_options_extract(data.get(), 1));
@@ -1010,7 +1010,7 @@ Document *Application::create_document(Expr data) {
   }
   
   if(!doc->selectable())
-    doc->select(0, 0, 0);
+    doc->select(nullptr, 0, 0);
     
   doc->invalidate_options();
   
@@ -1306,7 +1306,7 @@ static void cnt_endsession() {
 
 static void cnt_end(Expr data) {
   SharedPtr<Job> job = session->current_job;
-  session->current_job = 0;
+  session->current_job = nullptr;
   
   if(job) {
     job->end();
@@ -1381,7 +1381,7 @@ static void cnt_end(Expr data) {
       }
     }
     
-    session->current_job = 0;
+    session->current_job = nullptr;
   }
   
   if(!more) {
@@ -1513,7 +1513,7 @@ static void cnt_dynamicupate(Expr data) {
       int milliseconds = (int)(next_eval * 1000);
       
 #ifdef RICHMATH_USE_WIN32_GUI
-      if(SetTimer(info_window.hwnd(), TID_DYNAMIC_UPDATE, milliseconds, 0))
+      if(SetTimer(info_window.hwnd(), TID_DYNAMIC_UPDATE, milliseconds, nullptr))
         dynamic_update_delay_timer_active = true;
 #endif
         
@@ -1592,7 +1592,7 @@ static Expr cnt_currentvalue(Expr data) {
 }
 
 static Expr cnt_getevaluationdocument(Expr data) {
-  Document *doc = 0;
+  Document *doc = nullptr;
   Box      *box = Application::get_evaluation_box();
   
   if(box)
@@ -1615,14 +1615,14 @@ static Expr cnt_documentget(Expr data) {
   else
     box = FrontEndObject::find_cast<Box>(data[1]);
     
-  if(box == 0)
+  if(box == nullptr)
     return Symbol(PMATH_SYMBOL_FAILED);
     
   return box->to_pmath(BoxOutputFlags::Default);
 }
 
 static Expr cnt_documentread(Expr data) {
-  Document *doc = 0;
+  Document *doc = nullptr;
   
   if(data.expr_length() == 0) {
     doc = get_current_document();
@@ -1730,7 +1730,7 @@ namespace {
         // data = {document}       = use document file name if available, ask otherwise
         // data = {Automatic, ...}
         
-        Document *doc = 0;
+        Document *doc = nullptr;
         
         if(data[1].is_expr()) {
           Box *box = FrontEndObject::find_cast<Box>(data[1]);

@@ -541,7 +541,7 @@ static MenuCommandStatus can_similar_section_below(Expr cmd) {
     box = box->parent();
   }
   
-  return MenuCommandStatus(0 != dynamic_cast<AbstractSequenceSection *>(box));
+  return MenuCommandStatus(nullptr != dynamic_cast<AbstractSequenceSection *>(box));
 }
 
 static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd) {
@@ -752,7 +752,7 @@ static bool edit_boxes_cmd(Expr cmd) {
   }
   
   if(box == doc) {
-    doc->select(0, 0, 0);
+    doc->select(nullptr, 0, 0);
     
     for(int i = a; i < b; ++i) {
       pmath_continue_after_abort();
@@ -760,7 +760,7 @@ static bool edit_boxes_cmd(Expr cmd) {
       if(auto edit = dynamic_cast<EditSection *>(doc->section(i))) {
         Expr parsed(edit->to_pmath(BoxOutputFlags::Default));
         
-        if(parsed == 0) {
+        if(parsed.is_null()) {
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
         }
         else {
@@ -1071,7 +1071,7 @@ static bool open_cmd(Expr cmd) {
           doc->try_load_from_object(held_boxes[1], BoxInputFlags::Default))
       {
         if(!doc->selectable())
-          doc->select(0, 0, 0);
+          doc->select(nullptr, 0, 0);
           
         doc->style->set(Visible,                         true);
         doc->style->set(InternalHasModifiedWindowOption, true);
