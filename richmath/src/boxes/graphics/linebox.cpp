@@ -76,17 +76,17 @@ void LineBox::paint(GraphicsBoxContext *context) {
     
     if(line.length() > 1) {
       const DoublePoint &pt = line[0];
-      cairo_move_to(context->ctx->canvas->cairo(), pt.x, pt.y);
+      context->ctx->canvas->move_to(pt.x, pt.y);
       
       for(int j = 1; j < line.length(); ++j) {
         const DoublePoint &pt = line[j];
-        cairo_line_to(context->ctx->canvas->cairo(), pt.x, pt.y);
+        context->ctx->canvas->line_to(pt.x, pt.y);
       }
     }
     else if(line.length() == 1){
       const DoublePoint &pt = line[0];
-      cairo_move_to(context->ctx->canvas->cairo(), pt.x, pt.y);
-      cairo_line_to(context->ctx->canvas->cairo(), pt.x, pt.y);
+      context->ctx->canvas->move_to(pt.x, pt.y);
+      context->ctx->canvas->line_to(pt.x, pt.y);
     }
   }
   

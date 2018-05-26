@@ -2588,10 +2588,7 @@ void MathSequence::paint(Context *context) {
     const uint16_t *buf = str.buffer();
     
     double clip_x1, clip_y1, clip_x2, clip_y2;
-    cairo_clip_extents(
-      context->canvas->cairo(),
-      &clip_x1, &clip_y1,
-      &clip_x2,  &clip_y2);
+    context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
       
     int line = 0;
     // skip invisible lines:

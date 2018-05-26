@@ -432,8 +432,7 @@ void Win32ControlPainter::draw_container(
   cairo_surface_t *surface = nullptr;
   
   if(dc) {
-    cairo_matrix_t ctm;
-    cairo_get_matrix(canvas->cairo(), &ctm);
+    cairo_matrix_t ctm = canvas->get_matrix();
     
     if( (ctm.xx == 0) == (ctm.yy == 0) &&
         (ctm.xy == 0) == (ctm.yx == 0) &&
@@ -939,8 +938,7 @@ void Win32ControlPainter::paint_scrollbar_part(
   cairo_surface_t *surface = nullptr;
   
   if(dc) {
-    cairo_matrix_t ctm;
-    cairo_get_matrix(canvas->cairo(), &ctm);
+    cairo_matrix_t ctm = canvas->get_matrix();
     
     if(ctm.xx > 0 && ctm.yy > 0 && ctm.xy == 0 && ctm.yx == 0) {
       float ux = x;

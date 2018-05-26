@@ -37,8 +37,7 @@ static float round(float x, int direction, bool to_half) {
 
 void Point::pixel_align_point(Canvas &canvas, bool tostroke) {
   if(canvas.pixel_device) {
-    cairo_matrix_t ctm;
-    cairo_get_matrix(canvas.cairo(), &ctm);
+    cairo_matrix_t ctm = canvas.get_matrix();
     
     if( (ctm.xx == 0 && ctm.yy == 0) ||
         (ctm.xy == 0 && ctm.yx == 0))
@@ -59,8 +58,7 @@ void Point::pixel_align_point(Canvas &canvas, bool tostroke) {
 
 void Point::pixel_align_distance(Canvas &canvas) {
   if(canvas.pixel_device) {
-    cairo_matrix_t ctm;
-    cairo_get_matrix(canvas.cairo(), &ctm);
+    cairo_matrix_t ctm = canvas.get_matrix();
     
     if( (ctm.xx == 0 && ctm.yy == 0) ||
         (ctm.xy == 0 && ctm.yx == 0))
@@ -122,8 +120,7 @@ void Rectangle::normalize_to_zero() {
 
 void Rectangle::pixel_align(Canvas &canvas, bool tostroke, int direction) {
   if(canvas.pixel_device) {
-    cairo_matrix_t ctm;
-    cairo_get_matrix(canvas.cairo(), &ctm);
+    cairo_matrix_t ctm = canvas.get_matrix();
     
     /* only align to pixel boundaries,
        if the rectangle is rotated by 0°, 90°, 180° or 270° */
@@ -168,7 +165,7 @@ void Rectangle::grow(float dx, float dy) {
 }
 
 void Rectangle::add_round_rect_path(Canvas &canvas, const BoxRadius &radii, bool negative) const {
-  cairo_new_sub_path(canvas.cairo());
+  canvas.new_sub_path();
   
   if(negative) {
     canvas.ellipse_arc(

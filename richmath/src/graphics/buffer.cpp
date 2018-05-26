@@ -48,7 +48,7 @@ void Buffer::init(Canvas *dst, cairo_format_t format, float x, float y, float w,
         dst->current_pos(&x0, &y0);
         
         //dst->save();
-        cairo_get_matrix(dst->cairo(), &u2d_matrix);
+        u2d_matrix = dst->get_matrix();
         
         float mx0 = u2d_matrix.x0;
         float my0 = u2d_matrix.y0;
@@ -146,8 +146,7 @@ bool Buffer::is_compatible(Canvas *dst) {
   switch(cairo_surface_get_type(target)) {
     case CAIRO_SURFACE_TYPE_IMAGE:
     case CAIRO_SURFACE_TYPE_WIN32: {
-        cairo_matrix_t mat;
-        cairo_get_matrix(dst->cairo(), &mat);
+        cairo_matrix_t mat = dst->get_matrix();
         
         if( mat.xx == u2d_matrix.xx && 
             mat.xy == u2d_matrix.xy && 
@@ -223,11 +222,10 @@ bool Buffer::mask(Canvas *dst) {
   x = floor(x + 0.5);
   y = floor(y + 0.5);
   
+  cairo_matrix_t oldmat = dst->get_matrix();
   cairo_matrix_t mat;
-  cairo_matrix_t oldmat;
   cairo_matrix_init_identity(&mat);
-  cairo_get_matrix(dst->cairo(), &oldmat);
-  cairo_set_matrix(dst->cairo(), &mat);
+  dst->set_matrix(mat);
   dst->translate(x, y);
   
   //dst->translate(x0, y0);

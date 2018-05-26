@@ -2052,12 +2052,7 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
     ::selection_path(&canvas, selbox, copysel.start, copysel.end);
     
     double x1, y1, x2, y2;
-    cairo_path_extents(
-      canvas.cairo(),
-      &x1,
-      &y1,
-      &x2,
-      &y2);
+    canvas.path_extents(&x1, &y1, &x2, &y2);
     canvas.new_path();
     
     *device_width  = (x2 - x1) * sf;
@@ -3791,25 +3786,20 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
           static const double dashes[] = {1.0, 2.0};
           
           double x1, y1, x2, y2;
-          cairo_path_extents(
-            canvas->cairo(),
-            &x1,
-            &y1,
-            &x2,
-            &y2);
+          canvas->path_extents(&x1, &y1, &x2, &y2);
           canvas->new_path();
           
           if(canvas->pixel_device) {
-            cairo_user_to_device(canvas->cairo(), &x1, &y1);
-            cairo_user_to_device(canvas->cairo(), &x2, &y2);
+            canvas->user_to_device(&x1, &y1);
+            canvas->user_to_device(&x2, &y2);
             
             x2 = floor(x2 + 0.5) - 0.5;
             y2 = floor(y2 + 0.5) - 0.5;
             x1 = ceil(x1 - 0.5) + 0.5;
             y1 = ceil(y1 - 0.5) + 0.5;
             
-            cairo_device_to_user(canvas->cairo(), &x1, &y1);
-            cairo_device_to_user(canvas->cairo(), &x2, &y2);
+            canvas->device_to_user(&x1, &y1);
+            canvas->device_to_user(&x2, &y2);
           }
           
           canvas->move_to(x1, scrolly);

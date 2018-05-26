@@ -86,7 +86,7 @@ void SectionList::paint(Context *context) {
   context->canvas->current_pos(&x, &y);
   
   context->canvas->save();
-  cairo_translate(context->canvas->cairo(), x, y);
+  context->canvas->translate(x, y);
   
   //_scrollx = 0;
   for(int i = 0; i < _sections.length(); ++i) {

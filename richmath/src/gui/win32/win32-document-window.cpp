@@ -207,7 +207,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       canvas->restore();
       
       double x1,y1,x2,y2;
-      cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
+      canvas->path_extents(&x1, &y1, &x2, &y2);
       canvas->new_path();
       
       _overlay.add((y1 + y2)/2, color, lane);

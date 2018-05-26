@@ -341,10 +341,7 @@ void TextSequence::paint(Context *context) {
   
   y0 -= _extents.ascent;
   double clip_x1, clip_y1, clip_x2, clip_y2;
-  cairo_clip_extents(
-    context->canvas->cairo(),
-    &clip_x1, &clip_y1,
-    &clip_x2,  &clip_y2);
+  context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
     
   int cl_y1 = pango_units_from_double(clip_y1 - y0);
   int cl_y2 = pango_units_from_double(clip_y2 - y0);

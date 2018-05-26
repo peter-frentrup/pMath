@@ -91,8 +91,8 @@ void AbstractTransformationBox::paint(Context *context) {
   
   context->canvas->save();
   
-  cairo_translate(context->canvas->cairo(), x, y);
-  cairo_transform(context->canvas->cairo(), &mat);
+  context->canvas->translate(x, y);
+  context->canvas->transform(mat);
   
   context->canvas->move_to(0, 0);
   

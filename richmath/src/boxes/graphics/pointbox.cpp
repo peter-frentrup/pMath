@@ -151,25 +151,24 @@ void PointBox::find_extends(GraphicsBounds &bounds) {
 void PointBox::paint(GraphicsBoxContext *context) {
   context->ctx->canvas->save();
   {
-    cairo_matrix_t mat;
-    cairo_get_matrix(context->ctx->canvas->cairo(), &mat);
+    cairo_matrix_t mat = context->ctx->canvas->get_matrix();
     
     cairo_matrix_t idmat;
     cairo_matrix_init_identity(&idmat);
-    cairo_set_matrix(context->ctx->canvas->cairo(), &idmat);
+    context->ctx->canvas->set_matrix(idmat);
     
     for(int i = 0; i < _points.length(); ++i) {
       DoublePoint pt = _points[i];
       
       cairo_matrix_transform_point(&mat, &pt.x, &pt.y);
       
-      cairo_new_sub_path(context->ctx->canvas->cairo());
-      cairo_arc(
-        context->ctx->canvas->cairo(),
+      context->ctx->canvas->new_sub_path();
+      context->ctx->canvas->arc(
         pt.x, pt.y,
         2,
         0.0,
-        2 * M_PI);
+        2 * M_PI,
+        false);
     }
   }
   context->ctx->canvas->restore();
