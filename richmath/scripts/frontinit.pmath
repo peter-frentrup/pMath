@@ -40,7 +40,8 @@ $MathShapers:= {
 	"Latin Modern Math", 
 	"TeX Gyre Bonum Math", 
 	"TeX Gyre Pagella Math", 
-	"TeX Gyre Termes Math"}
+	"TeX Gyre Termes Math", 
+	"GFS Neohellenic Math"}
 Protect($MathShapers)
 
 
