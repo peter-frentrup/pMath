@@ -874,20 +874,13 @@ namespace richmath {
           }
         }
         
-        result->index = 0;
+        result->ext.num_extenders = 0;
+        result->ext.rel_overlap = 0;
         if(extenders) {
           int count = floorf((width - non_ext_w) / ext_w + 0.5f);
           
-          if(count >= 0) {
-            result->index = count;
-          }
-          else {
-            if(result->index) {
-              result->composed = 0;
-              return;
-            }
-            result->index = 0;
-          }
+          if(count >= 0) 
+            result->ext.num_extenders = count;
         }
         
         result->right = 0;
@@ -1217,10 +1210,6 @@ void OTMathShaper::decode_token(
       
       result->index = 0;
       impl->stretch_glyph_assembly(context, 0, lig, result);
-//      result->index    = 1;
-//      result->fontinfo = 0;
-//      result->horizontal_stretch = 1;
-//      result->composed           = 1;
 
       str   += char_len;
       result += char_len;
@@ -1288,8 +1277,8 @@ void OTMathShaper::vertical_glyph_size(
         
         for(int i = 0; i < ass->length(); ++i) {
           if(ass->get(i).flags & MGPRF_Extender) {
-            height += info.index * (ass->get(i).full_advance * em / impl->units_per_em);
-            height -= info.index * overlap;
+            height += info.ext.num_extenders * (ass->get(i).full_advance * em / impl->units_per_em);
+            height -= info.ext.num_extenders * overlap;
           }
           else {
             height += ass->get(i).full_advance * em / impl->units_per_em;
@@ -1350,7 +1339,7 @@ void OTMathShaper::show_glyph(
           cg.index = ass->get(i).glyph;
           
           if(ass->get(i).flags & MGPRF_Extender) {
-            for(uint16_t repeat = info.index; repeat > 0; --repeat) {
+            for(uint16_t repeat = info.ext.num_extenders; repeat > 0; --repeat) {
               context->canvas->show_glyphs(&cg, 1);
               cg.x += ass->get(i).full_advance * em / impl->units_per_em;
               cg.x -= overlap;
@@ -1376,7 +1365,7 @@ void OTMathShaper::show_glyph(
         cg.index = ass->get(i).glyph;
         
         if(ass->get(i).flags & MGPRF_Extender) {
-          for(uint16_t repeat = info.index; repeat > 0; --repeat) {
+          for(uint16_t repeat = info.ext.num_extenders; repeat > 0; --repeat) {
             context->canvas->show_glyphs(&cg, 1);
             cg.y -= ass->get(i).full_advance * em / impl->units_per_em;
             cg.y += overlap;
@@ -1566,14 +1555,16 @@ void OTMathShaper::vertical_stretch_char(
         count += 1;
         
       if(count >= 0) {
-        result->index = count;
+        result->ext.num_extenders = count;
+        result->ext.rel_overlap = 0;
       }
       else {
         if(var) {
           result->composed = 0;
           return;
         }
-        result->index = 0;
+        result->ext.num_extenders = 0;
+        result->ext.rel_overlap = 0;
       }
     }
     
@@ -2080,9 +2071,10 @@ void OTMathShaper::show_radical(
   GlyphInfo gi;
   memset(&gi, 0, sizeof(gi));
   
-  if(info.size > 0) {
-    gi.composed = 1;
-    gi.index    = info.size;
+  if(info.size >= 0) {
+    gi.composed          = 1;
+    gi.ext.num_extenders = info.size;
+    gi.ext.rel_overlap   = 0;
   }
   else {
     gi.index = -info.size;

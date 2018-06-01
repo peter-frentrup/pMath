@@ -1146,7 +1146,7 @@ void ConfigShaper::decode_token(
       cairo_glyph_t        cg;
       
       result->composed = 1;
-      result->index    = arr->get(0).glyph;
+      result->index    = arr->get(0).glyph; // ext.num_extenders???
       result->fontinfo = arr->get(0).font;
       result->right    = 0;
       result->x_offset = 0;
