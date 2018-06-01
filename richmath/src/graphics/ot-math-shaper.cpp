@@ -560,14 +560,14 @@ namespace richmath {
           }
           
           if(style.italic) {
-            /* The synthesized italics font seems to get an horizontal shear of about x:= 0.33, 
-              meaning that 
+            /* The synthesized italics font seems to get an horizontal shear of about x:= 0.33,
+              meaning that
               RawBoxes@TransformationBox(
                 ToBoxes@Style("ff",FontSlant->Plain,72),
                 BoxTransformation->{{1,x},{0,1}})
               looks like Style("ff",FontSlant->Italic,72) for Cambria Math on Windows 7.
-              
-              Since a glyphs accent height is typically not 1em, but about 0.5em, we further 
+            
+              Since a glyphs accent height is typically not 1em, but about 0.5em, we further
               multiply by that factor to not spread glyphs too much
              */
             impl->italics_correction.default_value = (int)(impl->units_per_em * 0.33 * 0.5);
@@ -879,7 +879,7 @@ namespace richmath {
         if(extenders) {
           int count = floorf((width - non_ext_w) / ext_w + 0.5f);
           
-          if(count >= 0) 
+          if(count >= 0)
             result->ext.num_extenders = count;
         }
         
@@ -896,6 +896,125 @@ namespace richmath {
         }
         
         result->right += overlap;
+      }
+      
+      void vertical_stretch_char(
+        Context        *context,
+        float           total_height,
+        bool            full_stretch,
+        const uint16_t  ch,
+        GlyphInfo      *result
+      ) {
+        uint16_t glyph = result->index;
+        if(!glyph) {
+          glyph = fi.char_to_glyph(ch);
+        }
+        
+        Array<MathGlyphVariantRecord> *var = get_vert_variants(ch, glyph);
+        
+        float em = context->canvas->get_font_size();
+        
+        float max = Infinity;
+        if(!full_stretch)
+          max = 2 * em;
+        
+        if(var) {
+          cairo_text_extents_t cte;
+          cairo_glyph_t        cg;
+          
+          cg.x = 0;
+          cg.y = 0;
+          context->canvas->set_font_face(text_shaper->font(0));
+          result->fontinfo          = 0;
+          result->x_offset          = 0;
+          result->composed          = 0;
+          result->is_normal_text    = 0;
+          result->vertical_centered = 1;
+          
+          int i = 0;
+          if(context->script_indent == 0) {
+            if(pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))
+              i = 1;
+          }
+          
+          for(; i < var->length(); ++i) {
+            cg.index = var->get(i).glyph;
+            context->canvas->glyph_extents(&cg, 1, &cte);
+            
+            result->index = cg.index;
+            result->right = cte.x_advance;
+            
+            if( total_height <= cte.height * 1.1 ||
+                max < cte.height /*&& min <= cte.height*/)
+            {
+              return;
+            }
+          }
+        }
+        
+        if(!full_stretch)
+          return;
+          
+        if(auto ass = get_vert_assembly(ch, glyph)) {
+          int extenders = 0;
+          float ext_h = 0;
+          float non_ext_h = 0;
+          float overlap  = min_connector_overlap * em / units_per_em;
+          
+          context->canvas->set_font_face(text_shaper->font(0));
+          result->fontinfo           = 0;
+          result->x_offset           = 0;
+          result->composed           = 1;
+          result->horizontal_stretch = 0;
+          result->is_normal_text     = 0;
+          result->vertical_centered  = 0;
+          
+          for(int i = 0; i < ass->length(); ++i) {
+            if(ass->get(i).flags & MGPRF_Extender) {
+              ++extenders;
+              ext_h += ass->get(i).full_advance * em / units_per_em;
+              ext_h -= overlap;
+            }
+            else {
+              non_ext_h += ass->get(i).full_advance * em / units_per_em;
+              non_ext_h -= overlap;
+            }
+          }
+          
+          if(extenders) {
+            int count = floorf((total_height - non_ext_h) / ext_h + 0.5f);
+            
+            if(count * ext_h + non_ext_h <= total_height - 0.5 * em)
+              count += 1;
+              
+            if(count >= 0) {
+              result->ext.num_extenders = count;
+              result->ext.rel_overlap = 0;
+            }
+            else {
+              if(var) {
+                result->composed = 0;
+                return;
+              }
+              result->ext.num_extenders = 0;
+              result->ext.rel_overlap = 0;
+            }
+          }
+          
+          result->right = 0;
+          context->canvas->set_font_face(text_shaper->font(0));
+          cairo_text_extents_t cte;
+          cairo_glyph_t        cg;
+          cg.x = 0;
+          cg.y = 0;
+          for(int i = 0; i < ass->length(); ++i) {
+            cg.index = ass->get(i).glyph;
+            context->canvas->glyph_extents(&cg, 1, &cte);
+            
+            if(result->right < cte.x_advance)
+              result->right = cte.x_advance;
+          }
+        }
       }
       
       
@@ -931,7 +1050,7 @@ namespace richmath {
       
       static SharedPtr<OTMathShaper> try_register(const String name) {
         SharedPtr<OTMathShaperImpl> plain_impl = OTMathShaperImpl::try_load(name, NoStyle);
-        if(!plain_impl.is_valid()) 
+        if(!plain_impl.is_valid())
           return nullptr;
           
         SharedPtr<OTMathShaper> plain_shaper = new OTMathShaper(plain_impl, NoStyle);
@@ -1210,7 +1329,7 @@ void OTMathShaper::decode_token(
       
       result->index = 0;
       impl->stretch_glyph_assembly(context, 0, lig, result);
-
+      
       str   += char_len;
       result += char_len;
       len   -= char_len;
@@ -1243,7 +1362,7 @@ void OTMathShaper::vertical_glyph_size(
 //        descent);
 //      return;
 //    }
-    
+
     context->canvas->set_font_face(font(0));
     
     uint16_t glyph = impl->fi.char_to_glyph(ch);
@@ -1322,7 +1441,7 @@ void OTMathShaper::show_glyph(
 //        info);
 //      return;
 //    }
-    
+
     context->canvas->set_font_face(font(0));
     
     uint16_t glyph = impl->fi.char_to_glyph(ch);
@@ -1398,7 +1517,7 @@ bool OTMathShaper::horizontal_stretch_char(
 //             ch,
 //             result);
 //  }
-  
+
   uint16_t glyph = result->index;
   Array<MathGlyphVariantRecord> *var = impl->get_horz_variants(ch, glyph);
   if(var) {
@@ -1453,13 +1572,6 @@ void OTMathShaper::vertical_stretch_char(
     return;
   }
   
-  uint16_t glyph = result->index;
-  if(!glyph) {
-    glyph = impl->fi.char_to_glyph(ch);
-  }
-  
-  Array<MathGlyphVariantRecord> *var = impl->get_vert_variants(ch, glyph);
-  
   float em = context->canvas->get_font_size();
   float axis = (em * impl->consts.axis_height.value) / impl->units_per_em;
   
@@ -1473,115 +1585,7 @@ void OTMathShaper::vertical_stretch_char(
     half = descent + axis;
     
   half = floorf(half);
-  float max = Infinity;
-  if(!full_stretch)
-    max = 2 * em;
-    
-//  float min = 0;
-//  if(context->script_indent == 0
-//  && (pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))){
-//    min = (em * impl->consts.display_operator_min_height) / impl->units_per_em;
-//
-//    min = 2 * floorf(min/2);
-//  }
-
-  if(var) {
-    cairo_text_extents_t cte;
-    cairo_glyph_t        cg;
-    
-    context->canvas->set_font_face(font(0));
-    cg.x = 0;
-    cg.y = 0;
-    result->fontinfo          = 0;
-    result->x_offset          = 0;
-    result->composed          = 0;
-    result->is_normal_text    = 0;
-    result->vertical_centered = 1;
-    
-    int i = 0;
-    if(context->script_indent == 0) {
-      if(pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))
-        i = 1;
-    }
-    
-    for(; i < var->length(); ++i) {
-      cg.index = var->get(i).glyph;
-      context->canvas->glyph_extents(&cg, 1, &cte);
-      
-      result->index = cg.index;
-      result->right = cte.x_advance;
-      
-      if( 2 * half <= cte.height * 1.1 ||
-          max < cte.height /*&& min <= cte.height*/)
-      {
-        return;
-      }
-    }
-  }
-  
-  if(!full_stretch)
-    return;
-    
-  if(auto ass = impl->get_vert_assembly(ch, glyph)) {
-    int extenders = 0;
-    float ext_h = 0;
-    float non_ext_h = 0;
-    float overlap  = impl->min_connector_overlap * em / impl->units_per_em;
-    
-    context->canvas->set_font_face(font(0));
-    result->fontinfo           = 0;
-    result->x_offset           = 0;
-    result->composed           = 1;
-    result->horizontal_stretch = 0;
-    result->is_normal_text     = 0;
-    result->vertical_centered  = 0;
-    
-    for(int i = 0; i < ass->length(); ++i) {
-      if(ass->get(i).flags & MGPRF_Extender) {
-        ++extenders;
-        ext_h += ass->get(i).full_advance * em / impl->units_per_em;
-        ext_h -= overlap;
-      }
-      else {
-        non_ext_h += ass->get(i).full_advance * em / impl->units_per_em;
-        non_ext_h -= overlap;
-      }
-    }
-    
-    if(extenders) {
-      int count = floorf((2 * half - non_ext_h) / ext_h + 0.5f);
-      
-      if(count * ext_h + non_ext_h <= 2 * half - 0.5 * em)
-        count += 1;
-        
-      if(count >= 0) {
-        result->ext.num_extenders = count;
-        result->ext.rel_overlap = 0;
-      }
-      else {
-        if(var) {
-          result->composed = 0;
-          return;
-        }
-        result->ext.num_extenders = 0;
-        result->ext.rel_overlap = 0;
-      }
-    }
-    
-    result->right = 0;
-    context->canvas->set_font_face(font(0));
-    cairo_text_extents_t cte;
-    cairo_glyph_t        cg;
-    cg.x = 0;
-    cg.y = 0;
-    for(int i = 0; i < ass->length(); ++i) {
-      cg.index = ass->get(i).glyph;
-      context->canvas->glyph_extents(&cg, 1, &cte);
-      
-      if(result->right < cte.x_advance)
-        result->right = cte.x_advance;
-    }
-  }
+  impl->vertical_stretch_char(context, 2 * half, full_stretch, ch, result);
 }
 
 void OTMathShaper::accent_positions(
@@ -1920,13 +1924,13 @@ float OTMathShaper::italic_correction(
 ) {
   if(info.slant == FontSlantPlain)
     return 0;
-  
-  if(info.slant == FontSlantItalic && !style.italic) 
+    
+  if(info.slant == FontSlantItalic && !style.italic)
     return math_set_style(style | Italic)->italic_correction(context, ch, info);
-
-  if(style.italic) 
+    
+  if(style.italic)
     return impl->italics_correction[info.index] * 1.0f / impl->units_per_em;
-  
+    
   return 0;
 }
 
