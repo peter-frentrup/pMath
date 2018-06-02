@@ -18,6 +18,22 @@ using namespace richmath;
 namespace {
   static uint16_t SqrtChar = 0x221A;
   
+#ifdef min
+#  undef min
+#endif
+#ifdef max
+#  undef max
+#endif
+
+  template<typename T> 
+  inline T min(T a, T b) {
+    return a < b ? a : b;
+  }
+  template<typename T> 
+  inline T max(T a, T b) {
+    return a > b ? a : b;
+  }
+  
   class StaticCanvas: public Base {
     public:
       StaticCanvas() {
@@ -1482,21 +1498,26 @@ void OTMathShaper::show_glyph(
       vertical_glyph_size(context, ch, info, &a, &d);
       
       cg.y += d;
-      for(int i = 0; i < ass->length(); ++i) {
-        cg.index = ass->get(i).glyph;
+      for(const auto &part : *ass) {
+        cairo_text_extents_t cte;
+        cg.index = part.glyph;
+        context->canvas->glyph_extents(&cg, 1, &cte);
+        auto descent = cte.height + cte.y_bearing;
+        cg.y-= descent;
         
-        if(ass->get(i).flags & MGPRF_Extender) {
+        if(part.flags & MGPRF_Extender) {
           for(uint16_t repeat = info.ext.num_extenders; repeat > 0; --repeat) {
             context->canvas->show_glyphs(&cg, 1);
-            cg.y -= ass->get(i).full_advance * em / impl->units_per_em;
+            cg.y -= part.full_advance * em / impl->units_per_em;
             cg.y += overlap;
           }
         }
         else {
           context->canvas->show_glyphs(&cg, 1);
-          cg.y -= ass->get(i).full_advance * em / impl->units_per_em;
+          cg.y -= part.full_advance * em / impl->units_per_em;
           cg.y += overlap;
         }
+        cg.y+= descent;
       }
       
       return;
