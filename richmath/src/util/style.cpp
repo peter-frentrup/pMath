@@ -167,6 +167,8 @@ static bool needs_ruledelayed(Expr expr) {
     return false;
     
   if( head == PMATH_SYMBOL_LIST ||
+      head == PMATH_SYMBOL_RANGE ||
+      head == PMATH_SYMBOL_NCACHE ||
       head == PMATH_SYMBOL_RULE ||
       head == PMATH_SYMBOL_RULEDELAYED ||
       head == PMATH_SYMBOL_GRAYLEVEL ||
