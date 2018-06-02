@@ -24,7 +24,7 @@ Document({
           UnderoverscriptBox("\[Integral]", "0", "t"), {
            {{"f", "(", {"s", ",", {"W", SubscriptBox("s")}}, ")"}, 
             SuperscriptBox("2")}, {"\[DifferentialD]", "s"}}}, "]"}})), 
-     "Text"), Section("Expressions", "Section"), 
+     "DisplayFormula"), Section("Expressions", "Section"), 
     Section(BoxData({"2", "+", "3"}), "Input", SectionLabel -> "in [1]:"), 
     Section(BoxData("5"), "Output", SectionGenerated -> True, 
      SectionLabel -> "out [1]:"), 

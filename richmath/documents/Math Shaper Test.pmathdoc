@@ -15,7 +15,8 @@ Document({
               RadicalBox("\[Placeholder]", "\[Placeholder]"), 
               RadicalBox(SqrtBox("\[Placeholder]"), "\[Placeholder]")}, 
              "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]"), 
-          "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]")}), "Text"), 
+          "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]")}), 
+     "DisplayFormula"), 
     Section(
      BoxData({
        {{UnderoverscriptBox({
@@ -86,7 +87,7 @@ Document({
          OverscriptBox({OverscriptBox(OverscriptBox(".", "\[Rule]"), 
             "\[Rule]"), OverscriptBox(OverscriptBox(".", "\[Rule]"), 
             "\[Rule]")}, "\[Rule]")}, " ", OverscriptBox("\[Function]", 
-         "xxxxx")}, OverscriptBox("\[Rule]", "xxxxx")}), "Text"), 
+         "xxxxx")}, OverscriptBox("\[Rule]", "xxxxx")}), "DisplayFormula"), 
     Section(
      BoxData({{"(", {"(", {"(", {"(", "\[Placeholder]", ")"}, ")"}, ")"}, 
         ")"}, " ", " ", {"[", {"[", {"[", {"[", "\[Placeholder]", "]"}, "]"}, 
@@ -102,7 +103,8 @@ Document({
         "\[LeftAngleBracket]", {"\[LeftAngleBracket]", {
           "\[LeftAngleBracket]", {"\[LeftAngleBracket]", "\[Placeholder]", 
            "\[RightAngleBracket]"}, "\[RightAngleBracket]"}, 
-         "\[RightAngleBracket]"}, "\[RightAngleBracket]"}}), "Text"), 
+         "\[RightAngleBracket]"}, "\[RightAngleBracket]"}}), 
+     "DisplayFormula"), 
     Section(
      BoxData({
        {"(", {
@@ -141,7 +143,7 @@ Document({
            "\[Placeholder]"}}), ")"}, " ", " ", {
         "(", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}, {"\[Placeholder]"}}), ")"}}), "Text"), 
+           "\[Placeholder]"}, {"\[Placeholder]"}}), ")"}}), "DisplayFormula"), 
     Section(
      BoxData({
        {"[", {
@@ -180,7 +182,7 @@ Document({
            "\[Placeholder]"}}), "]"}, " ", " ", {
         "[", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}, {"\[Placeholder]"}}), "]"}}), "Text"), 
+           "\[Placeholder]"}, {"\[Placeholder]"}}), "]"}}), "DisplayFormula"), 
     Section(
      BoxData({
        {"{", {
@@ -219,7 +221,7 @@ Document({
            "\[Placeholder]"}}), "}"}, " ", " ", {
         "{", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
-           "\[Placeholder]"}, {"\[Placeholder]"}}), "}"}}), "Text"), 
+           "\[Placeholder]"}, {"\[Placeholder]"}}), "}"}}), "DisplayFormula"), 
     Section(
      BoxData({
        {"\[LeftCeiling]", {
@@ -265,7 +267,7 @@ Document({
         "\[LeftCeiling]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightCeiling]"}}), 
-     "Text"), 
+     "DisplayFormula"), 
     Section(
      BoxData({
        {"\[LeftFloor]", {
@@ -310,7 +312,7 @@ Document({
         "\[LeftFloor]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}}), "\[RightFloor]"}}), 
-     "Text"), 
+     "DisplayFormula"), 
     Section(BoxData({"\[LeftAngleBracket]", {
         {"\[LeftAngleBracket]", {
           {"\[LeftAngleBracket]", {
@@ -322,7 +324,7 @@ Document({
              "\[RightAngleBracket]"}, SuperscriptBox("\[Placeholder]")}, 
            "\[RightAngleBracket]"}, SuperscriptBox("\[Placeholder]")}, 
          "\[RightAngleBracket]"}, SuperscriptBox("\[Placeholder]")}, 
-       "\[RightAngleBracket]"}), "Text"), 
+       "\[RightAngleBracket]"}), "DisplayFormula"), 
     Section(BoxData({{"\[Piecewise]", "\[Placeholder]"}, " ", " ", {
         "\[Piecewise]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}})}, 
        " ", " ", {"\[Piecewise]", 
@@ -332,7 +334,7 @@ Document({
            "\[Placeholder]"}, {"\[Placeholder]"}})}, " ", " ", {
         "\[Piecewise]", GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}, {
            "\[Placeholder]"}, {"\[Placeholder]"}, {"\[Placeholder]"}})}}), 
-     "Text"), 
+     "DisplayFormula"), 
     Section(
      BoxData({
        {"\[Integral]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]"), {
@@ -370,7 +372,7 @@ Document({
                           SuperscriptBox({"\[Placeholder]", 
                             SuperscriptBox(
                              "\[Placeholder]")})})})})})})})})})}, {
-          "\[DifferentialD]", "x"}}}}), "Text"), 
+          "\[DifferentialD]", "x"}}}}), "DisplayFormula"), 
     Section(BoxData({{"\[Sum]", "x"}, ",", {
         "\[Sum]", {"x", SuperscriptBox("\[Placeholder]")}}, ",", {
         "\[Sum]", {
@@ -388,7 +390,8 @@ Document({
              SuperscriptBox({"\[Placeholder]", 
                SuperscriptBox({"\[Placeholder]", 
                  SuperscriptBox({"\[Placeholder]", 
-                   SuperscriptBox("\[Placeholder]")})})})})})}}}), "Text"), 
+                   SuperscriptBox("\[Placeholder]")})})})})})}}}), 
+     "DisplayFormula"), 
     Section(BoxData({{"\[Product]", "x"}, ",", {
         "\[Product]", {"x", SuperscriptBox("\[Placeholder]")}}, ",", {
         "\[Product]", {
@@ -406,7 +409,8 @@ Document({
              SuperscriptBox({"\[Placeholder]", 
                SuperscriptBox({"\[Placeholder]", 
                  SuperscriptBox({"\[Placeholder]", 
-                   SuperscriptBox("\[Placeholder]")})})})})})}}}), "Text"), 
+                   SuperscriptBox("\[Placeholder]")})})})})})}}}), 
+     "DisplayFormula"), 
     Section(
      BoxData(/\/({{{"\[LeftArrow]", " ", "\[UpArrow]"}, " ", "\[Rule]", " ", {
           {{{{{{{{{{{{{{{{{{"\[DownArrow]", " ", "\[LeftRightArrow]"}, " ", 
@@ -473,7 +477,7 @@ Document({
            "\[RightDoubleBracketingBar]"}}}}, "\n", {
         "\[Dagger]", " ", "\[DoubleDagger]", " ", "\[Ellipsis]", " ", 
         "\[Prime]", " ", "\[DoublePrime]", " ", "\[TriplePrime]", " ", 
-        "\[QuadruplePrime]"}, " ")), "Text"), 
+        "\[QuadruplePrime]"}, " ")), "DisplayFormula"), 
     Section(
      BoxData(
       /\/({{"\[CapitalAlpha]", SubsuperscriptBox("\[Placeholder]", 
@@ -639,7 +643,7 @@ Document({
           "\[Placeholder]")}, " ", {
          "\[ScriptY]", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
         " ", {"\[ScriptZ]", SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}})), "Text"), 
+          "\[Placeholder]")}})), "DisplayFormula"), 
     Section(
      BoxData(
       /\/({{"a", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
@@ -710,7 +714,7 @@ Document({
          "X", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, " ", 
         " ", {"Y", SubsuperscriptBox("\[Placeholder]", "\[Placeholder]")}, 
         " ", " ", {"Z", SubsuperscriptBox("\[Placeholder]", 
-          "\[Placeholder]")}})), "Text"), 
+          "\[Placeholder]")}})), "DisplayFormula"), 
     Section(BoxData(/\/({"\[Aleph]", " ", "\[Beth]", " ", "\[Gimel]", " ", 
         "\[Dalet]", " ", "\[U+213C]", " ", "\[U+213D]", " ", {
          "\[CapitalDifferentialD]", " ", {"\[DifferentialD]", " ", 
@@ -764,6 +768,5 @@ Document({
         "\[DoubleStruckThree]", " ", "\[DoubleStruckFour]", " ", 
         "\[DoubleStruckFive]", " ", "\[DoubleStruckSix]", " ", 
         "\[DoubleStruckSeven]", " ", "\[DoubleStruckEight]", " ", 
-        "\[DoubleStruckNine]"})), "Text")}, All)}, 
- Magnification -> 1.9999998807907104`, StyleDefinitions -> "Default.pmathdoc", 
- Visible -> True)
+        "\[DoubleStruckNine]"})), "DisplayFormula")}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

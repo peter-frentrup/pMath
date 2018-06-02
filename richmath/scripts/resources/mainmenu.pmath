@@ -69,7 +69,8 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Item("Subsection",                         BaseStyle->"Subsection"),
 			Item("Subsubsection",                      BaseStyle->"Subsubsection"),
 			Item("Text",                               BaseStyle->"Text"),
-			Item("Input",                              BaseStyle->"Input")
+			Item("Input",                              BaseStyle->"Input"),
+			Item("DisplayFormula",                     BaseStyle->"DisplayFormula")
 			}),
 		Menu("Magnification", {
 			Item("50%",                                ScopedCommand(Magnification->0.5, Document)),

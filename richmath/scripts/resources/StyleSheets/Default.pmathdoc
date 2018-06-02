@@ -2,8 +2,14 @@
 
 Document({
   SectionGroup({Section(StyleData(StyleDefinitions -> "Core.pmathdoc")), 
-    Section("Default stylesheet", "Title"), 
-    Section(
-     "This file contains default style definitions to apply to new \
-     documents.", "Text")}, All)}, StyleDefinitions -> "Stylesheets.pmathdoc", 
- Visible -> True)
+    SectionGroup({Section("Default stylesheet", "Title"), 
+      Section(
+       "This file contains default style definitions to apply to new \
+       documents.", "Text"), 
+      SectionGroup({Section("Section styles", "Section"), 
+        SectionGroup({Section("Formulas", "Subsection"), 
+          Section(StyleData("DisplayFormula"), AutoNumberFormating -> False, 
+           AutoSpacing -> True, Evaluatable -> False, FontSize -> 11, 
+           LanguageCategory -> "Formula", SectionMargins -> {50, Inherited, 7, 
+            7}, ShowAutoStyles -> False)}, All)}, All)}, All)}, All)}, 
+ StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
