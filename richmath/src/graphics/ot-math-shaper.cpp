@@ -901,6 +901,8 @@ namespace richmath {
       void vertical_stretch_char(
         Context        *context,
         float           total_height,
+        float           rel_tolerance,
+        float           abs_tolerance_per_em,
         bool            full_stretch,
         const uint16_t  ch,
         GlyphInfo      *result
@@ -944,7 +946,7 @@ namespace richmath {
             result->index = cg.index;
             result->right = cte.x_advance;
             
-            if( total_height <= cte.height * 1.1 ||
+            if( total_height <= cte.height * rel_tolerance ||
                 max < cte.height /*&& min <= cte.height*/)
             {
               return;
@@ -984,7 +986,7 @@ namespace richmath {
           if(extenders) {
             int count = floorf((total_height - non_ext_h) / ext_h + 0.5f);
             
-            if(count * ext_h + non_ext_h <= total_height - 0.5 * em)
+            if(count * ext_h + non_ext_h <= total_height - abs_tolerance_per_em * em)
               count += 1;
               
             if(count >= 0) {
@@ -1585,7 +1587,7 @@ void OTMathShaper::vertical_stretch_char(
     half = descent + axis;
     
   half = floorf(half);
-  impl->vertical_stretch_char(context, 2 * half, full_stretch, ch, result);
+  impl->vertical_stretch_char(context, 2 * half, 1.1, 0.5, full_stretch, ch, result);
 }
 
 void OTMathShaper::accent_positions(
@@ -1963,100 +1965,48 @@ void OTMathShaper::shape_radical(
   float pt = em / impl->units_per_em;
   float axis = impl->consts.axis_height.value * pt;
   
-  float gap_and_rule = impl->consts.radical_rule_thickness.value * pt;
+  float rule = impl->consts.radical_rule_thickness.value * pt;
+  float gap;
   if(context->script_indent > 0)
-    gap_and_rule += impl->consts.radical_vertical_gap.value * pt;
+    gap = impl->consts.radical_vertical_gap.value * pt;
   else
-    gap_and_rule += impl->consts.radical_display_style_vertical_gap.value * pt;
+    gap = impl->consts.radical_display_style_vertical_gap.value * pt;
     
-  float height = box->height();// + gap_and_rule;
+  float height = box->height();
   
   info->hbar = (int)ceilf(box->width + 0.2f * em);
   *exponent_x = impl->consts.radical_kern_after_degree.value * pt;
-  *exponent_y = impl->consts.radical_degree_bottom_raise_percent / 100.0f;
+  float rel_raise_exp = impl->consts.radical_degree_bottom_raise_percent / 100.0f;
   
-  uint16_t glyph = impl->fi.char_to_glyph(SqrtChar);
-  if(auto var = impl->get_vert_variants(SqrtChar, glyph)) {
-    for(int i = 0; i < var->length(); ++i) {
-      cg.index = var->get(i).glyph;
-      context->canvas->glyph_extents(&cg, 1, &cte);
-      
-      if(height + gap_and_rule <= cte.height) {
-        info->y_offset = 0;
-        info->size = -(int)cg.index;
-        *radicand_x = cte.x_advance;
-        *exponent_x += *radicand_x;
-        
-        box->descent = (cte.height - gap_and_rule) / 2 - axis;
-        if(box->ascent + box->descent > cte.height - gap_and_rule)
-          box->descent = cte.height - gap_and_rule - box->ascent;
-          
-        info->y_offset = box->descent - (cte.height + cte.y_bearing);
-        *exponent_y = -*exponent_y * cte.height + box->descent;
-        
-        box->ascent = cte.height - box->descent;
-        box->ascent += impl->consts.radical_extra_ascender.value * pt;
-        box->width = info->hbar + *radicand_x;
-        return;
-      }
-    }
+  GlyphInfo gi;
+  memset(&gi, 0, sizeof(gi));
+  impl->vertical_stretch_char(context, height + /*gap +*/ rule, 1.0, 0.0, true, SqrtChar, &gi);
+  gi.vertical_centered = false;
+  
+  *radicand_x = gi.right;
+  *exponent_x += gi.right;
+  box->width = info->hbar + *radicand_x;
+  
+  float rad_ascent = 0;
+  float rad_descent = 0;
+  vertical_glyph_size(context, SqrtChar, gi, &rad_ascent, &rad_descent);
+  
+  float total_height = max(rad_ascent + rad_descent, height + gap + rule);
+  
+  box->descent = (total_height - (gap + rule)) / 2 - axis;
+  if(box->ascent + box->descent > total_height - (gap + rule))
+    box->descent = total_height - (gap + rule) - box->ascent;
+  
+  box->ascent = total_height - box->descent;
+  box->ascent += impl->consts.radical_extra_ascender.value * pt;
+  info->y_offset = box->descent - rad_descent;
+  
+  *exponent_y = box->descent - rel_raise_exp * total_height;
+  if(gi.composed) {
+    info->size = gi.ext.num_extenders;
   }
-  
-  if(auto ass = impl->get_vert_assembly(SqrtChar, glyph)) {
-    int extenders = 0;
-    float ext_h = 0;
-    float non_ext_h = 0;
-    float overlap  = impl->min_connector_overlap * pt;
-    
-    for(int i = 0; i < ass->length(); ++i) {
-      if(ass->get(i).flags & MGPRF_Extender) {
-        ++extenders;
-        ext_h += ass->get(i).full_advance * pt;
-        ext_h -= overlap;
-      }
-      else {
-        non_ext_h += ass->get(i).full_advance * pt;
-        non_ext_h -= overlap;
-      }
-    }
-    
-    if(extenders) {
-      int count = ceilf((height - non_ext_h) / ext_h);
-      if(count >= 0)
-        info->size = count;
-      else
-        info->size = 0;
-    }
-    
-    height = 0;
-    *radicand_x = 0;
-    for(int i = 0; i < ass->length(); ++i) {
-      cg.index = ass->get(i).glyph;
-      context->canvas->glyph_extents(&cg, 1, &cte);
-      
-      if(i == 0)
-        *exponent_y = -/*-*exponent_y * */cte.height;
-        
-      if(ass->get(i).flags & MGPRF_Extender) {
-        height += info->size * (ass->get(i).full_advance * pt);
-        height -= info->size * overlap;
-      }
-      else {
-        height += ass->get(i).full_advance * pt;
-        height -= overlap;
-      }
-      
-      if(*radicand_x < cte.x_advance)
-        *radicand_x = cte.x_advance;
-    }
-    
-    height += overlap;
-    height += impl->consts.radical_extra_ascender.value * pt;
-    box->ascent = height - box->descent;
-    box->width = info->hbar + *radicand_x;
-    info->y_offset = box->descent - height / 2 + axis;
-    *exponent_x += *radicand_x;
-    *exponent_y += box->descent;
+  else {
+    info->size = -(int)gi.index;
   }
 }
 
