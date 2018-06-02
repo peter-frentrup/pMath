@@ -944,6 +944,11 @@ void SimpleMathShaper::show_glyph(
         float th = cte.height;
         float ta = -cte.y_bearing;
         
+        cg.index = bottom;
+        context->canvas->glyph_extents(&cg, 1, &cte);
+        float bh = cte.height;
+        float ba = -cte.y_bearing;
+        
         float mh = 0;
         float ma = 0;
         if(middle && info.ext.num_extenders > 0) {
@@ -961,11 +966,12 @@ void SimpleMathShaper::show_glyph(
           sh = cte.height;
           sa = -cte.y_bearing;
           
-          cg.y -= sh / 2 + info.ext.num_extenders * mh + th - ta;
+          cg.y -= (th + sh + bh + 2 * info.ext.num_extenders * mh) / 2;
         }
         else
-          cg.y -= info.ext.num_extenders * mh / 2 + th - ta;
-          
+          cg.y -= (th + bh + info.ext.num_extenders * mh) / 2;
+        
+        cg.y+= ta;
         cg.index = top;
         context->canvas->show_glyphs(&cg, 1);
         
