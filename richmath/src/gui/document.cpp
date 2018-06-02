@@ -2516,8 +2516,12 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
   }
   else if(scope == PMATH_SYMBOL_SECTION) {
     Box *box = old_sel.get();
-    if(box)
-      box = box->find_parent<Section>(true);
+    if(box) {
+      if(box == this && old_sel.start + 1 == old_sel.end)
+        box = section(old_sel.start);
+      else
+        box = box->find_parent<Section>(true);
+    }
       
     new_sel.set(box, 0, 0);
   }
@@ -2529,7 +2533,9 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
   
   bool result = Application::run_recursive_menucommand(cmd);
   
-  context.selection = old_sel;
+  if(is_parent_of(old_sel.get()))
+    context.selection = old_sel;
+  
   return result;
 }
 
@@ -4528,12 +4534,20 @@ Section *DocumentImpl::convert_content(Section *sect) {
   auto old_sect = dynamic_cast<FromSectionType*>(sect);
   if(!old_sect)
     return sect;
+  
+  bool contains_selection = old_sect->is_parent_of(self.selection_box());
     
   auto old_content = old_sect->content();
   auto new_sect = new ToSectionType(old_sect->style);
   new_sect->swap_id(old_sect);
   new_sect->content()->insert(0, old_content, 0, old_content->length());
   self.swap(sect->index(), new_sect)->safe_destroy();
+  
+  if(contains_selection && self.selection_box() == nullptr) {
+    AbstractSequence *seq = new_sect->content();
+    self.select(seq, seq->length(), seq->length());
+  }
+  
   return new_sect;
 }
 //}
