@@ -878,14 +878,14 @@ namespace richmath {
         result->horizontal_stretch = 1;
         result->is_normal_text     = 0;
         
-        for(int i = 0; i < parts->length(); ++i) {
-          if(parts->get(i).flags & MGPRF_Extender) {
+        for(const auto &part : *parts) {
+          if(part.flags & MGPRF_Extender) {
             ++extenders;
-            ext_w += parts->get(i).full_advance * pt;
+            ext_w += part.full_advance * pt;
             ext_w -= overlap;
           }
           else {
-            non_ext_w += parts->get(i).full_advance * pt;
+            non_ext_w += part.full_advance * pt;
             non_ext_w -= overlap;
           }
         }
@@ -900,13 +900,13 @@ namespace richmath {
         }
         
         result->right = 0;
-        for(int i = 0; i < parts->length(); ++i) {
-          if(parts->get(i).flags & MGPRF_Extender) {
-            result->right += result->index * (parts->get(i).full_advance * pt);
+        for(const auto &part : *parts) {
+          if(part.flags & MGPRF_Extender) {
+            result->right += result->index * (part.full_advance * pt);
             result->right -= result->index * overlap;
           }
           else {
-            result->right += parts->get(i).full_advance * pt;
+            result->right += part.full_advance * pt;
             result->right -= overlap;
           }
         }
@@ -987,14 +987,14 @@ namespace richmath {
           result->is_normal_text     = 0;
           result->vertical_centered  = 0;
           
-          for(int i = 0; i < ass->length(); ++i) {
-            if(ass->get(i).flags & MGPRF_Extender) {
+          for(const auto &part : *ass) {
+            if(part.flags & MGPRF_Extender) {
               ++extenders;
-              ext_h += ass->get(i).full_advance * em / units_per_em;
+              ext_h += part.full_advance * em / units_per_em;
               ext_h -= overlap;
             }
             else {
-              non_ext_h += ass->get(i).full_advance * em / units_per_em;
+              non_ext_h += part.full_advance * em / units_per_em;
               non_ext_h -= overlap;
             }
           }
@@ -1025,8 +1025,8 @@ namespace richmath {
           cairo_glyph_t        cg;
           cg.x = 0;
           cg.y = 0;
-          for(int i = 0; i < ass->length(); ++i) {
-            cg.index = ass->get(i).glyph;
+          for(const auto &part : *ass) {
+            cg.index = part.glyph;
             context->canvas->glyph_extents(&cg, 1, &cte);
             
             if(result->right < cte.x_advance)
@@ -1392,8 +1392,8 @@ void OTMathShaper::vertical_glyph_size(
     
     if(info.horizontal_stretch) {
       if(auto ass = impl->get_horz_assembly(ch, glyph)) {
-        for(int i = 0; i < ass->length(); ++i) {
-          cg.index = ass->get(i).glyph;
+        for(const auto &part : *ass) {
+          cg.index = part.glyph;
           context->canvas->glyph_extents(&cg, 1, &cte);
           
           if(*ascent < -cte.y_bearing)
@@ -1412,13 +1412,13 @@ void OTMathShaper::vertical_glyph_size(
         float overlap = impl->min_connector_overlap    * em / impl->units_per_em;
         float height = 0;
         
-        for(int i = 0; i < ass->length(); ++i) {
-          if(ass->get(i).flags & MGPRF_Extender) {
-            height += info.ext.num_extenders * (ass->get(i).full_advance * em / impl->units_per_em);
+        for(const auto &part : *ass) {
+          if(part.flags & MGPRF_Extender) {
+            height += info.ext.num_extenders * (part.full_advance * em / impl->units_per_em);
             height -= info.ext.num_extenders * overlap;
           }
           else {
-            height += ass->get(i).full_advance * em / impl->units_per_em;
+            height += part.full_advance * em / impl->units_per_em;
             height -= overlap;
           }
         }
@@ -1472,19 +1472,19 @@ void OTMathShaper::show_glyph(
     
     if(info.horizontal_stretch) {
       if(auto ass = impl->get_horz_assembly(ch, glyph)) {
-        for(int i = 0; i < ass->length(); ++i) {
-          cg.index = ass->get(i).glyph;
+        for(const auto &part : *ass) {
+          cg.index = part.glyph;
           
-          if(ass->get(i).flags & MGPRF_Extender) {
+          if(part.flags & MGPRF_Extender) {
             for(uint16_t repeat = info.ext.num_extenders; repeat > 0; --repeat) {
               context->canvas->show_glyphs(&cg, 1);
-              cg.x += ass->get(i).full_advance * em / impl->units_per_em;
+              cg.x += part.full_advance * em / impl->units_per_em;
               cg.x -= overlap;
             }
           }
           else {
             context->canvas->show_glyphs(&cg, 1);
-            cg.x += ass->get(i).full_advance * em / impl->units_per_em;
+            cg.x += part.full_advance * em / impl->units_per_em;
             cg.x -= overlap;
           }
         }
@@ -1554,12 +1554,12 @@ bool OTMathShaper::horizontal_stretch_char(
     result->x_offset       = 0;
     result->composed       = 0;
     result->is_normal_text = 0;
-    for(int i = 0; i < var->length(); ++i) {
-      cg.index = var->get(i).glyph;
+    for(const auto &part : *var) {
+      cg.index = part.glyph;
       context->canvas->glyph_extents(&cg, 1, &cte);
       
       result->index = cg.index;
-      result->right = cte.x_advance;//var->get(i).advance * em / impl->units_per_em;
+      result->right = cte.x_advance;//part.advance * em / impl->units_per_em;
       if(width <= cte.x_advance)
         return true;
     }
@@ -1976,12 +1976,6 @@ void OTMathShaper::shape_radical(
     return;
   }
   
-  context->canvas->set_font_face(font(0));
-  cairo_text_extents_t cte;
-  cairo_glyph_t        cg;
-  cg.x = 0;
-  cg.y = 0;
-  
   float em = context->canvas->get_font_size();
   float pt = em / impl->units_per_em;
   float axis = impl->consts.axis_height.value * pt;
@@ -2077,8 +2071,8 @@ void OTMathShaper::show_radical(
   if(gi.composed) {
     x1 = 0;
     if(auto ass = impl->get_vert_assembly(SqrtChar, impl->fi.char_to_glyph(SqrtChar))) {
-      for(int i = 0; i < ass->length(); ++i) {
-        cg.index = ass->get(i).glyph;
+      for(const auto &part : *ass) {
+        cg.index = part.glyph;
         context->canvas->glyph_extents(&cg, 1, &cte);
         
         if(x1 < cte.x_advance)

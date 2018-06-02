@@ -1151,17 +1151,17 @@ void ConfigShaper::decode_token(
       result->right    = 0;
       result->x_offset = 0;
       
-      for(int i = 0; i < arr->length(); ++i) {
-        context->canvas->set_font_face(font(arr->get(i).font));
+      for(const auto &part : *arr) {
+        context->canvas->set_font_face(font(part.font));
         cg.x = 0;
         cg.y = 0;
-        cg.index = arr->get(i).glyph;
+        cg.index = part.glyph;
         context->canvas->glyph_extents(&cg, 1, &cte);
         
         result->right += cte.x_advance;
         
-        if(arr->get(i).offset) {
-          result->right += arr->get(i).offset
+        if(part.offset) {
+          result->right += part.offset
                            * context->canvas->get_font_size()
                            * GlyphFontOffset::EmPerOffset;
         }
@@ -1310,11 +1310,11 @@ void ConfigShaper::vertical_glyph_size(
       cairo_text_extents_t cte;
       cairo_glyph_t        cg;
       
-      for(int i = 0; i < arr->length(); ++i) {
-        context->canvas->set_font_face(font(arr->get(i).font));
+      for(const auto &part : *arr) {
+        context->canvas->set_font_face(font(part.font));
         cg.x = 0;
         cg.y = 0;
-        cg.index = arr->get(i).glyph;
+        cg.index = part.glyph;
         context->canvas->glyph_extents(&cg, 1, &cte);
         if(*ascent < -cte.y_bearing)
           *ascent = -cte.y_bearing;
@@ -1356,16 +1356,16 @@ void ConfigShaper::show_glyph(
       cg.x = x + info.x_offset;
       cg.y = y;
       
-      for(int i = 0; i < arr->length(); ++i) {
-        context->canvas->set_font_face(font(arr->get(i).font));
-        cg.index = arr->get(i).glyph;
+      for(const auto &part : *arr) {
+        context->canvas->set_font_face(font(part.font));
+        cg.index = part.glyph;
         context->canvas->show_glyphs(&cg, 1);
         
         context->canvas->glyph_extents(&cg, 1, &cte);
         cg.x += cte.x_advance;
         
-        if(arr->get(i).offset) {
-          cg.x += arr->get(i).offset
+        if(part.offset) {
+          cg.x += part.offset
                   * context->canvas->get_font_size()
                   * GlyphFontOffset::EmPerOffset;
         }
