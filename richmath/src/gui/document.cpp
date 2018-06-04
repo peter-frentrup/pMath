@@ -609,6 +609,11 @@ void Document::invalidate() {
 }
 
 void Document::invalidate_options() {
+  if(get_own_style(InternalRequiresChildResize)) {
+    style->set(InternalRequiresChildResize, false);
+    invalidate_all();
+  }
+  
   if(get_own_style(InternalHasModifiedWindowOption)) {
     style->set(InternalHasModifiedWindowOption, false);
     
@@ -3664,10 +3669,25 @@ void Document::reset_style() {
 
 void Document::paint_resize(Canvas *canvas, bool resize_only) {
   update_dynamic_styles(&context);
+  if(get_own_style(InternalRequiresChildResize)) {
+    style->set(InternalRequiresChildResize, false);
+    if(resize_only) {
+      invalidate_all();
+    }
+    else {
+      must_resize_min = count();
+      for(int i = 0;i < length();++i)
+        section(i)->must_resize = true;
+    }
+  }
   
   additional_selection.length(0);
   
   context.canvas = canvas;
+  if(style) {
+    ContextState cc(&context);
+    cc.begin(style);
+  }
   
   float scrolly, page_height;
   native()->window_size(&_window_width, &page_height);

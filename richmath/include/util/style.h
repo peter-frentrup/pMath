@@ -35,6 +35,7 @@ namespace richmath {
     Evaluatable,
     InternalHasModifiedWindowOption,
     InternalHasPendingDynamic,
+    InternalRequiresChildResize,
     InternalUsesCurrentValueOfMouseOver,
     LineBreakWithin,
     Placeholder,
@@ -120,6 +121,7 @@ namespace richmath {
     TextShadow,
     FontFamilies,
     FontFeatures,
+    MathFontFamily,
     UnknownOptions,
     
     BoxRotation,

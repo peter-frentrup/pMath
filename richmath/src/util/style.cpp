@@ -14,6 +14,8 @@
       assert(a); \
     }}while(0)
 
+extern pmath_symbol_t richmath_System_MathFontFamily;    
+
 using namespace richmath;
 
 double round_factor(double x, double f) {
@@ -364,6 +366,7 @@ namespace {
           add(StyleTypeAny,             TextShadow,                       Symbol( PMATH_SYMBOL_TEXTSHADOW));
           add(StyleTypeAny,             FontFamilies,                     Symbol( PMATH_SYMBOL_FONTFAMILY));
           add(StyleTypeAny,             FontFeatures,                     Symbol( PMATH_SYMBOL_FONTFEATURES));
+          add(StyleTypeAny,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
           add(StyleTypeAny,             BoxRotation,                      Symbol( PMATH_SYMBOL_BOXROTATION));
           add(StyleTypeAny,             BoxTransformation,                Symbol( PMATH_SYMBOL_BOXTRANSFORMATION));
           add(StyleTypeAny,             PlotRange,                        Symbol( PMATH_SYMBOL_PLOTRANGE));
@@ -407,6 +410,25 @@ namespace {
                literal_key == DockedSectionsTopGlass    ||
                literal_key == DockedSectionsBottom      ||
                literal_key == DockedSectionsBottomGlass;
+      }
+      
+      static bool requires_child_resize(StyleOptionName key) {
+        StyleOptionName literal_key = key.to_literal();
+        return literal_key == Antialiasing ||
+               literal_key == FontSlant ||
+               literal_key == FontWeight ||
+               literal_key == AutoSpacing ||
+               literal_key == LineBreakWithin ||
+               literal_key == ShowAutoStyles ||
+               literal_key == ShowSectionBracket ||
+               literal_key == ShowStringCharacters ||
+               literal_key == FontSize ||
+               literal_key == Magnification ||
+               literal_key == ScriptSizeMultipliers ||
+               literal_key == FontFamilies ||
+               literal_key == FontFeatures ||
+               literal_key == MathFontFamily ||
+               literal_key == StyleDefinitions;
       }
       
       /*static int get_number_of_keys(enum StyleType type) {
@@ -770,6 +792,9 @@ void StyleImpl::collect_unused_dynamic(Hashtable<StyleOptionName, Expr> &dynamic
 void StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
   if(StyleInformation::is_window_option(n))
     raw_set_int(InternalHasModifiedWindowOption, true);
+  
+  if(StyleInformation::requires_child_resize(n))
+    raw_set_int(InternalRequiresChildResize, true);
     
   enum StyleType type = StyleInformation::get_type(n);
   
@@ -1973,6 +1998,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(LanguageCategory);
   impl.emit_definition(LineBreakWithin);
   impl.emit_definition(Magnification);
+  impl.emit_definition(MathFontFamily);
   impl.emit_definition(Method);
   impl.emit_definition(Placeholder);
   impl.emit_definition(PlotRange);

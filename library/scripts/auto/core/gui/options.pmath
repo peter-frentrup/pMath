@@ -33,6 +33,7 @@ Options(CreateDocument):= Options(Document):= {
 	GridBoxRowSpacing -> Inherited,
 	LineBreakWithin -> Inherited,
 	Magnification -> Inherited,
+    MathFontFamily -> Inherited,
 	ReturnCreatesNewSection -> Inherited,
 	ScriptSizeMultipliers -> Inherited,
 	SectionEditDuplicate -> Inherited,
@@ -106,6 +107,7 @@ Options(Style):= Options(StyleBox):= {
     GridBoxColumnSpacing -> Inherited,
     GridBoxRowSpacing -> Inherited,
     LineBreakWithin -> Inherited,
+    MathFontFamily -> Inherited,
     Placeholder -> Inherited,
     ScriptSizeMultipliers -> Inherited,
     Selectable -> Inherited,
@@ -143,6 +145,7 @@ Options(Section):= {
     LanguageCategory -> Inherited,
     LineBreakWithin -> True,
     Magnification -> Automatic,  % only valid for StyleData-sections
+    MathFontFamily -> Inherited,
     Method -> "Preemptive",      % only valid for StyleData-sections
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ReturnCreatesNewSection -> Inherited,

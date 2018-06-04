@@ -336,6 +336,25 @@ void ContextState::begin(SharedPtr<Style> style) {
         fs -= Bold;
     }
     
+    if(ctx->stylesheet->get(style, MathFontFamily, &expr)) {
+      if(expr.is_string()) {
+        s = String(expr);
+        
+        if(auto math_shaper = MathShaper::available_shapers.search(s))
+          ctx->math_shaper = *math_shaper;
+      }
+      else if(expr[0] == PMATH_SYMBOL_LIST) {
+        for(const auto &item : expr.items()) {
+          s = String(item);
+          
+          if(auto math_shaper = MathShaper::available_shapers.search(s)) {
+            ctx->math_shaper = *math_shaper;
+            break;
+          }
+        }
+      }
+    }
+    
     ctx->math_shaper = ctx->math_shaper->math_set_style(fs);
     
     if(ctx->stylesheet->get(style, FontFamilies, &expr)) {
