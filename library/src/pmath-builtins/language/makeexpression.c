@@ -1138,10 +1138,8 @@ static pmath_t make_expression_from_sqrtbox(pmath_expr_t box) {
   if(len == 1) {
     pmath_t base = pmath_expr_get_item(box, 1);
     
-    if(parse(&base)) {
-      pmath_unref(box);
+    if(parse(&base)) 
       return wrap_hold_with_debuginfo_from(box, SQRT(base));
-    }
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
