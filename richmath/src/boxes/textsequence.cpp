@@ -247,7 +247,26 @@ String TextSequence::raw_substring(int start, int length) {
   assert(length >= 0);
   assert(start + length <= text.length());
   
-  return String::FromUtf8(text.buffer() + start, length);
+  String result;
+  const char *prev = text.buffer() + start;
+  const char *next = prev;
+  while(length > 0) {
+    if(Utf8BoxCharLen <= length) {
+      if(memcmp(next, Utf8BoxChar, Utf8BoxCharLen) == 0) {
+        result+= String::FromUtf8(prev, next - prev);
+        result+= PMATH_CHAR_BOX;
+        next+= Utf8BoxCharLen;
+        length-= Utf8BoxCharLen;
+        prev = next;
+        continue;
+      }
+    }
+    ++next;
+    --length;
+  }
+  
+  result+= String::FromUtf8(prev, next - prev);
+  return result;
 }
 
 bool TextSequence::is_placeholder(int i) {
