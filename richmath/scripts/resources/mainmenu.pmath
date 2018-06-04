@@ -79,14 +79,18 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Item("150%",                               ScopedCommand(Magnification->1.5, Document))
 			}),
 		
-		Menu("Math Font", 
+		Menu("Math Font", Join({
+				Item("Inherited", ScopedCommand(MathFontFamily -> Inherited, Document)),
+				Delimiter
+			},
 			$MathShapers.Join({
 				"Mathematica 10 Mono",
 				"Mathematica 10 Serif",
 				"Mathematica 10 Sans",
 				"Mathematica Mono",
 				"Mathematica Serif",
-			}).Map(Item(# ++ "",             ScopedCommand(MathFontFamily -> #, Document)) &)),
+			}).Map(Item(#,             ScopedCommand(MathFontFamily -> #, Document)) &),
+			)),
 		Menu("Math Font (old)", Join(
 			$MathShapers.Map(Item(# ++ "",             "@shaper=" ++ #) &),
 			{

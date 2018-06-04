@@ -3684,10 +3684,8 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   additional_selection.length(0);
   
   context.canvas = canvas;
-  if(style) {
-    ContextState cc(&context);
-    cc.begin(style);
-  }
+  ContextState cc(&context);
+  cc.begin(style);
   
   float scrolly, page_height;
   native()->window_size(&_window_width, &page_height);
@@ -3878,7 +3876,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     }
   }
   
-  context.canvas = 0;
+  cc.end();
+  
+  context.canvas = nullptr;
   must_resize_min = 0;
 }
 
