@@ -498,15 +498,22 @@ static MenuCommandStatus can_set_style(Expr cmd) {
   
   MenuCommandStatus status(sel && sel->get_style(Editable));
   
+  StyleOptionName lhs_key = Style::get_key(cmd[1]);
+  if(!lhs_key.is_valid())
+    return status;
+    
+  Expr rhs = cmd[2];
+  if(status.enabled) {
+    if(lhs_key == MathFontFamily) {
+      if(rhs.is_string())
+         status.enabled = MathShaper::available_shapers.search(String(rhs));
+    }
+  }
+      
   if(sel && cmd.is_rule()) {
     int start = doc->selection_start();
     int end   = doc->selection_end();
     
-    StyleOptionName lhs_key = Style::get_key(cmd[1]);
-    if(!lhs_key.is_valid())
-      return status;
-      
-    Expr rhs = cmd[2];
     Expr val;
     
     if(start < end) {
