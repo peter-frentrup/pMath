@@ -4,6 +4,7 @@
 #include <eval/application.h>
 #include <eval/binding.h>
 
+extern pmath_symbol_t richmath_FE_SymbolDefinitions;
 
 using namespace richmath;
 
@@ -173,7 +174,7 @@ void DynamicLocalBox::emit_values(Expr symbol) {
   // todo: fetch variables from Server, maybe after each paint()
   
   Expr rules =  Application::interrupt_wait(
-                  Call(GetSymbol(FESymbolIndex::SymbolDefinitions), prepare_dynamic(symbol)),
+                  Call(Symbol(richmath_FE_SymbolDefinitions), prepare_dynamic(symbol)),
                   Application::dynamic_timeout);
                   
   if(rules[0] == PMATH_SYMBOL_HOLDCOMPLETE && rules.expr_length() > 0) {

@@ -505,7 +505,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
     StyleOptionName lhs_key = Style::get_key(cmd[1]);
     if(!lhs_key.is_valid())
       return status;
-    
+      
     Expr rhs = cmd[2];
     Expr val;
     
@@ -513,7 +513,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
       if(sel == doc) {
         status.checked = true;
         
-        for(int i = start;i < end;++i) {
+        for(int i = start; i < end; ++i) {
           val = sel->item(i)->get_pmath_style(lhs_key);
           status.checked = val == rhs;
           if(!status.checked)
@@ -861,7 +861,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
     return false;
     
   Application::async_interrupt(Call(Symbol(PMATH_SYMBOL_DIALOG)));
-    
+  
   return true;
 }
 
@@ -914,7 +914,7 @@ static bool find_matching_fence_cmd(Expr cmd) {
   Document *doc = get_current_document();
   if(!doc)
     return false;
-  
+    
   if(auto seq = dynamic_cast<MathSequence *>(doc->selection_box())) {
     int pos = doc->selection_start();
     int match = seq->matching_fence(pos);
@@ -1036,6 +1036,7 @@ static bool new_cmd(Expr cmd) {
   return true;
 }
 
+extern pmath_symbol_t richmath_FE_FileOpenDialog;
 static bool open_cmd(Expr cmd) {
   Expr filter = List(
                   Rule(String("pMath Documents (*.pmathdoc)"), String("*.pmathdoc")),
@@ -1043,7 +1044,7 @@ static bool open_cmd(Expr cmd) {
                   
   Expr filenames = Application::run_filedialog(
                      Call(
-                       GetSymbol(FESymbolIndex::FileOpenDialog),
+                       Symbol(richmath_FE_FileOpenDialog),
                        filter));
                        
   if(filenames.is_string())
@@ -1222,7 +1223,7 @@ static bool set_style_cmd(Expr cmd) {
   Document *doc = get_current_document();
   if(!doc)
     return false;
-  
+    
   if(Application::menu_command_scope == MenuCommandScope::Document) {
     doc->style->add_pmath(cmd);
     doc->invalidate_options();
@@ -1296,13 +1297,17 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
     Call(Symbol(PMATH_SYMBOL_DIALOG),
          Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
               String("EvaluateSectionsAndReturn"))));
-    
+              
   return false;
 }
 
 //} ... menu commands
 
-static pmath_symbol_t fe_symbols[(int)FESymbolIndex::FrontEndSymbolsCount];
+#define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           pmath_symbol_t SYM = PMATH_STATIC_NULL;
+#define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  
+#  include "symbols.inc"
+#undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
+#undef RICHMATH_DECLARE_SYMBOL
 
 bool richmath::init_bindings() {
   Application::register_menucommand(String("New"),                        new_cmd);
@@ -1354,33 +1359,15 @@ bool richmath::init_bindings() {
 #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
 #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)
   
+#define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           VERIFY( SYM = NEW_SYMBOL(NAME) )
+#define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  pmath_symbol_set_attributes( (SYM), (ATTR) );
+#  include "symbols.inc"
+#undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
+#undef RICHMATH_DECLARE_SYMBOL
+
 #define BIND(SYMBOL, FUNC, USE)  if(!pmath_register_code((SYMBOL), (FUNC), (USE))) goto FAIL;
 #define BIND_DOWN(SYMBOL, FUNC)   BIND((SYMBOL), (FUNC), PMATH_CODE_USAGE_DOWNCALL)
 #define BIND_UP(SYMBOL, FUNC)     BIND((SYMBOL), (FUNC), PMATH_CODE_USAGE_UPCALL)
-
-  memset(fe_symbols, 0, sizeof(fe_symbols));
-  VERIFY(fe_symbols[(int)FESymbolIndex::NumberBox]          = NEW_SYMBOL("FE`NumberBox"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::SymbolInfo]         = NEW_SYMBOL("FE`SymbolInfo"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::AddConfigShaper]    = NEW_SYMBOL("FE`AddConfigShaper"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::Delimiter]          = NEW_SYMBOL("FE`Delimiter"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::Item]               = NEW_SYMBOL("FE`Item"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::KeyEvent]           = NEW_SYMBOL("FE`KeyEvent"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::KeyAlt]             = NEW_SYMBOL("FE`KeyAlt"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::KeyControl]         = NEW_SYMBOL("FE`KeyControl"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::KeyShift]           = NEW_SYMBOL("FE`KeyShift"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::Menu]               = NEW_SYMBOL("FE`Menu"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::InternalExecuteFor] = NEW_SYMBOL("FE`InternalExecuteFor"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::SymbolDefinitions]  = NEW_SYMBOL("FE`SymbolDefinitions"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::FileOpenDialog]     = NEW_SYMBOL("FE`FileOpenDialog"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::FileSaveDialog]     = NEW_SYMBOL("FE`FileSaveDialog"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::ColorDialog]        = NEW_SYMBOL("FE`ColorDialog"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::FontDialog]         = NEW_SYMBOL("FE`FontDialog"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::ControlActive]      = NEW_SYMBOL("FE`$ControlActive"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::CopySpecial]        = NEW_SYMBOL("FE`CopySpecial"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::AutoCompleteName]   = NEW_SYMBOL("FE`AutoCompleteName"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::AutoCompleteFile]   = NEW_SYMBOL("FE`AutoCompleteFile"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::AutoCompleteOther]  = NEW_SYMBOL("FE`AutoCompleteOther"))
-  VERIFY(fe_symbols[(int)FESymbolIndex::ScopedCommand]      = NEW_SYMBOL("FE`ScopedCommand"))
   
   BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated)
   
@@ -1400,44 +1387,34 @@ bool richmath::init_bindings() {
   
   BIND_UP(PMATH_SYMBOL_FRONTENDOBJECT,             builtin_feo_options)
   
-  BIND_DOWN(fe_symbols[(int)FESymbolIndex::AddConfigShaper],     builtin_addconfigshaper)
-  BIND_DOWN(fe_symbols[(int)FESymbolIndex::InternalExecuteFor],  builtin_internalexecutefor)
-  BIND_DOWN(fe_symbols[(int)FESymbolIndex::ColorDialog],         builtin_colordialog)
-  BIND_DOWN(fe_symbols[(int)FESymbolIndex::FileOpenDialog],      builtin_filedialog)
-  BIND_DOWN(fe_symbols[(int)FESymbolIndex::FileSaveDialog],      builtin_filedialog)
-  BIND_DOWN(fe_symbols[(int)FESymbolIndex::FontDialog],          builtin_fontdialog)
+  BIND_DOWN(richmath_FE_AddConfigShaper,     builtin_addconfigshaper)
+  BIND_DOWN(richmath_FE_InternalExecuteFor,  builtin_internalexecutefor)
+  BIND_DOWN(richmath_FE_ColorDialog,         builtin_colordialog)
+  BIND_DOWN(richmath_FE_FileOpenDialog,      builtin_filedialog)
+  BIND_DOWN(richmath_FE_FileSaveDialog,      builtin_filedialog)
+  BIND_DOWN(richmath_FE_FontDialog,          builtin_fontdialog)
   
-  pmath_symbol_set_attributes(
-    fe_symbols[(int)FESymbolIndex::InternalExecuteFor],
-    pmath_symbol_get_attributes(
-      fe_symbols[(int)FESymbolIndex::InternalExecuteFor]) | PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST);
-      
-  Application::register_menucommand(GetSymbol(FESymbolIndex::CopySpecial),   copy_special_cmd, can_copy_cut);
-  Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),               set_style_cmd,    can_set_style);
-  Application::register_menucommand(GetSymbol(FESymbolIndex::ScopedCommand), do_scoped_cmd,    can_do_scoped);
+  Application::register_menucommand(Symbol(richmath_FE_CopySpecial),   copy_special_cmd, can_copy_cut);
+  Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),         set_style_cmd,    can_set_style);
+  Application::register_menucommand(Symbol(richmath_FE_ScopedCommand), do_scoped_cmd,    can_do_scoped);
   
   return true;
   
 FAIL:
-  for(size_t i = 0; i < (size_t)FESymbolIndex::FrontEndSymbolsCount; ++i)
-    pmath_unref(fe_symbols[i]);
-    
-  memset(fe_symbols, 0, sizeof(fe_symbols));
+#define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           pmath_unref( SYM ); SYM = PMATH_NULL;
+#define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  
+#  include "symbols.inc"
+#undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
+#undef RICHMATH_DECLARE_SYMBOL
   return false;
 }
 
 void richmath::done_bindings() {
-  for(size_t i = 0; i < (size_t)FESymbolIndex::FrontEndSymbolsCount; ++i)
-    pmath_unref(fe_symbols[i]);
-    
-  memset(fe_symbols, 0, sizeof(fe_symbols));
-}
-
-Expr richmath::GetSymbol(FESymbolIndex i) {
-  if((size_t)i >= (size_t)FESymbolIndex::FrontEndSymbolsCount)
-    return Expr();
-    
-  return Symbol(fe_symbols[(size_t)i]);
+#define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           pmath_unref( SYM ); SYM = PMATH_NULL;
+#define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  
+#  include "symbols.inc"
+#undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
+#undef RICHMATH_DECLARE_SYMBOL
 }
 
 void richmath::set_current_document(Document *document) {

@@ -575,6 +575,7 @@ void Application::gui_print_section(Expr expr) {
   }
 }
 
+extern pmath_symbol_t richmath_FE_ControlActive;
 static void update_control_active(bool value) {
   static bool original_value = false;
   
@@ -586,15 +587,15 @@ static void update_control_active(bool value) {
     Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_ASSIGN),
-           GetSymbol(FESymbolIndex::ControlActive),
+           Symbol(richmath_FE_ControlActive),
            Symbol(PMATH_SYMBOL_TRUE)));
   }
   else {
     Application::interrupt_wait(
-      /*Parse("FE`$ControlActiveSymbol:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActiveSymbol)")*/
+      /*Parse("FE`$ControlActive:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActive)")*/
       Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
            Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                GetSymbol(FESymbolIndex::ControlActive),
+                Symbol(richmath_FE_ControlActive),
                 Symbol(PMATH_SYMBOL_FALSE)),
            Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
                 Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),
@@ -1017,6 +1018,8 @@ Document *Application::create_document(Expr data) {
   return doc;
 }
 
+extern pmath_symbol_t richmath_FE_FileSaveDialog;
+
 Expr Application::run_filedialog(Expr data) {
 // FE`FileOpenDialogSymbol("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
 // FE`FileSaveDialogSymbol("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
@@ -1063,7 +1066,7 @@ Expr Application::run_filedialog(Expr data) {
 #else
 #  error "No GUI"
 #endif
-  dialog(head == GetSymbol(FESymbolIndex::FileSaveDialog));
+  dialog(head == richmath_FE_FileSaveDialog);
   
   pmath_debug_print("  set_title...\n");
   dialog.set_title(title);
@@ -1206,11 +1209,12 @@ Expr Application::interrupt_wait_cached(Expr expr) {
   return interrupt_wait_cached(expr, interrupt_timeout);
 }
 
+extern pmath_symbol_t richmath_FE_InternalExecuteFor;
 Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   EvaluationPosition pos(box);
   
   expr = Call(
-           GetSymbol(FESymbolIndex::InternalExecuteFor),
+           Symbol(richmath_FE_InternalExecuteFor),
            expr,
            pos.document_id,
            pos.section_id,
@@ -1765,7 +1769,7 @@ namespace {
 
           filename = Application::run_filedialog(
                        Call(
-                         GetSymbol(FESymbolIndex::FileSaveDialog),
+                         Symbol(richmath_FE_FileSaveDialog),
                          initialfile,
                          filter));
         }

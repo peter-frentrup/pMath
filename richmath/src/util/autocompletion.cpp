@@ -10,6 +10,9 @@
 
 #include <util/spanexpr.h>
 
+extern pmath_symbol_t richmath_FE_AutoCompleteName;
+extern pmath_symbol_t richmath_FE_AutoCompleteFile;
+extern pmath_symbol_t richmath_FE_AutoCompleteOther;
 
 using namespace richmath;
 
@@ -144,7 +147,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
   
   expr = Application::interrupt_wait_cached(
            Call(
-             GetSymbol(FESymbolIndex::AutoCompleteOther),
+             Symbol(richmath_FE_AutoCompleteOther),
              expr,
              alias),
            Application::button_timeout);
@@ -269,7 +272,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       str = seq->text();
       expr = Application::interrupt_wait_cached(
                Call(
-                 GetSymbol(FESymbolIndex::AutoCompleteFile),
+                 Symbol(richmath_FE_AutoCompleteFile),
                  str),
                Application::button_timeout);
                
@@ -392,7 +395,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
     
   expr = Application::interrupt_wait_cached(
            Call(
-             GetSymbol(FESymbolIndex::AutoCompleteFile),
+             Symbol(richmath_FE_AutoCompleteFile),
              str),
            Application::button_timeout);
            
@@ -452,7 +455,7 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
   String text = span->as_text();
   current_boxes_list = Application::interrupt_wait_cached(
                          Call(
-                           GetSymbol(FESymbolIndex::AutoCompleteName),
+                           Symbol(richmath_FE_AutoCompleteName),
                            text),
                          Application::button_timeout);
                          

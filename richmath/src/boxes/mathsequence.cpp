@@ -3713,7 +3713,7 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
   if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == GetSymbol( FESymbolIndex::NumberBox ))
+  if(head == richmath_FE_NumberBox)
     return create_or_error<NumberBox>(expr, options);
     
   if(head == PMATH_SYMBOL_TEMPLATESLOT)
