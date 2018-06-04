@@ -206,9 +206,9 @@
 					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
 					<Add option='&quot;$(#fontconfig_32.bin)/fontconfig.dll&quot;' />
 					<Add option='&quot;$(#freetype_32.bin)/freetype.dll&quot;' />
-					<Add option='&quot;$(#gtk3_32.bin)/gdk-win32-3.0.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gdk-3-3.0.dll&quot;' />
 					<Add option='&quot;$(#gtk3_32.bin)/gdk_pixbuf-2.0.dll&quot;' />
-					<Add option='&quot;$(#gtk3_32.bin)/gtk-win32-3.0.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gtk-3-3.0.dll&quot;' />
 					<Add library="pmath" />
 					<Add library="user32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
@@ -1060,6 +1060,7 @@
 		<Unit filename="src/eval/job.cpp" />
 		<Unit filename="src/eval/observable.cpp" />
 		<Unit filename="src/eval/server.cpp" />
+		<Unit filename="src/eval/symbols.inc" />
 		<Unit filename="src/graphics/animation.cpp" />
 		<Unit filename="src/graphics/buffer.cpp" />
 		<Unit filename="src/graphics/cairostream.cpp" />
