@@ -365,18 +365,12 @@ MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
   }
   
   func = menu_command_testers[cmd];
-  if(func) {
-    MenuCommandStatus status(func(cmd));
-    if(status.enabled)
-      return status;
-  }
+  if(func) 
+    return func(cmd);
   
   func = menu_command_testers[cmd[0]];
-  if(func) {
-    MenuCommandStatus status(func(cmd));
-    if(status.enabled)
-      return status;
-  }
+  if(func) 
+    return func(cmd);
   
   return MenuCommandStatus(true);
 }
