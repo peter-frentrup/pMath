@@ -20,6 +20,8 @@ AutoLoad(Hold(AutoSimplifyHypGeom),
 	ToFileName(DirectoryName($Input), "simplify-hypgeom.pmath"))
 AutoLoad(Hold(AutoSimplifyOrthoPoly), 
 	ToFileName(DirectoryName($Input), "simplify-ortho-poly.pmath"))
+AutoLoad(Hold(AutoSimplifySurd), 
+	ToFileName(DirectoryName($Input), "simplify-surd.pmath"))
 AutoLoad(Hold(AutoSimplifyTrig), 
 	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
 AutoLoad(Hold(AutoSimplifyTrigIntegral), 

@@ -506,6 +506,9 @@
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
+		<Unit filename="src/surd.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/symbols.inc" />
 		<Unit filename="src/trig-impl.c">
 			<Option compilerVar="CC" />
