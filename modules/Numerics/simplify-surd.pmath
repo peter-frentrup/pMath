@@ -1,0 +1,73 @@
+BeginPackage("Numerics`Surd`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifySurd
+
+Begin("Numerics`Surd`Private`")
+
+%
+% If direct (numerical) calculation of Surd(x, n) is not possible (because x or n is an expression or 
+% an exact number), System`Private`AutoSimplifySurd(Surd, x, n) etc. get called.
+% If that returns $Failed, the original expression Surd(x, n) etc. remains unevaluated. 
+% Otherwise, the result of AutoSimplifySurd will be returned.
+%
+System`Private`AutoSimplifySurd(~, ~, ~):= $Failed
+System`Private`AutoSimplifySurd(~, ~):= $Failed
+
+Function System`Private`AutoSimplifySurd(CubeRoot, ~x) {
+    If(IsNumeric(x)) {
+        If(!IsReal(x)) {
+            Message(Surd::preal, x);
+            Return($Failed)
+        } Else If(IsNonNegative(x)) {
+            Return(x^(1/3))
+        } Else If(IsNonPositive(x)) {
+            Return(-(-x)^(1/3))
+        }
+    }
+    Return(Surd(x, 3))
+}
+
+Function System`Private`AutoSimplifySurd(Surd, ~x, ~n) {
+    If(IsNumber(n)) {
+        If(!IsInteger(n)) {
+            Message(Surd::int, HoldForm(Surd(x, n)), 2)
+            Return($Failed)
+        }
+        If(n === 0) {
+            Message(Surd::indet, HoldForm(Surd(x, n)))
+            Return(Undefined)
+        }
+        If(n < 0) {
+            Return(1/Surd(x, -n))
+        }
+
+        If(IsNumeric(x)) {
+            If(!IsReal(x)) {
+                Message(Surd::preal, x);
+                Return($Failed)
+            } Else If(IsNonNegative(x)) {
+                Return(x^(1/n))
+            } Else If(IsNonPositive(x)) {
+                If(IsEven(n)) {
+                    Message(Surd::noneg, HoldForm(Surd(x, n)))
+                    Return(Undefined)
+                } Else If(IsOdd(n)) {
+                    Return(-(-x)^(1/n))
+                }
+            }
+        }
+    } Else If(IsNumeric(x)) {
+        If(!IsReal(x)) {
+            Message(Surd::preal, x);
+            Return($Failed)
+        }
+    }
+    Return($Failed)
+}
+
+
+End()
+
+EndPackage()

@@ -33,6 +33,9 @@ const uint16_t char_RightCeiling = 0x2309;
 const uint16_t char_LeftFloor    = 0x230A;
 const uint16_t char_RightFloor   = 0x230B;
 
+extern pmath_symbol_t pmath_System_Surd;
+extern pmath_symbol_t pmath_System_SurdForm;
+
 extern pmath_symbol_t pmath_System_Private_MakeLimitsExpression;
 extern pmath_symbol_t pmath_System_Private_MakeScriptsExpression;
 extern pmath_symbol_t pmath_System_Private_MakeJuxtapositionExpression;
@@ -120,7 +123,7 @@ static pmath_bool_t are_linebreaks_only_at(pmath_expr_t expr, size_t i) {
   
   if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
     size_t objlen = pmath_expr_length(obj);
-    for(size_t i = objlen;i > 0;--i) {
+    for(size_t i = objlen; i > 0; --i) {
       if(!are_linebreaks_only_at(obj, i)) {
         pmath_unref(obj);
         return FALSE;
@@ -1084,13 +1087,31 @@ static pmath_t make_expression_from_overscriptbox(pmath_expr_t box) {
 
 static pmath_t make_expression_from_radicalbox(pmath_expr_t box) {
   size_t len = pmath_expr_length(box);
+  pmath_bool_t is_surd = FALSE;
+  
+  if(len > 2) {
+    pmath_t options = pmath_options_extract(box, 2);
+    if(!pmath_is_null(options)) {
+      pmath_t surdform = pmath_option_value(PMATH_SYMBOL_RADICALBOX, pmath_System_SurdForm, options);
+      is_surd = pmath_same(surdform, PMATH_SYMBOL_TRUE);
+      pmath_unref(surdform);
+      pmath_unref(options);
+      
+      len = 2;
+    }
+  }
   
   if(len == 2) {
     pmath_t base     = pmath_expr_get_item(box, 1);
     pmath_t exponent = pmath_expr_get_item(box, 2);
     
     if(parse(&base) && parse(&exponent)) {
-      return wrap_hold_with_debuginfo_from(box, POW(base, INV(exponent)));
+      if(is_surd)
+        base = FUNC2(pmath_ref(pmath_System_Surd), base, exponent);
+      else
+        base = POW(base, INV(exponent));
+        
+      return wrap_hold_with_debuginfo_from(box, base);
     }
     
     pmath_unref(base);
@@ -1134,12 +1155,31 @@ static pmath_t make_expression_from_rotationbox(pmath_expr_t box) {
 
 static pmath_t make_expression_from_sqrtbox(pmath_expr_t box) {
   size_t len = pmath_expr_length(box);
+  pmath_bool_t is_surd = FALSE;
+  
+  if(len > 1) {
+    pmath_t options = pmath_options_extract(box, 1);
+    if(!pmath_is_null(options)) {
+      pmath_t surdform = pmath_option_value(PMATH_SYMBOL_SQRTBOX, pmath_System_SurdForm, options);
+      is_surd = pmath_same(surdform, PMATH_SYMBOL_TRUE);
+      pmath_unref(surdform);
+      pmath_unref(options);
+      
+      len = 1;
+    }
+  }
   
   if(len == 1) {
     pmath_t base = pmath_expr_get_item(box, 1);
     
-    if(parse(&base)) 
-      return wrap_hold_with_debuginfo_from(box, SQRT(base));
+    if(parse(&base)) {
+      if(is_surd)
+        base = FUNC2(pmath_ref(pmath_System_Surd), base, INT(2));
+      else
+        base = SQRT(base);
+        
+      return wrap_hold_with_debuginfo_from(box, base);
+    }
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
@@ -2656,7 +2696,7 @@ static pmath_t make_range(pmath_expr_t boxes) {
       
       have_arg = TRUE;
       
-      if(are_linebreaks_only_at(boxes, i)) 
+      if(are_linebreaks_only_at(boxes, i))
         arg = pmath_ref(PMATH_SYMBOL_AUTOMATIC);
       else
         arg = parse_at(boxes, i);
