@@ -330,6 +330,8 @@ SetStreamPosition::stmrng:= "Cannot set current point in stream `2` to position 
 StringExpression::invld:= "Element `1` is not a valid string or pattern element in `2`."
 StringReplace::srep:= "`1` is not a valid string replacement rule."
 
+Surd::noneg:= "Surd is undefined for even roots of negative values.
+
 Switch::argct:= "Switch called with `1` arguments. Switch must be called with an odd number of arguments."
 
 Take::take:= StringTake::take:= "Cannot take positions `1` through `2` in `3`.";
