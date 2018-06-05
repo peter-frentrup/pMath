@@ -169,6 +169,7 @@ CreateDocument::usage:= "CreateDocument() creates a new empty document window.\n
 Cross::usage:= "Cross(\(StyleBox(\"a\", \"Arg\")\), \(StyleBox(\"b\", \"Arg\")\)) gives the vector cross product of \(StyleBox(\"a\", \"Arg\")\) and \(StyleBox(\"b\", \"Arg\")\)."
 Csc::usage:= "Csc(\(\"z\".StyleBox(\"Arg\")\)) gives the cosecant of \(\"z\".StyleBox(\"Arg\")\)."
 Csch::usage:= "Csch(\(\"z\".StyleBox(\"Arg\")\)) gives the hyperbolic cosecant of \(\"z\".StyleBox(\"Arg\")\)."
+CubeRoot::usage:= "CubeRoot(\(StyleBox(\"x\", \"Arg\")\)) gives the real-valued cube root of \(StyleBox(\"x\", \"Arg\")\)."
 CupCap::usage:= "CupCap(\({StyleBox(\"x\", \"Arg\"), \",\", StyleBox(\"y\", \"Arg\"), \",\", \"\\[Ellipsis]\"}\)) displays as \(StyleBox(\"x\", \"Arg\")\) \[CupCap] \(StyleBox(\"y\", \"Arg\")\) \[CupCap] \[Ellipsis]."
 CurrentValue::usage:= "CurrentValue(\(StyleBox(\"item\", \"Arg\")\)) gives the current value of \(StyleBox(\"item\", \"Arg\")\) at a location in the \(StyleBox(\"pMath\", \"TI\")\) interface or system.\nCurrentValue(\(StyleBox(\"obj\", \"Arg\")\), \(StyleBox(\"item\", \"Arg\")\)) gives the current value of \(StyleBox(\"item\", \"Arg\")\) associated with a frontend object \(StyleBox(\"obj\", \"Arg\")\)."
 Cyan::usage:= "Cyan represents the color cyan in graphics and style specifications."

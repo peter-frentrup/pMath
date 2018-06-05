@@ -111,6 +111,27 @@ static void acb_surd(acb_t res, const acb_t x, const acb_t n, slong prec) {
   arb_surd(acb_realref(res), acb_realref(x), acb_realref(n), prec);
 }
 
+static void acb_cbrt(acb_t res, const acb_t x, slong prec) {
+  arb_t three;
+  if(!arb_is_zero(acb_imagref(x))) {
+    acb_indeterminate(res);
+    return;
+  }
+  arb_init(three);
+  arb_set_ui(three, 3);
+  
+  arb_zero(acb_imagref(res));
+  arb_surd(acb_realref(res), acb_realref(x), three, prec);
+  
+  arb_clear(three);
+}
+
+PMATH_PRIVATE pmath_t eval_System_CubeRoot(pmath_expr_t expr) {
+#  define ACB_FUNCTION  acb_cbrt
+#    include "acb-impl-onearg.inc"
+#  undef ACB_FUNCTION
+}
+
 PMATH_PRIVATE pmath_t eval_System_Surd(pmath_expr_t expr) {
 #  define ACB_FUNCTION  acb_surd
 #    include "acb-impl-twoarg.inc"

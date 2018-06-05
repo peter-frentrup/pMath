@@ -13,6 +13,21 @@ Begin("Numerics`Surd`Private`")
 % Otherwise, the result of AutoSimplifySurd will be returned.
 %
 System`Private`AutoSimplifySurd(~, ~, ~):= $Failed
+System`Private`AutoSimplifySurd(~, ~):= $Failed
+
+Function System`Private`AutoSimplifySurd(CubeRoot, ~x) {
+    If(IsNumeric(x)) {
+        If(!IsReal(x)) {
+            Message(Surd::preal, x);
+            Return($Failed)
+        } Else If(IsNonNegative(x)) {
+            Return(x^(1/3))
+        } Else If(IsNonPositive(x)) {
+            Return(-(-x)^(1/3))
+        }
+    }
+    Return(Surd(x, 3))
+}
 
 Function System`Private`AutoSimplifySurd(Surd, ~x, ~n) {
     If(IsNumber(n)) {
@@ -29,7 +44,10 @@ Function System`Private`AutoSimplifySurd(Surd, ~x, ~n) {
         }
 
         If(IsNumeric(x)) {
-            If(IsNonNegative(x)) {
+            If(!IsReal(x)) {
+                Message(Surd::preal, x);
+                Return($Failed)
+            } Else If(IsNonNegative(x)) {
                 Return(x^(1/n))
             } Else If(IsNonPositive(x)) {
                 If(IsEven(n)) {
@@ -39,6 +57,11 @@ Function System`Private`AutoSimplifySurd(Surd, ~x, ~n) {
                     Return(-(-x)^(1/n))
                 }
             }
+        }
+    } Else If(IsNumeric(x)) {
+        If(!IsReal(x)) {
+            Message(Surd::preal, x);
+            Return($Failed)
         }
     }
     Return($Failed)
