@@ -3,12 +3,11 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/strings-private.h>
+#include <pmath-core/symbols.h>
 
 #include <pmath-util/debug.h>
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 #include <stdio.h>
 #include <string.h>

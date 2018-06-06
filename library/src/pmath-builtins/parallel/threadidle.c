@@ -1,7 +1,7 @@
+#include <pmath-core/expressions.h>
+
 #include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 
 PMATH_PRIVATE pmath_t builtin_internal_threadidle(pmath_expr_t expr) {

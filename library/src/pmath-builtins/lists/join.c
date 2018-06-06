@@ -1,10 +1,9 @@
+#include <pmath-core/expressions.h>
 #include <pmath-core/strings-private.h>
 #include <pmath-core/numbers.h>
 
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 #include <limits.h>
 #include <string.h>

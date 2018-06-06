@@ -1,8 +1,6 @@
-#include <pmath-core/numbers.h>
+#include <pmath-core/expressions.h>
 
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 
 PMATH_PRIVATE pmath_expr_t _pmath_expr_prepend(

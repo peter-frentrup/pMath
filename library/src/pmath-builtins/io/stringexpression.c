@@ -1,4 +1,6 @@
-#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-core/expressions.h>
+#include <pmath-core/strings.h>
+
 
 PMATH_PRIVATE pmath_t builtin_stringexpression(pmath_expr_t expr) {
   pmath_bool_t have_undef = FALSE;
