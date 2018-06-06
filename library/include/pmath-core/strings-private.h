@@ -22,8 +22,8 @@
 
 struct _pmath_string_t {
   struct _pmath_t          inherited;
-  int                      length; // >= 0 !!!
   struct _pmath_string_t  *buffer;
+  int                      length; // >= 0 !!!
   int                      capacity_or_start; // start index iff buffer != PMATH_NULL
 };
 
