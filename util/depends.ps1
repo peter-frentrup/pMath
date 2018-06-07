@@ -32,25 +32,35 @@ Param(
 	$SearchPath = '',
 	
 	[string]
-	$DepencyWalker = ''
+	$DependencyWalker = ''
 )
 
 $libraryItem = Get-Item $Library
 $libraryDirectory = $libraryItem.Directory.FullName
 
-If( $DepencyWalker -eq '') {
+If( $DependencyWalker -eq '') {
 	$paths = @( $env:ProgramFiles )
-	If( $env:ProgramW6432 -ne $null) {
+	If( ($env:ProgramW6432 -ne $null) -and ($env:ProgramW6432 -ne $env:ProgramFiles)) {
 		$paths+= $env:ProgramW6432
 	}
 	If( (${env:ProgramFiles(x86)} -ne $null) -and (${env:ProgramFiles(x86)} -ne $env:ProgramFiles ) ) {
 		$paths+= ${env:ProgramFiles(x86)}
 	}
 	Write-Verbose "Search for depends.exe in $paths"
-	$DepencyWalker = ($paths | ForEach-Object {Get-ChildItem -Path $_ -Filter depends.exe -Recurse } | Select-Object -First 1).FullName
+	$dirs = $paths
+	$DependencyWalker = $null
+	$maxDepth = 3
+	While(($maxDepth -gt 0) -and ("$DependencyWalker" -eq "")) {
+		$maxDepth = $maxDepth - 1
+		$dirs = ($dirs | ForEach-Object { Get-ChildItem -Path $_ -Directory }).FullName
+		$DependencyWalker = ($dirs | ForEach-Object { Get-ChildItem -Path $_ -File -Filter "depends.exe" } | Select-Object -First 1).FullName
+	}
+	If( "$DependencyWalker" -eq "" ) {
+		throw "Cannot find depends.exe"
+	}
 }
 
-Write-Verbose "DepencyWalker is $DepencyWalker"
+Write-Verbose "DepencyWalker is $DependencyWalker"
 
 $oldPath = $env:Path
 $newPath = $env:Path
@@ -64,7 +74,7 @@ $output = [System.IO.Path]::GetTempFileName()
 Try {
 	$env:Path = $newPath
 	
-	Start-Process -Wait $DepencyWalker -ArgumentList @( "/c", "/f:1", "/oc", $output, $($libraryItem.FullName) )
+	Start-Process -Wait $DependencyWalker -ArgumentList @( "/c", "/f:1", "/oc", $output, $($libraryItem.FullName) )
 }
 Finally {
 	$env:Path = $oldPath
