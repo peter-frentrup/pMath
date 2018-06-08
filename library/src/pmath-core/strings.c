@@ -412,16 +412,19 @@ static unsigned int hash_string(pmath_t str) {
       case 0:
         tmp.s.tag = PMATH_TAG_STR0;
         tmp.s.u.as_int32 = 0;
+        break;
 
       case 1:
         tmp.s.tag = PMATH_TAG_STR1;
         tmp.s.u.as_chars[0] = buf[0];
         tmp.s.u.as_chars[1] = 0;
+        break;
 
       case 2:
         tmp.s.tag = PMATH_TAG_STR2;
         tmp.s.u.as_chars[0] = buf[0];
         tmp.s.u.as_chars[1] = buf[1];
+        break;
     }
 
     return incremental_hash(&tmp, sizeof(pmath_t), 0);
