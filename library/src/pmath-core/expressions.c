@@ -1632,6 +1632,7 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
         struct _pmath_expr_t *new_expr;
         size_t i;
         
+        // TODO: maybe better create a EXPRESSION_GENERAL_PART ?
         new_expr = _pmath_expr_new_noinit(_expr->length);
         if(!new_expr) {
           pmath_unref(info);
