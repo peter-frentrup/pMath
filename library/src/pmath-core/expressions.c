@@ -724,7 +724,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           new_expr_part->inherited.inherited.gc_refcount = 0;
           new_expr_part->inherited.length                = old_expr->length;
           new_expr_part->inherited.debug_ptr             = NULL;
-          new_expr_part->inherited.items[0]              = pmath_ref(item);
+          new_expr_part->inherited.items[0]              = item;
           
           new_expr_part->start  = old_expr_part->start;
           new_expr_part->buffer = old_expr_part->buffer;
