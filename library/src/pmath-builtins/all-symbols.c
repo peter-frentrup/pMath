@@ -1154,7 +1154,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_NOTCONGRUENT                     = NEW_SYSTEM_SYMBOL("NotCongruent"))
   VERIFY(   PMATH_SYMBOL_NOTCUPCAP                        = NEW_SYSTEM_SYMBOL("NotCupCap"))
   VERIFY(   PMATH_SYMBOL_NOTELEMENT                       = NEW_SYSTEM_SYMBOL("NotElement"))
-  VERIFY(   PMATH_SYMBOL_NOTGREATER                       = NEW_SYSTEM_SYMBOL("NotGreaterGreater"))
+  VERIFY(   PMATH_SYMBOL_NOTGREATER                       = NEW_SYSTEM_SYMBOL("NotGreater"))
   VERIFY(   PMATH_SYMBOL_NOTGREATEREQUAL                  = NEW_SYSTEM_SYMBOL("NotGreaterEqual"))
   VERIFY(   PMATH_SYMBOL_NOTGREATERLESS                   = NEW_SYSTEM_SYMBOL("NotGreaterLess"))
   VERIFY(   PMATH_SYMBOL_NOTGREATERTILDE                  = NEW_SYSTEM_SYMBOL("NotGreaterTilde"))
