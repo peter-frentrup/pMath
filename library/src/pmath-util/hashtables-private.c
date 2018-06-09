@@ -178,7 +178,7 @@ pmath_hashtable_t pmath_ht_copy(
 
   assert(ht->capacity == result->capacity);
 
-  for(i = 0; i <= result->capacity; ++i) {
+  for(i = 0; i < result->capacity; ++i) {
     if(IS_USED_ENTRY(ht->table[i]))
       result->table[i] = entry_copy(ht->table[i]);
   }
