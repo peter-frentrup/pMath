@@ -60,7 +60,13 @@ Function DescribeLocation(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
 ) {
-	Return @ Row @ {"line ", fromLine, ":", fromColumn, "..", toLine, ":", toColumn, " of ", filename}
+	If(fromLine === toLine) {
+		If(fromColumn === toColumn) {
+			Return( Row @ {"line ", fromLine, ":", fromColumn, " of ", filename} )
+		}
+		Return( Row @ {"line ", fromLine, ": ", fromColumn, "..", toColumn, " of ", filename} )
+	}
+	Return( Row @ {"line ", fromLine, ":", fromColumn, "..", toLine, ":", toColumn, " of ", filename} )
 }
 
 
