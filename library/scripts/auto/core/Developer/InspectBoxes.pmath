@@ -116,6 +116,15 @@ Function internalInspectBoxes(box: GridBox(~matrix, ~~~opts)) {
 	Return(newBox)
 }
 
+Function internalInspectBoxes(box: TemplateBox(~args, ~~~opts)) {
+	With(debugInfo:= Developer`GetDebugInfo(box))
+	With(newBox:= TemplateBox(args.Map(internalInspectBoxes), opts))
+	If(debugInfo =!= /\/) {
+		Return(TooltipBox(newBox.wrapHyperlinkBox(debugInfo), ToBoxes(toNiceInfo(debugInfo))))
+	}
+	Return(newBox)
+}
+
 End()
 
 EndPackage()
