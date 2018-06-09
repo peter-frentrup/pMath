@@ -1,6 +1,8 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-core/objects-private.h>
+#include <pmath-core/expressions-private.h>
+#include <pmath-core/strings-private.h>
 
 #include <pmath-language/patterns-private.h>
 
@@ -207,6 +209,7 @@ pmath_bool_t _pmath_symbol_value_visit(
   if(pmath_is_expr(value)) {
     size_t i, len;
     const pmath_t *items = pmath_expr_read_item_data(value);
+    struct _pmath_expr_t *expr_ptr;
     
     if(!items){
       pmath_unref(value);
@@ -228,6 +231,18 @@ pmath_bool_t _pmath_symbol_value_visit(
             pmath_ref(items[i]),
             callback,
             closure))
+      {
+        pmath_unref(value);
+        return FALSE;
+      }
+    }
+    
+    expr_ptr = (void*)PMATH_AS_PTR(value);
+    if(expr_ptr->debug_ptr) {
+      if(!_pmath_symbol_value_visit(
+            pmath_ref(PMATH_FROM_PTR(expr_ptr->debug_ptr)),
+            callback,
+            closure)) 
       {
         pmath_unref(value);
         return FALSE;
@@ -262,6 +277,19 @@ pmath_bool_t _pmath_symbol_value_visit(
     pmath_unref(rule);
     
     return result;
+  }
+  else if(pmath_is_bigstr(value)) {
+    struct _pmath_string_t *string_ptr = (void*)PMATH_AS_PTR(value);
+    if(string_ptr->debug_info) {
+      if(!_pmath_symbol_value_visit(
+            pmath_ref(PMATH_FROM_PTR(string_ptr->debug_info)),
+            callback,
+            closure)) 
+      {
+        pmath_unref(value);
+        return FALSE;
+      }
+    }
   }
   
   pmath_unref(value);
