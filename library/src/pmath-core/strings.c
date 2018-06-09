@@ -139,7 +139,7 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
       result = _pmath_new_string_buffer(2);
       if(result) {
         AFTER_STRING(result)[0] = str.s.u.as_chars[0];
-        AFTER_STRING(result)[1] = str.s.u.as_chars[2];
+        AFTER_STRING(result)[1] = str.s.u.as_chars[1];
       }
     }
     if(!result) {
@@ -171,16 +171,36 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
     return str;
   }
   else {
+    if( str_ptr->buffer && 
+        str_ptr->buffer->debug_info == info_ptr &&
+        str_ptr->capacity_or_start == 0 && 
+        str_ptr->length == str_ptr->buffer->length)
+    {
+      result = str_ptr->buffer;
+      _pmath_ref_ptr(result);
+      _pmath_unref_ptr(str_ptr);
+      pmath_unref(info);
+      return PMATH_FROM_PTR(result);
+    }
+  
     result = (void *)PMATH_AS_PTR(_pmath_create_stub(PMATH_TYPE_SHIFT_BIGSTRING, sizeof(struct _pmath_string_t)));
     if(!result) {
       pmath_unref(info);
       return str;
     }
     
-    result->debug_info        = info_ptr;
-    result->buffer            = str_ptr;
-    result->length            = str_ptr->length;
-    result->capacity_or_start = 0;
+    result->debug_info = info_ptr;
+    result->length     = str_ptr->length;
+    if(str_ptr->buffer) {
+      _pmath_ref_ptr(str_ptr->buffer);
+      result->buffer            = str_ptr->buffer;
+      result->capacity_or_start = str_ptr->capacity_or_start;
+      _pmath_unref_ptr(str_ptr);
+    }
+    else{
+      result->buffer            = str_ptr;
+      result->capacity_or_start = 0;
+    }
 
     return PMATH_FROM_PTR(result);
   }
