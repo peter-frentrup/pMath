@@ -99,7 +99,7 @@ static pmath_t add_debug_info(
   assert(start->index <= end->index);
   assert(end->index <= pmath_string_length(data->current_code));
   
-  if(!pmath_is_expr(token_or_span))
+  if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
     return token_or_span;
     
   start_line   = start->line + data->startline;

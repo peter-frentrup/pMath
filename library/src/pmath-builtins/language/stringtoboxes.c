@@ -40,12 +40,15 @@ static pmath_t add_string_debug_info(
   assert(start->index <= end->index);
   
   if(!pmath_is_expr(token_or_span)) {
-    if(pmath_same(data->token_decorator, PMATH_UNDEFINED))
-      return token_or_span;
-      
-    token_or_span = pmath_expr_new_extended(
-                      pmath_ref(data->token_decorator), 1,
-                      token_or_span);
+    if(pmath_same(data->token_decorator, PMATH_UNDEFINED)) {
+      if(!pmath_is_string(token_or_span))
+        return token_or_span;
+    }
+    else {
+      token_or_span = pmath_expr_new_extended(
+                        pmath_ref(data->token_decorator), 1,
+                        token_or_span);
+    }
   }
   
   debug_info = pmath_expr_new_extended(
