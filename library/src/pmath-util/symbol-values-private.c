@@ -290,6 +290,17 @@ pmath_bool_t _pmath_symbol_value_visit(
         return FALSE;
       }
     }
+    
+    if(string_ptr->buffer) {
+      if(!_pmath_symbol_value_visit(
+            pmath_ref(PMATH_FROM_PTR(string_ptr->buffer)),
+            callback,
+            closure)) 
+      {
+        pmath_unref(value);
+        return FALSE;
+      }
+    }
   }
   
   pmath_unref(value);
