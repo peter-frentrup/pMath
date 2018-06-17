@@ -1,10 +1,10 @@
-BeginPackage("Numerics`OrthogonalPolynomials`")
+BeginPackage("System`Numerics`OrthogonalPolynomials`")
 
 <<ExperimentalSyntax`
 
 System`Private`AutoSimplifyOrthoPoly
 
-Begin("Numerics`OrthogonalPolynomials`Private`")
+Begin("System`Numerics`OrthogonalPolynomials`Private`")
 
 %
 % If direct (numerical) calculation of ChebychevU(nu, x), HermiteH(nu, x), etc. is not possible (because 

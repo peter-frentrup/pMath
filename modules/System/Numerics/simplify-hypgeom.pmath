@@ -1,10 +1,10 @@
-BeginPackage("Numerics`HypGeom`")
+BeginPackage("System`Numerics`HypGeom`")
 
 <<ExperimentalSyntax`
 
 System`Private`AutoSimplifyHypGeom
 
-Begin("Numerics`HypGeom`Private`")
+Begin("System`Numerics`HypGeom`Private`")
 
 %
 % If direct (numerical) calculation of Hypergeometric2F1(a1, a2, b, x), etc. is not possible 

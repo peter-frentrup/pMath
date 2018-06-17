@@ -1,10 +1,10 @@
-BeginPackage("Numerics`Trigonometry`")
+BeginPackage("System`Numerics`Trigonometry`")
 
 <<ExperimentalSyntax`
 
 System`Private`AutoSimplifyTrig
 
-Begin("Numerics`Trigonometry`Private`")
+Begin("System`Numerics`Trigonometry`Private`")
 
 %
 % If direct (numerical) calculation of Sin(x), Cos(x), etc. is not possible (because 

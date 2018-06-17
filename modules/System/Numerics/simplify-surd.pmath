@@ -1,10 +1,10 @@
-BeginPackage("Numerics`Surd`")
+BeginPackage("System`Numerics`Surd`")
 
 <<ExperimentalSyntax`
 
 System`Private`AutoSimplifySurd
 
-Begin("Numerics`Surd`Private`")
+Begin("System`Numerics`Surd`Private`")
 
 %
 % If direct (numerical) calculation of Surd(x, n) is not possible (because x or n is an expression or 

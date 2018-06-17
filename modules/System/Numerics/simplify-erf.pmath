@@ -1,10 +1,10 @@
-BeginPackage("Numerics`Erf`")
+BeginPackage("System`Numerics`Erf`")
 
 <<ExperimentalSyntax`
 
 System`Private`AutoSimplifyErf
 
-Begin("Numerics`Erf`Private`")
+Begin("System`Numerics`Erf`Private`")
 
 %
 % If direct (numerical) calculation of Erf(x), Erfc(x), etc. is not possible (because 

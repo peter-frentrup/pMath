@@ -1,10 +1,10 @@
-BeginPackage("Numerics`Airy`")
+BeginPackage("System`Numerics`Airy`")
 
 <<ExperimentalSyntax`
 
 System`Private`AutoSimplifyAiry
 
-Begin("Numerics`Airy`Private`")
+Begin("System`Numerics`Airy`Private`")
 
 %
 % If direct (numerical) calculation of AiryAi(x), AiryAiPrime(x), etc. is not possible (because 
