@@ -1,5 +1,5 @@
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings-private.h>
+#include <pmath-core/strings.h>
 
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
@@ -26,37 +26,39 @@
 static pmath_string_t get_directory(void) {
 #ifdef PMATH_OS_WIN32
   {
-    struct _pmath_string_t *result;
-    wchar_t *buffer;
-    DWORD    buflen = 0;
+    pmath_string_t result;
+    wchar_t *tmp_buffer;
+    wchar_t *result_buffer;
+    DWORD    tmplen = 0;
     DWORD    reslen = 0;
 
-    buflen = GetCurrentDirectory(0, NULL);
-    if((int)buflen * sizeof(wchar_t) <= 0)
+    tmplen = GetCurrentDirectory(0, NULL);
+    if((int)tmplen * sizeof(wchar_t) <= 0)
+      return PMATH_NULL;
+    
+    tmp_buffer = pmath_mem_alloc(sizeof(wchar_t) * tmplen);
+    if(!tmp_buffer)
       return PMATH_NULL;
 
-    buffer = pmath_mem_alloc(sizeof(wchar_t) * buflen);
-    if(!buffer)
-      return PMATH_NULL;
+    GetCurrentDirectoryW(tmplen, tmp_buffer);
+    tmp_buffer[tmplen - 1] = L'\0';
 
-    GetCurrentDirectoryW(buflen, buffer);
-    buffer[buflen - 1] = L'\0';
-
-    reslen = GetFullPathNameW(buffer, 0, NULL, NULL);
+    reslen = GetFullPathNameW(tmp_buffer, 0, NULL, NULL);
     if((int)reslen * sizeof(uint16_t) <= 0) {
-      pmath_mem_free(buffer);
+      pmath_mem_free(tmp_buffer);
       return PMATH_NULL;
     }
 
-    result = _pmath_new_string_buffer(reslen);
-    if(result) {
-      GetFullPathNameW(buffer, reslen, (wchar_t *)AFTER_STRING(result), NULL);
-
-      result->length = reslen - 1;
+    result =  pmath_string_new_raw(reslen);
+    if(pmath_string_begin_write(&result, &result_buffer, NULL)) {
+      GetFullPathNameW(tmp_buffer, reslen, result_buffer, NULL);
+      pmath_string_end_write(&result, &result_buffer);
     }
-
-    pmath_mem_free(buffer);
-    return _pmath_from_buffer(result);
+    else
+      reslen = 1;
+    
+    pmath_mem_free(tmp_buffer);
+    return pmath_string_part(result, 0, reslen-1);
   }
 #else
   {
@@ -113,7 +115,8 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname) {
 #ifdef PMATH_OS_WIN32
   {
     DWORD reslen;
-    struct _pmath_string_t *result;
+    wchar_t *buffer;
+    pmath_string_t result;
 
     relname = pmath_string_insert_latin1(relname, INT_MAX, "", 1);
     if(pmath_is_null(relname))
@@ -125,23 +128,25 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname) {
       return PMATH_NULL;
     }
 
-    result = _pmath_new_string_buffer(reslen);
-    if(result) {
+    result = pmath_string_new_raw(reslen);
+    if(pmath_string_begin_write(&result, &buffer, NULL)) {
       reslen = GetFullPathNameW(
         pmath_string_buffer(&relname),
         reslen,
-        (wchar_t *)AFTER_STRING(result),
+        buffer,
         NULL);
       
-      result->length = reslen;
+      pmath_string_end_write(&result, &buffer);
     }
-
+    else
+      reslen = 0;
+    
     pmath_unref(relname);
-    return _pmath_from_buffer(result);
+    return pmath_string_part(result, 0, reslen);
   }
 #else
   {
-    struct _pmath_string_t *result;
+    pmath_string_t result;
     pmath_string_t dir;
     int dirlen, namelen, enddir, startname;
     int             rellen = pmath_string_length(relname);
@@ -201,49 +206,48 @@ pmath_string_t _pmath_canonical_file_name(pmath_string_t relname) {
     dirlen  = pmath_string_length(dir);
     namelen = pmath_string_length(relname);
 
-    result = _pmath_new_string_buffer(dirlen + namelen + 1);
-    if(!result) {
-      pmath_unref(dir);
-      pmath_unref(relname);
-      return PMATH_NULL;
-    }
+    result = pmath_string_new_raw(dirlen + namelen + 1);
+    if(pmath_string_begin_write(&result, &obuf, NULL)) {
+      memcpy(obuf, pmath_string_buffer(&dir), sizeof(uint16_t) * dirlen);
+      obuf[dirlen] = '/';
+      memcpy(obuf + dirlen + 1, pmath_string_buffer(&relname), sizeof(uint16_t) * namelen);
+      
+      enddir = startname = dirlen + 1;
+      namelen = dirlen + namelen + 1;
 
-    memcpy(AFTER_STRING(result), pmath_string_buffer(&dir), sizeof(uint16_t) * dirlen);
+      while(startname < namelen) {
+        int next = startname + first_slash(obuf + startname, namelen - startname);
+
+        if( next == startname + 2      &&
+            obuf[startname]     == '.' &&
+            obuf[startname + 1] == '.')
+        {
+          enddir = last_slash(obuf, enddir - 1) + 1;
+          if(enddir < 0)
+            enddir = 0;
+        }
+        else if(next != startname + 1 || obuf[startname] != '.') {
+          memmove(obuf + enddir, obuf + startname, (next - startname) * sizeof(uint16_t));
+          enddir += next - startname;
+          obuf[enddir] = '/';
+          ++enddir;
+        }
+
+        startname = next + 1;
+      }
+
+      while(enddir > 1 && obuf[enddir - 1] == '/')
+        --enddir;
+        
+      pmath_string_end_write(&result, &obuf);
+    }
+    else
+      enddir = 0;
+    
     pmath_unref(dir);
-    obuf = AFTER_STRING(result);
-    obuf[dirlen] = '/';
-    memcpy(obuf + dirlen + 1, pmath_string_buffer(&relname), sizeof(uint16_t) * namelen);
     pmath_unref(relname);
-
-    enddir = startname = dirlen + 1;
-    namelen = dirlen + namelen + 1;
-
-    while(startname < namelen) {
-      int next = startname + first_slash(obuf + startname, namelen - startname);
-
-      if( next == startname + 2      &&
-          obuf[startname]     == '.' &&
-          obuf[startname + 1] == '.')
-      {
-        enddir = last_slash(obuf, enddir - 1) + 1;
-        if(enddir < 0)
-          enddir = 0;
-      }
-      else if(next != startname + 1 || obuf[startname] != '.') {
-        memmove(obuf + enddir, obuf + startname, (next - startname) * sizeof(uint16_t));
-        enddir += next - startname;
-        obuf[enddir] = '/';
-        ++enddir;
-      }
-
-      startname = next + 1;
-    }
-
-    while(enddir > 1 && obuf[enddir - 1] == '/')
-      --enddir;
-
-    result->length = enddir;
-    return _pmath_from_buffer(result);
+    
+    return pmath_string_part(result, 0, enddir);
   }
 #endif
 }

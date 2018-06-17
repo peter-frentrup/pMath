@@ -90,6 +90,83 @@ pmath_t _pmath_from_buffer(struct _pmath_string_t *b) {
 }
 
 PMATH_PRIVATE
+pmath_bool_t pmath_string_begin_write(pmath_string_t *str, uint16_t **buffer, int *length) {
+  struct _pmath_string_t *_str;
+  
+  assert(str != NULL);
+  assert(buffer != NULL);
+  
+  *buffer = NULL;
+  if(length) 
+    *length = pmath_string_length(*str);
+  
+  if(pmath_is_null(*str)) 
+    return FALSE;
+  
+  if(pmath_is_ministr(*str)) {
+    *buffer = &str->s.u.as_chars[0];
+    return TRUE;
+  }
+  
+  assert(pmath_is_bigstr(*str));
+  
+  _str = (struct _pmath_string_t *)PMATH_AS_PTR(*str);
+  if(pmath_refcount(*str) != 1 || _str->buffer != NULL) {
+    pmath_string_t new_str = pmath_string_insert_ucs2(PMATH_NULL, 0, pmath_string_buffer(str), *length);
+    if(pmath_is_null(new_str))
+      return FALSE;
+    
+    pmath_unref(*str);
+    *str = new_str; 
+    if(pmath_is_ministr(*str)) {
+      *buffer = &str->s.u.as_chars[0];
+      return TRUE;
+    }
+    _str = (struct _pmath_string_t *)PMATH_AS_PTR(*str);
+  }
+  
+  assert(_str->buffer == NULL);
+    
+  if(_str->debug_info) {
+    _pmath_unref_ptr(_str->debug_info);
+    _str->debug_info = NULL;
+  }
+  
+  *buffer = AFTER_STRING(_str);
+  _str->inherited.type_shift = PMATH_TYPE_SHIFT_PINNED_STRING;
+  return TRUE;
+}
+
+PMATH_PRIVATE
+void pmath_string_end_write(pmath_string_t *str, uint16_t **buffer) {
+  struct _pmath_string_t *_str;
+  
+  assert(str != NULL);
+  assert(buffer != NULL);
+  assert(*buffer != NULL);
+  
+  if(pmath_is_null(*str))
+    return;
+  
+  if(pmath_is_ministr(*str)) {
+    assert(*buffer == &str->s.u.as_chars[0]);
+    *buffer = NULL;
+    return;
+  }
+  
+  assert(pmath_is_pointer(*str));
+  assert(pmath_refcount(*str) == 1);
+  
+  _str = (struct _pmath_string_t *)PMATH_AS_PTR(*str);
+  assert(_str->inherited.type_shift == PMATH_TYPE_SHIFT_PINNED_STRING);
+  assert(_str->buffer == NULL);
+  assert(*buffer == AFTER_STRING(_str));
+  *buffer = NULL;
+  _str->inherited.type_shift = PMATH_TYPE_SHIFT_BIGSTRING;
+}
+
+
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_string_get_debug_info(pmath_t str) {
   struct _pmath_string_t *_str;
@@ -375,6 +452,11 @@ static void destroy_string(pmath_t p) {
   pmath_mem_free(str);
 }
 
+static void destroy_pinned_string(pmath_t p) {
+  pmath_debug_print("[WARNING: destroy pinned string...]\n");
+  destroy_string(p);
+}
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_strings_equal(
     pmath_t strA,
@@ -422,6 +504,18 @@ int _pmath_strings_compare(
   return 0;
 }
 
+static int compare_pinned_strings(
+    pmath_t strA,
+    pmath_t strB
+) {
+  pmath_debug_print("[ERROR: compare pinned strings...]\n");
+  if(strA.as_bits < strB.as_bits)
+    return -1;
+  if(strA.as_bits > strB.as_bits)
+    return 1;
+  return 0;
+}
+
 static unsigned int hash_string(pmath_t str) {
   int len             = pmath_string_length(str);
   const uint16_t *buf = pmath_string_buffer(&str);
@@ -451,6 +545,11 @@ static unsigned int hash_string(pmath_t str) {
   }
 
   return incremental_hash(buf, (size_t)len * sizeof(uint16_t), 0);
+}
+
+static unsigned int hash_pinned_string(pmath_t str) {
+  pmath_debug_print("[ERROR: hash pinned string...]\n");
+  return 0;
 }
 
 PMATH_PRIVATE
@@ -1018,6 +1117,27 @@ pmath_string_t pmath_string_new(int capacity) {
 
   result->length = 0;
   return PMATH_FROM_PTR(result);
+}
+
+PMATH_PRIVATE
+pmath_string_t pmath_string_new_raw(int length) {
+  pmath_string_t str;
+
+  assert(length >= 0);
+  
+  switch(length) {
+    case 0:
+      str.s.tag = PMATH_TAG_STR0;
+      return str;
+    case 1:
+      str.s.tag = PMATH_TAG_STR1;
+      return str;
+    case 2:
+      str.s.tag = PMATH_TAG_STR2;
+      return str;
+  }
+  
+  return PMATH_FROM_PTR(_pmath_new_string_buffer(length));
 }
 
 PMATH_API pmath_string_t pmath_string_insert_latin1(
@@ -1774,6 +1894,13 @@ pmath_bool_t _pmath_strings_init(void) {
       destroy_string,
       _pmath_strings_equal,
       _pmath_string_write);
+  _pmath_init_special_type(
+      PMATH_TYPE_SHIFT_PINNED_STRING,
+      compare_pinned_strings,
+      hash_pinned_string,
+      destroy_pinned_string,
+      NULL,
+      NULL);
 
   to_utf8 = iconv_open(
       "UTF-8",

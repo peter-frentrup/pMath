@@ -1,4 +1,4 @@
-#include <pmath-core/strings-private.h>
+#include <pmath-core/strings.h>
 
 #include <pmath-language/scanner.h>
 #include <pmath-language/tokens.h>

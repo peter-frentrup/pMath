@@ -156,27 +156,28 @@ static void init_pagewidth(void) {
 static pmath_expr_t get_exe_name(void) {
 #ifdef PMATH_OS_WIN32
   {
-    struct _pmath_string_t *s;
+    pmath_string_t s;
     uint16_t *buf;
     int len;
     DWORD  needed;
     
     len = 128;
-    s = NULL;
+    s = PMATH_NULL;
     do{
       len *= 2;
       
-      pmath_unref(PMATH_FROM_PTR(s));
-      s = _pmath_new_string_buffer(len);
-      if(!s)
+      pmath_unref(s);
+      s = pmath_string_new_raw(len);
+      if(!pmath_string_begin_write(&s, &buf, NULL)) {
+        pmath_unref(s);
         return PMATH_NULL;
-        
-      buf = AFTER_STRING(s);
+      }
+      
       needed = GetModuleFileNameW(NULL, buf, (DWORD)len);
+      pmath_string_end_write(&s, &buf);
     } while(needed == (DWORD)len);
     
-    s->length = (int)needed;
-    return _pmath_from_buffer(s);
+    return pmath_string_part(s, 0, (int)needed);
   }
 #elif defined(__APPLE__)
   {

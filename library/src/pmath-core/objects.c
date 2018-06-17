@@ -41,7 +41,8 @@ static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
   "symbol rule",
   "custom",
   "memory blob",
-  "packed array"
+  "packed array",
+  "string (pinned)"
 };
 #endif
 
