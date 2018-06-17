@@ -16,7 +16,7 @@ UpTo/: Take(~list, UpTo(~n:Integer))::=
 	
 UpTo/: Drop(~list, UpTo(~n:Integer))::= 
 	If(Abs(n) > Length(list)) {
-		list
+		{}
 	} Else {
 		Drop(list, n)
 	}
@@ -60,7 +60,7 @@ UpTo/: StringTake(~str: String, UpTo(~n:Integer))::=
 UpTo/: StringDrop(~str: String, UpTo(~n:Integer))::=
 	With(len:= stringLength(str)) {
 		If(Abs(n) > len) {
-			str
+			""
 		} Else {
 			StringDrop(str, n)
 		}
