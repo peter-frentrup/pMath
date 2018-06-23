@@ -1,20 +1,7 @@
-#include <pmath-core/numbers.h>
+#include "stdafx.h"
 
-#include <pmath-util/memory.h>
-#include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols-private.h>
-
-#include <limits.h>
-
-#ifdef PMATH_OS_WIN32
-#  define WIN32_LEAN_AND_MEAN
-#  define NOGDI
-#  include <Windows.h>
-#else
-#  include <sys/stat.h>
-#endif
-
+extern pmath_symbol_t pmath_System_Failed;
 
 static pmath_t file_to_bytecount(pmath_string_t name){ // name will be freed
 #ifdef PMATH_OS_WIN32
@@ -71,11 +58,11 @@ static pmath_t file_to_bytecount(pmath_string_t name){ // name will be freed
 #endif
 
   pmath_unref(name);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_Failed);
 }
 
 
-PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr) {
+PMATH_PRIVATE pmath_t eval_System_FileByteCount(pmath_expr_t expr) {
   /* FileByteCount(file)
    */
   pmath_t obj;
@@ -90,10 +77,11 @@ PMATH_PRIVATE pmath_t builtin_filebytecount(pmath_expr_t expr) {
     pmath_message(PMATH_NULL, "fstr", 1, obj);
     return expr;
   }
+  obj = pmath_to_absolute_file_name(obj);
   
   obj = file_to_bytecount(obj);
   
-  if(pmath_same(obj, PMATH_SYMBOL_FAILED)) {
+  if(pmath_same(obj, pmath_System_Failed)) {
     pmath_message(PMATH_NULL, "nffil", 1, pmath_ref(expr));
   }
   

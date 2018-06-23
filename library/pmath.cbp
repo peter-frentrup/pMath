@@ -845,6 +845,7 @@
 		<Unit filename="include/pmath-util/evaluation.h" />
 		<Unit filename="include/pmath-util/files/abstract-file.h" />
 		<Unit filename="include/pmath-util/files/binary-buffer.h" />
+		<Unit filename="include/pmath-util/files/filesystem.h" />
 		<Unit filename="include/pmath-util/files/mixed-buffer.h" />
 		<Unit filename="include/pmath-util/files/text-from-binary.h" />
 		<Unit filename="include/pmath-util/hashtables-private.h" />
@@ -1142,31 +1143,13 @@
 		<Unit filename="src/pmath-builtins/io/compressstream-and-uncompressstream.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/io/copydirectory-and-copyfile.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/io/createdirectory.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/io/deletedirectory-and-deletefile.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/io/directory.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/io/environment.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/io/filebytecount.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/io/fileinformation.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/pmath-builtins/io/filenames.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/io/filetype.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/io/find.c">
@@ -1185,9 +1168,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/io/read.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-builtins/io/renamedirectory-and-renamefile.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/io/streamposition.c">
@@ -1642,6 +1622,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/files/binary-buffer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/files/filesystem.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/files/mixed-buffer.c">

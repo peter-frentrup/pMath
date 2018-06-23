@@ -6,6 +6,7 @@
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files/abstract-file.h>
+#include <pmath-util/files/filesystem.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -136,7 +137,7 @@ static pmath_t get_file(
   info.ns           = pmath_evaluate(pmath_ref(PMATH_SYMBOL_CURRENTNAMESPACE));
   info.nspath       = pmath_evaluate(pmath_ref(PMATH_SYMBOL_NAMESPACEPATH));
   info.file         = file;
-  info.filename     = _pmath_canonical_file_name(pmath_ref(name));
+  info.filename     = pmath_to_absolute_file_name(pmath_ref(name));
   info.startline    = 1;
   info.codelines    = 0;
   info.current_code = PMATH_NULL;

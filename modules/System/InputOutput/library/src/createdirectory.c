@@ -1,22 +1,9 @@
-#include <pmath-util/memory.h>
-#include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/io-private.h>
-
-#include <limits.h>
-
-#ifdef PMATH_OS_WIN32
-#  define WIN32_LEAN_AND_MEAN
-#  define NOGDI
-#  include <Windows.h>
-#else
-#  include <errno.h>
-#  include <sys/stat.h>
-#endif
+#include "stdafx.h"
 
 
-PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr) {
+extern pmath_symbol_t pmath_System_Failed;
+
+PMATH_PRIVATE pmath_t eval_System_CreateDirectory(pmath_expr_t expr) {
   /* CreateDirectory(name)
 
      Messages:
@@ -46,26 +33,26 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr) {
         switch(GetLastError()) {
           case ERROR_ALREADY_EXISTS:
             name = pmath_string_part(name, 0, pmath_string_length(name) - 1);
-            name = _pmath_canonical_file_name(name);
+            name = pmath_to_absolute_file_name(name);
             break;
 
           case ERROR_ACCESS_DENIED:
             pmath_message(PMATH_NULL, "privv", 1, expr);
             expr = PMATH_NULL;
             pmath_unref(name);
-            name = pmath_ref(PMATH_SYMBOL_FAILED);
+            name = pmath_ref(pmath_System_Failed);
             break;
 
           default:
             pmath_message(PMATH_NULL, "ioarg", 1, expr);
             expr = PMATH_NULL;
             pmath_unref(name);
-            name = pmath_ref(PMATH_SYMBOL_FAILED);
+            name = pmath_ref(pmath_System_Failed);
         }
       }
       else {
         name = pmath_string_part(name, 0, pmath_string_length(name) - 1);
-        name = _pmath_canonical_file_name(name);
+        name = pmath_to_absolute_file_name(name);
       }
     }
   }
@@ -90,10 +77,10 @@ PMATH_PRIVATE pmath_t builtin_createdirectory(pmath_expr_t expr) {
         }
 
         pmath_unref(name);
-        name = pmath_ref(PMATH_SYMBOL_FAILED);
+        name = pmath_ref(pmath_System_Failed);
       }
       else {
-        name = _pmath_canonical_file_name(name);
+        name = pmath_to_absolute_file_name(name);
       }
 
       pmath_mem_free(str);

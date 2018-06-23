@@ -1,0 +1,11 @@
+
+BeginPackage("System`InputOutput`")
+
+% Print("Load pmath-inout.dll")
+LoadLibrary(ToFileName(
+	{DirectoryName($Input), "bin", $SystemId, $ProcessorType},
+	If($SystemId === "Windows",
+		"pmath-inout.dll",
+		"pmath-inout.so")))
+
+EndPackage()

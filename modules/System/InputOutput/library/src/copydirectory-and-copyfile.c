@@ -1,25 +1,7 @@
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/memory.h>
-#include <pmath-util/messages.h>
+#include "stdafx.h"
 
-#include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/io-private.h>
 
-#include <limits.h>
-
-#ifdef PMATH_OS_WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOGDI
-#include <Windows.h>
-#include <shellapi.h>
-#else
-#include <dirent.h>
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
+extern pmath_symbol_t pmath_System_Failed;
 
 #ifndef PMATH_OS_WIN32
 static pmath_bool_t copy_file_or_dir(
@@ -119,7 +101,18 @@ static pmath_bool_t copy_file_or_dir(
 }
 #endif
 
-PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
+static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directory);
+
+PMATH_PRIVATE pmath_t eval_System_CopyDirectory(pmath_expr_t expr) {
+  return copy_directory_or_file(expr, TRUE);
+}
+
+PMATH_PRIVATE pmath_t eval_System_CopyFile(pmath_expr_t expr) {
+  return copy_directory_or_file(expr, FALSE);
+}
+
+
+static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directory) {
   /* CopyDirectory(name1, name2)
      CopyFile(name1, name2)
   
@@ -157,11 +150,14 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
     return expr;
   }
   
+  name1 = pmath_to_absolute_file_name(name1);
+  name2 = pmath_to_absolute_file_name(name2);
+  
 #ifdef PMATH_OS_WIN32
   {
     static const uint16_t zerozero[2] = {0, 0};
-    pmath_string_t abs_name1 = _pmath_canonical_file_name(pmath_ref(name1));
-    pmath_string_t abs_name2 = _pmath_canonical_file_name(pmath_ref(name2));
+    pmath_string_t abs_name1 = pmath_ref(name1);
+    pmath_string_t abs_name2 = pmath_ref(name2);
     
     if( !pmath_is_null(abs_name1) &&
         !pmath_is_null(abs_name2))
@@ -186,10 +182,8 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
         BY_HANDLE_FILE_INFORMATION info;
         
         if( GetFileInformationByHandle(h, &info) &&
-            ((pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY) &&
-              (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) ||
-             (pmath_same(head, PMATH_SYMBOL_COPYFILE) &&
-              !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))))
+            ((is_directory && (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) ||
+             (!is_directory && !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))))
         {
           HANDLE h2;
           CloseHandle(h);
@@ -206,7 +200,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
           if(h2 != INVALID_HANDLE_VALUE) {
             CloseHandle(h2);
             pmath_message(PMATH_NULL, "filex", 1, name2);
-            name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+            name2 = pmath_ref(pmath_System_Failed);
           }
           else {
             SHFILEOPSTRUCTW op;
@@ -228,13 +222,13 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
                 pmath_message(PMATH_NULL, "privv", 1, expr);
                 expr = PMATH_NULL;
                 pmath_unref(name2);
-                name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+                name2 = pmath_ref(pmath_System_Failed);
                 
               default:
                 pmath_message(PMATH_NULL, "ioarg", 1, expr);
                 expr = PMATH_NULL;
                 pmath_unref(name2);
-                name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+                name2 = pmath_ref(pmath_System_Failed);
             }
           }
         }
@@ -246,17 +240,17 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
               break;
               
             default:
-              if(pmath_same(head, PMATH_SYMBOL_COPYFILE)) {
-                pmath_message(PMATH_NULL, "fdir", 1, name1);
+              if(is_directory) {
+                pmath_message(PMATH_NULL, "nodir", 1, name1);
                 name1 = PMATH_NULL;
               }
               else {
-                pmath_message(PMATH_NULL, "nodir", 1, name1);
+                pmath_message(PMATH_NULL, "fdir", 1, name1);
                 name1 = PMATH_NULL;
               }
           }
           pmath_unref(name2);
-          name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+          name2 = pmath_ref(pmath_System_Failed);
           CloseHandle(h);
         }
       }
@@ -268,17 +262,17 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
             break;
             
           default:
-            if(pmath_same(head, PMATH_SYMBOL_COPYFILE)) {
-              pmath_message(PMATH_NULL, "nffil", 1, expr);
-              expr = PMATH_NULL;
-            }
-            else {
+            if(is_directory) {
               pmath_message(PMATH_NULL, "nodir", 1, name1);
               name1 = PMATH_NULL;
             }
+            else {
+              pmath_message(PMATH_NULL, "nffil", 1, expr);
+              expr = PMATH_NULL;
+            }
         }
         pmath_unref(name2);
-        name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+        name2 = pmath_ref(pmath_System_Failed);
       }
     }
     
@@ -295,18 +289,16 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
   
       if(stat(str2, &buf) == 0) {
         pmath_message(PMATH_NULL, "filex", 1, name2);
-        name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+        name2 = pmath_ref(pmath_System_Failed);
       }
       else {
         if( stat(str1, &buf) == 0 &&
-            ((pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY) &&
-              S_ISDIR(buf.st_mode)) ||
-             (pmath_same(head, PMATH_SYMBOL_COPYFILE) &&
-              !S_ISDIR(buf.st_mode))))
+            ((is_directory && S_ISDIR(buf.st_mode)) ||
+             (!is_directory && !S_ISDIR(buf.st_mode))))
         {
           errno = 0;
           if(copy_file_or_dir(str1, str2)) {
-            name2 = _pmath_canonical_file_name(name2);
+            name2 = pmath_to_absolute_file_name(name2);
           }
           else {
             switch(errno) {
@@ -321,7 +313,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
                 expr = PMATH_NULL;
             }
             pmath_unref(name2);
-            name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+            name2 = pmath_ref(pmath_System_Failed);
           }
         }
         else {
@@ -333,7 +325,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
               break;
   
             default:
-              if(pmath_same(head, PMATH_SYMBOL_COPYDIRECTORY)) {
+              if(is_directory) {
                 pmath_message(PMATH_NULL, "nodir", 1, name1);
                 name1 = PMATH_NULL;
               }
@@ -343,7 +335,7 @@ PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(pmath_expr_t expr) {
               }
           }
           pmath_unref(name2);
-          name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+          name2 = pmath_ref(pmath_System_Failed);
         }
       }
     }

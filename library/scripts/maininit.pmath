@@ -116,6 +116,8 @@ SetAttributes({ControlActive, $ControlActiveSetting}, {Protected, ReadProtected}
 
 End()
 
+AutoLoad(Hold(CopyDirectory, CopyFile, CreateDirectory, DeleteDirectory, DeleteFile, FileByteCount, Developer`FileInformation, FileType, RenameDirectory, RenameFile),
+	"System`InputOutput`")
 AutoLoad(Hold(Clip),
 	ToFileName({$BaseDirectory, "auto", "core"}, "clip.pmath"))
 AutoLoad(Hold(DynamicLocal, DynamicLocalBox), 

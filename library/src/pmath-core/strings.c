@@ -6,6 +6,7 @@
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
@@ -27,6 +28,9 @@ static iconv_t from_utf8 = (iconv_t) - 1;
 static iconv_t to_native   = (iconv_t) - 1;
 static iconv_t from_native = (iconv_t) - 1;
 
+
+#define _pmath_ref_string_ptr(P)    _pmath_ref_ptr(&(P)->inherited)
+#define _pmath_unref_string_ptr(P)  _pmath_unref_ptr(&(P)->inherited)
 
 
 PMATH_PRIVATE
@@ -254,8 +258,8 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
         str_ptr->length == str_ptr->buffer->length)
     {
       result = str_ptr->buffer;
-      _pmath_ref_ptr(result);
-      _pmath_unref_ptr(str_ptr);
+      _pmath_ref_string_ptr(result);
+      _pmath_unref_string_ptr(str_ptr);
       pmath_unref(info);
       return PMATH_FROM_PTR(result);
     }
@@ -269,10 +273,10 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
     result->debug_info = info_ptr;
     result->length     = str_ptr->length;
     if(str_ptr->buffer) {
-      _pmath_ref_ptr(str_ptr->buffer);
+      _pmath_ref_string_ptr(str_ptr->buffer);
       result->buffer            = str_ptr->buffer;
       result->capacity_or_start = str_ptr->capacity_or_start;
-      _pmath_unref_ptr(str_ptr);
+      _pmath_unref_string_ptr(str_ptr);
     }
     else{
       result->buffer            = str_ptr;

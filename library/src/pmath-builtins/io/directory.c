@@ -3,6 +3,7 @@
 
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/files/filesystem.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -23,7 +24,8 @@
 #  include <unistd.h>
 #endif
 
-static pmath_string_t get_directory(void) {
+PMATH_PRIVATE
+pmath_string_t _pmath_get_directory(void) {
 #ifdef PMATH_OS_WIN32
   {
     pmath_string_t result;
@@ -86,172 +88,6 @@ static pmath_string_t get_directory(void) {
 #endif
 }
 
-#ifndef PMATH_OS_WIN32
-static int first_slash(const uint16_t *buf, int len) {
-  int i = 0;
-  for(i = 0; i < len; ++i)
-    if(buf[i] == '/')
-      return i;
-
-  return len;
-}
-
-static int last_slash(const uint16_t *buf, int len) {
-  int i = 0;
-  for(i = len - 1; i >= 0; --i)
-    if(buf[i] == '/')
-      return i;
-
-  return -1;
-}
-#endif
-
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_string_t _pmath_canonical_file_name(pmath_string_t relname) {
-  if(pmath_string_length(relname) == 0)
-    return relname;
-
-#ifdef PMATH_OS_WIN32
-  {
-    DWORD reslen;
-    wchar_t *buffer;
-    pmath_string_t result;
-
-    relname = pmath_string_insert_latin1(relname, INT_MAX, "", 1);
-    if(pmath_is_null(relname))
-      return PMATH_NULL;
-
-    reslen = GetFullPathNameW(pmath_string_buffer(&relname), 0, NULL, NULL);
-    if((int)reslen <= 0) {
-      pmath_unref(relname);
-      return PMATH_NULL;
-    }
-
-    result = pmath_string_new_raw(reslen);
-    if(pmath_string_begin_write(&result, &buffer, NULL)) {
-      reslen = GetFullPathNameW(
-        pmath_string_buffer(&relname),
-        reslen,
-        buffer,
-        NULL);
-      
-      pmath_string_end_write(&result, &buffer);
-    }
-    else
-      reslen = 0;
-    
-    pmath_unref(relname);
-    return pmath_string_part(result, 0, reslen);
-  }
-#else
-  {
-    pmath_string_t result;
-    pmath_string_t dir;
-    int dirlen, namelen, enddir, startname;
-    int             rellen = pmath_string_length(relname);
-    const uint16_t *ibuf   = pmath_string_buffer(&relname);
-    uint16_t       *obuf;
-
-    if(ibuf[0] == '/') {
-      dir = PMATH_C_STRING("");//pmath_string_part(pmath_ref(relname), 0, 1);
-      relname = pmath_string_part(relname, 1, INT_MAX);
-    }
-    else if(ibuf[0] == '~') {
-      const char *prefix = 0;
-
-      int slashpos = 1;
-      while(slashpos < rellen && ibuf[slashpos] != '/')
-        ++slashpos;
-
-      if(slashpos == 1) { // "~/rest/of/path"
-        prefix = getenv("HOME");
-        if(!prefix) {
-          struct passwd *pw = getpwuid(getuid());
-          if(pw)
-            prefix = pw->pw_dir;
-        }
-      }
-      else { // "~user/rest/of/path"
-        pmath_string_t user = pmath_string_part(pmath_ref(relname), 1, slashpos - 1);
-        char *user_s = pmath_string_to_native(user, 0);
-
-        if(user_s) {
-          struct passwd *pw = getpwnam(user_s);
-          if(pw)
-            prefix = pw->pw_dir;
-        }
-
-        pmath_mem_free(user_s);
-        pmath_unref(user);
-      }
-
-      if(prefix) {
-        dir = pmath_string_from_native(prefix, -1);
-        relname = pmath_string_part(relname, rellen + 1, INT_MAX); // all after "/"
-      }
-      else {
-        dir = PMATH_C_STRING("");
-        relname = pmath_string_part(relname, rellen + 1, INT_MAX); // all after "/"
-      }
-    }
-    else
-      dir = get_directory();
-
-    if(pmath_is_null(dir)) {
-      pmath_unref(relname);
-      return PMATH_NULL;
-    }
-
-    dirlen  = pmath_string_length(dir);
-    namelen = pmath_string_length(relname);
-
-    result = pmath_string_new_raw(dirlen + namelen + 1);
-    if(pmath_string_begin_write(&result, &obuf, NULL)) {
-      memcpy(obuf, pmath_string_buffer(&dir), sizeof(uint16_t) * dirlen);
-      obuf[dirlen] = '/';
-      memcpy(obuf + dirlen + 1, pmath_string_buffer(&relname), sizeof(uint16_t) * namelen);
-      
-      enddir = startname = dirlen + 1;
-      namelen = dirlen + namelen + 1;
-
-      while(startname < namelen) {
-        int next = startname + first_slash(obuf + startname, namelen - startname);
-
-        if( next == startname + 2      &&
-            obuf[startname]     == '.' &&
-            obuf[startname + 1] == '.')
-        {
-          enddir = last_slash(obuf, enddir - 1) + 1;
-          if(enddir < 0)
-            enddir = 0;
-        }
-        else if(next != startname + 1 || obuf[startname] != '.') {
-          memmove(obuf + enddir, obuf + startname, (next - startname) * sizeof(uint16_t));
-          enddir += next - startname;
-          obuf[enddir] = '/';
-          ++enddir;
-        }
-
-        startname = next + 1;
-      }
-
-      while(enddir > 1 && obuf[enddir - 1] == '/')
-        --enddir;
-        
-      pmath_string_end_write(&result, &obuf);
-    }
-    else
-      enddir = 0;
-    
-    pmath_unref(dir);
-    pmath_unref(relname);
-    
-    return pmath_string_part(result, 0, enddir);
-  }
-#endif
-}
-
 static pmath_bool_t try_change_directory(
   pmath_string_t name // will be freed
 ) {
@@ -297,7 +133,7 @@ PMATH_PRIVATE pmath_t builtin_directory(pmath_expr_t expr) {
 
   pmath_unref(expr);
 
-  expr = get_directory();
+  expr = _pmath_get_directory();
   if(pmath_is_null(expr))
     return pmath_ref(PMATH_SYMBOL_FAILED);
 
@@ -372,7 +208,7 @@ PMATH_PRIVATE pmath_t builtin_parentdirectory(pmath_expr_t expr) {
   if(pmath_expr_length(expr) == 1)
     dir = pmath_expr_get_item(expr, 1);
   else
-    dir = get_directory();
+    dir = _pmath_get_directory();
 
   if(!pmath_is_string(dir) || pmath_string_length(dir) < 1) {
     pmath_message(PMATH_NULL, "fstr", 1, dir);
@@ -381,7 +217,7 @@ PMATH_PRIVATE pmath_t builtin_parentdirectory(pmath_expr_t expr) {
 
   pmath_unref(expr);
 
-  dir = _pmath_canonical_file_name(dir);
+  dir = pmath_to_absolute_file_name(dir);
   if(!pmath_is_null(dir)) {
     const uint16_t *buf = pmath_string_buffer(&dir);
     int             len = pmath_string_length(dir);
@@ -416,7 +252,7 @@ PMATH_PRIVATE pmath_t builtin_setdirectory(pmath_expr_t expr) {
   }
 
   pmath_unref(expr);
-  expr = get_directory();
+  expr = _pmath_get_directory();
 
   if(!try_change_directory(pmath_ref(name))) {
     pmath_message(PMATH_NULL, "cdir", 1, name);
@@ -433,7 +269,7 @@ PMATH_PRIVATE pmath_t builtin_setdirectory(pmath_expr_t expr) {
 
   pmath_unref(pmath_thread_local_save(PMATH_SYMBOL_DIRECTORYSTACK, name));
 
-  return get_directory();
+  return _pmath_get_directory();
 }
 
 PMATH_PRIVATE pmath_t builtin_resetdirectory(pmath_expr_t expr) {
@@ -452,7 +288,7 @@ PMATH_PRIVATE pmath_t builtin_resetdirectory(pmath_expr_t expr) {
   {
     pmath_message(PMATH_NULL, "dtop", 0);
     pmath_unref(dirstack);
-    return get_directory();
+    return _pmath_get_directory();
   }
 
   name = pmath_expr_get_item(dirstack, 1);

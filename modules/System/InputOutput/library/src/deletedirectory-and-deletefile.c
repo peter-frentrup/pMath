@@ -1,26 +1,10 @@
-#include <pmath-util/concurrency/threads.h>
-#include <pmath-util/memory.h>
-#include <pmath-util/messages.h>
-#include <pmath-util/option-helpers.h>
+#include "stdafx.h"
 
-#include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/io-private.h>
 
-#include <limits.h>
-
-#ifdef PMATH_OS_WIN32
-#  define WIN32_LEAN_AND_MEAN
-#  define NOGDI
-#  include <Windows.h>
-#  include <shellapi.h>
-#else
-#  include <dirent.h>
-#  include <errno.h>
-#  include <stdio.h>
-#  include <string.h>
-#  include <sys/stat.h>
-#endif
-
+extern pmath_symbol_t pmath_System_DeleteContents;
+extern pmath_symbol_t pmath_System_Failed;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
 
 #ifndef PMATH_OS_WIN32
 static pmath_bool_t delete_file_or_dir(
@@ -82,7 +66,17 @@ static pmath_bool_t delete_file_or_dir(
 }
 #endif
 
-PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) {
+static pmath_t delete_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directory);
+
+PMATH_PRIVATE pmath_t eval_System_DeleteDirectory(pmath_expr_t expr) {
+  return delete_directory_or_file(expr, TRUE);
+}
+
+PMATH_PRIVATE pmath_t eval_System_DeleteFile(pmath_expr_t expr) {
+  return delete_directory_or_file(expr, FALSE);
+}
+
+static pmath_t delete_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directory) {
   /* DeleteDirectory(name)
      DeleteFile(name)
 
@@ -105,27 +99,25 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
   pmath_unref(head);
 
   if(pmath_expr_length(expr) != 1) {
-    if( pmath_same(head, PMATH_SYMBOL_DELETEFILE) ||
-        pmath_expr_length(expr) < 1)
+    if( !is_directory || pmath_expr_length(expr) < 1)
     {
       pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
       return expr;
     }
   }
 
-  if(pmath_same(head, PMATH_SYMBOL_DELETEDIRECTORY)) {
+  if(is_directory) {
     pmath_t options = pmath_options_extract(expr, 1);
     if(pmath_is_null(options))
       return expr;
 
-    name = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_DELETECONTENTS, options);
+    name = pmath_option_value(PMATH_NULL, pmath_System_DeleteContents, options);
     pmath_unref(options);
-    if(pmath_same(name, PMATH_SYMBOL_TRUE)) {
+    if(pmath_same(name, pmath_System_True)) {
       delete_contents = TRUE;
     }
-    else if(!pmath_same(name, PMATH_SYMBOL_FALSE)) {
-      pmath_message(PMATH_NULL, "opttf", 2,
-                    pmath_ref(PMATH_SYMBOL_DELETECONTENTS), name);
+    else if(!pmath_same(name, pmath_System_False)) {
+      pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(pmath_System_DeleteContents), name);
       return expr;
     }
 
@@ -137,11 +129,13 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
     pmath_message(PMATH_NULL, "fstr", 1, name);
     return expr;
   }
+  
+  name = pmath_to_absolute_file_name(name);
 
 #ifdef PMATH_OS_WIN32
   {
     static const uint16_t zerozero[2] = {0, 0};
-    pmath_string_t abs_name = _pmath_canonical_file_name(pmath_ref(name));
+    pmath_string_t abs_name = pmath_ref(name);
 
     if(!pmath_is_null(abs_name)) {
       abs_name = pmath_string_insert_ucs2(abs_name, INT_MAX, zerozero, 2);
@@ -161,10 +155,8 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
         BY_HANDLE_FILE_INFORMATION info;
 
         if( GetFileInformationByHandle(h, &info) &&
-            ((pmath_same(head, PMATH_SYMBOL_DELETEDIRECTORY) &&
-              (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) ||
-             (pmath_same(head, PMATH_SYMBOL_DELETEFILE) &&
-              !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))))
+            ((is_directory && (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) ||
+             (!is_directory && !(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))))
         {
           DWORD err = 0;
           CloseHandle(h);
@@ -179,12 +171,12 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
 
             err = (DWORD)SHFileOperationW(&op);
           }
-          else if(pmath_same(head, PMATH_SYMBOL_DELETEFILE)) {
-            if(!DeleteFileW((const wchar_t *)pmath_string_buffer(&abs_name)))
+          else if(is_directory) {
+            if(!RemoveDirectoryW((const wchar_t *)pmath_string_buffer(&abs_name)))
               err = GetLastError();
           }
           else {
-            if(!RemoveDirectoryW((const wchar_t *)pmath_string_buffer(&abs_name)))
+            if(!DeleteFileW((const wchar_t *)pmath_string_buffer(&abs_name)))
               err = GetLastError();
           }
 
@@ -198,7 +190,7 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
               pmath_message(PMATH_NULL, "privv", 1, expr);
               expr = PMATH_NULL;
               pmath_unref(name);
-              name = pmath_ref(PMATH_SYMBOL_FAILED);
+              name = pmath_ref(pmath_System_Failed);
 
             case ERROR_DIR_NOT_EMPTY:
               pmath_message(PMATH_NULL, "dirne", 1, name);
@@ -209,7 +201,7 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
               pmath_message(PMATH_NULL, "ioarg", 1, expr);
               expr = PMATH_NULL;
               pmath_unref(name);
-              name = pmath_ref(PMATH_SYMBOL_FAILED);
+              name = pmath_ref(pmath_System_Failed);
           }
         }
         else {
@@ -220,17 +212,17 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
               break;
 
             default:
-              if(pmath_same(head, PMATH_SYMBOL_DELETEFILE)) {
-                pmath_message(PMATH_NULL, "fdir", 1, name);
+              if(is_directory) {
+                pmath_message(PMATH_NULL, "nodir", 1, name);
                 name = PMATH_NULL;
               }
               else {
-                pmath_message(PMATH_NULL, "nodir", 1, name);
+                pmath_message(PMATH_NULL, "fdir", 1, name);
                 name = PMATH_NULL;
               }
           }
           pmath_unref(name);
-          name = pmath_ref(PMATH_SYMBOL_FAILED);
+          name = pmath_ref(pmath_System_Failed);
           CloseHandle(h);
         }
       }
@@ -242,17 +234,17 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
             break;
 
           default:
-            if(pmath_same(head, PMATH_SYMBOL_DELETEFILE)) {
-              pmath_message(PMATH_NULL, "nffil", 1, expr);
-              expr = PMATH_NULL;
-            }
-            else {
+            if(is_directory) {
               pmath_message(PMATH_NULL, "nodir", 1, name);
               name = PMATH_NULL;
             }
+            else {
+              pmath_message(PMATH_NULL, "nffil", 1, expr);
+              expr = PMATH_NULL;
+            }
         }
         pmath_unref(name);
-        name = pmath_ref(PMATH_SYMBOL_FAILED);
+        name = pmath_ref(pmath_System_Failed);
       }
     }
 
@@ -284,7 +276,7 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
 
           case ENOENT:
           case ENOTDIR:
-            if(pmath_same(head, PMATH_SYMBOL_DELETEDIRECTORY)) {
+            if(is_directory) {
               pmath_message(PMATH_NULL, "nodir", 1, name);
               name = PMATH_NULL;
             }
@@ -301,7 +293,7 @@ PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr) 
         }
 
         pmath_unref(name);
-        name = pmath_ref(PMATH_SYMBOL_FAILED);
+        name = pmath_ref(pmath_System_Failed);
       }
 
       pmath_mem_free(str);
