@@ -1,4 +1,4 @@
-/* Implement unary functions F(x, y) of a two complex arguments.
+/* Implement functions F(x, y) of a two complex arguments.
    First try ACB_FUNCTION(x, y) in C and then fall back to SIMPLIFY_SYMBOL(F, x, y)
    in pMath, returning unevaluated if that gives $Failed.
  */
