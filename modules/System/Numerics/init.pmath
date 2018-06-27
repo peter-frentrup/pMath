@@ -12,6 +12,8 @@ Begin("System`Private`")
 
 AutoLoad(Hold(AutoSimplifyAiry), 
 	ToFileName(DirectoryName($Input), "simplify-airy.pmath"))
+AutoLoad(Hold(AutoSimplifyArithmeticGeometricMean),
+	ToFileName(DirectoryName($Input), "simplify-agm.pmath"))
 AutoLoad(Hold(AutoSimplifyBessel), 
 	ToFileName(DirectoryName($Input), "simplify-bessel.pmath"))
 AutoLoad(Hold(AutoSimplifyErf), 

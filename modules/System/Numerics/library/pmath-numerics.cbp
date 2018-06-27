@@ -477,6 +477,9 @@
 		</Linker>
 		<Unit filename="src/acb-impl-onearg.inc" />
 		<Unit filename="src/acb-impl-twoarg.inc" />
+		<Unit filename="src/agm-impl.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/airy-impl.c">
 			<Option compilerVar="CC" />
 		</Unit>
