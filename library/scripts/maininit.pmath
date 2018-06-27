@@ -127,7 +127,8 @@ AutoLoad(Hold(AiryAi, AiryAiPrime, AiryBi, AiryBiPrime,
 		ChebyshevT, ChebyshevU, HermiteH,
 		Erf, Erfc, Erfi, FresnelC, FresnelS,
 		CoshIntegral, CosIntegral, ExpIntegralEi, LogIntegral, SinhIntegral, SinIntegral,
-		Hypergeometric0F1, Hypergeometric1F1, Hypergeometric2F1, HypergeometricPFQ, Hypergeometric0F1Regularized, Hypergeometric1F1Regularized, Hypergeometric2F1Regularized, HypergeometricPFQRegularized),
+		Hypergeometric0F1, Hypergeometric1F1, Hypergeometric2F1, HypergeometricPFQ, Hypergeometric0F1Regularized, Hypergeometric1F1Regularized, Hypergeometric2F1Regularized, HypergeometricPFQRegularized,
+		Zeta),
 	"System`Numerics`")
 AutoLoad(Hold(CubeRoot, Surd),
 	ToFileName({$BaseDirectory, "auto", "core"}, "surd.pmath"))

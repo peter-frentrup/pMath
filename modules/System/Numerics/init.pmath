@@ -26,6 +26,8 @@ AutoLoad(Hold(AutoSimplifyTrig),
 	ToFileName(DirectoryName($Input), "simplify-trig.pmath"))
 AutoLoad(Hold(AutoSimplifyTrigIntegral), 
 	ToFileName(DirectoryName($Input), "simplify-trig-integral.pmath"))
+AutoLoad(Hold(AutoSimplifyZeta), 
+	ToFileName(DirectoryName($Input), "simplify-zeta.pmath"))
 
 End()
 

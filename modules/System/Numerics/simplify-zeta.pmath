@@ -1,0 +1,19 @@
+BeginPackage("System`Numerics`Zeta`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyZeta
+
+Begin("System`Numerics`Zeta`Private`")
+
+%
+% If direct (numerical) calculation of Zeta(x) is not possible (because x is an expression or 
+% an exact number), System`Private`AutoSimplifyZeta(Zeta, x) gets called.
+% If that returns $Failed, the original expression Zeta(x) remains unevaluated. 
+% Otherwise, the result of AutoSimplifyZeta will be returned.
+%
+System`Private`AutoSimplifyZeta(~~~):= $Failed
+
+End()
+
+EndPackage()

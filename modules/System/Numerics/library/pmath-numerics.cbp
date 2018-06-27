@@ -520,6 +520,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/util.h" />
+		<Unit filename="src/zeta-impl.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
