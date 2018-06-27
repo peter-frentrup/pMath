@@ -1,5 +1,8 @@
 // Platzieren Sie Ihre Einstellungen in dieser Datei, um Standard- und Benutzereinstellungen zu überschreiben.
 {
   "C_Cpp.formatting": "Disabled",
-  "astyle.astylerc": "${workspaceRoot}/.vscode/astylerc"
+  "astyle.astylerc": "${workspaceRoot}/.vscode/astylerc",
+  "files.associations": {
+    "patterns-private.h": "c"
+  }
 }

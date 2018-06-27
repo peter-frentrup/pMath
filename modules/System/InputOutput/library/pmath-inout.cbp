@@ -430,9 +430,6 @@
 		<Unit filename="src/fileinformation.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/filetype.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="src/main.c">
 			<Option compilerVar="CC" />
 		</Unit>

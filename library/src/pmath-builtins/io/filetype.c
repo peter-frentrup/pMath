@@ -1,13 +1,23 @@
-#include "stdafx.h"
+#include <pmath-language/scanner.h>
+
+#include <pmath-util/evaluation.h>
+#include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+
+#include <limits.h>
+
+#ifdef PMATH_OS_WIN32
+#  define WIN32_LEAN_AND_MEAN
+#  define NOGDI
+#  include <Windows.h>
+#else
+#  include <sys/stat.h>
+#endif
 
 
-extern pmath_symbol_t pmath_System_Directory;
-extern pmath_symbol_t pmath_System_File;
-extern pmath_symbol_t pmath_System_None;
-extern pmath_symbol_t pmath_System_Special;
-extern pmath_symbol_t pmath_System_True;
-
-PMATH_PRIVATE pmath_t eval_System_FileType(pmath_expr_t expr) {
+PMATH_PRIVATE pmath_t builtin_filetype(pmath_expr_t expr) {
   /* FileType(file)
    */
   pmath_t file;
@@ -22,7 +32,6 @@ PMATH_PRIVATE pmath_t eval_System_FileType(pmath_expr_t expr) {
     pmath_message(PMATH_NULL, "fstr", 1, file);
     return expr;
   }
-  file = pmath_to_absolute_file_name(file);
   pmath_unref(expr);
   
 #ifdef PMATH_OS_WIN32
@@ -43,9 +52,9 @@ PMATH_PRIVATE pmath_t eval_System_FileType(pmath_expr_t expr) {
             "(o)", pmath_ref(file));
     tmp = pmath_evaluate(tmp);
     pmath_unref(tmp);
-    if(pmath_same(tmp, pmath_System_True)) {
+    if(pmath_same(tmp, PMATH_SYMBOL_TRUE)) {
       pmath_unref(file);
-      return pmath_ref(pmath_System_Special);
+      return pmath_ref(PMATH_SYMBOL_SPECIAL);
     }
     
     file = pmath_string_insert_ucs2(file, INT_MAX, &zero, 1);
@@ -68,12 +77,12 @@ PMATH_PRIVATE pmath_t eval_System_FileType(pmath_expr_t expr) {
         CloseHandle(h);
         
         if(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-          return pmath_ref(pmath_System_Directory);
+          return pmath_ref(PMATH_SYMBOL_DIRECTORY);
           
         if(info.dwFileAttributes & (FILE_ATTRIBUTE_DEVICE | FILE_ATTRIBUTE_REPARSE_POINT))
-          return pmath_ref(pmath_System_Special);
+          return pmath_ref(PMATH_SYMBOL_SPECIAL);
           
-        return pmath_ref(pmath_System_File);
+        return pmath_ref(PMATH_SYMBOL_FILE);
       }
       
       CloseHandle(h);
@@ -91,12 +100,12 @@ PMATH_PRIVATE pmath_t eval_System_FileType(pmath_expr_t expr) {
         pmath_unref(file);
   
         if(S_ISDIR(buf.st_mode))
-          return pmath_ref(pmath_System_Directory);
+          return pmath_ref(PMATH_SYMBOL_DIRECTORY);
   
         if(S_ISREG(buf.st_mode))
-          return pmath_ref(pmath_System_File);
+          return pmath_ref(PMATH_SYMBOL_FILE);
   
-        return pmath_ref(pmath_System_Special);
+        return pmath_ref(PMATH_SYMBOL_SPECIAL);
       }
   
       pmath_mem_free(str);
@@ -105,5 +114,5 @@ PMATH_PRIVATE pmath_t eval_System_FileType(pmath_expr_t expr) {
 #endif
   
   pmath_unref(file);
-  return pmath_ref(pmath_System_None);
+  return pmath_ref(PMATH_SYMBOL_NONE);
 }

@@ -273,6 +273,7 @@ PMATH_PRIVATE pmath_t builtin_directory(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_directoryname(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_environment(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_filenames(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_filetype(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_find(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_findlist(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_fromcharactercode(             pmath_expr_t expr);
@@ -1655,6 +1656,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_FACTORIAL,                   builtin_factorial)
   BIND_DOWN(   PMATH_SYMBOL_FACTORIAL2,                  builtin_factorial2)
   BIND_DOWN(   PMATH_SYMBOL_FILENAMES,                   builtin_filenames)
+  BIND_DOWN(   PMATH_SYMBOL_FILETYPE,                    builtin_filetype)
   BIND_DOWN(   PMATH_SYMBOL_FILTERRULES,                 builtin_filterrules)
   BIND_DOWN(   PMATH_SYMBOL_FINALLY,                     builtin_finally)
   BIND_DOWN(   PMATH_SYMBOL_FIND,                        builtin_find)
