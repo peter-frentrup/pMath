@@ -23,6 +23,7 @@
 {"ArcTan", {"ArgumentCount" -> 1}},
 {"ArcTanh", {"ArgumentCount" -> 1}},
 {"Arg", {"ArgumentCount" -> 1}},
+{"ArithmeticGeometricMean", {"ArgumentCount" -> 2}},
 {"Array", {"ArgumentCount" -> 1..4}},
 {"Assign", {"ArgumentCount" -> 2}},
 {"AssignDelayed", {"ArgumentCount" -> 2}},
@@ -594,7 +595,7 @@
 {"Write", {"ArgumentCount" -> 2..}},
 {"WriteString", {"ArgumentCount" -> 2..}},
 {"Xor", {"ArgumentCount" -> 2..}},
-{"Zeta", {"ArgumentCount" -> 1}}
+{"Zeta", {"ArgumentCount" -> 1..2}}
 }},
 {"Developer`",{
 {"FileInformation", {"ArgumentCount" -> 1}},
