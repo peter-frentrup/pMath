@@ -52,8 +52,8 @@ If( $DependencyWalker -eq '') {
 	$maxDepth = 3
 	While(($maxDepth -gt 0) -and ("$DependencyWalker" -eq "")) {
 		$maxDepth = $maxDepth - 1
-		$dirs = ($dirs | ForEach-Object { Get-ChildItem -Path $_ -Directory }).FullName
-		$DependencyWalker = ($dirs | ForEach-Object { Get-ChildItem -Path $_ -File -Filter "depends.exe" } | Select-Object -First 1).FullName
+		$dirs = ($dirs | ForEach-Object { Get-ChildItem -Erroraction SilentlyContinue -Path $_ -Directory }).FullName
+		$DependencyWalker = ($dirs | ForEach-Object { Get-ChildItem -Erroraction SilentlyContinue -Path $_ -File -Filter "depends.exe" } | Select-Object -First 1).FullName
 	}
 	If( "$DependencyWalker" -eq "" ) {
 		throw "Cannot find depends.exe"
