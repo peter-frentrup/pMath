@@ -4,26 +4,6 @@ extern pmath_symbol_t pmath_System_Private_AutoSimplifyTrig;
 
 #define SIMPLIFY_SYMBOL  pmath_System_Private_AutoSimplifyTrig
 
-static void acb_csc(acb_t r, const acb_t z, slong prec) {
-  acb_sin(r, z, prec);
-  acb_inv(r, r, prec);
-}
-
-static void acb_csch(acb_t r, const acb_t z, slong prec) {
-  acb_sinh(r, z, prec);
-  acb_inv(r, r, prec);
-}
-
-static void acb_sec(acb_t r, const acb_t z, slong prec) {
-  acb_cos(r, z, prec);
-  acb_inv(r, r, prec);
-}
-
-static void acb_sech(acb_t r, const acb_t z, slong prec) {
-  acb_cosh(r, z, prec);
-  acb_inv(r, r, prec);
-}
-
 PMATH_PRIVATE pmath_t eval_System_ArcCos(pmath_expr_t expr) {
 #  define ACB_FUNCTION acb_acos
 #    include "acb-impl-onearg.inc"
