@@ -1,4 +1,4 @@
-#include <pmath-core/strings.h>
+#include <pmath-core/strings-private.h>
 
 #include <pmath-language/charnames.h>
 #include <pmath-language/patterns-private.h>
