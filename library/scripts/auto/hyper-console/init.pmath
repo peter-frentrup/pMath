@@ -27,8 +27,9 @@ Function Developer`DescribeLocation(
 	Block({$DescribeLocationOverload:= False}, 
 	Block {
 		With(label:= Developer`DescribeLocation(src))
+		With(func:= Developer`DebugInfoOpenerFunction(src))
 		
-		If(Developer`FileInformation(filename) =!= {}) {
+		If(func =!= None) {
 			Return(Button(label, Developer`OpenTextFile(filename, Line->fromLine, Column->fromColumn)))
 		}
 		Return(label)

@@ -7,7 +7,6 @@
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/concurrency/threadpool-private.h>
 
-#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
 

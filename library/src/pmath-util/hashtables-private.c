@@ -172,15 +172,13 @@ pmath_hashtable_t pmath_ht_copy(
   assert(ht->klass  != NULL);
   assert(entry_copy != NULL);
 
-  result = pmath_ht_create(ht->klass, 0);
-  if(!resize(result, ht->capacity)) {
-    pmath_ht_destroy(result);
+  result = pmath_ht_create(ht->klass, ht->capacity - 1);
+  if(!result) 
     return NULL;
-  }
 
   assert(ht->capacity == result->capacity);
 
-  for(i = 0; i <= result->capacity; ++i) {
+  for(i = 0; i < result->capacity; ++i) {
     if(IS_USED_ENTRY(ht->table[i]))
       result->table[i] = entry_copy(ht->table[i]);
   }

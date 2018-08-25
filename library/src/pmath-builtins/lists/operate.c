@@ -1,8 +1,6 @@
-#include <pmath-core/numbers.h>
+#include <pmath-core/expressions.h>
 
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 
 static pmath_t operate(

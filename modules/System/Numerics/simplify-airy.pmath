@@ -1,0 +1,22 @@
+BeginPackage("System`Numerics`Airy`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyAiry
+
+Begin("System`Numerics`Airy`Private`")
+
+%
+% If direct (numerical) calculation of AiryAi(x), AiryAiPrime(x), etc. is not possible (because 
+% x is an expression or an exact number), System`Private`AutoSimplifyAiry(AiryAi, x) 
+% etc. get called.
+% If that returns $Failed, the original expression AiryAi(x) etc. remains unevaluated. 
+% Otherwise, the result of AutoSimplifyAiry will be returned.
+%
+System`Private`AutoSimplifyAiry(~, ~):= $Failed
+
+
+
+End()
+
+EndPackage()

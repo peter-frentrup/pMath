@@ -3,12 +3,11 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/strings-private.h>
+#include <pmath-core/symbols.h>
 
 #include <pmath-util/debug.h>
 #include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -42,7 +41,8 @@ static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
   "symbol rule",
   "custom",
   "memory blob",
-  "packed array"
+  "packed array",
+  "string (pinned)"
 };
 #endif
 
@@ -408,6 +408,9 @@ PMATH_API
 pmath_t pmath_get_debug_info(pmath_t obj) {
   if(pmath_is_expr(obj))
     return _pmath_expr_get_debug_info(obj);
+    
+  if(pmath_is_string(obj))
+    return _pmath_string_get_debug_info(obj);
   
   return PMATH_NULL;
 }
@@ -416,6 +419,9 @@ PMATH_API
 pmath_t pmath_try_set_debug_info(pmath_t obj, pmath_t debug_info) {
   if(pmath_is_expr(obj))
     return _pmath_expr_set_debug_info(obj, debug_info);
+    
+  if(pmath_is_string(obj))
+    return _pmath_string_set_debug_info(obj, debug_info);
   
   pmath_unref(debug_info);
   return obj;

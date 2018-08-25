@@ -1,8 +1,7 @@
+#include <pmath-core/expressions.h>
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 
 pmath_t builtin_bitset(pmath_expr_t expr) {

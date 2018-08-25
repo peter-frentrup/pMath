@@ -1,6 +1,6 @@
-#include <pmath-util/concurrency/threads-private.h>
+#include <pmath-core/expressions.h>
 
-#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-util/concurrency/threads-private.h>
 
 
 pmath_t builtin_internal_abortmessage(pmath_expr_t expr) {

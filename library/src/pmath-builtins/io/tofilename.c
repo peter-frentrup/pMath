@@ -1,5 +1,5 @@
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings-private.h>
+#include <pmath-core/strings.h>
 
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -18,8 +18,9 @@
 #endif
 
 PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr) {
-  struct _pmath_string_t *result;
+  pmath_string_t result;
   pmath_t dir, name, sub;
+  uint16_t *resultbuf;
   uint16_t *buf;
   const uint16_t *subbuf;
   size_t exprlen = pmath_expr_length(expr);
@@ -93,14 +94,15 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr) {
   if(sublen > 0 && IS_PATH_SEP(subbuf[0]))
     --len;
     
-  result = _pmath_new_string_buffer(len);
-  if(!result) {
+  result = pmath_string_new_raw(len);
+  if(!pmath_string_begin_write(&result, &resultbuf, NULL)) {
     pmath_unref(dir);
     pmath_unref(name);
+    pmath_unref(result);
     return PMATH_NULL;
   }
   
-  buf = AFTER_STRING(result);
+  buf = resultbuf;
   if(pmath_is_string(dir)) {
     sublen = pmath_string_length(dir);
     subbuf = pmath_string_buffer(&dir);
@@ -148,5 +150,6 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr) {
   }
   memcpy(buf, subbuf, sizeof(uint16_t) * sublen);
   pmath_unref(name);
-  return _pmath_from_buffer(result);
+  pmath_string_end_write(&result, &resultbuf);
+  return result;
 }

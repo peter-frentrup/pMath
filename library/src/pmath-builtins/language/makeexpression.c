@@ -1,6 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
-#include <pmath-core/strings-private.h>
+#include <pmath-core/strings.h>
 
 #include <pmath-language/charnames.h>
 #include <pmath-language/number-parsing-private.h>
@@ -683,57 +683,60 @@ static pmath_t make_expression_from_string_token(pmath_string_t string) {
   const uint16_t *str = pmath_string_buffer(&string);
   int             len = pmath_string_length( string);
   
-  struct _pmath_string_t *result = _pmath_new_string_buffer(len - 1);
-  int j = 0;
-  int i = 1;
-  int k = 0;
-  
-  while(i < len - 1) {
-    if(k == 0 && str[i] == '\\') {
-      uint32_t u;
-      const uint16_t *end;
-      
-      if(i + 1 < len && str[i + 1] <= ' ') {
-        ++i;
-        while(i < len && str[i] <= ' ')
+  pmath_string_t result = pmath_string_new_raw(len - 1);
+  uint16_t *resbuf;
+  if(pmath_string_begin_write(&result, &resbuf, NULL)) {
+    int j = 0;
+    int i = 1;
+    int k = 0;
+    
+    while(i < len - 1) {
+      if(k == 0 && str[i] == '\\') {
+        uint32_t u;
+        const uint16_t *end;
+        
+        if(i + 1 < len && str[i + 1] <= ' ') {
           ++i;
-          
-        continue;
-      }
-      
-      end = pmath_char_parse(str + i, len - i, &u);
-      
-      if(u <= 0xFFFF) {
-        AFTER_STRING(result)[j++] = (uint16_t)u;
-        i = (int)(end - str);
-      }
-      else if(u <= 0x10FFFF) {
-        u -= 0x10000;
-        AFTER_STRING(result)[j++] = 0xD800 | (uint16_t)((u >> 10) & 0x03FF);
-        AFTER_STRING(result)[j++] = 0xDC00 | (uint16_t)(u & 0x03FF);
-        i = (int)(end - str);
+          while(i < len && str[i] <= ' ')
+            ++i;
+            
+          continue;
+        }
+        
+        end = pmath_char_parse(str + i, len - i, &u);
+        
+        if(u <= 0xFFFF) {
+          resbuf[j++] = (uint16_t)u;
+          i = (int)(end - str);
+        }
+        else if(u <= 0x10FFFF) {
+          u -= 0x10000;
+          resbuf[j++] = 0xD800 | (uint16_t)((u >> 10) & 0x03FF);
+          resbuf[j++] = 0xDC00 | (uint16_t)(u & 0x03FF);
+          i = (int)(end - str);
+        }
+        else {
+          // TODO: error/warning
+          resbuf[j++] = str[i++];
+        }
       }
       else {
-        // TODO: error/warning
-        AFTER_STRING(result)[j++] = str[i++];
+        if(str[i] == PMATH_CHAR_LEFT_BOX)
+          ++k;
+        else if(str[i] == PMATH_CHAR_RIGHT_BOX)
+          --k;
+          
+        resbuf[j++] = str[i++];
       }
     }
-    else {
-      if(str[i] == PMATH_CHAR_LEFT_BOX)
-        ++k;
-      else if(str[i] == PMATH_CHAR_RIGHT_BOX)
-        --k;
-        
-      AFTER_STRING(result)[j++] = str[i++];
+    
+    pmath_string_end_write(&result, &resbuf);
+    if(i + 1 == len && str[i] == '"') {
+      pmath_unref(string);
+      return HOLDCOMPLETE(pmath_string_part(result, 0, j));
     }
   }
-  
-  if(i + 1 == len && str[i] == '"') {
-    pmath_unref(string);
-    result->length = j;
-    return HOLDCOMPLETE(_pmath_from_buffer(result));
-  }
-  
+  pmath_unref(result);
   pmath_message(PMATH_NULL, "inv", 1, string);
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }

@@ -17,12 +17,13 @@ toNiceInfo(DebugInfoSource(~file, ~s .. ~e))::=
 	Row({file, s..e}, ",")
 toNiceInfo(~x)::= x
 
-wrapHyperlinkBox(~content, DebugInfoSource(~file, {~l1, ~c1} .. {~l2, ~c2}))::= 
-	ButtonBox(
-		content, 
-		ButtonFunction -> (OpenTextFile(file, Line->l1, Column->c1) &),
-		ButtonFrame -> "Frameless")
-wrapHyperlinkBox(~content, ~)::= content
+Function wrapHyperlinkBox(~content, ~source) {
+	With(func := DebugInfoOpenerFunction(source))
+	If(func === None) {
+		Return( content )
+	}
+	Return( ButtonBox(content, ButtonFunction -> func, ButtonFrame -> "Frameless") )
+}
 
 isOperatorToken(";"):= True
 isOperatorToken(","):= True
@@ -110,6 +111,15 @@ Function internalInspectBoxes(box: (head: UnderoverscriptBox)(~content1, ~conten
 Function internalInspectBoxes(box: GridBox(~matrix, ~~~opts)) {
 	With(debugInfo:= Developer`GetDebugInfo(box))
 	With(newBox:= GridBox(matrix.Map(internalInspectBoxes, 2), opts))
+	If(debugInfo =!= /\/) {
+		Return(TooltipBox(newBox.wrapHyperlinkBox(debugInfo), ToBoxes(toNiceInfo(debugInfo))))
+	}
+	Return(newBox)
+}
+
+Function internalInspectBoxes(box: TemplateBox(~args, ~~~opts)) {
+	With(debugInfo:= Developer`GetDebugInfo(box))
+	With(newBox:= TemplateBox(args.Map(internalInspectBoxes), opts))
 	If(debugInfo =!= /\/) {
 		Return(TooltipBox(newBox.wrapHyperlinkBox(debugInfo), ToBoxes(toNiceInfo(debugInfo))))
 	}

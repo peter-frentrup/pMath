@@ -1,5 +1,5 @@
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings-private.h>
+#include <pmath-core/strings.h>
 
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -34,12 +34,10 @@ static pmath_t stringtake(
     if(start > 0 && end > 0 && step > 0 && start <= end && end <= len) {
       if(step > 1) {
         const uint16_t *buf = pmath_string_buffer(&str);
-        struct _pmath_string_t *s;
         long newlen = (end - start) / step + 1;
-        
-        s = _pmath_new_string_buffer((int)newlen);
-        if(s) {
-          uint16_t *sbuf = AFTER_STRING(s);
+        pmath_string_t s = pmath_string_new_raw((int)newlen);
+        uint16_t *sbuf;
+        if(pmath_string_begin_write(&s, &sbuf, NULL)) {
           long i = 0;
           
           --start;
@@ -48,10 +46,14 @@ static pmath_t stringtake(
             ++i;
             start += step;
           }
+          
+          pmath_unref(str);
+          pmath_string_end_write(&s, &sbuf);
+          return s;
         }
-        
         pmath_unref(str);
-        return _pmath_from_buffer(s);
+        pmath_unref(s);
+        return PMATH_NULL;
       }
       else
         return pmath_string_part(str, start - 1, end - start + 1);

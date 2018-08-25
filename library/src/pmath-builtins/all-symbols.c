@@ -260,8 +260,6 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr
 PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(          pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/io/ ...
-PMATH_PRIVATE pmath_t builtin_developer_fileinformation(pmath_expr_t expr);
-
 PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_binaryread(                    pmath_expr_t expr);
@@ -271,13 +269,9 @@ PMATH_PRIVATE pmath_t builtin_characters(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_close(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_compress(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_compressstream(                pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_copydirectory_and_copyfile(    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_createdirectory(               pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_deletedirectory_and_deletefile(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_directory(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_directoryname(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_environment(                   pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_filebytecount(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_filenames(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_filetype(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_find(                          pmath_expr_t expr);
@@ -289,7 +283,6 @@ PMATH_PRIVATE pmath_t builtin_parentdirectory(               pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_print(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_read(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_readlist(                      pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_renamedirectory_and_renamefile(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_resetdirectory(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_sectionprint(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_setdirectory(                  pmath_expr_t expr);
@@ -1156,7 +1149,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_NOTCONGRUENT                     = NEW_SYSTEM_SYMBOL("NotCongruent"))
   VERIFY(   PMATH_SYMBOL_NOTCUPCAP                        = NEW_SYSTEM_SYMBOL("NotCupCap"))
   VERIFY(   PMATH_SYMBOL_NOTELEMENT                       = NEW_SYSTEM_SYMBOL("NotElement"))
-  VERIFY(   PMATH_SYMBOL_NOTGREATER                       = NEW_SYSTEM_SYMBOL("NotGreaterGreater"))
+  VERIFY(   PMATH_SYMBOL_NOTGREATER                       = NEW_SYSTEM_SYMBOL("NotGreater"))
   VERIFY(   PMATH_SYMBOL_NOTGREATEREQUAL                  = NEW_SYSTEM_SYMBOL("NotGreaterEqual"))
   VERIFY(   PMATH_SYMBOL_NOTGREATERLESS                   = NEW_SYSTEM_SYMBOL("NotGreaterLess"))
   VERIFY(   PMATH_SYMBOL_NOTGREATERTILDE                  = NEW_SYSTEM_SYMBOL("NotGreaterTilde"))
@@ -1569,7 +1562,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,                 builtin_internal_threadidle)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_WRITEREALBALL,              builtin_internal_writerealball)
   
-  BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION,     builtin_developer_fileinformation)
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY,     builtin_developer_frompackedarray)
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO,        builtin_developer_getdebuginfo)
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE,      builtin_developer_hasbuiltincode)
@@ -1627,18 +1619,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_CONJUGATE,                   builtin_conjugate)
   BIND_DOWN(   PMATH_SYMBOL_CONSTANTARRAY,               builtin_constantarray)
   BIND_DOWN(   PMATH_SYMBOL_CONTINUE,                    general_builtin_zeroonearg)
-  BIND_DOWN(   PMATH_SYMBOL_COPYDIRECTORY,               builtin_copydirectory_and_copyfile)
-  BIND_DOWN(   PMATH_SYMBOL_COPYFILE,                    builtin_copydirectory_and_copyfile)
   BIND_DOWN(   PMATH_SYMBOL_COUNT,                       builtin_count)
-  BIND_DOWN(   PMATH_SYMBOL_CREATEDIRECTORY,             builtin_createdirectory)
   BIND_DOWN(   PMATH_SYMBOL_CREATEDOCUMENT,              general_builtin_nofront)
   BIND_DOWN(   PMATH_SYMBOL_CURRENTVALUE,                general_builtin_nofront)
   BIND_DOWN(   PMATH_SYMBOL_DATELIST,                    builtin_datelist)
   BIND_DOWN(   PMATH_SYMBOL_DECREMENT,                   builtin_dec_or_inc_or_postdec_or_postinc)
   BIND_DOWN(   PMATH_SYMBOL_DEFAULT,                     builtin_default)
   BIND_DOWN(   PMATH_SYMBOL_DEFAULTRULES,                builtin_symbol_rules)
-  BIND_DOWN(   PMATH_SYMBOL_DELETEDIRECTORY,             builtin_deletedirectory_and_deletefile)
-  BIND_DOWN(   PMATH_SYMBOL_DELETEFILE,                  builtin_deletedirectory_and_deletefile)
   BIND_DOWN(   PMATH_SYMBOL_DEPTH,                       builtin_depth)
   BIND_DOWN(   PMATH_SYMBOL_DET,                         builtin_det)
   BIND_DOWN(   PMATH_SYMBOL_DIAGONALMATRIX,              builtin_diagonalmatrix)
@@ -1675,7 +1662,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_EXTRACT,                     builtin_extract)
   BIND_DOWN(   PMATH_SYMBOL_FACTORIAL,                   builtin_factorial)
   BIND_DOWN(   PMATH_SYMBOL_FACTORIAL2,                  builtin_factorial2)
-  BIND_DOWN(   PMATH_SYMBOL_FILEBYTECOUNT,               builtin_filebytecount)
   BIND_DOWN(   PMATH_SYMBOL_FILENAMES,                   builtin_filenames)
   BIND_DOWN(   PMATH_SYMBOL_FILETYPE,                    builtin_filetype)
   BIND_DOWN(   PMATH_SYMBOL_FILTERRULES,                 builtin_filterrules)
@@ -1841,8 +1827,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_REGATHER,                    builtin_regather)
   BIND_DOWN(   PMATH_SYMBOL_RELEASEHOLD,                 builtin_releasehold)
   BIND_DOWN(   PMATH_SYMBOL_REMOVE,                      builtin_remove)
-  BIND_DOWN(   PMATH_SYMBOL_RENAMEDIRECTORY,             builtin_renamedirectory_and_renamefile)
-  BIND_DOWN(   PMATH_SYMBOL_RENAMEFILE,                  builtin_renamedirectory_and_renamefile)
   BIND_DOWN(   PMATH_SYMBOL_REPLACE,                     builtin_replace)
   BIND_DOWN(   PMATH_SYMBOL_REPLACELIST,                 builtin_replacelist)
   BIND_DOWN(   PMATH_SYMBOL_REPLACEPART,                 builtin_replacepart)

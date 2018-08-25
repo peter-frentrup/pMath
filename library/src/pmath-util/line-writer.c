@@ -715,8 +715,9 @@ void pmath_write_with_pagewidth_ex(
   
   pmath_write_ex(&info, obj);
   
-  while(lw.pos > 0)
+  do {
     flush_line(&lw);
+  } while(lw.pos > 0);
     
   if(lw.all_write_pos) {
     pmath_debug_print("[unexpected write_pos remaining]\n");

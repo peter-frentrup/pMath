@@ -39,6 +39,32 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_string_t pmath_string_new(int capacity);
 
+/**\brief Create an new uninitialized pMath String with given length.
+   \memberof pmath_string_t
+   \param capacity The length of the string. Must not be negative.
+   \return A new pMath String or PMATH_NULL on failure. You must destroy it.
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_string_t pmath_string_new_raw(int length);
+
+/**\brief Begin writing to a pMath string.
+   \param str    Pointer to a pMath string.
+   \param buffer Will receive the buffer to write to.
+   \param length (optional) Will receive the string length.
+   \return Whether writing is possible. If so, you will have to finish writing 
+   with pmath_string_end_write(), before using \a str in any way.
+ */
+PMATH_API
+pmath_bool_t pmath_string_begin_write(pmath_string_t *str, uint16_t **buffer, int *length);
+
+/**\brief Finish writing a pMath string.
+   \param str    Pointer to a pMath string, that was previously given to pmath_string_begin_write()
+   \param buffer Pointer to the buffer returned by pmath_string_begin_write().
+ */
+PMATH_API
+void pmath_string_end_write(pmath_string_t *str, uint16_t **buffer);
+
 /**\brief Insert an Latin-1 encoded buffer into a pMath String.
    \memberof pmath_string_t
    \param str A pMath String or PMATH_NULL. It will be freed.

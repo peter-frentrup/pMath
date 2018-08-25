@@ -3,8 +3,6 @@
 
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols-private.h>
-
 
 static size_t leafcount(pmath_t obj) { // obj will be freed
   if(pmath_is_packed_array(obj)) {

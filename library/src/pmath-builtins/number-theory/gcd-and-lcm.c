@@ -1,6 +1,5 @@
+#include <pmath-core/expressions.h>
 #include <pmath-core/numbers-private.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 
 /* {1,2,3,4}, f --> f(f(f(1,2),3),4)

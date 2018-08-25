@@ -724,7 +724,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           new_expr_part->inherited.inherited.gc_refcount = 0;
           new_expr_part->inherited.length                = old_expr->length;
           new_expr_part->inherited.debug_ptr             = NULL;
-          new_expr_part->inherited.items[0]              = pmath_ref(item);
+          new_expr_part->inherited.items[0]              = item;
           
           new_expr_part->start  = old_expr_part->start;
           new_expr_part->buffer = old_expr_part->buffer;
@@ -1632,6 +1632,7 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
         struct _pmath_expr_t *new_expr;
         size_t i;
         
+        // TODO: maybe better create a EXPRESSION_GENERAL_PART ?
         new_expr = _pmath_expr_new_noinit(_expr->length);
         if(!new_expr) {
           pmath_unref(info);

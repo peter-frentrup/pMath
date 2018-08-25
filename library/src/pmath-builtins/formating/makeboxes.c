@@ -1,7 +1,6 @@
 #include <pmath-core/custom-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays-private.h>
-#include <pmath-core/strings-private.h>
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-language/patterns-private.h>

@@ -3,7 +3,7 @@
 #include <pmath-core/expressions.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/packed-arrays.h>
-#include <pmath-core/strings-private.h>
+#include <pmath-core/strings.h>
 
 #include <pmath-util/debug.h>
 #include <pmath-util/files/abstract-file.h>
@@ -698,7 +698,8 @@ static pmath_t read_back_ref(struct deserializer_t *info) {
 
 static pmath_string_t read_latin1_string(struct deserializer_t *info) {
   int len = read_int(info);
-  struct _pmath_string_t *result;
+  pmath_string_t result;
+  uint16_t *buf;
   
   if(len < 0) {
     if(!info->error)
@@ -707,37 +708,39 @@ static pmath_string_t read_latin1_string(struct deserializer_t *info) {
     return PMATH_UNDEFINED;
   }
   
-  result = _pmath_new_string_buffer(len);
-  if(!result) {
+  result = pmath_string_new_raw(len);
+  if(!pmath_string_begin_write(&result, &buf, NULL)) {
+    pmath_unref(result);
     if(!info->error)
       info->error = PMATH_SERIALIZE_NO_MEMORY;
       
     return PMATH_UNDEFINED;
   }
   
-  if(pmath_file_read(info->file, AFTER_STRING(result), len, FALSE) != (size_t)len) {
+  if(pmath_file_read(info->file, buf, len, FALSE) != (size_t)len) {
     if(!info->error)
       info->error = PMATH_SERIALIZE_EOF;
       
-    pmath_unref(PMATH_FROM_PTR(result));
+    pmath_unref(result);
     return PMATH_UNDEFINED;
   }
   
   {
-    uint16_t *buf       =            AFTER_STRING(result);
-    const uint8_t *data = (uint8_t *)AFTER_STRING(result);
+    const uint8_t *data = (uint8_t *)buf;
     
     --len;
     for(; len >= 0; --len)
       buf[len] = data[len];
   }
   
-  return _pmath_from_buffer(result);
+  pmath_string_end_write(&result, &buf);
+  return result;
 }
 
 static pmath_string_t read_ucs2_string(struct deserializer_t *info) {
   int len = read_int(info);
-  struct _pmath_string_t *result;
+  pmath_string_t result;
+  uint16_t *buf;
   
   if(2 * len < 0) {
     if(!info->error)
@@ -746,33 +749,34 @@ static pmath_string_t read_ucs2_string(struct deserializer_t *info) {
     return PMATH_UNDEFINED;
   }
   
-  result = _pmath_new_string_buffer(len);
-  if(!result) {
+  result = pmath_string_new_raw(len);
+  if(!pmath_string_begin_write(&result, &buf, NULL)) {
+    pmath_unref(result);
     if(!info->error)
       info->error = PMATH_SERIALIZE_NO_MEMORY;
       
     return PMATH_UNDEFINED;
   }
   
-  if(pmath_file_read(info->file, AFTER_STRING(result), 2 * len, FALSE) != 2 * (size_t)len) {
+  if(pmath_file_read(info->file, buf, 2 * len, FALSE) != 2 * (size_t)len) {
     if(!info->error)
       info->error = PMATH_SERIALIZE_EOF;
       
-    pmath_unref(PMATH_FROM_PTR(result));
-    
+    pmath_unref(result);
     return PMATH_UNDEFINED;
   }
   
 #if PMATH_BYTE_ORDER > 0
   {
-    uint16_t *buf = (uint16_t *)AFTER_STRING(result);
+    uint16_t *tmp = buf;
     
-    for(; len > 0; --len, ++buf)
-      *buf = ((*buf & 0x00FF) << 8) | ((*buf & 0xFF00) >> 8);
+    for(; len > 0; --len, ++tmp)
+      *tmp = ((*tmp & 0x00FF) << 8) | ((*tmp & 0xFF00) >> 8);
   }
 #endif
   
-  return _pmath_from_buffer(result);
+  pmath_string_end_write(&result, &buf);
+  return result;
 }
 
 static pmath_t read_symbol(struct deserializer_t *info) {

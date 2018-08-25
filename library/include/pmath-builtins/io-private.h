@@ -19,7 +19,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_string_t _pmath_canonical_file_name(pmath_string_t relname);
+pmath_string_t _pmath_get_directory(void);
 
 
 PMATH_PRIVATE void _init_pmath_native_encoding(void); // called from _pmath_strings_init()

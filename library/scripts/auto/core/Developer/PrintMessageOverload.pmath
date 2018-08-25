@@ -50,9 +50,14 @@ Function stackEntryForm(OptionsPattern()) {
 	If(location === None) {
 		Return @ head
 	} Else {
-		Return @ Row @ {head, " in ", DescribeLocation(location)}
+		Return @ Row @ {head, " in ", location}
 	}
 }
+
+Unprotect(DebugInfoSource)
+Format(~di:DebugInfoSource)::= DescribeLocation(di)
+Protect(DebugInfoSource)
+
 
 DescribeLocation(~expr)::= expr
 Function DescribeLocation(
@@ -60,7 +65,13 @@ Function DescribeLocation(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
 ) {
-	Return @ Row @ {"line ", fromLine, ":", fromColumn, "..", toLine, ":", toColumn, " of ", filename}
+	If(fromLine === toLine) {
+		If(fromColumn === toColumn) {
+			Return( Row @ {"line ", fromLine, ":", fromColumn, " of ", filename} )
+		}
+		Return( Row @ {"line ", fromLine, ": ", fromColumn, "..", toColumn, " of ", filename} )
+	}
+	Return( Row @ {"lines ", fromLine, ":", fromColumn, " .. ", toLine, ":", toColumn, " of ", filename} )
 }
 
 

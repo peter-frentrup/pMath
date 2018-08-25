@@ -1,0 +1,536 @@
+BeginPackage("System`Numerics`Trigonometry`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyTrig
+
+Begin("System`Numerics`Trigonometry`Private`")
+
+%
+% If direct (numerical) calculation of Sin(x), Cos(x), etc. is not possible (because 
+% x is an expression or an exact number), System`Private`AutoSimplifyTrig(Sin, x) 
+% etc. get called.
+% If that returns $Failed, the original expression Sin(x) etc. remains unevaluated. 
+% Otherwise, the result of AutoSimplifyTrig will be returned.
+%
+System`Private`AutoSimplifyTrig(~, ~):= $Failed
+System`Private`AutoSimplifyTrig(ArcCos,  ~x):= autoSimplifyArcCos(x)
+System`Private`AutoSimplifyTrig(ArcCosh, ~x):= autoSimplifyArcCosh(x)
+System`Private`AutoSimplifyTrig(~f, ~q:Rational)::= trigOfRational(f, q)
+System`Private`AutoSimplifyTrig(~f, ~q:Integer)::= trigOfRational(f, q)
+System`Private`AutoSimplifyTrig(~f, ~z:Complex)::= trigOfComplex(f, z)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcCos)::= trigOfTrigInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcCot)::= trigOfTrigInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcCsc)::= trigOfTrigInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcSec)::= trigOfTrigInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcSin)::= trigOfTrigInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcTan)::= trigOfTrigInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcCosh)::= hypOfHypInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcCoth)::= hypOfHypInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcCsch)::= hypOfHypInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcSech)::= hypOfHypInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcSinh)::= hypOfHypInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:ArcTanh)::= hypOfHypInverse(f, x)
+System`Private`AutoSimplifyTrig(~f, Pi)::= trigOfPiFactor(f, 1)
+System`Private`AutoSimplifyTrig(~f, ~x:Power)::= trigOfPower(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:Times)::= trigOfProduct(f, x)
+System`Private`AutoSimplifyTrig(~f, ~x:Plus)::= trigOfSum(f, x)
+System`Private`AutoSimplifyTrig(~f, ~inf:DirectedInfinity)::= trigAtInfinity(f, inf)
+
+Function autoSimplifyArcCos(~x) {
+    With(y:= System`Private`AutoSimplifyTrig(ArcSin, x))
+    If(y =!= $Failed && y.IsFreeOf(ArcSin) && y.IsFreeOf(ArcSinh)) {
+        Return(Pi/2 - y)
+    }
+    Return($Failed)
+}
+
+% ArcCosh(x) = I ArcCos(x) for real x in -1..1
+Function autoSimplifyArcCosh(~x) {
+    If(-1 <= x <= 1) {
+        With(y:= autoSimplifyArcCos(x)) % ArcCos(x)
+        If(y =!= $Failed && y.IsFreeOf(ArcCos) && y.IsFreeOf(ArcCosh)) {
+            Return(I y)
+        }
+    }
+    Return($Failed)
+}
+
+trigOfRational(~f, ~q):= $Failed
+trigOfRational(ArcSin, ~q)::= arcSinOfRational(q)
+trigOfRational(ArcSinh, 0)::= 0
+trigOfRational(ArcSinh, ~q)::= If(IsNegative(q), -ArcSinh(-q), $Failed)
+trigOfRational(ArcTan, 0)::= 0
+trigOfRational(ArcTan, 1):= Pi/4
+trigOfRational(ArcTan, ~q)::= If(IsNegative(q), -ArcTan(-q), $Failed)
+trigOfRational(ArcTanh, 0)::= 0
+trigOfRational(ArcTanh, ~q)::= If(IsNegative(q), -ArcTanh(-q), $Failed)
+trigOfRational(Cos, 0)::= 1
+trigOfRational(Cos, ~q)::= If(IsNegative(q), Cos(-q), $Failed)
+trigOfRational(Cosh, 0)::= 1
+trigOfRational(Cosh, ~q)::= If(IsNegative(q), Cosh(-q), $Failed)
+trigOfRational(Cot, 0)::= ComplexInfinity
+trigOfRational(Cot, ~q)::= If(IsNegative(q), -Cot(-q), $Failed)
+trigOfRational(Coth, 0)::= ComplexInfinity
+trigOfRational(Coth, ~q)::= If(IsNegative(q), -Coth(-q), $Failed)
+trigOfRational(Csc, 0)::= ComplexInfinity
+trigOfRational(Csc, ~q)::= If(IsNegative(q), -Csc(-q), $Failed)
+trigOfRational(Csch, 0)::= ComplexInfinity
+trigOfRational(Csch, ~q)::= If(IsNegative(q), -Csch(-q), $Failed)
+trigOfRational(Sec, 0)::= 1
+trigOfRational(Sec, ~q)::= If(IsNegative(q), Sec(-q), $Failed)
+trigOfRational(Sech, 0)::= 1
+trigOfRational(Sech, ~q)::= If(IsNegative(q), Sech(-q), $Failed)
+trigOfRational(Sin, 0)::= 0
+trigOfRational(Sin, ~q)::= If(IsNegative(q), -Sin(-q), $Failed)
+trigOfRational(Sinc, 0)::= 1
+trigOfRational(Sinc, ~q)::= If(IsNegative(q), Sinc(-q), $Failed)
+trigOfRational(Sinh, 0)::= 0
+trigOfRational(Sinh, ~q)::= If(IsNegative(q), -Sinh(-q), $Failed)
+trigOfRational(Tan, 0)::= 0
+trigOfRational(Tan, ~q)::= If(IsNegative(q), -Tan(-q), $Failed)
+trigOfRational(Tanh, 0)::= 0
+trigOfRational(Tanh, ~q)::= If(IsNegative(q), -Tanh(-q), $Failed)
+
+arcSinOfRational(~):= $Failed
+arcSinOfRational(0):= 0
+arcSinOfRational(1/2):= Pi/6
+arcSinOfRational(1):= Pi/2
+arcSinOfRational(~q)::= If(IsNegative(q), -ArcSin(-q), $Failed)
+
+trigOfComplex(~f, ~x)::= $Failed
+trigOfComplex(ArcSin, Complex(0, ~y))::= I ArcSinh(y)
+trigOfComplex(ArcSinh, Complex(0, ~y))::= I ArcSin(y)
+trigOfComplex(ArcTan, Complex(0, ~y))::= I ArcTanh(y)
+trigOfComplex(ArcTanh, Complex(0, ~y))::= I ArcTan(y)
+trigOfComplex(Cos,  Complex(0, ~y))::= Cosh(y)
+trigOfComplex(Cosh, Complex(0, ~y))::= Cos(y)
+trigOfComplex(Cot,  Complex(0, ~y))::= -I Coth(y)
+trigOfComplex(Coth, Complex(0, ~y))::= -I Cot(y)
+trigOfComplex(Csc,  Complex(0, ~y))::= -I Csch(y)
+trigOfComplex(Csch, Complex(0, ~y))::= -I Csc(y)
+trigOfComplex(Sec,  Complex(0, ~y))::= Sech(y)
+trigOfComplex(Sech, Complex(0, ~y))::= Sec(y)
+trigOfComplex(Sin,  Complex(0, ~y))::= I Sinh(y)
+trigOfComplex(Sinh, Complex(0, ~y))::= I Sin(y)
+trigOfComplex(Tan,  Complex(0, ~y))::= I Tanh(y)
+trigOfComplex(Tanh, Complex(0, ~y))::= I Tan(y)
+
+
+%
+% Cos(ArcCos(x)) etc.
+%
+trigOfTrigInverse(~f, ~y)::= $Failed
+
+trigOfTrigInverse(Cos, ArcCos(~x))::= x
+trigOfTrigInverse(Sin, ArcCos(~x))::= Sqrt(1 - x^2)
+
+trigOfTrigInverse(Cos, ArcCot(~x))::= 1/Sqrt(1 + 1/x^2)
+trigOfTrigInverse(Sin, ArcCot(~x))::= 1/x * 1/Sqrt(1 + 1/x^2)
+
+trigOfTrigInverse(Cos, ArcCsc(~x))::= Sqrt(1 - 1/x^2)
+trigOfTrigInverse(Sin, ArcCsc(~x))::= 1/x
+
+trigOfTrigInverse(Cos, ArcSec(~x))::= 1/x
+trigOfTrigInverse(Sin, ArcSec(~x))::= Sqrt(1 - 1/x^2)
+
+trigOfTrigInverse(Cos, ArcSin(~x))::= Sqrt(1 - x^2)
+trigOfTrigInverse(Sin, ArcSin(~x))::= x
+
+trigOfTrigInverse(Cos, ArcTan(~x))::= 1 / Sqrt(1 + x^2)
+trigOfTrigInverse(Sin, ArcTan(~x))::= x / Sqrt(1 + x^2)
+
+Scan(
+    {ArcCos, ArcCot, ArcCsc, ArcSec, ArcSin, ArcTan},
+    Function(Block{
+        With(sin:= trigOfTrigInverse(Sin, #(x)))
+        With(cos:= trigOfTrigInverse(Cos, #(x)))
+        trigOfTrigInverse(Cot, #(~x)):= cos/sin
+        trigOfTrigInverse(Csc, #(~x)):= 1/sin
+        trigOfTrigInverse(Sec, #(~x)):= 1/cos
+        trigOfTrigInverse(Tan, #(~x)):= sin/cos
+    })
+)
+
+
+%
+% Cosh(ArcCosh(x)) etc.
+%
+hypOfHypInverse(~f, ~y):= $Failed
+hypOfHypInverse(Cosh, ArcCosh(~x))::= x
+hypOfHypInverse(Sinh, ArcCosh(~x))::= Sqrt(x+1)Sqrt(x-1)
+
+hypOfHypInverse(Cosh, ArcCoth(~x))::= 1/Sqrt(1 - 1/x^2)
+hypOfHypInverse(Sinh, ArcCoth(~x))::= 1/(Sqrt(1 - 1/x^2) x)
+
+hypOfHypInverse(Cosh, ArcCsch(~x))::= Sqrt(1 + 1/x^2)
+hypOfHypInverse(Sinh, ArcCsch(~x))::= 1/x
+
+hypOfHypInverse(Cosh, ArcSech(~x))::= 1/x
+hypOfHypInverse(Sinh, ArcSech(~x))::= Sqrt(1-x) / (Sqrt(1/(1+x)) x)
+
+hypOfHypInverse(Cosh, ArcSinh(~x))::= Sqrt(1 + x^2)
+hypOfHypInverse(Sinh, ArcSinh(~x))::= x
+
+hypOfHypInverse(Cosh, ArcTanh(~x))::= 1/Sqrt(1-x^2)
+hypOfHypInverse(Sinh, ArcTanh(~x))::= x/Sqrt(1-x^2)
+
+Scan(
+    {ArcCosh, ArcCoth, ArcCsch, ArcSech, ArcSinh, ArcTanh},
+    Function(Block{
+        With(sinh:= hypOfHypInverse(Sinh, #(x)))
+        With(cosh:= hypOfHypInverse(Cosh, #(x)))
+        hypOfHypInverse(Coth, #(~x)):= cosh/sinh
+        hypOfHypInverse(Csch, #(~x)):= 1/sinh
+        hypOfHypInverse(Sech, #(~x)):= 1/cosh
+        hypOfHypInverse(Tanh, #(~x)):= sinh/cosh
+    })
+)
+
+
+trigOfPower(~f, ~x)::= $Failed
+trigOfPower(ArcSin, ~x)::= arcSinOfPower(x)
+trigOfPower(ArcTan, ~x)::= arcTanOfPower(x)
+
+arcSinOfPower(~):= $Failed
+arcSinOfPower(1/Sqrt(2)):= Pi/4
+arcSinOfPower(Sqrt(5/8 - Sqrt(5)/8)):= Pi/5
+arcSinOfPower(Sqrt(5/8 + Sqrt(5)/8)):= 2 Pi/5
+
+arcTanOfPower(~):= $Failed
+arcTanOfPower(Sqrt(3)):= Pi/3
+arcTanOfPower(Sqrt(5 - 2 Sqrt(5))):= Pi/5
+arcTanOfPower(Sqrt(5 + 2 Sqrt(5))):= 2 Pi/5
+arcTanOfPower(1/Sqrt(3)):= Pi/6
+arcTanOfPower(Sqrt(1 - 2/Sqrt(5))):= Pi/10
+arcTanOfPower(Sqrt(1 + 2/Sqrt(5))):= 3 Pi/10
+
+
+%
+% Cos(x y) etc. 
+%
+Function trigOfProduct(~f, ~x * Pi) {
+    With(result:= trigOfPiFactor(f, x))
+    If(result =!= $Failed) {
+        Return(result)
+    }
+    Return(trigOfNonPiProduct(f, x Pi))
+}
+Function trigOfProduct(~f, ~x * Degree) {
+    With(result:= trigOfPiFactor(f, x / 180))
+    If(result =!= $Failed) {
+        Return(result)
+    }
+    Return(trigOfNonPiProduct(f, x Degree))
+}
+trigOfProduct(~f, ~x)::= trigOfNonPiProduct(f, x)
+
+trigOfPiFactor(~f, ~x)::= $Failed
+trigOfPiFactor(~f, ~n:Integer)::= trigOfIntegerPiFactor(f, n)
+trigOfPiFactor(~f, ~q:Rational)::= trigOfRationalPiFactor(f, q)
+
+trigOfIntegerPiFactor(~f, ~n)::= $Failed
+trigOfIntegerPiFactor(Cos, ~n)::= If(IsEven(n), 1, -1, $Failed)
+trigOfIntegerPiFactor(Cot, ~n)::= ComplexInfinity
+trigOfIntegerPiFactor(Csc, ~n)::= ComplexInfinity
+trigOfIntegerPiFactor(Sec, ~n)::= If(IsEven(n), 1, -1, $Failed)
+trigOfIntegerPiFactor(Sin, ~n)::= 0
+trigOfIntegerPiFactor(Sinc, ~n)::= 0
+trigOfIntegerPiFactor(Tan, ~n)::= 0
+
+trigOfRationalPiFactor(~f, ~q)::= $Failed
+Function trigOfRationalPiFactor(Cos, ~q) {
+    With(x:= Mod(q, 2))
+    If(x >= 1) { Return( -Cos((x-1) Pi) ) }
+    If(x > 1/2) { Return( -Sin((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Sin((1/2-x) Pi) ) }
+    Switch(x) {
+        %Case(1/2) { Return( 0 ) }
+        %Case(1/3) { Return( 1/2 ) }
+        Case(1/4) { Return( 1/Sqrt(2) ) }
+        Case(1/5) { Return( 1/4 (1 + Sqrt(5)) ) }
+        %Case(2/5) { Return( 1/4 (-1 + Sqrt(5)) ) }
+        Case(1/6) { Return( 1/2 Sqrt(3) ) }
+        Case(1/10) { Return( Sqrt(5/8 + 1/8 Sqrt(5)) ) }
+        %Case(3/10) { Return( Sqrt(5/8 - 1/8 Sqrt(5)) ) }
+        Case(1/12) { Return( (1 + Sqrt(3))/(2 Sqrt(2)) ) }
+        %Case(5/12) { Return( (-1 + Sqrt(3))/(2 Sqrt(2)) ) }
+    }
+    Return($Failed)
+}
+Function trigOfRationalPiFactor(Sec, ~q) {
+    With(x:= Mod(q, 2))
+    If(x >= 1) { Return( -Sec((x-1) Pi) ) }
+    If(x > 1/2) { Return( -Csc((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Csc((1/2-x) Pi) ) }
+    Switch(x) {
+        Case(1/4) { Return( Sqrt(2) ) }
+        Case(1/5) { Return( -1 + Sqrt(5) ) }
+        Case(1/6) { Return( 2 / Sqrt(3) ) }
+        Case(1/10) { Return( Sqrt(2 - 2/Sqrt(5)) ) }
+        Case(1/12) { Return( Sqrt(2) (-1 + Sqrt(3)) ) }
+    }
+    Return($Failed)
+}
+
+Function trigOfRationalPiFactor(Sin, ~q) {
+    With(x:= Mod(q, 2))
+    If(x >= 1) { Return( -Sin((x-1) Pi) ) }
+    If(x > 1/2) { Return( Cos((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Cos((1/2-x) Pi) ) }
+    Switch(x) {
+        %Case(1/2) { Return( 1 ) }
+        %Case(1/3) { Return( 1/2 Sqrt(3) ) }
+        Case(1/4) { Return( 1/Sqrt(2) ) }
+        Case(1/5) { Return( Sqrt(5/8 - 1/8 Sqrt(5)) ) }
+        %Case(2/5) { Return( Sqrt(5/8 + 1/8 Sqrt(5)) ) }
+        Case(1/6) { Return( 1/2 ) }
+        Case(1/10) { Return( 1/4 (-1 + Sqrt(5)) ) }
+        %Case(3/10) { Return( 1/4 (1 + Sqrt(5)) ) }
+        Case(1/12) { Return( (-1 + Sqrt(3))/(2 Sqrt(2)) ) }
+        %Case(5/12) { Return( (1 + Sqrt(3))/(2 Sqrt(2)) ) }
+    }
+    Return($Failed)
+}
+trigOfRationalPiFactor(Sinc, ~q)::=
+    With(sin:= trigOfRationalPiFactor(Sin, q)) {
+        If(sin =!= $Failed, sin/q, $Failed, $Failed)
+    }
+Function trigOfRationalPiFactor(Csc, ~q) {
+    With(x:= Mod(q, 2))
+    If(x >= 1) { Return( -Csc((x-1) Pi) ) }
+    If(x > 1/2) { Return( Sec((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Sec((1/2-x) Pi) ) }
+    Switch(x) {
+        Case(1/4) { Return( Sqrt(2) ) }
+        Case(1/5) { Return( Sqrt(2 + 2/Sqrt(5)) ) }
+        Case(1/6) { Return( 2 ) }
+        Case(1/10) { Return( 1 + Sqrt(5) ) }
+        Case(1/12) { Return( Sqrt(2) + Sqrt(6) ) }
+    }
+    Return($Failed)
+}
+
+Function trigOfRationalPiFactor(Tan, ~q) {
+    With(x:= Mod(q, 1))
+    Switch(x) {
+        Case(1/2) { Return( ComplexInfinity ) }
+        Case(1/4) { Return( 1 ) }
+        Case(1/5) { Return( Sqrt(5 - 2 Sqrt(5)) ) }
+        Case(1/6) { Return( 1/Sqrt(3) ) }
+        Case(1/10) { Return( Sqrt(1 - 2/Sqrt(5)) ) }
+        Case(1/12) { Return( 2 - Sqrt(3) ) }
+    }
+    If(x > 1/2) { Return( -Cot((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Cot((1/2-x) Pi) ) }
+    Return($Failed)
+}
+Function trigOfRationalPiFactor(Cot, ~q) {
+    With(x:= Mod(q, 1))
+    Switch(x) {
+        Case(1/2) { Return( 0 ) }
+        Case(1/4) { Return( 1 ) }
+        Case(1/5) { Return( Sqrt(1 + 2/Sqrt(5)) ) }
+        Case(1/6) { Return( Sqrt(3) ) }
+        Case(1/10) { Return( Sqrt(5 + 2 Sqrt(5)) ) }
+        Case(1/12) { Return( 2 + Sqrt(3) ) }
+    }
+    If(x > 1/2) { Return( -Tan((x-1/2) Pi) ) }
+    If(x > 1/4) { Return( Tan((1/2-x) Pi) ) }
+    Return($Failed)
+}
+
+trigOfNonPiProduct(~f, ~x)::= $Failed
+trigOfNonPiProduct(~f, ~x * ~y)::= trigOfSimpleProduct(f, x, y)
+
+trigOfSimpleProduct(~f, ~x, ~y)::= $Failed
+trigOfSimpleProduct(~f, ~n:Integer,  ~y)::= trigOfRealFactor(f, n, y)
+trigOfSimpleProduct(~f, ~q:Rational, ~y)::= trigOfRealFactor(f, q, y)
+trigOfSimpleProduct(~f, ~x:Real,     ~y)::= trigOfRealFactor(f, x, y)
+trigOfSimpleProduct(~f, ~z:Complex, ~y)::= trigOfComplexFactor(f, z, y)
+
+trigOfRealFactor(~f, ~x, ~y)::= $Failed
+trigOfRealFactor(ArcSin, ~x,  ~y)::= arcSinOfRealFactor(x, y)
+trigOfRealFactor(ArcSinh, ~x,  ~y)::= If(x < 0, -ArcSinh(-x y), $Failed, $Failed)
+trigOfRealFactor(ArcTan, ~x,  ~y)::= If(x < 0, -ArcTan(-x y), $Failed, $Failed)
+trigOfRealFactor(ArcTanh, ~x,  ~y)::= If(x < 0, -ArcTanh(-x y), $Failed, $Failed)
+trigOfRealFactor(Cos,  ~x,  ~y)::= If(x < 0, Cos( -x y),  $Failed, $Failed)
+trigOfRealFactor(Cosh, ~x,  ~y)::= If(x < 0, Cosh(-x y),  $Failed, $Failed)
+trigOfRealFactor(Cot,  ~x,  ~y)::= If(x < 0, -Cot( -x y), $Failed, $Failed)
+trigOfRealFactor(Coth, ~x,  ~y)::= If(x < 0, -Coth(-x y), $Failed, $Failed)
+trigOfRealFactor(Csc,  ~x,  ~y)::= If(x < 0, -Csc( -x y), $Failed, $Failed)
+trigOfRealFactor(Csch, ~x,  ~y)::= If(x < 0, -Csch(-x y), $Failed, $Failed)
+trigOfRealFactor(Sec,  ~x,  ~y)::= If(x < 0, Sec( -x y),  $Failed, $Failed)
+trigOfRealFactor(Sech, ~x,  ~y)::= If(x < 0, Sech(-x y),  $Failed, $Failed)
+trigOfRealFactor(Sin,  ~x,  ~y)::= If(x < 0, -Sin( -x y), $Failed, $Failed)
+trigOfRealFactor(Sinh, ~x,  ~y)::= If(x < 0, -Sinh(-x y), $Failed, $Failed)
+trigOfRealFactor(Tan,  ~x,  ~y)::= If(x < 0, -Tan( -x y), $Failed, $Failed)
+trigOfRealFactor(Tanh, ~x,  ~y)::= If(x < 0, -Tanh(-x y), $Failed, $Failed)
+
+Function arcSinOfRealFactor(~x, ~y) {
+    If(x < 0) {
+        Return(-ArcSin(-x y))
+    } Else If(x === 1/2) {
+        If(y === Sqrt(3)) {
+            Return(Pi/3)
+        } Else If(y === (Sqrt(3)-1)/Sqrt(2)) {
+            Return(Pi/12)
+        } Else If(y === (Sqrt(3)+1)/Sqrt(2)) {
+            Return(5 Pi/12)
+        }
+    } Else If(x === 1/4) {
+        % Note that Mma does not automatically simplify ArcSin(Sin(Pi/10))
+        If(y === Sqrt(5)-1) {
+            Return(Pi/10)
+        } Else If(y === Sqrt(5)+1) {
+            Return(3 Pi/10)
+        }
+    }
+    Return($Failed)
+}
+
+trigOfComplexFactor(~f, ~z, ~y)::= $Failed
+trigOfComplexFactor(~f, Complex(0, ~iz), ~y)::= trigOfComplex(f, Complex(0, iz y))
+
+%
+% Cos(n Pi + x) etc.
+%
+trigOfSum(~f, ~x)::= $Failed
+trigOfSum(Cos, ~x) ::= evenTrig2PiOfSum(Cos, Sin, x)
+trigOfSum(Sin, ~x) ::= oddTrig2PiOfSum(Sin, Cos, x)
+
+trigOfSum(Csc, ~x) ::= oddTrig2PiOfSum(Csc, Sec, x)
+trigOfSum(Sec, ~x) ::= evenTrig2PiOfSum(Sec, Csc, x)
+
+trigOfSum(Tan, ~x) ::= tanLikeOfSum(Tan, Cot, x)
+trigOfSum(Cot, ~x) ::= tanLikeOfSum(Cot, Tan, x)
+
+trigOfSum(ArcTan, ~x)::= arcTanOfSum(x)
+
+evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
+    evenTrig2PiOfSum(fun, cofun, x + y * Pi/180)
+Function evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
+    If(0 < y <= 1/4) { Return($Failed) }
+    With(z:= Mod(y, 2)) % gives 0 <= z < 2
+    If(1/4 < z <= 1/2) { Return( cofun(x + (1/2-z) Pi) ) }
+    If(1/2 < z <= 1) {   Return( -cofun(x + (z-1/2) Pi) ) }
+    If(1   < z) {        Return( -fun(x + (z-1) Pi) ) }
+    If(y =!= z) {        Return( fun(x + z Pi) ) }
+    Return($Failed)
+}
+
+oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
+    oddTrig2PiOfSum(fun, cofun, x + y * Pi/180)
+Function oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
+    If(0 < y <= 1/4) { Return($Failed) }
+    With(z:= Mod(y, 2)) % gives 0 <= z < 2
+    If(1/4 < z <= 1/2) { Return( cofun(x + (1/2-z) Pi) ) }
+    If(1/2 < z <= 1) {   Return( cofun(x + (z-1/2) Pi) ) }
+    If(1   < z) {        Return( -fun(x + (z-1) Pi) ) }
+    If(y =!= z) {        Return( fun(x + z Pi) ) }
+    Return($Failed)
+}
+
+tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
+    tanLikeOfSum(fun, cofun, x + y * Pi/180)
+Function tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
+    If(0 < y <= 1/4) { Return($Failed) }
+    With(z:= Mod(y, 1)) % gives 0 <= z < 1
+    If(1/4 < z <= 1/2) { Return( cofun(x + (1/2-z) Pi) ) }
+    If(1/2 < z) {        Return( -cofun(x + (z-1/2) Pi) ) }
+    If(y =!= z) {        Return( fun(x + z Pi) ) }
+    Return($Failed)
+}
+
+arcTanOfSum(~):= $Failed
+arcTanOfSum(2-Sqrt(3)):= Pi/12
+arcTanOfSum(-2+Sqrt(3)):= -Pi/12
+arcTanOfSum(2+Sqrt(3)):= 5 Pi/12
+arcTanOfSum(-2-Sqrt(3)):= -5 Pi/12
+
+%
+% Cos(Infinity) etc.
+%
+trigAtInfinity(~f, ~inf)::= $Failed
+trigAtInfinity(~f, ComplexInfinity)::= Undefined
+Function trigAtInfinity(ArcSin, inf: DirectedInfinity(~dir)) {
+    With(re:= Re(dir))
+    With(im:= Im(dir))
+    If(im < 0) {
+        Return(DirectedInfinity(-I))
+    } Else If(im > 0) {
+        Return(DirectedInfinity(I))
+    } Else If(im = 0) {
+        If(re < 0) {
+            Return(DirectedInfinity(I))
+        } Else If(re > 0) {
+            Return(DirectedInfinity(-I))
+        }
+    }
+    Return(I Interval(-Infinity, Infinity))
+}
+trigAtInfinity(ArcSinh, inf: DirectedInfinity(~dir))::= 
+    I * trigAtInfinity(ArcSin, DirectedInfinity(-I dir))
+Function trigAtInfinity(ArcTan, inf: DirectedInfinity(~dir)) {
+    With(re:= Re(dir))
+    With(im:= Im(dir))
+    If(re < 0) {
+        Return(-Pi/2)
+    } Else If(re > 0) {
+        Return(Pi/2)
+    } Else If(re = 0) {
+        If(im < 0) {
+            Return(-Pi/2)
+        } Else If(im > 0) {
+            Return(Pi/2)
+        }
+    }
+    Return(Interval(-Pi/2..Pi/2))
+}
+trigAtInfinity(ArcTanh, inf: DirectedInfinity(~dir))::= 
+    I * trigAtInfinity(ArcTan, DirectedInfinity(-I dir))
+trigAtInfinity(Cos, inf: DirectedInfinity(~dir))::=
+    If(IsReal(dir), 
+        Interval(-1..1), 
+        If(IsImaginary(dir), Infinity, ComplexInfinity, $Failed), 
+        $Failed)
+trigAtInfinity(Cosh, inf: DirectedInfinity(~dir))::=
+    If(IsReal(dir), 
+        Infinity, 
+        If(IsImaginary(dir), Interval(-1..1), ComplexInfinity, $Failed), 
+        $Failed)
+trigAtInfinity(Sin, inf: DirectedInfinity(~dir))::=
+    If(IsReal(dir), 
+        Interval(-1..1), 
+        If(IsImaginary(dir), inf, ComplexInfinity, $Failed), 
+        $Failed)
+trigAtInfinity(Sinc, inf: DirectedInfinity(~dir))::=
+    If(IsReal(dir), 
+        0, 
+        If(IsImaginary(dir), Infinity, ComplexInfinity, $Failed), 
+        $Failed)
+trigAtInfinity(Sinh, inf: DirectedInfinity(~dir))::=
+    If(IsReal(dir), 
+        inf, 
+        If(IsImaginary(dir), Interval(-1..1), ComplexInfinity, $Failed), 
+        $Failed)
+trigAtInfinity(Tan, inf: DirectedInfinity(~dir))::=
+    If(IsReal(dir), 
+        Interval(-Infinity .. Infinity), 
+        I Sign(Im(dir)), 
+        $Failed)
+trigAtInfinity(Tanh, inf: DirectedInfinity(~dir))::=
+    If(IsImaginary(dir), 
+        I Interval(-Infinity..Infinity), 
+        Sign(Re(dir)), 
+        $Failed)
+trigAtInfinity(Cot,  ~inf)::= With({y:= trigAtInfinity(Tan,  inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Coth, ~inf)::= With({y:= trigAtInfinity(Tanh, inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Csc,  ~inf)::= With({y:= trigAtInfinity(Sin,  inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Csch, ~inf)::= With({y:= trigAtInfinity(Sinh, inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Sec,  ~inf)::= With({y:= trigAtInfinity(Cos,  inf)}, If(y === $Failed, y, 1/y))
+trigAtInfinity(Sech, ~inf)::= With({y:= trigAtInfinity(Cosh, inf)}, If(y === $Failed, y, 1/y))
+
+End()
+
+EndPackage()

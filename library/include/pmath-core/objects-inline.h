@@ -9,6 +9,9 @@ struct _pmath_t { // do not access members
   uint8_t        type_shift; /* 0..31 */
   uint8_t        flags8;
   uint16_t       flags16;
+#if PMATH_BITSIZE >= 64
+  uint32_t       padding_flags32;
+#endif
   pmath_atomic_t refcount;
 };
 

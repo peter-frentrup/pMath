@@ -2,6 +2,7 @@
 BeginPackage("Developer`", {"ExperimentalSyntax`"})
 
 Developer`OpenTextFile
+Developer`DebugInfoOpenerFunction
 
 Begin("Developer`Private`")
 
@@ -13,6 +14,14 @@ Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
 		Return(Windows`Editors`OpenTextFile(filename, opts))
 	}
 	$Failed
+}
+
+DebugInfoOpenerFunction(~)::= None
+Function DebugInfoOpenerFunction(DebugInfoSource(~path, {~l1, ~c1} .. {~l2, ~c2})) {
+	If(FileInformation(path) =!= {}) {
+		Return(OpenTextFile(path, Line->l1, Column->c1) &)
+	}
+	Return(None)
 }
 
 End()
