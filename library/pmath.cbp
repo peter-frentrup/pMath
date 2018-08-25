@@ -50,7 +50,7 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#arb_32.bin)/arb.dll&quot;' />
-					<Add option='&quot;$(#flint_32.bin)/dll_flint.dll&quot;' />
+					<Add option='&quot;$(#flint_32.bin)/flint.dll&quot;' />
 					<Add option='&quot;$(#mpfr_32.bin)/mpfr.dll&quot;' />
 					<Add option='&quot;$(#gmp_32.bin)/mpir.dll&quot;' />
 					<Add option='&quot;$(#iconv_32.bin)/iconv.dll&quot;' />
@@ -105,7 +105,7 @@
 					<Add option="-flto" />
 					<Add option="-O3" />
 					<Add option='&quot;$(#arb_32.bin)/arb.dll&quot;' />
-					<Add option='&quot;$(#flint_32.bin)/dll_flint.dll&quot;' />
+					<Add option='&quot;$(#flint_32.bin)/flint.dll&quot;' />
 					<Add option='&quot;$(#mpfr_32.bin)/mpfr.dll&quot;' />
 					<Add option='&quot;$(#gmp_32.bin)/mpir.dll&quot;' />
 					<Add option='&quot;$(#iconv_32.bin)/iconv.dll&quot;' />
@@ -158,7 +158,7 @@
 				<Linker>
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#arb_64.bin)/arb.dll&quot;' />
-					<Add option='&quot;$(#flint_64.bin)/dll_flint.dll&quot;' />
+					<Add option='&quot;$(#flint_64.bin)/flint.dll&quot;' />
 					<Add option='&quot;$(#mpfr_64.bin)/mpfr.dll&quot;' />
 					<Add option='&quot;$(#gmp_64.bin)/mpir.dll&quot;' />
 					<Add option='&quot;$(#iconv_64.bin)/iconv.dll&quot;' />
@@ -213,7 +213,7 @@
 					<Add option="-flto" />
 					<Add option="-O3" />
 					<Add option='&quot;$(#arb_64.bin)/arb.dll&quot;' />
-					<Add option='&quot;$(#flint_64.bin)/dll_flint.dll&quot;' />
+					<Add option='&quot;$(#flint_64.bin)/flint.dll&quot;' />
 					<Add option='&quot;$(#mpfr_64.bin)/mpfr.dll&quot;' />
 					<Add option='&quot;$(#gmp_64.bin)/mpir.dll&quot;' />
 					<Add option='&quot;$(#iconv_64.bin)/iconv.dll&quot;' />
@@ -264,7 +264,7 @@
 					<Add option="/LTCG" />
 					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
 					<Add library="arb.lib" />
-					<Add library="dll_flint.lib" />
+					<Add library="flint.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
 					<Add library="iconv.lib" />
@@ -317,7 +317,7 @@
 					<Add option="/LTCG" />
 					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
 					<Add library="arb.lib" />
-					<Add library="dll_flint.lib" />
+					<Add library="flint.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
 					<Add library="iconv.lib" />
@@ -375,7 +375,7 @@
 					<Add option="/LTCG" />
 					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
 					<Add library="arb.lib" />
-					<Add library="dll_flint.lib" />
+					<Add library="flint.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
 					<Add library="iconv.lib" />
@@ -430,7 +430,7 @@
 					<Add option="/LTCG" />
 					<Add option="/NATVIS:$(PROJECT_DIR)..\debugging\windbg\pmath.natvis" />
 					<Add library="arb.lib" />
-					<Add library="dll_flint.lib" />
+					<Add library="flint.lib" />
 					<Add library="mpfr.lib" />
 					<Add library="mpir.lib" />
 					<Add library="iconv.lib" />
@@ -488,7 +488,7 @@
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="arb" />
-					<Add library="dll_flint" />
+					<Add library="flint" />
 					<Add library="mpfr" />
 					<Add library="mpir" />
 					<Add library="iconv" />
