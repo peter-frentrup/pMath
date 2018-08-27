@@ -93,6 +93,8 @@ void RadicalBox::resize(Context *context) {
     &ex,
     &ey,
     &info);
+  
+  info.surd_form = get_own_style(SurdForm, 0) ? 1 : 0;
     
   if(_exponent) {
     float old_fs = context->canvas->get_font_size();

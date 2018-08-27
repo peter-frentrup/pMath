@@ -14,7 +14,8 @@
       assert(a); \
     }}while(0)
 
-extern pmath_symbol_t richmath_System_MathFontFamily;    
+extern pmath_symbol_t richmath_System_MathFontFamily;
+extern pmath_symbol_t richmath_System_SurdForm;
 
 using namespace richmath;
 
@@ -324,6 +325,7 @@ namespace {
           add(StyleTypeBool,            ShowSectionBracket,               Symbol( PMATH_SYMBOL_SHOWSECTIONBRACKET));
           add(StyleTypeBool,            ShowStringCharacters,             Symbol( PMATH_SYMBOL_SHOWSTRINGCHARACTERS));
           add(StyleTypeBool,            StripOnInput,                     Symbol( PMATH_SYMBOL_STRIPONINPUT));
+          add(StyleTypeBool,            SurdForm,                         Symbol( richmath_System_SurdForm));
           add(StyleTypeBool,            Visible,                          Symbol( PMATH_SYMBOL_VISIBLE));
           
           add(StyleTypeNumber,          AspectRatio,                      Symbol( PMATH_SYMBOL_ASPECTRATIO));
@@ -2020,6 +2022,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ShowStringCharacters);
   impl.emit_definition(StripOnInput);
   impl.emit_definition(StyleDefinitions);
+  impl.emit_definition(SurdForm);
   impl.emit_definition(SyntaxForm);
   impl.emit_definition(TemplateBoxOptions);
   impl.emit_definition(TextShadow);

@@ -248,7 +248,8 @@ namespace richmath {
   class RadicalShapeInfo {
     public:
       int   size; // negative => small root, otherwise # of vertical pieces
-      int   hbar;
+      unsigned hbar      : 31;
+      unsigned surd_form : 1;
       float y_offset;
   };
   

@@ -1989,7 +1989,8 @@ void OTMathShaper::shape_radical(
     
   float height = box->height();
   
-  info->hbar = (int)ceilf(box->width + 0.2f * em);
+  info->surd_form = 0;
+  info->hbar = (unsigned)ceilf(box->width + 0.2f * em);
   *exponent_x = impl->consts.radical_kern_after_degree.value * pt;
   float rel_raise_exp = impl->consts.radical_degree_bottom_raise_percent / 100.0f;
   
@@ -2092,14 +2093,27 @@ void OTMathShaper::show_radical(
   x2 = x1 + info.hbar;
   if(gi.composed)
     x1 -= overlap;
-  y2 = y1 + impl->consts.radical_rule_thickness.value * em / impl->units_per_em;
+  
+  double rule_thickness = impl->consts.radical_rule_thickness.value * em / impl->units_per_em;
+  y2 = y1 + rule_thickness;
   
   bool sot = context->canvas->show_only_text;
   context->canvas->show_only_text = false;
-  context->canvas->move_to(x1, y1);
-  context->canvas->line_to(x2, y1);
-  context->canvas->line_to(x2, y2);
-  context->canvas->line_to(x1, y2);
+  if(info.surd_form) {
+    double hook_height = em * 0.25;
+    context->canvas->move_to(x1, y1);
+    context->canvas->line_to(x2, y1);
+    context->canvas->line_to(x2, y1 + hook_height);
+    context->canvas->line_to(x2 - rule_thickness, y1 + hook_height);
+    context->canvas->line_to(x2 - rule_thickness, y2);
+    context->canvas->line_to(x1, y2);
+  }
+  else{
+    context->canvas->move_to(x1, y1);
+    context->canvas->line_to(x2, y1);
+    context->canvas->line_to(x2, y2);
+    context->canvas->line_to(x1, y2);
+  }
   context->canvas->fill();
   context->canvas->show_only_text = sot;
 }
