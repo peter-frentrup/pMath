@@ -24,7 +24,7 @@
 		"\[U+23DE]" -> {{"OverBrace", 1}, {"uniF0E0", 1}, {"uniF0E1", 1}, {"uniF0E2", 1}}, /* top { */
 		"\[U+23DF]" -> {{"UnderBrace", 1}, {"uniF0E7", 1}, {"uniF0E8", 1}, {"uniF0E9", 1}}, /* bottom { */
 		%"^" -> {{"Wedge", 1}},
-		"~" -> {{"uniF02D", 1}}},
+		"~" -> {{"CombiningTilde", 1}}},
 	"HorizontalComposedGlyphs" -> {
 		"\[U+27F5]" -> {{"uniF087" /* "ShortLeftArrow" */, 0, "uniF083"}, 1}, /* <-- */
 		"\[U+27F6]" -> {{0, "uniF086" /* uniF10D */, "uniF083"}, 1}, /* --> */
