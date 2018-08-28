@@ -42,7 +42,7 @@ bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < last_non_opt)
     return false;
  
-  Expr options(pmath_options_extract(expr.get(), last_non_opt));
+  Expr options(pmath_options_extract_ex(expr.get(), last_non_opt, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     

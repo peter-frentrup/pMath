@@ -572,7 +572,7 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(sections_expr[0] != PMATH_SYMBOL_LIST)
     return false;
     
-  Expr options_expr(pmath_options_extract(expr.get(), 1));
+  Expr options_expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(!options_expr.is_valid())
     return false;
     

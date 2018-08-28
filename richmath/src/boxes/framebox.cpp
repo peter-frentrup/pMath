@@ -21,7 +21,7 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr.expr_length() < 1)
     return false;
     
-  Expr options_expr(pmath_options_extract(expr.get(), 1));
+  Expr options_expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options_expr.is_null())
     return false;
     

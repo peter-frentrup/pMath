@@ -153,7 +153,7 @@ bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < 1)
     return false;
     
-  Expr options(pmath_options_extract(expr.get(), 1));
+  Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -221,7 +221,7 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < 1)
     return false;
     
-  Expr options(pmath_options_extract(expr.get(), 1));
+  Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     

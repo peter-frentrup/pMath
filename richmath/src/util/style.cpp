@@ -2122,7 +2122,7 @@ namespace richmath {
         if(name[0] == PMATH_SYMBOL_STYLEDATA) {
           Expr data = name[1];
           if(data.is_string()) {
-            Expr options(pmath_options_extract(expr.get(), 1));
+            Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
             if(options.is_null())
               return;
               

@@ -42,7 +42,7 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < 2)
     return false;
     
-  Expr options = Expr(pmath_options_extract(expr.get(), 2));
+  Expr options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     

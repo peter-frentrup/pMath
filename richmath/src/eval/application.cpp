@@ -979,7 +979,7 @@ Document *Application::create_document(Expr data) {
     return nullptr;
     
   if(data.expr_length() >= 1) {
-    Expr options(pmath_options_extract(data.get(), 1));
+    Expr options(pmath_options_extract_ex(data.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     if(options.is_expr())
       doc->style->add_pmath(options);
       

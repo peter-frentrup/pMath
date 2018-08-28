@@ -132,7 +132,7 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   Expr tag = expr[2];
-  Expr options = Expr(pmath_options_extract(expr.get(), 2));
+  Expr options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     

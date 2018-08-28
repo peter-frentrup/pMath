@@ -583,7 +583,7 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   content = content[1];
   
-  Expr options(pmath_options_extract(expr.get(), 2));
+  Expr options(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -627,7 +627,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(!content.is_string() && content[0] != PMATH_SYMBOL_LIST)
     return false;
     
-  Expr options(pmath_options_extract(expr.get(), 2));
+  Expr options(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -710,7 +710,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(style_data[0] != PMATH_SYMBOL_STYLEDATA)
     return false;
     
-  Expr options(pmath_options_extract(expr.get(), 1));
+  Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     

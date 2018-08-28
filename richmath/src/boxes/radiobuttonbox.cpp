@@ -19,7 +19,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   Expr new_value;
   
   if(expr.expr_length() >= 2) {
-    options = Expr(pmath_options_extract(expr.get(), 2));
+    options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     
     if(options.is_null())
       return false;

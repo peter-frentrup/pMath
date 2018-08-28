@@ -44,9 +44,9 @@ Expr Dynamic::operator=(Expr expr) {
     if(_expr.expr_length() >= 2) {
       Expr snd = _expr[2];
       if(snd.is_rule())
-        options = Expr(pmath_options_extract(_expr.get(), 1));
+        options = Expr(pmath_options_extract_ex(_expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET));
       else
-        options = Expr(pmath_options_extract(_expr.get(), 2));
+        options = Expr(pmath_options_extract_ex(_expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET));
     }
     
     if(!options.is_null()) {
