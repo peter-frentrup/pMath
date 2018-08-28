@@ -1125,19 +1125,22 @@ pmath_string_t pmath_string_new(int capacity) {
 
 PMATH_PRIVATE
 pmath_string_t pmath_string_new_raw(int length) {
-  pmath_string_t str;
+  pmath_string_t str = PMATH_NULL;
 
   assert(length >= 0);
   
   switch(length) {
     case 0:
       str.s.tag = PMATH_TAG_STR0;
+      str.s.u.as_int32 = 0;
       return str;
     case 1:
       str.s.tag = PMATH_TAG_STR1;
+      str.s.u.as_int32 = 0;
       return str;
     case 2:
       str.s.tag = PMATH_TAG_STR2;
+      str.s.u.as_int32 = 0;
       return str;
   }
   
