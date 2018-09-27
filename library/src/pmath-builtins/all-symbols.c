@@ -698,7 +698,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING = NEW_SYMBOL("System`BoxForm`$UseTextFormatting"))
   
   VERIFY(   PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE     = NEW_SYMBOL("Developer`DebugInfoSource"))
-  VERIFY(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION     = NEW_SYMBOL("Developer`FileInformation"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY     = NEW_SYMBOL("Developer`FromPackedArray"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO        = NEW_SYMBOL("Developer`GetDebugInfo"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE      = NEW_SYMBOL("Developer`HasBuiltinCode"))
@@ -924,6 +923,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_FALSE                            = NEW_SYSTEM_SYMBOL("False"))
   VERIFY(   PMATH_SYMBOL_FILE                             = NEW_SYSTEM_SYMBOL("File"))
   VERIFY(   PMATH_SYMBOL_FILEBYTECOUNT                    = NEW_SYSTEM_SYMBOL("FileByteCount"))
+  VERIFY(   PMATH_SYMBOL_FILEINFORMATION                  = NEW_SYSTEM_SYMBOL("FileInformation"))
   VERIFY(   PMATH_SYMBOL_FILENAMES                        = NEW_SYSTEM_SYMBOL("FileNames"))
   VERIFY(   PMATH_SYMBOL_FILETYPE                         = NEW_SYSTEM_SYMBOL("FileType"))
   VERIFY(   PMATH_SYMBOL_FILLBOX                          = NEW_SYSTEM_SYMBOL("FillBox"))

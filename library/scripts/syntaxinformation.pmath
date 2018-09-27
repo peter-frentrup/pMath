@@ -166,6 +166,7 @@
 {"Extract", {"ArgumentCount" -> 2..3}},
 {"Factorial", {"ArgumentCount" -> 1}},
 {"FileByteCount", {"ArgumentCount" -> 1}},
+{"FileInformation", {"ArgumentCount" -> 1}},
 {"FileNames", {"ArgumentCount" -> 0..2}},
 {"FileType", {"ArgumentCount" -> 1}},
 {"FillBox", {"ArgumentCount" -> 1}},
@@ -598,7 +599,6 @@
 {"Zeta", {"ArgumentCount" -> 1..2}}
 }},
 {"Developer`",{
-{"FileInformation", {"ArgumentCount" -> 1}},
 {"FromPackedArray", {"ArgumentCount" -> 1}},
 {"GetDebugInfo", {"ArgumentCount" -> 1..}},
 {"HasBuiltinCode", {"ArgumentCount" -> 1..2}},

@@ -8,10 +8,10 @@ extern pmath_symbol_t pmath_System_None;
 extern pmath_symbol_t pmath_System_Rule;
 extern pmath_symbol_t pmath_System_Special;
 
-extern pmath_symbol_t pmath_Developer_FileInformation;
+extern pmath_symbol_t pmath_System_FileInformation;
 
-PMATH_PRIVATE pmath_t eval_Developer_FileInformation(pmath_expr_t expr) {
-  /* Developer`FileInformation(filename)
+PMATH_PRIVATE pmath_t eval_System_FileInformation(pmath_expr_t expr) {
+  /* FileInformation(filename)
    */
   pmath_string_t name, fullname;
   pmath_integer_t bytecount;
