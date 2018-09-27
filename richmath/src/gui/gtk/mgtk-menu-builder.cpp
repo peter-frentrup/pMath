@@ -139,14 +139,14 @@ static GtkWidget *create_menu_item_for_command(const char *label, Expr cmd) {
   if(cmd.is_rule())
     return gtk_check_menu_item_new_with_mnemonic(label);
   
-  if(cmd[0] == GetSymbol(FESymbolIndex::ScopedCommand))
+  if(cmd[0] == richmath_FE_ScopedCommand)
     return create_menu_item_for_command(label, cmd[1]);
   
   return gtk_menu_item_new_with_mnemonic(label);
 }
 
 void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id) {
-  if(expr[0] != GetSymbol(FESymbolIndex::Menu) || expr.expr_length() != 2)
+  if(expr[0] != richmath_FE_Menu || expr.expr_length() != 2)
     return;
     
   String name(expr[1]);
@@ -160,9 +160,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
   for(size_t i = 1; i <= list.expr_length(); ++i) {
     Expr item = list[i];
     
-    if( item[0] == GetSymbol(FESymbolIndex::Item) &&
-        item.expr_length() == 2)
-    {
+    if(item[0] == richmath_FE_Item && item.expr_length() == 2) {
       String name(item[1]);
       Expr cmd(item[2]);
       
@@ -194,7 +192,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
       continue;
     }
     
-    if(item == GetSymbol(FESymbolIndex::Delimiter)) {
+    if(item == richmath_FE_Delimiter) {
       GtkWidget *menu_item = gtk_separator_menu_item_new();
       
       gtk_widget_show(menu_item);
@@ -202,9 +200,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
       continue;
     }
     
-    if( item[0] == GetSymbol(FESymbolIndex::Menu) &&
-        item.expr_length() == 2)
-    {
+    if(item[0] == richmath_FE_Menu && item.expr_length() == 2) {
       String name(item[1]);
       
       if(name.length() > 0) {
@@ -256,7 +252,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
 Array<String> MathGtkAccelerators::all_accelerators;
 
 static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mods) {
-  if(expr[0] != GetSymbol(FESymbolIndex::KeyEvent) || expr.expr_length() != 2)
+  if(expr[0] != richmath_FE_KeyEvent || expr.expr_length() != 2)
     return false;
     
   Expr modifiers = expr[2];
@@ -267,11 +263,11 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   for(size_t i = modifiers.expr_length(); i > 0; --i) {
     Expr item = modifiers[i];
     
-    if(item == GetSymbol(FESymbolIndex::KeyAlt))
+    if(item == richmath_FE_KeyAlt)
       mods |= GDK_MOD1_MASK;
-    else if(item == GetSymbol(FESymbolIndex::KeyControl))
+    else if(item == richmath_FE_KeyControl)
       mods |= GDK_CONTROL_MASK;
-    else if(item == GetSymbol(FESymbolIndex::KeyShift))
+    else if(item == richmath_FE_KeyShift)
       mods |= GDK_SHIFT_MASK;
     else
       return false;
@@ -362,7 +358,7 @@ void MathGtkAccelerators::load(Expr expr) {
     guint           accel_key = 0;
     GdkModifierType accel_mod = (GdkModifierType)0;
     
-    if( item[0] == GetSymbol(FESymbolIndex::Item)               &&
+    if( item[0] == richmath_FE_Item                    &&
         item.expr_length() == 2                        &&
         set_accel_key(item[1], &accel_key, &accel_mod) &&
         gtk_accelerator_valid(accel_key, accel_mod))

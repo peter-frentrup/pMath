@@ -36,7 +36,9 @@
 		"ceil"    -> {"\[LeftCeiling]", "\[SelectionPlaceholder]", "\[RightCeiling]"},
 		"ceiling" -> {"\[LeftCeiling]", "\[SelectionPlaceholder]", "\[RightCeiling]"},
 		"floor" -> {"\[LeftFloor]", "\[SelectionPlaceholder]", "\[RightFloor]"},
-		
+		"surd" -> RadicalBox("\[SelectionPlaceholder]", "\[Placeholder]", SurdForm->True),
+		"cbrt" -> RadicalBox("\[SelectionPlaceholder]", "3", SurdForm->True),
+
 		"input" -> InputFieldBox("\[SelectionPlaceholder]", String),
 		"rot" -> RotationBox("\[SelectionPlaceholder]", BoxRotation->Pi/4),
 		"scale" -> TransformationBox("\[SelectionPlaceholder]", BoxTransformation->{{2,0},{0,2}}),

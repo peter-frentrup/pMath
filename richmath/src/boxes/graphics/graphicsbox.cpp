@@ -172,7 +172,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   Expr options(PMATH_UNDEFINED);
   
   if(expr.expr_length() > 1) {
-    options = Expr(pmath_options_extract(expr.get(), 1));
+    options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     
     if(options.is_null())
       return false;
@@ -934,7 +934,7 @@ void GraphicsBox::paint(Context *context) {
   GraphicsBoxContext gctx(this, context);
   error_boxes_expr = Expr();
   
-  style->update_dynamic(this);
+  update_dynamic_styles(context);
   
   float w = _extents.width;
   float h = _extents.height();

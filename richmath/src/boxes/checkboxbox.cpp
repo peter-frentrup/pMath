@@ -21,10 +21,10 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
     if(_values.expr_length() != 2 || _values[0] != PMATH_SYMBOL_LIST) {
       _values = Expr();
-      options = Expr(pmath_options_extract(expr.get(), 1));
+      options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     }
     else 
-      options = Expr(pmath_options_extract(expr.get(), 2));
+      options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     
     if(options.is_null())
       return false;

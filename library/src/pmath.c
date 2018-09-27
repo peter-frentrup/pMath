@@ -833,15 +833,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(BinaryRead):=Options(BinaryReadList):=Options(BinaryWrite):={"
           "ByteOrdering:>$ByteOrdering}");
           
-      PMATH_RUN("Options(Button):={"
-          "ButtonFrame->Automatic,"
-          "Method->\"Preemptive\"}");
-          
-      PMATH_RUN("Options(ButtonBox):={"
-          "ButtonFrame->Automatic,"
-          "ButtonFunction->(/\\/ &),"
-          "Method->\"Preemptive\"}");
-          
       PMATH_RUN("Options(Complement):={SameTest->Automatic}");
       
       PMATH_RUN("Options(CompressStream):={"
@@ -852,63 +843,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "\"WindowBits\"->Automatic,"
           "\"RawInflate\"->False}");
       
-      PMATH_RUN("Options(CreateDocument):=Options(Document):={"
-          "Antialiasing->Inherited,"
-          "AutoNumberFormating->Inherited,"
-          "AutoSpacing->Inherited,"
-          "Background->Inherited,"
-          "BaseStyle->None,"
-          "ButtonFrame->Inherited,"
-          "ButtonFunction->Inherited,"
-          "DefaultDuplicateSectionStyle->Inherited,"
-          "DefaultNewSectionStyle->Inherited,"
-          "DefaultReturnCreatedSectionStyle->Inherited,"
-          "DockedSections->Inherited,"
-          "Editable->Inherited,"
-          "FontColor->Inherited,"
-          "FontFamily->Inherited,"
-          "FontFeatures->Inherited,"
-          "FontSize->Inherited,"
-          "FontSlant->Inherited,"
-          "FontWeight->Inherited,"
-          "GeneratedSectionStyles->Inherited,"
-          "GridBoxColumnSpacing->Inherited,"
-          "GridBoxRowSpacing->Inherited,"
-          "LineBreakWithin->Inherited,"
-          "Magnification->Inherited,"
-          "ReturnCreatesNewSection->Inherited,"
-          "ScriptSizeMultipliers->Inherited,"
-          "SectionEditDuplicate->Inherited,"
-          "SectionEditDuplicateMakesCopy->Inherited,"
-          "Selectable->Inherited,"
-          "ShowAutoStyles->Inherited,"
-          "ShowSectionBracket->Inherited,"
-          "ShowStringCharacters->Inherited,"
-          "StyleDefinitions->Inherited,"
-          "TextShadow->Inherited,"
-          "Visible->True,"
-          "WindowFrame->Inherited,"
-          "WindowTitle->Inherited"
-          "}");
-          
       PMATH_RUN("Options(DateList):={TimeZone:>$TimeZone}");
       
-      PMATH_RUN(
-          "Options(Dynamic):="
-          "Options(DynamicBox):={"
-          "SynchronousUpdating->True,"
-          "TrackedSymbols->Automatic"
-          "}");
-          
-      PMATH_RUN(
-          "Options(DynamicLocal):="
-          "Options(DynamicLocalBox):={"
-          "Deinitialization->None,"
-          "Initialization->None,"
-          "DynamicLocalValues->Automatic,"
-          "UnsavedVariables->{}"
-          "}");
-          
       PMATH_RUN("Options(DeleteDirectory):={DeleteContents->False}");
       
       PMATH_RUN("Options(FileNames):={IgnoreCase->Automatic}");
@@ -925,39 +861,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "Options(FixedPoint):="
           "Options(FixedPointList):={SameTest->Identical}");
           
-      PMATH_RUN("Options(Framed):=Options(FrameBox):={"
-          "BorderRadius->0}");
-          
       PMATH_RUN("Options(Get):={"
           "CharacterEncoding->Automatic,"
           "Head->Identity,"
           "Path:>$Path}");
-          
-      PMATH_RUN("Options(Graphics):=Options(GraphicsBox):={"
-          "AspectRatio->Automatic,"
-          "Axes->False,"
-          "AxesOrigin->Automatic,"
-          "Frame->False,"
-          "FrameTicks->Automatic,"
-          "ImageSize->Automatic,"
-          "PlotRange->Automatic,"
-          "Ticks->Automatic}");
-          
-      PMATH_RUN("Options(Grid):={"
-          "ColumnSpacing->Inherited,"
-          "RowSpacing->Inherited}");
-          
-      PMATH_RUN("Options(GridBox):={"
-          "GridBoxColumnSpacing->Inherited,"
-          "GridBoxRowSpacing->Inherited}");
-          
-      PMATH_RUN("Options(InputField):= Options(InputFieldBox):= {"
-          "ContinuousAction->False}");
-          
-      PMATH_RUN("Options(InterpretationBox):=Options(Interpretation):={"
-          "AutoDelete->False,"
-          "Editable->False"
-          "}");
           
       PMATH_RUN(
           "Options(IsFreeOf):="
@@ -996,92 +903,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(StringPosition):={IgnoreCase->False,Overlaps->True}");
       
       PMATH_RUN("Options(StringToBoxes):={\"IgnoreSyntaxErrors\"->False,\"Tokens\"->String,Whitespace->False}");
-      
-      PMATH_RUN("Options(Style):=Options(StyleBox):={"
-          "Antialiasing->Inherited,"
-          "AutoDelete->False,"
-          "AutoNumberFormating->Inherited,"
-          "AutoSpacing->Inherited,"
-          "Background->None,"
-          "BaseStyle->None,"
-          "BorderRadius->0,"
-          "ButtonFrame->Inherited,"
-          "ButtonFunction->Inherited,"
-          "Editable->Inherited,"
-          "FontColor->Inherited,"
-          "FontFamily->Inherited,"
-          "FontFeatures->Inherited,"
-          "FontSize->Inherited,"
-          "FontSlant->Inherited,"
-          "FontWeight->Inherited,"
-          "GridBoxColumnSpacing->Inherited,"
-          "GridBoxRowSpacing->Inherited,"
-          "LineBreakWithin->Inherited,"
-          "Placeholder->Inherited,"
-          "ScriptSizeMultipliers->Inherited,"
-          "Selectable->Inherited,"
-          "ShowAutoStyles->Inherited,"
-          "ShowStringCharacters->Inherited,"
-          "StripOnInput->True,"
-          "TextShadow->Inherited"
-          "}");
-          
-      PMATH_RUN("Options(Section):={"
-          "Antialiasing->Automatic,"
-          "AutoNumberFormating->Inherited,"
-          "AutoSpacing->Inherited,"
-          "Background->Automatic,"
-          "BaseStyle->None,"
-          "BorderRadius->0,"
-          "ButtonFrame->Automatic,"
-          "ButtonFunction->(/\\/ &),"
-          "DefaultDuplicateSectionStyle->Inherited,"
-          "DefaultNewSectionStyle->Inherited,"
-          "DefaultReturnCreatedSectionStyle->Inherited,"
-          "Editable->True,"
-          "Evaluatable->False,"
-          "FontColor->GrayLevel(0),"
-          "FontFamily->\"Times\","
-          "FontFeatures->Inherited," // FontFeatures -> {"ssty" -> Automatic}
-          "FontSize->10,"
-          "FontSlant->Plain,"
-          "FontWeight->Plain,"
-          "GeneratedSectionStyles->Inherited,"
-          "GridBoxColumnSpacing->0.5,"
-          "GridBoxRowSpacing->0.5,"
-          "LineBreakWithin->True,"
-          "ReturnCreatesNewSection->Inherited,"
-          "ScriptSizeMultipliers->Automatic,"
-          "SectionEditDuplicate->Inherited,"
-          "SectionEditDuplicateMakesCopy->Inherited,"
-          "SectionFrame->False,"
-          "SectionFrameColor->GrayLevel(0),"
-          "SectionFrameMargins->8,"
-          "SectionGenerated->False,"
-          "SectionGroupPrecedence->0,"
-          "SectionMargins->{{60, 30}, {4, 4}},"
-          "SectionLabel->None,"
-          "SectionLabelAutoDelete->True,"
-          "Selectable->Inherited,"
-          "ShowAutoStyles->True,"
-          "ShowSectionBracket->True,"
-          "ShowStringCharacters->True,"
-          "TextShadow->None,"
-          "DockedSections->Inherited,"
-          "StyleDefinitions->None,"
-          "WindowFrame->Inherited,"
-          "WindowTitle->Inherited"
-          "}");
-          
-      PMATH_RUN("Options(Setter):=Options(SetterBox):={"
-          "ButtonFrame->Automatic}");
-          
-      PMATH_RUN("Options(Slider):=Options(SliderBox):={ContinuousAction->True}");
-      
-      PMATH_RUN("Options(Tooltip):=Options(TooltipBox):={StripOnInput->True}");
-      
-      PMATH_RUN("Options(TransformationBox):={BoxTransformation->{{1,0},{0,1}}}");
-      
     }
     
     flint_set_num_threads(_pmath_processor_count());

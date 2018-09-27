@@ -66,7 +66,7 @@ using namespace richmath;
 namespace {
   class ClientNotificationData {
     public:
-      ClientNotificationData(): finished(0), result_ptr(0) {}
+      ClientNotificationData(): finished(nullptr), result_ptr(nullptr) {}
       
       void done() {
         if(finished) {
@@ -112,10 +112,11 @@ static pmath_atomic_t state = { Starting }; // ClientState
 
 static ConcurrentQueue<ClientNotificationData> notifications;
 
-static SharedPtr<Session> session = new Session(0);
+static SharedPtr<Session> session = new Session(nullptr);
 
-static Hashtable<Expr, bool              ( *)(Expr)> menu_commands;
-static Hashtable<Expr, MenuCommandStatus ( *)(Expr)> menu_command_testers;
+static Hashtable<Expr, bool              ( *)(Expr)>                  menu_commands;
+static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                  menu_command_testers;
+static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)> currentvalue_providers;
 
 static Hashtable<int, Void, cast_hash> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
@@ -165,7 +166,7 @@ static int on_add_job(void *data) {
         }
       }
       
-      session->current_job = 0;
+      session->current_job = nullptr;
     }
   }
   
@@ -201,15 +202,15 @@ class ClientInfoWindow: public BasicWin32Widget {
       if(!initializing()) {
         switch(message) {
           case WM_CLIENTNOTIFY:
-            on_client_notify(0);
+            on_client_notify(nullptr);
             return 0;
             
           case WM_ADDJOB:
-            on_add_job(0);
+            on_add_job(nullptr);
             return 0;
             
           case WM_TIMER:
-            on_dynamic_update_delay_timeout(0);
+            on_dynamic_update_delay_timeout(nullptr);
             KillTimer(_hwnd, TID_DYNAMIC_UPDATE);
             return 0;
         }
@@ -237,6 +238,7 @@ double Application::dynamic_timeout             = 4.0;
 double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
 String Application::application_directory;
+MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 
 Hashtable<Expr, Expr, object_hash> Application::eval_cache;
 
@@ -312,6 +314,21 @@ Expr Application::notify_wait(ClientNotification type, Expr data) {
   return Expr(result);
 }
 
+Expr Application::current_value(Expr item) {
+  return current_value(Application::get_evaluation_box(), item);
+}
+
+Expr Application::current_value(FrontEndObject *obj, Expr item) {
+  auto func = currentvalue_providers[item];
+  if(!func && item[0] == PMATH_SYMBOL_LIST)
+    func = currentvalue_providers[item[1]];
+    
+  if(!func)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  return func(obj, item);
+}
+
 bool Application::run_recursive_menucommand(Expr cmd) {
   bool (*func)(Expr);
   
@@ -348,18 +365,12 @@ MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
   }
   
   func = menu_command_testers[cmd];
-  if(func) {
-    MenuCommandStatus status(func(cmd));
-    if(status.enabled)
-      return status;
-  }
+  if(func) 
+    return func(cmd);
   
   func = menu_command_testers[cmd[0]];
-  if(func) {
-    MenuCommandStatus status(func(cmd));
-    if(status.enabled)
-      return status;
-  }
+  if(func) 
+    return func(cmd);
   
   return MenuCommandStatus(true);
 }
@@ -384,6 +395,16 @@ void Application::register_menucommand(
     menu_command_testers.set(cmd, test);
   else
     menu_command_testers.remove(cmd);
+}
+
+void Application::register_currentvalue_provider(
+  Expr   item,
+  Expr (*func)(FrontEndObject *obj, Expr item))
+{
+  if(func)
+    currentvalue_providers.set(item, func);
+  else
+    currentvalue_providers.remove(item);
 }
 
 static void write_data(void *user, const uint16_t *data, int len) {
@@ -548,6 +569,7 @@ void Application::gui_print_section(Expr expr) {
   }
 }
 
+extern pmath_symbol_t richmath_FE_ControlActive;
 static void update_control_active(bool value) {
   static bool original_value = false;
   
@@ -559,15 +581,15 @@ static void update_control_active(bool value) {
     Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_ASSIGN),
-           GetSymbol(FESymbolIndex::ControlActive),
+           Symbol(richmath_FE_ControlActive),
            Symbol(PMATH_SYMBOL_TRUE)));
   }
   else {
     Application::interrupt_wait(
-      /*Parse("FE`$ControlActiveSymbol:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActiveSymbol)")*/
+      /*Parse("FE`$ControlActive:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActive)")*/
       Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
            Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                GetSymbol(FESymbolIndex::ControlActive),
+                Symbol(richmath_FE_ControlActive),
                 Symbol(PMATH_SYMBOL_FALSE)),
            Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
                 Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),
@@ -595,6 +617,17 @@ void Application::deactivated_all_controls() {
   update_control_active(false);
 }
 
+static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
+static Expr get_current_value_of_Filename(FrontEndObject *obj, Expr item);
+static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
+
+static const char s_MouseOver[] = "MouseOver";
+static const char s_Filename[] = "Filename";
+static const char s_ControlsFontFamily[] = "ControlsFontFamily";
+static const char s_ControlsFontSlant[] = "ControlsFontSlant";
+static const char s_ControlsFontWeight[] = "ControlsFontWeight";
+static const char s_ControlsFontSize[] = "ControlsFontSize";
+
 void Application::init() {
   main_message_queue = Expr(pmath_thread_get_queue());
   
@@ -608,6 +641,14 @@ void Application::init() {
 #else
   main_thread = pthread_self();
 #endif
+  
+  register_currentvalue_provider(String(s_MouseOver),          get_current_value_of_MouseOver);
+  register_currentvalue_provider(String(s_Filename),           get_current_value_of_Filename);
+  register_currentvalue_provider(String(s_ControlsFontFamily), get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSlant),  get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontWeight), get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSize),   get_current_value_of_ControlFont_data);
+  
   
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
   int             i   = application_filename.length() - 1;
@@ -719,6 +760,7 @@ void Application::done() {
   eval_cache.clear();
   menu_commands.clear();
   menu_command_testers.clear();
+  currentvalue_providers.clear();
   application_filename = String();
   application_directory = String();
   main_message_queue = Expr();
@@ -763,7 +805,7 @@ Box *Application::find_current_job() {
       return box;
   }
   
-  return 0;
+  return nullptr;
 }
 
 bool Application::remove_job(Box *input_box, bool only_check_possibility) {
@@ -851,11 +893,11 @@ Box *Application::get_evaluation_box() {
   if(box)
     return box;
     
-  return 0;
+  return nullptr;
 }
 
 Document *Application::create_document() {
-  Document *doc = 0;
+  Document *doc = nullptr;
   
 #ifdef RICHMATH_USE_WIN32_GUI
   {
@@ -922,6 +964,7 @@ Document *Application::create_document() {
   }
 #endif
   
+  doc->style->set(StyleDefinitions, String("Default.pmathdoc"));
   return doc;
 }
 
@@ -933,10 +976,10 @@ Document *Application::create_document(Expr data) {
   Document *doc = Application::create_document();
   
   if(!doc)
-    return 0;
+    return nullptr;
     
   if(data.expr_length() >= 1) {
-    Expr options(pmath_options_extract(data.get(), 1));
+    Expr options(pmath_options_extract_ex(data.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     if(options.is_expr())
       doc->style->add_pmath(options);
       
@@ -962,12 +1005,14 @@ Document *Application::create_document(Expr data) {
   }
   
   if(!doc->selectable())
-    doc->select(0, 0, 0);
+    doc->select(nullptr, 0, 0);
     
   doc->invalidate_options();
   
   return doc;
 }
+
+extern pmath_symbol_t richmath_FE_FileSaveDialog;
 
 Expr Application::run_filedialog(Expr data) {
 // FE`FileOpenDialogSymbol("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
@@ -1015,7 +1060,7 @@ Expr Application::run_filedialog(Expr data) {
 #else
 #  error "No GUI"
 #endif
-  dialog(head == GetSymbol(FESymbolIndex::FileSaveDialog));
+  dialog(head == richmath_FE_FileSaveDialog);
   
   pmath_debug_print("  set_title...\n");
   dialog.set_title(title);
@@ -1158,11 +1203,12 @@ Expr Application::interrupt_wait_cached(Expr expr) {
   return interrupt_wait_cached(expr, interrupt_timeout);
 }
 
+extern pmath_symbol_t richmath_FE_InternalExecuteFor;
 Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   EvaluationPosition pos(box);
   
   expr = Call(
-           GetSymbol(FESymbolIndex::InternalExecuteFor),
+           Symbol(richmath_FE_InternalExecuteFor),
            expr,
            pos.document_id,
            pos.section_id,
@@ -1210,18 +1256,13 @@ void Application::delay_dynamic_updates(bool delay) {
   dynamic_update_delay = delay;
   
   if(!delay) {
-    for(unsigned i = 0, cnt = 0; cnt < pending_dynamic_updates.size(); ++i) {
-      Entry<int, Void> *e = pending_dynamic_updates.entry(i);
-      
-      if(e) {
-        ++cnt;
-        
-        FrontEndObject *feo = FrontEndObject::find(e->key);
-        if(feo)
-          feo->dynamic_updated();
-      }
+    decltype(pending_dynamic_updates)  old_pending;
+    swap(pending_dynamic_updates, old_pending);
+    for(auto &e : old_pending.entries()) {
+      auto feo = FrontEndObject::find(e.key);
+      if(feo)
+        feo->dynamic_updated();
     }
-    pending_dynamic_updates.clear();
   }
 }
 
@@ -1263,7 +1304,7 @@ static void cnt_endsession() {
 
 static void cnt_end(Expr data) {
   SharedPtr<Job> job = session->current_job;
-  session->current_job = 0;
+  session->current_job = nullptr;
   
   if(job) {
     job->end();
@@ -1338,23 +1379,19 @@ static void cnt_end(Expr data) {
       }
     }
     
-    session->current_job = 0;
+    session->current_job = nullptr;
   }
   
   if(!more) {
-    for(unsigned int count = 0, i = 0; count < all_document_ids.size(); ++i) {
-      if(all_document_ids.entry(i)) {
-        ++count;
-        
-        Document *doc = FrontEndObject::find_cast<Document>(all_document_ids.entry(i)->key);
-        
-        assert(doc);
-        
-        for(int s = 0; s < doc->count(); ++s) {
-          auto math = dynamic_cast<MathSection*>(doc->section(s));
-          if(math && math->get_style(ShowAutoStyles)) {
-            math->invalidate();
-          }
+    for(auto &e : all_document_ids.entries()) {
+      Document *doc = FrontEndObject::find_cast<Document>(e.key);
+      
+      assert(doc);
+      
+      for(int s = 0; s < doc->count(); ++s) {
+        auto math = dynamic_cast<MathSection*>(doc->section(s));
+        if(math && math->get_style(ShowAutoStyles)) {
+          math->invalidate();
         }
       }
     }
@@ -1382,13 +1419,8 @@ static void cnt_printsection(Expr data) {
 static Expr cnt_getdocuments() {
   Gather gather;
   
-  for(unsigned int count = 0, i = 0; count < all_document_ids.size(); ++i)
-    if(all_document_ids.entry(i)) {
-      ++count;
-      Gather::emit(
-        Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT),
-             all_document_ids.entry(i)->key));
-    }
+  for(auto &e : all_document_ids.entries())
+    Gather::emit(Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), e.key));
     
   return gather.end();
 }
@@ -1470,19 +1502,16 @@ static void cnt_dynamicupate(Expr data) {
       if(!id_obj.is_int32())
         continue;
         
-      Box *box = FrontEndObject::find_cast<Box>(PMATH_AS_INT32(id_obj.get()));
-      
-      if(!box)
-        continue;
-        
-      pending_dynamic_updates.set(box->id(), Void());
+      auto obj = FrontEndObject::find(PMATH_AS_INT32(id_obj.get()));
+      if(obj)
+        pending_dynamic_updates.set(obj->id(), Void());
     }
     
     if(need_timer && !dynamic_update_delay_timer_active) {
       int milliseconds = (int)(next_eval * 1000);
       
 #ifdef RICHMATH_USE_WIN32_GUI
-      if(SetTimer(info_window.hwnd(), TID_DYNAMIC_UPDATE, milliseconds, 0))
+      if(SetTimer(info_window.hwnd(), TID_DYNAMIC_UPDATE, milliseconds, nullptr))
         dynamic_update_delay_timer_active = true;
 #endif
         
@@ -1501,12 +1530,9 @@ static void cnt_dynamicupate(Expr data) {
     if(!id_obj.is_int32())
       continue;
       
-    Box *box = FrontEndObject::find_cast<Box>(PMATH_AS_INT32(id_obj.get()));
-    
-    if(!box)
-      continue;
-      
-    box->dynamic_updated();
+    auto obj = FrontEndObject::find(PMATH_AS_INT32(id_obj.get()));
+    if(obj)
+      obj->dynamic_updated();
   }
 }
 
@@ -1524,62 +1550,47 @@ static Expr cnt_createdocument(Expr data) {
 
 static Expr cnt_currentvalue(Expr data) {
   Expr item;
-  Box *box = 0;
+  FrontEndObject *obj = nullptr;
   
   if(data.expr_length() == 1) {
-    box = Application::get_evaluation_box();
+    obj = Application::get_evaluation_box();
     item = data[1];
   }
   else if(data.expr_length() == 2) {
-    box = FrontEndObject::find_cast<Box>(data[1]);
+    obj = FrontEndObject::find(data[1]);
     item = data[2];
   }
   else
     return Symbol(PMATH_SYMBOL_FAILED);
-    
-  Document *doc = box->find_parent<Document>(true);
   
-  if(String(item).equals("MouseOver")) {
-    if(box && doc) {
-      if(!box->style)
-        box->style = new Style();
-        
-      box->style->set(InternalUsesCurrentValueOfMouseOver, true);
-      
-      Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
-      while(mo && mo != box)
-        mo = mo->parent();
-        
-      if(mo)
-        return Symbol(PMATH_SYMBOL_TRUE);
-    }
-    
-    return Symbol(PMATH_SYMBOL_FALSE);
-  }
-  
-//  if(String(item).equals("MousePosition")){
-//    if(box && doc){
-//      if(!box->style)
-//        box->style = new Style();
+//  Document *doc = box->find_parent<Document>(true);
+//  if(item.is_string()) {
+//    String item_string { item };
+//    
+//    if(item_string.equals("MousePosition")){
+//      if(box && doc){
+//        if(!box->style)
+//          box->style = new Style();
 //
-//      box->style->set(InternalUsesCurrentValueOfMousePosition, true);
+//        box->style->set(InternalUsesCurrentValueOfMousePosition, true);
 //
-//      MouseEvent ev;
-//      if(doc->native()->cursor_position(&ev.x, &ev.y)){
-//        ev.set_source(box);
+//        MouseEvent ev;
+//        if(doc->native()->cursor_position(&ev.x, &ev.y)){
+//          ev.set_source(box);
 //
-//        return List(ev.x, ev.y);
+//          return List(ev.x, ev.y);
+//        }
 //      }
-//    }
 //
-//    return Symbol(PMATH_SYMBOL_NONE);
+//      return Symbol(PMATH_SYMBOL_NONE);
+//    }
 //  }
-
-  return Symbol(PMATH_SYMBOL_FAILED);
+  
+  return Application::current_value(obj, item);
 }
 
 static Expr cnt_getevaluationdocument(Expr data) {
-  Document *doc = 0;
+  Document *doc = nullptr;
   Box      *box = Application::get_evaluation_box();
   
   if(box)
@@ -1602,14 +1613,14 @@ static Expr cnt_documentget(Expr data) {
   else
     box = FrontEndObject::find_cast<Box>(data[1]);
     
-  if(box == 0)
+  if(box == nullptr)
     return Symbol(PMATH_SYMBOL_FAILED);
     
   return box->to_pmath(BoxOutputFlags::Default);
 }
 
 static Expr cnt_documentread(Expr data) {
-  Document *doc = 0;
+  Document *doc = nullptr;
   
   if(data.expr_length() == 0) {
     doc = get_current_document();
@@ -1717,7 +1728,7 @@ namespace {
         // data = {document}       = use document file name if available, ask otherwise
         // data = {Automatic, ...}
         
-        Document *doc = 0;
+        Document *doc = nullptr;
         
         if(data[1].is_expr()) {
           Box *box = FrontEndObject::find_cast<Box>(data[1]);
@@ -1752,7 +1763,7 @@ namespace {
 
           filename = Application::run_filedialog(
                        Call(
-                         GetSymbol(FESymbolIndex::FileSaveDialog),
+                         Symbol(richmath_FE_FileSaveDialog),
                          initialfile,
                          filter));
         }
@@ -1895,5 +1906,56 @@ static void execute(ClientNotificationData &cn) {
   cn.done();
 }
 
+static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item) {
+  Box *box = dynamic_cast<Box*>(obj);
+  if(!box)
+    return Symbol(PMATH_SYMBOL_FALSE);
+    
+  Document *doc = box->find_parent<Document>(true);
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FALSE);
+    
+  if(!box->style)
+    box->style = new Style();
+    
+  box->style->set(InternalUsesCurrentValueOfMouseOver, true);
+  
+  Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
+  while(mo && mo != box)
+    mo = mo->parent();
+    
+  if(mo)
+    return Symbol(PMATH_SYMBOL_TRUE);
+  return Symbol(PMATH_SYMBOL_FALSE);
+}
+
+static Expr get_current_value_of_Filename(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FALSE);
+    
+  String result = doc->native()->filename();
+  if(!result.is_valid())
+    return Symbol(PMATH_SYMBOL_NONE);
+  return result;
+}
+
+static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item) {
+  SharedPtr<Style> style = new Style();
+  ControlPainter::std->system_font_style(style.ptr());
+  
+  String item_string {item};
+  if(item_string.equals(s_ControlsFontFamily)) 
+    return style->get_pmath(FontFamilies);
+  if(item_string.equals(s_ControlsFontSlant)) 
+    return style->get_pmath(FontSlant);
+  if(item_string.equals(s_ControlsFontWeight)) 
+    return style->get_pmath(FontWeight);
+  if(item_string.equals(s_ControlsFontSize)) 
+    return style->get_pmath(FontSize);
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
 
 

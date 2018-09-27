@@ -13,7 +13,7 @@ int Dynamic::current_evaluation_box_id = 0;
 
 Dynamic::Dynamic()
   : Base(),
-  _owner(0),
+  _owner(nullptr),
   _synchronous_updating(0)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
@@ -21,7 +21,7 @@ Dynamic::Dynamic()
 
 Dynamic::Dynamic(Box *owner, Expr expr)
   : Base(),
-  _owner(0),
+  _owner(nullptr),
   _synchronous_updating(0)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
@@ -29,7 +29,7 @@ Dynamic::Dynamic(Box *owner, Expr expr)
 }
 
 void Dynamic::init(Box *owner, Expr expr) {
-  assert(_owner == 0 && owner != 0);
+  assert(_owner == nullptr && owner != nullptr);
   
   _owner = owner;
   *this = expr;
@@ -44,9 +44,9 @@ Expr Dynamic::operator=(Expr expr) {
     if(_expr.expr_length() >= 2) {
       Expr snd = _expr[2];
       if(snd.is_rule())
-        options = Expr(pmath_options_extract(_expr.get(), 1));
+        options = Expr(pmath_options_extract_ex(_expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET));
       else
-        options = Expr(pmath_options_extract(_expr.get(), 2));
+        options = Expr(pmath_options_extract_ex(_expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET));
     }
     
     if(!options.is_null()) {

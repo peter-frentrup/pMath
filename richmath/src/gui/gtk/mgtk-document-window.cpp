@@ -393,6 +393,11 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
 void MathGtkDocumentWindow::invalidate_options() {
   Document *doc = document();
   
+  if(doc->load_stylesheet()) {
+    _top_area->document()->stylesheet(doc->stylesheet());
+    _bottom_area->document()->stylesheet(doc->stylesheet());
+  }
+  
   String s = doc->get_style(WindowTitle, String());
   if(_title != s)
     title(s);
@@ -400,7 +405,7 @@ void MathGtkDocumentWindow::invalidate_options() {
   WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
   if(_window_frame != f)
     window_frame(f);
-  
+    
   Expr top          = SectionList::group(doc->get_style(DockedSectionsTop));
   Expr top_glass    = SectionList::group(doc->get_style(DockedSectionsTopGlass));
   Expr bottom       = SectionList::group(doc->get_style(DockedSectionsBottom));
@@ -415,7 +420,7 @@ void MathGtkDocumentWindow::invalidate_options() {
     if(!gtk_widget_get_visible(_widget))
       gtk_widget_show(_widget);
   }
-  else{
+  else {
     if(gtk_widget_get_visible(_widget))
       gtk_widget_hide(_widget);
   }
@@ -428,13 +433,14 @@ void MathGtkDocumentWindow::title(String text) {
   _title = text;
   
   if(text.is_null()) {
-    if(_filename.is_valid()) {
-      int c = _filename.length();
-      const uint16_t *buf = _filename.buffer();
+    String fname = filename();
+    if(fname.is_valid()) {
+      int c = fname.length();
+      const uint16_t *buf = fname.buffer();
       while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
         --c;
-      
-      text = _filename.part(c + 1);
+        
+      text = fname.part(c + 1);
     }
     else
       text = "untitled";
@@ -442,7 +448,7 @@ void MathGtkDocumentWindow::title(String text) {
   
   if(_has_unsaved_changes)
     text = String("*") + text;
-  
+    
   if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
     
@@ -471,7 +477,7 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
     
     int x, y;
     bool was_visible = gtk_widget_get_visible(_widget);
-    if(was_visible){
+    if(was_visible) {
       gtk_window_get_position(GTK_WINDOW(_widget), &x, &y);
       gtk_widget_hide(_widget);
     }
@@ -493,7 +499,7 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
         break;
     }
     
-    if(was_visible){
+    if(was_visible) {
       gtk_widget_show(_widget);
       gtk_window_move(GTK_WINDOW(_widget), x, y);
     }
@@ -750,8 +756,8 @@ void MathGtkDocumentWindow::move_palettes() {
   }
 }
 
-void MathGtkDocumentWindow::filename(String new_filename) { 
-  _filename = new_filename; 
+void MathGtkDocumentWindow::filename(String new_filename) {
+  _filename = new_filename;
   reset_title();
 }
 

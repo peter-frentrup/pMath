@@ -247,7 +247,26 @@ String TextSequence::raw_substring(int start, int length) {
   assert(length >= 0);
   assert(start + length <= text.length());
   
-  return String::FromUtf8(text.buffer() + start, length);
+  String result;
+  const char *prev = text.buffer() + start;
+  const char *next = prev;
+  while(length > 0) {
+    if(Utf8BoxCharLen <= length) {
+      if(memcmp(next, Utf8BoxChar, Utf8BoxCharLen) == 0) {
+        result+= String::FromUtf8(prev, next - prev);
+        result+= PMATH_CHAR_BOX;
+        next+= Utf8BoxCharLen;
+        length-= Utf8BoxCharLen;
+        prev = next;
+        continue;
+      }
+    }
+    ++next;
+    --length;
+  }
+  
+  result+= String::FromUtf8(prev, next - prev);
+  return result;
 }
 
 bool TextSequence::is_placeholder(int i) {
@@ -341,10 +360,7 @@ void TextSequence::paint(Context *context) {
   
   y0 -= _extents.ascent;
   double clip_x1, clip_y1, clip_x2, clip_y2;
-  cairo_clip_extents(
-    context->canvas->cairo(),
-    &clip_x1, &clip_y1,
-    &clip_x2,  &clip_y2);
+  context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
     
   int cl_y1 = pango_units_from_double(clip_y1 - y0);
   int cl_y2 = pango_units_from_double(clip_y2 - y0);
@@ -805,6 +821,9 @@ Box *TextSequence::move_logical(
   if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
       if(_parent) {
+        if(jumping && !_parent->exitable())
+          return this;
+          
         *index = _index;
         return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
@@ -867,6 +886,9 @@ Box *TextSequence::move_logical(
   
   if(*index <= 0) {
     if(_parent) {
+      if(jumping && !_parent->exitable())
+        return this;
+      
       *index = _index + 1;
       return _parent->move_logical(LogicalDirection::Backward, true, index);
     }

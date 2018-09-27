@@ -300,7 +300,7 @@ NumberBox::NumberBox(String number)
 }
 
 bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != GetSymbol(FESymbolIndex::NumberBox))
+  if(expr[0] != richmath_FE_NumberBox)
     return false;
     
   if(expr.expr_length() != 1)
@@ -392,7 +392,7 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
     if(len > 0 && buf[0] >= '0' && buf[0] <= '9') {
       for(int i = 0; i < len; ++i) {
         if(buf[i] == '`' || buf[i] == '^') {
-          return Call(GetSymbol(FESymbolIndex::NumberBox), s);
+          return Call(Symbol(richmath_FE_NumberBox), s);
         }
       }
     }

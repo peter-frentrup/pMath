@@ -24,6 +24,7 @@
 #include <boxes/sliderbox.h>
 #include <boxes/stylebox.h>
 #include <boxes/subsuperscriptbox.h>
+#include <boxes/templatebox.h>
 #include <boxes/tooltipbox.h>
 #include <boxes/transformationbox.h>
 #include <boxes/underoverscriptbox.h>
@@ -1106,7 +1107,7 @@ namespace richmath {
             }
             return context->math_shaper->get_style().italic;
           }
-
+          
           void italic_correction(int token_end) {
             if(buf[token_end] == PMATH_CHAR_BOX)
               return;
@@ -2587,10 +2588,7 @@ void MathSequence::paint(Context *context) {
     const uint16_t *buf = str.buffer();
     
     double clip_x1, clip_y1, clip_x2, clip_y2;
-    cairo_clip_extents(
-      context->canvas->cairo(),
-      &clip_x1, &clip_y1,
-      &clip_x2,  &clip_y2);
+    context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
       
     int line = 0;
     // skip invisible lines:
@@ -3026,25 +3024,32 @@ Box *MathSequence::move_logical(
   bool              jumping,
   int              *index
 ) {
+  const int len = length();
+  const uint16_t *buf = str.buffer();
+  
   if(direction == LogicalDirection::Forward) {
-    if(*index >= length()) {
+    if(*index >= len) {
       if(_parent) {
+        if(jumping && !_parent->exitable())
+          return this;
+        
         *index = _index;
         return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
     
-    if(jumping || *index < 0 || str[*index] != PMATH_CHAR_BOX) {
+    if(jumping || *index < 0 || buf[*index] != PMATH_CHAR_BOX) {
       if(jumping) {
-        while(*index + 1 < length() && !spans.is_token_end(*index))
+        while(*index + 1 < len && !spans.is_token_end(*index))
           ++*index;
           
         ++*index;
+        while(*index < len && (buf[*index] == ' ' || buf[*index] == '\t'))
+          ++*index;
       }
       else {
-        if( is_utf16_high(str[*index]) &&
-            is_utf16_low(str[*index + 1]))
+        if(*index + 2 < len && is_utf16_high(buf[*index]) && is_utf16_low(buf[*index + 1]))
           ++*index;
           
         ++*index;
@@ -3064,6 +3069,9 @@ Box *MathSequence::move_logical(
   
   if(*index <= 0) {
     if(_parent) {
+      if(jumping && !_parent->exitable())
+        return this;
+          
       *index = _index + 1;
       return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
@@ -3073,16 +3081,20 @@ Box *MathSequence::move_logical(
   if(jumping) {
     do {
       --*index;
+    } while(*index > 0 && (buf[*index] == ' ' || buf[*index] == '\t'));
+    ++*index;
+      
+    do {
+      --*index;
     } while(*index > 0 && !spans.is_token_end(*index - 1));
     
     return this;
   }
   
-  if(str[*index - 1] != PMATH_CHAR_BOX) {
+  if(buf[*index - 1] != PMATH_CHAR_BOX) {
     --*index;
     
-    if( is_utf16_high(str[*index - 1]) &&
-        is_utf16_low(str[*index]))
+    if(*index > 0 && is_utf16_high(buf[*index - 1]) && is_utf16_low(buf[*index]))
       --*index;
       
     return this;
@@ -3099,7 +3111,7 @@ Box *MathSequence::move_logical(
 
 Box *MathSequence::move_vertical(
   LogicalDirection  direction,
-  float             *index_rel_x,
+  float            *index_rel_x,
   int              *index,
   bool              called_from_child
 ) {
@@ -3253,7 +3265,7 @@ Box *MathSequence::mouse_selection(
         int b = 0;
         while(b < boxes.length() && boxes[b]->index() < *start)
           ++b;
-          
+        
         if(x > prev - line_start + boxes[b]->extents().width) {
           *was_inside_start = false;
           ++*start;
@@ -3261,14 +3273,15 @@ Box *MathSequence::mouse_selection(
           return this;
         }
         
-        if(x < prev - line_start + glyphs[*start].x_offset) {
+        float xoff = glyphs[*start].x_offset;
+        if(x < prev - line_start + xoff) {
           *was_inside_start = false;
           *end = *start;
           return this;
         }
         
         return boxes[b]->mouse_selection(
-                 x - prev + line_start,
+                 x - (prev - line_start + xoff),
                  y,
                  start,
                  end,
@@ -3682,6 +3695,9 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
   if(head == PMATH_SYMBOL_TAGBOX)
     return create_or_error<  TagBox>(expr, options);
     
+  if(head == PMATH_SYMBOL_TEMPLATEBOX)
+    return create_or_error<  TemplateBox>(expr, options);
+    
   if(head == PMATH_SYMBOL_TOOLTIPBOX)
     return create_or_error<  TooltipBox>(expr, options);
     
@@ -3697,8 +3713,11 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
   if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == GetSymbol( FESymbolIndex::NumberBox ))
+  if(head == richmath_FE_NumberBox)
     return create_or_error<NumberBox>(expr, options);
+    
+  if(head == PMATH_SYMBOL_TEMPLATESLOT)
+    return create_or_error<TemplateBoxSlot>(expr, options);
     
   return new ErrorBox(expr);
 }
@@ -3926,6 +3945,9 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
     
   if(has(options, BoxInputFlags::FormatNumbers))
     obj = NumberBox::prepare_boxes(obj);
+    
+  if(has(options, BoxInputFlags::AllowTemplateSlots))
+    obj = TemplateBoxSlot::prepare_boxes(obj);
     
   new_spans = pmath_spans_from_boxes(
                 pmath_ref(obj.get()),

@@ -84,16 +84,15 @@ void AbstractTransformationBox::resize(Context *context) {
 }
 
 void AbstractTransformationBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   float x, y;
   context->canvas->current_pos(&x, &y);
   
   context->canvas->save();
   
-  cairo_translate(context->canvas->cairo(), x, y);
-  cairo_transform(context->canvas->cairo(), &mat);
+  context->canvas->translate(x, y);
+  context->canvas->transform(mat);
   
   context->canvas->move_to(0, 0);
   
@@ -154,7 +153,7 @@ bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < 1)
     return false;
     
-  Expr options(pmath_options_extract(expr.get(), 1));
+  Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -185,7 +184,7 @@ bool RotationBox::angle(Expr a) {
 }
 
 void RotationBox::paint(Context *context) {
-  bool have_dynamic = style->update_dynamic(this);
+  bool have_dynamic = update_dynamic_styles(context);
   
   AbstractTransformationBox::paint(context);
   
@@ -222,7 +221,7 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < 1)
     return false;
     
-  Expr options(pmath_options_extract(expr.get(), 1));
+  Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -272,7 +271,7 @@ bool TransformationBox::matrix(Expr m) {
 }
 
 void TransformationBox::paint(Context *context) {
-  bool have_dynamic = style->update_dynamic(this);
+  bool have_dynamic = update_dynamic_styles(context);
   
   AbstractTransformationBox::paint(context);
   

@@ -207,7 +207,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       canvas->restore();
       
       double x1,y1,x2,y2;
-      cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
+      canvas->path_extents(&x1, &y1, &x2, &y2);
       canvas->new_path();
       
       _overlay.add((y1 + y2)/2, color, lane);
@@ -891,11 +891,22 @@ void Win32DocumentWindow::rearrange() {
 void Win32DocumentWindow::invalidate_options() {
   Document *doc = document();
   
+  bool change = false;
+  if(doc->load_stylesheet()) {
+    change = true;
+    _top_area->document()->stylesheet(doc->stylesheet());
+    _top_glass_area->document()->stylesheet(doc->stylesheet());
+    _bottom_area->document()->stylesheet(doc->stylesheet());
+    _bottom_glass_area->document()->stylesheet(doc->stylesheet());
+  }
+  
   String s = doc->get_style(WindowTitle, String());
   if(_title != s)
     title(s);
     
-  bool change = false;
+  
+  _top_area->document()->stylesheet(doc->stylesheet());
+  _bottom_area->document()->stylesheet(doc->stylesheet());
   
   _top_area->reload(         SectionList::group(doc->get_style(DockedSectionsTop)),         &change);
   _top_glass_area->reload(   SectionList::group(doc->get_style(DockedSectionsTopGlass)),    &change);
@@ -938,13 +949,14 @@ void Win32DocumentWindow::title(String text) {
   _title = text;
   
   if(text.is_null()) {
-    if(_filename.is_valid()) {
-      int c = _filename.length();
-      const uint16_t *buf = _filename.buffer();
+    String fname = filename();
+    if(fname.is_valid()) {
+      int c = fname.length();
+      const uint16_t *buf = fname.buffer();
       while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
         --c;
         
-      text = _filename.part(c + 1);
+      text = fname.part(c + 1);
     }
     else
       text = "untitled";

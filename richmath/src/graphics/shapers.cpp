@@ -802,10 +802,10 @@ void SimpleMathShaper::vertical_glyph_size(
           context->canvas->glyph_extents(&cg, 1, &cte);
           
           if(special_center) {
-            h += info.index * cte.height * 2;
+            h += info.ext.num_extenders * cte.height * 2;
           }
           else
-            h += info.index * cte.height;
+            h += info.ext.num_extenders * cte.height;
         }
         
         h /= 2;
@@ -859,10 +859,10 @@ void SimpleMathShaper::show_glyph(
           cg.x += cte.x_advance;
         }
         
-        if(middle && info.index > 0) {
+        if(middle && info.ext.num_extenders > 0) {
           cg.index = middle;
           context->canvas->glyph_extents(&cg, 1, &cte);
-          for(int i = 0; i < info.index; ++i) {
+          for(int i = 0; i < info.ext.num_extenders; ++i) {
             context->canvas->show_glyphs(&cg, 1);
             cg.x += cte.x_advance;
           }
@@ -874,10 +874,10 @@ void SimpleMathShaper::show_glyph(
           context->canvas->show_glyphs(&cg, 1);
           cg.x += cte.x_advance;
           
-          if(middle && info.index > 0) {
+          if(middle && info.ext.num_extenders > 0) {
             cg.index = middle;
             context->canvas->glyph_extents(&cg, 1, &cte);
-            for(int i = 0; i < info.index; ++i) {
+            for(int i = 0; i < info.ext.num_extenders; ++i) {
               context->canvas->show_glyphs(&cg, 1);
               cg.x += cte.x_advance;
             }
@@ -944,9 +944,14 @@ void SimpleMathShaper::show_glyph(
         float th = cte.height;
         float ta = -cte.y_bearing;
         
+        cg.index = bottom;
+        context->canvas->glyph_extents(&cg, 1, &cte);
+        float bh = cte.height;
+        float ba = -cte.y_bearing;
+        
         float mh = 0;
         float ma = 0;
-        if(middle && info.index > 0) {
+        if(middle && info.ext.num_extenders > 0) {
           cg.index = middle;
           context->canvas->glyph_extents(&cg, 1, &cte);
           mh = cte.height;
@@ -961,17 +966,18 @@ void SimpleMathShaper::show_glyph(
           sh = cte.height;
           sa = -cte.y_bearing;
           
-          cg.y -= sh / 2 + info.index * mh + th - ta;
+          cg.y -= (th + sh + bh + 2 * info.ext.num_extenders * mh) / 2;
         }
         else
-          cg.y -= info.index * mh / 2 + th - ta;
-          
+          cg.y -= (th + bh + info.ext.num_extenders * mh) / 2;
+        
+        cg.y+= ta;
         cg.index = top;
         context->canvas->show_glyphs(&cg, 1);
         
         cg.y += th - ta + ma;
         cg.index = middle;
-        for(int i = 0; i < info.index; ++i) {
+        for(int i = 0; i < info.ext.num_extenders; ++i) {
           context->canvas->show_glyphs(&cg, 1);
           cg.y += mh;
         }
@@ -983,7 +989,7 @@ void SimpleMathShaper::show_glyph(
           
           cg.y += sh - sa + ma;
           cg.index = middle;
-          for(int i = 0; i < info.index; ++i) {
+          for(int i = 0; i < info.ext.num_extenders; ++i) {
             context->canvas->show_glyphs(&cg, 1);
             cg.y += mh;
           }
@@ -1093,10 +1099,11 @@ bool SimpleMathShaper::horizontal_stretch_char(
     context->canvas->glyph_extents(&cg, 1, &cte);
     
     if(w < 0) w = 0;
-    result->index = (uint16_t)floor(divide(w, cte.x_advance));
-    result->right += result->index * cte.x_advance;
+    result->ext.num_extenders = (uint16_t)floor(divide(w, cte.x_advance));
+    result->ext.rel_overlap = 0;
+    result->right += result->ext.num_extenders * cte.x_advance;
     if(special_center)
-      result->right += result->index * cte.x_advance;
+      result->right += result->ext.num_extenders * cte.x_advance;
   }
   else {
     result->right = 0;
@@ -1118,7 +1125,8 @@ bool SimpleMathShaper::horizontal_stretch_char(
       result->right += cte.x_advance;
     }
     
-    result->index = 0;
+    result->ext.num_extenders = 0;
+    result->ext.rel_overlap = 0;
     result->composed = 1;
     result->is_normal_text = 0;
     result->horizontal_stretch = 1;
@@ -1242,13 +1250,15 @@ void SimpleMathShaper::vertical_stretch_char(
     context->canvas->glyph_extents(&cg, 1, &cte);
     
     if(h < 0) h = 0;
-    result->index = (uint16_t)floor(divide(h, cte.height) + 0.5);
+    result->ext.num_extenders = (uint16_t)floor(divide(h, cte.height) + 0.5);
+    result->ext.rel_overlap = 0;
   }
   else {
     cg.index = top;
     context->canvas->glyph_extents(&cg, 1, &cte);
     
-    result->index = 0;
+    result->ext.num_extenders = 0;
+    result->ext.rel_overlap = 0;
     result->composed = 1;
     result->is_normal_text = 0;
     result->fontinfo = fontindex;
@@ -1476,7 +1486,8 @@ void SimpleMathShaper::shape_radical(
   if(box->descent < 0) box->descent = 0;
   
   float hbar_height = context->canvas->get_font_size() * 0.05;
-  
+  info->surd_form = 0;
+
   cairo_text_extents_t cte;
   cairo_glyph_t cg;
   cg.x = cg.y = 0;
@@ -1506,7 +1517,7 @@ void SimpleMathShaper::shape_radical(
     
     cg.index = srg[i].hbar_index;
     context->canvas->glyph_extents(&cg, 1, &cte);
-    info->hbar = (int)ceil(divide(cte.x_advance / 2 + box->width, cte.x_advance));
+    info->hbar = (unsigned)ceil(divide(cte.x_advance / 2 + box->width, cte.x_advance));
     box->width = *radicand_x + (info->hbar) * cte.x_advance;
     
     cg.index = srg[i].index;
@@ -1553,7 +1564,7 @@ void SimpleMathShaper::shape_radical(
   
   cg.index = horizontal;
   context->canvas->glyph_extents(&cg, 1, &cte);
-  info->hbar = (int)ceil(divide(box->width, cte.x_advance));
+  info->hbar = (unsigned)ceil(divide(box->width, cte.x_advance));
   
   box->width = *radicand_x + (0.5 + info->hbar) * cte.x_advance;
 }
@@ -1593,50 +1604,63 @@ void SimpleMathShaper::show_radical(
       context->canvas->show_glyphs(&cg, 1);
       cg.x += cte.x_advance;
     }
-    return;
   }
-  
-  float dummyx, dummyy;
-  uint16_t bottom;
-  uint16_t vertical;
-  uint16_t edge;
-  uint16_t horizontal;
-  big_radical_glyphs(
-    &bottom,
-    &vertical,
-    &edge,
-    &horizontal,
-    &dummyx,
-    &dummyy);
+  else {
+    float dummyx, dummyy;
+    uint16_t bottom;
+    uint16_t vertical;
+    uint16_t edge;
+    uint16_t horizontal;
+    big_radical_glyphs(
+      &bottom,
+      &vertical,
+      &edge,
+      &horizontal,
+      &dummyx,
+      &dummyy);
+      
+    cg.index = bottom;
+    context->canvas->glyph_extents(&cg, 1, &cte);
+    cg.y -= cte.y_bearing;
+    context->canvas->show_glyphs(&cg, 1);
     
-  cg.index = bottom;
-  context->canvas->glyph_extents(&cg, 1, &cte);
-  cg.y -= cte.y_bearing;
-  context->canvas->show_glyphs(&cg, 1);
-  
-  cg.y += cte.y_bearing;
-  cg.index = vertical;
-  context->canvas->glyph_extents(&cg, 1, &cte);
-  cg.y -= cte.y_bearing;
-  for(int i = 0; i < info.size; ++i) {
-    cg.y -= cte.height;
+    cg.y += cte.y_bearing;
+    cg.index = vertical;
+    context->canvas->glyph_extents(&cg, 1, &cte);
+    cg.y -= cte.y_bearing;
+    for(int i = 0; i < info.size; ++i) {
+      cg.y -= cte.height;
+      context->canvas->show_glyphs(&cg, 1);
+    }
+    
+    cg.y += cte.y_bearing;
+    cg.index = edge;
+    context->canvas->glyph_extents(&cg, 1, &cte);
+    cg.y -= cte.height + cte.y_bearing;
     context->canvas->show_glyphs(&cg, 1);
-  }
-  
-  cg.y += cte.y_bearing;
-  cg.index = edge;
-  context->canvas->glyph_extents(&cg, 1, &cte);
-  cg.y -= cte.height + cte.y_bearing;
-  context->canvas->show_glyphs(&cg, 1);
-  
-  cg.y += cte.y_bearing;
-  cg.x += cte.x_advance;
-  cg.index = horizontal;
-  context->canvas->glyph_extents(&cg, 1, &cte);
-  cg.y -= cte.y_bearing;
-  for(int i = 0; i < info.hbar; ++i) {
-    context->canvas->show_glyphs(&cg, 1);
+    
+    cg.y += cte.y_bearing;
     cg.x += cte.x_advance;
+    cg.index = horizontal;
+    context->canvas->glyph_extents(&cg, 1, &cte);
+    cg.y -= cte.y_bearing;
+    for(unsigned i = info.hbar; i > 0; --i) {
+      context->canvas->show_glyphs(&cg, 1);
+      cg.x += cte.x_advance;
+    }
+  }
+
+  // Now, cg is horizontal extender glyph with extends in cte
+  if(info.surd_form) {
+    double em = context->canvas->get_font_size();
+    double hook_width = em * 0.05;
+    double hook_height = em * 0.25;
+
+    bool sot = context->canvas->show_only_text;
+    context->canvas->show_only_text = false;
+    context->canvas->pixrect(cg.x - hook_width, cg.y + cte.y_bearing, cg.x, cg.y + cte.y_bearing + hook_height, false);
+    context->canvas->fill();
+    context->canvas->show_only_text = sot;
   }
 }
 

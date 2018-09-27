@@ -52,7 +52,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
         }
       }
       
-      utf8_name = pmath_string_to_utf8(family.get_as_string(), nullptr)
+      utf8_name = pmath_string_to_utf8(family.get_as_string(), nullptr);
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
     }

@@ -798,135 +798,108 @@ namespace richmath {
           return false;
         }
         
-        int c = stretched_glyphs.size();
-        for(int i = 0; c > 0; ++i) {
-          if(auto e = stretched_glyphs.entry(i)) {
-            --c;
-            
-            if(e->value.glyphs.length() == 0) {
-              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
+        for(auto e : stretched_glyphs.deletable_entries()) {
+          if(e.value.glyphs.length() == 0) {
+            printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
+            return false;
+          }
+          
+          if(e.value.glyphs.length() != e.value.fonts.length()) {
+            printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
+            return false;
+          }
+          
+          for(int j = 0; j < e.value.glyphs.length(); ++j) {
+            if(e.value.glyphs[j] == 0) {
+              //printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e.key, j);
+              //return false;
+              printf("streched glyph %x failed.\n", e.key);
+              e.delete_self();
+              goto NEXT_STRETCHED;
+            }
+          }
+          
+          for(int j = 0; j < e.value.fonts.length(); ++j) {
+            if(e.value.fonts[j] >= math_fontnames.length()) {
+              printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e.key, j);
               return false;
-            }
-            
-            if(e->value.glyphs.length() != e->value.fonts.length()) {
-              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
-              return false;
-            }
-            
-            for(int j = 0; j < e->value.glyphs.length(); ++j) {
-              if(e->value.glyphs[j] == 0) {
-                //printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e->key, j);
-                //return false;
-                printf("strched glyph %x failed.\n", e->key);
-                stretched_glyphs.remove(e->key);
-                goto NEXT_STRETCHED;
-              }
-            }
-            
-            for(int j = 0; j < e->value.fonts.length(); ++j) {
-              if(e->value.fonts[j] >= math_fontnames.length()) {
-                printf("[%s, %d, %x, %d]", FUNC_NAME, __LINE__, e->key, j);
-                return false;
-              }
             }
           }
           
         NEXT_STRETCHED: ;
         }
         
-        c = composed_glyphs.size();
-        for(int i = 0; c > 0; ++i) {
-          if(auto e = composed_glyphs.entry(i)) {
-            --c;
-            
-            if(e->value.tbms_font >= math_fontnames.length()) {
-              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
-              return false;
-            }
-            
-            if(e->value.ul_font >= math_fontnames.length()) {
-              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
-              return false;
-            }
-            
-            if(e->value.vertical) {
-              if(e->value.top == 0 && e->value.bottom != 0) {
-                printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
-                return false;
-              }
-              
-              if(e->value.top != 0 && e->value.bottom == 0) {
-                printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
-                return false;
-              }
-            }
-            
-            if(e->value.middle == 0 && e->value.special_center != 0) {
-              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
-              return false;
-            }
-            
-            if(e->value.upper == 0 && e->value.lower != 0) {
-              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
-              return false;
-            }
-            
-            if(e->value.upper != 0 && e->value.lower == 0) {
-              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e->key);
-              return false;
-            }
+        for(auto &e : composed_glyphs.entries()) {
+          if(e.value.tbms_font >= math_fontnames.length()) {
+            printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
+            return false;
           }
-        }
-        
-        c = char_to_glyph_map.size();
-        for(int i = 0; c > 0; ++i) {
-          if(auto e = char_to_glyph_map.entry(i)) {
-            --c;
-            
-            if(e->value.glyph == 0) {
-              printf("not found: U+%04x\n", (int)e->key);
-              char_to_glyph_map.remove(e->key);
-              goto NEXT_CHAR_TO_GLYPH;
+          
+          if(e.value.ul_font >= math_fontnames.length()) {
+            printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
+            return false;
+          }
+          
+          if(e.value.vertical) {
+            if(e.value.top == 0 && e.value.bottom != 0) {
+              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
+              return false;
             }
             
-            if(e->value.font >= math_fontnames.length()) {
-              printf("[%s, %d]", FUNC_NAME, __LINE__);
+            if(e.value.top != 0 && e.value.bottom == 0) {
+              printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
               return false;
             }
           }
           
-        NEXT_CHAR_TO_GLYPH: ;
+          if(e.value.middle == 0 && e.value.special_center != 0) {
+            printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
+            return false;
+          }
+          
+          if(e.value.upper == 0 && e.value.lower != 0) {
+            printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
+            return false;
+          }
+          
+          if(e.value.upper != 0 && e.value.lower == 0) {
+            printf("[%s, %d, %x]", FUNC_NAME, __LINE__, e.key);
+            return false;
+          }
         }
         
-        c = ligatures.size();
-        for(int i = 0; c > 0; ++i) {
-          if(auto e = ligatures.entry(i)) {
-            --c;
-            
-            if(e->value.length() > e->key.length()) {
+        for(auto e : char_to_glyph_map.deletable_entries()) {
+          if(e.value.glyph == 0) {
+            printf("not found: U+%04x\n", (int)e.key);
+            e.delete_self();
+            continue;
+          }
+          
+          if(e.value.font >= math_fontnames.length()) {
+            printf("[%s, %d]", FUNC_NAME, __LINE__);
+            return false;
+          }
+        }
+        
+        for(auto &e : ligatures.entries()) {
+          if(e.value.length() > e.key.length()) {
+            printf("[%s, %d]", FUNC_NAME, __LINE__);
+            return false;
+          }
+          
+          for(int j = 0; j < e.value.length(); ++j) {
+            if(e.value[j].font >= math_fontnames.length()) {
               printf("[%s, %d]", FUNC_NAME, __LINE__);
               return false;
-            }
-            
-            for(int j = 0; j < e->value.length(); ++j) {
-              if(e->value[j].font >= math_fontnames.length()) {
-                printf("[%s, %d]", FUNC_NAME, __LINE__);
-                return false;
-              }
             }
           }
         }
         
-        c = complex_glyphs.size();
-        for(int i = 0; c > 0; ++i) {
-          if(auto e = complex_glyphs.entry(i)) {
-            --c;
-            
-            for(int j = 0; j < e->value.length(); ++j) {
-              if(e->value[j].font >= math_fontnames.length()) {
-                printf("[%s, %d]", FUNC_NAME, __LINE__);
-                return false;
-              }
+        for(auto &e : complex_glyphs.entries()) {
+          for(int j = 0; j < e.value.length(); ++j) {
+            if(e.value[j].font >= math_fontnames.length()) {
+              printf("[%s, %d]", FUNC_NAME, __LINE__);
+              return false;
             }
           }
         }
@@ -1173,22 +1146,22 @@ void ConfigShaper::decode_token(
       cairo_glyph_t        cg;
       
       result->composed = 1;
-      result->index    = arr->get(0).glyph;
+      result->index    = arr->get(0).glyph; // ext.num_extenders???
       result->fontinfo = arr->get(0).font;
       result->right    = 0;
       result->x_offset = 0;
       
-      for(int i = 0; i < arr->length(); ++i) {
-        context->canvas->set_font_face(font(arr->get(i).font));
+      for(const auto &part : *arr) {
+        context->canvas->set_font_face(font(part.font));
         cg.x = 0;
         cg.y = 0;
-        cg.index = arr->get(i).glyph;
+        cg.index = part.glyph;
         context->canvas->glyph_extents(&cg, 1, &cte);
         
         result->right += cte.x_advance;
         
-        if(arr->get(i).offset) {
-          result->right += arr->get(i).offset
+        if(part.offset) {
+          result->right += part.offset
                            * context->canvas->get_font_size()
                            * GlyphFontOffset::EmPerOffset;
         }
@@ -1337,11 +1310,11 @@ void ConfigShaper::vertical_glyph_size(
       cairo_text_extents_t cte;
       cairo_glyph_t        cg;
       
-      for(int i = 0; i < arr->length(); ++i) {
-        context->canvas->set_font_face(font(arr->get(i).font));
+      for(const auto &part : *arr) {
+        context->canvas->set_font_face(font(part.font));
         cg.x = 0;
         cg.y = 0;
-        cg.index = arr->get(i).glyph;
+        cg.index = part.glyph;
         context->canvas->glyph_extents(&cg, 1, &cte);
         if(*ascent < -cte.y_bearing)
           *ascent = -cte.y_bearing;
@@ -1383,16 +1356,16 @@ void ConfigShaper::show_glyph(
       cg.x = x + info.x_offset;
       cg.y = y;
       
-      for(int i = 0; i < arr->length(); ++i) {
-        context->canvas->set_font_face(font(arr->get(i).font));
-        cg.index = arr->get(i).glyph;
+      for(const auto &part : *arr) {
+        context->canvas->set_font_face(font(part.font));
+        cg.index = part.glyph;
         context->canvas->show_glyphs(&cg, 1);
         
         context->canvas->glyph_extents(&cg, 1, &cte);
         cg.x += cte.x_advance;
         
-        if(arr->get(i).offset) {
-          cg.x += arr->get(i).offset
+        if(part.offset) {
+          cg.x += part.offset
                   * context->canvas->get_font_size()
                   * GlyphFontOffset::EmPerOffset;
         }

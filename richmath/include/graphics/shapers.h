@@ -41,10 +41,21 @@ namespace richmath {
     FontsPerGlyphCount = (1 << 5)
   };
   
-  typedef struct {
+  struct GlyphInfo {
+    enum {
+      MaxRelOverlap = ((1 << 4) - 1)
+    };
+    struct ExtendersAndOverlap {
+      unsigned num_extenders: 12;
+      unsigned rel_overlap: 4;
+    };
+    
     float right;
     float x_offset;
-    uint16_t index;
+    union {
+      uint16_t            index;
+      ExtendersAndOverlap ext;
+    };
     unsigned style:              4; // GlyphStyleXXX
     
     unsigned fontinfo:           5;
@@ -56,7 +67,7 @@ namespace richmath {
     unsigned is_normal_text:     1;
     unsigned missing_after:      1;
     unsigned vertical_centered:  1; // glyph ink center = math_axis above baseline; does not work when composed=1
-  } GlyphInfo;
+  };
   
   const uint16_t IgnoreGlyph = 0x0000;
   const uint16_t UnknownGlyph = 0xFFFF;
@@ -237,7 +248,8 @@ namespace richmath {
   class RadicalShapeInfo {
     public:
       int   size; // negative => small root, otherwise # of vertical pieces
-      int   hbar;
+      unsigned hbar      : 31;
+      unsigned surd_form : 1;
       float y_offset;
   };
   

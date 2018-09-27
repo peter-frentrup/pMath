@@ -4,6 +4,7 @@
 #include <eval/application.h>
 #include <eval/binding.h>
 
+extern pmath_symbol_t richmath_FE_SymbolDefinitions;
 
 using namespace richmath;
 
@@ -31,7 +32,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr.expr_length() < 2)
     return false;
     
-  Expr options_expr = Expr(pmath_options_extract(expr.get(), 2));
+  Expr options_expr = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options_expr.is_null())
     return false;
     
@@ -39,9 +40,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(symbols[0] != PMATH_SYMBOL_LIST)
     return false;
     
-  for(size_t i = symbols.expr_length(); i > 0; --i) {
-    Expr sym = symbols[i];
-    
+  for(auto sym : symbols.items()) {
     if(!sym.is_symbol())
       return false;
   }
@@ -97,20 +96,17 @@ void DynamicLocalBox::paint(Context *context) {
 
 static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms) {
   if(pmath_is_symbol(expr)) {
-    size_t i;
-    for(i = old_syms.expr_length(); i > 0; --i) {
+    for(size_t i = old_syms.expr_length();i > 0;--i) {
       if(old_syms[i] == expr) {
         pmath_unref(expr);
         return new_syms[i].release();
       }
     }
-    
     return expr;
   }
   
   if(pmath_is_expr(expr)) {
-    size_t i;
-    for(i = 0; i <= pmath_expr_length(expr); ++i) {
+    for(size_t i = 0; i <= pmath_expr_length(expr); ++i) {
       pmath_t item = pmath_expr_extract_item(expr, i);
       
       item = internal_replace_symbols(item, old_syms, new_syms);
@@ -139,11 +135,9 @@ Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
   {
     Gather g2;
     
-    for(size_t i = 1; i <= _public_symbols.expr_length(); ++i) {
-      Expr sym = _public_symbols[i];
-      
-      for(size_t j = _unsaved_variables.expr_length(); j > 0; --j) {
-        if(_unsaved_variables[j] == sym) {
+    for(auto sym : _public_symbols.items()) {
+      for(auto unsaved : _unsaved_variables.items_reverse()) {
+        if(unsaved == sym) {
           sym = Expr();
           break;
         }
@@ -180,7 +174,7 @@ void DynamicLocalBox::emit_values(Expr symbol) {
   // todo: fetch variables from Server, maybe after each paint()
   
   Expr rules =  Application::interrupt_wait(
-                  Call(GetSymbol(FESymbolIndex::SymbolDefinitions), prepare_dynamic(symbol)),
+                  Call(Symbol(richmath_FE_SymbolDefinitions), prepare_dynamic(symbol)),
                   Application::dynamic_timeout);
                   
   if(rules[0] == PMATH_SYMBOL_HOLDCOMPLETE && rules.expr_length() > 0) {

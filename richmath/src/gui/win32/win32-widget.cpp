@@ -153,7 +153,7 @@ void Win32Widget::after_construction() {
     /* RealTimeStylus disables single-finger WM_GESTURE */
     HRbool(stylus->put_Enabled(TRUE));
     
-    HRbool(stylus->AddStylusSyncPlugin(
+    HRbool(stylus->AddStylusAsyncPlugin(
              StylusUtil::get_stylus_sync_plugin_count(stylus),
              this));
     fprintf(stderr, "[%lu RTS plugins]\n", StylusUtil::get_stylus_sync_plugin_count(stylus));
@@ -481,7 +481,8 @@ STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo
   
   fprintf(
     stderr,
-    "[StylusDown tablet %u (%s), cid %u %sat (%f,%f)]\n",
+    "[%u StylusDown tablet %u (%s), cid %u %sat (%f,%f)]\n",
+    GetCurrentThreadId(),
     pStylusInfo->tcid,
     kind == TDK_Mouse ? "mouse" : (kind == TDK_Pen ? "pen" : (kind == TDK_Touch ? "touch" : "???")),
     pStylusInfo->cid,
@@ -497,7 +498,8 @@ STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo
 STDMETHODIMP Win32Widget::StylusUp(IRealTimeStylus *piRtsSrc, const StylusInfo *pStylusInfo, ULONG cPropCountPerPkt, LONG *pPacket, LONG **ppInOutPkt) {
   fprintf(
     stderr,
-    "[StylusUp tablet %u, stylus %u %s]\n",
+    "[%u StylusUp tablet %u, stylus %u %s]\n",
+    GetCurrentThreadId(),
     pStylusInfo->tcid,
     pStylusInfo->cid,
     pStylusInfo->bIsInvertedCursor ? "inverted" : "");

@@ -1,0 +1,85 @@
+Begin("System`Private`")
+
+<<ExperimentalSyntax`
+
+Attributes(symDefs):= {HoldAllComplete}
+symDefs(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
+	With({r:= OwnRules(sym)},     If(Length(r) > 0, Emit(HoldComplete(OwnRules(sym):=     r))));
+	With({r:= DownRules(sym)},    If(Length(r) > 0, Emit(HoldComplete(DownRules(sym):=    r))));
+	With({r:= UpRules(sym)},      If(Length(r) > 0, Emit(HoldComplete(UpRules(sym):=      r))));
+	With({r:= SubRules(sym)},     If(Length(r) > 0, Emit(HoldComplete(SubRules(sym):=     r))));
+	With({r:= DefaultRules(sym)}, If(Length(r) > 0, Emit(HoldComplete(DefaultRules(sym):= r))));
+	With({r:= FormatRules(sym)},  If(Length(r) > 0, Emit(HoldComplete(FormatRules(sym):=  r))));
+	With({r:= NRules(sym)},       If(Length(r) > 0, Emit(HoldComplete(NRules(sym):=       r))));
+	)[2])
+
+
+Function DynamicLocal(
+	{def: (~:Symbol | (Assign|AssignDelayed)(~:Symbol,~))***}, ~body, opt:OptionsPattern()
+) Where(
+	FilterRules(Flatten({opt}), DynamicLocalValues) = {}
+) {
+	Local(heldsyms, heldlocalsyms, content, head, vals, unsaved) 
+	unsaved:= HoldComplete(UnsavedVariables).Replace(
+		Flatten({opt, UnsavedVariables -> {}, HoldComplete({~~~x}) :> HoldComplete(x)}));
+	
+	heldsyms:= HoldComplete(def).Replace({~x:Symbol :> x, ~(~x:Symbol,~) :> x}, 1);
+	
+	{heldlocalsyms, unsaved, content}:= ReleaseHold @ Replace(
+		HoldComplete(head({def},{heldsyms, unsaved, body})),
+		{HoldPattern(heldsyms) -> heldsyms, 
+			HoldPattern(unsaved)  -> unsaved, 
+			head                  -> Local}, 
+		Heads -> True);
+		
+	vals:= Complement(heldlocalsyms, unsaved);
+	vals:= Flatten @ HoldComplete @@ List @ ReleaseHold @ vals.Map(symDefs);
+	
+	With(heldlocalsyms:= heldlocalsyms)
+	With(heldsyms:= heldsyms)
+	With(arr:= HoldComplete(heldlocalsyms, heldsyms).Replace(HoldComplete -> List, 2, Heads->True))
+	With(repsyms:= MapThread(
+			Unevaluated(head(arr)), 
+			Function(, HoldPattern(#1) :> #2, {HoldAllComplete})
+		).Unevaluated.Replace(HoldPattern(head(HoldComplete(~~~x))) :> {x}))
+	
+	With(content:= content)
+	With(vals:= vals)
+
+	HoldComplete(
+		head(heldlocalsyms), 
+		content, 
+		DynamicLocalValues :> vals
+	).Replace(
+		{head(HoldComplete(~~~x))                   :> {x}, 
+			(DynamicLocalValues :> HoldComplete(~~~s)) :> (DynamicLocalValues :> {s})}
+	).Replace(
+		repsyms, 
+		Heads -> True
+	).Apply(DynamicLocal)
+}
+
+MakeBoxes(DynamicLocal(syms: {(~:Symbol)***}, ~body, opt: OptionsPattern()))::=
+	DynamicLocalBox(syms, MakeBoxes(body), opt)
+
+
+DynamicLocalBox/: MakeExpression(DynamicLocalBox(~s, ~b, ~~~o))::= 
+	With(body:= MakeExpression(b)) {
+		If(body === $Failed) {
+			Return($Failed)
+		}
+		HoldComplete(DynamicLocal(s, body, o)).Replace(HoldComplete(~~~x) :> x, 2)
+	}
+
+
+Unprotect(System`Setting`$Rules);
+
+System`Setting`$Rules:= System`Setting`$Rules.Append(
+	DynamicLocal(syms: {(~:Symbol | (Assign|AssignDelayed)(~:Symbol,~))***}, ~body, opt: OptionsPattern()) :> 
+		With({syms:= syms}, 
+			Local(syms, OptionValue(DynamicLocalValues); body))
+	)
+
+Protect(System`Setting`$Rules);
+
+End()

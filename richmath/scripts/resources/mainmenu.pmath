@@ -64,12 +64,14 @@ FE`Private`mainmenu:= Menu("pMath", {
 		}),
 	Menu("Fo&rmat", {
 		Menu("Style", {
-			Item("Title",                              BaseStyle->"Title"),
-			Item("Section",                            BaseStyle->"Section"),
-			Item("Subsection",                         BaseStyle->"Subsection"),
-			Item("Subsubsection",                      BaseStyle->"Subsubsection"),
-			Item("Text",                               BaseStyle->"Text"),
-			Item("Input",                              BaseStyle->"Input")
+			% FIXME: The shortcut are actually ScopedCommand(..., Section), so they do not appear here automatically
+			Item("Title\tAlt+1",                              BaseStyle->"Title"),
+			Item("Section\tAlt+4",                            BaseStyle->"Section"),
+			Item("Subsection\tAlt+5",                         BaseStyle->"Subsection"),
+			Item("Subsubsection\tAlt+6",                      BaseStyle->"Subsubsection"),
+			Item("Text\tAlt+7",                               BaseStyle->"Text"),
+			Item("Input\tAlt+9",                              BaseStyle->"Input"),
+			Item("DisplayFormula",                     BaseStyle->"DisplayFormula")
 			}),
 		Menu("Magnification", {
 			Item("50%",                                ScopedCommand(Magnification->0.5, Document)),
@@ -77,7 +79,19 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Item("150%",                               ScopedCommand(Magnification->1.5, Document))
 			}),
 		
-		Menu("Math Font", Join(
+		Menu("Math Font", Join({
+				Item("Inherited", ScopedCommand(MathFontFamily -> Inherited, Document)),
+				Delimiter
+			},
+			$MathShapers.Join({
+				"Mathematica 10 Mono",
+				"Mathematica 10 Serif",
+				"Mathematica 10 Sans",
+				"Mathematica Mono",
+				"Mathematica Serif",
+			}).Map(Item(#,             ScopedCommand(MathFontFamily -> #, Document)) &),
+			)),
+		Menu("Math Font (old)", Join(
 			$MathShapers.Map(Item(# ++ "",             "@shaper=" ++ #) &),
 			{
 				Delimiter,

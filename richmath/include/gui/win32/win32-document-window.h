@@ -7,6 +7,7 @@
 
 #include <gui/win32/basic-win32-window.h>
 #include <gui/win32/win32-widget.h>
+#include <eval/observable.h>
 
 
 namespace richmath {
@@ -71,9 +72,9 @@ namespace richmath {
       bool creation;
       bool _has_unsaved_changes;
       
-      String          _title;
-      WindowFrameType _window_frame;
-      String          _filename;
+      String                  _title;
+      WindowFrameType         _window_frame;
+      ObservableValue<String> _filename;
       
     protected:
       virtual void on_theme_changed() override;

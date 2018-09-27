@@ -47,7 +47,6 @@ static const char *describe_property(GUID prop) {
   if(IsEqualGUID(prop, GUID_PACKETPROPERTY_GUID_X))                         return "X";
   if(IsEqualGUID(prop, GUID_PACKETPROPERTY_GUID_Y))                         return "Y";
   if(IsEqualGUID(prop, GUID_PACKETPROPERTY_GUID_Z))                         return "Z";
-  if(IsEqualGUID(prop, GUID_PACKETPROPERTY_GUID_Z))                         return "Z";
   if(IsEqualGUID(prop, GUID_PACKETPROPERTY_GUID_PACKET_STATUS))             return "PacketStatus";
   if(IsEqualGUID(prop, GUID_PACKETPROPERTY_GUID_TIMER_TICK))                return "TimerTick";
   if(IsEqualGUID(prop, GUID_PACKETPROPERTY_GUID_SERIAL_NUMBER))             return "SerialNumber";

@@ -211,14 +211,14 @@ bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
   
   if(expr.expr_length() < 1)
-    return 0;
+    return false;
   
   Expr options;
   
   if(expr[2].is_string())
-    options = Expr(pmath_options_extract(expr.get(), 2));
+    options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   else
-    options = Expr(pmath_options_extract(expr.get(), 1));
+    options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     
   if(options.is_null()) 
     return false;
@@ -304,7 +304,7 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < 2)
     return false;
   
-  Expr options_expr(pmath_options_extract(expr.get(), 2));
+  Expr options_expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   
   if(options_expr.is_null())
     return false;

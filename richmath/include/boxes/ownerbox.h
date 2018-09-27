@@ -9,7 +9,7 @@ namespace richmath {
   
   class OwnerBox: public Box {
     public:
-      explicit OwnerBox(MathSequence *content = 0);
+      explicit OwnerBox(MathSequence *content = nullptr);
       ~OwnerBox();
       
       MathSequence *content() { return _content; }

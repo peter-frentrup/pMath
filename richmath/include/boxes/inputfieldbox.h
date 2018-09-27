@@ -44,6 +44,7 @@ namespace richmath {
       
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void on_mouse_move(MouseEvent &event) override;
+      virtual void on_mouse_up(MouseEvent &event) override;
       
       virtual void on_enter() override;
       virtual void on_exit() override;
@@ -58,9 +59,6 @@ namespace richmath {
       bool must_update;
       bool invalidated;
       bool transparent;
-      double last_click_time;
-      float last_click_global_x;
-      float last_click_global_y;
       float frame_x;
       
     public:

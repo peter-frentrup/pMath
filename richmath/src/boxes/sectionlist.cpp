@@ -80,14 +80,13 @@ void SectionList::resize(Context *context) {
 }
 
 void SectionList::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   float x, y;
   context->canvas->current_pos(&x, &y);
   
   context->canvas->save();
-  cairo_translate(context->canvas->cairo(), x, y);
+  context->canvas->translate(x, y);
   
   //_scrollx = 0;
   for(int i = 0; i < _sections.length(); ++i) {

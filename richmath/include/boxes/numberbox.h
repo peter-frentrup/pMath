@@ -3,6 +3,7 @@
 
 #include <boxes/ownerbox.h>
 
+extern pmath_symbol_t richmath_FE_NumberBox;
 
 namespace richmath {
   class NumberBox: public OwnerBox {

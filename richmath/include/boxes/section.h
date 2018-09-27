@@ -29,7 +29,7 @@ namespace richmath {
       virtual bool exitable() override { return false; }
       virtual bool remove_inserts_placeholder() override { return false; }
       
-      virtual bool selectable(int i = -1) override;
+      virtual Box *normalize_selection(int *start, int *end) override;
       
       virtual Box *get_highlight_child(Box *src, int *start, int *end) override;
       virtual bool request_repaint(float x, float y, float w, float h) override;
@@ -60,7 +60,7 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual Box *item(int i) override { return 0; }
+      virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }
       
       virtual void resize(Context *context) override;
@@ -116,7 +116,10 @@ namespace richmath {
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix) override;
-        
+    
+    protected:
+      virtual bool can_enter_content() { return true; }
+    
     protected:
       AbstractSequence *_content; // TextSequence or MathSequence
       float cx, cy;
@@ -154,6 +157,31 @@ namespace richmath {
       
     public:
       Section *original;
+  };
+  
+  class StyleDataSection : public AbstractSequenceSection {
+    public:
+      StyleDataSection();
+      
+      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
+      
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
+      
+      virtual Box *item(int i) override { return nullptr; }
+      virtual int count() override { return 0; }
+      
+      virtual Box *mouse_selection(
+        float  x,
+        float  y,
+        int   *start,
+        int   *end,
+        bool  *was_inside_start) override;
+    
+    protected:
+      virtual bool can_enter_content() override { return false; }
+      
+    private:
+      Expr _style_data;
   };
 }
 
