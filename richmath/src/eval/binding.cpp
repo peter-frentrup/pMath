@@ -17,6 +17,8 @@ static int current_document_id = 0;
 
 //{ pmath functions ...
 
+extern pmath_symbol_t richmath_System_SectionGenerated;
+
 static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
   double start = pmath_tickcount();
   Expr filename(pmath_expr_get_item(expr, 1));
@@ -224,7 +226,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
              style,
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_SECTIONGENERATED),
+               pmath_ref(richmath_System_SectionGenerated),
                pmath_ref(PMATH_SYMBOL_TRUE)));
                
     Application::notify_wait(ClientNotification::PrintSection, Expr(expr));

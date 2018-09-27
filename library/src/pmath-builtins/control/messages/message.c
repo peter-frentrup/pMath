@@ -11,6 +11,8 @@
 
 static const int max_message_count = 3;
 
+extern pmath_symbol_t pmath_System_Colon;
+
 PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg) {
 //  return pmath_equals(msg, _pmath_object_newsym_message);
   if(!pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2))
@@ -183,7 +185,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
            pmath_ref(PMATH_SYMBOL_ROW), 1,
            expr);
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_COLON), 2,
+           pmath_ref(pmath_System_Colon), 2,
            pmath_expr_new_extended(
              pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
              pmath_ref(name)),

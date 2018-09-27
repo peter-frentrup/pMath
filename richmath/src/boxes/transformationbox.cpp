@@ -9,6 +9,9 @@ using namespace richmath;
 
 //{ class AbstractTransformationBox ...
 
+extern pmath_symbol_t richmath_System_BoxRotation;
+extern pmath_symbol_t richmath_System_BoxTransformation;
+
 AbstractTransformationBox::AbstractTransformationBox()
   : OwnerBox(0)
 {
@@ -165,7 +168,7 @@ bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   angle(
     Expr(pmath_option_value(
            PMATH_SYMBOL_ROTATIONBOX,
-           PMATH_SYMBOL_BOXROTATION,
+           richmath_System_BoxRotation,
            options.get())));
            
   return true;
@@ -200,7 +203,7 @@ Expr RotationBox::to_pmath(BoxOutputFlags flags) {
            Symbol(PMATH_SYMBOL_ROTATIONBOX),
            _content->to_pmath(flags),
            Rule(
-             Symbol(PMATH_SYMBOL_BOXROTATION),
+             Symbol(richmath_System_BoxRotation),
              _angle));
 }
 
@@ -227,7 +230,7 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   if(!matrix(Expr(pmath_option_value(
                     PMATH_SYMBOL_TRANSFORMATIONBOX,
-                    PMATH_SYMBOL_BOXTRANSFORMATION,
+                    richmath_System_BoxTransformation,
                     options.get()))))
   {
     return false;
@@ -287,7 +290,7 @@ Expr TransformationBox::to_pmath(BoxOutputFlags flags) {
            Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX),
            _content->to_pmath(flags),
            Rule(
-             Symbol(PMATH_SYMBOL_BOXTRANSFORMATION),
+             Symbol(richmath_System_BoxTransformation),
              _matrix));
 }
 

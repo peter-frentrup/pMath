@@ -63,6 +63,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_WindowTitle;
+
 namespace {
   class ClientNotificationData {
     public:
@@ -1040,7 +1042,7 @@ Expr Application::run_filedialog(Expr data) {
     if(options.is_valid()) {
       Expr title_value(pmath_option_value(
                          head.get(),
-                         PMATH_SYMBOL_WINDOWTITLE,
+                         richmath_System_WindowTitle,
                          options.get()));
                          
       if(title_value.is_string())

@@ -14,6 +14,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_ButtonFrame;
+
 static Win32TooltipWindow *tooltip_window = 0;
 
 static const wchar_t win32_tooltip_class_name[] = L"RichmathWin32Tooltip";
@@ -79,7 +81,7 @@ void Win32TooltipWindow::show_global_tooltip(Expr boxes) {
     
     boxes = Call(Symbol(PMATH_SYMBOL_BUTTONBOX),
                  boxes,
-                 Rule(Symbol(PMATH_SYMBOL_BUTTONFRAME),
+                 Rule(Symbol(richmath_System_ButtonFrame),
                       String("TooltipWindow")));
                       
     MathSection *section = new MathSection(style);

@@ -35,6 +35,8 @@ struct _pmath_expr_part_t {
   size_t                 start;
 };
 
+extern pmath_symbol_t pmath_System_Colon;
+
 // initialization in pmath_init():
 PMATH_PRIVATE pmath_expr_t _pmath_object_memory_exception; // read-only
 PMATH_PRIVATE pmath_expr_t _pmath_object_emptylist;        // read-only
@@ -2480,7 +2482,7 @@ static void write_expr_ex(
       goto FULLFORM;
     }
   }
-  else if(pmath_same(head, PMATH_SYMBOL_COLON)) {
+  else if(pmath_same(head, pmath_System_Colon)) {
     pmath_t item;
     size_t i;
     

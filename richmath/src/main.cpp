@@ -60,6 +60,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_ButtonFunction;
+extern pmath_symbol_t richmath_System_Method;
+
 static void write_section(Document *doc, Expr expr) {
   Box *b = doc->selection_box();
   int i  = doc->selection_end();
@@ -313,7 +316,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set_pmath(Method,
                                        Expr(pmath_option_value(
                                            PMATH_SYMBOL_BUTTONBOX,
-                                           PMATH_SYMBOL_METHOD,
+                                           richmath_System_Method,
                                            PMATH_UNDEFINED)));
                                            
   Stylesheet::Default->base->set(LanguageCategory, "NaturalLanguage");
@@ -321,7 +324,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(ButtonFunction,
                                  Expr(pmath_option_value(
                                         PMATH_SYMBOL_BUTTONBOX,
-                                        PMATH_SYMBOL_BUTTONFUNCTION,
+                                        richmath_System_ButtonFunction,
                                         PMATH_UNDEFINED)));
                                         
 //  Stylesheet::Default->base->set(FontFeatures,

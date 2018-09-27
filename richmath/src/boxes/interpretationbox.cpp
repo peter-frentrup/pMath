@@ -69,24 +69,8 @@ Expr InterpretationBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));
-  
   g.emit(interpretation);
-  
-  int i;
-  
-  if(style->get(AutoDelete, &i)) {
-    g.emit(
-      Rule(
-        Symbol(PMATH_SYMBOL_EDITABLE),
-        Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(style->get(Editable, &i) && i) {
-    g.emit(
-      Rule(
-        Symbol(PMATH_SYMBOL_EDITABLE),
-        Symbol(PMATH_SYMBOL_TRUE)));
-  }
+  style->emit_to_pmath();
   
   Expr e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_INTERPRETATIONBOX));

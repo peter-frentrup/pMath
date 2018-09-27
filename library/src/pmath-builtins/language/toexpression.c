@@ -9,6 +9,8 @@
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
+extern pmath_symbol_t pmath_System_StripOnInput;
+
 static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes);
 
 static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
@@ -165,7 +167,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
     if(!pmath_is_null(options)) {
       pmath_t strip = pmath_option_value(
                         head,
-                        PMATH_SYMBOL_STRIPONINPUT,
+                        pmath_System_StripOnInput,
                         options);
                         
       pmath_unref(strip);

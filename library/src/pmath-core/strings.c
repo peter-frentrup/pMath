@@ -22,6 +22,8 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_System_ShowStringCharacters;
+
 static iconv_t to_utf8   = (iconv_t) - 1;
 static iconv_t from_utf8 = (iconv_t) - 1;
 
@@ -779,7 +781,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
         pmath_unref(lhs);
         pmath_unref(rhs);
 
-        if(pmath_same(lhs, PMATH_SYMBOL_SHOWSTRINGCHARACTERS))
+        if(pmath_same(lhs, pmath_System_ShowStringCharacters))
           hide_string_characters = pmath_same(rhs, PMATH_SYMBOL_FALSE);
       }
 

@@ -7,6 +7,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_SectionGenerated;
+extern pmath_symbol_t richmath_System_SectionLabel;
+
 Expr richmath::to_boxes(Expr obj) {
   return Expr(
            pmath_evaluate(
@@ -22,7 +25,7 @@ Expr richmath::generate_section(String style, Expr boxes) {
   Gather::emit(style);
   
   Gather::emit(
-    Rule(Symbol(PMATH_SYMBOL_SECTIONGENERATED), Symbol(PMATH_SYMBOL_TRUE)));
+    Rule(Symbol(richmath_System_SectionGenerated), Symbol(PMATH_SYMBOL_TRUE)));
     
   if(style.equals("Output")) {
     Expr line = Application::interrupt_wait(Symbol(PMATH_SYMBOL_LINE));
@@ -42,7 +45,7 @@ Expr richmath::generate_section(String style, Expr boxes) {
       
     label = label + line.to_string() + "]:";
     
-    Gather::emit(Rule(Symbol(PMATH_SYMBOL_SECTIONLABEL), label));
+    Gather::emit(Rule(Symbol(richmath_System_SectionLabel), label));
   }
   
   Expr result = gather.end();

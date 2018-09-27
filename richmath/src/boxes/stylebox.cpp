@@ -343,21 +343,8 @@ Expr TagBox::to_pmath(BoxOutputFlags flags) {
   
   g.emit(_content->to_pmath(flags));
   g.emit(tag);
-  
-  int i;
-  if(style && style->get(AutoDelete, &i)) {
-    g.emit(
-      Rule(
-        Symbol(PMATH_SYMBOL_EDITABLE),
-        Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(style && style->get(Editable, &i) && i) {
-    g.emit(
-      Rule(
-        Symbol(PMATH_SYMBOL_EDITABLE),
-        Symbol(PMATH_SYMBOL_TRUE)));
-  }
+  if(style)
+    style->emit_to_pmath(false);
   
   Expr e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_TAGBOX));
