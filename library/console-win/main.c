@@ -19,6 +19,8 @@
 
 static void os_init(void);
 
+static pmath_symbol_t pmath_System_ButtonFunction = PMATH_STATIC_NULL;
+
 #ifdef PMATH_OS_WIN32
 #  include <io.h>
 #  include <fcntl.h>
@@ -795,7 +797,7 @@ static pmath_t find_button_function(pmath_expr_t expr, size_t first_option) {
     if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RULE, 2) || pmath_is_expr_of_len(item, PMATH_SYMBOL_RULEDELAYED, 2)) {
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
-      if(pmath_same(lhs, PMATH_SYMBOL_BUTTONFUNCTION)) {
+      if(pmath_same(lhs, pmath_System_ButtonFunction)) {
         pmath_t rhs = pmath_expr_get_item(item, 2);
         pmath_unref(item);
         return rhs;
@@ -1582,6 +1584,20 @@ static void init_console_width(void) {
   pmath_unref(pw);
 }
 
+static pmath_bool_t init_pmath_bindings() {
+  pmath_System_ButtonFunction = pmath_symbol_get(PMATH_C_STRING("System`ButtonFunction"), FALSE);
+  
+  return !pmath_is_null(pmath_System_ButtonFunction) &&
+         pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) &&
+         pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) &&
+         pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) &&
+         pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0);
+}
+
+static void done_pmath_bindings() {
+  pmath_unref(pmath_System_ButtonFunction); pmath_System_ButtonFunction = PMATH_NULL;
+}
+
 int main(int argc, const char **argv) {
   main_mq = PMATH_NULL;
   
@@ -1596,15 +1612,16 @@ int main(int argc, const char **argv) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_term);
   
-  if( !pmath_init() ||
-      !pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) ||
-      !pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) ||
-      !pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) ||
-      !pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0))
-  {
+  if(!pmath_init()) {
     fprintf(stderr, "Cannot initialize pMath.\n");
     quit_result = 1;
     goto FAIL_PMATH_INIT;
+  }
+  
+  if(!init_pmath_bindings()) {
+    fprintf(stderr, "Cannot complete pMath initialization.\n");
+    quit_result = 1;
+    goto FAIL_INIT_PMATH_BINDINGS;
   }
   
   init_console_width();
@@ -1645,6 +1662,14 @@ int main(int argc, const char **argv) {
     pmath_unref(mq);
   }
   
+  signal(SIGINT, signal_dummy);
+  
+  hyper_console_done_hyperlink_system();
+  hyper_console_history_free(history);
+  
+  done_pmath_bindings();
+  
+FAIL_INIT_PMATH_BINDINGS:
   pmath_done();
   
   {
@@ -1656,10 +1681,6 @@ int main(int argc, const char **argv) {
     }
   }
   
-  signal(SIGINT, signal_dummy);
-  
-  hyper_console_done_hyperlink_system();
-  hyper_console_history_free(history);
 FAIL_PMATH_INIT:
   sem_destroy(&interrupt_semaphore);
 FAIL_SEM_INIT:
