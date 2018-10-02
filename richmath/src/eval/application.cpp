@@ -571,7 +571,8 @@ void Application::gui_print_section(Expr expr) {
   }
 }
 
-extern pmath_symbol_t richmath_FE_ControlActive;
+extern pmath_symbol_t richmath_FE_DollarControlActive;
+
 static void update_control_active(bool value) {
   static bool original_value = false;
   
@@ -583,7 +584,7 @@ static void update_control_active(bool value) {
     Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_ASSIGN),
-           Symbol(richmath_FE_ControlActive),
+           Symbol(richmath_FE_DollarControlActive),
            Symbol(PMATH_SYMBOL_TRUE)));
   }
   else {
@@ -591,7 +592,7 @@ static void update_control_active(bool value) {
       /*Parse("FE`$ControlActive:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActive)")*/
       Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
            Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                Symbol(richmath_FE_ControlActive),
+                Symbol(richmath_FE_DollarControlActive),
                 Symbol(PMATH_SYMBOL_FALSE)),
            Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
                 Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),

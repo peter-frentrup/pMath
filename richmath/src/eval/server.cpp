@@ -10,6 +10,8 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_SectionGenerated;
 extern pmath_symbol_t richmath_System_SectionLabel;
 
+extern pmath_symbol_t richmath_System_DollarLine;
+
 Expr richmath::to_boxes(Expr obj) {
   return Expr(
            pmath_evaluate(
@@ -28,7 +30,7 @@ Expr richmath::generate_section(String style, Expr boxes) {
     Rule(Symbol(richmath_System_SectionGenerated), Symbol(PMATH_SYMBOL_TRUE)));
     
   if(style.equals("Output")) {
-    Expr line = Application::interrupt_wait(Symbol(PMATH_SYMBOL_LINE));
+    Expr line = Application::interrupt_wait(Symbol(richmath_System_DollarLine));
     Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
     
     if(line == PMATH_UNDEFINED)

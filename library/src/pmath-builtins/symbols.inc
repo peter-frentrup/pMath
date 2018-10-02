@@ -6,6 +6,13 @@
     "System`" #name, \
     PMATH_SYMBOL_ATTRIBUTE_PROTECTED | (attrib) \
   )
+  
+#define PMATH_DECLARE_SYSTEM_DOLLAR_VAR(name, attrib) \
+  PMATH_DECLARE_SYMBOL( \
+    pmath_System_Dollar ## name, \
+    "System`$" #name, \
+    (attrib) \
+  )
 
 #define PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL(name, attrib) \
   PMATH_DECLARE_SYMBOL( \
@@ -235,8 +242,12 @@ PMATH_DECLARE_SYSTEM_SYMBOL( Visible,                            0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( WindowFrame,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( WindowTitle,                        0 )
 
+PMATH_DECLARE_SYSTEM_DOLLAR_VAR( Line,                        0 )
+
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeLimitsExpression,        0 )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeScriptsExpression,       0 )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeJuxtapositionExpression, 0 )
 
 #undef PMATH_DECLARE_SYSTEM_SYMBOL
+#undef PMATH_DECLARE_SYSTEM_DOLLAR_VAR
+#undef PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL

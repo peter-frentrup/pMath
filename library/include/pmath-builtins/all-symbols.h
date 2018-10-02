@@ -90,7 +90,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_BUILTIN(index)  pmath_symbol_builtin((index))
 #endif
 
-#define PMATH_SYMBOL_LINE                                   PMATH_SYMBOL_BUILTIN(0)
+#define PMATH_SYMBOL_MAXRECURSION                           PMATH_SYMBOL_BUILTIN(0)
 #define PMATH_SYMBOL_LIST                                   PMATH_SYMBOL_BUILTIN(1)
 #define PMATH_SYMBOL_ASSIGN                                 PMATH_SYMBOL_BUILTIN(2)
 #define PMATH_SYMBOL_EVALUATIONSEQUENCE                     PMATH_SYMBOL_BUILTIN(3)
@@ -738,7 +738,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_QUANTILE                               PMATH_SYMBOL_BUILTIN(645)
 #define PMATH_SYMBOL_PLOT                                   PMATH_SYMBOL_BUILTIN(646)
 #define PMATH_SYMBOL_PLOTPOINTS                             PMATH_SYMBOL_BUILTIN(647)
-#define PMATH_SYMBOL_MAXRECURSION                           PMATH_SYMBOL_BUILTIN(648)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */
