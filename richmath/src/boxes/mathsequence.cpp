@@ -2832,6 +2832,11 @@ void MathSequence::selection_path(Canvas *canvas, int start, int end) {
 void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int start, int end) {
   float x0, y0, x1, y1, x2, y2;
 //  const uint16_t *buf = str.buffer();
+  
+  if(start > glyphs.length())
+    start = glyphs.length();
+  if(end > glyphs.length())
+    end = glyphs.length();
 
   canvas->current_pos(&x0, &y0);
   
