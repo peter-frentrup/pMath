@@ -2134,6 +2134,11 @@ namespace richmath {
       StylesheetImpl(Stylesheet &_self) : self(_self) {}
       
     public:
+      void reload(Expr expr) {
+        self.styles.clear();
+        add(expr);
+      }
+      
       void add(Expr expr) {
         if(self._name.is_valid()) {
           if(currently_loading.search(self._name)) {
@@ -2330,7 +2335,9 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
       return stylesheet;
       
     Expr held_boxes = Application::interrupt_wait(
-                        Parse("Get(ToFileName({FE`$FrontEndDirectory,\"resources\",\"StyleSheets\"},`1`), Head->HoldComplete)", expr),
+                        Parse(
+                          "Get(`1`, Head->HoldComplete)", 
+                          Application::stylesheet_path_base + expr),
                         Application::button_timeout);
                         
     if(held_boxes.expr_length() == 1 && held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
@@ -2354,8 +2361,21 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
   return nullptr;
 }
 
+Expr Stylesheet::name_from_path(String filename) {
+  filename = String(pmath_to_absolute_file_name(filename.release()));
+  
+  if(filename.starts_with(Application::stylesheet_path_base)) 
+    return filename.part(Application::stylesheet_path_base.length());
+  
+  return String();
+}
+
 void Stylesheet::add(Expr expr) {
   StylesheetImpl(*this).add(expr);
+}
+
+void Stylesheet::reload(Expr expr) {
+  StylesheetImpl(*this).reload(expr);
 }
 
 SharedPtr<Style> Stylesheet::find_parent_style(SharedPtr<Style> s) {

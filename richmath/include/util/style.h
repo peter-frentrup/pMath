@@ -333,7 +333,9 @@ namespace richmath {
       static SharedPtr<Stylesheet> find_registered(Expr name);
       
       static SharedPtr<Stylesheet> try_load(Expr expr);
+      static Expr name_from_path(String filename);
       void add(Expr expr);
+      void reload(Expr expr);
       
     public:
       static SharedPtr<Stylesheet> Default;

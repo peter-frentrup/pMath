@@ -134,6 +134,7 @@ namespace richmath {
       static double min_dynamic_update_interval;
       static String application_filename;
       static String application_directory; // without trailing (back)slash
+      static String stylesheet_path_base; // includes trailing (back)slash
       static MenuCommandScope menu_command_scope;
       
       static Hashtable<Expr, Expr, object_hash> eval_cache;

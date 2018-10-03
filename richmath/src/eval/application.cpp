@@ -244,6 +244,7 @@ double Application::dynamic_timeout             = 4.0;
 double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
 String Application::application_directory;
+String Application::stylesheet_path_base;
 MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 
 Hashtable<Expr, Expr, object_hash> Application::eval_cache;
@@ -667,6 +668,8 @@ void Application::init() {
     application_directory = application_filename.part(0, i);
   else
     application_directory = application_filename;
+  
+  stylesheet_path_base = String(Evaluate(Parse("ToFileName({FE`$FrontEndDirectory,\"resources\",\"StyleSheets\"})")));
     
   total_time_waited_for_gui = 0.0;
 }
@@ -770,6 +773,7 @@ void Application::done() {
   currentvalue_providers.clear();
   application_filename = String();
   application_directory = String();
+  stylesheet_path_base = String();
   main_message_queue = Expr();
 }
 
@@ -1799,6 +1803,14 @@ namespace {
         file.close();
         doc->native()->filename(filename);
         doc->native()->on_saved();
+        
+        String stylesheet_name = Stylesheet::name_from_path(filename);
+        if(stylesheet_name.is_valid()) {
+          auto stylesheet = Stylesheet::find_registered(stylesheet_name);
+          if(stylesheet) 
+            stylesheet->reload(boxes); // TODO: also reload dependent stylesheets and re-layout documents
+        }
+        
         return filename;
       }
   };
