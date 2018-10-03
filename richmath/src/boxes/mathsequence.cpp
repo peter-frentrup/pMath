@@ -297,6 +297,53 @@ namespace richmath {
         return token_or_span;
       }
       
+      static pmath_t remove_null_tokens(pmath_t boxes) {
+        while(true) {
+          if(pmath_is_expr_of(boxes, PMATH_SYMBOL_LIST)) {
+            size_t first = 1;
+            size_t length = pmath_expr_length(boxes);
+            size_t last = length;
+            
+            for(; last >= first; --last) {
+              pmath_t item = pmath_expr_get_item(boxes, last);
+              bool is_null_token = pmath_is_str0(item);
+              pmath_unref(item);
+              if(!is_null_token)
+                break;
+            }
+            for(; first <= last; ++first) {
+              pmath_t item = pmath_expr_get_item(boxes, first);
+              bool is_null_token = pmath_is_str0(item);
+              pmath_unref(item);
+              if(!is_null_token)
+                break;
+            }
+            
+            if(first > last) {
+              pmath_unref(boxes);
+              return PMATH_FROM_TAG(PMATH_TAG_STR0, 0);
+            }
+            
+            if(first == last) {
+              pmath_t item = pmath_expr_get_item(boxes, first);
+              pmath_unref(boxes);
+              boxes = item;
+              continue;
+            }
+            
+            if(first == 1 && last == length)
+              return boxes;
+            
+            if(first < last) {
+              pmath_t items = pmath_expr_get_item_range(boxes, first, last - first + 1);
+              pmath_unref(boxes);
+              return items;
+            }
+          }
+          return boxes;
+        }
+      }
+      
       //}
       
       //{ vertical stretching
@@ -2623,7 +2670,7 @@ void MathSequence::paint(Context *context) {
     
     double clip_x1, clip_y1, clip_x2, clip_y2;
     context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
-      
+    
     int line = 0;
     // skip invisible lines:
     while(line < lines.length()) {
@@ -2832,12 +2879,12 @@ void MathSequence::selection_path(Canvas *canvas, int start, int end) {
 void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int start, int end) {
   float x0, y0, x1, y1, x2, y2;
 //  const uint16_t *buf = str.buffer();
-  
+
   if(start > glyphs.length())
     start = glyphs.length();
   if(end > glyphs.length())
     end = glyphs.length();
-
+    
   canvas->current_pos(&x0, &y0);
   
   y0 -= lines[0].ascent;
@@ -2974,28 +3021,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
 }
 
 Expr MathSequence::to_pmath(BoxOutputFlags flags) {
-  ScanData data;
-  data.sequence    = this;
-  data.current_box = 0;
-  data.flags       = flags;
-  data.start       = 0;
-  data.end         = str.length();
-  
-  struct pmath_boxes_from_spans_ex_t settings;
-  memset(&settings, 0, sizeof(settings));
-  settings.size           = sizeof(settings);
-  settings.data           = &data;
-  settings.box_at_index   = MathSequenceImpl::box_at_index;
-  settings.add_debug_info = MathSequenceImpl::add_debug_info;
-  
-  if(has(flags, BoxOutputFlags::Parseable))
-    settings.flags |= PMATH_BFS_PARSEABLE;
-    
-  settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
-  
-  ensure_spans_valid();
-  
-  return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
+  return to_pmath(flags, 0, length());
 }
 
 Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
@@ -3020,7 +3046,10 @@ Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   
   ensure_spans_valid();
   
-  return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
+  pmath_t boxes = pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings);
+  if(start > 0 || end < length())
+    boxes = MathSequenceImpl::remove_null_tokens(boxes);
+  return Expr(boxes);
 //  if(start == 0 && end >= length())
 //    return to_pmath(flags);
 //
@@ -3071,7 +3100,7 @@ Box *MathSequence::move_logical(
       if(_parent) {
         if(jumping && !_parent->exitable())
           return this;
-        
+          
         *index = _index;
         return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
@@ -3110,7 +3139,7 @@ Box *MathSequence::move_logical(
     if(_parent) {
       if(jumping && !_parent->exitable())
         return this;
-          
+        
       *index = _index + 1;
       return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
@@ -3122,7 +3151,7 @@ Box *MathSequence::move_logical(
       --*index;
     } while(*index > 0 && (buf[*index] == ' ' || buf[*index] == '\t'));
     ++*index;
-      
+    
     do {
       --*index;
     } while(*index > 0 && !spans.is_token_end(*index - 1));
@@ -3304,7 +3333,7 @@ Box *MathSequence::mouse_selection(
         int b = 0;
         while(b < boxes.length() && boxes[b]->index() < *start)
           ++b;
-        
+          
         if(x > prev - line_start + boxes[b]->extents().width) {
           *was_inside_start = false;
           ++*start;
