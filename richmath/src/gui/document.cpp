@@ -3766,6 +3766,8 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     ++i;
   }
   
+  finish_resize(&context);
+  
   if(!resize_only) {
     DocumentImpl(*this).add_selection_highlights(0, length());
 //    DocumentImpl(*this).add_selection_highlights(first_visible_section, last_visible_section);

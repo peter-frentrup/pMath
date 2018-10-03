@@ -121,6 +121,7 @@ namespace richmath {
       
       void init_section_bracket_sizes(Context *context);
       void resize_section(Context *context, int i);
+      void finish_resize(Context *context);
       void paint_section(Context *context, int i);
       
       void paint_section_brackets(Context *context, int i, float right, float top);
@@ -142,6 +143,7 @@ namespace richmath {
       float _scrollx;
       float _page_width;
       float _window_width;
+      bool _must_resize_group_info;
       
     private:
       Array<Section*>          _sections;
