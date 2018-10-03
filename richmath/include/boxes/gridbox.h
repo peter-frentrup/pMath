@@ -74,7 +74,7 @@ namespace richmath {
       Box *remove_range(int *start, int end);
       virtual Box *remove(int *index) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_GRIDBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
       

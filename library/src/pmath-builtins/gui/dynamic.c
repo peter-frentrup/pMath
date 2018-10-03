@@ -9,6 +9,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
 
+extern pmath_symbol_t pmath_System_Dynamic;
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr) {
   /* Internal`DynamicEvaluate(expr, id)
@@ -114,7 +115,7 @@ static pmath_t replace_dynamic(
     size_t len = pmath_expr_length(expr);
     size_t i;
     
-    if(len >= 1 && pmath_same(head, PMATH_SYMBOL_DYNAMIC)) {
+    if(len >= 1 && pmath_same(head, pmath_System_Dynamic)) {
       pmath_t dyn_expr = pmath_expr_get_item(expr, 1);
       pmath_t ts       = find_tracked_symbols(expr, 2);
       pmath_unref(head);

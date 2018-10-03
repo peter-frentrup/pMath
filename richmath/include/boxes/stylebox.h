@@ -3,7 +3,6 @@
 
 #include <boxes/ownerbox.h>
 
-
 namespace richmath {
   class AbstractStyleBox: public OwnerBox {
     public:
@@ -56,7 +55,7 @@ namespace richmath {
       // Box::try_create<StyleBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_STYLEBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual bool changes_children_style() override { return true; }
@@ -72,7 +71,7 @@ namespace richmath {
       
       virtual void resize(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TAGBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     public:

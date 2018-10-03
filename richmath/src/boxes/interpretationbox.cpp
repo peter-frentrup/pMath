@@ -5,6 +5,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_InterpretationBox;
+
 //{ class InterpretationBox ...
 
 InterpretationBox::InterpretationBox()
@@ -38,7 +40,7 @@ void InterpretationBox::reset_style() {
 }
 
 bool InterpretationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_INTERPRETATIONBOX)
+  if(expr[0] != richmath_System_InterpretationBox)
     return false;
     
   if(expr.expr_length() < 2)
@@ -65,6 +67,10 @@ bool InterpretationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+Expr InterpretationBox::to_pmath_symbol() {
+  return Symbol(richmath_System_InterpretationBox);
+}
+
 Expr InterpretationBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
@@ -73,7 +79,7 @@ Expr InterpretationBox::to_pmath(BoxOutputFlags flags) {
   style->emit_to_pmath();
   
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_INTERPRETATIONBOX));
+  e.set(0, Symbol(richmath_System_InterpretationBox));
   return e;
 }
 

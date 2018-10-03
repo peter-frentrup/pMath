@@ -17,6 +17,10 @@ static int current_document_id = 0;
 
 //{ pmath functions ...
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_FrontEndObject;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_SectionGenerated;
 
 static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
@@ -168,7 +172,7 @@ static Expr cpp_builtin_feo_options(Expr expr) {
     }
     
     if( expr.expr_length() == 2 &&
-        expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
+        expr[1][0] == richmath_System_FrontEndObject)
     {
       Expr opts = Application::notify_wait(ClientNotification::GetOptions, expr[1]);
       
@@ -177,7 +181,7 @@ static Expr cpp_builtin_feo_options(Expr expr) {
   }
   else if(expr[0] == PMATH_SYMBOL_SETOPTIONS) {
     if( expr.expr_length() >= 1 &&
-        expr[1][0] == PMATH_SYMBOL_FRONTENDOBJECT)
+        expr[1][0] == richmath_System_FrontEndObject)
     {
       return Application::notify_wait(ClientNotification::SetOptions, expr);
     }
@@ -219,9 +223,9 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
                 boxes));
                 
     expr = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_SECTION), 3,
+             pmath_ref(richmath_System_Section), 3,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_BOXDATA), 1,
+               pmath_ref(richmath_System_BoxData), 1,
                boxes),
              style,
              pmath_expr_new_extended(
@@ -257,7 +261,7 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
   pmath_unref(expr);
   
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_FRONTENDOBJECT), 1,
+           pmath_ref(richmath_System_FrontEndObject), 1,
            PMATH_FROM_INT32(current_document_id));
 }
 
@@ -640,7 +644,7 @@ static bool document_apply_cmd(Expr cmd) {
     return false;
     
   Expr boxes = cmd[2];
-  if(boxes[0] == PMATH_SYMBOL_SECTION || boxes[0] == PMATH_SYMBOL_SECTIONGROUP) {
+  if(boxes[0] == richmath_System_Section || boxes[0] == richmath_System_SectionGroup) {
     Box *box = doc->selection_box();
     int i = doc->selection_end();
     while(box && box != doc) {
@@ -1101,7 +1105,7 @@ static bool open_cmd(Expr cmd) {
     }
     
     int pos = 0;
-    Expr section_expr = Call(Symbol(PMATH_SYMBOL_SECTION), s, String("Text"));
+    Expr section_expr = Call(Symbol(richmath_System_Section), s, String("Text"));
     doc->insert_pmath(&pos, section_expr);
     
     doc->style->set(Visible,                         true);
@@ -1259,7 +1263,7 @@ static bool set_style_cmd(Expr cmd) {
 //
 //    cpp_builtin_feo_options(
 //      Call(Symbol(PMATH_SYMBOL_SETOPTIONS),
-//           Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), box->id()),
+//           Call(Symbol(richmath_System_FrontEndObject), box->id()),
 //           cmd));
 //
 //    return true;
@@ -1312,7 +1316,7 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
 
 //} ... menu commands
 
-#define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           pmath_symbol_t SYM = PMATH_STATIC_NULL;
+#define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           PMATH_PRIVATE pmath_symbol_t SYM = PMATH_STATIC_NULL;
 #define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  
 #  include "symbols.inc"
 #undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
@@ -1394,7 +1398,7 @@ bool richmath::init_bindings() {
   BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
   BIND_DOWN(PMATH_SYMBOL_SELECTEDDOCUMENT,         builtin_selecteddocument)
   
-  BIND_UP(PMATH_SYMBOL_FRONTENDOBJECT,             builtin_feo_options)
+  BIND_UP(richmath_System_FrontEndObject,          builtin_feo_options)
   
   BIND_DOWN(richmath_FE_AddConfigShaper,     builtin_addconfigshaper)
   BIND_DOWN(richmath_FE_InternalExecuteFor,  builtin_internalexecutefor)

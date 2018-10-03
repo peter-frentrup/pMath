@@ -5,6 +5,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_GridBox;
+
 //{ class GridItem ...
 
 GridItem::GridItem()
@@ -104,7 +106,7 @@ GridBox::~GridBox() {
 }
 
 bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_GRIDBOX)
+  if(expr[0] != richmath_System_GridBox)
     return false;
     
   if(expr.expr_length() < 1)
@@ -535,7 +537,7 @@ void GridBox::resize(Context *context) {
 
 void GridBox::paint(Context *context) {
   update_dynamic_styles(context);
-    
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -884,6 +886,10 @@ Box *GridBox::remove(int *index) {
   return move_logical(LogicalDirection::Backward, false, index);
 }
 
+Expr GridBox::to_pmath_symbol() {
+  return Symbol(richmath_System_GridBox);
+}
+
 Expr GridBox::to_pmath(BoxOutputFlags flags) {
   return to_pmath(flags, 0, count());
 }
@@ -925,7 +931,7 @@ Expr GridBox::to_pmath(BoxOutputFlags flags, int start, int end) {
     style->emit_to_pmath();
     
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_GRIDBOX));
+  e.set(0, Symbol(richmath_System_GridBox));
   return e;
 }
 

@@ -9,6 +9,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_StyleBox;
+extern pmath_symbol_t richmath_System_TagBox;
+
 //{ class AbstractStyleBox ...
 
 AbstractStyleBox::AbstractStyleBox(MathSequence *content)
@@ -207,7 +210,7 @@ StyleBox::StyleBox(MathSequence *content)
 }
 
 bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_STYLEBOX)
+  if(expr[0] != richmath_System_StyleBox)
     return false;
   
   if(expr.expr_length() < 1)
@@ -255,6 +258,10 @@ bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+Expr StyleBox::to_pmath_symbol() { 
+  return Symbol(richmath_System_StyleBox); 
+}
+
 Expr StyleBox::to_pmath(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, true)) {
     return _content->to_pmath(flags);
@@ -276,7 +283,7 @@ Expr StyleBox::to_pmath(BoxOutputFlags flags) {
   style->emit_to_pmath(with_inherited);
   
   e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_STYLEBOX));
+  e.set(0, Symbol(richmath_System_StyleBox));
   return e;
 }
 
@@ -298,7 +305,7 @@ TagBox::TagBox(MathSequence *content, Expr _tag)
 }
 
 bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_TAGBOX)
+  if(expr[0] != richmath_System_TagBox)
     return false;
   
   if(expr.expr_length() < 2)
@@ -338,6 +345,10 @@ void TagBox::resize(Context *context) {
   ExpandableAbstractStyleBox::resize(context);
 }
 
+Expr TagBox::to_pmath_symbol() { 
+  return Symbol(richmath_System_TagBox); 
+}
+
 Expr TagBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
@@ -347,7 +358,7 @@ Expr TagBox::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath(false);
   
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_TAGBOX));
+  e.set(0, Symbol(richmath_System_TagBox));
   return e;
 }
 

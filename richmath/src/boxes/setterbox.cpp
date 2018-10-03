@@ -4,18 +4,20 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_SetterBox;
+
 //{ class SetterBox ...
 
 SetterBox::SetterBox(MathSequence *content)
   : ContainerWidgetBox(PaletteButton, content),
-  must_update(true),
-  is_down(false)
+    must_update(true),
+    is_down(false)
 {
   dynamic.init(this, Expr());
 }
 
 bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_SETTERBOX)
+  if(expr[0] != richmath_System_SetterBox)
     return false;
     
   if(expr.expr_length() < 3)
@@ -91,6 +93,10 @@ void SetterBox::paint(Context *context) {
   ContainerWidgetBox::paint(context);
 }
 
+Expr SetterBox::to_pmath_symbol() {
+  return Symbol(richmath_System_SetterBox);
+}
+
 Expr SetterBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
@@ -102,7 +108,7 @@ Expr SetterBox::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath();
     
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_SETTERBOX));
+  e.set(0, Symbol(richmath_System_SetterBox));
   return e;
 }
 

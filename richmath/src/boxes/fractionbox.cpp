@@ -7,12 +7,14 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_FractionBox;
+
 //{ class FractionBox ...
 
 FractionBox::FractionBox()
   : Box(),
-  _numerator(new MathSequence),
-  _denominator(new MathSequence)
+    _numerator(new MathSequence),
+    _denominator(new MathSequence)
 {
   adopt(_numerator, 0);
   adopt(_denominator, 1);
@@ -20,8 +22,8 @@ FractionBox::FractionBox()
 
 FractionBox::FractionBox(MathSequence *num, MathSequence *den)
   : Box(),
-  _numerator(num),
-  _denominator(den)
+    _numerator(num),
+    _denominator(den)
 {
   if(!_numerator)
     _numerator = new MathSequence;
@@ -38,7 +40,7 @@ FractionBox::~FractionBox() {
 }
 
 bool FractionBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_FRACTIONBOX)
+  if(expr[0] != richmath_System_FractionBox)
     return false;
     
   if(expr.expr_length() != 2)
@@ -75,7 +77,7 @@ void FractionBox::resize(Context *context) {
   context->width = old_width;
   
   context->canvas->set_font_size(old_fs);
-    
+  
   context->math_shaper->shape_fraction(
     context,
     _numerator->extents(),
@@ -92,7 +94,7 @@ void FractionBox::resize(Context *context) {
 
 void FractionBox::paint(Context *context) {
   update_dynamic_styles(context);
-    
+  
   float old_fs = context->canvas->get_font_size();
   float x, y;
   context->canvas->current_pos(&x, &y);
@@ -135,9 +137,13 @@ Box *FractionBox::remove(int *index) {
   return move_logical(LogicalDirection::Backward, false, index);
 }
 
+Expr FractionBox::to_pmath_symbol() {
+  return Symbol(richmath_System_FractionBox);
+}
+
 Expr FractionBox::to_pmath(BoxOutputFlags flags) {
   return Call(
-           Symbol(PMATH_SYMBOL_FRACTIONBOX),
+           Symbol(richmath_System_FractionBox),
            _numerator->to_pmath(flags),
            _denominator->to_pmath(flags));
 }

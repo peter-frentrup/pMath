@@ -22,7 +22,18 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_System_ComplexStringBox;
+extern pmath_symbol_t pmath_System_OverscriptBox;
+extern pmath_symbol_t pmath_System_InterpretationBox;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
+extern pmath_symbol_t pmath_System_SubscriptBox;
+extern pmath_symbol_t pmath_System_SubsuperscriptBox;
+extern pmath_symbol_t pmath_System_SuperscriptBox;
+extern pmath_symbol_t pmath_System_StyleBox;
+extern pmath_symbol_t pmath_System_TagBox;
+extern pmath_symbol_t pmath_System_TooltipBox;
+extern pmath_symbol_t pmath_System_UnderoverscriptBox;
+extern pmath_symbol_t pmath_System_UnderscriptBox;
 
 static iconv_t to_utf8   = (iconv_t) - 1;
 static iconv_t from_utf8 = (iconv_t) - 1;
@@ -603,9 +614,9 @@ static pmath_bool_t is_single_token(pmath_t box) {
     return result;
   }
 
-  if( pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX) ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX) ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+  if( pmath_is_expr_of(box, pmath_System_StyleBox) ||
+      pmath_is_expr_of(box, pmath_System_TagBox) ||
+      pmath_is_expr_of(box, pmath_System_InterpretationBox))
   {
     pmath_t part;
     pmath_bool_t result;
@@ -708,7 +719,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if( pmath_is_expr_of(box, PMATH_SYMBOL_COMPLEXSTRINGBOX) ||
+  if( pmath_is_expr_of(box, pmath_System_ComplexStringBox) ||
       pmath_is_expr_of(box, PMATH_NULL))
   {
     size_t i;
@@ -744,9 +755,9 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
 
         if(*post && i < boxlen) {
           pmath_t next = pmath_expr_get_item(box, i + 1);
-          if( pmath_is_expr_of(next, PMATH_SYMBOL_SUBSCRIPTBOX)     ||
-              pmath_is_expr_of(next, PMATH_SYMBOL_SUPERSCRIPTBOX)   ||
-              pmath_is_expr_of(next, PMATH_SYMBOL_SUBSUPERSCRIPTBOX))
+          if( pmath_is_expr_of(next, pmath_System_SubscriptBox)     ||
+              pmath_is_expr_of(next, pmath_System_SuperscriptBox)   ||
+              pmath_is_expr_of(next, pmath_System_SubsuperscriptBox))
           {
             _pmath_write_boxes(info, next);
             ++i;
@@ -767,7 +778,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)) {
+  if(pmath_is_expr_of(box, pmath_System_StyleBox)) {
     pmath_bool_t hide_string_characters = FALSE;
     pmath_t part;
 
@@ -812,9 +823,9 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if( pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)       ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_TOOLTIPBOX)   ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+  if( pmath_is_expr_of(box, pmath_System_TagBox)       ||
+      pmath_is_expr_of(box, pmath_System_TooltipBox)   ||
+      pmath_is_expr_of(box, pmath_System_InterpretationBox))
   {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
@@ -823,7 +834,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)) {
+  if(pmath_is_expr_of(box, pmath_System_SubscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
@@ -832,7 +843,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX)) {
+  if(pmath_is_expr_of(box, pmath_System_SuperscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_cstr("^", info->write, info->user);
     write_single_token_box(info, part);
@@ -841,7 +852,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)) {
+  if(pmath_is_expr_of(box, pmath_System_SubsuperscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_cstr("_", info->write, info->user);
     write_single_token_box(info, part);
@@ -855,7 +866,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)) {
+  if(pmath_is_expr_of(box, pmath_System_UnderscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
@@ -868,7 +879,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)) {
+  if(pmath_is_expr_of(box, pmath_System_OverscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);
@@ -881,7 +892,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX)) {
+  if(pmath_is_expr_of(box, pmath_System_UnderoverscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
     _pmath_write_boxes(info, part);
     pmath_unref(part);

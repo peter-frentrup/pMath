@@ -60,8 +60,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_Method;
+extern pmath_symbol_t richmath_System_Section;
 
 static void write_section(Document *doc, Expr expr) {
   Box *b = doc->selection_box();
@@ -84,7 +86,7 @@ static void write_section(Document *doc, Expr expr) {
 static void write_text_section(Document *doc, String style, String text) {
   write_section(doc,
                 Call(
-                  Symbol(PMATH_SYMBOL_SECTION),
+                  Symbol(richmath_System_Section),
                   text,
                   style));
 }
@@ -315,7 +317,7 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base->set_pmath(Method,
                                        Expr(pmath_option_value(
-                                           PMATH_SYMBOL_BUTTONBOX,
+                                           richmath_System_ButtonBox,
                                            richmath_System_Method,
                                            PMATH_UNDEFINED)));
                                            
@@ -323,7 +325,7 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base->set(ButtonFunction,
                                  Expr(pmath_option_value(
-                                        PMATH_SYMBOL_BUTTONBOX,
+                                        richmath_System_ButtonBox,
                                         richmath_System_ButtonFunction,
                                         PMATH_UNDEFINED)));
                                         

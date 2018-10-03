@@ -20,6 +20,8 @@ namespace std {
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_PointBox;
+
 
 //{ class DoublePoint ...
 
@@ -102,7 +104,7 @@ PointBox::~PointBox() {
 }
 
 bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_POINTBOX)
+  if(expr[0] != richmath_System_PointBox)
     return false;
     
   if(expr.expr_length() != 1)

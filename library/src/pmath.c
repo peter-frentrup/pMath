@@ -76,6 +76,8 @@ static volatile enum {
 
 static pmath_atomic_t pmath_count = PMATH_ATOMIC_STATIC_INIT;
 
+extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_running(void) {
   return _pmath_status == PMATH_STATUS_RUNNING;
@@ -660,7 +662,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           
       // System`BoxForm`$UseTextFormatting:= False
       _pmath_symbol_set_global_value(
-          PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING,
+          pmath_System_BoxForm_DollarUseTextFormatting,
           pmath_ref(PMATH_SYMBOL_FALSE));
     }
     

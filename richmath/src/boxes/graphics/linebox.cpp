@@ -9,6 +9,8 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_LineBox;
+
 //{ class LineBox ...
 
 LineBox::LineBox()
@@ -20,7 +22,7 @@ LineBox::~LineBox() {
 }
 
 bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_LINEBOX)
+  if(expr[0] != richmath_System_LineBox)
     return false;
     
   if(expr.expr_length() != 1)

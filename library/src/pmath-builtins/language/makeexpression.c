@@ -39,6 +39,7 @@ extern pmath_symbol_t pmath_System_CircleTimes;
 extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
+extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_Congruent;
 extern pmath_symbol_t pmath_System_CupCap;
 extern pmath_symbol_t pmath_System_DotEqual;
@@ -55,15 +56,21 @@ extern pmath_symbol_t pmath_System_DoubleUpperRightArrow;
 extern pmath_symbol_t pmath_System_DownArrow;
 extern pmath_symbol_t pmath_System_DoubleBracketingBar;
 extern pmath_symbol_t pmath_System_Element;
+extern pmath_symbol_t pmath_System_FractionBox;
+extern pmath_symbol_t pmath_System_FrameBox;
+extern pmath_symbol_t pmath_System_Framed;
 extern pmath_symbol_t pmath_System_GreaterEqualLess;
 extern pmath_symbol_t pmath_System_GreaterFullEqual;
 extern pmath_symbol_t pmath_System_GreaterGreater;
 extern pmath_symbol_t pmath_System_GreaterLess;
 extern pmath_symbol_t pmath_System_GreaterTilde;
+extern pmath_symbol_t pmath_System_Grid;
+extern pmath_symbol_t pmath_System_GridBox;
 extern pmath_symbol_t pmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t pmath_System_GridBoxRowSpacing;
 extern pmath_symbol_t pmath_System_HumpDownHump;
 extern pmath_symbol_t pmath_System_HumpEqual;
+extern pmath_symbol_t pmath_System_InterpretationBox;
 extern pmath_symbol_t pmath_System_LeftArrow;
 extern pmath_symbol_t pmath_System_LeftRightArrow;
 extern pmath_symbol_t pmath_System_LeftTriangle;
@@ -103,27 +110,43 @@ extern pmath_symbol_t pmath_System_NotSupersetEqual;
 extern pmath_symbol_t pmath_System_NotTildeEqual;
 extern pmath_symbol_t pmath_System_NotTildeFullEqual;
 extern pmath_symbol_t pmath_System_NotTildeTilde;
+extern pmath_symbol_t pmath_System_Overscript;
+extern pmath_symbol_t pmath_System_OverscriptBox;
 extern pmath_symbol_t pmath_System_Placeholder;
 extern pmath_symbol_t pmath_System_PlusMinus;
 extern pmath_symbol_t pmath_System_Precedes;
 extern pmath_symbol_t pmath_System_PrecedesEqual;
 extern pmath_symbol_t pmath_System_PrecedesTilde;
+extern pmath_symbol_t pmath_System_RadicalBox;
 extern pmath_symbol_t pmath_System_ReverseElement;
 extern pmath_symbol_t pmath_System_RightTriangle;
 extern pmath_symbol_t pmath_System_RightTriangleEqual;
+extern pmath_symbol_t pmath_System_RotationBox;
 extern pmath_symbol_t pmath_System_RowSpacing;
+extern pmath_symbol_t pmath_System_SqrtBox;
+extern pmath_symbol_t pmath_System_Style;
+extern pmath_symbol_t pmath_System_StyleBox;
+extern pmath_symbol_t pmath_System_Subscript;
+extern pmath_symbol_t pmath_System_SubscriptBox;
 extern pmath_symbol_t pmath_System_Subset;
 extern pmath_symbol_t pmath_System_SubsetEqual;
+extern pmath_symbol_t pmath_System_SubsuperscriptBox;
 extern pmath_symbol_t pmath_System_Succeeds;
 extern pmath_symbol_t pmath_System_SucceedsEqual;
 extern pmath_symbol_t pmath_System_SucceedsTilde;
+extern pmath_symbol_t pmath_System_SuperscriptBox;
 extern pmath_symbol_t pmath_System_Superset;
 extern pmath_symbol_t pmath_System_SupersetEqual;
 extern pmath_symbol_t pmath_System_Surd;
 extern pmath_symbol_t pmath_System_SurdForm;
+extern pmath_symbol_t pmath_System_TagBox;
 extern pmath_symbol_t pmath_System_TildeEqual;
 extern pmath_symbol_t pmath_System_TildeFullEqual;
 extern pmath_symbol_t pmath_System_TildeTilde;
+extern pmath_symbol_t pmath_System_Underoverscript;
+extern pmath_symbol_t pmath_System_UnderoverscriptBox;
+extern pmath_symbol_t pmath_System_Underscript;
+extern pmath_symbol_t pmath_System_UnderscriptBox;
 extern pmath_symbol_t pmath_System_UpArrow;
 extern pmath_symbol_t pmath_System_UpDownArrow;
 extern pmath_symbol_t pmath_System_UpperLeftArrow;
@@ -241,9 +264,9 @@ static pmath_bool_t is_subsuperscript_at(pmath_expr_t expr, size_t i) {
   head = pmath_expr_get_item(obj, 0);
   pmath_unref(obj);
   pmath_unref(head);
-  return pmath_same(head, PMATH_SYMBOL_SUBSCRIPTBOX)
-         || pmath_same(head, PMATH_SYMBOL_SUPERSCRIPTBOX)
-         || pmath_same(head, PMATH_SYMBOL_SUBSUPERSCRIPTBOX);
+  return pmath_same(head, pmath_System_SubscriptBox) || 
+         pmath_same(head, pmath_System_SuperscriptBox) || 
+         pmath_same(head, pmath_System_SubsuperscriptBox);
 }
 
 static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i) {
@@ -257,9 +280,9 @@ static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i) {
   head = pmath_expr_get_item(obj, 0);
   pmath_unref(obj);
   pmath_unref(head);
-  return pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX)
-         || pmath_same(head, PMATH_SYMBOL_OVERSCRIPTBOX)
-         || pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX);
+  return pmath_same(head, pmath_System_UnderscriptBox) || 
+         pmath_same(head, pmath_System_OverscriptBox) || 
+         pmath_same(head, pmath_System_UnderoverscriptBox);
 }
 
 #define HOLDCOMPLETE(result) pmath_expr_new_extended(\
@@ -650,7 +673,7 @@ static pmath_t parse_gridbox( // PMATH_NULL on error
   pmath_unref(options);
   
   row = pmath_gather_end();
-  row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_GRID));
+  row = pmath_expr_set_item(row, 0, pmath_ref(pmath_System_Grid));
   return wrap_hold_with_debuginfo_from(pmath_ref(expr), row);
 }
 
@@ -1112,7 +1135,7 @@ static pmath_t make_expression_from_framebox(pmath_expr_t box) {
     
     if(parse(&content)) {
       content = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_FRAMED), 1,
+                  pmath_ref(pmath_System_Framed), 1,
                   content);
                   
       return wrap_hold_with_debuginfo_from(box, content);
@@ -1166,7 +1189,7 @@ static pmath_t make_expression_from_overscriptbox(pmath_expr_t box) {
     
     if(parse(&base) && parse(&over)) {
       pmath_t result = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_OVERSCRIPT), 2,
+                         pmath_ref(pmath_System_Overscript), 2,
                          base,
                          over);
                          
@@ -1188,7 +1211,7 @@ static pmath_t make_expression_from_radicalbox(pmath_expr_t box) {
   if(len > 2) {
     pmath_t options = pmath_options_extract(box, 2);
     if(!pmath_is_null(options)) {
-      pmath_t surdform = pmath_option_value(PMATH_SYMBOL_RADICALBOX, pmath_System_SurdForm, options);
+      pmath_t surdform = pmath_option_value(pmath_System_RadicalBox, pmath_System_SurdForm, options);
       is_surd = pmath_same(surdform, PMATH_SYMBOL_TRUE);
       pmath_unref(surdform);
       pmath_unref(options);
@@ -1228,7 +1251,7 @@ static pmath_t make_expression_from_rotationbox(pmath_expr_t box) {
       pmath_t content = pmath_expr_get_item(box, 1);
       
       pmath_t angle = pmath_option_value(
-                        PMATH_SYMBOL_ROTATIONBOX,
+                        pmath_System_RotationBox,
                         pmath_System_BoxRotation,
                         options);
                         
@@ -1256,7 +1279,7 @@ static pmath_t make_expression_from_sqrtbox(pmath_expr_t box) {
   if(len > 1) {
     pmath_t options = pmath_options_extract(box, 1);
     if(!pmath_is_null(options)) {
-      pmath_t surdform = pmath_option_value(PMATH_SYMBOL_SQRTBOX, pmath_System_SurdForm, options);
+      pmath_t surdform = pmath_option_value(pmath_System_SqrtBox, pmath_System_SurdForm, options);
       is_surd = pmath_same(surdform, PMATH_SYMBOL_TRUE);
       pmath_unref(surdform);
       pmath_unref(options);
@@ -1290,7 +1313,7 @@ static pmath_t make_expression_from_stylebox(pmath_expr_t box) {
     
     if(parse(&content)) {
       content = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_STYLE), 1,
+                  pmath_ref(pmath_System_Style), 1,
                   content);
                   
       return wrap_hold_with_debuginfo_from(box, content);
@@ -1311,7 +1334,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
     if(pmath_is_string(tag)) {
     
       if( pmath_string_equals_latin1(tag, "Column") &&
-          pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX))
+          pmath_is_expr_of(view, pmath_System_GridBox))
       {
         pmath_t held;
         pmath_t grid;
@@ -1361,7 +1384,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
       }
       
       if(pmath_string_equals_latin1(tag, "Placeholder")) {
-        if(pmath_is_expr_of(view, PMATH_SYMBOL_FRAMEBOX)) {
+        if(pmath_is_expr_of(view, pmath_System_FrameBox)) {
           pmath_t tmp = pmath_expr_get_item(view, 1);
           pmath_unref(view);
           view = tmp;
@@ -1382,7 +1405,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
       }
       
       if( pmath_string_equals_latin1(tag, "Grid") &&
-          pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX))
+          pmath_is_expr_of(view, pmath_System_GridBox))
       {
         pmath_t grid = parse_gridbox(view, FALSE);
         
@@ -1399,7 +1422,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
     }
     
     if( pmath_same(tag, PMATH_SYMBOL_COLUMN) &&
-        pmath_is_expr_of(view, PMATH_SYMBOL_GRIDBOX))
+        pmath_is_expr_of(view, pmath_System_GridBox))
     {
       pmath_t held;
       pmath_t grid;
@@ -1472,7 +1495,7 @@ static pmath_t make_expression_from_underscriptbox(pmath_expr_t box) {
     
     if(parse(&base) && parse(&under)) {
       pmath_t result = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_UNDERSCRIPT), 2,
+                         pmath_ref(pmath_System_Underscript), 2,
                          base,
                          under);
                          
@@ -1497,7 +1520,7 @@ static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box) {
     
     if(parse(&base) && parse(&under) && parse(&over)) {
       pmath_t result = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_UNDEROVERSCRIPT), 3,
+                         pmath_ref(pmath_System_Underoverscript), 3,
                          base,
                          under,
                          over);
@@ -1950,7 +1973,7 @@ static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
         size_t exprlen = pmath_expr_length(idx) + 1;
         
         pmath_t result = pmath_expr_new(
-                           pmath_ref(PMATH_SYMBOL_SUBSCRIPT),
+                           pmath_ref(pmath_System_Subscript),
                            exprlen);
                            
         result = pmath_expr_set_item(result, 1, base);
@@ -1991,7 +2014,7 @@ static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscri
   debug_info = pmath_get_debug_info(subsuperscript_box);
   pmath_unref(subsuperscript_box);
   subsuperscript_box = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_SUBSCRIPTBOX), 1,
+                         pmath_ref(pmath_System_SubscriptBox), 1,
                          idx);
   subsuperscript_box = pmath_try_set_debug_info(subsuperscript_box, debug_info);
   
@@ -2003,7 +2026,7 @@ static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscri
             pmath_ref(PMATH_SYMBOL_LIST), 2,
             boxes,
             pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
+              pmath_ref(pmath_System_SuperscriptBox), 1,
               exp));
   boxes = pmath_try_set_debug_info(boxes, debug_info);
   
@@ -2909,46 +2932,46 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     exprlen = pmath_expr_length(expr);
     
     if(!pmath_is_null(head) && !pmath_same(head, PMATH_SYMBOL_LIST)) {
-      if(pmath_same(head, PMATH_SYMBOL_COMPLEXSTRINGBOX))
+      if(pmath_same(head, pmath_System_ComplexStringBox))
         return make_expression_from_complexstringbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_FRACTIONBOX))
+      if(pmath_same(head, pmath_System_FractionBox))
         return make_expression_from_fractionbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_FRAMEBOX))
+      if(pmath_same(head, pmath_System_FrameBox))
         return make_expression_from_framebox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_GRIDBOX))
+      if(pmath_same(head, pmath_System_GridBox))
         return make_expression_from_gridbox(expr);
         
       if(pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE))
         return expr;
         
-      if(pmath_same(head, PMATH_SYMBOL_INTERPRETATIONBOX))
+      if(pmath_same(head, pmath_System_InterpretationBox))
         return make_expression_from_interpretationbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_OVERSCRIPTBOX))
+      if(pmath_same(head, pmath_System_OverscriptBox))
         return make_expression_from_overscriptbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_RADICALBOX))
+      if(pmath_same(head, pmath_System_RadicalBox))
         return make_expression_from_radicalbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_ROTATIONBOX))
+      if(pmath_same(head, pmath_System_RotationBox))
         return make_expression_from_rotationbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_SQRTBOX))
+      if(pmath_same(head, pmath_System_SqrtBox))
         return make_expression_from_sqrtbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_STYLEBOX))
+      if(pmath_same(head, pmath_System_StyleBox))
         return make_expression_from_stylebox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_TAGBOX))
+      if(pmath_same(head, pmath_System_TagBox))
         return make_expression_from_tagbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX))
+      if(pmath_same(head, pmath_System_UnderscriptBox))
         return make_expression_from_underscriptbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX))
+      if(pmath_same(head, pmath_System_UnderoverscriptBox))
         return make_expression_from_underoverscriptbox(expr);
         
       pmath_message(PMATH_NULL, "inv", 1, expr);
@@ -3095,13 +3118,13 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       if(secondchar == 0) {
         box = pmath_expr_get_item(expr, 2);
         
-        if(pmath_is_expr_of_len(box, PMATH_SYMBOL_SUPERSCRIPTBOX, 1))
+        if(pmath_is_expr_of_len(box, pmath_System_SuperscriptBox, 1))
           return make_superscript(expr, box);
           
-        if(pmath_is_expr_of_len(box, PMATH_SYMBOL_SUBSCRIPTBOX, 1))
+        if(pmath_is_expr_of_len(box, pmath_System_SubscriptBox, 1))
           return make_subscript(expr, box);
           
-        if(pmath_is_expr_of_len(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX, 2))
+        if(pmath_is_expr_of_len(box, pmath_System_SubsuperscriptBox, 2))
           return make_subsuperscript(expr, box);
           
         pmath_unref(box);

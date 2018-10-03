@@ -7,6 +7,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_FillBox;
+
 //{ class FillBox ...
 
 FillBox::FillBox(MathSequence *content, float _weight)
@@ -19,7 +21,7 @@ FillBox::~FillBox() {
 }
 
 bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_FILLBOX)
+  if(expr[0] != richmath_System_FillBox)
     return false;
     
   if(expr.expr_length() < 1)
@@ -61,18 +63,22 @@ void FillBox::paint_content(Context *context) {
   }
 }
 
+Expr FillBox::to_pmath_symbol() {
+  return Symbol(richmath_System_FillBox); 
+}
+
 Expr FillBox::to_pmath(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Parseable))
     return _content->to_pmath(flags);
     
   if(weight == 1) {
     return Call(
-             Symbol(PMATH_SYMBOL_FILLBOX),
+             Symbol(richmath_System_FillBox),
              _content->to_pmath(flags));
   }
   
   return Call(
-           Symbol(PMATH_SYMBOL_FILLBOX),
+           Symbol(richmath_System_FillBox),
            _content->to_pmath(flags),
            Number(weight));
 }

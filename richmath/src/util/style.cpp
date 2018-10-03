@@ -58,12 +58,14 @@ extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_PlotRange;
 extern pmath_symbol_t richmath_System_ReturnCreatesNewSection;
 extern pmath_symbol_t richmath_System_ScriptSizeMultipliers;
+extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionEditDuplicate;
 extern pmath_symbol_t richmath_System_SectionEditDuplicateMakesCopy;
 extern pmath_symbol_t richmath_System_SectionFrame;
 extern pmath_symbol_t richmath_System_SectionFrameColor;
 extern pmath_symbol_t richmath_System_SectionFrameMargins;
 extern pmath_symbol_t richmath_System_SectionGenerated;
+extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_SectionGroupPrecedence;
 extern pmath_symbol_t richmath_System_SectionLabel;
 extern pmath_symbol_t richmath_System_SectionLabelAutoDelete;
@@ -73,6 +75,7 @@ extern pmath_symbol_t richmath_System_ShowAutoStyles;
 extern pmath_symbol_t richmath_System_ShowSectionBracket;
 extern pmath_symbol_t richmath_System_ShowStringCharacters;
 extern pmath_symbol_t richmath_System_StripOnInput;
+extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
 extern pmath_symbol_t richmath_System_SurdForm;
 extern pmath_symbol_t richmath_System_SyntaxForm;
@@ -232,7 +235,7 @@ static bool needs_ruledelayed(Expr expr) {
     return false;
     
   Expr head = expr[0];
-  if(head == PMATH_SYMBOL_DYNAMIC || head == PMATH_SYMBOL_FUNCTION)
+  if(head == richmath_System_Dynamic || head == PMATH_SYMBOL_FUNCTION)
     return false;
     
   if( head == PMATH_SYMBOL_LIST ||
@@ -935,7 +938,7 @@ void StyleImpl::set_pmath_bool_auto(StyleOptionName n, Expr obj) {
     raw_set_int(n, 2);
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_int(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
 }
 
@@ -951,7 +954,7 @@ void StyleImpl::set_pmath_bool(StyleOptionName n, Expr obj) {
     raw_set_int(n, true);
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_int(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
 }
 
@@ -967,7 +970,7 @@ void StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
     raw_set_int(n, c);
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_int(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
 }
 
@@ -981,7 +984,7 @@ void StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
     raw_set_float(n, obj.to_double());
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_float(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
   else if(obj[0] == PMATH_SYMBOL_NCACHE) {
     raw_set_float(n, obj[2].to_double());
@@ -1066,7 +1069,7 @@ void StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     raw_remove_float(Top);
     raw_remove_float(Bottom);
   }
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
 }
 
@@ -1118,7 +1121,7 @@ void StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
       remove_dynamic(Vertical);
     }
   }
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC) {
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic) {
     raw_remove_float(n);
     raw_remove_float(Horizontal);
     raw_remove_float(Vertical);
@@ -1144,7 +1147,7 @@ void StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
     raw_set_string(n, String(obj));
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_string(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
     
   if(n == BaseStyleName)
@@ -1159,7 +1162,7 @@ void StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
     
   if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_expr(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
   else
     raw_set_expr(n, obj);
@@ -1173,7 +1176,7 @@ void StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
     
   if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_int(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
   else {
     SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
@@ -2160,7 +2163,7 @@ namespace richmath {
             continue;
           }
           
-          if(expr[0] == PMATH_SYMBOL_SECTIONGROUP) {
+          if(expr[0] == richmath_System_SectionGroup) {
             expr = expr[1];
             continue;
           }
@@ -2174,7 +2177,7 @@ namespace richmath {
             continue;
           }
           
-          if(expr[0] == PMATH_SYMBOL_SECTION) {
+          if(expr[0] == richmath_System_Section) {
             add_section(expr);
             return;
           }
@@ -2185,7 +2188,7 @@ namespace richmath {
       
       void add_section(Expr expr) {
         Expr name = expr[1];
-        if(name[0] == PMATH_SYMBOL_STYLEDATA) {
+        if(name[0] == richmath_System_StyleData) {
           Expr data = name[1];
           if(data.is_string()) {
             Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
@@ -2270,7 +2273,7 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
   }
   
   for(const auto &e : dynamic_styles.entries()) {
-    if(e.value != PMATH_SYMBOL_ABORTED && e.value[0] != PMATH_SYMBOL_DYNAMIC) {
+    if(e.value != PMATH_SYMBOL_ABORTED && e.value[0] != richmath_System_Dynamic) {
       StyleOptionName key = e.key.to_volatile(); // = e.key.to_literal().to_volatile()
       s_impl.set_pmath(key, e.value);
     }

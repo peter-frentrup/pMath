@@ -7,6 +7,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_SynchronousUpdating;
+
 //{ class Dynamic ...
 
 int Dynamic::current_evaluation_box_id = 0;
@@ -51,8 +53,8 @@ Expr Dynamic::operator=(Expr expr) {
     
     if(!options.is_null()) {
       Expr su(pmath_option_value(
-                PMATH_SYMBOL_DYNAMIC,
-                PMATH_SYMBOL_SYNCHRONOUSUPDATING,
+                richmath_System_Dynamic,
+                richmath_System_SynchronousUpdating,
                 options.get()));
                 
       if(su == PMATH_SYMBOL_TRUE)

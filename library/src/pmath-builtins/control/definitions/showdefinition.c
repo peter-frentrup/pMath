@@ -17,6 +17,8 @@
                   pmath_parse_string_args( \
                       (code), (format), __VA_ARGS__))
 
+extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
+
 static void print_rule_defs(
   pmath_symbol_t  sym,   // wont be freed
   pmath_t         rules, // will be freed
@@ -170,7 +172,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
   if((pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED) == 0) {
   
     pmath_t old_use_text_formatting = pmath_thread_local_save(
-      PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING, 
+      pmath_System_BoxForm_DollarUseTextFormatting, 
       pmath_ref(PMATH_SYMBOL_TRUE));
     
     obj = EVAL_CODE_ARGS("NRules(`1`)", "(o)", pmath_symbol_name(sym));
@@ -215,7 +217,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
     }
     
     pmath_unref(pmath_thread_local_save(
-      PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING, 
+      pmath_System_BoxForm_DollarUseTextFormatting, 
       old_use_text_formatting));
   }
   

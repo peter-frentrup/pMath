@@ -8,6 +8,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_ButtonBox;
+extern pmath_symbol_t richmath_System_ButtonFrame;
+
 static MathGtkTooltipWindow *tooltip_window = 0;
 
 //{ class MathGtkTooltipWindow ...
@@ -68,9 +71,9 @@ void MathGtkTooltipWindow::show_global_tooltip(Expr boxes) {
     style->set(SectionMarginRight,  0);
     style->set(SectionMarginBottom, 0);
     
-    boxes = Call(Symbol(PMATH_SYMBOL_BUTTONBOX),
+    boxes = Call(Symbol(richmath_System_ButtonBox),
                  boxes,
-                 Rule(Symbol(PMATH_SYMBOL_BUTTONFRAME),
+                 Rule(Symbol(richmath_System_ButtonFram),
                       String("TooltipWindow")));
                       
     MathSection *section = new MathSection(style);

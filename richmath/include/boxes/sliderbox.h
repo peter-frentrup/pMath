@@ -25,7 +25,7 @@ namespace richmath {
       virtual void paint(Context *context) override;
       virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_SLIDERBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void dynamic_updated() override;

@@ -23,6 +23,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionGroup;
+
 bool richmath::DebugFollowMouse     = false;
 bool richmath::DebugSelectionBounds = false;
 
@@ -576,7 +579,7 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(!options_expr.is_valid())
     return false;
     
-  sections_expr = Call(Symbol(PMATH_SYMBOL_SECTIONGROUP), sections_expr, Symbol(PMATH_SYMBOL_ALL));
+  sections_expr = Call(Symbol(richmath_System_SectionGroup), sections_expr, Symbol(PMATH_SYMBOL_ALL));
   
   int pos = 0;
   insert_pmath(&pos, sections_expr, count());
@@ -2174,8 +2177,8 @@ void Document::paste_from_boxes(Expr boxes) {
   if( context.selection.get() == this &&
       get_style(Editable, true))
   {
-    if( boxes[0] == PMATH_SYMBOL_SECTION ||
-        boxes[0] == PMATH_SYMBOL_SECTIONGROUP)
+    if( boxes[0] == richmath_System_Section ||
+        boxes[0] == richmath_System_SectionGroup)
     {
       remove_selection(false);
       
@@ -2489,7 +2492,7 @@ MenuCommandStatus Document::can_do_scoped(Expr cmd, Expr scope) {
     Application::menu_command_scope = MenuCommandScope::Document;
     new_sel.set(this, 0, 0);
   }
-  else if(scope == PMATH_SYMBOL_SECTION) {
+  else if(scope == richmath_System_Section) {
     Box *box = old_sel.get();
     if(box)
       box = box->find_parent<Section>(true);
@@ -2519,7 +2522,7 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
     Application::menu_command_scope = MenuCommandScope::Document;
     new_sel.set(this, 0, 0);
   }
-  else if(scope == PMATH_SYMBOL_SECTION) {
+  else if(scope == richmath_System_Section) {
     Box *box = old_sel.get();
     if(box) {
       if(box == this && old_sel.start + 1 == old_sel.end)
@@ -3886,7 +3889,7 @@ Expr Document::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   Expr content = SectionList::to_pmath(flags);
-  if(content[0] == PMATH_SYMBOL_SECTIONGROUP) {
+  if(content[0] == richmath_System_SectionGroup) {
     Expr inner = content[1];
     if(inner.expr_length() == 1 && inner[0] == PMATH_SYMBOL_LIST)
       content = inner[1];

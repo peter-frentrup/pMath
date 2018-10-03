@@ -15,7 +15,7 @@ namespace richmath {
       
       virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DYNAMICLOCALBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Expr prepare_dynamic(Expr expr) override;

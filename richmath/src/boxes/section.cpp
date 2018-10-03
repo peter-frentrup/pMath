@@ -12,6 +12,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_StyleData;
+
 //{ class Section ...
 
 Section::Section(SharedPtr<Style> _style)
@@ -32,14 +36,14 @@ Section::~Section() {
 }
 
 Section *Section::create_from_object(const Expr expr) {
-  if(expr[0] == PMATH_SYMBOL_SECTION) {
+  if(expr[0] == richmath_System_Section) {
     Expr content = expr[1];
     
     Section *section = 0;
     
-    if(content[0] == PMATH_SYMBOL_BOXDATA)
+    if(content[0] == richmath_System_BoxData)
       section = Box::try_create<MathSection>(expr, BoxInputFlags::Default);
-    else if(content[0] == PMATH_SYMBOL_STYLEDATA)
+    else if(content[0] == richmath_System_StyleData)
       section = Box::try_create<StyleDataSection>(expr, BoxInputFlags::Default);
     else
       section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
@@ -268,7 +272,7 @@ void ErrorSection::resize(Context *context) {
 
 void ErrorSection::paint(Context *context) {
   update_dynamic_styles(context);
-    
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -393,7 +397,7 @@ void AbstractSequenceSection::resize(Context *context) {
 
 void AbstractSequenceSection::paint(Context *context) {
   update_dynamic_styles(context);
-    
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -489,12 +493,16 @@ Box *AbstractSequenceSection::remove(int *index) {
   return _content;
 }
 
+Expr AbstractSequenceSection::to_pmath_symbol() {
+  return Symbol(richmath_System_Section);
+}
+
 Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   Expr cont = _content->to_pmath(flags/* & ~BoxOutputFlags::Parseable*/);
   if(dynamic_cast<MathSequence *>(_content))
-    cont = Call(Symbol(PMATH_SYMBOL_BOXDATA), cont);
+    cont = Call(Symbol(richmath_System_BoxData), cont);
     
   Gather::emit(cont);
   
@@ -509,7 +517,7 @@ Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath();
     
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_SECTION));
+  e.set(0, Symbol(richmath_System_Section));
   return e;
 }
 
@@ -520,7 +528,7 @@ Box *AbstractSequenceSection::move_vertical(
   bool              called_from_child
 ) {
   if(*index < 0) {
-    if(!can_enter_content() || !get_own_style(Selectable, true)) 
+    if(!can_enter_content() || !get_own_style(Selectable, true))
       return Section::move_vertical(direction, index_rel_x, index, called_from_child);
     *index_rel_x -= cx;
     return _content->move_vertical(direction, index_rel_x, index, false);
@@ -574,11 +582,11 @@ MathSection::MathSection(SharedPtr<Style> _style)
 }
 
 bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_SECTION)
+  if(expr[0] != richmath_System_Section)
     return false;
     
   Expr content = expr[1];
-  if(content.expr_length() != 1 || content[0] != PMATH_SYMBOL_BOXDATA)
+  if(content.expr_length() != 1 || content[0] != richmath_System_BoxData)
     return false;
     
   content = content[1];
@@ -620,7 +628,7 @@ TextSection::TextSection(SharedPtr<Style> _style)
 }
 
 bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_SECTION)
+  if(expr[0] != richmath_System_Section)
     return false;
     
   Expr content = expr[1];
@@ -690,24 +698,24 @@ StyleDataSection::StyleDataSection()
 {
 }
 
-/* FIXME: The StyleDataSection should not use its parent document stylesheet for display, 
-   but all the style definitions above itself. 
-   
-   One possibility is that each StyleDataSection `sds` has a Stylesheet that represents the all 
-   style definitions upto and including `sds`. 
-   When the `sds` needs to recalculate a style, it searches the previous StyleDataSection`s 
-   Stylesheet, obtains its previous Style `old_style` of the same name, creates a new merged 
-   copy of `old_style` and its own local definitions (Box::style) and stores that in its own 
+/* FIXME: The StyleDataSection should not use its parent document stylesheet for display,
+   but all the style definitions above itself.
+
+   One possibility is that each StyleDataSection `sds` has a Stylesheet that represents the all
+   style definitions upto and including `sds`.
+   When the `sds` needs to recalculate a style, it searches the previous StyleDataSection`s
+   Stylesheet, obtains its previous Style `old_style` of the same name, creates a new merged
+   copy of `old_style` and its own local definitions (Box::style) and stores that in its own
    Stylesheet.
-   The problem is to know when to recalculate a style. Maybe styles should be observable 
+   The problem is to know when to recalculate a style. Maybe styles should be observable
    (like symbols are by `FrontEndObject`s).
  */
 bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_SECTION)
+  if(expr[0] != richmath_System_Section)
     return false;
     
   Expr style_data = expr[1];
-  if(style_data[0] != PMATH_SYMBOL_STYLEDATA)
+  if(style_data[0] != richmath_System_StyleData)
     return false;
     
   Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
@@ -737,7 +745,7 @@ Expr StyleDataSection::to_pmath(BoxOutputFlags flags) {
   style->emit_to_pmath(true);
   
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_SECTION));
+  e.set(0, Symbol(richmath_System_Section));
   return e;
 }
 

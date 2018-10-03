@@ -2,6 +2,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_CheckboxBox;
+
 //{ class CheckboxBox ...
 
 CheckboxBox::CheckboxBox()
@@ -11,7 +13,7 @@ CheckboxBox::CheckboxBox()
 }
       
 bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_CHECKBOXBOX)
+  if(expr[0] != richmath_System_CheckboxBox)
     return false;
   
   Expr options(PMATH_UNDEFINED);
@@ -66,6 +68,10 @@ void CheckboxBox::paint(Context *context) {
   EmptyWidgetBox::paint(context);
 }
 
+Expr CheckboxBox::to_pmath_symbol() {
+  return Symbol(richmath_System_CheckboxBox); 
+}
+
 Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
   Gather gather;
   
@@ -85,10 +91,10 @@ Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
     
   Expr result = gather.end();
   if(values.is_null() && result.expr_length() == 2) {
-    return Call(Symbol(PMATH_SYMBOL_CHECKBOXBOX), val);
+    return Call(Symbol(richmath_System_CheckboxBox), val);
   }
   
-  result.set(0, Symbol(PMATH_SYMBOL_CHECKBOXBOX));
+  result.set(0, Symbol(richmath_System_CheckboxBox));
   return result;
 }
 

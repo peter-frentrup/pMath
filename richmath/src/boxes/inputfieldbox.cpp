@@ -9,6 +9,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_InputFieldBox;
+
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(MathSequence *content)
@@ -26,7 +28,7 @@ InputFieldBox::InputFieldBox(MathSequence *content)
 }
 
 bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_INPUTFIELDBOX)
+  if(expr[0] != richmath_System_InputFieldBox)
     return false;
     
   if(expr.expr_length() < 2)
@@ -256,6 +258,10 @@ Box *InputFieldBox::remove(int *index) {
   return _content;
 }
 
+Expr InputFieldBox::to_pmath_symbol() {
+  return Symbol(richmath_System_InputFieldBox);
+}
+
 Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
   if(invalidated)
     assign_dynamic();
@@ -268,7 +274,7 @@ Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath(false);
     
   Expr result = g.end();
-  result.set(0, Symbol(PMATH_SYMBOL_INPUTFIELDBOX));
+  result.set(0, Symbol(richmath_System_InputFieldBox));
   return result;
 }
 
@@ -388,7 +394,7 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
 //    case SpecialKey::Tab:
 //      event.key = SpecialKey::Unknown;
 //      return;
-      
+
     case SpecialKey::Up: {
         Document *doc = find_parent<Document>(false);
         if(doc && doc->selection_box() == _content && doc->selection_start() == 0)

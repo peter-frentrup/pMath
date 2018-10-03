@@ -63,6 +63,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_FrontEndObject;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace {
@@ -557,9 +561,9 @@ void Application::gui_print_section(Expr expr) {
     }
   }
   else {
-    if(expr[0] == PMATH_SYMBOL_SECTION) {
+    if(expr[0] == richmath_System_Section) {
       Expr boxes = expr[1];
-      if(boxes[0] == PMATH_SYMBOL_BOXDATA)
+      if(boxes[0] == richmath_System_BoxData)
         boxes = boxes[1];
         
       expr = Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes);
@@ -993,11 +997,11 @@ Document *Application::create_document(Expr data) {
     for(size_t i = 1; i <= sections.expr_length(); ++i) {
       Expr item = sections[i];
       
-      if( item[0] != PMATH_SYMBOL_SECTION      &&
-          item[0] != PMATH_SYMBOL_SECTIONGROUP)
+      if( item[0] != richmath_System_Section      &&
+          item[0] != richmath_System_SectionGroup)
       {
-        item = Call(Symbol(PMATH_SYMBOL_SECTION),
-                    Call(Symbol(PMATH_SYMBOL_BOXDATA),
+        item = Call(Symbol(richmath_System_Section),
+                    Call(Symbol(richmath_System_BoxData),
                          Application::interrupt_wait(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
                     String("Input"));
       }
@@ -1423,7 +1427,7 @@ static Expr cnt_getdocuments() {
   Gather gather;
   
   for(auto &e : all_document_ids.entries())
-    Gather::emit(Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), e.key));
+    Gather::emit(Call(Symbol(richmath_System_FrontEndObject), e.key));
     
   return gather.end();
 }
@@ -1545,7 +1549,7 @@ static Expr cnt_createdocument(Expr data) {
   if(doc) {
     doc->invalidate_options();
     
-    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+    return Call(Symbol(richmath_System_FrontEndObject), doc->id());
   }
   
   return Symbol(PMATH_SYMBOL_FAILED);
@@ -1603,7 +1607,7 @@ static Expr cnt_getevaluationdocument(Expr data) {
     doc = doc->main_document;
     
   if(doc)
-    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+    return Call(Symbol(richmath_System_FrontEndObject), doc->id());
     
   return Symbol(PMATH_SYMBOL_FAILED);
 }
