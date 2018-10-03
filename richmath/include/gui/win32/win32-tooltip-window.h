@@ -14,7 +14,7 @@ namespace richmath {
       virtual ~Win32TooltipWindow();
       
       static void move_global_tooltip();
-      static void show_global_tooltip(Expr boxes);
+      static void show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet);
       static void hide_global_tooltip();
       static void delete_global_tooltip();
       

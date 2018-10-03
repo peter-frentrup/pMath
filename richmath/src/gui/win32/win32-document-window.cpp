@@ -892,21 +892,17 @@ void Win32DocumentWindow::invalidate_options() {
   Document *doc = document();
   
   bool change = false;
-  if(doc->load_stylesheet()) {
+  if(doc->load_stylesheet()) 
     change = true;
-    _top_area->document()->stylesheet(doc->stylesheet());
-    _top_glass_area->document()->stylesheet(doc->stylesheet());
-    _bottom_area->document()->stylesheet(doc->stylesheet());
-    _bottom_glass_area->document()->stylesheet(doc->stylesheet());
-  }
   
   String s = doc->get_style(WindowTitle, String());
   if(_title != s)
     title(s);
     
-  
   _top_area->document()->stylesheet(doc->stylesheet());
+  _top_glass_area->document()->stylesheet(doc->stylesheet());
   _bottom_area->document()->stylesheet(doc->stylesheet());
+  _bottom_glass_area->document()->stylesheet(doc->stylesheet());
   
   _top_area->reload(         SectionList::group(doc->get_style(DockedSectionsTop)),         &change);
   _top_glass_area->reload(   SectionList::group(doc->get_style(DockedSectionsTopGlass)),    &change);

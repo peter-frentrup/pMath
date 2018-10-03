@@ -52,7 +52,7 @@ void MathGtkTooltipWindow::move_global_tooltip() {
   tooltip_window->resize(true);
 }
 
-void MathGtkTooltipWindow::show_global_tooltip(Expr boxes) {
+void MathGtkTooltipWindow::show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet) {
   if(!tooltip_window) {
     tooltip_window = new MathGtkTooltipWindow();
     tooltip_window->init();
@@ -64,6 +64,9 @@ void MathGtkTooltipWindow::show_global_tooltip(Expr boxes) {
     Document *doc = tooltip_window->document();
     doc->remove(0, doc->length());
     
+    if(stylesheet)
+      doc->stylesheet(stylesheet);
+    
     Style *style = new Style;
     style->set(BaseStyleName,       "ControlStyle");
     style->set(SectionMarginLeft,   0);
@@ -73,7 +76,7 @@ void MathGtkTooltipWindow::show_global_tooltip(Expr boxes) {
     
     boxes = Call(Symbol(richmath_System_ButtonBox),
                  boxes,
-                 Rule(Symbol(richmath_System_ButtonFram),
+                 Rule(Symbol(richmath_System_ButtonFrame),
                       String("TooltipWindow")));
                       
     MathSection *section = new MathSection(style);

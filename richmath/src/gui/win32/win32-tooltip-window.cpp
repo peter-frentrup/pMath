@@ -61,7 +61,7 @@ void Win32TooltipWindow::move_global_tooltip() {
   tooltip_window->resize(true);
 }
 
-void Win32TooltipWindow::show_global_tooltip(Expr boxes) {
+void Win32TooltipWindow::show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet) {
   if(!tooltip_window) {
     tooltip_window = new Win32TooltipWindow();
     tooltip_window->init();
@@ -72,6 +72,9 @@ void Win32TooltipWindow::show_global_tooltip(Expr boxes) {
     
     Document *doc = tooltip_window->document();
     doc->remove(0, doc->length());
+    
+    if(stylesheet)
+      doc->stylesheet(stylesheet);
     
     Style *style = new Style;
     style->set(BaseStyleName,       "ControlStyle");

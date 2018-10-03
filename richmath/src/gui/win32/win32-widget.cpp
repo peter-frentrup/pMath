@@ -213,7 +213,7 @@ void Win32Widget::scroll_to(float x, float y) {
 }
 
 void Win32Widget::show_tooltip(Expr boxes) {
-  Win32TooltipWindow::show_global_tooltip(boxes);
+  Win32TooltipWindow::show_global_tooltip(boxes, document()->stylesheet());
 }
 
 void Win32Widget::hide_tooltip() {
