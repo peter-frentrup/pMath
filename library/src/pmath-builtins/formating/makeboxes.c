@@ -34,6 +34,131 @@
 
 const int PMATH_PREC_INC_OUT = PMATH_PREC_RANGE + 1;
 
+extern pmath_symbol_t pmath_System_AutoDelete;
+extern pmath_symbol_t pmath_System_AutoNumberFormating;
+extern pmath_symbol_t pmath_System_BoxRotation;
+extern pmath_symbol_t pmath_System_CircleTimes;
+extern pmath_symbol_t pmath_System_CirclePlus;
+extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_ColumnSpacing;
+extern pmath_symbol_t pmath_System_ComplexStringBox;
+extern pmath_symbol_t pmath_System_Congruent;
+extern pmath_symbol_t pmath_System_CupCap;
+extern pmath_symbol_t pmath_System_DotEqual;
+extern pmath_symbol_t pmath_System_DoubleDownArrow;
+extern pmath_symbol_t pmath_System_DoubleLeftArrow;
+extern pmath_symbol_t pmath_System_DoubleLeftRightArrow;
+extern pmath_symbol_t pmath_System_DoubleLowerLeftArrow;
+extern pmath_symbol_t pmath_System_DoubleLowerRightArrow;
+extern pmath_symbol_t pmath_System_DoubleRightArrow;
+extern pmath_symbol_t pmath_System_DoubleUpArrow;
+extern pmath_symbol_t pmath_System_DoubleUpDownArrow;
+extern pmath_symbol_t pmath_System_DoubleUpperLeftArrow;
+extern pmath_symbol_t pmath_System_DoubleUpperRightArrow;
+extern pmath_symbol_t pmath_System_DownArrow;
+extern pmath_symbol_t pmath_System_Element;
+extern pmath_symbol_t pmath_System_FontColor;
+extern pmath_symbol_t pmath_System_FontSize;
+extern pmath_symbol_t pmath_System_FontSlant;
+extern pmath_symbol_t pmath_System_FontWeight;
+extern pmath_symbol_t pmath_System_FractionBox;
+extern pmath_symbol_t pmath_System_FrameBox;
+extern pmath_symbol_t pmath_System_Framed;
+extern pmath_symbol_t pmath_System_GreaterEqualLess;
+extern pmath_symbol_t pmath_System_GreaterFullEqual;
+extern pmath_symbol_t pmath_System_GreaterGreater;
+extern pmath_symbol_t pmath_System_GreaterLess;
+extern pmath_symbol_t pmath_System_GreaterTilde;
+extern pmath_symbol_t pmath_System_Grid;
+extern pmath_symbol_t pmath_System_GridBox;
+extern pmath_symbol_t pmath_System_GridBoxColumnSpacing;
+extern pmath_symbol_t pmath_System_GridBoxRowSpacing;
+extern pmath_symbol_t pmath_System_HumpDownHump;
+extern pmath_symbol_t pmath_System_HumpEqual;
+extern pmath_symbol_t pmath_System_Interpretation;
+extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_LeftArrow;
+extern pmath_symbol_t pmath_System_LeftRightArrow;
+extern pmath_symbol_t pmath_System_LeftTriangle;
+extern pmath_symbol_t pmath_System_LeftTriangleEqual;
+extern pmath_symbol_t pmath_System_LessEqualGreater;
+extern pmath_symbol_t pmath_System_LessFullEqual;
+extern pmath_symbol_t pmath_System_LessGreater;
+extern pmath_symbol_t pmath_System_LessLess;
+extern pmath_symbol_t pmath_System_LessTilde;
+extern pmath_symbol_t pmath_System_LowerLeftArrow;
+extern pmath_symbol_t pmath_System_LowerRightArrow;
+extern pmath_symbol_t pmath_System_MinusPlus;
+extern pmath_symbol_t pmath_System_NotCongruent;
+extern pmath_symbol_t pmath_System_NotCupCap;
+extern pmath_symbol_t pmath_System_NotElement;
+extern pmath_symbol_t pmath_System_NotGreater;
+extern pmath_symbol_t pmath_System_NotGreaterLess;
+extern pmath_symbol_t pmath_System_NotGreaterEqual;
+extern pmath_symbol_t pmath_System_NotGreaterTilde;
+extern pmath_symbol_t pmath_System_NotLeftTriangle;
+extern pmath_symbol_t pmath_System_NotLeftTriangleEqual;
+extern pmath_symbol_t pmath_System_NotLess;
+extern pmath_symbol_t pmath_System_NotLessEqual;
+extern pmath_symbol_t pmath_System_NotLessGreater;
+extern pmath_symbol_t pmath_System_NotLessTilde;
+extern pmath_symbol_t pmath_System_NotPrecedes;
+extern pmath_symbol_t pmath_System_NotPrecedesEqual;
+extern pmath_symbol_t pmath_System_NotReverseElement;
+extern pmath_symbol_t pmath_System_NotRightTriangle;
+extern pmath_symbol_t pmath_System_NotRightTriangleEqual;
+extern pmath_symbol_t pmath_System_NotSubset;
+extern pmath_symbol_t pmath_System_NotSubsetEqual;
+extern pmath_symbol_t pmath_System_NotSucceeds;
+extern pmath_symbol_t pmath_System_NotSucceedsEqual;
+extern pmath_symbol_t pmath_System_NotSuperset;
+extern pmath_symbol_t pmath_System_NotSupersetEqual;
+extern pmath_symbol_t pmath_System_NotTildeEqual;
+extern pmath_symbol_t pmath_System_NotTildeFullEqual;
+extern pmath_symbol_t pmath_System_NotTildeTilde;
+extern pmath_symbol_t pmath_System_Overscript;
+extern pmath_symbol_t pmath_System_OverscriptBox;
+extern pmath_symbol_t pmath_System_Placeholder;
+extern pmath_symbol_t pmath_System_PlusMinus;
+extern pmath_symbol_t pmath_System_Precedes;
+extern pmath_symbol_t pmath_System_PrecedesEqual;
+extern pmath_symbol_t pmath_System_PrecedesTilde;
+extern pmath_symbol_t pmath_System_ReverseElement;
+extern pmath_symbol_t pmath_System_RightTriangle;
+extern pmath_symbol_t pmath_System_RightTriangleEqual;
+extern pmath_symbol_t pmath_System_RotationBox;
+extern pmath_symbol_t pmath_System_RowSpacing;
+extern pmath_symbol_t pmath_System_ShowStringCharacters;
+extern pmath_symbol_t pmath_System_SqrtBox;
+extern pmath_symbol_t pmath_System_StripOnInput;
+extern pmath_symbol_t pmath_System_Style;
+extern pmath_symbol_t pmath_System_StyleBox;
+extern pmath_symbol_t pmath_System_Subscript;
+extern pmath_symbol_t pmath_System_SubscriptBox;
+extern pmath_symbol_t pmath_System_Subset;
+extern pmath_symbol_t pmath_System_SubsetEqual;
+extern pmath_symbol_t pmath_System_Subsuperscript;
+extern pmath_symbol_t pmath_System_SubsuperscriptBox;
+extern pmath_symbol_t pmath_System_Succeeds;
+extern pmath_symbol_t pmath_System_SucceedsEqual;
+extern pmath_symbol_t pmath_System_SucceedsTilde;
+extern pmath_symbol_t pmath_System_Superscript;
+extern pmath_symbol_t pmath_System_SuperscriptBox;
+extern pmath_symbol_t pmath_System_Superset;
+extern pmath_symbol_t pmath_System_SupersetEqual;
+extern pmath_symbol_t pmath_System_TagBox;
+extern pmath_symbol_t pmath_System_TildeEqual;
+extern pmath_symbol_t pmath_System_TildeFullEqual;
+extern pmath_symbol_t pmath_System_TildeTilde;
+extern pmath_symbol_t pmath_System_Underoverscript;
+extern pmath_symbol_t pmath_System_UnderoverscriptBox;
+extern pmath_symbol_t pmath_System_Underscript;
+extern pmath_symbol_t pmath_System_UnderscriptBox;
+extern pmath_symbol_t pmath_System_UpArrow;
+extern pmath_symbol_t pmath_System_UpDownArrow;
+extern pmath_symbol_t pmath_System_UpperLeftArrow;
+extern pmath_symbol_t pmath_System_UpperRightArrow;
+
 
 //{ operator precedence of boxes ...
 
@@ -62,21 +187,21 @@ static pmath_token_t box_token_analyse(pmath_t box, int *prec) { // box will be 
   }
   
   if( pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 1)        ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_OVERSCRIPTBOX)      ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_UNDERSCRIPTBOX)     ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX) ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)           ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)             ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+      pmath_is_expr_of(box, pmath_System_OverscriptBox)      ||
+      pmath_is_expr_of(box, pmath_System_UnderscriptBox)     ||
+      pmath_is_expr_of(box, pmath_System_UnderoverscriptBox) ||
+      pmath_is_expr_of(box, pmath_System_StyleBox)           ||
+      pmath_is_expr_of(box, pmath_System_TagBox)             ||
+      pmath_is_expr_of(box, pmath_System_InterpretationBox))
   {
     pmath_token_t tok = box_token_analyse(pmath_expr_get_item(box, 1), prec);
     pmath_unref(box);
     return tok;
   }
   
-  if( pmath_is_expr_of(box, PMATH_SYMBOL_SUBSCRIPTBOX)      ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_SUBSUPERSCRIPTBOX) ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_SUPERSCRIPTBOX))
+  if( pmath_is_expr_of(box, pmath_System_SubscriptBox)      ||
+      pmath_is_expr_of(box, pmath_System_SubsuperscriptBox) ||
+      pmath_is_expr_of(box, pmath_System_SuperscriptBox))
   {
     pmath_unref(box);
     *prec = PMATH_PREC_PRIM;//PMATH_PREC_POW;
@@ -103,12 +228,12 @@ static int box_token_prefix_prec(pmath_t box, int defprec) { // box will be free
   }
   
   if( pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 1)               ||
-      pmath_is_expr_of_len(box, PMATH_SYMBOL_OVERSCRIPTBOX, 2)      ||
-      pmath_is_expr_of_len(box, PMATH_SYMBOL_UNDERSCRIPTBOX, 2)     ||
-      pmath_is_expr_of_len(box, PMATH_SYMBOL_UNDEROVERSCRIPTBOX, 3) ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX)                  ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)                    ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+      pmath_is_expr_of_len(box, pmath_System_OverscriptBox, 2)      ||
+      pmath_is_expr_of_len(box, pmath_System_UnderscriptBox, 2)     ||
+      pmath_is_expr_of_len(box, pmath_System_UnderoverscriptBox, 3) ||
+      pmath_is_expr_of(box, pmath_System_StyleBox)                  ||
+      pmath_is_expr_of(box, pmath_System_TagBox)                    ||
+      pmath_is_expr_of(box, pmath_System_InterpretationBox))
   {
     int prec = box_token_prefix_prec(pmath_expr_get_item(box, 1), defprec);
     pmath_unref(box);
@@ -281,9 +406,9 @@ static int expr_precedence(pmath_t box, int *pos) { // box wont be freed
     return prec;
   }
   
-  if( pmath_is_expr_of(box, PMATH_SYMBOL_STYLEBOX) ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_TAGBOX)   ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_INTERPRETATIONBOX))
+  if( pmath_is_expr_of(box, pmath_System_StyleBox) ||
+      pmath_is_expr_of(box, pmath_System_TagBox)   ||
+      pmath_is_expr_of(box, pmath_System_InterpretationBox))
   {
     pmath_t item = pmath_expr_get_item(box, 1);
     tok = expr_precedence(item, pos);
@@ -330,83 +455,83 @@ static pmath_t relation(pmath_symbol_t head, int boxform) { // head wont be free
   if(pmath_same(head, PMATH_SYMBOL_UNIDENTICAL))  RET_ST("=!=");
   
   if(boxform < BOXFORM_OUTPUT) {
-    if(pmath_same(head, PMATH_SYMBOL_ELEMENT))               RET_CH(0x2208);
-    if(pmath_same(head, PMATH_SYMBOL_NOTELEMENT))            RET_CH(0x2209);
-    if(pmath_same(head, PMATH_SYMBOL_REVERSEELEMENT))        RET_CH(0x220B);
-    if(pmath_same(head, PMATH_SYMBOL_NOTREVERSEELEMENT))     RET_CH(0x220C);
+    if(pmath_same(head, pmath_System_Element))               RET_CH(0x2208);
+    if(pmath_same(head, pmath_System_NotElement))            RET_CH(0x2209);
+    if(pmath_same(head, pmath_System_ReverseElement))        RET_CH(0x220B);
+    if(pmath_same(head, pmath_System_NotReverseElement))     RET_CH(0x220C);
     
-    if(pmath_same(head, PMATH_SYMBOL_COLON))                 RET_CH(0x2236);
+    if(pmath_same(head, pmath_System_Colon))                 RET_CH(0x2236);
     
-    if(pmath_same(head, PMATH_SYMBOL_TILDEEQUAL))            RET_CH(0x2243);
-    if(pmath_same(head, PMATH_SYMBOL_NOTTILDEEQUAL))         RET_CH(0x2244);
-    if(pmath_same(head, PMATH_SYMBOL_TILDEFULLEQUAL))        RET_CH(0x2245);
+    if(pmath_same(head, pmath_System_TildeEqual))            RET_CH(0x2243);
+    if(pmath_same(head, pmath_System_NotTildeEqual))         RET_CH(0x2244);
+    if(pmath_same(head, pmath_System_TildeFullEqual))        RET_CH(0x2245);
     
-    if(pmath_same(head, PMATH_SYMBOL_NOTTILDEFULLEQUAL))     RET_CH(0x2247);
-    if(pmath_same(head, PMATH_SYMBOL_TILDETILDE))            RET_CH(0x2248);
-    if(pmath_same(head, PMATH_SYMBOL_NOTTILDETILDE))         RET_CH(0x2249);
+    if(pmath_same(head, pmath_System_NotTildeFullEqual))     RET_CH(0x2247);
+    if(pmath_same(head, pmath_System_TildeTilde))            RET_CH(0x2248);
+    if(pmath_same(head, pmath_System_NotTildeTilde))         RET_CH(0x2249);
     
-    if(pmath_same(head, PMATH_SYMBOL_CUPCAP))                RET_CH(0x224D);
-    if(pmath_same(head, PMATH_SYMBOL_HUMPDOWNHUMP))          RET_CH(0x224E);
-    if(pmath_same(head, PMATH_SYMBOL_HUMPEQUAL))             RET_CH(0x224F);
-    if(pmath_same(head, PMATH_SYMBOL_DOTEQUAL))              RET_CH(0x2250);
+    if(pmath_same(head, pmath_System_CupCap))                RET_CH(0x224D);
+    if(pmath_same(head, pmath_System_HumpDownHump))          RET_CH(0x224E);
+    if(pmath_same(head, pmath_System_HumpEqual))             RET_CH(0x224F);
+    if(pmath_same(head, pmath_System_DotEqual))              RET_CH(0x2250);
     
     if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))               RET_CH(0x2260);
-    if(pmath_same(head, PMATH_SYMBOL_CONGRUENT))             RET_CH(0x2261);
-    if(pmath_same(head, PMATH_SYMBOL_NOTCONGRUENT))          RET_CH(0x2262);
+    if(pmath_same(head, pmath_System_Congruent))             RET_CH(0x2261);
+    if(pmath_same(head, pmath_System_NotCongruent))          RET_CH(0x2262);
     
     if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))             RET_CH(0x2264);
     if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))          RET_CH(0x2265);
-    if(pmath_same(head, PMATH_SYMBOL_LESSFULLEQUAL))         RET_CH(0x2266);
-    if(pmath_same(head, PMATH_SYMBOL_GREATERFULLEQUAL))      RET_CH(0x2267);
+    if(pmath_same(head, pmath_System_LessFullEqual))         RET_CH(0x2266);
+    if(pmath_same(head, pmath_System_GreaterFullEqual))      RET_CH(0x2267);
     
-    if(pmath_same(head, PMATH_SYMBOL_LESSLESS))              RET_CH(0x226A);
-    if(pmath_same(head, PMATH_SYMBOL_GREATERGREATER))        RET_CH(0x226B);
+    if(pmath_same(head, pmath_System_LessLess))              RET_CH(0x226A);
+    if(pmath_same(head, pmath_System_GreaterGreater))        RET_CH(0x226B);
     
-    if(pmath_same(head, PMATH_SYMBOL_NOTCUPCAP))             RET_CH(0x226D);
-    if(pmath_same(head, PMATH_SYMBOL_NOTLESS))               RET_CH(0x226E);
-    if(pmath_same(head, PMATH_SYMBOL_NOTGREATER))            RET_CH(0x226F);
-    if(pmath_same(head, PMATH_SYMBOL_NOTLESSEQUAL))          RET_CH(0x2270);
-    if(pmath_same(head, PMATH_SYMBOL_NOTGREATEREQUAL))       RET_CH(0x2271);
-    if(pmath_same(head, PMATH_SYMBOL_LESSTILDE))             RET_CH(0x2272);
-    if(pmath_same(head, PMATH_SYMBOL_GREATERTILDE))          RET_CH(0x2273);
-    if(pmath_same(head, PMATH_SYMBOL_NOTLESSTILDE))          RET_CH(0x2274);
-    if(pmath_same(head, PMATH_SYMBOL_NOTGREATERTILDE))       RET_CH(0x2275);
-    if(pmath_same(head, PMATH_SYMBOL_LESSGREATER))           RET_CH(0x2276);
-    if(pmath_same(head, PMATH_SYMBOL_GREATERLESS))           RET_CH(0x2277);
-    if(pmath_same(head, PMATH_SYMBOL_NOTLESSGREATER))        RET_CH(0x2278);
-    if(pmath_same(head, PMATH_SYMBOL_NOTGREATERLESS))        RET_CH(0x2279);
-    if(pmath_same(head, PMATH_SYMBOL_PRECEDES))              RET_CH(0x227A);
-    if(pmath_same(head, PMATH_SYMBOL_SUCCEEDS))              RET_CH(0x227B);
-    if(pmath_same(head, PMATH_SYMBOL_PRECEDESEQUAL))         RET_CH(0x227C);
-    if(pmath_same(head, PMATH_SYMBOL_SUCCEEDSEQUAL))         RET_CH(0x227D);
-    if(pmath_same(head, PMATH_SYMBOL_PRECEDESTILDE))         RET_CH(0x227E);
-    if(pmath_same(head, PMATH_SYMBOL_SUCCEEDSTILDE))         RET_CH(0x227F);
-    if(pmath_same(head, PMATH_SYMBOL_NOTPRECEDES))           RET_CH(0x2280);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUCCEEDS))           RET_CH(0x2281);
-    if(pmath_same(head, PMATH_SYMBOL_SUBSET))                RET_CH(0x2282);
-    if(pmath_same(head, PMATH_SYMBOL_SUPERSET))              RET_CH(0x2283);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUBSET))             RET_CH(0x2284);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUPERSET))           RET_CH(0x2285);
-    if(pmath_same(head, PMATH_SYMBOL_SUBSETEQUAL))           RET_CH(0x2286);
-    if(pmath_same(head, PMATH_SYMBOL_SUPERSETEQUAL))         RET_CH(0x2287);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUBSETEQUAL))        RET_CH(0x2288);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUPERSETEQUAL))      RET_CH(0x2289);
+    if(pmath_same(head, pmath_System_NotCupCap))             RET_CH(0x226D);
+    if(pmath_same(head, pmath_System_NotLess))               RET_CH(0x226E);
+    if(pmath_same(head, pmath_System_NotGreater))            RET_CH(0x226F);
+    if(pmath_same(head, pmath_System_NotLessEqual))          RET_CH(0x2270);
+    if(pmath_same(head, pmath_System_NotGreaterEqual))       RET_CH(0x2271);
+    if(pmath_same(head, pmath_System_LessTilde))             RET_CH(0x2272);
+    if(pmath_same(head, pmath_System_GreaterTilde))          RET_CH(0x2273);
+    if(pmath_same(head, pmath_System_NotLessTilde))          RET_CH(0x2274);
+    if(pmath_same(head, pmath_System_NotGreaterTilde))       RET_CH(0x2275);
+    if(pmath_same(head, pmath_System_LessGreater))           RET_CH(0x2276);
+    if(pmath_same(head, pmath_System_GreaterLess))           RET_CH(0x2277);
+    if(pmath_same(head, pmath_System_NotLessGreater))        RET_CH(0x2278);
+    if(pmath_same(head, pmath_System_NotGreaterLess))        RET_CH(0x2279);
+    if(pmath_same(head, pmath_System_Precedes))              RET_CH(0x227A);
+    if(pmath_same(head, pmath_System_Succeeds))              RET_CH(0x227B);
+    if(pmath_same(head, pmath_System_PrecedesEqual))         RET_CH(0x227C);
+    if(pmath_same(head, pmath_System_SucceedsEqual))         RET_CH(0x227D);
+    if(pmath_same(head, pmath_System_PrecedesTilde))         RET_CH(0x227E);
+    if(pmath_same(head, pmath_System_SucceedsTilde))         RET_CH(0x227F);
+    if(pmath_same(head, pmath_System_NotPrecedes))           RET_CH(0x2280);
+    if(pmath_same(head, pmath_System_NotSucceeds))           RET_CH(0x2281);
+    if(pmath_same(head, pmath_System_Subset))                RET_CH(0x2282);
+    if(pmath_same(head, pmath_System_Superset))              RET_CH(0x2283);
+    if(pmath_same(head, pmath_System_NotSubset))             RET_CH(0x2284);
+    if(pmath_same(head, pmath_System_NotSuperset))           RET_CH(0x2285);
+    if(pmath_same(head, pmath_System_SubsetEqual))           RET_CH(0x2286);
+    if(pmath_same(head, pmath_System_SupersetEqual))         RET_CH(0x2287);
+    if(pmath_same(head, pmath_System_NotSubsetEqual))        RET_CH(0x2288);
+    if(pmath_same(head, pmath_System_NotSupersetEqual))      RET_CH(0x2289);
     
-    if(pmath_same(head, PMATH_SYMBOL_LEFTTRIANGLE))          RET_CH(0x22B3);
-    if(pmath_same(head, PMATH_SYMBOL_RIGHTTRIANGLE))         RET_CH(0x22B4);
-    if(pmath_same(head, PMATH_SYMBOL_LEFTTRIANGLEEQUAL))     RET_CH(0x22B5);
-    if(pmath_same(head, PMATH_SYMBOL_RIGHTTRIANGLEEQUAL))    RET_CH(0x22B6);
+    if(pmath_same(head, pmath_System_LeftTriangle))          RET_CH(0x22B3);
+    if(pmath_same(head, pmath_System_RightTriangle))         RET_CH(0x22B4);
+    if(pmath_same(head, pmath_System_LeftTriangleEqual))     RET_CH(0x22B5);
+    if(pmath_same(head, pmath_System_RightTriangleEqual))    RET_CH(0x22B6);
     
-    if(pmath_same(head, PMATH_SYMBOL_LESSEQUALGREATER))      RET_CH(0x22DA);
-    if(pmath_same(head, PMATH_SYMBOL_GREATEREQUALLESS))      RET_CH(0x22DB);
+    if(pmath_same(head, pmath_System_LessEqualGreater))      RET_CH(0x22DA);
+    if(pmath_same(head, pmath_System_GreaterEqualLess))      RET_CH(0x22DB);
     
-    if(pmath_same(head, PMATH_SYMBOL_NOTPRECEDESEQUAL))      RET_CH(0x22E0);
-    if(pmath_same(head, PMATH_SYMBOL_NOTSUCCEEDSEQUAL))      RET_CH(0x22E1);
+    if(pmath_same(head, pmath_System_NotPrecedesEqual))      RET_CH(0x22E0);
+    if(pmath_same(head, pmath_System_NotSucceedsEqual))      RET_CH(0x22E1);
     
-    if(pmath_same(head, PMATH_SYMBOL_NOTLEFTTRIANGLE))       RET_CH(0x22EA);
-    if(pmath_same(head, PMATH_SYMBOL_NOTRIGHTTRIANGLE))      RET_CH(0x22EA);
-    if(pmath_same(head, PMATH_SYMBOL_NOTLEFTTRIANGLEEQUAL))  RET_CH(0x22EA);
-    if(pmath_same(head, PMATH_SYMBOL_NOTRIGHTTRIANGLEEQUAL)) RET_CH(0x22EA);
+    if(pmath_same(head, pmath_System_NotLeftTriangle))       RET_CH(0x22EA);
+    if(pmath_same(head, pmath_System_NotRightTriangle))      RET_CH(0x22EA);
+    if(pmath_same(head, pmath_System_NotLeftTriangleEqual))  RET_CH(0x22EA);
+    if(pmath_same(head, pmath_System_NotRightTriangleEqual)) RET_CH(0x22EA);
     
   }
   else {
@@ -415,7 +540,7 @@ static pmath_t relation(pmath_symbol_t head, int boxform) { // head wont be free
     if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  RET_ST(">=");
     
     if(boxform < BOXFORM_INPUT) {
-      if(pmath_same(head, PMATH_SYMBOL_COLON))   RET_CH(':');
+      if(pmath_same(head, pmath_System_Colon))   RET_CH(':');
     }
   }
   
@@ -425,6 +550,7 @@ static pmath_t relation(pmath_symbol_t head, int boxform) { // head wont be free
 #undef RET_ST
 }
 
+    
 #define  RET_CH(C,P)  do{ int         retc = (C); *prec = (P); return pmath_build_value("c", retc); }while(0)
 #define  RET_ST(S,P)  do{ const char *rets = (S); *prec = (P); return pmath_build_value("s", rets); }while(0)
 static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // head wont be freed
@@ -437,35 +563,35 @@ static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // hea
     if(pmath_same(head, PMATH_SYMBOL_AND))                   RET_CH(0x2227, PMATH_PREC_AND);
     if(pmath_same(head, PMATH_SYMBOL_OR))                    RET_CH(0x2228, PMATH_PREC_AND);
     
-    if(pmath_same(head, PMATH_SYMBOL_CIRCLEPLUS))            RET_CH(0x2A2F, PMATH_PREC_CIRCADD);
-    if(pmath_same(head, PMATH_SYMBOL_CIRCLETIMES))           RET_CH(0x2A2F, PMATH_PREC_CIRCMUL);
-    if(pmath_same(head, PMATH_SYMBOL_PLUSMINUS))             RET_CH(0x00B1, PMATH_PREC_PLUMI);
-    if(pmath_same(head, PMATH_SYMBOL_MINUSPLUS))             RET_CH(0x2213, PMATH_PREC_PLUMI);
+    if(pmath_same(head, pmath_System_CirclePlus))            RET_CH(0x2A2F, PMATH_PREC_CIRCADD);
+    if(pmath_same(head, pmath_System_CircleTimes))           RET_CH(0x2A2F, PMATH_PREC_CIRCMUL);
+    if(pmath_same(head, pmath_System_PlusMinus))             RET_CH(0x00B1, PMATH_PREC_PLUMI);
+    if(pmath_same(head, pmath_System_MinusPlus))             RET_CH(0x2213, PMATH_PREC_PLUMI);
     
     if(pmath_same(head, PMATH_SYMBOL_DOT))                   RET_CH(0x22C5, PMATH_PREC_MIDDOT);  //0x00B7
     if(pmath_same(head, PMATH_SYMBOL_CROSS))                 RET_CH(0x2A2F, PMATH_PREC_CROSS);
     
-    if(pmath_same(head, PMATH_SYMBOL_LEFTARROW))             RET_CH(0x2190, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_UPARROW))               RET_CH(0x2191, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_LeftArrow))             RET_CH(0x2190, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_UpArrow))               RET_CH(0x2191, PMATH_PREC_ARROW);
     //if(pmath_same(head, PMATH_SYMBOL_RIGHTARROW))            RET_CH(0x2192, PMATH_PREC_ARROW); // Rule
-    if(pmath_same(head, PMATH_SYMBOL_DOWNARROW))             RET_CH(0x2193, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_LEFTRIGHTARROW))        RET_CH(0x2194, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_UPDOWNARROW))           RET_CH(0x2195, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_UPPERLEFTARROW))        RET_CH(0x2196, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_UPPERRIGHTARROW))       RET_CH(0x2197, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_LOWERRIGHTARROW))       RET_CH(0x2198, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_LOWERLEFTARROW))        RET_CH(0x2199, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DownArrow))             RET_CH(0x2193, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_LeftRightArrow))        RET_CH(0x2194, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_UpDownArrow))           RET_CH(0x2195, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_UpperLeftArrow))        RET_CH(0x2196, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_UpperRightArrow))       RET_CH(0x2197, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_LowerRightArrow))       RET_CH(0x2198, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_LowerLeftArrow))        RET_CH(0x2199, PMATH_PREC_ARROW);
     
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLELEFTARROW))       RET_CH(0x21D0, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPARROW))         RET_CH(0x21D1, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLERIGHTARROW))      RET_CH(0x21D2, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLEDOWNARROW))       RET_CH(0x21D3, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLELEFTRIGHTARROW))  RET_CH(0x21D4, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPDOWNARROW))     RET_CH(0x21D5, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPPERLEFTARROW))  RET_CH(0x21D6, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLEUPPERRIGHTARROW)) RET_CH(0x21D7, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLELOWERRIGHTARROW)) RET_CH(0x21D8, PMATH_PREC_ARROW);
-    if(pmath_same(head, PMATH_SYMBOL_DOUBLELOWERLEFTARROW))  RET_CH(0x21D9, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleLeftArrow))       RET_CH(0x21D0, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleUpArrow))         RET_CH(0x21D1, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleRightArrow))      RET_CH(0x21D2, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleDownArrow))       RET_CH(0x21D3, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleLeftRightArrow))  RET_CH(0x21D4, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleUpDownArrow))     RET_CH(0x21D5, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleUpperLeftArrow))  RET_CH(0x21D6, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleUpperRightArrow)) RET_CH(0x21D7, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleLowerRightArrow)) RET_CH(0x21D8, PMATH_PREC_ARROW);
+    if(pmath_same(head, pmath_System_DoubleLowerLeftArrow))  RET_CH(0x21D9, PMATH_PREC_ARROW);
     
   }
   else {
@@ -485,8 +611,8 @@ static pmath_t simple_prefix(pmath_symbol_t head, int *prec, int boxform) { // h
   if(boxform < BOXFORM_OUTPUT) {
     if(pmath_same(head, PMATH_SYMBOL_NOT))  RET_CH(0x00AC, PMATH_PREC_REL);
     
-    if(pmath_same(head, PMATH_SYMBOL_PLUSMINUS))    RET_CH(0x00B1, PMATH_PREC_PLUMI);
-    if(pmath_same(head, PMATH_SYMBOL_MINUSPLUS))    RET_CH(0x2213, PMATH_PREC_PLUMI);
+    if(pmath_same(head, pmath_System_PlusMinus))    RET_CH(0x00B1, PMATH_PREC_PLUMI);
+    if(pmath_same(head, pmath_System_MinusPlus))    RET_CH(0x2213, PMATH_PREC_PLUMI);
   }
   else {
     if(pmath_same(head, PMATH_SYMBOL_NOT))  RET_CH('!', PMATH_PREC_REL);
@@ -1284,7 +1410,7 @@ static pmath_t plus_to_boxes(
 }
 
 static pmath_t enclose_subsuper_base(pmath_t box) {
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_FRACTIONBOX))
+  if(pmath_is_expr_of(box, pmath_System_FractionBox))
     return pmath_build_value("(sos)", "(", box, ")");
     
   return ensure_min_precedence(box, PMATH_PREC_POW + 1, -1);
@@ -1313,7 +1439,7 @@ static pmath_t power_to_boxes(
       
       if(thread->boxform < BOXFORM_OUTPUT) {
         expr = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_SQRTBOX), 1,
+                 pmath_ref(pmath_System_SqrtBox), 1,
                  object_to_boxes(thread, base));
       }
       else {
@@ -1331,7 +1457,7 @@ static pmath_t power_to_boxes(
             thread->boxform <= BOXFORM_OUTPUT)
         {
           return pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
+                   pmath_ref(pmath_System_FractionBox), 2,
                    PMATH_C_STRING("1"),
                    expr);
         }
@@ -1357,7 +1483,7 @@ static pmath_t power_to_boxes(
       thread->boxform = old_boxform;
       
       if(thread->boxform < BOXFORM_INPUT) {
-        if( pmath_is_expr_of(base, PMATH_SYMBOL_SUBSCRIPT) &&
+        if( pmath_is_expr_of(base, pmath_System_Subscript) &&
             pmath_expr_length(base) >= 2)
         {
           pmath_expr_t indices;
@@ -1368,7 +1494,7 @@ static pmath_t power_to_boxes(
           pmath_unref(expr);
           
           exp = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_SUBSUPERSCRIPTBOX), 2,
+                  pmath_ref(pmath_System_SubsuperscriptBox), 2,
                   nary_to_boxes(
                     thread,
                     indices,
@@ -1380,7 +1506,7 @@ static pmath_t power_to_boxes(
         }
         else if(thread->boxform <= BOXFORM_OUTPUT)
           exp = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
+                  pmath_ref(pmath_System_SuperscriptBox), 1,
                   exp);
       }
       else
@@ -1409,7 +1535,7 @@ static pmath_t power_to_boxes(
           thread->boxform <= BOXFORM_OUTPUT)
       {
         return pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
+                 pmath_ref(pmath_System_FractionBox), 2,
                  PMATH_C_STRING("1"),
                  expr);
       }
@@ -1586,7 +1712,7 @@ static pmath_t subscript_to_boxes(
     base = enclose_subsuper_base(base);
     
     indices = pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_SUBSCRIPTBOX), 1,
+                pmath_ref(pmath_System_SubscriptBox), 1,
                 nary_to_boxes(
                   thread,
                   indices,
@@ -1623,7 +1749,7 @@ static pmath_t subsuperscript_to_boxes(
     return pmath_build_value("(oo)",
                              base,
                              pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_SUBSUPERSCRIPTBOX), 2,
+                               pmath_ref(pmath_System_SubsuperscriptBox), 2,
                                sub,
                                super));
   }
@@ -1650,7 +1776,7 @@ static pmath_t superscript_to_boxes(
     return pmath_build_value("(oo)",
                              base,
                              pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_SUPERSCRIPTBOX), 1,
+                               pmath_ref(pmath_System_SuperscriptBox), 1,
                                super));
   }
   
@@ -1892,7 +2018,7 @@ static pmath_t times_to_boxes(
       
       if(use_fraction_box) {
         expr = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
+                 pmath_ref(pmath_System_FractionBox), 2,
                  num, den);
       }
       else {
@@ -1970,9 +2096,9 @@ static pmath_t column_to_boxes(
       }
       
       return pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_TAGBOX), 2,
+               pmath_ref(pmath_System_TagBox), 2,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_GRIDBOX), 1,
+                 pmath_ref(pmath_System_GridBox), 1,
                  list),
                PMATH_C_STRING("Column"));
     }
@@ -1996,14 +2122,14 @@ static void emit_gridbox_options(
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
       
-      if(pmath_same(lhs, PMATH_SYMBOL_COLUMNSPACING)) {
-        item = pmath_expr_set_item(item, 1, pmath_ref(PMATH_SYMBOL_GRIDBOXCOLUMNSPACING));
+      if(pmath_same(lhs, pmath_System_ColumnSpacing)) {
+        item = pmath_expr_set_item(item, 1, pmath_ref(pmath_System_GridBoxColumnSpacing));
         pmath_emit(item, PMATH_NULL);
         continue;
       }
       
-      if(pmath_same(lhs, PMATH_SYMBOL_ROWSPACING)) {
-        item = pmath_expr_set_item(item, 1, pmath_ref(PMATH_SYMBOL_GRIDBOXROWSPACING));
+      if(pmath_same(lhs, pmath_System_RowSpacing)) {
+        item = pmath_expr_set_item(item, 1, pmath_ref(pmath_System_GridBoxRowSpacing));
         pmath_emit(item, PMATH_NULL);
         continue;
       }
@@ -2065,10 +2191,10 @@ static pmath_t grid_to_boxes(
         
         pmath_unref(expr);
         expr = pmath_gather_end();
-        expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_GRIDBOX));
+        expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_GridBox));
         
         return pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_TAGBOX), 2,
+                 pmath_ref(pmath_System_TagBox), 2,
                  expr,
                  PMATH_C_STRING("Grid"));
       }
@@ -2158,15 +2284,15 @@ static pmath_t fullform_to_boxes(
     
     pmath_unref(expr);
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_STYLEBOX), 3,
+             pmath_ref(pmath_System_StyleBox), 3,
              result,
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_AUTODELETE),
+               pmath_ref(pmath_System_AutoDelete),
                pmath_ref(PMATH_SYMBOL_TRUE)),
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_SHOWSTRINGCHARACTERS),
+               pmath_ref(pmath_System_ShowStringCharacters),
                pmath_ref(PMATH_SYMBOL_TRUE)));
   }
   
@@ -2203,19 +2329,19 @@ static pmath_t inputform_to_boxes(
     
     pmath_unref(expr);
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_STYLEBOX), 4,
+             pmath_ref(pmath_System_StyleBox), 4,
              result,
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_AUTODELETE),
+               pmath_ref(pmath_System_AutoDelete),
                pmath_ref(PMATH_SYMBOL_TRUE)),
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_AUTONUMBERFORMATING),
+               pmath_ref(pmath_System_AutoNumberFormating),
                pmath_ref(PMATH_SYMBOL_FALSE)),
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_SHOWSTRINGCHARACTERS),
+               pmath_ref(pmath_System_ShowStringCharacters),
                pmath_ref(PMATH_SYMBOL_TRUE)));
   }
   
@@ -2234,7 +2360,7 @@ static pmath_t interpretation_to_boxes(
     form = object_to_boxes(thread, form);
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+             pmath_ref(pmath_System_InterpretationBox), 2,
              form,
              value);
   }
@@ -2300,7 +2426,7 @@ static pmath_t matrixform(
     }
     
     obj = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_GRIDBOX), 1,
+            pmath_ref(pmath_System_GridBox), 1,
             obj);
             
     return pmath_build_value("sos", "(", obj, ")");
@@ -2321,11 +2447,11 @@ static pmath_t matrixform(
     }
     
     obj = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_GRIDBOX), 1,
+            pmath_ref(pmath_System_GridBox), 1,
             obj);
             
     obj = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_TAGBOX), 2,
+            pmath_ref(pmath_System_TagBox), 2,
             obj,
             pmath_ref(PMATH_SYMBOL_COLUMN));
             
@@ -2365,7 +2491,7 @@ static pmath_t outputform_to_boxes(
     thread->boxform = old_boxform;
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+             pmath_ref(pmath_System_InterpretationBox), 2,
              result,
              expr);
   }
@@ -2417,7 +2543,7 @@ static pmath_t row_to_boxes(
       pmath_unref(list);
       list = pmath_gather_end();
       list = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+               pmath_ref(pmath_System_InterpretationBox), 2,
                list,
                expr);
       return list;
@@ -2443,7 +2569,7 @@ static pmath_t row_to_boxes(
                TRUE);
                
       list = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+               pmath_ref(pmath_System_InterpretationBox), 2,
                list,
                expr);
       return list;
@@ -2619,7 +2745,7 @@ static pmath_bool_t emit_stylebox_options(
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RULE), 2,
-          pmath_ref(PMATH_SYMBOL_FONTWEIGHT),
+          pmath_ref(pmath_System_FontWeight),
           item),
         PMATH_NULL);
       continue;
@@ -2629,7 +2755,7 @@ static pmath_bool_t emit_stylebox_options(
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RULE), 2,
-          pmath_ref(PMATH_SYMBOL_FONTSLANT),
+          pmath_ref(pmath_System_FontSlant),
           item),
         PMATH_NULL);
       continue;
@@ -2639,13 +2765,13 @@ static pmath_bool_t emit_stylebox_options(
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RULE), 2,
-          pmath_ref(PMATH_SYMBOL_FONTSLANT),
+          pmath_ref(pmath_System_FontSlant),
           pmath_ref(item)),
         PMATH_NULL);
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RULE), 2,
-          pmath_ref(PMATH_SYMBOL_FONTWEIGHT),
+          pmath_ref(pmath_System_FontWeight),
           item),
         PMATH_NULL);
       continue;
@@ -2655,7 +2781,7 @@ static pmath_bool_t emit_stylebox_options(
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RULE), 2,
-          pmath_ref(PMATH_SYMBOL_FONTSIZE),
+          pmath_ref(pmath_System_FontSize),
           item),
         PMATH_NULL);
       continue;
@@ -2677,7 +2803,7 @@ static pmath_bool_t emit_stylebox_options(
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RULE), 2,
-          pmath_ref(PMATH_SYMBOL_FONTCOLOR),
+          pmath_ref(pmath_System_FontColor),
           item),
         PMATH_NULL);
       continue;
@@ -2688,7 +2814,7 @@ static pmath_bool_t emit_stylebox_options(
       pmath_unref(lhs);
       
       if(!info->have_explicit_strip_on_input) {
-        info->have_explicit_strip_on_input = pmath_same(lhs, PMATH_SYMBOL_STRIPONINPUT);
+        info->have_explicit_strip_on_input = pmath_same(lhs, pmath_System_StripOnInput);
       }
       
       pmath_emit(item, PMATH_NULL);
@@ -2732,13 +2858,13 @@ static pmath_t style_to_boxes(
       pmath_emit(
         pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_RULE), 2,
-          pmath_ref(PMATH_SYMBOL_STRIPONINPUT),
+          pmath_ref(pmath_System_StripOnInput),
           pmath_ref(PMATH_SYMBOL_FALSE)),
         PMATH_NULL);
     }
     
     expr = pmath_gather_end();
-    return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_STYLEBOX));
+    return pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_StyleBox));
   }
   
   return call_to_boxes(thread, expr);
@@ -2759,10 +2885,10 @@ static pmath_t underscript_or_overscript_to_boxes(
     base = object_to_boxes(thread, base);
     uo   = object_to_boxes(thread, uo);
     
-    if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPT))
-      head = pmath_ref(PMATH_SYMBOL_UNDERSCRIPTBOX);
+    if(pmath_same(head, pmath_System_Underscript))
+      head = pmath_ref(pmath_System_UnderscriptBox);
     else
-      head = pmath_ref(PMATH_SYMBOL_OVERSCRIPTBOX);
+      head = pmath_ref(pmath_System_OverscriptBox);
       
     return pmath_expr_new_extended(
              head, 2,
@@ -2789,7 +2915,7 @@ static pmath_t underoverscript_to_boxes(
     over  = object_to_boxes(thread, over);
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_UNDEROVERSCRIPTBOX), 3,
+             pmath_ref(pmath_System_UnderoverscriptBox), 3,
              base,
              under,
              over);
@@ -2812,7 +2938,7 @@ static pmath_t framed_to_boxes(
     item = object_to_boxes(thread, item);
     
     expr = pmath_expr_set_item(expr, 1, item);
-    expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_FRAMEBOX));
+    expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_FrameBox));
     return expr;
   }
   
@@ -2865,7 +2991,7 @@ static pmath_t piecewise_to_boxes(
       return pmath_build_value("co",
                                PMATH_CHAR_PIECEWISE,
                                pmath_expr_new_extended(
-                                 pmath_ref(PMATH_SYMBOL_GRIDBOX), 1,
+                                 pmath_ref(pmath_System_GridBox), 1,
                                  mat));
     }
     
@@ -2889,11 +3015,11 @@ static pmath_t rotate_to_boxes(
     pmath_unref(expr);
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_ROTATIONBOX), 2,
+             pmath_ref(pmath_System_RotationBox), 2,
              obj,
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_BOXROTATION),
+               pmath_ref(pmath_System_BoxRotation),
                angle));
   }
   
@@ -2914,7 +3040,7 @@ static pmath_t standardform_to_boxes(
     thread->boxform = old_boxform;
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+             pmath_ref(pmath_System_InterpretationBox), 2,
              result,
              expr);
   }
@@ -2995,9 +3121,9 @@ static pmath_t placeholder_to_boxes(
     description = object_to_boxes(thread, description);
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_TAGBOX), 2,
+             pmath_ref(pmath_System_TagBox), 2,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_FRAMEBOX), 1,
+               pmath_ref(pmath_System_FrameBox), 1,
                description),
              PMATH_C_STRING("Placeholder"));
   }
@@ -3130,7 +3256,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
         
       if(pmath_same(head, PMATH_SYMBOL_GRAPHICS)) {
         expr = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_INTERPRETATION), 2,
+                 pmath_ref(pmath_System_Interpretation), 2,
                  pmath_expr_new_extended(
                    pmath_ref(PMATH_SYMBOL_SKELETON), 1,
                    pmath_ref(PMATH_SYMBOL_GRAPHICS)),
@@ -3139,7 +3265,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
         return expr_to_boxes(thread, expr);
       }
       
-      if(pmath_same(head, PMATH_SYMBOL_GRID))
+      if(pmath_same(head, pmath_System_Grid))
         return grid_to_boxes(thread, expr);
         
       if(pmath_same(head, PMATH_SYMBOL_HOLDFORM))
@@ -3148,7 +3274,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, PMATH_SYMBOL_INPUTFORM))
         return inputform_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_INTERPRETATION))
+      if(pmath_same(head, pmath_System_Interpretation))
         return interpretation_to_boxes(thread, expr);
         
       if(pmath_same(head, PMATH_SYMBOL_LINEARSOLVEFUNCTION))
@@ -3189,30 +3315,30 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
         return call_to_boxes(thread, expr);
       }
       
-      if(pmath_same(head, PMATH_SYMBOL_SUBSCRIPT))
+      if(pmath_same(head, pmath_System_Subscript))
         return subscript_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_SUBSUPERSCRIPT))
+      if(pmath_same(head, pmath_System_Subsuperscript))
         return subsuperscript_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_SUPERSCRIPT))
+      if(pmath_same(head, pmath_System_Superscript))
         return superscript_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_STYLE))
+      if(pmath_same(head, pmath_System_Style))
         return style_to_boxes(thread, expr);
         
-      if( pmath_same(head, PMATH_SYMBOL_UNDERSCRIPT) ||
-          pmath_same(head, PMATH_SYMBOL_OVERSCRIPT))
+      if( pmath_same(head, pmath_System_Underscript) ||
+          pmath_same(head, pmath_System_Overscript))
       {
         return underscript_or_overscript_to_boxes(thread, expr);
       }
       
-      if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPT))
+      if(pmath_same(head, pmath_System_Underoverscript))
         return underoverscript_to_boxes(thread, expr);
         
       /*----------------------------------------------------------------------*/
       if(thread->boxform < BOXFORM_OUTPUT) {
-        if(pmath_same(head, PMATH_SYMBOL_FRAMED))
+        if(pmath_same(head, pmath_System_Framed))
           return framed_to_boxes(thread, expr);
           
         if(pmath_same(head, PMATH_SYMBOL_PIECEWISE))
@@ -3227,7 +3353,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
         if(pmath_same(head, PMATH_SYMBOL_SWITCH))
           return switch_to_boxes(thread, expr);
           
-        if(pmath_same(head, PMATH_SYMBOL_PLACEHOLDER))
+        if(pmath_same(head, pmath_System_Placeholder))
           return placeholder_to_boxes(thread, expr);
       }
     }
@@ -3299,7 +3425,7 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
             thread->boxform >= BOXFORM_INPUT);
             
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX), 1,
+             pmath_ref(pmath_System_ComplexStringBox), 1,
              obj);
   }
   
@@ -3342,7 +3468,7 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
     pmath_unref(tmp);
   }
   
-  obj = pmath_expr_set_item(obj, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
+  obj = pmath_expr_set_item(obj, 0, pmath_ref(pmath_System_ComplexStringBox));
   
   return obj;
 }
@@ -3405,7 +3531,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
                      format));
         
         obj = pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+                pmath_ref(pmath_System_InterpretationBox), 2,
                 format,
                 obj);
         return pmath_evaluate(obj);
@@ -3502,7 +3628,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
               thread->boxform <= BOXFORM_OUTPUT)
           {
             result = pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_FRACTIONBOX), 2,
+                       pmath_ref(pmath_System_FractionBox), 2,
                        n,
                        d);
           }
@@ -3549,7 +3675,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
     pmath_unref(str);
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+             pmath_ref(pmath_System_InterpretationBox), 2,
              boxes,
              obj);
   }

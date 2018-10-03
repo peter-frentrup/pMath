@@ -8,10 +8,55 @@ extern pmath_symbol_t pmath_System_None;
 extern pmath_symbol_t pmath_System_Rule;
 extern pmath_symbol_t pmath_System_Special;
 
-extern pmath_symbol_t pmath_Developer_FileInformation;
+extern pmath_symbol_t pmath_System_FileInformation;
 
-PMATH_PRIVATE pmath_t eval_Developer_FileInformation(pmath_expr_t expr) {
-  /* Developer`FileInformation(filename)
+#ifdef PMATH_OS_WIN32
+static pmath_string_t get_final_path_name(HANDLE h) {
+  DWORD size;
+  DWORD flags = FILE_NAME_NORMALIZED | VOLUME_NAME_DOS;
+  pmath_string_t result;
+  uint16_t *buf;
+  
+  size = GetFinalPathNameByHandleW(h, NULL, 0, flags);
+  if(size == 0 || (int)size <= 0) {
+    return PMATH_UNDEFINED;
+  }
+  
+  result = pmath_string_new_raw(size);
+  if(pmath_string_begin_write(&result, &buf, NULL)) {
+    DWORD length;
+    
+    length = GetFinalPathNameByHandleW(h, (wchar_t*)buf, size, flags);
+    
+    if(length < size) {
+      if( length >= 7 && 
+          buf[0] == '\\' && 
+          buf[1] == '\\' && 
+          buf[2] == '?' && 
+          buf[3] == '\\' && 
+          buf[5] == ':' && 
+          buf[6] == '\\') 
+      {
+        memmove(buf, buf + 4, sizeof(uint16_t) * (length - 4));
+        length-= 4;
+      }
+    }
+    
+    pmath_string_end_write(&result, &buf);
+    if(length > 0 && length < size) {
+      result = pmath_string_part(result, 0, (int)length);
+      
+      return result;
+    }
+  }
+  
+  pmath_unref(result);
+  return PMATH_UNDEFINED;
+}
+#endif
+
+PMATH_PRIVATE pmath_t eval_System_FileInformation(pmath_expr_t expr) {
+  /* FileInformation(filename)
    */
   pmath_string_t name, fullname;
   pmath_integer_t bytecount;
@@ -62,7 +107,9 @@ PMATH_PRIVATE pmath_t eval_Developer_FileInformation(pmath_expr_t expr) {
 
         name = pmath_string_part(name, 0, pmath_string_length(name) - 1);
         
-        fullname = pmath_ref(name);
+        fullname = get_final_path_name(h);
+        if(pmath_same(fullname, PMATH_UNDEFINED))
+          fullname = pmath_ref(name);
         
         size[0] = info.nFileSizeLow;
         size[1] = info.nFileSizeHigh;

@@ -228,7 +228,7 @@
 		</Expand>
 	</Type>
 	<Type Name="_pmath_expr_part_t">
-		<DisplayString Condition="length==0">{inherited.items[0]}()</DisplayString>
+		<DisplayString Condition="inherited.length==0">{inherited.items[0]}()</DisplayString>
 		<DisplayString>{inherited.items[0]}(&lt;&lt;{inherited.length,d}&gt;&gt;)</DisplayString>
 		<Expand HideRawView="true">
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">

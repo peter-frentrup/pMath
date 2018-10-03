@@ -8,6 +8,12 @@ extern pmath_symbol_t richmath_FE_SymbolDefinitions;
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Deinitialization;
+extern pmath_symbol_t richmath_System_DynamicLocalBox;
+extern pmath_symbol_t richmath_System_DynamicLocalValues;
+extern pmath_symbol_t richmath_System_Initialization;
+extern pmath_symbol_t richmath_System_UnsavedVariables;
+
 //{ class DynamicLocalBox ...
 
 DynamicLocalBox::DynamicLocalBox()
@@ -26,7 +32,7 @@ DynamicLocalBox::~DynamicLocalBox() {
 }
 
 bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
-  if(expr[0] != PMATH_SYMBOL_DYNAMICLOCALBOX)
+  if(expr[0] != richmath_System_DynamicLocalBox)
     return false;
     
   if(expr.expr_length() < 2)
@@ -61,23 +67,23 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   }
   
   Expr values = Expr(pmath_option_value(
-                       PMATH_SYMBOL_DYNAMICLOCALBOX,
-                       PMATH_SYMBOL_DYNAMICLOCALVALUES,
+                       richmath_System_DynamicLocalBox,
+                       richmath_System_DynamicLocalValues,
                        options_expr.get()));
                        
   _initialization = Expr(pmath_option_value(
-                           PMATH_SYMBOL_DYNAMICLOCALBOX,
-                           PMATH_SYMBOL_INITIALIZATION,
+                           richmath_System_DynamicLocalBox,
+                           richmath_System_Initialization,
                            options_expr.get()));
                            
   _deinitialization = Expr(pmath_option_value(
-                             PMATH_SYMBOL_DYNAMICLOCALBOX,
-                             PMATH_SYMBOL_DEINITIALIZATION,
+                             richmath_System_DynamicLocalBox,
+                             richmath_System_Deinitialization,
                              options_expr.get()));
                              
   _unsaved_variables = Expr(pmath_option_value(
-                              PMATH_SYMBOL_DYNAMICLOCALBOX,
-                              PMATH_SYMBOL_UNSAVEDVARIABLES,
+                              richmath_System_DynamicLocalBox,
+                              richmath_System_UnsavedVariables,
                               options_expr.get()));
                               
   _init_call = List(values, _initialization);
@@ -118,6 +124,10 @@ static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, cons
   return expr;
 }
 
+Expr DynamicLocalBox::to_pmath_symbol() {
+  return Symbol(richmath_System_DynamicLocalBox); 
+}
+      
 Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
   ensure_init();
   
@@ -128,9 +138,9 @@ Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
   
   Gather::emit(_public_symbols);
   Gather::emit(content()->to_pmath(flags));
-  Gather::emit(RuleDelayed(Symbol(PMATH_SYMBOL_INITIALIZATION),   _initialization));
-  Gather::emit(RuleDelayed(Symbol(PMATH_SYMBOL_DEINITIALIZATION), _deinitialization));
-  Gather::emit(RuleDelayed(Symbol(PMATH_SYMBOL_UNSAVEDVARIABLES), _unsaved_variables));
+  Gather::emit(RuleDelayed(Symbol(richmath_System_Initialization),   _initialization));
+  Gather::emit(RuleDelayed(Symbol(richmath_System_Deinitialization), _deinitialization));
+  Gather::emit(RuleDelayed(Symbol(richmath_System_UnsavedVariables), _unsaved_variables));
   
   {
     Gather g2;
@@ -150,11 +160,11 @@ Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
     Expr values = g2.end();
     values = AbstractDynamicBox::prepare_dynamic(values);
     values = Expr(internal_replace_symbols(values.release(), _private_symbols, _public_symbols));
-    Gather::emit(RuleDelayed(Symbol(PMATH_SYMBOL_DYNAMICLOCALVALUES), values));
+    Gather::emit(RuleDelayed(Symbol(richmath_System_DynamicLocalValues), values));
   }
   
   Expr expr = g.end();
-  expr.set(0, Symbol(PMATH_SYMBOL_DYNAMICLOCALBOX));
+  expr.set(0, Symbol(richmath_System_DynamicLocalBox));
   return expr;
 }
 

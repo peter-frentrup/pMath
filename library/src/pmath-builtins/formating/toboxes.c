@@ -10,6 +10,19 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
+extern pmath_symbol_t pmath_System_FractionBox;
+extern pmath_symbol_t pmath_System_FrameBox;
+extern pmath_symbol_t pmath_System_GridBox;
+extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_OverscriptBox;
+extern pmath_symbol_t pmath_System_RadicalBox;
+extern pmath_symbol_t pmath_System_SqrtBox;
+extern pmath_symbol_t pmath_System_StyleBox;
+extern pmath_symbol_t pmath_System_SubsuperscriptBox;
+extern pmath_symbol_t pmath_System_TagBox;
+extern pmath_symbol_t pmath_System_UnderoverscriptBox;
+extern pmath_symbol_t pmath_System_UnderscriptBox;
+
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_prepare_shallow(
@@ -105,11 +118,11 @@ long _pmath_boxes_length(pmath_t boxes) { // boxes wont be freed
       return 0;
     }
     
-    if( pmath_same(item, PMATH_SYMBOL_FRACTIONBOX)        ||
-        pmath_same(item, PMATH_SYMBOL_OVERSCRIPTBOX)      ||
-        pmath_same(item, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)  ||
-        pmath_same(item, PMATH_SYMBOL_UNDEROVERSCRIPTBOX) ||
-        pmath_same(item, PMATH_SYMBOL_UNDERSCRIPTBOX))
+    if( pmath_same(item, pmath_System_FractionBox)        ||
+        pmath_same(item, pmath_System_OverscriptBox)      ||
+        pmath_same(item, pmath_System_SubsuperscriptBox)  ||
+        pmath_same(item, pmath_System_UnderoverscriptBox) ||
+        pmath_same(item, pmath_System_UnderscriptBox))
     {
       long sub;
       
@@ -126,7 +139,7 @@ long _pmath_boxes_length(pmath_t boxes) { // boxes wont be freed
       return result;
     }
     
-    if(pmath_same(item, PMATH_SYMBOL_GRIDBOX)) {
+    if(pmath_same(item, pmath_System_GridBox)) {
       size_t rows, cols;
       pmath_t matrix = pmath_expr_get_item(boxes, 1);
       
@@ -386,17 +399,17 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length) {
       }
     }
     
-    if( pmath_same(item, PMATH_SYMBOL_FRAMEBOX)           ||
-        pmath_same(item, PMATH_SYMBOL_FRACTIONBOX)        ||
-        pmath_same(item, PMATH_SYMBOL_INTERPRETATIONBOX)  ||
-        pmath_same(item, PMATH_SYMBOL_OVERSCRIPTBOX)      ||
-        pmath_same(item, PMATH_SYMBOL_RADICALBOX)         ||
-        pmath_same(item, PMATH_SYMBOL_SQRTBOX)            ||
-        pmath_same(item, PMATH_SYMBOL_STYLEBOX)           ||
-        pmath_same(item, PMATH_SYMBOL_SUBSUPERSCRIPTBOX)  ||
-        pmath_same(item, PMATH_SYMBOL_TAGBOX)             ||
-        pmath_same(item, PMATH_SYMBOL_UNDEROVERSCRIPTBOX) ||
-        pmath_same(item, PMATH_SYMBOL_UNDERSCRIPTBOX)) 
+    if( pmath_same(item, pmath_System_FrameBox)           ||
+        pmath_same(item, pmath_System_FractionBox)        ||
+        pmath_same(item, pmath_System_InterpretationBox)  ||
+        pmath_same(item, pmath_System_OverscriptBox)      ||
+        pmath_same(item, pmath_System_RadicalBox)         ||
+        pmath_same(item, pmath_System_SqrtBox)            ||
+        pmath_same(item, pmath_System_StyleBox)           ||
+        pmath_same(item, pmath_System_SubsuperscriptBox)  ||
+        pmath_same(item, pmath_System_TagBox)             ||
+        pmath_same(item, pmath_System_UnderoverscriptBox) ||
+        pmath_same(item, pmath_System_UnderscriptBox)) 
     {
       for(; len > 0; --len) {
         boxes = pmath_expr_set_item(

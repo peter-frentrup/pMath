@@ -7,6 +7,9 @@
 using namespace richmath;
 using namespace pmath;
 
+extern pmath_symbol_t richmath_System_TemplateBox;
+extern pmath_symbol_t richmath_System_TemplateSlot;
+
 namespace richmath {
   class TemplateBoxImpl {
     public:
@@ -121,7 +124,7 @@ TemplateBox::TemplateBox()
 }
 
 bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_TEMPLATEBOX)
+  if(expr[0] != richmath_System_TemplateBox)
     return false;
     
   if(expr.expr_length() < 2)
@@ -148,7 +151,7 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 bool TemplateBox::selectable(int i) {
   if(i >= 0)
     return false;
-  
+    
   return base::selectable(i);
 }
 
@@ -165,7 +168,7 @@ Box *TemplateBox::move_logical(
           *index = -1;
         else
           *index = slot->length() + 1;
-        
+          
         return slot->move_logical(direction, false, index);
       }
       slot = search_next_box<TemplateBoxSlot>(slot, direction, this);
@@ -219,6 +222,10 @@ void TemplateBox::paint_content(Context *context) {
   }
 }
 
+Expr TemplateBox::to_pmath_symbol() {
+  return Symbol(richmath_System_TemplateBox);
+}
+
 Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
@@ -228,7 +235,7 @@ Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
   style->emit_to_pmath(false);
   
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_TEMPLATEBOX));
+  e.set(0, Symbol(richmath_System_TemplateBox));
   return e;
 }
 
@@ -253,7 +260,7 @@ Expr TemplateBoxSlot::prepare_boxes(Expr boxes) {
 }
 
 bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_TEMPLATESLOT || expr.expr_length() != 1)
+  if(expr[0] != richmath_System_TemplateSlot || expr.expr_length() != 1)
     return false;
     
   Expr arg = expr[1];
@@ -292,13 +299,13 @@ Box *TemplateBoxSlot::move_logical(
   bool              jumping,
   int              *index
 ) {
-  if(*index < 0 || *index > length()) 
+  if(*index < 0 || *index > length())
     return base::move_logical(direction, jumping, index);
-  
+    
   TemplateBox *owner = find_owner();
   if(!owner)
     return base::move_logical(direction, jumping, index);
-  
+    
   TemplateBoxSlot *next_slot = search_next_box<TemplateBoxSlot>(this, direction, owner);
   while(next_slot) {
     if(next_slot->find_owner() == owner) {
@@ -318,16 +325,16 @@ Box *TemplateBoxSlot::move_logical(
 
 Box *TemplateBoxSlot::remove(int *index) {
   TemplateBox *owner = find_owner();
-  if(!owner) 
+  if(!owner)
     return base::remove(index);
-  
-  if(content()->length() == 0) 
+    
+  if(content()->length() == 0)
     content()->insert(0, PMATH_CHAR_PLACEHOLDER);
-  
+    
   TemplateBoxSlot *prev = search_next_box<TemplateBoxSlot>(this, LogicalDirection::Backward, owner);
   while(prev && prev->find_owner() != owner)
     prev = search_next_box<TemplateBoxSlot>(prev, LogicalDirection::Backward, owner);
-  
+    
   if(prev) {
     *index = prev->content()->length();
     return prev->content();
@@ -346,7 +353,7 @@ Box *TemplateBoxSlot::remove(int *index) {
       if(next->content()->length() > 0 && !next->content()->is_placeholder()) {
         all_empty_or_placeholders = false;
         break;
-      } 
+      }
     }
     next = search_next_box<TemplateBoxSlot>(next, LogicalDirection::Forward, owner);
   }
@@ -421,7 +428,7 @@ Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
   
   dispfun = Parse("FE`Styles`FlattenTemplateSequence(`1`, `2`)", dispfun, Expr(self.arguments.expr_length()));
   dispfun = Application::interrupt_wait(dispfun, Application::button_timeout);
-
+  
   if(dispfun[0] == PMATH_SYMBOL_FUNCTION && dispfun.expr_length() == 1)
     return dispfun[1];
     
@@ -488,7 +495,7 @@ void TemplateBoxSlotImpl::assign_content() {
   TemplateBox *tb = self.find_owner();
   if(!tb)
     return;
-  
+    
   tb->arguments.set(self._argument, self.content()->to_pmath(BoxOutputFlags::Default));
   
   TemplateBoxSlot *slot = search_box<TemplateBoxSlot>(tb, LogicalDirection::Forward, tb);
@@ -522,7 +529,7 @@ Expr TemplateBoxSlotImpl::prepare_pure_arg(Expr expr) {
     
   Expr num = expr[1];
   if(num.is_integer())
-    return Call(Symbol(PMATH_SYMBOL_TEMPLATESLOT), num);
+    return Call(Symbol(richmath_System_TemplateSlot), num);
     
   return expr;
 }

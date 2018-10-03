@@ -9,6 +9,11 @@ using namespace richmath;
 
 //{ class AbstractTransformationBox ...
 
+extern pmath_symbol_t richmath_System_BoxRotation;
+extern pmath_symbol_t richmath_System_BoxTransformation;
+extern pmath_symbol_t richmath_System_RotationBox;
+extern pmath_symbol_t richmath_System_TransformationBox;
+
 AbstractTransformationBox::AbstractTransformationBox()
   : OwnerBox(0)
 {
@@ -85,7 +90,7 @@ void AbstractTransformationBox::resize(Context *context) {
 
 void AbstractTransformationBox::paint(Context *context) {
   update_dynamic_styles(context);
-    
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -140,14 +145,14 @@ void AbstractTransformationBox::child_transformation(
 
 RotationBox::RotationBox()
   : AbstractTransformationBox(),
-  _angle(0)
+    _angle(0)
 {
   if(!style)
     style = new Style;
 }
 
 bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_ROTATIONBOX)
+  if(expr[0] != richmath_System_RotationBox)
     return false;
     
   if(expr.expr_length() < 1)
@@ -164,8 +169,8 @@ bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   style->add_pmath(options);
   angle(
     Expr(pmath_option_value(
-           PMATH_SYMBOL_ROTATIONBOX,
-           PMATH_SYMBOL_BOXROTATION,
+           richmath_System_RotationBox,
+           richmath_System_BoxRotation,
            options.get())));
            
   return true;
@@ -195,12 +200,16 @@ void RotationBox::paint(Context *context) {
   }
 }
 
+Expr RotationBox::to_pmath_symbol() {
+  return Symbol(richmath_System_RotationBox);
+}
+
 Expr RotationBox::to_pmath(BoxOutputFlags flags) {
   return Call(
-           Symbol(PMATH_SYMBOL_ROTATIONBOX),
+           Symbol(richmath_System_RotationBox),
            _content->to_pmath(flags),
            Rule(
-             Symbol(PMATH_SYMBOL_BOXROTATION),
+             Symbol(richmath_System_BoxRotation),
              _angle));
 }
 
@@ -210,12 +219,12 @@ Expr RotationBox::to_pmath(BoxOutputFlags flags) {
 
 TransformationBox::TransformationBox()
   : AbstractTransformationBox(),
-  _matrix(0)
+    _matrix(0)
 {
 }
 
 bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_TRANSFORMATIONBOX)
+  if(expr[0] != richmath_System_TransformationBox)
     return false;
     
   if(expr.expr_length() < 1)
@@ -226,8 +235,8 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   if(!matrix(Expr(pmath_option_value(
-                    PMATH_SYMBOL_TRANSFORMATIONBOX,
-                    PMATH_SYMBOL_BOXTRANSFORMATION,
+                    richmath_System_TransformationBox,
+                    richmath_System_BoxTransformation,
                     options.get()))))
   {
     return false;
@@ -240,19 +249,19 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     style->add_pmath(options);
   else
     style = new Style(options);
-  
+    
   _content->load_from_object(expr[1], opts);
   
   return true;
 }
 
 bool TransformationBox::matrix(Expr m) {
-  if(m.expr_length() == 2         && 
-     m[0] == PMATH_SYMBOL_LIST    &&
-     m[1].expr_length() == 2      && 
-     m[1][0] == PMATH_SYMBOL_LIST && 
-     m[2].expr_length() == 2      && 
-     m[2][0] == PMATH_SYMBOL_LIST) 
+  if(m.expr_length() == 2         &&
+      m[0] == PMATH_SYMBOL_LIST    &&
+      m[1].expr_length() == 2      &&
+      m[1][0] == PMATH_SYMBOL_LIST &&
+      m[2].expr_length() == 2      &&
+      m[2][0] == PMATH_SYMBOL_LIST)
   {
     _matrix = m;
     mat.xx =   _matrix[1][1].to_double();
@@ -282,12 +291,16 @@ void TransformationBox::paint(Context *context) {
   }
 }
 
+Expr TransformationBox::to_pmath_symbol() {
+  return Symbol(richmath_System_TransformationBox);
+}
+
 Expr TransformationBox::to_pmath(BoxOutputFlags flags) {
   return Call(
-           Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX),
+           Symbol(richmath_System_TransformationBox),
            _content->to_pmath(flags),
            Rule(
-             Symbol(PMATH_SYMBOL_BOXTRANSFORMATION),
+             Symbol(richmath_System_BoxTransformation),
              _matrix));
 }
 

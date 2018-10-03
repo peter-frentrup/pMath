@@ -11,6 +11,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DynamicBox;
+
 //{ class AbstractDynamicBox ...
 
 AbstractDynamicBox::AbstractDynamicBox()
@@ -60,7 +62,7 @@ DynamicBox::~DynamicBox() {
 }
 
 bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_DYNAMICBOX)
+  if(expr[0] != richmath_System_DynamicBox)
     return false;
     
   if(expr.expr_length() < 1) 
@@ -72,7 +74,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   
-  expr.set(0, Symbol(PMATH_SYMBOL_DYNAMIC));
+  expr.set(0, Symbol(richmath_System_Dynamic));
   
   if(dynamic.expr() != expr){
     must_update = true;
@@ -114,12 +116,16 @@ void DynamicBox::paint_content(Context *context) {
   }
 }
 
+Expr DynamicBox::to_pmath_symbol() { 
+  return Symbol(richmath_System_DynamicBox); 
+}
+
 Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Literal))
     return content()->to_pmath(flags);
     
   Expr e = dynamic.expr();
-  e.set(0, Symbol(PMATH_SYMBOL_DYNAMICBOX));
+  e.set(0, Symbol(richmath_System_DynamicBox));
   return e;
 }
 

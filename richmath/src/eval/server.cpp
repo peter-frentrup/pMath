@@ -7,6 +7,13 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionGenerated;
+extern pmath_symbol_t richmath_System_SectionLabel;
+
+extern pmath_symbol_t richmath_System_DollarLine;
+
 Expr richmath::to_boxes(Expr obj) {
   return Expr(
            pmath_evaluate(
@@ -18,14 +25,14 @@ Expr richmath::to_boxes(Expr obj) {
 Expr richmath::generate_section(String style, Expr boxes) {
   Gather gather;
   
-  Gather::emit(Call(Symbol(PMATH_SYMBOL_BOXDATA), boxes));
+  Gather::emit(Call(Symbol(richmath_System_BoxData), boxes));
   Gather::emit(style);
   
   Gather::emit(
-    Rule(Symbol(PMATH_SYMBOL_SECTIONGENERATED), Symbol(PMATH_SYMBOL_TRUE)));
+    Rule(Symbol(richmath_System_SectionGenerated), Symbol(PMATH_SYMBOL_TRUE)));
     
   if(style.equals("Output")) {
-    Expr line = Application::interrupt_wait(Symbol(PMATH_SYMBOL_LINE));
+    Expr line = Application::interrupt_wait(Symbol(richmath_System_DollarLine));
     Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
     
     if(line == PMATH_UNDEFINED)
@@ -42,11 +49,11 @@ Expr richmath::generate_section(String style, Expr boxes) {
       
     label = label + line.to_string() + "]:";
     
-    Gather::emit(Rule(Symbol(PMATH_SYMBOL_SECTIONLABEL), label));
+    Gather::emit(Rule(Symbol(richmath_System_SectionLabel), label));
   }
   
   Expr result = gather.end();
-  result.set(0, Symbol(PMATH_SYMBOL_SECTION));
+  result.set(0, Symbol(richmath_System_Section));
   return result;
 }
 

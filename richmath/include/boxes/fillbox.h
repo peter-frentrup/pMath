@@ -16,7 +16,7 @@ namespace richmath {
       virtual bool expand(const BoxSize &size) override;
       virtual void paint_content(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_FILLBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(

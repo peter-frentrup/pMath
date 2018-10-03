@@ -56,7 +56,7 @@ PIO_DECLARE_SYSTEM_FUNC(     CreateDirectory  )
 PIO_DECLARE_SYSTEM_FUNC(     DeleteDirectory  )
 PIO_DECLARE_SYSTEM_FUNC(     DeleteFile       )
 PIO_DECLARE_SYSTEM_FUNC(     FileByteCount    )
-PIO_DECLARE_DEVELOPER_FUNC(  FileInformation  )
+PIO_DECLARE_SYSTEM_FUNC(     FileInformation  )
 PIO_DECLARE_SYSTEM_FUNC(     RenameDirectory  )
 PIO_DECLARE_SYSTEM_FUNC(     RenameFile       )
 

@@ -12,6 +12,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DollarLine;
+
 //{ class EvaluationPosition ...
 
 EvaluationPosition::EvaluationPosition(int _doc, int _sect, int _box)
@@ -104,7 +106,7 @@ bool InputJob::start() {
   
   doc->move_to(doc, i);
   
-  Expr line = Application::interrupt_wait(Plus(Symbol(PMATH_SYMBOL_LINE), 1));
+  Expr line = Application::interrupt_wait(Plus(Symbol(richmath_System_DollarLine), 1));
   Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
   
   String label = String("in [");

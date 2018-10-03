@@ -7,6 +7,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_SubscriptBox;
+extern pmath_symbol_t richmath_System_SubsuperscriptBox;
+extern pmath_symbol_t richmath_System_SuperscriptBox;
+
 //{ class SubsuperscriptBox ...
 
 SubsuperscriptBox::SubsuperscriptBox()
@@ -38,7 +42,7 @@ SubsuperscriptBox::~SubsuperscriptBox() {
 }
 
 bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] == PMATH_SYMBOL_SUBSCRIPTBOX) {
+  if(expr[0] == richmath_System_SubscriptBox) {
     if(expr.expr_length() != 1)
       return false;
       
@@ -57,7 +61,7 @@ bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return true;
   }
   
-  if(expr[0] == PMATH_SYMBOL_SUPERSCRIPTBOX) {
+  if(expr[0] == richmath_System_SuperscriptBox) {
     if(expr.expr_length() != 1)
       return false;
       
@@ -76,7 +80,7 @@ bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return true;
   }
   
-  if(expr[0] == PMATH_SYMBOL_SUBSUPERSCRIPTBOX) {
+  if(expr[0] == richmath_System_SubsuperscriptBox) {
     if(expr.expr_length() != 2)
       return false;
       
@@ -258,28 +262,28 @@ void SubsuperscriptBox::complete() {
 Expr SubsuperscriptBox::to_pmath_symbol() {
   if(_subscript) {
     if(_superscript)
-      return Symbol(PMATH_SYMBOL_SUBSUPERSCRIPTBOX);
-    return Symbol(PMATH_SYMBOL_SUBSCRIPTBOX);
+      return Symbol(richmath_System_SubsuperscriptBox);
+    return Symbol(richmath_System_SubscriptBox);
   }
   
-  return Symbol(PMATH_SYMBOL_SUPERSCRIPTBOX);
+  return Symbol(richmath_System_SuperscriptBox);
 }
 
 Expr SubsuperscriptBox::to_pmath(BoxOutputFlags flags) {
   if(_subscript) {
     if(_superscript)
       return Call(
-               Symbol(PMATH_SYMBOL_SUBSUPERSCRIPTBOX),
+               Symbol(richmath_System_SubsuperscriptBox),
                _subscript->to_pmath(flags),
                _superscript->to_pmath(flags));
                
     return Call(
-             Symbol(PMATH_SYMBOL_SUBSCRIPTBOX),
+             Symbol(richmath_System_SubscriptBox),
              _subscript->to_pmath(flags));
   }
   
   return Call(
-           Symbol(PMATH_SYMBOL_SUPERSCRIPTBOX),
+           Symbol(richmath_System_SuperscriptBox),
            _superscript->to_pmath(flags));
 }
 

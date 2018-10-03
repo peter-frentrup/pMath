@@ -14,8 +14,77 @@
       assert(a); \
     }}while(0)
 
+extern pmath_symbol_t richmath_System_Antialiasing;
+extern pmath_symbol_t richmath_System_AspectRatio;
+extern pmath_symbol_t richmath_System_AutoDelete;
+extern pmath_symbol_t richmath_System_AutoNumberFormating;
+extern pmath_symbol_t richmath_System_AutoSpacing;
+extern pmath_symbol_t richmath_System_Axes;
+extern pmath_symbol_t richmath_System_AxesOrigin;
+extern pmath_symbol_t richmath_System_Background;
+extern pmath_symbol_t richmath_System_BaseStyle;
+extern pmath_symbol_t richmath_System_BorderRadius;
+extern pmath_symbol_t richmath_System_BoxRotation;
+extern pmath_symbol_t richmath_System_BoxTransformation;
+extern pmath_symbol_t richmath_System_ButtonFrame;
+extern pmath_symbol_t richmath_System_ButtonFunction;
+extern pmath_symbol_t richmath_System_ContinuousAction;
+extern pmath_symbol_t richmath_System_DefaultDuplicateSectionStyle;
+extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
+extern pmath_symbol_t richmath_System_DefaultReturnCreatedSectionStyle;
+extern pmath_symbol_t richmath_System_DisplayFunction;
+extern pmath_symbol_t richmath_System_DockedSections;
+extern pmath_symbol_t richmath_System_Editable;
+extern pmath_symbol_t richmath_System_Evaluatable;
+extern pmath_symbol_t richmath_System_FontColor;
+extern pmath_symbol_t richmath_System_FontFamily;
+extern pmath_symbol_t richmath_System_FontFeatures;
+extern pmath_symbol_t richmath_System_FontSize;
+extern pmath_symbol_t richmath_System_FontSlant;
+extern pmath_symbol_t richmath_System_FontWeight;
+extern pmath_symbol_t richmath_System_Frame;
+extern pmath_symbol_t richmath_System_FrameTicks;
+extern pmath_symbol_t richmath_System_GeneratedSectionStyles;
+extern pmath_symbol_t richmath_System_GridBoxColumnSpacing;
+extern pmath_symbol_t richmath_System_GridBoxRowSpacing;
+extern pmath_symbol_t richmath_System_ImageSize;
+extern pmath_symbol_t richmath_System_InterpretationFunction;
+extern pmath_symbol_t richmath_System_LanguageCategory;
+extern pmath_symbol_t richmath_System_LineBreakWithin;
+extern pmath_symbol_t richmath_System_Magnification;
 extern pmath_symbol_t richmath_System_MathFontFamily;
+extern pmath_symbol_t richmath_System_Method;
+extern pmath_symbol_t richmath_System_Placeholder;
+extern pmath_symbol_t richmath_System_PlotRange;
+extern pmath_symbol_t richmath_System_ReturnCreatesNewSection;
+extern pmath_symbol_t richmath_System_ScriptSizeMultipliers;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionEditDuplicate;
+extern pmath_symbol_t richmath_System_SectionEditDuplicateMakesCopy;
+extern pmath_symbol_t richmath_System_SectionFrame;
+extern pmath_symbol_t richmath_System_SectionFrameColor;
+extern pmath_symbol_t richmath_System_SectionFrameMargins;
+extern pmath_symbol_t richmath_System_SectionGenerated;
+extern pmath_symbol_t richmath_System_SectionGroup;
+extern pmath_symbol_t richmath_System_SectionGroupPrecedence;
+extern pmath_symbol_t richmath_System_SectionLabel;
+extern pmath_symbol_t richmath_System_SectionLabelAutoDelete;
+extern pmath_symbol_t richmath_System_SectionMargins;
+extern pmath_symbol_t richmath_System_Selectable;
+extern pmath_symbol_t richmath_System_ShowAutoStyles;
+extern pmath_symbol_t richmath_System_ShowSectionBracket;
+extern pmath_symbol_t richmath_System_ShowStringCharacters;
+extern pmath_symbol_t richmath_System_StripOnInput;
+extern pmath_symbol_t richmath_System_StyleData;
+extern pmath_symbol_t richmath_System_StyleDefinitions;
 extern pmath_symbol_t richmath_System_SurdForm;
+extern pmath_symbol_t richmath_System_SyntaxForm;
+extern pmath_symbol_t richmath_System_TemplateBoxOptions;
+extern pmath_symbol_t richmath_System_TextShadow;
+extern pmath_symbol_t richmath_System_Ticks;
+extern pmath_symbol_t richmath_System_Visible;
+extern pmath_symbol_t richmath_System_WindowFrame;
+extern pmath_symbol_t richmath_System_WindowTitle;
 
 using namespace richmath;
 
@@ -166,7 +235,7 @@ static bool needs_ruledelayed(Expr expr) {
     return false;
     
   Expr head = expr[0];
-  if(head == PMATH_SYMBOL_DYNAMIC || head == PMATH_SYMBOL_FUNCTION)
+  if(head == richmath_System_Dynamic || head == PMATH_SYMBOL_FUNCTION)
     return false;
     
   if( head == PMATH_SYMBOL_LIST ||
@@ -295,100 +364,100 @@ namespace {
           _name_to_key.default_value = StyleOptionName{ -1};
           _key_to_type.default_value = StyleTypeNone;
           
-          add_enum(ButtonFrame, Symbol( PMATH_SYMBOL_BUTTONFRAME), new ButtonFrameStyleEnumConverter);
-          add_enum(FontSlant,   Symbol( PMATH_SYMBOL_FONTSLANT),   new FontSlantStyleEnumConverter);
-          add_enum(FontWeight,  Symbol( PMATH_SYMBOL_FONTWEIGHT),  new FontWeightStyleEnumConverter);
-          add_enum(WindowFrame, Symbol( PMATH_SYMBOL_WINDOWFRAME), new WindowFrameStyleEnumConverter);
+          add_enum(ButtonFrame, Symbol( richmath_System_ButtonFrame), new ButtonFrameStyleEnumConverter);
+          add_enum(FontSlant,   Symbol( richmath_System_FontSlant),   new FontSlantStyleEnumConverter);
+          add_enum(FontWeight,  Symbol( richmath_System_FontWeight),  new FontWeightStyleEnumConverter);
+          add_enum(WindowFrame, Symbol( richmath_System_WindowFrame), new WindowFrameStyleEnumConverter);
           
-          add_ruleset_head(DockedSections,     Symbol( PMATH_SYMBOL_DOCKEDSECTIONS));
-          add_ruleset_head(TemplateBoxOptions, Symbol( PMATH_SYMBOL_TEMPLATEBOXOPTIONS));
+          add_ruleset_head(DockedSections,     Symbol( richmath_System_DockedSections));
+          add_ruleset_head(TemplateBoxOptions, Symbol( richmath_System_TemplateBoxOptions));
           
-          add(StyleTypeColor,           Background,                       Symbol( PMATH_SYMBOL_BACKGROUND));
-          add(StyleTypeColor,           FontColor,                        Symbol( PMATH_SYMBOL_FONTCOLOR));
-          add(StyleTypeColor,           SectionFrameColor,                Symbol( PMATH_SYMBOL_SECTIONFRAMECOLOR));
-          add(StyleTypeBoolAuto,        Antialiasing,                     Symbol( PMATH_SYMBOL_ANTIALIASING));
-          add(StyleTypeBool,            AutoDelete,                       Symbol( PMATH_SYMBOL_AUTODELETE));
-          add(StyleTypeBool,            AutoNumberFormating,              Symbol( PMATH_SYMBOL_AUTONUMBERFORMATING));
-          add(StyleTypeBool,            AutoSpacing,                      Symbol( PMATH_SYMBOL_AUTOSPACING));
-          add(StyleTypeBool,            ContinuousAction,                 Symbol( PMATH_SYMBOL_CONTINUOUSACTION));
-          add(StyleTypeBool,            Editable,                         Symbol( PMATH_SYMBOL_EDITABLE));
-          add(StyleTypeBool,            Evaluatable,                      Symbol( PMATH_SYMBOL_EVALUATABLE));
-          add(StyleTypeBool,            LineBreakWithin,                  Symbol( PMATH_SYMBOL_LINEBREAKWITHIN));
-          add(StyleTypeBool,            Placeholder,                      Symbol( PMATH_SYMBOL_PLACEHOLDER));
-          add(StyleTypeBool,            ReturnCreatesNewSection,          Symbol( PMATH_SYMBOL_RETURNCREATESNEWSECTION));
-          add(StyleTypeBool,            SectionEditDuplicate,             Symbol( PMATH_SYMBOL_SECTIONEDITDUPLICATE));
-          add(StyleTypeBool,            SectionEditDuplicateMakesCopy,    Symbol( PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY));
-          add(StyleTypeBool,            SectionGenerated,                 Symbol( PMATH_SYMBOL_SECTIONGENERATED));
-          add(StyleTypeBool,            SectionLabelAutoDelete,           Symbol( PMATH_SYMBOL_SECTIONLABELAUTODELETE));
-          add(StyleTypeBool,            Selectable,                       Symbol( PMATH_SYMBOL_SELECTABLE));
-          add(StyleTypeBool,            ShowAutoStyles,                   Symbol( PMATH_SYMBOL_SHOWAUTOSTYLES));
-          add(StyleTypeBool,            ShowSectionBracket,               Symbol( PMATH_SYMBOL_SHOWSECTIONBRACKET));
-          add(StyleTypeBool,            ShowStringCharacters,             Symbol( PMATH_SYMBOL_SHOWSTRINGCHARACTERS));
-          add(StyleTypeBool,            StripOnInput,                     Symbol( PMATH_SYMBOL_STRIPONINPUT));
+          add(StyleTypeColor,           Background,                       Symbol( richmath_System_Background));
+          add(StyleTypeColor,           FontColor,                        Symbol( richmath_System_FontColor));
+          add(StyleTypeColor,           SectionFrameColor,                Symbol( richmath_System_SectionFrameColor));
+          add(StyleTypeBoolAuto,        Antialiasing,                     Symbol( richmath_System_Antialiasing));
+          add(StyleTypeBool,            AutoDelete,                       Symbol( richmath_System_AutoDelete));
+          add(StyleTypeBool,            AutoNumberFormating,              Symbol( richmath_System_AutoNumberFormating));
+          add(StyleTypeBool,            AutoSpacing,                      Symbol( richmath_System_AutoSpacing));
+          add(StyleTypeBool,            ContinuousAction,                 Symbol( richmath_System_ContinuousAction));
+          add(StyleTypeBool,            Editable,                         Symbol( richmath_System_Editable));
+          add(StyleTypeBool,            Evaluatable,                      Symbol( richmath_System_Evaluatable));
+          add(StyleTypeBool,            LineBreakWithin,                  Symbol( richmath_System_LineBreakWithin));
+          add(StyleTypeBool,            Placeholder,                      Symbol( richmath_System_Placeholder));
+          add(StyleTypeBool,            ReturnCreatesNewSection,          Symbol( richmath_System_ReturnCreatesNewSection));
+          add(StyleTypeBool,            SectionEditDuplicate,             Symbol( richmath_System_SectionEditDuplicate));
+          add(StyleTypeBool,            SectionEditDuplicateMakesCopy,    Symbol( richmath_System_SectionEditDuplicateMakesCopy));
+          add(StyleTypeBool,            SectionGenerated,                 Symbol( richmath_System_SectionGenerated));
+          add(StyleTypeBool,            SectionLabelAutoDelete,           Symbol( richmath_System_SectionLabelAutoDelete));
+          add(StyleTypeBool,            Selectable,                       Symbol( richmath_System_Selectable));
+          add(StyleTypeBool,            ShowAutoStyles,                   Symbol( richmath_System_ShowAutoStyles));
+          add(StyleTypeBool,            ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
+          add(StyleTypeBool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
+          add(StyleTypeBool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
           add(StyleTypeBool,            SurdForm,                         Symbol( richmath_System_SurdForm));
-          add(StyleTypeBool,            Visible,                          Symbol( PMATH_SYMBOL_VISIBLE));
+          add(StyleTypeBool,            Visible,                          Symbol( richmath_System_Visible));
           
-          add(StyleTypeNumber,          AspectRatio,                      Symbol( PMATH_SYMBOL_ASPECTRATIO));
-          add(StyleTypeNumber,          FontSize,                         Symbol( PMATH_SYMBOL_FONTSIZE));
-          add(StyleTypeNumber,          GridBoxColumnSpacing,             Symbol( PMATH_SYMBOL_GRIDBOXCOLUMNSPACING));
-          add(StyleTypeNumber,          GridBoxRowSpacing,                Symbol( PMATH_SYMBOL_GRIDBOXROWSPACING));
-          add(StyleTypeNumber,          Magnification,                    Symbol( PMATH_SYMBOL_MAGNIFICATION));
+          add(StyleTypeNumber,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
+          add(StyleTypeNumber,          FontSize,                         Symbol( richmath_System_FontSize));
+          add(StyleTypeNumber,          GridBoxColumnSpacing,             Symbol( richmath_System_GridBoxColumnSpacing));
+          add(StyleTypeNumber,          GridBoxRowSpacing,                Symbol( richmath_System_GridBoxRowSpacing));
+          add(StyleTypeNumber,          Magnification,                    Symbol( richmath_System_Magnification));
           
-          add(StyleTypeSize,            ImageSizeCommon,                  Symbol( PMATH_SYMBOL_IMAGESIZE));
+          add(StyleTypeSize,            ImageSizeCommon,                  Symbol( richmath_System_ImageSize));
           // ImageSizeHorizontal
           // ImageSizeVertical
-          add(StyleTypeMargin,          SectionMarginLeft,                Symbol( PMATH_SYMBOL_SECTIONMARGINS));
+          add(StyleTypeMargin,          SectionMarginLeft,                Symbol( richmath_System_SectionMargins));
           // SectionMarginRight
           // SectionMarginTop
           // SectionMarginBottom
-          add(StyleTypeMargin,          SectionFrameLeft,                 Symbol( PMATH_SYMBOL_SECTIONFRAME));
+          add(StyleTypeMargin,          SectionFrameLeft,                 Symbol( richmath_System_SectionFrame));
           // SectionFrameRight
           // SectionFrameTop
           // SectionFrameBottom
-          add(StyleTypeMargin,          SectionFrameMarginLeft,           Symbol( PMATH_SYMBOL_SECTIONFRAMEMARGINS));
+          add(StyleTypeMargin,          SectionFrameMarginLeft,           Symbol( richmath_System_SectionFrameMargins));
           // SectionFrameMarginRight
           // SectionFrameMarginTop
           // SectionFrameMarginBottom
-          add(StyleTypeNumber,          SectionGroupPrecedence,           Symbol( PMATH_SYMBOL_SECTIONGROUPPRECEDENCE));
+          add(StyleTypeNumber,          SectionGroupPrecedence,           Symbol( richmath_System_SectionGroupPrecedence));
           
           
-          add(StyleTypeString,          BaseStyleName,                    Symbol( PMATH_SYMBOL_BASESTYLE));
-          add(StyleTypeString,          Method,                           Symbol( PMATH_SYMBOL_METHOD));
-          add(StyleTypeString,          LanguageCategory,                 Symbol( PMATH_SYMBOL_LANGUAGECATEGORY));
-          add(StyleTypeString,          SectionLabel,                     Symbol( PMATH_SYMBOL_SECTIONLABEL));
-          add(StyleTypeString,          WindowTitle,                      Symbol( PMATH_SYMBOL_WINDOWTITLE));
+          add(StyleTypeString,          BaseStyleName,                    Symbol( richmath_System_BaseStyle));
+          add(StyleTypeString,          Method,                           Symbol( richmath_System_Method));
+          add(StyleTypeString,          LanguageCategory,                 Symbol( richmath_System_LanguageCategory));
+          add(StyleTypeString,          SectionLabel,                     Symbol( richmath_System_SectionLabel));
+          add(StyleTypeString,          WindowTitle,                      Symbol( richmath_System_WindowTitle));
           
-          add(StyleTypeAny,             Axes,                             Symbol( PMATH_SYMBOL_AXES));
-          add(StyleTypeAny,             Ticks,                            Symbol( PMATH_SYMBOL_TICKS));
-          add(StyleTypeAny,             Frame,                            Symbol( PMATH_SYMBOL_FRAME));
-          add(StyleTypeAny,             FrameTicks,                       Symbol( PMATH_SYMBOL_FRAMETICKS));
-          add(StyleTypeAny,             AxesOrigin,                       Symbol( PMATH_SYMBOL_AXESORIGIN));
-          add(StyleTypeAny,             ButtonFunction,                   Symbol( PMATH_SYMBOL_BUTTONFUNCTION));
-          add(StyleTypeAny,             ScriptSizeMultipliers,            Symbol( PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS));
-          add(StyleTypeAny,             TextShadow,                       Symbol( PMATH_SYMBOL_TEXTSHADOW));
-          add(StyleTypeAny,             FontFamilies,                     Symbol( PMATH_SYMBOL_FONTFAMILY));
-          add(StyleTypeAny,             FontFeatures,                     Symbol( PMATH_SYMBOL_FONTFEATURES));
+          add(StyleTypeAny,             Axes,                             Symbol( richmath_System_Axes));
+          add(StyleTypeAny,             Ticks,                            Symbol( richmath_System_Ticks));
+          add(StyleTypeAny,             Frame,                            Symbol( richmath_System_Frame));
+          add(StyleTypeAny,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
+          add(StyleTypeAny,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
+          add(StyleTypeAny,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
+          add(StyleTypeAny,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
+          add(StyleTypeAny,             TextShadow,                       Symbol( richmath_System_TextShadow));
+          add(StyleTypeAny,             FontFamilies,                     Symbol( richmath_System_FontFamily));
+          add(StyleTypeAny,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
           add(StyleTypeAny,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
-          add(StyleTypeAny,             BoxRotation,                      Symbol( PMATH_SYMBOL_BOXROTATION));
-          add(StyleTypeAny,             BoxTransformation,                Symbol( PMATH_SYMBOL_BOXTRANSFORMATION));
-          add(StyleTypeAny,             PlotRange,                        Symbol( PMATH_SYMBOL_PLOTRANGE));
-          add(StyleTypeAny,             BorderRadius,                     Symbol( PMATH_SYMBOL_BORDERRADIUS));
-          add(StyleTypeAny,             DefaultDuplicateSectionStyle,     Symbol( PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE));
-          add(StyleTypeAny,             DefaultNewSectionStyle,           Symbol( PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE));
-          add(StyleTypeAny,             DefaultReturnCreatedSectionStyle, Symbol( PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE));
-          add(StyleTypeAny,             DisplayFunction,                  Symbol( PMATH_SYMBOL_DISPLAYFUNCTION));
-          add(StyleTypeAny,             InterpretationFunction,           Symbol( PMATH_SYMBOL_INTERPRETATIONFUNCTION));
-          add(StyleTypeAny,             SyntaxForm,                       Symbol( PMATH_SYMBOL_SYNTAXFORM));
-          add(StyleTypeAny,             StyleDefinitions,                 Symbol( PMATH_SYMBOL_STYLEDEFINITIONS));
-          add(StyleTypeAny,             GeneratedSectionStyles,           Symbol( PMATH_SYMBOL_GENERATEDSECTIONSTYLES));
+          add(StyleTypeAny,             BoxRotation,                      Symbol( richmath_System_BoxRotation));
+          add(StyleTypeAny,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
+          add(StyleTypeAny,             PlotRange,                        Symbol( richmath_System_PlotRange));
+          add(StyleTypeAny,             BorderRadius,                     Symbol( richmath_System_BorderRadius));
+          add(StyleTypeAny,             DefaultDuplicateSectionStyle,     Symbol( richmath_System_DefaultDuplicateSectionStyle));
+          add(StyleTypeAny,             DefaultNewSectionStyle,           Symbol( richmath_System_DefaultNewSectionStyle));
+          add(StyleTypeAny,             DefaultReturnCreatedSectionStyle, Symbol( richmath_System_DefaultReturnCreatedSectionStyle));
+          add(StyleTypeAny,             DisplayFunction,                  Symbol( richmath_System_DisplayFunction));
+          add(StyleTypeAny,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
+          add(StyleTypeAny,             SyntaxForm,                       Symbol( richmath_System_SyntaxForm));
+          add(StyleTypeAny,             StyleDefinitions,                 Symbol( richmath_System_StyleDefinitions));
+          add(StyleTypeAny,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
           
-          add(StyleTypeAny, DockedSectionsTop,         Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("Top")));
-          add(StyleTypeAny, DockedSectionsTopGlass,    Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("TopGlass")));
-          add(StyleTypeAny, DockedSectionsBottom,      Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("Bottom")));
-          add(StyleTypeAny, DockedSectionsBottomGlass, Rule(Symbol(PMATH_SYMBOL_DOCKEDSECTIONS), String("BottomGlass")));
+          add(StyleTypeAny, DockedSectionsTop,         Rule(Symbol(richmath_System_DockedSections), String("Top")));
+          add(StyleTypeAny, DockedSectionsTopGlass,    Rule(Symbol(richmath_System_DockedSections), String("TopGlass")));
+          add(StyleTypeAny, DockedSectionsBottom,      Rule(Symbol(richmath_System_DockedSections), String("Bottom")));
+          add(StyleTypeAny, DockedSectionsBottomGlass, Rule(Symbol(richmath_System_DockedSections), String("BottomGlass")));
           
-          add(StyleTypeAny, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(PMATH_SYMBOL_TEMPLATEBOXOPTIONS), Symbol(PMATH_SYMBOL_DISPLAYFUNCTION)));
-          add(StyleTypeAny, TemplateBoxDefaultInterpretationFunction, Rule(Symbol(PMATH_SYMBOL_TEMPLATEBOXOPTIONS), Symbol(PMATH_SYMBOL_INTERPRETATIONFUNCTION)));
+          add(StyleTypeAny, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
+          add(StyleTypeAny, TemplateBoxDefaultInterpretationFunction, Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_InterpretationFunction)));
         }
       }
       
@@ -485,7 +554,7 @@ namespace {
 //          _key_to_type.set(Top,    StyleTypeNumber);
 //          _key_to_type.set(Bottom, StyleTypeNumber);
 //        }
-        
+
         _key_to_name.set(key, name);
         _name_to_key.set(name, key);
         
@@ -623,7 +692,7 @@ namespace richmath {
       
     public:
       static Expr merge_style_values(StyleOptionName key, Expr newer, Expr older);
-
+      
       void emit_definition(StyleOptionName key) const;
       Expr raw_get_pmath(StyleOptionName key, Expr inherited) const;
       
@@ -777,9 +846,9 @@ void StyleImpl::remove_all_volatile() {
       volatile_object_options.add(e.key);
   }
   
-  for(const auto &key: volatile_int_float_options)
+  for(const auto &key : volatile_int_float_options)
     self.int_float_values.remove(key);
-  for(const auto &key: volatile_object_options)
+  for(const auto &key : volatile_object_options)
     self.object_values.remove(key);
 }
 
@@ -794,7 +863,7 @@ void StyleImpl::collect_unused_dynamic(Hashtable<StyleOptionName, Expr> &dynamic
 void StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
   if(StyleInformation::is_window_option(n))
     raw_set_int(InternalHasModifiedWindowOption, true);
-  
+    
   if(StyleInformation::requires_child_resize(n))
     raw_set_int(InternalRequiresChildResize, true);
     
@@ -869,7 +938,7 @@ void StyleImpl::set_pmath_bool_auto(StyleOptionName n, Expr obj) {
     raw_set_int(n, 2);
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_int(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
 }
 
@@ -885,7 +954,7 @@ void StyleImpl::set_pmath_bool(StyleOptionName n, Expr obj) {
     raw_set_int(n, true);
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_int(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
 }
 
@@ -901,7 +970,7 @@ void StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
     raw_set_int(n, c);
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_int(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
 }
 
@@ -915,7 +984,7 @@ void StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
     raw_set_float(n, obj.to_double());
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_float(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
   else if(obj[0] == PMATH_SYMBOL_NCACHE) {
     raw_set_float(n, obj[2].to_double());
@@ -1000,7 +1069,7 @@ void StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     raw_remove_float(Top);
     raw_remove_float(Bottom);
   }
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
 }
 
@@ -1052,7 +1121,7 @@ void StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
       remove_dynamic(Vertical);
     }
   }
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC) {
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic) {
     raw_remove_float(n);
     raw_remove_float(Horizontal);
     raw_remove_float(Vertical);
@@ -1078,9 +1147,9 @@ void StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
     raw_set_string(n, String(obj));
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_string(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
-  
+    
   if(n == BaseStyleName)
     raw_set_int(InternalHasPendingDynamic, true);
 }
@@ -1093,7 +1162,7 @@ void StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
     
   if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_expr(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
   else
     raw_set_expr(n, obj);
@@ -1107,7 +1176,7 @@ void StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
     
   if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_int(n);
-  else if(n.is_literal() && obj[0] == PMATH_SYMBOL_DYNAMIC)
+  else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
   else {
     SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
@@ -1150,20 +1219,20 @@ Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) 
     
   if(older == PMATH_SYMBOL_INHERITED)
     return std::move(newer);
-  
+    
   enum StyleType type = StyleInformation::get_type(key);
   
   switch(type) {
     case StyleTypeMargin:
       return merge_margin_values(std::move(newer), std::move(older));
-    
+      
     case StyleTypeSize:
       return merge_list_members(std::move(newer), std::move(older));
       break;
-    
+      
     case StyleTypeRuleSet:
       return merge_ruleset_members(key, std::move(newer), std::move(older));
-    
+      
     default:
       break;
   }
@@ -1176,7 +1245,7 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
     
   if(older == PMATH_SYMBOL_INHERITED)
     return std::move(newer);
-  
+    
   SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(key);
   assert(key_converter.is_valid());
   
@@ -1200,7 +1269,7 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
         if(rhs == PMATH_SYMBOL_INHERITED)
           new_rhs = inherited_ruleset_member(older, lhs);
       }
-        
+      
       if(new_rhs != rhs) {
         rule[2] = std::move(new_rhs);
         newer.set(i, std::move(rule));
@@ -1217,7 +1286,7 @@ Expr StyleImpl::merge_list_members(Expr newer, Expr older) {
     
   if(older == PMATH_SYMBOL_INHERITED)
     return std::move(newer);
-  
+    
   if(newer[0] == PMATH_SYMBOL_LIST && older[0] == PMATH_SYMBOL_LIST && newer.expr_length() == older.expr_length()) {
     for(size_t i = newer.expr_length(); i > 0; --i) {
       Expr item = newer[i];
@@ -1236,9 +1305,9 @@ Expr StyleImpl::merge_list_members(Expr newer, Expr older) {
 
 Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
   if(newer[0] == PMATH_SYMBOL_LIST) {
-    if(newer.expr_length() == 2) 
+    if(newer.expr_length() == 2)
       return merge_list_members(newer, List(inherited_margin_leftright(older), inherited_margin_topbottom(older)));
-    
+      
     return merge_list_members(std::move(newer), std::move(older));
   }
   return newer;
@@ -1264,7 +1333,7 @@ Expr StyleImpl::inherited_ruleset_member(Expr inherited, Expr key) {
     size_t len = inherited.expr_length();
     for(size_t i = 1; i <= len; ++i) {
       Expr item = inherited[i];
-      if(item.is_rule() && item[1] == key) 
+      if(item.is_rule() && item[1] == key)
         return item[2];
     }
   }
@@ -1332,7 +1401,7 @@ Expr StyleImpl::inherited_margin_bottom(Expr inherited) {
 
 void StyleImpl::emit_definition(StyleOptionName n) const {
   STYLE_ASSERT(n.is_literal());
-
+  
   Expr e;
   if(raw_get_expr(n.to_dynamic(), &e)) {
     Gather::emit(Rule(StyleInformation::get_name(n), e));
@@ -1357,13 +1426,13 @@ void StyleImpl::emit_definition(StyleOptionName n) const {
         bool have_vert = raw_get_expr(Vertical.to_dynamic(), &vert);
         if(!have_vert)
           vert = Symbol(PMATH_SYMBOL_INHERITED);
-        
+          
         if(have_horz || have_vert)
           e = List(horz, vert);
       }
       break;
-    
-    //case StyleTypeMargin: ....
+      
+      //case StyleTypeMargin: ....
   }
   
   e = raw_get_pmath(n, std::move(e));
@@ -1613,7 +1682,7 @@ Expr StyleImpl::raw_get_pmath_ruleset(StyleOptionName n, Expr inherited) const {
     
     if(value != PMATH_SYMBOL_INHERITED) {
       Gather::emit(Rule(entry.key, value));
-    
+      
       if(value != inherited_value)
         all_inherited = false;
     }
@@ -2094,7 +2163,7 @@ namespace richmath {
             continue;
           }
           
-          if(expr[0] == PMATH_SYMBOL_SECTIONGROUP) {
+          if(expr[0] == richmath_System_SectionGroup) {
             expr = expr[1];
             continue;
           }
@@ -2108,7 +2177,7 @@ namespace richmath {
             continue;
           }
           
-          if(expr[0] == PMATH_SYMBOL_SECTION) {
+          if(expr[0] == richmath_System_Section) {
             add_section(expr);
             return;
           }
@@ -2119,7 +2188,7 @@ namespace richmath {
       
       void add_section(Expr expr) {
         Expr name = expr[1];
-        if(name[0] == PMATH_SYMBOL_STYLEDATA) {
+        if(name[0] == richmath_System_StyleData) {
           Expr data = name[1];
           if(data.is_string()) {
             Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
@@ -2138,7 +2207,7 @@ namespace richmath {
             return;
           }
           
-          if(expr.expr_length() == 1 && data.is_rule() && data[1] == PMATH_SYMBOL_STYLEDEFINITIONS) {
+          if(expr.expr_length() == 1 && data.is_rule() && data[1] == richmath_System_StyleDefinitions) {
             SharedPtr<Stylesheet> stylesheet = Stylesheet::try_load(data[2]);
             if(stylesheet) {
               for(auto &other : stylesheet->styles.entries()) {
@@ -2167,13 +2236,13 @@ namespace richmath {
 bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
   if(!s || !parent)
     return false;
-  
+    
   StyleImpl s_impl = StyleImpl::of(*s.ptr());
   
   int i;
   if(!s_impl.raw_get_int(InternalHasPendingDynamic, &i) || !i)
     return false;
-  
+    
   s_impl.raw_set_int(InternalHasPendingDynamic, false);
   
   s_impl.remove_all_volatile();
@@ -2183,28 +2252,28 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
   SharedPtr<Style> tmp = s;
   for(int count = 20; count && tmp; --count) {
     StyleImpl::of(*tmp.ptr()).collect_unused_dynamic(dynamic_styles);
-      
+    
     tmp = self.find_parent_style(tmp);
   }
   
   if(dynamic_styles.size() == 0)
     return false;
-  
+    
   bool resize = false;
-  for(const auto &e: dynamic_styles.entries()) {
+  for(const auto &e : dynamic_styles.entries()) {
     if(Style::modifies_size(e.key.to_literal())) {
       resize = true;
       break;
     }
   }
   
-  for(auto &e: dynamic_styles.entries()) {
+  for(auto &e : dynamic_styles.entries()) {
     Dynamic dyn(parent, e.value);
     e.value = dyn.get_value_now();
   }
   
   for(const auto &e : dynamic_styles.entries()) {
-    if(e.value != PMATH_SYMBOL_ABORTED && e.value[0] != PMATH_SYMBOL_DYNAMIC) {
+    if(e.value != PMATH_SYMBOL_ABORTED && e.value[0] != richmath_System_Dynamic) {
       StyleOptionName key = e.key.to_volatile(); // = e.key.to_literal().to_volatile()
       s_impl.set_pmath(key, e.value);
     }

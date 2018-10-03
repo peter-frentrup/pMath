@@ -5,6 +5,8 @@
 using namespace richmath;
 using namespace pmath;
 
+extern pmath_symbol_t richmath_System_FrontEndObject;
+
 //{ class FrontEndObject ...
 
 static Hashtable<int, FrontEndObject*, cast_hash> front_end_object_cache;
@@ -29,7 +31,7 @@ FrontEndObject *FrontEndObject::find(int id) {
 
 FrontEndObject *FrontEndObject::find(Expr frontendobject) {
   if( frontendobject.expr_length() == 1 && 
-      frontendobject[0] == PMATH_SYMBOL_FRONTENDOBJECT) 
+      frontendobject[0] == richmath_System_FrontEndObject) 
   {
     Expr num = frontendobject[1];
     

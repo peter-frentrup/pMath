@@ -46,6 +46,40 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_ButtonBox;
+extern pmath_symbol_t richmath_System_CheckboxBox;
+extern pmath_symbol_t richmath_System_ComplexStringBox;
+extern pmath_symbol_t richmath_System_DynamicBox;
+extern pmath_symbol_t richmath_System_DynamicLocalBox;
+extern pmath_symbol_t richmath_System_FillBox;
+extern pmath_symbol_t richmath_System_FractionBox;
+extern pmath_symbol_t richmath_System_FrameBox;
+extern pmath_symbol_t richmath_System_FrontEndObject;
+extern pmath_symbol_t richmath_System_GraphicsBox;
+extern pmath_symbol_t richmath_System_GridBox;
+extern pmath_symbol_t richmath_System_InputFieldBox;
+extern pmath_symbol_t richmath_System_InterpretationBox;
+extern pmath_symbol_t richmath_System_OverscriptBox;
+extern pmath_symbol_t richmath_System_ProgressIndicatorBox;
+extern pmath_symbol_t richmath_System_RadicalBox;
+extern pmath_symbol_t richmath_System_RadioButtonBox;
+extern pmath_symbol_t richmath_System_RotationBox;
+extern pmath_symbol_t richmath_System_SetterBox;
+extern pmath_symbol_t richmath_System_SliderBox;
+extern pmath_symbol_t richmath_System_SqrtBox;
+extern pmath_symbol_t richmath_System_StyleBox;
+extern pmath_symbol_t richmath_System_SubscriptBox;
+extern pmath_symbol_t richmath_System_SubsuperscriptBox;
+extern pmath_symbol_t richmath_System_SuperscriptBox;
+extern pmath_symbol_t richmath_System_TagBox;
+extern pmath_symbol_t richmath_System_TemplateBox;
+extern pmath_symbol_t richmath_System_TemplateSlot;
+extern pmath_symbol_t richmath_System_TooltipBox;
+extern pmath_symbol_t richmath_System_TransformationBox;
+extern pmath_symbol_t richmath_System_UnderscriptBox;
+extern pmath_symbol_t richmath_System_UnderoverscriptBox;
+
 static const float RefErrorIndictorHeight = 1 / 3.0f;
 
 static const float UnderoverscriptOverhangCoverage = 0.75f;
@@ -253,7 +287,7 @@ namespace richmath {
           
         Expr debug_info = Call(
                             Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
-                            Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), data->sequence->id()),
+                            Call(Symbol(richmath_System_FrontEndObject), data->sequence->id()),
                             Call(Symbol(PMATH_SYMBOL_RANGE), start->index, end->index));
                             
         token_or_span = pmath_try_set_debug_info(
@@ -3615,7 +3649,7 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
     
   Expr head = expr[0];
   
-  if(head == PMATH_SYMBOL_LIST || head == PMATH_SYMBOL_COMPLEXSTRINGBOX) {
+  if(head == PMATH_SYMBOL_LIST || head == richmath_System_ComplexStringBox) {
     if(expr.expr_length() == 1) {
       expr = expr[1];
       return create_box(expr, options);
@@ -3626,97 +3660,97 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
     return box;
   }
   
-  if(head == PMATH_SYMBOL_BUTTONBOX)
+  if(head == richmath_System_ButtonBox)
     return create_or_error<  ButtonBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_CHECKBOXBOX)
+  if(head == richmath_System_CheckboxBox)
     return create_or_error<  CheckboxBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_DYNAMICBOX)
+  if(head == richmath_System_DynamicBox)
     return create_or_error<  DynamicBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_DYNAMICLOCALBOX)
+  if(head == richmath_System_DynamicLocalBox)
     return create_or_error<  DynamicLocalBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_FILLBOX)
+  if(head == richmath_System_FillBox)
     return create_or_error<  FillBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_FRACTIONBOX)
+  if(head == richmath_System_FractionBox)
     return create_or_error<  FractionBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_FRAMEBOX)
+  if(head == richmath_System_FrameBox)
     return create_or_error<  FrameBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_GRAPHICSBOX)
+  if(head == richmath_System_GraphicsBox)
     return create_or_error<  GraphicsBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_GRIDBOX)
+  if(head == richmath_System_GridBox)
     return create_or_error<  GridBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_INPUTFIELDBOX)
+  if(head == richmath_System_InputFieldBox)
     return create_or_error<  InputFieldBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_INTERPRETATIONBOX)
+  if(head == richmath_System_InterpretationBox)
     return create_or_error<  InterpretationBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_PROGRESSINDICATORBOX)
+  if(head == richmath_System_ProgressIndicatorBox)
     return create_or_error<  ProgressIndicatorBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_RADICALBOX)
+  if(head == richmath_System_RadicalBox)
     return create_or_error<  RadicalBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_RADIOBUTTONBOX)
+  if(head == richmath_System_RadioButtonBox)
     return create_or_error<  RadioButtonBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_ROTATIONBOX)
+  if(head == richmath_System_RotationBox)
     return create_or_error<  RotationBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SETTERBOX)
+  if(head == richmath_System_SetterBox)
     return create_or_error<  SetterBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SLIDERBOX)
+  if(head == richmath_System_SliderBox)
     return create_or_error<  SliderBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SUBSCRIPTBOX)
+  if(head == richmath_System_SubscriptBox)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SUPERSCRIPTBOX)
+  if(head == richmath_System_SubsuperscriptBox)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
+  if(head == richmath_System_SuperscriptBox)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SQRTBOX)
+  if(head == richmath_System_SqrtBox)
     return create_or_error<  RadicalBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_STYLEBOX)
+  if(head == richmath_System_StyleBox)
     return create_or_error<  StyleBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_TAGBOX)
+  if(head == richmath_System_TagBox)
     return create_or_error<  TagBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_TEMPLATEBOX)
+  if(head == richmath_System_TemplateBox)
     return create_or_error<  TemplateBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_TOOLTIPBOX)
+  if(head == richmath_System_TooltipBox)
     return create_or_error<  TooltipBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_TRANSFORMATIONBOX)
+  if(head == richmath_System_TransformationBox)
     return create_or_error<  TransformationBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_UNDERSCRIPTBOX)
+  if(head == richmath_System_OverscriptBox)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_OVERSCRIPTBOX)
+  if(head == richmath_System_UnderoverscriptBox)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
+  if(head == richmath_System_UnderscriptBox)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
   if(head == richmath_FE_NumberBox)
     return create_or_error<NumberBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_TEMPLATESLOT)
+  if(head == richmath_System_TemplateSlot)
     return create_or_error<TemplateBoxSlot>(expr, options);
     
   return new ErrorBox(expr);
@@ -3940,7 +3974,7 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   
   Expr obj = object;
   
-  if(obj[0] == PMATH_SYMBOL_BOXDATA && obj.expr_length() == 1)
+  if(obj[0] == richmath_System_BoxData && obj.expr_length() == 1)
     obj = obj[1];
     
   if(has(options, BoxInputFlags::FormatNumbers))

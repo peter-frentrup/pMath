@@ -7,19 +7,21 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_SectionGroup;
+
 //{ class SectionList ...
 
 Expr SectionList::group(Expr sections) {
   if(!sections.is_valid()) {
     return Call(
-             Symbol(PMATH_SYMBOL_SECTIONGROUP),
+             Symbol(richmath_System_SectionGroup),
              List(),
              Symbol(PMATH_SYMBOL_ALL));
   }
   
   if(sections[0] == PMATH_SYMBOL_LIST) {
     return Call(
-             Symbol(PMATH_SYMBOL_SECTIONGROUP),
+             Symbol(richmath_System_SectionGroup),
              sections,
              Symbol(PMATH_SYMBOL_ALL));
   }
@@ -199,7 +201,7 @@ Expr SectionList::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(e.expr_length() == 1)
     return e[1];
     
-  return Call(Symbol(PMATH_SYMBOL_SECTIONGROUP), e, Symbol(PMATH_SYMBOL_ALL));
+  return Call(Symbol(richmath_System_SectionGroup), e, Symbol(PMATH_SYMBOL_ALL));
 }
 
 void SectionList::emit_pmath(BoxOutputFlags flags, int start, int end) {
@@ -230,7 +232,7 @@ void SectionList::emit_pmath(BoxOutputFlags flags, int start, int end) {
         open = Symbol(PMATH_SYMBOL_ALL);
         
       group = Call(
-                Symbol(PMATH_SYMBOL_SECTIONGROUP),
+                Symbol(richmath_System_SectionGroup),
                 group,
                 open);
       Gather::emit(group);
@@ -544,7 +546,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
   if(overwrite_until_index > _sections.length())
     overwrite_until_index  = _sections.length();
     
-  if( boxes[0]    == PMATH_SYMBOL_SECTIONGROUP &&
+  if( boxes[0]    == richmath_System_SectionGroup &&
       boxes[1][0] == PMATH_SYMBOL_LIST)
   {
     Expr sect = boxes[1];

@@ -63,6 +63,12 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_FrontEndObject;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionGroup;
+extern pmath_symbol_t richmath_System_WindowTitle;
+
 namespace {
   class ClientNotificationData {
     public:
@@ -555,9 +561,9 @@ void Application::gui_print_section(Expr expr) {
     }
   }
   else {
-    if(expr[0] == PMATH_SYMBOL_SECTION) {
+    if(expr[0] == richmath_System_Section) {
       Expr boxes = expr[1];
-      if(boxes[0] == PMATH_SYMBOL_BOXDATA)
+      if(boxes[0] == richmath_System_BoxData)
         boxes = boxes[1];
         
       expr = Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes);
@@ -569,7 +575,8 @@ void Application::gui_print_section(Expr expr) {
   }
 }
 
-extern pmath_symbol_t richmath_FE_ControlActive;
+extern pmath_symbol_t richmath_FE_DollarControlActive;
+
 static void update_control_active(bool value) {
   static bool original_value = false;
   
@@ -581,7 +588,7 @@ static void update_control_active(bool value) {
     Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
       Call(Symbol(PMATH_SYMBOL_ASSIGN),
-           Symbol(richmath_FE_ControlActive),
+           Symbol(richmath_FE_DollarControlActive),
            Symbol(PMATH_SYMBOL_TRUE)));
   }
   else {
@@ -589,7 +596,7 @@ static void update_control_active(bool value) {
       /*Parse("FE`$ControlActive:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActive)")*/
       Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
            Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                Symbol(richmath_FE_ControlActive),
+                Symbol(richmath_FE_DollarControlActive),
                 Symbol(PMATH_SYMBOL_FALSE)),
            Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
                 Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),
@@ -990,11 +997,11 @@ Document *Application::create_document(Expr data) {
     for(size_t i = 1; i <= sections.expr_length(); ++i) {
       Expr item = sections[i];
       
-      if( item[0] != PMATH_SYMBOL_SECTION      &&
-          item[0] != PMATH_SYMBOL_SECTIONGROUP)
+      if( item[0] != richmath_System_Section      &&
+          item[0] != richmath_System_SectionGroup)
       {
-        item = Call(Symbol(PMATH_SYMBOL_SECTION),
-                    Call(Symbol(PMATH_SYMBOL_BOXDATA),
+        item = Call(Symbol(richmath_System_Section),
+                    Call(Symbol(richmath_System_BoxData),
                          Application::interrupt_wait(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
                     String("Input"));
       }
@@ -1040,7 +1047,7 @@ Expr Application::run_filedialog(Expr data) {
     if(options.is_valid()) {
       Expr title_value(pmath_option_value(
                          head.get(),
-                         PMATH_SYMBOL_WINDOWTITLE,
+                         richmath_System_WindowTitle,
                          options.get()));
                          
       if(title_value.is_string())
@@ -1420,7 +1427,7 @@ static Expr cnt_getdocuments() {
   Gather gather;
   
   for(auto &e : all_document_ids.entries())
-    Gather::emit(Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), e.key));
+    Gather::emit(Call(Symbol(richmath_System_FrontEndObject), e.key));
     
   return gather.end();
 }
@@ -1542,7 +1549,7 @@ static Expr cnt_createdocument(Expr data) {
   if(doc) {
     doc->invalidate_options();
     
-    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+    return Call(Symbol(richmath_System_FrontEndObject), doc->id());
   }
   
   return Symbol(PMATH_SYMBOL_FAILED);
@@ -1600,7 +1607,7 @@ static Expr cnt_getevaluationdocument(Expr data) {
     doc = doc->main_document;
     
   if(doc)
-    return Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), doc->id());
+    return Call(Symbol(richmath_System_FrontEndObject), doc->id());
     
   return Symbol(PMATH_SYMBOL_FAILED);
 }

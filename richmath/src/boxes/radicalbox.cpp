@@ -6,6 +6,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_RadicalBox;
+extern pmath_symbol_t richmath_System_SqrtBox;
+
 //{ class RadicalBox ...
 RadicalBox::RadicalBox(MathSequence *radicand, MathSequence *exponent)
   : Box(),
@@ -28,11 +31,11 @@ bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   size_t last_non_opt;
   bool has_exponent;
   
-  if(expr[0] == PMATH_SYMBOL_RADICALBOX) {
+  if(expr[0] == richmath_System_RadicalBox) {
     last_non_opt = 2;
     has_exponent = true;
   }
-  else if(expr[0] == PMATH_SYMBOL_SQRTBOX) {
+  else if(expr[0] == richmath_System_SqrtBox) {
     last_non_opt = 1;
     has_exponent = false;
   }
@@ -202,9 +205,9 @@ void RadicalBox::complete() {
 
 Expr RadicalBox::to_pmath_symbol(){
   if(_exponent)
-    return Symbol(PMATH_SYMBOL_RADICALBOX);
+    return Symbol(richmath_System_RadicalBox);
   
-  return Symbol(PMATH_SYMBOL_SQRTBOX);
+  return Symbol(richmath_System_SqrtBox);
 }
 
 Expr RadicalBox::to_pmath(BoxOutputFlags flags) {
@@ -219,9 +222,9 @@ Expr RadicalBox::to_pmath(BoxOutputFlags flags) {
   
   Expr result = g.end();
   if(_exponent)
-    result.set(0, Symbol(PMATH_SYMBOL_RADICALBOX));
+    result.set(0, Symbol(richmath_System_RadicalBox));
   else
-    result.set(0, Symbol(PMATH_SYMBOL_SQRTBOX));
+    result.set(0, Symbol(richmath_System_SqrtBox));
   
   return result;
 }

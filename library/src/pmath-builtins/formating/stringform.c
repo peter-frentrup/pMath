@@ -15,6 +15,8 @@
 #include <limits.h>
 #include <string.h>
 
+extern pmath_symbol_t pmath_System_ComplexStringBox;
+extern pmath_symbol_t pmath_System_InterpretationBox;
 
 static pmath_bool_t has_param_placeholders(
   pmath_t box // wont be freed
@@ -338,7 +340,7 @@ pmath_t _pmath_stringform_to_boxes(
       pmath_unref(tmp);
     }
     
-    result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
+    result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_ComplexStringBox));
   }
   else if(pmath_is_string(result)) {
     result = _pmath_escape_string(
@@ -348,12 +350,12 @@ pmath_t _pmath_stringform_to_boxes(
       thread->boxform >= BOXFORM_INPUT);
       
     result = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX), 1,
+             pmath_ref(pmath_System_ComplexStringBox), 1,
              result);
   }
   
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_INTERPRETATIONBOX), 2,
+           pmath_ref(pmath_System_InterpretationBox), 2,
            result,
            pmath_ref(stringform));
 }

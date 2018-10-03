@@ -19,6 +19,12 @@
 
 static void os_init(void);
 
+static pmath_symbol_t pmath_System_Button         = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_System_ButtonBox      = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_System_ButtonFunction = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_System_Tooltip        = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_System_TooltipBox     = PMATH_STATIC_NULL;
+
 #ifdef PMATH_OS_WIN32
 #  include <io.h>
 #  include <fcntl.h>
@@ -759,7 +765,7 @@ static void pre_write_button(struct styled_writer_info_t *info, pmath_t obj, pma
     info->current_hyperlink_obj = pmath_ref(obj);
     info->skipping_hyperlink_data = TRUE;
     
-    if(pmath_is_expr_of(label, PMATH_SYMBOL_TOOLTIP) && pmath_expr_length(label) >= 2) {
+    if(pmath_is_expr_of(label, pmath_System_Tooltip) && pmath_expr_length(label) >= 2) {
       pmath_t tooltip_obj = pmath_expr_get_item(label, 2);
       
       pmath_write(tooltip_obj, 0, concat_to_string, &tooltip_str);
@@ -795,7 +801,7 @@ static pmath_t find_button_function(pmath_expr_t expr, size_t first_option) {
     if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RULE, 2) || pmath_is_expr_of_len(item, PMATH_SYMBOL_RULEDELAYED, 2)) {
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
-      if(pmath_same(lhs, PMATH_SYMBOL_BUTTONFUNCTION)) {
+      if(pmath_same(lhs, pmath_System_ButtonFunction)) {
         pmath_t rhs = pmath_expr_get_item(item, 2);
         pmath_unref(item);
         return rhs;
@@ -845,7 +851,7 @@ static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj,
     info->current_hyperlink_obj = pmath_ref(obj);
     info->skipping_hyperlink_data = TRUE;
     
-    if(pmath_is_expr_of(label_box, PMATH_SYMBOL_TOOLTIPBOX) && pmath_expr_length(label_box) >= 2) {
+    if(pmath_is_expr_of(label_box, pmath_System_TooltipBox) && pmath_expr_length(label_box) >= 2) {
       pmath_t tooltip_obj = pmath_expr_get_item(label_box, 2);
       tooltip_obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, tooltip_obj);
       
@@ -883,9 +889,9 @@ static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t opti
     
   if(0 == (options & (PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_INPUTEXPR))) {
     if(pmath_same(info->current_hyperlink_obj, PMATH_UNDEFINED)) {
-      if(pmath_is_expr_of(obj, PMATH_SYMBOL_BUTTON) && pmath_expr_length(obj) >= 2) 
+      if(pmath_is_expr_of(obj, pmath_System_Button) && pmath_expr_length(obj) >= 2) 
         pre_write_button(info, obj, options);
-      if(pmath_is_expr_of(obj, PMATH_SYMBOL_BUTTONBOX) && pmath_expr_length(obj) >= 2) 
+      if(pmath_is_expr_of(obj, pmath_System_ButtonBox) && pmath_expr_length(obj) >= 2) 
         pre_write_button_box(info, obj, options);
     }
   }
@@ -1582,6 +1588,32 @@ static void init_console_width(void) {
   pmath_unref(pw);
 }
 
+static pmath_bool_t init_pmath_bindings() {
+  pmath_System_Button         = pmath_symbol_get(PMATH_C_STRING("System`Button"),         FALSE);
+  pmath_System_ButtonBox      = pmath_symbol_get(PMATH_C_STRING("System`ButtonBox"),      FALSE);
+  pmath_System_ButtonFunction = pmath_symbol_get(PMATH_C_STRING("System`ButtonFunction"), FALSE);
+  pmath_System_Tooltip        = pmath_symbol_get(PMATH_C_STRING("System`Tooltip"),        FALSE);
+  pmath_System_TooltipBox     = pmath_symbol_get(PMATH_C_STRING("System`TooltipBox"),     FALSE);
+  
+  return !pmath_is_null(pmath_System_Button) &&
+         !pmath_is_null(pmath_System_ButtonBox) &&
+         !pmath_is_null(pmath_System_ButtonFunction) &&
+         !pmath_is_null(pmath_System_Tooltip) &&
+         !pmath_is_null(pmath_System_TooltipBox) &&
+         pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) &&
+         pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) &&
+         pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) &&
+         pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0);
+}
+
+static void done_pmath_bindings() {
+  pmath_unref(pmath_System_Button);         pmath_System_Button         = PMATH_NULL;
+  pmath_unref(pmath_System_ButtonBox);      pmath_System_ButtonBox      = PMATH_NULL;
+  pmath_unref(pmath_System_ButtonFunction); pmath_System_ButtonFunction = PMATH_NULL;
+  pmath_unref(pmath_System_Tooltip);        pmath_System_Tooltip        = PMATH_NULL;
+  pmath_unref(pmath_System_TooltipBox);     pmath_System_TooltipBox     = PMATH_NULL;
+}
+
 int main(int argc, const char **argv) {
   main_mq = PMATH_NULL;
   
@@ -1596,15 +1628,16 @@ int main(int argc, const char **argv) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_term);
   
-  if( !pmath_init() ||
-      !pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) ||
-      !pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) ||
-      !pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) ||
-      !pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0))
-  {
+  if(!pmath_init()) {
     fprintf(stderr, "Cannot initialize pMath.\n");
     quit_result = 1;
     goto FAIL_PMATH_INIT;
+  }
+  
+  if(!init_pmath_bindings()) {
+    fprintf(stderr, "Cannot complete pMath initialization.\n");
+    quit_result = 1;
+    goto FAIL_INIT_PMATH_BINDINGS;
   }
   
   init_console_width();
@@ -1645,6 +1678,14 @@ int main(int argc, const char **argv) {
     pmath_unref(mq);
   }
   
+  signal(SIGINT, signal_dummy);
+  
+  hyper_console_done_hyperlink_system();
+  hyper_console_history_free(history);
+  
+  done_pmath_bindings();
+  
+FAIL_INIT_PMATH_BINDINGS:
   pmath_done();
   
   {
@@ -1656,10 +1697,6 @@ int main(int argc, const char **argv) {
     }
   }
   
-  signal(SIGINT, signal_dummy);
-  
-  hyper_console_done_hyperlink_system();
-  hyper_console_history_free(history);
 FAIL_PMATH_INIT:
   sem_destroy(&interrupt_semaphore);
 FAIL_SEM_INIT:

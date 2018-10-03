@@ -19,7 +19,7 @@ namespace richmath {
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_SETTERBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void on_mouse_down(MouseEvent &event) override;

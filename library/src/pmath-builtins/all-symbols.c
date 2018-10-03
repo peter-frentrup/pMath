@@ -695,10 +695,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
   
-  VERIFY(   PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING = NEW_SYMBOL("System`BoxForm`$UseTextFormatting"))
-  
   VERIFY(   PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE     = NEW_SYMBOL("Developer`DebugInfoSource"))
-  VERIFY(   PMATH_SYMBOL_DEVELOPER_FILEINFORMATION     = NEW_SYMBOL("Developer`FileInformation"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY     = NEW_SYMBOL("Developer`FromPackedArray"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO        = NEW_SYMBOL("Developer`GetDebugInfo"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE      = NEW_SYMBOL("Developer`HasBuiltinCode"))
@@ -714,38 +711,23 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_ALL                              = NEW_SYSTEM_SYMBOL("All"))
   VERIFY(   PMATH_SYMBOL_ALTERNATIVES                     = NEW_SYSTEM_SYMBOL("Alternatives"))
   VERIFY(   PMATH_SYMBOL_AND                              = NEW_SYSTEM_SYMBOL("And"))
-  VERIFY(   PMATH_SYMBOL_ANTIALIASING                     = NEW_SYSTEM_SYMBOL("Antialiasing"))
   VERIFY(   PMATH_SYMBOL_APPEND                           = NEW_SYSTEM_SYMBOL("Append"))
   VERIFY(   PMATH_SYMBOL_APPLICATIONFILENAME              = NEW_SYSTEM_SYMBOL("$ApplicationFileName"))
   VERIFY(   PMATH_SYMBOL_APPLY                            = NEW_SYSTEM_SYMBOL("Apply"))
   VERIFY(   PMATH_SYMBOL_ARCCOS                           = NEW_SYSTEM_SYMBOL("ArcCos"))
-  VERIFY(   PMATH_SYMBOL_ARCCOSH                          = NEW_SYSTEM_SYMBOL("ArcCosh"))
   VERIFY(   PMATH_SYMBOL_ARCCOT                           = NEW_SYSTEM_SYMBOL("ArcCot"))
-  VERIFY(   PMATH_SYMBOL_ARCCOTH                          = NEW_SYSTEM_SYMBOL("ArcCoth"))
   VERIFY(   PMATH_SYMBOL_ARCCSC                           = NEW_SYSTEM_SYMBOL("ArcCsc"))
-  VERIFY(   PMATH_SYMBOL_ARCCSCH                          = NEW_SYSTEM_SYMBOL("ArcCsch"))
   VERIFY(   PMATH_SYMBOL_ARCSEC                           = NEW_SYSTEM_SYMBOL("ArcSec"))
-  VERIFY(   PMATH_SYMBOL_ARCSECH                          = NEW_SYSTEM_SYMBOL("ArcSech"))
   VERIFY(   PMATH_SYMBOL_ARCSIN                           = NEW_SYSTEM_SYMBOL("ArcSin"))
-  VERIFY(   PMATH_SYMBOL_ARCSINH                          = NEW_SYSTEM_SYMBOL("ArcSinh"))
   VERIFY(   PMATH_SYMBOL_ARCTAN                           = NEW_SYSTEM_SYMBOL("ArcTan"))
-  VERIFY(   PMATH_SYMBOL_ARCTANH                          = NEW_SYSTEM_SYMBOL("ArcTanh"))
   VERIFY(   PMATH_SYMBOL_ARG                              = NEW_SYSTEM_SYMBOL("Arg"))
   VERIFY(   PMATH_SYMBOL_ARRAY                            = NEW_SYSTEM_SYMBOL("Array"))
-  VERIFY(   PMATH_SYMBOL_ASPECTRATIO                      = NEW_SYSTEM_SYMBOL("AspectRatio"))
   VERIFY(   PMATH_SYMBOL_ASSIGN                           = NEW_SYSTEM_SYMBOL("Assign"))
   VERIFY(   PMATH_SYMBOL_ASSIGNDELAYED                    = NEW_SYSTEM_SYMBOL("AssignDelayed"))
   VERIFY(   PMATH_SYMBOL_ASSOCIATIVE                      = NEW_SYSTEM_SYMBOL("Associative"))
   VERIFY(   PMATH_SYMBOL_ATTRIBUTES                       = NEW_SYSTEM_SYMBOL("Attributes"))
-  VERIFY(   PMATH_SYMBOL_AUTODELETE                       = NEW_SYSTEM_SYMBOL("AutoDelete"))
   VERIFY(   PMATH_SYMBOL_AUTOMATIC                        = NEW_SYSTEM_SYMBOL("Automatic"))
-  VERIFY(   PMATH_SYMBOL_AUTONUMBERFORMATING              = NEW_SYSTEM_SYMBOL("AutoNumberFormating"))
-  VERIFY(   PMATH_SYMBOL_AXES                             = NEW_SYSTEM_SYMBOL("Axes"))
-  VERIFY(   PMATH_SYMBOL_AXESORIGIN                       = NEW_SYSTEM_SYMBOL("AxesOrigin"))
-  VERIFY(   PMATH_SYMBOL_AUTOSPACING                      = NEW_SYSTEM_SYMBOL("AutoSpacing"))
-  VERIFY(   PMATH_SYMBOL_BACKGROUND                       = NEW_SYSTEM_SYMBOL("Background"))
   VERIFY(   PMATH_SYMBOL_BASEFORM                         = NEW_SYSTEM_SYMBOL("BaseForm"))
-  VERIFY(   PMATH_SYMBOL_BASESTYLE                        = NEW_SYSTEM_SYMBOL("BaseStyle"))
   VERIFY(   PMATH_SYMBOL_BEGIN                            = NEW_SYSTEM_SYMBOL("Begin"))
   VERIFY(   PMATH_SYMBOL_BEGINPACKAGE                     = NEW_SYSTEM_SYMBOL("BeginPackage"))
   VERIFY(   PMATH_SYMBOL_BERNOULLIB                       = NEW_SYSTEM_SYMBOL("BernoulliB"))
@@ -767,16 +749,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_BLOCK                            = NEW_SYSTEM_SYMBOL("Block"))
   VERIFY(   PMATH_SYMBOL_BOLD                             = NEW_SYSTEM_SYMBOL("Bold"))
   VERIFY(   PMATH_SYMBOL_BOOLE                            = NEW_SYSTEM_SYMBOL("Boole"))
-  VERIFY(   PMATH_SYMBOL_BORDERRADIUS                     = NEW_SYSTEM_SYMBOL("BorderRadius"))
-  VERIFY(   PMATH_SYMBOL_BOXDATA                          = NEW_SYSTEM_SYMBOL("BoxData"))
-  VERIFY(   PMATH_SYMBOL_BOXROTATION                      = NEW_SYSTEM_SYMBOL("BoxRotation"))
-  VERIFY(   PMATH_SYMBOL_BOXTRANSFORMATION                = NEW_SYSTEM_SYMBOL("BoxTransformation"))
-  VERIFY(   PMATH_SYMBOL_BRACKETINGBAR                    = NEW_SYSTEM_SYMBOL("BracketingBar"))
   VERIFY(   PMATH_SYMBOL_BREAK                            = NEW_SYSTEM_SYMBOL("Break"))
-  VERIFY(   PMATH_SYMBOL_BUTTON                           = NEW_SYSTEM_SYMBOL("Button"))
-  VERIFY(   PMATH_SYMBOL_BUTTONBOX                        = NEW_SYSTEM_SYMBOL("ButtonBox"))
-  VERIFY(   PMATH_SYMBOL_BUTTONFRAME                      = NEW_SYSTEM_SYMBOL("ButtonFrame"))
-  VERIFY(   PMATH_SYMBOL_BUTTONFUNCTION                   = NEW_SYSTEM_SYMBOL("ButtonFunction"))
   VERIFY(   PMATH_SYMBOL_BYTECOUNT                        = NEW_SYSTEM_SYMBOL("ByteCount"))
   VERIFY(   PMATH_SYMBOL_BYTEORDERING                     = NEW_SYSTEM_SYMBOL("ByteOrdering"))
   VERIFY(   PMATH_SYMBOL_BYTEORDERINGDEFAULT              = NEW_SYSTEM_SYMBOL("$ByteOrdering"))
@@ -788,63 +761,46 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_CHARACTERENCODING                = NEW_SYSTEM_SYMBOL("CharacterEncoding"))
   VERIFY(   PMATH_SYMBOL_CHARACTERENCODINGDEFAULT         = NEW_SYSTEM_SYMBOL("$CharacterEncoding"))
   VERIFY(   PMATH_SYMBOL_CHARACTERS                       = NEW_SYSTEM_SYMBOL("Characters"))
-  VERIFY(   PMATH_SYMBOL_CHECKBOX                         = NEW_SYSTEM_SYMBOL("Checkbox"))
-  VERIFY(   PMATH_SYMBOL_CHECKBOXBOX                      = NEW_SYSTEM_SYMBOL("CheckboxBox"))
   VERIFY(   PMATH_SYMBOL_CHOP                             = NEW_SYSTEM_SYMBOL("Chop"))
-  VERIFY(   PMATH_SYMBOL_CIRCLEPLUS                       = NEW_SYSTEM_SYMBOL("CirclePlus"))
-  VERIFY(   PMATH_SYMBOL_CIRCLETIMES                      = NEW_SYSTEM_SYMBOL("CircleTimes"))
   VERIFY(   PMATH_SYMBOL_CLEAR                            = NEW_SYSTEM_SYMBOL("Clear"))
   VERIFY(   PMATH_SYMBOL_CLEARALL                         = NEW_SYSTEM_SYMBOL("ClearAll"))
   VERIFY(   PMATH_SYMBOL_CLEARATTRIBUTES                  = NEW_SYSTEM_SYMBOL("ClearAttributes"))
   VERIFY(   PMATH_SYMBOL_CLIP                             = NEW_SYSTEM_SYMBOL("Clip"))
   VERIFY(   PMATH_SYMBOL_CLOCK                            = NEW_SYSTEM_SYMBOL("Clock"))
   VERIFY(   PMATH_SYMBOL_CLOSE                            = NEW_SYSTEM_SYMBOL("Close"))
-  VERIFY(   PMATH_SYMBOL_COLON                            = NEW_SYSTEM_SYMBOL("Colon"))
   VERIFY(   PMATH_SYMBOL_COLUMN                           = NEW_SYSTEM_SYMBOL("Column"))
-  VERIFY(   PMATH_SYMBOL_COLUMNSPACING                    = NEW_SYSTEM_SYMBOL("ColumnSpacing"))
   VERIFY(   PMATH_SYMBOL_COMMANDLINE                      = NEW_SYSTEM_SYMBOL("$CommandLine"))
   VERIFY(   PMATH_SYMBOL_COMPLEMENT                       = NEW_SYSTEM_SYMBOL("Complement"))
   VERIFY(   PMATH_SYMBOL_COMPLEX                          = NEW_SYSTEM_SYMBOL("Complex"))
-  VERIFY(   PMATH_SYMBOL_COMPLEXSTRINGBOX                 = NEW_SYSTEM_SYMBOL("ComplexStringBox"))
   VERIFY(   PMATH_SYMBOL_COMPLEXINFINITY                  = NEW_SYSTEM_SYMBOL("ComplexInfinity"))
   VERIFY(   PMATH_SYMBOL_COMPRESS                         = NEW_SYSTEM_SYMBOL("Compress"))
   VERIFY(   PMATH_SYMBOL_COMPRESSSTREAM                   = NEW_SYSTEM_SYMBOL("CompressStream"))
   VERIFY(   PMATH_SYMBOL_CONDITION                        = NEW_SYSTEM_SYMBOL("Condition"))
   VERIFY(   PMATH_SYMBOL_CONDITIONALEXPRESSION            = NEW_SYSTEM_SYMBOL("ConditionalExpression"))
-  VERIFY(   PMATH_SYMBOL_CONGRUENT                        = NEW_SYSTEM_SYMBOL("Congruent"))
   VERIFY(   PMATH_SYMBOL_CONJUGATE                        = NEW_SYSTEM_SYMBOL("Conjugate"))
   VERIFY(   PMATH_SYMBOL_CONSTANTARRAY                    = NEW_SYSTEM_SYMBOL("ConstantArray"))
-  VERIFY(   PMATH_SYMBOL_CONTINUOUSACTION                 = NEW_SYSTEM_SYMBOL("ContinuousAction"))
   VERIFY(   PMATH_SYMBOL_CONTINUE                         = NEW_SYSTEM_SYMBOL("Continue"))
   VERIFY(   PMATH_SYMBOL_CONTROLACTIVE                    = NEW_SYSTEM_SYMBOL("ControlActive"))
   VERIFY(   PMATH_SYMBOL_CONTROLACTIVESETTING             = NEW_SYSTEM_SYMBOL("$ControlActiveSetting"))
   VERIFY(   PMATH_SYMBOL_COPYDIRECTORY                    = NEW_SYSTEM_SYMBOL("CopyDirectory"))
   VERIFY(   PMATH_SYMBOL_COPYFILE                         = NEW_SYSTEM_SYMBOL("CopyFile"))
   VERIFY(   PMATH_SYMBOL_COS                              = NEW_SYSTEM_SYMBOL("Cos"))
-  VERIFY(   PMATH_SYMBOL_COSH                             = NEW_SYSTEM_SYMBOL("Cosh"))
   VERIFY(   PMATH_SYMBOL_COT                              = NEW_SYSTEM_SYMBOL("Cot"))
-  VERIFY(   PMATH_SYMBOL_COTH                             = NEW_SYSTEM_SYMBOL("Coth"))
   VERIFY(   PMATH_SYMBOL_COUNT                            = NEW_SYSTEM_SYMBOL("Count"))
   VERIFY(   PMATH_SYMBOL_CREATEDIRECTORY                  = NEW_SYSTEM_SYMBOL("CreateDirectory"))
   VERIFY(   PMATH_SYMBOL_CREATEDOCUMENT                   = NEW_SYSTEM_SYMBOL("CreateDocument"))
   VERIFY(   PMATH_SYMBOL_CREATIONDATE                     = NEW_SYSTEM_SYMBOL("$CreationDate"))
   VERIFY(   PMATH_SYMBOL_CROSS                            = NEW_SYSTEM_SYMBOL("Cross"))
   VERIFY(   PMATH_SYMBOL_CSC                              = NEW_SYSTEM_SYMBOL("Csc"))
-  VERIFY(   PMATH_SYMBOL_CSCH                             = NEW_SYSTEM_SYMBOL("Csch"))
-  VERIFY(   PMATH_SYMBOL_CUPCAP                           = NEW_SYSTEM_SYMBOL("CupCap"))
   VERIFY(   PMATH_SYMBOL_CURRENTVALUE                     = NEW_SYSTEM_SYMBOL("CurrentValue"))
   VERIFY(   PMATH_SYMBOL_DATARANGE                        = NEW_SYSTEM_SYMBOL("DataRange"))
   VERIFY(   PMATH_SYMBOL_DATELIST                         = NEW_SYSTEM_SYMBOL("DateList"))
   VERIFY(   PMATH_SYMBOL_DECREMENT                        = NEW_SYSTEM_SYMBOL("Decrement"))
   VERIFY(   PMATH_SYMBOL_DEEPHOLDALL                      = NEW_SYSTEM_SYMBOL("DeepHoldAll"))
   VERIFY(   PMATH_SYMBOL_DEFAULT                          = NEW_SYSTEM_SYMBOL("Default"))
-  VERIFY(   PMATH_SYMBOL_DEFAULTDUPLICATESECTIONSTYLE     = NEW_SYSTEM_SYMBOL("DefaultDuplicateSectionStyle"))
-  VERIFY(   PMATH_SYMBOL_DEFAULTNEWSECTIONSTYLE           = NEW_SYSTEM_SYMBOL("DefaultNewSectionStyle"))
-  VERIFY(   PMATH_SYMBOL_DEFAULTRETURNCREATEDSECTIONSTYLE = NEW_SYSTEM_SYMBOL("DefaultReturnCreatedSectionStyle"))
   VERIFY(   PMATH_SYMBOL_DEFAULTRULES                     = NEW_SYSTEM_SYMBOL("DefaultRules"))
   VERIFY(   PMATH_SYMBOL_DEFINITEFUNCTION                 = NEW_SYSTEM_SYMBOL("DefiniteFunction"))
   VERIFY(   PMATH_SYMBOL_DEGREE                           = NEW_SYSTEM_SYMBOL("Degree"))
-  VERIFY(   PMATH_SYMBOL_DEINITIALIZATION                 = NEW_SYSTEM_SYMBOL("Deinitialization"))
   VERIFY(   PMATH_SYMBOL_DELETECONTENTS                   = NEW_SYSTEM_SYMBOL("DeleteContents"))
   VERIFY(   PMATH_SYMBOL_DELETEDIRECTORY                  = NEW_SYSTEM_SYMBOL("DeleteDirectory"))
   VERIFY(   PMATH_SYMBOL_DELETEFILE                       = NEW_SYSTEM_SYMBOL("DeleteFile"))
@@ -860,10 +816,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_DIRECTORY                        = NEW_SYSTEM_SYMBOL("Directory"))
   VERIFY(   PMATH_SYMBOL_DIRECTORYNAME                    = NEW_SYSTEM_SYMBOL("DirectoryName"))
   VERIFY(   PMATH_SYMBOL_DIRECTORYSTACK                   = NEW_SYSTEM_SYMBOL("$DirectoryStack"))
-  VERIFY(   PMATH_SYMBOL_DISPLAYFUNCTION                  = NEW_SYSTEM_SYMBOL("DisplayFunction"))
   VERIFY(   PMATH_SYMBOL_DIVIDEBY                         = NEW_SYSTEM_SYMBOL("DivideBy"))
   VERIFY(   PMATH_SYMBOL_DO                               = NEW_SYSTEM_SYMBOL("Do"))
-  VERIFY(   PMATH_SYMBOL_DOCKEDSECTIONS                   = NEW_SYSTEM_SYMBOL("DockedSections"))
   VERIFY(   PMATH_SYMBOL_DOCUMENT                         = NEW_SYSTEM_SYMBOL("Document"))
   VERIFY(   PMATH_SYMBOL_DOCUMENTAPPLY                    = NEW_SYSTEM_SYMBOL("DocumentApply"))
   VERIFY(   PMATH_SYMBOL_DOCUMENTDELETE                   = NEW_SYSTEM_SYMBOL("DocumentDelete"))
@@ -873,30 +827,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_DOCUMENTS                        = NEW_SYSTEM_SYMBOL("Documents"))
   VERIFY(   PMATH_SYMBOL_DOCUMENTSAVE                     = NEW_SYSTEM_SYMBOL("DocumentSave"))
   VERIFY(   PMATH_SYMBOL_DOT                              = NEW_SYSTEM_SYMBOL("Dot"))
-  VERIFY(   PMATH_SYMBOL_DOTEQUAL                         = NEW_SYSTEM_SYMBOL("DotEqual"))
-  VERIFY(   PMATH_SYMBOL_DOUBLEBRACKETINGBAR              = NEW_SYSTEM_SYMBOL("DoubleBracketingBar"))
-  VERIFY(   PMATH_SYMBOL_DOUBLEDOWNARROW                  = NEW_SYSTEM_SYMBOL("DoubleDownArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLELEFTARROW                  = NEW_SYSTEM_SYMBOL("DoubleLeftArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLELEFTRIGHTARROW             = NEW_SYSTEM_SYMBOL("DoubleLeftRightArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLELOWERRIGHTARROW            = NEW_SYSTEM_SYMBOL("DoubleLowerRightArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLELOWERLEFTARROW             = NEW_SYSTEM_SYMBOL("DoubleLowerLeftArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLERIGHTARROW                 = NEW_SYSTEM_SYMBOL("DoubleRightArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLEUPARROW                    = NEW_SYSTEM_SYMBOL("DoubleUpArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLEUPDOWNARROW                = NEW_SYSTEM_SYMBOL("DoubleUpDownArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLEUPPERLEFTARROW             = NEW_SYSTEM_SYMBOL("DoubleUpperLeftArrow"))
-  VERIFY(   PMATH_SYMBOL_DOUBLEUPPERRIGHTARROW            = NEW_SYSTEM_SYMBOL("DoubleUpperRightArrow"))
-  VERIFY(   PMATH_SYMBOL_DOWNARROW                        = NEW_SYSTEM_SYMBOL("DownArrow"))
   VERIFY(   PMATH_SYMBOL_DOWNRULES                        = NEW_SYSTEM_SYMBOL("DownRules"))
   VERIFY(   PMATH_SYMBOL_DROP                             = NEW_SYSTEM_SYMBOL("Drop"))
-  VERIFY(   PMATH_SYMBOL_DYNAMIC                          = NEW_SYSTEM_SYMBOL("Dynamic"))
-  VERIFY(   PMATH_SYMBOL_DYNAMICBOX                       = NEW_SYSTEM_SYMBOL("DynamicBox"))
-  VERIFY(   PMATH_SYMBOL_DYNAMICLOCAL                     = NEW_SYSTEM_SYMBOL("DynamicLocal"))
-  VERIFY(   PMATH_SYMBOL_DYNAMICLOCALBOX                  = NEW_SYSTEM_SYMBOL("DynamicLocalBox"))
-  VERIFY(   PMATH_SYMBOL_DYNAMICLOCALVALUES               = NEW_SYSTEM_SYMBOL("DynamicLocalValues"))
-  VERIFY(   PMATH_SYMBOL_DYNAMICSETTING                   = NEW_SYSTEM_SYMBOL("DynamicSetting"))
   VERIFY(   PMATH_SYMBOL_E                                = NEW_SYSTEM_SYMBOL("E"))
-  VERIFY(   PMATH_SYMBOL_EDITABLE                         = NEW_SYSTEM_SYMBOL("Editable"))
-  VERIFY(   PMATH_SYMBOL_ELEMENT                          = NEW_SYSTEM_SYMBOL("Element"))
   VERIFY(   PMATH_SYMBOL_EMIT                             = NEW_SYSTEM_SYMBOL("Emit"))
   VERIFY(   PMATH_SYMBOL_END                              = NEW_SYSTEM_SYMBOL("End"))
   VERIFY(   PMATH_SYMBOL_ENDOFFILE                        = NEW_SYSTEM_SYMBOL("EndOfFile"))
@@ -906,7 +839,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_ENVIRONMENT                      = NEW_SYSTEM_SYMBOL("Environment"))
   VERIFY(   PMATH_SYMBOL_EQUAL                            = NEW_SYSTEM_SYMBOL("Equal"))
   VERIFY(   PMATH_SYMBOL_EULERGAMMA                       = NEW_SYSTEM_SYMBOL("EulerGamma"))
-  VERIFY(   PMATH_SYMBOL_EVALUATABLE                      = NEW_SYSTEM_SYMBOL("Evaluatable"))
   VERIFY(   PMATH_SYMBOL_EVALUATE                         = NEW_SYSTEM_SYMBOL("Evaluate"))
   VERIFY(   PMATH_SYMBOL_EVALUATEDELAYED                  = NEW_SYSTEM_SYMBOL("EvaluateDelayed"))
   VERIFY(   PMATH_SYMBOL_EVALUATIONDOCUMENT               = NEW_SYSTEM_SYMBOL("EvaluationDocument"))
@@ -924,9 +856,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_FALSE                            = NEW_SYSTEM_SYMBOL("False"))
   VERIFY(   PMATH_SYMBOL_FILE                             = NEW_SYSTEM_SYMBOL("File"))
   VERIFY(   PMATH_SYMBOL_FILEBYTECOUNT                    = NEW_SYSTEM_SYMBOL("FileByteCount"))
+  VERIFY(   PMATH_SYMBOL_FILEINFORMATION                  = NEW_SYSTEM_SYMBOL("FileInformation"))
   VERIFY(   PMATH_SYMBOL_FILENAMES                        = NEW_SYSTEM_SYMBOL("FileNames"))
   VERIFY(   PMATH_SYMBOL_FILETYPE                         = NEW_SYSTEM_SYMBOL("FileType"))
-  VERIFY(   PMATH_SYMBOL_FILLBOX                          = NEW_SYSTEM_SYMBOL("FillBox"))
   VERIFY(   PMATH_SYMBOL_FILTERRULES                      = NEW_SYSTEM_SYMBOL("FilterRules"))
   VERIFY(   PMATH_SYMBOL_FINALLY                          = NEW_SYSTEM_SYMBOL("Finally"))
   VERIFY(   PMATH_SYMBOL_FIND                             = NEW_SYSTEM_SYMBOL("Find"))
@@ -938,23 +870,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_FLOOR                            = NEW_SYSTEM_SYMBOL("Floor"))
   VERIFY(   PMATH_SYMBOL_FOLD                             = NEW_SYSTEM_SYMBOL("Fold"))
   VERIFY(   PMATH_SYMBOL_FOLDLIST                         = NEW_SYSTEM_SYMBOL("FoldList"))
-  VERIFY(   PMATH_SYMBOL_FONTCOLOR                        = NEW_SYSTEM_SYMBOL("FontColor"))
-  VERIFY(   PMATH_SYMBOL_FONTFAMILY                       = NEW_SYSTEM_SYMBOL("FontFamily"))
-  VERIFY(   PMATH_SYMBOL_FONTFEATURES                     = NEW_SYSTEM_SYMBOL("FontFeatures"))
-  VERIFY(   PMATH_SYMBOL_FONTSIZE                         = NEW_SYSTEM_SYMBOL("FontSize"))
-  VERIFY(   PMATH_SYMBOL_FONTSLANT                        = NEW_SYSTEM_SYMBOL("FontSlant"))
-  VERIFY(   PMATH_SYMBOL_FONTWEIGHT                       = NEW_SYSTEM_SYMBOL("FontWeight"))
   VERIFY(   PMATH_SYMBOL_FOR                              = NEW_SYSTEM_SYMBOL("For"))
   VERIFY(   PMATH_SYMBOL_FORMAT                           = NEW_SYSTEM_SYMBOL("Format"))
   VERIFY(   PMATH_SYMBOL_FORMATRULES                      = NEW_SYSTEM_SYMBOL("FormatRules"))
   VERIFY(   PMATH_SYMBOL_FRACTIONALPART                   = NEW_SYSTEM_SYMBOL("FractionalPart"))
-  VERIFY(   PMATH_SYMBOL_FRACTIONBOX                      = NEW_SYSTEM_SYMBOL("FractionBox"))
-  VERIFY(   PMATH_SYMBOL_FRAME                            = NEW_SYSTEM_SYMBOL("Frame"))
-  VERIFY(   PMATH_SYMBOL_FRAMEBOX                         = NEW_SYSTEM_SYMBOL("FrameBox"))
-  VERIFY(   PMATH_SYMBOL_FRAMED                           = NEW_SYSTEM_SYMBOL("Framed"))
-  VERIFY(   PMATH_SYMBOL_FRAMETICKS                       = NEW_SYSTEM_SYMBOL("FrameTicks"))
   VERIFY(   PMATH_SYMBOL_FROMCHARACTERCODE                = NEW_SYSTEM_SYMBOL("FromCharacterCode"))
-  VERIFY(   PMATH_SYMBOL_FRONTENDOBJECT                   = NEW_SYSTEM_SYMBOL("FrontEndObject"))
   VERIFY(   PMATH_SYMBOL_FRONTENDTOKENEXECUTE             = NEW_SYSTEM_SYMBOL("FrontEndTokenExecute"))
   VERIFY(   PMATH_SYMBOL_FULLFORM                         = NEW_SYSTEM_SYMBOL("FullForm"))
   VERIFY(   PMATH_SYMBOL_FUNCTION                         = NEW_SYSTEM_SYMBOL("Function"))
@@ -962,24 +882,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_GATHER                           = NEW_SYSTEM_SYMBOL("Gather"))
   VERIFY(   PMATH_SYMBOL_GCD                              = NEW_SYSTEM_SYMBOL("GCD"))
   VERIFY(   PMATH_SYMBOL_GENERAL                          = NEW_SYSTEM_SYMBOL("General"))
-  VERIFY(   PMATH_SYMBOL_GENERATEDSECTIONSTYLES           = NEW_SYSTEM_SYMBOL("GeneratedSectionStyles"))
   VERIFY(   PMATH_SYMBOL_GET                              = NEW_SYSTEM_SYMBOL("Get"))
   VERIFY(   PMATH_SYMBOL_GOLDENRATIO                      = NEW_SYSTEM_SYMBOL("GoldenRatio"))
   VERIFY(   PMATH_SYMBOL_GOTO                             = NEW_SYSTEM_SYMBOL("Goto"))
   VERIFY(   PMATH_SYMBOL_GRAPHICS                         = NEW_SYSTEM_SYMBOL("Graphics"))
-  VERIFY(   PMATH_SYMBOL_GRAPHICSBOX                      = NEW_SYSTEM_SYMBOL("GraphicsBox"))
   VERIFY(   PMATH_SYMBOL_GRAYLEVEL                        = NEW_SYSTEM_SYMBOL("GrayLevel"))
   VERIFY(   PMATH_SYMBOL_GREATER                          = NEW_SYSTEM_SYMBOL("Greater"))
   VERIFY(   PMATH_SYMBOL_GREATEREQUAL                     = NEW_SYSTEM_SYMBOL("GreaterEqual"))
-  VERIFY(   PMATH_SYMBOL_GREATEREQUALLESS                 = NEW_SYSTEM_SYMBOL("GreaterEqualLess"))
-  VERIFY(   PMATH_SYMBOL_GREATERFULLEQUAL                 = NEW_SYSTEM_SYMBOL("GreaterFullEqual"))
-  VERIFY(   PMATH_SYMBOL_GREATERGREATER                   = NEW_SYSTEM_SYMBOL("GreaterGreater"))
-  VERIFY(   PMATH_SYMBOL_GREATERLESS                      = NEW_SYSTEM_SYMBOL("GreaterLess"))
-  VERIFY(   PMATH_SYMBOL_GREATERTILDE                     = NEW_SYSTEM_SYMBOL("GreaterTilde"))
-  VERIFY(   PMATH_SYMBOL_GRID                             = NEW_SYSTEM_SYMBOL("Grid"))
-  VERIFY(   PMATH_SYMBOL_GRIDBOX                          = NEW_SYSTEM_SYMBOL("GridBox"))
-  VERIFY(   PMATH_SYMBOL_GRIDBOXCOLUMNSPACING             = NEW_SYSTEM_SYMBOL("GridBoxColumnSpacing"))
-  VERIFY(   PMATH_SYMBOL_GRIDBOXROWSPACING                = NEW_SYSTEM_SYMBOL("GridBoxRowSpacing"))
   VERIFY(   PMATH_SYMBOL_HASH                             = NEW_SYSTEM_SYMBOL("Hash"))
   VERIFY(   PMATH_SYMBOL_HEAD                             = NEW_SYSTEM_SYMBOL("Head"))
   VERIFY(   PMATH_SYMBOL_HEADS                            = NEW_SYSTEM_SYMBOL("Heads"))
@@ -994,8 +903,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_HOLDPATTERN                      = NEW_SYSTEM_SYMBOL("HoldPattern"))
   VERIFY(   PMATH_SYMBOL_HOLDREST                         = NEW_SYSTEM_SYMBOL("HoldRest"))
   VERIFY(   PMATH_SYMBOL_HUE                              = NEW_SYSTEM_SYMBOL("Hue"))
-  VERIFY(   PMATH_SYMBOL_HUMPDOWNHUMP                     = NEW_SYSTEM_SYMBOL("HumpDownHump"))
-  VERIFY(   PMATH_SYMBOL_HUMPEQUAL                        = NEW_SYSTEM_SYMBOL("HumpEqual"))
   VERIFY(   PMATH_SYMBOL_I                                = NEW_SYSTEM_SYMBOL("I"))
   VERIFY(   PMATH_SYMBOL_IDENTICAL                        = NEW_SYSTEM_SYMBOL("Identical"))
   VERIFY(   PMATH_SYMBOL_IDENTITY                         = NEW_SYSTEM_SYMBOL("Identity"))
@@ -1003,23 +910,16 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_IF                               = NEW_SYSTEM_SYMBOL("If"))
   VERIFY(   PMATH_SYMBOL_IGNORECASE                       = NEW_SYSTEM_SYMBOL("IgnoreCase"))
   VERIFY(   PMATH_SYMBOL_IM                               = NEW_SYSTEM_SYMBOL("Im"))
-  VERIFY(   PMATH_SYMBOL_IMAGESIZE                        = NEW_SYSTEM_SYMBOL("ImageSize"))
   VERIFY(   PMATH_SYMBOL_INCREMENT                        = NEW_SYSTEM_SYMBOL("Increment"))
   VERIFY(   PMATH_SYMBOL_INEQUATION                       = NEW_SYSTEM_SYMBOL("Inequation"))
   VERIFY(   PMATH_SYMBOL_INFINITY                         = NEW_SYSTEM_SYMBOL("Infinity"))
   VERIFY(   PMATH_SYMBOL_INHERITED                        = NEW_SYSTEM_SYMBOL("Inherited"))
   VERIFY(   PMATH_SYMBOL_INITIALDIRECTORY                 = NEW_SYSTEM_SYMBOL("$InitialDirectory"))
-  VERIFY(   PMATH_SYMBOL_INITIALIZATION                   = NEW_SYSTEM_SYMBOL("Initialization"))
   VERIFY(   PMATH_SYMBOL_INNER                            = NEW_SYSTEM_SYMBOL("Inner"))
   VERIFY(   PMATH_SYMBOL_INPUT                            = NEW_SYSTEM_SYMBOL("$Input"))
-  VERIFY(   PMATH_SYMBOL_INPUTFIELD                       = NEW_SYSTEM_SYMBOL("InputField"))
-  VERIFY(   PMATH_SYMBOL_INPUTFIELDBOX                    = NEW_SYSTEM_SYMBOL("InputFieldBox"))
   VERIFY(   PMATH_SYMBOL_INPUTFORM                        = NEW_SYSTEM_SYMBOL("InputForm"))
   VERIFY(   PMATH_SYMBOL_INTEGER                          = NEW_SYSTEM_SYMBOL("Integer"))
   VERIFY(   PMATH_SYMBOL_INTEGERPART                      = NEW_SYSTEM_SYMBOL("IntegerPart"))
-  VERIFY(   PMATH_SYMBOL_INTERPRETATION                   = NEW_SYSTEM_SYMBOL("Interpretation"))
-  VERIFY(   PMATH_SYMBOL_INTERPRETATIONBOX                = NEW_SYSTEM_SYMBOL("InterpretationBox"))
-  VERIFY(   PMATH_SYMBOL_INTERPRETATIONFUNCTION           = NEW_SYSTEM_SYMBOL("InterpretationFunction"))
   VERIFY(   PMATH_SYMBOL_INTERRUPT                        = NEW_SYSTEM_SYMBOL("Interrupt"))
   VERIFY(   PMATH_SYMBOL_INTERSECTION                     = NEW_SYSTEM_SYMBOL("Intersection"))
   VERIFY(   PMATH_SYMBOL_INTERVAL                         = NEW_SYSTEM_SYMBOL("Interval"))
@@ -1058,31 +958,17 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_JOIN                             = NEW_SYSTEM_SYMBOL("Join"))
   VERIFY(   PMATH_SYMBOL_KRONECKERSYMBOL                  = NEW_SYSTEM_SYMBOL("KroneckerSymbol"))
   VERIFY(   PMATH_SYMBOL_LABEL                            = NEW_SYSTEM_SYMBOL("Label"))
-  VERIFY(   PMATH_SYMBOL_LANGUAGECATEGORY                 = NEW_SYSTEM_SYMBOL("LanguageCategory"))
   VERIFY(   PMATH_SYMBOL_LAST                             = NEW_SYSTEM_SYMBOL("Last"))
   VERIFY(   PMATH_SYMBOL_LCM                              = NEW_SYSTEM_SYMBOL("LCM"))
   VERIFY(   PMATH_SYMBOL_LEAFCOUNT                        = NEW_SYSTEM_SYMBOL("LeafCount"))
   VERIFY(   PMATH_SYMBOL_LENGTH                           = NEW_SYSTEM_SYMBOL("Length"))
   VERIFY(   PMATH_SYMBOL_LENGTHWHILE                      = NEW_SYSTEM_SYMBOL("LengthWhile"))
-  VERIFY(   PMATH_SYMBOL_LEFTARROW                        = NEW_SYSTEM_SYMBOL("LeftArrow"))
-  VERIFY(   PMATH_SYMBOL_LEFTTRIANGLE                     = NEW_SYSTEM_SYMBOL("LeftTriangle"))
-  VERIFY(   PMATH_SYMBOL_LEFTTRIANGLEEQUAL                = NEW_SYSTEM_SYMBOL("LeftTriangleEqual"))
-  VERIFY(   PMATH_SYMBOL_LEFTRIGHTARROW                   = NEW_SYSTEM_SYMBOL("LeftRightArrow"))
   VERIFY(   PMATH_SYMBOL_LESS                             = NEW_SYSTEM_SYMBOL("Less"))
   VERIFY(   PMATH_SYMBOL_LESSEQUAL                        = NEW_SYSTEM_SYMBOL("LessEqual"))
-  VERIFY(   PMATH_SYMBOL_LESSEQUALGREATER                 = NEW_SYSTEM_SYMBOL("LessEqualGreater"))
-  VERIFY(   PMATH_SYMBOL_LESSFULLEQUAL                    = NEW_SYSTEM_SYMBOL("LessFullEqual"))
-  VERIFY(   PMATH_SYMBOL_LESSGREATER                      = NEW_SYSTEM_SYMBOL("LessGreater"))
-  VERIFY(   PMATH_SYMBOL_LESSLESS                         = NEW_SYSTEM_SYMBOL("LessLess"))
-  VERIFY(   PMATH_SYMBOL_LESSTILDE                        = NEW_SYSTEM_SYMBOL("LessTilde"))
   VERIFY(   PMATH_SYMBOL_LETTERCHARACTER                  = NEW_SYSTEM_SYMBOL("LetterCharacter"))
   VERIFY(   PMATH_SYMBOL_LEVEL                            = NEW_SYSTEM_SYMBOL("Level"))
-  VERIFY(   PMATH_SYMBOL_LINE                             = NEW_SYSTEM_SYMBOL("$Line"))
-  VERIFY(   PMATH_SYMBOL_LINE_GRAPHICS                    = NEW_SYSTEM_SYMBOL("Line"))
-  VERIFY(   PMATH_SYMBOL_LINEBOX                          = NEW_SYSTEM_SYMBOL("LineBox"))
   VERIFY(   PMATH_SYMBOL_LINEARSOLVE                      = NEW_SYSTEM_SYMBOL("LinearSolve"))
   VERIFY(   PMATH_SYMBOL_LINEARSOLVEFUNCTION              = NEW_SYSTEM_SYMBOL("LinearSolveFunction"))
-  VERIFY(   PMATH_SYMBOL_LINEBREAKWITHIN                  = NEW_SYSTEM_SYMBOL("LineBreakWithin"))
   VERIFY(   PMATH_SYMBOL_LIST                             = NEW_SYSTEM_SYMBOL("List"))
   VERIFY(   PMATH_SYMBOL_LISTABLE                         = NEW_SYSTEM_SYMBOL("Listable"))
   VERIFY(   PMATH_SYMBOL_LISTCONVOLVE                     = NEW_SYSTEM_SYMBOL("ListConvolve"))
@@ -1094,13 +980,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_LOGGAMMA                         = NEW_SYSTEM_SYMBOL("LogGamma"))
   VERIFY(   PMATH_SYMBOL_LONGEST                          = NEW_SYSTEM_SYMBOL("Longest"))
   VERIFY(   PMATH_SYMBOL_LONGFORM                         = NEW_SYSTEM_SYMBOL("LongForm"))
-  VERIFY(   PMATH_SYMBOL_LOWERRIGHTARROW                  = NEW_SYSTEM_SYMBOL("LowerRightArrow"))
-  VERIFY(   PMATH_SYMBOL_LOWERLEFTARROW                   = NEW_SYSTEM_SYMBOL("LowerLeftArrow"))
   VERIFY(   PMATH_SYMBOL_LUDECOMPOSITION                  = NEW_SYSTEM_SYMBOL("LUDecomposition"))
   VERIFY(   PMATH_SYMBOL_MACHINEEPSILON                   = NEW_SYSTEM_SYMBOL("$MachineEpsilon"))
   VERIFY(   PMATH_SYMBOL_MACHINEPRECISION                 = NEW_SYSTEM_SYMBOL("MachinePrecision"))
   VERIFY(   PMATH_SYMBOL_MACHINEPRECISION_APPROX          = NEW_SYSTEM_SYMBOL("$MachinePrecision"))
-  VERIFY(   PMATH_SYMBOL_MAGNIFICATION                    = NEW_SYSTEM_SYMBOL("Magnification"))
   VERIFY(   PMATH_SYMBOL_MAKEBOXES                        = NEW_SYSTEM_SYMBOL("MakeBoxes"))
   VERIFY(   PMATH_SYMBOL_MAKEEXPRESSION                   = NEW_SYSTEM_SYMBOL("MakeExpression"))
   VERIFY(   PMATH_SYMBOL_MAP                              = NEW_SYSTEM_SYMBOL("Map"))
@@ -1119,11 +1002,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_MESSAGEGROUPS                    = NEW_SYSTEM_SYMBOL("$MessageGroups"))
   VERIFY(   PMATH_SYMBOL_MESSAGENAME                      = NEW_SYSTEM_SYMBOL("MessageName"))
   VERIFY(   PMATH_SYMBOL_MESSAGES                         = NEW_SYSTEM_SYMBOL("Messages"))
-  VERIFY(   PMATH_SYMBOL_METHOD                           = NEW_SYSTEM_SYMBOL("Method"))
   VERIFY(   PMATH_SYMBOL_MIN                              = NEW_SYSTEM_SYMBOL("Min"))
   VERIFY(   PMATH_SYMBOL_MINMAX                           = NEW_SYSTEM_SYMBOL("MinMax"))
   VERIFY(   PMATH_SYMBOL_MINMACHINENUMBER                 = NEW_SYSTEM_SYMBOL("$MinMachineNumber"))
-  VERIFY(   PMATH_SYMBOL_MINUSPLUS                        = NEW_SYSTEM_SYMBOL("MinusPlus"))
   VERIFY(   PMATH_SYMBOL_MOD                              = NEW_SYSTEM_SYMBOL("Mod"))
   VERIFY(   PMATH_SYMBOL_MOST                             = NEW_SYSTEM_SYMBOL("Most"))
   VERIFY(   PMATH_SYMBOL_N                                = NEW_SYSTEM_SYMBOL("N"))
@@ -1146,33 +1027,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_NONE                             = NEW_SYSTEM_SYMBOL("None"))
   VERIFY(   PMATH_SYMBOL_NORM                             = NEW_SYSTEM_SYMBOL("Norm"))
   VERIFY(   PMATH_SYMBOL_NOT                              = NEW_SYSTEM_SYMBOL("Not"))
-  VERIFY(   PMATH_SYMBOL_NOTCONGRUENT                     = NEW_SYSTEM_SYMBOL("NotCongruent"))
-  VERIFY(   PMATH_SYMBOL_NOTCUPCAP                        = NEW_SYSTEM_SYMBOL("NotCupCap"))
-  VERIFY(   PMATH_SYMBOL_NOTELEMENT                       = NEW_SYSTEM_SYMBOL("NotElement"))
-  VERIFY(   PMATH_SYMBOL_NOTGREATER                       = NEW_SYSTEM_SYMBOL("NotGreater"))
-  VERIFY(   PMATH_SYMBOL_NOTGREATEREQUAL                  = NEW_SYSTEM_SYMBOL("NotGreaterEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTGREATERLESS                   = NEW_SYSTEM_SYMBOL("NotGreaterLess"))
-  VERIFY(   PMATH_SYMBOL_NOTGREATERTILDE                  = NEW_SYSTEM_SYMBOL("NotGreaterTilde"))
-  VERIFY(   PMATH_SYMBOL_NOTLEFTTRIANGLE                  = NEW_SYSTEM_SYMBOL("NotLeftTriangle"))
-  VERIFY(   PMATH_SYMBOL_NOTLEFTTRIANGLEEQUAL             = NEW_SYSTEM_SYMBOL("NotLeftTriangleEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTLESS                          = NEW_SYSTEM_SYMBOL("NotLess"))
-  VERIFY(   PMATH_SYMBOL_NOTLESSEQUAL                     = NEW_SYSTEM_SYMBOL("NotLessEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTLESSGREATER                   = NEW_SYSTEM_SYMBOL("NotLessGreater"))
-  VERIFY(   PMATH_SYMBOL_NOTLESSTILDE                     = NEW_SYSTEM_SYMBOL("NotLessTilde"))
-  VERIFY(   PMATH_SYMBOL_NOTPRECEDES                      = NEW_SYSTEM_SYMBOL("NotPrecedes"))
-  VERIFY(   PMATH_SYMBOL_NOTPRECEDESEQUAL                 = NEW_SYSTEM_SYMBOL("NotPrecedesEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTREVERSEELEMENT                = NEW_SYSTEM_SYMBOL("NotReverseElement"))
-  VERIFY(   PMATH_SYMBOL_NOTRIGHTTRIANGLE                 = NEW_SYSTEM_SYMBOL("NotRightTriangle"))
-  VERIFY(   PMATH_SYMBOL_NOTRIGHTTRIANGLEEQUAL            = NEW_SYSTEM_SYMBOL("NotRightTriangleEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTSUBSET                        = NEW_SYSTEM_SYMBOL("NotSubset"))
-  VERIFY(   PMATH_SYMBOL_NOTSUBSETEQUAL                   = NEW_SYSTEM_SYMBOL("NotSubsetEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTSUCCEEDS                      = NEW_SYSTEM_SYMBOL("NotSucceeds"))
-  VERIFY(   PMATH_SYMBOL_NOTSUCCEEDSEQUAL                 = NEW_SYSTEM_SYMBOL("NotSucceedsEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTSUPERSET                      = NEW_SYSTEM_SYMBOL("NotSuperset"))
-  VERIFY(   PMATH_SYMBOL_NOTSUPERSETEQUAL                 = NEW_SYSTEM_SYMBOL("NotSupersetEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTTILDEEQUAL                    = NEW_SYSTEM_SYMBOL("NotTildeEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTTILDEFULLEQUAL                = NEW_SYSTEM_SYMBOL("NotTildeFullEqual"))
-  VERIFY(   PMATH_SYMBOL_NOTTILDETILDE                    = NEW_SYSTEM_SYMBOL("NotTildeTilde"))
   VERIFY(   PMATH_SYMBOL_NRULES                           = NEW_SYSTEM_SYMBOL("NRules"))
   VERIFY(   PMATH_SYMBOL_NUMBER                           = NEW_SYSTEM_SYMBOL("Number"))
   VERIFY(   PMATH_SYMBOL_NUMBERSTRING                     = NEW_SYSTEM_SYMBOL("NumberString"))
@@ -1193,8 +1047,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_OUTPUTFORM                       = NEW_SYSTEM_SYMBOL("OutputForm"))
   VERIFY(   PMATH_SYMBOL_OVERFLOW                         = NEW_SYSTEM_SYMBOL("Overflow"))
   VERIFY(   PMATH_SYMBOL_OVERLAPS                         = NEW_SYSTEM_SYMBOL("Overlaps"))
-  VERIFY(   PMATH_SYMBOL_OVERSCRIPT                       = NEW_SYSTEM_SYMBOL("Overscript"))
-  VERIFY(   PMATH_SYMBOL_OVERSCRIPTBOX                    = NEW_SYSTEM_SYMBOL("OverscriptBox"))
   VERIFY(   PMATH_SYMBOL_OWNRULES                         = NEW_SYSTEM_SYMBOL("OwnRules"))
   VERIFY(   PMATH_SYMBOL_PACKAGES                         = NEW_SYSTEM_SYMBOL("$Packages"))
   VERIFY(   PMATH_SYMBOL_PADLEFT                          = NEW_SYSTEM_SYMBOL("PadLeft"))
@@ -1221,25 +1073,17 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_PAUSE                            = NEW_SYSTEM_SYMBOL("Pause"))
   VERIFY(   PMATH_SYMBOL_PI                               = NEW_SYSTEM_SYMBOL("Pi"))
   VERIFY(   PMATH_SYMBOL_PIECEWISE                        = NEW_SYSTEM_SYMBOL("Piecewise"))
-  VERIFY(   PMATH_SYMBOL_PLACEHOLDER                      = NEW_SYSTEM_SYMBOL("Placeholder"))
   VERIFY(   PMATH_SYMBOL_PLAIN                            = NEW_SYSTEM_SYMBOL("Plain"))
   VERIFY(   PMATH_SYMBOL_PLOT                             = NEW_SYSTEM_SYMBOL("Plot"))
   VERIFY(   PMATH_SYMBOL_PLOTPOINTS                       = NEW_SYSTEM_SYMBOL("PlotPoints"))
-  VERIFY(   PMATH_SYMBOL_PLOTRANGE                        = NEW_SYSTEM_SYMBOL("PlotRange"))
-  VERIFY(   PMATH_SYMBOL_PLOTSTYLE                        = NEW_SYSTEM_SYMBOL("PlotStyle"))
   VERIFY(   PMATH_SYMBOL_PLUS                             = NEW_SYSTEM_SYMBOL("Plus"))
-  VERIFY(   PMATH_SYMBOL_PLUSMINUS                        = NEW_SYSTEM_SYMBOL("PlusMinus"))
   VERIFY(   PMATH_SYMBOL_POINT                            = NEW_SYSTEM_SYMBOL("Point"))
-  VERIFY(   PMATH_SYMBOL_POINTBOX                         = NEW_SYSTEM_SYMBOL("PointBox"))
   VERIFY(   PMATH_SYMBOL_POLYGAMMA                        = NEW_SYSTEM_SYMBOL("PolyGamma"))
   VERIFY(   PMATH_SYMBOL_POSITION                         = NEW_SYSTEM_SYMBOL("Position"))
   VERIFY(   PMATH_SYMBOL_POSTDECREMENT                    = NEW_SYSTEM_SYMBOL("PostDecrement"))
   VERIFY(   PMATH_SYMBOL_POSTINCREMENT                    = NEW_SYSTEM_SYMBOL("PostIncrement"))
   VERIFY(   PMATH_SYMBOL_POWER                            = NEW_SYSTEM_SYMBOL("Power"))
   VERIFY(   PMATH_SYMBOL_POWERMOD                         = NEW_SYSTEM_SYMBOL("PowerMod"))
-  VERIFY(   PMATH_SYMBOL_PRECEDES                         = NEW_SYSTEM_SYMBOL("Precedes"))
-  VERIFY(   PMATH_SYMBOL_PRECEDESEQUAL                    = NEW_SYSTEM_SYMBOL("PrecedesEqual"))
-  VERIFY(   PMATH_SYMBOL_PRECEDESTILDE                    = NEW_SYSTEM_SYMBOL("PrecedesTilde"))
   VERIFY(   PMATH_SYMBOL_PRECISION                        = NEW_SYSTEM_SYMBOL("Precision"))
   VERIFY(   PMATH_SYMBOL_PREPEND                          = NEW_SYSTEM_SYMBOL("Prepend"))
   VERIFY(   PMATH_SYMBOL_PRINT                            = NEW_SYSTEM_SYMBOL("Print"))
@@ -1247,8 +1091,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_PROCESSORCOUNT                   = NEW_SYSTEM_SYMBOL("$ProcessorCount"))
   VERIFY(   PMATH_SYMBOL_PROCESSORTYPE                    = NEW_SYSTEM_SYMBOL("$ProcessorType"))
   VERIFY(   PMATH_SYMBOL_PRODUCT                          = NEW_SYSTEM_SYMBOL("Product"))
-  VERIFY(   PMATH_SYMBOL_PROGRESSINDICATOR                = NEW_SYSTEM_SYMBOL("ProgressIndicator"))
-  VERIFY(   PMATH_SYMBOL_PROGRESSINDICATORBOX             = NEW_SYSTEM_SYMBOL("ProgressIndicatorBox"))
   VERIFY(   PMATH_SYMBOL_PROTECT                          = NEW_SYSTEM_SYMBOL("Protect"))
   VERIFY(   PMATH_SYMBOL_PROTECTED                        = NEW_SYSTEM_SYMBOL("Protected"))
   VERIFY(   PMATH_SYMBOL_PUREARGUMENT                     = NEW_SYSTEM_SYMBOL("PureArgument"))
@@ -1256,10 +1098,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_QUANTILE                         = NEW_SYSTEM_SYMBOL("Quantile"))
   VERIFY(   PMATH_SYMBOL_QUIT                             = NEW_SYSTEM_SYMBOL("Quit"))
   VERIFY(   PMATH_SYMBOL_QUOTIENT                         = NEW_SYSTEM_SYMBOL("Quotient"))
-  VERIFY(   PMATH_SYMBOL_RADICALBOX                       = NEW_SYSTEM_SYMBOL("RadicalBox"))
-  VERIFY(   PMATH_SYMBOL_RADIOBUTTON                      = NEW_SYSTEM_SYMBOL("RadioButton"))
-  VERIFY(   PMATH_SYMBOL_RADIOBUTTONBAR                   = NEW_SYSTEM_SYMBOL("RadioButtonBar"))
-  VERIFY(   PMATH_SYMBOL_RADIOBUTTONBOX                   = NEW_SYSTEM_SYMBOL("RadioButtonBox"))
   VERIFY(   PMATH_SYMBOL_RANDOMINTEGER                    = NEW_SYSTEM_SYMBOL("RandomInteger"))
   VERIFY(   PMATH_SYMBOL_RANDOMREAL                       = NEW_SYSTEM_SYMBOL("RandomReal"))
   VERIFY(   PMATH_SYMBOL_RANGE                            = NEW_SYSTEM_SYMBOL("Range"))
@@ -1287,41 +1125,20 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_RESETDIRECTORY                   = NEW_SYSTEM_SYMBOL("ResetDirectory"))
   VERIFY(   PMATH_SYMBOL_REST                             = NEW_SYSTEM_SYMBOL("Rest"))
   VERIFY(   PMATH_SYMBOL_RETURN                           = NEW_SYSTEM_SYMBOL("Return"))
-  VERIFY(   PMATH_SYMBOL_RETURNCREATESNEWSECTION          = NEW_SYSTEM_SYMBOL("ReturnCreatesNewSection"))
   VERIFY(   PMATH_SYMBOL_REVERSE                          = NEW_SYSTEM_SYMBOL("Reverse"))
-  VERIFY(   PMATH_SYMBOL_REVERSEELEMENT                   = NEW_SYSTEM_SYMBOL("ReverseElement"))
   VERIFY(   PMATH_SYMBOL_RGBCOLOR                         = NEW_SYSTEM_SYMBOL("RGBColor"))
   VERIFY(   PMATH_SYMBOL_RIFFLE                           = NEW_SYSTEM_SYMBOL("Riffle"))
-  VERIFY(   PMATH_SYMBOL_RIGHTTRIANGLE                    = NEW_SYSTEM_SYMBOL("RightTriangle"))
-  VERIFY(   PMATH_SYMBOL_RIGHTTRIANGLEEQUAL               = NEW_SYSTEM_SYMBOL("RightTriangleEqual"))
   VERIFY(   PMATH_SYMBOL_ROTATE                           = NEW_SYSTEM_SYMBOL("Rotate"))
-  VERIFY(   PMATH_SYMBOL_ROTATIONBOX                      = NEW_SYSTEM_SYMBOL("RotationBox"))
   VERIFY(   PMATH_SYMBOL_ROUND                            = NEW_SYSTEM_SYMBOL("Round"))
   VERIFY(   PMATH_SYMBOL_ROW                              = NEW_SYSTEM_SYMBOL("Row"))
-  VERIFY(   PMATH_SYMBOL_ROWSPACING                       = NEW_SYSTEM_SYMBOL("RowSpacing"))
   VERIFY(   PMATH_SYMBOL_RULE                             = NEW_SYSTEM_SYMBOL("Rule"))
   VERIFY(   PMATH_SYMBOL_RULEDELAYED                      = NEW_SYSTEM_SYMBOL("RuleDelayed"))
   VERIFY(   PMATH_SYMBOL_SAMETEST                         = NEW_SYSTEM_SYMBOL("SameTest"))
   VERIFY(   PMATH_SYMBOL_SCAN                             = NEW_SYSTEM_SYMBOL("Scan"))
-  VERIFY(   PMATH_SYMBOL_SCRIPTSIZEMULTIPLIERS            = NEW_SYSTEM_SYMBOL("ScriptSizeMultipliers"))
   VERIFY(   PMATH_SYMBOL_SEC                              = NEW_SYSTEM_SYMBOL("Sec"))
-  VERIFY(   PMATH_SYMBOL_SECH                             = NEW_SYSTEM_SYMBOL("Sech"))
-  VERIFY(   PMATH_SYMBOL_SECTION                          = NEW_SYSTEM_SYMBOL("Section"))
-  VERIFY(   PMATH_SYMBOL_SECTIONEDITDUPLICATE             = NEW_SYSTEM_SYMBOL("SectionEditDuplicate"))
-  VERIFY(   PMATH_SYMBOL_SECTIONEDITDUPLICATEMAKESCOPY    = NEW_SYSTEM_SYMBOL("SectionEditDuplicateMakesCopy"))
-  VERIFY(   PMATH_SYMBOL_SECTIONFRAME                     = NEW_SYSTEM_SYMBOL("SectionFrame"))
-  VERIFY(   PMATH_SYMBOL_SECTIONFRAMECOLOR                = NEW_SYSTEM_SYMBOL("SectionFrameColor"))
-  VERIFY(   PMATH_SYMBOL_SECTIONFRAMEMARGINS              = NEW_SYSTEM_SYMBOL("SectionFrameMargins"))
-  VERIFY(   PMATH_SYMBOL_SECTIONGENERATED                 = NEW_SYSTEM_SYMBOL("SectionGenerated"))
-  VERIFY(   PMATH_SYMBOL_SECTIONGROUP                     = NEW_SYSTEM_SYMBOL("SectionGroup"))
-  VERIFY(   PMATH_SYMBOL_SECTIONGROUPPRECEDENCE           = NEW_SYSTEM_SYMBOL("SectionGroupPrecedence"))
-  VERIFY(   PMATH_SYMBOL_SECTIONMARGINS                   = NEW_SYSTEM_SYMBOL("SectionMargins"))
-  VERIFY(   PMATH_SYMBOL_SECTIONLABEL                     = NEW_SYSTEM_SYMBOL("SectionLabel"))
-  VERIFY(   PMATH_SYMBOL_SECTIONLABELAUTODELETE           = NEW_SYSTEM_SYMBOL("SectionLabelAutoDelete"))
   VERIFY(   PMATH_SYMBOL_SECTIONPRINT                     = NEW_SYSTEM_SYMBOL("SectionPrint"))
   VERIFY(   PMATH_SYMBOL_SEEDRANDOM                       = NEW_SYSTEM_SYMBOL("SeedRandom"))
   VERIFY(   PMATH_SYMBOL_SELECT                           = NEW_SYSTEM_SYMBOL("Select"))
-  VERIFY(   PMATH_SYMBOL_SELECTABLE                       = NEW_SYSTEM_SYMBOL("Selectable"))
   VERIFY(   PMATH_SYMBOL_SELECTEDDOCUMENT                 = NEW_SYSTEM_SYMBOL("SelectedDocument"))
   VERIFY(   PMATH_SYMBOL_SEQUENCE                         = NEW_SYSTEM_SYMBOL("Sequence"))
   VERIFY(   PMATH_SYMBOL_SEQUENCEHOLD                     = NEW_SYSTEM_SYMBOL("SequenceHold"))
@@ -1330,30 +1147,20 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_SETOPTIONS                       = NEW_SYSTEM_SYMBOL("SetOptions"))
   VERIFY(   PMATH_SYMBOL_SETPRECISION                     = NEW_SYSTEM_SYMBOL("SetPrecision"))
   VERIFY(   PMATH_SYMBOL_SETSTREAMPOSITION                = NEW_SYSTEM_SYMBOL("SetStreamPosition"))
-  VERIFY(   PMATH_SYMBOL_SETTER                           = NEW_SYSTEM_SYMBOL("Setter"))
-  VERIFY(   PMATH_SYMBOL_SETTERBAR                        = NEW_SYSTEM_SYMBOL("SetterBar"))
-  VERIFY(   PMATH_SYMBOL_SETTERBOX                        = NEW_SYSTEM_SYMBOL("SetterBox"))
   VERIFY(   PMATH_SYMBOL_SETTING                          = NEW_SYSTEM_SYMBOL("Setting"))
   VERIFY(   PMATH_SYMBOL_SHALLOW                          = NEW_SYSTEM_SYMBOL("Shallow"))
   VERIFY(   PMATH_SYMBOL_SHORT                            = NEW_SYSTEM_SYMBOL("Short"))
   VERIFY(   PMATH_SYMBOL_SHORTEST                         = NEW_SYSTEM_SYMBOL("Shortest"))
-  VERIFY(   PMATH_SYMBOL_SHOWAUTOSTYLES                   = NEW_SYSTEM_SYMBOL("ShowAutoStyles"))
   VERIFY(   PMATH_SYMBOL_SHOWDEFINITION                   = NEW_SYSTEM_SYMBOL("ShowDefinition"))
-  VERIFY(   PMATH_SYMBOL_SHOWSECTIONBRACKET               = NEW_SYSTEM_SYMBOL("ShowSectionBracket"))
-  VERIFY(   PMATH_SYMBOL_SHOWSTRINGCHARACTERS             = NEW_SYSTEM_SYMBOL("ShowStringCharacters"))
   VERIFY(   PMATH_SYMBOL_SIGN                             = NEW_SYSTEM_SYMBOL("Sign"))
   VERIFY(   PMATH_SYMBOL_SIN                              = NEW_SYSTEM_SYMBOL("Sin"))
-  VERIFY(   PMATH_SYMBOL_SINH                             = NEW_SYSTEM_SYMBOL("Sinh"))
   VERIFY(   PMATH_SYMBOL_SINGLEMATCH                      = NEW_SYSTEM_SYMBOL("SingleMatch"))
   VERIFY(   PMATH_SYMBOL_SKELETON                         = NEW_SYSTEM_SYMBOL("Skeleton"))
-  VERIFY(   PMATH_SYMBOL_SLIDER                           = NEW_SYSTEM_SYMBOL("Slider"))
-  VERIFY(   PMATH_SYMBOL_SLIDERBOX                        = NEW_SYSTEM_SYMBOL("SliderBox"))
   VERIFY(   PMATH_SYMBOL_SORT                             = NEW_SYSTEM_SYMBOL("Sort"))
   VERIFY(   PMATH_SYMBOL_SORTBY                           = NEW_SYSTEM_SYMBOL("SortBy"))
   VERIFY(   PMATH_SYMBOL_SPECIAL                          = NEW_SYSTEM_SYMBOL("Special"))
   VERIFY(   PMATH_SYMBOL_SPLIT                            = NEW_SYSTEM_SYMBOL("Split"))
   VERIFY(   PMATH_SYMBOL_SQRT                             = NEW_SYSTEM_SYMBOL("Sqrt"))
-  VERIFY(   PMATH_SYMBOL_SQRTBOX                          = NEW_SYSTEM_SYMBOL("SqrtBox"))
   VERIFY(   PMATH_SYMBOL_STACK                            = NEW_SYSTEM_SYMBOL("Stack"))
   VERIFY(   PMATH_SYMBOL_STANDARDFORM                     = NEW_SYSTEM_SYMBOL("StandardForm"))
   VERIFY(   PMATH_SYMBOL_STARTOFLINE                      = NEW_SYSTEM_SYMBOL("StartOfLine"))
@@ -1370,33 +1177,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_STRINGREPLACE                    = NEW_SYSTEM_SYMBOL("StringReplace"))
   VERIFY(   PMATH_SYMBOL_STRINGSPLIT                      = NEW_SYSTEM_SYMBOL("StringSplit"))
   VERIFY(   PMATH_SYMBOL_STRINGTAKE                       = NEW_SYSTEM_SYMBOL("StringTake"))
-  VERIFY(   PMATH_SYMBOL_STRINGTOBOXES                    = NEW_SYSTEM_SYMBOL("StringToBoxes"))
-  VERIFY(   PMATH_SYMBOL_STRIPONINPUT                     = NEW_SYSTEM_SYMBOL("StripOnInput"))
-  VERIFY(   PMATH_SYMBOL_STYLE                            = NEW_SYSTEM_SYMBOL("Style"))
-  VERIFY(   PMATH_SYMBOL_STYLEBOX                         = NEW_SYSTEM_SYMBOL("StyleBox"))
-  VERIFY(   PMATH_SYMBOL_STYLEDATA                        = NEW_SYSTEM_SYMBOL("StyleData"))
-  VERIFY(   PMATH_SYMBOL_STYLEDEFINITIONS                 = NEW_SYSTEM_SYMBOL("StyleDefinitions"))
   VERIFY(   PMATH_SYMBOL_SUBRULES                         = NEW_SYSTEM_SYMBOL("SubRules"))
-  VERIFY(   PMATH_SYMBOL_SUBSCRIPT                        = NEW_SYSTEM_SYMBOL("Subscript"))
-  VERIFY(   PMATH_SYMBOL_SUBSCRIPTBOX                     = NEW_SYSTEM_SYMBOL("SubscriptBox"))
-  VERIFY(   PMATH_SYMBOL_SUBSET                           = NEW_SYSTEM_SYMBOL("Subset"))
-  VERIFY(   PMATH_SYMBOL_SUBSETEQUAL                      = NEW_SYSTEM_SYMBOL("SubsetEqual"))
-  VERIFY(   PMATH_SYMBOL_SUBSUPERSCRIPT                   = NEW_SYSTEM_SYMBOL("Subsuperscript"))
-  VERIFY(   PMATH_SYMBOL_SUBSUPERSCRIPTBOX                = NEW_SYSTEM_SYMBOL("SubsuperscriptBox"))
-  VERIFY(   PMATH_SYMBOL_SUCCEEDS                         = NEW_SYSTEM_SYMBOL("Succeeds"))
-  VERIFY(   PMATH_SYMBOL_SUCCEEDSEQUAL                    = NEW_SYSTEM_SYMBOL("SucceedsEqual"))
-  VERIFY(   PMATH_SYMBOL_SUCCEEDSTILDE                    = NEW_SYSTEM_SYMBOL("SucceedsTilde"))
   VERIFY(   PMATH_SYMBOL_SUM                              = NEW_SYSTEM_SYMBOL("Sum"))
-  VERIFY(   PMATH_SYMBOL_SUPERSCRIPT                      = NEW_SYSTEM_SYMBOL("Superscript"))
-  VERIFY(   PMATH_SYMBOL_SUPERSCRIPTBOX                   = NEW_SYSTEM_SYMBOL("SuperscriptBox"))
-  VERIFY(   PMATH_SYMBOL_SUPERSET                         = NEW_SYSTEM_SYMBOL("Superset"))
-  VERIFY(   PMATH_SYMBOL_SUPERSETEQUAL                    = NEW_SYSTEM_SYMBOL("SupersetEqual"))
   VERIFY(   PMATH_SYMBOL_SWITCH                           = NEW_SYSTEM_SYMBOL("Switch"))
   VERIFY(   PMATH_SYMBOL_SYMBOL                           = NEW_SYSTEM_SYMBOL("Symbol"))
   VERIFY(   PMATH_SYMBOL_SYMBOLNAME                       = NEW_SYSTEM_SYMBOL("SymbolName"))
   VERIFY(   PMATH_SYMBOL_SYMMETRIC                        = NEW_SYSTEM_SYMBOL("Symmetric"))
   VERIFY(   PMATH_SYMBOL_SYNCHRONIZE                      = NEW_SYSTEM_SYMBOL("Synchronize"))
-  VERIFY(   PMATH_SYMBOL_SYNCHRONOUSUPDATING              = NEW_SYSTEM_SYMBOL("SynchronousUpdating"))
   VERIFY(   PMATH_SYMBOL_SYNTAX                           = NEW_SYSTEM_SYMBOL("Syntax"))
   VERIFY(   PMATH_SYMBOL_SYNTAXFORM                       = NEW_SYSTEM_SYMBOL("SyntaxForm"))
   VERIFY(   PMATH_SYMBOL_SYNTAXINFORMATION                = NEW_SYSTEM_SYMBOL("SyntaxInformation"))
@@ -1406,44 +1193,30 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_TABLE                            = NEW_SYSTEM_SYMBOL("Table"))
   VERIFY(   PMATH_SYMBOL_TAGASSIGN                        = NEW_SYSTEM_SYMBOL("TagAssign"))
   VERIFY(   PMATH_SYMBOL_TAGASSIGNDELAYED                 = NEW_SYSTEM_SYMBOL("TagAssignDelayed"))
-  VERIFY(   PMATH_SYMBOL_TAGBOX                           = NEW_SYSTEM_SYMBOL("TagBox"))
   VERIFY(   PMATH_SYMBOL_TAGUNASSIGN                      = NEW_SYSTEM_SYMBOL("TagUnassign"))
   VERIFY(   PMATH_SYMBOL_TAKE                             = NEW_SYSTEM_SYMBOL("Take"))
   VERIFY(   PMATH_SYMBOL_TAKEWHILE                        = NEW_SYSTEM_SYMBOL("TakeWhile"))
   VERIFY(   PMATH_SYMBOL_TAN                              = NEW_SYSTEM_SYMBOL("Tan"))
-  VERIFY(   PMATH_SYMBOL_TANH                             = NEW_SYSTEM_SYMBOL("Tanh"))
   VERIFY(   PMATH_SYMBOL_THREADID                         = NEW_SYSTEM_SYMBOL("$ThreadId"))
   VERIFY(   PMATH_SYMBOL_THREADLOCAL                      = NEW_SYSTEM_SYMBOL("ThreadLocal"))
-  VERIFY(   PMATH_SYMBOL_TEMPLATEBOX                      = NEW_SYSTEM_SYMBOL("TemplateBox"))
-  VERIFY(   PMATH_SYMBOL_TEMPLATEBOXOPTIONS               = NEW_SYSTEM_SYMBOL("TemplateBoxOptions"))
-  VERIFY(   PMATH_SYMBOL_TEMPLATESLOT                     = NEW_SYSTEM_SYMBOL("TemplateSlot"))
-  VERIFY(   PMATH_SYMBOL_TEMPLATESLOTSEQUENCE             = NEW_SYSTEM_SYMBOL("TemplateSlotSequence"))
   VERIFY(   PMATH_SYMBOL_TEMPORARY                        = NEW_SYSTEM_SYMBOL("Temporary"))
   VERIFY(   PMATH_SYMBOL_TESTPATTERN                      = NEW_SYSTEM_SYMBOL("TestPattern"))
-  VERIFY(   PMATH_SYMBOL_TEXTSHADOW                       = NEW_SYSTEM_SYMBOL("TextShadow"))
   VERIFY(   PMATH_SYMBOL_THREAD                           = NEW_SYSTEM_SYMBOL("Thread"))
   VERIFY(   PMATH_SYMBOL_THROUGH                          = NEW_SYSTEM_SYMBOL("Through"))
   VERIFY(   PMATH_SYMBOL_THROW                            = NEW_SYSTEM_SYMBOL("Throw"))
-  VERIFY(   PMATH_SYMBOL_TICKS                            = NEW_SYSTEM_SYMBOL("Ticks"))
   VERIFY(   PMATH_SYMBOL_TIMECONSTRAINED                  = NEW_SYSTEM_SYMBOL("TimeConstrained"))
   VERIFY(   PMATH_SYMBOL_TIMES                            = NEW_SYSTEM_SYMBOL("Times"))
   VERIFY(   PMATH_SYMBOL_TIMESBY                          = NEW_SYSTEM_SYMBOL("TimesBy"))
   VERIFY(   PMATH_SYMBOL_TIMEZONEDEFAULT                  = NEW_SYSTEM_SYMBOL("$TimeZone"))
   VERIFY(   PMATH_SYMBOL_TIMEZONE                         = NEW_SYSTEM_SYMBOL("TimeZone"))
   VERIFY(   PMATH_SYMBOL_TIMING                           = NEW_SYSTEM_SYMBOL("Timing"))
-  VERIFY(   PMATH_SYMBOL_TILDEEQUAL                       = NEW_SYSTEM_SYMBOL("TildeEqual"))
-  VERIFY(   PMATH_SYMBOL_TILDEFULLEQUAL                   = NEW_SYSTEM_SYMBOL("TildeFullEqual"))
-  VERIFY(   PMATH_SYMBOL_TILDETILDE                       = NEW_SYSTEM_SYMBOL("TildeTilde"))
   VERIFY(   PMATH_SYMBOL_TOBOXES                          = NEW_SYSTEM_SYMBOL("ToBoxes"))
   VERIFY(   PMATH_SYMBOL_TOCHARACTERCODE                  = NEW_SYSTEM_SYMBOL("ToCharacterCode"))
   VERIFY(   PMATH_SYMBOL_TOEXPRESSION                     = NEW_SYSTEM_SYMBOL("ToExpression"))
   VERIFY(   PMATH_SYMBOL_TOFILENAME                       = NEW_SYSTEM_SYMBOL("ToFileName"))
-  VERIFY(   PMATH_SYMBOL_TOOLTIP                          = NEW_SYSTEM_SYMBOL("Tooltip"))
-  VERIFY(   PMATH_SYMBOL_TOOLTIPBOX                       = NEW_SYSTEM_SYMBOL("TooltipBox"))
   VERIFY(   PMATH_SYMBOL_TOSTRING                         = NEW_SYSTEM_SYMBOL("ToString"))
   VERIFY(   PMATH_SYMBOL_TOTAL                            = NEW_SYSTEM_SYMBOL("Total"))
   VERIFY(   PMATH_SYMBOL_TRACKEDSYMBOLS                   = NEW_SYSTEM_SYMBOL("TrackedSymbols"))
-  VERIFY(   PMATH_SYMBOL_TRANSFORMATIONBOX                = NEW_SYSTEM_SYMBOL("TransformationBox"))
   VERIFY(   PMATH_SYMBOL_TRANSPOSE                        = NEW_SYSTEM_SYMBOL("Transpose"))
   VERIFY(   PMATH_SYMBOL_TRUE                             = NEW_SYSTEM_SYMBOL("True"))
   VERIFY(   PMATH_SYMBOL_TRY                              = NEW_SYSTEM_SYMBOL("Try"))
@@ -1452,34 +1225,22 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   VERIFY(   PMATH_SYMBOL_UNCOMPRESSSTREAM                 = NEW_SYSTEM_SYMBOL("UncompressStream"))
   VERIFY(   PMATH_SYMBOL_UNDEFINED                        = NEW_SYSTEM_SYMBOL("Undefined"))
   VERIFY(   PMATH_SYMBOL_UNDERFLOW                        = NEW_SYSTEM_SYMBOL("Underflow"))
-  VERIFY(   PMATH_SYMBOL_UNDERSCRIPT                      = NEW_SYSTEM_SYMBOL("Underscript"))
-  VERIFY(   PMATH_SYMBOL_UNDERSCRIPTBOX                   = NEW_SYSTEM_SYMBOL("UnderscriptBox"))
-  VERIFY(   PMATH_SYMBOL_UNDEROVERSCRIPT                  = NEW_SYSTEM_SYMBOL("Underoverscript"))
-  VERIFY(   PMATH_SYMBOL_UNDEROVERSCRIPTBOX               = NEW_SYSTEM_SYMBOL("UnderoverscriptBox"))
   VERIFY(   PMATH_SYMBOL_UNEQUAL                          = NEW_SYSTEM_SYMBOL("Unequal"))
   VERIFY(   PMATH_SYMBOL_UNEVALUATED                      = NEW_SYSTEM_SYMBOL("Unevaluated"))
   VERIFY(   PMATH_SYMBOL_UNIDENTICAL                      = NEW_SYSTEM_SYMBOL("Unidentical"))
   VERIFY(   PMATH_SYMBOL_UNION                            = NEW_SYSTEM_SYMBOL("Union"))
   VERIFY(   PMATH_SYMBOL_UNITVECTOR                       = NEW_SYSTEM_SYMBOL("UnitVector"))
   VERIFY(   PMATH_SYMBOL_UNPROTECT                        = NEW_SYSTEM_SYMBOL("Unprotect"))
-  VERIFY(   PMATH_SYMBOL_UNSAVEDVARIABLES                 = NEW_SYSTEM_SYMBOL("UnsavedVariables"))
-  VERIFY(   PMATH_SYMBOL_UPARROW                          = NEW_SYSTEM_SYMBOL("UpArrow"))
   VERIFY(   PMATH_SYMBOL_UPDATE                           = NEW_SYSTEM_SYMBOL("Update"))
   VERIFY(   PMATH_SYMBOL_UPDATEINTERVAL                   = NEW_SYSTEM_SYMBOL("UpdateInterval"))
-  VERIFY(   PMATH_SYMBOL_UPDOWNARROW                      = NEW_SYSTEM_SYMBOL("UpDownArrow"))
-  VERIFY(   PMATH_SYMBOL_UPPERLEFTARROW                   = NEW_SYSTEM_SYMBOL("UpperLeftArrow"))
-  VERIFY(   PMATH_SYMBOL_UPPERRIGHTARROW                  = NEW_SYSTEM_SYMBOL("UpperRightArrow"))
   VERIFY(   PMATH_SYMBOL_UPRULES                          = NEW_SYSTEM_SYMBOL("UpRules"))
   VERIFY(   PMATH_SYMBOL_VERSIONLIST                      = NEW_SYSTEM_SYMBOL("$VersionList"))
   VERIFY(   PMATH_SYMBOL_VERSIONNUMBER                    = NEW_SYSTEM_SYMBOL("$VersionNumber"))
-  VERIFY(   PMATH_SYMBOL_VISIBLE                          = NEW_SYSTEM_SYMBOL("Visible"))
   VERIFY(   PMATH_SYMBOL_WAIT                             = NEW_SYSTEM_SYMBOL("Wait"))
   VERIFY(   PMATH_SYMBOL_WHICH                            = NEW_SYSTEM_SYMBOL("Which"))
   VERIFY(   PMATH_SYMBOL_WHILE                            = NEW_SYSTEM_SYMBOL("While"))
   VERIFY(   PMATH_SYMBOL_WHITESPACE                       = NEW_SYSTEM_SYMBOL("Whitespace"))
   VERIFY(   PMATH_SYMBOL_WHITESPACECHARACTER              = NEW_SYSTEM_SYMBOL("WhitespaceCharacter"))
-  VERIFY(   PMATH_SYMBOL_WINDOWFRAME                      = NEW_SYSTEM_SYMBOL("WindowFrame"))
-  VERIFY(   PMATH_SYMBOL_WINDOWTITLE                      = NEW_SYSTEM_SYMBOL("WindowTitle"))
   VERIFY(   PMATH_SYMBOL_WITH                             = NEW_SYSTEM_SYMBOL("With"))
   VERIFY(   PMATH_SYMBOL_WORD                             = NEW_SYSTEM_SYMBOL("Word"))
   VERIFY(   PMATH_SYMBOL_WORDBOUNDARY                     = NEW_SYSTEM_SYMBOL("WordBoundary"))
@@ -1599,7 +1360,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_BLOCK,                       builtin_block)
   BIND_DOWN(   PMATH_SYMBOL_BOOLE,                       builtin_boole)
   BIND_DOWN(   PMATH_SYMBOL_BREAK,                       general_builtin_zeroonearg)
-  BIND_DOWN(   PMATH_SYMBOL_BUTTON,                      builtin_button)
+  BIND_DOWN(   pmath_System_Button,                      builtin_button)
   BIND_DOWN(   PMATH_SYMBOL_BYTECOUNT,                   builtin_bytecount)
   BIND_DOWN(   PMATH_SYMBOL_CASES,                       builtin_cases)
   BIND_DOWN(   PMATH_SYMBOL_CATCH,                       builtin_catch)
@@ -1866,7 +1627,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_STRINGREPLACE,               builtin_stringreplace)
   BIND_DOWN(   PMATH_SYMBOL_STRINGSPLIT,                 builtin_stringsplit)
   BIND_DOWN(   PMATH_SYMBOL_STRINGTAKE,                  builtin_stringtake)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGTOBOXES,               builtin_stringtoboxes)
+  BIND_DOWN(   pmath_System_StringToBoxes,               builtin_stringtoboxes)
   BIND_DOWN(   PMATH_SYMBOL_SUM,                         builtin_sum)
   BIND_DOWN(   PMATH_SYMBOL_SWITCH,                      builtin_switch)
   BIND_DOWN(   PMATH_SYMBOL_SUBRULES,                    builtin_symbol_rules)
@@ -1956,8 +1717,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   SET_ATTRIB( PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION,  HOLDALL);
   
-  SET_ATTRIB( PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING, THREADLOCAL);
-  
   SET_ATTRIB( PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO,   HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE, HOLDFIRST);
   
@@ -1966,18 +1725,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_AND,                              ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_NRULES,                           HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_ARCCOS,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCOSH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_ARCCOT,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCOTH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_ARCCSC,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCSCH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_ARCSEC,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCSECH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_ARCSIN,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCSINH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_ARCTAN,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_ARG,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCTANH,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_ASSIGN,                           HOLDFIRST | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_ASSIGNDELAYED,                    HOLDALL | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_ATTRIBUTES,                       HOLDFIRST | LISTABLE);
@@ -1996,7 +1749,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_BLOCK,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_BOOLE,                            DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_MAKEEXPRESSION,                   READPROTECTED);
-  SET_ATTRIB( PMATH_SYMBOL_BUTTON,                           HOLDREST);
   SET_ATTRIB( PMATH_SYMBOL_CATCH,                            HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_CEILING,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CHARACTERS,                       LISTABLE);
@@ -2010,11 +1762,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_CONJUGATE,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_COS,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CONTROLACTIVE,                    HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_COSH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_COT,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_COTH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CSC,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_CSCH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_CURRENTNAMESPACE,                 THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_DECREMENT,                        HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_DEFAULTRULES,                     HOLDALL);
@@ -2025,10 +1774,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_DO,                               HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_DOWNRULES,                        HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_DOT,                              ASSOCIATIVE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_DYNAMIC,                          HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_DYNAMICBOX,                       HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_DYNAMICLOCAL,                     HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_DYNAMICLOCALBOX,                  HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_EVALUATEDELAYED,                  HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_EVALUATIONSEQUENCE,               HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_EXP,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
@@ -2045,7 +1790,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_GAMMA,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_GATHER,                           HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_GCD,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_GRAPHICSBOX,                      HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_HOLD,                             HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_HOLDCOMPLETE,                     HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_HOLDFORM,                         HOLDALL);
@@ -2059,7 +1803,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE, HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK,      THREADLOCAL);
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,          THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_INTERPRETATIONBOX,                HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_INTERSECTION,                     ASSOCIATIVE | ONEIDENTITY | SYMMETRIC);
   SET_ATTRIB( PMATH_SYMBOL_ISHELD,                           DEEPHOLDALL | HOLDALLCOMPLETE);
   SET_ATTRIB( PMATH_SYMBOL_ISEVEN,                           LISTABLE);
@@ -2068,7 +1811,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_JACOBISYMBOL,                     DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_KRONECKERSYMBOL,                  DEFINITEFUNCTION | LISTABLE);
   SET_ATTRIB( PMATH_SYMBOL_LCM,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_LINEBOX,                          HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_LOCAL,                            HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_LOG,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_LOGGAMMA,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
@@ -2096,7 +1838,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_PATTERNSEQUENCE,                  ASSOCIATIVE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_PIECEWISE,                        HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_PLUS,                             ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_POINTBOX,                         HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_POLYGAMMA,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_POSTDECREMENT,                    HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_POSTINCREMENT,                    HOLDFIRST);
@@ -2115,13 +1856,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_RULE,                             SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_RULEDELAYED,                      HOLDREST | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_SEC,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SECH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_SEQUENCE,                         ASSOCIATIVE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_SHOWDEFINITION,                   HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_SETATTRIBUTES,                    HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_SIGN,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_SIN,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SINH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_SQRT,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_STRINGEXPRESSION,                 ASSOCIATIVE | ONEIDENTITY);
   SET_ATTRIB( PMATH_SYMBOL_SUBRULES,                         HOLDALL);
@@ -2136,7 +1875,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_TAGASSIGNDELAYED,                 HOLDALL | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_TAGUNASSIGN,                      HOLDALL | SEQUENCEHOLD);
   SET_ATTRIB( PMATH_SYMBOL_TAN,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_TANH,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
   SET_ATTRIB( PMATH_SYMBOL_TESTPATTERN,                      HOLDFIRST);
   SET_ATTRIB( PMATH_SYMBOL_TIMECONSTRAINED,                  HOLDALL);
   SET_ATTRIB( PMATH_SYMBOL_TIMES,                            ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
@@ -2214,7 +1952,6 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
   UNPROTECT( PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG);
   UNPROTECT( PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK);
   UNPROTECT( PMATH_SYMBOL_INTERNAL_NAMESPACESTACK);
-  UNPROTECT( PMATH_SYMBOL_LINE);
   UNPROTECT( PMATH_SYMBOL_MAXEXTRAPRECISION);
   UNPROTECT( PMATH_SYMBOL_MESSAGECOUNT);
   UNPROTECT( PMATH_SYMBOL_NAMESPACEPATH);
@@ -2222,12 +1959,10 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
   UNPROTECT( PMATH_SYMBOL_NEWSYMBOL);
   UNPROTECT( PMATH_SYMBOL_PAGEWIDTHDEFAULT);
   UNPROTECT( PMATH_SYMBOL_PATHDEFAULT);
-  UNPROTECT( PMATH_SYMBOL_SUBSCRIPT);
-  UNPROTECT( PMATH_SYMBOL_SUBSUPERSCRIPT);
-  UNPROTECT( PMATH_SYMBOL_SUPERSCRIPT);
+  UNPROTECT( pmath_System_Subscript);
+  UNPROTECT( pmath_System_Subsuperscript);
+  UNPROTECT( pmath_System_Superscript);
   UNPROTECT( PMATH_SYMBOL_SYSTEMCHARACTERENCODING);
-  
-  UNPROTECT( PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING);
   
 #undef UNPROTECT
 }

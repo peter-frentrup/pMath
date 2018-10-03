@@ -15,7 +15,7 @@ namespace richmath {
       virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_BUTTONBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void on_mouse_down(MouseEvent &event) override;

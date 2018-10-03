@@ -9,6 +9,27 @@
 #include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
+extern pmath_symbol_t pmath_System_DynamicLocalBox;
+extern pmath_symbol_t pmath_System_FractionBox;
+extern pmath_symbol_t pmath_System_FrameBox;
+extern pmath_symbol_t pmath_System_GridBox;
+extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_OverscriptBox;
+extern pmath_symbol_t pmath_System_RadicalBox;
+extern pmath_symbol_t pmath_System_RotationBox;
+extern pmath_symbol_t pmath_System_SqrtBox;
+extern pmath_symbol_t pmath_System_SubscriptBox;
+extern pmath_symbol_t pmath_System_SubsuperscriptBox;
+extern pmath_symbol_t pmath_System_SuperscriptBox;
+extern pmath_symbol_t pmath_System_StringToBoxes;
+extern pmath_symbol_t pmath_System_StripOnInput;
+extern pmath_symbol_t pmath_System_StyleBox;
+extern pmath_symbol_t pmath_System_TagBox;
+extern pmath_symbol_t pmath_System_TooltipBox;
+extern pmath_symbol_t pmath_System_TransformationBox;
+extern pmath_symbol_t pmath_System_UnderoverscriptBox;
+extern pmath_symbol_t pmath_System_UnderscriptBox;
+
 static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes);
 
 static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
@@ -99,7 +120,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
     return boxes;
   }
   
-  if(pmath_same(head, PMATH_SYMBOL_GRIDBOX)) {
+  if(pmath_same(head, pmath_System_GridBox)) {
     size_t rows, cols;
     pmath_t matrix = pmath_expr_get_item(boxes, 1);
     boxes = pmath_expr_set_item(boxes, 1, PMATH_NULL);
@@ -128,7 +149,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
     return boxes;
   }
   
-  if(pmath_same(head, PMATH_SYMBOL_DYNAMICLOCALBOX)) {
+  if(pmath_same(head, pmath_System_DynamicLocalBox)) {
     // DynamicLocalBox({vars...}, boxes, options...)
     
     pmath_t item = pmath_expr_extract_item(boxes, 2);
@@ -140,32 +161,32 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
   
   max_boxes  = 0;
   
-  if(pmath_same(head, PMATH_SYMBOL_FRAMEBOX))            max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_FRACTIONBOX))         max_boxes = 2;
-  else if(pmath_same(head, PMATH_SYMBOL_INTERPRETATIONBOX))   max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_OVERSCRIPTBOX))       max_boxes = 2;
-  else if(pmath_same(head, PMATH_SYMBOL_RADICALBOX))          max_boxes = 2;
-  else if(pmath_same(head, PMATH_SYMBOL_ROTATIONBOX))         max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_SQRTBOX))             max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_STYLEBOX))            max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_SUBSCRIPTBOX))        max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_SUBSUPERSCRIPTBOX))   max_boxes = 2;
-  else if(pmath_same(head, PMATH_SYMBOL_SUPERSCRIPTBOX))      max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_TAGBOX))              max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_TRANSFORMATIONBOX))   max_boxes = 1;
-  else if(pmath_same(head, PMATH_SYMBOL_TOOLTIPBOX))          max_boxes = 2;
-  else if(pmath_same(head, PMATH_SYMBOL_UNDERSCRIPTBOX))      max_boxes = 2;
-  else if(pmath_same(head, PMATH_SYMBOL_UNDEROVERSCRIPTBOX))  max_boxes = 3;
+  if(pmath_same(     head, pmath_System_FrameBox))            max_boxes = 1;
+  else if(pmath_same(head, pmath_System_FractionBox))         max_boxes = 2;
+  else if(pmath_same(head, pmath_System_InterpretationBox))   max_boxes = 1;
+  else if(pmath_same(head, pmath_System_OverscriptBox))       max_boxes = 2;
+  else if(pmath_same(head, pmath_System_RadicalBox))          max_boxes = 2;
+  else if(pmath_same(head, pmath_System_RotationBox))         max_boxes = 1;
+  else if(pmath_same(head, pmath_System_SqrtBox))             max_boxes = 1;
+  else if(pmath_same(head, pmath_System_StyleBox))            max_boxes = 1;
+  else if(pmath_same(head, pmath_System_SubscriptBox))        max_boxes = 1;
+  else if(pmath_same(head, pmath_System_SubsuperscriptBox))   max_boxes = 2;
+  else if(pmath_same(head, pmath_System_SuperscriptBox))      max_boxes = 1;
+  else if(pmath_same(head, pmath_System_TagBox))              max_boxes = 1;
+  else if(pmath_same(head, pmath_System_TransformationBox))   max_boxes = 1;
+  else if(pmath_same(head, pmath_System_TooltipBox))          max_boxes = 2;
+  else if(pmath_same(head, pmath_System_UnderoverscriptBox))  max_boxes = 3;
+  else if(pmath_same(head, pmath_System_UnderscriptBox))      max_boxes = 2;
   
-  if( pmath_same(head, PMATH_SYMBOL_STYLEBOX) ||
-      pmath_same(head, PMATH_SYMBOL_TOOLTIPBOX))
+  if( pmath_same(head, pmath_System_StyleBox) ||
+      pmath_same(head, pmath_System_TooltipBox))
   {
     pmath_expr_t options = pmath_options_extract(boxes, max_boxes);
     
     if(!pmath_is_null(options)) {
       pmath_t strip = pmath_option_value(
                         head,
-                        PMATH_SYMBOL_STRIPONINPUT,
+                        pmath_System_StripOnInput,
                         options);
                         
       pmath_unref(strip);
@@ -226,7 +247,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
   debug_info = pmath_get_debug_info(code);
   if(pmath_is_string(code)) {
     code = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_STRINGTOBOXES), 1,
+             pmath_ref(pmath_System_StringToBoxes), 1,
              code);
              
     code = pmath_evaluate(code);

@@ -36,6 +36,7 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_GraphicsBox;
 
 enum SyntaxPosition {
   Alone,
@@ -163,7 +164,7 @@ GraphicsBox::~GraphicsBox() {
 }
 
 bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_GRAPHICSBOX)
+  if(expr[0] != richmath_System_GraphicsBox)
     return false;
     
   if(expr.expr_length() < 1)
@@ -1080,6 +1081,10 @@ void GraphicsBox::reset_style() {
   style->set(BaseStyleName, "Graphics");
 }
 
+Expr GraphicsBox::to_pmath_symbol() {
+  return Symbol(richmath_System_GraphicsBox);
+}
+
 Expr GraphicsBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
@@ -1087,7 +1092,7 @@ Expr GraphicsBox::to_pmath(BoxOutputFlags flags) {
   style->emit_to_pmath(false);
   
   Expr result = g.end();
-  result.set(0, Symbol(PMATH_SYMBOL_GRAPHICSBOX));
+  result.set(0, Symbol(richmath_System_GraphicsBox));
   return result;
 }
 

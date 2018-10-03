@@ -18,6 +18,8 @@
 #include <limits.h>
 #include <string.h>
 
+extern pmath_symbol_t pmath_System_ComplexStringBox;
+
 //{ spans ...
 
 struct _pmath_span_t {
@@ -2420,7 +2422,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
       }
       
       all = pmath_gather_end();
-      all = pmath_expr_set_item(all, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
+      all = pmath_expr_set_item(all, 0, pmath_ref(pmath_System_ComplexStringBox));
       
       check_tp_before_whitespace(group, span->end + 1);
       
@@ -2689,7 +2691,7 @@ static int ungrouped_string_length(pmath_t box) { // box wont be freed
       return result;
     }
     
-    if(pmath_same(head, PMATH_SYMBOL_COMPLEXSTRINGBOX)) {
+    if(pmath_same(head, pmath_System_ComplexStringBox)) {
       for(i = pmath_expr_length(box); i > 0; --i) {
         pmath_t boxi = pmath_expr_get_item(box, i);
         
@@ -2893,7 +2895,7 @@ static void ungroup(
       return;
     }
     
-    if(pmath_same(head, PMATH_SYMBOL_COMPLEXSTRINGBOX)) {
+    if(pmath_same(head, pmath_System_ComplexStringBox)) {
       size_t i, len;
       int start = g->pos;
       pmath_span_t *s;
@@ -3140,7 +3142,7 @@ HAVE_STH_TO_EXPAND:
         return s;
       }
       
-      result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
+      result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_ComplexStringBox));
       return result;
     }
   }

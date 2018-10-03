@@ -17,6 +17,9 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_LineBox;
+extern pmath_symbol_t richmath_System_PointBox;
+
 namespace {
   class DummyGraphicsElement: public GraphicsElement {
     public:
@@ -97,12 +100,12 @@ GraphicsElement::~GraphicsElement() {
 GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
   Expr head = expr[0];
   
-  if(head == PMATH_SYMBOL_POINTBOX) {
+  if(head == richmath_System_PointBox) {
     if(auto ge = PointBox::create(expr, opts))
       return ge;
   }
   
-  if(head == PMATH_SYMBOL_LINEBOX) {
+  if(head == richmath_System_LineBox) {
     if(auto ge = LineBox::create(expr, opts))
       return ge;
   }

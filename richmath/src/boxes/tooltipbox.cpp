@@ -8,6 +8,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_TooltipBox;
+
 //{ class TooltipBox ...
 
 TooltipBox::TooltipBox()
@@ -16,9 +18,9 @@ TooltipBox::TooltipBox()
 }
 
 bool TooltipBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_TOOLTIPBOX)
+  if(expr[0] != richmath_System_TooltipBox)
     return false;
-  
+    
   if(expr.expr_length() < 2)
     return false;
     
@@ -28,18 +30,22 @@ bool TooltipBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   
-  if(style){
+  if(style) {
     reset_style();
     style->add_pmath(options);
   }
   else if(options != PMATH_UNDEFINED)
     style = new Style(options);
-  
+    
   _content->load_from_object(expr[1], opts);
   
   tooltip_boxes = expr[2];
   
   return true;
+}
+
+Expr TooltipBox::to_pmath_symbol() {
+  return Symbol(richmath_System_TooltipBox);
 }
 
 Expr TooltipBox::to_pmath(BoxOutputFlags flags) {
@@ -56,7 +62,7 @@ Expr TooltipBox::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath(false);
     
   Expr result = g.end();
-  result.set(0, Symbol(PMATH_SYMBOL_TOOLTIPBOX));
+  result.set(0, Symbol(richmath_System_TooltipBox));
   return result;
 }
 

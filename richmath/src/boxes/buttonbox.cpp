@@ -10,6 +10,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_ButtonBox;
+
 //{ class ButtonBox ...
 
 ButtonBox::ButtonBox(MathSequence *content)
@@ -18,7 +21,7 @@ ButtonBox::ButtonBox(MathSequence *content)
 }
 
 bool ButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts){
-  if(expr[0] != PMATH_SYMBOL_BUTTONBOX)
+  if(expr[0] != richmath_System_ButtonBox)
     return false;
   
   if(expr.expr_length() < 1)
@@ -66,6 +69,10 @@ void ButtonBox::resize(Context *context) {
   context->width = old_width;
 }
 
+Expr ButtonBox::to_pmath_symbol() { 
+  return Symbol(richmath_System_ButtonBox); 
+}
+
 Expr ButtonBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
@@ -75,7 +82,7 @@ Expr ButtonBox::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath(false);
     
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_BUTTONBOX));
+  e.set(0, Symbol(richmath_System_ButtonBox));
   return e;
 }
 
@@ -118,7 +125,7 @@ void ButtonBox::click() {
     fn = Call(
            fn,
            Call(
-             Symbol(PMATH_SYMBOL_BOXDATA),
+             Symbol(richmath_System_BoxData),
              _content->to_pmath(BoxOutputFlags::Default)));
              
     if(method.equals("Preemptive")) {
