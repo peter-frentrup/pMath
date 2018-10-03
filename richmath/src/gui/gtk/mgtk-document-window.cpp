@@ -394,14 +394,14 @@ void MathGtkDocumentWindow::invalidate_options() {
   Document *doc = document();
   
   if(doc->load_stylesheet()) {
-    _top_area->document()->stylesheet(doc->stylesheet());
-    _bottom_area->document()->stylesheet(doc->stylesheet());
+    _top_area->document()->invalidate_all();
+    _bottom_area->document()->invalidate_all();
   }
   
   String s = doc->get_style(WindowTitle, String());
   if(_title != s)
     title(s);
-    
+  
   WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
   if(_window_frame != f)
     window_frame(f);
@@ -411,6 +411,9 @@ void MathGtkDocumentWindow::invalidate_options() {
   Expr bottom       = SectionList::group(doc->get_style(DockedSectionsBottom));
   Expr bottom_glass = SectionList::group(doc->get_style(DockedSectionsBottomGlass));
   
+  _top_area->document()->stylesheet(doc->stylesheet());
+  _bottom_area->document()->stylesheet(doc->stylesheet());
+    
   _top_area->reload(   SectionList::group(List(top_glass, top)));
   _bottom_area->reload(SectionList::group(List(bottom, bottom_glass)));
   

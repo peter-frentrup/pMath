@@ -256,7 +256,6 @@ class richmath::Win32Dock: public Win32Widget {
       document()->insert_pmath(&i, content, document()->count());
       document()->remove(i, document()->count());
       document()->invalidate_all();
-      resize();
       
       *change_flag = true;
       return;
