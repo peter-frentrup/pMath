@@ -306,6 +306,7 @@ namespace richmath {
   class Stylesheet: public Shareable {
       friend class StylesheetImpl;
     public:
+      Stylesheet();
       virtual ~Stylesheet() override;
       
       SharedPtr<Style> find_parent_style(SharedPtr<Style> s);
@@ -341,6 +342,12 @@ namespace richmath {
       static SharedPtr<Stylesheet> Default;
       
       Hashtable<String, SharedPtr<Style> > styles;
+    
+    private:
+      Hashtable<SharedPtr<Stylesheet>, Void>            used_stylesheets;
+      mutable Hashtable<Stylesheet*,   Void, cast_hash> users;
+      
+    public:
       SharedPtr<Style> base;
       
     private:

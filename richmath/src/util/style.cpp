@@ -2136,6 +2136,7 @@ namespace richmath {
     public:
       void reload(Expr expr) {
         self.styles.clear();
+        self.used_stylesheets.clear();
         add(expr);
       }
       
@@ -2215,6 +2216,9 @@ namespace richmath {
           if(expr.expr_length() == 1 && data.is_rule() && data[1] == richmath_System_StyleDefinitions) {
             SharedPtr<Stylesheet> stylesheet = Stylesheet::try_load(data[2]);
             if(stylesheet) {
+              self.used_stylesheets.set(stylesheet, Void{});
+              stylesheet->users.set(&self, Void{});
+              
               for(auto &other : stylesheet->styles.entries()) {
                 SharedPtr<Style> *mine = self.styles.search(other.key);
                 if(mine) {
@@ -2292,7 +2296,15 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
   return true;
 }
 
+Stylesheet::Stylesheet() : Shareable() {
+}
+
 Stylesheet::~Stylesheet() {
+  users.clear();
+  for(auto &e : used_stylesheets.entries())
+    e.key->users.remove(this);
+  
+  used_stylesheets.clear();
   unregister();
 }
 
