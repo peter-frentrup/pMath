@@ -1,7 +1,7 @@
 #ifndef __RICHMATH__EVAL__OBSERVABLE_H__
 #define __RICHMATH__EVAL__OBSERVABLE_H__
 
-#include <util/base.h>
+#include <util/frontendobject.h>
 #include <utility>
 
 namespace richmath {
@@ -11,8 +11,8 @@ namespace richmath {
       ~Observable();
       
       void register_observer();
-      void register_observer(int id);
-      static void unregister_oberserver(int id);
+      void register_observer(FrontEndReference id);
+      static void unregister_oberserver(FrontEndReference id);
       void notify_all();
   };
   

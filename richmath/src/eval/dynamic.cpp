@@ -11,7 +11,7 @@ extern pmath_symbol_t richmath_System_SynchronousUpdating;
 
 //{ class Dynamic ...
 
-int Dynamic::current_evaluation_box_id = 0;
+FrontEndReference Dynamic::current_evaluation_box_id = FrontEndReference::None;
 
 Dynamic::Dynamic()
   : Base(),
@@ -101,7 +101,7 @@ Expr Dynamic::get_value_now() {
     _owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
-  int old_eval_id = current_evaluation_box_id;
+  auto old_eval_id = current_evaluation_box_id;
   current_evaluation_box_id = _owner->id();
   
   Expr call = _owner->prepare_dynamic(_expr);
@@ -110,7 +110,7 @@ Expr Dynamic::get_value_now() {
                  Call(
                    Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
                    call,
-                   _owner->id()),
+                   _owner->id().to_pmath_raw()),
                  Application::dynamic_timeout);
                  
   current_evaluation_box_id = old_eval_id;
@@ -137,7 +137,7 @@ void Dynamic::get_value_later() {
                          Call(
                            Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
                            call,
-                           _owner->id()),
+                           _owner->id().to_pmath_raw()),
                          _owner));
 }
 

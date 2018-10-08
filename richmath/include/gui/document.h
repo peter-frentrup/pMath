@@ -138,8 +138,8 @@ namespace richmath {
       
       const Array<SelectionReference> &current_word_references() { return _current_word_references; }
       
-      int clicked_box_id() {   return context.clicked_box_id; }
-      int mouseover_box_id() { return context.mouseover_box_id; }
+      FrontEndReference clicked_box_id() {   return context.clicked_box_id; }
+      FrontEndReference mouseover_box_id() { return context.mouseover_box_id; }
       void reset_mouse();
       bool is_mouse_down() { return mouse_down_counter > 0; }
       
@@ -160,13 +160,13 @@ namespace richmath {
       Document *main_document; // not owned
       
     protected:
-      Context     context;
-      float       best_index_rel_x;
-      int         prev_sel_line;
-      int         prev_sel_box_id;
-      int         must_resize_min;
-      DragStatus  drag_status;
-      bool        auto_scroll;
+      Context            context;
+      float              best_index_rel_x;
+      int                prev_sel_line;
+      FrontEndReference  prev_sel_box_id;
+      int                must_resize_min;
+      DragStatus         drag_status;
+      bool               auto_scroll;
       
       SharedPtr<BoxRepaintEvent> flashing_cursor_circle;
       

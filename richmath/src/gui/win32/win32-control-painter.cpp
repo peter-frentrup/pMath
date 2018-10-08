@@ -726,19 +726,19 @@ void Win32ControlPainter::draw_container(
 }
 
 SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
-  int            widget_id,
-  Canvas        *canvas,
-  ContainerType  type1,
-  ContainerType  type2,
-  ControlState   state1,
-  ControlState   state2,
-  float          x,
-  float          y,
-  float          width,
-  float          height
+  FrontEndReference  widget_id,
+  Canvas            *canvas,
+  ContainerType      type1,
+  ContainerType      type2,
+  ControlState       state1,
+  ControlState       state2,
+  float              x,
+  float              y,
+  float              width,
+  float              height
 ) {
-  if(!Win32Themes::GetThemeTransitionDuration || widget_id == 0)
-    return 0;
+  if(!Win32Themes::GetThemeTransitionDuration || !widget_id.is_valid())
+    return nullptr;
     
   bool repeat = false;
   if(type2 == DefaultPushButton && state1 == Normal && state2 == Normal) {
@@ -750,21 +750,21 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
       (state2 == Hot || state2 == Hovered)  &&
       type2 == PaletteButton)
   {
-    return 0;
+    return nullptr;
   }
   
   int theme_part, theme_state1, theme_state2;
   HANDLE theme = get_control_theme(type1, state1, &theme_part, &theme_state1);
   get_control_theme(type2, state2, &theme_part, &theme_state2);
   if(!theme)
-    return 0;
+    return nullptr;
     
   if( type2 == PushButton        ||
       type2 == DefaultPushButton ||
       type2 == PaletteButton)
   {
     if(state2 == PressedHovered/* || state1 == Normal*/)
-      return 0;
+      return nullptr;
   }
   
   DWORD duration = 0;
@@ -794,7 +794,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
       x1, y1, w1, h1,
       duration / 1000.0);
       
-    if( anim->box_id == 0 || 
+    if( !anim->box_id.is_valid() || 
         !anim->buf1       || 
         !anim->buf2)
     {
@@ -824,7 +824,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     return anim;
   }
   
-  return 0;
+  return nullptr;
 }
 
 void Win32ControlPainter::container_content_move(

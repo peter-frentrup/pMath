@@ -21,7 +21,6 @@ Context::Context()
     width(HUGE_VAL),
     section_content_window_width(HUGE_VAL),
     sequence_unfilled_width(0),
-    text_shaper(0),
     cursor_color(0x000000),
     syntax(GeneralSyntaxInfo::std),
     multiplication_sign(0x00D7),
@@ -33,8 +32,8 @@ Context::Context()
     boxchar_fallback_enabled(true),
     script_indent(0),
     script_size_min(5),
-    mouseover_box_id(0),
-    clicked_box_id(0),
+    mouseover_box_id(FrontEndReference::None),
+    clicked_box_id(FrontEndReference::None),
     active(true)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());

@@ -7,8 +7,8 @@ using namespace pmath;
 
 //{ class Observable ...
 
-static Hashtable<Observable*, Expr, cast_hash>                             all_observers;
-static Hashtable<int, Hashtable<Observable*, Void, cast_hash>, cast_hash>  all_observed_values;
+static Hashtable<Observable*, Expr, cast_hash>                                 all_observers;
+static Hashtable<FrontEndReference, Hashtable<Observable*, Void, cast_hash> >  all_observed_values;
 
 Observable::Observable()
   : Base()
@@ -21,11 +21,8 @@ Observable::~Observable() {
   all_observers.remove(this);
   
   for(size_t i = my_observers.expr_length(); i > 0; --i) {
-    auto item = my_observers[i];
-    int id;
-    if(item.is_int32())
-      id = PMATH_AS_INT32(item.get());
-    else
+    auto id = FrontEndReference::from_pmath(my_observers[i]);
+    if(!id)
       continue;
       
     auto observed = all_observed_values.search(id);
@@ -42,7 +39,7 @@ void Observable::register_observer() {
   register_observer(Dynamic::current_evaluation_box_id);
 }
 
-void Observable::register_observer(int id) {
+void Observable::register_observer(FrontEndReference id) {
   if(!id)
     return;
   
@@ -58,7 +55,7 @@ void Observable::register_observer(int id) {
   
   observed->set(this, Void{});
   
-  Expr id_obj {id};
+  Expr id_obj = id.to_pmath_raw();
   
   Expr *observer_ids = all_observers.search(this);
   if(!observer_ids) {
@@ -68,12 +65,12 @@ void Observable::register_observer(int id) {
   observer_ids->append(id_obj);
 }
 
-void Observable::unregister_oberserver(int id) {
+void Observable::unregister_oberserver(FrontEndReference id) {
   auto observed = all_observed_values.search(id);
   if(!observed)
     return;
     
-  Expr id_obj {id};
+  Expr id_obj = id.to_pmath_raw();
   
   for(auto &e : observed->entries()) {
     Observable *o = e.key;
@@ -91,14 +88,9 @@ void Observable::notify_all() {
   auto &my_observers = all_observers[this];
   
   for(size_t i = my_observers.expr_length(); i > 0; --i) {
-    auto item = my_observers[i];
-    int id;
-    if(item.is_int32())
-      id = PMATH_AS_INT32(item.get());
-    else
-      continue;
-      
-    all_observed_values.remove(id);
+    auto id = FrontEndReference::from_pmath(my_observers[i]);
+    if(id)
+      all_observed_values.remove(id);
   }
   
   Application::notify(ClientNotification::DynamicUpdate, my_observers);

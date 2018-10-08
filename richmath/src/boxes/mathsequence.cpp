@@ -287,7 +287,7 @@ namespace richmath {
           
         Expr debug_info = Call(
                             Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
-                            Call(Symbol(richmath_System_FrontEndObject), data->sequence->id()),
+                            Call(Symbol(richmath_System_FrontEndObject), data->sequence->id().to_pmath_raw()),
                             Call(Symbol(PMATH_SYMBOL_RANGE), start->index, end->index));
                             
         token_or_span = pmath_try_set_debug_info(

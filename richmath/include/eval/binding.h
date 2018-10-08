@@ -1,6 +1,7 @@
 #ifndef __EVAL__BINDING_H__
 #define __EVAL__BINDING_H__
 
+#include <util/frontendobject.h>
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 
@@ -24,7 +25,7 @@ namespace richmath {
   Document *get_current_document();
   
   // toplevel windows must register themselves!
-  extern Hashtable<int, Void, cast_hash> all_document_ids;
+  extern Hashtable<FrontEndReference, Void> all_document_ids;
 }
 
 #endif // __EVAL__BINDING_H__

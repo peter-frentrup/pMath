@@ -1403,7 +1403,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                     _hwnd != GetFocus() ||
                     is_mouse_down())
                 {
-                  ctx->old_selection.id = 0;
+                  ctx->old_selection.id = FrontEndReference::None;
                 }
                 else
                   ctx->old_selection = ctx->selection;

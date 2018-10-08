@@ -55,7 +55,7 @@ DynamicBox::DynamicBox()
 
 DynamicBox::~DynamicBox() {
   Application::interrupt_wait_for(
-    Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 
+    Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id().to_pmath_raw()), 
     0,
     Application::interrupt_timeout);
   Observable::unregister_oberserver(id());

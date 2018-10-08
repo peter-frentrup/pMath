@@ -543,7 +543,7 @@ Document::Document()
     main_document(0),
     best_index_rel_x(0),
     prev_sel_line(-1),
-    prev_sel_box_id(0),
+    prev_sel_box_id(FrontEndReference::None),
     must_resize_min(0),
     drag_status(DragStatusIdle),
     auto_scroll(false),
@@ -680,7 +680,7 @@ void Document::mouse_exit() {
       over = over->parent();
     }
     
-    context.mouseover_box_id = 0;
+    context.mouseover_box_id = FrontEndReference::None;
   }
   
   if(DebugFollowMouse) {
@@ -690,7 +690,7 @@ void Document::mouse_exit() {
 }
 
 void Document::mouse_down(MouseEvent &event) {
-  Box *receiver = 0;
+  Box *receiver = nullptr;
   
   //Application::update_control_active(native()->is_mouse_down());
   
@@ -723,12 +723,12 @@ void Document::mouse_down(MouseEvent &event) {
 }
 
 void Document::mouse_up(MouseEvent &event) {
-  int next_clicked_box_id = context.clicked_box_id;
+  auto next_clicked_box_id = context.clicked_box_id;
   Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
   
   if(--mouse_down_counter <= 0) {
     Application::delay_dynamic_updates(false);
-    next_clicked_box_id = 0;
+    next_clicked_box_id = FrontEndReference::None;
     mouse_down_counter = 0;
   }
   
@@ -797,7 +797,7 @@ void Document::mouse_move(MouseEvent &event) {
       invalidate();
     }
     
-    //Box *new_over = receiver ? receiver->mouse_sensitive() : 0;
+    //Box *new_over = receiver ? receiver->mouse_sensitive() : nullptr;
     Box *old_over = FrontEndObject::find_cast<Box>(context.mouseover_box_id);
     
     if(receiver) {
@@ -817,7 +817,7 @@ void Document::mouse_move(MouseEvent &event) {
       context.mouseover_box_id = receiver->id();
     }
     else
-      context.mouseover_box_id = 0;
+      context.mouseover_box_id = FrontEndReference::None;
       
 //    if(new_over != old_over){
 //      if(old_over)
@@ -833,7 +833,7 @@ void Document::mouse_move(MouseEvent &event) {
 //      new_over->on_mouse_move(event);
 //    }
 //    else
-//      context.mouseover_box_id = 0;
+//      context.mouseover_box_id = FrontEndReference::None;
   }
 }
 
@@ -856,7 +856,7 @@ void Document::focus_killed() {
     sel->on_exit();
     
     if(!sel->selectable())
-      select(0, 0, 0);
+      select(nullptr, 0, 0);
     else if(selection_length() > 0)
       sel->request_repaint_range(selection_start(), selection_end());
   }
@@ -948,7 +948,7 @@ void Document::on_mouse_down(MouseEvent &event) {
           toggle_open_close_group(context.selection.start);
           
           // prevent selection from changing in mouse_move():
-          context.clicked_box_id = 0;
+          context.clicked_box_id = FrontEndReference::None;
           
           // prevent "tripple-click"
           mouse_down_time = 0;
@@ -4302,7 +4302,7 @@ void DocumentImpl::paint_flashing_cursor_if_needed() {
     }
     
     self.prev_sel_line = -1;
-    self.prev_sel_box_id = 0;
+    self.prev_sel_box_id = FrontEndReference::None;
   }
   
   if(self.flashing_cursor_circle) {
@@ -4454,7 +4454,7 @@ void DocumentImpl::set_prev_sel_line() {
   }
   else {
     self.prev_sel_line = -1;
-    self.prev_sel_box_id = -1;
+    self.prev_sel_box_id = FrontEndReference::None;
   }
 }
 
@@ -4735,7 +4735,7 @@ void DocumentImpl::handle_key_backspace(SpecialKeyEvent &event) {
   }
   
   if(event.ctrl || selbox != &self) {
-    int old = self.context.selection.id;
+    auto old = self.context.selection.id;
     MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
     
     if( seq &&
@@ -4861,7 +4861,7 @@ void DocumentImpl::handle_key_escape(SpecialKeyEvent &event) {
     if(auto receiver = FrontEndObject::find_cast<Box>(self.context.clicked_box_id))
       receiver->on_mouse_cancel();
       
-    self.context.clicked_box_id = 0;
+    self.context.clicked_box_id = FrontEndReference::None;
     event.key = SpecialKey::Unknown;
     return;
   }

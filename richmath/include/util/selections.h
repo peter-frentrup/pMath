@@ -1,18 +1,20 @@
 #ifndef __UTIL__SELECTIONS_H__
 #define __UTIL__SELECTIONS_H__
 
+#include <util/frontendobject.h>
 
 namespace richmath {
   class Box;
   
   class SelectionReference {
     public:
-      explicit SelectionReference(int _id = 0, int _start = 0, int _end = 0);
+      explicit SelectionReference();
+      explicit SelectionReference(FrontEndReference _id, int _start, int _end);
       
       Box *get();
       void set(Box *box, int _start, int _end);
       void set_raw(Box *box, int _start, int _end);
-      void reset() { set(0, 0, 0); }
+      void reset() { set(nullptr, 0, 0); }
       
       bool equals(Box *box, int _start, int _end) const;
       bool equals(const SelectionReference &other) const;
@@ -26,7 +28,7 @@ namespace richmath {
       }
       
     public:
-      int id;
+      FrontEndReference id;
       int start;
       int end;
   };

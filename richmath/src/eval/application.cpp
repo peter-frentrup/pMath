@@ -124,7 +124,7 @@ static Hashtable<Expr, bool              ( *)(Expr)>                  menu_comma
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                  menu_command_testers;
 static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)> currentvalue_providers;
 
-static Hashtable<int, Void, cast_hash> pending_dynamic_updates;
+static Hashtable<FrontEndReference, Void> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
 static bool dynamic_update_delay_timer_active = false;
 static double last_dynamic_evaluation = 0.0;
@@ -605,7 +605,7 @@ static void update_control_active(bool value) {
   }
 }
 
-static Hashtable<int, Void, cast_hash> active_controls;
+static Hashtable<FrontEndReference, Void> active_controls;
 
 void Application::activated_control(Box *box) {
   active_controls.set(box->id(), Void());
@@ -1221,9 +1221,9 @@ Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   expr = Call(
            Symbol(richmath_FE_InternalExecuteFor),
            expr,
-           pos.document_id,
-           pos.section_id,
-           pos.box_id);
+           pos.document_id.to_pmath_raw(),
+           pos.section_id.to_pmath_raw(),
+           pos.box_id.to_pmath_raw());
            
   bool old_is_executing_for_sth = is_executing_for_sth;
   is_executing_for_sth = true;
@@ -1238,7 +1238,12 @@ Expr Application::interrupt_wait_for(Expr expr, Box *box) {
   return interrupt_wait_for(expr, box, interrupt_timeout);
 }
 
-Expr Application::internal_execute_for(Expr expr, int doc, int sect, int box) {
+Expr Application::internal_execute_for(
+  Expr              expr, 
+  FrontEndReference doc, 
+  FrontEndReference sect, 
+  FrontEndReference box
+) {
   EvaluationPosition old_print_pos;
   
   pmath_atomic_lock(&print_pos_lock);
@@ -1431,7 +1436,7 @@ static Expr cnt_getdocuments() {
   Gather gather;
   
   for(auto &e : all_document_ids.entries())
-    Gather::emit(Call(Symbol(richmath_System_FrontEndObject), e.key));
+    Gather::emit(Call(Symbol(richmath_System_FrontEndObject), e.key.to_pmath_raw()));
     
   return gather.end();
 }
@@ -1553,7 +1558,7 @@ static Expr cnt_createdocument(Expr data) {
   if(doc) {
     doc->invalidate_options();
     
-    return Call(Symbol(richmath_System_FrontEndObject), doc->id());
+    return Call(Symbol(richmath_System_FrontEndObject), doc->id().to_pmath_raw());
   }
   
   return Symbol(PMATH_SYMBOL_FAILED);
@@ -1611,7 +1616,7 @@ static Expr cnt_getevaluationdocument(Expr data) {
     doc = doc->main_document;
     
   if(doc)
-    return Call(Symbol(richmath_System_FrontEndObject), doc->id());
+    return Call(Symbol(richmath_System_FrontEndObject), doc->id().to_pmath_raw());
     
   return Symbol(PMATH_SYMBOL_FAILED);
 }

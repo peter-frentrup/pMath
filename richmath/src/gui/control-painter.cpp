@@ -412,7 +412,7 @@ void ControlPainter::draw_container(
 }
 
 SharedPtr<BoxAnimation> ControlPainter::control_transition(
-  int                          widget_id,
+  FrontEndReference            widget_id,
   Canvas                      *canvas,
   ContainerType                type1,
   ContainerType                type2,

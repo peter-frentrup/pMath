@@ -16,7 +16,7 @@ extern pmath_symbol_t richmath_System_DollarLine;
 
 //{ class EvaluationPosition ...
 
-EvaluationPosition::EvaluationPosition(int _doc, int _sect, int _box)
+EvaluationPosition::EvaluationPosition(FrontEndReference _doc, FrontEndReference _sect, FrontEndReference _box)
   : document_id(_doc),
     section_id(_sect),
     box_id(_box)
@@ -24,18 +24,18 @@ EvaluationPosition::EvaluationPosition(int _doc, int _sect, int _box)
 }
 
 EvaluationPosition::EvaluationPosition(Box *box)
-  : document_id(0),
-    section_id(0),
-    box_id(0)
+  : document_id(FrontEndReference::None),
+    section_id(FrontEndReference::None),
+    box_id(FrontEndReference::None)
 {
   if(box) {
     box_id = box->id();
     
     Document *doc = box->find_parent<Document>(true);
-    document_id = doc ? doc->id() : 0;
+    document_id = doc ? doc->id() : FrontEndReference::None;
     
     Section *sect = box->find_parent<Section>(true);
-    section_id = sect ? sect->id() : 0;
+    section_id = sect ? sect->id() : FrontEndReference::None;
   }
 }
 
@@ -68,7 +68,7 @@ void InputJob::enqueued() {
   
   if(auto section = dynamic_cast<Section*>(Box::find(_position.section_id))) {
     if(section->evaluating) {
-      _position = EvaluationPosition(0);
+      _position = EvaluationPosition(nullptr);
     }
     else {
       if(doc) {
@@ -183,7 +183,7 @@ void EvaluationJob::end() {
 DynamicEvaluationJob::DynamicEvaluationJob(Expr info, Expr expr, Box *box)
   : EvaluationJob(expr, box),
     _info(info),
-    old_eval_id(0)
+    old_eval_id(FrontEndReference::None)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }

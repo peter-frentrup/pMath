@@ -7,7 +7,14 @@ using namespace richmath;
 
 //{ class SelectionReference ...
 
-SelectionReference::SelectionReference(int _id, int _start, int _end)
+SelectionReference::SelectionReference()
+  : id(FrontEndReference::None),
+    start(0),
+    end(0)
+{
+}
+
+SelectionReference::SelectionReference(FrontEndReference _id, int _start, int _end)
   : id(_id),
     start(_start),
     end(_end)
@@ -16,11 +23,11 @@ SelectionReference::SelectionReference(int _id, int _start, int _end)
 
 Box *SelectionReference::get() {
   if(!id)
-    return 0;
+    return nullptr;
     
   Box *result = FrontEndObject::find_cast<Box>(id);
   if(!result)
-    return 0;
+    return nullptr;
     
   if(start > result->length())
     start = result->length();
@@ -45,12 +52,12 @@ void SelectionReference::set_raw(Box *box, int _start, int _end) {
     end = _end;
   }
   else
-    id = 0;
+    id = FrontEndReference::None;
 }
 
 bool SelectionReference::equals(Box *box, int _start, int _end) const {
   if(!box)
-    return id == 0;
+    return id.is_valid();
     
   SelectionReference other;
   other.set(box, _start, _end);

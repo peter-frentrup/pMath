@@ -1,6 +1,7 @@
 #ifndef __EVAL__CLIENT_H__
 #define __EVAL__CLIENT_H__
 
+#include <util/frontendobject.h>
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
@@ -122,7 +123,11 @@ namespace richmath {
       static Expr interrupt_wait_for(Expr expr, Box *box);
       
       // callable from non-gui thread:
-      static Expr internal_execute_for(Expr expr, int doc, int sect, int box);
+      static Expr internal_execute_for(
+                    Expr              expr, 
+                    FrontEndReference doc, 
+                    FrontEndReference sect, 
+                    FrontEndReference box);
       
       static void delay_dynamic_updates(bool delay);
       

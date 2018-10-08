@@ -83,8 +83,8 @@ namespace richmath {
       
       SharedPtr<Stylesheet> stylesheet;
       
-      int mouseover_box_id;
-      int clicked_box_id;
+      FrontEndReference mouseover_box_id;
+      FrontEndReference clicked_box_id;
       
       bool active;
   };

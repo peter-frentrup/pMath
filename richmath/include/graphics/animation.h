@@ -1,6 +1,7 @@
 #ifndef __GRAPHICS__ANIMATION_H__
 #define __GRAPHICS__ANIMATION_H__
 
+#include <util/frontendobject.h>
 #include <graphics/buffer.h>
 
 
@@ -9,7 +10,7 @@ namespace richmath {
     public:
       TimedEvent(double _min_wait_seconds);
       
-      bool register_for(int box_id);
+      bool register_for(FrontEndReference box_id);
       virtual void execute_event() = 0;
       
       void reset_timer() {
@@ -27,18 +28,18 @@ namespace richmath {
   
   class BoxRepaintEvent: public TimedEvent {
     public:
-      BoxRepaintEvent(int _box_id, double _min_wait_seconds);
+      BoxRepaintEvent(FrontEndReference _box_id, double _min_wait_seconds);
       
       bool register_event() { return register_for(box_id); }
       virtual void execute_event() override;
       
     public:
-      int box_id;
+      FrontEndReference box_id;
   };
   
   class BoxAnimation: public BoxRepaintEvent {
     public:
-      BoxAnimation(int _box_id): BoxRepaintEvent(_box_id, 0.0) {}
+      BoxAnimation(FrontEndReference _box_id): BoxRepaintEvent(_box_id, 0.0) {}
       
       virtual bool paint(Canvas *canvas) = 0;
       
@@ -49,13 +50,13 @@ namespace richmath {
   class LinearTransition: public BoxAnimation {
     public:
       LinearTransition(
-        int _box_id,
+        FrontEndReference _box_id,
         Canvas *dst,
         const BoxSize &size,
         double _seconds);
         
       LinearTransition(
-        int _box_id,
+        FrontEndReference _box_id,
         Canvas *dst,
         float x, float y, float w, float h,
         double _seconds);

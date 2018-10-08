@@ -11,9 +11,9 @@
 
 using namespace richmath;
 
-Hashtable<int, Void, cast_hash> richmath::all_document_ids;
+Hashtable<FrontEndReference, Void> richmath::all_document_ids;
 
-static int current_document_id = 0;
+static FrontEndReference current_document_id = FrontEndReference::None;
 
 //{ pmath functions ...
 
@@ -55,36 +55,19 @@ static pmath_t builtin_fontdialog(pmath_expr_t _expr) {
   return Application::notify_wait(ClientNotification::FontDialog, Expr(_expr)).release();
 }
 
-static pmath_t builtin_internalexecutefor(pmath_expr_t expr) {
-  if(pmath_expr_length(expr) != 4)
-    return expr;
-    
-  pmath_debug_print_object("[", expr, "]\n");
+static pmath_t builtin_internalexecutefor(pmath_expr_t _expr) {
+  if(pmath_expr_length(_expr) != 4)
+    return _expr;
   
-  pmath_t code        = pmath_expr_get_item(expr, 1);
-  pmath_t document_id = pmath_expr_get_item(expr, 2);
-  pmath_t section_id  = pmath_expr_get_item(expr, 3);
-  pmath_t box_id      = pmath_expr_get_item(expr, 4);
-  pmath_unref(expr);
+  Expr expr {_expr};
   
-  if( pmath_is_int32(document_id) &&
-      pmath_is_int32(section_id) &&
-      pmath_is_int32(box_id))
-  {
-    code = Application::internal_execute_for(
-             Expr(code),
-             PMATH_AS_INT32(document_id),
-             PMATH_AS_INT32(section_id),
-             PMATH_AS_INT32(box_id)).release();
-  }
-  else
-    code = pmath_evaluate(code);
-    
-  pmath_unref(document_id);
-  pmath_unref(section_id);
-  pmath_unref(box_id);
+  pmath_debug_print_object("[", _expr, "]\n");
   
-  return code;
+  return Application::internal_execute_for(
+           expr[1],
+           FrontEndReference::from_pmath_raw(expr[2]),
+           FrontEndReference::from_pmath_raw(expr[3]),
+           FrontEndReference::from_pmath_raw(expr[4])).release();
 }
 
 static pmath_t builtin_createdocument(pmath_expr_t expr) {
@@ -262,7 +245,7 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
   
   return pmath_expr_new_extended(
            pmath_ref(richmath_System_FrontEndObject), 1,
-           PMATH_FROM_INT32(current_document_id));
+           current_document_id.to_pmath_raw());
 }
 
 //} ... pmath functions
@@ -1437,7 +1420,7 @@ void richmath::set_current_document(Document *document) {
   if(document)
     document->focus_set();
     
-  current_document_id = document ? document->id() : 0;
+  current_document_id = document ? document->id() : FrontEndReference::None;
 }
 
 Document *richmath::get_current_document() {

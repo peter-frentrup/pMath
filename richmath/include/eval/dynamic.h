@@ -31,7 +31,7 @@ namespace richmath {
       // 0 = False, 1 = True, 2 = Automatic
       int synchronous_updating() { return _synchronous_updating; }
       
-      static int current_evaluation_box_id;
+      static FrontEndReference current_evaluation_box_id;
       
     private:
       Box *_owner;
