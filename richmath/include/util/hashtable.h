@@ -35,15 +35,28 @@ namespace richmath {
     }
   };
   
+  template<>
+  struct cast_hash_impl<uintptr_t> {
+    static unsigned int hash(uintptr_t t) {
+#if PMATH_BITSIZE == 32
+      return (unsigned int)t;
+#else
+      return (unsigned int)((t & 0xFFFFFFFFU) ^ (t >> 32));
+#endif
+    }
+  };
+  
+  template<>
+  struct cast_hash_impl<intptr_t> {
+    static unsigned int hash(intptr_t t) {
+      return cast_hash_impl<uintptr_t>::hash((uintptr_t)t);
+    }
+  };
+  
   template<typename TP>
   struct cast_hash_impl<TP *> {
     static unsigned int hash(TP *const &t) {
-#if PMATH_BITSIZE == 32
-      return (unsigned int)(uintptr_t)t;
-#else
-      uintptr_t tmp = (uintptr_t)t;
-      return (unsigned int)((tmp & 0xFFFFFFFFU) ^ (tmp >> 32));
-#endif
+      return cast_hash_impl<uintptr_t>::hash((uintptr_t)t);
     }
   };
   
