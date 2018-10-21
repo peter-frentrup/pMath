@@ -135,7 +135,8 @@ namespace richmath {
       int selection_start() {  return context.selection.start; }
       int selection_end() {    return context.selection.end;   }
       int selection_length() { return context.selection.end - context.selection.start; }
-      
+      const SelectionReference &selection() { return context.selection; }
+
       const Array<SelectionReference> &current_word_references() { return _current_word_references; }
       
       FrontEndReference clicked_box_id() {   return context.clicked_box_id; }

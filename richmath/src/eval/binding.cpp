@@ -784,8 +784,59 @@ static bool edit_boxes_cmd(Expr cmd) {
         pmath_debug_print_object("\n fullform: ", tmp.get(), "\n");
         
         doc->select(edit->content(), 0, 0);
-        doc->insert_string(obj.to_string(
-                             PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR));
+        
+        struct write_context {
+          String output;
+          Expr sel_start_token;
+          SelectionReference selection;
+          int sel_start_token_output_begin;
+          int sel_start_token_source_start;
+          int sel_start_token_source_end;
+        } context;
+        context.output = String("");
+        context.selection = old_sel;
+        context.sel_start_token_output_begin = -1;
+
+        pmath_write_ex_t info = {0};
+        info.size = sizeof(info);
+        info.options = PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
+        info.user = &context;
+        info.write = [](void *user, const uint16_t *data, int len) {
+          struct write_context *context = (struct write_context*)user;
+          context->output.insert(INT_MAX, data, len);
+        };
+        info.pre_write = [](void *user, pmath_t obj, pmath_write_options_t opts) {
+          struct write_context *context = (struct write_context*)user;
+          Expr di{pmath_get_debug_info(obj)};
+          if(di.expr_length() == 2 && di[0] == PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE) {
+            auto ref = FrontEndReference::from_pmath(di[1]);
+            if(ref == context->selection.id) {
+              Expr range = di[2];
+              if( range.expr_length() == 2 && 
+                  range[0] == PMATH_SYMBOL_RANGE &&
+                  range[1].is_int32() &&
+                  range[2].is_int32())
+              {
+                int s = PMATH_AS_INT32(range[1].get());
+                int e = PMATH_AS_INT32(range[2].get());
+
+                if(s <= context->selection.start && context->selection.start <= e) {
+                  int written = context->output.length();
+                  if(context->sel_start_token_output_begin <= written) {
+                    context->sel_start_token_output_begin = written;
+                    context->sel_start_token = Expr{ pmath_ref(obj) };
+                    context->sel_start_token_source_start = s;
+                    context->sel_start_token_source_end = e;
+                  }
+                }
+              }
+            }
+          }
+        };
+        
+        //code = obj.to_string(PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR);
+        pmath_write_ex(&info, obj.get());
+        doc->insert_string(context.output);
       }
     }
     

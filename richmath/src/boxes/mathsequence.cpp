@@ -253,33 +253,28 @@ namespace richmath {
         }
         
         if(pmath_is_string(token_or_span)) {
-          if(data->start <= start->index && end->index <= data->end)
-            return token_or_span;
-            
-          /* does not work with string tokens containing boxes */
+          if(data->start > start->index || data->end < end->index) {
+            /* does not work with string tokens containing boxes */
           
-          if(start->index <= data->start && data->end <= end->index) {
-            return pmath_string_part(
-                     token_or_span,
-                     data->start - start->index,
-                     data->end - data->start);
+            if(start->index <= data->start && data->end <= end->index) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       data->start - start->index,
+                       data->end - data->start);
+            }
+            else if(data->start <= start->index && start->index <= data->end) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       0,
+                       data->end - start->index);
+            }
+            else if(data->start <= end->index && end->index <= data->end) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       data->start - start->index,
+                       end->index - data->start);
+            }
           }
-          
-          if(data->start <= start->index && start->index <= data->end) {
-            return pmath_string_part(
-                     token_or_span,
-                     0,
-                     data->end - start->index);
-          }
-          
-          if(data->start <= end->index && end->index <= data->end) {
-            return pmath_string_part(
-                     token_or_span,
-                     data->start - start->index,
-                     end->index - data->start);
-          }
-          
-          return token_or_span;
         }
         
         if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
