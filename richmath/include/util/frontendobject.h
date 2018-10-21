@@ -41,16 +41,10 @@ namespace richmath {
       FrontEndReference id() { return _id; }
       
       static FrontEndObject *find(FrontEndReference id);
-      static FrontEndObject *find(pmath::Expr frontendobject);
       
       template<class T>
       static T *find_cast(FrontEndReference id) {
         return dynamic_cast<T*>(find(id));
-      }
-      
-      template<class T>
-      static T *find_cast(pmath::Expr frontendobject) {
-        return dynamic_cast<T*>(find(frontendobject));
       }
       
       void swap_id(FrontEndObject *other);

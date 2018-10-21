@@ -622,7 +622,8 @@ static bool do_scoped_cmd(Expr cmd) {
 }
 
 static bool document_apply_cmd(Expr cmd) {
-  auto doc = dynamic_cast<Document*>(Box::find(cmd[1]));
+  auto ref = FrontEndReference::from_pmath(cmd[1]);
+  auto doc = FrontEndObject::find_cast<Document>(ref);
   if(!doc)
     return false;
     
@@ -662,7 +663,7 @@ static bool document_delete_cmd(Expr cmd) {
   if(cmd.expr_length() == 0)
     doc = get_current_document();
   else
-    doc = dynamic_cast<Document *>(Box::find(cmd[1]));
+    doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(cmd[1]));
     
   if(!doc)
     return false;
@@ -673,7 +674,8 @@ static bool document_delete_cmd(Expr cmd) {
 }
 
 static bool document_write_cmd(Expr cmd) {
-  auto doc = dynamic_cast<Document*>(Box::find(cmd[1]));
+  auto ref = FrontEndReference::from_pmath(cmd[1]);
+  auto doc = FrontEndObject::find_cast<Document>(ref);
   
   if(!doc)
     return false;
@@ -748,6 +750,7 @@ static bool edit_boxes_cmd(Expr cmd) {
   }
   
   if(box == doc) {
+    SelectionReference old_sel = doc->selection();
     doc->select(nullptr, 0, 0);
     
     for(int i = a; i < b; ++i) {

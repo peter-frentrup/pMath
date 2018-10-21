@@ -65,20 +65,6 @@ FrontEndObject *FrontEndObject::find(FrontEndReference id) {
   return front_end_object_cache[id];
 }
 
-FrontEndObject *FrontEndObject::find(Expr frontendobject) {
-  return find(FrontEndReference::from_pmath(frontendobject));
-//  if( frontendobject.expr_length() == 1 &&
-//      frontendobject[0] == richmath_System_FrontEndObject)
-//  {
-//    Expr num = frontendobject[1];
-//
-//    if(num.is_int32())
-//      return find(PMATH_AS_INT32(num.get()));
-//  }
-//
-//  return 0;
-}
-
 void FrontEndObject::swap_id(FrontEndObject *other) {
   if(other) {
     auto id = other->_id;

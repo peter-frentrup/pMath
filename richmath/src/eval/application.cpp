@@ -372,13 +372,13 @@ MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
   }
   
   func = menu_command_testers[cmd];
-  if(func) 
+  if(func)
     return func(cmd);
-  
+    
   func = menu_command_testers[cmd[0]];
-  if(func) 
+  if(func)
     return func(cmd);
-  
+    
   return MenuCommandStatus(true);
 }
 
@@ -668,9 +668,9 @@ void Application::init() {
     application_directory = application_filename.part(0, i);
   else
     application_directory = application_filename;
-  
-  stylesheet_path_base = String(Evaluate(Parse("ToFileName({FE`$FrontEndDirectory,\"resources\",\"StyleSheets\"})")));
     
+  stylesheet_path_base = String(Evaluate(Parse("ToFileName({FE`$FrontEndDirectory,\"resources\",\"StyleSheets\"})")));
+  
   total_time_waited_for_gui = 0.0;
 }
 
@@ -1239,9 +1239,9 @@ Expr Application::interrupt_wait_for(Expr expr, Box *box) {
 }
 
 Expr Application::internal_execute_for(
-  Expr              expr, 
-  FrontEndReference doc, 
-  FrontEndReference sect, 
+  Expr              expr,
+  FrontEndReference doc,
+  FrontEndReference sect,
   FrontEndReference box
 ) {
   EvaluationPosition old_print_pos;
@@ -1459,7 +1459,8 @@ static void cnt_addconfigshaper(Expr data) {
 }
 
 static Expr cnt_getoptions(Expr data) {
-  Box *box = FrontEndObject::find_cast<Box>(data);
+  auto ref = FrontEndReference::from_pmath(data);
+  Box *box = FrontEndObject::find_cast<Box>(ref);
   
   if(box) {
     Gather gather;
@@ -1487,7 +1488,8 @@ static Expr cnt_getoptions(Expr data) {
 }
 
 static Expr cnt_setoptions(Expr data) {
-  Box *box = FrontEndObject::find_cast<Box>(data[1]);
+  auto ref = FrontEndReference::from_pmath(data[1]);
+  Box *box = FrontEndObject::find_cast<Box>(ref);
   
   if(box) {
     Expr options = Expr(pmath_expr_get_item_range(data.get(), 2, SIZE_MAX));
@@ -1513,12 +1515,8 @@ static void cnt_dynamicupate(Expr data) {
   
   if(need_timer || dynamic_update_delay) {
     for(size_t i = data.expr_length(); i > 0; --i) {
-      Expr id_obj = data[i];
-      
-      if(!id_obj.is_int32())
-        continue;
-        
-      auto obj = FrontEndObject::find(PMATH_AS_INT32(id_obj.get()));
+      auto ref = FrontEndReference::from_pmath_raw(data[i]);
+      auto obj = FrontEndObject::find(ref);
       if(obj)
         pending_dynamic_updates.set(obj->id(), Void());
     }
@@ -1541,12 +1539,8 @@ static void cnt_dynamicupate(Expr data) {
   }
   
   for(size_t i = data.expr_length(); i > 0; --i) {
-    Expr id_obj = data[i];
-    
-    if(!id_obj.is_int32())
-      continue;
-      
-    auto obj = FrontEndObject::find(PMATH_AS_INT32(id_obj.get()));
+    auto ref = FrontEndReference::from_pmath_raw(data[i]);
+    auto obj = FrontEndObject::find(ref);
     if(obj)
       obj->dynamic_updated();
   }
@@ -1573,16 +1567,17 @@ static Expr cnt_currentvalue(Expr data) {
     item = data[1];
   }
   else if(data.expr_length() == 2) {
-    obj = FrontEndObject::find(data[1]);
+    auto ref = FrontEndReference::from_pmath(data[1]);
+    obj = FrontEndObject::find(ref);
     item = data[2];
   }
   else
     return Symbol(PMATH_SYMBOL_FAILED);
-  
+    
 //  Document *doc = box->find_parent<Document>(true);
 //  if(item.is_string()) {
 //    String item_string { item };
-//    
+//
 //    if(item_string.equals("MousePosition")){
 //      if(box && doc){
 //        if(!box->style)
@@ -1601,7 +1596,7 @@ static Expr cnt_currentvalue(Expr data) {
 //      return Symbol(PMATH_SYMBOL_NONE);
 //    }
 //  }
-  
+
   return Application::current_value(obj, item);
 }
 
@@ -1627,8 +1622,9 @@ static Expr cnt_documentget(Expr data) {
   if(data.expr_length() == 0)
     box = get_current_document();
   else
-    box = FrontEndObject::find_cast<Box>(data[1]);
-    
+    box = FrontEndObject::find_cast<Box>(
+            FrontEndReference::from_pmath(data[1]));
+            
   if(box == nullptr)
     return Symbol(PMATH_SYMBOL_FAILED);
     
@@ -1642,7 +1638,8 @@ static Expr cnt_documentread(Expr data) {
     doc = get_current_document();
   }
   else {
-    Box *box = FrontEndObject::find_cast<Box>(data[1]);
+    Box *box = FrontEndObject::find_cast<Box>(
+                 FrontEndReference::from_pmath(data[1]));
     
     if(box)
       doc = box->find_parent<Document>(true);
@@ -1747,7 +1744,7 @@ namespace {
         Document *doc = nullptr;
         
         if(data[1].is_expr()) {
-          Box *box = FrontEndObject::find_cast<Box>(data[1]);
+          Box *box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(data[1]));
           
           if(box)
             doc = box->find_parent<Document>(true);
@@ -1812,7 +1809,7 @@ namespace {
         String stylesheet_name = Stylesheet::name_from_path(filename);
         if(stylesheet_name.is_valid()) {
           auto stylesheet = Stylesheet::find_registered(stylesheet_name);
-          if(stylesheet) 
+          if(stylesheet)
             stylesheet->reload(boxes); // TODO: also reload dependent stylesheets and re-layout documents
         }
         
@@ -1970,15 +1967,15 @@ static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item
   ControlPainter::std->system_font_style(style.ptr());
   
   String item_string {item};
-  if(item_string.equals(s_ControlsFontFamily)) 
+  if(item_string.equals(s_ControlsFontFamily))
     return style->get_pmath(FontFamilies);
-  if(item_string.equals(s_ControlsFontSlant)) 
+  if(item_string.equals(s_ControlsFontSlant))
     return style->get_pmath(FontSlant);
-  if(item_string.equals(s_ControlsFontWeight)) 
+  if(item_string.equals(s_ControlsFontWeight))
     return style->get_pmath(FontWeight);
-  if(item_string.equals(s_ControlsFontSize)) 
+  if(item_string.equals(s_ControlsFontSize))
     return style->get_pmath(FontSize);
-  
+    
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
