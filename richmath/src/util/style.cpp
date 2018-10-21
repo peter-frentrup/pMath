@@ -1150,8 +1150,8 @@ void StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
   else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
     
-  if(n == BaseStyleName)
-    raw_set_int(InternalHasPendingDynamic, true);
+  //if(n == BaseStyleName)
+  //  raw_set_int(InternalHasPendingDynamic, true);
 }
 
 void StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
@@ -1861,8 +1861,8 @@ void Style::set(StringStyleOptionName n, String value) {
   StyleImpl::of(*this).raw_set_string(key, value);
   StyleImpl::of(*this).remove_dynamic(key);
   
-  if(key == BaseStyleName)
-    StyleImpl::of(*this).raw_set_int(InternalHasPendingDynamic, true);
+//  if(key == BaseStyleName)
+//    StyleImpl::of(*this).raw_set_int(InternalHasPendingDynamic, true);
 }
 
 void Style::set(ObjectStyleOptionName n, Expr value) {
