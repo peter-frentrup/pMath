@@ -730,6 +730,171 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
   return true;
 }
 
+namespace {
+  class TrackedSelection {
+    public:
+      TrackedSelection() = default;
+      
+      TrackedSelection(FrontEndReference sel_box, int sel_index) 
+        : selection_box{sel_box},
+          selection_index{sel_index},
+          token_output_start{-1},
+          token_output_depth{-1},
+          output_pos{-1},
+          token_source_start{-1},
+          token_source_end{-1}
+      {
+      }
+      
+      void pre_write(pmath_t obj, const SelectionReference &source, const String &output, int call_depth) {
+        if(source.id == selection_box) {
+          if(source.start <= selection_index && selection_index <= source.end) {
+            int written = output.length();
+            if(token_output_start <= written) {
+              token_output_start = written;
+              token_output_depth = call_depth;
+              token              = Expr{ pmath_ref(obj) };
+              token_source_start = source.start;
+              token_source_end   = source.end;
+            }
+          }
+        }
+      }
+      
+      void post_write(pmath_t obj, const String &output, int call_depth) {
+        if(call_depth != token_output_depth) 
+          return;
+          
+        token_output_depth = -1;
+        int token_output_end = output.length();
+        if(token_output_end < token_output_start)
+          return;
+        
+        const uint16_t *buf = output.buffer();
+        
+        int out_tok_len = token_output_end - token_output_start;
+        int in_tok_len  = token_source_end - token_source_start;
+        
+        if( out_tok_len >= in_tok_len + 2 && 
+            buf[token_output_start] == '"' &&
+            buf[token_output_end - 1] == '"') 
+        {
+          int opos = token_output_start + 1;
+          int ipos = token_source_start;
+          while(ipos < selection_index && opos < token_output_end - 1) {
+            ++ipos;
+            if(buf[opos] == '\\') {
+              ++opos;
+              if(opos < token_output_end - 1 && buf[opos] == '[') {
+                while(opos < token_output_end - 1 && buf[opos] != ']')
+                  ++opos;
+                
+                ++opos;
+              }
+              else
+                ++opos;
+            }
+            else 
+              ++opos;
+          }
+          
+          output_pos = opos;
+        }
+      }
+      
+    public:
+      FrontEndReference selection_box;
+      int               selection_index;
+      
+      Expr  token;
+      int   token_output_start;
+      int   token_output_depth;
+      int   output_pos;
+      int   token_source_start;
+      int   token_source_end;
+  };
+  
+  class PrintTracking {
+    public:
+      PrintTracking() 
+        : output{""},
+          call_depth{0}
+      {
+      }
+      
+      String write(Expr obj, pmath_write_options_t options) {
+        pmath_write_ex_t info = {0};
+        info.size = sizeof(info);
+        info.options = PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
+        info.user = this;
+        info.write = write_callback;
+        info.pre_write = pre_write_callback;
+        info.post_write = post_write_callback;
+        
+        output = String("");
+        pmath_write_ex(&info, obj.get());
+        return output;
+      }
+      
+    private:
+      static void write_callback(void *_self, const uint16_t *data, int len) {
+        PrintTracking *self = (PrintTracking*)_self;
+        self->write(data, len);
+      };
+      
+      static void pre_write_callback(void *_self, pmath_t obj, pmath_write_options_t opts) {
+        PrintTracking *self = (PrintTracking*)_self;
+        self->pre_write(obj, opts);
+      };
+      
+      static void post_write_callback(void *_self, pmath_t obj, pmath_write_options_t opts) {
+        PrintTracking *self = (PrintTracking*)_self;
+        self->post_write(obj, opts);
+      };
+    
+    private:
+      void write(const uint16_t *data, int len) {
+        output.insert(INT_MAX, data, len);
+      }
+      
+      void pre_write(pmath_t obj, pmath_write_options_t opts) {
+        ++call_depth;
+        
+        Expr di{pmath_get_debug_info(obj)};
+        if(di.expr_length() == 2 && di[0] == PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE) {
+          SelectionReference source;
+          source.id = FrontEndReference::from_pmath(di[1]);
+          Expr range = di[2];
+          if( range.expr_length() == 2 && 
+              range[0] == PMATH_SYMBOL_RANGE &&
+              range[1].is_int32() &&
+              range[2].is_int32())
+          {
+            source.start = PMATH_AS_INT32(range[1].get());
+            source.end   = PMATH_AS_INT32(range[2].get());
+            
+            for(auto &sel : selections)
+              sel.pre_write(obj, source, output, call_depth);
+          }
+        }
+      }
+      
+      void post_write(pmath_t obj, pmath_write_options_t opts) {
+        for(auto &sel : selections)
+          sel.post_write(obj, output, call_depth);
+          
+        --call_depth;
+      }
+    
+    public:
+      String                  output;
+      Array<TrackedSelection> selections;
+    
+    private:
+      int                     call_depth;
+  };
+}
+
 static bool edit_boxes_cmd(Expr cmd) {
   Document *doc = get_current_document();
   
@@ -752,6 +917,12 @@ static bool edit_boxes_cmd(Expr cmd) {
   if(box == doc) {
     SelectionReference old_sel = doc->selection();
     doc->select(nullptr, 0, 0);
+    
+    SelectionReference final_selection_1;
+    SelectionReference final_selection_2;
+    
+    final_selection_1.set(box, a, a);
+    final_selection_2.set(box, b, b);
     
     for(int i = a; i < b; ++i) {
       pmath_continue_after_abort();
@@ -783,64 +954,26 @@ static bool edit_boxes_cmd(Expr cmd) {
         Expr tmp = Call(Symbol(PMATH_SYMBOL_FULLFORM), obj);
         pmath_debug_print_object("\n fullform: ", tmp.get(), "\n");
         
+        PrintTracking pt;
+        pt.selections.add(TrackedSelection{old_sel.id, old_sel.start});
+        pt.selections.add(TrackedSelection{old_sel.id, old_sel.end});
+        pt.write(obj, PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR);
+        
         doc->select(edit->content(), 0, 0);
+        doc->insert_string(pt.output, false);
         
-        struct write_context {
-          String output;
-          Expr sel_start_token;
-          SelectionReference selection;
-          int sel_start_token_output_begin;
-          int sel_start_token_source_start;
-          int sel_start_token_source_end;
-        } context;
-        context.output = String("");
-        context.selection = old_sel;
-        context.sel_start_token_output_begin = -1;
-
-        pmath_write_ex_t info = {0};
-        info.size = sizeof(info);
-        info.options = PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
-        info.user = &context;
-        info.write = [](void *user, const uint16_t *data, int len) {
-          struct write_context *context = (struct write_context*)user;
-          context->output.insert(INT_MAX, data, len);
-        };
-        info.pre_write = [](void *user, pmath_t obj, pmath_write_options_t opts) {
-          struct write_context *context = (struct write_context*)user;
-          Expr di{pmath_get_debug_info(obj)};
-          if(di.expr_length() == 2 && di[0] == PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE) {
-            auto ref = FrontEndReference::from_pmath(di[1]);
-            if(ref == context->selection.id) {
-              Expr range = di[2];
-              if( range.expr_length() == 2 && 
-                  range[0] == PMATH_SYMBOL_RANGE &&
-                  range[1].is_int32() &&
-                  range[2].is_int32())
-              {
-                int s = PMATH_AS_INT32(range[1].get());
-                int e = PMATH_AS_INT32(range[2].get());
-
-                if(s <= context->selection.start && context->selection.start <= e) {
-                  int written = context->output.length();
-                  if(context->sel_start_token_output_begin <= written) {
-                    context->sel_start_token_output_begin = written;
-                    context->sel_start_token = Expr{ pmath_ref(obj) };
-                    context->sel_start_token_source_start = s;
-                    context->sel_start_token_source_end = e;
-                  }
-                }
-              }
-            }
-          }
-        };
-        
-        //code = obj.to_string(PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR);
-        pmath_write_ex(&info, obj.get());
-        doc->insert_string(context.output);
+        int out_sel_start = pt.selections[0].output_pos;
+        int out_sel_end   = pt.selections[1].output_pos;
+        if(out_sel_start >= 0 && out_sel_end >= 0) {
+          final_selection_1.set(edit->content(), out_sel_start, out_sel_start);
+          final_selection_2.set(edit->content(), out_sel_end, out_sel_end);
+        }
       }
     }
     
-    doc->select_range(box, a, a, box, b, b);
+    doc->select_range(
+      final_selection_1.get(), final_selection_1.start, final_selection_1.end, 
+      final_selection_2.get(), final_selection_2.start, final_selection_2.end);
   }
   
   return true;
