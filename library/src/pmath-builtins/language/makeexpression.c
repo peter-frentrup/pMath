@@ -307,8 +307,10 @@ PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
   if(pmath_expr_length(box) == 1) {
     pmath_t content = pmath_expr_get_item(box, 1);
     
-    if(pmath_refcount(content) == 2) {
+    if(pmath_is_ministr(content) || pmath_refcount(content) == 2) {
       // one reference here and one in "box"
+      
+      pmath_unref(pmath_expr_extract_item(box, 1));
       
       content = pmath_try_set_debug_info(content, pmath_ref(debug_info));
       
@@ -357,7 +359,7 @@ static pmath_bool_t parse(pmath_t *box) {
   *box = pmath_expr_get_item(*box, 1);
   pmath_unref(obj);
   
-  if(pmath_refcount(*box) == 1)
+  if(pmath_is_ministr(*box) || pmath_refcount(*box) == 1)
     *box = pmath_try_set_debug_info(*box, debug_info);
   else
     pmath_unref(debug_info);
@@ -369,7 +371,7 @@ static pmath_t wrap_hold_with_debuginfo_from(
   pmath_t boxes_with_debuginfo, // will be freed
   pmath_t result                // will be freed
 ) {
-  if(pmath_is_expr(result) && pmath_refcount(result) == 1) {
+  if(pmath_is_ministr(result) || pmath_refcount(result) == 1) {
     pmath_t debug_info = pmath_get_debug_info(boxes_with_debuginfo);
     
     result = pmath_try_set_debug_info(result, debug_info);
