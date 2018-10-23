@@ -949,7 +949,7 @@ static bool edit_boxes_cmd(Expr cmd) {
         edit->swap_id(sect);
         edit->original = doc->swap(i, edit);
         
-        Expr obj(sect->to_pmath(BoxOutputFlags::Default));
+        Expr obj(sect->to_pmath(BoxOutputFlags::WithDebugInfo));
         
         Expr tmp = Call(Symbol(PMATH_SYMBOL_FULLFORM), obj);
         pmath_debug_print_object("\n fullform: ", tmp.get(), "\n");

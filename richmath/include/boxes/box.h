@@ -79,10 +79,11 @@ namespace richmath {
   };
   
   enum class BoxOutputFlags {
-    Default      = 0,
-    Parseable    = 1, ///< no StyleBox with StripOnInput->True, ...
-    Literal      = 2, ///< no DynamicBox
-    ShortNumbers = 4  ///< not the internal representation of NumberBox, but the content()
+    Default       = 0,
+    Parseable     = 1, ///< no StyleBox with StripOnInput->True, ...
+    Literal       = 2, ///< no DynamicBox
+    ShortNumbers  = 4, ///< not the internal representation of NumberBox, but the content()
+    WithDebugInfo = 8  ///< attach DebugInfoSource() metadata to strings and expressions
   };
   
   inline bool has(BoxOutputFlags lhs, BoxOutputFlags rhs) {

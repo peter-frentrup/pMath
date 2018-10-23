@@ -277,6 +277,9 @@ namespace richmath {
           }
         }
         
+        if(!has(data->flags, BoxOutputFlags::WithDebugInfo))
+          return token_or_span;
+        
         if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
           return token_or_span;
           
