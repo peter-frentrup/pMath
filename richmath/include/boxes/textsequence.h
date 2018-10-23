@@ -38,6 +38,7 @@ namespace richmath {
      It uses Pango for text layout. For math, use class MathSequence.
    */
   class TextSequence: public AbstractSequence {
+      friend class TextSequenceImpl;
     public:
       TextSequence();
       virtual ~TextSequence();

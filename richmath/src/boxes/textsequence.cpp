@@ -225,6 +225,19 @@ class PangoContextUtil {
     }
 };
 
+namespace richmath {
+  class TextSequenceImpl {
+      TextSequence &self;
+    public:
+      TextSequenceImpl(TextSequence &_self) : self(_self) {}
+      
+      Expr to_pmath(BoxOutputFlags flags, int start, int end);
+      
+    private:
+      Expr add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end);
+  };
+}
+
 //{ class TextSequence ...
 
 TextSequence::TextSequence()
@@ -538,37 +551,7 @@ Expr TextSequence::to_pmath(BoxOutputFlags flags) {
 }
 
 Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
-  if(end <= start || start < 0 || end > text.length())
-    return String("");
-    
-  int boxi = 0;
-  while(boxi < boxes.length() && boxes[boxi]->index() < start)
-    ++boxi;
-    
-  if(boxi >= boxes.length() || boxes[boxi]->index() >= end) {
-    return String::FromUtf8(text.buffer() + start, end - start);
-  }
-  
-  Gather g;
-  
-  int next = boxes[boxi]->index();
-  while(next < end) {
-    if(start < next)
-      g.emit(String::FromUtf8(text.buffer() + start, next - start));
-      
-    g.emit(boxes[boxi]->to_pmath(flags));
-    
-    start = next + Utf8BoxCharLen;
-    ++boxi;
-    if(boxi >= boxes.length())
-      break;
-    next = boxes[boxi]->index();
-  }
-  
-  if(start < end)
-    g.emit(String::FromUtf8(text.buffer() + start, end - start));
-    
-  return g.end();
+  return TextSequenceImpl(*this).to_pmath(flags, start, end);
 }
 
 void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
@@ -1177,3 +1160,71 @@ void TextSequence::line_extents(int line, float *x, float *y, BoxSize *size) {
 }
 
 //} ... class TextSequence
+
+//{ class TextSequenceImpl ...
+
+Expr TextSequenceImpl::to_pmath(BoxOutputFlags flags, int start, int end) {
+  if(end <= start || start < 0 || end > self.text.length())
+    return String("");
+    
+  int boxi = 0;
+  while(boxi < self.boxes.length() && self.boxes[boxi]->index() < start)
+    ++boxi;
+    
+  if(boxi >= self.boxes.length() || self.boxes[boxi]->index() >= end) {
+    return add_debug_info(
+             String::FromUtf8(self.text.buffer() + start, end - start),
+             flags,
+             start,
+             end);
+  }
+  
+  Gather g;
+  
+  int next = self.boxes[boxi]->index();
+  while(next < end) {
+    if(start < next)
+      g.emit(
+        add_debug_info(
+          String::FromUtf8(self.text.buffer() + start, next - start),
+          flags,
+          start,
+          next));
+      
+    g.emit(
+      add_debug_info(
+        self.boxes[boxi]->to_pmath(flags),
+        flags,
+        next,
+        next + Utf8BoxCharLen));
+    
+    start = next + Utf8BoxCharLen;
+    ++boxi;
+    if(boxi >= self.boxes.length())
+      break;
+    next = self.boxes[boxi]->index();
+  }
+  
+  if(start < end)
+    g.emit(
+      add_debug_info(
+        String::FromUtf8(self.text.buffer() + start, end - start),
+        flags,
+        start,
+        end));
+    
+  return add_debug_info(g.end(), flags, start, end);
+}
+
+Expr TextSequenceImpl::add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end) {
+  if(!has(flags, BoxOutputFlags::WithDebugInfo))
+    return std::move(expr);
+  
+  pmath_t obj = expr.release();
+  obj = pmath_try_set_debug_info(
+          obj, 
+          SelectionReference(self.id(), start, end).to_debug_info().release());
+  return Expr{ obj };
+}
+
+//} ... class TextSequenceImpl

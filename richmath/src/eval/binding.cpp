@@ -773,14 +773,56 @@ namespace {
         int out_tok_len = token_output_end - token_output_start;
         int in_tok_len  = token_source_end - token_source_start;
         
+        const uint16_t *in16 = nullptr;
+        const char     *in8 = nullptr;
+        int in_length = 0;
+        
+        FrontEndObject *source = FrontEndObject::find(selection_box);
+        if(auto mseq = dynamic_cast<MathSequence*>(source)) {
+          in16 = mseq->text().buffer();
+          in_length = mseq->length();
+        }
+        else if(auto tseq = dynamic_cast<TextSequence*>(source)) {
+          in8 = tseq->text_buffer().buffer();
+          in_length = tseq->length();
+        }
+        else {
+          output_pos = token_output_start;
+          return;
+        }
+        
         if( out_tok_len >= in_tok_len + 2 && 
+            selection_index <= in_length &&
             buf[token_output_start] == '"' &&
             buf[token_output_end - 1] == '"') 
         {
           int opos = token_output_start + 1;
           int ipos = token_source_start;
           while(ipos < selection_index && opos < token_output_end - 1) {
-            ++ipos;
+            if(in8) {
+              if(in8[ipos]) {
+                const char *next = g_utf8_find_next_char(in8 + ipos, in8 + selection_index);
+                if(next)
+                  ipos = (int)(next - in8);
+                else
+                  ipos = selection_index;
+              }
+              else
+                ++ipos; // embedded <NUL>
+            }
+            else if(in16) {
+              if( is_utf16_high(in16[ipos]) && 
+                  ipos + 1 < selection_index &&
+                  is_utf16_low(in16[ipos + 1])) 
+              {
+                ipos+= 2;
+              }
+              else
+                ++ipos;
+            }
+            else
+              break;
+            
             if(buf[opos] == '\\') {
               ++opos;
               if(opos < token_output_end - 1 && buf[opos] == '[') {
@@ -792,7 +834,13 @@ namespace {
               else
                 ++opos;
             }
-            else 
+            else if(is_utf16_high(buf[opos]) && 
+                opos + 1 < token_output_end && 
+                is_utf16_low(buf[opos + 1]))
+            {
+              opos+= 2;
+            }
+            else
               ++opos;
           }
           
