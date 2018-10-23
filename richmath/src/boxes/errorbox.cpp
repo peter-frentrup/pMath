@@ -14,8 +14,9 @@ ErrorBox::ErrorBox(const Expr object)
 ErrorBox::~ErrorBox() {
 }
 
-bool ErrorBox::try_load_from_object(Expr expr, BoxInputFlags options){
+bool ErrorBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   _object = expr;
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

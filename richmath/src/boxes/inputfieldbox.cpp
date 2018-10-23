@@ -49,6 +49,7 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   reset_style();
   style->add_pmath(options);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

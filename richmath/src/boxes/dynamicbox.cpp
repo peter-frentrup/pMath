@@ -81,6 +81,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     dynamic     = expr;
   }
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

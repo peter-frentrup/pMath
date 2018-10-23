@@ -608,6 +608,8 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     opts |= BoxInputFlags::FormatNumbers;
     
   _content->load_from_object(content, opts);
+  
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -652,6 +654,8 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     opts |= BoxInputFlags::FormatNumbers;
     
   _content->load_from_object(content, opts);
+  
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -674,7 +678,7 @@ bool EditSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 Expr EditSection::to_pmath(BoxOutputFlags flags) {
-  Expr result = content()->to_pmath(BoxOutputFlags::Parseable);
+  Expr result = content()->to_pmath(BoxOutputFlags::Parseable | flags);
   
   result = Application::interrupt_wait(
              Call(
@@ -735,6 +739,8 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
                  Parse("FE`Styles`MakeStyleDataBoxes(HoldComplete(`1`))", style_data),
                  Application::button_timeout);
   _content->load_from_object(boxes, opts);
+  
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

@@ -354,6 +354,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   range_step        = new_range_step;
   use_double_values = new_use_double_values;
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

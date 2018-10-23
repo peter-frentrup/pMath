@@ -962,16 +962,24 @@ static bool edit_boxes_cmd(Expr cmd) {
       pmath_continue_after_abort();
       
       if(auto edit = dynamic_cast<EditSection *>(doc->section(i))) {
-        Expr parsed(edit->to_pmath(BoxOutputFlags::Default));
+        Expr parsed(edit->to_pmath(BoxOutputFlags::WithDebugInfo));
         
         if(parsed.is_null()) {
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
         }
         else {
+          FunctionChain<Box*, Expr> callback{
+            [](Box *box, Expr expr){
+            }, 
+            Box::on_finish_load_from_object};
+          Box::on_finish_load_from_object = &callback;
+          
           Section *sect = Section::create_from_object(parsed);
           sect->swap_id(edit);
           
           doc->swap(i, sect)->safe_destroy();
+          
+          Box::on_finish_load_from_object = callback.next;
         }
       }
       else {

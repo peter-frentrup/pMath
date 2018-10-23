@@ -586,7 +586,7 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
       start = next + 1;
     }
     
-    return;
+    finish_load_from_object(std::move(object));
   }
   else if(object[0] == PMATH_SYMBOL_LIST) {
     for(size_t i = 1; i <= object.expr_length(); ++i) {
@@ -627,6 +627,8 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
     
     insert(text.length(), box);
   }
+  
+  finish_load_from_object(std::move(object));
 }
 
 void TextSequence::ensure_boxes_valid() {

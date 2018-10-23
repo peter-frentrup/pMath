@@ -145,6 +145,8 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   style->clear();
   style->add_pmath(options);
   style->set_pmath(BaseStyleName, tag);
+  
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -267,6 +269,8 @@ bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(arg.is_int32()) {
     _argument = PMATH_AS_INT32(arg.get());
     _is_content_loaded = false;
+    
+    finish_load_from_object(std::move(expr));
     return true;
   }
   

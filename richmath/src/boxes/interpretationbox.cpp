@@ -64,6 +64,7 @@ bool InterpretationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
       style = new Style(options_expr);
   }
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

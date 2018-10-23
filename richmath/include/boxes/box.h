@@ -7,6 +7,8 @@
 #include <util/sharedptr.h>
 #include <util/style.h>
 
+#include <functional>
+
 
 namespace richmath {
   enum class LogicalDirection {
@@ -127,6 +129,18 @@ namespace richmath {
     lhs = (BoxInputFlags)((int)lhs & ~(int)rhs);
     return lhs;
   }
+  
+  template< class... Args >
+  struct FunctionChain {
+    std::function<void(Args...)> func;
+    FunctionChain<Args...> *next;
+      
+    FunctionChain(std::function<void(Args...)> _func, FunctionChain<Args...> *_next)
+      : func{_func},    
+        next{_next}
+    {
+    }
+  };
   
   /** Suspending deletions of Boxes.
   
@@ -427,9 +441,13 @@ namespace richmath {
     public:
       SharedPtr<Style> style;
       
+      static FunctionChain<Box*, Expr> *on_finish_load_from_object;
+      
     protected:
       void adopt(Box *child, int i);
       void abandon(Box *child);
+      
+      void finish_load_from_object(Expr expr);
       
       virtual DefaultStyleOptionOffsets get_default_styles_offset() { return DefaultStyleOptionOffsets::None; }
       

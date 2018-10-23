@@ -71,6 +71,7 @@ bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _exponent = nullptr;
   }
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

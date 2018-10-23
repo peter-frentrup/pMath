@@ -73,6 +73,7 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _base->load_from_object(      expr[1], opts);
     _overscript->load_from_object(expr[2], opts);
     
+    finish_load_from_object(std::move(expr));
     return true;
   }
   
@@ -93,6 +94,7 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _base->load_from_object(       expr[1], opts);
     _underscript->load_from_object(expr[2], opts);
     
+    finish_load_from_object(std::move(expr));
     return true;
   }
   
@@ -113,6 +115,7 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _underscript->load_from_object(expr[2], opts);
     _overscript->load_from_object( expr[3], opts);
     
+    finish_load_from_object(std::move(expr));
     return true;
   }
   

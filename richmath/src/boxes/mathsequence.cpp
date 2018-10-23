@@ -4026,6 +4026,8 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   spans         = new_spans.extract_array();
   str           = String(new_string);
   boxes_invalid = true;
+  
+  finish_load_from_object(std::move(object));
 }
 
 bool MathSequence::stretch_horizontal(Context *context, float width) {
