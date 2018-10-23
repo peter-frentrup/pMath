@@ -2,6 +2,7 @@
 #define __UTIL__SELECTIONS_H__
 
 #include <util/frontendobject.h>
+#include <pmath-cpp.h>
 
 namespace richmath {
   class Box;
@@ -10,6 +11,8 @@ namespace richmath {
     public:
       explicit SelectionReference();
       explicit SelectionReference(FrontEndReference _id, int _start, int _end);
+      
+      explicit operator bool() const { return id.is_valid(); }
       
       Box *get();
       void set(Box *box, int _start, int _end);
@@ -26,6 +29,11 @@ namespace richmath {
       bool operator!=(const SelectionReference &other) const {
         return !(*this == other);
       }
+      
+      pmath::Expr to_debug_info() const;
+      static SelectionReference from_debug_info(pmath::Expr expr);
+      static SelectionReference from_debug_info_of(pmath::Expr expr);
+      static SelectionReference from_debug_info_of(pmath_t expr); // does not free expr
       
     public:
       FrontEndReference id;

@@ -243,9 +243,7 @@ static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
   
   pmath_unref(expr);
   
-  return pmath_expr_new_extended(
-           pmath_ref(richmath_System_FrontEndObject), 1,
-           current_document_id.to_pmath_raw());
+  return current_document_id.to_pmath().release();
 }
 
 //} ... pmath functions
@@ -860,22 +858,10 @@ namespace {
       void pre_write(pmath_t obj, pmath_write_options_t opts) {
         ++call_depth;
         
-        Expr di{pmath_get_debug_info(obj)};
-        if(di.expr_length() == 2 && di[0] == PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE) {
-          SelectionReference source;
-          source.id = FrontEndReference::from_pmath(di[1]);
-          Expr range = di[2];
-          if( range.expr_length() == 2 && 
-              range[0] == PMATH_SYMBOL_RANGE &&
-              range[1].is_int32() &&
-              range[2].is_int32())
-          {
-            source.start = PMATH_AS_INT32(range[1].get());
-            source.end   = PMATH_AS_INT32(range[2].get());
-            
-            for(auto &sel : selections)
-              sel.pre_write(obj, source, output, call_depth);
-          }
+        SelectionReference source = SelectionReference::from_debug_info_of(obj);
+        if(source) {
+          for(auto &sel : selections)
+            sel.pre_write(obj, source, output, call_depth);
         }
       }
       
@@ -1432,9 +1418,7 @@ static bool set_style_cmd(Expr cmd) {
 //      return false;
 //
 //    cpp_builtin_feo_options(
-//      Call(Symbol(PMATH_SYMBOL_SETOPTIONS),
-//           Call(Symbol(richmath_System_FrontEndObject), box->id()),
-//           cmd));
+//      Call(Symbol(PMATH_SYMBOL_SETOPTIONS), box->id().to_pmath(), cmd));
 //
 //    return true;
 //  }

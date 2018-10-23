@@ -68,4 +68,48 @@ bool SelectionReference::equals(const SelectionReference &other) const {
   return other.id == id && other.start == start && other.end == end;
 }
 
+Expr SelectionReference::to_debug_info() const {
+  if(id == FrontEndReference::None)
+    return Expr();
+  
+  return Call(
+           Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
+           id.to_pmath(),
+           Call(Symbol(PMATH_SYMBOL_RANGE), start, end));
+}
+
+SelectionReference SelectionReference::from_debug_info(Expr expr) {
+  SelectionReference result;
+  
+  if(expr[0] != PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE)
+    return result;
+  
+  if(expr.expr_length() != 2)
+    return result;
+  
+  result.id = FrontEndReference::from_pmath(expr[1]);
+  Expr range = expr[2];
+  if( range.expr_length() == 2 && 
+      range[0] == PMATH_SYMBOL_RANGE &&
+      range[1].is_int32() &&
+      range[2].is_int32())
+  {
+    result.start = PMATH_AS_INT32(range[1].get());
+    result.end   = PMATH_AS_INT32(range[2].get());
+    
+    return result;
+  }
+  
+  result.id = FrontEndReference::None;
+  return result; 
+}
+
+SelectionReference SelectionReference::from_debug_info_of(Expr expr) {
+  return from_debug_info(Expr{pmath_get_debug_info(expr.get())});
+}
+
+SelectionReference SelectionReference::from_debug_info_of(pmath_t expr) {
+  return from_debug_info(Expr{pmath_get_debug_info(expr)});
+}
+
 //} ... class SelectionReference

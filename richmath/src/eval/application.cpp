@@ -1436,7 +1436,7 @@ static Expr cnt_getdocuments() {
   Gather gather;
   
   for(auto &e : all_document_ids.entries())
-    Gather::emit(Call(Symbol(richmath_System_FrontEndObject), e.key.to_pmath_raw()));
+    Gather::emit(e.key.to_pmath());
     
   return gather.end();
 }
@@ -1552,7 +1552,7 @@ static Expr cnt_createdocument(Expr data) {
   if(doc) {
     doc->invalidate_options();
     
-    return Call(Symbol(richmath_System_FrontEndObject), doc->id().to_pmath_raw());
+    return doc->id().to_pmath();
   }
   
   return Symbol(PMATH_SYMBOL_FAILED);
@@ -1611,7 +1611,7 @@ static Expr cnt_getevaluationdocument(Expr data) {
     doc = doc->main_document;
     
   if(doc)
-    return Call(Symbol(richmath_System_FrontEndObject), doc->id().to_pmath_raw());
+    return doc->id().to_pmath();
     
   return Symbol(PMATH_SYMBOL_FAILED);
 }

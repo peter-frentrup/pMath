@@ -18,6 +18,8 @@ namespace richmath {
       
       static FrontEndReference from_pmath(pmath::Expr expr);
       static FrontEndReference from_pmath_raw(pmath::Expr expr);
+      
+      pmath::Expr to_pmath() const;
       pmath::Expr to_pmath_raw() const { return pmath::Expr(_id); }
       
       friend bool operator==(const FrontEndReference &left, const FrontEndReference &right) {

@@ -55,7 +55,6 @@ extern pmath_symbol_t richmath_System_DynamicLocalBox;
 extern pmath_symbol_t richmath_System_FillBox;
 extern pmath_symbol_t richmath_System_FractionBox;
 extern pmath_symbol_t richmath_System_FrameBox;
-extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_GraphicsBox;
 extern pmath_symbol_t richmath_System_GridBox;
 extern pmath_symbol_t richmath_System_InputFieldBox;
@@ -282,11 +281,8 @@ namespace richmath {
         
         if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
           return token_or_span;
-          
-        Expr debug_info = Call(
-                            Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
-                            Call(Symbol(richmath_System_FrontEndObject), data->sequence->id().to_pmath_raw()),
-                            Call(Symbol(PMATH_SYMBOL_RANGE), start->index, end->index));
+        
+        Expr debug_info = SelectionReference(data->sequence->id(), start->index, end->index).to_debug_info();
                             
         token_or_span = pmath_try_set_debug_info(
                           token_or_span,
