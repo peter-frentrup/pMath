@@ -2931,7 +2931,7 @@ static void ungroup(
           
           s->next = NULL;
           s->end = g->pos - 1;
-          g->spans->items[start] = (uintptr_t)s | 2; // operand start
+          g->spans->items[start] = (uintptr_t)s | 2 | (g->spans->items[start] & 1); // operand start
         }
         
         g->spans->items[g->pos - 1] |= 1; // token end
