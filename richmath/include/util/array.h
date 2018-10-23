@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <utility>
 
 #define ARRAY_ASSERT(a) \
   do{if(!(a)){ \
