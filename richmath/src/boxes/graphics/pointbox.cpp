@@ -110,8 +110,10 @@ bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() != 1)
     return false;
     
-  if(_uncompressed_expr == expr)
+  if(_uncompressed_expr == expr) {
+    finish_load_from_object(std::move(expr));
     return true;
+  }
     
   Expr data = expr[1];
   if(data[0] == PMATH_SYMBOL_UNCOMPRESS && data[1].is_string()) {
@@ -125,6 +127,7 @@ bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(DoublePoint::load_point_or_points(_points, data)) {
     _uncompressed_expr = expr;
+    finish_load_from_object(std::move(expr));
     return true;
   }
   

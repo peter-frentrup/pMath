@@ -754,6 +754,17 @@ void Box::abandon(Box *child) {
   child->_index = 0;
 }
 
+FunctionChain<Box*, Expr> *Box::on_finish_load_from_object = nullptr;
+
+void Box::finish_load_from_object(Expr expr) {
+  FunctionChain<Box*, Expr> *event = on_finish_load_from_object;
+  while(event) {
+    if(event->func)
+      event->func(this, expr);
+    event = event->next;
+  }
+}
+
 //} ... class Box
 
 //{ class AbstractSequence ...

@@ -172,7 +172,8 @@ bool RotationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
            richmath_System_RotationBox,
            richmath_System_BoxRotation,
            options.get())));
-           
+  
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -252,6 +253,7 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   _content->load_from_object(expr[1], opts);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

@@ -48,6 +48,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   else if(options != PMATH_UNDEFINED)
     style = new Style(options);
     
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

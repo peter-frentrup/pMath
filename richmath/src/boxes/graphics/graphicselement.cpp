@@ -181,6 +181,7 @@ bool GraphicsDirective::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _items.set(i, elem);
   }
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

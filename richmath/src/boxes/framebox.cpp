@@ -37,6 +37,7 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
     
   _content->load_from_object(expr[1], options);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

@@ -142,6 +142,7 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options){
   if(expr[0] == PMATH_SYMBOL_LIST) {
     _content->load_from_object(expr, options);
     
+    finish_load_from_object(std::move(expr));
     return true;
   }
   

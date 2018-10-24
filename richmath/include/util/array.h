@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <utility>
 
 #define ARRAY_ASSERT(a) \
   do{if(!(a)){ \
@@ -165,9 +166,22 @@ namespace richmath {
         return *this;
       }
       
+      Array<T> &set(int i, T &&t) {
+        ARRAY_ASSERT(i >= 0);
+        ARRAY_ASSERT(i < _length);
+        _items[i] = std::move(t);
+        return *this;
+      }
+      
       Array<T> &add(const T &t) {
         length(_length + 1);
         _items[_length - 1] = t;
+        return *this;
+      }
+      
+      Array<T> &add(T &&t) {
+        length(_length + 1);
+        _items[_length - 1] = std::move(t);
         return *this;
       }
       

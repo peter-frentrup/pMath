@@ -55,7 +55,6 @@ extern pmath_symbol_t richmath_System_DynamicLocalBox;
 extern pmath_symbol_t richmath_System_FillBox;
 extern pmath_symbol_t richmath_System_FractionBox;
 extern pmath_symbol_t richmath_System_FrameBox;
-extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_GraphicsBox;
 extern pmath_symbol_t richmath_System_GridBox;
 extern pmath_symbol_t richmath_System_InputFieldBox;
@@ -253,42 +252,37 @@ namespace richmath {
         }
         
         if(pmath_is_string(token_or_span)) {
-          if(data->start <= start->index && end->index <= data->end)
-            return token_or_span;
-            
-          /* does not work with string tokens containing boxes */
+          if(data->start > start->index || data->end < end->index) {
+            /* does not work with string tokens containing boxes */
           
-          if(start->index <= data->start && data->end <= end->index) {
-            return pmath_string_part(
-                     token_or_span,
-                     data->start - start->index,
-                     data->end - data->start);
+            if(start->index <= data->start && data->end <= end->index) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       data->start - start->index,
+                       data->end - data->start);
+            }
+            else if(data->start <= start->index && start->index <= data->end) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       0,
+                       data->end - start->index);
+            }
+            else if(data->start <= end->index && end->index <= data->end) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       data->start - start->index,
+                       end->index - data->start);
+            }
           }
-          
-          if(data->start <= start->index && start->index <= data->end) {
-            return pmath_string_part(
-                     token_or_span,
-                     0,
-                     data->end - start->index);
-          }
-          
-          if(data->start <= end->index && end->index <= data->end) {
-            return pmath_string_part(
-                     token_or_span,
-                     data->start - start->index,
-                     end->index - data->start);
-          }
-          
-          return token_or_span;
         }
+        
+        if(!has(data->flags, BoxOutputFlags::WithDebugInfo))
+          return token_or_span;
         
         if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
           return token_or_span;
-          
-        Expr debug_info = Call(
-                            Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
-                            Call(Symbol(richmath_System_FrontEndObject), data->sequence->id().to_pmath_raw()),
-                            Call(Symbol(PMATH_SYMBOL_RANGE), start->index, end->index));
+        
+        Expr debug_info = SelectionReference(data->sequence->id(), start->index, end->index).to_debug_info();
                             
         token_or_span = pmath_try_set_debug_info(
                           token_or_span,
@@ -4032,6 +4026,8 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   spans         = new_spans.extract_array();
   str           = String(new_string);
   boxes_invalid = true;
+  
+  finish_load_from_object(std::move(object));
 }
 
 bool MathSequence::stretch_horizontal(Context *context, float width) {

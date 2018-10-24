@@ -35,6 +35,7 @@ bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _content->load_from_object(expr[1], opts);
   weight = expr[2].to_double(1.0);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

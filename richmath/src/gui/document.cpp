@@ -587,6 +587,8 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   reset_style();
   style->add_pmath(options_expr);
   load_stylesheet();
+  
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

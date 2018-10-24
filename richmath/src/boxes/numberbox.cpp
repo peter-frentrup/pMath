@@ -311,6 +311,7 @@ bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   NumberBoxImpl(*this).set_number(s);
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

@@ -41,6 +41,10 @@ FrontEndReference FrontEndReference::from_pmath_raw(pmath::Expr expr) {
   return FrontEndReference::None;
 }
 
+Expr FrontEndReference::to_pmath() const {
+  return Call(Symbol(richmath_System_FrontEndObject), to_pmath_raw());
+}
+
 //} ... class FrontEndReference
 
 //{ class FrontEndObject ...

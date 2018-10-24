@@ -20,7 +20,7 @@ ButtonBox::ButtonBox(MathSequence *content)
 {
 }
 
-bool ButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts){
+bool ButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != richmath_System_ButtonBox)
     return false;
   
@@ -45,6 +45,7 @@ bool ButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts){
       style = new Style(options);
   }
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

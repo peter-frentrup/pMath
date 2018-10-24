@@ -41,6 +41,7 @@ bool TooltipBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   tooltip_boxes = expr[2];
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

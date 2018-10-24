@@ -89,6 +89,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   _init_call = List(values, _initialization);
   content()->load_from_object(expr[2], options);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

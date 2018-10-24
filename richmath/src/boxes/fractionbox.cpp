@@ -51,6 +51,7 @@ bool FractionBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   _numerator->load_from_object(  expr[1], opts);
   _denominator->load_from_object(expr[2], opts);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

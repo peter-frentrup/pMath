@@ -39,7 +39,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
   /* now success is guaranteed */
 
-  if(style){
+  if(style) {
     reset_style();
     style->add_pmath(options);
   }
@@ -53,6 +53,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     dynamic = Symbol(PMATH_SYMBOL_FALSE);
   }
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 

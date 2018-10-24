@@ -61,6 +61,8 @@ namespace richmath {
       
     protected:
       GraphicsElement();
+      
+      void finish_load_from_object(Expr expr) {}
   };
   
   class GraphicsDirective: public GraphicsElement {

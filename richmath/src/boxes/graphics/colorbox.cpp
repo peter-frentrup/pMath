@@ -23,6 +23,8 @@ bool ColorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
   
   _color = c;
+  
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
