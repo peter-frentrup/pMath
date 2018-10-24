@@ -8,6 +8,7 @@
 #include <eval/job.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
+#include <util/spanexpr.h>
 
 using namespace richmath;
 
@@ -927,6 +928,173 @@ namespace {
     private:
       int                     call_depth;
   };
+  
+  class TrackedBoxSelection {
+    public:
+      TrackedBoxSelection() = default;
+      
+      TrackedBoxSelection(FrontEndReference id, int index) 
+        : source_id{id},
+          source_index{index}
+      {
+      }
+      
+      void after_creation(Box *box, const SelectionReference &source, Expr expr) {
+        if(source.id != source_id)
+          return;
+        
+        if(destination)
+          return;
+        
+        if(source_index < source.start || source.end < source_index)
+          return;
+        
+        if(auto seq = dynamic_cast<MathSequence*>(box)) {
+          int len = seq->length();
+          if(len == 0) {
+            destination.set(seq, 0, 0);
+            return;
+          }
+          
+          SpanExpr *se = new SpanExpr(0, seq->span_array()[0], seq);
+          if(se->end() + 1 != len) {
+            if(expr.is_expr() && expr[0] == PMATH_NULL) {
+              for(size_t i = 1; ;++i) {
+                Expr item = expr[i];
+                SelectionReference item_source = SelectionReference::from_debug_info_of(item);
+                if(source_index <= item_source.end && item_source.id == source_id) {
+                  visit_span(se, item_source, item);
+                  delete se;
+                  return;
+                }
+                
+                int pos = se->end() + 1;
+                if(pos < len) {
+                  delete se;
+                  se = new SpanExpr(pos, seq->span_array()[pos], seq);
+                }
+                else
+                  break;
+              }
+            }
+          }
+          visit_span(se, source, expr);
+          delete se;
+        }
+      }
+    
+    private:
+      void visit_span(SpanExpr *se, const SelectionReference &source, Expr expr) {
+        if(source_index <= source.start) {
+          destination.set(se->sequence(), se->start(), se->start());
+          return;
+        }
+        else if(source_index >= source.end) {
+          destination.set(se->sequence(), se->end() + 1, se->end() + 1);
+          return;
+        }
+        
+        size_t expr_len = expr.expr_length();
+        int count = se->count();
+        
+        if(expr_len > 0 && (size_t)count == expr_len && (expr[0] == PMATH_NULL || expr[0] == PMATH_SYMBOL_LIST)) {
+          for(int i = 0; i < count; ++i) {
+            Expr item = expr[(size_t)i + 1];
+            SelectionReference item_source = SelectionReference::from_debug_info_of(item);
+            
+            if(source_index <= item_source.end && item_source.id == source_id) {
+              visit_span(se->item(i), item_source, item);
+              return;
+            }
+          }
+          
+          destination.set(se->sequence(), se->end() + 1, se->end() + 1);
+          return;
+        }
+        
+        if(count == 0 && expr.is_string()) {
+          if(se->as_text() == expr) {
+            if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
+              if(0 <= source.start && source.start <= source.end && source.end <= source_seq->length()) {
+                const uint16_t *buf = source_seq->text().buffer();
+                
+                if(source.end - source.start >= 2 && buf[source.start] == '"' && buf[source.end-1] == '"') {
+                  int in_pos = source.start + 1;
+                  int o_pos = se->start();
+                  int o_pos_max = se->end();
+                  while(o_pos <= o_pos_max && in_pos < source_index) {
+                    int in_next = in_pos;
+                    if(buf[in_next] == '\\' && in_next + 1 < source.end) {
+                      ++in_next;
+                      if(buf[in_next] == '[') {
+                        while(in_next < source.end && buf[in_next] != ']')
+                          ++in_next;
+                      }
+                      else
+                        ++in_next;
+                    }
+                    else
+                      ++in_next;
+                    
+                    if(source_index < in_next) {
+                      destination.set(se->sequence(), o_pos, o_pos + 1);
+                      return;
+                    }
+                    in_pos = in_next;
+                    ++o_pos;
+                  }
+                  
+                  destination.set(se->sequence(), o_pos, o_pos);
+                  return;
+                }
+              }
+            }
+          }
+        }
+        
+        destination.set(se->sequence(), se->start(), se->end() + 1);
+      }
+    
+    public:
+      FrontEndReference source_id;
+      int               source_index;
+      
+      SelectionReference destination;
+  };
+  
+  class BoxTracking {
+    public:
+      BoxTracking() 
+        : callback {
+            [this](Box *box, Expr expr){ after_creation(box, std::move(expr)); }, 
+            Box::on_finish_load_from_object}
+      {
+      }
+      
+      template<class F>
+      void for_new_boxes_in(F body) {
+        callback.next = Box::on_finish_load_from_object;
+        Box::on_finish_load_from_object = &callback;
+        
+        body();
+        
+        Box::on_finish_load_from_object = callback.next;
+      }
+    
+    private:
+      void after_creation(Box *box, Expr expr) {
+        auto source = SelectionReference::from_debug_info_of(expr);
+        if(source)
+          for(auto &sel : selections)
+            sel.after_creation(box, source, expr);
+      }
+      
+    public:
+      Array<TrackedBoxSelection> selections;
+    
+    private:
+      FunctionChain<Box*, Expr> callback;
+  };
 }
 
 static bool edit_boxes_cmd(Expr cmd) {
@@ -968,18 +1136,24 @@ static bool edit_boxes_cmd(Expr cmd) {
           doc->native()->beep();//MessageBeep(MB_ICONEXCLAMATION);
         }
         else {
-          FunctionChain<Box*, Expr> callback{
-            [](Box *box, Expr expr){
-            }, 
-            Box::on_finish_load_from_object};
-          Box::on_finish_load_from_object = &callback;
+          BoxTracking bt;
           
-          Section *sect = Section::create_from_object(parsed);
+          bt.selections.add(TrackedBoxSelection{old_sel.id, old_sel.start});
+          bt.selections.add(TrackedBoxSelection{old_sel.id, old_sel.end});
+          
+          Section *sect = nullptr;
+          bt.for_new_boxes_in([&] {
+            sect = Section::create_from_object(parsed);
+          });
+          
           sect->swap_id(edit);
           
           doc->swap(i, sect)->safe_destroy();
           
-          Box::on_finish_load_from_object = callback.next;
+          if(bt.selections[0].destination && bt.selections[1].destination) {
+            final_selection_1 = bt.selections[0].destination;
+            final_selection_2 = bt.selections[1].destination;
+          }
         }
       }
       else {
