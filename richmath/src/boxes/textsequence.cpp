@@ -1,6 +1,14 @@
 #include <boxes/textsequence.h>
 
+#ifdef max
+#  undef max
+#endif
+#ifdef min
+#  undef min
+#endif
+
 #include <cstdlib>
+#include <algorithm>
 
 #include <boxes/mathsequence.h>
 #include <boxes/ownerbox.h>
@@ -16,6 +24,11 @@ using namespace richmath;
 static const uint16_t BoxChar = 0xFFFC;
 static const char *Utf8BoxChar = "\xEF\xBF\xBC";
 static const int   Utf8BoxCharLen = 3;
+static const char *Utf8ReplacementChar = "\xEF\xBF\xBD";
+
+static bool is_utf8_first_byte(char c) {
+  return ((unsigned char)c & 0xC0) != 0x80;
+}
 
 //{ class TextBuffer ...
 
@@ -682,7 +695,34 @@ void TextSequence::ensure_text_valid() {
 }
 
 int TextSequence::insert(int pos, const char *utf8, int len) {
-  pos += text.insert(pos, utf8, len);
+  if(len < 0) {
+    len = (int)strlen(utf8);
+    if(len <= 0)
+      return pos;
+  }
+  
+  char *buf = text.buffer();
+  // ensure that we do not cut a Utf8BoxChar (or any other utf8 character)
+  while(pos < text.length() && !is_utf8_first_byte(buf[pos]))
+    ++pos;
+  
+  int start_search = std::max(0, pos - Utf8BoxCharLen + 1);
+  
+  pos = text.insert(pos, utf8, len);
+  buf = text.buffer();
+  
+  int end_search = std::min(pos + Utf8BoxCharLen - 1, text.length());
+  
+  // replace all Utf8BoxChar in the newly inserted section by Utf8ReplacementChar 
+  while(start_search <= end_search - Utf8BoxCharLen) {
+    if(0 == memcmp(buf + start_search, Utf8BoxChar, Utf8BoxCharLen)) {
+      memcpy(buf + start_search, Utf8ReplacementChar, Utf8BoxCharLen);
+      start_search+= 3;
+    }
+    else
+      ++start_search;
+  }
+  
   boxes_invalid = true;
   text_invalid = true;
   invalidate();
@@ -690,7 +730,28 @@ int TextSequence::insert(int pos, const char *utf8, int len) {
 }
 
 int TextSequence::insert(int pos, const String &s) {
+  char *buf = text.buffer();
+  // ensure that we do not cut a Utf8BoxChar (or any other utf8 character)
+  while(pos < text.length() && !is_utf8_first_byte(buf[pos]))
+    ++pos;
+  
+  int start_search = std::max(0, pos - Utf8BoxCharLen + 1);
+  
   pos += text.insert(pos, s);
+  buf = text.buffer();
+  
+  int end_search = std::min(pos + Utf8BoxCharLen - 1, text.length());
+  
+  // replace all Utf8BoxChar in the newly inserted section by Utf8ReplacementChar 
+  while(start_search <= end_search - Utf8BoxCharLen) {
+    if(0 == memcmp(buf + start_search, Utf8BoxChar, Utf8BoxCharLen)) {
+      memcpy(buf + start_search, Utf8ReplacementChar, Utf8BoxCharLen);
+      start_search+= 3;
+    }
+    else
+      ++start_search;
+  }
+  
   boxes_invalid = true;
   text_invalid = true;
   invalidate();
@@ -729,13 +790,19 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
   txt->ensure_boxes_valid();
   
   const char *buf = txt->text.buffer();
+  while(start < end && !is_utf8_first_byte(buf[start]))
+    ++start;
+  
+  if(start == end)
+    return pos;
+  
   int box = -1;
   while(start < end) {
     int next = start;
     while(next < end && !txt->text.is_box_at(next))
       ++next;
       
-    pos = insert(pos, buf + start, next - start);
+    pos = text.insert(pos, buf + start, next - start);
     
     if(next < end) {
       if(box < 0) {
@@ -750,6 +817,9 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
     start = next + Utf8BoxCharLen;
   }
   
+  boxes_invalid = true;
+  text_invalid = true;
+  invalidate();
   return pos;
 }
 
