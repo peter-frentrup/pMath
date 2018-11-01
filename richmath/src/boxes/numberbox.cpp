@@ -116,22 +116,6 @@ namespace {
     bool has_exponent() { return exp_start < exp_end; }
     String exponent() { return _number.part(exp_start, exp_end - exp_start); }
   };
-  
-  struct PositionInRange {
-    int pos;
-    int start;
-    int end;
-    
-    PositionInRange(int _pos, int _start, int _end)
-      : pos(_pos),
-        start(_start),
-        end(_end)
-    {
-    }
-    
-    bool is_valid() { return start <= pos && pos <= end; }
-  };
-  
 }
 
 namespace richmath {
@@ -282,6 +266,16 @@ namespace richmath {
         
         return PositionInRange(-1, 0, 0); // error
       }
+  
+    public:
+      Expr add_debug_info(Expr expr, BoxOutputFlags flags) {
+        if(!has(flags, BoxOutputFlags::WithDebugInfo))
+          return expr;
+        
+        Expr debug_info = SelectionReference(self.id(), 0, self.length()).to_debug_info();
+        
+        return Expr{ pmath_try_set_debug_info(expr.release(), debug_info.release()) };
+      }
   };
 }
 
@@ -378,9 +372,9 @@ void NumberBox::paint(Context *context) {
 
 Expr NumberBox::to_pmath(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::ShortNumbers))
-    return content()->to_pmath(flags);
+    return NumberBoxImpl(*this).add_debug_info(content()->to_pmath(flags), flags);
     
-  return _number;
+  return NumberBoxImpl(*this).add_debug_info(_number, flags);
 }
 
 Expr NumberBox::prepare_boxes(Expr boxes) {
@@ -408,6 +402,24 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
   }
   
   return boxes;
+}
+
+bool NumberBox::is_number_part(Box *box) {
+  if(!box)
+    return false;
+    
+  return box == content() || 
+         box == _base || 
+         box == _radius_base || 
+         box == _radius_exponent || 
+         box == _exponent;
+}
+
+PositionInRange NumberBox::selection_to_string_index(String number, Box *sel, int index) {
+  if(number != _number)
+    return PositionInRange(-1, 0, 0);
+  
+  return NumberBoxImpl(*this).selection_to_string_index(sel, index);
 }
 
 //} ... class NumberBox

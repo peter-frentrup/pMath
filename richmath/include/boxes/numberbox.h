@@ -6,6 +6,21 @@
 extern pmath_symbol_t richmath_FE_NumberBox;
 
 namespace richmath {
+  struct PositionInRange {
+    int pos;
+    int start;
+    int end;
+    
+    PositionInRange(int _pos, int _start, int _end)
+      : pos(_pos),
+        start(_start),
+        end(_end)
+    {
+    }
+    
+    bool is_valid() { return start <= pos && pos <= end; }
+  };
+  
   class NumberBox: public OwnerBox {
       friend class NumberBoxImpl;
     public:
@@ -25,6 +40,9 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       static Expr prepare_boxes(Expr boxes);
+      
+      bool is_number_part(Box *box);
+      PositionInRange selection_to_string_index(String number, Box *sel, int index);
       
     private:
       String        _number;

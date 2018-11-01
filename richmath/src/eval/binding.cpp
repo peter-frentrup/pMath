@@ -3,12 +3,23 @@
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
+#include <boxes/numberbox.h>
 #include <boxes/textsequence.h>
 #include <eval/application.h>
 #include <eval/job.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 #include <util/spanexpr.h>
+
+#ifdef max
+#  undef max
+#endif
+#ifdef min
+#  undef min
+#endif
+
+#include <algorithm>
+
 
 using namespace richmath;
 
@@ -758,9 +769,23 @@ namespace {
             }
           }
         }
+        else if(pmath_is_string(obj)) {
+          if(NumberBox *num = FrontEndObject::find_cast<NumberBox>(source.id)) {
+            if(num->is_number_part(FrontEndObject::find_cast<Box>(selection_box))) {
+              int written = output.length();
+              if(token_output_start <= written) {
+                token_output_start = written;
+                token_output_depth = call_depth;
+                token              = Expr{ pmath_ref(obj) };
+                token_source_start = source.start;
+                token_source_end   = source.end;
+              }
+            }
+          }
+        }
       }
       
-      void post_write(pmath_t obj, const String &output, int call_depth) {
+      void post_write(pmath_t obj, const SelectionReference &source, const String &output, int call_depth) {
         if(call_depth != token_output_depth) 
           return;
           
@@ -777,43 +802,69 @@ namespace {
         const uint16_t *in16 = nullptr;
         const char     *in8 = nullptr;
         int in_length = 0;
+        int in_start = token_source_start;
+        int in_index = selection_index;
         
-        FrontEndObject *source = FrontEndObject::find(selection_box);
-        if(auto mseq = dynamic_cast<MathSequence*>(source)) {
-          in16 = mseq->text().buffer();
-          in_length = mseq->length();
+        FrontEndObject *selfeo = FrontEndObject::find(selection_box);
+        if(source.id == selection_box) {
+          if(auto mseq = dynamic_cast<MathSequence*>(selfeo)) {
+            in16 = mseq->text().buffer();
+            in_length = mseq->length();
+          }
+          else if(auto tseq = dynamic_cast<TextSequence*>(selfeo)) {
+            in8 = tseq->text_buffer().buffer();
+            in_length = tseq->length();
+          }
+          else {
+            output_pos = token_output_start;
+            return;
+          }
         }
-        else if(auto tseq = dynamic_cast<TextSequence*>(source)) {
-          in8 = tseq->text_buffer().buffer();
-          in_length = tseq->length();
-        }
-        else {
-          output_pos = token_output_start;
-          return;
+        else if(pmath_is_string(obj)){
+          Box *selbox = dynamic_cast<Box*>(selfeo);
+          
+          if(NumberBox *num = FrontEndObject::find_cast<NumberBox>(source.id)) {
+            PositionInRange pos = num->selection_to_string_index(String{pmath_ref(obj)}, selbox, selection_index);
+            if(pos.pos >= 0) {
+              pos.pos = std::max(pos.start, std::min(pos.pos, pos.end));
+            }
+            if(pos.pos <= out_tok_len) {
+              //output_pos = token_output_start + pos.pos;
+              //return;
+              in16 = pmath_string_buffer((pmath_string_t*)&obj);
+              in_length = pmath_string_length((pmath_string_t)obj);
+              in_start = 0;
+              in_index = pos.pos;
+            }
+            else if(num->is_number_part(selbox)) {
+              output_pos = token_output_start;
+              return;
+            }
+          }
         }
         
         if( out_tok_len >= in_tok_len + 2 && 
-            selection_index <= in_length &&
+            in_index <= in_length &&
             buf[token_output_start] == '"' &&
             buf[token_output_end - 1] == '"') 
         {
           int opos = token_output_start + 1;
-          int ipos = token_source_start;
-          while(ipos < selection_index && opos < token_output_end - 1) {
+          int ipos = in_start;
+          while(ipos < in_index && opos < token_output_end - 1) {
             if(in8) {
               if(in8[ipos]) {
-                const char *next = g_utf8_find_next_char(in8 + ipos, in8 + selection_index);
+                const char *next = g_utf8_find_next_char(in8 + ipos, in8 + in_index);
                 if(next)
                   ipos = (int)(next - in8);
                 else
-                  ipos = selection_index;
+                  ipos = in_index;
               }
               else
                 ++ipos; // embedded <NUL>
             }
             else if(in16) {
               if( is_utf16_high(in16[ipos]) && 
-                  ipos + 1 < selection_index &&
+                  ipos + 1 < in_index &&
                   is_utf16_low(in16[ipos + 1])) 
               {
                 ipos+= 2;
@@ -915,9 +966,12 @@ namespace {
       }
       
       void post_write(pmath_t obj, pmath_write_options_t opts) {
-        for(auto &sel : selections)
-          sel.post_write(obj, output, call_depth);
-          
+        SelectionReference source = SelectionReference::from_debug_info_of(obj);
+        if(source) {
+          for(auto &sel : selections)
+            sel.post_write(obj, source, output, call_depth);
+        }
+        
         --call_depth;
       }
     
