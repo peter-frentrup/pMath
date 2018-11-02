@@ -282,11 +282,6 @@ namespace richmath {
         if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
           return token_or_span;
         
-        pmath_t old_info = pmath_get_debug_info(token_or_span);
-        pmath_unref(old_info);
-        if(!pmath_is_null(old_info))
-          return token_or_span;
-        
         Expr debug_info = SelectionReference(data->sequence->id(), start->index, end->index).to_debug_info();
                             
         token_or_span = pmath_try_set_debug_info(

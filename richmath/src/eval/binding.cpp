@@ -770,7 +770,9 @@ namespace {
           }
         }
         else if(pmath_is_string(obj)) {
-          if(NumberBox *num = FrontEndObject::find_cast<NumberBox>(source.id)) {
+          Box *box_at_source = find_box_at(source);
+          
+          if(NumberBox *num = dynamic_cast<NumberBox*>(box_at_source)) {
             if(num->is_number_part(FrontEndObject::find_cast<Box>(selection_box))) {
               int written = output.length();
               if(token_output_start <= written) {
@@ -823,7 +825,9 @@ namespace {
         else if(pmath_is_string(obj)){
           Box *selbox = dynamic_cast<Box*>(selfeo);
           
-          if(NumberBox *num = FrontEndObject::find_cast<NumberBox>(source.id)) {
+          Box *box_at_source = find_box_at(source);
+          
+          if(NumberBox *num = dynamic_cast<NumberBox*>(box_at_source)) {
             PositionInRange pos = num->selection_to_string_index(String{pmath_ref(obj)}, selbox, selection_index);
             if(pos.pos >= 0) {
               pos.pos = std::max(pos.start, std::min(pos.pos, pos.end));
@@ -900,6 +904,49 @@ namespace {
         }
       }
       
+    private:
+      static Box *find_box_at(const SelectionReference &source) {
+        FrontEndObject *feo = FrontEndObject::find(source.id);
+        if(!feo)
+          return nullptr;
+        
+        if(MathSequence *mseq = dynamic_cast<MathSequence*>(feo)) {
+          if(source.end != source.start + 1)
+            return nullptr;
+          if(source.start < 0 || source.start >= mseq->length())
+            return nullptr;
+          
+          if(mseq->char_at(source.start) != PMATH_CHAR_BOX)
+            return nullptr;
+          
+          return raw_find_box_at(mseq, source.start);
+        }
+        else if(TextSequence *tseq = dynamic_cast<TextSequence*>(feo)) {
+          if(!tseq->text_buffer().is_box_at(source.start, source.end)) 
+            return nullptr;
+          
+          return raw_find_box_at(tseq, source.start);
+        }
+        else if(Box *box = dynamic_cast<Box*>(feo)) {
+          if(source.start == 0 && source.end == box->length())
+            return box;
+        }
+        
+        return nullptr;
+      }
+      
+      static Box *raw_find_box_at(Box *parent, int index) {
+        for(int i = parent->count(); i > 0; --i) {
+          Box *box = parent->item(i - 1);
+          int box_index = box->index();
+          if(box_index == index)
+            return box;
+          if(box_index < index)
+            return nullptr;
+        }
+        return nullptr;
+      }
+    
     public:
       FrontEndReference selection_box;
       int               selection_index;

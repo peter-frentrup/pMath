@@ -26,7 +26,8 @@ namespace richmath {
       int insert(int pos, const String &s);
       void remove(int pos, int len);
       
-      bool is_box_at(int i);
+      bool is_box_at(int i) const;
+      bool is_box_at(int start, int end) const;
       
     private:
       int _capacity;

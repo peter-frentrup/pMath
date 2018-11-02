@@ -164,10 +164,17 @@ void TextBuffer::remove(int pos, int len) {
   _length -= len;
 }
 
-bool TextBuffer::is_box_at(int i) {
+bool TextBuffer::is_box_at(int i) const {
   return 0 <= i
          && i + Utf8BoxCharLen <= _length
          && memcmp(_buffer + i, Utf8BoxChar, Utf8BoxCharLen) == 0;
+}
+
+bool TextBuffer::is_box_at(int start, int end) const {
+  if(end != start + Utf8BoxCharLen)
+    return false;
+  
+  return is_box_at(start);
 }
 
 //} ... class TextBuffer

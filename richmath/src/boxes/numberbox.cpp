@@ -266,16 +266,6 @@ namespace richmath {
         
         return PositionInRange(-1, 0, 0); // error
       }
-  
-    public:
-      Expr add_debug_info(Expr expr, BoxOutputFlags flags) {
-        if(!has(flags, BoxOutputFlags::WithDebugInfo))
-          return expr;
-        
-        Expr debug_info = SelectionReference(self.id(), 0, self.length()).to_debug_info();
-        
-        return Expr{ pmath_try_set_debug_info(expr.release(), debug_info.release()) };
-      }
   };
 }
 
@@ -372,9 +362,9 @@ void NumberBox::paint(Context *context) {
 
 Expr NumberBox::to_pmath(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::ShortNumbers))
-    return NumberBoxImpl(*this).add_debug_info(content()->to_pmath(flags), flags);
+    return content()->to_pmath(flags);
     
-  return NumberBoxImpl(*this).add_debug_info(_number, flags);
+  return _number;
 }
 
 Expr NumberBox::prepare_boxes(Expr boxes) {
