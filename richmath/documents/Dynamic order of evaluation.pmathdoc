@@ -1,41 +1,50 @@
 /* pMath Document */
 
-Document({SectionGroup({Section("Dynamic order of evaluation", "Title"), 
-    Section({"We want to dynamically constrain a value to values beteen ", 
-      "0", " and ", "0.5", 
-      ". We can do this by resetting the value inside a (visible) Dynamic box. \
-      However, if we modify the value with a slider, the behaviour during \
-      slider movement depends on the order of Dynamic evaluations."}, "Text"), 
-    Section(
-     "The same holds true in  Mathematica iff the value is not held. by a \
-     simple symbol, but an expression", "Text"), 
-    SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
-       SectionLabel -> "in [6]:"), Section(BoxData(DynamicBox(ToBoxes(x))), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
-       "Input", SectionLabel -> "in [7]:"), 
-      Section(BoxData(SliderBox(Dynamic(x), 0 .. 1)), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"Dynamic", "(", {
-          {"If", "(", {{"x", "\[GreaterEqual]", "0.5"}, ",", {
-             "x", "\[Assign]", "0.5"}}, ")"}, ";", {
-           "Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}}, ")"}), "Input", 
-       SectionLabel -> "in [8]:"), 
+Document({
+  SectionGroup({
+    SectionGroup({Section("Dynamic order of evaluation", "Title"), 
       Section(
-       BoxData(DynamicBox(ToBoxes(If(x >= 0.5`, x:= 0.5`); Slider(
-           Dynamic(x))))), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [8]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
-       "Input", SectionLabel -> "in [9]:"), 
-      Section(BoxData(SliderBox(Dynamic(x), 0 .. 1)), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
-    SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
-       SectionLabel -> "in [10]:"), Section(BoxData(DynamicBox(ToBoxes(x))), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [10]:")}, 
-     All), SectionGroup({Section("In one line", "Title"), 
+       "We want to dynamically constrain a value to values beteen 0 and 0.5. \
+       We can do this by resetting the value inside a (visible) Dynamic box. \
+       However, if we modify the value with a slider, the behaviour during \
+       slider movement depends on the order of Dynamic evaluations.", "Text"), 
+      Section(
+       "The same holds true in  Mathematica iff the value is not held by a \
+       simple symbol, but an expression.", "Text"), 
+      SectionGroup({
+        Section(BoxData({"Dynamic", "(", {
+            "x", ";", {"Refresh", "(", {{"RandomReal", "(", ")"}, ",", 
+              "None"}, ")"}}, ")"}), "Input", SectionLabel -> "in [7]:"), 
+        Section(BoxData(DynamicBox(ToBoxes(x; Refresh(RandomReal(), None)))), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, 
+       All), SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), 
+         "Input", SectionLabel -> "in [6]:"), 
+        Section(BoxData(DynamicBox(ToBoxes(x))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
+         "Input", SectionLabel -> "in [7]:"), 
+        Section(BoxData(SliderBox(Dynamic(x), 0 .. 1)), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"Dynamic", "(", {
+            {"If", "(", {{"x", "\[GreaterEqual]", "0.5"}, ",", {
+               "x", "\[Assign]", "0.5"}}, ")"}, ";", {
+             "Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}}, ")"}), "Input", 
+         SectionLabel -> "in [8]:"), 
+        Section(
+         BoxData(DynamicBox(ToBoxes(If(x >= 0.5`, x:= 0.5`); Slider(
+             Dynamic(x))))), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [8]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
+         "Input", SectionLabel -> "in [9]:"), 
+        Section(BoxData(SliderBox(Dynamic(x), 0 .. 1)), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
+      SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
+         SectionLabel -> "in [10]:"), Section(BoxData(DynamicBox(ToBoxes(x))), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [10]:")}, 
+       All)}, All), SectionGroup({Section("In one line", "Title"), 
       SectionGroup({
         Section(
          BoxData({"Row", "@", {
@@ -49,7 +58,7 @@ Document({SectionGroup({Section("Dynamic order of evaluation", "Title"),
         Section(BoxData(InterpretationBox({
             DynamicBox(ToBoxes(If(y >= 0.5`, y:= 0.5`); "")), 
             SliderBox(Dynamic(y), 0 .. 1)}, Row({
-            Dynamic(If(y >= 0.5`, y:= 0.5`); ""), Slider(Dynamic(y))}))), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [11]:")}, 
-       All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
- Visible -> True)
+            Dynamic(If(y >= 0.5`, y:= 0.5`); ""), Slider(Dynamic(y))}), 
+           Editable -> False)), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [11]:")}, All)}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

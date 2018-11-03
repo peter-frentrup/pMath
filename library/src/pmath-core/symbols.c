@@ -840,17 +840,11 @@ pmath_bool_t _pmath_symbol_assign_value(
         pmath_ht_obj_class.entry_destructor(parent_entry);
     }
     
-    _pmath_symbol_define_value_pos(
-      (pmath_locked_t *)&entry->value,
-      lhs,
-      rhs);
+    if(!_pmath_symbol_define_value_pos((pmath_locked_t *)&entry->value, lhs, rhs))
+      return TRUE;
   }
-  else {
-    _pmath_symbol_define_value_pos(
-      &sym_ptr->value,
-      lhs,
-      rhs);
-  }
+  else if(!_pmath_symbol_define_value_pos(&sym_ptr->value, lhs, rhs))
+    return TRUE;
   
   sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
   if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)
