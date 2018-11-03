@@ -43,6 +43,7 @@ namespace richmath {
       
       bool is_number_part(Box *box);
       PositionInRange selection_to_string_index(String number, Box *sel, int index);
+      Box *string_index_to_selection(String number, int char_index, int *selection_index);
       
     private:
       String        _number;

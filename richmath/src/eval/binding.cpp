@@ -1082,6 +1082,23 @@ namespace {
           visit_span(se, source, expr);
           delete se;
         }
+        else if(auto seq = dynamic_cast<TextSequence*>(box)) {
+          // ...
+        }
+        else if(auto num = dynamic_cast<NumberBox*>(box)) {
+          if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
+            if(0 <= source.start && source.start <= source.end && source.end <= source_seq->length()) {
+              String number = source_seq->text().part(source.start, source.end - source.start);
+              
+              int index;
+              Box *selbox = num->string_index_to_selection(number, source_index - source.start, &index);
+              if(selbox) {
+                destination.set(selbox, index, index);
+                return;
+              }
+            }
+          }
+        }
       }
     
     private:
