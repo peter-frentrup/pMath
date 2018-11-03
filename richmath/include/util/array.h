@@ -159,7 +159,8 @@ namespace richmath {
         return _items[i];
       }
       
-      Array<T> &set(int i, const T &t) {
+      template<class S>
+      Array<T> &set(int i, const S &t) {
         ARRAY_ASSERT(i >= 0);
         ARRAY_ASSERT(i < _length);
         _items[i] = t;
@@ -173,7 +174,8 @@ namespace richmath {
         return *this;
       }
       
-      Array<T> &add(const T &t) {
+      template<class S>
+      Array<T> &add(const S &t) {
         length(_length + 1);
         _items[_length - 1] = t;
         return *this;
@@ -185,7 +187,8 @@ namespace richmath {
         return *this;
       }
       
-      Array<T> &add(int inslen, const T *insitems) {
+      template<class S>
+      Array<T> &add(int inslen, const S *insitems) {
         ARRAY_ASSERT(inslen >= 0);
         length(_length + inslen);
         for(int i = 0; i < inslen; ++i)
@@ -208,7 +211,8 @@ namespace richmath {
         return *this;
       }
       
-      Array<T> &insert(int start, int inslen, const T *insitems) {
+      template<class S>
+      Array<T> &insert(int start, int inslen, const S *insitems) {
         ARRAY_ASSERT(start >= 0);
         ARRAY_ASSERT(start <= _length);
         ARRAY_ASSERT(inslen >= 0);

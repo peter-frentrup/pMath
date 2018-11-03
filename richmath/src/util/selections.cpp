@@ -5,12 +5,73 @@
 
 using namespace richmath;
 
+//{ class LocationReference ...
+
+LocationReference::LocationReference()
+  : id(FrontEndReference::None),
+    index(0)
+{
+}
+
+LocationReference::LocationReference(Box *_box, int _index)
+  : id(_box ? _box->id() : FrontEndReference::None),
+    index(_box ? _index : 0)
+{
+}
+
+LocationReference::LocationReference(FrontEndReference _id, int _index)
+  : id(_id),
+    index(_index)
+{
+}
+
+Box *LocationReference::get() {
+  if(!id)
+    return nullptr;
+    
+  Box *result = FrontEndObject::find_cast<Box>(id);
+  if(!result)
+    return nullptr;
+    
+  if(index > result->length())
+    index = result->length();
+  
+  return result;
+}
+
+void LocationReference::set_raw(Box *box, int _index) {
+  if(box) {
+    id = box->id();
+    index = _index;
+  }
+  else {
+    id = FrontEndReference::None;
+    index = 0;
+  }
+}
+
+bool LocationReference::equals(Box *box, int _index) const {
+  if(!box)
+    return !id.is_valid();
+    
+  return id == box->id() && index == _index;
+}
+
+//} ... class LocationReference
+
 //{ class SelectionReference ...
 
 SelectionReference::SelectionReference()
   : id(FrontEndReference::None),
     start(0),
     end(0)
+{
+}
+
+SelectionReference::SelectionReference(Box *_box, int _start, int _end)
+  : id(_box ? _box->id() : FrontEndReference::None),
+    start(_box ? _start : 0),
+    end(_box ? _end : 0)
 {
 }
 
@@ -57,7 +118,7 @@ void SelectionReference::set_raw(Box *box, int _start, int _end) {
 
 bool SelectionReference::equals(Box *box, int _start, int _end) const {
   if(!box)
-    return id.is_valid();
+    return !id.is_valid();
     
   SelectionReference other;
   other.set(box, _start, _end);

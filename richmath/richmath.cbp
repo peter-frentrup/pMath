@@ -992,6 +992,7 @@
 		<Unit filename="include/util/hashtable.h" />
 		<Unit filename="include/util/matrix.h" />
 		<Unit filename="include/util/pmath-extra.h" />
+		<Unit filename="include/util/selection-tracking.h" />
 		<Unit filename="include/util/selections.h" />
 		<Unit filename="include/util/sharedptr.h" />
 		<Unit filename="include/util/spanexpr.h" />
@@ -1360,6 +1361,7 @@
 		<Unit filename="src/util/base.cpp" />
 		<Unit filename="src/util/frontendobject.cpp" />
 		<Unit filename="src/util/pmath-extra.cpp" />
+		<Unit filename="src/util/selection-tracking.cpp" />
 		<Unit filename="src/util/selections.cpp" />
 		<Unit filename="src/util/spanexpr.cpp" />
 		<Unit filename="src/util/style.cpp" />
