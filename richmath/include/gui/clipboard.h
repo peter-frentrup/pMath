@@ -1,5 +1,5 @@
-#ifndef __GUI__CLIPBOARD_H__
-#define __GUI__CLIPBOARD_H__
+#ifndef RICHMATH__GUI__CLIPBOARD_H__INCLUDED
+#define RICHMATH__GUI__CLIPBOARD_H__INCLUDED
 
 #include <util/sharedptr.h>
 #include <util/pmath-extra.h>
@@ -47,4 +47,4 @@ namespace richmath {
   };
 }
 
-#endif // __GUI__CLIPBOARD_H__
+#endif // RICHMATH__GUI__CLIPBOARD_H__INCLUDED

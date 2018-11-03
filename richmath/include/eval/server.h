@@ -1,5 +1,5 @@
-#ifndef __EVAL__SERVER_H__
-#define __EVAL__SERVER_H__
+#ifndef RICHMATH__EVAL__SERVER_H__INCLUDED
+#define RICHMATH__EVAL__SERVER_H__INCLUDED
 
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
@@ -31,4 +31,4 @@ namespace richmath {
   };
 }
 
-#endif // __EVAL__SERVER_H__
+#endif // RICHMATH__EVAL__SERVER_H__INCLUDED

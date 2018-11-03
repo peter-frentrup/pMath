@@ -1,5 +1,5 @@
-#ifndef __EVAL__BINDING_H__
-#define __EVAL__BINDING_H__
+#ifndef RICHMATH__EVAL__BINDING_H__INCLUDED
+#define RICHMATH__EVAL__BINDING_H__INCLUDED
 
 #include <util/frontendobject.h>
 #include <util/hashtable.h>
@@ -28,4 +28,4 @@ namespace richmath {
   extern Hashtable<FrontEndReference, Void> all_document_ids;
 }
 
-#endif // __EVAL__BINDING_H__
+#endif // RICHMATH__EVAL__BINDING_H__INCLUDED

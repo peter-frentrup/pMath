@@ -1,5 +1,5 @@
-#ifndef __RICHMATH__BOXES__SLIDERBOX_H__
-#define __RICHMATH__BOXES__SLIDERBOX_H__
+#ifndef __RICHMATHRICHMATH__BOXES__SLIDERBOX_H__INCLUDED
+#define __RICHMATHRICHMATH__BOXES__SLIDERBOX_H__INCLUDED
 
 #include <boxes/emptywidgetbox.h>
 #include <eval/dynamic.h>
@@ -61,4 +61,4 @@ namespace richmath {
   };
 }
 
-#endif // __RICHMATH__BOXES__SLIDERBOX_H__
+#endif // __RICHMATHRICHMATH__BOXES__SLIDERBOX_H__INCLUDED

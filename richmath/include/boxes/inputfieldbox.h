@@ -1,5 +1,5 @@
-#ifndef __BOXES__INPUTFIELDBOX_H__
-#define __BOXES__INPUTFIELDBOX_H__
+#ifndef RICHMATH__BOXES__INPUTFIELDBOX_H__INCLUDED
+#define RICHMATH__BOXES__INPUTFIELDBOX_H__INCLUDED
 
 #include <boxes/containerwidgetbox.h>
 #include <eval/dynamic.h>
@@ -67,4 +67,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__INPUTFIELDBOX_H__
+#endif // RICHMATH__BOXES__INPUTFIELDBOX_H__INCLUDED

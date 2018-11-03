@@ -1,5 +1,5 @@
-#ifndef __UTIL__HASHTABLE_H__
-#define __UTIL__HASHTABLE_H__
+#ifndef RICHMATH__UTIL__HASHTABLE_H__INCLUDED
+#define RICHMATH__UTIL__HASHTABLE_H__INCLUDED
 
 #include <cassert>
 #include <cstdlib>
@@ -591,4 +591,4 @@ namespace richmath {
   }
 }
 
-#endif // __UTIL__HASHTABLE_H__
+#endif // RICHMATH__UTIL__HASHTABLE_H__INCLUDED

@@ -1,5 +1,5 @@
-#ifndef __BOXES__GRAPHICS__LINEBOX_H__
-#define __BOXES__GRAPHICS__LINEBOX_H__
+#ifndef RICHMATH__BOXES__GRAPHICS__LINEBOX_H__INCLUDED
+#define RICHMATH__BOXES__GRAPHICS__LINEBOX_H__INCLUDED
 
 #include <boxes/graphics/pointbox.h>
 
@@ -27,4 +27,4 @@ namespace richmath {
 }
 
 
-#endif // __BOXES__GRAPHICS__LINEBOX_H__
+#endif // RICHMATH__BOXES__GRAPHICS__LINEBOX_H__INCLUDED

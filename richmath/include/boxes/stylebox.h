@@ -1,5 +1,5 @@
-#ifndef __BOXES__STYLEBOX_H__
-#define __BOXES__STYLEBOX_H__
+#ifndef RICHMATH__BOXES__STYLEBOX_H__INCLUDED
+#define RICHMATH__BOXES__STYLEBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
 
@@ -79,4 +79,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__STYLEBOX_H__
+#endif // RICHMATH__BOXES__STYLEBOX_H__INCLUDED

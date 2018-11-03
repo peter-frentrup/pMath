@@ -1,5 +1,5 @@
-#ifndef __UTIL__FRONTENDOBJECT_H__
-#define __UTIL__FRONTENDOBJECT_H__
+#ifndef RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED
+#define RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED
 
 #include <pmath-cpp.h>
 
@@ -59,4 +59,4 @@ namespace richmath {
   
 }
 
-#endif // __UTIL__FRONTENDOBJECT_H__
+#endif // RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED

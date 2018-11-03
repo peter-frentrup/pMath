@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__FONTS_H__
-#define __GRAPHICS__FONTS_H__
+#ifndef RICHMATH__GRAPHICS__FONTS_H__INCLUDED
+#define RICHMATH__GRAPHICS__FONTS_H__INCLUDED
 
 #include <cairo.h>
 
@@ -166,4 +166,4 @@ namespace richmath {
   };
 };
 
-#endif // __GRAPHICS__FONTS_H__
+#endif // RICHMATH__GRAPHICS__FONTS_H__INCLUDED

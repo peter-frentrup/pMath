@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__FT_SHAPER_H__
-#define __GRAPHICS__FT_SHAPER_H__
+#ifndef RICHMATH__GRAPHICS__FT_SHAPER_H__INCLUDED
+#define RICHMATH__GRAPHICS__FT_SHAPER_H__INCLUDED
 
 #include <graphics/shapers.h>
 
@@ -41,4 +41,4 @@ namespace richmath {
   };
 }
 
-#endif // __GRAPHICS__FT_SHAPER_H__
+#endif // RICHMATH__GRAPHICS__FT_SHAPER_H__INCLUDED

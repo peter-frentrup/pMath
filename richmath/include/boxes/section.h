@@ -1,5 +1,5 @@
-#ifndef __BOXES__SECTION_H__
-#define __BOXES__SECTION_H__
+#ifndef RICHMATH__BOXES__SECTION_H__INCLUDED
+#define RICHMATH__BOXES__SECTION_H__INCLUDED
 
 #include <boxes/box.h>
 #include <util/array.h>
@@ -185,4 +185,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__SECTION_H__
+#endif // RICHMATH__BOXES__SECTION_H__INCLUDED

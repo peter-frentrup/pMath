@@ -1,5 +1,5 @@
-#ifndef __UTIL__SELECTIONS_H__
-#define __UTIL__SELECTIONS_H__
+#ifndef RICHMATH__UTIL__SELECTIONS_H__INCLUDED
+#define RICHMATH__UTIL__SELECTIONS_H__INCLUDED
 
 #include <util/frontendobject.h>
 #include <pmath-cpp.h>
@@ -95,4 +95,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__SELECTIONS_H__
+#endif // RICHMATH__UTIL__SELECTIONS_H__INCLUDED

@@ -1,5 +1,5 @@
-#ifndef __EVAL__JOB_H__
-#define __EVAL__JOB_H__
+#ifndef RICHMATH__EVAL__JOB_H__INCLUDED
+#define RICHMATH__EVAL__JOB_H__INCLUDED
 
 #include <util/frontendobject.h>
 #include <util/pmath-extra.h>
@@ -100,4 +100,4 @@ namespace richmath {
   };
 }
 
-#endif // __EVAL__JOB_H__
+#endif // RICHMATH__EVAL__JOB_H__INCLUDED

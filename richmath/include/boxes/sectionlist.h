@@ -1,5 +1,5 @@
-#ifndef __BOXES__SECTIONLIST_H__
-#define __BOXES__SECTIONLIST_H__
+#ifndef RICHMATH__BOXES__SECTIONLIST_H__INCLUDED
+#define RICHMATH__BOXES__SECTIONLIST_H__INCLUDED
 
 #include <boxes/box.h>
 #include <util/array.h>
@@ -163,4 +163,4 @@ namespace richmath {
   const int BorderOutput      = 512;
 }
 
-#endif // __BOXES__SECTIONLIST_H__
+#endif // RICHMATH__BOXES__SECTIONLIST_H__INCLUDED

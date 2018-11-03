@@ -1,5 +1,5 @@
-#ifndef __UTIL__STYLE_H__
-#define __UTIL__STYLE_H__
+#ifndef RICHMATH__UTIL__STYLE_H__INCLUDED
+#define RICHMATH__UTIL__STYLE_H__INCLUDED
 
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
@@ -355,4 +355,4 @@ namespace richmath {
   };
 };
 
-#endif // __UTIL__STYLE_H__
+#endif // RICHMATH__UTIL__STYLE_H__INCLUDED

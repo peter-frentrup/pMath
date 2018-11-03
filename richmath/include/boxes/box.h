@@ -1,5 +1,5 @@
-#ifndef __BOXES__BOX_H__
-#define __BOXES__BOX_H__
+#ifndef RICHMATH__BOXES__BOX_H__INCLUDED
+#define RICHMATH__BOXES__BOX_H__INCLUDED
 
 #include <graphics/shapers.h>
 #include <eval/observable.h>
@@ -517,4 +517,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__BOX_H__
+#endif // RICHMATH__BOXES__BOX_H__INCLUDED

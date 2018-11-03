@@ -1,5 +1,5 @@
-#ifndef __GUI__DOCUMENT_H__
-#define __GUI__DOCUMENT_H__
+#ifndef RICHMATH__GUI__DOCUMENT_H__INCLUDED
+#define RICHMATH__GUI__DOCUMENT_H__INCLUDED
 
 #include <boxes/sectionlist.h>
 #include <eval/application.h>
@@ -205,4 +205,4 @@ namespace richmath {
   extern int box_order(Box *b1, int i1, Box *b2, int i2);
 }
 
-#endif // __GUI__DOCUMENT_H__
+#endif // RICHMATH__GUI__DOCUMENT_H__INCLUDED

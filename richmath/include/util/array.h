@@ -1,5 +1,5 @@
-#ifndef __UTIL__ARRAY_H__
-#define __UTIL__ARRAY_H__
+#ifndef RICHMATH__UTIL__ARRAY_H__INCLUDED
+#define RICHMATH__UTIL__ARRAY_H__INCLUDED
 
 #include <cassert>
 #include <cstring>
@@ -277,4 +277,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__ARRAY_H__
+#endif // RICHMATH__UTIL__ARRAY_H__INCLUDED

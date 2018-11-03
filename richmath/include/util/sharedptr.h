@@ -1,5 +1,5 @@
-#ifndef __UTIL__SHAREDPTR_H__
-#define __UTIL__SHAREDPTR_H__
+#ifndef RICHMATH__UTIL__SHAREDPTR_H__INCLUDED
+#define RICHMATH__UTIL__SHAREDPTR_H__INCLUDED
 
 #include <stdint.h>
 
@@ -100,4 +100,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__SHAREDPTR_H__
+#endif // RICHMATH__UTIL__SHAREDPTR_H__INCLUDED

@@ -1,5 +1,5 @@
-#ifndef __UTIL__PMATH_EXTRA_H__
-#define __UTIL__PMATH_EXTRA_H__
+#ifndef RICHMATH__UTIL__PMATH_EXTRA_H__INCLUDED
+#define RICHMATH__UTIL__PMATH_EXTRA_H__INCLUDED
 
 #include <pmath-cpp.h>
 
@@ -74,4 +74,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__PMATH_EXTRA_H__
+#endif // RICHMATH__UTIL__PMATH_EXTRA_H__INCLUDED

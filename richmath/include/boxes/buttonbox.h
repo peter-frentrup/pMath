@@ -1,5 +1,5 @@
-#ifndef __BOXES__BUTTONBOX_H__
-#define __BOXES__BUTTONBOX_H__
+#ifndef RICHMATH__BOXES__BUTTONBOX_H__INCLUDED
+#define RICHMATH__BOXES__BUTTONBOX_H__INCLUDED
 
 #include <boxes/containerwidgetbox.h>
 
@@ -26,4 +26,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__BUTTONBOX_H__
+#endif // RICHMATH__BOXES__BUTTONBOX_H__INCLUDED

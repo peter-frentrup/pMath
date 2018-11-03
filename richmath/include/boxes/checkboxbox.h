@@ -1,5 +1,5 @@
-#ifndef __BOXES__CHECKBOXBOX_H__
-#define __BOXES__CHECKBOXBOX_H__
+#ifndef RICHMATH__BOXES__CHECKBOXBOX_H__INCLUDED
+#define RICHMATH__BOXES__CHECKBOXBOX_H__INCLUDED
 
 #include <boxes/emptywidgetbox.h>
 #include <eval/dynamic.h>
@@ -32,4 +32,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__CHECKBOXBOX_H__
+#endif // RICHMATH__BOXES__CHECKBOXBOX_H__INCLUDED

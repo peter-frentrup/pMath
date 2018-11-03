@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__ANIMATION_H__
-#define __GRAPHICS__ANIMATION_H__
+#ifndef RICHMATH__GRAPHICS__ANIMATION_H__INCLUDED
+#define RICHMATH__GRAPHICS__ANIMATION_H__INCLUDED
 
 #include <util/frontendobject.h>
 #include <graphics/buffer.h>
@@ -71,4 +71,4 @@ namespace richmath {
   };
 }
 
-#endif // __GRAPHICS__ANIMATION_H__
+#endif // RICHMATH__GRAPHICS__ANIMATION_H__INCLUDED

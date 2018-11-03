@@ -1,5 +1,5 @@
-#ifndef __BOXES__RADICALBOX_H__
-#define __BOXES__RADICALBOX_H__
+#ifndef RICHMATH__BOXES__RADICALBOX_H__INCLUDED
+#define RICHMATH__BOXES__RADICALBOX_H__INCLUDED
 
 #include <boxes/box.h>
 
@@ -60,4 +60,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__RADICALBOX_H__
+#endif // RICHMATH__BOXES__RADICALBOX_H__INCLUDED

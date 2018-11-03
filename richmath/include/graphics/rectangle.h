@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__RECTANGLE_H__
-#define __GRAPHICS__RECTANGLE_H__
+#ifndef RICHMATH__GRAPHICS__RECTANGLE_H__INCLUDED
+#define RICHMATH__GRAPHICS__RECTANGLE_H__INCLUDED
 
 
 namespace pmath {
@@ -126,4 +126,4 @@ namespace richmath {
 }
 
 
-#endif // __GRAPHICS__RECTANGLES_H__
+#endif // RICHMATH__GRAPHICS__RECTANGLES_H__INCLUDED

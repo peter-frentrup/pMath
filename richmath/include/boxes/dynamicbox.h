@@ -1,5 +1,5 @@
-#ifndef __BOXES__DYNAMICBOX_H__
-#define __BOXES__DYNAMICBOX_H__
+#ifndef RICHMATH__BOXES__DYNAMICBOX_H__INCLUDED
+#define RICHMATH__BOXES__DYNAMICBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
 #include <eval/dynamic.h>
@@ -43,4 +43,4 @@ namespace richmath {
   };
 };
 
-#endif // __BOXES__DYNAMICBOX_H__
+#endif // RICHMATH__BOXES__DYNAMICBOX_H__INCLUDED

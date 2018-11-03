@@ -1,5 +1,5 @@
-#ifndef __UTIL__MATRIX_H__
-#define __UTIL__MATRIX_H__
+#ifndef RICHMATH__UTIL__MATRIX_H__INCLUDED
+#define RICHMATH__UTIL__MATRIX_H__INCLUDED
 
 #include <util/array.h>
 
@@ -146,4 +146,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__MATRIX_H__
+#endif // RICHMATH__UTIL__MATRIX_H__INCLUDED

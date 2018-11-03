@@ -1,5 +1,5 @@
-#ifndef __BOXES__TEXTBOX_H__
-#define __BOXES__TEXTBOX_H__
+#ifndef RICHMATH__BOXES__TEXTBOX_H__INCLUDED
+#define RICHMATH__BOXES__TEXTBOX_H__INCLUDED
 
 #include <pango/pangocairo.h>
 
@@ -125,4 +125,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__TEXTBOX_H__
+#endif // RICHMATH__BOXES__TEXTBOX_H__INCLUDED

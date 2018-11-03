@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__CONTEXT_H__
-#define __GRAPHICS__CONTEXT_H__
+#ifndef RICHMATH__GRAPHICS__CONTEXT_H__INCLUDED
+#define RICHMATH__GRAPHICS__CONTEXT_H__INCLUDED
 
 #include <util/array.h>
 #include <util/pmath-extra.h>
@@ -144,4 +144,4 @@ namespace richmath {
   };
 }
 
-#endif // __GRAPHICS__CONTEXT_H__
+#endif // RICHMATH__GRAPHICS__CONTEXT_H__INCLUDED

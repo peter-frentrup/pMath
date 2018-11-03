@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__BUFFER_H__
-#define __GRAPHICS__BUFFER_H__
+#ifndef RICHMATH__GRAPHICS__BUFFER_H__INCLUDED
+#define RICHMATH__GRAPHICS__BUFFER_H__INCLUDED
 
 #include <graphics/canvas.h>
 #include <util/sharedptr.h>
@@ -51,4 +51,4 @@ namespace richmath {
   };
 }
 
-#endif // __GRAPHICS__BUFFER_H__
+#endif // RICHMATH__GRAPHICS__BUFFER_H__INCLUDED

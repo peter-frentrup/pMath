@@ -1,5 +1,5 @@
-#ifndef __BOXES__GRAPHICS__GRAPHICSBOX_H__
-#define __BOXES__GRAPHICS__GRAPHICSBOX_H__
+#ifndef RICHMATH__BOXES__GRAPHICS__GRAPHICSBOX_H__INCLUDED
+#define RICHMATH__BOXES__GRAPHICS__GRAPHICSBOX_H__INCLUDED
 
 #include <boxes/box.h>
 #include <boxes/graphics/graphicselement.h>
@@ -114,4 +114,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__GRAPHICS__GRAPHICSBOX_H__
+#endif // RICHMATH__BOXES__GRAPHICS__GRAPHICSBOX_H__INCLUDED

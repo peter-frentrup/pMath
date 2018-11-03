@@ -1,5 +1,5 @@
-#ifndef __BOXES__FRAMEBOX_H__
-#define __BOXES__FRAMEBOX_H__
+#ifndef RICHMATH__BOXES__FRAMEBOX_H__INCLUDED
+#define RICHMATH__BOXES__FRAMEBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
 
@@ -23,4 +23,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__FRAMEBOX_H__
+#endif // RICHMATH__BOXES__FRAMEBOX_H__INCLUDED

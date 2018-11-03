@@ -1,5 +1,5 @@
-#ifndef __GUI__NATIVE_WIDGET_H__
-#define __GUI__NATIVE_WIDGET_H__
+#ifndef RICHMATH__GUI__NATIVE_WIDGET_H__INCLUDED
+#define RICHMATH__GUI__NATIVE_WIDGET_H__INCLUDED
 
 #include <util/base.h>
 
@@ -120,4 +120,4 @@ namespace richmath {
   static const float ScaleMax     = 32.f;
 }
 
-#endif // __GUI__NATIVE_WIDGET_H__
+#endif // RICHMATH__GUI__NATIVE_WIDGET_H__INCLUDED

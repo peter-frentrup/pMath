@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__CANVAS_H__
-#define __GRAPHICS__CANVAS_H__
+#ifndef RICHMATH__GRAPHICS__CANVAS_H__INCLUDED
+#define RICHMATH__GRAPHICS__CANVAS_H__INCLUDED
 
 #include <graphics/fonts.h>
 
@@ -153,4 +153,4 @@ namespace richmath {
   typedef AutoRefBase < cairo_surface_t, cairo_surface_reference, cairo_surface_destroy > AutoCairoSurface;
 }
 
-#endif // __GRAPHICS__CANVAS_H__
+#endif // RICHMATH__GRAPHICS__CANVAS_H__INCLUDED

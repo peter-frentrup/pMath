@@ -1,5 +1,5 @@
-#ifndef __RICHMATH__BOXES__SETTERBOX_H__
-#define __RICHMATH__BOXES__SETTERBOX_H__
+#ifndef __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED
+#define __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED
 
 #include <boxes/containerwidgetbox.h>
 #include <eval/dynamic.h>
@@ -40,4 +40,4 @@ namespace richmath {
   };
 };
 
-#endif // __RICHMATH__BOXES__SETTERBOX_H__
+#endif // __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED

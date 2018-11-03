@@ -1,5 +1,5 @@
-#ifndef __PMATH__EVAL__DYNAMIC_H__
-#define __PMATH__EVAL__DYNAMIC_H__
+#ifndef __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
+#define __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
 
 #include <boxes/box.h>
 
@@ -41,4 +41,4 @@ namespace richmath {
   };
 };
 
-#endif // __PMATH__EVAL__DYNAMIC_H__
+#endif // __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED

@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__CAIROSTREAM_H__
-#define __GRAPHICS__CAIROSTREAM_H__
+#ifndef RICHMATH__GRAPHICS__CAIROSTREAM_H__INCLUDED
+#define RICHMATH__GRAPHICS__CAIROSTREAM_H__INCLUDED
 
 #include <util/base.h>
 #include <pmath-cpp.h>
@@ -41,4 +41,4 @@ namespace richmath {
   };
 };
 
-#endif // __GRAPHICS__CAIROSTREAM_H__
+#endif // RICHMATH__GRAPHICS__CAIROSTREAM_H__INCLUDED
