@@ -268,22 +268,22 @@ namespace {
 namespace richmath {
   class ConfigShaperTables: public Shareable {
     public:
-      Hashtable<uint32_t, GlyphFontOffset, cast_hash>
+      Hashtable<uint32_t, GlyphFontOffset>
       char_to_glyph_map;
       
       Hashtable<String, Array<GlyphFontOffset> >
       ligatures;
       
-      Hashtable<uint32_t, Array<GlyphFontOffset>, cast_hash>
+      Hashtable<uint32_t, Array<GlyphFontOffset>>
       complex_glyphs;
       
-      Hashtable<uint32_t, StretchGlyphArray, cast_hash>
+      Hashtable<uint32_t, StretchGlyphArray>
       stretched_glyphs;
       
-      Hashtable<uint32_t, ComposedGlyph, cast_hash>
+      Hashtable<uint32_t, ComposedGlyph>
       composed_glyphs;
       
-      Hashtable<uint32_t, ScriptIndent, cast_hash>
+      Hashtable<uint32_t, ScriptIndent>
       script_indents;
       
       Array<float> script_size_multipliers;

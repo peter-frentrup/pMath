@@ -85,7 +85,7 @@ namespace richmath {
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       
     protected:
-      Hashtable<HWND, Void, cast_hash> all_snappers;
+      Hashtable<HWND, Void> all_snappers;
       
     private:
       bool _active;

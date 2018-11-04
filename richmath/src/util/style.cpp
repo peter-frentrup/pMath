@@ -284,8 +284,8 @@ namespace {
       void add(int val, Expr expr);
       
     protected:
-      Hashtable<int, Expr, cast_hash> _int_to_expr;
-      Hashtable<Expr, int>            _expr_to_int;
+      Hashtable<int, Expr> _int_to_expr;
+      Hashtable<Expr, int> _expr_to_int;
   };
   
   class ButtonFrameStyleEnumConverter: public StyleEnumConverter {

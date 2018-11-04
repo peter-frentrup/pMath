@@ -384,21 +384,21 @@ namespace richmath {
       uint16_t      units_per_em;
       uint16_t      min_connector_overlap;
       
-      Hashtable<uint16_t, Array<MathGlyphVariantRecord>, cast_hash> vert_variants;
-      Hashtable<uint16_t, Array<MathGlyphVariantRecord>, cast_hash> horz_variants;
+      Hashtable<uint16_t, Array<MathGlyphVariantRecord> > vert_variants;
+      Hashtable<uint16_t, Array<MathGlyphVariantRecord> > horz_variants;
       
-      Hashtable<uint16_t, Array<MathGlyphPartRecord>, cast_hash> vert_assembly;
-      Hashtable<uint16_t, Array<MathGlyphPartRecord>, cast_hash> horz_assembly;
+      Hashtable<uint16_t, Array<MathGlyphPartRecord> > vert_assembly;
+      Hashtable<uint16_t, Array<MathGlyphPartRecord> > horz_assembly;
       
-      Hashtable<uint32_t, Array<MathGlyphPartRecord>, cast_hash> private_ligatures;
+      Hashtable<uint32_t, Array<MathGlyphPartRecord> > private_ligatures;
       
-      Hashtable<uint32_t, uint16_t, cast_hash> private_characters;
-      Hashtable<uint32_t, uint16_t, cast_hash> alt_glyphs;
+      Hashtable<uint32_t, uint16_t> private_characters;
+      Hashtable<uint32_t, uint16_t> alt_glyphs;
       
-      Hashtable<uint16_t, int16_t, cast_hash> italics_correction;
-      Hashtable<uint16_t, int16_t, cast_hash> top_accents;
+      Hashtable<uint16_t, int16_t> italics_correction;
+      Hashtable<uint16_t, int16_t> top_accents;
       
-      Hashtable<uint16_t, KernVertexObject, cast_hash> math_kern[4]; // index: MathKernEdge
+      Hashtable<uint16_t, KernVertexObject> math_kern[4]; // index: MathKernEdge
       
       String name;
       SharedPtr<FallbackTextShaper> text_shaper;

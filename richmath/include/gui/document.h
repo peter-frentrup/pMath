@@ -197,8 +197,8 @@ namespace richmath {
       AutoCompletion auto_completion;
   };
   
-  extern Hashtable<String, Expr, object_hash> global_immediate_macros;
-  extern Hashtable<String, Expr, object_hash> global_macros;
+  extern Hashtable<String, Expr> global_immediate_macros;
+  extern Hashtable<String, Expr> global_macros;
   
   extern Box *expand_selection(Box *box, int *start, int *end);
   extern int box_depth(Box *box);

@@ -32,8 +32,8 @@ bool richmath::DebugSelectionBounds = false;
 static double MaxFlashingCursorRadius = 9;  /* pixels */
 static double MaxFlashingCursorTime = 0.15; /* seconds */
 
-Hashtable<String, Expr, object_hash> richmath::global_immediate_macros;
-Hashtable<String, Expr, object_hash> richmath::global_macros;
+Hashtable<String, Expr> richmath::global_immediate_macros;
+Hashtable<String, Expr> richmath::global_macros;
 
 static Box *expand_selection_default(Box *box, int *start, int *end) {
   int index = box->index();
@@ -526,8 +526,8 @@ namespace richmath {
       
       //{ macro handling
     private:
-      bool handle_immediate_macros(const Hashtable<String, Expr, object_hash> &table);
-      bool handle_macros(const Hashtable<String, Expr, object_hash> &table);
+      bool handle_immediate_macros(const Hashtable<String, Expr> &table);
+      bool handle_macros(const Hashtable<String, Expr> &table);
       
     public:
       bool handle_immediate_macros();
@@ -4878,9 +4878,7 @@ inline bool DocumentImpl::handle_immediate_macros() {
   return handle_immediate_macros(global_immediate_macros);
 }
 
-bool DocumentImpl::handle_immediate_macros(
-  const Hashtable<String, Expr, object_hash> &table
-) {
+bool DocumentImpl::handle_immediate_macros(const Hashtable<String, Expr> &table) {
   if(self.selection_length() != 0)
     return false;
     
@@ -4934,9 +4932,7 @@ inline bool DocumentImpl::handle_macros() {
   return handle_macros(global_macros);
 }
 
-bool DocumentImpl::handle_macros(
-  const Hashtable<String, Expr, object_hash> &table
-) {
+bool DocumentImpl::handle_macros(const Hashtable<String, Expr> &table) {
   if(self.selection_length() != 0)
     return false;
     

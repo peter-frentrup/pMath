@@ -91,10 +91,7 @@ namespace richmath {
       
       SharedPtr<ScopePos>  current_pos;
       
-      Hashtable <
-      String,
-      SharedPtr<SymbolInfo>,
-      object_hash >   local_symbols;
+      Hashtable< String, SharedPtr<SymbolInfo> > local_symbols;
   };
 }
 

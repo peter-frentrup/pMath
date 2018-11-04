@@ -23,47 +23,62 @@
 
 
 namespace richmath {
-  template<class T>
-  unsigned int object_hash(const T &t) {
-    return t.hash();
-  }
+  template<typename T>
+  struct default_hash_impl {
+    static unsigned int hash(const T &t) {
+      return t.hash();
+    }
+  };
   
   template<typename T>
-  struct cast_hash_impl {
-    static unsigned int hash(const T &t) {
+  unsigned int default_hash(const T &t) {
+    return default_hash_impl<T>::hash(t);
+  }
+  
+  template<>
+  struct default_hash_impl<uint16_t> {
+    static unsigned int hash(uint16_t t) {
       return (unsigned int)t;
     }
   };
   
   template<>
-  struct cast_hash_impl<uintptr_t> {
-    static unsigned int hash(uintptr_t t) {
-#if PMATH_BITSIZE == 32
+  struct default_hash_impl<uint32_t> {
+    static unsigned int hash(uint32_t t) {
       return (unsigned int)t;
-#else
+    }
+  };
+  
+  template<>
+  struct default_hash_impl<uint64_t> {
+    static unsigned int hash(uint64_t t) {
       return (unsigned int)((t & 0xFFFFFFFFU) ^ (t >> 32));
-#endif
     }
   };
   
   template<>
-  struct cast_hash_impl<intptr_t> {
-    static unsigned int hash(intptr_t t) {
-      return cast_hash_impl<uintptr_t>::hash((uintptr_t)t);
+  struct default_hash_impl<unsigned long> {
+    static unsigned int hash(unsigned long t) {
+      if(sizeof(unsigned long) == sizeof(uint32_t))
+        return default_hash((uint32_t)t);
+      else
+        return default_hash((uint64_t)t);
+    }
+  };
+  
+  template<>
+  struct default_hash_impl<int> {
+    static unsigned int hash(int t) {
+      return (unsigned int)t;
     }
   };
   
   template<typename TP>
-  struct cast_hash_impl<TP *> {
+  struct default_hash_impl<TP *> {
     static unsigned int hash(TP *const &t) {
-      return cast_hash_impl<uintptr_t>::hash((uintptr_t)t);
+      return default_hash_impl<uintptr_t>::hash((uintptr_t)t);
     }
   };
-  
-  template<typename T>
-  unsigned int cast_hash(const T &t) {
-    return cast_hash_impl<T>::hash(t);
-  }
   
   class Void { /* Note that this takes up one byte! */
   };
@@ -95,7 +110,7 @@ namespace richmath {
   
   template < typename K,
              typename V,
-             unsigned int (*hash_function)(const K &key) = object_hash >
+             unsigned int (*hash_function)(const K &key) = default_hash >
   class Hashtable: public Base {
     private:
       typedef Hashtable<K, V, hash_function> self_t;

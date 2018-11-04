@@ -344,8 +344,8 @@ namespace richmath {
       Hashtable<String, SharedPtr<Style> > styles;
     
     private:
-      Hashtable<SharedPtr<Stylesheet>, Void>            used_stylesheets;
-      mutable Hashtable<Stylesheet*,   Void, cast_hash> users;
+      Hashtable<SharedPtr<Stylesheet>, Void> used_stylesheets;
+      mutable Hashtable<Stylesheet*,   Void> users;
       
     public:
       SharedPtr<Style> base;

@@ -156,8 +156,8 @@ namespace richmath {
         size_t    length);
         
       void get_postscript_names(
-        Hashtable<String, uint16_t>            *name2glyph,
-        Hashtable<uint16_t, String, cast_hash> *glyph2name);
+        Hashtable<String, uint16_t> *name2glyph,
+        Hashtable<uint16_t, String> *glyph2name);
         
       const GlyphSubstitutions *get_gsub_table();
       

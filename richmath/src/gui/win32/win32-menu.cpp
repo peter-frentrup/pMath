@@ -20,9 +20,9 @@ using namespace richmath;
 
 
 static DWORD next_id = 1000;
-static Hashtable<Expr,  DWORD>             cmd_to_id;
-static Hashtable<DWORD, Expr,   cast_hash> id_to_cmd;
-static Hashtable<DWORD, String, cast_hash> id_to_shortcut_text;
+static Hashtable<Expr,  DWORD>  cmd_to_id;
+static Hashtable<DWORD, Expr>   id_to_cmd;
+static Hashtable<DWORD, String> id_to_shortcut_text;
 
 static void add_command(DWORD id, Expr cmd) {
   cmd_to_id.set(cmd, id);

@@ -979,8 +979,8 @@ static const char *default_postscript_names[258] = {
 };
 
 void FontInfo::get_postscript_names(
-  Hashtable<String, uint16_t>            *name2glyph,
-  Hashtable<uint16_t, String, cast_hash> *glyph2name
+  Hashtable<String, uint16_t> *name2glyph,
+  Hashtable<uint16_t, String> *glyph2name
 ) {
   /* http://developer.apple.com/textfonts/TTRefMan/RM06/Chap6post.html */
   uint8_t arr[4];

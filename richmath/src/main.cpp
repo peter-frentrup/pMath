@@ -96,11 +96,11 @@ static void todo(Document *doc, String msg) {
 }
 
 static void load_aliases(
-  Expr                                  aliases,
-  Hashtable<String, Expr, object_hash> *implicit_macros,
-  Hashtable<String, Expr, object_hash> *explicit_macros
+  Expr                     aliases,
+  Hashtable<String, Expr> *implicit_macros,
+  Hashtable<String, Expr> *explicit_macros
 ) {
-  Hashtable<String, Expr, object_hash> *table = explicit_macros;
+  Hashtable<String, Expr> *table = explicit_macros;
   
 #ifdef PMATH_DEBUG_LOG
   double start = pmath_tickcount();

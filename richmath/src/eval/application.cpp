@@ -247,7 +247,7 @@ String Application::application_directory;
 String Application::stylesheet_path_base;
 MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 
-Hashtable<Expr, Expr, object_hash> Application::eval_cache;
+Hashtable<Expr, Expr> Application::eval_cache;
 
 void Application::notify(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) == Quitting)

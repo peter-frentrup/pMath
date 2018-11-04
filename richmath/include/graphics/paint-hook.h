@@ -49,7 +49,7 @@ namespace richmath {
       void move_into(PaintHookManager &other);
       
     private:
-      Hashtable<Box *, PaintHookList, cast_hash> _hooks;
+      Hashtable<Box *, PaintHookList> _hooks;
   };
   
   

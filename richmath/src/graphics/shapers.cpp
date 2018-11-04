@@ -52,7 +52,7 @@ class FontKey {
 
 static Hashtable<FontKey, SharedPtr<TextShaper> > shapers;
 
-static Hashtable<uint32_t, uint32_t, cast_hash> accent_chars;
+static Hashtable<uint32_t, uint32_t> accent_chars;
 
 //{ class TextShaper ...
 

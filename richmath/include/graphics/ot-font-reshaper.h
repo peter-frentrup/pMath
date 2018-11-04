@@ -84,7 +84,7 @@ namespace richmath {
       static const uint32_t TAG_ssty = FONT_TAG_NAME('s', 's', 't', 'y');
       
     private:
-      Hashtable<uint32_t, int, cast_hash> _tag_to_value;
+      Hashtable<uint32_t, int> _tag_to_value;
   };
   
   class OTFontReshaper {

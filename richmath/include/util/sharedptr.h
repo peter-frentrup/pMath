@@ -92,7 +92,7 @@ namespace richmath {
       }
 
       unsigned int hash() const {
-        return cast_hash(_ptr);
+        return default_hash(_ptr);
       }
 
     protected:

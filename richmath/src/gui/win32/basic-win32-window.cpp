@@ -374,7 +374,7 @@ static bool snap_inside(
 
 struct snap_info_t {
   HWND src;
-  Hashtable<HWND, Void, cast_hash> *dont_snap;
+  Hashtable<HWND, Void> *dont_snap;
 
   const RECT  *orig_rect;
   const POINT *orig_pt;
@@ -513,7 +513,7 @@ struct find_snap_info_t {
   HWND dst;
   RECT dst_rect;
   int min_level;
-  Hashtable<HWND, Void, cast_hash> *snappers;
+  Hashtable<HWND, Void> *snappers;
 };
 
 BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
@@ -565,7 +565,7 @@ void BasicWin32Window::find_all_snappers() {
   for(int rep = 1; rep < 5 && found < all_snappers.size(); ++rep) {
     found = all_snappers.size();
 
-    Hashtable<HWND, Void, cast_hash> more_snappers;
+    Hashtable<HWND, Void> more_snappers;
 
     for(unsigned i = 0, count = 0; count < all_snappers.size(); ++i) {
       if(auto e = all_snappers.entry(i)) {
