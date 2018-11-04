@@ -21,12 +21,12 @@ namespace richmath {
       class DocumentPosition {
         public:
           DocumentPosition() {}
-          DocumentPosition(int _id, int _x, int _y)
+          DocumentPosition(FrontEndReference _id, int _x, int _y)
             : id(_id), x(_x), y(_y)
           {
           }
           
-          int id;
+          FrontEndReference id;
           int x;
           int y;
       };

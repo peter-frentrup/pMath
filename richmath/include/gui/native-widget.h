@@ -38,6 +38,13 @@ namespace richmath {
     SizeSCursor    = 127,
   } CursorType;
   
+  template<>
+  struct default_hash_impl<CursorType> {
+    static unsigned int hash(CursorType t) {
+      return (unsigned int)t;
+    }
+  };
+  
   class NativeWidget: public virtual Base {
     public:
       explicit NativeWidget(Document *doc);

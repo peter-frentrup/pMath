@@ -51,10 +51,12 @@ static void on_menu_item_activate(GtkMenuItem *menuitem, void *id_ptr) {
   const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menuitem);
   if(!accel_path_str)
     return;
-    
+  
+  FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(id_ptr);
+  
   Expr cmd = accel_path_to_cmd[String(accel_path_str)];
   if(!cmd.is_null()) {
-    if(auto doc = dynamic_cast<Document *>(Box::find((int)(uintptr_t)id_ptr))) {
+    if(auto doc = FrontEndObject::find_cast<Document>(id)) {
       auto wid = dynamic_cast<BasicGtkWidget *>(doc->native());
       while(wid) {
         if(auto win = dynamic_cast<MathGtkDocumentWindow *>(wid)) {
@@ -145,7 +147,7 @@ static GtkWidget *create_menu_item_for_command(const char *label, Expr cmd) {
   return gtk_menu_item_new_with_mnemonic(label);
 }
 
-void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id) {
+void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference for_document_window_id) {
   if(expr[0] != richmath_FE_Menu || expr.expr_length() != 2)
     return;
     
@@ -183,7 +185,11 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
           pmath_mem_free(accel_path_str);
         }
         
-        g_signal_connect(menu_item, "activate", G_CALLBACK(on_menu_item_activate), (void *)(intptr_t)for_document_window_id);
+        g_signal_connect(
+          menu_item, 
+          "activate", 
+          G_CALLBACK(on_menu_item_activate), 
+          FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
         
         gtk_widget_show(menu_item);
         gtk_menu_shell_append(menu, menu_item);
@@ -391,8 +397,8 @@ void MathGtkAccelerators::load(Expr expr) {
 
 class AccelData {
   public:
-    Expr  cmd;
-    int   document_id;
+    Expr                cmd;
+    FrontEndReference   document_id;
 };
 
 static void accel_data_destroy(void *data, GClosure *closure) {
@@ -429,7 +435,7 @@ static gboolean closure_callback(
   return TRUE;
 }
 
-void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, int document_id) {
+void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, FrontEndReference document_id) {
   for(auto accel : all_accelerators) {
     char *path = pmath_string_to_utf8(accel.get_as_string(), 0);
     AccelData *accel_data = new AccelData;

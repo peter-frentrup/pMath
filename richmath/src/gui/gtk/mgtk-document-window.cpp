@@ -741,7 +741,7 @@ void MathGtkDocumentWindow::move_palettes() {
   if(dx != 0 || dy != 0) {
     for(int i = 1; i < _snapped_documents.length(); ++i) {
       const DocumentPosition &pos = _snapped_documents[i];
-      auto doc = dynamic_cast<Document*>(Box::find(pos.id));
+      auto doc = FrontEndObject::find_cast<Document>(pos.id);
       if(!doc)
         continue;
         
@@ -805,7 +805,7 @@ bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {
 bool MathGtkDocumentWindow::on_focus_in(GdkEvent *e) {
 //  move_palettes();
   _snapped_documents.length(0);
-  _snapped_documents.add(DocumentPosition(0, _previous_rect.x, _previous_rect.y));
+  _snapped_documents.add(DocumentPosition(FrontEndReference::None, _previous_rect.x, _previous_rect.y));
   
   return false;
 }
@@ -813,7 +813,7 @@ bool MathGtkDocumentWindow::on_focus_in(GdkEvent *e) {
 bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e) {
   for(MathGtkDocumentWindow *main = next_window();; main = main->next_window()) {
     main->_snapped_documents.length(0);
-    main->_snapped_documents.add(DocumentPosition(0, main->_previous_rect.x, main->_previous_rect.y));
+    main->_snapped_documents.add(DocumentPosition(FrontEndReference::None, main->_previous_rect.x, main->_previous_rect.y));
     
     if(!main->is_palette()) {
       GdkRectangle rect;

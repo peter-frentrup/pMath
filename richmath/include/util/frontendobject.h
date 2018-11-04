@@ -30,6 +30,16 @@ namespace richmath {
       }
       
       static const FrontEndReference None;
+      
+      static void *unsafe_cast_to_pointer(const FrontEndReference &ref) {
+        return (void*)(intptr_t)ref._id;
+      }
+      
+      static FrontEndReference unsafe_cast_from_pointer(void *p) {
+        FrontEndReference ref;
+        ref._id = (int)(intptr_t)p;
+        return ref;
+      }
     
     private:
       int _id;

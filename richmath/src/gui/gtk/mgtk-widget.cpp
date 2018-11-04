@@ -795,7 +795,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
       
     if(may_blink) {
       is_blinking = true;
-      gdk_threads_add_timeout(blink_time / 2, blink_caret, (void *)(intptr_t)document()->id());
+      gdk_threads_add_timeout(blink_time / 2, blink_caret, FrontEndReference::unsafe_cast_to_pointer(document()->id()));
     }
   }
   
@@ -1309,9 +1309,9 @@ bool MathGtkWidget::on_scroll(GdkEvent *e) {
 }
 
 gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
-  int id = (int)(intptr_t)id_as_ptr;
+  FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(id_as_ptr);
   
-  if(auto doc = dynamic_cast<Document *>(Box::find(id))) {
+  if(auto doc = FrontEndObject::find_cast<Document>(id)) {
     if(auto wid = dynamic_cast<MathGtkWidget *>(doc->native())) {
       Context *ctx = wid->document_context();
       
@@ -1319,7 +1319,7 @@ gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
           !gtk_widget_is_focus(wid->widget()) ||
           wid->is_mouse_down())
       {
-        ctx->old_selection.id = 0;
+        ctx->old_selection.id = FrontEndReference::None;
       }
       else
         ctx->old_selection = ctx->selection;

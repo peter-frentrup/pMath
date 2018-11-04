@@ -10,6 +10,7 @@
 #include <gtk/gtk.h>
 
 #include <util/array.h>
+#include <util/frontendobject.h>
 
 
 namespace richmath {
@@ -20,7 +21,7 @@ namespace richmath {
       MathGtkMenuBuilder();
       explicit MathGtkMenuBuilder(Expr _expr);
       
-      void append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, int for_document_window_id);
+      void append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference for_document_window_id);
       
       static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *dummy);
       static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *dummy);
@@ -43,7 +44,7 @@ namespace richmath {
         all_accelerators = Array<String>();
       }
       
-      static void connect_all(GtkAccelGroup *accel_group, int document_id);
+      static void connect_all(GtkAccelGroup *accel_group, FrontEndReference document_id);
       
     public:
       static Array<String> all_accelerators;
