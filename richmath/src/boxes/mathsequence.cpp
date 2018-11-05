@@ -3943,6 +3943,7 @@ class SpanSynchronizer: public Base {
           break;
           
         if(!box->try_load_from_object(new_box.expr, new_load_options)) {
+          box->safe_destroy();
           box = create_box(new_box.expr, new_load_options);
           
           old_boxes.set(old_next_box, box);

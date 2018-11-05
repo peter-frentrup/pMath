@@ -576,7 +576,12 @@ static bool finish_edit_section(
   
   Section *sect = nullptr;
   bt.for_new_boxes_in([&] {
-    sect = Section::create_from_object(parsed);
+    sect = edit->original;
+    if(sect && sect->try_load_from_object(parsed, BoxInputFlags::Default)) {
+      edit->original = nullptr;
+    }
+    else
+      sect = Section::create_from_object(parsed);
   });
   
   sect->swap_id(edit);

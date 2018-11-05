@@ -609,6 +609,7 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   _content->load_from_object(content, opts);
   
+  must_resize = true;
   finish_load_from_object(std::move(expr));
   return true;
 }
@@ -655,6 +656,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   _content->load_from_object(content, opts);
   
+  must_resize = true;
   finish_load_from_object(std::move(expr));
   return true;
 }

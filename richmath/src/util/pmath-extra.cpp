@@ -132,7 +132,7 @@ SpanArray::~SpanArray() {
 
 pmath_span_array_t *SpanArray::extract_array() {
   pmath_span_array_t *tmp = _array;
-  _array = 0;
+  _array = nullptr;
   return tmp;
 }
 
