@@ -129,7 +129,7 @@ pmath_bool_t pmath_string_begin_write(pmath_string_t *str, uint16_t **buffer, in
   
   _str = (struct _pmath_string_t *)PMATH_AS_PTR(*str);
   if(pmath_refcount(*str) != 1 || _str->buffer != NULL) {
-    pmath_string_t new_str = pmath_string_insert_ucs2(PMATH_NULL, 0, pmath_string_buffer(str), *length);
+    pmath_string_t new_str = pmath_string_insert_ucs2(PMATH_NULL, 0, pmath_string_buffer(str), _str->length);
     if(pmath_is_null(new_str))
       return FALSE;
     
