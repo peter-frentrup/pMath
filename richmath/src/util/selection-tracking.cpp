@@ -530,7 +530,7 @@ static bool begin_edit_section(
   if(!edit->style)
     edit->style = new Style;
   edit->style->set(SectionGroupPrecedence, section->get_style(SectionGroupPrecedence));
-  edit->swap_id(section);
+  //edit->swap_id(section);
   edit->original = parent->swap(index, edit);
   
   Expr obj(section->to_pmath(BoxOutputFlags::WithDebugInfo));
@@ -584,8 +584,7 @@ static bool finish_edit_section(
       sect = Section::create_from_object(parsed);
   });
   
-  sect->swap_id(edit);
-  
+  //sect->swap_id(edit);
   parent->swap(index, sect)->safe_destroy();
   
   for(const auto &sel : bt.selections) {

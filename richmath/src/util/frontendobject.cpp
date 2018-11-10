@@ -69,14 +69,4 @@ FrontEndObject *FrontEndObject::find(FrontEndReference id) {
   return front_end_object_cache[id];
 }
 
-void FrontEndObject::swap_id(FrontEndObject *other) {
-  if(other) {
-    auto id = other->_id;
-    other->_id = this->_id;
-    this->_id  = id;
-    front_end_object_cache.set(other->_id, other);
-    front_end_object_cache.set(this->_id,  this);
-  }
-}
-
 //} ... class FrontEndObject
