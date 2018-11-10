@@ -2765,7 +2765,14 @@ static void ungroup(
         g->str[g->pos++] = PMATH_CHAR_BOX;
       }
       else if(str[i] == PMATH_CHAR_BOX) {
-        g->str[g->pos++] = 0xFFFF;
+        if(g->make_box) {
+          g->make_box(
+            g->pos,
+            pmath_string_insert_ucs2(PMATH_NULL, g->pos, str + i, 1),
+            g->data);
+        }
+        g->spans->items[g->pos] = 3; // operand start (2), token end (1)
+        g->str[g->pos++] = PMATH_CHAR_BOX;
         i++;
       }
       else

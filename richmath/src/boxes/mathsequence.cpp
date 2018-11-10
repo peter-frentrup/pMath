@@ -3564,6 +3564,9 @@ int MathSequence::matching_fence(int pos) {
 //{ insert/remove ...
 
 int MathSequence::insert(int pos, uint16_t chr) {
+  if(chr == PMATH_CHAR_BOX) 
+    return insert(pos, new ErrorBox(String::FromChar(chr)));
+  
   spans_invalid = true;
   boxes_invalid = true;
   str.insert(pos, &chr, 1);
@@ -3572,14 +3575,54 @@ int MathSequence::insert(int pos, uint16_t chr) {
 }
 
 int MathSequence::insert(int pos, const uint16_t *ucs2, int len) {
+  if(len < 0) {
+    len = 0;
+    const uint16_t *buf = ucs2;
+    while(*buf++)
+      ++len;
+  }
+  
+  int boxpos = 0;
+  while(boxpos < len && ucs2[boxpos] != PMATH_CHAR_BOX)
+    ++boxpos;
+  
+  if(boxpos < len) {
+    ensure_boxes_valid();
+    
+    int b = 0;
+    while(b < boxes.length() && boxes[b]->index() < pos)
+      ++b;
+    
+    while(boxpos < len) {
+      ++boxpos;
+      str.insert(pos, ucs2, boxpos);
+      
+      pos+= boxpos;
+      ucs2+= boxpos;
+      len-= boxpos;
+      
+      Box *box = new ErrorBox(String::FromChar(PMATH_CHAR_BOX));
+      adopt(box, pos - 1);
+      boxes.insert(b, 1, &box);
+      ++b;
+      
+      boxpos = 0;
+      while(boxpos < len && ucs2[boxpos] != PMATH_CHAR_BOX)
+        ++boxpos;
+    }
+  }
+  str.insert(pos, ucs2, len);
+  
   spans_invalid = true;
   boxes_invalid = true;
-  str.insert(pos, ucs2, len);
   invalidate();
   return pos + len;
 }
 
 int MathSequence::insert(int pos, const char *latin1, int len) {
+  if(len < 0)
+    len = strlen(latin1);
+  
   spans_invalid = true;
   boxes_invalid = true;
   str.insert(pos, latin1, len);
@@ -3588,11 +3631,7 @@ int MathSequence::insert(int pos, const char *latin1, int len) {
 }
 
 int MathSequence::insert(int pos, const String &s) {
-  spans_invalid = true;
-  boxes_invalid = true;
-  str.insert(pos, s);
-  invalidate();
-  return pos + s.length();
+  return insert(pos, s.buffer(), s.length());
 }
 
 int MathSequence::insert(int pos, Box *box) {
