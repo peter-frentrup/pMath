@@ -3,7 +3,7 @@
 
 #include <pmath-cpp.h>
 
-#include <util/base.h>
+#include <util/hashtable.h>
 
 
 namespace richmath {
@@ -11,16 +11,16 @@ namespace richmath {
     friend class FrontEndObject;
     friend class FrontEndReferenceImpl;
     public:
-      int hash() const { return _id ^ 0xBADC0DE; }
+      int hash() const { return default_hash(_id) ^ 0xBADC0DE; }
       
-      bool is_valid() const { return _id != 0; }
+      bool is_valid() const { return _id != nullptr; }
       explicit operator bool() const { return is_valid(); }
       
       static FrontEndReference from_pmath(pmath::Expr expr);
       static FrontEndReference from_pmath_raw(pmath::Expr expr);
       
       pmath::Expr to_pmath() const;
-      pmath::Expr to_pmath_raw() const { return pmath::Expr(_id); }
+      pmath::Expr to_pmath_raw() const { return pmath::Expr((intptr_t)_id); }
       
       friend bool operator==(const FrontEndReference &left, const FrontEndReference &right) {
         return left._id == right._id;
@@ -32,17 +32,17 @@ namespace richmath {
       static const FrontEndReference None;
       
       static void *unsafe_cast_to_pointer(const FrontEndReference &ref) {
-        return (void*)(intptr_t)ref._id;
+        return ref._id;
       }
       
       static FrontEndReference unsafe_cast_from_pointer(void *p) {
         FrontEndReference ref;
-        ref._id = (int)(intptr_t)p;
+        ref._id = p;
         return ref;
       }
     
     private:
-      int _id;
+      void *_id;
   };
 
   class FrontEndObject: public virtual Base {
@@ -50,7 +50,7 @@ namespace richmath {
       FrontEndObject();
       virtual ~FrontEndObject();
       
-      FrontEndReference id() { return _id; }
+      FrontEndReference id() { return FrontEndReference::unsafe_cast_from_pointer(this); }
       
       static FrontEndObject *find(FrontEndReference id);
       
@@ -59,12 +59,7 @@ namespace richmath {
         return dynamic_cast<T*>(find(id));
       }
       
-      void swap_id(FrontEndObject *other);
-      
       virtual void dynamic_updated() = 0;
-      
-    private:
-      FrontEndReference _id;
   };
   
 }

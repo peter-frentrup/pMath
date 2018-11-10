@@ -12,7 +12,7 @@ namespace richmath {
     public:
       static FrontEndReference init_none() {
         FrontEndReference id;
-        id._id = 0;
+        id._id = nullptr;
         return id;
       }
   };
@@ -34,7 +34,12 @@ FrontEndReference FrontEndReference::from_pmath(pmath::Expr expr) {
 FrontEndReference FrontEndReference::from_pmath_raw(pmath::Expr expr) {
   if(expr.is_int32()) {
     FrontEndReference result;
-    result._id = PMATH_AS_INT32(expr.get());
+    result._id = (void*)(intptr_t)PMATH_AS_INT32(expr.get());
+    return result;
+  }
+  else if(expr.is_integer() && pmath_integer_fits_si64(expr.get())) {
+    FrontEndReference result;
+    result._id = (void*)pmath_integer_get_siptr(expr.get());
     return result;
   }
   
@@ -49,24 +54,24 @@ Expr FrontEndReference::to_pmath() const {
 
 //{ class FrontEndObject ...
 
-static Hashtable<FrontEndReference, FrontEndObject*> front_end_object_cache;
-static int next_front_end_object_id = 0;
+static Hashtable<FrontEndReference, Void> front_end_object_cache;
 
 FrontEndObject::FrontEndObject()
   : Base()
 {
-  _id._id = ++next_front_end_object_id;
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  front_end_object_cache.set(_id, this);
+  front_end_object_cache.set(id(), Void{});
 }
 
 FrontEndObject::~FrontEndObject() {
-  front_end_object_cache.remove(_id);
+  front_end_object_cache.remove(id());
 }
 
 FrontEndObject *FrontEndObject::find(FrontEndReference id) {
-  return front_end_object_cache[id];
+  if(front_end_object_cache.search(id))
+    return static_cast<FrontEndObject*>(FrontEndReference::unsafe_cast_to_pointer(id));
+  return nullptr;
 }
 
 //} ... class FrontEndObject
