@@ -70,7 +70,6 @@ namespace richmath {
       virtual String filename() override { return String(); }
       virtual void filename(String new_filename) override {}
       
-      virtual void on_editing() override {}
       virtual void on_saved() override {}
       
     public:

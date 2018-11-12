@@ -78,7 +78,7 @@ namespace richmath {
       String filename(){ return _filename; }
       void filename(String new_filename);
       
-      virtual void on_editing();
+      virtual void on_idle_after_edit(MathGtkWidget *sender);
       virtual void on_saved();
 
     protected:

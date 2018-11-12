@@ -50,6 +50,7 @@ using namespace richmath;
 //}
 
 class richmath::Win32WorkingArea: public Win32Widget {
+    typedef Win32Widget super_class;
     friend class Win32DocumentWindow;
   public:
     Win32WorkingArea(
@@ -98,7 +99,10 @@ class richmath::Win32WorkingArea: public Win32Widget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() override { _parent->on_editing(); }
+    virtual void on_idle_after_edit() override { 
+      super_class::on_idle_after_edit();
+      _parent->on_idle_after_edit(this);
+    }
     virtual void on_saved() override {   _parent->on_saved(); }
     
   private:
@@ -220,6 +224,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
 };
 
 class richmath::Win32Dock: public Win32Widget {
+    typedef Win32Widget super_class;
     friend class Win32DocumentWindow;
   protected:
     virtual void after_construction() override {
@@ -295,7 +300,10 @@ class richmath::Win32Dock: public Win32Widget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() override { _parent->on_editing(); }
+    virtual void on_idle_after_edit() override { 
+      super_class::on_idle_after_edit();
+      _parent->on_idle_after_edit(this);
+    }
     virtual void on_saved() override {   _parent->on_saved(); }
     
     void resize() {
@@ -1058,7 +1066,7 @@ void Win32DocumentWindow::filename(String new_filename) {
   reset_title();
 }
 
-void Win32DocumentWindow::on_editing() {
+void Win32DocumentWindow::on_idle_after_edit(Win32Widget *sender) {
   if(!_has_unsaved_changes) {
     _has_unsaved_changes = true;
     reset_title();

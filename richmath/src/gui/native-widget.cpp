@@ -7,79 +7,125 @@
 
 using namespace richmath;
 
-class DummyNativeWidget: public NativeWidget {
-  public:
-    DummyNativeWidget(): NativeWidget(0) {
-    }
-    
-    virtual void window_size(float *w, float *h) override {
-      *w = *h = 0;
-    }
-    
-    virtual void page_size(float *w, float *h) override {
-      *w = *h = 0;
-    }
-    
-    virtual bool is_scrollable() override { return false; }
-    virtual bool autohide_vertical_scrollbar() override { return false; }
-    virtual void scroll_pos(float *x, float *y) override {
-      *x = *y = 0;
-    }
-    
-    virtual void scroll_to(float x, float y) override {}
-    
-    virtual void show_tooltip(Expr boxes) override {}
-    virtual void hide_tooltip() override {}
-    
-    virtual bool is_scaleable() override { return false; }
-    
-    virtual double double_click_time() override { return 0; }
-    virtual double message_time() override { return 0; }
-    virtual void double_click_dist(float *dx, float *dy) override {
-      *dx = *dy = 0;
-    }
-    virtual void do_drag_drop(Box *src, int start, int end) override {
-    }
-    virtual bool cursor_position(float *x, float *y) override {
-      *x = *y = 0;
-      return false;
-    }
-    
-    virtual void bring_to_front() override {}
-    
-    virtual void close() override {}
-    
-    virtual void invalidate() override {}
-    
-    virtual void invalidate_options() override {}
-    
-    virtual void force_redraw() override {}
-    
-    virtual void set_cursor(CursorType type) override {}
-    
-    virtual void running_state_changed() override {}
-    
-    virtual bool is_mouse_down() override { return false; }
-    
-    virtual void beep() override {};
-    
-    virtual bool register_timed_event(SharedPtr<TimedEvent> event) override {
-      return false;
-    }
-    
-    virtual String filename() override { return String(); }
-    virtual void filename(String new_filename) override {}
-    
-    virtual void on_editing() override {}
-    virtual void on_saved() override {}
-};
+namespace richmath {
+  class NativeWidgetImpl {
+    public:
+      NativeWidgetImpl(NativeWidget &_self) : self(_self) {}
+      
+      void finish_idle_after_edit() {
+        self._idle_after_edit = nullptr;
+        self.on_idle_after_edit();
+      }
+      
+      void abort_idle_after_edit() {
+        self._idle_after_edit = nullptr;
+      }
+      
+    private:
+      NativeWidget &self;
+  };
+}
+
+namespace {
+  class IdleAfterEditEvent : public TimedEvent {
+    public:
+      explicit IdleAfterEditEvent(FrontEndReference _id) 
+        : TimedEvent(0.25), 
+          widget_id(_id) 
+      {
+      }
+      
+      virtual ~IdleAfterEditEvent() {
+        NativeWidget *wid = FrontEndObject::find_cast<NativeWidget>(widget_id);
+        if(wid) 
+          NativeWidgetImpl(*wid).abort_idle_after_edit();
+      }
+      
+      virtual void execute_event() override {
+        NativeWidget *wid = FrontEndObject::find_cast<NativeWidget>(widget_id);
+        if(wid) {
+          NativeWidgetImpl(*wid).finish_idle_after_edit();
+          widget_id = FrontEndReference::None;
+        }
+      }
+      
+    private:
+      FrontEndReference widget_id;
+  };
+  
+  class DummyNativeWidget: public NativeWidget {
+    public:
+      DummyNativeWidget(): NativeWidget(nullptr) {
+      }
+      
+      virtual void window_size(float *w, float *h) override {
+        *w = *h = 0;
+      }
+      
+      virtual void page_size(float *w, float *h) override {
+        *w = *h = 0;
+      }
+      
+      virtual bool is_scrollable() override { return false; }
+      virtual bool autohide_vertical_scrollbar() override { return false; }
+      virtual void scroll_pos(float *x, float *y) override {
+        *x = *y = 0;
+      }
+      
+      virtual void scroll_to(float x, float y) override {}
+      
+      virtual void show_tooltip(Expr boxes) override {}
+      virtual void hide_tooltip() override {}
+      
+      virtual bool is_scaleable() override { return false; }
+      
+      virtual double double_click_time() override { return 0; }
+      virtual double message_time() override { return 0; }
+      virtual void double_click_dist(float *dx, float *dy) override {
+        *dx = *dy = 0;
+      }
+      virtual void do_drag_drop(Box *src, int start, int end) override {
+      }
+      virtual bool cursor_position(float *x, float *y) override {
+        *x = *y = 0;
+        return false;
+      }
+      
+      virtual void bring_to_front() override {}
+      
+      virtual void close() override {}
+      
+      virtual void invalidate() override {}
+      
+      virtual void invalidate_options() override {}
+      
+      virtual void force_redraw() override {}
+      
+      virtual void set_cursor(CursorType type) override {}
+      
+      virtual void running_state_changed() override {}
+      
+      virtual bool is_mouse_down() override { return false; }
+      
+      virtual void beep() override {};
+      
+      virtual bool register_timed_event(SharedPtr<TimedEvent> event) override {
+        return false;
+      }
+      
+      virtual String filename() override { return String(); }
+      virtual void filename(String new_filename) override {}
+      
+      virtual void on_saved() override {}
+  };
+}
 
 static DummyNativeWidget staticdummy;
 
 NativeWidget *NativeWidget::dummy = &staticdummy;
 
 NativeWidget::NativeWidget(Document *doc)
-  : Base(),
+  : FrontEndObject(),
     _custom_scale_factor(ScaleDefault),
     _dpi(96),
     _document(0)
@@ -230,6 +276,19 @@ CursorType NativeWidget::size_cursor(Box *box, CursorType base) {
   box->transformation(0, &mat);
   
   return size_cursor(mat.xy, mat.yy, base);
+}
+
+void NativeWidget::on_editing() {
+  if(_idle_after_edit) {
+    _idle_after_edit->reset_timer();
+  }
+  else {
+    _idle_after_edit = new IdleAfterEditEvent(id());
+    register_timed_event(_idle_after_edit);
+  }
+}
+
+void NativeWidget::on_idle_after_edit() {
 }
 
 void NativeWidget::adopt(Document *doc) {

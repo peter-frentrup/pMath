@@ -45,10 +45,13 @@ namespace richmath {
     }
   };
   
-  class NativeWidget: public virtual Base {
+  class NativeWidget: public virtual FrontEndObject {
+      friend class NativeWidgetImpl;
     public:
       explicit NativeWidget(Document *doc);
       virtual ~NativeWidget();
+      
+      virtual void dynamic_updated() override {}
       
       virtual void window_size(float *w, float *h) = 0;
       virtual void page_size(float *w, float *h) = 0;
@@ -97,7 +100,9 @@ namespace richmath {
       virtual String filename() = 0;
       virtual void filename(String new_filename) = 0;
       
-      virtual void on_editing() = 0;
+      virtual void on_editing();
+      virtual void on_idle_after_edit();
+      
       virtual void on_saved() = 0;
       
       Document *document() { return _document; }
@@ -113,13 +118,14 @@ namespace richmath {
       Context *document_context();
       
       SelectionReference &drag_source_reference();
-      
+    
     protected:
       float _custom_scale_factor;
       float _dpi;
       
     private:
-      Document *_document;
+      Document              *_document;
+      SharedPtr<TimedEvent>  _idle_after_edit;
   };
   
   static const float ScaleDefault = 1.f;

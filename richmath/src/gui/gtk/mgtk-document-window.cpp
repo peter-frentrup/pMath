@@ -15,6 +15,7 @@ using namespace richmath;
 static const int SnapDistance = 4;
 
 class richmath::MathGtkWorkingArea: public MathGtkWidget {
+    typedef MathGtkWidget super_class;
     friend class MathGtkDocumentWindow;
   public:
     MathGtkWorkingArea(MathGtkDocumentWindow *parent)
@@ -67,8 +68,11 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() override { _parent->on_editing(); }
-    virtual void on_saved() override {   _parent->on_saved(); }
+    virtual void on_idle_after_edit() override { 
+      super_class::on_idle_after_edit();
+      _parent->on_idle_after_edit(this); 
+    }
+    virtual void on_saved() override { _parent->on_saved(); }
     
   protected:
     virtual void paint_background(Canvas *canvas) override {
@@ -105,6 +109,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
 };
 
 class richmath::MathGtkDock: public MathGtkWidget {
+    typedef MathGtkWidget super_class;
     friend class MathGtkDocumentWindow;
   public:
     MathGtkDock(MathGtkDocumentWindow *parent)
@@ -176,7 +181,10 @@ class richmath::MathGtkDock: public MathGtkWidget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() override { _parent->on_editing(); }
+    virtual void on_idle_after_edit() override {
+      super_class::on_idle_after_edit();
+      _parent->on_idle_after_edit(this); 
+    }
     virtual void on_saved() override {   _parent->on_saved(); }
     
   protected:
@@ -764,7 +772,7 @@ void MathGtkDocumentWindow::filename(String new_filename) {
   reset_title();
 }
 
-void MathGtkDocumentWindow::on_editing() {
+void MathGtkDocumentWindow::on_idle_after_edit(MathGtkWidget *sender) {
   if(!_has_unsaved_changes) {
     _has_unsaved_changes = true;
     reset_title();

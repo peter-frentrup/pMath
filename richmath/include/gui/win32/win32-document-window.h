@@ -52,7 +52,7 @@ namespace richmath {
       virtual String filename() { return _filename; }
       virtual void filename(String new_filename);
       
-      virtual void on_editing();
+      virtual void on_idle_after_edit(Win32Widget *sender);
       virtual void on_saved();
       
       Win32Widget *top_glass_area() {    return (Win32Widget*)_top_glass_area;    }
