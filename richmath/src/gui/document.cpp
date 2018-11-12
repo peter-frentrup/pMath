@@ -1868,6 +1868,7 @@ void Document::insert(int pos, Section *section) {
 
 Section *Document::swap(int pos, Section *section) {
   invalidate();
+  native()->on_editing();
   return SectionList::swap(pos, section);
 }
 
@@ -3536,6 +3537,7 @@ bool Document::remove_selection(bool insert_default) {
   }
   
   if(auto grid = dynamic_cast<GridBox *>(context.selection.get())) {
+    native()->on_editing();
     int start = context.selection.start;
     Box *box = grid->remove_range(&start, context.selection.end);
     select(box, start, start);
@@ -3543,6 +3545,7 @@ bool Document::remove_selection(bool insert_default) {
   }
   
   if(context.selection.id == this->id()) {
+    native()->on_editing();
     remove(context.selection.start, context.selection.end);
     move_to(this, context.selection.start);
     return true;
@@ -4488,6 +4491,7 @@ bool DocumentImpl::prepare_insert() {
     else
       sect = new MathSection(section_style);
       
+    self.native()->on_editing();
     self.insert(self.context.selection.start, sect);
     self.move_horizontal(LogicalDirection::Forward, false);
     
