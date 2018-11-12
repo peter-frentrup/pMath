@@ -73,6 +73,10 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Item("Input\tAlt+9",                              BaseStyle->"Input"),
 			Item("DisplayFormula",                     BaseStyle->"DisplayFormula")
 			}),
+		Menu("Stylesheet", {
+			Item("Default",               ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document))
+			}),
+		Item("Edit Stylesheet ...",       "EditStyleDefinitions"),
 		Menu("Magnification", {
 			Item("50%",                                ScopedCommand(Magnification->0.5, Document)),
 			Item("100%",                               ScopedCommand(Magnification->1.0, Document)),

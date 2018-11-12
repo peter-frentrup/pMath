@@ -128,7 +128,9 @@ NativeWidget::NativeWidget(Document *doc)
   : FrontEndObject(),
     _custom_scale_factor(ScaleDefault),
     _dpi(96),
-    _document(0)
+    _document(0),
+    _owner_document(FrontEndReference::None),
+    _stylesheet_document(FrontEndReference::None)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -289,6 +291,50 @@ void NativeWidget::on_editing() {
 }
 
 void NativeWidget::on_idle_after_edit() {
+  Document *owner = owner_document();
+  if(owner && owner->native()->stylesheet_document() == _document) {
+    Expr expr = _document->to_pmath(BoxOutputFlags::Default);
+    owner->style->set_pmath(StyleDefinitions, expr);
+    owner->invalidate_options();
+  }
+}
+
+Document *NativeWidget::owner_document(){
+  return FrontEndObject::find_cast<Document>(_owner_document); 
+}
+
+Document *NativeWidget::stylesheet_document() {
+  if(!_stylesheet_document) {
+    auto wa = working_area_document();
+    if(wa)
+      return wa->native()->stylesheet_document();
+  }
+  
+  return FrontEndObject::find_cast<Document>(_stylesheet_document); 
+}
+
+bool NativeWidget::stylesheet_document(Document *doc) {
+  FrontEndReference doc_id = doc->id();
+  
+  if(_owner_document)
+    return false;
+  
+  Document *old_sd = stylesheet_document();
+  if(doc) {
+    NativeWidget *wid = doc->native();
+    if(wid->_owner_document && wid->_owner_document != _document->id()) 
+      return false;
+    
+    wid->_owner_document = _document->id();
+    _stylesheet_document = doc->id();
+  }
+  else
+    _stylesheet_document = FrontEndReference::None;
+  
+  if(old_sd && old_sd != doc)
+    old_sd->native()->close();
+  
+  return true;
 }
 
 void NativeWidget::adopt(Document *doc) {

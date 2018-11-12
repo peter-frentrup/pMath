@@ -105,6 +105,11 @@ namespace richmath {
       
       virtual void on_saved() = 0;
       
+      Document *owner_document();
+      Document *stylesheet_document();
+      bool stylesheet_document(Document *doc);
+      
+      virtual Document *working_area_document() { return nullptr; }
       Document *document() { return _document; }
       float custom_scale_factor() { return _custom_scale_factor; }
       float scale_factor() {        return _custom_scale_factor * _dpi / 72; }
@@ -125,6 +130,8 @@ namespace richmath {
       
     private:
       Document              *_document;
+      FrontEndReference      _owner_document;
+      FrontEndReference      _stylesheet_document;
       SharedPtr<TimedEvent>  _idle_after_edit;
   };
   

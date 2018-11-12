@@ -26,6 +26,8 @@ extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_SectionGenerated;
+extern pmath_symbol_t richmath_System_StyleData;
+extern pmath_symbol_t richmath_System_StyleDefinitions;
 
 static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
   double start = pmath_tickcount();
@@ -346,6 +348,18 @@ static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
 static MenuCommandStatus can_edit_boxes(Expr cmd) {
   Document *doc = get_current_document();
   return MenuCommandStatus(doc && (doc->selection_length() > 0 || doc->selection_box() != doc) && doc->get_style(Editable));
+}
+
+static MenuCommandStatus can_edit_style_definitions(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc || !doc->get_style(Editable))
+    return MenuCommandStatus(false);
+  
+  if(doc->native()->owner_document())
+    return MenuCommandStatus(false);
+  
+  return MenuCommandStatus(true);
 }
 
 static MenuCommandStatus can_expand_selection(Expr cmd) {
@@ -782,6 +796,45 @@ static bool edit_boxes_cmd(Expr cmd) {
       doc->select_range(doc, a, a, doc, b, b);
   }
   
+  return true;
+}
+
+static bool edit_style_definitions_cmd(Expr cmd) {
+  Document *doc = get_current_document();
+  
+  if(!doc || !doc->get_style(Editable))
+    return false;
+  
+  if(doc->native()->owner_document())
+    return false;
+  
+  Document *style_doc = doc->native()->stylesheet_document();
+  if(!style_doc) {
+    Expr stylesheet = doc->get_style(StyleDefinitions);
+    if(stylesheet[0] != PMATH_SYMBOL_DOCUMENT) {
+      stylesheet = Call(
+                     Symbol(PMATH_SYMBOL_DOCUMENT),
+                     Call(
+                       Symbol(richmath_System_Section),
+                       Call(
+                         Symbol(richmath_System_StyleData),
+                         Rule(Symbol(richmath_System_StyleDefinitions), stylesheet))),
+                     Rule(Symbol(richmath_System_StyleDefinitions), String("PrivateStyleDefinitions.pmathdoc")));
+    }
+    
+    style_doc = Application::create_document(stylesheet);
+    if(!style_doc)
+      return false;
+    
+    if(!doc->native()->stylesheet_document(style_doc))
+      doc->native()->beep();
+    
+    doc->style->set(StyleDefinitions, stylesheet);
+    doc->invalidate_options();
+    style_doc->invalidate_options();
+  }
+  
+  style_doc->native()->bring_to_front();
   return true;
 }
 
@@ -1309,6 +1362,7 @@ bool richmath::init_bindings() {
   Application::register_menucommand(String("Paste"),                      paste_cmd,                           can_document_write);
   Application::register_menucommand(String("GraphicsOriginalSize"),       graphics_original_size_cmd,          can_graphics_original_size);
   Application::register_menucommand(String("EditBoxes"),                  edit_boxes_cmd,                      can_edit_boxes);
+  Application::register_menucommand(String("EditStyleDefinitions"),       edit_style_definitions_cmd,          can_edit_style_definitions);
   Application::register_menucommand(String("ExpandSelection"),            expand_selection_cmd,                can_expand_selection);
   Application::register_menucommand(String("FindMatchingFence"),          find_matching_fence_cmd,             can_find_matching_fence);
   Application::register_menucommand(String("SelectAll"),                  select_all_cmd);
@@ -1328,6 +1382,7 @@ bool richmath::init_bindings() {
   Application::register_menucommand(String("InsertSubscript"),            insert_subscript_cmd,                can_document_write);
   Application::register_menucommand(String("InsertSuperscript"),          insert_superscript_cmd,              can_document_write);
   Application::register_menucommand(String("InsertUnderscript"),          insert_underscript_cmd,              can_document_write);
+  
   
   Application::register_menucommand(String("DynamicToLiteral"),           convert_dynamic_to_literal,          can_convert_dynamic_to_literal);
   Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                           can_abort);

@@ -306,6 +306,8 @@ class richmath::Win32Dock: public Win32Widget {
     }
     virtual void on_saved() override {   _parent->on_saved(); }
     
+    virtual Document *working_area_document() override { return _parent->working_area()->document(); }
+    
     void resize() {
       HDC dc = GetDC(_hwnd);
       on_paint(dc, false);

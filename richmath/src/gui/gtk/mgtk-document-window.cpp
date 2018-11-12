@@ -187,6 +187,8 @@ class richmath::MathGtkDock: public MathGtkWidget {
     }
     virtual void on_saved() override {   _parent->on_saved(); }
     
+    virtual Document *working_area_document() override { return _parent->working_area()->document(); }
+    
   protected:
     virtual void after_construction() override {
       MathGtkWidget::after_construction();
