@@ -404,14 +404,17 @@ void Application::register_menucommand(
     menu_command_testers.remove(cmd);
 }
 
-void Application::register_currentvalue_provider(
+bool Application::register_currentvalue_provider(
   Expr   item,
   Expr (*func)(FrontEndObject *obj, Expr item))
 {
-  if(func)
-    currentvalue_providers.set(item, func);
-  else
-    currentvalue_providers.remove(item);
+  assert(func != nullptr);
+  
+  if(currentvalue_providers.search(item))
+    return false;
+  
+  currentvalue_providers.set(item, func);
+  return true;
 }
 
 static void write_data(void *user, const uint16_t *data, int len) {
@@ -628,6 +631,7 @@ void Application::deactivated_all_controls() {
 static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_Filename(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
+static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
 
 static const char s_MouseOver[] = "MouseOver";
 static const char s_Filename[] = "Filename";
@@ -635,6 +639,7 @@ static const char s_ControlsFontFamily[] = "ControlsFontFamily";
 static const char s_ControlsFontSlant[] = "ControlsFontSlant";
 static const char s_ControlsFontWeight[] = "ControlsFontWeight";
 static const char s_ControlsFontSize[] = "ControlsFontSize";
+static const char s_StyleDefinitionsOwner[] = "StyleDefinitionsOwner";
 
 void Application::init() {
   main_message_queue = Expr(pmath_thread_get_queue());
@@ -650,12 +655,13 @@ void Application::init() {
   main_thread = pthread_self();
 #endif
   
-  register_currentvalue_provider(String(s_MouseOver),          get_current_value_of_MouseOver);
-  register_currentvalue_provider(String(s_Filename),           get_current_value_of_Filename);
-  register_currentvalue_provider(String(s_ControlsFontFamily), get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontSlant),  get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontWeight), get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontSize),   get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_MouseOver),             get_current_value_of_MouseOver);
+  register_currentvalue_provider(String(s_Filename),              get_current_value_of_Filename);
+  register_currentvalue_provider(String(s_ControlsFontFamily),    get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSlant),     get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontWeight),    get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSize),      get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_StyleDefinitionsOwner), get_current_value_of_StyleDefinitionsOwner);
   
   
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
@@ -1754,6 +1760,10 @@ namespace {
           
         if(!doc)
           return Symbol(PMATH_SYMBOL_FAILED);
+        
+        Document *owner_doc = doc->native()->owner_document();
+        if(owner_doc)
+          doc = owner_doc;
           
         Expr filename = data[2];
         
@@ -1954,7 +1964,7 @@ static Expr get_current_value_of_Filename(FrontEndObject *obj, Expr item) {
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FALSE);
+    return Symbol(PMATH_SYMBOL_FAILED);
     
   String result = doc->native()->filename();
   if(!result.is_valid())
@@ -1979,4 +1989,19 @@ static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
-
+static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  Document *owner = doc->native()->owner_document();
+  while(!owner) {
+    doc = doc->native()->working_area_document();
+    if(!doc)
+      return Symbol(PMATH_SYMBOL_NONE);
+    
+    owner = doc->native()->owner_document();
+  }
+  return owner->id().to_pmath();
+}

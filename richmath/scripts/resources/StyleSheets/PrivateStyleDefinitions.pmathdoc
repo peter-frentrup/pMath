@@ -1,0 +1,19 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Stylesheet for private StyleDefinitions", "Title"), 
+    Section(StyleData(StyleDefinitions -> "Stylesheets.pmathdoc")), 
+    SectionGroup({Section(BoxData({"Document", " ", "styles"}), "Section"), 
+      Section(StyleData("Document"), DefaultNewSectionStyle -> "Input", 
+       DefaultReturnCreatedSectionStyle -> Automatic, 
+       DockedSections :> {
+        "Top" -> {Section({"Private StyleDefinitions for ", 
+           DynamicBox(
+            ToBoxes(With({owner:= CurrentValue("StyleDefinitionsOwner")}, 
+              With({fname:= CurrentValue(owner, "Filename")}, 
+               If(IsString(fname), StringReplace(fname, 
+                 StartOfString ++ Longest(~~~) ++ "/" | $PathnameSeparator -> 
+                  ""), owner)))))}, "Docked")}}, 
+       FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
+       Visible -> True, WindowFrame -> "Normal")}, All)}, All)}, 
+ StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)

@@ -78,7 +78,7 @@ namespace richmath {
         bool              (*func)(Expr cmd),
         MenuCommandStatus (*test)(Expr cmd) = nullptr);
       
-      static void register_currentvalue_provider(
+      static bool register_currentvalue_provider(
         Expr   item,
         Expr (*func)(FrontEndObject *obj, Expr item));
         
