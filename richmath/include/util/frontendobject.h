@@ -62,6 +62,11 @@ namespace richmath {
       virtual void dynamic_updated() = 0;
   };
   
+  // http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Nifty_Counter
+  static struct FrontEndObjectInitializer {
+    FrontEndObjectInitializer();
+    ~FrontEndObjectInitializer();
+  } TheFrontEndObjectInitializer;
 }
 
 #endif // RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED

@@ -1,6 +1,9 @@
 #include <util/frontendobject.h>
 #include <util/hashtable.h>
 
+#include <new>         // placement new
+#include <type_traits> // aligned_storage
+
 
 using namespace richmath;
 using namespace pmath;
@@ -17,6 +20,42 @@ namespace richmath {
       }
   };
 }
+
+namespace {
+  class FrontEndObjectCache {
+    public:
+      Hashtable<FrontEndReference, Void> table;
+  };
+  
+  static int NiftyFrontEndObjectInitializerCounter; // zero initialized at load time
+  static typename std::aligned_storage<
+    sizeof(FrontEndObjectCache), 
+    alignof(FrontEndObjectCache)
+  >::type TheCache_Buffer;
+  static FrontEndObjectCache &TheCache = reinterpret_cast<FrontEndObjectCache&>(TheCache_Buffer);
+};
+
+//{ struct FrontEndObjectInitializer ...
+
+FrontEndObjectInitializer::FrontEndObjectInitializer() {
+  /* All static objects are created in the same thread, in arbitrary order.
+     FrontEndObjectInitializer only exists as static objects.
+     So, no locking is needed .
+   */
+  if(NiftyFrontEndObjectInitializerCounter++ == 0)
+    new(&TheCache) FrontEndObjectCache();
+}
+
+FrontEndObjectInitializer::~FrontEndObjectInitializer() {
+  /* All static objects are destructed in the same thread, in arbitrary order.
+     FrontEndObjectInitializer only exists as static objects.
+     So, no locking is needed .
+   */
+  if(--NiftyFrontEndObjectInitializerCounter == 0)
+    (&TheCache)->~FrontEndObjectCache();
+}
+
+//} ... struct FrontEndObjectInitializer
 
 //{ class FrontEndReference ...
 const FrontEndReference FrontEndReference::None = FrontEndReferenceImpl::init_none();
@@ -54,22 +93,20 @@ Expr FrontEndReference::to_pmath() const {
 
 //{ class FrontEndObject ...
 
-static Hashtable<FrontEndReference, Void> front_end_object_cache;
-
 FrontEndObject::FrontEndObject()
   : Base()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  front_end_object_cache.set(id(), Void{});
+  TheCache.table.set(id(), Void{});
 }
 
 FrontEndObject::~FrontEndObject() {
-  front_end_object_cache.remove(id());
+  TheCache.table.remove(id());
 }
 
 FrontEndObject *FrontEndObject::find(FrontEndReference id) {
-  if(front_end_object_cache.search(id))
+  if(TheCache.table.search(id))
     return static_cast<FrontEndObject*>(FrontEndReference::unsafe_cast_to_pointer(id));
   return nullptr;
 }
