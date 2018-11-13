@@ -10,10 +10,13 @@ Document({
         "Top" -> {Section({"Private StyleDefinitions for ", 
            DynamicBox(
             ToBoxes(With({owner:= CurrentValue("StyleDefinitionsOwner")}, 
-              With({fname:= CurrentValue(owner, "Filename")}, 
-               If(IsString(fname), StringReplace(fname, 
-                 StartOfString ++ Longest(~~~) ++ "/" | $PathnameSeparator -> 
-                  ""), owner)))))}, "Docked")}}, 
+              With({title:= CurrentValue(owner, WindowTitle)}, 
+               If(IsString(title), title, owner)))))}, "Docked")}}, 
        FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
-       Visible -> True, WindowFrame -> "Normal")}, All)}, All)}, 
+       Visible -> True, WindowFrame -> "Normal", 
+       WindowTitle -> Dynamic(
+        ToString(Row({"Private StyleDefinitions for ", 
+          With({owner:= CurrentValue("StyleDefinitionsOwner")}, 
+           With({title:= CurrentValue(owner, WindowTitle)}, 
+            If(IsString(title), title, owner)))}))))}, All)}, All)}, 
  StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)

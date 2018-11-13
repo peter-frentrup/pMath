@@ -7,6 +7,7 @@
 
 
 namespace richmath {
+  class FrontEndObject;
   class Box;
   
   Expr color_to_pmath(int color);
@@ -299,6 +300,8 @@ namespace richmath {
       static Expr get_name(StyleOptionName n);
       
       static enum StyleType get_type(StyleOptionName n);
+      
+      static Expr get_current_style_value(FrontEndObject *obj, Expr item);
       
     private:
       Hashtable<StyleOptionName, IntFloatUnion> int_float_values;

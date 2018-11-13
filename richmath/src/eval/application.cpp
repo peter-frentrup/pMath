@@ -632,6 +632,7 @@ static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_Filename(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
+static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
 
 static const char s_MouseOver[] = "MouseOver";
 static const char s_Filename[] = "Filename";
@@ -655,13 +656,14 @@ void Application::init() {
   main_thread = pthread_self();
 #endif
   
-  register_currentvalue_provider(String(s_MouseOver),             get_current_value_of_MouseOver);
-  register_currentvalue_provider(String(s_Filename),              get_current_value_of_Filename);
-  register_currentvalue_provider(String(s_ControlsFontFamily),    get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontSlant),     get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontWeight),    get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontSize),      get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_StyleDefinitionsOwner), get_current_value_of_StyleDefinitionsOwner);
+  register_currentvalue_provider(String(s_MouseOver),                 get_current_value_of_MouseOver);
+  register_currentvalue_provider(String(s_Filename),                  get_current_value_of_Filename);
+  register_currentvalue_provider(String(s_ControlsFontFamily),        get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSlant),         get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontWeight),        get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSize),          get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_StyleDefinitionsOwner),     get_current_value_of_StyleDefinitionsOwner);
+  register_currentvalue_provider(Symbol(richmath_System_WindowTitle), get_current_value_of_WindowTitle);
   
   
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
@@ -2004,4 +2006,19 @@ static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr
     owner = doc->native()->owner_document();
   }
   return owner->id().to_pmath();
+}
+
+static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  
+  if(doc) {
+    if(item == richmath_System_WindowTitle) {
+      auto result = doc->native()->window_title();
+      if(!result.is_null())
+        return result;
+    }
+  }
+  
+  return Style::get_current_style_value(obj, std::move(item));
 }

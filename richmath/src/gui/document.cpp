@@ -3671,7 +3671,13 @@ void Document::reset_style() {
 }
 
 void Document::paint_resize(Canvas *canvas, bool resize_only) {
-  update_dynamic_styles(&context);
+  if(update_dynamic_styles(&context)) {
+    if(get_own_style(InternalHasModifiedWindowOption)) {
+      style->set(InternalHasModifiedWindowOption, false);
+      native()->invalidate_options();
+    }
+  }
+
   if(get_own_style(InternalRequiresChildResize)) {
     style->set(InternalRequiresChildResize, false);
     if(resize_only) {

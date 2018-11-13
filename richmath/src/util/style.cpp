@@ -608,6 +608,7 @@ namespace {
         _name_to_key.set(          symbol, key);
       }
       
+    public:
       static Expr get_current_style_value(FrontEndObject *obj, Expr item) {
         Box *box = dynamic_cast<Box*>(obj);
         if(!box)
@@ -1994,6 +1995,11 @@ Expr Style::get_name(StyleOptionName n) {
 enum StyleType Style::get_type(StyleOptionName n) {
   return StyleInformation::get_type(n);
 }
+
+Expr Style::get_current_style_value(FrontEndObject *obj, Expr item) {
+  return StyleInformation::get_current_style_value(obj, std::move(item));
+}
+      
 
 void Style::set_pmath_by_unknown_key(Expr lhs, Expr rhs) {
   StyleOptionName key = StyleInformation::get_key(lhs);

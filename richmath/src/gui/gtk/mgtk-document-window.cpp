@@ -68,6 +68,8 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
+    virtual String window_title() override { return _parent->title(); }
+    
     virtual void on_idle_after_edit() override { 
       super_class::on_idle_after_edit();
       _parent->on_idle_after_edit(this); 
@@ -181,6 +183,8 @@ class richmath::MathGtkDock: public MathGtkWidget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
+    virtual String window_title() override { return _parent->title(); }
+    
     virtual void on_idle_after_edit() override {
       super_class::on_idle_after_edit();
       _parent->on_idle_after_edit(this); 
@@ -242,13 +246,13 @@ static MathGtkDocumentWindow *_first_window = nullptr;
 
 MathGtkDocumentWindow::MathGtkDocumentWindow()
   : BasicGtkWidget(),
-    _window_frame(WindowFrameNormal),
-    _menu_bar(0),
+    _menu_bar(nullptr),
     _hadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
     _vadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
-    _hscrollbar(0),
-    _vscrollbar(0),
-    _table(0),
+    _hscrollbar(nullptr),
+    _vscrollbar(nullptr),
+    _table(nullptr),
+    _window_frame(WindowFrameNormal),
     _has_unsaved_changes(false)
 {
   _previous_rect.x = 0;
@@ -408,8 +412,8 @@ void MathGtkDocumentWindow::invalidate_options() {
     _bottom_area->document()->invalidate_all();
   }
   
-  String s = doc->get_style(WindowTitle, String());
-  if(_title != s)
+  String s = doc->get_style(WindowTitle, _default_title);
+  if(!_title.unobserved_equals(s))
     title(s);
   
   WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
@@ -443,28 +447,21 @@ void MathGtkDocumentWindow::invalidate_options() {
 }
 
 void MathGtkDocumentWindow::title(String text) {
-  _title = text;
-  
   if(text.is_null()) {
-    String fname = filename();
-    if(fname.is_valid()) {
-      int c = fname.length();
-      const uint16_t *buf = fname.buffer();
-      while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
-        --c;
-        
-      text = fname.part(c + 1);
+    if(_default_title.is_null()) {
+      _default_title = "untitled";
     }
-    else
-      text = "untitled";
+    text = _default_title;
   }
+  
+  _title = text;
   
   if(_has_unsaved_changes)
     text = String("*") + text;
     
   if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
-    
+  
   char *str = pmath_string_to_utf8(text.get(), nullptr);
   if(str)
     gtk_window_set_title(GTK_WINDOW(_widget), str);
@@ -771,6 +768,14 @@ void MathGtkDocumentWindow::move_palettes() {
 
 void MathGtkDocumentWindow::filename(String new_filename) {
   _filename = new_filename;
+  if(new_filename.is_valid()) {
+    int c = new_filename.length();
+    const uint16_t *buf = new_filename.buffer();
+    while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
+      --c;
+      
+    _default_title = new_filename.part(c + 1);
+  }
   reset_title();
 }
 

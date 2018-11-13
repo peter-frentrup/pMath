@@ -77,6 +77,7 @@ namespace richmath {
       
       String filename(){ return _filename; }
       void filename(String new_filename);
+      String title() { return _title; }
       
       virtual void on_idle_after_edit(MathGtkWidget *sender);
       virtual void on_saved();
@@ -91,9 +92,9 @@ namespace richmath {
       virtual bool on_scroll(GdkEvent *e);
       
     private:
-      String                  _title;
-      WindowFrameType         _window_frame;
       ObservableValue<String> _filename;
+      ObservableValue<String> _title;
+      String                  _default_title;
       
       Array<DocumentPosition> _snapped_documents; // [0] = self
       
@@ -115,7 +116,8 @@ namespace richmath {
       GtkWidget *_vscrollbar;
       GtkWidget *_table;
       
-      bool _has_unsaved_changes;
+      WindowFrameType _window_frame;
+      bool            _has_unsaved_changes;
   };
 }
 

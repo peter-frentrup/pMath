@@ -51,6 +51,7 @@ namespace richmath {
       
       virtual String filename() { return _filename; }
       virtual void filename(String new_filename);
+      String title() { return _title; }
       
       virtual void on_idle_after_edit(Win32Widget *sender);
       virtual void on_saved();
@@ -72,9 +73,10 @@ namespace richmath {
       bool creation;
       bool _has_unsaved_changes;
       
-      String                  _title;
       WindowFrameType         _window_frame;
       ObservableValue<String> _filename;
+      String                  _default_title;
+      ObservableValue<String> _title;
       
     protected:
       virtual void on_theme_changed() override;

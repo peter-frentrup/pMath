@@ -99,6 +99,7 @@ namespace richmath {
       
       virtual String filename() = 0;
       virtual void filename(String new_filename) = 0;
+      virtual String window_title() { return String(); }
       
       virtual void on_editing();
       virtual void on_idle_after_edit();

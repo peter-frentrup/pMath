@@ -27,6 +27,10 @@ namespace richmath {
       explicit ObservableValue(const T &value) : Observable(), _value(value) {}
       explicit ObservableValue(T &&value) : Observable(), _value(std::move(value)) {}
       
+      bool unobserved_equals(const T &other) {
+        return _value == other;
+      }
+      
       operator T() {
         register_observer(); 
         return _value; 

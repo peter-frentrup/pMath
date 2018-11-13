@@ -99,6 +99,8 @@ class richmath::Win32WorkingArea: public Win32Widget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
+    virtual String window_title() override { return _parent->title(); }
+    
     virtual void on_idle_after_edit() override { 
       super_class::on_idle_after_edit();
       _parent->on_idle_after_edit(this);
@@ -299,6 +301,8 @@ class richmath::Win32Dock: public Win32Widget {
     
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
+    
+    virtual String window_title() override { return _parent->title(); }
     
     virtual void on_idle_after_edit() override { 
       super_class::on_idle_after_edit();
@@ -904,8 +908,8 @@ void Win32DocumentWindow::invalidate_options() {
   if(doc->load_stylesheet()) 
     change = true;
   
-  String s = doc->get_style(WindowTitle, String());
-  if(_title != s)
+  String s = doc->get_style(WindowTitle, _default_title);
+  if(!_title.unobserved_equals(s))
     title(s);
     
   _top_area->document()->stylesheet(doc->stylesheet());
@@ -951,28 +955,21 @@ void Win32DocumentWindow::invalidate_options() {
 }
 
 void Win32DocumentWindow::title(String text) {
-  _title = text;
-  
   if(text.is_null()) {
-    String fname = filename();
-    if(fname.is_valid()) {
-      int c = fname.length();
-      const uint16_t *buf = fname.buffer();
-      while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
-        --c;
-        
-      text = fname.part(c + 1);
+    if(_default_title.is_null()) {
+      _default_title = "untitled";
     }
-    else
-      text = "untitled";
+    text = _default_title;
   }
+  
+  _title = text;
   
   if(_has_unsaved_changes)
     text = String("*") + text;
   
   if(Application::is_running_job_for(document()))
     text = String("Running... ") + text;
-    
+  
   String tmp = text + String::FromChar(0);
   
   SetWindowTextW(_hwnd, (const WCHAR *)tmp.buffer());
@@ -1065,6 +1062,14 @@ bool Win32DocumentWindow::is_closed() {
 
 void Win32DocumentWindow::filename(String new_filename) {
   _filename = new_filename;
+  if(new_filename.is_valid()) {
+    int c = new_filename.length();
+    const uint16_t *buf = new_filename.buffer();
+    while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
+      --c;
+      
+    _default_title = new_filename.part(c + 1);
+  }
   reset_title();
 }
 
