@@ -88,7 +88,7 @@ void Observable::notify_all() {
   auto &my_observers = all_observers[this];
   
   for(size_t i = my_observers.expr_length(); i > 0; --i) {
-    auto id = FrontEndReference::from_pmath(my_observers[i]);
+    auto id = FrontEndReference::from_pmath_raw(my_observers[i]);
     if(id)
       all_observed_values.remove(id);
   }
