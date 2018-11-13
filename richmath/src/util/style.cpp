@@ -1143,15 +1143,21 @@ void StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
   if(n.is_literal())
     remove_dynamic(n);
     
-  if(obj.is_string())
-    raw_set_string(n, String(obj));
+  if(obj.is_string()) {
+    if(n == BaseStyleName) {
+      String old_str;
+      raw_get_string(n, &old_str);
+      raw_set_string(n, String(obj));
+      if(old_str != obj) 
+        raw_set_int(InternalHasPendingDynamic, true);
+    }
+    else
+      raw_set_string(n, String(obj));
+  }
   else if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_string(n);
   else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
-    
-  //if(n == BaseStyleName)
-  //  raw_set_int(InternalHasPendingDynamic, true);
 }
 
 void StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
@@ -1159,13 +1165,21 @@ void StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
   
   if(n.is_literal())
     remove_dynamic(n);
-    
+  
   if(obj == PMATH_SYMBOL_INHERITED)
     raw_remove_expr(n);
   else if(n.is_literal() && obj[0] == richmath_System_Dynamic)
     set_dynamic(n, obj);
-  else
+  else if(n == StyleDefinitions) {
+    Expr old_obj;
+    raw_get_expr(n, &old_obj);
     raw_set_expr(n, obj);
+    if(old_obj != obj) 
+      raw_set_int(InternalHasPendingDynamic, true);
+  }
+  else {
+    raw_set_expr(n, obj);
+  }
 }
 
 void StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
@@ -1738,6 +1752,21 @@ Style::~Style() {
 void Style::clear() {
   int_float_values.clear();
   object_values.clear();
+}
+
+void Style::reset(SharedPtr<Style> &style, String base_style_name) {
+  if(!style) {
+    style = new Style();
+    style->set(BaseStyleName, std::move(base_style_name));
+    return;
+  }
+  
+  String old_base_style_name;
+  style->get(BaseStyleName, &old_base_style_name);
+  style->clear();
+  style->set(BaseStyleName, base_style_name);
+  if(old_base_style_name == base_style_name)
+    style->remove(InternalHasPendingDynamic);
 }
 
 void Style::add_pmath(Expr options) {

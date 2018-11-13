@@ -211,12 +211,7 @@ void InputFieldBox::paint_content(Context *context) {
 }
 
 void InputFieldBox::reset_style() {
-  if(style)
-    style->clear();
-  else
-    style = new Style;
-    
-  style->set(BaseStyleName, String("InputField"));
+  Style::reset(style, "InputField");
 }
 
 void InputFieldBox::scroll_to(float x, float y, float w, float h) {

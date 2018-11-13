@@ -251,6 +251,8 @@ namespace richmath {
       virtual ~Style();
       
       void clear();
+      static void reset(SharedPtr<Style> &style, String base_style_name);
+      
       void add_pmath(Expr options);
       
       void merge(SharedPtr<Style> other);

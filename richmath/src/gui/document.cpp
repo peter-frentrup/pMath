@@ -3667,12 +3667,7 @@ bool Document::load_stylesheet() {
 }
 
 void Document::reset_style() {
-  if(style)
-    style->clear();
-  else
-    style = new Style;
-    
-  style->set(BaseStyleName, "Document");
+  Style::reset(style, "Document");
 }
 
 void Document::paint_resize(Canvas *canvas, bool resize_only) {

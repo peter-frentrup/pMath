@@ -1074,12 +1074,7 @@ void GraphicsBox::paint(Context *context) {
 }
 
 void GraphicsBox::reset_style() {
-  if(style)
-    style->clear();
-  else
-    style = new Style();
-    
-  style->set(BaseStyleName, "Graphics");
+  Style::reset(style, "Graphics");
 }
 
 Expr GraphicsBox::to_pmath_symbol() {
