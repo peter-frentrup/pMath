@@ -1615,7 +1615,7 @@ static Expr cnt_getevaluationdocument(Expr data) {
   if(box)
     doc = box->find_parent<Document>(true);
     
-  if(doc->main_document)
+  if(doc && doc->main_document)
     doc = doc->main_document;
     
   if(doc)
