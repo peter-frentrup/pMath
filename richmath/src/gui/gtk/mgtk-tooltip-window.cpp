@@ -1,4 +1,5 @@
 #include <gui/gtk/mgtk-tooltip-window.h>
+#include <gui/common-tooltips.h>
 
 #include <boxes/mathsequence.h>
 #include <boxes/section.h>
@@ -61,27 +62,10 @@ void MathGtkTooltipWindow::show_global_tooltip(Expr boxes, SharedPtr<Stylesheet>
   if(tooltip_window->_content_expr != boxes) {
     tooltip_window->_content_expr = boxes;
     
-    Document *doc = tooltip_window->document();
-    doc->remove(0, doc->length());
-    
-    if(stylesheet)
-      doc->stylesheet(stylesheet);
-    
-    Style *style = new Style;
-    style->set(BaseStyleName,       "ControlStyle");
-    style->set(SectionMarginLeft,   0);
-    style->set(SectionMarginTop,    0);
-    style->set(SectionMarginRight,  0);
-    style->set(SectionMarginBottom, 0);
-    
-    boxes = Call(Symbol(richmath_System_ButtonBox),
-                 boxes,
-                 Rule(Symbol(richmath_System_ButtonFrame),
-                      String("TooltipWindow")));
-                      
-    MathSection *section = new MathSection(style);
-    section->content()->load_from_object(boxes, BoxInputFlags::FormatNumbers);
-    doc->insert(0, section);
+    CommonTooltips::load_content(
+      tooltip_window->document(), 
+      std::move(boxes), 
+      std::move(stylesheet));
   }
   
   if(!gtk_widget_get_visible(tooltip_window->widget()))

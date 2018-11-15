@@ -710,6 +710,7 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/clipboard.h" />
+		<Unit filename="include/gui/common-tooltips.h" />
 		<Unit filename="include/gui/control-painter.h" />
 		<Unit filename="include/gui/document.h" />
 		<Unit filename="include/gui/gtk/basic-gtk-widget.h">
@@ -1085,6 +1086,7 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/clipboard.cpp" />
+		<Unit filename="src/gui/common-tooltips.cpp" />
 		<Unit filename="src/gui/control-painter.cpp" />
 		<Unit filename="src/gui/document.cpp" />
 		<Unit filename="src/gui/gtk/basic-gtk-widget.cpp">

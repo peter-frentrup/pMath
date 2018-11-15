@@ -21,7 +21,7 @@ namespace richmath {
       virtual void page_size(float *w, float *h) override;
       
       virtual bool is_scrollable() override { return false; }
-      
+    
     protected:
       Expr  _content_expr;
       

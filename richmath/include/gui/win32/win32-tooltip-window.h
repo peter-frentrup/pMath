@@ -33,7 +33,6 @@ namespace richmath {
       virtual void after_construction() override;
       
       void resize(bool just_move);
-      virtual void paint_background(Canvas *canvas) override;
       virtual void paint_canvas(Canvas *canvas, bool resize_only) override;
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
