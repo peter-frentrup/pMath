@@ -94,7 +94,23 @@ void CommonDocumentWindow::on_saved() {
 void CommonDocumentWindow::title(String text) {
   if(text.is_null()) {
     if(_default_title.is_null()) {
-      _default_title = "untitled";
+      for(int i = 1;;++i) {
+        _default_title = String("Untitled ") + Expr(i).to_string();
+        bool already_exists = false;
+        
+        for(auto win : CommonDocumentWindow::All) {
+          if(win == this)
+            continue;
+          
+          if(win->_default_title == _default_title || win->_title.unobserved_equals(_default_title)) {
+            already_exists = true;
+            break;
+          }
+        }
+        
+        if(!already_exists)
+          break;
+      }
     }
     text = _default_title;
   }
