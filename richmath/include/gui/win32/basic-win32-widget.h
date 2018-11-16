@@ -113,7 +113,7 @@ namespace richmath {
           p = p->parent();
         }
         
-        return 0;
+        return nullptr;
       }
       
     protected:

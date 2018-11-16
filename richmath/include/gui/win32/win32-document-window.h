@@ -42,19 +42,13 @@ namespace richmath {
       
       void rearrange();
       void invalidate_options();
-      void reset_title(){ title(_title); }
       
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }
       
       virtual bool is_closed() override;
       
-      virtual String filename() { return _filename; }
-      virtual void filename(String new_filename);
-      String title() { return _title; }
-      
-      virtual void on_idle_after_edit(Win32Widget *sender);
-      virtual void on_saved();
+      void on_idle_after_edit(Win32Widget *sender) { BasicWin32Window::on_idle_after_edit(); }
       
       Win32Widget *top_glass_area() {    return (Win32Widget*)_top_glass_area;    }
       Win32Widget *top_area() {          return (Win32Widget*)_top_area;          }
@@ -71,17 +65,12 @@ namespace richmath {
       
       Win32Menubar *menubar;
       bool creation;
-      bool _has_unsaved_changes;
       
       WindowFrameType         _window_frame;
-      ObservableValue<String> _filename;
-      String                  _default_title;
-      ObservableValue<String> _title;
       
     protected:
       virtual void on_theme_changed() override;
       
-      void title(       String          text);
       void window_frame(WindowFrameType type);
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;

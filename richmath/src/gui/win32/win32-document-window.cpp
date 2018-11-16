@@ -24,30 +24,6 @@
 
 using namespace richmath;
 
-//{ FOREACH_WINDOW ...
-
-#define FOREACH_WINDOW(NAME, PROC) \
-  do{ \
-    BasicWin32Window *_FOREACH_WINDOW_FIRST = BasicWin32Window::first_window(); \
-    \
-    if(_FOREACH_WINDOW_FIRST) { \
-      bool _FOREACH_WINDOW_FIRST_TIME = true; \
-      \
-      for( \
-           BasicWin32Window *_FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_FIRST; \
-           _FOREACH_WINDOW_FIRST_TIME || _FOREACH_WINDOW_NEXT != _FOREACH_WINDOW_FIRST; \
-           _FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_NEXT->next_window() \
-         ) { \
-        _FOREACH_WINDOW_FIRST_TIME = false; \
-        \
-        if(auto NAME = dynamic_cast<Win32DocumentWindow*>(_FOREACH_WINDOW_NEXT)) { \
-          PROC \
-        } \
-      } \
-    } \
-  }while(0)
-
-//}
 
 class richmath::Win32WorkingArea: public Win32Widget {
     typedef Win32Widget super_class;
@@ -581,14 +557,13 @@ Win32DocumentWindow::Win32DocumentWindow(
     y,
     width,
     height),
-  _top_glass_area(0),
-  _top_area(0),
-  _working_area(0),
-  _bottom_area(0),
-  _bottom_glass_area(0),
-  menubar(0),
+  _top_glass_area(nullptr),
+  _top_area(nullptr),
+  _working_area(nullptr),
+  _bottom_area(nullptr),
+  _bottom_glass_area(nullptr),
+  menubar(nullptr),
   creation(true),
-  _has_unsaved_changes(false),
   _window_frame(WindowFrameNormal)
 {
   _working_area = new Win32WorkingArea(
@@ -597,6 +572,8 @@ Win32DocumentWindow::Win32DocumentWindow(
     WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_CLIPSIBLINGS,
     0, 0, 0, 0,
     this);
+  
+  _content = _working_area->document();
     
   _top_glass_area    = new Win32GlassDock(this);
   _top_area          = new Win32Dock(this);
@@ -682,20 +659,21 @@ Win32DocumentWindow::~Win32DocumentWindow() {
   
   if(!deleting_all) {
     bool have_only_palettes = true;
-    FOREACH_WINDOW(win,
-    {
-      if(win != this && !win->is_palette() && win->document()->get_style(Visible, true)) {
-        have_only_palettes = false;
-        break;
+    for(auto _win : CommonDocumentWindow::All) {
+      if(auto win = dynamic_cast<Win32DocumentWindow*>(_win)) {
+        if(win != this && !win->is_palette() && win->document()->get_style(Visible, true)) {
+          have_only_palettes = false;
+          break;
+        }
       }
-    });
+    }
     
     if(have_only_palettes) {
       deleting_all = true;
       
-      BasicWin32Window *other = next_window();
+      CommonDocumentWindow *other = next_window();
       while(other && other != this) {
-        BasicWin32Window *next = other->next_window();
+        CommonDocumentWindow *next = other->next_window();
         
         delete other;
         
@@ -954,27 +932,6 @@ void Win32DocumentWindow::invalidate_options() {
   _working_area->set_custom_scale(scale);
 }
 
-void Win32DocumentWindow::title(String text) {
-  if(text.is_null()) {
-    if(_default_title.is_null()) {
-      _default_title = "untitled";
-    }
-    text = _default_title;
-  }
-  
-  _title = text;
-  
-  if(_has_unsaved_changes)
-    text = String("*") + text;
-  
-  if(Application::is_running_job_for(document()))
-    text = String("Running... ") + text;
-  
-  String tmp = text + String::FromChar(0);
-  
-  SetWindowTextW(_hwnd, (const WCHAR *)tmp.buffer());
-}
-
 void Win32DocumentWindow::window_frame(WindowFrameType type) {
   _window_frame = type;
   
@@ -1060,33 +1017,6 @@ bool Win32DocumentWindow::is_closed() {
   return BasicWin32Window::is_closed();
 }
 
-void Win32DocumentWindow::filename(String new_filename) {
-  _filename = new_filename;
-  if(new_filename.is_valid()) {
-    int c = new_filename.length();
-    const uint16_t *buf = new_filename.buffer();
-    while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
-      --c;
-      
-    _default_title = new_filename.part(c + 1);
-  }
-  reset_title();
-}
-
-void Win32DocumentWindow::on_idle_after_edit(Win32Widget *sender) {
-  if(!_has_unsaved_changes) {
-    _has_unsaved_changes = true;
-    reset_title();
-  }
-}
-
-void Win32DocumentWindow::on_saved() {
-  if(_has_unsaved_changes) {
-    _has_unsaved_changes = false;
-    reset_title();
-  }
-}
-
 void Win32DocumentWindow::on_theme_changed() {
   BasicWin32Window::on_theme_changed();
   
@@ -1158,24 +1088,26 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           if(HIWORD(wParam)) { // minimizing
             bool have_only_palettes = true;
             
-            FOREACH_WINDOW(wnd,
-            {
-              if(wnd != this
-              && !wnd->is_palette()
-              && IsWindowVisible(wnd->hwnd())
-              && (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0) {
-                have_only_palettes = false;
-                break;
+            for(auto _win : CommonDocumentWindow::All) {
+              if(auto wnd = dynamic_cast<Win32DocumentWindow*>(_win)) {
+                if( wnd != this && 
+                    !wnd->is_palette() && 
+                    IsWindowVisible(wnd->hwnd()) && 
+                    (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0) 
+                {
+                  have_only_palettes = false;
+                  break;
+                }
               }
-            });
+            }
             
             if(have_only_palettes) {
-              FOREACH_WINDOW(tool,
-              {
-                if(tool->is_palette()) {
-                  ShowWindow(tool->hwnd(), SW_HIDE);
+              for(auto _win : CommonDocumentWindow::All) {
+                if(auto tool = dynamic_cast<Win32DocumentWindow*>(_win)) {
+                  if(tool->is_palette()) 
+                    ShowWindow(tool->hwnd(), SW_HIDE);
                 }
-              });
+              }
             }
           }
         } break;
@@ -1191,7 +1123,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             
             if(!was_already_activated && !BasicWin32Window::during_pos_changing) {
             
-              Array<BasicWin32Window *> all_lower(BasicWin32Window::basic_window_count());
+              Array<BasicWin32Window *> all_lower(CommonDocumentWindow::All.count());
               all_lower.length(0);
               
               HWND next_hwnd = GetWindow(_hwnd, GW_HWNDFIRST);

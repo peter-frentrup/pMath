@@ -136,7 +136,6 @@ static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
 
 //{ class BasicWin32Window ...
 
-static BasicWin32Window *_first_window = nullptr;
 bool BasicWin32Window::during_pos_changing = false;
 
 BasicWin32Window::BasicWin32Window(
@@ -167,25 +166,11 @@ BasicWin32Window::BasicWin32Window(
   snap_correction_x(0),
   snap_correction_y(0),
   last_moving_x(0),
-  last_moving_y(0),
-  _prev_window(0),
-  _next_window(0)
+  last_moving_y(0)
 {
   memset(&_extra_glass, 0, sizeof(_extra_glass));
 
   add_basic_window();
-
-  if(_first_window) {
-    _prev_window = _first_window->_prev_window;
-    _prev_window->_next_window = this;
-    _next_window = _first_window;
-    _first_window->_prev_window = this;
-  }
-  else {
-    _first_window = this;
-    _prev_window = this;
-    _next_window = this;
-  }
 }
 
 void BasicWin32Window::after_construction() {
@@ -194,15 +179,6 @@ void BasicWin32Window::after_construction() {
 
 BasicWin32Window::~BasicWin32Window() {
   remove_basic_window();
-
-  if(_first_window == this) {
-    _first_window = _next_window;
-    if(_first_window == this)
-      _first_window = 0;
-  }
-
-  _next_window->_prev_window = _prev_window;
-  _prev_window->_next_window = _next_window;
 }
 
 void BasicWin32Window::get_client_rect(RECT *rect) {
@@ -1550,14 +1526,6 @@ void BasicWin32Window::on_paint_background(Canvas *canvas) {
   }
 }
 
-int BasicWin32Window::basic_window_count() {
-  return _basic_window_count;
-}
-
-BasicWin32Window *BasicWin32Window::first_window() {
-  return _first_window;
-}
-
 LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   /* Note that this function does not return HTCLOSE, HTMAXBUTTON, HTMINBUTTON because 
      DwmDefWindowProc() already did the job when the mouse is over one of these buttons
@@ -1731,6 +1699,13 @@ static BOOL CALLBACK find_popup_callback(HWND hwnd, LPARAM lParam) {
   return TRUE;
 }
 
+void BasicWin32Window::finish_apply_title(String displayed_title) {
+  displayed_title+= String::FromChar(0);
+  
+  const wchar_t *str = (const wchar_t*)displayed_title.buffer();
+  if(str)
+    SetWindowTextW(_hwnd, str);
+}
 
 LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   LRESULT dwm_result = 0;
@@ -1822,14 +1797,24 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               EnumWindows(find_popup_callback, (LPARAM)&popup_info);
 
               BasicWin32Window *last_higher = 0;
-              BasicWin32Window *next = _next_window;
-              while(next != this) {
-                if(next->zorder_level() > zorder_level()) {
-                  last_higher = next;
-                  break;
+              for(auto win : CommonDocumentWindow::All) {
+                if(BasicWin32Window *next = dynamic_cast<BasicWin32Window*>(win)) {
+                  if(next == this)
+                    continue;
+                  if(next->zorder_level() > zorder_level()) {
+                    last_higher = next;
+                    break;
+                  }
                 }
-                next = next->_next_window;
               }
+//              BasicWin32Window *next = _next_window;
+//              while(next != this) {
+//                if(next->zorder_level() > zorder_level()) {
+//                  last_higher = next;
+//                  break;
+//                }
+//                next = next->_next_window;
+//              }
 
               // get all windows from higher level, sorted from back to front
               static Array<BasicWin32Window *> all_higher;

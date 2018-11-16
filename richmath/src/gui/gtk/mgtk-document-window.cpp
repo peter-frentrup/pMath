@@ -242,8 +242,6 @@ static void adjustment_changed_callback(
   self->adjustment_changed(adjustment);
 }
 
-static MathGtkDocumentWindow *_first_window = nullptr;
-
 MathGtkDocumentWindow::MathGtkDocumentWindow()
   : BasicGtkWidget(),
     _menu_bar(nullptr),
@@ -252,8 +250,7 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _hscrollbar(nullptr),
     _vscrollbar(nullptr),
     _table(nullptr),
-    _window_frame(WindowFrameNormal),
-    _has_unsaved_changes(false)
+    _window_frame(WindowFrameNormal)
 {
   _previous_rect.x = 0;
   _previous_rect.y = 0;
@@ -263,18 +260,6 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
   _working_area = new MathGtkWorkingArea(this);
   _top_area     = new MathGtkDock(this);
   _bottom_area  = new MathGtkDock(this);
-  
-  if(_first_window) {
-    _prev_window = _first_window->_prev_window;
-    _prev_window->_next_window = this;
-    _next_window = _first_window;
-    _first_window->_prev_window = this;
-  }
-  else {
-    _first_window = this;
-    _prev_window = this;
-    _next_window = this;
-  }
 }
 
 void MathGtkDocumentWindow::after_construction() {
@@ -361,21 +346,30 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
   static bool deleting_all = false;
   if(!deleting_all) {
     bool have_only_palettes = true;
-    for(MathGtkDocumentWindow *win = next_window(); win != this; win = win->next_window()) {
-      if(!win->is_palette() && win->document()->get_style(Visible, true)) {
-        have_only_palettes = false;
-        break;
+    for(auto _win : CommonDocumentWindow::All) {
+      if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
+        if(win == this)
+          continue;
+        
+        if(!win->is_palette() && win->document()->get_style(Visible, true)) {
+          have_only_palettes = false;
+          break;
+        }
       }
     }
     
     if(have_only_palettes) {
       deleting_all = true;
       
-      MathGtkDocumentWindow *other = next_window();
+      CommonDocumentWindow *other = next_window();
       while(other && other != this) {
-        MathGtkDocumentWindow *next = other->next_window();
+        CommonDocumentWindow *next = other->next_window();
         
-        other->destroy();
+        if(auto win = dynamic_cast<MathGtkDocumentWindow*>(other))
+          win->destroy();
+//        else {
+//          //delete win ?
+//        }
         
         other = next;
       }
@@ -385,15 +379,6 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
       gtk_main_quit();
     }
   }
-  
-  if(_first_window == this) {
-    _first_window = _next_window;
-    if(_first_window == this)
-      _first_window = 0;
-  }
-  
-  _next_window->_prev_window = _prev_window;
-  _prev_window->_next_window = _next_window;
   
   // those are deleted by their destroy-event:
 //  _top_area->destroy();
@@ -446,23 +431,8 @@ void MathGtkDocumentWindow::invalidate_options() {
   _working_area->set_custom_scale(scale);
 }
 
-void MathGtkDocumentWindow::title(String text) {
-  if(text.is_null()) {
-    if(_default_title.is_null()) {
-      _default_title = "untitled";
-    }
-    text = _default_title;
-  }
-  
-  _title = text;
-  
-  if(_has_unsaved_changes)
-    text = String("*") + text;
-    
-  if(Application::is_running_job_for(document()))
-    text = String("Running... ") + text;
-  
-  char *str = pmath_string_to_utf8(text.get(), nullptr);
+void MathGtkDocumentWindow::finish_apply_title(String displayed_title) {
+  char *str = pmath_string_to_utf8(displayed_title.get(), nullptr);
   if(str)
     gtk_window_set_title(GTK_WINDOW(_widget), str);
     
@@ -567,10 +537,6 @@ void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment) {
   gtk_widget_set_visible(scrollbar, (window_frame() == WindowFrameNormal) && lo + page < hi);
 }
 
-MathGtkDocumentWindow *MathGtkDocumentWindow::first_window() {
-  return _first_window;
-}
-
 void MathGtkDocumentWindow::bring_to_front() {
   gtk_window_present(GTK_WINDOW(_widget));
 }
@@ -593,27 +559,29 @@ void MathGtkDocumentWindow::set_gravity() {
     GdkRectangle outer;
     get_outer_rect(&outer);
     
-    for(MathGtkDocumentWindow *win = next_window(); win != this; win = win->next_window()) {
-      if(!win->is_palette()) {
-        GdkRectangle rect;
-        win->get_outer_rect(&rect);
-        
-        int dx = SnapDistance;
-        int dy = SnapDistance;
-        GdkWindowEdge edge;
-        if(test_rects_touch(outer, rect, &dx, &dy, &edge)) {
-          GdkGravity gravity = GDK_GRAVITY_NORTH_WEST;
-          switch(edge) {
-            case GDK_WINDOW_EDGE_NORTH_EAST:
-            case GDK_WINDOW_EDGE_EAST:
-            case GDK_WINDOW_EDGE_SOUTH_EAST:
-              gravity = GDK_GRAVITY_NORTH_EAST;
-              break;
-              
-            default: break;
-          }
+    for(auto _win : CommonDocumentWindow::All) {
+      if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
+        if(!win->is_palette()) {
+          GdkRectangle rect;
+          win->get_outer_rect(&rect);
           
-          gtk_window_set_gravity(GTK_WINDOW(_widget), gravity);
+          int dx = SnapDistance;
+          int dy = SnapDistance;
+          GdkWindowEdge edge;
+          if(test_rects_touch(outer, rect, &dx, &dy, &edge)) {
+            GdkGravity gravity = GDK_GRAVITY_NORTH_WEST;
+            switch(edge) {
+              case GDK_WINDOW_EDGE_NORTH_EAST:
+              case GDK_WINDOW_EDGE_EAST:
+              case GDK_WINDOW_EDGE_SOUTH_EAST:
+                gravity = GDK_GRAVITY_NORTH_EAST;
+                break;
+                
+              default: break;
+            }
+            
+            gtk_window_set_gravity(GTK_WINDOW(_widget), gravity);
+          }
         }
       }
     }
@@ -766,33 +734,6 @@ void MathGtkDocumentWindow::move_palettes() {
   }
 }
 
-void MathGtkDocumentWindow::filename(String new_filename) {
-  _filename = new_filename;
-  if(new_filename.is_valid()) {
-    int c = new_filename.length();
-    const uint16_t *buf = new_filename.buffer();
-    while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
-      --c;
-      
-    _default_title = new_filename.part(c + 1);
-  }
-  reset_title();
-}
-
-void MathGtkDocumentWindow::on_idle_after_edit(MathGtkWidget *sender) {
-  if(!_has_unsaved_changes) {
-    _has_unsaved_changes = true;
-    reset_title();
-  }
-}
-
-void MathGtkDocumentWindow::on_saved() {
-  if(_has_unsaved_changes) {
-    _has_unsaved_changes = false;
-    reset_title();
-  }
-}
-
 bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {
   GdkEventConfigure *event = (GdkEventConfigure *)e;
   
@@ -826,31 +767,31 @@ bool MathGtkDocumentWindow::on_focus_in(GdkEvent *e) {
 }
 
 bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e) {
-  for(MathGtkDocumentWindow *main = next_window();; main = main->next_window()) {
-    main->_snapped_documents.length(0);
-    main->_snapped_documents.add(DocumentPosition(FrontEndReference::None, main->_previous_rect.x, main->_previous_rect.y));
-    
-    if(!main->is_palette()) {
-      GdkRectangle rect;
-      main->get_outer_rect(&rect);
+  for(auto _win : CommonDocumentWindow::All) {
+    if(auto main = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
+      main->_snapped_documents.length(0);
+      main->_snapped_documents.add(DocumentPosition(FrontEndReference::None, main->_previous_rect.x, main->_previous_rect.y));
       
-      for(MathGtkDocumentWindow *win = main->next_window(); win != main; win = win->next_window()) {
-        if(win->is_palette()) {
-          GdkRectangle other_rect;
-          win->get_outer_rect(&other_rect);
-          
-          int dx = SnapDistance;
-          int dy = SnapDistance;
-          if(test_rects_touch(rect, other_rect, &dx, &dy, nullptr))
-            main->_snapped_documents.add(DocumentPosition(win->document()->id(), other_rect.x, other_rect.y));
+      if(!main->is_palette()) {
+        GdkRectangle rect;
+        main->get_outer_rect(&rect);
+        
+        for(auto _win2 : CommonDocumentWindow::All) {
+          if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win2)) {
+            if(win->is_palette()) {
+              GdkRectangle other_rect;
+              win->get_outer_rect(&other_rect);
+              
+              int dx = SnapDistance;
+              int dy = SnapDistance;
+              if(test_rects_touch(rect, other_rect, &dx, &dy, nullptr))
+                main->_snapped_documents.add(DocumentPosition(win->document()->id(), other_rect.x, other_rect.y));
+            }
+          }
         }
       }
     }
-    
-    if(main == this)
-      break;
   }
-  
   return false;
 }
 
