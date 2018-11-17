@@ -1061,6 +1061,7 @@
 		<Unit filename="src/eval/dynamic.cpp" />
 		<Unit filename="src/eval/job.cpp" />
 		<Unit filename="src/eval/observable.cpp" />
+		<Unit filename="src/eval/selecteddocument.cpp" />
 		<Unit filename="src/eval/server.cpp" />
 		<Unit filename="src/eval/symbols.inc" />
 		<Unit filename="src/graphics/animation.cpp" />

@@ -55,6 +55,7 @@ General::privv:= "Privilege violation during `1`."
 
 /* type errors */
 General::atom:= "`1` is neither an expression nor a string."
+General::bool:= "`1` is neither the symbol True nor the symbol False."
 General::fnsym:= "The first argument in `1` is neither a symbol nor a string naming a symbol."
 General::heads:= "Heads `1` and `2` at positions `3` and `4` are expected to be the same."
 General::ilsmn:= "Single or list of non-negative integers expected at position `1` in `2`"

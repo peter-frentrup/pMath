@@ -141,6 +141,14 @@ Function privateMmaFonts() {
 
 $PrivateStartupFontFiles:= Join($PrivateStartupFontFiles, privateMmaFonts())
 
+Unprotect(System`SelectedDocument, System`SetSelectedDocument)
+Clear(System`SelectedDocument, System`SetSelectedDocument)
+SelectedDocument()::= FE`CallFrontEnd(FrontEnd`SelectedDocument())
+SelectedDocument(~~args)::= 1 /? (IsValidArgumentCount(SelectedDocument, Length@{args}, 0, 0);False)
+SetSelectedDocument(~doc:FrontEndObject)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc))
+SetSelectedDocument(~~~args)::= 1 /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 1);False)
+Protect(SelectedDocument, SetSelectedDocument)
+
 End()
 
 EndPackage()

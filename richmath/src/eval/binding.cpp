@@ -17,8 +17,6 @@ using namespace richmath;
 
 Hashtable<FrontEndReference, Void> richmath::all_document_ids;
 
-static FrontEndReference current_document_id = FrontEndReference::None;
-
 //{ pmath functions ...
 
 extern pmath_symbol_t richmath_System_BoxData;
@@ -47,6 +45,51 @@ static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
   
   Application::notify(ClientNotification::AddConfigShaper, data);
   return PMATH_NULL;
+}
+
+static pmath_t builtin_callfrontend(pmath_expr_t expr) {
+  /* FE`CallFrontEnd(expr)  ===  FE`CallFrontEnd(expr, True)
+  */
+  size_t exprlen = pmath_expr_length(expr);
+  pmath_t item;
+  bool waiting;
+
+  if(exprlen < 1 || exprlen > 2) {
+    pmath_message_argxxx(exprlen, 1, 2);
+    return expr;
+  }
+  
+  if(exprlen == 2) {
+    item = pmath_expr_get_item(expr, 2);
+    if(pmath_same(item, PMATH_SYMBOL_TRUE)) {
+      pmath_unref(item);
+      waiting = true;
+    }
+    else if(pmath_same(item, PMATH_SYMBOL_FALSE)) {
+      pmath_unref(item);
+      waiting = false;
+    }
+    else {
+      pmath_message(PMATH_NULL, "bool", 1, item);
+      return expr;
+    }
+  }
+  else
+    waiting = true;
+  
+  item = pmath_expr_get_item(expr, 1);
+  pmath_unref(expr);
+  
+  if(Application::is_running_on_gui_thread())
+    return item;
+  
+  if(waiting) {
+    return Application::notify_wait(ClientNotification::CallFrontEnd, Expr{item}).release();
+  }
+  else{
+    Application::notify(ClientNotification::CallFrontEnd, Expr{item});
+    return PMATH_NULL;
+  }
 }
 
 static pmath_t builtin_colordialog(pmath_expr_t _expr) {
@@ -241,16 +284,7 @@ static pmath_t builtin_evaluationdocument(pmath_expr_t expr) {
   return Application::notify_wait(ClientNotification::GetEvaluationDocument, Expr()).release();
 }
 
-static pmath_t builtin_selecteddocument(pmath_expr_t expr) {
-  if(pmath_expr_length(expr) > 0) {
-    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
-    return expr;
-  }
-  
-  pmath_unref(expr);
-  
-  return current_document_id.to_pmath().release();
-}
+extern pmath_t builtin_selecteddocument(pmath_expr_t expr);
 
 //} ... pmath functions
 
@@ -1345,7 +1379,16 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
 
 #define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           PMATH_PRIVATE pmath_symbol_t SYM = PMATH_STATIC_NULL;
 #define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  
+#define RICHMATH_IMPL_GUI(SYM, NAME, CPPFUNC) \
+    extern Expr CPPFUNC(Expr expr); \
+    static pmath_t raw_ ## CPPFUNC(pmath_expr_t expr) { \
+      if(!Application::is_running_on_gui_thread()) \
+        return expr; \
+      return CPPFUNC( Expr{expr} ).release(); \
+    }
+    
 #  include "symbols.inc"
+#undef RICHMATH_IMPL_GUI
 #undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
 #undef RICHMATH_DECLARE_SYMBOL
 
@@ -1400,17 +1443,19 @@ bool richmath::init_bindings() {
   
 #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
 #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)
-  
-#define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           VERIFY( SYM = NEW_SYMBOL(NAME) )
-#define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  pmath_symbol_set_attributes( (SYM), (ATTR) );
-#  include "symbols.inc"
-#undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
-#undef RICHMATH_DECLARE_SYMBOL
 
 #define BIND(SYMBOL, FUNC, USE)  if(!pmath_register_code((SYMBOL), (FUNC), (USE))) goto FAIL;
 #define BIND_DOWN(SYMBOL, FUNC)   BIND((SYMBOL), (FUNC), PMATH_CODE_USAGE_DOWNCALL)
 #define BIND_UP(SYMBOL, FUNC)     BIND((SYMBOL), (FUNC), PMATH_CODE_USAGE_UPCALL)
-  
+    
+#define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           VERIFY( SYM = NEW_SYMBOL(NAME) )
+#define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  pmath_symbol_set_attributes( (SYM), (ATTR) );
+#define RICHMATH_IMPL_GUI(SYM, NAME, CPPFUNC)        BIND_DOWN(SYM, raw_ ## CPPFUNC)
+#  include "symbols.inc"
+#undef RICHMATH_IMPL_GUI
+#undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
+#undef RICHMATH_DECLARE_SYMBOL
+
   BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated)
   
   BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,           builtin_createdocument)
@@ -1431,6 +1476,7 @@ bool richmath::init_bindings() {
   
   BIND_DOWN(richmath_FE_AddConfigShaper,     builtin_addconfigshaper)
   BIND_DOWN(richmath_FE_InternalExecuteFor,  builtin_internalexecutefor)
+  BIND_DOWN(richmath_FE_CallFrontEnd,        builtin_callfrontend)
   BIND_DOWN(richmath_FE_ColorDialog,         builtin_colordialog)
   BIND_DOWN(richmath_FE_FileOpenDialog,      builtin_filedialog)
   BIND_DOWN(richmath_FE_FileSaveDialog,      builtin_filedialog)
@@ -1457,18 +1503,4 @@ void richmath::done_bindings() {
 #  include "symbols.inc"
 #undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
 #undef RICHMATH_DECLARE_SYMBOL
-}
-
-void richmath::set_current_document(Document *document) {
-  if(auto old = get_current_document())
-    old->focus_killed();
-    
-  if(document)
-    document->focus_set();
-    
-  current_document_id = document ? document->id() : FrontEndReference::None;
-}
-
-Document *richmath::get_current_document() {
-  return dynamic_cast<Document *>(Box::find(current_document_id));
 }

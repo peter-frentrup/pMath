@@ -249,6 +249,17 @@ MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 
 Hashtable<Expr, Expr> Application::eval_cache;
 
+bool Application::is_running_on_gui_thread() {
+  if(pmath_atomic_read_aquire(&state) != Running)
+    return false;
+  
+#ifdef PMATH_OS_WIN32
+  return GetCurrentThreadId() == main_thread_id;
+#else
+  return pthread_equal(pthread_self(), main_thread);
+#endif
+}
+
 void Application::notify(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) == Quitting)
     return;
@@ -272,27 +283,13 @@ void Application::notify(ClientNotification type, Expr data) {
 Expr Application::notify_wait(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) != Running)
     return Symbol(PMATH_SYMBOL_FAILED);
-    
-  pmath_t result = PMATH_UNDEFINED;
   
-  if(
-#ifdef PMATH_OS_WIN32
-    GetCurrentThreadId() == main_thread_id
-#else
-    pthread_equal(pthread_self(), main_thread)
-#endif
-  ) {
+  if(is_running_on_gui_thread()) {
     notify(type, data);
     return Symbol(PMATH_SYMBOL_FAILED);
-    
-//    ClientNotificationData cn;
-//    cn.type = type;
-//    cn.data = data;
-//    cn.result_ptr = &result;
-//    execute(cn);
-//    return Expr(result);
-  }
+  }  
   
+  pmath_t result = PMATH_UNDEFINED;
   pmath_atomic_t finished = PMATH_ATOMIC_STATIC_INIT;
   ClientNotificationData cn;
   cn.finished = &finished;
@@ -1440,6 +1437,10 @@ static void cnt_printsection(Expr data) {
   Application::gui_print_section(data);
 }
 
+static Expr cnt_callfrontend(Expr data) {
+  return Evaluate(std::move(data));
+}
+
 static Expr cnt_getdocuments() {
   Gather gather;
   
@@ -1855,6 +1856,13 @@ static void execute(ClientNotificationData &cn) {
       
     case ClientNotification::PrintSection:
       cnt_printsection(cn.data);
+      break;
+    
+    case ClientNotification::CallFrontEnd:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_callfrontend(std::move(cn.data)).release();
+      else
+        cnt_callfrontend(std::move(cn.data));
       break;
       
     case ClientNotification::GetDocuments:

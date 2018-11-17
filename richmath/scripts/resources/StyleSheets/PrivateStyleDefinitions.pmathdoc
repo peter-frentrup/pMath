@@ -10,8 +10,10 @@ Document({
         "Top" -> {Section({"Private StyleDefinitions for ", 
            DynamicBox(
             ToBoxes(With({owner:= CurrentValue("StyleDefinitionsOwner")}, 
-              With({title:= CurrentValue(owner, WindowTitle)}, 
-               If(IsString(title), title, owner)))))}, "Docked")}}, 
+              Button(With({title:= CurrentValue(owner, WindowTitle)}, 
+                If(IsString(title), title, owner)), 
+               CallFrontEnd(FrontEnd`SetSelectedDocument(owner)), 
+               ButtonFrame -> "Frameless"))))}, "Docked")}}, 
        FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
        Visible -> True, WindowFrame -> "Normal", 
        WindowTitle -> Dynamic(

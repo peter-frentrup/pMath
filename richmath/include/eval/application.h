@@ -16,6 +16,7 @@ namespace richmath {
     StartSession,
     EndSession,
     
+    CallFrontEnd,
     GetDocuments,
     MenuCommand,
     AddConfigShaper,
@@ -58,6 +59,8 @@ namespace richmath {
   
   class Application: public Base {
     public:
+      static bool is_running_on_gui_thread();
+      
       static void notify(     ClientNotification type, Expr data); // callable from non-GUI thread
       static Expr notify_wait(ClientNotification type, Expr data); // callable from non-GUI thread
       
