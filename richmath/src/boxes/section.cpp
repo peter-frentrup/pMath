@@ -242,6 +242,13 @@ bool Section::edit_selection(Context *context) {
   return true;
 }
 
+void Section::reset_style() { 
+  if(style) {
+    style->clear(); 
+    style->set(InternalHasPendingDynamic, true);
+  }
+}
+
 //} ... class Section
 
 //{ class ErrorSection ...
