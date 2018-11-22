@@ -16,11 +16,20 @@ MakeStyleDataBoxes(HoldComplete(StyleData(~name:String)))::=
         name
     )
     
-MakeStyleDataBoxes(HoldComplete(StyleData(StyleDefinitions -> ~name:String)))::= 
+Function MakeStyleDataBoxes(HoldComplete(StyleData(StyleDefinitions -> ~name:String))) {
+    With(path:= ToFileName(FE`$StylesheetDirectory, name))
     asStyleDataExampleBox(
-        MakeBoxes(StringForm("Include definitions from stylesheet \"`1`\":", name)),
+        ComplexStringBox(
+            "\"Include definitions from stylesheet \\\"", 
+            TooltipBox(
+                ButtonBox(name, 
+                    ButtonFrame -> "Frameless",
+                    ButtonFunction -> Function(DocumentOpen(path))),
+                ToBoxes @ path),
+            "\\\"\""),
         name
     )
+}
 
 asStyleDataLabelBox(~labelTextBox)::=
     StyleBox(

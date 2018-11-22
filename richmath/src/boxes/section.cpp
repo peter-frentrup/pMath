@@ -764,6 +764,13 @@ Box *StyleDataSection::mouse_selection(
   int   *end,
   bool  *was_inside_start
 ) {
+  Box *box = AbstractSequenceSection::mouse_selection(x, y, start, end, was_inside_start);
+  if(box) {
+    Box *mouse = box->mouse_sensitive();
+    if(mouse && !mouse->is_parent_of(this)) 
+      return box;
+  }
+  
   *was_inside_start = true;
 //  if(_parent) {
 //    *start = _index;
