@@ -119,10 +119,6 @@ static pmath_t builtin_internalexecutefor(pmath_expr_t _expr) {
            FrontEndReference::from_pmath_raw(expr[4])).release();
 }
 
-static pmath_t builtin_createdocument(pmath_expr_t expr) {
-  return Application::notify_wait(ClientNotification::CreateDocument, Expr(expr)).release();
-}
-
 static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
   Expr expr(_expr);
   if(expr.expr_length() != 2) {
@@ -283,8 +279,6 @@ static pmath_t builtin_evaluationdocument(pmath_expr_t expr) {
   
   return Application::notify_wait(ClientNotification::GetEvaluationDocument, Expr()).release();
 }
-
-extern pmath_t builtin_selecteddocument(pmath_expr_t expr);
 
 //} ... pmath functions
 
@@ -1130,49 +1124,10 @@ static bool open_cmd(Expr cmd) {
     return false;
     
   for(size_t i = 1; i <= filenames.expr_length(); ++i) {
-    Document *doc = Application::create_document();
+    Document *doc = Application::open_document(filenames[i]);
     if(!doc)
       continue;
-      
-    String filename(filenames[i]);
-    doc->native()->filename(filename);
     
-    if(filename.part(filename.length() - 9).equals(".pmathdoc")) {
-      Expr held_boxes = Application::interrupt_wait(
-                          Parse("Get(`1`, Head->HoldComplete)", filename),
-                          Application::button_timeout);
-                          
-                          
-      if( held_boxes.expr_length() == 1 &&
-          held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
-          doc->try_load_from_object(held_boxes[1], BoxInputFlags::Default))
-      {
-        if(!doc->selectable())
-          doc->select(nullptr, 0, 0);
-          
-        doc->style->set(Visible,                         true);
-        doc->style->set(InternalHasModifiedWindowOption, true);
-        doc->invalidate_options();
-        doc->native()->bring_to_front();
-        continue;
-      }
-    }
-    
-    ReadableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENREAD), filename)));
-    String s;
-    
-    while(!pmath_aborting() && file.status() == PMATH_FILE_OK) {
-      if(s.is_valid())
-        s += "\n";
-      s += file.readline();
-    }
-    
-    int pos = 0;
-    Expr section_expr = Call(Symbol(richmath_System_Section), s, String("Text"));
-    doc->insert_pmath(&pos, section_expr);
-    
-    doc->style->set(Visible,                         true);
-    doc->style->set(InternalHasModifiedWindowOption, true);
     doc->invalidate_options();
     doc->native()->bring_to_front();
   }
@@ -1458,7 +1413,6 @@ bool richmath::init_bindings() {
 
   BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated)
   
-  BIND_DOWN(PMATH_SYMBOL_CREATEDOCUMENT,           builtin_createdocument)
   BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,             builtin_currentvalue)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTDELETE,           builtin_documentdelete)
@@ -1470,7 +1424,6 @@ bool richmath::init_bindings() {
   BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument)
   BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute)
   BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
-  BIND_DOWN(PMATH_SYMBOL_SELECTEDDOCUMENT,         builtin_selecteddocument)
   
   BIND_UP(richmath_System_FrontEndObject,          builtin_feo_options)
   

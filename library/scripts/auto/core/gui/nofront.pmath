@@ -1,5 +1,6 @@
 Begin("System`Private`")
 
+DocumentOpen(~~~)::=        (Message(DocumentOpen::nofront);       $Failed)
 SelectedDocument(~~~)::=    (Message(SelectedDocument::nofront);   $Failed)
 SetSelectedDocument(~~~)::= (Message(SetSelectedDocument::nofront);$Failed)
 

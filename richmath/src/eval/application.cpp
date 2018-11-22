@@ -1023,8 +1023,57 @@ Document *Application::create_document(Expr data) {
   if(!doc->selectable())
     doc->select(nullptr, 0, 0);
     
-  doc->invalidate_options();
+  //doc->invalidate_options();
   
+  return doc;
+}
+
+Document *Application::open_document(String filename) {
+  if(filename.is_null())
+    return nullptr;
+    
+  Document *doc = Application::create_document();
+  if(!doc)
+    return nullptr;
+    
+  doc->native()->filename(filename);
+  
+  do {
+    if(filename.part(filename.length() - 9).equals(".pmathdoc")) {
+      Expr held_boxes = Application::interrupt_wait(
+                          Parse("Get(`1`, Head->HoldComplete)", filename),
+                          Application::button_timeout);
+                          
+                          
+      if( held_boxes.expr_length() == 1 &&
+          held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
+          doc->try_load_from_object(held_boxes[1], BoxInputFlags::Default))
+      {
+        break;
+      }
+    }
+    
+    ReadableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENREAD), filename)));
+    String s;
+    
+    while(!pmath_aborting() && file.status() == PMATH_FILE_OK) {
+      if(s.is_valid())
+        s += "\n";
+      s += file.readline();
+    }
+    
+    int pos = 0;
+    Expr section_expr = Call(Symbol(richmath_System_Section), s, String("Text"));
+    doc->insert_pmath(&pos, section_expr);
+  } while(false);
+
+  if(!doc->selectable())
+    doc->select(nullptr, 0, 0);
+    
+  doc->style->set(Visible,                         true);
+  doc->style->set(InternalHasModifiedWindowOption, true);
+  //doc->invalidate_options();
+  //doc->native()->bring_to_front();
   return doc;
 }
 
@@ -1555,18 +1604,6 @@ static void cnt_dynamicupate(Expr data) {
   }
 }
 
-static Expr cnt_createdocument(Expr data) {
-  Document *doc = Application::create_document(data);
-  
-  if(doc) {
-    doc->invalidate_options();
-    
-    return doc->id().to_pmath();
-  }
-  
-  return Symbol(PMATH_SYMBOL_FAILED);
-}
-
 static Expr cnt_currentvalue(Expr data) {
   Expr item;
   FrontEndObject *obj = nullptr;
@@ -1892,13 +1929,6 @@ static void execute(ClientNotificationData &cn) {
       
     case ClientNotification::DynamicUpdate:
       cnt_dynamicupate(cn.data);
-      break;
-      
-    case ClientNotification::CreateDocument:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_createdocument(cn.data).release();
-      else
-        cnt_createdocument(cn.data);
       break;
       
     case ClientNotification::CurrentValue:

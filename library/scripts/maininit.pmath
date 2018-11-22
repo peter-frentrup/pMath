@@ -133,7 +133,7 @@ AutoLoad(Hold(Clip),
 	ToFileName({$BaseDirectory, "auto", "core"}, "clip.pmath"))
 AutoLoad(Hold(DynamicLocal, DynamicLocalBox), 
 	ToFileName({$BaseDirectory, "auto", "core", "gui"}, "DynamicLocal.pmath"))
-AutoLoad(Hold(System`SelectedDocument, System`SetSelectedDocument),
+AutoLoad(Hold(System`DocumentOpen, System`SelectedDocument, System`SetSelectedDocument),
 	ToFileName({$BaseDirectory, "auto", "core", "gui"}, "nofront.pmath"))
 AutoLoad(Hold(CubeRoot, Surd),
 	ToFileName({$BaseDirectory, "auto", "core"}, "surd.pmath"))

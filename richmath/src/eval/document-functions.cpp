@@ -21,16 +21,43 @@ Document *richmath::get_current_document() {
   return dynamic_cast<Document *>(Box::find(current_document_id));
 }
 
-// deprecated, any thread:
-pmath_t builtin_selecteddocument(pmath_expr_t expr) {
-  if(pmath_expr_length(expr) > 0) {
-    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
-    return expr;
-  }
+Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
+  /* FrontEnd`CreateDocument({sections...}, options...)
+  */
   
-  pmath_unref(expr);
+  // TODO: respect window-related options (WindowTitle...)
   
-  return current_document_id.to_pmath().release();
+  Document *doc = Application::create_document(expr);
+  
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  if(!doc->selectable())
+    doc->select(nullptr, 0, 0);
+    
+  doc->invalidate_options();
+  
+  return doc->id().to_pmath();
+}
+
+Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
+  /* FrontEnd`DocumentOpen(filename)
+  */
+  
+  if(expr.expr_length() != 1)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  String filename{expr[1]};
+  if(filename.is_null()) 
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  Document *doc = Application::open_document(filename);
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  doc->invalidate_options();
+  doc->native()->bring_to_front();
+  return doc->id().to_pmath();
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {

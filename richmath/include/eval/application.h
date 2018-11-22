@@ -23,7 +23,6 @@ namespace richmath {
     GetOptions,
     SetOptions,
     DynamicUpdate,
-    CreateDocument,
     CurrentValue,
     GetEvaluationDocument,
     DocumentGet,
@@ -110,6 +109,7 @@ namespace richmath {
       */
       static Document *create_document();
       static Document *create_document(Expr data);
+      static Document *open_document(String filename);
       
       static bool is_idle();
       static bool is_running_job_for(Box *box);
