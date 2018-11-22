@@ -530,7 +530,7 @@ namespace {
       }
       
       static SharedPtr<StyleEnumConverter> get_enum_converter(StyleOptionName key) {
-        return _key_to_enum_converter[key];
+        return _key_to_enum_converter[key.to_literal()];
       }
       
     private:
