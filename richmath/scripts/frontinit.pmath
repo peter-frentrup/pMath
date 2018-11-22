@@ -2,6 +2,7 @@
 BeginPackage("FE`", "ExperimentalSyntax`")
 
 $FrontEndDirectory;
+$StylesheetDirectory;
 $MathShapers;
 $FallbackFonts;
 $PrivateStartupFontFiles;
@@ -28,6 +29,8 @@ $NamespacePath:= Prepend($NamespacePath, "FE`")
 $FrontEndDirectory:= DirectoryName($Input)
 Protect($FrontEndDirectory)
 
+$StylesheetDirectory:= ToFileName({FE`$FrontEndDirectory, "resources", "StyleSheets"})
+Protect($StylesheetDirectory)
 
 Options(FileOpenDialog):= Options(FileSaveDialog):= {WindowTitle -> Automatic}
 

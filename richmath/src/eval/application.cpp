@@ -674,7 +674,7 @@ void Application::init() {
   else
     application_directory = application_filename;
     
-  stylesheet_path_base = String(Evaluate(Parse("ToFileName({FE`$FrontEndDirectory,\"resources\",\"StyleSheets\"})")));
+  stylesheet_path_base = String(Evaluate(Parse("FE`$StylesheetDirectory")));
   
   total_time_waited_for_gui = 0.0;
 }
@@ -1028,10 +1028,22 @@ Document *Application::create_document(Expr data) {
   return doc;
 }
 
-Document *Application::open_document(String filename) {
+Document *Application::find_open_document(String filename) {
   if(filename.is_null())
     return nullptr;
-    
+  
+  for(auto &e : all_document_ids.entries()) {
+    Document *doc = FrontEndObject::find_cast<Document>(e.key);
+    if(doc && doc->native()->filename() == filename)
+      return doc;
+  }
+  return nullptr;
+}
+
+Document *Application::open_new_document(String filename) {
+  if(filename.is_null())
+    return nullptr;
+  
   Document *doc = Application::create_document();
   if(!doc)
     return nullptr;
@@ -1334,6 +1346,23 @@ void Application::delay_dynamic_updates(bool delay) {
         feo->dynamic_updated();
     }
   }
+}
+
+String Application::to_absolute_file_name(String filename) {
+  if(filename.is_null())
+    return String();
+  
+  Expr info = Evaluate(Call(Symbol(PMATH_SYMBOL_FILEINFORMATION), filename));
+  if(info[0] == PMATH_SYMBOL_LIST) {
+    size_t len = info.expr_length();
+    for(size_t i = 1; i <= len; ++i) {
+      Expr rule = info[i];
+      if(rule.is_rule() && rule[1] == PMATH_SYMBOL_FILE) 
+        return rule[2];
+    }
+  }
+  
+  return String();
 }
 
 static void cnt_startsession() {

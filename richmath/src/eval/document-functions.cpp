@@ -51,11 +51,18 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
   if(filename.is_null()) 
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  Document *doc = Application::open_document(filename);
-  if(!doc)
+  filename = Application::to_absolute_file_name(filename);
+  if(filename.is_null()) 
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  doc->invalidate_options();
+  Document *doc = Application::find_open_document(filename);
+  if(!doc) {
+    doc = Application::open_new_document(filename);
+    if(!doc)
+      return Symbol(PMATH_SYMBOL_FAILED);
+    
+    doc->invalidate_options();
+  }
   doc->native()->bring_to_front();
   return doc->id().to_pmath();
 }

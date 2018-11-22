@@ -109,7 +109,10 @@ namespace richmath {
       */
       static Document *create_document();
       static Document *create_document(Expr data);
-      static Document *open_document(String filename);
+      
+      // you should have normalized the filename with Application::to_absolute_file_name()
+      static Document *find_open_document(String filename);
+      static Document *open_new_document(String filename);
       
       static bool is_idle();
       static bool is_running_job_for(Box *box);
@@ -133,6 +136,8 @@ namespace richmath {
                     FrontEndReference box);
       
       static void delay_dynamic_updates(bool delay);
+      
+      static String to_absolute_file_name(String filename);
       
     public:
       static double edit_interrupt_timeout;

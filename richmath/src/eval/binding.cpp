@@ -1124,11 +1124,17 @@ static bool open_cmd(Expr cmd) {
     return false;
     
   for(size_t i = 1; i <= filenames.expr_length(); ++i) {
-    Document *doc = Application::open_document(filenames[i]);
-    if(!doc)
-      continue;
+    String filename = filenames[i];
+    // TODO: canonicalize filename
+    Document *doc = Application::find_open_document(filename);
+    if(!doc) {
+      doc = Application::open_new_document(filename);
+      if(!doc)
+        continue;
+      
+      doc->invalidate_options();
+    }
     
-    doc->invalidate_options();
     doc->native()->bring_to_front();
   }
   
