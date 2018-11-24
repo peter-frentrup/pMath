@@ -138,6 +138,8 @@ namespace richmath {
       static void delay_dynamic_updates(bool delay);
       
       static String to_absolute_file_name(String filename);
+      static String extract_directory_path(String *filename);
+      static String get_directory_path(String filename) { return extract_directory_path(&filename); }
       
     public:
       static double edit_interrupt_timeout;

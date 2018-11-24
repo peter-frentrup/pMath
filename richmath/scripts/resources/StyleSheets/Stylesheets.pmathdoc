@@ -9,10 +9,8 @@ Document({
          DefaultReturnCreatedSectionStyle -> Automatic, 
          DockedSections :> {
           "Top" -> {
-           Section({
-             DynamicBox(ToBoxes(StringReplace(CurrentValue("Filename"), 
-                StartOfString ++ Longest(~~~) ++ "/" | $PathnameSeparator -> 
-                 ""))), " Stylesheet"}, "Docked")}}, 
+           Section({DynamicBox(ToBoxes(CurrentValue("DocumentFileName"))), 
+             " Stylesheet"}, "Docked")}}, 
          FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
          Visible -> True, WindowFrame -> "Normal")}, All), 
       SectionGroup({Section(BoxData({"Section", " ", "styles"}), "Section"), 

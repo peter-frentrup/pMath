@@ -67,12 +67,8 @@ CommonDocumentWindow::~CommonDocumentWindow() {
 void CommonDocumentWindow::filename(String new_filename) {
   _filename = new_filename;
   if(new_filename.is_valid()) {
-    int c = new_filename.length();
-    const uint16_t *buf = new_filename.buffer();
-    while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
-      --c;
-      
-    _default_title = new_filename.part(c + 1);
+    _default_title = new_filename;
+    Application::extract_directory_path(&_default_title);
   }
   reset_title();
 }
