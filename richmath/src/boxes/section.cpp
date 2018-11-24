@@ -403,13 +403,14 @@ void AbstractSequenceSection::resize(Context *context) {
 }
 
 void AbstractSequenceSection::paint(Context *context) {
-  update_dynamic_styles(context);
-  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
   ContextState cc(context);
-  cc.begin(style);
+  //cc.begin(style);
+  cc.begin(nullptr);
+  
+  cc.apply_layout_styles(style);
   
   float left_margin = get_style(SectionMarginLeft);
   int   background  = get_style(Background);
@@ -418,6 +419,10 @@ void AbstractSequenceSection::paint(Context *context) {
   float r = get_style(SectionFrameRight);
   float t = get_style(SectionFrameTop);
   float b = get_style(SectionFrameBottom);
+  
+  // TODO: supress request_repaint_all if only non-layout styles changed during update_dynamic_styles()
+  update_dynamic_styles(context);
+  cc.apply_non_layout_styles(style);
   
   if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0) {
     /* Cairo 1.12.2 bug:
@@ -749,6 +754,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
                  Application::button_timeout);
   _content->load_from_object(boxes, opts);
   
+  must_resize = true;
   finish_load_from_object(std::move(expr));
   return true;
 }

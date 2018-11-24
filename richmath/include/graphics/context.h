@@ -96,6 +96,11 @@ namespace richmath {
       // does not change the color:
       void begin(SharedPtr<Style> style);
       
+      void apply_layout_styles(SharedPtr<Style> style);
+      
+      // does not change the color:
+      void apply_non_layout_styles(SharedPtr<Style> style);
+      
       void end();
       
     public:
