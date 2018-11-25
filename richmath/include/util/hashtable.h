@@ -297,8 +297,32 @@ namespace richmath {
           TableFreezer _owner;
       };
       
+      class KeyIterator {
+          friend self_t;
+        private:
+          Iterator<const Entry<K, V>> _entry_iter;
+          
+          KeyIterator(Iterator<const Entry<K, V>> entry_iter)
+            : _entry_iter(entry_iter)
+          {
+          }
+          
+        public:
+          bool operator!=(const KeyIterator &other) const {
+            return _entry_iter != other._entry_iter;
+          }
+          const K &operator*() const {
+            return (*_entry_iter).key;
+          }
+          const KeyIterator &operator++() {
+            ++_entry_iter;
+            return *this;
+          }
+      };
+      
       typedef Iterator<Entry<K, V>> iterator_t;
       typedef Iterator<const Entry<K, V>> const_iterator_t;
+      typedef KeyIterator key_iterator_t;
       
     private:
       void do_change() { 
@@ -497,41 +521,46 @@ namespace richmath {
         memset(table, 0, capacity * sizeof(Entry<K, V> *));
       }
       
-      void remove(const K &key) {
+      // return whether the key existed
+      bool remove(const K &key) {
         unsigned int index = lookup(key);
         do_change();
-        if(is_used(table[index])) {
-          delete table[index];
-          
-          --used_count;
-          table[index] = Deleted();
-        }
+        if(!is_used(table[index])) 
+          return false;
+        
+        delete table[index];
+        
+        --used_count;
+        table[index] = Deleted();
+        return true;
       }
       
-      void set(const K &key, const V &value) {
+      // return whether the key was newly insterted
+      bool set(const K &key, const V &value) {
         V tmp{value};
-        set(key, std::move(tmp));
+        return set(key, std::move(tmp));
       }
       
-      void set(const K &key, V &&value) {
+      // return whether the key was newly insterted
+      bool set(const K &key, V &&value) {
         unsigned int i = lookup(key);
         do_change();
         if(is_used(table[i])) {
           table[i]->value = std::move(value);
+          return false;
         }
-        else {
-          if((nonnull_count + 1) * 3 >= capacity * 2) {
-            resize(2 * nonnull_count);
-            
-            set(key, std::move(value));
-            return;
-          }
+        
+        if((nonnull_count + 1) * 3 >= capacity * 2) {
+          resize(2 * nonnull_count);
           
-          if(table[i] == 0)
-            ++nonnull_count;
-          ++used_count;
-          table[i] = new Entry<K, V>(key, std::move(value));
+          return set(key, std::move(value));
         }
+        
+        if(table[i] == 0)
+          ++nonnull_count;
+        ++used_count;
+        table[i] = new Entry<K, V>(key, std::move(value));
+        return true;
       }
       
       template <typename K2, typename V2, unsigned int (*h2)(const K2 &)>
@@ -587,12 +616,33 @@ namespace richmath {
           HT &_table;
       };
       
+      class KeyEnum {
+        public:
+          KeyEnum(EntryEnum<const self_t, const_iterator_t> entries): _entries(entries) {
+          }
+        
+          KeyIterator begin() const {
+            return KeyIterator(_entries.begin());
+          }
+          
+          KeyIterator end() const {
+            return KeyIterator(_entries.end());
+          }
+          
+        private:
+          EntryEnum<const self_t, const_iterator_t>  _entries;
+      };
+      
       EntryEnum<const self_t, const_iterator_t> entries() const {
         return EntryEnum<const self_t, const_iterator_t> {*this};
       }
       
       EntryEnum<self_t, iterator_t> entries() {
         return EntryEnum<self_t, iterator_t> {*this};
+      }
+      
+      KeyEnum keys() const {
+        return KeyEnum {entries()};
       }
       
       EntryEnum<self_t, MutableIterator> deletable_entries() {
@@ -604,6 +654,13 @@ namespace richmath {
   inline void swap(Hashtable<K, V, h> &lhs, Hashtable<K, V, h> &rhs) {
     lhs.swap(rhs);
   }
+  
+  template<typename K>
+  class Hashset : public Hashtable<K, Void> {
+    public:
+      bool add(const K &key) { return set(key, Void{}); }
+      bool contains(const K &key) { return search(key) != nullptr; }
+  };
 }
 
 #endif // RICHMATH__UTIL__HASHTABLE_H__INCLUDED
