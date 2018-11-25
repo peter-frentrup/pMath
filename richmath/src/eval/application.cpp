@@ -1905,12 +1905,51 @@ namespace {
         
         String stylesheet_name = Stylesheet::name_from_path(filename);
         if(stylesheet_name.is_valid()) {
-          auto stylesheet = Stylesheet::find_registered(stylesheet_name);
-          if(stylesheet)
-            stylesheet->reload(boxes); // TODO: also reload dependent stylesheets and re-layout documents
+          SharedPtr<Stylesheet> stylesheet = Stylesheet::find_registered(stylesheet_name);
+          if(stylesheet) 
+            reload_stylesheet(stylesheet.ptr(), boxes);
         }
         
         return filename;
+      }
+      
+    private:
+      static void reload_stylesheet(Stylesheet *stylesheet, Expr boxes) {
+        assert(stylesheet != nullptr);
+        
+        Hashset<FrontEndReference> done;
+        done.add(stylesheet->id());
+        
+        Array<FrontEndReference> work_list;
+        
+        for(auto &id : stylesheet->enum_users()) 
+          work_list.add(id);
+        
+        stylesheet->reload(boxes);
+        
+        for(int next_index = 0; next_index < work_list.length(); ++next_index) {
+          auto next = work_list[next_index];
+          if(!done.add(next)) 
+            continue;
+          
+          auto feo = FrontEndObject::find(next);
+          if(stylesheet = dynamic_cast<Stylesheet*>(feo)) {
+            for(auto &id : stylesheet->enum_users()) 
+              work_list.add(id);
+              
+            stylesheet->reload();
+          }
+          else if(Document *doc = dynamic_cast<Document*>(feo)){
+            // update document ...
+            
+            doc->style->set(InternalLastStyleDefinitions, Expr());
+            doc->style->set(InternalHasModifiedWindowOption, true);
+            doc->invalidate_options();
+          }
+          else {
+            // ???
+          }
+        }
       }
   };
 }

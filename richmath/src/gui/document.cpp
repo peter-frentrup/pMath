@@ -3647,6 +3647,7 @@ void Document::reset_mouse() {
 void Document::stylesheet(SharedPtr<Stylesheet> new_stylesheet) {
   assert(new_stylesheet);
   if(new_stylesheet != context.stylesheet) {
+    new_stylesheet->add_user(this);
     context.stylesheet = new_stylesheet;
     invalidate_all();
   }
@@ -3658,8 +3659,10 @@ bool Document::load_stylesheet() {
   if(styledef != last_styledef) {
     SharedPtr<Stylesheet> new_stylesheet = Stylesheet::try_load(styledef);
     if(new_stylesheet) {
+      new_stylesheet->add_user(this);
       context.stylesheet = new_stylesheet;
       style->set(InternalLastStyleDefinitions, styledef);
+      invalidate_all();
       return true;
     }
   }

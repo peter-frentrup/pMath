@@ -2172,6 +2172,8 @@ namespace richmath {
       void reload(Expr expr) {
         self.styles.clear();
         self.used_stylesheets.clear();
+        self.users.clear();
+        self._loaded_definition = expr;
         add(expr);
       }
       
@@ -2181,7 +2183,7 @@ namespace richmath {
             // TODO: warn about recursive dependency
             return;
           }
-          currently_loading.set(self._name, Void());
+          currently_loading.add(self._name);
         }
         
         internal_add(expr);
@@ -2193,7 +2195,7 @@ namespace richmath {
       bool update_dynamic(SharedPtr<Style> s, Box *parent);
       
     private:
-      static Hashtable<Expr, Void> currently_loading;
+      static Hashset<Expr> currently_loading;
       
       void internal_add(Expr expr) {
         // TODO: detect stack overflow/infinite recursion
@@ -2251,8 +2253,8 @@ namespace richmath {
           if(expr.expr_length() == 1 && data.is_rule() && data[1] == richmath_System_StyleDefinitions) {
             SharedPtr<Stylesheet> stylesheet = Stylesheet::try_load(data[2]);
             if(stylesheet) {
-              self.used_stylesheets.set(stylesheet, Void{});
-              stylesheet->users.set(&self, Void{});
+              self.used_stylesheets.add(stylesheet);
+              stylesheet->users.add(self.id());
               
               for(auto &other : stylesheet->styles.entries()) {
                 SharedPtr<Style> *mine = self.styles.search(other.key);
@@ -2274,7 +2276,7 @@ namespace richmath {
       Stylesheet &self;
   };
   
-  Hashtable<Expr, Void> StylesheetImpl::currently_loading;
+  Hashset<Expr> StylesheetImpl::currently_loading;
 }
 
 bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
@@ -2337,7 +2339,7 @@ Stylesheet::Stylesheet() : Shareable() {
 Stylesheet::~Stylesheet() {
   users.clear();
   for(auto &e : used_stylesheets.entries())
-    e.key->users.remove(this);
+    e.key->users.remove(id());
   
   used_stylesheets.clear();
   unregister();
@@ -2391,7 +2393,7 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
       stylesheet = new Stylesheet();
       stylesheet->base = Stylesheet::Default->base;
       stylesheet->register_as(expr);
-      stylesheet->add(held_boxes[1]);
+      stylesheet->reload(held_boxes[1]);
       return stylesheet;
     }
     
@@ -2401,7 +2403,7 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
   if(expr[0] == PMATH_SYMBOL_DOCUMENT) {
     SharedPtr<Stylesheet> stylesheet = new Stylesheet();
     stylesheet->base = Stylesheet::Default->base;
-    stylesheet->add(expr);
+    stylesheet->reload(expr);
     return stylesheet;
   }
   
@@ -2419,6 +2421,10 @@ Expr Stylesheet::name_from_path(String filename) {
 
 void Stylesheet::add(Expr expr) {
   StylesheetImpl(*this).add(expr);
+}
+
+void Stylesheet::reload() {
+  reload(_loaded_definition);
 }
 
 void Stylesheet::reload(Expr expr) {

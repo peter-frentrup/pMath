@@ -1,13 +1,12 @@
 #ifndef RICHMATH__UTIL__STYLE_H__INCLUDED
 #define RICHMATH__UTIL__STYLE_H__INCLUDED
 
+#include <util/frontendobject.h>
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
-
 namespace richmath {
-  class FrontEndObject;
   class Box;
   
   Expr color_to_pmath(int color);
@@ -308,7 +307,7 @@ namespace richmath {
       Hashtable<StyleOptionName, Expr>          object_values;
   };
   
-  class Stylesheet: public Shareable {
+  class Stylesheet: public FrontEndObject, public Shareable {
       friend class StylesheetImpl;
     public:
       Stylesheet();
@@ -341,7 +340,19 @@ namespace richmath {
       static SharedPtr<Stylesheet> try_load(Expr expr);
       static Expr name_from_path(String filename);
       void add(Expr expr);
+      void reload();
       void reload(Expr expr);
+      
+      virtual void dynamic_updated() override {}
+      
+      void add_user(FrontEndObject *obj) {
+        assert(obj);
+        users.add(obj->id());
+      }
+      
+      Hashset<FrontEndReference>::KeyEnum enum_users() const {
+        return users.keys();
+      }
       
     public:
       static SharedPtr<Stylesheet> Default;
@@ -349,14 +360,15 @@ namespace richmath {
       Hashtable<String, SharedPtr<Style> > styles;
     
     private:
-      Hashtable<SharedPtr<Stylesheet>, Void> used_stylesheets;
-      mutable Hashtable<Stylesheet*,   Void> users;
+      Hashset<SharedPtr<Stylesheet>> used_stylesheets;
+      mutable Hashset<FrontEndReference> users;
       
     public:
       SharedPtr<Style> base;
       
     private:
       Expr _name;
+      Expr _loaded_definition;
   };
 };
 
