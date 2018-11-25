@@ -657,9 +657,18 @@ namespace richmath {
   
   template<typename K>
   class Hashset : public Hashtable<K, Void> {
+      using KeyIterator = typename Hashtable<K, Void>::KeyIterator;
     public:
-      bool add(const K &key) { return set(key, Void{}); }
-      bool contains(const K &key) { return search(key) != nullptr; }
+      bool add(const K &key) { return this->set(key, Void{}); }
+      bool contains(const K &key) { return this->search(key) != nullptr; }
+      
+      KeyIterator begin() const {
+        return this->keys().begin();
+      }
+      
+      KeyIterator end() const {
+        return this->keys().end();
+      }
   };
 }
 
