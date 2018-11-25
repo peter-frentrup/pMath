@@ -172,7 +172,7 @@ namespace richmath {
       virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }
       
-      virtual bool edit_selection(Context *context) { return false; }
+      virtual bool edit_selection(Context *context) override { return false; }
       virtual bool selectable(int i) override { return i < 0; }
       
       virtual Box *mouse_selection(
