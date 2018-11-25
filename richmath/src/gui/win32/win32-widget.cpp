@@ -418,7 +418,7 @@ bool Win32Widget::register_timed_event(SharedPtr<TimedEvent> event) {
   if(!_hwnd)
     return false;
     
-  animations.set(event, Void());
+  animations.add(event);
   if(!animation_running) {
     animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
     
@@ -1371,25 +1371,19 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 KillTimer(_hwnd, TID_ANIMATE);
                 animation_running = 0;
                 
-                unsigned int count, i;
-                for(count = 0, i = 0; count < animations.size(); ++i) {
-                  if(auto e = animations.entry(i)) {
-                    ++count;
+                for(auto e : animations.deletable_entries()) {
+                  if(e.key->min_wait_seconds <= e.key->timer()) {
+                    auto anim = e.key;
+                    e.delete_self();
+                    anim->execute_event();
+                  }
+                  else if(!animation_running) {
+                    animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
                     
-                    SharedPtr<TimedEvent> te = e->key;
-                    if(te->min_wait_seconds <= te->timer()) {
-                      animations.remove(te);
-                      
-                      te->execute_event();
-                    }
-                    else if(!animation_running) {
-                      animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
-                      
-                      if(!animation_running) {
-                        animations.remove(te);
-                        
-                        te->execute_event();
-                      }
+                    if(!animation_running) {
+                      auto anim = e.key;
+                      e.delete_self();
+                      anim->execute_event();
                     }
                   }
                 }

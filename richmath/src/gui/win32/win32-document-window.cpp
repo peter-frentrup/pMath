@@ -624,7 +624,7 @@ void Win32DocumentWindow::after_construction() {
     InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
   }
   
-  all_document_ids.set(document()->id(), Void());
+  all_document_ids.add(document()->id());
   if(get_current_document() == 0) {
     set_current_document(document());
   }

@@ -339,8 +339,8 @@ static void init_stylesheet() {
 }
 
 static bool have_visible_documents() {
-  for(const auto &e : all_document_ids.entries()) {
-    Document *doc = FrontEndObject::find_cast<Document>(e.key);
+  for(const auto id : all_document_ids.keys()) {
+    Document *doc = FrontEndObject::find_cast<Document>(id);
     
     assert(doc);
     

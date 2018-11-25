@@ -17,7 +17,7 @@ namespace richmath {
         start_time = pmath_tickcount();
       }
       
-      double timer() {
+      double timer() const {
         return pmath_tickcount() - start_time;
       }
       

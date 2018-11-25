@@ -15,7 +15,7 @@
 
 using namespace richmath;
 
-Hashtable<FrontEndReference, Void> richmath::all_document_ids;
+Hashset<FrontEndReference> richmath::all_document_ids;
 
 //{ pmath functions ...
 

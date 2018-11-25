@@ -350,7 +350,7 @@ static bool snap_inside(
 
 struct snap_info_t {
   HWND src;
-  Hashtable<HWND, Void> *dont_snap;
+  Hashset<HWND> *dont_snap;
 
   const RECT  *orig_rect;
   const POINT *orig_pt;
@@ -387,7 +387,7 @@ static BOOL CALLBACK snap_monitor(
 static BOOL CALLBACK snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct snap_info_t *info = (struct snap_info_t *)lParam;
 
-  if(hwnd != info->src && IsWindowVisible(hwnd) && !info->dont_snap->search(hwnd)) {
+  if(hwnd != info->src && IsWindowVisible(hwnd) && !info->dont_snap->contains(hwnd)) {
     RECT rect;
     get_snap_rect(hwnd, &rect);
     
@@ -449,31 +449,26 @@ void BasicWin32Window::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
     (LPARAM)&info);
 
   EnumThreadWindows(GetCurrentThreadId(), snap_hwnd, (LPARAM)&info);
+  
+  for(auto hwnd : all_snappers.keys()) {
+    RECT rect;
+    get_snap_rect(hwnd, &rect);
+    rect.left -=   old_dx;
+    rect.right -=  old_dx;
+    rect.top -=    old_dy;
+    rect.bottom -= old_dy;
+    
+    info.orig_rect = &rect;
 
-  unsigned int i, count;
-  for(i = count = 0; count < all_snappers.size(); ++i) {
-    if(auto e = all_snappers.entry(i)) {
-      ++count;
+    EnumDisplayMonitors(
+      nullptr,
+      nullptr,
+      snap_monitor,
+      (LPARAM)&info);
 
-      RECT rect;
-      get_snap_rect(e->key, &rect);
-      rect.left -=   old_dx;
-      rect.right -=  old_dx;
-      rect.top -=    old_dy;
-      rect.bottom -= old_dy;
-      
-      info.orig_rect = &rect;
-
-      EnumDisplayMonitors(
-        nullptr,
-        nullptr,
-        snap_monitor,
-        (LPARAM)&info);
-
-      EnumThreadWindows(GetCurrentThreadId(), snap_hwnd, (LPARAM)&info);
-    }
+    EnumThreadWindows(GetCurrentThreadId(), snap_hwnd, (LPARAM)&info);
   }
-
+  
   snapping_rect->left +=   snap_correction_x;
   snapping_rect->right +=  snap_correction_x;
   snapping_rect->top +=    snap_correction_y;
@@ -489,7 +484,7 @@ struct find_snap_info_t {
   HWND dst;
   RECT dst_rect;
   int min_level;
-  Hashtable<HWND, Void> *snappers;
+  Hashset<HWND> *snappers;
 };
 
 BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
@@ -507,14 +502,14 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
 
     if(rect.left == info->dst_rect.right || rect.right == info->dst_rect.left) {
       if(rect.bottom > info->dst_rect.top && rect.top < info->dst_rect.bottom) {
-        info->snappers->set(hwnd, Void());
+        info->snappers->add(hwnd);
         return TRUE;
       }
     }
 
     if(rect.top == info->dst_rect.bottom || rect.bottom == info->dst_rect.top) {
       if(rect.right > info->dst_rect.left && rect.left < info->dst_rect.right) {
-        info->snappers->set(hwnd, Void());
+        info->snappers->add(hwnd);
         return TRUE;
       }
     }
@@ -533,7 +528,7 @@ void BasicWin32Window::find_all_snappers() {
   get_snap_rect(info.dst, &info.dst_rect);
   info.snappers = &all_snappers;
 
-  all_snappers.set(_hwnd, Void());
+  all_snappers.add(_hwnd);
 
   EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
 
@@ -541,18 +536,14 @@ void BasicWin32Window::find_all_snappers() {
   for(int rep = 1; rep < 5 && found < all_snappers.size(); ++rep) {
     found = all_snappers.size();
 
-    Hashtable<HWND, Void> more_snappers;
+    Hashset<HWND> more_snappers;
+    
+    for(auto hwnd : all_snappers.keys()) {
+      info.dst = hwnd;
+      get_snap_rect(info.dst, &info.dst_rect);
+      info.snappers = &more_snappers;
 
-    for(unsigned i = 0, count = 0; count < all_snappers.size(); ++i) {
-      if(auto e = all_snappers.entry(i)) {
-        ++count;
-
-        info.dst = e->key;
-        get_snap_rect(info.dst, &info.dst_rect);
-        info.snappers = &more_snappers;
-
-        EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
-      }
+      EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
     }
 
     all_snappers.merge(more_snappers);
@@ -563,23 +554,18 @@ void BasicWin32Window::find_all_snappers() {
 
 HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, int dx, int dy) {
   if(dx != 0 || dy != 0) {
-    unsigned int i, count;
-    for(i = count = 0; count < all_snappers.size(); ++i) {
-      if(auto e = all_snappers.entry(i)) {
-        ++count;
+    for(auto hwnd : all_snappers.keys()) {
+      RECT rect;
+      GetWindowRect(hwnd, &rect);
 
-        RECT rect;
-        GetWindowRect(e->key, &rect);
-
-        hdwp = tryDeferWindowPos(
-                 hdwp,
-                 e->key,
-                 nullptr,
-                 rect.left + dx,
-                 rect.top + dy,
-                 0, 0,
-                 SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
-      }
+      hdwp = tryDeferWindowPos(
+               hdwp,
+               hwnd,
+               nullptr,
+               rect.left + dx,
+               rect.top + dy,
+               0, 0,
+               SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
     }
   }
 

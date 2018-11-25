@@ -124,7 +124,7 @@ static Hashtable<Expr, bool              ( *)(Expr)>                  menu_comma
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                  menu_command_testers;
 static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)> currentvalue_providers;
 
-static Hashtable<FrontEndReference, Void> pending_dynamic_updates;
+static Hashset<FrontEndReference> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
 static bool dynamic_update_delay_timer_active = false;
 static double last_dynamic_evaluation = 0.0;
@@ -605,10 +605,10 @@ static void update_control_active(bool value) {
   }
 }
 
-static Hashtable<FrontEndReference, Void> active_controls;
+static Hashset<FrontEndReference> active_controls;
 
 void Application::activated_control(Box *box) {
-  active_controls.set(box->id(), Void());
+  active_controls.add(box->id());
   
   update_control_active(true);
 }
@@ -1030,8 +1030,8 @@ Document *Application::find_open_document(String filename) {
   if(filename.is_null())
     return nullptr;
   
-  for(auto &e : all_document_ids.entries()) {
-    Document *doc = FrontEndObject::find_cast<Document>(e.key);
+  for(auto id : all_document_ids.keys()) {
+    Document *doc = FrontEndObject::find_cast<Document>(id);
     if(doc && doc->native()->filename() == filename)
       return doc;
   }
@@ -1338,8 +1338,8 @@ void Application::delay_dynamic_updates(bool delay) {
   if(!delay) {
     decltype(pending_dynamic_updates)  old_pending;
     swap(pending_dynamic_updates, old_pending);
-    for(auto &e : old_pending.entries()) {
-      auto feo = FrontEndObject::find(e.key);
+    for(auto id : old_pending) {
+      auto feo = FrontEndObject::find(id);
       if(feo)
         feo->dynamic_updated();
     }
@@ -1500,8 +1500,8 @@ static void cnt_end(Expr data) {
   }
   
   if(!more) {
-    for(auto &e : all_document_ids.entries()) {
-      Document *doc = FrontEndObject::find_cast<Document>(e.key);
+    for(auto id : all_document_ids.keys()) {
+      Document *doc = FrontEndObject::find_cast<Document>(id);
       
       assert(doc);
       
@@ -1540,8 +1540,8 @@ static Expr cnt_callfrontend(Expr data) {
 static Expr cnt_getdocuments() {
   Gather gather;
   
-  for(auto &e : all_document_ids.entries())
-    Gather::emit(e.key.to_pmath());
+  for(auto id : all_document_ids.keys())
+    Gather::emit(id.to_pmath());
     
   return gather.end();
 }
@@ -1623,7 +1623,7 @@ static void cnt_dynamicupate(Expr data) {
       auto ref = FrontEndReference::from_pmath_raw(data[i]);
       auto obj = FrontEndObject::find(ref);
       if(obj)
-        pending_dynamic_updates.set(obj->id(), Void());
+        pending_dynamic_updates.add(obj->id());
     }
     
     if(need_timer && !dynamic_update_delay_timer_active) {
@@ -1933,7 +1933,7 @@ namespace {
             continue;
           
           auto feo = FrontEndObject::find(next);
-          if(stylesheet = dynamic_cast<Stylesheet*>(feo)) {
+          if((stylesheet = dynamic_cast<Stylesheet*>(feo)) != nullptr) {
             for(auto &id : stylesheet->enum_users()) 
               work_list.add(id);
               

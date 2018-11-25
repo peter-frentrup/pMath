@@ -25,7 +25,7 @@ namespace richmath {
   Document *get_current_document();
   
   // toplevel windows must register themselves!
-  extern Hashtable<FrontEndReference, Void> all_document_ids;
+  extern Hashset<FrontEndReference> all_document_ids;
 }
 
 #endif // RICHMATH__EVAL__BINDING_H__INCLUDED

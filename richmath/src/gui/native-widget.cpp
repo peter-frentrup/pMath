@@ -314,8 +314,6 @@ Document *NativeWidget::stylesheet_document() {
 }
 
 bool NativeWidget::stylesheet_document(Document *doc) {
-  FrontEndReference doc_id = doc->id();
-  
   if(_owner_document)
     return false;
   

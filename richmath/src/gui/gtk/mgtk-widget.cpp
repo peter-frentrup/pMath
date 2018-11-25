@@ -39,25 +39,19 @@ using namespace richmath;
 
 #define ANIMATION_DELAY  (50)
 static bool animation_running = false;
-Hashtable<SharedPtr<TimedEvent>, Void> animations;
+Hashset<SharedPtr<TimedEvent>> animations;
 
 static gboolean animation_timeout(gpointer data) {
   animation_running = false;
   
-  unsigned int count, i;
-  for(count = 0, i = 0; count < animations.size(); ++i) {
-    if(auto e = animations.entry(i)) {
-      ++count;
-      
-      SharedPtr<TimedEvent> te = e->key;
-      if(te->min_wait_seconds <= te->timer()) {
-        animations.remove(te);
-        
-        te->execute_event();
-      }
-      else
-        animation_running = true;
+  for(auto e : animations.deletable_entries()) {
+    if(e.key->min_wait_seconds <= e.key->timer()) {
+      auto anim = e.key;
+      e.delete_self();
+      anim->execute_event();
     }
+    else
+      animation_running = true;
   }
   
   return animation_running; // continue ?
@@ -402,7 +396,7 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
   if(!_widget)
     return false;
     
-  animations.set(event, Void());
+  animations.add(event);
   if(!animation_running) {
     animation_running = 0 < gdk_threads_add_timeout(ANIMATION_DELAY, animation_timeout, nullptr);
     

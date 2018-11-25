@@ -419,10 +419,6 @@ void ContextState::apply_non_layout_styles(SharedPtr<Style> style) {
     return;
   
   int i;
-  float f;
-  String s;
-  Expr expr;
-  
   if(ctx->stylesheet->get(style, Antialiasing, &i)) {
     old_antialiasing = cairo_get_antialias(ctx->canvas->cairo());
     switch(i) {

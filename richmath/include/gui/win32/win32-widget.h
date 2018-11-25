@@ -99,7 +99,7 @@ namespace richmath {
       
       float gesture_zoom_factor;
       
-      Hashtable<SharedPtr<TimedEvent>, Void> animations;
+      Hashset<SharedPtr<TimedEvent>> animations;
       bool animation_running;
       bool is_dragging;
       bool is_drop_over;

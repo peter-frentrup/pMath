@@ -24,7 +24,7 @@ namespace richmath {
 namespace {
   class FrontEndObjectCache {
     public:
-      Hashtable<FrontEndReference, Void> table;
+      Hashset<FrontEndReference> table;
   };
   
   static int NiftyFrontEndObjectInitializerCounter; // zero initialized at load time
@@ -98,7 +98,7 @@ FrontEndObject::FrontEndObject()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  TheCache.table.set(id(), Void{});
+  TheCache.table.add(id());
 }
 
 FrontEndObject::~FrontEndObject() {
@@ -106,7 +106,7 @@ FrontEndObject::~FrontEndObject() {
 }
 
 FrontEndObject *FrontEndObject::find(FrontEndReference id) {
-  if(TheCache.table.search(id))
+  if(TheCache.table.contains(id))
     return static_cast<FrontEndObject*>(FrontEndReference::unsafe_cast_to_pointer(id));
   return nullptr;
 }

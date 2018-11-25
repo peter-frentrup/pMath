@@ -162,7 +162,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     String alias_prefix = String::FromChar(PMATH_CHAR_ALIASDELIMITER);
     alias = alias_prefix + alias;
     
-    Hashtable<Expr, Void> used;
+    Hashset<Expr> used;
     
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
@@ -171,18 +171,14 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
         continue;
         
       if(Expr *macro = global_immediate_macros.search(item)) {
-        if(!used.search(*macro)) {
-          used.set(*macro, Void());
+        if(used.add(*macro)) 
           Gather::emit(*macro);
-        }
         continue;
       }
       
       if(Expr *macro = global_macros.search(item)) {
-        if(!used.search(*macro)) {
-          used.set(*macro, Void());
+        if(used.add(*macro)) 
           Gather::emit(*macro);
-        }
         continue;
       }
       

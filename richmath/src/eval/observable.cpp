@@ -7,8 +7,8 @@ using namespace pmath;
 
 //{ class Observable ...
 
-static Hashtable<Observable*, Expr>                                 all_observers;
-static Hashtable<FrontEndReference, Hashtable<Observable*, Void> >  all_observed_values;
+static Hashtable<Observable*, Expr>                         all_observers;
+static Hashtable<FrontEndReference, Hashset<Observable*> >  all_observed_values;
 
 Observable::Observable()
   : Base()
@@ -45,7 +45,7 @@ void Observable::register_observer(FrontEndReference id) {
   
   auto observed = all_observed_values.search(id);
   if(!observed) {
-    all_observed_values.set(id, Hashtable<Observable*, Void> {});
+    all_observed_values.set(id, Hashset<Observable*> {});
     observed = all_observed_values.search(id);
     HASHTABLE_ASSERT(observed != nullptr);
   }
@@ -53,7 +53,7 @@ void Observable::register_observer(FrontEndReference id) {
   if(known)
     return;
   
-  observed->set(this, Void{});
+  observed->add(this);
   
   Expr id_obj = id.to_pmath_raw();
   
