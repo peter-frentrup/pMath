@@ -1,6 +1,6 @@
-#include <pmath-util/messages.h>
+#include <pmath-core/expressions.h>
 
-#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-util/messages.h>
 
 
 PMATH_PRIVATE pmath_t builtin_through(pmath_expr_t expr) {

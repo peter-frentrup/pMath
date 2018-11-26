@@ -361,7 +361,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
       return PMATH_NULL;
     }
     
-    new_symbol->name        = pmath_ref(name);
+    new_symbol->name        = _pmath_string_set_debug_info(pmath_ref(name), PMATH_NULL);
     new_symbol->lock        = NULL;
     new_symbol->attributes  = 0;
     new_symbol->value._data = PMATH_UNDEFINED;
@@ -469,7 +469,7 @@ PMATH_API pmath_symbol_t pmath_symbol_create_temporary(
     
     //new_symbol->last_update = (uintptr_t)global_update_counter;
     new_symbol->lock        = NULL;
-    new_symbol->name        = name;
+    new_symbol->name        = _pmath_string_set_debug_info(name, PMATH_NULL);
     new_symbol->attributes  = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
     new_symbol->value._data = PMATH_UNDEFINED;
     pmath_atomic_write_release(&new_symbol->rules, 0);
@@ -840,17 +840,11 @@ pmath_bool_t _pmath_symbol_assign_value(
         pmath_ht_obj_class.entry_destructor(parent_entry);
     }
     
-    _pmath_symbol_define_value_pos(
-      (pmath_locked_t *)&entry->value,
-      lhs,
-      rhs);
+    if(!_pmath_symbol_define_value_pos((pmath_locked_t *)&entry->value, lhs, rhs))
+      return TRUE;
   }
-  else {
-    _pmath_symbol_define_value_pos(
-      &sym_ptr->value,
-      lhs,
-      rhs);
-  }
+  else if(!_pmath_symbol_define_value_pos(&sym_ptr->value, lhs, rhs))
+    return TRUE;
   
   sym_ptr->inherited.inherited.last_change = _pmath_timer_get_next();
   if(pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, 0) != 0)

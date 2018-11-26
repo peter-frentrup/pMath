@@ -1,8 +1,9 @@
-#ifndef __UTIL__ARRAY_H__
-#define __UTIL__ARRAY_H__
+#ifndef RICHMATH__UTIL__ARRAY_H__INCLUDED
+#define RICHMATH__UTIL__ARRAY_H__INCLUDED
 
 #include <cassert>
 #include <cstring>
+#include <utility>
 
 #define ARRAY_ASSERT(a) \
   do{if(!(a)){ \
@@ -158,20 +159,36 @@ namespace richmath {
         return _items[i];
       }
       
-      Array<T> &set(int i, const T &t) {
+      template<class S>
+      Array<T> &set(int i, const S &t) {
         ARRAY_ASSERT(i >= 0);
         ARRAY_ASSERT(i < _length);
         _items[i] = t;
         return *this;
       }
       
-      Array<T> &add(const T &t) {
+      Array<T> &set(int i, T &&t) {
+        ARRAY_ASSERT(i >= 0);
+        ARRAY_ASSERT(i < _length);
+        _items[i] = std::move(t);
+        return *this;
+      }
+      
+      template<class S>
+      Array<T> &add(const S &t) {
         length(_length + 1);
         _items[_length - 1] = t;
         return *this;
       }
       
-      Array<T> &add(int inslen, const T *insitems) {
+      Array<T> &add(T &&t) {
+        length(_length + 1);
+        _items[_length - 1] = std::move(t);
+        return *this;
+      }
+      
+      template<class S>
+      Array<T> &add(int inslen, const S *insitems) {
         ARRAY_ASSERT(inslen >= 0);
         length(_length + inslen);
         for(int i = 0; i < inslen; ++i)
@@ -194,7 +211,8 @@ namespace richmath {
         return *this;
       }
       
-      Array<T> &insert(int start, int inslen, const T *insitems) {
+      template<class S>
+      Array<T> &insert(int start, int inslen, const S *insitems) {
         ARRAY_ASSERT(start >= 0);
         ARRAY_ASSERT(start <= _length);
         ARRAY_ASSERT(inslen >= 0);
@@ -259,4 +277,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__ARRAY_H__
+#endif // RICHMATH__UTIL__ARRAY_H__INCLUDED

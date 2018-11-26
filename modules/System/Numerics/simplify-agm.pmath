@@ -1,0 +1,20 @@
+BeginPackage("System`Numerics`Zeta`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyArithmeticGeometricMean
+
+Begin("System`Numerics`AGM`Private`")
+
+%
+% If direct (numerical) calculation of ArithmeticGeometricMean(a, b) is not possible (because s is
+% an expression or an exact number), then
+% System`Private`AutoSimplifyArithmeticGeometricMean(ArithmeticGeometricMean, a, b) gets called.
+% If that returns $Failed, the original expression ArithmeticGeometricMean(a, b) remains unevaluated. 
+% Otherwise, the result of AutoSimplifyArithmeticGeometricMean will be returned.
+%
+System`Private`AutoSimplifyArithmeticGeometricMean(~~~):= $Failed
+
+End()
+
+EndPackage()

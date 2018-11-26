@@ -10,6 +10,11 @@
 
 #include <util/spanexpr.h>
 
+extern pmath_symbol_t richmath_FE_AutoCompleteName;
+extern pmath_symbol_t richmath_FE_AutoCompleteFile;
+extern pmath_symbol_t richmath_FE_AutoCompleteOther;
+
+extern pmath_symbol_t richmath_System_ComplexStringBox;
 
 using namespace richmath;
 
@@ -144,7 +149,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
   
   expr = Application::interrupt_wait_cached(
            Call(
-             GetSymbol(FESymbolIndex::AutoCompleteOther),
+             Symbol(richmath_FE_AutoCompleteOther),
              expr,
              alias),
            Application::button_timeout);
@@ -157,7 +162,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     String alias_prefix = String::FromChar(PMATH_CHAR_ALIASDELIMITER);
     alias = alias_prefix + alias;
     
-    Hashtable<Expr, Void> used;
+    Hashset<Expr> used;
     
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
@@ -166,18 +171,14 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
         continue;
         
       if(Expr *macro = global_immediate_macros.search(item)) {
-        if(!used.search(*macro)) {
-          used.set(*macro, Void());
+        if(used.add(*macro)) 
           Gather::emit(*macro);
-        }
         continue;
       }
       
       if(Expr *macro = global_macros.search(item)) {
-        if(!used.search(*macro)) {
-          used.set(*macro, Void());
+        if(used.add(*macro)) 
           Gather::emit(*macro);
-        }
         continue;
       }
       
@@ -269,7 +270,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       str = seq->text();
       expr = Application::interrupt_wait_cached(
                Call(
-                 GetSymbol(FESymbolIndex::AutoCompleteFile),
+                 Symbol(richmath_FE_AutoCompleteFile),
                  str),
                Application::button_timeout);
                
@@ -381,7 +382,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
            Symbol(PMATH_SYMBOL_TRY),
            Call(
              Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
-             Call(Symbol(PMATH_SYMBOL_COMPLEXSTRINGBOX), str)));
+             Call(Symbol(richmath_System_ComplexStringBox), str)));
   expr = Evaluate(expr);
   if(expr.expr_length() != 1 || expr[0] != PMATH_SYMBOL_HOLDCOMPLETE)
     return false;
@@ -392,7 +393,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
     
   expr = Application::interrupt_wait_cached(
            Call(
-             GetSymbol(FESymbolIndex::AutoCompleteFile),
+             Symbol(richmath_FE_AutoCompleteFile),
              str),
            Application::button_timeout);
            
@@ -406,7 +407,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       return false;
       
     Expr boxes = Evaluate(Call(Symbol(PMATH_SYMBOL_MAKEBOXES), s));
-    if(boxes.expr_length() != 1 || boxes[0] != PMATH_SYMBOL_COMPLEXSTRINGBOX)
+    if(boxes.expr_length() != 1 || boxes[0] != richmath_System_ComplexStringBox)
       return false;
       
     s = String(boxes[1]);
@@ -452,7 +453,7 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
   String text = span->as_text();
   current_boxes_list = Application::interrupt_wait_cached(
                          Call(
-                           GetSymbol(FESymbolIndex::AutoCompleteName),
+                           Symbol(richmath_FE_AutoCompleteName),
                            text),
                          Application::button_timeout);
                          

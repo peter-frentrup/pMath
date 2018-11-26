@@ -11,6 +11,8 @@
 
 static const int max_message_count = 3;
 
+extern pmath_symbol_t pmath_System_Colon;
+
 PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg) {
 //  return pmath_equals(msg, _pmath_object_newsym_message);
   if(!pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2))
@@ -79,8 +81,12 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   pmath_t name;
   pmath_string_t text;
   pmath_bool_t stop_msg = FALSE;
-  pmath_thread_t thread;
-  
+  pmath_thread_t thread = pmath_thread_get_current();
+  intptr_t old_dynamic_id;
+
+  if(!thread)
+    return expr;
+
   if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, SIZE_MAX);
     return expr;
@@ -94,14 +100,19 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
     return PMATH_NULL;
   }
   
+  old_dynamic_id = thread->current_dynamic_id;
   if(!pmath_equals(_pmath_object_stop_message, name)) {
-    pmath_t count = pmath_evaluate(
+    pmath_t count;
+    
+    thread->current_dynamic_id = 0;
+    count = pmath_evaluate(
                       pmath_expr_new_extended(
                         pmath_ref(PMATH_SYMBOL_INCREMENT), 1,
                         pmath_expr_new_extended(
                           pmath_ref(PMATH_SYMBOL_MESSAGECOUNT), 1,
                           pmath_ref(name))));
-                          
+    thread->current_dynamic_id = old_dynamic_id;
+
     if(pmath_is_int32(count)) {
       long cnt = PMATH_AS_INT32(count);
       
@@ -118,8 +129,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
     pmath_unref(count);
   }
   
-  thread = pmath_thread_get_current();
-  if(thread && thread->critical_messages) {
+  if(thread->critical_messages) {
     pmath_t throw_tag = pmath_evaluate(
                           pmath_expr_new_extended(
                             pmath_ref(PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG), 1,
@@ -183,7 +193,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
            pmath_ref(PMATH_SYMBOL_ROW), 1,
            expr);
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_COLON), 2,
+           pmath_ref(pmath_System_Colon), 2,
            pmath_expr_new_extended(
              pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
              pmath_ref(name)),

@@ -1,6 +1,7 @@
-#ifndef __EVAL__JOB_H__
-#define __EVAL__JOB_H__
+#ifndef RICHMATH__EVAL__JOB_H__INCLUDED
+#define RICHMATH__EVAL__JOB_H__INCLUDED
 
+#include <util/frontendobject.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
@@ -13,13 +14,13 @@ namespace richmath {
   
   class EvaluationPosition {
     public:
-      EvaluationPosition(int _doc, int _sect, int _box);
-      explicit EvaluationPosition(Box *box = 0);
+      EvaluationPosition(FrontEndReference _doc, FrontEndReference _sect, FrontEndReference _box);
+      explicit EvaluationPosition(Box *box = nullptr);
       
     public:
-      int document_id;
-      int section_id;
-      int box_id;
+      FrontEndReference document_id;
+      FrontEndReference section_id;
+      FrontEndReference box_id;
   };
   
   class Job: public Shareable {
@@ -59,7 +60,7 @@ namespace richmath {
   
   class EvaluationJob: public InputJob {
     public:
-      explicit EvaluationJob(Expr expr, Box *box = 0);
+      explicit EvaluationJob(Expr expr, Box *box = nullptr);
       
       virtual bool start() override;
       virtual void end() override;
@@ -77,8 +78,8 @@ namespace richmath {
       virtual void returned(Expr expr) override;
       
     protected:
-      Expr _info;
-      int old_eval_id;
+      Expr              _info;
+      FrontEndReference old_eval_id;
   };
   
   class ReplacementJob: public InputJob {
@@ -99,4 +100,4 @@ namespace richmath {
   };
 }
 
-#endif // __EVAL__JOB_H__
+#endif // RICHMATH__EVAL__JOB_H__INCLUDED

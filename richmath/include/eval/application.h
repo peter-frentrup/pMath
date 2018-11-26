@@ -1,6 +1,7 @@
-#ifndef __EVAL__CLIENT_H__
-#define __EVAL__CLIENT_H__
+#ifndef RICHMATH__EVAL__APPLICATION_H__INCLUDED
+#define RICHMATH__EVAL__APPLICATION_H__INCLUDED
 
+#include <util/frontendobject.h>
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
@@ -15,13 +16,13 @@ namespace richmath {
     StartSession,
     EndSession,
     
+    CallFrontEnd,
     GetDocuments,
     MenuCommand,
     AddConfigShaper,
     GetOptions,
     SetOptions,
     DynamicUpdate,
-    CreateDocument,
     CurrentValue,
     GetEvaluationDocument,
     DocumentGet,
@@ -45,14 +46,25 @@ namespace richmath {
       bool checked;
   };
   
+  enum class MenuCommandScope {
+    Selection,
+    Document
+  };
+  
+  class FrontEndObject;
   class Box;
   class Document;
   class Job;
   
   class Application: public Base {
     public:
+      static bool is_running_on_gui_thread();
+      
       static void notify(     ClientNotification type, Expr data); // callable from non-GUI thread
       static Expr notify_wait(ClientNotification type, Expr data); // callable from non-GUI thread
+      
+      static Expr current_value(Expr item);
+      static Expr current_value(FrontEndObject *obj, Expr item);
       
       static void run_menucommand(Expr cmd) { // callable from non-GUI thread
         notify(ClientNotification::MenuCommand, cmd);
@@ -66,7 +78,11 @@ namespace richmath {
       static void register_menucommand(
         Expr cmd,
         bool              (*func)(Expr cmd),
-        MenuCommandStatus (*test)(Expr cmd) = 0);
+        MenuCommandStatus (*test)(Expr cmd) = nullptr);
+      
+      static bool register_currentvalue_provider(
+        Expr   item,
+        Expr (*func)(FrontEndObject *obj, Expr item));
         
       static void gui_print_section(Expr expr);
       //static void update_control_active(bool value);
@@ -94,6 +110,10 @@ namespace richmath {
       static Document *create_document();
       static Document *create_document(Expr data);
       
+      // you should have normalized the filename with Application::to_absolute_file_name()
+      static Document *find_open_document(String filename);
+      static Document *open_new_document(String filename);
+      
       static bool is_idle();
       static bool is_running_job_for(Box *box);
       
@@ -109,9 +129,17 @@ namespace richmath {
       static Expr interrupt_wait_for(Expr expr, Box *box);
       
       // callable from non-gui thread:
-      static Expr internal_execute_for(Expr expr, int doc, int sect, int box);
+      static Expr internal_execute_for(
+                    Expr              expr, 
+                    FrontEndReference doc, 
+                    FrontEndReference sect, 
+                    FrontEndReference box);
       
       static void delay_dynamic_updates(bool delay);
+      
+      static String to_absolute_file_name(String filename);
+      static String extract_directory_path(String *filename);
+      static String get_directory_path(String filename) { return extract_directory_path(&filename); }
       
     public:
       static double edit_interrupt_timeout;
@@ -121,8 +149,10 @@ namespace richmath {
       static double min_dynamic_update_interval;
       static String application_filename;
       static String application_directory; // without trailing (back)slash
+      static String stylesheet_path_base; // includes trailing (back)slash
+      static MenuCommandScope menu_command_scope;
       
-      static Hashtable<Expr, Expr, object_hash> eval_cache;
+      static Hashtable<Expr, Expr> eval_cache;
       
     private:
       Application()
@@ -133,4 +163,4 @@ namespace richmath {
   };
 }
 
-#endif // __EVAL__CLIENT_H__
+#endif // RICHMATH__EVAL__APPLICATION_H__INCLUDED

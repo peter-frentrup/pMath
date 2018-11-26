@@ -1,8 +1,9 @@
-#ifndef __PMATH__EVAL__DYNAMIC_H__
-#define __PMATH__EVAL__DYNAMIC_H__
+#ifndef __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
+#define __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
 
 #include <boxes/box.h>
 
+extern pmath_symbol_t richmath_System_Dynamic;
 
 namespace richmath {
   class Dynamic: public Base {
@@ -24,13 +25,13 @@ namespace richmath {
       Expr expr() {  return _expr;  }
       
       bool is_dynamic() {
-        return _expr[0] == PMATH_SYMBOL_DYNAMIC && _expr.expr_length() >= 1;
+        return _expr[0] == ::richmath_System_Dynamic && _expr.expr_length() >= 1;
       }
       
       // 0 = False, 1 = True, 2 = Automatic
       int synchronous_updating() { return _synchronous_updating; }
       
-      static int current_evaluation_box_id;
+      static FrontEndReference current_evaluation_box_id;
       
     private:
       Box *_owner;
@@ -40,4 +41,4 @@ namespace richmath {
   };
 };
 
-#endif // __PMATH__EVAL__DYNAMIC_H__
+#endif // __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED

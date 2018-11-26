@@ -1,10 +1,26 @@
-#ifndef __BOXES__NUMBERBOX_H__
-#define __BOXES__NUMBERBOX_H__
+#ifndef RICHMATH__BOXES__NUMBERBOX_H__INCLUDED
+#define RICHMATH__BOXES__NUMBERBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
 
+extern pmath_symbol_t richmath_FE_NumberBox;
 
 namespace richmath {
+  struct PositionInRange {
+    int pos;
+    int start;
+    int end;
+    
+    PositionInRange(int _pos, int _start, int _end)
+      : pos(_pos),
+        start(_start),
+        end(_end)
+    {
+    }
+    
+    bool is_valid() { return start <= pos && pos <= end; }
+  };
+  
   class NumberBox: public OwnerBox {
       friend class NumberBoxImpl;
     public:
@@ -25,6 +41,10 @@ namespace richmath {
       
       static Expr prepare_boxes(Expr boxes);
       
+      bool is_number_part(Box *box);
+      PositionInRange selection_to_string_index(String number, Box *sel, int index);
+      Box *string_index_to_selection(String number, int char_index, int *selection_index);
+      
     private:
       String        _number;
       MathSequence *_base;
@@ -34,4 +54,4 @@ namespace richmath {
   };
 }
 
-#endif /* __BOXES__NUMBERBOX_H__ */
+#endif /* RICHMATH__BOXES__NUMBERBOX_H__INCLUDED */

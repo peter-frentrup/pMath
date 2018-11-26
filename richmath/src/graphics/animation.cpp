@@ -15,7 +15,7 @@ TimedEvent::TimedEvent(double _min_wait_seconds)
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
-bool TimedEvent::register_for(int box_id) {
+bool TimedEvent::register_for(FrontEndReference box_id) {
   Box *box = FrontEndObject::find_cast<Box>(box_id);
   
   if(!box)
@@ -36,12 +36,12 @@ bool TimedEvent::register_for(int box_id) {
 
 //{ class BoxRepaintEvent ...
 
-BoxRepaintEvent::BoxRepaintEvent(int _box_id, double _min_wait_seconds)
+BoxRepaintEvent::BoxRepaintEvent(FrontEndReference _box_id, double _min_wait_seconds)
   : TimedEvent(_min_wait_seconds),
   box_id(_box_id)
 {
   if(!register_for(box_id))
-    box_id = 0;
+    box_id = FrontEndReference::None;
 }
 
 void BoxRepaintEvent::execute_event() {
@@ -54,10 +54,10 @@ void BoxRepaintEvent::execute_event() {
 //{ class LinearTransition ...
 
 LinearTransition::LinearTransition(
-  int _box_id,
-  Canvas *dst,
-  const BoxSize &size,
-  double _seconds)
+  FrontEndReference  _box_id,
+  Canvas            *dst,
+  const BoxSize     &size,
+  double             _seconds)
   : BoxAnimation(_box_id),
   seconds(_seconds),
   repeat(false)
@@ -68,15 +68,18 @@ LinearTransition::LinearTransition(
     current_buffer = new Buffer(dst, CAIRO_FORMAT_ARGB32, size);
     
     if(!buf1->canvas() || !buf2->canvas() || !current_buffer->canvas())
-      buf1 = buf2 = current_buffer = 0;
+      buf1 = buf2 = current_buffer = nullptr;
   }
 }
 
 LinearTransition::LinearTransition(
-  int _box_id,
-  Canvas *dst,
-  float x, float y, float w, float h,
-  double _seconds)
+  FrontEndReference  _box_id,
+  Canvas            *dst,
+  float              x, 
+  float              y, 
+  float              w, 
+  float              h,
+  double             _seconds)
   : BoxAnimation(_box_id),
   seconds(_seconds),
   repeat(false)
@@ -87,7 +90,7 @@ LinearTransition::LinearTransition(
     current_buffer = new Buffer(dst, CAIRO_FORMAT_ARGB32, x, y, w, h);
     
     if(!buf1->canvas() || !buf2->canvas() || !current_buffer->canvas())
-      buf1 = buf2 = current_buffer = 0;
+      buf1 = buf2 = current_buffer = nullptr;
   }
 }
 
@@ -113,7 +116,7 @@ bool LinearTransition::paint(Canvas *canvas) {
   }
   
   if(!register_for(box_id)) {
-    box_id = 0;
+    box_id = FrontEndReference::None;
     return false;
   }
   

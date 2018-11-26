@@ -1,6 +1,8 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-core/objects-private.h>
+#include <pmath-core/expressions-private.h>
+#include <pmath-core/strings-private.h>
 
 #include <pmath-language/patterns-private.h>
 
@@ -207,6 +209,7 @@ pmath_bool_t _pmath_symbol_value_visit(
   if(pmath_is_expr(value)) {
     size_t i, len;
     const pmath_t *items = pmath_expr_read_item_data(value);
+    struct _pmath_expr_t *expr_ptr;
     
     if(!items){
       pmath_unref(value);
@@ -228,6 +231,18 @@ pmath_bool_t _pmath_symbol_value_visit(
             pmath_ref(items[i]),
             callback,
             closure))
+      {
+        pmath_unref(value);
+        return FALSE;
+      }
+    }
+    
+    expr_ptr = (void*)PMATH_AS_PTR(value);
+    if(expr_ptr->debug_ptr) {
+      if(!_pmath_symbol_value_visit(
+            pmath_ref(PMATH_FROM_PTR(expr_ptr->debug_ptr)),
+            callback,
+            closure)) 
       {
         pmath_unref(value);
         return FALSE;
@@ -262,6 +277,30 @@ pmath_bool_t _pmath_symbol_value_visit(
     pmath_unref(rule);
     
     return result;
+  }
+  else if(pmath_is_bigstr(value)) {
+    struct _pmath_string_t *string_ptr = (void*)PMATH_AS_PTR(value);
+    if(string_ptr->debug_info) {
+      if(!_pmath_symbol_value_visit(
+            pmath_ref(PMATH_FROM_PTR(string_ptr->debug_info)),
+            callback,
+            closure)) 
+      {
+        pmath_unref(value);
+        return FALSE;
+      }
+    }
+    
+    if(string_ptr->buffer) {
+      if(!_pmath_symbol_value_visit(
+            pmath_ref(PMATH_FROM_PTR(string_ptr->buffer)),
+            callback,
+            closure)) 
+      {
+        pmath_unref(value);
+        return FALSE;
+      }
+    }
   }
   
   pmath_unref(value);
@@ -596,12 +635,15 @@ static pmath_bool_t _pmath_multirule_change_ex(
 //  struct _pmath_multirule_t * volatile *rule_base, // accessed through _pmath_object_atomic_[read|write]
 //  struct _pmath_multirule_t            *rule,      // will be freed
   pmath_t pattern,                                 // wont be freed
-  pmath_t body                                     // wont be freed, PMATH_UNDEFINED => remove rules
+  pmath_t body,                                    // wont be freed, PMATH_UNDEFINED => remove rules
+  pmath_bool_t *did_any_change
 ) {
   struct _pmath_multirule_t *_rule = (void*)PMATH_AS_PTR(rule);
   struct _pmath_multirule_t *_prev;
   pmath_t rule_member;
   int cmp;
+  
+  *did_any_change = FALSE;
   
   assert(rule_base != NULL);
   
@@ -663,10 +705,21 @@ static pmath_bool_t _pmath_multirule_change_ex(
       if(pmath_same(body, PMATH_UNDEFINED)) { // remove rule
         pmath_unref(tmp);
         tmp = _pmath_object_atomic_read(&_rule->next);
+        *did_any_change = TRUE;
       }
       else { // change rule in place
-        _pmath_object_atomic_write(&_rule->pattern, pmath_ref(pattern));
-        _pmath_object_atomic_write(&_rule->body,    pmath_ref(body));
+        pmath_t old_pat;
+        pmath_t old_body;
+        
+        old_pat = _pmath_object_atomic_read_start(&_rule->pattern);
+        _pmath_object_atomic_read_end(&_rule->pattern, pmath_ref(pattern));
+        
+        old_body = _pmath_object_atomic_read_start(&_rule->body);
+        _pmath_object_atomic_read_end(&_rule->body, pmath_ref(body));
+        
+        *did_any_change = !pmath_equals(old_body, body) || !pmath_equals(old_pat, pattern);
+        pmath_unref(old_pat);
+        pmath_unref(old_body);
       }
       
       _pmath_object_atomic_read_end(rule_base, tmp); // end atomic
@@ -684,6 +737,7 @@ static pmath_bool_t _pmath_multirule_change_ex(
           // no memory, but repurt success so caller does not stuck in an infinite loop
           pmath_unref(PMATH_FROM_PTR(_prev));
           pmath_unref(rule);
+          *did_any_change = FALSE;
           return TRUE;
         }
         
@@ -708,11 +762,13 @@ static pmath_bool_t _pmath_multirule_change_ex(
         
         _pmath_object_atomic_read_end(rule_base, tmp); // end atomic
         pmath_unref(PMATH_FROM_PTR(_prev));
+        *did_any_change = TRUE;
         return TRUE;
       }
       
       pmath_unref(PMATH_FROM_PTR(_prev));
       pmath_unref(rule);
+      *did_any_change = FALSE;
       return TRUE;
     }
     
@@ -742,8 +798,11 @@ static pmath_bool_t _pmath_multirule_change_ex(
       }
       
       _pmath_object_atomic_read_end(rule_base, PMATH_FROM_PTR(_new_rule)); // end atomic
+      *did_any_change = TRUE;
     }
   }
+  else
+    *did_any_change = FALSE;
   
   pmath_unref(PMATH_FROM_PTR(_prev));
   return TRUE;
@@ -752,7 +811,8 @@ static pmath_bool_t _pmath_multirule_change_ex(
 static pmath_bool_t _pmath_multirule_change(
   pmath_locked_t *rule_base, // accessed through _pmath_object_atomic_[read|write]
   pmath_t         pattern,   // wont be freed
-  pmath_t         body       // wont be freed, PMATH_UNDEFINED => remove rules
+  pmath_t         body,      // wont be freed, PMATH_UNDEFINED => remove rules
+  pmath_bool_t   *did_any_change
 ) {
   assert(rule_base != NULL);
   
@@ -760,16 +820,18 @@ static pmath_bool_t _pmath_multirule_change(
            rule_base,
            _pmath_object_atomic_read(rule_base),
            pattern,
-           body);
+           body,
+           did_any_change);
 }
 
 PMATH_PRIVATE
-void _pmath_rulecache_change(
+pmath_bool_t _pmath_rulecache_change(
   struct _pmath_rulecache_t *rc,
   pmath_t                    pattern, // will be freed
   pmath_t                    body     // will be freed, PMATH_UNDEFINED => remove rules
 ) {
   pmath_bool_t body_has_condition;
+  pmath_bool_t did_any_change = FALSE;
   struct _pmath_object_entry_t *entry;
   pmath_hashtable_t table;
   
@@ -778,6 +840,7 @@ void _pmath_rulecache_change(
   if(!_pmath_pattern_validate(pattern)) {
     pmath_unref(pattern);
     pmath_unref(body);
+    return FALSE;
   }
   
   body_has_condition = _pmath_rhs_has_condition(&body, FALSE);
@@ -785,36 +848,44 @@ void _pmath_rulecache_change(
   table = rulecache_table_lock(rc);
   
   if(body_has_condition || pmath_same(body, PMATH_UNDEFINED)) {
+    if(body_has_condition) {
+      while(!_pmath_multirule_change(&rc->_more, pattern, body, &did_any_change)) {
+      }
+    }
+    
     entry = pmath_ht_remove(table, &pattern);
     
     if(entry) {
       if(body_has_condition) {
-        while(!_pmath_multirule_change(&rc->_more, pattern, body)) {
-        }
-        
-        while(!_pmath_multirule_change(&rc->_more, entry->key, entry->value)) {
+        while(!_pmath_multirule_change(&rc->_more, entry->key, entry->value, &did_any_change)) {
         }
       }
       
       rulecache_table_unlock(rc, table);
       
-      pmath_unref(pattern);
-      pmath_unref(body);
       pmath_ht_obj_class.entry_destructor(entry);
-      return;
+      did_any_change = TRUE;
     }
+    else
+      rulecache_table_unlock(rc, table);
+    
+    pmath_unref(pattern);
+    pmath_unref(body);
+    return did_any_change;
   }
   else {
     entry = pmath_ht_search(table, &pattern);
     
     if(entry) {
+      did_any_change = !pmath_equals(entry->value, body);
+      
       pmath_unref(entry->key);
       pmath_unref(entry->value);
       entry->key   = pattern;
       entry->value = body;
       
       rulecache_table_unlock(rc, table);
-      return;
+      return did_any_change;
     }
     
     if(_pmath_pattern_is_const(pattern)) {
@@ -831,18 +902,19 @@ void _pmath_rulecache_change(
         assert(entry == NULL);
         
         rulecache_table_unlock(rc, table);
-        return;
+        return TRUE;
       }
     }
   }
   
   rulecache_table_unlock(rc, table);
   
-  while(!_pmath_multirule_change(&rc->_more, pattern, body)) {
+  while(!_pmath_multirule_change(&rc->_more, pattern, body, &did_any_change)) {
   }
   
   pmath_unref(pattern);
   pmath_unref(body);
+  return did_any_change;
 }
 
 PMATH_PRIVATE
@@ -996,15 +1068,16 @@ pmath_t _pmath_symbol_find_value(pmath_symbol_t sym) {
 }
 
 PMATH_PRIVATE
-void _pmath_symbol_define_value_pos(
+pmath_bool_t _pmath_symbol_define_value_pos(
   pmath_locked_t *value_position,
   pmath_t         pattern,
   pmath_t         body
 ) {
+  pmath_bool_t did_any_change = FALSE;
   pmath_t value = _pmath_object_atomic_read(value_position);
   
   if(pmath_is_multirule(value)) {
-    while(!_pmath_multirule_change_ex(value_position, value, pattern, body)) {
+    while(!_pmath_multirule_change_ex(value_position, value, pattern, body, &did_any_change)) {
     }
     
     value = _pmath_object_atomic_read(value_position);
@@ -1014,28 +1087,35 @@ void _pmath_symbol_define_value_pos(
     pmath_unref(value);
     pmath_unref(pattern);
     pmath_unref(body);
-    return;
+    return did_any_change;
   }
   
   if(_pmath_rhs_has_condition(&body, FALSE)) {
     _pmath_object_atomic_write(value_position, PMATH_NULL);
     
-    while(!_pmath_multirule_change_ex(value_position, PMATH_NULL, pattern, body)) {
+    // (soft) race condition: other threads see no definition now
+    
+    while(!_pmath_multirule_change_ex(value_position, PMATH_NULL, pattern, body, &did_any_change)) {
     }
     
     pmath_unref(body);
     if(pmath_same(value, PMATH_UNDEFINED))
       pmath_unref(pattern);
     else
-      _pmath_symbol_define_value_pos(value_position, pattern, value);
+      did_any_change = _pmath_symbol_define_value_pos(value_position, pattern, value) || did_any_change;
       
-    return;
+    return did_any_change;
   }
   
   pmath_unref(pattern);
-  pmath_unref(value);
   
-  _pmath_object_atomic_write(value_position, body);
+  _pmath_object_atomic_write(value_position, pmath_ref(body));
+  
+  did_any_change = !pmath_equals(body, value);
+
+  pmath_unref(value);
+  pmath_unref(body);
+  return did_any_change;
 }
 
 //} ============================================================================

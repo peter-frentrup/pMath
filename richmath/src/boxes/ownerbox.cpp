@@ -33,8 +33,7 @@ void OwnerBox::resize(Context *context) {
 }
 
 void OwnerBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   paint_content(context);
 }
@@ -79,6 +78,7 @@ Box *OwnerBox::move_vertical(
     return _content->move_vertical(direction, index_rel_x, index, false);
   }
   
+  *index_rel_x+= cx;
   return Box::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
@@ -142,6 +142,7 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options){
   if(expr[0] == PMATH_SYMBOL_LIST) {
     _content->load_from_object(expr, options);
     
+    finish_load_from_object(std::move(expr));
     return true;
   }
   

@@ -1,5 +1,5 @@
-#ifndef __GUI__WIN32__WIN32_CONTROL_PAINTER_H__
-#define __GUI__WIN32__WIN32_CONTROL_PAINTER_H__
+#ifndef RICHMATH__GUI__WIN32__WIN32_CONTROL_PAINTER_H__INCLUDED
+#define RICHMATH__GUI__WIN32__WIN32_CONTROL_PAINTER_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -35,16 +35,16 @@ namespace richmath {
         float          height) override;
         
       virtual SharedPtr<BoxAnimation> control_transition(
-        int            widget_id,
-        Canvas        *canvas,
-        ContainerType  type1,
-        ContainerType  type2,
-        ControlState   state1,
-        ControlState   state2,
-        float          x,
-        float          y,
-        float          width,
-        float          height) override;
+        FrontEndReference  widget_id,
+        Canvas            *canvas,
+        ContainerType      type1,
+        ContainerType      type2,
+        ControlState       state1,
+        ControlState       state2,
+        float              x,
+        float              y,
+        float              width,
+        float              height) override;
         
       virtual void container_content_move(
         ContainerType  type,
@@ -100,4 +100,4 @@ namespace richmath {
   };
 }
 
-#endif // __GUI__WIN32__WIN32_CONTROL_PAINTER_H__
+#endif // RICHMATH__GUI__WIN32__WIN32_CONTROL_PAINTER_H__INCLUDED

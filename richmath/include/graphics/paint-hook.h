@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__PAINT_HOOK_H__
-#define __GRAPHICS__PAINT_HOOK_H__
+#ifndef RICHMATH__GRAPHICS__PAINT_HOOK_H__INCLUDED
+#define RICHMATH__GRAPHICS__PAINT_HOOK_H__INCLUDED
 
 #include <util/hashtable.h>
 #include <util/sharedptr.h>
@@ -49,7 +49,7 @@ namespace richmath {
       void move_into(PaintHookManager &other);
       
     private:
-      Hashtable<Box *, PaintHookList, cast_hash> _hooks;
+      Hashtable<Box *, PaintHookList> _hooks;
   };
   
   
@@ -69,4 +69,4 @@ namespace richmath {
 }
 
 
-#endif // __GRAPHICS__PAINT_HOOK_H__
+#endif // RICHMATH__GRAPHICS__PAINT_HOOK_H__INCLUDED

@@ -25,6 +25,8 @@
 #  define va_copy(dst, src) do{ dst = (src); }while(0)
 #endif
 
+extern pmath_symbol_t pmath_System_DollarLine;
+
 
 PMATH_API pmath_bool_t pmath_is_expr_of(pmath_t obj, pmath_symbol_t head) {
   if(pmath_is_expr(obj)) {
@@ -376,7 +378,7 @@ pmath_t pmath_session_execute(pmath_t input, pmath_bool_t *aborted) {
   pmath_unref(pmath_evaluate(
                 pmath_expr_new_extended(
                   pmath_ref(PMATH_SYMBOL_INCREMENT), 1,
-                  pmath_ref(PMATH_SYMBOL_LINE))));
+                  pmath_ref(pmath_System_DollarLine))));
                   
   warn_uncaught_exception();
   did_abort = pmath_continue_after_abort() || did_abort;
@@ -396,7 +398,7 @@ pmath_t pmath_session_execute(pmath_t input, pmath_bool_t *aborted) {
                   pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2,
                   pmath_expr_new_extended(
                     pmath_ref(PMATH_SYMBOL_HISTORY), 1,
-                    pmath_ref(PMATH_SYMBOL_LINE)),
+                    pmath_ref(pmath_System_DollarLine)),
                   pmath_ref(output))));
                   
   warn_uncaught_exception();
@@ -410,7 +412,7 @@ pmath_t pmath_session_execute(pmath_t input, pmath_bool_t *aborted) {
                     pmath_ref(PMATH_SYMBOL_HISTORY), 1,
                     pmath_expr_new_extended(
                       pmath_ref(PMATH_SYMBOL_PLUS), 2,
-                      pmath_ref(PMATH_SYMBOL_LINE),
+                      pmath_ref(pmath_System_DollarLine),
                       pmath_expr_new_extended(
                         pmath_ref(PMATH_SYMBOL_TIMES), 2,
                         PMATH_FROM_INT32(-1),
@@ -433,7 +435,7 @@ pmath_t pmath_session_start(void) {
   pmath_t old_dlvl = pmath_evaluate(
                        pmath_parse_string(PMATH_C_STRING("$DialogLevel++")));
                        
-  pmath_t old_line = pmath_evaluate(pmath_ref(PMATH_SYMBOL_LINE));
+  pmath_t old_line = pmath_evaluate(pmath_ref(pmath_System_DollarLine));
   
   pmath_t old_msgcnt = pmath_evaluate(
                          pmath_parse_string(PMATH_C_STRING("DownRules($MessageCount)")));

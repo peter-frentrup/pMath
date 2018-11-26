@@ -21,7 +21,7 @@ MouseEvent::MouseEvent()
     left(false),
     middle(false),
     right(false),
-    origin(0)
+    origin(nullptr)
 {
 }
 
@@ -65,7 +65,7 @@ void AutoMemorySuspension::suspend_deletions() {
 void AutoMemorySuspension::resume_deletions() {
   if(--deletion_suspensions > 0)
     return;
-  
+    
   int count = 0;
   while(box_limbo) {
     Box *tmp = box_limbo;
@@ -73,7 +73,7 @@ void AutoMemorySuspension::resume_deletions() {
     
 //    Expr expr = tmp->to_pmath(0);
 //    pmath_debug_print_object("[limbo deletion: \n  ", expr.get(), "\n]\n");
-    
+
     delete tmp;
     ++count;
   }
@@ -89,7 +89,7 @@ void AutoMemorySuspension::resume_deletions() {
 Box::Box()
   : FrontEndObject(),
     _extents(0, 0, 0),
-    _parent(0),
+    _parent(nullptr),
     _index(0)
 {
 }
@@ -109,7 +109,7 @@ void Box::safe_destroy() {
     return;
   }
   
-  delete this; 
+  delete this;
 }
 
 bool Box::is_parent_of(Box *child) {
@@ -150,6 +150,13 @@ Box *Box::common_parent(Box *a, Box *b) {
   }
   
   return a;
+}
+
+bool Box::update_dynamic_styles(Context *context) {
+  if(context->stylesheet)
+    return context->stylesheet->update_dynamic(style, this);
+  
+  return false;
 }
 
 void Box::colorize_scope(SyntaxState *state) {
@@ -222,7 +229,7 @@ void Box::default_scroll_to(Canvas *canvas, Box *parent, Box *child, int start, 
       
     // cairo 1.10.0 bug:
     // cairo_path_extents gives (0,0,0,0) for pixel aligned lines
-    cairo_stroke_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
+    canvas->stroke_extents(&x1, &y1, &x2, &y2);
     
     canvas->new_path();
   }
@@ -330,7 +337,8 @@ void Box::transformation(
 
 bool Box::selectable(int i) {
   if(_parent)
-    return _parent->selectable(_index);
+    if(!_parent->selectable(_index))
+      return false;
     
   int result;
   
@@ -356,7 +364,7 @@ Box *Box::normalize_selection(int *start, int *end) {
     return _parent->normalize_selection(start, end);
   }
   
-  return 0;
+  return nullptr;
 }
 
 Expr Box::prepare_dynamic(Expr expr) {
@@ -367,7 +375,7 @@ Expr Box::prepare_dynamic(Expr expr) {
 
 void Box::dynamic_updated() {
   if(style) {
-    style->set(InternalHasPendingDynamic, true);
+    style->flag_pending_dynamic();
     request_repaint_all();
   }
 }
@@ -458,64 +466,94 @@ SharedPtr<Stylesheet> Box::stylesheet() {
 }
 
 template<typename N, typename T>
-struct Style_get {
-  static bool impl(SharedPtr<Style> style, N n, T *result) {
-    return style->get(n, result);
+struct Stylesheet_get {
+  static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, N n, T *result) {
+    if(all)
+      return all->get(style, n, result);
+    else if(style)
+      return style->get(n, result);
+    else
+      return false;
   }
 };
 
-template<typename N, typename T>
-struct Stylesheet_get {
-  static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, N n, T *result) {
-    return all->get(style, n, result);
+static bool StyleName_is_FontSize(StyleOptionName name) {
+  return name == FloatStyleOptionName::FontSize;
+}
+
+template<typename T>
+bool StyleName_get_FontSize(Box *self, T *result) {
+  auto seq = self->find_parent<AbstractSequence>(true);
+  if(seq) {
+    *result = seq->get_em();
+    return true;
   }
-};
+  return false;
+}
+
+template<>
+bool StyleName_get_FontSize(Box *self, String *result) {
+  return false;
+}
+
+template<typename N, typename T>
+bool Box_try_get_own_style(
+  Box *self, 
+  N n, 
+  T *result,
+  SharedPtr<Stylesheet> all,
+  bool(*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<Style>, N, T *) = Stylesheet_get<N, T>::impl
+) {
+  if(Stylesheet_get_(all, self->style, n, result))
+    return true;
+  
+  N defn = self->get_default_key(n);
+  if(defn != n) {
+    if(Stylesheet_get_(all, self->style, defn, result))
+      return true;
+    
+    Box *box = self->parent();
+    while(box) {
+      if(box->changes_children_style()) {
+        if(Stylesheet_get_(all, box->style, defn, result))
+          return result;
+      }
+      
+      box = box->parent();
+    }
+  }
+  
+  return false;
+}
 
 template<typename N, typename T>
 T Box_get_style(
   Box  *self,
   N     n,
   T     result,
-  bool(*Style_get_)(                            SharedPtr<Style>, N, T *) = Style_get<N, T>::impl,
   bool(*Stylesheet_get_)(SharedPtr<Stylesheet>, SharedPtr<Style>, N, T *) = Stylesheet_get<N, T>::impl
 ) {
-  Box *box;
-  
-  if(self->style && Style_get_(self->style, n, &result))
+  SharedPtr<Stylesheet> all = self->stylesheet();  
+  if(Box_try_get_own_style(self, n, &result, all, Stylesheet_get_))
     return result;
-  
-  SharedPtr<Stylesheet> all = self->stylesheet();
-  if(all) {
-    if(Stylesheet_get_(all, self->style, n, &result))
+    
+  if(StyleName_is_FontSize(n)) {
+    if(StyleName_get_FontSize(self, &result))
       return result;
-      
-    box = self->parent();
-    while(box) {
-      if( box->changes_children_style()   &&
-          Stylesheet_get_(all, box->style, n, &result))
-      {
+  }
+  
+  Box *box = self->parent();
+  while(box) {
+    if(box->changes_children_style()) {
+      if(Box_try_get_own_style(box, n, &result, all, Stylesheet_get_))
         return result;
-      }
-      
-      box = box->parent();
     }
     
-    if(all->base && Style_get_(all->base, n, &result))
-      return result;
+    box = box->parent();
   }
-  else {
-    box = self->parent();
-    while(box) {
-      if( box->changes_children_style() &&
-          box->style                    &&
-          Style_get_(box->style, n, &result))
-      {
-        return result;
-      }
-      
-      box = box->parent();
-    }
-  }
+  
+  if(all && all->base && Stylesheet_get_(all, all->base, n, &result))
+    return result;
   
   return result;
 }
@@ -544,60 +582,76 @@ Expr Box::get_style(ObjectStyleOptionName n) {
   return get_style(n, Expr());
 }
 
-struct Style_get_pmath {
-  static bool impl(SharedPtr<Style> style, Expr n, Expr *result) {
-    *result = style->get_pmath(n);
-    return *result != PMATH_SYMBOL_INHERITED;
-  }
-};
-
 struct Stylesheet_get_pmath {
-  static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, Expr n, Expr *result) {
-    *result = all->get_pmath(style, n);
-    return *result != PMATH_SYMBOL_INHERITED;
+  static bool impl(SharedPtr<Stylesheet> all, SharedPtr<Style> style, StyleOptionName n, Expr *result) {
+    if(all) 
+      *result = Style::merge_style_values(n, std::move(*result), all->get_pmath(style, n));
+    else if(style)
+      *result = Style::merge_style_values(n, std::move(*result), style->get_pmath(n));
+    else
+      return false;
+    return !Style::contains_inherited(*result);
   }
 };
 
-Expr Box::get_pmath_style(Expr n) {
+Expr Box::get_pmath_style(StyleOptionName n) {
   return Box_get_style(
            this,
            n,
            Symbol(PMATH_SYMBOL_INHERITED),
-           Style_get_pmath::impl,
            Stylesheet_get_pmath::impl);
 }
 
-template<typename N, typename T>
-T Box_get_own_style(Box *self, N n, T result) {
-  if(self->style && self->style->get(n, &result))
+int Box::get_own_style(IntStyleOptionName n, int fallback_result) {
+  auto all = stylesheet();
+  
+  int result;
+  if(Box_try_get_own_style(this, n, &result, all))
     return result;
     
-  SharedPtr<Stylesheet> all = self->stylesheet();
-  if(all) {
-    if(all->get(self->style, n, &result))
-      return result;
-      
-    if(all->base && all->base->get(n, &result))
-      return result;
-  }
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
+}
+
+float Box::get_own_style(FloatStyleOptionName n, float fallback_result) {
+  auto all = stylesheet();
   
-  return result;
+  float result;
+  if(Box_try_get_own_style(this, n, &result, all))
+    return result;
+    
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
 }
 
-int Box::get_own_style(IntStyleOptionName n, int result) {
-  return Box_get_own_style(this, n, result);
+String Box::get_own_style(StringStyleOptionName n, String fallback_result) {
+  auto all = stylesheet();
+  
+  String result;
+  if(Box_try_get_own_style(this, n, &result, all))
+    return result;
+    
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
 }
 
-float Box::get_own_style(FloatStyleOptionName n, float result) {
-  return Box_get_own_style(this, n, result);
-}
-
-String Box::get_own_style(StringStyleOptionName n, String result) {
-  return Box_get_own_style(this, n, result);
-}
-
-Expr Box::get_own_style(ObjectStyleOptionName n, Expr result) {
-  return Box_get_own_style(this, n, result);
+Expr Box::get_own_style(ObjectStyleOptionName n, Expr fallback_result) {
+  auto all = stylesheet();
+  
+  Expr result;
+  if(Box_try_get_own_style(this, n, &result, all))
+    return result;
+    
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
 }
 
 String Box::get_own_style(StringStyleOptionName n) {
@@ -608,6 +662,26 @@ Expr Box::get_own_style(ObjectStyleOptionName n) {
   return get_own_style(n, Expr());
 }
 
+StyleOptionName Box::get_default_key(StyleOptionName n) {
+  return StyleOptionName { (int)get_default_styles_offset() + (int)n };
+}
+
+IntStyleOptionName Box::get_default_key(IntStyleOptionName n) {
+  return (IntStyleOptionName)get_default_key(StyleOptionName{n});
+}
+
+FloatStyleOptionName  Box::get_default_key(FloatStyleOptionName n) {
+  return (FloatStyleOptionName)get_default_key(StyleOptionName{n});
+}
+
+StringStyleOptionName Box::get_default_key(StringStyleOptionName n) {
+  return (StringStyleOptionName)get_default_key(StyleOptionName{n});
+}
+
+ObjectStyleOptionName Box::get_default_key(ObjectStyleOptionName n) {
+  return (ObjectStyleOptionName)get_default_key(StyleOptionName{n});
+}
+
 //} ... styles
 
 //{ event handlers ...
@@ -615,7 +689,7 @@ Expr Box::get_own_style(ObjectStyleOptionName n) {
 Box *Box::mouse_sensitive() {
   if(_parent)
     return _parent->mouse_sensitive();
-  return 0;
+  return nullptr;
 }
 
 void Box::on_mouse_enter() {
@@ -667,17 +741,28 @@ void Box::on_key_press(uint32_t unichar) {
 //} ... event handlers
 
 void Box::adopt(Box *child, int i) {
-  assert(child != 0);
-  assert(child->_parent == 0 || child->_parent == this);
+  assert(child != nullptr);
+  assert(child->_parent == nullptr || child->_parent == this);
   child->_parent = this;
   child->_index = i;
 }
 
 void Box::abandon(Box *child) {
-  assert(child != 0);
+  assert(child != nullptr);
   assert(child->_parent == this);
-  child->_parent = 0;
+  child->_parent = nullptr;
   child->_index = 0;
+}
+
+FunctionChain<Box*, Expr> *Box::on_finish_load_from_object = nullptr;
+
+void Box::finish_load_from_object(Expr expr) {
+  FunctionChain<Box*, Expr> *event = on_finish_load_from_object;
+  while(event) {
+    if(event->func)
+      event->func(this, expr);
+    event = event->next;
+  }
 }
 
 //} ... class Box

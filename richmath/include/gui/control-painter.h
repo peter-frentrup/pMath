@@ -85,16 +85,16 @@ namespace richmath {
         float          height);
         
       virtual SharedPtr<BoxAnimation> control_transition(
-        int            widget_id,
-        Canvas        *canvas,
-        ContainerType  type1,
-        ContainerType  type2,
-        ControlState   state1,
-        ControlState   state2,
-        float          x,
-        float          y,
-        float          width,
-        float          height);
+        FrontEndReference  widget_id,
+        Canvas            *canvas,
+        ContainerType      type1,
+        ContainerType      type2,
+        ControlState       state1,
+        ControlState       state2,
+        float              x,
+        float              y,
+        float              width,
+        float              height);
         
       virtual void container_content_move(
         ContainerType  type,

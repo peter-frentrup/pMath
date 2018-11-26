@@ -2,6 +2,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_CheckboxBox;
+
 //{ class CheckboxBox ...
 
 CheckboxBox::CheckboxBox()
@@ -11,7 +13,7 @@ CheckboxBox::CheckboxBox()
 }
       
 bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_CHECKBOXBOX)
+  if(expr[0] != richmath_System_CheckboxBox)
     return false;
   
   Expr options(PMATH_UNDEFINED);
@@ -21,10 +23,10 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
     if(_values.expr_length() != 2 || _values[0] != PMATH_SYMBOL_LIST) {
       _values = Expr();
-      options = Expr(pmath_options_extract(expr.get(), 1));
+      options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     }
     else 
-      options = Expr(pmath_options_extract(expr.get(), 2));
+      options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     
     if(options.is_null())
       return false;
@@ -37,7 +39,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
   /* now success is guaranteed */
 
-  if(style){
+  if(style) {
     reset_style();
     style->add_pmath(options);
   }
@@ -51,6 +53,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     dynamic = Symbol(PMATH_SYMBOL_FALSE);
   }
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -64,6 +67,10 @@ void CheckboxBox::paint(Context *context) {
   }
   
   EmptyWidgetBox::paint(context);
+}
+
+Expr CheckboxBox::to_pmath_symbol() {
+  return Symbol(richmath_System_CheckboxBox); 
 }
 
 Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
@@ -85,10 +92,10 @@ Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
     
   Expr result = gather.end();
   if(values.is_null() && result.expr_length() == 2) {
-    return Call(Symbol(PMATH_SYMBOL_CHECKBOXBOX), val);
+    return Call(Symbol(richmath_System_CheckboxBox), val);
   }
   
-  result.set(0, Symbol(PMATH_SYMBOL_CHECKBOXBOX));
+  result.set(0, Symbol(richmath_System_CheckboxBox));
   return result;
 }
 

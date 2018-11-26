@@ -206,9 +206,9 @@
 					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
 					<Add option='&quot;$(#fontconfig_32.bin)/fontconfig.dll&quot;' />
 					<Add option='&quot;$(#freetype_32.bin)/freetype.dll&quot;' />
-					<Add option='&quot;$(#gtk3_32.bin)/gdk-win32-3.0.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gdk-3-3.0.dll&quot;' />
 					<Add option='&quot;$(#gtk3_32.bin)/gdk_pixbuf-2.0.dll&quot;' />
-					<Add option='&quot;$(#gtk3_32.bin)/gtk-win32-3.0.dll&quot;' />
+					<Add option='&quot;$(#gtk3_32.bin)/gtk-3-3.0.dll&quot;' />
 					<Add library="pmath" />
 					<Add library="user32" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
@@ -278,7 +278,6 @@
 				<Option external_deps="../library/pmath.cbp;" />
 				<Option type="1" />
 				<Option compiler="msvc_2015" />
-				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="/MDd" />
 					<Add option="/arch:SSE2" />
@@ -676,6 +675,7 @@
 		<Unit filename="include/boxes/sliderbox.h" />
 		<Unit filename="include/boxes/stylebox.h" />
 		<Unit filename="include/boxes/subsuperscriptbox.h" />
+		<Unit filename="include/boxes/templatebox.h" />
 		<Unit filename="include/boxes/textsequence.h" />
 		<Unit filename="include/boxes/tooltipbox.h" />
 		<Unit filename="include/boxes/transformationbox.h" />
@@ -684,6 +684,7 @@
 		<Unit filename="include/eval/binding.h" />
 		<Unit filename="include/eval/dynamic.h" />
 		<Unit filename="include/eval/job.h" />
+		<Unit filename="include/eval/observable.h" />
 		<Unit filename="include/eval/server.h" />
 		<Unit filename="include/graphics/animation.h" />
 		<Unit filename="include/graphics/buffer.h" />
@@ -709,6 +710,8 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/clipboard.h" />
+		<Unit filename="include/gui/common-document-windows.h" />
+		<Unit filename="include/gui/common-tooltips.h" />
 		<Unit filename="include/gui/control-painter.h" />
 		<Unit filename="include/gui/document.h" />
 		<Unit filename="include/gui/gtk/basic-gtk-widget.h">
@@ -983,12 +986,14 @@
 		</Unit>
 		<Unit filename="include/util/array.h" />
 		<Unit filename="include/util/autocompletion.h" />
+		<Unit filename="include/util/autovaluereset.h" />
 		<Unit filename="include/util/base.h" />
 		<Unit filename="include/util/concurrent-queue.h" />
 		<Unit filename="include/util/frontendobject.h" />
 		<Unit filename="include/util/hashtable.h" />
 		<Unit filename="include/util/matrix.h" />
 		<Unit filename="include/util/pmath-extra.h" />
+		<Unit filename="include/util/selection-tracking.h" />
 		<Unit filename="include/util/selections.h" />
 		<Unit filename="include/util/sharedptr.h" />
 		<Unit filename="include/util/spanexpr.h" />
@@ -1046,15 +1051,19 @@
 		<Unit filename="src/boxes/sliderbox.cpp" />
 		<Unit filename="src/boxes/stylebox.cpp" />
 		<Unit filename="src/boxes/subsuperscriptbox.cpp" />
+		<Unit filename="src/boxes/templatebox.cpp" />
 		<Unit filename="src/boxes/textsequence.cpp" />
 		<Unit filename="src/boxes/tooltipbox.cpp" />
 		<Unit filename="src/boxes/transformationbox.cpp" />
 		<Unit filename="src/boxes/underoverscriptbox.cpp" />
 		<Unit filename="src/eval/application.cpp" />
 		<Unit filename="src/eval/binding.cpp" />
+		<Unit filename="src/eval/document-functions.cpp" />
 		<Unit filename="src/eval/dynamic.cpp" />
 		<Unit filename="src/eval/job.cpp" />
+		<Unit filename="src/eval/observable.cpp" />
 		<Unit filename="src/eval/server.cpp" />
+		<Unit filename="src/eval/symbols.inc" />
 		<Unit filename="src/graphics/animation.cpp" />
 		<Unit filename="src/graphics/buffer.cpp" />
 		<Unit filename="src/graphics/cairostream.cpp" />
@@ -1079,6 +1088,8 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/clipboard.cpp" />
+		<Unit filename="src/gui/common-document-windows.cpp" />
+		<Unit filename="src/gui/common-tooltips.cpp" />
 		<Unit filename="src/gui/control-painter.cpp" />
 		<Unit filename="src/gui/document.cpp" />
 		<Unit filename="src/gui/gtk/basic-gtk-widget.cpp">
@@ -1354,6 +1365,7 @@
 		<Unit filename="src/util/base.cpp" />
 		<Unit filename="src/util/frontendobject.cpp" />
 		<Unit filename="src/util/pmath-extra.cpp" />
+		<Unit filename="src/util/selection-tracking.cpp" />
 		<Unit filename="src/util/selections.cpp" />
 		<Unit filename="src/util/spanexpr.cpp" />
 		<Unit filename="src/util/style.cpp" />

@@ -4,6 +4,7 @@
 
 #include <pmath-util/concurrency/threadlocks.h>
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/files/filesystem.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -81,7 +82,7 @@ static void load_callback(void *data) {
   if(pmath_is_null(mod_obj))
     return;
 
-  info->filename = _pmath_canonical_file_name(info->filename);
+  info->filename = pmath_to_absolute_file_name(info->filename);
 
   if(pmath_is_null(info->filename)) {
     pmath_unref(mod_obj);

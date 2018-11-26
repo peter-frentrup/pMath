@@ -136,7 +136,6 @@ static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
 
 //{ class BasicWin32Window ...
 
-static BasicWin32Window *_first_window = nullptr;
 bool BasicWin32Window::during_pos_changing = false;
 
 BasicWin32Window::BasicWin32Window(
@@ -167,25 +166,11 @@ BasicWin32Window::BasicWin32Window(
   snap_correction_x(0),
   snap_correction_y(0),
   last_moving_x(0),
-  last_moving_y(0),
-  _prev_window(0),
-  _next_window(0)
+  last_moving_y(0)
 {
   memset(&_extra_glass, 0, sizeof(_extra_glass));
 
   add_basic_window();
-
-  if(_first_window) {
-    _prev_window = _first_window->_prev_window;
-    _prev_window->_next_window = this;
-    _next_window = _first_window;
-    _first_window->_prev_window = this;
-  }
-  else {
-    _first_window = this;
-    _prev_window = this;
-    _next_window = this;
-  }
 }
 
 void BasicWin32Window::after_construction() {
@@ -194,15 +179,6 @@ void BasicWin32Window::after_construction() {
 
 BasicWin32Window::~BasicWin32Window() {
   remove_basic_window();
-
-  if(_first_window == this) {
-    _first_window = _next_window;
-    if(_first_window == this)
-      _first_window = 0;
-  }
-
-  _next_window->_prev_window = _prev_window;
-  _prev_window->_next_window = _next_window;
 }
 
 void BasicWin32Window::get_client_rect(RECT *rect) {
@@ -374,7 +350,7 @@ static bool snap_inside(
 
 struct snap_info_t {
   HWND src;
-  Hashtable<HWND, Void, cast_hash> *dont_snap;
+  Hashset<HWND> *dont_snap;
 
   const RECT  *orig_rect;
   const POINT *orig_pt;
@@ -411,7 +387,7 @@ static BOOL CALLBACK snap_monitor(
 static BOOL CALLBACK snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct snap_info_t *info = (struct snap_info_t *)lParam;
 
-  if(hwnd != info->src && IsWindowVisible(hwnd) && !info->dont_snap->search(hwnd)) {
+  if(hwnd != info->src && IsWindowVisible(hwnd) && !info->dont_snap->contains(hwnd)) {
     RECT rect;
     get_snap_rect(hwnd, &rect);
     
@@ -473,31 +449,26 @@ void BasicWin32Window::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
     (LPARAM)&info);
 
   EnumThreadWindows(GetCurrentThreadId(), snap_hwnd, (LPARAM)&info);
+  
+  for(auto hwnd : all_snappers.keys()) {
+    RECT rect;
+    get_snap_rect(hwnd, &rect);
+    rect.left -=   old_dx;
+    rect.right -=  old_dx;
+    rect.top -=    old_dy;
+    rect.bottom -= old_dy;
+    
+    info.orig_rect = &rect;
 
-  unsigned int i, count;
-  for(i = count = 0; count < all_snappers.size(); ++i) {
-    if(auto e = all_snappers.entry(i)) {
-      ++count;
+    EnumDisplayMonitors(
+      nullptr,
+      nullptr,
+      snap_monitor,
+      (LPARAM)&info);
 
-      RECT rect;
-      get_snap_rect(e->key, &rect);
-      rect.left -=   old_dx;
-      rect.right -=  old_dx;
-      rect.top -=    old_dy;
-      rect.bottom -= old_dy;
-      
-      info.orig_rect = &rect;
-
-      EnumDisplayMonitors(
-        nullptr,
-        nullptr,
-        snap_monitor,
-        (LPARAM)&info);
-
-      EnumThreadWindows(GetCurrentThreadId(), snap_hwnd, (LPARAM)&info);
-    }
+    EnumThreadWindows(GetCurrentThreadId(), snap_hwnd, (LPARAM)&info);
   }
-
+  
   snapping_rect->left +=   snap_correction_x;
   snapping_rect->right +=  snap_correction_x;
   snapping_rect->top +=    snap_correction_y;
@@ -513,7 +484,7 @@ struct find_snap_info_t {
   HWND dst;
   RECT dst_rect;
   int min_level;
-  Hashtable<HWND, Void, cast_hash> *snappers;
+  Hashset<HWND> *snappers;
 };
 
 BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
@@ -531,14 +502,14 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
 
     if(rect.left == info->dst_rect.right || rect.right == info->dst_rect.left) {
       if(rect.bottom > info->dst_rect.top && rect.top < info->dst_rect.bottom) {
-        info->snappers->set(hwnd, Void());
+        info->snappers->add(hwnd);
         return TRUE;
       }
     }
 
     if(rect.top == info->dst_rect.bottom || rect.bottom == info->dst_rect.top) {
       if(rect.right > info->dst_rect.left && rect.left < info->dst_rect.right) {
-        info->snappers->set(hwnd, Void());
+        info->snappers->add(hwnd);
         return TRUE;
       }
     }
@@ -557,7 +528,7 @@ void BasicWin32Window::find_all_snappers() {
   get_snap_rect(info.dst, &info.dst_rect);
   info.snappers = &all_snappers;
 
-  all_snappers.set(_hwnd, Void());
+  all_snappers.add(_hwnd);
 
   EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
 
@@ -565,18 +536,14 @@ void BasicWin32Window::find_all_snappers() {
   for(int rep = 1; rep < 5 && found < all_snappers.size(); ++rep) {
     found = all_snappers.size();
 
-    Hashtable<HWND, Void, cast_hash> more_snappers;
+    Hashset<HWND> more_snappers;
+    
+    for(auto hwnd : all_snappers.keys()) {
+      info.dst = hwnd;
+      get_snap_rect(info.dst, &info.dst_rect);
+      info.snappers = &more_snappers;
 
-    for(unsigned i = 0, count = 0; count < all_snappers.size(); ++i) {
-      if(auto e = all_snappers.entry(i)) {
-        ++count;
-
-        info.dst = e->key;
-        get_snap_rect(info.dst, &info.dst_rect);
-        info.snappers = &more_snappers;
-
-        EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
-      }
+      EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
     }
 
     all_snappers.merge(more_snappers);
@@ -587,23 +554,18 @@ void BasicWin32Window::find_all_snappers() {
 
 HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, int dx, int dy) {
   if(dx != 0 || dy != 0) {
-    unsigned int i, count;
-    for(i = count = 0; count < all_snappers.size(); ++i) {
-      if(auto e = all_snappers.entry(i)) {
-        ++count;
+    for(auto hwnd : all_snappers.keys()) {
+      RECT rect;
+      GetWindowRect(hwnd, &rect);
 
-        RECT rect;
-        GetWindowRect(e->key, &rect);
-
-        hdwp = tryDeferWindowPos(
-                 hdwp,
-                 e->key,
-                 nullptr,
-                 rect.left + dx,
-                 rect.top + dy,
-                 0, 0,
-                 SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
-      }
+      hdwp = tryDeferWindowPos(
+               hdwp,
+               hwnd,
+               nullptr,
+               rect.left + dx,
+               rect.top + dy,
+               0, 0,
+               SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
     }
   }
 
@@ -1550,14 +1512,6 @@ void BasicWin32Window::on_paint_background(Canvas *canvas) {
   }
 }
 
-int BasicWin32Window::basic_window_count() {
-  return _basic_window_count;
-}
-
-BasicWin32Window *BasicWin32Window::first_window() {
-  return _first_window;
-}
-
 LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   /* Note that this function does not return HTCLOSE, HTMAXBUTTON, HTMINBUTTON because 
      DwmDefWindowProc() already did the job when the mouse is over one of these buttons
@@ -1731,6 +1685,13 @@ static BOOL CALLBACK find_popup_callback(HWND hwnd, LPARAM lParam) {
   return TRUE;
 }
 
+void BasicWin32Window::finish_apply_title(String displayed_title) {
+  displayed_title+= String::FromChar(0);
+  
+  const wchar_t *str = (const wchar_t*)displayed_title.buffer();
+  if(str)
+    SetWindowTextW(_hwnd, str);
+}
 
 LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   LRESULT dwm_result = 0;
@@ -1822,14 +1783,24 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               EnumWindows(find_popup_callback, (LPARAM)&popup_info);
 
               BasicWin32Window *last_higher = 0;
-              BasicWin32Window *next = _next_window;
-              while(next != this) {
-                if(next->zorder_level() > zorder_level()) {
-                  last_higher = next;
-                  break;
+              for(auto win : CommonDocumentWindow::All) {
+                if(BasicWin32Window *next = dynamic_cast<BasicWin32Window*>(win)) {
+                  if(next == this)
+                    continue;
+                  if(next->zorder_level() > zorder_level()) {
+                    last_higher = next;
+                    break;
+                  }
                 }
-                next = next->_next_window;
               }
+//              BasicWin32Window *next = _next_window;
+//              while(next != this) {
+//                if(next->zorder_level() > zorder_level()) {
+//                  last_higher = next;
+//                  break;
+//                }
+//                next = next->_next_window;
+//              }
 
               // get all windows from higher level, sorted from back to front
               static Array<BasicWin32Window *> all_higher;

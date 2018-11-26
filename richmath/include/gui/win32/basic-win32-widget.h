@@ -1,5 +1,5 @@
-#ifndef __GUI__WIN32__BASIC_WIN32_WIDGET_H__
-#define __GUI__WIN32__BASIC_WIN32_WIDGET_H__
+#ifndef RICHMATH__GUI__WIN32__BASIC_WIN32_WIDGET_H__INCLUDED
+#define RICHMATH__GUI__WIN32__BASIC_WIN32_WIDGET_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -20,7 +20,7 @@ namespace richmath {
   };
   
   // Must call init() immediately init after the construction of a derived object!
-  class BasicWin32Widget: public IDropTarget, public IStylusSyncPlugin, public virtual Base {
+  class BasicWin32Widget: public IDropTarget, public IStylusAsyncPlugin, public virtual Base {
       struct InitData {
         DWORD style_ex;
         DWORD style;
@@ -113,7 +113,7 @@ namespace richmath {
           p = p->parent();
         }
         
-        return 0;
+        return nullptr;
       }
       
     protected:
@@ -134,10 +134,9 @@ namespace richmath {
     private:
       InitData *init_data;
       bool _initializing;
-      IUnknown *freeThreadedMarshaller;
       
       static void init_window_class();
   };
 }
 
-#endif // __GUI__WIN32__BASIC_WIN32_WIDGET_H__
+#endif // RICHMATH__GUI__WIN32__BASIC_WIN32_WIDGET_H__INCLUDED

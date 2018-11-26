@@ -1,1439 +1,953 @@
 /* pMath Document */
 
-System`Document({
-  System`SectionGroup({System`Section("Symbol classifications", "Title"), 
-    System`SectionGroup({System`Section("Initialization", "Subsection"), 
-      System`Section(System`BoxData(
-        /\/({{"all", "\[Assign]", {
-            "Sort", "(", {"Names", "(", System`ComplexStringBox(
-              "\"System`*\""), ")"}, ")"}}, ";"}, "\n", {
-          {"allFunc", "\[Assign]", {"all", ".", "Select", "(", {
-             {{"Developer`HasBuiltinCode", "(", {
-                "#", ",", {"{", {"DownRules", ",", "SubRules"}, "}"}}, ")"}, 
-              "||", {{"DownRules", "(", "#", ")"}, "=!=", {"{", "}"}}, "||", {
-               {"SubRules", "(", "#", ")"}, "=!=", {"{", "}"}}}, "&"}, ")"}}, 
-          ";"}, "\n", {
-          {"allRest", ":=", {"Complement", "(", {"all", ",", "allFunc"}, 
-            ")"}}, ";"}, "\n", {
-          {"allUnknown", "\[Assign]", {"allRest", ".", "Select", "(", {
-             {{"OwnRules", "(", "#", ")"}, ".", "Match", "(", {
-               "{", {{"(", {"Rule", "|", "RuleDelayed"}, ")"}, "(", {
-                 "~", ",", {"~", ":", "System`Private`AutoLoadStart"}}, ")"}, 
-               "}"}, ")"}, "&"}, ")"}}, ";"}, "\n", {
-          {"allRest", ":=", {"Complement", "(", {
-             "allRest", ",", "allUnknown"}, ")"}}, ";"}, "\n", {
-          {"allValues", ":=", {"allRest", ".", "Select", "(", {
-             {{"OwnRules", "(", "#", ")"}, "=!=", {"{", "}"}}, "&"}, ")"}}, 
-          ";"}, "\n", {
-          {"allRest", ":=", {"Complement", "(", {"allRest", ",", "allValues"}, 
-            ")"}}, ";"})), "Input", System`SectionLabel -> "in [1]:"), 
-      System`Section(System`BoxData({
-         {"makeGrid", "(", {{"~", "data"}, ",", {"~", "columns"}}, ")"}, 
-         "\[AssignDelayed]", {
-          "Grid", "(", {
-           {"PadRight", "(", {
-             {"Partition", "(", {"data", ",", {
-                "\[LeftCeiling]", System`FractionBox({
-                  "Length", "(", "data", ")"}, "columns"), "\[RightCeiling]"}, 
-               ",", {"\[LeftCeiling]", System`FractionBox({
-                  "Length", "(", "data", ")"}, "columns"), "\[RightCeiling]"}, 
-               ",", {"{", {"1", ",", "1"}, "}"}, ",", {"{", "}"}}, ")"}, ",", {
-              "{", {"columns", ",", {"\[LeftCeiling]", 
-                System`FractionBox({"Length", "(", "data", ")"}, "columns"), 
-                "\[RightCeiling]"}}, "}"}, ",", 
-             System`ComplexStringBox("\"\"")}, ")"}, 
-           System`SuperscriptBox("\[DownTee]")}, ")"}}), "Input", 
-       System`SectionLabel -> "in [2]:"), 
-      System`Section(System`BoxData({
-         {"printInfoGrid", "(", {{"~", "data"}, ",", {"~", "columns"}}, ")"}, 
-         "\[AssignDelayed]", {"SectionPrint", "(", {
-           System`ComplexStringBox("\"PrintUsage\""), ",", {
-            {{"data", ".", "Map", "(", {
-               {"RawBoxes", "(", {
-                 "{", {{"ButtonBox", "(", {"ToBoxes", "(", "#", ")"}, ")"}, 
-                  ",", System`ComplexStringBox("\" \"")}, "}"}, ")"}, "&"}, 
-              ")"}, ".", "makeGrid", "(", "columns", ")"}, ".", "Style", "(", {
-             {"ButtonFrame", "\[Rule]", System`ComplexStringBox(
-               "\"Frameless\"")}, ",", {"ButtonFunction", "\[Rule]", " ", {
-               "(", {{"With", "(", {{"{", {"FE`Private`s", "\[Assign]", {
-                     "ToExpression", "(", {"First", "(", {"#", "1"}, ")"}, 
-                     ")"}}, "}"}, ",", {"ShowDefinition", "(", "FE`Private`s", 
-                   ")"}}, ")"}, "&"}, ")"}}, ",", {
-              "GridBoxColumnSpacing", "\[Rule]", "2"}, ",", {
-              "GridBoxRowSpacing", "\[Rule]", "0.20000000298023224`"}, ",", {
-              "StripOnInput", "\[Rule]", "False"}}, ")"}}, ")"}}), "Input", 
-       System`SectionLabel -> "in [3]:"), 
-      System`Section(System`BoxData({
-         {"usageSymbolNames", "\[Assign]", {
-           "Flatten", "(", {
-            {"ReadList", "(", {
-              {"ToFileName", "(", {"$BaseDirectory", ",", 
-                System`ComplexStringBox("\"usage.pmath\"")}, ")"}, ",", 
-              "String"}, ")"}, ".", "StringCases", "(", {
-             {{"StartOfString", "++", {{"Shortest", "(", {"~~~", "sym"}, ")"}, 
-                "++", System`ComplexStringBox("\"::usage\"")}}, 
-              "\[RuleDelayed]", {
-               "If", "(", {{{"StringPosition", "(", {
-                   "sym", ",", System`ComplexStringBox("\"`\""), ",", "1"}, 
-                  ")"}, "===", {"{", "}"}}, ",", {
-                 System`ComplexStringBox("\"System`\""), "++", "sym"}, ",", 
-                "sym"}, ")"}}, ",", "1"}, ")"}, ")"}}, ";"}), "Input", 
-       System`SectionLabel -> "in [4]:"), 
-      System`Section(System`BoxData(
-        /\/({"usageSymbolNames", ".", "Scan", "(", {
-           {"(", {{"hasUsage", "(", {"MakeExpression", "(", "#", ")"}, ")"}, 
-             "\[Assign]", "True"}, ")"}, "&"}, ")"}, "\n", {
-          {{"hasUsage", "(", "~", ")"}, "\[Assign]", "False"}, ";"})), 
-       "Input", System`SectionLabel -> "in [5]:"), 
-      System`Section(System`BoxData({
-         {"markNonDocumented", "(", {"~", "name"}, ")"}, "\[AssignDelayed]", {
-          "If", "(", {{"hasUsage", "(", {"MakeExpression", "(", "name", ")"}, 
-            ")"}, ",", "name", ",", {"Style", "(", {"name", ",", "Red"}, 
-            ")"}}, ")"}}), "Input", System`SectionLabel -> "in [6]:")}, 1), 
-    System`SectionGroup({System`Section("Functions", "Subsection"), 
-      System`SectionGroup({
-        System`Section(System`BoxData({
-           {{"allFunc", ".", "StringReplace", "(", {
-              {"StartOfString", "++", System`ComplexStringBox("\"System`\"")}, 
-              "\[Rule]", System`ComplexStringBox("\"\"")}, ")"}, ".", "Map", 
-            "(", "markNonDocumented", ")"}, ".", "printInfoGrid", "(", "3", 
-           ")"}), "Input", System`SectionLabel -> "in [7]:"), 
-        System`Section(System`BoxData(
-          System`StyleBox(System`TagBox(
-            System`GridBox({
-              {/\/(System`ButtonBox(System`ComplexStringBox("\"$History\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"For\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ParenthesizeBoxes\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$MessageCount\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FormatRules\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Part\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Abort\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FractionalPart\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Partition\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Abs\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FromCharacterCode\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Pause\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Accuracy\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FrontEndTokenExecute\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Piecewise\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"And\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Function\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Plus\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Append\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GCD\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"PolyGamma\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Apply\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Gamma\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Position\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ArcSin\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Gather\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PostDecrement\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"ArcTan\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Get\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PostIncrement\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Arg\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Goto\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Power\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Array\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Greater\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Precision\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Assign\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GreaterEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Prepend\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"AssignDelayed\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Hash\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Print\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Attributes\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Head\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Product\"")), " ")}, {
-               /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"AutoLoad\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Identical\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Protect\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"BaseForm\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Identity\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"QRDecomposition\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Begin\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IdentityMatrix\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Quantile\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BeginPackage\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"If\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Quotient\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BinaryRead\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Im\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RandomInteger\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BinaryWrite\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Increment\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RandomReal\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Binomial\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Inequation\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Range\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"BitAnd\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Inner\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Re\"")), " ")}, 
-              {/\/(System`ButtonBox(System`ComplexStringBox("\"BitClear\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IntegerPart\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"ReGather\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"BitGet\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Interrupt\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Read\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"BitLength\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Intersection\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"ReadList\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"BitNot\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsArray\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Refresh\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"BitOr\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsComplex\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ReleaseHold\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"BitSet\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsEven\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Remove\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BitShiftLeft\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsExactNumber\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RenameDirectory\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BitShiftRight\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"IsFloat\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RenameFile\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"BitXor\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsFreeOf\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Replace\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Block\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsHeld\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ReplaceList\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Boole\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsImaginary\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ReplacePart\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Break\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsInexactNumber\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ReplaceRepeated\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Button\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsInteger\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Rescale\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ByteCount\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsMachineNumber\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ResetDirectory\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Cases\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsMatrix\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Rest\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Catch\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsNegative\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Return\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Ceiling\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsNonNegative\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Reverse\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Characters\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsNonPositive\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Riffle\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Chop\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsNumber\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Round\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Clear\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsNumeric\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Scan\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ClearAll\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsOdd\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionPrint\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ClearAttributes\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"IsOption\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Select\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Clip\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsOrdered\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SelectedDocument\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Clock\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsPositive\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SetAccuracy\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Close\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsPrime\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SetAttributes\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Complement\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsQuotient\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SetDirectory\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Complex\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsRational\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SetOptions\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Compress\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsReal\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SetPrecision\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CompressStream\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"IsString\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SetStreamPosition\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Conjugate\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsSymbol\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Setting\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ConstantArray\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsValidArgumentCount\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ShowDefinition\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Continue\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IsVector\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Sign\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ControlActive\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"JacobiSymbol\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Sin\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CopyDirectory\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Join\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SingleMatch\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"CopyFile\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"KroneckerSymbol\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Sinh\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Cos\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"LCM\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Sort\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Cosh\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LUDecomposition\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"SortBy\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Count\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Label\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Split\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CreateDirectory\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Last\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Sqrt\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CreateDocument\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"LeafCount\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Stack\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Cross\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Length\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StreamPosition\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CurrentValue\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LengthWhile\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringCases\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"DateList\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Less\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringCount\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Decrement\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LessEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringDrop\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Default\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Level\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringExpression\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DefaultRules\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LinearSolve\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringMatch\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DeleteDirectory\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LinearSolveFunction\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringPosition\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DeleteFile\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ListConvolve\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringReplace\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Depth\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LoadLibrary\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringSplit\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Det\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Local\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringTake\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DiagonalMatrix\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Log\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringToBoxes\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Dialog\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MakeBoxes\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"SubRules\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Dimensions\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MakeExpression\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Sum\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DirectedInfinity\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Map\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Switch\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Directory\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MapIndexed\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SymbolName\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DirectoryName\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"MapThread\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Synchronize\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"DivideBy\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Match\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SyntaxInformation\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Do\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Max\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Table\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DocumentApply\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Mean\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TagAssign\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DocumentDelete\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MemoryUsage\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TagAssignDelayed\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DocumentGet\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Message\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TagUnassign\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DocumentRead\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MessageName\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Take\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DocumentSave\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Messages\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TakeWhile\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DocumentWrite\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Min\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Tan\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Documents\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Mod\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Tanh\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Dot\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Most\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Thread\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"DownRules\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox("\"N\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Through\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Drop\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NRules\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Throw\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Emit\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Names\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TimeConstrained\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"End\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Namespace\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Times\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"EndPackage\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Nest\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TimesBy\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Environment\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"NestList\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Timing\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Equal\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NestWhile\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"ToBoxes\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Evaluate\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NestWhileList\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ToCharacterCode\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"EvaluateDelayed\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"NewTask\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ToExpression\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"EvaluationDocument\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"NextPrime\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ToFileName\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"EvaluationSequence\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Norm\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ToString\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Exp\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Not\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Total\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Expand\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Off\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Transpose\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ExpandAll\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox("\"On\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Try\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ExtendedGCD\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OpenAppend\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Unassign\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Extract\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OpenRead\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Uncompress\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Factorial\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OpenWrite\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"UncompressStream\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Factorial2\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Operate\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Underflow\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FileByteCount\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OptionValue\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Unequal\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"FileNames\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Options\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Unidentical\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"FileType\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OptionsPattern\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Union\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FilterRules\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Or\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"UnitVector\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Finally\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Ordering\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Unprotect\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Find\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Overflow\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"UpRules\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"FindList\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OwnRules\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Update\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"First\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PadLeft\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Wait\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FixedPoint\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"PadRight\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Which\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FixedPointList\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ParallelMap\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"While\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Flatten\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ParallelMapIndexed\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"With\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Floor\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ParallelScan\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Write\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Fold\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ParallelTry\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"WriteString\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"FoldList\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ParentDirectory\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Xor\"")), 
-                " ")}}), "Grid"), System`ButtonFrame -> "Frameless", 
-           System`ButtonFunction -> (System`With({
-             FE`Private`s:= System`ToExpression(System`First(#1))}, 
-            System`ShowDefinition(FE`Private`s)) &), 
-           System`GridBoxColumnSpacing -> 2, 
-           System`GridBoxRowSpacing -> 0.20000000298023224`, 
-           System`StripOnInput -> System`False)), "PrintUsage", 
-         System`SectionGenerated -> System`True)}, System`All)}, System`All), 
-    System`SectionGroup({System`Section("Unknown \[Dash] not yet loaded", 
-       "Subsection"), System`SectionGroup({
-        System`Section(System`BoxData({
-           {{"allUnknown", ".", "StringReplace", "(", {
-              {"StartOfString", "++", System`ComplexStringBox("\"System`\"")}, 
-              "\[Rule]", System`ComplexStringBox("\"\"")}, ")"}, ".", "Map", 
-            "(", "markNonDocumented", ")"}, ".", "printInfoGrid", "(", "3", 
-           ")"}), "Input", System`SectionLabel -> "in [8]:"), 
-        System`Section(System`BoxData(
-          System`StyleBox(System`TagBox(
-            System`GridBox({
-              {/\/(System`ButtonBox(System`ComplexStringBox("\"ArcCos\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ArcSinh\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DynamicLocalBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"ArcCosh\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ArcTanh\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Interval\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ArcCot\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BernoulliB\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ListLinePlot\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"ArcCoth\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Cot\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"LogGamma\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ArcCsc\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Coth\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Plot\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ArcCsch\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Csc\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Sec\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ArcSec\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Csch\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Sech\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"ArcSech\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DynamicLocal\"")), " "), System`ComplexStringBox(
-                "\"\"")}}), "Grid"), System`ButtonFrame -> "Frameless", 
-           System`ButtonFunction -> (System`With({
-             FE`Private`s:= System`ToExpression(System`First(#1))}, 
-            System`ShowDefinition(FE`Private`s)) &), 
-           System`GridBoxColumnSpacing -> 2, 
-           System`GridBoxRowSpacing -> 0.20000000298023224`, 
-           System`StripOnInput -> System`False)), "PrintUsage", 
-         System`SectionGenerated -> System`True)}, System`All)}, System`All), 
-    System`SectionGroup({System`Section("Variables", "Subsection"), 
-      System`SectionGroup({
-        System`Section(System`BoxData({
-           {{"allValues", ".", "StringReplace", "(", {
-              {"StartOfString", "++", System`ComplexStringBox("\"System`\"")}, 
-              "\[Rule]", System`ComplexStringBox("\"\"")}, ")"}, ".", "Map", 
-            "(", "markNonDocumented", ")"}, ".", "printInfoGrid", "(", "3", 
-           ")"}), "Input", System`SectionLabel -> "in [9]:"), 
-        System`Section(System`BoxData(
-          System`StyleBox(System`TagBox(
-            System`GridBox({
-              {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$ApplicationFileName\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$PageWidth\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Infinity\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$BaseDirectory\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"$Path\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightBlue\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$ByteOrdering\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$PathListSeparator\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightBrown\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$CharacterEncoding\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$PathnameSeparator\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"LightCyan\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$CommandLine\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$ProcessId\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"LightGray\"")), 
-                " ")}, {/\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"$ControlActiveSetting\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$ProcessorCount\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightGreen\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$CreationDate\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$ProcessorType\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightMagenta\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$DialogLevel\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$SystemCharacterEncoding\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightOrange\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$DirectoryStack\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"$SystemId\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightPink\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$HistoryLength\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"$ThreadId\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightPurple\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$InitialDirectory\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"$TimeZone\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightRed\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"$Input\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$VersionList\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LightYellow\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"$Line\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$VersionNumber\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Magenta\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$MachineEpsilon\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Black\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Orange\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$MachinePrecision\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Blue\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Pink\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$MaxMachineNumber\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Brown\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Purple\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$MinMachineNumber\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ComplexInfinity\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Red\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$Namespace\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Cyan\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"White\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$NamespacePath\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Gray\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Yellow\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$NewMessage\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Green\"")), 
-                " "), System`ComplexStringBox("\"\"")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"$Packages\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox("\"I\"")), 
-                " "), System`ComplexStringBox("\"\"")}}), "Grid"), 
-           System`ButtonFrame -> "Frameless", 
-           System`ButtonFunction -> (System`With({
-             FE`Private`s:= System`ToExpression(System`First(#1))}, 
-            System`ShowDefinition(FE`Private`s)) &), 
-           System`GridBoxColumnSpacing -> 2, 
-           System`GridBoxRowSpacing -> 0.20000000298023224`, 
-           System`StripOnInput -> System`False)), "PrintUsage", 
-         System`SectionGenerated -> System`True)}, System`All)}, System`All), 
-    System`SectionGroup({System`Section("Symbolic constants", "Subsection"), 
-      System`SectionGroup({
-        System`Section(System`BoxData({
-           {{"allRest", ".", "StringReplace", "(", {
-              {"StartOfString", "++", System`ComplexStringBox("\"System`\"")}, 
-              "\[Rule]", System`ComplexStringBox("\"\"")}, ")"}, ".", "Map", 
-            "(", "markNonDocumented", ")"}, ".", "printInfoGrid", "(", "3", 
-           ")"}), "Input", System`SectionLabel -> "in [10]:"), 
-        System`Section(System`BoxData(
-          System`StyleBox(System`TagBox(
-            System`GridBox({
-              {/\/(System`ButtonBox(System`ComplexStringBox("\"$Aborted\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"HoldFirst\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RadioButtonBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"$Canceled\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"HoldForm\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Rational\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"$Failed\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"HoldPattern\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"RawBoxes\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$MaxExtraPrecision\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"HoldRest\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ReadProtected\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"$NewSymbol\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Hue\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Real\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"All\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"HumpDownHump\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RecordLists\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Alternatives\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"HumpEqual\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RegularExpression\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Antialiasing\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"IgnoreCase\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Repeated\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"AspectRatio\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"ImageSize\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ReturnCreatesNewSection\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Associative\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Inherited\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ReverseElement\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"AutoDelete\"")), " "), 
-               /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"Initialization\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RightTriangle\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"AutoNumberFormating\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"InputField\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RightTriangleEqual\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"AutoSpacing\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"InputFieldBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Rotate\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Automatic\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"InputForm\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RotationBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Axes\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Integer\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Row\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"AxesOrigin\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Interpretation\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RowSpacing\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Background\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"InterpretationBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Rule\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"BaseStyle\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Italic\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RuleDelayed\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BinaryFormat\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LanguageCategory\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"SameTest\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Bold\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LeftTriangle\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ScriptSizeMultipliers\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BorderRadius\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LeftTriangleEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Section\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"BoxData\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LessEqualGreater\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionEditDuplicate\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BoxRotation\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LessFullEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionEditDuplicateMakesCopy\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BoxTransformation\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LessGreater\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionFrame\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"BracketingBar\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"LessLess\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionFrameColor\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"ButtonBox\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LessTilde\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionFrameMargins\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ButtonFrame\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LetterCharacter\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionGenerated\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ButtonFunction\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Line\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionGroup\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ByteOrdering\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"LineBox\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionGroupPrecedence\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Character\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"LineBreakWithin\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionLabel\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CharacterEncoding\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"List\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionLabelAutoDelete\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Checkbox\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Listable\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SectionMargins\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CheckboxBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Literal\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Selectable\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CirclePlus\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"LongForm\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Sequence\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"CircleTimes\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Longest\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SequenceHold\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Colon\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MachinePrecision\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Setter\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Column\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MatrixForm\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"SetterBar\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ColumnSpacing\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MaxRecursion\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"SetterBox\"")), 
-                " ")}, {/\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"ComplexStringBox\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Method\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Shallow\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Condition\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"MinusPlus\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Short\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ConditionalExpression\"")), " "), 
-               /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"NCache\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Shortest\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Congruent\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NHoldAll\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ShowAutoStyles\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Congurent\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NHoldFirst\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ShowSectionBracket\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ContinuousAction\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"NHoldRest\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ShowStringCharacters\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"CupCap\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"None\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Skeleton\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"DataRange\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotCongruent\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Slider\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DeepHoldAll\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"NotCupCap\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SliderBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DefaultDuplicateSectionStyle\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotElement\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Special\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DefaultNewSectionStyle\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotGreater\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"SqrtBox\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DefaultReturnCreatedSectionStyle\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotGreaterEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StandardForm\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DefiniteFunction\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotGreaterGreater\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StartOfLine\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Degree\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotGreaterLess\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StartOfString\"")), " ")}, {
-               /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"Deinitialization\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotGreaterTilde\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"String\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DeleteContents\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotLeftTriangle\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StringForm\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DigitCharacter\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotLeftTriangleEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"StripOnInput\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Directive\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotLess\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Style\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DockedSections\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotLessEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"StyleBox\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Document\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotLessGreater\"")), " "), 
-               /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"StyleData\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"DotEqual\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotLessTilde\"")), " "), 
-               /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"StyleDefinitions\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DoubleBracketingBar\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotPrecedes\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Subscript\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Dynamic\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotPrecedesEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SubscriptBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DynamicBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotReverseElement\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Subset\"")), 
-                " ")}, {/\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"DynamicLocalValues\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotRightTriangle\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SubsetEqual\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"DynamicSetting\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotRightTriangleEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Subsuperscript\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"E\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"NotSubset\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SubsuperscriptBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Editable\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotSubsetEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Succeeds\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Element\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotSucceeds\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SucceedsEqual\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"EndOfFile\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotSucceedsEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SucceedsTilde\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"EndOfLine\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotSuperset\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Superscript\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"EndOfString\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotSupersetEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SuperscriptBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"EulerGamma\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotTildeEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Superset\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Evaluatable\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotTildeFullEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SupersetEqual\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Except\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NotTildeTilde\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Symbol\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Expression\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Number\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Symmetric\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"False\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NumberSting\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SynchronousUpdating\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"File\"")), 
-                " "), /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"NumberString\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Syntax\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"FillBox\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"NumericFunction\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"SystemException\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"FontColor\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OneIdentity\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"TagBox\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FontFamily\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Optional\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Temporary\"")), " ")}, {
-               /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"FontFeatures\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OutputForm\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TestPattern\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"FontSize\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Overlaps\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TextShadow\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"FontSlant\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Overscript\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ThreadLocal\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FontWeight\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"OverscriptBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Ticks\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FractionBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"PageWidth\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TildeEqual\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Frame\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ParseSymbols\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TildeFullEqual\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"FrameBox\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ParserArguments\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TildeTilde\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FrameTicks\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Path\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TimeZone\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Framed\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Pattern\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Tooltip\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"FrontEndObject\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PatternSequence\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TooltipBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"FullForm\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox("\"Pi\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TrackedSymbols\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"General\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Placeholder\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"TransformationBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GeneratedSectionStyles\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Plain\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"True\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GoldenRatio\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PlotPoints\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Undefined\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Graphics\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PlotRange\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Underoverscript\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GraphicsBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"PlotStyle\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"UnderoverscriptBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"GrayLevel\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PlusMinus\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Underscript\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GreaterEqualLess\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Point\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"UnderscriptBox\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GreaterFullEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"PointBox\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Unevaluated\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GreaterGreater\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Precedes\"")), 
-                " "), /\/(System`ButtonBox(System`StyleBox(
-                  System`ComplexStringBox("\"UnsavedVariables\""), 
-                  System`FontColor -> System`RGBColor(1, 0, 0), 
-                  System`StripOnInput -> System`False)), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GreaterLess\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PrecedesEqual\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"UpdateInterval\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GreaterTilde\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PrecedesTilde\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Visible\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Grid\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ProgressIndicator\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Whitespace\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"GridBox\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"ProgressIndicatorBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"WhitespaceCharacter\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GridBoxColumnSpacing\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Protected\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"WindowFrame\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"GridBoxRowSpacing\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"PureArgument\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"WindowTitle\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Heads\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"Quit\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Word\"")), 
-                " ")}, {/\/(System`ButtonBox(System`ComplexStringBox("\"Hold\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RGBColor\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"WordBoundary\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox("\"HoldAll\"")), 
-                " "), /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RadicalBox\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"WordCharacter\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"HoldAllComplete\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RadioButton\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"WorkingPrecision\"")), " ")}, {
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"HoldComplete\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox(
-                  "\"RadioButtonBar\"")), " "), 
-               /\/(System`ButtonBox(System`ComplexStringBox("\"Zeta\"")), 
-                " ")}}), "Grid"), System`ButtonFrame -> "Frameless", 
-           System`ButtonFunction -> (System`With({
-             FE`Private`s:= System`ToExpression(System`First(#1))}, 
-            System`ShowDefinition(FE`Private`s)) &), 
-           System`GridBoxColumnSpacing -> 2, 
-           System`GridBoxRowSpacing -> 0.20000000298023224`, 
-           System`StripOnInput -> System`False)), "PrintUsage", 
-         System`SectionGenerated -> System`True)}, System`All)}, System`All)}, 
-   System`All)}, System`Visible -> System`True)
+Document({
+  SectionGroup({Section("Symbol classifications", "Title"), 
+    Section("Initialization", "Subsection"), 
+    Section(
+     BoxData(
+      /\/({
+        {"all", "\[Assign]", {
+          "Sort", "(", {"Names", "(", ComplexStringBox("\"System`*\""), ")"}, 
+          ")"}}, ";"}, "\n", {
+        {"allFunc", "\[Assign]", {"all", ".", "Select", "(", {
+           {{"Developer`HasBuiltinCode", "(", {
+              "#", ",", {"{", {"DownRules", ",", "SubRules"}, "}"}}, ")"}, 
+            "||", {{"DownRules", "(", "#", ")"}, "=!=", {"{", "}"}}, "||", {
+             {"SubRules", "(", "#", ")"}, "=!=", {"{", "}"}}}, "&"}, ")"}}, 
+        ";"}, "\n", {
+        {"allRest", ":=", {"Complement", "(", {"all", ",", "allFunc"}, ")"}}, 
+        ";"}, "\n", {{"allUnknown", "\[Assign]", {
+          "allRest", ".", "Select", "(", {
+           {{"OwnRules", "(", "#", ")"}, ".", "Match", "(", {
+             "{", {{"(", {"Rule", "|", "RuleDelayed"}, ")"}, "(", {
+               "~", ",", {"~", ":", "System`Private`AutoLoadStart"}}, ")"}, 
+             "}"}, ")"}, "&"}, ")"}}, ";"}, "\n", {
+        {"allRest", ":=", {"Complement", "(", {"allRest", ",", "allUnknown"}, 
+          ")"}}, ";"}, "\n", {
+        {"allValues", ":=", {"allRest", ".", "Select", "(", {
+           {{"OwnRules", "(", "#", ")"}, "=!=", {"{", "}"}}, "&"}, ")"}}, 
+        ";"}, "\n", {
+        {"allRest", ":=", {"Complement", "(", {"allRest", ",", "allValues"}, 
+          ")"}}, ";"})), "Input", SectionLabel -> "in [1]:"), 
+    Section(BoxData({{"makeGrid", "(", {{"~", "data"}, ",", {"~", "columns"}}, 
+        ")"}, "\[AssignDelayed]", {
+        "Grid", "(", {
+         {"PadRight", "(", {
+           {"Partition", "(", {
+             "data", ",", {"\[LeftCeiling]", 
+              FractionBox({"Length", "(", "data", ")"}, "columns"), 
+              "\[RightCeiling]"}, ",", {"\[LeftCeiling]", 
+              FractionBox({"Length", "(", "data", ")"}, "columns"), 
+              "\[RightCeiling]"}, ",", {"{", {"1", ",", "1"}, "}"}, ",", {
+              "{", "}"}}, ")"}, ",", {
+            "{", {"columns", ",", {"\[LeftCeiling]", 
+              FractionBox({"Length", "(", "data", ")"}, "columns"), 
+              "\[RightCeiling]"}}, "}"}, ",", ComplexStringBox("\"\"")}, ")"}, 
+         SuperscriptBox("\[DownTee]")}, ")"}}), "Input", 
+     SectionLabel -> "in [2]:"), 
+    Section(
+     BoxData({{"printInfoGrid", "(", {{"~", "data"}, ",", {"~", "columns"}}, 
+        ")"}, "\[AssignDelayed]", {"SectionPrint", "(", {
+         ComplexStringBox("\"PrintUsage\""), ",", {
+          {{"data", ".", "Map", "(", {
+             {"RawBoxes", "(", {
+               "{", {{"ButtonBox", "(", {"ToBoxes", "(", "#", ")"}, ")"}, ",", 
+                ComplexStringBox("\" \"")}, "}"}, ")"}, "&"}, ")"}, ".", 
+           "makeGrid", "(", "columns", ")"}, ".", "Style", "(", {
+           {"ButtonFrame", "\[Rule]", ComplexStringBox("\"Frameless\"")}, ",", 
+           {"ButtonFunction", "\[Rule]", " ", {
+             "(", {
+              {"With", "(", {
+                {"{", {"FE`Private`s", "\[Assign]", {
+                   "ToExpression", "(", {"First", "(", {"#", "1"}, ")"}, 
+                   ")"}}, "}"}, ",", {"ShowDefinition", "(", "FE`Private`s", 
+                 ")"}}, ")"}, "&"}, ")"}}, ",", {
+            "GridBoxColumnSpacing", "\[Rule]", "2"}, ",", {
+            "GridBoxRowSpacing", "\[Rule]", "0.20000000298023224`"}, ",", {
+            "StripOnInput", "\[Rule]", "False"}}, ")"}}, ")"}}), "Input", 
+     SectionLabel -> "in [3]:"), 
+    Section(
+     BoxData({{"usageSymbolNames", "\[Assign]", {
+         "Flatten", "(", {
+          {"ReadList", "(", {
+            {"ToFileName", "(", {"$BaseDirectory", ",", 
+              ComplexStringBox("\"usage.pmath\"")}, ")"}, ",", "String"}, 
+           ")"}, ".", "StringCases", "(", {
+           {{"StartOfString", "++", {{"Shortest", "(", {"~~~", "sym"}, ")"}, 
+              "++", ComplexStringBox("\"::usage\"")}}, "\[RuleDelayed]", {
+             "If", "(", {
+              {{"StringPosition", "(", {"sym", ",", ComplexStringBox("\"`\""), 
+                 ",", "1"}, ")"}, "===", {"{", "}"}}, ",", {
+               ComplexStringBox("\"System`\""), "++", "sym"}, ",", "sym"}, 
+             ")"}}, ",", "1"}, ")"}, ")"}}, ";"}), "Input", 
+     SectionLabel -> "in [4]:"), 
+    Section(BoxData(/\/({"usageSymbolNames", ".", "Scan", "(", {
+         {"(", {{"hasUsage", "(", {"MakeExpression", "(", "#", ")"}, ")"}, 
+           "\[Assign]", "True"}, ")"}, "&"}, ")"}, "\n", {
+        {{"hasUsage", "(", "~", ")"}, "\[Assign]", "False"}, ";"})), "Input", 
+     SectionLabel -> "in [5]:"), 
+    Section(BoxData({{"markNonDocumented", "(", {"~", "name"}, ")"}, 
+       "\[AssignDelayed]", {
+        "If", "(", {{"hasUsage", "(", {"MakeExpression", "(", "name", ")"}, 
+          ")"}, ",", "name", ",", {"Style", "(", {"name", ",", "Red"}, ")"}}, 
+        ")"}}), "Input", SectionLabel -> "in [6]:"), 
+    Section("Functions", "Subsection"), 
+    Section(
+     BoxData({
+       {{"allFunc", ".", "StringReplace", "(", {
+          {"StartOfString", "++", ComplexStringBox("\"System`\"")}, "\[Rule]", 
+          ComplexStringBox("\"\"")}, ")"}, ".", "Map", "(", 
+        "markNonDocumented", ")"}, ".", "printInfoGrid", "(", "3", ")"}), 
+     "Input", SectionLabel -> "in [7]:"), 
+    Section(
+     BoxData(
+      StyleBox(
+       TagBox(GridBox({{/\/(ButtonBox(ComplexStringBox("\"$History\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"For\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ParenthesizeBoxes\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$MessageCount\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"FormatRules\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Part\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Abort\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"FractionalPart\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Partition\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Abs\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"FromCharacterCode\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Pause\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Accuracy\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"FrontEndTokenExecute\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Piecewise\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"And\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Function\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Plus\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Append\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"GCD\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PolyGamma\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Apply\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Gamma\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Position\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcSin\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Gather\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PostDecrement\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcTan\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Get\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PostIncrement\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Arg\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Goto\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Power\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Array\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Greater\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Precision\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Assign\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"GreaterEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Prepend\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"AssignDelayed\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Hash\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Print\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Attributes\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Head\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Product\"")), " ")}, {
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"AutoLoad\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Identical\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Protect\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BaseForm\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Identity\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"QRDecomposition\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Begin\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IdentityMatrix\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Quantile\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BeginPackage\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"If\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Quotient\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BinaryRead\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Im\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RandomInteger\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BinaryWrite\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Increment\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RandomReal\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Binomial\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Inequation\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Range\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitAnd\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Inner\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Re\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitClear\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IntegerPart\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReGather\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitGet\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Interrupt\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Read\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitLength\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Intersection\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReadList\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitNot\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsArray\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Refresh\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitOr\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsComplex\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReleaseHold\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitSet\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsEven\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Remove\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitShiftLeft\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsExactNumber\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RenameDirectory\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitShiftRight\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsFloat\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RenameFile\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BitXor\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsFreeOf\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Replace\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Block\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsHeld\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReplaceList\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Boole\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsImaginary\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReplacePart\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Break\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsInexactNumber\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReplaceRepeated\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Button\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsInteger\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Rescale\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ByteCount\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsMachineNumber\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ResetDirectory\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Cases\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsMatrix\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Rest\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Catch\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsNegative\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Return\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Ceiling\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsNonNegative\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Reverse\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Characters\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsNonPositive\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Riffle\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Chop\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsNumber\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Round\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Clear\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsNumeric\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Scan\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ClearAll\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsOdd\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionPrint\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ClearAttributes\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsOption\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Select\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Clip\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsOrdered\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SelectedDocument\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Clock\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsPositive\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SetAccuracy\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Close\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsPrime\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SetAttributes\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Complement\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsQuotient\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SetDirectory\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Complex\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsRational\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SetOptions\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Compress\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsReal\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SetPrecision\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CompressStream\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsString\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SetStreamPosition\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Conjugate\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsSymbol\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Setting\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ConstantArray\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsValidArgumentCount\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ShowDefinition\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Continue\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IsVector\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sign\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ControlActive\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"JacobiSymbol\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sin\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CopyDirectory\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Join\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SingleMatch\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CopyFile\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"KroneckerSymbol\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sinh\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Cos\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LCM\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sort\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Cosh\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LUDecomposition\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SortBy\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Count\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Label\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Split\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CreateDirectory\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Last\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sqrt\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CreateDocument\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LeafCount\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Stack\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Cross\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Length\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StreamPosition\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CurrentValue\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LengthWhile\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringCases\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DateList\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Less\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringCount\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Decrement\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LessEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringDrop\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Default\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Level\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringExpression\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DefaultRules\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LinearSolve\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringMatch\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DeleteDirectory\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LinearSolveFunction\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringPosition\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DeleteFile\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ListConvolve\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringReplace\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Depth\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LoadLibrary\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringSplit\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Det\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Local\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringTake\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DiagonalMatrix\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Log\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringToBoxes\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Dialog\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MakeBoxes\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SubRules\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Dimensions\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MakeExpression\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sum\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DirectedInfinity\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Map\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Switch\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Directory\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MapIndexed\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SymbolName\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DirectoryName\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MapThread\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Synchronize\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DivideBy\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Match\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SyntaxInformation\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Do\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Max\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Table\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DocumentApply\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Mean\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TagAssign\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DocumentDelete\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MemoryUsage\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TagAssignDelayed\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DocumentGet\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Message\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TagUnassign\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DocumentRead\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MessageName\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Take\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DocumentSave\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Messages\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TakeWhile\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DocumentWrite\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Min\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Tan\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Documents\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Mod\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Tanh\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Dot\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Most\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Thread\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DownRules\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"N\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Through\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Drop\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NRules\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Throw\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Emit\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Names\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TimeConstrained\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"End\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Namespace\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Times\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"EndPackage\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Nest\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TimesBy\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Environment\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NestList\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Timing\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Equal\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NestWhile\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ToBoxes\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Evaluate\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NestWhileList\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ToCharacterCode\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"EvaluateDelayed\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NewTask\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ToExpression\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"EvaluationDocument\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NextPrime\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ToFileName\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"EvaluationSequence\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Norm\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ToString\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Exp\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Not\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Total\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Expand\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Off\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Transpose\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ExpandAll\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"On\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Try\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ExtendedGCD\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OpenAppend\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Unassign\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Extract\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OpenRead\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Uncompress\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Factorial\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OpenWrite\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"UncompressStream\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Factorial2\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Operate\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Underflow\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FileByteCount\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OptionValue\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Unequal\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FileNames\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Options\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Unidentical\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FileType\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OptionsPattern\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Union\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FilterRules\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Or\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"UnitVector\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Finally\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Ordering\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Unprotect\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Find\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Overflow\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"UpRules\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FindList\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OwnRules\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Update\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"First\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PadLeft\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Wait\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FixedPoint\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PadRight\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Which\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FixedPointList\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ParallelMap\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"While\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Flatten\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ParallelMapIndexed\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"With\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Floor\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ParallelScan\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Write\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Fold\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ParallelTry\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"WriteString\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FoldList\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ParentDirectory\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Xor\"")), " ")}}), "Grid"), 
+       ButtonFrame -> "Frameless", ButtonFunction -> (With({
+         FE`Private`s:= ToExpression(First(#1))}, 
+        ShowDefinition(FE`Private`s)) &), GridBoxColumnSpacing -> 2, 
+       GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
+     "PrintUsage", SectionGenerated -> True), 
+    Section("Unknown \[Dash] not yet loaded", "Subsection"), 
+    Section(
+     BoxData({
+       {{"allUnknown", ".", "StringReplace", "(", {
+          {"StartOfString", "++", ComplexStringBox("\"System`\"")}, "\[Rule]", 
+          ComplexStringBox("\"\"")}, ")"}, ".", "Map", "(", 
+        "markNonDocumented", ")"}, ".", "printInfoGrid", "(", "3", ")"}), 
+     "Input", SectionLabel -> "in [8]:"), 
+    Section(
+     BoxData(
+      StyleBox(
+       TagBox(GridBox({{/\/(ButtonBox(ComplexStringBox("\"ArcCos\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ArcSinh\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"DynamicLocalBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcCosh\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ArcTanh\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Interval\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcCot\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"BernoulliB\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ListLinePlot\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcCoth\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Cot\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LogGamma\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcCsc\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Coth\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Plot\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcCsch\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Csc\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sec\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcSec\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Csch\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sech\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ArcSech\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"DynamicLocal\"")), " "), 
+           ComplexStringBox("\"\"")}}), "Grid"), ButtonFrame -> "Frameless", 
+       ButtonFunction -> (With({FE`Private`s:= ToExpression(First(#1))}, 
+        ShowDefinition(FE`Private`s)) &), GridBoxColumnSpacing -> 2, 
+       GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
+     "PrintUsage", SectionGenerated -> True), 
+    Section("Variables", "Subsection"), 
+    Section(
+     BoxData({
+       {{"allValues", ".", "StringReplace", "(", {
+          {"StartOfString", "++", ComplexStringBox("\"System`\"")}, "\[Rule]", 
+          ComplexStringBox("\"\"")}, ")"}, ".", "Map", "(", 
+        "markNonDocumented", ")"}, ".", "printInfoGrid", "(", "3", ")"}), 
+     "Input", SectionLabel -> "in [9]:"), 
+    Section(
+     BoxData(
+      StyleBox(
+       TagBox(
+        GridBox({{/\/(ButtonBox(ComplexStringBox("\"$ApplicationFileName\"")), 
+            " "), /\/(ButtonBox(ComplexStringBox("\"$PageWidth\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Infinity\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$BaseDirectory\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$Path\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightBlue\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$ByteOrdering\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$PathListSeparator\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightBrown\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$CharacterEncoding\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$PathnameSeparator\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightCyan\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$CommandLine\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$ProcessId\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightGray\"")), " ")}, {
+           /\/(ButtonBox(
+             StyleBox(ComplexStringBox("\"$ControlActiveSetting\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$ProcessorCount\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightGreen\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$CreationDate\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$ProcessorType\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightMagenta\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$DialogLevel\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$SystemCharacterEncoding\"")), 
+            " "), /\/(ButtonBox(ComplexStringBox("\"LightOrange\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$DirectoryStack\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$SystemId\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightPink\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$HistoryLength\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$ThreadId\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightPurple\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$InitialDirectory\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$TimeZone\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightRed\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$Input\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$VersionList\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LightYellow\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$Line\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"$VersionNumber\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Magenta\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$MachineEpsilon\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Black\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Orange\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$MachinePrecision\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Blue\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Pink\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$MaxMachineNumber\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Brown\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Purple\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$MinMachineNumber\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ComplexInfinity\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Red\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$Namespace\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Cyan\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"White\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$NamespacePath\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Gray\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Yellow\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$NewMessage\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Green\"")), " "), 
+           ComplexStringBox("\"\"")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$Packages\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"I\"")), " "), 
+           ComplexStringBox("\"\"")}}), "Grid"), ButtonFrame -> "Frameless", 
+       ButtonFunction -> (With({FE`Private`s:= ToExpression(First(#1))}, 
+        ShowDefinition(FE`Private`s)) &), GridBoxColumnSpacing -> 2, 
+       GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
+     "PrintUsage", SectionGenerated -> True), 
+    Section("Symbolic constants", "Subsection"), 
+    Section(
+     BoxData({
+       {{"allRest", ".", "StringReplace", "(", {
+          {"StartOfString", "++", ComplexStringBox("\"System`\"")}, "\[Rule]", 
+          ComplexStringBox("\"\"")}, ")"}, ".", "Map", "(", 
+        "markNonDocumented", ")"}, ".", "printInfoGrid", "(", "3", ")"}), 
+     "Input", SectionLabel -> "in [10]:"), 
+    Section(
+     BoxData(
+      StyleBox(
+       TagBox(GridBox({{/\/(ButtonBox(ComplexStringBox("\"$Aborted\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"HoldFirst\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RadioButtonBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$Canceled\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"HoldForm\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Rational\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$Failed\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"HoldPattern\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RawBoxes\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$MaxExtraPrecision\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"HoldRest\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReadProtected\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"$NewSymbol\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Hue\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Real\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"All\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"HumpDownHump\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RecordLists\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Alternatives\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"HumpEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RegularExpression\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Antialiasing\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"IgnoreCase\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Repeated\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"AspectRatio\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ImageSize\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReturnCreatesNewSection\"")), 
+            " ")}, {/\/(ButtonBox(ComplexStringBox("\"Associative\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Inherited\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ReverseElement\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"AutoDelete\"")), " "), 
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"Initialization\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RightTriangle\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"AutoNumberFormating\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"InputField\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RightTriangleEqual\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"AutoSpacing\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"InputFieldBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Rotate\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Automatic\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"InputForm\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RotationBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Axes\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Integer\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Row\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"AxesOrigin\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Interpretation\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RowSpacing\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Background\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"InterpretationBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Rule\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BaseStyle\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Italic\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RuleDelayed\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BinaryFormat\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LanguageCategory\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SameTest\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Bold\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LeftTriangle\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ScriptSizeMultipliers\"")), 
+            " ")}, {/\/(ButtonBox(ComplexStringBox("\"BorderRadius\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LeftTriangleEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Section\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BoxData\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LessEqualGreater\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionEditDuplicate\"")), " ")}, 
+          {/\/(ButtonBox(ComplexStringBox("\"BoxRotation\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LessFullEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox(
+              "\"SectionEditDuplicateMakesCopy\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BoxTransformation\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LessGreater\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionFrame\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"BracketingBar\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LessLess\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionFrameColor\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ButtonBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LessTilde\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionFrameMargins\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ButtonFrame\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LetterCharacter\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionGenerated\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ButtonFunction\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Line\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionGroup\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ByteOrdering\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LineBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionGroupPrecedence\"")), 
+            " ")}, {/\/(ButtonBox(ComplexStringBox("\"Character\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LineBreakWithin\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionLabel\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CharacterEncoding\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"List\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionLabelAutoDelete\"")), 
+            " ")}, {/\/(ButtonBox(ComplexStringBox("\"Checkbox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Listable\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SectionMargins\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CheckboxBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Literal\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Selectable\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CirclePlus\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"LongForm\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Sequence\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"CircleTimes\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Longest\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SequenceHold\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Colon\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MachinePrecision\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Setter\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Column\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MatrixForm\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SetterBar\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ColumnSpacing\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MaxRecursion\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SetterBox\"")), " ")}, {
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"ComplexStringBox\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Method\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Shallow\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Condition\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"MinusPlus\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Short\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ConditionalExpression\"")), " "), 
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"NCache\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Shortest\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Congruent\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NHoldAll\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ShowAutoStyles\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Congurent\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NHoldFirst\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ShowSectionBracket\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"ContinuousAction\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NHoldRest\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ShowStringCharacters\"")), " ")}, 
+          {/\/(ButtonBox(ComplexStringBox("\"CupCap\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"None\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Skeleton\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DataRange\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotCongruent\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Slider\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DeepHoldAll\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotCupCap\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SliderBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox(
+              "\"DefaultDuplicateSectionStyle\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotElement\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Special\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DefaultNewSectionStyle\"")), 
+            " "), /\/(ButtonBox(ComplexStringBox("\"NotGreater\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SqrtBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox(
+              "\"DefaultReturnCreatedSectionStyle\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotGreaterEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StandardForm\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DefiniteFunction\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotGreaterGreater\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StartOfLine\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Degree\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotGreaterLess\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StartOfString\"")), " ")}, {
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"Deinitialization\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotGreaterTilde\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"String\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DeleteContents\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotLeftTriangle\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StringForm\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DigitCharacter\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotLeftTriangleEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StripOnInput\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Directive\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotLess\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Style\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DockedSections\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotLessEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"StyleBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Document\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotLessGreater\"")), " "), 
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"StyleData\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DotEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotLessTilde\"")), " "), 
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"StyleDefinitions\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DoubleBracketingBar\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotPrecedes\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Subscript\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Dynamic\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotPrecedesEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SubscriptBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DynamicBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotReverseElement\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Subset\"")), " ")}, {
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"DynamicLocalValues\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotRightTriangle\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SubsetEqual\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"DynamicSetting\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotRightTriangleEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Subsuperscript\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"E\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotSubset\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SubsuperscriptBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Editable\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotSubsetEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Succeeds\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Element\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotSucceeds\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SucceedsEqual\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"EndOfFile\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotSucceedsEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SucceedsTilde\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"EndOfLine\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotSuperset\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Superscript\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"EndOfString\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotSupersetEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SuperscriptBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"EulerGamma\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotTildeEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Superset\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Evaluatable\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotTildeFullEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SupersetEqual\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Except\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NotTildeTilde\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Symbol\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Expression\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Number\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Symmetric\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"False\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NumberSting\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SynchronousUpdating\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"File\"")), " "), 
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"NumberString\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Syntax\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FillBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"NumericFunction\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"SystemException\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FontColor\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OneIdentity\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TagBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FontFamily\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Optional\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Temporary\"")), " ")}, {
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"FontFeatures\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OutputForm\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TestPattern\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FontSize\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Overlaps\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TextShadow\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FontSlant\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Overscript\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ThreadLocal\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FontWeight\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"OverscriptBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Ticks\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FractionBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PageWidth\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TildeEqual\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Frame\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ParseSymbols\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TildeFullEqual\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FrameBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ParserArguments\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TildeTilde\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FrameTicks\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Path\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TimeZone\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Framed\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Pattern\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Tooltip\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FrontEndObject\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PatternSequence\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TooltipBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"FullForm\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Pi\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TrackedSymbols\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"General\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Placeholder\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"TransformationBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GeneratedSectionStyles\"")), 
+            " "), /\/(ButtonBox(ComplexStringBox("\"Plain\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"True\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GoldenRatio\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PlotPoints\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Undefined\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Graphics\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PlotRange\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Underoverscript\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GraphicsBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PlotStyle\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"UnderoverscriptBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GrayLevel\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PlusMinus\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Underscript\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GreaterEqualLess\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Point\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"UnderscriptBox\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GreaterFullEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PointBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Unevaluated\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GreaterGreater\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Precedes\"")), " "), 
+           /\/(ButtonBox(StyleBox(ComplexStringBox("\"UnsavedVariables\""), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GreaterLess\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PrecedesEqual\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"UpdateInterval\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GreaterTilde\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PrecedesTilde\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Visible\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Grid\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ProgressIndicator\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Whitespace\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GridBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"ProgressIndicatorBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"WhitespaceCharacter\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GridBoxColumnSpacing\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Protected\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"WindowFrame\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"GridBoxRowSpacing\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"PureArgument\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"WindowTitle\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Heads\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Quit\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Word\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"Hold\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RGBColor\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"WordBoundary\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"HoldAll\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RadicalBox\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"WordCharacter\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"HoldAllComplete\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RadioButton\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"WorkingPrecision\"")), " ")}, {
+           /\/(ButtonBox(ComplexStringBox("\"HoldComplete\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"RadioButtonBar\"")), " "), 
+           /\/(ButtonBox(ComplexStringBox("\"Zeta\"")), " ")}}), "Grid"), 
+       ButtonFrame -> "Frameless", ButtonFunction -> (With({
+         FE`Private`s:= ToExpression(First(#1))}, 
+        ShowDefinition(FE`Private`s)) &), GridBoxColumnSpacing -> 2, 
+       GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
+     "PrintUsage", SectionGenerated -> True)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

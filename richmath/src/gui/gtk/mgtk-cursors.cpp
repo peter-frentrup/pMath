@@ -465,7 +465,7 @@ namespace {
 
 static int num_refs = 0;
 
-static Hashtable<CursorType, CppGdkCursor, cast_hash> all_cursors;
+static Hashtable<CursorType, CppGdkCursor> all_cursors;
 
 //{ class MathGtkCursors ...
 

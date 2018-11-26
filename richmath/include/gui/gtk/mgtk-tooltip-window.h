@@ -1,5 +1,5 @@
-#ifndef __GUI__GTK__MGTK_TOOLTIP_WINDOW_H__
-#define __GUI__GTK__MGTK_TOOLTIP_WINDOW_H__
+#ifndef RICHMATH__GUI__GTK__MGTK_TOOLTIP_WINDOW_H__INCLUDED
+#define RICHMATH__GUI__GTK__MGTK_TOOLTIP_WINDOW_H__INCLUDED
 
 #ifndef RICHMATH_USE_GTK_GUI
 #  error this header is gtk specific
@@ -14,14 +14,14 @@ namespace richmath {
       virtual ~MathGtkTooltipWindow();
       
       static void move_global_tooltip();
-      static void show_global_tooltip(Expr boxes);
+      static void show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet);
       static void hide_global_tooltip();
       static void delete_global_tooltip();
       
       virtual void page_size(float *w, float *h) override;
       
       virtual bool is_scrollable() override { return false; }
-      
+    
     protected:
       Expr  _content_expr;
       
@@ -37,4 +37,4 @@ namespace richmath {
   };
 }
 
-#endif // __GUI__GTK__MGTK_TOOLTIP_WINDOW_H__
+#endif // RICHMATH__GUI__GTK__MGTK_TOOLTIP_WINDOW_H__INCLUDED

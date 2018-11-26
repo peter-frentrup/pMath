@@ -1,5 +1,5 @@
-#ifndef __BOXES__GRAPHICS__GRAPHICSELEMENT_H__
-#define __BOXES__GRAPHICS__GRAPHICSELEMENT_H__
+#ifndef RICHMATH__BOXES__GRAPHICS__GRAPHICSELEMENT_H__INCLUDED
+#define RICHMATH__BOXES__GRAPHICS__GRAPHICSELEMENT_H__INCLUDED
 
 #include <util/base.h>
 #include <util/array.h>
@@ -61,6 +61,8 @@ namespace richmath {
       
     protected:
       GraphicsElement();
+      
+      void finish_load_from_object(Expr expr) {}
   };
   
   class GraphicsDirective: public GraphicsElement {
@@ -99,4 +101,4 @@ namespace richmath {
 }
 
 
-#endif // __BOXES__GRAPHICS__GRAPHICSELEMENT_H__
+#endif // RICHMATH__BOXES__GRAPHICS__GRAPHICSELEMENT_H__INCLUDED

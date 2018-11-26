@@ -24,6 +24,7 @@
 #include <boxes/sliderbox.h>
 #include <boxes/stylebox.h>
 #include <boxes/subsuperscriptbox.h>
+#include <boxes/templatebox.h>
 #include <boxes/tooltipbox.h>
 #include <boxes/transformationbox.h>
 #include <boxes/underoverscriptbox.h>
@@ -44,6 +45,39 @@
 
 
 using namespace richmath;
+
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_ButtonBox;
+extern pmath_symbol_t richmath_System_CheckboxBox;
+extern pmath_symbol_t richmath_System_ComplexStringBox;
+extern pmath_symbol_t richmath_System_DynamicBox;
+extern pmath_symbol_t richmath_System_DynamicLocalBox;
+extern pmath_symbol_t richmath_System_FillBox;
+extern pmath_symbol_t richmath_System_FractionBox;
+extern pmath_symbol_t richmath_System_FrameBox;
+extern pmath_symbol_t richmath_System_GraphicsBox;
+extern pmath_symbol_t richmath_System_GridBox;
+extern pmath_symbol_t richmath_System_InputFieldBox;
+extern pmath_symbol_t richmath_System_InterpretationBox;
+extern pmath_symbol_t richmath_System_OverscriptBox;
+extern pmath_symbol_t richmath_System_ProgressIndicatorBox;
+extern pmath_symbol_t richmath_System_RadicalBox;
+extern pmath_symbol_t richmath_System_RadioButtonBox;
+extern pmath_symbol_t richmath_System_RotationBox;
+extern pmath_symbol_t richmath_System_SetterBox;
+extern pmath_symbol_t richmath_System_SliderBox;
+extern pmath_symbol_t richmath_System_SqrtBox;
+extern pmath_symbol_t richmath_System_StyleBox;
+extern pmath_symbol_t richmath_System_SubscriptBox;
+extern pmath_symbol_t richmath_System_SubsuperscriptBox;
+extern pmath_symbol_t richmath_System_SuperscriptBox;
+extern pmath_symbol_t richmath_System_TagBox;
+extern pmath_symbol_t richmath_System_TemplateBox;
+extern pmath_symbol_t richmath_System_TemplateSlot;
+extern pmath_symbol_t richmath_System_TooltipBox;
+extern pmath_symbol_t richmath_System_TransformationBox;
+extern pmath_symbol_t richmath_System_UnderscriptBox;
+extern pmath_symbol_t richmath_System_UnderoverscriptBox;
 
 static const float RefErrorIndictorHeight = 1 / 3.0f;
 
@@ -218,48 +252,90 @@ namespace richmath {
         }
         
         if(pmath_is_string(token_or_span)) {
-          if(data->start <= start->index && end->index <= data->end)
-            return token_or_span;
-            
-          /* does not work with string tokens containing boxes */
+          if(data->start > start->index || data->end < end->index) {
+            /* does not work with string tokens containing boxes */
           
-          if(start->index <= data->start && data->end <= end->index) {
-            return pmath_string_part(
-                     token_or_span,
-                     data->start - start->index,
-                     data->end - data->start);
+            if(start->index <= data->start && data->end <= end->index) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       data->start - start->index,
+                       data->end - data->start);
+            }
+            else if(data->start <= start->index && start->index <= data->end) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       0,
+                       data->end - start->index);
+            }
+            else if(data->start <= end->index && end->index <= data->end) {
+              token_or_span = pmath_string_part(
+                       token_or_span,
+                       data->start - start->index,
+                       end->index - data->start);
+            }
           }
-          
-          if(data->start <= start->index && start->index <= data->end) {
-            return pmath_string_part(
-                     token_or_span,
-                     0,
-                     data->end - start->index);
-          }
-          
-          if(data->start <= end->index && end->index <= data->end) {
-            return pmath_string_part(
-                     token_or_span,
-                     data->start - start->index,
-                     end->index - data->start);
-          }
-          
-          return token_or_span;
         }
         
-        if(!pmath_is_expr(token_or_span))
+        if(!has(data->flags, BoxOutputFlags::WithDebugInfo))
           return token_or_span;
-          
-        Expr debug_info = Call(
-                            Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
-                            Call(Symbol(PMATH_SYMBOL_FRONTENDOBJECT), data->sequence->id()),
-                            Call(Symbol(PMATH_SYMBOL_RANGE), start->index, end->index));
+        
+        if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
+          return token_or_span;
+        
+        Expr debug_info = SelectionReference(data->sequence->id(), start->index, end->index).to_debug_info();
                             
         token_or_span = pmath_try_set_debug_info(
                           token_or_span,
                           debug_info.release());
                           
         return token_or_span;
+      }
+      
+      static pmath_t remove_null_tokens(pmath_t boxes) {
+        while(true) {
+          if(pmath_is_expr_of(boxes, PMATH_SYMBOL_LIST)) {
+            size_t first = 1;
+            size_t length = pmath_expr_length(boxes);
+            size_t last = length;
+            
+            for(; last >= first; --last) {
+              pmath_t item = pmath_expr_get_item(boxes, last);
+              bool is_null_token = pmath_is_str0(item);
+              pmath_unref(item);
+              if(!is_null_token)
+                break;
+            }
+            for(; first <= last; ++first) {
+              pmath_t item = pmath_expr_get_item(boxes, first);
+              bool is_null_token = pmath_is_str0(item);
+              pmath_unref(item);
+              if(!is_null_token)
+                break;
+            }
+            
+            if(first > last) {
+              pmath_unref(boxes);
+              return PMATH_FROM_TAG(PMATH_TAG_STR0, 0);
+            }
+            
+            if(first == last) {
+              pmath_t item = pmath_expr_get_item(boxes, first);
+              pmath_unref(boxes);
+              boxes = item;
+              continue;
+            }
+            
+            if(first == 1 && last == length)
+              return boxes;
+            
+            if(first < last) {
+              pmath_t items = pmath_expr_get_item_range(boxes, first, last - first + 1);
+              pmath_unref(boxes);
+              return items;
+            }
+          }
+          return boxes;
+        }
       }
       
       //}
@@ -1106,7 +1182,7 @@ namespace richmath {
             }
             return context->math_shaper->get_style().italic;
           }
-
+          
           void italic_correction(int token_end) {
             if(buf[token_end] == PMATH_CHAR_BOX)
               return;
@@ -2587,11 +2663,8 @@ void MathSequence::paint(Context *context) {
     const uint16_t *buf = str.buffer();
     
     double clip_x1, clip_y1, clip_x2, clip_y2;
-    cairo_clip_extents(
-      context->canvas->cairo(),
-      &clip_x1, &clip_y1,
-      &clip_x2,  &clip_y2);
-      
+    context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
+    
     int line = 0;
     // skip invisible lines:
     while(line < lines.length()) {
@@ -2801,6 +2874,11 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
   float x0, y0, x1, y1, x2, y2;
 //  const uint16_t *buf = str.buffer();
 
+  if(start > glyphs.length())
+    start = glyphs.length();
+  if(end > glyphs.length())
+    end = glyphs.length();
+    
   canvas->current_pos(&x0, &y0);
   
   y0 -= lines[0].ascent;
@@ -2937,28 +3015,7 @@ void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int star
 }
 
 Expr MathSequence::to_pmath(BoxOutputFlags flags) {
-  ScanData data;
-  data.sequence    = this;
-  data.current_box = 0;
-  data.flags       = flags;
-  data.start       = 0;
-  data.end         = str.length();
-  
-  struct pmath_boxes_from_spans_ex_t settings;
-  memset(&settings, 0, sizeof(settings));
-  settings.size           = sizeof(settings);
-  settings.data           = &data;
-  settings.box_at_index   = MathSequenceImpl::box_at_index;
-  settings.add_debug_info = MathSequenceImpl::add_debug_info;
-  
-  if(has(flags, BoxOutputFlags::Parseable))
-    settings.flags |= PMATH_BFS_PARSEABLE;
-    
-  settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
-  
-  ensure_spans_valid();
-  
-  return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
+  return to_pmath(flags, 0, length());
 }
 
 Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
@@ -2983,7 +3040,10 @@ Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   
   ensure_spans_valid();
   
-  return Expr(pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings));
+  pmath_t boxes = pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings);
+  if(start > 0 || end < length())
+    boxes = MathSequenceImpl::remove_null_tokens(boxes);
+  return Expr(boxes);
 //  if(start == 0 && end >= length())
 //    return to_pmath(flags);
 //
@@ -3026,25 +3086,32 @@ Box *MathSequence::move_logical(
   bool              jumping,
   int              *index
 ) {
+  const int len = length();
+  const uint16_t *buf = str.buffer();
+  
   if(direction == LogicalDirection::Forward) {
-    if(*index >= length()) {
+    if(*index >= len) {
       if(_parent) {
+        if(jumping && !_parent->exitable())
+          return this;
+          
         *index = _index;
         return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
     
-    if(jumping || *index < 0 || str[*index] != PMATH_CHAR_BOX) {
+    if(jumping || *index < 0 || buf[*index] != PMATH_CHAR_BOX) {
       if(jumping) {
-        while(*index + 1 < length() && !spans.is_token_end(*index))
+        while(*index + 1 < len && !spans.is_token_end(*index))
           ++*index;
           
         ++*index;
+        while(*index < len && (buf[*index] == ' ' || buf[*index] == '\t'))
+          ++*index;
       }
       else {
-        if( is_utf16_high(str[*index]) &&
-            is_utf16_low(str[*index + 1]))
+        if(*index + 2 < len && is_utf16_high(buf[*index]) && is_utf16_low(buf[*index + 1]))
           ++*index;
           
         ++*index;
@@ -3064,6 +3131,9 @@ Box *MathSequence::move_logical(
   
   if(*index <= 0) {
     if(_parent) {
+      if(jumping && !_parent->exitable())
+        return this;
+        
       *index = _index + 1;
       return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
@@ -3073,16 +3143,20 @@ Box *MathSequence::move_logical(
   if(jumping) {
     do {
       --*index;
+    } while(*index > 0 && (buf[*index] == ' ' || buf[*index] == '\t'));
+    ++*index;
+    
+    do {
+      --*index;
     } while(*index > 0 && !spans.is_token_end(*index - 1));
     
     return this;
   }
   
-  if(str[*index - 1] != PMATH_CHAR_BOX) {
+  if(buf[*index - 1] != PMATH_CHAR_BOX) {
     --*index;
     
-    if( is_utf16_high(str[*index - 1]) &&
-        is_utf16_low(str[*index]))
+    if(*index > 0 && is_utf16_high(buf[*index - 1]) && is_utf16_low(buf[*index]))
       --*index;
       
     return this;
@@ -3099,7 +3173,7 @@ Box *MathSequence::move_logical(
 
 Box *MathSequence::move_vertical(
   LogicalDirection  direction,
-  float             *index_rel_x,
+  float            *index_rel_x,
   int              *index,
   bool              called_from_child
 ) {
@@ -3261,14 +3335,15 @@ Box *MathSequence::mouse_selection(
           return this;
         }
         
-        if(x < prev - line_start + glyphs[*start].x_offset) {
+        float xoff = glyphs[*start].x_offset;
+        if(x < prev - line_start + xoff) {
           *was_inside_start = false;
           *end = *start;
           return this;
         }
         
         return boxes[b]->mouse_selection(
-                 x - prev + line_start,
+                 x - (prev - line_start + xoff),
                  y,
                  start,
                  end,
@@ -3489,6 +3564,9 @@ int MathSequence::matching_fence(int pos) {
 //{ insert/remove ...
 
 int MathSequence::insert(int pos, uint16_t chr) {
+  if(chr == PMATH_CHAR_BOX) 
+    return insert(pos, new ErrorBox(String::FromChar(chr)));
+  
   spans_invalid = true;
   boxes_invalid = true;
   str.insert(pos, &chr, 1);
@@ -3497,14 +3575,54 @@ int MathSequence::insert(int pos, uint16_t chr) {
 }
 
 int MathSequence::insert(int pos, const uint16_t *ucs2, int len) {
+  if(len < 0) {
+    len = 0;
+    const uint16_t *buf = ucs2;
+    while(*buf++)
+      ++len;
+  }
+  
+  int boxpos = 0;
+  while(boxpos < len && ucs2[boxpos] != PMATH_CHAR_BOX)
+    ++boxpos;
+  
+  if(boxpos < len) {
+    ensure_boxes_valid();
+    
+    int b = 0;
+    while(b < boxes.length() && boxes[b]->index() < pos)
+      ++b;
+    
+    while(boxpos < len) {
+      ++boxpos;
+      str.insert(pos, ucs2, boxpos);
+      
+      pos+= boxpos;
+      ucs2+= boxpos;
+      len-= boxpos;
+      
+      Box *box = new ErrorBox(String::FromChar(PMATH_CHAR_BOX));
+      adopt(box, pos - 1);
+      boxes.insert(b, 1, &box);
+      ++b;
+      
+      boxpos = 0;
+      while(boxpos < len && ucs2[boxpos] != PMATH_CHAR_BOX)
+        ++boxpos;
+    }
+  }
+  str.insert(pos, ucs2, len);
+  
   spans_invalid = true;
   boxes_invalid = true;
-  str.insert(pos, ucs2, len);
   invalidate();
   return pos + len;
 }
 
 int MathSequence::insert(int pos, const char *latin1, int len) {
+  if(len < 0)
+    len = strlen(latin1);
+  
   spans_invalid = true;
   boxes_invalid = true;
   str.insert(pos, latin1, len);
@@ -3513,11 +3631,7 @@ int MathSequence::insert(int pos, const char *latin1, int len) {
 }
 
 int MathSequence::insert(int pos, const String &s) {
-  spans_invalid = true;
-  boxes_invalid = true;
-  str.insert(pos, s);
-  invalidate();
-  return pos + s.length();
+  return insert(pos, s.buffer(), s.length());
 }
 
 int MathSequence::insert(int pos, Box *box) {
@@ -3602,7 +3716,7 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
     
   Expr head = expr[0];
   
-  if(head == PMATH_SYMBOL_LIST || head == PMATH_SYMBOL_COMPLEXSTRINGBOX) {
+  if(head == PMATH_SYMBOL_LIST || head == richmath_System_ComplexStringBox) {
     if(expr.expr_length() == 1) {
       expr = expr[1];
       return create_box(expr, options);
@@ -3613,92 +3727,98 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
     return box;
   }
   
-  if(head == PMATH_SYMBOL_BUTTONBOX)
+  if(head == richmath_System_ButtonBox)
     return create_or_error<  ButtonBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_CHECKBOXBOX)
+  if(head == richmath_System_CheckboxBox)
     return create_or_error<  CheckboxBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_DYNAMICBOX)
+  if(head == richmath_System_DynamicBox)
     return create_or_error<  DynamicBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_DYNAMICLOCALBOX)
+  if(head == richmath_System_DynamicLocalBox)
     return create_or_error<  DynamicLocalBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_FILLBOX)
+  if(head == richmath_System_FillBox)
     return create_or_error<  FillBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_FRACTIONBOX)
+  if(head == richmath_System_FractionBox)
     return create_or_error<  FractionBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_FRAMEBOX)
+  if(head == richmath_System_FrameBox)
     return create_or_error<  FrameBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_GRAPHICSBOX)
+  if(head == richmath_System_GraphicsBox)
     return create_or_error<  GraphicsBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_GRIDBOX)
+  if(head == richmath_System_GridBox)
     return create_or_error<  GridBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_INPUTFIELDBOX)
+  if(head == richmath_System_InputFieldBox)
     return create_or_error<  InputFieldBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_INTERPRETATIONBOX)
+  if(head == richmath_System_InterpretationBox)
     return create_or_error<  InterpretationBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_PROGRESSINDICATORBOX)
+  if(head == richmath_System_ProgressIndicatorBox)
     return create_or_error<  ProgressIndicatorBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_RADICALBOX)
+  if(head == richmath_System_RadicalBox)
     return create_or_error<  RadicalBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_RADIOBUTTONBOX)
+  if(head == richmath_System_RadioButtonBox)
     return create_or_error<  RadioButtonBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_ROTATIONBOX)
+  if(head == richmath_System_RotationBox)
     return create_or_error<  RotationBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SETTERBOX)
+  if(head == richmath_System_SetterBox)
     return create_or_error<  SetterBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SLIDERBOX)
+  if(head == richmath_System_SliderBox)
     return create_or_error<  SliderBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SUBSCRIPTBOX)
+  if(head == richmath_System_SubscriptBox)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SUPERSCRIPTBOX)
+  if(head == richmath_System_SubsuperscriptBox)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SUBSUPERSCRIPTBOX)
+  if(head == richmath_System_SuperscriptBox)
     return create_or_error<  SubsuperscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_SQRTBOX)
+  if(head == richmath_System_SqrtBox)
     return create_or_error<  RadicalBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_STYLEBOX)
+  if(head == richmath_System_StyleBox)
     return create_or_error<  StyleBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_TAGBOX)
+  if(head == richmath_System_TagBox)
     return create_or_error<  TagBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_TOOLTIPBOX)
+  if(head == richmath_System_TemplateBox)
+    return create_or_error<  TemplateBox>(expr, options);
+    
+  if(head == richmath_System_TooltipBox)
     return create_or_error<  TooltipBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_TRANSFORMATIONBOX)
+  if(head == richmath_System_TransformationBox)
     return create_or_error<  TransformationBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_UNDERSCRIPTBOX)
+  if(head == richmath_System_OverscriptBox)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_OVERSCRIPTBOX)
+  if(head == richmath_System_UnderoverscriptBox)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == PMATH_SYMBOL_UNDEROVERSCRIPTBOX)
+  if(head == richmath_System_UnderscriptBox)
     return create_or_error<  UnderoverscriptBox>(expr, options);
     
-  if(head == GetSymbol( FESymbolIndex::NumberBox ))
+  if(head == richmath_FE_NumberBox)
     return create_or_error<NumberBox>(expr, options);
+    
+  if(head == richmath_System_TemplateSlot)
+    return create_or_error<TemplateBoxSlot>(expr, options);
     
   return new ErrorBox(expr);
 }
@@ -3862,6 +3982,7 @@ class SpanSynchronizer: public Base {
           break;
           
         if(!box->try_load_from_object(new_box.expr, new_load_options)) {
+          box->safe_destroy();
           box = create_box(new_box.expr, new_load_options);
           
           old_boxes.set(old_next_box, box);
@@ -3921,11 +4042,14 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   
   Expr obj = object;
   
-  if(obj[0] == PMATH_SYMBOL_BOXDATA && obj.expr_length() == 1)
+  if(obj[0] == richmath_System_BoxData && obj.expr_length() == 1)
     obj = obj[1];
     
   if(has(options, BoxInputFlags::FormatNumbers))
     obj = NumberBox::prepare_boxes(obj);
+    
+  if(has(options, BoxInputFlags::AllowTemplateSlots))
+    obj = TemplateBoxSlot::prepare_boxes(obj);
     
   new_spans = pmath_spans_from_boxes(
                 pmath_ref(obj.get()),
@@ -3942,6 +4066,8 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   spans         = new_spans.extract_array();
   str           = String(new_string);
   boxes_invalid = true;
+  
+  finish_load_from_object(std::move(object));
 }
 
 bool MathSequence::stretch_horizontal(Context *context, float width) {

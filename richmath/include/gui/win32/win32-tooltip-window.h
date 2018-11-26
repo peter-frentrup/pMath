@@ -1,5 +1,5 @@
-#ifndef __GUI__WIN32_TOOLTIP_WINDOW_H__
-#define __GUI__WIN32_TOOLTIP_WINDOW_H__
+#ifndef RICHMATH__GUI__WIN32_TOOLTIP_WINDOW_H__INCLUDED
+#define RICHMATH__GUI__WIN32_TOOLTIP_WINDOW_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -14,7 +14,7 @@ namespace richmath {
       virtual ~Win32TooltipWindow();
       
       static void move_global_tooltip();
-      static void show_global_tooltip(Expr boxes);
+      static void show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet);
       static void hide_global_tooltip();
       static void delete_global_tooltip();
       
@@ -33,7 +33,6 @@ namespace richmath {
       virtual void after_construction() override;
       
       void resize(bool just_move);
-      virtual void paint_background(Canvas *canvas) override;
       virtual void paint_canvas(Canvas *canvas, bool resize_only) override;
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
@@ -43,4 +42,4 @@ namespace richmath {
   };
 }
 
-#endif // __GUI__WIN32_TOOLTIP_WINDOW_H__
+#endif // RICHMATH__GUI__WIN32_TOOLTIP_WINDOW_H__INCLUDED

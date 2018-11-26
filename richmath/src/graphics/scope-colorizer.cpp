@@ -11,6 +11,7 @@
 
 #include <climits>
 
+extern pmath_symbol_t richmath_FE_SymbolInfo;
 
 using namespace richmath;
 
@@ -79,7 +80,7 @@ namespace richmath {
           
           if(!info) {
             Expr syminfo = Application::interrupt_wait_cached(Call(
-                             GetSymbol(FESymbolIndex::SymbolInfo),
+                             Symbol(richmath_FE_SymbolInfo),
                              name));
                              
             if(syminfo == PMATH_SYMBOL_FALSE)

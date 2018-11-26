@@ -1,5 +1,5 @@
-#ifndef __UTIL__SHAREDPTR_H__
-#define __UTIL__SHAREDPTR_H__
+#ifndef RICHMATH__UTIL__SHAREDPTR_H__INCLUDED
+#define RICHMATH__UTIL__SHAREDPTR_H__INCLUDED
 
 #include <stdint.h>
 
@@ -92,7 +92,7 @@ namespace richmath {
       }
 
       unsigned int hash() const {
-        return (unsigned int)(uintptr_t)(const void*)_ptr;
+        return default_hash(_ptr);
       }
 
     protected:
@@ -100,4 +100,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__SHAREDPTR_H__
+#endif // RICHMATH__UTIL__SHAREDPTR_H__INCLUDED

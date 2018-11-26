@@ -39,25 +39,19 @@ using namespace richmath;
 
 #define ANIMATION_DELAY  (50)
 static bool animation_running = false;
-Hashtable<SharedPtr<TimedEvent>, Void> animations;
+Hashset<SharedPtr<TimedEvent>> animations;
 
 static gboolean animation_timeout(gpointer data) {
   animation_running = false;
   
-  unsigned int count, i;
-  for(count = 0, i = 0; count < animations.size(); ++i) {
-    if(auto e = animations.entry(i)) {
-      ++count;
-      
-      SharedPtr<TimedEvent> te = e->key;
-      if(te->min_wait_seconds <= te->timer()) {
-        animations.remove(te);
-        
-        te->execute_event();
-      }
-      else
-        animation_running = true;
+  for(auto e : animations.deletable_entries()) {
+    if(e.key->min_wait_seconds <= e.key->timer()) {
+      auto anim = e.key;
+      e.delete_self();
+      anim->execute_event();
     }
+    else
+      animation_running = true;
   }
   
   return animation_running; // continue ?
@@ -236,7 +230,7 @@ void MathGtkWidget::scroll_to(float x, float y) {
 }
 
 void MathGtkWidget::show_tooltip(Expr boxes) {
-  MathGtkTooltipWindow::show_global_tooltip(boxes);
+  MathGtkTooltipWindow::show_global_tooltip(boxes, document()->stylesheet());
 }
 
 void MathGtkWidget::hide_tooltip() {
@@ -402,7 +396,7 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
   if(!_widget)
     return false;
     
-  animations.set(event, Void());
+  animations.add(event);
   if(!animation_running) {
     animation_running = 0 < gdk_threads_add_timeout(ANIMATION_DELAY, animation_timeout, nullptr);
     
@@ -795,7 +789,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
       
     if(may_blink) {
       is_blinking = true;
-      gdk_threads_add_timeout(blink_time / 2, blink_caret, (void *)(intptr_t)document()->id());
+      gdk_threads_add_timeout(blink_time / 2, blink_caret, FrontEndReference::unsafe_cast_to_pointer(document()->id()));
     }
   }
   
@@ -1309,9 +1303,9 @@ bool MathGtkWidget::on_scroll(GdkEvent *e) {
 }
 
 gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
-  int id = (int)(intptr_t)id_as_ptr;
+  FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(id_as_ptr);
   
-  if(auto doc = dynamic_cast<Document *>(Box::find(id))) {
+  if(auto doc = FrontEndObject::find_cast<Document>(id)) {
     if(auto wid = dynamic_cast<MathGtkWidget *>(doc->native())) {
       Context *ctx = wid->document_context();
       
@@ -1319,7 +1313,7 @@ gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
           !gtk_widget_is_focus(wid->widget()) ||
           wid->is_mouse_down())
       {
-        ctx->old_selection.id = 0;
+        ctx->old_selection.id = FrontEndReference::None;
       }
       else
         ctx->old_selection = ctx->selection;

@@ -357,7 +357,8 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
         
       while(!pmath_thread_aborting(me)) {
         pmath_t n_diff = pmath_set_precision(pmath_ref(diff), prec);
-        result = test_real_numbers_ordering(prev, next, directions);
+        n_diff = pmath_evaluate(n_diff);
+        result = test_real_numbers_ordering(n_diff, INT(0), directions);
         if(result == TRUE || result == FALSE) {
           pmath_unref(n_diff);
           pmath_unref(diff);

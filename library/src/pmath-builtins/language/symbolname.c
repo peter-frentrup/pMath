@@ -1,8 +1,7 @@
-#include <pmath-core/numbers.h>
+#include <pmath-core/expressions.h>
 
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols-private.h>
 
 PMATH_PRIVATE pmath_t builtin_symbolname(pmath_expr_t expr) {
   pmath_t sym;

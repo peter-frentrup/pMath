@@ -12,6 +12,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_StyleData;
+
 //{ class Section ...
 
 Section::Section(SharedPtr<Style> _style)
@@ -32,13 +36,15 @@ Section::~Section() {
 }
 
 Section *Section::create_from_object(const Expr expr) {
-  if(expr[0] == PMATH_SYMBOL_SECTION) {
+  if(expr[0] == richmath_System_Section) {
     Expr content = expr[1];
     
     Section *section = 0;
     
-    if(content.expr_length() == 1 && content[0] == PMATH_SYMBOL_BOXDATA)
+    if(content[0] == richmath_System_BoxData)
       section = Box::try_create<MathSection>(expr, BoxInputFlags::Default);
+    else if(content[0] == richmath_System_StyleData)
+      section = Box::try_create<StyleDataSection>(expr, BoxInputFlags::Default);
     else
       section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
       
@@ -139,10 +145,14 @@ Box *Section::move_vertical(
   return this;
 }
 
-bool Section::selectable(int i) {
-  if(i < 0)
-    return false;
-  return Box::selectable(i);
+Box *Section::normalize_selection(int *start, int *end) {
+  if(_parent) {
+    *start = _index;
+    *end = _index + 1;
+    return _parent->normalize_selection(start, end);
+  }
+  
+  return this;
 }
 
 Box *Section::get_highlight_child(Box *src, int *start, int *end) {
@@ -232,6 +242,13 @@ bool Section::edit_selection(Context *context) {
   return true;
 }
 
+void Section::reset_style() { 
+  if(style) {
+    style->clear(); 
+    style->set(InternalHasPendingDynamic, true);
+  }
+}
+
 //} ... class Section
 
 //{ class ErrorSection ...
@@ -261,9 +278,8 @@ void ErrorSection::resize(Context *context) {
 }
 
 void ErrorSection::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
-    
+  update_dynamic_styles(context);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -387,14 +403,14 @@ void AbstractSequenceSection::resize(Context *context) {
 }
 
 void AbstractSequenceSection::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
-    
   float x, y;
   context->canvas->current_pos(&x, &y);
   
   ContextState cc(context);
-  cc.begin(style);
+  //cc.begin(style);
+  cc.begin(nullptr);
+  
+  cc.apply_layout_styles(style);
   
   float left_margin = get_style(SectionMarginLeft);
   int   background  = get_style(Background);
@@ -403,6 +419,10 @@ void AbstractSequenceSection::paint(Context *context) {
   float r = get_style(SectionFrameRight);
   float t = get_style(SectionFrameTop);
   float b = get_style(SectionFrameBottom);
+  
+  // TODO: supress request_repaint_all if only non-layout styles changed during update_dynamic_styles()
+  update_dynamic_styles(context);
+  cc.apply_non_layout_styles(style);
   
   if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0) {
     /* Cairo 1.12.2 bug:
@@ -485,12 +505,16 @@ Box *AbstractSequenceSection::remove(int *index) {
   return _content;
 }
 
+Expr AbstractSequenceSection::to_pmath_symbol() {
+  return Symbol(richmath_System_Section);
+}
+
 Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   Expr cont = _content->to_pmath(flags/* & ~BoxOutputFlags::Parseable*/);
   if(dynamic_cast<MathSequence *>(_content))
-    cont = Call(Symbol(PMATH_SYMBOL_BOXDATA), cont);
+    cont = Call(Symbol(richmath_System_BoxData), cont);
     
   Gather::emit(cont);
   
@@ -505,7 +529,7 @@ Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath();
     
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_SECTION));
+  e.set(0, Symbol(richmath_System_Section));
   return e;
 }
 
@@ -516,6 +540,8 @@ Box *AbstractSequenceSection::move_vertical(
   bool              called_from_child
 ) {
   if(*index < 0) {
+    if(!can_enter_content() || !get_own_style(Selectable, true))
+      return Section::move_vertical(direction, index_rel_x, index, called_from_child);
     *index_rel_x -= cx;
     return _content->move_vertical(direction, index_rel_x, index, false);
   }
@@ -568,16 +594,16 @@ MathSection::MathSection(SharedPtr<Style> _style)
 }
 
 bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_SECTION)
+  if(expr[0] != richmath_System_Section)
     return false;
     
   Expr content = expr[1];
-  if(content[0] != PMATH_SYMBOL_BOXDATA)
+  if(content.expr_length() != 1 || content[0] != richmath_System_BoxData)
     return false;
     
   content = content[1];
   
-  Expr options(pmath_options_extract(expr.get(), 2));
+  Expr options(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -594,6 +620,9 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     opts |= BoxInputFlags::FormatNumbers;
     
   _content->load_from_object(content, opts);
+  
+  must_resize = true;
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -614,14 +643,14 @@ TextSection::TextSection(SharedPtr<Style> _style)
 }
 
 bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_SECTION)
+  if(expr[0] != richmath_System_Section)
     return false;
     
   Expr content = expr[1];
   if(!content.is_string() && content[0] != PMATH_SYMBOL_LIST)
     return false;
     
-  Expr options(pmath_options_extract(expr.get(), 2));
+  Expr options(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -638,6 +667,9 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     opts |= BoxInputFlags::FormatNumbers;
     
   _content->load_from_object(content, opts);
+  
+  must_resize = true;
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -647,7 +679,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 EditSection::EditSection()
   : MathSection(new Style(String("Edit"))),
-    original(0)
+    original(nullptr)
 {
 }
 
@@ -660,7 +692,7 @@ bool EditSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 Expr EditSection::to_pmath(BoxOutputFlags flags) {
-  Expr result = content()->to_pmath(BoxOutputFlags::Parseable);
+  Expr result = content()->to_pmath(BoxOutputFlags::Parseable | flags);
   
   result = Application::interrupt_wait(
              Call(
@@ -668,8 +700,7 @@ Expr EditSection::to_pmath(BoxOutputFlags flags) {
                result),
              Application::edit_interrupt_timeout);
              
-  if(result.expr_length() == 1
-      && result[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
+  if(result.expr_length() == 1 && result[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
     return result[1];
   }
   
@@ -677,3 +708,92 @@ Expr EditSection::to_pmath(BoxOutputFlags flags) {
 }
 
 //} ... class EditSection
+
+//{ class StyleDataSection ...
+
+StyleDataSection::StyleDataSection()
+  : AbstractSequenceSection(new MathSequence, new Style)
+{
+}
+
+/* FIXME: The StyleDataSection should not use its parent document stylesheet for display,
+   but all the style definitions above itself.
+
+   One possibility is that each StyleDataSection `sds` has a Stylesheet that represents the all
+   style definitions upto and including `sds`.
+   When the `sds` needs to recalculate a style, it searches the previous StyleDataSection`s
+   Stylesheet, obtains its previous Style `old_style` of the same name, creates a new merged
+   copy of `old_style` and its own local definitions (Box::style) and stores that in its own
+   Stylesheet.
+   The problem is to know when to recalculate a style. Maybe styles should be observable
+   (like symbols are by `FrontEndObject`s).
+ */
+bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
+  if(expr[0] != richmath_System_Section)
+    return false;
+    
+  Expr style_data = expr[1];
+  if(style_data[0] != richmath_System_StyleData)
+    return false;
+    
+  Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+  if(options.is_null())
+    return false;
+    
+  _style_data = style_data;
+  
+  reset_style();
+  style->add_pmath(options);
+  
+  opts = BoxInputFlags::Default;
+  if(get_own_style(AutoNumberFormating))
+    opts |= BoxInputFlags::FormatNumbers;
+    
+  Expr boxes = Application::interrupt_wait(
+                 Parse("FE`Styles`MakeStyleDataBoxes(HoldComplete(`1`))", style_data),
+                 Application::button_timeout);
+  _content->load_from_object(boxes, opts);
+  
+  must_resize = true;
+  finish_load_from_object(std::move(expr));
+  return true;
+}
+
+Expr StyleDataSection::to_pmath(BoxOutputFlags flags) {
+  Gather g;
+  
+  Gather::emit(_style_data);
+  style->emit_to_pmath(true);
+  
+  Expr e = g.end();
+  e.set(0, Symbol(richmath_System_Section));
+  return e;
+}
+
+Box *StyleDataSection::mouse_selection(
+  float  x,
+  float  y,
+  int   *start,
+  int   *end,
+  bool  *was_inside_start
+) {
+  Box *box = AbstractSequenceSection::mouse_selection(x, y, start, end, was_inside_start);
+  if(box) {
+    Box *mouse = box->mouse_sensitive();
+    if(mouse && !mouse->is_parent_of(this)) 
+      return box;
+  }
+  
+  *was_inside_start = true;
+//  if(_parent) {
+//    *start = _index;
+//    *end = *start + 1;
+//    return _parent;
+//  }
+  *start = 0;
+  *end = length();
+  return this;
+}
+
+
+//} ... class StyleDataSection

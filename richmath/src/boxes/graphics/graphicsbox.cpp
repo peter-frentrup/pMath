@@ -36,6 +36,7 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_GraphicsBox;
 
 enum SyntaxPosition {
   Alone,
@@ -163,7 +164,7 @@ GraphicsBox::~GraphicsBox() {
 }
 
 bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_GRAPHICSBOX)
+  if(expr[0] != richmath_System_GraphicsBox)
     return false;
     
   if(expr.expr_length() < 1)
@@ -172,7 +173,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   Expr options(PMATH_UNDEFINED);
   
   if(expr.expr_length() > 1) {
-    options = Expr(pmath_options_extract(expr.get(), 1));
+    options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     
     if(options.is_null())
       return false;
@@ -189,6 +190,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   elements.load_from_object(expr[1], opts);
   invalidate();
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -934,7 +936,7 @@ void GraphicsBox::paint(Context *context) {
   GraphicsBoxContext gctx(this, context);
   error_boxes_expr = Expr();
   
-  style->update_dynamic(this);
+  update_dynamic_styles(context);
   
   float w = _extents.width;
   float h = _extents.height();
@@ -1072,12 +1074,11 @@ void GraphicsBox::paint(Context *context) {
 }
 
 void GraphicsBox::reset_style() {
-  if(style)
-    style->clear();
-  else
-    style = new Style();
-    
-  style->set(BaseStyleName, "Graphics");
+  Style::reset(style, "Graphics");
+}
+
+Expr GraphicsBox::to_pmath_symbol() {
+  return Symbol(richmath_System_GraphicsBox);
 }
 
 Expr GraphicsBox::to_pmath(BoxOutputFlags flags) {
@@ -1087,7 +1088,7 @@ Expr GraphicsBox::to_pmath(BoxOutputFlags flags) {
   style->emit_to_pmath(false);
   
   Expr result = g.end();
-  result.set(0, Symbol(PMATH_SYMBOL_GRAPHICSBOX));
+  result.set(0, Symbol(richmath_System_GraphicsBox));
   return result;
 }
 

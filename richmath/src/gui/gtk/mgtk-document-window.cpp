@@ -15,6 +15,7 @@ using namespace richmath;
 static const int SnapDistance = 4;
 
 class richmath::MathGtkWorkingArea: public MathGtkWidget {
+    typedef MathGtkWidget super_class;
     friend class MathGtkDocumentWindow;
   public:
     MathGtkWorkingArea(MathGtkDocumentWindow *parent)
@@ -67,8 +68,13 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() override { _parent->on_editing(); }
-    virtual void on_saved() override {   _parent->on_saved(); }
+    virtual String window_title() override { return _parent->title(); }
+    
+    virtual void on_idle_after_edit() override { 
+      super_class::on_idle_after_edit();
+      _parent->on_idle_after_edit(this); 
+    }
+    virtual void on_saved() override { _parent->on_saved(); }
     
   protected:
     virtual void paint_background(Canvas *canvas) override {
@@ -105,6 +111,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
 };
 
 class richmath::MathGtkDock: public MathGtkWidget {
+    typedef MathGtkWidget super_class;
     friend class MathGtkDocumentWindow;
   public:
     MathGtkDock(MathGtkDocumentWindow *parent)
@@ -176,8 +183,15 @@ class richmath::MathGtkDock: public MathGtkWidget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() override { _parent->on_editing(); }
+    virtual String window_title() override { return _parent->title(); }
+    
+    virtual void on_idle_after_edit() override {
+      super_class::on_idle_after_edit();
+      _parent->on_idle_after_edit(this); 
+    }
     virtual void on_saved() override {   _parent->on_saved(); }
+    
+    virtual Document *working_area_document() override { return _parent->working_area()->document(); }
     
   protected:
     virtual void after_construction() override {
@@ -228,18 +242,15 @@ static void adjustment_changed_callback(
   self->adjustment_changed(adjustment);
 }
 
-static MathGtkDocumentWindow *_first_window = nullptr;
-
 MathGtkDocumentWindow::MathGtkDocumentWindow()
   : BasicGtkWidget(),
-    _window_frame(WindowFrameNormal),
-    _menu_bar(0),
+    _menu_bar(nullptr),
     _hadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
     _vadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
-    _hscrollbar(0),
-    _vscrollbar(0),
-    _table(0),
-    _has_unsaved_changes(false)
+    _hscrollbar(nullptr),
+    _vscrollbar(nullptr),
+    _table(nullptr),
+    _window_frame(WindowFrameNormal)
 {
   _previous_rect.x = 0;
   _previous_rect.y = 0;
@@ -249,18 +260,6 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
   _working_area = new MathGtkWorkingArea(this);
   _top_area     = new MathGtkDock(this);
   _bottom_area  = new MathGtkDock(this);
-  
-  if(_first_window) {
-    _prev_window = _first_window->_prev_window;
-    _prev_window->_next_window = this;
-    _next_window = _first_window;
-    _first_window->_prev_window = this;
-  }
-  else {
-    _first_window = this;
-    _prev_window = this;
-    _next_window = this;
-  }
 }
 
 void MathGtkDocumentWindow::after_construction() {
@@ -323,7 +322,7 @@ void MathGtkDocumentWindow::after_construction() {
   top()->invalidate();
   bottom()->invalidate();
   
-  all_document_ids.set(document()->id(), Void());
+  all_document_ids.add(document()->id());
   if(get_current_document() == 0) {
     set_current_document(document());
   }
@@ -347,21 +346,30 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
   static bool deleting_all = false;
   if(!deleting_all) {
     bool have_only_palettes = true;
-    for(MathGtkDocumentWindow *win = next_window(); win != this; win = win->next_window()) {
-      if(!win->is_palette() && win->document()->get_style(Visible, true)) {
-        have_only_palettes = false;
-        break;
+    for(auto _win : CommonDocumentWindow::All) {
+      if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
+        if(win == this)
+          continue;
+        
+        if(!win->is_palette() && win->document()->get_style(Visible, true)) {
+          have_only_palettes = false;
+          break;
+        }
       }
     }
     
     if(have_only_palettes) {
       deleting_all = true;
       
-      MathGtkDocumentWindow *other = next_window();
+      CommonDocumentWindow *other = next_window();
       while(other && other != this) {
-        MathGtkDocumentWindow *next = other->next_window();
+        CommonDocumentWindow *next = other->next_window();
         
-        other->destroy();
+        if(auto win = dynamic_cast<MathGtkDocumentWindow*>(other))
+          win->destroy();
+//        else {
+//          //delete win ?
+//        }
         
         other = next;
       }
@@ -371,15 +379,6 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
       gtk_main_quit();
     }
   }
-  
-  if(_first_window == this) {
-    _first_window = _next_window;
-    if(_first_window == this)
-      _first_window = 0;
-  }
-  
-  _next_window->_prev_window = _prev_window;
-  _prev_window->_next_window = _next_window;
   
   // those are deleted by their destroy-event:
 //  _top_area->destroy();
@@ -393,19 +392,27 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
 void MathGtkDocumentWindow::invalidate_options() {
   Document *doc = document();
   
-  String s = doc->get_style(WindowTitle, String());
-  if(_title != s)
+  if(doc->load_stylesheet()) {
+    _top_area->document()->invalidate_all();
+    _bottom_area->document()->invalidate_all();
+  }
+  
+  String s = doc->get_style(WindowTitle, _default_title);
+  if(!_title.unobserved_equals(s))
     title(s);
-    
+  
   WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
   if(_window_frame != f)
     window_frame(f);
-  
+    
   Expr top          = SectionList::group(doc->get_style(DockedSectionsTop));
   Expr top_glass    = SectionList::group(doc->get_style(DockedSectionsTopGlass));
   Expr bottom       = SectionList::group(doc->get_style(DockedSectionsBottom));
   Expr bottom_glass = SectionList::group(doc->get_style(DockedSectionsBottomGlass));
   
+  _top_area->document()->stylesheet(doc->stylesheet());
+  _bottom_area->document()->stylesheet(doc->stylesheet());
+    
   _top_area->reload(   SectionList::group(List(top_glass, top)));
   _bottom_area->reload(SectionList::group(List(bottom, bottom_glass)));
   
@@ -415,7 +422,7 @@ void MathGtkDocumentWindow::invalidate_options() {
     if(!gtk_widget_get_visible(_widget))
       gtk_widget_show(_widget);
   }
-  else{
+  else {
     if(gtk_widget_get_visible(_widget))
       gtk_widget_hide(_widget);
   }
@@ -424,29 +431,8 @@ void MathGtkDocumentWindow::invalidate_options() {
   _working_area->set_custom_scale(scale);
 }
 
-void MathGtkDocumentWindow::title(String text) {
-  _title = text;
-  
-  if(text.is_null()) {
-    if(_filename.is_valid()) {
-      int c = _filename.length();
-      const uint16_t *buf = _filename.buffer();
-      while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
-        --c;
-      
-      text = _filename.part(c + 1);
-    }
-    else
-      text = "untitled";
-  }
-  
-  if(_has_unsaved_changes)
-    text = String("*") + text;
-  
-  if(Application::is_running_job_for(document()))
-    text = String("Running... ") + text;
-    
-  char *str = pmath_string_to_utf8(text.get(), nullptr);
+void MathGtkDocumentWindow::finish_apply_title(String displayed_title) {
+  char *str = pmath_string_to_utf8(displayed_title.get(), nullptr);
   if(str)
     gtk_window_set_title(GTK_WINDOW(_widget), str);
     
@@ -471,7 +457,7 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
     
     int x, y;
     bool was_visible = gtk_widget_get_visible(_widget);
-    if(was_visible){
+    if(was_visible) {
       gtk_window_get_position(GTK_WINDOW(_widget), &x, &y);
       gtk_widget_hide(_widget);
     }
@@ -493,7 +479,7 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
         break;
     }
     
-    if(was_visible){
+    if(was_visible) {
       gtk_widget_show(_widget);
       gtk_window_move(GTK_WINDOW(_widget), x, y);
     }
@@ -551,10 +537,6 @@ void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment) {
   gtk_widget_set_visible(scrollbar, (window_frame() == WindowFrameNormal) && lo + page < hi);
 }
 
-MathGtkDocumentWindow *MathGtkDocumentWindow::first_window() {
-  return _first_window;
-}
-
 void MathGtkDocumentWindow::bring_to_front() {
   gtk_window_present(GTK_WINDOW(_widget));
 }
@@ -577,27 +559,29 @@ void MathGtkDocumentWindow::set_gravity() {
     GdkRectangle outer;
     get_outer_rect(&outer);
     
-    for(MathGtkDocumentWindow *win = next_window(); win != this; win = win->next_window()) {
-      if(!win->is_palette()) {
-        GdkRectangle rect;
-        win->get_outer_rect(&rect);
-        
-        int dx = SnapDistance;
-        int dy = SnapDistance;
-        GdkWindowEdge edge;
-        if(test_rects_touch(outer, rect, &dx, &dy, &edge)) {
-          GdkGravity gravity = GDK_GRAVITY_NORTH_WEST;
-          switch(edge) {
-            case GDK_WINDOW_EDGE_NORTH_EAST:
-            case GDK_WINDOW_EDGE_EAST:
-            case GDK_WINDOW_EDGE_SOUTH_EAST:
-              gravity = GDK_GRAVITY_NORTH_EAST;
-              break;
-              
-            default: break;
-          }
+    for(auto _win : CommonDocumentWindow::All) {
+      if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
+        if(!win->is_palette()) {
+          GdkRectangle rect;
+          win->get_outer_rect(&rect);
           
-          gtk_window_set_gravity(GTK_WINDOW(_widget), gravity);
+          int dx = SnapDistance;
+          int dy = SnapDistance;
+          GdkWindowEdge edge;
+          if(test_rects_touch(outer, rect, &dx, &dy, &edge)) {
+            GdkGravity gravity = GDK_GRAVITY_NORTH_WEST;
+            switch(edge) {
+              case GDK_WINDOW_EDGE_NORTH_EAST:
+              case GDK_WINDOW_EDGE_EAST:
+              case GDK_WINDOW_EDGE_SOUTH_EAST:
+                gravity = GDK_GRAVITY_NORTH_EAST;
+                break;
+                
+              default: break;
+            }
+            
+            gtk_window_set_gravity(GTK_WINDOW(_widget), gravity);
+          }
         }
       }
     }
@@ -732,7 +716,7 @@ void MathGtkDocumentWindow::move_palettes() {
   if(dx != 0 || dy != 0) {
     for(int i = 1; i < _snapped_documents.length(); ++i) {
       const DocumentPosition &pos = _snapped_documents[i];
-      auto doc = dynamic_cast<Document*>(Box::find(pos.id));
+      auto doc = FrontEndObject::find_cast<Document>(pos.id);
       if(!doc)
         continue;
         
@@ -747,25 +731,6 @@ void MathGtkDocumentWindow::move_palettes() {
       
       gtk_window_set_gravity(GTK_WINDOW(win->widget()), old_gravity);
     }
-  }
-}
-
-void MathGtkDocumentWindow::filename(String new_filename) { 
-  _filename = new_filename; 
-  reset_title();
-}
-
-void MathGtkDocumentWindow::on_editing() {
-  if(!_has_unsaved_changes) {
-    _has_unsaved_changes = true;
-    reset_title();
-  }
-}
-
-void MathGtkDocumentWindow::on_saved() {
-  if(_has_unsaved_changes) {
-    _has_unsaved_changes = false;
-    reset_title();
   }
 }
 
@@ -796,37 +761,37 @@ bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {
 bool MathGtkDocumentWindow::on_focus_in(GdkEvent *e) {
 //  move_palettes();
   _snapped_documents.length(0);
-  _snapped_documents.add(DocumentPosition(0, _previous_rect.x, _previous_rect.y));
+  _snapped_documents.add(DocumentPosition(FrontEndReference::None, _previous_rect.x, _previous_rect.y));
   
   return false;
 }
 
 bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e) {
-  for(MathGtkDocumentWindow *main = next_window();; main = main->next_window()) {
-    main->_snapped_documents.length(0);
-    main->_snapped_documents.add(DocumentPosition(0, main->_previous_rect.x, main->_previous_rect.y));
-    
-    if(!main->is_palette()) {
-      GdkRectangle rect;
-      main->get_outer_rect(&rect);
+  for(auto _win : CommonDocumentWindow::All) {
+    if(auto main = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
+      main->_snapped_documents.length(0);
+      main->_snapped_documents.add(DocumentPosition(FrontEndReference::None, main->_previous_rect.x, main->_previous_rect.y));
       
-      for(MathGtkDocumentWindow *win = main->next_window(); win != main; win = win->next_window()) {
-        if(win->is_palette()) {
-          GdkRectangle other_rect;
-          win->get_outer_rect(&other_rect);
-          
-          int dx = SnapDistance;
-          int dy = SnapDistance;
-          if(test_rects_touch(rect, other_rect, &dx, &dy, nullptr))
-            main->_snapped_documents.add(DocumentPosition(win->document()->id(), other_rect.x, other_rect.y));
+      if(!main->is_palette()) {
+        GdkRectangle rect;
+        main->get_outer_rect(&rect);
+        
+        for(auto _win2 : CommonDocumentWindow::All) {
+          if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win2)) {
+            if(win->is_palette()) {
+              GdkRectangle other_rect;
+              win->get_outer_rect(&other_rect);
+              
+              int dx = SnapDistance;
+              int dy = SnapDistance;
+              if(test_rects_touch(rect, other_rect, &dx, &dy, nullptr))
+                main->_snapped_documents.add(DocumentPosition(win->document()->id(), other_rect.x, other_rect.y));
+            }
+          }
         }
       }
     }
-    
-    if(main == this)
-      break;
   }
-  
   return false;
 }
 

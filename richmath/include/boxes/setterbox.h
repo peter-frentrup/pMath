@@ -1,5 +1,5 @@
-#ifndef __RICHMATH__BOXES__SETTERBOX_H__
-#define __RICHMATH__BOXES__SETTERBOX_H__
+#ifndef __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED
+#define __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED
 
 #include <boxes/containerwidgetbox.h>
 #include <eval/dynamic.h>
@@ -19,7 +19,7 @@ namespace richmath {
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_SETTERBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void on_mouse_down(MouseEvent &event) override;
@@ -40,4 +40,4 @@ namespace richmath {
   };
 };
 
-#endif // __RICHMATH__BOXES__SETTERBOX_H__
+#endif // __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED

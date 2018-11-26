@@ -1,5 +1,5 @@
-#ifndef __GUI__WIN32__WIN32_COLORDIALOG_H__
-#define __GUI__WIN32__WIN32_COLORDIALOG_H__
+#ifndef RICHMATH__GUI__WIN32__WIN32_COLORDIALOG_H__INCLUDED
+#define RICHMATH__GUI__WIN32__WIN32_COLORDIALOG_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -19,4 +19,4 @@ namespace richmath {
 }
 
 
-#endif // __GUI__WIN32__WIN32_COLORDIALOG_H__
+#endif // RICHMATH__GUI__WIN32__WIN32_COLORDIALOG_H__INCLUDED

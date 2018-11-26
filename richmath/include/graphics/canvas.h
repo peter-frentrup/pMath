@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__CANVAS_H__
-#define __GRAPHICS__CANVAS_H__
+#ifndef RICHMATH__GRAPHICS__CANVAS_H__INCLUDED
+#define RICHMATH__GRAPHICS__CANVAS_H__INCLUDED
 
 #include <graphics/fonts.h>
 
@@ -34,14 +34,21 @@ namespace richmath {
       
       bool has_current_pos();
       void current_pos(float *x, float *y);
+      void current_pos(double *x, double *y);
       void user_to_device(float *x, float *y);
+      void user_to_device(double *x, double *y);
       void user_to_device_dist(float *dx, float *dy);
+      void user_to_device_dist(double *dx, double *dy);
       void device_to_user(float *x, float *y);
+      void device_to_user(double *x, double *y);
       void device_to_user_dist(float *dx, float *dy);
+      void device_to_user_dist(double *dx, double *dy);
+      cairo_matrix_t get_matrix();
+      void set_matrix(const cairo_matrix_t &mat);
       void transform(const cairo_matrix_t &mat);
-      void translate(float tx, float ty);
-      void rotate(float angle);
-      void scale(float sx, float sy);
+      void translate(double tx, double ty);
+      void rotate(double angle);
+      void scale(double sx, double sy);
       
       void set_color(int color, float alpha = 1.0f); // 0xRRGGBB
       int get_color(); // 0xRRGGBB
@@ -50,24 +57,24 @@ namespace richmath {
       void set_font_size(float size);
       float get_font_size() { return _font_size; }
       
-      void move_to(float x, float y);
-      void rel_move_to(float x, float y);
-      void line_to(float x, float y);
-      void rel_line_to(float x, float y);
+      void move_to(double x, double y);
+      void rel_move_to(double x, double y);
+      void line_to(double x, double y);
+      void rel_line_to(double x, double y);
       
       void arc(
-        float x, float y,
-        float radius,
-        float angle1,
-        float angle2,
+        double x, double y,
+        double radius,
+        double angle1,
+        double angle2,
         bool negative);
         
       void ellipse_arc(
-        float x, float y,
-        float radius_x,
-        float radius_y,
-        float angle1,
-        float angle2,
+        double x, double y,
+        double radius_x,
+        double radius_y,
+        double angle1,
+        double angle2,
         bool negative);
         
       void close_path();
@@ -96,6 +103,7 @@ namespace richmath {
       void show_glyphs(const cairo_glyph_t *glyphs, int num_glyphs);
       
       void new_path();
+      void new_sub_path();
       void clip();
       void clip_preserve();
       void fill();
@@ -103,7 +111,12 @@ namespace richmath {
       void hair_stroke();
       void stroke();
       void stroke_preserve();
+      void clip_extents(float *x1, float *y1, float *x2, float *y2);
+      void clip_extents(double *x1, double *y1, double *x2, double *y2);
       void path_extents(float *x1, float *y1, float *x2, float *y2);
+      void path_extents(double *x1, double *y1, double *x2, double *y2);
+      void stroke_extents(float *x1, float *y1, float *x2, float *y2);
+      void stroke_extents(double *x1, double *y1, double *x2, double *y2);
       
       void paint();
       void paint_with_alpha(float alpha);
@@ -140,4 +153,4 @@ namespace richmath {
   typedef AutoRefBase < cairo_surface_t, cairo_surface_reference, cairo_surface_destroy > AutoCairoSurface;
 }
 
-#endif // __GRAPHICS__CANVAS_H__
+#endif // RICHMATH__GRAPHICS__CANVAS_H__INCLUDED

@@ -131,25 +131,22 @@ void PaintHookManager::run(Box *box, Context *context) {
 }
 
 void PaintHookManager::move_into(PaintHookManager &other) {
-  for(unsigned i = 0, u = 0; u < _hooks.size(); ++i) {
-    Entry<Box *, PaintHookList > *my = _hooks.entry(i);
+  if(this == &other)
+    return;
+  
+  for(auto &my : _hooks.entries()) {
+    PaintHookList &my_list = my.value;
+    Entry<Box *, PaintHookList> *their = other._hooks.search_entry(my.key);
     
-    if(my) {
-      ++u;
+    if(their) {
+      PaintHookList &their_list = their->value;
       
-      PaintHookList &my_list = my->value;
-      Entry<Box *, PaintHookList> *their = other._hooks.search_entry(my->key);
-      
-      if(their) {
-        PaintHookList &their_list = their->value;
-        
-        for(auto hook = my_list.pop(); hook.is_valid(); hook = my_list.pop()) {
-          their_list.push(hook);
-        }
+      for(auto hook = my_list.pop(); hook.is_valid(); hook = my_list.pop()) {
+        their_list.push(hook);
       }
-      else
-        other._hooks.set(my->key, std::move(my_list));
     }
+    else
+      other._hooks.set(my.key, std::move(my_list));
   }
   
   _hooks.clear();

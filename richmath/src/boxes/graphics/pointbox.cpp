@@ -20,6 +20,8 @@ namespace std {
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_PointBox;
+
 
 //{ class DoublePoint ...
 
@@ -102,14 +104,16 @@ PointBox::~PointBox() {
 }
 
 bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_POINTBOX)
+  if(expr[0] != richmath_System_PointBox)
     return false;
     
   if(expr.expr_length() != 1)
     return false;
     
-  if(_uncompressed_expr == expr)
+  if(_uncompressed_expr == expr) {
+    finish_load_from_object(std::move(expr));
     return true;
+  }
     
   Expr data = expr[1];
   if(data[0] == PMATH_SYMBOL_UNCOMPRESS && data[1].is_string()) {
@@ -123,6 +127,7 @@ bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(DoublePoint::load_point_or_points(_points, data)) {
     _uncompressed_expr = expr;
+    finish_load_from_object(std::move(expr));
     return true;
   }
   
@@ -151,25 +156,24 @@ void PointBox::find_extends(GraphicsBounds &bounds) {
 void PointBox::paint(GraphicsBoxContext *context) {
   context->ctx->canvas->save();
   {
-    cairo_matrix_t mat;
-    cairo_get_matrix(context->ctx->canvas->cairo(), &mat);
+    cairo_matrix_t mat = context->ctx->canvas->get_matrix();
     
     cairo_matrix_t idmat;
     cairo_matrix_init_identity(&idmat);
-    cairo_set_matrix(context->ctx->canvas->cairo(), &idmat);
+    context->ctx->canvas->set_matrix(idmat);
     
     for(int i = 0; i < _points.length(); ++i) {
       DoublePoint pt = _points[i];
       
       cairo_matrix_transform_point(&mat, &pt.x, &pt.y);
       
-      cairo_new_sub_path(context->ctx->canvas->cairo());
-      cairo_arc(
-        context->ctx->canvas->cairo(),
+      context->ctx->canvas->new_sub_path();
+      context->ctx->canvas->arc(
         pt.x, pt.y,
         2,
         0.0,
-        2 * M_PI);
+        2 * M_PI,
+        false);
     }
   }
   context->ctx->canvas->restore();

@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__OT_FONT_RESHAPER_H__
-#define __GRAPHICS__OT_FONT_RESHAPER_H__
+#ifndef RICHMATH__GRAPHICS__OT_FONT_RESHAPER_H__INCLUDED
+#define RICHMATH__GRAPHICS__OT_FONT_RESHAPER_H__INCLUDED
 
 #include <graphics/shapers.h>
 
@@ -84,7 +84,7 @@ namespace richmath {
       static const uint32_t TAG_ssty = FONT_TAG_NAME('s', 's', 't', 'y');
       
     private:
-      Hashtable<uint32_t, int, cast_hash> _tag_to_value;
+      Hashtable<uint32_t, int> _tag_to_value;
   };
   
   class OTFontReshaper {
@@ -821,4 +821,4 @@ namespace richmath {
   };
 }
 
-#endif // __GRAPHICS__OT_FONT_RESHAPER_H__
+#endif // RICHMATH__GRAPHICS__OT_FONT_RESHAPER_H__INCLUDED

@@ -1,5 +1,5 @@
-#ifndef __BOXES__OWNERBOX_H__
-#define __BOXES__OWNERBOX_H__
+#ifndef RICHMATH__BOXES__OWNERBOX_H__INCLUDED
+#define RICHMATH__BOXES__OWNERBOX_H__INCLUDED
 
 #include <boxes/box.h>
 
@@ -9,7 +9,7 @@ namespace richmath {
   
   class OwnerBox: public Box {
     public:
-      explicit OwnerBox(MathSequence *content = 0);
+      explicit OwnerBox(MathSequence *content = nullptr);
       ~OwnerBox();
       
       MathSequence *content() { return _content; }
@@ -63,4 +63,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__OWNERBOX_H__
+#endif // RICHMATH__BOXES__OWNERBOX_H__INCLUDED

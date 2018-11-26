@@ -1,10 +1,9 @@
-#include <pmath-core/strings-private.h>
+#include <pmath-core/expressions.h>
+#include <pmath-core/strings.h>
 #include <pmath-core/numbers.h>
 
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 #include <limits.h>
 #include <string.h>
@@ -166,17 +165,20 @@ static pmath_bool_t check_concat_string_arguments(pmath_expr_t expr, int *length
 static pmath_t concat_strings(pmath_expr_t expr) {
   size_t i, len;
   int length;
-  struct _pmath_string_t *result;
+  pmath_string_t result;
+  uint16_t *result_buf;
   uint16_t *str;
 
   if(!check_concat_string_arguments(expr, &length))
     return expr;
 
-  result = _pmath_new_string_buffer((int)length);
-  if(!result)
+  result = pmath_string_new_raw((int)length);
+  if(!pmath_string_begin_write(&result, &result_buf, NULL)) {
+    pmath_unref(result);
     return expr;
-
-  str = AFTER_STRING(result);
+  }
+  
+  str = result_buf;
   len = pmath_expr_length(expr);
   for(i = 1; i <= len; ++i) {
     pmath_string_t stri = pmath_expr_get_item(expr, i);
@@ -186,9 +188,10 @@ static pmath_t concat_strings(pmath_expr_t expr) {
     str += stri_len;
     pmath_unref(stri);
   }
+  pmath_string_end_write(&result, &result_buf);
 
   pmath_unref(expr);
-  return _pmath_from_buffer(result);
+  return result;
 }
 
 PMATH_PRIVATE pmath_t builtin_join(pmath_expr_t expr) {

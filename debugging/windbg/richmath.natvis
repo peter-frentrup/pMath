@@ -106,4 +106,24 @@
 	<Type Name="richmath::Base">
 		<DisplayString>{{ t={debug_alloc_time} {debug_tag,na} }}</DisplayString>
 	</Type>
+
+	<Type Name="richmath::StyleOptionName">
+		<DisplayString IncludeView="StyleOptionNameIsDynamic" Condition="(_value &amp; 0x10000000) == 0x10000000">,dynamic</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameIsDynamic"></DisplayString>
+		<DisplayString IncludeView="StyleOptionNameIsVolatile" Condition="(_value &amp; 0x20000000) == 0x20000000">,volatile</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameIsVolatile"></DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFFFFFF) &lt; 0x10000">{(richmath::IntStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFFFFFF) &lt; 0x20000">{(richmath::FloatStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFFFFFF) &lt; 0x30000">{(richmath::StringStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFFFFFF) &lt; 0x40000">{(richmath::ObjectStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase">{(_value &amp; 0xFFFFFFF)}</DisplayString>
+		<DisplayString>{*this,view(StyleOptionNameBase)}{*this,view(StyleOptionNameIsDynamic)}{*this,view(StyleOptionNameIsVolatile)}</DisplayString>
+	</Type>
+
+	<Type Name="richmath::FrontEndReference">
+		<DisplayString>{(richmath::FrontEndObject*)_id}</DisplayString>
+		<Expand>
+			<ExpandedItem Condition="_id != 0">(richmath::FrontEndObject*)_id</ExpandedItem>
+		</Expand>
+	</Type>
 </AutoVisualizer>

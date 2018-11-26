@@ -1,5 +1,5 @@
-#ifndef __BOXES__FRAMEBOX_H__
-#define __BOXES__FRAMEBOX_H__
+#ifndef RICHMATH__BOXES__FRAMEBOX_H__INCLUDED
+#define RICHMATH__BOXES__FRAMEBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
 
@@ -15,7 +15,7 @@ namespace richmath {
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_FRAMEBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     protected:
@@ -23,4 +23,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__FRAMEBOX_H__
+#endif // RICHMATH__BOXES__FRAMEBOX_H__INCLUDED

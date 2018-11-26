@@ -1,8 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers-private.h>
 
-#include <pmath-builtins/all-symbols-private.h>
-
 
 pmath_t builtin_bitor(pmath_expr_t expr) {
   size_t exprlen = pmath_expr_length(expr);

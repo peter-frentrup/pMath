@@ -1,0 +1,126 @@
+BeginPackage("System`Numerics`TrigIntegrals`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyTrigIntegral
+
+Begin("System`Numerics`TrigIntegrals`Private`")
+
+%
+% If direct (numerical) calculation of CosIntegral(x), ExpIntegralEi(x), etc. is not possible (because 
+% x is an expression or an exact number), System`Private`AutoSimplifyTrigIntegral(CosIntegral, x) 
+% etc. get called.
+% If that returns $Failed, the original expression CosIntegral(x) etc. remains unevaluated. 
+% Otherwise, the result of AutoSimplifyTrigIntegral will be returned.
+%
+System`Private`AutoSimplifyTrigIntegral(~, ~):= $Failed
+System`Private`AutoSimplifyTrigIntegral(~f, ~q:Rational)::= trigIntOfRational(f, q)
+System`Private`AutoSimplifyTrigIntegral(~f, ~q:Integer)::= trigIntOfRational(f, q)
+System`Private`AutoSimplifyTrigIntegral(~f, ~z:Complex)::= trigIntOfComplex(f, z)
+System`Private`AutoSimplifyTrigIntegral(~f, ~x:Times)::= trigIntOfProduct(f, x)
+System`Private`AutoSimplifyTrigIntegral(~f, ~inf:DirectedInfinity)::= trigIntAtInfinity(f, inf)
+
+
+trigIntOfRational(~f, ~q):= $Failed
+trigIntOfRational(CoshIntegral, 0):= -Infinity
+trigIntOfRational(CosIntegral, 0):= -Infinity
+trigIntOfRational(LogIntegral, 0)::= 0
+trigIntOfRational(ExpIntegralEi, 0)::= 0
+trigIntOfRational(SinhIntegral, 0)::= 0
+trigIntOfRational(SinhIntegral, ~q)::= If(IsNegative(q), -SinhIntegral(-q), $Failed, $Failed)
+trigIntOfRational(SinIntegral, 0)::= 0
+trigIntOfRational(SinIntegral, ~q)::= If(IsNegative(q), -SinIntegral(-q), $Failed, $Failed)
+
+
+trigIntOfComplex(~f, ~z):= $Failed
+trigIntOfComplex(SinhIntegral, Complex(0, ~y))::= I SinIntegral(y)
+trigIntOfComplex(SinIntegral,  Complex(0, ~y))::= I SinhIntegral(y)
+
+
+trigIntOfProduct(~f, ~x):= $Failed
+trigIntOfProduct(~f, ~x * ~y)::= trigIntOfSimpleProduct(f, x, y)
+
+trigIntOfSimpleProduct(~f, ~x, ~y):= $Failed
+trigIntOfSimpleProduct(~f, ~n:Integer,  ~y)::= trigIntOfRealFactor(f, n, y)
+trigIntOfSimpleProduct(~f, ~q:Rational, ~y)::= trigIntOfRealFactor(f, q, y)
+trigIntOfSimpleProduct(~f, ~x:Real,     ~y)::= trigIntOfRealFactor(f, x, y)
+trigIntOfSimpleProduct(~f, ~z:Complex, ~y)::= trigIntOfComplexFactor(f, z, y)
+
+trigIntOfRealFactor(~f, ~x, ~y)::= $Failed
+trigIntOfRealFactor(SinhIntegral, ~x, ~y)::= If(IsNegative(x), -SinhIntegral(-x y), $Failed, $Failed)
+trigIntOfRealFactor(SinIntegral, ~x, ~y)::= If(IsNegative(x), -SinIntegral(-x y), $Failed, $Failed)
+
+trigIntOfComplexFactor(~f, ~z, ~y)::= $Failed
+trigIntOfComplexFactor(~f, Complex(0, ~iz), ~y)::= trigIntOfComplex(f, Complex(0, iz y))
+
+
+trigIntAtInfinity(~f, ~inf):= $Failed
+Function trigIntAtInfinity(CoshIntegral, inf: DirectedInfinity(~dir)) {
+    If(IsReal(dir) && dir != 0) {
+        Return(Infinity)
+    } Else If(IsImaginary(dir) && dir != 0) {
+        With(idir:= Im(dir))
+        If(idir > 0) {
+            Return(I Pi/2)
+        } Else If(dir < 0) {
+            Return(-I Pi/2)
+        }
+    }
+    Return($Failed)
+}
+Function trigIntAtInfinity(CosIntegral, inf: DirectedInfinity(~dir)) {
+    If(IsReal(dir)) {
+        If(dir > 0) {
+            Return(0)
+        } Else If(dir < 0) {
+            Return(I Pi)
+        }
+    } Else If(IsImaginary(dir) && dir != 0) {
+        Return(Infinity)
+    }
+    Return($Failed)
+}
+Function trigIntAtInfinity(ExpIntegralEi, inf: DirectedInfinity(~dir)) {
+    If(IsReal(dir)) {
+        If(dir > 0) {
+            Return(0)
+        } Else If(dir < 0) {
+            Return(Infinity)
+        }
+    } Else If(IsImaginary(dir)) {
+        With(idir:= Im(dir))
+        If(idir > 0) {
+            Return(I Pi)
+        } Else If(idir < 0) {
+            Return(-I Pi)
+        }
+    }
+    Return($Failed)
+}
+Function trigIntAtInfinity(LogIntegral, inf: DirectedInfinity(~dir)) {
+    If(dir > 0) {
+        Return(Infinity)
+    }
+    Return($Failed)
+}
+Function trigIntAtInfinity(SinIntegral, inf: DirectedInfinity(~dir)) {
+    If(IsReal(dir)) {
+        If(dir > 0) {
+            Return(Pi/2)
+        } Else If(dir < 0) {
+            Return(-Pi/2)
+        }
+    } Else If(IsImaginary(dir) && dir != 0) {
+        Return(inf)
+    }
+    Return($Failed)
+}
+trigIntAtInfinity(SinhIntegral, inf: DirectedInfinity(~dir))::=
+    With(siinf:= erfLikeAtInfinity(SinIntegral, I inf)) {
+        If(siinf =!= $Failed, -I siinf, $Failed, $Failed)
+    }
+
+
+End()
+
+EndPackage()

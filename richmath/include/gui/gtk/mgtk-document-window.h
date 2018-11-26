@@ -1,30 +1,33 @@
-#ifndef __GUI__GTK__MGTK_DOCUMENT_WINDOW_H__
-#define __GUI__GTK__MGTK_DOCUMENT_WINDOW_H__
+#ifndef RICHMATH__GUI__GTK__MGTK_DOCUMENT_WINDOW_H__INCLUDED
+#define RICHMATH__GUI__GTK__MGTK_DOCUMENT_WINDOW_H__INCLUDED
 
 #ifndef RICHMATH_USE_GTK_GUI
 #  error this header is gtk specific
 #endif
 
+#include <gui/common-document-windows.h>
 #include <gui/gtk/basic-gtk-widget.h>
 #include <gui/gtk/mgtk-icons.h>
 #include <gui/gtk/mgtk-widget.h>
+
+#include <eval/observable.h>
 
 
 namespace richmath {
   class MathGtkDock;
   class MathGtkWorkingArea;
   
-  class MathGtkDocumentWindow: public BasicGtkWidget {
+  class MathGtkDocumentWindow: public CommonDocumentWindow, public BasicGtkWidget {
     public:
       class DocumentPosition {
         public:
           DocumentPosition() {}
-          DocumentPosition(int _id, int _x, int _y)
+          DocumentPosition(FrontEndReference _id, int _x, int _y)
             : id(_id), x(_x), y(_y)
           {
           }
           
-          int id;
+          FrontEndReference id;
           int x;
           int y;
       };
@@ -37,7 +40,6 @@ namespace richmath {
       virtual ~MathGtkDocumentWindow();
       
       void invalidate_options();
-      void reset_title(){ title(_title); }
       
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }
@@ -54,11 +56,6 @@ namespace richmath {
       MathGtkWidget *working_area() { return (MathGtkWidget*)_working_area; }
       MathGtkWidget *bottom_area() {  return (MathGtkWidget*)_bottom_area;  }
       
-      // all windows are arranged in a ring buffer:
-      static MathGtkDocumentWindow *first_window();
-      MathGtkDocumentWindow *prev_window() { return _prev_window; }
-      MathGtkDocumentWindow *next_window() { return _next_window; }
-      
       virtual void bring_to_front();
       virtual void close();
       
@@ -73,14 +70,10 @@ namespace richmath {
       
       void move_palettes();
       
-      String filename(){ return _filename; }
-      void filename(String new_filename);
+      virtual void on_idle_after_edit(MathGtkWidget *sender) { CommonDocumentWindow::on_idle_after_edit(); }
       
-      virtual void on_editing();
-      virtual void on_saved();
-
     protected:
-      void title(       String          text);
+      virtual void finish_apply_title(String displayed_title) override;
       void window_frame(WindowFrameType type);
       
       virtual bool on_configure(GdkEvent *e);
@@ -89,10 +82,6 @@ namespace richmath {
       virtual bool on_scroll(GdkEvent *e);
       
     private:
-      String          _title;
-      WindowFrameType _window_frame;
-      String          _filename;
-      
       Array<DocumentPosition> _snapped_documents; // [0] = self
       
       GdkRectangle _previous_rect;
@@ -100,9 +89,6 @@ namespace richmath {
       MathGtkDock        *_top_area;
       MathGtkWorkingArea *_working_area;
       MathGtkDock        *_bottom_area;
-      
-      MathGtkDocumentWindow *_prev_window;
-      MathGtkDocumentWindow *_next_window;
       
       MathGtkIcons icons;
       
@@ -113,8 +99,8 @@ namespace richmath {
       GtkWidget *_vscrollbar;
       GtkWidget *_table;
       
-      bool _has_unsaved_changes;
+      WindowFrameType _window_frame;
   };
 }
 
-#endif // __GUI__GTK__MGTK_DOCUMENT_WINDOW_H__
+#endif // RICHMATH__GUI__GTK__MGTK_DOCUMENT_WINDOW_H__INCLUDED

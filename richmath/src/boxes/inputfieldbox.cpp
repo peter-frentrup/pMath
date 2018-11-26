@@ -9,6 +9,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_InputFieldBox;
+
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(MathSequence *content)
@@ -17,9 +19,6 @@ InputFieldBox::InputFieldBox(MathSequence *content)
     invalidated(false),
     transparent(false),
 //  autoscroll(false),
-    last_click_time(0),
-    last_click_global_x(0.0),
-    last_click_global_y(0.0),
     frame_x(0)
 {
   dynamic.init(this, Expr());
@@ -29,13 +28,13 @@ InputFieldBox::InputFieldBox(MathSequence *content)
 }
 
 bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_INPUTFIELDBOX)
+  if(expr[0] != richmath_System_InputFieldBox)
     return false;
     
   if(expr.expr_length() < 2)
     return false;
     
-  Expr options(pmath_options_extract(expr.get(), 2));
+  Expr options(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -50,6 +49,7 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   reset_style();
   style->add_pmath(options);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -211,12 +211,7 @@ void InputFieldBox::paint_content(Context *context) {
 }
 
 void InputFieldBox::reset_style() {
-  if(style)
-    style->clear();
-  else
-    style = new Style;
-    
-  style->set(BaseStyleName, String("InputField"));
+  Style::reset(style, "InputField");
 }
 
 void InputFieldBox::scroll_to(float x, float y, float w, float h) {
@@ -259,6 +254,10 @@ Box *InputFieldBox::remove(int *index) {
   return _content;
 }
 
+Expr InputFieldBox::to_pmath_symbol() {
+  return Symbol(richmath_System_InputFieldBox);
+}
+
 Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
   if(invalidated)
     assign_dynamic();
@@ -271,7 +270,7 @@ Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath(false);
     
   Expr result = g.end();
-  result.set(0, Symbol(PMATH_SYMBOL_INPUTFIELDBOX));
+  result.set(0, Symbol(richmath_System_InputFieldBox));
   return result;
 }
 
@@ -324,41 +323,8 @@ bool InputFieldBox::selectable(int i) {
 
 void InputFieldBox::on_mouse_down(MouseEvent &event) {
   if(auto doc = find_parent<Document>(false)) {
-    if(event.left) {
-      event.set_origin(0);
-      float gx = event.x;
-      float gy = event.y;
-      
-      gx *= doc->native()->scale_factor();
-      gy *= doc->native()->scale_factor();
-      
-      float ddx, ddy;
-      doc->native()->double_click_dist(&ddx, &ddy);
-      
-      if( abs(doc->native()->message_time() - last_click_time) <= doc->native()->double_click_time() &&
-          fabs(gx - last_click_global_x) <= ddx &&
-          fabs(gy - last_click_global_y) <= ddy)
-      {
-        Box *box  = doc->selection_box();
-        int start = doc->selection_start();
-        int end   = doc->selection_end();
-        
-        box = expand_selection(box, &start, &end);
-        
-        doc->select(box, start, end);
-      }
-      else {
-        event.set_origin(this);
-        int start, end;
-        bool was_inside_start;
-        Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
-        doc->select(box, start, end);
-      }
-      
-      last_click_time = doc->native()->message_time();
-      last_click_global_x = gx;
-      last_click_global_y = gy;
-    }
+    doc->on_mouse_down(event);
+    return;
   }
   
   ContainerWidgetBox::on_mouse_down(event);
@@ -366,20 +332,20 @@ void InputFieldBox::on_mouse_down(MouseEvent &event) {
 
 void InputFieldBox::on_mouse_move(MouseEvent &event) {
   if(auto doc = find_parent<Document>(false)) {
-    event.set_origin(this);
-    
-    int start, end;
-    bool was_inside_start;
-    Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
-    
-    doc->native()->set_cursor(NativeWidget::text_cursor(box, start));
-    
-    if(event.left && mouse_left_down) {
-      doc->select_to(box, start, end);
-    }
+    doc->on_mouse_move(event);
+    return;
   }
   
   ContainerWidgetBox::on_mouse_move(event);
+}
+
+void InputFieldBox::on_mouse_up(MouseEvent &event) {
+  if(auto doc = find_parent<Document>(false)) {
+    doc->on_mouse_up(event);
+    return;
+  }
+  
+  ContainerWidgetBox::on_mouse_up(event);
 }
 
 void InputFieldBox::on_enter() {
@@ -424,7 +390,7 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
 //    case SpecialKey::Tab:
 //      event.key = SpecialKey::Unknown;
 //      return;
-      
+
     case SpecialKey::Up: {
         Document *doc = find_parent<Document>(false);
         if(doc && doc->selection_box() == _content && doc->selection_start() == 0)

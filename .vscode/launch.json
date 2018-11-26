@@ -26,10 +26,22 @@
             "visualizerFile": "${workspaceRoot}/debugging/windbg/pmath.natvis"
         },
         {
-            "name": "Launch richmath.exe (Windows)",
+            "name": "Launch richmath.exe x64 (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceRoot}/richmath/bin/windows/msvc-debug-x64/richmath.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": true,
+            "visualizerFile": "${workspaceRoot}/debugging/windbg/all.natvis"
+        },
+        {
+            "name": "Launch richmath.exe x86 (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/richmath/bin/windows/msvc-debug-x86/richmath.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",

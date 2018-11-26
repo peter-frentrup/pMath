@@ -1,41 +1,72 @@
-#ifndef __UTIL__FRONTENDOBJECT_H__
-#define __UTIL__FRONTENDOBJECT_H__
+#ifndef RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED
+#define RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED
 
 #include <pmath-cpp.h>
 
-#include <util/base.h>
+#include <util/hashtable.h>
 
 
 namespace richmath {
+  class FrontEndReference {
+    friend class FrontEndObject;
+    friend class FrontEndReferenceImpl;
+    public:
+      int hash() const { return default_hash(_id) ^ 0xBADC0DE; }
+      
+      bool is_valid() const { return _id != nullptr; }
+      explicit operator bool() const { return is_valid(); }
+      
+      static FrontEndReference from_pmath(pmath::Expr expr);
+      static FrontEndReference from_pmath_raw(pmath::Expr expr);
+      
+      pmath::Expr to_pmath() const;
+      pmath::Expr to_pmath_raw() const { return pmath::Expr((intptr_t)_id); }
+      
+      friend bool operator==(const FrontEndReference &left, const FrontEndReference &right) {
+        return left._id == right._id;
+      } 
+      friend bool operator!=(const FrontEndReference &left, const FrontEndReference &right) {
+        return left._id != right._id;
+      }
+      
+      static const FrontEndReference None;
+      
+      static void *unsafe_cast_to_pointer(const FrontEndReference &ref) {
+        return ref._id;
+      }
+      
+      static FrontEndReference unsafe_cast_from_pointer(void *p) {
+        FrontEndReference ref;
+        ref._id = p;
+        return ref;
+      }
+    
+    private:
+      void *_id;
+  };
 
   class FrontEndObject: public virtual Base {
     public:
       FrontEndObject();
       virtual ~FrontEndObject();
       
-      int id() { return _id; }
+      FrontEndReference id() { return FrontEndReference::unsafe_cast_from_pointer(this); }
       
-      static FrontEndObject *find(int id);
-      static FrontEndObject *find(pmath::Expr frontendobject);
+      static FrontEndObject *find(FrontEndReference id);
       
       template<class T>
-      static T *find_cast(int id) {
+      static T *find_cast(FrontEndReference id) {
         return dynamic_cast<T*>(find(id));
       }
       
-      template<class T>
-      static T *find_cast(pmath::Expr frontendobject) {
-        return dynamic_cast<T*>(find(frontendobject));
-      }
-      
-      void swap_id(FrontEndObject *other);
-      
       virtual void dynamic_updated() = 0;
-      
-    private:
-      int _id;
   };
   
+  // http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Nifty_Counter
+  static struct FrontEndObjectInitializer {
+    FrontEndObjectInitializer();
+    ~FrontEndObjectInitializer();
+  } TheFrontEndObjectInitializer;
 }
 
-#endif // __UTIL__FRONTENDOBJECT_H__
+#endif // RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED

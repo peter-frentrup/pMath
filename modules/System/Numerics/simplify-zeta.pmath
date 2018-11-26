@@ -1,0 +1,54 @@
+BeginPackage("System`Numerics`Zeta`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyZeta
+
+Begin("System`Numerics`Zeta`Private`")
+
+%
+% If direct (numerical) calculation of Zeta(s) is not possible (because s is an expression or 
+% an exact number), System`Private`AutoSimplifyZeta(Zeta, s) gets called.
+% If that returns $Failed, the original expression Zeta(s) remains unevaluated. 
+% Otherwise, the result of AutoSimplifyZeta will be returned.
+%
+System`Private`AutoSimplifyZeta(~~~):= $Failed
+
+System`Private`AutoSimplifyZeta(Zeta, ~s)::= simplifyRiemannZeta(s)
+System`Private`AutoSimplifyZeta(Zeta, ~s, ~a)::= simplifyHurwitzZeta(s, a)
+
+
+% See Digital Library of Mathematical Functions, Chap. 25 (https://dlmf.nist.gov/25)
+
+simplifyRiemannZeta(~)::= $Failed
+simplifyRiemannZeta(0)::= -1/2
+simplifyRiemannZeta(1)::= ComplexInfinity
+%simplifyRiemannZeta(2)::= Pi^2 / 6
+Function simplifyRiemannZeta(~s) {
+    If(IsInteger(s)) {
+        If(s > 0 && IsEven(s)) {
+            Return((2 Pi)^s Abs(BernoulliB(s))/(2 Factorial(s)))
+        } Else If(s < 0) {
+            Return(-BernoulliB(1-s)/(1-s))
+        }
+    }
+    Return($Failed)
+}
+
+% Reducing a to range (0,1] in Zeta(s, a) via Zeta(s, a+1) = Zeta(s) + a^-s
+% should be implemented by FunctionExpand() ...
+
+simplifyHurwitzZeta(~s, 1)::= Zeta(s)
+simplifyHurwitzZeta(~s, 1/2)::= (2^s - 1) Zeta(s)
+Function simplifyHurwitzZeta(~s, ~a) {
+    If(s === 0) {
+        If(IsRational(a) && a > 0) { % Re(a) > 0
+            Return(1/2 - a)
+        }
+    }
+    Return($Failed)
+}
+
+End()
+
+EndPackage()

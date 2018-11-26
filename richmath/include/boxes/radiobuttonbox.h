@@ -1,5 +1,5 @@
-#ifndef __BOXES__RADIOBUTTONBOX_H__
-#define __BOXES__RADIOBUTTONBOX_H__
+#ifndef RICHMATH__BOXES__RADIOBUTTONBOX_H__INCLUDED
+#define RICHMATH__BOXES__RADIOBUTTONBOX_H__INCLUDED
 
 #include <boxes/emptywidgetbox.h>
 #include <eval/dynamic.h>
@@ -15,7 +15,7 @@ namespace richmath {
       
       virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_RADIOBUTTONBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void dynamic_finished(Expr info, Expr result) override;
@@ -32,4 +32,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__RADIOBUTTONBOX_H__
+#endif // RICHMATH__BOXES__RADIOBUTTONBOX_H__INCLUDED

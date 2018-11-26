@@ -1,5 +1,5 @@
 #include <pmath-core/numbers.h>
-#include <pmath-core/strings-private.h>
+#include <pmath-core/strings.h>
 
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/helpers.h>
@@ -115,14 +115,18 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr) {
     if(!pmath_is_null(name)) {
       int len = (int)GetEnvironmentVariableW(pmath_string_buffer(&name), NULL, 0);
       if(len > 0) {
-        struct _pmath_string_t *result = _pmath_new_string_buffer(len);
-
-        if(result) {
-          GetEnvironmentVariableW(pmath_string_buffer(&name), AFTER_STRING(result), len);
-          pmath_unref(name);
-          result->length = len - 1;
-          return _pmath_from_buffer(result);
+        pmath_string_t result = pmath_string_new_raw(len);
+        wchar_t *buf;
+        if(pmath_string_begin_write(&result, &buf, NULL)) {
+          GetEnvironmentVariableW(pmath_string_buffer(&name), buf, len);
+          
+          pmath_string_end_write(&result, &buf);
         }
+        else
+          len = 1;
+        
+        pmath_unref(name);
+        return pmath_string_part(result, 0, len - 1);
       }
     }
 

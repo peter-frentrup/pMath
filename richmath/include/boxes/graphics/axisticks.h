@@ -1,5 +1,5 @@
-#ifndef __BOXES__GRAPHICS__AXISTICKS_H__
-#define __BOXES__GRAPHICS__AXISTICKS_H__
+#ifndef RICHMATH__BOXES__GRAPHICS__AXISTICKS_H__INCLUDED
+#define RICHMATH__BOXES__GRAPHICS__AXISTICKS_H__INCLUDED
 
 #include <boxes/box.h>
 #include <util/array.h>
@@ -97,4 +97,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__GRAPHICS__AXISTICKS_H__
+#endif // RICHMATH__BOXES__GRAPHICS__AXISTICKS_H__INCLUDED

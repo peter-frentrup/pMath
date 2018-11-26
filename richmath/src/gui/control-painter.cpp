@@ -208,12 +208,12 @@ void ControlPainter::draw_container(
     case GenericButton:
     case PushButton:
     case PaletteButton:
-      paint_frame(canvas, x, y, width, height, state == Pressed);
+      paint_frame(canvas, x, y, width, height, state == PressedHovered);
       break;
       
     case DefaultPushButton: {
     
-        paint_frame(canvas, x, y, width, height, state == Pressed);
+        paint_frame(canvas, x, y, width, height, state == PressedHovered);
         
         float x2 = x + width;
         float y2 = y + height;
@@ -412,7 +412,7 @@ void ControlPainter::draw_container(
 }
 
 SharedPtr<BoxAnimation> ControlPainter::control_transition(
-  int                          widget_id,
+  FrontEndReference            widget_id,
   Canvas                      *canvas,
   ContainerType                type1,
   ContainerType                type2,

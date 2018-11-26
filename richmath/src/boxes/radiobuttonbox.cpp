@@ -2,6 +2,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_RadioButtonBox;
+
 //{ class RadioButtonBox ...
 
 RadioButtonBox::RadioButtonBox()
@@ -12,14 +14,14 @@ RadioButtonBox::RadioButtonBox()
 }
 
 bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_RADIOBUTTONBOX)
+  if(expr[0] != richmath_System_RadioButtonBox)
     return false;
     
   Expr options(PMATH_UNDEFINED);
   Expr new_value;
   
   if(expr.expr_length() >= 2) {
-    options = Expr(pmath_options_extract(expr.get(), 2));
+    options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     
     if(options.is_null())
       return false;
@@ -46,6 +48,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   else if(options != PMATH_UNDEFINED)
     style = new Style(options);
     
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -69,6 +72,10 @@ void RadioButtonBox::paint(Context *context) {
   first_paint = false;
 }
 
+Expr RadioButtonBox::to_pmath_symbol() {
+  return Symbol(richmath_System_RadioButtonBox);
+}
+
 Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
   Gather gather;
   
@@ -84,10 +91,10 @@ Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
     
   Expr result = gather.end();
   if(value == PMATH_SYMBOL_TRUE && result.expr_length() == 2) {
-    return Call(Symbol(PMATH_SYMBOL_RADIOBUTTONBOX), dynamic.expr());
+    return Call(Symbol(richmath_System_RadioButtonBox), dynamic.expr());
   }
   
-  result.set(0, Symbol(PMATH_SYMBOL_RADIOBUTTONBOX));
+  result.set(0, Symbol(richmath_System_RadioButtonBox));
   return result;
 }
 

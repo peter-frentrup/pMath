@@ -1,13 +1,12 @@
-#ifndef __BOXES__STYLEBOX_H__
-#define __BOXES__STYLEBOX_H__
+#ifndef RICHMATH__BOXES__STYLEBOX_H__INCLUDED
+#define RICHMATH__BOXES__STYLEBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
-
 
 namespace richmath {
   class AbstractStyleBox: public OwnerBox {
     public:
-      explicit AbstractStyleBox(MathSequence *content = 0);
+      explicit AbstractStyleBox(MathSequence *content = nullptr);
       
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
@@ -41,7 +40,7 @@ namespace richmath {
   
   class ExpandableAbstractStyleBox: public AbstractStyleBox {
     public:
-      explicit ExpandableAbstractStyleBox(MathSequence *content = 0)
+      explicit ExpandableAbstractStyleBox(MathSequence *content = nullptr)
         : AbstractStyleBox(content)
       {
       }
@@ -51,12 +50,12 @@ namespace richmath {
   
   class StyleBox: public ExpandableAbstractStyleBox {
     public:
-      explicit StyleBox(MathSequence *content = 0);
+      explicit StyleBox(MathSequence *content = nullptr);
       
       // Box::try_create<StyleBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_STYLEBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual bool changes_children_style() override { return true; }
@@ -64,7 +63,7 @@ namespace richmath {
   
   class TagBox: public ExpandableAbstractStyleBox {
     public:
-      explicit TagBox(MathSequence *content = 0);
+      explicit TagBox(MathSequence *content = nullptr);
       TagBox(MathSequence *content, Expr _tag);
       
       // Box::try_create<TagBox>(expr, opts);
@@ -72,7 +71,7 @@ namespace richmath {
       
       virtual void resize(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TAGBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     public:
@@ -80,4 +79,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__STYLEBOX_H__
+#endif // RICHMATH__BOXES__STYLEBOX_H__INCLUDED

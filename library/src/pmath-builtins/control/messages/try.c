@@ -117,6 +117,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
   pmath_t         tag;
   pmath_thread_t  thread;
   uint8_t         old_critical_messages;
+  intptr_t        old_dynamic_id;
   size_t          exprlen;
   
   exprlen = pmath_expr_length(expr);
@@ -156,6 +157,9 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
   
   tag = generate_message_tag();
   
+  old_dynamic_id = thread->current_dynamic_id;
+  thread->current_dynamic_id = 0;
+
   old_downrules = pmath_evaluate(
                     pmath_expr_new_extended(
                       pmath_ref(PMATH_SYMBOL_DOWNRULES), 1,
@@ -180,7 +184,8 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
             
     pmath_unref(pmath_evaluate(tmp));
   }
-  
+  thread->current_dynamic_id = old_dynamic_id;
+
   old_critical_messages = thread->critical_messages;
   thread->critical_messages = TRUE;
   
@@ -203,6 +208,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
   pmath_unref(failexpr);
   pmath_unref(tag);
   
+  thread->current_dynamic_id = 0;
   { // DownRules(Internal`CriticalMessageTag):= old_downrules
     pmath_t tmp;
     
@@ -217,6 +223,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
             
     pmath_unref(pmath_evaluate(tmp));
   }
+  thread->current_dynamic_id = old_dynamic_id;
   
   if(!pmath_same(exception, PMATH_UNDEFINED))
     _pmath_thread_throw(thread, exception);

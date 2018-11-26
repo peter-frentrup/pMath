@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__CONTEXT_H__
-#define __GRAPHICS__CONTEXT_H__
+#ifndef RICHMATH__GRAPHICS__CONTEXT_H__INCLUDED
+#define RICHMATH__GRAPHICS__CONTEXT_H__INCLUDED
 
 #include <util/array.h>
 #include <util/pmath-extra.h>
@@ -83,8 +83,8 @@ namespace richmath {
       
       SharedPtr<Stylesheet> stylesheet;
       
-      int mouseover_box_id;
-      int clicked_box_id;
+      FrontEndReference mouseover_box_id;
+      FrontEndReference clicked_box_id;
       
       bool active;
   };
@@ -95,6 +95,11 @@ namespace richmath {
       
       // does not change the color:
       void begin(SharedPtr<Style> style);
+      
+      void apply_layout_styles(SharedPtr<Style> style);
+      
+      // does not change the color:
+      void apply_non_layout_styles(SharedPtr<Style> style);
       
       void end();
       
@@ -144,4 +149,4 @@ namespace richmath {
   };
 }
 
-#endif // __GRAPHICS__CONTEXT_H__
+#endif // RICHMATH__GRAPHICS__CONTEXT_H__INCLUDED

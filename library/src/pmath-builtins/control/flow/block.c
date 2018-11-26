@@ -27,8 +27,10 @@ static void destroy_definitions(struct symbol_definition_t *def) {
     def = old->next;
     
     pmath_unref(old->symbol);
-    if(old->rules)
+    if(old->rules) {
       _pmath_symbol_rules_done(old->rules);
+      pmath_mem_free(old->rules);
+    }
     pmath_unref(old->value);
     pmath_mem_free(old);
   }

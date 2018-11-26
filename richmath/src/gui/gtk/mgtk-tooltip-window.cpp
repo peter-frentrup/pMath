@@ -1,4 +1,5 @@
 #include <gui/gtk/mgtk-tooltip-window.h>
+#include <gui/common-tooltips.h>
 
 #include <boxes/mathsequence.h>
 #include <boxes/section.h>
@@ -7,6 +8,9 @@
 
 
 using namespace richmath;
+
+extern pmath_symbol_t richmath_System_ButtonBox;
+extern pmath_symbol_t richmath_System_ButtonFrame;
 
 static MathGtkTooltipWindow *tooltip_window = 0;
 
@@ -49,7 +53,7 @@ void MathGtkTooltipWindow::move_global_tooltip() {
   tooltip_window->resize(true);
 }
 
-void MathGtkTooltipWindow::show_global_tooltip(Expr boxes) {
+void MathGtkTooltipWindow::show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet) {
   if(!tooltip_window) {
     tooltip_window = new MathGtkTooltipWindow();
     tooltip_window->init();
@@ -58,24 +62,10 @@ void MathGtkTooltipWindow::show_global_tooltip(Expr boxes) {
   if(tooltip_window->_content_expr != boxes) {
     tooltip_window->_content_expr = boxes;
     
-    Document *doc = tooltip_window->document();
-    doc->remove(0, doc->length());
-    
-    Style *style = new Style;
-    style->set(BaseStyleName,       "ControlStyle");
-    style->set(SectionMarginLeft,   0);
-    style->set(SectionMarginTop,    0);
-    style->set(SectionMarginRight,  0);
-    style->set(SectionMarginBottom, 0);
-    
-    boxes = Call(Symbol(PMATH_SYMBOL_BUTTONBOX),
-                 boxes,
-                 Rule(Symbol(PMATH_SYMBOL_BUTTONFRAME),
-                      String("TooltipWindow")));
-                      
-    MathSection *section = new MathSection(style);
-    section->content()->load_from_object(boxes, BoxInputFlags::FormatNumbers);
-    doc->insert(0, section);
+    CommonTooltips::load_content(
+      tooltip_window->document(), 
+      std::move(boxes), 
+      std::move(stylesheet));
   }
   
   if(!gtk_widget_get_visible(tooltip_window->widget()))

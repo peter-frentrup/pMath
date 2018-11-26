@@ -1,5 +1,5 @@
-#ifndef __UTIL__SYNTAX_STATE_H__
-#define __UTIL__SYNTAX_STATE_H__
+#ifndef RICHMATH__UTIL__SYNTAX_STATE_H__INCLUDED
+#define RICHMATH__UTIL__SYNTAX_STATE_H__INCLUDED
 
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
@@ -91,11 +91,8 @@ namespace richmath {
       
       SharedPtr<ScopePos>  current_pos;
       
-      Hashtable <
-      String,
-      SharedPtr<SymbolInfo>,
-      object_hash >   local_symbols;
+      Hashtable< String, SharedPtr<SymbolInfo> > local_symbols;
   };
 }
 
-#endif // __UTIL__SYNTAX_STATE_H__
+#endif // RICHMATH__UTIL__SYNTAX_STATE_H__INCLUDED

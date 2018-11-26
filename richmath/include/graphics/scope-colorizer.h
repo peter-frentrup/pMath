@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__SCOPE_COLORIZER_H__
-#define __GRAPHICS__SCOPE_COLORIZER_H__
+#ifndef RICHMATH__GRAPHICS__SCOPE_COLORIZER_H__INCLUDED
+#define RICHMATH__GRAPHICS__SCOPE_COLORIZER_H__INCLUDED
 
 #include <util/syntax-state.h>
 
@@ -25,4 +25,4 @@ namespace richmath {
   };
 }
 
-#endif // __GRAPHICS__SCOPE_COLORIZER_H__
+#endif // RICHMATH__GRAPHICS__SCOPE_COLORIZER_H__INCLUDED

@@ -7,19 +7,21 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_SectionGroup;
+
 //{ class SectionList ...
 
 Expr SectionList::group(Expr sections) {
   if(!sections.is_valid()) {
     return Call(
-             Symbol(PMATH_SYMBOL_SECTIONGROUP),
+             Symbol(richmath_System_SectionGroup),
              List(),
              Symbol(PMATH_SYMBOL_ALL));
   }
   
   if(sections[0] == PMATH_SYMBOL_LIST) {
     return Call(
-             Symbol(PMATH_SYMBOL_SECTIONGROUP),
+             Symbol(richmath_System_SectionGroup),
              sections,
              Symbol(PMATH_SYMBOL_ALL));
   }
@@ -31,7 +33,8 @@ SectionList::SectionList()
   : Box(),
     section_bracket_width(8),
     section_bracket_right_margin(2),
-    _scrollx(0)
+    _scrollx(0),
+    _must_resize_group_info(false)
 {
 }
 
@@ -77,17 +80,26 @@ void SectionList::resize(Context *context) {
 //    _extents.width+= BorderWidth;
 //    unfilled_width+= BorderWidth;
 //  }
+
+  finish_resize(context);
+}
+
+void SectionList::finish_resize(Context *context) {
+  if(_must_resize_group_info) {
+    recalc_group_info();
+    update_group_nesting();
+    update_section_visibility();
+  }
 }
 
 void SectionList::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   float x, y;
   context->canvas->current_pos(&x, &y);
   
   context->canvas->save();
-  cairo_translate(context->canvas->cairo(), x, y);
+  context->canvas->translate(x, y);
   
   //_scrollx = 0;
   for(int i = 0; i < _sections.length(); ++i) {
@@ -200,7 +212,7 @@ Expr SectionList::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(e.expr_length() == 1)
     return e[1];
     
-  return Call(Symbol(PMATH_SYMBOL_SECTIONGROUP), e, Symbol(PMATH_SYMBOL_ALL));
+  return Call(Symbol(richmath_System_SectionGroup), e, Symbol(PMATH_SYMBOL_ALL));
 }
 
 void SectionList::emit_pmath(BoxOutputFlags flags, int start, int end) {
@@ -231,7 +243,7 @@ void SectionList::emit_pmath(BoxOutputFlags flags, int start, int end) {
         open = Symbol(PMATH_SYMBOL_ALL);
         
       group = Call(
-                Symbol(PMATH_SYMBOL_SECTIONGROUP),
+                Symbol(richmath_System_SectionGroup),
                 group,
                 open);
       Gather::emit(group);
@@ -545,7 +557,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
   if(overwrite_until_index > _sections.length())
     overwrite_until_index  = _sections.length();
     
-  if( boxes[0]    == PMATH_SYMBOL_SECTIONGROUP &&
+  if( boxes[0]    == richmath_System_SectionGroup &&
       boxes[1][0] == PMATH_SYMBOL_LIST)
   {
     Expr sect = boxes[1];
@@ -699,6 +711,8 @@ Box *SectionList::remove(int *index) {
 }
 
 void SectionList::recalc_group_info() {
+  _must_resize_group_info = false;
+  
   int pos = 0;
   while(pos < _group_info.length()) {
     _group_info[pos].first = -1;
@@ -837,7 +851,13 @@ void SectionList::resize_section(Context *context, int i) {
     context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
   }
   
-  _sections[i]->resize(context);
+  auto sect = _sections[i];
+  sect->resize(context);
+  auto precedence = sect->get_own_style(SectionGroupPrecedence, 0.0);
+  if(precedence != _group_info[i].precedence) {
+    _group_info[i].precedence = precedence;
+    _must_resize_group_info = true;
+  }
   
   context->width                        = old_w;
   context->section_content_window_width = old_scww;

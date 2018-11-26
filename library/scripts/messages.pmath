@@ -55,6 +55,7 @@ General::privv:= "Privilege violation during `1`."
 
 /* type errors */
 General::atom:= "`1` is neither an expression nor a string."
+General::bool:= "`1` is neither the symbol True nor the symbol False."
 General::fnsym:= "The first argument in `1` is neither a symbol nor a string naming a symbol."
 General::heads:= "Heads `1` and `2` at positions `3` and `4` are expected to be the same."
 General::ilsmn:= "Single or list of non-negative integers expected at position `1` in `2`"
@@ -80,6 +81,7 @@ General::nothread:= "`1` is not a thread object."
 General::numn:= "Non-negative number expected at position `1` in `2`."
 General::ns:= "Invalid namespace specified at position `1` in `2`. A namespace must consist of valid symbol names separated by and ending with `."
 General::nsls:= "Namespace or nonempty list of namespaces expected at position `1` in `2`."
+General::preal:= "The parameter `1` should be real-valued."
 General::range:= "Range `1` does not have valid bounds."
 General::shlen:= "Argument `1` should have at least two elements."
 General::sing:= "Matrix `1` is singular."
@@ -329,6 +331,8 @@ SetStreamPosition::stmrng:= "Cannot set current point in stream `2` to position 
 
 StringExpression::invld:= "Element `1` is not a valid string or pattern element in `2`."
 StringReplace::srep:= "`1` is not a valid string replacement rule."
+
+Surd::noneg:= "Surd is undefined for even roots of negative values.
 
 Switch::argct:= "Switch called with `1` arguments. Switch must be called with an odd number of arguments."
 

@@ -1,8 +1,7 @@
+#include <pmath-core/expressions.h>
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/messages.h>
-
-#include <pmath-builtins/all-symbols-private.h>
 
 /** \brief Replace small floating point numbers by integer 0.
     \param obj       An expression. It will be freed.

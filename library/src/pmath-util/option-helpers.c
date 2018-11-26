@@ -218,11 +218,11 @@ pmath_bool_t pmath_is_set_of_options(pmath_t expr) {
   return TRUE;
 }
 
-PMATH_API pmath_expr_t pmath_options_extract(
-  pmath_expr_t expr,
-  size_t       last_nonoption
+PMATH_API pmath_expr_t pmath_options_extract_ex(
+  pmath_expr_t                  expr, 
+  size_t                        last_nonoption, 
+  pmath_options_extragt_flags_t flags
 ) {
-  pmath_t head;
   pmath_t option_set;
   size_t i, exprlen;
   const pmath_t *items;
@@ -254,22 +254,33 @@ PMATH_API pmath_expr_t pmath_options_extract(
     }
   }
   
-  head = pmath_expr_get_item(expr, 0);
-  option_set = get_default_options(head);
-  pmath_unref(head);
-  
-  for(i = last_nonoption; i < exprlen; ++i) {
-    if(!_pmath_options_check_subset_of(items[i], option_set, "optx", expr)) {
-      pmath_unref(option_set);
-      
-      return PMATH_NULL;
+  if(!(flags & PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET)) {
+    pmath_t head = pmath_expr_get_item(expr, 0);
+    option_set = get_default_options(head);
+    pmath_unref(head);
+    
+    for(i = last_nonoption; i < exprlen; ++i) {
+      if(!_pmath_options_check_subset_of(items[i], option_set, "optx", expr)) {
+        if(flags & PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY)
+          break;
+        
+        pmath_unref(option_set);
+        return PMATH_NULL;
+      }
     }
+    
+    pmath_unref(option_set);
   }
-  
-  pmath_unref(option_set);
   option_set = pmath_expr_get_item_range(expr, last_nonoption + 1, SIZE_MAX);
   option_set = pmath_expr_set_item(option_set, 0, pmath_ref(PMATH_SYMBOL_LIST));
   return option_set;
+}
+
+PMATH_API pmath_expr_t pmath_options_extract(
+  pmath_expr_t expr,
+  size_t       last_nonoption
+) {
+  return pmath_options_extract_ex(expr, last_nonoption, PMATH_OPTIONS_EXTRACT_UNKNOWN_FAIL);
 }
 
 PMATH_API pmath_t pmath_option_value(

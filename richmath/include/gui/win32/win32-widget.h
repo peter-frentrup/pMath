@@ -1,5 +1,5 @@
-#ifndef __GUI__WIN32__WIN32_WIDGET_H__
-#define __GUI__WIN32__WIN32_WIDGET_H__
+#ifndef RICHMATH__GUI__WIN32__WIN32_WIDGET_H__INCLUDED
+#define RICHMATH__GUI__WIN32__WIN32_WIDGET_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -70,7 +70,6 @@ namespace richmath {
       virtual String filename() override { return String(); }
       virtual void filename(String new_filename) override {}
       
-      virtual void on_editing() override {}
       virtual void on_saved() override {}
       
     public:
@@ -100,7 +99,7 @@ namespace richmath {
       
       float gesture_zoom_factor;
       
-      Hashtable<SharedPtr<TimedEvent>, Void> animations;
+      Hashset<SharedPtr<TimedEvent>> animations;
       bool animation_running;
       bool is_dragging;
       bool is_drop_over;
@@ -131,4 +130,4 @@ namespace richmath {
   SpecialKey win32_virtual_to_special_key(DWORD vkey);
 }
 
-#endif // __GUI__WIN32__WIN32_WIDGET_H__
+#endif // RICHMATH__GUI__WIN32__WIN32_WIDGET_H__INCLUDED

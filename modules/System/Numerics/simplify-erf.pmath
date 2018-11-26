@@ -1,0 +1,127 @@
+BeginPackage("System`Numerics`Erf`")
+
+<<ExperimentalSyntax`
+
+System`Private`AutoSimplifyErf
+
+Begin("System`Numerics`Erf`Private`")
+
+%
+% If direct (numerical) calculation of Erf(x), Erfc(x), etc. is not possible (because 
+% x is an expression or an exact number), System`Private`AutoSimplifyErf(Erf, x) 
+% etc. get called.
+% If that returns $Failed, the original expression Erf(x) etc. remains unevaluated. 
+% Otherwise, the result of AutoSimplifyErf will be returned.
+%
+System`Private`AutoSimplifyErf(~, ~):= $Failed
+System`Private`AutoSimplifyErf(~f, ~q:Rational)::= erfLikeOfRational(f, q)
+System`Private`AutoSimplifyErf(~f, ~q:Integer)::= erfLikeOfRational(f, q)
+System`Private`AutoSimplifyErf(~f, ~z:Complex)::= erfLikeOfComplex(f, z)
+System`Private`AutoSimplifyErf(~f, ~x:Times)::= erfLikeOfProduct(f, x)
+System`Private`AutoSimplifyErf(~f, ~inf:DirectedInfinity)::= erfLikeAtInfinity(f, inf)
+
+erfLikeOfRational(~f, ~q):= $Failed
+erfLikeOfRational(Erf, 0):= 0
+erfLikeOfRational(Erf, ~q)::= If(IsNegative(q), -Erf(-q), $Failed, $Failed)
+erfLikeOfRational(Erfc, 0):= 1
+erfLikeOfRational(Erfi, 0):= 0
+erfLikeOfRational(Erfi, ~q)::= If(IsNegative(q), -Erfi(-q), $Failed, $Failed)
+erfLikeOfRational(FresnelC, 0):= 0
+erfLikeOfRational(FresnelC, ~q)::= If(IsNegative(q), -FresnelC(-q), $Failed, $Failed)
+erfLikeOfRational(FresnelS, 0):= 0
+erfLikeOfRational(FresnelS, ~q)::= If(IsNegative(q), -FresnelS(-q), $Failed, $Failed)
+
+
+erfLikeOfComplex(~f, ~z):= $Failed
+erfLikeOfComplex(Erf,  Complex(0, ~y))::= I Erfi(y)
+erfLikeOfComplex(Erfi, Complex(0, ~y))::= I Erf(y)
+erfLikeOfComplex(FresnelC, Complex(0, ~y))::= I FresnelC(y)
+erfLikeOfComplex(FresnelS, Complex(0, ~y))::= I FresnelS(y)
+
+
+erfLikeOfProduct(~f, ~x):= $Failed
+erfLikeOfProduct(~f, ~x * ~y)::= erfLikeOfSimpleProduct(f, x, y)
+
+erfLikeOfSimpleProduct(~f, ~x, ~y):= $Failed
+erfLikeOfSimpleProduct(~f, ~n:Integer,  ~y)::= erfLikeOfRealFactor(f, n, y)
+erfLikeOfSimpleProduct(~f, ~q:Rational, ~y)::= erfLikeOfRealFactor(f, q, y)
+erfLikeOfSimpleProduct(~f, ~x:Real,     ~y)::= erfLikeOfRealFactor(f, x, y)
+erfLikeOfSimpleProduct(~f, ~z:Complex, ~y)::= erfLikeOfComplexFactor(f, z, y)
+
+
+erfLikeOfRealFactor(~f, ~x, ~y)::= $Failed
+erfLikeOfRealFactor(Erf, ~x, ~y)::= If(IsNegative(x), -Erf(-x y), $Failed, $Failed)
+erfLikeOfRealFactor(Erfi, ~x, ~y)::= If(IsNegative(x), -Erfi(-x y), $Failed, $Failed)
+erfLikeOfRealFactor(FresnelC, ~x, ~y)::= If(IsNegative(x), -FresnelC(-x y), $Failed, $Failed)
+erfLikeOfRealFactor(FresnelS, ~x, ~y)::= If(IsNegative(x), -FresnelS(-x y), $Failed, $Failed)
+
+
+erfLikeOfComplexFactor(~f, ~z, ~y)::= $Failed
+erfLikeOfComplexFactor(~f, Complex(0, ~iz), ~y)::= erfLikeOfComplex(f, Complex(0, iz y))
+
+
+erfLikeAtInfinity(~f, ~inf):= $Failed
+Function erfLikeAtInfinity(Erf, inf: DirectedInfinity(~dir)) {
+    If(IsReal(dir)) {
+        If(dir > 0) {
+            Return(1)
+        } Else If(dir < 0) {
+            Return(-1)
+        }
+    } Else If(IsImaginary(dir) && dir != 0) {
+        Return(inf)
+    }
+    Return($Failed)
+} 
+erfLikeAtInfinity(Erfi, ~inf)::= 
+    With(erfinf:= erfLikeAtInfinity(Erf, I inf)) {
+        If(erfinf =!= $Failed, -I erfinf, $Failed, $Failed)
+    }
+Function erfLikeAtInfinity(Erfc, inf: DirectedInfinity(~dir)) {
+    If(IsReal(dir)) {
+        If(dir < 0) {
+            Return(2)
+        } Else If(dir > 0) {
+            Return(0);
+        }
+    }
+    Return($Failed)
+}
+Function erfLikeAtInfinity(FresnelC, inf: DirectedInfinity(~dir)) {
+    If(IsReal(dir)) {
+        If(dir > 0) {
+            Return(1/2)
+        } Else If(dir < 0) {
+            Return(-1/2)
+        }
+    } Else If(IsImaginary(dir)) {
+        With(idir:= Im(dir))
+        If(idir > 0) {
+            Return(I/2)
+        } Else If(idir < 0) {
+            Return(-I/2)
+        }
+    }
+    Return($Failed)
+}
+Function erfLikeAtInfinity(FresnelS, inf: DirectedInfinity(~dir)) {
+    If(IsReal(dir)) {
+        If(dir > 0) {
+            Return(1/2)
+        } Else If(dir < 0) {
+            Return(-1/2)
+        }
+    } Else If(IsImaginary(dir)) {
+        With(idir:= Im(dir))
+        If(idir > 0) {
+            Return(-I/2)
+        } Else If(idir < 0) {
+            Return(I/2)
+        }
+    }
+    Return($Failed)
+} 
+
+End()
+
+EndPackage()

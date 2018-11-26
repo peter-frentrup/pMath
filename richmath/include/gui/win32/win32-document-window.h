@@ -1,5 +1,5 @@
-#ifndef __GUI__WIN32__WIN32_DOCUMENT_WINDOW_H__
-#define __GUI__WIN32__WIN32_DOCUMENT_WINDOW_H__
+#ifndef RICHMATH__GUI__WIN32__WIN32_DOCUMENT_WINDOW_H__INCLUDED
+#define RICHMATH__GUI__WIN32__WIN32_DOCUMENT_WINDOW_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -7,6 +7,7 @@
 
 #include <gui/win32/basic-win32-window.h>
 #include <gui/win32/win32-widget.h>
+#include <eval/observable.h>
 
 
 namespace richmath {
@@ -41,18 +42,13 @@ namespace richmath {
       
       void rearrange();
       void invalidate_options();
-      void reset_title(){ title(_title); }
       
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }
       
       virtual bool is_closed() override;
       
-      virtual String filename() { return _filename; }
-      virtual void filename(String new_filename);
-      
-      virtual void on_editing();
-      virtual void on_saved();
+      void on_idle_after_edit(Win32Widget *sender) { BasicWin32Window::on_idle_after_edit(); }
       
       Win32Widget *top_glass_area() {    return (Win32Widget*)_top_glass_area;    }
       Win32Widget *top_area() {          return (Win32Widget*)_top_area;          }
@@ -69,20 +65,16 @@ namespace richmath {
       
       Win32Menubar *menubar;
       bool creation;
-      bool _has_unsaved_changes;
       
-      String          _title;
-      WindowFrameType _window_frame;
-      String          _filename;
+      WindowFrameType         _window_frame;
       
     protected:
       virtual void on_theme_changed() override;
       
-      void title(       String          text);
       void window_frame(WindowFrameType type);
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
   };
 }
 
-#endif // __GUI__WIN32__WIN32_DOCUMENT_WINDOW_H__
+#endif // RICHMATH__GUI__WIN32__WIN32_DOCUMENT_WINDOW_H__INCLUDED

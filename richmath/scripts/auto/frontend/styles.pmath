@@ -1,0 +1,101 @@
+
+BeginPackage("FE`Styles`")
+
+<<ExperimentalSyntax`
+
+MakeStyleDataBoxes
+$DefaultDisplayFunction
+FlattenTemplateSequence
+
+Begin("FE`Styles`Private`")
+
+MakeStyleDataBoxes(~)::= asStyleDataLabelBox("\"Unknown StyleData syntax\"")
+MakeStyleDataBoxes(HoldComplete(StyleData(~name:String)))::= 
+    asStyleDataExampleBox(
+        MakeBoxes(StringForm("Local definition for style \"`1`\":", name)),
+        name
+    )
+    
+Function MakeStyleDataBoxes(HoldComplete(StyleData(StyleDefinitions -> ~name:String))) {
+    With(path:= ToFileName(FE`$StylesheetDirectory, name))
+    asStyleDataExampleBox(
+        ComplexStringBox(
+            "\"Include definitions from stylesheet \\\"", 
+            TooltipBox(
+                ButtonBox(name, 
+                    ButtonFrame -> "Frameless",
+                    ButtonFunction -> Function(DocumentOpen(path))),
+                ToBoxes @ path),
+            "\\\"\""),
+        name
+    )
+}
+
+asStyleDataLabelBox(~labelTextBox)::=
+    StyleBox(
+        labelTextBox,
+        "SystemResetStyle", FontFamily->"Arial", ShowStringCharacters->False
+    )
+
+asStyleDataExampleBox(~labelTextBox, ~exampleBox)::=
+    StyleBox(
+        GridBox( 
+            {{asStyleDataLabelBox(labelTextBox)}, {exampleBox}},
+            GridBoxRowSpacing -> 0), 
+        AutoSpacing->False)
+
+
+$DefaultDisplayFunction(~tag:String)::= Function(
+    FrameBox(
+        {tag, "(", 
+            %TemplateSlotSequence(1, ","),
+            TemplateSlotSequence(##1, Function(FrameBox(#1).StyleBox("TemplateBoxErrorDisplayArgumentStyle")), ","),
+            %{##1}.Map(Function(FrameBox(#1).StyleBox("TemplateBoxErrorDisplayArgumentStyle"))).Riffle(","), 
+            ")"}
+    ).StyleBox("TemplateBoxErrorDisplayStyle")
+)
+
+
+FlattenTemplateSequence(~func, ~)::= func
+FlattenTemplateSequence(Function(~body), ~argnum)::= Function @@ bodyFlattenTemplateSequence(HoldComplete(body), argnum)
+
+Function makeArgumentList(~n, ~m) {
+    Local(i)
+
+    Return(Table(PureArgument(i), i->n..m))
+}
+
+Function bodyFlattenTemplateSequence(~heldBody, ~argnum) {
+    If(heldBody.IsFreeOf(PureArgument(~:Range) | TemplateSlotSequence)) {
+        Return(heldBody)
+    }
+
+    Local(SEQ, HELD)
+
+    Return(heldBody.Replace({
+            f: Function(~) | Function(/\/, ~~) :> f,
+            PureArgument(~n:Integer..) :> PureArgument(n..argnum),
+            TemplateSlotSequence(~n:Integer, ~~~rest) :> TemplateSlotSequence(n..argnum, rest),
+            TemplateSlotSequence(PureArgument(~n:Integer), ~~~rest) :> TemplateSlotSequence(n..n, rest),
+            TemplateSlotSequence(PureArgument(~n:Integer..), ~~~rest) :> TemplateSlotSequence(n..argnum, rest),
+            TemplateSlotSequence(PureArgument(~n:Integer..~m:Integer), ~~~rest) :> TemplateSlotSequence(n..m, rest)
+        }, 0..
+    ).Replace({
+            f: Function(~) | Function(/\/, ~~) :> f,
+            PureArgument(~n:Integer..~m:Integer) :> With({s:= SEQ @@ makeArgumentList(n, m)}, s /? True),
+            TemplateSlotSequence(~n:Integer..~m:Integer) :> With({s:= SEQ @@ makeArgumentList(n, m)}, s /? True),
+            TemplateSlotSequence(~n:Integer..~m:Integer, ~sep) :> With({s:= SEQ @@ makeArgumentList(n, m).Riffle(HELD(HoldComplete(sep)))}, s /? True),
+            TemplateSlotSequence(~n:Integer..~m:Integer, Function(~appl), ~sep) :> With({s:= SEQ @@ makeArgumentList(n, m).Map(Function(HELD(HoldComplete(appl)))).Riffle(HELD(HoldComplete(sep)))}, s /? True)
+        }, 0..
+    ).Replace(
+        HELD(HoldComplete(~h)) :> h
+    ).Replace(
+        ~f(~~~a,SEQ(~~~b),~~~c) :> f(a,b,c)
+    ))
+}
+
+
+End()
+
+EndPackage()
+

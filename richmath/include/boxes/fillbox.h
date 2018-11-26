@@ -1,5 +1,5 @@
-#ifndef __BOXES__FILLBOX_H__
-#define __BOXES__FILLBOX_H__
+#ifndef RICHMATH__BOXES__FILLBOX_H__INCLUDED
+#define RICHMATH__BOXES__FILLBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
 
@@ -16,7 +16,7 @@ namespace richmath {
       virtual bool expand(const BoxSize &size) override;
       virtual void paint_content(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_FILLBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
@@ -40,4 +40,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__FILLBOX_H__
+#endif // RICHMATH__BOXES__FILLBOX_H__INCLUDED

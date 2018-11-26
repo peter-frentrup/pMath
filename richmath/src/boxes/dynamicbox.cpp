@@ -4,11 +4,14 @@
 #include <boxes/mathsequence.h>
 #include <eval/application.h>
 #include <eval/job.h>
+#include <eval/observable.h>
 #include <graphics/context.h>
 
 #include <cstdio>
 
 using namespace richmath;
+
+extern pmath_symbol_t richmath_System_DynamicBox;
 
 //{ class AbstractDynamicBox ...
 
@@ -52,31 +55,33 @@ DynamicBox::DynamicBox()
 
 DynamicBox::~DynamicBox() {
   Application::interrupt_wait_for(
-    Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id()), 
+    Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id().to_pmath_raw()), 
     0,
     Application::interrupt_timeout);
+  Observable::unregister_oberserver(id());
 }
 
 bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_DYNAMICBOX)
+  if(expr[0] != richmath_System_DynamicBox)
     return false;
     
   if(expr.expr_length() < 1) 
     return false;
     
-  Expr options_expr = Expr(pmath_options_extract(expr.get(), 1));
+  Expr options_expr = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options_expr.is_null())
     return false;
     
   /* now success is guaranteed */
   
-  expr.set(0, Symbol(PMATH_SYMBOL_DYNAMIC));
+  expr.set(0, Symbol(richmath_System_Dynamic));
   
   if(dynamic.expr() != expr){
     must_update = true;
     dynamic     = expr;
   }
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -107,16 +112,13 @@ void DynamicBox::paint_content(Context *context) {
     must_update = false;
     
     Expr result;
-    if(dynamic.get_value(&result)) {
-      BoxInputFlags opt = BoxInputFlags::Default;
-      if(get_style(AutoNumberFormating))
-        opt |= BoxInputFlags::FormatNumbers;
-        
-      content()->load_from_object(result, opt);
-      must_resize = true;
-      invalidate();
-    }
+    if(dynamic.get_value(&result)) 
+      dynamic_finished(Expr(), result);
   }
+}
+
+Expr DynamicBox::to_pmath_symbol() { 
+  return Symbol(richmath_System_DynamicBox); 
 }
 
 Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
@@ -124,7 +126,7 @@ Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
     return content()->to_pmath(flags);
     
   Expr e = dynamic.expr();
-  e.set(0, Symbol(PMATH_SYMBOL_DYNAMICBOX));
+  e.set(0, Symbol(richmath_System_DynamicBox));
   return e;
 }
 

@@ -2,6 +2,7 @@
 #define WINVER       0x0600
 
 #include <gui/win32/win32-tooltip-window.h>
+#include <gui/common-tooltips.h>
 
 #include <boxes/mathsequence.h>
 #include <boxes/section.h>
@@ -58,7 +59,7 @@ void Win32TooltipWindow::move_global_tooltip() {
   tooltip_window->resize(true);
 }
 
-void Win32TooltipWindow::show_global_tooltip(Expr boxes) {
+void Win32TooltipWindow::show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet) {
   if(!tooltip_window) {
     tooltip_window = new Win32TooltipWindow();
     tooltip_window->init();
@@ -67,24 +68,10 @@ void Win32TooltipWindow::show_global_tooltip(Expr boxes) {
   if(tooltip_window->_content_expr != boxes) {
     tooltip_window->_content_expr = boxes;
     
-    Document *doc = tooltip_window->document();
-    doc->remove(0, doc->length());
-    
-    Style *style = new Style;
-    style->set(BaseStyleName,       "ControlStyle");
-    style->set(SectionMarginLeft,   0);
-    style->set(SectionMarginTop,    0);
-    style->set(SectionMarginRight,  0);
-    style->set(SectionMarginBottom, 0);
-    
-    boxes = Call(Symbol(PMATH_SYMBOL_BUTTONBOX),
-                 boxes,
-                 Rule(Symbol(PMATH_SYMBOL_BUTTONFRAME),
-                      String("TooltipWindow")));
-                      
-    MathSection *section = new MathSection(style);
-    section->content()->load_from_object(boxes, BoxInputFlags::FormatNumbers);
-    doc->insert(0, section);
+    CommonTooltips::load_content(
+      tooltip_window->document(), 
+      std::move(boxes), 
+      std::move(stylesheet));
   }
   
   if(!IsWindowVisible(tooltip_window->_hwnd))
@@ -112,8 +99,7 @@ void Win32TooltipWindow::page_size(float *w, float *h) {
 
 void Win32TooltipWindow::resize(bool just_move) {
   if(!just_move) {
-    if(Win32Themes::IsThemeActive
-        && Win32Themes::IsThemeActive()) {
+    if(Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()) {
       SetWindowRgn(_hwnd, CreateRoundRectRgn(0, 0, best_width + 1, best_height + 1, 4, 4), FALSE);
     }
     else
@@ -158,21 +144,6 @@ void Win32TooltipWindow::resize(bool just_move) {
                best_width,
                best_height,
                just_move ? SWP_NOSIZE | SWP_NOACTIVATE : SWP_NOZORDER | SWP_NOACTIVATE);
-}
-
-void Win32TooltipWindow::paint_background(Canvas *canvas) {
-  Win32Widget::paint_background(canvas);
-  
-//  RECT rect;
-//  GetClientRect(_hwnd, &rect);
-//
-//  ControlPainter::std->draw_container(
-//    canvas,
-//    TooltipWindow,
-//    Normal,
-//    0, 0,
-//    rect.right,
-//    rect.bottom);
 }
 
 void Win32TooltipWindow::paint_canvas(Canvas *canvas, bool resize_only) {

@@ -35,6 +35,9 @@ struct _pmath_expr_part_t {
   size_t                 start;
 };
 
+extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
+
 // initialization in pmath_init():
 PMATH_PRIVATE pmath_expr_t _pmath_object_memory_exception; // read-only
 PMATH_PRIVATE pmath_expr_t _pmath_object_emptylist;        // read-only
@@ -724,7 +727,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           new_expr_part->inherited.inherited.gc_refcount = 0;
           new_expr_part->inherited.length                = old_expr->length;
           new_expr_part->inherited.debug_ptr             = NULL;
-          new_expr_part->inherited.items[0]              = pmath_ref(item);
+          new_expr_part->inherited.items[0]              = item;
           
           new_expr_part->start  = old_expr_part->start;
           new_expr_part->buffer = old_expr_part->buffer;
@@ -1632,6 +1635,7 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
         struct _pmath_expr_t *new_expr;
         size_t i;
         
+        // TODO: maybe better create a EXPRESSION_GENERAL_PART ?
         new_expr = _pmath_expr_new_noinit(_expr->length);
         if(!new_expr) {
           pmath_unref(info);
@@ -2479,7 +2483,7 @@ static void write_expr_ex(
       goto FULLFORM;
     }
   }
-  else if(pmath_same(head, PMATH_SYMBOL_COLON)) {
+  else if(pmath_same(head, pmath_System_Colon)) {
     pmath_t item;
     size_t i;
     
@@ -2510,7 +2514,7 @@ static void write_expr_ex(
     if(exprlen != 1)
       goto FULLFORM;
       
-    item = pmath_symbol_get_value(PMATH_SYMBOL_BOXFORM_USETEXTFORMATTING);
+    item = pmath_symbol_get_value(pmath_System_BoxForm_DollarUseTextFormatting);
     pmath_unref(item);
     if(pmath_same(item, PMATH_SYMBOL_TRUE))
       goto FULLFORM;

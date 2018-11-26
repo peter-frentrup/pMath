@@ -49,6 +49,7 @@
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/files/abstract-file.h>
 #include <pmath-util/files/binary-buffer.h>
+#include <pmath-util/files/filesystem.h>
 #include <pmath-util/files/mixed-buffer.h>
 #include <pmath-util/files/text-from-binary.h>
 #include <pmath-util/debug.h>

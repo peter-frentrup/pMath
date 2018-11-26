@@ -9,6 +9,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_StyleBox;
+extern pmath_symbol_t richmath_System_TagBox;
+
 //{ class AbstractStyleBox ...
 
 AbstractStyleBox::AbstractStyleBox(MathSequence *content)
@@ -207,18 +210,18 @@ StyleBox::StyleBox(MathSequence *content)
 }
 
 bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_STYLEBOX)
+  if(expr[0] != richmath_System_StyleBox)
     return false;
   
   if(expr.expr_length() < 1)
-    return 0;
+    return false;
   
   Expr options;
   
   if(expr[2].is_string())
-    options = Expr(pmath_options_extract(expr.get(), 2));
+    options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   else
-    options = Expr(pmath_options_extract(expr.get(), 1));
+    options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     
   if(options.is_null()) 
     return false;
@@ -252,7 +255,12 @@ bool StyleBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   _content->load_from_object(expr[1], opts);
   
+  finish_load_from_object(std::move(expr));
   return true;
+}
+
+Expr StyleBox::to_pmath_symbol() { 
+  return Symbol(richmath_System_StyleBox); 
 }
 
 Expr StyleBox::to_pmath(BoxOutputFlags flags) {
@@ -276,7 +284,7 @@ Expr StyleBox::to_pmath(BoxOutputFlags flags) {
   style->emit_to_pmath(with_inherited);
   
   e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_STYLEBOX));
+  e.set(0, Symbol(richmath_System_StyleBox));
   return e;
 }
 
@@ -298,13 +306,13 @@ TagBox::TagBox(MathSequence *content, Expr _tag)
 }
 
 bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_TAGBOX)
+  if(expr[0] != richmath_System_TagBox)
     return false;
   
   if(expr.expr_length() < 2)
     return false;
   
-  Expr options_expr(pmath_options_extract(expr.get(), 2));
+  Expr options_expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   
   if(options_expr.is_null())
     return false;
@@ -330,6 +338,7 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   _content->load_from_object(expr[1], opts);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -338,29 +347,20 @@ void TagBox::resize(Context *context) {
   ExpandableAbstractStyleBox::resize(context);
 }
 
+Expr TagBox::to_pmath_symbol() { 
+  return Symbol(richmath_System_TagBox); 
+}
+
 Expr TagBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));
   g.emit(tag);
-  
-  int i;
-  if(style && style->get(AutoDelete, &i)) {
-    g.emit(
-      Rule(
-        Symbol(PMATH_SYMBOL_EDITABLE),
-        Symbol(i ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
-  }
-  
-  if(style && style->get(Editable, &i) && i) {
-    g.emit(
-      Rule(
-        Symbol(PMATH_SYMBOL_EDITABLE),
-        Symbol(PMATH_SYMBOL_TRUE)));
-  }
+  if(style)
+    style->emit_to_pmath(false);
   
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_TAGBOX));
+  e.set(0, Symbol(richmath_System_TagBox));
   return e;
 }
 

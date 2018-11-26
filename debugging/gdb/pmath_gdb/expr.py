@@ -315,7 +315,12 @@ class ExprVal:
             expr_data = self.dereference().cast(gdb.lookup_type('struct _pmath_expr_t'))
             if expr_data.type.has_key('debug_ptr'):
                 return ExprVal.from_pointer(expr_data['debug_ptr'])
-                
+
+        if self._type_shift == PMATH_TYPE_SHIFT_BIGSTRING:
+            str_data = self.dereference().cast(gdb.lookup_type('struct _pmath_string_t'))
+            if str_data.type.has_key('debug_ptr'):
+                return ExprVal.from_pointer(str_data['debug_ptr'])
+
         return ExprVal(None)
 
     def get_string_data(self, errorval = u''):

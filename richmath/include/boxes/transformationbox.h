@@ -1,5 +1,5 @@
-#ifndef __BOXES__TRANSFORMATIONBOX_H__
-#define __BOXES__TRANSFORMATIONBOX_H__
+#ifndef RICHMATH__BOXES__TRANSFORMATIONBOX_H__INCLUDED
+#define RICHMATH__BOXES__TRANSFORMATIONBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
 
@@ -41,7 +41,7 @@ namespace richmath {
       
       virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_ROTATIONBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     private:
@@ -60,7 +60,7 @@ namespace richmath {
       
       virtual void paint(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_TRANSFORMATIONBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     private:
@@ -68,4 +68,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__TRANSFORMATIONBOX_H__
+#endif // RICHMATH__BOXES__TRANSFORMATIONBOX_H__INCLUDED

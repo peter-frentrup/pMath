@@ -6,7 +6,7 @@
 using namespace richmath;
 using namespace pmath;
 
-static int hex(uint16_t ch) {
+static int digit_value_or_negative(uint16_t ch) {
   if(ch >= '0' && ch <= '9')
     return ch - '0';
   if(ch >= 'a' && ch <= 'f')
@@ -19,8 +19,8 @@ static int hex(uint16_t ch) {
 // 0xFFFFFFFFU on error
 uint32_t richmath::unicode_to_utf32(String s) {
   if(s[0] == 'x' && s.length() == 3) {
-    int h1 = hex(s[1]);
-    int h2 = hex(s[2]);
+    int h1 = digit_value_or_negative(s[1]);
+    int h2 = digit_value_or_negative(s[2]);
     
     if(h1 >= 0 && h2 >= 0)
       return ((uint32_t)h1 << 4) | (uint32_t)h2;
@@ -28,11 +28,11 @@ uint32_t richmath::unicode_to_utf32(String s) {
     return 0xFFFFFFFFU;
   }
   
-  if(s[0] == 'u' && s.length() == 5 && hex(s[1]) >= 0) {
-    int h1 = hex(s[1]);
-    int h2 = hex(s[2]);
-    int h3 = hex(s[3]);
-    int h4 = hex(s[4]);
+  if(s[0] == 'u' && s.length() == 5 && digit_value_or_negative(s[1]) >= 0) {
+    int h1 = digit_value_or_negative(s[1]);
+    int h2 = digit_value_or_negative(s[2]);
+    int h3 = digit_value_or_negative(s[3]);
+    int h4 = digit_value_or_negative(s[4]);
     
     if(h1 >= 0 && h2 >= 0 && h3 >= 0 && h4 >= 0)
       return ((uint32_t)h1 << 12) |
@@ -50,7 +50,7 @@ uint32_t richmath::unicode_to_utf32(String s) {
     uint32_t result = 0;
     
     for(int i = 2; i < s.length(); ++i) {
-      int h = hex(s[i]);
+      int h = digit_value_or_negative(s[i]);
       
       if(h < 0)
         return 0xFFFFFFFFU;
@@ -132,7 +132,7 @@ SpanArray::~SpanArray() {
 
 pmath_span_array_t *SpanArray::extract_array() {
   pmath_span_array_t *tmp = _array;
-  _array = 0;
+  _array = nullptr;
   return tmp;
 }
 

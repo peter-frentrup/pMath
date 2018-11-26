@@ -1,15 +1,19 @@
 #include <gui/gtk/mgtk-control-painter.h>
 
+#include <eval/observable.h>
 #include <util/style.h>
 #include <graphics/shapers.h>
 
 
 using namespace richmath;
 
+static Observable style_observations;
+
 #if GTK_MAJOR_VERSION >= 3
 static bool initialized_change_notifications = false;
 static void on_theme_changed(GObject*, GParamSpec*) {
   MathGtkControlPainter::gtk_painter.clear_cache();
+  style_observations.notify_all();
 }
 #endif
 
@@ -326,6 +330,7 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
     initialized_change_notifications = true;
   }
   
+  style_observations.register_observer();
   switch(type) {
     case NoContainerType:
     case FramelessButton:

@@ -1,5 +1,5 @@
-#ifndef __UTIL__CONCURRENT_QUEUE_H__
-#define __UTIL__CONCURRENT_QUEUE_H__
+#ifndef RICHMATH__UTIL__CONCURRENT_QUEUE_H__INCLUDED
+#define RICHMATH__UTIL__CONCURRENT_QUEUE_H__INCLUDED
 
 #include <util/pmath-extra.h>
 
@@ -86,4 +86,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__CONCURRENT_QUEUE_H__
+#endif // RICHMATH__UTIL__CONCURRENT_QUEUE_H__INCLUDED

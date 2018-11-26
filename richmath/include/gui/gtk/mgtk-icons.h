@@ -1,5 +1,5 @@
-#ifndef __GUI__GTK__MGTK_ICONS_H__
-#define __GUI__GTK__MGTK_ICONS_H__
+#ifndef RICHMATH__GUI__GTK__MGTK_ICONS_H__INCLUDED
+#define RICHMATH__GUI__GTK__MGTK_ICONS_H__INCLUDED
 
 #ifndef RICHMATH_USE_GTK_GUI
 #  error this header is gtk specific
@@ -31,4 +31,4 @@ namespace richmath {
   };
 }
 
-#endif // __GUI__GTK__MGTK_ICONS_H__
+#endif // RICHMATH__GUI__GTK__MGTK_ICONS_H__INCLUDED

@@ -1,5 +1,5 @@
-#ifndef __UTIL__AUTOCOMPLETION_H__
-#define __UTIL__AUTOCOMPLETION_H__
+#ifndef RICHMATH__UTIL__AUTOCOMPLETION_H__INCLUDED
+#define RICHMATH__UTIL__AUTOCOMPLETION_H__INCLUDED
 
 #include <boxes/box.h>
 #include <graphics/context.h>
@@ -25,4 +25,4 @@ namespace richmath {
   };
 }
 
-#endif // __UTIL__AUTOCOMPLETION_H__
+#endif // RICHMATH__UTIL__AUTOCOMPLETION_H__INCLUDED

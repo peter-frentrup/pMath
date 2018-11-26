@@ -9,6 +9,8 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_ProgressIndicatorBox;
+
 #ifdef _MSC_VER
 namespace std {
   static bool isnan(double d) {return _isnan(d);}
@@ -23,11 +25,11 @@ namespace std {
 
 ProgressIndicatorBox::ProgressIndicatorBox()
   : Box(),
-  range_min(0.0),
-  range_max(1.0),
-  range_value(0.5),
-  must_update(true),
-  have_drawn(false)
+    range_min(0.0),
+    range_max(1.0),
+    range_value(0.5),
+    must_update(true),
+    have_drawn(false)
 {
   dynamic.init(this, Expr());
 }
@@ -36,13 +38,13 @@ ProgressIndicatorBox::~ProgressIndicatorBox() {
 }
 
 bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_PROGRESSINDICATORBOX)
+  if(expr[0] != richmath_System_ProgressIndicatorBox)
     return false;
     
   if(expr.expr_length() < 2)
     return false;
     
-  Expr options = Expr(pmath_options_extract(expr.get(), 2));
+  Expr options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
@@ -80,6 +82,7 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   else if(options != PMATH_UNDEFINED)
     style = new Style(options);
     
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -158,6 +161,10 @@ void ProgressIndicatorBox::paint(Context *context) {
     content_size.height());
 }
 
+Expr ProgressIndicatorBox::to_pmath_symbol() {
+  return Symbol(richmath_System_ProgressIndicatorBox);
+}
+
 Expr ProgressIndicatorBox::to_pmath(BoxOutputFlags flags) {
   Expr val = dynamic.expr();
   
@@ -165,7 +172,7 @@ Expr ProgressIndicatorBox::to_pmath(BoxOutputFlags flags) {
     val = val[1];
     
   return Call(
-           Symbol(PMATH_SYMBOL_PROGRESSINDICATORBOX),
+           Symbol(richmath_System_ProgressIndicatorBox),
            val,
            range);
 }

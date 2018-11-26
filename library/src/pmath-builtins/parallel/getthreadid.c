@@ -1,13 +1,12 @@
+#include <pmath-core/expressions.h>
 #include <pmath-core/numbers.h>
 
-#include <pmath-builtins/all-symbols-private.h>
-
 #if PMATH_USE_PTHREAD
-#include <pmath-core/numbers-private.h>
+#  include <pmath-core/numbers-private.h>
 
-#include <pthread.h>
+#  include <pthread.h>
 #elif PMATH_USE_WINDOWS_THREADS
-#include <windows.h>
+#  include <windows.h>
 #endif
 
 

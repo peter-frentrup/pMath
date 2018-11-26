@@ -1,8 +1,9 @@
+#include <pmath-core/expressions.h>
+
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/concurrency/threadpool-private.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/parallel-private.h>
 
 

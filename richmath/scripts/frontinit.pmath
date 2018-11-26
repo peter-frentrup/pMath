@@ -2,6 +2,7 @@
 BeginPackage("FE`", "ExperimentalSyntax`")
 
 $FrontEndDirectory;
+$StylesheetDirectory;
 $MathShapers;
 $FallbackFonts;
 $PrivateStartupFontFiles;
@@ -28,6 +29,8 @@ $NamespacePath:= Prepend($NamespacePath, "FE`")
 $FrontEndDirectory:= DirectoryName($Input)
 Protect($FrontEndDirectory)
 
+$StylesheetDirectory:= ToFileName({FE`$FrontEndDirectory, "resources", "StyleSheets"})
+Protect($StylesheetDirectory)
 
 Options(FileOpenDialog):= Options(FileSaveDialog):= {WindowTitle -> Automatic}
 
@@ -40,7 +43,8 @@ $MathShapers:= {
 	"Latin Modern Math", 
 	"TeX Gyre Bonum Math", 
 	"TeX Gyre Pagella Math", 
-	"TeX Gyre Termes Math"}
+	"TeX Gyre Termes Math", 
+	"GFS Neohellenic Math"}
 Protect($MathShapers)
 
 
@@ -140,6 +144,17 @@ Function privateMmaFonts() {
 
 $PrivateStartupFontFiles:= Join($PrivateStartupFontFiles, privateMmaFonts())
 
+Unprotect(System`CreateDocument, System`DocumentOpen, System`SelectedDocument, System`SetSelectedDocument)
+Clear(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
+CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))
+DocumentOpen(~filename)::= FE`CallFrontEnd(FrontEnd`DocumentOpen(filename))
+DocumentOpen(~~~args)::= 1 /? (IsValidArgumentCount(DocumentOpen, Length@{args}, 1, 1);False)
+SelectedDocument()::= FE`CallFrontEnd(FrontEnd`SelectedDocument())
+SelectedDocument(~~args)::= 1 /? (IsValidArgumentCount(SelectedDocument, Length@{args}, 0, 0);False)
+SetSelectedDocument(~doc:FrontEndObject)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc))
+SetSelectedDocument(~~~args)::= 1 /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 1);False)
+Protect(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
+
 End()
 
 EndPackage()
@@ -153,6 +168,8 @@ AutoLoad(Hold(ShowDefinition),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "showdefinition.pmath"));
 AutoLoad(Hold(FE`Graphics`DefaultAxesOrigin, FE`Graphics`DefaultTickBoxes), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "graphics.pmath"));
+AutoLoad(Hold(FE`Styles`FlattenTemplateSequence, FE`Styles`MakeStyleDataBoxes, FE`Styles`$DefaultDisplayFunction), 
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "styles.pmath"));
 
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "autocompletion.pmath"))
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "boxestotext.pmath"))

@@ -7,13 +7,15 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_SynchronousUpdating;
+
 //{ class Dynamic ...
 
-int Dynamic::current_evaluation_box_id = 0;
+FrontEndReference Dynamic::current_evaluation_box_id = FrontEndReference::None;
 
 Dynamic::Dynamic()
   : Base(),
-  _owner(0),
+  _owner(nullptr),
   _synchronous_updating(0)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
@@ -21,7 +23,7 @@ Dynamic::Dynamic()
 
 Dynamic::Dynamic(Box *owner, Expr expr)
   : Base(),
-  _owner(0),
+  _owner(nullptr),
   _synchronous_updating(0)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
@@ -29,7 +31,7 @@ Dynamic::Dynamic(Box *owner, Expr expr)
 }
 
 void Dynamic::init(Box *owner, Expr expr) {
-  assert(_owner == 0 && owner != 0);
+  assert(_owner == nullptr && owner != nullptr);
   
   _owner = owner;
   *this = expr;
@@ -44,15 +46,15 @@ Expr Dynamic::operator=(Expr expr) {
     if(_expr.expr_length() >= 2) {
       Expr snd = _expr[2];
       if(snd.is_rule())
-        options = Expr(pmath_options_extract(_expr.get(), 1));
+        options = Expr(pmath_options_extract_ex(_expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET));
       else
-        options = Expr(pmath_options_extract(_expr.get(), 2));
+        options = Expr(pmath_options_extract_ex(_expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET));
     }
     
     if(!options.is_null()) {
       Expr su(pmath_option_value(
-                PMATH_SYMBOL_DYNAMIC,
-                PMATH_SYMBOL_SYNCHRONOUSUPDATING,
+                richmath_System_Dynamic,
+                richmath_System_SynchronousUpdating,
                 options.get()));
                 
       if(su == PMATH_SYMBOL_TRUE)
@@ -99,7 +101,7 @@ Expr Dynamic::get_value_now() {
     _owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
-  int old_eval_id = current_evaluation_box_id;
+  auto old_eval_id = current_evaluation_box_id;
   current_evaluation_box_id = _owner->id();
   
   Expr call = _owner->prepare_dynamic(_expr);
@@ -108,7 +110,7 @@ Expr Dynamic::get_value_now() {
                  Call(
                    Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
                    call,
-                   _owner->id()),
+                   _owner->id().to_pmath_raw()),
                  Application::dynamic_timeout);
                  
   current_evaluation_box_id = old_eval_id;
@@ -135,7 +137,7 @@ void Dynamic::get_value_later() {
                          Call(
                            Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
                            call,
-                           _owner->id()),
+                           _owner->id().to_pmath_raw()),
                          _owner));
 }
 

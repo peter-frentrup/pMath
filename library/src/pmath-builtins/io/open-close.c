@@ -2,6 +2,7 @@
 
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/files/filesystem.h>
 #include <pmath-util/files/text-from-binary.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
@@ -589,7 +590,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     }
   }
   else if(pmath_is_string(filename) && pmath_string_length(filename) >= 1) {
-    filename = _pmath_canonical_file_name(filename);
+    filename = pmath_to_absolute_file_name(filename);
   }
   else {
     pmath_message(PMATH_NULL, "fstr", 1, filename);

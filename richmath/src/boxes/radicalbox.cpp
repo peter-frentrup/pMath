@@ -6,6 +6,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_RadicalBox;
+extern pmath_symbol_t richmath_System_SqrtBox;
+
 //{ class RadicalBox ...
 RadicalBox::RadicalBox(MathSequence *radicand, MathSequence *exponent)
   : Box(),
@@ -24,38 +27,52 @@ RadicalBox::~RadicalBox() {
   delete _exponent;
 }
 
-bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts){
-  if(expr[0] == PMATH_SYMBOL_RADICALBOX){
-    if(expr.expr_length() != 2)
-      return false;
+bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
+  size_t last_non_opt;
+  bool has_exponent;
+  
+  if(expr[0] == richmath_System_RadicalBox) {
+    last_non_opt = 2;
+    has_exponent = true;
+  }
+  else if(expr[0] == richmath_System_SqrtBox) {
+    last_non_opt = 1;
+    has_exponent = false;
+  }
+  else
+    return false;
+  
+  if(expr.expr_length() < last_non_opt)
+    return false;
+ 
+  Expr options(pmath_options_extract_ex(expr.get(), last_non_opt, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+  if(options.is_null())
+    return false;
     
-    _radicand->load_from_object(expr[1], opts);
-    
+  if(style){
+    reset_style();
+    style->add_pmath(options);
+  }
+  else if(options != PMATH_UNDEFINED)
+    style = new Style(options);
+  
+  _radicand->load_from_object(expr[1], opts);
+  
+  if(has_exponent) {
     if(!_exponent){
       _exponent = new MathSequence;
       adopt(_exponent, 1);
     }
     
     _exponent->load_from_object(expr[2], opts);
-    
-    return true;
+  }
+  else if(_exponent) {
+    _exponent->safe_destroy();
+    _exponent = nullptr;
   }
   
-  if(expr[0] == PMATH_SYMBOL_SQRTBOX){
-    if(expr.expr_length() != 1)
-      return false;
-    
-    if(_exponent){
-      _exponent->safe_destroy();
-      _exponent = nullptr;
-    }
-    
-    _radicand->load_from_object(expr[1], opts);
-    
-    return true;
-  }
-  
-  return false;
+  finish_load_from_object(std::move(expr));
+  return true;
 }
 
 Box *RadicalBox::item(int i) {
@@ -80,6 +97,8 @@ void RadicalBox::resize(Context *context) {
     &ex,
     &ey,
     &info);
+  
+  info.surd_form = get_own_style(SurdForm, 0) ? 1 : 0;
     
   if(_exponent) {
     float old_fs = context->canvas->get_font_size();
@@ -110,8 +129,7 @@ void RadicalBox::resize(Context *context) {
 }
 
 void RadicalBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   float x, y;
   context->canvas->current_pos(&x, &y);
@@ -188,21 +206,28 @@ void RadicalBox::complete() {
 
 Expr RadicalBox::to_pmath_symbol(){
   if(_exponent)
-    return Symbol(PMATH_SYMBOL_RADICALBOX);
+    return Symbol(richmath_System_RadicalBox);
   
-  return Symbol(PMATH_SYMBOL_SQRTBOX);
+  return Symbol(richmath_System_SqrtBox);
 }
 
 Expr RadicalBox::to_pmath(BoxOutputFlags flags) {
+  Gather g;
+  
+  Gather::emit(_radicand->to_pmath(flags));
   if(_exponent)
-    return Call(
-             Symbol(PMATH_SYMBOL_RADICALBOX),
-             _radicand->to_pmath(flags),
-             _exponent->to_pmath(flags));
-             
-  return Call(
-           Symbol(PMATH_SYMBOL_SQRTBOX),
-           _radicand->to_pmath(flags));
+    Gather::emit(_exponent->to_pmath(flags));
+  
+  if(style)
+    style->emit_to_pmath(false);
+  
+  Expr result = g.end();
+  if(_exponent)
+    result.set(0, Symbol(richmath_System_RadicalBox));
+  else
+    result.set(0, Symbol(richmath_System_SqrtBox));
+  
+  return result;
 }
 
 Box *RadicalBox::move_vertical(

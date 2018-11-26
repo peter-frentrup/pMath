@@ -1,5 +1,5 @@
-#ifndef __BOXES__EMPTYWIDGETBOX_H__
-#define __BOXES__EMPTYWIDGETBOX_H__
+#ifndef RICHMATH__BOXES__EMPTYWIDGETBOX_H__INCLUDED
+#define RICHMATH__BOXES__EMPTYWIDGETBOX_H__INCLUDED
 
 #include <boxes/box.h>
 #include <gui/control-painter.h>
@@ -54,4 +54,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__EMPTYWIDGETBOX_H__
+#endif // RICHMATH__BOXES__EMPTYWIDGETBOX_H__INCLUDED

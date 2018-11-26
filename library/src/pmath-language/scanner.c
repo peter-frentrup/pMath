@@ -18,6 +18,8 @@
 #include <limits.h>
 #include <string.h>
 
+extern pmath_symbol_t pmath_System_ComplexStringBox;
+
 //{ spans ...
 
 struct _pmath_span_t {
@@ -1592,7 +1594,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
         
         if(lhs != after_nl)
           span(&parser->tokens, lhs);
-        
+          
         --parser->fencelevel;
         
         if(tok == PMATH_TOK_RIGHT)
@@ -1748,7 +1750,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           parse_rest(parser, after_nl, PMATH_PREC_ASS + 1);
           if(rhs != after_nl)
             span(&parser->tokens, rhs);
-          
+            
           next = next_token_pos(parser);
           token_analyse(parser, next, &prec);
           if(prec != PMATH_PREC_ASS) {
@@ -1844,7 +1846,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           
           if(arglhs != after_nl)
             span(&parser->tokens, arglhs);
-          
+            
           --parser->fencelevel;
           
           if(tok == PMATH_TOK_RIGHT) {
@@ -2083,7 +2085,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
             
             if(rhs != after_nl)
               span(&parser->tokens, rhs);
-            
+              
             next = next_token_pos(parser);
             last_prec = cur_prec;
             continue;
@@ -2307,14 +2309,21 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
   
   if(!span) {
     if(group->str[group->tp.index] == PMATH_CHAR_BOX) {
+      pmath_t box;
       if(group->settings.box_at_index)
-        pmath_emit(
-          group->settings.box_at_index(group->tp.index, group->settings.data),
-          PMATH_NULL);
+        box = group->settings.box_at_index(group->tp.index, group->settings.data);
       else
-        pmath_emit(PMATH_NULL, PMATH_NULL);
+        box = PMATH_NULL;
         
       increment_text_position(group);
+      if(group->settings.add_debug_info)  {
+        box = group->settings.add_debug_info(
+                box,
+                &span_start,
+                &group->tp,
+                group->settings.data);
+      }
+      pmath_emit(box, PMATH_NULL);
     }
     else {
       pmath_t result;
@@ -2413,7 +2422,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
       }
       
       all = pmath_gather_end();
-      all = pmath_expr_set_item(all, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
+      all = pmath_expr_set_item(all, 0, pmath_ref(pmath_System_ComplexStringBox));
       
       check_tp_before_whitespace(group, span->end + 1);
       
@@ -2682,7 +2691,7 @@ static int ungrouped_string_length(pmath_t box) { // box wont be freed
       return result;
     }
     
-    if(pmath_same(head, PMATH_SYMBOL_COMPLEXSTRINGBOX)) {
+    if(pmath_same(head, pmath_System_ComplexStringBox)) {
       for(i = pmath_expr_length(box); i > 0; --i) {
         pmath_t boxi = pmath_expr_get_item(box, i);
         
@@ -2756,7 +2765,14 @@ static void ungroup(
         g->str[g->pos++] = PMATH_CHAR_BOX;
       }
       else if(str[i] == PMATH_CHAR_BOX) {
-        g->str[g->pos++] = 0xFFFF;
+        if(g->make_box) {
+          g->make_box(
+            g->pos,
+            pmath_string_insert_ucs2(PMATH_NULL, g->pos, str + i, 1),
+            g->data);
+        }
+        g->spans->items[g->pos] = 3; // operand start (2), token end (1)
+        g->str[g->pos++] = PMATH_CHAR_BOX;
         i++;
       }
       else
@@ -2886,7 +2902,7 @@ static void ungroup(
       return;
     }
     
-    if(pmath_same(head, PMATH_SYMBOL_COMPLEXSTRINGBOX)) {
+    if(pmath_same(head, pmath_System_ComplexStringBox)) {
       size_t i, len;
       int start = g->pos;
       pmath_span_t *s;
@@ -2922,7 +2938,7 @@ static void ungroup(
           
           s->next = NULL;
           s->end = g->pos - 1;
-          g->spans->items[start] = (uintptr_t)s | 2; // operand start
+          g->spans->items[start] = (uintptr_t)s | 2 | (g->spans->items[start] & 1); // operand start
         }
         
         g->spans->items[g->pos - 1] |= 1; // token end
@@ -3133,7 +3149,7 @@ HAVE_STH_TO_EXPAND:
         return s;
       }
       
-      result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_COMPLEXSTRINGBOX));
+      result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_ComplexStringBox));
       return result;
     }
   }

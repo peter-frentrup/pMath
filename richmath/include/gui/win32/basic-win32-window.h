@@ -1,11 +1,12 @@
-#ifndef __GUI__WIN32__BASIC_WIN32_WINDOW_H__
-#define __GUI__WIN32__BASIC_WIN32_WINDOW_H__
+#ifndef RICHMATH__GUI__WIN32__BASIC_WIN32_WINDOW_H__INCLUDED
+#define RICHMATH__GUI__WIN32__BASIC_WIN32_WINDOW_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
 #endif
 
 #include <graphics/canvas.h>
+#include <gui/common-document-windows.h>
 #include <gui/win32/basic-win32-widget.h>
 #include <gui/win32/win32-themes.h>
 #include <gui/control-painter.h>
@@ -14,7 +15,7 @@
 
 namespace richmath {
   // Must call init() immediately after the construction of a derived object!
-  class BasicWin32Window: public BasicWin32Widget {
+  class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget {
     protected:
       virtual void after_construction() override;
       
@@ -46,12 +47,6 @@ namespace richmath {
       virtual void on_paint_background(Canvas *canvas);
       bool has_themed_frame() { return _themed_frame; }
       
-      // all windows are arranged in a ring buffer:
-      static int basic_window_count();
-      static BasicWin32Window *first_window();
-      BasicWin32Window *prev_window() { return _prev_window; }
-      BasicWin32Window *next_window() { return _next_window; }
-      
       // All windows with zorder_level = i are always in front of all
       // windows with zorder_level < i.
       // Snap affinity is also guided by zorder_level: a window carries any
@@ -82,10 +77,12 @@ namespace richmath {
       void invalidate_non_child();
       void invalidate_caption();
       
+      virtual void finish_apply_title(String displayed_title) override;
+      
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       
     protected:
-      Hashtable<HWND, Void, cast_hash> all_snappers;
+      Hashset<HWND> all_snappers;
       
     private:
       bool _active;
@@ -98,9 +95,6 @@ namespace richmath {
       int snap_correction_y;
       int last_moving_x;
       int last_moving_y;
-      
-      BasicWin32Window *_prev_window;
-      BasicWin32Window *_next_window;
       
     private:
       static BOOL CALLBACK find_snap_hwnd(HWND hwnd, LPARAM lParam);
@@ -123,4 +117,4 @@ namespace richmath {
   };
 }
 
-#endif // __GUI__WIN32__BASIC_WIN32_WINDOW_H__
+#endif // RICHMATH__GUI__WIN32__BASIC_WIN32_WINDOW_H__INCLUDED

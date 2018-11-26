@@ -24,32 +24,9 @@
 
 using namespace richmath;
 
-//{ FOREACH_WINDOW ...
-
-#define FOREACH_WINDOW(NAME, PROC) \
-  do{ \
-    BasicWin32Window *_FOREACH_WINDOW_FIRST = BasicWin32Window::first_window(); \
-    \
-    if(_FOREACH_WINDOW_FIRST) { \
-      bool _FOREACH_WINDOW_FIRST_TIME = true; \
-      \
-      for( \
-           BasicWin32Window *_FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_FIRST; \
-           _FOREACH_WINDOW_FIRST_TIME || _FOREACH_WINDOW_NEXT != _FOREACH_WINDOW_FIRST; \
-           _FOREACH_WINDOW_NEXT = _FOREACH_WINDOW_NEXT->next_window() \
-         ) { \
-        _FOREACH_WINDOW_FIRST_TIME = false; \
-        \
-        if(auto NAME = dynamic_cast<Win32DocumentWindow*>(_FOREACH_WINDOW_NEXT)) { \
-          PROC \
-        } \
-      } \
-    } \
-  }while(0)
-
-//}
 
 class richmath::Win32WorkingArea: public Win32Widget {
+    typedef Win32Widget super_class;
     friend class Win32DocumentWindow;
   public:
     Win32WorkingArea(
@@ -98,7 +75,12 @@ class richmath::Win32WorkingArea: public Win32Widget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() override { _parent->on_editing(); }
+    virtual String window_title() override { return _parent->title(); }
+    
+    virtual void on_idle_after_edit() override { 
+      super_class::on_idle_after_edit();
+      _parent->on_idle_after_edit(this);
+    }
     virtual void on_saved() override {   _parent->on_saved(); }
     
   private:
@@ -207,7 +189,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       canvas->restore();
       
       double x1,y1,x2,y2;
-      cairo_path_extents(canvas->cairo(), &x1, &y1, &x2, &y2);
+      canvas->path_extents(&x1, &y1, &x2, &y2);
       canvas->new_path();
       
       _overlay.add((y1 + y2)/2, color, lane);
@@ -220,6 +202,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
 };
 
 class richmath::Win32Dock: public Win32Widget {
+    typedef Win32Widget super_class;
     friend class Win32DocumentWindow;
   protected:
     virtual void after_construction() override {
@@ -256,7 +239,6 @@ class richmath::Win32Dock: public Win32Widget {
       document()->insert_pmath(&i, content, document()->count());
       document()->remove(i, document()->count());
       document()->invalidate_all();
-      resize();
       
       *change_flag = true;
       return;
@@ -296,8 +278,15 @@ class richmath::Win32Dock: public Win32Widget {
     virtual String filename() override { return _parent->filename(); }
     virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
-    virtual void on_editing() override { _parent->on_editing(); }
+    virtual String window_title() override { return _parent->title(); }
+    
+    virtual void on_idle_after_edit() override { 
+      super_class::on_idle_after_edit();
+      _parent->on_idle_after_edit(this);
+    }
     virtual void on_saved() override {   _parent->on_saved(); }
+    
+    virtual Document *working_area_document() override { return _parent->working_area()->document(); }
     
     void resize() {
       HDC dc = GetDC(_hwnd);
@@ -568,14 +557,13 @@ Win32DocumentWindow::Win32DocumentWindow(
     y,
     width,
     height),
-  _top_glass_area(0),
-  _top_area(0),
-  _working_area(0),
-  _bottom_area(0),
-  _bottom_glass_area(0),
-  menubar(0),
+  _top_glass_area(nullptr),
+  _top_area(nullptr),
+  _working_area(nullptr),
+  _bottom_area(nullptr),
+  _bottom_glass_area(nullptr),
+  menubar(nullptr),
   creation(true),
-  _has_unsaved_changes(false),
   _window_frame(WindowFrameNormal)
 {
   _working_area = new Win32WorkingArea(
@@ -584,6 +572,8 @@ Win32DocumentWindow::Win32DocumentWindow(
     WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_CLIPSIBLINGS,
     0, 0, 0, 0,
     this);
+  
+  _content = _working_area->document();
     
   _top_glass_area    = new Win32GlassDock(this);
   _top_area          = new Win32Dock(this);
@@ -634,7 +624,7 @@ void Win32DocumentWindow::after_construction() {
     InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
   }
   
-  all_document_ids.set(document()->id(), Void());
+  all_document_ids.add(document()->id());
   if(get_current_document() == 0) {
     set_current_document(document());
   }
@@ -669,20 +659,21 @@ Win32DocumentWindow::~Win32DocumentWindow() {
   
   if(!deleting_all) {
     bool have_only_palettes = true;
-    FOREACH_WINDOW(win,
-    {
-      if(win != this && !win->is_palette() && win->document()->get_style(Visible, true)) {
-        have_only_palettes = false;
-        break;
+    for(auto _win : CommonDocumentWindow::All) {
+      if(auto win = dynamic_cast<Win32DocumentWindow*>(_win)) {
+        if(win != this && !win->is_palette() && win->document()->get_style(Visible, true)) {
+          have_only_palettes = false;
+          break;
+        }
       }
-    });
+    }
     
     if(have_only_palettes) {
       deleting_all = true;
       
-      BasicWin32Window *other = next_window();
+      CommonDocumentWindow *other = next_window();
       while(other && other != this) {
-        BasicWin32Window *next = other->next_window();
+        CommonDocumentWindow *next = other->next_window();
         
         delete other;
         
@@ -891,11 +882,18 @@ void Win32DocumentWindow::rearrange() {
 void Win32DocumentWindow::invalidate_options() {
   Document *doc = document();
   
-  String s = doc->get_style(WindowTitle, String());
-  if(_title != s)
+  bool change = false;
+  if(doc->load_stylesheet()) 
+    change = true;
+  
+  String s = doc->get_style(WindowTitle, _default_title);
+  if(!_title.unobserved_equals(s))
     title(s);
     
-  bool change = false;
+  _top_area->document()->stylesheet(doc->stylesheet());
+  _top_glass_area->document()->stylesheet(doc->stylesheet());
+  _bottom_area->document()->stylesheet(doc->stylesheet());
+  _bottom_glass_area->document()->stylesheet(doc->stylesheet());
   
   _top_area->reload(         SectionList::group(doc->get_style(DockedSectionsTop)),         &change);
   _top_glass_area->reload(   SectionList::group(doc->get_style(DockedSectionsTopGlass)),    &change);
@@ -932,33 +930,6 @@ void Win32DocumentWindow::invalidate_options() {
   
   float scale = doc->get_style(Magnification, _working_area->custom_scale_factor());
   _working_area->set_custom_scale(scale);
-}
-
-void Win32DocumentWindow::title(String text) {
-  _title = text;
-  
-  if(text.is_null()) {
-    if(_filename.is_valid()) {
-      int c = _filename.length();
-      const uint16_t *buf = _filename.buffer();
-      while(c >= 0 && buf[c] != '\\' && buf[c] != '/')
-        --c;
-        
-      text = _filename.part(c + 1);
-    }
-    else
-      text = "untitled";
-  }
-  
-  if(_has_unsaved_changes)
-    text = String("*") + text;
-  
-  if(Application::is_running_job_for(document()))
-    text = String("Running... ") + text;
-    
-  String tmp = text + String::FromChar(0);
-  
-  SetWindowTextW(_hwnd, (const WCHAR *)tmp.buffer());
 }
 
 void Win32DocumentWindow::window_frame(WindowFrameType type) {
@@ -1046,25 +1017,6 @@ bool Win32DocumentWindow::is_closed() {
   return BasicWin32Window::is_closed();
 }
 
-void Win32DocumentWindow::filename(String new_filename) {
-  _filename = new_filename;
-  reset_title();
-}
-
-void Win32DocumentWindow::on_editing() {
-  if(!_has_unsaved_changes) {
-    _has_unsaved_changes = true;
-    reset_title();
-  }
-}
-
-void Win32DocumentWindow::on_saved() {
-  if(_has_unsaved_changes) {
-    _has_unsaved_changes = false;
-    reset_title();
-  }
-}
-
 void Win32DocumentWindow::on_theme_changed() {
   BasicWin32Window::on_theme_changed();
   
@@ -1136,24 +1088,26 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           if(HIWORD(wParam)) { // minimizing
             bool have_only_palettes = true;
             
-            FOREACH_WINDOW(wnd,
-            {
-              if(wnd != this
-              && !wnd->is_palette()
-              && IsWindowVisible(wnd->hwnd())
-              && (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0) {
-                have_only_palettes = false;
-                break;
+            for(auto _win : CommonDocumentWindow::All) {
+              if(auto wnd = dynamic_cast<Win32DocumentWindow*>(_win)) {
+                if( wnd != this && 
+                    !wnd->is_palette() && 
+                    IsWindowVisible(wnd->hwnd()) && 
+                    (GetWindowLongW(wnd->hwnd(), GWL_STYLE) & WS_MINIMIZE) == 0) 
+                {
+                  have_only_palettes = false;
+                  break;
+                }
               }
-            });
+            }
             
             if(have_only_palettes) {
-              FOREACH_WINDOW(tool,
-              {
-                if(tool->is_palette()) {
-                  ShowWindow(tool->hwnd(), SW_HIDE);
+              for(auto _win : CommonDocumentWindow::All) {
+                if(auto tool = dynamic_cast<Win32DocumentWindow*>(_win)) {
+                  if(tool->is_palette()) 
+                    ShowWindow(tool->hwnd(), SW_HIDE);
                 }
-              });
+              }
             }
           }
         } break;
@@ -1169,7 +1123,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
             
             if(!was_already_activated && !BasicWin32Window::during_pos_changing) {
             
-              Array<BasicWin32Window *> all_lower(BasicWin32Window::basic_window_count());
+              Array<BasicWin32Window *> all_lower(CommonDocumentWindow::All.count());
               all_lower.length(0);
               
               HWND next_hwnd = GetWindow(_hwnd, GW_HWNDFIRST);

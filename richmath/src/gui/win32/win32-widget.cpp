@@ -153,7 +153,7 @@ void Win32Widget::after_construction() {
     /* RealTimeStylus disables single-finger WM_GESTURE */
     HRbool(stylus->put_Enabled(TRUE));
     
-    HRbool(stylus->AddStylusSyncPlugin(
+    HRbool(stylus->AddStylusAsyncPlugin(
              StylusUtil::get_stylus_sync_plugin_count(stylus),
              this));
     fprintf(stderr, "[%lu RTS plugins]\n", StylusUtil::get_stylus_sync_plugin_count(stylus));
@@ -213,7 +213,7 @@ void Win32Widget::scroll_to(float x, float y) {
 }
 
 void Win32Widget::show_tooltip(Expr boxes) {
-  Win32TooltipWindow::show_global_tooltip(boxes);
+  Win32TooltipWindow::show_global_tooltip(boxes, document()->stylesheet());
 }
 
 void Win32Widget::hide_tooltip() {
@@ -418,7 +418,7 @@ bool Win32Widget::register_timed_event(SharedPtr<TimedEvent> event) {
   if(!_hwnd)
     return false;
     
-  animations.set(event, Void());
+  animations.add(event);
   if(!animation_running) {
     animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
     
@@ -481,7 +481,8 @@ STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo
   
   fprintf(
     stderr,
-    "[StylusDown tablet %u (%s), cid %u %sat (%f,%f)]\n",
+    "[%u StylusDown tablet %u (%s), cid %u %sat (%f,%f)]\n",
+    GetCurrentThreadId(),
     pStylusInfo->tcid,
     kind == TDK_Mouse ? "mouse" : (kind == TDK_Pen ? "pen" : (kind == TDK_Touch ? "touch" : "???")),
     pStylusInfo->cid,
@@ -497,7 +498,8 @@ STDMETHODIMP Win32Widget::StylusDown(IRealTimeStylus *piRtsSrc, const StylusInfo
 STDMETHODIMP Win32Widget::StylusUp(IRealTimeStylus *piRtsSrc, const StylusInfo *pStylusInfo, ULONG cPropCountPerPkt, LONG *pPacket, LONG **ppInOutPkt) {
   fprintf(
     stderr,
-    "[StylusUp tablet %u, stylus %u %s]\n",
+    "[%u StylusUp tablet %u, stylus %u %s]\n",
+    GetCurrentThreadId(),
     pStylusInfo->tcid,
     pStylusInfo->cid,
     pStylusInfo->bIsInvertedCursor ? "inverted" : "");
@@ -1369,25 +1371,19 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 KillTimer(_hwnd, TID_ANIMATE);
                 animation_running = 0;
                 
-                unsigned int count, i;
-                for(count = 0, i = 0; count < animations.size(); ++i) {
-                  if(auto e = animations.entry(i)) {
-                    ++count;
+                for(auto e : animations.deletable_entries()) {
+                  if(e.key->min_wait_seconds <= e.key->timer()) {
+                    auto anim = e.key;
+                    e.delete_self();
+                    anim->execute_event();
+                  }
+                  else if(!animation_running) {
+                    animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
                     
-                    SharedPtr<TimedEvent> te = e->key;
-                    if(te->min_wait_seconds <= te->timer()) {
-                      animations.remove(te);
-                      
-                      te->execute_event();
-                    }
-                    else if(!animation_running) {
-                      animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
-                      
-                      if(!animation_running) {
-                        animations.remove(te);
-                        
-                        te->execute_event();
-                      }
+                    if(!animation_running) {
+                      auto anim = e.key;
+                      e.delete_self();
+                      anim->execute_event();
                     }
                   }
                 }
@@ -1401,7 +1397,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                     _hwnd != GetFocus() ||
                     is_mouse_down())
                 {
-                  ctx->old_selection.id = 0;
+                  ctx->old_selection.id = FrontEndReference::None;
                 }
                 else
                   ctx->old_selection = ctx->selection;

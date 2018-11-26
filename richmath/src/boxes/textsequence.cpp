@@ -1,6 +1,14 @@
 #include <boxes/textsequence.h>
 
+#ifdef max
+#  undef max
+#endif
+#ifdef min
+#  undef min
+#endif
+
 #include <cstdlib>
+#include <algorithm>
 
 #include <boxes/mathsequence.h>
 #include <boxes/ownerbox.h>
@@ -16,6 +24,11 @@ using namespace richmath;
 static const uint16_t BoxChar = 0xFFFC;
 static const char *Utf8BoxChar = "\xEF\xBF\xBC";
 static const int   Utf8BoxCharLen = 3;
+static const char *Utf8ReplacementChar = "\xEF\xBF\xBD";
+
+static bool is_utf8_first_byte(char c) {
+  return ((unsigned char)c & 0xC0) != 0x80;
+}
 
 //{ class TextBuffer ...
 
@@ -151,10 +164,17 @@ void TextBuffer::remove(int pos, int len) {
   _length -= len;
 }
 
-bool TextBuffer::is_box_at(int i) {
+bool TextBuffer::is_box_at(int i) const {
   return 0 <= i
          && i + Utf8BoxCharLen <= _length
          && memcmp(_buffer + i, Utf8BoxChar, Utf8BoxCharLen) == 0;
+}
+
+bool TextBuffer::is_box_at(int start, int end) const {
+  if(end != start + Utf8BoxCharLen)
+    return false;
+  
+  return is_box_at(start);
 }
 
 //} ... class TextBuffer
@@ -225,6 +245,19 @@ class PangoContextUtil {
     }
 };
 
+namespace richmath {
+  class TextSequenceImpl {
+      TextSequence &self;
+    public:
+      TextSequenceImpl(TextSequence &_self) : self(_self) {}
+      
+      Expr to_pmath(BoxOutputFlags flags, int start, int end);
+      
+    private:
+      Expr add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end);
+  };
+}
+
 //{ class TextSequence ...
 
 TextSequence::TextSequence()
@@ -247,7 +280,26 @@ String TextSequence::raw_substring(int start, int length) {
   assert(length >= 0);
   assert(start + length <= text.length());
   
-  return String::FromUtf8(text.buffer() + start, length);
+  String result;
+  const char *prev = text.buffer() + start;
+  const char *next = prev;
+  while(length > 0) {
+    if(Utf8BoxCharLen <= length) {
+      if(memcmp(next, Utf8BoxChar, Utf8BoxCharLen) == 0) {
+        result+= String::FromUtf8(prev, next - prev);
+        result+= PMATH_CHAR_BOX;
+        next+= Utf8BoxCharLen;
+        length-= Utf8BoxCharLen;
+        prev = next;
+        continue;
+      }
+    }
+    ++next;
+    --length;
+  }
+  
+  result+= String::FromUtf8(prev, next - prev);
+  return result;
 }
 
 bool TextSequence::is_placeholder(int i) {
@@ -341,10 +393,7 @@ void TextSequence::paint(Context *context) {
   
   y0 -= _extents.ascent;
   double clip_x1, clip_y1, clip_x2, clip_y2;
-  cairo_clip_extents(
-    context->canvas->cairo(),
-    &clip_x1, &clip_y1,
-    &clip_x2,  &clip_y2);
+  context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
     
   int cl_y1 = pango_units_from_double(clip_y1 - y0);
   int cl_y2 = pango_units_from_double(clip_y2 - y0);
@@ -522,37 +571,7 @@ Expr TextSequence::to_pmath(BoxOutputFlags flags) {
 }
 
 Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
-  if(end <= start || start < 0 || end > text.length())
-    return String("");
-    
-  int boxi = 0;
-  while(boxi < boxes.length() && boxes[boxi]->index() < start)
-    ++boxi;
-    
-  if(boxi >= boxes.length() || boxes[boxi]->index() >= end) {
-    return String::FromUtf8(text.buffer() + start, end - start);
-  }
-  
-  Gather g;
-  
-  int next = boxes[boxi]->index();
-  while(next < end) {
-    if(start < next)
-      g.emit(String::FromUtf8(text.buffer() + start, next - start));
-      
-    g.emit(boxes[boxi]->to_pmath(flags));
-    
-    start = next + Utf8BoxCharLen;
-    ++boxi;
-    if(boxi >= boxes.length())
-      break;
-    next = boxes[boxi]->index();
-  }
-  
-  if(start < end)
-    g.emit(String::FromUtf8(text.buffer() + start, end - start));
-    
-  return g.end();
+  return TextSequenceImpl(*this).to_pmath(flags, start, end);
 }
 
 void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
@@ -587,7 +606,7 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
       start = next + 1;
     }
     
-    return;
+    finish_load_from_object(std::move(object));
   }
   else if(object[0] == PMATH_SYMBOL_LIST) {
     for(size_t i = 1; i <= object.expr_length(); ++i) {
@@ -628,6 +647,8 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
     
     insert(text.length(), box);
   }
+  
+  finish_load_from_object(std::move(object));
 }
 
 void TextSequence::ensure_boxes_valid() {
@@ -681,7 +702,34 @@ void TextSequence::ensure_text_valid() {
 }
 
 int TextSequence::insert(int pos, const char *utf8, int len) {
-  pos += text.insert(pos, utf8, len);
+  if(len < 0) {
+    len = (int)strlen(utf8);
+    if(len <= 0)
+      return pos;
+  }
+  
+  char *buf = text.buffer();
+  // ensure that we do not cut a Utf8BoxChar (or any other utf8 character)
+  while(pos < text.length() && !is_utf8_first_byte(buf[pos]))
+    ++pos;
+  
+  int start_search = std::max(0, pos - Utf8BoxCharLen + 1);
+  
+  pos = text.insert(pos, utf8, len);
+  buf = text.buffer();
+  
+  int end_search = std::min(pos + Utf8BoxCharLen - 1, text.length());
+  
+  // replace all Utf8BoxChar in the newly inserted section by Utf8ReplacementChar 
+  while(start_search <= end_search - Utf8BoxCharLen) {
+    if(0 == memcmp(buf + start_search, Utf8BoxChar, Utf8BoxCharLen)) {
+      memcpy(buf + start_search, Utf8ReplacementChar, Utf8BoxCharLen);
+      start_search+= 3;
+    }
+    else
+      ++start_search;
+  }
+  
   boxes_invalid = true;
   text_invalid = true;
   invalidate();
@@ -689,7 +737,28 @@ int TextSequence::insert(int pos, const char *utf8, int len) {
 }
 
 int TextSequence::insert(int pos, const String &s) {
+  char *buf = text.buffer();
+  // ensure that we do not cut a Utf8BoxChar (or any other utf8 character)
+  while(pos < text.length() && !is_utf8_first_byte(buf[pos]))
+    ++pos;
+  
+  int start_search = std::max(0, pos - Utf8BoxCharLen + 1);
+  
   pos += text.insert(pos, s);
+  buf = text.buffer();
+  
+  int end_search = std::min(pos + Utf8BoxCharLen - 1, text.length());
+  
+  // replace all Utf8BoxChar in the newly inserted section by Utf8ReplacementChar 
+  while(start_search <= end_search - Utf8BoxCharLen) {
+    if(0 == memcmp(buf + start_search, Utf8BoxChar, Utf8BoxCharLen)) {
+      memcpy(buf + start_search, Utf8ReplacementChar, Utf8BoxCharLen);
+      start_search+= 3;
+    }
+    else
+      ++start_search;
+  }
+  
   boxes_invalid = true;
   text_invalid = true;
   invalidate();
@@ -728,13 +797,19 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
   txt->ensure_boxes_valid();
   
   const char *buf = txt->text.buffer();
+  while(start < end && !is_utf8_first_byte(buf[start]))
+    ++start;
+  
+  if(start == end)
+    return pos;
+  
   int box = -1;
   while(start < end) {
     int next = start;
     while(next < end && !txt->text.is_box_at(next))
       ++next;
       
-    pos = insert(pos, buf + start, next - start);
+    pos = text.insert(pos, buf + start, next - start);
     
     if(next < end) {
       if(box < 0) {
@@ -749,6 +824,9 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
     start = next + Utf8BoxCharLen;
   }
   
+  boxes_invalid = true;
+  text_invalid = true;
+  invalidate();
   return pos;
 }
 
@@ -805,6 +883,9 @@ Box *TextSequence::move_logical(
   if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
       if(_parent) {
+        if(jumping && !_parent->exitable())
+          return this;
+          
         *index = _index;
         return _parent->move_logical(LogicalDirection::Forward, true, index);
       }
@@ -867,6 +948,9 @@ Box *TextSequence::move_logical(
   
   if(*index <= 0) {
     if(_parent) {
+      if(jumping && !_parent->exitable())
+        return this;
+      
       *index = _index + 1;
       return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
@@ -1155,3 +1239,71 @@ void TextSequence::line_extents(int line, float *x, float *y, BoxSize *size) {
 }
 
 //} ... class TextSequence
+
+//{ class TextSequenceImpl ...
+
+Expr TextSequenceImpl::to_pmath(BoxOutputFlags flags, int start, int end) {
+  if(end <= start || start < 0 || end > self.text.length())
+    return String("");
+    
+  int boxi = 0;
+  while(boxi < self.boxes.length() && self.boxes[boxi]->index() < start)
+    ++boxi;
+    
+  if(boxi >= self.boxes.length() || self.boxes[boxi]->index() >= end) {
+    return add_debug_info(
+             String::FromUtf8(self.text.buffer() + start, end - start),
+             flags,
+             start,
+             end);
+  }
+  
+  Gather g;
+  
+  int next = self.boxes[boxi]->index();
+  while(next < end) {
+    if(start < next)
+      g.emit(
+        add_debug_info(
+          String::FromUtf8(self.text.buffer() + start, next - start),
+          flags,
+          start,
+          next));
+      
+    g.emit(
+      add_debug_info(
+        self.boxes[boxi]->to_pmath(flags),
+        flags,
+        next,
+        next + Utf8BoxCharLen));
+    
+    start = next + Utf8BoxCharLen;
+    ++boxi;
+    if(boxi >= self.boxes.length())
+      break;
+    next = self.boxes[boxi]->index();
+  }
+  
+  if(start < end)
+    g.emit(
+      add_debug_info(
+        String::FromUtf8(self.text.buffer() + start, end - start),
+        flags,
+        start,
+        end));
+    
+  return add_debug_info(g.end(), flags, start, end);
+}
+
+Expr TextSequenceImpl::add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end) {
+  if(!has(flags, BoxOutputFlags::WithDebugInfo))
+    return std::move(expr);
+  
+  pmath_t obj = expr.release();
+  obj = pmath_try_set_debug_info(
+          obj, 
+          SelectionReference(self.id(), start, end).to_debug_info().release());
+  return Expr{ obj };
+}
+
+//} ... class TextSequenceImpl

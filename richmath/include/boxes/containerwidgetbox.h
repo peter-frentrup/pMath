@@ -1,5 +1,5 @@
-#ifndef __BOXES__CONTAINERWIDGETBOX_H__
-#define __BOXES__CONTAINERWIDGETBOX_H__
+#ifndef RICHMATH__BOXES__CONTAINERWIDGETBOX_H__INCLUDED
+#define RICHMATH__BOXES__CONTAINERWIDGETBOX_H__INCLUDED
 
 #include <boxes/stylebox.h>
 #include <gui/control-painter.h>
@@ -39,4 +39,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__CONTAINERWIDGETBOX_H__
+#endif // RICHMATH__BOXES__CONTAINERWIDGETBOX_H__INCLUDED

@@ -7,6 +7,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_OverscriptBox;
+extern pmath_symbol_t richmath_System_UnderoverscriptBox;
+extern pmath_symbol_t richmath_System_UnderscriptBox;
+
 static inline bool char_is_vertical_paren(uint16_t ch) {
   return ch == 0x23B4
          || ch == 0x23B5
@@ -52,7 +56,7 @@ UnderoverscriptBox::~UnderoverscriptBox() {
 }
 
 bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] == PMATH_SYMBOL_OVERSCRIPTBOX) {
+  if(expr[0] == richmath_System_OverscriptBox) {
     if(expr.expr_length() != 2)
       return false;
       
@@ -69,10 +73,11 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _base->load_from_object(      expr[1], opts);
     _overscript->load_from_object(expr[2], opts);
     
+    finish_load_from_object(std::move(expr));
     return true;
   }
   
-  if(expr[0] == PMATH_SYMBOL_UNDERSCRIPTBOX) {
+  if(expr[0] == richmath_System_UnderscriptBox) {
     if(expr.expr_length() != 2)
       return false;
       
@@ -89,10 +94,11 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _base->load_from_object(       expr[1], opts);
     _underscript->load_from_object(expr[2], opts);
     
+    finish_load_from_object(std::move(expr));
     return true;
   }
   
-  if(expr[0] == PMATH_SYMBOL_UNDEROVERSCRIPTBOX) {
+  if(expr[0] == richmath_System_UnderoverscriptBox) {
     if(expr.expr_length() != 3)
       return false;
       
@@ -109,6 +115,7 @@ bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _underscript->load_from_object(expr[2], opts);
     _overscript->load_from_object( expr[3], opts);
     
+    finish_load_from_object(std::move(expr));
     return true;
   }
   
@@ -234,8 +241,7 @@ void UnderoverscriptBox::colorize_scope(SyntaxState *state) {
 }
 
 void UnderoverscriptBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
+  update_dynamic_styles(context);
     
   float x, y;
   context->canvas->current_pos(&x, &y);
@@ -336,30 +342,30 @@ void UnderoverscriptBox::complete() {
 Expr UnderoverscriptBox::to_pmath_symbol() {
   if(_underscript) {
     if(_overscript)
-      return Symbol(PMATH_SYMBOL_UNDEROVERSCRIPTBOX);
-    return Symbol(PMATH_SYMBOL_UNDERSCRIPTBOX);
+      return Symbol(richmath_System_UnderoverscriptBox);
+    return Symbol(richmath_System_UnderscriptBox);
   }
   
-  return Symbol(PMATH_SYMBOL_OVERSCRIPTBOX);
+  return Symbol(richmath_System_OverscriptBox);
 }
 
 Expr UnderoverscriptBox::to_pmath(BoxOutputFlags flags) {
   if(_underscript) {
     if(_overscript)
       return Call(
-               Symbol(PMATH_SYMBOL_UNDEROVERSCRIPTBOX),
+               Symbol(richmath_System_UnderoverscriptBox),
                _base->to_pmath(flags),
                _underscript->to_pmath(flags),
                _overscript->to_pmath(flags));
                
     return Call(
-             Symbol(PMATH_SYMBOL_UNDERSCRIPTBOX),
+             Symbol(richmath_System_UnderscriptBox),
              _base->to_pmath(flags),
              _underscript->to_pmath(flags));
   }
   
   return Call(
-           Symbol(PMATH_SYMBOL_OVERSCRIPTBOX),
+           Symbol(richmath_System_OverscriptBox),
            _base->to_pmath(flags),
            _overscript->to_pmath(flags));
 }

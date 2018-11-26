@@ -1,5 +1,5 @@
-#ifndef __BOXES__BUTTONBOX_H__
-#define __BOXES__BUTTONBOX_H__
+#ifndef RICHMATH__BOXES__BUTTONBOX_H__INCLUDED
+#define RICHMATH__BOXES__BUTTONBOX_H__INCLUDED
 
 #include <boxes/containerwidgetbox.h>
 
@@ -15,7 +15,7 @@ namespace richmath {
       virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context *context) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_BUTTONBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void on_mouse_down(MouseEvent &event) override;
@@ -26,4 +26,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__BUTTONBOX_H__
+#endif // RICHMATH__BOXES__BUTTONBOX_H__INCLUDED

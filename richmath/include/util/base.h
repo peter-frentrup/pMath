@@ -1,5 +1,5 @@
-#ifndef __UTIL__BASE_H__
-#define __UTIL__BASE_H__
+#ifndef RICHMATH__UTIL__BASE_H__INCLUDED
+#define RICHMATH__UTIL__BASE_H__INCLUDED
 
 #include <pmath-util/concurrency/atomic.h>
 #include <stdint.h>
@@ -100,4 +100,4 @@ namespace richmath {
 #endif
 }
 
-#endif // __UTIL__BASE_H__
+#endif // RICHMATH__UTIL__BASE_H__INCLUDED

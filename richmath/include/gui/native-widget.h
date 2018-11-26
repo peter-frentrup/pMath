@@ -1,5 +1,5 @@
-#ifndef __GUI__NATIVE_WIDGET_H__
-#define __GUI__NATIVE_WIDGET_H__
+#ifndef RICHMATH__GUI__NATIVE_WIDGET_H__INCLUDED
+#define RICHMATH__GUI__NATIVE_WIDGET_H__INCLUDED
 
 #include <util/base.h>
 
@@ -38,10 +38,20 @@ namespace richmath {
     SizeSCursor    = 127,
   } CursorType;
   
-  class NativeWidget: public virtual Base {
+  template<>
+  struct default_hash_impl<CursorType> {
+    static unsigned int hash(CursorType t) {
+      return (unsigned int)t;
+    }
+  };
+  
+  class NativeWidget: public virtual FrontEndObject {
+      friend class NativeWidgetImpl;
     public:
       explicit NativeWidget(Document *doc);
       virtual ~NativeWidget();
+      
+      virtual void dynamic_updated() override {}
       
       virtual void window_size(float *w, float *h) = 0;
       virtual void page_size(float *w, float *h) = 0;
@@ -89,10 +99,18 @@ namespace richmath {
       
       virtual String filename() = 0;
       virtual void filename(String new_filename) = 0;
+      virtual String window_title() { return String(); }
       
-      virtual void on_editing() = 0;
+      virtual void on_editing();
+      virtual void on_idle_after_edit();
+      
       virtual void on_saved() = 0;
       
+      Document *owner_document();
+      Document *stylesheet_document();
+      bool stylesheet_document(Document *doc);
+      
+      virtual Document *working_area_document() { return nullptr; }
       Document *document() { return _document; }
       float custom_scale_factor() { return _custom_scale_factor; }
       float scale_factor() {        return _custom_scale_factor * _dpi / 72; }
@@ -106,13 +124,16 @@ namespace richmath {
       Context *document_context();
       
       SelectionReference &drag_source_reference();
-      
+    
     protected:
       float _custom_scale_factor;
       float _dpi;
       
     private:
-      Document *_document;
+      Document              *_document;
+      FrontEndReference      _owner_document;
+      FrontEndReference      _stylesheet_document;
+      SharedPtr<TimedEvent>  _idle_after_edit;
   };
   
   static const float ScaleDefault = 1.f;
@@ -120,4 +141,4 @@ namespace richmath {
   static const float ScaleMax     = 32.f;
 }
 
-#endif // __GUI__NATIVE_WIDGET_H__
+#endif // RICHMATH__GUI__NATIVE_WIDGET_H__INCLUDED

@@ -1,4 +1,4 @@
-#include <pmath-core/strings-private.h>
+#include <pmath-core/strings.h>
 #include <pmath-core/numbers.h>
 
 #include <pmath-language/scanner.h>
@@ -6,6 +6,7 @@
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/files/abstract-file.h>
+#include <pmath-util/files/filesystem.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -99,7 +100,7 @@ static pmath_t add_debug_info(
   assert(start->index <= end->index);
   assert(end->index <= pmath_string_length(data->current_code));
   
-  if(!pmath_is_expr(token_or_span))
+  if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
     return token_or_span;
     
   start_line   = start->line + data->startline;
@@ -136,7 +137,7 @@ static pmath_t get_file(
   info.ns           = pmath_evaluate(pmath_ref(PMATH_SYMBOL_CURRENTNAMESPACE));
   info.nspath       = pmath_evaluate(pmath_ref(PMATH_SYMBOL_NAMESPACEPATH));
   info.file         = file;
-  info.filename     = _pmath_canonical_file_name(pmath_ref(name));
+  info.filename     = pmath_to_absolute_file_name(pmath_ref(name));
   info.startline    = 1;
   info.codelines    = 0;
   info.current_code = PMATH_NULL;
@@ -290,7 +291,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   
   
   if(_pmath_is_namespace(name)) {
-    struct _pmath_string_t *fname;
+    pmath_string_t fname;
     uint16_t *buf;
     size_t i;
     int j, len;
@@ -317,15 +318,15 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
     }
     
     len = pmath_string_length(name) - 1;
-    fname = _pmath_new_string_buffer(len);
-    if(!fname) {
+    fname = pmath_string_new_raw(len);
+    if(!pmath_string_begin_write(&fname, &buf, NULL)) {
+      pmath_unref(fname);
       pmath_unref(name);
       pmath_unref(path);
       pmath_unref(character_encoding);
       pmath_unref(head);
       return PMATH_NULL;
     }
-    buf = AFTER_STRING(fname);
     memcpy(buf, pmath_string_buffer(&name), len * sizeof(uint16_t));
     
     for(j = 0; j < len; ++j) {
@@ -337,6 +338,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
 #endif
       }
     }
+    pmath_string_end_write(&fname, &buf);
     
     for(i = 1; i <= pmath_expr_length(path); ++i) {
       pmath_t testname, test;
@@ -346,7 +348,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                      "ToFileName(`1`, `2`)",
                      "(oo)",
                      pmath_expr_get_item(path, i),
-                     pmath_ref(PMATH_FROM_PTR(fname))));
+                     pmath_ref(fname)));
                      
       test = pmath_evaluate(
                pmath_expr_new_extended(
@@ -367,7 +369,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                    
         pmath_unref(test);
         if(pmath_same(test, PMATH_SYMBOL_FILE)) {
-          pmath_unref(PMATH_FROM_PTR(fname));
+          pmath_unref(fname);
           pmath_unref(path);
           pmath_unref(name);
           
@@ -389,7 +391,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                      "ToFileName(`1`, `2` ++ \".pmath\")",
                      "(oo)",
                      pmath_expr_get_item(path, i),
-                     pmath_ref(PMATH_FROM_PTR(fname))));
+                     pmath_ref(fname)));
                      
       test = pmath_evaluate(
                pmath_expr_new_extended(
@@ -398,7 +400,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
                  
       pmath_unref(test);
       if(pmath_same(test, PMATH_SYMBOL_FILE)) {
-        pmath_unref(PMATH_FROM_PTR(fname));
+        pmath_unref(fname);
         pmath_unref(path);
         pmath_unref(name);
         
@@ -414,7 +416,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
       pmath_unref(testname);
     }
     
-    pmath_unref(PMATH_FROM_PTR(fname));
+    pmath_unref(fname);
     pmath_unref(character_encoding);
     pmath_unref(head);
     pmath_unref(path);

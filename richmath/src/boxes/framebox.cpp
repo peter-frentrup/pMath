@@ -7,6 +7,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_FrameBox;
+
 //{ class FrameBox ...
 
 FrameBox::FrameBox(MathSequence *content)
@@ -15,26 +17,27 @@ FrameBox::FrameBox(MathSequence *content)
 }
 
 bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
-  if(expr[0] != PMATH_SYMBOL_FRAMEBOX)
+  if(expr[0] != richmath_System_FrameBox)
     return false;
     
   if(expr.expr_length() < 1)
     return false;
     
-  Expr options_expr(pmath_options_extract(expr.get(), 1));
+  Expr options_expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options_expr.is_null())
     return false;
     
   /* now success is guaranteed */
-    
+  
   reset_style();
   if(!style)
     style = new Style(options_expr);
   else
     style->add_pmath(options_expr);
-  
+    
   _content->load_from_object(expr[1], options);
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -62,9 +65,8 @@ void FrameBox::resize(Context *context) {
 }
 
 void FrameBox::paint(Context *context) {
-  if(style)
-    style->update_dynamic(this);
-    
+  update_dynamic_styles(context);
+  
   float x, y;
   context->canvas->current_pos(&x, &y);
   
@@ -103,6 +105,10 @@ void FrameBox::paint(Context *context) {
   //paint_content(context);
 }
 
+Expr FrameBox::to_pmath_symbol() {
+  return Symbol(richmath_System_FrameBox);
+}
+
 Expr FrameBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
@@ -112,7 +118,7 @@ Expr FrameBox::to_pmath(BoxOutputFlags flags) {
     style->emit_to_pmath();
     
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_FRAMEBOX));
+  e.set(0, Symbol(richmath_System_FrameBox));
   return e;
 }
 

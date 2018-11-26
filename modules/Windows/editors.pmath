@@ -29,7 +29,7 @@ Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
     Local(editor)
     With(line:= OptionValue(Line))
     With(col:= OptionValue(Column))
-    With(info:= Developer`FileInformation(filename))
+    With(info:= FileInformation(filename))
 
     If(FileType.Replace(info) =!= File) {
         Message(OpenTextFile::noopen, filename)

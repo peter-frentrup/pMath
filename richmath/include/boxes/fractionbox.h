@@ -1,5 +1,5 @@
-#ifndef __BOXES__FRACTIONBOX_H__
-#define __BOXES__FRACTIONBOX_H__
+#ifndef RICHMATH__BOXES__FRACTIONBOX_H__INCLUDED
+#define RICHMATH__BOXES__FRACTIONBOX_H__INCLUDED
 
 #include <boxes/box.h>
 
@@ -27,7 +27,7 @@ namespace richmath {
       
       virtual Box *remove(int *index) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_FRACTIONBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
@@ -55,4 +55,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__FRACTIONBOX_H__
+#endif // RICHMATH__BOXES__FRACTIONBOX_H__INCLUDED

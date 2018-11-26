@@ -1,5 +1,5 @@
-#ifndef __GRAPHICS__OT_MATH_SHAPER_H__
-#define __GRAPHICS__OT_MATH_SHAPER_H__
+#ifndef RICHMATH__GRAPHICS__OT_MATH_SHAPER_H__INCLUDED
+#define RICHMATH__GRAPHICS__OT_MATH_SHAPER_H__INCLUDED
 
 #include <graphics/shapers.h>
 #include <graphics/ot-font-reshaper.h>
@@ -135,4 +135,4 @@ namespace richmath {
   };
 };
 
-#endif /* __GRAPHICS__OT_MATH_SHAPER_H__ */
+#endif /* RICHMATH__GRAPHICS__OT_MATH_SHAPER_H__INCLUDED */

@@ -103,12 +103,20 @@ void Canvas::current_pos(float *x, float *y) {
   *y = dy;
 }
 
+void Canvas::current_pos(double *x, double *y) {
+  cairo_get_current_point(_cr, x, y);
+}
+
 void Canvas::user_to_device(float *x, float *y) {
   double dx = *x;
   double dy = *y;
   cairo_user_to_device(_cr, &dx, &dy);
   *x = dx;
   *y = dy;
+}
+
+void Canvas::user_to_device(double *x, double *y) {
+  cairo_user_to_device(_cr, x, y);
 }
 
 void Canvas::user_to_device_dist(float *dx, float *dy) {
@@ -119,12 +127,20 @@ void Canvas::user_to_device_dist(float *dx, float *dy) {
   *dy = ddy;
 }
 
+void Canvas::user_to_device_dist(double *dx, double *dy) {
+  cairo_user_to_device_distance(_cr, dx, dy);
+}
+
 void Canvas::device_to_user(float *x, float *y) {
   double dx = *x;
   double dy = *y;
   cairo_device_to_user(_cr, &dx, &dy);
   *x = dx;
   *y = dy;
+}
+
+void Canvas::device_to_user(double *x, double *y) {
+  cairo_device_to_user(_cr, x, y);
 }
 
 void Canvas::device_to_user_dist(float *dx, float *dy) {
@@ -135,20 +151,34 @@ void Canvas::device_to_user_dist(float *dx, float *dy) {
   *dy = ddy;
 }
 
+void Canvas::device_to_user_dist(double *dx, double *dy) {
+  cairo_device_to_user_distance(_cr, dx, dy);
+}
+
+cairo_matrix_t Canvas::get_matrix() {
+  cairo_matrix_t mat;
+  cairo_get_matrix(_cr, &mat);
+  return mat;
+}
+
+void Canvas::set_matrix(const cairo_matrix_t &mat) {
+  cairo_set_matrix(_cr, &mat);
+}
+
 void Canvas::transform(const cairo_matrix_t &mat) {
   cairo_transform(_cr, &mat);
 }
 
-void Canvas::translate(float tx, float ty) {
-  cairo_translate(_cr, (double)tx, (double)ty);
+void Canvas::translate(double tx, double ty) {
+  cairo_translate(_cr, tx, ty);
 }
 
-void Canvas::rotate(float angle) {
-  cairo_rotate(_cr, (double)angle);
+void Canvas::rotate(double angle) {
+  cairo_rotate(_cr, angle);
 }
 
-void Canvas::scale(float sx, float sy) {
-  cairo_scale(_cr, (double)sx, (double)sy);
+void Canvas::scale(double sx, double sy) {
+  cairo_scale(_cr, sx, sy);
 }
 
 void Canvas::set_color(int color, float alpha) { // 0xRRGGBB
@@ -176,27 +206,27 @@ void Canvas::set_font_size(float size) {
   cairo_set_font_size(_cr, size); //  * 4/3.
 }
 
-void Canvas::move_to(float x, float y) {
-  cairo_move_to(_cr, (double)x, (double)y);
+void Canvas::move_to(double x, double y) {
+  cairo_move_to(_cr, x, y);
 }
 
-void Canvas::rel_move_to(float x, float y) {
-  cairo_rel_move_to(_cr, (double)x, (double)y);
+void Canvas::rel_move_to(double x, double y) {
+  cairo_rel_move_to(_cr, x, y);
 }
 
-void Canvas::line_to(float x, float y) {
-  cairo_line_to(_cr, (double)x, (double)y);
+void Canvas::line_to(double x, double y) {
+  cairo_line_to(_cr, x, y);
 }
 
-void Canvas::rel_line_to(float x, float y) {
-  cairo_rel_line_to(_cr, (double)x, (double)y);
+void Canvas::rel_line_to(double x, double y) {
+  cairo_rel_line_to(_cr, x, y);
 }
 
 void Canvas::arc(
-  float x, float y,
-  float radius,
-  float angle1,
-  float angle2,
+  double x, double y,
+  double radius,
+  double angle1,
+  double angle2,
   bool negative
 ) {
   if(radius == 0) {
@@ -214,11 +244,11 @@ void Canvas::arc(
 }
 
 void Canvas::ellipse_arc(
-  float x, float y,
-  float radius_x,
-  float radius_y,
-  float angle1,
-  float angle2,
+  double x, double y,
+  double radius_x,
+  double radius_y,
+  double angle1,
+  double angle2,
   bool negative
 ) {
   if(radius_x == radius_y) {
@@ -621,6 +651,10 @@ void Canvas::new_path() {
   cairo_new_path(_cr);
 }
 
+void Canvas::new_sub_path() {
+  cairo_new_sub_path(_cr);
+}
+
 void Canvas::clip() {
   cairo_clip(_cr);
 }
@@ -679,6 +713,19 @@ void Canvas::stroke_preserve() {
   cairo_stroke_preserve(_cr);
 }
 
+void Canvas::clip_extents(float *x1, float *y1, float *x2, float *y2) {
+  double _x1, _y1, _x2, _y2;
+  cairo_clip_extents(_cr, &_x1, &_y1, &_x2, &_y2);
+  *x1 = _x1;
+  *y1 = _y1;
+  *x2 = _x2;
+  *y2 = _y2;
+}
+
+void Canvas::clip_extents(double *x1, double *y1, double *x2, double *y2) {
+  cairo_clip_extents(_cr, x1, y1, x2, y2);
+}
+
 void Canvas::path_extents(float *x1, float *y1, float *x2, float *y2) {
   double _x1, _y1, _x2, _y2;
   cairo_path_extents(_cr, &_x1, &_y1, &_x2, &_y2);
@@ -686,6 +733,23 @@ void Canvas::path_extents(float *x1, float *y1, float *x2, float *y2) {
   *y1 = _y1;
   *x2 = _x2;
   *y2 = _y2;
+}
+
+void Canvas::path_extents(double *x1, double *y1, double *x2, double *y2) {
+  cairo_path_extents(_cr, x1, y1, x2, y2);
+}
+
+void Canvas::stroke_extents(float *x1, float *y1, float *x2, float *y2) {
+  double _x1, _y1, _x2, _y2;
+  cairo_stroke_extents(_cr, &_x1, &_y1, &_x2, &_y2);
+  *x1 = _x1;
+  *y1 = _y1;
+  *x2 = _x2;
+  *y2 = _y2;
+}
+
+void Canvas::stroke_extents(double *x1, double *y1, double *x2, double *y2) {
+  cairo_stroke_extents(_cr, x1, y1, x2, y2);
 }
 
 void Canvas::paint() {

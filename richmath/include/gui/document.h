@@ -1,5 +1,5 @@
-#ifndef __GUI__DOCUMENT_H__
-#define __GUI__DOCUMENT_H__
+#ifndef RICHMATH__GUI__DOCUMENT_H__INCLUDED
+#define RICHMATH__GUI__DOCUMENT_H__INCLUDED
 
 #include <boxes/sectionlist.h>
 #include <eval/application.h>
@@ -135,15 +135,18 @@ namespace richmath {
       int selection_start() {  return context.selection.start; }
       int selection_end() {    return context.selection.end;   }
       int selection_length() { return context.selection.end - context.selection.start; }
-      
+      const SelectionReference &selection() { return context.selection; }
+
       const Array<SelectionReference> &current_word_references() { return _current_word_references; }
       
-      int clicked_box_id() {   return context.clicked_box_id; }
-      int mouseover_box_id() { return context.mouseover_box_id; }
+      FrontEndReference clicked_box_id() {   return context.clicked_box_id; }
+      FrontEndReference mouseover_box_id() { return context.mouseover_box_id; }
       void reset_mouse();
       bool is_mouse_down() { return mouse_down_counter > 0; }
       
       virtual SharedPtr<Stylesheet> stylesheet() override { return context.stylesheet; }
+      void stylesheet(SharedPtr<Stylesheet> new_stylesheet);
+      bool load_stylesheet();
       virtual void reset_style() override;
       
       void paint_resize(Canvas *canvas, bool resize_only);
@@ -158,13 +161,13 @@ namespace richmath {
       Document *main_document; // not owned
       
     protected:
-      Context     context;
-      float       best_index_rel_x;
-      int         prev_sel_line;
-      int         prev_sel_box_id;
-      int         must_resize_min;
-      DragStatus  drag_status;
-      bool        auto_scroll;
+      Context            context;
+      float              best_index_rel_x;
+      int                prev_sel_line;
+      FrontEndReference  prev_sel_box_id;
+      int                must_resize_min;
+      DragStatus         drag_status;
+      bool               auto_scroll;
       
       SharedPtr<BoxRepaintEvent> flashing_cursor_circle;
       
@@ -194,12 +197,12 @@ namespace richmath {
       AutoCompletion auto_completion;
   };
   
-  extern Hashtable<String, Expr, object_hash> global_immediate_macros;
-  extern Hashtable<String, Expr, object_hash> global_macros;
+  extern Hashtable<String, Expr> global_immediate_macros;
+  extern Hashtable<String, Expr> global_macros;
   
   extern Box *expand_selection(Box *box, int *start, int *end);
   extern int box_depth(Box *box);
   extern int box_order(Box *b1, int i1, Box *b2, int i2);
 }
 
-#endif // __GUI__DOCUMENT_H__
+#endif // RICHMATH__GUI__DOCUMENT_H__INCLUDED

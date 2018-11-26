@@ -9,6 +9,8 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_SliderBox;
+
 #ifdef _MSC_VER
 namespace std {
   static bool isnan(double d) {return _isnan(d);}
@@ -92,9 +94,9 @@ namespace richmath {
       
     public:
       void assign_dynamic_value(double d) {
-        if(!self.have_drawn) 
+        if(!self.have_drawn)
           return;
-        
+          
         self.have_drawn = false;
         if(self.range[0] == PMATH_SYMBOL_LIST) {
           self.dynamic.assign(self.range[(size_t)d]);
@@ -274,13 +276,13 @@ SliderBox::~SliderBox() {
 }
 
 bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_SLIDERBOX)
+  if(expr[0] != richmath_System_SliderBox)
     return false;
     
   if(expr.expr_length() < 2)
     return false;
     
-  Expr options = Expr(pmath_options_extract(expr.get(), 2));
+  Expr options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   
   if(options.is_null())
     return false;
@@ -352,6 +354,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   range_step        = new_range_step;
   use_double_values = new_use_double_values;
   
+  finish_load_from_object(std::move(expr));
   return true;
 }
 
@@ -387,9 +390,8 @@ void SliderBox::paint(Context *context) {
   if(context->canvas->show_only_text)
     return;
     
-  if(style)
-    style->update_dynamic(this);
-    
+  update_dynamic_styles(context);
+  
   double old_value = range_value;
   
   have_drawn = true;
@@ -404,6 +406,10 @@ void SliderBox::paint(Context *context) {
   SliderBoxImpl(*this).animate_thumb(context, x, y, old_value);
 }
 
+Expr SliderBox::to_pmath_symbol() {
+  return Symbol(richmath_System_SliderBox);
+}
+
 Expr SliderBox::to_pmath(BoxOutputFlags flags) {
   Expr val = dynamic.expr();
   
@@ -411,7 +417,7 @@ Expr SliderBox::to_pmath(BoxOutputFlags flags) {
     val = val[1];
     
   return Call(
-           Symbol(PMATH_SYMBOL_SLIDERBOX),
+           Symbol(richmath_System_SliderBox),
            val,
            range);
 }

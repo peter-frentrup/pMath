@@ -118,12 +118,13 @@ pmath_bool_t _pmath_rulecache_find(
     \param rc The set of rules to modify. Must not be NULL
     \param pattern The new pattern (rule left-hand side). Will be freed.
     \param body The new right-hand side. Will be freed. PMATH_UNDEFINED means "remove the rule".
-
+    \return Whether any modification took place.
+    
     If validation of \a pattern with _pmath_pattern_validate() fails, \a rc will not be changed.
  */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
-void _pmath_rulecache_change(
+pmath_bool_t _pmath_rulecache_change(
   struct _pmath_rulecache_t *rc,
   pmath_t                    pattern, // will be freed
   pmath_t                    body);   // will be freed, PMATH_UNDEFINED => remove rules
@@ -166,9 +167,16 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_symbol_find_value(pmath_symbol_t sym); // sym wont be freed
 
+/** Assign a function or value definition to \a value_position.
+    \param value_position Where to store the value. This must always be accessed via 
+                          _pmath_object_atomic_read(), _pmath_object_atomic_write() etc.
+    \param pattern The left-hand side of the assignment; will be freed.
+    \param body    The right-hand side of the assignment; will be freed.
+    \return TRUE if the value changed and FALSE if the assignment was a no-op.
+ */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
-void _pmath_symbol_define_value_pos(
+pmath_bool_t _pmath_symbol_define_value_pos(
   pmath_locked_t *value_position,  //accessed via _pmath_object_atomic_[read|write]()
   pmath_t         pattern,         // will be freed; PMATH_UNDEFINED: ignore old value
   pmath_t         body);           // will be freed; PMATH_UNDEFINED: remove patterns

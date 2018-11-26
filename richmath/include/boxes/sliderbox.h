@@ -1,5 +1,5 @@
-#ifndef __RICHMATH__BOXES__SLIDERBOX_H__
-#define __RICHMATH__BOXES__SLIDERBOX_H__
+#ifndef __RICHMATHRICHMATH__BOXES__SLIDERBOX_H__INCLUDED
+#define __RICHMATHRICHMATH__BOXES__SLIDERBOX_H__INCLUDED
 
 #include <boxes/emptywidgetbox.h>
 #include <eval/dynamic.h>
@@ -25,7 +25,7 @@ namespace richmath {
       virtual void paint(Context *context) override;
       virtual Box *remove(int *index) override { return this; }
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_SLIDERBOX); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void dynamic_updated() override;
@@ -61,4 +61,4 @@ namespace richmath {
   };
 }
 
-#endif // __RICHMATH__BOXES__SLIDERBOX_H__
+#endif // __RICHMATHRICHMATH__BOXES__SLIDERBOX_H__INCLUDED

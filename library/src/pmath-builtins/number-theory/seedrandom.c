@@ -6,6 +6,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_Method;
+
 PMATH_PRIVATE pmath_t builtin_seedrandom(pmath_expr_t expr) {
   /* SeedRandom(n)
      SeedRandom()
@@ -37,7 +39,7 @@ PMATH_PRIVATE pmath_t builtin_seedrandom(pmath_expr_t expr) {
   if(pmath_is_null(options))
     goto FAIL_OPTIONS;
     
-  method = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_METHOD, options);
+  method = pmath_option_value(PMATH_NULL, pmath_System_Method, options);
   if(pmath_same(method, PMATH_SYMBOL_DEFAULT)) {
     pmath_atomic_lock(&_pmath_rand_spinlock);
     {

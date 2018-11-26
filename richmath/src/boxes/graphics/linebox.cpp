@@ -9,6 +9,8 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_LineBox;
+
 //{ class LineBox ...
 
 LineBox::LineBox()
@@ -20,14 +22,16 @@ LineBox::~LineBox() {
 }
 
 bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_LINEBOX)
+  if(expr[0] != richmath_System_LineBox)
     return false;
     
   if(expr.expr_length() != 1)
     return false;
     
-  if(_uncompressed_expr == expr)
+  if(_uncompressed_expr == expr) {
+    finish_load_from_object(std::move(expr));
     return true;
+  }
     
   Expr data = expr[1];
   if(data[0] == PMATH_SYMBOL_UNCOMPRESS && data[1].is_string()) {
@@ -41,6 +45,7 @@ bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(DoublePoint::load_line_or_lines(_lines, data)) {
     _uncompressed_expr = expr;
+    finish_load_from_object(std::move(expr));
     return true;
   }
   
@@ -76,17 +81,17 @@ void LineBox::paint(GraphicsBoxContext *context) {
     
     if(line.length() > 1) {
       const DoublePoint &pt = line[0];
-      cairo_move_to(context->ctx->canvas->cairo(), pt.x, pt.y);
+      context->ctx->canvas->move_to(pt.x, pt.y);
       
       for(int j = 1; j < line.length(); ++j) {
         const DoublePoint &pt = line[j];
-        cairo_line_to(context->ctx->canvas->cairo(), pt.x, pt.y);
+        context->ctx->canvas->line_to(pt.x, pt.y);
       }
     }
     else if(line.length() == 1){
       const DoublePoint &pt = line[0];
-      cairo_move_to(context->ctx->canvas->cairo(), pt.x, pt.y);
-      cairo_line_to(context->ctx->canvas->cairo(), pt.x, pt.y);
+      context->ctx->canvas->move_to(pt.x, pt.y);
+      context->ctx->canvas->line_to(pt.x, pt.y);
     }
   }
   

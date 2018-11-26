@@ -1,5 +1,5 @@
-#ifndef __BOXES__TEXTBOX_H__
-#define __BOXES__TEXTBOX_H__
+#ifndef RICHMATH__BOXES__TEXTBOX_H__INCLUDED
+#define RICHMATH__BOXES__TEXTBOX_H__INCLUDED
 
 #include <pango/pangocairo.h>
 
@@ -26,7 +26,8 @@ namespace richmath {
       int insert(int pos, const String &s);
       void remove(int pos, int len);
       
-      bool is_box_at(int i);
+      bool is_box_at(int i) const;
+      bool is_box_at(int start, int end) const;
       
     private:
       int _capacity;
@@ -38,6 +39,7 @@ namespace richmath {
      It uses Pango for text layout. For math, use class MathSequence.
    */
   class TextSequence: public AbstractSequence {
+      friend class TextSequenceImpl;
     public:
       TextSequence();
       virtual ~TextSequence();
@@ -123,4 +125,4 @@ namespace richmath {
   };
 }
 
-#endif // __BOXES__TEXTBOX_H__
+#endif // RICHMATH__BOXES__TEXTBOX_H__INCLUDED
