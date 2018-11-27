@@ -108,13 +108,11 @@ namespace richmath {
   
   template<typename K> Void Entry<K, Void>::value;
   
-  template < typename K,
-             typename V,
-             unsigned int (*hash_function)(const K &key) = default_hash >
+  template <typename K, typename V>
   class Hashtable: public Base {
     private:
-      typedef Hashtable<K, V, hash_function> self_t;
-      typedef Entry<K, V>                    entry_t;
+      typedef Hashtable<K, V> self_t;
+      typedef Entry<K, V>     entry_t;
       
       static const unsigned int MINSIZE = 8; // power of 2, >= 2
       static Entry<K, V> *Deleted() { return (Entry<K, V> *)(-(size_t)1); }
@@ -331,7 +329,7 @@ namespace richmath {
 
       unsigned int lookup(const K &key) const {
         unsigned int freeslot = -(unsigned int)1;
-        unsigned int h        = hash_function(key);
+        unsigned int h        = default_hash(key);
         unsigned int index    = h & (capacity - 1);
         
         for(;;) {
@@ -563,8 +561,8 @@ namespace richmath {
         return true;
       }
       
-      template <typename K2, typename V2, unsigned int (*h2)(const K2 &)>
-      void merge(const Hashtable<K2, V2, h2> &other) {
+      template <typename K2, typename V2>
+      void merge(const Hashtable<K2, V2> &other) {
         for(unsigned int i = 0; i < other.capacity; ++i) {
           if(is_used(other.table[i]))
             set(other.table[i]->key, other.table[i]->value);
@@ -650,8 +648,8 @@ namespace richmath {
       }
   };
   
-  template <typename K, typename V, unsigned int (*h)(const K &)>
-  inline void swap(Hashtable<K, V, h> &lhs, Hashtable<K, V, h> &rhs) {
+  template <typename K, typename V>
+  inline void swap(Hashtable<K, V> &lhs, Hashtable<K, V> &rhs) {
     lhs.swap(rhs);
   }
   
