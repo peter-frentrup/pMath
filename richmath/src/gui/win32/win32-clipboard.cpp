@@ -173,7 +173,8 @@ class OpenedWin32Clipboard: public OpenedClipboard {
 //{ class Win32Clipboard ...
 
 Win32Clipboard Win32Clipboard::obj;
-Hashtable<String, unsigned int> Win32Clipboard::mime_to_win32cbformat;
+Hashtable<String, CLIPFORMAT> Win32Clipboard::mime_to_win32cbformat;
+Hashtable<CLIPFORMAT, String> Win32Clipboard::win32cbformat_to_mime;
 
 Win32Clipboard::Win32Clipboard()
   : Clipboard()
@@ -187,7 +188,7 @@ Win32Clipboard::~Win32Clipboard() {
 }
 
 bool Win32Clipboard::has_format(String mimetype) {
-  if(unsigned int id = mime_to_win32cbformat[mimetype])
+  if(CLIPFORMAT id = mime_to_win32cbformat[mimetype])
     return 0 != IsClipboardFormatAvailable(id);
     
   return false;
@@ -250,16 +251,18 @@ SharedPtr<OpenedClipboard> Win32Clipboard::open_write() {
   return new OpenedWin32Clipboard();
 }
 
+static void add_mime_type(String mime, CLIPFORMAT format) {
+  Win32Clipboard::mime_to_win32cbformat.set(mime, format);
+  Win32Clipboard::win32cbformat_to_mime.set(format, mime);
+}
+
 void Win32Clipboard::init() {
-  mime_to_win32cbformat.set(Clipboard::PlainText,           CF_UNICODETEXT);
-  mime_to_win32cbformat.set(Clipboard::PlatformBitmapImage, CF_DIB);
+  add_mime_type(Clipboard::PlainText,           CF_UNICODETEXT);
+  add_mime_type(Clipboard::PlatformBitmapImage, CF_DIB);
   
-  mime_to_win32cbformat.set(Clipboard::BoxesText,
-                            RegisterClipboardFormatA(Clipboard::BoxesText));
-  mime_to_win32cbformat.set(Clipboard::BoxesBinary,
-                            RegisterClipboardFormatA(Clipboard::BoxesBinary));
-  mime_to_win32cbformat.set(Clipboard::SvgImage,
-                            RegisterClipboardFormatA(Clipboard::SvgImage));
+  add_mime_type(Clipboard::BoxesText,    RegisterClipboardFormatA(Clipboard::BoxesText));
+  add_mime_type(Clipboard::BoxesBinary,  RegisterClipboardFormatA(Clipboard::BoxesBinary));
+  add_mime_type(Clipboard::SvgImage,     RegisterClipboardFormatA(Clipboard::SvgImage));
 }
 
 cairo_surface_t *Win32Clipboard::create_image(String mimetype, double width, double height) {
@@ -280,6 +283,7 @@ cairo_surface_t *Win32Clipboard::create_image(String mimetype, double width, dou
 
 void Win32Clipboard::done() {
   mime_to_win32cbformat.clear();
+  win32cbformat_to_mime.clear();
 }
 
 //} ... class Win32Clipboard

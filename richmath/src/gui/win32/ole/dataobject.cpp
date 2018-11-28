@@ -1,18 +1,44 @@
 #include <gui/win32/ole/dataobject.h>
+#include <gui/win32/ole/combase.h>
 
 #include <gui/document.h>
 #include <gui/win32/ole/enumformatetc.h>
+#include <gui/win32/win32-clipboard.h>
 
 
 using namespace richmath;
 
+static HGLOBAL GlobalClone(HGLOBAL hglobIn) {
+  HGLOBAL hglobOut = NULL;
+
+  void *pvIn = GlobalLock(hglobIn);
+  if (pvIn) {
+    SIZE_T cb = GlobalSize(hglobIn);
+    HGLOBAL hglobOut = GlobalAlloc(GMEM_FIXED, cb);
+    if (hglobOut) {
+        CopyMemory(hglobOut, pvIn, cb);
+    }
+    GlobalUnlock(hglobIn);
+  }
+
+  return hglobOut;
+}
+
 //{ class DataObject ...
 
-DataObject::DataObject() {
-  refcount = 1;
+DataObject::DataObject() 
+: refcount{1},
+  data{ nullptr },
+  data_count{ 0 }
+{
 }
 
 DataObject::~DataObject() {
+  for(int i = 0; i < data_count; ++i) {
+    CoTaskMemFree(data[i].format_etc.ptd);
+    ReleaseStgMedium(&data[i].stg_medium);
+  }
+  CoTaskMemFree(data);
 }
 
 //
@@ -50,17 +76,95 @@ STDMETHODIMP DataObject::QueryInterface(REFIID iid, void **ppvObject) {
   return E_NOINTERFACE;
 }
 
-int DataObject::lookup_format_etc(FORMATETC *pFormatEtc) {
-  for(int i = 0; i < formats.length(); ++i) {
-    if( (pFormatEtc->tymed   &  formats[i].tymed) &&
-        pFormatEtc->cfFormat == formats[i].cfFormat &&
-        pFormatEtc->dwAspect == formats[i].dwAspect)
+void DataObject::add_source_format(CLIPFORMAT cfFormat) {
+  FORMATETC fmt;
+  memset(&fmt, 0, sizeof(fmt));
+  fmt.dwAspect = DVASPECT_CONTENT;
+  fmt.lindex   = -1;
+  fmt.tymed    = TYMED_HGLOBAL;
+  fmt.cfFormat = cfFormat;
+  source_formats.add(fmt);
+}
+
+HRESULT DataObject::find_data_format_etc(const FORMATETC *format, struct SavedData **entry, bool add_missing) {
+  *entry = nullptr;
+  
+  if(format->ptd) // ignore DVTARGETDEVICE
+    return DV_E_DVTARGETDEVICE;
+  
+  for(int i = 0; i < data_count; ++i) {
+    if( format->cfFormat == data[i].format_etc.cfFormat && 
+        format->dwAspect == data[i].format_etc.dwAspect &&
+        format->lindex   == data[i].format_etc.lindex)
     {
-      return i;
+      if(add_missing || (format->tymed & data[i].format_etc.tymed)) {
+        *entry = &data[i];
+        return S_OK;
+      }
+      else
+        return DV_E_TYMED;
     }
   }
   
-  return -1;
+  if(!add_missing)
+    return DV_E_FORMATETC;
+  
+  struct SavedData *new_array = (struct SavedData*)CoTaskMemRealloc(data, sizeof(struct SavedData) * (data_count + 1));
+  if(!new_array) 
+    return E_OUTOFMEMORY;
+
+  data = new_array;
+  data[data_count].format_etc = *format;
+  ZeroMemory(&data[data_count].stg_medium, sizeof(STGMEDIUM));
+  *entry = &data[data_count];
+  ++data_count;
+  return S_OK;
+}
+
+HRESULT DataObject::add_ref_std_medium(const STGMEDIUM *stgm_in, STGMEDIUM *stgm_out, bool copy_from_external) {
+  STGMEDIUM result = *stgm_in;
+  
+  if(result.pUnkForRelease == nullptr && !(result.tymed & (TYMED_ISTREAM | TYMED_ISTREAM))) {
+    if(copy_from_external) {
+      if(result.tymed == TYMED_HGLOBAL) {
+        result.hGlobal = GlobalClone(result.hGlobal);
+        if(!result.hGlobal)
+          return E_OUTOFMEMORY;
+      }
+      else
+        return DV_E_TYMED;
+    }
+    else
+      result.pUnkForRelease = static_cast<IDataObject*>(this);
+  }
+  
+  switch(result.tymed) {
+    case TYMED_ISTREAM:
+      result.pstm->AddRef();
+      break;
+    case TYMED_ISTORAGE:
+      result.pstg->AddRef();
+      break;
+  }
+  
+  if(result.pUnkForRelease)
+    result.pUnkForRelease->AddRef();
+  
+  *stgm_out = result;
+  return S_OK;
+}
+
+bool DataObject::has_source_format(const FORMATETC *pFormatEtc) {
+  for(int i = 0; i < source_formats.length(); ++i) {
+    if( (pFormatEtc->tymed   &  source_formats[i].tymed) &&
+        pFormatEtc->cfFormat == source_formats[i].cfFormat &&
+        pFormatEtc->dwAspect == source_formats[i].dwAspect)
+    {
+      return true;
+    }
+  }
+  
+  return false;
 }
 
 //
@@ -72,9 +176,13 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
     
   if(!pMedium)
     return STG_E_MEDIUMFULL;
+  
+  struct SavedData *entry;
+  if(SUCCEEDED(find_data_format_etc(pFormatEtc, &entry, false))) {
+    HR(add_ref_std_medium(&entry->stg_medium, pMedium, false));
+  }
     
   Box *srcbox = source.get();
-  
   if(!srcbox)
     return OLE_E_NOTRUNNING;
     
@@ -82,10 +190,8 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
   if(!doc)
     return OLE_E_NOTRUNNING;
     
-  int i = lookup_format_etc(pFormatEtc);
-  if(i < 0) {
+  if(!has_source_format(pFormatEtc)) 
     return DV_E_FORMATETC;
-  }
   
   switch(pFormatEtc->tymed) {
     case TYMED_HGLOBAL: {
@@ -94,7 +200,7 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
         Box *old_b = doc->selection_box();
         
         doc->select(srcbox, source.start, source.end);
-        String data = doc->copy_to_text(mimetypes[i]);
+        String data = doc->copy_to_text(Win32Clipboard::win32cbformat_to_mime[pFormatEtc->cfFormat]);
         
         int len = data.length();
         
@@ -140,7 +246,12 @@ STDMETHODIMP DataObject::GetDataHere(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) 
 //  IDataObject::QueryGetData
 //
 STDMETHODIMP DataObject::QueryGetData(FORMATETC *pFormatEtc) {
-  if(lookup_format_etc(pFormatEtc) == -1)
+  struct SavedData *entry;
+  HRESULT hr = find_data_format_etc(pFormatEtc, &entry, false);
+  if(SUCCEEDED(hr))
+    return hr;
+
+  if(!has_source_format(pFormatEtc))
     return DV_E_FORMATETC;
     
   return S_OK;
@@ -158,7 +269,29 @@ STDMETHODIMP DataObject::GetCanonicalFormatEtc(FORMATETC *pFormatEct, FORMATETC 
 //  IDataObject::SetData
 //
 STDMETHODIMP DataObject::SetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium, BOOL fRelease) {
-  return E_NOTIMPL;
+  struct SavedData *entry;
+  HR(find_data_format_etc(pFormatEtc, &entry, true));
+  
+  if(entry->stg_medium.tymed) {
+    ReleaseStgMedium(&entry->stg_medium);
+    ZeroMemory(&entry->stg_medium, sizeof(STGMEDIUM));
+  }
+  
+  HRESULT hr;
+  if(fRelease) {
+    entry->stg_medium = *pMedium;
+    hr = S_OK;
+  }
+  else
+    hr = add_ref_std_medium(pMedium, &entry->stg_medium, true);
+  
+  // break circular reference loop:
+  if(get_canonical_iunknown(entry->stg_medium.pUnkForRelease) == get_canonical_iunknown(static_cast<IDataObject*>(this))) {
+    entry->stg_medium.pUnkForRelease->Release();
+    entry->stg_medium.pUnkForRelease = nullptr;
+  }
+  
+  return hr;
 }
 
 //

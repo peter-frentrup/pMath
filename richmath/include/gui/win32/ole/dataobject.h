@@ -11,8 +11,18 @@
 
 
 namespace richmath {
-  // see  http://www.catch22.net/tuts/dragdrop
+  /* see  http://www.catch22.net/tuts/dragdrop
+     and "The Shell Drag/Drop Helper Object Part 2: IDropSourceHelper -- Preparing Your IDataObject" 
+      (https://msdn.microsoft.com/en-us/library/ms997502.aspx#ddhelp_pt2_topic2)
+  */
   class DataObject : public IDataObject {
+      friend class EnumFormatEtc;
+      
+      struct SavedData {
+        FORMATETC  format_etc;
+        STGMEDIUM  stg_medium;
+      };
+      
     public:
       //
       // IUnknown members
@@ -38,15 +48,24 @@ namespace richmath {
       DataObject();
       virtual ~DataObject();
       
-    public:
-      int lookup_format_etc(FORMATETC *pFormatEtc);
+      void add_source_format(CLIPFORMAT cfFormat);
       
-      Array<FORMATETC>    formats;   // all for HGLOBAL
-      Array<String>       mimetypes; // same length as formats!
+    private:
+      HRESULT find_data_format_etc(const FORMATETC *format, struct SavedData **entry, bool add_missing);
+      HRESULT add_ref_std_medium(const STGMEDIUM *stgm_in, STGMEDIUM *stgm_out, bool copy_from_external);
+      
+      bool has_source_format(const FORMATETC *pFormatEtc);
+    
+    public:
       SelectionReference  source;
       
     private:
       LONG refcount;
+      
+      Array<FORMATETC>    source_formats;
+      SavedData          *data;
+      int                 data_count;
+    
   };
 }
 

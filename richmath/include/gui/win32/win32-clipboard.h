@@ -26,7 +26,8 @@ namespace richmath {
       virtual cairo_surface_t *create_image(String mimetype, double width, double height) override;
       
     public:
-      static Hashtable<String, unsigned int> mime_to_win32cbformat;
+      static Hashtable<String, CLIPFORMAT> mime_to_win32cbformat;
+      static Hashtable<CLIPFORMAT, String> win32cbformat_to_mime;
       
       static void init();
       static void done();

@@ -74,8 +74,8 @@ STDMETHODIMP EnumFormatEtc::Next(ULONG celt, FORMATETC *pFormatEtc, ULONG *pcelt
   if(celt == 0 || pFormatEtc == 0)
     return E_INVALIDARG;
     
-  while(index < src->formats.length() && copied < celt) {
-    deep_copy_format_etc(&pFormatEtc[copied], &src->formats[index]);
+  while(index < src->source_formats.length() && copied < celt) {
+    deep_copy_format_etc(&pFormatEtc[copied], &src->source_formats[index]);
     ++copied;
     ++index;
   }
@@ -91,7 +91,7 @@ STDMETHODIMP EnumFormatEtc::Next(ULONG celt, FORMATETC *pFormatEtc, ULONG *pcelt
 //
 STDMETHODIMP EnumFormatEtc::Skip(ULONG celt) {
   index += celt;
-  return (index <= src->formats.length()) ? S_OK : S_FALSE;
+  return (index <= src->source_formats.length()) ? S_OK : S_FALSE;
 }
 
 //

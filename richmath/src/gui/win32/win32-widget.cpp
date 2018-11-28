@@ -244,21 +244,9 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end) {
   
   DataObject *data_object = new DataObject;
   
-  FORMATETC fmt;
-  memset(&fmt, 0, sizeof(fmt));
-  fmt.dwAspect = DVASPECT_CONTENT;
-  fmt.lindex   = -1;
-  fmt.tymed    = TYMED_HGLOBAL;
-  
   data_object->source = drag_source_reference();
-  
-  data_object->mimetypes.add(Clipboard::PlainText);
-  fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
-  data_object->formats.add(fmt);
-  
-  data_object->mimetypes.add(Clipboard::BoxesText);
-  fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
-  data_object->formats.add(fmt);
+  data_object->add_source_format(Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText]);
+  data_object->add_source_format(Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText]);
   
   DropSource *drop_source = new DropSource;
   
