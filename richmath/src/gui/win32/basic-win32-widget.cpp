@@ -7,6 +7,8 @@
 
 #include <cstdio>
 
+#include <shlguid.h>
+
 using namespace richmath;
 
 static ATOM win32_widget_class = 0;
@@ -44,11 +46,15 @@ BasicWin32Widget::BasicWin32Widget(
   : Base(),
     _hwnd(nullptr),
     _allow_drop(true),
-    _is_dragging_over(false),
     init_data(new InitData),
     _initializing(true)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
+  CoCreateInstance(
+    CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER, 
+    _drop_target_helper.iid(),
+    (void**)_drop_target_helper.get_address_of());
   
   init_window_class();
   add_remove_window(+1);
@@ -61,6 +67,7 @@ BasicWin32Widget::BasicWin32Widget(
   init_data->height            = height;
   init_data->parent            = parent;
   init_data->window_class_name = nullptr;
+  
 }
 
 void BasicWin32Widget::set_window_class_name(const wchar_t *static_name) {
@@ -141,7 +148,8 @@ STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject) {
 // IDropTarget::DragEnter
 //
 STDMETHODIMP BasicWin32Widget::DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) {
-  _is_dragging_over = true;
+  _dragging.copy(data_object);
+  
   _allow_drop = is_data_droppable(data_object);
   
   if(_allow_drop) {
@@ -151,6 +159,11 @@ STDMETHODIMP BasicWin32Widget::DragEnter(IDataObject *data_object, DWORD key_sta
   }
   else {
     *effect = DROPEFFECT_NONE;
+  }
+  
+  if(_drop_target_helper) {
+    POINT small_pt = {pt.x, pt.y};
+    _drop_target_helper->DragEnter(_hwnd, data_object, &small_pt, *effect);
   }
   
   return S_OK;
@@ -168,6 +181,11 @@ STDMETHODIMP BasicWin32Widget::DragOver(DWORD key_state, POINTL pt, DWORD *effec
     *effect = DROPEFFECT_NONE;
   }
   
+  if(_drop_target_helper) {
+    POINT small_pt = {pt.x, pt.y};
+    _drop_target_helper->DragOver(&small_pt, *effect);
+  }
+  
   return S_OK;
 }
 
@@ -175,7 +193,10 @@ STDMETHODIMP BasicWin32Widget::DragOver(DWORD key_state, POINTL pt, DWORD *effec
 // IDropTarget::DragLeave
 //
 STDMETHODIMP BasicWin32Widget::DragLeave() {
-  _is_dragging_over = false;
+  if(_drop_target_helper) 
+    _drop_target_helper->DragLeave();
+  
+  _dragging.reset();
   return S_OK;
 }
 
@@ -185,16 +206,22 @@ STDMETHODIMP BasicWin32Widget::DragLeave() {
 STDMETHODIMP BasicWin32Widget::Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) {
   position_drop_cursor(pt);
   
-  if(_allow_drop) {
-    SetFocus(_hwnd);
+  if(_allow_drop) 
     *effect = drop_effect(key_state, pt, *effect);
-    
-    do_drop_data(data_object, *effect);
-  }
-  else {
+  else 
     *effect = DROPEFFECT_NONE;
+  
+  if(_drop_target_helper) {
+    POINT small_pt = {pt.x, pt.y};
+    _drop_target_helper->Drop(data_object, &small_pt, *effect);
   }
   
+  if(_allow_drop) {
+    SetFocus(_hwnd);
+    do_drop_data(data_object, *effect);
+  }
+    
+  _dragging.reset();
   return S_OK;
 }
 

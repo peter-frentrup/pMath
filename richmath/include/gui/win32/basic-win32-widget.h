@@ -5,11 +5,11 @@
 #  error this header is win32 specific
 #endif
 
-#include <windows.h>
+#include <gui/win32/ole/combase.h>
+
 #include <ole2.h>
 #include <rtscom.h>
-
-#include <util/base.h>
+#include <shobjidl.h>
 
 namespace richmath {
 
@@ -117,9 +117,10 @@ namespace richmath {
       }
       
     protected:
+      ComBase<IDropTargetHelper> _drop_target_helper;
+      ComBase<IDataObject>       _dragging;
       HWND _hwnd;
       bool _allow_drop;
-      bool _is_dragging_over;
       
     protected:
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);

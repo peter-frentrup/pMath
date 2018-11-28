@@ -105,6 +105,10 @@ namespace richmath {
         return ptr != nullptr;
       }
       
+      static const GUID &iid() noexcept {
+        return __uuidof(Interface);
+      }
+      
       Interface *get() const noexcept {
         return ptr;
       }
@@ -195,6 +199,8 @@ namespace richmath {
       fprintf(stderr, "%s:%d: call %s failed with %x\n", file, line, call, (unsigned)hr);
     return hr;
   }
+  
+  extern IUnknown *get_canonical_iunknown(IUnknown *punk);
 }
 
 #endif // RICHMATH__GUI__WIN32__OLE__COMBASE_H__INCLUDED
