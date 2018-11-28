@@ -33,6 +33,7 @@ HRESULT(WINAPI * Win32Themes::GetThemePartSize)(HANDLE hTheme, HDC, int, int, LP
 HRESULT(WINAPI * Win32Themes::GetThemePosition)(HANDLE, int, int, int, POINT *) = nullptr;
 HRESULT(WINAPI * Win32Themes::GetThemeTransitionDuration)(HANDLE, int, int, int, int, DWORD *) = nullptr;
 HRESULT(WINAPI * Win32Themes::GetCurrentThemeName)(LPWSTR, int, LPWSTR, int, LPWSTR, int) = nullptr;
+BOOL (WINAPI * Win32Themes::IsAppThemed)(void) = nullptr;
 BOOL (WINAPI * Win32Themes::IsThemePartDefined)(HANDLE, int, int) = nullptr;
 int (WINAPI * Win32Themes::GetThemeSysSize)(HANDLE, int) = nullptr;
 HRESULT(WINAPI * Win32Themes::SetWindowTheme)(HWND, LPCWSTR, LPCWSTR) = nullptr;
@@ -138,6 +139,9 @@ Win32Themes::Win32Themes()
     GetCurrentThemeName = (HRESULT(WINAPI *)(LPWSTR, int, LPWSTR, int, LPWSTR, int))
                           GetProcAddress(uxtheme, "GetCurrentThemeName");
                           
+    IsAppThemed = (BOOL (WINAPI *)(void))
+                  GetProcAddress(uxtheme, "IsAppThemed");
+    
     IsThemePartDefined = (BOOL (WINAPI *)(HANDLE, int, int))
                          GetProcAddress(uxtheme, "IsThemePartDefined");
                          
@@ -209,6 +213,7 @@ Win32Themes::~Win32Themes() {
   GetThemePosition = nullptr;
   GetThemeTransitionDuration = nullptr;
   GetCurrentThemeName = nullptr;
+  IsAppThemed = nullptr;
   IsThemePartDefined = nullptr;
   GetThemeSysSize = nullptr;
   SetWindowTheme = nullptr;

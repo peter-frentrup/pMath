@@ -206,6 +206,7 @@ namespace richmath {
       static HRESULT(WINAPI *GetThemePosition)(HANDLE, int, int, int, POINT*);
       static HRESULT(WINAPI *GetThemeTransitionDuration)(HANDLE, int, int, int, int, DWORD*);
       static HRESULT(WINAPI *GetCurrentThemeName)(LPWSTR, int, LPWSTR, int, LPWSTR, int);
+      static BOOL (WINAPI *IsAppThemed)(void);
       static BOOL (WINAPI *IsThemePartDefined)(HANDLE, int, int);
       static int (WINAPI *GetThemeSysSize)(HANDLE, int);
       static HRESULT(WINAPI *SetWindowTheme)(HWND, LPCWSTR, LPCWSTR);
@@ -219,6 +220,7 @@ namespace richmath {
       static BOOL (WINAPI *IsThemeActive)(void);
       
       static void init();
+      static bool is_app_themed() { return IsAppThemed && IsAppThemed(); }
       static bool current_theme_is_aero();
       static bool check_osversion(int min_major, int min_minor);
       
