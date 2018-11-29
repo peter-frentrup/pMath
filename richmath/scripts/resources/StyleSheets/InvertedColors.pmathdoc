@@ -1,0 +1,44 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+    SectionGroup({Section("InvertedColors stylesheet", "Title"), 
+      Section(
+       "This stylesheet inverts colors for default styles. It can be used as a \
+       basis for a dark theme or to find potential issues with hard-coded \
+       colors in documents.", "Text", FontColor -> GrayLevel(1)), 
+      SectionGroup({
+        Section(BoxData({"Slider", "(", {
+            {"Dynamic", "(", {
+              {{"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, ",", 
+                 "Background"}, ")"}, ".", "Replace", "(", {
+                "{", {{"GrayLevel", "(", {"~", "x"}, ")"}, "\[RuleDelayed]", 
+                 "x"}, "}"}, ")"}, ",", {"Function", "(", {
+                "If", "(", {{"0", "\[LessEqual]", "#", "\[LessEqual]", "1"}, 
+                 ",", {"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, 
+                   ",", {"Background", "\[Rule]", {
+                     "GrayLevel", "(", "#", ")"}}}, ")"}}, ")"}, ")"}}, ")"}, 
+            ",", {"0", "..", "1"}}, ")"}), "Input", 
+         SectionLabel -> "in [7]:"), 
+        Section(
+         BoxData(
+          SliderBox(
+           Dynamic(Replace(CurrentValue(EvaluationDocument(), Background), {
+              GrayLevel(~x) :> x}), If(0 <= #1 <= 1, 
+             SetOptions(EvaluationDocument(), 
+              Background -> GrayLevel(#1))) &), 0 .. 1)), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [7]:")}, 2), 
+      SectionGroup({Section("Document styles", "Section"), 
+        Section(StyleData("Document"), Background -> GrayLevel(0), 
+         FontColor -> GrayLevel(1))}, All), 
+      SectionGroup({Section("Section styles", "Section"), 
+        Section(StyleData("Edit"), AutoSpacing -> True, 
+         FontColor -> GrayLevel(1), LanguageCategory -> "pMath", 
+         ShowAutoStyles -> True), Section(StyleData("Input"), 
+         FontColor -> GrayLevel(1)), Section(StyleData("Text"), 
+         FontColor -> GrayLevel(1), SectionFrameColor -> GrayLevel(1)), 
+        SectionGroup({Section("Formulas", "Subsection"), 
+          Section(StyleData("DisplayFormula"), FontColor -> GrayLevel(1))}, 
+         All)}, All), Section("Box styles", "Section")}, All)}, All)}, 
+ Background -> GrayLevel(0.19`), StyleDefinitions -> "Stylesheets.pmathdoc", 
+ Visible -> True)

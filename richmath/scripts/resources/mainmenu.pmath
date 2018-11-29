@@ -74,7 +74,8 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Item("DisplayFormula",                     BaseStyle->"DisplayFormula")
 			}),
 		Menu("Stylesheet", {
-			Item("Default",               ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document))
+			Item("Default",               ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document)),
+			Item("InvertedColors",        ScopedCommand(StyleDefinitions->"InvertedColors.pmathdoc", Document))
 			}),
 		Item("Edit Stylesheet ...",       "EditStyleDefinitions"),
 		Menu("Magnification", {
