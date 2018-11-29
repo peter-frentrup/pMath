@@ -2055,6 +2055,12 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
     
     cairo_set_line_width(cr, 1);
     cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
+    
+    cairo_font_options_t *opt = cairo_font_options_create();
+    cairo_font_options_set_antialias(opt, CAIRO_ANTIALIAS_GRAY);
+    cairo_set_font_options(cr, opt);
+    cairo_font_options_destroy(opt);
+
     canvas.set_font_size(10);// 10 * 4/3.
     
     paint_resize(&canvas, true);
