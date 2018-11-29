@@ -10,6 +10,7 @@ namespace richmath {
   class Box;
   class Context;
   class Document;
+  class MouseEvent;
   class SelectionReference;
   class TimedEvent;
   
@@ -73,7 +74,7 @@ namespace richmath {
       virtual double message_time() = 0;
       virtual double double_click_time() = 0;
       virtual void double_click_dist(float *dx, float *dy) = 0;
-      virtual void do_drag_drop(Box *src, int start, int end) = 0;
+      virtual void do_drag_drop(Box *src, int start, int end, MouseEvent &event) = 0;
       virtual bool cursor_position(float *x, float *y) = 0;
       virtual bool may_drop_into(Box *dst, int start, int end, bool self_is_source);
       

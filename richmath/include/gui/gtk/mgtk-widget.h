@@ -39,7 +39,7 @@ namespace richmath {
       virtual double message_time() override;
       virtual double double_click_time() override;
       virtual void double_click_dist(float *dx, float *dy) override;
-      virtual void do_drag_drop(Box *src, int start, int end) override;
+      virtual void do_drag_drop(Box *src, int start, int end, MouseEvent &event) override;
       virtual bool cursor_position(float *x, float *y) override;
       
       virtual void bring_to_front() override;

@@ -234,7 +234,7 @@ void Win32Widget::double_click_dist(float *dx, float *dy) {
   *dy = GetSystemMetrics(SM_CYDOUBLECLK) / scale_factor();
 }
 
-void Win32Widget::do_drag_drop(Box *src, int start, int end) {
+void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) {
   if(is_dragging || !src || start >= end)
     return;
     
@@ -248,6 +248,8 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end) {
   data_object->source = drag_source_reference();
   data_object->add_source_format(Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText]);
   data_object->add_source_format(Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText]);
+  data_object->add_source_format(Win32Clipboard::mime_to_win32cbformat[Clipboard::PlatformBitmapImage]);
+  data_object->add_source_format(Win32Clipboard::mime_to_win32cbformat[Clipboard::SvgImage]);
   
   DropSource *drop_source = new DropSource;
   

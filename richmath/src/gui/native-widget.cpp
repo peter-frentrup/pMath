@@ -84,7 +84,7 @@ namespace {
       virtual void double_click_dist(float *dx, float *dy) override {
         *dx = *dy = 0;
       }
-      virtual void do_drag_drop(Box *src, int start, int end) override {
+      virtual void do_drag_drop(Box *src, int start, int end, MouseEvent &event) override {
       }
       virtual bool cursor_position(float *x, float *y) override {
         *x = *y = 0;

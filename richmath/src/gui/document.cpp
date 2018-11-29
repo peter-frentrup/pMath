@@ -1024,7 +1024,7 @@ void Document::on_mouse_move(MouseEvent &event) {
     {
       drag_status = DragStatusCurrentlyDragging;
       mouse_down_x = mouse_down_y = Infinity;
-      native()->do_drag_drop(selection_box(), selection_start(), selection_end());
+      native()->do_drag_drop(selection_box(), selection_start(), selection_end(), event);
     }
     
     return;

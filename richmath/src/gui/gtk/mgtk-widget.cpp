@@ -281,8 +281,8 @@ void MathGtkWidget::double_click_dist(float *dx, float *dy) {
   *dx = *dy = d / scale_factor();
 }
 
-void MathGtkWidget::do_drag_drop(Box *src, int start, int end) {
-  GdkEvent *event = gtk_get_current_event();
+void MathGtkWidget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) {
+  GdkEvent *g_event = gtk_get_current_event();
   
   if(!src || !_widget)
     return;
@@ -299,7 +299,7 @@ void MathGtkWidget::do_drag_drop(Box *src, int start, int end) {
               drop_targets,
               (GdkDragAction)actions,
               _mouse_down_button,
-              event);
+              g_event);
               
   gtk_drag_set_icon_default(context);
 }
