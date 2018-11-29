@@ -56,6 +56,12 @@ BasicWin32Widget::BasicWin32Widget(
     _drop_target_helper.iid(),
     (void**)_drop_target_helper.get_address_of());
   
+  _drag_source_helper = _drop_target_helper.as<IDragSourceHelper>();
+  //CoCreateInstance(
+  //  CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER,
+  //  _drag_source_helper.iid(),
+  //  (void**)_drag_source_helper.get_address_of());
+  
   init_window_class();
   add_remove_window(+1);
   

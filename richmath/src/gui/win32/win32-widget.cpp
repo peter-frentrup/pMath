@@ -3,6 +3,7 @@
 // 0x600 for SPI_GETWHEELSCROLLCHARS
 
 #include <gui/win32/win32-widget.h>
+#include <gui/win32/win32-themes.h>
 
 #include <climits>
 #include <cmath>
@@ -253,7 +254,16 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end) {
   DWORD effect = DROPEFFECT_COPY;
   if(src->get_style(Editable))
     effect |= DROPEFFECT_MOVE;
-    
+  
+  if(Win32Themes::is_app_themed()) { 
+    if(auto helper2 = _drag_source_helper.as<IDragSourceHelper2>()) {
+      pmath_debug_print("[using drop source helper ...]\n");
+      drop_source->description_data.copy(data_object);
+    }
+  }
+  
+  drop_source->set_drag_image_from_window(nullptr);
+  
   HRESULT res = DoDragDrop(data_object, drop_source, effect, &effect);
   
   Document *doc = src->find_parent<Document>(true);

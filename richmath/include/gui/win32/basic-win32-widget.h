@@ -118,6 +118,7 @@ namespace richmath {
       
     protected:
       ComBase<IDropTargetHelper> _drop_target_helper;
+      ComBase<IDragSourceHelper> _drag_source_helper;
       ComBase<IDataObject>       _dragging;
       HWND _hwnd;
       bool _allow_drop;

@@ -193,7 +193,8 @@ namespace richmath {
   };
 
   #define HRbool(call) SUCCEEDED(check_HRESULT((call), #call, __FILE__, __LINE__))
-  #define HR(call) do { HRESULT _temp_hr = (call); if(!SUCCEEDED(_temp_hr)) return check_HRESULT(_temp_hr, #call, __FILE__, __LINE__); } while(0)
+  #define HR(call)       do { HRESULT _temp_hr = (call); if(!SUCCEEDED(_temp_hr)) return check_HRESULT(_temp_hr, #call, __FILE__, __LINE__); } while(0)
+  #define HRquiet(call)  do { HRESULT _temp_hr = (call); if(!SUCCEEDED(_temp_hr)) return _temp_hr; } while(0)
   static inline HRESULT check_HRESULT(HRESULT hr, const char *call, const char *file, int line) {
     if(FAILED(hr))
       fprintf(stderr, "%s:%d: call %s failed with %x\n", file, line, call, (unsigned)hr);

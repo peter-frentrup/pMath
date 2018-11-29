@@ -66,6 +66,13 @@ namespace richmath {
       SavedData          *data;
       int                 data_count;
     
+    public:
+      struct Formats {
+        static CLIPFORMAT IsShowingLayered;
+        static CLIPFORMAT DragWindow;
+      };
+      static HRESULT get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATETC *formatEtc, STGMEDIUM *medium);
+      static DWORD   get_global_data_dword(IDataObject *obj, CLIPFORMAT format);
   };
 }
 

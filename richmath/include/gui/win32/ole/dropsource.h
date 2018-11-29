@@ -5,8 +5,11 @@
 #  error this header is win32 specific
 #endif
 
-#include <ole2.h>
+#include <gui/win32/ole/combase.h>
 
+#include <shobjidl.h>
+
+class IDragSourceHelper;
 
 namespace richmath {
   class DropSource: public IDropSource {
@@ -28,8 +31,17 @@ namespace richmath {
       DropSource();
       virtual ~DropSource();
       
+      HRESULT set_drag_image_from_window(HWND hwnd, POINT *point = nullptr); // hwnd = NULL is allowed
+      
+      ComBase<IDataObject>  description_data;
+    
     private:
-      LONG m_lRefCount;
+      bool set_drag_image_cursor(DWORD effect);
+      
+    private:
+      LONG                       refcount;
+      ComBase<IDragSourceHelper> helper;
+      bool                       must_set_cursor;
   };
 }
 

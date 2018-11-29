@@ -24,6 +24,9 @@ static HGLOBAL GlobalClone(HGLOBAL hglobIn) {
   return hglobOut;
 }
 
+CLIPFORMAT DataObject::Formats::IsShowingLayered = 0;
+CLIPFORMAT DataObject::Formats::DragWindow = 0;
+
 //{ class DataObject ...
 
 DataObject::DataObject() 
@@ -31,6 +34,10 @@ DataObject::DataObject()
   data{ nullptr },
   data_count{ 0 }
 {
+  if(!DataObject::Formats::IsShowingLayered) {
+    DataObject::Formats::IsShowingLayered = RegisterClipboardFormatA("IsShowingLayered");
+    DataObject::Formats::DragWindow       = RegisterClipboardFormatA("DragWindow");
+  }
 }
 
 DataObject::~DataObject() {
@@ -180,6 +187,7 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
   struct SavedData *entry;
   if(SUCCEEDED(find_data_format_etc(pFormatEtc, &entry, false))) {
     HR(add_ref_std_medium(&entry->stg_medium, pMedium, false));
+    return S_OK;
   }
     
   Box *srcbox = source.get();
@@ -328,6 +336,45 @@ STDMETHODIMP DataObject::DUnadvise(DWORD dwConnection) {
 //
 STDMETHODIMP DataObject::EnumDAdvise(IEnumSTATDATA **ppEnumAdvise) {
   return OLE_E_ADVISENOTSUPPORTED;
+}
+
+HRESULT DataObject::get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATETC *format_etc, STGMEDIUM *medium) {
+  COM_ASSERT(format_etc != nullptr);
+  COM_ASSERT(medium != nullptr);
+  
+  if(!obj) 
+    return E_INVALIDARG;
+  
+  format_etc->cfFormat = format;
+  format_etc->ptd      = nullptr;
+  format_etc->dwAspect = DVASPECT_CONTENT;
+  format_etc->lindex   = -1;
+  format_etc->tymed    = TYMED_HGLOBAL;
+  
+  HRquiet(obj->QueryGetData(format_etc));
+  HR(obj->GetData(format_etc, medium));
+  if(medium->tymed != TYMED_HGLOBAL) {
+    ReleaseStgMedium(medium);
+    ZeroMemory(medium, sizeof(STGMEDIUM));
+    return DV_E_TYMED;
+  }
+  
+  return S_OK;
+}
+
+DWORD DataObject::get_global_data_dword(IDataObject *obj, CLIPFORMAT format) {
+  DWORD data = 0;
+  FORMATETC format_etc;
+  STGMEDIUM medium;
+  
+  if(SUCCEEDED(get_global_data(obj, format, &format_etc, &medium))) {
+    if(GlobalSize(medium.hGlobal) >= sizeof(DWORD)) {
+      data = *(DWORD*)GlobalLock(medium.hGlobal);
+      GlobalUnlock(medium.hGlobal);
+      ReleaseStgMedium(&medium);
+    }
+  }
+  return data;
 }
 
 //} ... class DataObject
