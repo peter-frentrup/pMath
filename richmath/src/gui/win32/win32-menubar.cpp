@@ -196,6 +196,7 @@ void Win32Menubar::appearence(MenuAppearence value) {
       
     case MaNeverShow:
       if(visible()) {
+        kill_focus();
         ShowWindow(_hwnd, SW_HIDE);
         _window->rearrange();
       }
@@ -739,13 +740,9 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       } break;
       
     case WM_ACTIVATE: {
-        if(wParam == WA_INACTIVE && _appearence == MaAutoShow && visible() && !is_pinned()) {
-          ShowWindow(_hwnd, SW_HIDE);
-          _window->rearrange();
-        }
-        else {
-          InvalidateRect(_hwnd, nullptr, FALSE);
-        }
+        InvalidateRect(_hwnd, nullptr, FALSE);
+        if(wParam == WA_INACTIVE)
+          kill_focus();
       } break;
   }
   return false;
