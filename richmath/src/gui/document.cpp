@@ -4580,7 +4580,7 @@ Section *DocumentImpl::convert_content(Section *sect) {
     
   auto old_content = old_sect->content();
   auto new_sect = new ToSectionType(old_sect->style);
-  //new_sect->swap_id(old_sect);
+  new_sect->swap_id(old_sect);
   new_sect->content()->insert(0, old_content, 0, old_content->length());
   self.swap(sect->index(), new_sect)->safe_destroy();
   

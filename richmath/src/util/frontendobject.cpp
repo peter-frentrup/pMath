@@ -112,11 +112,11 @@ FrontEndObject::FrontEndObject()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  TheCache.table.set(id(), this);
+  TheCache.table.set(_id, this);
 }
 
 FrontEndObject::~FrontEndObject() {
-  TheCache.table.remove(id());
+  TheCache.table.remove(_id);
 }
 
 FrontEndObject *FrontEndObject::find(FrontEndReference id) {
@@ -124,6 +124,16 @@ FrontEndObject *FrontEndObject::find(FrontEndReference id) {
   if(!obj)
     return nullptr;
   return *obj;
+}
+
+void FrontEndObject::swap_id(FrontEndObject *other) {
+  if(other) {
+    auto id = other->_id;
+    other->_id = this->_id;
+    this->_id  = id;
+    TheCache.table.set(other->_id, other);
+    TheCache.table.set(this->_id,  this);
+  }
 }
 
 //} ... class FrontEndObject

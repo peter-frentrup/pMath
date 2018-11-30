@@ -59,6 +59,8 @@ namespace richmath {
         return dynamic_cast<T*>(find(id));
       }
       
+      void swap_id(FrontEndObject *other);
+      
       virtual void dynamic_updated() = 0;
     
     private:
