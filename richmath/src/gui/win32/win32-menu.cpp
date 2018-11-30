@@ -51,6 +51,14 @@ static void add_remove_menu(int delta) {
 
 //{ class Win32Menu ...
 
+static bool is_radiocheck_command(Expr cmd) {
+  if(cmd[0] == richmath_FE_ScopedCommand)
+    cmd = cmd[1];
+  
+  // style->value  is a simple setter (does not toggle)
+  return cmd.is_rule();
+}
+
 static HMENU create_menu(Expr expr, bool is_popup) {
   if(expr[0] != richmath_FE_Menu || expr.expr_length() != 2)
     return nullptr;
@@ -73,6 +81,10 @@ static HMENU create_menu(Expr expr, bool is_popup) {
         Expr   cmd( item[2]);
         
         DWORD id = cmd_to_id[cmd];
+        UINT flags = MF_STRING | MF_ENABLED;
+        
+        if(is_radiocheck_command(cmd))
+          flags |= MFT_RADIOCHECK;
         
         if(!id) {
           id = next_id++;
@@ -86,7 +98,7 @@ static HMENU create_menu(Expr expr, bool is_popup) {
         name += String::FromChar(0);
         AppendMenuW(
           menu,
-          MF_STRING | MF_ENABLED,
+          flags,
           id,
           (const wchar_t *)name.buffer());
           

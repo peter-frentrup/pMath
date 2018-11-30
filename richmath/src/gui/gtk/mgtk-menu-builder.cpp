@@ -138,11 +138,14 @@ gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, 
 }
 
 static GtkWidget *create_menu_item_for_command(const char *label, Expr cmd) {
-  if(cmd.is_rule())
-    return gtk_check_menu_item_new_with_mnemonic(label);
-  
   if(cmd[0] == richmath_FE_ScopedCommand)
-    return create_menu_item_for_command(label, cmd[1]);
+    cmd = cmd[1];
+  
+  if(cmd.is_rule()) {
+    GtkCheckMenuItem *menu_item = gtk_check_menu_item_new_with_mnemonic(label);
+    gtk_check_menu_item_set_draw_as_radio(menu_item, true);
+    return (GtkWidget*)menu_item;
+  }
   
   return gtk_menu_item_new_with_mnemonic(label);
 }
