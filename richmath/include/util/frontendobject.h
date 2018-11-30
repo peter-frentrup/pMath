@@ -13,14 +13,14 @@ namespace richmath {
     public:
       int hash() const { return default_hash(_id) ^ 0xBADC0DE; }
       
-      bool is_valid() const { return _id != nullptr; }
+      bool is_valid() const { return !!_id; }
       explicit operator bool() const { return is_valid(); }
       
       static FrontEndReference from_pmath(pmath::Expr expr);
       static FrontEndReference from_pmath_raw(pmath::Expr expr);
       
       pmath::Expr to_pmath() const;
-      pmath::Expr to_pmath_raw() const { return pmath::Expr((intptr_t)_id); }
+      pmath::Expr to_pmath_raw() const { return pmath::Expr((int32_t)_id); }
       
       friend bool operator==(const FrontEndReference &left, const FrontEndReference &right) {
         return left._id == right._id;
@@ -32,17 +32,17 @@ namespace richmath {
       static const FrontEndReference None;
       
       static void *unsafe_cast_to_pointer(const FrontEndReference &ref) {
-        return ref._id;
+        return (void*)(uintptr_t)ref._id;
       }
       
       static FrontEndReference unsafe_cast_from_pointer(void *p) {
         FrontEndReference ref;
-        ref._id = p;
+        ref._id = (uint32_t)(uintptr_t)p;
         return ref;
       }
     
     private:
-      void *_id;
+      uint32_t _id;
   };
 
   class FrontEndObject: public virtual Base {
@@ -50,7 +50,7 @@ namespace richmath {
       FrontEndObject();
       virtual ~FrontEndObject();
       
-      FrontEndReference id() { return FrontEndReference::unsafe_cast_from_pointer(this); }
+      FrontEndReference id() { return _id; }
       
       static FrontEndObject *find(FrontEndReference id);
       
@@ -60,6 +60,9 @@ namespace richmath {
       }
       
       virtual void dynamic_updated() = 0;
+    
+    private:
+      FrontEndReference _id;
   };
   
   // http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Nifty_Counter

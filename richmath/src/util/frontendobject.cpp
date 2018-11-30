@@ -13,26 +13,44 @@ extern pmath_symbol_t richmath_System_FrontEndObject;
 namespace richmath {
   class FrontEndReferenceImpl {
     public:
+      FrontEndReferenceImpl() {
+        _next_id._id = 1;
+      }
+      
       static FrontEndReference init_none() {
         FrontEndReference id;
-        id._id = nullptr;
+        id._id = 0;
         return id;
       }
+      
+      FrontEndReference generate_next_id() {
+        FrontEndReference result;
+        do {
+          result = _next_id;
+          _next_id._id++; // _id is unsigned, so increment has wrap-around semantics
+          if(!_next_id._id)
+            _next_id._id++;
+        } while(table.search(_next_id));
+        
+        assert(result.is_valid());
+        return result;
+      }
+    
+    public:
+      Hashtable<FrontEndReference, FrontEndObject*> table;
+    
+    private:
+      FrontEndReference  _next_id;
   };
 }
 
 namespace {
-  class FrontEndObjectCache {
-    public:
-      Hashset<FrontEndReference> table;
-  };
-  
   static int NiftyFrontEndObjectInitializerCounter; // zero initialized at load time
   static typename std::aligned_storage<
-    sizeof(FrontEndObjectCache), 
-    alignof(FrontEndObjectCache)
+    sizeof(FrontEndReferenceImpl), 
+    alignof(FrontEndReferenceImpl)
   >::type TheCache_Buffer;
-  static FrontEndObjectCache &TheCache = reinterpret_cast<FrontEndObjectCache&>(TheCache_Buffer);
+  static FrontEndReferenceImpl &TheCache = reinterpret_cast<FrontEndReferenceImpl&>(TheCache_Buffer);
 };
 
 //{ struct FrontEndObjectInitializer ...
@@ -43,7 +61,7 @@ FrontEndObjectInitializer::FrontEndObjectInitializer() {
      So, no locking is needed .
    */
   if(NiftyFrontEndObjectInitializerCounter++ == 0)
-    new(&TheCache) FrontEndObjectCache();
+    new(&TheCache) FrontEndReferenceImpl();
 }
 
 FrontEndObjectInitializer::~FrontEndObjectInitializer() {
@@ -52,7 +70,7 @@ FrontEndObjectInitializer::~FrontEndObjectInitializer() {
      So, no locking is needed .
    */
   if(--NiftyFrontEndObjectInitializerCounter == 0)
-    (&TheCache)->~FrontEndObjectCache();
+    (&TheCache)->~FrontEndReferenceImpl();
 }
 
 //} ... struct FrontEndObjectInitializer
@@ -73,12 +91,7 @@ FrontEndReference FrontEndReference::from_pmath(pmath::Expr expr) {
 FrontEndReference FrontEndReference::from_pmath_raw(pmath::Expr expr) {
   if(expr.is_int32()) {
     FrontEndReference result;
-    result._id = (void*)(intptr_t)PMATH_AS_INT32(expr.get());
-    return result;
-  }
-  else if(expr.is_integer() && pmath_integer_fits_si64(expr.get())) {
-    FrontEndReference result;
-    result._id = (void*)pmath_integer_get_siptr(expr.get());
+    result._id = (uint32_t)PMATH_AS_INT32(expr.get());
     return result;
   }
   
@@ -94,11 +107,12 @@ Expr FrontEndReference::to_pmath() const {
 //{ class FrontEndObject ...
 
 FrontEndObject::FrontEndObject()
-  : Base()
+  : Base(),
+    _id{ TheCache.generate_next_id() }
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  TheCache.table.add(id());
+  TheCache.table.set(id(), this);
 }
 
 FrontEndObject::~FrontEndObject() {
@@ -106,9 +120,10 @@ FrontEndObject::~FrontEndObject() {
 }
 
 FrontEndObject *FrontEndObject::find(FrontEndReference id) {
-  if(TheCache.table.contains(id))
-    return static_cast<FrontEndObject*>(FrontEndReference::unsafe_cast_to_pointer(id));
-  return nullptr;
+  FrontEndObject **obj = TheCache.table.search(id);
+  if(!obj)
+    return nullptr;
+  return *obj;
 }
 
 //} ... class FrontEndObject
