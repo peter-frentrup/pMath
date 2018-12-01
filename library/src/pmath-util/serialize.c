@@ -1022,19 +1022,23 @@ static pmath_t read_packed_array(struct deserializer_t *info) {
   }
   
   array = pmath_packed_array_new(PMATH_NULL, elem_type, depth, sizes, NULL, 0);
-  pmath_mem_free(sizes);
+  
   
   data = pmath_packed_array_begin_write(&array, NULL, 0);
   if(!data) {
     info->error = PMATH_SERIALIZE_NO_MEMORY;
     pmath_unref(array);
+    pmath_mem_free(sizes);
     return PMATH_UNDEFINED;
   }
   
   total_elems = 1;
   for(i = 0; i < depth; ++i)
     total_elems *= sizes[i];
-    
+  
+  pmath_mem_free(sizes);
+  sizes = NULL;
+  
   i = pmath_file_read(info->file, data, total_elems * elem_size, FALSE);
   if(i != total_elems * elem_size) {
     info->error = PMATH_SERIALIZE_EOF;
