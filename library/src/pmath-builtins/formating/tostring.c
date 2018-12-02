@@ -1,12 +1,17 @@
 #include <pmath-builtins/formating-private.h>
 
 #include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+#include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 
 #include <limits.h>
 
 #define APPROX_SKELETON_WIDTH  8
+
+
+extern pmath_symbol_t pmath_System_ShowStringCharacters;
 
 
 struct write_short_span_t {
@@ -382,26 +387,160 @@ void _pmath_write_to_string(
                                len);
 }
 
-PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
-  /* ToString(object)
-   */
-  pmath_string_t result;
-  size_t i, len;
+static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pmath_t format_type) { // format_type will be freed
+  if(pmath_same(format_type, PMATH_SYMBOL_INPUTFORM)) 
+    *flags = PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
+  else if(pmath_same(format_type, PMATH_SYMBOL_FULLFORM))
+    *flags = PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLEXPR;
+  else if(pmath_same(format_type, PMATH_SYMBOL_OUTPUTFORM))
+    *flags = 0;
+  else if(pmath_same(format_type, PMATH_SYMBOL_STANDARDFORM))
+    *flags = 0;
+  else if(pmath_same(format_type, PMATH_SYMBOL_HOLDFORM))
+    *flags = 0;
+  else if(pmath_same(format_type, PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM))
+    *flags = PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
+  else {
+    pmath_message(PMATH_NULL, "fmtval", 1, format_type);
+    return FALSE;
+  }
+  
+  pmath_unref(format_type);
+  return FALSE;
+}
 
+static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags, pmath_t options) {
+  pmath_t enc = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options);
+ 
+  if(pmath_is_string(enc)) {
+    if(pmath_string_equals_latin1(enc, "Unicode")) {
+      *flags |= PMATH_WRITE_OPTIONS_PREFERUNICODE;
+      pmath_unref(enc);
+      return TRUE;
+    }
+    
+    if(pmath_string_equals_latin1(enc, "ASCII")) {
+      *flags &= ~PMATH_WRITE_OPTIONS_PREFERUNICODE;
+      pmath_unref(enc);
+      return TRUE;
+    }
+  }
+  else if(pmath_same(enc, PMATH_SYMBOL_AUTOMATIC)) {
+    pmath_unref(enc);
+    return TRUE;
+  }
+  
+  pmath_message(PMATH_NULL, "charcode", 1, enc); 
+  return FALSE;
+}
+
+static pmath_bool_t apply_whitespace_option(pmath_write_options_t *flags, pmath_t options) {
+  pmath_t whitespace = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_WHITESPACE, options);
+ 
+  if(pmath_same(whitespace, PMATH_SYMBOL_TRUE)) {
+    *flags &= ~PMATH_WRITE_OPTIONS_NOSPACES;
+    pmath_unref(whitespace);
+    return TRUE;
+  }
+  
+  if(pmath_same(whitespace, PMATH_SYMBOL_FALSE)) {
+    *flags |= PMATH_WRITE_OPTIONS_NOSPACES;
+    pmath_unref(whitespace);
+    return TRUE;
+  }
+  
+  if(pmath_same(whitespace, PMATH_SYMBOL_AUTOMATIC)) {
+    if(*flags & PMATH_WRITE_OPTIONS_PREFERUNICODE)
+      *flags|= PMATH_WRITE_OPTIONS_NOSPACES;
+    
+    pmath_unref(whitespace);
+    return TRUE;
+  }
+  
+  pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(PMATH_SYMBOL_WHITESPACE), whitespace); 
+  return FALSE;
+}
+
+static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t *flags, pmath_t options) {
+  pmath_t fullstr = pmath_option_value(PMATH_NULL, pmath_System_ShowStringCharacters, options);
+ 
+  if(pmath_same(fullstr, PMATH_SYMBOL_TRUE)) {
+    *flags |= PMATH_WRITE_OPTIONS_FULLSTR;
+    pmath_unref(fullstr);
+    return TRUE;
+  }
+  
+  if(pmath_same(fullstr, PMATH_SYMBOL_FALSE)) {
+    *flags &= ~PMATH_WRITE_OPTIONS_FULLSTR;
+    pmath_unref(fullstr);
+    return TRUE;
+  }
+  
+  if(pmath_same(fullstr, PMATH_SYMBOL_AUTOMATIC)) {
+    pmath_unref(fullstr);
+    return TRUE;
+  }
+  
+  pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(pmath_System_ShowStringCharacters), fullstr); 
+  return FALSE;
+}
+
+PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
+  /*  ToString(object)
+      ToString(object, form)    InputForm | OutputForm | StandardForm
+  
+      options:
+        CharacterEncoding -> Automatic | "ASCII" | "Unicode"
+        Whitespace -> Automatic | True | False
+        ShowStringCharacters -> False | True | Automatic
+   */
+  pmath_string_t        result;
+  pmath_t               options;
+  pmath_t               obj;
+  pmath_write_options_t flags;
+  size_t len;
+  
   len = pmath_expr_length(expr);
   if(len == 0) {
     pmath_unref(expr);
     return pmath_string_new(0);
   }
-
-  result = PMATH_NULL;
-
-  for(i = 1; i <= len; ++i) {
-    pmath_t obj = pmath_expr_get_item(expr, i);
-    pmath_write(obj, 0, _pmath_write_to_string, &result);
+    
+  flags = 0;
+  
+  options = PMATH_NULL;
+  obj = pmath_expr_get_item(expr, 2);
+  if(pmath_is_null(obj) || pmath_is_set_of_options(obj)) {
     pmath_unref(obj);
+    obj = PMATH_NULL;
+    options = pmath_options_extract(expr, 1);
   }
+  else {
+    if(!apply_format_type_and_free(&flags, obj))
+      return expr;
+    
+    obj = PMATH_NULL;
+    options = pmath_options_extract(expr, 2);
+  }
+  
+  if(pmath_is_null(options))
+    return expr;
+  
+  if( !apply_characterencoding_option(   &flags, options) ||
+      !apply_whitespace_option(          &flags, options) ||
+      !apply_showstringcharacters_option(&flags, options))
+  {
+    pmath_unref(options);
+    return expr;
+  }
+  
+  pmath_unref(options); options = PMATH_NULL;
+  result = PMATH_NULL;
+  
+  obj = pmath_expr_get_item(expr, 1);
+  pmath_write(obj, flags, _pmath_write_to_string, &result);
+  pmath_unref(obj);
   pmath_unref(expr);
-
+  
   return result;
 }

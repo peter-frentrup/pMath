@@ -56,6 +56,7 @@ General::privv:= "Privilege violation during `1`."
 /* type errors */
 General::atom:= "`1` is neither an expression nor a string."
 General::bool:= "`1` is neither the symbol True nor the symbol False."
+General::fmtval:= "`1` is not a valid format type."
 General::fnsym:= "The first argument in `1` is neither a symbol nor a string naming a symbol."
 General::heads:= "Heads `1` and `2` at positions `3` and `4` are expected to be the same."
 General::ilsmn:= "Single or list of non-negative integers expected at position `1` in `2`"
@@ -217,6 +218,7 @@ NestWhile::nwargs:= NestWhileList::nwargs:= "Argument `1` in `2` is not of the f
 Norm::ptype:= "The second argument of Norm, `1`, should be a symbol, Infinity, or an integer or real number not less than 1 for vector p-norms; or 1, 2, Infinity, or \"Frobenius\" for matrix norms."
 
 OpenAppend::charcode:= OpenRead::charcode:= OpenWrite::charcode:= ToCharacterCode::charcode:= "`1` is not a valid character encoding."
+ToString::charcode:= "CharacterEncoding->\"ASCII\" or CharacterEncoding->\"Unicode\" expected, but CharacterEncoding->`1` given."
 OpenRead::text:= OpenWrite::text:= "BinaryFormat->False expected for reopening the binary stream `1`."
 
 Options::optnf:= OptionValue::optnf:= SetOptions::optnf:= "`1` is not a known option for `2`."
