@@ -1090,7 +1090,7 @@ static pmath_t make_expression_from_complexstringbox(pmath_expr_t box) {
     pmath_write(
       part,
       PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR,
-      (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+      _pmath_write_to_string,
       &string);
       
     pmath_unref(part);

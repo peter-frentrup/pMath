@@ -16,7 +16,7 @@
 
 PMATH_PRIVATE
 void _pmath_write_to_string(
-  pmath_string_t *result,
+  void           *pointer_to_pmath_string, // pmath_string_t *pointer_to_pmath_string
   const uint16_t *data,
   int             len);
 

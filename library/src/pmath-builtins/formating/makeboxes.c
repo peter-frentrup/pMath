@@ -3479,7 +3479,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
     pmath_write(
       obj,
       PMATH_WRITE_OPTIONS_INPUTEXPR,
-      (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+      _pmath_write_to_string,
       &s);
     pmath_unref(obj);
     
@@ -3562,7 +3562,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
           pmath_write(
             obj,
             thread->longform ? PMATH_WRITE_OPTIONS_FULLNAME : 0,
-            (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+            _pmath_write_to_string,
             &s);
           pmath_unref(obj);
           return s;
@@ -3585,7 +3585,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
           pmath_write(
             obj,
             PMATH_WRITE_OPTIONS_INPUTEXPR,
-            (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+            _pmath_write_to_string,
             &s);
           pmath_unref(obj);
           
@@ -3607,13 +3607,13 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
           pmath_write(
             PMATH_QUOT_NUM(obj),
             PMATH_WRITE_OPTIONS_INPUTEXPR,
-            (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+            _pmath_write_to_string,
             &n);
             
           pmath_write(
             PMATH_QUOT_DEN(obj),
             PMATH_WRITE_OPTIONS_INPUTEXPR,
-            (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+            _pmath_write_to_string,
             &d);
             
           if(pmath_string_length(n) > 0 && *pmath_string_buffer(&n) == '-') {
@@ -3667,7 +3667,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
     pmath_t boxes;
     pmath_span_array_t *spans;
     
-    pmath_write(obj, 0, (void( *)(void *, const uint16_t *, int))_pmath_write_to_string, &str);
+    pmath_write(obj, 0, _pmath_write_to_string, &str);
     
     spans = pmath_spans_from_string(&str, NULL, NULL, NULL, NULL, NULL);
     boxes = pmath_boxes_from_spans(spans, str, FALSE, NULL, NULL);

@@ -1084,7 +1084,7 @@ pmath_t _pmath_escape_string(
   _pmath_string_write_escaped(
       string,
       only_ascii,
-      (void( *)(void *, const uint16_t *, int))_pmath_write_to_string,
+      _pmath_write_to_string,
       &result);
 
   pmath_unref(string);

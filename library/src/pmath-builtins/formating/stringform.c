@@ -216,7 +216,7 @@ pmath_bool_t _pmath_stringform_write(
     pmath_write(
       item,
       info->options,
-      (void(*)(void*, const uint16_t*, int))_pmath_write_to_string,
+      _pmath_write_to_string,
       &str);
       
     pmath_unref(item);
