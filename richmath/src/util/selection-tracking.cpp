@@ -247,7 +247,7 @@ namespace {
       String write(Expr obj, pmath_write_options_t options) {
         pmath_write_ex_t info = {0};
         info.size = sizeof(info);
-        info.options = PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
+        info.options = options;
         info.user = this;
         info.write = write_callback;
         info.pre_write = pre_write_callback;
@@ -541,7 +541,7 @@ static bool begin_edit_section(
   PrintTracking pt;
   pt.selections.add(old_locations.length(), old_locations.items());
   
-  pt.write(obj, PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR);
+  pt.write(obj, PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_NOSPACES | PMATH_WRITE_OPTIONS_PREFERUNICODE);
   
   mask_box_chars(pt.output);
   edit->content()->insert(0, pt.output);
