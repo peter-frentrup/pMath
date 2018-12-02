@@ -282,7 +282,17 @@ enum {
      Packed Arrays are written in the form 
      `"PackedArray"(type, \<\<dimensions\>\>)` instead of nested lists.
    */
-  PMATH_WRITE_OPTIONS_PACKEDARRAYFORM = 1 << 4
+  PMATH_WRITE_OPTIONS_PACKEDARRAYFORM = 1 << 4,
+  
+  /**\hideinitializer
+     Do not add unnecessary extra spaces arount operators.
+   */
+  PMATH_WRITE_OPTIONS_NOSPACES   = 1 << 5,
+  
+  /**\hideinitializer
+     Use unicode characters like PMATH_CHAR_RULE instead of "->" and 
+   */
+  PMATH_WRITE_OPTIONS_PREFERUNICODE = 1 << 6,
 };
 
 /**\brief A simple procedure operating on an object.

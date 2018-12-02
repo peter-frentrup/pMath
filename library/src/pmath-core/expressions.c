@@ -4,6 +4,7 @@
 #include <pmath-core/strings-private.h>
 
 #include <pmath-language/patterns-private.h>
+#include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
@@ -2158,6 +2159,46 @@ static unsigned int hash_expression(
 
 #define WRITE_CSTR(str) _pmath_write_cstr((str), info->write, info->user)
 
+static void write_spaced_operator2(
+  struct pmath_write_ex_t *info, 
+  pmath_bool_t             allow_left_space, 
+  pmath_bool_t             allow_right_space, 
+  uint16_t                 unicode, 
+  const char              *ascii
+) {
+  if(unicode && (info->options & PMATH_WRITE_OPTIONS_PREFERUNICODE)) {
+    if(info->options & PMATH_WRITE_OPTIONS_NOSPACES) {
+      info->write(info->user, &unicode, 1);
+    }
+    else {
+      uint16_t uni3[3] = {' ',  unicode, ' '};
+      info->write(
+        info->user, 
+        allow_left_space ? uni3 : uni3 + 1, 
+        (allow_left_space ? 1 : 0) + 1 + (allow_right_space ? 1 : 0));
+    }
+  }
+  else {
+    if(info->options & PMATH_WRITE_OPTIONS_NOSPACES) {
+      _pmath_write_cstr(ascii, info->write, info->user);
+    }
+    else {
+      uint16_t space = ' ';
+      if(allow_left_space)
+        info->write(info->user, &space, 1);
+      
+      _pmath_write_cstr(ascii, info->write, info->user);
+      
+      if(allow_right_space)
+        info->write(info->user, &space, 1);
+    }    
+  }
+}
+
+static void write_spaced_operator(struct pmath_write_ex_t *info, uint16_t unicode, const char *ascii) {
+  write_spaced_operator2(info, TRUE, TRUE, unicode, ascii);
+}
+
 static void write_expr_ex(
   struct pmath_write_ex_t *info,
   int                      priority,
@@ -2186,9 +2227,10 @@ static void write_ex(
 }
 
 struct _writer_hook_data_t {
-  int                      prefix_status;
-  pmath_bool_t             special_end; // for product_writer
   struct pmath_write_ex_t *next;
+  int                      prefix_status;
+  pmath_write_options_t    options;
+  pmath_bool_t             special_end; // for product_writer
 };
 
 static void hook_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
@@ -2273,7 +2315,12 @@ static void product_writer(
          data[i] == '{' ||
          data[i] == '.'))
     {
-      _pmath_write_cstr("*", hook->next->write, hook->next->user);
+      if(hook->options & PMATH_WRITE_OPTIONS_PREFERUNICODE) {
+        uint16_t uni = 0x00D7;
+        hook->next->write(hook->next->user, &uni, 1);
+      }
+      else
+        _pmath_write_cstr("*", hook->next->write, hook->next->user);
     }
     else if(len >= 2 && data[0] == '1' && data[1] == '/') {
       --len;
@@ -2311,13 +2358,21 @@ static void sum_writer(
       i++;
     hook->prefix_status = i < len;
     if(i < len && data[i] == '-') {
-      _pmath_write_cstr(" - ", hook->next->write, hook->next->user);
+      if(hook->options & PMATH_WRITE_OPTIONS_NOSPACES)
+        _pmath_write_cstr("-", hook->next->write, hook->next->user);
+      else
+        _pmath_write_cstr(" - ", hook->next->write, hook->next->user);
+      
       data += i + 1;
       len -= i + 1;
       hook->prefix_status = TRUE;
     }
     else if(i < len) {
-      _pmath_write_cstr(" + ", hook->next->write, hook->next->user);
+      if(hook->options & PMATH_WRITE_OPTIONS_NOSPACES)
+        _pmath_write_cstr("+", hook->next->write, hook->next->user);
+      else
+        _pmath_write_cstr(" + ", hook->next->write, hook->next->user);
+      
       hook->prefix_status = TRUE;
     }
   }
@@ -2495,7 +2550,7 @@ static void write_expr_ex(
       
     for(i = 1; i <= exprlen; i++) {
       if(i > 1)
-        WRITE_CSTR(" : ");
+        write_spaced_operator(info, 0x2236, ":");
         
       item = pmath_expr_get_item(expr, i);
       write_ex(info, PRIO_COLON + 1, item);
@@ -2721,12 +2776,12 @@ else INPUTFORM:
       
       write_ex(info, PRIO_ASSIGN + 1, lhs);
       
-      if(     pmath_same(head, PMATH_SYMBOL_ASSIGN))         WRITE_CSTR(":= ");
-      else if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  WRITE_CSTR("::= ");
-      else if(pmath_same(head, PMATH_SYMBOL_DECREMENT))      WRITE_CSTR("-= ");
-      else if(pmath_same(head, PMATH_SYMBOL_DIVIDEBY))       WRITE_CSTR("/= ");
-      else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))      WRITE_CSTR("+= ");
-      else                                                   WRITE_CSTR("*= ");
+      if(     pmath_same(head, PMATH_SYMBOL_ASSIGN))         write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
+      else if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGNDELAYED, "::=");
+      else if(pmath_same(head, PMATH_SYMBOL_DECREMENT))      write_spaced_operator2(info, FALSE, TRUE, 0, "-=");
+      else if(pmath_same(head, PMATH_SYMBOL_DIVIDEBY))       write_spaced_operator2(info, FALSE, TRUE, 0, "/=");
+      else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))      write_spaced_operator2(info, FALSE, TRUE, 0, "+=");
+      else                                                   write_spaced_operator2(info, FALSE, TRUE, 0, "*=");
       
       write_ex(info, PRIO_ASSIGN, rhs);
       
@@ -2777,14 +2832,14 @@ else INPUTFORM:
       write_ex(info, PRIO_SYMBOL, obj);
       pmath_unref(obj);
       
-      WRITE_CSTR("/: ");
+      write_spaced_operator2(info, FALSE, TRUE, 0, "/:");
       
       obj = pmath_expr_get_item(expr, 2);
       write_ex(info, PRIO_ASSIGN + 1, obj);
       pmath_unref(obj);
       
-      if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))  WRITE_CSTR(":= ");
-      else                                          WRITE_CSTR("::= ");
+      if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
+      else                                          write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGNDELAYED, "::=");
       
       obj = pmath_expr_get_item(expr, 3);
       write_ex(info, PRIO_ASSIGN, obj);
@@ -2809,8 +2864,10 @@ else INPUTFORM:
       
       write_ex(info, PRIO_RULE + 1, lhs);
       
-      if(pmath_same(head, PMATH_SYMBOL_RULE))  WRITE_CSTR(" -> ");
-      else                                     WRITE_CSTR(" :> ");
+      if(pmath_same(head, PMATH_SYMBOL_RULE)) 
+        write_spaced_operator(info, PMATH_CHAR_RULE,        "->");
+      else
+        write_spaced_operator(info, PMATH_CHAR_RULEDELAYED, ":>");
       
       write_ex(info, PRIO_RULE, rhs);
       
@@ -2827,8 +2884,8 @@ else INPUTFORM:
       for(i = 1; i <= exprlen; i++) {
         pmath_t item;
         
-        if(i > 1)
-          WRITE_CSTR(", ");
+        if(i > 1) 
+          write_spaced_operator2(info, FALSE, TRUE, ',', ",");
           
         item = pmath_expr_get_item(expr, i);
         pmath_write_ex(info, item);
@@ -2849,7 +2906,7 @@ else INPUTFORM:
         
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR(" ++ ");
+          write_spaced_operator(info, 0, "++");
           
         item = pmath_expr_get_item(expr, i);
         write_ex(info, PRIO_STREXPR + 1, item);
@@ -2871,7 +2928,7 @@ else INPUTFORM:
         
       for(i = 1; i < exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR("; ");
+          write_spaced_operator2(info, FALSE, TRUE, ';', ";");
           
         item = pmath_expr_get_item(expr, i);
         write_ex(info, PRIO_ANY + 1, item);
@@ -2880,7 +2937,7 @@ else INPUTFORM:
       
       item = pmath_expr_get_item(expr, exprlen);
       if(!pmath_is_null(item)) {
-        WRITE_CSTR("; ");
+        write_spaced_operator2(info, FALSE, TRUE, ';', ";");
         write_ex(info, PRIO_ANY + 1, item);
         pmath_unref(item);
       }
@@ -2902,7 +2959,7 @@ else INPUTFORM:
         
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR(" | ");
+          write_spaced_operator(info, '|', "|");
           
         item = pmath_expr_get_item(expr, i);
         write_ex(info, PRIO_ALTERNATIVES + 1, item);
@@ -2924,7 +2981,7 @@ else INPUTFORM:
         
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR(" || ");
+          write_spaced_operator(info, 0, "||");
           
         item = pmath_expr_get_item(expr, i);
         write_ex(info, PRIO_LOGIC + 1, item);
@@ -2946,7 +3003,7 @@ else INPUTFORM:
         
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR(" && ");
+          write_spaced_operator(info, 0, "&&");
           
         item = pmath_expr_get_item(expr, i);
         write_ex(info, PRIO_LOGIC + 1, item);
@@ -2984,7 +3041,7 @@ else INPUTFORM:
         
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR(" === ");
+          write_spaced_operator(info, 0, "==="); // note that U+2261 is \[Congruent]
           
         item = pmath_expr_get_item(expr, i);
         write_ex(info, PRIO_IDENTITY + 1, item);
@@ -3006,7 +3063,7 @@ else INPUTFORM:
         
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR(" =!= ");
+          write_spaced_operator(info, 0, "=!="); // note that U+2262 is \[NotCongruent]
           
         item = pmath_expr_get_item(expr, i);
         write_ex(info, PRIO_IDENTITY + 1, item);
@@ -3024,26 +3081,27 @@ else INPUTFORM:
             pmath_same(head, PMATH_SYMBOL_UNEQUAL))
     {
       pmath_t item;
-      char   *op;
+      uint16_t uni_op;
+      char   *ascii_op;
       size_t  i;
       
       if(exprlen < 2)
         goto FULLFORM;
         
-      if(     pmath_same(head, PMATH_SYMBOL_LESS))          op = " < ";
-      else if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     op = " <= ";
-      else if(pmath_same(head, PMATH_SYMBOL_GREATER))       op = " > ";
-      else if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  op = " >= ";
-      else if(pmath_same(head, PMATH_SYMBOL_EQUAL))         op = " = ";
-      else if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       op = " != ";
-      else                                                  op = "";
+      if(     pmath_same(head, PMATH_SYMBOL_LESS))         { uni_op = '<';    ascii_op = "<";  }
+      else if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))    { uni_op = 0x2264; ascii_op = "<="; }
+      else if(pmath_same(head, PMATH_SYMBOL_GREATER))      { uni_op = '>';    ascii_op = ">";  }
+      else if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL)) { uni_op = 0x2265; ascii_op = ">="; }
+      else if(pmath_same(head, PMATH_SYMBOL_EQUAL))        { uni_op = '=';    ascii_op = "=";  }
+      else if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))      { uni_op = 0x2260; ascii_op = "!="; }
+      else                                                 { uni_op = 0;      ascii_op = "<<?>>"; }
       
       if(priority > PRIO_EQUATION)
         WRITE_CSTR("(");
         
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR(op);
+          write_spaced_operator(info, uni_op, ascii_op);
           
         item = pmath_expr_get_item(expr, i);
         write_ex(info, PRIO_EQUATION + 1, item);
@@ -3070,13 +3128,13 @@ else INPUTFORM:
       exprlen /= 2;
       for(i = 1; i <= exprlen; i++) {
         item = pmath_expr_get_item(expr, 2 * i);
-        if(     pmath_same(item, PMATH_SYMBOL_LESS))          WRITE_CSTR(" < ");
-        else if(pmath_same(item, PMATH_SYMBOL_LESSEQUAL))     WRITE_CSTR(" <= ");
-        else if(pmath_same(item, PMATH_SYMBOL_GREATER))       WRITE_CSTR(" > ");
-        else if(pmath_same(item, PMATH_SYMBOL_GREATEREQUAL))  WRITE_CSTR(" >= ");
-        else if(pmath_same(item, PMATH_SYMBOL_EQUAL))         WRITE_CSTR(" = ");
-        else if(pmath_same(item, PMATH_SYMBOL_UNEQUAL))       WRITE_CSTR(" != ");
-        else                                                  WRITE_CSTR(" <<?>> ");
+        if(     pmath_same(item, PMATH_SYMBOL_LESS))          write_spaced_operator(info, '<',    "<");
+        else if(pmath_same(item, PMATH_SYMBOL_LESSEQUAL))     write_spaced_operator(info, 0x2264, "<=");
+        else if(pmath_same(item, PMATH_SYMBOL_GREATER))       write_spaced_operator(info, '>',    ">");
+        else if(pmath_same(item, PMATH_SYMBOL_GREATEREQUAL))  write_spaced_operator(info, 0x2265, ">=");
+        else if(pmath_same(item, PMATH_SYMBOL_EQUAL))         write_spaced_operator(info, '=',    "=");
+        else if(pmath_same(item, PMATH_SYMBOL_UNEQUAL))       write_spaced_operator(info, 0x2260, "!=");
+        else                                                  write_spaced_operator(info, 0,      "<<?>>");
         pmath_unref(item);
         
         item = pmath_expr_get_item(expr, 2 * i + 1);
@@ -3099,6 +3157,7 @@ else INPUTFORM:
         WRITE_CSTR("(");
         
       sum_writer_data.next          = info;
+      sum_writer_data.options       = info->options;
       sum_writer_data.prefix_status = TRUE;
       init_hook_info(&hook_info, &sum_writer_data);
       hook_info.write = sum_writer;
@@ -3126,8 +3185,9 @@ else INPUTFORM:
         
       if(priority > PRIO_TIMES)
         WRITE_CSTR("(");
-        
+      
       product_writer_data.next          = info;
+      product_writer_data.options       = info->options;
       product_writer_data.prefix_status = 1;
       product_writer_data.special_end   = FALSE;
       init_hook_info(&hook_info, &product_writer_data);
@@ -3154,7 +3214,7 @@ else INPUTFORM:
             skip_star = FALSE;
           }
           else {
-            _pmath_write_cstr("*", info->write, info->user);
+            write_spaced_operator2(info, FALSE, FALSE, 0x00D7, "*");
             product_writer_data.prefix_status = 1;
           }
         }
@@ -3179,6 +3239,7 @@ else INPUTFORM:
       base = pmath_expr_get_item(expr, 1);
       
       division_writer_data.next          = info;
+      division_writer_data.options       = info->options;
       division_writer_data.prefix_status = 0;
       init_hook_info(&hook_info, &division_writer_data);
       hook_info.write = division_writer;
@@ -3242,7 +3303,7 @@ else INPUTFORM:
         write_ex(info, PRIO_RANGE + 1, item);
       pmath_unref(item);
       
-      WRITE_CSTR(" .. ");
+      write_spaced_operator(info, 0, "..");
       
       item = pmath_expr_get_item(expr, 2);
       if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
@@ -3250,7 +3311,7 @@ else INPUTFORM:
       pmath_unref(item);
       
       if(exprlen == 3) {
-        WRITE_CSTR(" .. ");
+        write_spaced_operator(info, 0, "..");
         
         item = pmath_expr_get_item(expr, 3);
         write_ex(info, PRIO_RANGE + 1, item);
@@ -3274,7 +3335,7 @@ else INPUTFORM:
       WRITE_CSTR("[");
       for(i = 2; i <= exprlen; i++) {
         if(i > 2)
-          WRITE_CSTR(", ");
+          write_spaced_operator2(info, FALSE, TRUE, ',', ",");
           
         item = pmath_expr_get_item(expr, i);
         pmath_write_ex(info, item);
@@ -3329,8 +3390,8 @@ else INPUTFORM:
         pmath_write_ex(info, re);
         
         if(pmath_number_sign(im) >= 0)
-          WRITE_CSTR(" + ");
-        else
+          write_spaced_operator(info, '+', "+");
+        else if(!(info->options & PMATH_WRITE_OPTIONS_NOSPACES))
           WRITE_CSTR(" ");
       }
       
@@ -3435,7 +3496,7 @@ else INPUTFORM:
             WRITE_CSTR("(");
             
           pmath_write_ex(info, sym);
-          WRITE_CSTR(": ");
+          write_spaced_operator(info, ':', ":");
           write_ex(info, PRIO_ALTERNATIVES, pat);
           
           if(priority > PRIO_ALTERNATIVES)
@@ -3459,7 +3520,7 @@ else INPUTFORM:
       write_ex(info, PRIO_PATTERN + 1, item);
       pmath_unref(item);
       
-      WRITE_CSTR(" ? ");
+      write_spaced_operator(info, '?', "?");
       
       item = pmath_expr_get_item(expr, 2);
       write_ex(info, PRIO_CALL, item);
@@ -3481,7 +3542,7 @@ else INPUTFORM:
       write_ex(info, PRIO_CONDITION + 1, item);
       pmath_unref(item);
       
-      WRITE_CSTR(" /? ");
+      write_spaced_operator(info, 0, "/?");
       
       item = pmath_expr_get_item(expr, 2);
       write_ex(info, PRIO_ALTERNATIVES + 1, item);
@@ -3582,10 +3643,18 @@ else INPUTFORM:
       write_ex(info, PRIO_FUNCTION, body);
       pmath_unref(body);
       
-      if(priority > PRIO_FUNCTION)
-        WRITE_CSTR(" &)");
-      else
-        WRITE_CSTR(" &");
+      if(priority > PRIO_FUNCTION) {
+        if(info->options & PMATH_WRITE_OPTIONS_NOSPACES)
+          WRITE_CSTR("&)");
+        else
+          WRITE_CSTR(" &)");
+      }
+      else {
+        if(info->options & PMATH_WRITE_OPTIONS_NOSPACES)
+          WRITE_CSTR("&");
+        else
+          WRITE_CSTR(" &");
+      }
     }
 //  else if(pmath_same(head, PMATH_SYMBOL_SEQUENCE)){
 //    pmath_t item;
@@ -3595,7 +3664,7 @@ else INPUTFORM:
 //
 //    for(i = 1;i <= exprlen;i++){
 //      if(i > 1)
-//        WRITE_CSTR(", ");
+//        write_spaced_operator2(info, FALSE, TRUE, ',', ",");
 //
 //      item = pmath_expr_get_item(expr, i);
 //      if(item || exprlen < 2)
@@ -3713,7 +3782,7 @@ else INPUTFORM:
       WRITE_CSTR("(");
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
-          WRITE_CSTR(", ");
+          write_spaced_operator2(info, FALSE, TRUE, ',', ",");
           
         item = pmath_expr_get_item(expr, i);
         if(!pmath_is_null(item) || exprlen < 2)
