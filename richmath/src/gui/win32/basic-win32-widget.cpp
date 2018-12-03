@@ -160,7 +160,6 @@ STDMETHODIMP BasicWin32Widget::DragEnter(IDataObject *data_object, DWORD key_sta
   
   if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
-    SetFocus(_hwnd);
     position_drop_cursor(pt);
   }
   else {
