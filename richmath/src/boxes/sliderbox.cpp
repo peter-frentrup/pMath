@@ -91,6 +91,27 @@ namespace richmath {
         
         return self._extents.width / 2 - self.thumb_width / 2;
       }
+    
+    public:
+      bool approximately_equals(double val1, double val2) {
+        double mouse_x_1 = calc_thumb_pos(val1);
+        double mouse_x_2 = calc_thumb_pos(val2);
+        double dx = mouse_x_1 - mouse_x_2;
+        
+        if(dx == 0)
+          return true;
+        
+        cairo_matrix_t mat;
+        cairo_matrix_init_identity(&mat);
+        
+        self.transformation(nullptr, &mat);
+        
+        double old_dx = dx;
+        double dy = 0.0;
+        cairo_matrix_transform_distance(&mat, &dx, &dy);
+        
+        return dx * dx + dy * dy < 0.5; // 0.75 is one pixel; TODO: use document's DPI
+      }
       
     public:
       void assign_dynamic_value(double d) {
@@ -470,10 +491,12 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
       
     double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     
-    if(val != range_value && get_own_style(ContinuousAction, true))
-      SliderBoxImpl(*this).assign_dynamic_value(val);
-    else
-      range_value = val;
+    if(!SliderBoxImpl(*this).approximately_equals(val, range_value)) {
+      if(get_own_style(ContinuousAction, true)) 
+        SliderBoxImpl(*this).assign_dynamic_value(val);
+      else
+        range_value = val;
+    }
   }
 }
 
@@ -485,8 +508,8 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
   if(mouse_left_down) {
     double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     
-    if(val != range_value) {
-      if(get_own_style(ContinuousAction, true))
+    if(!SliderBoxImpl(*this).approximately_equals(val, range_value)) {
+      if(get_own_style(ContinuousAction, true)) 
         SliderBoxImpl(*this).assign_dynamic_value(val);
       else
         range_value = val;
@@ -509,7 +532,7 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
   if(event.left) {
     event.set_origin(this);
     double val = SliderBoxImpl(*this).mouse_to_val(event.x);
-    if( val != range_value                  ||
+    if( !SliderBoxImpl(*this).approximately_equals(val, range_value) ||
         dynamic.synchronous_updating() == 2 ||
         !get_own_style(ContinuousAction, true))
     {
