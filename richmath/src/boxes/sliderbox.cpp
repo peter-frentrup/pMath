@@ -106,7 +106,6 @@ namespace richmath {
         
         self.transformation(nullptr, &mat);
         
-        double old_dx = dx;
         double dy = 0.0;
         cairo_matrix_transform_distance(&mat, &dx, &dy);
         
