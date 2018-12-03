@@ -142,7 +142,7 @@ static GtkWidget *create_menu_item_for_command(const char *label, Expr cmd) {
     cmd = cmd[1];
   
   if(cmd.is_rule()) {
-    GtkCheckMenuItem *menu_item = gtk_check_menu_item_new_with_mnemonic(label);
+    GtkCheckMenuItem *menu_item = (GtkCheckMenuItem*)gtk_check_menu_item_new_with_mnemonic(label);
     gtk_check_menu_item_set_draw_as_radio(menu_item, true);
     return (GtkWidget*)menu_item;
   }
