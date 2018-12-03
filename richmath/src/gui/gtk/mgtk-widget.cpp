@@ -692,7 +692,8 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   Box *dst = document()->mouse_selection(me.x, me.y, &start, &end, &was_inside_start);
   
   document()->select(dst, start, end);
-  if(!may_drop_into(dst, start, end, source_widget == _widget))
+  bool self_is_source = source_widget == _widget;
+  if(!may_drop_into(dst, start, end, self_is_source))
     return false;
     
   int action = 0;
@@ -702,15 +703,21 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
     GdkModifierType mask;
     gdk_window_get_pointer(gtk_widget_get_window(_widget), nullptr, nullptr, &mask);
     
-    action = gdk_drag_context_get_suggested_action(context);
+    GdkDragAction allowed_actions = gdk_drag_context_get_actions(context);
+    
+    if(self_is_source) {
+      if(allowed_actions & GDK_ACTION_MOVE)
+        action = GDK_ACTION_MOVE;
+      else
+        action = allowed_actions & GDK_ACTION_COPY;
+    }
+    else
+      action = allowed_actions & GDK_ACTION_COPY;
+    
     if(mask & GDK_CONTROL_MASK)
-      action = gdk_drag_context_get_actions(context) & GDK_ACTION_COPY;
+      action = allowed_actions & GDK_ACTION_COPY;
     else if(mask & GDK_SHIFT_MASK)
-      action = gdk_drag_context_get_actions(context) & GDK_ACTION_MOVE;
-      
-    GtkWidget *source_widget = gtk_drag_get_source_widget(context);
-    if(source_widget == _widget && (gdk_drag_context_get_actions(context) & GDK_ACTION_MOVE) != 0)
-      action = GDK_ACTION_MOVE;
+      action = allowed_actions & GDK_ACTION_MOVE;
   }
   
   gdk_drag_status(context, (GdkDragAction)action, time);
@@ -745,6 +752,7 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   else
     gtk_drag_finish(context, FALSE, FALSE, time);
     
+  bring_to_front();
   return true;
 }
 
