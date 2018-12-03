@@ -778,21 +778,21 @@ bool StyleImpl::raw_get_expr(StyleOptionName n, Expr *value) const {
 bool StyleImpl::raw_set_int(StyleOptionName n, int value) {
   IntFloatUnion v;
   v.int_value = value;
-  return self.int_float_values.modify(n, v, [](auto v1, auto v2) { return v1.int_value == v2.int_value; });
+  return self.int_float_values.modify(n, v, [](IntFloatUnion v1, IntFloatUnion v2) { return v1.int_value == v2.int_value; });
 }
 
 bool StyleImpl::raw_set_float(StyleOptionName n, float value) {
   IntFloatUnion v;
   v.float_value = value;
-  return self.int_float_values.modify(n, v, [](auto v1, auto v2) { return v1.int_value == v2.int_value; });
+  return self.int_float_values.modify(n, v, [](IntFloatUnion v1, IntFloatUnion v2) { return v1.int_value == v2.int_value; });
 }
 
 bool StyleImpl::raw_set_string(StyleOptionName n, String value) {
-  return self.object_values.modify(n, value, [](auto v1, auto v2) { return v1 == v2; });
+  return self.object_values.modify(n, value, [](const Expr &v1, const Expr &v2) { return v1 == v2; });
 }
 
 bool StyleImpl::raw_set_expr(StyleOptionName n, Expr value) {
-  return self.object_values.modify(n, value, [](auto v1, auto v2) { return v1 == v2; });
+  return self.object_values.modify(n, value, [](const Expr &v1, const Expr &v2) { return v1 == v2; });
 }
 
 bool StyleImpl::raw_remove(StyleOptionName n) {
