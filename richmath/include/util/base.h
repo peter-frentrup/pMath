@@ -29,8 +29,10 @@ namespace richmath {
       mutable Base *debug_next;
     protected:
       void SET_BASE_DEBUG_TAG(const char *tag) { debug_tag = tag; }
+    #define SET_EXPLICIT_BASE_DEBUG_TAG(CLASS, TAG_NAME)  CLASS::SET_BASE_DEBUG_TAG(TAG_NAME)
 #else
     #define SET_BASE_DEBUG_TAG(TAG_NAME) ((void)0)
+    #define SET_EXPLICIT_BASE_DEBUG_TAG(CLASS, TAG_NAME)   ((void)0)
 #endif
     public:
       Base();

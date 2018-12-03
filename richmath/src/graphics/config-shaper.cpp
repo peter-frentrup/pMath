@@ -208,7 +208,6 @@ namespace {
           }
         }
       }
-      
   };
   
   class StretchGlyphArray {

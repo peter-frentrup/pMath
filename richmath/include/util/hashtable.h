@@ -533,25 +533,28 @@ namespace richmath {
         return true;
       }
       
-      // return whether the key was newly insterted
-      bool set(const K &key, const V &value) {
+      // return whether the value was modified
+      template<typename F>
+      bool modify(const K &key, const V &value, F values_are_equal) {
         V tmp{value};
-        return set(key, std::move(tmp));
+        return modify(key, std::move(tmp), values_are_equal);
       }
       
-      // return whether the key was newly insterted
-      bool set(const K &key, V &&value) {
+      // return whether the value was modified
+      template<typename F>
+      bool modify(const K &key, V &&value, F values_are_equal) {
         unsigned int i = lookup(key);
         do_change();
         if(is_used(table[i])) {
+          bool modified = !values_are_equal(table[i]->value, value);
           table[i]->value = std::move(value);
-          return false;
+          return modified;
         }
         
         if((nonnull_count + 1) * 3 >= capacity * 2) {
           resize(2 * nonnull_count);
           
-          return set(key, std::move(value));
+          return modify(key, std::move(value), values_are_equal);
         }
         
         if(table[i] == 0)
@@ -559,6 +562,17 @@ namespace richmath {
         ++used_count;
         table[i] = new Entry<K, V>(key, std::move(value));
         return true;
+      }
+      
+      // return whether the value was added
+      bool set(const K &key, const V &value) {
+        V tmp{value};
+        return set(key, std::move(tmp));
+      }
+      
+      // return whether the value added
+      bool set(const K &key, V &&value) {
+        return modify(key, std::move(value), [](const V &left, const V &right) { return false; });
       }
       
       template <typename K2, typename V2>

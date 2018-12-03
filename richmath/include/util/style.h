@@ -1,7 +1,7 @@
 #ifndef RICHMATH__UTIL__STYLE_H__INCLUDED
 #define RICHMATH__UTIL__STYLE_H__INCLUDED
 
-#include <util/frontendobject.h>
+#include <eval/observable.h>
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
@@ -243,7 +243,7 @@ namespace richmath {
     float float_value;
   } IntFloatUnion;
   
-  class Style: public Shareable {
+  class Style: public Observable, public Shareable {
     friend class StyleImpl;
     public:
       Style();
