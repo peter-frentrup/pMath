@@ -121,7 +121,7 @@ namespace richmath {
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       
-      virtual bool is_data_droppable(IDataObject *data_object) override;
+      virtual DWORD preferred_drop_effect(IDataObject *data_object) override;
       virtual DWORD drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effects) override;
       virtual void do_drop_data(IDataObject *data_object, DWORD effect) override;
       virtual void position_drop_cursor(POINTL ptl) override;

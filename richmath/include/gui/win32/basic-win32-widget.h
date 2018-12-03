@@ -120,13 +120,13 @@ namespace richmath {
       ComBase<IDropTargetHelper> _drop_target_helper;
       ComBase<IDragSourceHelper> _drag_source_helper;
       ComBase<IDataObject>       _dragging;
-      HWND _hwnd;
-      bool _allow_drop;
+      HWND                       _hwnd;
+      DWORD                      _preferred_drop_effect;
       
     protected:
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
       
-      virtual bool is_data_droppable(IDataObject *data_object);
+      virtual DWORD preferred_drop_effect(IDataObject *data_object);
       virtual DWORD drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects);
       virtual void do_drop_data(IDataObject *data_object, DWORD effect);
       virtual void position_drop_cursor(POINTL pt);

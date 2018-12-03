@@ -45,7 +45,7 @@ BasicWin32Widget::BasicWin32Widget(
   HWND *parent)
   : Base(),
     _hwnd(nullptr),
-    _allow_drop(true),
+    _preferred_drop_effect(DROPEFFECT_NONE),
     init_data(new InitData),
     _initializing(true)
 {
@@ -156,9 +156,9 @@ STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject) {
 STDMETHODIMP BasicWin32Widget::DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) {
   _dragging.copy(data_object);
   
-  _allow_drop = is_data_droppable(data_object);
+  _preferred_drop_effect = preferred_drop_effect(data_object);
   
-  if(_allow_drop) {
+  if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
     SetFocus(_hwnd);
     position_drop_cursor(pt);
@@ -179,7 +179,7 @@ STDMETHODIMP BasicWin32Widget::DragEnter(IDataObject *data_object, DWORD key_sta
 // IDropTarget::DragOver
 //
 STDMETHODIMP BasicWin32Widget::DragOver(DWORD key_state, POINTL pt, DWORD *effect) {
-  if(_allow_drop) {
+  if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
     position_drop_cursor(pt);
   }
@@ -212,7 +212,7 @@ STDMETHODIMP BasicWin32Widget::DragLeave() {
 STDMETHODIMP BasicWin32Widget::Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) {
   position_drop_cursor(pt);
   
-  if(_allow_drop) 
+  if(_preferred_drop_effect != DROPEFFECT_NONE) 
     *effect = drop_effect(key_state, pt, *effect);
   else 
     *effect = DROPEFFECT_NONE;
@@ -222,7 +222,7 @@ STDMETHODIMP BasicWin32Widget::Drop(IDataObject *data_object, DWORD key_state, P
     _drop_target_helper->Drop(data_object, &small_pt, *effect);
   }
   
-  if(_allow_drop) {
+  if(_preferred_drop_effect != DROPEFFECT_NONE) {
     SetFocus(_hwnd);
     do_drop_data(data_object, *effect);
   }
@@ -280,12 +280,12 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   return DefWindowProcW(_hwnd, message, wParam, lParam);
 }
 
-bool BasicWin32Widget::is_data_droppable(IDataObject *data_object) {
-  return false;
+DWORD BasicWin32Widget::preferred_drop_effect(IDataObject *data_object) {
+  return DROPEFFECT_NONE;
 }
 
 DWORD BasicWin32Widget::drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects) {
-  DWORD effect = 0;
+  DWORD effect = _preferred_drop_effect & allowed_effects;
   
   if(key_state & MK_CONTROL) {
     effect = allowed_effects & DROPEFFECT_COPY;

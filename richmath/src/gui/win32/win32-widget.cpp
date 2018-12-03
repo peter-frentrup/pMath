@@ -1500,7 +1500,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   return BasicWin32Widget::callback(message, wParam, lParam);
 }
 
-bool Win32Widget::is_data_droppable(IDataObject *data_object) {
+DWORD Win32Widget::preferred_drop_effect(IDataObject *data_object) {
   FORMATETC fmt;
   memset(&fmt, 0, sizeof(fmt));
   
@@ -1509,19 +1509,29 @@ bool Win32Widget::is_data_droppable(IDataObject *data_object) {
   fmt.ptd      = nullptr;
   fmt.tymed    = TYMED_HGLOBAL;
   
+  DWORD ok_drop_effect = DROPEFFECT_COPY;
+  if(DataObject *source_obj = dynamic_cast<DataObject*>(data_object)) {
+    if(Box *box = source_obj->source.get()) {
+      if(Document *doc = box->find_parent<Document>(true)) {
+        if(doc == document())
+          ok_drop_effect = DROPEFFECT_MOVE;
+      }
+    }
+  }
+  
   fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
   if(data_object->QueryGetData(&fmt) == S_OK)
-    return true;
+    return ok_drop_effect;
     
   fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
   if(data_object->QueryGetData(&fmt) == S_OK)
-    return true;
+    return ok_drop_effect;
     
   fmt.cfFormat = CF_TEXT;
   if(data_object->QueryGetData(&fmt) == S_OK)
-    return true;
+    return ok_drop_effect;
     
-  return false;
+  return DROPEFFECT_NONE;
 }
 
 DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effects) {
