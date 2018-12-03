@@ -7,8 +7,8 @@ using namespace pmath;
 
 //{ class Observable ...
 
-static Hashtable<Observable*, Expr>                         all_observers;
-static Hashtable<FrontEndReference, Hashset<Observable*> >  all_observed_values;
+static Hashtable<Observable*, Expr>                        all_observers;
+static Hashtable<FrontEndReference, Hashset<Observable*>>  all_observed_values;
 
 Observable::Observable()
   : Base()
@@ -35,11 +35,11 @@ Observable::~Observable() {
   }
 }
 
-void Observable::register_observer() {
+void Observable::register_observer() const {
   register_observer(Dynamic::current_evaluation_box_id);
 }
 
-void Observable::register_observer(FrontEndReference id) {
+void Observable::register_observer(FrontEndReference id) const {
   if(!id)
     return;
   
@@ -49,17 +49,17 @@ void Observable::register_observer(FrontEndReference id) {
     observed = all_observed_values.search(id);
     HASHTABLE_ASSERT(observed != nullptr);
   }
-  bool known = observed->search(this) != nullptr;
+  bool known = observed->search(const_cast<Observable*>(this)) != nullptr;
   if(known)
     return;
   
-  observed->add(this);
+  observed->add(const_cast<Observable*>(this));
   
   Expr id_obj = id.to_pmath_raw();
   
-  Expr *observer_ids = all_observers.search(this);
+  Expr *observer_ids = all_observers.search(const_cast<Observable*>(this));
   if(!observer_ids) {
-    all_observers.set(this, List(id_obj));
+    all_observers.set(const_cast<Observable*>(this), List(id_obj));
     return;
   }
   observer_ids->append(id_obj);

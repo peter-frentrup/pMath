@@ -10,8 +10,8 @@ namespace richmath {
       Observable();
       ~Observable();
       
-      void register_observer();
-      void register_observer(FrontEndReference id);
+      void register_observer() const;
+      void register_observer(FrontEndReference id) const;
       static void unregister_oberserver(FrontEndReference id);
       void notify_all();
   };
