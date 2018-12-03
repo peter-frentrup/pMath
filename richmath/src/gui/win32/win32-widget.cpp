@@ -1510,13 +1510,11 @@ DWORD Win32Widget::preferred_drop_effect(IDataObject *data_object) {
   fmt.tymed    = TYMED_HGLOBAL;
   
   DWORD ok_drop_effect = DROPEFFECT_COPY;
-  if(DataObject *source_obj = dynamic_cast<DataObject*>(data_object)) {
-    if(Box *box = source_obj->source.get()) {
-      if(Document *doc = box->find_parent<Document>(true)) {
-        if(doc == document())
-          ok_drop_effect = DROPEFFECT_MOVE;
-      }
-    }
+  if(is_dragging) { 
+    /* dynamic_cast<DataObject*>(data_object) will throw a std::__non_rtti_object exception
+       when data_object coemes from elsewhere. So we can just check for is_dragging.
+     */
+    ok_drop_effect = DROPEFFECT_MOVE;
   }
   
   fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
