@@ -253,14 +253,13 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
   doc->select(srcbox, source.start, source.end);
   
   if(cairo_surface_t *image = try_create_image(pFormatEtc, CAIRO_FORMAT_RGB24, 1, 1)) {
-    double width, height;
-    doc->copy_to_image(image, true, &width, &height);
+    Rectangle rect;
+    doc->prepare_copy_to_image(image, &rect);
     cairo_surface_destroy(image);
     
-    image = try_create_image(pFormatEtc, CAIRO_FORMAT_RGB24, width, height);
-    
+    image = try_create_image(pFormatEtc, CAIRO_FORMAT_RGB24, rect.width, rect.height);
     if(image) {
-      doc->copy_to_image(image, false, &width, &height);
+      doc->finish_copy_to_image(image, rect);
       HRESULT hr = HRreport(image_to_medium(pFormatEtc, pMedium, image));
       cairo_surface_destroy(image);
       return hr;

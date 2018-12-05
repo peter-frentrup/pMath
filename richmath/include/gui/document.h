@@ -96,7 +96,12 @@ namespace richmath {
       bool can_copy();
       String copy_to_text(String mimetype);
       void copy_to_binary(String mimetype, Expr file);
-      void copy_to_image(cairo_surface_t *target, bool calc_size_only, double *device_width, double *device_height);
+      
+      void prepare_copy_to_image(cairo_surface_t *target_surface, Rectangle *out_pix_rect);
+      void prepare_copy_to_image(cairo_t         *target_cr,      Rectangle *out_pix_rect);
+      void finish_copy_to_image(cairo_surface_t *target_surface, const Rectangle &pix_rect);
+      void finish_copy_to_image(cairo_t         *target_cr,      const Rectangle &pix_rect);
+      
       void copy_to_clipboard(String mimetype);
       void copy_to_clipboard();
       void cut_to_clipboard();

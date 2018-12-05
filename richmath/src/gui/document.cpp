@@ -2013,9 +2013,42 @@ void Document::copy_to_binary(String mimetype, Expr file) {
   pmath_file_writetext(file.get(), text.buffer(), text.length());
 }
 
-void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, double *device_width, double *device_height) {
-  *device_width  = 0;
-  *device_height = 0;
+void Document::prepare_copy_to_image(cairo_surface_t *target_surface, richmath::Rectangle *out_pix_rect) {
+  cairo_t *cr = cairo_create(target_surface);
+  
+  cairo_set_line_width(cr, 1);
+  cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
+  
+  cairo_font_options_t *opt = cairo_font_options_create();
+  cairo_font_options_set_antialias(opt, CAIRO_ANTIALIAS_GRAY);
+  cairo_set_font_options(cr, opt);
+  cairo_font_options_destroy(opt);
+
+  prepare_copy_to_image(cr, out_pix_rect);
+  
+  cairo_destroy(cr);
+  cairo_surface_flush(target_surface);
+}
+
+void Document::finish_copy_to_image(cairo_surface_t *target_surface, const richmath::Rectangle &pix_rect) {
+  cairo_t *cr = cairo_create(target_surface);
+  
+  cairo_set_line_width(cr, 1);
+  cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
+  
+  cairo_font_options_t *opt = cairo_font_options_create();
+  cairo_font_options_set_antialias(opt, CAIRO_ANTIALIAS_GRAY);
+  cairo_set_font_options(cr, opt);
+  cairo_font_options_destroy(opt);
+
+  finish_copy_to_image(cr, pix_rect);
+  
+  cairo_destroy(cr);
+  cairo_surface_flush(target_surface);
+}
+
+void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::Rectangle *out_pix_rect) {
+  *out_pix_rect = Rectangle{0, 0, 0, 0};
   
   SelectionReference copysel = context.selection;
   Box *selbox = copysel.get();
@@ -2036,16 +2069,14 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
   SelectionReference oldsel = context.selection;
   context.selection = SelectionReference();
   
-  selbox->invalidate();
-  cairo_t *cr = cairo_create(target);
+  //selbox->invalidate();
   {
-    Canvas canvas(cr);
+    Canvas canvas(target_cr);
     
     float sf = native()->scale_factor();
-    
     canvas.scale(sf, sf);
     
-    switch(cairo_surface_get_type(target)) {
+    switch(cairo_surface_get_type(cairo_get_target(target_cr))) {
       case CAIRO_SURFACE_TYPE_IMAGE:
       case CAIRO_SURFACE_TYPE_WIN32:
         canvas.pixel_device = true;
@@ -2056,14 +2087,6 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
         break;
     }
     
-    cairo_set_line_width(cr, 1);
-    cairo_set_line_cap(cr, CAIRO_LINE_CAP_SQUARE);
-    
-    cairo_font_options_t *opt = cairo_font_options_create();
-    cairo_font_options_set_antialias(opt, CAIRO_ANTIALIAS_GRAY);
-    cairo_set_font_options(cr, opt);
-    cairo_font_options_destroy(opt);
-
     canvas.set_font_size(10);// 10 * 4/3.
     
     paint_resize(&canvas, true);
@@ -2071,42 +2094,86 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
     selbox = copysel.get();
     ::selection_path(&canvas, selbox, copysel.start, copysel.end);
     
-    double x1, y1, x2, y2;
-    canvas.path_extents(&x1, &y1, &x2, &y2);
+    cairo_matrix_t mat = canvas.get_matrix();
+    canvas.reset_matrix();
+    canvas.path_extents(out_pix_rect);
+    canvas.set_matrix(mat);
+    
     canvas.new_path();
-    
-    *device_width  = (x2 - x1) * sf;
-    *device_height = (y2 - y1) * sf;
-    
-    if(!calc_size_only) {
-      float sx, sy;
-      native()->scroll_pos(&sx, &sy);
-      canvas.translate(sx, sy);
-      canvas.translate(-x1, -y1);
-      
-      if(0 == (CAIRO_CONTENT_ALPHA & cairo_surface_get_content(target))) {
-        int color = get_style(Background, -1);
-        if(color >= 0) {
-          canvas.set_color(color);
-          canvas.paint();
-        }
-        else {
-          canvas.set_color(0xFFFFFF);
-          canvas.paint();
-        }
-      }
-      
-      ::selection_path(&canvas, selbox, copysel.start, copysel.end);
-      canvas.clip();
-      
-      canvas.set_color(get_style(FontColor, 0));
-      
-      canvas.translate(sx, sy);
-      paint_resize(&canvas, false);
-    }
   }
-  cairo_destroy(cr);
-  cairo_surface_flush(target);
+  
+  context.selection = oldsel;
+  drag_status = old_drag_status;
+}
+
+void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangle &pix_rect) {
+  SelectionReference copysel = context.selection;
+  Box *selbox = copysel.get();
+  if(!selbox)
+    return;
+    
+  if(dynamic_cast<GraphicsBox *>(selbox)) {
+    copysel.set(selbox->parent(), selbox->index(), selbox->index() + 1);
+    
+    selbox = copysel.get();
+    if(!selbox)
+      return;
+  }
+  
+  DragStatus old_drag_status = drag_status;
+  drag_status = DragStatusIdle;
+  
+  SelectionReference oldsel = context.selection;
+  context.selection = SelectionReference();
+  
+  //selbox->invalidate();
+  {
+    Canvas canvas(target_cr);
+    
+    float sf = native()->scale_factor();
+    canvas.scale(sf, sf);
+    
+    switch(cairo_surface_get_type(cairo_get_target(target_cr))) {
+      case CAIRO_SURFACE_TYPE_IMAGE:
+      case CAIRO_SURFACE_TYPE_WIN32:
+        canvas.pixel_device = true;
+        break;
+        
+      default:
+        canvas.pixel_device = false;
+        break;
+    }
+    
+    canvas.set_font_size(10);// 10 * 4/3.
+    
+    //paint_resize(&canvas, true);
+    
+    float sx, sy;
+    native()->scroll_pos(&sx, &sy);
+    canvas.translate(sx, sy);
+    canvas.translate(-pix_rect.x / sf, -pix_rect.y / sf);
+    
+    if(0 == (CAIRO_CONTENT_ALPHA & cairo_surface_get_content(cairo_get_target(target_cr)))) {
+      int color = get_style(Background, -1);
+      if(color >= 0) {
+        canvas.set_color(color);
+        canvas.paint();
+      }
+      else {
+        canvas.set_color(0xFFFFFF);
+        canvas.paint();
+      }
+    }
+    
+    selbox = copysel.get();
+    ::selection_path(&canvas, selbox, copysel.start, copysel.end);
+    canvas.clip();
+    
+    canvas.set_color(get_style(FontColor, 0));
+    
+    canvas.translate(sx, sy);
+    paint_resize(&canvas, false);
+  }
   
   context.selection = oldsel;
   drag_status = old_drag_status;
@@ -2147,13 +2214,12 @@ void Document::copy_to_clipboard(String mimetype) {
       return;
     }
     
-    double dw, dh;
-    copy_to_image(image, true, &dw, &dh);
-    
+    Rectangle rect;
+    prepare_copy_to_image(image, &rect);
     cairo_surface_destroy(image);
-    image = Clipboard::std->create_image(mimetype, dw, dh);
+    image = Clipboard::std->create_image(mimetype, rect.width, rect.height);
     if(image) {
-      copy_to_image(image, false, &dw, &dh);
+      finish_copy_to_image(image, rect);
       cb->add_image(mimetype, image);
       cairo_surface_destroy(image);
     }
