@@ -50,6 +50,8 @@ namespace richmath {
       DataObject();
       virtual ~DataObject();
       
+      HRESULT do_drag_drop(IDropSource *pDropSource, DWORD dwOKEffects, DWORD *pdwEffect);
+
       void add_source_format(CLIPFORMAT cfFormat, TYMED tymed = TYMED_HGLOBAL);
       void add_source_format(const FORMATETC &formatEtc) { source_formats.add(formatEtc); }
       
@@ -68,13 +70,15 @@ namespace richmath {
     public:
       SelectionReference  source;
       
+      static DataObject *as_current_data_object(IDataObject *obj);
+      
     private:
       LONG refcount;
       
       Array<FORMATETC>    source_formats;
       SavedData          *data;
       int                 data_count;
-    
+      
     public:
       struct Formats {
         static CLIPFORMAT IsShowingLayered;

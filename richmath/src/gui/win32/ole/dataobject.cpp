@@ -41,9 +41,10 @@ namespace {
       delete self;
     }
   };
-}
 
-static cairo_user_data_key_t ImageSizeUserDataKey;
+  static cairo_user_data_key_t ImageSizeUserDataKey;
+  static DataObject *_currently_dragged_data_object = nullptr;
+}
 
 static HGLOBAL GlobalClone(HGLOBAL hglobIn) {
   HGLOBAL hglobOut = NULL;
@@ -78,11 +79,21 @@ DataObject::DataObject()
 }
 
 DataObject::~DataObject() {
+  if(_currently_dragged_data_object == this)
+    _currently_dragged_data_object = nullptr;
+  
   for(int i = 0; i < data_count; ++i) {
     CoTaskMemFree(data[i].format_etc.ptd);
     ReleaseStgMedium(&data[i].stg_medium);
   }
   CoTaskMemFree(data);
+}
+
+HRESULT DataObject::do_drag_drop(IDropSource *pDropSource, DWORD dwOKEffects, DWORD *pdwEffect) {
+  _currently_dragged_data_object = this;
+  HRESULT hr = DoDragDrop(this, pDropSource, dwOKEffects, pdwEffect);
+  _currently_dragged_data_object = nullptr;
+  return hr;
 }
 
 //
@@ -423,6 +434,16 @@ STDMETHODIMP DataObject::DUnadvise(DWORD dwConnection) {
 //
 STDMETHODIMP DataObject::EnumDAdvise(IEnumSTATDATA **ppEnumAdvise) {
   return OLE_E_ADVISENOTSUPPORTED;
+}
+
+DataObject *DataObject::as_current_data_object(IDataObject *obj) {
+  if(!obj || !_currently_dragged_data_object)
+    return nullptr;
+  
+  if(get_canonical_iunknown(_currently_dragged_data_object) == get_canonical_iunknown(obj))
+    return _currently_dragged_data_object;
+  
+  return nullptr;
 }
 
 HRESULT DataObject::buffer_to_medium(

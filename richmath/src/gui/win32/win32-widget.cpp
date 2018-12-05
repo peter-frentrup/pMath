@@ -268,7 +268,7 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) 
   
   drop_source->set_drag_image_from_window(nullptr);
   
-  HRESULT res = DoDragDrop(data_object, drop_source, effect, &effect);
+  HRESULT res = data_object->do_drag_drop(drop_source, effect, &effect);
   
   Document *doc = src->find_parent<Document>(true);
   
@@ -1511,11 +1511,12 @@ DWORD Win32Widget::preferred_drop_effect(IDataObject *data_object) {
   fmt.ptd      = nullptr;
   fmt.tymed    = TYMED_HGLOBAL;
   
+  // dynamic_cast<DataObject*>(data_object) will throw a std::__non_rtti_object exception
+  // when data_object coemes from elsewhere.
+  DataObject *local_data_object = DataObject::as_current_data_object(data_object);
+    
   DWORD ok_drop_effect = DROPEFFECT_COPY;
-  if(is_dragging) { 
-    /* dynamic_cast<DataObject*>(data_object) will throw a std::__non_rtti_object exception
-       when data_object coemes from elsewhere. So we can just check for is_dragging.
-     */
+  if(is_dragging) { // if(local_data_object && doc->is_parent_of(local_data_object->source.get()))
     ok_drop_effect = DROPEFFECT_MOVE;
   }
   
@@ -1567,11 +1568,15 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   fmt.tymed    = TYMED_HGLOBAL;
   
   do {
-    mimetype = Clipboard::BoxesText;
-    fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[mimetype];
+    DataObject *local_data_object = DataObject::as_current_data_object(data_object);
+    pmath_debug_print("[local_data_object = %p]\n", local_data_object);
+    // TODO: optimize move of local_data_object
+  
+    fmt.cfFormat = Win32Clipboard::AtomBoxesText;
     if( data_object->QueryGetData(&fmt) == S_OK &&
         data_object->GetData(&fmt, &stgmed) == S_OK)
     {
+      mimetype = Clipboard::BoxesText;
       const uint16_t *data = (const uint16_t *)GlobalLock(stgmed.hGlobal);
       
       text_data = String::FromUcs2(data, -1);
