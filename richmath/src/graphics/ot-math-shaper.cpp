@@ -24,12 +24,12 @@ namespace {
 #ifdef max
 #  undef max
 #endif
-
-  template<typename T> 
+  
+  template<typename T>
   inline T min(T a, T b) {
     return a < b ? a : b;
   }
-  template<typename T> 
+  template<typename T>
   inline T max(T a, T b) {
     return a > b ? a : b;
   }
@@ -935,7 +935,7 @@ namespace richmath {
         float max = Infinity;
         if(!full_stretch)
           max = 2 * em;
-        
+          
         if(var) {
           cairo_text_extents_t cte;
           cairo_glyph_t        cg;
@@ -1503,7 +1503,7 @@ void OTMathShaper::show_glyph(
         cg.index = part.glyph;
         context->canvas->glyph_extents(&cg, 1, &cte);
         auto descent = cte.height + cte.y_bearing;
-        cg.y-= descent;
+        cg.y -= descent;
         
         if(part.flags & MGPRF_Extender) {
           for(uint16_t repeat = info.ext.num_extenders; repeat > 0; --repeat) {
@@ -1517,7 +1517,7 @@ void OTMathShaper::show_glyph(
           cg.y -= part.full_advance * em / impl->units_per_em;
           cg.y += overlap;
         }
-        cg.y+= descent;
+        cg.y += descent;
       }
       
       return;
@@ -1987,7 +1987,8 @@ void OTMathShaper::shape_radical(
   else
     gap = impl->consts.radical_display_style_vertical_gap.value * pt;
     
-  float height = box->height();
+  float inner_ascent  = box->ascent;
+  float inner_descent = box->descent;
   
   info->surd_form = 0;
   info->hbar = (unsigned)ceilf(box->width + 0.2f * em);
@@ -1996,7 +1997,7 @@ void OTMathShaper::shape_radical(
   
   GlyphInfo gi;
   memset(&gi, 0, sizeof(gi));
-  impl->vertical_stretch_char(context, height + /*gap +*/ rule, 1.0, 0.0, true, SqrtChar, &gi);
+  impl->vertical_stretch_char(context, inner_ascent + inner_descent + /*gap +*/ rule, 1.0, 0.0, true, SqrtChar, &gi);
   gi.vertical_centered = false;
   
   *radicand_x = gi.right;
@@ -2007,15 +2008,16 @@ void OTMathShaper::shape_radical(
   float rad_descent = 0;
   vertical_glyph_size(context, SqrtChar, gi, &rad_ascent, &rad_descent);
   
-  float total_height = max(rad_ascent + rad_descent, height + gap + rule);
+  float total_height = max(rad_ascent + rad_descent, inner_ascent + inner_descent + gap + rule);
   
-  box->descent = (total_height - (gap + rule)) / 2 - axis;
-  if(box->ascent + box->descent > total_height - (gap + rule))
-    box->descent = total_height - (gap + rule) - box->ascent;
+  float min_ascent = inner_ascent + gap + rule;
+  float max_ascent = total_height - inner_descent;
+  box->ascent = (min_ascent + max_ascent) / 2;
+  box->descent = total_height - box->ascent;
   
-  box->ascent = total_height - box->descent;
-  box->ascent += impl->consts.radical_extra_ascender.value * pt;
   info->y_offset = box->descent - rad_descent;
+  
+  box->ascent += impl->consts.radical_extra_ascender.value * pt;
   
   *exponent_y = box->descent - rel_raise_exp * total_height;
   if(gi.composed) {
@@ -2093,7 +2095,7 @@ void OTMathShaper::show_radical(
   x2 = x1 + info.hbar;
   if(gi.composed)
     x1 -= overlap;
-  
+    
   double rule_thickness = impl->consts.radical_rule_thickness.value * em / impl->units_per_em;
   y2 = y1 + rule_thickness;
   
@@ -2108,7 +2110,7 @@ void OTMathShaper::show_radical(
     context->canvas->line_to(x2 - rule_thickness, y2);
     context->canvas->line_to(x1, y2);
   }
-  else{
+  else {
     context->canvas->move_to(x1, y1);
     context->canvas->line_to(x2, y1);
     context->canvas->line_to(x2, y2);

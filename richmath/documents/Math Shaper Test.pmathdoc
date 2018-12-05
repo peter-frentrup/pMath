@@ -3,20 +3,28 @@
 Document({
   SectionGroup({Section("Math Shaper Test", "Title"), 
     Section(
-     BoxData({
-       SqrtBox(
+     BoxData(
+      /\/({
         SqrtBox(
-         SqrtBox(SqrtBox(SqrtBox(SqrtBox(SqrtBox("\[Placeholder]"))))))), 
-       RadicalBox(
+         SqrtBox(
+          SqrtBox(SqrtBox(SqrtBox(SqrtBox(SqrtBox("\[Placeholder]"))))))), 
         RadicalBox(
          RadicalBox(
           RadicalBox(
-           RadicalBox(RadicalBox({
-              RadicalBox("\[Placeholder]", "\[Placeholder]"), 
-              RadicalBox(SqrtBox("\[Placeholder]"), "\[Placeholder]")}, 
-             "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]"), 
-          "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]")}), 
-     "DisplayFormula"), 
+           RadicalBox(
+            RadicalBox(RadicalBox({
+               RadicalBox("\[Placeholder]", "\[Placeholder]"), 
+               RadicalBox(SqrtBox("\[Placeholder]"), "\[Placeholder]")}, 
+              "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]"), 
+           "\[Placeholder]"), "\[Placeholder]"), "\[Placeholder]")}, "\n", {
+        SqrtBox(/\/("a", "\n", "a")), 
+        SqrtBox(GridBox({{"\[Placeholder]"}, {"\[Placeholder]"}})), 
+        SqrtBox({
+          "a", SubscriptBox({"\[Placeholder]", 
+            SubscriptBox({"\[Placeholder]", 
+              SubscriptBox("\[Placeholder]")})})}), 
+        SqrtBox({"a", SubscriptBox("\[Placeholder]")}), SqrtBox("a"), 
+        SqrtBox("g"), SqrtBox({"A", " ", "g"})})), "DisplayFormula"), 
     Section(
      BoxData({
        {{UnderoverscriptBox({
