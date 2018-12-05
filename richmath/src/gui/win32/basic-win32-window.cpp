@@ -1227,10 +1227,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, HWND child, bool wallpap
 void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallpaper_only) {
   canvas->save();
   {
-    cairo_matrix_t mat;
-    cairo_matrix_init_identity(&mat);
-    cairo_set_matrix(canvas->cairo(), &mat);
-
+    canvas->reset_matrix();
     cairo_reset_clip(canvas->cairo());
 
     RECT rect;

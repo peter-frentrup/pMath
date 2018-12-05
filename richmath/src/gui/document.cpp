@@ -4351,9 +4351,7 @@ void DocumentImpl::paint_flashing_cursor_if_needed() {
         self.context.canvas->user_to_device(&x1, &y1);
         self.context.canvas->user_to_device(&x2, &y2);
         
-        cairo_matrix_t mat;
-        cairo_matrix_init_identity(&mat);
-        cairo_set_matrix(self.context.canvas->cairo(), &mat);
+        self.context.canvas->reset_matrix();
         
         double dx = x2 - x1;
         double dy = y2 - y1;
@@ -4362,6 +4360,7 @@ void DocumentImpl::paint_flashing_cursor_if_needed() {
         double s = dy / h;
         double x = (x1 + x2) / 2;
         double y = (y1 + y2) / 2;
+        cairo_matrix_t mat;
         mat.xx = c;
         mat.yx = s;
         mat.xy = -s;

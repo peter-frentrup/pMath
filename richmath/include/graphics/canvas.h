@@ -6,6 +6,7 @@
 
 namespace richmath {
   class Base;
+  class Rectangle;
   
   static const float SelectionAlpha             = 0.4f;
   static const int SelectionFillColor           = 0x6699FF;
@@ -45,6 +46,7 @@ namespace richmath {
       void device_to_user_dist(double *dx, double *dy);
       cairo_matrix_t get_matrix();
       void set_matrix(const cairo_matrix_t &mat);
+      void reset_matrix();
       void transform(const cairo_matrix_t &mat);
       void translate(double tx, double ty);
       void rotate(double angle);
@@ -111,8 +113,10 @@ namespace richmath {
       void hair_stroke();
       void stroke();
       void stroke_preserve();
+      void clip_extents(Rectangle *rect);
       void clip_extents(float *x1, float *y1, float *x2, float *y2);
       void clip_extents(double *x1, double *y1, double *x2, double *y2);
+      void path_extents(Rectangle *rect);
       void path_extents(float *x1, float *y1, float *x2, float *y2);
       void path_extents(double *x1, double *y1, double *x2, double *y2);
       void stroke_extents(float *x1, float *y1, float *x2, float *y2);

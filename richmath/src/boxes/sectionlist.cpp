@@ -1117,9 +1117,7 @@ void SectionList::paint_single_section_bracket(
 //    context->canvas->align_point(&px3, &py3, true);
 //    context->canvas->align_point(&px4, &py4, true);
 
-    cairo_matrix_t mat;
-    cairo_matrix_init_identity(&mat);
-    cairo_set_matrix(context->canvas->cairo(), &mat);
+    context->canvas->reset_matrix();
     
     int col = 0x999999; // 0x454E99
     context->canvas->set_color(col);

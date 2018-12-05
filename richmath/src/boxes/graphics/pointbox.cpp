@@ -158,9 +158,7 @@ void PointBox::paint(GraphicsBoxContext *context) {
   {
     cairo_matrix_t mat = context->ctx->canvas->get_matrix();
     
-    cairo_matrix_t idmat;
-    cairo_matrix_init_identity(&idmat);
-    context->ctx->canvas->set_matrix(idmat);
+    context->ctx->canvas->reset_matrix();
     
     for(int i = 0; i < _points.length(); ++i) {
       DoublePoint pt = _points[i];

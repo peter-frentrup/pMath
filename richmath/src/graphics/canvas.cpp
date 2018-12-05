@@ -165,6 +165,12 @@ void Canvas::set_matrix(const cairo_matrix_t &mat) {
   cairo_set_matrix(_cr, &mat);
 }
 
+void Canvas::reset_matrix() {
+  cairo_matrix_t mat;
+  cairo_matrix_init_identity(&mat);
+  set_matrix(mat);
+}
+
 void Canvas::transform(const cairo_matrix_t &mat) {
   cairo_transform(_cr, &mat);
 }
@@ -713,6 +719,15 @@ void Canvas::stroke_preserve() {
   cairo_stroke_preserve(_cr);
 }
 
+void Canvas::clip_extents(richmath::Rectangle *rect) {
+  double _x1, _y1, _x2, _y2;
+  cairo_clip_extents(_cr, &_x1, &_y1, &_x2, &_y2);
+  rect->x = _x1;
+  rect->y = _y1;
+  rect->width = _x2 - _x1;
+  rect->height = _y2 - _y1;
+}
+
 void Canvas::clip_extents(float *x1, float *y1, float *x2, float *y2) {
   double _x1, _y1, _x2, _y2;
   cairo_clip_extents(_cr, &_x1, &_y1, &_x2, &_y2);
@@ -724,6 +739,15 @@ void Canvas::clip_extents(float *x1, float *y1, float *x2, float *y2) {
 
 void Canvas::clip_extents(double *x1, double *y1, double *x2, double *y2) {
   cairo_clip_extents(_cr, x1, y1, x2, y2);
+}
+
+void Canvas::path_extents(richmath::Rectangle *rect) {
+  double _x1, _y1, _x2, _y2;
+  cairo_path_extents(_cr, &_x1, &_y1, &_x2, &_y2);
+  rect->x = _x1;
+  rect->y = _y1;
+  rect->width = _x2 - _x1;
+  rect->height = _y2 - _y1;
 }
 
 void Canvas::path_extents(float *x1, float *y1, float *x2, float *y2) {

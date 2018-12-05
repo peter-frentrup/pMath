@@ -95,7 +95,7 @@ void Buffer::init(Canvas *dst, cairo_format_t format, float x, float y, float w,
         _cr = cairo_create(_surface);
         _canvas = new Canvas(_cr);
         cairo_set_line_width(_cr, cairo_get_line_width(dst->cairo()));
-        cairo_set_matrix(_cr, &u2d_matrix);
+        _canvas->set_matrix(u2d_matrix);
         //dst->restore();
         
         _canvas->move_to(0,0);
@@ -184,9 +184,7 @@ bool Buffer::paint_with_alpha(Canvas *dst, float alpha) {
   x = floor(x + 0.5);
   y = floor(y + 0.5);
   
-  cairo_matrix_t mat;
-  cairo_matrix_init_identity(&mat);
-  cairo_set_matrix(dst->cairo(), &mat);
+  dst->reset_matrix();
   dst->translate(x, y);
   
   //dst->translate(x0, y0);
@@ -223,9 +221,7 @@ bool Buffer::mask(Canvas *dst) {
   y = floor(y + 0.5);
   
   cairo_matrix_t oldmat = dst->get_matrix();
-  cairo_matrix_t mat;
-  cairo_matrix_init_identity(&mat);
-  dst->set_matrix(mat);
+  dst->reset_matrix();
   dst->translate(x, y);
   
   //dst->translate(x0, y0);
@@ -235,7 +231,7 @@ bool Buffer::mask(Canvas *dst) {
   cairo_pattern_destroy(pattern);
   
 //  dst->restore();
-  cairo_set_matrix(dst->cairo(), &oldmat);
+  dst->set_matrix(oldmat);
   return true;
 }
 

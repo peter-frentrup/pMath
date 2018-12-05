@@ -116,9 +116,7 @@ void Context::draw_selection_path() {
     {
       canvas->save();
       {
-        cairo_matrix_t idmat;
-        cairo_matrix_init_identity(&idmat);
-        cairo_set_matrix(canvas->cairo(), &idmat);
+        canvas->reset_matrix();
         cairo_set_line_width(canvas->cairo(), 2.0);
         canvas->set_color(active ? SelectionBorderColor : InactiveSelectionBorderColor);
         canvas->stroke_preserve();
