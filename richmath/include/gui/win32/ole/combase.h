@@ -192,6 +192,7 @@ namespace richmath {
       }
   };
 
+  #define HRreport(call) check_HRESULT((call), #call, __FILE__, __LINE__)
   #define HRbool(call) SUCCEEDED(check_HRESULT((call), #call, __FILE__, __LINE__))
   #define HR(call)       do { HRESULT _temp_hr = (call); if(!SUCCEEDED(_temp_hr)) return check_HRESULT(_temp_hr, #call, __FILE__, __LINE__); } while(0)
   #define HRquiet(call)  do { HRESULT _temp_hr = (call); if(!SUCCEEDED(_temp_hr)) return _temp_hr; } while(0)

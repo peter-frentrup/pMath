@@ -2030,6 +2030,9 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
       return;
   }
   
+  DragStatus old_drag_status = drag_status;
+  drag_status = DragStatusIdle;
+  
   SelectionReference oldsel = context.selection;
   context.selection = SelectionReference();
   
@@ -2106,6 +2109,7 @@ void Document::copy_to_image(cairo_surface_t *target, bool calc_size_only, doubl
   cairo_surface_flush(target);
   
   context.selection = oldsel;
+  drag_status = old_drag_status;
 }
 
 void Document::copy_to_clipboard(String mimetype) {

@@ -96,7 +96,6 @@ static void copy_to_string_utf8_callback(
   
   size_t len = (size_t) * writable - (size_t)readable;
   if(len < INT_MAX)
-  
     *result = pmath_string_from_utf8((const char*)readable, (int)len);
 }
 

@@ -29,6 +29,10 @@ namespace richmath {
       static Hashtable<String, CLIPFORMAT> mime_to_win32cbformat;
       static Hashtable<CLIPFORMAT, String> win32cbformat_to_mime;
       
+      static CLIPFORMAT AtomBoxesText;
+      static CLIPFORMAT AtomBoxesBinary;
+      static CLIPFORMAT AtomSvgImage;
+      
       static void init();
       static void done();
       

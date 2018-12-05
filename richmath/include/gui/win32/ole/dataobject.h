@@ -6,7 +6,9 @@
 #endif
 
 #include <graphics/context.h>
+#include <util/pmath-extra.h>
 
+#include <cairo-win32.h>
 #include <ole2.h>
 
 
@@ -48,7 +50,14 @@ namespace richmath {
       DataObject();
       virtual ~DataObject();
       
-      void add_source_format(CLIPFORMAT cfFormat);
+      void add_source_format(CLIPFORMAT cfFormat, TYMED tymed = TYMED_HGLOBAL);
+      void add_source_format(const FORMATETC &formatEtc) { source_formats.add(formatEtc); }
+      
+      static HRESULT buffer_to_medium(const FORMATETC *pFormatEtc, STGMEDIUM *pMedium, const uint8_t *data, size_t len);
+      static HRESULT buffer_to_medium(const FORMATETC *pFormatEtc, STGMEDIUM *pMedium, pmath::BinaryFile binbuffer);
+      static HRESULT image_to_medium(const FORMATETC *pFormatEtc, STGMEDIUM *pMedium, cairo_surface_t *image);
+      
+      static cairo_surface_t *try_create_image(const FORMATETC *pFormatEtc, cairo_format_t img_format, double width, double height);
       
     private:
       HRESULT find_data_format_etc(const FORMATETC *format, struct SavedData **entry, bool add_missing);

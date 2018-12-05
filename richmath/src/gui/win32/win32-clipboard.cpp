@@ -176,6 +176,10 @@ Win32Clipboard Win32Clipboard::obj;
 Hashtable<String, CLIPFORMAT> Win32Clipboard::mime_to_win32cbformat;
 Hashtable<CLIPFORMAT, String> Win32Clipboard::win32cbformat_to_mime;
 
+CLIPFORMAT Win32Clipboard::AtomBoxesBinary = 0;
+CLIPFORMAT Win32Clipboard::AtomBoxesText = 0;
+CLIPFORMAT Win32Clipboard::AtomSvgImage = 0;
+
 Win32Clipboard::Win32Clipboard()
   : Clipboard()
 {
@@ -260,9 +264,14 @@ void Win32Clipboard::init() {
   add_mime_type(Clipboard::PlainText,           CF_UNICODETEXT);
   add_mime_type(Clipboard::PlatformBitmapImage, CF_DIB);
   
-  add_mime_type(Clipboard::BoxesText,    RegisterClipboardFormatA(Clipboard::BoxesText));
-  add_mime_type(Clipboard::BoxesBinary,  RegisterClipboardFormatA(Clipboard::BoxesBinary));
-  add_mime_type(Clipboard::SvgImage,     RegisterClipboardFormatA(Clipboard::SvgImage));
+  AtomBoxesText = RegisterClipboardFormatA(Clipboard::BoxesText);
+  add_mime_type(Clipboard::BoxesText, AtomBoxesText);
+  
+  AtomBoxesBinary = RegisterClipboardFormatA(Clipboard::BoxesBinary);
+  add_mime_type(Clipboard::BoxesBinary, AtomBoxesBinary);
+  
+  AtomSvgImage = RegisterClipboardFormatA(Clipboard::SvgImage);
+  add_mime_type(Clipboard::SvgImage, AtomSvgImage);
 }
 
 cairo_surface_t *Win32Clipboard::create_image(String mimetype, double width, double height) {
