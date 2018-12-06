@@ -273,8 +273,12 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) 
   double px = (event.x - sx) * scale_factor();
   double py = (event.y - sy) * scale_factor();
   
+  /* Unlike set_drag_image_from_window() i.e. IDropSourceHelper::InitializeFromWindow, 
+     set_drag_image_from_document() , i.e. IDropSourceHelper::InitializeFromBitmap,
+     we lose default drag description texts with the latter.
+   */
   if(FAILED(drop_source->set_drag_image_from_document(Point{(float)px, (float)py}, data_object->source)))
-  drop_source->set_drag_image_from_window(nullptr);
+    drop_source->set_drag_image_from_window(nullptr);
   
   HRESULT res = data_object->do_drag_drop(drop_source, effect, &effect);
   
