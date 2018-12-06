@@ -7,6 +7,8 @@
 #include <shobjidl.h>
 #include <shlguid.h>
 
+#include <math.h>
+
 
 using namespace richmath;
 
