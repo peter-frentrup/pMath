@@ -15,21 +15,6 @@ using namespace pmath;
 
 
 namespace {
-  class AutoResetSelection {
-    public:
-      explicit AutoResetSelection(Document *_doc) : doc(_doc), old_sel(doc->selection()) {}
-      AutoResetSelection(const AutoResetSelection &src) = delete;
-      
-      ~AutoResetSelection() {
-        Box *b = old_sel.get();
-        doc->select(b, old_sel.start, old_sel.end);
-      }
-      
-    private:
-      Document           *doc;
-      SelectionReference  old_sel;
-  };
-  
   struct ImageSizeUserData {
     ImageSizeUserData(int w, int h) : width(w), height(h) {}
     
