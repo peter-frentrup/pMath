@@ -32,7 +32,8 @@ namespace richmath {
       virtual ~DropSource();
       
       HRESULT set_drag_image_from_window(HWND hwnd, POINT *point = nullptr); // hwnd = NULL is allowed
-      
+      HRESULT set_drag_image_from_document(const Point &mouse, SelectionReference source);
+            
       ComBase<IDataObject>  description_data;
     
     private:

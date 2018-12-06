@@ -2148,8 +2148,6 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
     
     //paint_resize(&canvas, true);
     
-    float sx, sy;
-    native()->scroll_pos(&sx, &sy);
     canvas.translate(-pix_rect.x / sf, -pix_rect.y / sf);
     
     if(0 == (CAIRO_CONTENT_ALPHA & cairo_surface_get_content(cairo_get_target(target_cr)))) {
@@ -2164,6 +2162,8 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
       }
     }
     
+    float sx, sy;
+    native()->scroll_pos(&sx, &sy);
     canvas.translate(-sx, -sy);
     selbox = copysel.get();
     ::selection_path(&canvas, selbox, copysel.start, copysel.end);

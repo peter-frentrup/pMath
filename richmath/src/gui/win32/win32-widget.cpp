@@ -266,6 +266,14 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) 
     }
   }
   
+  float sx, sy;
+  scroll_pos(&sx, &sy);
+  
+  event.set_origin(document());
+  double px = (event.x - sx) * scale_factor();
+  double py = (event.y - sy) * scale_factor();
+  
+  if(FAILED(drop_source->set_drag_image_from_document(Point{(float)px, (float)py}, data_object->source)))
   drop_source->set_drag_image_from_window(nullptr);
   
   HRESULT res = data_object->do_drag_drop(drop_source, effect, &effect);
@@ -1577,13 +1585,22 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
         data_object->GetData(&fmt, &stgmed) == S_OK)
     {
       mimetype = Clipboard::BoxesText;
-      const uint16_t *data = (const uint16_t *)GlobalLock(stgmed.hGlobal);
-      
-      text_data = String::FromUcs2(data, -1);
-      
-      GlobalUnlock(stgmed.hGlobal);
-      ReleaseStgMedium(&stgmed);
-      break;
+      size_t size = GlobalSize(stgmed.hGlobal) / 2;
+      if(size < INT_MAX) {
+        const uint16_t *data = (const uint16_t *)GlobalLock(stgmed.hGlobal);
+        
+        int len = 0;
+        const uint16_t *s = data;
+        while(len < (int)size && *s) {
+          ++len;
+          ++s;
+        }
+        text_data = String::FromUcs2(data, len);
+        
+        GlobalUnlock(stgmed.hGlobal);
+        ReleaseStgMedium(&stgmed);
+        break;
+      }
     }
     
     
@@ -1592,26 +1609,44 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     if( data_object->QueryGetData(&fmt) == S_OK &&
         data_object->GetData(&fmt, &stgmed) == S_OK)
     {
-      const uint16_t *data = (const uint16_t *)GlobalLock(stgmed.hGlobal);
-      
-      text_data = String::FromUcs2(data, -1);
-      
-      GlobalUnlock(stgmed.hGlobal);
-      ReleaseStgMedium(&stgmed);
-      break;
+      size_t size = GlobalSize(stgmed.hGlobal) / 2;
+      if(size < INT_MAX) {
+        const uint16_t *data = (const uint16_t *)GlobalLock(stgmed.hGlobal);
+        
+        int len = 0;
+        const uint16_t *s = data;
+        while(len < (int)size && *s) {
+          ++len;
+          ++s;
+        }
+        text_data = String::FromUcs2(data, len);
+        
+        GlobalUnlock(stgmed.hGlobal);
+        ReleaseStgMedium(&stgmed);
+        break;
+      }
     }
     
     fmt.cfFormat = CF_TEXT;
     if( data_object->QueryGetData(&fmt) == S_OK &&
         data_object->GetData(&fmt, &stgmed) == S_OK)
     {
-      const char *data = (const char *)GlobalLock(stgmed.hGlobal);
-      
-      text_data = String(pmath_string_from_native(data, -1));
-      
-      GlobalUnlock(stgmed.hGlobal);
-      ReleaseStgMedium(&stgmed);
-      break;
+      size_t size = GlobalSize(stgmed.hGlobal);
+      if(size < INT_MAX) {
+        const char *data = (const char *)GlobalLock(stgmed.hGlobal);
+        int len = 0;
+        const char *s = data;
+        while(len < (int)size && *s) {
+          ++len;
+          ++s;
+        }
+        
+        text_data = String(pmath_string_from_native(data, len));
+        
+        GlobalUnlock(stgmed.hGlobal);
+        ReleaseStgMedium(&stgmed);
+        break;
+      }
     }
   } while(false);
   
