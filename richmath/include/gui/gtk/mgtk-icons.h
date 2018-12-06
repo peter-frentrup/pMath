@@ -27,6 +27,8 @@ namespace richmath {
       
       GdkPixbuf *get_icon(Index idx); // you must free the result withn g_object_unref()
       
+      static GdkPixbuf *new_pixbuf_from_image(cairo_surface_t *image);
+      
       GList *get_app_icon_list(); // list of GdkPixbuf, you must free it
   };
 }

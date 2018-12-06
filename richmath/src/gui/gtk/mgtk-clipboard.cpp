@@ -1,4 +1,5 @@
 #include <gui/gtk/mgtk-clipboard.h>
+#include <gui/gtk/mgtk-icons.h>
 
 #include <util/array.h>
 
@@ -16,7 +17,7 @@ namespace {
         : Base()
       {
         SET_BASE_DEBUG_TAG(typeid(*this).name());
-        pixbuf = 0;
+        pixbuf = nullptr;
       }
       
       virtual ~ClipboardData() {
@@ -132,45 +133,17 @@ namespace {
       
       virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) override {
         if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_IMAGE) {
-          int width  = cairo_image_surface_get_width( image);
-          int height = cairo_image_surface_get_height(image);
+          GdkPixbuf *pixbuf = MathGtkIcons::new_pixbuf_from_image(image);
           
-          GdkPixbuf *pixbuf;
-          
-#if GTK_MAJOR_VERSION >= 3
-          {
-            pixbuf = gdk_pixbuf_get_from_surface(image, 0, 0, width, height);
-          }
-#else
-          {
-            GdkPixmap *pixmap = gdk_pixmap_new(nullptr, width, height,
-                                               gdk_visual_get_best_depth());
-          
-            cairo_t *cr = gdk_cairo_create(pixmap);
-            cairo_set_source_surface(cr, image, 0, 0);
-            cairo_paint(cr);
-            cairo_destroy(cr);
-          
-            pixbuf = gdk_pixbuf_get_from_drawable(
-                       nullptr,
-                       GDK_PIXMAP(pixmap),
-                       gdk_colormap_get_system(),
-                       0, 0,
-                       0, 0,
-                       width,
-                       height);
-          
-            gdk_pixmap_unref(pixmap);
-          }
-#endif
-          
-          MathGtkClipboard::add_to_target_list(targets, Clipboard::PlatformBitmapImage, ClipboardData::PixbufInfoIndex);
-          
-          if(clipboard_data->pixbuf)
-            gdk_pixbuf_unref(clipboard_data->pixbuf);
+          if(pixbuf) {
+            MathGtkClipboard::add_to_target_list(targets, Clipboard::PlatformBitmapImage, ClipboardData::PixbufInfoIndex);
             
-          clipboard_data->pixbuf = pixbuf;
-          return true;
+            if(clipboard_data->pixbuf)
+              gdk_pixbuf_unref(clipboard_data->pixbuf);
+              
+            clipboard_data->pixbuf = pixbuf;
+            return true;
+          }
         }
         
         return OpenedClipboard::add_image(suggested_mimetype, image);

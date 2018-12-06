@@ -2,6 +2,7 @@
 
 #include <eval/binding.h>
 #include <gui/gtk/mgtk-clipboard.h>
+#include <gui/gtk/mgtk-icons.h>
 #include <gui/gtk/mgtk-menu-builder.h>
 #include <gui/gtk/mgtk-tooltip-window.h>
 
@@ -287,6 +288,52 @@ void MathGtkWidget::do_drag_drop(Box *src, int start, int end, MouseEvent &event
   if(!src || !_widget)
     return;
     
+  int hot_x = 0;
+  int hot_y = 0;
+  GdkPixbuf *drag_image = nullptr;
+  {
+    Document *doc = document();
+    AutoResetSelection ars(doc);
+    
+    cairo_surface_t *image = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
+    Rectangle rect;
+    doc->prepare_copy_to_image(image, &rect);
+    cairo_surface_destroy(image);
+    
+    int w = (int)ceil(rect.width - 0.001);
+    int h = (int)ceil(rect.height - 0.001);
+    if(w < 1) w = 1;
+    if(h < 1) h = 1;
+    
+    /* hot_x, hot_y calculation below is correct, but with opaque drag image, we 
+       should place the image below the cursor
+     */
+//    float sx, sy;
+//    scroll_pos(&sx, &sy);
+//    event.set_origin(doc);
+//    float px = (event.x - sx) * scale_factor();
+//    float py = (event.y - sy) * scale_factor();
+//    hot_x = (int)ceil(px - rect.x);
+//    hot_y = (int)ceil(py - rect.y);
+    
+    image = cairo_image_surface_create(CAIRO_FORMAT_RGB24, w, h);
+    doc->finish_copy_to_image(image, rect);
+    
+//    cairo_surface_t *alpha_image = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+//    cairo_t *cr = cairo_create(alpha_image);
+//    cairo_set_source_surface(cr, image, 0, 0);
+//    cairo_paint_with_alpha(cr, 0.5);
+//    cairo_destroy(cr);
+//    cairo_surface_destroy(image); image = alpha_image;
+    
+    cairo_surface_flush(image);
+    GdkPixbuf *pixbuf = MathGtkIcons::new_pixbuf_from_image(image);
+    cairo_surface_destroy(image);
+    
+    drag_image = gdk_pixbuf_add_alpha(pixbuf, false, 0, 0, 0);
+    g_object_unref(pixbuf);
+  }
+  
   drag_source_reference().set(src, start, end);
   
   GdkDragContext *context;
@@ -300,8 +347,13 @@ void MathGtkWidget::do_drag_drop(Box *src, int start, int end, MouseEvent &event
               (GdkDragAction)actions,
               _mouse_down_button,
               g_event);
-              
-  gtk_drag_set_icon_default(context);
+  
+  if(drag_image) {
+    gtk_drag_set_icon_pixbuf(context, drag_image, hot_x, hot_y);
+    g_object_unref(drag_image);
+  }
+  else
+    gtk_drag_set_icon_default(context);
 }
 
 bool MathGtkWidget::cursor_position(float *x, float *y) {
@@ -661,6 +713,8 @@ void MathGtkWidget::on_drag_data_received(
 
 void MathGtkWidget::on_drag_end(GdkDragContext *context) {
   drag_source_reference().reset();
+  
+  gtk_widget_queue_draw(_widget);
 }
 
 bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint time) {

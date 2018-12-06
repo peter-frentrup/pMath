@@ -1,5 +1,6 @@
 #include <gui/gtk/mgtk-icons.h>
 
+#include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixdata.h>
 
 
@@ -343,14 +344,14 @@ MathGtkIcons::MathGtkIcons()
   ++num_refs;
 }
 
-MathGtkIcons::~MathGtkIcons(){
+MathGtkIcons::~MathGtkIcons() {
   if(--num_refs == 0) {
-  for(int i = 0; i < IconsCount; ++i) {
-    if(icons[i]) {
-      g_object_unref(icons[i]);
-      icons[i] = nullptr;
+    for(int i = 0; i < IconsCount; ++i) {
+      if(icons[i]) {
+        g_object_unref(icons[i]);
+        icons[i] = nullptr;
+      }
     }
-  }
   }
 }
 
@@ -362,6 +363,45 @@ GdkPixbuf *MathGtkIcons::get_icon(Index idx) {
   }
   
   return GDK_PIXBUF(g_object_ref(icons[idx]));
+}
+
+GdkPixbuf *MathGtkIcons::new_pixbuf_from_image(cairo_surface_t *image) {
+  if(cairo_surface_get_type(image) != CAIRO_SURFACE_TYPE_IMAGE)
+    return nullptr;
+    
+  int width  = cairo_image_surface_get_width( image);
+  int height = cairo_image_surface_get_height(image);
+  
+  GdkPixbuf *pixbuf = nullptr;
+  
+#if GTK_MAJOR_VERSION >= 3
+  {
+    pixbuf = gdk_pixbuf_get_from_surface(image, 0, 0, width, height);
+  }
+#else
+  {
+    GdkPixmap *pixmap = gdk_pixmap_new(nullptr, width, height,
+                                       gdk_visual_get_best_depth());
+  
+    cairo_t *cr = gdk_cairo_create(pixmap);
+    cairo_set_source_surface(cr, image, 0, 0);
+    cairo_paint(cr);
+    cairo_destroy(cr);
+  
+    pixbuf = gdk_pixbuf_get_from_drawable(
+               nullptr,
+               GDK_PIXMAP(pixmap),
+               gdk_colormap_get_system(),
+               0, 0,
+               0, 0,
+               width,
+               height);
+  
+    gdk_pixmap_unref(pixmap);
+  }
+#endif
+  
+  return pixbuf;
 }
 
 GList *MathGtkIcons::get_app_icon_list() {
