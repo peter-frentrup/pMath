@@ -193,24 +193,22 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
   if(!doc)
     return E_UNEXPECTED;
     
-  {
-    AutoResetSelection auto_sel{ doc };
-    doc->select(box, source.start, source.end);
-    
-    cairo_format_t format = CAIRO_FORMAT_RGB24;
-    cairo_surface_t *image = cairo_win32_surface_create_with_ddb(nullptr, format, 1, 1);
-    Rectangle rect;
-    doc->prepare_copy_to_image(image, &rect);
-    cairo_surface_destroy(image);
-    
-    int w = (int)ceil(rect.width - 0.001);
-    int h = (int)ceil(rect.height - 0.001);
-    if(w < 1) w = 1;
-    if(h < 1) h = 1;
-    
-    image = cairo_win32_surface_create_with_ddb(nullptr, format, w, h);
-    doc->finish_copy_to_image(image, rect);
-  }
+  AutoResetSelection auto_sel{ doc };
+  doc->select(box, source.start, source.end);
+  
+  cairo_format_t format = CAIRO_FORMAT_RGB24;
+  cairo_surface_t *image = cairo_win32_surface_create_with_ddb(nullptr, format, 1, 1);
+  Rectangle rect;
+  doc->prepare_copy_to_image(image, &rect);
+  cairo_surface_destroy(image);
+  
+  int w = (int)ceil(rect.width - 0.001);
+  int h = (int)ceil(rect.height - 0.001);
+  if(w < 1) w = 1;
+  if(h < 1) h = 1;
+  
+  image = cairo_win32_surface_create_with_ddb(nullptr, format, w, h);
+  doc->finish_copy_to_image(image, rect);
   
   SHDRAGIMAGE di = {0};
   di.crColorKey = CLR_NONE; // or 0xFFFFFF;
@@ -248,8 +246,8 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
     BitBlt(memDC, 0, 0, di.sizeDragImage.cx, di.sizeDragImage.cy, dc, 0, 0, SRCCOPY);
     
     DeleteDC(memDC);
-    cairo_surface_destroy(image);
   }
+  cairo_surface_destroy(image);
   
   di.hbmpDragImage = replace_black(di.hbmpDragImage);
   
