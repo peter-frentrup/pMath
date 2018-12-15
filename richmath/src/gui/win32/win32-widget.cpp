@@ -1657,7 +1657,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   if(!text_data.is_null()) {
     Box *oldbox  = document()->selection_box();
     int oldstart = document()->selection_start();
-    int oldend   = document()->selection_start();
+    int oldend   = document()->selection_end();
     
     if(effect & DROPEFFECT_MOVE && is_dragging) {
       if(Box *src = drag_source_reference().get()) {
