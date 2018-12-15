@@ -1567,6 +1567,7 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
 void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   String mimetype;
   String text_data;
+  Expr box_data;
   
   STGMEDIUM stgmed;
   memset(&stgmed, 0, sizeof(stgmed));
@@ -1581,9 +1582,16 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   
   do {
     DataObject *local_data_object = DataObject::as_current_data_object(data_object);
-    pmath_debug_print("[local_data_object = %p]\n", local_data_object);
-    // TODO: optimize move of local_data_object
-  
+    
+    if(local_data_object) {
+      pmath_debug_print("[local_data_object = %p]\n", local_data_object);
+      Box *source_box = local_data_object->source.get();
+      if(source_box) {
+        box_data = source_box->to_pmath(BoxOutputFlags::Default, local_data_object->source.start, local_data_object->source.end);
+        break;
+      }
+    }
+    
     fmt.cfFormat = Win32Clipboard::AtomBoxesText;
     if( data_object->QueryGetData(&fmt) == S_OK &&
         data_object->GetData(&fmt, &stgmed) == S_OK)
@@ -1654,7 +1662,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     }
   } while(false);
   
-  if(!text_data.is_null()) {
+  if(!box_data.is_null() || !text_data.is_null()) {
     Box *oldbox  = document()->selection_box();
     int oldstart = document()->selection_start();
     int oldend   = document()->selection_end();
@@ -1680,7 +1688,10 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
       }
     }
     
-    document()->paste_from_text(mimetype, text_data);
+    if(!box_data.is_null())
+      document()->paste_from_boxes(box_data);
+    else
+      document()->paste_from_text(mimetype, text_data);
     
     Box *newbox  = document()->selection_box();
     int newend   = document()->selection_start();
