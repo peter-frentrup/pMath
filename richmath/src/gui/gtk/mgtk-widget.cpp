@@ -677,7 +677,7 @@ void MathGtkWidget::on_drag_data_received(
   
   String mimetype(drag_mime_types[info]);
   const char *raw_data = (const char *)gtk_selection_data_get_data(data);
-  int         len      =              gtk_selection_data_get_length(data);
+  int         len      =               gtk_selection_data_get_length(data);
   if(!raw_data) {
     gtk_drag_finish(context, FALSE, FALSE, time);
     return;
@@ -801,8 +801,21 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
     return false;
     
   GdkAtom target = gtk_drag_dest_find_target(_widget, context, nullptr);
-  if(target != GDK_NONE)
-    gtk_drag_get_data(_widget, context, target, time);
+  if(target != GDK_NONE) {
+    bool need_data = true;
+    if(MathGtkWidget *wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget(source_widget))) {
+      if(Box *source_box = wid->drag_source_reference().get()) {
+        Expr boxes = source_box->to_pmath(BoxOutputFlags::Default, wid->drag_source_reference().start, wid->drag_source_reference().end);
+        
+        document()->paste_from_boxes(boxes);
+        need_data = false;
+        gtk_drag_finish(context, TRUE, gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE, time);
+      }
+    }
+    
+    if(need_data)
+      gtk_drag_get_data(_widget, context, target, time);
+  }
   else
     gtk_drag_finish(context, FALSE, FALSE, time);
     

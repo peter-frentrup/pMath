@@ -17,7 +17,7 @@ static void add_remove_window(int count) {
 
 BasicGtkWidget::BasicGtkWidget()
   : Base(),
-  _widget(0),
+  _widget(nullptr),
   _initializing(true),
   _destroying(false)
 {
