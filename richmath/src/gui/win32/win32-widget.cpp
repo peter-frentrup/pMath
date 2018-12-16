@@ -260,9 +260,12 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) 
     effect |= DROPEFFECT_MOVE;
   
   if(Win32Themes::is_app_themed()) { 
-    if(auto helper2 = _drag_source_helper.as<IDragSourceHelper2>()) {
+    if(_drag_source_helper) {
       pmath_debug_print("[using drop source helper ...]\n");
       drop_source->description_data.copy(data_object);
+      if(auto helper2 = _drag_source_helper.as<IDragSourceHelper2>()) {
+        helper2->SetFlags(DSH_ALLOWDROPDESCRIPTIONTEXT);
+      }
     }
   }
   
