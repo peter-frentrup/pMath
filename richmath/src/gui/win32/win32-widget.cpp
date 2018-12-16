@@ -292,7 +292,7 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) 
       
       if(src && end <= src->length() && doc) {
         doc->select(src, start, end);
-        if(!doc->remove_selection(false))
+        if(!doc->remove_selection())
           beep();
       }
     }
@@ -1675,7 +1675,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
         drag_source_reference().reset();
         
         document()->select(src, s, e);
-        document()->remove_selection(false);
+        document()->remove_selection();
         
         if(src == oldbox) {
           if(oldstart >= e)
