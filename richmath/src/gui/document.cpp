@@ -2453,6 +2453,34 @@ void Document::paste_from_binary(String mimetype, Expr file) {
   paste_from_text(mimetype, line);
 }
 
+void Document::paste_from_filenames(Expr list_of_files, bool import_contents) {
+  if(list_of_files[0] != PMATH_SYMBOL_LIST) {
+    native()->beep();
+    return;
+  }
+  
+  if(!import_contents) {
+    String s = Evaluate(Parse("Map(`1`, InputForm).Row(\",\").ToString", list_of_files));
+    paste_from_text(Clipboard::PlainText, s);
+    return;
+  }
+  
+  size_t len = list_of_files.expr_length();
+  for(size_t i = 1; i <= len; ++i) {
+    Expr content_boxes = Application::interrupt_wait(
+      Parse("FE`Import`PasteFileNameContentBoxes(`1`)", list_of_files[i]),
+      Application::edit_interrupt_timeout);
+    
+    if(content_boxes.is_null())
+      continue;
+    
+    if(content_boxes == PMATH_SYMBOL_FAILED)       content_boxes = String("$Failed");
+    else if(content_boxes == PMATH_SYMBOL_ABORTED) content_boxes = String("$Aborted");
+    
+    paste_from_boxes(content_boxes);
+  }
+}
+
 void Document::paste_from_clipboard() {
   if(Clipboard::std->has_format(Clipboard::BoxesBinary)) {
     paste_from_binary(
@@ -2476,12 +2504,8 @@ void Document::paste_from_clipboard() {
   }
   
   if(Clipboard::std->has_format(Clipboard::PlatformFilesOrUris)) {
-    Expr list_of_files = Clipboard::std->read_as_filenames();
-    if(list_of_files[0] == PMATH_SYMBOL_LIST) {
-      String s = Evaluate(Parse("Map(`1`, InputForm).Row(\",\").ToString", list_of_files));
-      paste_from_text(Clipboard::PlainText, s);
-      return;
-    }
+    paste_from_filenames(Clipboard::std->read_as_filenames(), false);
+    return;
   }
   
   native()->beep();

@@ -1549,7 +1549,7 @@ DWORD Win32Widget::preferred_drop_effect(IDataObject *data_object) {
   
   fmt.cfFormat = CF_HDROP;
   if(data_object->QueryGetData(&fmt) == S_OK) 
-    return DROPEFFECT_LINK;
+    return ok_drop_effect;//DROPEFFECT_LINK;
     
   return DROPEFFECT_NONE;
 }
@@ -1575,6 +1575,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   String mimetype;
   String text_data;
   Expr box_data;
+  Expr files_data;
   
   STGMEDIUM stgmed;
   memset(&stgmed, 0, sizeof(stgmed));
@@ -1670,19 +1671,12 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   
     fmt.cfFormat = CF_HDROP;
     if(data_object->QueryGetData(&fmt) == S_OK) {
-      Expr list_of_files = DataObject::get_global_data_dropfiles(data_object);
-      if(list_of_files[0] == PMATH_SYMBOL_LIST) {
-        if(effect == DROPEFFECT_LINK)
-          text_data = String(Evaluate(Parse("Map(`1`, InputForm).Row(\",\").ToString", list_of_files)));
-        else
-          beep();
-        
-        break;
-      }
+      files_data = DataObject::get_global_data_dropfiles(data_object);
+      break;
     }
   } while(false);
   
-  if(!box_data.is_null() || !text_data.is_null()) {
+  if(!box_data.is_null() || !text_data.is_null() || !files_data.is_null()) {
     Box *oldbox  = document()->selection_box();
     int oldstart = document()->selection_start();
     int oldend   = document()->selection_end();
@@ -1710,6 +1704,8 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     
     if(!box_data.is_null())
       document()->paste_from_boxes(box_data);
+    else if(!files_data.is_null())
+      document()->paste_from_filenames(files_data, effect != DROPEFFECT_LINK);
     else
       document()->paste_from_text(mimetype, text_data);
     

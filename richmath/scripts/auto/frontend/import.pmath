@@ -1,0 +1,22 @@
+/* Helper functions for GraphicsBox */
+
+BeginPackage("FE`Import`", {"ExperimentalSyntax`"})
+
+FE`Import`PasteFileNameContentBoxes
+
+Begin("FE`Import`Private`")
+
+Function PasteFileNameContentBoxes(~fname:String) {
+    If(fname.StringMatch(~~~ ++ ".pmathdoc")) {
+        DocumentOpen(fname)
+        Return(/\/);
+    }
+
+    $Failed
+}
+
+PasteFileNameContentBoxes(~~~):= $Failed
+
+End()
+
+EndPackage()

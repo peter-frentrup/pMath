@@ -161,6 +161,7 @@ EndPackage()
 
 Protect(FE`Graphics`DefaultAxesOrigin)
 Protect(FE`Graphics`DefaultTickBoxes)
+Protect(FE`Import`PasteFileNameContentBoxes)
 
 AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicSetting, InputField, InputFieldBox, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Slider, SliderBox, Tooltip, TooltipBox), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));
@@ -168,6 +169,8 @@ AutoLoad(Hold(ShowDefinition),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "showdefinition.pmath"));
 AutoLoad(Hold(FE`Graphics`DefaultAxesOrigin, FE`Graphics`DefaultTickBoxes), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "graphics.pmath"));
+AutoLoad(Hold(FE`Import`PasteFileNameContentBoxes),
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "import.pmath"));
 AutoLoad(Hold(FE`Styles`FlattenTemplateSequence, FE`Styles`MakeStyleDataBoxes, FE`Styles`$DefaultDisplayFunction), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "styles.pmath"));
 

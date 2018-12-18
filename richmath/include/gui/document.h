@@ -109,6 +109,7 @@ namespace richmath {
       void paste_from_boxes(Expr boxes);
       void paste_from_text(String mimetype, String data);
       void paste_from_binary(String mimetype, Expr file);
+      void paste_from_filenames(Expr list_of_files, bool import_contents);
       void paste_from_clipboard();
       
       void set_selection_style(Expr options);
