@@ -1,12 +1,11 @@
 #define WINVER 0x0500
 
+#include <gui/win32/ole/dataobject.h>
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/basic-win32-widget.h>
 
 #include <cairo-win32.h>
-#include <cmath>
-
-#include <shlobj.h>
+#include <math.h>
 
 
 using namespace richmath;
@@ -254,22 +253,6 @@ String Win32Clipboard::read_as_text(String mimetype) {
   return result;
 }
 
-static String string_from_ansi(const char *s, int len) {
-  static_assert(sizeof(uint16_t) == sizeof(wchar_t), "wchar_t must be 2 bytes on Win32");
-
-  if(len == 0)
-    return String("");
-  
-  int wlen = MultiByteToWideChar(CP_ACP, 0, s, len, nullptr, 0);
-  pmath_string_t str = pmath_string_new_raw(wlen);
-  uint16_t *buf;
-  if(pmath_string_begin_write(&str, &buf, &wlen)) {
-    wlen = MultiByteToWideChar(CP_ACP, 0, s, len, (wchar_t*)buf, wlen);
-    pmath_string_end_write(&str, &buf);
-  }
-  return String(pmath_string_part(str, 0, wlen));
-}
-
 Expr Win32Clipboard::read_as_filenames() {
   unsigned id = CF_HDROP;
   
@@ -278,41 +261,8 @@ Expr Win32Clipboard::read_as_filenames() {
       return Expr();
     
     Expr list;
-    if(HANDLE hglb = GetClipboardData(id)) {
-      if(auto data = (const DROPFILES*)GlobalLock(hglb)) {
-        size_t size = GlobalSize(hglb);
-        
-        if(sizeof(DROPFILES) < size && data->pFiles < size) {
-          list = MakeList(0);
-          if(data->fWide) {
-            const wchar_t *s = (const wchar_t*)(((const char *)data) + data->pFiles);
-            const wchar_t *end = (const wchar_t*)(((const char *)data) + size);
-            
-            while(s < end && *s) {
-              size_t len = wcsnlen(s, end - s - 1);
-              if(len < INT_MAX) {
-                list.append(String::FromUcs2((const uint16_t*)s, (int)len));
-              }
-              s+= len + 1;
-            }
-          }
-          else {
-            const char *s = ((const char *)data) + data->pFiles;
-            const char *end = ((const char *)data) + size;
-            
-            while(s < end && *s) {
-              size_t len = strnlen(s, end - s - 1);
-              if(len < INT_MAX) {
-                list.append(string_from_ansi(s, (int)len));
-              }
-              s+= len + 1;
-            }
-          }
-        }
-        
-        GlobalUnlock(hglb);
-      }
-    }
+    if(HANDLE hglb = GetClipboardData(id)) 
+      list = DataObject::get_global_data_dropfiles(hglb);
     
     CloseClipboard();
     return list;

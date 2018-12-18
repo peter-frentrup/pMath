@@ -9,6 +9,8 @@
 
 #include <math.h>
 
+#include <shlobj.h>
+
 
 using namespace richmath;
 using namespace pmath;
@@ -733,10 +735,77 @@ DWORD DataObject::get_global_data_dword(IDataObject *obj, CLIPFORMAT format) {
     if(GlobalSize(medium.hGlobal) >= sizeof(DWORD)) {
       data = *(DWORD*)GlobalLock(medium.hGlobal);
       GlobalUnlock(medium.hGlobal);
-      ReleaseStgMedium(&medium);
     }
+    ReleaseStgMedium(&medium);
   }
   return data;
+}
+
+static String string_from_ansi(const char *s, int len) {
+  static_assert(sizeof(uint16_t) == sizeof(wchar_t), "wchar_t must be 2 bytes on Win32");
+
+  if(len == 0)
+    return String("");
+  
+  int wlen = MultiByteToWideChar(CP_ACP, 0, s, len, nullptr, 0);
+  pmath_string_t str = pmath_string_new_raw(wlen);
+  uint16_t *buf;
+  if(pmath_string_begin_write(&str, &buf, &wlen)) {
+    wlen = MultiByteToWideChar(CP_ACP, 0, s, len, (wchar_t*)buf, wlen);
+    pmath_string_end_write(&str, &buf);
+  }
+  return String(pmath_string_part(str, 0, wlen));
+}
+
+Expr DataObject::get_global_data_dropfiles(HGLOBAL hglb) {
+  Expr list;
+  
+  if(auto data = (const DROPFILES*)GlobalLock(hglb)) {
+    size_t size = GlobalSize(hglb);
+    
+    if(sizeof(DROPFILES) < size && data->pFiles < size) {
+      list = MakeList(0);
+      if(data->fWide) {
+        const wchar_t *s = (const wchar_t*)(((const char *)data) + data->pFiles);
+        const wchar_t *end = (const wchar_t*)(((const char *)data) + size);
+        
+        while(s < end && *s) {
+          size_t len = wcsnlen(s, end - s - 1);
+          if(len < INT_MAX) {
+            list.append(String::FromUcs2((const uint16_t*)s, (int)len));
+          }
+          s+= len + 1;
+        }
+      }
+      else {
+        const char *s = ((const char *)data) + data->pFiles;
+        const char *end = ((const char *)data) + size;
+        
+        while(s < end && *s) {
+          size_t len = strnlen(s, end - s - 1);
+          if(len < INT_MAX) {
+            list.append(string_from_ansi(s, (int)len));
+          }
+          s+= len + 1;
+        }
+      }
+    }
+    
+    GlobalUnlock(hglb);
+  }
+  return list;
+}
+
+Expr DataObject::get_global_data_dropfiles(IDataObject *obj) {
+  Expr list;
+  FORMATETC format_etc;
+  STGMEDIUM medium;
+  
+  if(SUCCEEDED(get_global_data(obj, CF_HDROP, &format_etc, &medium))) {
+    list = get_global_data_dropfiles(medium.hGlobal);
+    ReleaseStgMedium(&medium);
+  }
+  return list;
 }
 
 //} ... class DataObject

@@ -86,6 +86,8 @@ namespace richmath {
       };
       static HRESULT get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATETC *formatEtc, STGMEDIUM *medium);
       static DWORD   get_global_data_dword(IDataObject *obj, CLIPFORMAT format);
+      static Expr    get_global_data_dropfiles(HGLOBAL hglb);
+      static Expr    get_global_data_dropfiles(IDataObject *obj);
   };
 }
 
