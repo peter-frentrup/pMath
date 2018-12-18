@@ -2475,6 +2475,22 @@ void Document::paste_from_clipboard() {
     return;
   }
   
+  if(Clipboard::std->has_format(Clipboard::PlatformFilesOrUris)) {
+    Expr files = Clipboard::std->read_as_filenames();
+    if(!files.is_null()) {
+      Expr boxes = Evaluate(Call(Symbol(PMATH_SYMBOL_TOBOXES), files));
+      if( boxes[0] == PMATH_SYMBOL_LIST && 
+          boxes.expr_length() == 3 && 
+          boxes[1] == String("{") && 
+          boxes[3] == String("}"))
+      {
+        boxes = boxes[2];
+      }
+      paste_from_boxes(boxes);
+      return;
+    }
+  }
+  
   native()->beep();
 }
 

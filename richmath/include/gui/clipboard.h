@@ -27,6 +27,7 @@ namespace richmath {
       static const char *const BoxesText;
       static const char *const BoxesBinary;
       static const char *const PlatformBitmapImage;
+      static const char *const PlatformFilesOrUris;
       static const char *const SvgImage;
       
     public:
@@ -41,6 +42,7 @@ namespace richmath {
       
       virtual ReadableBinaryFile read_as_binary_file(String mimetype) = 0;
       virtual String             read_as_text(       String mimetype) = 0;
+      virtual Expr               read_as_filenames() = 0; // reads PlatformFilesOrUris
       
       virtual SharedPtr<OpenedClipboard> open_write() = 0;
       virtual cairo_surface_t *create_image(String mimetype, double width, double height);

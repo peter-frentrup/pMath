@@ -9,6 +9,7 @@
 
 
 using namespace richmath;
+using namespace pmath;
 
 namespace {
   class ClipboardData: public Base {
@@ -181,9 +182,11 @@ bool MathGtkClipboard::has_format(String mimetype) {
   if(result)
     return true;
     
-  if(mimetype.equals(Clipboard::PlainText)) {
+  if(mimetype.equals(Clipboard::PlainText)) 
     return 0 != gtk_clipboard_wait_is_text_available(clipboard());
-  }
+  
+  if(mimetype.equals(Clipboard::PlatformFilesOrUris))
+    return 0 != gtk_clipboard_wait_is_uris_available(clipboard());
   
   return false;
 }
@@ -235,6 +238,24 @@ String MathGtkClipboard::read_as_text(String mimetype) {
   return result;
 }
 
+Expr MathGtkClipboard::read_as_filenames() {
+  char **uris = gtk_clipboard_wait_for_uris(clipboard());
+  if(!uris)
+    return Expr();
+  
+  size_t len = 0;
+  while(uris[len])
+    ++len;
+  
+  Expr list = MakeList(len);
+  for(size_t i = 0; i < len; ++i)
+    list[i+1] = String::FromUtf8(uris[i]);
+  
+  g_strfreev(uris);
+  
+  return list;
+}
+
 SharedPtr<OpenedClipboard> MathGtkClipboard::open_write() {
   return new OpenedGtkClipboard(clipboard());
 }
@@ -271,6 +292,9 @@ void MathGtkClipboard::add_to_target_list(GtkTargetList *targets, String mimetyp
   }
   else if(mimetype.equals(Clipboard::PlatformBitmapImage)) {
     gtk_target_list_add_image_targets(targets, info, TRUE);
+  }
+  else if(mimetype.equals(Clipboard::PlatformFilesOrUris)) {
+    gtk_target_list_add_uri_targets(targets, info);
   }
   else {
     gtk_target_list_add(targets, mimetype_to_atom(mimetype), 0, info);

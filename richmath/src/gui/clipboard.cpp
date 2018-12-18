@@ -18,6 +18,10 @@ class DummyClipboard: public Clipboard {
       return String();
     }
     
+    virtual Expr read_as_filenames() override {
+      return Expr();
+    }
+    
     virtual SharedPtr<OpenedClipboard> open_write() override {
       return 0;
     }
@@ -32,6 +36,7 @@ const char *const Clipboard::PlainText           = "text/plain";
 const char *const Clipboard::BoxesText           = "text/x-pmath-boxes";
 const char *const Clipboard::BoxesBinary         = "application/x-pmath-boxes";
 const char *const Clipboard::PlatformBitmapImage = "Bitmap";
+const char *const Clipboard::PlatformFilesOrUris = "FilesOrUris";
 const char *const Clipboard::SvgImage            = "image/svg+xml";
 
 struct abf_info_t {

@@ -21,7 +21,8 @@ namespace richmath {
       
       virtual ReadableBinaryFile read_as_binary_file(String mimetype) override;
       virtual String             read_as_text(String mimetype) override;
-      
+      virtual Expr               read_as_filenames() override;
+    
       virtual SharedPtr<OpenedClipboard> open_write() override;
       virtual cairo_surface_t *create_image(String mimetype, double width, double height) override;
       

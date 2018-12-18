@@ -6,8 +6,11 @@
 #include <cairo-win32.h>
 #include <cmath>
 
+#include <shlobj.h>
+
 
 using namespace richmath;
+using namespace pmath;
 
 static HWND hwnd_message = HWND_MESSAGE;
 
@@ -234,7 +237,7 @@ String Win32Clipboard::read_as_text(String mimetype) {
     
   String result;
   if(HANDLE hglb = GetClipboardData(id)) {
-    if(auto data = (uint16_t *)GlobalLock(hglb)) {
+    if(auto data = (const uint16_t *)GlobalLock(hglb)) {
       size_t size = GlobalSize(hglb);
       
       int len = 0;
@@ -251,6 +254,73 @@ String Win32Clipboard::read_as_text(String mimetype) {
   return result;
 }
 
+static String string_from_ansi(const char *s, int len) {
+  static_assert(sizeof(uint16_t) == sizeof(wchar_t), "wchar_t must be 2 bytes on Win32");
+
+  if(len == 0)
+    return String("");
+  
+  int wlen = MultiByteToWideChar(CP_ACP, 0, s, len, nullptr, 0);
+  pmath_string_t str = pmath_string_new_raw(wlen);
+  uint16_t *buf;
+  if(pmath_string_begin_write(&str, &buf, &wlen)) {
+    wlen = MultiByteToWideChar(CP_ACP, 0, s, len, (wchar_t*)buf, wlen);
+    pmath_string_end_write(&str, &buf);
+  }
+  return String(pmath_string_part(str, 0, wlen));
+}
+
+Expr Win32Clipboard::read_as_filenames() {
+  unsigned id = CF_HDROP;
+  
+  if(IsClipboardFormatAvailable(id)) {
+    if(!OpenClipboard(w32cbinfo.hwnd()))
+      return Expr();
+    
+    Expr list;
+    if(HANDLE hglb = GetClipboardData(id)) {
+      if(auto data = (const DROPFILES*)GlobalLock(hglb)) {
+        size_t size = GlobalSize(hglb);
+        
+        if(sizeof(DROPFILES) < size && data->pFiles < size) {
+          list = MakeList(0);
+          if(data->fWide) {
+            const wchar_t *s = (const wchar_t*)(((const char *)data) + data->pFiles);
+            const wchar_t *end = (const wchar_t*)(((const char *)data) + size);
+            
+            while(s < end && *s) {
+              size_t len = wcsnlen(s, end - s - 1);
+              if(len < INT_MAX) {
+                list.append(String::FromUcs2((const uint16_t*)s, (int)len));
+              }
+              s+= len + 1;
+            }
+          }
+          else {
+            const char *s = ((const char *)data) + data->pFiles;
+            const char *end = ((const char *)data) + size;
+            
+            while(s < end && *s) {
+              size_t len = strnlen(s, end - s - 1);
+              if(len < INT_MAX) {
+                list.append(string_from_ansi(s, (int)len));
+              }
+              s+= len + 1;
+            }
+          }
+        }
+        
+        GlobalUnlock(hglb);
+      }
+    }
+    
+    CloseClipboard();
+    return list;
+  }
+  
+  return Expr();
+}
+
 SharedPtr<OpenedClipboard> Win32Clipboard::open_write() {
   return new OpenedWin32Clipboard();
 }
@@ -263,6 +333,7 @@ static void add_mime_type(String mime, CLIPFORMAT format) {
 void Win32Clipboard::init() {
   add_mime_type(Clipboard::PlainText,           CF_UNICODETEXT);
   add_mime_type(Clipboard::PlatformBitmapImage, CF_DIB);
+  add_mime_type(Clipboard::PlatformFilesOrUris, CF_HDROP);
   
   AtomBoxesText = RegisterClipboardFormatA(Clipboard::BoxesText);
   add_mime_type(Clipboard::BoxesText, AtomBoxesText);
