@@ -222,6 +222,8 @@ STDMETHODIMP BasicWin32Widget::Drop(IDataObject *data_object, DWORD key_state, P
   }
   
   if(_preferred_drop_effect != DROPEFFECT_NONE) {
+    // TODO: if key_state & MK_RBUTTON, show a popup-menu and ask fo the action
+    
     SetFocus(_hwnd);
     do_drop_data(data_object, *effect);
   }
@@ -291,6 +293,9 @@ DWORD BasicWin32Widget::drop_effect(DWORD key_state, POINTL pt, DWORD allowed_ef
   }
   else if(key_state & MK_SHIFT) {
     effect = allowed_effects & DROPEFFECT_MOVE;
+  }
+  else if(key_state & MK_ALT) {
+    effect = allowed_effects & DROPEFFECT_LINK;
   }
   
   if(effect == 0) {
