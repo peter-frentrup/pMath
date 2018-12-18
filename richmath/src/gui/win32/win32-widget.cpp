@@ -1546,6 +1546,10 @@ DWORD Win32Widget::preferred_drop_effect(IDataObject *data_object) {
   fmt.cfFormat = CF_TEXT;
   if(data_object->QueryGetData(&fmt) == S_OK)
     return ok_drop_effect;
+  
+  fmt.cfFormat = CF_HDROP;
+  if(data_object->QueryGetData(&fmt) == S_OK) 
+    return DROPEFFECT_LINK;
     
   return DROPEFFECT_NONE;
 }
@@ -1660,6 +1664,19 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
         
         GlobalUnlock(stgmed.hGlobal);
         ReleaseStgMedium(&stgmed);
+        break;
+      }
+    }
+  
+    fmt.cfFormat = CF_HDROP;
+    if(data_object->QueryGetData(&fmt) == S_OK) {
+      Expr list_of_files = DataObject::get_global_data_dropfiles(data_object);
+      if(list_of_files[0] == PMATH_SYMBOL_LIST) {
+        if(effect == DROPEFFECT_LINK)
+          text_data = String(Evaluate(Parse("Map(`1`, InputForm).Row(\",\").ToString", list_of_files)));
+        else
+          beep();
+        
         break;
       }
     }
