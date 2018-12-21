@@ -27,6 +27,7 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
   
   // TODO: respect window-related options (WindowTitle...)
   
+  expr.set(0, Symbol(PMATH_SYMBOL_CREATEDOCUMENT));
   Document *doc = Application::create_document(expr);
   
   if(!doc)
