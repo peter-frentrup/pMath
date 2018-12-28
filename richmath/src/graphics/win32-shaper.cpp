@@ -1,7 +1,5 @@
 #ifdef RICHMATH_USE_WIN32_FONT
 
-#define _WIN32_WINNT 0x501
-
 #include <graphics/win32-shaper.h>
 
 #include <windows.h>

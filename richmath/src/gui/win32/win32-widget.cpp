@@ -1,7 +1,3 @@
-#define _WIN32_WINNT 0x600
-// 0x501 for VK_OEM_XXX
-// 0x600 for SPI_GETWHEELSCROLLCHARS
-
 #include <gui/win32/win32-widget.h>
 #include <gui/win32/win32-themes.h>
 
@@ -456,6 +452,10 @@ STDMETHODIMP Win32Widget::DragEnter(IDataObject *data_object, DWORD key_state, P
       document()->selection_end());
   }
   
+  _latest_drop_effect = DROPEFFECT_NONE;
+  _latest_drop_image = DROPIMAGE_INVALID;
+  _latest_drop_description = "";
+  _latest_drop_description_param = "";
   is_drop_over = true;
   
   return BasicWin32Widget::DragEnter(data_object, key_state, pt, effect);
@@ -1529,28 +1529,29 @@ DWORD Win32Widget::preferred_drop_effect(IDataObject *data_object) {
   // dynamic_cast<DataObject*>(data_object) will throw a std::__non_rtti_object exception
   // when data_object coemes from elsewhere.
   DataObject *local_data_object = DataObject::as_current_data_object(data_object);
-    
+  
   DWORD ok_drop_effect = DROPEFFECT_COPY;
   if(is_dragging) { // if(local_data_object && doc->is_parent_of(local_data_object->source.get()))
     ok_drop_effect = DROPEFFECT_MOVE;
   }
   
-  fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
+  fmt.cfFormat = _preferred_drop_format = Win32Clipboard::mime_to_win32cbformat[Clipboard::BoxesText];
   if(data_object->QueryGetData(&fmt) == S_OK)
     return ok_drop_effect;
     
-  fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
+  fmt.cfFormat = _preferred_drop_format = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
   if(data_object->QueryGetData(&fmt) == S_OK)
     return ok_drop_effect;
     
-  fmt.cfFormat = CF_TEXT;
+  fmt.cfFormat = _preferred_drop_format = CF_TEXT;
   if(data_object->QueryGetData(&fmt) == S_OK)
     return ok_drop_effect;
   
-  fmt.cfFormat = CF_HDROP;
+  fmt.cfFormat = _preferred_drop_format = CF_HDROP;
   if(data_object->QueryGetData(&fmt) == S_OK) 
     return ok_drop_effect;//DROPEFFECT_LINK;
     
+  _preferred_drop_format = 0;
   return DROPEFFECT_NONE;
 }
 
@@ -1569,6 +1570,88 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
     return DROPEFFECT_NONE;
     
   return BasicWin32Widget::drop_effect(key_state, ptl, allowed_effects);
+}
+
+void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL pt) {
+  FORMATETC fmt;
+  memset(&fmt, 0, sizeof(fmt));
+  
+  fmt.dwAspect = DVASPECT_CONTENT;
+  fmt.lindex   = -1;
+  fmt.ptd      = nullptr;
+  fmt.tymed    = TYMED_HGLOBAL;
+  
+  if(_preferred_drop_format == CF_HDROP) {
+    if(effect != _latest_drop_effect) {
+      Expr paths = DataObject::get_global_data_dropfiles(_dragging.get());
+      
+      _latest_drop_effect = effect;
+      if(effect == DROPEFFECT_LINK) {
+        _latest_drop_image = DROPIMAGE_LINK;
+        _latest_drop_description = "Insert %1";
+        _latest_drop_description_param = paths.expr_length() == 1 ? "Path" : "Paths";
+      }
+      else {   
+        _latest_drop_image = DROPIMAGE_COPY;
+        _latest_drop_description = "";
+        _latest_drop_description_param = "";
+        
+        Expr desc = Application::interrupt_wait(
+          Parse("FE`Import`FileNamesDropDescription(`1`)", paths),
+          Application::edit_interrupt_timeout);
+        
+        if(desc[0] == PMATH_SYMBOL_LIST) {
+          for(size_t i = desc.expr_length(); i > 0; --i) {
+            Expr rule = desc[i];
+            if(!rule.is_rule())
+              continue;
+            
+            String lhs = rule[1];
+            if(lhs.equals("Image")) {
+              Expr rhs = rule[2];
+              if(rhs == PMATH_SYMBOL_AUTOMATIC) {
+                //_latest_drop_image = DROPIMAGE_INVALID;
+                continue;
+              }
+              
+              String rhs_s = String(rhs);
+              if(rhs_s.equals("Copy")) 
+                _latest_drop_image = DROPIMAGE_COPY;
+              else if(rhs_s.equals("Move"))
+                _latest_drop_image = DROPIMAGE_MOVE;
+              else if(rhs_s.equals("Link"))
+                _latest_drop_image = DROPIMAGE_LINK;
+              else if(rhs_s.equals("Label"))
+                _latest_drop_image = DROPIMAGE_LABEL;
+              else if(rhs_s.equals("Warning"))
+                _latest_drop_image = DROPIMAGE_WARNING;
+              else if(rhs_s.equals("No"))
+                _latest_drop_image = DROPIMAGE_NONE;
+              else if(rhs_s.equals("NoImage"))
+                _latest_drop_image = DROPIMAGE_NOIMAGE;
+            }
+            else if(lhs.equals("Message")) {
+              _latest_drop_description = rule[2].to_string();
+            }
+            else if(lhs.equals("Insert")) {
+              _latest_drop_description_param = rule[2].to_string();
+            }
+          }
+        }
+      }
+    }
+    
+    set_drop_description(_latest_drop_image, _latest_drop_description, _latest_drop_description_param);
+    
+//    if(effect == DROPEFFECT_COPY) {
+//      //Expr paths = DataObject::get_global_data_dropfiles(_dragging.get());
+//      //if(paths.expr_length() > 0 && paths[1].)
+//      set_drop_description(DROPIMAGE_COPY, "Open/insert", "File");
+//    }
+//    else if(effect == DROPEFFECT_LINK) 
+//      set_drop_description(DROPIMAGE_LINK, "Insert %1", "Path");
+  }
+  //BasicWin32Widget::apply_drop_description(effect, key_state, pt);
 }
 
 void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {

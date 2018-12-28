@@ -1,6 +1,3 @@
-#define _WIN32_WINNT 0x0600
-#define WINVER       0x0600
-
 #include <gui/win32/win32-document-window.h>
 
 #include <cmath>

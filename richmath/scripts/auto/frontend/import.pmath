@@ -3,6 +3,7 @@
 BeginPackage("FE`Import`", {"ExperimentalSyntax`"})
 
 FE`Import`PasteFileNameContentBoxes
+FE`Import`FileNamesDropDescription
 
 Begin("FE`Import`Private`")
 
@@ -16,6 +17,21 @@ Function PasteFileNameContentBoxes(~fname:String) {
 }
 
 PasteFileNameContentBoxes(~~~):= $Failed
+
+Function FileNamesDropDescription({~fname:String, ~~~rest}) {
+    If(fname.StringMatch(~~~ ++ ".pmathdoc")) {
+        Return({
+            "Image" -> "Copy",
+            "Message" -> "Open %1", 
+            "Insert" -> If({rest} === {}, "Document", "Documents")})
+    }
+    Return({
+        "Image" -> "Warning", % "Copy", "Move", "Link", "No", "Label", "Warning", "NoImage"
+        "Message" -> "Insert %1 (not yet implemented)", 
+        "Insert" -> If({rest} === {}, "File", "Files")})
+}
+
+FileNamesDropDescription(~~~):= $Failed
 
 End()
 

@@ -34,6 +34,13 @@ namespace richmath {
       static CLIPFORMAT AtomBoxesBinary;
       static CLIPFORMAT AtomSvgImage;
       
+      struct Formats {
+        static CLIPFORMAT DragSourceHelperFlags;
+        static CLIPFORMAT DragWindow;
+        static CLIPFORMAT DropDescription;
+        static CLIPFORMAT IsShowingLayered;
+      };
+      
       static void init();
       static void done();
       

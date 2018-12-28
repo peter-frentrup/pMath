@@ -1,9 +1,3 @@
-#define _WIN32_WINNT 0x501
-//#define UNISCRIBE_OPENTYPE  0x0100 /* <- need usp10.dll redistributable for XP */
-
-//#define _WIN32_IE 0x0500
-//// or #define SHGFP_TYPE_CURRENT  0
-
 #include <graphics/fonts.h>
 
 #ifdef RICHMATH_USE_WIN32_FONT

@@ -1,6 +1,6 @@
-//#define _WIN32_WINNT  0x0501 /* for CS_DROPSHADOW */
-
 #include <gui/win32/basic-win32-widget.h>
+#include <gui/win32/ole/dataobject.h>
+#include <gui/win32/win32-clipboard.h>
 #include <gui/win32/win32-themes.h>
 #include <boxes/box.h>
 #include <resources.h>
@@ -46,6 +46,10 @@ BasicWin32Widget::BasicWin32Widget(
   : Base(),
     _hwnd(nullptr),
     _preferred_drop_effect(DROPEFFECT_NONE),
+    _preferred_drop_format(0),
+    _has_drag_image(false),
+    _can_have_drop_descriptions(false),
+    _did_set_drop_description(false),
     init_data(new InitData),
     _initializing(true)
 {
@@ -156,15 +160,28 @@ STDMETHODIMP BasicWin32Widget::QueryInterface(REFIID iid, void **ppvObject) {
 STDMETHODIMP BasicWin32Widget::DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) {
   _dragging.copy(data_object);
   
+  _has_drag_image = 0 != DataObject::get_global_data_dword(data_object, Win32Clipboard::Formats::DragWindow);
+  _can_have_drop_descriptions = false;
+  _did_set_drop_description = false;
+  
+  if(_has_drag_image) {
+    DWORD flags = DataObject::get_global_data_dword(data_object, Win32Clipboard::Formats::DragSourceHelperFlags);
+    _can_have_drop_descriptions = (flags & DSH_ALLOWDROPDESCRIPTIONTEXT) != 0;
+  }
+  
   _preferred_drop_effect = preferred_drop_effect(data_object);
   
   if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
     position_drop_cursor(pt);
+    apply_drop_description(*effect, key_state, pt);
   }
   else {
     *effect = DROPEFFECT_NONE;
   }
+  
+  if(*effect == DROPEFFECT_NONE || !_did_set_drop_description)
+    clear_drop_description();
   
   if(_drop_target_helper) {
     POINT small_pt = {pt.x, pt.y};
@@ -178,12 +195,20 @@ STDMETHODIMP BasicWin32Widget::DragEnter(IDataObject *data_object, DWORD key_sta
 // IDropTarget::DragOver
 //
 STDMETHODIMP BasicWin32Widget::DragOver(DWORD key_state, POINTL pt, DWORD *effect) {
+  _did_set_drop_description = false;
+  
   if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
     position_drop_cursor(pt);
+    apply_drop_description(*effect, key_state, pt);
   }
   else {
     *effect = DROPEFFECT_NONE;
+  }
+  
+  if(_can_have_drop_descriptions) {
+    if(*effect == DROPEFFECT_NONE || !_did_set_drop_description)
+      clear_drop_description();
   }
   
   if(_drop_target_helper) {
@@ -198,8 +223,13 @@ STDMETHODIMP BasicWin32Widget::DragOver(DWORD key_state, POINTL pt, DWORD *effec
 // IDropTarget::DragLeave
 //
 STDMETHODIMP BasicWin32Widget::DragLeave() {
+  clear_drop_description();
+  
   if(_drop_target_helper) 
     _drop_target_helper->DragLeave();
+  
+  _has_drag_image = false;
+  _can_have_drop_descriptions = false;
   
   _dragging.reset();
   return S_OK;
@@ -282,6 +312,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 DWORD BasicWin32Widget::preferred_drop_effect(IDataObject *data_object) {
+  _preferred_drop_format = 0;
   return DROPEFFECT_NONE;
 }
 
@@ -306,10 +337,25 @@ DWORD BasicWin32Widget::drop_effect(DWORD key_state, POINTL pt, DWORD allowed_ef
   return effect;
 }
 
+void BasicWin32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL pt) {
+}
+
 void BasicWin32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
 }
 
 void BasicWin32Widget::position_drop_cursor(POINTL pt) {
+}
+
+void BasicWin32Widget::clear_drop_description() {
+  DataObject::clear_drop_description(_dragging.get());
+}
+
+void BasicWin32Widget::set_drop_description(DROPIMAGETYPE image, const String &insert, const String &message) {
+  _did_set_drop_description = true;
+  if(_can_have_drop_descriptions)
+    DataObject::set_drop_description(_dragging.get(), image, insert, message, true);
+  else
+    DataObject::set_drop_description(_dragging.get(), image, String(), String(), image > DROPIMAGE_LINK);
 }
 
 void BasicWin32Widget::init_window_class() {

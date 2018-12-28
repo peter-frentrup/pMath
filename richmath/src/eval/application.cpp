@@ -1,7 +1,3 @@
-#ifdef RICHMATH_USE_WIN32_GUI
-#define _WIN32_WINNT 0x0600
-#endif
-
 #define __STDC_LIMIT_MACROS
 
 

@@ -5,11 +5,20 @@
 #  error this header is win32 specific
 #endif
 
+#ifndef _WIN32_WINNT
+#  define _WIN32_WINNT 0x0600 /* DROPDESCRIPTION */
+#endif
+
 #include <gui/win32/ole/combase.h>
 
 #include <ole2.h>
 #include <rtscom.h>
+#include <shlobj.h>
 #include <shobjidl.h>
+
+namespace pmath {
+  class String;
+}
 
 namespace richmath {
 
@@ -122,14 +131,21 @@ namespace richmath {
       ComBase<IDataObject>       _dragging;
       HWND                       _hwnd;
       DWORD                      _preferred_drop_effect;
+      CLIPFORMAT                 _preferred_drop_format;
+      bool                       _has_drag_image;
+      bool                       _can_have_drop_descriptions;
+      bool                       _did_set_drop_description;
       
     protected:
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
       
       virtual DWORD preferred_drop_effect(IDataObject *data_object);
       virtual DWORD drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects);
+      virtual void apply_drop_description(DWORD effect, DWORD key_state, POINTL pt);
       virtual void do_drop_data(IDataObject *data_object, DWORD effect);
       virtual void position_drop_cursor(POINTL pt);
+      void clear_drop_description();
+      void set_drop_description(DROPIMAGETYPE image, const pmath::String &insert, const pmath::String &message);
       
       static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
       

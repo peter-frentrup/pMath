@@ -9,8 +9,6 @@
 
 #include <math.h>
 
-#include <shlobj.h>
-
 
 using namespace richmath;
 using namespace pmath;
@@ -49,9 +47,6 @@ static HGLOBAL GlobalClone(HGLOBAL hglobIn) {
   return hglobOut;
 }
 
-CLIPFORMAT DataObject::Formats::IsShowingLayered = 0;
-CLIPFORMAT DataObject::Formats::DragWindow = 0;
-
 //{ class DataObject ...
 
 DataObject::DataObject() 
@@ -59,10 +54,6 @@ DataObject::DataObject()
   data{ nullptr },
   data_count{ 0 }
 {
-  if(!DataObject::Formats::IsShowingLayered) {
-    DataObject::Formats::IsShowingLayered = RegisterClipboardFormatA("IsShowingLayered");
-    DataObject::Formats::DragWindow       = RegisterClipboardFormatA("DragWindow");
-  }
 }
 
 DataObject::~DataObject() {
@@ -702,7 +693,123 @@ cairo_surface_t *DataObject::try_create_image(const FORMATETC *pFormatEtc, cairo
   return nullptr;
 }
 
-HRESULT DataObject::get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATETC *format_etc, STGMEDIUM *medium) {
+void DataObject::clear_drop_description(IDataObject *obj) {
+  if(!obj)
+    return;
+  
+  FORMATETC desc_format;
+  STGMEDIUM desc_medium;
+  if( SUCCEEDED(DataObject::get_global_data(obj, 
+                                            Win32Clipboard::Formats::DropDescription, 
+                                            &desc_format, 
+                                            &desc_medium,
+                                            sizeof(DROPDESCRIPTION)))) 
+  {
+    DROPDESCRIPTION *desc = (DROPDESCRIPTION*)GlobalLock(desc_medium.hGlobal);
+    
+    bool change_desc = DataObject::clear_drop_description(desc);
+    
+    GlobalUnlock(desc_medium.hGlobal);
+    
+    if(change_desc)
+      change_desc = SUCCEEDED(obj->SetData(&desc_format, &desc_medium, TRUE));
+    
+    if(!change_desc)
+      ReleaseStgMedium(&desc_medium);
+  }
+}
+
+bool DataObject::clear_drop_description(DROPDESCRIPTION *desc) {
+	COM_ASSERT(desc);
+
+	bool did_change = desc->type != DROPIMAGE_INVALID || desc->szMessage[0] != L'\0' || desc->szInsert[0] != L'\0'; 
+	desc->type = DROPIMAGE_INVALID;
+	desc->szMessage[0] = L'\0';
+	desc->szInsert[0] = L'\0';
+	
+	return did_change;
+}
+
+namespace {
+  static bool copy_string(wchar_t *dst, size_t dstsize, const wchar_t *src, size_t srclen) {
+    if(dstsize == 0)
+      return false;
+    
+    if(srclen >= dstsize)
+      srclen = dstsize - 1;
+    
+    bool changed = dst[srclen] != L'\0' || 0 != memcmp(dst, src, sizeof(wchar_t) * srclen);
+    if(!changed)
+      return false;
+    
+    memcpy(dst, src, sizeof(wchar_t) * srclen);
+    dst[srclen] = L'\0';
+    return true;
+  }
+  static bool copy_string(wchar_t *dst, size_t dstsize, const String &src) {
+    return copy_string(dst, dstsize, (const wchar_t*)src.buffer(), (size_t)src.length());
+  }
+}
+
+void DataObject::set_drop_description(IDataObject *obj, DROPIMAGETYPE image, const String &message, const String &insertion, bool create) {
+  if(!obj)
+    return;
+  
+  FORMATETC desc_format;
+  STGMEDIUM desc_medium;
+  if( SUCCEEDED(DataObject::get_global_data(obj, 
+                                            Win32Clipboard::Formats::DropDescription, 
+                                            &desc_format, 
+                                            &desc_medium,
+                                            sizeof(DROPDESCRIPTION)))) 
+  {
+    DROPDESCRIPTION *desc = (DROPDESCRIPTION*)GlobalLock(desc_medium.hGlobal);
+    
+    bool change_desc = false;
+    if(image == DROPIMAGE_INVALID) {
+      change_desc = clear_drop_description(desc);
+    }
+    else {
+      if(desc->type != image) {
+        change_desc = true;
+        desc->type = image;
+      }
+      
+      change_desc = copy_string(desc->szMessage, sizeof(desc->szMessage) / sizeof(wchar_t), message) || change_desc;
+      change_desc = copy_string(desc->szInsert, sizeof(desc->szInsert) / sizeof(wchar_t), insertion) || change_desc;
+    } 
+    
+    GlobalUnlock(desc_medium.hGlobal);
+    
+    if(change_desc)
+      change_desc = SUCCEEDED(obj->SetData(&desc_format, &desc_medium, TRUE));
+    
+    if(!change_desc)
+      ReleaseStgMedium(&desc_medium);
+    
+    return;
+  }
+  
+  if(create && image != DROPIMAGE_INVALID) {
+    desc_medium.tymed = TYMED_HGLOBAL;
+    desc_medium.hGlobal = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, sizeof(DROPDESCRIPTION));
+    desc_medium.pUnkForRelease = NULL;
+    if(desc_medium.hGlobal) {
+      DROPDESCRIPTION *desc = (DROPDESCRIPTION*)GlobalLock(desc_medium.hGlobal);
+      
+      desc->type = image;
+      copy_string(desc->szMessage, sizeof(desc->szMessage) / sizeof(wchar_t), message);
+      copy_string(desc->szInsert, sizeof(desc->szInsert) / sizeof(wchar_t), insertion);
+      
+      GlobalUnlock(desc_medium.hGlobal);
+      
+      if(FAILED(obj->SetData(&desc_format, &desc_medium, TRUE)))
+        GlobalFree(desc_medium.hGlobal);
+    }
+  }
+}
+
+HRESULT DataObject::get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATETC *format_etc, STGMEDIUM *medium, size_t min_size) {
   COM_ASSERT(format_etc != nullptr);
   COM_ASSERT(medium != nullptr);
   
@@ -723,6 +830,12 @@ HRESULT DataObject::get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATE
     return DV_E_TYMED;
   }
   
+  if(min_size && GlobalSize(medium->hGlobal) < min_size) {
+    ReleaseStgMedium(medium);
+    ZeroMemory(medium, sizeof(STGMEDIUM));
+    return E_UNEXPECTED;
+  }
+  
   return S_OK;
 }
 
@@ -731,11 +844,9 @@ DWORD DataObject::get_global_data_dword(IDataObject *obj, CLIPFORMAT format) {
   FORMATETC format_etc;
   STGMEDIUM medium;
   
-  if(SUCCEEDED(get_global_data(obj, format, &format_etc, &medium))) {
-    if(GlobalSize(medium.hGlobal) >= sizeof(DWORD)) {
-      data = *(DWORD*)GlobalLock(medium.hGlobal);
-      GlobalUnlock(medium.hGlobal);
-    }
+  if(SUCCEEDED(get_global_data(obj, format, &format_etc, &medium, sizeof(DWORD)))) {
+    data = *(DWORD*)GlobalLock(medium.hGlobal);
+    GlobalUnlock(medium.hGlobal);
     ReleaseStgMedium(&medium);
   }
   return data;
@@ -801,7 +912,7 @@ Expr DataObject::get_global_data_dropfiles(IDataObject *obj) {
   FORMATETC format_etc;
   STGMEDIUM medium;
   
-  if(SUCCEEDED(get_global_data(obj, CF_HDROP, &format_etc, &medium))) {
+  if(SUCCEEDED(get_global_data(obj, CF_HDROP, &format_etc, &medium, 0))) {
     list = get_global_data_dropfiles(medium.hGlobal);
     ReleaseStgMedium(&medium);
   }

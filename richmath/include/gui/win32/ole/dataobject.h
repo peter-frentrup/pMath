@@ -5,11 +5,16 @@
 #  error this header is win32 specific
 #endif
 
+#ifndef _WIN32_WINNT
+#  define _WIN32_WINNT 0x0600 /* DROPDESCRIPTION */
+#endif
+
 #include <graphics/context.h>
 #include <util/pmath-extra.h>
 
 #include <cairo-win32.h>
 #include <ole2.h>
+#include <shlobj.h>
 
 
 namespace richmath {
@@ -61,6 +66,12 @@ namespace richmath {
       
       static cairo_surface_t *try_create_image(const FORMATETC *pFormatEtc, cairo_format_t img_format, double width, double height);
       
+      static void clear_drop_description(IDataObject *obj);
+      static bool clear_drop_description(DROPDESCRIPTION *desc);
+      
+      // e.g. message = "Move to %1", insertion = "Documents"
+      static void set_drop_description(IDataObject *obj, DROPIMAGETYPE image, const String &message, const String &insertion, bool create);
+      
     private:
       HRESULT find_data_format_etc(const FORMATETC *format, struct SavedData **entry, bool add_missing);
       HRESULT add_ref_std_medium(const STGMEDIUM *stgm_in, STGMEDIUM *stgm_out, bool copy_from_external);
@@ -80,11 +91,7 @@ namespace richmath {
       int                 data_count;
       
     public:
-      struct Formats {
-        static CLIPFORMAT IsShowingLayered;
-        static CLIPFORMAT DragWindow;
-      };
-      static HRESULT get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATETC *formatEtc, STGMEDIUM *medium);
+      static HRESULT get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATETC *formatEtc, STGMEDIUM *medium, size_t min_size);
       static DWORD   get_global_data_dword(IDataObject *obj, CLIPFORMAT format);
       static Expr    get_global_data_dropfiles(HGLOBAL hglb);
       static Expr    get_global_data_dropfiles(IDataObject *obj);

@@ -182,6 +182,11 @@ CLIPFORMAT Win32Clipboard::AtomBoxesBinary = 0;
 CLIPFORMAT Win32Clipboard::AtomBoxesText = 0;
 CLIPFORMAT Win32Clipboard::AtomSvgImage = 0;
 
+CLIPFORMAT Win32Clipboard::Formats::DragSourceHelperFlags = 0;
+CLIPFORMAT Win32Clipboard::Formats::DragWindow = 0;
+CLIPFORMAT Win32Clipboard::Formats::DropDescription = 0;
+CLIPFORMAT Win32Clipboard::Formats::IsShowingLayered = 0;
+
 Win32Clipboard::Win32Clipboard()
   : Clipboard()
 {
@@ -293,6 +298,11 @@ void Win32Clipboard::init() {
   
   AtomSvgImage = RegisterClipboardFormatA(Clipboard::SvgImage);
   add_mime_type(Clipboard::SvgImage, AtomSvgImage);
+  
+  Win32Clipboard::Formats::DragSourceHelperFlags = RegisterClipboardFormatA("DragSourceHelperFlags");
+  Win32Clipboard::Formats::DragWindow            = RegisterClipboardFormatA("DragWindow");
+  Win32Clipboard::Formats::DropDescription       = RegisterClipboardFormatA("DropDescription");
+  Win32Clipboard::Formats::IsShowingLayered      = RegisterClipboardFormatA("IsShowingLayered");
 }
 
 cairo_surface_t *Win32Clipboard::create_image(String mimetype, double width, double height) {

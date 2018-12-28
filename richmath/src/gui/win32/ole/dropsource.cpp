@@ -2,6 +2,7 @@
 
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
+#include <gui/win32/win32-clipboard.h>
 #include <gui/document.h>
 
 #include <shobjidl.h>
@@ -91,7 +92,27 @@ STDMETHODIMP DropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyStat
 STDMETHODIMP DropSource::GiveFeedback(DWORD dwEffect) {
   /* default impl ... */
   if(description_data) {
-    if(DataObject::get_global_data_dword(description_data.get(), DataObject::Formats::IsShowingLayered)) {
+    bool allow_drag_images = !!DataObject::get_global_data_dword(description_data.get(), Win32Clipboard::Formats::IsShowingLayered);
+    
+    if(!allow_drag_images) { // clear any drop description
+      if(!must_set_cursor) 
+        DataObject::clear_drop_description(description_data.get());
+    }
+//    else if(/* has own descriptions? */ false) {
+//      FORMATETC desc_format;
+//      STGMEDIUM desc_medium;
+//      if( SUCCEEDED(DataObject::get_global_data(description_data.get(), 
+//                                                Win32Clipboard::Formats::DropDescription, 
+//                                                &desc_format, 
+//                                                &desc_medium,
+//                                                sizeof(DROPDESCRIPTION)))) 
+//      {
+//        ...
+//        ReleaseStgMedium(&desc_medium);
+//      }
+//    }
+    
+    if(allow_drag_images) {
       if(must_set_cursor) {
         HCURSOR cursor = (HCURSOR)LoadImageW(
                            nullptr,
@@ -138,14 +159,14 @@ namespace {
       return hBitmap;
       
     DIBSECTION ds;
-    int nSize = GetObject(hBitmap, sizeof(ds), &ds);
-    if(nSize < sizeof(BITMAP))
+    int nSize = GetObjectW(hBitmap, sizeof(ds), &ds);
+    if(nSize < (int)sizeof(BITMAP))
       return hBitmap;
       
     if(ds.dsBm.bmBitsPixel < 24)
       return hBitmap;
       
-    if(nSize < sizeof(ds)) {
+    if(nSize < (int)sizeof(ds)) {
       // not a DIBSECTION
       // Create a DIBSECTION copy and delete the original bitmap.
       HBITMAP hCopy = (HBITMAP)CopyImage(
@@ -153,7 +174,7 @@ namespace {
                         LR_CREATEDIBSECTION | LR_COPYDELETEORG);
       if(hCopy) {
         hBitmap = hCopy;
-        nSize = GetObject(hBitmap, sizeof(ds), &ds);
+        nSize = GetObjectW(hBitmap, sizeof(ds), &ds);
       }
     }
     
@@ -261,7 +282,7 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
 }
 
 bool DropSource::set_drag_image_cursor(DWORD effect) {
-  HWND hwnd = (HWND)ULongToHandle(DataObject::get_global_data_dword(description_data.get(), DataObject::Formats::DragWindow));
+  HWND hwnd = (HWND)ULongToHandle(DataObject::get_global_data_dword(description_data.get(), Win32Clipboard::Formats::DragWindow));
   if(!hwnd)
     return false;
     

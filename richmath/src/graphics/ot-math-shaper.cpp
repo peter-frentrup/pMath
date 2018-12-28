@@ -1,5 +1,3 @@
-#define _WIN32_WINNT 0x501
-
 #include <graphics/ot-math-shaper.h>
 
 #include <cmath>
