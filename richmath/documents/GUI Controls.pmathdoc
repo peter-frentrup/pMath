@@ -1,0 +1,92 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("GUI Controls", "Title"), 
+    SectionGroup({Section(BoxData({"Slider", "(", ")"}), "Input", 
+       SectionLabel -> "in [1]:"), 
+      Section(BoxData(SliderBox(0.77548209366391185`, 0 .. 1)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+    SectionGroup({Section(BoxData({"ProgressIndicator", "(", "0.5", ")"}), 
+       "Input", SectionLabel -> "in [2]:"), 
+      Section(BoxData(ProgressIndicatorBox(0.5`, 0 .. 1)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Table", "(", {
+          {"Button", "(", {"bf", ",", ",", {"ButtonFrame", "\[Rule]", "bf"}}, 
+           ")"}, ",", {"bf", "\[Rule]", {
+            "{", {"None", ",", "Automatic", ",", 
+             ComplexStringBox("\"DialogBox\""), ",", 
+             ComplexStringBox("\"Defaulted\""), ",", 
+             ComplexStringBox("\"Palette\""), ",", 
+             ComplexStringBox("\"Generic\""), ",", 
+             ComplexStringBox("\"TooltipWindow\""), ",", 
+             ComplexStringBox("\"ListViewItem\""), ",", 
+             ComplexStringBox("\"ListViewItemSelected\"")}, "}"}}}, ")"}), 
+       "Input", SectionLabel -> "in [13]:"), 
+      Section(
+       BoxData({
+         "{", {ButtonBox("None", ButtonFrame -> None, 
+           ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox("Automatic", ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox(ComplexStringBox("\"DialogBox\""), 
+           ButtonFrame -> "DialogBox", ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox(ComplexStringBox("\"Defaulted\""), 
+           ButtonFrame -> "Defaulted", ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox(ComplexStringBox("\"Palette\""), ButtonFrame -> "Palette", 
+           ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox(ComplexStringBox("\"Generic\""), ButtonFrame -> "Generic", 
+           ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox(ComplexStringBox("\"TooltipWindow\""), 
+           ButtonFrame -> "TooltipWindow", ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox(ComplexStringBox("\"ListViewItem\""), 
+           ButtonFrame -> "ListViewItem", ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox(ComplexStringBox("\"ListViewItemSelected\""), 
+           ButtonFrame -> "ListViewItemSelected", ButtonFunction -> (/\/ &))}, 
+         "}"}), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [13]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"DynamicLocal", "(", {
+          {"{", {"x", "\[Assign]", "1"}, "}"}, ",", {
+           "{", {{"SetterBar", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+               "{", {"1", ",", "2", ",", "3"}, "}"}}, ")"}, ",", {
+             "Dynamic", "(", "x", ")"}}, "}"}}, ")"}), "Input", 
+       SectionLabel -> "in [1]:"), 
+      Section(BoxData(DynamicLocalBox({x}, {
+          "{", {InterpretationBox({SetterBox(Dynamic(x), 1, "1"), 
+             "\[InvisibleSpace]", SetterBox(Dynamic(x), 2, "2"), 
+             "\[InvisibleSpace]", SetterBox(Dynamic(x), 3, "3")}, 
+            SetterBar(Dynamic(x), {1, 2, 3}), Editable -> False), ",", 
+           DynamicBox(ToBoxes(x))}, "}"}, Initialization :> None, 
+         Deinitialization :> None, UnsavedVariables :> {}, 
+         DynamicLocalValues :> {{OwnRules(x):= {HoldPattern(x) :> 1}}})), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Table", "(", {{"Checkbox", "(", "c", ")"}, ",", {
+           "c", "\[Rule]", {"{", {"True", ",", "False", ",", "Undefined"}, 
+            "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+      Section(BoxData({"{", {CheckboxBox(True), ",", CheckboxBox(False), ",", 
+          CheckboxBox(Undefined)}, "}"}), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [1]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Table", "(", {{"RadioButton", "(", "c", ")"}, ",", {
+           "c", "\[Rule]", {"{", {"True", ",", "False"}, "}"}}}, ")"}), 
+       "Input", SectionLabel -> "in [8]:"), 
+      Section(
+       BoxData({"{", {RadioButtonBox(True), ",", RadioButtonBox(False)}, 
+         "}"}), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [8]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Tooltip", "(", {{"Panel", "(", "123", ")"}, ",", 
+          ComplexStringBox("\"Tip\"")}, ")"}), "Input", 
+       SectionLabel -> "in [1]:"), 
+      Section(BoxData(TooltipBox(PanelBox("123"), 
+         ComplexStringBox("\"Tip\""))), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [1]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"InputField", "(", {
+          ComplexStringBox("\"Hallo\""), ",", "String"}, ")"}), "Input", 
+       SectionLabel -> "in [12]:"), 
+      Section(BoxData(InputFieldBox("Hallo", String)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [12]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
