@@ -64,6 +64,12 @@ void ControlPainter::calc_container_size(
         extents->descent += 3.0;
       } break;
       
+    case PanelControl: {
+        extents->width +=   12.0;
+        extents->ascent +=  6.0;
+        extents->descent += 6.0;
+      } break;
+    
     case SliderHorzChannel: {
         extents->ascent  = 3.0;
         extents->descent = 1.0;
@@ -264,7 +270,11 @@ void ControlPainter::draw_container(
         canvas->fill();
         canvas->set_color(c);
       } break;
-      
+    
+    case PanelControl:
+      paint_frame(canvas, x, y, width, height, false);
+      break; 
+    
     case SliderHorzChannel:
       paint_frame(canvas, x, y, width, height, true);
       break;
@@ -423,7 +433,7 @@ SharedPtr<BoxAnimation> ControlPainter::control_transition(
   float                        width,
   float                        height
 ) {
-  return 0;
+  return nullptr;
 }
 
 void ControlPainter::container_content_move(

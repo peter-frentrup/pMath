@@ -22,6 +22,7 @@ namespace richmath {
     TooltipWindow,
     ListViewItem,
     ListViewItemSelected,
+    PanelControl,
     
     // not realy a container:
     SliderHorzChannel,

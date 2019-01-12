@@ -48,6 +48,9 @@ MakeBoxes(InputField(~value?isStringOrDynamic, String,                          
 MakeBoxes(InputField(~value?isNumberOrDynamic, Number,                                         options:OptionsPattern()))::= InputFieldBox(value, Number,     options) /? allowGuiBoxes
 MakeBoxes(InputField(~value,                   type: Expression | RawBoxes | Hold(Expression), options:OptionsPattern()))::= InputFieldBox(value, type,       options) /? allowGuiBoxes
 
+MakeBoxes(Panel())::=                                 PanelBox("") /? allowGuiBoxes
+MakeBoxes(Panel(~expr, options:OptionsPattern()))::=  PanelBox(MakeBoxes(expr), options) /? allowGuiBoxes
+
 MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1) /? allowGuiBoxes
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1) /? allowGuiBoxes
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic, ~min..~max))::= ProgressIndicatorBox(val, min..max) /? allowGuiBoxes
@@ -136,6 +139,12 @@ CheckboxBox/: MakeExpression(CheckboxBox(~state, ~values, options:OptionsPattern
 DynamicBox/: MakeExpression(DynamicBox(ToBoxes(~var), options:OptionsPattern()))::= HoldComplete(Dynamic(var, options))
 
 InputFieldBox/: MakeExpression(InputFieldBox(~value, ~type, options:OptionsPattern()))::= HoldComplete(InputField(value, type, options))
+
+PanelBox/: MakeExpression(PanelBox(~content, options:OptionsPattern()))::= 
+	With({c:= MakeExpression(content)},
+		If(c === $Failed, Return($Failed));
+		HoldComplete(Panel(c, options)).Replace({HoldComplete(~x) :> x}, 2)
+		)
 
 ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, 0..1))::=   HoldComplete(ProgressIndicator(val))
 ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, ~range))::= HoldComplete(ProgressIndicator(val, range))
