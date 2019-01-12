@@ -109,7 +109,8 @@ namespace richmath {
   enum class BoxInputFlags {
     Default            = 0,
     FormatNumbers      = 1,
-    AllowTemplateSlots = 2
+    AllowTemplateSlots = 2,
+    ForceResetDynamic  = 4
   };
   
   inline bool has(BoxInputFlags lhs, BoxInputFlags rhs) {

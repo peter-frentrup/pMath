@@ -53,17 +53,29 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   
   /* now success is guaranteed */
   
-  _public_symbols  = symbols;
-  _private_symbols = symbols;
-  
-  for(size_t i = symbols.expr_length(); i > 0; --i) {
-    Expr sym = symbols[i];
+  if(_public_symbols != symbols) {
+    // TODO: call previous deinitialization
     
-    sym = Expr(pmath_symbol_create_temporary(
-                 pmath_symbol_name(sym.get()),
-                 TRUE));
-                 
-    _private_symbols.set(i, sym);
+    _public_symbols  = symbols;
+    
+    /* FIXME: only introduce new private symbols for *new* public symbols, because 
+        DynamicBox() will not see the change: DynamicBox::try_load_from_object() will not reset
+        its `must_update` if merely our private symbol changed.
+        
+        To work around the issue, we will force must_update=true for all contained DynamicBox's etc.
+     */
+    options|= BoxInputFlags::ForceResetDynamic;
+
+    _private_symbols = symbols;
+    for(size_t i = symbols.expr_length(); i > 0; --i) {
+      Expr sym = symbols[i];
+      
+      sym = Expr(pmath_symbol_create_temporary(
+                   pmath_symbol_name(sym.get()),
+                   TRUE));
+                   
+      _private_symbols.set(i, sym);
+    }
   }
   
   Expr values = Expr(pmath_option_value(

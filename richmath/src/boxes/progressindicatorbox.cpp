@@ -70,7 +70,7 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   range_min = new_range_min;
   range_max = new_range_max;
   
-  if(dynamic.expr() != expr[1]) {
+  if(dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
     dynamic = expr[1];
     must_update = true;
   }

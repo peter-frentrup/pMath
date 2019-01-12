@@ -36,8 +36,13 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   value = new_value;
   
-  if(expr.expr_length() >= 1)
-    dynamic = expr[1];
+  if(expr.expr_length() >= 1) {
+    Expr dyn_expr = expr[1];
+    if(dynamic.expr() != dyn_expr || has(opts, BoxInputFlags::ForceResetDynamic)) {
+      must_update = true;
+      dynamic = dyn_expr;
+    }
+  }
   else
     dynamic = Symbol(PMATH_SYMBOL_FALSE);
     

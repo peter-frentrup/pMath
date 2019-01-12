@@ -40,7 +40,7 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   
-  if(dynamic.expr() != expr[1] || input_type != expr[2]) {
+  if(dynamic.expr() != expr[1] || input_type != expr[2] || has(opts, BoxInputFlags::ForceResetDynamic)) {
     dynamic     = expr[1];
     input_type  = expr[2];
     must_update = true;

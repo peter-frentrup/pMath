@@ -76,7 +76,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   expr.set(0, Symbol(richmath_System_Dynamic));
   
-  if(dynamic.expr() != expr){
+  if(dynamic.expr() != expr || has(opts, BoxInputFlags::ForceResetDynamic)){
     must_update = true;
     dynamic     = expr;
   }

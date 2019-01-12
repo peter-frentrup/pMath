@@ -30,7 +30,7 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   
-  if(dynamic.expr() != expr[1]) {
+  if(dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
     must_update = true;
     dynamic     = expr[1];
   }
