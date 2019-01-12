@@ -55,14 +55,15 @@ Win32ControlPainter Win32ControlPainter::win32_painter;
 Win32ControlPainter::Win32ControlPainter()
   : ControlPainter(),
     blur_input_field(true),
-    button_theme(0),
-    edit_theme(0),
-    explorer_listview_theme(0),
-    tooltip_theme(0),
-    progress_theme(0),
-    scrollbar_theme(0),
-    slider_theme(0),
-    toolbar_theme(0)
+    button_theme(nullptr),
+    edit_theme(nullptr),
+    explorer_listview_theme(nullptr),
+    tooltip_theme(nullptr),
+    progress_theme(nullptr),
+    scrollbar_theme(nullptr),
+    slider_theme(nullptr),
+    tab_theme(nullptr),
+    toolbar_theme(nullptr)
 {
   ControlPainter::std = this;
 }
@@ -97,6 +98,14 @@ void Win32ControlPainter::calc_container_size(
     case ListViewItemSelected:
       ControlPainter::calc_container_size(canvas, type, extents);
       return;
+    
+    case PanelControl:
+      if(theme && Win32Themes::GetThemeMargins) {
+        extents->width +=   9.0;
+        extents->ascent +=  4.5;
+        extents->descent += 4.5;
+      }
+      break;
       
     case ProgressIndicatorBar: {
         if(!theme || theme_part != 5) {
@@ -118,8 +127,7 @@ void Win32ControlPainter::calc_container_size(
     default: break;
   }
   
-  if(Win32Themes::GetThemeMargins
-      && Win32Themes::GetThemePartSize) {
+  if(Win32Themes::GetThemeMargins && Win32Themes::GetThemePartSize) {
     SIZE size = {0, 0};
     Win32Themes::MARGINS mar = {0, 0, 0, 0};
     // TMT_SIZINGMARGINS  = 3601
@@ -194,7 +202,8 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
       
     case PushButton:
     case DefaultPushButton:
-    case PaletteButton: {
+    case PaletteButton:
+    case PanelControl: {
         DWORD col = GetSysColor(COLOR_BTNTEXT);
         return ((col & 0xFF0000) >> 16) |
                ( col & 0x00FF00)        |
@@ -592,6 +601,11 @@ void Win32ControlPainter::draw_container(
         
       case ListViewItemSelected:
         FillRect(dc, &rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+        break;
+      
+      case PanelControl:
+        FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+        DrawEdge(dc, &rect, BDR_RAISEDOUTER, BF_RECT);
         break;
         
       case ProgressIndicatorBackground:
@@ -1278,7 +1292,7 @@ HANDLE Win32ControlPainter::get_control_theme(
   if(!Win32Themes::OpenThemeData)
     return 0;
     
-  HANDLE theme = 0;
+  HANDLE theme = nullptr;
   
   switch(type) {
     case PushButton:
@@ -1311,19 +1325,19 @@ HANDLE Win32ControlPainter::get_control_theme(
       
     case ListViewItem:
     case ListViewItemSelected: {
-        if(!edit_theme)
+        if(!explorer_listview_theme)
           explorer_listview_theme = Win32Themes::OpenThemeData(0, L"Explorer::LISTVIEW;LISTVIEW");
           
         theme = explorer_listview_theme;
       } break;
-      
-    case TooltipWindow: {
-        if(!tooltip_theme)
-          tooltip_theme = Win32Themes::OpenThemeData(0, L"TOOLTIP");
-          
-        theme = tooltip_theme;
+    
+    case PanelControl: {
+        if(!tab_theme)
+          tab_theme = Win32Themes::OpenThemeData(nullptr, L"TAB");
+        
+        theme = tab_theme;
       } break;
-      
+    
     case ProgressIndicatorBackground:
     case ProgressIndicatorBar: {
         if(!progress_theme)
@@ -1331,13 +1345,20 @@ HANDLE Win32ControlPainter::get_control_theme(
           
         theme = progress_theme;
       } break;
-      
+    
     case SliderHorzChannel:
     case SliderHorzThumb: {
         if(!slider_theme)
           slider_theme = Win32Themes::OpenThemeData(0, L"TRACKBAR");
           
         theme = slider_theme;
+      } break;
+      
+    case TooltipWindow: {
+        if(!tooltip_theme)
+          tooltip_theme = Win32Themes::OpenThemeData(0, L"TOOLTIP");
+          
+        theme = tooltip_theme;
       } break;
       
     default: return 0;
@@ -1418,7 +1439,12 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_part  = 1; // TTP_STANDARD
         *theme_state = 1;
       } break;
-      
+    
+    case PanelControl: {
+        *theme_part  = 9; // TABP_PANE
+        *theme_state = 0;
+      } break;
+    
     case ProgressIndicatorBackground: {
         if(Win32Themes::IsThemePartDefined(theme, 11, 0))
           *theme_part = 11; // PP_TRANSPARENTBAR
@@ -1542,17 +1568,21 @@ void Win32ControlPainter::clear_cache() {
       
     if(slider_theme)
       Win32Themes::CloseThemeData(slider_theme);
-      
+    
+    if(tab_theme)
+      Win32Themes::CloseThemeData(tab_theme);
+    
     if(toolbar_theme)
       Win32Themes::CloseThemeData(toolbar_theme);
   }
   
-  button_theme            = 0;
-  edit_theme              = 0;
-  explorer_listview_theme = 0;
-  tooltip_theme           = 0;
-  progress_theme          = 0;
-  scrollbar_theme         = 0;
-  slider_theme            = 0;
-  toolbar_theme           = 0;
+  button_theme            = nullptr;
+  edit_theme              = nullptr;
+  explorer_listview_theme = nullptr;
+  tooltip_theme           = nullptr;
+  progress_theme          = nullptr;
+  scrollbar_theme         = nullptr;
+  slider_theme            = nullptr;
+  tab_theme               = nullptr;
+  toolbar_theme           = nullptr;
 }

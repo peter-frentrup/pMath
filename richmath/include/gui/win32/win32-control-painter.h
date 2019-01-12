@@ -96,6 +96,7 @@ namespace richmath {
       HANDLE progress_theme;
       HANDLE scrollbar_theme;
       HANDLE slider_theme;
+      HANDLE tab_theme;
       HANDLE toolbar_theme;
   };
 }
