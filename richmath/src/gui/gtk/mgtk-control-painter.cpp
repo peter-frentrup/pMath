@@ -4,6 +4,8 @@
 #include <util/style.h>
 #include <graphics/shapers.h>
 
+#include <math.h>
+
 
 using namespace richmath;
 
@@ -27,14 +29,20 @@ MathGtkControlPainter::MathGtkControlPainter()
   ControlPainter::std = this;
   
 #if GTK_MAJOR_VERSION >= 3
-  button_context              = 0;
-  tool_button_context         = 0;
-  input_field_context         = 0;
-  slider_context              = 0;
-  progress_bar_trough_context = 0;
-  progress_bar_context        = 0;
-  checkbox_context            = 0;
-  radio_button_context        = 0;
+  push_button_context         = nullptr;
+  default_push_button_context = nullptr;
+  tool_button_context         = nullptr;
+  input_field_context         = nullptr;
+  slider_channel_context      = nullptr;
+  slider_thumb_context        = nullptr;
+  list_item_context           = nullptr;
+  list_item_selected_context  = nullptr;
+  panel_context               = nullptr;
+  progress_bar_trough_context = nullptr;
+  progress_bar_context        = nullptr;
+  checkbox_context            = nullptr;
+  radio_button_context        = nullptr;
+  tooltip_context             = nullptr;
 #endif
 }
 
@@ -80,22 +88,37 @@ void MathGtkControlPainter::calc_container_size(
           extents->descent = 0.25f * extents->width;
         }
         return;
-        
+      
+      case PanelControl: {
+          extents->width +=   12.0;
+          extents->ascent +=  6.0;
+          extents->descent += 6.0;
+        }
+        return;
+      
       case SliderHorzChannel:
         {
-          extents->ascent  = 3.0;
-          extents->descent = 1.0;
+          float h = 4 * 0.75f;
+          extents->ascent  = h * 0.75;
+          extents->descent = h * 0.25;
         }
         return;
         
       case SliderHorzThumb:
         {
-          int w;
-          gtk_style_context_get_style(context, "slider-width", &w, nullptr);
+          int w = 0;
+          gtk_style_context_get_style(context, "min-width", &w, nullptr); // GTK >= 3.20.0
+          if(w <= 0)
+            gtk_style_context_get_style(context, "slider-width", &w, nullptr);
           
-          extents->ascent  = w * 0.75f * 0.75f;
-          extents->descent = w * 0.25f * 0.75f;
-          extents->width  = w * 0.75f / 2;//extents->height() / 2;
+          int h = 0;
+          gtk_style_context_get_style(context, "min-height", &h, nullptr); // GTK >= 3.20.0
+          if(h <= 0)
+            gtk_style_context_get_style(context, "slider-length", &h, nullptr);
+          
+          extents->ascent  = h * 0.75f * 0.75f;
+          extents->descent = h * 0.75f * 0.25f;
+          extents->width  = w * 0.75f;
         }
         return;
         
@@ -182,9 +205,13 @@ void MathGtkControlPainter::draw_container(
     canvas->save();
     gtk_style_context_save(context);
     
-    // why do we have to add 1 pixel here??
-    width +=  0.75f;
-    height += 0.75f;
+    if(canvas->pixel_device) {
+      canvas->align_point(&x, &y, false);
+      canvas->user_to_device_dist(&width, &height);
+      width  = floor(width  + 0.5);
+      height = floor(height + 0.5);
+      canvas->device_to_user_dist(&width, &height);
+    }
     
     canvas->translate(x, y);
     x = y = 0;
@@ -211,6 +238,7 @@ void MathGtkControlPainter::draw_container(
       case SliderHorzThumb:
         {
           gtk_render_background(context, canvas->cairo(), x, y, width, height);
+          gtk_render_frame(context, canvas->cairo(), x, y, width, height);
                          
           // gtk_render_slider() draws to the wrong location (coordinates scaled by ~ 2/3)
           //gtk_render_slider(context, canvas->cairo(), x, y, width, height, GTK_ORIENTATION_HORIZONTAL);
@@ -286,7 +314,7 @@ void MathGtkControlPainter::container_content_move(
 }
  
 bool MathGtkControlPainter::container_hover_repaint(ContainerType type) {
-  return get_control_theme(type) != 0;
+  return type != PanelControl && get_control_theme(type) != nullptr;
 }
  
 void MathGtkControlPainter::system_font_style(Style *style) {
@@ -338,23 +366,41 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
       break;
       
     case PushButton:
-    case DefaultPushButton:
-      if(!button_context) {
-        button_context = gtk_style_context_new();
+      if(!push_button_context) {
+        push_button_context = gtk_style_context_new();
         
         GtkWidgetPath *path;
         
-        path = gtk_widget_path_new ();
-        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
-        int pos = gtk_widget_path_append_type (path, GTK_TYPE_BUTTON);
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_BUTTON);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_BUTTON);
         
-        gtk_style_context_set_path(    button_context, path);
-        gtk_style_context_set_screen(  button_context, gdk_screen_get_default());
-        gtk_style_context_add_provider(button_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
-        gtk_style_context_add_class(   button_context, GTK_STYLE_CLASS_BUTTON);
+        gtk_style_context_set_path(    push_button_context, path);
+        gtk_style_context_set_screen(  push_button_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(push_button_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   push_button_context, GTK_STYLE_CLASS_BUTTON);
       }
-      return button_context;
+      return push_button_context;
+      
+    case DefaultPushButton:
+      if(!default_push_button_context) {
+        default_push_button_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_BUTTON);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_BUTTON);
+        
+        gtk_style_context_set_path(    default_push_button_context, path);
+        gtk_style_context_set_screen(  default_push_button_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(default_push_button_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   default_push_button_context, GTK_STYLE_CLASS_BUTTON);
+        gtk_style_context_add_class(   default_push_button_context, GTK_STYLE_CLASS_SUGGESTED_ACTION);
+      }
+      return default_push_button_context;
       
     case PaletteButton:
       if(!tool_button_context) {
@@ -363,15 +409,15 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
         GtkWidgetPath *path;
         
         int pos;
-        path = gtk_widget_path_new ();
-        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
-        //pos = gtk_widget_path_append_type (path, GTK_TYPE_TOOLBAR);
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        //pos = gtk_widget_path_append_type(path, GTK_TYPE_TOOLBAR);
         //gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_TOOLBAR);
         
-        pos = gtk_widget_path_append_type (path, GTK_TYPE_TOOL_BUTTON);
+        //pos = gtk_widget_path_append_type(path, GTK_TYPE_TOOL_BUTTON);
         //gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_BUTTON);
         
-        pos = gtk_widget_path_append_type (path, GTK_TYPE_BUTTON);
+        pos = gtk_widget_path_append_type(path, GTK_TYPE_BUTTON);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_BUTTON);
         
         gtk_style_context_set_path(    tool_button_context, path);
@@ -379,6 +425,7 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
         gtk_style_context_add_provider(tool_button_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
         //gtk_style_context_add_class(   tool_button_context, GTK_STYLE_CLASS_TOOLBAR);
         gtk_style_context_add_class(   tool_button_context, GTK_STYLE_CLASS_BUTTON);
+        gtk_style_context_add_class(   tool_button_context, GTK_STYLE_CLASS_FLAT);
       }
       return tool_button_context;
       
@@ -388,9 +435,9 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
         
         GtkWidgetPath *path;
         
-        path = gtk_widget_path_new ();
-        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
-        int pos = gtk_widget_path_append_type (path, GTK_TYPE_ENTRY);
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_ENTRY);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_ENTRY);
         
         gtk_style_context_set_path(    input_field_context, path);
@@ -408,9 +455,9 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
         
         GtkWidgetPath *path;
         
-        path = gtk_widget_path_new ();
-        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
-        int pos = gtk_widget_path_append_type (path, GTK_TYPE_CHECK_BUTTON);
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_CHECK_BUTTON);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_CHECK);
         
         gtk_style_context_set_path(    checkbox_context, path);
@@ -427,9 +474,9 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
         
         GtkWidgetPath *path;
         
-        path = gtk_widget_path_new ();
-        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
-        int pos = gtk_widget_path_append_type (path, GTK_TYPE_RADIO_BUTTON);
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_RADIO_BUTTON);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_RADIO);
         
         gtk_style_context_set_path(    radio_button_context, path);
@@ -438,16 +485,36 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
         gtk_style_context_add_class(   radio_button_context, GTK_STYLE_CLASS_RADIO);
       }
       return radio_button_context;
-      
+    
+    case PanelControl:
+      if(!panel_context) {
+        panel_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new();
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        pos = gtk_widget_path_append_type(path, GTK_TYPE_FRAME);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_FRAME);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_BACKGROUND);
+        
+        gtk_style_context_set_path(    panel_context, path);
+        gtk_style_context_set_screen(  panel_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(panel_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   panel_context, GTK_STYLE_CLASS_BACKGROUND);
+        gtk_style_context_add_class(   panel_context, GTK_STYLE_CLASS_FRAME);
+      }
+      return panel_context;
+    
     case ProgressIndicatorBackground:
       if(!progress_bar_trough_context) {
         progress_bar_trough_context = gtk_style_context_new();
         
         GtkWidgetPath *path;
         
-        path = gtk_widget_path_new ();
-        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
-        int pos = gtk_widget_path_append_type (path, GTK_TYPE_PROGRESS_BAR);
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_PROGRESS_BAR);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_TROUGH);
         
         gtk_style_context_set_path(    progress_bar_trough_context, path);
@@ -463,9 +530,9 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
         
         GtkWidgetPath *path;
         
-        path = gtk_widget_path_new ();
-        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
-        int pos = gtk_widget_path_append_type (path, GTK_TYPE_PROGRESS_BAR);
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_PROGRESS_BAR);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_PROGRESSBAR);
         
         gtk_style_context_set_path(    progress_bar_context, path);
@@ -476,40 +543,159 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
       return progress_bar_context;
       
     case SliderHorzChannel:
-    case SliderHorzThumb:
-      if(!slider_context) {
-        slider_context = gtk_style_context_new();
+      if(!slider_channel_context) {
+        slider_channel_context = gtk_style_context_new();
         
         GtkWidgetPath *path;
         
-        path = gtk_widget_path_new ();
-        gtk_widget_path_append_type (path, GTK_TYPE_WINDOW);
-        gtk_widget_path_append_type (path, GTK_TYPE_SCALE);
-        int pos = gtk_widget_path_append_type (path, GTK_TYPE_HSCALE);
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_SCALE);
+        //int pos = gtk_widget_path_append_type(path, GTK_TYPE_HSCALE);
         gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_SCALE);
-        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_SLIDER);
         
-        gtk_style_context_set_path(    slider_context, path);
-        gtk_style_context_set_screen(  slider_context, gdk_screen_get_default());
-        gtk_style_context_add_provider(slider_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
-        gtk_style_context_add_class(   slider_context, GTK_STYLE_CLASS_SCALE);
-        gtk_style_context_add_class(   slider_context, GTK_STYLE_CLASS_SLIDER);
+        gtk_style_context_set_path(    slider_channel_context, path);
+        gtk_style_context_set_screen(  slider_channel_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(slider_channel_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   slider_channel_context, GTK_STYLE_CLASS_SCALE);
+        gtk_style_context_add_class(   slider_channel_context, GTK_STYLE_CLASS_HORIZONTAL);
+        gtk_style_context_add_class(   slider_channel_context, GTK_STYLE_CLASS_TROUGH);
       }
-      return slider_context;
+      return slider_channel_context;
+      
+    case SliderHorzThumb:
+      if(!slider_thumb_context) {
+        slider_thumb_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_SCALE);
+        //int pos = gtk_widget_path_append_type(path, GTK_TYPE_HSCALE);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_SCALE);
+        
+        gtk_style_context_set_path(    slider_thumb_context, path);
+        gtk_style_context_set_screen(  slider_thumb_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(slider_thumb_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   slider_thumb_context, GTK_STYLE_CLASS_SCALE);
+        gtk_style_context_add_class(   slider_thumb_context, GTK_STYLE_CLASS_HORIZONTAL);
+        gtk_style_context_add_class(   slider_thumb_context, GTK_STYLE_CLASS_SLIDER);
+      }
+      return slider_thumb_context;
       
     case TooltipWindow:
+      if(!tooltip_context) {
+        tooltip_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_TOOLTIP);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_TOOLTIP);
+        
+        gtk_style_context_set_path(    tooltip_context, path);
+        gtk_style_context_set_screen(  tooltip_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(tooltip_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   tooltip_context, GTK_STYLE_CLASS_TOOLTIP);
+        gtk_style_context_add_class(   tooltip_context, GTK_STYLE_CLASS_BACKGROUND);
+      }
+      return tooltip_context;
+      
     case ListViewItem:
+      if(!list_item_context) {
+        list_item_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_LIST_BOX);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_LIST);
+        
+        gtk_style_context_set_path(    list_item_context, path);
+        gtk_style_context_set_screen(  list_item_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(list_item_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   list_item_context, GTK_STYLE_CLASS_LIST);
+        gtk_style_context_add_class(   list_item_context, GTK_STYLE_CLASS_LIST_ROW);
+      }
+      return list_item_context;
+      
     case ListViewItemSelected:
+      if(!list_item_selected_context) {
+        list_item_selected_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_LIST_BOX);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_LIST);
+        
+        gtk_style_context_set_path(    list_item_selected_context, path);
+        gtk_style_context_set_screen(  list_item_selected_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(list_item_selected_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   list_item_selected_context, GTK_STYLE_CLASS_LIST);
+        gtk_style_context_add_class(   list_item_selected_context, GTK_STYLE_CLASS_LIST_ROW);
+        gtk_style_context_add_class(   list_item_selected_context, "activatable");
+      }
+      return list_item_selected_context;
     
     default:
       break;
   }
   
-  return 0;
+  return nullptr;
 }
  
 GtkStateFlags MathGtkControlPainter::get_state_flags(ContainerType type, ControlState state) {
   int result;
+  
+  switch(type) {
+    case GenericButton:
+    case PushButton:
+    case DefaultPushButton:
+    case PaletteButton:
+    
+    case CheckboxUnchecked:
+    case RadioButtonUnchecked: 
+    
+    case ListViewItem: {
+        switch(state) {
+          case Disabled:       return GTK_STATE_FLAG_INSENSITIVE;
+          case PressedHovered: return (GtkStateFlags)( (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Hovered:        
+          case Hot:            return GTK_STATE_FLAG_PRELIGHT;
+          case Pressed:        
+          case Normal:         return GTK_STATE_FLAG_NORMAL;
+        }
+      } break;
+    
+    case CheckboxChecked:
+    case RadioButtonChecked: {
+        switch(state) {
+          case Disabled:       return (GtkStateFlags)( (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_INSENSITIVE );
+          case PressedHovered: return (GtkStateFlags)( (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Hovered:        
+          case Hot:            return (GtkStateFlags)( (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Pressed:        
+          case Normal:         return (GtkStateFlags)( (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_NORMAL );
+        }
+      } break;
+    
+    case ListViewItemSelected: {
+        switch(state) {
+          case Disabled:       return (GtkStateFlags)( (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_INSENSITIVE );
+          case PressedHovered: return (GtkStateFlags)( (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Hovered:        
+          case Hot:            return (GtkStateFlags)( (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Pressed:        
+          case Normal:         return (GtkStateFlags)( (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_NORMAL );
+        }
+      } break;
+    
+  }
   
   switch(state) {
     case Hovered:
@@ -544,22 +730,6 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ContainerType type, Control
       result |= (int)GTK_STATE_FLAG_INCONSISTENT;
       break;
       
-    case CheckboxChecked:
-    case RadioButtonChecked:
-      result |= (int)GTK_STATE_FLAG_ACTIVE;
-      break;
-      
-    case CheckboxUnchecked:
-    case RadioButtonUnchecked:
-      result &= ~(int)GTK_STATE_FLAG_ACTIVE;
-      break;
-      
-    case SliderHorzThumb:
-      result &= ~(int)GTK_STATE_FLAG_PRELIGHT;
-      result &= ~(int)GTK_STATE_FLAG_FOCUSED;
-      result &= ~(int)GTK_STATE_FLAG_SELECTED;
-      break;
-      
     default: break;
   }
   
@@ -567,8 +737,11 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ContainerType type, Control
 }
  
 void MathGtkControlPainter::clear_cache() {
-  if(button_context)
-    g_object_unref(button_context);
+  if(push_button_context)
+    g_object_unref(push_button_context);
+    
+  if(default_push_button_context)
+    g_object_unref(default_push_button_context);
     
   if(tool_button_context)
     g_object_unref(tool_button_context);
@@ -576,8 +749,20 @@ void MathGtkControlPainter::clear_cache() {
   if(input_field_context)
     g_object_unref(input_field_context);
     
-  if(slider_context)
-    g_object_unref(slider_context);
+  if(slider_channel_context)
+    g_object_unref(slider_channel_context);
+    
+  if(slider_thumb_context)
+    g_object_unref(slider_thumb_context);
+    
+  if(list_item_context)
+    g_object_unref(list_item_context);
+    
+  if(list_item_selected_context)
+    g_object_unref(list_item_selected_context);
+    
+  if(panel_context)
+    g_object_unref(panel_context);
     
   if(progress_bar_trough_context)
     g_object_unref(progress_bar_trough_context);
@@ -591,14 +776,23 @@ void MathGtkControlPainter::clear_cache() {
   if(radio_button_context)
     g_object_unref(radio_button_context);
     
-  button_context              = 0;
-  tool_button_context         = 0;
-  input_field_context         = 0;
-  slider_context              = 0;
-  progress_bar_trough_context = 0;
-  progress_bar_context        = 0;
-  checkbox_context            = 0;
-  radio_button_context        = 0;
+  if(tooltip_context)
+    g_object_unref(tooltip_context);
+    
+  push_button_context         = nullptr;
+  default_push_button_context = nullptr;
+  tool_button_context         = nullptr;
+  input_field_context         = nullptr;
+  slider_channel_context      = nullptr;
+  slider_thumb_context        = nullptr;
+  list_item_context           = nullptr;
+  list_item_selected_context  = nullptr;
+  panel_context               = nullptr;
+  progress_bar_trough_context = nullptr;
+  progress_bar_context        = nullptr;
+  checkbox_context            = nullptr;
+  radio_button_context        = nullptr;
+  tooltip_context        = nullptr;
 }
  
 #endif

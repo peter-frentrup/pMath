@@ -52,14 +52,20 @@ namespace richmath {
       void clear_cache();
       
     protected:
-      GtkStyleContext *button_context;
+      GtkStyleContext *push_button_context;
+      GtkStyleContext *default_push_button_context;
       GtkStyleContext *tool_button_context;
       GtkStyleContext *input_field_context;
-      GtkStyleContext *slider_context;
+      GtkStyleContext *slider_channel_context;
+      GtkStyleContext *slider_thumb_context;
+      GtkStyleContext *list_item_context;
+      GtkStyleContext *list_item_selected_context;
+      GtkStyleContext *panel_context;
       GtkStyleContext *progress_bar_trough_context;
       GtkStyleContext *progress_bar_context;
       GtkStyleContext *checkbox_context;
       GtkStyleContext *radio_button_context;
+      GtkStyleContext *tooltip_context;
       
 #endif
     
