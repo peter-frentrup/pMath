@@ -8,12 +8,14 @@
 namespace richmath {
   class ContainerWidgetBox: public AbstractStyleBox {
     public:
-      explicit ContainerWidgetBox(ContainerType _type, MathSequence *content = 0);
+      explicit ContainerWidgetBox(ContainerType _type, MathSequence *content = nullptr);
       
       virtual ControlState calc_state(Context *context);
       
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
+      
+      virtual void reset_style() override;
       
       virtual Box *mouse_sensitive() override { return this; }
       virtual void on_mouse_enter() override;

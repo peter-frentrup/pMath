@@ -20,10 +20,8 @@ ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *conten
     mouse_right_down(false),
     selection_inside(false)
 {
-  if(!style)
-    style = new Style();
-    
-  style->set(BaseStyleName, "ControlStyle");
+  reset_style();
+  style->flag_pending_dynamic();
 }
 
 ControlState ContainerWidgetBox::calc_state(Context *context) {
@@ -149,6 +147,10 @@ void ContainerWidgetBox::paint(Context *context) {
   
   context->canvas->set_color(old_color);
   context->cursor_color = old_cursor_color;
+}
+
+void ContainerWidgetBox::reset_style() {
+  Style::reset(style, "ControlStyle");
 }
 
 void ContainerWidgetBox::on_mouse_enter() {

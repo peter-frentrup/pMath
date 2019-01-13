@@ -1846,11 +1846,15 @@ void Style::reset(SharedPtr<Style> &style, String base_style_name) {
     return;
   }
   
+  int old_has_pending_dynamic = 0;
+  style->get(InternalHasPendingDynamic, &old_has_pending_dynamic);
+  
   String old_base_style_name;
   style->get(BaseStyleName, &old_base_style_name);
+  
   style->clear();
   style->set(BaseStyleName, base_style_name);
-  if(old_base_style_name == base_style_name)
+  if(!old_has_pending_dynamic && old_base_style_name == base_style_name)
     style->remove(InternalHasPendingDynamic);
 }
 
@@ -1992,8 +1996,8 @@ void Style::set(StringStyleOptionName n, String value) {
   if(any_change)
     notify_all();
   
-//  if(key == BaseStyleName)
-//    StyleImpl::of(*this).raw_set_int(InternalHasPendingDynamic, true);
+  if(key == BaseStyleName)
+    StyleImpl::of(*this).raw_set_int(InternalHasPendingDynamic, true);
 }
 
 void Style::set(ObjectStyleOptionName n, Expr value) {

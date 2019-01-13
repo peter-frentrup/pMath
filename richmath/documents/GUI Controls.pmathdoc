@@ -77,12 +77,13 @@ Document({
          "}"}), "Output", SectionGenerated -> True, 
        SectionLabel -> "out [8]:")}, All), 
     SectionGroup({
-      Section(BoxData({"Tooltip", "(", {{"Panel", "(", "123", ")"}, ",", 
+      Section(BoxData({"Tooltip", "(", {
+          {"Panel", "(", ComplexStringBox("\"abc\""), ")"}, ",", 
           ComplexStringBox("\"Tip\"")}, ")"}), "Input", 
-       SectionLabel -> "in [1]:"), 
-      Section(BoxData(TooltipBox(PanelBox("123"), 
+       SectionLabel -> "in [2]:"), 
+      Section(BoxData(TooltipBox(PanelBox(ComplexStringBox("\"abc\"")), 
          ComplexStringBox("\"Tip\""))), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [1]:")}, All), 
+       SectionLabel -> "out [2]:")}, All), 
     SectionGroup({
       Section(BoxData({"InputField", "(", {
           ComplexStringBox("\"Hallo\""), ",", "String"}, ")"}), "Input", 
