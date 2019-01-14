@@ -870,9 +870,17 @@ void Win32ControlPainter::container_content_move(
 }
 
 bool Win32ControlPainter::container_hover_repaint(ContainerType type) {
-  return Win32Themes::OpenThemeData
-         && Win32Themes::CloseThemeData
-         && Win32Themes::DrawThemeBackground;
+  switch(type) {
+    case NoContainerType:
+    case GenericButton:
+    case TooltipWindow:
+    case PanelControl:
+      return false;
+  }
+  
+  return Win32Themes::OpenThemeData && 
+         Win32Themes::CloseThemeData && 
+         Win32Themes::DrawThemeBackground;
 }
 
 void Win32ControlPainter::system_font_style(Style *style) {
@@ -968,7 +976,7 @@ void Win32ControlPainter::paint_scrollbar_part(
   }
   
   if(!dc) {
-    if(Win32Themes::OpenThemeData
+    if(Win32Themes::OpenThemeData 
         && Win32Themes::CloseThemeData
         && Win32Themes::DrawThemeBackground) {
       surface = cairo_win32_surface_create_with_dib(

@@ -314,7 +314,15 @@ void MathGtkControlPainter::container_content_move(
 }
  
 bool MathGtkControlPainter::container_hover_repaint(ContainerType type) {
-  return type != PanelControl && get_control_theme(type) != nullptr;
+  switch(type) {
+    case NoContainerType:
+    case GenericButton:
+    case TooltipWindow:
+    case PanelControl:
+      return false;
+  }
+  
+  return get_control_theme(type) != nullptr;
 }
  
 void MathGtkControlPainter::system_font_style(Style *style) {
