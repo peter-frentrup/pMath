@@ -33,7 +33,9 @@ namespace richmath {
     CheckboxChecked,
     CheckboxIndeterminate,
     RadioButtonUnchecked,
-    RadioButtonChecked
+    RadioButtonChecked,
+    OpenerTriangleClosed,
+    OpenerTriangleOpened
   } ContainerType;
   
   typedef enum {

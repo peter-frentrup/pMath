@@ -305,6 +305,9 @@ namespace {
         add(TooltipWindow,        String("TooltipWindow"));
         add(ListViewItemSelected, String("ListViewItemSelected"));
         add(ListViewItem,         String("ListViewItem"));
+        
+        add(OpenerTriangleClosed, String("OpenerTriangleClosed"));
+        add(OpenerTriangleOpened, String("OpenerTriangleOpened"));
       }
   };
   

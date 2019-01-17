@@ -703,6 +703,11 @@ void Win32ControlPainter::draw_container(
             DFC_BUTTON,
             _state);
         } break;
+      
+      case OpenerTriangleClosed:
+      case OpenerTriangleOpened:
+        ControlPainter::draw_container(canvas, type, state, x, y, width, height);
+        return;
     }
   }
   

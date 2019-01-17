@@ -1,0 +1,89 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Opener", "Title"), 
+    SectionGroup({
+      Section(BoxData({"DynamicLocal", "(", {
+          {"{", {"open", "\[Assign]", "False"}, "}"}, ",", {
+           "Grid", "(", {
+            {"{", {
+              "{", {
+               {"Row", "@", {"{", {ComplexStringBox("\"\""), ",", {
+                   "Button", "(", {ComplexStringBox("\"\""), ",", {
+                     "If", "(", {"open", ",", {"open", "\[Assign]", "False"}, 
+                      ",", {"open", "\[Assign]", "True"}, ",", {
+                       "open", "\[Assign]", "True"}}, ")"}, ",", {
+                     "ButtonFrame", "\[Rule]", {
+                      "Dynamic", "(", {"If", "(", {
+                        {"open", "===", "True"}, ",", 
+                        ComplexStringBox("\"OpenerTriangleOpened\""), ",", 
+                        ComplexStringBox("\"OpenerTriangleClosed\"")}, ")"}, 
+                      ")"}}}, ")"}}, "}"}}, ",", {
+                "Dynamic", "(", {"If", "(", {{"open", "===", "True"}, ",", {
+                   "Grid", "(", {"{", {{"{", {"1", ",", "2"}, "}"}, ",", {
+                      "{", {"3", ",", "4"}, "}"}, ",", {
+                      "{", {"5", ",", "6"}, "}"}}, "}"}, ")"}, ",", 
+                  ComplexStringBox("\"grid\"")}, ")"}, ")"}}, "}"}, "}"}, ",", 
+            {"ColumnSpacing", "\[Rule]", "0"}}, ")"}}, ")"}), "Input", 
+       SectionLabel -> "in [17]:"), 
+      Section(BoxData(DynamicLocalBox({open}, 
+         TagBox(
+          GridBox({
+            {InterpretationBox({ComplexStringBox("\"\""), 
+               ButtonBox(ComplexStringBox("\"\""), 
+                ButtonFrame -> Dynamic(If(open === True, 
+                  "OpenerTriangleOpened", "OpenerTriangleClosed")), 
+                ButtonFunction -> (If(open, open:= False, open:= True, 
+                 open:= True) &))}, Row({
+               "", Button("", If(open, open:= False, open:= True, 
+                 open:= True), ButtonFrame -> Dynamic(
+                 If(open === True, "OpenerTriangleOpened", 
+                  "OpenerTriangleClosed")))}), Editable -> False), 
+             DynamicBox(ToBoxes(If(open === True, 
+                Grid({{1, 2}, {3, 4}, {5, 6}}), "grid")))}}, 
+           GridBoxColumnSpacing -> 0), "Grid"), Initialization :> None, 
+         Deinitialization :> None, UnsavedVariables :> {}, 
+         DynamicLocalValues :> {{
+           OwnRules(open):= {HoldPattern(open) :> False}}})), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [17]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Grid", "(", {
+          {"{", {
+            "{", {
+             {"Row", "@", {"{", {ComplexStringBox("\"\""), ",", {
+                 "Button", "(", {ComplexStringBox("\"\""), ",", {
+                   "If", "(", {"open", ",", {"open", "\[Assign]", "False"}, 
+                    ",", {"open", "\[Assign]", "True"}, ",", {
+                     "open", "\[Assign]", "True"}}, ")"}, ",", {
+                   "ButtonFrame", "\[Rule]", {
+                    "Dynamic", "(", {"If", "(", {{"open", "===", "True"}, ",", 
+                      ComplexStringBox("\"OpenerTriangleOpened\""), ",", 
+                      ComplexStringBox("\"OpenerTriangleClosed\"")}, ")"}, 
+                    ")"}}}, ")"}}, "}"}}, ",", {
+              "Dynamic", "(", {"If", "(", {{"open", "===", "True"}, ",", {
+                 "Grid", "(", {"{", {{"{", {"1", ",", "2"}, "}"}, ",", {
+                    "{", {"3", ",", "4"}, "}"}, ",", {
+                    "{", {"5", ",", "6"}, "}"}}, "}"}, ")"}, ",", 
+                ComplexStringBox("\"grid\"")}, ")"}, ")"}}, "}"}, "}"}, ",", {
+           "ColumnSpacing", "\[Rule]", "0"}}, ")"}), "Input", 
+       SectionLabel -> "in [16]:"), 
+      Section(
+       BoxData(
+        TagBox(
+         GridBox({
+           {InterpretationBox({ComplexStringBox("\"\""), 
+              ButtonBox(ComplexStringBox("\"\""), 
+               ButtonFrame -> Dynamic(If(open === True, 
+                 "OpenerTriangleOpened", "OpenerTriangleClosed")), 
+               ButtonFunction -> (If(open, open:= False, open:= True, 
+                open:= True) &))}, Row({
+              "", Button("", If(open, open:= False, open:= True, open:= True), 
+               ButtonFrame -> Dynamic(If(open === True, 
+                 "OpenerTriangleOpened", "OpenerTriangleClosed")))}), 
+             Editable -> False), 
+            DynamicBox(
+             ToBoxes(If(open === True, Grid({{1, 2}, {3, 4}, {5, 6}}), 
+               "grid")))}}, GridBoxColumnSpacing -> 0), "Grid")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [16]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

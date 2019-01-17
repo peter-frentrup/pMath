@@ -109,6 +109,13 @@ void ControlPainter::calc_container_size(
         extents->ascent  = extents->width * 0.75;
         extents->descent = extents->width * 0.25;
       } break;
+    
+    case OpenerTriangleClosed:
+    case OpenerTriangleOpened: {
+        extents->width   = 16 * 0.75;
+        extents->ascent  = extents->width * 0.75;
+        extents->descent = extents->width * 0.25;
+      } break;
   }
 }
 
@@ -124,7 +131,10 @@ int ControlPainter::control_font_color(ContainerType type, ControlState state) {
 }
 
 bool ControlPainter::is_very_transparent(ContainerType type, ControlState state) {
-  return type == NoContainerType || type == FramelessButton;
+  return type == NoContainerType || 
+         type == FramelessButton || 
+         type == OpenerTriangleClosed ||
+         type == OpenerTriangleClosed;
 }
 
 static void paint_frame(
@@ -415,6 +425,26 @@ void ControlPainter::draw_container(
           canvas->set_color(old_color);
         }
         canvas->restore();
+      } break;
+  
+    case OpenerTriangleClosed: {
+        int old_col = canvas->get_color();
+        canvas->set_color(0x000000);
+        canvas->move_to(x + width * 0.3f, y + height * 0.3f);
+        canvas->line_to(x + width * 0.6f, y + height * 0.5f);
+        canvas->line_to(x + width * 0.3f, y + height * 0.7f);
+        canvas->fill();
+        canvas->set_color(old_col);
+      } break;
+      
+    case OpenerTriangleOpened: {
+        int old_col = canvas->get_color();
+        canvas->set_color(0x000000);
+        canvas->move_to(x + width * 0.6f, y + height * 0.3f);
+        canvas->line_to(x + width * 0.6f, y + height * 0.6f);
+        canvas->line_to(x + width * 0.3f, y + height * 0.6f);
+        canvas->fill();
+        canvas->set_color(old_col);
       } break;
   }
   
