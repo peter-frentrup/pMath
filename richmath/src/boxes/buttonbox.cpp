@@ -121,14 +121,15 @@ void ButtonBox::click() {
   Expr fn = get_style(ButtonFunction);
   
   if(!fn.is_null()) {
-    String method = get_style(Method);
+    fn = prepare_dynamic(fn);
     
     fn = Call(
            fn,
            Call(
              Symbol(richmath_System_BoxData),
              _content->to_pmath(BoxOutputFlags::Default)));
-             
+    
+    String method = get_style(Method);
     if(method.equals("Preemptive")) {
       Application::interrupt_wait_for(fn, this, Application::button_timeout);
     }
