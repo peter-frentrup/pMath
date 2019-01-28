@@ -22,10 +22,12 @@ Document({
                      ComplexStringBox("\"OpenerTriangleClosed\"")}, ")"}, 
                    ")"}}}, ")"}}, "}"}}, ",", {
              "Dynamic", "(", {"If", "(", {{"open", "===", "True"}, ",", {
-                "Row", "(", {{"{", {"e1", ",", "e2"}, "}"}, ",", 
-                 ComplexStringBox("\"\\n\"")}, ")"}, ",", "e1"}, ")"}, ")"}}, 
-           "}"}, "}"}, ",", {"ColumnSpacing", "\[Rule]", "0"}}, ")"}}), 
-     "Input", SectionLabel -> "in [25]:"), 
+                "Grid", "(", {{"{", {{"{", "e1", "}"}, ",", {"{", "e2", "}"}}, 
+                  "}"}, ",", {"BaselinePosition", "\[Rule]", "1"}}, ")"}, ",", 
+               "e1"}, ")"}, ")"}}, "}"}, "}"}, ",", {
+          "ColumnSpacing", "\[Rule]", "0"}, ",", {
+          "BaselinePosition", "\[Rule]", "1"}}, ")"}}), "Input", 
+     SectionLabel -> "in [4]:"), 
     Section(
      BoxData(
       /\/({{"openerView", "(", {{"{", {{"~", "e1"}, ",", {"~", "e2"}}, "}"}, 
@@ -39,7 +41,7 @@ Document({
          "openerView", "(", {{"{", {"e1", ",", "e2"}, "}"}, ",", {
            "Dynamic", "(", {"open", ",", {
              "{", {"Function", "(", {"open", "\[Assign]", "#"}, ")"}, "}"}}, 
-           ")"}}, ")"}})), "Input", SectionLabel -> "in [7]:"), 
+           ")"}}, ")"}})), "Input", SectionLabel -> "in [5]:"), 
     Section(
      BoxData(
       /\/({{"openerView", "(", {{"{", {{"~", "e1"}, ",", {"~", "e2"}}, "}"}, 
@@ -52,12 +54,12 @@ Document({
         {"openerView", "(", {"{", {{"~", "e1"}, ",", {"~", "e2"}}, "}"}, ")"}, 
         "\[AssignDelayed]", {"openerView", "(", {
           {"{", {"e1", ",", "e2"}, "}"}, ",", "False"}, ")"}})), "Input", 
-     SectionLabel -> "in [33]:"), 
+     SectionLabel -> "in [7]:"), 
     SectionGroup({
       Section(BoxData({"openerView", "(", {
           "{", {ComplexStringBox("\"short\""), ",", 
            ComplexStringBox("\"long\\nlong\"")}, "}"}, ")"}), "Input", 
-       SectionLabel -> "in [35]:"), 
+       SectionLabel -> "in [9]:"), 
       Section(BoxData(DynamicLocalBox({state}, 
          TagBox(
           GridBox({
@@ -72,13 +74,14 @@ Document({
                 ButtonFrame -> Dynamic(If(state === True, 
                   "OpenerTriangleOpened", "OpenerTriangleClosed")))}), 
               Editable -> False), 
-             DynamicBox(ToBoxes(If(state === True, Row({
-                 "short", "long\nlong"}, "\n"), "short")))}}, 
+             DynamicBox(ToBoxes(If(state === True, 
+                Grid({{"short"}, {"long\nlong"}}, BaselinePosition -> 1), 
+                "short")))}}, BaselinePosition -> 1, 
            GridBoxColumnSpacing -> 0), "Grid"), Initialization :> None, 
          Deinitialization :> None, UnsavedVariables :> {}, 
          DynamicLocalValues :> {{
            OwnRules(state):= {HoldPattern(state) :> True}}})), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [35]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
     Section(
      "By using ordinary Dynamic, the nested opener views will not remember \
      their state and be closed whenever we reopen the containing opener view. \
@@ -95,7 +98,7 @@ Document({
                 "{", {ComplexStringBox("\"sub 2\""), ",", {
                   "Column", "(", {"{", {ComplexStringBox("\"file1\""), ",", 
                     ComplexStringBox("\"file2\"")}, "}"}, ")"}}, "}"}, ")"}}, 
-             "}"}, ")"}}, "}"}, ")"}), "Input", SectionLabel -> "in [36]:"), 
+             "}"}, ")"}}, "}"}, ")"}), "Input", SectionLabel -> "in [10]:"), 
       Section(BoxData(DynamicLocalBox({state}, 
          TagBox(
           GridBox({
@@ -110,40 +113,44 @@ Document({
                 ButtonFrame -> Dynamic(If(state === True, 
                   "OpenerTriangleOpened", "OpenerTriangleClosed")))}), 
               Editable -> False), 
-             DynamicBox(ToBoxes(If(state === True, Row({
-                 "folder", 
-                 Column({
-                   DynamicLocal({state}, 
-                    Grid({
-                      {Row({"", Button("", If(state, ((state:= #1) &)(False), 
-                          ((state:= #1) &)(True), ((state:= #1) &)(True)), 
-                         ButtonFrame -> Dynamic(If(state === True, 
-                           "OpenerTriangleOpened", 
-                           "OpenerTriangleClosed")))}), 
-                       Dynamic(If(state === True, Row({
-                          "sub 1", Column({"file1", "file2"})}, "\n"), 
-                         "sub 1"))}}, ColumnSpacing -> 0), 
-                    DynamicLocalValues :> {}), DynamicLocal({state}, 
-                    Grid({
-                      {Row({"", Button("", If(state, ((state:= #1) &)(False), 
-                          ((state:= #1) &)(True), ((state:= #1) &)(True)), 
-                         ButtonFrame -> Dynamic(If(state === True, 
-                           "OpenerTriangleOpened", 
-                           "OpenerTriangleClosed")))}), 
-                       Dynamic(If(state === True, Row({
-                          "sub 2", Column({"file1", "file2"})}, "\n"), 
-                         "sub 2"))}}, ColumnSpacing -> 0), 
-                    DynamicLocalValues :> {})})}, "\n"), "folder")))}}, 
+             DynamicBox(ToBoxes(If(state === True, 
+                Grid({{"folder"}, {
+                   Column({DynamicLocal({state}, 
+                      Grid({
+                        {Row({
+                          "", Button("", If(state, ((state:= #1) &)(False), 
+                            ((state:= #1) &)(True), ((state:= #1) &)(True)), 
+                           ButtonFrame -> Dynamic(If(state === True, 
+                             "OpenerTriangleOpened", 
+                             "OpenerTriangleClosed")))}), 
+                         Dynamic(If(state === True, 
+                           Grid({{"sub 1"}, {Column({"file1", "file2"})}}, 
+                            BaselinePosition -> 1), "sub 1"))}}, 
+                       ColumnSpacing -> 0, BaselinePosition -> 1), 
+                      DynamicLocalValues :> {}), DynamicLocal({state}, 
+                      Grid({
+                        {Row({
+                          "", Button("", If(state, ((state:= #1) &)(False), 
+                            ((state:= #1) &)(True), ((state:= #1) &)(True)), 
+                           ButtonFrame -> Dynamic(If(state === True, 
+                             "OpenerTriangleOpened", 
+                             "OpenerTriangleClosed")))}), 
+                         Dynamic(If(state === True, 
+                           Grid({{"sub 2"}, {Column({"file1", "file2"})}}, 
+                            BaselinePosition -> 1), "sub 2"))}}, 
+                       ColumnSpacing -> 0, BaselinePosition -> 1), 
+                      DynamicLocalValues :> {})})}}, BaselinePosition -> 1), 
+                "folder")))}}, BaselinePosition -> 1, 
            GridBoxColumnSpacing -> 0), "Grid"), Initialization :> None, 
          Deinitialization :> None, UnsavedVariables :> {}, 
          DynamicLocalValues :> {{
            OwnRules(state):= {HoldPattern(state) :> True}}})), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [36]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
     SectionGroup({
       Section(BoxData({"openerView", "(", {
           "{", {ComplexStringBox("\"matrix\""), ",", {
             {"(", GridBox({{"1", "2"}, {"3", "4"}, {"5", "6"}}), ")"}, "//", 
-            "MatrixForm"}}, "}"}, ")"}), "Input", SectionLabel -> "in [29]:"), 
+            "MatrixForm"}}, "}"}, ")"}), "Input", SectionLabel -> "in [11]:"), 
       Section(BoxData(DynamicLocalBox({state}, 
          TagBox(
           GridBox({
@@ -158,11 +165,12 @@ Document({
                 ButtonFrame -> Dynamic(If(state === True, 
                   "OpenerTriangleOpened", "OpenerTriangleClosed")))}), 
               Editable -> False), 
-             DynamicBox(ToBoxes(If(state === True, Row({
-                 "matrix", MatrixForm({{1, 2}, {3, 4}, {5, 6}})}, "\n"), 
-                "matrix")))}}, GridBoxColumnSpacing -> 0), "Grid"), 
-         Initialization :> None, Deinitialization :> None, 
-         UnsavedVariables :> {}, DynamicLocalValues :> {{
+             DynamicBox(ToBoxes(If(state === True, 
+                Grid({{"matrix"}, {MatrixForm({{1, 2}, {3, 4}, {5, 6}})}}, 
+                 BaselinePosition -> 1), "matrix")))}}, BaselinePosition -> 1, 
+           GridBoxColumnSpacing -> 0), "Grid"), Initialization :> None, 
+         Deinitialization :> None, UnsavedVariables :> {}, 
+         DynamicLocalValues :> {{
            OwnRules(state):= {HoldPattern(state) :> False}}})), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [29]:")}, All)}, All)}, 
+       SectionGenerated -> True, SectionLabel -> "out [11]:")}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)
