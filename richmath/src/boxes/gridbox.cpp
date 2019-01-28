@@ -3,9 +3,27 @@
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
 
+#include <math.h>
+#include <limits>
+
+
+#ifdef _MSC_VER
+#  define isfinite(x)  (_finite(x))
+#endif
+
+#ifndef NAN
+#  define NAN  (std::numeric_limits<double>::quiet_NaN())
+#endif
+
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Axis;
+extern pmath_symbol_t richmath_System_Baseline;
+extern pmath_symbol_t richmath_System_Bottom;
+extern pmath_symbol_t richmath_System_Center;
 extern pmath_symbol_t richmath_System_GridBox;
+extern pmath_symbol_t richmath_System_Scaled;
+extern pmath_symbol_t richmath_System_Top;
 
 namespace richmath {
   class GridBoxImpl {
@@ -14,6 +32,7 @@ namespace richmath {
       
       void simple_spacing(float em);
       int resize_items(Context *context);
+      float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
       void adjust_baseline(float em);
     
     private:
@@ -1093,10 +1112,60 @@ int GridBoxImpl::resize_items(Context *context) {
   return span_count;
 }
 
-void GridBoxImpl::adjust_baseline(float em) {
+float GridBoxImpl::calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const {
   float height = self._extents.height();
   
-  Expr baseline_pos = self.get_style(BaselinePosition);
+  if(baseline_pos == richmath_System_Bottom) 
+    return height;
+  
+  if(baseline_pos == richmath_System_Top) 
+    return 0;
+  
+  if(baseline_pos == richmath_System_Center) 
+    return 0.5f * height;
+  
+  if(baseline_pos == richmath_System_Axis || baseline_pos == PMATH_SYMBOL_AUTOMATIC) 
+    return 0.5f * height + 0.25f * em; // TODO: use actual math axis from font
+  
+  if(baseline_pos[0] == richmath_System_Scaled) {
+    double factor = 0.0;
+    if(get_factor_of_scaled(baseline_pos, &factor) && isfinite(factor)) {
+      return height - height * factor;
+    }
+  }
+  else if(baseline_pos.is_rule()) {
+    float lhs_ascent = calculate_ascent_for_baseline_position(em, baseline_pos[1]);
+    Expr rhs = baseline_pos[2];
+    
+    if(rhs == richmath_System_Axis) {
+      float ref_pos = 0.25f * em; // TODO: use actual math axis from font
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs == richmath_System_Baseline) {
+      float ref_pos = 0.0f;
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs == richmath_System_Bottom) {
+      float ref_pos = -0.25f * em;
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs == richmath_System_Center) {
+      float ref_pos = 0.25f * em;
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs == richmath_System_Top) {
+      float ref_pos = 0.75f * em;
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs[0] == richmath_System_Scaled) {
+      double factor = 0.0;
+      if(get_factor_of_scaled(rhs, &factor) && isfinite(factor)) {
+        //float ref_pos = 0.75 * em * factor - 0.25 * em * (1 - factor);
+        float ref_pos = (factor - 0.25) * em;
+        return lhs_ascent + ref_pos;
+      }
+    }
+  }
   
   GridItem *gi = nullptr;
   if(baseline_pos.is_int32() && self.cols() > 0) {
@@ -1123,6 +1192,7 @@ void GridBoxImpl::adjust_baseline(float em) {
         if(row >= 1 && row <= self.rows() && col >= 1 && col <= self.cols())
           gi = self.item(row - 1, col - 1);
       }
+      // TODO: BaselinePosition -> {{i,j}, pos}
     }
   }
   
@@ -1130,8 +1200,17 @@ void GridBoxImpl::adjust_baseline(float em) {
     int row, col;
     self.items.index_to_yx(gi->index(), &row, &col);
     
-    self._extents.ascent = self.ypos[row] + gi->extents().ascent;
-    self._extents.descent = height - self._extents.ascent;
+    return self.ypos[row] + gi->extents().ascent;
   }
+  else
+    return 0.5f * height + 0.25f * em; // TODO: use actual math axis from font
+}
+
+void GridBoxImpl::adjust_baseline(float em) {
+  float height = self._extents.height();
+  
+  float ascent = calculate_ascent_for_baseline_position(em, self.get_style(BaselinePosition));
+  self._extents.ascent = ascent;
+  self._extents.descent = height - ascent;
 }
 

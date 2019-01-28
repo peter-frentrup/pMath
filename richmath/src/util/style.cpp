@@ -58,6 +58,7 @@ extern pmath_symbol_t richmath_System_Method;
 extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_PlotRange;
 extern pmath_symbol_t richmath_System_ReturnCreatesNewSection;
+extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_ScriptSizeMultipliers;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionEditDuplicate;
@@ -229,6 +230,30 @@ int richmath::pmath_to_color(Expr obj) {
   }
   
   return -2;
+}
+
+bool richmath::get_factor_of_scaled(Expr expr, double *value) {
+  assert(value != nullptr);
+  
+  if(expr[0] != richmath_System_Scaled)
+    return false;
+  
+  if(expr.expr_length() != 1)
+    return false;
+  
+  Expr val = expr[1];
+  if(val[0] == PMATH_SYMBOL_NCACHE)
+    val = val[2];
+  
+  if(val[0] == PMATH_SYMBOL_LIST && val.expr_length() == 1)
+    val = val[1];
+  
+  if(val.is_number()) {
+    *value = val.to_double();
+    return true;
+  }
+  
+  return false;
 }
 
 static bool needs_ruledelayed(Expr expr) {
