@@ -9,6 +9,7 @@ namespace richmath {
   class GridBox;
   
   class GridItem: public OwnerBox {
+      friend class GridBoxImpl;
       friend class GridBox;
     public:
       virtual ~GridItem();
@@ -41,6 +42,7 @@ namespace richmath {
   };
   
   class GridBox: public Box {
+      friend class GridBoxImpl;
       friend class GridItem;
     public:
       GridBox();
@@ -103,10 +105,6 @@ namespace richmath {
       
     private:
       void need_pos_vectors();
-      
-      int resize_items(Context *context);
-      
-      void simple_spacing(float em);
       
     private:
       Matrix<GridItem*> items;

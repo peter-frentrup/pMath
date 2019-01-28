@@ -72,10 +72,12 @@ Options(Graphics):= Options(GraphicsBox):= {
 	Ticks -> Automatic}
           
 Options(Grid):= {
+    BaselinePosition -> Automatic,
 	ColumnSpacing -> Inherited,
 	RowSpacing -> Inherited}
           
 Options(GridBox):= {
+    BaselinePosition -> Automatic,
 	GridBoxColumnSpacing -> Inherited,
 	GridBoxRowSpacing -> Inherited}
           

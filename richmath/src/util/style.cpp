@@ -22,6 +22,7 @@ extern pmath_symbol_t richmath_System_AutoSpacing;
 extern pmath_symbol_t richmath_System_Axes;
 extern pmath_symbol_t richmath_System_AxesOrigin;
 extern pmath_symbol_t richmath_System_Background;
+extern pmath_symbol_t richmath_System_BaselinePosition;
 extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BorderRadius;
 extern pmath_symbol_t richmath_System_BoxRotation;
@@ -435,6 +436,7 @@ namespace {
           add(StyleTypeAny,             Frame,                            Symbol( richmath_System_Frame));
           add(StyleTypeAny,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
           add(StyleTypeAny,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
+          add(StyleTypeAny,             BaselinePosition,                 Symbol( richmath_System_BaselinePosition));
           add(StyleTypeAny,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
           add(StyleTypeAny,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
           add(StyleTypeAny,             TextShadow,                       Symbol( richmath_System_TextShadow));
@@ -2203,6 +2205,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Axes);
   impl.emit_definition(AxesOrigin);
   impl.emit_definition(Background);
+  impl.emit_definition(BaselinePosition);
   
   if(with_inherited)
     impl.emit_definition(BaseStyleName);

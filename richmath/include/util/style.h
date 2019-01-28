@@ -116,7 +116,7 @@ namespace richmath {
     Frame,
     FrameTicks,
     AxesOrigin,
-    
+    BaselinePosition,
     ButtonFunction,
     ScriptSizeMultipliers,
     TextShadow,
