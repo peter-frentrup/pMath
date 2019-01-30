@@ -1,10 +1,12 @@
 Begin("System`Private`")
 
 Options(Button):= {
+    BaselinePosition -> Automatic,
 	ButtonFrame -> Automatic,
 	Method -> "Preemptive"}
           
 Options(ButtonBox):= {
+    BaselinePosition -> Automatic,
 	ButtonFrame -> Automatic,
 	ButtonFunction -> (/\/ &),
 	Method -> "Preemptive"}
@@ -50,16 +52,20 @@ Options(CreateDocument):= Options(Document):= {
 	}
           
 Options(Dynamic):= Options(DynamicBox):= {
+    %BaselinePosition -> Automatic,
     SynchronousUpdating -> True,
     TrackedSymbols -> Automatic}
           
 Options(DynamicLocal):= Options(DynamicLocalBox):= {
+    %BaselinePosition -> Automatic,
 	Deinitialization -> None,
 	Initialization -> None,
 	DynamicLocalValues -> Automatic,
 	UnsavedVariables -> {}}
 
-Options(Framed):= Options(FrameBox):= { BorderRadius -> 0 }
+Options(Framed):= Options(FrameBox):= { 
+    BaselinePosition -> Automatic,
+    BorderRadius -> 0}
 
 Options(Graphics):= Options(GraphicsBox):= {
 	AspectRatio -> Automatic,
@@ -82,12 +88,16 @@ Options(GridBox):= {
 	GridBoxRowSpacing -> Inherited}
           
 Options(InputField):= Options(InputFieldBox):= {
+    BaselinePosition -> Automatic,
 	ContinuousAction -> False}
           
-Options(InterpretationBox):=Options(Interpretation):={
+Options(InterpretationBox):=Options(Interpretation):= {
+    %BaselinePosition -> Automatic,
 	AutoDelete -> False,
 	Editable -> False
 	}
+          
+Options(Panel):= Options(PanelBox):= { BaselinePosition -> Automatic }
           
 Options(Style):= Options(StyleBox):= {
     Antialiasing -> Inherited,
@@ -95,6 +105,7 @@ Options(Style):= Options(StyleBox):= {
     AutoNumberFormating -> Inherited,
     AutoSpacing -> Inherited,
     Background -> None,
+    BaselinePosition -> Automatic,
     BaseStyle -> None,
     BorderRadius -> 0,
     ButtonFrame -> Inherited,
@@ -125,6 +136,7 @@ Options(Section):= {
     AutoNumberFormating -> Inherited,
     AutoSpacing -> Inherited,
     Background -> Automatic,
+    BaselinePosition -> Automatic, % TODO: hide behind FrameBoxOptions, etc ?
     BaseStyle -> None,
     BorderRadius -> 0,
     ButtonFrame -> Automatic,
@@ -183,6 +195,7 @@ Options(Setter):= Options(SetterBox):= { ButtonFrame -> Automatic }
 Options(Slider):= Options(SliderBox):= { ContinuousAction -> True }
 
 Options(TemplateBox):= {
+    %BaselinePosition -> Automatic,
     DisplayFunction ->None,
     Editable -> Automatic,
     InterpretationFunction -> Automatic,
@@ -191,8 +204,12 @@ Options(TemplateBox):= {
     Tooltip -> None
 }
       
-Options(Tooltip):= Options(TooltipBox):= { StripOnInput -> True }
+Options(Tooltip):= Options(TooltipBox):= { 
+    %BaselinePosition -> Automatic,
+    StripOnInput -> True}
       
-Options(TransformationBox):= { BoxTransformation -> {{1,0},{0,1}} }
+Options(TransformationBox):= { 
+    %BaselinePosition -> Automatic,
+    BoxTransformation -> {{1,0},{0,1}} }
       
 End()
