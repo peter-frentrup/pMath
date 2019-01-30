@@ -42,6 +42,7 @@ namespace richmath {
       
       void rearrange();
       void invalidate_options();
+      virtual void reset_title() override;
       
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }

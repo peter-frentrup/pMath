@@ -59,6 +59,8 @@ namespace richmath {
       virtual void bring_to_front();
       virtual void close();
       
+      virtual void reset_title() override;
+      
       void reset_window_frame(){ window_frame(_window_frame); }
       void set_gravity();
       void set_initial_rect(int x, int y, int w, int h);

@@ -431,6 +431,10 @@ void MathGtkDocumentWindow::invalidate_options() {
   _working_area->set_custom_scale(scale);
 }
 
+void MathGtkDocumentWindow::reset_title() {
+  title(document()->get_style(WindowTitle, _default_title));
+}
+
 void MathGtkDocumentWindow::finish_apply_title(String displayed_title) {
   char *str = pmath_string_to_utf8(displayed_title.get(), nullptr);
   if(str)

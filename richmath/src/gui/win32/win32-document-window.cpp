@@ -929,6 +929,10 @@ void Win32DocumentWindow::invalidate_options() {
   _working_area->set_custom_scale(scale);
 }
 
+void Win32DocumentWindow::reset_title() {
+  title(document()->get_style(WindowTitle, _default_title));
+}
+
 void Win32DocumentWindow::window_frame(WindowFrameType type) {
   _window_frame = type;
   

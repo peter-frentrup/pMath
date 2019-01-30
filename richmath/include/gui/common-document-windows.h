@@ -22,7 +22,7 @@ namespace richmath {
       CommonDocumentWindow *prev_window() { return _prev_window; }
       CommonDocumentWindow *next_window() { return _next_window; }
       
-      void reset_title(){ title(_title); }
+      virtual void reset_title(){ title(_title); }
       
       String filename() { return _filename; }
       void filename(String new_filename);
