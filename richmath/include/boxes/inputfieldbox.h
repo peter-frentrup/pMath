@@ -16,7 +16,6 @@ namespace richmath {
       virtual ControlState calc_state(Context *context) override;
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
       
       virtual void reset_style() override;
@@ -54,6 +53,9 @@ namespace richmath {
       virtual void on_key_press(uint32_t unichar) override;
       
       bool assign_dynamic();
+      
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
       
     protected:
       bool must_update;

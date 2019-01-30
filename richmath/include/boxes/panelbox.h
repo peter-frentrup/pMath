@@ -12,12 +12,14 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void resize(Context *context) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *mouse_sensitive() override { return Box::mouse_sensitive(); }
+      
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
   };
 }
 

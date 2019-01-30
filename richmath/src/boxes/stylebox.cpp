@@ -20,7 +20,7 @@ AbstractStyleBox::AbstractStyleBox(MathSequence *content)
 {
 }
 
-void AbstractStyleBox::paint_or_resize(Context *context, bool paint) {
+void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint) {
   show_auto_styles = context->show_auto_styles;
   
   if(style) {
@@ -64,24 +64,23 @@ void AbstractStyleBox::paint_or_resize(Context *context, bool paint) {
       context->canvas->move_to(x, y);
       OwnerBox::paint(context);
     }
-    else {
-      OwnerBox::resize(context);
-    }
+    else 
+      OwnerBox::resize_no_baseline(context);
     
     cc.end();
   }
-  else if(paint)
+  else if(paint) 
     OwnerBox::paint(context);
-  else
-    OwnerBox::resize(context);
+  else 
+    OwnerBox::resize_no_baseline(context);
 }
 
-void AbstractStyleBox::resize(Context *context) {
-  paint_or_resize(context, false);
+void AbstractStyleBox::resize_no_baseline(Context *context) {
+  paint_or_resize_no_baseline(context, false);
 }
 
 void AbstractStyleBox::paint(Context *context) {
-  paint_or_resize(context, true);
+  paint_or_resize_no_baseline(context, true);
 }
 
 void AbstractStyleBox::colorize_scope(SyntaxState *state) {
@@ -342,9 +341,9 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void TagBox::resize(Context *context) {
+void TagBox::resize_no_baseline(Context *context) {
   style->set(BaseStyleName, String(tag));
-  ExpandableAbstractStyleBox::resize(context);
+  ExpandableAbstractStyleBox::resize_no_baseline(context);
 }
 
 Expr TagBox::to_pmath_symbol() { 

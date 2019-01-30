@@ -49,11 +49,11 @@ bool PanelBox::expand(const BoxSize &size) {
   return true;
 }
 
-void PanelBox::resize(Context *context) {
+void PanelBox::resize_no_baseline(Context *context) {
 //  float old_width = context->width;
 //  context->width = HUGE_VAL;
   
-  ContainerWidgetBox::resize(context);
+  ContainerWidgetBox::resize_no_baseline(context);
   
 //  context->width = old_width;
 }

@@ -12,11 +12,13 @@ namespace richmath {
       // Box::try_create<FrameBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
-      virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
+      
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
       
     protected:
       float em;

@@ -16,7 +16,6 @@ namespace richmath {
       virtual ControlState calc_state(Context *context) override;
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override;
@@ -31,6 +30,9 @@ namespace richmath {
       virtual void dynamic_finished(Expr info, Expr result) override;
       virtual Box *dynamic_to_literal(int *start, int *end) override;
     
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
+      
     protected:
       Dynamic dynamic;
       Expr    value;

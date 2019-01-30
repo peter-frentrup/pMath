@@ -9,7 +9,6 @@ namespace richmath {
     public:
       AbstractTransformationBox();
       
-      virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
       virtual Box *mouse_selection(
@@ -25,6 +24,9 @@ namespace richmath {
         
       const cairo_matrix_t &cairo_matrix() { return mat; }
       
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
+    
     protected:
       cairo_matrix_t mat;
   };

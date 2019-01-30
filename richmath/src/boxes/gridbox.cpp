@@ -61,11 +61,11 @@ bool GridItem::expand(const BoxSize &size) {
   return true;
 }
 
-void GridItem::resize(Context *context) {
+void GridItem::resize_no_baseline(Context *context) {
   bool smf = context->smaller_fraction_parts;
   context->smaller_fraction_parts = true;
   
-  OwnerBox::resize(context);
+  OwnerBox::resize_no_baseline(context);
   
   context->smaller_fraction_parts = smf;
   _span_right = 0;

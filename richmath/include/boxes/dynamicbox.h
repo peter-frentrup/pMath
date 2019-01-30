@@ -23,7 +23,6 @@ namespace richmath {
       // Box::try_create<DynamicBox>(expr, options)
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
       
       virtual Expr to_pmath_symbol() override;
@@ -33,6 +32,9 @@ namespace richmath {
       virtual void dynamic_finished(Expr info, Expr result) override;
       
       virtual bool edit_selection(Context *context) override;
+      
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
       
     public:
       Dynamic dynamic;

@@ -69,14 +69,14 @@ bool InputFieldBox::expand(const BoxSize &size) {
   return true;
 }
 
-void InputFieldBox::resize(Context *context) {
+void InputFieldBox::resize_no_baseline(Context *context) {
   bool  old_math_spacing = context->math_spacing;
   float old_width        = context->width;
   context->math_spacing = false;
   context->width = HUGE_VAL;
   
   float old_cx = cx;
-  AbstractStyleBox::resize(context); // not ContainerWidgetBox::resize() !
+  AbstractStyleBox::resize_no_baseline(context); // not ContainerWidgetBox::resize() !
   cx = old_cx;
   
   context->math_spacing = old_math_spacing;

@@ -5,6 +5,26 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Axis;
+extern pmath_symbol_t richmath_System_Baseline;
+extern pmath_symbol_t richmath_System_Bottom;
+extern pmath_symbol_t richmath_System_Center;
+extern pmath_symbol_t richmath_System_GridBox;
+extern pmath_symbol_t richmath_System_Scaled;
+extern pmath_symbol_t richmath_System_Top;
+
+class OwnerBox::Impl {
+  public:
+    Impl(OwnerBox &_self) : self(_self) {}
+    
+    float get_scaled_baseline(double scale) const;
+    float calculate_baseline(float em, Expr baseline_pos) const;
+    void adjust_baseline(float em);
+  
+  private:
+    OwnerBox &self;
+};
+
 //{ class OwnerBox ...
 
 OwnerBox::OwnerBox(MathSequence *content)
@@ -25,11 +45,16 @@ Box *OwnerBox::item(int i) {
   return _content;
 }
 
-void OwnerBox::resize(Context *context) {
+void OwnerBox::resize_no_baseline(Context *context) {
   _content->resize(context);
   _extents = _content->extents();
   cx = 0;
   cy = 0;
+}
+
+void OwnerBox::reset_baseline_after_resize(Context *context) {
+  cy = 0;
+  Impl(*this).adjust_baseline(context->canvas->get_font_size());
 }
 
 void OwnerBox::paint(Context *context) {
@@ -149,10 +174,10 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options){
   return false;
 }
 
-void InlineSequenceBox::resize(Context *context) {
+void InlineSequenceBox::resize_no_baseline(Context *context) {
   bool old_math_spacing = context->math_spacing;
   context->math_spacing = true;
-  OwnerBox::resize(context);
+  OwnerBox::resize_no_baseline(context);
   context->math_spacing = old_math_spacing;
 }
 
@@ -198,3 +223,71 @@ void InlineSequenceBox::on_exit() {
 }
 
 //} ... class InlineSequenceBox
+
+float OwnerBox::Impl::get_scaled_baseline(double scale) const {
+  //return -self._extents.descent * (1 - scale) + self._extents.ascent * scale
+  return (float)(-(double)self._extents.descent + scale * (double)(self._extents.ascent + self._extents.descent));
+}
+
+float OwnerBox::Impl::calculate_baseline(float em, Expr baseline_pos) const {
+  if(baseline_pos == richmath_System_Bottom) 
+    return get_scaled_baseline(0);
+  
+  if(baseline_pos == richmath_System_Top) 
+    return get_scaled_baseline(1);
+  
+  if(baseline_pos == richmath_System_Center) 
+    return get_scaled_baseline(0.5);
+  
+  if(baseline_pos == richmath_System_Axis) 
+    return 0.25f * em; // TODO: use actual math axis from font
+    
+  if(baseline_pos[0] == richmath_System_Scaled) {
+    double factor = 0.0;
+    if(get_factor_of_scaled(baseline_pos, &factor) && isfinite(factor)) 
+      return get_scaled_baseline(factor);
+  }
+  else if(baseline_pos.is_rule()) {
+    float lhs_y = calculate_baseline(em, baseline_pos[1]);
+    Expr rhs = baseline_pos[2];
+    
+    if(rhs == richmath_System_Axis) {
+      float ref_pos = 0.25f * em; // TODO: use actual math axis from font
+      return lhs_y - ref_pos;
+    }
+    else if(rhs == richmath_System_Baseline) {
+      float ref_pos = 0.0f;
+      return lhs_y - ref_pos;
+    }
+    else if(rhs == richmath_System_Bottom) {
+      float ref_pos = -0.25f * em;
+      return lhs_y - ref_pos;
+    }
+    else if(rhs == richmath_System_Center) {
+      float ref_pos = 0.25f * em;
+      return lhs_y - ref_pos;
+    }
+    else if(rhs == richmath_System_Top) {
+      float ref_pos = 0.75f * em;
+      return lhs_y - ref_pos;
+    }
+    else if(rhs[0] == richmath_System_Scaled) {
+      double factor = 0.0;
+      if(get_factor_of_scaled(rhs, &factor) && isfinite(factor)) {
+        //float ref_pos = 0.75 * em * factor - 0.25 * em * (1 - factor);
+        float ref_pos = (factor - 0.25) * em;
+        return lhs_y - ref_pos;
+      }
+    }
+  }
+  
+  // baseline_pos == richmath_System_Baseline || baseline_pos == PMATH_SYMBOL_AUTOMATIC
+  return 0;
+}
+
+void OwnerBox::Impl::adjust_baseline(float em) {
+  float y = calculate_baseline(em, self.get_style(BaselinePosition));
+  self.cy += y;
+  self._extents.ascent-= y;
+  self._extents.descent+= y;
+}

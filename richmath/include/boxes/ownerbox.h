@@ -8,6 +8,7 @@ namespace richmath {
   class MathSequence;
   
   class OwnerBox: public Box {
+      class Impl;
     public:
       explicit OwnerBox(MathSequence *content = nullptr);
       ~OwnerBox();
@@ -17,7 +18,7 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override { return 1; }
       
-      virtual void resize(Context *context) override;
+      virtual void resize(Context *context) final { resize_no_baseline(context); reset_baseline_after_resize(context); }
       virtual void paint(Context *context) override;
       virtual void paint_content(Context *context);
       
@@ -44,7 +45,11 @@ namespace richmath {
         cairo_matrix_t *matrix) override;
         
       virtual bool edit_selection(Context *context) override;
-      
+    
+    protected:
+      virtual void resize_no_baseline(Context *context);
+      void reset_baseline_after_resize(Context *context);
+    
     protected:
       MathSequence *_content;
       float     cx;
@@ -55,11 +60,13 @@ namespace richmath {
     public:
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
-      virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
       virtual void on_enter() override;
       virtual void on_exit() override;
+    
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
   };
 }
 

@@ -8,7 +8,6 @@ namespace richmath {
     public:
       explicit AbstractStyleBox(MathSequence *content = nullptr);
       
-      virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
       virtual void colorize_scope(SyntaxState *state) override;
@@ -32,7 +31,8 @@ namespace richmath {
         bool  *was_inside_start) override;
         
     protected:
-      void paint_or_resize(Context *context, bool paint);
+      virtual void resize_no_baseline(Context *context) override;
+      void paint_or_resize_no_baseline(Context *context, bool paint);
       
     private:
       bool show_auto_styles;
@@ -69,10 +69,11 @@ namespace richmath {
       // Box::try_create<TagBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual void resize(Context *context) override;
-      
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
+    
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
       
     public:
       Expr tag;

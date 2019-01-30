@@ -71,14 +71,14 @@ bool SetterBox::expand(const BoxSize &size) {
   return true;
 }
 
-void SetterBox::resize(Context *context) {
+void SetterBox::resize_no_baseline(Context *context) {
   int bf = get_style(ButtonFrame, -1);
   if(bf >= 0)
     type = (ContainerType)bf;
   else
     type = PaletteButton;
     
-  ContainerWidgetBox::resize(context);
+  ContainerWidgetBox::resize_no_baseline(context);
 }
 
 void SetterBox::paint(Context *context) {

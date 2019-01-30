@@ -17,7 +17,6 @@ namespace richmath {
       GridBox *grid() { return (GridBox*)_parent; }
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void resize(Context *context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxOutputFlags flags) override;
@@ -32,6 +31,7 @@ namespace richmath {
       
     protected:
       GridItem();
+      virtual void resize_no_baseline(Context *context) override;
       
     protected:
       int _span_right;

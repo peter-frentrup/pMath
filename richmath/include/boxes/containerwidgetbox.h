@@ -12,7 +12,6 @@ namespace richmath {
       
       virtual ControlState calc_state(Context *context);
       
-      virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       
       virtual void reset_style() override;
@@ -27,6 +26,9 @@ namespace richmath {
       
       virtual void on_enter() override;
       virtual void on_exit() override;
+    
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
       
     protected:
       SharedPtr<BoxAnimation> animation;

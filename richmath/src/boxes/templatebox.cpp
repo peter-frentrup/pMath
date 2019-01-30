@@ -194,8 +194,8 @@ Box *TemplateBox::move_logical(
   return base::move_logical(direction, jumping, index);
 }
 
-void TemplateBox::resize(Context *context) {
-  base::resize(context);
+void TemplateBox::resize_no_baseline(Context *context) {
+  base::resize_no_baseline(context);
   
   if(_extents.width <= 0)
     _extents.width = 0.75;
@@ -378,8 +378,8 @@ void TemplateBoxSlot::invalidate() {
     _has_changed_content = true;
 }
 
-void TemplateBoxSlot::resize(Context *context) {
-  base::resize(context);
+void TemplateBoxSlot::resize_no_baseline(Context *context) {
+  base::resize_no_baseline(context);
   
   if(_extents.width <= 0)
     _extents.width = 0.75;

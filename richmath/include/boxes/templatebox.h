@@ -21,13 +21,13 @@ namespace richmath {
         bool              jumping,
         int              *index) override;
       
-      virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     protected:
+      virtual void resize_no_baseline(Context *context) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
       
     public:
@@ -64,12 +64,14 @@ namespace richmath {
       
       virtual void invalidate() override;
       
-      virtual void resize(Context *context) override;
       virtual void paint_content(Context *context) override;
       
       virtual void on_exit() override;
       virtual void on_finish_editing() override;
       
+    protected:
+      virtual void resize_no_baseline(Context *context) override;
+    
     private:
       int _argument;
       bool _is_content_loaded;

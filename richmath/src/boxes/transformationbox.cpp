@@ -23,13 +23,13 @@ AbstractTransformationBox::AbstractTransformationBox()
   mat.yy = 1;
 }
 
-void AbstractTransformationBox::resize(Context *context) {
+void AbstractTransformationBox::resize_no_baseline(Context *context) {
   context->canvas->save();
   context->canvas->transform(mat);
   float w = context->width;
   context->width = Infinity;
   
-  OwnerBox::resize(context);
+  OwnerBox::resize_no_baseline(context);
   
   context->width = w;
   context->canvas->restore();
