@@ -1,0 +1,140 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("BaselinePosition - Test", "Title"), 
+    SectionGroup({
+      Section(
+       BoxData({"Riffle", "(", {
+          {"Table", "(", {
+            {"Tooltip", "(", {
+              {"Grid", "(", {
+                {"{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+                   "{", {"c", ",", "d"}, "}"}}, "}"}, ",", {
+                 "BaselinePosition", "\[Rule]", "p"}}, ")"}, ",", {
+               "Row", "@", {"{", {ComplexStringBox("\"BaselinePosition: \""), 
+                 ",", "p"}, "}"}}}, ")"}, ",", {
+             "p", "\[Rule]", {"{", {"Top", ",", "Center", ",", "Axis", ",", 
+               "Bottom", ",", {"Scaled", "(", {"-", "0.5"}, ")"}, ",", "1", 
+               ",", {"{", {{"-", "1"}, ",", "2"}, "}"}}, "}"}}}, ")"}, ",", 
+          ComplexStringBox("\"a\"")}, ")"}), "Input", 
+       SectionLabel -> "in [22]:"), 
+      Section(
+       BoxData({
+         "{", {
+          TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+             BaselinePosition -> Top), "Grid"), 
+           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
+             "Top"}, Row({"BaselinePosition: ", Top}))), ",", 
+          ComplexStringBox("\"a\""), ",", 
+          TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+             BaselinePosition -> Center), "Grid"), 
+           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
+             "Center"}, Row({"BaselinePosition: ", Center}))), ",", 
+          ComplexStringBox("\"a\""), ",", 
+          TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+             BaselinePosition -> Axis), "Grid"), 
+           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
+             "Axis"}, Row({"BaselinePosition: ", Axis}))), ",", 
+          ComplexStringBox("\"a\""), ",", 
+          TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+             BaselinePosition -> Bottom), "Grid"), 
+           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
+             "Bottom"}, Row({"BaselinePosition: ", Bottom}))), ",", 
+          ComplexStringBox("\"a\""), ",", 
+          TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+             BaselinePosition :> Scaled(-0.5`)), "Grid"), 
+           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), {
+              "Scaled", "(", {{"-", "0.5`"}}, ")"}}, Row({
+             "BaselinePosition: ", Scaled(-0.5`)}))), ",", 
+          ComplexStringBox("\"a\""), ",", 
+          TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+             BaselinePosition -> 1), "Grid"), 
+           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
+             "1"}, Row({"BaselinePosition: ", 1}))), ",", 
+          ComplexStringBox("\"a\""), ",", 
+          TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+             BaselinePosition -> {-1, 2}), "Grid"), 
+           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), {
+              "{", {{"-", "1"}, ",", "2"}, "}"}}, Row({
+             "BaselinePosition: ", {-1, 2}})))}, "}"}), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [22]:")}, All), 
+    SectionGroup({Section("Scaled(\[Ellipsis])", "Subsection"), 
+      Section(
+       "Scaled(0) means Bottom, Scaled(0.5) means Center and Scaled(1) means \
+       Top.", "Text"), SectionGroup({
+        Section(
+         BoxData({
+           "{", {
+            {"Panel", "@", {"Column", "@", {
+               "{", {{"Slider", "(", {{"Dynamic", "(", "s", ")"}, ",", {
+                   {"-", "1"}, "..", "2"}}, ")"}, ",", {
+                 "SetterBar", "(", {{"Dynamic", "(", "s", ")"}, ",", {
+                   "{", {"0", ",", "0.5", ",", "1"}, "}"}}, ")"}}, "}"}}}, 
+            ",", {"Dynamic", "(", "s", ")"}}, "}"}), "Input", 
+         SectionLabel -> "in [11]:"), 
+        Section(
+         BoxData({
+           "{", {
+            PanelBox(
+             TagBox(GridBox({{SliderBox(Dynamic(s), -1 .. 2)}, {
+                 InterpretationBox({SetterBox(Dynamic(s), 0, "0"), 
+                   "\[InvisibleSpace]", SetterBox(Dynamic(s), 0.5`, "0.5`"), 
+                   "\[InvisibleSpace]", SetterBox(Dynamic(s), 1, "1")}, 
+                  SetterBar(Dynamic(s), {0, 0.5`, 1}), Editable -> False)}}), 
+              "Column")), ",", DynamicBox(ToBoxes(s))}, "}"}), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [11]:")}, All), 
+      SectionGroup({
+        Section(
+         BoxData({
+           "{", {"a", ",", {"Grid", "(", {
+              {"{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+                 "{", {"c", ",", "d"}, "}"}}, "}"}, ",", {
+               "BaselinePosition", "\[Rule]", {
+                "Dynamic", "(", {"Scaled", "(", "s", ")"}, ")"}}}, ")"}, ",", 
+            "b"}, "}"}), "Input", SectionLabel -> "in [6]:"), 
+        Section(
+         BoxData({
+           "{", {"a", ",", TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+              BaselinePosition -> Dynamic(Scaled(s))), "Grid"), ",", "b"}, 
+           "}"}), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [6]:")}, All)}, All), 
+    SectionGroup({Section("Align at specific grid rows/items", "Subsection"), 
+      SectionGroup({
+        Section(
+         BoxData({
+           "{", {"a", ",", {"Grid", "(", {
+              {"{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+                 "{", {"c", ",", "d"}, "}"}, ",", {
+                 "{", {"e", ",", SqrtBox({SqrtBox("f"), "+", "g"})}, "}"}}, 
+               "}"}, ",", {"BaselinePosition", "\[Rule]", {
+                "{", {"3", ",", "2"}, "}"}}}, ")"}, ",", "b"}, "}"}), "Input", 
+         SectionLabel -> "in [27]:"), 
+        Section(
+         BoxData({
+           "{", {
+            "a", ",", 
+            TagBox(GridBox({{"a", "b"}, {"c", "d"}, {
+                "e", SqrtBox({"g", "+", SqrtBox("f")})}}, 
+              BaselinePosition -> {3, 2}), "Grid"), ",", "b"}, "}"}), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [27]:")}, 
+       All)}, All), SectionGroup({
+      Section("Align with reference point", "Subsection"), 
+      Section({"The syntax ", {"BaselinePosition", "\[Rule]", {
+          "(", {"pos", "\[Rule]", "ref"}, ")"}}, 
+        " adjusts the baseline such that a vertical position in the grid \
+        matches a reference position of surrounding text."}, "Text"), 
+      SectionGroup({
+        Section(
+         BoxData({
+           "{", {"a", ",", {"Grid", "(", {
+              {"{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+                 "{", {"c", ",", "d"}, "}"}}, "}"}, ",", {
+               "BaselinePosition", "\[Rule]", {"Bottom", "\[Rule]", "Axis"}}}, 
+             ")"}, ",", "b"}, "}"}), "Input", SectionLabel -> "in [30]:"), 
+        Section(
+         BoxData({
+           "{", {"a", ",", TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
+              BaselinePosition -> Bottom -> Axis), "Grid"), ",", "b"}, "}"}), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [30]:")}, 
+       All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
+ Visible -> True)
