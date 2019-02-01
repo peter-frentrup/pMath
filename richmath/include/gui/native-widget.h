@@ -1,7 +1,7 @@
 #ifndef RICHMATH__GUI__NATIVE_WIDGET_H__INCLUDED
 #define RICHMATH__GUI__NATIVE_WIDGET_H__INCLUDED
 
-#include <util/base.h>
+#include <eval/observable.h>
 
 #include <gui/control-painter.h>
 
@@ -114,7 +114,8 @@ namespace richmath {
       virtual Document *working_area_document() { return nullptr; }
       Document *document() { return _document; }
       float custom_scale_factor() { return _custom_scale_factor; }
-      float scale_factor() {        return _custom_scale_factor * _dpi / 72; }
+      float scale_factor() {        return _dpi * _custom_scale_factor / 72; }
+      int dpi() {                   return _dpi; }
       
     public:
       static NativeWidget *dummy;
@@ -128,7 +129,7 @@ namespace richmath {
     
     protected:
       float _custom_scale_factor;
-      float _dpi;
+      ObservableValue<int> _dpi;
       
     private:
       Document              *_document;

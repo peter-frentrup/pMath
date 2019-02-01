@@ -9,6 +9,7 @@
 #include <eval/application.h>
 #include <gui/control-painter.h>
 #include <gui/win32/win32-control-painter.h>
+#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-menubar.h>
 #include <gui/win32/win32-scrollbar-overlay.h>
@@ -1058,6 +1059,24 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           _bottom_glass_area->resize();
           rearrange();
         } break;
+        
+      case WM_DPICHANGED: { // Windows 8.1 and above
+        int dpiX = LOWORD(wParam);
+        //int dpiY = HIWORD(wParam);
+        // According to MSDN, "The values of the X-axis and the Y-axis are identical for Windows apps."
+        
+        // TODO: invalidate all dpi dependent fonts etc.
+        
+        RECT *suggested_rect = (RECT*)lParam;
+        SetWindowPos(
+          hwnd(),
+          NULL,
+          suggested_rect->left,
+          suggested_rect->top,
+          suggested_rect->right - suggested_rect->left,
+          suggested_rect->bottom - suggested_rect->top,
+          SWP_NOZORDER | SWP_NOACTIVATE);
+      } break;
         
       case WM_MOUSEHWHEEL:
       case WM_MOUSEWHEEL: {

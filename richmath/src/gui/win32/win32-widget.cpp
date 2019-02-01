@@ -17,6 +17,7 @@
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
 #include <gui/win32/win32-clipboard.h>
+#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-tooltip-window.h>
 #include <gui/win32/win32-touch.h>
@@ -642,7 +643,8 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   RECT rect;
   GetClientRect(_hwnd, &rect);
   
-  _dpi = GetDeviceCaps(dc, LOGPIXELSY);
+  _dpi = Win32HighDpi::get_dpi_for_window(hwnd());
+  //pmath_debug_print("[get_dpi_for_window = %d]\n", Win32HighDpi::get_dpi_for_window(hwnd()));
   
   cairo_surface_t *target = cairo_win32_surface_create_with_dib(
                               _image_format,

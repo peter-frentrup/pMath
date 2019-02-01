@@ -36,6 +36,9 @@ Win32Touch::Win32Touch()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
+  if(user32)
+    return;
+  
   user32 = LoadLibrary("user32.dll");
   if(user32) {
     GetGestureInfo = (BOOL (WINAPI *)(HANDLE, PGESTUREINFO))
@@ -65,7 +68,14 @@ Win32Touch::Win32Touch()
 }
 
 Win32Touch::~Win32Touch() {
-  FreeLibrary(user32);   user32 = 0;
+  FreeLibrary(user32);   user32 = nullptr;
   
-  GetGestureInfo = 0;
+  GetGestureInfo = nullptr;
+  CloseGestureInfoHandle = nullptr;
+  SetGestureConfig = nullptr;
+  GetGestureConfig = nullptr;
+  RegisterTouchWindow = nullptr;
+  UnregisterTouchWindow = nullptr;
+  GetTouchInputInfo = nullptr;
+  CloseTouchInputHandle = nullptr;
 }

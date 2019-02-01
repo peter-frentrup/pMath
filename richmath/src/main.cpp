@@ -25,6 +25,7 @@
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/win32-clipboard.h>
 #  include <gui/win32/win32-document-window.h>
+#  include <gui/win32/win32-highdpi.h>
 #  include <gui/win32/win32-menu.h>
 #  include <gui/win32/win32-touch.h>
 #endif
@@ -417,6 +418,7 @@ int main(int argc, char **argv) {
     
 #ifdef RICHMATH_USE_WIN32_GUI
     Win32Themes::init();
+    Win32HighDpi::init();
     Win32Touch::init();
     Win32Clipboard::init();
     Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(SHORTCUTS_CMD)));

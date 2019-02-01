@@ -59,123 +59,127 @@ Win32Themes::Win32Themes()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  dwmapi = LoadLibrary("dwmapi.dll");
-  if(dwmapi) {
-    DwmEnableComposition = (HRESULT(WINAPI *)(UINT))
-                           GetProcAddress(dwmapi, "DwmEnableComposition");
-                           
-    DwmExtendFrameIntoClientArea = (HRESULT(WINAPI *)(HWND, const MARGINS *))
-                                   GetProcAddress(dwmapi, "DwmExtendFrameIntoClientArea");
-                                   
-    DwmSetWindowAttribute = (HRESULT(WINAPI *)(HWND, DWORD, LPCVOID, DWORD))
-                            GetProcAddress(dwmapi, "DwmSetWindowAttribute");
-                            
-    DwmGetColorizationParameters = (HRESULT(WINAPI *)(DWM_COLORIZATION_PARAMS*))
-                                   GetProcAddress(dwmapi, (LPCSTR)127);
-                                   
-    DwmGetCompositionTimingInfo = (HRESULT(WINAPI *)(HWND, DWM_TIMING_INFO *))
-                                  GetProcAddress(dwmapi, "DwmGetCompositionTimingInfo");
-                                  
-    DwmDefWindowProc = (HRESULT(WINAPI *)(HWND, UINT, WPARAM, LPARAM, LRESULT *))
-                       GetProcAddress(dwmapi, "DwmDefWindowProc");
+  if(!dwmapi) {
+    dwmapi = LoadLibrary("dwmapi.dll");
+    if(dwmapi) {
+      DwmEnableComposition = (HRESULT(WINAPI *)(UINT))
+                             GetProcAddress(dwmapi, "DwmEnableComposition");
+                             
+      DwmExtendFrameIntoClientArea = (HRESULT(WINAPI *)(HWND, const MARGINS *))
+                                     GetProcAddress(dwmapi, "DwmExtendFrameIntoClientArea");
+                                     
+      DwmSetWindowAttribute = (HRESULT(WINAPI *)(HWND, DWORD, LPCVOID, DWORD))
+                              GetProcAddress(dwmapi, "DwmSetWindowAttribute");
+                              
+      DwmGetColorizationParameters = (HRESULT(WINAPI *)(DWM_COLORIZATION_PARAMS*))
+                                     GetProcAddress(dwmapi, (LPCSTR)127);
+                                     
+      DwmGetCompositionTimingInfo = (HRESULT(WINAPI *)(HWND, DWM_TIMING_INFO *))
+                                    GetProcAddress(dwmapi, "DwmGetCompositionTimingInfo");
+                                    
+      DwmDefWindowProc = (HRESULT(WINAPI *)(HWND, UINT, WPARAM, LPARAM, LRESULT *))
+                         GetProcAddress(dwmapi, "DwmDefWindowProc");
+    }
   }
   
-  uxtheme = LoadLibrary("uxtheme.dll");
-  if(uxtheme) {
-    OpenThemeData = (HANDLE(WINAPI *)(HWND, LPCWSTR))
-                    GetProcAddress(uxtheme, "OpenThemeData");
-                    
-    CloseThemeData = (HRESULT(WINAPI *)(HANDLE))
-                     GetProcAddress(uxtheme, "CloseThemeData");
-                     
-    DrawThemeBackground = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, const RECT *, const RECT *))
-                          GetProcAddress(uxtheme, "DrawThemeBackground");
-                          
-    DrawThemeEdge = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT))
-                    GetProcAddress(uxtheme, "DrawThemeEdge");
-                    
-    DrawThemeTextEx = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS *))
-                      GetProcAddress(uxtheme, "DrawThemeTextEx");
+  if(!uxtheme) {
+    uxtheme = LoadLibrary("uxtheme.dll");
+    if(uxtheme) {
+      OpenThemeData = (HANDLE(WINAPI *)(HWND, LPCWSTR))
+                      GetProcAddress(uxtheme, "OpenThemeData");
                       
-    GetThemeSysFont = (HRESULT(WINAPI *)(HANDLE, int, LOGFONTW *))
-                      GetProcAddress(uxtheme, "GetThemeSysFont");
-                      
-    GetThemeSysColor = (COLORREF(WINAPI *)(HANDLE, int))
-                       GetProcAddress(uxtheme, "GetThemeSysColor");
+      CloseThemeData = (HRESULT(WINAPI *)(HANDLE))
+                       GetProcAddress(uxtheme, "CloseThemeData");
                        
-    GetThemeBackgroundExtent = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCRECT, LPRECT))
-                               GetProcAddress(uxtheme, "GetThemeBackgroundExtent");
-                               
-    GetThemeBackgroundContentRect = (HRESULT(WINAPI *)(HANDLE, HDC hdc, int, int, LPCRECT, LPRECT))
-                                    GetProcAddress(uxtheme, "GetThemeBackgroundContentRect");
-                                    
-    GetThemeBool = (HRESULT(WINAPI *)(HANDLE, int, int, int, BOOL *))
-                   GetProcAddress(uxtheme, "GetThemeBool");
-                   
-    GetThemeColor = (HRESULT(WINAPI *)(HANDLE, int, int, int, COLORREF *))
-                    GetProcAddress(uxtheme, "GetThemeColor");
-                    
-    GetThemeMargins = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, int, LPRECT, MARGINS *))
-                      GetProcAddress(uxtheme, "GetThemeMargins");
+      DrawThemeBackground = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, const RECT *, const RECT *))
+                            GetProcAddress(uxtheme, "DrawThemeBackground");
+                            
+      DrawThemeEdge = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT))
+                      GetProcAddress(uxtheme, "DrawThemeEdge");
                       
-    GetThemeMetric = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, int, int *))
-                     GetProcAddress(uxtheme, "GetThemeMetric");
-                     
-    GetThemeInt = (HRESULT(WINAPI *)(HANDLE, int, int, int, int *))
-                  GetProcAddress(uxtheme, "GetThemeInt");
-                  
-    GetThemeIntList = (HRESULT(WINAPI *)(HANDLE, int, int, int, INTLIST *))
-                      GetProcAddress(uxtheme, "GetThemeIntList");
-                      
-    GetThemePartSize = (HRESULT(WINAPI *)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE *))
-                       GetProcAddress(uxtheme, "GetThemePartSize");
-                       
-    GetThemePosition = (HRESULT(WINAPI *)(HANDLE, int, int, int, POINT *))
-                       GetProcAddress(uxtheme, "GetThemePosition");
-                       
-    GetThemeTransitionDuration = (HRESULT(WINAPI *)(HANDLE, int, int, int, int, DWORD *))
-                                 GetProcAddress(uxtheme, "GetThemeTransitionDuration");
-                                 
-    GetCurrentThemeName = (HRESULT(WINAPI *)(LPWSTR, int, LPWSTR, int, LPWSTR, int))
-                          GetProcAddress(uxtheme, "GetCurrentThemeName");
-                          
-    IsAppThemed = (BOOL (WINAPI *)(void))
-                  GetProcAddress(uxtheme, "IsAppThemed");
-    
-    IsThemePartDefined = (BOOL (WINAPI *)(HANDLE, int, int))
-                         GetProcAddress(uxtheme, "IsThemePartDefined");
-                         
-    GetThemeSysSize = (int (WINAPI *)(HANDLE, int))
-                      GetProcAddress(uxtheme, "GetThemeSysSize");
-                      
-    SetWindowTheme = (HRESULT(WINAPI *)(HWND, LPCWSTR, LPCWSTR))
-                     GetProcAddress(uxtheme, "SetWindowTheme");
-                     
-                     
-                     
-    BufferedPaintInit = (HRESULT(WINAPI *)(void))
-                        GetProcAddress(uxtheme, "BufferedPaintInit");
+      DrawThemeTextEx = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCWSTR, int, DWORD, LPRECT, const DTTOPTS *))
+                        GetProcAddress(uxtheme, "DrawThemeTextEx");
                         
-    BufferedPaintUnInit = (HRESULT(WINAPI *)(void))
-                          GetProcAddress(uxtheme, "BufferedPaintUnInit");
-                          
-    BufferedPaintStopAllAnimations = (HRESULT(WINAPI *)(HWND))
-                                     GetProcAddress(uxtheme, "BufferedPaintStopAllAnimations");
-                                     
-    BeginBufferedPaint = (HANDLE(WINAPI *)(HDC, const RECT *, BP_BUFFERFORMAT, BP_PAINTPARAMS *, HDC *))
-                         GetProcAddress(uxtheme, "BeginBufferedPaint");
+      GetThemeSysFont = (HRESULT(WINAPI *)(HANDLE, int, LOGFONTW *))
+                        GetProcAddress(uxtheme, "GetThemeSysFont");
+                        
+      GetThemeSysColor = (COLORREF(WINAPI *)(HANDLE, int))
+                         GetProcAddress(uxtheme, "GetThemeSysColor");
                          
-    EndBufferedPaint = (HANDLE(WINAPI *)(HANDLE, BOOL))
-                       GetProcAddress(uxtheme, "EndBufferedPaint");
+      GetThemeBackgroundExtent = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, LPCRECT, LPRECT))
+                                 GetProcAddress(uxtheme, "GetThemeBackgroundExtent");
+                                 
+      GetThemeBackgroundContentRect = (HRESULT(WINAPI *)(HANDLE, HDC hdc, int, int, LPCRECT, LPRECT))
+                                      GetProcAddress(uxtheme, "GetThemeBackgroundContentRect");
+                                      
+      GetThemeBool = (HRESULT(WINAPI *)(HANDLE, int, int, int, BOOL *))
+                     GetProcAddress(uxtheme, "GetThemeBool");
+                     
+      GetThemeColor = (HRESULT(WINAPI *)(HANDLE, int, int, int, COLORREF *))
+                      GetProcAddress(uxtheme, "GetThemeColor");
+                      
+      GetThemeMargins = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, int, LPRECT, MARGINS *))
+                        GetProcAddress(uxtheme, "GetThemeMargins");
+                        
+      GetThemeMetric = (HRESULT(WINAPI *)(HANDLE, HDC, int, int, int, int *))
+                       GetProcAddress(uxtheme, "GetThemeMetric");
                        
-    IsCompositionActive = (BOOL (WINAPI *)(void))
-                          GetProcAddress(uxtheme, "IsCompositionActive");
-                          
-    IsThemeActive = (BOOL (WINAPI *)(void))
-                    GetProcAddress(uxtheme, "IsThemeActive");
+      GetThemeInt = (HRESULT(WINAPI *)(HANDLE, int, int, int, int *))
+                    GetProcAddress(uxtheme, "GetThemeInt");
                     
-    if(BufferedPaintInit)
-      BufferedPaintInit();
+      GetThemeIntList = (HRESULT(WINAPI *)(HANDLE, int, int, int, INTLIST *))
+                        GetProcAddress(uxtheme, "GetThemeIntList");
+                        
+      GetThemePartSize = (HRESULT(WINAPI *)(HANDLE hTheme, HDC, int, int, LPCRECT, THEME_SIZE, SIZE *))
+                         GetProcAddress(uxtheme, "GetThemePartSize");
+                         
+      GetThemePosition = (HRESULT(WINAPI *)(HANDLE, int, int, int, POINT *))
+                         GetProcAddress(uxtheme, "GetThemePosition");
+                         
+      GetThemeTransitionDuration = (HRESULT(WINAPI *)(HANDLE, int, int, int, int, DWORD *))
+                                   GetProcAddress(uxtheme, "GetThemeTransitionDuration");
+                                   
+      GetCurrentThemeName = (HRESULT(WINAPI *)(LPWSTR, int, LPWSTR, int, LPWSTR, int))
+                            GetProcAddress(uxtheme, "GetCurrentThemeName");
+                            
+      IsAppThemed = (BOOL (WINAPI *)(void))
+                    GetProcAddress(uxtheme, "IsAppThemed");
+      
+      IsThemePartDefined = (BOOL (WINAPI *)(HANDLE, int, int))
+                           GetProcAddress(uxtheme, "IsThemePartDefined");
+                           
+      GetThemeSysSize = (int (WINAPI *)(HANDLE, int))
+                        GetProcAddress(uxtheme, "GetThemeSysSize");
+                        
+      SetWindowTheme = (HRESULT(WINAPI *)(HWND, LPCWSTR, LPCWSTR))
+                       GetProcAddress(uxtheme, "SetWindowTheme");
+                       
+                       
+                       
+      BufferedPaintInit = (HRESULT(WINAPI *)(void))
+                          GetProcAddress(uxtheme, "BufferedPaintInit");
+                          
+      BufferedPaintUnInit = (HRESULT(WINAPI *)(void))
+                            GetProcAddress(uxtheme, "BufferedPaintUnInit");
+                            
+      BufferedPaintStopAllAnimations = (HRESULT(WINAPI *)(HWND))
+                                       GetProcAddress(uxtheme, "BufferedPaintStopAllAnimations");
+                                       
+      BeginBufferedPaint = (HANDLE(WINAPI *)(HDC, const RECT *, BP_BUFFERFORMAT, BP_PAINTPARAMS *, HDC *))
+                           GetProcAddress(uxtheme, "BeginBufferedPaint");
+                           
+      EndBufferedPaint = (HANDLE(WINAPI *)(HANDLE, BOOL))
+                         GetProcAddress(uxtheme, "EndBufferedPaint");
+                         
+      IsCompositionActive = (BOOL (WINAPI *)(void))
+                            GetProcAddress(uxtheme, "IsCompositionActive");
+                            
+      IsThemeActive = (BOOL (WINAPI *)(void))
+                      GetProcAddress(uxtheme, "IsThemeActive");
+                      
+      if(BufferedPaintInit)
+        BufferedPaintInit();
+    }
   }
 }
 
