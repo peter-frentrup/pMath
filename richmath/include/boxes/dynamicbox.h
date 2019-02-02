@@ -34,7 +34,7 @@ namespace richmath {
       virtual bool edit_selection(Context *context) override;
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
       
     public:
       Dynamic dynamic;

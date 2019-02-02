@@ -27,7 +27,7 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
       
     public:
@@ -70,7 +70,7 @@ namespace richmath {
       virtual void on_finish_editing() override;
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
     
     private:
       int _argument;

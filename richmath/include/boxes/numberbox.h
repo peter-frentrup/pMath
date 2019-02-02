@@ -45,7 +45,7 @@ namespace richmath {
       Box *string_index_to_selection(String number, int char_index, int *selection_index);
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
       
     private:
       String        _number;

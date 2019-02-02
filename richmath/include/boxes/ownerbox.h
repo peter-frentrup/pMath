@@ -18,7 +18,7 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override { return 1; }
       
-      virtual void resize(Context *context) final { resize_no_baseline(context); reset_baseline_after_resize(context); }
+      virtual void resize(Context *context) final { resize_default_baseline(context); adjust_baseline_after_resize(context); }
       virtual void paint(Context *context) override;
       virtual void paint_content(Context *context);
       
@@ -47,8 +47,9 @@ namespace richmath {
       virtual bool edit_selection(Context *context) override;
     
     protected:
-      virtual void resize_no_baseline(Context *context);
-      void reset_baseline_after_resize(Context *context);
+      virtual void resize_default_baseline(Context *context);
+      void adjust_baseline_after_resize(Context *context);
+      float calculate_scaled_baseline(double scale) const;
     
     protected:
       MathSequence *_content;
@@ -66,7 +67,7 @@ namespace richmath {
       virtual void on_exit() override;
     
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
   };
 }
 

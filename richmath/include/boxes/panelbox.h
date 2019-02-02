@@ -19,7 +19,7 @@ namespace richmath {
       virtual Box *mouse_sensitive() override { return Box::mouse_sensitive(); }
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
   };
 }
 

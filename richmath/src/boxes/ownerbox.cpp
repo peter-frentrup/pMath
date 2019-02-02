@@ -17,7 +17,6 @@ class OwnerBox::Impl {
   public:
     Impl(OwnerBox &_self) : self(_self) {}
     
-    float get_scaled_baseline(double scale) const;
     float calculate_baseline(float em, Expr baseline_pos) const;
     void adjust_baseline(float em);
   
@@ -45,16 +44,20 @@ Box *OwnerBox::item(int i) {
   return _content;
 }
 
-void OwnerBox::resize_no_baseline(Context *context) {
+void OwnerBox::resize_default_baseline(Context *context) {
   _content->resize(context);
   _extents = _content->extents();
   cx = 0;
   cy = 0;
 }
 
-void OwnerBox::reset_baseline_after_resize(Context *context) {
-  cy = 0;
+void OwnerBox::adjust_baseline_after_resize(Context *context) {
   Impl(*this).adjust_baseline(context->canvas->get_font_size());
+}
+
+float OwnerBox::calculate_scaled_baseline(double scale) const {
+  //return -_extents.descent * (1 - scale) + _extents.ascent * scale
+  return (float)(-(double)_extents.descent + scale * (double)(_extents.ascent + _extents.descent));
 }
 
 void OwnerBox::paint(Context *context) {
@@ -174,10 +177,10 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options){
   return false;
 }
 
-void InlineSequenceBox::resize_no_baseline(Context *context) {
+void InlineSequenceBox::resize_default_baseline(Context *context) {
   bool old_math_spacing = context->math_spacing;
   context->math_spacing = true;
-  OwnerBox::resize_no_baseline(context);
+  OwnerBox::resize_default_baseline(context);
   context->math_spacing = old_math_spacing;
 }
 
@@ -224,64 +227,66 @@ void InlineSequenceBox::on_exit() {
 
 //} ... class InlineSequenceBox
 
-float OwnerBox::Impl::get_scaled_baseline(double scale) const {
-  //return -self._extents.descent * (1 - scale) + self._extents.ascent * scale
-  return (float)(-(double)self._extents.descent + scale * (double)(self._extents.ascent + self._extents.descent));
-}
+static const float NormalTextAxisFactor = 0.25f; // TODO: use actual math axis from font
+static const float NormalTextDescentFactor = 0.25f;
+static const float NormalTextAscentFactor = 0.75f;
 
 float OwnerBox::Impl::calculate_baseline(float em, Expr baseline_pos) const {
   if(baseline_pos == richmath_System_Bottom) 
-    return get_scaled_baseline(0);
+    return self.calculate_scaled_baseline(0);
   
   if(baseline_pos == richmath_System_Top) 
-    return get_scaled_baseline(1);
+    return self.calculate_scaled_baseline(1);
   
   if(baseline_pos == richmath_System_Center) 
-    return get_scaled_baseline(0.5);
+    return self.calculate_scaled_baseline(0.5);
   
   if(baseline_pos == richmath_System_Axis) 
-    return 0.25f * em; // TODO: use actual math axis from font
+    return NormalTextAxisFactor * em - self.cy; // TODO: use actual math axis from font
+    
+  if(baseline_pos == richmath_System_Baseline) 
+    return -self.cy;
     
   if(baseline_pos[0] == richmath_System_Scaled) {
     double factor = 0.0;
     if(get_factor_of_scaled(baseline_pos, &factor) && isfinite(factor)) 
-      return get_scaled_baseline(factor);
+      return self.calculate_scaled_baseline(factor);
   }
   else if(baseline_pos.is_rule()) {
     float lhs_y = calculate_baseline(em, baseline_pos[1]);
     Expr rhs = baseline_pos[2];
     
     if(rhs == richmath_System_Axis) {
-      float ref_pos = 0.25f * em; // TODO: use actual math axis from font
+      float ref_pos = NormalTextAxisFactor * em; // TODO: use actual math axis from font
       return lhs_y - ref_pos;
     }
     else if(rhs == richmath_System_Baseline) {
-      float ref_pos = 0.0f;
+      float ref_pos = self.cy;
       return lhs_y - ref_pos;
     }
     else if(rhs == richmath_System_Bottom) {
-      float ref_pos = -0.25f * em;
+      float ref_pos = - NormalTextDescentFactor * em;
       return lhs_y - ref_pos;
     }
     else if(rhs == richmath_System_Center) {
-      float ref_pos = 0.25f * em;
+      float ref_pos = (NormalTextAscentFactor - NormalTextDescentFactor) * em; // (bottom + top)/2
       return lhs_y - ref_pos;
     }
     else if(rhs == richmath_System_Top) {
-      float ref_pos = 0.75f * em;
+      float ref_pos = NormalTextAscentFactor * em;
       return lhs_y - ref_pos;
     }
     else if(rhs[0] == richmath_System_Scaled) {
       double factor = 0.0;
       if(get_factor_of_scaled(rhs, &factor) && isfinite(factor)) {
-        //float ref_pos = 0.75 * em * factor - 0.25 * em * (1 - factor);
-        float ref_pos = (factor - 0.25) * em;
+        //float ref_pos = NormalTextAscentFactor * em * factor - NormalTextDescentFactor * em * (1 - factor);
+        float ref_pos = ((NormalTextAscentFactor + NormalTextDescentFactor) * factor - NormalTextDescentFactor) * em;
         return lhs_y - ref_pos;
       }
     }
   }
   
-  // baseline_pos == richmath_System_Baseline || baseline_pos == PMATH_SYMBOL_AUTOMATIC
+  // baseline_pos == PMATH_SYMBOL_AUTOMATIC
   return 0;
 }
 

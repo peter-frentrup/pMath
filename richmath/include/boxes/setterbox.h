@@ -31,7 +31,7 @@ namespace richmath {
       virtual Box *dynamic_to_literal(int *start, int *end) override;
     
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
       
     protected:
       Dynamic dynamic;

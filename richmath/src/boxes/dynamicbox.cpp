@@ -85,8 +85,8 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void DynamicBox::resize_no_baseline(Context *context) {
-  AbstractDynamicBox::resize_no_baseline(context);
+void DynamicBox::resize_default_baseline(Context *context) {
+  AbstractDynamicBox::resize_default_baseline(context);
   must_resize = false;
   
   if(_extents.width <= 0)

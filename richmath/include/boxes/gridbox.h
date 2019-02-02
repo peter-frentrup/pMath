@@ -31,7 +31,7 @@ namespace richmath {
       
     protected:
       GridItem();
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
       
     protected:
       int _span_right;

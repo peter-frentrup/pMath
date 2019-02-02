@@ -25,7 +25,7 @@ namespace richmath {
       const cairo_matrix_t &cairo_matrix() { return mat; }
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
     
     protected:
       cairo_matrix_t mat;

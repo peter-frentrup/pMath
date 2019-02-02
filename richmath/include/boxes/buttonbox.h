@@ -24,7 +24,7 @@ namespace richmath {
       virtual void click();
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
   };
 }
 

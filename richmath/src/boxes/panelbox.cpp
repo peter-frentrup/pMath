@@ -1,7 +1,9 @@
 #include <boxes/panelbox.h>
 
 #include <boxes/mathsequence.h>
+#include <graphics/context.h>
 #include <gui/native-widget.h>
+
 
 using namespace richmath;
 
@@ -49,11 +51,11 @@ bool PanelBox::expand(const BoxSize &size) {
   return true;
 }
 
-void PanelBox::resize_no_baseline(Context *context) {
+void PanelBox::resize_default_baseline(Context *context) {
 //  float old_width = context->width;
 //  context->width = HUGE_VAL;
   
-  ContainerWidgetBox::resize_no_baseline(context);
+  ContainerWidgetBox::resize_default_baseline(context);
   
 //  context->width = old_width;
 }

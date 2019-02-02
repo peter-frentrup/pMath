@@ -553,7 +553,7 @@ bool NumberBox::edit_selection(Context *context) {
   return false;
 }
 
-void NumberBox::resize_no_baseline(Context *context) {
+void NumberBox::resize_default_baseline(Context *context) {
   bool                  old_math_spacing     = context->math_spacing;
   bool                  old_show_auto_styles = context->show_auto_styles;
   SharedPtr<TextShaper> old_text_shaper      = context->text_shaper;
@@ -564,7 +564,7 @@ void NumberBox::resize_no_baseline(Context *context) {
   if(old_math_spacing)
     context->text_shaper = context->math_shaper;
     
-  OwnerBox::resize_no_baseline(context);
+  OwnerBox::resize_default_baseline(context);
   
   context->math_spacing     = old_math_spacing;
   context->show_auto_styles = old_show_auto_styles;

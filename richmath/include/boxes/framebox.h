@@ -18,7 +18,7 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
       
     protected:
       float em;

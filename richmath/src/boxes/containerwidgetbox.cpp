@@ -42,8 +42,8 @@ ControlState ContainerWidgetBox::calc_state(Context *context) {
   return Normal;
 }
 
-void ContainerWidgetBox::resize_no_baseline(Context *context) {
-  AbstractStyleBox::resize_no_baseline(context);
+void ContainerWidgetBox::resize_default_baseline(Context *context) {
+  AbstractStyleBox::resize_default_baseline(context);
   
   ControlPainter::std->calc_container_size(
     context->canvas,

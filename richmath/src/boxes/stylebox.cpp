@@ -65,17 +65,17 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint)
       OwnerBox::paint(context);
     }
     else 
-      OwnerBox::resize_no_baseline(context);
+      OwnerBox::resize_default_baseline(context);
     
     cc.end();
   }
   else if(paint) 
     OwnerBox::paint(context);
   else 
-    OwnerBox::resize_no_baseline(context);
+    OwnerBox::resize_default_baseline(context);
 }
 
-void AbstractStyleBox::resize_no_baseline(Context *context) {
+void AbstractStyleBox::resize_default_baseline(Context *context) {
   paint_or_resize_no_baseline(context, false);
 }
 
@@ -341,9 +341,9 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void TagBox::resize_no_baseline(Context *context) {
+void TagBox::resize_default_baseline(Context *context) {
   style->set(BaseStyleName, String(tag));
-  ExpandableAbstractStyleBox::resize_no_baseline(context);
+  ExpandableAbstractStyleBox::resize_default_baseline(context);
 }
 
 Expr TagBox::to_pmath_symbol() { 

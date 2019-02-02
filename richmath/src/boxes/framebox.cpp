@@ -41,13 +41,13 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   return true;
 }
 
-void FrameBox::resize_no_baseline(Context *context) {
+void FrameBox::resize_default_baseline(Context *context) {
   em = context->canvas->get_font_size();
   
   float old_width = context->width;
   context->width -= em * 0.5f;
   
-  OwnerBox::resize_no_baseline(context);
+  OwnerBox::resize_default_baseline(context);
   
   cx = em * 0.25f;
   

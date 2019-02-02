@@ -55,7 +55,7 @@ namespace richmath {
       bool assign_dynamic();
       
     protected:
-      virtual void resize_no_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context *context) override;
       
     protected:
       bool must_update;

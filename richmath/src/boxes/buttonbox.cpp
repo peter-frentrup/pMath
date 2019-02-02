@@ -55,7 +55,7 @@ bool ButtonBox::expand(const BoxSize &size) {
   return true;
 }
 
-void ButtonBox::resize_no_baseline(Context *context) {
+void ButtonBox::resize_default_baseline(Context *context) {
   int bf = get_style(ButtonFrame, -1);
   if(bf >= 0)
     type = (ContainerType)bf;
@@ -65,7 +65,7 @@ void ButtonBox::resize_no_baseline(Context *context) {
   float old_width = context->width;
   context->width = HUGE_VAL;
   
-  ContainerWidgetBox::resize_no_baseline(context);
+  ContainerWidgetBox::resize_default_baseline(context);
   
   context->width = old_width;
 }
