@@ -58,6 +58,12 @@ void PanelBox::resize_default_baseline(Context *context) {
   ContainerWidgetBox::resize_default_baseline(context);
   
 //  context->width = old_width;
+  
+  // like BaselinePosition -> (Center -> Axis)
+  float baseline_adjust = calculate_scaled_baseline(0.5) - 0.25 * context->canvas->get_font_size();
+  cy+= baseline_adjust;
+  _extents.ascent-= baseline_adjust;
+  _extents.descent+= baseline_adjust;
 }
 
 Expr PanelBox::to_pmath_symbol() { 
