@@ -20,7 +20,7 @@ ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *conten
     mouse_right_down(false),
     selection_inside(false)
 {
-  reset_style();
+  reset_style(); // caution: this does not call the derived reset_style(), but our implementation below
   style->flag_pending_dynamic();
 }
 

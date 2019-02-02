@@ -16,6 +16,8 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
+      virtual void reset_style() override;
+      
       virtual Box *mouse_sensitive() override { return Box::mouse_sensitive(); }
       
     protected:

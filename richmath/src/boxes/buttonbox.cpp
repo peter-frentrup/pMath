@@ -36,14 +36,9 @@ bool ButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   content()->load_from_object(expr[1], opts);
   
-  if(options != PMATH_UNDEFINED) {
-    if(style){
-      reset_style();
-      style->add_pmath(options);
-    }
-    else
-      style = new Style(options);
-  }
+  reset_style();
+  if(options != PMATH_UNDEFINED) 
+    style->add_pmath(options);
   
   finish_load_from_object(std::move(expr));
   return true;
@@ -85,6 +80,10 @@ Expr ButtonBox::to_pmath(BoxOutputFlags flags) {
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_ButtonBox));
   return e;
+}
+
+void ButtonBox::reset_style() {
+  Style::reset(style, "Button");
 }
 
 void ButtonBox::on_mouse_down(MouseEvent &event) {

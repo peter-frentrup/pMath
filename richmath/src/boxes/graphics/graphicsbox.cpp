@@ -160,7 +160,7 @@ GraphicsBox::GraphicsBox()
 
 GraphicsBox::~GraphicsBox() {
   for(int part = 0; part < 6; ++part)
-    delete ticks[part];
+    ticks[part]->safe_destroy();
 }
 
 bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {

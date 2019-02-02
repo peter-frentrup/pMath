@@ -77,6 +77,8 @@ Document({
          FontFamily -> Dynamic(CurrentValue("ControlsFontFamily")), 
          FontSize -> Dynamic(CurrentValue("ControlsFontSize")), 
          ShowAutoStyles -> False, ShowStringCharacters -> False), 
+        Section(StyleData("Button"), BaseStyle -> "ControlStyle"), 
+        Section(StyleData("Panel"), BaseStyle -> "ControlStyle"), 
         Section(StyleData("InputField"), BaseStyle -> "ControlStyle", 
          ShowStringCharacters -> True), Section(StyleData("Placeholder"), 
          Background -> RGBColor(1, 0.97299999999999998`, 
