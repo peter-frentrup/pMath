@@ -81,7 +81,7 @@ Function internalInspectBoxes(~other) {
 	Return(other)
 }
 
-Function internalInspectBoxes(box: (head: ButtonBox|FrameBox|SqrtBox|StyleBox|TagBox|InterpretationBox|RotationBox|SubscriptBox|SuperscriptBox)(~content, ~~~opts)) {
+Function internalInspectBoxes(box: (head: ButtonBox|FrameBox|SqrtBox|StyleBox|TagBox|TemplateBox|InterpretationBox|PanelBox|RotationBox|SubscriptBox|SuperscriptBox)(~content, ~~~opts)) {
 	With(debugInfo:= Developer`GetDebugInfo(box))
 	With(newBox:= head(internalInspectBoxes(content), opts))
 	If(debugInfo =!= /\/) {
