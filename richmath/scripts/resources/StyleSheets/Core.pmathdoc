@@ -86,9 +86,25 @@ Document({
          FontSize -> 9, Placeholder -> True, ShowAutoStyles -> False, 
          ShowStringCharacters -> False)}, All), 
       SectionGroup({Section("TemplateBox styles", "Subsection"), 
+        Section(StyleData("Binomial"), TemplateBoxOptions -> {
+          DisplayFunction -> ({"(", GridBox({{#1}, {#2}}), ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric0F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
+           StyleBox({SubscriptBox("0"), "F", SubscriptBox("1")}, 
+            ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric1F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
+           StyleBox({SubscriptBox("1"), "F", SubscriptBox("1")}, 
+            ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric2F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
+           StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
+            ShowAutoStyles -> False), "(", {{#1, ",", #2}, ";", #3, ";", #4}, 
+           ")"} &), Tooltip -> Automatic}), 
         Section(StyleData("Det"), TemplateBoxOptions -> {
-          DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
-           "\[RightBracketingBar]"} &)}), Section(StyleData("TooltipContent"), 
+          DisplayFunction -> ({"\[LeftBracketingBar]", #1; 1, 
+           "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
+        Section(StyleData("TooltipContent"), 
          TemplateBoxOptions -> {DisplayFunction -> (ButtonBox(#1, 
            ButtonFrame -> "TooltipWindow") &)}), 
         SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
