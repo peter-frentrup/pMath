@@ -25,6 +25,7 @@ namespace richmath {
   };
   
   class GraphicsBox: public Box {
+      class Impl;
     public:
       GraphicsBox();
       virtual ~GraphicsBox();

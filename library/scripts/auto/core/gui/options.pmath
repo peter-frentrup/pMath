@@ -71,6 +71,7 @@ Options(Graphics):= Options(GraphicsBox):= {
 	AspectRatio -> Automatic,
 	Axes -> False,
 	AxesOrigin -> Automatic,
+    BaselinePosition -> Automatic,
 	Frame -> False,
 	FrameTicks -> Automatic,
 	ImageSize -> Automatic,

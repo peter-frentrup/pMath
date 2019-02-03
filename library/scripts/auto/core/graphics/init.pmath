@@ -1,5 +1,5 @@
 
-BeginPackage("System`Graphics`")
+BeginPackage("System`Graphics`", {"ExperimentalSyntax`"})
 
 System`Graphics`ComposeHeldExpr
 System`Graphics`MakeGraphicsBoxes
@@ -49,31 +49,24 @@ AutoLoad(Hold(MakeGraphicsBoxes, MakeGraphicsBoxesOptions),
 AutoLoad(Hold(MakeGraphicsExpression, MakeGraphicsExpressionOptions),
 	ToFileName(DirectoryName($Input), "makegraphicsexpression.pmath"))
 
-Options(ListLinePlot):= {
-	AspectRatio -> 1/GoldenRatio, 
-	Axes -> True, 
-	AxesOrigin -> Automatic,
-	DataRange -> Automatic,
-	Frame -> False,
-	FrameTicks -> Automatic,
-	ImageSize -> Automatic,
-	PlotRange -> Automatic,
-	PlotStyle -> Automatic,
-	Ticks -> Automatic}
+Options(ListLinePlot):= With(newdef:= {
+		AspectRatio -> 1/GoldenRatio,
+		Axes -> True,
+		Frame -> False,
+		WorkingPrecision -> MachinePrecision
+	}) {
+		FilterRules(Options(Graphics),Except(newdef)).Join(newdef)
+	}
 	
-Options(Plot):= {
-	AspectRatio -> 1/GoldenRatio, 
-	Axes -> True, 
-	AxesOrigin -> Automatic,
-	Frame -> False,
-	FrameTicks -> Automatic,
-	ImageSize -> Automatic,
-	MaxRecursion -> Automatic,
-	PlotPoints -> Automatic,
-	PlotRange -> Automatic,
-	PlotStyle -> Automatic,
-	Ticks -> Automatic,
-	WorkingPrecision -> MachinePrecision}
+Options(Plot):= With(newdef:= {
+		AspectRatio -> 1/GoldenRatio,
+		Axes -> True,
+		Frame -> False,
+		MaxRecursion -> Automatic,
+		WorkingPrecision -> MachinePrecision
+	}) {
+		FilterRules(Options(Graphics),Except(newdef)).Join(newdef)
+	}
 	
 AutoLoad(Hold(ListLinePlot),
 	ToFileName(DirectoryName($Input), "ListLinePlot.pmath"))

@@ -36,13 +36,13 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_Axis;
+extern pmath_symbol_t richmath_System_Baseline;
+extern pmath_symbol_t richmath_System_Bottom;
+extern pmath_symbol_t richmath_System_Center;
 extern pmath_symbol_t richmath_System_GraphicsBox;
-
-enum SyntaxPosition {
-  Alone,
-  InsideList,
-  InsideOther
-};
+extern pmath_symbol_t richmath_System_Scaled;
+extern pmath_symbol_t richmath_System_Top;
 
 template<typename T>
 static T max(const T &a, const T &b, const T &c) {
@@ -67,64 +67,23 @@ static T clip(const T &x, const T &min, const T &max) {
 }
 
 
-static enum SyntaxPosition find_syntax_position(Box *box, int index) {
-  if(!box || dynamic_cast<Section *>(box))
-    return Alone;
-    
-  if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
-    SpanExpr *expr = new SpanExpr(index, 0, seq);
-    
-    expr = expr->expand();
-    
-    bool inside_list = false;
-    
-    while(expr && expr->sequence() == seq) {
-      if( FunctionCallSpan::is_list(expr) ||
-          FunctionCallSpan::is_sequence(expr))
-      {
-        inside_list = true;
-      }
-      else if(!expr->is_box())
-      {
-        delete expr;
-        return InsideOther;
-      }
-      
-      expr = expr->expand();
-    }
-    
-    if(expr)
-      delete expr;
-      
-    enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
-    
-    if(inside_list && pos < InsideList)
-      return InsideList;
-      
-    return pos;
-  }
-  
-  if( dynamic_cast<AbstractDynamicBox *>(box) ||
-      dynamic_cast<AbstractStyleBox *>(box) ||
-      dynamic_cast<GridItem *>(box) )
-  {
-    return find_syntax_position(box->parent(), box->index());
-  }
-  
-  if( dynamic_cast<GridBox *>(box) ||
-      dynamic_cast<OwnerBox *>(box))
-  {
-    enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
-    
-    if(pos < InsideList)
-      return InsideList;
-      
-    return pos;
-  }
-  
-  return InsideOther;
-}
+enum SyntaxPosition {
+  Alone,
+  InsideList,
+  InsideOther
+};
 
+class GraphicsBox::Impl {
+  public:
+    Impl(GraphicsBox &_self) : self(_self) {}
+    
+    static enum SyntaxPosition find_syntax_position(Box *box, int index);
+    
+    float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
+    
+  private:
+    GraphicsBox &self;
+};
 
 //{ class GraphicsBox ...
 
@@ -281,6 +240,12 @@ void GraphicsBox::resize(Context *context) {
   margin_bottom = 0;
   
   calculate_size();
+  
+  float height = _extents.height();
+  float ascent = Impl(*this).calculate_ascent_for_baseline_position(em, get_style(BaselinePosition));
+  _extents.ascent = ascent;
+  _extents.descent = height - ascent;
+  
   is_currently_resizing = false;
 }
 
@@ -357,7 +322,7 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
       w = *optional_expand_width;
     }
     else {
-      enum SyntaxPosition pos = find_syntax_position(parent(), index());
+      enum SyntaxPosition pos = Impl::find_syntax_position(parent(), index());
       
       switch(pos) {
         case Alone:
@@ -432,12 +397,12 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
   _extents.descent = h - _extents.ascent;
   
   
-  ticks[AxisIndexLeft ]->start_y            = _extents.descent - margin_bottom;
-  ticks[AxisIndexRight]->start_y            = _extents.descent - margin_bottom;
-  ticks[AxisIndexY    ]->start_y            = _extents.descent - margin_bottom;
-  ticks[AxisIndexLeft ]->end_y              = margin_top - _extents.ascent;
-  ticks[AxisIndexRight]->end_y              = margin_top - _extents.ascent;
-  ticks[AxisIndexY    ]->end_y              = margin_top - _extents.ascent;
+  ticks[AxisIndexLeft ]->start_y            = h - margin_bottom;
+  ticks[AxisIndexRight]->start_y            = h - margin_bottom;
+  ticks[AxisIndexY    ]->start_y            = h - margin_bottom;
+  ticks[AxisIndexLeft ]->end_y              = margin_top;
+  ticks[AxisIndexRight]->end_y              = margin_top;
+  ticks[AxisIndexY    ]->end_y              = margin_top;
   ticks[AxisIndexLeft ]->tick_length_factor = w - margin_left - margin_right;
   ticks[AxisIndexRight]->tick_length_factor = w - margin_left - margin_right;
   ticks[AxisIndexY    ]->tick_length_factor = w - margin_left - margin_right;
@@ -459,11 +424,11 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
   ticks[AxisIndexTop   ]->tick_length_factor = h - margin_bottom - margin_top;
   ticks[AxisIndexX     ]->tick_length_factor = h - margin_bottom - margin_top;
   
-  ticks[AxisIndexBottom]->start_y = _extents.descent - margin_bottom;
-  ticks[AxisIndexBottom]->end_y   = _extents.descent - margin_bottom;
+  ticks[AxisIndexBottom]->start_y = h - margin_bottom;
+  ticks[AxisIndexBottom]->end_y   = h - margin_bottom;
   
-  ticks[AxisIndexTop]->start_y = margin_top - _extents.ascent;
-  ticks[AxisIndexTop]->end_y   = margin_top - _extents.ascent;
+  ticks[AxisIndexTop]->start_y = margin_top;
+  ticks[AxisIndexTop]->end_y   = margin_top;
   
   float tx = 0;
   float ty = 0;
@@ -495,7 +460,7 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
     ticks[AxisIndexX]->axis_hidden = true;
   }
   
-  if(valid_ox && ty >= _extents.descent - margin_bottom - ticks[AxisIndexX]->extra_offset / 2)
+  if(valid_ox && ty >= h - margin_bottom - ticks[AxisIndexX]->extra_offset / 2)
     ticks[AxisIndexX]->ignore_label_position = NAN;
     
   if(valid_oy && tx <= margin_left + ticks[AxisIndexY]->extra_offset / 2)
@@ -653,7 +618,6 @@ GraphicsBounds GraphicsBox::calculate_plotrange() {
       bounds.xmax += 1;
     }
   }
-  
   
   if(bounds.ymin == bounds.ymax) {
     double dist = 0.5 * max(fabs(bounds.ymin), fabs(0.5 * bounds.xmin + 0.5 * bounds.xmax));
@@ -948,7 +912,7 @@ void GraphicsBox::paint(Context *context) {
       context->canvas = cached_bitmap->canvas();
     }
     else {
-      cached_bitmap = 0;
+      cached_bitmap = nullptr;
     }
     
     ContextState cc(context);
@@ -1001,9 +965,9 @@ void GraphicsBox::paint(Context *context) {
         for(int axis = 0; axis < 6; ++axis) {
           if(!ticks[axis]->axis_hidden) {
             float x1 = ticks[axis]->start_x + x;
-            float y1 = ticks[axis]->start_y + y + _extents.ascent;
+            float y1 = ticks[axis]->start_y + y;
             float x2 = ticks[axis]->end_x   + x;
-            float y2 = ticks[axis]->end_y   + y + _extents.ascent;
+            float y2 = ticks[axis]->end_y   + y;
             
             context->canvas->align_point(&x1, &y1, true);
             context->canvas->align_point(&x2, &y2, true);
@@ -1017,7 +981,7 @@ void GraphicsBox::paint(Context *context) {
         
         for(int axis = 0; axis < 6; ++axis) {
           if(!ticks[axis]->axis_hidden) {
-            context->canvas->move_to(x, y + _extents.ascent);
+            context->canvas->move_to(x, y);
             ticks[axis]->paint(context);
           }
         }
@@ -1339,3 +1303,126 @@ void GraphicsBox::on_mouse_up(MouseEvent &event) {
 }
 
 //} ... class GraphicsBox
+
+//{ class GraphicsBox::Impl ...
+
+enum SyntaxPosition GraphicsBox::Impl::find_syntax_position(Box *box, int index) {
+  if(!box || dynamic_cast<Section *>(box))
+    return Alone;
+    
+  if(MathSequence *seq = dynamic_cast<MathSequence *>(box)) {
+    SpanExpr *expr = new SpanExpr(index, 0, seq);
+    
+    expr = expr->expand();
+    
+    bool inside_list = false;
+    
+    while(expr && expr->sequence() == seq) {
+      if( FunctionCallSpan::is_list(expr) ||
+          FunctionCallSpan::is_sequence(expr))
+      {
+        inside_list = true;
+      }
+      else if(!expr->is_box())
+      {
+        delete expr;
+        return InsideOther;
+      }
+      
+      expr = expr->expand();
+    }
+    
+    if(expr)
+      delete expr;
+      
+    enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
+    
+    if(inside_list && pos < InsideList)
+      return InsideList;
+      
+    return pos;
+  }
+  
+  if( dynamic_cast<AbstractDynamicBox *>(box) ||
+      dynamic_cast<AbstractStyleBox *>(box) ||
+      dynamic_cast<GridItem *>(box) )
+  {
+    return find_syntax_position(box->parent(), box->index());
+  }
+  
+  if( dynamic_cast<GridBox *>(box) ||
+      dynamic_cast<OwnerBox *>(box))
+  {
+    enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
+    
+    if(pos < InsideList)
+      return InsideList;
+      
+    return pos;
+  }
+  
+  return InsideOther;
+}
+
+float GraphicsBox::Impl::calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const {
+  float height = self._extents.height();
+  
+  if(baseline_pos == richmath_System_Bottom) 
+    return height;
+  
+  if(baseline_pos == richmath_System_Top) 
+    return 0;
+  
+  if(baseline_pos == richmath_System_Center) 
+    return 0.5f * height;
+  
+  if(baseline_pos == richmath_System_Axis) 
+    return self.ticks[AxisIndexX]->start_y;
+  
+  if(baseline_pos[0] == richmath_System_Scaled) {
+    double factor = 0.0;
+    if(get_factor_of_scaled(baseline_pos, &factor) && isfinite(factor)) {
+      return height - height * factor;
+    }
+  }
+  else if(baseline_pos.is_rule()) {
+    float lhs_ascent = calculate_ascent_for_baseline_position(em, baseline_pos[1]);
+    Expr rhs = baseline_pos[2];
+    
+    if(rhs == richmath_System_Axis) {
+      float ref_pos = 0.25f * em; // TODO: use actual math axis from font
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs == richmath_System_Baseline) {
+      float ref_pos = 0.0f;
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs == richmath_System_Bottom) {
+      float ref_pos = -0.25f * em;
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs == richmath_System_Center) {
+      float ref_pos = 0.25f * em;
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs == richmath_System_Top) {
+      float ref_pos = 0.75f * em;
+      return lhs_ascent + ref_pos;
+    }
+    else if(rhs[0] == richmath_System_Scaled) {
+      double factor = 0.0;
+      if(get_factor_of_scaled(rhs, &factor) && isfinite(factor)) {
+        //float ref_pos = 0.75 * em * factor - 0.25 * em * (1 - factor);
+        float ref_pos = (factor - 0.25) * em;
+        return lhs_ascent + ref_pos;
+      }
+    }
+  }
+  
+  //if(baseline_pos == PMATH_SYMBOL_AUTOMATIC) 
+  //  return 0.5f * height + 0.25f * em; // TODO: use actual math axis from font
+  //
+  return self._extents.ascent;
+}
+
+//} ... class GraphicsBox::Impl
