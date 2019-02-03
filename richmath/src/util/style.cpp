@@ -84,6 +84,7 @@ extern pmath_symbol_t richmath_System_SyntaxForm;
 extern pmath_symbol_t richmath_System_TemplateBoxOptions;
 extern pmath_symbol_t richmath_System_TextShadow;
 extern pmath_symbol_t richmath_System_Ticks;
+extern pmath_symbol_t richmath_System_Tooltip;
 extern pmath_symbol_t richmath_System_Visible;
 extern pmath_symbol_t richmath_System_WindowFrame;
 extern pmath_symbol_t richmath_System_WindowTitle;
@@ -479,6 +480,7 @@ namespace {
           add(StyleTypeAny,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
           add(StyleTypeAny,             SyntaxForm,                       Symbol( richmath_System_SyntaxForm));
           add(StyleTypeAny,             StyleDefinitions,                 Symbol( richmath_System_StyleDefinitions));
+          add(StyleTypeAny,             Tooltip,                          Symbol( richmath_System_Tooltip));
           add(StyleTypeAny,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
           
           add(StyleTypeAny, DockedSectionsTop,         Rule(Symbol(richmath_System_DockedSections), String("Top")));
@@ -488,6 +490,7 @@ namespace {
           
           add(StyleTypeAny, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
           add(StyleTypeAny, TemplateBoxDefaultInterpretationFunction, Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_InterpretationFunction)));
+          add(StyleTypeAny, TemplateBoxDefaultTooltip,                Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_Tooltip)));
         }
       }
       

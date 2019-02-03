@@ -3,6 +3,9 @@
 
 #include <eval/application.h>
 
+#include <gui/document.h>
+#include <gui/native-widget.h>
+
 
 using namespace richmath;
 using namespace pmath;
@@ -240,6 +243,31 @@ Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_TemplateBox));
   return e;
+}
+
+void TemplateBox::on_mouse_enter() {
+  if(auto doc = find_parent<Document>(false)) {
+    Expr tooltip { get_own_style(Tooltip) };
+    
+    if(tooltip.is_null() || tooltip == PMATH_SYMBOL_NONE)
+      return;
+    
+    if(tooltip == PMATH_SYMBOL_AUTOMATIC)
+      tooltip = _tag.to_string(PMATH_WRITE_OPTIONS_FULLSTR);
+    
+    doc->native()->show_tooltip(tooltip);
+  }
+}
+
+void TemplateBox::on_mouse_exit() {
+  if(auto doc = find_parent<Document>(false)) {
+    Expr tooltip { get_own_style(Tooltip) };
+    
+    if(tooltip.is_null() || tooltip == PMATH_SYMBOL_NONE)
+      return;
+      
+    doc->native()->hide_tooltip();
+  }
 }
 
 //} ... class TemplateBox

@@ -153,7 +153,8 @@ namespace richmath {
     GeneratedSectionStyles,
     
     TemplateBoxDefaultDisplayFunction        = (int)DefaultStyleOptionOffsets::TemplateBox + DisplayFunction,
-    TemplateBoxDefaultInterpretationFunction = (int)DefaultStyleOptionOffsets::TemplateBox + InterpretationFunction
+    TemplateBoxDefaultInterpretationFunction = (int)DefaultStyleOptionOffsets::TemplateBox + InterpretationFunction,
+    TemplateBoxDefaultTooltip                = (int)DefaultStyleOptionOffsets::TemplateBox + Tooltip
   };
   
   class StyleOptionName {
