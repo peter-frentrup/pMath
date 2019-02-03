@@ -610,15 +610,19 @@ namespace richmath {
               float new_ca = ca + overhang_a;
               float new_cd = cd + overhang_d;
               
+              bool full_stretch = true;
               if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
+                if(ch == '{' && buf[*pos] == '}')
+                  full_stretch = false;
+                
                 context->math_shaper->vertical_stretch_char(
-                  context, new_ca, new_cd, true, buf[*pos], &self.glyphs[*pos]);
+                  context, new_ca, new_cd, full_stretch, buf[*pos], &self.glyphs[*pos]);
                   
                 ++*pos;
               }
               
               context->math_shaper->vertical_stretch_char(
-                context, new_ca, new_cd, true, buf[start], &self.glyphs[start]);
+                context, new_ca, new_cd, full_stretch, buf[start], &self.glyphs[start]);
                 
               if(*ascent < a)
                 *ascent = a;
