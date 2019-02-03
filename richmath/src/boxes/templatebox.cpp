@@ -9,6 +9,7 @@ using namespace pmath;
 
 extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
+extern pmath_symbol_t richmath_System_Private_FlattenTemplateSequence;
 
 namespace richmath {
   class TemplateBoxImpl {
@@ -430,7 +431,7 @@ Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
     dispfun = Parse("FE`Styles`$DefaultDisplayFunction(`1`)", head);
   }
   
-  dispfun = Parse("FE`Styles`FlattenTemplateSequence(`1`, `2`)", dispfun, Expr(self.arguments.expr_length()));
+  dispfun = Call(Symbol(richmath_System_Private_FlattenTemplateSequence), dispfun, self.arguments.expr_length());
   dispfun = Application::interrupt_wait(dispfun, Application::button_timeout);
   
   if(dispfun[0] == PMATH_SYMBOL_FUNCTION && dispfun.expr_length() == 1)

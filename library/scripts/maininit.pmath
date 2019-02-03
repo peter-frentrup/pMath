@@ -118,6 +118,8 @@ End()
 
 Get(ToFileName({$BaseDirectory, "auto", "core", "gui"}, "options.pmath"))
 
+AutoLoad(Hold(System`Private`FlattenTemplateSequence),
+	ToFileName({$BaseDirectory, "auto", "core", "format"}, "templateboxes.pmath"))
 AutoLoad(Hold(CopyDirectory, CopyFile, CreateDirectory, DeleteDirectory, DeleteFile, FileByteCount, FileInformation, FileType, RenameDirectory, RenameFile),
 	"System`InputOutput`")
 AutoLoad(Hold(AiryAi, AiryAiPrime, AiryBi, AiryBiPrime,

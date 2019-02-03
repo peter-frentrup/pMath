@@ -71,6 +71,7 @@ extern pmath_symbol_t pmath_System_GridBoxRowSpacing;
 extern pmath_symbol_t pmath_System_HumpDownHump;
 extern pmath_symbol_t pmath_System_HumpEqual;
 extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_InterpretationFunction;
 extern pmath_symbol_t pmath_System_LeftArrow;
 extern pmath_symbol_t pmath_System_LeftRightArrow;
 extern pmath_symbol_t pmath_System_LeftTriangle;
@@ -140,6 +141,7 @@ extern pmath_symbol_t pmath_System_SupersetEqual;
 extern pmath_symbol_t pmath_System_Surd;
 extern pmath_symbol_t pmath_System_SurdForm;
 extern pmath_symbol_t pmath_System_TagBox;
+extern pmath_symbol_t pmath_System_TemplateBox;
 extern pmath_symbol_t pmath_System_TildeEqual;
 extern pmath_symbol_t pmath_System_TildeFullEqual;
 extern pmath_symbol_t pmath_System_TildeTilde;
@@ -152,6 +154,7 @@ extern pmath_symbol_t pmath_System_UpDownArrow;
 extern pmath_symbol_t pmath_System_UpperLeftArrow;
 extern pmath_symbol_t pmath_System_UpperRightArrow;
 
+extern pmath_symbol_t pmath_System_Private_FlattenTemplateSequence;
 extern pmath_symbol_t pmath_System_Private_MakeLimitsExpression;
 extern pmath_symbol_t pmath_System_Private_MakeScriptsExpression;
 extern pmath_symbol_t pmath_System_Private_MakeJuxtapositionExpression;
@@ -1484,6 +1487,93 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
   }
   
 FAILED:
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
+  size_t len = pmath_expr_length(box);
+  
+  if(len >= 2) {
+    pmath_t tag;
+    pmath_t args = pmath_expr_get_item(box, 1);
+    size_t i;
+    size_t argcount;
+    
+    if(!pmath_is_expr_of(args, PMATH_SYMBOL_LIST)) {
+      pmath_unref(args);
+      pmath_message(PMATH_NULL, "inv", 1, box);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    argcount = pmath_expr_length(args);
+    for(i = 3; i <= len; ++i) {
+      pmath_t opt = pmath_expr_get_item(box, i);
+      if(_pmath_is_rule(opt)) {
+        pmath_t lhs = pmath_expr_get_item(opt, 1);
+        pmath_unref(lhs);
+        if(pmath_same(lhs, pmath_System_InterpretationFunction)) {
+          pmath_t func = pmath_expr_get_item(opt, 2);
+          func = pmath_expr_new_extended(
+            pmath_ref(pmath_System_Private_FlattenTemplateSequence), 2,
+            func,
+            pmath_integer_new_uiptr(argcount));
+          func = pmath_evaluate(func);
+          if(pmath_is_expr_of_len(func, PMATH_SYMBOL_FUNCTION, 1)) {
+            pmath_t body = pmath_expr_get_item(func, 1);
+            pmath_unref(func);
+            func = pmath_expr_new_extended(
+                     pmath_ref(PMATH_SYMBOL_FUNCTION), 3,
+                     PMATH_NULL,
+                     pmath_expr_new_extended(
+                       pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+                       body),
+                     pmath_expr_new_extended(
+                       pmath_ref(PMATH_SYMBOL_LIST), 1,
+                       pmath_ref(PMATH_SYMBOL_HOLDALLCOMPLETE)));
+            
+            pmath_unref(opt);
+            pmath_unref(box);
+            box = pmath_expr_set_item(args, 0, func);
+            box = pmath_evaluate(box);
+            box = pmath_expr_new_extended(
+                    pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+                    box);
+            return box;
+          }
+        }
+      }
+      pmath_unref(opt);
+    }
+    
+    tag = pmath_expr_get_item(box, 2);
+    if(pmath_is_string(tag)) {
+      pmath_unref(box);
+      if(argcount > 1) {
+        box = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), argcount + (argcount - 1));
+        box = pmath_expr_set_item(box, 1, pmath_expr_get_item(args, 1));
+        for(i = 1; i < argcount; ++i) {
+          box = pmath_expr_set_item(box, 2 * i, PMATH_C_STRING(","));
+          box = pmath_expr_set_item(box, 2 * i + 1, pmath_expr_get_item(args, i + 1));
+        }
+        pmath_unref(args);
+        args = box;
+      }
+      box = pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_LIST), 4,
+              tag,
+              PMATH_C_STRING("("),
+              args,
+              PMATH_C_STRING(")"));
+      box = pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+              box);
+      return box;
+    }
+    pmath_unref(tag);
+    pmath_unref(args);
+  }
+  
   pmath_message(PMATH_NULL, "inv", 1, box);
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
@@ -2969,6 +3059,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         
       if(pmath_same(head, pmath_System_TagBox))
         return make_expression_from_tagbox(expr);
+        
+      if(pmath_same(head, pmath_System_TemplateBox))
+        return make_expression_from_templatebox(expr);
         
       if(pmath_same(head, pmath_System_UnderscriptBox))
         return make_expression_from_underscriptbox(expr);
