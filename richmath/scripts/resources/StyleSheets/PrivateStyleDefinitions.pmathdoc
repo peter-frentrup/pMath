@@ -7,18 +7,22 @@ Document({
       Section(StyleData("Document"), DefaultNewSectionStyle -> "Input", 
        DefaultReturnCreatedSectionStyle -> Automatic, 
        DockedSections :> {
-        "Top" -> {Section({"Private StyleDefinitions for ", 
+        "Top" -> {
+         Section({"Private StyleDefinitions for \[HighSixDoubleQuote]", 
            DynamicBox(
-            ToBoxes(With({owner:= CurrentValue("StyleDefinitionsOwner")}, 
-              Button(With({title:= CurrentValue(owner, WindowTitle)}, 
-                If(IsString(title), title, owner)), 
-               CallFrontEnd(FrontEnd`SetSelectedDocument(owner)), 
-               ButtonFrame -> "Frameless"))))}, "Docked")}}, 
-       FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
-       Visible -> True, WindowFrame -> "Normal", 
+            ToBoxes(
+             With({Global`owner:= CurrentValue("StyleDefinitionsOwner")}, 
+              Button(
+               Style(With({Global`title:= CurrentValue(Global`owner, 
+                   WindowTitle)}, If(IsString(Global`title), Global`title, 
+                  Global`owner)), FontColor -> RGBColor(0, 0, 0.5`)), 
+               FE`CallFrontEnd(FrontEnd`SetSelectedDocument(Global`owner)), 
+               ButtonFrame -> "Frameless")))), "\[HighNineDoubleQuote]"}, 
+          "Docked")}}, FontFeatures -> {"ssty" -> Automatic}, 
+       Magnification -> 1, Visible -> True, WindowFrame -> "Normal", 
        WindowTitle -> Dynamic(
         ToString(Row({"Private StyleDefinitions for ", 
-          With({owner:= CurrentValue("StyleDefinitionsOwner")}, 
-           With({title:= CurrentValue(owner, WindowTitle)}, 
-            If(IsString(title), title, owner)))}))))}, All)}, All)}, 
- StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
+          With({Global`owner:= CurrentValue("StyleDefinitionsOwner")}, 
+           With({Global`title:= CurrentValue(Global`owner, WindowTitle)}, 
+            If(IsString(Global`title), Global`title, Global`owner)))}))))}, 
+     All)}, All)}, StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)

@@ -11,7 +11,7 @@ Begin("FE`Styles`Private`")
 MakeStyleDataBoxes(~)::= asStyleDataLabelBox("\"Unknown StyleData syntax\"")
 MakeStyleDataBoxes(HoldComplete(StyleData(~name:String)))::= 
     asStyleDataExampleBox(
-        MakeBoxes(StringForm("Local definition for style \"`1`\":", name)),
+        MakeBoxes(StringForm("Local definition for style \[HighSixDoubleQuote]`1`\[HighNineDoubleQuote]:", name)),
         name
     )
     
@@ -19,13 +19,14 @@ Function MakeStyleDataBoxes(HoldComplete(StyleData(StyleDefinitions -> ~name:Str
     With(path:= ToFileName(FE`$StylesheetDirectory, name))
     asStyleDataExampleBox(
         ComplexStringBox(
-            "\"Include definitions from stylesheet \\\"", 
+            "\"Include definitions from stylesheet \[HighSixDoubleQuote]", 
             TooltipBox(
-                ButtonBox(name, 
+                ButtonBox(
+                    StyleBox(name, FontColor -> RGBColor(0, 0, 0.5)), 
                     ButtonFrame -> "Frameless",
                     ButtonFunction -> Function(DocumentOpen(path))),
                 ToBoxes @ path),
-            "\\\"\""),
+            "\[HighNineDoubleQuote]\""),
         name
     )
 }
