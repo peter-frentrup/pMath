@@ -3,6 +3,9 @@
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
 
+#include <math.h>
+
+
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_Axis;

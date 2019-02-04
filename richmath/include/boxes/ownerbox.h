@@ -18,7 +18,7 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override { return 1; }
       
-      virtual void resize(Context *context) final { resize_default_baseline(context); adjust_baseline_after_resize(context); }
+      virtual void resize(Context *context) final override { resize_default_baseline(context); adjust_baseline_after_resize(context); }
       virtual void paint(Context *context) override;
       virtual void paint_content(Context *context);
       
