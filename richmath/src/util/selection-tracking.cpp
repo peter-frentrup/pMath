@@ -541,7 +541,12 @@ static bool begin_edit_section(
   PrintTracking pt;
   pt.selections.add(old_locations.length(), old_locations.items());
   
-  pt.write(obj, PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_NOSPACES | PMATH_WRITE_OPTIONS_PREFERUNICODE);
+  pt.write(obj, 
+           PMATH_WRITE_OPTIONS_FULLSTR | 
+           PMATH_WRITE_OPTIONS_INPUTEXPR | 
+           PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM | 
+           PMATH_WRITE_OPTIONS_NOSPACES | 
+           PMATH_WRITE_OPTIONS_PREFERUNICODE);
   
   mask_box_chars(pt.output);
   edit->content()->insert(0, pt.output);

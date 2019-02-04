@@ -1968,7 +1968,7 @@ String Document::copy_to_text(String mimetype) {
     
   Expr boxes = selbox->to_pmath(flags, start, end);
   if(mimetype.equals(Clipboard::BoxesText))
-    return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR);
+    return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
     
   if( mimetype.equals("InputText"/*Clipboard::PlainText*/) ||
       mimetype.equals(Clipboard::PlainText) ||

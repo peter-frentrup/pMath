@@ -1142,9 +1142,28 @@ static void write_symbol(struct pmath_write_ex_t *info, pmath_t symbol) {
       --i;
       
     if(i > 0) {
-      pmath_symbol_t found = pmath_symbol_find(
-                               pmath_string_part(pmath_ref(name), i, -1),
-                               FALSE);
+      pmath_symbol_t found = PMATH_UNDEFINED;
+      if(info->options & PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM) {
+        if( i == 7 &&
+            str[0] == 'S' &&
+            str[1] == 'y' &&
+            str[2] == 's' &&
+            str[3] == 't' &&
+            str[4] == 'e' &&
+            str[5] == 'm' &&
+            str[6] == '`')
+        {
+          found = pmath_symbol_find(
+                    pmath_string_part(pmath_ref(name), i, -1),
+                    FALSE);
+        }
+      }
+      else {
+        found = pmath_symbol_find(
+                  pmath_string_part(pmath_ref(name), i, -1),
+                  FALSE);
+      }
+      
       pmath_unref(found);
       if(pmath_same(found, symbol)) {
         info->write(info->user, str + i, len - i);

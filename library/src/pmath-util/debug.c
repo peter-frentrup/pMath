@@ -333,7 +333,7 @@ static void debug_print_raw_pointer_impl(
   if(!pointer) {
     pmath_write(
       obj,
-      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
+      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM,
       info->write,
       info->user);
       
@@ -345,7 +345,7 @@ static void debug_print_raw_pointer_impl(
     case PMATH_TYPE_SHIFT_SYMBOL:
       pmath_write(
         obj,
-        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
+        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM,
         info->write,
         info->user);
       break;
@@ -457,7 +457,7 @@ static void debug_print_raw_impl(
   if(!pmath_is_pointer(obj)) {
     pmath_write(
       obj,
-      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME,
+      PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM,
       info->write,
       info->user);
   }
@@ -511,7 +511,7 @@ PMATH_API void pmath_debug_print_object(
       
       pmath_write(
         obj,
-        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLNAME,
+        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM,
         write_data_to_debugger,
         NULL);
         
@@ -525,7 +525,7 @@ PMATH_API void pmath_debug_print_object(
       
       pmath_write(
         obj,
-        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLNAME,
+        PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM,
         write_data_to_file,
         debuglog);
         

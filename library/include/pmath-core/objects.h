@@ -293,6 +293,12 @@ enum {
      Use unicode characters like PMATH_CHAR_RULE instead of "->" and 
    */
   PMATH_WRITE_OPTIONS_PREFERUNICODE = 1 << 6,
+  
+  /**\hideinitializer
+     Non-System`-symbols are written with their full namespace path.
+   */
+  PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM = 1 << 7,
+  
 };
 
 /**\brief A simple procedure operating on an object.
