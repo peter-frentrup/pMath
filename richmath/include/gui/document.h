@@ -90,7 +90,7 @@ namespace richmath {
       
       virtual void insert_pmath(int *pos, Expr boxes, int overwrite_until_index = 0) override;
       virtual void insert(int pos, Section *section) override;
-      virtual Section *swap(int pos, Section *section) override;
+      virtual Section *swap(int pos, Section *sect) override;
       
       Box *prepare_copy(int *start, int *end);
       bool can_copy();

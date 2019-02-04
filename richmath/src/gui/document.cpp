@@ -1866,10 +1866,12 @@ void Document::insert(int pos, Section *section) {
   SectionList::insert(pos, section);
 }
 
-Section *Document::swap(int pos, Section *section) {
+Section *Document::swap(int pos, Section *sect) {
   invalidate();
-  native()->on_editing();
-  return SectionList::swap(pos, section);
+  if(nullptr == dynamic_cast<EditSection*>(sect) && nullptr == dynamic_cast<EditSection*>(section(pos)))
+    native()->on_editing();
+  
+  return SectionList::swap(pos, sect);
 }
 
 void Document::select_prev(bool operands_only) {
