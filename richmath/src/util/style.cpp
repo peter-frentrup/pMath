@@ -1345,10 +1345,10 @@ bool StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
 
 Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) {
   if(newer == PMATH_SYMBOL_INHERITED)
-    return std::move(older);
+    return older;
     
   if(older == PMATH_SYMBOL_INHERITED)
-    return std::move(newer);
+    return newer;
     
   enum StyleType type = StyleInformation::get_type(key);
   
@@ -1366,15 +1366,15 @@ Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) 
     default:
       break;
   }
-  return std::move(newer);
+  return newer;
 }
 
 Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr older) { // ignores all rules in older, whose keys do not appear in newer
   if(newer == PMATH_SYMBOL_INHERITED)
-    return std::move(older);
+    return older;
     
   if(older == PMATH_SYMBOL_INHERITED)
-    return std::move(newer);
+    return newer;
     
   SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(key);
   assert(key_converter.is_valid());
@@ -1407,15 +1407,15 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
     }
   }
   
-  return std::move(newer);
+  return newer;
 }
 
 Expr StyleImpl::merge_list_members(Expr newer, Expr older) {
   if(newer == PMATH_SYMBOL_INHERITED)
-    return std::move(older);
+    return older;
     
   if(older == PMATH_SYMBOL_INHERITED)
-    return std::move(newer);
+    return newer;
     
   if(newer[0] == PMATH_SYMBOL_LIST && older[0] == PMATH_SYMBOL_LIST && newer.expr_length() == older.expr_length()) {
     for(size_t i = newer.expr_length(); i > 0; --i) {
@@ -1425,12 +1425,12 @@ Expr StyleImpl::merge_list_members(Expr newer, Expr older) {
       else if(item[0] == PMATH_SYMBOL_LIST)
         newer.set(i, merge_list_members(item, older[i]));
     }
-    return std::move(newer);
+    return newer;
   }
   
   pmath_debug_print_object("[Warning: cannot merge non-equally-sized lists ", newer.get(), "");
   pmath_debug_print_object(" and ", older.get(), "]\n");
-  return std::move(newer);
+  return newer;
 }
 
 Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
@@ -1481,7 +1481,7 @@ Expr StyleImpl::inherited_margin_leftright(Expr inherited) {
       return inherited_list_member(std::move(inherited), 1);
   }
   
-  return List(inherited_list_member(std::move(inherited), 1), inherited_list_member(std::move(inherited), 2));
+  return List(inherited_list_member(inherited, 1), inherited_list_member(inherited, 2));
 }
 
 Expr StyleImpl::inherited_margin_left(Expr inherited) {
@@ -1508,7 +1508,7 @@ Expr StyleImpl::inherited_margin_topbottom(Expr inherited) {
       return inherited_list_member(std::move(inherited), 2);
   }
   
-  return List(inherited_list_member(std::move(inherited), 3), inherited_list_member(std::move(inherited), 4));
+  return List(inherited_list_member(inherited, 3), inherited_list_member(inherited, 4));
 }
 
 Expr StyleImpl::inherited_margin_top(Expr inherited) {
@@ -1693,17 +1693,17 @@ Expr StyleImpl::raw_get_pmath_margin(StyleOptionName n, Expr inherited) const { 
     if(have_left)
       l = Number(left);
     else
-      l = inherited_margin_left(std::move(inherited));
+      l = inherited_margin_left(inherited);
       
     if(have_right)
       r = Number(right);
     else
-      r = inherited_margin_right(std::move(inherited));
+      r = inherited_margin_right(inherited);
       
     if(have_top)
       t = Number(top);
     else
-      t = inherited_margin_top(std::move(inherited));
+      t = inherited_margin_top(inherited);
       
     if(have_bottom)
       b = Number(bottom);
@@ -2644,7 +2644,7 @@ Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
     s = find_parent_style(s);
   }
   
-  return std::move(result);
+  return result;
 }
 
 bool Stylesheet::update_dynamic(SharedPtr<Style> s, Box *parent) {
