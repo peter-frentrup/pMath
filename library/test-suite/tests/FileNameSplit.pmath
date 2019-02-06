@@ -1,0 +1,60 @@
+
+% Windows
+
+AssertEqual(
+    FileNameSplit("X:\\path\\to\\file.txt", OperatingSystem -> "Windows"), 
+    {"X:\\", "path", "to", "file.txt"} )
+
+AssertEqual(
+    FileNameSplit("\\a\\b\\c", OperatingSystem -> "Windows"), 
+    {"", "a", "b", "c"} )
+
+AssertEqual(
+    FileNameSplit("\\a\\b\\..\\c", OperatingSystem -> "Windows"), 
+    {"", "a", "b", "..", "c"} )
+
+AssertEqual(
+    FileNameSplit("/a/b/c", OperatingSystem -> "Windows"), 
+    {"", "a", "b", "c"} )
+
+AssertEqual(
+    FileNameSplit("/a\\b/c", OperatingSystem -> "Windows"), 
+    {"", "a", "b", "c"} )
+
+AssertEqual(
+    FileNameSplit("a\\b\\c", OperatingSystem -> "Windows"), 
+    {"a", "b", "c"} )
+
+AssertEqual(
+    FileNameSplit("a/b/c", OperatingSystem -> "Windows"), 
+    {"a", "b", "c"} )
+
+AssertEqual(
+    FileNameSplit("a\\b/c", OperatingSystem -> "Windows"), 
+    {"a", "b", "c"} )
+
+AssertEqual(
+    FileNameSplit("\\\\server\\share\\path\\to\\file.txt", OperatingSystem -> "Windows"), 
+    {"\\\\server\\share", "path", "to", "file.txt"} )
+
+% Unix
+
+AssertEqual(
+    FileNameSplit("/a/b/c", OperatingSystem -> "Unix"), 
+    {"/", "a", "b", "c"} )
+
+AssertEqual(
+    FileNameSplit("/a/b/../c", OperatingSystem -> "Unix"), 
+    {"/", "a", "b", "..", "c"} )
+
+AssertEqual(
+    FileNameSplit("/a\\b/c", OperatingSystem -> "Unix"), 
+    {"/", "a\\b", "c"} )
+
+AssertEqual(
+    FileNameSplit("a/b/c", OperatingSystem -> "Unix"), 
+    {"a", "b", "c"} )
+
+AssertEqual(
+    FileNameSplit("a\\b/c", OperatingSystem -> "Unix"), 
+    {"a\\b", "c"} )

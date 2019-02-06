@@ -850,6 +850,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(DeleteDirectory):={DeleteContents->False}");
       
       PMATH_RUN("Options(FileNames):={IgnoreCase->Automatic}");
+      PMATH_RUN("Options(FileNameSplit):={OperatingSystem:>$SystemId}");
       
       PMATH_RUN(
           "Options(Find):="

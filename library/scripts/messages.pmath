@@ -14,6 +14,7 @@ General::nonopt:= "Options expected but `1` found beyond position `2` in `3`."
 General::optx:= "Unknown option `1` in `2`."
 General::opttf:= "Value of option `1` -> `2` should be True or False."
 General::opttfa:= "Value of option `1` -> `2` should be True, False, or Automatic."
+General::ostype:= "Value of option OperatingSystem -> `1` should be one of \"Windows\", \"Unix\", or \"MacOSX\"."
 
 /* numeric errors */
 General::divz:= "The argument `1` in `2` should be nonzero."
