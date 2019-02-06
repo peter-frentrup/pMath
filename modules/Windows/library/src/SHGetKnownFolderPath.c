@@ -229,7 +229,7 @@ pmath_t windows_GetAllKnownFolders(pmath_expr_t expr) {
  */
 static
 pmath_bool_t get_option_boolean(pmath_symbol_t name, pmath_t more, pmath_bool_t *error) {
-  pmath_t value = pmath_option_value(PMATH_NULL, name, more);
+  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, more));
   
   if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
     pmath_unref(value);

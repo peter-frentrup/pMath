@@ -1,6 +1,7 @@
 #include <pmath-core/expressions-private.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -423,10 +424,11 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
     return expr;
   }
   
-  opt = pmath_option_value(
-          PMATH_SYMBOL_RANDOMREAL,
-          PMATH_SYMBOL_WORKINGPRECISION,
-          options);
+  opt = pmath_evaluate(
+          pmath_option_value(
+            PMATH_SYMBOL_RANDOMREAL,
+            PMATH_SYMBOL_WORKINGPRECISION,
+            options));
   pmath_unref(options);
   
   if(!_pmath_to_precision(opt, &mp_info.bit_prec) || mp_info.bit_prec > PMATH_MP_PREC_MAX) {

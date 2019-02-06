@@ -115,7 +115,7 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr) {
     if(pmath_is_null(options))
       return expr;
     
-    obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
+    obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
     if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
       pcre_options |= PCRE_CASELESS;
     }

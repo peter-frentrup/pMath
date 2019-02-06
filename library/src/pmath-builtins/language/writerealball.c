@@ -8,6 +8,7 @@
 #include <pmath-language/number-parsing-private.h>
 #include <pmath-language/number-writing-private.h>
 
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -53,7 +54,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   }
     
   str = PMATH_C_STRING("Base");
-  obj = pmath_option_value(PMATH_NULL, str, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, str, options));
   pmath_unref(str);
   if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 2 && PMATH_AS_INT32(obj) <= 36) {
     base = PMATH_AS_INT32(obj);
@@ -66,7 +67,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   }
   
   str = PMATH_C_STRING("MaxDigits");
-  obj = pmath_option_value(PMATH_NULL, str, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, str, options));
   pmath_unref(str);
   if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)) {
     max_digits = (int)(PMATH_AS_ARB_WORKING_PREC(value) / _pmath_log2_of(base) + 2);
@@ -94,7 +95,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   base_flags |= base;
   
   str = PMATH_C_STRING("AllowInexactDigits");
-  obj = pmath_option_value(PMATH_NULL, str, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, str, options));
   pmath_unref(str);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
     base_flags |= PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS;

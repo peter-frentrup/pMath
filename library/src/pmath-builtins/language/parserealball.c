@@ -7,6 +7,7 @@
 
 #include <pmath-language/number-parsing-private.h>
 
+#include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
 
@@ -50,7 +51,7 @@ pmath_t builtin_internal_parserealball(pmath_expr_t expr) {
     return expr;
   
   str = PMATH_C_STRING("MinPrecision");
-  min_prec_obj = pmath_option_value(PMATH_NULL, str, options);
+  min_prec_obj = pmath_evaluate(pmath_option_value(PMATH_NULL, str, options));
   pmath_unref(str);
   if(!_pmath_to_precision(min_prec_obj, &min_prec))
     pmath_message(PMATH_NULL, "invprec", 1, pmath_ref(min_prec_obj));

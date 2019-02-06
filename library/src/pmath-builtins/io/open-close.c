@@ -504,7 +504,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   }
   
   { // BinaryFormat
-    pmath_t value = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_BINARYFORMAT, options);
+    pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_BINARYFORMAT, options));
     
     if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
       binary_format = TRUE;

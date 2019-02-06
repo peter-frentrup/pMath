@@ -4,6 +4,7 @@
 #include <pmath-language/regex-private.h>
 
 #include <pmath-util/helpers.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -81,7 +82,7 @@ PMATH_PRIVATE pmath_t builtin_stringmatch(pmath_expr_t expr) {
     return expr;
     
   pcre_options = 0;
-  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
     pcre_options |= PCRE_CASELESS;
   }

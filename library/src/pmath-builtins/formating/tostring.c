@@ -1,5 +1,6 @@
 #include <pmath-builtins/formating-private.h>
 
+#include <pmath-util/evaluation.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -410,7 +411,7 @@ static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pma
 }
 
 static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags, pmath_t options) {
-  pmath_t enc = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options);
+  pmath_t enc = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
  
   if(pmath_is_string(enc)) {
     if(pmath_string_equals_latin1(enc, "Unicode")) {
@@ -435,7 +436,7 @@ static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags,
 }
 
 static pmath_bool_t apply_whitespace_option(pmath_write_options_t *flags, pmath_t options) {
-  pmath_t whitespace = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_WHITESPACE, options);
+  pmath_t whitespace = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_WHITESPACE, options));
  
   if(pmath_same(whitespace, PMATH_SYMBOL_TRUE)) {
     *flags &= ~PMATH_WRITE_OPTIONS_NOSPACES;
@@ -462,7 +463,7 @@ static pmath_bool_t apply_whitespace_option(pmath_write_options_t *flags, pmath_
 }
 
 static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t *flags, pmath_t options) {
-  pmath_t fullstr = pmath_option_value(PMATH_NULL, pmath_System_ShowStringCharacters, options);
+  pmath_t fullstr = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_ShowStringCharacters, options));
  
   if(pmath_same(fullstr, PMATH_SYMBOL_TRUE)) {
     *flags |= PMATH_WRITE_OPTIONS_FULLSTR;

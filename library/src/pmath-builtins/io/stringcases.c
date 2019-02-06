@@ -3,6 +3,7 @@
 #include <pmath-language/regex-private.h>
 
 #include <pmath-util/emit-and-gather.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -130,7 +131,7 @@ PMATH_PRIVATE pmath_t builtin_stringcases(pmath_expr_t expr) {
     return expr;
     
   regex_options = 0;
-  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
     regex_options |= PCRE_CASELESS;
   }
@@ -145,7 +146,7 @@ PMATH_PRIVATE pmath_t builtin_stringcases(pmath_expr_t expr) {
   pmath_unref(obj);
   
   overlaps = FALSE;
-  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_OVERLAPS, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_OVERLAPS, options));
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
     overlaps = TRUE;
   }

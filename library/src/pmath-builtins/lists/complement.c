@@ -68,7 +68,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr) {
     return expr;
   }
   
-  sametest = extract_sametest_option(expr, &exprlen);
+  sametest = pmath_evaluate(extract_sametest_option(expr, &exprlen));
   
   all = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(all)) {

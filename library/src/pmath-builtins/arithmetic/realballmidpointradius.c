@@ -5,6 +5,7 @@
 #include <pmath-core/packed-arrays-private.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -62,7 +63,7 @@ PMATH_PRIVATE pmath_t builtin_internal_realballfrommidpointradius(pmath_expr_t e
     return expr;
   }
   
-  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_WORKINGPRECISION, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_WORKINGPRECISION, options));
   pmath_unref(options);
   if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)) {
     if(pmath_is_mpfloat(mid)) {

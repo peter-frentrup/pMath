@@ -2,6 +2,7 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+#include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
 
@@ -11,7 +12,7 @@
 
 static pmath_bool_t init_window_bits(int *window_bits, pmath_expr_t options) {
   pmath_t name = PMATH_C_STRING("WindowBits");
-  pmath_t value = pmath_option_value(PMATH_NULL, name, options);
+  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
   pmath_unref(name);
   
   if(pmath_is_int32(value)) {
@@ -37,7 +38,7 @@ static pmath_bool_t init_window_bits(int *window_bits, pmath_expr_t options) {
 
 static pmath_bool_t init_skip_header(pmath_bool_t *skip_header, pmath_bool_t compress, pmath_expr_t options) {
   pmath_t name = PMATH_C_STRING(compress ? "RawDeflate" : "RawInflate");
-  pmath_t value = pmath_option_value(PMATH_NULL, name, options);
+  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
   
   if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
     pmath_unref(name);
@@ -58,7 +59,7 @@ static pmath_bool_t init_skip_header(pmath_bool_t *skip_header, pmath_bool_t com
 }
 
 static pmath_bool_t init_level(struct pmath_compressor_settings_t *settings, pmath_expr_t options) {
-  pmath_t value = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_LEVEL, options);
+  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_LEVEL, options));
   
   if(pmath_is_int32(value)) {
     settings->level = PMATH_AS_INT32(value);

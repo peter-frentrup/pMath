@@ -111,7 +111,7 @@ static pmath_t delete_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
     if(pmath_is_null(options))
       return expr;
 
-    name = pmath_option_value(PMATH_NULL, pmath_System_DeleteContents, options);
+    name = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_DeleteContents, options));
     pmath_unref(options);
     if(pmath_same(name, pmath_System_True)) {
       delete_contents = TRUE;

@@ -301,7 +301,7 @@ PMATH_PRIVATE pmath_t builtin_fixedpoint_and_fixedpointlist(pmath_expr_t expr) {
   if(pmath_is_null(options))
     return expr;
     
-  test = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_SAMETEST, options);
+  test = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_SAMETEST, options));
   pmath_unref(options);
   
   test = pmath_expr_new_extended(

@@ -39,7 +39,7 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr) {
     return expr;
     
   pcre_options = 0;
-  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
   pmath_unref(options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
     pcre_options |= PCRE_CASELESS;
@@ -133,7 +133,7 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr) {
     return expr;
     
   pcre_options = 0;
-  obj = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options);
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
   pmath_unref(options);
   if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
     pcre_options |= PCRE_CASELESS;

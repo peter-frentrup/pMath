@@ -1,5 +1,6 @@
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers-private.h>
 
@@ -39,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_seedrandom(pmath_expr_t expr) {
   if(pmath_is_null(options))
     goto FAIL_OPTIONS;
     
-  method = pmath_option_value(PMATH_NULL, pmath_System_Method, options);
+  method = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Method, options));
   if(pmath_same(method, PMATH_SYMBOL_DEFAULT)) {
     pmath_atomic_lock(&_pmath_rand_spinlock);
     {

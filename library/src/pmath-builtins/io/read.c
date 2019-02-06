@@ -423,7 +423,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr) {
     return expr;
   }
   
-  item = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_RECORDLISTS, options);
+  item = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_RECORDLISTS, options));
   if(pmath_same(item, PMATH_SYMBOL_TRUE)) {
     record_lists = TRUE;
   }

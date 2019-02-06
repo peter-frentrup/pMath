@@ -184,10 +184,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
     pmath_expr_t options = pmath_options_extract(boxes, max_boxes);
     
     if(!pmath_is_null(options)) {
-      pmath_t strip = pmath_option_value(
-                        head,
-                        pmath_System_StripOnInput,
-                        options);
+      pmath_t strip = pmath_evaluate(pmath_option_value(head, pmath_System_StripOnInput, options));
                         
       pmath_unref(strip);
       if(pmath_same(strip, PMATH_SYMBOL_TRUE)) {

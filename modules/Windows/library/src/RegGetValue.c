@@ -56,7 +56,7 @@ pmath_bool_t registry_set_wow64_access_option(REGSAM *inout_acces_rights, pmath_
   if(pmath_is_null(options))
     return FALSE;
     
-  opt = pmath_option_value(PMATH_NULL, *Windows_Win64Version, options);
+  opt = pmath_evaluate(pmath_option_value(PMATH_NULL, *Windows_Win64Version, options));
   
   if(pmath_same(opt, PMATH_SYMBOL_TRUE)) {
     *inout_acces_rights |= KEY_WOW64_64KEY;
@@ -84,7 +84,7 @@ static pmath_bool_t set_noexpand_flag(DWORD *inout_flags, pmath_t options) {
   if(pmath_is_null(options))
     return FALSE;
     
-  opt = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_EXPAND, options);
+  opt = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_EXPAND, options));
   
   if(pmath_same(opt, PMATH_SYMBOL_FALSE)) {
     *inout_flags |= RRF_NOEXPAND;
