@@ -900,7 +900,7 @@ void Win32ControlPainter::system_font_style(Style *style) {
   
   if(!logfont) {
     nonclientmetrics.cbSize = sizeof(nonclientmetrics);
-    SystemParametersInfoW(
+    SystemParametersInfoW( // TODO: use SystemParametersInfoForDpiW
       SPI_GETNONCLIENTMETRICS,
       sizeof(nonclientmetrics),
       &nonclientmetrics,
