@@ -1,0 +1,44 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Per-Monitor DPI", "Title"), 
+    SectionGroup({
+      Section(BoxData({"Dynamic", "(", {
+          "Tooltip", "(", {
+           {"CurrentValue", "(", ComplexStringBox("\"DocumentScreenDpi\""), 
+            ")"}, ",", {"Column", "@", {
+             "{", {
+              {"Row", "@", {
+                "{", {
+                 {"Round", "(", {
+                   {"CurrentValue", "(", ComplexStringBox(
+                     "\"DocumentScreenDpi\""), ")"}, "*", {"100", "/", "96"}}, 
+                  ")"}, ",", ComplexStringBox("\"% in document\"")}, "}"}}, 
+              ",", {"Row", "@", {
+                "{", {
+                 {"Dynamic", "(", {"Round", "(", {
+                    {"CurrentValue", "(", ComplexStringBox(
+                      "\"DocumentScreenDpi\""), ")"}, "*", {
+                     "100", "/", "96"}}, ")"}, ")"}, ",", 
+                 ComplexStringBox("\"% in tooltip\"")}, "}"}}}, "}"}}}, ")"}, 
+         ")"}), "Input", SectionLabel -> "in [5]:"), 
+      Section(
+       BoxData(DynamicBox(ToBoxes(Tooltip(CurrentValue("DocumentScreenDpi"), 
+           Column({Row({Round(CurrentValue("DocumentScreenDpi")*25/24), 
+              "% in document"}), Row({
+              Dynamic(Round(CurrentValue("DocumentScreenDpi")*25/24)), 
+              "% in tooltip"})}))))), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [5]:")}, All), 
+    Section(
+     BoxData({
+       DynamicBox(ToBoxes(Tooltip(CurrentValue("DocumentScreenDpi"), 
+          Column({Row({Round(CurrentValue("DocumentScreenDpi")*25/24), 
+             "% in document"}), Row({
+             Dynamic(Round(CurrentValue("DocumentScreenDpi")*25/24)), 
+             "% in tooltip"})})))), FillBox(/\/(" ", ".")), 
+       DynamicBox(ToBoxes(Tooltip(CurrentValue("DocumentScreenDpi"), 
+          Column({Row({Round(CurrentValue("DocumentScreenDpi")*25/24), 
+             "% in document"}), Row({
+             Dynamic(Round(CurrentValue("DocumentScreenDpi")*25/24)), 
+             "% in tooltip"})}))))}), "DisplayFormula")}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
