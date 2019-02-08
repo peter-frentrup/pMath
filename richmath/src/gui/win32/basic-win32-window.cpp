@@ -1008,15 +1008,15 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
   init_basic_window_data();
 
   if(composition_window_theme) {
+    int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+  
     Win32Themes::DTTOPTS dtt_opts;
     memset(&dtt_opts, 0, sizeof(dtt_opts));
     dtt_opts.crText    = Win32Themes::GetThemeSysColor(composition_window_theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
     dtt_opts.dwSize    = sizeof(dtt_opts);
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
-    dtt_opts.iGlowSize = 10;
+    dtt_opts.iGlowSize = MulDiv(10, dpi, 96);
   
-  int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
-    
 //    if(Win32Themes::check_osversion(10, 0) && Win32Themes::DwmGetColorizationParameters) {
 //      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
 //      Win32Themes::DwmGetColorizationParameters(&params);
@@ -1059,6 +1059,10 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
 
     int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
     
+    // TODO: temporarily scale GDI context to 96 dpi coordinates to write propper font size.
+    //int map_mode = GetMapMode(hdc_bitmap);
+    //SetMapMode(hdc_bitmap, MM_LOENGLISH);
+    
     Win32Themes::MARGINS nc;
     ::get_nc_margins(_hwnd, &nc, dpi);
     RECT menu, rect, buttons;
@@ -1088,13 +1092,13 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
       rect.top    = MAX(0, buttons.top - 1); 
       rect.bottom = nc.cyTopHeight;
 
-      if(calc_rect.right + 8 > rect.right - rect.left) {
-        rect.left = menu.right + 4;
+      if(calc_rect.right + MulDiv(8, dpi, 96) > rect.right - rect.left) {
+        rect.left = menu.right + MulDiv(4, dpi, 96);
       }
     }
     else {
       rect.right  = buttons.left;
-      rect.left   = menu.right + 4;
+      rect.left   = menu.right + MulDiv(4, dpi, 96);
       rect.top    = MAX(0, buttons.top - 1); 
       rect.bottom = nc.cyTopHeight;
     }
@@ -1107,6 +1111,8 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
       flags,
       &rect,
       &dtt_opts);
+      
+    //SetMapMode(hdc_bitmap, map_mode);
 
     if(GetClassNameW(_hwnd, str, MAX_STR_LEN)) {
       WNDCLASSEXW wndcl;
