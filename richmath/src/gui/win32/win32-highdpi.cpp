@@ -10,28 +10,38 @@ using namespace richmath;
 //{ class Win32HighDpi ...
 
 HRESULT (WINAPI * Win32HighDpi::GetDpiForMonitor)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*) = nullptr;
+BOOL (WINAPI *Win32HighDpi::AdjustWindowRectExForDpi)(LPRECT,DWORD,BOOL,DWORD,UINT) = nullptr;
 HMODULE Win32HighDpi::shcore = nullptr;
+HMODULE Win32HighDpi::user32 = nullptr;
 
 Win32HighDpi::Win32HighDpi() 
   : Base() 
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  if(shcore)
-    return;
+  if(!shcore) {
+    shcore = LoadLibrary("shcore.dll");
+    if(shcore) {
+      GetDpiForMonitor = (HRESULT (WINAPI*)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*))
+                         GetProcAddress(shcore, "GetDpiForMonitor");
+    }
+  }
   
-  shcore = LoadLibrary("shcore.dll");
-  if(shcore) {
-    GetDpiForMonitor = (HRESULT (WINAPI*)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*))
-                       GetProcAddress(shcore, "GetDpiForMonitor");
-    
+  if(!user32) {
+    user32 = LoadLibrary("user32.dll");
+    if(user32) {
+      AdjustWindowRectExForDpi = (BOOL (WINAPI*)(LPRECT,DWORD,BOOL,DWORD,UINT))
+                                 GetProcAddress(user32, "AdjustWindowRectExForDpi");
+    }
   }
 }
 
 Win32HighDpi::~Win32HighDpi() {
   FreeLibrary(shcore); shcore = nullptr;
+  FreeLibrary(user32); user32 = nullptr;
   
   GetDpiForMonitor = nullptr;
+  AdjustWindowRectExForDpi = nullptr;
 }
 
 void Win32HighDpi::init() {
@@ -48,6 +58,13 @@ int Win32HighDpi::get_dpi_for_window(HWND hwnd) {
   }
   //return GetDeviceCaps(hdc, LOGPIXELSY);
   return 96;
+}
+
+bool Win32HighDpi::adjust_window_rect(RECT *rect, DWORD style, bool has_menu, DWORD style_ex, int dpi) {
+  if(AdjustWindowRectExForDpi) 
+    return !!AdjustWindowRectExForDpi(rect, style, has_menu, style_ex, (UINT)dpi);
+  else
+    return !!AdjustWindowRectEx(rect, style, has_menu, style_ex);
 }
 
 //} ... class Win32HighDpi

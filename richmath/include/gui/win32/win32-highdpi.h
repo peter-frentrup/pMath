@@ -24,6 +24,8 @@ namespace richmath {
       
       static int get_dpi_for_window(HWND hwnd);
       
+      static bool adjust_window_rect(RECT *rect, DWORD style, bool has_menu, DWORD style_ex, int dpi);
+      
     private:
       enum MONITOR_DPI_TYPE {
         MDT_EFFECTIVE_DPI = 0,
@@ -34,9 +36,11 @@ namespace richmath {
       
     private:
       static HRESULT (WINAPI *GetDpiForMonitor)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*);
+      static BOOL (WINAPI *AdjustWindowRectExForDpi)(LPRECT,DWORD,BOOL,DWORD,UINT);
       
     private:
       static HMODULE shcore;
+      static HMODULE user32;
       
     private:
       Win32HighDpi();

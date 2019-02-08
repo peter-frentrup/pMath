@@ -5,6 +5,7 @@
 #include <graphics/canvas.h>
 #include <gui/win32/basic-win32-window.h>
 #include <gui/win32/win32-control-painter.h>
+#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-tooltip-window.h>
 #include <gui/win32/win32-widget.h>
 
@@ -119,12 +120,12 @@ static bool is_left_right_bottom_frame_themed(BasicWin32Window *win) {
 //  return true;
 }
 
-static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
+static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins, int dpi) {
   DWORD style    = GetWindowLongW(hwnd, GWL_STYLE);
   DWORD ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
 
   RECT frame = {0, 0, 0, 0};
-  AdjustWindowRectEx(&frame, style, FALSE, ex_style);
+  Win32HighDpi::adjust_window_rect(&frame, style, FALSE, ex_style, dpi);
 
   margins->cxLeftWidth    = -frame.left;
   margins->cyTopHeight    = -frame.top;
@@ -233,7 +234,7 @@ void BasicWin32Window::get_glassfree_rect(RECT *rect) {
 }
 
 void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins) {
-  ::get_nc_margins(_hwnd, margins);
+  ::get_nc_margins(_hwnd, margins, Win32HighDpi::get_dpi_for_window(_hwnd));
 }
 
 //{ snapping windows & alignment ...
@@ -242,7 +243,7 @@ static void get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
   memset(margins, 0, sizeof(Win32Themes::MARGINS));
   
   if(Win32Themes::check_osversion(10, 0)) {
-    get_nc_margins(hwnd, margins);
+    ::get_nc_margins(hwnd, margins, Win32HighDpi::get_dpi_for_window(hwnd));
     margins->cyTopHeight    = 0;
     margins->cxLeftWidth    = 1 - margins->cxLeftWidth;
     margins->cxRightWidth   = 1 - margins->cxRightWidth;
@@ -949,7 +950,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
   MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
 }
 
-static void get_system_menu_bounds(HWND hwnd, RECT *rect) {
+static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   memset(rect, 0, sizeof(RECT));
   
   GetWindowRect(hwnd, rect);
@@ -962,7 +963,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect) {
   DWORD style    = GetWindowLongW(hwnd, GWL_STYLE);
   DWORD ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
   RECT neg_margins = { 0, 0, 0, 0 };
-  AdjustWindowRectEx(&neg_margins, style, FALSE, ex_style);
+  Win32HighDpi::adjust_window_rect(&neg_margins, style, FALSE, ex_style, dpi);
   
   int caption_h = GetSystemMetrics(SM_CYCAPTION);
   int icon_w    = GetSystemMetrics(SM_CXSMICON);
@@ -1013,6 +1014,8 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     dtt_opts.dwSize    = sizeof(dtt_opts);
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = 10;
+  
+  int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
     
 //    if(Win32Themes::check_osversion(10, 0) && Win32Themes::DwmGetColorizationParameters) {
 //      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
@@ -1057,10 +1060,10 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
     
     Win32Themes::MARGINS nc;
-    get_nc_margins(&nc);
+    ::get_nc_margins(_hwnd, &nc, dpi);
     RECT menu, rect, buttons;
     get_system_button_bounds(_hwnd, &buttons);
-    get_system_menu_bounds(_hwnd, &menu);
+    get_system_menu_bounds(_hwnd, &menu, dpi);
     if(center_caption) {
       flags |= DT_CENTER;
 
@@ -1512,9 +1515,10 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
      DwmDefWindowProc() already did the job when the mouse is over one of these buttons
    */
   POINT mouse_screen = { (short)LOWORD(lParam), (short)HIWORD(lParam)};
+  int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
 
   Win32Themes::MARGINS margins;
-  get_nc_margins(&margins);
+  ::get_nc_margins(_hwnd, &margins, dpi);
 //  margins.cxLeftWidth    += _extra_glass.cxLeftWidth;
 //  margins.cxRightWidth   += _extra_glass.cxRightWidth;
 //  margins.cyTopHeight    += _extra_glass.cyTopHeight;
@@ -1526,7 +1530,7 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   DWORD style    = GetWindowLongW(_hwnd, GWL_STYLE);
   DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
   RECT rcFrame = { 0, 0, 0, 0 };
-  AdjustWindowRectEx(&rcFrame, style & ~WS_CAPTION, FALSE, ex_style);
+  Win32HighDpi::adjust_window_rect(&rcFrame, style & ~WS_CAPTION, FALSE, ex_style, dpi);
   
   USHORT uRow = 2;
   USHORT uCol = 1;
@@ -1572,7 +1576,7 @@ LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
     ScreenToClient(_hwnd, &mouse_client);
     
     RECT menu;
-    get_system_menu_bounds(_hwnd, &menu);
+    get_system_menu_bounds(_hwnd, &menu, dpi);
     if( mouse_client.x < menu.right && mouse_client.y < menu.bottom) {
       return HTSYSMENU;
     }
@@ -1857,6 +1861,25 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           }
         } break;
 
+      case WM_DPICHANGED: { // Windows 8.1 and above
+        int dpiX = LOWORD(wParam);
+        //int dpiY = HIWORD(wParam);
+        // According to MSDN, "The values of the X-axis and the Y-axis are identical for Windows apps."
+        
+        // TODO: invalidate all dpi dependent fonts etc.
+        
+        RECT *suggested_rect = (RECT*)lParam;
+        // TODO: update all snapped windows' positions...
+        SetWindowPos(
+          hwnd(),
+          NULL,
+          suggested_rect->left,
+          suggested_rect->top,
+          suggested_rect->right - suggested_rect->left,
+          suggested_rect->bottom - suggested_rect->top,
+          SWP_NOZORDER | SWP_NOACTIVATE);
+      } break;
+        
       case WM_THEMECHANGED:
       case WM_DWMCOMPOSITIONCHANGED: {
           if(Win32Themes::DwmEnableComposition)
