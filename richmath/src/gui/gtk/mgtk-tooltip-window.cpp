@@ -91,6 +91,10 @@ void MathGtkTooltipWindow::page_size(float *w, float *h) {
   *w = HUGE_VAL;
 }
 
+int MathGtkTooltipWindow::dpi() {
+  return 96; // FIXME: support high dpi on GTK
+}
+      
 void MathGtkTooltipWindow::resize(bool just_move) {
   GdkDisplay *display = gtk_widget_get_display(_widget);
   

@@ -22,6 +22,9 @@ namespace richmath {
       
       virtual bool is_scrollable() override { return false; }
     
+      virtual bool is_foreground_window() override { return false; }
+      virtual int dpi() override;
+      
     protected:
       Expr  _content_expr;
       

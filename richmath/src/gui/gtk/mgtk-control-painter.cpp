@@ -62,7 +62,7 @@ void MathGtkControlPainter::calc_container_size(
   ContainerType  type,
   BoxSize       *extents
 ) {
-  if(GtkStyleContext *context = get_control_theme(type)) {
+  if(GtkStyleContext *context = get_control_theme(ControlContext::dummy, type)) {
     switch(type) {
       case DefaultPushButton:
       case PushButton:
@@ -162,10 +162,10 @@ void MathGtkControlPainter::calc_container_size(
   ControlPainter::calc_container_size(canvas, type, extents);
 }
  
-int MathGtkControlPainter::control_font_color(ContainerType type, ControlState state) {
-  if(GtkStyleContext *context = get_control_theme(type)) {
+int MathGtkControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
+  if(GtkStyleContext *gsc = get_control_theme(context, type)) {
     GdkRGBA color;
-    gtk_style_context_get_color(context, get_state_flags(type, state), &color);
+    gtk_style_context_get_color(gsc, get_state_flags(context, type, state), &color);
     
     // ignoring color.alpha
     int red   = (int)(color.red   * 255);
@@ -175,10 +175,10 @@ int MathGtkControlPainter::control_font_color(ContainerType type, ControlState s
     return (red << 16) | (green << 8) | blue;
   }
   
-  return ControlPainter::control_font_color(type, state);
+  return ControlPainter::control_font_color(context, type, state);
 }
  
-bool MathGtkControlPainter::is_very_transparent(ContainerType type, ControlState state) {
+bool MathGtkControlPainter::is_very_transparent(ControlContext *context, ContainerType type, ControlState state) {
   switch(type) {
     case PaletteButton:
       return state == Normal;
@@ -186,24 +186,25 @@ bool MathGtkControlPainter::is_very_transparent(ContainerType type, ControlState
     default:
       break;
   }
-  return ControlPainter::is_very_transparent(type, state);
+  return ControlPainter::is_very_transparent(context, type, state);
 }
  
 void MathGtkControlPainter::draw_container(
-  Canvas        *canvas,
-  ContainerType  type,
-  ControlState   state,
-  float          x,
-  float          y,
-  float          width,
-  float          height
+  ControlContext *context, 
+  Canvas         *canvas,
+  ContainerType   type,
+  ControlState    state,
+  float           x,
+  float           y,
+  float           width,
+  float           height
 ) {
   if(type == PaletteButton && state == Normal)
     return;
     
-  if(GtkStyleContext *context = get_control_theme(type)) {
+  if(GtkStyleContext *gsc = get_control_theme(context, type)) {
     canvas->save();
-    gtk_style_context_save(context);
+    gtk_style_context_save(gsc);
     
     if(canvas->pixel_device) {
       canvas->align_point(&x, &y, false);
@@ -219,36 +220,36 @@ void MathGtkControlPainter::draw_container(
     width/= 0.75;
     height/= 0.75;
     
-    gtk_style_context_set_state(context, get_state_flags(type, state));
+    gtk_style_context_set_state(gsc, get_state_flags(context, type, state));
     
     switch(type) {
       case CheckboxUnchecked:
       case CheckboxChecked:
       case CheckboxIndeterminate:
-        gtk_render_background(context, canvas->cairo(), x, y, width, height);
-        gtk_render_check(     context, canvas->cairo(), x, y, width, height);
+        gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
+        gtk_render_check(     gsc, canvas->cairo(), x, y, width, height);
         break;
         
       case RadioButtonUnchecked:
       case RadioButtonChecked:
-        gtk_render_background(context, canvas->cairo(), x, y, width, height);
-        gtk_render_option(    context, canvas->cairo(), x, y, width, height);
+        gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
+        gtk_render_option(    gsc, canvas->cairo(), x, y, width, height);
         break;
         
       case SliderHorzThumb:
         {
-          gtk_render_background(context, canvas->cairo(), x, y, width, height);
-          gtk_render_frame(context, canvas->cairo(), x, y, width, height);
+          gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
+          gtk_render_frame(gsc, canvas->cairo(), x, y, width, height);
                          
           // gtk_render_slider() draws to the wrong location (coordinates scaled by ~ 2/3)
-          //gtk_render_slider(context, canvas->cairo(), x, y, width, height, GTK_ORIENTATION_HORIZONTAL);
+          //gtk_render_slider(gsc, canvas->cairo(), x, y, width, height, GTK_ORIENTATION_HORIZONTAL);
         }
         break;
         
       case ProgressIndicatorBar:
         {
           int radius = 0;
-          gtk_style_context_get(context, GTK_STATE_FLAG_NORMAL, "border-radius", &radius, nullptr);
+          gtk_style_context_get(gsc, GTK_STATE_FLAG_NORMAL, "border-radius", &radius, nullptr);
           
           float r = 0.75f * radius;
           if(width < 1.5)
@@ -262,22 +263,22 @@ void MathGtkControlPainter::draw_container(
           height -= 2 * dr;
           y += dr;
           
-          gtk_render_activity(context, canvas->cairo(), x, y, width, height);
+          gtk_render_activity(gsc, canvas->cairo(), x, y, width, height);
         }
         break;
         
       default:
-        gtk_render_background(context, canvas->cairo(), x, y, width, height);
-        gtk_render_frame(     context, canvas->cairo(), x, y, width, height);
+        gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
+        gtk_render_frame(     gsc, canvas->cairo(), x, y, width, height);
         break;
     }
     
-    gtk_style_context_restore(context);
+    gtk_style_context_restore(gsc);
     canvas->restore();
     return;
   }
   
-  ControlPainter::draw_container(canvas, type, state, x, y, width, height);
+  ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
 }
  
 void MathGtkControlPainter::container_content_move(
@@ -291,7 +292,7 @@ void MathGtkControlPainter::container_content_move(
     case DefaultPushButton:
     case PaletteButton:
       if(state == PressedHovered) {
-        if(GtkStyleContext *context = get_control_theme(type)) {
+        if(GtkStyleContext *context = get_control_theme(ControlContext::dummy, type)) {
           int dx, dy;
           
           gtk_style_context_get_style(context,
@@ -313,7 +314,7 @@ void MathGtkControlPainter::container_content_move(
   ControlPainter::container_content_move(type, state, x, y);
 }
  
-bool MathGtkControlPainter::container_hover_repaint(ContainerType type) {
+bool MathGtkControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {
   switch(type) {
     case NoContainerType:
     case GenericButton:
@@ -322,18 +323,18 @@ bool MathGtkControlPainter::container_hover_repaint(ContainerType type) {
       return false;
   }
   
-  return get_control_theme(type) != nullptr;
+  return get_control_theme(context, type) != nullptr;
 }
  
-void MathGtkControlPainter::system_font_style(Style *style) {
-  GtkStyleContext *context = get_control_theme(PushButton);
+void MathGtkControlPainter::system_font_style(ControlContext *context, Style *style) {
+  GtkStyleContext *gsc = get_control_theme(context, PushButton);
   
-  if(!context) {
-    ControlPainter::system_font_style(style);
+  if(!gsc) {
+    ControlPainter::system_font_style(context, style);
     return;
   }
   
-  const PangoFontDescription *desc = gtk_style_context_get_font(context, GTK_STATE_FLAG_NORMAL);
+  const PangoFontDescription *desc = gtk_style_context_get_font(gsc, GTK_STATE_FLAG_NORMAL);
   const char *family = pango_font_description_get_family(desc);
   if(family)
     style->set(FontFamilies, String::FromUtf8(family));
@@ -358,7 +359,7 @@ void MathGtkControlPainter::system_font_style(Style *style) {
     style->set(FontSize, size);
 }
  
-GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
+GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *context, ContainerType type) {
   if(!initialized_change_notifications) {
     GtkSettings *settings = gtk_settings_get_default();
     g_signal_connect(settings, "notify::gtk-theme-name",   G_CALLBACK(on_theme_changed), 0);
@@ -657,8 +658,10 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ContainerType type) {
   return nullptr;
 }
  
-GtkStateFlags MathGtkControlPainter::get_state_flags(ContainerType type, ControlState state) {
-  int result;
+GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, ContainerType type, ControlState state) {
+  int result = 0;
+  if(!context->is_foreground_window())
+    result = GTK_STATE_FLAG_BACKDROP;
   
   switch(type) {
     case GenericButton:
@@ -671,35 +674,35 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ContainerType type, Control
     
     case ListViewItem: {
         switch(state) {
-          case Disabled:       return GTK_STATE_FLAG_INSENSITIVE;
+          case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_INSENSITIVE );
           case PressedHovered: return (GtkStateFlags)( (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
           case Hovered:        
-          case Hot:            return GTK_STATE_FLAG_PRELIGHT;
+          case Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_PRELIGHT );
           case Pressed:        
-          case Normal:         return GTK_STATE_FLAG_NORMAL;
+          case Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_NORMAL );
         }
       } break;
     
     case CheckboxChecked:
     case RadioButtonChecked: {
         switch(state) {
-          case Disabled:       return (GtkStateFlags)( (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_INSENSITIVE );
-          case PressedHovered: return (GtkStateFlags)( (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_INSENSITIVE );
+          case PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
           case Hovered:        
-          case Hot:            return (GtkStateFlags)( (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
           case Pressed:        
-          case Normal:         return (GtkStateFlags)( (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_NORMAL );
+          case Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_NORMAL );
         }
       } break;
     
     case ListViewItemSelected: {
         switch(state) {
-          case Disabled:       return (GtkStateFlags)( (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_INSENSITIVE );
-          case PressedHovered: return (GtkStateFlags)( (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_INSENSITIVE );
+          case PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
           case Hovered:        
-          case Hot:            return (GtkStateFlags)( (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_PRELIGHT );
+          case Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_PRELIGHT );
           case Pressed:        
-          case Normal:         return (GtkStateFlags)( (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_NORMAL );
+          case Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_NORMAL );
         }
       } break;
     
@@ -708,24 +711,24 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ContainerType type, Control
   switch(state) {
     case Hovered:
     case Hot:
-      result = (int)GTK_STATE_FLAG_PRELIGHT;
+      result|= (int)GTK_STATE_FLAG_PRELIGHT;
       break;
       
     case Pressed:
-      result = (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_FOCUSED;
+      result|= (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_FOCUSED;
       break;
       
     case PressedHovered:
-      result = (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_FOCUSED | (int)GTK_STATE_FLAG_PRELIGHT;
+      result|= (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_FOCUSED | (int)GTK_STATE_FLAG_PRELIGHT;
       break;
       
     case Disabled:
-      result = (int)GTK_STATE_FLAG_INSENSITIVE;
+      result|= (int)GTK_STATE_FLAG_INSENSITIVE;
       break;
       
     case Normal:
     default:
-      result = (int)GTK_STATE_FLAG_NORMAL;
+      result|= (int)GTK_STATE_FLAG_NORMAL;
       break;
   }
   

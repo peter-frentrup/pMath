@@ -46,7 +46,7 @@ namespace richmath {
     }
   };
   
-  class NativeWidget: public virtual FrontEndObject {
+  class NativeWidget: public virtual FrontEndObject, public virtual ControlContext {
       friend class NativeWidgetImpl;
     public:
       explicit NativeWidget(Document *doc);
@@ -115,7 +115,9 @@ namespace richmath {
       Document *document() { return _document; }
       float custom_scale_factor() { return _custom_scale_factor; }
       float scale_factor() {        return _dpi * _custom_scale_factor / 72; }
-      int dpi() {                   return _dpi; }
+      
+      // ControlContext functions:
+      virtual int dpi() override { return _dpi; }
       
     public:
       static NativeWidget *dummy;

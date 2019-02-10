@@ -4,6 +4,7 @@
 #include <boxes/mathsequence.h>
 #include <boxes/section.h>
 
+#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-themes.h>
 
 #include <cmath>
@@ -92,6 +93,10 @@ void Win32TooltipWindow::delete_global_tooltip() {
 void Win32TooltipWindow::page_size(float *w, float *h) {
   Win32Widget::page_size(w, h);
   *w = HUGE_VAL;
+}
+
+int Win32TooltipWindow::dpi() {
+  return Win32HighDpi::get_dpi_for_window(_hwnd);
 }
 
 void Win32TooltipWindow::resize(bool just_move) {

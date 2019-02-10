@@ -217,6 +217,7 @@ namespace richmath {
       void paint_channel(Canvas *canvas, float x, float y) {
         float h = self._extents.height();
         ControlPainter::std->draw_container(
+          ControlContext::find(&self),
           canvas,
           SliderHorzChannel,
           Normal,
@@ -246,6 +247,7 @@ namespace richmath {
         float h = self._extents.height();
         float thumb_x = x + calc_thumb_pos(self.range_value);
         ControlPainter::std->draw_container(
+          ControlContext::find(&self),
           context->canvas,
           SliderHorzThumb,
           new_state,

@@ -26,6 +26,8 @@ namespace richmath {
       
       static bool adjust_window_rect(RECT *rect, DWORD style, bool has_menu, DWORD style_ex, int dpi);
       
+      static bool get_nonclient_metrics_for_dpi(NONCLIENTMETRICSW *nonclient_metrics, int dpi);
+      
     private:
       enum MONITOR_DPI_TYPE {
         MDT_EFFECTIVE_DPI = 0,
@@ -37,6 +39,7 @@ namespace richmath {
     private:
       static HRESULT (WINAPI *GetDpiForMonitor)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*);
       static BOOL (WINAPI *AdjustWindowRectExForDpi)(LPRECT,DWORD,BOOL,DWORD,UINT);
+      static BOOL (WINAPI *SystemParametersInfoForDpi)(UINT,UINT,PVOID,UINT,UINT);
       
     private:
       static HMODULE shcore;

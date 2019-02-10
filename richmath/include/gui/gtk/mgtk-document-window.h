@@ -17,7 +17,7 @@ namespace richmath {
   class MathGtkDock;
   class MathGtkWorkingArea;
   
-  class MathGtkDocumentWindow: public CommonDocumentWindow, public BasicGtkWidget {
+  class MathGtkDocumentWindow: public CommonDocumentWindow, public BasicGtkWidget, public ControlContext {
     public:
       class DocumentPosition {
         public:
@@ -59,6 +59,9 @@ namespace richmath {
       virtual void bring_to_front();
       virtual void close();
       
+      virtual bool is_foreground_window() override { return _active; };
+      virtual int dpi() override;
+      
       virtual void reset_title() override;
       
       void reset_window_frame(){ window_frame(_window_frame); }
@@ -82,6 +85,7 @@ namespace richmath {
       virtual bool on_focus_in(GdkEvent *e);
       virtual bool on_focus_out(GdkEvent *e);
       virtual bool on_scroll(GdkEvent *e);
+      virtual bool on_window_state(GdkEvent *e);
       
     private:
       Array<DocumentPosition> _snapped_documents; // [0] = self
@@ -102,6 +106,7 @@ namespace richmath {
       GtkWidget *_table;
       
       WindowFrameType _window_frame;
+      ObservableValue<bool> _active;
   };
 }
 

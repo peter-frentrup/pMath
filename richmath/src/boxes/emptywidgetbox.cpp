@@ -1,5 +1,7 @@
 #include <boxes/emptywidgetbox.h>
 
+#include <eval/dynamic.h>
+
 #include <graphics/context.h>
 #include <graphics/rectangle.h>
 
@@ -73,6 +75,7 @@ void EmptyWidgetBox::paint(Context *context) {
   
   bool need_bg = true;
   if(animation) {
+    animation->update(this);
     if(animation->paint(context->canvas)) {
       need_bg = false;
     }
@@ -95,6 +98,7 @@ void EmptyWidgetBox::paint(Context *context) {
   
   if(need_bg) {
     ControlPainter::std->draw_container(
+      this,
       context->canvas,
       type,
       state,
@@ -148,14 +152,14 @@ Box *EmptyWidgetBox::mouse_selection(
 }
 
 void EmptyWidgetBox::on_mouse_enter() {
-  if(!mouse_inside && ControlPainter::std->container_hover_repaint(type))
+  if(!mouse_inside && ControlPainter::std->container_hover_repaint(this, type))
     request_repaint_all();
     
   mouse_inside = true;
 }
 
 void EmptyWidgetBox::on_mouse_exit() {
-  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(type))
+  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(this, type))
     request_repaint_all();
     
   mouse_inside = false;
@@ -208,6 +212,34 @@ void EmptyWidgetBox::on_mouse_cancel() {
 }
 
 void EmptyWidgetBox::click() {
+}
+
+bool EmptyWidgetBox::is_foreground_window() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return false;
+  
+  FrontEndReference old_dyn_box_id = Dynamic::current_evaluation_box_id;
+  Dynamic::current_evaluation_box_id = id();
+  
+  auto result = doc->native()->is_foreground_window();
+  
+  Dynamic::current_evaluation_box_id = old_dyn_box_id;
+  return result;
+}
+
+int EmptyWidgetBox::dpi() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return 96;
+  
+  FrontEndReference old_dyn_box_id = Dynamic::current_evaluation_box_id;
+  Dynamic::current_evaluation_box_id = id();
+  
+  auto result = doc->native()->dpi();
+  
+  Dynamic::current_evaluation_box_id = old_dyn_box_id;
+  return result;
 }
 
 //} ... class EmptyWidgetBox

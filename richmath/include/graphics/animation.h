@@ -6,6 +6,8 @@
 
 
 namespace richmath {
+  class ControlContext;
+  
   class TimedEvent: public Shareable {
     public:
       TimedEvent(double _min_wait_seconds);
@@ -41,6 +43,7 @@ namespace richmath {
     public:
       BoxAnimation(FrontEndReference _box_id): BoxRepaintEvent(_box_id, 0.0) {}
       
+      virtual void update(ControlContext *cc) = 0;
       virtual bool paint(Canvas *canvas) = 0;
       
     public:
@@ -60,7 +63,8 @@ namespace richmath {
         Canvas *dst,
         float x, float y, float w, float h,
         double _seconds);
-        
+      
+      virtual void update(ControlContext *cc) override;
       virtual bool paint(Canvas *canvas) override;
       
     public:

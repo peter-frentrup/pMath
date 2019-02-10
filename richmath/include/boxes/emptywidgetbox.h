@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class EmptyWidgetBox: public Box {
+  class EmptyWidgetBox: public Box, public ControlContext {
     public:
       virtual Box *item(int i) override { return 0; }
       virtual int count() override { return 0; }
@@ -37,6 +37,9 @@ namespace richmath {
       
       virtual void click();
       
+      virtual bool is_foreground_window() override;
+      virtual int dpi() override;
+    
     protected:
       explicit EmptyWidgetBox(ContainerType _type);
       

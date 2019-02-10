@@ -1516,6 +1516,10 @@ void BasicWin32Window::on_paint_background(Canvas *canvas) {
   }
 }
 
+int BasicWin32Window::dpi() {
+  return Win32HighDpi::get_dpi_for_window(_hwnd);
+}
+
 LRESULT BasicWin32Window::nc_hit_test(WPARAM wParam, LPARAM lParam) {
   /* Note that this function does not return HTCLOSE, HTMAXBUTTON, HTMINBUTTON because 
      DwmDefWindowProc() already did the job when the mouse is over one of these buttons

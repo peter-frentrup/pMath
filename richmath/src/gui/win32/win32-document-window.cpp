@@ -78,7 +78,9 @@ class richmath::Win32WorkingArea: public Win32Widget {
       super_class::on_idle_after_edit();
       _parent->on_idle_after_edit(this);
     }
-    virtual void on_saved() override {   _parent->on_saved(); }
+    virtual void on_saved() override { _parent->on_saved(); }
+    
+    virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
     
   private:
     Win32DocumentWindow *_parent;
@@ -285,6 +287,8 @@ class richmath::Win32Dock: public Win32Widget {
     
     virtual Document *working_area_document() override { return _parent->working_area()->document(); }
     
+    virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
+    
     void resize() {
       HDC dc = GetDC(_hwnd);
       on_paint(dc, false);
@@ -331,6 +335,7 @@ class richmath::Win32Dock: public Win32Widget {
         
         canvas->glass_background = true;
         ControlPainter::std->paint_scrollbar_part(
+          this,
           canvas,
           ScrollbarSizeGrip,
           ScrollbarHorizontal,

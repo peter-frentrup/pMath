@@ -9,6 +9,33 @@
 
 using namespace richmath;
 
+//{ class ControlContext ...
+namespace {
+  class DummyControlContext: public ControlContext {
+    public:
+      virtual bool is_foreground_window() override { return true; }
+      virtual int dpi() override { return 96; }
+  };
+}
+
+static DummyControlContext dummy_control_context;
+ControlContext *ControlContext::dummy = &dummy_control_context;
+
+ControlContext *ControlContext::find(Box *box) {
+  if(!box)
+    return dummy;
+  
+  if(auto cc = box->find_parent<ControlContext>(true))
+    return cc;
+  
+  if(auto doc = box->find_parent<Document>(true))
+    return doc->native();
+  
+  return dummy;
+}
+
+//} ... class ControlContext
+
 //{ class ControlPainter ...
 
 ControlPainter ControlPainter::generic_painter;
@@ -120,8 +147,8 @@ void ControlPainter::calc_container_size(
 }
 
 
-int ControlPainter::control_font_color(ContainerType type, ControlState state) {
-  if(is_very_transparent(type, state))
+int ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
+  if(is_very_transparent(context, type, state))
     return -1;
     
   if(type == ListViewItemSelected)
@@ -130,7 +157,7 @@ int ControlPainter::control_font_color(ContainerType type, ControlState state) {
   return 0x000000;
 }
 
-bool ControlPainter::is_very_transparent(ContainerType type, ControlState state) {
+bool ControlPainter::is_very_transparent(ControlContext *context, ContainerType type, ControlState state) {
   return type == NoContainerType || 
          type == FramelessButton || 
          type == OpenerTriangleClosed ||
@@ -200,13 +227,14 @@ static void paint_frame(
 }
 
 void ControlPainter::draw_container(
-  Canvas        *canvas,
-  ContainerType  type,
-  ControlState   state,
-  float          x,
-  float          y,
-  float          width,
-  float          height
+  ControlContext *context, 
+  Canvas         *canvas,
+  ContainerType   type,
+  ControlState    state,
+  float           x,
+  float           y,
+  float           width,
+  float           height
 ) {
   canvas->save();
   
@@ -487,7 +515,7 @@ void ControlPainter::container_content_move(
   }
 }
 
-bool ControlPainter::container_hover_repaint(ContainerType type) {
+bool ControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {
   return false;
 }
 
@@ -555,14 +583,15 @@ void ControlPainter::paint_scroll_indicator(
   canvas->fill();
 }
 
-void ControlPainter::system_font_style(Style *style) {
+void ControlPainter::system_font_style(ControlContext *context, Style *style) {
 }
 
-int ControlPainter::selection_color() {
+int ControlPainter::selection_color(ControlContext *context) {
   return 0x000000;
 }
 
 void ControlPainter::paint_scrollbar_part(
+  ControlContext     *context, 
   Canvas             *canvas,
   ScrollbarPart       part,
   ScrollbarDirection  dir,
@@ -642,7 +671,7 @@ void ControlPainter::paint_scrollbar_part(
     case ScrollbarUpLeft:
     case ScrollbarDownRight:
     case ScrollbarThumb: {
-        draw_container(canvas, PushButton, state, x, y, width, height);
+        draw_container(context, canvas, PushButton, state, x, y, width, height);
       } break;
   }
   
@@ -765,6 +794,7 @@ ScrollbarPart ControlPainter::mouse_to_scrollbar_part(
 }
 
 void ControlPainter::paint_scrollbar(
+  ControlContext     *context, 
   Canvas             *canvas,
   float               track_pos,
   float               rel_page_size,
@@ -808,23 +838,23 @@ void ControlPainter::paint_scrollbar(
     scrollbar_part_pos(0, width, track_pos, rel_page_size,
                        &lower, &thumb, &upper, &down);
                        
-    paint_scrollbar_part(canvas, ScrollbarUpLeft, dir, upleft_state,
+    paint_scrollbar_part(context, canvas, ScrollbarUpLeft, dir, upleft_state,
                          x, y,
                          lower, height);
                          
-    paint_scrollbar_part(canvas, ScrollbarLowerRange, dir, lower_state,
+    paint_scrollbar_part(context, canvas, ScrollbarLowerRange, dir, lower_state,
                          x + lower, y,
                          thumb - lower, height);
                          
-    paint_scrollbar_part(canvas, ScrollbarThumb, dir, thumb_state,
+    paint_scrollbar_part(context, canvas, ScrollbarThumb, dir, thumb_state,
                          x + thumb, y,
                          upper - thumb, height);
                          
-    paint_scrollbar_part(canvas, ScrollbarUpperRange, dir, upper_state,
+    paint_scrollbar_part(context, canvas, ScrollbarUpperRange, dir, upper_state,
                          x + upper, y,
                          down - upper, height);
                          
-    paint_scrollbar_part(canvas, ScrollbarDownRight, dir, downright_state,
+    paint_scrollbar_part(context, canvas, ScrollbarDownRight, dir, downright_state,
                          x + down, y,
                          width - down, height);
   }
@@ -832,23 +862,23 @@ void ControlPainter::paint_scrollbar(
     scrollbar_part_pos(0, height, track_pos, rel_page_size,
                        &lower, &thumb, &upper, &down);
                        
-    paint_scrollbar_part(canvas, ScrollbarUpLeft, dir, upleft_state,
+    paint_scrollbar_part(context, canvas, ScrollbarUpLeft, dir, upleft_state,
                          x, y,
                          width, lower);
                          
-    paint_scrollbar_part(canvas, ScrollbarLowerRange, dir, lower_state,
+    paint_scrollbar_part(context, canvas, ScrollbarLowerRange, dir, lower_state,
                          x, y + lower,
                          width, thumb - lower);
                          
-    paint_scrollbar_part(canvas, ScrollbarThumb, dir, thumb_state,
+    paint_scrollbar_part(context, canvas, ScrollbarThumb, dir, thumb_state,
                          x, y + thumb,
                          width, upper - thumb);
                          
-    paint_scrollbar_part(canvas, ScrollbarUpperRange, dir, upper_state,
+    paint_scrollbar_part(context, canvas, ScrollbarUpperRange, dir, upper_state,
                          x, y + upper,
                          width, down - upper);
                          
-    paint_scrollbar_part(canvas, ScrollbarDownRight, dir, downright_state,
+    paint_scrollbar_part(context, canvas, ScrollbarDownRight, dir, downright_state,
                          x, y + down,
                          width, height - down);
   }

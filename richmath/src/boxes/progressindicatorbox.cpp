@@ -107,7 +107,7 @@ void ProgressIndicatorBox::resize(Context *context) {
 void ProgressIndicatorBox::paint(Context *context) {
   if(context->canvas->show_only_text)
     return;
-    
+  
   have_drawn = true;
   
   if(must_update) {
@@ -124,7 +124,10 @@ void ProgressIndicatorBox::paint(Context *context) {
   
   y -= _extents.ascent;
   
+  ControlContext *cc = ControlContext::find(this);
+  
   ControlPainter::std->draw_container(
+    cc,
     context->canvas,
     ProgressIndicatorBackground,
     Normal,
@@ -152,6 +155,7 @@ void ProgressIndicatorBox::paint(Context *context) {
     &content_size);
     
   ControlPainter::std->draw_container(
+    cc,
     context->canvas,
     ProgressIndicatorBar,
     state,

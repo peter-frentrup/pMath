@@ -117,6 +117,8 @@ namespace {
       virtual void filename(String new_filename) override {}
       
       virtual void on_saved() override {}
+      
+      virtual bool is_foreground_window() override { return false; }
   };
 }
 

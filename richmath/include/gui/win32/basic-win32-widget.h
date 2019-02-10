@@ -10,6 +10,7 @@
 #endif
 
 #include <gui/win32/ole/combase.h>
+#include <gui/control-painter.h>
 
 #include <ole2.h>
 #include <rtscom.h>
@@ -104,7 +105,7 @@ namespace richmath {
         *pEventInterest = RTSDI_None;
         return S_OK; 
       };
-
+      
     public:
       HWND &hwnd() { return _hwnd; }
       

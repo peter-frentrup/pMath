@@ -10,9 +10,11 @@
 
 #include <cairo-win32.h>
 
+#include <boxes/box.h>
 #include <eval/observable.h>
 #include <graphics/context.h>
 #include <gui/win32/basic-win32-widget.h>
+#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-themes.h>
 #include <util/array.h>
 #include <util/style.h>
@@ -166,8 +168,8 @@ void Win32ControlPainter::calc_container_size(
   ControlPainter::calc_container_size(canvas, type, extents);
 }
 
-int Win32ControlPainter::control_font_color(ContainerType type, ControlState state) {
-  if(is_very_transparent(type, state))
+int Win32ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
+  if(is_very_transparent(context, type, state))
     return -1;
     
   int theme_part, theme_state;
@@ -198,7 +200,7 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
     case NoContainerType:
     case FramelessButton:
     case GenericButton:
-      return ControlPainter::control_font_color(type, state);
+      return ControlPainter::control_font_color(context, type, state);
       
     case PushButton:
     case DefaultPushButton:
@@ -253,12 +255,12 @@ int Win32ControlPainter::control_font_color(ContainerType type, ControlState sta
   return -1;
 }
 
-bool Win32ControlPainter::is_very_transparent(ContainerType type, ControlState state) {
+bool Win32ControlPainter::is_very_transparent(ControlContext *context, ContainerType type, ControlState state) {
   switch(type) {
     case NoContainerType:
     case FramelessButton:
     case GenericButton:
-      return ControlPainter::is_very_transparent(type, state);
+      return ControlPainter::is_very_transparent(context, type, state);
       
     case PaletteButton: {
         if(!Win32Themes::GetThemeBool)
@@ -309,13 +311,14 @@ static bool rect_in_clip(
 }
 
 void Win32ControlPainter::draw_container(
-  Canvas        *canvas,
-  ContainerType  type,
-  ControlState   state,
-  float          x,
-  float          y,
-  float          width,
-  float          height
+  ControlContext *context, 
+  Canvas         *canvas,
+  ContainerType   type,
+  ControlState    state,
+  float           x,
+  float           y,
+  float           width,
+  float           height
 ) {
   if(width <= 0 || height <= 0)
     return;
@@ -325,7 +328,7 @@ void Win32ControlPainter::draw_container(
     case FramelessButton:
     case GenericButton:
       ControlPainter::generic_painter.draw_container(
-        canvas, type, state, x, y, width, height);
+        context, canvas, type, state, x, y, width, height);
       return;
       
     default: break;
@@ -706,7 +709,7 @@ void Win32ControlPainter::draw_container(
       
       case OpenerTriangleClosed:
       case OpenerTriangleOpened:
-        ControlPainter::draw_container(canvas, type, state, x, y, width, height);
+        ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
         return;
     }
   }
@@ -758,11 +761,15 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
 ) {
   if(!Win32Themes::GetThemeTransitionDuration || !widget_id.is_valid())
     return nullptr;
-    
+  
+  ControlContext *context = ControlContext::find(FrontEndObject::find_cast<Box>(widget_id));
+  
   bool repeat = false;
   if(type2 == DefaultPushButton && state1 == Normal && state2 == Normal) {
-    state2 = Hot;
-    repeat = true;
+    if(context->is_foreground_window()) {
+      state2 = Hot;
+      repeat = true;
+    }
   }
   
   if( state1 == Normal                      &&
@@ -772,10 +779,16 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     return nullptr;
   }
   
+  if(type1 == type2 && state1 == state2)
+    return nullptr;
+  
   int theme_part, theme_state1, theme_state2;
   HANDLE theme = get_control_theme(type1, state1, &theme_part, &theme_state1);
   get_control_theme(type2, state2, &theme_part, &theme_state2);
   if(!theme)
+    return nullptr;
+  
+  if(theme_state1 == theme_state2)
     return nullptr;
     
   if( type2 == PushButton        ||
@@ -823,6 +836,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     anim->repeat = repeat;
     
     draw_container(
+      context,
       anim->buf1->canvas(),
       type1,
       state1,
@@ -832,6 +846,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
       height);
       
     draw_container(
+      context,
       anim->buf2->canvas(),
       type2,
       state2,
@@ -874,7 +889,7 @@ void Win32ControlPainter::container_content_move(
   ControlPainter::container_content_move(type, state, x, y);
 }
 
-bool Win32ControlPainter::container_hover_repaint(ContainerType type) {
+bool Win32ControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {
   switch(type) {
     case NoContainerType:
     case GenericButton:
@@ -888,29 +903,35 @@ bool Win32ControlPainter::container_hover_repaint(ContainerType type) {
          Win32Themes::DrawThemeBackground;
 }
 
-void Win32ControlPainter::system_font_style(Style *style) {
+void Win32ControlPainter::system_font_style(ControlContext *context, Style *style) {
   NONCLIENTMETRICSW nonclientmetrics;
-  LOGFONTW *logfont = 0;
+  LOGFONTW *logfont = nullptr;
+  
+  float dpi_scale = 1.0f;
   
   if(Win32Themes::GetThemeSysFont) {
     logfont = &nonclientmetrics.lfMessageFont;
     if(!Win32Themes::GetThemeSysFont(nullptr, 0x0325/*TMT_MSGBOXFONT*/, logfont))
-      logfont = 0;
+      logfont = nullptr;
+    
+    if(logfont) {
+      // GetThemeSysFont gets metrics in dots per inch for the current logical screen
+        
+      HDC hdc = GetDC(nullptr);
+      dpi_scale = GetDeviceCaps(hdc, LOGPIXELSX) / (float)context->dpi();
+      ReleaseDC(nullptr, hdc);
+    }
   }
   
   if(!logfont) {
     nonclientmetrics.cbSize = sizeof(nonclientmetrics);
-    SystemParametersInfoW( // TODO: use SystemParametersInfoForDpiW
-      SPI_GETNONCLIENTMETRICS,
-      sizeof(nonclientmetrics),
-      &nonclientmetrics,
-      FALSE);
-      
+    Win32HighDpi::get_nonclient_metrics_for_dpi(&nonclientmetrics, context->dpi());
+    dpi_scale = 1.0f;
     logfont = &nonclientmetrics.lfMessageFont;
   }
   
   style->set(FontFamilies, String::FromUcs2((const uint16_t *)logfont->lfFaceName));
-  style->set(FontSize, abs(logfont->lfHeight) * 3 / 4.f);
+  style->set(FontSize, abs(logfont->lfHeight) * dpi_scale * 3 / 4.f);
   
   if(logfont->lfWeight > FW_NORMAL)
     style->set(FontWeight, FontWeightBold);
@@ -920,7 +941,7 @@ void Win32ControlPainter::system_font_style(Style *style) {
   style->set(FontSlant, logfont->lfItalic ? FontSlantItalic : FontSlantPlain);
 }
 
-int Win32ControlPainter::selection_color() {
+int Win32ControlPainter::selection_color(ControlContext *context) {
   DWORD col = GetSysColor(COLOR_HIGHLIGHT);
   return (  (col & 0xFF0000) >> 16)
          |  (col & 0x00FF00)
@@ -932,6 +953,7 @@ float Win32ControlPainter::scrollbar_width() {
 }
 
 void Win32ControlPainter::paint_scrollbar_part(
+  ControlContext     *context, 
   Canvas             *canvas,
   ScrollbarPart       part,
   ScrollbarDirection  dir,
@@ -981,9 +1003,10 @@ void Win32ControlPainter::paint_scrollbar_part(
   }
   
   if(!dc) {
-    if(Win32Themes::OpenThemeData 
-        && Win32Themes::CloseThemeData
-        && Win32Themes::DrawThemeBackground) {
+    if( Win32Themes::OpenThemeData && 
+        Win32Themes::CloseThemeData && 
+        Win32Themes::DrawThemeBackground
+    ) {
       surface = cairo_win32_surface_create_with_dib(
                   CAIRO_FORMAT_ARGB32,
                   w,

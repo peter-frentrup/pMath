@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class ContainerWidgetBox: public AbstractStyleBox {
+  class ContainerWidgetBox: public AbstractStyleBox, public ControlContext {
     public:
       explicit ContainerWidgetBox(ContainerType _type, MathSequence *content = nullptr);
       
@@ -26,6 +26,9 @@ namespace richmath {
       
       virtual void on_enter() override;
       virtual void on_exit() override;
+      
+      virtual bool is_foreground_window() override;
+      virtual int dpi() override;
     
     protected:
       virtual void resize_default_baseline(Context *context) override;

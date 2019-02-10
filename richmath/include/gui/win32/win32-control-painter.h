@@ -21,18 +21,19 @@ namespace richmath {
         ContainerType  type,
         BoxSize       *extents) override;
         
-      virtual int control_font_color(ContainerType type, ControlState state) override;
+      virtual int control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
       
-      virtual bool is_very_transparent(ContainerType type, ControlState state) override;
+      virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state) override;
       
       virtual void draw_container(
-        Canvas        *canvas,
-        ContainerType  type,
-        ControlState   state,
-        float          x,
-        float          y,
-        float          width,
-        float          height) override;
+        ControlContext *context, 
+        Canvas         *canvas,
+        ContainerType   type,
+        ControlState    state,
+        float           x,
+        float           y,
+        float           width,
+        float           height) override;
         
       virtual SharedPtr<BoxAnimation> control_transition(
         FrontEndReference  widget_id,
@@ -47,20 +48,21 @@ namespace richmath {
         float              height) override;
         
       virtual void container_content_move(
-        ContainerType  type,
-        ControlState   state,
-        float         *x,
-        float         *y) override;
+        ContainerType   type,
+        ControlState    state,
+        float          *x,
+        float          *y) override;
         
-      virtual bool container_hover_repaint(ContainerType type) override;
+      virtual bool container_hover_repaint(ControlContext *context, ContainerType type) override;
       
-      virtual void system_font_style(Style *style) override;
+      virtual void system_font_style(ControlContext *context, Style *style) override;
       
-      virtual int selection_color() override;
+      virtual int selection_color(ControlContext *context) override;
       
       virtual float scrollbar_width() override;
       
       virtual void paint_scrollbar_part(
+        ControlContext     *context, 
         Canvas             *canvas,
         ScrollbarPart       part,
         ScrollbarDirection  dir,

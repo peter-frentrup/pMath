@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include <boxes/mathsequence.h>
+#include <eval/dynamic.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
@@ -78,12 +79,11 @@ void ContainerWidgetBox::paint(Context *context) {
   
   bool need_bg = true;
   if(animation) {
+    animation->update(this);
     if(animation->paint(context->canvas)) {
       need_bg = false;
     }
     else {
-      animation = 0;
-      
       animation = ControlPainter::std->control_transition(
                     id(),
                     context->canvas,
@@ -98,10 +98,11 @@ void ContainerWidgetBox::paint(Context *context) {
     }
   }
   
-  bool very_transparent = ControlPainter::std->is_very_transparent(type, state);
+  bool very_transparent = ControlPainter::std->is_very_transparent(this, type, state);
   
   if(need_bg) {
     ControlPainter::std->draw_container(
+      this,
       context->canvas,
       type,
       state,
@@ -120,7 +121,7 @@ void ContainerWidgetBox::paint(Context *context) {
   
   int old_cursor_color = context->cursor_color;
   int old_color        = context->canvas->get_color();
-  int c = ControlPainter::std->control_font_color(type, state);
+  int c = ControlPainter::std->control_font_color(this, type, state);
   if(c >= 0) {
     context->canvas->set_color(c);
     context->cursor_color = c;
@@ -154,14 +155,14 @@ void ContainerWidgetBox::reset_style() {
 }
 
 void ContainerWidgetBox::on_mouse_enter() {
-  if(!mouse_inside && ControlPainter::std->container_hover_repaint(type))
+  if(!mouse_inside && ControlPainter::std->container_hover_repaint(this, type))
     request_repaint_all();
     
   mouse_inside = true;
 }
 
 void ContainerWidgetBox::on_mouse_exit() {
-  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(type))
+  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(this, type))
     request_repaint_all();
     
   mouse_inside = false;
@@ -217,6 +218,34 @@ void ContainerWidgetBox::on_enter() {
 void ContainerWidgetBox::on_exit() {
   selection_inside = false;
   AbstractStyleBox::on_exit();
+}
+
+bool ContainerWidgetBox::is_foreground_window() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return false;
+  
+  FrontEndReference old_dyn_box_id = Dynamic::current_evaluation_box_id;
+  Dynamic::current_evaluation_box_id = id();
+  
+  auto result = doc->native()->is_foreground_window();
+  
+  Dynamic::current_evaluation_box_id = old_dyn_box_id;
+  return result;
+}
+
+int ContainerWidgetBox::dpi() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return 96;
+  
+  FrontEndReference old_dyn_box_id = Dynamic::current_evaluation_box_id;
+  Dynamic::current_evaluation_box_id = id();
+  
+  auto result = doc->native()->dpi();
+  
+  Dynamic::current_evaluation_box_id = old_dyn_box_id;
+  return result;
 }
 
 //} ... class ContainerWidgetBox

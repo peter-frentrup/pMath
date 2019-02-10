@@ -15,7 +15,7 @@
 
 namespace richmath {
   // Must call init() immediately after the construction of a derived object!
-  class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget {
+  class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget, public ControlContext {
     protected:
       virtual void after_construction() override;
       
@@ -53,6 +53,9 @@ namespace richmath {
       // bordering window whit a higher zorder_level when moved.
       int zorder_level() { return _zorder_level; }
       
+      virtual bool is_foreground_window() override { return _active; }
+      virtual int dpi() override;
+      
     protected:
       int min_client_height;
       int max_client_height;
@@ -85,7 +88,7 @@ namespace richmath {
       Hashset<HWND> all_snappers;
       
     private:
-      bool _active;
+      ObservableValue<bool> _active;
       bool _glass_enabled;
       bool _themed_frame;
       bool _mouse_over_caption_buttons;

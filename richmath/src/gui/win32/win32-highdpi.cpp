@@ -11,6 +11,7 @@ using namespace richmath;
 
 HRESULT (WINAPI * Win32HighDpi::GetDpiForMonitor)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*) = nullptr;
 BOOL (WINAPI *Win32HighDpi::AdjustWindowRectExForDpi)(LPRECT,DWORD,BOOL,DWORD,UINT) = nullptr;
+BOOL (WINAPI *Win32HighDpi::SystemParametersInfoForDpi)(UINT,UINT,PVOID,UINT,UINT) = nullptr;
 HMODULE Win32HighDpi::shcore = nullptr;
 HMODULE Win32HighDpi::user32 = nullptr;
 
@@ -32,6 +33,8 @@ Win32HighDpi::Win32HighDpi()
     if(user32) {
       AdjustWindowRectExForDpi = (BOOL (WINAPI*)(LPRECT,DWORD,BOOL,DWORD,UINT))
                                  GetProcAddress(user32, "AdjustWindowRectExForDpi");
+      SystemParametersInfoForDpi = (BOOL (WINAPI*)(UINT,UINT,PVOID,UINT,UINT))
+                                   GetProcAddress(user32, "SystemParametersInfoForDpi");
     }
   }
 }
@@ -42,6 +45,7 @@ Win32HighDpi::~Win32HighDpi() {
   
   GetDpiForMonitor = nullptr;
   AdjustWindowRectExForDpi = nullptr;
+  SystemParametersInfoForDpi = nullptr;
 }
 
 void Win32HighDpi::init() {
@@ -65,6 +69,24 @@ bool Win32HighDpi::adjust_window_rect(RECT *rect, DWORD style, bool has_menu, DW
     return !!AdjustWindowRectExForDpi(rect, style, has_menu, style_ex, (UINT)dpi);
   else
     return !!AdjustWindowRectEx(rect, style, has_menu, style_ex);
+}
+
+bool Win32HighDpi::get_nonclient_metrics_for_dpi(NONCLIENTMETRICSW *nonclient_metrics, int dpi) {
+  if(SystemParametersInfoForDpi) {
+    return !!SystemParametersInfoForDpi(
+      SPI_GETNONCLIENTMETRICS,
+      sizeof(nonclient_metrics),
+      &nonclient_metrics,
+      FALSE,
+      (UINT)dpi);
+  }
+  else {
+    return !!SystemParametersInfoW(
+      SPI_GETNONCLIENTMETRICS,
+      sizeof(nonclient_metrics),
+      &nonclient_metrics,
+      FALSE);
+  }
 }
 
 //} ... class Win32HighDpi

@@ -94,6 +94,11 @@ LinearTransition::LinearTransition(
   }
 }
 
+void LinearTransition::update(ControlContext *cc) {
+  if(repeat && !cc->is_foreground_window())
+    repeat = false;
+}
+
 bool LinearTransition::paint(Canvas *canvas) {
   if(!buf1 || !buf2 || seconds <= 0)
     return false;

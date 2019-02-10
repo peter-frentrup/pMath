@@ -22,18 +22,19 @@ namespace richmath {
         ContainerType  type,
         BoxSize       *extents) override;
       
-      virtual int control_font_color(ContainerType type, ControlState state) override;
+      virtual int control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
       
-      virtual bool is_very_transparent(ContainerType type, ControlState state) override;
+      virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state) override;
       
       virtual void draw_container(
-        Canvas        *canvas,
-        ContainerType  type,
-        ControlState   state,
-        float          x,
-        float          y,
-        float          width,
-        float          height) override;
+        ControlContext *context, 
+        Canvas         *canvas,
+        ContainerType   type,
+        ControlState    state,
+        float           x,
+        float           y,
+        float           width,
+        float           height) override;
     
       virtual void container_content_move(
         ContainerType  type,
@@ -41,13 +42,13 @@ namespace richmath {
         float         *x,
         float         *y) override;
         
-      virtual bool container_hover_repaint(ContainerType type) override;
+      virtual bool container_hover_repaint(ControlContext *context, ContainerType type) override;
       
-      virtual void system_font_style(Style *style) override;
+      virtual void system_font_style(ControlContext *context, Style *style) override;
       
     public:
-      GtkStyleContext *get_control_theme(ContainerType type);
-      GtkStateFlags    get_state_flags(ContainerType type, ControlState state);
+      GtkStyleContext *get_control_theme(ControlContext *context, ContainerType type);
+      GtkStateFlags    get_state_flags(ControlContext *context, ContainerType type, ControlState state);
       
       void clear_cache();
       

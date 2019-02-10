@@ -76,6 +76,8 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     }
     virtual void on_saved() override { _parent->on_saved(); }
     
+    virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
+    
   protected:
     virtual void paint_background(Canvas *canvas) override {
       if(!_parent->is_palette())
@@ -193,6 +195,8 @@ class richmath::MathGtkDock: public MathGtkWidget {
     
     virtual Document *working_area_document() override { return _parent->working_area()->document(); }
     
+    virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
+    
   protected:
     virtual void after_construction() override {
       MathGtkWidget::after_construction();
@@ -250,7 +254,8 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _hscrollbar(nullptr),
     _vscrollbar(nullptr),
     _table(nullptr),
-    _window_frame(WindowFrameNormal)
+    _window_frame(WindowFrameNormal),
+    _active(false)
 {
   _previous_rect.x = 0;
   _previous_rect.y = 0;
@@ -331,7 +336,8 @@ void MathGtkDocumentWindow::after_construction() {
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_in>("focus-in-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_scroll>("scroll-event");
-  
+  signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_window_state>("window-state-event");
+
   title(String());
   
   working_area()->document()->style->set(Visible,                         true);
@@ -552,6 +558,14 @@ void MathGtkDocumentWindow::close() {
   destroy();
 }
 
+int MathGtkDocumentWindow::dpi() {
+  GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(_widget));
+  double dpi = gdk_screen_get_resolution(screen);
+  if(dpi <= 0)
+    return 96;
+  return (int)dpi;
+}
+      
 void MathGtkDocumentWindow::set_gravity() {
   if(!_widget)
     return;
@@ -810,6 +824,19 @@ bool MathGtkDocumentWindow::on_scroll(GdkEvent *e) {
       _working_area->scale_by(pow(2, -0.5));
     }
     return true;
+  }
+  
+  return false;
+}
+
+bool MathGtkDocumentWindow::on_window_state(GdkEvent *e) {
+  GdkEventWindowState *event = (GdkEventWindowState *)e;
+  
+  if(event->changed_mask & GDK_WINDOW_STATE_FOCUSED) {
+    if(event->new_window_state & GDK_WINDOW_STATE_FOCUSED)
+      _active = true;
+    else
+      _active = false;
   }
   
   return false;
