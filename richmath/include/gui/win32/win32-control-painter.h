@@ -15,6 +15,8 @@ namespace richmath {
     public:
       static Win32ControlPainter win32_painter;
       
+      static void done();
+      
     public:
       virtual void calc_container_size(
         Canvas        *canvas,

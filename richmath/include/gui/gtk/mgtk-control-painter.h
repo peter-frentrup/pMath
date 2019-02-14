@@ -15,6 +15,8 @@ namespace richmath {
     public:
       static MathGtkControlPainter gtk_painter;
       
+      static void done();
+      
     public:
 #if GTK_MAJOR_VERSION >= 3
       virtual void calc_container_size(

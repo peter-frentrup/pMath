@@ -54,6 +54,11 @@ static Win32ControlPainterInfo w32cpinfo;
 
 Win32ControlPainter Win32ControlPainter::win32_painter;
 
+void Win32ControlPainter::done() {
+  win32_painter.clear_cache();
+  w32cpinfo.style_observations.notify_all(); // to clear the observers array
+}
+
 Win32ControlPainter::Win32ControlPainter()
   : ControlPainter(),
     blur_input_field(true),

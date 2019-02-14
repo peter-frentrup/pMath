@@ -23,6 +23,11 @@ static void on_theme_changed(GObject*, GParamSpec*) {
 
 MathGtkControlPainter MathGtkControlPainter::gtk_painter;
 
+void MathGtkControlPainter::done() {
+  gtk_painter.clear_cache();
+  style_observations.notify_all(); // to clear the observers array
+}
+
 MathGtkControlPainter::MathGtkControlPainter()
   : ControlPainter()
 {

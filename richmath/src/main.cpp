@@ -24,6 +24,7 @@
 
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/win32-clipboard.h>
+#  include <gui/win32/win32-control-painter.h>
 #  include <gui/win32/win32-document-window.h>
 #  include <gui/win32/win32-highdpi.h>
 #  include <gui/win32/win32-menu.h>
@@ -32,6 +33,7 @@
 
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-clipboard.h>
+#  include <gui/gtk/mgtk-control-painter.h>
 #  include <gui/gtk/mgtk-document-window.h>
 #  include <gui/gtk/mgtk-menu-builder.h>
 #  include <gui/gtk/mgtk-tooltip-window.h>
@@ -519,6 +521,7 @@ QUIT:
   
 #ifdef RICHMATH_USE_WIN32_GUI
   Win32Clipboard::done();
+  Win32ControlPainter::done();
   Win32Menu::main_menu              = nullptr;
   Win32Menu::popup_menu             = nullptr;
   Win32AcceleratorTable::main_table = nullptr;
@@ -529,6 +532,7 @@ QUIT:
   MathGtkMenuBuilder::popup_menu = MathGtkMenuBuilder();
   MathGtkMenuBuilder::done();
   MathGtkAccelerators::done();
+  MathGtkControlPainter::done();
 #endif
   
   // needed to clear the message_queue member:
