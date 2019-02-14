@@ -184,11 +184,11 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-march=core2" />
-					<Add option="-flto" />
 					<Add option="-O3" />
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
+					<Add option="-flto" />
 					<Add option="-mthreads" />
 					<Add option="-mms-bitfields" />
 					<Add option="-Wno-unused-parameter" />
@@ -222,8 +222,8 @@
 					<Add library="shell32" />
 				</Linker>
 				<ExtraCommands>
-					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_32.bin);$(#flint_32.bin);$(#mpfr_32.bin);$(#gmp_32.bin);$(#iconv_32.bin);$(#pcre_32.bin);$(#zlib_32.bin);$(#pthreads_32.bin)&quot; -ErrorAction Stop -Verbose' />
-					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x86" />
+					<Add after='powershell.exe -ExecutionPolicy Bypass -NoProfile -NoLogo -NonInteractive -File ../util/collect-dlls.ps1 &quot;$(TARGET_OUTPUT_FILE)&quot; &quot;$(#arb_64.bin);$(#flint_64.bin);$(#mpfr_64.bin);$(#gmp_64.bin);$(#iconv_64.bin);$(#pcre_64.bin);$(#zlib_64.bin);$(#pthreads_64.bin)&quot; -ErrorAction Stop -Verbose' />
+					<Add after="post-build-windows.bat $(TARGET_OUTPUT_DIR) x64" />
 					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
