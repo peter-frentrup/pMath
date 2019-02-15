@@ -23,6 +23,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef PMATH_OS_WIN32
+#  include <windows.h>
+#elif defined(PMATH_OS_UNIX)
+#  include <dlfcn.h>
+#endif
+
 #if __GNU_MP_VERSION < 4
 #  error gmp version 4 or newer needed
 #endif
@@ -2389,6 +2395,34 @@ FAIL: pmath_unref(_pmath_one_half);
   return FALSE;
 }
 
+static void unload_flint(void) {
+  void (*cleanup_master_ptr)(void) = NULL;
+  
+  // Call flint_cleanup_master() if available to also free FLINT thread-pool. 
+  // Introduced after Flint 2.5.3, but Flint 2.5.4 is not yet available. 
+  
+  #ifdef PMATH_OS_WIN32
+  {
+    HMODULE dll_flint = NULL;
+    if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (const wchar_t*)flint_cleanup, &dll_flint)) {
+      cleanup_master_ptr = (void(*)(void))GetProcAddress(dll_flint, "flint_cleanup_master");
+    }
+  }
+  #elif defined(PMATH_OS_UNIX)
+  {
+    DL_info info_flint;
+    if(dladdr(flint_cleanup, &info_flint)) {
+      cleanup_master_ptr = (void(*)(void))dlsym(info_flint.dli_base, "flint_cleanup_master");
+    }
+  }
+  #endif
+  
+  if(cleanup_master_ptr)
+    cleanup_master_ptr();
+  else
+    flint_cleanup();
+}
+
 PMATH_PRIVATE void _pmath_numbers_done(void) {
   _pmath_primetest_done();
   pmath_unref(_pmath_one_half);
@@ -2396,7 +2430,7 @@ PMATH_PRIVATE void _pmath_numbers_done(void) {
   int_cache_clear();
   mp_cache_clear();
   mpfr_free_cache();
-  flint_cleanup();
+  unload_flint();
   gmp_randclear(_pmath_randstate);
   
 #ifdef PMATH_DEBUG_LOG
