@@ -251,27 +251,6 @@ void MathGtkControlPainter::draw_container(
         }
         break;
         
-      case ProgressIndicatorBar:
-        {
-          int radius = 0;
-          gtk_style_context_get(gsc, GTK_STATE_FLAG_NORMAL, "border-radius", &radius, nullptr);
-          
-          float r = 0.75f * radius;
-          if(width < 1.5)
-            width = 1.5;
-            
-          float real_r = r;
-          if(width < 2 * r)
-            real_r = width / 2;
-            
-          float dr = r - real_r;
-          height -= 2 * dr;
-          y += dr;
-          
-          gtk_render_activity(gsc, canvas->cairo(), x, y, width, height);
-        }
-        break;
-        
       default:
         gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
         gtk_render_frame(     gsc, canvas->cairo(), x, y, width, height);
@@ -553,6 +532,13 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
         gtk_style_context_set_screen(  progress_bar_context, gdk_screen_get_default());
         gtk_style_context_add_provider(progress_bar_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
         gtk_style_context_add_class(   progress_bar_context, GTK_STYLE_CLASS_PROGRESSBAR);
+        
+        // We do not know, where the bar will be drawn. Usually it touches the left 
+        // end of the through only, unless it is 100% full.
+        // Pretending it touches both ends is correct for 100% full only, but lokks not too bad fot < 100%
+        // (the corner radii will usually be adapted)
+        gtk_style_context_add_class(   progress_bar_context, GTK_STYLE_CLASS_LEFT);
+        gtk_style_context_add_class(   progress_bar_context, GTK_STYLE_CLASS_RIGHT);
       }
       return progress_bar_context;
       
