@@ -617,7 +617,6 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
         gtk_style_context_set_path(    list_item_context, path);
         gtk_style_context_set_screen(  list_item_context, gdk_screen_get_default());
         gtk_style_context_add_provider(list_item_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
-        gtk_style_context_add_class(   list_item_context, GTK_STYLE_CLASS_LIST);
         gtk_style_context_add_class(   list_item_context, GTK_STYLE_CLASS_LIST_ROW);
       }
       return list_item_context;
@@ -636,7 +635,6 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
         gtk_style_context_set_path(    list_item_selected_context, path);
         gtk_style_context_set_screen(  list_item_selected_context, gdk_screen_get_default());
         gtk_style_context_add_provider(list_item_selected_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
-        gtk_style_context_add_class(   list_item_selected_context, GTK_STYLE_CLASS_LIST);
         gtk_style_context_add_class(   list_item_selected_context, GTK_STYLE_CLASS_LIST_ROW);
         gtk_style_context_add_class(   list_item_selected_context, "activatable");
       }
