@@ -2703,28 +2703,28 @@ void MathSequence::paint(Context *context) {
       for(; line < lines.length() && y < clip_y2; ++line) {
         float x_extra = x0 + indention_width(lines[line].indent);
         
-#ifndef NDEBUG
-        {
-          int old_color = context->canvas->get_color();
-          context->canvas->save();
-          context->canvas->set_color(0x808080);
-          
-          for(int i = 0; i < lines[line].indent; ++i) {
-            context->canvas->move_to(
-              x0 + i * (x_extra - x0) / lines[line].indent,
-              y + lines[line].ascent);
-            context->canvas->rel_line_to(0, -0.75);
-          }
-          context->canvas->stroke();
-          
-          context->canvas->set_color(old_color);
-          context->canvas->restore();
-        }
-#endif
+//#ifndef NDEBUG
+//        {
+//          int old_color = context->canvas->get_color();
+//          context->canvas->save();
+//          context->canvas->set_color(0x808080);
+//          
+//          for(int i = 0; i < lines[line].indent; ++i) {
+//            context->canvas->move_to(
+//              x0 + i * (x_extra - x0) / lines[line].indent,
+//              y + lines[line].ascent);
+//            context->canvas->rel_line_to(0, -0.75);
+//          }
+//          context->canvas->stroke();
+//          
+//          context->canvas->set_color(old_color);
+//          context->canvas->restore();
+//        }
+//#endif
         
         if(pos > 0)
           x_extra -= glyphs[pos - 1].right;
-          
+        
 //        if(pos < glyphs.length()) {
 //          if(pos > 0 && buf[pos-1] != '\n')
 //            x_extra -= glyphs[pos].x_offset;
