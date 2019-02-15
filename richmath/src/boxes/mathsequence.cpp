@@ -1680,14 +1680,19 @@ namespace richmath {
               }
               
               if(i > 0 || e + 1 < self.glyphs.length()) {
+                if(i > 0) {
+                  self.glyphs[i-1].right += space_left / 2;
+                  space_left-= space_left / 2;
+                }
                 self.glyphs[i].x_offset += space_left;
                 self.glyphs[i].right +=    space_left;
                 if(e + 1 < self.glyphs.length()) {
-                  self.glyphs[e + 1].x_offset += space_right;
-                  self.glyphs[e + 1].right +=    space_right;
+                  self.glyphs[e + 1].x_offset += space_right / 2;
+                  self.glyphs[e + 1].right +=    space_right / 2;
+                  space_right-= space_right / 2;
                 }
-                else
-                  self.glyphs[e].right += space_right;
+                
+                self.glyphs[e].right += space_right;
               }
             }
           }
