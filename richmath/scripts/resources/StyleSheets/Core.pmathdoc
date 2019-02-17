@@ -79,6 +79,7 @@ Document({
          ShowAutoStyles -> False, ShowStringCharacters -> False), 
         Section(StyleData("Button"), BaseStyle -> "ControlStyle"), 
         Section(StyleData("Panel"), BaseStyle -> "ControlStyle"), 
+        Section(StyleData("PaneSelector")), 
         Section(StyleData("InputField"), BaseStyle -> "ControlStyle", 
          ShowStringCharacters -> True), Section(StyleData("Setter"), 
          BaseStyle -> "ControlStyle"), Section(StyleData("Placeholder"), 

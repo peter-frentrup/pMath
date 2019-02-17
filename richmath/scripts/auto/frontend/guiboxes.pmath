@@ -21,6 +21,10 @@ toBeProtected:= Unprotect(
 	Dynamic,
 	DynamicBox,
 	DynamicSetting,
+	Panel,
+	PanelBox,
+	PaneSelector,
+	PaneSelectorBox,
 	ProgressIndicator,
 	ProgressIndicatorBox,
 	Setter,
@@ -31,6 +35,26 @@ toBeProtected:= Unprotect(
 	SliderBox,
 	Tooltip,
 	TooltipBox)
+
+Attributes(makeNullBoxes):= {HoldAllComplete}
+makeNullBoxes(/\/):= ""
+makeNullBoxes(~x)::= MakeBoxes(x)
+
+
+Attributes(makeSymbolBoxes):= {HoldAllComplete}
+makeSymbolBoxes(~x)::= With({box:= MakeBoxes(x)}, If(IsString(box), box, {"(", box, ")"}))
+
+
+Attributes(makeCallBoxes):= {HoldAllComplete}
+makeCallBoxes(~h())::= {makeSymbolBoxes(h), "(", ")"}
+makeCallBoxes(~h(~x))::= {makeSymbolBoxes(h), "(", MakeBoxes(x), ")"}
+makeCallBoxes(~h(~~xs))::= {makeSymbolBoxes(h), "(", Unevaluated({xs}).Map(MakeBoxes).Riffle(","), ")"}
+
+
+Attributes(makeGuiBoxes):= {HoldAllComplete}
+makeGuiBoxes(~x)::= makeCallBoxes(x)
+
+
 
 MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options) /? allowGuiBoxes
 
@@ -50,6 +74,28 @@ MakeBoxes(InputField(~value,                   type: Expression | RawBoxes | Hol
 
 MakeBoxes(Panel())::=                                 PanelBox("") /? allowGuiBoxes
 MakeBoxes(Panel(~expr, options:OptionsPattern()))::=  PanelBox(MakeBoxes(expr), options) /? allowGuiBoxes
+
+
+MakeBoxes(~p: PaneSelector)::= makeGuiBoxes(p) /? allowGuiBoxes
+
+Attributes(HOLD):= {HoldAllComplete}
+
+makeGuiBoxes(PaneSelector(panes: {~~}, ~sel, options:OptionsPattern()))::= 
+	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, options).Replace(HOLD(~x) :> x)
+makeGuiBoxes(PaneSelector(panes: {~~}, ~sel, ~def, options:OptionsPattern()))::= 
+	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, MakeBoxes(def), options).Replace(HOLD(~x) :> x)
+
+Attributes(paneSelectorRuleToBoxes):= {HoldAll}
+paneSelectorRuleToBoxes(~val:HoldPattern -> ~pane)::=             val  -> makeNullBoxes(pane)
+paneSelectorRuleToBoxes(~val             -> ~pane)::= HoldPattern(val) -> makeNullBoxes(pane)
+paneSelectorRuleToBoxes(~val:HoldPattern :> ~pane)::= RuleDelayed @@ {            val,  makeNullBoxes(pane)}
+paneSelectorRuleToBoxes(~val             :> ~pane)::= RuleDelayed @@ {HoldPattern(val), makeNullBoxes(pane)}
+
+Attributes(paneSelectorListToBoxes):= {HoldAll}
+paneSelectorListToBoxes(rules: {(Rule|RuleDelayed)(~,~)**})::= Unevaluated(rules).Map(paneSelectorRuleToBoxes)
+paneSelectorListToBoxes(~values: List)::= With({indices:= Array(Length(Unevaluated(values)))}, 
+	Unevaluated({indices, values}).MapThread(Function(,paneSelectorRuleToBoxes(#1 -> #2),HoldAllComplete)))
+
 
 MakeBoxes(ProgressIndicator())::=                                     ProgressIndicatorBox(0, 0..1) /? allowGuiBoxes
 MakeBoxes(ProgressIndicator(~val ? isNumberOrDynamic))::=             ProgressIndicatorBox(val, 0..1) /? allowGuiBoxes
@@ -146,6 +192,30 @@ PanelBox/: MakeExpression(PanelBox(~content, options:OptionsPattern()))::=
 		HoldComplete(Panel(c, options)).Replace({HoldComplete(~x) :> x}, 2)
 		)
 
+
+makeNullExpression("")::= HoldComplete(/\/)
+makeNullExpression({})::= HoldComplete(/\/)
+makeNullExpression(~boxes)::= MakeExpression(boxes)
+
+wrapHoldCompleteAsHOLD(HoldComplete())::= HOLD(Sequence())
+wrapHoldCompleteAsHOLD(HoldComplete(~x))::= HOLD(x)
+wrapHoldCompleteAsHOLD(HoldComplete(~~x))::= HOLD(Sequence(x))
+wrapHoldCompleteAsHOLD(~)::= $Failed
+
+PaneSelectorBox/: MakeExpression(PaneSelectorBox(~list:List, ~val, opts: OptionsPattern()))::=
+	With({panes:= paneSelectorListToExpr(list)},
+		HoldComplete(PaneSelector(panes, val, opts)).Replace(HOLD(~x) :> x))
+
+PaneSelectorBox/: MakeExpression(PaneSelectorBox(~list:List, ~val, ~def, opts: OptionsPattern()))::=
+	With({panes:= paneSelectorListToExpr(list), defpane:= wrapHoldCompleteAsHOLD @ MakeExpression(def)},
+		HoldComplete(PaneSelector(panes, val, defpane, opts)).Replace(HOLD(~x) :> x))
+
+paneSelectorRuleToExpr(~val -> ~paneboxes)::=                 HOLD(val) -> wrapHoldCompleteAsHOLD @ makeNullExpression(paneboxes)
+paneSelectorRuleToExpr(~val :> ~paneboxes)::= RuleDelayed @@ {HOLD(val),   wrapHoldCompleteAsHOLD @ makeNullExpression(paneboxes)}
+paneSelectorRuleToExpr(~paneboxes)::= wrapHoldCompleteAsHOLD @ makeNullExpression(paneboxes)
+
+paneSelectorListToExpr(~rules: List)::= rules.Map(paneSelectorRuleToExpr)
+
 ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, 0..1))::=   HoldComplete(ProgressIndicator(val))
 ProgressIndicatorBox/: MakeExpression(ProgressIndicatorBox(~val, ~range))::= HoldComplete(ProgressIndicator(val, range))
 
@@ -172,7 +242,8 @@ TooltipBox/: MakeExpression(TooltipBox(~content, ~tooltip, options:OptionsPatter
 
 
 System`Setting`$Rules:= Join(System`Setting`$Rules, {
-	(Checkbox|Dynamic|ProgressIndicator|RadioButton|Setter|SetterBar|Slider|Tooltip)(~x, ~~~) :> x,
+	(Checkbox|Dynamic|InputField|ProgressIndicator|RadioButton|Setter|SetterBar|Slider)(~x, ~~~) :> x,
+	PaneSelector(~, ~x, ~~~) :> x,
 	ProgressIndicator() :> 0,
 	Slider() :> 0.5});
 

@@ -106,6 +106,10 @@ Options(Panel):= Options(PanelBox):= {
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel" }
           
+Options(PaneSelector):= Options(PaneSelectorBox):= { 
+    %BaselinePosition -> Automatic, 
+    BaseStyle -> "PaneSelector" }
+          
 Options(Style):= Options(StyleBox):= {
     Antialiasing -> Inherited,
     AutoDelete -> False,
