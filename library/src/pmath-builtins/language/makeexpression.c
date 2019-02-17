@@ -186,6 +186,13 @@ static uint16_t unichar_at(
   return result;
 }
 
+static pmath_bool_t is_empty_box(pmath_expr_t box) {
+  if(pmath_is_string(box))
+    return pmath_string_length(box) == 0;
+  
+  return pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 0);
+}
+
 static pmath_bool_t string_equals(pmath_string_t str, const char *cstr) {
   const uint16_t *buf;
   size_t len = strlen(cstr);
@@ -654,7 +661,11 @@ static pmath_t parse_gridbox( // PMATH_NULL on error
       pmath_t obj = pmath_expr_get_item(row, j);
       row = pmath_expr_set_item(row, j, PMATH_NULL);
       
-      if(!parse(&obj)) {
+      if(is_empty_box(obj)) {
+        pmath_unref(obj);
+        obj = PMATH_NULL;
+      }
+      else if(!parse(&obj)) {
         pmath_unref(options);
         pmath_unref(matrix);
         pmath_unref(row);

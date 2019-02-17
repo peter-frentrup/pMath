@@ -716,6 +716,7 @@ static int _pmath_symbol_to_precedence(pmath_t head) { // head wont be freed
 //{ boxforms for more complex functions ...
 
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj);
+static pmath_t object_to_boxes_or_empty(pmath_thread_t thread, pmath_t obj);
 
 //{ boxforms valid for InputForm ...
 
@@ -2176,7 +2177,7 @@ static pmath_t grid_to_boxes(
           for(j = 1; j <= cols; ++j) {
             pmath_t item = pmath_expr_get_item(row, j);
             
-            item = object_to_boxes(thread, item);
+            item = object_to_boxes_or_empty(thread, item);
             
             row = pmath_expr_set_item(row, j, item);
           }
@@ -3471,6 +3472,13 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
   obj = pmath_expr_set_item(obj, 0, pmath_ref(pmath_System_ComplexStringBox));
   
   return obj;
+}
+
+static pmath_t object_to_boxes_or_empty(pmath_thread_t thread, pmath_t obj) {
+  if(pmath_same(obj, PMATH_NULL))
+    return PMATH_C_STRING("");
+  
+  return object_to_boxes(thread, obj);
 }
 
 static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
