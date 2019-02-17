@@ -2,11 +2,13 @@ Begin("System`Private`")
 
 Options(Button):= {
     BaselinePosition -> Automatic,
+    BaseStyle -> "Button", 
 	ButtonFrame -> Automatic,
 	Method -> "Preemptive"}
           
 Options(ButtonBox):= {
     BaselinePosition -> Automatic,
+    BaseStyle -> "Button", 
 	ButtonFrame -> Automatic,
 	ButtonFunction -> (/\/ &),
 	Method -> "Preemptive"}
@@ -72,6 +74,7 @@ Options(Graphics):= Options(GraphicsBox):= {
 	Axes -> False,
 	AxesOrigin -> Automatic,
     BaselinePosition -> Automatic,
+    BaseStyle -> "Graphics", 
 	Frame -> False,
 	FrameTicks -> Automatic,
 	ImageSize -> Automatic,
@@ -90,6 +93,7 @@ Options(GridBox):= {
           
 Options(InputField):= Options(InputFieldBox):= {
     BaselinePosition -> Automatic,
+    BaseStyle -> "InputField",
 	ContinuousAction -> False}
           
 Options(InterpretationBox):=Options(Interpretation):= {
@@ -98,7 +102,9 @@ Options(InterpretationBox):=Options(Interpretation):= {
 	Editable -> False
 	}
           
-Options(Panel):= Options(PanelBox):= { BaselinePosition -> Automatic }
+Options(Panel):= Options(PanelBox):= { 
+    BaselinePosition -> Automatic, 
+    BaseStyle -> "Panel" }
           
 Options(Style):= Options(StyleBox):= {
     Antialiasing -> Inherited,
@@ -191,7 +197,11 @@ Options(Section):= {
     WindowFrame -> Inherited,    % only valid for StyleData-sections
     WindowTitle -> Inherited}    % only valid for StyleData-sections
 
-Options(Setter):= Options(SetterBox):= { ButtonFrame -> Automatic }
+Options(Setter):= Options(SetterBox):= { 
+    BaselinePosition -> Automatic,
+    BaseStyle -> "Setter", 
+    ButtonFrame -> Automatic 
+}
           
 Options(Slider):= Options(SliderBox):= { ContinuousAction -> True }
 

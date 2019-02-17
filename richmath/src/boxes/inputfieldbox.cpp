@@ -266,9 +266,16 @@ Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
   Gather::emit(dynamic.expr());
   Gather::emit(input_type);
   
-  if(style)
-    style->emit_to_pmath(false);
+  if(style) {
+    bool with_inherited = true;
     
+    String s;
+    if(style->get(BaseStyleName, &s) && s.equals("InputField"))
+      with_inherited = false;
+    
+    style->emit_to_pmath(with_inherited);
+  }
+  
   Expr result = g.end();
   result.set(0, Symbol(richmath_System_InputFieldBox));
   return result;

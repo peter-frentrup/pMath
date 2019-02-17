@@ -70,9 +70,16 @@ Expr PanelBox::to_pmath(BoxOutputFlags flags) {
   
   g.emit(_content->to_pmath(flags));
   
-  if(style)
-    style->emit_to_pmath(false);
+  if(style) {
+    bool with_inherited = true;
     
+    String s;
+    if(style->get(BaseStyleName, &s) && s.equals("Panel"))
+      with_inherited = false;
+    
+    style->emit_to_pmath(with_inherited);
+  }
+  
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_PanelBox));
   return e;

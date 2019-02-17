@@ -40,12 +40,8 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   _content->load_from_object(expr[3], opts);
   
-  if(style) {
-    style->clear();
-    style->add_pmath(options);
-  }
-  else if(options != PMATH_UNDEFINED)
-    style = new Style(options);
+  reset_style();
+  style->add_pmath(options);
     
   finish_load_from_object(std::move(expr));
   return true;
@@ -105,12 +101,23 @@ Expr SetterBox::to_pmath(BoxOutputFlags flags) {
   g.emit(value);
   g.emit(_content->to_pmath(flags - BoxOutputFlags::Parseable));
   
-  if(style)
-    style->emit_to_pmath();
+  if(style) {
+    bool with_inherited = true;
     
+    String s;
+    if(style->get(BaseStyleName, &s) && s.equals("Setter"))
+      with_inherited = false;
+    
+    style->emit_to_pmath(with_inherited);
+  }
+  
   Expr e = g.end();
   e.set(0, Symbol(richmath_System_SetterBox));
   return e;
+}
+
+void SetterBox::reset_style() {
+  Style::reset(style, "Setter");
 }
 
 void SetterBox::on_mouse_down(MouseEvent &event) {
