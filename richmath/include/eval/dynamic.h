@@ -25,7 +25,10 @@ namespace richmath {
       Expr expr() {  return _expr;  }
       
       bool is_dynamic() {
-        return _expr[0] == ::richmath_System_Dynamic && _expr.expr_length() >= 1;
+        return _expr.expr_length() >= 1 && _expr[0] == ::richmath_System_Dynamic;
+      }
+      bool is_unevaluated() {
+        return _expr.expr_length() == 1 && _expr[0] == PMATH_SYMBOL_UNEVALUATED;
       }
       
       // 0 = False, 1 = True, 2 = Automatic

@@ -94,6 +94,9 @@ void Dynamic::assign(Expr value) {
 
 Expr Dynamic::get_value_now() {
   if(!is_dynamic()) {
+    if(is_unevaluated())
+      return _expr[1];
+    
     return _expr;
   }
   
@@ -122,9 +125,8 @@ Expr Dynamic::get_value_now() {
 }
 
 void Dynamic::get_value_later() {
-  if(!is_dynamic()) {
+  if(!is_dynamic()) 
     return;
-  }
   
   if(_owner->style) {
     _owner->style->remove(InternalUsesCurrentValueOfMouseOver);
