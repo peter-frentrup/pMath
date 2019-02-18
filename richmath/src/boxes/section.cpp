@@ -383,10 +383,9 @@ void AbstractSequenceSection::resize(Context *context) {
   _extents.ascent = 0;
   _extents.descent = cy + _content->extents().descent + bottom_margin;
   
-  if( context->width < HUGE_VAL &&
-      _content->var_extents().width < context->width)
-  {
-    _content->var_extents().width = context->width;
+  float w = min(context->width, context->section_content_window_width);
+  if(w < HUGE_VAL && _content->var_extents().width < w) {
+    _content->var_extents().width = w;
   }
   
   context->section_content_window_width = old_scww;
