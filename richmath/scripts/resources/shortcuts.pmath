@@ -60,7 +60,7 @@ FE`Private`shortcuts:= {
 	Item(KeyEvent("5", {KeyAlt}), ScopedCommand(BaseStyle->"Subsection", Section)),
 	Item(KeyEvent("6", {KeyAlt}), ScopedCommand(BaseStyle->"Subsubsection", Section)),
 	Item(KeyEvent("7", {KeyAlt}), ScopedCommand(BaseStyle->"Text", Section)),
-	%Item(KeyEvent("7", {KeyAlt}), ScopedCommand(BaseStyle->"Code", Section)),
+	Item(KeyEvent("8", {KeyAlt}), ScopedCommand(BaseStyle->"Code", Section)),
 	Item(KeyEvent("9", {KeyAlt}), ScopedCommand(BaseStyle->"Input", Section)),
 
 	Item(KeyEvent("0", {KeyControl}),               ScopedCommand(Magnification->1.0, Document)),

@@ -25,10 +25,14 @@ Document({
        ShowSectionBracket -> True, ShowStringCharacters -> True, 
        Visible -> True), Section(StyleData("Edit"), AutoSpacing -> True, 
        LanguageCategory -> "pMath", ShowAutoStyles -> True), 
-      SectionGroup({Section(StyleData("Input"), AutoNumberFormating -> False, 
-         AutoSpacing -> True, Evaluatable -> True, FontSize -> 11, 
-         LanguageCategory -> "pMath", SectionMargins -> {56, Inherited, 10, 
-          5}, SectionLabel -> "in:", ShowAutoStyles -> True), 
+      Section(StyleData("Input"), AutoNumberFormating -> False, 
+       AutoSpacing -> True, Evaluatable -> True, FontSize -> 11, 
+       LanguageCategory -> "pMath", SectionMargins -> {56, Inherited, 10, 5}, 
+       SectionLabel -> "in:", ShowAutoStyles -> True), 
+      SectionGroup({
+        Section(StyleData("Code"), Background -> GrayLevel(
+          0.80400000000000005`), BaseStyle -> "Input", 
+         LineBreakWithin -> False, SectionFrameMargins -> {3, 3, 3, 3}), 
         SectionGroup({
           Section(StyleData("Output"), AutoNumberFormating -> True, 
            BaseStyle -> "Input", DefaultDuplicateSectionStyle -> "Input", 
@@ -62,7 +66,8 @@ Document({
       Section(StyleData("Todo"), BaseStyle -> "Text", SectionLabel -> "todo:", 
        SectionLabelAutoDelete -> False), Section(StyleData("Docked"), 
        BaseStyle -> "ControlStyle", SectionFrame -> {Inherited, Inherited, 
-        Inherited, 9.9999999747524271`*^-7}, 
+        Inherited, 1.0000000116860974`*^-7}, 
+       SectionFrameColor -> GrayLevel(0.502`), 
        SectionFrameMargins -> {3, 3, 3, 3}, SectionMargins -> {0, 0, 0, 0}, 
        ShowStringCharacters -> False), 
       Section(StyleData("TooltipWindowSection"), AutoNumberFormating -> True, 
