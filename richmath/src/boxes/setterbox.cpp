@@ -9,7 +9,7 @@ extern pmath_symbol_t richmath_System_SetterBox;
 //{ class SetterBox ...
 
 SetterBox::SetterBox(MathSequence *content)
-  : ContainerWidgetBox(PaletteButton, content),
+  : AbstractButtonBox(content, PaletteButton),
     must_update(true),
     is_down(false)
 {
@@ -55,26 +55,10 @@ ControlState SetterBox::calc_state(Context *context) {
     //return Pressed;
   }
   
-  ControlState state = ContainerWidgetBox::calc_state(context);
+  ControlState state = AbstractButtonBox::calc_state(context);
   //if(state == Normal)
   //  return Hovered;
   return state;
-}
-
-bool SetterBox::expand(const BoxSize &size) {
-  _extents = size;
-  cx = (_extents.width - _content->extents().width) / 2;
-  return true;
-}
-
-void SetterBox::resize_default_baseline(Context *context) {
-  int bf = get_style(ButtonFrame, -1);
-  if(bf >= 0)
-    type = (ContainerType)bf;
-  else
-    type = PaletteButton;
-    
-  ContainerWidgetBox::resize_default_baseline(context);
 }
 
 void SetterBox::paint(Context *context) {
@@ -118,23 +102,6 @@ Expr SetterBox::to_pmath(BoxOutputFlags flags) {
 
 void SetterBox::reset_style() {
   Style::reset(style, "Setter");
-}
-
-void SetterBox::on_mouse_down(MouseEvent &event) {
-  animation = 0;
-  
-  ContainerWidgetBox::on_mouse_down(event);
-}
-
-void SetterBox::on_mouse_up(MouseEvent &event) {
-  if(event.left) {
-    request_repaint_all();
-    
-    if(mouse_inside && mouse_left_down)
-      click();
-  }
-  
-  ContainerWidgetBox::on_mouse_up(event);
 }
 
 void SetterBox::click() {

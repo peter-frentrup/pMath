@@ -13,10 +13,70 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_ButtonBox;
 
+//{ class AbstractButtonBox ...
+
+AbstractButtonBox::AbstractButtonBox(MathSequence *content, ContainerType _type)
+  : ContainerWidgetBox(_type, content)
+{
+}
+
+void AbstractButtonBox::resize_default_baseline(Context *context) {
+  int bf = get_style(ButtonFrame, -1);
+  if(bf >= 0)
+    type = (ContainerType)bf;
+  else
+    type = default_container_type();
+    
+  float old_width = context->width;
+  context->width = HUGE_VAL;
+  
+  ContainerWidgetBox::resize_default_baseline(context);
+  
+  context->width = old_width;
+}
+
+bool AbstractButtonBox::expand(const BoxSize &size) {
+  _extents = size;
+  cx = (_extents.width - _content->extents().width) / 2;
+  return true;
+}
+
+void AbstractButtonBox::on_mouse_down(MouseEvent &event) {
+  animation = nullptr;
+  
+  ContainerWidgetBox::on_mouse_down(event);
+}
+
+void AbstractButtonBox::on_mouse_move(MouseEvent &event) {
+  Document *doc = find_parent<Document>(false);
+  
+  if(mouse_inside && doc) {
+    if(type == FramelessButton)
+      doc->native()->set_cursor(FingerCursor);
+    else
+      doc->native()->set_cursor(DefaultCursor);
+  }
+  
+  ContainerWidgetBox::on_mouse_move(event);
+}
+
+void AbstractButtonBox::on_mouse_up(MouseEvent &event) {
+  if(event.left) {
+    request_repaint_all();
+    
+    if(mouse_inside && mouse_left_down)
+      click();
+  }
+  
+  ContainerWidgetBox::on_mouse_up(event);
+}
+
+//} ... class AbstractButtonBox
+
 //{ class ButtonBox ...
 
 ButtonBox::ButtonBox(MathSequence *content)
-  : ContainerWidgetBox(PushButton, content)
+  : AbstractButtonBox(content)
 {
 }
 
@@ -42,27 +102,6 @@ bool ButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   finish_load_from_object(std::move(expr));
   return true;
-}
-
-bool ButtonBox::expand(const BoxSize &size) {
-  _extents = size;
-  cx = (_extents.width - _content->extents().width) / 2;
-  return true;
-}
-
-void ButtonBox::resize_default_baseline(Context *context) {
-  int bf = get_style(ButtonFrame, -1);
-  if(bf >= 0)
-    type = (ContainerType)bf;
-  else
-    type = PushButton;
-    
-  float old_width = context->width;
-  context->width = HUGE_VAL;
-  
-  ContainerWidgetBox::resize_default_baseline(context);
-  
-  context->width = old_width;
 }
 
 Expr ButtonBox::to_pmath_symbol() { 
@@ -91,36 +130,6 @@ Expr ButtonBox::to_pmath(BoxOutputFlags flags) {
 
 void ButtonBox::reset_style() {
   Style::reset(style, "Button");
-}
-
-void ButtonBox::on_mouse_down(MouseEvent &event) {
-  animation = 0;
-  
-  ContainerWidgetBox::on_mouse_down(event);
-}
-
-void ButtonBox::on_mouse_move(MouseEvent &event) {
-  Document *doc = find_parent<Document>(false);
-  
-  if(mouse_inside && doc) {
-    if(type == FramelessButton)
-      doc->native()->set_cursor(FingerCursor);
-    else
-      doc->native()->set_cursor(DefaultCursor);
-  }
-  
-  ContainerWidgetBox::on_mouse_move(event);
-}
-
-void ButtonBox::on_mouse_up(MouseEvent &event) {
-  if(event.left) {
-    request_repaint_all();
-    
-    if(mouse_inside && mouse_left_down)
-      click();
-  }
-  
-  ContainerWidgetBox::on_mouse_up(event);
 }
 
 void ButtonBox::click() {

@@ -1,21 +1,20 @@
-#ifndef __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED
-#define __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED
+#ifndef __RICHMATH__BOXES__SETTERBOX_H__INCLUDED
+#define __RICHMATH__BOXES__SETTERBOX_H__INCLUDED
 
-#include <boxes/containerwidgetbox.h>
+#include <boxes/buttonbox.h>
 #include <eval/dynamic.h>
 
 
 namespace richmath {
-  class SetterBox: public ContainerWidgetBox {
+  class SetterBox: public AbstractButtonBox {
     public:
-      explicit SetterBox(MathSequence *content = 0);
+      explicit SetterBox(MathSequence *content = nullptr);
       
       // Box::try_create<SetterBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual ControlState calc_state(Context *context) override;
       
-      virtual bool expand(const BoxSize &size) override;
       virtual void paint(Context *context) override;
       
       virtual Expr to_pmath_symbol() override;
@@ -23,17 +22,14 @@ namespace richmath {
       
       virtual void reset_style() override;
       
-      virtual void on_mouse_down(MouseEvent &event) override;
-      virtual void on_mouse_up(MouseEvent &event) override;
-      
-      virtual void click();
+      virtual void click() override;
       
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;
       virtual Box *dynamic_to_literal(int *start, int *end) override;
     
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual ContainerType default_container_type() { return PaletteButton; }
       
     protected:
       Dynamic dynamic;
@@ -44,4 +40,4 @@ namespace richmath {
   };
 };
 
-#endif // __RICHMATHRICHMATH__BOXES__SETTERBOX_H__INCLUDED
+#endif // __RICHMATH__BOXES__SETTERBOX_H__INCLUDED
