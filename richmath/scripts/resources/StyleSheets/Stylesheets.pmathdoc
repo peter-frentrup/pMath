@@ -7,12 +7,11 @@ Document({
       SectionGroup({Section(BoxData({"Document", " ", "styles"}), "Section"), 
         Section(StyleData("Document"), DefaultNewSectionStyle -> "Input", 
          DefaultReturnCreatedSectionStyle -> Automatic, 
-         DockedSections :> {
-          "Top" -> {
+         DockedSections :> {"TopGlass" -> {
            Section({DynamicBox(ToBoxes(CurrentValue("DocumentFileName"))), 
-             " Stylesheet"}, "Docked")}}, 
-         FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
-         Visible -> True, WindowFrame -> "Normal")}, All), 
+             " Stylesheet"}, "Docked", SectionFrame -> {Inherited, {
+              Inherited, 0.75`}})}}, FontFeatures -> {"ssty" -> Automatic}, 
+         Magnification -> 1, Visible -> True, WindowFrame -> "Normal")}, All), 
       SectionGroup({Section(BoxData({"Section", " ", "styles"}), "Section"), 
         Section(StyleData("Text"), FontFamily -> {"Georgia", "Constantia", 
           "Times New Roman"}, SectionMargins -> {3, Inherited, 7, 7}, 

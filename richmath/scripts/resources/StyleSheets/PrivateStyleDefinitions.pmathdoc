@@ -6,8 +6,7 @@ Document({
     SectionGroup({Section(BoxData({"Document", " ", "styles"}), "Section"), 
       Section(StyleData("Document"), DefaultNewSectionStyle -> "Input", 
        DefaultReturnCreatedSectionStyle -> Automatic, 
-       DockedSections :> {
-        "Top" -> {
+       DockedSections :> {"TopGlass" -> {
          Section({"Private StyleDefinitions for \[HighSixDoubleQuote]", 
            DynamicBox(
             ToBoxes(
@@ -18,8 +17,9 @@ Document({
                   Global`owner)), FontColor -> RGBColor(0, 0, 0.5`)), 
                FE`CallFrontEnd(FrontEnd`SetSelectedDocument(Global`owner)), 
                ButtonFrame -> "Frameless")))), "\[HighNineDoubleQuote]"}, 
-          "Docked")}}, FontFeatures -> {"ssty" -> Automatic}, 
-       Magnification -> 1, Visible -> True, WindowFrame -> "Normal", 
+          "Docked", SectionFrame -> {Inherited, {Inherited, 0.75`}})}}, 
+       FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
+       Visible -> True, WindowFrame -> "Normal", 
        WindowTitle -> Dynamic(
         ToString(Row({"Private StyleDefinitions for ", 
           With({Global`owner:= CurrentValue("StyleDefinitionsOwner")}, 
