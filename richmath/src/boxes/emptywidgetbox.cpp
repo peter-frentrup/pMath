@@ -156,6 +156,7 @@ void EmptyWidgetBox::on_mouse_enter() {
     request_repaint_all();
     
   mouse_inside = true;
+  Box::on_mouse_enter();
 }
 
 void EmptyWidgetBox::on_mouse_exit() {
@@ -163,6 +164,7 @@ void EmptyWidgetBox::on_mouse_exit() {
     request_repaint_all();
     
   mouse_inside = false;
+  Box::on_mouse_exit();
 }
 
 void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
