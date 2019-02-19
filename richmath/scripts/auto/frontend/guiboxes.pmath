@@ -21,6 +21,8 @@ toBeProtected:= Unprotect(
 	Dynamic,
 	DynamicBox,
 	DynamicSetting,
+	Opener,
+	OpenerBox,
 	Panel,
 	PanelBox,
 	PaneSelector,
@@ -71,6 +73,13 @@ MakeBoxes(InputField(~value,                                                    
 MakeBoxes(InputField(~value?isStringOrDynamic, String,                                         options:OptionsPattern()))::= InputFieldBox(value, String,     options) /? allowGuiBoxes
 MakeBoxes(InputField(~value?isNumberOrDynamic, Number,                                         options:OptionsPattern()))::= InputFieldBox(value, Number,     options) /? allowGuiBoxes
 MakeBoxes(InputField(~value,                   type: Expression | RawBoxes | Hold(Expression), options:OptionsPattern()))::= InputFieldBox(value, type,       options) /? allowGuiBoxes
+
+
+MakeBoxes(~x: Opener)::= makeGuiBoxes(x) /? allowGuiBoxes
+
+makeGuiBoxes(Opener())::=                                 OpenerBox(False)
+makeGuiBoxes(Opener(~state, options:OptionsPattern()))::= OpenerBox(state, options)
+
 
 MakeBoxes(Panel())::=                                 PanelBox("") /? allowGuiBoxes
 MakeBoxes(Panel(~expr, options:OptionsPattern()))::=  PanelBox(MakeBoxes(expr), options) /? allowGuiBoxes
@@ -186,6 +195,9 @@ DynamicBox/: MakeExpression(DynamicBox(ToBoxes(~var), options:OptionsPattern()))
 
 InputFieldBox/: MakeExpression(InputFieldBox(~value, ~type, options:OptionsPattern()))::= HoldComplete(InputField(value, type, options))
 
+OpenerBox/: MakeExpression(OpenerBox(~state))::=                           HoldComplete(Opener(state))
+OpenerBox/: MakeExpression(OpenerBox(~state, options:OptionsPattern()))::= HoldComplete(Opener(state, options))
+
 PanelBox/: MakeExpression(PanelBox(~content, options:OptionsPattern()))::= 
 	With({c:= MakeExpression(content)},
 		If(c === $Failed, Return($Failed));
@@ -242,7 +254,8 @@ TooltipBox/: MakeExpression(TooltipBox(~content, ~tooltip, options:OptionsPatter
 
 
 System`Setting`$Rules:= Join(System`Setting`$Rules, {
-	(Checkbox|Dynamic|InputField|ProgressIndicator|RadioButton|Setter|SetterBar|Slider)(~x, ~~~) :> x,
+	(Checkbox|Dynamic|InputField|Opener|ProgressIndicator|RadioButton|Setter|SetterBar|Slider)(~x, ~~~) :> x,
+	(Checkbox|Opener)() :> False,
 	PaneSelector(~, ~x, ~~~) :> x,
 	ProgressIndicator() :> 0,
 	Slider() :> 0.5});

@@ -5,22 +5,14 @@ Document({
     Section(
      BoxData({
        {"openerView", "(", {{"{", {{"~", "e1"}, ",", {"~", "e2"}}, "}"}, ",", {
-          "Dynamic", "(", {{"~", "open"}, ",", {
-            "{", {{"~~~", "fs"}, ",", {"~", "fend"}}, "}"}}, ")"}}, ")"}, 
+          "o", ":", {"Dynamic", "(", {{"~", "open"}, ",", {
+             "{", {{"~~~", "fs"}, ",", {"~", "fend"}}, "}"}}, ")"}}}, ")"}, 
        "\[AssignDelayed]", {
         "Grid", "(", {
          {"{", {
            {"{", {
              {"Row", "@", {"{", {ComplexStringBox("\"\""), ",", {
-                 "Button", "(", {ComplexStringBox("\"\""), ",", {
-                   "If", "(", {"open", ",", {"fend", "(", "False", ")"}, ",", {
-                     "fend", "(", "True", ")"}, ",", {
-                     "fend", "(", "True", ")"}}, ")"}, ",", {
-                   "ButtonFrame", "\[Rule]", {
-                    "Dynamic", "(", {"If", "(", {{"open", "===", "True"}, ",", 
-                      ComplexStringBox("\"OpenerTriangleOpened\""), ",", 
-                      ComplexStringBox("\"OpenerTriangleClosed\"")}, ")"}, 
-                    ")"}}}, ")"}}, "}"}}, ",", {
+                 "Opener", "(", "o", ")"}}, "}"}}, ",", {
               "Row", "@", {
                "{", {
                 {"Button", "(", {
@@ -78,18 +70,8 @@ Document({
          TagBox(
           GridBox({
             {InterpretationBox({ComplexStringBox("\"\""), 
-               ButtonBox(ComplexStringBox("\"\""), 
-                ButtonFrame -> Dynamic(If(Global`state === True, 
-                  "OpenerTriangleOpened", "OpenerTriangleClosed")), 
-                ButtonFunction -> (If(Global`state, 
-                 ((Global`state:= #1) &)(False), 
-                 ((Global`state:= #1) &)(True), 
-                 ((Global`state:= #1) &)(True)) &))}, Row({
-               "", Button("", If(Global`state, ((Global`state:= #1) &)(False), 
-                 ((Global`state:= #1) &)(True), 
-                 ((Global`state:= #1) &)(True)), 
-                ButtonFrame -> Dynamic(If(Global`state === True, 
-                  "OpenerTriangleOpened", "OpenerTriangleClosed")))}), 
+               OpenerBox(Dynamic(Global`state, {(Global`state:= #1) &}))}, Row(
+              {"", Opener(Dynamic(Global`state, {(Global`state:= #1) &}))}), 
               Editable -> False), InterpretationBox({
                ButtonBox(ComplexStringBox("\"short\""), BaseStyle -> "", 
                 ButtonFrame -> None, ButtonFunction -> (If(Global`state, 
@@ -108,8 +90,9 @@ Document({
                 "Grid")}, Dynamic(Global`state))}}, BaselinePosition -> 1, 
            GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
          Initialization :> None, Deinitialization :> None, 
-         UnsavedVariables :> {}, DynamicLocalValues :> {})), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+         UnsavedVariables :> {}, DynamicLocalValues :> {{
+           OwnRules(Global`state):= {HoldPattern(Global`state) :> True}}})), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"openerView", "(", {
           "{", {ComplexStringBox("\"folder\""), ",", {
