@@ -11,6 +11,7 @@
 
 
 using namespace richmath;
+using namespace std;
 
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_Section;
