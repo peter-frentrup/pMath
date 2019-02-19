@@ -113,19 +113,19 @@ namespace richmath {
       }
       
     public:
-      void assign_dynamic_value(double d) {
+      void assign_dynamic_value(double d, bool pre, bool middle, bool post) {
         if(!self.have_drawn)
           return;
           
         self.have_drawn = false;
         if(self.range[0] == PMATH_SYMBOL_LIST) {
-          self.dynamic.assign(self.range[(size_t)d]);
+          self.dynamic.assign(self.range[(size_t)d], pre, middle, post);
         }
         else if(self.use_double_values) {
-          self.dynamic.assign(d);
+          self.dynamic.assign(d, pre, middle, post);
         }
         else {
-          self.dynamic.assign(Plus(self.range[1], Round(Minus(d, self.range[1]), self.range[3])));
+          self.dynamic.assign(Plus(self.range[1], Round(Minus(d, self.range[1]), self.range[3])), pre, middle, post);
         }
       }
       
@@ -492,9 +492,10 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
       
     double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     
-    if(!SliderBoxImpl(*this).approximately_equals(val, range_value)) {
-      if(get_own_style(ContinuousAction, true)) 
-        SliderBoxImpl(*this).assign_dynamic_value(val);
+    bool has_pre = dynamic.has_pre_or_post_assignment();
+    if(has_pre || !SliderBoxImpl(*this).approximately_equals(val, range_value)) {
+      if(has_pre || get_own_style(ContinuousAction, true)) 
+        SliderBoxImpl(*this).assign_dynamic_value(val, true, true, false);
       else
         range_value = val;
     }
@@ -510,8 +511,8 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
     double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     
     if(!SliderBoxImpl(*this).approximately_equals(val, range_value)) {
-      if(get_own_style(ContinuousAction, true)) 
-        SliderBoxImpl(*this).assign_dynamic_value(val);
+      if(dynamic.has_pre_or_post_assignment() || get_own_style(ContinuousAction, true)) 
+        SliderBoxImpl(*this).assign_dynamic_value(val, false, true, false);
       else
         range_value = val;
         
@@ -535,9 +536,10 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
     double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     if( !SliderBoxImpl(*this).approximately_equals(val, range_value) ||
         dynamic.synchronous_updating() == 2 ||
-        !get_own_style(ContinuousAction, true))
+        !get_own_style(ContinuousAction, true) ||
+        dynamic.has_pre_or_post_assignment())
     {
-      SliderBoxImpl(*this).assign_dynamic_value(val);
+      SliderBoxImpl(*this).assign_dynamic_value(val, false, val != range_value, true);
     }
     
     Application::deactivated_control(this);
@@ -547,8 +549,8 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
 }
 
 /*void SliderBox::on_mouse_cancel() {
-  if(auto doc = find_parent<Document>(false))
-    doc->native()->beep();
+  if(dynamic.has_pre_or_post_assignment())
+    SliderBoxImpl(*this).assign_dynamic_value(range_value, false, false, true);
 
   EmptyWidgetBox::on_mouse_cancel();
 }*/

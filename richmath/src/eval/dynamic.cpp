@@ -9,6 +9,35 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_SynchronousUpdating;
 
+static Expr make_assignment_call(Expr func, Expr name, Expr value) {
+  if(func == PMATH_SYMBOL_AUTOMATIC)
+    return Call(Symbol(PMATH_SYMBOL_ASSIGN), std::move(name), std::move(value));
+  
+  if(func == PMATH_SYMBOL_NONE)
+    return Expr();
+  
+  return Call(std::move(func), std::move(value), std::move(name));
+}
+
+static Expr eval_sequence(Expr e1, Expr e2, Expr e3) {
+  if(e1.is_null()) {
+    if(e2.is_null())
+      return e3;
+    return Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE), std::move(e2), std::move(e3));
+  }
+  
+  if(e2.is_null()) {
+    if(e3.is_null())
+      return e1;
+    return Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE), std::move(e1), std::move(e3));
+  }
+  
+  if(e3.is_null()) 
+    return Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE), std::move(e1), std::move(e2));
+  
+  return Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE), std::move(e1), std::move(e2), std::move(e3));
+}
+
 //{ class Dynamic ...
 
 FrontEndReference Dynamic::current_evaluation_box_id = FrontEndReference::None;
@@ -69,12 +98,81 @@ Expr Dynamic::operator=(Expr expr) {
   return _expr;
 }
 
-void Dynamic::assign(Expr value) {
+Expr Dynamic::pre_assignment_function() {
+  if(!is_dynamic())
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  if(_expr.expr_length() < 2)
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  Expr fun = _expr[2];
+  if(fun[0] != PMATH_SYMBOL_LIST)
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  if(fun.expr_length() == 3)
+    return fun[1];
+  
+  return Symbol(PMATH_SYMBOL_NONE);
+}
+
+Expr Dynamic::middle_assignment_function() {
+  if(!is_dynamic())
+    return Symbol(PMATH_SYMBOL_AUTOMATIC);
+  
+  if(_expr.expr_length() < 2)
+    return Symbol(PMATH_SYMBOL_AUTOMATIC);
+  
+  Expr fun = _expr[2];
+  if(fun[0] != PMATH_SYMBOL_LIST)
+    return fun;
+  
+  auto num_fun = fun.expr_length();
+  if(num_fun == 3)
+    return fun[2];
+  
+  return fun[1];
+}
+
+Expr Dynamic::post_assignment_function() {
+  if(!is_dynamic())
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  if(_expr.expr_length() < 2)
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  Expr fun = _expr[2];
+  if(fun[0] != PMATH_SYMBOL_LIST)
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  auto num_fun = fun.expr_length();
+  if(num_fun == 2 || num_fun == 3)
+    return fun[num_fun];
+  
+  return Symbol(PMATH_SYMBOL_NONE);
+}
+
+bool Dynamic::has_pre_or_post_assignment() {
+  if(_expr[0] != richmath_System_Dynamic)
+    return false;
+
+  if(_expr.expr_length() < 2)
+    return false;
+  
+  Expr fun = _expr[2];
+  if(fun[0] != PMATH_SYMBOL_LIST)
+    return false;
+  
+  return fun.expr_length() > 1;
+}
+      
+void Dynamic::assign(Expr value, bool pre, bool middle, bool post) {
   if(!is_dynamic()) {
     //if(!value.is_evaluated())
     //  value = Application::interrupt(value, Application::dynamic_timeout);
     
-    _expr = value;
+    if(middle)
+      _expr = value;
+    
     _owner->dynamic_updated();
     return;
   }
@@ -83,11 +181,27 @@ void Dynamic::assign(Expr value) {
   
   Expr run;
   
-  if(_expr.expr_length() >= 2)
-    run = Call(_expr[2], value);
-  else
-    run = Call(Symbol(PMATH_SYMBOL_ASSIGN), _expr[1], value);
+  Expr name = _expr[1];
+  if(_expr.expr_length() >= 2) {
+    Expr pre_run;
+    Expr middle_run;
+    Expr post_run;
     
+    if(pre)
+      pre_run = make_assignment_call(pre_assignment_function(), name, value);
+    if(middle)
+      middle_run = make_assignment_call(middle_assignment_function(), name, value);
+    if(post)
+      post_run = make_assignment_call(post_assignment_function(), name, value);
+      
+    run = eval_sequence(pre_run, middle_run, post_run);
+  }
+  else if(middle)
+    run = Call(Symbol(PMATH_SYMBOL_ASSIGN), name, value);
+  
+  if(run.is_null())
+    return;
+  
   run = _owner->prepare_dynamic(run);
   Application::interrupt_wait_for(run, _owner, Application::dynamic_timeout);
 }

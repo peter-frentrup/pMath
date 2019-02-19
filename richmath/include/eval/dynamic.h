@@ -16,7 +16,13 @@ namespace richmath {
       
       Expr operator=(Expr expr);
       
-      void assign(Expr value);
+      Expr pre_assignment_function();
+      Expr middle_assignment_function();
+      Expr post_assignment_function();
+      bool has_pre_or_post_assignment();
+      
+      void assign(Expr value) { assign(std::move(value), true, true, true); }
+      void assign(Expr value, bool pre, bool middle, bool post);
       Expr get_value_now();
       void get_value_later();
       bool get_value(Expr *result);

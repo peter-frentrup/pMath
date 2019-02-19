@@ -1,0 +1,33 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Slider", "Title"), 
+    Section(BoxData(DynamicBox(ToBoxes(Slider::"usage"))), "PrintUsage"), 
+    SectionGroup({Section("Examples", "Section"), 
+      SectionGroup({Section("Advanced Dynamic", "Subsection"), 
+        Section(
+         "Apply pre- and post-evaluations. Note that the post-evaluation is \
+         not evaluated when canceling the mouse drag operation with the ESC \
+         key.", "Text"), SectionGroup({
+          Section(BoxData(/\/({{"col", "\[Assign]", "Blue"}, ";"}, "\n", {
+              "{", {
+               {"Style", "(", {
+                 {"Slider", "(", {"Dynamic", "(", {
+                    "x", ",", {
+                     "{", {{"Function", "(", {"col", "\[Assign]", "Green"}, 
+                       ")"}, ",", "Automatic", ",", {
+                       "Function", "(", {"col", "\[Assign]", "Blue"}, ")"}}, 
+                     "}"}}, ")"}, ")"}, ",", {"Background", "\[Rule]", {
+                   "Dynamic", "(", "col", ")"}}}, ")"}, ",", {
+                "Dynamic", "(", "x", ")"}}, "}"})), "Input", 
+           SectionLabel -> "in [6]:"), 
+          Section(
+           BoxData({
+             "{", {
+              StyleBox(SliderBox(Dynamic(Global`x, {
+                  (Global`col:= Green) &, Automatic, (Global`col:= Blue) &}), 
+                0 .. 1), Background -> Dynamic(Global`col), 
+               StripOnInput -> False), ",", DynamicBox(ToBoxes(Global`x))}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [7]:")}, All)}, All)}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
