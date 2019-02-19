@@ -57,6 +57,7 @@ namespace richmath {
     protected:
       GtkStyleContext *push_button_context;
       GtkStyleContext *default_push_button_context;
+      GtkStyleContext *expander_arrow_context;
       GtkStyleContext *tool_button_context;
       GtkStyleContext *input_field_context;
       GtkStyleContext *slider_channel_context;

@@ -65,6 +65,7 @@ Win32ControlPainter::Win32ControlPainter()
     button_theme(nullptr),
     edit_theme(nullptr),
     explorer_listview_theme(nullptr),
+    explorer_treeview_theme(nullptr),
     tooltip_theme(nullptr),
     progress_theme(nullptr),
     scrollbar_theme(nullptr),
@@ -1372,6 +1373,14 @@ HANDLE Win32ControlPainter::get_control_theme(
         theme = explorer_listview_theme;
       } break;
     
+    case OpenerTriangleClosed:
+    case OpenerTriangleOpened: {
+        if(!explorer_treeview_theme)
+          explorer_treeview_theme = Win32Themes::OpenThemeData(0, L"Explorer::TREEVIEW;TREEVIEW");
+          
+        theme = explorer_treeview_theme;
+      } break;
+    
     case PanelControl: {
         if(!tab_theme)
           tab_theme = Win32Themes::OpenThemeData(nullptr, L"TAB");
@@ -1402,11 +1411,11 @@ HANDLE Win32ControlPainter::get_control_theme(
         theme = tooltip_theme;
       } break;
       
-    default: return 0;
+    default: return nullptr;
   }
   
   if(!theme)
-    return 0;
+    return nullptr;
     
   switch(type) {
     case GenericButton:
@@ -1454,7 +1463,7 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_part = 1;//LVP_LISTITEM
         
         switch(state) {
-          case Normal:          theme = 0; break;
+          case Normal:          theme = nullptr; break;
           case Hot:
           case Hovered:        *theme_state = 2; break;
           case Pressed:
@@ -1580,6 +1589,30 @@ HANDLE Win32ControlPainter::get_control_theme(
           case Disabled:       *theme_state = 8; break;
         }
       } break;
+    
+    case OpenerTriangleClosed: {
+        *theme_state = 1; // GLPS_CLOSED / HGLPS_CLOSED
+        switch(state) {
+          case Disabled:
+          case Normal:         *theme_part = 2; break; // TVP_GLYPH
+          case Pressed:
+          case Hot:
+          case Hovered:        
+          case PressedHovered: *theme_part = 4; break; // TVP_HOTGLYPH
+        }
+      } break;
+      
+    case OpenerTriangleOpened: {
+        *theme_state = 2; // GLPS_OPENED / HGLPS_OPENED
+        switch(state) {
+          case Disabled:
+          case Normal:         *theme_part = 2; break; // TVP_GLYPH
+          case Pressed:
+          case Hot:
+          case Hovered:        
+          case PressedHovered: *theme_part = 4; break; // TVP_HOTGLYPH
+        }
+      } break;
       
     default: break;
   }
@@ -1597,6 +1630,9 @@ void Win32ControlPainter::clear_cache() {
       
     if(explorer_listview_theme)
       Win32Themes::CloseThemeData(explorer_listview_theme);
+      
+    if(explorer_treeview_theme)
+      Win32Themes::CloseThemeData(explorer_treeview_theme);
       
     if(tooltip_theme)
       Win32Themes::CloseThemeData(tooltip_theme);
@@ -1620,6 +1656,7 @@ void Win32ControlPainter::clear_cache() {
   button_theme            = nullptr;
   edit_theme              = nullptr;
   explorer_listview_theme = nullptr;
+  explorer_treeview_theme = nullptr;
   tooltip_theme           = nullptr;
   progress_theme          = nullptr;
   scrollbar_theme         = nullptr;

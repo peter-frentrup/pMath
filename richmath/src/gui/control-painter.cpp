@@ -161,7 +161,7 @@ bool ControlPainter::is_very_transparent(ControlContext *context, ContainerType 
   return type == NoContainerType || 
          type == FramelessButton || 
          type == OpenerTriangleClosed ||
-         type == OpenerTriangleClosed;
+         type == OpenerTriangleOpened;
 }
 
 static void paint_frame(

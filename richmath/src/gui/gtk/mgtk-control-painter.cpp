@@ -36,6 +36,7 @@ MathGtkControlPainter::MathGtkControlPainter()
 #if GTK_MAJOR_VERSION >= 3
   push_button_context         = nullptr;
   default_push_button_context = nullptr;
+  expander_arrow_context      = nullptr;
   tool_button_context         = nullptr;
   input_field_context         = nullptr;
   slider_channel_context      = nullptr;
@@ -87,6 +88,18 @@ void MathGtkControlPainter::calc_container_size(
         {
           int size;
           gtk_style_context_get_style(context, "indicator-size", &size, nullptr);
+          
+          extents->width   = 0.75f * size;
+          extents->ascent  = 0.75f * extents->width;
+          extents->descent = 0.25f * extents->width;
+        }
+        return;
+      
+      case OpenerTriangleClosed:
+      case OpenerTriangleOpened:
+        {
+          int size;
+          gtk_style_context_get_style(context, "expander-size", &size, nullptr);
           
           extents->width   = 0.75f * size;
           extents->ascent  = 0.75f * extents->width;
@@ -239,6 +252,12 @@ void MathGtkControlPainter::draw_container(
       case RadioButtonChecked:
         gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
         gtk_render_option(    gsc, canvas->cairo(), x, y, width, height);
+        break;
+        
+      case OpenerTriangleClosed:
+      case OpenerTriangleOpened:
+        //gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
+        gtk_render_expander(  gsc, canvas->cairo(), x, y, width, height);
         break;
         
       case SliderHorzThumb:
@@ -640,6 +659,29 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
       }
       return list_item_selected_context;
     
+    case OpenerTriangleClosed:
+    case OpenerTriangleOpened:
+      if(!expander_arrow_context) {
+        expander_arrow_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        //int pos = gtk_widget_path_append_type(path, GTK_TYPE_EXPANDER);
+        //gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_EXPANDER);
+        int pos = gtk_widget_path_append_type(path, GTK_TYPE_TREE_VIEW);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_VIEW);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_EXPANDER);
+        
+        gtk_style_context_set_path(    expander_arrow_context, path);
+        gtk_style_context_set_screen(  expander_arrow_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(expander_arrow_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   expander_arrow_context, GTK_STYLE_CLASS_VIEW);
+        gtk_style_context_add_class(   expander_arrow_context, GTK_STYLE_CLASS_EXPANDER);
+      }
+      return expander_arrow_context;
+    
     default:
       break;
   }
@@ -659,6 +701,7 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, Co
     case PaletteButton:
     
     case CheckboxUnchecked:
+    case OpenerTriangleClosed:
     case RadioButtonUnchecked: 
     
     case ListViewItem: {
@@ -673,6 +716,7 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, Co
       } break;
     
     case CheckboxChecked:
+    case OpenerTriangleOpened:
     case RadioButtonChecked: {
         switch(state) {
           case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_INSENSITIVE );
@@ -694,7 +738,6 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, Co
           case Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_NORMAL );
         }
       } break;
-    
   }
   
   switch(state) {
@@ -742,7 +785,10 @@ void MathGtkControlPainter::clear_cache() {
     
   if(default_push_button_context)
     g_object_unref(default_push_button_context);
-    
+  
+  if(expander_arrow_context)
+    g_object_unref(expander_arrow_context);
+  
   if(tool_button_context)
     g_object_unref(tool_button_context);
     
@@ -781,6 +827,7 @@ void MathGtkControlPainter::clear_cache() {
     
   push_button_context         = nullptr;
   default_push_button_context = nullptr;
+  expander_arrow_context      = nullptr;
   tool_button_context         = nullptr;
   input_field_context         = nullptr;
   slider_channel_context      = nullptr;
