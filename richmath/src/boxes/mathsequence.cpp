@@ -15,6 +15,7 @@
 #include <boxes/inputfieldbox.h>
 #include <boxes/interpretationbox.h>
 #include <boxes/numberbox.h>
+#include <boxes/openerbox.h>
 #include <boxes/ownerbox.h>
 #include <boxes/panelbox.h>
 #include <boxes/paneselectorbox.h>
@@ -61,6 +62,7 @@ extern pmath_symbol_t richmath_System_GraphicsBox;
 extern pmath_symbol_t richmath_System_GridBox;
 extern pmath_symbol_t richmath_System_InputFieldBox;
 extern pmath_symbol_t richmath_System_InterpretationBox;
+extern pmath_symbol_t richmath_System_OpenerBox;
 extern pmath_symbol_t richmath_System_OverscriptBox;
 extern pmath_symbol_t richmath_System_PanelBox;
 extern pmath_symbol_t richmath_System_PaneSelectorBox;
@@ -3823,6 +3825,9 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
     
   if(head == richmath_System_TransformationBox)
     return create_or_error<  TransformationBox>(expr, options);
+    
+  if(head == richmath_System_OpenerBox)
+    return create_or_error<  OpenerBox>(expr, options);
     
   if(head == richmath_System_OverscriptBox)
     return create_or_error<  UnderoverscriptBox>(expr, options);

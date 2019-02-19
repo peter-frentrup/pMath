@@ -11,7 +11,7 @@ CheckboxBox::CheckboxBox()
 {
   dynamic.init(this, Expr());
 }
-      
+
 bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != richmath_System_CheckboxBox)
     return false;
