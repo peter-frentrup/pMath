@@ -965,9 +965,9 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   RECT neg_margins = { 0, 0, 0, 0 };
   Win32HighDpi::adjust_window_rect(&neg_margins, style, FALSE, ex_style, dpi);
   
-  int caption_h = GetSystemMetrics(SM_CYCAPTION);
-  int icon_w    = GetSystemMetrics(SM_CXSMICON);
-  int icon_h    = GetSystemMetrics(SM_CYSMICON);
+  int caption_h = Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
+  int icon_w    = Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
+  int icon_h    = Win32HighDpi::get_system_metrics_for_dpi(SM_CYSMICON, dpi);
   
   int visible_top = -neg_margins.top - invisible_top;
   
@@ -1220,10 +1220,6 @@ void BasicWin32Window::paint_background(Canvas *canvas, HWND child, bool wallpap
   GetWindowRect(_hwnd, &rect);
   get_nc_margins(&margins);
 
-//  int cx = GetSystemMetrics(SM_CXFRAME);
-//  //int cy = GetSystemMetrics(SM_CYFRAME);
-//  int padd = GetSystemMetrics(SM_CXPADDEDBORDER);
-
   paint_background(
     canvas,
     child_rect.left - rect.left - margins.cxLeftWidth,
@@ -1361,7 +1357,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       }
       else {
         buttonradius = 5;
-        frameradius  = 6; //GetSystemMetrics(SM_CXFRAME)-2;
+        frameradius  = 6; //Win32HighDpi::get_system_metrics_for_dpi(SM_CXFRAME)-2;
       }
 
       if(!IsRectEmpty(&glassfree) && !is_win8_or_newer) { // show border between glass/nonglass on Windows Vista and 7
