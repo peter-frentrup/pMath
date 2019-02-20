@@ -19,6 +19,7 @@
 #  include <gui/win32/win32-document-window.h>
 #  include <gui/win32/win32-filedialog.h>
 #  include <gui/win32/win32-fontdialog.h>
+#  include <gui/win32/win32-highdpi.h>
 #  include <gui/win32/win32-menu.h>
 #endif
 
@@ -926,9 +927,16 @@ Document *Application::create_document() {
         HWND hwnd = wid->hwnd();
         while(GetParent(hwnd) != nullptr)
           hwnd = GetParent(hwnd);
-          
-        int dx = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXSIZEFRAME);
-        int dy = GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYSIZEFRAME);
+        
+        int dpi = Win32HighDpi::get_dpi_for_window(hwnd); //doc->native()->dpi();
+        Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
+        
+        w = MulDiv(w, dpi, 96);
+        h = MulDiv(h, dpi, 96);
+        
+        int dx = 2 * Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi);
+        int dy = Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi) + 
+                 Win32HighDpi::get_system_metrics_for_dpi(SM_CYSIZEFRAME, dpi);
         
         RECT rect;
         if(GetWindowRect(hwnd, &rect)) {
@@ -953,6 +961,9 @@ Document *Application::create_document() {
           }
         }
       }
+    }
+    else {
+      // TODO: use default monitor DPI
     }
     
     Win32DocumentWindow *wnd = new Win32DocumentWindow(
