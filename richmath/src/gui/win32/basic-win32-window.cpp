@@ -10,6 +10,8 @@
 #include <gui/win32/win32-widget.h>
 
 #include <eval/application.h>
+#include <resources.h>
+
 
 using namespace richmath;
 
@@ -1119,9 +1121,11 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
       memset(&wndcl, 0, sizeof(wndcl));
 
       GetClassInfoExW(GetModuleHandle(0), str, &wndcl);
-      HICON icon = wndcl.hIconSm;
-      if(!icon)
-        icon = wndcl.hIcon;
+      HICON icon = (HICON)LoadImageW(wndcl.hInstance, MAKEINTRESOURCEW(ICO_APP_MAIN),
+                                     IMAGE_ICON,
+                                     menu.right - menu.left,
+                                     menu.bottom - menu.top,
+                                     LR_DEFAULTCOLOR);
       if(icon) {
         DrawIconEx(
           hdc_bitmap,
@@ -1133,6 +1137,8 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
           0,
           nullptr,
           DI_NORMAL);
+        
+        DestroyIcon(icon);
       }
     }
 
