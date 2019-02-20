@@ -188,6 +188,7 @@ namespace richmath {
       static HRESULT(WINAPI *DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT*);
       
       static HANDLE(WINAPI *OpenThemeData)(HWND, LPCWSTR);
+      static HANDLE(WINAPI *OpenThemeDataForDpi)(HWND, LPCWSTR, UINT);
       static HRESULT(WINAPI *CloseThemeData)(HANDLE);
       static HRESULT(WINAPI *DrawThemeBackground)(HANDLE, HDC, int, int, const RECT*, const RECT*);
       static HRESULT(WINAPI *DrawThemeEdge)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT);

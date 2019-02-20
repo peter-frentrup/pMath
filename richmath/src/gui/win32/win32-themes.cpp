@@ -15,6 +15,7 @@ HRESULT(WINAPI * Win32Themes::DwmGetColorizationParameters)(Win32Themes::DWM_COL
 HRESULT(WINAPI * Win32Themes::DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT *) = nullptr;
 
 HANDLE(WINAPI * Win32Themes::OpenThemeData)(HWND, LPCWSTR) = nullptr;
+HANDLE(WINAPI * Win32Themes::OpenThemeDataForDpi)(HWND, LPCWSTR, UINT) = nullptr;
 HRESULT(WINAPI * Win32Themes::CloseThemeData)(HANDLE) = nullptr;
 HRESULT(WINAPI * Win32Themes::DrawThemeBackground)(HANDLE, HDC, int, int, const RECT *, const RECT *) = nullptr;
 HRESULT(WINAPI * Win32Themes::DrawThemeEdge)(HANDLE, HDC, int, int, LPCRECT, UINT, UINT, LPRECT) = nullptr;
@@ -88,6 +89,9 @@ Win32Themes::Win32Themes()
       OpenThemeData = (HANDLE(WINAPI *)(HWND, LPCWSTR))
                       GetProcAddress(uxtheme, "OpenThemeData");
                       
+      OpenThemeDataForDpi = (HANDLE(WINAPI *)(HWND, LPCWSTR, UINT))
+                            GetProcAddress(uxtheme, "OpenThemeDataForDpi");
+                            
       CloseThemeData = (HRESULT(WINAPI *)(HANDLE))
                        GetProcAddress(uxtheme, "CloseThemeData");
                        
@@ -199,6 +203,7 @@ Win32Themes::~Win32Themes() {
   DwmDefWindowProc = nullptr;
   
   OpenThemeData = nullptr;
+  OpenThemeDataForDpi = nullptr;
   CloseThemeData = nullptr;
   DrawThemeBackground = nullptr;
   DrawThemeEdge = nullptr;

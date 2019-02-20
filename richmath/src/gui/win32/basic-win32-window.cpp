@@ -33,7 +33,30 @@ using namespace richmath;
 
 static Hashtable<String, AutoCairoSurface> background_image_cache;
 
-static HANDLE composition_window_theme = 0;
+static Hashtable<int, HANDLE> composition_window_theme_for_dpi;
+
+static HANDLE composition_window_theme(int dpi) {
+  if(HANDLE *h = composition_window_theme_for_dpi.search(dpi)) 
+    return *h;
+  
+  if(Win32Themes::OpenThemeDataForDpi) {
+    HANDLE h = Win32Themes::OpenThemeDataForDpi(nullptr, L"CompositedWindow::Window", (UINT)dpi);
+    if(h) 
+      composition_window_theme_for_dpi.set(dpi, h);
+      
+    return h;
+  }
+  
+  if(Win32Themes::OpenThemeData) {
+    HANDLE h = Win32Themes::OpenThemeData(nullptr, L"CompositedWindow::Window");
+    if(h) 
+      composition_window_theme_for_dpi.set(dpi, h);
+      
+    return h;
+  }
+  
+  return nullptr;
+}
 
 static AutoCairoSurface get_background_image() {
   Expr expr = Evaluate(Parse("FE`$WindowFrameImage"));
@@ -59,11 +82,12 @@ static AutoCairoSurface get_background_image() {
 }
 
 static void init_basic_window_data() {
-  if(!composition_window_theme &&
-      Win32Themes::OpenThemeData)
-  {
-    composition_window_theme = Win32Themes::OpenThemeData(nullptr, L"CompositedWindow::Window");
-  }
+//  if(!composition_window_theme &&
+//      Win32Themes::OpenThemeData)
+//  {
+//    // TODO: use OpenThemeDataForDpi
+//    composition_window_theme = Win32Themes::OpenThemeData(nullptr, L"CompositedWindow::Window");
+//  }
 }
 
 static int _basic_window_count = 0;
@@ -80,12 +104,12 @@ static void remove_basic_window() {
   Win32TooltipWindow::delete_global_tooltip();
 
   background_image_cache.clear();
-
-  if(composition_window_theme &&
-      Win32Themes::CloseThemeData)
-  {
-    Win32Themes::CloseThemeData(composition_window_theme);
-    composition_window_theme = 0;
+  
+  if(Win32Themes::CloseThemeData) {
+    for(auto &e : composition_window_theme_for_dpi.entries())
+      Win32Themes::CloseThemeData(e.value);
+    
+    composition_window_theme_for_dpi.clear();
   }
 }
 
@@ -884,10 +908,11 @@ void BasicWin32Window::on_theme_changed() {
     _glass_enabled = Win32Themes::current_theme_is_aero();
   }
 
-  if(composition_window_theme
-      && Win32Themes::CloseThemeData) {
-    Win32Themes::CloseThemeData(composition_window_theme);
-    composition_window_theme = 0;
+  if(Win32Themes::CloseThemeData) {
+    for(auto &e : composition_window_theme_for_dpi.entries())
+      Win32Themes::CloseThemeData(e.value);
+  
+    composition_window_theme_for_dpi.clear();
   }
 
   extend_glass(&_extra_glass);
@@ -1008,13 +1033,13 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
   }
 
   init_basic_window_data();
-
-  if(composition_window_theme) {
-    int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+  
+  int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+  if(HANDLE theme = composition_window_theme(dpi)) {
   
     Win32Themes::DTTOPTS dtt_opts;
     memset(&dtt_opts, 0, sizeof(dtt_opts));
-    dtt_opts.crText    = Win32Themes::GetThemeSysColor(composition_window_theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+    dtt_opts.crText    = Win32Themes::GetThemeSysColor(theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
     dtt_opts.dwSize    = sizeof(dtt_opts);
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = MulDiv(10, dpi, 96);
@@ -1046,7 +1071,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
 
     LOGFONTW log_font;
     HFONT old_font = nullptr;
-    if(SUCCEEDED(Win32Themes::GetThemeSysFont(composition_window_theme, 801, &log_font))) {
+    if(SUCCEEDED(Win32Themes::GetThemeSysFont(theme, 801, &log_font))) {
       // TMT_CAPTIONFONT = 801
       HFONT font = CreateFontIndirectW(&log_font);
       old_font = (HFONT)SelectObject(hdc_bitmap, font);
@@ -1079,7 +1104,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
       dtt_opts.dwFlags |= DTT_CALCRECT;
 
       Win32Themes::DrawThemeTextEx(
-        composition_window_theme,
+        theme,
         hdc_bitmap,
         0, 0,
         str, -1,
@@ -1106,7 +1131,7 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     }
 
     Win32Themes::DrawThemeTextEx(
-      composition_window_theme,
+      theme,
       hdc_bitmap,
       0, 0,
       str, -1,
