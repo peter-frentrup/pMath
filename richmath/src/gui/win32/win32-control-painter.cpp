@@ -52,6 +52,106 @@ class Win32ControlPainterInfo: public BasicWin32Widget {
 
 static Win32ControlPainterInfo w32cpinfo;
 
+static class Win32ControlPainterCache {
+  public:
+    Win32ControlPainterCache() {
+    }
+    
+    ~Win32ControlPainterCache() {
+      clear();
+    }
+  
+  public:
+    HANDLE button_theme(int dpi) {
+      return get_theme_for_dpi(button_theme_for_dpi, L"BUTTON", dpi);
+    }
+    HANDLE edit_theme(int dpi) {
+      return get_theme_for_dpi(edit_theme_for_dpi, L"EDIT", dpi);
+    }
+    HANDLE explorer_listview_theme(int dpi) {
+      return get_theme_for_dpi(explorer_listview_theme_for_dpi, L"Explorer::LISTVIEW;LISTVIEW", dpi);
+    }
+    HANDLE explorer_treeview_theme(int dpi) {
+      return get_theme_for_dpi(explorer_treeview_theme_for_dpi, L"Explorer::TREEVIEW;TREEVIEW", dpi);
+    }
+    HANDLE tooltip_theme(int dpi) {
+      return get_theme_for_dpi(tooltip_theme_for_dpi, L"TOOLTIP", dpi);
+    }
+    HANDLE progress_theme(int dpi) {
+      return get_theme_for_dpi(progress_theme_for_dpi, L"PROGRESS", dpi);
+    }
+    HANDLE scrollbar_theme(int dpi) {
+      return get_theme_for_dpi(scrollbar_theme_for_dpi, L"SCROLLBAR", dpi);
+    }
+    HANDLE slider_theme(int dpi) {
+      return get_theme_for_dpi(slider_theme_for_dpi, L"TRACKBAR", dpi);
+    }
+    HANDLE tab_theme(int dpi) {
+      return get_theme_for_dpi(tab_theme_for_dpi, L"TAB", dpi);
+    }
+    HANDLE toolbar_theme(int dpi) {
+      return get_theme_for_dpi(toolbar_theme_for_dpi, L"TOOLBAR", dpi);
+    }
+    
+    void clear() {
+      close_themes(button_theme_for_dpi);
+      close_themes(edit_theme_for_dpi);
+      close_themes(explorer_listview_theme_for_dpi);
+      close_themes(explorer_treeview_theme_for_dpi);
+      close_themes(tooltip_theme_for_dpi);
+      close_themes(progress_theme_for_dpi);
+      close_themes(scrollbar_theme_for_dpi);
+      close_themes(slider_theme_for_dpi);
+      close_themes(tab_theme_for_dpi);
+      close_themes(toolbar_theme_for_dpi);
+    }
+  
+  private:
+    static void close_themes(Hashtable<int, HANDLE> &cache) {
+      if(Win32Themes::CloseThemeData) {
+        for(auto &e : cache.entries())
+          Win32Themes::CloseThemeData(e.value);
+        
+        cache.clear();
+      }
+    }
+    
+    static HANDLE get_theme_for_dpi(Hashtable<int, HANDLE> &cache, const wchar_t *name, int dpi) {
+      if(HANDLE *h = cache.search(dpi))
+        return *h;
+      
+      if(Win32Themes::OpenThemeDataForDpi) {
+        HANDLE h = Win32Themes::OpenThemeDataForDpi(nullptr, name, (UINT)dpi);
+        if(h) 
+          cache.set(dpi, h);
+          
+        return h;
+      }
+      
+      if(Win32Themes::OpenThemeData) {
+        HANDLE h = Win32Themes::OpenThemeData(nullptr, name);
+        if(h) 
+          cache.set(dpi, h);
+          
+        return h;
+      }
+      
+      return nullptr;
+    }
+  
+  private:
+    Hashtable<int, HANDLE> button_theme_for_dpi;
+    Hashtable<int, HANDLE> edit_theme_for_dpi;
+    Hashtable<int, HANDLE> explorer_listview_theme_for_dpi;
+    Hashtable<int, HANDLE> explorer_treeview_theme_for_dpi;
+    Hashtable<int, HANDLE> tooltip_theme_for_dpi;
+    Hashtable<int, HANDLE> progress_theme_for_dpi;
+    Hashtable<int, HANDLE> scrollbar_theme_for_dpi;
+    Hashtable<int, HANDLE> slider_theme_for_dpi;
+    Hashtable<int, HANDLE> tab_theme_for_dpi;
+    Hashtable<int, HANDLE> toolbar_theme_for_dpi;
+} w32cp_cache;
+
 Win32ControlPainter Win32ControlPainter::win32_painter;
 
 void Win32ControlPainter::done() {
@@ -61,17 +161,7 @@ void Win32ControlPainter::done() {
 
 Win32ControlPainter::Win32ControlPainter()
   : ControlPainter(),
-    blur_input_field(true),
-    button_theme(nullptr),
-    edit_theme(nullptr),
-    explorer_listview_theme(nullptr),
-    explorer_treeview_theme(nullptr),
-    tooltip_theme(nullptr),
-    progress_theme(nullptr),
-    scrollbar_theme(nullptr),
-    slider_theme(nullptr),
-    tab_theme(nullptr),
-    toolbar_theme(nullptr)
+    blur_input_field(true)
 {
   ControlPainter::std = this;
 }
@@ -81,12 +171,13 @@ Win32ControlPainter::~Win32ControlPainter() {
 }
 
 void Win32ControlPainter::calc_container_size(
-  Canvas        *canvas,
-  ContainerType  type,
-  BoxSize       *extents // in/out
+  ControlContext *context,
+  Canvas         *canvas,
+  ContainerType   type,
+  BoxSize        *extents // in/out
 ) {
   int theme_part, theme_state;
-  HANDLE theme = get_control_theme(type, Normal, &theme_part, &theme_state);
+  HANDLE theme = get_control_theme(context, type, Normal, &theme_part, &theme_state);
   
   switch(type) {
     case InputField: {
@@ -104,7 +195,7 @@ void Win32ControlPainter::calc_container_size(
       
     case ListViewItem:
     case ListViewItemSelected:
-      ControlPainter::calc_container_size(canvas, type, extents);
+      ControlPainter::calc_container_size(context, canvas, type, extents);
       return;
     
     case PanelControl:
@@ -171,7 +262,7 @@ void Win32ControlPainter::calc_container_size(
     }
   }
   
-  ControlPainter::calc_container_size(canvas, type, extents);
+  ControlPainter::calc_container_size(context, canvas, type, extents);
 }
 
 int Win32ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
@@ -179,7 +270,7 @@ int Win32ControlPainter::control_font_color(ControlContext *context, ContainerTy
     return -1;
     
   int theme_part, theme_state;
-  HANDLE theme = get_control_theme(type, state, &theme_part, &theme_state);
+  HANDLE theme = get_control_theme(context, type, state, &theme_part, &theme_state);
   
   if(theme && Win32Themes::GetThemeColor) {
     COLORREF col = 0;
@@ -273,7 +364,7 @@ bool Win32ControlPainter::is_very_transparent(ControlContext *context, Container
           return false;
           
         int theme_part, theme_state;
-        HANDLE theme = get_control_theme(type, state, &theme_part, &theme_state);
+        HANDLE theme = get_control_theme(context, type, state, &theme_part, &theme_state);
         
         // TMT_TRANSPARENT = 2201
         BOOL value;
@@ -511,7 +602,7 @@ void Win32ControlPainter::draw_container(
     }
     
     int _part, _state;
-    HANDLE theme = get_control_theme(type, state, &_part, &_state);
+    HANDLE theme = get_control_theme(context, type, state, &_part, &_state);
     if(!theme)
       goto FALLBACK;
       
@@ -789,8 +880,8 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     return nullptr;
   
   int theme_part, theme_state1, theme_state2;
-  HANDLE theme = get_control_theme(type1, state1, &theme_part, &theme_state1);
-  get_control_theme(type2, state2, &theme_part, &theme_state2);
+  HANDLE theme = get_control_theme(context, type1, state1, &theme_part, &theme_state1);
+  get_control_theme(context, type2, state2, &theme_part, &theme_state2);
   if(!theme)
     return nullptr;
   
@@ -875,7 +966,7 @@ void Win32ControlPainter::container_content_move(
 ) {
 //  if(Win32Themes::GetThemePosition){
 //    int theme_part, theme_state;
-//    HANDLE theme = get_control_theme(type, state, &theme_part, &theme_state);
+//    HANDLE theme = get_control_theme(???, type, state, &theme_part, &theme_state);
 //
 //    POINT off;
 //    // TMT_OFFSET  = 3401
@@ -1038,9 +1129,7 @@ void Win32ControlPainter::paint_scrollbar_part(
       Win32Themes::CloseThemeData &&
       Win32Themes::DrawThemeBackground)
   {
-    if(!scrollbar_theme)
-      scrollbar_theme = Win32Themes::OpenThemeData(0, L"SCROLLBAR");
-      
+    HANDLE scrollbar_theme = w32cp_cache.scrollbar_theme(context->dpi());
     if(!scrollbar_theme)
       goto FALLBACK;
       
@@ -1312,10 +1401,11 @@ FALLBACK:
 }
 
 HANDLE Win32ControlPainter::get_control_theme(
-  ContainerType  type,
-  ControlState   state,
-  int           *theme_part,
-  int           *theme_state
+  ControlContext *context, 
+  ContainerType   type,
+  ControlState    state,
+  int            *theme_part,
+  int            *theme_state
 ) {
   w32cpinfo.style_observations.register_observer();
 
@@ -1343,73 +1433,45 @@ HANDLE Win32ControlPainter::get_control_theme(
     case CheckboxChecked:
     case CheckboxIndeterminate:
     case RadioButtonUnchecked:
-    case RadioButtonChecked: {
-        if(!button_theme)
-          button_theme = Win32Themes::OpenThemeData(0, L"BUTTON");
-          
-        theme = button_theme;
-      } break;
+    case RadioButtonChecked: 
+      theme = w32cp_cache.button_theme(context->dpi());
+      break;
       
-    case PaletteButton: {
-        if(!toolbar_theme)
-          toolbar_theme = Win32Themes::OpenThemeData(0, L"TOOLBAR");
-          
-        theme = toolbar_theme;
-//      very_transparent = true;
-      } break;
+    case PaletteButton: 
+      theme = w32cp_cache.toolbar_theme(context->dpi());
+      break;
       
-    case InputField: {
-        if(!edit_theme)
-          edit_theme = Win32Themes::OpenThemeData(0, L"EDIT");
-          
-        theme = edit_theme;
-      } break;
+    case InputField: 
+      theme = w32cp_cache.edit_theme(context->dpi());
+      break;
       
     case ListViewItem:
-    case ListViewItemSelected: {
-        if(!explorer_listview_theme)
-          explorer_listview_theme = Win32Themes::OpenThemeData(0, L"Explorer::LISTVIEW;LISTVIEW");
-          
-        theme = explorer_listview_theme;
-      } break;
+    case ListViewItemSelected:
+      theme = w32cp_cache.explorer_listview_theme(context->dpi());
+      break;
     
     case OpenerTriangleClosed:
-    case OpenerTriangleOpened: {
-        if(!explorer_treeview_theme)
-          explorer_treeview_theme = Win32Themes::OpenThemeData(0, L"Explorer::TREEVIEW;TREEVIEW");
-          
-        theme = explorer_treeview_theme;
-      } break;
-    
-    case PanelControl: {
-        if(!tab_theme)
-          tab_theme = Win32Themes::OpenThemeData(nullptr, L"TAB");
-        
-        theme = tab_theme;
-      } break;
+    case OpenerTriangleOpened:
+      theme = w32cp_cache.explorer_treeview_theme(context->dpi());
+      break;
+      
+    case PanelControl: 
+      theme = w32cp_cache.tab_theme(context->dpi());
+      break;
     
     case ProgressIndicatorBackground:
-    case ProgressIndicatorBar: {
-        if(!progress_theme)
-          progress_theme = Win32Themes::OpenThemeData(0, L"PROGRESS");
-          
-        theme = progress_theme;
-      } break;
+    case ProgressIndicatorBar:
+      theme = w32cp_cache.progress_theme(context->dpi());
+      break;
     
     case SliderHorzChannel:
-    case SliderHorzThumb: {
-        if(!slider_theme)
-          slider_theme = Win32Themes::OpenThemeData(0, L"TRACKBAR");
-          
-        theme = slider_theme;
-      } break;
+    case SliderHorzThumb: 
+      theme = w32cp_cache.slider_theme(context->dpi());
+      break;
       
-    case TooltipWindow: {
-        if(!tooltip_theme)
-          tooltip_theme = Win32Themes::OpenThemeData(0, L"TOOLTIP");
-          
-        theme = tooltip_theme;
-      } break;
+    case TooltipWindow: 
+      theme = w32cp_cache.tooltip_theme(context->dpi());
+      break;
       
     default: return nullptr;
   }
@@ -1621,46 +1683,5 @@ HANDLE Win32ControlPainter::get_control_theme(
 }
 
 void Win32ControlPainter::clear_cache() {
-  if(Win32Themes::CloseThemeData) {
-    if(button_theme)
-      Win32Themes::CloseThemeData(button_theme);
-      
-    if(edit_theme)
-      Win32Themes::CloseThemeData(edit_theme);
-      
-    if(explorer_listview_theme)
-      Win32Themes::CloseThemeData(explorer_listview_theme);
-      
-    if(explorer_treeview_theme)
-      Win32Themes::CloseThemeData(explorer_treeview_theme);
-      
-    if(tooltip_theme)
-      Win32Themes::CloseThemeData(tooltip_theme);
-      
-    if(progress_theme)
-      Win32Themes::CloseThemeData(progress_theme);
-      
-    if(scrollbar_theme)
-      Win32Themes::CloseThemeData(scrollbar_theme);
-      
-    if(slider_theme)
-      Win32Themes::CloseThemeData(slider_theme);
-    
-    if(tab_theme)
-      Win32Themes::CloseThemeData(tab_theme);
-    
-    if(toolbar_theme)
-      Win32Themes::CloseThemeData(toolbar_theme);
-  }
-  
-  button_theme            = nullptr;
-  edit_theme              = nullptr;
-  explorer_listview_theme = nullptr;
-  explorer_treeview_theme = nullptr;
-  tooltip_theme           = nullptr;
-  progress_theme          = nullptr;
-  scrollbar_theme         = nullptr;
-  slider_theme            = nullptr;
-  tab_theme               = nullptr;
-  toolbar_theme           = nullptr;
+  w32cp_cache.clear();
 }

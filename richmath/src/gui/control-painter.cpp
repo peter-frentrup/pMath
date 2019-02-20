@@ -48,9 +48,10 @@ ControlPainter::ControlPainter()
 }
 
 void ControlPainter::calc_container_size(
-  Canvas        *canvas,
-  ContainerType  type,
-  BoxSize       *extents // in/out
+  ControlContext *context,
+  Canvas         *canvas,
+  ContainerType   type,
+  BoxSize        *extents // in/out
 ) {
   switch(type) {
     case NoContainerType:

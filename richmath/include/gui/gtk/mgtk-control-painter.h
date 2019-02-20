@@ -20,9 +20,10 @@ namespace richmath {
     public:
 #if GTK_MAJOR_VERSION >= 3
       virtual void calc_container_size(
-        Canvas        *canvas,
-        ContainerType  type,
-        BoxSize       *extents) override;
+        ControlContext *context,
+        Canvas         *canvas,
+        ContainerType   type,
+        BoxSize        *extents) override;
       
       virtual int control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
       

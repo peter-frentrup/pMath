@@ -46,6 +46,7 @@ ControlState EmptyWidgetBox::calc_state(Context *context) {
 
 void EmptyWidgetBox::resize(Context *context) {
   ControlPainter::std->calc_container_size(
+    this,
     context->canvas,
     type,
     &_extents);

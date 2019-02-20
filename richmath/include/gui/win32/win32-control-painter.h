@@ -19,9 +19,10 @@ namespace richmath {
       
     public:
       virtual void calc_container_size(
-        Canvas        *canvas,
-        ContainerType  type,
-        BoxSize       *extents) override;
+        ControlContext *context,
+        Canvas         *canvas,
+        ContainerType   type,
+        BoxSize        *extents) override;
         
       virtual int control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
       
@@ -82,27 +83,17 @@ namespace richmath {
       bool draw_menubar_itembg(HDC dc, RECT *rect, ControlState state);
       
       HANDLE get_control_theme( // do not close the theme
-        ContainerType  type,
-        ControlState   state,
-        int           *theme_part,
-        int           *theme_state);
+        ControlContext *context, 
+        ContainerType   type,
+        ControlState    state,
+        int            *theme_part,
+        int            *theme_state);
         
       void clear_cache();
       
     private:
       Win32ControlPainter();
       virtual ~Win32ControlPainter();
-      
-      HANDLE button_theme;
-      HANDLE edit_theme;
-      HANDLE explorer_listview_theme;
-      HANDLE explorer_treeview_theme;
-      HANDLE tooltip_theme;
-      HANDLE progress_theme;
-      HANDLE scrollbar_theme;
-      HANDLE slider_theme;
-      HANDLE tab_theme;
-      HANDLE toolbar_theme;
   };
 }
 

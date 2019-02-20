@@ -64,11 +64,12 @@ MathGtkControlPainter::~MathGtkControlPainter() {
 #if GTK_MAJOR_VERSION >= 3
 
 void MathGtkControlPainter::calc_container_size(
-  Canvas        *canvas,
-  ContainerType  type,
-  BoxSize       *extents
+  ControlContext *context,
+  Canvas         *canvas,
+  ContainerType   type,
+  BoxSize        *extents
 ) {
-  if(GtkStyleContext *context = get_control_theme(ControlContext::dummy, type)) {
+  if(GtkStyleContext *gtk_ctx = get_control_theme(context, type)) {
     switch(type) {
       case DefaultPushButton:
       case PushButton:
@@ -87,7 +88,7 @@ void MathGtkControlPainter::calc_container_size(
       case RadioButtonChecked:
         {
           int size;
-          gtk_style_context_get_style(context, "indicator-size", &size, nullptr);
+          gtk_style_context_get_style(gtk_ctx, "indicator-size", &size, nullptr);
           
           extents->width   = 0.75f * size;
           extents->ascent  = 0.75f * extents->width;
@@ -99,7 +100,7 @@ void MathGtkControlPainter::calc_container_size(
       case OpenerTriangleOpened:
         {
           int size;
-          gtk_style_context_get_style(context, "expander-size", &size, nullptr);
+          gtk_style_context_get_style(gtk_ctx, "expander-size", &size, nullptr);
           
           extents->width   = 0.75f * size;
           extents->ascent  = 0.75f * extents->width;
@@ -125,14 +126,14 @@ void MathGtkControlPainter::calc_container_size(
       case SliderHorzThumb:
         {
           int w = 0;
-          gtk_style_context_get_style(context, "min-width", &w, nullptr); // GTK >= 3.20.0
+          gtk_style_context_get_style(gtk_ctx, "min-width", &w, nullptr); // GTK >= 3.20.0
           if(w <= 0)
-            gtk_style_context_get_style(context, "slider-width", &w, nullptr);
+            gtk_style_context_get_style(gtk_ctx, "slider-width", &w, nullptr);
           
           int h = 0;
-          gtk_style_context_get_style(context, "min-height", &h, nullptr); // GTK >= 3.20.0
+          gtk_style_context_get_style(gtk_ctx, "min-height", &h, nullptr); // GTK >= 3.20.0
           if(h <= 0)
-            gtk_style_context_get_style(context, "slider-length", &h, nullptr);
+            gtk_style_context_get_style(gtk_ctx, "slider-length", &h, nullptr);
           
           extents->ascent  = h * 0.75f * 0.75f;
           extents->descent = h * 0.75f * 0.25f;
@@ -151,7 +152,7 @@ void MathGtkControlPainter::calc_container_size(
       case ProgressIndicatorBar:
         {
           GtkBorder padding;
-          gtk_style_context_get_padding(context, GTK_STATE_FLAG_NORMAL, &padding);
+          gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &padding);
           
           extents->ascent -=  padding.top    * 0.75;
           extents->descent -= padding.bottom * 0.75;
@@ -164,12 +165,12 @@ void MathGtkControlPainter::calc_container_size(
     }
     
     GtkBorder border;
-    gtk_style_context_get_padding(context, GTK_STATE_FLAG_NORMAL, &border);
+    gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
     extents->ascent +=  0.75f * border.top;
     extents->descent += 0.75f * border.bottom;
     extents->width +=   0.75f * (border.left + border.right);
     
-    gtk_style_context_get_border(context, GTK_STATE_FLAG_NORMAL, &border);
+    gtk_style_context_get_border(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
     extents->ascent +=  0.75f * border.top;
     extents->descent += 0.75f * border.bottom;
     extents->width +=   0.75f * (border.left + border.right);
@@ -177,7 +178,7 @@ void MathGtkControlPainter::calc_container_size(
     return;
   }
   
-  ControlPainter::calc_container_size(canvas, type, extents);
+  ControlPainter::calc_container_size(context, canvas, type, extents);
 }
  
 int MathGtkControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {

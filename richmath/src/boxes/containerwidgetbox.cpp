@@ -47,6 +47,7 @@ void ContainerWidgetBox::resize_default_baseline(Context *context) {
   AbstractStyleBox::resize_default_baseline(context);
   
   ControlPainter::std->calc_container_size(
+    this,
     context->canvas,
     type,
     &_extents);

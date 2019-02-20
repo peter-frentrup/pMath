@@ -94,6 +94,7 @@ void InputFieldBox::resize_default_baseline(Context *context) {
   _extents.width = w;
   
   ControlPainter::std->calc_container_size(
+    this,
     context->canvas,
     type,
     &_extents);

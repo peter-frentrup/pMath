@@ -397,14 +397,14 @@ void SliderBox::resize(Context *context) {
   _extents.width   = 6 * em * 1.5;
   
   BoxSize size = _extents;
-  ControlPainter::std->calc_container_size(context->canvas, SliderHorzThumb, &size);
+  ControlPainter::std->calc_container_size(this, context->canvas, SliderHorzThumb, &size);
   
   thumb_width = size.width;
   _extents.ascent  = size.ascent;
   _extents.descent = size.descent;
   
   size = _extents;
-  ControlPainter::std->calc_container_size(context->canvas, SliderHorzChannel, &size);
+  ControlPainter::std->calc_container_size(this, context->canvas, SliderHorzChannel, &size);
   channel_width = size.height();
 }
 

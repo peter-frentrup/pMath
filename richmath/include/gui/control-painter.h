@@ -81,6 +81,7 @@ namespace richmath {
       
     public:
       virtual void calc_container_size(
+        ControlContext       *context,
         Canvas               *canvas,
         ContainerType         type,
         BoxSize              *extents);
