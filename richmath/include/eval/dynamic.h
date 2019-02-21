@@ -7,6 +7,7 @@ extern pmath_symbol_t richmath_System_Dynamic;
 
 namespace richmath {
   class Dynamic: public Base {
+      friend class DynamicImpl;
     public:
       Dynamic();
       Dynamic(Box *owner, Expr expr);
@@ -16,22 +17,28 @@ namespace richmath {
       
       Expr operator=(Expr expr);
       
-      Expr pre_assignment_function();
-      Expr middle_assignment_function();
-      Expr post_assignment_function();
       bool has_pre_or_post_assignment();
       
       void assign(Expr value) { assign(std::move(value), true, true, true); }
       void assign(Expr value, bool pre, bool middle, bool post);
       Expr get_value_now();
-      void get_value_later();
-      bool get_value(Expr *result);
+      void get_value_later() { get_value_later(Expr()); }
+      void get_value_later(Expr job_info);
+      bool get_value(Expr *result) { return get_value(result, Expr()); }
+      bool get_value(Expr *result, Expr job_info);
       
       Box *owner() { return _owner; }
       Expr expr() {  return _expr;  }
       
-      bool is_dynamic() {
-        return _expr.expr_length() >= 1 && _expr[0] == ::richmath_System_Dynamic;
+      bool is_dynamic() { return is_dynamic(_expr); }
+      static bool is_dynamic(Expr expr) {
+        if(!expr.is_expr())
+          return false;
+        
+        size_t len = expr.expr_length();
+        Expr head = expr[0];
+        return (head == ::richmath_System_Dynamic && len >= 1) ||
+               (head == PMATH_SYMBOL_PUREARGUMENT && len == 1);
       }
       bool is_unevaluated() {
         return _expr.expr_length() == 1 && _expr[0] == PMATH_SYMBOL_UNEVALUATED;

@@ -3,20 +3,42 @@
 #include <eval/application.h>
 #include <eval/job.h>
 
+#include <boxes/templatebox.h>
+
 #include <gui/document.h>
 
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_SynchronousUpdating;
 
-static Expr make_assignment_call(Expr func, Expr name, Expr value) {
-  if(func == PMATH_SYMBOL_AUTOMATIC)
-    return Call(Symbol(PMATH_SYMBOL_ASSIGN), std::move(name), std::move(value));
-  
-  if(func == PMATH_SYMBOL_NONE)
-    return Expr();
-  
-  return Call(std::move(func), std::move(value), std::move(name));
+
+namespace richmath {
+  class DynamicImpl {
+    public:
+      DynamicImpl(Dynamic &_self) : self(_self) {}
+      
+      static bool is_template_slot(Expr expr, int *index);
+      bool is_template_slot(int *index);
+      bool find_template_box_dynamic(Expr *source, TemplateBox **source_template, int *source_index);
+    
+    private:
+      static bool find_template_box_dynamic(Box *box, int i, Expr *source, TemplateBox **source_template, int *source_index);
+      
+    public:
+      static void get_assignment_functions(Expr expr, Expr *pre, Expr *middle, Expr *post);
+      
+      bool has_pre_or_post_assignment();
+    
+    public:
+      void assign(Expr value, bool pre, bool middle, bool post);
+      
+      Expr get_value_now();
+      void get_value_later(Expr job_info);
+      bool get_value(Expr *result, Expr job_info);
+    
+    private:
+      Dynamic &self;
+  };
 }
 
 static Expr eval_sequence(Expr e1, Expr e2, Expr e3) {
@@ -68,8 +90,15 @@ void Dynamic::init(Box *owner, Expr expr) {
 
 Expr Dynamic::operator=(Expr expr) {
   _expr = expr;
+  _synchronous_updating = 0;
   
-  if(is_dynamic()) {
+  if(!_expr.is_expr())
+    return _expr;
+  
+  if(_expr[0] == richmath_System_Dynamic) {
+    if(_expr.expr_length() < 1)
+      return _expr;
+    
     Expr options(PMATH_UNDEFINED);
     
     if(_expr.expr_length() >= 2) {
@@ -94,86 +123,201 @@ Expr Dynamic::operator=(Expr expr) {
         _synchronous_updating = 0;
     }
   }
+  // for PureArgument(n), this->_synchronous_updating does not matter, because it is looked up in get_value()
   
   return _expr;
 }
 
-Expr Dynamic::pre_assignment_function() {
-  if(!is_dynamic())
-    return Symbol(PMATH_SYMBOL_NONE);
-  
-  if(_expr.expr_length() < 2)
-    return Symbol(PMATH_SYMBOL_NONE);
-  
-  Expr fun = _expr[2];
-  if(fun[0] != PMATH_SYMBOL_LIST)
-    return Symbol(PMATH_SYMBOL_NONE);
-  
-  if(fun.expr_length() == 3)
-    return fun[1];
-  
-  return Symbol(PMATH_SYMBOL_NONE);
-}
-
-Expr Dynamic::middle_assignment_function() {
-  if(!is_dynamic())
-    return Symbol(PMATH_SYMBOL_AUTOMATIC);
-  
-  if(_expr.expr_length() < 2)
-    return Symbol(PMATH_SYMBOL_AUTOMATIC);
-  
-  Expr fun = _expr[2];
-  if(fun[0] != PMATH_SYMBOL_LIST)
-    return fun;
-  
-  auto num_fun = fun.expr_length();
-  if(num_fun == 3)
-    return fun[2];
-  
-  return fun[1];
-}
-
-Expr Dynamic::post_assignment_function() {
-  if(!is_dynamic())
-    return Symbol(PMATH_SYMBOL_NONE);
-  
-  if(_expr.expr_length() < 2)
-    return Symbol(PMATH_SYMBOL_NONE);
-  
-  Expr fun = _expr[2];
-  if(fun[0] != PMATH_SYMBOL_LIST)
-    return Symbol(PMATH_SYMBOL_NONE);
-  
-  auto num_fun = fun.expr_length();
-  if(num_fun == 2 || num_fun == 3)
-    return fun[num_fun];
-  
-  return Symbol(PMATH_SYMBOL_NONE);
-}
-
 bool Dynamic::has_pre_or_post_assignment() {
-  if(_expr[0] != richmath_System_Dynamic)
-    return false;
+  return DynamicImpl(*this).has_pre_or_post_assignment();
+}
 
-  if(_expr.expr_length() < 2)
+void Dynamic::assign(Expr value, bool pre, bool middle, bool post) {
+  return DynamicImpl(*this).assign(value, pre, middle, post);
+}
+
+Expr Dynamic::get_value_now() {
+  return DynamicImpl(*this).get_value_now();
+}
+
+void Dynamic::get_value_later(Expr job_info) {
+  DynamicImpl(*this).get_value_later(std::move(job_info));
+}
+
+bool Dynamic::get_value(Expr *result, Expr job_info) {
+  return DynamicImpl(*this).get_value(result, std::move(job_info));
+}
+
+//} ... class Dynamic
+
+//{ class DynamicImpl ...
+
+bool DynamicImpl::is_template_slot(Expr expr, int *index) {
+  if(expr[0] == PMATH_SYMBOL_PUREARGUMENT && expr.expr_length() == 1) {
+    Expr arg = expr[1];
+    if(arg.is_int32()) {
+      if(index) 
+        *index = PMATH_AS_INT32(arg.get());
+      return true;
+    }
+  }
+  return false;
+}
+
+bool DynamicImpl::is_template_slot(int *index) {
+  return is_template_slot(self._expr, index);
+}
+
+bool DynamicImpl::find_template_box_dynamic(Expr *source, TemplateBox **source_template, int *source_index) {
+  int i;
+  if(is_template_slot(&i))
+    return find_template_box_dynamic(self._owner, i, source, source_template, source_index);
+  
+  return false;
+}
+
+bool DynamicImpl::find_template_box_dynamic(Box *box, int i, Expr *source, TemplateBox **source_template, int *source_index) {
+  if(i == 0 || !box)
     return false;
   
-  Expr fun = _expr[2];
+  box = box->parent();
+  while(box) {
+    if(TemplateBox *template_box = dynamic_cast<TemplateBox*>(box)) {
+      int num_arg = (int)template_box->arguments.expr_length();
+      
+      if(i < 0)
+        i+= num_arg + 1;
+      
+      Dynamic dyn { template_box, template_box->arguments[i] };
+      if(!DynamicImpl(dyn).find_template_box_dynamic(source, source_template, source_index)) {
+        if(source)          *source          = std::move(dyn._expr);
+        if(source_template) *source_template = template_box;
+        if(source_index)    *source_index    = i;
+      }
+      return true;
+    }
+    
+    if(TemplateBoxSlot *slot = dynamic_cast<TemplateBoxSlot*>(box)) 
+      box = slot->find_owner();
+    else
+      box = box->parent();
+  }
+  
+  return false;
+}
+
+void DynamicImpl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle, Expr *post) {
+  *pre    = Symbol(PMATH_SYMBOL_NONE);
+  *middle = Symbol(PMATH_SYMBOL_NONE);
+  *post   = Symbol(PMATH_SYMBOL_NONE);
+  
+  if(expr[0] != richmath_System_Dynamic)
+    return;
+  
+  if(expr.expr_length() < 2) {
+    *middle = Symbol(PMATH_SYMBOL_AUTOMATIC);
+    return;
+  }
+  
+  Expr fun = expr[2];
+  if(fun[0] != PMATH_SYMBOL_LIST) {
+    *middle = std::move(fun);
+    return;
+  }
+  
+  switch(fun.expr_length()) {
+    case 1:
+      *middle = fun[1];
+      return;
+    
+    case 2:
+      *middle = fun[1];
+      *post   = fun[2];
+      return;
+    
+    case 3:
+      *pre    = fun[1];
+      *middle = fun[2];
+      *post   = fun[3];
+      return;
+  }
+}
+
+bool DynamicImpl::has_pre_or_post_assignment() {
+  int i;
+  if(is_template_slot(&i)) {
+    Expr         source;
+    TemplateBox *source_template;
+    if(find_template_box_dynamic(&source, &source_template, nullptr)) {
+      Dynamic dyn{ source_template, source };
+      return dyn.has_pre_or_post_assignment();
+    }
+  }
+  
+  if(self._expr[0] != richmath_System_Dynamic)
+    return false;
+
+  if(self._expr.expr_length() < 2)
+    return false;
+  
+  Expr fun = self._expr[2];
   if(fun[0] != PMATH_SYMBOL_LIST)
     return false;
   
   return fun.expr_length() > 1;
 }
+
+static Expr make_assignment_call(Expr func, Expr name, Expr value) {
+  if(func == PMATH_SYMBOL_AUTOMATIC)
+    return Call(Symbol(PMATH_SYMBOL_ASSIGN), std::move(name), std::move(value));
+  
+  if(func == PMATH_SYMBOL_NONE)
+    return Expr();
+  
+  return Call(std::move(func), std::move(value), std::move(name));
+}
+
+void DynamicImpl::assign(Expr value, bool pre, bool middle, bool post) {
+  Box *dyn_source = self._owner;
+  Expr dyn_expr = self._expr;
+  
+  int i;
+  if(is_template_slot(dyn_expr, &i)) {
+    Expr         source;
+    TemplateBox *source_template;
+    int          source_index;
+    
+    if(find_template_box_dynamic(self._owner, i, &source, &source_template, &source_index)) {
+      Dynamic dyn{ source_template, source };
+      dyn_source = source_template;
       
-void Dynamic::assign(Expr value, bool pre, bool middle, bool post) {
-  if(!is_dynamic()) {
+      while(DynamicImpl(dyn).find_template_box_dynamic(&source, &source_template, &source_index)) {
+        //dyn.init(source_template, source);
+        dyn_source = source_template;
+        dyn._owner = std::move(source_template);
+        dyn._expr  = std::move(source);
+      }
+      
+      dyn_expr = dyn._expr;
+      if(dyn._expr[0] != richmath_System_Dynamic) {
+        dyn.assign(value, pre, middle, post);
+        if(dyn._expr != dyn_expr) {
+          source_template->reset_argument(source_index, dyn._expr);
+          // TODO: notify other observers of this change ...
+          self._owner->dynamic_updated();
+        }
+        return;
+      }
+    }
+  }
+  else if(!self.is_dynamic()) {
     //if(!value.is_evaluated())
     //  value = Application::interrupt(value, Application::dynamic_timeout);
     
     if(middle)
-      _expr = value;
+      self._expr = value;
     
-    _owner->dynamic_updated();
+    self._owner->dynamic_updated();
     return;
   }
   
@@ -181,18 +325,17 @@ void Dynamic::assign(Expr value, bool pre, bool middle, bool post) {
   
   Expr run;
   
-  Expr name = _expr[1];
-  if(_expr.expr_length() >= 2) {
+  Expr name = dyn_expr[1];
+  if(dyn_expr.expr_length() >= 2) {
     Expr pre_run;
     Expr middle_run;
     Expr post_run;
     
-    if(pre)
-      pre_run = make_assignment_call(pre_assignment_function(), name, value);
-    if(middle)
-      middle_run = make_assignment_call(middle_assignment_function(), name, value);
-    if(post)
-      post_run = make_assignment_call(post_assignment_function(), name, value);
+    get_assignment_functions(dyn_expr, &pre_run, &middle_run, &post_run);
+    
+    pre_run    = pre    ? make_assignment_call(pre_run,    name, value) : Expr();
+    middle_run = middle ? make_assignment_call(middle_run, name, value) : Expr();
+    post_run   = post   ? make_assignment_call(post_run,   name, value) : Expr();
       
     run = eval_sequence(pre_run, middle_run, post_run);
   }
@@ -202,35 +345,67 @@ void Dynamic::assign(Expr value, bool pre, bool middle, bool post) {
   if(run.is_null())
     return;
   
-  run = _owner->prepare_dynamic(run);
-  Application::interrupt_wait_for(run, _owner, Application::dynamic_timeout);
+  run = dyn_source->prepare_dynamic(run);
+  Application::interrupt_wait_for(run, self._owner, Application::dynamic_timeout);
 }
 
-Expr Dynamic::get_value_now() {
-  if(!is_dynamic()) {
-    if(is_unevaluated())
-      return _expr[1];
+Expr DynamicImpl::get_value_now() {
+  Box *dyn_source = self._owner;
+  Expr dyn_expr = self._expr;
+  
+  int i;
+  if(is_template_slot(&i)) {
+    Expr         source;
+    TemplateBox *source_template;
     
-    return _expr;
+    if(find_template_box_dynamic(self._owner, i, &source, &source_template, nullptr)) {
+      Dynamic dyn{ source_template, source };
+      dyn_source = source_template;
+      
+      while(DynamicImpl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) {
+        //dyn.init(source_template, source);
+        dyn_source = source_template;
+        dyn._owner = std::move(source_template);
+        dyn._expr  = std::move(source);
+      }
+      
+      dyn_expr = dyn._expr;
+      if(dyn._expr[0] != richmath_System_Dynamic) {
+        /* Note that dynamic changes in the find_template_box_dynamic-chain above would not be visible 
+           for self._owner and would thus break its dynamic updating facility.
+           This scenario can happen if a TemplateBox in the chain (a parent of self._owner)
+           is modified e.g. programmatically.
+           More importantly, it happens
+         */
+        source_template->register_observer(self._owner->id());
+        return dyn_expr;
+      }
+    }
+  }
+  else if(!self.is_dynamic()) {
+    if(self.is_unevaluated())
+      return self._expr[1];
+    
+    return self._expr;
   }
   
-  if(_owner->style) {
-    _owner->style->remove(InternalUsesCurrentValueOfMouseOver);
+  if(self._owner->style) {
+    self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
-  auto old_eval_id = current_evaluation_box_id;
-  current_evaluation_box_id = _owner->id();
+  auto old_eval_id = Dynamic::current_evaluation_box_id;
+  Dynamic::current_evaluation_box_id = self._owner->id();
   
-  Expr call = _owner->prepare_dynamic(_expr);
+  Expr call = dyn_source->prepare_dynamic(dyn_expr);
   
   Expr value = Application::interrupt_wait(
                  Call(
                    Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
                    call,
-                   _owner->id().to_pmath_raw()),
+                   self._owner->id().to_pmath_raw()),
                  Application::dynamic_timeout);
                  
-  current_evaluation_box_id = old_eval_id;
+  Dynamic::current_evaluation_box_id = old_eval_id;
   
   if(value == PMATH_UNDEFINED)
     return Symbol(PMATH_SYMBOL_ABORTED);
@@ -238,38 +413,84 @@ Expr Dynamic::get_value_now() {
   return value;
 }
 
-void Dynamic::get_value_later() {
-  if(!is_dynamic()) 
+void DynamicImpl::get_value_later(Expr job_info) {
+  Box *dyn_source = self._owner;
+  Expr dyn_expr = self._expr;
+  
+  int i;
+  if(is_template_slot(&i)) {
+    Expr         source;
+    TemplateBox *source_template;
+    
+    if(find_template_box_dynamic(self._owner, i, &source, &source_template, nullptr)) {
+      Dynamic dyn{ source_template, source };
+      dyn_source = source_template;
+      
+      while(DynamicImpl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) {
+        //dyn.init(source_template, source);
+        dyn_source = source_template;
+        dyn._owner = std::move(source_template);
+        dyn._expr  = std::move(source);
+      }
+      
+      if(dyn._expr[0] != richmath_System_Dynamic) 
+        return;
+      
+      dyn_expr = dyn._expr;
+    }
+  }
+  else if(!self.is_dynamic()) 
     return;
   
-  if(_owner->style) {
-    _owner->style->remove(InternalUsesCurrentValueOfMouseOver);
+  if(self._owner->style) {
+    self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
-  Expr call = _owner->prepare_dynamic(_expr);
+  Expr call = dyn_source->prepare_dynamic(dyn_expr);
   
   Application::add_job(new DynamicEvaluationJob(
-                         Expr(),
+                         job_info,
                          Call(
                            Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
                            call,
-                           _owner->id().to_pmath_raw()),
-                         _owner));
+                           self._owner->id().to_pmath_raw()),
+                         self._owner));
 }
 
-bool Dynamic::get_value(Expr *result) {
+bool DynamicImpl::get_value(Expr *result, Expr job_info) {
   if(result)
     *result = Expr();
     
-  int sync = _synchronous_updating;
+  int sync = self._synchronous_updating;
+  
+  int i;
+  if(is_template_slot(&i)) {
+    Expr         source;
+    TemplateBox *source_template;
+    
+    if(find_template_box_dynamic(self._owner, i, &source, &source_template, nullptr)) {
+      Dynamic dyn { source_template, source };
+      
+      while(DynamicImpl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) 
+        dyn.init(std::move(source_template), std::move(source));
+      
+      if(dyn.is_dynamic()) {
+        sync = dyn._synchronous_updating;
+      }
+      else {
+        source_template->register_observer(self._owner->id());
+        sync = 1;
+      }
+    }
+  }
   
   if(sync == 2) {
     sync = 1;
-    if(auto doc = _owner->find_parent<Document>(true))
+    if(auto doc = self._owner->find_parent<Document>(true))
       sync = doc->is_mouse_down();
   }
   
-  if(sync != 0 || !is_dynamic()) {
+  if(sync != 0 || !self.is_dynamic()) {
     if(result)
       *result = get_value_now();
     else
@@ -278,8 +499,9 @@ bool Dynamic::get_value(Expr *result) {
     return true;
   }
   
-  get_value_later();
+  get_value_later(std::move(job_info));
   return false;
 }
 
-//} ... class Dynamic
+//} ... class DynamicImpl
+

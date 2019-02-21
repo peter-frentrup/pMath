@@ -220,8 +220,8 @@ void TemplateBox::paint_content(Context *context) {
 
   base::paint_content(context);
   
-  if(!_is_content_loaded) {
-    Expr dispfun = get_own_style(DisplayFunction);
+  Expr dispfun = get_own_style(DisplayFunction);
+  if(!_is_content_loaded || dispfun != _cached_display_function) {
     TemplateBoxImpl(*this).load_content(dispfun);
     _is_content_loaded = true;
     invalidate();
@@ -267,6 +267,23 @@ void TemplateBox::on_mouse_exit() {
       return;
       
     doc->native()->hide_tooltip();
+  }
+}
+
+void TemplateBox::reset_argument(int index, Expr new_arg) {
+  arguments.set(index, std::move(new_arg));
+  
+  // TODO: We should maybe use Array<ObservableValue<Expr>> instead?
+  notify_all();
+  
+  TemplateBoxSlot *slot = search_box<TemplateBoxSlot>(this, LogicalDirection::Forward, this);
+  while(slot) {
+    if(slot->argument() == index && slot->find_owner() == this) {
+      //slot->_is_content_loaded = false;
+      slot->invalidate();
+      TemplateBoxSlotImpl(*slot).reload_content();
+    }
+    slot = search_next_box<TemplateBoxSlot>(slot, LogicalDirection::Forward, this);
   }
 }
 
@@ -448,6 +465,7 @@ TemplateBoxImpl::TemplateBoxImpl(TemplateBox &_self)
 }
 
 void TemplateBoxImpl::load_content(Expr dispfun) {
+  self._cached_display_function = dispfun;
   self.content()->load_from_object(
     display_function_body(dispfun),
     BoxInputFlags::AllowTemplateSlots | BoxInputFlags::FormatNumbers);
@@ -495,6 +513,8 @@ TemplateBox *TemplateBoxSlotImpl::find_owner(Box *box) {
 
 void TemplateBoxSlotImpl::reload_content() {
   BoxInputFlags flags = BoxInputFlags::Default;
+  if(self._argument < 0) // temporarily detached inside assign_content()
+    return;
   
   TemplateBox *owner = self.find_owner();
   if(owner) {
@@ -528,18 +548,11 @@ void TemplateBoxSlotImpl::assign_content() {
   TemplateBox *tb = self.find_owner();
   if(!tb)
     return;
-    
-  tb->arguments.set(self._argument, self.content()->to_pmath(BoxOutputFlags::Default));
   
-  TemplateBoxSlot *slot = search_box<TemplateBoxSlot>(tb, LogicalDirection::Forward, tb);
-  while(slot) {
-    if(slot != &self && slot->_argument == self._argument && slot->find_owner() == tb) {
-      //slot->_is_content_loaded = false;
-      slot->invalidate();
-      TemplateBoxSlotImpl(*slot).reload_content();
-    }
-    slot = search_next_box<TemplateBoxSlot>(slot, LogicalDirection::Forward, tb);
-  }
+  auto arg = self._argument;
+  self._argument = -1;
+  tb->reset_argument(self._argument, self.content()->to_pmath(BoxOutputFlags::Default));
+  self._argument = arg;
 }
 
 Expr TemplateBoxSlotImpl::prepare_boxes(Expr boxes) {

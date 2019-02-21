@@ -2,10 +2,11 @@
 #define RICHMATH_BOXES_TEMPLATEBOX_H_INCLUDED
 
 #include <boxes/ownerbox.h>
+#include <eval/observable.h>
 
 
 namespace richmath {
-  class TemplateBox: public OwnerBox {
+  class TemplateBox: public Observable, public OwnerBox {
       typedef OwnerBox base;
       friend class TemplateBoxImpl;
       
@@ -29,6 +30,8 @@ namespace richmath {
       virtual void on_mouse_enter() override;
       virtual void on_mouse_exit() override;
       
+      void reset_argument(int index, Expr new_arg);
+      
     protected:
       virtual void resize_default_baseline(Context *context) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
@@ -38,6 +41,7 @@ namespace richmath {
       
     private:
       Expr _tag;
+      Expr _cached_display_function;
       bool _is_content_loaded;
   };
   
@@ -49,6 +53,7 @@ namespace richmath {
       TemplateBoxSlot();
       
       TemplateBox *find_owner();
+      int argument() { return _argument; }
       
       static Expr prepare_boxes(Expr boxes);
       

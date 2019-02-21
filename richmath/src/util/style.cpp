@@ -268,6 +268,7 @@ static bool needs_ruledelayed(Expr expr) {
   if( head == PMATH_SYMBOL_LIST ||
       head == PMATH_SYMBOL_RANGE ||
       head == PMATH_SYMBOL_NCACHE ||
+      head == PMATH_SYMBOL_PUREARGUMENT ||
       head == PMATH_SYMBOL_RULE ||
       head == PMATH_SYMBOL_RULEDELAYED ||
       head == PMATH_SYMBOL_GRAYLEVEL ||
@@ -988,7 +989,7 @@ bool StyleImpl::set_pmath_bool_auto(StyleOptionName n, Expr obj) {
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_int(n) || any_change;
     
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic)
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
   return any_change;
@@ -1010,7 +1011,7 @@ bool StyleImpl::set_pmath_bool(StyleOptionName n, Expr obj) {
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_int(n) || any_change;
     
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic)
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
   return any_change;
@@ -1031,7 +1032,7 @@ bool StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_int(n) || any_change;
     
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic)
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
   return any_change;
@@ -1050,7 +1051,7 @@ bool StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_float(n) || any_change;
   
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic)
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
   if(obj[0] == PMATH_SYMBOL_NCACHE) {
@@ -1155,7 +1156,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic)
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
   return any_change;
@@ -1219,7 +1220,7 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic) {
+  if(n.is_literal() && Dynamic::is_dynamic(obj)) {
     any_change = raw_remove_float(n)          || any_change;
     any_change = raw_remove_float(Horizontal) || any_change;
     any_change = raw_remove_float(Vertical)   || any_change;
@@ -1263,7 +1264,7 @@ bool StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_string(n) || any_change;
   
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic)
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
   return any_change;
@@ -1279,7 +1280,7 @@ bool StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_expr(n) || any_change;
   
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic)
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
     
   if(n == StyleDefinitions) {
@@ -1303,7 +1304,7 @@ bool StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_int(n) || any_change;
   
-  if(n.is_literal() && obj[0] == richmath_System_Dynamic)
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
   SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
@@ -2482,7 +2483,7 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
   }
   
   for(const auto &e : dynamic_styles.entries()) {
-    if(e.value != PMATH_SYMBOL_ABORTED && e.value[0] != richmath_System_Dynamic) {
+    if(e.value != PMATH_SYMBOL_ABORTED && !Dynamic::is_dynamic(e.value)) {
       StyleOptionName key = e.key.to_volatile(); // = e.key.to_literal().to_volatile()
       s_impl.set_pmath(key, e.value);
     }

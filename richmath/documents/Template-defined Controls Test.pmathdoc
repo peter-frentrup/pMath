@@ -1,0 +1,149 @@
+/* pMath Document */
+
+Document({SectionGroup({Section("Template-defined Controls Test", "Section"), 
+    Section({"This document has custom ", 
+      ButtonBox(StyleBox(ComplexStringBox("\"style definitions\""), 
+        FontColor -> RGBColor(0, 0, 0.70199999999999996`), 
+        StripOnInput -> False), BaseStyle -> "", ButtonFrame -> "Frameless", 
+       ButtonFunction -> (FrontEndTokenExecute("EditStyleDefinitions") &)), 
+      ", which define a template box style \
+      \[HighSixDoubleQuote]MyTemplatedControl\[HighNineDoubleQuote] that \
+      dynamically modifies its argument. The argument may be another Dynamic \
+      to forward the changes to a variable defined outside the template box \
+      definition."}, "Text"), 
+    Section(
+     "Modify the slider to change x. The slider is defined by this document's \
+     StyleDefinitions, see Format\[NonBreakingSpace]\[Rule] Edit \
+     Stylesheet...", "Text"), 
+    SectionGroup({
+      Section(
+       BoxData({{"TemplateBox", "(", {{"{", {"Dynamic", "(", "x", ")"}, "}"}, 
+           ",", ComplexStringBox("\"MyTemplatedControl\"")}, ")"}, ".", 
+         "RawBoxes"}), "Input", SectionLabel -> "in [7]:"), 
+      Section(BoxData(TemplateBox({Dynamic(Global`x)}, "MyTemplatedControl")), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+    SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
+       SectionLabel -> "in [1]:"), 
+      Section(BoxData(DynamicBox(ToBoxes(Global`x))), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+    Section(
+     "The following template box does not have a Dynamic argument. Changing \
+     the slider will modify its argument directly (look at \
+     Edit\[NonBreakingSpace]\[Rule]\[NonBreakingSpace]Edit Boxes).", "Text"), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {"TemplateBox", "(", {{"{", "0.5", "}"}, ",", 
+           ComplexStringBox("\"MyTemplatedControl\"")}, ")"}, ".", 
+         "RawBoxes"}), "Input", SectionLabel -> "in [8]:"), 
+      Section(BoxData(TemplateBox({0.55170068027210883`}, 
+         "MyTemplatedControl")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [8]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Style", "(", {{"Framed", "@", ComplexStringBox("\"a\"")}, 
+          ",", {"Background", "\[Rule]", {
+            "Dynamic", "(", {"Hue", "(", "x", ")"}, ")"}}}, ")"}), "Input", 
+       SectionLabel -> "in [6]:"), 
+      Section(BoxData(StyleBox(FrameBox(ComplexStringBox("\"a\"")), 
+         Background -> Dynamic(Hue(Global`x)), StripOnInput -> False)), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+    SectionGroup({Section("A templated OwnerView implementation", 
+       "Subsection"), 
+      Section(
+       "A more advanced control. Changes in the TemplateBox argument caused by \
+       one inner box will be seen by others.", "Text"), 
+      Section(
+       BoxData({
+         {"MakeBoxes", "(", {"myOpenerView", "(", {
+            {"~", "a"}, ",", {"~", "b"}, ",", {
+             "open", ":", {"True", "|", "False", "|", {"~", ":", "Dynamic"}, 
+              "|", {"~", ":", "PureArgument"}}}}, ")"}, ")"}, 
+         "\[AssignDelayed]", {
+          "\n", {"TemplateBox", "(", {
+            {"{", {{"MakeBoxes", "(", "a", ")"}, ",", {
+               "MakeBoxes", "(", "b", ")"}, ",", "open"}, "}"}, ",", 
+            ComplexStringBox("\"MyOpenerView\"")}, ")"}}}), "Code"), 
+      Section(BoxData({{"myOpenerView", "(", {{"~", "a"}, ",", {"~", "b"}}, 
+          ")"}, "\[AssignDelayed]", {"myOpenerView", "(", {
+           "a", ",", "b", ",", "False"}, ")"}}), "Code"), 
+      SectionGroup({
+        Section(BoxData({"myOpenerView", "(", {
+            ComplexStringBox("\"aaa\""), ",", ComplexStringBox("\"bbb\"")}, 
+           ")"}), "Input", SectionLabel -> "in [20]:"), 
+        Section(BoxData(TemplateBox({ComplexStringBox("\"aaa\""), 
+            ComplexStringBox("\"bbb\""), False}, "MyOpenerView")), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [20]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"myOpenerView", "(", {
+            ComplexStringBox("\"aaa\""), ",", {
+             "myOpenerView", "(", {ComplexStringBox("\"aaa\""), ",", 
+              ComplexStringBox("\"bbb\"")}, ")"}}, ")"}), "Input", 
+         SectionLabel -> "in [21]:"), 
+        Section(BoxData(TemplateBox({ComplexStringBox("\"aaa\""), 
+            TemplateBox({ComplexStringBox("\"aaa\""), 
+              ComplexStringBox("\"bbb\""), False}, "MyOpenerView"), True}, 
+           "MyOpenerView")), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [21]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"myOpenerView", "(", {
+            ComplexStringBox("\"aaa\""), ",", {
+             "Column", "@", {
+              "{", {{"myOpenerView", "(", {ComplexStringBox("\"bbb\""), ",", 
+                 ComplexStringBox("\"ccc\"")}, ")"}, ",", {
+                "myOpenerView", "(", {ComplexStringBox("\"ddd\""), ",", 
+                 ComplexStringBox("\"eee\"")}, ")"}}, "}"}}}, ")"}), "Input", 
+         SectionLabel -> "in [22]:"), 
+        Section(BoxData(TemplateBox({ComplexStringBox("\"aaa\""), 
+            TagBox(
+             GridBox({
+               {TemplateBox({ComplexStringBox("\"bbb\""), 
+                  ComplexStringBox("\"ccc\""), True}, "MyOpenerView")}, {
+                TemplateBox({ComplexStringBox("\"ddd\""), 
+                  ComplexStringBox("\"eee\""), False}, "MyOpenerView")}}), 
+             "Column"), False}, "MyOpenerView")), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [22]:")}, All), 
+      SectionGroup({
+        Section(
+         BoxData({"Row", "@", {
+            "Table", "(", {
+             {"myOpenerView", "(", {ComplexStringBox("\"aaa\""), ",", 
+               ComplexStringBox("\"bbb\""), ",", {"Dynamic", "(", "o", ")"}}, 
+              ")"}, ",", "2"}, ")"}}), "Input", SectionLabel -> "in [23]:"), 
+        Section(BoxData(InterpretationBox({
+            TemplateBox({ComplexStringBox("\"aaa\""), 
+              ComplexStringBox("\"bbb\""), Dynamic(Global`o)}, 
+             "MyOpenerView"), TemplateBox({ComplexStringBox("\"aaa\""), 
+              ComplexStringBox("\"bbb\""), Dynamic(Global`o)}, 
+             "MyOpenerView")}, Row({
+            Global`myOpenerView("aaa", "bbb", Dynamic(Global`o)), 
+            Global`myOpenerView("aaa", "bbb", Dynamic(Global`o))}), 
+           Editable -> False)), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [23]:")}, All)}, All)}, All)}, 
+ StyleDefinitions :> Document({
+   SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+     SectionGroup({Section("TemplateBox styles", "Subsection"), 
+       SectionGroup({Section("A simple example", "Subsubsection"), 
+         Section({"The following control uses ", {"#", "1"}, 
+           " instead of Dynamic(\[Ellipsis]) inside the SliderBox to apply to \
+           the corresponding template box argument."}, "Text"), 
+         Section(StyleData("MyTemplatedControl"), 
+          TemplateBoxOptions -> {DisplayFunction -> ({"(", 
+            SliderBox(#1, 0 .. 1), ")"} &)})}, All), 
+       SectionGroup({Section("An opener box control", "Subsubsection"), 
+         Section(
+          "An alternative implementation would use DynamicLocalBox to localize \
+          the \[HighSixDoubleQuote]open\[HighNineDoubleQuote] state. That \
+          would remember the setting only at runtime and provide no \
+          possibility to change the default open/close state when \
+          instantiating the TemplateBox.", "Text"), 
+         Section(StyleData("MyOpenerView"), 
+          TemplateBoxOptions -> {DisplayFunction -> ({
+            GridBox({{OpenerBox(#3), {#1}}, {
+               "", PaneSelectorBox({
+                 True -> GridBox({{""}, {#2}}, 
+                  GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
+             BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
+             GridBoxRowSpacing -> 0)} &)})}, All)}, All)}, All)}, 
+  StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
+ Visible -> True)
