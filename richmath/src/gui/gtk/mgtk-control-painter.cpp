@@ -143,8 +143,18 @@ void MathGtkControlPainter::calc_container_size(
         
       case ProgressIndicatorBackground:
         {
-          extents->ascent *= 0.5;
-          extents->descent *= 0.5;
+          //extents->ascent *= 0.5;
+          //extents->descent *= 0.5;
+          
+          int h = 6;
+          gtk_style_context_get_style(gtk_ctx, "min-horizontal-bar-height", &h, nullptr);
+          
+          GtkBorder padding;
+          gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &padding);
+          h+= padding.top + padding.bottom;
+          
+          extents->ascent = 0.75 * h;
+          extents->descent = 0;
           extents->width = extents->height() * 15;
         }
         return;

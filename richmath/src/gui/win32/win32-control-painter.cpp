@@ -206,6 +206,16 @@ void Win32ControlPainter::calc_container_size(
       }
       break;
       
+    case ProgressIndicatorBackground: {
+        if(theme && Win32Themes::GetThemePartSize) {
+          SIZE size;
+          if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
+            extents->ascent = 0.75 * size.cy;
+            extents->descent = 0;
+          }
+        }
+      } return;
+      
     case ProgressIndicatorBar: {
         if(!theme || theme_part != 5) {
           extents->width -=   4.5;
