@@ -81,20 +81,9 @@ static AutoCairoSurface get_background_image() {
   return AutoCairoSurface();
 }
 
-static void init_basic_window_data() {
-//  if(!composition_window_theme &&
-//      Win32Themes::OpenThemeData)
-//  {
-//    // TODO: use OpenThemeDataForDpi
-//    composition_window_theme = Win32Themes::OpenThemeData(nullptr, L"CompositedWindow::Window");
-//  }
-}
-
 static int _basic_window_count = 0;
 static void add_basic_window() {
   ++_basic_window_count;
-
-  init_basic_window_data();
 }
 
 static void remove_basic_window() {
@@ -898,13 +887,11 @@ void BasicWin32Window::on_theme_changed() {
   _glass_enabled = false;
   _themed_frame = false;
 
-  if(Win32Themes::IsCompositionActive
-      && Win32Themes::IsCompositionActive()) {
+  if(Win32Themes::IsCompositionActive && Win32Themes::IsCompositionActive()) {
     _glass_enabled = true;
     _themed_frame = 0 == (WS_EX_TOOLWINDOW & GetWindowLongW(_hwnd, GWL_EXSTYLE));
   }
-  else if(Win32Themes::IsThemeActive
-          && Win32Themes::IsThemeActive()) {
+  else if(Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()) {
     _glass_enabled = Win32Themes::current_theme_is_aero();
   }
 
@@ -1032,14 +1019,15 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     return;
   }
 
-  init_basic_window_data();
-  
   int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
   if(HANDLE theme = composition_window_theme(dpi)) {
   
     Win32Themes::DTTOPTS dtt_opts;
     memset(&dtt_opts, 0, sizeof(dtt_opts));
-    dtt_opts.crText    = Win32Themes::GetThemeSysColor(theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+    if(Win32Themes::IsCompositionActive && Win32Themes::IsCompositionActive())
+      dtt_opts.crText = Win32Themes::GetThemeSysColor(theme, COLOR_CAPTIONTEXT);
+    else
+      dtt_opts.crText = Win32Themes::GetThemeSysColor(theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
     dtt_opts.dwSize    = sizeof(dtt_opts);
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = MulDiv(10, dpi, 96);
