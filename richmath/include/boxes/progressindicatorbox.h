@@ -7,7 +7,7 @@
 
 
 namespace richmath {
-  class ProgressIndicatorBox: public Box {
+  class ProgressIndicatorBox: public Box, public ControlContext {
     public:
       explicit ProgressIndicatorBox();
       virtual ~ProgressIndicatorBox();
@@ -41,6 +41,9 @@ namespace richmath {
       virtual Box *mouse_sensitive() override { return this; }
       virtual void on_mouse_move(MouseEvent &event) override;
       
+      virtual bool is_foreground_window() override;
+      virtual int dpi() override;
+    
     protected:
       double range_min;
       double range_max;

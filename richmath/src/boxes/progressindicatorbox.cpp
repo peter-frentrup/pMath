@@ -98,10 +98,8 @@ void ProgressIndicatorBox::resize(Context *context) {
   _extents.descent = 0;
   _extents.width   = 6 * em * 1.5;
   
-  ControlContext *cc = ControlContext::find(this);
-  
-  ControlPainter::std->calc_container_size(cc, context->canvas, ProgressIndicatorBackground, &_extents);
-  //ControlPainter::std->calc_container_size(cc, context->canvas, ProgressIndicatorBar, &size);
+  ControlPainter::std->calc_container_size(this, context->canvas, ProgressIndicatorBackground, &_extents);
+  //ControlPainter::std->calc_container_size(this, context->canvas, ProgressIndicatorBar, &size);
   
   float h = _extents.height();
   _extents.ascent = 0.25 * em + 0.5 * h;
@@ -129,10 +127,8 @@ void ProgressIndicatorBox::paint(Context *context) {
   
   y -= _extents.ascent;
   
-  ControlContext *cc = ControlContext::find(this);
-  
   ControlPainter::std->draw_container(
-    cc,
+    this,
     context->canvas,
     ProgressIndicatorBackground,
     Normal,
@@ -155,13 +151,13 @@ void ProgressIndicatorBox::paint(Context *context) {
   
   BoxSize content_size = _extents;
   ControlPainter::std->calc_container_size(
-    cc,
+    this,
     context->canvas,
     ProgressIndicatorBar,
     &content_size);
     
   ControlPainter::std->draw_container(
-    cc,
+    this,
     context->canvas,
     ProgressIndicatorBar,
     state,
@@ -226,6 +222,34 @@ void ProgressIndicatorBox::on_mouse_move(MouseEvent &event) {
   if(doc && doc->native()) {
     doc->native()->set_cursor(DefaultCursor);
   }
+}
+
+bool ProgressIndicatorBox::is_foreground_window() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return false;
+  
+  FrontEndReference old_dyn_box_id = Dynamic::current_evaluation_box_id;
+  Dynamic::current_evaluation_box_id = id();
+  
+  auto result = doc->native()->is_foreground_window();
+  
+  Dynamic::current_evaluation_box_id = old_dyn_box_id;
+  return result;
+}
+
+int ProgressIndicatorBox::dpi() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return 96;
+  
+  FrontEndReference old_dyn_box_id = Dynamic::current_evaluation_box_id;
+  Dynamic::current_evaluation_box_id = id();
+  
+  auto result = doc->native()->dpi();
+  
+  Dynamic::current_evaluation_box_id = old_dyn_box_id;
+  return result;
 }
 
 //} ... class ProgressIndicatorBox
