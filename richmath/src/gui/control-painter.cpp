@@ -108,9 +108,9 @@ void ControlPainter::calc_container_size(
       } break;
       
     case ProgressIndicatorBackground: {
-        extents->ascent *= 0.5;
-        extents->descent *= 0.5;
-        extents->width = extents->height() * 15;
+        extents->ascent = 1 * canvas->get_font_size();
+        extents->descent = 0;
+        //extents->width = extents->height() * 15;
       } break;
       
     case ProgressIndicatorBar: {
@@ -118,9 +118,9 @@ void ControlPainter::calc_container_size(
 //      extents->descent*= 0.5;
 //      extents->width = extents->height() * 15;
 
-        extents->ascent -= 1.5;
-        extents->descent -= 1.5;
-        extents->width  -= 3.0;
+        extents->ascent -= 0.75;
+        extents->descent -= 0.75;
+        extents->width  -= 1.5;
       } break;
       
     case CheckboxUnchecked:
@@ -333,10 +333,9 @@ void ControlPainter::draw_container(
         height -= 3;
         
         if(width > 0) {
-          if(state == Normal)
-            paint_frame(canvas, x, y, width, height, false);
-          else if(state == Hot)
-            paint_frame(canvas, x + width / 4, y, width / 2, height, false);
+          canvas->set_color(0x000080);
+          canvas->pixrect(x, y, x + width, y + height, false);
+          canvas->fill();
         }
       } break;
       
