@@ -24,7 +24,9 @@ static void on_theme_changed(GObject*, GParamSpec*) {
 MathGtkControlPainter MathGtkControlPainter::gtk_painter;
 
 void MathGtkControlPainter::done() {
+#if GTK_MAJOR_VERSION >= 3
   gtk_painter.clear_cache();
+#endif
   style_observations.notify_all(); // to clear the observers array
 }
 

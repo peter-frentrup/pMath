@@ -255,7 +255,7 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _vscrollbar(nullptr),
     _table(nullptr),
     _window_frame(WindowFrameNormal),
-    _active(false)
+    _active(true)
 {
   _previous_rect.x = 0;
   _previous_rect.y = 0;
@@ -831,13 +831,15 @@ bool MathGtkDocumentWindow::on_scroll(GdkEvent *e) {
 
 bool MathGtkDocumentWindow::on_window_state(GdkEvent *e) {
   GdkEventWindowState *event = (GdkEventWindowState *)e;
-  
+
+#if GTK_MAJOR_VERSION >= 3
   if(event->changed_mask & GDK_WINDOW_STATE_FOCUSED) {
     if(event->new_window_state & GDK_WINDOW_STATE_FOCUSED)
       _active = true;
     else
       _active = false;
   }
+#endif
   
   return false;
 }
