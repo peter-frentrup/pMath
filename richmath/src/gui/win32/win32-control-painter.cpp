@@ -224,6 +224,28 @@ void Win32ControlPainter::calc_container_size(
         }
       } return;
       
+    case SliderHorzChannel: {
+        if(theme && Win32Themes::GetThemePartSize) {
+          SIZE size;
+          if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
+            extents->ascent = 0.75 * size.cy;
+            extents->descent = 0;
+          }
+        }
+      } return;
+      
+    case SliderHorzThumb: {
+        if(theme && Win32Themes::GetThemePartSize) {
+          SIZE size;
+          if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
+            extents->ascent = 0.75 * size.cy;
+            extents->descent = 0;
+            //extents->width = 0.75 * size.cx;
+            extents->width = 0.5 * extents->height();
+          }
+        }
+      } return;
+      
     case TooltipWindow: {
         if(!theme) {
           extents->width +=   6;

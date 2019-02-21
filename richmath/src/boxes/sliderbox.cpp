@@ -393,7 +393,7 @@ ControlState SliderBox::calc_state(Context *context) {
 void SliderBox::resize(Context *context) {
   float em = context->canvas->get_font_size();
   _extents.ascent  = 0.75 * em * 1.5;
-  _extents.descent = 0.25 * em * 1.5;
+  _extents.descent = 0;
   _extents.width   = 6 * em * 1.5;
   
   BoxSize size = _extents;
@@ -406,6 +406,10 @@ void SliderBox::resize(Context *context) {
   size = _extents;
   ControlPainter::std->calc_container_size(this, context->canvas, SliderHorzChannel, &size);
   channel_width = size.height();
+  
+  float h = _extents.height();
+  _extents.ascent = 0.25 * em + 0.5 * h;
+  _extents.descent = h - _extents.ascent;
 }
 
 void SliderBox::paint(Context *context) {
