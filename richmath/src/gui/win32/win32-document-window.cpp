@@ -56,8 +56,8 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void bring_to_front() override {
+      ShowWindow(_parent->hwnd(), SW_SHOWNORMAL);
       SetFocus(_hwnd);
-      SetForegroundWindow(_parent->hwnd());
     }
     
     virtual void close() override {
@@ -253,8 +253,8 @@ class richmath::Win32Dock: public Win32Widget {
     virtual void scroll_to(float x, float y) override {}
     
     virtual void bring_to_front() override {
+      ShowWindow(_parent->hwnd(), SW_SHOWNORMAL);
       SetFocus(_hwnd);
-      SetForegroundWindow(_parent->hwnd());
     }
     
     virtual void close() override {
