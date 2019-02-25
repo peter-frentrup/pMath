@@ -44,7 +44,10 @@ namespace richmath {
       virtual bool is_foreground_window() override;
       virtual int dpi() override;
     
-    protected:
+    private:
+      Expr to_literal();
+    
+    private:
       double range_min;
       double range_max;
       double range_value;

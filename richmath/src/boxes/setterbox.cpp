@@ -81,7 +81,11 @@ Expr SetterBox::to_pmath_symbol() {
 Expr SetterBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
-  g.emit(dynamic.expr());
+  if(has(flags, BoxOutputFlags::Literal))
+    g.emit(to_literal());
+  else
+    g.emit(dynamic.expr());
+  
   g.emit(value);
   g.emit(_content->to_pmath(flags - BoxOutputFlags::Parseable));
   
@@ -127,9 +131,21 @@ void SetterBox::dynamic_finished(Expr info, Expr result) {
   }
 }
 
+Expr SetterBox::to_literal() {
+  if(!dynamic.is_dynamic())
+    return dynamic.expr();
+  
+  if(is_down)
+    return value;
+  
+  if(value == PMATH_SYMBOL_FALSE)
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  return Symbol(PMATH_SYMBOL_FALSE);
+}
+
 Box *SetterBox::dynamic_to_literal(int *start, int *end) {
-  if(dynamic.is_dynamic())
-    dynamic = dynamic.expr()[1];
+  dynamic = to_literal();
   return this;
 }
 

@@ -84,9 +84,11 @@ Expr RadioButtonBox::to_pmath_symbol() {
 Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
   Gather gather;
   
-  Expr val = dynamic.expr();
-  if(has(flags, BoxOutputFlags::Literal) && dynamic.is_dynamic())
-    val = val[1];
+  Expr val;
+  if(has(flags, BoxOutputFlags::Literal))
+    val = to_literal();
+  else
+    val = dynamic.expr();
     
   Gather::emit(val);
   Gather::emit(value);
@@ -110,9 +112,28 @@ void RadioButtonBox::dynamic_finished(Expr info, Expr result) {
   request_repaint_all();
 }
 
+Expr RadioButtonBox::to_literal() {
+  if(!dynamic.is_dynamic())
+    return dynamic.expr();
+  
+  switch(type) {
+    case CheckboxChecked:
+    case OpenerTriangleOpened:
+    case RadioButtonChecked:
+      return value;
+    
+    default:
+      break;
+  }
+  
+  if(value == PMATH_SYMBOL_FALSE)
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  return Symbol(PMATH_SYMBOL_FALSE);
+}
+
 Box *RadioButtonBox::dynamic_to_literal(int *start, int *end) {
-  if(dynamic.is_dynamic())
-    dynamic = dynamic.expr()[1];
+  dynamic = to_literal();
   return this;
 }
 

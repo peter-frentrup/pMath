@@ -113,20 +113,25 @@ namespace richmath {
       }
       
     public:
+      Expr position_to_value(double d, bool evaluate) {
+        if(self.range[0] == PMATH_SYMBOL_LIST)
+          return self.range[(size_t)d];
+        
+        if(self.use_double_values)
+          return Expr(d);
+        
+        Expr result = Plus(self.range[1], Round(Minus(d, self.range[1]), self.range[3]));
+        if(evaluate)
+          result = Application::interrupt_wait_cached(result, Application::dynamic_timeout);
+        return result;
+      }
+      
       void assign_dynamic_value(double d, bool pre, bool middle, bool post) {
         if(!self.have_drawn)
           return;
           
         self.have_drawn = false;
-        if(self.range[0] == PMATH_SYMBOL_LIST) {
-          self.dynamic.assign(self.range[(size_t)d], pre, middle, post);
-        }
-        else if(self.use_double_values) {
-          self.dynamic.assign(d, pre, middle, post);
-        }
-        else {
-          self.dynamic.assign(Plus(self.range[1], Round(Minus(d, self.range[1]), self.range[3])), pre, middle, post);
-        }
+        self.dynamic.assign(position_to_value(d, false), pre, middle, post);
       }
       
     public:
@@ -437,10 +442,11 @@ Expr SliderBox::to_pmath_symbol() {
 }
 
 Expr SliderBox::to_pmath(BoxOutputFlags flags) {
-  Expr val = dynamic.expr();
-  
-  if(has(flags, BoxOutputFlags::Literal) && dynamic.is_dynamic())
-    val = val[1];
+  Expr val;
+  if(has(flags, BoxOutputFlags::Literal))
+    val = to_literal();
+  else
+    val = dynamic.expr();
     
   return Call(
            Symbol(richmath_System_SliderBox),
@@ -475,9 +481,15 @@ void SliderBox::dynamic_finished(Expr info, Expr result) {
     request_repaint_all();
 }
 
+Expr SliderBox::to_literal() {
+  if(!dynamic.is_dynamic())
+    return dynamic.expr();
+  
+  return SliderBoxImpl(*this).position_to_value(range_value, true);
+}
+
 Box *SliderBox::dynamic_to_literal(int *start, int *end) {
-  if(dynamic.is_dynamic())
-    dynamic = dynamic.expr()[1];
+  dynamic = to_literal();
   return this;
 }
 

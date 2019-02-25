@@ -45,7 +45,10 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event) override;
       //virtual void on_mouse_cancel() override;
       
-    protected:
+    private:
+      Expr to_literal();
+    
+    private:
       double range_min;
       double range_max;
       double range_step;

@@ -62,9 +62,11 @@ Expr OpenerBox::to_pmath_symbol() {
 Expr OpenerBox::to_pmath(BoxOutputFlags flags) {
   Gather gather;
   
-  Expr val = dynamic.expr();
-  if(has(flags, BoxOutputFlags::Literal) && dynamic.is_dynamic())
-    val = val[1];
+  Expr val;
+  if(has(flags, BoxOutputFlags::Literal))
+    val = to_literal();
+  else
+    val = dynamic.expr();
     
   Gather::emit(val);
   
@@ -82,9 +84,30 @@ void OpenerBox::dynamic_finished(Expr info, Expr result) {
   request_repaint_all();
 }
 
+Expr OpenerBox::to_literal() {
+  if(!dynamic.is_dynamic())
+    return dynamic.expr();
+  
+  switch(type) {
+    case CheckboxChecked:
+    case OpenerTriangleOpened:
+    case RadioButtonChecked:
+      return Symbol(PMATH_SYMBOL_TRUE);
+      
+    case CheckboxUnchecked:
+    case OpenerTriangleClosed:
+    case RadioButtonUnchecked:
+      return Symbol(PMATH_SYMBOL_FALSE);
+    
+    default:
+      break;
+  }
+  
+  return dynamic.get_value_now();
+}
+
 Box *OpenerBox::dynamic_to_literal(int *start, int *end) {
-  if(dynamic.is_dynamic())
-    dynamic = dynamic.expr()[1];
+  dynamic = to_literal();
   return this;
 }
 

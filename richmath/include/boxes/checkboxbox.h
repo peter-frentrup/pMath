@@ -25,6 +25,7 @@ namespace richmath {
       
     protected:
       ContainerType calc_type(Expr result);
+      Expr to_literal();
       
     protected:
       Dynamic dynamic;

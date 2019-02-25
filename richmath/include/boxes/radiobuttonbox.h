@@ -23,9 +23,11 @@ namespace richmath {
       
       virtual void click() override;
       
-    protected:
+    private:
       ContainerType calc_type(Expr result);
-      
+      Expr to_literal();
+    
+    private:
       Dynamic dynamic;
       Expr    value;
       bool    first_paint;

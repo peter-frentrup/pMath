@@ -80,9 +80,11 @@ Expr CheckboxBox::to_pmath_symbol() {
 Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
   Gather gather;
   
-  Expr val = dynamic.expr();
-  if(has(flags, BoxOutputFlags::Literal) && dynamic.is_dynamic())
-    val = val[1];
+  Expr val;
+  if(has(flags, BoxOutputFlags::Literal))
+    val = to_literal();
+  else
+    val = dynamic.expr();
     
   Gather::emit(val);
   
@@ -109,9 +111,36 @@ void CheckboxBox::dynamic_finished(Expr info, Expr result) {
   request_repaint_all();
 }
 
+Expr CheckboxBox::to_literal() {
+  if(!dynamic.is_dynamic())
+    return dynamic.expr();
+  
+  switch(type) {
+    case CheckboxChecked:
+    case OpenerTriangleOpened:
+    case RadioButtonChecked:
+      if(values.expr_length() == 2)
+        return values[2];
+      else
+        return Symbol(PMATH_SYMBOL_TRUE);
+      
+    case CheckboxUnchecked:
+    case OpenerTriangleClosed:
+    case RadioButtonUnchecked:
+      if(values.expr_length() == 2)
+        return values[1];
+      else
+        return Symbol(PMATH_SYMBOL_FALSE);
+    
+    default:
+      break;
+  }
+  
+  return dynamic.get_value_now();
+}
+
 Box *CheckboxBox::dynamic_to_literal(int *start, int *end) {
-  if(dynamic.is_dynamic())
-    dynamic = dynamic.expr()[1];
+  dynamic = to_literal();
   return this;
 }
 

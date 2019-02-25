@@ -29,9 +29,12 @@ namespace richmath {
       virtual Box *dynamic_to_literal(int *start, int *end) override;
     
     protected:
-      virtual ContainerType default_container_type() { return PaletteButton; }
-      
-    protected:
+      virtual ContainerType default_container_type() override { return PaletteButton; }
+    
+    private:
+      Expr to_literal();
+    
+    private:
       Dynamic dynamic;
       Expr    value;
       

@@ -28,7 +28,7 @@ namespace richmath {
       bool get_value(Expr *result, Expr job_info);
       
       Box *owner() { return _owner; }
-      Expr expr() {  return _expr;  }
+      Expr expr() const {  return _expr;  }
       
       bool is_dynamic() { return is_dynamic(_expr); }
       static bool is_dynamic(Expr expr) {

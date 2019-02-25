@@ -155,8 +155,7 @@ Box *PaneSelectorBox::remove(int *index) {
 }
 
 Box *PaneSelectorBox::dynamic_to_literal(int *start, int *end) {
-  if(_dynamic.is_dynamic())
-    _dynamic = _dynamic.expr()[1];
+  _dynamic = to_literal();
   return this;
 }
 
@@ -195,8 +194,8 @@ Expr PaneSelectorBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   Gather::emit(std::move(rules));
   
-  if(has(flags, BoxOutputFlags::Literal) && _dynamic.is_dynamic())
-    Gather::emit(_dynamic.expr()[1]);
+  if(has(flags, BoxOutputFlags::Literal))
+    Gather::emit(to_literal());
   else
     Gather::emit(_dynamic.expr());
   
@@ -299,6 +298,16 @@ bool PaneSelectorBox::edit_selection(Context *context) {
   }
   
   return Box::edit_selection(context);
+}
+
+Expr PaneSelectorBox::to_literal() {
+  if(!_dynamic.is_dynamic())
+    return _dynamic.expr();
+  
+  if(_current_selection >= 0 && _current_selection < _cases.length())
+    return _cases[_current_selection];
+  
+  return _dynamic.get_value_now();
 }
     
 //} ... class PaneSelectorBox

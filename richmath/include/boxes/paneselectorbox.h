@@ -51,7 +51,10 @@ namespace richmath {
         bool  *was_inside_start) override;
       
       virtual bool edit_selection(Context *context) override;
-      
+    
+    private:
+      Expr to_literal();
+    
     private:
       Array<Expr>          _cases;
       Array<MathSequence*> _panes;
