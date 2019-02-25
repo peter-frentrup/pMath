@@ -18,6 +18,11 @@ using namespace richmath;
 #define MAPVK_VK_TO_CHAR  2
 #endif
 
+/* Windows reports Numpad Enter and Enter as VK_RETURN (0x0D). 
+   0x0E is undefined, we use that ... 
+ */
+#define VK_MY_NUMPAD_ENTER   0x0E
+
 
 static DWORD next_id = 1000;
 static Hashtable<Expr,  DWORD>  cmd_to_id;
@@ -265,6 +270,7 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   else if(key.equals("F23"))                accel->key = VK_F23;
   else if(key.equals("F24"))                accel->key = VK_F24;
   else if(key.equals("Enter"))              accel->key = VK_RETURN;
+  else if(key.equals("NumpadEnter"))        accel->key = VK_MY_NUMPAD_ENTER;
   else if(key.equals("Tab"))                accel->key = VK_TAB;
   else if(key.equals("Esc"))                accel->key = VK_ESCAPE;
   else if(key.equals("PageUp"))             accel->key = VK_PRIOR;
@@ -291,6 +297,7 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   else if(key.equals("Numpad-"))            accel->key = VK_SUBTRACT;
   else if(key.equals("Numpad*"))            accel->key = VK_MULTIPLY;
   else if(key.equals("Numpad/"))            accel->key = VK_DIVIDE;
+  else if(key.equals("NumpadDecimal"))      accel->key = VK_DECIMAL;
   else if(key.equals("Play"))               accel->key = VK_PLAY;
   else if(key.equals("Zoom"))               accel->key = VK_ZOOM;
   else                                      return false;
@@ -358,6 +365,7 @@ static String vk_name(UINT vk) {
     case VK_ZOOM:    return "Zoom";
   }
   */
+  
   UINT ch = MapVirtualKeyW(vk, MAPVK_VK_TO_CHAR) & 0x7FFFFFFF;
   if(ch > ' ')
     return String::FromChar(ch);
@@ -368,6 +376,10 @@ static String vk_name(UINT vk) {
   UINT sc = MapVirtualKeyW(vk, MAPVK_VK_TO_VSC);
   
   switch(vk) {
+    case VK_MY_NUMPAD_ENTER:
+      sc = 0x100 | MapVirtualKeyW(VK_RETURN, MAPVK_VK_TO_VSC);
+      break;
+    
     case VK_INSERT:
     case VK_DELETE:
     case VK_HOME:
@@ -379,6 +391,7 @@ static String vk_name(UINT vk) {
     case VK_UP:
     case VK_DOWN:
       sc |= 0x100; // Add extended bit
+      break;
   }
   
   int len = GetKeyNameTextW(sc << 16, buf, 100);
@@ -461,6 +474,26 @@ Win32AcceleratorTable::Win32AcceleratorTable(Expr expr)
 Win32AcceleratorTable::~Win32AcceleratorTable() {
   DestroyAcceleratorTable(_haccel);
   add_remove_menu(-1);
+}
+
+bool Win32AcceleratorTable::translate_accelerator(HWND hwnd, MSG *msg) {
+  if(!msg)
+    return false;
+  
+  if(msg->message == WM_KEYDOWN || msg->message == WM_SYSKEYDOWN) {
+    if(msg->wParam == VK_RETURN && (msg->lParam & (1 << 24))) {
+      msg->wParam = VK_MY_NUMPAD_ENTER;
+      bool result = !!TranslateAcceleratorW(hwnd, _haccel, msg);
+      if(!result) {
+        msg->wParam = VK_RETURN;
+        result = !!TranslateAcceleratorW(hwnd, _haccel, msg);
+      }
+      
+      return result;
+    }
+  }
+  
+  return !!TranslateAcceleratorW(hwnd, _haccel, msg);
 }
 
 //} ... class Win32AcceleratorTable

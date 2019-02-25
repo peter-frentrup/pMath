@@ -1428,6 +1428,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } return 0;
         
       case WM_KEYDOWN: if(!is_drop_over) {
+          // TODO: NumpadEnter is VK_RETURN with "extended bit" 24 set in lParam. 
           on_keydown(
             wParam,
             GetKeyState(VK_CONTROL) & ~1,

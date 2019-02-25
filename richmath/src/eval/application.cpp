@@ -691,7 +691,7 @@ void Application::doevents() {
       }
       
       if(Win32AcceleratorTable::main_table.is_valid()) {
-        if(!TranslateAcceleratorW(GetFocus(), Win32AcceleratorTable::main_table->haccel(), &msg)) {
+        if(!Win32AcceleratorTable::main_table->translate_accelerator(GetFocus(), &msg)) {
           TranslateMessage(&msg);
           DispatchMessageW(&msg);
         }
@@ -727,7 +727,7 @@ int Application::run() {
       }
       
       if(Win32AcceleratorTable::main_table.is_valid()) {
-        if(!TranslateAcceleratorW(GetFocus(), Win32AcceleratorTable::main_table->haccel(), &msg)) {
+        if(!Win32AcceleratorTable::main_table->translate_accelerator(GetFocus(), &msg)) {
           TranslateMessage(&msg);
           DispatchMessageW(&msg);
         }

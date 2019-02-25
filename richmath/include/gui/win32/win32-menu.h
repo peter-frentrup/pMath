@@ -42,6 +42,8 @@ namespace richmath {
       
       HACCEL haccel() { return _haccel; }
       
+      bool translate_accelerator(HWND hwnd, MSG *msg);
+      
     public:
       static SharedPtr<Win32AcceleratorTable>  main_table;
       

@@ -349,6 +349,7 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   else if(key.equals("Numpad-"))            *accel_key = GDK_KP_Subtract;
   else if(key.equals("Numpad*"))            *accel_key = GDK_KP_Multiply;
   else if(key.equals("Numpad/"))            *accel_key = GDK_KP_Divide;
+  else if(key.equals("NumpadEnter"))        *accel_key = GDK_KP_Enter;
   else if(key.equals("Play"))               *accel_key = GDK_AudioPlay;
   else if(key.equals("Zoom"))               *accel_key = GDK_ZoomIn;
   else                                      return false;
