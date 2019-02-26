@@ -413,14 +413,26 @@ void MathGtkWidget::force_redraw() {
 }
 
 void MathGtkWidget::set_cursor(CursorType type) {
-  cursor = type;
-  
-  if(mouse_moving || !_widget)
+  if(mouse_moving) {
+    cursor = type;
     return;
-    
+  }
+  
+  if(!_widget) 
+    return;
+  
   GdkWindow *win = gtk_widget_get_window(_widget);
-  if(GdkCursor *cur = cursors.get_gdk_cursor(type))
+  if(GdkCursor *cur = cursors.get_gdk_cursor(type)) {
+    if(cur == gdk_window_get_cursor(win)) {
+      /* Must not attempt to set the cursor again, because GTK 3 would otherwise choose the default 
+         mouse cursor (at least on Win32).
+       */
+      gdk_cursor_unref(cur);
+      return;
+    }
+    
     gdk_window_set_cursor(win, cur);
+  }
 }
 
 void MathGtkWidget::running_state_changed() {
