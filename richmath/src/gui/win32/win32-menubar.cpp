@@ -460,7 +460,8 @@ int Win32Menubar::find_hilite_menuitem(HMENU *menu) {
 void Win32Menubar::theme_changed() {
   NONCLIENTMETRICSW ncm = {0};
   ncm.cbSize = sizeof(ncm);
-  if(SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE)) {
+  int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+  if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, dpi)) {
     if(_font)
       DeleteObject(_font);
     
