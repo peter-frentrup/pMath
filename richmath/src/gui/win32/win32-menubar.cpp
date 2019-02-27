@@ -666,10 +666,11 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                       else
                         *result = CDRF_DODEFAULT;
                         
+                      bool is_foreground = (GetForegroundWindow() == _window->hwnd());
                       ControlState state = Normal;
-                      if(GetForegroundWindow() == _window->hwnd())
+                      if(is_foreground) 
                         draw->clrText = GetSysColor(COLOR_MENUTEXT);
-                      else
+                      else 
                         draw->clrText = GetSysColor(COLOR_GRAYTEXT);
                         
                       if((int)draw->nmcd.dwItemSpec == separator_index + 1) {
@@ -687,7 +688,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                           state = Pressed;
                         else if(draw->nmcd.uItemState & CDIS_CHECKED)
                           state = Pressed;
-                        else if(draw->nmcd.dwItemSpec == hot_item)
+                        else if(is_foreground && draw->nmcd.dwItemSpec == hot_item)
                           state = Hovered; // Hot
                       }
                       else {
@@ -696,7 +697,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         {
                           state = Pressed;
                         }
-                        else if(hot_item == (int)draw->nmcd.dwItemSpec) 
+                        else if(is_foreground && hot_item == (int)draw->nmcd.dwItemSpec) 
                           state = Hovered;
                       }
                       
