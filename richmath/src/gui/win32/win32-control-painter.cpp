@@ -212,9 +212,10 @@ void Win32ControlPainter::calc_container_size(
           if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
             extents->ascent = 0.75 * size.cy;
             extents->descent = 0;
+            return;
           }
         }
-      } return;
+      } break;
       
     case ProgressIndicatorBar: {
         if(!theme || theme_part != 5) {
@@ -230,8 +231,14 @@ void Win32ControlPainter::calc_container_size(
           if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
             extents->ascent = 0.75 * size.cy;
             extents->descent = 0;
+            return;
           }
         }
+        float dx = 0;
+        float dy = 4;
+        canvas->device_to_user_dist(&dx, &dy);
+        extents->ascent = max(dx, dy);
+        extents->descent = 0;
       } return;
       
     case SliderHorzThumb: {
@@ -242,9 +249,10 @@ void Win32ControlPainter::calc_container_size(
             extents->descent = 0;
             //extents->width = 0.75 * size.cx;
             extents->width = 0.5 * extents->height();
+            return;
           }
         }
-      } return;
+      } break;
       
     case TooltipWindow: {
         if(!theme) {
@@ -253,7 +261,7 @@ void Win32ControlPainter::calc_container_size(
           extents->descent += 3;
           return;
         }
-      }
+      } break;
       
     default: break;
   }
