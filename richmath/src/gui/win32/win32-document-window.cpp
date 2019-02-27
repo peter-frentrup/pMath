@@ -713,7 +713,7 @@ void Win32DocumentWindow::rearrange() {
   
   int new_ys[PARTCOUNT + 1] = {0};
   new_ys[0] = rect.top;
-  new_ys[1] = new_ys[0] + menubar->height();
+  new_ys[1] = new_ys[0] + menubar->best_height();
   new_ys[2] = new_ys[1] + _top_glass_area->height();
   new_ys[3] = new_ys[2] + _top_area->height();
   
@@ -1023,6 +1023,14 @@ bool Win32DocumentWindow::is_closed() {
   return BasicWin32Window::is_closed();
 }
 
+void Win32DocumentWindow::on_setting_changed() {
+  RECT rect;
+  if(GetWindowRect(menubar->hwnd(), &rect)) {
+    if(rect.bottom - rect.top != menubar->best_height())
+      rearrange();
+  }
+}
+
 void Win32DocumentWindow::on_theme_changed() {
   BasicWin32Window::on_theme_changed();
   
@@ -1056,6 +1064,10 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       return result;
       
     switch(message) {
+      case WM_SETTINGCHANGE: {
+        on_setting_changed();
+        } break;
+      
       case WM_SIZE: {
           _top_glass_area->resize();
           _top_area->resize();

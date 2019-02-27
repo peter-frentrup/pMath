@@ -31,12 +31,13 @@ namespace richmath {
       SharedPtr<Win32Menu> menu() { return _menu; }
       
       bool visible();
-      int height();
+      int best_height();
       
       MenuAppearence appearence() { return _appearence; }
       void appearence(MenuAppearence value);
       bool is_pinned();
       
+      void theme_changed();
       void resized();
       bool callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam);
       
@@ -61,6 +62,7 @@ namespace richmath {
       Win32DocumentWindow *_window;
       HWND                 _hwnd;
       SharedPtr<Win32Menu> _menu;
+      HFONT                _font;
       
       HIMAGELIST image_list;
       

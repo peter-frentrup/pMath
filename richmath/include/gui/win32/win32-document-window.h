@@ -71,6 +71,7 @@ namespace richmath {
       
     protected:
       virtual void on_theme_changed() override;
+      void on_setting_changed();
       
       void window_frame(WindowFrameType type);
       

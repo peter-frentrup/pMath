@@ -14,6 +14,7 @@
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
 #include <gui/win32/win32-menu.h>
+#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-themes.h>
 #include <resources.h>
 
@@ -63,10 +64,11 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   : Base(),
     _appearence(MaAllwaysShow),
     _window(window),
-    _hwnd(0),
+    _hwnd(nullptr),
     _menu(menu),
+    _font(nullptr),
     focused(false),
-    current_popup(0),
+    current_popup(nullptr),
     current_item(0),
     next_item(0)
 {
@@ -142,9 +144,9 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
                (WPARAM)buttons.length(),
                (LPARAM)buttons.items());
                
-  SendMessageW(_hwnd, TB_AUTOSIZE, 0, 0);
   SendMessageW(_hwnd, TB_SETPADDING, 0, (4 << 16) | 0);
   SendMessageW(_hwnd, TB_SETBUTTONSIZE, 0, 0x010001);
+  theme_changed();
 }
 
 Win32Menubar::~Win32Menubar() {
@@ -152,6 +154,8 @@ Win32Menubar::~Win32Menubar() {
     current_menubar = 0;
     
   DestroyWindow(_hwnd);
+  if(_font)
+    DeleteObject(_font);
   
   if(Win32Themes::BufferedPaintUnInit)
     Win32Themes::BufferedPaintUnInit();
@@ -173,12 +177,10 @@ bool Win32Menubar::visible() {
   return (GetWindowLongW(_hwnd, GWL_STYLE) & WS_VISIBLE) != 0;
 }
 
-int Win32Menubar::height() {
+int Win32Menubar::best_height() {
   if(visible()) {
-//    RECT rect;
-//    GetClientRect(_hwnd, &rect);
-//    return rect.bottom - rect.top;
-    return GetSystemMetrics(SM_CYMENU);
+    int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+    return Win32HighDpi::get_system_metrics_for_dpi(SM_CYMENU, dpi);
   }
   return 0;
 }
@@ -323,10 +325,12 @@ void Win32Menubar::show_sysmenu() {
   tpm.cbSize = sizeof(tpm);
   GetWindowRect(parent, &tpm.rcExclude);
   
-  tpm.rcExclude.left += GetSystemMetrics(SM_CXSIZEFRAME);
-  tpm.rcExclude.top +=  GetSystemMetrics(SM_CYSIZEFRAME);
-  tpm.rcExclude.right  = tpm.rcExclude.left + GetSystemMetrics(SM_CXSMICON);
-  tpm.rcExclude.bottom = tpm.rcExclude.top  + GetSystemMetrics(SM_CYCAPTION);
+  int dpi = Win32HighDpi::get_dpi_for_window(parent);
+  
+  tpm.rcExclude.left += Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi);
+  tpm.rcExclude.top +=  Win32HighDpi::get_system_metrics_for_dpi(SM_CYSIZEFRAME, dpi);
+  tpm.rcExclude.right  = tpm.rcExclude.left + Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
+  tpm.rcExclude.bottom = tpm.rcExclude.top  + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
   
   if(HHOOK hook = register_hook(-1)) {
     current_popup = GetSystemMenu(parent, FALSE);
@@ -451,6 +455,36 @@ int Win32Menubar::find_hilite_menuitem(HMENU *menu) {
   return -1;
 }
 
+void Win32Menubar::theme_changed() {
+  pmath_debug_print("Win32Menubar::theme_changed\n");
+  NONCLIENTMETRICSW ncm = {0};
+  ncm.cbSize = sizeof(ncm);
+  if(SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE)) {
+    if(_font)
+      DeleteObject(_font);
+    
+    _font = CreateFontIndirectW(&ncm.lfMenuFont);
+    SendMessageW(_hwnd, WM_SETFONT, (WPARAM)_font, (LPARAM)TRUE);
+  }
+  
+  // reset the texts to force recalulating button sizes
+  for(int id = 1; id <= separator_index; ++id) {
+    wchar_t text[100];
+    TBBUTTONINFOW info = {0};
+    info.cbSize = sizeof(info);
+    info.dwMask = TBIF_STYLE | TBIF_TEXT;
+    info.pszText = text;
+    info.cchText = sizeof(text)/sizeof(text[0]);
+    int index = SendMessageW(_hwnd, TB_GETBUTTONINFOW, (WPARAM)id, (LPARAM)&info);
+    if(index >= 0) {
+      SendMessageW(_hwnd, TB_SETBUTTONINFOW, (WPARAM)id, (LPARAM)&info);
+    }
+  }
+  
+  SendMessageW(_hwnd, TB_AUTOSIZE, 0, 0);
+  resized();
+}
+
 void Win32Menubar::resized() {
   RECT rect;
   GetClientRect(_hwnd, &rect);
@@ -473,6 +507,11 @@ void Win32Menubar::resized() {
 
 bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
+    case WM_THEMECHANGED:
+    case WM_SETTINGCHANGE: {
+      theme_changed();
+    } break;
+    
     case WM_NOTIFY: {
         NMHDR *header = (NMHDR *)lParam;
         
