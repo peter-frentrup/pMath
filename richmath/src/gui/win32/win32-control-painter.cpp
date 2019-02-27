@@ -897,6 +897,10 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   if(!Win32Themes::GetThemeTransitionDuration || !widget_id.is_valid())
     return nullptr;
   
+  BOOL has_animations = TRUE;
+  if(SystemParametersInfoW(SPI_GETCLIENTAREAANIMATION, 0, &has_animations, FALSE) && !has_animations)
+    return nullptr;
+  
   ControlContext *context = ControlContext::find(FrontEndObject::find_cast<Box>(widget_id));
   
   bool repeat = false;
