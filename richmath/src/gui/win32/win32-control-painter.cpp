@@ -1394,7 +1394,7 @@ void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect) {
   }
 }
 
-bool Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState state) {
+void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState state) {
   if( Win32Themes::OpenThemeData  && 
       Win32Themes::CloseThemeData && 
       Win32Themes::DrawThemeBackground) 
@@ -1420,16 +1420,22 @@ bool Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
       0);
       
     Win32Themes::CloseThemeData(theme);
-    return true;
+    return;
   }
   
 FALLBACK:
   if(state != Normal) {
-    FillRect(dc, rect, GetSysColorBrush(COLOR_HIGHLIGHT));
-    return false;
+    UINT edge;
+    switch(state) {
+      case Hovered: edge = BDR_RAISEDINNER; break;
+      case Pressed: edge = BDR_SUNKENOUTER; break;
+      default:      edge = 0; break;
+    }
+    RECT edge_rect = *rect;
+    edge_rect.bottom-= 1;
+    edge_rect.right-= 1;
+    DrawEdge(dc, &edge_rect, edge, BF_RECT);
   }
-  
-  return true;
 }
 
 HANDLE Win32ControlPainter::get_control_theme(

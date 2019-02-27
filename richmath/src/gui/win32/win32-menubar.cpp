@@ -402,8 +402,9 @@ void Win32Menubar::kill_focus() {
   SetFocus((HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT));
   
   if(current_menubar == this)
-    current_menubar = 0;
-    
+    current_menubar = nullptr;
+  
+  hot_item = 0;
   if(_appearence == MaAutoShow && !is_pinned()) {
     ShowWindow(_hwnd, SW_HIDE);
     _window->rearrange();
@@ -665,13 +666,38 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         *result = TBCDRF_USECDCOLORS;
                       else
                         *result = CDRF_DODEFAULT;
-                        
-                      bool is_foreground = (GetForegroundWindow() == _window->hwnd());
+                      
+                      bool hot_tracking = true;
                       ControlState state = Normal;
-                      if(is_foreground) 
+                      if(GetForegroundWindow() == _window->hwnd()) {
+                        BOOL ht;
+                        if(SystemParametersInfoW(SPI_GETHOTTRACKING, 0, &ht, FALSE))
+                          hot_tracking = ht;
+                          
                         draw->clrText = GetSysColor(COLOR_MENUTEXT);
-                      else 
-                        draw->clrText = GetSysColor(COLOR_GRAYTEXT);
+                      }
+                      else {
+                        if(Win32Themes::IsAppThemed && Win32Themes::IsAppThemed()) {
+                          hot_tracking = false;
+                        }
+                        else {
+                          BOOL ht;
+                          if(SystemParametersInfoW(SPI_GETHOTTRACKING, 0, &ht, FALSE))
+                            hot_tracking = ht;
+                        }
+                        
+                        /* When the menu bar color is white, Windows uses gray for menu item text 
+                           in background windows, no matter, what COLOR_GRAYTEXT is.
+                           As soon as COLOR_MENUBAR is not 0xFFFFFF, Windows uses COLOR_GRAYTEXT for 
+                           the background window menu bar item texts.
+                           
+                           Example: "High contrast white" theme, where COLOR_GRAYTEXT is actually green.
+                         */
+                        if(GetSysColor(COLOR_MENUBAR) == 0xFFFFFF)
+                          draw->clrText = 0x808080;
+                        else
+                          draw->clrText = GetSysColor(COLOR_GRAYTEXT);
+                      }
                         
                       if((int)draw->nmcd.dwItemSpec == separator_index + 1) {
                         *result = CDRF_SKIPDEFAULT;
@@ -688,7 +714,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                           state = Pressed;
                         else if(draw->nmcd.uItemState & CDIS_CHECKED)
                           state = Pressed;
-                        else if(is_foreground && draw->nmcd.dwItemSpec == hot_item)
+                        else if(hot_tracking && draw->nmcd.dwItemSpec == hot_item)
                           state = Hovered; // Hot
                       }
                       else {
@@ -697,17 +723,14 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         {
                           state = Pressed;
                         }
-                        else if(is_foreground && hot_item == (int)draw->nmcd.dwItemSpec) 
+                        else if(hot_tracking && hot_item == (int)draw->nmcd.dwItemSpec) 
                           state = Hovered;
                       }
                       
-                      if(!Win32ControlPainter::win32_painter.draw_menubar_itembg(
-                            draw->nmcd.hdc,
-                            &draw->nmcd.rc,
-                            state)
-                          && state != Normal) {
-                        draw->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);
-                      }
+                      Win32ControlPainter::win32_painter.draw_menubar_itembg(
+                        draw->nmcd.hdc,
+                        &draw->nmcd.rc,
+                        state);
                     } return true;
                 }
               } break;
@@ -747,6 +770,15 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         if(_appearence != MaNeverShow) {
           if(wParam == VK_MENU)
             return true;
+      
+          if(!(GetKeyState(VK_SHIFT) & ~1) && !(GetKeyState(VK_CONTROL) & ~1)) {
+            int id = 0;
+            if(SendMessageW(_hwnd, TB_MAPACCELERATOR, wParam, (LPARAM)&id)) {
+              set_focus(0);
+              show_menu(id);
+              return true;
+            }
+          }
         }
       } break;
       
@@ -760,6 +792,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
               if(was_visible)
                 show_menu(1);
               return true;
+              
             case VK_F10:
               if(!(GetKeyState(VK_SHIFT) & ~1)) {
                 set_focus(0);

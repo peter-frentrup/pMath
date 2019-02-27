@@ -80,7 +80,7 @@ namespace richmath {
       
     public: // win32 specific
       void draw_menubar(HDC dc, RECT *rect);
-      bool draw_menubar_itembg(HDC dc, RECT *rect, ControlState state);
+      void draw_menubar_itembg(HDC dc, RECT *rect, ControlState state);
       
       HANDLE get_control_theme( // do not close the theme
         ControlContext *context, 
