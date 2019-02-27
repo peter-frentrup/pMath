@@ -72,6 +72,7 @@ namespace richmath {
       HMENU current_popup;
       int current_item;
       int next_item;
+      int hot_item;
       
       int separator_index;
       int pin_index;

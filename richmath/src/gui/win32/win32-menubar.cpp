@@ -70,7 +70,8 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     focused(false),
     current_popup(nullptr),
     current_item(0),
-    next_item(0)
+    next_item(0),
+    hot_item(0)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -292,11 +293,11 @@ void Win32Menubar::show_menu(int item) {
                 pt.y,
                 parent,
                 &tpm);
-                
+    
     if(next_item <= 0)
       Application::delay_dynamic_updates(false);
       
-    current_popup = 0;
+    current_popup = nullptr;
     
     unregister_hook(hook);
     
@@ -456,7 +457,6 @@ int Win32Menubar::find_hilite_menuitem(HMENU *menu) {
 }
 
 void Win32Menubar::theme_changed() {
-  pmath_debug_print("Win32Menubar::theme_changed\n");
   NONCLIENTMETRICSW ncm = {0};
   ncm.cbSize = sizeof(ncm);
   if(SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE)) {
@@ -468,16 +468,16 @@ void Win32Menubar::theme_changed() {
   }
   
   // reset the texts to force recalulating button sizes
-  for(int id = 1; id <= separator_index; ++id) {
+  for(int i = 0; i < separator_index; ++i) {
     wchar_t text[100];
     TBBUTTONINFOW info = {0};
     info.cbSize = sizeof(info);
-    info.dwMask = TBIF_STYLE | TBIF_TEXT;
+    info.dwMask = TBIF_BYINDEX | TBIF_STYLE | TBIF_TEXT;
     info.pszText = text;
     info.cchText = sizeof(text)/sizeof(text[0]);
-    int index = SendMessageW(_hwnd, TB_GETBUTTONINFOW, (WPARAM)id, (LPARAM)&info);
+    int index = SendMessageW(_hwnd, TB_GETBUTTONINFOW, i, (LPARAM)&info);
     if(index >= 0) {
-      SendMessageW(_hwnd, TB_SETBUTTONINFOW, (WPARAM)id, (LPARAM)&info);
+      SendMessageW(_hwnd, TB_SETBUTTONINFOW, i, (LPARAM)&info);
     }
   }
   
@@ -520,6 +520,10 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
             case TBN_DROPDOWN: {
                 NMTOOLBARW *tb = (NMTOOLBARW *)lParam;
                 
+                if(tb->iItem == current_item && current_popup != nullptr) {
+                  *result = TBDDRET_DEFAULT;
+                  return true;
+                }
                 show_menu(tb->iItem);
                 
                 *result = TBDDRET_DEFAULT;//TBDDRET_TREATPRESSED;
@@ -528,15 +532,22 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
             case TBN_HOTITEMCHANGE: {
                 NMTBHOTITEM *hi = (NMTBHOTITEM *)lParam;
                 
+                if(hi->dwFlags & HICF_LEAVING) 
+                  hot_item = 0;
+                else
+                  hot_item = hi->idNew;
+                
                 if((hi->dwFlags & (HICF_MOUSE | ~HICF_LEAVING)) &&
                     current_menubar == this                     &&
                     current_item != hi->idNew                   &&
                     hi->idNew)
                 {
                   if(hi->idNew <= separator_index) {
-                    next_item = hi->idNew;
+                    if(current_item)
+                      next_item = hi->idNew;
                     
                     EndMenu();
+                    *result = 0;
                     return true;
                   }
                   else {
@@ -549,7 +560,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
             case NM_CLICK: {
                 POINT pt = ((NMMOUSE *)lParam)->pt;
                 
-                if(current_popup == 0) {
+                if(current_popup == nullptr) {
                   int index = SendMessageW(_hwnd, TB_HITTEST, 0, (LPARAM)&pt);
                   
                   if(index == pin_index) {
@@ -570,7 +581,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                     
                     SendMessageW(_hwnd, TB_SETBUTTONINFOW, pin_index, (LPARAM)&info);
                   }
-                  else if(index < 0 || index == separator_index)
+                  else if(index < 0 || index == separator_index) 
                     kill_focus();
                 }
                 
@@ -668,27 +679,25 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                       
                         TBBUTTONINFOW info;
                         info.cbSize = sizeof(info);
-                        info.dwMask = TBIF_BYINDEX | TBIF_STATE;
+                        info.dwMask = TBIF_STATE;
                         
                         SendMessageW(_hwnd, TB_GETBUTTONINFOW, (int)draw->nmcd.dwItemSpec, (LPARAM)&info);
                         
-                        if(info.fsState & TBSTATE_CHECKED) {
+                        if(info.fsState & TBSTATE_CHECKED) 
                           state = Pressed;
-                        }
-                        
-                        if(draw->nmcd.uItemState & CDIS_CHECKED)
+                        else if(draw->nmcd.uItemState & CDIS_CHECKED)
                           state = Pressed;
-                        else if(draw->nmcd.uItemState & CDIS_HOT)
+                        else if(draw->nmcd.dwItemSpec == hot_item)
                           state = Hovered; // Hot
                       }
                       else {
-                        if(current_item == (int)draw->nmcd.dwItemSpec
-                            ||    next_item == (int)draw->nmcd.dwItemSpec) {
+                        if( current_item == (int)draw->nmcd.dwItemSpec ||
+                            next_item == (int)draw->nmcd.dwItemSpec) 
+                        {
                           state = Pressed;
                         }
-                        else if(current_item == 0 && next_item == 0
-                                && draw->nmcd.uItemState & CDIS_HOT)
-                          state = Pressed;//Hovered;
+                        else if(hot_item == (int)draw->nmcd.dwItemSpec) 
+                          state = Hovered;
                       }
                       
                       if(!Win32ControlPainter::win32_painter.draw_menubar_itembg(
