@@ -226,18 +226,16 @@ void Win32ControlPainter::calc_container_size(
       } return;
       
     case SliderHorzChannel: {
+        float dx = 0;
+        float dy = 4;
         if(theme && Win32Themes::GetThemePartSize) {
           SIZE size;
           if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
-            extents->ascent = 0.75 * size.cy;
-            extents->descent = 0;
-            return;
+            dy = size.cy;
           }
         }
-        float dx = 0;
-        float dy = 4;
         canvas->device_to_user_dist(&dx, &dy);
-        extents->ascent = max(dx, dy);
+        extents->ascent = max(fabs(dx), fabs(dy));
         extents->descent = 0;
       } return;
       
