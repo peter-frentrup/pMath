@@ -912,11 +912,18 @@ void BasicWin32Window::paint_themed(HDC hdc) {
   if(_themed_frame) {
     RECT rect;
     GetClientRect(_hwnd, &rect);
-
-    cairo_surface_t *surface = cairo_win32_surface_create_with_dib(
-                                 CAIRO_FORMAT_ARGB32,
+    
+    /* Create a DIB compatible with hdc. 
+       cairo_win32_surface_create_with_dib() would only create a DIB compatible with 
+       the primary monitor.
+     */
+    cairo_surface_t *ddb = cairo_win32_surface_create(hdc);
+    cairo_surface_t *surface = cairo_surface_create_similar(ddb,
+                                 CAIRO_CONTENT_COLOR_ALPHA,
                                  rect.right  - rect.left,
                                  rect.bottom - rect.top);
+    cairo_surface_destroy(ddb);
+    
     HDC bmp_dc = cairo_win32_surface_get_dc(surface);
     SetLayout(bmp_dc, GetLayout(hdc));
 
@@ -941,6 +948,8 @@ void BasicWin32Window::paint_themed(HDC hdc) {
       0,
       0,
       SRCCOPY);
+    
+    //paint_themed_caption(hdc);
 
     cairo_surface_destroy(surface);
   }
