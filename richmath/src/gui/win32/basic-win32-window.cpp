@@ -1252,18 +1252,18 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
     canvas->reset_matrix();
     cairo_reset_clip(canvas->cairo());
 
-    RECT rect;
-    GetWindowRect(_hwnd, &rect);
-    MapWindowPoints(nullptr, _hwnd, (POINT *)&rect, 2);
+    RECT window_rect;
+    GetWindowRect(_hwnd, &window_rect);
+    MapWindowPoints(nullptr, _hwnd, (POINT *)&window_rect, 2);
 
     canvas->translate(-x, -y);
 
     RECT glassfree;
     get_glassfree_rect(&glassfree);
-//    glassfree.left   -= rect.left;
-//    glassfree.right  -= rect.left;
-    glassfree.top    -= rect.top;
-    glassfree.bottom -= rect.top;
+//    glassfree.left   -= window_rect.left;
+//    glassfree.right  -= window_rect.left;
+    glassfree.top    -= window_rect.top;
+    glassfree.bottom -= window_rect.top;
 
     if(!wallpaper_only) {
       if( !Win32Themes::IsCompositionActive ||
@@ -1324,7 +1324,8 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
 
     if(_themed_frame) {
       LONG style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
-      GetClientRect(_hwnd, &rect);
+      RECT client_rect;
+      GetClientRect(_hwnd, &client_rect);
       get_glassfree_rect(&glassfree);
       
       CanvasAutoSave saved(canvas);
@@ -1334,7 +1335,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
            Temporarily make Cairo use Windows client coordinates.
          */
         canvas->translate(
-          rect.right - rect.left,
+          client_rect.right - client_rect.left,
           0);
         canvas->scale(-1, 1);
       }
@@ -1382,10 +1383,10 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       if(!IsRectEmpty(&glassfree) && !is_win8_or_newer) { // show border between glass/nonglass on Windows Vista and 7
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 
-        canvas->move_to(rect.left,  rect.top);
-        canvas->line_to(rect.right, rect.top);
-        canvas->line_to(rect.right, rect.bottom);
-        canvas->line_to(rect.left,  rect.bottom);
+        canvas->move_to(client_rect.left,  client_rect.top);
+        canvas->line_to(client_rect.right, client_rect.top);
+        canvas->line_to(client_rect.right, client_rect.bottom);
+        canvas->line_to(client_rect.left,  client_rect.bottom);
         canvas->close_path();
 
         canvas->move_to(glassfree.left,  glassfree.top);
@@ -1398,10 +1399,10 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
 
         cairo_set_line_width(canvas->cairo(), 3);
 
-        canvas->move_to(rect.left,  rect.top);
-        canvas->line_to(rect.right, rect.top);
-        canvas->line_to(rect.right, rect.bottom);
-        canvas->line_to(rect.left,  rect.bottom);
+        canvas->move_to(window_rect.left,  window_rect.top);
+        canvas->line_to(window_rect.right, window_rect.top);
+        canvas->line_to(window_rect.right, window_rect.bottom);
+        canvas->line_to(window_rect.left,  window_rect.bottom);
         canvas->close_path();
 
         canvas->move_to(glassfree.left,  glassfree.top);
@@ -1453,18 +1454,16 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         canvas->fill();
       }
 
+      if( client_rect.left - window_rect.left > frameradius || 
+          window_rect.right - client_rect.right > frameradius)
       { // make the edges round again
-        canvas->move_to(rect.left,  rect.top);
-        canvas->line_to(rect.left,  rect.bottom);
-        canvas->line_to(rect.right, rect.bottom);
-        canvas->line_to(rect.right, rect.top);
+        canvas->move_to(client_rect.left,  client_rect.top);
+        canvas->line_to(client_rect.left,  client_rect.bottom);
+        canvas->line_to(client_rect.right, client_rect.bottom);
+        canvas->line_to(client_rect.right, client_rect.top);
         canvas->close_path();
 
         {
-          RECT window_rect;
-          GetWindowRect(_hwnd, &window_rect);
-          MapWindowPoints(nullptr, _hwnd, (POINT*)&window_rect, 2);
-          //InflateRect(&rect, -1, -1);
           window_rect.top+= 1;
 
           canvas->move_to(window_rect.left, window_rect.top + frameradius);
@@ -1473,8 +1472,6 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           canvas->arc(window_rect.right - frameradius, window_rect.bottom - frameradius, frameradius, 0,                M_PI / 2, false);
           canvas->arc(window_rect.left  + frameradius, window_rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
           canvas->close_path();
-
-          //InflateRect(&rect, 1, 1);
         }
 
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
