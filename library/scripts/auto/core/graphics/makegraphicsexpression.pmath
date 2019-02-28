@@ -20,31 +20,31 @@ MakeGraphicsExpression(~c: GrayLevel)    ::= HoldComplete(c);
 moveHold(~f(args: HoldComplete(~~~)***))::=
 	(HoldComplete @@ {Join(args)}).Replace(HoldComplete(HoldComplete(~~~a)) :> HoldComplete(f(a)), 0)
 
-removeCacheHold(~v)::= HoldComplete(v).Replace(NCache(~x, ~) :> x)
+removeCacheHold(~~~v)::= HoldComplete(v).Replace(NCache(~x, ~) :> x)
 
+Attributes(tickBoxToHeldExpr):= {HoldAllComplete}
 Function tickBoxToHeldExpr({~v, ~box, len: Repeated(~, 0..1)}) {
-	With(ev:= HoldComplete(v).Replace(NCache(~x, ~) :> x))
 	With(lbl:= MakeExpression(box).Replace($Failed :> HoldComplete(RawBoxes(box)), 0))
-	With(elen:= HoldComplete(len).Replace(NCache(~x, ~) :> x))
 	moveHold({removeCacheHold(v), lbl, removeCacheHold(len)})
 }
 
 tickBoxToHeldExpr(~t:HoldComplete)::= t /* invalid tick boxes */
 tickBoxToHeldExpr(~t)::= HoldComplete(RawBoxes(t)) /* invalid tick boxes */
 
+Attributes(tickBoxListsToHeldExpr):= {HoldAllComplete}
 tickBoxListsToHeldExpr(0, ~ticks:List)::= moveHold(ticks.Map(tickBoxToHeldExpr))
 Function tickBoxListsToHeldExpr(~depth, ~lists:List) {
 	With(depth:= depth - 1)
 	moveHold(lists.Map(tickBoxListsToHeldExpr(depth, #) &))
 }
-tickBoxListsToHeldExpr(~, other: (True | All | None | Automatic))::= HoldComplete(other)
+tickBoxListsToHeldExpr(~, other: (True | False | All | None | Automatic))::= HoldComplete(other)
 tickBoxListsToHeldExpr(~, ~other)::= HoldComplete(RawBoxes(other)) /* error */
 
 Attributes(makeHeldGraphicsOption):= {HoldAllComplete}
 makeHeldGraphicsOption(~r)::= HoldComplete(r)
-makeHeldGraphicsOption((h: Rule|RuleDelayed)(~lhs, ~rhs))::=       moveHold(h(HoldComplete(lhs),        removeCacheHold(rhs)))
-makeHeldGraphicsOption((h: Rule|RuleDelayed)(Ticks, ~rhs))::=      moveHold(h(HoldComplete(Ticks),      tickBoxListsToHeldExpr(1, rhs)))
-makeHeldGraphicsOption((h: Rule|RuleDelayed)(FrameTicks, ~rhs))::= moveHold(h(HoldComplete(FrameTicks), tickBoxListsToHeldExpr(2, rhs)))
+makeHeldGraphicsOption((h: Rule|RuleDelayed)(~lhs, ~rhs))::=       moveHold(h @@ {HoldComplete(lhs),        removeCacheHold(Unevaluated @ rhs)})
+makeHeldGraphicsOption((h: Rule|RuleDelayed)(Ticks, ~rhs))::=      moveHold(h @@ {HoldComplete(Ticks),      tickBoxListsToHeldExpr(1, rhs)})
+makeHeldGraphicsOption((h: Rule|RuleDelayed)(FrameTicks, ~rhs))::= moveHold(h @@ {HoldComplete(FrameTicks), tickBoxListsToHeldExpr(2, rhs)})
 
 
 

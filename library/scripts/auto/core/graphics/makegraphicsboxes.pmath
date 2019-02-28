@@ -63,7 +63,7 @@ Function tickListsToBoxes(~depth, {~~~lists}) {
 	Return(List @@ HoldComplete(lists).Map(Function(l, tickListsToBoxes(depth, l),{HoldAllComplete})))
 }
 
-tickListsToBoxes(~, other: (True | All | None | Automatic))::= other
+tickListsToBoxes(~, other: (True | False | All | None | Automatic))::= other
 tickListsToBoxes(~, RawBoxes(~other))::= other
 tickListsToBoxes(~, ~other)::= HoldComplete(other) /* error */
 
