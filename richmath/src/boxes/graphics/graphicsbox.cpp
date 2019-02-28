@@ -1145,8 +1145,13 @@ Box *GraphicsBox::normalize_selection(int *start, int *end) {
 
 Box *GraphicsBox::mouse_sensitive() {
   Box *box = Box::mouse_sensitive();
+  if(!box)
+    return this;
   
-  if(box && !dynamic_cast<Document *>(box) && !dynamic_cast<InputFieldBox *>(box))
+  if(!selectable())
+    return box;
+    
+  if(!dynamic_cast<Document *>(box) && !dynamic_cast<InputFieldBox *>(box))
     return box;
     
   return this;
