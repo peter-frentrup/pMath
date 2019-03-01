@@ -67,11 +67,13 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     _hwnd(nullptr),
     _menu(menu),
     _font(nullptr),
-    focused(false),
+    image_list(nullptr),
     current_popup(nullptr),
     current_item(0),
     next_item(0),
-    hot_item(0)
+    hot_item(0),
+    dpi(96),
+    focused(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -96,8 +98,8 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
             
   SendMessageW(_hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
   
-  
-  init_image_list();
+  dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+  reload_image_list();
   
   
   Array<TBBUTTON>  buttons(_menu.is_valid() ? GetMenuItemCount(_menu->hmenu()) : 0);
@@ -144,9 +146,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   SendMessageW(_hwnd, TB_ADDBUTTONSW,
                (WPARAM)buttons.length(),
                (LPARAM)buttons.items());
-               
-  SendMessageW(_hwnd, TB_SETPADDING, 0, (4 << 16) | 0);
-  SendMessageW(_hwnd, TB_SETBUTTONSIZE, 0, 0x010001);
+  
   theme_changed();
 }
 
@@ -164,8 +164,14 @@ Win32Menubar::~Win32Menubar() {
   ImageList_Destroy(image_list);
 }
 
-void Win32Menubar::init_image_list() {
-  image_list = ImageList_Create(16, 16, ILC_COLOR24 | ILC_MASK, 2, 0);
+void Win32Menubar::reload_image_list() {
+  if(image_list)
+    ImageList_Destroy(image_list);
+  
+  // TODO: use resource compatible with current dpi
+  
+  int size = 16;//MulDiv(16, dpi, 96);
+  image_list = ImageList_Create(size, size, ILC_COLOR24 | ILC_MASK, 2, 0);
   
   HBITMAP hbmp = LoadBitmapW((HINSTANCE)GetModuleHandle(nullptr), MAKEINTRESOURCEW(BMP_PIN));
   ImageList_AddMasked(image_list, hbmp, RGB(0xFF, 0, 0xFF));
@@ -179,10 +185,9 @@ bool Win32Menubar::visible() {
 }
 
 int Win32Menubar::best_height() {
-  if(visible()) {
-    int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+  if(visible()) 
     return Win32HighDpi::get_system_metrics_for_dpi(SM_CYMENU, dpi);
-  }
+  
   return 0;
 }
 
@@ -326,8 +331,6 @@ void Win32Menubar::show_sysmenu() {
   tpm.cbSize = sizeof(tpm);
   GetWindowRect(parent, &tpm.rcExclude);
   
-  int dpi = Win32HighDpi::get_dpi_for_window(parent);
-  
   tpm.rcExclude.left += Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi);
   tpm.rcExclude.top +=  Win32HighDpi::get_system_metrics_for_dpi(SM_CYSIZEFRAME, dpi);
   tpm.rcExclude.right  = tpm.rcExclude.left + Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
@@ -457,10 +460,23 @@ int Win32Menubar::find_hilite_menuitem(HMENU *menu) {
   return -1;
 }
 
+void Win32Menubar::on_dpi_changed(int new_dpi) {
+  if(new_dpi == dpi)
+    return;
+    
+  dpi = new_dpi;
+  reload_image_list();
+  theme_changed();
+}
+
 void Win32Menubar::theme_changed() {
+  int row_height = Win32HighDpi::get_system_metrics_for_dpi(SM_CYMENU, dpi);
+  
+  SendMessageW(_hwnd, TB_SETPADDING, 0, (MulDiv(4, dpi, 96) << 16) | 0);
+  SendMessageW(_hwnd, TB_SETBUTTONSIZE, 0, (row_height << 16) | 1);
+  
   NONCLIENTMETRICSW ncm = {0};
   ncm.cbSize = sizeof(ncm);
-  int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
   if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, dpi)) {
     if(_font)
       DeleteObject(_font);
@@ -509,8 +525,12 @@ void Win32Menubar::resized() {
 
 bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
-    case WM_THEMECHANGED:
-    case WM_SETTINGCHANGE: {
+    case WM_DPICHANGED: {
+      on_dpi_changed((int)LOWORD(wParam));
+    } break;
+    
+    case WM_SETTINGCHANGE:
+    case WM_THEMECHANGED: {
       theme_changed();
     } break;
     

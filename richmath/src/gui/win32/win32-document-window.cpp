@@ -9,6 +9,7 @@
 #include <eval/application.h>
 #include <gui/control-painter.h>
 #include <gui/win32/win32-control-painter.h>
+#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-menubar.h>
 #include <gui/win32/win32-scrollbar-overlay.h>
@@ -1025,7 +1026,7 @@ bool Win32DocumentWindow::is_closed() {
 
 void Win32DocumentWindow::on_setting_changed() {
   RECT rect;
-  if(GetWindowRect(menubar->hwnd(), &rect)) {
+  if(GetClientRect(menubar->hwnd(), &rect)) {
     if(rect.bottom - rect.top != menubar->best_height())
       rearrange();
   }
@@ -1064,6 +1065,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       return result;
       
     switch(message) {
+      case WM_DPICHANGED:
       case WM_SETTINGCHANGE: {
         on_setting_changed();
         } break;

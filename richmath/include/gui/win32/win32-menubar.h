@@ -41,8 +41,9 @@ namespace richmath {
       void resized();
       bool callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam);
       
-    protected:
-      void init_image_list();
+    private:
+      void on_dpi_changed(int new_dpi);
+      void reload_image_list();
       
       void show_menu(int item);
       void show_sysmenu();
@@ -55,19 +56,16 @@ namespace richmath {
       
       static int find_hilite_menuitem(HMENU *menu);
       
-    protected:
+    private:
       MenuAppearence _appearence;
       
-    protected:
+    private:
       Win32DocumentWindow *_window;
       HWND                 _hwnd;
       SharedPtr<Win32Menu> _menu;
       HFONT                _font;
       
       HIMAGELIST image_list;
-      
-      bool focused;
-      bool menu_animation;
       
       HMENU current_popup;
       int current_item;
@@ -76,6 +74,11 @@ namespace richmath {
       
       int separator_index;
       int pin_index;
+      
+      int dpi;
+      
+      bool focused : 1;
+      bool menu_animation : 1;
       
       static LRESULT CALLBACK menu_hook_proc(int code, WPARAM wParam, LPARAM lParam);
   };

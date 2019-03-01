@@ -22,6 +22,8 @@ namespace richmath {
     public:
       static void init();
       
+      /* Note that this value may be out-of-date during WM_DPICHANGED
+       */
       static int get_dpi_for_window(HWND hwnd);
       
       static bool adjust_window_rect(RECT *rect, DWORD style, bool has_menu, DWORD style_ex, int dpi);
