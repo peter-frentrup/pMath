@@ -1047,6 +1047,9 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     HFONT old_font = nullptr;
     if(SUCCEEDED(Win32Themes::GetThemeSysFont(theme, 801, &log_font))) {
       // TMT_CAPTIONFONT = 801
+      /* GetThemeSysFont scales according to the current logical screen dpi. */
+      int logical_screen_dpi = GetDeviceCaps(hdc_bitmap, LOGPIXELSY);
+      log_font.lfHeight = MulDiv(log_font.lfHeight, dpi, logical_screen_dpi);
       HFONT font = CreateFontIndirectW(&log_font);
       old_font = (HFONT)SelectObject(hdc_bitmap, font);
     }
