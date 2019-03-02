@@ -26,6 +26,8 @@ namespace richmath {
        */
       static int get_dpi_for_window(HWND hwnd);
       
+      static int get_dpi_for_system();
+      
       static bool adjust_window_rect(RECT *rect, DWORD style, bool has_menu, DWORD style_ex, int dpi);
       
       static int get_system_metrics_for_dpi(int index, int dpi);
@@ -42,6 +44,7 @@ namespace richmath {
       
     private:
       static HRESULT (WINAPI *GetDpiForMonitor)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*);
+      static UINT (WINAPI *GetDpiForSystem)();
       static BOOL (WINAPI *AdjustWindowRectExForDpi)(LPRECT,DWORD,BOOL,DWORD,UINT);
       static int (WINAPI *GetSystemMetricsForDpi)(int,UINT);
       static BOOL (WINAPI *SystemParametersInfoForDpi)(UINT,UINT,PVOID,UINT,UINT);

@@ -1055,10 +1055,8 @@ void Win32ControlPainter::system_font_style(ControlContext *context, Style *styl
     
     if(logfont) {
       // GetThemeSysFont gets metrics in dots per inch for the current logical screen
-        
-      HDC hdc = GetDC(nullptr);
-      dpi_scale = GetDeviceCaps(hdc, LOGPIXELSX) / (float)context->dpi();
-      ReleaseDC(nullptr, hdc);
+      
+      dpi_scale = Win32HighDpi::get_dpi_for_system() / (float)context->dpi();
     }
   }
   

@@ -10,6 +10,7 @@ using namespace richmath;
 //{ class Win32HighDpi ...
 
 HRESULT (WINAPI * Win32HighDpi::GetDpiForMonitor)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*) = nullptr;
+UINT    (WINAPI * Win32HighDpi::GetDpiForSystem)() = nullptr;
 BOOL    (WINAPI * Win32HighDpi::AdjustWindowRectExForDpi)(LPRECT,DWORD,BOOL,DWORD,UINT) = nullptr;
 int     (WINAPI * Win32HighDpi::GetSystemMetricsForDpi)(int,UINT) = nullptr;
 BOOL    (WINAPI * Win32HighDpi::SystemParametersInfoForDpi)(UINT,UINT,PVOID,UINT,UINT) = nullptr;
@@ -26,6 +27,8 @@ Win32HighDpi::Win32HighDpi()
     if(shcore) {
       GetDpiForMonitor = (HRESULT (WINAPI*)(HMONITOR,MONITOR_DPI_TYPE,UINT*,UINT*))
                          GetProcAddress(shcore, "GetDpiForMonitor");
+      GetDpiForSystem = (UINT (WINAPI*)())
+                         GetProcAddress(shcore, "GetDpiForSystem");
     }
   }
   
@@ -47,6 +50,7 @@ Win32HighDpi::~Win32HighDpi() {
   FreeLibrary(user32); user32 = nullptr;
   
   GetDpiForMonitor = nullptr;
+  GetDpiForSystem = nullptr;
   AdjustWindowRectExForDpi = nullptr;
   GetSystemMetricsForDpi = nullptr;
   SystemParametersInfoForDpi = nullptr;
@@ -64,10 +68,21 @@ int Win32HighDpi::get_dpi_for_window(HWND hwnd) {
     if(HRbool(GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY))) 
       return dpiY;
   }
-  //return GetDeviceCaps(hdc, LOGPIXELSY);
-  return 96;
+  
+  return get_dpi_for_system();
 }
 
+int Win32HighDpi::get_dpi_for_system() {
+  if(GetDpiForSystem) 
+    return GetDpiForSystem();
+  
+  // The same value, but slower (according to Microsoft):
+  HDC hdc = GetDC(nullptr);
+  int dpi = GetDeviceCaps(hdc, LOGPIXELSY);
+  ReleaseDC(nullptr, hdc);
+  return dpi;
+}
+      
 bool Win32HighDpi::adjust_window_rect(RECT *rect, DWORD style, bool has_menu, DWORD style_ex, int dpi) {
   if(AdjustWindowRectExForDpi) 
     return !!AdjustWindowRectExForDpi(rect, style, has_menu, style_ex, (UINT)dpi);

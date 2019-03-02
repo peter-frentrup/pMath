@@ -95,13 +95,7 @@ Win32Widget::Win32Widget(
     is_dragging(false),
     is_drop_over(false)
 {
-  if (HDC hdc = GetDC(nullptr))
-  {
-    //int dpi_x = GetDeviceCaps(hdc, LOGPIXELSX);
-    //int dpi_y = GetDeviceCaps(hdc, LOGPIXELSY);
-    _dpi = GetDeviceCaps(hdc, LOGPIXELSY);
-    ReleaseDC(nullptr, hdc);
-  }
+  _dpi = Win32HighDpi::get_dpi_for_window(hwnd());
 }
 
 void Win32Widget::after_construction() {
