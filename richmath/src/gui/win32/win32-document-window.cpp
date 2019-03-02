@@ -437,13 +437,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
       
       document()->style->set(Background, -1);
       
-      shadows = Evaluate(Parse(
-                           "{{-`1`,-`2`, GrayLevel(1), `3`},"
-                           "{ `1`,-`2`, GrayLevel(1), `3`},"
-                           "{-`1`, `2`, GrayLevel(1), `3`},"
-                           "{ `1`, `2`, GrayLevel(1), `3`}}",
-                           0.75, 0.75, 4.0));
-                           
+      reload_shadows(Win32HighDpi::get_dpi_for_window(_hwnd));
       set_textshadows();
     }
     
@@ -512,6 +506,46 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
       Win32Dock::paint_background(canvas);
     }
     
+    static Expr text_shadows_from_theme(HANDLE theme, int part, int state) {
+      if(!Win32Themes::GetThemeInt || !Win32Themes::GetThemeColor)
+        return List();
+      
+      int glow_size = 0;
+      // TMT_TEXTGLOWSIZE = 2425
+      Win32Themes::GetThemeInt(theme, part, state, 2425, &glow_size);
+      if(glow_size == 0)
+        return List();
+      
+      COLORREF col_bgr = 0xFFFFFF;
+      // TMT_GLOWINTENSITY = 3816
+      Win32Themes::GetThemeColor(theme, part, state, 3816, &col_bgr);
+      
+      // is this an alpha value???
+      //int glow_intensity = 0;
+      //// TMT_GLOWINTENSITY = 2429
+      //Win32Themes::GetThemeInt(theme, part, state, 2429, &glow_intensity);
+      
+      Expr color = Call(
+                     Symbol(PMATH_SYMBOL_RGBCOLOR), 
+                     ( col_bgr        & 0xFF) / 255.0, 
+                     ((col_bgr >>  8) & 0xFF) / 255.0, 
+                     ((col_bgr >> 16) & 0xFF) / 255.0);
+      
+      double radius = glow_size * 0.5 * 0.75;
+      return List(
+        List(-0.75, -0.75, color, radius),
+        List( 0.75, -0.75, color, radius),
+        List(-0.75,  0.75, color, radius),
+        List( 0.75,  0.75, color, radius));
+    }
+    
+    void reload_shadows(int dpi) {
+      shadows = text_shadows_from_theme(
+                  BasicWin32Window::composition_window_theme(dpi),
+                  1, /* WP_CAPTION */
+                  1 /* CS_ACTIVE */);
+    }
+    
     virtual void on_paint(HDC dc, bool from_wmpaint) override {
       if( Win32Themes::IsCompositionActive &&
           Win32Themes::IsCompositionActive())
@@ -527,6 +561,10 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       if(!initializing()) {
         switch(message) {
+          case WM_THEMECHANGED: {
+            reload_shadows(Win32HighDpi::get_dpi_for_window(_hwnd));
+          } break;
+          
           case WM_LBUTTONDOWN: {
               if( Win32Dock::callback(message, wParam, lParam) == 0 &&
                   document()->clicked_box_id() == document()->id() &&

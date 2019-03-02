@@ -35,29 +35,6 @@ static Hashtable<String, AutoCairoSurface> background_image_cache;
 
 static Hashtable<int, HANDLE> composition_window_theme_for_dpi;
 
-static HANDLE composition_window_theme(int dpi) {
-  if(HANDLE *h = composition_window_theme_for_dpi.search(dpi)) 
-    return *h;
-  
-  if(Win32Themes::OpenThemeDataForDpi) {
-    HANDLE h = Win32Themes::OpenThemeDataForDpi(nullptr, L"CompositedWindow::Window", (UINT)dpi);
-    if(h) 
-      composition_window_theme_for_dpi.set(dpi, h);
-      
-    return h;
-  }
-  
-  if(Win32Themes::OpenThemeData) {
-    HANDLE h = Win32Themes::OpenThemeData(nullptr, L"CompositedWindow::Window");
-    if(h) 
-      composition_window_theme_for_dpi.set(dpi, h);
-      
-    return h;
-  }
-  
-  return nullptr;
-}
-
 static AutoCairoSurface get_background_image() {
   Expr expr = Evaluate(Parse("FE`$WindowFrameImage"));
 
@@ -2101,4 +2078,28 @@ HDWP BasicWin32Window::tryDeferWindowPos(
     return nullptr;
   }
 }
+
+HANDLE BasicWin32Window::composition_window_theme(int dpi) {
+  if(HANDLE *h = composition_window_theme_for_dpi.search(dpi)) 
+    return *h;
+  
+  if(Win32Themes::OpenThemeDataForDpi) {
+    HANDLE h = Win32Themes::OpenThemeDataForDpi(nullptr, L"CompositedWindow::Window", (UINT)dpi);
+    if(h) 
+      composition_window_theme_for_dpi.set(dpi, h);
+      
+    return h;
+  }
+  
+  if(Win32Themes::OpenThemeData) {
+    HANDLE h = Win32Themes::OpenThemeData(nullptr, L"CompositedWindow::Window");
+    if(h) 
+      composition_window_theme_for_dpi.set(dpi, h);
+      
+    return h;
+  }
+  
+  return nullptr;
+}
+
 //} ... class BasicWin32Window

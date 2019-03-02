@@ -116,7 +116,8 @@ namespace richmath {
         int cx,
         int cy,
         UINT uFlags);
-        
+      
+      static HANDLE composition_window_theme(int dpi);
   };
 }
 
