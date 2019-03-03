@@ -34,10 +34,18 @@
 #define TID_SCROLL         1
 #define TID_ANIMATE        2
 #define TID_BLINKCURSOR    3
+#define TID_REDRAW_NODIFF  4
 
 #define ANIMATION_DELAY  (50)
 
 using namespace richmath;
+
+#ifdef NDEBUG
+#  define DEBUG_as_bool  false
+#else
+#  define DEBUG_as_bool  true
+#endif
+bool DebugFlashChanges = DEBUG_as_bool;
 
 SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
   switch(vkey) {
@@ -86,6 +94,7 @@ Win32Widget::Win32Widget(
     BasicWin32Widget(style_ex, style, x, y, width, height, parent),
     _autohide_vertical_scrollbar(false),
     _image_format(CAIRO_FORMAT_RGB24),
+    _old_pixels(nullptr),
     is_painting(false),
     scrolling(false),
     _width(0),
@@ -157,9 +166,8 @@ void Win32Widget::after_construction() {
 }
 
 Win32Widget::~Win32Widget() {
-//  if(surface)
-//    cairo_surface_destroy(surface);
-
+  if(_old_pixels)
+    cairo_surface_destroy(_old_pixels);
 }
 
 void Win32Widget::window_size(float *w, float *h) {
@@ -633,6 +641,50 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
   }
 }
 
+static bool image_diff(
+  unsigned char  *old_data,
+  unsigned char  *new_data,
+  unsigned char  *diff_a8,
+  cairo_format_t  format,
+  int             width,
+  int             old_stride,
+  int             new_stride,
+  int             diff_stride,
+  int             height
+) {
+  uint32_t mask;
+  switch(format) {
+    case CAIRO_FORMAT_RGB24:
+      mask = 0x00FFFFFFU;
+      break;
+      
+    case CAIRO_FORMAT_ARGB32:
+      mask = 0xFFFFFFFFU;
+      break;
+    
+    default:
+      return false;
+  }
+  
+  bool any_change = false;
+  for(int y = 0; y < height;++y) {
+    uint32_t *old_row = (uint32_t*)(old_data + y * old_stride);
+    uint32_t *new_row = (uint32_t*)(new_data + y * new_stride);
+    unsigned char *diff_row = diff_a8 + y * diff_stride;
+    
+    for(int x = 0;x < width;++x) {
+      if((old_row[x] & mask) != (new_row[x] & mask)) {
+        diff_row[x] = 0x00;
+        any_change = true;
+      }
+      else{
+        diff_row[x] = 0xFF;
+      }
+    }
+  }
+  return any_change;
+}
+
 void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   RECT rect;
   GetClientRect(_hwnd, &rect);
@@ -640,10 +692,12 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   _dpi = Win32HighDpi::get_dpi_for_window(hwnd());
   //pmath_debug_print("[get_dpi_for_window = %d]\n", Win32HighDpi::get_dpi_for_window(hwnd()));
   
+  int width = rect.right;
+  int height = rect.bottom;
   cairo_surface_t *target = cairo_win32_surface_create_with_dib(
                               _image_format,
-                              rect.right,
-                              rect.bottom);
+                              width,
+                              height);
                               
   cairo_t *cr = cairo_create(target);
   {
@@ -682,11 +736,58 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   cairo_surface_flush(target);
   
   if(from_wmpaint) {
+    cairo_surface_t *output = target;
+    
+    if(DebugFlashChanges && _old_pixels) {
+      cairo_surface_t *old_img = cairo_win32_surface_get_image(_old_pixels);
+      cairo_surface_t *new_img = cairo_win32_surface_get_image(target);
+      if( old_img && 
+          new_img && 
+          cairo_image_surface_get_format(old_img) == _image_format &&
+          cairo_image_surface_get_width(old_img)  == width &&
+          cairo_image_surface_get_height(old_img) == height)
+      {
+        cairo_surface_t *diff_a8 = cairo_image_surface_create(CAIRO_FORMAT_A8, width, height);
+        if(cairo_surface_status(diff_a8) == CAIRO_STATUS_SUCCESS) {
+          bool any_change = image_diff(
+                              cairo_image_surface_get_data(old_img),
+                              cairo_image_surface_get_data(new_img),
+                              cairo_image_surface_get_data(diff_a8),
+                              _image_format,
+                              width,
+                              cairo_image_surface_get_stride(old_img),
+                              cairo_image_surface_get_stride(new_img),
+                              cairo_image_surface_get_stride(diff_a8),
+                              height);
+          cairo_surface_mark_dirty (diff_a8);
+          
+          if(any_change) {
+            cairo_t *cr = cairo_create(_old_pixels);
+            {
+              cairo_set_source_surface(cr, target, 0.0, 0.0);
+              cairo_paint(cr);
+              cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.5);
+              cairo_mask_surface(cr, diff_a8, 0.0, 0.0);
+            }
+            cairo_destroy(cr);
+            cairo_surface_flush(_old_pixels);
+            output = _old_pixels;
+            
+            SetTimer(_hwnd, TID_REDRAW_NODIFF, 100, nullptr);
+          }
+        }
+        cairo_surface_destroy(diff_a8);
+      }
+    }
+    
     BitBlt(dc, 0, 0, rect.right, rect.bottom,
-           cairo_win32_surface_get_dc(target), 0, 0, SRCCOPY);
+           cairo_win32_surface_get_dc(output), 0, 0, SRCCOPY);
+           
+    if(_old_pixels)
+      cairo_surface_destroy(_old_pixels);
+    
+    _old_pixels = target;
   }
-  
-  cairo_surface_destroy(target);
 }
 
 void Win32Widget::on_hscroll(WORD kind, WORD thumbPos) {
@@ -1417,6 +1518,20 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                   
                 if(Box *box = ctx->selection.get())
                   box->request_repaint_range(ctx->selection.start, ctx->selection.end);
+              } break;
+            
+            case TID_REDRAW_NODIFF: {
+                KillTimer(_hwnd, TID_REDRAW_NODIFF);
+                if(_old_pixels) {
+                  HDC dc = GetDC(_hwnd);
+                  
+                  RECT rect;
+                  GetClientRect(_hwnd, &rect);
+                  BitBlt(dc, 0, 0, rect.right, rect.bottom,
+                         cairo_win32_surface_get_dc(_old_pixels), 0, 0, SRCCOPY);
+                         
+                  DeleteDC(dc);
+                }
               } break;
           }
         } return 0;

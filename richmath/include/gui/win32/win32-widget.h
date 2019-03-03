@@ -85,6 +85,7 @@ namespace richmath {
       cairo_format_t _image_format;
       
     private:
+      cairo_surface_t *_old_pixels;
       CursorType cursor;
       bool mouse_moving;
       
