@@ -767,7 +767,8 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
               cairo_set_source_surface(cr, target, 0.0, 0.0);
               cairo_paint(cr);
               cairo_set_source_rgba(cr, 1.0, 0.0, 0.0, 0.5);
-              cairo_mask_surface(cr, diff_a8, 0.0, 0.0);
+              //cairo_mask_surface(cr, diff_a8, 0.0, 0.0);
+              cairo_paint(cr);
             }
             cairo_destroy(cr);
             cairo_surface_flush(_old_pixels);
