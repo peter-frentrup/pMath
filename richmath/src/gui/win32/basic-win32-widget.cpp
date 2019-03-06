@@ -114,11 +114,20 @@ void BasicWin32Widget::after_construction() {
 }
 
 BasicWin32Widget::~BasicWin32Widget() {
-  // detach this from window handle:
-  SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
+  before_destruction();
   
-  DestroyWindow(_hwnd);
+  if(_hwnd) {
+    DestroyWindow(_hwnd); 
+    _hwnd = nullptr;
+  }
   add_remove_window(-1);
+}
+
+void BasicWin32Widget::before_destruction() {
+  if(_hwnd) {
+    // detach this from window handle:
+    SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
+  }
 }
 
 //

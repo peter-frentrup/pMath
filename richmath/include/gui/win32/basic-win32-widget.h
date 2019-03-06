@@ -64,7 +64,10 @@ namespace richmath {
       virtual ~BasicWin32Widget();
       
       bool initializing() { return _initializing; }
-      
+    
+    protected:
+      void before_destruction();
+    
     public:
       //
       // IUnknown members
