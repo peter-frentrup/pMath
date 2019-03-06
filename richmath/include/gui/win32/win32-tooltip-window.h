@@ -10,9 +10,10 @@
 
 namespace richmath {
   class Win32TooltipWindow: public Win32Widget {
-    public:
+    protected:
       virtual ~Win32TooltipWindow();
       
+    public:
       static void move_global_tooltip();
       static void show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet);
       static void hide_global_tooltip();

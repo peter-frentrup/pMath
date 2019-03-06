@@ -19,6 +19,7 @@ namespace richmath {
   // Must call init() immediately after the construction of a derived object!
   class Win32DocumentWindow: public BasicWin32Window {
     protected:
+      virtual ~Win32DocumentWindow();
       virtual void after_construction() override;
       
     public:
@@ -30,7 +31,6 @@ namespace richmath {
         int y,
         int width,
         int height);
-      virtual ~Win32DocumentWindow();
       
       Document *top_glass() {    return ((Win32Widget*)_top_glass_area)->document();    }
       Document *top() {          return ((Win32Widget*)_top_area)->document();          }

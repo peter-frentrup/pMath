@@ -114,20 +114,21 @@ void BasicWin32Widget::after_construction() {
 }
 
 BasicWin32Widget::~BasicWin32Widget() {
-  before_destruction();
-  
   if(_hwnd) {
+    SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
     DestroyWindow(_hwnd); 
     _hwnd = nullptr;
   }
   add_remove_window(-1);
 }
 
-void BasicWin32Widget::before_destruction() {
+void BasicWin32Widget::destroy() {
   if(_hwnd) {
     // detach this from window handle:
     SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
   }
+  
+  delete this;
 }
 
 //
@@ -308,7 +309,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       } break;
       
     case WM_CLOSE: {
-        delete this;
+        destroy();
       } return 0;
       
     case WM_DESTROY: {

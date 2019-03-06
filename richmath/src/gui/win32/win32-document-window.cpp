@@ -680,16 +680,14 @@ void Win32DocumentWindow::after_construction() {
 }
 
 Win32DocumentWindow::~Win32DocumentWindow() {
-  before_destruction(); // detach from HWND to supress further messages
-  
   all_document_ids.remove(_working_area->document()->id());
   
-  delete menubar;            menubar = nullptr;
-  delete _top_glass_area;    _top_glass_area = nullptr;
-  delete _top_area;          _top_area = nullptr;
-  delete _bottom_area;       _bottom_area = nullptr;
-  delete _bottom_glass_area; _bottom_glass_area = nullptr;
-  delete _working_area;      _working_area = nullptr;
+  menubar->destroy();            menubar = nullptr;
+  _top_glass_area->destroy();    _top_glass_area = nullptr;
+  _top_area->destroy();          _top_area = nullptr;
+  _bottom_area->destroy();       _bottom_area = nullptr;
+  _bottom_glass_area->destroy(); _bottom_glass_area = nullptr;
+  _working_area->destroy();      _working_area = nullptr;
   
   // remove all menu items so that the submenus are not destroyed automatically
   HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);

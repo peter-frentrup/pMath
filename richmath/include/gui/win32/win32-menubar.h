@@ -23,9 +23,12 @@ namespace richmath {
   } MenuAppearence;
   
   class Win32Menubar: public Base {
+    protected:
+      ~Win32Menubar();
+      
     public:
       Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<Win32Menu> menu);
-      ~Win32Menubar();
+      void destroy() { delete this; }
       
       HWND                 hwnd() { return _hwnd; }
       SharedPtr<Win32Menu> menu() { return _menu; }

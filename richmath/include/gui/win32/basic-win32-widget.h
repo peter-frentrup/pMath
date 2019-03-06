@@ -44,6 +44,7 @@ namespace richmath {
       
     protected:
       virtual void after_construction();
+      virtual ~BasicWin32Widget();
       
     public:
       BasicWin32Widget(
@@ -61,12 +62,9 @@ namespace richmath {
         _initializing = false;
       }
       
-      virtual ~BasicWin32Widget();
-      
-      bool initializing() { return _initializing; }
+      void destroy();
     
-    protected:
-      void before_destruction();
+      bool initializing() { return _initializing; }
     
     public:
       //

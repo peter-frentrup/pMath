@@ -15,6 +15,7 @@ namespace richmath {
   // Must call init() immediately after the construction of a derived object!
   class Win32Widget: public NativeWidget, public BasicWin32Widget {
     protected:
+      virtual ~Win32Widget();
       virtual void after_construction() override;
       
     public:
@@ -27,8 +28,8 @@ namespace richmath {
         int width,
         int height,
         HWND *parent);
-      virtual ~Win32Widget();
-      
+    
+    public:
       virtual void window_size(float *w, float *h) override;
       virtual void page_size(float *w, float *h) override {
         window_size(w, h);

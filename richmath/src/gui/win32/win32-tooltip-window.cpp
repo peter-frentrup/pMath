@@ -87,7 +87,7 @@ void Win32TooltipWindow::hide_global_tooltip() {
 
 void Win32TooltipWindow::delete_global_tooltip() {
   if(tooltip_window)
-    delete tooltip_window;
+    tooltip_window->destroy();
 }
 
 void Win32TooltipWindow::page_size(float *w, float *h) {
