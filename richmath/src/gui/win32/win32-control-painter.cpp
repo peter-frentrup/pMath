@@ -2,11 +2,16 @@
 
 #include <gui/win32/win32-control-painter.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cwchar>
 
 #include <windows.h>
+
+#ifdef max
+#  undef max
+#endif
 
 #include <cairo-win32.h>
 
@@ -24,6 +29,7 @@
 #endif
 
 using namespace richmath;
+using namespace std;
 
 class Win32ControlPainterInfo: public BasicWin32Widget {
   public:
