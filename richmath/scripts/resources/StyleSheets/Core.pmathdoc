@@ -107,9 +107,18 @@ Document({
          TemplateBoxOptions -> {DisplayFunction -> ({
            StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
             ShowAutoStyles -> False), "(", {{#1, ",", #2}, ";", #3, ";", #4}, 
-           ")"} &), Tooltip -> Automatic}), 
+           ")"} &), Tooltip -> Automatic}), Section(StyleData("OpenerView"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
+           GridBox({{OpenerBox(#3), {#1}}, {
+              "", PaneSelectorBox({
+                True -> GridBox({{""}, {#2}}, 
+                 GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
+            BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
+            GridBoxRowSpacing -> 0)} &), InterpretationFunction -> ({
+           "OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
+            InterpretationBox("", #3)}, ")"} &)}), 
         Section(StyleData("Det"), TemplateBoxOptions -> {
-          DisplayFunction -> ({"\[LeftBracketingBar]", #1; 1, 
+          DisplayFunction -> ({"\[LeftBracketingBar]", #1; 1; 1, 
            "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
         Section(StyleData("TooltipContent"), 
          TemplateBoxOptions -> {DisplayFunction -> (ButtonBox(#1, 

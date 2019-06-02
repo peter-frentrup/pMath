@@ -374,6 +374,7 @@
 {"OpenAppend", {"ArgumentCount" -> 1}}
 {"Opener", {"ArgumentCount" -> 0..1}},
 {"OpenerBox", {"ArgumentCount" -> 1}},
+{"OpenerView", {"ArgumentCount" -> 1..2}},
 {"OpenRead", {"ArgumentCount" -> 1}},
 {"OpenWrite", {"ArgumentCount" -> 1}},
 {"Operate", {"ArgumentCount" -> 2..3}},
