@@ -118,7 +118,7 @@ Document({
            "OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
             InterpretationBox("", #3)}, ")"} &)}), 
         Section(StyleData("Det"), TemplateBoxOptions -> {
-          DisplayFunction -> ({"\[LeftBracketingBar]", #1; 1; 1, 
+          DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
            "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
         Section(StyleData("TooltipContent"), 
          TemplateBoxOptions -> {DisplayFunction -> (ButtonBox(#1, 
