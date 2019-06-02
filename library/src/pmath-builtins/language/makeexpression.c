@@ -154,6 +154,7 @@ extern pmath_symbol_t pmath_System_UpDownArrow;
 extern pmath_symbol_t pmath_System_UpperLeftArrow;
 extern pmath_symbol_t pmath_System_UpperRightArrow;
 
+extern pmath_symbol_t pmath_System_Private_FindTemplateInterpretationFunction;
 extern pmath_symbol_t pmath_System_Private_FlattenTemplateSequence;
 extern pmath_symbol_t pmath_System_Private_MakeLimitsExpression;
 extern pmath_symbol_t pmath_System_Private_MakeScriptsExpression;
@@ -1507,6 +1508,7 @@ static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
   
   if(len >= 2) {
     pmath_t tag;
+    pmath_t func;
     pmath_t args = pmath_expr_get_item(box, 1);
     size_t i;
     size_t argcount;
@@ -1518,44 +1520,31 @@ static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
     }
     
     argcount = pmath_expr_length(args);
-    for(i = 3; i <= len; ++i) {
-      pmath_t opt = pmath_expr_get_item(box, i);
-      if(_pmath_is_rule(opt)) {
-        pmath_t lhs = pmath_expr_get_item(opt, 1);
-        pmath_unref(lhs);
-        if(pmath_same(lhs, pmath_System_InterpretationFunction)) {
-          pmath_t func = pmath_expr_get_item(opt, 2);
-          func = pmath_expr_new_extended(
-            pmath_ref(pmath_System_Private_FlattenTemplateSequence), 2,
-            func,
-            pmath_integer_new_uiptr(argcount));
-          func = pmath_evaluate(func);
-          if(pmath_is_expr_of_len(func, PMATH_SYMBOL_FUNCTION, 1)) {
-            pmath_t body = pmath_expr_get_item(func, 1);
-            pmath_unref(func);
-            func = pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_FUNCTION), 3,
-                     PMATH_NULL,
-                     pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                       body),
-                     pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_LIST), 1,
-                       pmath_ref(PMATH_SYMBOL_HOLDALLCOMPLETE)));
-            
-            pmath_unref(opt);
-            pmath_unref(box);
-            box = pmath_expr_set_item(args, 0, func);
-            box = pmath_evaluate(box);
-            box = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
-                    box);
-            return box;
-          }
-        }
-      }
-      pmath_unref(opt);
+    func = pmath_expr_new_extended(
+             pmath_ref(pmath_System_Private_FlattenTemplateSequence), 2,
+             pmath_expr_new_extended(
+               pmath_ref(pmath_System_Private_FindTemplateInterpretationFunction), 1, 
+               pmath_ref(box)),
+             pmath_integer_new_uiptr(argcount));
+    func = pmath_evaluate(func);
+    if(pmath_is_expr_of_len(func, PMATH_SYMBOL_FUNCTION, 1)) {
+      pmath_t body = pmath_expr_get_item(func, 1);
+      pmath_unref(func);
+      func = pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_FUNCTION), 3,
+               PMATH_NULL,
+               pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+                 body),
+               pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_LIST), 1,
+                 pmath_ref(PMATH_SYMBOL_HOLDALLCOMPLETE)));
+      
+      pmath_unref(box);
+      box = pmath_expr_set_item(args, 0, func);
+      return box;
     }
+    pmath_unref(func);
     
     tag = pmath_expr_get_item(box, 2);
     if(pmath_is_string(tag)) {

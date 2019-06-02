@@ -1,5 +1,6 @@
 BeginPackage("Syntax`", {"ExperimentalSyntax`"})
 
+System`Private`FindTemplateInterpretationFunction
 System`Private`FlattenTemplateSequence
 
 Begin("System`Private`")
@@ -40,6 +41,70 @@ Function bodyFlattenTemplateSequence(~heldBody, ~argnum) {
     ).Replace(
         ~f(~~~a,SEQ(~~~b),~~~c) :> f(a,b,c)
     ))
+}
+
+Function FindTemplateInterpretationFunction(~t) {
+    With(opt:= findTemplateInterpretationFunctionOption(t))
+    If(opt =!= $Failed) {
+        Return(opt)
+    } Else {
+        Return(findCoreTemplateInterpretationFunction(t))
+    }
+}
+
+findTemplateInterpretationFunctionOption(TemplateBox(Repeated(~, 2..), InterpretationFunction -> ~f, ~~~))::= f
+findTemplateInterpretationFunctionOption(~)::= $Failed
+
+Function findCoreTemplateInterpretationFunction(TemplateBox(~, ~tag:String, ~~~)) {
+    If(Length(DownRules(coreInterpretationFunctionCache)) === 0) {
+        loadCoreTemplateInterpretations()
+    }
+    coreInterpretationFunctionCache(tag)
+}
+
+Function loadCoreTemplateInterpretations() {
+    Clear(coreInterpretationFunctionCache);
+    coreInterpretationFunctionCache(~)::= $Failed
+    If(IsString(FE`$StylesheetDirectory)) {
+        loadTemplateInterpretations(
+            FileNames(
+                FE`$StylesheetDirectory,
+                "Core.pmathdoc"
+            )
+        )
+    } Else {
+        loadTemplateInterpretations(
+            $BaseDirectory.DirectoryName(3).FileNames(
+                "richmath"
+            ).FileNames(
+                "scripts"
+            ).FileNames(
+                "resources"
+            ).FileNames(
+                "StyleSheets"
+            ).FileNames(
+                "Core.pmathdoc"
+            )
+        )
+    }
+}
+
+Function loadTemplateInterpretations({~filename:String,~~~}) {
+    loadTemplateInterpretations(filename)
+}
+
+Function loadTemplateInterpretations(~filename:String) {
+    With(document:= Get(filename, Head->HoldComplete))
+    document.Cases(
+        Section(
+            StyleData(~s:String), 
+            ~~~, 
+            TemplateBoxOptions -> {
+                ~~~, 
+                InterpretationFunction -> ~ifun:Function, 
+                ~~~}, 
+            ~~~) :> (coreInterpretationFunctionCache(s):= ifun), 
+        1..Infinity)
 }
 
 End()

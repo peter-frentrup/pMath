@@ -118,7 +118,7 @@ End()
 
 Get(ToFileName({$BaseDirectory, "auto", "core", "gui"}, "options.pmath"))
 
-AutoLoad(Hold(System`Private`FlattenTemplateSequence),
+AutoLoad(Hold(System`Private`FindTemplateInterpretationFunction, System`Private`FlattenTemplateSequence),
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "templateboxes.pmath"))
 AutoLoad(Hold(CopyDirectory, CopyFile, CreateDirectory, DeleteDirectory, DeleteFile, FileByteCount, FileInformation, FileNameSplit, FileType, RenameDirectory, RenameFile),
 	"System`InputOutput`")
@@ -164,6 +164,8 @@ AutoLoad(Hold(Nothing),
 
 AutoLoad(Hold(System`Util`latexToBoxes), 
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "latextoboxes.pmath"))
+AutoLoad(Hold(OpenerView),
+	ToFileName({$BaseDirectory, "auto", "core", "gui"}, "OpenerView.pmath"))
 
 Get(ToFileName({$BaseDirectory, "auto", "core", "Developer"}, "PrintMessageOverload.pmath"))
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "syntax.pmath"));
