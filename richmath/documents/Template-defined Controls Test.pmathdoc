@@ -144,6 +144,8 @@ Document({SectionGroup({Section("Template-defined Controls Test", "Section"),
                  True -> GridBox({{""}, {#2}}, 
                   GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
              BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-             GridBoxRowSpacing -> 0)} &)})}, All)}, All)}, All)}, 
+             GridBoxRowSpacing -> 0)} &), InterpretationFunction -> ({
+            "myOpenerView", "(", {#1, ",", #2, ",", 
+             InterpretationBox("", #3)}, ")"} &)})}, All)}, All)}, All)}, 
   StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
  Visible -> True)

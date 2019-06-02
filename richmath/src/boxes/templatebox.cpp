@@ -233,6 +233,27 @@ Expr TemplateBox::to_pmath_symbol() {
 }
 
 Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::Parseable)) {
+    Expr ifun = get_own_style(InterpretationFunction);
+    if(ifun.expr_length() == 1 && ifun[0] == PMATH_SYMBOL_FUNCTION) {
+      ifun = Call(
+               Symbol(PMATH_SYMBOL_FUNCTION), 
+               Call(
+                 Symbol(PMATH_SYMBOL_HOLDCOMPLETE), 
+                 ifun[1]));
+      ifun = Call(
+        Symbol(richmath_System_Private_FlattenTemplateSequence), 
+        ifun, 
+        arguments.expr_length());
+      
+      Expr boxes = arguments;
+      boxes.set(0, std::move(ifun));
+      boxes = Application::interrupt_wait(boxes, Application::button_timeout);
+      if(boxes.expr_length() == 1 && boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE) 
+        return boxes[1];
+    }
+  }
+
   Gather g;
   
   g.emit(arguments);
