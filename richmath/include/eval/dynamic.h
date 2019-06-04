@@ -21,6 +21,7 @@ namespace richmath {
       
       void assign(Expr value) { assign(std::move(value), true, true, true); }
       void assign(Expr value, bool pre, bool middle, bool post);
+      Expr get_value_unevaluated();
       Expr get_value_now();
       void get_value_later() { get_value_later(Expr()); }
       void get_value_later(Expr job_info);

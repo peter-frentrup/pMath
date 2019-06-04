@@ -32,6 +32,8 @@ namespace richmath {
     public:
       void assign(Expr value, bool pre, bool middle, bool post);
       
+      Expr get_value_unevaluated();
+      Expr get_value_unevaluated(bool *is_dynamic);
       Expr get_value_now();
       void get_value_later(Expr job_info);
       bool get_value(Expr *result, Expr job_info);
@@ -134,6 +136,10 @@ bool Dynamic::has_pre_or_post_assignment() {
 
 void Dynamic::assign(Expr value, bool pre, bool middle, bool post) {
   return DynamicImpl(*this).assign(value, pre, middle, post);
+}
+
+Expr Dynamic::get_value_unevaluated() {
+  return DynamicImpl(*this).get_value_unevaluated();
 }
 
 Expr Dynamic::get_value_now() {
@@ -349,7 +355,12 @@ void DynamicImpl::assign(Expr value, bool pre, bool middle, bool post) {
   Application::interrupt_wait_for(run, self._owner, Application::dynamic_timeout);
 }
 
-Expr DynamicImpl::get_value_now() {
+Expr DynamicImpl::get_value_unevaluated() {
+  bool is_dynamic;
+  return get_value_unevaluated(&is_dynamic);
+}
+
+Expr DynamicImpl::get_value_unevaluated(bool *is_dynamic) {
   Box *dyn_source = self._owner;
   Expr dyn_expr = self._expr;
   
@@ -378,15 +389,33 @@ Expr DynamicImpl::get_value_now() {
            More importantly, it happens
          */
         source_template->register_observer(self._owner->id());
+        
+        *is_dynamic = false;
         return dyn_expr;
       }
     }
   }
   else if(!self.is_dynamic()) {
-    if(self.is_unevaluated())
-      return self._expr[1];
-    
+    *is_dynamic = false;
     return self._expr;
+  }
+  
+  *is_dynamic = true;
+  dyn_expr = dyn_source->prepare_dynamic(std::move(dyn_expr));
+  return Call(
+           Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
+           std::move(dyn_expr),
+           self._owner->id().to_pmath_raw());
+}
+
+Expr DynamicImpl::get_value_now() {
+  bool is_dynamic = false;
+  Expr call = get_value_unevaluated(&is_dynamic);
+  
+  if(!is_dynamic) {
+    if(call.expr_length() == 1 && call[0] == PMATH_SYMBOL_UNEVALUATED)
+      return call[1];
+    return call;
   }
   
   if(self._owner->style) {
@@ -396,14 +425,7 @@ Expr DynamicImpl::get_value_now() {
   auto old_eval_id = Dynamic::current_evaluation_box_id;
   Dynamic::current_evaluation_box_id = self._owner->id();
   
-  Expr call = dyn_source->prepare_dynamic(dyn_expr);
-  
-  Expr value = Application::interrupt_wait(
-                 Call(
-                   Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
-                   call,
-                   self._owner->id().to_pmath_raw()),
-                 Application::dynamic_timeout);
+  Expr value = Application::interrupt_wait(call, Application::dynamic_timeout);
                  
   Dynamic::current_evaluation_box_id = old_eval_id;
   
@@ -414,47 +436,17 @@ Expr DynamicImpl::get_value_now() {
 }
 
 void DynamicImpl::get_value_later(Expr job_info) {
-  Box *dyn_source = self._owner;
-  Expr dyn_expr = self._expr;
+  bool is_dynamic = false;
+  Expr call = get_value_unevaluated(&is_dynamic);
   
-  int i;
-  if(is_template_slot(&i)) {
-    Expr         source;
-    TemplateBox *source_template;
-    
-    if(find_template_box_dynamic(self._owner, i, &source, &source_template, nullptr)) {
-      Dynamic dyn{ source_template, source };
-      dyn_source = source_template;
-      
-      while(DynamicImpl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) {
-        //dyn.init(source_template, source);
-        dyn_source = source_template;
-        dyn._owner = std::move(source_template);
-        dyn._expr  = std::move(source);
-      }
-      
-      if(dyn._expr[0] != richmath_System_Dynamic) 
-        return;
-      
-      dyn_expr = dyn._expr;
-    }
-  }
-  else if(!self.is_dynamic()) 
+  if(!is_dynamic) 
     return;
   
   if(self._owner->style) {
     self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
-  Expr call = dyn_source->prepare_dynamic(dyn_expr);
-  
-  Application::add_job(new DynamicEvaluationJob(
-                         job_info,
-                         Call(
-                           Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
-                           call,
-                           self._owner->id().to_pmath_raw()),
-                         self._owner));
+  Application::add_job(new DynamicEvaluationJob(job_info, call, self._owner));
 }
 
 bool DynamicImpl::get_value(Expr *result, Expr job_info) {
@@ -505,3 +497,16 @@ bool DynamicImpl::get_value(Expr *result, Expr job_info) {
 
 //} ... class DynamicImpl
 
+Expr richmath_eval_FrontEnd_PrepareDynamicEvaluation(Expr expr) {
+  if(expr.expr_length() != 2)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  FrontEndReference id = FrontEndReference::from_pmath_raw(expr[2]);
+  if(Box *box = FrontEndObject::find_cast<Box>(id)) 
+    return Call(Symbol(PMATH_SYMBOL_HOLD), Dynamic(box, expr[1]).get_value_unevaluated());
+  
+  expr.set(0, Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE));
+  return Call(
+           Symbol(PMATH_SYMBOL_HOLD),
+           expr);
+}
