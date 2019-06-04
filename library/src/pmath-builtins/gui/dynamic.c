@@ -52,6 +52,22 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr) {
   return expr;
 }
 
+PMATH_PRIVATE pmath_t builtin_internal_getcurrentdynamicid(pmath_expr_t expr) {
+  /* Internal`GetCurrentDynamicID()
+   */
+  pmath_thread_t thread = pmath_thread_get_current();
+  if(!thread) 
+    return expr;
+  
+  if(pmath_expr_length(expr) != 0) {
+    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  return pmath_integer_new_siptr(thread->current_dynamic_id);
+}
+
 /** Get the TrackedSymbols option value in a Dynamic(...).
     
     \param dynamic  Won't be freed.

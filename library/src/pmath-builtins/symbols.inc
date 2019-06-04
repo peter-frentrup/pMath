@@ -27,6 +27,13 @@
     "System`Private`" #name, \
     PMATH_SYMBOL_ATTRIBUTE_PROTECTED | (attrib) \
   )
+  
+#define PMATH_DECLARE_INTERNAL_SYMBOL(name, attrib) \
+  PMATH_DECLARE_SYMBOL( \
+    pmath_Internal_ ## name, \
+    "Internal`" #name, \
+    PMATH_SYMBOL_ATTRIBUTE_PROTECTED | (attrib) \
+  )
 
 PMATH_DECLARE_SYSTEM_SYMBOL( Antialiasing,                       0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( ArcCosh,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
@@ -338,6 +345,8 @@ PMATH_DECLARE_SYSTEM_SYMBOL( WindowFrame,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( WindowTitle,                        0 )
 
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR(         Line,                   0 )
+
+PMATH_DECLARE_INTERNAL_SYMBOL( GetCurrentDynamicID,  0 )
 
 PMATH_DECLARE_SYSTEM_BOXFORM_DOLLAR_VAR( UseTextFormatting,      THREADLOCAL )
 

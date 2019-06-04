@@ -256,6 +256,7 @@ PMATH_PRIVATE pmath_t builtin_clock(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_getcurrentdynamicid(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(          pmath_expr_t expr);
 //} ============================================================================
@@ -1313,6 +1314,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,            builtin_internal_dynamicevaluate)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE,    builtin_internal_dynamicevaluatemultiple)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,              builtin_internal_dynamicremove)
+  BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,               builtin_internal_getcurrentdynamicid)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,                builtin_getthreadid)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,                 builtin_internal_nexttoward)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_PARSEREALBALL,              builtin_internal_parserealball)
