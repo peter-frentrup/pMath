@@ -572,7 +572,7 @@ void TemplateBoxSlotImpl::assign_content() {
   
   auto arg = self._argument;
   self._argument = -1;
-  tb->reset_argument(self._argument, self.content()->to_pmath(BoxOutputFlags::Default));
+  tb->reset_argument(arg, self.content()->to_pmath(BoxOutputFlags::Default));
   self._argument = arg;
 }
 
