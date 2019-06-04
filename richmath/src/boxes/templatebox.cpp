@@ -142,7 +142,8 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   Expr options = Expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
-    
+  
+  bool change_args = arguments != args;
   arguments = args;
   _tag = tag;
   _is_content_loaded = false;
@@ -151,6 +152,9 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   style->set_pmath(BaseStyleName, tag);
   
   finish_load_from_object(std::move(expr));
+  if(change_args)
+    notify_all();
+    
   return true;
 }
 
