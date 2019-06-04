@@ -15,6 +15,8 @@
 
 using namespace richmath;
 
+using SnapPosition = BasicWin32Window::SnapPosition;
+
 #define CAPTION_BUTTON_INFLATE  (-2)
 #define CAPTION_BUTTON_DIST     (-2)
 
@@ -476,7 +478,39 @@ struct find_snap_info_t {
   RECT dst_rect;
   int min_level;
   Hashset<HWND> *snappers;
+  Array<SnapPosition> *snapper_positions;
 };
+
+static bool touchingRectangles(RECT *touchRegion, const RECT &rect1, const RECT &rect2) {
+  touchRegion->left   = MAX(rect1.left,   rect2.left);
+  touchRegion->right  = MIN(rect1.right,  rect2.right);
+  touchRegion->top    = MAX(rect1.top,    rect2.top);
+  touchRegion->bottom = MIN(rect1.bottom, rect2.bottom);
+  return (touchRegion->left == touchRegion->right) != (touchRegion->top == touchRegion->bottom);
+}
+
+static POINT get_rect_center(const RECT &rect) {
+  POINT p;
+  p.x = rect.left + (rect.right - rect.left) / 2;
+  p.y = rect.top + (rect.bottom - rect.top) / 2;
+  return p;
+}
+
+static Point to_relative_point(const RECT &frame, const POINT &point) {
+  int width = frame.right - frame.left;
+  int height = frame.bottom - frame.top;
+  
+  return Point(
+           width  > 0 ? (point.x - frame.left) / (double)width : 0.0,
+           height > 0 ? (point.y - frame.top) / (double)height : 0.0);
+}
+
+static POINT to_absolute_point(const RECT &frame, const Point &point) {
+  POINT p;
+  p.x = (int)(frame.left + point.x * (frame.right - frame.left));
+  p.y = (int)(frame.top + point.y * (frame.bottom - frame.top));
+  return p;
+}
 
 BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct find_snap_info_t *info = (struct find_snap_info_t *)lParam;
@@ -487,23 +521,28 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
 
     if(win && win->zorder_level() <= info->min_level)
       return TRUE;
-
+    
     RECT rect;
     get_snap_rect(hwnd, &rect);
-
-    if(rect.left == info->dst_rect.right || rect.right == info->dst_rect.left) {
-      if(rect.bottom > info->dst_rect.top && rect.top < info->dst_rect.bottom) {
-        info->snappers->add(hwnd);
-        return TRUE;
-      }
-    }
-
-    if(rect.top == info->dst_rect.bottom || rect.bottom == info->dst_rect.top) {
-      if(rect.right > info->dst_rect.left && rect.left < info->dst_rect.right) {
-        info->snappers->add(hwnd);
-        return TRUE;
-      }
-    }
+    
+    RECT touchRegion;
+    if(!touchingRectangles(&touchRegion, info->dst_rect, rect))
+      return TRUE;
+    
+    if(info->snappers->contains(hwnd))
+      return TRUE;
+    
+    POINT touch_center = get_rect_center(touchRegion);
+    
+    SnapPosition snap { 
+      hwnd,
+      to_relative_point(rect, touch_center),
+      info->dst, 
+      to_relative_point(info->dst_rect, touch_center), 
+    };
+    
+    info->snappers->add(hwnd);
+    info->snapper_positions->add(std::move(snap));
   }
 
   return TRUE;
@@ -513,11 +552,13 @@ void BasicWin32Window::find_all_snappers() {
   struct find_snap_info_t info;
 
   all_snappers.clear();
+  all_snapper_positions.length(0);
 
   info.dst = _hwnd;
   info.min_level = zorder_level();
   get_snap_rect(info.dst, &info.dst_rect);
   info.snappers = &all_snappers;
+  info.snapper_positions = &all_snapper_positions;
 
   all_snappers.add(_hwnd);
 
@@ -526,40 +567,61 @@ void BasicWin32Window::find_all_snappers() {
   unsigned int found = 1;
   for(int rep = 1; rep < 5 && found < all_snappers.size(); ++rep) {
     found = all_snappers.size();
-
-    Hashset<HWND> more_snappers;
     
-    for(auto hwnd : all_snappers.keys()) {
+    Hashset<HWND> old_snappers;
+    old_snappers.merge(all_snappers);
+    
+    for(auto hwnd : old_snappers.keys()) {
       info.dst = hwnd;
       get_snap_rect(info.dst, &info.dst_rect);
-      info.snappers = &more_snappers;
 
       EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
     }
-
-    all_snappers.merge(more_snappers);
   }
 
   all_snappers.remove(_hwnd);
 }
 
-HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, int dx, int dy) {
-  if(dx != 0 || dy != 0) {
-    for(auto hwnd : all_snappers.keys()) {
-      RECT rect;
-      GetWindowRect(hwnd, &rect);
-
-      hdwp = tryDeferWindowPos(
-               hdwp,
-               hwnd,
-               nullptr,
-               rect.left + dx,
-               rect.top + dy,
-               0, 0,
-               SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
+HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, const RECT &new_bounds) {
+  Hashtable<HWND, RECT> new_rects;
+  new_rects.set(_hwnd, new_bounds);
+  
+  for(const auto &snap : all_snapper_positions) {
+    RECT src_rect;
+    if(!GetWindowRect(snap.src, &src_rect)) {
+      pmath_debug_print("\n[GetWindowRect(%p) failed]", snap.src);
     }
+    RECT *dst_rect = new_rects.search(snap.dst);
+    
+    if(!dst_rect) {
+      pmath_debug_print("\n[unrecognized DST %p]", snap.dst);
+      continue;
+    }
+    
+    RECT frame = *dst_rect;
+    adjust_snap_rect(snap.dst, &frame);
+    POINT dst_touch_pt = to_absolute_point(frame, snap.dst_rel_touch);
+    
+    frame = src_rect;
+    adjust_snap_rect(snap.src, &frame);
+    POINT src_touch_pt = to_absolute_point(frame, snap.src_rel_touch);
+    
+    OffsetRect(&src_rect, dst_touch_pt.x - src_touch_pt.x, dst_touch_pt.y - src_touch_pt.y);
+    new_rects.set(snap.src, src_rect);
   }
-
+  
+  new_rects.remove(_hwnd);
+  for(const auto &entry : new_rects.entries()) {
+    hdwp = tryDeferWindowPos(
+             hdwp,
+             entry.key,
+             nullptr,
+             entry.value.left,
+             entry.value.top,
+             0, 0,
+             SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
+  }
+  
   return hdwp;
 }
 
@@ -630,8 +692,10 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
 }
 
 void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
-  if(all_snappers.size() > 0)
+  if(all_snappers.size() > 0) {
     all_snappers.clear();
+    all_snapper_positions.length(0);
+  }
 
   Win32Themes::MARGINS margins;
   get_nc_margins(&margins);
@@ -810,10 +874,8 @@ void BasicWin32Window::on_moving(RECT *lParam) {
 
   HDWP hdwp = BeginDeferWindowPos(all_snappers.size());
 
-  hdwp = move_all_snappers(
-           hdwp,
-           rect.left - last_moving_x,
-           rect.top  - last_moving_y);
+  if(rect.left != last_moving_x || rect.top != last_moving_y)
+    hdwp = move_all_snappers(hdwp, rect);
 
   EndDeferWindowPos(hdwp);
 
@@ -847,10 +909,8 @@ void BasicWin32Window::on_move(LPARAM lParam) {
            1,
            SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 
-  hdwp = move_all_snappers(
-           hdwp,
-           rect.left - last_moving_x,
-           rect.top  - last_moving_y);
+  if(rect.left != last_moving_x || rect.top != last_moving_y)
+    hdwp = move_all_snappers(hdwp, rect);
 
   EndDeferWindowPos(hdwp);
 
@@ -1771,6 +1831,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
       case WM_EXITSIZEMOVE:
         all_snappers.clear();
+        all_snapper_positions.length(0);
         break;
 //} ... sizing & moving
 

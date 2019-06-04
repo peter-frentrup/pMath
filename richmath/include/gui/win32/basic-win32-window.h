@@ -16,6 +16,24 @@
 namespace richmath {
   // Must call init() immediately after the construction of a derived object!
   class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget, public ControlContext {
+    public:
+      struct SnapPosition {
+        HWND src;
+        HWND dst;
+        Point src_rel_touch;
+        Point dst_rel_touch;
+        
+        SnapPosition() : src(nullptr), dst(nullptr) {}
+        
+        SnapPosition(HWND _src, const Point &_src_rel_touch, HWND _dst, const Point &_dst_rel_touch) 
+          : src(_src),
+            dst(_dst),
+            dst_rel_touch(_dst_rel_touch),
+            src_rel_touch(_src_rel_touch)
+        {
+        }
+      };
+
     protected:
       virtual void after_construction() override;
       
@@ -85,6 +103,7 @@ namespace richmath {
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       
     protected:
+      Array<SnapPosition> all_snapper_positions;
       Hashset<HWND> all_snappers;
       
     private:
@@ -104,7 +123,7 @@ namespace richmath {
       
       void snap_rect_or_pt(RECT *windowrect, POINT *pt); // pt may be 0, rect must not
       void find_all_snappers();
-      HDWP move_all_snappers(HDWP hdwp, int dx, int dy);
+      HDWP move_all_snappers(HDWP hdwp, const RECT &new_bounds);
     
     public:
       static HDWP tryDeferWindowPos(
