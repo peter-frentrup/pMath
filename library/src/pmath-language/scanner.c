@@ -405,20 +405,20 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
         parser->tokens.str[parser->tokens.pos] == '\\')
     {
       if( parser->tokens.pos + 1 == parser->tokens.len ||
-          parser->tokens.str[parser->tokens.pos] <= ' ')
+          parser->tokens.str[parser->tokens.pos + 1] <= ' ')
       {
         int i = parser->tokens.pos + 1;
         
-        while( i < parser->tokens.len &&
-               parser->tokens.str[i] <= ' ')
-        {
+        while( i < parser->tokens.len && parser->tokens.str[i] <= ' ')
           ++i;
-        }
         
-        if(i == parser->tokens.len) {
-          parser->tokens.pos = i;
+        if(i == parser->tokens.len) 
           optional = FALSE;
-        }
+        
+        if(parser->last_space_start == parser->tokens.pos)
+          parser->last_space_start = i;
+        
+        parser->tokens.pos = i;
       }
     }
     
@@ -2248,6 +2248,7 @@ static void skip_whitespace(struct group_t *group) {
       if( group->tp.index + 1 == group->spans->length ||
           group->str[group->tp.index + 1] <= ' ')
       {
+        increment_text_position(group);
         increment_text_position(group);
         continue;
       }
