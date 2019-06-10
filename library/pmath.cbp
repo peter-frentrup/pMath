@@ -1200,6 +1200,9 @@
 		<Unit filename="src/pmath-builtins/io/stringtake.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/io/stringtostream.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/io/tocharactercode.c">
 			<Option compilerVar="CC" />
 		</Unit>
