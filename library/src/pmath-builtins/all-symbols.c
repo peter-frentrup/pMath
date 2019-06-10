@@ -298,6 +298,7 @@ PMATH_PRIVATE pmath_t builtin_stringposition(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringreplace(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringsplit(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_stringtake(                    pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_stringtostream(                pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tocharactercode(               pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tofilename(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_uncompress(                    pmath_expr_t expr);
@@ -1630,6 +1631,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_STRINGSPLIT,                 builtin_stringsplit)
   BIND_DOWN(   PMATH_SYMBOL_STRINGTAKE,                  builtin_stringtake)
   BIND_DOWN(   pmath_System_StringToBoxes,               builtin_stringtoboxes)
+  BIND_DOWN(   pmath_System_StringToStream,              builtin_stringtostream)
   BIND_DOWN(   PMATH_SYMBOL_SUM,                         builtin_sum)
   BIND_DOWN(   PMATH_SYMBOL_SWITCH,                      builtin_switch)
   BIND_DOWN(   PMATH_SYMBOL_SUBRULES,                    builtin_symbol_rules)

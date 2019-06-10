@@ -18,6 +18,7 @@ struct textbuffer_t {
   
   void (*flush_func)(void *extra);
   int blocklen;
+  unsigned skip_newline_at_start : 1;
 };
 
 static void textbuffer_destroy_custom_data(void*);
@@ -113,11 +114,47 @@ static pmath_bool_t textbuffer_write_skipping_whitespace(void *extra, const uint
 
 static pmath_string_t textbuffer_readln(void *extra) {
   struct textbuffer_t *tb = get_textbuffer(extra);
+  pmath_string_t result;
+  int i;
+  int len;
+  const uint16_t *buf;
   
   if(tb->status != PMATH_FILE_OK)
     return PMATH_NULL;
+  
+  buf = pmath_string_buffer(&tb->text);
+  len = pmath_string_length(tb->text);
+  
+  i = 0;
+  if(tb->skip_newline_at_start && len > 0 && buf[0] == '\n') {
+    i++;
+  }
+  tb->skip_newline_at_start = FALSE;
+  for(; i < len; ++i) {
+    if(buf[i] == '\n') {
+      result = pmath_string_part(pmath_ref(tb->text), 0, i);
+      tb->text = pmath_string_part(tb->text, i + 1, INT_MAX);
+      return result;
+    }
     
-  return pmath_ref(tb->text);
+    if(buf[i] == '\r') {
+      result = pmath_string_part(pmath_ref(tb->text), 0, i);
+      ++i;
+      if(i < len) {
+        if(buf[i] == '\n') 
+          ++i;
+      }
+      else
+        tb->skip_newline_at_start = TRUE;
+      
+      tb->text = pmath_string_part(tb->text, i, INT_MAX);
+      return result;
+    }
+  }
+  
+  result = tb->text;
+  tb->text = pmath_string_new(0);
+  return result;
 }
 
 static size_t textbuffer_write_latin1(void *extra, const void *buffer, size_t buffer_size) {
@@ -436,6 +473,7 @@ void pmath_file_create_mixed_buffer(
   tb->in     = tb->inbuffer + sizeof(tb->inbuffer);
   tb->out    = tb->outbuffer;
   tb->status = PMATH_FILE_OK;
+  tb->skip_newline_at_start = 0;
   
   custom = pmath_custom_new(tb, textbuffer_destroy_custom_data);
   if(pmath_is_null(custom))

@@ -526,6 +526,7 @@
 {"StringSplit", {"ArgumentCount" -> 1..2}},
 {"StringTake", {"ArgumentCount" -> 2}},
 {"StringToBoxes", {"ArgumentCount" -> 1}},
+{"StringToStream", {"ArgumentCount" -> 1}},
 {"Style", {"ArgumentCount" -> 2}},
 {"StyleBox", {"ArgumentCount" -> 1}},
 {"SubRules", {"ArgumentCount" -> 1}},
