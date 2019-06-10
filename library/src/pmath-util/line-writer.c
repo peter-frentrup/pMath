@@ -57,6 +57,7 @@ static char HEX_DIGITS[] = "0123456789ABCDEF";
 static void fill_newlines(struct linewriter_t *lw) {
   struct write_pos_t *wp;
   int string_depth, oldpos;
+  pmath_bool_t prefix_needs_hyphenation = FALSE;
   
   memset(lw->newlines, NEWLINE_NONE, lw->line_length + 1);
   
@@ -67,11 +68,23 @@ static void fill_newlines(struct linewriter_t *lw) {
     if(wp->is_start) {
       if(wp->pos == oldpos) // two expressions without operator/space in between
         lw->newlines[wp->pos] = NEWLINE_INSTRING;
+      else if(prefix_needs_hyphenation)
+        lw->newlines[wp->pos] = NEWLINE_INSTRING;
       else
         lw->newlines[wp->pos] = NEWLINE_OK;
+      
+      prefix_needs_hyphenation = FALSE;
+      switch(lw->buffer[wp->pos]) { // better use pmath_token_analyse() ?
+        case '#':
+        case '~':
+          prefix_needs_hyphenation = TRUE;
+          break;
+      }
     }
-    else
+    else {
       oldpos = wp->pos;
+      prefix_needs_hyphenation = FALSE;
+    }
       
     wp = wp->next;
   }
