@@ -873,6 +873,9 @@ bool StyleImpl::remove_all_volatile() {
   static Array<StyleOptionName> volatile_int_float_options(100);
   static Array<StyleOptionName> volatile_object_options(100);
   
+  volatile_int_float_options.length(0);
+  volatile_object_options.length(0);
+  
   for(const auto &e : self.int_float_values.entries()) {
     if(e.key.is_volatile())
       volatile_int_float_options.add(e.key);
