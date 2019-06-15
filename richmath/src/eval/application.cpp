@@ -1895,19 +1895,14 @@ namespace {
         if(!file.is_file())
           return Symbol(PMATH_SYMBOL_FAILED);
           
-        Expr nsp(pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH));
-        Expr ns( pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE));
         Expr boxes = doc->to_pmath(BoxOutputFlags::Default);
         
         file.write("/* pMath Document */\n\n");
         
-        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, List(String("System`")).release());
-        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     String("System`").release());
-        
-        boxes.write_to_file(file, PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
-        
-        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, nsp.release());
-        pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE,     ns.release());
+        boxes.write_to_file(file, 
+          PMATH_WRITE_OPTIONS_INPUTEXPR | 
+          PMATH_WRITE_OPTIONS_FULLSTR | 
+          PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
         
         file.close();
         doc->native()->filename(filename);
