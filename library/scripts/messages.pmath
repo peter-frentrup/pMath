@@ -10,6 +10,7 @@ General::argmu:= "`1` called with 1 argument; `2` or more arguments are expected
 General::argm:=  "`1` called with `2` arguments; `3` or more arguments are expected."
 
 /* invalid options */
+General::ioppf = "Value of option `1` -> `2` should be a positive integer or Infinity."
 General::nonopt:= "Options expected but `1` found beyond position `2` in `3`."
 General::optx:= "Unknown option `1` in `2`."
 General::opttf:= "Value of option `1` -> `2` should be True or False."
@@ -62,7 +63,8 @@ General::fnsym:= "The first argument in `1` is neither a symbol nor a string nam
 General::heads:= "Heads `1` and `2` at positions `3` and `4` are expected to be the same."
 General::ilsmn:= "Single or list of non-negative integers expected at position `1` in `2`"
 General::ilsmp:= "Single or list of positive integers expected at position `1` in `2`"
-General::innf:= "Non-negative number or infinity expected at position `1` in `2`"
+General::innf:= "Non-negative number or Infinity expected at position `1` in `2`"
+General::ipnf = "Positive integer or Infinity expected at position `1` in `2`."
 General::int:= "Integer expected at position `2` in `1`."
 General::intnm:= "Non-negative machine-size integer expected at position `2` in `1`."
 General::intm:= "Machine-size integer expected at position `2` in `1`."

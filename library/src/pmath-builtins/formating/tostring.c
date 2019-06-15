@@ -1,6 +1,9 @@
 #include <pmath-builtins/formating-private.h>
 
+#include <pmath-core/numbers-private.h>
+
 #include <pmath-util/evaluation.h>
+#include <pmath-util/line-writer.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -486,12 +489,39 @@ static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t *fla
   return FALSE;
 }
 
+static pmath_bool_t extract_pagewidth_option(int *page_width_or_negative, pmath_t options) {
+  pmath_t page_width = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
+  
+  *page_width_or_negative = -1;
+  
+  if(pmath_is_int32(page_width) && PMATH_AS_INT32(page_width) > 0) {
+    *page_width_or_negative = (int)PMATH_AS_INT32(page_width);
+    return TRUE;
+  }
+  
+  if(pmath_is_integer(page_width) && pmath_number_sign(page_width) > 0) {
+    *page_width_or_negative = -1;
+    pmath_unref(page_width);
+    return TRUE;
+  }
+  
+  if(pmath_equals(page_width, _pmath_object_pos_infinity)) {
+    *page_width_or_negative = -1;
+    pmath_unref(page_width);
+    return TRUE;
+  }
+  
+  pmath_message(PMATH_NULL, "ioppf", 2, pmath_ref(PMATH_SYMBOL_PAGEWIDTH), page_width);
+  return FALSE;
+}
+
 PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   /*  ToString(object)
       ToString(object, form)    InputForm | OutputForm | StandardForm
   
       options:
         CharacterEncoding -> Automatic | "ASCII" | "Unicode"
+        PageWidth -> Infinity
         Whitespace -> Automatic | True | False
         ShowStringCharacters -> False | True | Automatic
    */
@@ -500,6 +530,7 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   pmath_t               obj;
   pmath_write_options_t flags;
   size_t len;
+  int pagewidth = 0;
   
   len = pmath_expr_length(expr);
   if(len == 0) {
@@ -529,7 +560,8 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   
   if( !apply_characterencoding_option(   &flags, options) ||
       !apply_whitespace_option(          &flags, options) ||
-      !apply_showstringcharacters_option(&flags, options))
+      !apply_showstringcharacters_option(&flags, options) ||
+      !extract_pagewidth_option(         &pagewidth, options))
   {
     pmath_unref(options);
     return expr;
@@ -539,7 +571,12 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   result = PMATH_NULL;
   
   obj = pmath_expr_get_item(expr, 1);
-  pmath_write(obj, flags, _pmath_write_to_string, &result);
+  
+  if(pagewidth > 0)
+    pmath_write_with_pagewidth(obj, flags, _pmath_write_to_string, &result, pagewidth, 0);
+  else  
+    pmath_write(obj, flags, _pmath_write_to_string, &result);
+  
   pmath_unref(obj);
   pmath_unref(expr);
   

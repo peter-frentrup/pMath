@@ -880,7 +880,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(OpenAppend):=Options(OpenWrite):={"
           "BinaryFormat->False,"
           "CharacterEncoding->Automatic,"
-          "PageWidth:>80}");
+          "PageWidth->80}");
           
       PMATH_RUN("Options(OpenRead):={"
           "BinaryFormat->False,"
@@ -908,9 +908,13 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(StringToBoxes):={\"IgnoreSyntaxErrors\"->False,\"Tokens\"->String,Whitespace->False}");
       
       PMATH_RUN("Options(StringToStream):={"
-          "PageWidth:>Infinity}");
+          "PageWidth->Infinity}");
           
-      PMATH_RUN("Options(ToString):={CharacterEncoding->Automatic,ShowStringCharacters->Automatic,Whitespace->Automatic}");
+      PMATH_RUN("Options(ToString):={"
+          "CharacterEncoding->Automatic,"
+          "PageWidth->Infinity,"
+          "ShowStringCharacters->Automatic,"
+          "Whitespace->Automatic}");
     }
     
     flint_set_num_threads(_pmath_processor_count());
