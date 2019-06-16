@@ -295,7 +295,7 @@ void NativeWidget::on_editing() {
 void NativeWidget::on_idle_after_edit() {
   Document *owner = owner_document();
   if(owner && owner->native()->stylesheet_document() == _document) {
-    Expr expr = _document->to_pmath(BoxOutputFlags::Default);
+    Expr expr = _document->to_pmath(BoxOutputFlags::Default | BoxOutputFlags::NoNewSymbols);
     owner->style->set_pmath(StyleDefinitions, expr);
     owner->invalidate_options();
   }

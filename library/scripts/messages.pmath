@@ -107,6 +107,7 @@ General::seqs:= "Sequence specification (+n, -n, m..n, m..n..s or All) expected 
 
 General::deadlock:= "Deadlock detected. Thread=`1` Stack=`2`."
 General::newsym:= "New symbol `1` created."
+General::nonewsym:= "Cannot parse new symbol `1` due to ParseSymbols -> False setting."
 General::notfound:= "Symbol `1` not found."
 General::stop:= "Further output of `1` will be suppressed during this calculation."
 General::shdw:= "Symbol `1` appears in multiple contexts `2`; definitions in context `3` may shadow or be shadowed by other definitions."

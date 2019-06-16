@@ -694,12 +694,40 @@ bool EditSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 Expr EditSection::to_pmath(BoxOutputFlags flags) {
   Expr result = content()->to_pmath(BoxOutputFlags::Parseable | flags);
   
-  result = Application::interrupt_wait(
-             Call(
+  if(false && has(flags, BoxOutputFlags::NoNewSymbols)) {
+    // todo: wrap in Quiet(...)
+    result = Call(
                Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
-               result),
+               std::move(result),
+               Rule(Symbol(PMATH_SYMBOL_PARSESYMBOLS), Symbol(PMATH_SYMBOL_FALSE)));
+    
+    if(original) {
+      result = Call(
+                 Symbol(PMATH_SYMBOL_TRY), 
+                 std::move(result),
+                 Symbol(PMATH_SYMBOL_FAILED),
+                 List(
+                   Call(
+                     Symbol(PMATH_SYMBOL_MESSAGENAME), 
+                     Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
+                     String("nonewsym"))));
+    }
+  }
+  else{
+    result = Call(
+               Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
+               std::move(result));
+  }
+  
+  result = Application::interrupt_wait(
+             result,
              Application::edit_interrupt_timeout);
-             
+  
+  if(original) {
+    if(result == PMATH_SYMBOL_FAILED) 
+      result = original->to_pmath(flags);
+  }
+  
   if(result.expr_length() == 1 && result[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
     return result[1];
   }

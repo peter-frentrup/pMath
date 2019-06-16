@@ -58,9 +58,14 @@ $PrivateStartupFontFiles:= {
 
 $Path:= Prepend($Path, $FrontEndDirectory)
 
+parseToExistingSymbol(~name:String)::= Try(
+	name.MakeExpression(ParseSymbols -> False), 
+	HoldComplete(Symbol(name)),
+	MakeExpression::nonewsym)
+
 Function SymbolInfo(~name:String) { 
 	Try(
-	With(sym:= name.MakeExpression(ParseSymbols -> False)) {
+	With(sym:= parseToExistingSymbol(name)) {
 		If(sym.Match(HoldComplete(Symbol(~)))) {
 			Return(False) /* symbol does not exist */
 		}
@@ -70,7 +75,7 @@ Function SymbolInfo(~name:String) {
 		}
 		
 		If(Union($NamespacePath, {$Namespace}).Map(
-				MakeExpression(# ++ name, ParseSymbols -> False)&
+				parseToExistingSymbol(# ++ name)&
 			).Cases(
 				HoldComplete(Except(Symbol(~)))
 			).Length() > 1

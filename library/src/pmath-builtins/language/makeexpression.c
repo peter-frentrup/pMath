@@ -807,6 +807,7 @@ static pmath_t make_expression_from_name_token(pmath_string_t string) {
     return HOLDCOMPLETE(obj);
   }
   
+  pmath_message(PMATH_NULL, "nonewsym", 1, pmath_ref(string));
   return HOLDCOMPLETE(pmath_expr_new_extended(
                         pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
                         string));
