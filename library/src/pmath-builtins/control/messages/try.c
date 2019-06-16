@@ -92,6 +92,7 @@ static pmath_t check_messages(pmath_t messages) { // messages will be freed
     return messages;
   }
   
+  pmath_unref(messages);
   return PMATH_UNDEFINED;
 }
 
