@@ -349,21 +349,6 @@ MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
   
   if(cmd.is_null())
     return MenuCommandStatus(true);
-    
-  if(cmd.is_string()) {
-    String scmd(cmd);
-    
-    scmd = scmd.trim();
-    
-    if(scmd.starts_with("@shaper=")) {
-      scmd = scmd.part(sizeof("@shaper=") - 1, -1);
-      
-      if(!MathShaper::available_shapers.search(scmd))
-        return MenuCommandStatus(false);
-    }
-    
-    cmd = scmd;
-  }
   
   func = menu_command_testers[cmd];
   if(func)

@@ -499,32 +499,7 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
 }
 
 void MathGtkDocumentWindow::run_menucommand(Expr cmd) {
-  String cmd_str(cmd);
-  
-  cmd_str = cmd_str.trim();
-  if(cmd.is_string())
-    cmd = cmd_str;
-    
-  if(cmd_str.starts_with("@shaper=")) {
-    cmd_str = cmd_str.part(sizeof("@shaper=") - 1, -1);
-    
-    if(auto math_shaper = MathShaper::available_shapers.search(cmd)) {
-      _top_area->document_context()->math_shaper     = *math_shaper;
-      _top_area->document_context()->text_shaper     = *math_shaper;
-      _bottom_area->document_context()->math_shaper  = *math_shaper;
-      _bottom_area->document_context()->text_shaper  = *math_shaper;
-      _working_area->document_context()->math_shaper = *math_shaper;
-      _working_area->document_context()->text_shaper = *math_shaper;
-      
-      _top_area->document()->invalidate_all();
-      _bottom_area->document()->invalidate_all();
-      _working_area->document()->invalidate_all();
-    }
-    else
-      gdk_beep();
-  }
-  else
-    Application::run_menucommand(cmd);
+  Application::run_menucommand(std::move(cmd));
 }
 
 void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment) {

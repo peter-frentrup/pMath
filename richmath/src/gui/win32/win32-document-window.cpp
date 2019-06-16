@@ -1236,40 +1236,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         /* no break */
       case WM_COMMAND: {
           Expr cmd = Win32Menu::id_to_command(LOWORD(wParam));
-          
-          if(cmd.is_string()) {
-            String cmd_string = String(cmd).trim();
-            
-            if(cmd_string.starts_with("@shaper=")) {
-              cmd_string = cmd_string.part(sizeof("@shaper=") - 1, -1);
-              
-              if(auto math_shaper = MathShaper::available_shapers.search(cmd_string)) {
-                _top_glass_area->document_context()->math_shaper    = *math_shaper;
-                _top_glass_area->document_context()->text_shaper    = *math_shaper;
-                _top_area->document_context()->math_shaper          = *math_shaper;
-                _top_area->document_context()->text_shaper          = *math_shaper;
-                _bottom_area->document_context()->math_shaper       = *math_shaper;
-                _bottom_area->document_context()->text_shaper       = *math_shaper;
-                _bottom_glass_area->document_context()->math_shaper = *math_shaper;
-                _bottom_glass_area->document_context()->text_shaper = *math_shaper;
-                _working_area->document_context()->math_shaper      = *math_shaper;
-                _working_area->document_context()->text_shaper      = *math_shaper;
-                
-                _top_glass_area->document()->invalidate_all();
-                _top_area->document()->invalidate_all();
-                _bottom_area->document()->invalidate_all();
-                _bottom_glass_area->document()->invalidate_all();
-                _working_area->document()->invalidate_all();
-              }
-              else
-                MessageBeep(0);
-                
-              return 0;
-            }
-            
-          }
-          
-          Application::run_menucommand(cmd);
+          Application::run_menucommand(std::move(cmd));
         } return 0;
         
       case WM_KEYDOWN:

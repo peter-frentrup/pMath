@@ -100,17 +100,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 				"Mathematica Mono",
 				"Mathematica Serif",
 			}).Map(Item(#,             ScopedCommand(MathFontFamily -> #, Document)) &),
-			)),
-		Menu("Math Font (old)", Join(
-			$MathShapers.Map(Item(# ++ "",             "@shaper=" ++ #) &),
-			{
-				Delimiter,
-				Item("Mathematica 10 Mono",             "@shaper=Mathematica 10 Mono"),
-				Item("Mathematica 10 Serif",            "@shaper=Mathematica 10 Serif"),
-				Item("Mathematica 10 Sans",             "@shaper=Mathematica 10 Sans"),
-				Item("Mathematica Mono",                "@shaper=Mathematica Mono"),
-				Item("Mathematica Serif",               "@shaper=Mathematica Serif"),
-			}))
+			))
 		}),
 	Menu("E&valuation", {
 		Item("&Evaluate Sections",                    "EvaluateSections"),
