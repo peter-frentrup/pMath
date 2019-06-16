@@ -129,13 +129,13 @@ class SyntaxInformationImpl {
         
       String form(value[1]);
       if(form.equals("Function"))
-        self.locals_form = FunctionSpec;
+        self.locals_form = LocalVariableForm::FunctionSpec;
       else if(form.equals("Local"))
-        self.locals_form = LocalSpec;
+        self.locals_form = LocalVariableForm::LocalSpec;
       else if(form.equals("Table"))
-        self.locals_form = TableSpec;
+        self.locals_form = LocalVariableForm::TableSpec;
         
-      if(self.locals_form != NoSpec) {
+      if(self.locals_form != LocalVariableForm::NoSpec) {
         value = value[2];
         
         if( value.is_int32() &&
@@ -174,7 +174,7 @@ class SyntaxInformationImpl {
 SyntaxInformation::SyntaxInformation(Expr name)
   : minargs(0),
     maxargs(INT_MAX),
-    locals_form(NoSpec),
+    locals_form(LocalVariableForm::NoSpec),
     locals_min(1),
     locals_max(INT_MAX),
     is_keyword(false)

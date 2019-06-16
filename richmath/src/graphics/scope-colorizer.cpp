@@ -61,14 +61,14 @@ namespace richmath {
         SharedPtr<SymbolInfo> info = state->local_symbols[name];
         uint8_t style = GlyphStyleNone;
         
-        if(kind == Global) {
+        if(kind == SymbolKind::Global) {
           while(info) {
             if(info->pos->contains(state->current_pos)) {
               switch(info->kind) {
-                case LocalSymbol:  style = GylphStyleLocal;      break;
-                case Special:      style = GlyphStyleSpecialUse; break;
-                case Parameter:    style = GlyphStyleParameter;  break;
-                case Error:        style = GylphStyleScopeError; break;
+                case SymbolKind::LocalSymbol:  style = GylphStyleLocal;      break;
+                case SymbolKind::Special:      style = GlyphStyleSpecialUse; break;
+                case SymbolKind::Parameter:    style = GlyphStyleParameter;  break;
+                case SymbolKind::Error:        style = GylphStyleScopeError; break;
                 default: ;
               }
               
@@ -100,33 +100,33 @@ namespace richmath {
               if(info->kind == kind)
                 break;
                 
-              if(info->kind == LocalSymbol && kind == Special) {
+              if(info->kind == SymbolKind::LocalSymbol && kind == SymbolKind::Special) {
                 si->add(kind, state->current_pos);
                 break;
               }
               
-              if(kind == Special) {
+              if(kind == SymbolKind::Special) {
                 kind = info->kind;
                 break;
               }
               
-              si->add(Error, state->current_pos);
+              si->add(SymbolKind::Error, state->current_pos);
               style = GylphStyleScopeError;
               break;
             }
             
             if(info->pos->contains(state->current_pos)) {
-              if(info->kind == LocalSymbol && kind != LocalSymbol/* && kind == Special*/) {
+              if(info->kind == SymbolKind::LocalSymbol && kind != SymbolKind::LocalSymbol/* && kind == SymbolKind::Special*/) {
                 si->add(kind, state->current_pos);
                 break;
               }
               
-              if(kind == Special) {
+              if(kind == SymbolKind::Special) {
                 kind = info->kind;
                 break;
               }
               
-              si->add(Error, state->current_pos);
+              si->add(SymbolKind::Error, state->current_pos);
               style = GylphStyleScopeError;
               break;
             }
@@ -145,9 +145,9 @@ namespace richmath {
           
         if(!style) {
           switch(kind) {
-            case LocalSymbol:  style = GylphStyleLocal;      break;
-            case Special:      style = GlyphStyleSpecialUse; break;
-            case Parameter:    style = GlyphStyleParameter;  break;
+            case SymbolKind::LocalSymbol:  style = GylphStyleLocal;      break;
+            case SymbolKind::Special:      style = GlyphStyleSpecialUse; break;
+            case SymbolKind::Parameter:    style = GlyphStyleParameter;  break;
             default:           return end;
           }
         }
@@ -236,7 +236,7 @@ namespace richmath {
         }
         
         if(pmath_char_is_name(se->first_char())) {
-          symbol_colorize(se->start(), Global);
+          symbol_colorize(se->start(), SymbolKind::Global);
           return;
         }
         
@@ -306,7 +306,7 @@ namespace richmath {
         if( sub->count() == 0 &&
             pmath_char_is_name(sub->first_char()))
         {
-          symbol_colorize(sub->start(), Parameter);
+          symbol_colorize(sub->start(), SymbolKind::Parameter);
         }
         else if(sub->count() > 0 &&
                 sub->item_as_char(1) == ',')
@@ -315,7 +315,7 @@ namespace richmath {
           
           for(int i = 0; i < sub->count(); ++i)
             if(pmath_char_is_name(buf[sub->item_pos(i)]))
-              symbol_colorize(sub->item_pos(i), Parameter);
+              symbol_colorize(sub->item_pos(i), SymbolKind::Parameter);
         }
         
         if(se->count() == 3) {
@@ -335,7 +335,7 @@ namespace richmath {
         if(!state->in_pattern)
           return;
           
-        symbol_colorize(se->item_pos(1), Parameter);
+        symbol_colorize(se->item_pos(1), SymbolKind::Parameter);
         
         for(int i = se->item_pos(0); i < se->item_pos(1); ++i)
           glyphs[i].style = glyphs[se->item_pos(1)].style;
@@ -353,7 +353,7 @@ namespace richmath {
           scope_colorize_spanexpr(sub);
         }
         
-        symbol_colorize(se->item_pos(0), Parameter);
+        symbol_colorize(se->item_pos(0), SymbolKind::Parameter);
       }
       
       void colorize_typed_pattern(SpanExpr *se) { // ~name:type
@@ -362,7 +362,7 @@ namespace richmath {
         if(!state->in_pattern)
           return;
           
-        symbol_colorize(se->item_pos(1), Parameter);
+        symbol_colorize(se->item_pos(1), SymbolKind::Parameter);
         
         for(int i = se->item_pos(0); i <= se->end(); ++i)
           glyphs[i].style = glyphs[se->item_pos(1)].style;
@@ -380,7 +380,7 @@ namespace richmath {
           scope_colorize_spanexpr(sub);
         }
         
-        symbol_colorize(se->item_pos(1), Parameter);
+        symbol_colorize(se->item_pos(1), SymbolKind::Parameter);
         
         int pos1 = se->item_pos(1);
         for(int i = se->item_pos(0); i < pos1; ++i)
@@ -485,7 +485,7 @@ namespace richmath {
             SharedPtr<ScopePos> next_scope = state->new_scope();
             state->new_scope();
             
-            symbol_colorize(dx->item_pos(1), Special);
+            symbol_colorize(dx->item_pos(1), SymbolKind::Special);
             
             for(int i = 0; i < integrand->count() - 1; ++i)
               scope_colorize_spanexpr(integrand->item(i));
@@ -535,7 +535,7 @@ namespace richmath {
             SharedPtr<ScopePos> next_scope = state->new_scope();
             state->new_scope();
             
-            ScopeColorizerImpl(bigop_init, state).symbol_colorize(init->item_pos(0), Special);
+            ScopeColorizerImpl(bigop_init, state).symbol_colorize(init->item_pos(0), SymbolKind::Special);
             
             for(int i = next_item; i < se->count(); ++i)
               scope_colorize_spanexpr(se->item(i));
@@ -564,7 +564,7 @@ namespace richmath {
         SharedPtr<ScopePos> next_scope = state->new_scope();
         state->new_scope();
         
-        symdeflist_colorize_spanexpr(call.function_argument(1), LocalSymbol);
+        symdeflist_colorize_spanexpr(call.function_argument(1), SymbolKind::LocalSymbol);
         
         if(arg_count >= 2) {
           scope_colorize_spanexpr(call.function_argument(2));
@@ -599,9 +599,9 @@ namespace richmath {
         state->new_scope();
         
         if(pmath_char_is_name(call.function_argument(1)->first_char()))
-          symbol_colorize(call.function_argument(1)->start(), Parameter);
+          symbol_colorize(call.function_argument(1)->start(), SymbolKind::Parameter);
         else
-          symdeflist_colorize_spanexpr(call.function_argument(1), Parameter);
+          symdeflist_colorize_spanexpr(call.function_argument(1), SymbolKind::Parameter);
           
         scope_colorize_spanexpr(call.function_argument(2));
         
@@ -622,7 +622,7 @@ namespace richmath {
         state->new_scope();
         
         for(int i = info.locals_min; i <= info.locals_max && i <= arg_count; ++i) {
-          replacement_colorize_spanexpr(call.function_argument(i), Special);
+          replacement_colorize_spanexpr(call.function_argument(i), SymbolKind::Special);
           
           for(int j = i + 1; j <= info.locals_max && j <= arg_count; ++j) {
             SpanExpr *arg_j = call.function_argument(j);
@@ -652,19 +652,19 @@ namespace richmath {
         scope_colorize_spanexpr(se->item(0));
         
         switch(info.locals_form) {
-          case LocalSpec:
+          case LocalVariableForm::LocalSpec:
             colorize_localspec_call(se, info);
             return;
             
-          case FunctionSpec:
+          case LocalVariableForm::FunctionSpec:
             colorize_functionspec_call(se, info);
             return;
             
-          case TableSpec:
+          case LocalVariableForm::TableSpec:
             colorize_tablespec_call(se, info);
             return;
             
-          case NoSpec:
+          case LocalVariableForm::NoSpec:
             break;
         }
         
@@ -722,11 +722,11 @@ namespace richmath {
       }
       
       void symdef_local_colorize_spanexpr(SpanExpr *se) {
-        symdef_colorize_spanexpr(se, LocalSymbol);
+        symdef_colorize_spanexpr(se, SymbolKind::LocalSymbol);
       }
       
       void replacement_special_colorize_spanexpr(SpanExpr *se) {
-        replacement_colorize_spanexpr(se, Special);
+        replacement_colorize_spanexpr(se, SymbolKind::Special);
       }
       
       void colorize_scoping_block_head(FunctionCallSpan &head, SharedPtr<ScopePos> &scope_after_block, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*)) {

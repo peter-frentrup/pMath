@@ -7,20 +7,20 @@
 
 
 namespace richmath {
-  typedef enum {
+  enum class SymbolKind: int8_t {
     Error,
     Global,
     LocalSymbol,
     Special,
     Parameter
-  } SymbolKind;
+  };
   
-  typedef enum {
+  enum class LocalVariableForm: int8_t {
     NoSpec,
     TableSpec,
     FunctionSpec,
     LocalSpec
-  } LocalVariableForm;
+  };
   
   class GeneralSyntaxInfo: public Shareable {
     public:
@@ -36,7 +36,7 @@ namespace richmath {
   
   class ScopePos: public Shareable {
     public:
-      ScopePos(SharedPtr<ScopePos> super = 0);
+      ScopePos(SharedPtr<ScopePos> super = nullptr);
       
       bool contains(SharedPtr<ScopePos> sub);
       
@@ -47,17 +47,17 @@ namespace richmath {
   class SymbolInfo: public Shareable {
     public:
       SymbolInfo(
-        SymbolKind            _kind = LocalSymbol,
-        SharedPtr<ScopePos>   _pos = 0,
-        SharedPtr<SymbolInfo> _next = 0);
+        SymbolKind            _kind = SymbolKind::LocalSymbol,
+        SharedPtr<ScopePos>   _pos = nullptr,
+        SharedPtr<SymbolInfo> _next = nullptr);
       ~SymbolInfo();
       
       void add(SymbolKind _kind, SharedPtr<ScopePos> _pos);
       
     public:
-      SymbolKind            kind;
       SharedPtr<ScopePos>   pos; // never nullptr!!!
       SharedPtr<SymbolInfo> next;
+      SymbolKind            kind;
   };
   
   class SyntaxInformation {
@@ -69,9 +69,9 @@ namespace richmath {
       int maxargs;
       
       LocalVariableForm locals_form;
+      bool is_keyword;
       int locals_min;
       int locals_max;
-      bool is_keyword;
   };
   
   class SyntaxState: public Base {
