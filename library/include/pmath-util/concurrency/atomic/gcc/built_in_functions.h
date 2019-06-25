@@ -48,8 +48,32 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
 
 
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t delta){
-  intptr_t result = __sync_lock_test_and_set(&atom->_data, delta); // has only aquire semantics
+uint8_t pmath_atomic_fetch_set_uint8(pmath_atomic_uint8_t *atom, uint8_t new_value) {
+  uint8_t result = __sync_lock_test_and_set(&atom->_data, new_value); // has only aquire semantics
+  __sync_synchronize(); // has aquire & release semantics
+  return result;
+}
+
+
+PMATH_FORCE_INLINE
+uint16_t pmath_atomic_fetch_set_uint16(pmath_atomic_uint16_t *atom, uint16_t new_value) {
+  uint16_t result = __sync_lock_test_and_set(&atom->_data, new_value); // has only aquire semantics
+  __sync_synchronize(); // has aquire & release semantics
+  return result;
+}
+
+
+PMATH_FORCE_INLINE
+uint32_t pmath_atomic_fetch_set_uint32(pmath_atomic_uint32_t *atom, uint32_t new_value) {
+  uint32_t result = __sync_lock_test_and_set(&atom->_data, new_value); // has only aquire semantics
+  __sync_synchronize(); // has aquire & release semantics
+  return result;
+}
+
+
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t new_value) {
+  intptr_t result = __sync_lock_test_and_set(&atom->_data, new_value); // has only aquire semantics
   __sync_synchronize(); // has aquire & release semantics
   return result;
 }

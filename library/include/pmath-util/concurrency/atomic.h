@@ -78,6 +78,27 @@ typedef struct {
 } pmath_atomic_t;
 
 
+/**\brief An 8 bit sized atomic variable type.
+ */
+typedef struct {
+  PMATH_DECLARE_ALIGNED(int8_t, _data, 1);
+} pmath_atomic_uint8_t;
+
+
+/**\brief A 16 bit sized atomic variable type.
+ */
+typedef struct {
+  PMATH_DECLARE_ALIGNED(int16_t, _data, 2);
+} pmath_atomic_uint16_t;
+
+
+/**\brief A 32 bit sized atomic variable type.
+ */
+typedef struct {
+  PMATH_DECLARE_ALIGNED(int32_t, _data, 4);
+} pmath_atomic_uint32_t;
+
+
 #define PMATH_ATOMIC_STATIC_INIT  {0};
 
 

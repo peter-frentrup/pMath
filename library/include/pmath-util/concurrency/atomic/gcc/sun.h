@@ -37,6 +37,24 @@ intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t value){
 
 
 PMATH_FORCE_INLINE
+uint8_t pmath_atomic_fetch_set_uint8(pmath_atomic_uint8_t *atom, uint8_t value) {
+  return atomic_swap_8(&atom->data, value);
+}
+
+
+PMATH_FORCE_INLINE
+uint16_t pmath_atomic_fetch_set_uint16(pmath_atomic_uint16_t *atom, uint16_t value) {
+  return atomic_swap_16(&atom->data, value);
+}
+
+
+PMATH_FORCE_INLINE
+uint32_t pmath_atomic_fetch_set_uint32(pmath_atomic_uint32_t *atom, uint32_t value) {
+  return atomic_swap_32(&atom->data, value);
+}
+
+
+PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_compare_and_set(pmath_atomic_t *atom, intptr_t old_value, intptr_t new_value){
   return (intptr_t)atomic_cas_ptr((void**)&atom->_data, (void*)old_value, (void*)new_value);
 }

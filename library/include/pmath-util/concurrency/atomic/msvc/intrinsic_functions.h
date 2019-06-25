@@ -125,7 +125,25 @@ pmath_bool_t pmath_atomic_have_cas2(void){
 
 
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t new_value){
+uint8_t pmath_atomic_fetch_set_uint8(pmath_atomic_uint8_t *atom, uint8_t new_value) {
+  return (uint8_t)_InterlockedExchange8((char*)&atom->_data, (char)new_value);
+}
+
+
+PMATH_FORCE_INLINE
+uint16_t pmath_atomic_fetch_set_uint16(pmath_atomic_uint16_t *atom, uint16_t new_value) {
+  return (uint16_t)_InterlockedExchange16((short*)&atom->_data, (short)new_value);
+}
+
+
+PMATH_FORCE_INLINE
+uint32_t pmath_atomic_fetch_set_uint32(pmath_atomic_uint32_t *atom, uint32_t new_value) {
+  return (uint32_t)_InterlockedExchange((long*)&atom->_data, (long)new_value);
+}
+
+
+PMATH_FORCE_INLINE
+intptr_t pmath_atomic_fetch_set(pmath_atomic_t *atom, intptr_t new_value) {
   return (intptr_t)_InterlockedExchangePointer((void**)&atom->_data, (void*)new_value);
 }
 

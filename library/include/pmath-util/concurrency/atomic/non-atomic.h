@@ -63,6 +63,64 @@ intptr_t pmath_atomic_fetch_add(
   return result;
 }
 
+
+/**\brief Exchange an 8 bit value.
+   \param atom An atomic 8 bit variable.
+   \param new_value The new value of \c *atom.
+   \return The old value of \c *atom.
+
+   This function sets \c *atom to \c new_value and returns the old value
+   atomically. It has full memory barrier semantics.
+ */
+PMATH_FORCE_INLINE
+uint8_t pmath_atomic_fetch_set_uint8(
+  pmath_atomic_uint8_t *atom,
+  uint8_t               new_value
+) {
+  uint8_t result = *atom;
+  *atom = new_value;
+  return result;
+}
+
+
+/**\brief Exchange an 16 bit value.
+   \param atom An atomic 16 bit variable.
+   \param new_value The new value of \c *atom.
+   \return The old value of \c *atom.
+
+   This function sets \c *atom to \c new_value and returns the old value
+   atomically. It has full memory barrier semantics.
+ */
+PMATH_FORCE_INLINE
+uint16_t pmath_atomic_fetch_set_uint16(
+  pmath_atomic_uint16_t *atom,
+  uint16_t               new_value
+) {
+  uint16_t result = *atom;
+  *atom = new_value;
+  return result;
+}
+
+
+/**\brief Exchange an 32 bit value.
+   \param atom An atomic 32 bit variable.
+   \param new_value The new value of \c *atom.
+   \return The old value of \c *atom.
+
+   This function sets \c *atom to \c new_value and returns the old value
+   atomically. It has full memory barrier semantics.
+ */
+PMATH_FORCE_INLINE
+uint32_t pmath_atomic_fetch_set_uint32(
+  pmath_atomic_uint32_t *atom,
+  uint32_t               new_value
+) {
+  uint32_t result = *atom;
+  *atom = new_value;
+  return result;
+}
+
+
 /**\brief Exchange a value.
    \param atom An atomic variable.
    \param new_value The new value of \c *atom.
@@ -80,6 +138,7 @@ intptr_t pmath_atomic_fetch_set(
   *atom = new_value;
   return result;
 }
+
 
 /**\brief Exchange a value if it equals another value.
    \param atom An atomic variable.
