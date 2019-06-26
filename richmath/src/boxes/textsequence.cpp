@@ -138,7 +138,7 @@ int TextBuffer::insert(int pos, const char *ins, int inslen) {
   memmove(_buffer + pos + inslen, _buffer + pos, _length - pos);
   memcpy(_buffer + pos, ins, inslen);
   _length += inslen;
-  return inslen;
+  return pos + inslen;
 }
 
 int TextBuffer::insert(int pos, const String &s) {
@@ -151,10 +151,10 @@ int TextBuffer::insert(int pos, const String &s) {
       tmp[i] = 1;
   }
   
-  tmplen = insert(pos, tmp, tmplen);
+  pos = insert(pos, tmp, tmplen);
   
   pmath_mem_free(tmp);
-  return tmplen;
+  return pos;
 }
 
 void TextBuffer::remove(int pos, int len) {
@@ -744,7 +744,7 @@ int TextSequence::insert(int pos, const String &s) {
   
   int start_search = std::max(0, pos - Utf8BoxCharLen + 1);
   
-  pos += text.insert(pos, s);
+  pos = text.insert(pos, s);
   buf = text.buffer();
   
   int end_search = std::min(pos + Utf8BoxCharLen - 1, text.length());
@@ -780,14 +780,14 @@ int TextSequence::insert(int pos, Box *box) {
   boxes_invalid = true;
   text_invalid = true;
   
-  int result = pos + text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
+  int newpos = text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
   adopt(box, pos);
   int i = boxes.length();
   while(i > 0 && boxes[i - 1]->index() > pos)
     --i;
   boxes.insert(i, 1, &box);
   invalidate();
-  return result;
+  return newpos;
 }
 
 int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {

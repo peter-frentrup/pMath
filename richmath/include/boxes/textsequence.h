@@ -21,7 +21,7 @@ namespace richmath {
       
       uint32_t char_at(int pos);
       
-      // return number of bytes inserted at pos
+      // return the new position just after the insertion
       int insert(int pos, const char *ins, int inslen);
       int insert(int pos, const String &s);
       void remove(int pos, int len);
