@@ -1,0 +1,48 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section(StyleData(StyleDefinitions -> "Core.pmathdoc")), 
+    SectionGroup({Section("Stylesheet for documentation", "Title"), 
+      Section(
+       "This file contains default style definitions to apply to \
+       documentation.", "Text"), 
+      SectionGroup({Section("Section styles", "Section"), 
+        Section(StyleData("Output"), SectionLabel -> "out:"), 
+        Section(StyleData("PrintUsage"), SectionFrame -> {0, 0, 0.75`, 0.75`}, 
+         SectionFrameMargins -> {17, 6, 6, 6}, 
+         SectionMargins -> {0, 0, Inherited, Inherited}, 
+         ShowAutoStyles -> False, ShowSectionBracket -> False, 
+         ShowStringCharacters -> False), Section(StyleData("Title"), 
+         FontColor -> RGBColor(0, 0.502`, 0.125`), 
+         ShowSectionBracket -> False), Section(StyleData("Section"), 
+         FontColor -> RGBColor(0, 0.502`, 0.125`), 
+         SectionFrameColor -> RGBColor(0, 0.502`, 0.125`), 
+         ShowSectionBracket -> False), Section(StyleData("ExampleSection"), 
+         BaseStyle -> "Subsection", FontColor -> RGBColor(0, 0.502`, 0.125`), 
+         SectionMargins -> {35, Inherited, Inherited, Inherited}, 
+         ShowSectionBracket -> False, DefaultNewSectionStyle -> 
+          "ExampleText"), Section(StyleData("ExampleDelimiter"), 
+         Evaluatable -> True, FontSize -> 2, 
+         SectionFrame -> {Inherited, Inherited, 0.25`, Inherited}, 
+         SectionFrameColor -> GrayLevel(0.70199999999999996`), 
+         SectionGroupPrecedence -> -35, SectionMargins -> {35, Inherited, 8, 
+          4}, SectionLabel -> "", ShowSectionBracket -> False, 
+         DefaultNewSectionStyle -> "ExampleText"), Section(StyleData("Text")), 
+        Section(StyleData("Notes"), BaseStyle -> "Text", 
+         SectionLabel -> "\[U+2022] ", ShowSectionBracket -> False, 
+         SectionMargins -> {35, Inherited, 5, 5}, 
+         DefaultNewSectionStyle -> "Notes"), 
+        Section(StyleData("ExampleText"), BaseStyle -> "Text", 
+         ShowSectionBracket -> False, DefaultNewSectionStyle -> "Input", 
+         SectionMargins -> {Inherited, Inherited, 6, 4}), 
+        Section(StyleData("SeeAlso"), BaseStyle -> "Text", 
+         SectionMargins -> {35, Inherited, 5, 5}, 
+         ShowSectionBracket -> False)}, All), 
+      SectionGroup({Section("Box styles", "Section"), 
+        SectionGroup({Section("TemplateBox styles", "Subsection"), 
+          Section(StyleData("ReferenceHyperlink"), 
+           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+             ComplexStringBox({"\"", #1, "\""}), 
+             FontColor -> RGBColor(0, 0, 0.80000000000000004`)) &)})}, All)}, 
+       All)}, All)}, All)}, StyleDefinitions -> "Stylesheets.pmathdoc", 
+ Visible -> True)

@@ -1,0 +1,202 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Sin", "Title"), 
+    Section(BoxData(DynamicBox(ToBoxes(Sin::"usage"))), "PrintUsage"), 
+    SectionGroup({Section("Details", "Section"), 
+      Section(
+       "Mathematical function suitable for numeric and symbolic \
+       computations.", "Notes"), 
+      Section({"The argument of ", TemplateBox({"Sin"}, "ReferenceHyperlink"), 
+        " is taken in radians (multiply by ", 
+        TemplateBox({"Degree"}, "ReferenceHyperlink"), 
+        " to convert from degrees)."}, "Notes"), 
+      Section({"For certain special arguments, ", 
+        TemplateBox({"Sin"}, "ReferenceHyperlink"), 
+        " automatically evaluates to exact values."}, "Notes"), 
+      Section({TemplateBox({"Sin"}, "ReferenceHyperlink"), 
+        " can be evaluated to arbitrary numerical precision."}, "Notes"), 
+      Section({TemplateBox({"Sin"}, "ReferenceHyperlink"), 
+        " automatically threads over lists."}, "Notes")}, All), 
+    SectionGroup({Section("Examples", "Section"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("The argument is given in radians:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"Sin", "(", {"Pi", "/", "3"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(FractionBox(SqrtBox("3"), "2")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"To specify an argument in degrees, use ", 
+            TemplateBox({"Degree"}, "ReferenceHyperlink"), ":"}, 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Sin", "(", {"60", "\[Degree]"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(FractionBox(SqrtBox("3"), "2")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Make a plot of the sine function on an interval:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Plot", "(", {{"Sin", "(", "x", ")"}, ",", {
+                 "x", "\[Rule]", {"0", "..", {"2", "\[Pi]"}}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                {Directive(RGBColor(0.75`, 0, 0), PlotStyle), {
+                  LineBox(Uncompress(
+                    "1:c$,g@drVYE6o<J3S}qrF!1#<7QmZz;Kt-#@xzrU]L_-l#0d+-OMUkL@\
+                    s8KO3&;_wYsx2rIBvdRK1#1;q$,GNk!dmbF#vt01iqgtTMdj,GWM+rX{<Z\
+                    nOyLV^KoZlH_qbXAmazu9ac-6kxxGg(%{*ke9XsE,{4q+SXXYdQMXIwpFT\
+                    sZOiBZ4c>?^;n=-9(TB;]k[@s0V3J3BJ>Q<j=g$7J?iZA3a?g)aTwtuxVk\
+                    UJ]ywGAdU2%7X<q]9ui+=*G7;N<5$wMkGW6jAXpnReBJud{[42i@rtbpNB\
+                    $oEFTvq]*VFGSF9>pF{5S3D<exf$$As1XSbiTkX8f-E?8E]PUlHtk)T?es\
+                    Mms^H8GrQ7Y2Q-XNpLb*U+*,^Owd@yH?>>dO!azA@atL5J{}{wk7vBK$-G\
+                    <h1Mm=a;9>&>K7sKaHO((yje0}{ce(BPHT[Tfm+Am]Tie<pIbJUb@?bo^(\
+                    AZ,i0A3u{Rrh^3@DCX8JyE33i+M}MMDjhIPde[q8Ba{gZb@nZ{<Q1%s*Fp\
+                    (r!a08YtTgocM-h7B_jQx3HV2hr*2AUUU3U[&G,xQY+Ha&V_XxU5Aj;mP4\
+                    M#Qikk7Az-KTXaI-n9ARc&JVM-tE20n[NZx^qAfG+{xS]Y3d&3@osj5q#l\
+                    a!Y*<{M3zN>S+N!M>^jgf-UR=+?(-,0%PXR&>rde,HY_)H]Y?$<2[;*7cl\
+                    -uX3>bi-+QF>EMnZl!DD6hd%e>77c*Yi?Nobif3LJ(mGNoMEX$6z_e%Bog\
+                    z=IFbM-D=pHxpR<KETHKEe0;r26}ZZoF)&Sm4_)o!6&Q-vW;m=j+G#uiq4\
+                    v+D;oFc%JA7f5!a}WzT({J0SJXO2+G=43}yL@1%YUU_2-^VP;7Z@D$OXfs\
+                    AjMzk2Ha?G]w@gQUFJsCbv?}6s;H-e=GZJq3KT$je$OM]eD?zCxrN0befi\
+                    7$)Tisra_Y?*=JHwkp0W@])Hme]5]2i1,pM^]o@m&y%xf7NH2Ko{lQ6;Ll\
+                    T[m+GKVaXo)OMcbr0j8JhcUk^pwr8+pNVxCYGCDj4=624!Gq8UHXVe#L4A\
+                    9w_>4@EIjeVkP>Pbk{W=iw9ct*]XlwY>fm#WB7lSZ,l<7,SzwP_&2fznt?\
+                    Y8%_i7<mXG#UdB^yH]adO0T1Q<K+%52C#R0l_cj8z_76n}q;mmoohK9>Vm\
+                    #93SV5H2NEKh={YlYbg$ajpQ,MyDAU5-crsxYUE+p8uJpK%XH31YQaj{]y\
+                    7G>!{SR+GG3KwQ,qWkAxg0N<cA_Es0MMl*j4[>+86s2*YGpwuEUj$)IF-7\
+                    TIc<Q@0R+WRW#-5_Dxj@<zFDKT5u+9mJG8C!tKv)M0MVVaWTk16rpUJ;C&\
+                    P8l<bne,@@_&5Ch1TdeBh$,BT2&SouGvMum,A!u,#8zP)u7f#g)?2Go#$}\
+                    }#>t]!=MQ3}s8uc(-L>n-jg17+Dyo]u#mTR-7u-t*5h2bapNoY{8rG%fgD\
+                    4g!SfEJJ0ud>W{45s-%lxz6HMvMVa*m4$dkojEb%O{KO;yB2rDt_xjGL<[\
+                    rVK?F6zRGHks{jmA{PY_33GCGfLJQ[yjYPgLf64TL(yd[rmWJJ9DWR9i%8\
+                    NHMY<y0;8h[eR]2bSfbbVtEmfpT(rs}qP*kQ!w<I2%HWZaB(sejW#nobbR\
+                    4CHC86)ORN%?=G_Cy8~"))}}}, AspectRatio -> NCache(
+                1/GoldenRatio, 0.61803398874989479`), Axes -> True, 
+               PlotRange :> NCache({
+                 0 .. 2*Pi, -0.99999999999999989` .. 0.99999999999999989`}, {
+                 0.0` .. 6.2831853071795862`, -0.99999999999999989` .. 
+                  0.99999999999999989`}))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Evaluate numerically:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"Sin", "(", "1.2", ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData("0.93203908596722629`"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Evaluate to arbitrary precision:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"N", "(", {{"Sin", "(", {"12", "/", "10"}, ")"}, 
+                ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              "0.9320390859672263496701344354948259954150705882087307353666[+/\
+              -4.75*^-60]`60"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"Sin"}, "ReferenceHyperlink"), 
+            " threads over lists and matrices:"}, "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Sin", "(", {
+                "{", {"1.2", ",", {"11", {"Pi", "/", "6"}}, ",", "5"}, "}"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {"0.93203908596722629`", ",", {
+                 "-", FractionBox("1", "2")}, ",", {"Sin", "(", "5", ")"}}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(
+             BoxData({"Sin", "(", {
+                "(", GridBox({{"\[Pi]", "\[Alpha]"}, {
+                   {"-", "\[Alpha]"}, FractionBox("\[Pi]", "2")}}), ")"}, 
+               ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData({
+               "{", {{"{", {"0", ",", {"Sin", "(", "\[Alpha]", ")"}}, "}"}, 
+                ",", {"{", {{"-", {"Sin", "(", "\[Alpha]", ")"}}, ",", "1"}, 
+                 "}"}}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"Sin"}, "ReferenceHyperlink"), 
+            " allows complex arguments:"}, "ExampleText"), 
+          SectionGroup({Section(BoxData({"Sin", "(", {"2.5", "+", "I"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"0.92349077604317309`", "-", {
+                "0.94150493327086715`", " ", "\[ImaginaryI]"}}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section("Basic transforms are automatically applied:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Sin", "(", {{"2", "Pi"}, "+", "3"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"Sin", "(", "3", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({Section(BoxData({"Sin", "(", {"-", "x"}, ")"}), "Input", 
+           SectionLabel -> "in [3]:"), 
+          Section(BoxData({"-", {"Sin", "(", "x", ")"}}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        SectionGroup({Section(BoxData({"1", "/", {"Sin", "(", "x", ")"}}), 
+           "Input", SectionLabel -> "in [4]:"), 
+          Section(BoxData({"Csc", "(", "x", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+        SectionGroup({Section(BoxData({"Sin", "(", {"I", " ", "x"}, ")"}), 
+           "Input", SectionLabel -> "in [5]:"), 
+          Section(BoxData({"\[ImaginaryI]", " ", {"Sinh", "(", "x", ")"}}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Compose with inverse functions:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Sin", "(", {"ArcSin", "(", "z", ")"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("z"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Sin", "(", {"ArcCos", "(", "z", ")"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(SqrtBox({"1", "-", {"z", SuperscriptBox("2")}})), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(
+         "Machine precision may be insufficient to give a correct answer:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Sin", "(", {"10.0", "^", "40"}, ")"}), "Input", 
+           SectionLabel -> "in [3]:"), 
+          Section(BoxData("0.64678458842683428`"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        Section("With exact input, the answer is correct:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"N", "(", {{"Sin", "(", {"10", "^", "40"}, ")"}, 
+              ",", "20"}, ")"}), "Input", SectionLabel -> "in [4]:"), 
+          Section(
+           BoxData({
+             "-", 
+             "5.69633400953636327308034181573568723133[+/-2.00*^-39]`40*^-1"}), "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
+         All)}, All)}, All), SectionGroup({Section("See Also", "Section"), 
+      Section({TemplateBox({"ArcSin"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Cos"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Tan"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Csc"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Sinc"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Sinh"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True, 
+ WindowTitle -> "Sin")
