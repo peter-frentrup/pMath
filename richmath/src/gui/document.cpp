@@ -1194,7 +1194,7 @@ void Document::on_key_press(uint32_t unichar) {
             
           String lang;
           if(context.stylesheet)
-            context.stylesheet->get(new_style, LanguageCategory, &lang);
+            lang = context.stylesheet->get_with_base(new_style, LanguageCategory);
           else
             new_style->get(LanguageCategory, &lang);
             
@@ -4596,7 +4596,7 @@ bool DocumentImpl::prepare_insert() {
     String lang;
     if(!section_style->get(LanguageCategory, &lang)) {
       if(auto all = self.stylesheet())
-        all->get(section_style, LanguageCategory, &lang);
+        lang = all->get_with_base(section_style, LanguageCategory);
     }
     
     Section *sect;
