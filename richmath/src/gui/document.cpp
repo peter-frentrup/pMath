@@ -1204,7 +1204,7 @@ void Document::on_key_press(uint32_t unichar) {
             new_sect = new MathSection(new_style);
             
           insert(sect->index() + 1, new_sect);
-          move_to(sect->abstract_content(), 0);
+          move_to(new_sect->abstract_content(), 0);
           return;
         }
         

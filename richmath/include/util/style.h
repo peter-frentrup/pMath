@@ -48,7 +48,7 @@ namespace richmath {
     SectionLabelAutoDelete,
     Selectable,
     ShowAutoStyles,
-    ShowSectionBracket,
+    ShowSectionBracket, // 0 = False, 1 = True, 2 = Automatic
     ShowStringCharacters,
     StripOnInput,
     SurdForm,

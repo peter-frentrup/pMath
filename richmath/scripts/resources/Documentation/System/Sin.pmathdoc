@@ -1,9 +1,9 @@
 /* pMath Document */
 
 Document({
-  SectionGroup({Section("Sin", "Title"), 
-    Section(BoxData(DynamicBox(ToBoxes(Sin::"usage"))), "PrintUsage"), 
-    SectionGroup({Section("Details", "Section"), 
+  SectionGroup({Section("Sin", "ObjectName"), 
+    Section(BoxData(DynamicBox(ToBoxes(Sin::"usage"))), "Usage"), 
+    SectionGroup({Section("Details", "NotesSection"), 
       Section(
        "Mathematical function suitable for numeric and symbolic \
        computations.", "Notes"), 
@@ -18,7 +18,7 @@ Document({
         " can be evaluated to arbitrary numerical precision."}, "Notes"), 
       Section({TemplateBox({"Sin"}, "ReferenceHyperlink"), 
         " automatically threads over lists."}, "Notes")}, All), 
-    SectionGroup({Section("Examples", "Section"), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("The argument is given in radians:", "ExampleText"), 
         SectionGroup({Section(BoxData({"Sin", "(", {"Pi", "/", "3"}, ")"}), 
@@ -188,7 +188,8 @@ Document({
            BoxData({
              "-", 
              "5.69633400953636327308034181573568723133[+/-2.00*^-39]`40*^-1"}), "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
-         All)}, All)}, All), SectionGroup({Section("See Also", "Section"), 
+         All)}, All)}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"ArcSin"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Cos"}, 
          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 

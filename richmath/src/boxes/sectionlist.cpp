@@ -64,8 +64,11 @@ void SectionList::resize(Context *context) {
       float w  = _sections[i]->extents().width;
       float uw = _sections[i]->unfilled_width;
       if(get_own_style(ShowSectionBracket, true)) {
-        w +=  section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
-        uw += section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+        int nesting = _group_info[i].nesting;
+        if(nesting > 0) {
+          w +=  section_bracket_right_margin + section_bracket_width * nesting;
+          uw += section_bracket_right_margin + section_bracket_width * nesting;
+        }
       }
       
       if(_extents.width < w)
@@ -742,16 +745,23 @@ void SectionList::update_group_nesting() {
 
 void SectionList::update_group_nesting_part(int *pos, int current_nesting) {
   int end = _group_info[*pos].end;
+  int my_nesting = current_nesting;
   
-  if(*pos < end)
-    ++current_nesting;
+  if(_sections[*pos]->get_style(ShowSectionBracket, false)) {
+    if(*pos < end) {
+      ++current_nesting;
+      ++my_nesting;
+    }
+  }
+  else
+    my_nesting = current_nesting - 1;
     
-  if(_group_info[*pos].nesting != current_nesting) {
+  if(_group_info[*pos].nesting != my_nesting) {
     if(_sections[*pos]->get_own_style(LineBreakWithin, true)) {
       _sections[*pos]->invalidate();
     }
   }
-  _group_info[*pos].nesting = current_nesting;
+  _group_info[*pos].nesting = my_nesting;
   
   ++*pos;
   while(*pos <= end)
@@ -847,8 +857,11 @@ void SectionList::resize_section(Context *context, int i) {
   float old_scww = context->section_content_window_width;
   
   if(get_own_style(ShowSectionBracket, true)) {
-    context->width                        -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
-    context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    int nesting = _group_info[i].nesting;
+    if(nesting > 0) {
+      context->width                        -= section_bracket_right_margin + section_bracket_width * nesting;
+      context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
+    }
   }
   
   auto sect = _sections[i];
@@ -869,7 +882,10 @@ float SectionList::get_content_scroll_correction_x(int i) {
   float content_window_width = _window_width;
   
   if(get_own_style(ShowSectionBracket, true)) {
-    content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    int nesting = _group_info[i].nesting;
+    if(nesting > 0) {
+      content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
+    }
   }
   
   if(ssx > _sections[i]->extents().width - content_window_width)
@@ -890,8 +906,11 @@ void SectionList::paint_section(Context *context, int i) {
   //_scrollx = scrollx;
   
   if(get_own_style(ShowSectionBracket, true)) {
-    context->width                        -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
-    context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    int nesting = _group_info[i].nesting;
+    if(nesting > 0) {
+      context->width                        -= section_bracket_right_margin + section_bracket_width * nesting;
+      context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
+    }
   }
   
   context->width                        = old_w;
@@ -911,7 +930,10 @@ void SectionList::paint_section(Context *context, int i) {
   }
   
   if(get_own_style(ShowSectionBracket, true)) {
-    w -= section_bracket_right_margin + section_bracket_width * _group_info[i].nesting;
+    int nesting = _group_info[i].nesting;
+    if(nesting > 0) {
+      w -= section_bracket_right_margin + section_bracket_width * nesting;
+    }
   }
   
   context->canvas->save();
@@ -978,16 +1000,27 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
       if(_group_info[i].end > i)
         ++sel_depth;
         
-      while(start >= context->selection.start
-            && _group_info[start].end < context->selection.end) {
+      while(start >= context->selection.start && _group_info[start].end < context->selection.end) {
         ++sel_depth;
         start = _group_info[start].first;
       }
     }
     
-    if(_sections[i]->get_style(ShowSectionBracket))
-      paint_single_section_bracket(context, x1, y1, x2, y2, style);
-      
+    switch(_sections[i]->get_style(ShowSectionBracket)) {
+      case 2:
+        if(context->selection.id == id() && context->selection.start <= i && context->selection.end > i)
+          paint_single_section_bracket(context, x1, y1, x2, y2, style);
+        break;
+        
+      case 1:
+        paint_single_section_bracket(context, x1, y1, x2, y2, style);
+        break;
+        
+      case 0:
+      default:
+        break;
+    }
+    
     if(sel_depth-- == 0) {
       context->canvas->pixrect(x1, sel_y1, x2, sel_y2, false);
       context->draw_selection_path();
@@ -1028,9 +1061,21 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
           style |= BorderNoBottom;
         }
         
-        if(_sections[start]->get_style(ShowSectionBracket))
-          paint_single_section_bracket(context, x1, y1, x2, y2, style);
+        switch(_sections[start]->get_style(ShowSectionBracket)) {
+          case 2:
+            if(context->selection.id == id() && context->selection.start <= start && context->selection.end > _group_info[start].end)
+              paint_single_section_bracket(context, x1, y1, x2, y2, style);
+            break;
+            
+          case 1:
+            paint_single_section_bracket(context, x1, y1, x2, y2, style);
+            break;
           
+          case 0:
+          default:
+            break;
+        }
+        
         style = style & ~BorderTopArrow;
         style = style & ~BorderBottomArrow;
         

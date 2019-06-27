@@ -422,7 +422,7 @@ namespace {
           add(StyleTypeBool,            SectionLabelAutoDelete,           Symbol( richmath_System_SectionLabelAutoDelete));
           add(StyleTypeBool,            Selectable,                       Symbol( richmath_System_Selectable));
           add(StyleTypeBool,            ShowAutoStyles,                   Symbol( richmath_System_ShowAutoStyles));
-          add(StyleTypeBool,            ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
+          add(StyleTypeBoolAuto,        ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
           add(StyleTypeBool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
           add(StyleTypeBool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
           add(StyleTypeBool,            SurdForm,                         Symbol( richmath_System_SurdForm));
