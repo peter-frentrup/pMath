@@ -1,0 +1,190 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Table", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(Table::"usage"))), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      Section({TemplateBox({"Table"}, "ReferenceHyperlink"), "(", 
+        StyleBox("expr", "Arg"), ", ", StyleBox("i", "Arg"), " \[Rule] ", 
+        StyleBox("range", "Arg"), ") first evaluates ", 
+        StyleBox("range", "Arg"), " and then repeatedly evaluates ", 
+        StyleBox("expr", "Arg"), " with ", StyleBox("i", "Arg"), 
+        " set to the different values specified by ", 
+        StyleBox("range", "Arg"), " (effectively localized using ", 
+        TemplateBox({"Block"}, "ReferenceHyperlink"), ")."}, "Notes"), 
+      Section({TemplateBox({"Table"}, "ReferenceHyperlink"), "(", 
+        StyleBox("expr", "Arg"), ", ", StyleBox("spec", "Arg"), 
+        SubscriptBox("1"), ", ", StyleBox("spec", "Arg"), SubscriptBox("2"), 
+        ") is effectively equivalent to ", 
+        TemplateBox({"Table"}, "ReferenceHyperlink"), "(", 
+        TemplateBox({"Table"}, "ReferenceHyperlink"), "(", 
+        StyleBox("expr", "Arg"), ", ", StyleBox("spec", "Arg"), 
+        SubscriptBox("2"), "), ", StyleBox("spec", "Arg"), SubscriptBox("1"), 
+        ")."}, "Notes")}, All), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Use steps of size 2 instead of 1:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Table", "(", {{"f", "(", "i", ")"}, ",", {
+               "i", "\[Rule]", {"1", "..", "9", "..", "2"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {{"f", "(", "1", ")"}, ",", {"f", "(", "3", ")"}, 
+              ",", {"f", "(", "5", ")"}, ",", {"f", "(", "7", ")"}, ",", {
+               "f", "(", "9", ")"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Use ", TemplateBox({"Table"}, "ReferenceHyperlink"), 
+            " to create a matrix:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {{{"10", "i"}, "+", "j"}, ",", {
+                 "i", "\[Rule]", {"1", "..", "3"}}, ",", {
+                 "j", "\[Rule]", {"4", "..", "6"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {{"{", {"14", ",", "15", ",", "16"}, "}"}, 
+                ",", {"{", {"24", ",", "25", ",", "26"}, "}"}, ",", {
+                 "{", {"34", ",", "35", ",", "36"}, "}"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section({
+            "Multiple iterator specifications are a shorthand for nested ", 
+            TemplateBox({"Table"}, "ReferenceHyperlink"), " calls: "}, 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Table", "(", {{{"10", "i"}, "+", "j"}, ",", {
+                   "j", "\[Rule]", {"4", "..", "6"}}}, ")"}, ",", {
+                 "i", "\[Rule]", {"1", "..", "3"}}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {{"{", {"14", ",", "15", ",", "16"}, "}"}, 
+                ",", {"{", {"24", ",", "25", ",", "26"}, "}"}, ",", {
+                 "{", {"34", ",", "35", ",", "36"}, "}"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Make a triangular array:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Table", "(", {{{"10", "i"}, "+", "j"}, ",", {
+               "i", "\[Rule]", "4"}, ",", {"j", "\[Rule]", {"1", "..", "i"}}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {{"{", "11", "}"}, ",", {
+               "{", {"21", ",", "22"}, "}"}, ",", {
+               "{", {"31", ",", "32", ",", "33"}, "}"}, ",", {
+               "{", {"41", ",", "42", ",", "43", ",", "44"}, "}"}}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Iterate over a list:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {RadicalBox("i", "3"), ",", {
+                 "i", "\[Rule]", {"{", {"1", ",", "8", ",", "27", ",", "64"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("The upper bound may not be reached exactly:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                "i", ",", {"i", "\[Rule]", {"1.5", "..", "4"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"1.5`", ",", "2.5`", ",", "3.5`"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section({TemplateBox({"Array"}, "ReferenceHyperlink"), "(", 
+          StyleBox("i", "Arg"), SubscriptBox(StyleBox("min", "Arg")), " .. ", 
+          StyleBox("i", "Arg"), SubscriptBox(StyleBox("max", "Arg")), 
+          ") is a short-hand for ", TemplateBox({"Table"}, 
+           "ReferenceHyperlink"), "(", StyleBox("i", "Arg"), ", ", 
+          StyleBox("i", "Arg"), " \[Rule] ", StyleBox("i", "Arg"), 
+          SubscriptBox(StyleBox("min", "Arg")), " .. ", StyleBox("i", "Arg"), 
+          SubscriptBox(StyleBox("max", "Arg")), "):"}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              "i", ",", {"i", "\[Rule]", {"3", "..", "9"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"3", ",", "4", ",", "5", ",", "6", ",", "7", 
+              ",", "8", ",", "9"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({Section(BoxData({"Array", "(", {"3", "..", "9"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"3", ",", "4", ",", "5", ",", "6", ",", "7", 
+              ",", "8", ",", "9"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"Table"}, "ReferenceHyperlink"), 
+            " re-evaluates at each step:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Echo", "(", {"f", "(", {"i", ",", {"RandomReal", "(", ")"}}, 
+                  ")"}, ")"}, ",", {"i", "\[Rule]", "3"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"f", "(", {"1", ",", "0.45285795168426735`"}, 
+               ")"}), "Echo", SectionGenerated -> True), 
+            Section(BoxData({"f", "(", {"2", ",", "0.54301247913841422`"}, 
+               ")"}), "Echo", SectionGenerated -> True), 
+            Section(BoxData({"f", "(", {"3", ",", "0.46182971083349611`"}, 
+               ")"}), "Echo", SectionGenerated -> True), 
+            Section(
+             BoxData({
+               "{", {{"f", "(", {"1", ",", "0.45285795168426735`"}, ")"}, ",", 
+                {"f", "(", {"2", ",", "0.54301247913841422`"}, ")"}, ",", {
+                 "f", "(", {"3", ",", "0.46182971083349611`"}, ")"}}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Evaluate", "(", {"Echo", "(", {
+                   "f", "(", {"i", ",", {"RandomReal", "(", ")"}}, ")"}, ")"}, 
+                 ")"}, ",", {"i", "\[Rule]", "3"}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData({"f", "(", {"i", ",", "0.56980141463417833`"}, 
+               ")"}), "Echo", SectionGenerated -> True), 
+            Section(
+             BoxData({
+               "{", {{"f", "(", {"1", ",", "0.56980141463417833`"}, ")"}, ",", 
+                {"f", "(", {"2", ",", "0.56980141463417833`"}, ")"}, ",", {
+                 "f", "(", {"3", ",", "0.56980141463417833`"}, ")"}}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section({"Values of ", TemplateBox({"Table"}, "ReferenceHyperlink"), 
+          " are not substituted before evaluation: "}, "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Table", "(", {{"Hold", "(", "i", ")"}, ",", {
+               "i", "\[Rule]", "5"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {{"Hold", "(", "i", ")"}, ",", {
+               "Hold", "(", "i", ")"}, ",", {"Hold", "(", "i", ")"}, ",", {
+               "Hold", "(", "i", ")"}, ",", {"Hold", "(", "i", ")"}}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section({"Use ", TemplateBox({"With"}, "ReferenceHyperlink"), 
+          " to perform explicit substituition:"}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"With", "(", {{"{", {"i", "\[Assign]", "i"}, "}"}, ",", {
+                 "Hold", "(", "i", ")"}}, ")"}, ",", {"i", "\[Rule]", "5"}}, 
+             ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData({"{", {{"Hold", "(", "1", ")"}, ",", {
+               "Hold", "(", "2", ")"}, ",", {"Hold", "(", "3", ")"}, ",", {
+               "Hold", "(", "4", ")"}, ",", {"Hold", "(", "5", ")"}}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All)}, All)}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Array"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ConstantArray"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"List"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Range"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Do"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
