@@ -1,0 +1,130 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Array", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(Array::"usage"))), "Usage")}, All), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        SectionGroup({Section(BoxData({"Array", "(", {"f", ",", "5"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {{"f", "(", "1", ")"}, ",", {"f", "(", "2", ")"}, 
+              ",", {"f", "(", "3", ")"}, ",", {"f", "(", "4", ")"}, ",", {
+               "f", "(", "5", ")"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Create a 2\[Times]3 matrix:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Array", "(", {
+                "f", ",", {"{", {"2", ",", "3"}, "}"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {{"{", {{"f", "(", {"1", ",", "1"}, ")"}, ",", {
+                   "f", "(", {"1", ",", "2"}, ")"}, ",", {
+                   "f", "(", {"1", ",", "3"}, ")"}}, "}"}, ",", {
+                 "{", {{"f", "(", {"2", ",", "1"}, ")"}, ",", {
+                   "f", "(", {"2", ",", "2"}, ")"}, ",", {
+                   "f", "(", {"2", ",", "3"}, ")"}}, "}"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section("Display it in tabular form:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Grid", "(", {"$History", "(", {"-", "1"}, ")"}, 
+               ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData(
+              TagBox(GridBox({{{"f", "(", {"1", ",", "1"}, ")"}, {
+                   "f", "(", {"1", ",", "2"}, ")"}, {
+                   "f", "(", {"1", ",", "3"}, ")"}}, {
+                  {"f", "(", {"2", ",", "1"}, ")"}, {
+                   "f", "(", {"2", ",", "2"}, ")"}, {
+                   "f", "(", {"2", ",", "3"}, ")"}}}), "Grid")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Start with index 0 instead of 1:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Array", "(", {"f", ",", "5", ",", "0"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {{"f", "(", "0", ")"}, ",", {"f", "(", "1", ")"}, 
+                ",", {"f", "(", "2", ")"}, ",", {"f", "(", "3", ")"}, ",", {
+                 "f", "(", "4", ")"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section({"The one-argument form effectively uses ", 
+          TemplateBox({"Identity"}, "ReferenceHyperlink"), ":"}, 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Array", "(", "5", ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"Array", "(", {"Identity", ",", "5"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section({TemplateBox({"Array"}, "ReferenceHyperlink"), "(", 
+          StyleBox("i", "Arg"), SubscriptBox(StyleBox("min", "Arg")), " .. ", 
+          StyleBox("i", "Arg"), SubscriptBox(StyleBox("max", "Arg")), 
+          ") is a short-hand for ", TemplateBox({"Table"}, 
+           "ReferenceHyperlink"), "(", StyleBox("i", "Arg"), ", ", 
+          StyleBox("i", "Arg"), " \[Rule] ", StyleBox("i", "Arg"), 
+          SubscriptBox(StyleBox("min", "Arg")), " .. ", StyleBox("i", "Arg"), 
+          SubscriptBox(StyleBox("max", "Arg")), "):"}, "ExampleText"), 
+        SectionGroup({Section(BoxData({"Array", "(", {"3", "..", "9"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"3", ",", "4", ",", "5", ",", "6", ",", "7", 
+              ",", "8", ",", "9"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              "i", ",", {"i", "\[Rule]", {"3", "..", "9"}}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"3", ",", "4", ",", "5", ",", "6", ",", "7", 
+              ",", "8", ",", "9"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, All), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section({TemplateBox({"Array"}, "ReferenceHyperlink"), 
+          " takes a function instead of an expression:"}, "ExampleText"), 
+        SectionGroup({Section(BoxData({"Array", "(", {"3", ",", "4"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {{"3", "(", "1", ")"}, ",", {"3", "(", "2", ")"}, 
+              ",", {"3", "(", "3", ")"}, ",", {"3", "(", "4", ")"}}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Use ", TemplateBox({"ConstantArray"}, 
+             "ReferenceHyperlink"), " or wrap the value in ", 
+            TemplateBox({"Function"}, "ReferenceHyperlink"), 
+            "(\[Ellipsis]) to create an array of constants:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"ConstantArray", "(", {"3", ",", "4"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"3", ",", "3", ",", "3", ",", "3"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData({"Array", "(", {{"Function", "(", "3", ")"}, ",", 
+                "4"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {"3", ",", "3", ",", "3", ",", "3"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+           All)}, All)}, All)}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"ConstantArray"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Table"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"List"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Range"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Function"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
