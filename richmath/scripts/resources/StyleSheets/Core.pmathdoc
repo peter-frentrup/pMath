@@ -119,13 +119,13 @@ Document({
             InterpretationBox("", #3)}, ")"} &)}), 
         Section(StyleData("DocumentObject"), 
          TemplateBoxOptions -> {DisplayFunction -> ({"DocumentObject", "(", 
-           PanelBox(DynamicLocalBox({FE`private`arg}, 
-             DynamicBox(ToBoxes(FE`private`arg:= With({
+           PanelBox(DynamicLocalBox({FE`Private`arg}, 
+             DynamicBox(ToBoxes(FE`Private`arg:= With({
                  FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
                 ReleaseHold(FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(
-                    #1, FE`Private`dyn)))); Button(
-                Dynamic(CurrentValue(FE`private`arg, WindowTitle)), 
-                FE`CallFrontEnd(FrontEnd`SetSelectedDocument(FE`private`arg)), 
+                   #1, FE`Private`dyn)))); Button(
+                Dynamic(CurrentValue(FE`Private`arg, WindowTitle)), 
+                FE`CallFrontEnd(FrontEnd`SetSelectedDocument(FE`Private`arg)), 
                 ButtonFrame -> "Frameless"))))), ")"} &), 
           InterpretationFunction -> ({"DocumentObject", "(", 
            InterpretationBox("", #1), ")"} &)}), 
