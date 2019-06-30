@@ -253,6 +253,8 @@ namespace richmath {
       
       Expr to_pmath(BoxOutputFlags flags, int start, int end);
       
+      void append_object(Expr object, BoxInputFlags options);
+      
     private:
       Expr add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end);
   };
@@ -587,66 +589,12 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
   if(object.is_string())
     object = expand_string_boxes(String(object));
     
-  if(object.is_string()) {
-    String s(object.release());
-    
-    // skip BoxChar ...
-    const uint16_t *buf = s.buffer();
-    int             len = s.length();
-    
-    int start = 0;
-    while(start < len) {
-      int next = start;
-      while(next < len && buf[next] != BoxChar)
-        ++next;
-        
-      text.insert(text.length(), s.part(start, next - start));
-      text_invalid = true;
-      
-      start = next + 1;
-    }
-    
-    finish_load_from_object(std::move(object));
+  if(object[0] == PMATH_SYMBOL_LIST) {
+    for(size_t i = 1; i <= object.expr_length(); ++i) 
+      TextSequenceImpl(*this).append_object(object[i], options);
   }
-  else if(object[0] == PMATH_SYMBOL_LIST) {
-    for(size_t i = 1; i <= object.expr_length(); ++i) {
-      Expr item = object[i];
-      
-      if(item.is_string()) {
-        String s(item.release());
-        
-        // skip BoxChar ...
-        const uint16_t *buf = s.buffer();
-        int             len = s.length();
-        
-        int start = 0;
-        while(start < len) {
-          int next = start;
-          while(next < len && buf[next] != BoxChar)
-            ++next;
-            
-          text.insert(text.length(), s.part(start, next - start));
-          text_invalid = true;
-          
-          start = next + 1;
-        }
-      }
-      else {
-        InlineSequenceBox *box = new InlineSequenceBox();
-        
-        box->content()->load_from_object(item, options);
-        
-        insert(text.length(), box);
-      }
-    }
-  }
-  else {
-    InlineSequenceBox *box = new InlineSequenceBox();
-    
-    box->content()->load_from_object(object, options);
-    
-    insert(text.length(), box);
-  }
+  else 
+    TextSequenceImpl(*this).append_object(object, options);
   
   finish_load_from_object(std::move(object));
 }
@@ -1304,6 +1252,36 @@ Expr TextSequenceImpl::add_debug_info(Expr expr, BoxOutputFlags flags, int start
           obj, 
           SelectionReference(self.id(), start, end).to_debug_info().release());
   return Expr{ obj };
+}
+
+void TextSequenceImpl::append_object(Expr object, BoxInputFlags options) {
+  if(object.is_string()) {
+    String s(object.release());
+    
+    // skip BoxChar ...
+    const uint16_t *buf = s.buffer();
+    int             len = s.length();
+    
+    int start = 0;
+    while(start < len) {
+      int next = start;
+      while(next < len && buf[next] != BoxChar)
+        ++next;
+        
+      self.text.insert(self.text.length(), s.part(start, next - start));
+      self.text_invalid = true;
+      
+      start = next + 1;
+    }
+    
+    return;
+  }
+  
+  InlineSequenceBox *box = new InlineSequenceBox();
+  
+  box->content()->load_from_object(object, options);
+  
+  self.insert(self.text.length(), box);
 }
 
 //} ... class TextSequenceImpl
