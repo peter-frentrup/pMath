@@ -48,6 +48,7 @@ namespace richmath {
     LineBreakWithin,
     Placeholder,
     ReturnCreatesNewSection,
+    Saveable,
     SectionEditDuplicate,
     SectionEditDuplicateMakesCopy,
     SectionGenerated,

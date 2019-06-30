@@ -39,6 +39,7 @@ Options(CreateDocument):= Options(Document):= {
 	Magnification -> Inherited,
     MathFontFamily -> Inherited,
 	ReturnCreatesNewSection -> Inherited,
+    Saveable -> True,
 	ScriptSizeMultipliers -> Inherited,
 	SectionEditDuplicate -> Inherited,
 	SectionEditDuplicateMakesCopy -> Inherited,
@@ -174,6 +175,7 @@ Options(Section):= {
     Method -> "Preemptive",      % only valid for StyleData-sections
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ReturnCreatesNewSection -> Inherited,
+    Saveable -> Inherited,       % only valid for StyleData-sections
     ScriptSizeMultipliers -> Automatic,
     SectionEditDuplicate -> Inherited,
     SectionEditDuplicateMakesCopy -> Inherited,

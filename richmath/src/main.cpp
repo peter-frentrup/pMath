@@ -283,6 +283,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(InternalUsesCurrentValueOfMouseOver, false);
   Stylesheet::Default->base->set(LineBreakWithin,                     true);
   Stylesheet::Default->base->set(ReturnCreatesNewSection,             false);
+  Stylesheet::Default->base->set(Saveable,                            true);
   Stylesheet::Default->base->set(SectionEditDuplicate,                false);
   Stylesheet::Default->base->set(SectionEditDuplicateMakesCopy,       false);
   Stylesheet::Default->base->set(SectionGenerated,                    false);

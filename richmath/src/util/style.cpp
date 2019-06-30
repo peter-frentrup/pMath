@@ -58,6 +58,7 @@ extern pmath_symbol_t richmath_System_Method;
 extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_PlotRange;
 extern pmath_symbol_t richmath_System_ReturnCreatesNewSection;
+extern pmath_symbol_t richmath_System_Saveable;
 extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_ScriptSizeMultipliers;
 extern pmath_symbol_t richmath_System_Section;
@@ -416,6 +417,7 @@ namespace {
           add(StyleTypeBool,            LineBreakWithin,                  Symbol( richmath_System_LineBreakWithin));
           add(StyleTypeBool,            Placeholder,                      Symbol( richmath_System_Placeholder));
           add(StyleTypeBool,            ReturnCreatesNewSection,          Symbol( richmath_System_ReturnCreatesNewSection));
+          add(StyleTypeBool,            Saveable,                         Symbol( richmath_System_Saveable));
           add(StyleTypeBool,            SectionEditDuplicate,             Symbol( richmath_System_SectionEditDuplicate));
           add(StyleTypeBool,            SectionEditDuplicateMakesCopy,    Symbol( richmath_System_SectionEditDuplicateMakesCopy));
           add(StyleTypeBool,            SectionGenerated,                 Symbol( richmath_System_SectionGenerated));
@@ -2113,6 +2115,7 @@ bool Style::modifies_size(StyleOptionName style_name) {
     case InternalUsesCurrentValueOfMouseOver:
     case Placeholder:
     case ReturnCreatesNewSection:
+    case Saveable:
     case SectionEditDuplicate:
     case SectionEditDuplicateMakesCopy:
     case SectionGenerated:
@@ -2277,6 +2280,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Placeholder);
   impl.emit_definition(PlotRange);
   impl.emit_definition(ReturnCreatesNewSection);
+  impl.emit_definition(Saveable);
   impl.emit_definition(ScriptSizeMultipliers);
   impl.emit_definition(SectionEditDuplicate);
   impl.emit_definition(SectionEditDuplicateMakesCopy);

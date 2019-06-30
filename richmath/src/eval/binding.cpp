@@ -284,6 +284,18 @@ static pmath_t builtin_evaluationdocument(pmath_expr_t expr) {
 
 //{ menu command availability checkers ...
 
+static MenuCommandStatus can_save(Expr cmd) {
+  Document *doc = get_current_document();
+  if(!doc)
+    return MenuCommandStatus(false);
+  
+  if(!doc->get_style(Saveable, true))
+    return MenuCommandStatus(false);
+  
+  // TODO: check whether the document has a filename that has enough permissions...
+  return MenuCommandStatus(true);
+}
+
 static MenuCommandStatus can_abort(Expr cmd) {
   return MenuCommandStatus(!Application::is_idle());
 }
@@ -1193,8 +1205,16 @@ static bool remove_from_evaluation_queue(Expr cmd) {
 }
 
 static bool save_cmd(Expr cmd) {
+  Document *doc = get_current_document();
+  if(!doc)
+    return false;
+  
+  if(!doc->get_style(Saveable, true))
+    return false;
+  
   Application::notify_wait(ClientNotification::Save, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_AUTOMATIC)));
   
+  // TODO: check whether the document has a filename that has enough permissions...
   return true;
 }
 
@@ -1356,7 +1376,7 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
 bool richmath::init_bindings() {
   Application::register_menucommand(String("New"),                        new_cmd);
   Application::register_menucommand(String("Open"),                       open_cmd);
-  Application::register_menucommand(String("Save"),                       save_cmd);
+  Application::register_menucommand(String("Save"),                       save_cmd,                            can_save);
   Application::register_menucommand(String("SaveAs"),                     saveas_cmd);
   Application::register_menucommand(String("Close"),                      close_cmd);
   

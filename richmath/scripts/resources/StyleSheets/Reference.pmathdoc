@@ -6,6 +6,8 @@ Document({
       Section(
        "This file contains default style definitions to apply to \
        documentation.", "Text"), 
+      SectionGroup({Section("Document styles", "Section"), 
+        Section(StyleData("Document"), Saveable -> False)}, All), 
       SectionGroup({Section("Section styles", "Section"), 
         Section(StyleData("Output"), SectionLabel -> "out:")}, All), 
       SectionGroup({Section(StyleData("ObjectName"), BaseStyle -> "Section", 
