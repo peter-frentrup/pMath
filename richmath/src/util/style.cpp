@@ -981,13 +981,13 @@ bool StyleImpl::set_pmath_bool_auto(StyleOptionName n, Expr obj) {
     any_change = remove_dynamic(n);
     
   if(obj == PMATH_SYMBOL_FALSE)
-    return raw_set_int(n, 0) || any_change;
+    return raw_set_int(n, AutoBoolFalse) || any_change;
   
   if(obj == PMATH_SYMBOL_TRUE)
-    return raw_set_int(n, 1) || any_change;
+    return raw_set_int(n, AutoBoolTrue) || any_change;
   
   if(obj == PMATH_SYMBOL_AUTOMATIC)
-    return raw_set_int(n, 2) || any_change;
+    return raw_set_int(n, AutoBoolAutomatic) || any_change;
   
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_int(n) || any_change;
@@ -1626,12 +1626,13 @@ Expr StyleImpl::raw_get_pmath_bool_auto(StyleOptionName n, Expr inherited) const
   int i;
   if(raw_get_int(n, &i)) {
     switch(i) {
-      case 0:
+      case AutoBoolFalse:
         return Symbol(PMATH_SYMBOL_FALSE);
         
-      case 1:
+      case AutoBoolTrue:
         return Symbol(PMATH_SYMBOL_TRUE);
         
+      case AutoBoolAutomatic:
       default:
         return Symbol(PMATH_SYMBOL_AUTOMATIC);
     }

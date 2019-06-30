@@ -19,12 +19,18 @@ namespace richmath {
     TemplateBox = 0x00100000
   };
   
+  enum AutoBoolValues {
+    AutoBoolFalse = 0,
+    AutoBoolTrue = 1,
+    AutoBoolAutomatic = 2
+  };
+  
   enum IntStyleOptionName {
     Background = 0x00000,
     FontColor,
     SectionFrameColor,
     
-    Antialiasing, // 0=off, 1=on, 2=default
+    Antialiasing, // AutoBoolXXX
     
     FontSlant,
     FontWeight,
@@ -48,7 +54,7 @@ namespace richmath {
     SectionLabelAutoDelete,
     Selectable,
     ShowAutoStyles,
-    ShowSectionBracket, // 0 = False, 1 = True, 2 = Automatic
+    ShowSectionBracket, // AutoBoolXXX
     ShowStringCharacters,
     StripOnInput,
     SurdForm,

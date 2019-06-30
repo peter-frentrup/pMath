@@ -1007,16 +1007,16 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     }
     
     switch(_sections[i]->get_style(ShowSectionBracket)) {
-      case 2:
+      case AutoBoolAutomatic:
         if(context->selection.id == id() && context->selection.start <= i && context->selection.end > i)
           paint_single_section_bracket(context, x1, y1, x2, y2, style);
         break;
         
-      case 1:
+      case AutoBoolTrue:
         paint_single_section_bracket(context, x1, y1, x2, y2, style);
         break;
         
-      case 0:
+      case AutoBoolFalse:
       default:
         break;
     }
@@ -1062,16 +1062,16 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
         }
         
         switch(_sections[start]->get_style(ShowSectionBracket)) {
-          case 2:
+          case AutoBoolAutomatic:
             if(context->selection.id == id() && context->selection.start <= start && context->selection.end > _group_info[start].end)
               paint_single_section_bracket(context, x1, y1, x2, y2, style);
             break;
             
-          case 1:
+          case AutoBoolTrue:
             paint_single_section_bracket(context, x1, y1, x2, y2, style);
             break;
           
-          case 0:
+          case AutoBoolFalse:
           default:
             break;
         }

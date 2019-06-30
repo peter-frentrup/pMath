@@ -420,19 +420,19 @@ void ContextState::apply_non_layout_styles(SharedPtr<Style> style) {
   if(ctx->stylesheet->get(style, Antialiasing, &i)) {
     old_antialiasing = cairo_get_antialias(ctx->canvas->cairo());
     switch(i) {
-      case 0:
+      case AutoBoolFalse:
         cairo_set_antialias(
           ctx->canvas->cairo(),
           CAIRO_ANTIALIAS_NONE);
         break;
         
-      case 1:
+      case AutoBoolTrue:
         cairo_set_antialias(
           ctx->canvas->cairo(),
           CAIRO_ANTIALIAS_GRAY);
         break;
         
-      case 2:
+      case AutoBoolAutomatic:
         cairo_set_antialias(
           ctx->canvas->cairo(),
           CAIRO_ANTIALIAS_DEFAULT);
