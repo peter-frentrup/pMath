@@ -9,6 +9,8 @@ namespace richmath {
     public:
       Observable();
       ~Observable();
+      Observable(Observable &&src);
+      Observable &operator=(Observable &&src);
       
       void register_observer() const;
       void register_observer(FrontEndReference id) const;
@@ -31,7 +33,7 @@ namespace richmath {
         return _value == other;
       }
       
-      operator T() {
+      operator T() const {
         register_observer(); 
         return _value; 
       }

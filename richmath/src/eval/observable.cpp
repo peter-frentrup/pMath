@@ -10,6 +10,49 @@ using namespace pmath;
 static Hashtable<Observable*, Expr>                        all_observers;
 static Hashtable<FrontEndReference, Hashset<Observable*>>  all_observed_values;
 
+static void swap_observers(Observable *left, Observable *right) {
+  assert(left != nullptr);
+  assert(right != nullptr);
+  
+  Expr left_observers = all_observers[left];
+  Expr right_observers = all_observers[right];
+  
+  size_t left_count  = left_observers.expr_length();
+  size_t right_count = right_observers.expr_length();
+  
+  if(left_count == 0 && right_count == 0)
+    return;
+  
+  for(size_t i = left_count; i > 0; --i) {
+    auto id = FrontEndReference::from_pmath_raw(left_observers[i]);
+    if(id) {
+      auto observed = all_observed_values.search(id);
+      if(!observed) {
+        all_observed_values.set(id, Hashset<Observable*> {});
+        observed = all_observed_values.search(id);
+        HASHTABLE_ASSERT(observed != nullptr);
+      }
+      observed->add(right);
+    }
+  }
+  
+  for(size_t i = right_count; i > 0; --i) {
+    auto id = FrontEndReference::from_pmath_raw(right_observers[i]);
+    if(id) {
+      auto observed = all_observed_values.search(id);
+      if(!observed) {
+        all_observed_values.set(id, Hashset<Observable*> {});
+        observed = all_observed_values.search(id);
+        HASHTABLE_ASSERT(observed != nullptr);
+      }
+      observed->add(left);
+    }
+  }
+  
+  all_observers.set(right, std::move(left_observers));
+  all_observers.set(left, std::move(right_observers));
+}
+
 Observable::Observable()
   : Base()
 {
@@ -19,6 +62,18 @@ Observable::Observable()
 Observable::~Observable() {
   notify_all();
   assert(!all_observers.search(this));
+}
+
+Observable::Observable(Observable &&src)
+  : Base()
+{
+  swap_observers(this, &src);
+}
+
+Observable &Observable::operator=(Observable &&src) {
+  //Base::operator=(src);
+  swap_observers(this, &src);
+  return *this;
 }
 
 void Observable::register_observer() const {
