@@ -2126,6 +2126,7 @@ static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item
   SharedPtr<Style> style = new Style();
   ControlPainter::std->system_font_style(ControlContext::find(dynamic_cast<Box*>(obj)), style.ptr());
   
+  AutoResetCurrentEvaluationBox guard;
   String item_string {item};
   if(item_string.equals(s_ControlsFontFamily))
     return style->get_pmath(FontFamilies);

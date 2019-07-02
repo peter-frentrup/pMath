@@ -17,22 +17,8 @@ Observable::Observable()
 }
 
 Observable::~Observable() {
-  auto my_observers = all_observers[this];
-  all_observers.remove(this);
-  
-  for(size_t i = my_observers.expr_length(); i > 0; --i) {
-    auto id = FrontEndReference::from_pmath(my_observers[i]);
-    if(!id)
-      continue;
-      
-    auto observed = all_observed_values.search(id);
-    if(observed) {
-      observed->remove(this);
-      if(observed->size() == 0) {
-        all_observed_values.remove(id);
-      }
-    }
-  }
+  notify_all();
+  assert(!all_observers.search(this));
 }
 
 void Observable::register_observer() const {
@@ -93,7 +79,9 @@ void Observable::notify_all() {
       all_observed_values.remove(id);
   }
   
-  Application::notify(ClientNotification::DynamicUpdate, my_observers);
+  if(!my_observers.is_null())
+    Application::notify(ClientNotification::DynamicUpdate, my_observers);
+  
   all_observers.remove(this);
 }
 
