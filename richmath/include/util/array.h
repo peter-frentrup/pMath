@@ -106,6 +106,8 @@ namespace richmath {
       }
       
       Array<T> &length(int newlen) {
+        using std::swap;
+        
         ARRAY_ASSERT(newlen >= 0);
         if(newlen > _capacity) {
           //while(newlen > _capacity)
@@ -113,7 +115,7 @@ namespace richmath {
           _capacity = best_capacity(newlen);
           T *newitems = new T[_capacity];
           for(int i = 0; i < _length; ++i)
-            newitems[i] = _items[i];
+            swap(newitems[i], _items[i]);
             
           delete[] _items;
           _items = newitems;
@@ -213,6 +215,8 @@ namespace richmath {
       
       template<class S>
       Array<T> &insert(int start, int inslen, const S *insitems) {
+        using std::swap;
+        
         ARRAY_ASSERT(start >= 0);
         ARRAY_ASSERT(start <= _length);
         ARRAY_ASSERT(inslen >= 0);
@@ -222,7 +226,7 @@ namespace richmath {
         length(_length + inslen);
         
         for(int i = _length - 1; i >= start + inslen; --i)
-          _items[i] = _items[i - inslen];
+          swap(_items[i], _items[i - inslen]);
           
         for(int i = 0; i < inslen; ++i)
           _items[start + i] = insitems[i];
@@ -230,13 +234,36 @@ namespace richmath {
         return *this;
       }
       
+      template<class S>
+      Array<T> &insert_swap(int start, int inslen, S *insitems) {
+        using std::swap;
+        
+        ARRAY_ASSERT(start >= 0);
+        ARRAY_ASSERT(start <= _length);
+        ARRAY_ASSERT(inslen >= 0);
+        if(inslen == 0)
+          return *this;
+          
+        length(_length + inslen);
+        
+        for(int i = _length - 1; i >= start + inslen; --i)
+          swap(_items[i], _items[i - inslen]);
+          
+        for(int i = 0; i < inslen; ++i)
+          swap(_items[start + i], insitems[i]);
+          
+        return *this;
+      }
+      
       Array<T> &remove(int start, int remlen) {
+        using std::swap;
+        
         ARRAY_ASSERT(start >= 0);
         ARRAY_ASSERT(remlen >= 0);
         ARRAY_ASSERT(start + remlen <= _length);
         
         for(int i = start + remlen; i < _length; ++i)
-          _items[i - remlen] = _items[i];
+          swap(_items[i - remlen], _items[i]);
           
         return length(_length - remlen);
       }
