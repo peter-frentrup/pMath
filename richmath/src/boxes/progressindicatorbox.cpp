@@ -236,13 +236,8 @@ bool ProgressIndicatorBox::is_foreground_window() {
   if(!doc)
     return false;
   
-  FrontEndReference old_dyn_box_id = Dynamic::current_evaluation_box_id;
-  Dynamic::current_evaluation_box_id = id();
-  
-  auto result = doc->native()->is_foreground_window();
-  
-  Dynamic::current_evaluation_box_id = old_dyn_box_id;
-  return result;
+  AutoResetCurrentEvaluationBox guard;
+  return doc->native()->is_foreground_window();
 }
 
 int ProgressIndicatorBox::dpi() {
@@ -250,13 +245,8 @@ int ProgressIndicatorBox::dpi() {
   if(!doc)
     return 96;
   
-  FrontEndReference old_dyn_box_id = Dynamic::current_evaluation_box_id;
-  Dynamic::current_evaluation_box_id = id();
-  
-  auto result = doc->native()->dpi();
-  
-  Dynamic::current_evaluation_box_id = old_dyn_box_id;
-  return result;
+  AutoResetCurrentEvaluationBox guard;
+  return doc->native()->dpi();
 }
 
 //} ... class ProgressIndicatorBox

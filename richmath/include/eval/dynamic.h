@@ -56,6 +56,24 @@ namespace richmath {
       
       int  _synchronous_updating; // 0 = False, 1 = True, 2 = Automatic
   };
+
+  class AutoResetCurrentEvaluationBox {
+    public:
+      AutoResetCurrentEvaluationBox()
+        : old_id{Dynamic::current_evaluation_box_id}
+      {
+        Dynamic::current_evaluation_box_id = FrontEndReference();
+      }
+      ~AutoResetCurrentEvaluationBox() {
+        Dynamic::current_evaluation_box_id = old_id;
+      }
+      
+      AutoResetCurrentEvaluationBox(const AutoResetCurrentEvaluationBox&) = delete;
+      AutoResetCurrentEvaluationBox &operator=(const AutoResetCurrentEvaluationBox&) = delete;
+
+    private:
+      FrontEndReference old_id;
+  };
 };
 
 #endif // __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
