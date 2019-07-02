@@ -615,7 +615,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       SectionGroupInfo sgi;
       sgi.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
       sgi.close_rel  = -1; // open
-      _group_info.insert(*pos, 1, &sgi);
+      _group_info.insert_swap(*pos, 1, &sgi);
       
       ++*pos;
       ++overwrite_until_index;
@@ -650,7 +650,7 @@ void SectionList::insert(int pos, Section *section) {
     
   SectionGroupInfo sgi;
   sgi.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
-  _group_info.insert(pos, 1, &sgi);
+  _group_info.insert_swap(pos, 1, &sgi);
   
   recalc_group_info();
   update_group_nesting();

@@ -42,9 +42,9 @@ namespace richmath {
       
       float precedence;
       int nesting;
-      int first;     // always < section index, may be -1
-      int end;       // index of last section of the group that starts here
-      int close_rel; // group closed => rel. index of the only open section, else: -1
+      int first;                      // always < section index, may be -1
+      int end;                        // index of last section of the group that starts here
+      ObservableValue<int> close_rel; // group closed => rel. index of the only open section, else: -1
   };
   
   class SectionList: public Box {

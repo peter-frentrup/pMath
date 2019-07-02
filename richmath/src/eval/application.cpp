@@ -613,6 +613,7 @@ static Expr get_current_value_of_DocumentFileName(FrontEndObject *obj, Expr item
 static Expr get_current_value_of_DocumentFullFileName(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
+static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
 
@@ -625,6 +626,7 @@ static const char s_ControlsFontFamily[] = "ControlsFontFamily";
 static const char s_ControlsFontSlant[] = "ControlsFontSlant";
 static const char s_ControlsFontWeight[] = "ControlsFontWeight";
 static const char s_ControlsFontSize[] = "ControlsFontSize";
+static const char s_SectionGroupOpen[] = "SectionGroupOpen";
 static const char s_StyleDefinitionsOwner[] = "StyleDefinitionsOwner";
 
 void Application::init() {
@@ -650,6 +652,7 @@ void Application::init() {
   register_currentvalue_provider(String(s_ControlsFontSlant),         get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontWeight),        get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontSize),          get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_SectionGroupOpen),          get_current_value_of_SectionGroupOpen);
   register_currentvalue_provider(String(s_StyleDefinitionsOwner),     get_current_value_of_StyleDefinitionsOwner);
   register_currentvalue_provider(Symbol(richmath_System_WindowTitle), get_current_value_of_WindowTitle);
   
@@ -2138,6 +2141,23 @@ static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item
     return style->get_pmath(FontSize);
     
   return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item) {
+  Box *box = dynamic_cast<Box*>(obj);
+  Section *sec = box ? box->find_parent<Section>(true) : nullptr;
+  if(!sec)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  SectionList *slist = dynamic_cast<SectionList*>(sec->parent());
+  if(!slist)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  int close_rel = slist->group_info(sec->index()).close_rel;
+  if(close_rel < 0)
+    return Symbol(PMATH_SYMBOL_TRUE);
+  else
+    return Symbol(PMATH_SYMBOL_FALSE);
 }
 
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item) {
