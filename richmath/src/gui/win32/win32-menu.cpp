@@ -270,7 +270,6 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   else if(key.equals("F23"))                accel->key = VK_F23;
   else if(key.equals("F24"))                accel->key = VK_F24;
   else if(key.equals("Enter"))              accel->key = VK_RETURN;
-  else if(key.equals("NumpadEnter"))        accel->key = VK_MY_NUMPAD_ENTER;
   else if(key.equals("Tab"))                accel->key = VK_TAB;
   else if(key.equals("Esc"))                accel->key = VK_ESCAPE;
   else if(key.equals("PageUp"))             accel->key = VK_PRIOR;
@@ -298,6 +297,7 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   else if(key.equals("Numpad*"))            accel->key = VK_MULTIPLY;
   else if(key.equals("Numpad/"))            accel->key = VK_DIVIDE;
   else if(key.equals("NumpadDecimal"))      accel->key = VK_DECIMAL;
+  else if(key.equals("NumpadEnter"))        accel->key = VK_MY_NUMPAD_ENTER;
   else if(key.equals("Play"))               accel->key = VK_PLAY;
   else if(key.equals("Zoom"))               accel->key = VK_ZOOM;
   else                                      return false;
