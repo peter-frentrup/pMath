@@ -141,6 +141,8 @@ namespace richmath {
     protected:
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
       
+      virtual void on_close();
+      
       virtual DWORD preferred_drop_effect(IDataObject *data_object);
       virtual DWORD drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects);
       virtual void apply_drop_description(DWORD effect, DWORD key_state, POINTL pt);

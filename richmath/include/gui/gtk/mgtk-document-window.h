@@ -82,6 +82,7 @@ namespace richmath {
       void window_frame(WindowFrameType type);
       
       virtual bool on_configure(GdkEvent *e);
+      virtual bool on_delete(GdkEvent *e);
       virtual bool on_focus_in(GdkEvent *e);
       virtual bool on_focus_out(GdkEvent *e);
       virtual bool on_scroll(GdkEvent *e);

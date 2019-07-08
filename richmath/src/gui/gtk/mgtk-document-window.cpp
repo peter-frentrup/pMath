@@ -6,6 +6,7 @@
 #include <eval/binding.h>
 
 #include <gui/gtk/mgtk-menu-builder.h>
+#include <gui/messagebox.h>
 
 #include <cmath>
 
@@ -333,6 +334,7 @@ void MathGtkDocumentWindow::after_construction() {
   }
   
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_configure>("configure-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_delete>("delete-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_in>("focus-in-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_scroll>("scroll-event");
@@ -747,6 +749,27 @@ bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {
     return false;
     
   move_palettes();
+  
+  return false;
+}
+
+bool MathGtkDocumentWindow::on_delete(GdkEvent *e) {
+  if(_has_unsaved_changes && document()->get_style(Saveable)) {
+    YesNoCancel answer = ask_save(document());
+    
+    switch(answer) {
+      case YesNoCancel::Yes:
+        if(Application::save(document()) == PMATH_SYMBOL_FAILED)
+          return true;
+        return false;
+      
+      case YesNoCancel::No:
+        return false;
+        
+      case YesNoCancel::Cancel:
+        return true;
+    }
+  }
   
   return false;
 }

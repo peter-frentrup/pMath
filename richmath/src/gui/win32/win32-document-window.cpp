@@ -8,6 +8,7 @@
 #include <eval/binding.h>
 #include <eval/application.h>
 #include <gui/control-painter.h>
+#include <gui/messagebox.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
@@ -99,7 +100,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       
       fprintf(stderr, "[Win32WorkingArea::after_construction, hwnd = %p]\n", hwnd());
       _overlay.init();
-      SetWindowText(_overlay.hwnd(), "Scrollbar overlay");
+      SetWindowTextW(_overlay.hwnd(), L"Scrollbar overlay");
       _overlay.update();
     }
     
@@ -637,11 +638,11 @@ void Win32DocumentWindow::after_construction() {
   bottom_glass()->main_document = document();
   
   // for debugging purposes:
-  SetWindowText(_working_area->hwnd(),      "WorkingArea");
-  SetWindowText(_top_glass_area->hwnd(),    "TopGlassArea");
-  SetWindowText(_top_area->hwnd(),          "TopArea");
-  SetWindowText(_bottom_area->hwnd(),       "BottomArea");
-  SetWindowText(_bottom_glass_area->hwnd(), "BottomGlassArea");
+  SetWindowTextW(_working_area->hwnd(),      L"WorkingArea");
+  SetWindowTextW(_top_glass_area->hwnd(),    L"TopGlassArea");
+  SetWindowTextW(_top_area->hwnd(),          L"TopArea");
+  SetWindowTextW(_bottom_area->hwnd(),       L"BottomArea");
+  SetWindowTextW(_bottom_glass_area->hwnd(), L"BottomGlassArea");
   
   menubar = new Win32Menubar(
     this, _hwnd,
@@ -1068,6 +1069,27 @@ void Win32DocumentWindow::on_setting_changed() {
     if(rect.bottom - rect.top != menubar->best_height())
       rearrange();
   }
+}
+
+void Win32DocumentWindow::on_close() {
+  if(_has_unsaved_changes && document()->get_style(Saveable)) {
+    YesNoCancel answer = ask_save(document());
+    
+    switch(answer) {
+      case YesNoCancel::Yes:
+        if(Application::save(document()) == PMATH_SYMBOL_FAILED)
+          return;
+        break;
+      
+      case YesNoCancel::No:
+        break;
+        
+      case YesNoCancel::Cancel:
+        return;
+    }
+  }
+  
+  BasicWin32Window::on_close();
 }
 
 void Win32DocumentWindow::on_theme_changed() {

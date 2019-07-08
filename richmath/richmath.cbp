@@ -860,6 +860,13 @@
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 		</Unit>
+		<Unit filename="include/gui/gtk/mgtk-messagebox.h">
+			<Option target="Windows-GCC-Debug-x86-Gtk2" />
+			<Option target="Windows-GCC-Debug-x86-Gtk3" />
+			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86-Gtk3" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
+		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-tooltip-window.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
 			<Option target="Windows-GCC-Debug-x86-Gtk3" />
@@ -878,6 +885,7 @@
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 		</Unit>
+		<Unit filename="include/gui/messagebox.h" />
 		<Unit filename="include/gui/native-widget.h" />
 		<Unit filename="include/gui/win32/basic-win32-widget.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1015,6 +1023,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/win32-menubar.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/win32-messagebox.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
@@ -1269,6 +1286,13 @@
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 		</Unit>
+		<Unit filename="src/gui/gtk/mgtk-messagebox.cpp">
+			<Option target="Windows-GCC-Debug-x86-Gtk2" />
+			<Option target="Windows-GCC-Debug-x86-Gtk3" />
+			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86-Gtk3" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
+		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-tooltip-window.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
 			<Option target="Windows-GCC-Debug-x86-Gtk3" />
@@ -1287,6 +1311,7 @@
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 		</Unit>
+		<Unit filename="src/gui/messagebox.cpp" />
 		<Unit filename="src/gui/native-widget.cpp" />
 		<Unit filename="src/gui/win32/basic-win32-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1424,6 +1449,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-menubar.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/win32-messagebox.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />

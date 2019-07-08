@@ -85,6 +85,7 @@ namespace richmath {
         Expr (*func)(FrontEndObject *obj, Expr item));
         
       static void gui_print_section(Expr expr);
+      static Expr save(Document *doc);
       //static void update_control_active(bool value);
       static void activated_control(Box *box);
       static void deactivated_control(Box *box);

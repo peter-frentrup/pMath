@@ -309,7 +309,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       } break;
       
     case WM_CLOSE: {
-        destroy();
+        on_close();
       } return 0;
       
     case WM_DESTROY: {
@@ -320,6 +320,10 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   }
   
   return DefWindowProcW(_hwnd, message, wParam, lParam);
+}
+
+void BasicWin32Widget::on_close() {
+  destroy();
 }
 
 DWORD BasicWin32Widget::preferred_drop_effect(IDataObject *data_object) {
@@ -379,9 +383,9 @@ void BasicWin32Widget::init_window_class() {
   memset(&wincl, 0, sizeof(wincl));
   
   wincl.cbSize = sizeof(wincl);
-  wincl.hInstance = GetModuleHandle(0);
-  wincl.hIcon = LoadIcon(wincl.hInstance, MAKEINTRESOURCE(ICO_APP_MAIN));
-  wincl.hIconSm   = (HICON)LoadImage(wincl.hInstance, MAKEINTRESOURCE(ICO_APP_MAIN),
+  wincl.hInstance = GetModuleHandleW(nullptr);
+  wincl.hIcon = LoadIconW(wincl.hInstance, MAKEINTRESOURCEW(ICO_APP_MAIN));
+  wincl.hIconSm   = (HICON)LoadImageW(wincl.hInstance, MAKEINTRESOURCEW(ICO_APP_MAIN),
                                      IMAGE_ICON,
                                      GetSystemMetrics(SM_CXSMICON),
                                      GetSystemMetrics(SM_CYSMICON),

@@ -1946,6 +1946,14 @@ namespace {
       }
   };
 }
+
+Expr Application::save(Document *doc) {
+  if(doc)
+    return SaveOperation::do_save(List(doc->id().to_pmath()));
+  else
+    return SaveOperation::do_save(List(Symbol(PMATH_SYMBOL_AUTOMATIC))); 
+}
+
 static void execute(ClientNotificationData &cn) {
   AutoMemorySuspension ams;
   
