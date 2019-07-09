@@ -117,9 +117,10 @@ static ConcurrentQueue<ClientNotificationData> notifications;
 
 static SharedPtr<Session> session = new Session(nullptr);
 
-static Hashtable<Expr, bool              ( *)(Expr)>                  menu_commands;
-static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                  menu_command_testers;
-static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)> currentvalue_providers;
+static Hashtable<Expr, bool              ( *)(Expr)>                        menu_commands;
+static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                        menu_command_testers;
+static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)>       currentvalue_providers;
+static Hashtable<Expr, bool              ( *)(FrontEndObject*, Expr, Expr)> currentvalue_setters;
 
 static Hashset<FrontEndReference> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
@@ -330,6 +331,17 @@ Expr Application::current_value(FrontEndObject *obj, Expr item) {
   return func(obj, item);
 }
 
+bool Application::set_current_value(FrontEndObject *obj, Expr item, Expr rhs) {
+  auto func = currentvalue_setters[item];
+  if(!func && item[0] == PMATH_SYMBOL_LIST)
+    func = currentvalue_setters[item[1]];
+    
+  if(!func)
+    return false;
+    
+  return func(obj, item, rhs);
+}
+
 bool Application::run_recursive_menucommand(Expr cmd) {
   bool (*func)(Expr);
   
@@ -385,14 +397,22 @@ void Application::register_menucommand(
 
 bool Application::register_currentvalue_provider(
   Expr   item,
-  Expr (*func)(FrontEndObject *obj, Expr item))
+  Expr (*get)(FrontEndObject *obj, Expr item),
+  bool (*set)(FrontEndObject *obj, Expr item, Expr rhs))
 {
-  assert(func != nullptr);
+  assert(get != nullptr);
   
   if(currentvalue_providers.search(item))
     return false;
   
-  currentvalue_providers.set(item, func);
+  if(currentvalue_setters.search(item))
+    return false;
+  
+  currentvalue_providers.set(item, get);
+  
+  if(set)
+    currentvalue_setters.set(item, set);
+  
   return true;
 }
 
@@ -614,6 +634,7 @@ static Expr get_current_value_of_DocumentFullFileName(FrontEndObject *obj, Expr 
 static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item);
+static bool set_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
 
@@ -652,7 +673,7 @@ void Application::init() {
   register_currentvalue_provider(String(s_ControlsFontSlant),         get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontWeight),        get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontSize),          get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_SectionGroupOpen),          get_current_value_of_SectionGroupOpen);
+  register_currentvalue_provider(String(s_SectionGroupOpen),          get_current_value_of_SectionGroupOpen,      set_current_value_of_SectionGroupOpen);
   register_currentvalue_provider(String(s_StyleDefinitionsOwner),     get_current_value_of_StyleDefinitionsOwner);
   register_currentvalue_provider(Symbol(richmath_System_WindowTitle), get_current_value_of_WindowTitle);
   
@@ -1691,6 +1712,33 @@ static Expr cnt_currentvalue(Expr data) {
   return Application::current_value(obj, item);
 }
 
+static Expr cnt_setcurrentvalue(Expr assignment) {
+  if(assignment.expr_length() == 2 && assignment[0] == PMATH_SYMBOL_ASSIGN) {
+    Expr item = assignment[1];
+    
+    if(item[0] == PMATH_SYMBOL_CURRENTVALUE) {
+      Expr rhs = assignment[2];
+      FrontEndObject *obj = nullptr;
+      if(item.expr_length() == 1) {
+        obj = Application::get_evaluation_box();
+        item = item[1];
+      }
+      else if(item.expr_length() == 2) {
+        auto ref = FrontEndReference::from_pmath(item[1]);
+        obj = FrontEndObject::find(ref);
+        item = item[2];
+      }
+      else
+        return std::move(assignment);
+      
+      if(Application::set_current_value(obj, std::move(item), rhs))
+        return std::move(rhs);
+    }
+  }
+  
+  return std::move(assignment);
+}
+
 static Expr cnt_getevaluationdocument(Expr data) {
   Document *doc = nullptr;
   Box      *box = Application::get_evaluation_box();
@@ -2023,6 +2071,11 @@ static void execute(ClientNotificationData &cn) {
         *cn.result_ptr = cnt_currentvalue(cn.data).release();
       break;
       
+    case ClientNotification::SetCurrentValue:
+      if(cn.result_ptr)
+        *cn.result_ptr = cnt_setcurrentvalue(cn.data).release();
+      break;
+      
     case ClientNotification::GetEvaluationDocument:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_getevaluationdocument(cn.data).release();
@@ -2166,6 +2219,29 @@ static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item
     return Symbol(PMATH_SYMBOL_TRUE);
   else
     return Symbol(PMATH_SYMBOL_FALSE);
+}
+
+static bool set_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs) {
+  Box *box = dynamic_cast<Box*>(obj);
+  Section *sec = box ? box->find_parent<Section>(true) : nullptr;
+  if(!sec)
+    return false;
+    
+  SectionList *slist = dynamic_cast<SectionList*>(sec->parent());
+  if(!slist)
+    return false;
+  
+  if(rhs == PMATH_SYMBOL_TRUE) {
+    slist->set_open_close_group(sec->index(), true);
+    return true;
+  }
+  
+  if(rhs == PMATH_SYMBOL_FALSE) {
+    slist->set_open_close_group(sec->index(), false);
+    return true;
+  }
+  
+  return false;
 }
 
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item) {

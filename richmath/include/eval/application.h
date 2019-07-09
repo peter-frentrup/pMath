@@ -24,6 +24,7 @@ namespace richmath {
     SetOptions,
     DynamicUpdate,
     CurrentValue,
+    SetCurrentValue,
     GetEvaluationDocument,
     DocumentGet,
     DocumentRead,
@@ -65,6 +66,7 @@ namespace richmath {
       
       static Expr current_value(Expr item);
       static Expr current_value(FrontEndObject *obj, Expr item);
+      static bool set_current_value(FrontEndObject *obj, Expr item, Expr rhs);
       
       static void run_menucommand(Expr cmd) { // callable from non-GUI thread
         notify(ClientNotification::MenuCommand, cmd);
@@ -82,7 +84,8 @@ namespace richmath {
       
       static bool register_currentvalue_provider(
         Expr   item,
-        Expr (*func)(FrontEndObject *obj, Expr item));
+        Expr (*get)(FrontEndObject *obj, Expr item),
+        bool (*set)(FrontEndObject *obj, Expr item, Expr rhs) = nullptr);
         
       static void gui_print_section(Expr expr);
       static Expr save(Document *doc);
