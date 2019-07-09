@@ -79,16 +79,6 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Item("InvertedColors",        ScopedCommand(StyleDefinitions->"InvertedColors.pmathdoc", Document))
 			}),
 		Item("Edit Sty&lesheet ...",       "EditStyleDefinitions"),
-		Menu("&Magnification", {
-			Item("&50%",                                ScopedCommand(Magnification->0.5, Document)),
-			Item("&75%",                                ScopedCommand(Magnification->0.75, Document)),
-			Item("&100%",                               ScopedCommand(Magnification->1.0, Document)),
-			Item("1&25%",                               ScopedCommand(Magnification->1.25, Document)),
-			Item("15&0%",                               ScopedCommand(Magnification->1.5, Document)),
-			Item("200&%",                               ScopedCommand(Magnification->2.0, Document)),
-			Item("&300%",                               ScopedCommand(Magnification->3.0, Document))
-			}),
-		
 		Menu("Math &Font", Join({
 				Item("Inherited", ScopedCommand(MathFontFamily -> Inherited, Document)),
 				Delimiter
@@ -113,6 +103,19 @@ FE`Private`mainmenu:= Menu("pMath", {
 		Item("&Find Currently Evaluating Section",    "FindEvaluatingSection"),
 		Delimiter,
 		Item("&Convert Dynamic to Literal",           "DynamicToLiteral")
+		}),
+	Menu("&Window", {
+		Menu("&Magnification", {
+			Item("&50%",                                ScopedCommand(Magnification->0.5, Document)),
+			Item("&75%",                                ScopedCommand(Magnification->0.75, Document)),
+			Item("&100%",                               ScopedCommand(Magnification->Inherited, Document)),
+			Item("1&25%",                               ScopedCommand(Magnification->1.25, Document)),
+			Item("15&0%",                               ScopedCommand(Magnification->1.5, Document)),
+			Item("200&%",                               ScopedCommand(Magnification->2, Document)),
+			Item("&300%",                               ScopedCommand(Magnification->3, Document))
+			}),
+		Delimiter,
+		Menu("open windows", "MenuListWindows")
 		})
 	});
 

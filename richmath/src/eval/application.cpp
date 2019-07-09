@@ -119,6 +119,7 @@ static SharedPtr<Session> session = new Session(nullptr);
 
 static Hashtable<Expr, bool              ( *)(Expr)>                        menu_commands;
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                        menu_command_testers;
+static Hashtable<Expr, Expr              ( *)(Expr)>                        dynamic_menu_lists;
 static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)>       currentvalue_providers;
 static Hashtable<Expr, bool              ( *)(FrontEndObject*, Expr, Expr)> currentvalue_setters;
 
@@ -364,13 +365,26 @@ MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
   
   func = menu_command_testers[cmd];
   if(func)
-    return func(cmd);
+    return func(std::move(cmd));
     
   func = menu_command_testers[cmd[0]];
   if(func)
-    return func(cmd);
+    return func(std::move(cmd));
     
   return MenuCommandStatus(true);
+}
+
+Expr Application::generate_dynamic_submenu(Expr cmd) {
+  Expr (*func)(Expr);
+  
+  if(cmd.is_null())
+    return Expr();
+  
+  func = dynamic_menu_lists[cmd];
+  if(func)
+    return func(std::move(cmd));
+    
+  return Expr();
 }
 
 void Application::register_menucommand(
@@ -379,7 +393,7 @@ void Application::register_menucommand(
   MenuCommandStatus (*test)(Expr cmd)
 ) {
   if(cmd.is_null()) {
-    menu_commands.default_value       = func;
+    menu_commands.default_value        = func;
     menu_command_testers.default_value = test;
     return;
   }
@@ -393,6 +407,18 @@ void Application::register_menucommand(
     menu_command_testers.set(cmd, test);
   else
     menu_command_testers.remove(cmd);
+}
+
+void Application::register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd)) {
+  if(cmd.is_null()) {
+    dynamic_menu_lists.default_value = func;
+    return;
+  }
+  
+  if(func)
+    dynamic_menu_lists.set(cmd, func);
+  else
+    dynamic_menu_lists.remove(cmd);
 }
 
 bool Application::register_currentvalue_provider(
@@ -782,6 +808,7 @@ void Application::done() {
   eval_cache.clear();
   menu_commands.clear();
   menu_command_testers.clear();
+  dynamic_menu_lists.clear();
   currentvalue_providers.clear();
   currentvalue_setters.clear();
   application_filename = String();

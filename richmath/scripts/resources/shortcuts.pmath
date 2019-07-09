@@ -69,7 +69,7 @@ FE`Private`shortcuts:= {
 	Item(KeyEvent("8", {KeyAlt}), ScopedCommand(BaseStyle->"Code", Section)),
 	Item(KeyEvent("9", {KeyAlt}), ScopedCommand(BaseStyle->"Input", Section)),
 
-	Item(KeyEvent("0", {KeyControl}),               ScopedCommand(Magnification->1.0, Document)),
+	Item(KeyEvent("0", {KeyControl}),               ScopedCommand(Magnification->Inherited, Document)),
 	
 	Item(KeyEvent("Enter", {KeyShift}),             "EvaluateSections"),
 	Item(KeyEvent("NumpadEnter", {}),               "EvaluateSections"),

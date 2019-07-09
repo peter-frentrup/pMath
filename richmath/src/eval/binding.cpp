@@ -1491,6 +1491,9 @@ bool richmath::init_bindings() {
   Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),         set_style_cmd,    can_set_style);
   Application::register_menucommand(Symbol(richmath_FE_ScopedCommand), do_scoped_cmd,    can_do_scoped);
   
+  if(!richmath::impl::init_document_functions())
+    goto FAIL;
+  
   return true;
   
 FAIL:
@@ -1503,6 +1506,7 @@ FAIL:
 }
 
 void richmath::done_bindings() {
+  richmath::impl::done_document_functions();
 #define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           pmath_unref( SYM ); SYM = PMATH_NULL;
 #define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  
 #  include "symbols.inc"

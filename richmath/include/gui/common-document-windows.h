@@ -24,6 +24,8 @@ namespace richmath {
       
       virtual void reset_title(){ title(_title); }
       
+      Document *content() { return _content; }
+      
       String filename() { return _filename; }
       void filename(String new_filename);
       String title() { return _title; }

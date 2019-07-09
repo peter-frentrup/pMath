@@ -64,6 +64,93 @@ static bool is_radiocheck_command(Expr cmd) {
   return cmd.is_rule();
 }
 
+static HMENU create_menu(Expr expr, bool is_popup);
+
+static DWORD get_or_create_command_id(Expr cmd) {
+  DWORD id = cmd_to_id[cmd];
+  if(!id) {
+    id = next_id++;
+    add_command(id, cmd);
+  }
+  return id;
+}
+
+static bool init_item_info(MENUITEMINFOW *info, Expr item, String *buffer) {
+  *buffer = String(item[1]);
+  Expr cmd = item[2];
+  
+  info->fMask |= MIIM_ID | MIIM_FTYPE | MIIM_STATE | MIIM_STRING;
+  info->wID = get_or_create_command_id(cmd);
+  info->fType = MFT_STRING;
+  info->fState = MFS_ENABLED;
+  
+  if(is_radiocheck_command(cmd))
+    info->fType |= MFT_RADIOCHECK;
+  
+  String shortcut = id_to_shortcut_text[info->wID];
+  if(shortcut.length() > 0)
+    *buffer += String::FromChar('\t') + shortcut;
+    
+  *buffer += String::FromChar(0);
+  info->dwTypeData = (wchar_t *)buffer->buffer();
+  info->cch = buffer->length() - 1;
+  return buffer->length() >= 0;
+}
+
+static bool init_delimiter_info(MENUITEMINFOW *info) {
+  info->fMask = MIIM_FTYPE;
+  info->fType = MFT_SEPARATOR;
+  return true;
+}
+
+static bool init_submenu_info(MENUITEMINFOW *info, Expr item, String *buffer) {
+  *buffer = String(item[1]);
+  *buffer += String::FromChar(0);
+  if(buffer->length() == 0)
+    return false;
+  
+  info->fMask |= MIIM_FTYPE | MIIM_STATE | MIIM_STRING;
+  
+  info->dwTypeData = (wchar_t *)buffer->buffer();
+  info->cch = buffer->length() - 1;
+  
+  info->fType = MFT_STRING;
+  info->fState = MFS_ENABLED;
+  
+  Expr sub_items = item[2];
+  if(sub_items.is_string()) {
+    info->fMask |= MIIM_DATA | MIIM_ID;
+    info->wID = get_or_create_command_id(sub_items);
+    info->dwItemData = info->wID; // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
+    info->fState |= MFS_DISABLED;
+    info->dwTypeData = L"(empty)";
+    info->cch = 7;
+  }
+  else if(sub_items[0] == PMATH_SYMBOL_LIST) {
+    info->fMask |= MIIM_SUBMENU;
+    info->hSubMenu = create_menu(std::move(item), true);
+  }
+  
+  return true;
+}
+
+static bool init_info(MENUITEMINFOW *info, Expr item, String *buffer) {
+  assert(info);
+  assert(info->cbSize >= sizeof(MENUITEMINFOW));
+  assert(buffer);
+  
+  if(item == richmath_FE_Delimiter)
+    return init_delimiter_info(info);
+  
+  if(item[0] == richmath_FE_Item && item.expr_length() == 2)
+    return init_item_info(info, std::move(item), buffer);
+  
+  if(item[0] == richmath_FE_Menu && item.expr_length() == 2)
+    return init_submenu_info(info, std::move(item), buffer);
+  
+  return false;
+}
+
 static HMENU create_menu(Expr expr, bool is_popup) {
   if(expr[0] != richmath_FE_Menu || expr.expr_length() != 2)
     return nullptr;
@@ -81,58 +168,11 @@ static HMENU create_menu(Expr expr, bool is_popup) {
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
       
-      if(item[0] == richmath_FE_Item && item.expr_length() == 2) {
-        String name(item[1]);
-        Expr   cmd( item[2]);
-        
-        DWORD id = cmd_to_id[cmd];
-        UINT flags = MF_STRING | MF_ENABLED;
-        
-        if(is_radiocheck_command(cmd))
-          flags |= MFT_RADIOCHECK;
-        
-        if(!id) {
-          id = next_id++;
-          add_command(id, cmd);
-        }
-        
-        String shortcut = id_to_shortcut_text[id];
-        if(shortcut.length() > 0)
-          name += String::FromChar('\t') + shortcut;
-          
-        name += String::FromChar(0);
-        AppendMenuW(
-          menu,
-          flags,
-          id,
-          (const wchar_t *)name.buffer());
-          
-        continue;
-      }
-      
-      if(item == richmath_FE_Delimiter) {
-        AppendMenuW(
-          menu,
-          MF_SEPARATOR,
-          0,
-          L"");
-        continue;
-      }
-      
-      if(item[0] == richmath_FE_Menu && item.expr_length() == 2) {
-        String name(item[1]);
-        
-        if(name.length() > 0) {
-          if(HMENU submenu = create_menu(item, true)) {
-            name += String::FromChar(0);
-            AppendMenuW(
-              menu,
-              MF_STRING | MF_ENABLED | MF_POPUP,
-              (UINT_PTR)submenu,
-              (const wchar_t *)name.buffer());
-          }
-        }
-        continue;
+      MENUITEMINFOW item_info = {0};
+      item_info.cbSize = sizeof(item_info);
+      String buffer;
+      if(init_info(&item_info, expr[i], &buffer)) {
+        InsertMenuItemW(menu, GetMenuItemCount(menu), TRUE, &item_info);
       }
     }
   }
@@ -161,33 +201,160 @@ Expr Win32Menu::id_to_command(DWORD  id) {
   return id_to_cmd[id];
 }
 
-DWORD  Win32Menu::command_to_id(Expr cmd) {
+DWORD Win32Menu::command_to_id(Expr cmd) {
   return cmd_to_id[cmd];
 }
 
 void Win32Menu::init_popupmenu(HMENU sub) {
-  for(int i = GetMenuItemCount(sub) - 1; i >= 0; --i) {
-    MENUITEMINFOW mii;
-    
-    memset(&mii, 0, sizeof(mii));
+  int count = GetMenuItemCount(sub);
+  for(int i = 0; i < count; ++i) {
+    MENUITEMINFOW mii = {0};
     mii.cbSize = sizeof(mii);
-    mii.fMask = MIIM_STATE;
+    mii.fMask = MIIM_DATA | MIIM_ID | MIIM_SUBMENU;
+    if(GetMenuItemInfoW(sub, i, TRUE, &mii)) {
+      if(mii.dwItemData) {
+        DWORD list_id = mii.dwItemData;
+        // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
+        Expr new_items = Application::generate_dynamic_submenu(id_to_command(list_id));
+        
+        if(new_items.expr_length() == 0 || new_items[0] != PMATH_SYMBOL_LIST) {
+          mii.fMask |= MIIM_STRING | MIIM_STATE;
+          mii.fState |= MFS_DISABLED;
+          mii.dwTypeData = L"(empty)";
+          mii.cch = 7;
+          
+          if(mii.hSubMenu) {
+            DestroyMenu(mii.hSubMenu);
+            mii.hSubMenu = nullptr;
+          }
+          
+          SetMenuItemInfoW(sub, i, TRUE, &mii);
+          continue;
+        }
+        
+        int first_menu_index = i;
+        bool insert = false;
+        size_t k;
+        for(size_t k = 1; k <= new_items.expr_length(); ++k) {
+          String buffer;
+          mii.fState = 0;
+          if(!init_info(&mii, new_items[k], &buffer))
+            continue;
+          
+          mii.fMask |= MIIM_DATA | MIIM_STATE;
+          mii.dwItemData = list_id;
+          
+          MenuCommandStatus status = Application::test_menucommand_status(id_to_command(mii.wID));
+          if(status.enabled)
+            mii.fState |= MFS_ENABLED;
+          else
+            mii.fState |= MFS_GRAYED;
+          
+          if(status.checked) 
+            mii.fState |= MFS_CHECKED;
+          else
+            mii.fState |= MFS_UNCHECKED;
+          
+          if(insert) {
+            if(InsertMenuItemW(sub, i, TRUE, &mii)) {
+              ++i;
+              ++count;
+            }
+            continue;
+          }
+          
+          if(!SetMenuItemInfoW(sub, i, TRUE, &mii)) 
+            continue;
+          
+          ++i;
+          if(i < count) {
+            mii.fMask = MIIM_DATA | MIIM_ID | MIIM_SUBMENU;
+            if(GetMenuItemInfoW(sub, i, TRUE, &mii)) {
+              if(mii.dwItemData == list_id) {
+                if(mii.hSubMenu) {
+                  DestroyMenu(mii.hSubMenu);
+                  mii.hSubMenu = nullptr;
+                  SetMenuItemInfoW(sub, i, TRUE, &mii);
+                }
+                continue;
+              }
+            }
+          }
+          
+          insert = true;
+        }
+        
+        if(i == first_menu_index) {
+          mii.fMask = MIIM_DATA | MIIM_ID | MIIM_STRING | MIIM_STATE | MIIM_SUBMENU;
+          mii.dwItemData = list_id;
+          mii.wID = list_id;
+          mii.fState |= MFS_DISABLED;
+          mii.dwTypeData = L"(empty)";
+          mii.cch = 7;
+          
+          if(mii.hSubMenu) {
+            DestroyMenu(mii.hSubMenu);
+            mii.hSubMenu = nullptr;
+          }
+          
+          SetMenuItemInfoW(sub, i, TRUE, &mii);
+          ++i;
+        }
+        
+        while(i < count) {
+          mii.fMask = MIIM_DATA | MIIM_ID;
+          if(GetMenuItemInfoW(sub, i, TRUE, &mii)) {
+            if(mii.dwItemData != list_id) 
+              break;
+              
+            if(DeleteMenu(sub, i, MF_BYPOSITION))
+              --count;
+          }
+        }
+        
+        --i;
+        continue;
+      }
     
-    int id = GetMenuItemID(sub, i);
-    MenuCommandStatus status = Application::test_menucommand_status(id_to_command(id));
-    
-    if(status.enabled)
-      mii.fState |= MFS_ENABLED;
-    else
-      mii.fState |= MFS_GRAYED;
+      MenuCommandStatus status = Application::test_menucommand_status(id_to_command(mii.wID));
+      mii.fMask = MIIM_STATE;
       
-    if(status.checked) 
-      mii.fState |= MFS_CHECKED;
-    else
-      mii.fState |= MFS_UNCHECKED;
-    
-    SetMenuItemInfoW(sub, i, TRUE, &mii);
+      if(status.enabled)
+        mii.fState |= MFS_ENABLED;
+      else
+        mii.fState |= MFS_GRAYED;
+      
+      if(status.checked) 
+        mii.fState |= MFS_CHECKED;
+      else
+        mii.fState |= MFS_UNCHECKED;
+      
+      SetMenuItemInfoW(sub, i, TRUE, &mii);
+    }
   }
+  
+//  for(int i = count - 1; i >= 0; --i) {
+//    MENUITEMINFOW mii;
+//    
+//    memset(&mii, 0, sizeof(mii));
+//    mii.cbSize = sizeof(mii);
+//    mii.fMask = MIIM_STATE;
+//    
+//    int id = GetMenuItemID(sub, i);
+//    MenuCommandStatus status = Application::test_menucommand_status(id_to_command(id));
+//    
+//    if(status.enabled)
+//      mii.fState |= MFS_ENABLED;
+//    else
+//      mii.fState |= MFS_GRAYED;
+//      
+//    if(status.checked) 
+//      mii.fState |= MFS_CHECKED;
+//    else
+//      mii.fState |= MFS_UNCHECKED;
+//    
+//    SetMenuItemInfoW(sub, i, TRUE, &mii);
+//  }
 }
 
 //} ... class Win32Menu

@@ -76,11 +76,14 @@ namespace richmath {
       static bool run_recursive_menucommand(Expr cmd);
       
       static MenuCommandStatus test_menucommand_status(Expr cmd);
+      static Expr generate_dynamic_submenu(Expr cmd);
       
       static void register_menucommand(
         Expr cmd,
         bool              (*func)(Expr cmd),
         MenuCommandStatus (*test)(Expr cmd) = nullptr);
+      
+      static void register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd));
       
       static bool register_currentvalue_provider(
         Expr   item,
