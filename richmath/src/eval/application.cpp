@@ -783,6 +783,7 @@ void Application::done() {
   menu_commands.clear();
   menu_command_testers.clear();
   currentvalue_providers.clear();
+  currentvalue_setters.clear();
   application_filename = String();
   application_directory = String();
   stylesheet_path_base = String();
