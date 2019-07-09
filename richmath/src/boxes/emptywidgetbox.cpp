@@ -50,6 +50,11 @@ void EmptyWidgetBox::resize(Context *context) {
     context->canvas,
     type,
     &_extents);
+  
+  float h = _extents.height();
+  float em = context->canvas->get_font_size();
+  _extents.ascent = 0.25 * em + 0.5 * h;
+  _extents.descent = h - _extents.ascent;
 }
 
 void EmptyWidgetBox::paint(Context *context) {
