@@ -546,6 +546,17 @@ static MenuCommandStatus can_section_split(Expr cmd) {
   return MenuCommandStatus(doc->split_section(false));
 }
 
+static bool has_style(Box *box, StyleOptionName name, Expr rhs) {
+  if(rhs == PMATH_SYMBOL_INHERITED) {
+    if(!box->style)
+      return true;
+    
+    return box->style->get_pmath(name) == rhs;
+  }
+
+  return box->get_pmath_style(name) == rhs;
+}
+
 static MenuCommandStatus can_set_style(Expr cmd) {
   Document *doc = get_current_document();
   if(!doc)
@@ -566,20 +577,23 @@ static MenuCommandStatus can_set_style(Expr cmd) {
          status.enabled = MathShaper::available_shapers.search(String(rhs));
     }
   }
-      
+
+  if(Application::menu_command_scope == MenuCommandScope::Document) {
+    status.checked = has_style(doc, lhs_key, rhs);
+    
+    return status;
+  }
+  
   if(sel && cmd.is_rule()) {
     int start = doc->selection_start();
     int end   = doc->selection_end();
-    
-    Expr val;
     
     if(start < end) {
       if(sel == doc) {
         status.checked = true;
         
         for(int i = start; i < end; ++i) {
-          val = sel->item(i)->get_pmath_style(lhs_key);
-          status.checked = val == rhs;
+          status.checked = has_style(sel->item(i), lhs_key, rhs);
           if(!status.checked)
             break;
         }
@@ -587,9 +601,8 @@ static MenuCommandStatus can_set_style(Expr cmd) {
         return status;
       }
     }
-    
-    val = sel->get_pmath_style(lhs_key);
-    status.checked = val == rhs;
+
+    status.checked = has_style(sel, lhs_key, rhs);
   }
   
   return status;
