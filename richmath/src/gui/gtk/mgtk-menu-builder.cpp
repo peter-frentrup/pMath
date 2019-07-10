@@ -16,6 +16,9 @@
 
 using namespace richmath;
 
+
+extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
+
 static const char accel_path_prefix[] = "<Richmath>/";
 static Hashtable<String,  Expr> accel_path_to_cmd;
 static Hashtable<Expr, String>  cmd_to_accel_path;
@@ -293,7 +296,10 @@ MenuItemType MenuItemBuilder::type_for_command(Expr cmd) {
   if(cmd[0] == richmath_FE_ScopedCommand)
     cmd = cmd[1];
   
-  if(cmd.is_rule())
+  if(cmd.is_rule()) 
+    return MenuItemType::RadioButton;
+  
+  if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
     return MenuItemType::RadioButton;
   
   return MenuItemType::Normal;
