@@ -23,8 +23,9 @@ namespace richmath {
       
       void append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference for_document_window_id);
       
-      static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *dummy);
-      static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *dummy);
+      static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr);
+      static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr);
+      static void expand_inline_lists(GtkMenu *menu, FrontEndReference id);
       
       static void done();
       
