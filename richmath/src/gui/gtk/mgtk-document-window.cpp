@@ -266,6 +266,8 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
   _working_area = new MathGtkWorkingArea(this);
   _top_area     = new MathGtkDock(this);
   _bottom_area  = new MathGtkDock(this);
+  
+  _content = _working_area->document();
 }
 
 void MathGtkDocumentWindow::after_construction() {
