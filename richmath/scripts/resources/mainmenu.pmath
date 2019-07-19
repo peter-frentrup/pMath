@@ -19,6 +19,8 @@ FE`Private`mainmenu:= Menu("pMath", {
 		Item("&Save",                                 "Save"),
 		Item("Save &As...",                           "SaveAs"),
 		Delimiter,
+		Menu("recent documents",                      "MenuListRecentDocuments"),
+		Delimiter,
 		Item("&Close",                                "Close")
 		}),
 	Menu("&Edit", {

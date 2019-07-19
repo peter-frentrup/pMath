@@ -2,6 +2,7 @@
 #include <gui/common-document-windows.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
+#include <gui/recent-documents.h>
 
 using namespace pmath;
 using namespace richmath;
@@ -12,7 +13,9 @@ extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 static MenuCommandStatus can_set_selected_document(Expr cmd);
 static bool set_selected_document_cmd(Expr cmd);
+
 static Expr menu_list_windows_enum(Expr name);
+static Expr menu_list_recent_documents_enum(Expr name);
 
 
 void richmath::set_current_document(Document *document) {
@@ -107,6 +110,7 @@ bool richmath::impl::init_document_functions() {
   Application::register_menucommand(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
   
   Application::register_dynamic_submenu(String("MenuListWindows"), menu_list_windows_enum);
+  Application::register_dynamic_submenu(String("MenuListRecentDocuments"), menu_list_recent_documents_enum);
 
   return true;
 }
@@ -159,4 +163,8 @@ static Expr menu_list_windows_enum(Expr name) {
     ++i;
   }
   return g.end();
+}
+
+static Expr menu_list_recent_documents_enum(Expr name) {
+  return RecentDocuments::as_menu_list();
 }
