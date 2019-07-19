@@ -356,6 +356,21 @@ static bool have_visible_documents() {
   return false;
 }
 
+void load_documents_from_command_line() {
+  Expr initial_open_files = Evaluate(Parse("FE`$InitialOpenDocuments"));
+  if(initial_open_files[0] != PMATH_SYMBOL_LIST) 
+    return;
+  
+  for(String path : initial_open_files.items()) {
+    Document *doc = Application::find_open_document(path);
+    if(!doc)
+      doc = Application::open_new_document(path);
+    
+    if(doc)
+      doc->native()->bring_to_front();
+  }
+}
+
 int main(int argc, char **argv) {
   os_init();
   
@@ -465,27 +480,31 @@ int main(int argc, char **argv) {
     goto QUIT;
   }
   
-  main_doc = Application::create_document();
-  if(main_doc) {
-    write_text_section(main_doc, "Title", "Welcome");
-    write_text_section(main_doc, "Section", "Todo-List");
-    todo(main_doc, "CTRL-9 to insert inline text/math section into math/text sequence.");
-    todo(main_doc, "Implement Interrupt().");
-    todo(main_doc, "Leave caret at end of line at automatic line breaks.");
-    todo(main_doc, "Navigation: ALT-left/right: previous/next span/sentence.");
-    todo(main_doc, "Resize every section, not only the visible ones.");
-    todo(main_doc, "Add option to allways show menu bar.");
-    todo(main_doc, "CTRL-R to refactor local variable names.");
-    todo(main_doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
-    main_doc->select(main_doc, 0, 0);
-    main_doc->move_horizontal(LogicalDirection::Forward,  true);
-    main_doc->move_horizontal(LogicalDirection::Backward, false);
-    
-    main_doc->invalidate_options();
-  }
+  load_documents_from_command_line();
   
-  if(main_doc) {
-    main_doc->native()->bring_to_front();
+  if(!get_current_document()) {
+    main_doc = Application::create_document();
+    if(main_doc) {
+      write_text_section(main_doc, "Title", "Welcome");
+      write_text_section(main_doc, "Section", "Todo-List");
+      todo(main_doc, "CTRL-9 to insert inline text/math section into math/text sequence.");
+      todo(main_doc, "Implement Interrupt().");
+      todo(main_doc, "Leave caret at end of line at automatic line breaks.");
+      todo(main_doc, "Navigation: ALT-left/right: previous/next span/sentence.");
+      todo(main_doc, "Resize every section, not only the visible ones.");
+      todo(main_doc, "Add option to allways show menu bar.");
+      todo(main_doc, "CTRL-R to refactor local variable names.");
+      todo(main_doc, "Add CounterBox, CounterAssignments, CounterIncrements.");
+      main_doc->select(main_doc, 0, 0);
+      main_doc->move_horizontal(LogicalDirection::Forward,  true);
+      main_doc->move_horizontal(LogicalDirection::Backward, false);
+      
+      main_doc->invalidate_options();
+    }
+  
+    if(main_doc) {
+      main_doc->native()->bring_to_front();
+    }
   }
   
   if(!have_visible_documents()) {

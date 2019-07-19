@@ -109,9 +109,11 @@ SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"
 
 $NamespacePath:= oldNamespacePath
 
-If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ".png" ++ EndOfString)) {
+If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ~~~ ++ ".png" ++ EndOfString)) {
 	FE`$WindowFrameImage:= $CommandLine[2]
 }
+
+FE`$InitialOpenDocuments:= $CommandLine.Rest.Select(Function(StringMatch(#, ~~~ ++ ".pmathdoc")))
 
 Unprotect($ControlActiveSetting);
 FE`$ControlActive:= False
