@@ -21,6 +21,7 @@
 #include <graphics/config-shaper.h>
 #include <graphics/ot-math-shaper.h>
 #include <gui/control-painter.h>
+#include <gui/recent-documents.h>
 
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/win32-clipboard.h>
@@ -469,6 +470,8 @@ int main(int argc, char **argv) {
   
   PMATH_RUN("EndPackage()"); /* FE` */
   
+  RecentDocuments::init();
+  
   Document *main_doc = nullptr;
   int result = 0;
   
@@ -516,6 +519,8 @@ int main(int argc, char **argv) {
     
 QUIT:
   pmath_debug_print("quitted\n");
+  
+  RecentDocuments::done();
   
 #ifdef RICHMATH_USE_GTK_GUI
   MathGtkTooltipWindow::delete_global_tooltip();

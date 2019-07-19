@@ -12,6 +12,8 @@ namespace richmath {
   struct MathGtkRecentDocuments {
     static void add(String path);
     static Expr as_menu_list();
+    static void init();
+    static void done();
   };
 }
 
