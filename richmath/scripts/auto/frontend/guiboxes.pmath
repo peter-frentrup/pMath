@@ -64,6 +64,8 @@ MakeBoxes(Checkbox())::=                                               CheckboxB
 MakeBoxes(Checkbox(~state,               options:OptionsPattern()))::= CheckboxBox(state, options) /? allowGuiBoxes
 MakeBoxes(Checkbox(~state, values:{~,~}, options:OptionsPattern()))::= CheckboxBox(state, values, options) /? allowGuiBoxes
 
+MakeBoxes(DocumentObject(~feo:FrontEndObject))::= TemplateBox({feo}, "DocumentObject") /? allowGuiBoxes
+
 MakeBoxes(Dynamic(~var, options:OptionsPattern())) ::= DynamicBox(ToBoxes(var), options) /? allowGuiBoxes
 
 MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting) /? allowGuiBoxes

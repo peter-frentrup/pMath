@@ -171,7 +171,7 @@ Protect(FE`Graphics`DefaultTickBoxes)
 Protect(FE`Import`FileNamesDropDescription)
 Protect(FE`Import`PasteFileNameContentBoxes)
 
-AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicSetting, InputField, InputFieldBox, Opener, OpenerBox, Panel, PanelBox, PaneSelector, PaneSelectorBox, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Slider, SliderBox, Tooltip, TooltipBox), 
+AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, DocumentObject, Dynamic, DynamicBox, DynamicSetting, InputField, InputFieldBox, Opener, OpenerBox, Panel, PanelBox, PaneSelector, PaneSelectorBox, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Slider, SliderBox, Tooltip, TooltipBox), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));
 AutoLoad(Hold(ShowDefinition), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "showdefinition.pmath"));
