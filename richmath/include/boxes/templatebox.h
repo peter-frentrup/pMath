@@ -17,10 +17,25 @@ namespace richmath {
       
       virtual bool selectable(int i = -1) override;
       
+      virtual Box *normalize_selection(int *start, int *end) override;
+      
+      virtual Box *mouse_selection(
+        float  x,
+        float  y,
+        int   *start,
+        int   *end,
+        bool  *was_inside_start) override;
+      
       virtual Box *move_logical(
         LogicalDirection  direction,
         bool              jumping,
         int              *index) override;
+      
+      virtual Box *move_vertical(
+        LogicalDirection  direction,
+        float            *index_rel_x,  // [in/out]
+        int              *index,        // [in/out], -1 if called from parent
+        bool              called_from_child) override;
       
       virtual void paint_content(Context *context) override;
       

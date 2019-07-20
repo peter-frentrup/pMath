@@ -87,6 +87,32 @@ static Box *next_box_outside(Box *box, LogicalDirection direction, Box *stop_par
   return nullptr;
 }
 
+static Box *next_child_or_null(Box *box, int index, LogicalDirection direction) {
+  if(!box)
+    return nullptr;
+  
+  int count = box->count();
+  if(count == 0)
+    return box;
+  
+  if(direction == LogicalDirection::Forward) {
+    for(int i = 0; i < count; ++i) {
+      Box *item = box->item(i);
+      if(item->index() >= index)
+        return item;
+    }
+  }
+  else {
+    for(int i = count - 1; i >= 0; --i) {
+      Box *item = box->item(i);
+      if(item->index() < index)
+        return item;
+    }
+  }
+    
+  return nullptr;
+}
+
 static Box *next_box(Box *box, LogicalDirection direction, Box *stop_parent) {
   if(!box)
     return nullptr;
@@ -165,6 +191,41 @@ bool TemplateBox::selectable(int i) {
   return base::selectable(i);
 }
 
+Box *TemplateBox::normalize_selection(int *start, int *end) {
+  if(*start < *end)
+    return base::normalize_selection(start, end);
+  
+  return this;
+}
+
+Box *TemplateBox::mouse_selection(
+  float  x,
+  float  y,
+  int   *start,
+  int   *end,
+  bool  *was_inside_start
+) {
+  Box *box = base::mouse_selection(x, y, start, end, was_inside_start);
+  if(!box)
+    return box;
+  
+  for(Box *tmp = box->mouse_sensitive(); tmp; tmp = tmp->parent()) {
+    if(tmp == this)
+      return box; // a button etc. inside the template definition
+  }
+  
+  for(Box *tmp = box; tmp && tmp != this; tmp = tmp->parent()) {
+    if(auto slot = dynamic_cast<TemplateBoxSlot*>(tmp)) {
+      if(slot->find_owner() == this)
+        return box; // inside a template slot
+    }
+  }
+  
+  *start = *end = 0;
+  *was_inside_start = true;
+  return this;
+}
+
 Box *TemplateBox::move_logical(
   LogicalDirection  direction,
   bool              jumping,
@@ -201,6 +262,86 @@ Box *TemplateBox::move_logical(
   
   return base::move_logical(direction, jumping, index);
 }
+
+Box *TemplateBox::move_vertical(
+  LogicalDirection  direction,
+  float            *index_rel_x,  // [in/out]
+  int              *index,        // [in/out], -1 if called from parent
+  bool              called_from_child
+) {
+  float old_rel_x = *index_rel_x;
+  
+  Box *box = base::move_vertical(direction, index_rel_x, index, called_from_child);
+  if(!box)
+    return box;
+  
+  Box *tmp = box;
+  while(tmp && tmp != this) {
+    if(auto slot = dynamic_cast<TemplateBoxSlot*>(tmp)) {
+      if(slot->find_owner() == this)
+        return box;
+    }
+    
+    tmp = tmp->parent();
+  }
+  
+  if(tmp == nullptr)
+    return box;
+  
+  *index_rel_x = old_rel_x;
+  
+  tmp = next_child_or_null(box, *index, direction);
+  TemplateBoxSlot *slot = search_next_box<TemplateBoxSlot>(tmp, direction, this);
+  if(slot) {
+    if(direction == LogicalDirection::Forward)
+      *index = -1;
+    else
+      *index = slot->length() + 1;
+      
+    box = slot->move_logical(direction, false, index);
+  }
+  else
+    box = nullptr;
+    
+  if(!box) {
+    if(_parent) {
+      if(direction == LogicalDirection::Forward) {
+        box = _parent;
+        *index = _index + 1;
+      }
+      else {
+        box = _parent;
+        *index = _index;
+      }
+    }
+    else {
+      box = this;
+      *index = 0;
+    }
+  }
+  
+  if(box == _parent) {
+    if(*index != _index) {
+      cairo_matrix_t mat1;
+      cairo_matrix_t mat2;
+      cairo_matrix_init_identity(&mat1);
+      cairo_matrix_init_identity(&mat2);
+      box->child_transformation(_index, &mat1);
+      box->child_transformation(*index, &mat2);
+      
+      *index_rel_x = old_rel_x + mat1.x0 - mat2.x0;
+    }
+  }
+  else {
+    cairo_matrix_t mat;
+    cairo_matrix_init_identity(&mat);
+    box->transformation(this, &mat);
+    box->child_transformation(*index, &mat);
+    *index_rel_x = old_rel_x - mat.x0;
+  }
+  
+  return box;
+} 
 
 void TemplateBox::resize_default_baseline(Context *context) {
   base::resize_default_baseline(context);
