@@ -9,6 +9,7 @@ using namespace richmath;
 using namespace pmath;
 
 extern pmath_symbol_t richmath_System_FrontEndObject;
+extern pmath_symbol_t richmath_System_DocumentObject;
 
 namespace richmath {
   class FrontEndReferenceImpl {
@@ -79,11 +80,11 @@ FrontEndObjectInitializer::~FrontEndObjectInitializer() {
 const FrontEndReference FrontEndReference::None = FrontEndReferenceImpl::init_none();
 
 FrontEndReference FrontEndReference::from_pmath(pmath::Expr expr) {
-  if( expr.expr_length() == 1 &&
-      expr[0] == richmath_System_FrontEndObject)
-  {
+  if(expr.expr_length() == 1 && expr[0] == richmath_System_DocumentObject)
+    expr = expr[1];
+  
+  if(expr.expr_length() == 1 && expr[0] == richmath_System_FrontEndObject)
     return from_pmath_raw(expr[1]);
-  }
   
   return FrontEndReference::None;
 }

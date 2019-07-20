@@ -163,6 +163,8 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_DOCUMENT); }
       
+      virtual Expr to_pmath_id() override;
+      
     public:
       Document *main_document; // not owned
       

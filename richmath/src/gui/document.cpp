@@ -23,6 +23,7 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DocumentObject;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 
@@ -4024,6 +4025,10 @@ Expr Document::to_pmath(BoxOutputFlags flags) {
   Expr e = g.end();
   e.set(0, Symbol(PMATH_SYMBOL_DOCUMENT));
   return e;
+}
+
+Expr Document::to_pmath_id() {
+  return Call(Symbol(richmath_System_DocumentObject), id().to_pmath());
 }
 
 //} ... class Document
