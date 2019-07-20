@@ -33,7 +33,7 @@ void MathGtkRecentDocuments::add(String path) {
   pmath_mem_free(str);
 }
 
-static Expr recent_info_to_menu_item(GtkRecentInfo *info) {
+static Expr recent_info_to_menu_item(int index, GtkRecentInfo *info) {
   const char *uri = gtk_recent_info_get_uri(info);
   char *str = g_filename_from_uri(uri, nullptr, nullptr);
   if(!str)
@@ -49,6 +49,7 @@ static Expr recent_info_to_menu_item(GtkRecentInfo *info) {
   g_free(str);
   
   String label = String::FromUtf8(gtk_recent_info_get_display_name(info));
+  label = String("&") + Expr(index + 1).to_string() + " " + label;
   
   return RecentDocuments::open_document_menu_item(std::move(label), std::move(path));
 }
@@ -62,7 +63,7 @@ Expr MathGtkRecentDocuments::as_menu_list() {
   
   int count = 0;
   for(GList *cur = items; cur != nullptr && count < 9; cur = cur->next) {
-    Expr menu_item = recent_info_to_menu_item((GtkRecentInfo*)cur->data);
+    Expr menu_item = recent_info_to_menu_item(count, (GtkRecentInfo*)cur->data);
     if(menu_item.is_expr()) {
       Gather::emit(std::move(menu_item));
       ++count;
