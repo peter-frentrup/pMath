@@ -119,6 +119,7 @@
 {"DocumentApply", {"ArgumentCount" -> 2}},
 {"DocumentDelete", {"ArgumentCount" -> 1..2}},
 {"DocumentGet", {"ArgumentCount" -> 1..2}},
+{"DocumentObject", {"ArgumentCount" -> 1}},
 {"DocumentOpen", {"ArgumentCount" -> 1}},
 {"DocumentRead", {"ArgumentCount" -> 1..2}},
 {"Documents", {"ArgumentCount" -> 0}},
