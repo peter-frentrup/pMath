@@ -158,7 +158,7 @@ DocumentOpen(~filename)::= FE`CallFrontEnd(FrontEnd`DocumentOpen(filename))
 DocumentOpen(~~~args)::= 1 /? (IsValidArgumentCount(DocumentOpen, Length@{args}, 1, 1);False)
 SelectedDocument()::= FE`CallFrontEnd(FrontEnd`SelectedDocument())
 SelectedDocument(~~args)::= 1 /? (IsValidArgumentCount(SelectedDocument, Length@{args}, 0, 0);False)
-SetSelectedDocument(~doc:FrontEndObject)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc))
+SetSelectedDocument(doc: ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc))
 SetSelectedDocument(~~~args)::= 1 /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 1);False)
 Protect(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
 

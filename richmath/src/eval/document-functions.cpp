@@ -31,7 +31,7 @@ void richmath::set_current_document(Document *document) {
 }
 
 Document *richmath::get_current_document() {
-  return dynamic_cast<Document *>(Box::find(current_document_id));
+  return FrontEndObject::find_cast<Document>(current_document_id);
 }
 
 Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
@@ -82,30 +82,35 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
-  return current_document_id.to_pmath();
+  auto doc = get_current_document();
+  if(doc)
+    return doc->to_pmath_id();
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
 }
 
-static bool set_selected_document(FrontEndReference id) {
+static Document *set_selected_document(FrontEndReference id) {
   Box *box = FrontEndObject::find_cast<Box>(id);
   if(!box)
-    return false;
+    return nullptr;
   
   Document *doc = box->find_parent<Document>(true);
   if(!doc)
-    return false;
+    return nullptr;
   
   //set_current_document(doc);
   doc->native()->bring_to_front();
-  //return doc->to_pmath_id();
-  return true;
+  
+  return doc;
 }
 
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
   auto id = FrontEndReference::from_pmath(expr[1]);
-  if(!set_selected_document(id))
+  Document *doc = set_selected_document(id);
+  if(!doc)
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  return current_document_id.to_pmath();
+  return doc->to_pmath_id();
 }
 
 bool richmath::impl::init_document_functions() {
