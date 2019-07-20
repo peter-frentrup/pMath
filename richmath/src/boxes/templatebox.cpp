@@ -378,6 +378,17 @@ Expr TemplateBox::to_pmath_symbol() {
 }
 
 Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
+  Expr args = arguments;
+  if(has(flags, BoxOutputFlags::WithDebugInfo)) {
+    TemplateBoxSlot *slot = search_next_box<TemplateBoxSlot>(this, LogicalDirection::Forward, this);
+    while(slot) {
+      if(slot->find_owner() == this && slot->argument() > 0) 
+        args.set(slot->argument(), slot->content()->to_pmath(flags));
+      
+      slot = search_next_box<TemplateBoxSlot>(slot, LogicalDirection::Forward, this);
+    }
+  }
+  
   if(has(flags, BoxOutputFlags::Parseable)) {
     Expr ifun = get_own_style(InterpretationFunction);
     if(ifun.expr_length() == 1 && ifun[0] == PMATH_SYMBOL_FUNCTION) {
@@ -389,9 +400,9 @@ Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
       ifun = Call(
         Symbol(richmath_System_Private_FlattenTemplateSequence), 
         ifun, 
-        arguments.expr_length());
+        args.expr_length());
       
-      Expr boxes = arguments;
+      Expr boxes = args;
       boxes.set(0, std::move(ifun));
       boxes = Application::interrupt_wait(boxes, Application::button_timeout);
       if(boxes.expr_length() == 1 && boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE) 
@@ -401,7 +412,7 @@ Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
 
   Gather g;
   
-  g.emit(arguments);
+  g.emit(args);
   g.emit(_tag);
   
   style->emit_to_pmath(false);
