@@ -79,7 +79,7 @@ namespace richmath {
           CommonDocumentWindow *_current;
           bool                  _first;
       };
-      static class Enum {
+      class Enum : Observable {
         friend class CommonDocumentWindow;
         public:
           Enum();
@@ -88,6 +88,7 @@ namespace richmath {
           int count() { return _count; }
           
           Iterator begin() {
+            register_observer();
             return Iterator(_first, _first ? true : false);
           }
           Iterator end() {
@@ -95,9 +96,11 @@ namespace richmath {
           }
           
         private:
-          CommonDocumentWindow *_first;
+          CommonDocumentWindow* _first;
           int                   _count;
-      } All;
+      };
+      
+      static Enum All;
   };
 }
 

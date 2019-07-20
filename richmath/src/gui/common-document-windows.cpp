@@ -49,6 +49,8 @@ CommonDocumentWindow::CommonDocumentWindow()
     _prev_window = this;
     _next_window = this;
   }
+  
+  All.notify_all();
 }
 
 CommonDocumentWindow::~CommonDocumentWindow() {
@@ -62,6 +64,8 @@ CommonDocumentWindow::~CommonDocumentWindow() {
 
   _next_window->_prev_window = _prev_window;
   _prev_window->_next_window = _next_window;
+  
+  All.notify_all();
 }
 
 void CommonDocumentWindow::filename(String new_filename) {
