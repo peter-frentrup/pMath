@@ -51,6 +51,7 @@ namespace richmath {
       virtual ~FrontEndObject();
       
       FrontEndReference id() { return _id; }
+      virtual pmath::Expr to_pmath_id() { return _id.to_pmath(); }
       
       static FrontEndObject *find(FrontEndReference id);
       

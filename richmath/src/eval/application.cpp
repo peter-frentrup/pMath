@@ -1589,9 +1589,10 @@ static Expr cnt_callfrontend(Expr data) {
 static Expr cnt_getdocuments() {
   Gather gather;
   
-  for(auto id : all_document_ids.keys())
-    Gather::emit(id.to_pmath());
-    
+  for(auto win : CommonDocumentWindow::All) {
+    Gather::emit(win->content()->to_pmath_id());
+  }
+  
   return gather.end();
 }
 
@@ -1780,7 +1781,7 @@ static Expr cnt_getevaluationdocument(Expr data) {
     doc = doc->main_document;
     
   if(doc)
-    return doc->id().to_pmath();
+    return doc->to_pmath_id();
     
   return Symbol(PMATH_SYMBOL_FAILED);
 }
@@ -2027,7 +2028,7 @@ namespace {
 
 Expr Application::save(Document *doc) {
   if(doc)
-    return SaveOperation::do_save(List(doc->id().to_pmath()));
+    return SaveOperation::do_save(List(doc->to_pmath_id()));
   else
     return SaveOperation::do_save(List(Symbol(PMATH_SYMBOL_AUTOMATIC))); 
 }
@@ -2288,7 +2289,7 @@ static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr
     
     owner = doc->native()->owner_document();
   }
-  return owner->id().to_pmath();
+  return owner->to_pmath_id();
 }
 
 static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item) {

@@ -51,7 +51,7 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
     
   doc->invalidate_options();
   
-  return doc->id().to_pmath();
+  return doc->to_pmath_id();
 }
 
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
@@ -78,7 +78,7 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
     doc->invalidate_options();
   }
   doc->native()->bring_to_front();
-  return doc->id().to_pmath();
+  return doc->to_pmath_id();
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
@@ -96,7 +96,7 @@ static bool set_selected_document(FrontEndReference id) {
   
   //set_current_document(doc);
   doc->native()->bring_to_front();
-  //return doc->id().to_pmath();
+  //return doc->to_pmath_id();
   return true;
 }
 
@@ -173,7 +173,7 @@ static Expr menu_list_windows_enum(Expr name) {
         win->title(), 
         //List(name, i)
         Call(Symbol(richmath_FrontEnd_SetSelectedDocument),
-          win->content()->id().to_pmath())));
+          win->content()->to_pmath_id())));
     ++i;
   }
   return g.end();
