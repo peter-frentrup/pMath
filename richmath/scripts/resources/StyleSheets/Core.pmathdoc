@@ -119,14 +119,16 @@ Document({
             InterpretationBox("", #3)}, ")"} &)}), 
         Section(StyleData("DocumentObject"), 
          TemplateBoxOptions -> {DisplayFunction -> ({"DocumentObject", "(", 
-           PanelBox(DynamicLocalBox({FE`Private`arg}, 
-             DynamicBox(ToBoxes(FE`Private`arg:= With({
-                 FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-                ReleaseHold(FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(
-                   #1, FE`Private`dyn)))); Button(
-                Dynamic(CurrentValue(FE`Private`arg, WindowTitle)), 
-                FE`CallFrontEnd(FrontEnd`SetSelectedDocument(FE`Private`arg)), 
-                ButtonFrame -> "Frameless"))))), ")"} &), 
+           DynamicLocalBox({FE`Private`arg}, 
+            DynamicBox(ToBoxes(FE`Private`arg:= With({
+                FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+               ReleaseHold(FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(
+                  #1, FE`Private`dyn)))); Button(
+               Style(Panel(Dynamic(CurrentValue(FE`Private`arg, 
+                   WindowTitle))), FontColor -> Dynamic(
+                 If(CurrentValue("MouseOver") === True, Blue, Inherited))), 
+               SetSelectedDocument(FE`Private`arg), 
+               ButtonFrame -> "Frameless")))), ")"} &), 
           InterpretationFunction -> ({"DocumentObject", "(", 
            InterpretationBox("", #1), ")"} &)}), 
         Section(StyleData("Det"), TemplateBoxOptions -> {
