@@ -15,8 +15,6 @@
 
 using namespace richmath;
 
-Hashset<FrontEndReference> richmath::all_document_ids;
-
 //{ pmath functions ...
 
 extern pmath_symbol_t richmath_System_BoxData;

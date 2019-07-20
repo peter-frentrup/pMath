@@ -106,8 +106,6 @@ MathGtkWidget::MathGtkWidget(Document *doc)
 }
 
 MathGtkWidget::~MathGtkWidget() {
-  all_document_ids.remove(document()->id());
-  
   hadjustment(0);
   vadjustment(0);
   

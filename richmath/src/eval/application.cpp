@@ -1078,11 +1078,13 @@ Document *Application::find_open_document(String filename) {
   if(filename.is_null())
     return nullptr;
   
-  for(auto id : all_document_ids.keys()) {
-    Document *doc = FrontEndObject::find_cast<Document>(id);
-    if(doc && doc->native()->filename() == filename)
+  for(auto win : CommonDocumentWindow::All) {
+    Document *doc = win->content();
+    
+    if(doc->native()->filename() == filename)
       return doc;
   }
+  
   return nullptr;
 }
 
@@ -1549,10 +1551,8 @@ static void cnt_end(Expr data) {
   }
   
   if(!more) {
-    for(auto id : all_document_ids.keys()) {
-      Document *doc = FrontEndObject::find_cast<Document>(id);
-      
-      assert(doc);
+    for(auto win : CommonDocumentWindow::All) {
+      Document *doc = win->content();
       
       for(int s = 0; s < doc->count(); ++s) {
         auto math = dynamic_cast<MathSection*>(doc->section(s));

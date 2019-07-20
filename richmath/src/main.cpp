@@ -344,14 +344,9 @@ static void init_stylesheet() {
 }
 
 static bool have_visible_documents() {
-  for(const auto id : all_document_ids.keys()) {
-    Document *doc = FrontEndObject::find_cast<Document>(id);
-    
-    assert(doc);
-    
-    if(doc->get_style(Visible, true)) {
+  for(auto win : CommonDocumentWindow::All) {
+    if(win->content()->get_style(Visible, true)) 
       return true;
-    }
   }
   
   return false;

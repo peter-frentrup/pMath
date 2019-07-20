@@ -330,10 +330,8 @@ void MathGtkDocumentWindow::after_construction() {
   top()->invalidate();
   bottom()->invalidate();
   
-  all_document_ids.add(document()->id());
-  if(get_current_document() == 0) {
+  if(get_current_document() == 0) 
     set_current_document(document());
-  }
   
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_configure>("configure-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_delete>("delete-event");

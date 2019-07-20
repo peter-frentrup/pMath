@@ -666,10 +666,8 @@ void Win32DocumentWindow::after_construction() {
     InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
   }
   
-  all_document_ids.add(document()->id());
-  if(get_current_document() == 0) {
+  if(get_current_document() == 0) 
     set_current_document(document());
-  }
   
   creation = false;
   
@@ -681,8 +679,6 @@ void Win32DocumentWindow::after_construction() {
 }
 
 Win32DocumentWindow::~Win32DocumentWindow() {
-  all_document_ids.remove(_working_area->document()->id());
-  
   menubar->destroy();            menubar = nullptr;
   _top_glass_area->destroy();    _top_glass_area = nullptr;
   _top_area->destroy();          _top_area = nullptr;
