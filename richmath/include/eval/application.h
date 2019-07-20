@@ -17,7 +17,6 @@ namespace richmath {
     EndSession,
     
     CallFrontEnd,
-    GetDocuments,
     MenuCommand,
     AddConfigShaper,
     GetOptions,

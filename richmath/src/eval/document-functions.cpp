@@ -113,6 +113,16 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
   return doc->to_pmath_id();
 }
 
+Expr richmath_eval_FrontEnd_Documents(Expr expr) {
+  Gather gather;
+  
+  for(auto win : CommonDocumentWindow::All) {
+    Gather::emit(win->content()->to_pmath_id());
+  }
+  
+  return gather.end();
+}
+
 bool richmath::impl::init_document_functions() {
   Application::register_menucommand(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
   Application::register_menucommand(Symbol(richmath_FrontEnd_DocumentOpen),        document_open_cmd);

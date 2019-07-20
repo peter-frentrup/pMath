@@ -162,17 +162,6 @@ static pmath_t builtin_documentread(pmath_expr_t _expr) {
   return Application::notify_wait(ClientNotification::DocumentRead, expr).release();
 }
 
-static pmath_t builtin_documents(pmath_expr_t expr) {
-  if(pmath_expr_length(expr) > 0) {
-    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
-    return expr;
-  }
-  
-  pmath_unref(expr);
-  
-  return Application::notify_wait(ClientNotification::GetDocuments, Expr()).release();
-}
-
 static pmath_t builtin_documentsave(pmath_expr_t _expr) {
   if(pmath_expr_length(_expr) > 2) {
     pmath_message_argxxx(pmath_expr_length(_expr), 0, 2);
@@ -1468,7 +1457,6 @@ bool richmath::init_bindings() {
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTGET,              builtin_documentget)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite)
-  BIND_DOWN(PMATH_SYMBOL_DOCUMENTS,                builtin_documents)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave)
   BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument)
   BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute)

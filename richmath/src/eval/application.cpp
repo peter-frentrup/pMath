@@ -1586,16 +1586,6 @@ static Expr cnt_callfrontend(Expr data) {
   return Evaluate(std::move(data));
 }
 
-static Expr cnt_getdocuments() {
-  Gather gather;
-  
-  for(auto win : CommonDocumentWindow::All) {
-    Gather::emit(win->content()->to_pmath_id());
-  }
-  
-  return gather.end();
-}
-
 static void cnt_menucommand(Expr data) {
   Application::run_recursive_menucommand(data);
 }
@@ -2066,11 +2056,6 @@ static void execute(ClientNotificationData &cn) {
         *cn.result_ptr = cnt_callfrontend(std::move(cn.data)).release();
       else
         cnt_callfrontend(std::move(cn.data));
-      break;
-      
-    case ClientNotification::GetDocuments:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_getdocuments().release();
       break;
       
     case ClientNotification::MenuCommand:
