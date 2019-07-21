@@ -15,18 +15,14 @@
 
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/basic-win32-widget.h>
-#  include <gui/win32/win32-colordialog.h>
 #  include <gui/win32/win32-document-window.h>
 #  include <gui/win32/win32-filedialog.h>
-#  include <gui/win32/win32-fontdialog.h>
 #  include <gui/win32/win32-highdpi.h>
 #  include <gui/win32/win32-menu.h>
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
-#  include <gui/gtk/mgtk-colordialog.h>
 #  include <gui/gtk/mgtk-filedialog.h>
-#  include <gui/gtk/mgtk-fontdialog.h>
 #  include <gui/gtk/mgtk-document-window.h>
 #endif
 
@@ -139,6 +135,25 @@ static EvaluationPosition print_pos;
 static EvaluationPosition old_job;
 static Expr               main_message_queue;
 static double total_time_waited_for_gui = 0.0;
+
+static double gui_start_time = 0.0;
+static int gui_wait_depth = 0;
+
+AutoGuiWait::AutoGuiWait() {
+  assert(gui_wait_depth >= 0);
+  if(gui_wait_depth++ == 0) {
+    gui_start_time = pmath_tickcount();
+  }
+}
+
+AutoGuiWait::~AutoGuiWait() {
+  assert(gui_wait_depth > 0);
+  if(--gui_wait_depth == 0) {
+    double end_time = pmath_tickcount();
+    if(gui_start_time < end_time)
+      total_time_waited_for_gui += end_time - gui_start_time;
+  }
+}
 
 // also a GSourceFunc, must return 0
 static int on_client_notify(void *data) {
@@ -1175,9 +1190,7 @@ Expr Application::run_filedialog(Expr data) {
   }
   
   Expr result = Symbol(PMATH_SYMBOL_FAILED);
-  double gui_start_time = pmath_tickcount();
-  
-  pmath_debug_print("run_filedialog...\n");
+  AutoGuiWait timer;
   
 #if RICHMATH_USE_WIN32_GUI
   Win32FileDialog
@@ -1188,20 +1201,11 @@ Expr Application::run_filedialog(Expr data) {
 #endif
   dialog(head == richmath_FE_FileSaveDialog);
   
-  pmath_debug_print("  set_title...\n");
   dialog.set_title(title);
-  pmath_debug_print("  set_initial_file...\n");
   dialog.set_initial_file(filename);
-  pmath_debug_print("  set_filter...\n");
   dialog.set_filter(filter);
-  pmath_debug_print("  show_dialog...\n");
   result = dialog.show_dialog();
-  pmath_debug_print("...run_filedialog\n");
   
-  double gui_end_time = pmath_tickcount();
-  if(gui_start_time < gui_end_time)
-    total_time_waited_for_gui += gui_end_time - gui_start_time;
-    
   return result;
 }
 
@@ -1813,54 +1817,6 @@ static Expr cnt_documentread(Expr data) {
                                         doc->selection_end());
 }
 
-static Expr cnt_colordialog(Expr data) {
-  int initcolor = -1;
-  
-  if(data.expr_length() >= 1)
-    initcolor = pmath_to_color(data[1]);
-    
-  Expr result = Symbol(PMATH_SYMBOL_FAILED);
-  double gui_start_time = pmath_tickcount();
-  
-#if RICHMATH_USE_WIN32_GUI
-  result = Win32ColorDialog::show(initcolor);
-#endif
-  
-#ifdef RICHMATH_USE_GTK_GUI
-  result = MathGtkColorDialog::show(initcolor);
-#endif
-  
-  double gui_end_time = pmath_tickcount();
-  if(gui_start_time < gui_end_time)
-    total_time_waited_for_gui += gui_end_time - gui_start_time;
-    
-  return result;
-}
-
-static Expr cnt_fontdialog(Expr data) {
-  SharedPtr<Style> initial_style;
-  
-  if(data.expr_length() > 0)
-    initial_style = new Style(data);
-    
-  Expr result = Symbol(PMATH_SYMBOL_FAILED);
-  double gui_start_time = pmath_tickcount();
-  
-#if RICHMATH_USE_WIN32_GUI
-  result = Win32FontDialog::show(initial_style);
-#endif
-  
-#ifdef RICHMATH_USE_GTK_GUI
-  result = MathGtkFontDialog::show(initial_style);
-#endif
-  
-  double gui_end_time = pmath_tickcount();
-  if(gui_start_time < gui_end_time)
-    total_time_waited_for_gui += gui_end_time - gui_start_time;
-    
-  return result;
-}
-
 namespace {
   class SaveOperation {
     private:
@@ -2105,16 +2061,6 @@ static void execute(ClientNotificationData &cn) {
     case ClientNotification::DocumentRead:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentread(cn.data).release();
-      break;
-      
-    case ClientNotification::ColorDialog:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_colordialog(cn.data).release();
-      break;
-      
-    case ClientNotification::FontDialog:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_fontdialog(cn.data).release();
       break;
       
     case ClientNotification::FileDialog:

@@ -90,16 +90,8 @@ static pmath_t builtin_callfrontend(pmath_expr_t expr) {
   }
 }
 
-static pmath_t builtin_colordialog(pmath_expr_t _expr) {
-  return Application::notify_wait(ClientNotification::ColorDialog, Expr(_expr)).release();
-}
-
 static pmath_t builtin_filedialog(pmath_expr_t _expr) {
   return Application::notify_wait(ClientNotification::FileDialog, Expr(_expr)).release();
-}
-
-static pmath_t builtin_fontdialog(pmath_expr_t _expr) {
-  return Application::notify_wait(ClientNotification::FontDialog, Expr(_expr)).release();
 }
 
 static pmath_t builtin_internalexecutefor(pmath_expr_t _expr) {
@@ -1468,10 +1460,8 @@ bool richmath::init_bindings() {
   BIND_DOWN(richmath_FE_AddConfigShaper,     builtin_addconfigshaper)
   BIND_DOWN(richmath_FE_InternalExecuteFor,  builtin_internalexecutefor)
   BIND_DOWN(richmath_FE_CallFrontEnd,        builtin_callfrontend)
-  BIND_DOWN(richmath_FE_ColorDialog,         builtin_colordialog)
   BIND_DOWN(richmath_FE_FileOpenDialog,      builtin_filedialog)
   BIND_DOWN(richmath_FE_FileSaveDialog,      builtin_filedialog)
-  BIND_DOWN(richmath_FE_FontDialog,          builtin_fontdialog)
   
   Application::register_menucommand(Symbol(richmath_FE_CopySpecial),   copy_special_cmd, can_copy_cut);
   Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),         set_style_cmd,    can_set_style);

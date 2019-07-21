@@ -1,0 +1,11 @@
+Begin("FE`Private`")
+
+
+FE`FontDialog(~~~opts)::= FE`CallFrontEnd(FrontEnd`FontDialog(opts))
+
+FE`ColorDialog()::= FE`CallFrontEnd(FrontEnd`ColorDialog())
+FE`ColorDialog(~c)::= FE`CallFrontEnd(FrontEnd`ColorDialog(c))
+FE`ColorDialog(~~~args)::= 1 /? (IsValidArgumentCount(FE`ColorDialog, Length@{args}, 1, 1);False)
+
+
+End()

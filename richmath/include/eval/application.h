@@ -27,8 +27,6 @@ namespace richmath {
     GetEvaluationDocument,
     DocumentGet,
     DocumentRead,
-    ColorDialog,
-    FontDialog,
     FileDialog,
     Save,
   };
@@ -166,6 +164,14 @@ namespace richmath {
       {
         SET_BASE_DEBUG_TAG(typeid(*this).name());
       }
+  };
+  
+  struct AutoGuiWait {
+    AutoGuiWait();
+    ~AutoGuiWait();
+    
+    AutoGuiWait(const AutoGuiWait &) = delete;
+    AutoGuiWait &operator=(const AutoGuiWait &) = delete;
   };
 }
 

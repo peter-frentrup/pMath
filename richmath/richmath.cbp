@@ -781,10 +781,12 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/clipboard.h" />
+		<Unit filename="include/gui/color-dialog.h" />
 		<Unit filename="include/gui/common-document-windows.h" />
 		<Unit filename="include/gui/common-tooltips.h" />
 		<Unit filename="include/gui/control-painter.h" />
 		<Unit filename="include/gui/document.h" />
+		<Unit filename="include/gui/font-dialog.h" />
 		<Unit filename="include/gui/gtk/basic-gtk-widget.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
 			<Option target="Windows-GCC-Debug-x86-Gtk3" />
@@ -1218,10 +1220,12 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/clipboard.cpp" />
+		<Unit filename="src/gui/color-dialog.cpp" />
 		<Unit filename="src/gui/common-document-windows.cpp" />
 		<Unit filename="src/gui/common-tooltips.cpp" />
 		<Unit filename="src/gui/control-painter.cpp" />
 		<Unit filename="src/gui/document.cpp" />
+		<Unit filename="src/gui/font-dialog.cpp" />
 		<Unit filename="src/gui/gtk/basic-gtk-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
 			<Option target="Windows-GCC-Debug-x86-Gtk3" />
