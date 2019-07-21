@@ -25,26 +25,6 @@ extern pmath_symbol_t richmath_System_SectionGenerated;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
 
-static pmath_t builtin_addconfigshaper(pmath_expr_t expr) {
-  double start = pmath_tickcount();
-  Expr filename(pmath_expr_get_item(expr, 1));
-  Expr data = Expr(
-                pmath_evaluate(
-                  pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_GET), 1,
-                    pmath_ref(filename.get()))));
-                    
-  pmath_unref(expr);
-  
-  double end = pmath_tickcount();
-  
-  pmath_debug_print("[%f sec reading ", end - start);
-  pmath_debug_print_object("", filename.get(), "]\n");
-  
-  Application::notify(ClientNotification::AddConfigShaper, data);
-  return PMATH_NULL;
-}
-
 static pmath_t builtin_callfrontend(pmath_expr_t expr) {
   /* FE`CallFrontEnd(expr)  ===  FE`CallFrontEnd(expr, True)
   */
@@ -1457,7 +1437,6 @@ bool richmath::init_bindings() {
   BIND_UP(PMATH_SYMBOL_CURRENTVALUE,               builtin_assign_currentvalue)
   BIND_UP(richmath_System_FrontEndObject,          builtin_feo_options)
   
-  BIND_DOWN(richmath_FE_AddConfigShaper,     builtin_addconfigshaper)
   BIND_DOWN(richmath_FE_InternalExecuteFor,  builtin_internalexecutefor)
   BIND_DOWN(richmath_FE_CallFrontEnd,        builtin_callfrontend)
   BIND_DOWN(richmath_FE_FileOpenDialog,      builtin_filedialog)

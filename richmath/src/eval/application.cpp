@@ -265,7 +265,7 @@ MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 Hashtable<Expr, Expr> Application::eval_cache;
 
 bool Application::is_running_on_gui_thread() {
-  if(pmath_atomic_read_aquire(&state) != Running)
+  if(pmath_atomic_read_aquire(&state) == Quitting)
     return false;
   
 #ifdef PMATH_OS_WIN32
@@ -296,7 +296,7 @@ void Application::notify(ClientNotification type, Expr data) {
 }
 
 Expr Application::notify_wait(ClientNotification type, Expr data) {
-  if(pmath_atomic_read_aquire(&state) != Running)
+  if(pmath_atomic_read_aquire(&state) == Quitting)
     return Symbol(PMATH_SYMBOL_FAILED);
   
   if(is_running_on_gui_thread()) {
@@ -1594,19 +1594,6 @@ static void cnt_menucommand(Expr data) {
   Application::run_recursive_menucommand(data);
 }
 
-static void cnt_addconfigshaper(Expr data) {
-  SharedPtr<ConfigShaper> shaper = ConfigShaper::try_register(data);
-  
-  if(shaper) {
-    MathShaper::available_shapers.set(shaper->name(), shaper);
-    
-    pmath_debug_print_object("loaded ", shaper->name().get(), "\n");
-  }
-  else {
-    pmath_debug_print("adding config shaper failed.\n");
-  }
-}
-
 static Expr cnt_getoptions(Expr data) {
   auto ref = FrontEndReference::from_pmath(data);
   Box *box = FrontEndObject::find_cast<Box>(ref);
@@ -2016,10 +2003,6 @@ static void execute(ClientNotificationData &cn) {
       
     case ClientNotification::MenuCommand:
       cnt_menucommand(cn.data);
-      break;
-      
-    case ClientNotification::AddConfigShaper:
-      cnt_addconfigshaper(cn.data);
       break;
       
     case ClientNotification::GetOptions:

@@ -212,13 +212,16 @@ static void load_fonts() {
 }
 
 static void load_math_shapers() {
-  PMATH_RUN(
-    "ParallelScan("
-    " FileNames("
-    "  ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shapers\"),"
-    "  \"*.pmath\"),"
-    "FE`AddConfigShaper)"
-  );
+  PMATH_RUN(R"PMATH(
+    FileNames(
+      ToFileName({FE`$FrontEndDirectory, "resources"}, "shapers"),
+      "*.pmath"
+    ).ParallelMap(
+      Get
+    ).Scan(
+      Function(FrontEnd`AddConfigShaper(#))
+    )
+  )PMATH");
   
   Expr prefered_fonts = Evaluate(Parse("FE`$MathShapers"));
   

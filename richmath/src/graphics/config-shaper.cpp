@@ -1598,3 +1598,22 @@ void ConfigShaper::big_radical_glyphs(
 
 //} ... class ConfigShaper
 
+
+Expr richmath_eval_FrontEnd_AddConfigShaper(Expr expr) {
+  Expr data = expr[1];
+  expr = Expr();
+  
+  SharedPtr<ConfigShaper> shaper = ConfigShaper::try_register(std::move(data));
+  
+  if(shaper) {
+    MathShaper::available_shapers.set(shaper->name(), shaper);
+    
+    pmath_debug_print_object("loaded ", shaper->name().get(), "\n");
+    return shaper->name();
+  }
+  
+  pmath_debug_print("adding config shaper failed.\n");
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+

@@ -18,7 +18,6 @@ namespace richmath {
     
     CallFrontEnd,
     MenuCommand,
-    AddConfigShaper,
     GetOptions,
     SetOptions,
     DynamicUpdate,
