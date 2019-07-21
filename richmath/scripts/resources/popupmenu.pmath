@@ -11,7 +11,7 @@ FE`$MathShapers
 Begin("FE`Private`")
 
 
-If(HoldComplete(FE`Private`mainmenu) === HoldComplete @@@ {FE`Private`mainmenu},
+If(HoldComplete(FE`Private`mainmenu) === HoldComplete @@ {FE`Private`mainmenu},
 	FE`Private`mainmenu:= Get(ToFileName(DirectoryName($Input), "mainmenu.pmath")))
 
 FE`Private`popupmenu:= Menu("Popup", {
