@@ -2279,13 +2279,7 @@ void Document::paste_from_boxes(Expr boxes) {
             
   GridBox *grid = dynamic_cast<GridBox *>(context.selection.get());
   if(grid && grid->get_style(Editable)) {
-    int row1, col1, row2, col2;
-    
-    grid->matrix().index_to_yx(context.selection.start, &row1, &col1);
-    grid->matrix().index_to_yx(context.selection.end - 1, &row2, &col2);
-    
-    int w = col2 - col1 + 1;
-    int h = row2 - row1 + 1;
+    auto rect = grid->get_enclosing_range(context.selection.start, context.selection.end - 1);
     
     BoxInputFlags options = BoxInputFlags::Default;
     if(grid->get_style(AutoNumberFormating))
@@ -2297,21 +2291,25 @@ void Document::paste_from_boxes(Expr boxes) {
     if(tmp->length() == 1 && tmp->count() == 1) {
       GridBox *tmpgrid = dynamic_cast<GridBox *>(tmp->item(0));
       
-      if( tmpgrid &&
-          tmpgrid->rows() <= h &&
-          tmpgrid->cols() <= w)
+      if( tmpgrid && 
+          tmpgrid->rows() <= rect.rows() && 
+          tmpgrid->cols() <= rect.cols()) 
       {
-        for(int col = 0; col < w; ++col) {
-          for(int row = 0; row < h; ++row) {
-            if( col < tmpgrid->cols() &&
-                row < tmpgrid->rows())
-            {
-              grid->item(row1 + row, col1 + col)->load_from_object(
+        for(int col = 0; col < rect.cols(); ++col) {
+          for(int row = 0; row < rect.rows(); ++row) {
+            if( col < tmpgrid->cols() && row < tmpgrid->rows()) {
+              grid->item(
+                rect.y.start.primary_value() + row, 
+                rect.x.start.primary_value() + col
+              )->load_from_object(
                 Expr(tmpgrid->item(row, col)->to_pmath(BoxOutputFlags::Default)),
                 BoxInputFlags::FormatNumbers);
             }
             else {
-              grid->item(row1 + row, col1 + col)->load_from_object(
+              grid->item(
+                rect.y.start.primary_value() + row, 
+                rect.x.start.primary_value() + col
+              )->load_from_object(
                 String::FromChar(PMATH_CHAR_BOX),
                 BoxInputFlags::Default);
             }
@@ -2319,8 +2317,8 @@ void Document::paste_from_boxes(Expr boxes) {
         }
         
         MathSequence *sel = grid->item(
-                              row1 + tmpgrid->rows() - 1,
-                              col1 + tmpgrid->cols() - 1)->content();
+                              rect.y.start.primary_value() + tmpgrid->rows() - 1,
+                              rect.x.start.primary_value() + tmpgrid->cols() - 1)->content();
                               
         move_to(sel, sel->length());
         grid->invalidate();
@@ -2330,17 +2328,20 @@ void Document::paste_from_boxes(Expr boxes) {
       }
     }
     
-    for(int col = 0; col < w; ++col) {
-      for(int row = 0; row < h; ++row) {
-        grid->item(row1 + row, col1 + col)->load_from_object(
+    for(int col = 0; col < rect.cols(); ++col) {
+      for(int row = 0; row < rect.rows(); ++row) {
+        grid->item(
+          rect.y.start.primary_value() + row, 
+          rect.x.start.primary_value() + col
+        )->load_from_object(
           String::FromChar(PMATH_CHAR_BOX),
           BoxInputFlags::Default);
       }
     }
     
-    MathSequence *sel = grid->item(row1, col1)->content();
+    MathSequence *sel = grid->item(rect.y.start, rect.x.start)->content();
     sel->remove(0, 1);
-    sel->insert(0, tmp); tmp = 0;
+    sel->insert(0, tmp); tmp = nullptr;
     move_to(sel, sel->length());
     
     grid->invalidate();
@@ -3280,17 +3281,20 @@ void Document::insert_matrix_column() {
     }
     
     if(grid) {
-      int row, col;
-      grid->matrix().index_to_yx(i, &row, &col);
+      GridYIndex row;
+      GridXIndex col;
+      grid->index_to_yx(i, &row, &col);
+      
+      int col_val = col.primary_value();
       
       if( context.selection.end > 0 ||
-          selection_box() != grid->item(0, col)->content())
+          selection_box() != grid->item(0, col_val)->content())
       {
-        ++col;
+        ++col_val;
       }
       
-      grid->insert_cols(col, 1);
-      select(grid->item(0, col)->content(), 0, 1);
+      grid->insert_cols(col_val, 1);
+      select(grid->item(0, col_val)->content(), 0, 1);
       return;
     }
   }
@@ -3374,17 +3378,20 @@ void Document::insert_matrix_row() {
     }
     
     if(grid) {
-      int row, col;
-      grid->matrix().index_to_yx(i, &row, &col);
+      GridYIndex row;
+      GridXIndex col;
+      grid->index_to_yx(i, &row, &col);
+      
+      int row_val = row.primary_value();
       
       if( context.selection.end > 0 ||
-          context.selection.get() != grid->item(row, 0)->content())
+          context.selection.get() != grid->item(row_val, 0)->content())
       {
-        ++row;
+        ++row_val;
       }
       
-      grid->insert_rows(row, 1);
-      select(grid->item(row, 0)->content(), 0, 1);
+      grid->insert_rows(row_val, 1);
+      select(grid->item(row_val, 0)->content(), 0, 1);
       return;
     }
   }

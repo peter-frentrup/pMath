@@ -121,17 +121,17 @@ GridBox::GridBox()
     items(1, 1)
 {
   items[0] = new GridItem;
-  adopt(items[0], 0);
+  ensure_valid_boxes();
 }
 
 GridBox::GridBox(int rows, int cols)
   : Box(),
     items(rows > 0 ? rows : 1, cols > 0 ? cols : 1)
 {
-  for(int i = 0; i < items.length(); ++i) {
+  for(int i = 0; i < items.length(); ++i) 
     items[i] = new GridItem();
-    adopt(items[i], i);
-  }
+  
+  ensure_valid_boxes();
 }
 
 GridBox::~GridBox() {
@@ -227,9 +227,8 @@ void GridBox::insert_rows(int yindex, int count) {
     for(int y = 0; y < count; ++y)
       items.set(yindex + y, x, new GridItem);
       
-  for(int i = 0; i < items.length(); ++i)
-    adopt(items[i], i);
-    
+  ensure_valid_boxes();
+  
   invalidate();
 }
 
@@ -247,8 +246,7 @@ void GridBox::insert_cols(int xindex, int count) {
     for(int y = 0; y < rows(); ++y)
       items.set(y, xindex + x, new GridItem);
       
-  for(int i = 0; i < items.length(); ++i)
-    adopt(items[i], i);
+  ensure_valid_boxes();
     
   invalidate();
 }
@@ -265,8 +263,7 @@ void GridBox::remove_rows(int yindex, int count) {
       item(yindex + y, x)->safe_destroy();
       
   items.remove_rows(yindex, count);
-  for(int i = 0; i < items.length(); ++i)
-    adopt(items[i], i);
+  ensure_valid_boxes();
     
   invalidate();
 }
@@ -283,8 +280,7 @@ void GridBox::remove_cols(int xindex, int count) {
       item(y, xindex + x)->safe_destroy();
       
   items.remove_cols(xindex, count);
-  for(int i = 0; i < items.length(); ++i)
-    adopt(items[i], i);
+  ensure_valid_boxes();
     
   invalidate();
 }
@@ -427,6 +423,8 @@ void GridBox::resize(Context *context) {
 }
 
 void GridBox::paint(Context *context) {
+  using std::swap;
+  
   update_dynamic_styles(context);
   
   float x, y;
@@ -446,32 +444,18 @@ void GridBox::paint(Context *context) {
   }
   
   if(context->selection.get() == this) {
-    int ax, ay, bx, by;
-    items.index_to_yx(context->selection.start, &ay, &ax);
-    items.index_to_yx(context->selection.end - 1,   &by, &bx);
-    
-    if(bx < ax) {
-      int tmp = ax;
-      ax = bx;
-      bx = tmp;
-    }
-    
-    if(by < ay) {
-      int tmp = ay;
-      ay = by;
-      by = tmp;
-    }
+    auto rect = get_enclosing_range(context->selection.start, context->selection.end - 1);
     
     float x1, x2, y1, y2;
-    x1 = x + xpos[ax];
-    if(bx < cols() - 1)
-      x2 = x + xpos[bx] + item(by, bx)->extents().width;
+    x1 = x + xpos[rect.x.start.primary_value()];
+    if(rect.x.end.primary_value() < cols() - 1)
+      x2 = x + xpos[rect.x.end.primary_value()] + item(rect.y.end, rect.x.end)->extents().width;
     else
       x2 = x + _extents.width;
       
-    y1 = y - _extents.ascent + ypos[ay];// - item(ay, ax)->extents().ascent;
-    if(by < rows() - 1)
-      y2 = y - _extents.ascent + ypos[by] + item(by, bx)->extents().height();
+    y1 = y - _extents.ascent + ypos[rect.y.start.primary_value()];// - item(ay, ax)->extents().ascent;
+    if(rect.y.end.primary_value() < rows() - 1)
+      y2 = y - _extents.ascent + ypos[rect.y.end.primary_value()] + item(rect.y.end, rect.x.end)->extents().height();
     else
       y2 = y + _extents.descent;
       
@@ -484,35 +468,18 @@ void GridBox::paint(Context *context) {
 }
 
 void GridBox::selection_path(Canvas *canvas, int start, int end) {
-  int ax, ay, bx, by;
-  if(end > start)
-    --end;
-    
-  items.index_to_yx(start, &ay, &ax);
-  items.index_to_yx(end,   &by, &bx);
-  
-  if(bx < ax) {
-    int tmp = ax;
-    ax = bx;
-    bx = tmp;
-  }
-  
-  if(by < ay) {
-    int tmp = ay;
-    ay = by;
-    by = tmp;
-  }
+  auto rect = get_enclosing_range(start, end - 1);
   
   float x1, x2, y1, y2;
-  x1 = xpos[ax];
-  if(bx < cols() - 1)
-    x2 = xpos[bx] + item(by, bx)->extents().width;
+  x1 = xpos[rect.x.start.primary_value()];
+  if(rect.x.end.primary_value() < cols() - 1)
+    x2 = xpos[rect.x.end.primary_value()] + item(rect.y.end, rect.x.end)->extents().width;
   else
     x2 = _extents.width;
     
-  y1 = - _extents.ascent + ypos[ay];
-  if(by < rows() - 1)
-    y2 = - _extents.ascent + ypos[by] + item(by, bx)->extents().height();
+  y1 = - _extents.ascent + ypos[rect.y.start.primary_value()];
+  if(rect.y.end.primary_value() < rows() - 1)
+    y2 = - _extents.ascent + ypos[rect.y.end.primary_value()] + item(rect.y.end, rect.x.end)->extents().height();
   else
     y2 = _extents.descent;
     
@@ -546,6 +513,8 @@ void GridBox::selection_path(Canvas *canvas, int start, int end) {
 }
 
 Box *GridBox::remove_range(int *start, int end) {
+  using std::swap;
+  
   if(*start >= end) {
     if(_parent) {
       *start = _index + 1;
@@ -555,23 +524,14 @@ Box *GridBox::remove_range(int *start, int end) {
     return this;
   }
   
-  int ax, ay, bx, by;
-  items.index_to_yx(*start,  &ay, &ax);
-  items.index_to_yx(end - 1, &by, &bx);
+  auto rect = get_enclosing_range(*start, end - 1);
   
-  if(bx < ax) {
-    int tmp = ax;
-    ax = bx;
-    bx = tmp;
-  }
+  int ax_val = rect.x.start.primary_value();
+  int ay_val = rect.y.start.primary_value();
+  int bx_val = rect.x.end.primary_value();
+  int by_val = rect.y.end.primary_value();
   
-  if(by < ay) {
-    int tmp = ay;
-    ay = by;
-    by = tmp;
-  }
-  
-  if(ax == 0 && ay == 0 && bx == cols() - 1 && by == rows() - 1) {
+  if( ax_val == 0 && ay_val == 0 && bx_val == cols() - 1 && by_val == rows() - 1) {
     if(_parent) {
       *start = _index;
       return _parent->remove(start);
@@ -583,7 +543,7 @@ Box *GridBox::remove_range(int *start, int end) {
   
   if(_parent) {
     if(cols() == 1) {
-      if(ay == 1 && by == rows() - 1) {
+      if(ay_val == 1 && by_val == rows() - 1) {
         *start = _index;
         if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[0]->content();
@@ -597,7 +557,7 @@ Box *GridBox::remove_range(int *start, int end) {
         
         return _parent->remove(start);
       }
-      else if(ay == 0 && by == rows() - 2) {
+      else if(ay_val == 0 && by_val == rows() - 2) {
         *start = _index;
         if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[items.length() - 1]->content();
@@ -611,14 +571,14 @@ Box *GridBox::remove_range(int *start, int end) {
         
         return _parent->remove(start);
       }
-      else if(ay == 0 && by == rows() - 1) {
+      else if(ay_val == 0 && by_val == rows() - 1) {
         *start = _index;
         return _parent->remove(start);
       }
     }
     
     if(rows() == 1) {
-      if(ax == 1 && bx == cols() - 1) {
+      if(ax_val == 1 && bx_val == cols() - 1) {
         *start = _index;
         if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[0]->content();
@@ -632,7 +592,7 @@ Box *GridBox::remove_range(int *start, int end) {
         
         return _parent->remove(start);
       }
-      else if(ax == 0 && bx == cols() - 2) {
+      else if(ax_val == 0 && bx_val == cols() - 2) {
         *start = _index;
         if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[items.length() - 1]->content();
@@ -646,17 +606,17 @@ Box *GridBox::remove_range(int *start, int end) {
         
         return _parent->remove(start);
       }
-      else if(ax == 0 && bx == cols() - 1) {
+      else if(ax_val == 0 && bx_val == cols() - 1) {
         *start = _index;
         return _parent->remove(start);
       }
     }
   }
   
-  if(ax == 0 && bx == cols() - 1) {
-    remove_rows(ay, by - ay + 1);
-    if(ay > 0) {
-      MathSequence *result = item(ay - 1, cols() - 1)->content();
+  if(rect.cols() == cols()) {
+    remove_rows(rect.y.start, rect.rows());
+    if(ay_val > 0) {
+      MathSequence *result = item(ay_val - 1, cols() - 1)->content();
       *start = result->length();
       return result;
     }
@@ -670,10 +630,10 @@ Box *GridBox::remove_range(int *start, int end) {
     return items[0]->content();
   }
   
-  if(ay == 0 && by == rows() - 1) {
-    remove_cols(ax, bx - ax + 1);
-    if(ax > 0) {
-      MathSequence *result = item(0, ax - 1)->content();
+  if(rect.rows() == rows()) {
+    remove_cols(rect.x.start, rect.cols());
+    if(ax_val > 0) {
+      MathSequence *result = item(0, ax_val - 1)->content();
       *start = result->length();
       return result;
     }
@@ -687,26 +647,26 @@ Box *GridBox::remove_range(int *start, int end) {
     return items[0]->content();
   }
   
-  for(int x = ax; x <= bx; ++x)
-    for(int y = ay; y <= by; ++y) {
+  for(int x = ax_val; x <= bx_val; ++x)
+    for(int y = ay_val; y <= by_val; ++y) {
       item(y, x)->content()->remove(0, item(y, x)->content()->length());
       item(y, x)->content()->insert(0, PMATH_CHAR_PLACEHOLDER);
     }
     
-  if(ay == 0 && by == 0 && ax == bx) {
+  if(ay_val == 0 && by_val == 0 && rect.cols() == 1) {
     bool all_empty = true;
     for(int y = 1; y < rows(); ++y)
-      if( item(y, ax)->content()->length() > 0 &&
-          !item(y, ax)->content()->is_placeholder())
+      if( item(y, ax_val)->content()->length() > 0 &&
+          !item(y, ax_val)->content()->is_placeholder())
       {
         all_empty = false;
         break;
       }
       
     if(all_empty) {
-      remove_cols(ax, 1);
-      if(ax > 0) {
-        MathSequence *result = item(ay, ax - 1)->content();
+      remove_cols(rect.x.start, 1);
+      if(ax_val > 0) {
+        MathSequence *result = item(ay_val, ax_val - 1)->content();
         *start = result->length();
         return result;
       }
@@ -721,20 +681,20 @@ Box *GridBox::remove_range(int *start, int end) {
     }
   }
   
-  if(ax == 0 && bx == 0 && ay == by) {
+  if(ax_val == 0 && bx_val == 0 && rect.rows() == 1) {
     bool all_empty = true;
     for(int x = 1; x < cols(); ++x)
-      if( item(ay, x)->content()->length() > 0 &&
-          !item(ay, x)->content()->is_placeholder())
+      if( item(ay_val, x)->content()->length() > 0 &&
+          !item(ay_val, x)->content()->is_placeholder())
       {
         all_empty = false;
         break;
       }
       
     if(all_empty) {
-      remove_rows(ay, 1);
-      if(ay > 0) {
-        MathSequence *result = item(ay - 1, cols() - 1)->content();
+      remove_rows(rect.y.start, 1);
+      if(ay_val > 0) {
+        MathSequence *result = item(ay_val - 1, cols() - 1)->content();
         *start = result->length();
         return result;
       }
@@ -749,7 +709,7 @@ Box *GridBox::remove_range(int *start, int end) {
     }
   }
   
-  *start = items.yx_to_index(ay, ax);
+  *start = yx_to_index(rect.y.start, rect.x.start);
   if(*start > 0) {
     MathSequence *result = items[*start - 1]->content();
     *start = result->length();
@@ -784,33 +744,22 @@ Expr GridBox::to_pmath(BoxOutputFlags flags) {
 }
 
 Expr GridBox::to_pmath(BoxOutputFlags flags, int start, int end) {
-  int ax, ay, bx, by;
-  items.index_to_yx(start,   &ay, &ax);
-  items.index_to_yx(end - 1, &by, &bx);
+  auto rect = get_enclosing_range(start, end - 1);
   
-  if(bx < ax) {
-    int tmp = ax;
-    ax = bx;
-    bx = tmp;
-  }
+  int ax_val = rect.x.start.primary_value();
+  int ay_val = rect.y.start.primary_value();
+  int bx_val = rect.x.end.primary_value();
+  int by_val = rect.y.end.primary_value();
   
-  if(by < ay) {
-    int tmp = ay;
-    ay = by;
-    by = tmp;
-  }
+  Expr mat = MakeList(rect.rows());
   
-  Expr mat = MakeList(by - ay + 1);
-  
-  for(int y = ay; y <= by; ++y) {
-    Expr row = MakeList(bx - ax + 1);
+  for(int y = ay_val; y <= by_val; ++y) {
+    Expr row = MakeList(rect.cols());
     
-    for(int x = ax; x <= bx; ++x) {
-      row.set(x - ax + 1,
-              item(y, x)->to_pmath(flags));
-    }
+    for(int x = ax_val; x <= bx_val; ++x) 
+      row.set(x - ax_val + 1, item(y, x)->to_pmath(flags));
     
-    mat.set(y - ay + 1, row);
+    mat.set(y - ay_val + 1, row);
   }
   
   Gather g;
@@ -846,7 +795,11 @@ Box *GridBox::move_vertical(
     *index_rel_x -= xpos[col];
   }
   else {
-    items.index_to_yx(*index, &row, &col);
+    GridYIndex y;
+    GridXIndex x;
+    index_to_yx(*index, &y, &x);
+    row = y.primary_value();
+    col = x.primary_value();
     if(direction == LogicalDirection::Forward)
       ++row;
     else
@@ -906,13 +859,23 @@ void GridBox::child_transformation(
 ) {
   need_pos_vectors();
   
-  int row, col;
-  items.index_to_yx(index, &row, &col);
+  GridYIndex row;
+  GridXIndex col;
+  index_to_yx(index, &row, &col);
   
-  cairo_matrix_translate(
-    matrix,
-    xpos[col],
-    ypos[row] + item(index)->extents().ascent - _extents.ascent);
+  float x = xpos[col.primary_value()];
+  float y = ypos[row.primary_value()] + item(index)->extents().ascent - _extents.ascent;
+  
+  cairo_matrix_translate(matrix, x, y);
+}
+
+GridIndexRect GridBox::get_enclosing_range(int start, int end) {
+  GridXIndex ax, bx;
+  GridYIndex ay, by;
+  index_to_yx(start, &ay, &ax);
+  index_to_yx(end,   &by, &bx); 
+  
+  return GridIndexRect::FromYX(GridYRange{ay, by}, GridXRange{ax, bx});
 }
 
 Box *GridBox::normalize_selection(int *start, int *end) {
@@ -923,24 +886,10 @@ Box *GridBox::normalize_selection(int *start, int *end) {
       ++*end;
   }
   
-  int ax, ay, bx, by;
-  items.index_to_yx(*start,   &ay, &ax);
-  items.index_to_yx(*end - 1, &by, &bx);
+  auto rect = get_enclosing_range(*start, *end - 1);
   
-  if(bx < ax) {
-    int tmp = ax;
-    ax = bx;
-    bx = tmp;
-  }
-  
-  if(by < ay) {
-    int tmp = ay;
-    ay = by;
-    by = tmp;
-  }
-  
-  *start = items.yx_to_index(ay, ax);
-  *end   = items.yx_to_index(by, bx) + 1;
+  *start = yx_to_index(rect.y.start, rect.x.start);
+  *end   = yx_to_index(rect.y.end, rect.x.end) + 1;
   
   if(*start + 1 == *end) {
     *start = 0;
@@ -960,6 +909,11 @@ void GridBox::need_pos_vectors() {
     
   if(ypos.length() != rows())
     ypos.length(rows());
+}
+
+void GridBox::ensure_valid_boxes() {
+  for(int i = 0; i < items.length(); ++i)
+    adopt(items[i], i);
 }
 
 //} ... class GridBox
@@ -1197,10 +1151,11 @@ float GridBoxImpl::calculate_ascent_for_baseline_position(float em, Expr baselin
   }
   
   if(gi) {
-    int row, col;
-    self.items.index_to_yx(gi->index(), &row, &col);
+    GridYIndex row;
+    GridXIndex col;
+    self.index_to_yx(gi->index(), &row, &col);
     
-    return self.ypos[row] + gi->extents().ascent;
+    return self.ypos[row.primary_value()] + gi->extents().ascent;
   }
   else
     return 0.5f * height + 0.25f * em; // TODO: use actual math axis from font

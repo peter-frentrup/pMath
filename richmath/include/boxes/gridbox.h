@@ -8,6 +8,77 @@
 namespace richmath {
   class GridBox;
   
+  class GridIndex {
+    protected:
+      int _value;
+      GridIndex() = default;
+      explicit GridIndex(int primary_value) : _value(primary_value) {}
+      
+    public:
+      int primary_value() { return _value; }
+  };
+  
+  class GridXIndex : public GridIndex {
+    public:
+      GridXIndex() = default;
+      explicit GridXIndex(int primary_value) : GridIndex(primary_value) {}
+      
+      int primary_value() { return _value; }
+      
+      friend bool operator==(GridXIndex left, GridXIndex right) {
+        return left._value == right._value;
+      }
+      friend bool operator!=(GridXIndex left, GridXIndex right) {
+        return left._value != right._value;
+      }
+      friend bool operator<(GridXIndex left, GridXIndex right) {
+        return left._value < right._value;
+      }
+  };
+  
+  class GridYIndex : public GridIndex {
+    public:
+      GridYIndex() = default;
+      explicit GridYIndex(int primary_value) : GridIndex(primary_value) {}
+      
+      friend bool operator==(GridYIndex left, GridYIndex right) {
+        return left._value == right._value;
+      }
+      friend bool operator!=(GridYIndex left, GridYIndex right) {
+        return left._value != right._value;
+      }
+      friend bool operator<(GridYIndex left, GridYIndex right) {
+        return left._value < right._value;
+      }
+  };
+  
+  template<typename T>
+  struct GridAxisRange {
+    T start;
+    T end;
+    
+    GridAxisRange(T a, T b) : start(a < b ? a : b), end(a < b ? b : a) {}
+    
+    int primary_length() { return end.primary_value() - start.primary_value() + 1; }
+  };
+  using GridXRange = GridAxisRange<GridXIndex>;
+  using GridYRange = GridAxisRange<GridYIndex>;
+  
+  struct GridIndexRect {
+    GridYRange y;
+    GridXRange x;
+    
+    int rows() { return y.primary_length(); }
+    int cols() { return x.primary_length(); }
+    
+    static GridIndexRect FromYX(const GridYRange &y, const GridXRange &x) {
+      return GridIndexRect{y, x};
+    }
+    
+  private:
+    GridIndexRect(const GridYRange &_y, const GridXRange &_x) : y(_y), x(_x) {}
+  };
+  
   class GridItem: public OwnerBox {
       friend class GridBoxImpl;
       friend class GridBox;
@@ -52,20 +123,35 @@ namespace richmath {
       // Box::try_create<GridBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      const Matrix<GridItem*> &matrix() { return items; }
       const Array<float> &xpos_array() { need_pos_vectors(); return xpos; }
       const Array<float> &ypos_array() { need_pos_vectors(); return ypos; }
       
       virtual Box *item(int i) override { return items[i]; }
       virtual int count() override { return items.length(); }
       GridItem *item(int row, int col) { return items.get(row, col); }
+      GridItem *item(GridYIndex row, GridXIndex col) { return item(row.primary_value(), col.primary_value()); }
+      
+      int yx_to_index(GridYIndex y, GridXIndex x) {
+        return items.yx_to_index(y.primary_value(), x.primary_value());
+      }
+      void index_to_yx(int index, GridYIndex *y, GridXIndex *x) {
+        int y_primary;
+        int x_primary;
+        items.index_to_yx(index, &y_primary, &x_primary);
+        *y = GridYIndex{y_primary};
+        *x = GridXIndex{x_primary};
+      }
       
       int rows() { return items.rows(); }
       int cols() { return items.cols(); }
       
+      void insert_rows(GridYIndex yindex, int count) { insert_rows(yindex.primary_value(), count); }
+      void insert_cols(GridXIndex xindex, int count) { insert_cols(xindex.primary_value(), count); }
       void insert_rows(int yindex, int count);
       void insert_cols(int xindex, int count);
       
+      void remove_rows(GridYIndex yindex, int count) { remove_rows(yindex.primary_value(), count); }
+      void remove_cols(GridXIndex xindex, int count) { remove_cols(xindex.primary_value(), count); }
       void remove_rows(int yindex, int count);
       void remove_cols(int xindex, int count);
       
@@ -96,7 +182,8 @@ namespace richmath {
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix) override;
-        
+      
+      GridIndexRect get_enclosing_range(int start, int end);
       virtual Box *normalize_selection(int *start, int *end) override;
       
     protected:
@@ -105,6 +192,7 @@ namespace richmath {
       
     private:
       void need_pos_vectors();
+      void ensure_valid_boxes();
       
     private:
       Matrix<GridItem*> items;
