@@ -320,8 +320,14 @@ namespace {
         if(source.id != source_location.id)
           return;
         
-        if(destination)
-          return;
+        if(destination) {
+          Box *tmp = box->parent();
+          while(tmp && tmp->id() != destination.id)
+            tmp = tmp->parent();
+            
+          if(!tmp)
+            return;
+        }
         
         if(source_location.index < source.start || source.end < source_location.index)
           return;
@@ -626,7 +632,6 @@ static bool begin_edit_section(
     edit->style = new Style;
   edit->style->set(SectionGroupPrecedence, section->get_style(SectionGroupPrecedence));
   edit->swap_id(section);
-  edit->original = parent->swap(index, edit);
   
   Expr obj(section->to_pmath(BoxOutputFlags::WithDebugInfo));
   
@@ -645,6 +650,8 @@ static bool begin_edit_section(
   
   mask_box_chars(pt.output);
   edit->content()->insert(0, pt.output);
+  
+  edit->original = parent->swap(index, edit);
   
   for(const auto &sel : pt.selections) {
     if(sel.output_pos >= 0)
@@ -674,19 +681,18 @@ static bool finish_edit_section(
   
   bt.selections.add(old_locations.length(), old_locations.items());
   
-  Section *sect = nullptr;
   bt.for_new_boxes_in([&] {
-    sect = edit->original;
+    Section *sect = edit->original;
     if(sect && sect->try_load_from_object(parsed, BoxInputFlags::Default)) {
       edit->original = nullptr;
     }
     else
       sect = Section::create_from_object(parsed);
+      
+    sect->swap_id(edit);
+    parent->swap(index, sect)->safe_destroy();
   });
   
-  sect->swap_id(edit);
-  
-  parent->swap(index, sect)->safe_destroy();
   
   for(const auto &sel : bt.selections) {
     if(sel.destination)

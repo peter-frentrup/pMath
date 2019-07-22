@@ -13,6 +13,8 @@ namespace richmath {
     public:
       TemplateBox();
       
+      virtual void after_insertion() override;
+      
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual bool selectable(int i = -1) override;
@@ -66,6 +68,8 @@ namespace richmath {
       
     public:
       TemplateBoxSlot();
+      
+      virtual void after_insertion() override;
       
       TemplateBox *find_owner();
       int argument() { return _argument; }

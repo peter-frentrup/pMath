@@ -369,8 +369,21 @@ void TemplateBox::paint_content(Context *context) {
   if(!_is_content_loaded || dispfun != _cached_display_function) {
     TemplateBoxImpl(*this).load_content(dispfun);
     _is_content_loaded = true;
+    if(find_parent<Document>(false))
+      base::after_insertion();
+      
     invalidate();
   }
+}
+
+void TemplateBox::after_insertion() {
+  Expr dispfun = get_own_style(DisplayFunction);
+  if(!_is_content_loaded || dispfun != _cached_display_function) {
+    TemplateBoxImpl(*this).load_content(dispfun);
+    _is_content_loaded = true;
+  }
+  
+  base::after_insertion();
 }
 
 Expr TemplateBox::to_pmath_symbol() {
@@ -619,7 +632,16 @@ void TemplateBoxSlot::paint_content(Context *context) {
   if(!_is_content_loaded) {
     invalidate();
     TemplateBoxSlotImpl(*this).reload_content();
+    if(find_parent<Document>(false))
+      base::after_insertion();
   }
+}
+
+void TemplateBoxSlot::after_insertion() {
+  if(!_is_content_loaded) 
+    TemplateBoxSlotImpl(*this).reload_content();
+  
+  base::after_insertion();
 }
 
 void TemplateBoxSlot::on_exit() {
