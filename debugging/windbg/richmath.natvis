@@ -123,6 +123,25 @@
 	<Type Name="richmath::FrontEndReference">
 		<DisplayString>{_id}</DisplayString>
 		<Expand HideRawView="true">
+			<CustomListItems Condition="_id != 0" MaxItemsPerView="1">
+				<Variable Name="pBucket" InitialValue="richmath.exe!TheCache.table.table" />
+				<Variable Name="pBucketEnd" InitialValue="richmath.exe!TheCache.table.table + richmath.exe!TheCache.table.capacity" />
+				
+				<Size>1</Size>
+				<Loop>
+					<If Condition="((uintptr_t)*pBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*pBucket) + (uintptr_t)1 != (uintptr_t)0)">
+						<If Condition="pBucket[0][0].key._id == _id">
+							<Item Name="found">pBucket[0][0].value</Item>
+							<Break/>
+						</If>
+					</If>
+					<If Condition="pBucket == pBucketEnd">
+						<Item Name="not found">(void*)0</Item>
+						<Break/>
+					</If>
+					<Exec>pBucket = pBucket + 1</Exec>  
+				</Loop>  
+			</CustomListItems>
 		</Expand>
 	</Type>
 </AutoVisualizer>
