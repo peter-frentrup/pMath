@@ -330,7 +330,7 @@ namespace {
           track_math_sequence(seq, source, std::move(expr));
         }
         else if(auto seq = dynamic_cast<TextSequence*>(box)) {
-          // ...
+          track_text_sequence(seq, source, std::move(expr));
         }
         else if(auto num = dynamic_cast<NumberBox*>(box)) {
           if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
@@ -423,19 +423,7 @@ namespace {
                   int o_pos = se->start();
                   int o_pos_max = se->end();
                   while(o_pos <= o_pos_max && in_pos < source_location.index) {
-                    int in_next = in_pos;
-                    if(buf[in_next] == '\\' && in_next + 1 < source.end) {
-                      ++in_next;
-                      if(buf[in_next] == '[') {
-                        while(in_next < source.end && buf[in_next - 1] != ']') {
-                          ++in_next;
-                        }
-                      }
-                      else
-                        ++in_next;
-                    }
-                    else
-                      ++in_next;
+                    int in_next = next_char_pos(buf, in_pos, source.end);
                     
                     if(source_location.index < in_next) {
                       destination.set(se->sequence(), o_pos, o_pos + 1);
@@ -457,7 +445,60 @@ namespace {
         
         destination.set(se->sequence(), se->start(), se->end() + 1);
       }
-    
+      
+      static int next_char_pos(const uint16_t *buf, int pos, int end) {
+        if(buf[pos] == '\\' && pos + 1 < end) {
+          ++pos;
+          if(buf[pos] == '[') {
+            while(pos < end && buf[pos - 1] != ']') {
+              ++pos;
+            }
+          }
+          else
+            ++pos;
+        }
+        else
+          ++pos;
+        
+        return pos;
+      }
+      
+      void track_text_sequence(TextSequence *seq, const SelectionReference &source, Expr expr) {
+        if(expr.is_string()) {
+          if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
+            if(0 <= source.start && source.start <= source.end && source.end <= source_seq->length()) {
+              const uint16_t *buf = source_seq->text().buffer();
+              
+              if(source.end - source.start >= 2 && buf[source.start] == '"' && buf[source.end-1] == '"') {
+                const char *o_buf = seq->text_buffer().buffer();
+                
+                int in_pos = source.start + 1;
+                int o_pos = 0;
+                int o_pos_max = seq->length();
+                while(o_pos <= o_pos_max && in_pos < source_location.index) {
+                  int in_next = next_char_pos(buf, in_pos, source.end);
+                  
+                  if(source_location.index < in_next) {
+                    destination.set(seq, o_pos, o_pos + 1);
+                    return;
+                  }
+                
+                  in_pos = in_next;
+                  ++o_pos;
+                  while(o_pos < o_pos_max && ((unsigned char)o_buf[o_pos] & 0xC0) == 0x80)
+                    ++o_pos;
+                }
+                
+                destination.set(seq, o_pos, o_pos);
+                return;
+              }
+            }
+          }
+        }
+        
+        destination.set(seq, 0, seq->length());
+      }
+      
     public:
       LocationReference source_location;
       
