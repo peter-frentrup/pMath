@@ -6,6 +6,7 @@
 #include <eval/job.h>
 #include <eval/observable.h>
 #include <graphics/context.h>
+#include <gui/document.h>
 
 #include <cstdio>
 
@@ -144,6 +145,9 @@ void DynamicBox::dynamic_finished(Expr info, Expr result) {
     opt |= BoxInputFlags::FormatNumbers;
     
   content()->load_from_object(result, opt);
+  if(find_parent<Document>(false))
+    content()->after_insertion();
+  
   must_resize = true;
   invalidate();
 }

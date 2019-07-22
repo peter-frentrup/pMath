@@ -101,6 +101,11 @@ Box::~Box() {
   Application::deactivated_control(this);
 }
 
+void Box::after_insertion() {
+  for(int i = 0; i < count(); ++i)
+    item(i)->after_insertion();
+}
+
 void Box::safe_destroy() {
   if(AutoMemorySuspension::are_deletions_suspended()) {
     _index = 0;

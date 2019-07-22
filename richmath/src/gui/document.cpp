@@ -2345,6 +2345,8 @@ void Document::paste_from_boxes(Expr boxes) {
     move_to(sel, sel->length());
     
     grid->invalidate();
+    // TODO: only call on new grid items.
+    grid->after_insertion();
     return;
   }
   
@@ -2358,6 +2360,7 @@ void Document::paste_from_boxes(Expr boxes) {
       return;
       
     //select(graphics->parent(), graphics->index(), graphics->index() + 1);
+    graphics->after_insertion();
   }
   
   remove_selection(false);
@@ -2375,6 +2378,9 @@ void Document::paste_from_boxes(Expr boxes) {
       int newpos = context.selection.end + tmp->length();
       seq->insert(context.selection.end, tmp);
       
+      // TODO: only call on new seq items 
+      seq->after_insertion();
+      
       select(seq, newpos, newpos);
       
       return;
@@ -2391,6 +2397,9 @@ void Document::paste_from_boxes(Expr boxes) {
       
       int newpos = context.selection.end + tmp->length();
       seq->insert(context.selection.end, tmp);
+      
+      // TODO: only call on new seq items 
+      seq->after_insertion();
       
       select(seq, newpos, newpos);
       
@@ -3188,6 +3197,10 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
       move_to(seq, context.selection.start + len);
     }
     
+    // TODO: only call after_insertion() on the relevent sub-items of seq.
+    // Note that box may be destroyed already and its previous contents in now in seq.
+    seq->after_insertion();
+    
     return;
   }
   
@@ -3220,8 +3233,10 @@ void Document::insert_fraction() {
   if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
     auto num = new MathSequence;
     auto den = new MathSequence;
+    auto frac = new FractionBox(num, den);
     
-    seq->insert(context.selection.end, new FractionBox(num, den));
+    seq->insert(context.selection.end, frac);
+    frac->after_insertion();
     
     den->insert(0, PMATH_CHAR_PLACEHOLDER);
     if(context.selection.start < context.selection.end) {
@@ -4619,6 +4634,7 @@ bool DocumentImpl::prepare_insert() {
       
     self.native()->on_editing();
     self.insert(self.context.selection.start, sect);
+    sect->after_insertion();
     self.move_horizontal(LogicalDirection::Forward, false);
     
     return true;

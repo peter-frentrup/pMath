@@ -619,6 +619,8 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       
       ++*pos;
       ++overwrite_until_index;
+      
+      section->after_insertion();
     }
     
     internal_remove(*pos, overwrite_until_index);
@@ -656,6 +658,8 @@ void SectionList::insert(int pos, Section *section) {
   update_group_nesting();
   set_open_close_group(pos, true);
   invalidate();
+  
+  section->after_insertion();
 }
 
 Section *SectionList::swap(int pos, Section *section) {
@@ -672,6 +676,8 @@ Section *SectionList::swap(int pos, Section *section) {
   update_group_nesting();
   set_open_close_group(pos, true);
   invalidate();
+  
+  section->after_insertion();
   return old;
 }
 

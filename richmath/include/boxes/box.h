@@ -175,6 +175,8 @@ namespace richmath {
       Box();
       virtual ~Box();
       
+      virtual void after_insertion();
+      
       /// Mark the box for deletion.
       ///
       /// You should normally use this function instead of delete.
