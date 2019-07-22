@@ -404,10 +404,10 @@ bool Box::request_repaint_range(int start, int end) {
 }
 
 bool Box::request_repaint(float x, float y, float w, float h) {
-  if( x     > _extents.width   ||
-      x + w < 0                ||
-      y     > _extents.descent ||
-      y + h < -_extents.ascent)
+  if( x     > _extents.width + 0.01   ||
+      x + w < -0.01                   ||
+      y     > _extents.descent + 0.01 ||
+      y + h < -_extents.ascent - 0.01)
   {
     return false;
   }
