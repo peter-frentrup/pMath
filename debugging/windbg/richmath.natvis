@@ -121,9 +121,8 @@
 	</Type>
 
 	<Type Name="richmath::FrontEndReference">
-		<DisplayString>{(richmath::FrontEndObject*)_id}</DisplayString>
-		<Expand>
-			<ExpandedItem Condition="_id != 0">(richmath::FrontEndObject*)_id</ExpandedItem>
+		<DisplayString>{_id}</DisplayString>
+		<Expand HideRawView="true">
 		</Expand>
 	</Type>
 </AutoVisualizer>
