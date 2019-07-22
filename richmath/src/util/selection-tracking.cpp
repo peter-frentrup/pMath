@@ -327,36 +327,7 @@ namespace {
           return;
         
         if(auto seq = dynamic_cast<MathSequence*>(box)) {
-          int len = seq->length();
-          if(len == 0) {
-            destination.set(seq, 0, 0);
-            return;
-          }
-          
-          SpanExpr *se = new SpanExpr(0, seq->span_array()[0], seq);
-          if(se->end() + 1 != len) {
-            if(expr.is_expr() && expr[0] == PMATH_NULL) {
-              for(size_t i = 1; ;++i) {
-                Expr item = expr[i];
-                SelectionReference item_source = SelectionReference::from_debug_info_of(item);
-                if(source_location.index <= item_source.end && item_source.id == source_location.id) {
-                  visit_span(se, item_source, item);
-                  delete se;
-                  return;
-                }
-                
-                int pos = se->end() + 1;
-                if(pos < len) {
-                  delete se;
-                  se = new SpanExpr(pos, seq->span_array()[pos], seq);
-                }
-                else
-                  break;
-              }
-            }
-          }
-          visit_span(se, source, expr);
-          delete se;
+          track_math_sequence(seq, source, std::move(expr));
         }
         else if(auto seq = dynamic_cast<TextSequence*>(box)) {
           // ...
@@ -378,6 +349,39 @@ namespace {
       }
     
     private:
+      void track_math_sequence(MathSequence *seq, const SelectionReference &source, Expr expr) {
+        int len = seq->length();
+        if(len == 0) {
+          destination.set(seq, 0, 0);
+          return;
+        }
+        
+        SpanExpr *se = new SpanExpr(0, seq->span_array()[0], seq);
+        if(se->end() + 1 != len) {
+          if(expr.is_expr() && expr[0] == PMATH_NULL) {
+            for(size_t i = 1; ;++i) {
+              Expr item = expr[i];
+              SelectionReference item_source = SelectionReference::from_debug_info_of(item);
+              if(source_location.index <= item_source.end && item_source.id == source_location.id) {
+                visit_span(se, item_source, item);
+                delete se;
+                return;
+              }
+              
+              int pos = se->end() + 1;
+              if(pos < len) {
+                delete se;
+                se = new SpanExpr(pos, seq->span_array()[pos], seq);
+              }
+              else
+                break;
+            }
+          }
+        }
+        visit_span(se, source, std::move(expr));
+        delete se;
+      }
+      
       void visit_span(SpanExpr *se, const SelectionReference &source, Expr expr) {
         if(source_location.index <= source.start) {
           destination.set(se->sequence(), se->start(), se->start());
@@ -408,6 +412,8 @@ namespace {
         
         if(count == 0 && expr.is_string()) {
           if(se->as_text() == expr) {
+            const uint16_t *se_buf = se->sequence()->text().buffer();
+            
             if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
               if(0 <= source.start && source.start <= source.end && source.end <= source_seq->length()) {
                 const uint16_t *buf = source_seq->text().buffer();
@@ -421,8 +427,9 @@ namespace {
                     if(buf[in_next] == '\\' && in_next + 1 < source.end) {
                       ++in_next;
                       if(buf[in_next] == '[') {
-                        while(in_next < source.end && buf[in_next] != ']')
+                        while(in_next < source.end && buf[in_next - 1] != ']') {
                           ++in_next;
+                        }
                       }
                       else
                         ++in_next;
@@ -436,6 +443,8 @@ namespace {
                     }
                     in_pos = in_next;
                     ++o_pos;
+                    if(o_pos < o_pos_max && is_utf16_high(se_buf[o_pos-1]) && is_utf16_low(se_buf[o_pos]))
+                      ++o_pos;
                   }
                   
                   destination.set(se->sequence(), o_pos, o_pos);
