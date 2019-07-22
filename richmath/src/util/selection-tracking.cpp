@@ -463,40 +463,85 @@ namespace {
         return pos;
       }
       
+      static bool is_utf8_continuation(char c) {
+        return ((unsigned char)c & 0xC0) == 0x80;
+      }
+      
       void track_text_sequence(TextSequence *seq, const SelectionReference &source, Expr expr) {
         if(expr.is_string()) {
-          if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
-            if(0 <= source.start && source.start <= source.end && source.end <= source_seq->length()) {
-              const uint16_t *buf = source_seq->text().buffer();
-              
-              if(source.end - source.start >= 2 && buf[source.start] == '"' && buf[source.end-1] == '"') {
-                const char *o_buf = seq->text_buffer().buffer();
-                
-                int in_pos = source.start + 1;
-                int o_pos = 0;
-                int o_pos_max = seq->length();
-                while(o_pos <= o_pos_max && in_pos < source_location.index) {
-                  int in_next = next_char_pos(buf, in_pos, source.end);
-                  
-                  if(source_location.index < in_next) {
-                    destination.set(seq, o_pos, o_pos + 1);
-                    return;
-                  }
-                
-                  in_pos = in_next;
-                  ++o_pos;
-                  while(o_pos < o_pos_max && ((unsigned char)o_buf[o_pos] & 0xC0) == 0x80)
-                    ++o_pos;
-                }
-                
-                destination.set(seq, o_pos, o_pos);
-                return;
+          visit_text_span(seq, 0, seq->length(), source, std::move(expr));
+          return;
+        }
+        
+        if(expr[0] == PMATH_SYMBOL_LIST) {
+          const char *o_buf = seq->text_buffer().buffer();
+          int o_pos = 0;
+          int o_len = seq->length();
+          int boxi = 0;
+          
+          for(auto item: expr.items()) {
+            if(o_pos >= o_len)
+              break;
+            
+            SelectionReference item_source = SelectionReference::from_debug_info_of(item);
+
+            int o_next = o_pos + 1;
+            if(boxi < seq->count()) {
+              if(boxi < seq->count() && seq->item(boxi)->index() == o_pos) {
+                ++boxi;
+                while(o_next < o_len && is_utf8_continuation(o_buf[o_next]))
+                  ++o_next;
               }
+              else
+                o_next = seq->item(boxi)->index();
             }
+            else
+              o_next = o_len;
+            
+            if(source_location.index <= item_source.end && item_source.id == source_location.id) {
+              visit_text_span(seq, o_pos, o_next, item_source, std::move(item));
+              return;
+            }
+            
+            o_pos = o_next;
           }
         }
         
         destination.set(seq, 0, seq->length());
+      }
+      
+      void visit_text_span(TextSequence *seq, int start, int end, const SelectionReference &source, Expr expr) {
+        if(auto source_seq = FrontEndObject::find_cast<MathSequence>(source.id)) {
+          if(0 <= source.start && source.start <= source.end && source.end <= source_seq->length()) {
+            const uint16_t *buf = source_seq->text().buffer();
+            
+            if(source.end - source.start >= 2 && buf[source.start] == '"' && buf[source.end-1] == '"') {
+              const char *o_buf = seq->text_buffer().buffer();
+              
+              int in_pos = source.start + 1;
+              int o_pos = start;
+              int o_pos_max = end;
+              while(o_pos <= o_pos_max && in_pos < source_location.index) {
+                int in_next = next_char_pos(buf, in_pos, source.end);
+                
+                if(source_location.index < in_next) {
+                  destination.set(seq, o_pos, o_pos + 1);
+                  return;
+                }
+              
+                in_pos = in_next;
+                ++o_pos;
+                while(o_pos < o_pos_max && is_utf8_continuation(o_buf[o_pos]))
+                  ++o_pos;
+              }
+              
+              destination.set(seq, o_pos, o_pos);
+              return;
+            }
+          }
+        }
+        
+        destination.set(seq, start, end);
       }
       
     public:
