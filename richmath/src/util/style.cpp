@@ -92,148 +92,6 @@ extern pmath_symbol_t richmath_System_WindowTitle;
 
 using namespace richmath;
 
-double round_factor(double x, double f) {
-  x = floor(x * f + 0.5);
-  x = x / f;
-  return x;
-}
-
-double round_to_prec(double x, int p) {
-  double y = 0.0;
-  double f = 1.0;
-  
-  for(int dmax = 10; dmax > 0; --dmax) {
-    y = round_factor(x, f);
-    if(fabs(y * p - x * p) < 0.5)
-      return y;
-    f *= 10;
-  }
-  
-  return y;
-}
-
-Expr richmath::color_to_pmath(int color) {
-  if(color < 0)
-    return Symbol(PMATH_SYMBOL_NONE);
-    
-  int r = (color & 0xFF0000) >> 16;
-  int g = (color & 0x00FF00) >>  8;
-  int b =  color & 0x0000FF;
-  
-  if(r == g && r == b) {
-    return Call(
-             Symbol(PMATH_SYMBOL_GRAYLEVEL),
-             Number(round_to_prec(r / 255.0, 255)));
-  }
-  
-  return Call(
-           Symbol(PMATH_SYMBOL_RGBCOLOR),
-           Number(round_to_prec(r / 255.0, 255)),
-           Number(round_to_prec(g / 255.0, 255)),
-           Number(round_to_prec(b / 255.0, 255)));
-}
-
-int richmath::pmath_to_color(Expr obj) {
-  if(obj == PMATH_SYMBOL_NONE)
-    return -1;
-    
-  if(obj.is_expr()) {
-    if(obj[0] == PMATH_SYMBOL_RGBCOLOR) {
-      if( obj.expr_length() == 1 &&
-          obj[1][0] == PMATH_SYMBOL_LIST)
-      {
-        obj = obj[1];
-      }
-      
-      if( obj.expr_length() == 3 &&
-          obj[1].is_number() &&
-          obj[2].is_number() &&
-          obj[3].is_number())
-      {
-        double r = obj[1].to_double();
-        double g = obj[2].to_double();
-        double b = obj[3].to_double();
-        
-        if(r < 0) r = 0.0;
-        else if(!(r <= 1)) r = 1.0;
-        if(g < 0) g = 0.0;
-        else if(!(g <= 1)) g = 1.0;
-        if(b < 0) b = 0.0;
-        else if(!(b <= 1)) b = 1.0;
-        
-        return ((int)(r * 255 + 0.5) << 16) | ((int)(g * 255 + 0.5) << 8) | (int)(b * 255 + 0.5);
-      }
-    }
-    
-    if(obj[0] == PMATH_SYMBOL_HUE) {
-      if( obj.expr_length() == 1 &&
-          obj[1][0] == PMATH_SYMBOL_LIST)
-      {
-        obj = obj[1];
-      }
-      
-      if(obj.expr_length() >= 1 && obj.expr_length() <= 3) {
-        for(auto item : obj.items())
-          if(!item.is_number())
-            return -1;
-            
-        double h, s = 1, v = 1;
-        
-        h = obj[1].to_double();
-        h = fmod(h, 1.0);
-        if(h < 0)
-          h += 1.0;
-          
-        if(!(h >= 0 && h <= 1))
-          return -1;
-          
-        if(obj.expr_length() >= 2) {
-          s = obj[2].to_double();
-          if(s < 0) s = 0;
-          else if(!(s <= 1)) s = 1;
-          
-          if(obj.expr_length() >= 3) {
-            v = obj[3].to_double();
-            v = fmod(v, 1.0);
-            if(v < 0) v = 0;
-            else if(!(v <= 1)) v = 1;
-          }
-        }
-        
-        h *= 360;
-        int hi = (int)(h / 60);
-        double f = h / 60 - hi;
-        double p = v * (1 - s);
-        double q = v * (1 - s * f);
-        double t = v * (1 - s * (1 - f));
-        
-        switch(hi) {
-          case 0:
-          case 6: return ((int)(v * 255 + 0.5) << 16) | ((int)(t * 255 + 0.5) << 8) | (int)(p * 255 + 0.5);
-          case 1: return ((int)(q * 255 + 0.5) << 16) | ((int)(v * 255 + 0.5) << 8) | (int)(p * 255 + 0.5);
-          case 2: return ((int)(p * 255 + 0.5) << 16) | ((int)(v * 255 + 0.5) << 8) | (int)(t * 255 + 0.5);
-          case 3: return ((int)(p * 255 + 0.5) << 16) | ((int)(q * 255 + 0.5) << 8) | (int)(v * 255 + 0.5);
-          case 4: return ((int)(t * 255 + 0.5) << 16) | ((int)(p * 255 + 0.5) << 8) | (int)(v * 255 + 0.5);
-          case 5: return ((int)(v * 255 + 0.5) << 16) | ((int)(p * 255 + 0.5) << 8) | (int)(q * 255 + 0.5);
-        }
-      }
-    }
-    
-    if( obj[0] == PMATH_SYMBOL_GRAYLEVEL &&
-        obj.expr_length() == 1 &&
-        obj[1].is_number())
-    {
-      double l = obj[1].to_double();
-      if(l < 0) l = 0;
-      else if(!(l <= 1)) l = 1;
-      
-      return ((int)(l * 255 + 0.5) << 16) | ((int)(l * 255 + 0.5) << 8) | (int)(l * 255 + 0.5);
-    }
-  }
-  
-  return -2;
-}
-
 bool richmath::get_factor_of_scaled(Expr expr, double *value) {
   assert(value != nullptr);
   
@@ -1029,10 +887,10 @@ bool StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
   if(n.is_literal())
     any_change = remove_dynamic(n);
     
-  int c = pmath_to_color(obj);
+  Color c = Color::from_pmath(obj);
   
-  if(c >= -1)
-    return raw_set_int(n, c) || any_change;
+  if(c.is_valid() || c.is_none())
+    return raw_set_int(n, c.encode()) || any_change;
   
   if(obj == PMATH_SYMBOL_INHERITED)
     return raw_remove_int(n) || any_change;
@@ -1662,7 +1520,7 @@ Expr StyleImpl::raw_get_pmath_color(StyleOptionName n, Expr inherited) const {
   
   int i;
   if(raw_get_int(n, &i))
-    return color_to_pmath(i);
+    return Color::decode(i).to_pmath();
     
   return inherited;
 }

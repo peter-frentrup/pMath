@@ -9,9 +9,6 @@
 namespace richmath {
   class Box;
   
-  Expr color_to_pmath(int color);
-  int pmath_to_color(Expr obj); // -2 on error, -1=None
-  
   bool get_factor_of_scaled(Expr expr, double *value);
   
   enum class DefaultStyleOptionOffsets {
