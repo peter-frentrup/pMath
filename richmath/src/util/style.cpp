@@ -541,23 +541,27 @@ namespace richmath {
       static StyleImpl of(Style &_self);
       static const StyleImpl of(const Style &_self);
       
-      static bool is_for_int(   StyleOptionName n) { return ((int)n & 0x30000) == 0x00000; }
-      static bool is_for_float( StyleOptionName n) { return ((int)n & 0x30000) == 0x10000; }
-      static bool is_for_string(StyleOptionName n) { return ((int)n & 0x30000) == 0x20000; }
-      static bool is_for_expr(  StyleOptionName n) { return ((int)n & 0x30000) == 0x30000; }
+      static bool is_for_color( StyleOptionName n) { return ((int)n & 0x70000) == 0x00000; }
+      static bool is_for_int(   StyleOptionName n) { return ((int)n & 0x70000) == 0x10000; }
+      static bool is_for_float( StyleOptionName n) { return ((int)n & 0x70000) == 0x20000; }
+      static bool is_for_string(StyleOptionName n) { return ((int)n & 0x70000) == 0x30000; }
+      static bool is_for_expr(  StyleOptionName n) { return ((int)n & 0x70000) == 0x40000; }
       
     public:
-      bool raw_get_int(   StyleOptionName n, int *value) const;
-      bool raw_get_float( StyleOptionName n, float *value) const;
+      bool raw_get_color( StyleOptionName n, Color  *value) const;
+      bool raw_get_int(   StyleOptionName n, int    *value) const;
+      bool raw_get_float( StyleOptionName n, float  *value) const;
       bool raw_get_string(StyleOptionName n, String *value) const;
-      bool raw_get_expr(  StyleOptionName n, Expr *value) const;
+      bool raw_get_expr(  StyleOptionName n, Expr   *value) const;
       
+      bool raw_set_color( StyleOptionName n, Color value);
       bool raw_set_int(   StyleOptionName n, int value);
       bool raw_set_float( StyleOptionName n, float value);
       bool raw_set_string(StyleOptionName n, String value);
       bool raw_set_expr(  StyleOptionName n, Expr value);
       
       bool raw_remove(StyleOptionName n);
+      bool raw_remove_color( StyleOptionName n);
       bool raw_remove_int(   StyleOptionName n);
       bool raw_remove_float( StyleOptionName n);
       bool raw_remove_string(StyleOptionName n);
@@ -629,6 +633,16 @@ const StyleImpl StyleImpl::of(const Style &_self) {
   return StyleImpl(const_cast<Style&>(_self));
 }
 
+bool StyleImpl::raw_get_color(StyleOptionName n, Color *value) const {
+  const IntFloatUnion *v = self.int_float_values.search(n);
+  
+  if(!v)
+    return false;
+    
+  *value = Color::decode(v->int_value);
+  return true;
+}
+
 bool StyleImpl::raw_get_int(StyleOptionName n, int *value) const {
   const IntFloatUnion *v = self.int_float_values.search(n);
   
@@ -669,6 +683,12 @@ bool StyleImpl::raw_get_expr(StyleOptionName n, Expr *value) const {
   return true;
 }
 
+bool StyleImpl::raw_set_color(StyleOptionName n, Color value) {
+  IntFloatUnion v;
+  v.int_value = value.encode();
+  return self.int_float_values.modify(n, v, [](IntFloatUnion v1, IntFloatUnion v2) { return v1.int_value == v2.int_value; });
+}
+
 bool StyleImpl::raw_set_int(StyleOptionName n, int value) {
   IntFloatUnion v;
   v.int_value = value;
@@ -694,6 +714,13 @@ bool StyleImpl::raw_remove(StyleOptionName n) {
   any_change = self.int_float_values.remove(n) || any_change;
   any_change = self.object_values.remove(n)    || any_change;
   return any_change;
+}
+
+bool StyleImpl::raw_remove_color(StyleOptionName n) {
+  STYLE_ASSERT(!n.is_dynamic());
+  STYLE_ASSERT(is_for_color(n));
+  
+  return self.int_float_values.remove(n);
 }
 
 bool StyleImpl::raw_remove_int(StyleOptionName n) {
@@ -881,7 +908,7 @@ bool StyleImpl::set_pmath_bool(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_int(n));
+  STYLE_ASSERT(is_for_color(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -890,10 +917,10 @@ bool StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
   Color c = Color::from_pmath(obj);
   
   if(c.is_valid() || c.is_none())
-    return raw_set_int(n, c.encode()) || any_change;
+    return raw_set_color(n, c) || any_change;
   
   if(obj == PMATH_SYMBOL_INHERITED)
-    return raw_remove_int(n) || any_change;
+    return raw_remove_color(n) || any_change;
     
   if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
@@ -1823,6 +1850,15 @@ Expr Style::merge_style_values(StyleOptionName n, Expr newer, Expr older) {
   return StyleImpl::merge_style_values(n, std::move(newer), std::move(older));
 }
 
+bool Style::get(ColorStyleOptionName n, Color *value) const {
+  register_observer();
+  if(StyleImpl::of(*this).raw_get_color(n, value)) 
+    return true;
+  if(StyleImpl::of(*this).raw_get_color(StyleOptionName(n).to_volatile(), value))
+    return true;
+  return false;
+}
+
 bool Style::get(IntStyleOptionName n, int *value) const {
   register_observer();
   if(StyleImpl::of(*this).raw_get_int(n, value))
@@ -1857,6 +1893,18 @@ bool Style::get(ObjectStyleOptionName n, Expr *value) const {
   if(StyleImpl::of(*this).raw_get_expr(StyleOptionName(n).to_volatile(), value))
     return true;
   return false;
+}
+
+void Style::set(ColorStyleOptionName n, Color value) {
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
+  
+  bool any_change = false;
+  any_change = StyleImpl::of(*this).raw_set_color(key, value) || any_change;
+  any_change = StyleImpl::of(*this).remove_dynamic(key)       || any_change;
+  
+  if(any_change)
+    notify_all();
 }
 
 void Style::set(IntStyleOptionName n, int value) {
@@ -1905,6 +1953,18 @@ void Style::set(ObjectStyleOptionName n, Expr value) {
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_set_expr(n, value) || any_change;
   any_change = StyleImpl::of(*this).remove_dynamic(key)    || any_change;
+  
+  if(any_change)
+    notify_all();
+}
+
+void Style::remove(ColorStyleOptionName n) {
+  StyleOptionName key{n};
+  STYLE_ASSERT(key.is_literal());
+  
+  bool any_change = false;
+  any_change = StyleImpl::of(*this).raw_remove_color(key)               || any_change;
+  any_change = StyleImpl::of(*this).raw_remove_color(key.to_volatile()) || any_change;
   
   if(any_change)
     notify_all();
@@ -2484,6 +2544,10 @@ static bool Stylesheet_get(Stylesheet *self, SharedPtr<Style> s, N n, T *value) 
   return false;
 }
 
+bool Stylesheet::get(SharedPtr<Style> s, ColorStyleOptionName n, Color *value) {
+  return Stylesheet_get(this, s, n, value);
+}
+
 bool Stylesheet::get(SharedPtr<Style> s, IntStyleOptionName n, int *value) {
   return Stylesheet_get(this, s, n, value);
 }
@@ -2516,6 +2580,15 @@ Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
 
 bool Stylesheet::update_dynamic(SharedPtr<Style> s, Box *parent) {
   return StylesheetImpl(*this).update_dynamic(s, parent);
+}
+
+Color Stylesheet::get_with_base(SharedPtr<Style> s, ColorStyleOptionName n) {
+  Color value = Color::None;
+  
+  if(!get(s, n, &value))
+    base->get(n, &value);
+    
+  return value;
 }
 
 int Stylesheet::get_with_base(SharedPtr<Style> s, IntStyleOptionName n) {

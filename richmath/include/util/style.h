@@ -2,6 +2,7 @@
 #define RICHMATH__UTIL__STYLE_H__INCLUDED
 
 #include <eval/observable.h>
+#include <graphics/color.h>
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
@@ -22,12 +23,14 @@ namespace richmath {
     AutoBoolAutomatic = 2
   };
   
-  enum IntStyleOptionName {
+  enum ColorStyleOptionName {
     Background = 0x00000,
     FontColor,
-    SectionFrameColor,
-    
-    Antialiasing, // AutoBoolXXX
+    SectionFrameColor
+  };
+  
+  enum IntStyleOptionName {
+    Antialiasing = 0x10000, // AutoBoolXXX
     
     FontSlant,
     FontWeight,
@@ -76,7 +79,7 @@ namespace richmath {
   static const float ImageSizeAutomatic = -1.0f;
   
   enum FloatStyleOptionName {
-    FontSize = 0x10000, // greater than any IntStyleOptionName value
+    FontSize = 0x20000, // greater than any IntStyleOptionName value
     
     AspectRatio,
     Magnification,
@@ -107,7 +110,7 @@ namespace richmath {
   };
   
   enum StringStyleOptionName {
-    BaseStyleName = 0x20000, // greater than any FloatStyleOptionName value
+    BaseStyleName = 0x30000, // greater than any FloatStyleOptionName value
     Method,
     
     LanguageCategory,
@@ -117,7 +120,7 @@ namespace richmath {
   };
   
   enum ObjectStyleOptionName {
-    Axes = 0x30000, // greater than any StringStyleOptionName value
+    Axes = 0x40000, // greater than any StringStyleOptionName value
     Ticks,
     Frame,
     FrameTicks,
@@ -169,11 +172,15 @@ namespace richmath {
       StyleOptionName() = default;
       
       explicit StyleOptionName(int value) : _value(value) {}
+      StyleOptionName(ColorStyleOptionName value) : _value((int)value) {}
       StyleOptionName(IntStyleOptionName value) : _value((int)value) {}
       StyleOptionName(FloatStyleOptionName value) : _value((int)value) {}
       StyleOptionName(StringStyleOptionName value) : _value((int)value) {}
       StyleOptionName(ObjectStyleOptionName value) : _value((int)value) {}
       
+      explicit operator ColorStyleOptionName() const {
+        return (ColorStyleOptionName)_value;
+      }
       explicit operator IntStyleOptionName() const {
         return (IntStyleOptionName)_value;
       }
@@ -266,16 +273,19 @@ namespace richmath {
       static bool contains_inherited(Expr expr);
       static Expr merge_style_values(StyleOptionName n, Expr newer, Expr older);
       
+      virtual bool get(ColorStyleOptionName  n, Color  *value) const;
       virtual bool get(IntStyleOptionName    n, int    *value) const;
       virtual bool get(FloatStyleOptionName  n, float  *value) const;
       virtual bool get(StringStyleOptionName n, String *value) const;
       virtual bool get(ObjectStyleOptionName n, Expr   *value) const;
       
+      virtual void set(ColorStyleOptionName  n, Color  value);
       virtual void set(IntStyleOptionName    n, int    value);
       virtual void set(FloatStyleOptionName  n, float  value);
       virtual void set(StringStyleOptionName n, String value);
       virtual void set(ObjectStyleOptionName n, Expr   value);
       
+      virtual void remove(ColorStyleOptionName  n);
       virtual void remove(IntStyleOptionName    n);
       virtual void remove(FloatStyleOptionName  n);
       virtual void remove(StringStyleOptionName n);
@@ -323,6 +333,7 @@ namespace richmath {
       SharedPtr<Style> find_parent_style(SharedPtr<Style> s);
       
       // each get() ignores base:
+      bool get(SharedPtr<Style> s, ColorStyleOptionName  n, Color  *value);
       bool get(SharedPtr<Style> s, IntStyleOptionName    n, int    *value);
       bool get(SharedPtr<Style> s, FloatStyleOptionName  n, float  *value);
       bool get(SharedPtr<Style> s, StringStyleOptionName n, String *value);
@@ -332,6 +343,7 @@ namespace richmath {
       
       bool update_dynamic(SharedPtr<Style> s, Box *parent);
       
+      Color  get_with_base(SharedPtr<Style> s, ColorStyleOptionName  n);
       int    get_with_base(SharedPtr<Style> s, IntStyleOptionName    n);
       float  get_with_base(SharedPtr<Style> s, FloatStyleOptionName  n);
       String get_with_base(SharedPtr<Style> s, StringStyleOptionName n);

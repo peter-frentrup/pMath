@@ -349,7 +349,7 @@ void AbstractSequenceSection::resize(Context *context) {
   float t = get_style(SectionFrameTop);
   float b = get_style(SectionFrameBottom);
   
-  bool have_frame = get_style(Background) >= 0 || l != 0 || r != 0 || t != 0 || b != 0;
+  bool have_frame = get_style(Background).is_valid() || l != 0 || r != 0 || t != 0 || b != 0;
   if(have_frame) {
     cx += l;
     cx += get_style(SectionFrameMarginLeft);
@@ -413,7 +413,7 @@ void AbstractSequenceSection::paint(Context *context) {
   cc.apply_layout_styles(style);
   
   float left_margin = get_style(SectionMarginLeft);
-  Color background  = Color::decode(get_style(Background));
+  Color background  = get_style(Background);
   
   float l = get_style(SectionFrameLeft);
   float r = get_style(SectionFrameRight);
@@ -476,7 +476,7 @@ void AbstractSequenceSection::paint(Context *context) {
     // inner rounded rectangle
     rect.add_round_rect_path(*context->canvas, radii, true);
     
-    context->canvas->set_color(Color::decode(get_style(SectionFrameColor)));
+    context->canvas->set_color(get_style(SectionFrameColor));
     context->canvas->fill();
   }
   
@@ -491,7 +491,7 @@ void AbstractSequenceSection::paint(Context *context) {
   context->canvas->align_point(&xx, &yy, false);
   context->canvas->move_to(xx, yy);
   
-  context->canvas->set_color(Color::decode(get_style(FontColor)));
+  context->canvas->set_color(get_style(FontColor));
   
   Expr expr;
   context->stylesheet->get(style, TextShadow, &expr);

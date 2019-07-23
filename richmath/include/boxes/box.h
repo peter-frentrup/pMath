@@ -374,6 +374,7 @@ namespace richmath {
       
       virtual SharedPtr<Stylesheet> stylesheet();
       
+      Color  get_style(ColorStyleOptionName  n, Color  result = Color::None);
       int    get_style(IntStyleOptionName    n, int    result = 0);
       float  get_style(FloatStyleOptionName  n, float  result = 0.0);
       String get_style(StringStyleOptionName n, String result);
@@ -383,6 +384,7 @@ namespace richmath {
       Expr   get_pmath_style(StyleOptionName n);
       
       // ignore parents (except for search via get_default_key)
+      Color  get_own_style(ColorStyleOptionName  n, Color  fallback_result = Color::None);
       int    get_own_style(IntStyleOptionName    n, int    fallback_result = 0);
       float  get_own_style(FloatStyleOptionName  n, float  fallback_result = 0.0);
       String get_own_style(StringStyleOptionName n, String fallback_result);
@@ -391,6 +393,7 @@ namespace richmath {
       Expr   get_own_style(ObjectStyleOptionName n);
       
       StyleOptionName       get_default_key(StyleOptionName n);
+      ColorStyleOptionName  get_default_key(ColorStyleOptionName n);
       IntStyleOptionName    get_default_key(IntStyleOptionName n);
       FloatStyleOptionName  get_default_key(FloatStyleOptionName n);
       StringStyleOptionName get_default_key(StringStyleOptionName n);

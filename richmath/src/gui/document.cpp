@@ -2169,7 +2169,7 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
     canvas.translate(-pix_rect.x / sf, -pix_rect.y / sf);
     
     if(0 == (CAIRO_CONTENT_ALPHA & cairo_surface_get_content(cairo_get_target(target_cr)))) {
-      Color color = Color::decode(get_style(Background, -1));
+      Color color = get_style(Background);
       if(color.is_valid()) {
         canvas.set_color(color);
         canvas.paint();
@@ -2188,7 +2188,7 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
     canvas.clip();
     canvas.translate(sx, sy);
     
-    canvas.set_color(Color::decode(get_style(FontColor, 0)));
+    canvas.set_color(get_style(FontColor, Color::Black));
     
     paint_resize(&canvas, false);
   }

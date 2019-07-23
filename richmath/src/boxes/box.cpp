@@ -497,6 +497,11 @@ bool StyleName_get_FontSize(Box *self, T *result) {
 }
 
 template<>
+bool StyleName_get_FontSize(Box *self, Color *result) {
+  return false;
+}
+
+template<>
 bool StyleName_get_FontSize(Box *self, String *result) {
   return false;
 }
@@ -563,6 +568,10 @@ T Box_get_style(
   return result;
 }
 
+Color Box::get_style(ColorStyleOptionName n, Color result) {
+  return Box_get_style(this, n, result);
+}
+
 int Box::get_style(IntStyleOptionName n, int result) {
   return Box_get_style(this, n, result);
 }
@@ -605,6 +614,19 @@ Expr Box::get_pmath_style(StyleOptionName n) {
            n,
            Symbol(PMATH_SYMBOL_INHERITED),
            Stylesheet_get_pmath::impl);
+}
+
+Color Box::get_own_style(ColorStyleOptionName n, Color fallback_result) {
+  auto all = stylesheet();
+  
+  Color result;
+  if(Box_try_get_own_style(this, n, &result, all))
+    return result;
+    
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
 }
 
 int Box::get_own_style(IntStyleOptionName n, int fallback_result) {
@@ -669,6 +691,10 @@ Expr Box::get_own_style(ObjectStyleOptionName n) {
 
 StyleOptionName Box::get_default_key(StyleOptionName n) {
   return StyleOptionName { (int)get_default_styles_offset() + (int)n };
+}
+
+ColorStyleOptionName Box::get_default_key(ColorStyleOptionName n) {
+  return (ColorStyleOptionName)get_default_key(StyleOptionName{n});
 }
 
 IntStyleOptionName Box::get_default_key(IntStyleOptionName n) {

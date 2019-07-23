@@ -436,7 +436,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
     virtual void after_construction() override {
       Win32Dock::after_construction();
       
-      document()->style->set(Background, -1);
+      document()->style->set(Background, Color::None);
       
       reload_shadows(Win32HighDpi::get_dpi_for_window(_hwnd));
       set_textshadows();

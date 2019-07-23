@@ -32,10 +32,10 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint)
     
     show_auto_styles = context->show_auto_styles;
     
-    int i;
+    Color c;
     if(paint) {
-      if(context->stylesheet->get(style, Background, &i)) {
-        if(i >= 0) {
+      if(context->stylesheet->get(style, Background, &c)) {
+        if(c.is_valid()) {
           if(context->canvas->show_only_text)
             return;
           
@@ -52,14 +52,14 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint)
           radii.normalize(rect.width, rect.height);
           rect.add_round_rect_path(*context->canvas, radii, false);
           
-          context->canvas->set_color(Color::decode(i));
+          context->canvas->set_color(c);
           context->canvas->fill();
         }
       }
       
-      i = cc.old_color.encode();
-      context->stylesheet->get(style, FontColor, &i);
-      context->canvas->set_color(Color::decode(i));
+      c = cc.old_color;
+      context->stylesheet->get(style, FontColor, &c);
+      context->canvas->set_color(c);
       
       context->canvas->move_to(x, y);
       OwnerBox::paint(context);
@@ -85,7 +85,7 @@ void AbstractStyleBox::paint(Context *context) {
 
 void AbstractStyleBox::colorize_scope(SyntaxState *state) {
   if(show_auto_styles) {
-    if(get_own_style(FontColor, -1) != -1) {
+    if(get_own_style(FontColor).is_valid()) {
       _content->ensure_spans_valid();
       int i = 0;
       while(i < _content->length() && !_content->span_array().is_token_end(i))
