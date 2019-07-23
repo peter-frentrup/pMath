@@ -30,11 +30,19 @@ namespace richmath {
       static Color from_bgr24(int bgr24) { 
         return from_rgb24(bgr24 & 0xFF, (bgr24 & 0xFF00) >> 8, (bgr24 & 0xFF0000) >> 16) ;
       }
+      int to_bgr24() const {
+        if(!is_valid())
+          return 0;
+        
+        int rgb = to_rgb24();
+        return ((rgb & 0xFF0000) >> 16) | (rgb & 0x00FF00) | ((rgb & 0x0000FF) << 16);
+      }
       
       static Color from_pmath(Expr pmath);
       Expr to_pmath() const;
       
       bool is_valid() const { return _value >= 0; }
+      bool is_none() const { return _value == -1; }
       
       double red() const { 
         if(!is_valid())

@@ -15,10 +15,10 @@ Expr richmath_eval_FrontEnd_ColorDialog(Expr expr) {
 //{ class ColorDialog ...
 
 Expr ColorDialog::run(Expr expr) {
-  int initcolor = -1;
+  Color initcolor = Color::None;
   
   if(expr.expr_length() >= 1)
-    initcolor = pmath_to_color(expr[1]);
+    initcolor = Color::from_pmath(expr[1]);
     
   AutoGuiWait timer;
   return show(initcolor);

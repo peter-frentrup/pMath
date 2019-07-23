@@ -16,7 +16,7 @@ using namespace pmath;
 static COLORREF default_init_color = 0;
 static COLORREF custom_colors[16] = {0};
 
-Expr Win32ColorDialog::show(int initialcolor) {
+Expr Win32ColorDialog::show(Color initialcolor) {
   CHOOSECOLORW data;
   
   memset(&data, 0, sizeof(data));
@@ -24,11 +24,8 @@ Expr Win32ColorDialog::show(int initialcolor) {
   
   data.Flags = CC_ANYCOLOR | CC_RGBINIT | CC_FULLOPEN;
   
-  if(initialcolor >= 0) {
-    data.rgbResult = ((initialcolor & 0xFF0000) >> 16) |
-                     ( initialcolor & 0x00FF00)        |
-                     ((initialcolor & 0x0000FF) << 16);
-  }
+  if(initialcolor.is_valid()) 
+    data.rgbResult = initialcolor.to_bgr24();
   else
     data.rgbResult = default_init_color;
     
@@ -47,13 +44,9 @@ Expr Win32ColorDialog::show(int initialcolor) {
   }
   
   if(ChooseColorW(&data)) {
-    default_init_color = data.rgbResult;
+    default_init_color = data.rgbResult; // actually BBGGRR
     
-    int col = ((default_init_color & 0xFF0000) >> 16) |
-              ( default_init_color & 0x00FF00)        |
-              ((default_init_color & 0x0000FF) << 16);
-              
-    return color_to_pmath(col);
+    return Color::from_bgr24(default_init_color).to_pmath();
   }
   
   DWORD err = CommDlgExtendedError();

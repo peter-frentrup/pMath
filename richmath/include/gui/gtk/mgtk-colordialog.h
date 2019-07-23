@@ -5,7 +5,7 @@
 #  error this header is gtk specific
 #endif
 
-#include <pmath-cpp.h>
+#include <graphics/color.h>
 
 
 namespace richmath {
@@ -13,7 +13,7 @@ namespace richmath {
     public:
       MathGtkColorDialog() = delete;
 
-      static pmath::Expr show(int initialcolor = -1); // 0xrrggbb
+      static pmath::Expr show(Color initialcolor);
   };
 }
 

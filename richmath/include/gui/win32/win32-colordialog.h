@@ -5,8 +5,7 @@
 #  error this header is win32 specific
 #endif
 
-#include <pmath-cpp.h>
-#include <util/base.h>
+#include <graphics/color.h>
 
 
 namespace richmath {
@@ -14,7 +13,7 @@ namespace richmath {
     public:
       Win32ColorDialog() = delete;
 
-      static pmath::Expr show(int initialcolor = -1); // 0xrrggbb
+      static Expr show(Color initialcolor);
   };
 }
 

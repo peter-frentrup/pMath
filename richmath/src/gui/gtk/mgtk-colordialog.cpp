@@ -13,7 +13,7 @@ using namespace pmath;
 
 #if GTK_MAJOR_VERSION >= 3
 
-static Expr color_chooser_dialog_show(int initialcolor) {
+static Expr color_chooser_dialog_show(Color initialcolor) {
   GtkColorChooserDialog *dialog;
   GtkColorChooser       *chooser;
   
@@ -36,13 +36,13 @@ static Expr color_chooser_dialog_show(int initialcolor) {
   
   gtk_color_chooser_set_use_alpha(chooser, FALSE);
   
-  if(initialcolor >= 0) {
+  if(initialcolor.is_valid()) {
     GdkRGBA color;
     
     color.alpha = 1.0;
-    color.red   = (uint16_t)(((initialcolor & 0xff0000) >> 16) / 255.0);
-    color.green = (uint16_t)(((initialcolor & 0x00ff00) >>  8) / 255.0);
-    color.blue  = (uint16_t)( (initialcolor & 0x0000ff)        / 255.0);
+    color.red   = initialcolor.red();
+    color.green = initialcolor.green();
+    color.blue  = initialcolor.blue();
     
     gtk_color_chooser_set_rgba(chooser, &color);
   }
@@ -56,27 +56,21 @@ static Expr color_chooser_dialog_show(int initialcolor) {
         
         gtk_color_chooser_get_rgba(chooser, &color);
         
-        int col = ((int)(color.red   * 0xff) << 16) |
-                  ((int)(color.green * 0xff) <<  8) |
-                  ((int)(color.blue  * 0xff));
-                  
         gtk_widget_destroy(GTK_WIDGET(dialog));
         
-        return color_to_pmath(col);
+        // ignoring alpha
+        return Color::from_rgb(color.red, color.green, color.blue).to_pmath();
       }
   }
-  
-  //if(err)
-  //  return Symbol(PMATH_SYMBOL_ABORTED);
   
   gtk_widget_destroy(GTK_WIDGET(dialog));
   
   return Symbol(PMATH_SYMBOL_CANCELED);
 }
 
-#else
+#endif
 
-static Expr color_selection_dialog_show(int initialcolor) {
+static Expr color_selection_dialog_show(Color initialcolor) {
   GtkColorSelectionDialog *dialog;
   GtkColorSelection       *widget;
 
@@ -85,15 +79,15 @@ static Expr color_selection_dialog_show(int initialcolor) {
 
   gtk_color_selection_set_has_opacity_control(widget, FALSE);
 
-  if(initialcolor >= 0) {
+  if(initialcolor.is_valid()) {
 #if GTK_MAJOR_VERSION >= 3
     {
       GdkRGBA color;
 
       color.alpha = 1.0;
-      color.red   = (uint16_t)(((initialcolor & 0xff0000) >> 16) / 255.0);
-      color.green = (uint16_t)(((initialcolor & 0x00ff00) >>  8) / 255.0);
-      color.blue  = (uint16_t)( (initialcolor & 0x0000ff)        / 255.0);
+      color.red   = initialcolor.red();
+      color.green = initialcolor.green();
+      color.blue  = initialcolor.blue();
 
       gtk_color_selection_set_current_rgba(widget, &color);
     }
@@ -101,10 +95,10 @@ static Expr color_selection_dialog_show(int initialcolor) {
     {
       GdkColor color;
 
-      color.pixel = gdk_rgb_xpixel_from_rgb(initialcolor);
-      color.red   = (uint16_t)(((initialcolor & 0xff0000) >> 16) * 0xffff / 0xff);
-      color.green = (uint16_t)(((initialcolor & 0x00ff00) >>  8) * 0xffff / 0xff);
-      color.blue  = (uint16_t)( (initialcolor & 0x0000ff)        * 0xffff / 0xff);
+      color.pixel = gdk_rgb_xpixel_from_rgb(initialcolor.to_rgb24());
+      color.red   = (uint16_t)(initialcolor.red()   * 0xffff + 0.5);
+      color.green = (uint16_t)(initialcolor.green() * 0xffff + 0.5);
+      color.blue  = (uint16_t)(initialcolor.blue()  * 0xffff + 0.5);
 
       gtk_color_selection_set_current_color(widget, &color);
     }
@@ -116,7 +110,7 @@ static Expr color_selection_dialog_show(int initialcolor) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {
-        int col;
+        Color col;
 
 #if GTK_MAJOR_VERSION >= 3
         {
@@ -124,46 +118,35 @@ static Expr color_selection_dialog_show(int initialcolor) {
 
           gtk_color_selection_get_current_rgba(widget, &color);
 
-          col = ((int)(color.red   * 0xff) << 16) |
-                ((int)(color.green * 0xff) <<  8) |
-                ((int)(color.blue  * 0xff));
+          // ignoring alpha
+          col = Color::from_rgb(color.red, color.green, color.blue);
         }
 #else
         {
           GdkColor color;
 
           gtk_color_selection_get_current_color(widget, &color);
-
-          col = (((int)color.red   * 0xff / 0xffff) << 16) |
-                (((int)color.green * 0xff / 0xffff) <<  8) |
-                ( (int)color.blue  * 0xff / 0xffff);
+          
+          col = Color::from_rgb(color.red / (double)0xffff, color.green / (double)0xffff, color.blue / (double)0xffff);
         }
 #endif
 
         gtk_widget_destroy(GTK_WIDGET(dialog));
 
-        return color_to_pmath(col);
+        return col.to_pmath();
       }
-
-
   }
-
-  //if(err)
-  //  return Symbol(PMATH_SYMBOL_ABORTED);
-
+  
   gtk_widget_destroy(GTK_WIDGET(dialog));
 
   return Symbol(PMATH_SYMBOL_CANCELED);
 }
 
-#endif
-
-Expr MathGtkColorDialog::show(int initialcolor) {
+Expr MathGtkColorDialog::show(Color initialcolor) {
 #if GTK_MAJOR_VERSION >= 3
   return color_chooser_dialog_show(initialcolor);
-#else
-  return color_selection_dialog_show(initialcolor);
 #endif
+  return color_selection_dialog_show(initialcolor);
 }
 
 //} ... class MathGtkColorDialog
