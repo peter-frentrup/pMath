@@ -253,8 +253,8 @@ class LocalServer: public Server {
         ~Data() {
           pmath_atomic_lock(&data_spin);
           if(owner) {
-            owner->data = 0;
-            owner = 0;
+            owner->data = nullptr;
+            owner = nullptr;
           }
           pmath_atomic_unlock(&data_spin);
         }
@@ -389,4 +389,4 @@ bool Server::init_local_server() {
   return local_server->is_accessable();
 }
 
-SharedPtr<Server> Server::local_server = 0;
+SharedPtr<Server> Server::local_server = nullptr;

@@ -44,8 +44,7 @@ EvaluationPosition::EvaluationPosition(Box *box)
 //{ class Job ...
 
 Job::Job()
-  : Shareable(),
-    have_printed(false)
+  : Shareable()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
@@ -245,7 +244,7 @@ bool ReplacementJob::start() {
   }
   
   Server::local_server->run_boxes(
-    Expr(sequence->to_pmath(BoxOutputFlags::Parseable, selection_start, selection_end)));
+    sequence->to_pmath(BoxOutputFlags::Parseable, selection_start, selection_end));
     
   doc->native()->running_state_changed();
   

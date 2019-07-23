@@ -34,8 +34,6 @@ namespace richmath {
       virtual void end() = 0;
       virtual void dequeued() = 0;
       
-      Document *prepare_print(int *output_index);
-      
       const EvaluationPosition &position() { return _position; }
       
     public:
@@ -43,7 +41,6 @@ namespace richmath {
       
     protected:
       EvaluationPosition _position;
-      bool have_printed;
   };
   
   class InputJob: public Job {
