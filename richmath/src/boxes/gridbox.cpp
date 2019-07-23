@@ -459,7 +459,7 @@ void GridBox::paint(Context *context) {
     else
       y2 = y + _extents.descent;
       
-    int c = context->canvas->get_color();
+    Color c = context->canvas->get_color();
     context->canvas->pixrect(x1, y1, x2, y2, false);
     context->draw_selection_path();
 //    context->canvas->paint_selection(x1, y1, x2, y2);

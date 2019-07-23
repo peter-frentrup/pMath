@@ -106,8 +106,8 @@ void Section::paint_label(Context *context) {
   float fs = context->canvas->get_font_size();
   context->canvas->set_font_size(8/* * 4/3. */);
   
-  int col = context->canvas->get_color();
-  context->canvas->set_color(0x454E99);
+  Color col = context->canvas->get_color();
+  context->canvas->set_color(Color::from_rgb24(0x454E99));
   
   x -= label_glyphs[label_glyphs.length() - 1].right;
   float xx = x;
@@ -413,7 +413,7 @@ void AbstractSequenceSection::paint(Context *context) {
   cc.apply_layout_styles(style);
   
   float left_margin = get_style(SectionMarginLeft);
-  int   background  = get_style(Background);
+  Color background  = Color::decode(get_style(Background));
   
   float l = get_style(SectionFrameLeft);
   float r = get_style(SectionFrameRight);
@@ -424,7 +424,7 @@ void AbstractSequenceSection::paint(Context *context) {
   update_dynamic_styles(context);
   cc.apply_non_layout_styles(style);
   
-  if(background >= 0 || l != 0 || r != 0 || t != 0 || b != 0) {
+  if(background.is_valid() || l != 0 || r != 0 || t != 0 || b != 0) {
     /* Cairo 1.12.2 bug:
       With BorderRadius->0, and one of l,r,t,b != 0, e.g. SectionFrame->{0,0,1,0}
       The whole section is filled, not only the frame. Another BorderRadius
@@ -446,7 +446,7 @@ void AbstractSequenceSection::paint(Context *context) {
     // outer rounded rectangle
     rect.add_round_rect_path(*context->canvas, radii, false);
     
-    if(background >= 0 && !context->canvas->show_only_text) {
+    if(background.is_valid() && !context->canvas->show_only_text) {
       context->canvas->set_color(background);
       context->canvas->fill_preserve();
     }
@@ -476,7 +476,7 @@ void AbstractSequenceSection::paint(Context *context) {
     // inner rounded rectangle
     rect.add_round_rect_path(*context->canvas, radii, true);
     
-    context->canvas->set_color(get_style(SectionFrameColor));
+    context->canvas->set_color(Color::decode(get_style(SectionFrameColor)));
     context->canvas->fill();
   }
   
@@ -491,7 +491,7 @@ void AbstractSequenceSection::paint(Context *context) {
   context->canvas->align_point(&xx, &yy, false);
   context->canvas->move_to(xx, yy);
   
-  context->canvas->set_color(get_style(FontColor));
+  context->canvas->set_color(Color::decode(get_style(FontColor)));
   
   Expr expr;
   context->stylesheet->get(style, TextShadow, &expr);

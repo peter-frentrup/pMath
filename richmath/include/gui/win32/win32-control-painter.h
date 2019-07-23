@@ -24,7 +24,7 @@ namespace richmath {
         ContainerType   type,
         BoxSize        *extents) override;
         
-      virtual int control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
+      virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
       
       virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state) override;
       
@@ -60,7 +60,7 @@ namespace richmath {
       
       virtual void system_font_style(ControlContext *context, Style *style) override;
       
-      virtual int selection_color(ControlContext *context) override;
+      virtual Color selection_color(ControlContext *context) override;
       
       virtual float scrollbar_width() override;
       

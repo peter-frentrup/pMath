@@ -58,6 +58,14 @@ class Win32ControlPainterInfo: public BasicWin32Widget {
 
 static Win32ControlPainterInfo w32cpinfo;
 
+namespace {
+  static const Color InputFieldBlurColor = Color::from_rgb24(0x8080FF);
+  
+  static Color get_sys_color(int index) {
+    return Color::from_bgr24(GetSysColor(index));
+  }
+};
+
 static class Win32ControlPainterCache {
   public:
     Win32ControlPainterCache() {
@@ -309,9 +317,9 @@ void Win32ControlPainter::calc_container_size(
   ControlPainter::calc_container_size(context, canvas, type, extents);
 }
 
-int Win32ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
+Color Win32ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
   if(is_very_transparent(context, type, state))
-    return -1;
+    return Color::None;
     
   int theme_part, theme_state;
   HANDLE theme = get_control_theme(context, type, state, &theme_part, &theme_state);
@@ -329,12 +337,10 @@ int Win32ControlPainter::control_font_color(ControlContext *context, ContainerTy
         SUCCEEDED(Win32Themes::GetThemeColor(
                     theme, theme_part, theme_state, 1619, &col)))
     {
-      return ((col & 0xFF0000) >> 16) |
-             ( col & 0x00FF00)        |
-             ((col & 0x0000FF) << 16);
+      return Color::from_bgr24(col);
     }
     
-    return -1;
+    return Color::None;
   }
   
   switch(type) {
@@ -346,40 +352,18 @@ int Win32ControlPainter::control_font_color(ControlContext *context, ContainerTy
     case PushButton:
     case DefaultPushButton:
     case PaletteButton:
-    case PanelControl: {
-        DWORD col = GetSysColor(COLOR_BTNTEXT);
-        return ((col & 0xFF0000) >> 16) |
-               ( col & 0x00FF00)        |
-               ((col & 0x0000FF) << 16);
-      } break;
+    case PanelControl:
+      return get_sys_color(COLOR_BTNTEXT);
       
-    case InputField: {
-        DWORD col = GetSysColor(COLOR_WINDOWTEXT);
-        return ((col & 0xFF0000) >> 16) |
-               ( col & 0x00FF00)        |
-               ((col & 0x0000FF) << 16);
-      } break;
+    case InputField:
+    case ListViewItem:
+      return get_sys_color(COLOR_WINDOWTEXT);
+    
+    case ListViewItemSelected:
+      return get_sys_color(COLOR_HIGHLIGHTTEXT);
       
-    case ListViewItem: {
-        DWORD col = GetSysColor(COLOR_WINDOWTEXT);
-        return ((col & 0xFF0000) >> 16) |
-               ( col & 0x00FF00)        |
-               ((col & 0x0000FF) << 16);
-      } break;
-      
-    case ListViewItemSelected: {
-        DWORD col = GetSysColor(COLOR_HIGHLIGHTTEXT);
-        return ((col & 0xFF0000) >> 16) |
-               ( col & 0x00FF00)        |
-               ((col & 0x0000FF) << 16);
-      } break;
-      
-    case TooltipWindow: {
-        DWORD col = GetSysColor(COLOR_INFOTEXT);
-        return ((col & 0xFF0000) >> 16) |
-               ( col & 0x00FF00)        |
-               ((col & 0x0000FF) << 16);
-      } break;
+    case TooltipWindow:
+      return get_sys_color(COLOR_INFOTEXT);
       
     case SliderHorzChannel:
     case SliderHorzThumb:
@@ -393,7 +377,7 @@ int Win32ControlPainter::control_font_color(ControlContext *context, ContainerTy
       break;
   }
   
-  return -1;
+  return Color::None;
 }
 
 bool Win32ControlPainter::is_very_transparent(ControlContext *context, ContainerType type, ControlState state) {
@@ -490,7 +474,7 @@ void Win32ControlPainter::draw_container(
       Win32Themes::DrawThemeBackground)
   {
     canvas->save();
-    int c = canvas->get_color();
+    Color c = canvas->get_color();
     
     if(canvas->glass_background) {
       cairo_pattern_t *pat;
@@ -508,10 +492,10 @@ void Win32ControlPainter::draw_container(
       
       float r = 0.75;
       canvas->move_to(x1, y1 + r);
-      canvas->arc(x1 + r, y1 + r, r,   M_PI,   3 * M_PI / 2, false);
-      canvas->arc(x2 - r, y2 + r, r, 3 * M_PI / 2, 2 * M_PI,   false);
-      canvas->arc(x3 - r, y3 - r, r,        0,   M_PI / 2, false);
-      canvas->arc(x4 + r, y4 - r, r,   M_PI / 2,   M_PI,   false);
+      canvas->arc(x1 + r, y1 + r, r,     M_PI,     3 * M_PI / 2, false);
+      canvas->arc(x2 - r, y2 + r, r, 3 * M_PI / 2, 2 * M_PI,     false);
+      canvas->arc(x3 - r, y3 - r, r,        0,         M_PI / 2, false);
+      canvas->arc(x4 + r, y4 - r, r,     M_PI / 2,     M_PI,     false);
       canvas->close_path();
       
       pat = cairo_pattern_create_linear(x4, y4, x1, y1);
@@ -541,19 +525,16 @@ void Win32ControlPainter::draw_container(
     else {
       canvas->pixrect(x, y, x + width, y + height, true);
       if(blur_input_field && (state == PressedHovered || state == Pressed)) {
-        canvas->set_color(0x8080FF);
+        canvas->set_color(InputFieldBlurColor);
         canvas->show_blur_stroke(4, true);
       }
       
-      DWORD col = GetSysColor(COLOR_WINDOW);
-      col = (  (col & 0xFF0000) >> 16)
-            |  (col & 0x00FF00)
-            | ((col & 0x0000FF) << 16);
+      Color col = get_sys_color(COLOR_WINDOW);
             
       canvas->set_color(col);
       canvas->fill_preserve();
       
-      canvas->set_color(0x808080);
+      canvas->set_color(Color::from_rgb24(0x808080));
       canvas->hair_stroke();
     }
     
@@ -1084,11 +1065,8 @@ void Win32ControlPainter::system_font_style(ControlContext *context, Style *styl
   style->set(FontSlant, logfont->lfItalic ? FontSlantItalic : FontSlantPlain);
 }
 
-int Win32ControlPainter::selection_color(ControlContext *context) {
-  DWORD col = GetSysColor(COLOR_HIGHLIGHT);
-  return (  (col & 0xFF0000) >> 16)
-         |  (col & 0x00FF00)
-         | ((col & 0x0000FF) << 16);
+Color Win32ControlPainter::selection_color(ControlContext *context) {
+  return get_sys_color(COLOR_HIGHLIGHT);
 }
 
 float Win32ControlPainter::scrollbar_width() {

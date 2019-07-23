@@ -177,9 +177,9 @@ namespace richmath {
         float rx = x + self._extents.width / 2;
         float h = self._extents.height();
         
-        int old_color = canvas->get_color();
+        Color old_color = canvas->get_color();
         canvas->save();
-        canvas->set_color(0xFF0000, 0.2);
+        canvas->set_color(Color::from_rgb24(0xFF0000), 0.2);
         for(int i = -2; i <= 2; ++i) {
           canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
           canvas->fill();
@@ -192,9 +192,9 @@ namespace richmath {
         float h = self._extents.height();
         float rx = x + h / 2;
         
-        int old_color = canvas->get_color();
+        Color old_color = canvas->get_color();
         canvas->save();
-        canvas->set_color(0xFF0000, 0.2);
+        canvas->set_color(Color::from_rgb24(0xFF0000), 0.2);
         for(int i = 0; i <= 2; ++i) {
           canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
           canvas->fill();
@@ -207,9 +207,9 @@ namespace richmath {
         float h = self._extents.height();
         float rx = x + self._extents.width - h / 2;
         
-        int old_color = canvas->get_color();
+        Color old_color = canvas->get_color();
         canvas->save();
-        canvas->set_color(0xFF0000, 0.2);
+        canvas->set_color(Color::from_rgb24(0xFF0000), 0.2);
         for(int i = -2; i <= 0; ++i) {
           canvas->arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
           canvas->fill();

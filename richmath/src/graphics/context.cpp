@@ -21,7 +21,7 @@ Context::Context()
     width(HUGE_VAL),
     section_content_window_width(HUGE_VAL),
     sequence_unfilled_width(0),
-    cursor_color(0x000000),
+    cursor_color(Color::Black),
     syntax(GeneralSyntaxInfo::std),
     multiplication_sign(0x00D7),
     show_auto_styles(true),
@@ -49,11 +49,11 @@ void Context::draw_error_rect(
 ) {
   canvas->save();
   {
-    int c = canvas->get_color();
+    Color c = canvas->get_color();
     canvas->pixrect(x1, y1, x2, y2, true);
-    canvas->set_color(0xFFE6E6);
+    canvas->set_color(Color::from_rgb24(0xFFE6E6));
     canvas->fill_preserve();
-    canvas->set_color(0xFF5454);
+    canvas->set_color(Color::from_rgb24(0xFF5454));
     canvas->hair_stroke();
     canvas->set_color(c);
   }
@@ -168,11 +168,14 @@ void Context::set_script_size_multis(Expr expr) {
 
 void Context::draw_text_shadow(
   Box   *box,
-  int    color,
+  Color  color,
   float  radius,
   float  dx,
   float  dy
 ) {
+  if(!color.is_valid())
+    return;
+  
   if(canvas->show_only_text)
     return;
     
@@ -200,7 +203,7 @@ void Context::draw_text_shadow(
       
       canvas->current_pos(&x, &y);
       canvas->move_to(x + dx, y + dy);
-      canvas->set_color(0);
+      canvas->set_color(Color::Black);
       
       canvas->show_only_text = true;
       box->paint(this);
@@ -237,7 +240,7 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
   if(canvas->show_only_text && shadows == PMATH_SYMBOL_NONE)
     return;
     
-  int c = canvas->get_color();
+  Color c = canvas->get_color();
   if(shadows[0] == PMATH_SYMBOL_LIST) {
     for(size_t i = 1; i <= shadows.expr_length(); ++i) {
       Expr shadow = shadows[i];
@@ -246,9 +249,9 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
           shadow.expr_length() >= 3 &&
           shadow.expr_length() <= 4)
       {
-        int col = pmath_to_color(shadow[3]);
+        Color col = Color::from_pmath(shadow[3]);
         
-        if(col >= 0) {
+        if(col.is_valid()) {
           draw_text_shadow(
             box,
             col,

@@ -35,7 +35,7 @@ namespace richmath {
       
       void draw_text_shadow(
         Box   *box,
-        int    color,
+        Color  color,
         float  radius,
         float  dx,
         float  dy);
@@ -64,7 +64,7 @@ namespace richmath {
       
       SelectionReference  selection;
       SelectionReference  old_selection; // cursor is not drawn if selection == old_selection
-      int                 cursor_color;
+      Color               cursor_color;
       
       SharedPtr<GeneralSyntaxInfo> syntax;
       
@@ -107,8 +107,8 @@ namespace richmath {
       Context *ctx;
       
       // always set in begin():
-      int                   old_cursor_color;
-      int                   old_color;
+      Color                 old_cursor_color;
+      Color                 old_color;
       float                 old_fontsize;
       float                 old_width;
       SharedPtr<MathShaper> old_math_shaper;

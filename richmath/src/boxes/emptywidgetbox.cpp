@@ -128,7 +128,7 @@ void EmptyWidgetBox::paint(Context *context) {
       rect.add_rect_path(*context->canvas, false);
       
       cairo_set_operator(context->canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
-      context->canvas->set_color(0xffffff);
+      context->canvas->set_color(Color::White);
       context->canvas->fill();
     }
     context->canvas->restore();

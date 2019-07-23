@@ -131,7 +131,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
         _parent->paint_background(canvas, _hwnd);
       }
       else {
-        canvas->set_color(0xffffff);
+        canvas->set_color(Color::White);
         canvas->paint();
       }
     }

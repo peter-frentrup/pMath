@@ -1319,45 +1319,33 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           !Win32Themes::IsCompositionActive())
       {
         if(glass_enabled()) {
-          int color;
+          Color color;
 
           if(_active)
-            color = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+            color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
           else
-            color = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
-
-          color = (  (color & 0xFF0000) >> 16)
-                  |  (color & 0x00FF00)
-                  | ((color & 0x0000FF) << 16);
+            color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
 
           canvas->set_color(color);
           canvas->paint();
         }
         else {
-          int color = GetSysColor(COLOR_BTNFACE);
-
-          color = (  (color & 0xFF0000) >> 16)
-                  |  (color & 0x00FF00)
-                  | ((color & 0x0000FF) << 16);
-
+          Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
+          
           canvas->set_color(color);
           canvas->paint();
         }
       }
       else {
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-        canvas->set_color(0x000000, 0);
+        canvas->set_color(Color::Black, 0.0);
         canvas->paint();
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
       }
 
       if(!IsRectEmpty(&glassfree)) {
-        int color = GetSysColor(COLOR_BTNFACE);
-
-        color = (  (color & 0xFF0000) >> 16)
-                |  (color & 0x00FF00)
-                | ((color & 0x0000FF) << 16);
-
+        Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
+        
         canvas->move_to(glassfree.left,  glassfree.top);
         canvas->line_to(glassfree.left,  glassfree.bottom);
         canvas->line_to(glassfree.right, glassfree.bottom);
@@ -1460,7 +1448,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
         canvas->line_to(glassfree.right, glassfree.top);
         canvas->close_path();
 
-        canvas->set_color(0xffffff, 1 - 0.1);
+        canvas->set_color(Color::White, 1 - 0.1);
         canvas->stroke();
 
         cairo_reset_clip(canvas->cairo());
@@ -1485,18 +1473,18 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
           canvas->close_path();
         }
 
-        canvas->set_color(0xffffff, buttons_alpha);
+        canvas->set_color(Color::White, buttons_alpha);
         cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 
 //        if(_mouse_over_caption_buttons) {
 //          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
 //        }
 //        else if(_active) {
-//          canvas->set_color(0xffffff, 1 - 0.2);
+//          canvas->set_color(Color::White, 1 - 0.2);
 //          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 //        }
 //        else {
-//          canvas->set_color(0xffffff, 1 - 0.6);
+//          canvas->set_color(Color::White, 1 - 0.6);
 //          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 //        }
 

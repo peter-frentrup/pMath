@@ -2664,7 +2664,7 @@ void MathSequence::paint(Context *context) {
   float x0, y0;
   context->canvas->current_pos(&x0, &y0);
   
-  int default_color = context->canvas->get_color();
+  Color default_color = context->canvas->get_color();
   SharedPtr<MathShaper> default_math_shaper = context->math_shaper;
   
   {
@@ -2742,7 +2742,7 @@ void MathSequence::paint(Context *context) {
           }
           
           if(have_style || glyphs[pos].style) {
-            int color = context->syntax->glyph_style_colors[glyphs[pos].style];
+            Color color = context->syntax->glyph_style_colors[glyphs[pos].style];
             
             context->canvas->set_color(color);
             have_style = color != default_color;

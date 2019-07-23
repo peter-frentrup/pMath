@@ -30,6 +30,21 @@ extern pmath_symbol_t richmath_System_SectionGroup;
 bool richmath::DebugFollowMouse     = false;
 bool richmath::DebugSelectionBounds = false;
 
+static const Color DebugFollowMouseInStringColor = Color::from_rgb(0.5, 0, 1);
+static const Color DebugFollowMouseColor         = Color::from_rgb(1, 0, 0);
+static const Color DebugSelectionBoundsColor     = Color::from_rgb(0.5, 0.5, 0.5);
+
+static const Color OccurenceBackgroundColor = Color::from_rgb24(0xFF9933);
+
+static const Color  MatchingBracketHighlightColor = Color::from_rgb(1, 1, 0);
+static const double MatchingBracketHighlightAlpha = 0.5;
+
+static const Color  AutoCompleteHighlightColor = Color::from_rgb(1, 1, 0);
+static const double AutoCompleteHighlightAlpha = 0.5;
+
+static const Color DocumentCursorLineColor = Color::from_rgb24(0xC0C0C0);
+
+
 static double MaxFlashingCursorRadius = 9;  /* pixels */
 static double MaxFlashingCursorTime = 0.15; /* seconds */
 
@@ -466,8 +481,8 @@ namespace richmath {
       
       //{ selection highlights
     private:
-      void add_fill(PaintHookManager &hooks, Box *box, int start, int end, int color, float alpha = 1.0f);
-      void add_pre_fill(Box *box, int start, int end, int color, float alpha = 1.0f);
+      void add_fill(PaintHookManager &hooks, Box *box, int start, int end, Color color, float alpha = 1.0f);
+      void add_pre_fill(Box *box, int start, int end, Color color, float alpha = 1.0f);
       void add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section);
       bool word_occurs_outside_visible_range(String str, int first_visible_section, int last_visible_section);
       void add_matching_bracket_hook();
@@ -2154,13 +2169,13 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
     canvas.translate(-pix_rect.x / sf, -pix_rect.y / sf);
     
     if(0 == (CAIRO_CONTENT_ALPHA & cairo_surface_get_content(cairo_get_target(target_cr)))) {
-      int color = get_style(Background, -1);
-      if(color >= 0) {
+      Color color = Color::decode(get_style(Background, -1));
+      if(color.is_valid()) {
         canvas.set_color(color);
         canvas.paint();
       }
       else {
-        canvas.set_color(0xFFFFFF);
+        canvas.set_color(Color::White);
         canvas.paint();
       }
     }
@@ -2173,7 +2188,7 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
     canvas.clip();
     canvas.translate(sx, sy);
     
-    canvas.set_color(get_style(FontColor, 0));
+    canvas.set_color(Color::decode(get_style(FontColor, 0)));
     
     paint_resize(&canvas, false);
   }
@@ -3942,9 +3957,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       if(Box *b = mouse_move_sel.get()) {
         ::selection_path(canvas, b, mouse_move_sel.start, mouse_move_sel.end);
         if(DocumentImpl::is_inside_string(b, mouse_move_sel.start))
-          canvas->set_color(0x8000ff);
+          canvas->set_color(DebugFollowMouseInStringColor);
         else
-          canvas->set_color(0xff0000);
+          canvas->set_color(DebugFollowMouseColor);
         canvas->hair_stroke();
       }
     }
@@ -3987,7 +4002,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
           canvas->line_to(_scrollx + _page_width, y2);
           canvas->close_path();
           
-          canvas->set_color(0x808080);
+          canvas->set_color(DebugSelectionBoundsColor);
           cairo_set_dash(canvas->cairo(), dashes, sizeof(dashes) / sizeof(double), 0.5);
           canvas->hair_stroke();
         }
@@ -4151,7 +4166,7 @@ void DocumentImpl::after_resize_section(int i) {
 }
 
 //{ selection highlights
-void DocumentImpl::add_fill(PaintHookManager &hooks, Box *box, int start, int end, int color, float alpha) {
+void DocumentImpl::add_fill(PaintHookManager &hooks, Box *box, int start, int end, Color color, float alpha) {
   SelectionReference ref;
   ref.set(box, start, end);
   
@@ -4159,7 +4174,7 @@ void DocumentImpl::add_fill(PaintHookManager &hooks, Box *box, int start, int en
   self.additional_selection.add(ref);
 }
 
-void DocumentImpl::add_pre_fill(Box *box, int start, int end, int color, float alpha) {
+void DocumentImpl::add_pre_fill(Box *box, int start, int end, Color color, float alpha) {
   add_fill(self.context.pre_paint_hooks, box, start, end, color, alpha);
 }
 
@@ -4207,7 +4222,7 @@ void DocumentImpl::add_selected_word_highlight_hooks(int first_visible_section, 
       
       if(box == find) {
         self._current_word_references.add(SelectionReference(box->id(), s, e));
-        add_fill(temp_hooks, box, s, e, 0xFF9933);
+        add_fill(temp_hooks, box, s, e, OccurenceBackgroundColor);
         ++num_occurencies;
       }
     }
@@ -4298,15 +4313,15 @@ void DocumentImpl::add_matching_bracket_hook() {
           while(head->count() == 1)
             head = head->item(0);
             
-          add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
+          add_pre_fill(seq, head->start(), head->end() + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
           
           // opening parenthesis, always exists
-          add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
+          add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
           
           // closing parenthesis, last item, might not exist
           int clos = span->count() - 1;
           if(clos >= 2 && span->item_equals(clos, ")")) {
-            add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
+            add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
           }
           
         } // destroy call before deleting span
@@ -4327,20 +4342,20 @@ void DocumentImpl::add_matching_bracket_hook() {
           seq = span->sequence();
           
           // head, always exists
-          add_pre_fill(seq, head->start(), head->end() + 1, 0xFFFF00, 0.5);
+          add_pre_fill(seq, head->start(), head->end() + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
           
           // dot, always exists
-          add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, 0xFFFF00, 0.5);
+          add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
           
           // opening parenthesis, might not exist
           if(span->count() > 3) {
-            add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, 0xFFFF00, 0.5);
+            add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
           }
           
           // closing parenthesis, last item, might not exist
           int clos = span->count() - 1;
           if(clos >= 2 && span->item_equals(clos, ")")) {
-            add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, 0xFFFF00, 0.5);
+            add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
           }
         } // destroy call before deleting span
         delete span;
@@ -4361,8 +4376,8 @@ void DocumentImpl::add_matching_bracket_hook() {
     }
     
     if(other_bracket >= 0) {
-      add_pre_fill(seq, pos,           pos + 1,           0xFFFF00, 0.5);
-      add_pre_fill(seq, other_bracket, other_bracket + 1, 0xFFFF00, 0.5);
+      add_pre_fill(seq, pos,           pos + 1,           MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
+      add_pre_fill(seq, other_bracket, other_bracket + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
     }
   }
   
@@ -4379,8 +4394,8 @@ void DocumentImpl::add_autocompletion_hook() {
     box,
     self.auto_completion.range.start,
     self.auto_completion.range.end,
-    0x80FF80,
-    0.5);
+    AutoCompleteHighlightColor,
+    AutoCompleteHighlightAlpha);
 }
 
 void DocumentImpl::add_selection_highlights(int first_visible_section, int last_visible_section) {
@@ -4412,7 +4427,7 @@ void DocumentImpl::paint_document_cursor() {
     self.context.canvas->move_to(x1, y1);
     self.context.canvas->line_to(x2, y2);
     
-    self.context.canvas->set_color(0xC0C0C0);
+    self.context.canvas->set_color(DocumentCursorLineColor);
     self.context.canvas->hair_stroke();
     
     if(self.context.selection.start < self.count()) {
@@ -4502,7 +4517,7 @@ void DocumentImpl::paint_flashing_cursor_if_needed() {
         self.context.canvas->arc(0, 0, 1, 0, 2 * M_PI, false);
         
         cairo_set_operator(self.context.canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
-        self.context.canvas->set_color(0xffffff);
+        self.context.canvas->set_color(Color::White);
         self.context.canvas->fill();
       }
       self.context.canvas->restore();

@@ -9,6 +9,13 @@
 
 using namespace richmath;
 
+namespace {
+  static const Color ButtonColor = Color::from_rgb24(0xDCDCDC);
+  static const Color Button3DLightColor = Color::from_rgb24(0xF0F0F0);
+  static const Color Button3DDarkColor = Color::from_rgb24(0x787878); // 0xB4B4B4
+}
+
+
 //{ class ControlContext ...
 namespace {
   class DummyControlContext: public ControlContext {
@@ -148,14 +155,14 @@ void ControlPainter::calc_container_size(
 }
 
 
-int ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
+Color ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
   if(is_very_transparent(context, type, state))
-    return -1;
+    return Color::None;
     
   if(type == ListViewItemSelected)
-    return 0xFFFFFF;
+    return Color::White;
     
-  return 0x000000;
+  return Color::Black;
 }
 
 bool ControlPainter::is_very_transparent(ControlContext *context, ContainerType type, ControlState state) {
@@ -172,20 +179,16 @@ static void paint_frame(
   float   width,
   float   height,
   bool    sunken,
-  int     background_color = 0xDCDCDC
+  Color   background_color = ButtonColor
 ) {
-  int c1, c3, c;
+  Color c1, c3, c;
   
   c = canvas->get_color();
-  c1 = 0xF0F0F0;//0xFFFFFF;
-  //c2 = 0xDCDCDC;
-  c3 = 0x787878; // 0xB4B4B4
+  c1 = Button3DLightColor;
+  c3 = Button3DDarkColor;
   
-  if(sunken) {
-    int tmp = c1;
-    c1 = c3;
-    c3 = tmp;
-  }
+  if(sunken) 
+    swap(c1, c3);
   
   static const float d = 3 / 2.f;
   float x2 = x + width;
@@ -280,31 +283,31 @@ void ControlPainter::draw_container(
         canvas->line_to(x2, y2);
         canvas->line_to(x,  y2);
         
-        int c = canvas->get_color();
-        canvas->set_color(0x000000);
+        Color c = canvas->get_color();
+        canvas->set_color(Color::Black);
         canvas->fill();
         canvas->set_color(c);
       } break;
       
     case InputField:
-      paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
+      paint_frame(canvas, x, y, width, height, true, Color::White);
       break;
       
     case TooltipWindow:
-      paint_frame(canvas, x, y, width, height, false, 0xFFF4C1);
+      paint_frame(canvas, x, y, width, height, false, Color::from_rgb24(0xFFF4C1));
       break;
       
     case ListViewItem: {
-        int c = canvas->get_color();
-        canvas->set_color(0xffffff);
+        Color c = canvas->get_color();
+        canvas->set_color(Color::White);
         canvas->pixrect(x, y, x + width, y + height, false);
         canvas->fill();
         canvas->set_color(c);
       } break;
       
     case ListViewItemSelected: {
-        int c = canvas->get_color();
-        canvas->set_color(0x0099ff);
+        Color c = canvas->get_color();
+        canvas->set_color(Color::from_rgb24(0x0099ff));
         canvas->pixrect(x, y, x + width, y + height, false);
         canvas->fill();
         canvas->set_color(c);
@@ -333,9 +336,11 @@ void ControlPainter::draw_container(
         height -= 3;
         
         if(width > 0) {
-          canvas->set_color(0x000080);
+          Color c = canvas->get_color();
+          canvas->set_color(Color::from_rgb24(0, 0, 0x80));
           canvas->pixrect(x, y, x + width, y + height, false);
           canvas->fill();
+          canvas->set_color(c);
         }
       } break;
       
@@ -343,7 +348,7 @@ void ControlPainter::draw_container(
       if(state == Disabled)
         paint_frame(canvas, x, y, width, height, true);
       else
-        paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
+        paint_frame(canvas, x, y, width, height, true, Color::White);
         
       break;
       
@@ -351,7 +356,7 @@ void ControlPainter::draw_container(
         if(state == Disabled)
           paint_frame(canvas, x, y, width, height, true);
         else
-          paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
+          paint_frame(canvas, x, y, width, height, true, Color::White);
           
         canvas->save();
         {
@@ -373,7 +378,7 @@ void ControlPainter::draw_container(
         if(state == Disabled)
           paint_frame(canvas, x, y, width, height, true);
         else
-          paint_frame(canvas, x, y, width, height, true, 0xFFFFFF);
+          paint_frame(canvas, x, y, width, height, true, Color::White);
           
         canvas->save();
         {
@@ -392,11 +397,11 @@ void ControlPainter::draw_container(
     case RadioButtonChecked: {
         canvas->save();
         {
-          int old_color = canvas->get_color();
-          int inner_color = 0xFFFFFF;
+          Color old_color = canvas->get_color();
+          Color inner_color = Color::White;
           
           if(state == Disabled)
-            inner_color = 0xDCDCDC;
+            inner_color = ButtonColor;
             
           canvas->move_to(x + width / 2, y);
           canvas->line_to(x + width,   y + height / 2);
@@ -408,35 +413,35 @@ void ControlPainter::draw_container(
           
           
           canvas->move_to(x,                y + height / 2);
-          canvas->line_to(x + width / 2,      y + height);
+          canvas->line_to(x + width / 2,    y + height);
           canvas->line_to(x + width,        y + height / 2);
           canvas->line_to(x + width - 0.75, y + height / 2);
-          canvas->line_to(x + width / 2,      y + height - 0.75);
+          canvas->line_to(x + width / 2,    y + height - 0.75);
           canvas->line_to(x + 0.75,         y + height / 2);
           
-          canvas->set_color(0xDCDCDC);
+          canvas->set_color(ButtonColor);
           canvas->fill();
           
           
           canvas->move_to(x + 0.75,         y + height / 2);
-          canvas->line_to(x + width / 2,      y + height - 0.75);
+          canvas->line_to(x + width / 2,    y + height - 0.75);
           canvas->line_to(x + width - 0.75, y + height / 2);
           canvas->line_to(x + width - 1.5,  y + height / 2);
-          canvas->line_to(x + width / 2,      y + height - 1.5);
+          canvas->line_to(x + width / 2,    y + height - 1.5);
           canvas->line_to(x + 1.5,          y + height / 2);
           
-          canvas->set_color(0xF0F0F0);
+          canvas->set_color(Button3DLightColor);
           canvas->fill();
           
           
           canvas->move_to(x,               y + height / 2);
-          canvas->line_to(x + width / 2,     y);
+          canvas->line_to(x + width / 2,   y);
           canvas->line_to(x + width,       y + height / 2);
           canvas->line_to(x + width - 1.5, y + height / 2);
-          canvas->line_to(x + width / 2,     y + 1.5);
+          canvas->line_to(x + width / 2,   y + 1.5);
           canvas->line_to(x + 1.5,         y + height / 2);
           
-          canvas->set_color(0x787878);
+          canvas->set_color(Button3DDarkColor);
           canvas->fill();
           
           
@@ -446,7 +451,7 @@ void ControlPainter::draw_container(
             canvas->line_to(x +     width / 2, y + 3 * height / 4);
             canvas->line_to(x +     width / 4, y +     height / 2);
             
-            canvas->set_color(0x000000);
+            canvas->set_color(Color::Black);
             canvas->fill();
           }
           
@@ -456,8 +461,8 @@ void ControlPainter::draw_container(
       } break;
   
     case OpenerTriangleClosed: {
-        int old_col = canvas->get_color();
-        canvas->set_color(0x000000);
+        Color old_col = canvas->get_color();
+        canvas->set_color(Color::Black);
         canvas->move_to(x + width * 0.3f, y + height * 0.3f);
         canvas->line_to(x + width * 0.6f, y + height * 0.5f);
         canvas->line_to(x + width * 0.3f, y + height * 0.7f);
@@ -466,8 +471,8 @@ void ControlPainter::draw_container(
       } break;
       
     case OpenerTriangleOpened: {
-        int old_col = canvas->get_color();
-        canvas->set_color(0x000000);
+        Color old_col = canvas->get_color();
+        canvas->set_color(Color::Black);
         canvas->move_to(x + width * 0.6f, y + height * 0.3f);
         canvas->line_to(x + width * 0.6f, y + height * 0.6f);
         canvas->line_to(x + width * 0.3f, y + height * 0.6f);
@@ -579,15 +584,15 @@ void ControlPainter::paint_scroll_indicator(
     canvas->close_path();
   }
   
-  canvas->set_color(0x303030);
+  canvas->set_color(Color::from_rgb24(0x303030));
   canvas->fill();
 }
 
 void ControlPainter::system_font_style(ControlContext *context, Style *style) {
 }
 
-int ControlPainter::selection_color(ControlContext *context) {
-  return 0x000000;
+Color ControlPainter::selection_color(ControlContext *context) {
+  return Color::Black;
 }
 
 void ControlPainter::paint_scrollbar_part(
@@ -604,7 +609,7 @@ void ControlPainter::paint_scrollbar_part(
   if(width <= 0 || height <= 0)
     return;
     
-  int c = canvas->get_color();
+  Color c = canvas->get_color();
   
   switch(part) {
     case ScrollbarNowhere:
@@ -612,7 +617,7 @@ void ControlPainter::paint_scrollbar_part(
       
     case ScrollbarLowerRange:
     case ScrollbarUpperRange: {
-        canvas->set_color(0xDCDCDC);
+        canvas->set_color(ButtonColor);
         canvas->pixrect(x, y, x + width, y + height, false);
         canvas->fill();
         
@@ -628,7 +633,7 @@ void ControlPainter::paint_scrollbar_part(
         
         if(!canvas->glass_background) {
           canvas->pixrect(x, y, x + width, y + height, false);
-          canvas->set_color(0xDCDCDC);
+          canvas->set_color(ButtonColor);
           canvas->fill();
         }
         
@@ -649,19 +654,19 @@ void ControlPainter::paint_scrollbar_part(
           canvas->move_to(x1, y1);
           canvas->line_to(x2, y2);
           canvas->line_to(x3, y3);
-          canvas->set_color(0xDCDCDC);
+          canvas->set_color(ButtonColor);
           canvas->fill();
         }
         
         canvas->move_to(x1, y1);
         canvas->line_to(x2, y2);
         canvas->line_to(x3, y3);
-        canvas->set_color(0x787878);
+        canvas->set_color(Button3DDarkColor);
         canvas->hair_stroke();
         
         canvas->move_to(x1, y1);
         canvas->line_to(x3, y3);
-        canvas->set_color(0xFFFFFF);
+        canvas->set_color(Color::White);
         canvas->hair_stroke();
         
         canvas->set_color(c);
@@ -680,7 +685,7 @@ void ControlPainter::paint_scrollbar_part(
   
   container_content_move(PushButton, state, &mx, &my);
   
-  canvas->set_color(0);
+  canvas->set_color(Color::Black);
   
   if(dir == ScrollbarHorizontal) {
     if(part == ScrollbarUpLeft) {

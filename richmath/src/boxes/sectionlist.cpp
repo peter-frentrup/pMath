@@ -1135,7 +1135,7 @@ void SectionList::paint_single_section_bracket(
   float pdyy = 1;
   
   context->canvas->save();
-  int c = context->canvas->get_color();
+  Color c = context->canvas->get_color();
   {
     cairo_set_line_width(context->canvas->cairo(), 1);
     cairo_set_line_cap(context->canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
@@ -1170,7 +1170,7 @@ void SectionList::paint_single_section_bracket(
 
     context->canvas->reset_matrix();
     
-    int col = 0x999999; // 0x454E99
+    Color col = Color::from_rgb24(0x999999); // 0x454E99
     context->canvas->set_color(col);
     if(style & BorderTopArrow) {
       context->canvas->move_to(px2, py2);
@@ -1223,7 +1223,7 @@ void SectionList::paint_single_section_bracket(
       cairo_set_line_cap(context->canvas->cairo(), CAIRO_LINE_CAP_BUTT);
       cairo_set_line_width(context->canvas->cairo(), 3.0);
       
-      context->canvas->set_color(0x000000);
+      context->canvas->set_color(Color::Black);
       context->canvas->stroke_preserve();
       
       cairo_set_dash(context->canvas->cairo(), nullptr, 0, 0.0);
@@ -1231,7 +1231,7 @@ void SectionList::paint_single_section_bracket(
     else if(style & BorderEval) {
       cairo_set_line_width(context->canvas->cairo(), 3.0);
       
-      context->canvas->set_color(0x000000);
+      context->canvas->set_color(Color::Black);
       context->canvas->stroke_preserve();
       
       //col = 0xffffff & ~col;

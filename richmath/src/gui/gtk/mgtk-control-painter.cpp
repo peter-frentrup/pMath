@@ -193,17 +193,13 @@ void MathGtkControlPainter::calc_container_size(
   ControlPainter::calc_container_size(context, canvas, type, extents);
 }
  
-int MathGtkControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
+Color MathGtkControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
   if(GtkStyleContext *gsc = get_control_theme(context, type)) {
     GdkRGBA color;
     gtk_style_context_get_color(gsc, get_state_flags(context, type, state), &color);
     
     // ignoring color.alpha
-    int red   = (int)(color.red   * 255);
-    int green = (int)(color.green * 255);
-    int blue  = (int)(color.blue  * 255);
-    
-    return (red << 16) | (green << 8) | blue;
+    return Color::from_rgb(color.red, color.green, color.blue);
   }
   
   return ControlPainter::control_font_color(context, type, state);

@@ -3,6 +3,8 @@
 
 #include <boxes/graphics/graphicselement.h>
 
+#include <graphics/color.h>
+
 
 namespace richmath {
   class ColorBox: public GraphicsElement {
@@ -19,9 +21,9 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     protected:
-      int _color;
+      Color _color;
       
-      ColorBox(int color = 0);
+      ColorBox();
   };
 }
 

@@ -260,7 +260,7 @@ void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) 
 
 void GraphicsElementCollection::paint(GraphicsBoxContext *context) {
   context->ctx->canvas->save();
-  int old_color = context->ctx->canvas->get_color();
+  Color old_color = context->ctx->canvas->get_color();
   
   GraphicsDirective::paint(context);
   

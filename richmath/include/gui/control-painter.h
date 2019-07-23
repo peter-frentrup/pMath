@@ -85,9 +85,8 @@ namespace richmath {
         Canvas               *canvas,
         ContainerType         type,
         BoxSize              *extents);
-        
-      // -1 for none/default
-      virtual int control_font_color(ControlContext *context, ContainerType type, ControlState state);
+      
+      virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state);
       
       virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state);
       
@@ -130,7 +129,7 @@ namespace richmath {
         
       virtual void system_font_style(ControlContext *context, Style *style);
       
-      virtual int selection_color(ControlContext *context);
+      virtual Color selection_color(ControlContext *context);
       
       virtual float scrollbar_width() { return 16 * 3 / 4.f; };
       

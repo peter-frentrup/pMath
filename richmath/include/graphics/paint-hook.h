@@ -3,6 +3,7 @@
 
 #include <util/hashtable.h>
 #include <util/sharedptr.h>
+#include <graphics/color.h>
 
 
 namespace richmath {
@@ -56,14 +57,14 @@ namespace richmath {
   
   class SelectionFillHook: public PaintHook {
     public:
-      SelectionFillHook(int _start, int _end, int _color, float _alpha = 1.0);
+      SelectionFillHook(int _start, int _end, Color _color, float _alpha = 1.0);
       
       virtual void run(Box *box, Context *context) override;
       
     public:
       int start;
       int end;
-      int color;
+      Color color;
       float alpha;
   };
 }

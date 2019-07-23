@@ -120,10 +120,10 @@ void ContainerWidgetBox::paint(Context *context) {
     
   context->canvas->move_to(x2, y2);
   
-  int old_cursor_color = context->cursor_color;
-  int old_color        = context->canvas->get_color();
-  int c = ControlPainter::std->control_font_color(this, type, state);
-  if(c >= 0) {
+  Color old_cursor_color = context->cursor_color;
+  Color old_color        = context->canvas->get_color();
+  Color c = ControlPainter::std->control_font_color(this, type, state);
+  if(c.is_valid()) {
     context->canvas->set_color(c);
     context->cursor_color = c;
   }
@@ -141,7 +141,7 @@ void ContainerWidgetBox::paint(Context *context) {
       //rect.add_rect_path(*context->canvas);
       
       cairo_set_operator(context->canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
-      context->canvas->set_color(0xffffff);
+      context->canvas->set_color(Color::White);
       context->canvas->fill();
     }
     context->canvas->restore();

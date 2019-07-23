@@ -1,8 +1,9 @@
 #ifndef RICHMATH__UTIL__SYNTAX_STATE_H__INCLUDED
 #define RICHMATH__UTIL__SYNTAX_STATE_H__INCLUDED
 
+#include <graphics/color.h>
+
 #include <util/hashtable.h>
-#include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
 
@@ -31,7 +32,7 @@ namespace richmath {
       virtual ~GeneralSyntaxInfo();
       
     public:
-      int glyph_style_colors[16];
+      Color glyph_style_colors[16];
   };
   
   class ScopePos: public Shareable {

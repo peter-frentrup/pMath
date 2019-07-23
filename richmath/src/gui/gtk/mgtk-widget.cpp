@@ -834,7 +834,7 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
 }
 
 void MathGtkWidget::paint_background(Canvas *canvas) {
-  canvas->set_color(0xffffff);
+  canvas->set_color(Color::White);
   canvas->paint();
 }
 
@@ -844,8 +844,8 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
   canvas->set_font_size(10);// 10 * 4/3.
   
   if(!resize_only) {
-    int color = document()->get_style(Background, -1);
-    if(color >= 0) {
+    Color color = Color::decode(document()->get_style(Background, -1));
+    if(color.is_valid()) {
       canvas->set_color(color);
       canvas->paint();
     }
@@ -854,7 +854,7 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
   }
   
   canvas->scale(scale_factor(), scale_factor());
-  canvas->set_color(document()->get_style(FontColor, 0));
+  canvas->set_color(Color::decode(document()->get_style(FontColor, 0)));
   
   document()->paint_resize(canvas, resize_only);
   

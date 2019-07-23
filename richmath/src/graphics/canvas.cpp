@@ -22,7 +22,7 @@ Canvas::Canvas(cairo_t *cr)
     show_only_text(false),
     _cr(cr),
     _font_size(10),
-    _color(0)
+    _color(Color::Black)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
@@ -187,20 +187,12 @@ void Canvas::scale(double sx, double sy) {
   cairo_scale(_cr, sx, sy);
 }
 
-void Canvas::set_color(int color, float alpha) { // 0xRRGGBB
+void Canvas::set_color(Color color, float alpha) { 
   if(show_only_text)
     return;
     
   _color = color;
-  cairo_set_source_rgba(_cr,
-                        ((color & 0xFF0000) >> 16) / 255.0,
-                        ((color & 0x00FF00) >>  8) / 255.0,
-                        (color & 0x0000FF)        / 255.0,
-                        alpha);
-}
-
-int Canvas::get_color() { // 0xRRGGBB
-  return _color;
+  cairo_set_source_rgba(_cr, color.red(), color.green(), color.blue(), alpha);
 }
 
 void Canvas::set_font_face(FontFace font) {
@@ -323,9 +315,9 @@ void Canvas::show_blur_rect(
     return;
     
   cairo_pattern_t *pat;
-  float r = ((_color & 0xFF0000) >> 16) / 255.0;
-  float g = ((_color & 0x00FF00) >>  8) / 255.0;
-  float b = (_color & 0x0000FF)        / 255.0;
+  double r = _color.red();
+  double g = _color.green();
+  double b = _color.blue();
   
   move_to(x1, y1);
   line_to(x2, y1);
@@ -435,10 +427,9 @@ void Canvas::show_blur_line(float x1, float y1, float x2, float y2, float radius
   dy *= d2;
   
   cairo_pattern_t *pat;
-  float r = ((_color & 0xFF0000) >> 16) / 255.0;
-  float g = ((_color & 0x00FF00) >>  8) / 255.0;
-  float b = (_color & 0x0000FF)        / 255.0;
-  
+  double r = _color.red();
+  double g = _color.green();
+  double b = _color.blue();
   
   move_to(x1, y1);
   line_to(x2, y2);
@@ -465,9 +456,9 @@ void Canvas::show_blur_arc(
     return;
     
   cairo_pattern_t *pat;
-  float r = ((_color & 0xFF0000) >> 16) / 255.0;
-  float g = ((_color & 0x00FF00) >>  8) / 255.0;
-  float b = (_color & 0x0000FF)        / 255.0;
+  double r = _color.red();
+  double g = _color.green();
+  double b = _color.blue();
   
   move_to(x, y);
   arc(x, y, radius, angle1, angle2, negative);

@@ -942,14 +942,14 @@ void GraphicsBox::paint(Context *context) {
         transform_inner_to_outer(&m);
         context->canvas->transform(m);
         
-        int old_color = context->canvas->get_color();
+        Color old_color = context->canvas->get_color();
         
         //context->canvas->set_color(0xff0000);
         //context->canvas->move_to(0, 0);
         //context->canvas->line_to(1, 1);
         //context->canvas->hair_stroke();
         
-        context->canvas->set_color(0x000000);
+        context->canvas->set_color(Color::Black);
         elements.paint(&gctx);
         
         context->canvas->set_color(old_color);
@@ -959,8 +959,8 @@ void GraphicsBox::paint(Context *context) {
       
       context->canvas->save();
       {
-        int old_color = context->canvas->get_color();
-        context->canvas->set_color(0x000000);
+        Color old_color = context->canvas->get_color();
+        context->canvas->set_color(Color::Black);
         
         for(int axis = 0; axis < 6; ++axis) {
           if(!ticks[axis]->axis_hidden) {
@@ -1007,7 +1007,7 @@ void GraphicsBox::paint(Context *context) {
     
     context->canvas->pixrect(x, y, x + w, y + h, true);
     
-    context->canvas->set_color(0xFF8000);
+    context->canvas->set_color(Color::from_rgb24(0xFF8000));
     context->canvas->hair_stroke();
     
     context->canvas->pixrect(

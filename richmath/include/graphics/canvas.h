@@ -1,6 +1,7 @@
 #ifndef RICHMATH__GRAPHICS__CANVAS_H__INCLUDED
 #define RICHMATH__GRAPHICS__CANVAS_H__INCLUDED
 
+#include <graphics/color.h>
 #include <graphics/fonts.h>
 
 
@@ -8,11 +9,11 @@ namespace richmath {
   class Base;
   class Rectangle;
   
-  static const float SelectionAlpha             = 0.4f;
-  static const int SelectionFillColor           = 0x6699FF;
-  static const int SelectionBorderColor         = 0x0000FF;
-  static const int InactiveSelectionFillColor   = 0xA0A0A0;
-  static const int InactiveSelectionBorderColor = 0x000000;
+  static const float SelectionAlpha               = 0.4f;
+  static const Color SelectionFillColor           = Color::from_rgb24(0x6699FF);
+  static const Color SelectionBorderColor         = Color::from_rgb24(0x0000FF);
+  static const Color InactiveSelectionFillColor   = Color::from_rgb24(0xA0A0A0);
+  static const Color InactiveSelectionBorderColor = Color::from_rgb24(0x000000);
   
   class Canvas: public Base {
     public:
@@ -52,8 +53,8 @@ namespace richmath {
       void rotate(double angle);
       void scale(double sx, double sy);
       
-      void set_color(int color, float alpha = 1.0f); // 0xRRGGBB
-      int get_color(); // 0xRRGGBB
+      void set_color(Color color, float alpha = 1.0f);
+      Color get_color() { return _color; }
       
       void set_font_face(FontFace font);
       void set_font_size(float size);
@@ -135,7 +136,7 @@ namespace richmath {
     private:
       cairo_t           *_cr;
       float              _font_size;
-      int                _color;
+      Color              _color;
   };
   
   class CanvasAutoSave {

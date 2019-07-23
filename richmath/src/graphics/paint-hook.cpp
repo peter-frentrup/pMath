@@ -156,7 +156,7 @@ void PaintHookManager::move_into(PaintHookManager &other) {
 
 //{ class SelectionFillHook ...
 
-SelectionFillHook::SelectionFillHook(int _start, int _end, int _color, float _alpha)
+SelectionFillHook::SelectionFillHook(int _start, int _end, Color _color, float _alpha)
   : PaintHook(),
     start(_start),
     end(_end),
@@ -173,7 +173,7 @@ void SelectionFillHook::run(Box *box, Context *context) {
   else
     box->selection_path(context->canvas, start, end);
     
-  int old_c = context->canvas->get_color();
+  Color old_c = context->canvas->get_color();
   context->canvas->set_color(color, alpha);
   
   context->canvas->fill();

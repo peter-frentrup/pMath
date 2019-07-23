@@ -197,7 +197,7 @@ void InlineSequenceBox::paint(Context *context) {
     
   if(b == this) {
     float x, y;
-    int c = context->canvas->get_color();
+    Color c = context->canvas->get_color();
     context->canvas->current_pos(&x, &y);
     context->canvas->pixrect(
       x,
@@ -206,7 +206,7 @@ void InlineSequenceBox::paint(Context *context) {
       y + _extents.descent + 1,
       false);
       
-    context->canvas->set_color(0xF6EDD6);
+    context->canvas->set_color(Color::from_rgb24(0xF6EDD6));
     context->canvas->fill();
     context->canvas->set_color(c);
     context->canvas->move_to(x, y);

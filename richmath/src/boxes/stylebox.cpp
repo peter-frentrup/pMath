@@ -52,14 +52,14 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint)
           radii.normalize(rect.width, rect.height);
           rect.add_round_rect_path(*context->canvas, radii, false);
           
-          context->canvas->set_color(i);
+          context->canvas->set_color(Color::decode(i));
           context->canvas->fill();
         }
       }
       
-      i = cc.old_color;
+      i = cc.old_color.encode();
       context->stylesheet->get(style, FontColor, &i);
-      context->canvas->set_color(i);
+      context->canvas->set_color(Color::decode(i));
       
       context->canvas->move_to(x, y);
       OwnerBox::paint(context);
