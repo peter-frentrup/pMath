@@ -139,14 +139,6 @@ bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     if(data.is_expr())
       expr.set(1, data);
   }
-  else if(data[0] == PMATH_SYMBOL_UNCOMPRESS && data[1].is_string()) {
-    data = Call(Symbol(PMATH_SYMBOL_UNCOMPRESS), data[1], Symbol(PMATH_SYMBOL_HOLDCOMPLETE));
-    data = Evaluate(data);
-    if(data[0] == PMATH_SYMBOL_HOLDCOMPLETE && data.expr_length() == 1) {
-      data = data[1];
-      expr.set(1, data);
-    }
-  }
   
   if(DoublePoint::load_point_or_points(_points, data)) {
     _uncompressed_expr = expr;
