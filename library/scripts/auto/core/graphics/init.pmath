@@ -53,6 +53,7 @@ Options(ListLinePlot):= With(newdef:= {
 		AspectRatio -> 1/GoldenRatio,
 		Axes -> True,
 		Frame -> False,
+		PlotStyle -> Automatic,
 		WorkingPrecision -> MachinePrecision
 	}) {
 		FilterRules(Options(Graphics),Except(newdef)).Join(newdef)
@@ -63,6 +64,8 @@ Options(Plot):= With(newdef:= {
 		Axes -> True,
 		Frame -> False,
 		MaxRecursion -> Automatic,
+		PlotPoints -> Automatic,
+		PlotStyle -> Automatic,
 		WorkingPrecision -> MachinePrecision
 	}) {
 		FilterRules(Options(Graphics),Except(newdef)).Join(newdef)

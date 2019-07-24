@@ -46,7 +46,7 @@ Document({
              "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {Directive(RGBColor(0.75`, 0, 0), PlotStyle), {
+                {RGBColor(0.75`, 0, 0), {
                   LineBox(CompressedData(
                     "1:c$,g^dr*[{7{=X]gK}(1MVCXG=9yy5p)yo-)L}C}GE!p@j1Y(vQSpjk\
                     2wo@$8AMD%D=A{g;bQ0rC^i_xdciT[7+y0+DT_4mf+i-8Vzjg0S<ZX@I,e\

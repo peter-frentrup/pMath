@@ -46,7 +46,7 @@ Document({
              "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(GraphicsBox({
-                {Directive(RGBColor(0.75`, 0, 0), PlotStyle), {
+                {RGBColor(0.75`, 0, 0), {
                   LineBox(CompressedData(
                     "1:c$,g@drVYE6o<J3S}qrF!1#<7QmZz;Kt-#@xzrU]L_-l#0d+-OMUkL@\
                     s8KO3&;_wYsx2rIBvdRK1#1;q$,GNk!dmbF#vt01iqgtTMdj,GWM+rX{<Z\
@@ -86,9 +86,9 @@ Document({
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Evaluate numerically:", "ExampleText"), 
         SectionGroup({Section(BoxData({"Sin", "(", "1.2", ")"}), "Input", 
-           SectionLabel -> "in [2]:"), 
+           SectionLabel -> "in [1]:"), 
           Section(BoxData("0.93203908596722629`"), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
