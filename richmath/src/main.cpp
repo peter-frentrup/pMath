@@ -278,6 +278,8 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(FontSlant,              FontSlantPlain);
   Stylesheet::Default->base->set(FontWeight,             FontWeightPlain);
   
+  Stylesheet::Default->base->set(ButtonSource,           ButtonSourceAutomatic);
+  
   Stylesheet::Default->base->set(AutoDelete,                          false);
   Stylesheet::Default->base->set(AutoNumberFormating,                 true);
   Stylesheet::Default->base->set(AutoSpacing,                         false);

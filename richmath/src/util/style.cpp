@@ -27,9 +27,13 @@ extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BorderRadius;
 extern pmath_symbol_t richmath_System_BoxRotation;
 extern pmath_symbol_t richmath_System_BoxTransformation;
+extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_ButtonBoxOptions;
+extern pmath_symbol_t richmath_System_ButtonContents;
+extern pmath_symbol_t richmath_System_ButtonData;
 extern pmath_symbol_t richmath_System_ButtonFrame;
 extern pmath_symbol_t richmath_System_ButtonFunction;
+extern pmath_symbol_t richmath_System_ButtonSource;
 extern pmath_symbol_t richmath_System_ContinuousAction;
 extern pmath_symbol_t richmath_System_DefaultDuplicateSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
@@ -46,6 +50,7 @@ extern pmath_symbol_t richmath_System_FontSlant;
 extern pmath_symbol_t richmath_System_FontWeight;
 extern pmath_symbol_t richmath_System_Frame;
 extern pmath_symbol_t richmath_System_FrameTicks;
+extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_GeneratedSectionStyles;
 extern pmath_symbol_t richmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t richmath_System_GridBoxRowSpacing;
@@ -199,6 +204,22 @@ namespace {
       }
   };
   
+  class ButtonSourceStyleEnumConverter: public StyleEnumConverter {
+    public:
+      ButtonSourceStyleEnumConverter()
+        : StyleEnumConverter()
+      {
+        _int_to_expr.default_value = Expr();
+        _expr_to_int.default_value = -1;
+        
+        add(ButtonSourceAutomatic,      Symbol(PMATH_SYMBOL_AUTOMATIC));
+        add(ButtonSourceButtonBox,      Symbol(richmath_System_ButtonBox));
+        add(ButtonSourceButtonContents, Symbol(richmath_System_ButtonContents));
+        add(ButtonSourceButtonData,     Symbol(richmath_System_ButtonData));
+        add(ButtonSourceFrontEndObject, Symbol(richmath_System_FrontEndObject));
+      }
+  };
+  
   class WindowFrameStyleEnumConverter: public StyleEnumConverter {
     public:
       WindowFrameStyleEnumConverter()
@@ -260,15 +281,27 @@ namespace {
           add_ruleset_head(TemplateBoxOptions, Symbol( richmath_System_TemplateBoxOptions));
           
           {
-            SharedPtr<StyleEnumConverter> buttonFrameStyleEnumConverter{new ButtonFrameStyleEnumConverter};
+            SharedPtr<StyleEnumConverter> converter{new ButtonFrameStyleEnumConverter};
             add_enum(
               ButtonFrame, 
               Symbol( richmath_System_ButtonFrame), 
-              buttonFrameStyleEnumConverter);
+              converter);
             add_enum(
               ButtonBoxDefaultButtonFrame, 
               Rule(Symbol( richmath_System_ButtonBoxOptions), Symbol( richmath_System_ButtonFrame)),
-              buttonFrameStyleEnumConverter);
+              converter);
+          }
+          
+          {
+            SharedPtr<StyleEnumConverter> converter{new ButtonSourceStyleEnumConverter};
+            add_enum(
+              ButtonSource, 
+              Symbol( richmath_System_ButtonSource), 
+              converter);
+            add_enum(
+              ButtonBoxDefaultButtonSource, 
+              Rule(Symbol( richmath_System_ButtonBoxOptions), Symbol( richmath_System_ButtonSource)),
+              converter);
           }
           
           add_enum(FontSlant,   Symbol( richmath_System_FontSlant),   new FontSlantStyleEnumConverter);
@@ -339,6 +372,7 @@ namespace {
           add(StyleTypeAny,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
           add(StyleTypeAny,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
           add(StyleTypeAny,             BaselinePosition,                 Symbol( richmath_System_BaselinePosition));
+          add(StyleTypeAny,             ButtonData,                       Symbol( richmath_System_ButtonData));
           add(StyleTypeAny,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
           add(StyleTypeAny,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
           add(StyleTypeAny,             TextShadow,                       Symbol( richmath_System_TextShadow));
@@ -365,6 +399,7 @@ namespace {
           add(StyleTypeAny, DockedSectionsBottomGlass, Rule(Symbol(richmath_System_DockedSections), String("BottomGlass")));
           
           add(StyleTypeAny, ButtonBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
+          add(StyleTypeAny, ButtonBoxDefaultButtonData,       Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonData)));
           add(StyleTypeAny, ButtonBoxDefaultButtonFunction,   Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFunction)));
           
           add(StyleTypeAny, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
@@ -2186,8 +2221,10 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(BoxRotation);
   impl.emit_definition(BoxTransformation);
   impl.emit_definition(ButtonBoxOptions);
+  impl.emit_definition(ButtonData);
   impl.emit_definition(ButtonFrame);
   impl.emit_definition(ButtonFunction);
+  impl.emit_definition(ButtonSource);
   impl.emit_definition(ContinuousAction);
   impl.emit_definition(DefaultDuplicateSectionStyle);
   impl.emit_definition(DefaultNewSectionStyle);

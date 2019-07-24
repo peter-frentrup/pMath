@@ -134,23 +134,65 @@ void ButtonBox::reset_style() {
 
 void ButtonBox::click() {
   Expr fn = get_own_style(ButtonFunction);
+  if(fn.is_null())
+    return;
   
-  if(!fn.is_null()) {
-    fn = prepare_dynamic(fn);
-    
-    fn = Call(
-           fn,
-           Call(
-             Symbol(richmath_System_BoxData),
-             _content->to_pmath(BoxOutputFlags::Default)));
-    
-    String method = get_own_style(Method);
-    if(method.equals("Preemptive")) {
-      Application::interrupt_wait_for(fn, this, Application::button_timeout);
-    }
-    else
-      Application::add_job(new EvaluationJob(fn, this));
+  fn = prepare_dynamic(std::move(fn));
+  
+  bool has_data;
+  Expr data = get_own_style(ButtonData, Symbol(PMATH_SYMBOL_INHERITED));
+  if(data == PMATH_SYMBOL_INHERITED) {
+    has_data = false;
+    data = Symbol(PMATH_SYMBOL_AUTOMATIC);
   }
+  else {
+    has_data = true;
+    data = prepare_dynamic(std::move(data));
+  }
+  
+  Expr arg1;
+  int source = get_own_style(ButtonSource, ButtonSourceAutomatic);
+  if(source == ButtonSourceAutomatic) {
+    if(has_data)
+      source = ButtonSourceButtonData;
+    else
+      source = ButtonSourceButtonContents;
+  }
+  
+  switch(source) {
+    case ButtonSourceButtonData:
+      arg1 = data;
+      break;
+    
+    case ButtonSourceButtonContents:
+      arg1 = Call(
+        Symbol(richmath_System_BoxData),
+        _content->to_pmath(BoxOutputFlags::Default));
+      break;
+    
+    case ButtonSourceButtonBox:
+      arg1 = to_pmath(BoxOutputFlags::Default);
+      break;
+    
+    case ButtonSourceFrontEndObject:
+      arg1 = to_pmath_id();
+      break;
+    
+    default:
+      arg1 = Symbol(PMATH_SYMBOL_FAILED);
+      break;
+  }
+  
+  // Mathematica also gives a click repeat count as argument #3 and the currently 
+  // pressed keyboard modifiers as argument #4
+  // These should better be accessed via some CurrendValue() mechanism.
+  fn = Call(std::move(fn), std::move(arg1), std::move(data));
+  
+  String method = get_own_style(Method);
+  if(method.equals("Preemptive")) 
+    Application::interrupt_wait_for(std::move(fn), this, Application::button_timeout);
+  else
+    Application::add_job(new EvaluationJob(std::move(fn), this));
 }
 
 //} ... class ButtonBox

@@ -63,9 +63,19 @@ namespace richmath {
     Visible,
     
     ButtonFrame, // -1 = Automatic,  other: ContainerType value
+    ButtonSource, // ButtonSourceXXX
     WindowFrame, // WindowFrameType
     
-    ButtonBoxDefaultButtonFrame = ButtonFrame + (int)DefaultStyleOptionOffsets::ButtonBox
+    ButtonBoxDefaultButtonFrame  = ButtonFrame  + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultButtonSource = ButtonSource + (int)DefaultStyleOptionOffsets::ButtonBox
+  };
+  
+  enum {
+    ButtonSourceAutomatic      = 0,
+    ButtonSourceButtonContents = 1,
+    ButtonSourceButtonData     = 2,
+    ButtonSourceButtonBox      = 3,
+    ButtonSourceFrontEndObject = 4
   };
   
   enum {
@@ -73,11 +83,11 @@ namespace richmath {
     FontWeightBold  = 100
   };
   
-  typedef enum {
+  enum WindowFrameType {
     WindowFrameNormal  = 0,
     WindowFramePalette = 1,
     WindowFrameDialog  = 2
-  } WindowFrameType;
+  };
   
   static const float ImageSizeAutomatic = -1.0f;
   
@@ -138,8 +148,9 @@ namespace richmath {
     MathFontFamily,
     UnknownOptions,
     
-    ButtonFunction,
     ButtonBoxOptions,
+    ButtonData,
+    ButtonFunction,
     
     BoxRotation,
     BoxTransformation,
@@ -167,6 +178,7 @@ namespace richmath {
     GeneratedSectionStyles,
     
     ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultButtonData               = ButtonData             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFunction           = ButtonFunction         + (int)DefaultStyleOptionOffsets::ButtonBox,
     
     TemplateBoxDefaultDisplayFunction        = DisplayFunction        + (int)DefaultStyleOptionOffsets::TemplateBox,

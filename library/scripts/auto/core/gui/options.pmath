@@ -3,14 +3,18 @@ Begin("System`Private`")
 Options(Button):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Button", 
+	%ButtonData :> Automatic,
 	ButtonFrame -> Automatic,
+	%ButtonSource -> Automatic,
 	Method -> "Preemptive"}
           
 Options(ButtonBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Button", 
+	ButtonData :> Automatic,
 	ButtonFrame -> Automatic,
 	ButtonFunction -> (/\/ &),
+	ButtonSource -> Automatic,
 	Method -> "Preemptive"}
           
 Options(CreateDocument):= Options(Document):= {
@@ -155,8 +159,10 @@ Options(Section):= {
     BorderRadius -> 0,
     ButtonBoxOptions -> {
         BaselinePosition -> Automatic,
+	    ButtonData :> Automatic,
         ButtonFrame -> Automatic, 
         ButtonFunction -> (/\/ &),
+	    ButtonSource -> Automatic,
         Method -> "Preemptive"},
     DefaultDuplicateSectionStyle -> Inherited,
     DefaultNewSectionStyle -> Inherited,
