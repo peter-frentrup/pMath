@@ -170,20 +170,15 @@ static Expr cpp_builtin_feo_options(Expr expr) {
       return Application::notify_wait(ClientNotification::GetOptions, expr[1]);
     }
     
-    if( expr.expr_length() == 2 &&
-        expr[1][0] == richmath_System_FrontEndObject)
-    {
+    if(expr.expr_length() == 2 && FrontEndReference::from_pmath(expr[1])) {
       Expr opts = Application::notify_wait(ClientNotification::GetOptions, expr[1]);
       
       expr.set(1, opts);
     }
   }
   else if(expr[0] == PMATH_SYMBOL_SETOPTIONS) {
-    if( expr.expr_length() >= 1 &&
-        expr[1][0] == richmath_System_FrontEndObject)
-    {
+    if(expr.expr_length() >= 1 && FrontEndReference::from_pmath(expr[1]))
       return Application::notify_wait(ClientNotification::SetOptions, expr);
-    }
   }
   
   return expr;
@@ -1435,6 +1430,7 @@ bool richmath::init_bindings() {
   BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
   
   BIND_UP(PMATH_SYMBOL_CURRENTVALUE,               builtin_assign_currentvalue)
+  BIND_UP(richmath_System_DocumentObject,          builtin_feo_options)
   BIND_UP(richmath_System_FrontEndObject,          builtin_feo_options)
   
   BIND_DOWN(richmath_FE_InternalExecuteFor,  builtin_internalexecutefor)
