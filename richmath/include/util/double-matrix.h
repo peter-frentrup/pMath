@@ -44,7 +44,7 @@ namespace richmath {
       size_t cols() const { return _cols; }
       
       double get(size_t row0, size_t col0) const {
-        assert(row0 < rows || col0 < cols);
+        assert(row0 < rows() || col0 < cols());
         
         return _raw_data[row0 * _row_stride + col0];
       }
@@ -93,7 +93,7 @@ namespace richmath {
       }
     
       void set(size_t row0, size_t col0, double value) {
-        assert(row0 < rows || col0 < cols);
+        assert(row0 < rows() || col0 < cols());
         
         _raw_data[row0 * _row_stride + col0] = value;
       }
