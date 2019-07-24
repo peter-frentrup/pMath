@@ -1119,6 +1119,7 @@
 		<Unit filename="include/util/autovaluereset.h" />
 		<Unit filename="include/util/base.h" />
 		<Unit filename="include/util/concurrent-queue.h" />
+		<Unit filename="include/util/double-matrix.h" />
 		<Unit filename="include/util/frontendobject.h" />
 		<Unit filename="include/util/hashtable.h" />
 		<Unit filename="include/util/matrix.h" />

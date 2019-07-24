@@ -66,30 +66,25 @@ LineBox *LineBox::create(Expr expr, BoxInputFlags opts) {
 
 void LineBox::find_extends(GraphicsBounds &bounds) {
   for(int i = 0; i < _lines.length(); ++i) {
-    Array<DoublePoint> &line = _lines[i];
+    DoubleMatrix &line = _lines[i];
     
-    for(int j = 0; j < line.length(); ++j) {
-      DoublePoint &pt = line[j];
-      bounds.add_point(pt.x, pt.y);
-    }
+    for(int j = 0; j < line.rows(); ++j) 
+      bounds.add_point(line.get(j, 0), line.get(j, 1));
   }
 }
 
 void LineBox::paint(GraphicsBoxContext *context) {
   for(int i = 0; i < _lines.length(); ++i) {
-    Array<DoublePoint> &line = _lines[i];
+    DoubleMatrix &line = _lines[i];
     
-    if(line.length() > 1) {
-      const DoublePoint &pt = line[0];
-      context->ctx->canvas->move_to(pt.x, pt.y);
+    if(line.rows() > 1) {
+      context->ctx->canvas->move_to(line.get(0, 0), line.get(0, 1));
       
-      for(int j = 1; j < line.length(); ++j) {
-        const DoublePoint &pt = line[j];
-        context->ctx->canvas->line_to(pt.x, pt.y);
-      }
+      for(int j = 1; j < line.rows(); ++j) 
+        context->ctx->canvas->line_to(line.get(j, 0), line.get(j, 1));
     }
-    else if(line.length() == 1){
-      const DoublePoint &pt = line[0];
+    else if(line.rows() == 1){
+      DoublePoint pt { line.get(0, 0), line.get(0, 1) };
       context->ctx->canvas->move_to(pt.x, pt.y);
       context->ctx->canvas->line_to(pt.x, pt.y);
     }

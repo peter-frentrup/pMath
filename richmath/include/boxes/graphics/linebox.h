@@ -2,6 +2,7 @@
 #define RICHMATH__BOXES__GRAPHICS__LINEBOX_H__INCLUDED
 
 #include <boxes/graphics/pointbox.h>
+#include <util/double-matrix.h>
 
 
 namespace richmath {
@@ -18,8 +19,8 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     protected:
-      Expr                        _uncompressed_expr;
-      Array< Array<DoublePoint> > _lines;
+      Expr                _uncompressed_expr;
+      Array<DoubleMatrix> _lines;
       
     protected:
       LineBox();

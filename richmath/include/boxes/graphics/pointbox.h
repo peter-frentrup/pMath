@@ -2,6 +2,7 @@
 #define RICHMATH__BOXES__GRAPHICS__POINTBOX_H__INCLUDED
 
 #include <boxes/graphics/graphicselement.h>
+#include <util/double-matrix.h>
 
 
 namespace richmath {
@@ -18,11 +19,11 @@ namespace richmath {
       }
       
     public:
-      static bool load_point(                DoublePoint  &point,  Expr coords);
-      static bool load_point_or_points(Array<DoublePoint> &points, Expr coords);
+      static bool load_point(          DoublePoint  &point,  Expr coords);
+      static bool load_point_or_points(DoubleMatrix &points, Expr coords);
       
-      static bool load_line(                Array<DoublePoint>   &line,  Expr coords);
-      static bool load_line_or_lines(Array< Array<DoublePoint> > &lines, Expr coords);
+      static bool load_line(               DoubleMatrix  &line,   Expr coords);
+      static bool load_line_or_lines(Array<DoubleMatrix> &lines, Expr coords);
       
     public:
       double x;
@@ -42,8 +43,8 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     protected:
-      Expr               _uncompressed_expr;
-      Array<DoublePoint> _points;
+      Expr         _uncompressed_expr;
+      DoubleMatrix _points;
       
     protected:
       PointBox();

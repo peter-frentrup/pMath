@@ -22,7 +22,6 @@ using namespace std;
 
 extern pmath_symbol_t richmath_System_PointBox;
 
-
 //{ class DoublePoint ...
 
 bool DoublePoint::load_point(DoublePoint &point, Expr coords) {
@@ -38,41 +37,59 @@ bool DoublePoint::load_point(DoublePoint &point, Expr coords) {
   return !std::isnan(point.x) && !std::isnan(point.y);
 }
 
-bool DoublePoint::load_point_or_points(Array<DoublePoint> &points, Expr coords) {
-  if(coords[0] != PMATH_SYMBOL_LIST)
+bool DoublePoint::load_point_or_points(DoubleMatrix &points, Expr coords) {
+  DoublePoint pt;
+  if(load_point(pt, coords)) {
+    WriteableDoubleMatrix the_point {1, 2};
+    if(the_point) {
+      the_point.set(0, 0, pt.x);
+      the_point.set(0, 1, pt.y);
+      points = std::move(the_point);
+      return true;
+    }
     return false;
-    
-  points.length(1);
-  if(load_point(points[0], coords))
-    return true;
-    
-  points.length((int)coords.expr_length());
-  for(int i = 0; i < points.length(); ++i) {
-    if(!load_point(points[i], coords[i + 1])) {
-      points.length(0);
-      return false;
+  }
+  
+  return load_line(points, std::move(coords));
+}
+
+bool DoublePoint::load_line(DoubleMatrix &line, Expr coords) {
+  if(coords.is_packed_array()) {
+    line = DoubleMatrix::const_from_expr(coords);
+    if(line) {
+      if(line.cols() != 2) {
+        line = DoubleMatrix{};
+        return false;
+      }
+      
+      return true;
     }
   }
   
-  return true;
-}
-
-bool DoublePoint::load_line(Array<DoublePoint> &line, Expr coords) {
   if(coords[0] != PMATH_SYMBOL_LIST)
     return false;
-    
-  line.length((int)coords.expr_length());
-  for(int i = 0; i < line.length(); ++i) {
-    if(!load_point(line[i], coords[i + 1])) {
-      line.length(0);
+  
+  size_t rows = coords.expr_length();
+  WriteableDoubleMatrix new_points{rows, 2};
+  if(new_points.is_empty() && rows > 0)
+    return false;
+  
+  DoublePoint pt;
+  for(size_t i = 0; i < rows; ++i) {
+    if(!load_point(pt, coords[i + 1])) {
+      line = DoubleMatrix{};
       return false;
     }
+    
+    new_points.set(i, 0, pt.x);
+    new_points.set(i, 1, pt.y);
   }
   
+  line = std::move(new_points);
   return true;
 }
 
-bool DoublePoint::load_line_or_lines(Array< Array<DoublePoint> > &lines, Expr coords) {
+bool DoublePoint::load_line_or_lines(Array< DoubleMatrix > &lines, Expr coords) {
   if(coords[0] != PMATH_SYMBOL_LIST)
     return false;
     
@@ -147,10 +164,8 @@ PointBox *PointBox::create(Expr expr, BoxInputFlags opts) {
 }
 
 void PointBox::find_extends(GraphicsBounds &bounds) {
-  for(int i = 0; i < _points.length(); ++i) {
-    DoublePoint &pt = _points[i];
-    bounds.add_point(pt.x, pt.y);
-  }
+  for(size_t i = 0; i < _points.rows(); ++i) 
+    bounds.add_point(_points.get(i, 0), _points.get(i, 1));
 }
 
 void PointBox::paint(GraphicsBoxContext *context) {
@@ -160,8 +175,8 @@ void PointBox::paint(GraphicsBoxContext *context) {
     
     context->ctx->canvas->reset_matrix();
     
-    for(int i = 0; i < _points.length(); ++i) {
-      DoublePoint pt = _points[i];
+    for(size_t i = 0; i < _points.rows(); ++i) {
+      DoublePoint pt{ _points.get(i, 0), _points.get(i, 1) };
       
       cairo_matrix_transform_point(&mat, &pt.x, &pt.y);
       
