@@ -121,6 +121,7 @@ Break::usage:= "Break() exits the nearest enclosing Do, For or While.\nBreak(\(\
 Brown::usage:= "Brown represents the color brown in graphics and style specifications."
 Button::usage:= "Button(\({\"label\".StyleBox(\"Arg\"), \",\", \"action\".StyleBox(\"Arg\")}\)) represents a button, that is labeled with \(\"label\".StyleBox(\"Arg\")\) and evaluates \(\"action\".StyleBox(\"Arg\")\) whenever it is pressed."
 ButtonBox::usage:= "ButtonBox(\(\"boxes\".StyleBox(\"Arg\")\)) is a low-level box construct that represents a button in a document expression."
+ButtonBoxOptions::usage:= "ButtonBoxOptions \[Rule] {\(StyleBox(\"opt\", \"Arg\")\)\(SubscriptBox(\"1\")\) \[Rule] \(StyleBox(\"val\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"opt\", \"Arg\")\)\(SubscriptBox(\"2\")\) \[Rule] \(StyleBox(\"val\", \"Arg\")\)\(SubscriptBox(\"2\")\), \[Ellipsis]} is an option that specifies settings for ButtonBox."
 ButtonFrame::usage:= "ButtonFrame is an option for Button and ButtonBox which specifies the type of frame to display around a button."
 ButtonFunction::usage:= "ButtonFunction is an option for ButtonBox which specifies the action to perform when the button is clicked."
 ByteCount::usage:= "ByteCount(\(\"expr\".StyleBox(\"Arg\")\)) gives the number of bytes used internally to store \(\"expr\".StyleBox(\"Arg\")\)."

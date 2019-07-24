@@ -27,6 +27,7 @@ extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BorderRadius;
 extern pmath_symbol_t richmath_System_BoxRotation;
 extern pmath_symbol_t richmath_System_BoxTransformation;
+extern pmath_symbol_t richmath_System_ButtonBoxOptions;
 extern pmath_symbol_t richmath_System_ButtonFrame;
 extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_ContinuousAction;
@@ -254,13 +255,25 @@ namespace {
           _name_to_key.default_value = StyleOptionName{ -1};
           _key_to_type.default_value = StyleTypeNone;
           
-          add_enum(ButtonFrame, Symbol( richmath_System_ButtonFrame), new ButtonFrameStyleEnumConverter);
+          add_ruleset_head(DockedSections,     Symbol( richmath_System_DockedSections));
+          add_ruleset_head(ButtonBoxOptions,   Symbol( richmath_System_ButtonBoxOptions));
+          add_ruleset_head(TemplateBoxOptions, Symbol( richmath_System_TemplateBoxOptions));
+          
+          {
+            SharedPtr<StyleEnumConverter> buttonFrameStyleEnumConverter{new ButtonFrameStyleEnumConverter};
+            add_enum(
+              ButtonFrame, 
+              Symbol( richmath_System_ButtonFrame), 
+              buttonFrameStyleEnumConverter);
+            add_enum(
+              ButtonBoxDefaultButtonFrame, 
+              Rule(Symbol( richmath_System_ButtonBoxOptions), Symbol( richmath_System_ButtonFrame)),
+              buttonFrameStyleEnumConverter);
+          }
+          
           add_enum(FontSlant,   Symbol( richmath_System_FontSlant),   new FontSlantStyleEnumConverter);
           add_enum(FontWeight,  Symbol( richmath_System_FontWeight),  new FontWeightStyleEnumConverter);
           add_enum(WindowFrame, Symbol( richmath_System_WindowFrame), new WindowFrameStyleEnumConverter);
-          
-          add_ruleset_head(DockedSections,     Symbol( richmath_System_DockedSections));
-          add_ruleset_head(TemplateBoxOptions, Symbol( richmath_System_TemplateBoxOptions));
           
           add(StyleTypeColor,           Background,                       Symbol( richmath_System_Background));
           add(StyleTypeColor,           FontColor,                        Symbol( richmath_System_FontColor));
@@ -318,6 +331,8 @@ namespace {
           add(StyleTypeString,          SectionLabel,                     Symbol( richmath_System_SectionLabel));
           add(StyleTypeString,          WindowTitle,                      Symbol( richmath_System_WindowTitle));
           
+          add(StyleTypeString,          ButtonBoxDefaultMethod,           Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Method)));
+          
           add(StyleTypeAny,             Axes,                             Symbol( richmath_System_Axes));
           add(StyleTypeAny,             Ticks,                            Symbol( richmath_System_Ticks));
           add(StyleTypeAny,             Frame,                            Symbol( richmath_System_Frame));
@@ -348,6 +363,9 @@ namespace {
           add(StyleTypeAny, DockedSectionsTopGlass,    Rule(Symbol(richmath_System_DockedSections), String("TopGlass")));
           add(StyleTypeAny, DockedSectionsBottom,      Rule(Symbol(richmath_System_DockedSections), String("Bottom")));
           add(StyleTypeAny, DockedSectionsBottomGlass, Rule(Symbol(richmath_System_DockedSections), String("BottomGlass")));
+          
+          add(StyleTypeAny, ButtonBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
+          add(StyleTypeAny, ButtonBoxDefaultButtonFunction,   Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFunction)));
           
           add(StyleTypeAny, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
           add(StyleTypeAny, TemplateBoxDefaultInterpretationFunction, Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_InterpretationFunction)));
@@ -2167,6 +2185,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(BorderRadius);
   impl.emit_definition(BoxRotation);
   impl.emit_definition(BoxTransformation);
+  impl.emit_definition(ButtonBoxOptions);
   impl.emit_definition(ButtonFrame);
   impl.emit_definition(ButtonFunction);
   impl.emit_definition(ContinuousAction);

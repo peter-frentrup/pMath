@@ -36,6 +36,9 @@ namespace richmath {
       virtual void reset_style() override;
       
       virtual void click() override;
+    
+    protected:
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::ButtonBox; }
   };
 }
 

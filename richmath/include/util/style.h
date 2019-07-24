@@ -14,7 +14,8 @@ namespace richmath {
   
   enum class DefaultStyleOptionOffsets {
     None = 0,
-    TemplateBox = 0x00100000
+    ButtonBox   = 0x00100000,
+    TemplateBox = 0x00200000,
   };
   
   enum AutoBoolValues {
@@ -62,7 +63,9 @@ namespace richmath {
     Visible,
     
     ButtonFrame, // -1 = Automatic,  other: ContainerType value
-    WindowFrame  // WindowFrameType
+    WindowFrame, // WindowFrameType
+    
+    ButtonBoxDefaultButtonFrame = ButtonFrame + (int)DefaultStyleOptionOffsets::ButtonBox
   };
   
   enum {
@@ -116,7 +119,9 @@ namespace richmath {
     LanguageCategory,
     SectionLabel,
     
-    WindowTitle
+    WindowTitle,
+    
+    ButtonBoxDefaultMethod = Method + (int)DefaultStyleOptionOffsets::ButtonBox
   };
   
   enum ObjectStyleOptionName {
@@ -126,13 +131,15 @@ namespace richmath {
     FrameTicks,
     AxesOrigin,
     BaselinePosition,
-    ButtonFunction,
     ScriptSizeMultipliers,
     TextShadow,
     FontFamilies,
     FontFeatures,
     MathFontFamily,
     UnknownOptions,
+    
+    ButtonFunction,
+    ButtonBoxOptions,
     
     BoxRotation,
     BoxTransformation,
@@ -159,9 +166,12 @@ namespace richmath {
     InternalLastStyleDefinitions,
     GeneratedSectionStyles,
     
-    TemplateBoxDefaultDisplayFunction        = (int)DefaultStyleOptionOffsets::TemplateBox + DisplayFunction,
-    TemplateBoxDefaultInterpretationFunction = (int)DefaultStyleOptionOffsets::TemplateBox + InterpretationFunction,
-    TemplateBoxDefaultTooltip                = (int)DefaultStyleOptionOffsets::TemplateBox + Tooltip
+    ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultButtonFunction           = ButtonFunction         + (int)DefaultStyleOptionOffsets::ButtonBox,
+    
+    TemplateBoxDefaultDisplayFunction        = DisplayFunction        + (int)DefaultStyleOptionOffsets::TemplateBox,
+    TemplateBoxDefaultInterpretationFunction = InterpretationFunction + (int)DefaultStyleOptionOffsets::TemplateBox,
+    TemplateBoxDefaultTooltip                = Tooltip                + (int)DefaultStyleOptionOffsets::TemplateBox
   };
   
   class StyleOptionName {

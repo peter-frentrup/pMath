@@ -120,8 +120,9 @@ Options(Style):= Options(StyleBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> None,
     BorderRadius -> 0,
-    ButtonFrame -> Inherited,
-    ButtonFunction -> Inherited,
+    ButtonBoxOptions -> Inherited,
+    ButtonFrame -> Inherited, % remove
+    ButtonFunction -> Inherited, % remove
     Editable -> Inherited,
     FontColor -> Inherited,
     FontFamily -> Inherited,
@@ -139,6 +140,7 @@ Options(Style):= Options(StyleBox):= {
     ShowAutoStyles -> Inherited,
     ShowStringCharacters -> Inherited,
     StripOnInput -> True,
+    TemplateBoxOptions -> Inherited,
     TextShadow -> Inherited}
 			 
 Options(Section):= {
@@ -151,8 +153,11 @@ Options(Section):= {
     BaselinePosition -> Automatic, % TODO: hide behind FrameBoxOptions, etc ?
     BaseStyle -> None,
     BorderRadius -> 0,
-    ButtonFrame -> Automatic,
-    ButtonFunction -> (/\/ &),
+    ButtonBoxOptions -> {
+        BaselinePosition -> Automatic,
+        ButtonFrame -> Automatic, 
+        ButtonFunction -> (/\/ &),
+        Method -> "Preemptive"},
     DefaultDuplicateSectionStyle -> Inherited,
     DefaultNewSectionStyle -> Inherited,
     DefaultReturnCreatedSectionStyle -> Inherited,
@@ -172,7 +177,6 @@ Options(Section):= {
     LineBreakWithin -> True,
     Magnification -> Automatic,  % only valid for StyleData-sections
     MathFontFamily -> Inherited,
-    Method -> "Preemptive",      % only valid for StyleData-sections
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ReturnCreatesNewSection -> Inherited,
     Saveable -> Inherited,       % only valid for StyleData-sections

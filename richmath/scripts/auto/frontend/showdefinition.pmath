@@ -1,1 +1,21 @@
-Begin("FE`Private`")Unprotect(ShowDefinition)ShowDefinition(~s:String)::= With({n:= Names(s)}, 	SectionPrint("PrintUsage", 		Style(			Grid(n.Sort.Map(RawBoxes({ButtonBox(ToBoxes(#))," "}) &).Partition(				Ceiling(Length(n)/2), Ceiling(Length(n)/2), {1,1}, {}).PadRight({2, Ceiling(Length(n)/2)}, "").Transpose), 			ButtonFrame -> "Frameless",			ButtonFunction -> (With({s:= ToExpression(First(#))}, ShowDefinition(s)) &),			GridBoxRowSpacing -> 0.2,			GridBoxColumnSpacing -> 2			)) /? Length(n) > 1)Protect(ShowDefinition)End()
+Begin("FE`Private`")
+
+
+Unprotect(ShowDefinition)
+
+ShowDefinition(~s:String)::= With({n:= Names(s)}, 
+	SectionPrint("PrintUsage", 
+		Style(
+			Grid(n.Sort.Map(RawBoxes({ButtonBox(ToBoxes(#))," "}) &).Partition(
+				Ceiling(Length(n)/2), Ceiling(Length(n)/2), {1,1}, {}).PadRight({2, Ceiling(Length(n)/2)}, "").Transpose), 
+			ButtonBoxOptions -> {
+				ButtonFrame -> "Frameless",
+				ButtonFunction -> (With({s:= ToExpression(First(#))}, ShowDefinition(s)) &)},
+			GridBoxRowSpacing -> 0.2,
+			GridBoxColumnSpacing -> 2
+			)) /? Length(n) > 1)
+
+Protect(ShowDefinition)
+
+
+End()

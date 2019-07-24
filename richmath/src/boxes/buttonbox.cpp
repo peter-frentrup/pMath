@@ -21,7 +21,7 @@ AbstractButtonBox::AbstractButtonBox(MathSequence *content, ContainerType _type)
 }
 
 void AbstractButtonBox::resize_default_baseline(Context *context) {
-  int bf = get_style(ButtonFrame, -1);
+  int bf = get_own_style(ButtonFrame, -1);
   if(bf >= 0)
     type = (ContainerType)bf;
   else
@@ -133,7 +133,7 @@ void ButtonBox::reset_style() {
 }
 
 void ButtonBox::click() {
-  Expr fn = get_style(ButtonFunction);
+  Expr fn = get_own_style(ButtonFunction);
   
   if(!fn.is_null()) {
     fn = prepare_dynamic(fn);
@@ -144,7 +144,7 @@ void ButtonBox::click() {
              Symbol(richmath_System_BoxData),
              _content->to_pmath(BoxOutputFlags::Default)));
     
-    String method = get_style(Method);
+    String method = get_own_style(Method);
     if(method.equals("Preemptive")) {
       Application::interrupt_wait_for(fn, this, Application::button_timeout);
     }
