@@ -268,7 +268,7 @@ static pmath_rational_t factor_complex(pmath_expr_t *z) {
 }
 
 /** calculate (base^(1/radix))^exponent assuming gcd(exponent, radix) == 1 and exponent > 0 */
-static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t exponent) {
+static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t exponent, pmath_bool_t *any_simplifications) {
   fmpz_factor_t factors;
   fmpz_t tmp;
   fmpz_t root;
@@ -276,10 +276,14 @@ static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t e
   pmath_t result;
   slong i;
   
+  *any_simplifications = FALSE;
+  
   assert(fmpz_sgn(exponent) > 0);
   assert(radix > 0);
-  if(radix == 1)
+  if(radix == 1) {
+    *any_simplifications = TRUE;
     return _pmath_integer_from_fmpz(base);
+  }
     
   pmath_gather_begin(PMATH_NULL); // gather remaining factors
   
@@ -296,6 +300,7 @@ static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t e
     if(fmpz_fits_si(tmp)) {
       fmpz_pow_ui(tmp, base, fmpz_get_ui(tmp));
       factor = _pmath_integer_from_fmpz(tmp);
+      *any_simplifications = TRUE;
     }
     else
       factor = POW(_pmath_integer_from_fmpz(base), _pmath_integer_from_fmpz(tmp));
@@ -309,6 +314,7 @@ static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t e
     pmath_t factor;
     if(radix == 2) {
       factor = COMPLEX(INT(0), INT(1));
+      *any_simplifications = TRUE;
     }
     else {
       factor = POW(INT(-1),
@@ -345,6 +351,7 @@ static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t e
     if(fmpz_fits_si(reduced_exp)) {
       fmpz_pow_ui(root, root, fmpz_get_ui(reduced_exp));
       factor = _pmath_integer_from_fmpz(root);
+      *any_simplifications = TRUE;
     }
     else
       factor = POW(_pmath_integer_from_fmpz(root), _pmath_integer_from_fmpz(reduced_exp));
@@ -910,6 +917,8 @@ static pmath_bool_t try_rational_power(pmath_t *expr, const fmpq_t exponent) {
     ulong radix = fmpz_get_ui(fmpq_denref(exponent));
     pmath_t root_num;
     pmath_t root_den;
+    pmath_bool_t simplified_num = FALSE;
+    pmath_bool_t simplified_den = FALSE;
     fmpq_t base_quot;
     fmpz_t exp;
     
@@ -918,45 +927,47 @@ static pmath_bool_t try_rational_power(pmath_t *expr, const fmpq_t exponent) {
     fmpq_init(base_quot);
     _pmath_rational_get_fmpq(base_quot, base);
     if(fmpq_sgn(exponent) > 0) {
-      root_num = integer_root(fmpq_numref(base_quot), radix, exp);
-      root_den = integer_root(fmpq_denref(base_quot), radix, exp);
+      root_num = integer_root(fmpq_numref(base_quot), radix, exp, &simplified_num);
+      root_den = integer_root(fmpq_denref(base_quot), radix, exp, &simplified_den);
     }
     else {
-      root_den = integer_root(fmpq_numref(base_quot), radix, exp);
-      root_num = integer_root(fmpq_denref(base_quot), radix, exp);
+      root_den = integer_root(fmpq_numref(base_quot), radix, exp, &simplified_num);
+      root_num = integer_root(fmpq_denref(base_quot), radix, exp, &simplified_den);
     }
     fmpq_clear(base_quot);
     fmpz_clear(exp);
     
-    if(pmath_same(root_den, PMATH_FROM_INT32(1))) {
-      if(!is_rational_power(root_num, exponent)) {
+    if(simplified_num || simplified_den) {
+      if(pmath_same(root_den, PMATH_FROM_INT32(1))) {
+        if(!is_rational_power(root_num, exponent)) {
+          pmath_unref(base);
+          pmath_unref(*expr);
+          *expr = root_num;
+          return TRUE;
+        }
+      }
+      else if(pmath_is_integer(root_num) && pmath_is_integer(root_den)) {
         pmath_unref(base);
         pmath_unref(*expr);
-        *expr = root_num;
+        *expr = pmath_rational_new(root_num, root_den);
         return TRUE;
       }
-    }
-    else if(pmath_is_integer(root_num) && pmath_is_integer(root_den)) {
-      pmath_unref(base);
-      pmath_unref(*expr);
-      *expr = pmath_rational_new(root_num, root_den);
-      return TRUE;
-    }
-    else if( !is_rational_power(root_num, exponent) || !is_rational_power(root_den, exponent)) {
-      pmath_unref(base);
-      if(pmath_same(root_num, PMATH_FROM_INT32(1))) {
-        if(pmath_is_expr_of(root_den, PMATH_SYMBOL_POWER)) {
-          pmath_unref(root_num);
-          pmath_unref(root_den);
-          return FALSE;
+      else if( !is_rational_power(root_num, exponent) || !is_rational_power(root_den, exponent)) {
+        pmath_unref(base);
+        if(pmath_same(root_num, PMATH_FROM_INT32(1))) {
+          if(pmath_is_expr_of(root_den, PMATH_SYMBOL_POWER)) {
+            pmath_unref(root_num);
+            pmath_unref(root_den);
+            return FALSE;
+          }
+          pmath_unref(*expr);
+          *expr = INV(root_den);
+          return TRUE;
         }
         pmath_unref(*expr);
-        *expr = INV(root_den);
+        *expr = DIV(root_num, root_den);
         return TRUE;
       }
-      pmath_unref(*expr);
-      *expr = DIV(root_num, root_den);
-      return TRUE;
     }
     
     pmath_unref(root_num);
