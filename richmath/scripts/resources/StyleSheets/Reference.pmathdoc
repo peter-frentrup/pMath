@@ -4,9 +4,8 @@ Document({
   SectionGroup({Section(StyleData(StyleDefinitions -> "Core.pmathdoc")), 
     SectionGroup({Section("Stylesheet for documentation", "Title"), 
       Section(
-       "This file contains default style definitions to apply to \
-       documentation.", "Text"), 
-      SectionGroup({Section("Document styles", "Section"), 
+       "This file contains default style definitions to apply to documentation \
+       pages.", "Text"), SectionGroup({Section("Document styles", "Section"), 
         Section(StyleData("Document"), Saveable -> False)}, All), 
       SectionGroup({Section("Section styles", "Section"), 
         Section(StyleData("Output"), SectionLabel -> "out:")}, All), 
@@ -62,46 +61,80 @@ Document({
              ShowSectionBracket -> Automatic)}, All)}, All)}, All), 
       SectionGroup({Section("Box styles", "Section"), 
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
-          Section(StyleData("ReferenceHyperlink1"), 
-           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-             ComplexStringBox({"\"", #1, "\""}), 
-             FontColor -> RGBColor(0, 0, 0.80000000000000004`)) &)}), 
-          Section(StyleData("ReferenceHyperlink2"), 
-           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-             ComplexStringBox({"\"", #1, "\""}), 
-             FontColor -> Dynamic(
-              With({FE`Private`filetype:= With({
-                  FE`Private`name:= With({
-                    FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-                   ReleaseHold(FE`CallFrontEnd(
-                     FrontEnd`PrepareDynamicEvaluation(#1, 
-                      FE`Private`dyn))))}, 
-                 FileType(ToFileName({FE`$FrontEndDirectory, "resources", 
-                    "Documentation", "System"}, 
-                   FE`Private`name ++ ".pmathdoc")))}, 
-               If(FE`Private`filetype === File, 
-                RGBColor(0, 0, 0.80000000000000004`), 
-                RGBColor(0.80000000000000004`, 0, 0))))) &)}), 
-          Section(StyleData("ReferenceHyperlink"), 
-           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-             ComplexStringBox({
-               "\"", ButtonBox(#1, ButtonFunction -> (Replace(#1, {
-                  BoxData(~FE`Private`name:String) :> DocumentOpen(
-                   ToFileName({FE`$FrontEndDirectory, "resources", 
-                     "Documentation", "System"}, 
-                    FE`Private`name ++ ".pmathdoc"))}, 0) &), 
-                BaseStyle -> "Text", ButtonFrame -> "Frameless"), "\""}), 
-             FontColor -> Dynamic(
-              With({FE`Private`filetype:= With({
-                  FE`Private`name:= With({
-                    FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-                   ReleaseHold(FE`CallFrontEnd(
-                     FrontEnd`PrepareDynamicEvaluation(#1, 
-                      FE`Private`dyn))))}, 
-                 FileType(ToFileName({FE`$FrontEndDirectory, "resources", 
-                    "Documentation", "System"}, 
-                   FE`Private`name ++ ".pmathdoc")))}, 
-               If(FE`Private`filetype === File, 
-                RGBColor(0, 0, 0.80000000000000004`), 
-                RGBColor(0.80000000000000004`, 0, 0))))) &)})}, All)}, All)}, 
-     All)}, All)}, StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
+          SectionGroup({Section("Hyperlinks", "Subsubsection"), 
+            Section(StyleData("ReferenceHyperlink1"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+               ComplexStringBox({"\"", #1, "\""}), 
+               FontColor -> RGBColor(0, 0, 0.80000000000000004`)) &)}), 
+            Section(StyleData("ReferenceHyperlink2"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+               ComplexStringBox({"\"", #1, "\""}), 
+               FontColor -> Dynamic(
+                With({FE`Private`filetype:= With({
+                    FE`Private`name:= With({
+                      FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+                     ReleaseHold(FE`CallFrontEnd(
+                       FrontEnd`PrepareDynamicEvaluation(#1, 
+                        FE`Private`dyn))))}, 
+                   FileType(ToFileName({FE`$FrontEndDirectory, "resources", 
+                      "Documentation", "System"}, 
+                     FE`Private`name ++ ".pmathdoc")))}, 
+                 If(FE`Private`filetype === File, 
+                  RGBColor(0, 0, 0.80000000000000004`), 
+                  RGBColor(0.80000000000000004`, 0, 0))))) &)}), 
+            Section(StyleData("ReferenceHyperlink"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+               ComplexStringBox({
+                 "\"", ButtonBox(#1, ButtonFunction -> (Replace(#1, {
+                    BoxData(~FE`Private`name:String) :> DocumentOpen(
+                     ToFileName({FE`$FrontEndDirectory, "resources", 
+                       "Documentation", "System"}, 
+                      FE`Private`name ++ ".pmathdoc"))}, 0) &), 
+                  BaseStyle -> "Text", ButtonFrame -> "Frameless"), "\""}), 
+               FontColor -> Dynamic(
+                With({FE`Private`filetype:= With({
+                    FE`Private`name:= With({
+                      FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+                     ReleaseHold(FE`CallFrontEnd(
+                       FrontEnd`PrepareDynamicEvaluation(#1, 
+                        FE`Private`dyn))))}, 
+                   FileType(ToFileName({FE`$FrontEndDirectory, "resources", 
+                      "Documentation", "System"}, 
+                     FE`Private`name ++ ".pmathdoc")))}, 
+                 If(FE`Private`filetype === File, 
+                  RGBColor(0, 0, 0.80000000000000004`), 
+                  RGBColor(0.80000000000000004`, 0, 0))))) &)})}, All), 
+          SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
+            Section(StyleData("KeyEvent"), TemplateBoxOptions -> {
+              DisplayFunction -> (StyleBox(
+               FrameBox(ComplexStringBox({"\"", #1, "\""}), 
+                BorderRadius -> 2.5`), "ControlStyle", 
+               Background -> GrayLevel(0.96499999999999997`), 
+               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+            Section(StyleData("KeyEventDelimiter"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+               ComplexStringBox({"\"", #1, "\""}), "ControlStyle", 
+               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+            Section(StyleData("ControlKeyEvent"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+                ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
+                  "+", TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+            Section(StyleData("AltKeyEvent"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+                ComplexStringBox({"\"", TemplateBox({"Alt"}, "KeyEvent"), "+", 
+                  TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+            Section(StyleData("ShiftKeyEvent"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+                ComplexStringBox({"\"", TemplateBox({"Shift"}, "KeyEvent"), 
+                  "+", TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+            Section(StyleData("ControlShiftKeyEvent"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+                ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
+                  "+", TemplateBox({"Shift"}, "KeyEvent"), "+", 
+                  TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+               FontColor -> GrayLevel(0.35999999999999999`)) &)})}, All)}, 
+         All)}, All)}, All)}, All)}, StyleDefinitions -> 
+  "Stylesheets.pmathdoc", Visible -> True)
