@@ -1543,11 +1543,11 @@ Expr StyleImpl::raw_get_pmath_bool(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_color(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_int(n));
+  STYLE_ASSERT(is_for_color(n));
   
-  int i;
-  if(raw_get_int(n, &i))
-    return Color::decode(i).to_pmath();
+  Color c;
+  if(raw_get_color(n, &c))
+    return c.to_pmath();
     
   return inherited;
 }
