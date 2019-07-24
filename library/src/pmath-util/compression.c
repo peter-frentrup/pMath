@@ -1,7 +1,10 @@
 #include <pmath-util/compression.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
+#include <pmath-util/files/mixed-buffer.h>
 #include <pmath-util/memory.h>
+#include <pmath-util/messages.h>
+#include <pmath-util/serialize.h>
 
 #include <string.h>
 #include <zlib.h>
@@ -349,4 +352,72 @@ pmath_symbol_t pmath_file_create_decompressor(pmath_t srcfile, struct pmath_deco
   }
   
   return pmath_file_create_binary(data, compressor_inflate_destructor, &api);
+}
+
+/* ========================================================================== */
+
+PMATH_API
+pmath_string_t pmath_compress_to_string(pmath_t obj) {
+  pmath_t bfile, zfile, tfile;
+  pmath_serialize_error_t err;
+  
+  pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
+  zfile = pmath_file_create_compressor(pmath_ref(bfile), NULL);
+  err = pmath_serialize(zfile, obj, 0);
+  pmath_file_close(zfile);
+  pmath_file_close(bfile);
+  
+  if(err != PMATH_SERIALIZE_OK) {
+    pmath_file_close(tfile);
+    return PMATH_NULL;
+  }
+  
+  obj = pmath_file_readline(tfile);
+  obj = pmath_string_insert_latin1(obj, 0, "1:", 2);
+  pmath_file_close(tfile);
+  return obj;
+}
+
+PMATH_API
+pmath_t pmath_decompress_from_string(pmath_string_t str) {
+  pmath_t bfile, tfile, zfile;
+  pmath_serialize_error_t err;
+  pmath_t result;
+  int len;
+  const uint16_t *buf;
+  
+  if(pmath_is_null(str))
+    return PMATH_UNDEFINED;
+    
+  assert(pmath_is_string(str));
+  
+  buf = pmath_string_buffer(&str);
+  len = pmath_string_length(str);
+  if(len > 2 && buf[1] == ':' && buf[0] == '1') {
+    buf+= 2;
+    len-= 2;
+  }
+  else {
+    pmath_message(PMATH_NULL, "corrupt", 1, str);
+    return PMATH_UNDEFINED;
+  }
+  
+  pmath_file_create_mixed_buffer("base85", &tfile, &bfile);
+  pmath_file_writetext(tfile, buf, len);
+  pmath_file_close(tfile);
+  
+  zfile = pmath_file_create_decompressor(pmath_ref(bfile), NULL);
+  result = pmath_deserialize(zfile, &err);
+  pmath_file_close(zfile);
+  pmath_file_close(bfile);
+  
+  if(err != PMATH_SERIALIZE_OK) {
+    if(err != PMATH_SERIALIZE_NO_MEMORY)
+      pmath_message(PMATH_NULL, "corrupt", 1, str);
+    pmath_unref(result);
+    return PMATH_UNDEFINED;
+  }
+  
+  pmath_unref(str);
+  return result;
 }

@@ -81,6 +81,30 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_symbol_t pmath_file_create_decompressor(pmath_t srcfile, struct pmath_decompressor_settings_t *options);
 
 
+/**\brief Compress an expression to a string.
+   \param obj     An expression. It will be freed.
+   \param options Optional settings. Can be NULL.
+   \return A string that can be decompressed with pmath_decompress_from_string() or PMATH_NULL on error.
+   
+   The compression uses pmath_file_create_compressor() and encodes the binary streams as "base85", 
+   prefixing with version specification "1:".
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_string_t pmath_compress_to_string(pmath_t obj);
+
+
+/**\brief Decompress an expression from a string.
+   \param str     A string representing a compressed expression. It will be freed.
+   \param options Optional settings. Can be NULL.
+   \return The decompressed expression or PMATH_UNDEFINED on failure.
+   
+   \see pmath_compress_to_string()
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_decompress_from_string(pmath_string_t str);
+
 /* @} */
 
 #endif /* __PMATH_UTIL__COMPRESSION_H__ */
