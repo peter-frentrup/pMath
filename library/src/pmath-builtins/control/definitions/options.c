@@ -34,21 +34,29 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
   
   sym = pmath_expr_get_item(lhs, 1);
   
-  if( !pmath_same(tag, PMATH_UNDEFINED) &&
-      !pmath_same(tag, sym))
-  {
-    pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
-    
-    pmath_unref(expr);
-    if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-      
-    if(assignment < 0) {
+  if(!pmath_same(tag, PMATH_UNDEFINED)) {
+    if(!pmath_is_symbol(sym)) {
+      pmath_unref(tag);
+      pmath_unref(lhs);
       pmath_unref(rhs);
-      return PMATH_NULL;
+      pmath_unref(sym);
+      return expr;
     }
     
-    return rhs;
+    if(!pmath_same(tag, sym)) {
+      pmath_message(PMATH_NULL, "tag", 3, tag, lhs, sym);
+      
+      pmath_unref(expr);
+      if(pmath_same(rhs, PMATH_UNDEFINED))
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+        
+      if(assignment < 0) {
+        pmath_unref(rhs);
+        return PMATH_NULL;
+      }
+      
+      return rhs;
+    }
   }
   
   pmath_unref(tag);
