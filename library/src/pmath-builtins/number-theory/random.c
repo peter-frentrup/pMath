@@ -1,6 +1,8 @@
 #include <pmath-core/expressions-private.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/approximate.h>
+#include <pmath-util/concurrency/threads.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
@@ -17,28 +19,12 @@ struct random_int_info_t {
   mpz_ptr range; // = max - min + 1 > 0
 };
 
-static pmath_t make_random_int(struct random_int_info_t *info) {
-  pmath_mpint_t result = _pmath_create_mp_int(0);
-  
-  if(pmath_is_null(result))
-    return result;
-    
-  pmath_atomic_lock(&_pmath_rand_spinlock);
-  
-  mpz_urandomm(
-    PMATH_AS_MPZ(result),
-    _pmath_randstate,
-    info->range);
-    
-  pmath_atomic_unlock(&_pmath_rand_spinlock);
-  
-  mpz_add(
-    PMATH_AS_MPZ(result),
-    PMATH_AS_MPZ(result),
-    info->min);
-    
-  return _pmath_mp_int_normalize(result);
-}
+static pmath_t make_random_int(const struct random_int_info_t *info);
+static pmath_packed_array_t unchecked_make_random_int_array(
+  int32_t       min,
+  const mpz_t   range,
+  size_t        dimensions, 
+  const size_t *lengths);
 
 
 
@@ -49,32 +35,7 @@ struct random_mpfloat_info_t {
   slong       round_bit_prec;
 };
 
-static pmath_t make_random_mpfloat(struct random_mpfloat_info_t *info) {
-  mpfr_t unif;
-  pmath_mpfloat_t result = _pmath_create_mp_float(info->round_bit_prec);
-  
-  if(pmath_is_null(result))
-    return result;
-    
-  mpfr_init2(unif, (mpfr_prec_t)info->round_bit_prec);
-  
-  pmath_atomic_lock(&_pmath_rand_spinlock);
-  mpfr_urandomb(unif, _pmath_randstate);
-  pmath_atomic_unlock(&_pmath_rand_spinlock);
-  
-  arf_set_mpfr(arb_midref(PMATH_AS_ARB(result)), unif);
-  mag_set_ui_2exp_si(arb_radref(PMATH_AS_ARB(result)), 1, -info->round_bit_prec);
-  mpfr_clear(unif);
-  
-  if(info->range) 
-    arb_mul(PMATH_AS_ARB(result), PMATH_AS_ARB(result), info->range, info->round_bit_prec);
-  
-  if(info->min) 
-    arb_add(PMATH_AS_ARB(result), PMATH_AS_ARB(result), info->min, info->round_bit_prec);
-  
-  return result;
-}
-
+static pmath_t make_random_mpfloat(struct random_mpfloat_info_t *info);
 
 
 struct random_double_info_t {
@@ -82,56 +43,11 @@ struct random_double_info_t {
   double range; // max - min
 };
 
-struct random_double_list_info_t {
-  struct random_double_info_t more;
-  size_t                      length;
-};
-
-static pmath_t make_random_double_list(struct random_double_list_info_t *info) {
-  struct _pmath_expr_t *list;
-  size_t i;
-  pmath_expr_t expr;
-  double d;
-  MPFR_DECL_INIT(temp, DBL_MANT_DIG);
-  
-  list = _pmath_expr_new_noinit(info->length);
-  if(!list)
-    return PMATH_NULL;
-    
-  list->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
-  
-  pmath_atomic_lock(&_pmath_rand_spinlock);
-  for(i = 1; i <= info->length; ++i) {
-    mpfr_urandomb(temp, _pmath_randstate);
-    
-    d = mpfr_get_d(temp, MPFR_RNDN);
-    d = info->more.min + d * info->more.range;
-    
-    list->items[i] = PMATH_FROM_DOUBLE(d);
-  }
-  pmath_atomic_unlock(&_pmath_rand_spinlock);
-  
-  expr = PMATH_FROM_PTR(list);
-  _pmath_expr_update(expr); // the list is already fully evaluated
-  return expr;
-}
-
-static pmath_t make_random_double(struct random_double_info_t *info) {
-  double d;
-  MPFR_DECL_INIT(temp, DBL_MANT_DIG);
-  
-  pmath_atomic_lock(&_pmath_rand_spinlock);
-  {
-    mpfr_urandomb(temp, _pmath_randstate);
-    
-    d = mpfr_get_d(temp, MPFR_RNDN);
-    d = info->min + d * info->range;
-  }
-  pmath_atomic_unlock(&_pmath_rand_spinlock);
-  
-  return PMATH_FROM_DOUBLE(d);
-}
-
+static pmath_t make_random_double(const struct random_double_info_t *info);
+static pmath_t make_random_double_array(
+  const struct random_double_info_t *info,
+  size_t                             dimensions,
+  const size_t                      *lengths);
 
 
 static pmath_expr_t make_array(
@@ -349,6 +265,28 @@ PMATH_PRIVATE pmath_t builtin_randominteger(pmath_expr_t expr) {
   if(convert_lengths(pmath_expr_get_item(expr, 2), &dimensions, &lengths)) {
     pmath_unref(expr);
     
+    if(dimensions > 0) {
+      if(mpz_fits_sint_p(info.min) && mpz_fits_uint_p(info.range)) {
+        int      min_int   = (int)mpz_get_si(info.min);
+        unsigned range_int = (unsigned)mpz_get_si(info.range);
+        if( 0 < range_int && 
+            range_int <= UINT32_MAX &&
+            INT32_MIN <= min_int && 
+            min_int   <= (int)((unsigned)INT32_MAX - (range_int - 1U))) 
+        {
+          expr = unchecked_make_random_int_array(
+                   min_int, 
+                   info.range, 
+                   dimensions, 
+                   lengths);
+          pmath_mem_free(lengths);
+          pmath_unref(min);
+          pmath_unref(range);
+          return expr;
+        }
+      }
+    }
+    
     expr = make_array(
              dimensions,
              lengths,
@@ -458,28 +396,15 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
   }
   
   if(pmath_is_double(min) && pmath_is_double(max) && mp_info.bit_prec == -HUGE_VAL) {
-    struct random_double_list_info_t d_info;
+    struct random_double_info_t d_info;
     
-    d_info.more.min   = PMATH_AS_DOUBLE(min);
-    d_info.more.range = PMATH_AS_DOUBLE(max) - d_info.more.min;
+    d_info.min   = PMATH_AS_DOUBLE(min);
+    d_info.range = PMATH_AS_DOUBLE(max) - d_info.min;
     
-    if(isfinite(d_info.more.range)) {
-      if(dimensions > 0) {
-        d_info.length = lengths[dimensions - 1];
-        
-        pmath_unref(expr);
-        expr = make_array(
-                 dimensions - 1,
-                 lengths,
-                 &d_info,
-                 (pmath_t( *)(void *))make_random_double_list);
-                 
-        pmath_mem_free(lengths);
-        return expr;
-      }
-      
+    if(isfinite(d_info.range)) {
       pmath_unref(expr);
-      expr = make_random_double(&d_info.more);
+      expr = make_random_double_array(&d_info, dimensions, lengths);
+      pmath_mem_free(lengths);
       return expr;
     }
   }
@@ -555,3 +480,155 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
   return expr;
 }
 
+
+
+static pmath_t make_random_int(const struct random_int_info_t *info) {
+  pmath_mpint_t result = _pmath_create_mp_int(0);
+  
+  if(pmath_is_null(result))
+    return result;
+    
+  pmath_atomic_lock(&_pmath_rand_spinlock);
+  
+  mpz_urandomm(
+    PMATH_AS_MPZ(result),
+    _pmath_randstate,
+    info->range);
+    
+  pmath_atomic_unlock(&_pmath_rand_spinlock);
+  
+  mpz_add(
+    PMATH_AS_MPZ(result),
+    PMATH_AS_MPZ(result),
+    info->min);
+    
+  return _pmath_mp_int_normalize(result);
+}
+
+static pmath_packed_array_t unchecked_make_random_int_array(
+  int32_t       min,
+  const mpz_t   range,
+  size_t        dimensions, 
+  const size_t *lengths
+) {
+  pmath_packed_array_t array;
+  int32_t *data;
+  uint32_t val;
+  mpz_t temp;
+  size_t i;
+  
+  mpz_init(temp);
+  
+  array = pmath_packed_array_new(PMATH_NULL, PMATH_PACKED_INT32, dimensions, lengths, NULL, 0);
+  data = pmath_packed_array_begin_write(&array, NULL, 0);
+  if(data && dimensions > 0) {
+    size_t num_values = pmath_packed_array_get_steps(array)[0] * lengths[0] / sizeof(int32_t);
+    
+    i = 0;
+    while(i < num_values && !pmath_aborting()) {
+      size_t end = i + 1000;
+      if(end > num_values)
+        end = num_values;
+      
+      pmath_atomic_lock(&_pmath_rand_spinlock);
+      for(; i < end; ++i) {
+        mpz_urandomm(temp, _pmath_randstate, range);
+        
+        val = (uint32_t)mpz_get_si(temp);
+        val+= (uint32_t)min;
+        
+        data[i] = (int32_t)val;
+      }
+      pmath_atomic_unlock(&_pmath_rand_spinlock);
+    }
+  }
+  
+  mpz_clear(temp);
+  return array;
+}
+
+
+
+static pmath_t make_random_double(const struct random_double_info_t *info) {
+  double d;
+  MPFR_DECL_INIT(temp, DBL_MANT_DIG);
+  
+  pmath_atomic_lock(&_pmath_rand_spinlock);
+  {
+    mpfr_urandomb(temp, _pmath_randstate);
+    
+    d = mpfr_get_d(temp, MPFR_RNDN);
+    d = info->min + d * info->range;
+  }
+  pmath_atomic_unlock(&_pmath_rand_spinlock);
+  
+  return PMATH_FROM_DOUBLE(d);
+}
+
+static pmath_t make_random_double_array(
+  const struct random_double_info_t *info,
+  size_t                             dimensions,
+  const size_t                      *lengths
+) {
+  if(dimensions > 0) {
+    pmath_packed_array_t array;
+    double *data;
+    double d;
+    MPFR_DECL_INIT(temp, DBL_MANT_DIG);
+    size_t i;
+    
+    array = pmath_packed_array_new(PMATH_NULL, PMATH_PACKED_DOUBLE, dimensions, lengths, NULL, 0);
+    data = pmath_packed_array_begin_write(&array, NULL, 0);
+    if(data) {
+      size_t num_values = pmath_packed_array_get_steps(array)[0] * lengths[0] / sizeof(double);
+      
+      i = 0;
+      while(i < num_values && !pmath_aborting()) {
+        size_t end = i + 1000;
+        if(end > num_values)
+          end = num_values;
+        
+        pmath_atomic_lock(&_pmath_rand_spinlock);
+        for(; i < end; ++i) {
+          mpfr_urandomb(temp, _pmath_randstate);
+          
+          d = mpfr_get_d(temp, MPFR_RNDN);
+          d = info->min + d * info->range;
+          
+          data[i] = d;
+        }
+        pmath_atomic_unlock(&_pmath_rand_spinlock);
+      }
+    }
+    
+    return array;
+  }
+  
+  return make_random_double(info);
+}
+
+static pmath_t make_random_mpfloat(struct random_mpfloat_info_t *info) {
+  mpfr_t unif;
+  pmath_mpfloat_t result = _pmath_create_mp_float(info->round_bit_prec);
+  
+  if(pmath_is_null(result))
+    return result;
+    
+  mpfr_init2(unif, (mpfr_prec_t)info->round_bit_prec);
+  
+  pmath_atomic_lock(&_pmath_rand_spinlock);
+  mpfr_urandomb(unif, _pmath_randstate);
+  pmath_atomic_unlock(&_pmath_rand_spinlock);
+  
+  arf_set_mpfr(arb_midref(PMATH_AS_ARB(result)), unif);
+  mag_set_ui_2exp_si(arb_radref(PMATH_AS_ARB(result)), 1, -info->round_bit_prec);
+  mpfr_clear(unif);
+  
+  if(info->range) 
+    arb_mul(PMATH_AS_ARB(result), PMATH_AS_ARB(result), info->range, info->round_bit_prec);
+  
+  if(info->min) 
+    arb_add(PMATH_AS_ARB(result), PMATH_AS_ARB(result), info->min, info->round_bit_prec);
+  
+  return result;
+}
