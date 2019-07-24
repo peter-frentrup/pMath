@@ -92,6 +92,10 @@ Document({
           0.80000000000000004`), FontColor -> GrayLevel(0.502`), 
          FontSize -> 9, Placeholder -> True, ShowAutoStyles -> False, 
          ShowStringCharacters -> False)}, All), 
+      SectionGroup({Section("Button styles", "Subsection"), 
+        Section(StyleData("Paste"), BaseStyle -> "Button", 
+         ButtonBoxOptions -> {ButtonFunction -> (DocumentApply(
+           SelectedDocument(), #1) &)})}, All), 
       SectionGroup({Section("TemplateBox styles", "Subsection"), 
         Section(StyleData("Binomial"), TemplateBoxOptions -> {
           DisplayFunction -> ({"(", GridBox({{#1}, {#2}}), ")"} &), 
