@@ -442,8 +442,8 @@ namespace richmath {
         impl->set_private_char(PMATH_CHAR_PIECEWISE, '{');
         impl->set_private_char(PMATH_CHAR_ALIASDELIMITER, 0x21E9);
         impl->set_private_char(PMATH_CHAR_ALIASINDICATOR, 0x21E9);
-        impl->set_private_char(CHAR_REPLACEMENT,       0x220E);
-        impl->set_private_char(CHAR_LINE_CONTINUATION, 0x22F1);
+        impl->set_private_char(PMATH_CHAR_SELECTIONPLACEHOLDER, 0x220E);
+        impl->set_private_char(CHAR_LINE_CONTINUATION,          0x22F1);
         if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x29E0))
           if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x25A1))
             impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x2B1A);

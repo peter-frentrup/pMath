@@ -3521,7 +3521,7 @@ bool MathSequence::is_placeholder(int i) {
   if(i < 0 || i >= str.length())
     return false;
     
-  if(str[i] == PMATH_CHAR_PLACEHOLDER || str[i] == CHAR_REPLACEMENT)
+  if(str[i] == PMATH_CHAR_PLACEHOLDER || str[i] == PMATH_CHAR_SELECTIONPLACEHOLDER)
     return true;
     
   if(str[i] == PMATH_CHAR_BOX) {

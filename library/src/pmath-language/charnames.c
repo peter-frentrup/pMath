@@ -713,7 +713,7 @@ static const struct pmath_named_char_t named_char_array[] = {
   { 0x23DE, "OverBrace"},
   { 0x23DF, "UnderBrace"},
   
-  { 0x001A, "SelectionPlaceholder"},
+  { 0xF527, "SelectionPlaceholder"},
   { 0xFFFD, "Placeholder"},
   { 0x2192, "Rule"},
   { 0x21A6, "Function"},

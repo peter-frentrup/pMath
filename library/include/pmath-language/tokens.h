@@ -111,6 +111,7 @@ enum {
 #define PMATH_CHAR_RIGHT_BOX                 0xFFFB ///< End of box code inside a string.
 #define PMATH_CHAR_BOX                       0xFDD0 ///< Represents a box.
 #define PMATH_CHAR_PLACEHOLDER               0xFFFD ///< The Placeholder character. In richmath, type CAPSLOCK pl CAPSLOCK to insert it.
+#define PMATH_CHAR_SELECTIONPLACEHOLDER      0xF527 ///< The selection placeholder character. In richmath, type CAPSLOCK spl CAPSLOCK to insert it.
 
 /**\brief Analyse a token.
    \param str A UTF16-string.

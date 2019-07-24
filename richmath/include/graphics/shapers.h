@@ -2,7 +2,6 @@
 #define RICHMATH__GRAPHICS__SHAPERS_H__INCLUDED
 
 #define CHAR_LINE_CONTINUATION  0xF3B1
-#define CHAR_REPLACEMENT        0x001A
 
 #include <graphics/canvas.h>
 #include <graphics/rectangle.h>

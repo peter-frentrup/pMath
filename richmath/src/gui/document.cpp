@@ -306,7 +306,7 @@ static int index_of_replacement(const String &s) {
     return -1;
     
   for(int i = 0; i < len; ++i)
-    if(buf[i] == CHAR_REPLACEMENT)
+    if(buf[i] == PMATH_CHAR_SELECTIONPLACEHOLDER)
       return i;
       
   for(int i = 0; i < len; ++i)
@@ -3098,7 +3098,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
         AbstractSequence *current_seq = dynamic_cast<AbstractSequence *>(current);
         
         if(current_seq && current_seq->is_placeholder(i)) {
-          if(current_seq->char_at(i) == CHAR_REPLACEMENT) {
+          if(current_seq->char_at(i) == PMATH_CHAR_SELECTIONPLACEHOLDER) {
             placeholder_seq = current_seq;
             placeholder_pos = i;
             break;
@@ -3115,7 +3115,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
       
       if(placeholder_seq) {
         if(selection_length() == 0) {
-          if(placeholder_seq->char_at(placeholder_pos) == CHAR_REPLACEMENT) {
+          if(placeholder_seq->char_at(placeholder_pos) == PMATH_CHAR_SELECTIONPLACEHOLDER) {
             placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
             placeholder_seq->insert(placeholder_pos, PMATH_CHAR_PLACEHOLDER);
           }

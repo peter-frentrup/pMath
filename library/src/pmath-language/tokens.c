@@ -206,7 +206,8 @@ static const struct char_info_t *find_char_info(uint16_t ch) {
     case PMATH_CHAR_BOX:
     case PMATH_CHAR_LEFT_BOX:
     case PMATH_CHAR_RIGHT_BOX: 
-    case PMATH_CHAR_PLACEHOLDER: return &id2;
+    case PMATH_CHAR_PLACEHOLDER:
+    case PMATH_CHAR_SELECTIONPLACEHOLDER: return &id2;
   }
   
   return &id;
