@@ -9,6 +9,7 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_CompressedData;
 extern pmath_symbol_t richmath_System_LineBox;
 
 //{ class LineBox ...
@@ -34,7 +35,12 @@ bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   }
     
   Expr data = expr[1];
-  if(data[0] == PMATH_SYMBOL_UNCOMPRESS && data[1].is_string()) {
+  if(data[0] == richmath_System_CompressedData && data[1].is_string()) {
+    data = Expr{ pmath_decompress_from_string(data[1].release()) };
+    if(data.is_expr())
+      expr.set(1, data);
+  }
+  else if(data[0] == PMATH_SYMBOL_UNCOMPRESS && data[1].is_string()) {
     data = Call(Symbol(PMATH_SYMBOL_UNCOMPRESS), data[1], Symbol(PMATH_SYMBOL_HOLDCOMPLETE));
     data = Evaluate(data);
     if(data[0] == PMATH_SYMBOL_HOLDCOMPLETE && data.expr_length() == 1) {
@@ -106,8 +112,9 @@ Expr LineBox::to_pmath(BoxOutputFlags flags) {
   size_t size = pmath_object_bytecount(data.get());
   
   if(size > 4096) {
-    data = Evaluate(Call(Symbol(PMATH_SYMBOL_COMPRESS), data));
-    data = Call(Symbol(PMATH_SYMBOL_UNCOMPRESS), data);
+    data = Call(
+      Symbol(richmath_System_CompressedData), 
+      Expr{ pmath_compress_to_string(data.release()) });
     return Call(_uncompressed_expr[0], data);
   }
   
