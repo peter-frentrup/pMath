@@ -1,0 +1,200 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Sqrt", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(Sqrt::"usage"))), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      Section(
+       "Mathematical function suitable for numeric and symbolic \
+       computations.", "Notes"), 
+      Section({SqrtBox("z"), " can be entered using ", 
+        TemplateBox({"2"}, "ControlKeyEvent"), " ", 
+        TemplateBox({"z"}, "KeyEvent"), "."}, "Notes"), 
+      Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), "(", 
+        StyleBox("z", "Arg"), ") evaluates to ", {
+         StyleBox("z", "Arg"), "^", {"(", {"1", "/", "2"}, ")"}}, "."}, 
+       "Notes"), Section({"For certain special arguments, ", 
+        TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+        " automatically evaluates to exact values."}, "Notes"), 
+      Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+        " can be evaluated to arbitrary numerical precision."}, "Notes"), 
+      Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+        " automatically threads over lists."}, "Notes")}, All), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        SectionGroup({Section(BoxData({"Sqrt", "(", "2", ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData(SqrtBox("2")), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Evaluate to arbitrary precision:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"N", "(", {{"Sqrt", "(", "2", ")"}, ",", "30"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              "1.41421356237309504880168872420969807856967187537694807317668[+\
+              /-1.00*^-60]`60"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Make a plot of the square root function on an interval:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Plot", "(", {{"Sqrt", "(", "x", ")"}, ",", {
+                 "x", "\[Rule]", {"0", "..", "4"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                {RGBColor(0.75`, 0, 0), {
+                  LineBox({{0.0`, 0.0`}, {0.0089285714285714281`, 
+                     0.094491118252306799`}, {0.017857142857142856`, 
+                     0.1336306209562122`}, {0.026785714285714284`, 
+                     0.16366341767699427`}, {0.035714285714285712`, 
+                     0.1889822365046136`}, {0.053571428571428568`, 
+                     0.23145502494313785`}, {0.071428571428571425`, 
+                     0.2672612419124244`}, {0.10714285714285714`, 
+                     0.32732683535398854`}, {0.14285714285714285`, 
+                     0.3779644730092272`}, {0.21428571428571427`, 
+                     0.46291004988627571`}, {0.2857142857142857`, 
+                     0.53452248382484879`}, {0.3571428571428571`, 
+                     0.59761430466719678`}, {0.42857142857142855`, 
+                     0.65465367070797709`}, {0.5714285714285714`, 
+                     0.7559289460184544`}, {0.71428571428571419`, 
+                     0.84515425472851657`}, {0.8571428571428571`, 
+                     0.92582009977255142`}, {1.1428571428571428`, 
+                     1.0690449676496976`}, {1.4285714285714286`, 
+                     1.1952286093343936`}, {1.7142857142857142`, 
+                     1.3093073414159542`}, {2.0`, 1.4142135623730951`}, {
+                     2.2857142857142856`, 1.5118578920369088`}, {
+                     2.5714285714285716`, 1.6035674514745464`}, {
+                     2.8571428571428572`, 1.6903085094570331`}, {
+                     3.1428571428571428`, 1.7728105208558367`}, {
+                     3.4285714285714284`, 1.8516401995451028`}, {
+                     3.7142857142857144`, 1.927248223318863`}, {
+                     4.0`, 2.0`}})}}}, AspectRatio -> NCache(1/GoldenRatio, 
+                0.61803398874989479`), Axes -> True, 
+               PlotRange -> NCache({0 .. 4, 0 .. 2.0`}, {
+                 0.0` .. 4.0`, 0.0` .. 2.0`}))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Evaluate numerically:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"Sqrt", "(", "2.5", ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("1.5811388300841898`"), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+            " threads over lists and matrices:"}, "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Sqrt", "(", {
+                "{", {{"-", "1"}, ",", "2", ",", {"-", "3"}, ",", {"-", "4"}, 
+                 ",", "5", ",", "6", ",", "7", ",", "8", ",", "Pi", ",", {
+                  "E", SuperscriptBox("2")}}, "}"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"\[ImaginaryI]", ",", SqrtBox("2"), ",", {
+                 "\[ImaginaryI]", " ", SqrtBox("3")}, ",", {
+                 "2", "\[ImaginaryI]"}, ",", SqrtBox("5"), ",", SqrtBox("6"), 
+                ",", SqrtBox("7"), ",", {"2", SqrtBox("2")}, ",", 
+                SqrtBox("\[Pi]"), ",", "\[ExponentialE]"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(
+             BoxData({"Sqrt", "(", {"(", GridBox({{"4", "x"}, {"y", "8"}}), 
+                ")"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {{"{", {"2", ",", SqrtBox("x")}, "}"}, ",", {
+                 "{", {SqrtBox("y"), ",", {"2", SqrtBox("2")}}, "}"}}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+            " allows complex arguments:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Sqrt", "(", {"2.5", "+", "I"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"1.6113010897357531`", "+", {
+                "0.31030823673184377`", " ", "\[ImaginaryI]"}}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section("Basic transforms are automatically applied:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"Sqrt", "(", {"Pi", "^", "2"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("\[Pi]"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"Sqrt", "(", {"Sqrt", "(", "x", ")"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"x", SuperscriptBox({"1", "/", "4"})}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Compose with inverse functions:", "ExampleText"), 
+          SectionGroup({Section(BoxData({{"Sqrt", "(", "z", ")"}, "^", "2"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("z"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({Section(BoxData({"Sqrt", "(", {"z", "^", "2"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(SqrtBox({"z", SuperscriptBox("2")})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, All), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
+        Section("Along the branch cut, these are not the same:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({
+             {"{", {{"1", "/", {"Sqrt", "(", "z", ")"}}, ",", {
+                "Sqrt", "(", {"1", "/", "z"}, ")"}}, "}"}, ".", "Replace", 
+             "(", {"z", "\[Rule]", {"-", "1"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {{"-", "\[ImaginaryI]"}, ",", "\[ImaginaryI]"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, All), 
+      SectionGroup({Section("Neat examples", "ExampleSection"), 
+        Section({"Approximate the ", TemplateBox({"GoldenRatio"}, 
+           "ReferenceHyperlink"), ":"}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Nest", "(", {
+              {"Function", "(", {"Sqrt", "(", {"1", "+", "#"}, ")"}, ")"}, 
+              ",", "1", ",", "10"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            SqrtBox({
+              "1", "+", 
+              SqrtBox({
+                "1", "+", 
+                SqrtBox({
+                  "1", "+", 
+                  SqrtBox({"1", "+", 
+                    SqrtBox({"1", "+", 
+                      SqrtBox({"1", "+", 
+                        SqrtBox({"1", "+", 
+                          SqrtBox({"1", "+", 
+                            SqrtBox({"1", "+", 
+                              SqrtBox("2")})})})})})})})})})), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"N", "(", {"$History", "(", {"-", "1"}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData("1.6180285974702324`"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({Section(BoxData({"N", "(", "GoldenRatio", ")"}), 
+           "Input", SectionLabel -> "in [3]:"), 
+          Section(BoxData("1.6180339887498949`"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
+       All)}, All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Surd"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"CubeRoot"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
