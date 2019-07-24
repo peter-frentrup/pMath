@@ -1,5 +1,8 @@
 Begin("FE`Private`")
 
+allowGuiBoxes::= Refresh(System`BoxForm`$UseTextFormatting =!= True, None)
+Protect(allowGuiBoxes)
+
 MakeBoxes(DocumentObject(~feo:FrontEndObject))::= TemplateBox({feo}, "DocumentObject") /? allowGuiBoxes
 
 DocumentObject/: Options(~obj:DocumentObject)::= FE`CallFrontEnd(FrontEnd`Options(obj))
