@@ -58,6 +58,7 @@ makeGuiBoxes(~x)::= makeCallBoxes(x)
 
 
 
+MakeBoxes(Button(~text, None, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), options) /? allowGuiBoxes
 MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options) /? allowGuiBoxes
 
 MakeBoxes(Checkbox())::=                                               CheckboxBox(False) /? allowGuiBoxes
@@ -173,7 +174,7 @@ Attibutes(extractButtonFunction):= {HoldAllComplete}
 
 extractButtonFunction({~~~opt})::= extractButtonFunction(opt)
 extractButtonFunction(~~~opt1, (Rule|RuleDelayed)(ButtonFunction, ~fn), ~~~opt2)::= {extractFunctionBody(fn), {opt1, opt2}}
-extractButtonFunction(~~~opt)::= {HoldComplete(/\/), {opt}}
+extractButtonFunction(~~~opt)::= {HoldComplete(None), {opt}}
 
 ButtonBox/: MakeExpression(ButtonBox(~contentBoxes, opt: OptionsPattern()))::= 
 	Local({head},
