@@ -8,14 +8,17 @@ MakeGraphicsExpressionOptions
 
 Begin("System`Graphics`Private`")
 
-MakeGraphicsExpression(~x)               ::= HoldComplete(x);
+MakeGraphicsExpression(~x)               ::= HoldComplete(x)
 
+MakeGraphicsExpression(~z:CompressedData)::= MakeExpression(z)
 MakeGraphicsExpression(~multi: List)     ::= HoldComplete @@ List @ HoldComplete(multi).Map(MakeGraphicsExpression, 2).ReleaseHold.Replace(HoldComplete(~~~x) :> x, 1)
 MakeGraphicsExpression(LineBox(~~~args)) ::= HoldComplete(Line(args))
+MakeGraphicsExpression(LineBox(~z:CompressedData))::= MakeExpression({"Line", "(", z, ")"})
 MakeGraphicsExpression(PointBox(~~~args))::= HoldComplete(Point(args))
-MakeGraphicsExpression(~c: RGBColor)     ::= HoldComplete(c);
-MakeGraphicsExpression(~c: Hue)          ::= HoldComplete(c);
-MakeGraphicsExpression(~c: GrayLevel)    ::= HoldComplete(c);
+MakeGraphicsExpression(PointBox(~z:CompressedData))::= MakeExpression({"Point", "(", z, ")"})
+MakeGraphicsExpression(~c: RGBColor)     ::= HoldComplete(c)
+MakeGraphicsExpression(~c: Hue)          ::= HoldComplete(c)
+MakeGraphicsExpression(~c: GrayLevel)    ::= HoldComplete(c)
 
 moveHold(~f(args: HoldComplete(~~~)***))::=
 	(HoldComplete @@ {Join(args)}).Replace(HoldComplete(HoldComplete(~~~a)) :> HoldComplete(f(a)), 0)

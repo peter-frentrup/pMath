@@ -8,6 +8,7 @@
 #include <pmath-language/tokens.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/compression.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/debug.h>
@@ -40,6 +41,7 @@ extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
 extern pmath_symbol_t pmath_System_ComplexStringBox;
+extern pmath_symbol_t pmath_System_CompressedData;
 extern pmath_symbol_t pmath_System_Congruent;
 extern pmath_symbol_t pmath_System_CupCap;
 extern pmath_symbol_t pmath_System_DotEqual;
@@ -1115,6 +1117,21 @@ static pmath_t make_expression_from_complexstringbox(pmath_expr_t box) {
   
   pmath_unref(box);
   return make_expression_from_string(string);
+}
+
+static pmath_t make_expression_from_compresseddata(pmath_expr_t box) {
+  if(pmath_expr_length(box) == 1) {
+    pmath_t data = pmath_expr_get_item(box, 1);
+    if(pmath_is_string(data)) {
+      data = pmath_decompress_from_string(data);
+      if(!pmath_same(data, PMATH_UNDEFINED))
+        return wrap_hold_with_debuginfo_from(box, data);
+    }
+    pmath_unref(data);
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
 static pmath_t make_expression_from_fractionbox(pmath_expr_t box) {
@@ -3027,6 +3044,9 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(!pmath_is_null(head) && !pmath_same(head, PMATH_SYMBOL_LIST)) {
       if(pmath_same(head, pmath_System_ComplexStringBox))
         return make_expression_from_complexstringbox(expr);
+        
+      if(pmath_same(head, pmath_System_CompressedData))
+        return make_expression_from_compresseddata(expr);
         
       if(pmath_same(head, pmath_System_FractionBox))
         return make_expression_from_fractionbox(expr);
