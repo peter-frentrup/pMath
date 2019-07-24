@@ -47,7 +47,7 @@ Normalize::nonorm:= "The second argument `1` is not a norm function that always 
 
 Function RotationMatrix(~angle ? isScalar) {
 	With(c:= Cos(angle), s:= Sin(angle))
-	Return({{c, -s}, {s, c}})
+	{{c, -s}, {s, c}}
 }
 
 Function RotationMatrix(~angle ? isScalar, ~vector ? IsVector /? Length(vector) = 3) {
@@ -273,15 +273,17 @@ Function checkTransformationFunctionApply({~rows, ~cols}, ~x ? IsVector) {
 	Return(False)
 }
 	
-TransformationFunction(~m ? IsMatrix)(~x ? IsVector) /? checkTransformationFunctionApply(Dimensions(m), x) {
+TransformationFunction(~m ? IsMatrix)(~x ? IsVector) /? checkTransformationFunctionApply(Dimensions(m), x) ::=
+Block {
 	With(r:= Dot(m, x.Append(SetPrecision(1, x.Precision))))
 	Most(r)/Last(r)
 }
 
 TransformationFunction(~m ? IsMatrix)(~xs ? IsMatrix) /? checkTransformationFunctionApply(Dimensions(m), xs) ::=
-	With(r:= Dot(PadRight(xs, Dimensions(xs) + {0,1}, SetPrecision(1, Precision(x))), Conjugate(Transpose(m)))) {
-		r[All,1..-2] / r[All, -1]
-	}
+Block {
+	With(r:= Dot(PadRight(xs, Dimensions(xs) + {0,1}, SetPrecision(1, Precision(x))), Conjugate(Transpose(m))))
+	r[All,1..-2] / r[All, -1]
+}
 
 Function checkTransformComposition(~m1, ~m2) {
 	If(Last(Dimensions(m1)) =!= Length(m2)) {
