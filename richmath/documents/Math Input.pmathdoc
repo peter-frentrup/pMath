@@ -167,9 +167,9 @@ Document({
        ButtonBox(OverscriptBox("\[SelectionPlaceholder]", "\[Placeholder]")), 
        ButtonBox(UnderoverscriptBox("\[SelectionPlaceholder]", 
          "\[Placeholder]", "\[Placeholder]"))}})), "Output", 
-   ButtonFrame -> "Palette", ButtonFunction -> (DocumentApply(
-    SelectedDocument(), #1) &), FontSize -> 9, GridBoxColumnSpacing -> 0, 
-   GridBoxRowSpacing -> 0, SectionMargins -> {0, 0, 0, 0})}, 
- Editable -> False, Selectable -> False, ShowSectionBracket -> False, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True, 
- WindowFrame -> "Palette", WindowTitle -> "Math Input")
+   ButtonBoxOptions -> {ButtonFrame -> "Palette", 
+    ButtonFunction -> (DocumentApply(SelectedDocument(), #1) &)}, 
+   FontSize -> 9, GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0, 
+   SectionMargins -> {0, 0, 0, 0})}, Editable -> False, Selectable -> False, 
+ ShowSectionBracket -> False, StyleDefinitions -> "Default.pmathdoc", 
+ Visible -> True, WindowFrame -> "Palette", WindowTitle -> "Math Input")

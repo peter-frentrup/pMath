@@ -30,86 +30,97 @@ Document({SectionGroup({Section("Geometric Transformations", "Title"),
                 "\"System`TranslationTransform\"")), " ")}, {
              /\/(ButtonBox(ComplexStringBox("\"System`ScalingTransform\"")), 
               " "), ComplexStringBox("\"\"")}}), "Grid"), 
-         ButtonFrame -> "Frameless", ButtonFunction -> (With({
-           FE`Private`s$:= ToExpression(First(#1))}, 
-          ShowDefinition(FE`Private`s$)) &), GridBoxColumnSpacing -> 2, 
+         ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
+          ButtonFunction -> (With({FE`Private`s$:= ToExpression(First(#1))}, 
+           ShowDefinition(FE`Private`s$)) &)}, GridBoxColumnSpacing -> 2, 
          GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
        "PrintUsage", SectionGenerated -> True)}, All), 
-    Section(BoxData({"??", "*Matrix"}), "Input", SectionLabel -> "in [5]:"), 
-    Section(
-     BoxData(
-      StyleBox(
-       TagBox(
-        GridBox({
-          {/\/(ButtonBox(ComplexStringBox("\"System`DiagonalMatrix\"")), " "), 
-           /\/(ButtonBox(ComplexStringBox("\"System`RotationMatrix\"")), 
-            " ")}, {
-           /\/(ButtonBox(ComplexStringBox("\"System`IdentityMatrix\"")), " "), 
-           /\/(ButtonBox(ComplexStringBox("\"System`ScalingMatrix\"")), " ")}, 
-          {/\/(ButtonBox(ComplexStringBox("\"System`IsMatrix\"")), " "), 
-           /\/(ButtonBox(ComplexStringBox("\"System`ShearingMatrix\"")), 
-            " ")}, {
-           /\/(ButtonBox(ComplexStringBox("\"System`ReflectionMatrix\"")), 
-            " "), 
-           /\/(ButtonBox(ComplexStringBox("\"System`TransformationMatrix\"")), 
-            " ")}}), "Grid"), ButtonFrame -> "Frameless", 
-       ButtonFunction -> (With({FE`Private`s$:= ToExpression(First(#1))}, 
-        ShowDefinition(FE`Private`s$)) &), GridBoxColumnSpacing -> 2, 
-       GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
-     "PrintUsage", SectionGenerated -> True), Section("Test", "Section"), 
-    Section(BoxData({"r", "\[Assign]", {
-        "RotationTransform", "(", {
-         "\[Theta]", ",", {"{", {"0", ",", "1", ",", "1"}, "}"}}, ")"}}), 
-     "Input", SectionLabel -> "in [2]:"), 
-    Section(BoxData({"TransformationFunction", "(", {
-        "(", 
-        GridBox({{{"Cos", "(", "\[Theta]", ")"}, {
-            "-", FractionBox({"Sin", "(", "\[Theta]", ")"}, SqrtBox("2"))}, 
-           FractionBox({"Sin", "(", "\[Theta]", ")"}, SqrtBox("2")), "0"}, {
-           FractionBox({"Sin", "(", "\[Theta]", ")"}, SqrtBox("2")), {
-            {"Cos", "(", "\[Theta]", ")"}, "+", 
-            FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2")}, 
-           FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2"), "0"}, {
-           {"-", FractionBox({"Sin", "(", "\[Theta]", ")"}, SqrtBox("2"))}, 
-           FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2"), {
-            {"Cos", "(", "\[Theta]", ")"}, "+", 
-            FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2")}, 
-           "0"}, {"0", "0", "0", "1"}}), ")"}, ")"}), "Output", 
-     SectionGenerated -> True, SectionLabel -> "out [2]:"), 
-    Section(BoxData({{"r", "(", {"{", {"x", ",", "y", ",", "z"}, "}"}, ")"}, 
-       "//", "MatrixForm"}), "Input", SectionLabel -> "in [3]:"), 
-    Section(
-     BoxData({
-       "(", 
-       TagBox(
-        GridBox({
-          {{{"x", " ", {"Cos", "(", "\[Theta]", ")"}}, "+", 
-            FractionBox({"z", " ", {"Sin", "(", "\[Theta]", ")"}}, 
-             SqrtBox("2")), "-", 
-            FractionBox({"y", " ", {"Sin", "(", "\[Theta]", ")"}}, 
-             SqrtBox("2"))}}, {
-           {{"y", " ", {"(", {{"Cos", "(", "\[Theta]", ")"}, "+", 
-               FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2")}, 
-              ")"}}, "+", FractionBox({
-              "z", " ", {"(", {"1", "-", {"Cos", "(", "\[Theta]", ")"}}, 
-               ")"}}, "2"), "+", FractionBox({
-              "x", " ", {"Sin", "(", "\[Theta]", ")"}}, SqrtBox("2"))}}, {
-           {{"z", " ", {"(", {{"Cos", "(", "\[Theta]", ")"}, "+", 
-               FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2")}, 
-              ")"}}, "+", FractionBox({
-              "y", " ", {"(", {"1", "-", {"Cos", "(", "\[Theta]", ")"}}, 
-               ")"}}, "2"), "-", FractionBox({
-              "x", " ", {"Sin", "(", "\[Theta]", ")"}}, SqrtBox("2"))}}}), 
-        Column), ")"}), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [3]:"), 
-    Section(BoxData({"ShearingTransform", "(", {
-        "\[Theta]", ",", {"{", {"1", ",", "0", ",", "0"}, "}"}, ",", {
-         "{", {"0", ",", "0", ",", "1"}, "}"}, ",", {
-         "{", {"0", ",", "0", ",", "1"}, "}"}}, ")"}), "Input", 
-     SectionLabel -> "in [4]:"), 
-    Section(BoxData({"TransformationFunction", "(", {
-        "(", GridBox({{"1", "0", {"Tan", "(", "\[Theta]", ")"}, {
-            "-", {"Tan", "(", "\[Theta]", ")"}}}, {"0", "1", "0", "0"}, {
-           "0", "0", "1", "0"}, {"0", "0", "0", "1"}}), ")"}, ")"}), "Output", 
-     SectionGenerated -> True, SectionLabel -> "out [4]:")}, All)}, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+    SectionGroup({Section(BoxData({"??", "*Matrix"}), "Input", 
+       SectionLabel -> "in [2]:"), 
+      Section(
+       BoxData(
+        StyleBox(
+         TagBox(
+          GridBox({
+            {/\/(ButtonBox(ComplexStringBox("\"System`DiagonalMatrix\"")), 
+              " "), 
+             /\/(ButtonBox(ComplexStringBox("\"System`RotationMatrix\"")), 
+              " ")}, {
+             /\/(ButtonBox(ComplexStringBox("\"System`IdentityMatrix\"")), 
+              " "), 
+             /\/(ButtonBox(ComplexStringBox("\"System`ScalingMatrix\"")), 
+              " ")}, {/\/(ButtonBox(ComplexStringBox("\"System`IsMatrix\"")), 
+              " "), 
+             /\/(ButtonBox(ComplexStringBox("\"System`ShearingMatrix\"")), 
+              " ")}, {
+             /\/(ButtonBox(ComplexStringBox("\"System`ReflectionMatrix\"")), 
+              " "), 
+             /\/(ButtonBox(ComplexStringBox(
+                "\"System`TransformationMatrix\"")), " ")}}), "Grid"), 
+         ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
+          ButtonFunction -> (With({FE`Private`s$:= ToExpression(First(#1))}, 
+           ShowDefinition(FE`Private`s$)) &)}, GridBoxColumnSpacing -> 2, 
+         GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
+       "PrintUsage", SectionGenerated -> True)}, All), 
+    SectionGroup({Section("Test", "Section"), 
+      SectionGroup({
+        Section(BoxData({"r", "\[Assign]", {
+            "RotationTransform", "(", {
+             "\[Theta]", ",", {"{", {"0", ",", "1", ",", "1"}, "}"}}, ")"}}), 
+         "Input", SectionLabel -> "in [3]:"), 
+        Section(BoxData({"TransformationFunction", "(", {
+            "(", GridBox({{{"Cos", "(", "\[Theta]", ")"}, {
+                "-", FractionBox({"Sin", "(", "\[Theta]", ")"}, 
+                 SqrtBox("2"))}, FractionBox({"Sin", "(", "\[Theta]", ")"}, 
+                SqrtBox("2")), "0"}, {
+               FractionBox({"Sin", "(", "\[Theta]", ")"}, SqrtBox("2")), {
+                {"Cos", "(", "\[Theta]", ")"}, "+", 
+                FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2")}, 
+               FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2"), 
+               "0"}, {{"-", FractionBox({"Sin", "(", "\[Theta]", ")"}, 
+                 SqrtBox("2"))}, FractionBox({
+                 "1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2"), {
+                {"Cos", "(", "\[Theta]", ")"}, "+", 
+                FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, "2")}, 
+               "0"}, {"0", "0", "0", "1"}}), ")"}, ")"}), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+      SectionGroup({
+        Section(BoxData({{"r", "(", {"{", {"x", ",", "y", ",", "z"}, "}"}, 
+            ")"}, "//", "MatrixForm"}), "Input", SectionLabel -> "in [4]:"), 
+        Section(
+         BoxData({
+           "(", 
+           TagBox(
+            GridBox({
+              {{{"x", " ", {"Cos", "(", "\[Theta]", ")"}}, "+", 
+                FractionBox({"z", " ", {"Sin", "(", "\[Theta]", ")"}}, 
+                 SqrtBox("2")), "-", 
+                FractionBox({"y", " ", {"Sin", "(", "\[Theta]", ")"}}, 
+                 SqrtBox("2"))}}, {
+               {{"y", " ", {"(", {{"Cos", "(", "\[Theta]", ")"}, "+", 
+                   FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, 
+                    "2")}, ")"}}, "+", FractionBox({
+                  "z", " ", {"(", {"1", "-", {"Cos", "(", "\[Theta]", ")"}}, 
+                   ")"}}, "2"), "+", FractionBox({
+                  "x", " ", {"Sin", "(", "\[Theta]", ")"}}, SqrtBox("2"))}}, {
+               {{"z", " ", {"(", {{"Cos", "(", "\[Theta]", ")"}, "+", 
+                   FractionBox({"1", "-", {"Cos", "(", "\[Theta]", ")"}}, 
+                    "2")}, ")"}}, "+", FractionBox({
+                  "y", " ", {"(", {"1", "-", {"Cos", "(", "\[Theta]", ")"}}, 
+                   ")"}}, "2"), "-", FractionBox({
+                  "x", " ", {"Sin", "(", "\[Theta]", ")"}}, SqrtBox("2"))}}}), 
+            Column), ")"}), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [4]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"ShearingTransform", "(", {
+            "\[Theta]", ",", {"{", {"1", ",", "0", ",", "0"}, "}"}, ",", {
+             "{", {"0", ",", "0", ",", "1"}, "}"}, ",", {
+             "{", {"0", ",", "0", ",", "1"}, "}"}}, ")"}), "Input", 
+         SectionLabel -> "in [5]:"), 
+        Section(BoxData({"TransformationFunction", "(", {
+            "(", GridBox({{"1", "0", {"Tan", "(", "\[Theta]", ")"}, {
+                "-", {"Tan", "(", "\[Theta]", ")"}}}, {"0", "1", "0", "0"}, {
+               "0", "0", "1", "0"}, {"0", "0", "0", "1"}}), ")"}, ")"}), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, 
+       All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
+ Visible -> True)
