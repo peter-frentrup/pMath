@@ -18,7 +18,6 @@ using namespace richmath;
 //{ pmath functions ...
 
 extern pmath_symbol_t richmath_System_BoxData;
-extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_SectionGenerated;
@@ -162,32 +161,6 @@ static pmath_t builtin_currentvalue(pmath_expr_t expr) {
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr) {
   Application::notify(ClientNotification::DynamicUpdate, Expr(expr));
   return PMATH_NULL;
-}
-
-static Expr cpp_builtin_feo_options(Expr expr) {
-  if(expr[0] == PMATH_SYMBOL_OPTIONS) {
-    if(expr.expr_length() == 1) {
-      return Application::notify_wait(ClientNotification::GetOptions, expr[1]);
-    }
-    
-    if(expr.expr_length() == 2 && FrontEndReference::from_pmath(expr[1])) {
-      Expr opts = Application::notify_wait(ClientNotification::GetOptions, expr[1]);
-      
-      expr.set(1, opts);
-    }
-  }
-  else if(expr[0] == PMATH_SYMBOL_SETOPTIONS) {
-    if(expr.expr_length() >= 1 && FrontEndReference::from_pmath(expr[1]))
-      return Application::notify_wait(ClientNotification::SetOptions, expr);
-  }
-  
-  return expr;
-}
-
-static pmath_t builtin_feo_options(pmath_expr_t _expr) {
-  Expr result(cpp_builtin_feo_options(Expr(_expr)));
-  
-  return result.release();
 }
 
 static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr) {
@@ -1269,28 +1242,6 @@ static bool set_style_cmd(Expr cmd) {
   
   doc->set_selection_style(cmd);
   return true;
-  
-//  if(cmd.is_rule()) {
-//    Box *box = doc->selection_box();
-//    while(box && box->parent() != doc) {
-//      box = box->parent();
-//    }
-//
-//    if(!box)
-//      box = doc;
-//
-//    // see also ClientNotification::GetOptions
-//    Expr box_symbol = box->to_pmath_symbol();
-//    if(!box_symbol.is_symbol()) // TODO: generate StyleBox inside sequences ...
-//      return false;
-//
-//    cpp_builtin_feo_options(
-//      Call(Symbol(PMATH_SYMBOL_SETOPTIONS), box->id().to_pmath(), cmd));
-//
-//    return true;
-//  }
-//
-//  return false;
 }
 
 static bool similar_section_below_cmd(Expr cmd) {
@@ -1430,8 +1381,6 @@ bool richmath::init_bindings() {
   BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
   
   BIND_UP(PMATH_SYMBOL_CURRENTVALUE,               builtin_assign_currentvalue)
-  BIND_UP(richmath_System_DocumentObject,          builtin_feo_options)
-  BIND_UP(richmath_System_FrontEndObject,          builtin_feo_options)
   
   BIND_DOWN(richmath_FE_InternalExecuteFor,  builtin_internalexecutefor)
   BIND_DOWN(richmath_FE_CallFrontEnd,        builtin_callfrontend)

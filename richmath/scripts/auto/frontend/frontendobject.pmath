@@ -1,0 +1,11 @@
+Begin("FE`Private`")
+
+MakeBoxes(DocumentObject(~feo:FrontEndObject))::= TemplateBox({feo}, "DocumentObject") /? allowGuiBoxes
+
+DocumentObject/: Options(~obj:DocumentObject)::= FE`CallFrontEnd(FrontEnd`Options(obj))
+FrontEndObject/: Options(~obj:FrontEndObject)::= FE`CallFrontEnd(FrontEnd`Options(obj))
+
+DocumentObject/: SetOptions(~obj:DocumentObject, ~~args)::= FE`CallFrontEnd(FrontEnd`SetOptions(obj, args))
+FrontEndObject/: SetOptions(~obj:FrontEndObject, ~~args)::= FE`CallFrontEnd(FrontEnd`SetOptions(obj, args))
+
+End()

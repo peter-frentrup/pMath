@@ -18,8 +18,6 @@ namespace richmath {
     
     CallFrontEnd,
     MenuCommand,
-    GetOptions,
-    SetOptions,
     DynamicUpdate,
     CurrentValue,
     SetCurrentValue,

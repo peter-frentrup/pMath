@@ -1594,55 +1594,6 @@ static void cnt_menucommand(Expr data) {
   Application::run_recursive_menucommand(data);
 }
 
-static Expr cnt_getoptions(Expr data) {
-  auto ref = FrontEndReference::from_pmath(data);
-  Box *box = FrontEndObject::find_cast<Box>(ref);
-  
-  if(box) {
-    Gather gather;
-    
-    if(box->style)
-      box->style->emit_to_pmath(true);
-      
-    Expr options = gather.end();
-    if(!box->to_pmath_symbol().is_symbol())
-      return options;
-      
-    Expr default_options =
-      Call(Symbol(PMATH_SYMBOL_UNION),
-           options,
-           Call(Symbol(PMATH_SYMBOL_FILTERRULES),
-                Call(Symbol(PMATH_SYMBOL_OPTIONS), box->to_pmath_symbol()),
-                Call(Symbol(PMATH_SYMBOL_EXCEPT),
-                     options)));
-                     
-    default_options = Expr(pmath_evaluate(default_options.release()));
-    return default_options;
-  }
-  
-  return Symbol(PMATH_SYMBOL_FAILED);
-}
-
-static Expr cnt_setoptions(Expr data) {
-  auto ref = FrontEndReference::from_pmath(data[1]);
-  Box *box = FrontEndObject::find_cast<Box>(ref);
-  
-  if(box) {
-    Expr options = Expr(pmath_expr_get_item_range(data.get(), 2, SIZE_MAX));
-    options.set(0, Symbol(PMATH_SYMBOL_LIST));
-    
-    if(!box->style)
-      box->style = new Style();
-      
-    box->style->add_pmath(options);
-    box->invalidate_options();
-    
-    return options;
-  }
-  
-  return Symbol(PMATH_SYMBOL_FAILED);
-}
-
 static void cnt_dynamicupate(Expr data) {
 
   double now = pmath_tickcount();
@@ -2003,18 +1954,6 @@ static void execute(ClientNotificationData &cn) {
       
     case ClientNotification::MenuCommand:
       cnt_menucommand(cn.data);
-      break;
-      
-    case ClientNotification::GetOptions:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_getoptions(cn.data).release();
-      break;
-      
-    case ClientNotification::SetOptions:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_setoptions(cn.data).release();
-      else
-        cnt_setoptions(cn.data);
       break;
       
     case ClientNotification::DynamicUpdate:
