@@ -2,922 +2,1020 @@
 
 Document({
   SectionGroup({Section("Computional Geometry", "Title"), 
-    Section("Code", "Section"), 
-    Section(BoxData({"<<", "ExperimentalSyntax`"}), "Input", 
-     SectionLabel -> "in [2]:"), 
-    Section(
-     BoxData(/\/({"%", " ", {{"left", " ", "\[Congruent]", " ", {"-", "1"}}, 
-         ",", " ", {"right", " ", "\[Congruent]", " ", {"+", "1"}}, ",", " ", {
-          {"on", " ", "line"}, " ", "\[Congruent]", " ", "0"}}}, "\n", {
-        "Function", " ", {"sideOfLine", "(", {
-          {"~", "p"}, ",", {"~", "a"}, ",", {"~", "b"}}, ")"}, {
-         "{", {
-          {{"\n", "Sign"}, "(", {
-            "Chop", "(", {"Det", "(", {
-              "{", {{"p", "-", "a"}, ",", {"b", "-", "a"}}, "}"}, ")"}, ")"}, 
-           ")"}, "\n"}, "}"}})), "Input", SectionLabel -> "in [3]:"), 
-    Section(BoxData({"Function", " ", {
-        "sideOfTriangle", "(", {{"~", "p"}, ",", {"~", "a"}, ",", {"~", "b"}, 
-         ",", {"~", "c"}}, ")"}, {
-        "{", {
-         {{"\n", "Max"}, "(", {
-           {"sideOfLine", "(", {"p", ",", "a", ",", "b"}, ")"}, ",", {
-            "sideOfLine", "(", {"p", ",", "b", ",", "c"}, ")"}, ",", {
-            "sideOfLine", "(", {"p", ",", "c", ",", "a"}, ")"}}, ")"}, "\n"}, 
-        "}"}}), "Input", SectionLabel -> "in [4]:"), 
-    Section(BoxData({{"convexHull", "\[Assign]", "convexHullMonotoneChain"}, 
-       ";"}), "Input", SectionLabel -> "in [5]:"), 
-    Section(
-     BoxData(/\/({"%", " ", {{"Andrew", "'"}, "s", " ", "monotone", " ", 
-         "chain", " ", "convex", " ", "hull", " ", "algorithm"}}, "\n", {
-        "Function", " ", {"convexHullMonotoneChain", "(", {"~", "points"}, 
-         ")"}, {
-         "{", {
-          {{{"\n", "With"}, "(", {"n", "\[Assign]", {
-              "Length", "(", "points", ")"}}, ")"}, "\n", {
-            "With", "(", {"xyData", "\[Assign]", {"N", "(", "points", ")"}}, 
-            ")"}, "\n", {"With", "(", {"sortedIndices", "\[Assign]", {
-              {"Array", "(", "n", ")"}, ".", "SortBy", "(", {
-               {"xyData", "[", "#", "]"}, "&"}, ")"}}, ")"}, "\n", {
-            "Local", "(", {"L", ",", "U", ",", "i", ",", "tos"}, ")"}, "\n", {
-            "L", "\[Assign]", {"ConstantArray", "(", {"0", ",", "n"}, ")"}}, 
-           "\n", {"tos", "\[Assign]", "0"}, "\n", {
-            {"Do", "(", {"i", "\[Rule]", "sortedIndices"}, ")"}, {
-             "{", {
-              {{{{"\n", "While"}, "(", {{"tos", "\[GreaterEqual]", "2"}, "&&", 
-                  {{"sideOfLine", "(", {{"xyData", "[", "i", "]"}, ",", {
-                      "xyData", "[", {"L", "[", {"tos", "-", "1"}, "]"}, "]"}, 
-                     ",", {"xyData", "[", {"L", "[", "tos", "]"}, "]"}}, ")"}, 
-                   "\[GreaterEqual]", "0"}}, ")"}, {
-                 "{", {{"\n", {"--", "tos"}}, "\n"}, "}"}}, "\n", {
-                {"L", "[", {"++", "tos"}, "]"}, "\[Assign]", "i"}}, "\n"}, 
-             "}"}}, "\n", {"L", "\[Assign]", {
-             "L", "[", {"1", "..", {"tos", "-", "1"}}, "]"}}, "\n", {
-            {"\n", "U"}, "\[Assign]", {"ConstantArray", "(", {"0", ",", "n"}, 
-             ")"}}, ";", {"tos", "\[Assign]", {"n", "+", "1"}}, ";", {
-            {{"\n", "Do"}, "(", {"i", "\[Rule]", "sortedIndices"}, ")"}, {
-             "{", {
-              {{{{"\n", "While"}, "(", {
-                  {"tos", "\[LessEqual]", {"n", "-", "1"}}, "&&", {
-                   {"sideOfLine", "(", {{"xyData", "[", "i", "]"}, ",", {
-                      "xyData", "[", {"U", "[", {"tos", "+", "1"}, "]"}, "]"}, 
-                     ",", {"xyData", "[", {"U", "[", "tos", "]"}, "]"}}, ")"}, 
-                   "\[LessEqual]", "0"}}, ")"}, {
-                 "{", {{"\n", {"++", "tos"}}, "\n"}, "}"}}, "\n", {
-                {"U", "[", {"--", "tos"}, "]"}, "\[Assign]", "i"}}, "\n"}, 
-             "}"}}, "\n", {{"\n", "U"}, "\[Assign]", {
-             "U", "[", {"tos", "..", {"-", "2"}}, "]"}}, "\n", {
-            "Return", "(", {"Join", "(", {"L", ",", "U"}, ")"}, ")"}}, "\n"}, 
-         "}"}})), "Input"), 
-    Section(BoxData(/\/({"%", " ", {"Graham", " ", "Scan"}}, "\n", {
-        "Function", " ", {"convexHullGrahamScan", "(", {"~", "points"}, ")"}, {
-         "{", {
-          {{{"\n", "With"}, "(", {"xyData", "\[Assign]", {
-              "N", "(", "points", ")"}}, ")"}, "\n", {
-            "With", "(", {"startPos", "\[Assign]", {
-              {"Sort", "(", "xyData", ")"}, ".", "First"}}, ")"}, "\n", {
-            "With", "(", {"startIndex", "\[Assign]", {
-              {"Position", "(", {"xyData", ",", "startPos", ",", "1"}, ")"}, 
-              "[", {"1", ",", "1"}, "]"}}, ")"}, "\n", {
-            "With", "(", {"angSortedIndices", "\[Assign]", {
-              {"Join", "(", {{{"\n", "Array"}, "(", {"startIndex", "-", "1"}, 
-                 ")"}, ",", {
-                 {{"\n", "Array"}, "(", {{"startIndex", "+", "1"}, "..", {
-                    "Length", "(", "xyData", ")"}}, ")"}, "\n"}}, ")"}, ".", 
-              "SortBy", "(", {
-               {"{", {
-                 {{"\n", "Arg"}, "(", {"Complex", "@@", {
-                    "(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}}, 
-                  ")"}, ",", {
-                  {{"\n", "Total"}, "(", {
-                    {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}, 
-                    SuperscriptBox("2")}, ")"}, "\n"}}, "}"}, "&"}, ")"}}, 
-            ")"}, "\n", {"Local", "(", {"stack", ",", "depth", ",", "p"}, 
-            ")"}, "\n", {{"\n", "stack"}, "\[Assign]", {
-             "{", {{"{", {{"{", "}"}, ",", "startIndex"}, "}"}, ",", {
-               "First", "(", "angSortedIndices", ")"}}, "}"}}, "\n", {
-            "depth", "\[Assign]", "2"}, "\n", {
-            {"Do", "(", {"p", "\[Rule]", {"Rest", "(", "angSortedIndices", 
-               ")"}}, ")"}, {
-             "{", {
-              {{{"\n", "If"}, "(", {
-                 {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
-                    "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, "]"}, 
-                   ",", {"xyData", "[", {"stack", "[", "2", "]"}, "]"}}, ")"}, 
-                 "\[GreaterEqual]", "0"}, ")"}, {
-                "{", {
-                 {{{"\n", "stack"}, "\[Assign]", {"stack", "[", "1", "]"}}, 
-                  "\n", {"--", "depth"}, "\n", {
-                   {"While", "(", {{"depth", "\[GreaterEqual]", "2"}, "&&", {
-                      {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
-                         "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, 
-                         "]"}, ",", {"xyData", "[", {"stack", "[", "2", "]"}, 
-                         "]"}}, ")"}, "\[GreaterEqual]", "0"}}, ")"}, {
-                    "{", {
-                     {{{"\n", "stack"}, "\[Assign]", {
-                        "stack", "[", "1", "]"}}, "\n", {"--", "depth"}}, 
-                     "\n"}, "}"}}, "\n", {"stack", "\[Assign]", {
-                    "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}}, 
-                 "\n"}, "}"}, "Else", {
-                "{", {{{"\n", "stack"}, "\[Assign]", {
-                   "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}, 
-                 ";", "\n"}, "}"}}, "\n"}, "}"}}, "\n", {
-            "Return", "(", {"Flatten", "(", "stack", ")"}, ")"}}, "\n"}, 
-         "}"}})), "Input", SectionLabel -> "in [15]:"), 
-    Section("Testing", "Section"), 
-    Section(
-     BoxData(
-      /\/({{"sample", "\[Assign]", {
-          {"RandomReal", "(", {{{"-", "1"}, "..", "1"}, ",", {
-             "{", {"100", ",", "2"}, "}"}}, ")"}, ".", "Select", "(", {
-           {{"Dot", "(", {"#", ",", "#"}, ")"}, "<", "1"}, "&"}, ")"}}, ";"}, 
-       "\n", {"Graphics", "(", {
-         {"{", {"Blue", ",", {"Point", "(", "sample", ")"}}, "}"}, ",", {
-          "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
-     SectionLabel -> "in [8]:"), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(0, 0, 1), 
-        PointBox(
-         Uncompress(
-          "1:c$_VidpOit7{_x,u3MWpQ7miSYAIQv)^?CuZ63)jD,}>mW#z7iLM[;3lB[@xG)1k5\
-          iZ(nh$3!C5h#@5!%(xqBHi?!!&-wN5=X-wV_rBlvdtR_)MV1r*ia=TxI!A_v9X-ynKNc\
-          DWmamYO29UEu^v}yabqL<N{dO)wRe*sk<qgvlF{[R*BbYB)RU9u>hk-oh8SAnYT;U{!5\
-          5l+DNc3wFP^6r{)j6m7OfQ10Em>l[#M>CGpgh)7?uBOYGX$rj@?3W>ZA9Q[%587%6SZ6\
-          vA{f>XqnV,q0s}$=Ekuq#9cvdM*j>d}U$(Oa17*tX$]GlO9p+&;n}mPHX!BD9Amt-XEB\
-          BYq^ATjP-8RoZJ%)fP<-X4OT9s#c2r33?Y}L*TKwvH9>aUEI&96)#s2ZiU-(89PSDo?#\
-          mQrLv-5,cRn_Vt{wXPq7ZzyNk%]>aTl6rP2vGaN[hY,@C+=};8$AzUBreCYL7x!@h18v\
-          HeXxB?L+limu;pe%J*S}zShjPQr+?TC(J;aAN75<YjjDQ]Hvsq^0Qqlbgas-,y,O0G$7\
-          %;xEgzP*?1tuSceiC;KVz7boasxMxPSyZ}cRv4iN+?hIGNfGFC!}nslH8MTK2>}8>^TA\
-          (DX;Z%3Qmk]LeSVXHDNJt6aiz(O?-F9YAx-@(5lWQPtw}nfeGbzb,,muo+fj*dX(kR(}\
-          iL1Q^tq!=LwD<$,B0sUF;H<EJnbLa+[_7M}rg*58bwo;UBlRVPHYIqULY},_dSKY3rS,\
-          ZLE0+Y-8pnNU,+0E5eYK;#GP?rXB-J%1b^qT%EHd{!iGx6B-;5BCwtDlNW2(_oN6xuYw\
-          PXbIKwNtSCPhBcq[BBRM[S82tI^hbIWwFut{,_3%7$5nSl0AK!jq3Ikip*(&$k7xM)O>\
-          QqHt=&}m=U>D{2ou&aegyd>2u_R&Y;xGnw%zP!RE<K&UFr3M[aek<J5,$kT50aa)Qi&o\
-          yvp(a4Klqb6?I{nN@iPhzZo};{IPl=xlYSj2pSZ]xA6iNB6EwSH&mj>X0Y[QSOp_O%4v\
-          k=_ey=DgC5F5^C#L>MpUO?eeHfnDn}j6TDB&*5J1z8BQ+bh#;gci!DG[Zz4{pr)vgF0f\
-          g&cDK<1{m#uMh)w#<yo2$E6BI7}I,y*I1rQeDGk-+bQjoRQ,dWWtiMnbvH2vo}OCC8We\
-          g>k74Ma<62@@M*Q)jTsS?@oLEQd7YM4eN[4J#U@?0jP]Iszau]rS-nYh$n$s{iLb;2*,\
-          [NJ>HSxjOLCZU}8UY_BpVcXyx#L0%h334D>_Cz?Hs!}4dPQ^o4H!0VFidADze2#5neXl\
-          NlR9t7,;E0X;p$dYVc<u(7VC=sh2loy}D^lI)ax7s{3-w3dS+th1i9Z(wk$r+bOeI{%J\
-          aT+DN>&%KDYUmK0Ez!5P=[dBMNN<cdm{i=o^u#R$fWw62j!cLow6Bxd[tT)!eRyMdEW9\
-          bN?Psm84UouahBd{reV%5I8[((wdEr0uK)o}7#vbR-NM_5J9=0IN)Hl7s;D3Op7ejAUQ\
-          cnxtXM-n){gSy>sU;x4hrY#]_M%FI^(*QH3,c{%a}&F,4f,Acm<^*Ve(Ou^GeIw2U{Zy\
-          h}9wN>RacDy=WfpDbL{d0*T53=-UUMrgFC<$kgv4wb7#xgEn]qnu%cu2ppgx{IXL>FDb\
-          =a%v(3&N9NbhK0c{X;RayuH?#;De2+dm#dojeLA-]$Wq*0lc4bZLj;l;VIg(PS=nb]dj\
-          w=hr]Ca)wq*(<$gV03{G>(Vq8%(cbe>P1Ybqnen!h(HIgo>)Mfk-yi%]8HX<z>F=+I^D\
-          &K3k6T)mBQXNckHj9,,Vr$qbo0O}a[UG}bzvN1Clq3tjyDW&EOg0*am,zOZ8>dj<?h-D\
-          ]6W;-djJUSp-yO%VW#R%^3olF1fdJGL@_JXO]#H$=eaLL!#FdrtaE5Dozf1T5dz%@n)3\
-          b@aEQP+*($cahA;fY54KN;iH9s~~~"))}, 
-       ImageSize -> NCache(100, 100.0`))), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [9]:"), 
-    Section(
-     BoxData(
-      /\/({
-        {"grid", "\[Assign]", {
-          "Join", "@@", {"Array", "(", {
-            {{{{"{", {{"Re", "(", "#", ")"}, ",", {"Im", "(", "#", ")"}}, 
-                "}"}, "&"}, "@", {
-               "N", "(", {{"Complex", "(", {{"#", "1"}, ",", {"#", "2"}}, 
-                 ")"}, "*", {"Sign", "(", {"Complex", "(", {"3", ",", "1"}, 
-                  ")"}, ")"}}, ")"}}, "&"}, ",", {
-             "{", {"15", ",", "10"}, "}"}}, ")"}}}, ";"}, "\n", {
-        "Graphics", "(", {{"{", {"Blue", ",", {"Point", "(", "grid", ")"}}, 
-          "}"}, ",", {"ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
-     SectionLabel -> "in [10]:"), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(0, 0, 1), 
-        PointBox(
-         Uncompress(
-          "1:c${t3e@K;A7{Kw]hl^N]TmINv_QToLOif]In]Z3?4>Gn28Bx&>jS<nJ!kSw)))-AB\
-          nzRTD5$T6YnG2DK$T6zzMo7svWvm}z=@%uV!pR6XR$Fc_@44qW&+]Bo>*bu+_nh;6Klf\
-          gk5bXhg42Y!rD}YRu,(WGp$[KzUAT1h+fIoT3;tknv4#$%hV{u4l<JaT<@A3cstnKv>C\
-          WYe@l7Ie+>Y;^eDkmaj@cR?]x(h>z_K&6@MEUa*$%,C>DdBj_wwml?)uRdj^3C4Jm+8}\
-          Gve^A&34iCtg0G)ln[LuMj+^D4Cj7ZinwD&De+j{7&lyi7_c<G3S]#BE_9g#nTKUz}BL\
-          xW4,E%lQ0W<l!wnGFVkMA>{+}LUL,Ldf?C=($jyLAlIv<[z5h)}fSTP{M8?3VWE-P=D-\
-          orO>=yP2N(2&J-Hc}+#GwX0(YWwM*OC,6dg#v^D$#o=Y%2mM!;9]}uMOG8+}d&ZL&QH0\
-          lIx7]dOWff1e5XxmY^Bf=H4cTq@?s#oU({zM}vYWXf4,Gq)cJld1RbzJW9^aDP%([sOQ\
-          FdGXRn_x<?gZzp2*>Sfa&F&d,=5x;?K}PPJ-&0hSau_]OJz55TPeGd+xKKQa=T1+Be%<\
-          CH*&jDb]CQ#Agp5h$wcRNO*n3k<J?xU=SR,GT_?Md+xJs-3*4@k-N@}**^S(8l-<bfCf\
-          SYLZkF91PX6N6fmjj3)^OZz&$+E(>*k<yyFDDYT%Frm*^S(OEW450I@yifej>Y(+fQXT\
-          a{HO=Ms7cs-OLTad3Uqt<TAJQUN]X>Ik*iTTft{?_jocL(cSCGc4W8Flko,eK2O#oz56\
-          }xkN6(&WIyuT<jH,$non$L+cX#9keRTsoZx2uA2S%?7BgXAnKRt#rHU9JKCB{=;-e[eF\
-          >X^4$#I8@NRW@Kh$OjFMKrr8M(E-Z^O@ySX2QM(hq;^A&10H-R7B!@T16z!XH-N2eO5&\
-          z(dSe}BK?huNT$D45hvyLw[03jocz3*uu&cAi@eorhWdLmVRz}JUs4eX^<@>2Q1_{bg!\
-          +n#NT]Z&L_+<8ib$w,N-41fVUY7FWT<]O6Lw99,WNmh#!z2Z5efB86_HT?sv;8VAr+BO\
-          -%=3?^&J(FP]TG#j]pAhfuq66@0$tx1c!Q<E1APk}7IqvGl%-2ib$v*tB8bpL,5Xjqbe\
-          ey{zFA1)K64ILOrG;n(dY%{KY>w#SHb}X2Pm*sGspqR1rh{uZl>h$5li^T@NxMp>6;fk\
-          x=ge8Ie%$g;WxQSKA0OVp%LRBWuCD;P=B!SOX6Aeqf)E5{CMKnXpkE>L!p83H2e65eao\
-          O$cTix1!P1*-3l@yp+2l466&KWqIprl$=iT^Wz1u!JIsVl<WL_6_FYoSP<N_,gt}*bB-\
-          E!=L_*!IA,<Ez6_HS%RuKvH85QxnuGcFb>@36o0X3Uwvj~~~"))}, 
-       ImageSize -> NCache(100, 100.0`))), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [11]:"), 
-    Section(
-     BoxData(
-      /\/({{"grid2", "\[Assign]", {
-          "Join", "@@", {"Array", "(", {
-            "List", ",", {"{", {"15", ",", "10"}, "}"}}, ")"}}}, ";"}, "\n", {
-        "Graphics", "(", {{"{", {"Blue", ",", {"Point", "(", "grid2", ")"}}, 
-          "}"}, ",", {"ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
-     SectionLabel -> "in [12]:"), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(0, 0, 1), 
-        PointBox(
-         Uncompress(
-          "1:c$_uOVWiec7>4n>j4{R-V]it7k}arzBuSDaNm5Bxl2j^NQb#IDk{m]pBuSDa$&q9w\
-          Ns=T<k}fDmNs=T<vXcJZ_qp9)e%v1[M&%J8;ljYG{d)#C@7S<x+nzyuc8=1GU])v0Cz%\
-          4-6e*@eHD#KqFkq^TF*U]a<hsT<lViNeGr<&?Xo^fSB_^9PQ%r@arph!^V}q,%Ys@e?W\
-          }[;+Oo7>^$Q)B*t}>FmRG4q7EHE_}_7u9tB9mjW$+N^1SZazaGbNUrGAm4lm8QySQ)5j\
-          [v1_a]IsP(v)}mq9O_2?z#70wQlc[)9RM]23Z0{*,jlWHfohHvNQ((6#GH6QdHD&gh3I\
-          }M;gQmuzo^sbXJlg0uB6^OBfn#E1NK6cind4&NgjhK#Hcs,]{hSsZXGG6gF>p?doEH-p\
-          #LPvpa7nCO78_UktX=J@=(r}&M#R8%F>*sp+!Qnah=p5X<+j+k(,V]ycSXlN(Q{u6JP;\
-          !f#l#]q^H?lA5i3u{#<M;Ly4rKm@j]>x6a%ls$ZIk2M$Ehw3;&9h}HQ_-KF4&m_oCy2=\
-          =mrHK8cafV&aRK,6?E^iIwkS<42!kyV_6D@xSQ#B?f+rk;51hN5srgv2aYR42g]5KF4*\
-          n<D%n)=s76{PKlAzV&aULIV%><iIwwW<3gX]yV^z3aY^)C76Vtr$W<}MP0Wmlh3jJFhS\
-          >f9&TEDS"))}, ImageSize -> NCache(100, 100.0`))), "Output", 
-     SectionGenerated -> True, SectionLabel -> "out [13]:"), 
-    Section("Convex Hull", "Subsection"), 
-    Section(BoxData({"Function", " ", {"testConvexHull", "(", {"~", "xyData"}, 
-        ")"}, {
-        "{", {
-         {{{"\n", "With"}, "(", {
-            "ch", ":=", {"convexHull", "(", "xyData", ")"}}, ")"}, "\n", {
-           "Print", "(", "ch", ")"}, ";", {{"\n", "Graphics"}, "(", {
-            {"{", {{"\n", "Blue"}, ",", {{"\n", "Point"}, "(", "xyData", ")"}, 
-              ",", {"\n", "Orange"}, ",", {
-               {{"\n", "Line"}, "(", {"xyData", "[", {
-                  "ch", ".", "Append", "(", {"First", "(", "ch", ")"}, ")"}, 
-                 "]"}, ")"}, "\n"}}, "}"}, ",", {
-             {"\n", "ImageSize"}, "\[Rule]", "200"}}, ")"}}, "\n"}, "}"}}), 
-     "Input", SectionLabel -> "in [16]:"), 
-    Section(BoxData({"testConvexHull", "(", "sample", ")"}), "Input", 
-     SectionLabel -> "in [17]:"), 
-    Section(BoxData(InterpretationBox({
-        "{", {"25", ",", "52", ",", "42", ",", "31", ",", "17", ",", "68", 
-         ",", "2", ",", "23", ",", "13", ",", "24", ",", "53", ",", "3"}, 
-        "}"}, Row({{25, 52, 42, 31, 17, 68, 2, 23, 13, 24, 53, 3}}))), 
-     "Print", SectionGenerated -> True), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(0, 0, 1), 
-        PointBox(
-         Uncompress(
-          "1:c$_VidpOit7{_x,u3MWpQ7miSYAIQv)^?CuZ63)jD,}>mW#z7iLM[;3lB[@xG)1k5\
-          iZ(nh$3!C5h#@5!%(xqBHi?!!&-wN5=X-wV_rBlvdtR_)MV1r*ia=TxI!A_v9X-ynKNc\
-          DWmamYO29UEu^v}yabqL<N{dO)wRe*sk<qgvlF{[R*BbYB)RU9u>hk-oh8SAnYT;U{!5\
-          5l+DNc3wFP^6r{)j6m7OfQ10Em>l[#M>CGpgh)7?uBOYGX$rj@?3W>ZA9Q[%587%6SZ6\
-          vA{f>XqnV,q0s}$=Ekuq#9cvdM*j>d}U$(Oa17*tX$]GlO9p+&;n}mPHX!BD9Amt-XEB\
-          BYq^ATjP-8RoZJ%)fP<-X4OT9s#c2r33?Y}L*TKwvH9>aUEI&96)#s2ZiU-(89PSDo?#\
-          mQrLv-5,cRn_Vt{wXPq7ZzyNk%]>aTl6rP2vGaN[hY,@C+=};8$AzUBreCYL7x!@h18v\
-          HeXxB?L+limu;pe%J*S}zShjPQr+?TC(J;aAN75<YjjDQ]Hvsq^0Qqlbgas-,y,O0G$7\
-          %;xEgzP*?1tuSceiC;KVz7boasxMxPSyZ}cRv4iN+?hIGNfGFC!}nslH8MTK2>}8>^TA\
-          (DX;Z%3Qmk]LeSVXHDNJt6aiz(O?-F9YAx-@(5lWQPtw}nfeGbzb,,muo+fj*dX(kR(}\
-          iL1Q^tq!=LwD<$,B0sUF;H<EJnbLa+[_7M}rg*58bwo;UBlRVPHYIqULY},_dSKY3rS,\
-          ZLE0+Y-8pnNU,+0E5eYK;#GP?rXB-J%1b^qT%EHd{!iGx6B-;5BCwtDlNW2(_oN6xuYw\
-          PXbIKwNtSCPhBcq[BBRM[S82tI^hbIWwFut{,_3%7$5nSl0AK!jq3Ikip*(&$k7xM)O>\
-          QqHt=&}m=U>D{2ou&aegyd>2u_R&Y;xGnw%zP!RE<K&UFr3M[aek<J5,$kT50aa)Qi&o\
-          yvp(a4Klqb6?I{nN@iPhzZo};{IPl=xlYSj2pSZ]xA6iNB6EwSH&mj>X0Y[QSOp_O%4v\
-          k=_ey=DgC5F5^C#L>MpUO?eeHfnDn}j6TDB&*5J1z8BQ+bh#;gci!DG[Zz4{pr)vgF0f\
-          g&cDK<1{m#uMh)w#<yo2$E6BI7}I,y*I1rQeDGk-+bQjoRQ,dWWtiMnbvH2vo}OCC8We\
-          g>k74Ma<62@@M*Q)jTsS?@oLEQd7YM4eN[4J#U@?0jP]Iszau]rS-nYh$n$s{iLb;2*,\
-          [NJ>HSxjOLCZU}8UY_BpVcXyx#L0%h334D>_Cz?Hs!}4dPQ^o4H!0VFidADze2#5neXl\
-          NlR9t7,;E0X;p$dYVc<u(7VC=sh2loy}D^lI)ax7s{3-w3dS+th1i9Z(wk$r+bOeI{%J\
-          aT+DN>&%KDYUmK0Ez!5P=[dBMNN<cdm{i=o^u#R$fWw62j!cLow6Bxd[tT)!eRyMdEW9\
-          bN?Psm84UouahBd{reV%5I8[((wdEr0uK)o}7#vbR-NM_5J9=0IN)Hl7s;D3Op7ejAUQ\
-          cnxtXM-n){gSy>sU;x4hrY#]_M%FI^(*QH3,c{%a}&F,4f,Acm<^*Ve(Ou^GeIw2U{Zy\
-          h}9wN>RacDy=WfpDbL{d0*T53=-UUMrgFC<$kgv4wb7#xgEn]qnu%cu2ppgx{IXL>FDb\
-          =a%v(3&N9NbhK0c{X;RayuH?#;De2+dm#dojeLA-]$Wq*0lc4bZLj;l;VIg(PS=nb]dj\
-          w=hr]Ca)wq*(<$gV03{G>(Vq8%(cbe>P1Ybqnen!h(HIgo>)Mfk-yi%]8HX<z>F=+I^D\
-          &K3k6T)mBQXNckHj9,,Vr$qbo0O}a[UG}bzvN1Clq3tjyDW&EOg0*am,zOZ8>dj<?h-D\
-          ]6W;-djJUSp-yO%VW#R%^3olF1fdJGL@_JXO]#H$=eaLL!#FdrtaE5Dozf1T5dz%@n)3\
-          b@aEQP+*($cahA;fY54KN;iH9s~~~")), RGBColor(1, 0.502`, 0), 
-        LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
-           -0.65384193606448049`, -0.75642610101954721`}, {
-           -0.05672464713314973`, -0.98865037692613211`}, {
-           0.03780221509524484`, -0.98574777649525891`}, {
-           0.54650948422639001`, -0.81502192995596445`}, {
-           0.66027519045067695`, -0.68219441156137273`}, {
-           0.96839308538576385`, -0.14848359584348469`}, {
-           0.96685759476732325`, -0.031051088974141772`}, {
-           0.66754496465933855`, 0.7371662341034344`}, {
-           0.093586952377263`, 0.95440737331533243`}, {
-           -0.77931054929023391`, 0.6239622974784087`}, {
-           -0.90897609963654924`, 0.12621918423512346`}, {
-           -0.92978663953446294`, -0.25384317833329595`}})}, 
-       ImageSize -> NCache(200, 200.0`))), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [17]:"), 
-    Section(BoxData({"testConvexHull", "(", "grid", ")"}), "Input", 
-     SectionLabel -> "in [18]:"), 
-    Section(BoxData(InterpretationBox({
-        "{", {"10", ",", "1", ",", "141", ",", "150"}, "}"}, Row({
-        {10, 1, 141, 150}}))), "Print", SectionGenerated -> True), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(0, 0, 1), 
-        PointBox(
-         Uncompress(
-          "1:c${t3e@K;A7{Kw]hl^N]TmINv_QToLOif]In]Z3?4>Gn28Bx&>jS<nJ!kSw)))-AB\
-          nzRTD5$T6YnG2DK$T6zzMo7svWvm}z=@%uV!pR6XR$Fc_@44qW&+]Bo>*bu+_nh;6Klf\
-          gk5bXhg42Y!rD}YRu,(WGp$[KzUAT1h+fIoT3;tknv4#$%hV{u4l<JaT<@A3cstnKv>C\
-          WYe@l7Ie+>Y;^eDkmaj@cR?]x(h>z_K&6@MEUa*$%,C>DdBj_wwml?)uRdj^3C4Jm+8}\
-          Gve^A&34iCtg0G)ln[LuMj+^D4Cj7ZinwD&De+j{7&lyi7_c<G3S]#BE_9g#nTKUz}BL\
-          xW4,E%lQ0W<l!wnGFVkMA>{+}LUL,Ldf?C=($jyLAlIv<[z5h)}fSTP{M8?3VWE-P=D-\
-          orO>=yP2N(2&J-Hc}+#GwX0(YWwM*OC,6dg#v^D$#o=Y%2mM!;9]}uMOG8+}d&ZL&QH0\
-          lIx7]dOWff1e5XxmY^Bf=H4cTq@?s#oU({zM}vYWXf4,Gq)cJld1RbzJW9^aDP%([sOQ\
-          FdGXRn_x<?gZzp2*>Sfa&F&d,=5x;?K}PPJ-&0hSau_]OJz55TPeGd+xKKQa=T1+Be%<\
-          CH*&jDb]CQ#Agp5h$wcRNO*n3k<J?xU=SR,GT_?Md+xJs-3*4@k-N@}**^S(8l-<bfCf\
-          SYLZkF91PX6N6fmjj3)^OZz&$+E(>*k<yyFDDYT%Frm*^S(OEW450I@yifej>Y(+fQXT\
-          a{HO=Ms7cs-OLTad3Uqt<TAJQUN]X>Ik*iTTft{?_jocL(cSCGc4W8Flko,eK2O#oz56\
-          }xkN6(&WIyuT<jH,$non$L+cX#9keRTsoZx2uA2S%?7BgXAnKRt#rHU9JKCB{=;-e[eF\
-          >X^4$#I8@NRW@Kh$OjFMKrr8M(E-Z^O@ySX2QM(hq;^A&10H-R7B!@T16z!XH-N2eO5&\
-          z(dSe}BK?huNT$D45hvyLw[03jocz3*uu&cAi@eorhWdLmVRz}JUs4eX^<@>2Q1_{bg!\
-          +n#NT]Z&L_+<8ib$w,N-41fVUY7FWT<]O6Lw99,WNmh#!z2Z5efB86_HT?sv;8VAr+BO\
-          -%=3?^&J(FP]TG#j]pAhfuq66@0$tx1c!Q<E1APk}7IqvGl%-2ib$v*tB8bpL,5Xjqbe\
-          ey{zFA1)K64ILOrG;n(dY%{KY>w#SHb}X2Pm*sGspqR1rh{uZl>h$5li^T@NxMp>6;fk\
-          x=ge8Ie%$g;WxQSKA0OVp%LRBWuCD;P=B!SOX6Aeqf)E5{CMKnXpkE>L!p83H2e65eao\
-          O$cTix1!P1*-3l@yp+2l466&KWqIprl$=iT^Wz1u!JIsVl<WL_6_FYoSP<N_,gt}*bB-\
-          E!=L_*!IA,<Ez6_HS%RuKvH85QxnuGcFb>@36o0X3Uwvj~~~")), 
-        RGBColor(1, 0.502`, 0), 
-        LineBox({{-2.2135943621178655`, 9.803060746521977`}, {
-           0.63245553203367588`, 1.2649110640673518`}, {
-           13.91402170474087`, 5.6920997883030831`}, {
-           11.067971810589327`, 14.230249470757707`}, {
-           -2.2135943621178655`, 9.803060746521977`}})}, 
-       ImageSize -> NCache(200, 200.0`))), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [18]:"), 
-    Section(BoxData({"testConvexHull", "(", "grid2", ")"}), "Input", 
-     SectionLabel -> "in [19]:"), 
-    Section(BoxData(InterpretationBox({
-        "{", {"1", ",", "141", ",", "150", ",", "10"}, "}"}, Row({
-        {1, 141, 150, 10}}))), "Print", SectionGenerated -> True), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(0, 0, 1), 
-        PointBox(
-         Uncompress(
-          "1:c$_uOVWiec7>4n>j4{R-V]it7k}arzBuSDaNm5Bxl2j^NQb#IDk{m]pBuSDa$&q9w\
-          Ns=T<k}fDmNs=T<vXcJZ_qp9)e%v1[M&%J8;ljYG{d)#C@7S<x+nzyuc8=1GU])v0Cz%\
-          4-6e*@eHD#KqFkq^TF*U]a<hsT<lViNeGr<&?Xo^fSB_^9PQ%r@arph!^V}q,%Ys@e?W\
-          }[;+Oo7>^$Q)B*t}>FmRG4q7EHE_}_7u9tB9mjW$+N^1SZazaGbNUrGAm4lm8QySQ)5j\
-          [v1_a]IsP(v)}mq9O_2?z#70wQlc[)9RM]23Z0{*,jlWHfohHvNQ((6#GH6QdHD&gh3I\
-          }M;gQmuzo^sbXJlg0uB6^OBfn#E1NK6cind4&NgjhK#Hcs,]{hSsZXGG6gF>p?doEH-p\
-          #LPvpa7nCO78_UktX=J@=(r}&M#R8%F>*sp+!Qnah=p5X<+j+k(,V]ycSXlN(Q{u6JP;\
-          !f#l#]q^H?lA5i3u{#<M;Ly4rKm@j]>x6a%ls$ZIk2M$Ehw3;&9h}HQ_-KF4&m_oCy2=\
-          =mrHK8cafV&aRK,6?E^iIwkS<42!kyV_6D@xSQ#B?f+rk;51hN5srgv2aYR42g]5KF4*\
-          n<D%n)=s76{PKlAzV&aULIV%><iIwwW<3gX]yV^z3aY^)C76Vtr$W<}MP0Wmlh3jJFhS\
-          >f9&TEDS")), RGBColor(1, 0.502`, 0), 
-        LineBox({{1, 1}, {15, 1}, {15, 10}, {1, 10}, {1, 1}})}, 
-       ImageSize -> NCache(200, 200.0`))), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [19]:"), Section("Old Ideas", "Section"), 
-    Section(
-     BoxData({{"Local", "(", {{"ta", "\[Assign]", {"sample", "[", "1", "]"}}, 
-         ",", {"tb", "\[Assign]", {"sample", "[", "2", "]"}}, ",", {
-          "tc", "\[Assign]", {"sample", "[", "3", "]"}}}, ")"}, {
-        "{", {
-         {{{{"\n", "If"}, "(", {
-             {"sideOfLine", "(", {"tc", ",", "ta", ",", "tb"}, ")"}, ">", 
-             "0"}, ")"}, {
-            "{", {{{"\n", {"{", {"ta", ",", "tb", ",", "tc"}, "}"}}, 
-              "\[Assign]", {"{", {"ta", ",", "tc", ",", "tb"}, "}"}}, "\n"}, 
-            "}"}}, "\n", {"Graphics", "(", {
-            {"{", {{"\n", "Red"}, ",", {
-               "Point", "(", {"sample", ".", "Select", "(", {
-                 {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
-                    "tc"}, ")"}, "<", "0"}, "&"}, ")"}, ")"}, ",", {
-               "\n", "Blue"}, ",", {"Point", "(", {
-                "sample", ".", "Select", "(", {
-                 {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
-                    "tc"}, ")"}, ">", "0"}, "&"}, ")"}, ")"}, ",", {
-               "\n", "Orange"}, ",", {
-               "Point", "(", {"sample", ".", "Select", "(", {
-                 {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
-                    "tc"}, ")"}, "=", "0"}, "&"}, ")"}, ")"}, ",", {
-               {{"\n", "Line"}, "(", {
-                 "{", {"ta", ",", "tb", ",", "tc", ",", "ta"}, "}"}, ")"}, 
-               "\n"}}, "}"}, ",", {{"\n", "ImageSize"}, "\[Rule]", "200"}, 
-            ",", {{"\n", "Frame"}, "\[Rule]", "True"}, ",", {
-             {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}}, "\n"}, "}"}}), 
-     "Input", SectionLabel -> "in [20]:"), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(1, 0, 0), 
-        PointBox({{0.64230961598244862`, -0.26687791896538404`}, {
-           0.68193494773655683`, -0.22085632216246753`}, {
-           0.52062957114018782`, -0.30089462873269412`}, {
-           0.2489972685337245`, -0.11220012633047993`}, {
-           -0.217052972999493`, -0.015531725150659037`}, {
-           -0.025740417532282844`, -0.1399298317509563`}}), RGBColor(0, 0, 1), 
-        PointBox(
-         Uncompress(
-          "1:c$_8FeKgcr7zc3Ol$UI6R=2cl)=FxTTA}i)CADL7WEpa-G@)5pc^wW#-tyXHNh{jz\
-          G@GeaQX6ffW5@NDmvoFW^dinMGu{pDZ1U1!@43H!Kle9xp8LJeeSpT=tQ7$00Znb_ofy\
-          kId79&XDwYRUuhrB9P,cOqs,z}Af[A[is<6zP7-&;Z4bXYM<z6d-Gf6@px0P)O=u&5ic\
-          IG9WkYG4h_G6yat}tiSQ6FtzceHv@iXeCMzC]%uI09>_hkBQr)MiN#)Qd8<E,KqEz^Bx\
-          WUfUSh7fm9#DaquhpZ;?U^r_$B=qKK3l4BUPi(UB1=Ytp+Q0K4]_Gbqu5j>>N74{d8AO\
-          NX5H*[^oz-kOH{r>oF+J_+wHc{6wZB[o2(S+cuxZH+E+g]EEnYv}h*]?B=A30ar25BP?\
-          BVa^*uEZ{GMe-nm0$I;MxxqLFUobgv6kMVDF(yBZomX}sF)*QCW8o_>D;YxY*2kaDDs;\
-          )YOsSiO#8jA1k$uYTr}Ykao+4mIy*}(@Iy1c;K^vd^jAh{%0_N0rhq}SjtQ^G9xrr@Qc\
-          lKalLH*XDO5c<j6@tzWOFa5Iu4Ax+$zkGYhUa?,f-yg<*lBqx1T3k$^nW=fsh,5}m8)m\
-          m2d6F!tf[j58EN7EGLB%ucCS*G{SpLhnER6P9m8%bG34+AtAn(fG1yJLYQE*lf+NX)()\
-          FFfB1nONEt97tl{L^<iD2NJ_j(HkN([6%=bY0rHvg7<KPQua_vC#e0uD@WFAV!6{$&U*\
-          ^)*j8U6{sTANBGc+Xx&(,ez[tDr5TM2nLSKJ*qjq=4O9lI9q%@cUU[yffMy8omuA%NhD\
-          9sM}}v?a8i#mb>3{4RdjS0hBl{xzto+a%Z2*nAA*VDb)-+C<_;V_u9PC+O1;E3Z]4jaD\
-          27INE3^6MWEdP,>YNIx-Fa^S![uflMS&-Yv#1Ly{5RHKY{0NFXd6EvnB4pK%=e<a<-!U\
-          9+5b_2og,F&fjg5=tH5*Rno10HPp2ENE+gmlV7_PRA5_==il8G;XRnd33Ik8-AvffTz?\
-          pFj!>{^Ou}(Y%cu,l(40U8Sk@{saaY<GCV+,2TFGuQnB,1y,s1bZ)!m6VH17GTFcfV,9\
-          z#Ec-w[(k^tQY[5rVqvZp0WuAh6;O0cWET)D[U-XtNN7-;Vl@p?XbMWF?fwY0Cf{i(Y6\
-          cs+DOh*e%ATd1PBCD}JZqc^57)d$5LCAF0>uRfJ0sQ6[!@ChUD25R^6KNL5@HW^@Iu+*\
-          {v&M2!<vU8,jj4{6m;]_tz_S@NUOYcBQO$X_@57W%fTDup#>_ssBt&*WeFJ!w7^@*WYO\
-          UF!F?)<Xrb4@t>Rq1j49?sUnVv17+kL!Gc7QG3keJ>UQcXal<18f;qW,&;E6jVi3Xff3\
-          I@?*qXN({^zKw+r8M0Kos?W>4E,XIGKC4i=nQ]mq{PSP;YanZ<u!,In)>?,JTdL4)Cb=\
-          u5Yr]x=iYsNxtTyW2i(Rp8CF)C3&wV,QN#%>Y,]}QfC6QPlt5C>_#,4V{UaBYrcMfz!]\
-          aG,FpaoTgiKmC{4Z;_BWYtNz[F1S47U6kb5_cRvyollJ}9v+2,T$LerjS2zvMgTb0d{+\
-          ),IC59ac3YSWY<3{(HQ&DH26gDjm{=sF?D=GVPNu%7F1KYpA{#PiHT!Yahqav]+wBuA8\
-          *_LC!IF$;e19eePzW(+N]j)3W#B#RtofnC1M*nWhBXYg_%?#<PH1oD,LsEGTL=S{CL9F\
-          3o{9GPsx{{u%,ewq~~")), RGBColor(1, 0.502`, 0), 
-        PointBox({{0.153636193785613`, -0.5029873752475178`}, {
-           0.96839308538576385`, -0.14848359584348469`}, {
-           -0.90897609963654924`, 0.12621918423512346`}}), 
-        LineBox({{0.153636193785613`, -0.5029873752475178`}, {
-           0.96839308538576385`, -0.14848359584348469`}, {
-           -0.90897609963654924`, 0.12621918423512346`}, {
-           0.153636193785613`, -0.5029873752475178`}})}, Frame -> True, 
-       FrameTicks -> HoldComplete(False), ImageSize -> NCache(200, 200.0`))), 
-     "Output", SectionGenerated -> True, SectionLabel -> "out [20]:"), 
-    Section(
-     BoxData({
-       {"With", "(", {"sorted", "\[Assign]", {"Sort", "(", "sample", ")"}}, 
-        ")"}, {
-        "{", {{{"\n", "Graphics"}, "(", {
-           {"{", {{"\n", "Blue"}, ",", {
-              "Point", "(", {"sorted", ".", "Select", "(", {
-                {{"sideOfLine", "(", {"#", ",", {"First", "(", "sorted", ")"}, 
-                   ",", {"Last", "(", "sorted", ")"}}, ")"}, "<", "0"}, "&"}, 
-               ")"}, ")"}, ",", {"\n", "Green"}, ",", {
-              "Point", "(", {"sorted", ".", "Select", "(", {
-                {{"sideOfLine", "(", {"#", ",", {"First", "(", "sorted", ")"}, 
-                   ",", {"Last", "(", "sorted", ")"}}, ")"}, ">", "0"}, "&"}, 
-               ")"}, ")"}, ",", {"\n", "Orange"}, ",", {
-              "Point", "(", {"sorted", ".", "Select", "(", {
-                {{"sideOfLine", "(", {"#", ",", {"First", "(", "sorted", ")"}, 
-                   ",", {"Last", "(", "sorted", ")"}}, ")"}, "=", "0"}, "&"}, 
-               ")"}, ")"}, ",", {
-              {{"\n", "Line"}, "(", {
-                "{", {{"First", "(", "sorted", ")"}, ",", {
-                  "Last", "(", "sorted", ")"}}, "}"}, ")"}, "\n"}}, "}"}, ",", 
-           {{"\n", "ImageSize"}, "\[Rule]", "200"}, ",", {
-            {"\n", "Frame"}, "\[Rule]", "True"}, ",", {
-            {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}, "\n"}, "}"}}), 
-     "Input", SectionLabel -> "in [21]:"), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(0, 0, 1), 
-        PointBox({{-0.90897609963654924`, 0.12621918423512346`}, {
-           -0.77931054929023391`, 0.6239622974784087`}, {
-           -0.67693054033500477`, -0.15647538908260383`}, {
-           -0.60119371074670469`, 0.63698239054988681`}, {
-           -0.60097032232074898`, 0.148125324347127`}, {
-           -0.57801959590563712`, 0.12423708444993231`}, {
-           -0.45161226126822851`, 0.46257649919003652`}, {
-           -0.43822699961978695`, 0.31220692296569941`}, {
-           -0.41378953062047663`, 0.71854490379662583`}, {
-           -0.40638389936174701`, 0.11504191912383699`}, {
-           -0.38695187837377087`, -0.19472970670442824`}, {
-           -0.30677148590910663`, 0.067063064254659244`}, {
-           -0.30066097923198454`, 0.68324403731451522`}, {
-           -0.2569239562543324`, 0.24453215022081443`}, {
-           -0.24516255137808174`, 0.16556329017410554`}, {
-           -0.217052972999493`, -0.015531725150659037`}, {
-           -0.17520080779835601`, 0.39186872744236867`}, {
-           -0.025740417532282844`, -0.1399298317509563`}, {
-           0.093586952377263`, 0.95440737331533243`}, {
-           0.1548500004066824`, 0.36192101383298114`}, {
-           0.18500135142196328`, 0.18760029489292362`}, {
-           0.19282664711386222`, 0.032452052266729536`}, {
-           0.19929569276131609`, 0.8013913697674635`}, {
-           0.24629916281324005`, 0.58821496016344232`}, {
-           0.2489972685337245`, -0.11220012633047993`}, {
-           0.32786258222691211`, 0.82810448711172735`}, {
-           0.42631884630677308`, 0.1228753822119939`}, {
-           0.46122684546290071`, -0.042033521294892351`}, {
-           0.51156490563103074`, 0.62862752669088273`}, {
-           0.54639685332976562`, 0.63820808706794807`}, {
-           0.56019910321913735`, 0.20872876091601467`}, {
-           0.58107215228780884`, 0.563829651859028`}, {
-           0.60564408484853716`, 0.13698535863976558`}, {
-           0.62489564858747815`, 0.65930617342740838`}, {
-           0.62559074907603152`, 0.13442797397719608`}, {
-           0.6581911661242521`, 0.32649977064273283`}, {
-           0.66754496465933855`, 0.7371662341034344`}, {
-           0.68011751004771925`, -0.10073391179128377`}, {
-           0.73358026527010844`, -0.016400067812898378`}, {
-           0.79976218987336178`, 0.32395746706777695`}, {
-           0.83000506256300488`, 0.24417908178686476`}, {
-           0.96685759476732325`, -0.031051088974141772`}}), RGBColor(0, 1, 0), 
-        PointBox({{-0.84184212403222292`, -0.30806176581828626`}, {
-           -0.77817058477525602`, -0.51544786929787589`}, {
-           -0.65384193606448049`, -0.75642610101954721`}, {
-           -0.65376464566171344`, -0.33493657764927165`}, {
-           -0.61763499876817218`, -0.53455236801668882`}, {
-           -0.55554605686890546`, -0.55339554416131675`}, {
-           -0.53163170867924792`, -0.34075633094748881`}, {
-           -0.47938149738521219`, -0.51237419909965243`}, {
-           -0.24568932419940137`, -0.73607612344875339`}, {
-           -0.19785220457625496`, -0.62499944612204317`}, {
-           -0.15685669562860727`, -0.73900556994360489`}, {
-           -0.13713778152790912`, -0.60589244245337448`}, {
-           -0.10137393486036395`, -0.61962078782079777`}, {
-           -0.074565977279012152`, -0.59271320090637603`}, {
-           -0.05672464713314973`, -0.98865037692613211`}, {
-           -0.045197690648342448`, -0.92943121795243999`}, {
-           0.021224785891327702`, -0.94801150455499039`}, {
-           0.032558977550578128`, -0.63779411942750919`}, {
-           0.03780221509524484`, -0.98574777649525891`}, {
-           0.058127352095111107`, -0.65881063967874431`}, {
-           0.153636193785613`, -0.5029873752475178`}, {
-           0.18948289833537602`, -0.83586565867954388`}, {
-           0.22525436495144491`, -0.62385710587356313`}, {
-           0.4491301846005884`, -0.59112104628294304`}, {
-           0.4597446607110578`, -0.73690999375671717`}, {
-           0.52062957114018782`, -0.30089462873269412`}, {
-           0.54650948422639001`, -0.81502192995596445`}, {
-           0.64230961598244862`, -0.26687791896538404`}, {
-           0.64730917978849933`, -0.31701345422165916`}, {
-           0.66027519045067695`, -0.68219441156137273`}, {
-           0.68193494773655683`, -0.22085632216246753`}, {
-           0.89297059958952074`, -0.26674469479070373`}}), 
-        RGBColor(1, 0.502`, 0), 
-        PointBox({{-0.92978663953446294`, -0.25384317833329595`}, {
-           0.96839308538576385`, -0.14848359584348469`}}), 
-        LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
-           0.96839308538576385`, -0.14848359584348469`}})}, Frame -> True, 
-       FrameTicks -> HoldComplete(False), ImageSize -> NCache(200, 200.0`))), 
-     "Output", SectionGenerated -> True, SectionLabel -> "out [21]:"), 
-    Section(BoxData({{"Local", "(", {"sorted", ",", "a", ",", "b", ",", "c"}, 
-        ")"}, {
-        "{", {{{{"\n", "sorted"}, "\[Assign]", {"Sort", "(", "sample", ")"}}, 
-          ";", {{"\n", "a"}, "\[Assign]", {"First", "(", "sorted", ")"}}, ";", 
-          {{"\n", "b"}, "\[Assign]", {"Last", "(", "sorted", ")"}}, ";", {
-           {"\n", "c"}, "\[Assign]", {
-            {"sorted", ".", "SortBy", "(", {
-              {"Total", "(", {
-                {"(", {{{"(", {"a", "-", "#"}, ")"}, " ", {
-                    "Total", "(", {{"(", {"b", "-", "a"}, ")"}, 
-                     SuperscriptBox("2")}, ")"}}, "+", {
-                   {"Dot", "(", {{"#", "-", "a"}, ",", {"b", "-", "a"}}, ")"}, 
-                   " ", {"(", {"b", "-", "a"}, ")"}}}, ")"}, 
-                SuperscriptBox("2")}, ")"}, "&"}, ")"}, ".", "Last"}}, ";", {
-           {"\n", "Graphics"}, "(", {
-            {"{", {{"\n", "Blue"}, ",", {
-               "Point", "(", {"sorted", ".", "Select", "(", {
-                 {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, "<", 
-                  "0"}, "&"}, ")"}, ")"}, ",", {"\n", "Green"}, ",", {
-               "Point", "(", {"sorted", ".", "Select", "(", {
-                 {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, ">", 
-                  "0"}, "&"}, ")"}, ")"}, ",", {"\n", "Orange"}, ",", {
-               "Point", "(", {"sorted", ".", "Select", "(", {
-                 {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, "=", 
-                  "0"}, "&"}, ")"}, ")"}, ",", {
-               {"\n", "Line"}, "(", {"{", {"a", ",", "b"}, "}"}, ")"}, ",", {
-               "\n", "Red"}, ",", {"Point", "(", "c", ")"}, ",", {
-               {"Line", "(", {"{", {"a", ",", "c", ",", "b"}, "}"}, ")"}, 
-               "\n"}}, "}"}, ",", {{"\n", "ImageSize"}, "\[Rule]", "200"}, 
-            ",", {{"\n", "Frame"}, "\[Rule]", "True"}, ",", {
-             {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}}, "\n"}, "}"}}), 
-     "Input", SectionLabel -> "in [22]:"), 
-    Section(
-     BoxData(GraphicsBox({RGBColor(0, 0, 1), 
-        PointBox({{-0.90897609963654924`, 0.12621918423512346`}, {
-           -0.77931054929023391`, 0.6239622974784087`}, {
-           -0.67693054033500477`, -0.15647538908260383`}, {
-           -0.60119371074670469`, 0.63698239054988681`}, {
-           -0.60097032232074898`, 0.148125324347127`}, {
-           -0.57801959590563712`, 0.12423708444993231`}, {
-           -0.45161226126822851`, 0.46257649919003652`}, {
-           -0.43822699961978695`, 0.31220692296569941`}, {
-           -0.41378953062047663`, 0.71854490379662583`}, {
-           -0.40638389936174701`, 0.11504191912383699`}, {
-           -0.38695187837377087`, -0.19472970670442824`}, {
-           -0.30677148590910663`, 0.067063064254659244`}, {
-           -0.30066097923198454`, 0.68324403731451522`}, {
-           -0.2569239562543324`, 0.24453215022081443`}, {
-           -0.24516255137808174`, 0.16556329017410554`}, {
-           -0.217052972999493`, -0.015531725150659037`}, {
-           -0.17520080779835601`, 0.39186872744236867`}, {
-           -0.025740417532282844`, -0.1399298317509563`}, {
-           0.093586952377263`, 0.95440737331533243`}, {
-           0.1548500004066824`, 0.36192101383298114`}, {
-           0.18500135142196328`, 0.18760029489292362`}, {
-           0.19282664711386222`, 0.032452052266729536`}, {
-           0.19929569276131609`, 0.8013913697674635`}, {
-           0.24629916281324005`, 0.58821496016344232`}, {
-           0.2489972685337245`, -0.11220012633047993`}, {
-           0.32786258222691211`, 0.82810448711172735`}, {
-           0.42631884630677308`, 0.1228753822119939`}, {
-           0.46122684546290071`, -0.042033521294892351`}, {
-           0.51156490563103074`, 0.62862752669088273`}, {
-           0.54639685332976562`, 0.63820808706794807`}, {
-           0.56019910321913735`, 0.20872876091601467`}, {
-           0.58107215228780884`, 0.563829651859028`}, {
-           0.60564408484853716`, 0.13698535863976558`}, {
-           0.62489564858747815`, 0.65930617342740838`}, {
-           0.62559074907603152`, 0.13442797397719608`}, {
-           0.6581911661242521`, 0.32649977064273283`}, {
-           0.66754496465933855`, 0.7371662341034344`}, {
-           0.68011751004771925`, -0.10073391179128377`}, {
-           0.73358026527010844`, -0.016400067812898378`}, {
-           0.79976218987336178`, 0.32395746706777695`}, {
-           0.83000506256300488`, 0.24417908178686476`}, {
-           0.96685759476732325`, -0.031051088974141772`}}), RGBColor(0, 1, 0), 
-        PointBox({{-0.84184212403222292`, -0.30806176581828626`}, {
-           -0.77817058477525602`, -0.51544786929787589`}, {
-           -0.65384193606448049`, -0.75642610101954721`}, {
-           -0.65376464566171344`, -0.33493657764927165`}, {
-           -0.61763499876817218`, -0.53455236801668882`}, {
-           -0.55554605686890546`, -0.55339554416131675`}, {
-           -0.53163170867924792`, -0.34075633094748881`}, {
-           -0.47938149738521219`, -0.51237419909965243`}, {
-           -0.24568932419940137`, -0.73607612344875339`}, {
-           -0.19785220457625496`, -0.62499944612204317`}, {
-           -0.15685669562860727`, -0.73900556994360489`}, {
-           -0.13713778152790912`, -0.60589244245337448`}, {
-           -0.10137393486036395`, -0.61962078782079777`}, {
-           -0.074565977279012152`, -0.59271320090637603`}, {
-           -0.05672464713314973`, -0.98865037692613211`}, {
-           -0.045197690648342448`, -0.92943121795243999`}, {
-           0.021224785891327702`, -0.94801150455499039`}, {
-           0.032558977550578128`, -0.63779411942750919`}, {
-           0.03780221509524484`, -0.98574777649525891`}, {
-           0.058127352095111107`, -0.65881063967874431`}, {
-           0.153636193785613`, -0.5029873752475178`}, {
-           0.18948289833537602`, -0.83586565867954388`}, {
-           0.22525436495144491`, -0.62385710587356313`}, {
-           0.4491301846005884`, -0.59112104628294304`}, {
-           0.4597446607110578`, -0.73690999375671717`}, {
-           0.52062957114018782`, -0.30089462873269412`}, {
-           0.54650948422639001`, -0.81502192995596445`}, {
-           0.64230961598244862`, -0.26687791896538404`}, {
-           0.64730917978849933`, -0.31701345422165916`}, {
-           0.66027519045067695`, -0.68219441156137273`}, {
-           0.68193494773655683`, -0.22085632216246753`}, {
-           0.89297059958952074`, -0.26674469479070373`}}), 
-        RGBColor(1, 0.502`, 0), 
-        PointBox({{-0.92978663953446294`, -0.25384317833329595`}, {
-           0.96839308538576385`, -0.14848359584348469`}}), 
-        LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
-           0.96839308538576385`, -0.14848359584348469`}}), RGBColor(1, 0, 0), 
-        PointBox({0.093586952377263`, 0.95440737331533243`}), 
-        LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
-           0.093586952377263`, 0.95440737331533243`}, {
-           0.96839308538576385`, -0.14848359584348469`}})}, Frame -> True, 
-       FrameTicks -> HoldComplete(False), ImageSize -> NCache(200, 200.0`))), 
-     "Output", SectionGenerated -> True, SectionLabel -> "out [22]:"), 
-    Section("Debug", "Section"), 
-    Section(BoxData({"Function", " ", {
-        "debugGrahamScan", "(", {"~", "points"}, ")"}, {
-        "{", {
-         {{{"\n", "With"}, "(", {"xyData", "\[Assign]", {
-             "N", "(", "points", ")"}}, ")"}, "\n", {
-           "With", "(", {"startPos", "\[Assign]", {
-             {"Sort", "(", "xyData", ")"}, ".", "First"}}, ")"}, "\n", {
-           "With", "(", {"startIndex", "\[Assign]", {
-             {"Position", "(", {"xyData", ",", "startPos", ",", "1"}, ")"}, 
-             "[", {"1", ",", "1"}, "]"}}, ")"}, "\n", {
-           "With", "(", {"angSortedIndices", "\[Assign]", {
-             {"Join", "(", {{{"\n", "Array"}, "(", {"startIndex", "-", "1"}, 
-                ")"}, ",", {
-                {{"\n", "Array"}, "(", {{"startIndex", "+", "1"}, "..", {
-                   "Length", "(", "xyData", ")"}}, ")"}, "\n"}}, ")"}, ".", 
-             "SortBy", "(", {
-              {"{", {
-                {{"\n", "Arg"}, "(", {"Complex", "@@", {
-                   "(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}}, 
-                 ")"}, ",", {
-                 {{"\n", "Total"}, "(", {
-                   {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}, 
-                   SuperscriptBox("2")}, ")"}, "\n"}}, "}"}, "&"}, ")"}}, 
-           ")"}, "\n", {{"\n", "Print"}, "(", {
-            ComplexStringBox("\"sorted: \""), ",", "angSortedIndices"}, ")"}, 
-          "\n", {{"\n", "Print"}, "@", {"DynamicLocal", "(", {
-             {"{", {"i", "\[Assign]", "1"}, "}"}, ",", {
-              {{{"\n", "With"}, "(", {"n", "\[AssignDelayed]", {
-                  "angSortedIndices", "[", "i", "]"}}, ")"}, {
-                "{", {{{"\n", "Column"}, "@", {
-                   "{", {{{"\n", "Slider"}, "(", {
-                      {"Dynamic", "(", "i", ")"}, ",", {
-                       "1", "..", {"Length", "(", "angSortedIndices", ")"}, 
-                       "..", "1"}}, ")"}, ",", {{"\n", "Dynamic"}, "(", {
-                      "{", {"n", ",", {"N", "@", {"xyData", "[", "n", "]"}}, 
-                       ",", {
-                        {"(", {
-                          {"{", {{{"\n", "Arg"}, "(", {
-                              "Complex", "@@", {
-                               "(", {{"xyData", "[", "#", "]"}, "-", 
-                                "startPos"}, ")"}}, ")"}, ",", {
-                             {{"\n", "Total"}, "(", {
-                               {"(", {{"xyData", "[", "#", "]"}, "-", 
-                                 "startPos"}, ")"}, SuperscriptBox("2")}, 
-                              ")"}, "\n"}}, "}"}, "&"}, ")"}, "(", "n", ")"}}, 
-                      "}"}, ")"}, ",", {
-                     {{"\n", "Dynamic"}, "(", {
-                       "Graphics", "(", {
-                        {"{", {{"\n", "Gray"}, ",", {
-                           {"\n", "Point"}, "(", "xyData", ")"}, ",", {
-                           {"\n", "Line"}, "(", {
-                            "xyData", "[", "angSortedIndices", "]"}, ")"}, 
-                          ",", {"\n", "Black"}, ",", {
-                           {"\n", "Line"}, "(", {
-                            "{", {"startPos", ",", {"xyData", "[", "n", "]"}}, 
-                            "}"}, ")"}, ",", {{"\n", "Point"}, "(", {
-                            "xyData", "[", "n", "]"}, ")"}}, "}"}, ",", {
-                         {"\n", "ImageSize"}, "\[Rule]", "100"}, ",", {
-                         {"\n", "Frame"}, "\[Rule]", "True"}}, ")"}, ")"}, 
-                     "\n"}}, "}"}}, "\n"}, "}"}}, "\n"}}, ")"}}, ";", {
-           {"\n", "\n", "Local"}, "(", {"stack", ",", "depth", ",", "p"}, 
-           ")"}, "\n", {"stack", "\[Assign]", {
-            "{", {{"{", {{"{", "}"}, ",", "startIndex"}, "}"}, ",", {
-              "First", "(", "angSortedIndices", ")"}}, "}"}}, "\n", {
-           "depth", "\[Assign]", "2"}, "\n", {
-           {"Do", "(", {"p", "\[Rule]", {"Rest", "(", "angSortedIndices", 
-              ")"}}, ")"}, {
+    SectionGroup({Section("Code", "Section"), 
+      Section(BoxData({"<<", "ExperimentalSyntax`"}), "Input", 
+       SectionLabel -> "in [2]:"), 
+      Section(
+       BoxData(/\/({"%", " ", {{"left", " ", "\[Congruent]", " ", {"-", "1"}}, 
+           ",", " ", {"right", " ", "\[Congruent]", " ", {"+", "1"}}, ",", 
+           " ", {{"on", " ", "line"}, " ", "\[Congruent]", " ", "0"}}}, "\n", {
+          "Function", " ", {"sideOfLine", "(", {
+            {"~", "p"}, ",", {"~", "a"}, ",", {"~", "b"}}, ")"}, {
+           "{", {{{"\n", "Sign"}, "(", {
+              "Chop", "(", {"Det", "(", {
+                "{", {{"p", "-", "a"}, ",", {"b", "-", "a"}}, "}"}, ")"}, 
+              ")"}, ")"}, "\n"}, "}"}})), "Input", SectionLabel -> "in [3]:"), 
+      Section(BoxData({"Function", " ", {
+          "sideOfTriangle", "(", {{"~", "p"}, ",", {"~", "a"}, ",", {
+            "~", "b"}, ",", {"~", "c"}}, ")"}, {
+          "{", {
+           {{"\n", "Max"}, "(", {
+             {"sideOfLine", "(", {"p", ",", "a", ",", "b"}, ")"}, ",", {
+              "sideOfLine", "(", {"p", ",", "b", ",", "c"}, ")"}, ",", {
+              "sideOfLine", "(", {"p", ",", "c", ",", "a"}, ")"}}, ")"}, 
+           "\n"}, "}"}}), "Input", SectionLabel -> "in [4]:"), 
+      Section(BoxData({{"convexHull", "\[Assign]", "convexHullMonotoneChain"}, 
+         ";"}), "Input", SectionLabel -> "in [5]:"), 
+      Section(
+       BoxData(/\/({"%", " ", {{"Andrew", "'"}, "s", " ", "monotone", " ", 
+           "chain", " ", "convex", " ", "hull", " ", "algorithm"}}, "\n", {
+          "Function", " ", {"convexHullMonotoneChain", "(", {"~", "points"}, 
+           ")"}, {
+           "{", {
+            {{{"\n", "With"}, "(", {"n", "\[Assign]", {
+                "Length", "(", "points", ")"}}, ")"}, "\n", {
+              "With", "(", {"xyData", "\[Assign]", {"N", "(", "points", ")"}}, 
+              ")"}, "\n", {"With", "(", {"sortedIndices", "\[Assign]", {
+                {"Array", "(", "n", ")"}, ".", "SortBy", "(", {
+                 {"xyData", "[", "#", "]"}, "&"}, ")"}}, ")"}, "\n", {
+              "Local", "(", {"L", ",", "U", ",", "i", ",", "tos"}, ")"}, "\n", 
+             {"L", "\[Assign]", {"ConstantArray", "(", {"0", ",", "n"}, ")"}}, 
+             "\n", {"tos", "\[Assign]", "0"}, "\n", {
+              {"Do", "(", {"i", "\[Rule]", "sortedIndices"}, ")"}, {
+               "{", {
+                {{{{"\n", "While"}, "(", {{"tos", "\[GreaterEqual]", "2"}, 
+                    "&&", {{"sideOfLine", "(", {{"xyData", "[", "i", "]"}, 
+                       ",", {"xyData", "[", {"L", "[", {"tos", "-", "1"}, 
+                         "]"}, "]"}, ",", {"xyData", "[", {
+                         "L", "[", "tos", "]"}, "]"}}, ")"}, 
+                     "\[GreaterEqual]", "0"}}, ")"}, {
+                   "{", {{"\n", {"--", "tos"}}, "\n"}, "}"}}, "\n", {
+                  {"L", "[", {"++", "tos"}, "]"}, "\[Assign]", "i"}}, "\n"}, 
+               "}"}}, "\n", {"L", "\[Assign]", {
+               "L", "[", {"1", "..", {"tos", "-", "1"}}, "]"}}, "\n", {
+              {"\n", "U"}, "\[Assign]", {"ConstantArray", "(", {
+                "0", ",", "n"}, ")"}}, ";", {
+              "tos", "\[Assign]", {"n", "+", "1"}}, ";", {
+              {{"\n", "Do"}, "(", {"i", "\[Rule]", "sortedIndices"}, ")"}, {
+               "{", {
+                {{{{"\n", "While"}, "(", {
+                    {"tos", "\[LessEqual]", {"n", "-", "1"}}, "&&", {
+                     {"sideOfLine", "(", {{"xyData", "[", "i", "]"}, ",", {
+                        "xyData", "[", {"U", "[", {"tos", "+", "1"}, "]"}, 
+                        "]"}, ",", {"xyData", "[", {"U", "[", "tos", "]"}, 
+                        "]"}}, ")"}, "\[LessEqual]", "0"}}, ")"}, {
+                   "{", {{"\n", {"++", "tos"}}, "\n"}, "}"}}, "\n", {
+                  {"U", "[", {"--", "tos"}, "]"}, "\[Assign]", "i"}}, "\n"}, 
+               "}"}}, "\n", {{"\n", "U"}, "\[Assign]", {
+               "U", "[", {"tos", "..", {"-", "2"}}, "]"}}, "\n", {
+              "Return", "(", {"Join", "(", {"L", ",", "U"}, ")"}, ")"}}, 
+            "\n"}, "}"}})), "Input"), 
+      Section(BoxData(/\/({"%", " ", {"Graham", " ", "Scan"}}, "\n", {
+          "Function", " ", {"convexHullGrahamScan", "(", {"~", "points"}, 
+           ")"}, {
+           "{", {
+            {{{"\n", "With"}, "(", {"xyData", "\[Assign]", {
+                "N", "(", "points", ")"}}, ")"}, "\n", {
+              "With", "(", {"startPos", "\[Assign]", {
+                {"Sort", "(", "xyData", ")"}, ".", "First"}}, ")"}, "\n", {
+              "With", "(", {"startIndex", "\[Assign]", {
+                {"Position", "(", {"xyData", ",", "startPos", ",", "1"}, ")"}, 
+                "[", {"1", ",", "1"}, "]"}}, ")"}, "\n", {
+              "With", "(", {"angSortedIndices", "\[Assign]", {
+                {"Join", "(", {
+                  {{"\n", "Array"}, "(", {"startIndex", "-", "1"}, ")"}, ",", {
+                   {{"\n", "Array"}, "(", {{"startIndex", "+", "1"}, "..", {
+                      "Length", "(", "xyData", ")"}}, ")"}, "\n"}}, ")"}, ".", 
+                "SortBy", "(", {
+                 {"{", {{{"\n", "Arg"}, "(", {
+                     "Complex", "@@", {
+                      "(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, 
+                      ")"}}, ")"}, ",", {
+                    {{"\n", "Total"}, "(", {
+                      {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, 
+                       ")"}, SuperscriptBox("2")}, ")"}, "\n"}}, "}"}, "&"}, 
+                ")"}}, ")"}, "\n", {"Local", "(", {
+               "stack", ",", "depth", ",", "p"}, ")"}, "\n", {
+              {"\n", "stack"}, "\[Assign]", {
+               "{", {{"{", {{"{", "}"}, ",", "startIndex"}, "}"}, ",", {
+                 "First", "(", "angSortedIndices", ")"}}, "}"}}, "\n", {
+              "depth", "\[Assign]", "2"}, "\n", {
+              {"Do", "(", {"p", "\[Rule]", {"Rest", "(", "angSortedIndices", 
+                 ")"}}, ")"}, {
+               "{", {
+                {{{"\n", "If"}, "(", {
+                   {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
+                      "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, 
+                      "]"}, ",", {"xyData", "[", {"stack", "[", "2", "]"}, 
+                      "]"}}, ")"}, "\[GreaterEqual]", "0"}, ")"}, {
+                  "{", {
+                   {{{"\n", "stack"}, "\[Assign]", {"stack", "[", "1", "]"}}, 
+                    "\n", {"--", "depth"}, "\n", {
+                     {"While", "(", {{"depth", "\[GreaterEqual]", "2"}, "&&", {
+                        {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
+                           "xyData", "[", {"stack", "[", {"1", ",", "2"}, 
+                            "]"}, "]"}, ",", {"xyData", "[", {
+                            "stack", "[", "2", "]"}, "]"}}, ")"}, 
+                        "\[GreaterEqual]", "0"}}, ")"}, {
+                      "{", {
+                       {{{"\n", "stack"}, "\[Assign]", {
+                          "stack", "[", "1", "]"}}, "\n", {"--", "depth"}}, 
+                       "\n"}, "}"}}, "\n", {"stack", "\[Assign]", {
+                      "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}}, 
+                   "\n"}, "}"}, "Else", {
+                  "{", {{{"\n", "stack"}, "\[Assign]", {
+                     "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}, 
+                   ";", "\n"}, "}"}}, "\n"}, "}"}}, "\n", {
+              "Return", "(", {"Flatten", "(", "stack", ")"}, ")"}}, "\n"}, 
+           "}"}})), "Input", SectionLabel -> "in [15]:")}, All), 
+    SectionGroup({Section("Testing", "Section"), 
+      SectionGroup({
+        Section(
+         BoxData(
+          /\/({{"sample", "\[Assign]", {
+              {"RandomReal", "(", {{{"-", "1"}, "..", "1"}, ",", {
+                 "{", {"100", ",", "2"}, "}"}}, ")"}, ".", "Select", "(", {
+               {{"Dot", "(", {"#", ",", "#"}, ")"}, "<", "1"}, "&"}, ")"}}, 
+            ";"}, "\n", {"Graphics", "(", {
+             {"{", {"Blue", ",", {"Point", "(", "sample", ")"}}, "}"}, ",", {
+              "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
+         SectionLabel -> "in [8]:"), 
+        Section(
+         BoxData(GraphicsBox({RGBColor(0, 0, 1), 
+            PointBox(CompressedData(
+              "1:c$_VidpOit7{_x,u3MWpQ7miSYAIQv)^?CuZ63)jD,}>mW#z7iLM[;3lB[@xG\
+              )1k5iZ(nh$3!C5h#@5!%(xqBHi?!!&-wN5=X-wV_rBlvdtR_)MV1r*ia=TxI!A_v\
+              9X-ynKNcDWmamYO29UEu^v}yabqL<N{dO)wRe*sk<qgvlF{[R*BbYB)RU9u>hk-o\
+              h8SAnYT;U{!55l+DNc3wFP^6r{)j6m7OfQ10Em>l[#M>CGpgh)7?uBOYGX$rj@?3\
+              W>ZA9Q[%587%6SZ6vA{f>XqnV,q0s}$=Ekuq#9cvdM*j>d}U$(Oa17*tX$]GlO9p\
+              +&;n}mPHX!BD9Amt-XEBBYq^ATjP-8RoZJ%)fP<-X4OT9s#c2r33?Y}L*TKwvH9>\
+              aUEI&96)#s2ZiU-(89PSDo?#mQrLv-5,cRn_Vt{wXPq7ZzyNk%]>aTl6rP2vGaN[\
+              hY,@C+=};8$AzUBreCYL7x!@h18vHeXxB?L+limu;pe%J*S}zShjPQr+?TC(J;aA\
+              N75<YjjDQ]Hvsq^0Qqlbgas-,y,O0G$7%;xEgzP*?1tuSceiC;KVz7boasxMxPSy\
+              Z}cRv4iN+?hIGNfGFC!}nslH8MTK2>}8>^TA(DX;Z%3Qmk]LeSVXHDNJt6aiz(O?\
+              -F9YAx-@(5lWQPtw}nfeGbzb,,muo+fj*dX(kR(}iL1Q^tq!=LwD<$,B0sUF;H<E\
+              JnbLa+[_7M}rg*58bwo;UBlRVPHYIqULY},_dSKY3rS,ZLE0+Y-8pnNU,+0E5eYK\
+              ;#GP?rXB-J%1b^qT%EHd{!iGx6B-;5BCwtDlNW2(_oN6xuYwPXbIKwNtSCPhBcq[\
+              BBRM[S82tI^hbIWwFut{,_3%7$5nSl0AK!jq3Ikip*(&$k7xM)O>QqHt=&}m=U>D\
+              {2ou&aegyd>2u_R&Y;xGnw%zP!RE<K&UFr3M[aek<J5,$kT50aa)Qi&oyvp(a4Kl\
+              qb6?I{nN@iPhzZo};{IPl=xlYSj2pSZ]xA6iNB6EwSH&mj>X0Y[QSOp_O%4vk=_e\
+              y=DgC5F5^C#L>MpUO?eeHfnDn}j6TDB&*5J1z8BQ+bh#;gci!DG[Zz4{pr)vgF0f\
+              g&cDK<1{m#uMh)w#<yo2$E6BI7}I,y*I1rQeDGk-+bQjoRQ,dWWtiMnbvH2vo}OC\
+              C8Weg>k74Ma<62@@M*Q)jTsS?@oLEQd7YM4eN[4J#U@?0jP]Iszau]rS-nYh$n$s\
+              {iLb;2*,[NJ>HSxjOLCZU}8UY_BpVcXyx#L0%h334D>_Cz?Hs!}4dPQ^o4H!0VFi\
+              dADze2#5neXlNlR9t7,;E0X;p$dYVc<u(7VC=sh2loy}D^lI)ax7s{3-w3dS+th1\
+              i9Z(wk$r+bOeI{%JaT+DN>&%KDYUmK0Ez!5P=[dBMNN<cdm{i=o^u#R$fWw62j!c\
+              Low6Bxd[tT)!eRyMdEW9bN?Psm84UouahBd{reV%5I8[((wdEr0uK)o}7#vbR-NM\
+              _5J9=0IN)Hl7s;D3Op7ejAUQcnxtXM-n){gSy>sU;x4hrY#]_M%FI^(*QH3,c{%a\
+              }&F,4f,Acm<^*Ve(Ou^GeIw2U{Zyh}9wN>RacDy=WfpDbL{d0*T53=-UUMrgFC<$\
+              kgv4wb7#xgEn]qnu%cu2ppgx{IXL>FDb=a%v(3&N9NbhK0c{X;RayuH?#;De2+dm\
+              #dojeLA-]$Wq*0lc4bZLj;l;VIg(PS=nb]djw=hr]Ca)wq*(<$gV03{G>(Vq8%(c\
+              be>P1Ybqnen!h(HIgo>)Mfk-yi%]8HX<z>F=+I^D&K3k6T)mBQXNckHj9,,Vr$qb\
+              o0O}a[UG}bzvN1Clq3tjyDW&EOg0*am,zOZ8>dj<?h-D]6W;-djJUSp-yO%VW#R%\
+              ^3olF1fdJGL@_JXO]#H$=eaLL!#FdrtaE5Dozf1T5dz%@n)3b@aEQP+*($cahA;f\
+              Y54KN;iH9s~~~"))}, ImageSize -> NCache(100, 100.0`))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
+      SectionGroup({
+        Section(
+         BoxData(
+          /\/({{"grid", "\[Assign]", {
+              "Join", "@@", {"Array", "(", {
+                {{{{"{", {{"Re", "(", "#", ")"}, ",", {"Im", "(", "#", ")"}}, 
+                    "}"}, "&"}, "@", {
+                   "N", "(", {{"Complex", "(", {{"#", "1"}, ",", {"#", "2"}}, 
+                     ")"}, "*", {"Sign", "(", {
+                      "Complex", "(", {"3", ",", "1"}, ")"}, ")"}}, ")"}}, 
+                 "&"}, ",", {"{", {"15", ",", "10"}, "}"}}, ")"}}}, ";"}, 
+           "\n", {"Graphics", "(", {
+             {"{", {"Blue", ",", {"Point", "(", "grid", ")"}}, "}"}, ",", {
+              "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
+         SectionLabel -> "in [10]:"), 
+        Section(
+         BoxData(GraphicsBox({RGBColor(0, 0, 1), 
+            PointBox(CompressedData(
+              "1:c${t3e@K;A7{Kw]hl^N]TmINv_QToLOif]In]Z3?4>Gn28Bx&>jS<nJ!kSw))\
+              )-ABnzRTD5$T6YnG2DK$T6zzMo7svWvm}z=@%uV!pR6XR$Fc_@44qW&+]Bo>*bu+\
+              _nh;6Klfgk5bXhg42Y!rD}YRu,(WGp$[KzUAT1h+fIoT3;tknv4#$%hV{u4l<JaT\
+              <@A3cstnKv>CWYe@l7Ie+>Y;^eDkmaj@cR?]x(h>z_K&6@MEUa*$%,C>DdBj_wwm\
+              l?)uRdj^3C4Jm+8}Gve^A&34iCtg0G)ln[LuMj+^D4Cj7ZinwD&De+j{7&lyi7_c\
+              <G3S]#BE_9g#nTKUz}BLxW4,E%lQ0W<l!wnGFVkMA>{+}LUL,Ldf?C=($jyLAlIv\
+              <[z5h)}fSTP{M8?3VWE-P=D-orO>=yP2N(2&J-Hc}+#GwX0(YWwM*OC,6dg#v^D$\
+              #o=Y%2mM!;9]}uMOG8+}d&ZL&QH0lIx7]dOWff1e5XxmY^Bf=H4cTq@?s#oU({zM\
+              }vYWXf4,Gq)cJld1RbzJW9^aDP%([sOQFdGXRn_x<?gZzp2*>Sfa&F&d,=5x;?K}\
+              PPJ-&0hSau_]OJz55TPeGd+xKKQa=T1+Be%<CH*&jDb]CQ#Agp5h$wcRNO*n3k<J\
+              ?xU=SR,GT_?Md+xJs-3*4@k-N@}**^S(8l-<bfCfSYLZkF91PX6N6fmjj3)^OZz&\
+              $+E(>*k<yyFDDYT%Frm*^S(OEW450I@yifej>Y(+fQXTa{HO=Ms7cs-OLTad3Uqt\
+              <TAJQUN]X>Ik*iTTft{?_jocL(cSCGc4W8Flko,eK2O#oz56}xkN6(&WIyuT<jH,\
+              $non$L+cX#9keRTsoZx2uA2S%?7BgXAnKRt#rHU9JKCB{=;-e[eF>X^4$#I8@NRW\
+              @Kh$OjFMKrr8M(E-Z^O@ySX2QM(hq;^A&10H-R7B!@T16z!XH-N2eO5&z(dSe}BK\
+              ?huNT$D45hvyLw[03jocz3*uu&cAi@eorhWdLmVRz}JUs4eX^<@>2Q1_{bg!+n#N\
+              T]Z&L_+<8ib$w,N-41fVUY7FWT<]O6Lw99,WNmh#!z2Z5efB86_HT?sv;8VAr+BO\
+              -%=3?^&J(FP]TG#j]pAhfuq66@0$tx1c!Q<E1APk}7IqvGl%-2ib$v*tB8bpL,5X\
+              jqbeey{zFA1)K64ILOrG;n(dY%{KY>w#SHb}X2Pm*sGspqR1rh{uZl>h$5li^T@N\
+              xMp>6;fkx=ge8Ie%$g;WxQSKA0OVp%LRBWuCD;P=B!SOX6Aeqf)E5{CMKnXpkE>L\
+              !p83H2e65eaoO$cTix1!P1*-3l@yp+2l466&KWqIprl$=iT^Wz1u!JIsVl<WL_6_\
+              FYoSP<N_,gt}*bB-E!=L_*!IA,<Ez6_HS%RuKvH85QxnuGcFb>@36o0X3Uwvj~~~\
+              "))}, ImageSize -> NCache(100, 100.0`))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [11]:")}, All), 
+      SectionGroup({
+        Section(
+         BoxData(
+          /\/({{"grid2", "\[Assign]", {
+              "Join", "@@", {"Array", "(", {
+                "List", ",", {"{", {"15", ",", "10"}, "}"}}, ")"}}}, ";"}, 
+           "\n", {"Graphics", "(", {
+             {"{", {"Blue", ",", {"Point", "(", "grid2", ")"}}, "}"}, ",", {
+              "ImageSize", "\[Rule]", "100"}}, ")"})), "Input", 
+         SectionLabel -> "in [12]:"), 
+        Section(
+         BoxData(GraphicsBox({RGBColor(0, 0, 1), 
+            PointBox(CompressedData(
+              "1:c$_uOVWiec7>4n>j4{R-V]it7k}arzBuSDaNm5Bxl2j^NQb#IDk{m]pBuSDa$\
+              &q9wNs=T<k}fDmNs=T<vXcJZ_qp9)e%v1[M&%J8;ljYG{d)#C@7S<x+nzyuc8=1G\
+              U])v0Cz%4-6e*@eHD#KqFkq^TF*U]a<hsT<lViNeGr<&?Xo^fSB_^9PQ%r@arph!\
+              ^V}q,%Ys@e?W}[;+Oo7>^$Q)B*t}>FmRG4q7EHE_}_7u9tB9mjW$+N^1SZazaGbN\
+              UrGAm4lm8QySQ)5j[v1_a]IsP(v)}mq9O_2?z#70wQlc[)9RM]23Z0{*,jlWHfoh\
+              HvNQ((6#GH6QdHD&gh3I}M;gQmuzo^sbXJlg0uB6^OBfn#E1NK6cind4&NgjhK#H\
+              cs,]{hSsZXGG6gF>p?doEH-p#LPvpa7nCO78_UktX=J@=(r}&M#R8%F>*sp+!Qna\
+              h=p5X<+j+k(,V]ycSXlN(Q{u6JP;!f#l#]q^H?lA5i3u{#<M;Ly4rKm@j]>x6a%l\
+              s$ZIk2M$Ehw3;&9h}HQ_-KF4&m_oCy2==mrHK8cafV&aRK,6?E^iIwkS<42!kyV_\
+              6D@xSQ#B?f+rk;51hN5srgv2aYR42g]5KF4*n<D%n)=s76{PKlAzV&aULIV%><iI\
+              wwW<3gX]yV^z3aY^)C76Vtr$W<}MP0Wmlh3jJFhS>f9&TEDS"))}, 
+           ImageSize -> NCache(100, 100.0`))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [13]:")}, All), 
+      SectionGroup({Section("Convex Hull", "Subsection"), 
+        Section(BoxData({"Function", " ", {
+            "testConvexHull", "(", {"~", "xyData"}, ")"}, {
             "{", {
-             {{{"\n", "If"}, "(", {
-                {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
-                   "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, "]"}, 
-                  ",", {"xyData", "[", {"stack", "[", "2", "]"}, "]"}}, ")"}, 
-                "\[GreaterEqual]", "0"}, ")"}, {
-               "{", {
-                {{{"\n", "stack"}, "\[Assign]", {"stack", "[", "1", "]"}}, 
-                 "\n", {"--", "depth"}, "\n", {
-                  {"While", "(", {{"depth", "\[GreaterEqual]", "2"}, "&&", {
-                     {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
-                        "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, 
-                        "]"}, ",", {"xyData", "[", {"stack", "[", "2", "]"}, 
-                        "]"}}, ")"}, "\[GreaterEqual]", "0"}}, ")"}, {
-                   "{", {
-                    {{{"\n", "stack"}, "\[Assign]", {"stack", "[", "1", "]"}}, 
-                     "\n", {"--", "depth"}}, "\n"}, "}"}}, "\n", {
-                  "stack", "\[Assign]", {"{", {"stack", ",", "p"}, "}"}}, 
-                 "\n", {"++", "depth"}}, "\n"}, "}"}, "Else", {
-               "{", {
-                {{{"\n", "stack"}, "\[Assign]", {
-                   "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}}, 
-                "\n"}, "}"}}, "\n"}, "}"}}, "\n", {
-           "Return", "(", {"Flatten", "(", "stack", ")"}, ")"}}, "\n"}, 
-        "}"}}), "Input", SectionLabel -> "in [23]:"), 
-    Section(BoxData({"debugGrahamScan", "(", {
-        "Join", "@@", {"Array", "(", {
-          {{{{"{", {{"Re", "(", "#", ")"}, ",", {"Im", "(", "#", ")"}}, "}"}, 
-             "&"}, "@", {
-             "N", "(", {{"Complex", "(", {{"#", "1"}, ",", {"#", "2"}}, ")"}, 
-              "*", {"Sign", "(", {"Complex", "(", {"3", ",", "1"}, ")"}, 
-               ")"}}, ")"}}, "&"}, ",", {"{", {"5", ",", "5"}, "}"}}, ")"}}, 
-       ")"}), "Input", SectionLabel -> "in [25]:"), 
-    Section(BoxData(InterpretationBox({ComplexStringBox("\"sorted: \""), {
-         "{", {"4", ",", "3", ",", "2", ",", "1", ",", "6", ",", "7", ",", 
-          "8", ",", "11", ",", "12", ",", "16", ",", "9", ",", "13", ",", 
-          "21", ",", "17", ",", "22", ",", "18", ",", "14", ",", "23", ",", 
-          "19", ",", "24", ",", "25", ",", "10", ",", "15", ",", "20"}, "}"}}, 
-       Row({"sorted: ", {4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 
-         18, 14, 23, 19, 24, 25, 10, 15, 20}}))), "Print", 
-     SectionGenerated -> True), 
-    Section(
-     BoxData(InterpretationBox(DynamicLocalBox({i}, 
-        TagBox(GridBox({{SliderBox(Dynamic(i), 1 .. 24 .. 1)}, {
-            DynamicBox(
-             ToBoxes({{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                14, 23, 19, 24, 25, 10, 15, 20}[i], 
-               N({{0.63245553203367588`, 1.2649110640673518`}, {
-                  0.31622776601683794`, 2.2135943621178655`}, {
-                  0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
-                  4.1109609582188931`}, {-0.63245553203367588`, 
-                  5.0596442562694071`}, {1.5811388300841898`, 
-                  1.5811388300841898`}, {1.2649110640673518`, 
-                  2.5298221281347035`}, {0.94868329805051377`, 
-                  3.4785054261852175`}, {0.63245553203367588`, 
-                  4.4271887242357311`}, {0.31622776601683794`, 
-                  5.3758720222862451`}, {2.5298221281347035`, 
-                  1.8973665961010275`}, {2.2135943621178655`, 
-                  2.8460498941515415`}, {1.8973665961010275`, 
-                  3.7947331922020551`}, {1.5811388300841898`, 
-                  4.7434164902525691`}, {1.2649110640673518`, 
-                  5.6920997883030831`}, {3.4785054261852175`, 
-                  2.2135943621178655`}, {3.1622776601683795`, 
-                  3.1622776601683795`}, {2.8460498941515415`, 
-                  4.1109609582188931`}, {2.5298221281347035`, 
-                  5.0596442562694071`}, {2.2135943621178655`, 
-                  6.008327554319921`}, {4.4271887242357311`, 
-                  2.5298221281347035`}, {4.1109609582188931`, 
-                  3.4785054261852175`}, {3.7947331922020551`, 
-                  4.4271887242357311`}, {3.4785054261852175`, 
-                  5.3758720222862451`}, {3.1622776601683795`, 
-                  6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 
-                  13, 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i]]), 
-               ({Arg(Apply({{0.63245553203367588`, 1.2649110640673518`}, {
-                    0.31622776601683794`, 2.2135943621178655`}, {
-                    0.0`, 3.1622776601683795`}, {
-                    -0.31622776601683794`, 4.1109609582188931`}, {
-                    -0.63245553203367588`, 5.0596442562694071`}, {
-                    1.5811388300841898`, 1.5811388300841898`}, {
-                    1.2649110640673518`, 2.5298221281347035`}, {
-                    0.94868329805051377`, 3.4785054261852175`}, {
-                    0.63245553203367588`, 4.4271887242357311`}, {
-                    0.31622776601683794`, 5.3758720222862451`}, {
-                    2.5298221281347035`, 1.8973665961010275`}, {
-                    2.2135943621178655`, 2.8460498941515415`}, {
-                    1.8973665961010275`, 3.7947331922020551`}, {
-                    1.5811388300841898`, 4.7434164902525691`}, {
-                    1.2649110640673518`, 5.6920997883030831`}, {
-                    3.4785054261852175`, 2.2135943621178655`}, {
-                    3.1622776601683795`, 3.1622776601683795`}, {
-                    2.8460498941515415`, 4.1109609582188931`}, {
-                    2.5298221281347035`, 5.0596442562694071`}, {
-                    2.2135943621178655`, 6.008327554319921`}, {
-                    4.4271887242357311`, 2.5298221281347035`}, {
-                    4.1109609582188931`, 3.4785054261852175`}, {
-                    3.7947331922020551`, 4.4271887242357311`}, {
-                    3.4785054261852175`, 5.3758720222862451`}, {
-                    3.1622776601683795`, 6.324555320336759`}}[#1] - {
-                   -0.63245553203367588`, 5.0596442562694071`}, Complex)), 
-                Total(({{0.63245553203367588`, 1.2649110640673518`}, {
-                   0.31622776601683794`, 2.2135943621178655`}, {
-                   0.0`, 3.1622776601683795`}, {
-                   -0.31622776601683794`, 4.1109609582188931`}, {
-                   -0.63245553203367588`, 5.0596442562694071`}, {
-                   1.5811388300841898`, 1.5811388300841898`}, {
-                   1.2649110640673518`, 2.5298221281347035`}, {
-                   0.94868329805051377`, 3.4785054261852175`}, {
-                   0.63245553203367588`, 4.4271887242357311`}, {
-                   0.31622776601683794`, 5.3758720222862451`}, {
-                   2.5298221281347035`, 1.8973665961010275`}, {
-                   2.2135943621178655`, 2.8460498941515415`}, {
-                   1.8973665961010275`, 3.7947331922020551`}, {
-                   1.5811388300841898`, 4.7434164902525691`}, {
-                   1.2649110640673518`, 5.6920997883030831`}, {
-                   3.4785054261852175`, 2.2135943621178655`}, {
-                   3.1622776601683795`, 3.1622776601683795`}, {
-                   2.8460498941515415`, 4.1109609582188931`}, {
-                   2.5298221281347035`, 5.0596442562694071`}, {
-                   2.2135943621178655`, 6.008327554319921`}, {
-                   4.4271887242357311`, 2.5298221281347035`}, {
-                   4.1109609582188931`, 3.4785054261852175`}, {
-                   3.7947331922020551`, 4.4271887242357311`}, {
-                   3.4785054261852175`, 5.3758720222862451`}, {
-                   3.1622776601683795`, 6.324555320336759`}}[#1] - {
-                  -0.63245553203367588`, 5.0596442562694071`})^2)} &)({
-                 4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 14, 
-                 23, 19, 24, 25, 10, 15, 20}[i])}))}, {
-            DynamicBox(
-             ToBoxes(
-              Graphics({
-                Gray, Point({{0.63245553203367588`, 1.2649110640673518`}, {
-                   0.31622776601683794`, 2.2135943621178655`}, {
-                   0.0`, 3.1622776601683795`}, {
-                   -0.31622776601683794`, 4.1109609582188931`}, {
-                   -0.63245553203367588`, 5.0596442562694071`}, {
-                   1.5811388300841898`, 1.5811388300841898`}, {
-                   1.2649110640673518`, 2.5298221281347035`}, {
-                   0.94868329805051377`, 3.4785054261852175`}, {
-                   0.63245553203367588`, 4.4271887242357311`}, {
-                   0.31622776601683794`, 5.3758720222862451`}, {
-                   2.5298221281347035`, 1.8973665961010275`}, {
-                   2.2135943621178655`, 2.8460498941515415`}, {
-                   1.8973665961010275`, 3.7947331922020551`}, {
-                   1.5811388300841898`, 4.7434164902525691`}, {
-                   1.2649110640673518`, 5.6920997883030831`}, {
-                   3.4785054261852175`, 2.2135943621178655`}, {
-                   3.1622776601683795`, 3.1622776601683795`}, {
-                   2.8460498941515415`, 4.1109609582188931`}, {
-                   2.5298221281347035`, 5.0596442562694071`}, {
-                   2.2135943621178655`, 6.008327554319921`}, {
-                   4.4271887242357311`, 2.5298221281347035`}, {
-                   4.1109609582188931`, 3.4785054261852175`}, {
-                   3.7947331922020551`, 4.4271887242357311`}, {
-                   3.4785054261852175`, 5.3758720222862451`}, {
-                   3.1622776601683795`, 6.324555320336759`}}), 
-                Line({{0.63245553203367588`, 1.2649110640673518`}, {
-                   0.31622776601683794`, 2.2135943621178655`}, {
-                   0.0`, 3.1622776601683795`}, {
-                   -0.31622776601683794`, 4.1109609582188931`}, {
-                   -0.63245553203367588`, 5.0596442562694071`}, {
-                   1.5811388300841898`, 1.5811388300841898`}, {
-                   1.2649110640673518`, 2.5298221281347035`}, {
-                   0.94868329805051377`, 3.4785054261852175`}, {
-                   0.63245553203367588`, 4.4271887242357311`}, {
-                   0.31622776601683794`, 5.3758720222862451`}, {
-                   2.5298221281347035`, 1.8973665961010275`}, {
-                   2.2135943621178655`, 2.8460498941515415`}, {
-                   1.8973665961010275`, 3.7947331922020551`}, {
-                   1.5811388300841898`, 4.7434164902525691`}, {
-                   1.2649110640673518`, 5.6920997883030831`}, {
-                   3.4785054261852175`, 2.2135943621178655`}, {
-                   3.1622776601683795`, 3.1622776601683795`}, {
-                   2.8460498941515415`, 4.1109609582188931`}, {
-                   2.5298221281347035`, 5.0596442562694071`}, {
-                   2.2135943621178655`, 6.008327554319921`}, {
-                   4.4271887242357311`, 2.5298221281347035`}, {
-                   4.1109609582188931`, 3.4785054261852175`}, {
-                   3.7947331922020551`, 4.4271887242357311`}, {
-                   3.4785054261852175`, 5.3758720222862451`}, {
-                   3.1622776601683795`, 6.324555320336759`}}[{
-                   4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 14, 
-                   23, 19, 24, 25, 10, 15, 20}]), Black, 
-                Line({{-0.63245553203367588`, 5.0596442562694071`}, {
-                   {0.63245553203367588`, 1.2649110640673518`}, {
+             {{{"\n", "With"}, "(", {
+                "ch", ":=", {"convexHull", "(", "xyData", ")"}}, ")"}, "\n", {
+               "Print", "(", "ch", ")"}, ";", {
+               {"\n", "Graphics"}, "(", {
+                {"{", {{"\n", "Blue"}, ",", {{"\n", "Point"}, "(", "xyData", 
+                   ")"}, ",", {"\n", "Orange"}, ",", {
+                   {{"\n", "Line"}, "(", {"xyData", "[", {
+                      "ch", ".", "Append", "(", {"First", "(", "ch", ")"}, 
+                      ")"}, "]"}, ")"}, "\n"}}, "}"}, ",", {
+                 {"\n", "ImageSize"}, "\[Rule]", "200"}}, ")"}}, "\n"}, 
+            "}"}}), "Input", SectionLabel -> "in [16]:"), 
+        SectionGroup({Section(BoxData({"testConvexHull", "(", "sample", ")"}), 
+           "Input", SectionLabel -> "in [17]:"), 
+          Section(BoxData(InterpretationBox({
+              "{", {"25", ",", "52", ",", "42", ",", "31", ",", "17", ",", 
+               "68", ",", "2", ",", "23", ",", "13", ",", "24", ",", "53", 
+               ",", "3"}, "}"}, Row({
+              {25, 52, 42, 31, 17, 68, 2, 23, 13, 24, 53, 3}}), 
+             Editable -> False)), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(GraphicsBox({RGBColor(0, 0, 1), 
+              PointBox(CompressedData(
+                "1:c$_VidpOit7{_x,u3MWpQ7miSYAIQv)^?CuZ63)jD,}>mW#z7iLM[;3lB[@\
+                xG)1k5iZ(nh$3!C5h#@5!%(xqBHi?!!&-wN5=X-wV_rBlvdtR_)MV1r*ia=TxI\
+                !A_v9X-ynKNcDWmamYO29UEu^v}yabqL<N{dO)wRe*sk<qgvlF{[R*BbYB)RU9\
+                u>hk-oh8SAnYT;U{!55l+DNc3wFP^6r{)j6m7OfQ10Em>l[#M>CGpgh)7?uBOY\
+                GX$rj@?3W>ZA9Q[%587%6SZ6vA{f>XqnV,q0s}$=Ekuq#9cvdM*j>d}U$(Oa17\
+                *tX$]GlO9p+&;n}mPHX!BD9Amt-XEBBYq^ATjP-8RoZJ%)fP<-X4OT9s#c2r33\
+                ?Y}L*TKwvH9>aUEI&96)#s2ZiU-(89PSDo?#mQrLv-5,cRn_Vt{wXPq7ZzyNk%\
+                ]>aTl6rP2vGaN[hY,@C+=};8$AzUBreCYL7x!@h18vHeXxB?L+limu;pe%J*S}\
+                zShjPQr+?TC(J;aAN75<YjjDQ]Hvsq^0Qqlbgas-,y,O0G$7%;xEgzP*?1tuSc\
+                eiC;KVz7boasxMxPSyZ}cRv4iN+?hIGNfGFC!}nslH8MTK2>}8>^TA(DX;Z%3Q\
+                mk]LeSVXHDNJt6aiz(O?-F9YAx-@(5lWQPtw}nfeGbzb,,muo+fj*dX(kR(}iL\
+                1Q^tq!=LwD<$,B0sUF;H<EJnbLa+[_7M}rg*58bwo;UBlRVPHYIqULY},_dSKY\
+                3rS,ZLE0+Y-8pnNU,+0E5eYK;#GP?rXB-J%1b^qT%EHd{!iGx6B-;5BCwtDlNW\
+                2(_oN6xuYwPXbIKwNtSCPhBcq[BBRM[S82tI^hbIWwFut{,_3%7$5nSl0AK!jq\
+                3Ikip*(&$k7xM)O>QqHt=&}m=U>D{2ou&aegyd>2u_R&Y;xGnw%zP!RE<K&UFr\
+                3M[aek<J5,$kT50aa)Qi&oyvp(a4Klqb6?I{nN@iPhzZo};{IPl=xlYSj2pSZ]\
+                xA6iNB6EwSH&mj>X0Y[QSOp_O%4vk=_ey=DgC5F5^C#L>MpUO?eeHfnDn}j6TD\
+                B&*5J1z8BQ+bh#;gci!DG[Zz4{pr)vgF0fg&cDK<1{m#uMh)w#<yo2$E6BI7}I\
+                ,y*I1rQeDGk-+bQjoRQ,dWWtiMnbvH2vo}OCC8Weg>k74Ma<62@@M*Q)jTsS?@\
+                oLEQd7YM4eN[4J#U@?0jP]Iszau]rS-nYh$n$s{iLb;2*,[NJ>HSxjOLCZU}8U\
+                Y_BpVcXyx#L0%h334D>_Cz?Hs!}4dPQ^o4H!0VFidADze2#5neXlNlR9t7,;E0\
+                X;p$dYVc<u(7VC=sh2loy}D^lI)ax7s{3-w3dS+th1i9Z(wk$r+bOeI{%JaT+D\
+                N>&%KDYUmK0Ez!5P=[dBMNN<cdm{i=o^u#R$fWw62j!cLow6Bxd[tT)!eRyMdE\
+                W9bN?Psm84UouahBd{reV%5I8[((wdEr0uK)o}7#vbR-NM_5J9=0IN)Hl7s;D3\
+                Op7ejAUQcnxtXM-n){gSy>sU;x4hrY#]_M%FI^(*QH3,c{%a}&F,4f,Acm<^*V\
+                e(Ou^GeIw2U{Zyh}9wN>RacDy=WfpDbL{d0*T53=-UUMrgFC<$kgv4wb7#xgEn\
+                ]qnu%cu2ppgx{IXL>FDb=a%v(3&N9NbhK0c{X;RayuH?#;De2+dm#dojeLA-]$\
+                Wq*0lc4bZLj;l;VIg(PS=nb]djw=hr]Ca)wq*(<$gV03{G>(Vq8%(cbe>P1Ybq\
+                nen!h(HIgo>)Mfk-yi%]8HX<z>F=+I^D&K3k6T)mBQXNckHj9,,Vr$qbo0O}a[\
+                UG}bzvN1Clq3tjyDW&EOg0*am,zOZ8>dj<?h-D]6W;-djJUSp-yO%VW#R%^3ol\
+                F1fdJGL@_JXO]#H$=eaLL!#FdrtaE5Dozf1T5dz%@n)3b@aEQP+*($cahA;fY5\
+                4KN;iH9s~~~")), RGBColor(1, 0.502`, 0), 
+              LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+                 -0.65384193606448049`, -0.75642610101954721`}, {
+                 -0.05672464713314973`, -0.98865037692613211`}, {
+                 0.03780221509524484`, -0.98574777649525891`}, {
+                 0.54650948422639001`, -0.81502192995596445`}, {
+                 0.66027519045067695`, -0.68219441156137273`}, {
+                 0.96839308538576385`, -0.14848359584348469`}, {
+                 0.96685759476732325`, -0.031051088974141772`}, {
+                 0.66754496465933855`, 0.7371662341034344`}, {
+                 0.093586952377263`, 0.95440737331533243`}, {
+                 -0.77931054929023391`, 0.6239622974784087`}, {
+                 -0.90897609963654924`, 0.12621918423512346`}, {
+                 -0.92978663953446294`, -0.25384317833329595`}})}, 
+             ImageSize -> NCache(200, 200.0`))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [17]:")}, All), 
+        SectionGroup({Section(BoxData({"testConvexHull", "(", "grid", ")"}), 
+           "Input", SectionLabel -> "in [18]:"), 
+          Section(BoxData(InterpretationBox({
+              "{", {"10", ",", "1", ",", "141", ",", "150"}, "}"}, Row({
+              {10, 1, 141, 150}}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(
+           BoxData(GraphicsBox({RGBColor(0, 0, 1), 
+              PointBox(CompressedData(
+                "1:c${t3e@K;A7{Kw]hl^N]TmINv_QToLOif]In]Z3?4>Gn28Bx&>jS<nJ!kSw\
+                )))-ABnzRTD5$T6YnG2DK$T6zzMo7svWvm}z=@%uV!pR6XR$Fc_@44qW&+]Bo>\
+                *bu+_nh;6Klfgk5bXhg42Y!rD}YRu,(WGp$[KzUAT1h+fIoT3;tknv4#$%hV{u\
+                4l<JaT<@A3cstnKv>CWYe@l7Ie+>Y;^eDkmaj@cR?]x(h>z_K&6@MEUa*$%,C>\
+                DdBj_wwml?)uRdj^3C4Jm+8}Gve^A&34iCtg0G)ln[LuMj+^D4Cj7ZinwD&De+\
+                j{7&lyi7_c<G3S]#BE_9g#nTKUz}BLxW4,E%lQ0W<l!wnGFVkMA>{+}LUL,Ldf\
+                ?C=($jyLAlIv<[z5h)}fSTP{M8?3VWE-P=D-orO>=yP2N(2&J-Hc}+#GwX0(YW\
+                wM*OC,6dg#v^D$#o=Y%2mM!;9]}uMOG8+}d&ZL&QH0lIx7]dOWff1e5XxmY^Bf\
+                =H4cTq@?s#oU({zM}vYWXf4,Gq)cJld1RbzJW9^aDP%([sOQFdGXRn_x<?gZzp\
+                2*>Sfa&F&d,=5x;?K}PPJ-&0hSau_]OJz55TPeGd+xKKQa=T1+Be%<CH*&jDb]\
+                CQ#Agp5h$wcRNO*n3k<J?xU=SR,GT_?Md+xJs-3*4@k-N@}**^S(8l-<bfCfSY\
+                LZkF91PX6N6fmjj3)^OZz&$+E(>*k<yyFDDYT%Frm*^S(OEW450I@yifej>Y(+\
+                fQXTa{HO=Ms7cs-OLTad3Uqt<TAJQUN]X>Ik*iTTft{?_jocL(cSCGc4W8Flko\
+                ,eK2O#oz56}xkN6(&WIyuT<jH,$non$L+cX#9keRTsoZx2uA2S%?7BgXAnKRt#\
+                rHU9JKCB{=;-e[eF>X^4$#I8@NRW@Kh$OjFMKrr8M(E-Z^O@ySX2QM(hq;^A&1\
+                0H-R7B!@T16z!XH-N2eO5&z(dSe}BK?huNT$D45hvyLw[03jocz3*uu&cAi@eo\
+                rhWdLmVRz}JUs4eX^<@>2Q1_{bg!+n#NT]Z&L_+<8ib$w,N-41fVUY7FWT<]O6\
+                Lw99,WNmh#!z2Z5efB86_HT?sv;8VAr+BO-%=3?^&J(FP]TG#j]pAhfuq66@0$\
+                tx1c!Q<E1APk}7IqvGl%-2ib$v*tB8bpL,5Xjqbeey{zFA1)K64ILOrG;n(dY%\
+                {KY>w#SHb}X2Pm*sGspqR1rh{uZl>h$5li^T@NxMp>6;fkx=ge8Ie%$g;WxQSK\
+                A0OVp%LRBWuCD;P=B!SOX6Aeqf)E5{CMKnXpkE>L!p83H2e65eaoO$cTix1!P1\
+                *-3l@yp+2l466&KWqIprl$=iT^Wz1u!JIsVl<WL_6_FYoSP<N_,gt}*bB-E!=L\
+                _*!IA,<Ez6_HS%RuKvH85QxnuGcFb>@36o0X3Uwvj~~~")), 
+              RGBColor(1, 0.502`, 0), 
+              LineBox({{-2.2135943621178655`, 9.803060746521977`}, {
+                 0.63245553203367588`, 1.2649110640673518`}, {
+                 13.91402170474087`, 5.6920997883030831`}, {
+                 11.067971810589327`, 14.230249470757707`}, {
+                 -2.2135943621178655`, 9.803060746521977`}})}, 
+             ImageSize -> NCache(200, 200.0`))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [18]:")}, All), 
+        SectionGroup({Section(BoxData({"testConvexHull", "(", "grid2", ")"}), 
+           "Input", SectionLabel -> "in [19]:"), 
+          Section(BoxData(InterpretationBox({
+              "{", {"1", ",", "141", ",", "150", ",", "10"}, "}"}, Row({
+              {1, 141, 150, 10}}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(
+           BoxData(GraphicsBox({RGBColor(0, 0, 1), 
+              PointBox(CompressedData(
+                "1:c$_uOVWiec7>4n>j4{R-V]it7k}arzBuSDaNm5Bxl2j^NQb#IDk{m]pBuSD\
+                a$&q9wNs=T<k}fDmNs=T<vXcJZ_qp9)e%v1[M&%J8;ljYG{d)#C@7S<x+nzyuc\
+                8=1GU])v0Cz%4-6e*@eHD#KqFkq^TF*U]a<hsT<lViNeGr<&?Xo^fSB_^9PQ%r\
+                @arph!^V}q,%Ys@e?W}[;+Oo7>^$Q)B*t}>FmRG4q7EHE_}_7u9tB9mjW$+N^1\
+                SZazaGbNUrGAm4lm8QySQ)5j[v1_a]IsP(v)}mq9O_2?z#70wQlc[)9RM]23Z0\
+                {*,jlWHfohHvNQ((6#GH6QdHD&gh3I}M;gQmuzo^sbXJlg0uB6^OBfn#E1NK6c\
+                ind4&NgjhK#Hcs,]{hSsZXGG6gF>p?doEH-p#LPvpa7nCO78_UktX=J@=(r}&M\
+                #R8%F>*sp+!Qnah=p5X<+j+k(,V]ycSXlN(Q{u6JP;!f#l#]q^H?lA5i3u{#<M\
+                ;Ly4rKm@j]>x6a%ls$ZIk2M$Ehw3;&9h}HQ_-KF4&m_oCy2==mrHK8cafV&aRK\
+                ,6?E^iIwkS<42!kyV_6D@xSQ#B?f+rk;51hN5srgv2aYR42g]5KF4*n<D%n)=s\
+                76{PKlAzV&aULIV%><iIwwW<3gX]yV^z3aY^)C76Vtr$W<}MP0Wmlh3jJFhS>f\
+                9&TEDS")), RGBColor(1, 0.502`, 0), 
+              LineBox({{1, 1}, {15, 1}, {15, 10}, {1, 10}, {1, 1}})}, 
+             ImageSize -> NCache(200, 200.0`))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [19]:")}, All)}, 
+       All)}, All), SectionGroup({Section("Old Ideas", "Section"), 
+      SectionGroup({
+        Section(
+         BoxData({
+           {"Local", "(", {{"ta", "\[Assign]", {"sample", "[", "1", "]"}}, 
+             ",", {"tb", "\[Assign]", {"sample", "[", "2", "]"}}, ",", {
+              "tc", "\[Assign]", {"sample", "[", "3", "]"}}}, ")"}, {
+            "{", {
+             {{{{"\n", "If"}, "(", {
+                 {"sideOfLine", "(", {"tc", ",", "ta", ",", "tb"}, ")"}, ">", 
+                 "0"}, ")"}, {
+                "{", {{{"\n", {"{", {"ta", ",", "tb", ",", "tc"}, "}"}}, 
+                  "\[Assign]", {"{", {"ta", ",", "tc", ",", "tb"}, "}"}}, 
+                 "\n"}, "}"}}, "\n", {"Graphics", "(", {
+                {"{", {{"\n", "Red"}, ",", {
+                   "Point", "(", {"sample", ".", "Select", "(", {
+                     {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
+                        "tc"}, ")"}, "<", "0"}, "&"}, ")"}, ")"}, ",", {
+                   "\n", "Blue"}, ",", {"Point", "(", {
+                    "sample", ".", "Select", "(", {
+                     {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
+                        "tc"}, ")"}, ">", "0"}, "&"}, ")"}, ")"}, ",", {
+                   "\n", "Orange"}, ",", {
+                   "Point", "(", {"sample", ".", "Select", "(", {
+                     {{"sideOfTriangle", "(", {"#", ",", "ta", ",", "tb", ",", 
+                        "tc"}, ")"}, "=", "0"}, "&"}, ")"}, ")"}, ",", {
+                   {{"\n", "Line"}, "(", {
+                     "{", {"ta", ",", "tb", ",", "tc", ",", "ta"}, "}"}, ")"}, 
+                   "\n"}}, "}"}, ",", {{"\n", "ImageSize"}, "\[Rule]", "200"}, 
+                ",", {{"\n", "Frame"}, "\[Rule]", "True"}, ",", {
+                 {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}}, "\n"}, 
+            "}"}}), "Input", SectionLabel -> "in [20]:"), 
+        Section(
+         BoxData(GraphicsBox({RGBColor(1, 0, 0), 
+            PointBox({{0.64230961598244862`, -0.26687791896538404`}, {
+               0.68193494773655683`, -0.22085632216246753`}, {
+               0.52062957114018782`, -0.30089462873269412`}, {
+               0.2489972685337245`, -0.11220012633047993`}, {
+               -0.217052972999493`, -0.015531725150659037`}, {
+               -0.025740417532282844`, -0.1399298317509563`}}), 
+            RGBColor(0, 0, 1), 
+            PointBox(CompressedData(
+              "1:c$_8FeKgcr7zc3Ol$UI6R=2cl)=FxTTA}i)CADL7WEpa-G@)5pc^wW#-tyXHN\
+              h{jzG@GeaQX6ffW5@NDmvoFW^dinMGu{pDZ1U1!@43H!Kle9xp8LJeeSpT=tQ7$0\
+              0Znb_ofykId79&XDwYRUuhrB9P,cOqs,z}Af[A[is<6zP7-&;Z4bXYM<z6d-Gf6@\
+              px0P)O=u&5icIG9WkYG4h_G6yat}tiSQ6FtzceHv@iXeCMzC]%uI09>_hkBQr)Mi\
+              N#)Qd8<E,KqEz^BxWUfUSh7fm9#DaquhpZ;?U^r_$B=qKK3l4BUPi(UB1=Ytp+Q0\
+              K4]_Gbqu5j>>N74{d8AONX5H*[^oz-kOH{r>oF+J_+wHc{6wZB[o2(S+cuxZH+E+\
+              g]EEnYv}h*]?B=A30ar25BP?BVa^*uEZ{GMe-nm0$I;MxxqLFUobgv6kMVDF(yBZ\
+              omX}sF)*QCW8o_>D;YxY*2kaDDs;)YOsSiO#8jA1k$uYTr}Ykao+4mIy*}(@Iy1c\
+              ;K^vd^jAh{%0_N0rhq}SjtQ^G9xrr@QclKalLH*XDO5c<j6@tzWOFa5Iu4Ax+$zk\
+              GYhUa?,f-yg<*lBqx1T3k$^nW=fsh,5}m8)mm2d6F!tf[j58EN7EGLB%ucCS*G{S\
+              pLhnER6P9m8%bG34+AtAn(fG1yJLYQE*lf+NX)()FFfB1nONEt97tl{L^<iD2NJ_\
+              j(HkN([6%=bY0rHvg7<KPQua_vC#e0uD@WFAV!6{$&U*^)*j8U6{sTANBGc+Xx&(\
+              ,ez[tDr5TM2nLSKJ*qjq=4O9lI9q%@cUU[yffMy8omuA%NhD9sM}}v?a8i#mb>3{\
+              4RdjS0hBl{xzto+a%Z2*nAA*VDb)-+C<_;V_u9PC+O1;E3Z]4jaD27INE3^6MWEd\
+              P,>YNIx-Fa^S![uflMS&-Yv#1Ly{5RHKY{0NFXd6EvnB4pK%=e<a<-!U9+5b_2og\
+              ,F&fjg5=tH5*Rno10HPp2ENE+gmlV7_PRA5_==il8G;XRnd33Ik8-AvffTz?pFj!\
+              >{^Ou}(Y%cu,l(40U8Sk@{saaY<GCV+,2TFGuQnB,1y,s1bZ)!m6VH17GTFcfV,9\
+              z#Ec-w[(k^tQY[5rVqvZp0WuAh6;O0cWET)D[U-XtNN7-;Vl@p?XbMWF?fwY0Cf{\
+              i(Y6cs+DOh*e%ATd1PBCD}JZqc^57)d$5LCAF0>uRfJ0sQ6[!@ChUD25R^6KNL5@\
+              HW^@Iu+*{v&M2!<vU8,jj4{6m;]_tz_S@NUOYcBQO$X_@57W%fTDup#>_ssBt&*W\
+              eFJ!w7^@*WYOUF!F?)<Xrb4@t>Rq1j49?sUnVv17+kL!Gc7QG3keJ>UQcXal<18f\
+              ;qW,&;E6jVi3Xff3I@?*qXN({^zKw+r8M0Kos?W>4E,XIGKC4i=nQ]mq{PSP;Yan\
+              Z<u!,In)>?,JTdL4)Cb=u5Yr]x=iYsNxtTyW2i(Rp8CF)C3&wV,QN#%>Y,]}QfC6\
+              QPlt5C>_#,4V{UaBYrcMfz!]aG,FpaoTgiKmC{4Z;_BWYtNz[F1S47U6kb5_cRvy\
+              ollJ}9v+2,T$LerjS2zvMgTb0d{+),IC59ac3YSWY<3{(HQ&DH26gDjm{=sF?D=G\
+              VPNu%7F1KYpA{#PiHT!Yahqav]+wBuA8*_LC!IF$;e19eePzW(+N]j)3W#B#Rtof\
+              nC1M*nWhBXYg_%?#<PH1oD,LsEGTL=S{CL9F3o{9GPsx{{u%,ewq~~")), 
+            RGBColor(1, 0.502`, 0), 
+            PointBox({{0.153636193785613`, -0.5029873752475178`}, {
+               0.96839308538576385`, -0.14848359584348469`}, {
+               -0.90897609963654924`, 0.12621918423512346`}}), 
+            LineBox({{0.153636193785613`, -0.5029873752475178`}, {
+               0.96839308538576385`, -0.14848359584348469`}, {
+               -0.90897609963654924`, 0.12621918423512346`}, {
+               0.153636193785613`, -0.5029873752475178`}})}, Frame -> True, 
+           FrameTicks :> HoldComplete(False), 
+           ImageSize -> NCache(200, 200.0`))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [20]:")}, All), 
+      SectionGroup({
+        Section(
+         BoxData({
+           {"With", "(", {"sorted", "\[Assign]", {
+              "Sort", "(", "sample", ")"}}, ")"}, {
+            "{", {{{"\n", "Graphics"}, "(", {
+               {"{", {{"\n", "Blue"}, ",", {
+                  "Point", "(", {"sorted", ".", "Select", "(", {
+                    {{"sideOfLine", "(", {
+                       "#", ",", {"First", "(", "sorted", ")"}, ",", {
+                        "Last", "(", "sorted", ")"}}, ")"}, "<", "0"}, "&"}, 
+                   ")"}, ")"}, ",", {"\n", "Green"}, ",", {
+                  "Point", "(", {"sorted", ".", "Select", "(", {
+                    {{"sideOfLine", "(", {
+                       "#", ",", {"First", "(", "sorted", ")"}, ",", {
+                        "Last", "(", "sorted", ")"}}, ")"}, ">", "0"}, "&"}, 
+                   ")"}, ")"}, ",", {"\n", "Orange"}, ",", {
+                  "Point", "(", {"sorted", ".", "Select", "(", {
+                    {{"sideOfLine", "(", {
+                       "#", ",", {"First", "(", "sorted", ")"}, ",", {
+                        "Last", "(", "sorted", ")"}}, ")"}, "=", "0"}, "&"}, 
+                   ")"}, ")"}, ",", {
+                  {{"\n", "Line"}, "(", {
+                    "{", {{"First", "(", "sorted", ")"}, ",", {
+                      "Last", "(", "sorted", ")"}}, "}"}, ")"}, "\n"}}, "}"}, 
+               ",", {{"\n", "ImageSize"}, "\[Rule]", "200"}, ",", {
+                {"\n", "Frame"}, "\[Rule]", "True"}, ",", {
+                {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}, "\n"}, 
+            "}"}}), "Input", SectionLabel -> "in [21]:"), 
+        Section(
+         BoxData(GraphicsBox({RGBColor(0, 0, 1), 
+            PointBox({{-0.90897609963654924`, 0.12621918423512346`}, {
+               -0.77931054929023391`, 0.6239622974784087`}, {
+               -0.67693054033500477`, -0.15647538908260383`}, {
+               -0.60119371074670469`, 0.63698239054988681`}, {
+               -0.60097032232074898`, 0.148125324347127`}, {
+               -0.57801959590563712`, 0.12423708444993231`}, {
+               -0.45161226126822851`, 0.46257649919003652`}, {
+               -0.43822699961978695`, 0.31220692296569941`}, {
+               -0.41378953062047663`, 0.71854490379662583`}, {
+               -0.40638389936174701`, 0.11504191912383699`}, {
+               -0.38695187837377087`, -0.19472970670442824`}, {
+               -0.30677148590910663`, 0.067063064254659244`}, {
+               -0.30066097923198454`, 0.68324403731451522`}, {
+               -0.2569239562543324`, 0.24453215022081443`}, {
+               -0.24516255137808174`, 0.16556329017410554`}, {
+               -0.217052972999493`, -0.015531725150659037`}, {
+               -0.17520080779835601`, 0.39186872744236867`}, {
+               -0.025740417532282844`, -0.1399298317509563`}, {
+               0.093586952377263`, 0.95440737331533243`}, {
+               0.1548500004066824`, 0.36192101383298114`}, {
+               0.18500135142196328`, 0.18760029489292362`}, {
+               0.19282664711386222`, 0.032452052266729536`}, {
+               0.19929569276131609`, 0.8013913697674635`}, {
+               0.24629916281324005`, 0.58821496016344232`}, {
+               0.2489972685337245`, -0.11220012633047993`}, {
+               0.32786258222691211`, 0.82810448711172735`}, {
+               0.42631884630677308`, 0.1228753822119939`}, {
+               0.46122684546290071`, -0.042033521294892351`}, {
+               0.51156490563103074`, 0.62862752669088273`}, {
+               0.54639685332976562`, 0.63820808706794807`}, {
+               0.56019910321913735`, 0.20872876091601467`}, {
+               0.58107215228780884`, 0.563829651859028`}, {
+               0.60564408484853716`, 0.13698535863976558`}, {
+               0.62489564858747815`, 0.65930617342740838`}, {
+               0.62559074907603152`, 0.13442797397719608`}, {
+               0.6581911661242521`, 0.32649977064273283`}, {
+               0.66754496465933855`, 0.7371662341034344`}, {
+               0.68011751004771925`, -0.10073391179128377`}, {
+               0.73358026527010844`, -0.016400067812898378`}, {
+               0.79976218987336178`, 0.32395746706777695`}, {
+               0.83000506256300488`, 0.24417908178686476`}, {
+               0.96685759476732325`, -0.031051088974141772`}}), 
+            RGBColor(0, 1, 0), 
+            PointBox({{-0.84184212403222292`, -0.30806176581828626`}, {
+               -0.77817058477525602`, -0.51544786929787589`}, {
+               -0.65384193606448049`, -0.75642610101954721`}, {
+               -0.65376464566171344`, -0.33493657764927165`}, {
+               -0.61763499876817218`, -0.53455236801668882`}, {
+               -0.55554605686890546`, -0.55339554416131675`}, {
+               -0.53163170867924792`, -0.34075633094748881`}, {
+               -0.47938149738521219`, -0.51237419909965243`}, {
+               -0.24568932419940137`, -0.73607612344875339`}, {
+               -0.19785220457625496`, -0.62499944612204317`}, {
+               -0.15685669562860727`, -0.73900556994360489`}, {
+               -0.13713778152790912`, -0.60589244245337448`}, {
+               -0.10137393486036395`, -0.61962078782079777`}, {
+               -0.074565977279012152`, -0.59271320090637603`}, {
+               -0.05672464713314973`, -0.98865037692613211`}, {
+               -0.045197690648342448`, -0.92943121795243999`}, {
+               0.021224785891327702`, -0.94801150455499039`}, {
+               0.032558977550578128`, -0.63779411942750919`}, {
+               0.03780221509524484`, -0.98574777649525891`}, {
+               0.058127352095111107`, -0.65881063967874431`}, {
+               0.153636193785613`, -0.5029873752475178`}, {
+               0.18948289833537602`, -0.83586565867954388`}, {
+               0.22525436495144491`, -0.62385710587356313`}, {
+               0.4491301846005884`, -0.59112104628294304`}, {
+               0.4597446607110578`, -0.73690999375671717`}, {
+               0.52062957114018782`, -0.30089462873269412`}, {
+               0.54650948422639001`, -0.81502192995596445`}, {
+               0.64230961598244862`, -0.26687791896538404`}, {
+               0.64730917978849933`, -0.31701345422165916`}, {
+               0.66027519045067695`, -0.68219441156137273`}, {
+               0.68193494773655683`, -0.22085632216246753`}, {
+               0.89297059958952074`, -0.26674469479070373`}}), 
+            RGBColor(1, 0.502`, 0), 
+            PointBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+               0.96839308538576385`, -0.14848359584348469`}}), 
+            LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+               0.96839308538576385`, -0.14848359584348469`}})}, Frame -> True, 
+           FrameTicks :> HoldComplete(False), 
+           ImageSize -> NCache(200, 200.0`))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [21]:")}, All), 
+      SectionGroup({
+        Section(
+         BoxData({{"Local", "(", {"sorted", ",", "a", ",", "b", ",", "c"}, 
+            ")"}, {
+            "{", {
+             {{{"\n", "sorted"}, "\[Assign]", {"Sort", "(", "sample", ")"}}, 
+              ";", {{"\n", "a"}, "\[Assign]", {"First", "(", "sorted", ")"}}, 
+              ";", {{"\n", "b"}, "\[Assign]", {"Last", "(", "sorted", ")"}}, 
+              ";", {{"\n", "c"}, "\[Assign]", {
+                {"sorted", ".", "SortBy", "(", {
+                  {"Total", "(", {
+                    {"(", {{{"(", {"a", "-", "#"}, ")"}, " ", {
+                        "Total", "(", {{"(", {"b", "-", "a"}, ")"}, 
+                         SuperscriptBox("2")}, ")"}}, "+", {
+                       {"Dot", "(", {{"#", "-", "a"}, ",", {"b", "-", "a"}}, 
+                        ")"}, " ", {"(", {"b", "-", "a"}, ")"}}}, ")"}, 
+                    SuperscriptBox("2")}, ")"}, "&"}, ")"}, ".", "Last"}}, 
+              ";", {{"\n", "Graphics"}, "(", {
+                {"{", {{"\n", "Blue"}, ",", {
+                   "Point", "(", {"sorted", ".", "Select", "(", {
+                     {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, 
+                      "<", "0"}, "&"}, ")"}, ")"}, ",", {"\n", "Green"}, ",", {
+                   "Point", "(", {"sorted", ".", "Select", "(", {
+                     {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, 
+                      ">", "0"}, "&"}, ")"}, ")"}, ",", {"\n", "Orange"}, ",", 
+                  {"Point", "(", {"sorted", ".", "Select", "(", {
+                     {{"sideOfLine", "(", {"#", ",", "a", ",", "b"}, ")"}, 
+                      "=", "0"}, "&"}, ")"}, ")"}, ",", {
+                   {"\n", "Line"}, "(", {"{", {"a", ",", "b"}, "}"}, ")"}, 
+                  ",", {"\n", "Red"}, ",", {"Point", "(", "c", ")"}, ",", {
+                   {"Line", "(", {"{", {"a", ",", "c", ",", "b"}, "}"}, ")"}, 
+                   "\n"}}, "}"}, ",", {{"\n", "ImageSize"}, "\[Rule]", "200"}, 
+                ",", {{"\n", "Frame"}, "\[Rule]", "True"}, ",", {
+                 {"\n", "FrameTicks"}, "\[Rule]", "False"}}, ")"}}, "\n"}, 
+            "}"}}), "Input", SectionLabel -> "in [22]:"), 
+        Section(
+         BoxData(GraphicsBox({RGBColor(0, 0, 1), 
+            PointBox({{-0.90897609963654924`, 0.12621918423512346`}, {
+               -0.77931054929023391`, 0.6239622974784087`}, {
+               -0.67693054033500477`, -0.15647538908260383`}, {
+               -0.60119371074670469`, 0.63698239054988681`}, {
+               -0.60097032232074898`, 0.148125324347127`}, {
+               -0.57801959590563712`, 0.12423708444993231`}, {
+               -0.45161226126822851`, 0.46257649919003652`}, {
+               -0.43822699961978695`, 0.31220692296569941`}, {
+               -0.41378953062047663`, 0.71854490379662583`}, {
+               -0.40638389936174701`, 0.11504191912383699`}, {
+               -0.38695187837377087`, -0.19472970670442824`}, {
+               -0.30677148590910663`, 0.067063064254659244`}, {
+               -0.30066097923198454`, 0.68324403731451522`}, {
+               -0.2569239562543324`, 0.24453215022081443`}, {
+               -0.24516255137808174`, 0.16556329017410554`}, {
+               -0.217052972999493`, -0.015531725150659037`}, {
+               -0.17520080779835601`, 0.39186872744236867`}, {
+               -0.025740417532282844`, -0.1399298317509563`}, {
+               0.093586952377263`, 0.95440737331533243`}, {
+               0.1548500004066824`, 0.36192101383298114`}, {
+               0.18500135142196328`, 0.18760029489292362`}, {
+               0.19282664711386222`, 0.032452052266729536`}, {
+               0.19929569276131609`, 0.8013913697674635`}, {
+               0.24629916281324005`, 0.58821496016344232`}, {
+               0.2489972685337245`, -0.11220012633047993`}, {
+               0.32786258222691211`, 0.82810448711172735`}, {
+               0.42631884630677308`, 0.1228753822119939`}, {
+               0.46122684546290071`, -0.042033521294892351`}, {
+               0.51156490563103074`, 0.62862752669088273`}, {
+               0.54639685332976562`, 0.63820808706794807`}, {
+               0.56019910321913735`, 0.20872876091601467`}, {
+               0.58107215228780884`, 0.563829651859028`}, {
+               0.60564408484853716`, 0.13698535863976558`}, {
+               0.62489564858747815`, 0.65930617342740838`}, {
+               0.62559074907603152`, 0.13442797397719608`}, {
+               0.6581911661242521`, 0.32649977064273283`}, {
+               0.66754496465933855`, 0.7371662341034344`}, {
+               0.68011751004771925`, -0.10073391179128377`}, {
+               0.73358026527010844`, -0.016400067812898378`}, {
+               0.79976218987336178`, 0.32395746706777695`}, {
+               0.83000506256300488`, 0.24417908178686476`}, {
+               0.96685759476732325`, -0.031051088974141772`}}), 
+            RGBColor(0, 1, 0), 
+            PointBox({{-0.84184212403222292`, -0.30806176581828626`}, {
+               -0.77817058477525602`, -0.51544786929787589`}, {
+               -0.65384193606448049`, -0.75642610101954721`}, {
+               -0.65376464566171344`, -0.33493657764927165`}, {
+               -0.61763499876817218`, -0.53455236801668882`}, {
+               -0.55554605686890546`, -0.55339554416131675`}, {
+               -0.53163170867924792`, -0.34075633094748881`}, {
+               -0.47938149738521219`, -0.51237419909965243`}, {
+               -0.24568932419940137`, -0.73607612344875339`}, {
+               -0.19785220457625496`, -0.62499944612204317`}, {
+               -0.15685669562860727`, -0.73900556994360489`}, {
+               -0.13713778152790912`, -0.60589244245337448`}, {
+               -0.10137393486036395`, -0.61962078782079777`}, {
+               -0.074565977279012152`, -0.59271320090637603`}, {
+               -0.05672464713314973`, -0.98865037692613211`}, {
+               -0.045197690648342448`, -0.92943121795243999`}, {
+               0.021224785891327702`, -0.94801150455499039`}, {
+               0.032558977550578128`, -0.63779411942750919`}, {
+               0.03780221509524484`, -0.98574777649525891`}, {
+               0.058127352095111107`, -0.65881063967874431`}, {
+               0.153636193785613`, -0.5029873752475178`}, {
+               0.18948289833537602`, -0.83586565867954388`}, {
+               0.22525436495144491`, -0.62385710587356313`}, {
+               0.4491301846005884`, -0.59112104628294304`}, {
+               0.4597446607110578`, -0.73690999375671717`}, {
+               0.52062957114018782`, -0.30089462873269412`}, {
+               0.54650948422639001`, -0.81502192995596445`}, {
+               0.64230961598244862`, -0.26687791896538404`}, {
+               0.64730917978849933`, -0.31701345422165916`}, {
+               0.66027519045067695`, -0.68219441156137273`}, {
+               0.68193494773655683`, -0.22085632216246753`}, {
+               0.89297059958952074`, -0.26674469479070373`}}), 
+            RGBColor(1, 0.502`, 0), 
+            PointBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+               0.96839308538576385`, -0.14848359584348469`}}), 
+            LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+               0.96839308538576385`, -0.14848359584348469`}}), 
+            RGBColor(1, 0, 0), 
+            PointBox({0.093586952377263`, 0.95440737331533243`}), 
+            LineBox({{-0.92978663953446294`, -0.25384317833329595`}, {
+               0.093586952377263`, 0.95440737331533243`}, {
+               0.96839308538576385`, -0.14848359584348469`}})}, Frame -> True, 
+           FrameTicks :> HoldComplete(False), 
+           ImageSize -> NCache(200, 200.0`))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [22]:")}, All)}, All), 
+    SectionGroup({Section("Debug", "Section"), 
+      Section(BoxData({"Function", " ", {
+          "debugGrahamScan", "(", {"~", "points"}, ")"}, {
+          "{", {
+           {{{"\n", "With"}, "(", {"xyData", "\[Assign]", {
+               "N", "(", "points", ")"}}, ")"}, "\n", {
+             "With", "(", {"startPos", "\[Assign]", {
+               {"Sort", "(", "xyData", ")"}, ".", "First"}}, ")"}, "\n", {
+             "With", "(", {"startIndex", "\[Assign]", {
+               {"Position", "(", {"xyData", ",", "startPos", ",", "1"}, ")"}, 
+               "[", {"1", ",", "1"}, "]"}}, ")"}, "\n", {
+             "With", "(", {"angSortedIndices", "\[Assign]", {
+               {"Join", "(", {{{"\n", "Array"}, "(", {"startIndex", "-", "1"}, 
+                  ")"}, ",", {
+                  {{"\n", "Array"}, "(", {{"startIndex", "+", "1"}, "..", {
+                     "Length", "(", "xyData", ")"}}, ")"}, "\n"}}, ")"}, ".", 
+               "SortBy", "(", {
+                {"{", {
+                  {{"\n", "Arg"}, "(", {"Complex", "@@", {
+                     "(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}}, 
+                   ")"}, ",", {
+                   {{"\n", "Total"}, "(", {
+                     {"(", {{"xyData", "[", "#", "]"}, "-", "startPos"}, ")"}, 
+                     SuperscriptBox("2")}, ")"}, "\n"}}, "}"}, "&"}, ")"}}, 
+             ")"}, "\n", {{"\n", "Print"}, "(", {
+              ComplexStringBox("\"sorted: \""), ",", "angSortedIndices"}, 
+             ")"}, "\n", {{"\n", "Print"}, "@", {
+              "DynamicLocal", "(", {{"{", {"i", "\[Assign]", "1"}, "}"}, ",", {
+                {{{"\n", "With"}, "(", {"n", "\[AssignDelayed]", {
+                    "angSortedIndices", "[", "i", "]"}}, ")"}, {
+                  "{", {{{"\n", "Column"}, "@", {
+                     "{", {{{"\n", "Slider"}, "(", {
+                        {"Dynamic", "(", "i", ")"}, ",", {
+                         "1", "..", {"Length", "(", "angSortedIndices", ")"}, 
+                         "..", "1"}}, ")"}, ",", {{"\n", "Dynamic"}, "(", {
+                        "{", {"n", ",", {"N", "@", {"xyData", "[", "n", "]"}}, 
+                         ",", {
+                          {"(", {
+                            {"{", {{{"\n", "Arg"}, "(", {
+                                "Complex", "@@", {
+                                 "(", {{"xyData", "[", "#", "]"}, "-", 
+                                  "startPos"}, ")"}}, ")"}, ",", {
+                               {{"\n", "Total"}, "(", {
+                                 {"(", {{"xyData", "[", "#", "]"}, "-", 
+                                   "startPos"}, ")"}, SuperscriptBox("2")}, 
+                                ")"}, "\n"}}, "}"}, "&"}, ")"}, "(", "n", 
+                          ")"}}, "}"}, ")"}, ",", {
+                       {{"\n", "Dynamic"}, "(", {
+                         "Graphics", "(", {
+                          {"{", {{"\n", "Gray"}, ",", {
+                             {"\n", "Point"}, "(", "xyData", ")"}, ",", {
+                             {"\n", "Line"}, "(", {
+                              "xyData", "[", "angSortedIndices", "]"}, ")"}, 
+                            ",", {"\n", "Black"}, ",", {
+                             {"\n", "Line"}, "(", {
+                              "{", {"startPos", ",", {
+                                "xyData", "[", "n", "]"}}, "}"}, ")"}, ",", {
+                             {"\n", "Point"}, "(", {"xyData", "[", "n", "]"}, 
+                             ")"}}, "}"}, ",", {{"\n", "ImageSize"}, 
+                           "\[Rule]", "100"}, ",", {
+                           {"\n", "Frame"}, "\[Rule]", "True"}}, ")"}, ")"}, 
+                       "\n"}}, "}"}}, "\n"}, "}"}}, "\n"}}, ")"}}, ";", {
+             {"\n", "\n", "Local"}, "(", {"stack", ",", "depth", ",", "p"}, 
+             ")"}, "\n", {"stack", "\[Assign]", {
+              "{", {{"{", {{"{", "}"}, ",", "startIndex"}, "}"}, ",", {
+                "First", "(", "angSortedIndices", ")"}}, "}"}}, "\n", {
+             "depth", "\[Assign]", "2"}, "\n", {
+             {"Do", "(", {"p", "\[Rule]", {"Rest", "(", "angSortedIndices", 
+                ")"}}, ")"}, {
+              "{", {
+               {{{"\n", "If"}, "(", {
+                  {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
+                     "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, 
+                     "]"}, ",", {"xyData", "[", {"stack", "[", "2", "]"}, 
+                     "]"}}, ")"}, "\[GreaterEqual]", "0"}, ")"}, {
+                 "{", {
+                  {{{"\n", "stack"}, "\[Assign]", {"stack", "[", "1", "]"}}, 
+                   "\n", {"--", "depth"}, "\n", {
+                    {"While", "(", {{"depth", "\[GreaterEqual]", "2"}, "&&", {
+                       {"sideOfLine", "(", {{"xyData", "[", "p", "]"}, ",", {
+                          "xyData", "[", {"stack", "[", {"1", ",", "2"}, "]"}, 
+                          "]"}, ",", {"xyData", "[", {"stack", "[", "2", "]"}, 
+                          "]"}}, ")"}, "\[GreaterEqual]", "0"}}, ")"}, {
+                     "{", {
+                      {{{"\n", "stack"}, "\[Assign]", {
+                         "stack", "[", "1", "]"}}, "\n", {"--", "depth"}}, 
+                      "\n"}, "}"}}, "\n", {"stack", "\[Assign]", {
+                     "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}}, 
+                  "\n"}, "}"}, "Else", {
+                 "{", {
+                  {{{"\n", "stack"}, "\[Assign]", {
+                     "{", {"stack", ",", "p"}, "}"}}, "\n", {"++", "depth"}}, 
+                  "\n"}, "}"}}, "\n"}, "}"}}, "\n", {
+             "Return", "(", {"Flatten", "(", "stack", ")"}, ")"}}, "\n"}, 
+          "}"}}), "Input", SectionLabel -> "in [23]:"), 
+      SectionGroup({
+        Section(BoxData({"debugGrahamScan", "(", {
+            "Join", "@@", {"Array", "(", {
+              {{{{"{", {{"Re", "(", "#", ")"}, ",", {"Im", "(", "#", ")"}}, 
+                  "}"}, "&"}, "@", {
+                 "N", "(", {{"Complex", "(", {{"#", "1"}, ",", {"#", "2"}}, 
+                   ")"}, "*", {"Sign", "(", {"Complex", "(", {"3", ",", "1"}, 
+                    ")"}, ")"}}, ")"}}, "&"}, ",", {
+               "{", {"5", ",", "5"}, "}"}}, ")"}}, ")"}), "Input", 
+         SectionLabel -> "in [25]:"), 
+        Section(BoxData(InterpretationBox({ComplexStringBox("\"sorted: \""), {
+             "{", {"4", ",", "3", ",", "2", ",", "1", ",", "6", ",", "7", ",", 
+              "8", ",", "11", ",", "12", ",", "16", ",", "9", ",", "13", ",", 
+              "21", ",", "17", ",", "22", ",", "18", ",", "14", ",", "23", 
+              ",", "19", ",", "24", ",", "25", ",", "10", ",", "15", ",", 
+              "20"}, "}"}}, Row({"sorted: ", {4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 
+             9, 13, 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}}), 
+           Editable -> False)), "Print", SectionGenerated -> True), 
+        Section(BoxData(InterpretationBox(DynamicLocalBox({Global`i}, 
+            TagBox(GridBox({{SliderBox(Dynamic(Global`i), 1 .. 24 .. 1)}, {
+                DynamicBox(
+                 ToBoxes({{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 
+                    18, 14, 23, 19, 24, 25, 10, 15, 20}[Global`i], 
+                   N({{0.63245553203367588`, 1.2649110640673518`}, {
+                      0.31622776601683794`, 2.2135943621178655`}, {
+                      0.0`, 3.1622776601683795`}, {
+                      -0.31622776601683794`, 4.1109609582188931`}, {
+                      -0.63245553203367588`, 5.0596442562694071`}, {
+                      1.5811388300841898`, 1.5811388300841898`}, {
+                      1.2649110640673518`, 2.5298221281347035`}, {
+                      0.94868329805051377`, 3.4785054261852175`}, {
+                      0.63245553203367588`, 4.4271887242357311`}, {
+                      0.31622776601683794`, 5.3758720222862451`}, {
+                      2.5298221281347035`, 1.8973665961010275`}, {
+                      2.2135943621178655`, 2.8460498941515415`}, {
+                      1.8973665961010275`, 3.7947331922020551`}, {
+                      1.5811388300841898`, 4.7434164902525691`}, {
+                      1.2649110640673518`, 5.6920997883030831`}, {
+                      3.4785054261852175`, 2.2135943621178655`}, {
+                      3.1622776601683795`, 3.1622776601683795`}, {
+                      2.8460498941515415`, 4.1109609582188931`}, {
+                      2.5298221281347035`, 5.0596442562694071`}, {
+                      2.2135943621178655`, 6.008327554319921`}, {
+                      4.4271887242357311`, 2.5298221281347035`}, {
+                      4.1109609582188931`, 3.4785054261852175`}, {
+                      3.7947331922020551`, 4.4271887242357311`}, {
+                      3.4785054261852175`, 5.3758720222862451`}, {
+                      3.1622776601683795`, 6.324555320336759`}}[{
+                      4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
+                      14, 23, 19, 24, 25, 10, 15, 20}[Global`i]]), 
+                   ({Arg(Apply({{0.63245553203367588`, 1.2649110640673518`}, {
+                        0.31622776601683794`, 2.2135943621178655`}, {
+                        0.0`, 3.1622776601683795`}, {
+                        -0.31622776601683794`, 4.1109609582188931`}, {
+                        -0.63245553203367588`, 5.0596442562694071`}, {
+                        1.5811388300841898`, 1.5811388300841898`}, {
+                        1.2649110640673518`, 2.5298221281347035`}, {
+                        0.94868329805051377`, 3.4785054261852175`}, {
+                        0.63245553203367588`, 4.4271887242357311`}, {
+                        0.31622776601683794`, 5.3758720222862451`}, {
+                        2.5298221281347035`, 1.8973665961010275`}, {
+                        2.2135943621178655`, 2.8460498941515415`}, {
+                        1.8973665961010275`, 3.7947331922020551`}, {
+                        1.5811388300841898`, 4.7434164902525691`}, {
+                        1.2649110640673518`, 5.6920997883030831`}, {
+                        3.4785054261852175`, 2.2135943621178655`}, {
+                        3.1622776601683795`, 3.1622776601683795`}, {
+                        2.8460498941515415`, 4.1109609582188931`}, {
+                        2.5298221281347035`, 5.0596442562694071`}, {
+                        2.2135943621178655`, 6.008327554319921`}, {
+                        4.4271887242357311`, 2.5298221281347035`}, {
+                        4.1109609582188931`, 3.4785054261852175`}, {
+                        3.7947331922020551`, 4.4271887242357311`}, {
+                        3.4785054261852175`, 5.3758720222862451`}, {
+                        3.1622776601683795`, 6.324555320336759`}}[#1] - {
+                       -0.63245553203367588`, 5.0596442562694071`}, Complex)), 
+                    Total(({{0.63245553203367588`, 1.2649110640673518`}, {
+                       0.31622776601683794`, 2.2135943621178655`}, {
+                       0.0`, 3.1622776601683795`}, {
+                       -0.31622776601683794`, 4.1109609582188931`}, {
+                       -0.63245553203367588`, 5.0596442562694071`}, {
+                       1.5811388300841898`, 1.5811388300841898`}, {
+                       1.2649110640673518`, 2.5298221281347035`}, {
+                       0.94868329805051377`, 3.4785054261852175`}, {
+                       0.63245553203367588`, 4.4271887242357311`}, {
+                       0.31622776601683794`, 5.3758720222862451`}, {
+                       2.5298221281347035`, 1.8973665961010275`}, {
+                       2.2135943621178655`, 2.8460498941515415`}, {
+                       1.8973665961010275`, 3.7947331922020551`}, {
+                       1.5811388300841898`, 4.7434164902525691`}, {
+                       1.2649110640673518`, 5.6920997883030831`}, {
+                       3.4785054261852175`, 2.2135943621178655`}, {
+                       3.1622776601683795`, 3.1622776601683795`}, {
+                       2.8460498941515415`, 4.1109609582188931`}, {
+                       2.5298221281347035`, 5.0596442562694071`}, {
+                       2.2135943621178655`, 6.008327554319921`}, {
+                       4.4271887242357311`, 2.5298221281347035`}, {
+                       4.1109609582188931`, 3.4785054261852175`}, {
+                       3.7947331922020551`, 4.4271887242357311`}, {
+                       3.4785054261852175`, 5.3758720222862451`}, {
+                       3.1622776601683795`, 6.324555320336759`}}[#1] - {
+                      -0.63245553203367588`, 5.0596442562694071`})^2)} &)({
+                     4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
+                     14, 23, 19, 24, 25, 10, 15, 20}[Global`i])}))}, {
+                DynamicBox(
+                 ToBoxes(Graphics({
+                    Gray, Point({{0.63245553203367588`, 1.2649110640673518`}, {
+                       0.31622776601683794`, 2.2135943621178655`}, {
+                       0.0`, 3.1622776601683795`}, {
+                       -0.31622776601683794`, 4.1109609582188931`}, {
+                       -0.63245553203367588`, 5.0596442562694071`}, {
+                       1.5811388300841898`, 1.5811388300841898`}, {
+                       1.2649110640673518`, 2.5298221281347035`}, {
+                       0.94868329805051377`, 3.4785054261852175`}, {
+                       0.63245553203367588`, 4.4271887242357311`}, {
+                       0.31622776601683794`, 5.3758720222862451`}, {
+                       2.5298221281347035`, 1.8973665961010275`}, {
+                       2.2135943621178655`, 2.8460498941515415`}, {
+                       1.8973665961010275`, 3.7947331922020551`}, {
+                       1.5811388300841898`, 4.7434164902525691`}, {
+                       1.2649110640673518`, 5.6920997883030831`}, {
+                       3.4785054261852175`, 2.2135943621178655`}, {
+                       3.1622776601683795`, 3.1622776601683795`}, {
+                       2.8460498941515415`, 4.1109609582188931`}, {
+                       2.5298221281347035`, 5.0596442562694071`}, {
+                       2.2135943621178655`, 6.008327554319921`}, {
+                       4.4271887242357311`, 2.5298221281347035`}, {
+                       4.1109609582188931`, 3.4785054261852175`}, {
+                       3.7947331922020551`, 4.4271887242357311`}, {
+                       3.4785054261852175`, 5.3758720222862451`}, {
+                       3.1622776601683795`, 6.324555320336759`}}), 
+                    Line({{0.63245553203367588`, 1.2649110640673518`}, {
+                       0.31622776601683794`, 2.2135943621178655`}, {
+                       0.0`, 3.1622776601683795`}, {
+                       -0.31622776601683794`, 4.1109609582188931`}, {
+                       -0.63245553203367588`, 5.0596442562694071`}, {
+                       1.5811388300841898`, 1.5811388300841898`}, {
+                       1.2649110640673518`, 2.5298221281347035`}, {
+                       0.94868329805051377`, 3.4785054261852175`}, {
+                       0.63245553203367588`, 4.4271887242357311`}, {
+                       0.31622776601683794`, 5.3758720222862451`}, {
+                       2.5298221281347035`, 1.8973665961010275`}, {
+                       2.2135943621178655`, 2.8460498941515415`}, {
+                       1.8973665961010275`, 3.7947331922020551`}, {
+                       1.5811388300841898`, 4.7434164902525691`}, {
+                       1.2649110640673518`, 5.6920997883030831`}, {
+                       3.4785054261852175`, 2.2135943621178655`}, {
+                       3.1622776601683795`, 3.1622776601683795`}, {
+                       2.8460498941515415`, 4.1109609582188931`}, {
+                       2.5298221281347035`, 5.0596442562694071`}, {
+                       2.2135943621178655`, 6.008327554319921`}, {
+                       4.4271887242357311`, 2.5298221281347035`}, {
+                       4.1109609582188931`, 3.4785054261852175`}, {
+                       3.7947331922020551`, 4.4271887242357311`}, {
+                       3.4785054261852175`, 5.3758720222862451`}, {
+                       3.1622776601683795`, 6.324555320336759`}}[{
+                       4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
+                       14, 23, 19, 24, 25, 10, 15, 20}]), Black, 
+                    Line({{-0.63245553203367588`, 5.0596442562694071`}, {
+                       {0.63245553203367588`, 1.2649110640673518`}, {
+                        0.31622776601683794`, 2.2135943621178655`}, {
+                        0.0`, 3.1622776601683795`}, {
+                        -0.31622776601683794`, 4.1109609582188931`}, {
+                        -0.63245553203367588`, 5.0596442562694071`}, {
+                        1.5811388300841898`, 1.5811388300841898`}, {
+                        1.2649110640673518`, 2.5298221281347035`}, {
+                        0.94868329805051377`, 3.4785054261852175`}, {
+                        0.63245553203367588`, 4.4271887242357311`}, {
+                        0.31622776601683794`, 5.3758720222862451`}, {
+                        2.5298221281347035`, 1.8973665961010275`}, {
+                        2.2135943621178655`, 2.8460498941515415`}, {
+                        1.8973665961010275`, 3.7947331922020551`}, {
+                        1.5811388300841898`, 4.7434164902525691`}, {
+                        1.2649110640673518`, 5.6920997883030831`}, {
+                        3.4785054261852175`, 2.2135943621178655`}, {
+                        3.1622776601683795`, 3.1622776601683795`}, {
+                        2.8460498941515415`, 4.1109609582188931`}, {
+                        2.5298221281347035`, 5.0596442562694071`}, {
+                        2.2135943621178655`, 6.008327554319921`}, {
+                        4.4271887242357311`, 2.5298221281347035`}, {
+                        4.1109609582188931`, 3.4785054261852175`}, {
+                        3.7947331922020551`, 4.4271887242357311`}, {
+                        3.4785054261852175`, 5.3758720222862451`}, {
+                        3.1622776601683795`, 6.324555320336759`}}[{
+                        4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 
+                        18, 14, 23, 19, 24, 25, 10, 15, 20}[Global`i]]}), 
+                    Point({{0.63245553203367588`, 1.2649110640673518`}, {
+                       0.31622776601683794`, 2.2135943621178655`}, {
+                       0.0`, 3.1622776601683795`}, {
+                       -0.31622776601683794`, 4.1109609582188931`}, {
+                       -0.63245553203367588`, 5.0596442562694071`}, {
+                       1.5811388300841898`, 1.5811388300841898`}, {
+                       1.2649110640673518`, 2.5298221281347035`}, {
+                       0.94868329805051377`, 3.4785054261852175`}, {
+                       0.63245553203367588`, 4.4271887242357311`}, {
+                       0.31622776601683794`, 5.3758720222862451`}, {
+                       2.5298221281347035`, 1.8973665961010275`}, {
+                       2.2135943621178655`, 2.8460498941515415`}, {
+                       1.8973665961010275`, 3.7947331922020551`}, {
+                       1.5811388300841898`, 4.7434164902525691`}, {
+                       1.2649110640673518`, 5.6920997883030831`}, {
+                       3.4785054261852175`, 2.2135943621178655`}, {
+                       3.1622776601683795`, 3.1622776601683795`}, {
+                       2.8460498941515415`, 4.1109609582188931`}, {
+                       2.5298221281347035`, 5.0596442562694071`}, {
+                       2.2135943621178655`, 6.008327554319921`}, {
+                       4.4271887242357311`, 2.5298221281347035`}, {
+                       4.1109609582188931`, 3.4785054261852175`}, {
+                       3.7947331922020551`, 4.4271887242357311`}, {
+                       3.4785054261852175`, 5.3758720222862451`}, {
+                       3.1622776601683795`, 6.324555320336759`}}[{
+                       4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
+                       14, 23, 19, 24, 25, 10, 15, 20}[Global`i]])}, 
+                   ImageSize -> 100, Frame -> True)))}}), "Column"), 
+            Initialization :> None, Deinitialization :> None, 
+            UnsavedVariables :> {}, DynamicLocalValues :> {{
+              OwnRules(Global`i):= {HoldPattern(Global`i) :> 24}}}), Row({
+            DynamicLocal({Global`i}, 
+             Column({Slider(Dynamic(Global`i), 1 .. 24 .. 1), 
+               Dynamic({{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 
+                  18, 14, 23, 19, 24, 25, 10, 15, 20}[Global`i], 
+                 N({{0.63245553203367588`, 1.2649110640673518`}, {
                     0.31622776601683794`, 2.2135943621178655`}, {
                     0.0`, 3.1622776601683795`}, {
                     -0.31622776601683794`, 4.1109609582188931`}, {
@@ -943,229 +1041,175 @@ Document({
                     3.4785054261852175`, 5.3758720222862451`}, {
                     3.1622776601683795`, 6.324555320336759`}}[{
                     4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-                    14, 23, 19, 24, 25, 10, 15, 20}[i]]}), 
-                Point({{0.63245553203367588`, 1.2649110640673518`}, {
-                   0.31622776601683794`, 2.2135943621178655`}, {
-                   0.0`, 3.1622776601683795`}, {
-                   -0.31622776601683794`, 4.1109609582188931`}, {
-                   -0.63245553203367588`, 5.0596442562694071`}, {
-                   1.5811388300841898`, 1.5811388300841898`}, {
-                   1.2649110640673518`, 2.5298221281347035`}, {
-                   0.94868329805051377`, 3.4785054261852175`}, {
-                   0.63245553203367588`, 4.4271887242357311`}, {
-                   0.31622776601683794`, 5.3758720222862451`}, {
-                   2.5298221281347035`, 1.8973665961010275`}, {
-                   2.2135943621178655`, 2.8460498941515415`}, {
-                   1.8973665961010275`, 3.7947331922020551`}, {
-                   1.5811388300841898`, 4.7434164902525691`}, {
-                   1.2649110640673518`, 5.6920997883030831`}, {
-                   3.4785054261852175`, 2.2135943621178655`}, {
-                   3.1622776601683795`, 3.1622776601683795`}, {
-                   2.8460498941515415`, 4.1109609582188931`}, {
-                   2.5298221281347035`, 5.0596442562694071`}, {
-                   2.2135943621178655`, 6.008327554319921`}, {
-                   4.4271887242357311`, 2.5298221281347035`}, {
-                   4.1109609582188931`, 3.4785054261852175`}, {
-                   3.7947331922020551`, 4.4271887242357311`}, {
-                   3.4785054261852175`, 5.3758720222862451`}, {
-                   3.1622776601683795`, 6.324555320336759`}}[{
+                    14, 23, 19, 24, 25, 10, 15, 20}[Global`i]]), 
+                 ({Arg(Apply({{0.63245553203367588`, 1.2649110640673518`}, {
+                      0.31622776601683794`, 2.2135943621178655`}, {
+                      0.0`, 3.1622776601683795`}, {
+                      -0.31622776601683794`, 4.1109609582188931`}, {
+                      -0.63245553203367588`, 5.0596442562694071`}, {
+                      1.5811388300841898`, 1.5811388300841898`}, {
+                      1.2649110640673518`, 2.5298221281347035`}, {
+                      0.94868329805051377`, 3.4785054261852175`}, {
+                      0.63245553203367588`, 4.4271887242357311`}, {
+                      0.31622776601683794`, 5.3758720222862451`}, {
+                      2.5298221281347035`, 1.8973665961010275`}, {
+                      2.2135943621178655`, 2.8460498941515415`}, {
+                      1.8973665961010275`, 3.7947331922020551`}, {
+                      1.5811388300841898`, 4.7434164902525691`}, {
+                      1.2649110640673518`, 5.6920997883030831`}, {
+                      3.4785054261852175`, 2.2135943621178655`}, {
+                      3.1622776601683795`, 3.1622776601683795`}, {
+                      2.8460498941515415`, 4.1109609582188931`}, {
+                      2.5298221281347035`, 5.0596442562694071`}, {
+                      2.2135943621178655`, 6.008327554319921`}, {
+                      4.4271887242357311`, 2.5298221281347035`}, {
+                      4.1109609582188931`, 3.4785054261852175`}, {
+                      3.7947331922020551`, 4.4271887242357311`}, {
+                      3.4785054261852175`, 5.3758720222862451`}, {
+                      3.1622776601683795`, 6.324555320336759`}}[#1] - {
+                     -0.63245553203367588`, 5.0596442562694071`}, Complex)), 
+                  Total(({{0.63245553203367588`, 1.2649110640673518`}, {
+                     0.31622776601683794`, 2.2135943621178655`}, {
+                     0.0`, 3.1622776601683795`}, {
+                     -0.31622776601683794`, 4.1109609582188931`}, {
+                     -0.63245553203367588`, 5.0596442562694071`}, {
+                     1.5811388300841898`, 1.5811388300841898`}, {
+                     1.2649110640673518`, 2.5298221281347035`}, {
+                     0.94868329805051377`, 3.4785054261852175`}, {
+                     0.63245553203367588`, 4.4271887242357311`}, {
+                     0.31622776601683794`, 5.3758720222862451`}, {
+                     2.5298221281347035`, 1.8973665961010275`}, {
+                     2.2135943621178655`, 2.8460498941515415`}, {
+                     1.8973665961010275`, 3.7947331922020551`}, {
+                     1.5811388300841898`, 4.7434164902525691`}, {
+                     1.2649110640673518`, 5.6920997883030831`}, {
+                     3.4785054261852175`, 2.2135943621178655`}, {
+                     3.1622776601683795`, 3.1622776601683795`}, {
+                     2.8460498941515415`, 4.1109609582188931`}, {
+                     2.5298221281347035`, 5.0596442562694071`}, {
+                     2.2135943621178655`, 6.008327554319921`}, {
+                     4.4271887242357311`, 2.5298221281347035`}, {
+                     4.1109609582188931`, 3.4785054261852175`}, {
+                     3.7947331922020551`, 4.4271887242357311`}, {
+                     3.4785054261852175`, 5.3758720222862451`}, {
+                     3.1622776601683795`, 6.324555320336759`}}[#1] - {
+                    -0.63245553203367588`, 5.0596442562694071`})^2)} &)({
                    4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 14, 
-                   23, 19, 24, 25, 10, 15, 20}[i]])}, ImageSize -> 100, 
-               Frame -> True)))}}), "Column"), Initialization :> None, 
-        Deinitialization :> None, UnsavedVariables :> {}, 
-        DynamicLocalValues :> {{OwnRules(i):= {HoldPattern(i) :> 24}}}), Row({
-        DynamicLocal({i}, Column({Slider(Dynamic(i), 1 .. 24 .. 1), 
-           Dynamic({{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
-              14, 23, 19, 24, 25, 10, 15, 20}[i], 
-             N({{0.63245553203367588`, 1.2649110640673518`}, {
-                0.31622776601683794`, 2.2135943621178655`}, {
-                0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
-                4.1109609582188931`}, {-0.63245553203367588`, 
-                5.0596442562694071`}, {1.5811388300841898`, 
-                1.5811388300841898`}, {1.2649110640673518`, 
-                2.5298221281347035`}, {0.94868329805051377`, 
-                3.4785054261852175`}, {0.63245553203367588`, 
-                4.4271887242357311`}, {0.31622776601683794`, 
-                5.3758720222862451`}, {2.5298221281347035`, 
-                1.8973665961010275`}, {2.2135943621178655`, 
-                2.8460498941515415`}, {1.8973665961010275`, 
-                3.7947331922020551`}, {1.5811388300841898`, 
-                4.7434164902525691`}, {1.2649110640673518`, 
-                5.6920997883030831`}, {3.4785054261852175`, 
-                2.2135943621178655`}, {3.1622776601683795`, 
-                3.1622776601683795`}, {2.8460498941515415`, 
-                4.1109609582188931`}, {2.5298221281347035`, 
-                5.0596442562694071`}, {2.2135943621178655`, 
-                6.008327554319921`}, {4.4271887242357311`, 
-                2.5298221281347035`}, {4.1109609582188931`, 
-                3.4785054261852175`}, {3.7947331922020551`, 
-                4.4271887242357311`}, {3.4785054261852175`, 
-                5.3758720222862451`}, {3.1622776601683795`, 
-                6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 
-                21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i]]), 
-             ({Arg(Apply({{0.63245553203367588`, 1.2649110640673518`}, {
-                  0.31622776601683794`, 2.2135943621178655`}, {
-                  0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
-                  4.1109609582188931`}, {-0.63245553203367588`, 
-                  5.0596442562694071`}, {1.5811388300841898`, 
-                  1.5811388300841898`}, {1.2649110640673518`, 
-                  2.5298221281347035`}, {0.94868329805051377`, 
-                  3.4785054261852175`}, {0.63245553203367588`, 
-                  4.4271887242357311`}, {0.31622776601683794`, 
-                  5.3758720222862451`}, {2.5298221281347035`, 
-                  1.8973665961010275`}, {2.2135943621178655`, 
-                  2.8460498941515415`}, {1.8973665961010275`, 
-                  3.7947331922020551`}, {1.5811388300841898`, 
-                  4.7434164902525691`}, {1.2649110640673518`, 
-                  5.6920997883030831`}, {3.4785054261852175`, 
-                  2.2135943621178655`}, {3.1622776601683795`, 
-                  3.1622776601683795`}, {2.8460498941515415`, 
-                  4.1109609582188931`}, {2.5298221281347035`, 
-                  5.0596442562694071`}, {2.2135943621178655`, 
-                  6.008327554319921`}, {4.4271887242357311`, 
-                  2.5298221281347035`}, {4.1109609582188931`, 
-                  3.4785054261852175`}, {3.7947331922020551`, 
-                  4.4271887242357311`}, {3.4785054261852175`, 
-                  5.3758720222862451`}, {3.1622776601683795`, 
-                  6.324555320336759`}}[#1] - {-0.63245553203367588`, 
-                 5.0596442562694071`}, Complex)), 
-              Total(({{0.63245553203367588`, 1.2649110640673518`}, {
-                 0.31622776601683794`, 2.2135943621178655`}, {
-                 0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
-                 4.1109609582188931`}, {-0.63245553203367588`, 
-                 5.0596442562694071`}, {1.5811388300841898`, 
-                 1.5811388300841898`}, {1.2649110640673518`, 
-                 2.5298221281347035`}, {0.94868329805051377`, 
-                 3.4785054261852175`}, {0.63245553203367588`, 
-                 4.4271887242357311`}, {0.31622776601683794`, 
-                 5.3758720222862451`}, {2.5298221281347035`, 
-                 1.8973665961010275`}, {2.2135943621178655`, 
-                 2.8460498941515415`}, {1.8973665961010275`, 
-                 3.7947331922020551`}, {1.5811388300841898`, 
-                 4.7434164902525691`}, {1.2649110640673518`, 
-                 5.6920997883030831`}, {3.4785054261852175`, 
-                 2.2135943621178655`}, {3.1622776601683795`, 
-                 3.1622776601683795`}, {2.8460498941515415`, 
-                 4.1109609582188931`}, {2.5298221281347035`, 
-                 5.0596442562694071`}, {2.2135943621178655`, 
-                 6.008327554319921`}, {4.4271887242357311`, 
-                 2.5298221281347035`}, {4.1109609582188931`, 
-                 3.4785054261852175`}, {3.7947331922020551`, 
-                 4.4271887242357311`}, {3.4785054261852175`, 
-                 5.3758720222862451`}, {3.1622776601683795`, 
-                 6.324555320336759`}}[#1] - {-0.63245553203367588`, 
-                5.0596442562694071`})^2)} &)({4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 
-               9, 13, 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i])}), 
-           Dynamic(
-            Graphics({
-              Gray, Point({{0.63245553203367588`, 1.2649110640673518`}, {
-                 0.31622776601683794`, 2.2135943621178655`}, {
-                 0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
-                 4.1109609582188931`}, {-0.63245553203367588`, 
-                 5.0596442562694071`}, {1.5811388300841898`, 
-                 1.5811388300841898`}, {1.2649110640673518`, 
-                 2.5298221281347035`}, {0.94868329805051377`, 
-                 3.4785054261852175`}, {0.63245553203367588`, 
-                 4.4271887242357311`}, {0.31622776601683794`, 
-                 5.3758720222862451`}, {2.5298221281347035`, 
-                 1.8973665961010275`}, {2.2135943621178655`, 
-                 2.8460498941515415`}, {1.8973665961010275`, 
-                 3.7947331922020551`}, {1.5811388300841898`, 
-                 4.7434164902525691`}, {1.2649110640673518`, 
-                 5.6920997883030831`}, {3.4785054261852175`, 
-                 2.2135943621178655`}, {3.1622776601683795`, 
-                 3.1622776601683795`}, {2.8460498941515415`, 
-                 4.1109609582188931`}, {2.5298221281347035`, 
-                 5.0596442562694071`}, {2.2135943621178655`, 
-                 6.008327554319921`}, {4.4271887242357311`, 
-                 2.5298221281347035`}, {4.1109609582188931`, 
-                 3.4785054261852175`}, {3.7947331922020551`, 
-                 4.4271887242357311`}, {3.4785054261852175`, 
-                 5.3758720222862451`}, {3.1622776601683795`, 
-                 6.324555320336759`}}), 
-              Line({{0.63245553203367588`, 1.2649110640673518`}, {
-                 0.31622776601683794`, 2.2135943621178655`}, {
-                 0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
-                 4.1109609582188931`}, {-0.63245553203367588`, 
-                 5.0596442562694071`}, {1.5811388300841898`, 
-                 1.5811388300841898`}, {1.2649110640673518`, 
-                 2.5298221281347035`}, {0.94868329805051377`, 
-                 3.4785054261852175`}, {0.63245553203367588`, 
-                 4.4271887242357311`}, {0.31622776601683794`, 
-                 5.3758720222862451`}, {2.5298221281347035`, 
-                 1.8973665961010275`}, {2.2135943621178655`, 
-                 2.8460498941515415`}, {1.8973665961010275`, 
-                 3.7947331922020551`}, {1.5811388300841898`, 
-                 4.7434164902525691`}, {1.2649110640673518`, 
-                 5.6920997883030831`}, {3.4785054261852175`, 
-                 2.2135943621178655`}, {3.1622776601683795`, 
-                 3.1622776601683795`}, {2.8460498941515415`, 
-                 4.1109609582188931`}, {2.5298221281347035`, 
-                 5.0596442562694071`}, {2.2135943621178655`, 
-                 6.008327554319921`}, {4.4271887242357311`, 
-                 2.5298221281347035`}, {4.1109609582188931`, 
-                 3.4785054261852175`}, {3.7947331922020551`, 
-                 4.4271887242357311`}, {3.4785054261852175`, 
-                 5.3758720222862451`}, {3.1622776601683795`, 
-                 6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 
-                 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}]), Black, 
-              Line({{-0.63245553203367588`, 5.0596442562694071`}, {
-                 {0.63245553203367588`, 1.2649110640673518`}, {
-                  0.31622776601683794`, 2.2135943621178655`}, {
-                  0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
-                  4.1109609582188931`}, {-0.63245553203367588`, 
-                  5.0596442562694071`}, {1.5811388300841898`, 
-                  1.5811388300841898`}, {1.2649110640673518`, 
-                  2.5298221281347035`}, {0.94868329805051377`, 
-                  3.4785054261852175`}, {0.63245553203367588`, 
-                  4.4271887242357311`}, {0.31622776601683794`, 
-                  5.3758720222862451`}, {2.5298221281347035`, 
-                  1.8973665961010275`}, {2.2135943621178655`, 
-                  2.8460498941515415`}, {1.8973665961010275`, 
-                  3.7947331922020551`}, {1.5811388300841898`, 
-                  4.7434164902525691`}, {1.2649110640673518`, 
-                  5.6920997883030831`}, {3.4785054261852175`, 
-                  2.2135943621178655`}, {3.1622776601683795`, 
-                  3.1622776601683795`}, {2.8460498941515415`, 
-                  4.1109609582188931`}, {2.5298221281347035`, 
-                  5.0596442562694071`}, {2.2135943621178655`, 
-                  6.008327554319921`}, {4.4271887242357311`, 
-                  2.5298221281347035`}, {4.1109609582188931`, 
-                  3.4785054261852175`}, {3.7947331922020551`, 
-                  4.4271887242357311`}, {3.4785054261852175`, 
-                  5.3758720222862451`}, {3.1622776601683795`, 
-                  6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 
-                  13, 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i]]}), 
-              Point({{0.63245553203367588`, 1.2649110640673518`}, {
-                 0.31622776601683794`, 2.2135943621178655`}, {
-                 0.0`, 3.1622776601683795`}, {-0.31622776601683794`, 
-                 4.1109609582188931`}, {-0.63245553203367588`, 
-                 5.0596442562694071`}, {1.5811388300841898`, 
-                 1.5811388300841898`}, {1.2649110640673518`, 
-                 2.5298221281347035`}, {0.94868329805051377`, 
-                 3.4785054261852175`}, {0.63245553203367588`, 
-                 4.4271887242357311`}, {0.31622776601683794`, 
-                 5.3758720222862451`}, {2.5298221281347035`, 
-                 1.8973665961010275`}, {2.2135943621178655`, 
-                 2.8460498941515415`}, {1.8973665961010275`, 
-                 3.7947331922020551`}, {1.5811388300841898`, 
-                 4.7434164902525691`}, {1.2649110640673518`, 
-                 5.6920997883030831`}, {3.4785054261852175`, 
-                 2.2135943621178655`}, {3.1622776601683795`, 
-                 3.1622776601683795`}, {2.8460498941515415`, 
-                 4.1109609582188931`}, {2.5298221281347035`, 
-                 5.0596442562694071`}, {2.2135943621178655`, 
-                 6.008327554319921`}, {4.4271887242357311`, 
-                 2.5298221281347035`}, {4.1109609582188931`, 
-                 3.4785054261852175`}, {3.7947331922020551`, 
-                 4.4271887242357311`}, {3.4785054261852175`, 
-                 5.3758720222862451`}, {3.1622776601683795`, 
-                 6.324555320336759`}}[{4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 
-                 21, 17, 22, 18, 14, 23, 19, 24, 25, 10, 15, 20}[i]])}, 
-             ImageSize -> 100, Frame -> True))}), 
-         DynamicLocalValues :> {OwnRules(i):= {HoldPattern(i) :> 1}})}))), 
-     "Print", SectionGenerated -> True), 
-    Section(BoxData({"{", {"5", ",", "1", ",", "21", ",", "25", ",", "20"}, 
-       "}"}), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [25]:")}, All)}, 
+                   23, 19, 24, 25, 10, 15, 20}[Global`i])}), 
+               Dynamic(
+                Graphics({
+                  Gray, Point({{0.63245553203367588`, 1.2649110640673518`}, {
+                     0.31622776601683794`, 2.2135943621178655`}, {
+                     0.0`, 3.1622776601683795`}, {
+                     -0.31622776601683794`, 4.1109609582188931`}, {
+                     -0.63245553203367588`, 5.0596442562694071`}, {
+                     1.5811388300841898`, 1.5811388300841898`}, {
+                     1.2649110640673518`, 2.5298221281347035`}, {
+                     0.94868329805051377`, 3.4785054261852175`}, {
+                     0.63245553203367588`, 4.4271887242357311`}, {
+                     0.31622776601683794`, 5.3758720222862451`}, {
+                     2.5298221281347035`, 1.8973665961010275`}, {
+                     2.2135943621178655`, 2.8460498941515415`}, {
+                     1.8973665961010275`, 3.7947331922020551`}, {
+                     1.5811388300841898`, 4.7434164902525691`}, {
+                     1.2649110640673518`, 5.6920997883030831`}, {
+                     3.4785054261852175`, 2.2135943621178655`}, {
+                     3.1622776601683795`, 3.1622776601683795`}, {
+                     2.8460498941515415`, 4.1109609582188931`}, {
+                     2.5298221281347035`, 5.0596442562694071`}, {
+                     2.2135943621178655`, 6.008327554319921`}, {
+                     4.4271887242357311`, 2.5298221281347035`}, {
+                     4.1109609582188931`, 3.4785054261852175`}, {
+                     3.7947331922020551`, 4.4271887242357311`}, {
+                     3.4785054261852175`, 5.3758720222862451`}, {
+                     3.1622776601683795`, 6.324555320336759`}}), 
+                  Line({{0.63245553203367588`, 1.2649110640673518`}, {
+                     0.31622776601683794`, 2.2135943621178655`}, {
+                     0.0`, 3.1622776601683795`}, {
+                     -0.31622776601683794`, 4.1109609582188931`}, {
+                     -0.63245553203367588`, 5.0596442562694071`}, {
+                     1.5811388300841898`, 1.5811388300841898`}, {
+                     1.2649110640673518`, 2.5298221281347035`}, {
+                     0.94868329805051377`, 3.4785054261852175`}, {
+                     0.63245553203367588`, 4.4271887242357311`}, {
+                     0.31622776601683794`, 5.3758720222862451`}, {
+                     2.5298221281347035`, 1.8973665961010275`}, {
+                     2.2135943621178655`, 2.8460498941515415`}, {
+                     1.8973665961010275`, 3.7947331922020551`}, {
+                     1.5811388300841898`, 4.7434164902525691`}, {
+                     1.2649110640673518`, 5.6920997883030831`}, {
+                     3.4785054261852175`, 2.2135943621178655`}, {
+                     3.1622776601683795`, 3.1622776601683795`}, {
+                     2.8460498941515415`, 4.1109609582188931`}, {
+                     2.5298221281347035`, 5.0596442562694071`}, {
+                     2.2135943621178655`, 6.008327554319921`}, {
+                     4.4271887242357311`, 2.5298221281347035`}, {
+                     4.1109609582188931`, 3.4785054261852175`}, {
+                     3.7947331922020551`, 4.4271887242357311`}, {
+                     3.4785054261852175`, 5.3758720222862451`}, {
+                     3.1622776601683795`, 6.324555320336759`}}[{
+                     4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
+                     14, 23, 19, 24, 25, 10, 15, 20}]), Black, 
+                  Line({{-0.63245553203367588`, 5.0596442562694071`}, {
+                     {0.63245553203367588`, 1.2649110640673518`}, {
+                      0.31622776601683794`, 2.2135943621178655`}, {
+                      0.0`, 3.1622776601683795`}, {
+                      -0.31622776601683794`, 4.1109609582188931`}, {
+                      -0.63245553203367588`, 5.0596442562694071`}, {
+                      1.5811388300841898`, 1.5811388300841898`}, {
+                      1.2649110640673518`, 2.5298221281347035`}, {
+                      0.94868329805051377`, 3.4785054261852175`}, {
+                      0.63245553203367588`, 4.4271887242357311`}, {
+                      0.31622776601683794`, 5.3758720222862451`}, {
+                      2.5298221281347035`, 1.8973665961010275`}, {
+                      2.2135943621178655`, 2.8460498941515415`}, {
+                      1.8973665961010275`, 3.7947331922020551`}, {
+                      1.5811388300841898`, 4.7434164902525691`}, {
+                      1.2649110640673518`, 5.6920997883030831`}, {
+                      3.4785054261852175`, 2.2135943621178655`}, {
+                      3.1622776601683795`, 3.1622776601683795`}, {
+                      2.8460498941515415`, 4.1109609582188931`}, {
+                      2.5298221281347035`, 5.0596442562694071`}, {
+                      2.2135943621178655`, 6.008327554319921`}, {
+                      4.4271887242357311`, 2.5298221281347035`}, {
+                      4.1109609582188931`, 3.4785054261852175`}, {
+                      3.7947331922020551`, 4.4271887242357311`}, {
+                      3.4785054261852175`, 5.3758720222862451`}, {
+                      3.1622776601683795`, 6.324555320336759`}}[{
+                      4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
+                      14, 23, 19, 24, 25, 10, 15, 20}[Global`i]]}), 
+                  Point({{0.63245553203367588`, 1.2649110640673518`}, {
+                     0.31622776601683794`, 2.2135943621178655`}, {
+                     0.0`, 3.1622776601683795`}, {
+                     -0.31622776601683794`, 4.1109609582188931`}, {
+                     -0.63245553203367588`, 5.0596442562694071`}, {
+                     1.5811388300841898`, 1.5811388300841898`}, {
+                     1.2649110640673518`, 2.5298221281347035`}, {
+                     0.94868329805051377`, 3.4785054261852175`}, {
+                     0.63245553203367588`, 4.4271887242357311`}, {
+                     0.31622776601683794`, 5.3758720222862451`}, {
+                     2.5298221281347035`, 1.8973665961010275`}, {
+                     2.2135943621178655`, 2.8460498941515415`}, {
+                     1.8973665961010275`, 3.7947331922020551`}, {
+                     1.5811388300841898`, 4.7434164902525691`}, {
+                     1.2649110640673518`, 5.6920997883030831`}, {
+                     3.4785054261852175`, 2.2135943621178655`}, {
+                     3.1622776601683795`, 3.1622776601683795`}, {
+                     2.8460498941515415`, 4.1109609582188931`}, {
+                     2.5298221281347035`, 5.0596442562694071`}, {
+                     2.2135943621178655`, 6.008327554319921`}, {
+                     4.4271887242357311`, 2.5298221281347035`}, {
+                     4.1109609582188931`, 3.4785054261852175`}, {
+                     3.7947331922020551`, 4.4271887242357311`}, {
+                     3.4785054261852175`, 5.3758720222862451`}, {
+                     3.1622776601683795`, 6.324555320336759`}}[{
+                     4, 3, 2, 1, 6, 7, 8, 11, 12, 16, 9, 13, 21, 17, 22, 18, 
+                     14, 23, 19, 24, 25, 10, 15, 20}[Global`i]])}, 
+                 ImageSize -> 100, Frame -> True))}), 
+             DynamicLocalValues :> {OwnRules(Global`i):= {
+               HoldPattern(Global`i) :> 1}})}), Editable -> False)), "Print", 
+         SectionGenerated -> True), 
+        Section(BoxData({"{", {"5", ",", "1", ",", "21", ",", "25", ",", 
+            "20"}, "}"}), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [25]:")}, All)}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

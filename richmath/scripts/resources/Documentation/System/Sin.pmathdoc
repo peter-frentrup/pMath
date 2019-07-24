@@ -47,7 +47,7 @@ Document({
             Section(
              BoxData(GraphicsBox({
                 {Directive(RGBColor(0.75`, 0, 0), PlotStyle), {
-                  LineBox(Uncompress(
+                  LineBox(CompressedData(
                     "1:c$,g@drVYE6o<J3S}qrF!1#<7QmZz;Kt-#@xzrU]L_-l#0d+-OMUkL@\
                     s8KO3&;_wYsx2rIBvdRK1#1;q$,GNk!dmbF#vt01iqgtTMdj,GWM+rX{<Z\
                     nOyLV^KoZlH_qbXAmazu9ac-6kxxGg(%{*ke9XsE,{4q+SXXYdQMXIwpFT\

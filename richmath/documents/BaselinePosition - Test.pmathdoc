@@ -76,12 +76,14 @@ Document({
          BoxData({
            "{", {
             PanelBox(
-             TagBox(GridBox({{SliderBox(Dynamic(s), -1 .. 2)}, {
-                 InterpretationBox({SetterBox(Dynamic(s), 0, "0"), 
-                   "\[InvisibleSpace]", SetterBox(Dynamic(s), 0.5`, "0.5`"), 
-                   "\[InvisibleSpace]", SetterBox(Dynamic(s), 1, "1")}, 
-                  SetterBar(Dynamic(s), {0, 0.5`, 1}), Editable -> False)}}), 
-              "Column")), ",", DynamicBox(ToBoxes(s))}, "}"}), "Output", 
+             TagBox(GridBox({{SliderBox(Dynamic(Global`s), -1 .. 2)}, {
+                 InterpretationBox({SetterBox(Dynamic(Global`s), 0, "0"), 
+                   "\[InvisibleSpace]", SetterBox(Dynamic(Global`s), 0.5`, 
+                    "0.5`"), "\[InvisibleSpace]", 
+                   SetterBox(Dynamic(Global`s), 1, "1")}, 
+                  SetterBar(Dynamic(Global`s), {0, 0.5`, 1}), 
+                  Editable -> False)}}), "Column")), ",", 
+            DynamicBox(ToBoxes(Global`s))}, "}"}), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
       SectionGroup({
         Section(
@@ -95,8 +97,8 @@ Document({
         Section(
          BoxData({
            "{", {"a", ",", TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
-              BaselinePosition -> Dynamic(Scaled(s))), "Grid"), ",", "b"}, 
-           "}"}), "Output", SectionGenerated -> True, 
+              BaselinePosition -> Dynamic(Scaled(Global`s))), "Grid"), ",", 
+            "b"}, "}"}), "Output", SectionGenerated -> True, 
          SectionLabel -> "out [3]:")}, All)}, All), 
     SectionGroup({Section("Align at specific grid rows/items", "Subsection"), 
       SectionGroup({
@@ -155,7 +157,7 @@ Document({
         Section(
          BoxData({
            GraphicsBox({{Directive(RGBColor(0.75`, 0, 0), PlotStyle), {
-               LineBox(Uncompress(
+               LineBox(CompressedData(
                  "1:c$,hwd0dUz9}!R6bCW0]@f0<-Hd0w5>wPRUQ^Z&!,!tl0Le?RvBwG]IBq2\
                  0WstJ,ADM?cyWG&GiB[tPgCcn?Qzdz2,%U_>2_k6$KbDndbE2wCd$OS=DP*oS\
                  _?bz(O+HIx1>t;_uO-of(5LN#FCreD]zQ^y*-))(Kx-z#5Hpbt&O!48]v]#61\
@@ -226,7 +228,7 @@ Document({
             AxesOrigin -> NCache({0, 0}, {0.0`, 0.0`}), 
             BaselinePosition -> Axis -> Axis, PlotRange -> All), "+", 
            GraphicsBox({{Directive(RGBColor(0.75`, 0, 0), PlotStyle), {
-               LineBox(Uncompress(
+               LineBox(CompressedData(
                  "1:c$,hxdst2R8VB&&d%KjRj9KLt5<[#Y#2_uiDBTb$8fn]3G&qdw#0ix,R8w\
                  rZRTL%3mI_Itl*-^xn50t3r9!$n-*?Y>&U!ub$2{MUXaC;y{@(RlYmsT_mMLU\
                  19hst}FniOw^-H,x?N_W@FKe%>P{;(0}NZ&@}HwM3^UL0)D([)NYoT}tB32k%\
