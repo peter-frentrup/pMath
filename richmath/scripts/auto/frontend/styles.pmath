@@ -5,6 +5,7 @@ BeginPackage("FE`Styles`")
 
 MakeStyleDataBoxes
 $DefaultDisplayFunction
+$DefaultDisplayFunctionTooltip
 
 Begin("FE`Styles`Private`")
 
@@ -55,6 +56,18 @@ $DefaultDisplayFunction(~tag:String)::= Function(
     ).StyleBox("TemplateBoxErrorDisplayStyle")
 )
 
+$DefaultDisplayFunctionTooltip(~tag:String)::= 
+    ComplexStringBox(
+        "\"The TemplateBox was unable to use the specified display function, \
+        or could not locate the display function for \[HighSixDoubleQuote]",
+        tag,
+        "\[HighNineDoubleQuote] because a style sheet is missing\""
+    ).StyleBox("Message")
+    
+$DefaultDisplayFunctionTooltip(~~~)::= 
+    (
+        "\"The TemplateBox was unable to use the specified display function\""
+    ).StyleBox("Message")
 
 End()
 

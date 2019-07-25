@@ -185,7 +185,7 @@ AutoLoad(Hold(FE`Graphics`DefaultAxesOrigin, FE`Graphics`DefaultTickBoxes),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "graphics.pmath"));
 AutoLoad(Hold(FE`Import`FileNamesDropDescription, FE`Import`PasteFileNameContentBoxes),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "import.pmath"));
-AutoLoad(Hold(FE`Styles`MakeStyleDataBoxes, FE`Styles`$DefaultDisplayFunction), 
+AutoLoad(Hold(FE`Styles`MakeStyleDataBoxes, FE`Styles`$DefaultDisplayFunction, FE`Styles`$DefaultDisplayFunctionTooltip), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "styles.pmath"));
 
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "autocompletion.pmath"))

@@ -10,9 +10,13 @@
 using namespace richmath;
 using namespace pmath;
 
+extern pmath_symbol_t richmath_System_ComplexStringBox;
 extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_Private_FlattenTemplateSequence;
+
+extern pmath_symbol_t richmath_FE_Styles_DollarDefaultDisplayFunction;
+extern pmath_symbol_t richmath_FE_Styles_DollarDefaultDisplayFunctionTooltip;
 
 namespace richmath {
   class TemplateBoxImpl {
@@ -20,6 +24,7 @@ namespace richmath {
       TemplateBoxImpl(TemplateBox &_self);
       
       void load_content(Expr dispfun);
+      static bool is_valid_display_function(Expr dispfun);
       Expr display_function_body(Expr dispfun);
       
     private:
@@ -417,7 +422,7 @@ Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
       
       Expr boxes = args;
       boxes.set(0, std::move(ifun));
-      boxes = Application::interrupt_wait(boxes, Application::button_timeout);
+      boxes = Application::interrupt_wait(std::move(boxes), Application::button_timeout);
       if(boxes.expr_length() == 1 && boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE) 
         return boxes[1];
     }
@@ -437,13 +442,21 @@ Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
 
 void TemplateBox::on_mouse_enter() {
   if(auto doc = find_parent<Document>(false)) {
-    Expr tooltip { get_own_style(Tooltip) };
+    Expr tooltip;
     
-    if(tooltip.is_null() || tooltip == PMATH_SYMBOL_NONE)
-      return;
-    
-    if(tooltip == PMATH_SYMBOL_AUTOMATIC)
-      tooltip = _tag.to_string(PMATH_WRITE_OPTIONS_FULLSTR);
+    if(TemplateBoxImpl::is_valid_display_function(_cached_display_function)) {
+      tooltip = { get_own_style(Tooltip) };
+      
+      if(tooltip.is_null() || tooltip == PMATH_SYMBOL_NONE)
+        return;
+      
+      if(tooltip == PMATH_SYMBOL_AUTOMATIC)
+        tooltip = _tag.to_string(PMATH_WRITE_OPTIONS_FULLSTR);
+    }
+    else {
+      tooltip = Call(Symbol(richmath_FE_Styles_DollarDefaultDisplayFunctionTooltip), _tag);
+      tooltip = Application::interrupt_wait(std::move(tooltip), Application::button_timeout);
+    }
     
     doc->native()->show_tooltip(tooltip);
   }
@@ -451,11 +464,13 @@ void TemplateBox::on_mouse_enter() {
 
 void TemplateBox::on_mouse_exit() {
   if(auto doc = find_parent<Document>(false)) {
-    Expr tooltip { get_own_style(Tooltip) };
-    
-    if(tooltip.is_null() || tooltip == PMATH_SYMBOL_NONE)
-      return;
+    if(TemplateBoxImpl::is_valid_display_function(_cached_display_function)) {
+      Expr tooltip { get_own_style(Tooltip) };
       
+      if(tooltip.is_null() || tooltip == PMATH_SYMBOL_NONE)
+        return;
+    }
+    
     doc->native()->hide_tooltip();
   }
 }
@@ -670,14 +685,18 @@ void TemplateBoxImpl::load_content(Expr dispfun) {
     BoxInputFlags::AllowTemplateSlots | BoxInputFlags::FormatNumbers);
 }
 
+bool TemplateBoxImpl::is_valid_display_function(Expr dispfun) {
+  return dispfun[0] == PMATH_SYMBOL_FUNCTION && dispfun.expr_length() == 1;
+}
+
 Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
-  if(dispfun[0] != PMATH_SYMBOL_FUNCTION || dispfun.expr_length() != 1) {
+  if(!is_valid_display_function(dispfun)) {
     Expr head = self._tag.to_string();
-    dispfun = Parse("FE`Styles`$DefaultDisplayFunction(`1`)", head);
+    dispfun = Call(Symbol(richmath_FE_Styles_DollarDefaultDisplayFunction), head);
   }
   
   dispfun = Call(Symbol(richmath_System_Private_FlattenTemplateSequence), dispfun, self.arguments.expr_length());
-  dispfun = Application::interrupt_wait(dispfun, Application::button_timeout);
+  dispfun = Application::interrupt_wait(std::move(dispfun), Application::button_timeout);
   
   if(dispfun[0] == PMATH_SYMBOL_FUNCTION && dispfun.expr_length() == 1)
     return dispfun[1];
