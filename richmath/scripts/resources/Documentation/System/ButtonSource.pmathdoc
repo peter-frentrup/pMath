@@ -1,0 +1,170 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ButtonSource", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(ButtonSource::"usage"))), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      Section({"The default setting is ", 
+        TemplateBox({"ButtonSource"}, "ReferenceHyperlink"), " \[Rule] ", 
+        TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}, "Notes"), 
+      Section({"Possible settings are:\n", 
+        TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonData"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"ButtonContents"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonBox"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"FrontEndObject"}, "ReferenceHyperlink")}, "Notes")}, 
+     All), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section({"Create a button that displays its ", 
+          TemplateBox({"ButtonData"}, "ReferenceHyperlink"), ":"}, 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"RawBoxes", "(", {
+              "ButtonBox", "(", {
+               ComplexStringBox("\"Click for button data\""), ",", {
+                "ButtonFunction", "\[Rule]", " ", {
+                 "(", {{"Print", "(", "#", ")"}, "&"}, ")"}}, ",", {
+                "ButtonSource", "\[Rule]", "ButtonData"}, ",", {
+                "ButtonData", "\[Rule]", ComplexStringBox("\"data\"")}}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          SectionGroup({
+            Section(BoxData(ButtonBox(/\/("Click", " ", "for", " ", "button", 
+                " ", "data"), ButtonData -> "data", 
+               ButtonFunction -> (Print(#1) &), ButtonSource -> ButtonData)), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:"), 
+            Section(BoxData(InterpretationBox(ComplexStringBox("\"data\""), 
+               Row({"data"}), Editable -> False)), "Print", 
+             SectionGenerated -> True)}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Create a button that displays its button contents:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"RawBoxes", "(", {
+                "ButtonBox", "(", {
+                 ComplexStringBox("\"Click for button data\""), ",", {
+                  "ButtonFunction", "\[Rule]", " ", {
+                   "(", {{"Print", "(", {"RawBoxes", "@@", "#"}, ")"}, "&"}, 
+                   ")"}}, ",", {"ButtonSource", "\[Rule]", "ButtonContents"}, 
+                 ",", {"ButtonData", "\[Rule]", 
+                  ComplexStringBox("\"data\"")}}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            SectionGroup({
+              Section(
+               BoxData(ButtonBox(/\/("Click", " ", "for", " ", "button", " ", 
+                  "data"), ButtonData -> "data", 
+                 ButtonFunction -> (Print(Apply(#1, RawBoxes)) &), 
+                 ButtonSource -> ButtonContents)), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:"), 
+              Section(BoxData(InterpretationBox({
+                  "Click", " ", "for", " ", "button", " ", "data"}, Row({
+                  RawBoxes(/\/("Click", " ", "for", " ", "button", " ", 
+                    "data"))}), Editable -> False)), "Print", 
+               SectionGenerated -> True)}, All)}, All)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section({"Relation to ", TemplateBox({"ButtonData"}, 
+           "ReferenceHyperlink"), ":"}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Grid", "@", {
+              "Table", "(", {
+               {"With", "(", {
+                 {"{", {{"source", "\[Assign]", "source"}, ",", {
+                    "data", "\[Assign]", "data"}}, "}"}, ",", {
+                  "RawBoxes", "@", {"ButtonBox", "(", {
+                    {"ToBoxes", "@", {"{", {"source", ",", "data"}, "}"}}, 
+                    ",", {"ButtonFunction", "\[Rule]", {
+                      "Function", "(", {"Print", "(", {
+                        {"{", {"source", ",", "data"}, "}"}, "\[Rule]", {
+                         "{", "##", "}"}}, ")"}, ")"}}, ",", {
+                     "ButtonSource", "\[Rule]", "source"}, ",", {
+                     "ButtonData", "\[Rule]", "data"}}, ")"}}}, ")"}, ",", {
+                "source", "\[Rule]", {
+                 "{", {"Automatic", ",", "ButtonData", ",", "ButtonContents", 
+                  ",", "ButtonBox", ",", "FrontEndObject"}, "}"}}, ",", {
+                "data", "\[Rule]", {
+                 "{", {"Inherited", ",", "Automatic", ",", "123"}, "}"}}}, 
+              ")"}}), "Input", SectionLabel -> "in [1]:"), 
+          SectionGroup({
+            Section(
+             BoxData(
+              TagBox(
+               GridBox({
+                 {ButtonBox({"{", {"Automatic", ",", "Inherited"}, "}"}, 
+                   ButtonFunction -> (Print({Automatic, Inherited} -> {
+                     ##1}) &), ButtonSource -> Automatic), 
+                  ButtonBox({"{", {"Automatic", ",", "Automatic"}, "}"}, 
+                   ButtonData -> Automatic, ButtonFunction -> (Print({
+                     Automatic, Automatic} -> {##1}) &), 
+                   ButtonSource -> Automatic), 
+                  ButtonBox({"{", {"Automatic", ",", "123"}, "}"}, 
+                   ButtonData -> 123, ButtonFunction -> (Print({
+                     Automatic, 123} -> {##1}) &), 
+                   ButtonSource -> Automatic)}, {
+                  ButtonBox({"{", {"ButtonData", ",", "Inherited"}, "}"}, 
+                   ButtonFunction -> (Print({ButtonData, Inherited} -> {
+                     ##1}) &), ButtonSource -> ButtonData), 
+                  ButtonBox({"{", {"ButtonData", ",", "Automatic"}, "}"}, 
+                   ButtonData -> Automatic, ButtonFunction -> (Print({
+                     ButtonData, Automatic} -> {##1}) &), 
+                   ButtonSource -> ButtonData), 
+                  ButtonBox({"{", {"ButtonData", ",", "123"}, "}"}, 
+                   ButtonData -> 123, ButtonFunction -> (Print({
+                     ButtonData, 123} -> {##1}) &), 
+                   ButtonSource -> ButtonData)}, {
+                  ButtonBox({"{", {"ButtonContents", ",", "Inherited"}, "}"}, 
+                   ButtonFunction -> (Print({ButtonContents, Inherited} -> {
+                     ##1}) &), ButtonSource -> ButtonContents), 
+                  ButtonBox({"{", {"ButtonContents", ",", "Automatic"}, "}"}, 
+                   ButtonData -> Automatic, ButtonFunction -> (Print({
+                     ButtonContents, Automatic} -> {##1}) &), 
+                   ButtonSource -> ButtonContents), 
+                  ButtonBox({"{", {"ButtonContents", ",", "123"}, "}"}, 
+                   ButtonData -> 123, ButtonFunction -> (Print({
+                     ButtonContents, 123} -> {##1}) &), 
+                   ButtonSource -> ButtonContents)}, {
+                  ButtonBox({"{", {"ButtonBox", ",", "Inherited"}, "}"}, 
+                   ButtonFunction -> (Print({ButtonBox, Inherited} -> {
+                     ##1}) &), ButtonSource -> ButtonBox), 
+                  ButtonBox({"{", {"ButtonBox", ",", "Automatic"}, "}"}, 
+                   ButtonData -> Automatic, ButtonFunction -> (Print({
+                     ButtonBox, Automatic} -> {##1}) &), 
+                   ButtonSource -> ButtonBox), 
+                  ButtonBox({"{", {"ButtonBox", ",", "123"}, "}"}, 
+                   ButtonData -> 123, ButtonFunction -> (Print({
+                     ButtonBox, 123} -> {##1}) &), 
+                   ButtonSource -> ButtonBox)}, {
+                  ButtonBox({"{", {"FrontEndObject", ",", "Inherited"}, "}"}, 
+                   ButtonFunction -> (Print({FrontEndObject, Inherited} -> {
+                     ##1}) &), ButtonSource -> FrontEndObject), 
+                  ButtonBox({"{", {"FrontEndObject", ",", "Automatic"}, "}"}, 
+                   ButtonData -> Automatic, ButtonFunction -> (Print({
+                     FrontEndObject, Automatic} -> {##1}) &), 
+                   ButtonSource -> FrontEndObject), 
+                  ButtonBox({"{", {"FrontEndObject", ",", "123"}, "}"}, 
+                   ButtonData -> 123, ButtonFunction -> (Print({
+                     FrontEndObject, 123} -> {##1}) &), 
+                   ButtonSource -> FrontEndObject)}}), "Grid")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:"), 
+            Section(BoxData(InterpretationBox({
+                {"{", {"ButtonContents", ",", "Inherited"}, "}"}, "\[Rule]", {
+                 "{", {
+                  {"BoxData", "(", {
+                    "{", {ComplexStringBox("\"{\""), ",", {
+                      "{", {ComplexStringBox("\"ButtonContents\""), ",", 
+                       ComplexStringBox("\",\""), ",", 
+                       ComplexStringBox("\"Inherited\"")}, "}"}, ",", 
+                     ComplexStringBox("\"}\"")}, "}"}, ")"}, ",", 
+                  "Automatic"}, "}"}}, Row({
+                {ButtonContents, Inherited} -> {
+                 BoxData({"{", {"ButtonContents", ",", "Inherited"}, "}"}), 
+                 Automatic}}), Editable -> False)), "Print", 
+             SectionGenerated -> True)}, All)}, All)}, All)}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonFunction"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"ButtonData"}, "ReferenceHyperlink")}, "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
