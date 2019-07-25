@@ -520,6 +520,8 @@ namespace {
         _key_to_name.set(          key, name);
         _name_to_key.set(          name, key);
         
+        Application::register_currentvalue_provider(name, get_current_style_value);
+        
         add_to_ruleset(key, name);
       }
       
