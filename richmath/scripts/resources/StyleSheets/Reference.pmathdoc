@@ -33,6 +33,9 @@ Document({
          BaseStyle -> "Text", DefaultNewSectionStyle -> "Notes", 
          ReturnCreatesNewSection -> True, SectionMargins -> {35, Inherited, 5, 
           5}, SectionLabel -> "\[U+25AA]", ShowSectionBracket -> Automatic), 
+        Section(StyleData("2ColumnTableNotes"), BaseStyle -> "Text", 
+         SectionMargins -> {35, Inherited, 5, 5}, 
+         ShowSectionBracket -> Automatic), 
         Section(StyleData("PrimaryExamplesSection"), 
          BaseStyle -> "CollapseSection", DefaultNewSectionStyle -> 
           "ExampleSection", DefaultReturnCreatedSectionStyle -> 

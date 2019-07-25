@@ -8,15 +8,32 @@ Document({
       Section({"The default setting is ", 
         TemplateBox({"ButtonSource"}, "ReferenceHyperlink"), " \[Rule] ", 
         TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}, "Notes"), 
-      Section({"Possible settings are:\n", 
-        TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonData"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"ButtonContents"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonBox"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"FrontEndObject"}, "ReferenceHyperlink")}, "Notes")}, 
-     All), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      Section("Possible settings are:", "Notes"), 
+      Section({
+        ComplexStringBox("\"", 
+         GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+            /\/({{TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
+               "\[NonBreakingSpace]", "if", " ", "set"}, ",", " ", {
+               "otherwise", " ", TemplateBox({"ButtonContents"}, 
+                "ReferenceHyperlink")}}, " ")}, {
+            TemplateBox({"ButtonData"}, "ReferenceHyperlink"), {
+             "the", " ", "setting", " ", "for", " ", "the", " ", 
+             TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
+             "\[NonBreakingSpace]", "option"}}, {
+            TemplateBox({"ButtonContents"}, "ReferenceHyperlink"), {
+             {"the", " ", "first", " ", "argument", " ", "of", " ", 
+              TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}, ",", " ", {
+              "wrapped", " ", "in", " ", TemplateBox({"BoxData"}, 
+               "ReferenceHyperlink")}}}, {
+            TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), {
+             "the", " ", "whole", " ", TemplateBox({"ButtonBox"}, 
+              "ReferenceHyperlink")}}, {
+            TemplateBox({"FrontEndObject"}, "ReferenceHyperlink"), {
+             {"the", " ", "front"}, "-", {"end", " ", "object", " ", 
+              "reference", " ", "of", " ", "the", " ", 
+              TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}}}}))}, 
+       "2ColumnTableNotes")}, All), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section({"Create a button that displays its ", 
           TemplateBox({"ButtonData"}, "ReferenceHyperlink"), ":"}, 
@@ -44,7 +61,7 @@ Document({
            "ExampleText"), SectionGroup({
             Section(BoxData({"RawBoxes", "(", {
                 "ButtonBox", "(", {
-                 ComplexStringBox("\"Click for button data\""), ",", {
+                 ComplexStringBox("\"\\\"Click for button data\\\"\""), ",", {
                   "ButtonFunction", "\[Rule]", " ", {
                    "(", {{"Print", "(", {"RawBoxes", "@@", "#"}, ")"}, "&"}, 
                    ")"}}, ",", {"ButtonSource", "\[Rule]", "ButtonContents"}, 
@@ -53,16 +70,16 @@ Document({
              SectionLabel -> "in [1]:"), 
             SectionGroup({
               Section(
-               BoxData(ButtonBox(/\/("Click", " ", "for", " ", "button", " ", 
-                  "data"), ButtonData -> "data", 
+               BoxData(ButtonBox(ComplexStringBox(
+                  "\"Click for button data\""), ButtonData -> "data", 
                  ButtonFunction -> (Print(Apply(#1, RawBoxes)) &), 
                  ButtonSource -> ButtonContents)), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:"), 
-              Section(BoxData(InterpretationBox({
-                  "Click", " ", "for", " ", "button", " ", "data"}, Row({
-                  RawBoxes(/\/("Click", " ", "for", " ", "button", " ", 
-                    "data"))}), Editable -> False)), "Print", 
-               SectionGenerated -> True)}, All)}, All)}, All)}, All), 
+              Section(BoxData(InterpretationBox(
+                 ComplexStringBox("\"Click for button data\""), Row({
+                  RawBoxes(ComplexStringBox("\"Click for button data\""))}), 
+                 Editable -> False)), "Print", SectionGenerated -> True)}, 
+             All)}, All)}, All)}, All), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section({"Relation to ", TemplateBox({"ButtonData"}, 
            "ReferenceHyperlink"), ":"}, "ExampleText"), 
