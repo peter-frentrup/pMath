@@ -699,7 +699,9 @@ Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
   }
   
   dispfun = Call(Symbol(richmath_System_Private_FlattenTemplateSequence), dispfun, self.arguments.expr_length());
-  dispfun = Application::interrupt_wait(std::move(dispfun), Application::button_timeout);
+  //dispfun = Application::interrupt_wait(std::move(dispfun), Application::button_timeout);
+  dispfun = Call(Symbol(PMATH_SYMBOL_TIMECONSTRAINED), std::move(dispfun), Application::button_timeout);
+  dispfun = Evaluate(std::move(dispfun));
   
   if(dispfun[0] == PMATH_SYMBOL_FUNCTION && dispfun.expr_length() == 1)
     return dispfun[1];
