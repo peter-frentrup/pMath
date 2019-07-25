@@ -591,18 +591,18 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(sections_expr[0] != PMATH_SYMBOL_LIST)
     return false;
     
-  Expr options_expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+  Expr options_expr { pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY) };
   if(!options_expr.is_valid())
     return false;
     
-  sections_expr = Call(Symbol(richmath_System_SectionGroup), sections_expr, Symbol(PMATH_SYMBOL_ALL));
+  reset_style();
+  style->add_pmath(std::move(options_expr));
+  load_stylesheet();
+  
+  sections_expr = Call(Symbol(richmath_System_SectionGroup), std::move(sections_expr), Symbol(PMATH_SYMBOL_ALL));
   
   int pos = 0;
-  insert_pmath(&pos, sections_expr, count());
-  
-  reset_style();
-  style->add_pmath(options_expr);
-  load_stylesheet();
+  insert_pmath(&pos, std::move(sections_expr), count());
   
   finish_load_from_object(std::move(expr));
   return true;
