@@ -10,7 +10,7 @@
 
 
 PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr) {
-  /** TimeConstrained(expr, t)            =  TimeConstrained(expr, t, $Failed)
+  /** TimeConstrained(expr, t)            =  TimeConstrained(expr, t, $Aborted)
       TimeConstrained(expr, t, failexpr)
    */
   size_t len = pmath_expr_length(expr);

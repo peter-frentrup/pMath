@@ -455,7 +455,10 @@ void TemplateBox::on_mouse_enter() {
     }
     else {
       tooltip = Call(Symbol(richmath_FE_Styles_DollarDefaultDisplayFunctionTooltip), _tag);
-      tooltip = Application::interrupt_wait(std::move(tooltip), Application::button_timeout);
+      //tooltip = Application::interrupt_wait(std::move(tooltip), Application::button_timeout);
+      
+      tooltip = Call(Symbol(PMATH_SYMBOL_TIMECONSTRAINED), std::move(tooltip), Application::button_timeout);
+      tooltip = Evaluate(std::move(tooltip));
     }
     
     doc->native()->show_tooltip(tooltip);
