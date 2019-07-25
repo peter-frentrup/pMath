@@ -5,8 +5,8 @@ Protect(allowGuiBoxes)
 
 MakeBoxes(DocumentObject(~feo:FrontEndObject))::= TemplateBox({feo}, "DocumentObject") /? allowGuiBoxes
 
-DocumentObject/: Options(~obj:DocumentObject)::= FE`CallFrontEnd(FrontEnd`Options(obj))
-FrontEndObject/: Options(~obj:FrontEndObject)::= FE`CallFrontEnd(FrontEnd`Options(obj))
+DocumentObject/: Options(~obj:DocumentObject, args:Repeated(~, 0..1))::= FE`CallFrontEnd(FrontEnd`Options(obj, args))
+FrontEndObject/: Options(~obj:FrontEndObject, args:Repeated(~, 0..1))::= FE`CallFrontEnd(FrontEnd`Options(obj, args))
 
 DocumentObject/: SetOptions(~obj:DocumentObject, ~~args)::= FE`CallFrontEnd(FrontEnd`SetOptions(obj, args))
 FrontEndObject/: SetOptions(~obj:FrontEndObject, ~~args)::= FE`CallFrontEnd(FrontEnd`SetOptions(obj, args))

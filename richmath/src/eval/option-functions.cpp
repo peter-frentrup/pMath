@@ -5,7 +5,8 @@ using namespace richmath;
 
 
 Expr richmath_eval_FrontEnd_Options(Expr expr) {
-  if(expr.expr_length() != 1)
+  size_t len = expr.expr_length();
+  if(len < 1 || len > 2)
     return Symbol(PMATH_SYMBOL_FAILED);
   
   auto ref = FrontEndReference::from_pmath(expr[1]);
@@ -30,6 +31,12 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
                      options)));
                      
     default_options = Expr(pmath_evaluate(default_options.release()));
+    if(len == 2) {
+      expr.set(0, Symbol(PMATH_SYMBOL_OPTIONS));
+      expr.set(1, std::move(default_options));
+      return expr;
+    }
+    
     return default_options;
   }
   
