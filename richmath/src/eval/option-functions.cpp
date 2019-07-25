@@ -14,30 +14,44 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
   
   if(box) {
     Gather gather;
+    bool add_defaults = box->to_pmath_symbol().is_symbol();
+    bool need_filter = true;
     
-    if(box->style)
-      box->style->emit_to_pmath(true);
+    if(auto s = box->style) {
+      bool emit_all = true;
+      if(len == 2) {
+        StyleOptionName key = Style::get_key(expr[2]);
+        if(key.is_valid()) {
+          s->emit_pmath(key);
+          emit_all = false;
+          add_defaults = false;
+          need_filter = false;
+        }
+      }
+      
+      if(emit_all)
+        s->emit_to_pmath(true);
+    }
       
     Expr options = gather.end();
-    if(!box->to_pmath_symbol().is_symbol())
-      return options;
-      
-    Expr default_options =
-      Call(Symbol(PMATH_SYMBOL_UNION),
-           options,
-           Call(Symbol(PMATH_SYMBOL_FILTERRULES),
-                Call(Symbol(PMATH_SYMBOL_OPTIONS), box->to_pmath_symbol()),
-                Call(Symbol(PMATH_SYMBOL_EXCEPT),
-                     options)));
-                     
-    default_options = Expr(pmath_evaluate(default_options.release()));
-    if(len == 2) {
+    if(add_defaults || options.expr_length() == 0) {
+      need_filter = true;
+      options =
+        Call(Symbol(PMATH_SYMBOL_UNION),
+             options,
+             Call(Symbol(PMATH_SYMBOL_FILTERRULES),
+                  Call(Symbol(PMATH_SYMBOL_OPTIONS), box->to_pmath_symbol()),
+                  Call(Symbol(PMATH_SYMBOL_EXCEPT),
+                       options)));
+    }
+    
+    if(len == 2 && need_filter) {
       expr.set(0, Symbol(PMATH_SYMBOL_OPTIONS));
-      expr.set(1, std::move(default_options));
+      expr.set(1, std::move(options));
       return expr;
     }
     
-    return default_options;
+    return options;
   }
   
   return Symbol(PMATH_SYMBOL_FAILED);
