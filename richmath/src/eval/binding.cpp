@@ -178,31 +178,76 @@ static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr) {
 }
 
 static pmath_t builtin_sectionprint(pmath_expr_t expr) {
-  if(pmath_expr_length(expr) == 2) {
+  size_t exprlen = pmath_expr_length(expr);
+  pmath_t sections;
+  
+  if(exprlen == 0)
+    return expr;
+  
+  if(exprlen >= 2) {
     pmath_t style = pmath_expr_get_item(expr, 1);
-    pmath_t boxes = pmath_expr_get_item(expr, 2);
+    pmath_t boxes;
     
-    pmath_unref(expr);
+    if(exprlen == 2) {
+      boxes = pmath_expr_get_item(expr, 2);
+    }
+    else {
+      boxes = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
+      boxes = pmath_expr_set_item(boxes, 0, pmath_ref(PMATH_SYMBOL_ROW));
+    }
     
     boxes = pmath_evaluate(
               pmath_expr_new_extended(
                 pmath_ref(PMATH_SYMBOL_TOBOXES), 1,
                 boxes));
-                
-    expr = pmath_expr_new_extended(
-             pmath_ref(richmath_System_Section), 3,
-             pmath_expr_new_extended(
-               pmath_ref(richmath_System_BoxData), 1,
-               boxes),
-             style,
-             pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(richmath_System_SectionGenerated),
-               pmath_ref(PMATH_SYMBOL_TRUE)));
-               
-    Application::notify_wait(ClientNotification::PrintSection, Expr(expr));
     
-    return PMATH_NULL;
+    sections = pmath_expr_new_extended(
+                 pmath_ref(richmath_System_Section), 3,
+                 pmath_expr_new_extended(
+                   pmath_ref(richmath_System_BoxData), 1,
+                   boxes),
+                 style,
+                 pmath_expr_new_extended(
+                   pmath_ref(PMATH_SYMBOL_RULE), 2,
+                   pmath_ref(richmath_System_SectionGenerated),
+                   pmath_ref(PMATH_SYMBOL_TRUE)));
+  }
+  else
+    sections = pmath_expr_get_item(expr, 1);
+  
+  pmath_unref(expr);
+  expr = PMATH_NULL;
+  
+  if(!pmath_is_expr_of(sections, PMATH_SYMBOL_LIST))
+    sections = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, sections);
+  
+  for(size_t i = 1; i <= pmath_expr_length(sections); ++i) {
+    pmath_t sect = pmath_expr_get_item(sections, i);
+    
+    if(!pmath_is_expr_of(sect, richmath_System_Section)) {
+      pmath_t content = sect;
+      sect = PMATH_NULL;
+      
+      if(!pmath_is_string(content)) {
+        content = pmath_evaluate(
+                    pmath_expr_new_extended(
+                      pmath_ref(PMATH_SYMBOL_TOBOXES), 1,
+                      content));
+        content = pmath_expr_new_extended(
+                    pmath_ref(richmath_System_BoxData), 1,
+                    content);
+      }
+      
+      sect = pmath_expr_new_extended(
+               pmath_ref(richmath_System_Section), 2,
+               content,
+               pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_RULE), 2,
+                 pmath_ref(richmath_System_SectionGenerated),
+                 pmath_ref(PMATH_SYMBOL_TRUE)));
+    }
+    
+    Application::notify_wait(ClientNotification::PrintSection, Expr(sect));
   }
   
   return expr;

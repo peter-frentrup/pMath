@@ -14,6 +14,9 @@
 
 static void os_init(void);
 
+static pmath_symbol_t pmath_System_BoxData = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_System_Section = PMATH_STATIC_NULL;
+
 #ifdef PMATH_OS_WIN32
 #  include <io.h>
 #  define dup    _dup
@@ -88,6 +91,11 @@ static pmath_atomic_t main_mq_lock = PMATH_ATOMIC_STATIC_INIT;
 
 static pmath_threadlock_t print_lock = NULL;
 
+struct write_output_t {
+  pmath_t object;
+  const char *indent;
+};
+
 static void signal_dummy(int sig);
 static void signal_handler(int sig);
 
@@ -123,26 +131,32 @@ static void _pmath_write_cstr(FILE *file, const char *cstr) {
   fwrite(cstr, 1, len, file);
 }
 
-static void write_output_locked_callback(void *_obj) {
+static void write_output_locked_callback(void *_context) {
   pmath_cstr_writer_info_t info;
-  pmath_t obj = *(pmath_t *)_obj;
-  int i;
+  struct write_output_t *context = _context;
+  int indent_length;
   
   info.user = stdout;
   info._pmath_write_cstr = (void ( *)(void *, const char *))_pmath_write_cstr;
   
-  i = dialog_depth;
-  while(i-- > 0)
+  indent_length = dialog_depth;
+  while(indent_length-- > 0)
     printf(" ");
-  printf("       ");
+  printf("%s", context->indent);
+  
+  indent_length = 0;
+  while(indent_length <= console_width / 2 && context->indent[indent_length])
+    ++indent_length;
+  
+  indent_length+= dialog_depth;
   
   pmath_write_with_pagewidth(
-    obj,
+    context->object,
     0,
     pmath_native_writer,
     &info,
-    console_width - (7 + dialog_depth),
-    7 + dialog_depth);
+    console_width - indent_length,
+    indent_length);
   printf("\n");
   fflush(stdout);
 }
@@ -152,11 +166,16 @@ static void write_line_locked_callback(void *s) {
   fflush(stdout);
 }
 
-static void write_output(pmath_t obj) {
+static void write_output(const char *indent, pmath_t obj) {
+  struct write_output_t context;
+  
+  context.object = obj;
+  context.indent = indent ? indent : "";
+  
   pmath_thread_call_locked(
     &print_lock,
     write_output_locked_callback,
-    &obj);
+    &context);
 }
 
 static void write_line(const char *s) {
@@ -453,7 +472,7 @@ static pmath_t dialog(pmath_t first_eval) {
             result = PMATH_NULL;
           }
           
-          write_output(obj);
+          write_output("       ", obj);
         }
         
         pmath_unref(obj);
@@ -589,8 +608,7 @@ static void interrupt_callback(void *dummy) {
     }
     
     if(pmath_string_length(word) > 0) {
-      write_line("unknown command: ");
-      write_output(word);
+      write_output("unknown command: ", word);
     }
     
     write_line(
@@ -662,34 +680,84 @@ static pmath_t builtin_quit(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
+// style will be freed
+static const char *convert_style_to_indent(pmath_t style) {
+  if(pmath_string_equals_latin1(style, "Echo")) {
+    pmath_unref(style);
+    return ">> ";
+  }
+  
+  pmath_unref(style);
+  return "";
+}
+
 static pmath_t builtin_sectionprint(pmath_expr_t expr) {
-  if(pmath_expr_length(expr) < 2)
+  size_t exprlen = pmath_expr_length(expr);
+  if(exprlen == 0)
     return expr;
     
   ++dialog_depth;
   
-  if(pmath_expr_length(expr) == 2) {
-    pmath_t item = pmath_expr_get_item(expr, 2);
-    pmath_unref(expr);
+  if(exprlen == 1) {
+    pmath_t sections = pmath_expr_get_item(expr, 1);
+    size_t i;
     
-    write_output(item);
+    if(!pmath_is_expr_of(sections, PMATH_SYMBOL_LIST))
+      sections = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, sections);
+    
+    for(i = 1; i <= pmath_expr_length(sections); ++i) {
+      pmath_t item = pmath_expr_get_item(sections, i);
+      const char *indent = "";
+      
+      if(pmath_is_expr_of(item, pmath_System_Section)) {
+        pmath_t boxes = pmath_expr_get_item(item, 1);
+        indent = convert_style_to_indent(pmath_expr_get_item(item, 2));
+        
+        pmath_unref(item);
+        if(pmath_is_expr_of(boxes, pmath_System_BoxData)) 
+          item = pmath_expr_set_item(boxes, 0, pmath_ref(PMATH_SYMBOL_RAWBOXES));
+        else
+          item = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, boxes);
+      }
+      
+      write_output(indent, item);
+      
+      pmath_unref(item);
+      write_line("\n");
+    }
+    
+    pmath_unref(sections);
+    pmath_unref(expr);
+    expr = PMATH_NULL;
+  }
+  else if(exprlen == 2) {
+    const char *indent = convert_style_to_indent(pmath_expr_get_item(expr, 1));
+    pmath_t item = pmath_expr_get_item(expr, 2);
+    
+    pmath_unref(expr);
+    expr = PMATH_NULL;
+    
+    write_output(indent, item);
     pmath_unref(item);
   }
   else {
+    const char *indent = convert_style_to_indent(pmath_expr_get_item(expr, 1));
     pmath_t row = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
+    
     pmath_unref(expr);
+    expr = PMATH_NULL;
     
     row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_LIST));
     row = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 1, row);
     
-    write_output(row);
+    write_output(indent, row);
     pmath_unref(row);
   }
   
   --dialog_depth;
   
   write_line("\n");
-  return PMATH_NULL;
+  return expr;
 }
 
 static void init_console_width(void) {
@@ -699,6 +767,24 @@ static void init_console_width(void) {
     console_width = PMATH_AS_INT32(pw) - 1;
     
   pmath_unref(pw);
+}
+
+static pmath_bool_t init_pmath_bindings() {
+  pmath_System_BoxData = pmath_symbol_get(PMATH_C_STRING("System`BoxData"), FALSE);
+  pmath_System_Section = pmath_symbol_get(PMATH_C_STRING("System`Section"), FALSE);
+  
+  return !pmath_is_null(pmath_System_BoxData) &&
+         !pmath_is_null(pmath_System_Section) &&
+         pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) &&
+         pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) &&
+         pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) &&
+         pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0);
+}
+
+static void done_pmath_bindings(void) {
+  // FIXME: race condition when another thread still runs
+  pmath_unref(pmath_System_BoxData); pmath_System_BoxData = PMATH_NULL;
+  pmath_unref(pmath_System_Section); pmath_System_Section = PMATH_NULL;
 }
 
 int main(int argc, const char **argv) {
@@ -714,12 +800,7 @@ int main(int argc, const char **argv) {
   signal(SIGINT, signal_handler);
   signal(SIGTERM, signal_term);
   
-  if( !pmath_init() ||
-      !pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) ||
-      !pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) ||
-      !pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) ||
-      !pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0))
-  {
+  if(!pmath_init() || !init_pmath_bindings()) {
     fprintf(stderr, "Cannot initialize pMath.\n");
     return 1;
   }
@@ -761,6 +842,8 @@ int main(int argc, const char **argv) {
   
   signal(SIGINT, signal_dummy);
   signal(SIGTERM, signal_dummy);
+  
+  done_pmath_bindings();
   pmath_done();
   
   {

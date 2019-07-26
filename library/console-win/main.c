@@ -19,9 +19,11 @@
 
 static void os_init(void);
 
+static pmath_symbol_t pmath_System_BoxData        = PMATH_STATIC_NULL;
 static pmath_symbol_t pmath_System_Button         = PMATH_STATIC_NULL;
 static pmath_symbol_t pmath_System_ButtonBox      = PMATH_STATIC_NULL;
 static pmath_symbol_t pmath_System_ButtonFunction = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_System_Section        = PMATH_STATIC_NULL;
 static pmath_symbol_t pmath_System_Tooltip        = PMATH_STATIC_NULL;
 static pmath_symbol_t pmath_System_TooltipBox     = PMATH_STATIC_NULL;
 
@@ -1522,33 +1524,84 @@ static pmath_t builtin_quit(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
+// style will be freed
+static void convert_style(pmath_t style, int default_color, const char **indent, int *color) {
+  *color = default_color;
+  *indent = "";
+
+  if(pmath_is_string(style)) {
+    if(pmath_string_equals_latin1(style, "Echo")) {
+      *indent = ">> ";
+    }
+    else if(pmath_string_equals_latin1(style, "Message")) {
+      *color = (default_color & 0xF0) | 0xC; // red on default background
+    }
+  }
+  
+  pmath_unref(style);
+}
+
 static void sectionprint_callback(void *arg) {
   pmath_expr_t *expr_ptr = (pmath_expr_t*)arg;
   pmath_expr_t expr = *expr_ptr;
+  size_t exprlen = pmath_expr_length(expr);
   
-  pmath_t style;
-  const char *indent = "";
   int default_color = get_default_output_color();
-  int color = default_color;
+  int color;
+  const char *indent;
   
-  if(pmath_expr_length(expr) < 2)
+  if(exprlen == 0)
     return;
+  
+  if(exprlen == 1) {
+    pmath_t sections = pmath_expr_get_item(expr, 1);
+    size_t i;
     
-  style = pmath_expr_get_item(expr, 1);
-  if(pmath_is_string(style)) {
-    if(pmath_string_equals_latin1(style, "Echo")) {
-      indent = ">> ";
+    if(!pmath_is_expr_of(sections, PMATH_SYMBOL_LIST))
+      sections = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, sections);
+    
+    for(i = 1; i <= pmath_expr_length(sections); ++i) {
+      pmath_t item = pmath_expr_get_item(sections, i);
+      pmath_t style = PMATH_NULL;
+      
+      if(pmath_is_expr_of(item, pmath_System_Section)) {
+        pmath_t boxes = pmath_expr_get_item(item, 1);
+        style = pmath_expr_get_item(item, 2);
+        
+        pmath_unref(item);
+        if(pmath_is_expr_of(boxes, pmath_System_BoxData)) 
+          item = pmath_expr_set_item(boxes, 0, pmath_ref(PMATH_SYMBOL_RAWBOXES));
+        else
+          item = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, boxes);
+      }
+      
+      convert_style(style, default_color, &indent, &color);
+      style = PMATH_NULL;
+      
+      if(color != default_color)
+        set_output_color(color);
+      
+      write_output(indent, item);
+      
+      if(color != default_color)
+        set_output_color(default_color);
+        
+      pmath_unref(item);
+      write_line("\n");
     }
-    else if(pmath_string_equals_latin1(style, "Message")) {
-      color = (default_color & 0xF0) | 0xC; // red on default background
-    }
+    
+    pmath_unref(sections);
+    pmath_unref(expr);
+    *expr_ptr = PMATH_NULL;
+    return;
   }
-  pmath_unref(style);
+  
+  convert_style(pmath_expr_get_item(expr, 1), default_color, &indent, &color);
   
   if(color != default_color)
     set_output_color(color);
     
-  if(pmath_expr_length(expr) == 2) {
+  if(exprlen == 2) {
     pmath_t item = pmath_expr_get_item(expr, 2);
     pmath_unref(expr);
     *expr_ptr = PMATH_NULL;
@@ -1588,16 +1641,20 @@ static void init_console_width(void) {
   pmath_unref(pw);
 }
 
-static pmath_bool_t init_pmath_bindings() {
+static pmath_bool_t init_pmath_bindings(void) {
+  pmath_System_BoxData        = pmath_symbol_get(PMATH_C_STRING("System`BoxData"),        FALSE);
   pmath_System_Button         = pmath_symbol_get(PMATH_C_STRING("System`Button"),         FALSE);
   pmath_System_ButtonBox      = pmath_symbol_get(PMATH_C_STRING("System`ButtonBox"),      FALSE);
   pmath_System_ButtonFunction = pmath_symbol_get(PMATH_C_STRING("System`ButtonFunction"), FALSE);
+  pmath_System_Section        = pmath_symbol_get(PMATH_C_STRING("System`Section"),        FALSE);
   pmath_System_Tooltip        = pmath_symbol_get(PMATH_C_STRING("System`Tooltip"),        FALSE);
   pmath_System_TooltipBox     = pmath_symbol_get(PMATH_C_STRING("System`TooltipBox"),     FALSE);
   
-  return !pmath_is_null(pmath_System_Button) &&
+  return !pmath_is_null(pmath_System_BoxData) &&
+         !pmath_is_null(pmath_System_Button) &&
          !pmath_is_null(pmath_System_ButtonBox) &&
          !pmath_is_null(pmath_System_ButtonFunction) &&
+         !pmath_is_null(pmath_System_Section) &&
          !pmath_is_null(pmath_System_Tooltip) &&
          !pmath_is_null(pmath_System_TooltipBox) &&
          pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) &&
@@ -1606,10 +1663,12 @@ static pmath_bool_t init_pmath_bindings() {
          pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0);
 }
 
-static void done_pmath_bindings() {
+static void done_pmath_bindings(void) {
+  pmath_unref(pmath_System_BoxData);        pmath_System_BoxData        = PMATH_NULL;
   pmath_unref(pmath_System_Button);         pmath_System_Button         = PMATH_NULL;
   pmath_unref(pmath_System_ButtonBox);      pmath_System_ButtonBox      = PMATH_NULL;
   pmath_unref(pmath_System_ButtonFunction); pmath_System_ButtonFunction = PMATH_NULL;
+  pmath_unref(pmath_System_Section);        pmath_System_Section        = PMATH_NULL;
   pmath_unref(pmath_System_Tooltip);        pmath_System_Tooltip        = PMATH_NULL;
   pmath_unref(pmath_System_TooltipBox);     pmath_System_TooltipBox     = PMATH_NULL;
 }
