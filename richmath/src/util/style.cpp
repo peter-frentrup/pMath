@@ -68,6 +68,7 @@ extern pmath_symbol_t richmath_System_Saveable;
 extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_ScriptSizeMultipliers;
 extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionDingbat;
 extern pmath_symbol_t richmath_System_SectionEditDuplicate;
 extern pmath_symbol_t richmath_System_SectionEditDuplicateMakesCopy;
 extern pmath_symbol_t richmath_System_SectionFrame;
@@ -392,6 +393,7 @@ namespace {
           add(StyleTypeAny,             StyleDefinitions,                 Symbol( richmath_System_StyleDefinitions));
           add(StyleTypeAny,             Tooltip,                          Symbol( richmath_System_Tooltip));
           add(StyleTypeAny,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
+          add(StyleTypeAny,             SectionDingbat,                   Symbol( richmath_System_SectionDingbat));
           
           add(StyleTypeAny, DockedSectionsTop,         Rule(Symbol(richmath_System_DockedSections), String("Top")));
           add(StyleTypeAny, DockedSectionsTopGlass,    Rule(Symbol(richmath_System_DockedSections), String("TopGlass")));
@@ -2258,6 +2260,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ReturnCreatesNewSection);
   impl.emit_definition(Saveable);
   impl.emit_definition(ScriptSizeMultipliers);
+  impl.emit_definition(SectionDingbat);
   impl.emit_definition(SectionEditDuplicate);
   impl.emit_definition(SectionEditDuplicateMakesCopy);
   impl.emit_definition(SectionFrameLeft);

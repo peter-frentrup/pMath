@@ -742,6 +742,9 @@
 		<Unit filename="include/boxes/radiobuttonbox.h" />
 		<Unit filename="include/boxes/section.h" />
 		<Unit filename="include/boxes/sectionlist.h" />
+		<Unit filename="include/boxes/sectionornament.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="include/boxes/setterbox.h" />
 		<Unit filename="include/boxes/sliderbox.h" />
 		<Unit filename="include/boxes/stylebox.h" />
@@ -1181,6 +1184,7 @@
 		<Unit filename="src/boxes/radiobuttonbox.cpp" />
 		<Unit filename="src/boxes/section.cpp" />
 		<Unit filename="src/boxes/sectionlist.cpp" />
+		<Unit filename="src/boxes/sectionornament.cpp" />
 		<Unit filename="src/boxes/setterbox.cpp" />
 		<Unit filename="src/boxes/sliderbox.cpp" />
 		<Unit filename="src/boxes/stylebox.cpp" />

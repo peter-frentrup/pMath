@@ -187,6 +187,7 @@ Options(Section):= {
     ReturnCreatesNewSection -> Inherited,
     Saveable -> Inherited,       % only valid for StyleData-sections
     ScriptSizeMultipliers -> Automatic,
+    SectionDingbat -> None,
     SectionEditDuplicate -> Inherited,
     SectionEditDuplicateMakesCopy -> Inherited,
     SectionFrame -> False,

@@ -177,6 +177,8 @@ namespace richmath {
     InternalLastStyleDefinitions,
     GeneratedSectionStyles,
     
+    SectionDingbat,
+    
     ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonData               = ButtonData             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFunction           = ButtonFunction         + (int)DefaultStyleOptionOffsets::ButtonBox,

@@ -17,6 +17,7 @@ extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_StyleData;
 
+
 //{ class Section ...
 
 Section::Section(SharedPtr<Style> _style)
@@ -318,10 +319,33 @@ AbstractSequenceSection::~AbstractSequenceSection() {
   delete _content;
 }
 
-Box *AbstractSequenceSection::item(int i) {
-  return _content;
+void AbstractSequenceSection::adopt_all() {
+  int i = 0;
+  adopt(_content, i++);
+  
+  if(Box *box = _dingbat.box_or_null())
+    adopt(box, i++);
 }
 
+Box *AbstractSequenceSection::item(int i) {
+  if(i == 0)
+    return _content;
+  
+  if(_dingbat.has_index(i))
+    return _dingbat.box_or_null();
+  
+  assert(0 && "invalid index");
+  return nullptr;
+}
+
+int AbstractSequenceSection::count() {
+  int i = 1;
+  if(_dingbat.box_or_null())
+    ++i;
+  
+  return i;
+}
+      
 void AbstractSequenceSection::resize(Context *context) {
   must_resize = false;
   
@@ -339,7 +363,8 @@ void AbstractSequenceSection::resize(Context *context) {
   
   resize_label(context);
   
-  cx = get_style(SectionMarginLeft);
+  float left_margin = get_style(SectionMarginLeft);
+  cx = left_margin;
   cy = top_margin;
   
   float horz_border = get_style(SectionMarginRight);
@@ -364,6 +389,18 @@ void AbstractSequenceSection::resize(Context *context) {
   horz_border += cx;
   context->width -= horz_border;
   context->section_content_window_width -= horz_border;
+  
+  if(Box *dingbat = _dingbat.box_or_null()) {
+    dingbat->resize(context);
+    auto extra_indent = dingbat->extents().width - left_margin;
+    if(extra_indent > 0) {
+      horz_border                           += extra_indent;
+      left_margin                           += extra_indent;
+      cx                                    += extra_indent;
+      context->width                        -= extra_indent;
+      context->section_content_window_width -= extra_indent;
+    }
+  }
   
   _content->resize(context);
   
@@ -420,9 +457,18 @@ void AbstractSequenceSection::paint(Context *context) {
   float t = get_style(SectionFrameTop);
   float b = get_style(SectionFrameBottom);
   
-  // TODO: supress request_repaint_all if only non-layout styles changed during update_dynamic_styles()
+  // TODO: suppress request_repaint_all if only non-layout styles changed during update_dynamic_styles()
   update_dynamic_styles(context);
   cc.apply_non_layout_styles(style);
+  
+  if(_dingbat.reload_if_necessary(get_own_style(SectionDingbat), BoxInputFlags::Default)) {
+    adopt_all();
+    invalidate();
+  }
+  
+  Box *dingbat = _dingbat.box_or_null();
+  if(dingbat && left_margin < dingbat->extents().width)
+    left_margin = dingbat->extents().width;
   
   if(background.is_valid() || l != 0 || r != 0 || t != 0 || b != 0) {
     /* Cairo 1.12.2 bug:
@@ -486,16 +532,27 @@ void AbstractSequenceSection::paint(Context *context) {
     
   paint_label(context);
   
-  float xx = x + cx;
-  float yy = y + cy;
+  Expr textshadow;
+  context->stylesheet->get(style, TextShadow, &textshadow);
+  context->canvas->set_color(get_style(FontColor));
+  
+  float xx, yy;
+  
+  if(dingbat) {
+    xx = x + left_margin - dingbat->extents().width;
+    yy = y + cy;
+    context->canvas->align_point(&xx, &yy, false);
+    context->canvas->move_to(xx, yy);
+    
+    context->draw_with_text_shadows(dingbat, textshadow);
+  }
+  
+  xx = x + cx;
+  yy = y + cy;
   context->canvas->align_point(&xx, &yy, false);
   context->canvas->move_to(xx, yy);
   
-  context->canvas->set_color(get_style(FontColor));
-  
-  Expr expr;
-  context->stylesheet->get(style, TextShadow, &expr);
-  context->draw_with_text_shadows(_content, expr);
+  context->draw_with_text_shadows(_content, textshadow);
   
   cc.end();
 }
@@ -533,6 +590,26 @@ Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
   return e;
 }
 
+Box *AbstractSequenceSection::move_logical(
+  LogicalDirection  direction,
+  bool              jumping,
+  int              *index
+) {
+  if(direction == LogicalDirection::Forward) {
+    if(*index >= 0)
+      *index = count();
+  }
+  else {
+    if(*index > 1) {
+      *index = 1;
+      if(jumping)
+        ++*index;
+    }
+  }
+  
+  return Section::move_logical(direction, jumping, index);
+}
+        
 Box *AbstractSequenceSection::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
@@ -567,6 +644,26 @@ Box *AbstractSequenceSection::mouse_selection(
   int   *end,
   bool  *was_inside_start
 ) {
+  if(Box *dingbat = _dingbat.box_or_null()) {
+    cairo_matrix_t mat;
+    cairo_matrix_init_identity(&mat);
+    child_transformation(dingbat->index(), &mat);
+    if( mat.x0 <= x && 
+        x <= mat.x0 + dingbat->extents().width &&
+        mat.y0 - dingbat->extents().ascent <= y &&
+        y <= mat.y0 + dingbat->extents().descent)
+    {
+      if(Box *box = dingbat->mouse_selection(x - mat.x0, y - y - mat.y0, start, end, was_inside_start)) {
+        //Box *tmp = box->mouse_sensitive();
+        //while(tmp && tmp->parent() != this)
+        //  tmp = tmp->parent();
+        //
+        //if(tmp)
+          return box;
+      }
+    }
+  }
+  
   return _content->mouse_selection(x - cx, y - cy, start, end, was_inside_start);
 }
 
@@ -574,6 +671,17 @@ void AbstractSequenceSection::child_transformation(
   int             index,
   cairo_matrix_t *matrix
 ) {
+  if(_dingbat.has_index(index)) {
+    float left_margin = get_style(SectionMarginLeft);
+    float dingbat_width = _dingbat.box_or_null()->extents().width;
+    
+    if(left_margin < dingbat_width)
+      left_margin = dingbat_width;
+    
+    cairo_matrix_translate(matrix, left_margin - dingbat_width, cy);
+    return;
+  }
+  
   cairo_matrix_translate(matrix, cx, cy);
 }
 

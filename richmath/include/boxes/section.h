@@ -1,7 +1,7 @@
 #ifndef RICHMATH__BOXES__SECTION_H__INCLUDED
 #define RICHMATH__BOXES__SECTION_H__INCLUDED
 
-#include <boxes/box.h>
+#include <boxes/sectionornament.h>
 #include <util/array.h>
 
 
@@ -92,7 +92,7 @@ namespace richmath {
       AbstractSequence *abstract_content() {return _content; };
       
       virtual Box *item(int i) override;
-      virtual int count() override { return 1; }
+      virtual int count() override;
       
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
@@ -102,6 +102,11 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
+      virtual Box *move_logical(
+        LogicalDirection  direction,
+        bool              jumping,
+        int              *index) override;
+        
       virtual Box *move_vertical(
         LogicalDirection  direction,
         float            *index_rel_x,
@@ -121,9 +126,11 @@ namespace richmath {
     
     protected:
       virtual bool can_enter_content() { return true; }
+      void adopt_all();
     
     protected:
       AbstractSequence *_content; // TextSequence or MathSequence
+      SectionOrnament   _dingbat;
       float cx, cy;
   };
   

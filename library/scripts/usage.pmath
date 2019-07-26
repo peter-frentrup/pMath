@@ -687,6 +687,7 @@ ScriptSizeMultipliers::usage:= "ScriptSizeMultipliers is an option for Style whi
 Sec::usage:= "Sec(\(StyleBox(\"z\", \"Arg\")\)) gives the secant of \(StyleBox(\"z\", \"Arg\")\)."
 Sech::usage:= "Sech(\(StyleBox(\"z\", \"Arg\")\)) gives the hyperbolic secant of \(StyleBox(\"z\", \"Arg\")\)."
 Section::usage:= "Section(\(StyleBox(\"content\", \"Arg\")\)) is the low-level representation of a section inside a \(StyleBox(\"pMath\", \"TI\")\) document.\nSection(\(StyleBox(\"content\", \"Arg\")\), \"\(StyleBox(\"style\", \"Arg\")\)\") represents a section in the specified style."
+SectionDingbat::usage:= "SectionDingbat is an option for Section which specifies what dingbat to use to emphasize the document section."
 SectionEditDuplicate::usage:= "SectionEditDuplicate is an option for Section which specifies whether the current section should be duplicated (with a new style) before any edits are done."
 SectionEditDuplicateMakesCopy::usage:= "SectionEditDuplicateMakesCopy is an option for Section which specifies whether a copy of the section should be inserted before duplicating it for editing, when SectionEditDuplicate is True."
 SectionFrame::usage:= "SectionFrame is an option for Section which specifies whether a frame should draw around a section."
