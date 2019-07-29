@@ -95,6 +95,7 @@ extern pmath_symbol_t richmath_System_TextShadow;
 extern pmath_symbol_t richmath_System_Ticks;
 extern pmath_symbol_t richmath_System_Tooltip;
 extern pmath_symbol_t richmath_System_Visible;
+extern pmath_symbol_t richmath_System_WholeSectionGroupOpener;
 extern pmath_symbol_t richmath_System_WindowFrame;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
@@ -335,6 +336,7 @@ namespace {
           add(StyleTypeBool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
           add(StyleTypeBool,            SurdForm,                         Symbol( richmath_System_SurdForm));
           add(StyleTypeBool,            Visible,                          Symbol( richmath_System_Visible));
+          add(StyleTypeBool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
           
           add(StyleTypeNumber,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
           add(StyleTypeNumber,          FontSize,                         Symbol( richmath_System_FontSize));
@@ -2290,6 +2292,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Ticks);
   impl.emit_definition(Tooltip);
   impl.emit_definition(Visible);
+  impl.emit_definition(WholeSectionGroupOpener);
   impl.emit_definition(WindowFrame);
   impl.emit_definition(WindowTitle);
   

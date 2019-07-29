@@ -635,6 +635,27 @@ Box *AbstractSequenceSection::move_vertical(
   return this;
 }
 
+Box *AbstractSequenceSection::mouse_sensitive() {
+  if(SectionList *slist = dynamic_cast<SectionList*>(parent())) {
+    if(get_own_style(WholeSectionGroupOpener)) 
+      return this;
+  }
+  
+  return base::mouse_sensitive();
+}
+
+void AbstractSequenceSection::on_mouse_up(MouseEvent &event) {
+  if(SectionList *slist = dynamic_cast<SectionList*>(parent())) {
+    if(get_own_style(WholeSectionGroupOpener)) {
+      if(slist->group_info(_index).end > _index)
+        slist->toggle_open_close_group(_index);
+      
+      return;
+    }
+  }
+  base::on_mouse_up(event);
+}
+
 Box *AbstractSequenceSection::mouse_selection(
   float  x,
   float  y,

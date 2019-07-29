@@ -351,6 +351,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( WeierstrassP,                       DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( WeierstrassSigma,                   DEFINITEFUNCTION | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( WeierstrassZeta,                    DEFINITEFUNCTION | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( Visible,                            0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( WholeSectionGroupOpener,            0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( WindowFrame,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( WindowTitle,                        0 )
 

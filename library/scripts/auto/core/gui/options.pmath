@@ -212,6 +212,7 @@ Options(Section):= {
         Tooltip -> Automatic},
     TextShadow -> None,
     Visible -> True,             % only valid for StyleData-sections
+    WholeSectionGroupOpener -> False,
     WindowFrame -> Inherited,    % only valid for StyleData-sections
     WindowTitle -> Inherited}    % only valid for StyleData-sections
 

@@ -61,6 +61,7 @@ namespace richmath {
     StripOnInput,
     SurdForm,
     Visible,
+    WholeSectionGroupOpener,
     
     ButtonFrame, // -1 = Automatic,  other: ContainerType value
     ButtonSource, // ButtonSourceXXX

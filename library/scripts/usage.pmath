@@ -862,6 +862,7 @@ While::usage:= "While(\(StyleBox(\"test\", \"Arg\")\), \(StyleBox(\"body\", \"Ar
 White::usage:= "White represents the color white in graphics and style specifications."
 Whitespace::usage:= "Whitespace represents a sequence of whitespace characters in StringExpression."
 WhitespaceCharacter::usage:= "WhitespaceCharacter represents a single whitespace character in StringExpression."
+WholeSectionGroupOpener::usage:= "WholeSectionGroupOpener is an option for Section which specifies whether clicking anywhere into the section opens or closes the section group that starts with this section."
 WindowFrame::usage:= "WindowFrame is an option for Document which specifies the window's frame appearance and behaviour."
 WindowTitle::usage:= "WindowTitle is an option for Document which specifies the document window\[HighNineQuote]s title."
 With::usage:= "With({\(StyleBox(\"x\", \"Arg\")\) \[Assign] \(StyleBox(\"x\", \"Arg\")\)\(SubscriptBox(\"0\")\), \(StyleBox(\"y\", \"Arg\")\) \[Assign] \(StyleBox(\"y\", \"Arg\")\)\(SubscriptBox(\"0\")\), \[Ellipsis]}, \(StyleBox(\"expr\", \"Arg\")\)) replaces occurrences of the symbols \(StyleBox(\"x\", \"Arg\")\), \(StyleBox(\"y\", \"Arg\")\), \[Ellipsis] in \(StyleBox(/\\/(\"expr\", \" \"), \"Arg\")\)by \(StyleBox(\"x\", \"Arg\")\)\(SubscriptBox(\"0\")\), \(StyleBox(\"y\", \"Arg\")\)\(SubscriptBox(\"0\")\), \[Ellipsis] before evaluating \(StyleBox(\"expr\", \"Arg\")\)."

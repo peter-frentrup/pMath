@@ -85,6 +85,7 @@ namespace richmath {
   };
   
   class AbstractSequenceSection: public Section {
+      using base = Section;
     public:
       AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style);
       virtual ~AbstractSequenceSection();
@@ -112,7 +113,10 @@ namespace richmath {
         float            *index_rel_x,
         int              *index,
         bool              called_from_child) override;
-        
+      
+      virtual Box *mouse_sensitive() override;
+      virtual void on_mouse_up(MouseEvent &event) override;
+      
       virtual Box *mouse_selection(
         float  x,
         float  y,
