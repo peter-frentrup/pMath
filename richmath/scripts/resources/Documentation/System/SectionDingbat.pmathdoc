@@ -12,7 +12,7 @@ Document({
         TemplateBox({"Bullet"}, "NamedCharacterHyperlink"), "\", "}, "Notes"), 
       Section({TemplateBox({"SectionDingbat"}, "ReferenceHyperlink"), 
         " is often set on the level of stylesheets for styles of sections \
-        rather than for indicidual sections."}, "Notes")}, All), 
+        rather than for indicidual sections."}, "Notes")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Print a section with a squared bullet point:", 
@@ -71,7 +71,7 @@ Document({
          xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
          xxxx", "Text", SectionDingbat -> "\[Section]", 
          SectionFrameLabelMargins -> {10, 10, 10, 10}, 
-         SectionGenerated -> True)}, All), 
+         SectionGenerated -> True)}, 1), 
       SectionGroup({Section("Possible Issues", "ExampleSection"), 
         Section({"The dingbat position does not account for ", 
           TemplateBox({"SectionFrame"}, "ReferenceHyperlink"), ":"}, 
@@ -138,7 +138,7 @@ Document({
          xxxx", "Text", SectionDingbat -> "\[Section]", 
          SectionFrame -> {1, 1, 1, 1}, SectionFrameMargins -> {15, 5, 5, 5}, 
          SectionFrameLabelMargins -> {5, 5, 5, 5}, SectionGenerated -> True)}, 
-       All)}, All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
+       1)}, All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Section"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", 
         TemplateBox({"SectionFrameLabelMargins"}, "ReferenceHyperlink"), 

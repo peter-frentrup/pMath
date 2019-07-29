@@ -20,7 +20,7 @@ Document({
       Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
         " can be evaluated to arbitrary numerical precision."}, "Notes"), 
       Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
-        " automatically threads over lists."}, "Notes")}, All), 
+        " automatically threads over lists."}, "Notes")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         SectionGroup({Section(BoxData({"Sqrt", "(", "2", ")"}), "Input", 
@@ -120,7 +120,7 @@ Document({
             Section(BoxData({"1.6113010897357531`", "+", {
                 "0.31030823673184377`", " ", "\[ImaginaryI]"}}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, All), SectionGroup({
+         All)}, 1), SectionGroup({
         Section("Properties & Relations", "ExampleSection"), 
         Section("Basic transforms are automatically applied:", "ExampleText"), 
         SectionGroup({Section(BoxData({"Sqrt", "(", {"Pi", "^", "2"}, ")"}), 
@@ -144,7 +144,7 @@ Document({
              "Input", SectionLabel -> "in [2]:"), 
             Section(BoxData(SqrtBox({"z", SuperscriptBox("2")})), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
-         All)}, All), SectionGroup({
+         All)}, 1), SectionGroup({
         Section("Possible Issues", "ExampleSection"), 
         Section("Along the branch cut, these are not the same:", 
          "ExampleText"), SectionGroup({
@@ -157,7 +157,7 @@ Document({
           Section(
            BoxData({"{", {{"-", "\[ImaginaryI]"}, ",", "\[ImaginaryI]"}, 
              "}"}), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [1]:")}, All)}, All), 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
       SectionGroup({Section("Neat examples", "ExampleSection"), 
         Section({"Approximate the ", TemplateBox({"GoldenRatio"}, 
            "ReferenceHyperlink"), ":"}, "ExampleText"), 
@@ -191,8 +191,8 @@ Document({
         SectionGroup({Section(BoxData({"N", "(", "GoldenRatio", ")"}), 
            "Input", SectionLabel -> "in [3]:"), 
           Section(BoxData("1.6180339887498949`"), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
-       All)}, All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1)}, 
+     All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Power"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Surd"}, 
          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 

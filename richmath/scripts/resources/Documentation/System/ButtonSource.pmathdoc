@@ -32,7 +32,7 @@ Document({
              {"the", " ", "front"}, "-", {"end", " ", "object", " ", 
               "reference", " ", "of", " ", "the", " ", 
               TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}}}}))}, 
-       "2ColumnTableNotes")}, All), 
+       "2ColumnTableNotes")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section({"Create a button that displays its ", 
@@ -178,7 +178,7 @@ Document({
                 {ButtonContents, Inherited} -> {
                  BoxData({"{", {"ButtonContents", ",", "Inherited"}, "}"}), 
                  Automatic}}), Editable -> False)), "Print", 
-             SectionGenerated -> True)}, All)}, All)}, All)}, All), 
+             SectionGenerated -> True)}, All)}, All)}, 1)}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonFunction"}, 

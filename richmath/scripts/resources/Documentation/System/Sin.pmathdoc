@@ -18,7 +18,7 @@ Document({
       Section({TemplateBox({"Sin"}, "ReferenceHyperlink"), 
         " can be evaluated to arbitrary numerical precision."}, "Notes"), 
       Section({TemplateBox({"Sin"}, "ReferenceHyperlink"), 
-        " automatically threads over lists."}, "Notes")}, All), 
+        " automatically threads over lists."}, "Notes")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("The argument is given in radians:", "ExampleText"), 
@@ -138,7 +138,7 @@ Document({
             Section(BoxData({"0.92349077604317309`", "-", {
                 "0.94150493327086715`", " ", "\[ImaginaryI]"}}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, All), SectionGroup({
+         All)}, 1), SectionGroup({
         Section("Properties & Relations", "ExampleSection"), 
         Section("Basic transforms are automatically applied:", "ExampleText"), 
         SectionGroup({
@@ -172,8 +172,8 @@ Document({
              "Input", SectionLabel -> "in [2]:"), 
             Section(BoxData(SqrtBox({"1", "-", {"z", SuperscriptBox("2")}})), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
-           All)}, All)}, All), 
-      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+           All)}, All)}, 1), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
         Section(
          "Machine precision may be insufficient to give a correct answer:", 
          "ExampleText"), SectionGroup({
@@ -189,8 +189,8 @@ Document({
            BoxData({
              "-", 
              "5.69633400953636327308034181573568723133[+/-2.00*^-39]`40*^-1"}), "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
-         All)}, All)}, All), 
-    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+         All)}, 1)}, All), SectionGroup({
+      Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"ArcSin"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Cos"}, 
          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 

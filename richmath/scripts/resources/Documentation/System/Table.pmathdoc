@@ -21,7 +21,7 @@ Document({
         TemplateBox({"Table"}, "ReferenceHyperlink"), "(", 
         StyleBox("expr", "Arg"), ", ", StyleBox("spec", "Arg"), 
         SubscriptBox("2"), "), ", StyleBox("spec", "Arg"), SubscriptBox("1"), 
-        ")."}, "Notes")}, All), 
+        ")."}, "Notes")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Use steps of size 2 instead of 1:", "ExampleText"), 
@@ -93,8 +93,8 @@ Document({
              "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData({"{", {"1.5`", ",", "2.5`", ",", "3.5`"}, "}"}), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All)}, All)}, All), 
-      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+           All)}, All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
         Section({TemplateBox({"Array"}, "ReferenceHyperlink"), "(", 
           StyleBox("i", "Arg"), SubscriptBox(StyleBox("min", "Arg")), " .. ", 
           StyleBox("i", "Arg"), SubscriptBox(StyleBox("max", "Arg")), 
@@ -152,8 +152,8 @@ Document({
                 {"f", "(", {"2", ",", "0.56980141463417833`"}, ")"}, ",", {
                  "f", "(", {"3", ",", "0.56980141463417833`"}, ")"}}, "}"}), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
-           All)}, All)}, All), 
-      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+           All)}, All)}, 1), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
         Section({"Values of ", TemplateBox({"Table"}, "ReferenceHyperlink"), 
           " are not substituted before evaluation: "}, "ExampleText"), 
         SectionGroup({
@@ -178,8 +178,8 @@ Document({
                "Hold", "(", "2", ")"}, ",", {"Hold", "(", "3", ")"}, ",", {
                "Hold", "(", "4", ")"}, ",", {"Hold", "(", "5", ")"}}, "}"}), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
-         All)}, All)}, All), 
-    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+         All)}, 1)}, All), SectionGroup({
+      Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Array"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ConstantArray"}, 
          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
