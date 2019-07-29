@@ -551,6 +551,7 @@ static const struct pmath_named_char_t named_char_array[] = {
   { 0x201F, "HighReversedNineDoubleQuote"},
   { 0x2020, "Dagger"},
   { 0x2021, "DoubleDagger"},
+  { 0x2022, "Bullet"},
   { 0x2026, "Ellipsis"},
   { 0x2032, "Prime"},
   { 0x2033, "DoublePrime"},
