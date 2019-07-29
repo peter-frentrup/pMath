@@ -392,7 +392,8 @@ void AbstractSequenceSection::resize(Context *context) {
   
   if(Box *dingbat = _dingbat.box_or_null()) {
     dingbat->resize(context);
-    auto extra_indent = dingbat->extents().width - left_margin;
+    float dist = get_style(SectionFrameLabelMarginLeft);
+    auto extra_indent = dingbat->extents().width + dist - cx;
     if(extra_indent > 0) {
       horz_border                           += extra_indent;
       left_margin                           += extra_indent;
@@ -466,10 +467,6 @@ void AbstractSequenceSection::paint(Context *context) {
     invalidate();
   }
   
-  Box *dingbat = _dingbat.box_or_null();
-  if(dingbat && left_margin < dingbat->extents().width)
-    left_margin = dingbat->extents().width;
-  
   if(background.is_valid() || l != 0 || r != 0 || t != 0 || b != 0) {
     /* Cairo 1.12.2 bug:
       With BorderRadius->0, and one of l,r,t,b != 0, e.g. SectionFrame->{0,0,1,0}
@@ -538,8 +535,9 @@ void AbstractSequenceSection::paint(Context *context) {
   
   float xx, yy;
   
-  if(dingbat) {
-    xx = x + left_margin - dingbat->extents().width;
+  if(Box *dingbat = _dingbat.box_or_null()) {
+    float dist = get_style(SectionFrameLabelMarginLeft);
+    xx = x + cx - dist - dingbat->extents().width;
     yy = y + cy;
     context->canvas->align_point(&xx, &yy, false);
     context->canvas->move_to(xx, yy);
@@ -672,13 +670,10 @@ void AbstractSequenceSection::child_transformation(
   cairo_matrix_t *matrix
 ) {
   if(_dingbat.has_index(index)) {
-    float left_margin = get_style(SectionMarginLeft);
+    float dist = get_style(SectionFrameLabelMarginLeft);
     float dingbat_width = _dingbat.box_or_null()->extents().width;
     
-    if(left_margin < dingbat_width)
-      left_margin = dingbat_width;
-    
-    cairo_matrix_translate(matrix, left_margin - dingbat_width, cy);
+    cairo_matrix_translate(matrix, cx - dist - dingbat_width, cy);
     return;
   }
   

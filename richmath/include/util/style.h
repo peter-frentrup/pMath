@@ -119,6 +119,11 @@ namespace richmath {
     SectionFrameMarginTop,
     SectionFrameMarginBottom,
     
+    SectionFrameLabelMarginLeft,   // used for CellDingbat
+    SectionFrameLabelMarginRight,  // not yet used
+    SectionFrameLabelMarginTop,    // not yet used
+    SectionFrameLabelMarginBottom, // not yet used
+    
     SectionGroupPrecedence
   };
   

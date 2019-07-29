@@ -73,6 +73,7 @@ extern pmath_symbol_t richmath_System_SectionEditDuplicate;
 extern pmath_symbol_t richmath_System_SectionEditDuplicateMakesCopy;
 extern pmath_symbol_t richmath_System_SectionFrame;
 extern pmath_symbol_t richmath_System_SectionFrameColor;
+extern pmath_symbol_t richmath_System_SectionFrameLabelMargins;
 extern pmath_symbol_t richmath_System_SectionFrameMargins;
 extern pmath_symbol_t richmath_System_SectionGenerated;
 extern pmath_symbol_t richmath_System_SectionGroup;
@@ -356,6 +357,10 @@ namespace {
           // SectionFrameMarginRight
           // SectionFrameMarginTop
           // SectionFrameMarginBottom
+          add(StyleTypeMargin,          SectionFrameLabelMarginLeft,      Symbol( richmath_System_SectionFrameLabelMargins));
+          // SectionFrameLabelMarginRight
+          // SectionFrameLabelMarginTop
+          // SectionFrameLabelMarginBottom
           add(StyleTypeNumber,          SectionGroupPrecedence,           Symbol( richmath_System_SectionGroupPrecedence));
           
           
@@ -2266,6 +2271,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(SectionFrameLeft);
   impl.emit_definition(SectionFrameColor);
   impl.emit_definition(SectionFrameMarginLeft);
+  impl.emit_definition(SectionFrameLabelMarginLeft);
   impl.emit_definition(SectionGenerated);
   impl.emit_definition(SectionGroupPrecedence);
   impl.emit_definition(SectionMarginLeft);

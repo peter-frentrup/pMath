@@ -24,6 +24,8 @@ Document({
          BaseStyle -> "Section", FontColor -> RGBColor(0, 0.502`, 0.125`), 
          ReturnCreatesNewSection -> True, SectionFrame -> {0, 0, 0.5`, 0.5`}, 
          SectionFrameColor -> GrayLevel(0.59999999999999998`), 
+         SectionDingbat :> OpenerBox(
+          Dynamic(CurrentValue("SectionGroupOpen"))), 
          SectionFrameMargins -> {17, Inherited, Inherited, Inherited}, 
          SectionMargins -> {0, 0, 0.75`, 0.75`}, ShowSectionBracket -> False), 
         Section(StyleData("NotesSection"), BaseStyle -> "CollapseSection", 
@@ -43,6 +45,8 @@ Document({
         SectionGroup({Section(StyleData("ExampleSection"), 
            BaseStyle -> "Subsection", DefaultNewSectionStyle -> "ExampleText", 
            FontColor -> RGBColor(0, 0.502`, 0.125`), 
+           SectionDingbat :> OpenerBox(
+            Dynamic(CurrentValue("SectionGroupOpen"))), 
            SectionMargins -> {35, Inherited, Inherited, Inherited}, 
            ShowSectionBracket -> Automatic), Section(StyleData("ExampleText"), 
            BaseStyle -> "Text", DefaultNewSectionStyle -> "Input", 
@@ -106,7 +110,11 @@ Document({
                      FE`Private`name ++ ".pmathdoc")))}, 
                  If(FE`Private`filetype === File, 
                   RGBColor(0, 0, 0.80000000000000004`), 
-                  RGBColor(0.80000000000000004`, 0, 0))))) &)})}, All), 
+                  RGBColor(0.80000000000000004`, 0, 0))))) &)}), 
+            Section(StyleData("NamedCharacterHyperlink"), 
+             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+               ComplexStringBox({"\"\\\\[", #1, "]\""}), 
+               FontColor -> RGBColor(0, 0, 0.80000000000000004`)) &)})}, All), 
           SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
             Section(StyleData("KeyEvent"), TemplateBoxOptions -> {
               DisplayFunction -> (StyleBox(

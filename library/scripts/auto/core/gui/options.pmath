@@ -192,6 +192,7 @@ Options(Section):= {
     SectionEditDuplicateMakesCopy -> Inherited,
     SectionFrame -> False,
     SectionFrameColor -> GrayLevel(0),
+    SectionFrameLabelMargins -> 3,
     SectionFrameMargins -> 8,
     SectionGenerated -> False,
     SectionGroupPrecedence -> 0,
