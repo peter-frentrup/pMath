@@ -459,6 +459,18 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
       document()->style->set(TextShadow, shadows);
     }
     
+    void set_textcolor() {
+      if(!document()->style)
+        document()->style = new Style();
+        
+      COLORREF color = BasicWin32Window::title_font_color(
+        _parent->glass_enabled(),
+        Win32HighDpi::get_dpi_for_window(_hwnd), 
+        _parent->is_foreground_window());
+      
+      document()->style->set(FontColor, Color::from_bgr24(color));
+    }
+    
     void remove_textshadows() {
       if(document()->style)
         document()->style->remove(TextShadow);
@@ -504,6 +516,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
           canvas->glass_background = true;
       }
       
+      set_textcolor();
       Win32Dock::paint_background(canvas);
     }
     

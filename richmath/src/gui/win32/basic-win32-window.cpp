@@ -1054,6 +1054,49 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
 }
 
+COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool active) {
+  if(!glass_enabled) {
+    //return GetSysColor(active ? COLOR_BTNTEXT : COLOR_GRAYTEXT);
+    return GetSysColor(COLOR_BTNTEXT);
+  }
+  
+  if(HANDLE theme = composition_window_theme(dpi)) {
+//    if(Win32Themes::check_osversion(10, 0) && Win32Themes::DwmGetColorizationParameters) {
+//      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
+//      Win32Themes::DwmGetColorizationParameters(&params);
+//      
+//      // TODO: only use text-on-accent-backgound color if HKCU\SOFTWARE\Microsoft\Windows\DWM\ColorPrevalence = 1
+//      dtt_opts.crText = Win32Themes::get_window_title_text_color(&params, _active);
+//    }
+    if(active) {
+      Win32Themes::ColorizationInfo colorization;
+      if(Win32Themes::try_read_win10_colorization(&colorization)) {
+        if(colorization.has_accent_color_in_active_titlebar)
+          return colorization.text_on_accent_color;
+      }
+    }
+    else {
+      /* Inactive titlebar text color seems to be 0x999999u on Windows 10.
+         What does COLOR_INACTIVECAPTIONTEXT give? Should we hard-code 0x999999u?
+         
+         https://github.com/res2k/Windows10Colors/blob/master/Windows10Colors/Windows10Colors.cpp#L544
+         blends 40% COLOR_INACTIVECAPTIONTEXT with 60% COLOR_INACTIVECAPTION
+         Note that 0.4 * 0x00 + 0.6 * 0xFF = 0x99.
+       */
+      if(Win32Themes::check_osversion(10, 0)) {
+        return 0x999999;
+      }
+    }
+    
+    if(Win32Themes::IsCompositionActive && Win32Themes::IsCompositionActive())
+      return Win32Themes::GetThemeSysColor(theme, COLOR_CAPTIONTEXT);
+    else
+      return Win32Themes::GetThemeSysColor(theme, active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+  }
+  
+  return GetSysColor(active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+}
+
 void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
   if( !_themed_frame                 ||
       !Win32Themes::OpenThemeData    ||
@@ -1070,41 +1113,11 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
   
     Win32Themes::DTTOPTS dtt_opts;
     memset(&dtt_opts, 0, sizeof(dtt_opts));
-    if(Win32Themes::IsCompositionActive && Win32Themes::IsCompositionActive())
-      dtt_opts.crText = Win32Themes::GetThemeSysColor(theme, COLOR_CAPTIONTEXT);
-    else
-      dtt_opts.crText = Win32Themes::GetThemeSysColor(theme, _active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
     dtt_opts.dwSize    = sizeof(dtt_opts);
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = MulDiv(10, dpi, 96);
-  
-//    if(Win32Themes::check_osversion(10, 0) && Win32Themes::DwmGetColorizationParameters) {
-//      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
-//      Win32Themes::DwmGetColorizationParameters(&params);
-//      
-//      // TODO: only use text-on-accent-backgound color if HKCU\SOFTWARE\Microsoft\Windows\DWM\ColorPrevalence = 1
-//      dtt_opts.crText = Win32Themes::get_window_title_text_color(&params, _active);
-//    }
-    if(_active) {
-      Win32Themes::ColorizationInfo colorization;
-      if(Win32Themes::try_read_win10_colorization(&colorization)) {
-        if(colorization.has_accent_color_in_active_titlebar)
-          dtt_opts.crText = colorization.text_on_accent_color;
-      }
-    }
-    else {
-      /* Inactive titlebar text color seems to be 0x999999u on Windows 10.
-         What does COLOR_INACTIVECAPTIONTEXT give? Should we hard-code 0x999999u?
-         
-         https://github.com/res2k/Windows10Colors/blob/master/Windows10Colors/Windows10Colors.cpp#L544
-         blends 40% COLOR_INACTIVECAPTIONTEXT with 60% COLOR_INACTIVECAPTION
-         Note that 0.4 * 0x00 + 0.6 * 0xFF = 0x99.
-       */
-      if(Win32Themes::check_osversion(10, 0)) {
-        dtt_opts.crText = 0x999999;
-      }
-    }
-
+    dtt_opts.crText    = title_font_color(true, dpi, _active);
+    
 #define MAX_STR_LEN 1024
     WCHAR str[MAX_STR_LEN];
     GetWindowTextW(_hwnd, str, MAX_STR_LEN);

@@ -35,6 +35,8 @@ namespace richmath {
       virtual void invalidate_options() override;
       void invalidate_all();
       
+      virtual bool changes_children_style() { return true; }
+      
       NativeWidget *native() { return _native; } // never nullptr
       
       virtual void scroll_to(float x, float y, float w, float h) override;

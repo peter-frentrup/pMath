@@ -137,6 +137,7 @@ namespace richmath {
         UINT uFlags);
       
       static HANDLE composition_window_theme(int dpi);
+      static COLORREF title_font_color(bool glass_enabled, int dpi, bool active);
   };
 }
 
