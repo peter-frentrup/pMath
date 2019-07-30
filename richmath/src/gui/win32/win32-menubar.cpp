@@ -844,7 +844,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       
     case WM_ACTIVATE: {
         InvalidateRect(_hwnd, nullptr, FALSE);
-        if(wParam == WA_INACTIVE)
+        if(focused && wParam == WA_INACTIVE)
           kill_focus();
       } break;
   }
