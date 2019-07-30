@@ -1095,7 +1095,14 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     else {
       /* Inactive titlebar text color seems to be 0x999999u on Windows 10.
          What does COLOR_INACTIVECAPTIONTEXT give? Should we hard-code 0x999999u?
+         
+         https://github.com/res2k/Windows10Colors/blob/master/Windows10Colors/Windows10Colors.cpp#L544
+         blends 40% COLOR_INACTIVECAPTIONTEXT with 60% COLOR_INACTIVECAPTION
+         Note that 0.4 * 0x00 + 0.6 * 0xFF = 0x99.
        */
+      if(Win32Themes::check_osversion(10, 0)) {
+        dtt_opts.crText = 0x999999;
+      }
     }
 
 #define MAX_STR_LEN 1024
