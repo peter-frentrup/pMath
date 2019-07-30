@@ -7,6 +7,14 @@
 #include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-themes.h>
 
+#ifdef max
+#  undef max
+#endif
+#ifdef min
+#  undef min
+#endif
+
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 
@@ -101,9 +109,15 @@ int Win32TooltipWindow::dpi() {
 
 void Win32TooltipWindow::resize(bool just_move) {
   if(!just_move) {
-    if(Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()) {
-      SetWindowRgn(_hwnd, CreateRoundRectRgn(0, 0, best_width + 1, best_height + 1, 4, 4), FALSE);
-    }
+    BoxRadius radii;
+    ControlPainter::std->calc_container_radii(this, TooltipWindow, &radii);
+    float xrad = std::min(std::min(radii.top_left_x, radii.top_right_x), std::min(radii.bottom_left_x, radii.bottom_right_x));
+    float yrad = std::min(std::min(radii.top_left_y, radii.top_right_y), std::min(radii.bottom_left_y, radii.bottom_right_y));
+    
+    int rad_w = xrad * 2 / 0.75;
+    int rad_h = yrad * 2 / 0.75;
+    if(rad_w > 0 && rad_h > 0) // Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()
+      SetWindowRgn(_hwnd, CreateRoundRectRgn(0, 0, best_width + 1, best_height + 1, rad_w, rad_h), FALSE);
     else
       SetWindowRgn(_hwnd, nullptr, FALSE);
   }

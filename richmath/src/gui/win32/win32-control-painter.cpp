@@ -317,6 +317,33 @@ void Win32ControlPainter::calc_container_size(
   ControlPainter::calc_container_size(context, canvas, type, extents);
 }
 
+
+void Win32ControlPainter::calc_container_radii(
+  ControlContext *context,
+  ContainerType   type,
+  BoxRadius      *radii
+) {
+  int theme_part, theme_state;
+  HANDLE theme = get_control_theme(context, type, Normal, &theme_part, &theme_state);
+  
+  switch(type) {
+    case TooltipWindow: {
+        bool is_win8_or_newer = Win32Themes::check_osversion(6, 2);
+        if(!theme || is_win8_or_newer) {
+          *radii = BoxRadius(0);
+          return;
+        }
+        
+        *radii = BoxRadius(1.5); // 2 pixels all
+        return;
+      } break;
+    
+    default:
+      break;
+  }
+  
+  ControlPainter::calc_container_radii(context, type, radii);
+}
 Color Win32ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
   if(is_very_transparent(context, type, state))
     return Color::None;

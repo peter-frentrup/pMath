@@ -86,6 +86,11 @@ namespace richmath {
         ContainerType         type,
         BoxSize              *extents);
       
+      virtual void calc_container_radii(
+        ControlContext       *context,
+        ContainerType         type,
+        BoxRadius            *radii);
+      
       virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state);
       
       virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state);

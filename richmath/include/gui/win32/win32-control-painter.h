@@ -23,7 +23,12 @@ namespace richmath {
         Canvas         *canvas,
         ContainerType   type,
         BoxSize        *extents) override;
-        
+      
+      virtual void calc_container_radii(
+        ControlContext *context,
+        ContainerType   type,
+        BoxRadius      *radii) override;
+      
       virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
       
       virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state) override;

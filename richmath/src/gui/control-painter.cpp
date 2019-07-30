@@ -154,6 +154,14 @@ void ControlPainter::calc_container_size(
   }
 }
 
+void ControlPainter::calc_container_radii(
+  ControlContext       *context,
+  ContainerType         type,
+  BoxRadius            *radii
+) {
+  *radii = BoxRadius(0);
+}
+
 
 Color ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
   if(is_very_transparent(context, type, state))
