@@ -250,6 +250,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     Application::notify_wait(ClientNotification::PrintSection, Expr(sect));
   }
   
+  pmath_unref(sections);
   return expr;
 }
 
