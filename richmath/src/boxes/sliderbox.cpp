@@ -382,6 +382,9 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 ControlState SliderBox::calc_state(Context *context) {
+  if(!enabled())
+    return Disabled;
+  
   if(mouse_left_down)
     return PressedHovered;
     

@@ -406,7 +406,7 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
       
     case InputField:
     case ListViewItem:
-      return get_sys_color(COLOR_WINDOWTEXT);
+      return get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
     
     case ListViewItemSelected:
       return get_sys_color(COLOR_HIGHLIGHTTEXT);
@@ -1748,11 +1748,11 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_part = 3; // TKP_THUMB
         switch(state) {
           case Normal:         *theme_state = 1; break;
-          case Pressed:
+          case Pressed:        *theme_state = 4; break;
           case Hot:
           case Hovered:        *theme_state = 2; break;
           case PressedHovered: *theme_state = 3; break;
-          case Disabled:       *theme_state = 4; break;
+          case Disabled:       *theme_state = 5; break;
         }
       } break;
       
