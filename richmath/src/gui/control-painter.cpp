@@ -1,11 +1,21 @@
 #include <gui/control-painter.h>
 
-#include <cmath>
-
 #include <boxes/box.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 #include <graphics/context.h>
+
+#include <algorithm>
+#include <cmath>
+
+
+#ifdef min
+#  undef min
+#endif
+#ifdef max
+#  undef max
+#endif
+
 
 using namespace richmath;
 
@@ -150,6 +160,13 @@ void ControlPainter::calc_container_size(
         extents->width   = 16 * 0.75;
         extents->ascent  = extents->width * 0.75;
         extents->descent = extents->width * 0.25;
+      } break;
+    
+    case NavigationBack:
+    case NavigationForward:  {
+        extents->width   = std::max(20 * 0.75,        (double)extents->width);
+        extents->ascent  = std::max(20 * 0.75 * 0.75, (double)extents->ascent);
+        extents->descent = std::max(20 * 0.75 * 0.25, (double)extents->descent);
       } break;
   }
 }
@@ -485,6 +502,62 @@ void ControlPainter::draw_container(
         canvas->line_to(x + width * 0.6f, y + height * 0.6f);
         canvas->line_to(x + width * 0.3f, y + height * 0.6f);
         canvas->fill();
+        canvas->set_color(old_col);
+      } break;
+      
+    case NavigationBack:
+    case NavigationForward: {
+        float cx = x + width/2;
+        float cy = y + height/2;
+        width = height = std::min(width, height);
+        x = cx - width/2;
+        y = cy - height/2;
+        
+        paint_frame(canvas, x, y, width, height, state == PressedHovered);
+        
+        if(state == PressedHovered) {
+          x+= 0.75;
+          y+= 0.75;
+        }
+        
+        if(type == NavigationForward) {
+          x+= width;
+          width = -width;
+        }
+        
+        Color old_col = canvas->get_color();
+        
+        canvas->move_to(x + width/4, y + height/2);
+        canvas->rel_line_to(width/4, height/4);
+        canvas->rel_line_to(width/6, 0);
+        canvas->rel_line_to(-width/4 + width/12, -height/4 + height/12);
+        canvas->rel_line_to(width/4, 0);
+        canvas->rel_line_to(0, -height/6);
+        canvas->rel_line_to(-width/4, 0);
+        canvas->rel_line_to(width/4 - width/12, -height/4 + height/12);
+        canvas->rel_line_to(-width/6, 0);
+        canvas->rel_line_to(-width/4, height/4);
+        canvas->close_path();
+        
+        Color fill_col;
+        Color stroke_col;
+        switch(state) {
+          case Disabled:
+            fill_col = ButtonColor;
+            stroke_col = Button3DDarkColor;
+            break;
+          
+          default:
+            fill_col = Color::White;
+            stroke_col = Color::Black;
+            break;
+        }
+        
+        canvas->set_color(fill_col);
+        canvas->fill_preserve();
+        canvas->set_color(stroke_col);
+        canvas->stroke();
+        
         canvas->set_color(old_col);
       } break;
   }

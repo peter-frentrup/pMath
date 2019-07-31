@@ -35,7 +35,7 @@ namespace richmath {
       virtual void invalidate_options() override;
       void invalidate_all();
       
-      virtual bool changes_children_style() { return true; }
+      virtual bool changes_children_style() override { return true; }
       
       NativeWidget *native() { return _native; } // never nullptr
       

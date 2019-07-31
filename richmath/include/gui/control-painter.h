@@ -36,7 +36,9 @@ namespace richmath {
     RadioButtonUnchecked,
     RadioButtonChecked,
     OpenerTriangleClosed,
-    OpenerTriangleOpened
+    OpenerTriangleOpened,
+    NavigationBack,
+    NavigationForward
   } ContainerType;
   
   typedef enum {

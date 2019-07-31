@@ -204,6 +204,9 @@ namespace {
         
         add(OpenerTriangleClosed, String("OpenerTriangleClosed"));
         add(OpenerTriangleOpened, String("OpenerTriangleOpened"));
+        
+        add(NavigationBack,       String("NavigationBack"));
+        add(NavigationForward,    String("NavigationForward"));
       }
   };
   

@@ -9,6 +9,9 @@
 
 #include <windows.h>
 
+#ifdef min
+#  undef min
+#endif
 #ifdef max
 #  undef max
 #endif
@@ -88,6 +91,9 @@ static class Win32ControlPainterCache {
     HANDLE explorer_treeview_theme(int dpi) {
       return get_theme_for_dpi(explorer_treeview_theme_for_dpi, L"Explorer::TREEVIEW;TREEVIEW", dpi);
     }
+    HANDLE navigation_theme(int dpi) {
+      return get_theme_for_dpi(navigation_theme_for_dpi, L"Navigation", dpi);
+    }
     HANDLE tooltip_theme(int dpi) {
       return get_theme_for_dpi(tooltip_theme_for_dpi, L"TOOLTIP", dpi);
     }
@@ -112,6 +118,7 @@ static class Win32ControlPainterCache {
       close_themes(edit_theme_for_dpi);
       close_themes(explorer_listview_theme_for_dpi);
       close_themes(explorer_treeview_theme_for_dpi);
+      close_themes(navigation_theme_for_dpi);
       close_themes(tooltip_theme_for_dpi);
       close_themes(progress_theme_for_dpi);
       close_themes(scrollbar_theme_for_dpi);
@@ -158,6 +165,7 @@ static class Win32ControlPainterCache {
     Hashtable<int, HANDLE> edit_theme_for_dpi;
     Hashtable<int, HANDLE> explorer_listview_theme_for_dpi;
     Hashtable<int, HANDLE> explorer_treeview_theme_for_dpi;
+    Hashtable<int, HANDLE> navigation_theme_for_dpi;
     Hashtable<int, HANDLE> tooltip_theme_for_dpi;
     Hashtable<int, HANDLE> progress_theme_for_dpi;
     Hashtable<int, HANDLE> scrollbar_theme_for_dpi;
@@ -274,6 +282,20 @@ void Win32ControlPainter::calc_container_size(
           return;
         }
       } break;
+    
+    case NavigationBack:
+    case NavigationForward: 
+      if(theme && Win32Themes::GetThemePartSize) {
+        SIZE size;
+        if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
+          extents->width   = std::max(0.75 * size.cx, (double)extents->width);
+          float axis = canvas->get_font_size() * 0.4;
+          extents->ascent  = std::max(axis + size.cy * 0.75 * 0.5, (double)extents->ascent);
+          extents->descent = std::max(-axis + size.cy * 0.75 * 0.5, (double)extents->descent);
+          return;
+        }
+      }
+      break;
       
     default: break;
   }
@@ -608,7 +630,7 @@ void Win32ControlPainter::draw_container(
       cairo_surface_flush(cairo_get_target(canvas->cairo()));
     }
     else {
-      dc = 0;
+      dc = nullptr;
     }
   }
   
@@ -641,10 +663,11 @@ void Win32ControlPainter::draw_container(
   rect.right  = dc_x + w;
   rect.bottom = dc_y + h;
   
-  if(Win32Themes::OpenThemeData
-      && Win32Themes::CloseThemeData
-      && Win32Themes::DrawThemeBackground) {
-      
+  bool need_vector_overlay = false;
+  if( Win32Themes::OpenThemeData && 
+      Win32Themes::CloseThemeData && 
+      Win32Themes::DrawThemeBackground) 
+  {
     bool two_times = false;
     if(canvas->glass_background && type == PaletteButton) {
       if(state == Normal)
@@ -701,7 +724,6 @@ void Win32ControlPainter::draw_container(
             DrawEdge(dc, &rect, BDR_SUNKENOUTER, BF_RECT);
           else if(state == Hovered)
             DrawEdge(dc, &rect, BDR_RAISEDINNER, BF_RECT);
-            
         } break;
         
       case DefaultPushButton:
@@ -860,6 +882,28 @@ void Win32ControlPainter::draw_container(
       case OpenerTriangleOpened:
         ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
         return;
+        
+      case NavigationBack:
+      case NavigationForward: {
+          int rw = rect.right - rect.left;
+          int rh = rect.bottom - rect.top;
+          int cx = rect.left + rw/2;
+          int cy = rect.top + rh/2;
+          rw = rh = std::min(rw, rh);
+          
+          rect.left = cx - rw/2;
+          rect.right = rect.left + rw;
+          rect.top = cy - rh/2;
+          rect.bottom = rect.top + rh;
+          
+          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          if(state == PressedHovered)
+            DrawEdge(dc, &rect, BDR_SUNKENOUTER, BF_RECT);
+          else if(state == Hovered)
+            DrawEdge(dc, &rect, BDR_RAISEDINNER, BF_RECT);
+          
+          need_vector_overlay = true;
+        } break;
     }
   }
   
@@ -893,6 +937,64 @@ void Win32ControlPainter::draw_container(
   }
   else {
     cairo_surface_mark_dirty(cairo_get_target(canvas->cairo()));
+  }
+  
+  if(need_vector_overlay) {
+    switch(type) {
+      case NavigationBack:
+      case NavigationForward: {
+          float cx = x + width/2;
+          float cy = y + height/2;
+          width = height = std::min(width, height);
+          x = cx - width/2;
+          y = cy - height/2;
+          
+          if(state == PressedHovered) {
+            x+= 0.75;
+            y+= 0.75;
+          }
+          
+          if(type == NavigationForward) {
+            x+= width;
+            width = -width;
+          }
+          
+          Color old_col = canvas->get_color();
+          
+          canvas->move_to(x + width/4, y + height/2);
+          canvas->rel_line_to(width/4, height/4);
+          canvas->rel_line_to(width/6, 0);
+          canvas->rel_line_to(-width/4 + width/12, -height/4 + height/12);
+          canvas->rel_line_to(width/4, 0);
+          canvas->rel_line_to(0, -height/6);
+          canvas->rel_line_to(-width/4, 0);
+          canvas->rel_line_to(width/4 - width/12, -height/4 + height/12);
+          canvas->rel_line_to(-width/6, 0);
+          canvas->rel_line_to(-width/4, height/4);
+          canvas->close_path();
+          
+          Color fill_col;
+          Color stroke_col;
+          switch(state) {
+            case Disabled:
+              fill_col = get_sys_color(COLOR_BTNFACE);
+              stroke_col = get_sys_color(COLOR_GRAYTEXT);
+              break;
+            
+            default:
+              fill_col = Color::White;
+              stroke_col = Color::Black;
+              break;
+          }
+          
+          canvas->set_color(fill_col);
+          canvas->fill_preserve();
+          canvas->set_color(stroke_col);
+          canvas->stroke();
+          
+          canvas->set_color(old_col);
+        } break;
+    }
   }
 }
 
@@ -1530,6 +1632,11 @@ HANDLE Win32ControlPainter::get_control_theme(
       theme = w32cp_cache.tooltip_theme(context->dpi());
       break;
       
+    case NavigationBack: 
+    case NavigationForward: 
+      theme = w32cp_cache.navigation_theme(context->dpi());
+      break;
+      
     default: return nullptr;
   }
   
@@ -1732,7 +1839,21 @@ HANDLE Win32ControlPainter::get_control_theme(
           case PressedHovered: *theme_part = 4; break; // TVP_HOTGLYPH
         }
       } break;
-      
+    
+    case NavigationBack:
+    case NavigationForward: {
+        *theme_part = type == NavigationBack ? 1 : 2; // NAV_BACKBUTTON, NAV_FORWARDBUTTON
+        *theme_state = 1; // NAV_BB_NORMAL
+        switch(state) {
+          case Disabled:       *theme_state = 4; break; // NAV_BB_DISABLED
+          case Normal:
+          case Pressed:        *theme_state = 1; break; // NAV_BB_NORMAL
+          case Hot:
+          case Hovered:        *theme_state = 2; break; // NAV_BB_HOT
+          case PressedHovered: *theme_state = 3; break; // NAV_BB_PRESSED
+        }
+    } break;
+    
     default: break;
   }
   

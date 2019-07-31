@@ -4,7 +4,8 @@
 #include <util/style.h>
 #include <graphics/shapers.h>
 
-#include <math.h>
+#include <algorithm>
+#include <cmath>
 
 
 using namespace richmath;
@@ -87,8 +88,7 @@ void MathGtkControlPainter::calc_container_size(
       case CheckboxChecked:
       case CheckboxIndeterminate:
       case RadioButtonUnchecked:
-      case RadioButtonChecked:
-        {
+      case RadioButtonChecked: {
           int size;
           gtk_style_context_get_style(gtk_ctx, "indicator-size", &size, nullptr);
           
@@ -99,8 +99,7 @@ void MathGtkControlPainter::calc_container_size(
         return;
       
       case OpenerTriangleClosed:
-      case OpenerTriangleOpened:
-        {
+      case OpenerTriangleOpened: {
           int size;
           gtk_style_context_get_style(gtk_ctx, "expander-size", &size, nullptr);
           
@@ -117,16 +116,14 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
       
-      case SliderHorzChannel:
-        {
+      case SliderHorzChannel: {
           float h = 4 * 0.75f;
           extents->ascent  = h * 0.75;
           extents->descent = h * 0.25;
         }
         return;
         
-      case SliderHorzThumb:
-        {
+      case SliderHorzThumb: {
           int w = 0;
           gtk_style_context_get_style(gtk_ctx, "min-width", &w, nullptr); // GTK >= 3.20.0
           if(w <= 0)
@@ -143,8 +140,7 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
         
-      case ProgressIndicatorBackground:
-        {
+      case ProgressIndicatorBackground: {
           //extents->ascent *= 0.5;
           //extents->descent *= 0.5;
           
@@ -161,8 +157,7 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
         
-      case ProgressIndicatorBar:
-        {
+      case ProgressIndicatorBar: {
           GtkBorder padding;
           gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &padding);
           
@@ -172,6 +167,23 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
         
+      case NavigationBack:
+      case NavigationForward: {
+          int w, h;
+          gtk_icon_size_lookup(GTK_ICON_SIZE_SMALL_TOOLBAR, &w, &h);
+          
+          GtkBorder padding;
+          gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &padding);
+          
+          GtkBorder border;
+          gtk_style_context_get_border(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
+          
+          extents->width   = std::max((w + padding.left + padding.right) * 0.75, (double)extents->width);
+          extents->ascent  = std::max((h * 0.75 + padding.top) * 0.75,           (double)extents->ascent);
+          extents->descent = std::max((h * 0.25 + padding.bottom) * 0.75,        (double)extents->descent);
+        } 
+        return;
+      
       default:
         break;
     }
@@ -269,15 +281,50 @@ void MathGtkControlPainter::draw_container(
         gtk_render_expander(  gsc, canvas->cairo(), x, y, width, height);
         break;
         
-      case SliderHorzThumb:
-        {
+      case SliderHorzThumb: {
           gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
           gtk_render_frame(gsc, canvas->cairo(), x, y, width, height);
                          
           // gtk_render_slider() draws to the wrong location (coordinates scaled by ~ 2/3)
           //gtk_render_slider(gsc, canvas->cairo(), x, y, width, height, GTK_ORIENTATION_HORIZONTAL);
-        }
-        break;
+        } break;
+      
+      case NavigationBack:
+      case NavigationForward: {
+          float cx = x + width/2;
+          float cy = y + height/2;
+          width = height = std::min(width, height);
+          x = cx - width/2;
+          y = cy - height/2;
+        
+          canvas->align_point(&x, &y, false);
+    
+          gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
+          gtk_render_frame(gsc, canvas->cairo(), x, y, width, height);
+          
+          GtkIconTheme *icon_theme = gtk_icon_theme_get_default();
+          int w, h;
+          gtk_icon_size_lookup(GTK_ICON_SIZE_SMALL_TOOLBAR, &w, &h);
+          int icon_size = std::min(w, h);
+          
+          GtkIconInfo *icon_info = gtk_icon_theme_lookup_icon(icon_theme, type == NavigationBack ? "go-previous" : "go-next", icon_size, (GtkIconLookupFlags)0);
+          GdkPixbuf *pixbuf = gtk_icon_info_load_symbolic_for_context(icon_info, gsc, nullptr, nullptr);
+          g_object_unref(icon_info);
+          
+          canvas->save();
+          //gtk_render_icon(gsc, canvas->cairo(), pixbuf, cx - w * 0.5 * 0.75, cy - h * 0.5 * 0.75);
+          gtk_render_icon(gsc, canvas->cairo(), pixbuf, cx - w * 0.5, cy - h * 0.5);
+          canvas->restore();
+          gdk_pixbuf_unref(pixbuf);
+          
+//          if(GtkIconSet *icon = gtk_icon_factory_lookup_default(type == NavigationBack ? "go-previous" : "go-next")) {
+//            GdkPixbuf *pixbuf = gtk_icon_set_render_icon_pixbuf(icon, gsc, GTK_ICON_SIZE_SMALL_TOOLBAR);
+//            
+//            gtk_render_icon(gsc, canvas->cairo(), pixbuf, cx - w * 0.75, cy - h * 0.75);
+//            
+//            gdk_pixbuf_unref(pixbuf);
+//          }
+        } break;
         
       default:
         gtk_render_background(gsc, canvas->cairo(), x, y, width, height);
@@ -423,6 +470,8 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
       }
       return default_push_button_context;
       
+    case NavigationBack:
+    case NavigationForward:
     case PaletteButton:
       if(!tool_button_context) {
         tool_button_context = gtk_style_context_new();
