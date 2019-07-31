@@ -8,42 +8,24 @@ Document({
            "{", {ComplexStringBox("\"TopGlass\""), "\[Rule]", {
              "Section", "(", {
               {"BoxData", "@", {
-                "{", {
-                 {"ButtonBox", "(", {
+                "{", {{"ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
+                    "ButtonFrame", "\[Rule]", 
+                    ComplexStringBox("\"NavigationBack\"")}}, ")"}, ",", {
+                  "\n", ComplexStringBox("\"\\[InvisibleSpace]\"")}, ",", {
+                  "\n", {"ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
+                     "ButtonFrame", "\[Rule]", 
+                     ComplexStringBox("\"NavigationForward\"")}}, ")"}}, ",", {
+                  "\n", {"FillBox", "(", {"InputFieldBox", "(", {
+                     {"Dynamic", "(", "searchString", ")"}, ",", "String"}, 
+                    ")"}, ")"}}, ",", {"ButtonBox", "(", {
                    {"{", {
-                     {"StyleBox", "(", {
-                       {"FrameBox", "(", {
-                         ComplexStringBox("\"\\\"\[LeftArrow]\\\"\""), ",", {
-                          "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
-                        "Background", "\[Rule]", "White"}, ",", {
-                        "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", 
-                     ComplexStringBox("\" \"")}, "}"}, ",", {
+                     {"StyleBox", "(", {ComplexStringBox("\"\\\"Go\\\"\""), 
+                       ",", {"FontWeight", "\[Rule]", "Bold"}}, ")"}, ",", {
+                      "GraphicsBox", "(", {{"{", "}"}, ",", {
+                        "ImageSize", "\[Rule]", {"{", {"1", ",", "12"}, 
+                         "}"}}}, ")"}}, "}"}, ",", {
                     "ButtonFrame", "\[Rule]", 
-                    ComplexStringBox("\"Frameless\"")}}, ")"}, ",", "\n", 
-                 ComplexStringBox("\"\\[InvisibleSpace]\""), ",", "\n", {
-                  "ButtonBox", "(", {
-                   {"{", {
-                     {"StyleBox", "(", {
-                       {"FrameBox", "(", {
-                         ComplexStringBox("\"\\\"\[Rule]\\\"\""), ",", {
-                          "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
-                        "Background", "\[Rule]", "White"}, ",", {
-                        "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", 
-                     ComplexStringBox("\" \"")}, "}"}, ",", {
-                    "ButtonFrame", "\[Rule]", 
-                    ComplexStringBox("\"Frameless\"")}}, ")"}, ",", "\n", {
-                  "FillBox", "(", {"InputFieldBox", "(", {
-                    {"Dynamic", "(", "searchString", ")"}, ",", "String"}, 
-                   ")"}, ")"}, ",", {"ButtonBox", "(", {
-                   {"StyleBox", "(", {
-                     {"FrameBox", "(", {
-                       ComplexStringBox(
-                        "\"\\\"\[VeryThinSpace]\[U+21B2]\[VeryThinSpace]\\\"\"\
-                        "), ",", {"BorderRadius", "\[Rule]", "100"}}, ")"}, 
-                     ",", {"Background", "\[Rule]", "White"}, ",", {
-                      "BorderRadius", "\[Rule]", "100"}}, ")"}, ",", {
-                    "ButtonFrame", "\[Rule]", 
-                    ComplexStringBox("\"Frameless\"")}, ",", {
+                    ComplexStringBox("\"Palette\"")}, ",", {
                     "ButtonFunction", "\[Rule]", " ", {
                      "(", {
                       {"(", {"searchString", "\[Assign]", {
@@ -53,11 +35,12 @@ Document({
                       "&"}, ")"}}}, ")"}}, "}"}}, ",", 
               ComplexStringBox("\"Docked\""), ",", {
                "LineBreakWithin", "\[Rule]", "False"}}, ")"}}, "}"}}}, ")"}, 
-       ";"}), "Input", SectionLabel -> "in [30]:"), 
-    Section(BoxData({"Dynamic", "(", {"Framed", "(", "searchString", ")"}, 
-       ")"}), "Input", SectionLabel -> "in [46]:"), 
-    Section(BoxData(DynamicBox(ToBoxes(Framed(searchString)))), "Output", 
-     SectionGenerated -> True, SectionLabel -> "out [46]:"), 
+       ";"}), "Input", SectionLabel -> "in [1]:"), 
+    SectionGroup({
+      Section(BoxData({"Dynamic", "(", {"Framed", "(", "searchString", ")"}, 
+         ")"}), "Input", SectionLabel -> "in [2]:"), 
+      Section(BoxData(DynamicBox(ToBoxes(Framed(Global`searchString)))), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
     Section(
      BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
           "DockedSections", "\[Rule]", {
@@ -67,19 +50,22 @@ Document({
                 "{", {{"FillBox", "(", ComplexStringBox("\" \""), ")"}, ",", {
                   "DynamicLocalBox", "(", {{"{", "scale", "}"}, ",", {
                     "SliderBox", "(", {
-                     {"Dynamic", "(", "\n", {
-                       {"Log", "(", {"2", ",", "scale"}, ")"}, ",", "\n", {
-                        {"If", "(", {{"IsNumber", "(", {"#", "1"}, ")"}, ",", 
-                          "\n", {{"scale", "\[Assign]", {
-                             "2", "^", {"\[Piecewise]", 
-                              GridBox({
-                                {"0", {{"-", "0.2"}, "<", "#", "<", "0.2"}}, {
-                                 "#", "True"}})}}}, ";", "\n", {
-                            "SetOptions", "(", {
-                             {"EvaluationDocument", "(", ")"}, ",", {
-                              "Magnification", "\[Rule]", "scale"}}, ")"}}}, 
-                         "\n", ")"}, "&"}}, "\n", ")"}, ",", {
-                      {"-", "1"}, "..", "1"}}, ")"}, ",", {
+                     {"Dynamic", "(", {
+                       {"\n", {"Log", "(", {"2", ",", "scale"}, ")"}}, ",", {
+                        "\n", {
+                         {{"If", "(", {{"IsNumber", "(", {"#", "1"}, ")"}, 
+                            ",", {
+                             "\n", {
+                              {{"scale", "\[Assign]", {
+                                 "2", "^", {"\[Piecewise]", 
+                                  GridBox({
+                                    {"0", {{"-", "0.2"}, "<", "#", "<", 
+                                      "0.2"}}, {"#", "True"}})}}}, ";", {
+                                "\n", {"SetOptions", "(", {
+                                  {"EvaluationDocument", "(", ")"}, ",", {
+                                   "Magnification", "\[Rule]", "scale"}}, 
+                                 ")"}}}, "\n"}}}, ")"}, "&"}, "\n"}}}, ")"}, 
+                     ",", {{"-", "1"}, "..", "1"}}, ")"}, ",", {
                     "DynamicLocalValues", "\[RuleDelayed]", {
                      "{", {{"OwnRules", "(", "scale", ")"}, "\[Assign]", {
                        "{", {{"HoldPattern", "(", "scale", ")"}, 
@@ -91,31 +77,25 @@ Document({
                            "Inherited", "\[Rule]", "1"}}, ")"}}, "}"}}, 
                      "}"}}}, ")"}}, "}"}, ")"}, ",", 
               ComplexStringBox("\"Docked\"")}, ")"}}, "}"}}}, ")"}, ";"}), 
-     "Input", SectionLabel -> "in [45]:")}, All)}, 
- DockedSections -> {"Top" -> {}, "BottomGlass" -> Section(
-   BoxData({FillBox(" "), DynamicLocalBox({scale}, 
-      SliderBox(Dynamic(Log(2, scale), 
-        If(IsNumber(#1), scale:= 2^Piecewise({
+     "Input", SectionLabel -> "in [3]:")}, All)}, 
+ DockedSections :> {"Top" -> {}, "BottomGlass" -> Section(
+   BoxData({FillBox(" "), DynamicLocalBox({Global`scale}, 
+      SliderBox(Dynamic(Log(2, Global`scale), 
+        If(IsNumber(#1), Global`scale:= 2^Piecewise({
            {0, -0.20000000000000001` < #1 < 0.20000000000000001`}, {
             #1, True}}); SetOptions(EvaluationDocument(), 
-          Magnification -> scale)) &), -1 .. 1), 
-      DynamicLocalValues :> {OwnRules(scale):= {
-        HoldPattern(scale) :> Replace(Replace(Magnification, 
-          Options(EvaluationDocument(), Magnification)), Inherited -> 1)}})}), 
-   "Docked"), "TopGlass" -> Section(
-   BoxData({
-     ButtonBox({StyleBox(FrameBox("\"\[LeftArrow]\"", BorderRadius -> 100), 
-        Background -> GrayLevel(1), BorderRadius -> 100), " "}, 
-      ButtonFrame -> "Frameless"), "\[InvisibleSpace]", 
-     ButtonBox({StyleBox(FrameBox("\"\[Rule]\"", BorderRadius -> 100), 
-        Background -> GrayLevel(1), BorderRadius -> 100), " "}, 
-      ButtonFrame -> "Frameless"), 
-     FillBox(InputFieldBox(Dynamic(searchString), String)), 
-     ButtonBox(
-      StyleBox(FrameBox("\"\[VeryThinSpace]\[U+21B2]\[VeryThinSpace]\"", 
-        BorderRadius -> 100), Background -> GrayLevel(1), 
-       BorderRadius -> 100), ButtonFrame -> "Frameless", 
-      ButtonFunction -> ((searchString:= ToString({
+          Magnification -> Global`scale)) &), -1 .. 1), 
+      DynamicLocalValues :> {OwnRules(Global`scale):= {
+        HoldPattern(Global`scale) :> Replace(
+         Replace(Magnification, Options(EvaluationDocument(), Magnification)), 
+         Inherited -> 1)}})}), "Docked"), 
+  "TopGlass" -> Section(
+   BoxData({ButtonBox("", ButtonFrame -> "NavigationBack"), 
+     "\[InvisibleSpace]", ButtonBox("", ButtonFrame -> "NavigationForward"), 
+     FillBox(InputFieldBox(Dynamic(Global`searchString), String)), 
+     ButtonBox({StyleBox("\"Go\"", FontWeight -> Bold), 
+       GraphicsBox({}, ImageSize -> {1, 12})}, ButtonFrame -> "Palette", 
+      ButtonFunction -> ((Global`searchString:= ToString({
         EvaluationDocument(), SelectedDocument()})) &))}), "Docked", 
    LineBreakWithin -> False), "Bottom" -> {}}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

@@ -22,8 +22,10 @@ Document({
              ComplexStringBox("\"Generic\""), ",", 
              ComplexStringBox("\"TooltipWindow\""), ",", 
              ComplexStringBox("\"ListViewItem\""), ",", 
-             ComplexStringBox("\"ListViewItemSelected\"")}, "}"}}}, ")"}), 
-       "Input", SectionLabel -> "in [13]:"), 
+             ComplexStringBox("\"ListViewItemSelected\""), ",", 
+             ComplexStringBox("\"NavigationBack\""), ",", 
+             ComplexStringBox("\"NavigationForward\"")}, "}"}}}, ")"}), 
+       "Input", SectionLabel -> "in [1]:"), 
       Section(
        BoxData({
          "{", {ButtonBox("None", ButtonFrame -> None, 
@@ -42,9 +44,13 @@ Document({
           ButtonBox(ComplexStringBox("\"ListViewItem\""), 
            ButtonFrame -> "ListViewItem", ButtonFunction -> (/\/ &)), ",", 
           ButtonBox(ComplexStringBox("\"ListViewItemSelected\""), 
-           ButtonFrame -> "ListViewItemSelected", ButtonFunction -> (/\/ &))}, 
+           ButtonFrame -> "ListViewItemSelected", ButtonFunction -> (/\/ &)), 
+          ",", ButtonBox(ComplexStringBox("\"NavigationBack\""), 
+           ButtonFrame -> "NavigationBack", ButtonFunction -> (/\/ &)), ",", 
+          ButtonBox(ComplexStringBox("\"NavigationForward\""), 
+           ButtonFrame -> "NavigationForward", ButtonFunction -> (/\/ &))}, 
          "}"}), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [13]:")}, All), 
+       SectionLabel -> "out [1]:")}, All), 
     SectionGroup({
       Section(BoxData({"DynamicLocal", "(", {
           {"{", {"x", "\[Assign]", "1"}, "}"}, ",", {
