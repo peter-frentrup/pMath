@@ -204,6 +204,7 @@ static void paint_frame(
   float   width,
   float   height,
   bool    sunken,
+  bool    enabled,
   Color   background_color = ButtonColor
 ) {
   Color c1, c3, c;
@@ -212,10 +213,17 @@ static void paint_frame(
   c1 = Button3DLightColor;
   c3 = Button3DDarkColor;
   
-  if(sunken) 
-    swap(c1, c3);
+  float d = 1.5f;
+  if(enabled) {
+    if(sunken) 
+      swap(c1, c3);
+  }
+  else {
+    d = 0.75f;
+    c1 = Button3DDarkColor;
+  }
   
-  static const float d = 3 / 2.f;
+  
   float x2 = x + width;
   float y2 = y + height;
   canvas->align_point(&x,  &y,  false);
@@ -281,12 +289,12 @@ void ControlPainter::draw_container(
     case GenericButton:
     case PushButton:
     case PaletteButton:
-      paint_frame(canvas, x, y, width, height, state == PressedHovered);
+      paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled);
       break;
       
     case DefaultPushButton: {
     
-        paint_frame(canvas, x, y, width, height, state == PressedHovered);
+        paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled);
         
         float x2 = x + width;
         float y2 = y + height;
@@ -315,11 +323,11 @@ void ControlPainter::draw_container(
       } break;
       
     case InputField:
-      paint_frame(canvas, x, y, width, height, true, Color::White);
+      paint_frame(canvas, x, y, width, height, true, state != Disabled, Color::White);
       break;
       
     case TooltipWindow:
-      paint_frame(canvas, x, y, width, height, false, Color::from_rgb24(0xFFF4C1));
+      paint_frame(canvas, x, y, width, height, false, false, Color::from_rgb24(0xFFF4C1));
       break;
       
     case ListViewItem: {
@@ -339,19 +347,19 @@ void ControlPainter::draw_container(
       } break;
     
     case PanelControl:
-      paint_frame(canvas, x, y, width, height, false);
+      paint_frame(canvas, x, y, width, height, false, true);
       break; 
     
     case SliderHorzChannel:
-      paint_frame(canvas, x, y, width, height, true);
+      paint_frame(canvas, x, y, width, height, true, state != Disabled);
       break;
       
     case SliderHorzThumb:
-      paint_frame(canvas, x, y, width, height, false);
+      paint_frame(canvas, x, y, width, height, false, state != Disabled);
       break;
       
     case ProgressIndicatorBackground:
-      paint_frame(canvas, x, y, width, height, true);
+      paint_frame(canvas, x, y, width, height, true, true);
       break;
       
     case ProgressIndicatorBar: {
@@ -371,20 +379,21 @@ void ControlPainter::draw_container(
       
     case CheckboxUnchecked:
       if(state == Disabled)
-        paint_frame(canvas, x, y, width, height, true);
+        paint_frame(canvas, x, y, width, height, true, true);
       else
-        paint_frame(canvas, x, y, width, height, true, Color::White);
+        paint_frame(canvas, x, y, width, height, true, true, Color::White);
         
       break;
       
     case CheckboxChecked: {
         if(state == Disabled)
-          paint_frame(canvas, x, y, width, height, true);
+          paint_frame(canvas, x, y, width, height, true, true);
         else
-          paint_frame(canvas, x, y, width, height, true, Color::White);
+          paint_frame(canvas, x, y, width, height, true, true, Color::White);
           
         canvas->save();
         {
+          Color c = canvas->get_color();
           canvas->move_to(x +     width / 4, y +     height / 2);
           canvas->line_to(x +     width / 3, y + 3 * height / 4);
           canvas->line_to(x + 3 * width / 4, y +     height / 4);
@@ -392,28 +401,39 @@ void ControlPainter::draw_container(
           cairo_set_line_width(canvas->cairo(), 2.0 * 0.75);
           cairo_set_line_cap(canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
           cairo_set_line_join(canvas->cairo(), CAIRO_LINE_JOIN_MITER);
-          cairo_set_source_rgb(canvas->cairo(), 0, 0, 0);
+          
+          if(state == Disabled)
+            canvas->set_color(Button3DDarkColor);
+          else
+            canvas->set_color(Color::Black);
           
           canvas->stroke();
+          canvas->set_color(c);
         }
         canvas->restore();
       } break;
       
     case CheckboxIndeterminate: {
         if(state == Disabled)
-          paint_frame(canvas, x, y, width, height, true);
+          paint_frame(canvas, x, y, width, height, true, true);
         else
-          paint_frame(canvas, x, y, width, height, true, Color::White);
+          paint_frame(canvas, x, y, width, height, true, true, Color::White);
           
         canvas->save();
         {
+          Color c = canvas->get_color();
           canvas->move_to(x +     width / 4, y +     height / 4);
           canvas->line_to(x + 3 * width / 4, y +     height / 4);
           canvas->line_to(x + 3 * width / 4, y + 3 * height / 4);
           canvas->line_to(x +     width / 4, y + 3 * height / 4);
           
-          cairo_set_source_rgb(canvas->cairo(), 0, 0, 0);
+          if(state == Disabled)
+            canvas->set_color(Button3DDarkColor);
+          else
+            canvas->set_color(Color::Black);
+          
           canvas->fill();
+          canvas->set_color(c);
         }
         canvas->restore();
       } break;
@@ -476,7 +496,11 @@ void ControlPainter::draw_container(
             canvas->line_to(x +     width / 2, y + 3 * height / 4);
             canvas->line_to(x +     width / 4, y +     height / 2);
             
-            canvas->set_color(Color::Black);
+            if(state == Disabled)
+              canvas->set_color(Button3DDarkColor);
+            else
+              canvas->set_color(Color::Black);
+            
             canvas->fill();
           }
           
@@ -487,7 +511,12 @@ void ControlPainter::draw_container(
   
     case OpenerTriangleClosed: {
         Color old_col = canvas->get_color();
-        canvas->set_color(Color::Black);
+      
+        if(state == Disabled)
+          canvas->set_color(Button3DDarkColor);
+        else
+          canvas->set_color(Color::Black);
+        
         canvas->move_to(x + width * 0.3f, y + height * 0.3f);
         canvas->line_to(x + width * 0.6f, y + height * 0.5f);
         canvas->line_to(x + width * 0.3f, y + height * 0.7f);
@@ -497,7 +526,12 @@ void ControlPainter::draw_container(
       
     case OpenerTriangleOpened: {
         Color old_col = canvas->get_color();
-        canvas->set_color(Color::Black);
+        
+        if(state == Disabled)
+          canvas->set_color(Button3DDarkColor);
+        else
+          canvas->set_color(Color::Black);
+        
         canvas->move_to(x + width * 0.6f, y + height * 0.3f);
         canvas->line_to(x + width * 0.6f, y + height * 0.6f);
         canvas->line_to(x + width * 0.3f, y + height * 0.6f);
@@ -513,7 +547,7 @@ void ControlPainter::draw_container(
         x = cx - width/2;
         y = cy - height/2;
         
-        paint_frame(canvas, x, y, width, height, state == PressedHovered);
+        paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled);
         
         if(state == PressedHovered) {
           x+= 0.75;
