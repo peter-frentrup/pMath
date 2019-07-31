@@ -368,12 +368,8 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     must_update = true;
   }
   
-  if(style) {
-    reset_style();
-    style->add_pmath(options);
-  }
-  else
-    style = new Style(options);
+  reset_style();
+  style->add_pmath(options);
     
   range             = new_range;
   range_min         = new_range_min;
@@ -442,16 +438,32 @@ Expr SliderBox::to_pmath_symbol() {
 }
 
 Expr SliderBox::to_pmath(BoxOutputFlags flags) {
-  Expr val;
+  Gather g;
+  
   if(has(flags, BoxOutputFlags::Literal))
-    val = to_literal();
+    Gather::emit(to_literal());
   else
-    val = dynamic.expr();
+    Gather::emit(dynamic.expr());
+  
+  Gather::emit(range);
+  
+  if(style) {
+    bool with_inherited = true;
     
-  return Call(
-           Symbol(richmath_System_SliderBox),
-           val,
-           range);
+    String s;
+    if(style->get(BaseStyleName, &s) && s.equals("Slider"))
+      with_inherited = false;
+    
+    style->emit_to_pmath(with_inherited);
+  }
+  
+  Expr result = g.end();
+  result.set(0, Symbol(richmath_System_SliderBox));
+  return std::move(result);
+}
+
+void SliderBox::reset_style() {
+  Style::reset(style, "Slider");
 }
 
 Box *SliderBox::mouse_selection(
@@ -494,11 +506,11 @@ Box *SliderBox::dynamic_to_literal(int *start, int *end) {
 }
 
 void SliderBox::on_mouse_exit() {
-  EmptyWidgetBox::on_mouse_exit();
+  base::on_mouse_exit();
 }
 
 void SliderBox::on_mouse_down(MouseEvent &event) {
-  EmptyWidgetBox::on_mouse_down(event);
+  base::on_mouse_down(event);
   
   if(mouse_left_down) {
     event.set_origin(this);
@@ -519,7 +531,7 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
 }
 
 void SliderBox::on_mouse_move(MouseEvent &event) {
-  EmptyWidgetBox::on_mouse_move(event);
+  base::on_mouse_move(event);
   
   event.set_origin(this);
   
@@ -561,14 +573,14 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
     Application::deactivated_control(this);
   }
   
-  EmptyWidgetBox::on_mouse_up(event);
+  base::on_mouse_up(event);
 }
 
 /*void SliderBox::on_mouse_cancel() {
   if(dynamic.has_pre_or_post_assignment())
     SliderBoxImpl(*this).assign_dynamic_value(range_value, false, false, true);
 
-  EmptyWidgetBox::on_mouse_cancel();
+  base::on_mouse_cancel();
 }*/
 
 //} ... class SliderBox

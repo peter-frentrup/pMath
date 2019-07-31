@@ -70,7 +70,7 @@ void CheckboxBox::paint(Context *context) {
       type = calc_type(val);
   }
   
-  EmptyWidgetBox::paint(context);
+  base::paint(context);
 }
 
 Expr CheckboxBox::to_pmath_symbol() {
@@ -93,9 +93,16 @@ Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
   else
     Gather::emit(values);
     
-  if(style)
-    style->emit_to_pmath(false);
+  if(style) {
+    bool with_inherited = true;
     
+    String s;
+    if(style->get(BaseStyleName, &s) && s.equals("Checkbox"))
+      with_inherited = false;
+    
+    style->emit_to_pmath(with_inherited);
+  }
+  
   Expr result = gather.end();
   if(values.is_null() && result.expr_length() == 2) {
     return Call(Symbol(richmath_System_CheckboxBox), val);
@@ -103,6 +110,10 @@ Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
   
   result.set(0, Symbol(richmath_System_CheckboxBox));
   return result;
+}
+
+void CheckboxBox::reset_style() {
+  Style::reset(style, "Checkbox");
 }
 
 void CheckboxBox::dynamic_finished(Expr info, Expr result) {

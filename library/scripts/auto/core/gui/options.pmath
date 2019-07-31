@@ -57,11 +57,14 @@ Options(CreateDocument):= Options(Document):= {
 	WindowFrame -> Inherited,
 	WindowTitle -> Inherited
 	}
-          
+
+Options(Checkbox):= Options(CheckboxBox):= {
+    BaseStyle -> "Checkbox" }
+
 Options(Dynamic):= Options(DynamicBox):= {
     %BaselinePosition -> Automatic,
     SynchronousUpdating -> True,
-    TrackedSymbols -> Automatic}
+    TrackedSymbols -> Automatic }
           
 Options(DynamicLocal):= Options(DynamicLocalBox):= {
     %BaselinePosition -> Automatic,
@@ -99,14 +102,18 @@ Options(GridBox):= {
 Options(InputField):= Options(InputFieldBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "InputField",
-	ContinuousAction -> False}
+	ContinuousAction -> False }
           
-Options(InterpretationBox):=Options(Interpretation):= {
+Options(InterpretationBox):= Options(Interpretation):= {
     %BaselinePosition -> Automatic,
 	AutoDelete -> False,
 	Editable -> False
 	}
-          
+
+Options(Opener):= Options(OpenerBox):= {
+    BaseStyle -> "Opener",
+    Enabled -> Automatic }
+
 Options(Panel):= Options(PanelBox):= { 
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel" }
@@ -114,7 +121,10 @@ Options(Panel):= Options(PanelBox):= {
 Options(PaneSelector):= Options(PaneSelectorBox):= { 
     %BaselinePosition -> Automatic, 
     BaseStyle -> "PaneSelector" }
-          
+
+Options(RadioButton):= Options(RadioButtonBox):= Options(RadioButtonBar):= { 
+    BaseStyle -> "RadioButton" }
+
 Options(Style):= Options(StyleBox):= {
     Antialiasing -> Inherited,
     AutoDelete -> False,
@@ -159,10 +169,10 @@ Options(Section):= {
     BorderRadius -> 0,
     ButtonBoxOptions -> {
         BaselinePosition -> Automatic,
-	    ButtonData :> Automatic,
+        ButtonData :> Automatic,
         ButtonFrame -> Automatic, 
         ButtonFunction -> (/\/ &),
-	    ButtonSource -> Automatic,
+        ButtonSource -> Automatic,
         Method -> "Preemptive"},
     DefaultDuplicateSectionStyle -> Inherited,
     DefaultNewSectionStyle -> Inherited,
@@ -216,13 +226,14 @@ Options(Section):= {
     WindowFrame -> Inherited,    % only valid for StyleData-sections
     WindowTitle -> Inherited}    % only valid for StyleData-sections
 
-Options(Setter):= Options(SetterBox):= { 
+Options(Setter):= Options(SetterBox):= Options(SetterBar):= { 
     BaselinePosition -> Automatic,
     BaseStyle -> "Setter", 
-    ButtonFrame -> Automatic 
-}
+    ButtonFrame -> Automatic }
           
-Options(Slider):= Options(SliderBox):= { ContinuousAction -> True }
+Options(Slider):= Options(SliderBox):= {
+    BaseStyle -> "Slider", 
+    ContinuousAction -> True }
 
 Options(TemplateBox):= {
     %BaselinePosition -> Automatic,

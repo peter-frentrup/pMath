@@ -26,12 +26,8 @@ bool OpenerBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
   /* now success is guaranteed */
 
-  if(style) {
-    reset_style();
-    style->add_pmath(options);
-  }
-  else if(options != PMATH_UNDEFINED)
-    style = new Style(options);
+  reset_style();
+  style->add_pmath(options);
   
   Expr dyn_expr = expr[1];
   if(dynamic.expr() != dyn_expr || has(opts, BoxInputFlags::ForceResetDynamic)) {
@@ -52,7 +48,7 @@ void OpenerBox::paint(Context *context) {
       type = calc_type(val);
   }
   
-  EmptyWidgetBox::paint(context);
+  base::paint(context);
 }
 
 Expr OpenerBox::to_pmath_symbol() {
@@ -70,12 +66,23 @@ Expr OpenerBox::to_pmath(BoxOutputFlags flags) {
     
   Gather::emit(val);
   
-  if(style)
-    style->emit_to_pmath(false);
+  if(style) {
+    bool with_inherited = true;
+    
+    String s;
+    if(style->get(BaseStyleName, &s) && s.equals("Opener"))
+      with_inherited = false;
+    
+    style->emit_to_pmath(with_inherited);
+  }
     
   Expr result = gather.end();
   result.set(0, Symbol(richmath_System_OpenerBox));
   return result;
+}
+
+void OpenerBox::reset_style() {
+  Style::reset(style, "Opener");
 }
 
 void OpenerBox::dynamic_finished(Expr info, Expr result) {

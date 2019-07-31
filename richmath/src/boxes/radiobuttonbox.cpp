@@ -46,12 +46,8 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   else
     dynamic = Symbol(PMATH_SYMBOL_FALSE);
     
-  if(style) {
-    reset_style();
-    style->add_pmath(options);
-  }
-  else if(options != PMATH_UNDEFINED)
-    style = new Style(options);
+  reset_style();
+  style->add_pmath(options);
     
   finish_load_from_object(std::move(expr));
   return true;
@@ -73,7 +69,7 @@ void RadioButtonBox::paint(Context *context) {
     animation = 0;
   }
   
-  EmptyWidgetBox::paint(context);
+  base::paint(context);
   first_paint = false;
 }
 
@@ -93,9 +89,16 @@ Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
   Gather::emit(val);
   Gather::emit(value);
   
-  if(style)
-    style->emit_to_pmath(false);
+  if(style) {
+    bool with_inherited = true;
     
+    String s;
+    if(style->get(BaseStyleName, &s) && s.equals("RadioButton"))
+      with_inherited = false;
+    
+    style->emit_to_pmath(with_inherited);
+  }
+  
   Expr result = gather.end();
   if(value == PMATH_SYMBOL_TRUE && result.expr_length() == 2) {
     return Call(Symbol(richmath_System_RadioButtonBox), dynamic.expr());
@@ -103,6 +106,10 @@ Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
   
   result.set(0, Symbol(richmath_System_RadioButtonBox));
   return result;
+}
+
+void RadioButtonBox::reset_style() {
+  Style::reset(style, "RadioButton");
 }
 
 void RadioButtonBox::dynamic_finished(Expr info, Expr result) {
@@ -146,7 +153,7 @@ ContainerType RadioButtonBox::calc_type(Expr result) {
 
 void RadioButtonBox::click() {
   dynamic.assign(value);
-  //EmptyWidgetBox::click();
+  //base::click();
 }
 
 //} ... class RadioButtonBox
