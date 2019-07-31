@@ -247,6 +247,7 @@ EchoFunction::usage:= "EchoFunction(\(StyleBox(\"f\", \"Arg\")\))(\(StyleBox(\"e
 Editable::usage:= "Editable is an option for displayed objects which specifies whether their content can be edited interactively by the user."
 Element::usage:= "Element(\(StyleBox(\"a\", \"Arg\")\), \(StyleBox(\"b\", \"Arg\")\)) displays as \(StyleBox(\"a\", \"Arg\")\) \[Element] \(StyleBox(\"b\", \"Arg\")\)."
 Emit::usage:= "Emit(\(StyleBox(\"e\", \"Arg\")\)) specifies that \(StyleBox(\"e\", \"Arg\")\) should be collected by the nearest enclosing Gather.\nEmit(\(StyleBox(\"e\", \"Arg\")\), \(StyleBox(\"tag\", \"Arg\")\)) specifies that \(StyleBox(\"e\", \"Arg\")\) should be collected by the nearest enclosing Gather whose pattern matches \(StyleBox(\"tag\", \"Arg\")\)."
+Enabled::usage:= "Enabled is an option for objects like Button which specifies whether the object can be interactively manipulated."
 End::usage:= "End() returns the current namespace and reverts to a previous one."
 EndOfFile::usage:= "EndOfFile is returned by Read and related functions when it reaches the end of file."
 EndOfLine::usage:= "EndOfLine represents the end of a line in a string in StringMatch and related function."

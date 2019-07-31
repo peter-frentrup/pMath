@@ -1,0 +1,283 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Enabled", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(Enabled::"usage"))), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      Section({"The default setting is ", 
+        TemplateBox({"Enabled"}, "ReferenceHyperlink"), " \[Rule] ", 
+        TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}, "Notes"), 
+      Section("Possible settings are:", "Notes"), 
+      Section({
+        ComplexStringBox("\"", 
+         GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), {
+             "use", " ", "the", " ", "setting", " ", "from", " ", "containg", 
+             " ", "boxes"}}, {TemplateBox({"True"}, "ReferenceHyperlink"), {
+             "allow", " ", "interactive", " ", "manipulation"}}, {
+            TemplateBox({"False"}, "ReferenceHyperlink"), {
+             "suppress", " ", "interactive", " ", "manipulation"}}}))}, 
+       "2ColumnTableNotes"), 
+      Section({"With ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
+        " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), 
+        ", control objects usually appear dimmed. "}, "Notes"), 
+      Section({"The ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
+        " setting only affects interactive manipulation, but not programmatic \
+        updates due to ", TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
+        "."}, "Notes")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section({"A ", TemplateBox({"Button"}, "ReferenceHyperlink"), 
+          " that cannot be clicked:"}, "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Button", "(", {
+              ComplexStringBox("\"Try to click me\""), ",", {
+               "Print", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
+               "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(ButtonBox(ComplexStringBox("\"Try to click me\""), 
+             ButtonFunction -> (Print(RandomReal()) &), Enabled -> False)), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"A ", TemplateBox({"Slider"}, "ReferenceHyperlink"), 
+            " that cannot be interactively manipulated:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Slider", "(", " ", {
+                "Enabled", "\[Rule]", "False"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(SliderBox(0.5`, 0 .. 1, Enabled -> False)), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"An ", TemplateBox({"InputField"}, "ReferenceHyperlink"), 
+            " that disallows selecting and editing its content:"}, 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"InputField", "(", {
+                ComplexStringBox("\"Text\""), ",", "String", ",", {
+                 "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(InputFieldBox("Text", String, Enabled -> False)), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section({"A disabled ", TemplateBox({"Panel"}, "ReferenceHyperlink"), 
+          " by default causes all controls inside to be disabled:"}, 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Panel", "(", {
+              {"Column", "@", {
+                "{", {
+                 {"Row", "@", {"{", {{"Checkbox", "(", "True", ")"}, ",", {
+                     "Checkbox", "(", "False", ")"}, ",", {
+                     "Checkbox", "(", "Undefined", ")"}}, "}"}}, ",", {
+                  "RadioButtonBar", "(", {
+                   "1", ",", {"{", {"1", ",", "2", ",", "3"}, "}"}}, ")"}, 
+                 ",", {"SetterBar", "(", {
+                   "1", ",", {"{", {"1", ",", "2", ",", "3"}, "}"}}, ")"}}, 
+                "}"}}, ",", {"Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            PanelBox(
+             TagBox(
+              GridBox({
+                {InterpretationBox({CheckboxBox(True), CheckboxBox(False), 
+                   CheckboxBox(Undefined)}, Row({
+                   Checkbox(True), Checkbox(False), Checkbox(Undefined)}), 
+                  Editable -> False)}, {
+                 TagBox(DynamicLocalBox({System`Private`GuiBoxes`var}, 
+                   InterpretationBox(InterpretationBox(
+                     TagBox(
+                      GridBox({
+                        {SetterBox(Dynamic(System`Private`GuiBoxes`var), 1, 
+                          InterpretationBox({
+                            RadioButtonBox(
+                             Dynamic(System`Private`GuiBoxes`var), 1), 
+                            "\[InvisibleSpace]", "1"}, Row({
+                            RadioButton(Dynamic(System`Private`GuiBoxes`var), 
+                             1), 1}, "\[InvisibleSpace]"), Editable -> False), 
+                          ButtonFrame -> None), 
+                         SetterBox(Dynamic(System`Private`GuiBoxes`var), 2, 
+                          InterpretationBox({
+                            RadioButtonBox(
+                             Dynamic(System`Private`GuiBoxes`var), 2), 
+                            "\[InvisibleSpace]", "2"}, Row({
+                            RadioButton(Dynamic(System`Private`GuiBoxes`var), 
+                             2), 2}, "\[InvisibleSpace]"), Editable -> False), 
+                          ButtonFrame -> None), 
+                         SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, 
+                          InterpretationBox({
+                            RadioButtonBox(
+                             Dynamic(System`Private`GuiBoxes`var), 3), 
+                            "\[InvisibleSpace]", "3"}, Row({
+                            RadioButton(Dynamic(System`Private`GuiBoxes`var), 
+                             3), 3}, "\[InvisibleSpace]"), Editable -> False), 
+                          ButtonFrame -> None)}}), "Grid"), 
+                     RadioButtonBar(Dynamic(System`Private`GuiBoxes`var), {
+                       1, 2, 3}), Editable -> False), 
+                    RadioButtonBar(System`Private`GuiBoxes`var, {1, 2, 3}), 
+                    Editable -> False), Initialization :> None, 
+                   Deinitialization :> None, UnsavedVariables :> {}, 
+                   DynamicLocalValues :> {{
+                     OwnRules(System`Private`GuiBoxes`var):= {
+                      HoldPattern(System`Private`GuiBoxes`var) :> 1}}}), 
+                  Setting(#1, 0) &)}, {
+                 TagBox(DynamicLocalBox({System`Private`GuiBoxes`var}, 
+                   InterpretationBox(InterpretationBox({
+                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 1, "1"), 
+                      "\[InvisibleSpace]", 
+                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 2, "2"), 
+                      "\[InvisibleSpace]", 
+                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, 
+                       "3")}, SetterBar(Dynamic(System`Private`GuiBoxes`var), {
+                       1, 2, 3}), Editable -> False), 
+                    SetterBar(System`Private`GuiBoxes`var, {1, 2, 3}), 
+                    Editable -> False), Initialization :> None, 
+                   Deinitialization :> None, UnsavedVariables :> {}, 
+                   DynamicLocalValues :> {{
+                     OwnRules(System`Private`GuiBoxes`var):= {
+                      HoldPattern(System`Private`GuiBoxes`var) :> 1}}}), 
+                  Setting(#1, 0) &)}}), "Column"), Enabled -> False)), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section({"By explicitly specifying ", 
+          TemplateBox({"Enabled"}, "ReferenceHyperlink"), " \[Rule] ", 
+          TemplateBox({"True"}, "ReferenceHyperlink"), 
+          " an embedded control can be manipulated nonetheless: "}, 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"DynamicLocal", "(", {
+              {"{", {"enabled", "\[Assign]", "False"}, "}"}, ",", {
+               "\n", {
+                {"Panel", "(", {
+                  {"Column", "@", {
+                    "{", {
+                     {"\n", {"Row", "(", {
+                        {"{", {
+                          {"Checkbox", "(", {{"Dynamic", "(", "enabled", ")"}, 
+                            ",", {"Enabled", "\[Rule]", "True"}}, ")"}, ",", {
+                           "Button", "(", {
+                            ComplexStringBox("\"Enable the panel\""), ",", {
+                             "enabled", "\[Assign]", {
+                              "Not", "(", "enabled", ")"}}, ",", {
+                             "ButtonFrame", "\[Rule]", 
+                             ComplexStringBox("\"Frameless\"")}, ",", {
+                             "Enabled", "\[Rule]", "True"}}, ")"}}, "}"}, ",", 
+                        ComplexStringBox("\" \"")}, ")"}}, ",", {
+                      "\n", {"Row", "@", {
+                        "{", {{"Checkbox", "(", "True", ")"}, ",", {
+                          "Checkbox", "(", "False", ")"}, ",", {
+                          "Checkbox", "(", "Undefined", ")"}}, "}"}}}, ",", {
+                      "\n", {"RadioButtonBar", "(", {
+                        "1", ",", {"{", {"1", ",", "2", ",", "3"}, "}"}}, 
+                       ")"}}, ",", {
+                      "\n", {"SetterBar", "(", {
+                        "1", ",", {"{", {"1", ",", "2", ",", "3"}, "}"}}, 
+                       ")"}}}, "}"}}, ",", {
+                   "\n", {"Enabled", "\[Rule]", {
+                     "Dynamic", "(", "enabled", ")"}}}}, ")"}, "\n"}}}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(DynamicLocalBox({Global`enabled}, 
+             PanelBox(
+              TagBox(
+               GridBox({
+                 {InterpretationBox({
+                    CheckboxBox(Dynamic(Global`enabled), {False, True}, 
+                     Enabled -> True), " ", 
+                    ButtonBox(ComplexStringBox("\"Enable the panel\""), 
+                     ButtonFrame -> "Frameless", 
+                     ButtonFunction -> ((Global`enabled:= !Global`enabled) &), 
+                     Enabled -> True)}, Row({
+                    Checkbox(Dynamic(Global`enabled), Enabled -> True), 
+                    Button("Enable the panel", 
+                     Global`enabled:= !Global`enabled, 
+                     ButtonFrame -> "Frameless", Enabled -> True)}, " "), 
+                   Editable -> False)}, {
+                  InterpretationBox({CheckboxBox(True), CheckboxBox(False), 
+                    CheckboxBox(Undefined)}, Row({
+                    Checkbox(True), Checkbox(False), Checkbox(Undefined)}), 
+                   Editable -> False)}, {
+                  TagBox(DynamicLocalBox({System`Private`GuiBoxes`var}, 
+                    InterpretationBox(InterpretationBox(
+                      TagBox(GridBox({
+                         {SetterBox(Dynamic(System`Private`GuiBoxes`var), 1, 
+                           InterpretationBox({
+                             RadioButtonBox(
+                              Dynamic(System`Private`GuiBoxes`var), 1), 
+                             "\[InvisibleSpace]", "1"}, Row({
+                             RadioButton(Dynamic(System`Private`GuiBoxes`var), 
+                              1), 1}, "\[InvisibleSpace]"), 
+                            Editable -> False), ButtonFrame -> None), 
+                          SetterBox(Dynamic(System`Private`GuiBoxes`var), 2, 
+                           InterpretationBox({
+                             RadioButtonBox(
+                              Dynamic(System`Private`GuiBoxes`var), 2), 
+                             "\[InvisibleSpace]", "2"}, Row({
+                             RadioButton(Dynamic(System`Private`GuiBoxes`var), 
+                              2), 2}, "\[InvisibleSpace]"), 
+                            Editable -> False), ButtonFrame -> None), 
+                          SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, 
+                           InterpretationBox({
+                             RadioButtonBox(
+                              Dynamic(System`Private`GuiBoxes`var), 3), 
+                             "\[InvisibleSpace]", "3"}, Row({
+                             RadioButton(Dynamic(System`Private`GuiBoxes`var), 
+                              3), 3}, "\[InvisibleSpace]"), 
+                            Editable -> False), ButtonFrame -> None)}}), 
+                       "Grid"), RadioButtonBar(
+                       Dynamic(System`Private`GuiBoxes`var), {1, 2, 3}), 
+                      Editable -> False), RadioButtonBar(
+                      System`Private`GuiBoxes`var, {1, 2, 3}), 
+                     Editable -> False), Initialization :> None, 
+                    Deinitialization :> None, UnsavedVariables :> {}, 
+                    DynamicLocalValues :> {{
+                      OwnRules(System`Private`GuiBoxes`var):= {
+                       HoldPattern(System`Private`GuiBoxes`var) :> 1}}}), 
+                   Setting(#1, 0) &)}, {
+                  TagBox(DynamicLocalBox({System`Private`GuiBoxes`var}, 
+                    InterpretationBox(InterpretationBox({
+                       SetterBox(Dynamic(System`Private`GuiBoxes`var), 1, 
+                        "1"), "\[InvisibleSpace]", 
+                       SetterBox(Dynamic(System`Private`GuiBoxes`var), 2, 
+                        "2"), "\[InvisibleSpace]", 
+                       SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, 
+                        "3")}, SetterBar(Dynamic(System`Private`GuiBoxes`var), 
+                       {1, 2, 3}), Editable -> False), 
+                     SetterBar(System`Private`GuiBoxes`var, {1, 2, 3}), 
+                     Editable -> False), Initialization :> None, 
+                    Deinitialization :> None, UnsavedVariables :> {}, 
+                    DynamicLocalValues :> {{
+                      OwnRules(System`Private`GuiBoxes`var):= {
+                       HoldPattern(System`Private`GuiBoxes`var) :> 1}}}), 
+                   Setting(#1, 0) &)}}), "Column"), 
+              Enabled -> Dynamic(Global`enabled)), Initialization :> None, 
+             Deinitialization :> None, UnsavedVariables :> {}, 
+             DynamicLocalValues :> {{
+               OwnRules(Global`enabled):= {HoldPattern(Global`enabled) :> 
+                 False}}})), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"A disabled ", TemplateBox({"Slider"}, 
+             "ReferenceHyperlink"), 
+            " does not allow to interactively change the value, but still \
+            reacts to dynamic changes:"}, "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+                ",", {"Slider", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+                   "Enabled", "\[Rule]", "False"}}, ")"}, ",", {
+                 "Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {SliderBox(Dynamic(Global`x), 0 .. 1), ",", 
+                SliderBox(Dynamic(Global`x), 0 .. 1, Enabled -> False), ",", 
+                DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1)}, All), SectionGroup({
+      Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Editable"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Selectable"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
