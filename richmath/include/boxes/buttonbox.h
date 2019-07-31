@@ -6,6 +6,7 @@
 
 namespace richmath {
   class AbstractButtonBox: public ContainerWidgetBox {
+      using base = ContainerWidgetBox;
     protected:
       explicit AbstractButtonBox(MathSequence *content = nullptr, ContainerType _type = PushButton);
     
@@ -24,6 +25,7 @@ namespace richmath {
   };
   
   class ButtonBox: public AbstractButtonBox {
+      using base = AbstractButtonBox;
     public:
       explicit ButtonBox(MathSequence *content = nullptr);
       

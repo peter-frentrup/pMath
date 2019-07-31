@@ -1689,12 +1689,12 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_part = 1;//LVP_LISTITEM
         
         switch(state) {
-          case Normal:          theme = nullptr; break;
+          case Normal:          theme = nullptr; break; // the LISS_NORMAL part (1) has a border
           case Hot:
           case Hovered:        *theme_state = 2; break;
           case Pressed:
           case PressedHovered: *theme_state = 3; break;
-          case Disabled:       *theme_state = 4; break;
+          case Disabled:        theme = nullptr; break; // the LISS_DISABLED part (4) has a border
         }
       } break;
       

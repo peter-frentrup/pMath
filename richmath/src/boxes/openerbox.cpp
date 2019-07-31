@@ -126,6 +126,9 @@ ContainerType OpenerBox::calc_type(Expr result) {
 }
 
 void OpenerBox::click() {
+  if(!enabled())
+    return;
+  
   if(type == OpenerTriangleOpened) 
     dynamic.assign(Symbol(PMATH_SYMBOL_FALSE));
   else 

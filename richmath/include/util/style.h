@@ -32,15 +32,12 @@ namespace richmath {
   
   enum IntStyleOptionName {
     Antialiasing = 0x10000, // AutoBoolXXX
-    
-    FontSlant,
-    FontWeight,
-    
     AutoDelete,
     AutoNumberFormating,
     AutoSpacing,
     ContinuousAction,
     Editable,
+    Enabled, // AutoBoolXXX
     Evaluatable,
     InternalHasModifiedWindowOption,
     InternalHasPendingDynamic,
@@ -63,10 +60,14 @@ namespace richmath {
     Visible,
     WholeSectionGroupOpener,
     
+    FontSlant,
+    FontWeight,
+    
     ButtonFrame, // -1 = Automatic,  other: ContainerType value
     ButtonSource, // ButtonSourceXXX
     WindowFrame, // WindowFrameType
     
+    ButtonBoxDefaultEnabled      = Enabled      + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFrame  = ButtonFrame  + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonSource = ButtonSource + (int)DefaultStyleOptionOffsets::ButtonBox
   };

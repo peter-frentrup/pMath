@@ -44,31 +44,31 @@ bool AbstractButtonBox::expand(const BoxSize &size) {
 void AbstractButtonBox::on_mouse_down(MouseEvent &event) {
   animation = nullptr;
   
-  ContainerWidgetBox::on_mouse_down(event);
+  base::on_mouse_down(event);
 }
 
 void AbstractButtonBox::on_mouse_move(MouseEvent &event) {
-  Document *doc = find_parent<Document>(false);
-  
-  if(mouse_inside && doc) {
-    if(type == FramelessButton)
-      doc->native()->set_cursor(FingerCursor);
-    else
-      doc->native()->set_cursor(DefaultCursor);
+  if(mouse_inside && enabled()) {
+    if(Document *doc = find_parent<Document>(false)) {
+      if(type == FramelessButton)
+        doc->native()->set_cursor(FingerCursor);
+      else
+        doc->native()->set_cursor(DefaultCursor);
+    }
   }
   
-  ContainerWidgetBox::on_mouse_move(event);
+  base::on_mouse_move(event);
 }
 
 void AbstractButtonBox::on_mouse_up(MouseEvent &event) {
-  if(event.left) {
+  if(event.left && enabled()) {
     request_repaint_all();
     
     if(mouse_inside && mouse_left_down)
       click();
   }
   
-  ContainerWidgetBox::on_mouse_up(event);
+  base::on_mouse_up(event);
 }
 
 //} ... class AbstractButtonBox
@@ -133,6 +133,9 @@ void ButtonBox::reset_style() {
 }
 
 void ButtonBox::click() {
+  if(!enabled())
+    return;
+  
   Expr fn = get_own_style(ButtonFunction);
   if(fn.is_null())
     return;

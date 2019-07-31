@@ -69,7 +69,7 @@ void RadioButtonBox::paint(Context *context) {
     animation = 0;
   }
   
-  base::paint(context);
+  EmptyWidgetBox::paint(context);
   first_paint = false;
 }
 
@@ -152,8 +152,10 @@ ContainerType RadioButtonBox::calc_type(Expr result) {
 }
 
 void RadioButtonBox::click() {
+  if(!enabled())
+    return;
+  
   dynamic.assign(value);
-  //base::click();
 }
 
 //} ... class RadioButtonBox

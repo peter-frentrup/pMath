@@ -3,127 +3,134 @@ Begin("System`Private`")
 Options(Button):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Button", 
-	%ButtonData :> Automatic,
-	ButtonFrame -> Automatic,
-	%ButtonSource -> Automatic,
-	Method -> "Preemptive"}
-          
+    %ButtonData :> Automatic,
+    ButtonFrame -> Automatic,
+    %ButtonSource -> Automatic,
+    Enabled -> Automatic,
+    Method -> "Preemptive"}
+
 Options(ButtonBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Button", 
-	ButtonData :> Automatic,
-	ButtonFrame -> Automatic,
-	ButtonFunction -> (/\/ &),
-	ButtonSource -> Automatic,
-	Method -> "Preemptive"}
-          
+    ButtonData :> Automatic,
+    ButtonFrame -> Automatic,
+    ButtonFunction -> (/\/ &),
+    ButtonSource -> Automatic,
+    Enabled -> Automatic,
+    Method -> "Preemptive"}
+
 Options(CreateDocument):= Options(Document):= {
-	Antialiasing -> Inherited,
-	AutoNumberFormating -> Inherited,
-	AutoSpacing -> Inherited,
-	Background -> Inherited,
-	BaseStyle -> None,
-	ButtonFrame -> Inherited,
-	ButtonFunction -> Inherited,
-	DefaultDuplicateSectionStyle -> Inherited,
-	DefaultNewSectionStyle -> Inherited,
-	DefaultReturnCreatedSectionStyle -> Inherited,
-	DockedSections -> Inherited,
-	Editable -> Inherited,
-	FontColor -> Inherited,
-	FontFamily -> Inherited,
-	FontFeatures -> Inherited,
-	FontSize -> Inherited,
-	FontSlant -> Inherited,
-	FontWeight -> Inherited,
-	GeneratedSectionStyles -> Inherited,
-	GridBoxColumnSpacing -> Inherited,
-	GridBoxRowSpacing -> Inherited,
-	LineBreakWithin -> Inherited,
-	Magnification -> Inherited,
+    Antialiasing -> Inherited,
+    AutoNumberFormating -> Inherited,
+    AutoSpacing -> Inherited,
+    Background -> Inherited,
+    BaseStyle -> None,
+    ButtonFrame -> Inherited,
+    ButtonFunction -> Inherited,
+    DefaultDuplicateSectionStyle -> Inherited,
+    DefaultNewSectionStyle -> Inherited,
+    DefaultReturnCreatedSectionStyle -> Inherited,
+    DockedSections -> Inherited,
+    Editable -> Inherited,
+    Enabled -> Automatic,
+    FontColor -> Inherited,
+    FontFamily -> Inherited,
+    FontFeatures -> Inherited,
+    FontSize -> Inherited,
+    FontSlant -> Inherited,
+    FontWeight -> Inherited,
+    GeneratedSectionStyles -> Inherited,
+    GridBoxColumnSpacing -> Inherited,
+    GridBoxRowSpacing -> Inherited,
+    LineBreakWithin -> Inherited,
+    Magnification -> Inherited,
     MathFontFamily -> Inherited,
-	ReturnCreatesNewSection -> Inherited,
+    ReturnCreatesNewSection -> Inherited,
     Saveable -> True,
-	ScriptSizeMultipliers -> Inherited,
-	SectionEditDuplicate -> Inherited,
-	SectionEditDuplicateMakesCopy -> Inherited,
-	Selectable -> Inherited,
-	ShowAutoStyles -> Inherited,
-	ShowSectionBracket -> Inherited,
-	ShowStringCharacters -> Inherited,
-	StyleDefinitions -> Inherited,
-	TextShadow -> Inherited,
-	Visible -> True,
-	WindowFrame -> Inherited,
-	WindowTitle -> Inherited
-	}
+    ScriptSizeMultipliers -> Inherited,
+    SectionEditDuplicate -> Inherited,
+    SectionEditDuplicateMakesCopy -> Inherited,
+    Selectable -> Inherited,
+    ShowAutoStyles -> Inherited,
+    ShowSectionBracket -> Inherited,
+    ShowStringCharacters -> Inherited,
+    StyleDefinitions -> Inherited,
+    TextShadow -> Inherited,
+    Visible -> True,
+    WindowFrame -> Inherited,
+    WindowTitle -> Inherited
+    }
 
 Options(Checkbox):= Options(CheckboxBox):= {
-    BaseStyle -> "Checkbox" }
+    BaseStyle -> "Checkbox", 
+    Enabled -> Automatic }
 
 Options(Dynamic):= Options(DynamicBox):= {
     %BaselinePosition -> Automatic,
     SynchronousUpdating -> True,
     TrackedSymbols -> Automatic }
-          
+
 Options(DynamicLocal):= Options(DynamicLocalBox):= {
     %BaselinePosition -> Automatic,
-	Deinitialization -> None,
-	Initialization -> None,
-	DynamicLocalValues -> Automatic,
-	UnsavedVariables -> {}}
+    Deinitialization -> None,
+    Initialization -> None,
+    DynamicLocalValues -> Automatic,
+    UnsavedVariables -> {}}
 
 Options(Framed):= Options(FrameBox):= { 
     BaselinePosition -> Automatic,
     BorderRadius -> 0}
 
 Options(Graphics):= Options(GraphicsBox):= {
-	AspectRatio -> Automatic,
-	Axes -> False,
-	AxesOrigin -> Automatic,
+    AspectRatio -> Automatic,
+    Axes -> False,
+    AxesOrigin -> Automatic,
     BaselinePosition -> Automatic,
     BaseStyle -> "Graphics", 
-	Frame -> False,
-	FrameTicks -> Automatic,
-	ImageSize -> Automatic,
-	PlotRange -> Automatic,
-	Ticks -> Automatic}
-          
+    Frame -> False,
+    FrameTicks -> Automatic,
+    ImageSize -> Automatic,
+    PlotRange -> Automatic,
+    Ticks -> Automatic}
+
 Options(Grid):= {
     BaselinePosition -> Automatic,
-	ColumnSpacing -> Inherited,
-	RowSpacing -> Inherited}
-          
+    ColumnSpacing -> Inherited,
+    RowSpacing -> Inherited}
+
 Options(GridBox):= {
     BaselinePosition -> Automatic,
-	GridBoxColumnSpacing -> Inherited,
-	GridBoxRowSpacing -> Inherited}
-          
+    GridBoxColumnSpacing -> Inherited,
+    GridBoxRowSpacing -> Inherited}
+
 Options(InputField):= Options(InputFieldBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "InputField",
-	ContinuousAction -> False }
+    ContinuousAction -> False,
+    Enabled -> Automatic}
           
 Options(InterpretationBox):= Options(Interpretation):= {
     %BaselinePosition -> Automatic,
-	AutoDelete -> False,
-	Editable -> False
-	}
+    AutoDelete -> False,
+    Editable -> False
+    }
 
 Options(Opener):= Options(OpenerBox):= {
-    BaseStyle -> "Opener",
     Enabled -> Automatic }
 
 Options(Panel):= Options(PanelBox):= { 
     BaselinePosition -> Automatic, 
-    BaseStyle -> "Panel" }
+    BaseStyle -> "Panel",
+    Enabled -> Inherited}
           
 Options(PaneSelector):= Options(PaneSelectorBox):= { 
     %BaselinePosition -> Automatic, 
-    BaseStyle -> "PaneSelector" }
+    BaseStyle -> "PaneSelector",
+    Enabled -> Automatic }
 
 Options(RadioButton):= Options(RadioButtonBox):= Options(RadioButtonBar):= { 
-    BaseStyle -> "RadioButton" }
+    BaseStyle -> "RadioButton",
+    Enabled -> Automatic }
 
 Options(Style):= Options(StyleBox):= {
     Antialiasing -> Inherited,
@@ -138,6 +145,7 @@ Options(Style):= Options(StyleBox):= {
     ButtonFrame -> Inherited, % remove
     ButtonFunction -> Inherited, % remove
     Editable -> Inherited,
+    Enabled -> Automatic,
     FontColor -> Inherited,
     FontFamily -> Inherited,
     FontFeatures -> Inherited,
@@ -156,7 +164,7 @@ Options(Style):= Options(StyleBox):= {
     StripOnInput -> True,
     TemplateBoxOptions -> Inherited,
     TextShadow -> Inherited}
-			 
+
 Options(Section):= {
     Antialiasing -> Automatic,
     AspectRatio -> Automatic, % only valid for StyleData-sections
@@ -173,6 +181,7 @@ Options(Section):= {
         ButtonFrame -> Automatic, 
         ButtonFunction -> (/\/ &),
         ButtonSource -> Automatic,
+        Enabled -> Automatic,
         Method -> "Preemptive"},
     DefaultDuplicateSectionStyle -> Inherited,
     DefaultNewSectionStyle -> Inherited,
@@ -229,11 +238,13 @@ Options(Section):= {
 Options(Setter):= Options(SetterBox):= Options(SetterBar):= { 
     BaselinePosition -> Automatic,
     BaseStyle -> "Setter", 
-    ButtonFrame -> Automatic }
-          
+    ButtonFrame -> Automatic,
+    Enabled -> Automatic }
+
 Options(Slider):= Options(SliderBox):= {
     BaseStyle -> "Slider", 
-    ContinuousAction -> True }
+    ContinuousAction -> True,
+    Enabled -> Automatic }
 
 Options(TemplateBox):= {
     %BaselinePosition -> Automatic,
@@ -244,13 +255,13 @@ Options(TemplateBox):= {
     SyntaxForm -> Automatic,
     Tooltip -> None
 }
-      
+
 Options(Tooltip):= Options(TooltipBox):= { 
     %BaselinePosition -> Automatic,
     StripOnInput -> True}
-      
+
 Options(TransformationBox):= { 
     %BaselinePosition -> Automatic,
     BoxTransformation -> {{1,0},{0,1}} }
-      
+
 End()

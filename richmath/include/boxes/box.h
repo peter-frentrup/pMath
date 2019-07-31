@@ -372,6 +372,8 @@ namespace richmath {
       
       virtual bool changes_children_style() { return false; }
       
+      bool enabled();
+      
       virtual SharedPtr<Stylesheet> stylesheet();
       
       Color  get_style(ColorStyleOptionName  n, Color  result = Color::None);

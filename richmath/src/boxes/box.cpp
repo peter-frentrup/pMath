@@ -463,6 +463,21 @@ bool Box::edit_selection(Context *context) {
 
 //{ styles ...
 
+bool Box::enabled() {
+  Box *tmp = this;
+  while(tmp) {
+    switch(tmp->get_own_style(Enabled, AutoBoolAutomatic)) {
+      case AutoBoolTrue:
+        return true;
+      
+      case AutoBoolFalse:
+        return false;
+    }
+    tmp = tmp->parent();
+  }
+  return true;
+}
+
 SharedPtr<Stylesheet> Box::stylesheet() {
   if(!_parent)
     return Stylesheet::Default;

@@ -285,6 +285,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(AutoSpacing,                         false);
   //Stylesheet::Default->base->set(ContinuousAction,                    false);
   Stylesheet::Default->base->set(Editable,                            true);
+  Stylesheet::Default->base->set(Enabled,                             AutoBoolAutomatic);
   Stylesheet::Default->base->set(Evaluatable,                         false);
   Stylesheet::Default->base->set(InternalUsesCurrentValueOfMouseOver, false);
   Stylesheet::Default->base->set(LineBreakWithin,                     true);

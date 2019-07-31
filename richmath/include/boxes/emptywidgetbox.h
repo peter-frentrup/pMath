@@ -7,6 +7,7 @@
 
 namespace richmath {
   class EmptyWidgetBox: public Box, public ControlContext {
+      using base = Box;
     public:
       virtual Box *item(int i) override { return 0; }
       virtual int count() override { return 0; }

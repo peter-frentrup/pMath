@@ -26,6 +26,9 @@ ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *conten
 }
 
 ControlState ContainerWidgetBox::calc_state(Context *context) {
+  if(!enabled())
+    return Disabled;
+  
   if(context->selection.id == id() && context->active)
     return Pressed;
     
@@ -156,22 +159,25 @@ void ContainerWidgetBox::reset_style() {
 }
 
 void ContainerWidgetBox::on_mouse_enter() {
-  if(!mouse_inside && ControlPainter::std->container_hover_repaint(this, type))
+  if(!mouse_inside && ControlPainter::std->container_hover_repaint(this, type) && enabled())
     request_repaint_all();
     
   mouse_inside = true;
-  AbstractStyleBox::on_mouse_enter();
+  base::on_mouse_enter();
 }
 
 void ContainerWidgetBox::on_mouse_exit() {
-  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(this, type))
+  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(this, type) && enabled())
     request_repaint_all();
     
   mouse_inside = false;
-  AbstractStyleBox::on_mouse_exit();
+  base::on_mouse_exit();
 }
 
 void ContainerWidgetBox::on_mouse_down(MouseEvent &event) {
+  if(!enabled())
+    return;
+    
   event.set_origin(this);
   
   mouse_left_down   = mouse_left_down   || event.left;
@@ -186,6 +192,9 @@ void ContainerWidgetBox::on_mouse_down(MouseEvent &event) {
 }
 
 void ContainerWidgetBox::on_mouse_move(MouseEvent &event) {
+  if(!enabled())
+    return;
+    
   event.set_origin(this);
   
   bool mi = event.x >= 0 &&
@@ -200,7 +209,8 @@ void ContainerWidgetBox::on_mouse_move(MouseEvent &event) {
 }
 
 void ContainerWidgetBox::on_mouse_up(MouseEvent &event) {
-  request_repaint_all();
+  if(enabled())
+    request_repaint_all();
   
   mouse_left_down   = mouse_left_down   && !event.left;
   mouse_middle_down = mouse_middle_down && !event.middle;
@@ -208,19 +218,20 @@ void ContainerWidgetBox::on_mouse_up(MouseEvent &event) {
 }
 
 void ContainerWidgetBox::on_mouse_cancel() {
-  request_repaint_all();
+  if(enabled())
+    request_repaint_all();
   
   mouse_left_down = mouse_middle_down = mouse_right_down = false;
 }
 
 void ContainerWidgetBox::on_enter() {
   selection_inside = true;
-  AbstractStyleBox::on_enter();
+  base::on_enter();
 }
 
 void ContainerWidgetBox::on_exit() {
   selection_inside = false;
-  AbstractStyleBox::on_exit();
+  base::on_exit();
 }
 
 bool ContainerWidgetBox::is_foreground_window() {

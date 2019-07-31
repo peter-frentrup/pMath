@@ -27,6 +27,9 @@ EmptyWidgetBox::EmptyWidgetBox(ContainerType _type)
 }
 
 ControlState EmptyWidgetBox::calc_state(Context *context) {
+  if(!enabled())
+    return Disabled;
+  
   if(context->selection.id == id() && context->active)
     return Pressed;
     
@@ -158,22 +161,25 @@ Box *EmptyWidgetBox::mouse_selection(
 }
 
 void EmptyWidgetBox::on_mouse_enter() {
-  if(!mouse_inside && ControlPainter::std->container_hover_repaint(this, type))
+  if(!mouse_inside && ControlPainter::std->container_hover_repaint(this, type) && enabled())
     request_repaint_all();
     
   mouse_inside = true;
-  Box::on_mouse_enter();
+  base::on_mouse_enter();
 }
 
 void EmptyWidgetBox::on_mouse_exit() {
-  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(this, type))
+  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(this, type) && enabled())
     request_repaint_all();
     
   mouse_inside = false;
-  Box::on_mouse_exit();
+  base::on_mouse_exit();
 }
 
 void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
+  if(!enabled())
+    return;
+  
   event.set_origin(this);
   
   mouse_left_down   = mouse_left_down   || event.left;
@@ -186,12 +192,16 @@ void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
 }
 
 void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
-  Document *doc = find_parent<Document>(false);
+  if(mouse_inside) {
+    if(Document *doc = find_parent<Document>(false))
+      doc->native()->set_cursor(DefaultCursor);
+  }
+  
+  if(!enabled())
+    return;
+  
   event.set_origin(this);
   
-  if(mouse_inside && doc)
-    doc->native()->set_cursor(DefaultCursor);
-    
   bool mi = _extents.to_rectangle().contains(event.x, event.y);
   
   if(mi != mouse_inside)
@@ -201,7 +211,7 @@ void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
 }
 
 void EmptyWidgetBox::on_mouse_up(MouseEvent &event) {
-  if(event.left) {
+  if(event.left && enabled()) {
     request_repaint_all();
     
     if(mouse_inside && mouse_left_down)

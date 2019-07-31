@@ -41,6 +41,7 @@ extern pmath_symbol_t richmath_System_DefaultReturnCreatedSectionStyle;
 extern pmath_symbol_t richmath_System_DisplayFunction;
 extern pmath_symbol_t richmath_System_DockedSections;
 extern pmath_symbol_t richmath_System_Editable;
+extern pmath_symbol_t richmath_System_Enabled;
 extern pmath_symbol_t richmath_System_Evaluatable;
 extern pmath_symbol_t richmath_System_FontColor;
 extern pmath_symbol_t richmath_System_FontFamily;
@@ -323,6 +324,7 @@ namespace {
           add(StyleTypeBool,            AutoSpacing,                      Symbol( richmath_System_AutoSpacing));
           add(StyleTypeBool,            ContinuousAction,                 Symbol( richmath_System_ContinuousAction));
           add(StyleTypeBool,            Editable,                         Symbol( richmath_System_Editable));
+          add(StyleTypeBoolAuto,        Enabled,                          Symbol( richmath_System_Enabled));
           add(StyleTypeBool,            Evaluatable,                      Symbol( richmath_System_Evaluatable));
           add(StyleTypeBool,            LineBreakWithin,                  Symbol( richmath_System_LineBreakWithin));
           add(StyleTypeBool,            Placeholder,                      Symbol( richmath_System_Placeholder));
@@ -340,6 +342,8 @@ namespace {
           add(StyleTypeBool,            SurdForm,                         Symbol( richmath_System_SurdForm));
           add(StyleTypeBool,            Visible,                          Symbol( richmath_System_Visible));
           add(StyleTypeBool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
+          
+          add(StyleTypeBoolAuto,        ButtonBoxDefaultEnabled,          Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
           
           add(StyleTypeNumber,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
           add(StyleTypeNumber,          FontSize,                         Symbol( richmath_System_FontSize));
@@ -2094,6 +2098,7 @@ bool Style::modifies_size(StyleOptionName style_name) {
     case AutoDelete:
     case ContinuousAction:
     case Editable:
+    case Enabled:
     case Evaluatable:
     case InternalHasModifiedWindowOption:
     case InternalHasPendingDynamic:
@@ -2246,6 +2251,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(DisplayFunction);
   impl.emit_definition(DockedSections);
   impl.emit_definition(Editable);
+  impl.emit_definition(Enabled);
   impl.emit_definition(Evaluatable);
   impl.emit_definition(FontColor);
   impl.emit_definition(FontFamilies);

@@ -176,6 +176,9 @@ ContainerType CheckboxBox::calc_type(Expr result) {
 }
 
 void CheckboxBox::click() {
+  if(!enabled())
+    return;
+  
   if(type == CheckboxChecked) {
     if(values.is_null()) {
       dynamic.assign(Symbol(PMATH_SYMBOL_FALSE));
@@ -192,8 +195,6 @@ void CheckboxBox::click() {
       dynamic.assign(values[2]);
     }
   }
-  
-  // EmptyWidgetBox::click();
 }
 
 //} ... class CheckboxBox

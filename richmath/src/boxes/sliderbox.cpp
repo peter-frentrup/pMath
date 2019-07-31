@@ -512,7 +512,7 @@ void SliderBox::on_mouse_exit() {
 void SliderBox::on_mouse_down(MouseEvent &event) {
   base::on_mouse_down(event);
   
-  if(mouse_left_down) {
+  if(mouse_left_down && enabled()) {
     event.set_origin(this);
     
     if(dynamic.is_dynamic())
@@ -531,35 +531,37 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
 }
 
 void SliderBox::on_mouse_move(MouseEvent &event) {
-  base::on_mouse_move(event);
+  EmptyWidgetBox::on_mouse_move(event);
   
-  event.set_origin(this);
-  
-  if(mouse_left_down) {
-    double val = SliderBoxImpl(*this).mouse_to_val(event.x);
+  if(enabled()) {
+    event.set_origin(this);
     
-    if(!SliderBoxImpl(*this).approximately_equals(val, range_value)) {
-      if(dynamic.has_pre_or_post_assignment() || get_own_style(ContinuousAction, true)) 
-        SliderBoxImpl(*this).assign_dynamic_value(val, false, true, false);
-      else
-        range_value = val;
-        
-      request_repaint_all();
+    if(mouse_left_down) {
+      double val = SliderBoxImpl(*this).mouse_to_val(event.x);
+      
+      if(!SliderBoxImpl(*this).approximately_equals(val, range_value)) {
+        if(dynamic.has_pre_or_post_assignment() || get_own_style(ContinuousAction, true)) 
+          SliderBoxImpl(*this).assign_dynamic_value(val, false, true, false);
+        else
+          range_value = val;
+          
+        request_repaint_all();
+      }
     }
-  }
-  else {
-    float tx = SliderBoxImpl(*this).calc_thumb_pos(range_value);
-    
-    bool old_mot = mouse_over_thumb;
-    mouse_over_thumb = (tx <= event.x && event.x <= tx + thumb_width);
-    
-    if(old_mot != mouse_over_thumb)
-      request_repaint_all();
+    else {
+      float tx = SliderBoxImpl(*this).calc_thumb_pos(range_value);
+      
+      bool old_mot = mouse_over_thumb;
+      mouse_over_thumb = (tx <= event.x && event.x <= tx + thumb_width);
+      
+      if(old_mot != mouse_over_thumb)
+        request_repaint_all();
+    }
   }
 }
 
 void SliderBox::on_mouse_up(MouseEvent &event) {
-  if(event.left) {
+  if(event.left && enabled()) {
     event.set_origin(this);
     double val = SliderBoxImpl(*this).mouse_to_val(event.x);
     if( !SliderBoxImpl(*this).approximately_equals(val, range_value) ||
@@ -580,7 +582,7 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
   if(dynamic.has_pre_or_post_assignment())
     SliderBoxImpl(*this).assign_dynamic_value(range_value, false, false, true);
 
-  base::on_mouse_cancel();
+  EmptyWidgetBox::on_mouse_cancel();
 }*/
 
 //} ... class SliderBox
