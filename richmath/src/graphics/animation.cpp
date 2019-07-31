@@ -51,6 +51,31 @@ void BoxRepaintEvent::execute_event() {
 
 //} ... class BoxRepaintEvent
 
+//{ class BoxAnimation ...
+
+bool BoxAnimation::is_compatible(Canvas *canvas) {
+  if(!current_buffer)
+    return false;
+  
+  return current_buffer->is_compatible(canvas);
+}
+
+bool BoxAnimation::is_compatible(Canvas *canvas, float w, float h) {
+  if(!current_buffer)
+    return false;
+  
+  return current_buffer->is_compatible(canvas, w, h);
+}
+
+bool BoxAnimation::is_compatible(Canvas *canvas, const BoxSize &size) {
+  if(!current_buffer)
+    return false;
+  
+  return current_buffer->is_compatible(canvas, size);
+}
+
+//} ... class BoxAnimation
+
 //{ class LinearTransition ...
 
 LinearTransition::LinearTransition(

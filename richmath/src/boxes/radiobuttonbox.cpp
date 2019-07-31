@@ -66,7 +66,7 @@ void RadioButtonBox::paint(Context *context) {
   
   if(type == RadioButtonChecked || first_paint) {
     old_type = type;
-    animation = 0;
+    animation = nullptr;
   }
   
   EmptyWidgetBox::paint(context);

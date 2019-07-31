@@ -66,6 +66,9 @@ void EmptyWidgetBox::paint(Context *context) {
   
   ControlState state = calc_state(context);
   
+  if(animation && !animation->is_compatible(context->canvas, _extents.width, _extents.height())) 
+    animation = nullptr;
+  
   if(state != old_state || old_type != type || !animation) {
     animation = ControlPainter::std->control_transition(
                   id(),
@@ -78,7 +81,7 @@ void EmptyWidgetBox::paint(Context *context) {
                   y - _extents.ascent,
                   _extents.width,
                   _extents.height());
-                  
+    
     old_state = state;
   }
   
@@ -89,7 +92,7 @@ void EmptyWidgetBox::paint(Context *context) {
       need_bg = false;
     }
     else {
-      animation = 0;
+      animation = nullptr;
       
       animation = ControlPainter::std->control_transition(
                     id(),

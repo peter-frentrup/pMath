@@ -46,6 +46,10 @@ namespace richmath {
       virtual void update(ControlContext *cc) = 0;
       virtual bool paint(Canvas *canvas) = 0;
       
+      bool is_compatible(Canvas *canvas);
+      bool is_compatible(Canvas *canvas, float w, float h);
+      bool is_compatible(Canvas *canvas, const BoxSize &size);
+      
     public:
       SharedPtr<Buffer> current_buffer;
   };

@@ -163,6 +163,23 @@ bool Buffer::is_compatible(Canvas *dst) {
   return false;
 }
 
+bool Buffer::is_compatible(Canvas *dst, float w, float h) {
+  if(!is_compatible(dst))
+    return false;
+    
+  float x, y;
+  dst->current_pos(&x, &y);
+  
+  Canvas::transform_rect(u2d_matrix, &x, &y, &w, &h);
+  
+  return fabs(_width - w) <= 2.0 && fabs(_height - h) <= 2.0;
+  //return _width  == (int)(ceil(w) + 1) && _height == (int)(ceil(h) + 1);
+}
+
+bool Buffer::is_compatible(Canvas *dst, const BoxSize &size) {
+  return is_compatible(dst, size.width, size.height());
+}
+
 bool Buffer::paint(Canvas *dst) {
   return paint_with_alpha(dst, 1);
 }

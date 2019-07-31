@@ -26,6 +26,8 @@ namespace richmath {
       const cairo_matrix_t &device_to_user() { return d2u_matrix; }
       
       bool is_compatible(Canvas *dst);
+      bool is_compatible(Canvas *dst, float w, float h);
+      bool is_compatible(Canvas *dst, const BoxSize &size);
       bool paint(Canvas *dst);
       bool paint_with_alpha(Canvas *dst, float alpha);
       bool mask(Canvas *dst);

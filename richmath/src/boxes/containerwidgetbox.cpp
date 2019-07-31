@@ -65,6 +65,9 @@ void ContainerWidgetBox::paint(Context *context) {
   Rectangle rect = _extents.to_rectangle(Point(x, y));
   ControlState state = calc_state(context);
   
+  if(animation && !animation->is_compatible(context->canvas, rect.width, rect.height)) 
+    animation = nullptr;
+  
   if(state != old_state || !animation) {
     animation = ControlPainter::std->control_transition(
                   id(),
@@ -77,7 +80,7 @@ void ContainerWidgetBox::paint(Context *context) {
                   rect.y,
                   rect.width,
                   rect.height);
-                  
+    
     old_state = state;
   }
   
