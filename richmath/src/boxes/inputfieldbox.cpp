@@ -54,6 +54,9 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 ControlState InputFieldBox::calc_state(Context *context) {
+  if(!enabled())
+    return Disabled;
+  
   if(selection_inside) {
     if(mouse_inside)
       return PressedHovered;
@@ -61,7 +64,7 @@ ControlState InputFieldBox::calc_state(Context *context) {
     return Pressed;
   }
   
-  return ContainerWidgetBox::calc_state(context);
+  return base::calc_state(context);
 }
 
 bool InputFieldBox::expand(const BoxSize &size) {
@@ -326,59 +329,68 @@ bool InputFieldBox::exitable() {
 }
 
 bool InputFieldBox::selectable(int i) {
-  return i >= 0;
+  return i >= 0 && enabled();
 }
 
 void InputFieldBox::on_mouse_down(MouseEvent &event) {
-  if(auto doc = find_parent<Document>(false)) {
-    doc->on_mouse_down(event);
-    return;
+  if(enabled()) {
+    if(auto doc = find_parent<Document>(false)) {
+      doc->on_mouse_down(event);
+      return;
+    }
   }
   
-  ContainerWidgetBox::on_mouse_down(event);
+  base::on_mouse_down(event);
 }
 
 void InputFieldBox::on_mouse_move(MouseEvent &event) {
-  if(auto doc = find_parent<Document>(false)) {
-    doc->on_mouse_move(event);
-    return;
+  if(enabled()) {
+    if(auto doc = find_parent<Document>(false)) {
+      doc->on_mouse_move(event);
+      return;
+    }
   }
   
-  ContainerWidgetBox::on_mouse_move(event);
+  base::on_mouse_move(event);
 }
 
 void InputFieldBox::on_mouse_up(MouseEvent &event) {
-  if(auto doc = find_parent<Document>(false)) {
-    doc->on_mouse_up(event);
-    return;
+  if(enabled()) {
+    if(auto doc = find_parent<Document>(false)) {
+      doc->on_mouse_up(event);
+      return;
+    }
   }
   
-  ContainerWidgetBox::on_mouse_up(event);
+  base::on_mouse_up(event);
 }
 
 void InputFieldBox::on_enter() {
   request_repaint_all();
   
-  ContainerWidgetBox::on_enter();
+  base::on_enter();
 }
 
 void InputFieldBox::on_exit() {
   request_repaint_all();
   
-  ContainerWidgetBox::on_exit();
+  base::on_exit();
   
   if(invalidated)
     assign_dynamic();
 }
 
 void InputFieldBox::on_finish_editing() {
-  if(invalidated)
+  if(invalidated && enabled())
     assign_dynamic();
     
-  ContainerWidgetBox::on_finish_editing();
+  base::on_finish_editing();
 }
 
 void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
+  if(!enabled())
+    return;
+    
   switch(event.key) {
     case SpecialKey::Return:
     
@@ -419,7 +431,7 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
       break;
   }
   
-  ContainerWidgetBox::on_key_down(event);
+  base::on_key_down(event);
 }
 
 void InputFieldBox::on_key_press(uint32_t unichar) {
