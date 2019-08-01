@@ -76,8 +76,10 @@ FE`Private`shortcuts:= {
 	%Item(KeyEvent("NumpadEnter", {KeyShift}),       "EvaluateSections"), % EvaluateNextSection
 	Item(KeyEvent("Enter", {KeyControl, KeyShift}), "EvaluateInPlace"),
 	Item(KeyEvent("F7", {}),                        "SubsessionEvaluateSections"),
-	Item(KeyEvent("Esc", {KeyShift}),               "EvaluatorAbort")/*,
-	Item(KeyEvent("Esc", {KeyAlt}),                 "RemoveFromEvaluationQueue")*/
+	Item(KeyEvent("Esc", {KeyShift}),               "EvaluatorAbort"),
+	%Item(KeyEvent("Esc", {KeyAlt}),                 "RemoveFromEvaluationQueue"),
+
+	Item(KeyEvent("F1", {}),                        "OpenSelectionHelp")
 	}
 
 

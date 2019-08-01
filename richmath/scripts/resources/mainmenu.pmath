@@ -90,7 +90,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 				"Mathematica 10 Serif",
 				"Mathematica 10 Sans",
 				"Mathematica Mono",
-				"Mathematica Serif",
+				"Mathematica Serif"
 			}).Map(Item(#,             ScopedCommand(MathFontFamily -> #, Document)) &),
 			))
 		}),
@@ -118,6 +118,9 @@ FE`Private`mainmenu:= Menu("pMath", {
 			}),
 		Delimiter,
 		Menu("open windows", "MenuListWindows")
+		}),
+	Menu("&Help", {
+		Item("&Find Selected Function", "OpenSelectionHelp")
 		})
 	});
 
