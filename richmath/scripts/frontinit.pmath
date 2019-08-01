@@ -151,6 +151,10 @@ Function privateMmaFonts() {
 
 $PrivateStartupFontFiles:= Join($PrivateStartupFontFiles, privateMmaFonts())
 
+
+<<Documentation`
+
+
 Unprotect(System`CreateDocument, System`DocumentOpen, System`Documents, System`SelectedDocument, System`SetSelectedDocument)
 Clear(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
 CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))

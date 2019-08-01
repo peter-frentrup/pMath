@@ -33,9 +33,10 @@ Document({
          DefaultReturnCreatedSectionStyle -> "Notes", 
          ReturnCreatesNewSection -> True), Section(StyleData("Notes"), 
          BaseStyle -> "Text", DefaultNewSectionStyle -> "Notes", 
-         ReturnCreatesNewSection -> True, SectionMargins -> {35, Inherited, 5, 
-          5}, SectionDingbat -> StyleBox("\"\[U+25AA]\"", 
-          FontColor -> GrayLevel(0.5`)), ShowSectionBracket -> Automatic), 
+         ReturnCreatesNewSection -> True, SectionDingbat :> StyleBox(
+          "\"\[U+25AA]\"", FontColor -> GrayLevel(0.5`)), 
+         SectionMargins -> {35, Inherited, 5, 5}, 
+         ShowSectionBracket -> Automatic), 
         Section(StyleData("2ColumnTableNotes"), BaseStyle -> "Text", 
          SectionMargins -> {35, Inherited, 5, 5}, 
          ShowSectionBracket -> Automatic), 
@@ -95,24 +96,23 @@ Document({
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
                ComplexStringBox({
                  "\"", ButtonBox(#1, ButtonFunction -> (Replace(#1, {
-                    BoxData(~FE`Private`name:String) :> DocumentOpen(
-                     ToFileName({FE`$FrontEndDirectory, "resources", 
-                       "Documentation", "System"}, 
-                      FE`Private`name ++ ".pmathdoc"))}, 0) &), 
+                    BoxData(~FE`Private`name:String) :> With({
+                      FE`Private`file:= 
+                       Documentation`FindSymbolDocumentationByFullName(
+                       FE`Private`name)}, If(IsString(FE`Private`file), 
+                      DocumentOpen(FE`Private`file)))}, 0) &), 
                   BaseStyle -> "Text", ButtonFrame -> "Frameless"), "\""}), 
                FontColor -> Dynamic(
-                With({FE`Private`filetype:= With({
+                With({FE`Private`file:= With({
                     FE`Private`name:= With({
                       FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
                      ReleaseHold(FE`CallFrontEnd(
                        FrontEnd`PrepareDynamicEvaluation(#1, 
                         FE`Private`dyn))))}, 
-                   FileType(ToFileName({FE`$FrontEndDirectory, "resources", 
-                      "Documentation", "System"}, 
-                     FE`Private`name ++ ".pmathdoc")))}, 
-                 If(FE`Private`filetype === File, 
-                  RGBColor(0, 0, 0.80000000000000004`), 
-                  RGBColor(0.80000000000000004`, 0, 0))))) &)}), 
+                   Documentation`FindSymbolDocumentationByFullName(
+                    FE`Private`name))}, If(FE`Private`file === None, 
+                  RGBColor(0.80000000000000004`, 0, 0), 
+                  RGBColor(0, 0, 0.80000000000000004`))))) &)}), 
             Section(StyleData("NamedCharacterHyperlink"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
                ComplexStringBox({"\"\\\\[", #1, "]\""}), 

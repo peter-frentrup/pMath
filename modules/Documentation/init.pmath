@@ -1,0 +1,42 @@
+BeginPackage("Documentation`", {"ExperimentalSyntax`"})
+
+$DocumentationPath
+FindSymbolDocumentation
+FindSymbolDocumentationByFullName
+FindSymbolDocumentationByNamespaceAndName
+
+Begin("Documentation`Private`")
+
+
+$DocumentationPath:= {ToFileName(DirectoryName($Input), "Files")}
+
+Attributes(FindSymbolDocumentation):= {HoldAllComplete}
+FindSymbolDocumentation(~s:Symbol)::=
+    FindSymbolDocumentationByNamespaceAndName(Namespace(s), SymbolName(s))
+
+Function FindSymbolDocumentationByFullName(~fullname:String) {
+    With(components:= StringSplit(fullname, "`"))
+    If(components === {}) {
+        None
+    } Else If(Length(components) === 1) {
+        FindSymbolDocumentationByNamespaceAndName("System`", Last(components))
+    } Else {
+        FindSymbolDocumentationByNamespaceAndName(ToString@Row(Most(components), "`"), Last(components))
+    }
+}
+
+Function FindSymbolDocumentationByNamespaceAndName(~namespace:String, ~name:String) {
+    % TODO: check that name is actually a valid symbol and does not contain invalid characters
+    With(dirs:= $DocumentationPath.Map(Function(ToFileName@Prepend(namespace.StringSplit("`"), #))))
+    With(files:= dirs.FileNames(name ++ ".pmathdoc"))
+    If(files === {}) {
+        None
+    } Else {
+        First(files)
+    }
+}
+
+
+End()
+
+EndPackage()
