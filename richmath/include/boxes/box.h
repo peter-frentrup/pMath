@@ -175,7 +175,16 @@ namespace richmath {
       Box();
       virtual ~Box();
       
+      /// Usually called after the box was inserted into a document.
+      ///
+      /// This function allows for stylesheet-dependent initialization. The default implementation
+      /// calls item(i)->after_insertion() recursively for all child boxes item(i).
       virtual void after_insertion();
+      
+      /// Usually called after parts have been inserted into this Box when this Box is already part of a document.
+      ///
+      /// This calls item(i)->after_insertion() for all child boxes item(i) whose index() is >= start and < end.
+      void after_insertion(int start, int end);
       
       /// Mark the box for deletion.
       ///
@@ -216,6 +225,15 @@ namespace richmath {
       bool is_parent_of(Box *child); // x->is_parent_of(x) is true
       
       static Box *common_parent(Box *a, Box *b);
+      
+      /// Get the next box after/before this one.
+      /// \param direction          The search direction.
+      /// \param restrict_to_parent (Optional) If set, restrict search to the sub-tree of child-nodes of that box.
+      /// \return The subsequent box (child/sibling/other relative) or NULL if none exists in the given search direction.
+      Box *next_box(LogicalDirection direction, Box *restrict_to_parent = nullptr);
+      
+      /// Find a child box after/before a given index.
+      Box *next_child_or_null(int index, LogicalDirection direction);
       
       /// Get the i-th child box for i bewteen 0 to count()-1.
       ///

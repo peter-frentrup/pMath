@@ -52,101 +52,22 @@ namespace richmath {
   };
 }
 
-static int get_box_item_number(Box *parent, Box *box) { // -1 on error
-  assert(parent);
-  assert(box);
-  
-  int count = parent->count();
-  if(count == parent->length()) {
-    int i = box->index();
-    if(/*i >= 0 && i < count && */parent->item(i) == box)
-      return i;
-    return -1;
-  }
-  
-  for(int i = 0; i < count; ++i) {
-    if(parent->item(i) == box)
-      return i;
-  }
-  return -1;
-}
-
-static Box *next_box_outside(Box *box, LogicalDirection direction, Box *stop_parent) {
-  int delta = (direction == LogicalDirection::Forward) ? +1 : -1;
-  
-  while(box && box != stop_parent) {
-    Box *parent = box->parent();
-    if(!parent)
-      return nullptr;
-      
-    int num = get_box_item_number(parent, box);
-    if(num < 0)
-      return nullptr;
-      
-    num += delta;
-    if(0 <= num && num < parent->count())
-      return parent->item(num);
-      
-    box = parent;
-  }
-  return nullptr;
-}
-
-static Box *next_child_or_null(Box *box, int index, LogicalDirection direction) {
-  if(!box)
-    return nullptr;
-  
-  int count = box->count();
-  if(count == 0)
-    return box;
-  
-  if(direction == LogicalDirection::Forward) {
-    for(int i = 0; i < count; ++i) {
-      Box *item = box->item(i);
-      if(item->index() >= index)
-        return item;
-    }
-  }
-  else {
-    for(int i = count - 1; i >= 0; --i) {
-      Box *item = box->item(i);
-      if(item->index() < index)
-        return item;
-    }
-  }
-    
-  return nullptr;
-}
-
-static Box *next_box(Box *box, LogicalDirection direction, Box *stop_parent) {
-  if(!box)
-    return nullptr;
-    
-  int count = box->count();
-  if(count > 0) {
-    if(direction == LogicalDirection::Forward)
-      return box->item(0);
-    else
-      return box->item(count - 1);
-  }
-  
-  return next_box_outside(box, direction, stop_parent);
-}
-
 template<typename T>
 static T *search_box(Box *start, LogicalDirection direction, Box *stop_parent) {
   while(start) {
     if(T *result = dynamic_cast<T*>(start))
       return result;
       
-    start = next_box(start, direction, stop_parent);
+    start = start->next_box(direction, stop_parent);
   }
   return nullptr;
 }
 
 template<typename T>
 static T *search_next_box(Box *start, LogicalDirection direction, Box *stop_parent) {
-  return search_box<T>(next_box(start, direction, stop_parent), direction, stop_parent);
+  if(!start)
+    return nullptr;
+  return search_box<T>(start->next_box(direction, stop_parent), direction, stop_parent);
 }
 
 //{ class TemplateBox ...
@@ -295,7 +216,7 @@ Box *TemplateBox::move_vertical(
   
   *index_rel_x = old_rel_x;
   
-  tmp = next_child_or_null(box, *index, direction);
+  tmp = box->next_child_or_null(*index, direction);
   TemplateBoxSlot *slot = search_next_box<TemplateBoxSlot>(tmp, direction, this);
   if(slot) {
     if(direction == LogicalDirection::Forward)

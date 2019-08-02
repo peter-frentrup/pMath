@@ -11,6 +11,18 @@
 using namespace pmath;
 using namespace richmath;
 
+
+namespace {
+  class BoxNavigation {
+    public:
+      static Box *next_box(Box *box, LogicalDirection direction, Box *restrict_to_parent);
+    
+    private:
+      static int get_box_item_number(Box *parent, Box *box); // -1 on error
+      static Box *next_box_outside(Box *box, LogicalDirection direction, Box *stop_parent);
+  };
+}
+
 //{ class MouseEvent ...
 
 MouseEvent::MouseEvent()
@@ -106,6 +118,20 @@ void Box::after_insertion() {
     item(i)->after_insertion();
 }
 
+void Box::after_insertion(int start, int end) {
+  int i = 0;
+  while(i < count() && item(i)->index() < start)
+    ++i;
+  
+  for(; i < count(); ++i) {
+    Box *box = item(i);
+    if(box->index() >= end)
+      break;
+    
+    box->after_insertion();
+  }
+}
+
 void Box::safe_destroy() {
   if(AutoMemorySuspension::are_deletions_suspended()) {
     _index = 0;
@@ -155,6 +181,33 @@ Box *Box::common_parent(Box *a, Box *b) {
   }
   
   return a;
+}
+
+Box *Box::next_box(LogicalDirection direction, Box *restrict_to_parent) {
+  return BoxNavigation::next_box(this, direction, restrict_to_parent);
+}
+
+Box *Box::next_child_or_null(int index, LogicalDirection direction) {
+  int _count = count();
+  if(_count == 0)
+    return nullptr;
+  
+  if(direction == LogicalDirection::Forward) {
+    for(int i = 0; i < _count; ++i) {
+      Box *box = item(i);
+      if(box->index() >= index)
+        return box;
+    }
+  }
+  else {
+    for(int i = _count - 1; i >= 0; --i) {
+      Box *box = item(i);
+      if(box->index() < index)
+        return box;
+    }
+  }
+    
+  return nullptr;
 }
 
 bool Box::update_dynamic_styles(Context *context) {
@@ -957,3 +1010,62 @@ bool AbstractSequence::request_repaint_range(int start, int end) {
 }
 
 //} ... class AbstractSequence
+
+//{ class BoxNavigation ...
+
+Box *BoxNavigation::next_box(Box *box, LogicalDirection direction, Box *restrict_to_parent) {
+  if(!box)
+    return nullptr;
+    
+  int count = box->count();
+  if(count > 0) {
+    if(direction == LogicalDirection::Forward)
+      return box->item(0);
+    else
+      return box->item(count - 1);
+  }
+  
+  return next_box_outside(box, direction, restrict_to_parent);
+}
+
+int BoxNavigation::get_box_item_number(Box *parent, Box *box) { // -1 on error
+  assert(parent);
+  assert(box);
+  
+  int count = parent->count();
+  if(count == parent->length()) {
+    int i = box->index();
+    if(/*i >= 0 && i < count && */parent->item(i) == box)
+      return i;
+    return -1;
+  }
+  
+  for(int i = 0; i < count; ++i) {
+    if(parent->item(i) == box)
+      return i;
+  }
+  return -1;
+}
+
+Box *BoxNavigation::next_box_outside(Box *box, LogicalDirection direction, Box *stop_parent) {
+  int delta = (direction == LogicalDirection::Forward) ? +1 : -1;
+  
+  while(box && box != stop_parent) {
+    Box *parent = box->parent();
+    if(!parent)
+      return nullptr;
+      
+    int num = get_box_item_number(parent, box);
+    if(num < 0)
+      return nullptr;
+      
+    num += delta;
+    if(0 <= num && num < parent->count())
+      return parent->item(num);
+      
+    box = parent;
+  }
+  return nullptr;
+}
+
+//} ... class BoxNavigation

@@ -57,6 +57,8 @@ namespace richmath {
       void set_raw(Box *box, int _start, int _end);
       void reset() { set(nullptr, 0, 0); }
       
+      int length() const { return end - start; }
+      
       bool equals(Box *box, int _start, int _end) const;
       bool equals(const SelectionReference &other) const;
       
