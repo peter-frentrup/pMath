@@ -2360,8 +2360,7 @@ void Document::paste_from_boxes(Expr boxes) {
     move_to(sel, sel->length());
     
     grid->invalidate();
-    // TODO: only call on new grid items.
-    grid->after_insertion();
+    grid->after_insertion(); // TODO: only call on new grid items.
     return;
   }
   
@@ -2381,43 +2380,19 @@ void Document::paste_from_boxes(Expr boxes) {
   remove_selection(false);
   
   if(DocumentImpl(*this).prepare_insert()) {
-    if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
+    if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
     
       BoxInputFlags options = BoxInputFlags::Default;
       if(seq->get_style(AutoNumberFormating))
         options |= BoxInputFlags::FormatNumbers;
         
-      MathSequence *tmp = new MathSequence;
+      AbstractSequence *tmp = seq->create_similar();
       tmp->load_from_object(boxes, options);
       
-      int newpos = context.selection.end + tmp->length();
-      seq->insert(context.selection.end, tmp);
-      
-      // TODO: only call on new seq items 
-      seq->after_insertion();
-      
-      select(seq, newpos, newpos);
-      
-      return;
-    }
-    
-    if(auto seq = dynamic_cast<TextSequence *>(context.selection.get())) {
-    
-      BoxInputFlags options = BoxInputFlags::Default;
-      if(seq->get_style(AutoNumberFormating))
-        options |= BoxInputFlags::FormatNumbers;
-        
-      TextSequence *tmp = new TextSequence;
-      tmp->load_from_object(boxes, options);
-      
-      int newpos = context.selection.end + tmp->length();
-      seq->insert(context.selection.end, tmp);
-      
-      // TODO: only call on new seq items 
-      seq->after_insertion();
-      
-      select(seq, newpos, newpos);
-      
+      int ins_start = context.selection.end;
+      int ins_end = seq->insert(ins_start, tmp);
+      seq->after_insertion(ins_start, ins_end);
+      select(seq, ins_end, ins_end);
       return;
     }
   }
@@ -3059,6 +3034,41 @@ void Document::insert_string(String text, bool autoformat) {
   }
 }
 
+static AbstractSequence *find_selection_placeholder(
+  Box *current, 
+  int *index, 
+  Box *root, 
+  int root_end,
+  bool stop_early = false
+) {
+  assert(index != nullptr);
+  
+  AbstractSequence *placeholder_seq = nullptr;
+  int placeholder_pos = -1;
+  
+  while(current && (current != root || *index < root_end)) {
+    AbstractSequence *current_seq = dynamic_cast<AbstractSequence *>(current);
+    
+    if(current_seq && current_seq->is_placeholder(*index)) {
+      if(stop_early || current_seq->char_at(*index) == PMATH_CHAR_SELECTIONPLACEHOLDER) {
+        placeholder_seq = current_seq;
+        placeholder_pos = *index;
+        break;
+      }
+      
+      if(!placeholder_seq) {
+        placeholder_seq = current_seq;
+        placeholder_pos = *index;
+      }
+    }
+    
+    current = current->move_logical(LogicalDirection::Forward, false, index);
+  }
+  
+  *index = placeholder_pos;
+  return placeholder_seq;
+}
+
 void Document::insert_box(Box *box, bool handle_placeholder) {
   if(!box || !DocumentImpl(*this).prepare_insert()) {
     Document *cur = get_current_document();
@@ -3084,138 +3094,52 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
   }
   
   if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
-    Box *new_sel_box = nullptr;
-    int new_sel_start = 0;
-    int new_sel_end = 0;
+    int rem_length = context.selection.length();
+    int ins_start = context.selection.start;
+    
+    if(!handle_placeholder) {
+      seq->remove(ins_start, ins_start + rem_length);
+      rem_length = 0;
+    }
+    
+    int ins_end = seq->insert(ins_start, box);
+    box = nullptr;
+    
+    move_to(seq, ins_end);
+    seq->after_insertion(ins_start, ins_end);
     
     if(handle_placeholder) {
-      AbstractSequence *placeholder_seq = nullptr;
-      int placeholder_pos = 0;
+      int pl_start = ins_start;
+      AbstractSequence *pl_seq = find_selection_placeholder(seq, &pl_start, seq, ins_end);
       
-      int i = 0;
-      Box *current = box;
-      while(current && (current != box || i < box->length())) {
-        AbstractSequence *current_seq = dynamic_cast<AbstractSequence *>(current);
+      int pl_end = pl_start + 1;
+      if(pl_seq && pl_seq == pl_seq->normalize_selection(&pl_start, &pl_end)) {
+        int old_pl_len = pl_end - pl_start;
         
-        if(current_seq && current_seq->is_placeholder(i)) {
-          if(current_seq->char_at(i) == PMATH_CHAR_SELECTIONPLACEHOLDER) {
-            placeholder_seq = current_seq;
-            placeholder_pos = i;
-            break;
-          }
-          
-          if(!placeholder_seq) {
-            placeholder_seq = current_seq;
-            placeholder_pos = i;
-          }
-        }
+        pl_seq->remove(pl_start, pl_end);
+        pl_end = pl_start;
         
-        current = current->move_logical(LogicalDirection::Forward, false, &i);
+        if(pl_seq == seq)
+          ins_end-= old_pl_len;
+        
+        if(rem_length == 0) 
+          pl_end = pl_seq->insert(pl_start, PMATH_CHAR_PLACEHOLDER);
+        else 
+          pl_end = pl_seq->insert(pl_start, seq, ins_end, ins_end + rem_length);
+        
+        if(pl_seq == seq)
+          ins_end+= pl_end - pl_start;
+        
+        pl_start = ins_start;
+        pl_seq = find_selection_placeholder(seq, &pl_start, seq, ins_end, true);
+        if(pl_seq)
+          select(pl_seq, pl_start, pl_start + 1);
+        else
+          move_to(seq, ins_end);
       }
       
-      if(placeholder_seq) {
-        if(selection_length() == 0) {
-          if(placeholder_seq->char_at(placeholder_pos) == PMATH_CHAR_SELECTIONPLACEHOLDER) {
-            placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
-            placeholder_seq->insert(placeholder_pos, PMATH_CHAR_PLACEHOLDER);
-          }
-          
-          new_sel_box   = placeholder_seq;
-          new_sel_start = placeholder_pos;
-          new_sel_end   = new_sel_start + 1;
-        }
-        else {
-          placeholder_seq->remove(placeholder_pos, placeholder_pos + 1);
-          placeholder_seq->insert(
-            placeholder_pos,
-            seq,
-            context.selection.start,
-            context.selection.end);
-            
-          if(selection_length() == 1 &&
-              placeholder_seq->is_placeholder(placeholder_pos))
-          {
-            new_sel_box   = placeholder_seq;
-            new_sel_start = placeholder_pos;
-            new_sel_end   = new_sel_start + 1;
-          }
-          else {
-            current = placeholder_seq;
-            i = placeholder_pos + selection_length();
-            while(current) {
-              MathSequence *current_seq = dynamic_cast<MathSequence *>(current);
-              
-              if(current_seq && current_seq->is_placeholder(i)) {
-                new_sel_box = current_seq;
-                new_sel_start = i;
-                new_sel_end = i + 1;
-                break;
-              }
-              
-              Box *prev = current;
-              int prev_index = i;
-              current = current->move_logical(LogicalDirection::Forward, false, &i);
-              
-              if(prev == current && i == prev_index)
-                break;
-            }
-            
-            if(!new_sel_box) {
-              current = box;
-              i = 0;
-              while(current && (current != placeholder_seq || i < placeholder_pos)) {
-                MathSequence *current_seq = dynamic_cast<MathSequence *>(current);
-                
-                if(current_seq && current_seq->is_placeholder(i)) {
-                  new_sel_box   = current_seq;
-                  new_sel_start = i;
-                  new_sel_end   = i + 1;
-                  break;
-                }
-                
-                current = current->move_logical(LogicalDirection::Forward, false, &i);
-              }
-            }
-          }
-        }
-      }
+      seq->remove(ins_end, ins_end + rem_length);
     }
-    
-    seq = dynamic_cast<AbstractSequence *>(context.selection.get());
-    if(!seq) {
-      box->safe_destroy();
-      return;
-    }
-    
-    if(context.selection.start < context.selection.end) {
-      seq->remove(context.selection.start, context.selection.end);
-      context.selection.end = context.selection.start;
-    }
-    
-    if(new_sel_box) {
-      if(new_sel_box == box) {
-        new_sel_box    = seq;
-        new_sel_start += context.selection.start;
-        new_sel_end   += context.selection.start;
-      }
-      
-      seq->insert(context.selection.start, box);
-      select(new_sel_box, new_sel_start, new_sel_end);
-    }
-    else {
-      int len = 1;
-      if(dynamic_cast<MathSequence *>(box))
-        len = box->length();
-        
-      seq->insert(context.selection.start, box);
-      
-      move_to(seq, context.selection.start + len);
-    }
-    
-    // TODO: only call after_insertion() on the relevent sub-items of seq.
-    // Note that box may be destroyed already and its previous contents in now in seq.
-    seq->after_insertion();
-    
     return;
   }
   
