@@ -74,6 +74,8 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Item("Text\tAlt+7",                        BaseStyle->"Text"),
 			Item("Code\tAlt+8",                        BaseStyle->"Code"),
 			Item("Input\tAlt+9",                       BaseStyle->"Input"),
+			Item("Output",                             BaseStyle->"Output"),
+			Item("Item",                               BaseStyle->"Item"),
 			Item("DisplayFormula",                     BaseStyle->"DisplayFormula")
 			}),
 		Menu("St&ylesheet", {

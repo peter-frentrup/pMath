@@ -72,26 +72,6 @@ Document({
       SectionGroup({Section("Box styles", "Section"), 
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
           SectionGroup({Section("Hyperlinks", "Subsubsection"), 
-            Section(StyleData("ReferenceHyperlink1"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-               ComplexStringBox({"\"", #1, "\""}), 
-               FontColor -> RGBColor(0, 0, 0.80000000000000004`)) &)}), 
-            Section(StyleData("ReferenceHyperlink2"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-               ComplexStringBox({"\"", #1, "\""}), 
-               FontColor -> Dynamic(
-                With({FE`Private`filetype:= With({
-                    FE`Private`name:= With({
-                      FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-                     ReleaseHold(FE`CallFrontEnd(
-                       FrontEnd`PrepareDynamicEvaluation(#1, 
-                        FE`Private`dyn))))}, 
-                   FileType(ToFileName({FE`$FrontEndDirectory, "resources", 
-                      "Documentation", "System"}, 
-                     FE`Private`name ++ ".pmathdoc")))}, 
-                 If(FE`Private`filetype === File, 
-                  RGBColor(0, 0, 0.80000000000000004`), 
-                  RGBColor(0.80000000000000004`, 0, 0))))) &)}), 
             Section(StyleData("ReferenceHyperlink"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
                ComplexStringBox({
