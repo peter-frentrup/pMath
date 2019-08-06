@@ -673,19 +673,122 @@ void Win32ControlPainter::draw_container(
       Win32Themes::CloseThemeData && 
       Win32Themes::DrawThemeBackground) 
   {
-    bool two_times = false;
-    if(canvas->glass_background && type == PaletteButton) {
-      if(state == Normal)
-        state = Hovered;
-      else if(state == Hovered)
-        two_times = true;
-    }
-    
     int _part, _state;
     HANDLE theme = get_control_theme(context, type, state, &_part, &_state);
     if(!theme)
       goto FALLBACK;
       
+    bool two_times = false;
+    if(canvas->glass_background) {
+      switch(type) {
+        case PaletteButton: {
+          if(state == Normal)
+            state = Hovered;
+          else if(state == Hovered)
+            two_times = true;
+        } break;
+        
+        case NavigationBack:
+        case NavigationForward: 
+          if(!canvas->show_only_text) {
+            cairo_surface_t *tmp = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_ARGB32, w, h);
+            
+            HDC tmp_dc = cairo_win32_surface_get_dc(tmp);
+            if(tmp_dc) {
+              RECT tmp_rect;
+              tmp_rect.left = 0;
+              tmp_rect.right = w;
+              tmp_rect.top = 0;
+              tmp_rect.bottom = h;
+              Win32Themes::DrawThemeBackground(
+                theme, tmp_dc, _part, _state, &tmp_rect, 0);
+              
+              cairo_surface_flush(tmp);
+              
+//              SharedPtr<Buffer> buf;
+//              canvas->save();
+//              {
+//                cairo_matrix_t mat;
+//                cairo_matrix_init_identity(&mat);
+//                canvas->set_matrix(mat);
+//                //buf = new Buffer(canvas, CAIRO_FORMAT_A8, x, y, width, height);
+//                
+//                buf = new Buffer(canvas, CAIRO_FORMAT_A8, 0, 0, w, h);
+//              }
+//              canvas->restore();
+//              if(cairo_t *buf_cr = buf->cairo()) {
+//                cairo_set_source_surface(buf_cr, tmp, 0, 0);
+//                cairo_paint(buf_cr);
+//                buf->blur(1.0);
+//                
+//                canvas->save();
+//                cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(buf->surface());
+//                //cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(tmp);
+//                
+//                cairo_matrix_t mat {};
+//                mat.xx = w / width;
+//                mat.yy = h / height;
+//                mat.xy = mat.yx = 0;
+//                mat.x0 = -x * mat.xx;
+//                mat.y0 = -y * mat.yy;
+//                
+//                cairo_pattern_set_matrix(tmp_pat, &mat);
+//                
+//                Color oldc = canvas->get_color();
+//                canvas->set_color(Color::from_rgb(1, 0, 0), 1.0);
+//                cairo_mask(canvas->cairo(), tmp_pat);
+//                
+//                canvas->fill();
+//                
+//                cairo_pattern_destroy(tmp_pat);
+//                canvas->set_color(oldc);
+//                canvas->restore();
+//              }
+              
+              canvas->save();
+              cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(tmp);
+              
+              // 0.75 is one pixel at default scaling
+              float r = 0.75;
+              struct {float dx; float dy; Color c; float alpha; } shadows[] = {
+                {-r, 0, Color::Black, 0.5 },
+                {0, -r, Color::Black, 0.5 },
+                {r, 0, Color::White, 0.5 },
+                {0, r, Color::White, 0.5 },
+              };
+              
+              cairo_matrix_t mat {};
+              mat.xx = w / width;
+              mat.yy = h / height;
+              mat.xy = mat.yx = 0;
+              
+              Color oldc = canvas->get_color();
+              for(auto &s : shadows) {
+                mat.x0 = -(x + s.dx) * mat.xx;
+                mat.y0 = -(y + s.dy) * mat.yy;
+                
+                cairo_pattern_set_matrix(tmp_pat, &mat);
+                
+                canvas->set_color(s.c, s.alpha);
+                cairo_mask(canvas->cairo(), tmp_pat);
+                
+                canvas->fill();
+              
+              }
+              
+              cairo_pattern_destroy(tmp_pat);
+              canvas->set_color(oldc);
+              canvas->restore();
+            }
+
+            cairo_surface_destroy(tmp);
+          } 
+          break;
+        
+        default: break;
+      }
+    }
+    
     if(!Win32Themes::IsCompositionActive) { /* XP not enough */
       FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
     }

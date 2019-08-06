@@ -8,32 +8,34 @@ Document({
            "{", {ComplexStringBox("\"TopGlass\""), "\[Rule]", {
              "Section", "(", {
               {"BoxData", "@", {
-                "{", {{"ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
-                    "ButtonFrame", "\[Rule]", 
-                    ComplexStringBox("\"NavigationBack\"")}}, ")"}, ",", {
-                  "\n", ComplexStringBox("\"\\[InvisibleSpace]\"")}, ",", {
-                  "\n", {"ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
+                "{", {"ComplexStringBox", "(", {
+                  ComplexStringBox("\"\\\"\""), ",", {
+                   "ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
                      "ButtonFrame", "\[Rule]", 
-                     ComplexStringBox("\"NavigationForward\"")}}, ")"}}, ",", {
-                  "\n", {"FillBox", "(", {"InputFieldBox", "(", {
-                     {"Dynamic", "(", "searchString", ")"}, ",", "String"}, 
-                    ")"}, ")"}}, ",", {"ButtonBox", "(", {
-                   {"{", {
-                     {"StyleBox", "(", {ComplexStringBox("\"\\\"Go\\\"\""), 
-                       ",", {"FontWeight", "\[Rule]", "Bold"}}, ")"}, ",", {
-                      "GraphicsBox", "(", {{"{", "}"}, ",", {
-                        "ImageSize", "\[Rule]", {"{", {"1", ",", "12"}, 
-                         "}"}}}, ")"}}, "}"}, ",", {
-                    "ButtonFrame", "\[Rule]", 
-                    ComplexStringBox("\"Palette\"")}, ",", {
-                    "ButtonFunction", "\[Rule]", " ", {
-                     "(", {
-                      {"(", {"searchString", "\[Assign]", {
-                         "ToString", "@", {
-                          "{", {{"EvaluationDocument", "(", ")"}, ",", {
-                            "SelectedDocument", "(", ")"}}, "}"}}}, ")"}, 
-                      "&"}, ")"}}}, ")"}}, "}"}}, ",", 
-              ComplexStringBox("\"Docked\""), ",", {
+                     ComplexStringBox("\"NavigationBack\"")}}, ")"}, ",", {
+                   "\n", {"ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
+                      "ButtonFrame", "\[Rule]", 
+                      ComplexStringBox("\"NavigationForward\"")}}, ")"}}, ",", 
+                  {"\n", ComplexStringBox("\" \"")}, ",", {
+                   "\n", {"FillBox", "(", {"InputFieldBox", "(", {
+                      {"Dynamic", "(", "searchString", ")"}, ",", "String"}, 
+                     ")"}, ")"}}, ",", {"ButtonBox", "(", {
+                    {"{", {
+                      {"StyleBox", "(", {ComplexStringBox("\"\\\"Go\\\"\""), 
+                        ",", {"FontWeight", "\[Rule]", "Bold"}}, ")"}, ",", {
+                       "GraphicsBox", "(", {{"{", "}"}, ",", {
+                         "ImageSize", "\[Rule]", {"{", {"1", ",", "12"}, 
+                          "}"}}}, ")"}}, "}"}, ",", {
+                     "ButtonFrame", "\[Rule]", 
+                     ComplexStringBox("\"Palette\"")}, ",", {
+                     "ButtonFunction", "\[Rule]", " ", {
+                      "(", {
+                       {"(", {"searchString", "\[Assign]", {
+                          "ToString", "@", {
+                           "{", {{"EvaluationDocument", "(", ")"}, ",", {
+                             "SelectedDocument", "(", ")"}}, "}"}}}, ")"}, 
+                       "&"}, ")"}}}, ")"}, ",", ComplexStringBox("\"\\\"\"")}, 
+                 ")"}, "}"}}, ",", ComplexStringBox("\"Docked\""), ",", {
                "LineBreakWithin", "\[Rule]", "False"}}, ")"}}, "}"}}}, ")"}, 
        ";"}), "Input", SectionLabel -> "in [1]:"), 
     SectionGroup({
@@ -90,12 +92,13 @@ Document({
          Replace(Magnification, Options(EvaluationDocument(), Magnification)), 
          Inherited -> 1)}})}), "Docked"), 
   "TopGlass" -> Section(
-   BoxData({ButtonBox("", ButtonFrame -> "NavigationBack"), 
-     "\[InvisibleSpace]", ButtonBox("", ButtonFrame -> "NavigationForward"), 
-     FillBox(InputFieldBox(Dynamic(Global`searchString), String)), 
-     ButtonBox({StyleBox("\"Go\"", FontWeight -> Bold), 
-       GraphicsBox({}, ImageSize -> {1, 12})}, ButtonFrame -> "Palette", 
-      ButtonFunction -> ((Global`searchString:= ToString({
-        EvaluationDocument(), SelectedDocument()})) &))}), "Docked", 
+   BoxData({
+     ComplexStringBox("\"", ButtonBox("", ButtonFrame -> "NavigationBack"), 
+      ButtonBox("", ButtonFrame -> "NavigationForward"), " ", 
+      FillBox(InputFieldBox(Dynamic(Global`searchString), String)), 
+      ButtonBox({StyleBox("\"Go\"", FontWeight -> Bold), 
+        GraphicsBox({}, ImageSize -> {1, 12})}, ButtonFrame -> "Palette", 
+       ButtonFunction -> ((Global`searchString:= ToString({
+         EvaluationDocument(), SelectedDocument()})) &)), "\"")}), "Docked", 
    LineBreakWithin -> False), "Bottom" -> {}}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

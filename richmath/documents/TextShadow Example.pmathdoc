@@ -2,112 +2,118 @@
 
 Document({
   SectionGroup({Section("TextShadow Example", "Title"), 
-    Section(BoxData(/\/({{"px", "\[Assign]", "0.75"}, ";"}, "\n", {
-        {{"Style", "(", {ComplexStringBox("\"Shadow Text\""), ",", "56", ",", {
-            "RGBColor", "(", {FractionBox("228", "255"), ",", 
-             FractionBox("243", "255"), ",", FractionBox("249", "255")}, ")"}, 
-           ",", "\n", {"TextShadow", "\[Rule]", {
-             "Join", "(", "\n", {
-              {"{", {{"{", {{"14", "px"}, ",", {"14", "px"}, ",", {
-                   "RGBColor", "(", {{"5", "/", "255"}, ",", {
-                     "13", "/", "255"}, ",", {"20", "/", "255"}}, ")"}, ",", {
-                   "12", "px"}}, "}"}, ",", "\n", {
-                 "{", {{"12", "px"}, ",", {"12", "px"}, ",", {
-                   "RGBColor", "(", {{"28", "/", "255"}, ",", {
-                     "67", "/", "255"}, ",", {"103", "/", "255"}}, ")"}, ",", {
-                   "1", "px"}}, "}"}}, "}"}, ",", "\n", {
-               "Table", "(", {
-                {"{", {{"i", " ", "px"}, ",", {"i", " ", "px"}, ",", {
-                   "RGBColor", "@@", {
-                    "(", "\n", {
-                     {{"(", {"List", "@@", {"RGBColor", "(", {
-                          FractionBox("42", "255"), ",", 
-                          FractionBox("101", "255"), ",", 
-                          FractionBox("139", "255")}, ")"}}, ")"}, 
-                      FractionBox({"i", "-", "1"}, "10")}, "+", {
-                      {"(", {"List", "@@", {"RGBColor", "(", {
-                          FractionBox("30", "255"), ",", 
-                          FractionBox("72", "255"), ",", 
-                          FractionBox("108", "255")}, ")"}}, ")"}, 
-                      FractionBox({"11", "-", "i"}, "10")}}, ")"}}}, "}"}, 
-                ",", {"i", "\[Rule]", {"11", "..", "1", "..", {"-", "1"}}}}, 
-               ")"}, ",", "\n", {
-               "{", {{"{", {{"1", "px"}, ",", {"1", "px"}, ",", {
-                   "RGBColor", "(", {{"232", "/", "255"}, ",", {
-                     "247", "/", "255"}, ",", "1"}, ")"}, ",", {"1", "px"}}, 
-                 "}"}, ",", "\n", {
-                 "{", {{{"-", "1"}, "px"}, ",", {{"-", "1"}, "px"}, ",", 
-                  "White", ",", {"1", "px"}}, "}"}, ",", "\n", {
-                 "{", {{{"-", "2"}, "px"}, ",", {{"-", "2"}, "px"}, ",", 
-                  "White", ",", {"1", "px"}}, "}"}}, "}"}}, ")"}}}, ")"}, ".", 
-         "List", "(", ComplexStringBox("\"\\n\""), ")"}, ".", "Row"})), 
-     "Input", SectionLabel -> "in [13]:"), 
-    Section(BoxData(InterpretationBox({
-        StyleBox(ComplexStringBox("\"Shadow Text\""), 
-         FontColor -> RGBColor(0.89400000000000002`, 0.95299999999999996`, 
-          0.97599999999999998`), FontSize -> 56, StripOnInput -> False, 
-         TextShadow -> {{10.5`, 10.5`, RGBColor(1/51, 13/255, 4/51), 9.0`}, {
-           9.0`, 9.0`, RGBColor(28/255, 67/255, 103/255), 0.75`}, {
-           8.25`, 8.25`, RGBColor(14/85, 101/255, 139/255)}, {
-           7.5`, 7.5`, RGBColor(4/25, 327/850, 453/850)}, {
-           6.75`, 6.75`, RGBColor(66/425, 28/75, 664/1275)}, {
-           6.0`, 6.0`, RGBColor(64/425, 923/2550, 1297/2550)}, {
-           5.25`, 5.25`, RGBColor(62/425, 149/425, 211/425)}, {
-           4.5`, 4.5`, RGBColor(12/85, 173/510, 247/510)}, {
-           3.75`, 3.75`, RGBColor(58/425, 418/1275, 602/1275)}, {
-           3.0`, 3.0`, RGBColor(56/425, 269/850, 23/50)}, {
-           2.25`, 2.25`, RGBColor(54/425, 389/1275, 571/1275)}, {
-           1.5`, 1.5`, RGBColor(52/425, 749/2550, 1111/2550)}, {
-           0.75`, 0.75`, RGBColor(2/17, 24/85, 36/85)}, {
-           0.75`, 0.75`, RGBColor(232/255, 247/255, 1), 0.75`}, {
-           -0.75`, -0.75`, GrayLevel(1), 0.75`}, {
-           -1.5`, -1.5`, GrayLevel(1), 0.75`}}), ComplexStringBox("\"\n\"")}, 
-       Row({Style("Shadow Text", 56, RGBColor(76/85, 81/85, 83/85), 
-         TextShadow -> {{10.5`, 10.5`, RGBColor(1/51, 13/255, 4/51), 9.0`}, {
-           9.0`, 9.0`, RGBColor(28/255, 67/255, 103/255), 0.75`}, {
-           8.25`, 8.25`, RGBColor(14/85, 101/255, 139/255)}, {
-           7.5`, 7.5`, RGBColor(4/25, 327/850, 453/850)}, {
-           6.75`, 6.75`, RGBColor(66/425, 28/75, 664/1275)}, {
-           6.0`, 6.0`, RGBColor(64/425, 923/2550, 1297/2550)}, {
-           5.25`, 5.25`, RGBColor(62/425, 149/425, 211/425)}, {
-           4.5`, 4.5`, RGBColor(12/85, 173/510, 247/510)}, {
-           3.75`, 3.75`, RGBColor(58/425, 418/1275, 602/1275)}, {
-           3.0`, 3.0`, RGBColor(56/425, 269/850, 23/50)}, {
-           2.25`, 2.25`, RGBColor(54/425, 389/1275, 571/1275)}, {
-           1.5`, 1.5`, RGBColor(52/425, 749/2550, 1111/2550)}, {
-           0.75`, 0.75`, RGBColor(2/17, 24/85, 36/85)}, {
-           0.75`, 0.75`, RGBColor(232/255, 247/255, 1), 0.75`}, {
-           -0.75`, -0.75`, GrayLevel(1), 0.75`}, {
-           -1.5`, -1.5`, GrayLevel(1), 0.75`}}), "\n"}))), "Output", 
-     SectionGenerated -> True, SectionLabel -> "out [14]:"), 
-    Section("Original CSS", "Section"), 
-    Section(
-     "http://webforfreaks.com/cssandtype/index.php?chemin=content/2011-01-02/"\
-     , "Text"), 
-    Section({
-      "Note that the values for TextShadow option above are reversed order in \
-      CSS and pMath does not currently support the alpha channel.\nThe value \
-      of ", {"px", "\[Assign]", "0.75"}, 
-      " comes from a default resulution of 96 pixels per inch, and 1 inch is \
-      72 printers points ", {"\[DoubleRightArrow]", {
-        {"96", "px"}, "=", {"72", "pt"}}, "\[DoubleRightArrow]", {
-        {"1", "px"}, "=", {{"72", "/", "96"}, "pt"}, "=", {"0.75", "pt"}}}, 
-      "."}, "Text"), 
-    Section(
-     ".blue3d textarea {\r\n    resize:none;\r\n    width:800px;\r\n    \
-     height:540px;\r\n    padding:80px 20px 40px 20px;\r\n    overflow: \
-     hidden;\r\n    line-height: 1.2em;\r\n    /* FONT 3D */\r\n   \
-     font-family: 'Arvo', arial, serif;\r\n   background-color: \
-     transparent;\r\n   border:0;\r\n    font-weight:700;\r\n    \
-     color:#e4f3f9;\r\n    font-size:10em;\r\n    text-align:center;\r\n    /* \
-     Left - Top - Grossir*/\r\n    text-shadow:\r\n    -2px -2px 1px #fff,\r\n \
-     \[U+0020]  -1px -1px 1px #fff,\r\n    1px 1px 1px \
-     rgba(232,247,255,0.9),\r\n    1px 1px 0 #2a658b,\r\n    2px 2px 0 \
-     #29638a,\r\n    3px 3px 0 #286188,\r\n    4px 4px 0 #275f85,\r\n    5px \
-     5px 0 #265d83,\r\n    6px 6px 0 #255a80,\r\n    7px 7px 0 #24577d,\r\n    \
-     8px 8px 0 #235479,\r\n    9px 9px 0 #215075,\r\n    10px 10px 0 \
-     #1f4c71,\r\n    11px 11px 0 #1e486c,\r\n    12px 12px 1px \
-     rgba(28,67,103,0.5),\r\n    14px 14px 12px rgba(5,13,20,0.5)\r\n    \
-     ;\r\n}", "Text", FontFamily -> "mono", FontSize -> 8)}, All)}, 
+    SectionGroup({
+      Section(BoxData(/\/({{"px", "\[Assign]", "0.75"}, ";"}, "\n", {
+          {{"Style", "(", {ComplexStringBox("\"Shadow Text\""), ",", "56", 
+             ",", {"RGBColor", "(", {FractionBox("228", "255"), ",", 
+               FractionBox("243", "255"), ",", FractionBox("249", "255")}, 
+              ")"}, ",", {"\n", {"TextShadow", "\[Rule]", {
+                "Join", "(", {
+                 {"\n", {
+                   "{", {{"{", {{"14", "px"}, ",", {"14", "px"}, ",", {
+                       "RGBColor", "(", {{"5", "/", "255"}, ",", {
+                         "13", "/", "255"}, ",", {"20", "/", "255"}}, ")"}, 
+                      ",", {"12", "px"}}, "}"}, ",", {
+                     "\n", {"{", {{"12", "px"}, ",", {"12", "px"}, ",", {
+                        "RGBColor", "(", {{"28", "/", "255"}, ",", {
+                          "67", "/", "255"}, ",", {"103", "/", "255"}}, ")"}, 
+                       ",", {"1", "px"}}, "}"}}}, "}"}}, ",", {
+                  "\n", {"Table", "(", {
+                    {"{", {{"i", " ", "px"}, ",", {"i", " ", "px"}, ",", {
+                       "RGBColor", "@@", {
+                        "(", {
+                         "\n", {
+                          {{"(", {"List", "@@", {"RGBColor", "(", {
+                               FractionBox("42", "255"), ",", 
+                               FractionBox("101", "255"), ",", 
+                               FractionBox("139", "255")}, ")"}}, ")"}, 
+                           FractionBox({"i", "-", "1"}, "10")}, "+", {
+                           {"(", {"List", "@@", {"RGBColor", "(", {
+                               FractionBox("30", "255"), ",", 
+                               FractionBox("72", "255"), ",", 
+                               FractionBox("108", "255")}, ")"}}, ")"}, 
+                           FractionBox({"11", "-", "i"}, "10")}}}, ")"}}}, 
+                     "}"}, ",", {"i", "\[Rule]", {
+                      "11", "..", "1", "..", {"-", "1"}}}}, ")"}}, ",", {
+                  "\n", {
+                   "{", {{"{", {{"1", "px"}, ",", {"1", "px"}, ",", {
+                       "RGBColor", "(", {{"232", "/", "255"}, ",", {
+                         "247", "/", "255"}, ",", "1"}, ")"}, ",", {
+                       "1", "px"}}, "}"}, ",", {
+                     "\n", {"{", {{{"-", "1"}, "px"}, ",", {{"-", "1"}, "px"}, 
+                       ",", "White", ",", {"1", "px"}}, "}"}}, ",", {
+                     "\n", {"{", {{{"-", "2"}, "px"}, ",", {{"-", "2"}, "px"}, 
+                       ",", "White", ",", {"1", "px"}}, "}"}}}, "}"}}}, 
+                ")"}}}}, ")"}, ".", "List", "(", ComplexStringBox("\"\\n\""), 
+           ")"}, ".", "Row"})), "Input"), 
+      Section(BoxData(InterpretationBox({
+          StyleBox(ComplexStringBox("\"Shadow Text\""), 
+           FontColor -> RGBColor(0.89400000000000002`, 0.95299999999999996`, 
+            0.97599999999999998`), FontSize -> 56, StripOnInput -> False, 
+           TextShadow -> {{10.5`, 10.5`, RGBColor(1/51, 13/255, 4/51), 9.0`}, {
+             9.0`, 9.0`, RGBColor(28/255, 67/255, 103/255), 0.75`}, {
+             8.25`, 8.25`, RGBColor(14/85, 101/255, 139/255)}, {
+             7.5`, 7.5`, RGBColor(4/25, 327/850, 453/850)}, {
+             6.75`, 6.75`, RGBColor(66/425, 28/75, 664/1275)}, {
+             6.0`, 6.0`, RGBColor(64/425, 923/2550, 1297/2550)}, {
+             5.25`, 5.25`, RGBColor(62/425, 149/425, 211/425)}, {
+             4.5`, 4.5`, RGBColor(12/85, 173/510, 247/510)}, {
+             3.75`, 3.75`, RGBColor(58/425, 418/1275, 602/1275)}, {
+             3.0`, 3.0`, RGBColor(56/425, 269/850, 23/50)}, {
+             2.25`, 2.25`, RGBColor(54/425, 389/1275, 571/1275)}, {
+             1.5`, 1.5`, RGBColor(52/425, 749/2550, 1111/2550)}, {
+             0.75`, 0.75`, RGBColor(2/17, 24/85, 36/85)}, {
+             0.75`, 0.75`, RGBColor(232/255, 247/255, 1), 0.75`}, {
+             -0.75`, -0.75`, GrayLevel(1), 0.75`}, {
+             -1.5`, -1.5`, GrayLevel(1), 0.75`}}), 
+          ComplexStringBox("\"\n\"")}, Row({
+          Style("Shadow Text", 56, RGBColor(76/85, 81/85, 83/85), 
+           TextShadow -> {{10.5`, 10.5`, RGBColor(1/51, 13/255, 4/51), 9.0`}, {
+             9.0`, 9.0`, RGBColor(28/255, 67/255, 103/255), 0.75`}, {
+             8.25`, 8.25`, RGBColor(14/85, 101/255, 139/255)}, {
+             7.5`, 7.5`, RGBColor(4/25, 327/850, 453/850)}, {
+             6.75`, 6.75`, RGBColor(66/425, 28/75, 664/1275)}, {
+             6.0`, 6.0`, RGBColor(64/425, 923/2550, 1297/2550)}, {
+             5.25`, 5.25`, RGBColor(62/425, 149/425, 211/425)}, {
+             4.5`, 4.5`, RGBColor(12/85, 173/510, 247/510)}, {
+             3.75`, 3.75`, RGBColor(58/425, 418/1275, 602/1275)}, {
+             3.0`, 3.0`, RGBColor(56/425, 269/850, 23/50)}, {
+             2.25`, 2.25`, RGBColor(54/425, 389/1275, 571/1275)}, {
+             1.5`, 1.5`, RGBColor(52/425, 749/2550, 1111/2550)}, {
+             0.75`, 0.75`, RGBColor(2/17, 24/85, 36/85)}, {
+             0.75`, 0.75`, RGBColor(232/255, 247/255, 1), 0.75`}, {
+             -0.75`, -0.75`, GrayLevel(1), 0.75`}, {
+             -1.5`, -1.5`, GrayLevel(1), 0.75`}}), "\n"}), 
+         Editable -> False)), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [14]:")}, All), 
+    SectionGroup({Section("Original CSS", "Section"), 
+      Section(
+       "http://webforfreaks.com/cssandtype/index.php?chemin=content/2011-01-02\
+       /", "Text"), 
+      Section({
+        "Note that the values for TextShadow option above are reversed order \
+        in CSS and pMath does not currently support the alpha channel.\nThe \
+        value of ", {"px", "\[Assign]", "0.75"}, 
+        " comes from a default resulution of 96 pixels per inch, and 1 inch is \
+        72 printers points ", {"\[DoubleRightArrow]", {
+          {"96", "px"}, "=", {"72", "pt"}}, "\[DoubleRightArrow]", {
+          {"1", "px"}, "=", {{"72", "/", "96"}, "pt"}, "=", {"0.75", "pt"}}}, 
+        "."}, "Text"), 
+      Section(
+       ".blue3d textarea {\r\n    resize:none;\r\n    width:800px;\r\n    \
+       height:540px;\r\n    padding:80px 20px 40px 20px;\r\n    overflow: \
+       hidden;\r\n    line-height: 1.2em;\r\n    /* FONT 3D */\r\n   \
+       font-family: 'Arvo', arial, serif;\r\n   background-color: \
+       transparent;\r\n   border:0;\r\n    font-weight:700;\r\n    \
+       color:#e4f3f9;\r\n    font-size:10em;\r\n    text-align:center;\r\n    \
+       /* Left - Top - Grossir*/\r\n    text-shadow:\r\n    -2px -2px 1px \
+       #fff,\r\n    -1px -1px 1px #fff,\r\n    1px 1px 1px \
+       rgba(232,247,255,0.9),\r\n    1px 1px 0 #2a658b,\r\n    2px 2px 0 \
+       #29638a,\r\n    3px 3px 0 #286188,\r\n    4px 4px 0 #275f85,\r\n    5px \
+       5px 0 #265d83,\r\n    6px 6px 0 #255a80,\r\n    7px 7px 0 #24577d,\r\n  \
+       \[U+0020] 8px 8px 0 #235479,\r\n    9px 9px 0 #215075,\r\n    10px 10px \
+       0 #1f4c71,\r\n    11px 11px 0 #1e486c,\r\n    12px 12px 1px \
+       rgba(28,67,103,0.5),\r\n    14px 14px 12px rgba(5,13,20,0.5)\r\n    \
+       ;\r\n}", "Text", FontFamily -> "mono", FontSize -> 8)}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True, 
  WindowTitle -> "TextShadow Example")
