@@ -75,6 +75,10 @@ Expr MathGtkRecentDocuments::as_menu_list() {
   return g.end();
 }
 
+bool MathGtkRecentDocuments::remove(String path) {
+  return false;
+}
+
 void MathGtkRecentDocuments::init() {
 }
 

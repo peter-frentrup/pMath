@@ -71,6 +71,7 @@ namespace richmath {
       
       static MenuCommandStatus test_menucommand_status(Expr cmd);
       static Expr generate_dynamic_submenu(Expr cmd);
+      static bool remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd);
       
       static void register_menucommand(
         Expr cmd,
@@ -78,6 +79,7 @@ namespace richmath {
         MenuCommandStatus (*test)(Expr cmd) = nullptr);
       
       static void register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd));
+      static void register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd));
       
       static bool register_currentvalue_provider(
         Expr   item,

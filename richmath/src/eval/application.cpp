@@ -117,6 +117,7 @@ static SharedPtr<Session> session = new Session(nullptr);
 static Hashtable<Expr, bool              ( *)(Expr)>                        menu_commands;
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                        menu_command_testers;
 static Hashtable<Expr, Expr              ( *)(Expr)>                        dynamic_menu_lists;
+static Hashtable<Expr, bool              ( *)(Expr, Expr)>                  dynamic_menu_list_item_deleter;
 static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)>       currentvalue_providers;
 static Hashtable<Expr, bool              ( *)(FrontEndObject*, Expr, Expr)> currentvalue_setters;
 
@@ -403,6 +404,19 @@ Expr Application::generate_dynamic_submenu(Expr cmd) {
   return Expr();
 }
 
+bool Application::remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd) {
+  bool (*func)(Expr, Expr);
+  
+  if(submenu_cmd.is_null())
+    return false;
+  
+  func = dynamic_menu_list_item_deleter[submenu_cmd];
+  if(func)
+    return func(std::move(submenu_cmd), std::move(item_cmd));
+    
+  return false;
+}
+
 void Application::register_menucommand(
   Expr cmd,
   bool              (*func)(Expr cmd),
@@ -432,10 +446,17 @@ void Application::register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd)) {
   }
   
   if(func)
-    dynamic_menu_lists.set(cmd, func);
+    dynamic_menu_lists.set(std::move(cmd), func);
   else
-    dynamic_menu_lists.remove(cmd);
+    dynamic_menu_lists.remove(std::move(cmd));
 }
+
+void Application::register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd)) {
+  if(func)
+    dynamic_menu_list_item_deleter.set(std::move(submenu_cmd), func);
+  else
+    dynamic_menu_list_item_deleter.remove(std::move(submenu_cmd));
+}      
 
 bool Application::register_currentvalue_provider(
   Expr   item,
@@ -825,6 +846,7 @@ void Application::done() {
   menu_commands.clear();
   menu_command_testers.clear();
   dynamic_menu_lists.clear();
+  dynamic_menu_list_item_deleter.clear();
   currentvalue_providers.clear();
   currentvalue_setters.clear();
   application_filename = String();

@@ -421,14 +421,14 @@ void Win32Menubar::kill_focus() {
 
 HHOOK Win32Menubar::register_hook(int item) {
   if(current_menubar && current_menubar != this)
-    return 0;
+    return nullptr;
     
   current_item = item;
   
   current_menubar = this;
   return SetWindowsHookEx(
            WH_MSGFILTER,
-           &menu_hook_proc,
+           menu_hook_proc,
            nullptr,
            GetCurrentThreadId());
 }
@@ -876,6 +876,27 @@ LRESULT CALLBACK Win32Menubar::menu_hook_proc(int code, WPARAM h_wParam, LPARAM 
         
       case WM_KEYDOWN: {
           switch(msg->wParam) {
+            case VK_DELETE: if(current_menubar->_menu.is_valid()) {
+                HMENU menu = current_menubar->_menu->hmenu();
+                int item = find_hilite_menuitem(&menu);
+                
+                if(menu && item >= 0) {
+                  MENUITEMINFOW info;
+                  memset(&info, 0, sizeof(info));
+                  info.cbSize = sizeof(info);
+                  info.fMask = MIIM_DATA | MIIM_ID;
+                  if(GetMenuItemInfoW(menu, item, TRUE, &info)) {
+                    if(info.dwItemData != 0) {
+                      Expr subitems_cmd = Win32Menu::id_to_command((DWORD)info.dwItemData);
+                      Expr cmd = Win32Menu::id_to_command(info.wID);
+                      if(Application::remove_dynamic_submenu_item(subitems_cmd, cmd)) {
+                        Win32Menu::init_popupmenu(menu);
+                      }
+                    }
+                  }
+                }
+              } break;
+            
             case VK_LEFT: if(current_menubar->_menu.is_valid()) {
                 HMENU menu = current_menubar->_menu->hmenu();
                 int item = find_hilite_menuitem(&menu);

@@ -7,6 +7,7 @@
 #include <gui/recent-documents.h>
 
 #include <gui/win32/ole/combase.h>
+#include <shlwapi.h>
 #include <shlobj.h>
 //#include <shlobjidl.h>
 
@@ -20,8 +21,10 @@ extern pmath_symbol_t richmath_System_DollarApplicationFileName;
 
 namespace {
   class FileAssociationRegistry {
-      static const wchar_t *app_user_model_id;
       static const wchar_t *document_prog_id;
+    public:
+      static const wchar_t *app_user_model_id;
+    
     public:
       static void init_app_user_model_id();
       
@@ -93,6 +96,10 @@ static HRESULT shell_item_to_menu_item(ComBase<IShellItem> shell_item, Expr *men
   wchar_t *str = nullptr;
   
   HR(shell_item->GetDisplayName(SIGDN_FILESYSPATH, &str));
+  if(!PathFileExistsW(str)) {
+    CoTaskMemFree(str);
+    return E_FAIL;
+  }
   String path = String::FromUcs2((const uint16_t*)str);
   CoTaskMemFree(str);
   
@@ -109,6 +116,9 @@ static HRESULT shell_link_to_menu_item(ComBase<IShellLinkW> shell_link, Expr *me
   
   HR(shell_link->GetPath(target, ARRAYSIZE(target), nullptr, 0));
   target[ARRAYSIZE(target) - 1] = L'\0';
+  
+  if(!PathFileExistsW(target)) 
+    return E_FAIL;
   
   String path = String::FromUcs2((const uint16_t*)target);
   if(path.length() == 0)
@@ -135,20 +145,21 @@ static HRESULT jump_list_to_menu_list(Expr *result) {
        (void**)app_doc_lists.get_address_of()));
   
   ComBase<IObjectArray> items;
-  HR(app_doc_lists->GetList(ADLT_RECENT, 9, items.iid(), (void**)items.get_address_of()));
+  HR(app_doc_lists->GetList(ADLT_RECENT, 0, items.iid(), (void**)items.get_address_of()));
   
   unsigned count;
   HR(items->GetCount(&count));
   
-  *result = MakeList(count);
-  for(size_t i = 0; i < count; ++i) {
+  Gather g;
+  for(size_t i = 0, found = 0; i < count && found < 9; ++i) {
     ComBase<IUnknown> obj;
     HR(items->GetAt(i, obj.iid(), (void**)obj.get_address_of()));
     
     if(auto shell_item = obj.as<IShellItem>()) {
       Expr menu_item;
       if(HRbool(shell_item_to_menu_item(std::move(shell_item), &menu_item, i))) {
-        result->set(i + 1, std::move(menu_item));
+        ++found;
+        Gather::emit(std::move(menu_item));
         continue;
       }
     }
@@ -156,11 +167,13 @@ static HRESULT jump_list_to_menu_list(Expr *result) {
     if(auto shell_link = obj.as<IShellLinkW>()) {
       Expr menu_item;
       if(HRbool(shell_link_to_menu_item(std::move(shell_link), &menu_item, i))) {
-        result->set(i + 1, std::move(menu_item));
+        ++found;
+        Gather::emit(std::move(menu_item));
         continue;
       }
     }
   }
+  *result = g.end();
   
   return S_OK;
 }
@@ -172,6 +185,41 @@ Expr Win32RecentDocuments::as_menu_list() {
     return result;
   
   return List();
+}
+
+static HRESULT jump_list_remove(String path) {
+  //pmath_debug_print_object("[remove recent ", path.get(), "]\n");
+  
+  ComBase<IApplicationDestinations> app_dest;
+  HR(CoCreateInstance(
+       CLSID_ApplicationDestinations, nullptr, CLSCTX_INPROC_SERVER,
+       app_dest.iid(),
+       (void**)app_dest.get_address_of()));
+  
+  path+= String::FromChar(0);
+  const wchar_t *buf = (const wchar_t*)path.buffer();
+  if(!buf)
+    return E_OUTOFMEMORY;
+  
+  ComBase<IShellItem> item;
+  HR(SHCreateItemFromParsingName(buf, nullptr, item.iid(), (void**)item.get_address_of()));
+  
+  HR(app_dest->SetAppID(FileAssociationRegistry::app_user_model_id));
+  
+  HR(app_dest->RemoveDestination(item.get()));
+  
+  return S_OK;
+}
+
+bool Win32RecentDocuments::remove(String path) {
+  HRESULT hr = jump_list_remove(std::move(path));
+  if(HRbool(hr)) {
+    if(hr == S_FALSE)
+      return false;
+    else
+      return true;
+  }
+  return false;
 }
 
 void Win32RecentDocuments::init() {

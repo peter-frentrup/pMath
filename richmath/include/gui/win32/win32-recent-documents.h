@@ -13,6 +13,7 @@ namespace richmath {
   struct Win32RecentDocuments {
     static void add(String path);
     static Expr as_menu_list();
+    static bool remove(String path);
     static void init();
     static void done();
   };

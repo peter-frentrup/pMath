@@ -24,6 +24,8 @@ static bool open_selection_help_cmd(Expr cmd);
 static Expr menu_list_windows_enum(Expr name);
 static Expr menu_list_recent_documents_enum(Expr name);
 
+static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd);
+
 
 void richmath::set_current_document(Document *document) {
   if(auto old = get_current_document())
@@ -134,9 +136,10 @@ bool richmath::impl::init_document_functions() {
   Application::register_menucommand(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
   Application::register_menucommand(Symbol(richmath_FrontEnd_DocumentOpen),        document_open_cmd);
   
-  Application::register_dynamic_submenu(String("MenuListWindows"), menu_list_windows_enum);
-  Application::register_dynamic_submenu(String("MenuListRecentDocuments"), menu_list_recent_documents_enum);
-
+  Application::register_dynamic_submenu(     String("MenuListWindows"), menu_list_windows_enum);
+  Application::register_dynamic_submenu(     String("MenuListRecentDocuments"), menu_list_recent_documents_enum);
+  Application::register_submenu_item_deleter(String("MenuListRecentDocuments"), remove_recent_document);
+  
   return true;
 }
 
@@ -205,6 +208,14 @@ static Expr menu_list_recent_documents_enum(Expr name) {
   return RecentDocuments::as_menu_list();
 }
 
+static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd) {
+  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
+    String path{ item_cmd[1] };
+    if(path.length() > 0)
+      return RecentDocuments::remove(std::move(path));
+  }
+  return false;
+}
 
 static bool open_selection_help_cmd(Expr cmd) {
   Document * const doc = get_current_document();
