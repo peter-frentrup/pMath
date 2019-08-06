@@ -687,7 +687,16 @@ void Win32ControlPainter::draw_container(
           else if(state == Hovered)
             two_times = true;
         } break;
-        
+          
+        //case CheckboxUnchecked:
+        //case CheckboxChecked:
+        //case CheckboxIndeterminate:
+        //case RadioButtonUnchecked:
+        //case RadioButtonChecked:
+        //case OpenerTriangleClosed:
+        //case OpenerTriangleOpened:
+        //case SliderHorzChannel:
+        //case SliderHorzThumb:
         case NavigationBack:
         case NavigationForward: 
           if(!canvas->show_only_text) {
