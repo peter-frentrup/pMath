@@ -1795,13 +1795,15 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         }
 
         if(_themed_frame) {
+          int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
           HDC hdc = GetDC(_hwnd);
 
           RECT rect;
           GetClientRect(_hwnd, &rect);
           IntersectClipRect(hdc, 0, 0,
                             rect.right,
-                            GetSystemMetrics(SM_CYFRAME) + GetSystemMetrics(SM_CYCAPTION));
+                            Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) 
+                              + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi));
           paint_themed(hdc);
 
           ReleaseDC(_hwnd, hdc);

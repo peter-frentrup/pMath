@@ -288,10 +288,15 @@ void Win32ControlPainter::calc_container_size(
       if(theme && Win32Themes::GetThemePartSize) {
         SIZE size;
         if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
-          extents->width   = std::max(0.75 * size.cx, (double)extents->width);
+          /* For the Navigation parts, TS_TRUE on 144 DPI monitor gives 45x45 and on
+             96 PDI monitor gives 30, so here the TS_TRUE size is not in terms of the primary monitor DPI (unlike PushButton?)
+           */
+          int dpi = context->dpi();
+          double scale = 72.0 / dpi;
+          extents->width   = std::max(size.cx * scale, (double)extents->width);
           float axis = canvas->get_font_size() * 0.4;
-          extents->ascent  = std::max(axis + size.cy * 0.75 * 0.5, (double)extents->ascent);
-          extents->descent = std::max(-axis + size.cy * 0.75 * 0.5, (double)extents->descent);
+          extents->ascent  = std::max(axis + size.cy * scale * 0.5, (double)extents->ascent);
+          extents->descent = std::max(-axis + size.cy * scale * 0.5, (double)extents->descent);
           return;
         }
       }
