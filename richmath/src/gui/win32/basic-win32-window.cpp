@@ -2044,6 +2044,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               pt.x = (short)LOWORD(lParam);
               pt.y = (short)HIWORD(lParam);
 
+              // TODO: register menu hook to catch VK_DELETE
               int cmd = TrackPopupMenu(
                           menu,
                           GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
@@ -2088,6 +2089,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 x = tpm.rcExclude.right;
               }
 
+              // TODO: register menu hook to catch VK_DELETE
               int cmd = TrackPopupMenuEx(
                           menu,
                           align | TPM_RETURNCMD | TPM_NONOTIFY,

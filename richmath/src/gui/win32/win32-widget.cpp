@@ -1013,7 +1013,8 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
     flags |= TPM_LEFTALIGN;
   else
     flags |= TPM_RIGHTALIGN;
-    
+  
+  // TODO: register menu hook to catch VK_DELETE
   TrackPopupMenuEx(
     Win32Menu::popup_menu->hmenu(),
     flags,
