@@ -1233,7 +1233,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
     
     if(parser.tokens.pos < parser.tokens.len) {
       if(parser.tokens.str[parser.tokens.pos] == '\n')
-        skip_to(&parser, -1, next_token_pos(&parser), FALSE);
+        skip_to(&parser, -1, next_token_pos(&parser), TRUE);
       else
         handle_error(&parser);
     }
