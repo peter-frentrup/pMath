@@ -1262,6 +1262,8 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         } break;
         
       case WM_SYSCOMMAND:
+        // TODO: if (wParam & 0xFFF0) is SC_MOUSEMENU or SC_KEYMENU, temporarily register a menu hook 
+        // to handle VK_DELETE while DefWindowProcW() opens the window menu.
         if(wParam >= 0xF000)
           break;
         /* no break */

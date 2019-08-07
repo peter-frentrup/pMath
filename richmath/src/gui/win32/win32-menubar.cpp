@@ -835,7 +835,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         }
         
         if((wParam & 0xFFF0) == SC_KEYMENU) {
-          if(!lParam) {
+          if(!lParam) { // TODO: what does this mean/when does this happen? This code predates version control history.
             PostMessage(_hwnd, WM_KEYDOWN, VK_ESCAPE, 0);
             kill_focus();
           }
