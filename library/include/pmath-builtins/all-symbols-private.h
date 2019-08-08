@@ -7,6 +7,8 @@
 
 #include <pmath-builtins/all-symbols.h>
 
+struct _pmath_thread_t;
+
 #define PMATH_SYMBOL_BUILTIN(index)  _pmath_builtin_symbol_array[(index)]
 
 /* EARLYCALL is like DOWNCALL, except that the builtin code is run before any

@@ -39,7 +39,7 @@ static void destroy_doorman_entry(void *e) {
 
 static unsigned int hash_doorman_key(void *k) {
   pmath_builtin_func_t key = k;
-  return incremental_hash(&k, sizeof(pmath_builtin_func_t), 0);
+  return incremental_hash(&key, sizeof(pmath_builtin_func_t), 0);
 }
 
 static unsigned int hash_doorman_entry(void *e) {
