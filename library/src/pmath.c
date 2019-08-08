@@ -20,6 +20,7 @@
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/modules-private.h>
+#include <pmath-util/security-private.h>
 #include <pmath-util/stacks-private.h>
 #include <pmath-util/symbol-values-private.h>
 
@@ -485,6 +486,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     if(!_pmath_symbols_init())                goto FAIL_SYMBOLS;
     if(!_pmath_numeric_init())                goto FAIL_NUMERIC;
     if(!_pmath_symbol_values_init())          goto FAIL_SYMBOL_VALUES;
+    if(!_pmath_security_init())               goto FAIL_SECURITY;
     if(!_pmath_symbol_builtins_init())        goto FAIL_BUILTINS;
     if(!_pmath_custom_objects_init())         goto FAIL_CUSTOM;
     if(!_pmath_threadmsg_init())              goto FAIL_THREADMSG;
@@ -992,7 +994,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
   FAIL_THREADPOOL:        _pmath_threadmsg_done();
   FAIL_THREADMSG:         _pmath_custom_objects_done();
   FAIL_CUSTOM:            _pmath_symbol_builtins_done();
-  FAIL_BUILTINS:          _pmath_symbol_values_done();
+  FAIL_BUILTINS:          _pmath_security_done();
+  FAIL_SECURITY:          _pmath_symbol_values_done();
   FAIL_SYMBOL_VALUES:     _pmath_numeric_done();
   FAIL_NUMERIC:           _pmath_symbols_done();
   FAIL_SYMBOLS:           _pmath_packed_arrays_done();
@@ -1084,6 +1087,7 @@ PMATH_API void pmath_done(void) {
     _pmath_threadmsg_done();
     _pmath_custom_objects_done();
     _pmath_symbol_builtins_done();
+    _pmath_security_done();
     _pmath_symbol_values_done();
     _pmath_numeric_done();
     _pmath_symbols_done();

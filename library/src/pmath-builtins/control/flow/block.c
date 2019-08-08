@@ -122,7 +122,7 @@ static void restore_definitions(struct symbol_definition_t *def) {
                          pmath_ref(old->value));
       }
       
-      _pmath_run_code(old->symbol, PMATH_CODE_USAGE_UPCALL, &expr);
+      _pmath_run_code(pmath_thread_get_current(), old->symbol, PMATH_CODE_USAGE_UPCALL, &expr);
       pmath_unref(expr);
     }
   }

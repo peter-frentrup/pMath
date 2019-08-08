@@ -411,7 +411,7 @@ static pmath_t evaluate_expression(
       if(_pmath_have_code(head, PMATH_CODE_USAGE_EARLYCALL)) {
         expr_changes = _pmath_expr_last_change(expr);
         
-        if(_pmath_run_code(head, PMATH_CODE_USAGE_EARLYCALL, &expr)) {
+        if(_pmath_run_code(current_thread, head, PMATH_CODE_USAGE_EARLYCALL, &expr)) {
           if( !pmath_is_expr(expr) ||
               expr_changes != _pmath_expr_last_change(expr))
           {
@@ -508,7 +508,7 @@ static pmath_t evaluate_expression(
           pmath_unref(stack_frame.head);
           stack_frame.head = pmath_ref(sym);
           
-          if(_pmath_run_code(sym, PMATH_CODE_USAGE_UPCALL, &expr)) {
+          if(_pmath_run_code(current_thread, sym, PMATH_CODE_USAGE_UPCALL, &expr)) {
             if(!pmath_is_expr(expr) ||
                 expr_changes != _pmath_expr_last_change(expr))
             {
@@ -526,7 +526,7 @@ static pmath_t evaluate_expression(
       pmath_unref(stack_frame.head);
       stack_frame.head = pmath_ref(head_sym);
       
-      if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)) {
+      if(_pmath_run_code(current_thread, head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)) {
         if( !pmath_is_expr(expr) ||
             expr_changes != _pmath_expr_last_change(expr))
         {
@@ -538,7 +538,7 @@ static pmath_t evaluate_expression(
       pmath_unref(stack_frame.head);
       stack_frame.head = pmath_ref(head_sym);
       
-      if(_pmath_run_code(head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)) {
+      if(_pmath_run_code(current_thread, head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)) {
         if( !pmath_is_expr(expr) ||
             expr_changes != _pmath_expr_last_change(expr))
         {

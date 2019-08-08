@@ -83,6 +83,7 @@ struct _pmath_thread_t {
   
   intptr_t current_dynamic_id;
   
+  uint16_t security_level;           // actually a pmath_security_level_t
   uint8_t critical_messages;         // TRUE / FALSE
   uint8_t is_daemon;                 // TRUE / FALSE
   uint8_t boxform;                   // BOXFORM_XXX

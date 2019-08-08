@@ -258,7 +258,7 @@ START_SET_PRECISION:
       pmath_unref(result);
     }
     
-    if(_pmath_run_approx_code(sym, &obj, data->prec)) {
+    if(_pmath_run_approx_code(pmath_thread_get_current(), sym, &obj, data->prec)) {
 //      if(pmath_is_expr(obj))
 //        obj = pmath_evaluate(obj);
 //

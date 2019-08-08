@@ -6,6 +6,7 @@
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadmsg-private.h>
 #include <pmath-util/hashtables-private.h>
+#include <pmath-util/security.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
@@ -520,6 +521,7 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   thread->min_precision             = 0.0;
   thread->max_precision             = HUGE_VAL;
   thread->current_dynamic_id        = parent ? parent->current_dynamic_id            : 0;
+  thread->security_level            = parent ? parent->security_level                : PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED;
   thread->critical_messages         = parent ? parent->critical_messages             : FALSE;
   thread->is_daemon                 = FALSE;
   thread->boxform                   = parent ? parent->boxform                       : BOXFORM_STANDARD;

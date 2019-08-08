@@ -1,11 +1,12 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
-#include <pmath-util/concurrency/threads.h>
+#include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/security-private.h>
 
 #include <string.h>
 
@@ -195,6 +196,7 @@ PMATH_PRIVATE pmath_t builtin_finally(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_evaluate(          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_evaluatedelayed(   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_tryevaluatesecured(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_function(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr);
@@ -543,13 +545,17 @@ pmath_bool_t _pmath_have_code(
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_run_code(
-  pmath_t             key,   // wont be freed
-  pmath_code_usage_t  usage,
-  pmath_t            *in_out
+  struct _pmath_thread_t *current_thread,
+  pmath_t                 key,   // wont be freed
+  pmath_code_usage_t      usage,
+  pmath_t                *in_out
 ) {
   func_entry_t         *entry;
   pmath_hashtable_t     table;
-  pmath_builtin_func_t  result = NULL;
+  pmath_builtin_func_t  func = NULL;
+  
+  if(!current_thread)
+    return FALSE;
   
   assert((unsigned)usage <= (unsigned)PMATH_CODE_USAGE_EARLYCALL);
   
@@ -557,12 +563,17 @@ pmath_bool_t _pmath_run_code(
   
   entry = pmath_ht_search(table, &key);
   if(entry)
-    result = (pmath_builtin_func_t)entry->function;
+    func = (pmath_builtin_func_t)entry->function;
     
   UNLOCK_CODE_TABLE(usage, table);
   
-  if(result && !pmath_aborting()) {
-    *in_out = result(*in_out);
+  if(func && !pmath_aborting()) {
+    if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_thread->security_level)) {
+      if(!_pmath_security_check_builtin(func, *in_out, current_thread->security_level))
+        return FALSE;
+    }
+    
+    *in_out = func(*in_out);
     
     return TRUE;
   }
@@ -572,13 +583,17 @@ pmath_bool_t _pmath_run_code(
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_run_approx_code(
-  pmath_t       key,   // wont be freed
-  pmath_t      *in_out,
-  double        prec
+  struct _pmath_thread_t *current_thread,
+  pmath_t                 key,   // wont be freed
+  pmath_t                *in_out,
+  double                  prec
 ) {
   func_entry_t         *entry;
   pmath_hashtable_t     table;
   pmath_bool_t        (*func)(pmath_t*, double) = NULL;
+  
+  if(!current_thread)
+    return FALSE;
   
   table = LOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX);
   
@@ -588,8 +603,14 @@ pmath_bool_t _pmath_run_approx_code(
     
   UNLOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX, table);
   
-  if(func) 
+  if(func) {
+    if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_thread->security_level)) {
+      if(!_pmath_security_check_builtin((void*)func, *in_out, current_thread->security_level))
+        return FALSE;
+    }
+    
     return func(in_out, prec);
+  }
   
   return FALSE;
 }
@@ -1324,6 +1345,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,     builtin_internal_realballmidpointradius)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                    builtin_internal_signbit)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_THREADIDLE,                 builtin_internal_threadidle)
+  BIND_DOWN(   pmath_Internal_TryEvaluateSecured,                builtin_internal_tryevaluatesecured)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_WRITEREALBALL,              builtin_internal_writerealball)
   
   BIND_DOWN(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY,     builtin_developer_frompackedarray)

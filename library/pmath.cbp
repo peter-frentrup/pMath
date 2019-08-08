@@ -860,6 +860,8 @@
 		<Unit filename="include/pmath-util/option-helpers-private.h" />
 		<Unit filename="include/pmath-util/option-helpers.h" />
 		<Unit filename="include/pmath-util/overflow-calc-private.h" />
+		<Unit filename="include/pmath-util/security-private.h" />
+		<Unit filename="include/pmath-util/security.h" />
 		<Unit filename="include/pmath-util/serialize.h" />
 		<Unit filename="include/pmath-util/stacks-private.h" />
 		<Unit filename="include/pmath-util/stacks.h" />
@@ -1036,6 +1038,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/control/flow/throw-and-catch.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-builtins/control/flow/tryevaluatesecured.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/control/flow/which.c">
@@ -1664,6 +1669,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/option-helpers.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/security.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/serialize.c">

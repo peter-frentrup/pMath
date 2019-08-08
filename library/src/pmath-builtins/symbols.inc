@@ -287,6 +287,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( SectionGroupPrecedence,             0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( SectionLabel,                       0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( SectionLabelAutoDelete,             0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( SectionMargins,                     0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( SecurityException,                  0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Selectable,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Setter,                             0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( SetterBar,                          0 )
@@ -359,6 +360,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( WindowTitle,                        0 )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR(         Line,                   0 )
 
 PMATH_DECLARE_INTERNAL_SYMBOL( GetCurrentDynamicID,  0 )
+PMATH_DECLARE_INTERNAL_SYMBOL( TryEvaluateSecured,   HOLDALLCOMPLETE )
 
 PMATH_DECLARE_SYSTEM_BOXFORM_DOLLAR_VAR( UseTextFormatting,      THREADLOCAL )
 

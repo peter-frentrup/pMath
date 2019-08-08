@@ -33,15 +33,17 @@ pmath_bool_t _pmath_have_code(
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_run_code(
-  pmath_t             key,   // wont be freed
-  pmath_code_usage_t  usage,
-  pmath_t            *in_out); // must be pmath_expr_t on input!
+  struct _pmath_thread_t *current_thread,
+  pmath_t                 key,   // wont be freed
+  pmath_code_usage_t      usage,
+  pmath_t                *in_out); // must be pmath_expr_t on input!
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_run_approx_code(
-  pmath_t       key,   // wont be freed
-  pmath_t      *in_out,
-  double        prec);
+  struct _pmath_thread_t *current_thread,
+  pmath_t                 key,   // wont be freed
+  pmath_t                *in_out,
+  double                  prec);
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void);
