@@ -28,6 +28,7 @@ static struct { pmath_security_level_t level; const char *name; } named_security
 struct _pmath_doorman_entry_t {
   pmath_builtin_func_t           key;
   pmath_security_doorman_func_t  doorman;
+  pmath_security_level_t         required_level;
 };
 
 
@@ -116,6 +117,7 @@ pmath_t pmath_evaluate_secured(pmath_t expr, pmath_security_level_t max_allowed_
 PMATH_API
 pmath_bool_t pmath_security_register_doorman(
   pmath_builtin_func_t          func, 
+  pmath_security_level_t        min_level, 
   pmath_security_doorman_func_t certifier
 ) {
   struct _pmath_doorman_entry_t *entry;
@@ -124,13 +126,14 @@ pmath_bool_t pmath_security_register_doorman(
   if(!func)
     return FALSE;
   
-  if(certifier) {
+  if(min_level != PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED) {
     entry = pmath_mem_alloc(sizeof(struct _pmath_doorman_entry_t));
     if(!entry)
       return FALSE;
       
-    entry->key     = func;
-    entry->doorman = certifier;
+    entry->key            = func;
+    entry->doorman        = certifier;
+    entry->required_level = min_level;
   }
   else
     entry = NULL;
@@ -171,6 +174,10 @@ pmath_bool_t _pmath_security_check_builtin(
   if(!entry) {
     // throws a SecurityException and returns FALSE:
     return pmath_security_check(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, expr);
+  }
+  
+  if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(entry->required_level, current_level)) {
+    return pmath_security_check(entry->required_level, expr);
   }
   
   return entry->doorman(func, expr, current_level);

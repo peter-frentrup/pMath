@@ -1,6 +1,6 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
-#include <pmath-util/security.h>
+#include <pmath-util/security-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 

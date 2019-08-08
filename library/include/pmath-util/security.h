@@ -95,13 +95,19 @@ pmath_t pmath_evaluate_secured(pmath_t expr, pmath_security_level_t max_allowed_
 
 /**\brief Register a security checker for a built-in C function.
    \param func      A function rgistered with pmath_register_code().
-   \param certifier A callback that checks whether \a func can be called without breaking security.
+   \param min_level The required secuirity level to allow evaluating \a func.
+   \param certifier An optional callback that checks whether \a func can be called without breaking security.
    \return Whether the registration succeeded.
+   
+   When the \a min_level requirement is \em not fullfilled, \a certifier will not even be called and 
+   execution of \a func will be denied directly.
  */
 PMATH_API
 pmath_bool_t pmath_security_register_doorman(
   pmath_builtin_func_t          func, 
+  pmath_security_level_t        min_level, 
   pmath_security_doorman_func_t certifier);
+
 
 /** @} */
 
