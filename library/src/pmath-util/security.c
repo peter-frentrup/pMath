@@ -160,27 +160,31 @@ pmath_bool_t _pmath_security_check_builtin(
   pmath_security_level_t current_level
 ) {
   pmath_hashtable_t table;
-  struct _pmath_doorman_entry_t *entry;
+  pmath_security_level_t        required_level = PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED;
+  pmath_security_doorman_func_t doorman = NULL;
   
   if(PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_level))
     return TRUE;
   
   table = LOCK_DOORMAN_TABLE();
-  
-  entry = pmath_ht_search(table, func);
-  
+  {
+    struct _pmath_doorman_entry_t *entry = pmath_ht_search(table, func);
+    if(entry) {
+      required_level = entry->required_level;
+      doorman        = entry->doorman;
+    }
+  }
   UNLOCK_DOORMAN_TABLE(table);
   
-  if(!entry) {
+  if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(required_level, current_level)) {
     // throws a SecurityException and returns FALSE:
-    return pmath_security_check(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, expr);
+    return pmath_security_check(required_level, expr);
   }
   
-  if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(entry->required_level, current_level)) {
-    return pmath_security_check(entry->required_level, expr);
-  }
+  if(doorman) 
+    return doorman(func, expr, current_level);
   
-  return entry->doorman(func, expr, current_level);
+  return TRUE;
 }
 
 PMATH_PRIVATE
