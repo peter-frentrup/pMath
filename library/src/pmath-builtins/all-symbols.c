@@ -895,6 +895,12 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(general_builtin_zerotwoarg, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(general_builtin_nofront,    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   
+  
+  
+  CHECK( pmath_security_register_doorman(builtin_randominteger, PMATH_SECURITY_LEVEL_NON_DESTRUCTIVE_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_randomreal,    PMATH_SECURITY_LEVEL_NON_DESTRUCTIVE_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_seedrandom,    PMATH_SECURITY_LEVEL_NON_DESTRUCTIVE_ALLOWED, NULL) );
+
 #undef CHECK
   return TRUE;
 }
