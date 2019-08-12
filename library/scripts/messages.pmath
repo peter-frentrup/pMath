@@ -365,6 +365,8 @@ Internal`RealBallFromMidpointRadius::numpa:= "Number or Pair of numbers expected
 Internal`RealBallFromMidpointRadius::num:= "Number expected at position `1` in `2`."
 Internal`RealBallFromMidpointRadius::prec:= "Cannot determine working precision for midpoint `1` and radius `2`."
 
+Internal`TryEvaluateSecured::seclvl:= "Security level `1` not recognized. It should be one of {\"NothingAllowed\", \"PureDeterministicAllowed\", \"NonDestructiveAllowed\", \"EverythingAllowed\"}." 
+
 Internal`WriteRealBall::maxdig:= "Option \"MaxDigits\"->`1` should be a positive integer or Automatic."
 Internal`WriteRealBall::mpf:= "Multi-precision floating point number or InputForm(...) thereof expected at position `1` in `2`."
 Internal`WriteRealBall::loss:= "Ignoring InputForm(...) adornment for base `1`."

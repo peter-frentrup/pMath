@@ -18,7 +18,7 @@ PMATH_PRIVATE pmath_t builtin_internal_tryevaluatesecured(pmath_expr_t expr) {
   
   obj = pmath_evaluate(pmath_expr_get_item(expr, 2));
   if(!_pmath_security_level_from_expr(&level, obj)) {
-    pmath_message(PMATH_NULL, "seclvl", 2, obj);
+    pmath_message(PMATH_NULL, "seclvl", 1, obj);
     return expr;
   }
   pmath_unref(obj);
