@@ -83,6 +83,27 @@ static void add_remove_widget(int delta) {
   }
 }
 
+static DeviceKind get_pointer_device(GdkDevice *device) {
+  if(!device)
+    return DeviceKind::Mouse;
+  
+  switch(gdk_device_get_source(device)) {
+    case GDK_SOURCE_MOUSE:  return DeviceKind::Mouse;
+    
+    case GDK_SOURCE_ERASER: return DeviceKind::Pen; // TODO add a DeviceKind::PenEraser ?
+    case GDK_SOURCE_PEN:    return DeviceKind::Pen;
+    
+#if GTK_CHECK_VERSION(3,4,0)
+    case GDK_SOURCE_TOUCHSCREEN: return DeviceKind::Touch;
+    case GDK_SOURCE_TOUCHPAD:    return DeviceKind::Mouse;
+#endif
+    
+    default: break;
+  }
+  
+  return DeviceKind::Mouse;
+}
+
 //{ class MathGtkWidget ...
 
 MathGtkWidget::MathGtkWidget(Document *doc)
@@ -732,6 +753,12 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
     return false;
     
   MouseEvent me;
+
+#if GTK_MAJOR_VERSION >= 3
+  // TODO: maybe we should ace as a Mouse device if/when Touch move events without me.left are ignored?
+  me.device = get_pointer_device(gdk_drag_context_get_device(context));
+#endif
+  
   me.left   = false;
   me.middle = false;
   me.right  = false;
@@ -746,7 +773,7 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   scroll_pos(&sx, &sy);
   me.x += sx;
   me.y += sy;
-  
+
   handle_mouse_move(me);
   
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
@@ -1214,6 +1241,8 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   _mouse_down_button = event->button;
   
   MouseEvent me;
+  me.device = get_pointer_device(event->device);
+  
   me.left   = event->button == 1;
   me.middle = event->button == 2;
   me.right  = event->button == 3;
@@ -1268,6 +1297,8 @@ bool MathGtkWidget::on_button_release(GdkEvent *e) {
   _mouse_down_button = 0;
   
   MouseEvent me;
+  me.device = get_pointer_device(event->device);
+  
   me.left   = event->button == 1;
   me.middle = event->button == 2;
   me.right  = event->button == 3;
@@ -1306,6 +1337,8 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e) {
   gdk_window_get_pointer(event->window, &x, &y, &state);
   
   MouseEvent me;
+  me.device = get_pointer_device(event->device);
+  
   me.left   = 0 != (event->state & GDK_BUTTON1_MASK);
   me.middle = 0 != (event->state & GDK_BUTTON2_MASK);
   me.right  = 0 != (event->state & GDK_BUTTON3_MASK);
