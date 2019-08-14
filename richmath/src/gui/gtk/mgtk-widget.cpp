@@ -104,6 +104,48 @@ static DeviceKind get_pointer_device(GdkDevice *device) {
   return DeviceKind::Mouse;
 }
 
+static DeviceKind get_pointer_device_for_event(GdkEvent *e) {
+#if GTK_CHECK_VERSION(3,22,0)
+  if(GdkDeviceTool *tool = gdk_event_get_device_tool(e)) {
+    switch(gdk_device_tool_get_tool_type(tool)) {
+      case GDK_DEVICE_TOOL_TYPE_ERASER:   return DeviceKind::Pen; // TODO add a DeviceKind::PenEraser ?
+      case GDK_DEVICE_TOOL_TYPE_PEN:      return DeviceKind::Pen;
+      case GDK_DEVICE_TOOL_TYPE_BRUSH:    return DeviceKind::Pen;
+      case GDK_DEVICE_TOOL_TYPE_PENCIL:   return DeviceKind::Pen;
+      case GDK_DEVICE_TOOL_TYPE_AIRBRUSH: return DeviceKind::Pen;
+      
+      case GDK_DEVICE_TOOL_TYPE_MOUSE: return DeviceKind::Mouse;
+      
+      // TODO: how to detect touch input??
+      
+      default:
+        break;
+    }
+  }
+#endif
+  
+  switch(e->type) {
+    case GDK_BUTTON_PRESS:
+    case GDK_BUTTON_RELEASE:
+      return get_pointer_device(((GdkEventButton*)e)->device);
+    
+    case GDK_MOTION_NOTIFY:
+      return get_pointer_device(((GdkEventMotion*)e)->device);
+    
+    case GDK_SCROLL:
+      return get_pointer_device(((GdkEventScroll*)e)->device);
+    
+    case GDK_PROXIMITY_IN:
+    case GDK_PROXIMITY_OUT:
+      return get_pointer_device(((GdkEventProximity*)e)->device);
+    
+    default:
+      break;
+  }
+  
+  return DeviceKind::Mouse;
+}
+
 //{ class MathGtkWidget ...
 
 MathGtkWidget::MathGtkWidget(Document *doc)
@@ -1241,7 +1283,8 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   _mouse_down_button = event->button;
   
   MouseEvent me;
-  me.device = get_pointer_device(event->device);
+  me.device = get_pointer_device_for_event(e);
+  pmath_debug_print("[%s down]", me.device == DeviceKind::Pen ? "pen" : (me.device == DeviceKind::Touch ? "touch" : "mouse"));
   
   me.left   = event->button == 1;
   me.middle = event->button == 2;
@@ -1297,7 +1340,7 @@ bool MathGtkWidget::on_button_release(GdkEvent *e) {
   _mouse_down_button = 0;
   
   MouseEvent me;
-  me.device = get_pointer_device(event->device);
+  me.device = get_pointer_device_for_event(e);
   
   me.left   = event->button == 1;
   me.middle = event->button == 2;
@@ -1337,7 +1380,7 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e) {
   gdk_window_get_pointer(event->window, &x, &y, &state);
   
   MouseEvent me;
-  me.device = get_pointer_device(event->device);
+  me.device = get_pointer_device_for_event(e);
   
   me.left   = 0 != (event->state & GDK_BUTTON1_MASK);
   me.middle = 0 != (event->state & GDK_BUTTON2_MASK);
