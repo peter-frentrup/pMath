@@ -1,0 +1,52 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Degree", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(Degree::"usage"))), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      Section({
+        "You can convert from degrees to radians by multiplaying with ", 
+        TemplateBox({"Degree"}, "ReferenceHyperlink"), ", so ", {
+         "30", TemplateBox({"Degree"}, "ReferenceHyperlink")}, 
+        " represents 30\[Degree]."}, "Notes"), 
+      Section({TemplateBox({"Degree"}, "ReferenceHyperlink"), 
+        " can be entered as \[Degree], \[AliasIndicator]deg\[AliasIndicator], \
+        or ", {"\[AliasIndicator]", TemplateBox({"Degree"}, 
+          "NamedCharacterHyperlink"), "\[AliasIndicator]"}, "."}, "Notes"), 
+      Section({TemplateBox({"Degree"}, "ReferenceHyperlink"), 
+        " is printed as \[Degree]."}, "Notes")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Use in arguments to trigonometric functions:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Cos", "(", {"30", "Degree"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(FractionBox(SqrtBox("3"), "2")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Evaluate to any precision:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"N", "(", {{"30", "Degree"}, ",", "20"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              "5.23598775598298873077107230546583814033[+/-5.45*^-39]`40*^-1"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section({"Terms involving ", TemplateBox({"Degree"}, 
+           "ReferenceHyperlink"), " are not allways simplified"}, 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({{"\[Pi]", "/", "4"}, "+", {"90", "Degree"}}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({FractionBox("\[Pi]", "4"), "+", {
+              "90", "\[Degree]"}}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1)}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Pi"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Sin"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"ArcSin"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
