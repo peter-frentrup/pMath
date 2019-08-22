@@ -1,0 +1,171 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("RadioButton", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(RadioButton::"usage"))), "Usage")}, 
+     All), SectionGroup({Section("Details and Options", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({" ", {TemplateBox({"RadioButton"}, "ReferenceHyperlink"), 
+           "(", ")"}, " is equivalent to  ", {
+           TemplateBox({"RadioButton"}, "ReferenceHyperlink"), "(", {
+            TemplateBox({"False"}, "ReferenceHyperlink"), ",", 
+            TemplateBox({"True"}, "ReferenceHyperlink")}, ")"}, "."}, 
+         "Notes"), 
+        Section({"Several mutually exclusive choices for a variable ", 
+          StyleBox("x", "Arg"), " may be presented by using severaly ", {
+           TemplateBox({"RadioButton"}, "ReferenceHyperlink"), "(", {
+            {TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+             StyleBox("x", "Arg"), ")"}, ",", 
+            StyleBox({"val", SubscriptBox("i")}, "Arg")}, ")"}, 
+          " with the same ", StyleBox("x", "Arg"), " but different ", 
+          StyleBox({"val", SubscriptBox("i")}, "Arg"), "."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section({"Default arguments give a deselected ", 
+          TemplateBox({"RadioButton"}, "ReferenceHyperlink"), ":"}, 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"{", {{"RadioButton", "(", ")"}, ",", {
+               "RadioButton", "(", {"False", ",", "True"}, ")"}}, "}"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {RadioButtonBox(False), ",", RadioButtonBox(False)}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Dynamically change the value of ", StyleBox("x", "Arg"), 
+            ":"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({{"x", "\[Assign]", "1"}, ";", {
+                "{", {{"RadioButton", "(", {{"Dynamic", "(", "x", ")"}, ",", 
+                   "1"}, ")"}, ",", {"RadioButton", "(", {
+                   {"Dynamic", "(", "x", ")"}, ",", "2"}, ")"}, ",", {
+                  "RadioButton", "(", {{"Dynamic", "(", "x", ")"}, ",", "3"}, 
+                  ")"}, ",", {"Dynamic", "(", "x", ")"}}, "}"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {RadioButtonBox(Dynamic(Global`x), 1), ",", 
+                RadioButtonBox(Dynamic(Global`x), 2), ",", 
+                RadioButtonBox(Dynamic(Global`x), 3), ",", 
+                DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section({"Disable interactive manipulation with ", {
+             TemplateBox({"Enabled"}, "ReferenceHyperlink"), "\[Rule]", 
+             TemplateBox({"False"}, "ReferenceHyperlink")}, ":"}, 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"RadioButton", "(", {"False", ",", "True", ",", {
+                   "Enabled", "\[Rule]", "False"}}, ")"}, ",", {
+                 "RadioButton", "(", {"True", ",", "True", ",", {
+                   "Enabled", "\[Rule]", "False"}}, ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {RadioButtonBox(False, True, Enabled -> False), 
+                ",", RadioButtonBox(True, True, Enabled -> False)}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section({TemplateBox({"RadioButtonBar"}, "ReferenceHyperlink"), 
+          " uses ", TemplateBox({"RadioButton"}, "ReferenceHyperlink"), 
+          " with the same dynamic variable:"}, "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"x", "\[Assign]", "1"}, ";", {
+              "{", {{"RadioButtonBar", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+                  "{", {"1", ",", "2", ",", "3"}, "}"}}, ")"}, ",", {
+                "Dynamic", "(", "x", ")"}}, "}"}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              InterpretationBox(
+               TagBox(
+                GridBox({
+                  {SetterBox(Dynamic(Global`x), 1, 
+                    InterpretationBox({RadioButtonBox(Dynamic(Global`x), 1), 
+                      "\[InvisibleSpace]", "1"}, Row({
+                      RadioButton(Dynamic(Global`x), 1), 1}, 
+                     "\[InvisibleSpace]"), Editable -> False), 
+                    ButtonFrame -> None), SetterBox(Dynamic(Global`x), 2, 
+                    InterpretationBox({RadioButtonBox(Dynamic(Global`x), 2), 
+                      "\[InvisibleSpace]", "2"}, Row({
+                      RadioButton(Dynamic(Global`x), 2), 2}, 
+                     "\[InvisibleSpace]"), Editable -> False), 
+                    ButtonFrame -> None), SetterBox(Dynamic(Global`x), 3, 
+                    InterpretationBox({RadioButtonBox(Dynamic(Global`x), 3), 
+                      "\[InvisibleSpace]", "3"}, Row({
+                      RadioButton(Dynamic(Global`x), 3), 3}, 
+                     "\[InvisibleSpace]"), Editable -> False), 
+                    ButtonFrame -> None)}}), "Grid"), 
+               RadioButtonBar(Dynamic(Global`x), {1, 2, 3}), 
+               Editable -> False), ",", DynamicBox(ToBoxes(Global`x))}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData({{"y", "\[Assign]", "1"}, ";", {
+              "{", {
+               {"Table", "(", {
+                 {"RadioButton", "(", {{"Dynamic", "(", "y", ")"}, ",", "v"}, 
+                  ")"}, ",", {"v", "\[Rule]", {"{", {"1", ",", "2", ",", "3"}, 
+                   "}"}}}, ")"}, ",", {"Dynamic", "(", "y", ")"}}, "}"}}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData({
+             "{", {{"{", {RadioButtonBox(Dynamic(Global`y), 1), ",", 
+                RadioButtonBox(Dynamic(Global`y), 2), ",", 
+                RadioButtonBox(Dynamic(Global`y), 3)}, "}"}, ",", 
+              DynamicBox(ToBoxes(Global`y))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"RadioButton"}, "ReferenceHyperlink"), 
+            " is essentially a special case of ", 
+            TemplateBox({"Setter"}, "ReferenceHyperlink"), ":"}, 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               "{", {
+                {"Table", "(", {
+                  {"Setter", "(", {{"Dynamic", "(", "x", ")"}, ",", "v"}, 
+                   ")"}, ",", {"v", "\[Rule]", {
+                    "{", {"a", ",", "b", ",", "c"}, "}"}}}, ")"}, ",", {
+                 "Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {{"{", {SetterBox(Dynamic(Global`x), Global`a, "a"), ",", 
+                  SetterBox(Dynamic(Global`x), Global`b, "b"), ",", 
+                  SetterBox(Dynamic(Global`x), Global`c, "c")}, "}"}, ",", 
+                DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {
+                {"Table", "(", {
+                  {"RadioButton", "(", {{"Dynamic", "(", "y", ")"}, ",", "v"}, 
+                   ")"}, ",", {"v", "\[Rule]", {
+                    "{", {"a", ",", "b", ",", "c"}, "}"}}}, ")"}, ",", {
+                 "Dynamic", "(", "y", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData({
+               "{", {{"{", {RadioButtonBox(Dynamic(Global`y), Global`a), ",", 
+                  RadioButtonBox(Dynamic(Global`y), Global`b), ",", 
+                  RadioButtonBox(Dynamic(Global`y), Global`c)}, "}"}, ",", 
+                DynamicBox(ToBoxes(Global`y))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"RadioButtonBar"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Setter"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Checkbox"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Button"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
