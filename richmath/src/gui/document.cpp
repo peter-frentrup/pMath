@@ -1201,12 +1201,13 @@ void Document::on_key_press(uint32_t unichar) {
           AbstractSequenceSection *new_sect;
           SharedPtr<Style>         new_style = new Style();
           
-          Expr new_style_expr = get_own_style(DefaultReturnCreatedSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
-          
-          if(new_style_expr != PMATH_SYMBOL_AUTOMATIC)
-            new_style->add_pmath(new_style_expr);
-          else
-            new_style->add_pmath(sect->get_own_style(BaseStyleName));
+          Expr new_style_expr = sect->get_style(DefaultReturnCreatedSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
+          if(new_style_expr == PMATH_SYMBOL_AUTOMATIC) 
+            new_style_expr = get_group_style(sect->index(), DefaultNewSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
+          if(new_style_expr == PMATH_SYMBOL_AUTOMATIC)
+            new_style_expr = sect->get_own_style(BaseStyleName);
+
+          new_style->add_pmath(std::move(new_style_expr));
             
           String lang;
           if(context.stylesheet)
