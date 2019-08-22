@@ -5,26 +5,29 @@ Document({
     SectionGroup({Section("Enabled", "ObjectName"), 
       Section(BoxData(DynamicBox(ToBoxes(Enabled::"usage"))), "Usage")}, All), 
     SectionGroup({Section("Details", "NotesSection"), 
-      Section({"The default setting is ", 
-        TemplateBox({"Enabled"}, "ReferenceHyperlink"), " \[Rule] ", 
-        TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}, "Notes"), 
-      Section("Possible settings are:", "Notes"), 
-      Section({
-        ComplexStringBox("\"", 
-         GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), {
-             "use", " ", "the", " ", "setting", " ", "from", " ", "containg", 
-             " ", "boxes"}}, {TemplateBox({"True"}, "ReferenceHyperlink"), {
-             "allow", " ", "interactive", " ", "manipulation"}}, {
-            TemplateBox({"False"}, "ReferenceHyperlink"), {
-             "suppress", " ", "interactive", " ", "manipulation"}}}))}, 
-       "2ColumnTableNotes"), 
-      Section({"With ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
-        " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), 
-        ", control objects usually appear dimmed. "}, "Notes"), 
-      Section({"The ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
-        " setting only affects interactive manipulation, but not programmatic \
-        updates due to ", TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
-        "."}, "Notes")}, 1), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({"The default setting is ", 
+          TemplateBox({"Enabled"}, "ReferenceHyperlink"), " \[Rule] ", 
+          TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}, "Notes"), 
+        Section("Possible settings are:", "Notes"), 
+        Section({
+          ComplexStringBox("\"", 
+           GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), {
+               "use", " ", "the", " ", "setting", " ", "from", " ", 
+               "containg", " ", "boxes"}}, {
+              TemplateBox({"True"}, "ReferenceHyperlink"), {
+               "allow", " ", "interactive", " ", "manipulation"}}, {
+              TemplateBox({"False"}, "ReferenceHyperlink"), {
+               "suppress", " ", "interactive", " ", "manipulation"}}}))}, 
+         "2ColumnTableNotes"), 
+        Section({"With ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
+          " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), 
+          ", control objects usually appear dimmed. "}, "Notes"), 
+        Section({"The ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
+          " setting only affects interactive manipulation, but not \
+          programmatic updates due to ", TemplateBox({"Dynamic"}, 
+           "ReferenceHyperlink"), "."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section({"A ", TemplateBox({"Button"}, "ReferenceHyperlink"), 
@@ -275,8 +278,8 @@ Document({
                 SliderBox(Dynamic(Global`x), 0 .. 1, Enabled -> False), ",", 
                 DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, 1)}, All), SectionGroup({
-      Section("See Also", "SeeAlsoSection"), 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Editable"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Selectable"}, 
          "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 

@@ -118,7 +118,7 @@ Document({
                 "4"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
             Section(BoxData({"{", {"3", ",", "3", ",", "3", ",", "3"}, "}"}), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
-           All)}, All)}, 1)}, All), 
+           All)}, All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"ConstantArray"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Table"}, 
