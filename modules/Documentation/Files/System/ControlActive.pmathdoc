@@ -1,0 +1,161 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ControlActive", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(ControlActive::"usage"))), "Usage")}, 
+     All), SectionGroup({Section("Details and Options", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({{TemplateBox({"ControlActive"}, "ReferenceHyperlink"), "(", {
+            StyleBox("act", "Arg"), ",", StyleBox("norm", "Arg")}, ")"}, 
+          " is effectively equivalent to  ", {
+           TemplateBox({"If"}, "ReferenceHyperlink"), "(", {
+            TemplateBox({"$ControlActiveSetting"}, "ReferenceHyperlink"), ",", 
+            StyleBox("act", "Arg"), ",", StyleBox("norm", "Arg")}, ")"}, "."}, 
+         "Notes"), 
+        Section({TemplateBox({"ControlActive"}, "ReferenceHyperlink"), 
+          " itself does not trigger dynamic updates."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(
+         "Perform a different calculation while the slider is still dragged:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+              ",", {"Dynamic", "(", {"ControlActive", "(", {
+                 {"Framed", "(", "x", ")"}, ",", "x"}, ")"}, ")"}}, "}"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {SliderBox(Dynamic(Global`x), 0 .. 1), ",", 
+              DynamicBox(ToBoxes(ControlActive(Framed(Global`x), Global`x)))}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Reduce the quality of a plot while the slider is moved:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"DynamicLocal", "(", {
+                {"{", {"n", "\[Assign]", "1"}, "}"}, ",", {
+                 "Panel", "@", {"Column", "@", {
+                   "{", {{"Slider", "(", {{"Dynamic", "(", "n", ")"}, ",", {
+                       "0", "..", "10"}}, ")"}, ",", {
+                     "\n", {"Dynamic", "(", {
+                       "Plot", "(", {{"Sin", "(", {"n", " ", "y"}, ")"}, ",", {
+                         "y", "\[Rule]", {"0", "..", {"2", "Pi"}}}, ",", {
+                         "MaxRecursion", "\[Rule]", {
+                          "ControlActive", "(", {"0", ",", "4"}, ")"}}}, ")"}, 
+                      ")"}}}, "}"}}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(DynamicLocalBox({Global`n}, 
+               PanelBox(
+                TagBox(GridBox({{SliderBox(Dynamic(Global`n), 0 .. 10)}, {
+                    DynamicBox(ToBoxes(Plot(Sin(Global`n*Global`y), 
+                       Global`y -> 0 .. 2*Pi, MaxRecursion -> ControlActive(0, 
+                        4))))}}), "Column")), Initialization :> None, 
+               Deinitialization :> None, UnsavedVariables :> {}, 
+               DynamicLocalValues :> {{
+                 OwnRules(Global`n):= {HoldPattern(Global`n) :> 1}}})), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Display a simpler expression while the slider is moved:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"DynamicLocal", "(", {
+                {"{", {"n", "\[Assign]", "1"}, "}"}, ",", {
+                 "Panel", "@", {"Column", "@", {
+                   "{", {{"Slider", "(", {{"Dynamic", "(", "n", ")"}, ",", {
+                       "0", "..", "10"}}, ")"}, ",", {
+                     "Dynamic", "(", {"ControlActive", "(", {
+                       {"Sin", "(", {"n", " ", "y"}, ")"}, ",", {
+                        "Plot", "(", {{"Sin", "(", {"n", " ", "y"}, ")"}, ",", 
+                         {"y", "\[Rule]", {"0", "..", {"2", "Pi"}}}}, ")"}}, 
+                      ")"}, ")"}}, "}"}}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(DynamicLocalBox({Global`n}, 
+               PanelBox(
+                TagBox(GridBox({{SliderBox(Dynamic(Global`n), 0 .. 10)}, {
+                    DynamicBox(ToBoxes(ControlActive(Sin(Global`n*Global`y), 
+                       Plot(Sin(Global`n*Global`y), 
+                        Global`y -> 0 .. 2*Pi))))}}), "Column")), 
+               Initialization :> None, Deinitialization :> None, 
+               UnsavedVariables :> {}, DynamicLocalValues :> {{
+                 OwnRules(Global`n):= {HoldPattern(Global`n) :> 1}}})), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section({TemplateBox({"ControlActive"}, "ReferenceHyperlink"), 
+          " itself does not trigger ", TemplateBox({"Dynamic"}, 
+           "ReferenceHyperlink"), 
+          " updates, so the active/inactive display in the following line \
+          never changes:"}, "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"DynamicLocal", "(", {
+              {"{", {"x", "\[Assign]", "0"}, "}"}, ",", {
+               "{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", {
+                 "Dynamic", "(", {"ControlActive", "(", {
+                   ComplexStringBox("\"active\""), ",", 
+                   ComplexStringBox("\"inactive\"")}, ")"}, ")"}}, "}"}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(DynamicLocalBox({Global`x}, {
+              "{", {SliderBox(Dynamic(Global`x), 0 .. 1), ",", 
+               DynamicBox(ToBoxes(ControlActive("active", "inactive")))}, 
+              "}"}, Initialization :> None, Deinitialization :> None, 
+             UnsavedVariables :> {}, DynamicLocalValues :> {{
+               OwnRules(Global`x):= {HoldPattern(Global`x) :> 0}}})), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section({"A reference to the modified variable ", {
+           StyleBox("x", "Arg")}, " triggers ", 
+          TemplateBox({"Dynamic"}, "ReferenceHyperlink"), " updates:"}, 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"DynamicLocal", "(", {
+              {"{", {"x", "\[Assign]", "0"}, "}"}, ",", {
+               "{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", {
+                 "Dynamic", "(", {
+                  "{", {"x", ",", {"ControlActive", "(", {
+                     ComplexStringBox("\"active\""), ",", 
+                     ComplexStringBox("\"inactive\"")}, ")"}}, "}"}, ")"}}, 
+               "}"}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(DynamicLocalBox({Global`x}, {
+              "{", {SliderBox(Dynamic(Global`x), 0 .. 1), ",", 
+               DynamicBox(
+                ToBoxes({Global`x, ControlActive("active", "inactive")}))}, 
+              "}"}, Initialization :> None, Deinitialization :> None, 
+             UnsavedVariables :> {}, DynamicLocalValues :> {{
+               OwnRules(Global`x):= {HoldPattern(Global`x) :> 0}}})), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"When going from the active to the inactive state, ", 
+            TemplateBox({"ControlActive"}, "ReferenceHyperlink"), 
+            " will cause an additional evaluation, even when ", 
+            StyleBox("x", "Arg"), " does not change:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"DynamicLocal", "(", {
+                {"{", {"x", "\[Assign]", "0"}, "}"}, ",", {
+                 "{", {{"Slider", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+                     "0", "..", "10", "..", "1"}}, ")"}, ",", {
+                   "Dynamic", "(", {"{", {{"RandomReal", "(", ")"}, ",", "x", 
+                     ",", {"If", "(", {{"x", ">", "5"}, ",", {
+                        "ControlActive", "(", {ComplexStringBox("\"active\""), 
+                         ",", ComplexStringBox("\"inactive\"")}, ")"}, ",", 
+                       ComplexStringBox("\"no final eval\"")}, ")"}}, "}"}, 
+                   ")"}}, "}"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(DynamicLocalBox({Global`x}, {
+                "{", {SliderBox(Dynamic(Global`x), 0 .. 10 .. 1), ",", 
+                 DynamicBox(ToBoxes({RandomReal(), Global`x, 
+                    If(Global`x > 5, ControlActive("active", "inactive"), 
+                     "no final eval")}))}, "}"}, Initialization :> None, 
+               Deinitialization :> None, UnsavedVariables :> {}, 
+               DynamicLocalValues :> {{
+                 OwnRules(Global`x):= {HoldPattern(Global`x) :> 0}}})), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"$ControlActiveSetting"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Dynamic"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Refresh"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
