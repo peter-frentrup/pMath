@@ -6,12 +6,15 @@ Document({
       Section(BoxData(DynamicBox(ToBoxes(RadioButton::"usage"))), "Usage")}, 
      All), SectionGroup({Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({" ", {TemplateBox({"RadioButton"}, "ReferenceHyperlink"), 
-           "(", ")"}, " is equivalent to  ", {
+        Section({{TemplateBox({"RadioButton"}, "ReferenceHyperlink"), "(", 
+           ")"}, " is equivalent to  ", {
            TemplateBox({"RadioButton"}, "ReferenceHyperlink"), "(", {
             TemplateBox({"False"}, "ReferenceHyperlink"), ",", 
             TemplateBox({"True"}, "ReferenceHyperlink")}, ")"}, "."}, 
          "Notes"), 
+        Section({TemplateBox({"RadioButton"}, "ReferenceHyperlink"), 
+          " is a special form of ", TemplateBox({"Setter"}, 
+           "ReferenceHyperlink"), "."}, "Notes"), 
         Section({"Several mutually exclusive choices for a variable ", 
           StyleBox("x", "Arg"), " may be presented by using severaly ", {
            TemplateBox({"RadioButton"}, "ReferenceHyperlink"), "(", {
