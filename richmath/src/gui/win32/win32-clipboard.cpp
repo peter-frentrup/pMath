@@ -76,6 +76,10 @@ class OpenedWin32Clipboard: public OpenedClipboard {
     }
     
     virtual bool add_image(String suggested_mimetype, cairo_surface_t *image) override {
+      if(cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
+        return false;
+      }
+      
       if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_WIN32) {
         cairo_surface_t *img = cairo_win32_surface_get_image(image);
         if(!img)

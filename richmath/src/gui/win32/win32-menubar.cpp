@@ -652,29 +652,32 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                                                    CAIRO_FORMAT_RGB24,
                                                    rect.right  - rect.left,
                                                    rect.bottom - rect.top);
-                                                   
-                      HDC bmp_dc = cairo_win32_surface_get_dc(surface);
-                      Win32ControlPainter::win32_painter.draw_menubar(bmp_dc, &rect);
-                      
-                      cairo_surface_mark_dirty(surface);
-                      cairo_t *cr = cairo_create(surface);
-                      {
-                        Canvas canvas(cr);
+                      if(cairo_surface_status(surface) == CAIRO_STATUS_SUCCESS) {
+                        HDC bmp_dc = cairo_win32_surface_get_dc(surface);
+                        Win32ControlPainter::win32_painter.draw_menubar(bmp_dc, &rect);
                         
-                        _window->paint_background(&canvas, _hwnd, true);
+                        cairo_surface_mark_dirty(surface);
+                        cairo_t *cr = cairo_create(surface);
+                        {
+                          Canvas canvas(cr);
+                          
+                          _window->paint_background(&canvas, _hwnd, true);
+                        }
+                        cairo_destroy(cr);
+                        
+                        BitBlt(
+                          draw->nmcd.hdc,
+                          rect.left,
+                          rect.top,
+                          rect.right  - rect.left,
+                          rect.bottom - rect.top,
+                          bmp_dc,
+                          0,
+                          0,
+                          SRCCOPY);
                       }
-                      cairo_destroy(cr);
-                      
-                      BitBlt(
-                        draw->nmcd.hdc,
-                        rect.left,
-                        rect.top,
-                        rect.right  - rect.left,
-                        rect.bottom - rect.top,
-                        bmp_dc,
-                        0,
-                        0,
-                        SRCCOPY);
+                      else
+                        Win32ControlPainter::win32_painter.draw_menubar(draw->nmcd.hdc, &rect);
                         
                       cairo_surface_destroy(surface);
                       

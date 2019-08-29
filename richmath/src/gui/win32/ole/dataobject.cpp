@@ -499,6 +499,7 @@ HRESULT DataObject::image_to_medium(const FORMATETC *pFormatEtc, STGMEDIUM *pMed
   cairo_status_t status = cairo_surface_status(image);
   if(status != CAIRO_STATUS_SUCCESS) {
     pmath_debug_print("[cairo error: %s]\n", cairo_status_to_string(status));
+    return E_OUTOFMEMORY;
   }
   
   if(cairo_surface_get_type(image) == CAIRO_SURFACE_TYPE_WIN32) {

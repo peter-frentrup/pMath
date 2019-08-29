@@ -698,6 +698,10 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
                               _image_format,
                               width,
                               height);
+  if(cairo_surface_status(target) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(target);
+    return;
+  }
                               
   cairo_t *cr = cairo_create(target);
   {
@@ -738,7 +742,7 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   if(from_wmpaint) {
     cairo_surface_t *output = target;
     
-    if(DebugFlashChanges && _old_pixels) {
+    if(DebugFlashChanges && _old_pixels && cairo_surface_status(_old_pixels) == CAIRO_STATUS_SUCCESS) {
       cairo_surface_t *old_img = cairo_win32_surface_get_image(_old_pixels);
       cairo_surface_t *new_img = cairo_win32_surface_get_image(target);
       if( old_img && 
@@ -1524,7 +1528,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             
             case TID_REDRAW_NODIFF: {
                 KillTimer(_hwnd, TID_REDRAW_NODIFF);
-                if(_old_pixels) {
+                if(_old_pixels && cairo_surface_status(_old_pixels) == CAIRO_STATUS_SUCCESS) {
                   HDC dc = GetDC(_hwnd);
                   
                   RECT rect;

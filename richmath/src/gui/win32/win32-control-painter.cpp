@@ -616,7 +616,7 @@ void Win32ControlPainter::draw_container(
     
   canvas->align_point(&x, &y, false);
   
-  HDC dc = cairo_win32_surface_get_dc(canvas->target());
+  HDC dc = safe_cairo_win32_surface_get_dc(canvas->target());
   cairo_surface_t *surface = nullptr;
   
   if(dc) {
@@ -659,7 +659,11 @@ void Win32ControlPainter::draw_container(
                   h);
     }
     
-    dc = cairo_win32_surface_get_dc(surface);
+    dc = safe_cairo_win32_surface_get_dc(surface);
+    if(!dc) {
+      ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
+      return;
+    }
   }
   
   RECT rect;
@@ -702,8 +706,9 @@ void Win32ControlPainter::draw_container(
           if(!canvas->show_only_text) {
             cairo_surface_t *tmp = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_ARGB32, w, h);
             
-            HDC tmp_dc = cairo_win32_surface_get_dc(tmp);
-            if(tmp_dc) {
+            if(cairo_surface_status(tmp) == CAIRO_STATUS_SUCCESS) {
+              HDC tmp_dc = cairo_win32_surface_get_dc(tmp);
+              
               RECT tmp_rect;
               tmp_rect.left = 0;
               tmp_rect.right = w;
@@ -1350,7 +1355,7 @@ void Win32ControlPainter::paint_scrollbar_part(
     
   canvas->align_point(&x, &y, true);
   
-  HDC dc = cairo_win32_surface_get_dc(cairo_get_target(canvas->cairo()));
+  HDC dc = safe_cairo_win32_surface_get_dc(cairo_get_target(canvas->cairo()));
   cairo_surface_t *surface = nullptr;
   
   if(dc) {
@@ -1386,7 +1391,11 @@ void Win32ControlPainter::paint_scrollbar_part(
                   h);
     }
     
-    dc = cairo_win32_surface_get_dc(surface);
+    dc = safe_cairo_win32_surface_get_dc(surface);
+    if(!dc) {
+      ControlPainter::paint_scrollbar_part(context, canvas, part, dir, state, x, y, width, height);
+      return;
+    }
   }
   
   RECT rect;

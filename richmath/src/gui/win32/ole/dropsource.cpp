@@ -219,6 +219,11 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
   
   cairo_format_t format = CAIRO_FORMAT_RGB24;
   cairo_surface_t *image = cairo_win32_surface_create_with_ddb(nullptr, format, 1, 1);
+  if(cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(image);
+    return E_OUTOFMEMORY;
+  }
+    
   Rectangle rect;
   doc->prepare_copy_to_image(image, &rect);
   cairo_surface_destroy(image);
@@ -229,6 +234,11 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
   if(h < 1) h = 1;
   
   image = cairo_win32_surface_create_with_ddb(nullptr, format, w, h);
+  if(cairo_surface_status(image) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(image);
+    return E_OUTOFMEMORY;
+  }
+  
   doc->finish_copy_to_image(image, rect);
   
   SHDRAGIMAGE di = {0};

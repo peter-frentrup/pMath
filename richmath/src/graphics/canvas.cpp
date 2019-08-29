@@ -782,3 +782,14 @@ void Canvas::paint_with_alpha(float alpha) {
 }
 
 //} ... class Canvas
+
+#if CAIRO_HAS_WIN32_SURFACE
+HDC richmath::safe_cairo_win32_surface_get_dc(cairo_surface_t *surface) {
+  if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS)
+    return nullptr;
+  
+  // cairo_win32_surface_get_dc unconditionally dereferences the backend pointer which is NULL 
+  // for the nil surface that gets returned in out-of-memory situations.
+  return cairo_win32_surface_get_dc(surface);
+}
+#endif

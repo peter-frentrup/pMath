@@ -4,7 +4,6 @@
 #include <graphics/color.h>
 #include <graphics/fonts.h>
 
-
 namespace richmath {
   class Base;
   class Rectangle;
@@ -156,6 +155,12 @@ namespace richmath {
   };
   
   typedef AutoRefBase < cairo_surface_t, cairo_surface_reference, cairo_surface_destroy > AutoCairoSurface;
+
+
+#if CAIRO_HAS_WIN32_SURFACE
+  HDC safe_cairo_win32_surface_get_dc(cairo_surface_t *surface);
+#endif
+
 }
 
 #endif // RICHMATH__GRAPHICS__CANVAS_H__INCLUDED

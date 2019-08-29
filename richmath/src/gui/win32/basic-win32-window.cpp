@@ -960,6 +960,11 @@ void BasicWin32Window::paint_themed(HDC hdc) {
                                  rect.right  - rect.left,
                                  rect.bottom - rect.top);
     cairo_surface_destroy(ddb);
+    if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS) {
+      pmath_debug_print("[paint_themed: cairo_surface_create_similar() failed]");
+      cairo_surface_destroy(surface);
+      return;
+    }
     
     HDC bmp_dc = cairo_win32_surface_get_dc(surface);
     SetLayout(bmp_dc, GetLayout(hdc));
