@@ -792,7 +792,11 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
       cairo_surface_destroy(_old_pixels);
     
     _old_pixels = target;
+    target = nullptr;
   }
+  
+  if(target)
+    cairo_surface_destroy(target);
 }
 
 void Win32Widget::on_hscroll(WORD kind, WORD thumbPos) {
@@ -1536,7 +1540,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                   BitBlt(dc, 0, 0, rect.right, rect.bottom,
                          cairo_win32_surface_get_dc(_old_pixels), 0, 0, SRCCOPY);
                          
-                  DeleteDC(dc);
+                  ReleaseDC(_hwnd, dc);
                 }
               } break;
           }

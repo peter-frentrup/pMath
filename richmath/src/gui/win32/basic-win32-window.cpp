@@ -1230,7 +1230,8 @@ void BasicWin32Window::paint_themed_caption(HDC hdc_bitmap) {
     }
 
     if(old_font) {
-      SelectObject(hdc_bitmap, old_font);
+      HFONT font = (HFONT)SelectObject(hdc_bitmap, old_font);
+      DeleteObject(font);
     }
   }
 }
