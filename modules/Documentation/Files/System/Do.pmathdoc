@@ -1,0 +1,264 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Do", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(Do::"usage"))), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({"An alternative syntax is ", {
+           {TemplateBox({"Do"}, "ReferenceHyperlink"), "(", 
+            StyleBox("iter", "Arg"), ")"}, {"{", StyleBox("expr", "Arg"), 
+            "}"}}, " with block form for ", StyleBox("expr", "Arg"), "."}, 
+         "Notes"), 
+        Section({"Use ", {TemplateBox({"Break"}, "ReferenceHyperlink"), "(", 
+           ")"}, " in ", StyleBox("expr", "Arg"), " to exit the loop early."}, 
+         "Notes"), 
+        Section({"With ", TemplateBox({"Continue"}, "ReferenceHyperlink"), 
+          "() you skip the rest of an ", StyleBox("expr", "Arg"), 
+          " and continue at the next iteration."}, "Notes"), 
+        Section({TemplateBox({"Do"}, "ReferenceHyperlink"), "(", 
+          StyleBox("expr", "Arg"), ", ", StyleBox("i", "Arg"), " \[Rule] ", 
+          StyleBox("range", "Arg"), ") first evaluates ", 
+          StyleBox("range", "Arg"), " and then repeatedly evaluates ", 
+          StyleBox("expr", "Arg"), " with ", StyleBox("i", "Arg"), 
+          " set to the different values specified by ", 
+          StyleBox("range", "Arg"), " (effectively localized using ", 
+          TemplateBox({"Block"}, "ReferenceHyperlink"), ")."}, "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Repeat an evaluation three times:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Do", "(", {{"Print", "(", {"RandomReal", "(", ")"}, ")"}, 
+              ",", "3"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(InterpretationBox("0.97082119143082479`", Row({
+              0.97082119143082479`}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("0.55950654247509346`", Row({
+              0.55950654247509346`}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("0.18539037801478808`", Row({
+              0.18539037801478808`}), Editable -> False)), "Print", 
+           SectionGenerated -> True)}, All), 
+        Section("The same in block form:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
+              {"Do", "(", "3", ")"}, {
+               "{", {"\n", {{"Print", "(", {"RandomReal", "(", ")"}, ")"}, 
+                 "\n"}}, "}"}})), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(InterpretationBox("0.06851358684807507`", Row({
+              0.06851358684807507`}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("0.19858457277426089`", Row({
+              0.19858457277426089`}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("0.71722804345637814`", Row({
+              0.71722804345637814`}), Editable -> False)), "Print", 
+           SectionGenerated -> True)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use steps of size 2 instead of 1:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Do", "(", {{"Print", "(", "i", ")"}, ",", {
+                 "i", "\[Rule]", {"1", "..", "7", "..", "2"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(InterpretationBox("1", Row({1}), 
+               Editable -> False)), "Print", SectionGenerated -> True), 
+            Section(BoxData(InterpretationBox("3", Row({3}), 
+               Editable -> False)), "Print", SectionGenerated -> True), 
+            Section(BoxData(InterpretationBox("5", Row({5}), 
+               Editable -> False)), "Print", SectionGenerated -> True), 
+            Section(BoxData(InterpretationBox("7", Row({7}), 
+               Editable -> False)), "Print", SectionGenerated -> True)}, All), 
+          Section("Or in block form:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
+                {"Do", "(", {"i", "\[Rule]", {"1", "..", "7", "..", "2"}}, 
+                 ")"}, {"{", {"\n", {{"Print", "(", "i", ")"}, "\n"}}, 
+                 "}"}})), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(InterpretationBox("1", Row({1}), 
+               Editable -> False)), "Print", SectionGenerated -> True), 
+            Section(BoxData(InterpretationBox("3", Row({3}), 
+               Editable -> False)), "Print", SectionGenerated -> True), 
+            Section(BoxData(InterpretationBox("5", Row({5}), 
+               Editable -> False)), "Print", SectionGenerated -> True), 
+            Section(BoxData(InterpretationBox("7", Row({7}), 
+               Editable -> False)), "Print", SectionGenerated -> True)}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Iterate over a list:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Do", "(", {{"Print", "(", RadicalBox("i", "3"), ")"}, 
+              ",", {"i", "\[Rule]", {
+                "{", {"1", ",", "8", ",", "27", ",", "64"}, "}"}}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(InterpretationBox("1", Row({1}), 
+             Editable -> False)), "Print", SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("2", Row({2}), 
+             Editable -> False)), "Print", SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("3", Row({3}), 
+             Editable -> False)), "Print", SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("4", Row({4}), 
+             Editable -> False)), "Print", SectionGenerated -> True)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("The upper bound may not be reached exactly:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Do", "(", {{"Print", "(", "i", ")"}, ",", {
+                 "i", "\[Rule]", {"1.5", "..", "4"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(InterpretationBox("1.5`", Row({1.5`}), 
+               Editable -> False)), "Print", SectionGenerated -> True), 
+            Section(BoxData(InterpretationBox("2.5`", Row({2.5`}), 
+               Editable -> False)), "Print", SectionGenerated -> True), 
+            Section(BoxData(InterpretationBox("3.5`", Row({3.5`}), 
+               Editable -> False)), "Print", SectionGenerated -> True)}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Applications", "ExampleSection"), 
+        Section("Build a list of exponents of Mersenne primes:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
+              {"Local", "(", {"l", "\[Assign]", {"{", "}"}}, ")"}, {
+               "{", {
+                "\n", {{{{"Do", "(", {"n", "\[Rule]", "100"}, ")"}, {
+                    "{", {
+                     "\n", {
+                      {{"If", "(", {"IsPrime", "(", {
+                          {"2", SuperscriptBox("n")}, "-", "1"}, ")"}, ")"}, {
+                        "{", {
+                         "\n", {{"l", "\[Assign]", {
+                            "Append", "(", {"l", ",", "n"}, ")"}}, "\n"}}, 
+                        "}"}}, "\n"}}, "}"}}, "\n", "l"}, "\n"}}, "}"}})), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"2", ",", "3", ",", "5", ",", "7", ",", "13", 
+              ",", "17", ",", "19", ",", "31", ",", "61", ",", "89"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), Section({"Alternatively use ", 
+          TemplateBox({"Gather"}, "ReferenceHyperlink"), " and ", 
+          TemplateBox({"Emit"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
+              {"Gather", "(", {
+                "\n", {{{"Do", "(", {"n", "\[Rule]", "100"}, ")"}, {
+                   "{", {
+                    "\n", {
+                     {{"If", "(", {"IsPrime", "(", {
+                         {"2", SuperscriptBox("n")}, "-", "1"}, ")"}, ")"}, {
+                       "{", {"\n", {{"Emit", "(", "n", ")"}, "\n"}}, "}"}}, 
+                     "\n"}}, "}"}}, "\n"}}, ")"}, "[", {"-", "1"}, "]"})), 
+           "Input", SectionLabel -> "in [3]:"), 
+          Section(BoxData({"{", {"2", ",", "3", ",", "5", ",", "7", ",", "13", 
+              ",", "17", ",", "19", ",", "31", ",", "61", ",", "89"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
+         All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section({"You can exit the loop early by calling ", 
+          TemplateBox({"Break"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
+              {"Do", "(", {"i", "\[Rule]", "100"}, ")"}, {
+               "{", {
+                "\n", {{{{"If", "(", {{"i", "^", "2"}, ">", "30"}, ")"}, {
+                    "{", {"\n", {{"Break", "(", ")"}, "\n"}}, "}"}}, "\n", {
+                   "Print", "(", {"i", "^", "2"}, ")"}}, "\n"}}, "}"}})), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(InterpretationBox("1", Row({1}), 
+             Editable -> False)), "Print", SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("4", Row({4}), 
+             Editable -> False)), "Print", SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("9", Row({9}), 
+             Editable -> False)), "Print", SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("16", Row({16}), 
+             Editable -> False)), "Print", SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox("25", Row({25}), 
+             Editable -> False)), "Print", SectionGenerated -> True)}, All)}, 
+       1), SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section({"Values of ", TemplateBox({"Do"}, "ReferenceHyperlink"), 
+          " are not substituted before evaluation: "}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Do", "(", {
+              {"Print", "(", {"i", "\[RuleDelayed]", {
+                 "i", SuperscriptBox("2")}}, ")"}, ",", {
+               "i", "\[Rule]", "4"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(InterpretationBox({
+              "1", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}, Row({
+              1 :> Global`i^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "2", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}, Row({
+              2 :> Global`i^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "3", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}, Row({
+              3 :> Global`i^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "4", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}, Row({
+              4 :> Global`i^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True)}, All), 
+        Section({"Use ", TemplateBox({"With"}, "ReferenceHyperlink"), 
+          " to perform explicit substituition:"}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Do", "(", {
+              {"With", "(", {{"{", {"i", "\[Assign]", "i"}, "}"}, ",", {
+                 "Print", "(", {"i", "\[RuleDelayed]", {
+                   "i", SuperscriptBox("2")}}, ")"}}, ")"}, ",", {
+               "i", "\[Rule]", "4"}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData(InterpretationBox({
+              "1", "\[RuleDelayed]", {"1", SuperscriptBox("2")}}, Row({
+              1 :> 1^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "2", "\[RuleDelayed]", {"2", SuperscriptBox("2")}}, Row({
+              2 :> 2^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "3", "\[RuleDelayed]", {"3", SuperscriptBox("2")}}, Row({
+              3 :> 3^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "4", "\[RuleDelayed]", {"4", SuperscriptBox("2")}}, Row({
+              4 :> 4^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True)}, All), 
+        Section("In block form this might be more readable:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
+              {"Do", "(", {"i", "\[Rule]", "4"}, ")"}, {
+               "{", {"\n", {{{"With", "(", {"i", "\[Assign]", "i"}, ")"}, 
+                  "\n", {"Print", "(", {"i", "\[RuleDelayed]", {
+                     "i", SuperscriptBox("2")}}, ")"}}, "\n"}}, "}"}})), 
+           "Input", SectionLabel -> "in [3]:"), 
+          Section(BoxData(InterpretationBox({
+              "1", "\[RuleDelayed]", {"1", SuperscriptBox("2")}}, Row({
+              1 :> 1^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "2", "\[RuleDelayed]", {"2", SuperscriptBox("2")}}, Row({
+              2 :> 2^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "3", "\[RuleDelayed]", {"3", SuperscriptBox("2")}}, Row({
+              3 :> 3^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(InterpretationBox({
+              "4", "\[RuleDelayed]", {"4", SuperscriptBox("2")}}, Row({
+              4 :> 4^2}), Editable -> False)), "Print", 
+           SectionGenerated -> True)}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Table"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Range"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Break"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Continue"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
