@@ -2056,23 +2056,6 @@ namespace richmath {
         return next;
       }
       
-      void set_initial_whitespace_depth(int pos, int next, int depth) {
-        const uint16_t *buf = self.str.buffer();
-        
-        int i = pos + 1;
-        while(i < next) {
-          indention_array[i] = depth;
-          
-          if(!(buf[i] == '\n' || is_comment_start_at(buf + i, buf + next)))
-            break;
-            
-          if(self.spans[i])
-            i = self.spans[i].end() + 1;
-          else
-            ++i;
-        }
-      }
-      
       int fill_block_body_indention_array(Span span, int depth, int pos) {
         if(!span)
           return fill_indention_array(span, depth, pos);
@@ -2142,7 +2125,11 @@ namespace richmath {
             fia = &MathSequenceImpl::fill_block_body_indention_array;
         }
         
-        int next = (this->*fia)(span.next(), depth + 1, pos);
+        int inner_depth = depth + 1;
+        if(buf[pos] == '\n' && !span.next())
+          inner_depth = depth;
+        
+        int next = (this->*fia)(span.next(), inner_depth, pos);
         
         bool prev_simple = false;
         bool ends_with_newline = false;
@@ -2154,7 +2141,7 @@ namespace richmath {
             
           ends_with_newline = buf[next] == '\n' && !sub;
           prev_simple = !sub;
-          next = (this->*fia)(sub, depth + 1, next);
+          next = (this->*fia)(sub, inner_depth, next);
         }
         
         if(ends_with_newline) {
@@ -2165,32 +2152,9 @@ namespace richmath {
         }
         
         indention_array[pos] = depth;
-        if(buf[pos] == '\n') {
-          /* Leading \n is attached to the innermost span, e.g.
-              F(\nA()()\nB()\n)
-                \_/
-                \___/
-                \_____/  \_/
-                \__________/
-                \____________/
-              \_______________/
-              116 655443 444221   <-- depth
-              011 655443 344221   <-- indent without any \n handling (6 for A, 3 for B)
-              011 544332 233111   <-- indent with `ends_with_newline` rule above (5 for A, 2 for B)
-              011 144332 233111   <-- indent without `inner_newline` rule below  (1 for A, 2 for B)
-              012 244332 233111   <-- indent with full \n handling (2 for A, 2 for B)
-           */
-          
-          if(inner_newline) {
-            /* Indent A and B in the above example by the same amount, i.e. no
-               additional indentation at \nB
-               Inner '\n' is essentially an implicit ';'
-             */
-            set_initial_whitespace_depth(pos, next, depth + 1);
-            indention_array[pos] = depth + 1;
-          }
-          else
-            set_initial_whitespace_depth(pos, next, depth);
+        if(inner_newline) {
+          for(int i = pos + 1; i < next; ++i)
+            indention_array[i] = MAX(0, indention_array[i] - 1);
         }
         
         return next;
