@@ -436,6 +436,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
   pmath_thread_t thread;
   
   if(pmath_atomic_fetch_add(&pmath_count, +1) == 0) {
+#ifdef PMATH_DEBUG_LOG
+    double start_tick = pmath_tickcount();
+#endif
+
     while(_pmath_status != PMATH_STATUS_NONE) {
     }
     
@@ -960,8 +964,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "(o)", exe);
     }
     
-    if(!pmath_aborting())
+    if(!pmath_aborting()) {
+      pmath_debug_print("[pmath_init(): %.3f sec]\n", pmath_tickcount() - start_tick);
       return TRUE;
+    }
       
     _pmath_status = PMATH_STATUS_DESTROYING;
     
