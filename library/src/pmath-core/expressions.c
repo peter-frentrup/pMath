@@ -50,6 +50,8 @@ PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_t)      == 56);
 PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_part_t) == 72);
 #endif
 
+PMATH_STATIC_ASSERT(sizeof(PMATH_GC_FLAGS32(((struct _pmath_gc_t*)NULL))) == 4);
+
 extern pmath_symbol_t pmath_System_Colon;
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 

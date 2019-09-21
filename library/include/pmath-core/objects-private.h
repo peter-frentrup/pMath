@@ -60,6 +60,12 @@ struct _pmath_gc_t { // expr and symbol inherit from this
 #endif
 };
 
+#if PMATH_BITSIZE == 32
+#  define PMATH_GC_FLAGS32(PTR)  ((PTR)->padding_flags32)
+#else
+#  define PMATH_GC_FLAGS32(PTR)  ((PTR)->inherited.inherited.padding_flags32)
+#endif
+
 PMATH_PRIVATE
 _pmath_timer_t _pmath_timer_get(void);
 
