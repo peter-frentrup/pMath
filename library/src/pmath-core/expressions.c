@@ -36,6 +36,20 @@ struct _pmath_expr_part_t {
   size_t                 start;
 };
 
+#if PMATH_BITSIZE == 32
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_t)           == 8);
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_timed_t)     == 16);
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_gc_t)        == 24);
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_t)      == 40);
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_part_t) == 48);
+#else
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_t)           == 16);
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_timed_t)     == 24);
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_gc_t)        == 32);
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_t)      == 56);
+PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_part_t) == 72);
+#endif
+
 extern pmath_symbol_t pmath_System_Colon;
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 

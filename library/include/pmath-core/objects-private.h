@@ -55,6 +55,9 @@ struct _pmath_timed_t {
 struct _pmath_gc_t { // expr and symbol inherit from this
   struct _pmath_timed_t  inherited;
   uintptr_t              gc_refcount;
+#if PMATH_BITSIZE == 32
+  uint32_t               padding_flags32;
+#endif
 };
 
 PMATH_PRIVATE
