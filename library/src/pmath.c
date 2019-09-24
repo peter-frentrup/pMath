@@ -555,14 +555,14 @@ PMATH_API pmath_bool_t pmath_init(void) {
           pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 0);
       _pmath_expr_update(_pmath_object_singlematch);
       
-      // Repeated(SingleMatch(), Range(1, /\/))
+      // Repeated(SingleMatch(), Range(1, Automatic))
       _pmath_object_multimatch = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_REPEATED), 2,
           pmath_ref(_pmath_object_singlematch),
           pmath_ref(_pmath_object_range_from_one));
       _pmath_expr_update(_pmath_object_multimatch);
       
-      // Repeated(SingleMatch(), Range(0, /\/))
+      // Repeated(SingleMatch(), Range(0, Automatic))
       _pmath_object_zeromultimatch = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_REPEATED), 2,
           pmath_ref(_pmath_object_singlematch),
@@ -592,14 +592,14 @@ PMATH_API pmath_bool_t pmath_init(void) {
 //      pmath_ref(PMATH_SYMBOL_GENERAL),
 //      PMATH_C_STRING("newsym"));
 
-      // MessageName(Get, "load")
+      // MessageName(LoadLibrary, "load")
       _pmath_object_loadlibrary_load_message = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
           pmath_ref(PMATH_SYMBOL_LOADLIBRARY),
           PMATH_C_STRING("load"));
       //_pmath_expr_update(_pmath_object_loadlibrary_load_message);
       
-      // MessageName(LoadLibrary, "load")
+      // MessageName(Get, "load")
       _pmath_object_get_load_message = pmath_expr_new_extended(
           pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
           pmath_ref(PMATH_SYMBOL_GET),
