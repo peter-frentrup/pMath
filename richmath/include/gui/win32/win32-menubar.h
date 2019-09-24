@@ -44,6 +44,9 @@ namespace richmath {
       void resized();
       bool callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam);
       
+      HHOOK register_hook_for_popup(HMENU menu, int item = -1);
+      void unregister_hook(HHOOK hook);
+      
     private:
       void on_dpi_changed(int new_dpi);
       void reload_image_list();
@@ -53,9 +56,6 @@ namespace richmath {
       
       void kill_focus();
       void set_focus(int item);
-      
-      HHOOK register_hook(int item);
-      void unregister_hook(HHOOK hook);
       
       static int find_hilite_menuitem(HMENU *menu);
       

@@ -271,9 +271,8 @@ void Win32Menubar::show_menu(int item) {
   
   SetFocus(_hwnd);
   
-  if(HHOOK hook = register_hook(item)) {
-    current_popup = GetSubMenu(_menu->hmenu(), item - 1);
-    
+  if(HHOOK hook = register_hook_for_popup(GetSubMenu(_menu->hmenu(), item - 1), item)) {
+  
     pt.y = tpm.rcExclude.bottom;
     UINT align;
     if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
@@ -301,8 +300,6 @@ void Win32Menubar::show_menu(int item) {
     
     if(next_item <= 0)
       Application::delay_dynamic_updates(false);
-      
-    current_popup = nullptr;
     
     unregister_hook(hook);
     
@@ -336,9 +333,7 @@ void Win32Menubar::show_sysmenu() {
   tpm.rcExclude.right  = tpm.rcExclude.left + Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
   tpm.rcExclude.bottom = tpm.rcExclude.top  + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
   
-  if(HHOOK hook = register_hook(-1)) {
-    current_popup = GetSystemMenu(parent, FALSE);
-    
+  if(HHOOK hook = register_hook_for_popup(GetSystemMenu(parent, FALSE))) {
     int x;
     UINT align;
     if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
@@ -361,8 +356,6 @@ void Win32Menubar::show_sysmenu() {
                 &tpm);
                 
     Application::delay_dynamic_updates(false);
-    
-    current_popup = 0;
     
     unregister_hook(hook);
     
@@ -419,11 +412,12 @@ void Win32Menubar::kill_focus() {
   }
 }
 
-HHOOK Win32Menubar::register_hook(int item) {
+HHOOK Win32Menubar::register_hook_for_popup(HMENU menu, int item) {
   if(current_menubar && current_menubar != this)
     return nullptr;
     
   current_item = item;
+  current_popup = menu;
   
   current_menubar = this;
   return SetWindowsHookEx(
@@ -436,6 +430,7 @@ HHOOK Win32Menubar::register_hook(int item) {
 void Win32Menubar::unregister_hook(HHOOK hook) {
   UnhookWindowsHookEx(hook);
   current_item = 0;
+  current_popup = nullptr;
 }
 
 int Win32Menubar::find_hilite_menuitem(HMENU *menu) {
@@ -879,8 +874,7 @@ LRESULT CALLBACK Win32Menubar::menu_hook_proc(int code, WPARAM h_wParam, LPARAM 
         
       case WM_KEYDOWN: {
           switch(msg->wParam) {
-            case VK_DELETE: if(current_menubar->_menu.is_valid()) {
-                HMENU menu = current_menubar->_menu->hmenu();
+            case VK_DELETE: if(HMENU menu = current_menubar->current_popup) {
                 int item = find_hilite_menuitem(&menu);
                 
                 if(menu && item >= 0) {
