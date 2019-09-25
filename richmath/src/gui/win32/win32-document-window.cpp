@@ -9,6 +9,7 @@
 #include <eval/application.h>
 #include <gui/control-painter.h>
 #include <gui/messagebox.h>
+#include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
@@ -1263,13 +1264,10 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         
       case WM_SYSCOMMAND:
         if((wParam & 0xFFF0) == SC_MOUSEMENU || (wParam & 0xFFF0) == SC_KEYMENU) {
-          HHOOK hook = menubar->register_hook_for_popup(GetSystemMenu(hwnd(), FALSE));
+          Win32AutoMenuHook menu_hook(GetSystemMenu(hwnd(), FALSE), nullptr, false, false);
           
           LRESULT res = BasicWin32Window::callback(message, wParam, lParam);
           
-          if(hook)
-            menubar->unregister_hook(hook);
-            
           return res;
         }
         

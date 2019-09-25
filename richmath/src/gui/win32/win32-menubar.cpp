@@ -11,6 +11,7 @@
 
 #include <util/array.h>
 #include <eval/application.h>
+#include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
 #include <gui/win32/win32-menu.h>
@@ -30,14 +31,7 @@
 
 using namespace richmath;
 
-static Win32Menubar *current_menubar = 0;
-
-static POINT dword_to_point(DWORD dw) {
-  POINT pt;
-  pt.x = (short)LOWORD(dw);
-  pt.y = (short)HIWORD(dw);
-  return pt;
-}
+static Win32Menubar *current_menubar = nullptr;
 
 static DWORD point_to_dword(const POINT &pt) {
   return ((short)pt.x) | (((short)pt.y) << 16);
@@ -271,8 +265,14 @@ void Win32Menubar::show_menu(int item) {
   
   SetFocus(_hwnd);
   
-  if(HHOOK hook = register_hook_for_popup(GetSubMenu(_menu->hmenu(), item - 1), item)) {
-  
+  int cmd = 0;
+  if(!current_menubar || current_menubar == this) {
+    current_popup = GetSubMenu(_menu->hmenu(), item - 1);
+    current_item = item;
+    current_menubar = this;
+    
+    Win32AutoMenuHook menu_hook(current_popup, _hwnd, true, true);
+    
     pt.y = tpm.rcExclude.bottom;
     UINT align;
     if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
@@ -290,26 +290,44 @@ void Win32Menubar::show_menu(int item) {
       
     Application::delay_dynamic_updates(true);
     
-    int cmd = TrackPopupMenuEx(
-                current_popup,
-                flags,
-                pt.x,
-                pt.y,
-                parent,
-                &tpm);
+    cmd = TrackPopupMenuEx(
+            current_popup,
+            flags,
+            pt.x,
+            pt.y,
+            parent,
+            &tpm);
     
-    if(next_item <= 0)
-      Application::delay_dynamic_updates(false);
-    
-    unregister_hook(hook);
-    
-    if(cmd) {
-      SendMessageW(parent, WM_COMMAND, cmd, 0);
-      kill_focus();
+    switch(menu_hook.exit_reason) {
+      case MenuExitReason::LeftKey:
+        next_item = item - 1;
+        if(next_item <= 0) {
+          next_item = GetMenuItemCount(_menu->hmenu());
+        }
+        break;
+        
+      case MenuExitReason::RightKey:
+        next_item = item + 1;
+        if(next_item > GetMenuItemCount(_menu->hmenu())) {
+          next_item = 1;
+        }
+        break;
+        
+      default:
+        Application::delay_dynamic_updates(false);
+        break;
     }
-    else if(/*_autohide && */visible())
-      SetCapture(_hwnd);
+    
+    current_item = 0;
+    current_popup = nullptr;
   }
+  
+  if(cmd) {
+    SendMessageW(parent, WM_COMMAND, cmd, 0);
+    kill_focus();
+  }
+  else if(/*_autohide && */visible())
+    SetCapture(_hwnd);
   
   if(next_item > 0) {
     PostMessage(
@@ -333,7 +351,11 @@ void Win32Menubar::show_sysmenu() {
   tpm.rcExclude.right  = tpm.rcExclude.left + Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
   tpm.rcExclude.bottom = tpm.rcExclude.top  + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
   
-  if(HHOOK hook = register_hook_for_popup(GetSystemMenu(parent, FALSE))) {
+  int cmd = 0;
+  {
+    HMENU menu = GetSystemMenu(parent, FALSE);
+    Win32AutoMenuHook menu_hook(menu, nullptr, false, false);
+    
     int x;
     UINT align;
     if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
@@ -345,24 +367,26 @@ void Win32Menubar::show_sysmenu() {
       x = tpm.rcExclude.right;
     }
     
+    UINT flags = TPM_RETURNCMD | align;
+    if(!menu_animation)
+      flags |= TPM_NOANIMATION;
+      
     Application::delay_dynamic_updates(true);
     
-    int cmd = TrackPopupMenuEx(
-                current_popup,
-                align | TPM_RETURNCMD,
-                x,
-                tpm.rcExclude.bottom,
-                parent,
-                &tpm);
-                
+    cmd = TrackPopupMenuEx(
+            menu,
+            flags,
+            x,
+            tpm.rcExclude.bottom,
+            parent,
+            &tpm);
+    
     Application::delay_dynamic_updates(false);
-    
-    unregister_hook(hook);
-    
-    if(cmd) {
-      SendMessageW(parent, WM_COMMAND, cmd, 0);
-      kill_focus();
-    }
+  }
+  
+  if(cmd) {
+    SendMessageW(parent, WM_COMMAND, cmd, 0);
+    kill_focus();
   }
 }
 
@@ -410,49 +434,6 @@ void Win32Menubar::kill_focus() {
   if(GetCapture() == _hwnd) {
     ReleaseCapture();
   }
-}
-
-HHOOK Win32Menubar::register_hook_for_popup(HMENU menu, int item) {
-  if(current_menubar && current_menubar != this)
-    return nullptr;
-    
-  current_item = item;
-  current_popup = menu;
-  
-  current_menubar = this;
-  return SetWindowsHookEx(
-           WH_MSGFILTER,
-           menu_hook_proc,
-           nullptr,
-           GetCurrentThreadId());
-}
-
-void Win32Menubar::unregister_hook(HHOOK hook) {
-  UnhookWindowsHookEx(hook);
-  current_item = 0;
-  current_popup = nullptr;
-}
-
-int Win32Menubar::find_hilite_menuitem(HMENU *menu) {
-  for(int i = 0; i < GetMenuItemCount(*menu); ++i) {
-    UINT state = GetMenuState(*menu, i, MF_BYPOSITION);
-    
-    if(state & MF_POPUP) {
-      HMENU old = *menu;
-      *menu = GetSubMenu(*menu, i);
-      int result = find_hilite_menuitem(menu);
-      if(result >= 0)
-        return result;
-        
-      *menu = old;
-    }
-    
-    if(state & MF_HILITE) {
-      return i;
-    }
-  }
-  
-  return -1;
 }
 
 void Win32Menubar::on_dpi_changed(int new_dpi) {
@@ -556,6 +537,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                 
                 if((hi->dwFlags & (HICF_MOUSE | ~HICF_LEAVING)) &&
                     current_menubar == this                     &&
+                    current_item > 0                            &&
                     current_item != hi->idNew                   &&
                     hi->idNew)
                 {
@@ -563,6 +545,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                     if(current_item)
                       next_item = hi->idNew;
                     
+                    pmath_debug_print("[TBN_HOTITEMCHANGE -> EndMenu]\n");
                     EndMenu();
                     *result = 0;
                     return true;
@@ -847,96 +830,6 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       } break;
   }
   return false;
-}
-
-LRESULT CALLBACK Win32Menubar::menu_hook_proc(int code, WPARAM h_wParam, LPARAM h_lParam) {
-  if(code == MSGF_MENU && current_menubar) {
-    MSG *msg = (MSG *)h_lParam;
-    
-    switch(msg->message) {
-      case WM_LBUTTONDOWN:
-        {
-          static int i = 0;
-          i = i + 1;
-        }
-      case WM_LBUTTONUP:
-      case WM_MOUSEMOVE: {
-          POINT pt = dword_to_point(msg->lParam);
-          
-          ScreenToClient(current_menubar->_hwnd, &pt);
-          
-          return SendMessageW(
-                   current_menubar->_hwnd,
-                   msg->message,
-                   msg->wParam,
-                   point_to_dword(pt));
-        } break;
-        
-      case WM_KEYDOWN: {
-          switch(msg->wParam) {
-            case VK_DELETE: if(HMENU menu = current_menubar->current_popup) {
-                int item = find_hilite_menuitem(&menu);
-                
-                if(menu && item >= 0) {
-                  MENUITEMINFOW info;
-                  memset(&info, 0, sizeof(info));
-                  info.cbSize = sizeof(info);
-                  info.fMask = MIIM_DATA | MIIM_ID;
-                  if(GetMenuItemInfoW(menu, item, TRUE, &info)) {
-                    if(info.dwItemData != 0) {
-                      Expr subitems_cmd = Win32Menu::id_to_command((DWORD)info.dwItemData);
-                      Expr cmd = Win32Menu::id_to_command(info.wID);
-                      if(Application::remove_dynamic_submenu_item(subitems_cmd, cmd)) {
-                        Win32Menu::init_popupmenu(menu);
-                      }
-                    }
-                  }
-                }
-              } break;
-            
-            case VK_LEFT: if(current_menubar->_menu.is_valid()) {
-                HMENU menu = current_menubar->_menu->hmenu();
-                int item = find_hilite_menuitem(&menu);
-                
-                if(menu == current_menubar->current_popup
-                    || (item < 0 && current_menubar->current_item >= 0)) {
-                  int count = GetMenuItemCount(current_menubar->_menu->hmenu());
-                  
-                  if(count > 1) {
-                    current_menubar->next_item = current_menubar->current_item - 1;
-                    if(current_menubar->next_item <= 0)
-                      current_menubar->next_item = count;
-                      
-                    EndMenu();
-                    return 0;
-                  }
-                }
-              } break;
-              
-            case VK_RIGHT: if(current_menubar->_menu.is_valid()) {
-                HMENU menu = current_menubar->_menu->hmenu();
-                int item = find_hilite_menuitem(&menu);
-                
-                if((item < 0 && current_menubar->current_item >= 0)
-                    || (GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP) == 0) {
-                  int count = GetMenuItemCount(current_menubar->_menu->hmenu());
-                  
-                  if(count > 1) {
-                    current_menubar->next_item = current_menubar->current_item + 1;
-                    if(current_menubar->next_item > count)
-                      current_menubar->next_item = 1;
-                      
-                    EndMenu();
-                    return 0;
-                  }
-                }
-              } break;
-          }
-        } break;
-    }
-  }
-  
-  return CallNextHookEx(0, code, h_wParam, h_lParam);
 }
 
 //} ... class Win32Menubar
