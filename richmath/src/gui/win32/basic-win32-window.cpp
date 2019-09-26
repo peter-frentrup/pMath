@@ -4,6 +4,7 @@
 
 #include <graphics/canvas.h>
 #include <gui/win32/basic-win32-window.h>
+#include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-tooltip-window.h>
@@ -2049,16 +2050,20 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               POINT pt;
               pt.x = (short)LOWORD(lParam);
               pt.y = (short)HIWORD(lParam);
-
-              // TODO: register menu hook to catch VK_DELETE
-              int cmd = TrackPopupMenu(
-                          menu,
-                          GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
-                          pt.x,
-                          pt.y,
-                          0,
-                          _hwnd,
-                          nullptr);
+              
+              int cmd;
+              {
+                Win32AutoMenuHook menu_hook(menu, nullptr, false, false);
+                
+                cmd = TrackPopupMenu(
+                        menu,
+                        GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
+                        pt.x,
+                        pt.y,
+                        0,
+                        _hwnd,
+                        nullptr);
+              }
 
               if(cmd)
                 SendMessageW(_hwnd, WM_SYSCOMMAND, cmd, 0);
@@ -2095,15 +2100,19 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 x = tpm.rcExclude.right;
               }
 
-              // TODO: register menu hook to catch VK_DELETE
-              int cmd = TrackPopupMenuEx(
-                          menu,
-                          align | TPM_RETURNCMD | TPM_NONOTIFY,
-                          x,
-                          tpm.rcExclude.bottom,
-                          _hwnd,
-                          &tpm);
-
+              int cmd;
+              {
+                Win32AutoMenuHook menu_hook(menu, nullptr, false, false);
+                
+                cmd = TrackPopupMenuEx(
+                        menu,
+                        align | TPM_RETURNCMD | TPM_NONOTIFY,
+                        x,
+                        tpm.rcExclude.bottom,
+                        _hwnd,
+                        &tpm);
+              }
+              
               if(cmd)
                 SendMessageW(_hwnd, WM_SYSCOMMAND, cmd, 0);
               return 0;

@@ -16,6 +16,7 @@
 #include <gui/control-painter.h>
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
+#include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
@@ -1022,9 +1023,12 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
   else
     flags |= TPM_RIGHTALIGN;
   
-  // TODO: register menu hook to catch VK_DELETE
+  HMENU menu = Win32Menu::popup_menu->hmenu();
+  
+  Win32AutoMenuHook menu_hook(menu, nullptr, false, false);
+  
   TrackPopupMenuEx(
-    Win32Menu::popup_menu->hmenu(),
+    menu,
     flags,
     screen_pt.x,
     screen_pt.y,
