@@ -22,6 +22,7 @@ extern pmath_symbol_t richmath_System_DollarApplicationFileName;
 namespace {
   class FileAssociationRegistry {
       static const wchar_t *document_prog_id;
+      static const wchar_t *document_prog_id_curver;
     public:
       static const wchar_t *app_user_model_id;
     
@@ -236,6 +237,7 @@ void Win32RecentDocuments::done() {
 
 const wchar_t *FileAssociationRegistry::app_user_model_id = L"Frentrup.pMath.RichMath";
 const wchar_t *FileAssociationRegistry::document_prog_id = L"Frentrup.pMath.RichMath.Document";
+const wchar_t *FileAssociationRegistry::document_prog_id_curver = L"Frentrup.pMath.RichMath.Document.1";
 
 void FileAssociationRegistry::init_app_user_model_id() {
   HMODULE shell32 = LoadLibrary("shell32.dll");
@@ -266,13 +268,22 @@ bool FileAssociationRegistry::are_file_associations_registered() {
 HRESULT FileAssociationRegistry::register_application() {
   HR(register_program_id());
   HR(register_known_file_extensions());
+  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
   return S_OK;
 }
 
 HRESULT FileAssociationRegistry::register_program_id() {
   RegistryKey hkcu_software_classes = RegistryKey::CurrentUser.open(L"Software\\Classes");
   
-  RegistryKey progid = hkcu_software_classes.create(document_prog_id, KEY_SET_VALUE | KEY_CREATE_SUB_KEY);
+  {
+    RegistryKey progid_unversioned = hkcu_software_classes.create(document_prog_id, KEY_SET_VALUE | KEY_CREATE_SUB_KEY);
+    if(!progid_unversioned) 
+      return E_FAIL;
+    
+    HR(progid_unversioned.create(L"CurVer", KEY_SET_VALUE | KEY_CREATE_SUB_KEY).set_string_value(L"", document_prog_id_curver));
+  }
+  
+  RegistryKey progid = hkcu_software_classes.create(document_prog_id_curver, KEY_SET_VALUE | KEY_CREATE_SUB_KEY);
   if(!progid) 
     return E_FAIL;
   
@@ -280,13 +291,12 @@ HRESULT FileAssociationRegistry::register_program_id() {
   HR(progid.set_string_value(L"FriendlyTypeName", L"pMath Document"));
   HR(progid.set_string_value(L"AppUserModelID", app_user_model_id));
   
-  progid.create(L"CurVer", KEY_SET_VALUE | KEY_CREATE_SUB_KEY).set_string_value(L"", document_prog_id);
   
   String exe = Evaluate(Symbol(richmath_System_DollarApplicationFileName));
   if(exe.length() == 0)
     return E_FAIL;
   
-  //progid.create(L"DefaultIcon", KEY_SET_VALUE | KEY_CREATE_SUB_KEY).set_string_value(L"", exe + ",1");
+  progid.create(L"DefaultIcon", KEY_SET_VALUE | KEY_CREATE_SUB_KEY).set_string_value(L"", exe + ",1");
   
   RegistryKey progid_shell = progid.create(L"Shell", KEY_SET_VALUE | KEY_CREATE_SUB_KEY);
   HR(progid_shell.set_string_value(L"", L"Open"));
