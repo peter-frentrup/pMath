@@ -27,18 +27,31 @@ struct _pmath_span_t {
   int end;
 };
 
+struct _span_array_item_t {
+  uintptr_t is_token_end : 1;
+  uintptr_t is_operand_start : 1;
+#if PMATH_64BIT
+  uintptr_t span_index : 62;
+#else
+  uintptr_t span_index : 30;
+#endif
+};
+
+PMATH_STATIC_ASSERT(sizeof(struct _span_array_item_t) == sizeof(uintptr_t));
+
 struct _pmath_span_array_t {
   int length;
-  uintptr_t items[1];
+  struct _span_array_item_t items[1];
 };
+
+#define ADDRESS_OF_FIRST_SPAN(ARR) \
+  ((struct _pmath_span_t*) ROUND_UP( (size_t)&(ARR)->items[(ARR)->length] , sizeof(struct _pmath_span_t) ))
 
 /* Pointers are aligned by at least 4 bytes (32bit system).
    So we can use the least significant 2 bits to encode other things:
    The token-end-flag and operand-start-flag.
  */
-#define SPAN_PTR(p)  ((pmath_span_t*)(((uintptr_t)p) & ~((uintptr_t)3)))
-#define SPAN_TOK(p)  (((uintptr_t)p) & 1)
-#define SPAN_OP(p)   (((uintptr_t)p) & 2)
+#define SPAN_PTR(ARR, INDEX)  ((pmath_span_t*)((ARR)->items[(INDEX)].span_index << 2))
 
 static pmath_span_array_t *create_span_array(int length) {
   pmath_span_array_t *result;
@@ -83,6 +96,20 @@ static pmath_span_array_t *enlarge_span_array(
   return result;
 }
 
+static pmath_span_t *alloc_span(pmath_span_array_t *spans, uintptr_t *new_index) {
+  assert(new_index);
+  
+  *new_index = 0;
+  pmath_span_t *span = pmath_mem_alloc(sizeof(pmath_span_t));
+  if(!span)
+    return NULL;
+  
+  span->end = 0;
+  span->next = NULL;
+  *new_index = ((uintptr_t)span) >> 2;
+  return span;
+}
+
 PMATH_API void pmath_span_array_free(pmath_span_array_t *spans) {
   int i;
   
@@ -91,7 +118,7 @@ PMATH_API void pmath_span_array_free(pmath_span_array_t *spans) {
     
   assert(spans->length > 0);
   for(i = 0; i < spans->length; ++i) {
-    pmath_span_t *s = SPAN_PTR(spans->items[i]);
+    pmath_span_t *s = SPAN_PTR(spans, i);
     while(s) {
       pmath_span_t *n = s->next;
       pmath_mem_free(s);
@@ -119,14 +146,14 @@ PMATH_API pmath_bool_t pmath_span_array_is_token_end(
   }
   
   if(pos + 1 == spans->length) {
-    if(1 != SPAN_TOK(spans->items[pos])) {
+    if(!spans->items[pos].is_token_end) {
       pmath_debug_print("[missing token_end flag at end of span array]\n");
     }
     
     return TRUE;
   }
   
-  return 1 == SPAN_TOK(spans->items[pos]);
+  return spans->items[pos].is_token_end != 0;
 }
 
 PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
@@ -136,14 +163,14 @@ PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
   if(!spans || pos < 0 || pos >= spans->length)
     return FALSE;
     
-  return 2 == SPAN_OP(spans->items[pos]);
+  return spans->items[pos].is_operand_start != 0;
 }
 
 PMATH_API pmath_span_t *pmath_span_at(pmath_span_array_t *spans, int pos) {
   if(!spans || pos < 0 || pos >= spans->length)
     return NULL;
     
-  return SPAN_PTR(spans->items[pos]);
+  return SPAN_PTR(spans, pos);
 }
 
 PMATH_API pmath_span_t *pmath_span_next(pmath_span_t *span) {
@@ -161,10 +188,10 @@ PMATH_API int pmath_span_end(pmath_span_t *span) {
 //} ... spans
 
 struct scanner_t {
-  const uint16_t  *str;
-  int              len;
-  int              pos;
-  uintptr_t       *span_items;
+  const uint16_t            *str;
+  int                        len;
+  int                        pos;
+  pmath_span_array_t        *spans;
   
   unsigned comment_level: 31;
   unsigned in_line_comment: 1;
@@ -180,7 +207,6 @@ struct parser_t {
   int stack_size;
   
   
-  pmath_span_array_t *spans;
   pmath_string_t    (*read_line)(void *);
   pmath_bool_t      (*subsuperscriptbox_at_index)(int, void *);
   pmath_string_t    (*underoverscriptbox_at_index)(int, void *);
@@ -199,7 +225,7 @@ struct parser_t {
 static void span(struct scanner_t *tokens, int start) {
   int i, end;
   
-  if(!tokens->span_items)
+  if(!tokens->spans)
     return;
     
   if(start < 0)
@@ -215,30 +241,25 @@ static void span(struct scanner_t *tokens, int start) {
   if(end < start)
     return;
     
-  if( SPAN_PTR(tokens->span_items[start]) &&
-      SPAN_PTR(tokens->span_items[start])->end >= end)
-  {
+  if( SPAN_PTR(tokens->spans, start) && SPAN_PTR(tokens->spans, start)->end >= end)
     return;
-  }
   
   for(i = start; i < end; ++i)
-    if(SPAN_TOK(tokens->span_items[i]))
+    if(tokens->spans->items[i].is_token_end)
       goto HAVE_MULTIPLE_TOKENS;
       
   return;
   
 HAVE_MULTIPLE_TOKENS: ;
   {
-    pmath_span_t *s = pmath_mem_alloc(sizeof(pmath_span_t));
+    uintptr_t span_index;
+    pmath_span_t *s = alloc_span(tokens->spans, &span_index);
     if(!s)
       return;
-      
+    
     s->end = end;
-    s->next = SPAN_PTR(tokens->span_items[start]);
-    tokens->span_items[start] =
-      (uintptr_t)s                        |
-      SPAN_TOK(tokens->span_items[start]) |
-      SPAN_OP( tokens->span_items[start]);
+    s->next = SPAN_PTR(tokens->spans, start);
+    tokens->spans->items[start].span_index = span_index;
   }
 }
 
@@ -284,7 +305,7 @@ static int next_token_pos(struct parser_t *parser) {
   if(parser->tokens.pos == parser->tokens.len)
     return parser->tokens.pos;
     
-  span = SPAN_PTR(parser->spans->items[parser->tokens.pos]);
+  span = SPAN_PTR(parser->tokens.spans, parser->tokens.pos);
   
   if(span) {
     assert(span->end < parser->tokens.len);
@@ -293,7 +314,7 @@ static int next_token_pos(struct parser_t *parser) {
   
   next = parser->tokens.pos;
   while( next < parser->tokens.len &&
-         !pmath_span_array_is_token_end(parser->spans, next))
+         !pmath_span_array_is_token_end(parser->tokens.spans, next))
   {
     ++next;
   }
@@ -326,11 +347,10 @@ static pmath_bool_t read_more(struct parser_t *parser) {
   }
   
   extralen = 1 + pmath_string_length(newline);
-  parser->spans = enlarge_span_array(parser->spans, extralen);
-  if( !parser->spans ||
-      parser->spans->length != parser->tokens.len + extralen)
+  parser->tokens.spans = enlarge_span_array(parser->tokens.spans, extralen);
+  if( !parser->tokens.spans ||
+      parser->tokens.spans->length != parser->tokens.len + extralen)
   {
-    parser->tokens.span_items = NULL;
     pmath_unref(newline);
     handle_error(parser);
     return FALSE;
@@ -339,7 +359,7 @@ static pmath_bool_t read_more(struct parser_t *parser) {
   parser->code = pmath_string_insert_latin1(parser->code, INT_MAX, "\n", 1);
   parser->code = pmath_string_concat(parser->code, newline);
   
-  if(parser->spans->length != pmath_string_length(parser->code)) {
+  if(parser->tokens.spans->length != pmath_string_length(parser->code)) {
     pmath_unref(newline);
     handle_error(parser);
     return FALSE;
@@ -347,7 +367,6 @@ static pmath_bool_t read_more(struct parser_t *parser) {
   
   parser->tokens.str = pmath_string_buffer(&parser->code);
   parser->tokens.len = pmath_string_length(parser->code);
-  parser->tokens.span_items = parser->spans->items;
   return TRUE;
 }
 
@@ -380,7 +399,7 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
     if(parser->tokens.pos < parser->tokens.len) {
       struct _pmath_span_t *span;
       
-      span = SPAN_PTR(parser->spans->items[parser->tokens.pos]);
+      span = SPAN_PTR(parser->tokens.spans, parser->tokens.pos);
       
       if(span) {
         if( parser->tokens.pos < parser->tokens.len &&
@@ -641,8 +660,10 @@ static pmath_bool_t scan_next_string(struct scanner_t *tokens, struct parser_t *
       break;
       
     if(!read_more(parser)) {
-      if(tokens->span_items)
-        tokens->span_items[start] |= 3;
+      if(tokens->spans) {
+        tokens->spans->items[start].is_token_end     = TRUE;
+        tokens->spans->items[start].is_operand_start = TRUE;
+      }
         
       span(tokens, start);
       return FALSE; // i.e. goto END_SCAN;
@@ -659,9 +680,11 @@ static pmath_bool_t scan_next_string(struct scanner_t *tokens, struct parser_t *
     
   tokens->in_string = FALSE;
   
-  if(tokens->span_items)
-    tokens->span_items[start] |= 3;
-    
+  if(tokens->spans) {
+    tokens->spans->items[start].is_token_end = TRUE;
+    tokens->spans->items[start].is_operand_start = TRUE;
+  }
+  
   span(tokens, start);
   return TRUE;
 }
@@ -842,7 +865,7 @@ static void scan_next_number(struct scanner_t *tokens, struct parser_t *parser) 
   assert(tokens->pos < tokens->len);
   assert(pmath_char_is_digit(tokens->str[tokens->pos]));
   
-  tokens->span_items[tokens->pos] |= 2;
+  tokens->spans->items[tokens->pos].is_operand_start = TRUE;
   
   have_explicit_base = scan_number_base_specifier(tokens, parser);
   if(have_explicit_base)
@@ -871,7 +894,7 @@ static void scan_next_as_name(struct scanner_t *tokens, struct parser_t *parser)
   if(tok != PMATH_TOK_NAME)
     return;
     
-  tokens->span_items[prev] |= 2;
+  tokens->spans->items[prev].is_operand_start = TRUE;
   
   while(tokens->pos < tokens->len) {
     prev = tokens->pos;
@@ -892,7 +915,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
     
   switch(tokens->str[tokens->pos]) {
     case '#': { //  #  ##
-        tokens->span_items[tokens->pos] |= 2;
+        tokens->spans->items[tokens->pos].is_operand_start = TRUE;
         ++tokens->pos;
         
         if(tokens->pos == tokens->len)
@@ -958,8 +981,11 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
                 tokens->str[tokens->pos] == '/') //  ***/   ===   ** */
             {
               tokens->comment_level--;
-              if(tokens->span_items)
-                tokens->span_items[tokens->pos - 2] = 1;
+              if(tokens->spans) {
+                tokens->spans->items[tokens->pos - 2].is_token_end = TRUE;
+                //tokens->spans->items[tokens->pos - 2].is_operand_start = FALSE;
+                //tokens->spans->items[tokens->pos - 2].span_index = FALSE;
+              }
               ++tokens->pos;
               break;
             }
@@ -971,8 +997,11 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
               tokens->str[tokens->pos] == '/') //  **/   ===   * */
           {
             tokens->comment_level--;
-            if(tokens->span_items)
-              tokens->span_items[tokens->pos - 2] = 1;
+            if(tokens->spans) {
+              tokens->spans->items[tokens->pos - 2].is_token_end = TRUE;
+              //tokens->spans->items[tokens->pos - 2].is_operand_start = FALSE;
+              //tokens->spans->items[tokens->pos - 2].span_index = FALSE;
+            }
             ++tokens->pos;
             break;
           }
@@ -1125,7 +1154,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
       } break;
       
     case '%': //  %  %%  %%%  %%%%  etc.
-      tokens->span_items[tokens->pos] |= 2;
+      tokens->spans->items[tokens->pos].is_operand_start = TRUE;
       if(!tokens->in_string)
         tokens->in_line_comment = TRUE;
     /* fall through */
@@ -1169,8 +1198,8 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
   }
   
 END_SCAN:
-  if(tokens->span_items)
-    tokens->span_items[tokens->pos - 1] |= 1;
+  if(tokens->spans)
+    tokens->spans->items[tokens->pos - 1].is_token_end = TRUE;
 }
 
 PMATH_API pmath_span_array_t *pmath_spans_from_string(
@@ -1187,11 +1216,11 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   parser.tokens.str = pmath_string_buffer(&parser.code);
   parser.tokens.len = pmath_string_length(parser.code);
   parser.tokens.pos = 0;
+  parser.tokens.spans = create_span_array(parser.tokens.len);
   parser.fencelevel = 0;
   parser.stack_size = 0;
-  parser.spans = create_span_array(parser.tokens.len);
   
-  if(!parser.spans)
+  if(!parser.tokens.spans)
     return NULL;
     
   parser.read_line                   = line_reader;
@@ -1199,16 +1228,11 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   parser.underoverscriptbox_at_index = underoverscriptbox_at_index;
   parser.error                       = error;
   parser.data                        = data;
-  parser.tokens.span_items           = parser.spans->items;
   parser.tokens.comment_level        = 0;
   parser.tokens.in_string            = FALSE;
   parser.tokens.have_error           = FALSE;
   parser.stack_error                 = FALSE;
   parser.last_space_start            = 0;
-  
-  if(!parser.spans)
-    return NULL;
-    
     
   parser.tokenizing = TRUE;
   while(parser.tokens.pos < parser.tokens.len)
@@ -1243,7 +1267,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   }
   
   *code = parser.code;
-  return parser.spans;
+  return parser.tokens.spans;
 }
 
 static pmath_token_t token_analyse(
@@ -1410,7 +1434,7 @@ static void skip_prim_newline_impl(struct parser_t *parser, int next) {
   
   start = parser->tokens.pos;
   
-  parser->spans->items[start] |= 2; //operand start
+  parser->tokens.spans->items[start].is_operand_start = TRUE;
   for(;;) {
     skip_to(parser, -1, next, FALSE);
     next = next_token_pos(parser);
@@ -1482,7 +1506,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
     case PMATH_TOK_STRING:
     case PMATH_TOK_NAME:
     case PMATH_TOK_NAME2: {
-        parser->spans->items[start] |= 2; //operand start
+        parser->tokens.spans->items[start].is_operand_start = TRUE;
         skip_to(parser, start, next, TRUE);
         
         next = next_token_pos(parser);
@@ -1499,12 +1523,12 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
       } break;
       
     case PMATH_TOK_CALL: { // no error:  "a:=."
-        parser->spans->items[start] |= 2; //operand start
+        parser->tokens.spans->items[start].is_operand_start = TRUE;
         skip_to(parser, start, next, TRUE);
       } break;
       
     case PMATH_TOK_TILDES: {
-        parser->spans->items[start] |= 2; //operand start
+        parser->tokens.spans->items[start].is_operand_start = TRUE;
         skip_to(parser, start, next, TRUE);
         
         // TODO: warn about "~\[RawNewline]..." or skip line-break?
@@ -1526,7 +1550,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
       } break;
       
     case PMATH_TOK_SLOT: {
-        parser->spans->items[start] |= 2; //operand start
+        parser->tokens.spans->items[start].is_operand_start = TRUE;
         skip_to(parser, start, next, TRUE);
         
         // TODO: warn about "#\[RawNewline]..." ?
@@ -1543,7 +1567,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
       } break;
       
     case PMATH_TOK_QUESTION: {
-        parser->spans->items[start] |= 2; //operand start
+        parser->tokens.spans->items[start].is_operand_start = TRUE;
         skip_to(parser, start, next, FALSE);
         
         next = next_token_pos(parser);
@@ -1571,7 +1595,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
     case PMATH_TOK_LEFTCALL: {
         int lhs;
         
-        parser->spans->items[start] |= 2; //operand start
+        parser->tokens.spans->items[start].is_operand_start = TRUE;
         skip_to(parser, -1, next, FALSE);
         
         ++parser->fencelevel;
@@ -1630,7 +1654,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
     case PMATH_TOK_PREFIX:
     case PMATH_TOK_INTEGRAL: {
       DO_PREFIX:
-        parser->spans->items[start] |= 2; //operand start
+        parser->tokens.spans->items[start].is_operand_start = TRUE;
         skip_to(parser, -1, next, FALSE);
         next = parser->tokens.pos;
         after_nl = parse_prim_after_newline(parser, FALSE);
@@ -1640,7 +1664,7 @@ static void parse_prim(struct parser_t *parser, pmath_bool_t prim_optional) {
       } break;
       
     case PMATH_TOK_PRETEXT: {
-        parser->spans->items[start] |= 2; //operand start
+        parser->tokens.spans->items[start].is_operand_start = TRUE;
         skip_to(parser, -1, next, FALSE);
         parse_textline(parser);
       } break;
@@ -1821,7 +1845,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
               parser->tokens.str[parser->tokens.pos] == '[' &&
               parser->tokens.str[next]               == '[') // [[
           {
-            parser->spans->items[parser->tokens.pos] &= ~1; // no token end
+            parser->tokens.spans->items[parser->tokens.pos].is_token_end = FALSE;
             doublesq = TRUE;
             ++next;
           }
@@ -1856,7 +1880,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
                   parser->tokens.str[parser->tokens.pos] == ']' &&
                   parser->tokens.str[next]               == ']')
               {
-                parser->spans->items[parser->tokens.pos] &= ~1; // no token end
+                parser->tokens.spans->items[parser->tokens.pos].is_token_end = FALSE;
                 ++next;
               }
               else
@@ -2162,10 +2186,10 @@ static void parse_textline(struct parser_t *parser) {
   }
   
   for(i = start; i < parser->tokens.pos; ++i)
-    parser->spans->items[i] &= ~1; // no token end
+    parser->tokens.spans->items[i].is_token_end = FALSE;
     
-  parser->spans->items[parser->tokens.pos - 1] |= 1; // token end
-  parser->spans->items[start] |= 2; //operand start
+  parser->tokens.spans->items[parser->tokens.pos - 1].is_token_end = TRUE;
+  parser->tokens.spans->items[start].is_operand_start = TRUE;
   
   span(&parser->tokens, start);
   skip_space(parser, start, TRUE);
@@ -2257,7 +2281,7 @@ static void skip_whitespace(struct group_t *group) {
     if( group->tp.index < group->spans->length &&
         group->str[group->tp.index] == '%')
     {
-      pmath_span_t *s = SPAN_PTR(group->spans->items[group->tp.index]);
+      pmath_span_t *s = SPAN_PTR(group->spans, group->tp.index);
       if(s) {
         while(s->next)
           s = s->next;
@@ -2275,9 +2299,9 @@ static void skip_whitespace(struct group_t *group) {
     if( group->tp.index + 1 < group->spans->length &&
         group->str[group->tp.index]     == '/'     &&
         group->str[group->tp.index + 1] == '*'     &&
-        !SPAN_TOK(group->spans->items[group->tp.index]))
+        !group->spans->items[group->tp.index].is_token_end)
     {
-      pmath_span_t *s = SPAN_PTR(group->spans->items[group->tp.index]);
+      pmath_span_t *s = SPAN_PTR(group->spans, group->tp.index);
       if(s) {
         while(s->next)
           s = s->next;
@@ -2330,7 +2354,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
       pmath_t result;
       
       while( group->tp.index < group->spans->length &&
-             !SPAN_TOK(group->spans->items[group->tp.index]))
+             !group->spans->items[group->tp.index].is_token_end)
       {
         increment_text_position(group);
       }
@@ -2538,7 +2562,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
     emit_span(span->next, group);
     
     while(group->tp.index <= span->end)
-      emit_span(SPAN_PTR(group->spans->items[group->tp.index]), group);
+      emit_span(SPAN_PTR(group->spans, group->tp.index), group);
       
     expr = pmath_gather_end();
     if(pmath_expr_length(expr) > 0) {
@@ -2614,7 +2638,7 @@ pmath_t pmath_boxes_from_spans_ex(
     skip_whitespace(&group);
     
   while(group.tp.index < spans->length)
-    emit_span(SPAN_PTR(spans->items[group.tp.index]), &group);
+    emit_span(SPAN_PTR(spans, group.tp.index), &group);
     
   result = pmath_expr_set_item(pmath_gather_end(), 0, PMATH_NULL);
   if(pmath_expr_length(result) == 1) {
@@ -2761,8 +2785,8 @@ static void ungroup(
         
         i = i + l < len ? i + l + 1 : i + l;
         if(g->pos > 0)
-          g->spans->items[g->pos - 1] |= 1; // token end
-        g->spans->items[g->pos] |= 1; // token end
+          g->spans->items[g->pos - 1].is_token_end = TRUE;
+        g->spans->items[g->pos].is_token_end = TRUE;
         g->str[g->pos++] = PMATH_CHAR_BOX;
       }
       else if(str[i] == PMATH_CHAR_BOX) {
@@ -2772,7 +2796,9 @@ static void ungroup(
             pmath_string_insert_ucs2(PMATH_NULL, g->pos, str + i, 1),
             g->data);
         }
-        g->spans->items[g->pos] = 3; // operand start (2), token end (1)
+        g->spans->items[g->pos].is_token_end = TRUE;
+        g->spans->items[g->pos].is_operand_start = TRUE;
+        //g->spans->items[g->pos].span_index = 0;
         g->str[g->pos++] = PMATH_CHAR_BOX;
         i++;
       }
@@ -2783,7 +2809,7 @@ static void ungroup(
     if(g->split_tokens) {
       memset(&tokens, 0, sizeof(tokens));
       tokens.str           = g->str;
-      tokens.span_items    = g->spans->items;
+      tokens.spans         = g->spans;
       tokens.pos           = start;
       tokens.len           = g->pos;
       tokens.comment_level = g->comment_level;
@@ -2791,10 +2817,11 @@ static void ungroup(
         scan_next(&tokens, NULL);
         
       g->comment_level = tokens.comment_level;
+      g->spans = tokens.spans;
     }
     else {
-      g->spans->items[start]      |= 2; // operand start
-      g->spans->items[g->pos - 1] |= 1; // token end
+      g->spans->items[start].is_operand_start = TRUE;
+      g->spans->items[g->pos - 1].is_token_end = TRUE;
     }
     
     pmath_unref(box);
@@ -2840,7 +2867,7 @@ static void ungroup(
         ungroup(g, pmath_expr_get_item(box, ei));
         
     AFTER_UNGROUP:
-      g->spans->items[start] |= 2; // operand start
+      g->spans->items[start].is_operand_start = TRUE;
       
       g->comment_level = old_comment_level;
       
@@ -2850,7 +2877,7 @@ static void ungroup(
       {
         pmath_t first = pmath_expr_get_item(box, 1);
         
-        pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
+        pmath_span_t *old = SPAN_PTR(g->spans, start);
         
         if(pmath_is_string(first)) {
           const uint16_t *fbuf = pmath_string_buffer(&first);
@@ -2861,13 +2888,12 @@ static void ungroup(
               old->end = g->pos - 1;
             }
             else {
-              old = pmath_mem_alloc(sizeof(pmath_span_t));
+              uintptr_t span_index;
+              old = alloc_span(g->spans, &span_index);
               if(old) {
                 old->next = NULL;
                 old->end = g->pos - 1;
-                g->spans->items[start] = (uintptr_t)old
-                                         | SPAN_TOK(g->spans->items[start])
-                                         | SPAN_OP( g->spans->items[start]);
+                g->spans->items[start].span_index = span_index;
               }
             }
           }
@@ -2880,20 +2906,19 @@ static void ungroup(
           
           pmath_bool_t have_mutliple_tokens = FALSE;
           for(i = start; i < g->pos - 1; ++i) {
-            if(1 == SPAN_TOK(g->spans->items[i])) {
+            if(g->spans->items[i].is_token_end) {
               have_mutliple_tokens = TRUE;
               break;
             }
           }
           
           if(have_mutliple_tokens) {
-            pmath_span_t *s = pmath_mem_alloc(sizeof(pmath_span_t));
+            uintptr_t span_index;
+            pmath_span_t *s = alloc_span(g->spans, &span_index);
             if(s) {
               s->next = old;
               s->end = g->pos - 1;
-              g->spans->items[start] = (uintptr_t)s
-                                       | SPAN_TOK(g->spans->items[start])
-                                       | SPAN_OP( g->spans->items[start]);
+              g->spans->items[start].span_index = span_index;
             }
           }
         }
@@ -2921,15 +2946,16 @@ static void ungroup(
           g->make_box(g->pos, boxi, g->data);
           
         if(g->pos > 0)
-          g->spans->items[g->pos - 1] |= 1; // token end
-        g->spans->items[g->pos] |= 1; // token end
+          g->spans->items[g->pos - 1].is_token_end = TRUE;
+        g->spans->items[g->pos].is_token_end = TRUE;
         g->str[g->pos++] = PMATH_CHAR_BOX;
       }
       
       if(g->pos > start) {
-        s = pmath_mem_alloc(sizeof(pmath_span_t));
+        uintptr_t span_index;
+        s = alloc_span(g->spans, &span_index);
         if(s) {
-          pmath_span_t *old = SPAN_PTR(g->spans->items[start]);
+          pmath_span_t *old = SPAN_PTR(g->spans, start);
           
           while(old) {
             pmath_span_t *tmp = old->next;
@@ -2939,10 +2965,11 @@ static void ungroup(
           
           s->next = NULL;
           s->end = g->pos - 1;
-          g->spans->items[start] = (uintptr_t)s | 2 | (g->spans->items[start] & 1); // operand start
+          g->spans->items[start].is_operand_start = TRUE;
+          g->spans->items[start].span_index = span_index;
         }
         
-        g->spans->items[g->pos - 1] |= 1; // token end
+        g->spans->items[g->pos - 1].is_token_end = TRUE;
       }
       pmath_unref(box);
       return;
@@ -2954,7 +2981,8 @@ static void ungroup(
   else
     pmath_unref(box);
     
-  g->spans->items[g->pos] = 3; // operand start (2), token end (1)
+  g->spans->items[g->pos].is_token_end = TRUE;
+  g->spans->items[g->pos].is_operand_start = TRUE;
   g->str[g->pos++] = PMATH_CHAR_BOX;
 }
 
@@ -2991,7 +3019,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
   ungroup(&g, boxes);
   
   if(g.spans->length > 0)
-    g.spans->items[0] |= 2; // operand start
+    g.spans->items[0].is_operand_start = TRUE;
     
   assert(g.pos == g.spans->length);
   return g.spans;
