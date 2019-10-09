@@ -23,108 +23,161 @@ extern pmath_symbol_t pmath_System_ComplexStringBox;
 //{ spans ...
 
 struct _pmath_span_t {
-  pmath_span_t *next;
+  int next_offset;
   int end;
 };
 
 struct _span_array_item_t {
-  uintptr_t is_token_end : 1;
-  uintptr_t is_operand_start : 1;
-#if PMATH_64BIT
-  uintptr_t span_index : 62;
-#else
-  uintptr_t span_index : 30;
-#endif
+  unsigned is_token_end : 1;
+  unsigned is_operand_start : 1;
+  unsigned span_index : 30;
 };
 
-PMATH_STATIC_ASSERT(sizeof(struct _span_array_item_t) == sizeof(uintptr_t));
+PMATH_STATIC_ASSERT(sizeof(struct _span_array_item_t) == sizeof(unsigned int));
 
 struct _pmath_span_array_t {
+  size_t size;
   int length;
+  int span_count;
   struct _span_array_item_t items[1];
 };
+
 
 #define ADDRESS_OF_FIRST_SPAN(ARR) \
   ((struct _pmath_span_t*) ROUND_UP( (size_t)&(ARR)->items[(ARR)->length] , sizeof(struct _pmath_span_t) ))
 
-/* Pointers are aligned by at least 4 bytes (32bit system).
-   So we can use the least significant 2 bits to encode other things:
-   The token-end-flag and operand-start-flag.
- */
-#define SPAN_PTR(ARR, INDEX)  ((pmath_span_t*)((ARR)->items[(INDEX)].span_index << 2))
+#define OFFSET_OF_FIRST_SPAN(LEN) \
+  ROUND_UP( (size_t)&((struct _pmath_span_array_t*)0)->items[(LEN)] , sizeof(struct _pmath_span_t) )
 
-static pmath_span_array_t *create_span_array(int length) {
-  pmath_span_array_t *result;
   
-  if(length < 1)
+static pmath_span_t *span_at(pmath_span_array_t *spans, int pos) {
+  size_t span_index = spans->items[pos].span_index;
+  if(span_index == 0)
+    return NULL;
+  
+  return ADDRESS_OF_FIRST_SPAN(spans) + (span_index - 1);
+}
+
+PMATH_API pmath_span_t *pmath_span_at(pmath_span_array_t *spans, int pos) {
+  if(!spans || pos < 0 || pos >= spans->length)
     return NULL;
     
-  result = (pmath_span_array_t *)pmath_mem_alloc(
-             sizeof(pmath_span_array_t) + (size_t)(length - 1) * sizeof(void *));
+  return span_at(spans, pos);
+}
+
+static size_t next_power_of_2(size_t x) {
+	x -= 1;
+	x |= (x >> 1);
+	x |= (x >> 2);
+	x |= (x >> 4);
+	x |= (x >> 8);
+	x |= (x >> 16);
+#if PMATH_64BIT
+	x |= (x >> 32);
+#endif
+	return x + 1;
+}
+
+static pmath_span_array_t *create_span_array(int length, int spans_capacity) {
+  pmath_span_array_t *result;
+  size_t size;
+  
+  assert(length >= 0);
+  assert(spans_capacity >= 0);
+  
+  if(length == 0 && spans_capacity == 0)
+    return NULL;
+  
+  //size = sizeof(pmath_span_array_t) + (size_t)(length - 1) * sizeof(struct _span_array_item_t);
+  size = OFFSET_OF_FIRST_SPAN(length) + (size_t)spans_capacity * sizeof(struct _pmath_span_t);
+  size = next_power_of_2(size);
+  
+  result = (pmath_span_array_t *)pmath_mem_alloc(size);
              
   if(!result)
     return NULL;
-    
+  
+  memset(result, 0, size);
+  result->size = size;
   result->length = length;
-  memset(result->items, 0, (size_t)length * sizeof(void *));
+  result->span_count = 0;
   
   return result;
 }
 
 static pmath_span_array_t *enlarge_span_array(
-  pmath_span_array_t *spans,
-  int extra_len
+  pmath_span_array_t *span_array,
+  int extra_len,
+  int extra_spans
 ) {
   pmath_span_array_t *result;
+  size_t size;
+  int old_length;
+  const struct _pmath_span_t *old_spans;
+  struct _pmath_span_t *new_spans;
   
-  if(extra_len < 1)
-    return spans;
+  assert(extra_len >= 0);
+  assert(extra_spans >= 0);
+  
+  if(extra_len == 0 && extra_spans == 0)
+    return span_array;
+  
+  if(!span_array) 
+    return create_span_array(extra_len, extra_spans);
     
-  if(!spans)
-    return create_span_array(extra_len);
-    
-  result = pmath_mem_realloc_no_failfree(
-             spans,
-             sizeof(pmath_span_array_t) + (size_t)(spans->length + extra_len - 1) * sizeof(void *));
-             
+  size = OFFSET_OF_FIRST_SPAN(span_array->length + extra_len)
+           + (size_t)(span_array->span_count + extra_spans) * sizeof(struct _pmath_span_t);
+  size = next_power_of_2(size);
+  
+  result = pmath_mem_realloc_no_failfree(span_array, size);
   if(!result)
-    return spans;
-    
-  memset(result->items + result->length, 0, extra_len * sizeof(void *));
+    return span_array;
   
+  old_spans = ADDRESS_OF_FIRST_SPAN(result);
+  old_length = result->length;
   result->length += extra_len;
+  result->size = size;
+  new_spans = ADDRESS_OF_FIRST_SPAN(result);
+  
+  memmove(new_spans, old_spans, (size_t)result->span_count * sizeof(struct _pmath_span_t));
+
+  memset(result->items + old_length, 0, extra_len * sizeof(struct _span_array_item_t));
+  memset(new_spans + result->span_count, 0xCD, ((char*)result + size) - (char*)(new_spans + result->span_count));
+
   return result;
 }
 
-static pmath_span_t *alloc_span(pmath_span_array_t *spans, uintptr_t *new_index) {
+static pmath_span_t *alloc_span(pmath_span_array_t **span_array, unsigned *new_index) {
+  struct _pmath_span_t *spans;
+  pmath_span_t *span;
+  
+  assert(span_array);
+  assert(*span_array);
   assert(new_index);
   
   *new_index = 0;
-  pmath_span_t *span = pmath_mem_alloc(sizeof(pmath_span_t));
-  if(!span)
-    return NULL;
   
+  spans = ADDRESS_OF_FIRST_SPAN(*span_array);
+  if((*span_array)->size < (size_t)((char*)&spans[(*span_array)->span_count + 1] - (char*)(*span_array))) {
+    *span_array = enlarge_span_array(*span_array, 0, 1);
+    spans = ADDRESS_OF_FIRST_SPAN(*span_array);
+
+    if((*span_array)->size < (size_t)((char*)&spans[(*span_array)->span_count + 1] - (char*)(*span_array)))
+      return NULL;
+  }
+  
+  (*span_array)->span_count++;
+  *new_index = (*span_array)->span_count;
+  
+  span = &spans[*new_index - 1];
   span->end = 0;
-  span->next = NULL;
-  *new_index = ((uintptr_t)span) >> 2;
+  span->next_offset = 0;
   return span;
 }
 
 PMATH_API void pmath_span_array_free(pmath_span_array_t *spans) {
-  int i;
-  
   if(!spans)
     return;
-    
-  assert(spans->length > 0);
-  for(i = 0; i < spans->length; ++i) {
-    pmath_span_t *s = SPAN_PTR(spans, i);
-    while(s) {
-      pmath_span_t *n = s->next;
-      pmath_mem_free(s);
-      s = n;
-    }
-  }
   
   pmath_mem_free(spans);
 }
@@ -166,17 +219,12 @@ PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
   return spans->items[pos].is_operand_start != 0;
 }
 
-PMATH_API pmath_span_t *pmath_span_at(pmath_span_array_t *spans, int pos) {
-  if(!spans || pos < 0 || pos >= spans->length)
-    return NULL;
-    
-  return SPAN_PTR(spans, pos);
-}
-
 PMATH_API pmath_span_t *pmath_span_next(pmath_span_t *span) {
   if(!span)
     return NULL;
-  return span->next;
+  if(span->next_offset == 0)
+    return NULL;
+  return span + span->next_offset;
 }
 
 PMATH_API int pmath_span_end(pmath_span_t *span) {
@@ -241,7 +289,7 @@ static void span(struct scanner_t *tokens, int start) {
   if(end < start)
     return;
     
-  if( SPAN_PTR(tokens->spans, start) && SPAN_PTR(tokens->spans, start)->end >= end)
+  if( span_at(tokens->spans, start) && span_at(tokens->spans, start)->end >= end)
     return;
   
   for(i = start; i < end; ++i)
@@ -252,13 +300,16 @@ static void span(struct scanner_t *tokens, int start) {
   
 HAVE_MULTIPLE_TOKENS: ;
   {
-    uintptr_t span_index;
-    pmath_span_t *s = alloc_span(tokens->spans, &span_index);
+    unsigned span_index;
+    pmath_span_t *next;
+    pmath_span_t *s = alloc_span(&tokens->spans, &span_index);
     if(!s)
       return;
     
+    next = span_at(tokens->spans, start);
+    //s->next = next;
+    s->next_offset = next ? (int)(next - s) : 0;
     s->end = end;
-    s->next = SPAN_PTR(tokens->spans, start);
     tokens->spans->items[start].span_index = span_index;
   }
 }
@@ -305,7 +356,7 @@ static int next_token_pos(struct parser_t *parser) {
   if(parser->tokens.pos == parser->tokens.len)
     return parser->tokens.pos;
     
-  span = SPAN_PTR(parser->tokens.spans, parser->tokens.pos);
+  span = span_at(parser->tokens.spans, parser->tokens.pos);
   
   if(span) {
     assert(span->end < parser->tokens.len);
@@ -347,7 +398,7 @@ static pmath_bool_t read_more(struct parser_t *parser) {
   }
   
   extralen = 1 + pmath_string_length(newline);
-  parser->tokens.spans = enlarge_span_array(parser->tokens.spans, extralen);
+  parser->tokens.spans = enlarge_span_array(parser->tokens.spans, extralen, 0);
   if( !parser->tokens.spans ||
       parser->tokens.spans->length != parser->tokens.len + extralen)
   {
@@ -399,7 +450,7 @@ static void skip_space(struct parser_t *parser, int span_start, pmath_bool_t opt
     if(parser->tokens.pos < parser->tokens.len) {
       struct _pmath_span_t *span;
       
-      span = SPAN_PTR(parser->tokens.spans, parser->tokens.pos);
+      span = span_at(parser->tokens.spans, parser->tokens.pos);
       
       if(span) {
         if( parser->tokens.pos < parser->tokens.len &&
@@ -1216,7 +1267,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_string(
   parser.tokens.str = pmath_string_buffer(&parser.code);
   parser.tokens.len = pmath_string_length(parser.code);
   parser.tokens.pos = 0;
-  parser.tokens.spans = create_span_array(parser.tokens.len);
+  parser.tokens.spans = create_span_array(parser.tokens.len, 0);
   parser.fencelevel = 0;
   parser.stack_size = 0;
   
@@ -2281,10 +2332,10 @@ static void skip_whitespace(struct group_t *group) {
     if( group->tp.index < group->spans->length &&
         group->str[group->tp.index] == '%')
     {
-      pmath_span_t *s = SPAN_PTR(group->spans, group->tp.index);
+      pmath_span_t *s = span_at(group->spans, group->tp.index);
       if(s) {
-        while(s->next)
-          s = s->next;
+        while(s->next_offset)
+          s += s->next_offset;
           
         increment_text_position_to(group, s->end + 1);
       }
@@ -2301,10 +2352,10 @@ static void skip_whitespace(struct group_t *group) {
         group->str[group->tp.index + 1] == '*'     &&
         !group->spans->items[group->tp.index].is_token_end)
     {
-      pmath_span_t *s = SPAN_PTR(group->spans, group->tp.index);
+      pmath_span_t *s = span_at(group->spans, group->tp.index);
       if(s) {
-        while(s->next)
-          s = s->next;
+        while(s->next_offset)
+          s += s->next_offset;
           
         increment_text_position_to(group, s->end + 1);
       }
@@ -2384,7 +2435,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
   }
   
   if( /*(group->flags & PMATH_BFS_PARSEABLE) && */
-    !span->next &&
+    !span->next_offset &&
     group->str[group->tp.index] == '"')
   {
     pmath_string_t result = PMATH_NULL;
@@ -2559,10 +2610,13 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
     
     pmath_gather_begin(PMATH_NULL);
     
-    emit_span(span->next, group);
+    if(span->next_offset)
+      emit_span(span + span->next_offset, group);
+    else
+      emit_span(NULL, group);
     
     while(group->tp.index <= span->end)
-      emit_span(SPAN_PTR(group->spans, group->tp.index), group);
+      emit_span(span_at(group->spans, group->tp.index), group);
       
     expr = pmath_gather_end();
     if(pmath_expr_length(expr) > 0) {
@@ -2638,7 +2692,7 @@ pmath_t pmath_boxes_from_spans_ex(
     skip_whitespace(&group);
     
   while(group.tp.index < spans->length)
-    emit_span(SPAN_PTR(spans, group.tp.index), &group);
+    emit_span(span_at(spans, group.tp.index), &group);
     
   result = pmath_expr_set_item(pmath_gather_end(), 0, PMATH_NULL);
   if(pmath_expr_length(result) == 1) {
@@ -2877,7 +2931,7 @@ static void ungroup(
       {
         pmath_t first = pmath_expr_get_item(box, 1);
         
-        pmath_span_t *old = SPAN_PTR(g->spans, start);
+        pmath_span_t *old = span_at(g->spans, start);
         
         if(pmath_is_string(first)) {
           const uint16_t *fbuf = pmath_string_buffer(&first);
@@ -2888,10 +2942,10 @@ static void ungroup(
               old->end = g->pos - 1;
             }
             else {
-              uintptr_t span_index;
-              old = alloc_span(g->spans, &span_index);
+              unsigned span_index;
+              old = alloc_span(&g->spans, &span_index);
               if(old) {
-                old->next = NULL;
+                old->next_offset = 0;
                 old->end = g->pos - 1;
                 g->spans->items[start].span_index = span_index;
               }
@@ -2913,10 +2967,12 @@ static void ungroup(
           }
           
           if(have_mutliple_tokens) {
-            uintptr_t span_index;
-            pmath_span_t *s = alloc_span(g->spans, &span_index);
+            unsigned span_index;
+            pmath_span_t *s = alloc_span(&g->spans, &span_index);
             if(s) {
-              s->next = old;
+              old = span_at(g->spans, start);
+              //s->next = old;
+              s->next_offset = old ? (int)(old - s) : 0;
               s->end = g->pos - 1;
               g->spans->items[start].span_index = span_index;
             }
@@ -2952,18 +3008,18 @@ static void ungroup(
       }
       
       if(g->pos > start) {
-        uintptr_t span_index;
-        s = alloc_span(g->spans, &span_index);
+        unsigned span_index;
+        s = alloc_span(&g->spans, &span_index);
         if(s) {
-          pmath_span_t *old = SPAN_PTR(g->spans, start);
+//          pmath_span_t *old = span_at(g->spans, start);
+//          
+//          while(old) {
+//            pmath_span_t *tmp = old->next;
+//            pmath_mem_free(old);
+//            old = tmp;
+//          }
           
-          while(old) {
-            pmath_span_t *tmp = old->next;
-            pmath_mem_free(old);
-            old = tmp;
-          }
-          
-          s->next = NULL;
+          s->next_offset = 0;
           s->end = g->pos - 1;
           g->spans->items[start].is_operand_start = TRUE;
           g->spans->items[start].span_index = span_index;
@@ -2996,7 +3052,7 @@ PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
   
   assert(result_string);
   
-  g.spans = create_span_array(ungrouped_string_length(boxes));
+  g.spans = create_span_array(ungrouped_string_length(boxes), 0);
   if(!g.spans) {
     pmath_unref(boxes);
     *result_string = pmath_string_new(0);
