@@ -1,4 +1,5 @@
 #include <eval/binding.h>
+#include <eval/observable.h>
 #include <gui/common-document-windows.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -7,7 +8,7 @@
 using namespace pmath;
 using namespace richmath;
 
-static FrontEndReference current_document_id = FrontEndReference::None;
+static ObservableValue<FrontEndReference> current_document_id { FrontEndReference::None };
 
 
 extern pmath_symbol_t richmath_Documentation_FindSymbolDocumentationByFullName;
@@ -28,13 +29,17 @@ static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd);
 
 
 void richmath::set_current_document(Document *document) {
-  if(auto old = get_current_document())
+  FrontEndReference id = document ? document->id() : FrontEndReference::None;
+  if(current_document_id.unobserved_equals(id))
+    return;
+  
+  if(auto old = get_current_document()) 
     old->focus_killed();
     
   if(document)
     document->focus_set();
     
-  current_document_id = document ? document->id() : FrontEndReference::None;
+  current_document_id = id;
 }
 
 Document *richmath::get_current_document() {
