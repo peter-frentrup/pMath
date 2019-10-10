@@ -125,6 +125,7 @@ namespace richmath {
       virtual void on_mousemove(MouseEvent &event);
       virtual void on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift);
       virtual void on_popupmenu(POINT screen_pt);
+      virtual void do_set_current_document() {}
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       

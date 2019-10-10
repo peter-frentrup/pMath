@@ -1601,9 +1601,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(!box)
             box = document();
             
-          if(box->selectable()) {
-            set_current_document(document());
-          }
+          if(box->selectable()) 
+            do_set_current_document();
           
           if( document()->selection_box() &&
               document()->selection_length() == 0 &&

@@ -208,6 +208,7 @@ namespace richmath {
       virtual bool on_leave_notify(GdkEvent *e);
       virtual bool on_scroll(GdkEvent *e);
       
+      virtual void do_set_current_document() {}
       static gboolean blink_caret(gpointer id_as_ptr);
       
     private:

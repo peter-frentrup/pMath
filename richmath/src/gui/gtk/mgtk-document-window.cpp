@@ -109,6 +109,10 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
       return result;
     }
     
+    virtual void do_set_current_document() override {
+      set_current_document(_parent->document());
+    }
+    
   private:
     MathGtkDocumentWindow *_parent;
 };
@@ -229,6 +233,10 @@ class richmath::MathGtkDock: public MathGtkWidget {
       bool result = MathGtkWidget::on_draw(cr);
       rearrange();
       return result;
+    }
+    
+    virtual void do_set_current_document() override {
+      set_current_document(_parent->document());
     }
     
   private:

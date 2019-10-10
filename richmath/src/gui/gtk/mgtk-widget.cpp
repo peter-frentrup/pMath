@@ -1079,9 +1079,8 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e) {
   if(!box)
     box = document();
     
-  if(box->selectable()) {
-    set_current_document(document());
-  }
+  if(box->selectable()) 
+    do_set_current_document();
   
   gtk_im_context_focus_in(_im_context);
   

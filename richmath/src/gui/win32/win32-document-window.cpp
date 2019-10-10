@@ -105,6 +105,10 @@ class richmath::Win32WorkingArea: public Win32Widget {
       _overlay.update();
     }
     
+    virtual void do_set_current_document() override {
+      set_current_document(_parent->document());
+    }
+    
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       _overlay.handle_scrollbar_owner_callback(message, wParam, lParam);
       return Win32Widget::callback(message, wParam, lParam);
@@ -375,6 +379,10 @@ class richmath::Win32Dock: public Win32Widget {
     virtual void on_paint(HDC dc, bool from_wmpaint) override {
       Win32Widget::on_paint(dc, from_wmpaint);
       rearrange();
+    }
+    
+    virtual void do_set_current_document() override {
+      set_current_document(_parent->document());
     }
     
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
@@ -1164,7 +1172,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         
       case WM_SETFOCUS: {
           SetFocus(_working_area->hwnd());
-          if(_working_area->document()->selectable()) {
+          if(document()->selectable()) {
             set_current_document(document());
           }
         } break;
