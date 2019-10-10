@@ -2,20 +2,81 @@
 #include <eval/application.h>
 #include <eval/dynamic.h>
 
+#include <new>         // placement new
+#include <type_traits> // aligned_storage
+
+
 using namespace richmath;
 using namespace pmath;
 
-//{ class Observable ...
 
-static Hashtable<Observable*, Expr>                        all_observers;
-static Hashtable<FrontEndReference, Hashset<Observable*>>  all_observed_values;
+namespace richmath {
+  class ObservatoryImpl {
+    public:
+      ObservatoryImpl() : _quitting(false) {
+      }
+      
+      void shutdown() { _quitting = true; }
+      bool is_quitting() { return _quitting; }
+      
+    public:
+      Hashtable<Observable*, Expr>                        all_observers;
+      Hashtable<FrontEndReference, Hashset<Observable*>>  all_observed_values;
+    
+    private:
+      bool _quitting;
+  }; 
+}
+
+namespace {
+  static int NiftyObservatoryInitializerCounter; // zero initialized at load time
+  static typename std::aligned_storage<
+    sizeof(ObservatoryImpl), 
+    alignof(ObservatoryImpl)
+  >::type TheObservatory_Buffer;
+  static ObservatoryImpl &TheObservatory = reinterpret_cast<ObservatoryImpl&>(TheObservatory_Buffer);
+};
+
+//{ class ObservatoryInitializer ...
+
+ObservatoryInitializer::ObservatoryInitializer() {
+  /* All static objects are created in the same thread, in arbitrary order.
+     ObservatoryInitializer only exists as static objects.
+     So, no locking is needed .
+   */
+  if(NiftyObservatoryInitializerCounter++ == 0)
+    new(&TheObservatory) ObservatoryImpl();
+}
+
+ObservatoryInitializer::~ObservatoryInitializer() {
+  /* All static objects are destructed in the same thread, in arbitrary order.
+     ObservatoryInitializer only exists as static objects.
+     So, no locking is needed .
+   */
+  if(--NiftyObservatoryInitializerCounter == 0)
+    (&TheObservatory)->~ObservatoryImpl();
+}
+
+//} ... class ObservatoryInitializer
+
+//{ class Observatory ...
+
+void Observatory::shutdown() {
+  TheObservatory.all_observed_values.clear();
+  TheObservatory.all_observers.clear();
+  TheObservatory.shutdown();
+}
+
+//} ... class Observatory
+
+//{ class Observable ...
 
 static void swap_observers(Observable *left, Observable *right) {
   assert(left != nullptr);
   assert(right != nullptr);
   
-  Expr left_observers = all_observers[left];
-  Expr right_observers = all_observers[right];
+  Expr left_observers = TheObservatory.all_observers[left];
+  Expr right_observers = TheObservatory.all_observers[right];
   
   size_t left_count  = left_observers.expr_length();
   size_t right_count = right_observers.expr_length();
@@ -26,10 +87,10 @@ static void swap_observers(Observable *left, Observable *right) {
   for(size_t i = left_count; i > 0; --i) {
     auto id = FrontEndReference::from_pmath_raw(left_observers[i]);
     if(id) {
-      auto observed = all_observed_values.search(id);
+      auto observed = TheObservatory.all_observed_values.search(id);
       if(!observed) {
-        all_observed_values.set(id, Hashset<Observable*> {});
-        observed = all_observed_values.search(id);
+        TheObservatory.all_observed_values.set(id, Hashset<Observable*> {});
+        observed = TheObservatory.all_observed_values.search(id);
         HASHTABLE_ASSERT(observed != nullptr);
       }
       observed->add(right);
@@ -39,18 +100,18 @@ static void swap_observers(Observable *left, Observable *right) {
   for(size_t i = right_count; i > 0; --i) {
     auto id = FrontEndReference::from_pmath_raw(right_observers[i]);
     if(id) {
-      auto observed = all_observed_values.search(id);
+      auto observed = TheObservatory.all_observed_values.search(id);
       if(!observed) {
-        all_observed_values.set(id, Hashset<Observable*> {});
-        observed = all_observed_values.search(id);
+        TheObservatory.all_observed_values.set(id, Hashset<Observable*> {});
+        observed = TheObservatory.all_observed_values.search(id);
         HASHTABLE_ASSERT(observed != nullptr);
       }
       observed->add(left);
     }
   }
   
-  all_observers.set(right, std::move(left_observers));
-  all_observers.set(left, std::move(right_observers));
+  TheObservatory.all_observers.set(right, std::move(left_observers));
+  TheObservatory.all_observers.set(left, std::move(right_observers));
 }
 
 Observable::Observable()
@@ -61,7 +122,7 @@ Observable::Observable()
 
 Observable::~Observable() {
   notify_all();
-  assert(!all_observers.search(this));
+  assert(!TheObservatory.all_observers.search(this));
 }
 
 Observable::Observable(Observable &&src)
@@ -84,10 +145,13 @@ void Observable::register_observer(FrontEndReference id) const {
   if(!id)
     return;
   
-  auto observed = all_observed_values.search(id);
+  if(TheObservatory.is_quitting())
+    return;
+  
+  auto observed = TheObservatory.all_observed_values.search(id);
   if(!observed) {
-    all_observed_values.set(id, Hashset<Observable*> {});
-    observed = all_observed_values.search(id);
+    TheObservatory.all_observed_values.set(id, Hashset<Observable*> {});
+    observed = TheObservatory.all_observed_values.search(id);
     HASHTABLE_ASSERT(observed != nullptr);
   }
   bool known = observed->search(const_cast<Observable*>(this)) != nullptr;
@@ -98,16 +162,19 @@ void Observable::register_observer(FrontEndReference id) const {
   
   Expr id_obj = id.to_pmath_raw();
   
-  Expr *observer_ids = all_observers.search(const_cast<Observable*>(this));
+  Expr *observer_ids = TheObservatory.all_observers.search(const_cast<Observable*>(this));
   if(!observer_ids) {
-    all_observers.set(const_cast<Observable*>(this), List(id_obj));
+    TheObservatory.all_observers.set(const_cast<Observable*>(this), List(id_obj));
     return;
   }
   observer_ids->append(id_obj);
 }
 
 void Observable::unregister_oberserver(FrontEndReference id) {
-  auto observed = all_observed_values.search(id);
+  if(TheObservatory.is_quitting())
+    return;
+  
+  auto observed = TheObservatory.all_observed_values.search(id);
   if(!observed)
     return;
     
@@ -115,29 +182,32 @@ void Observable::unregister_oberserver(FrontEndReference id) {
   
   for(auto &e : observed->entries()) {
     Observable *o = e.key;
-    Expr &observers_of_o = all_observers[o];
+    Expr &observers_of_o = TheObservatory.all_observers[o];
     if(observers_of_o.is_valid()) {
       observers_of_o.expr_remove_all(id_obj);
       if(observers_of_o.expr_length() == 0)
-        all_observers.remove(o);
+        TheObservatory.all_observers.remove(o);
     } 
   }
-  all_observed_values.remove(id);
+  TheObservatory.all_observed_values.remove(id);
 }
 
 void Observable::notify_all() {
-  auto &my_observers = all_observers[this];
+  if(TheObservatory.is_quitting()) 
+    return;
+    
+  auto &my_observers = TheObservatory.all_observers[this];
   
   for(size_t i = my_observers.expr_length(); i > 0; --i) {
     auto id = FrontEndReference::from_pmath_raw(my_observers[i]);
     if(id)
-      all_observed_values.remove(id);
+      TheObservatory.all_observed_values.remove(id);
   }
   
   if(!my_observers.is_null())
     Application::notify(ClientNotification::DynamicUpdate, my_observers);
   
-  all_observers.remove(this);
+  TheObservatory.all_observers.remove(this);
 }
 
 //} ... class Observable

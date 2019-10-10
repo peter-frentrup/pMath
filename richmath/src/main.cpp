@@ -526,6 +526,7 @@ int main(int argc, char **argv) {
 QUIT:
   pmath_debug_print("quitted\n");
   
+  Observatory::shutdown();
   RecentDocuments::done();
   
 #ifdef RICHMATH_USE_GTK_GUI

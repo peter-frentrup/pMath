@@ -57,6 +57,17 @@ namespace richmath {
     private:
       T _value;
   };
+  
+  class Observatory {
+    public:
+      static void shutdown();
+  };
+  
+  // http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Nifty_Counter
+  static struct ObservatoryInitializer {
+    ObservatoryInitializer();
+    ~ObservatoryInitializer();
+  } TheObservatoryInitializer;
 }
 
 #endif // __RICHMATHRICHMATH__EVAL__OBSERVABLE_H__INCLUDED
