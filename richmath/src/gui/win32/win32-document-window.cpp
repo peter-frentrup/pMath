@@ -1211,60 +1211,13 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         } break;
         
       case WM_ACTIVATEAPP: {
-          static bool already_activated = false;
-          
           Document *current_doc = get_current_document();
           
           if(wParam) { // activate
-            bool was_already_activated = already_activated;
-            already_activated = true;
-            
-            if(!was_already_activated && !BasicWin32Window::during_pos_changing) {
-            
-              Array<BasicWin32Window *> all_lower(CommonDocumentWindow::All.count());
-              all_lower.length(0);
-              
-              HWND next_hwnd = GetWindow(_hwnd, GW_HWNDFIRST);
-              while(next_hwnd) {
-                if(auto wnd = dynamic_cast<BasicWin32Window *>(BasicWin32Widget::from_hwnd(next_hwnd)))// && wnd->zorder_level() <= zorder_level())
-                  all_lower.add(wnd);
-                  
-                next_hwnd = GetWindow(next_hwnd, GW_HWNDNEXT);
-              }
-              
-              // now put this window in front of all windows with the same zorder_level
-              for(int i = 0; i < all_lower.length(); ++i) {
-                if(all_lower[i] == this) {
-                  int j = i - 1;
-                  while(j >= 0 && all_lower[j]->zorder_level() == zorder_level()) {
-                    all_lower[j + 1] = all_lower[j];
-                    --j;
-                  }
-                  all_lower[j + 1] = this;
-                  break;
-                }
-              }
-              
-              BasicWin32Window::during_pos_changing = true;
-              
-              HDWP hdwp = BeginDeferWindowPos(all_lower.length());
-              
-              for(int i = all_lower.length() - 1; i >= 0; --i) {
-                hdwp = tryDeferWindowPos(
-                         hdwp, all_lower[i]->hwnd(), HWND_TOP, 0, 0, 0, 0,
-                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE/* | SWP_SHOWWINDOW*/);
-              }
-              
-              EndDeferWindowPos(hdwp);
-              
-              BasicWin32Window::during_pos_changing = false;
-            }
-            
             if(current_doc)
               current_doc->focus_set();
           }
           else {
-            already_activated = false;
             if(current_doc)
               current_doc->focus_killed();
           }
