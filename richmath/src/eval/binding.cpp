@@ -1141,8 +1141,6 @@ static bool open_cmd(Expr cmd) {
       doc = Application::open_new_document(filename);
       if(!doc)
         continue;
-      
-      doc->invalidate_options();
     }
     
     doc->native()->bring_to_front();

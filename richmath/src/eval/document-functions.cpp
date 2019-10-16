@@ -86,8 +86,6 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
     doc = Application::open_new_document(filename);
     if(!doc)
       return Symbol(PMATH_SYMBOL_FAILED);
-    
-    doc->invalidate_options();
   }
   doc->native()->bring_to_front();
   return doc->to_pmath_id();
@@ -257,11 +255,8 @@ static bool open_selection_help_cmd(Expr cmd) {
     
     if(helpfile.is_string()) {
       Document *helpdoc = Application::find_open_document(helpfile);
-      if(!helpdoc) {
+      if(!helpdoc) 
         helpdoc = Application::open_new_document(helpfile);
-        if(helpdoc)
-          helpdoc->invalidate_options();
-      }
       
       if(helpdoc) {
         helpdoc->native()->bring_to_front();

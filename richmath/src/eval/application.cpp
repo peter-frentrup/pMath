@@ -1170,7 +1170,7 @@ Document *Application::open_new_document(String filename) {
     
   doc->style->set(Visible,                         true);
   doc->style->set(InternalHasModifiedWindowOption, true);
-  //doc->invalidate_options();
+  doc->invalidate_options();
   //doc->native()->bring_to_front();
   return doc;
 }
