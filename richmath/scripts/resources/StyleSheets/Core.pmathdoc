@@ -155,9 +155,22 @@ Document({
            TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
              ComplexStringBox({"\"", #1, "\""}), 
              FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
-             ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
-         All), SectionGroup({
-          Section("Missing TemplateBox styles", "Subsubsection"), 
+             ShowStringCharacters -> False, ShowAutoStyles -> False) &)}), 
+          Section(StyleData("StylesheetHyperlink"), 
+           TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
+             With({FE`Private`content:= Replace(
+                With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+                 ReleaseHold(FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(
+                    #1, FE`Private`dyn)))), (
+                 List | /\/)(~~~FE`Private`str:String) :> StringExpression(
+                 FE`Private`str))}, 
+              With({FE`Private`path:= ToFileName(FE`$StylesheetDirectory, 
+                 FE`Private`content)}, 
+               TooltipBox(StyleBox(ButtonBox(ToBoxes(FE`Private`content), 
+                  ButtonFrame -> "Frameless", ButtonFunction -> (DocumentOpen(
+                   FE`Private`path) &)), FontColor -> RGBColor(0, 0, 0.5`)), 
+                ToBoxes(FE`Private`path))))) &)})}, All), 
+        SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
           Section(StyleData("TemplateBoxErrorDisplayStyle"), 
            Background -> RGBColor(1, 0.77000000000000002`, 
             0.77000000000000002`), FontColor -> GrayLevel(0.502`)), 
