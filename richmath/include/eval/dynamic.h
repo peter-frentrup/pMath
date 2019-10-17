@@ -45,8 +45,7 @@ namespace richmath {
         return _expr.expr_length() == 1 && _expr[0] == PMATH_SYMBOL_UNEVALUATED;
       }
       
-      // 0 = False, 1 = True, 2 = Automatic
-      int synchronous_updating() { return _synchronous_updating; }
+      AutoBoolValues synchronous_updating() { return _synchronous_updating; }
       
       static FrontEndReference current_evaluation_box_id;
       
@@ -54,7 +53,7 @@ namespace richmath {
       Box *_owner;
       Expr _expr;
       
-      int  _synchronous_updating; // 0 = False, 1 = True, 2 = Automatic
+      AutoBoolValues _synchronous_updating;
   };
 
   class AutoResetCurrentEvaluationBox {

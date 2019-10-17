@@ -69,7 +69,7 @@ FrontEndReference Dynamic::current_evaluation_box_id = FrontEndReference::None;
 Dynamic::Dynamic()
   : Base(),
   _owner(nullptr),
-  _synchronous_updating(0)
+  _synchronous_updating(AutoBoolFalse)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
@@ -77,7 +77,7 @@ Dynamic::Dynamic()
 Dynamic::Dynamic(Box *owner, Expr expr)
   : Base(),
   _owner(nullptr),
-  _synchronous_updating(0)
+  _synchronous_updating(AutoBoolFalse)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   init(owner, expr);
@@ -92,7 +92,7 @@ void Dynamic::init(Box *owner, Expr expr) {
 
 Expr Dynamic::operator=(Expr expr) {
   _expr = expr;
-  _synchronous_updating = 0;
+  _synchronous_updating = AutoBoolFalse;
   
   if(!_expr.is_expr())
     return _expr;
@@ -118,11 +118,11 @@ Expr Dynamic::operator=(Expr expr) {
                 options.get()));
                 
       if(su == PMATH_SYMBOL_TRUE)
-        _synchronous_updating = 1;
+        _synchronous_updating = AutoBoolTrue;
       else if(su == PMATH_SYMBOL_AUTOMATIC)
-        _synchronous_updating = 2;
+        _synchronous_updating = AutoBoolAutomatic;
       else
-        _synchronous_updating = 0;
+        _synchronous_updating = AutoBoolFalse;
     }
   }
   // for PureArgument(n), this->_synchronous_updating does not matter, because it is looked up in get_value()
@@ -453,7 +453,7 @@ bool DynamicImpl::get_value(Expr *result, Expr job_info) {
   if(result)
     *result = Expr();
     
-  int sync = self._synchronous_updating;
+  AutoBoolValues sync = self._synchronous_updating;
   
   int i;
   if(is_template_slot(&i)) {
@@ -471,18 +471,18 @@ bool DynamicImpl::get_value(Expr *result, Expr job_info) {
       }
       else {
         source_template->register_observer(self._owner->id());
-        sync = 1;
+        sync = AutoBoolTrue;
       }
     }
   }
   
-  if(sync == 2) {
-    sync = 1;
+  if(sync == AutoBoolAutomatic) {
+    sync = AutoBoolTrue;
     if(auto doc = self._owner->find_parent<Document>(true))
-      sync = doc->is_mouse_down();
+      sync = doc->is_mouse_down() ? AutoBoolTrue : AutoBoolFalse;
   }
   
-  if(sync != 0 || !self.is_dynamic()) {
+  if(sync != AutoBoolFalse || !self.is_dynamic()) {
     if(result)
       *result = get_value_now();
     else
