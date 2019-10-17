@@ -4,15 +4,21 @@
 #include <cwchar>
 
 #include <util/array.h>
+#include <gui/win32/ole/combase.h>
+
 
 using namespace richmath;
 
 HRESULT(WINAPI * Win32Themes::DwmEnableComposition)(UINT) = nullptr;
 HRESULT(WINAPI * Win32Themes::DwmExtendFrameIntoClientArea)(HWND, const MARGINS *) = nullptr;
+HRESULT(WINAPI * Win32Themes::DwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD) = nullptr;
 HRESULT(WINAPI * Win32Themes::DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD) = nullptr;
 HRESULT(WINAPI * Win32Themes::DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO *) = nullptr;
 HRESULT(WINAPI * Win32Themes::DwmGetColorizationParameters)(Win32Themes::DWM_COLORIZATION_PARAMS *) = nullptr;
 HRESULT(WINAPI * Win32Themes::DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT *) = nullptr;
+
+HRESULT(WINAPI * Win32Themes::DwmpActivateLivePreview_win7)(BOOL, HWND, HWND, LivePreviewTrigger) = nullptr;
+HRESULT(WINAPI * Win32Themes::DwmpActivateLivePreview_win81)(BOOL, HWND, HWND, LivePreviewTrigger, RECT *) = nullptr;
 
 HANDLE(WINAPI * Win32Themes::OpenThemeData)(HWND, LPCWSTR) = nullptr;
 HANDLE(WINAPI * Win32Themes::OpenThemeDataForDpi)(HWND, LPCWSTR, UINT) = nullptr;
@@ -69,6 +75,9 @@ Win32Themes::Win32Themes()
       DwmExtendFrameIntoClientArea = (HRESULT(WINAPI *)(HWND, const MARGINS *))
                                      GetProcAddress(dwmapi, "DwmExtendFrameIntoClientArea");
                                      
+      DwmGetWindowAttribute = (HRESULT(WINAPI *)(HWND, DWORD, PVOID, DWORD))
+                              GetProcAddress(dwmapi, "DwmGetWindowAttribute");
+                                     
       DwmSetWindowAttribute = (HRESULT(WINAPI *)(HWND, DWORD, LPCVOID, DWORD))
                               GetProcAddress(dwmapi, "DwmSetWindowAttribute");
                               
@@ -80,6 +89,15 @@ Win32Themes::Win32Themes()
                                     
       DwmDefWindowProc = (HRESULT(WINAPI *)(HWND, UINT, WPARAM, LPARAM, LRESULT *))
                          GetProcAddress(dwmapi, "DwmDefWindowProc");
+      
+      if(check_osversion(6, 3)) { // Windows 8.1 or newer
+        DwmpActivateLivePreview_win81 = (HRESULT(WINAPI *)(BOOL, HWND, HWND, LivePreviewTrigger, RECT*))
+                                        GetProcAddress(dwmapi, MAKEINTRESOURCEA(113));
+      }
+      else if(check_osversion(6, 1)) { // Windows 7 or newer
+        DwmpActivateLivePreview_win7 = (HRESULT(WINAPI *)(BOOL, HWND, HWND, LivePreviewTrigger))
+                                       GetProcAddress(dwmapi, MAKEINTRESOURCEA(113));
+      }
     }
   }
   
@@ -197,10 +215,14 @@ Win32Themes::~Win32Themes() {
   
   DwmEnableComposition = nullptr;
   DwmExtendFrameIntoClientArea = nullptr;
+  DwmGetWindowAttribute = nullptr;
   DwmSetWindowAttribute = nullptr;
   DwmGetColorizationParameters = nullptr;
   DwmGetCompositionTimingInfo = nullptr;
   DwmDefWindowProc = nullptr;
+  
+  DwmpActivateLivePreview_win7 = nullptr;
+  DwmpActivateLivePreview_win81 = nullptr;
   
   OpenThemeData = nullptr;
   OpenThemeDataForDpi = nullptr;
@@ -346,3 +368,12 @@ bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
   return result;
 }
 
+bool Win32Themes::activate_aero_peak(bool activate, HWND exclude, HWND insert_before, LivePreviewTrigger trigger) {
+  if(DwmpActivateLivePreview_win81) 
+    return HRbool(DwmpActivateLivePreview_win81(activate, exclude, insert_before, trigger, nullptr));
+  
+  if(DwmpActivateLivePreview_win7)
+    return HRbool(DwmpActivateLivePreview_win7(activate, exclude, insert_before, trigger));
+  
+  return false;
+}

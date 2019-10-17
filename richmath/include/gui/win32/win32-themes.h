@@ -12,6 +12,15 @@
 
 
 namespace richmath {
+  enum class LivePreviewTrigger : DWORD {
+    ShowDesktop = 1,
+    WinSpace,
+    TaskbarThumbnail,
+    AltTab,
+    TaskbarThumbnailTouch,
+    ShowDesktopTouch
+  };
+  
   /* (optional) XP Theming API and Vista DWM API */
   class Win32Themes: public Base {
     public:
@@ -40,6 +49,15 @@ namespace richmath {
         DWMWA_FORCE_ICONIC_REPRESENTATION,
         DWMWA_FLIP3D_POLICY,
         DWMWA_EXTENDED_FRAME_BOUNDS,
+        // Windows 7 and newer:
+        DWMWA_HAS_ICONIC_BITMAP,
+        DWMWA_DISALLOW_PEEK,
+        DWMWA_EXCLUDED_FROM_PEEK,
+        // Windows 8 and newer:
+        DWMWA_CLOAK,
+        DWMWA_CLOAKED,
+        DWMWA_FREEZE_REPRESENTATION,
+        
         DWMWA_LAST
       } DWMWINDOWATTRIBUTE;
       
@@ -182,10 +200,14 @@ namespace richmath {
     public:
       static HRESULT(WINAPI *DwmEnableComposition)(UINT);
       static HRESULT(WINAPI *DwmExtendFrameIntoClientArea)(HWND, const MARGINS*);
+      static HRESULT(WINAPI *DwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
       static HRESULT(WINAPI *DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD);
       static HRESULT(WINAPI *DwmGetColorizationParameters)(DWM_COLORIZATION_PARAMS *params);
       static HRESULT(WINAPI *DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO*);
       static HRESULT(WINAPI *DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT*);
+      
+      static HRESULT(WINAPI *DwmpActivateLivePreview_win7)(BOOL fActivate, HWND hWndExclude, HWND hWndInsertBefore, LivePreviewTrigger trigger);
+      static HRESULT(WINAPI *DwmpActivateLivePreview_win81)(BOOL fActivate, HWND hWndExclude, HWND hWndInsertBefore, LivePreviewTrigger trigger, RECT *prcFinalRect);
       
       static HANDLE(WINAPI *OpenThemeData)(HWND, LPCWSTR);
       static HANDLE(WINAPI *OpenThemeDataForDpi)(HWND, LPCWSTR, UINT);
@@ -228,6 +250,9 @@ namespace richmath {
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       
       static bool try_read_win10_colorization(ColorizationInfo *info);
+      
+      static bool has_areo_peak() { return DwmpActivateLivePreview_win7 || DwmpActivateLivePreview_win81; }
+      static bool activate_aero_peak(bool activate, HWND exclude, HWND insert_before, LivePreviewTrigger trigger);
       
     private:
       static HMODULE dwmapi;
