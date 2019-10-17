@@ -567,12 +567,13 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
   if(event.left && enabled()) {
     event.set_origin(this);
     double val = SliderBoxImpl(*this).mouse_to_val(event.x);
-    if( !SliderBoxImpl(*this).approximately_equals(val, range_value) ||
-        dynamic.synchronous_updating() == 2 ||
+    if( //!SliderBoxImpl(*this).approximately_equals(val, range_value) ||
+        dynamic.synchronous_updating() == AutoBoolAutomatic ||
         !get_own_style(ContinuousAction, true) ||
         dynamic.has_pre_or_post_assignment())
     {
-      SliderBoxImpl(*this).assign_dynamic_value(val, false, val != range_value, true);
+      SliderBoxImpl(*this).assign_dynamic_value(val, false, true, true);
+      //SliderBoxImpl(*this).assign_dynamic_value(val, false, val != range_value || dynamic.synchronous_updating() == AutoBoolAutomatic || !get_own_style(ContinuousAction, true), true);
     }
     
     Application::deactivated_control(this);
