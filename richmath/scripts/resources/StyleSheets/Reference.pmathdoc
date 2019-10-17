@@ -115,12 +115,14 @@ Document({
                    Documentation`FindSymbolDocumentationByFullName(
                     FE`Private`name))}, If(FE`Private`file === None, 
                   RGBColor(0.80000000000000004`, 0, 0), 
-                  RGBColor(0, 0, 0.80000000000000004`))))) &)}), 
+                  RGBColor(0, 0, 0.80000000000000004`)))), 
+               ShowAutoStyles -> False) &)}), 
             Section(StyleData("NamedCharacterHyperlink"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
                ComplexStringBox({"\"\\\\[", #1, "]\""}), 
-               FontColor -> RGBColor(0, 0, 0.80000000000000004`)) &)})}, All), 
-          SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
+               FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+               ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
+           All), SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
             Section(StyleData("KeyEvent"), TemplateBoxOptions -> {
               DisplayFunction -> (StyleBox(
                FrameBox(ComplexStringBox({"\"", #1, "\""}), 
