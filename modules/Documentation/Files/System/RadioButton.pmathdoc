@@ -7,7 +7,7 @@ Document({
      All), SectionGroup({Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({{TemplateBox({"RadioButton"}, "ReferenceHyperlink"), "(", 
-           ")"}, " is equivalent to  ", {
+           ")"}, " is equivalent to ", {
            TemplateBox({"RadioButton"}, "ReferenceHyperlink"), "(", {
             TemplateBox({"False"}, "ReferenceHyperlink"), ",", 
             TemplateBox({"True"}, "ReferenceHyperlink")}, ")"}, "."}, 
