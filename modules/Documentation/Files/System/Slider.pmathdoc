@@ -1,0 +1,113 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Slider", "ObjectName"), 
+      Section(BoxData(DynamicBox(ToBoxes(Slider::"usage"))), "Usage")}, All), 
+    SectionGroup({Section("Details and Options", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({{TemplateBox({"Slider"}, "ReferenceHyperlink"), "(", ")"}, 
+          " is equivalent to ", {
+           TemplateBox({"Slider"}, "ReferenceHyperlink"), "(", "0.5", ")"}, 
+          "."}, "Notes"), 
+        Section({TemplateBox({"Slider"}, "ReferenceHyperlink"), 
+          " has options ", TemplateBox({"ContinuousAction"}, 
+           "ReferenceHyperlink"), " and ", TemplateBox({"Enabled"}, 
+           "ReferenceHyperlink"), "."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section({"Default arguments give a ", 
+          TemplateBox({"Slider"}, "ReferenceHyperlink"), 
+          " with centered thumb position:"}, "ExampleText"), 
+        SectionGroup({Section(BoxData({"Slider", "(", ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(SliderBox(0.5`, 0 .. 1)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Dynamically change the value of ", StyleBox("x", "Arg"), 
+            ":"}, "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+                ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {SliderBox(Dynamic(Global`x), 0 .. 1), ",", 
+                DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("ContinuousAction", "ExampleSubsection"), 
+          Section({"With the default setting ", {
+             TemplateBox({"ContinuousAction"}, "ReferenceHyperlink"), 
+             "\[Rule]", TemplateBox({"True"}, "ReferenceHyperlink")}, 
+            ", the control variable will be adjusted continuously while \
+            dragging the slider:"}, "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+                ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {SliderBox(Dynamic(Global`x), 0 .. 1), ",", 
+                DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section({"By choosing ", {
+             TemplateBox({"ContinuousAction"}, "ReferenceHyperlink"), 
+             "\[Rule]", TemplateBox({"False"}, "ReferenceHyperlink")}, 
+            ", the  update will only happen when the mouse is released:"}, 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"Slider", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+                   "ContinuousAction", "\[Rule]", "False"}}, ")"}, ",", {
+                 "Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData({
+               "{", {SliderBox(Dynamic(Global`x), 0 .. 1, 
+                 ContinuousAction -> False), ",", 
+                DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         1), SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section({"Disable interactive manipulation with ", {
+             TemplateBox({"Enabled"}, "ReferenceHyperlink"), "\[Rule]", 
+             TemplateBox({"False"}, "ReferenceHyperlink")}, ":"}, 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Slider", "(", {"Enabled", "\[Rule]", "False"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(SliderBox(0.5`, 0 .. 1, Enabled -> False)), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section("Apply pre- and post-evaluations:", "Text"), 
+        SectionGroup({
+          Section(BoxData(/\/({{"col", "\[Assign]", "None"}, ";"}, "\n", {
+              "{", {
+               {"Style", "(", {
+                 {"Slider", "(", {"Dynamic", "(", {
+                    "x", ",", {
+                     "{", {{"Function", "(", {"col", "\[Assign]", "Green"}, 
+                       ")"}, ",", "Automatic", ",", {
+                       "Function", "(", {"col", "\[Assign]", "None"}, ")"}}, 
+                     "}"}}, ")"}, ")"}, ",", {"Background", "\[Rule]", {
+                   "Dynamic", "(", "col", ")"}}}, ")"}, ",", {
+                "Dynamic", "(", "x", ")"}}, "}"})), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              StyleBox(SliderBox(Dynamic(Global`x, {
+                  (Global`col:= Green) &, Automatic, (Global`col:= None) &}), 
+                0 .. 1), Background -> Dynamic(Global`col), 
+               StripOnInput -> False), ",", DynamicBox(ToBoxes(Global`x))}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
+        Section(
+         "Note that the post-evaluation is not evaluated when canceling the \
+         mouse drag operation with the ESC key.", "ExampleText")}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"ProgressIndicator"}, "ReferenceHyperlink")}, 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)
