@@ -1,0 +1,117 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Insert", "Subsection"), 
+      SectionGroup({Section("Hyperlinks", "Subsubsection"), 
+        Section(
+         BoxData(
+          FillBox(ButtonBox(TemplateBox({"Reference"}, "ReferenceHyperlink"), 
+            BaseStyle -> "Paste", ButtonData :> TemplateBox({
+              "\[SelectionPlaceholder]"}, "ReferenceHyperlink")))), "Text"), 
+        Section(
+         BoxData(FillBox(ButtonBox(TemplateBox({"NamedCharacter"}, 
+             "NamedCharacterHyperlink"), BaseStyle -> "Paste", 
+            ButtonData :> TemplateBox({"\[SelectionPlaceholder]"}, 
+             "NamedCharacterHyperlink")))), "Text")}, All), 
+      SectionGroup({Section("Keyboard", "Subsubsection"), 
+        Section(
+         BoxData({
+           FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+              "KeyEvent"), BaseStyle -> "Paste")), 
+           FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+              "ControlKeyEvent"), BaseStyle -> "Paste"))}), "Text"), 
+        Section(
+         BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+             "ShiftKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
+        Section(
+         BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+             "ControlShiftKeyEvent"), BaseStyle -> "Paste"))), "Text")}, 1), 
+      SectionGroup({Section("Other", "Subsubsection"), 
+        Section(
+         BoxData(FillBox(ButtonBox(ComplexStringBox("\"Math in Text\""), 
+            ButtonFunction -> (DocumentApply(SelectedDocument(), 
+             "\({\"\[SelectionPlaceholder]\"}\)") &)))), "Text"), 
+        Section(
+         BoxData(FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Italic\""), 
+             "TI"), ButtonFunction -> (DocumentApply(SelectedDocument(), 
+             StyleBox("\[SelectionPlaceholder]", "TI")) &)))), "Text"), 
+        Section(
+         BoxData(
+          FillBox(ButtonBox(ComplexStringBox("\"", StyleBox("Arg", "Arg"), 
+             " Style\""), ButtonFunction -> (DocumentApply(SelectedDocument(), 
+             StyleBox("\[SelectionPlaceholder]", "Arg")) &)))), "Text"), 
+        Section(
+         BoxData(FillBox(ButtonBox(StyleBox({"Small", " ", "Caps"}, 
+             FontFeatures -> {"smcp"}), ButtonFunction -> (DocumentApply(
+             SelectedDocument(), StyleBox("\[SelectionPlaceholder]", 
+              FontFeatures -> {"smcp"})) &)))), "Text")}, All)}, All), 
+    SectionGroup({Section("Actions", "Subsection"), 
+      Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Reset $Line\""), 
+          ButtonFunction -> (($Line:= 0) &)))), "Text")}, All)}, All)}, 
+ StyleDefinitions :> Document({
+   SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+     SectionGroup({Section("Document styles", "Section"), 
+       Section(StyleData("Document"), Saveable -> False, Selectable -> False, 
+        ShowSectionBracket -> False, WindowFrame -> "Palette")}, All), 
+     SectionGroup({Section("Section styles", "Section"), 
+       Section(StyleData("Subsection"), SectionDingbat :> OpenerBox(
+         Dynamic(CurrentValue("SectionGroupOpen"))), 
+        SectionMargins -> {0, 0, 5, 5}, Selectable -> False, 
+        WholeSectionGroupOpener -> True), Section(StyleData("Subsubsection"), 
+        SectionDingbat :> OpenerBox(
+         Dynamic(CurrentValue("SectionGroupOpen"))), 
+        SectionMargins -> {25, 5, 5, 5}, Selectable -> False, 
+        WholeSectionGroupOpener -> True), Section(StyleData("Text"), 
+        ButtonBoxOptions -> {ButtonFrame -> "Palette"}, 
+        SectionMargins -> {0, 0, 0, 0})}, All), 
+     SectionGroup({Section("Box styles", "Section"), 
+       Section({
+         "The following styles mimic those of the \[HighSixDoubleQuote]", 
+         TemplateBox({"Reference.pmathdoc"}, "StylesheetHyperlink"), 
+         "\[HighNineDoubleQuote]:"}, "Text"), 
+       SectionGroup({Section("Hyperlinks", "Subsubsection"), 
+         Section(StyleData("ReferenceHyperlink"), 
+          TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+            ComplexStringBox({"\"", #1, "\""}), "Text", 
+            FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+            ShowAutoStyles -> False) &)}), 
+         Section(StyleData("NamedCharacterHyperlink"), 
+          TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+            ComplexStringBox({"\"\\\\[", #1, "]\""}), 
+            FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+            ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
+        All), SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
+         Section(StyleData("KeyEvent"), TemplateBoxOptions -> {
+           DisplayFunction -> (StyleBox(
+            FrameBox(ComplexStringBox({"\"", #1, "\""}), 
+             BorderRadius -> 2.5`), "ControlStyle", 
+            Background -> GrayLevel(0.96499999999999997`), 
+            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+         Section(StyleData("KeyEventDelimiter"), 
+          TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+            ComplexStringBox({"\"", #1, "\""}), "ControlStyle", 
+            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+         Section(StyleData("ControlKeyEvent"), 
+          TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+             ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), "+", 
+               TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+         Section(StyleData("AltKeyEvent"), 
+          TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+             ComplexStringBox({"\"", TemplateBox({"Alt"}, "KeyEvent"), "+", 
+               TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+         Section(StyleData("ShiftKeyEvent"), 
+          TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+             ComplexStringBox({"\"", TemplateBox({"Shift"}, "KeyEvent"), "+", 
+               TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+         Section(StyleData("ControlShiftKeyEvent"), 
+          TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+             ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), "+", 
+               TemplateBox({"Shift"}, "KeyEvent"), "+", 
+               TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+            FontColor -> GrayLevel(0.35999999999999999`)) &)})}, All)}, All)}, 
+    All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
+  Visible -> True), Visible -> True, WindowTitle -> "Documentation Tools")
