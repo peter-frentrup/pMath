@@ -32,8 +32,8 @@ YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
     Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
     if(wid) {
       owner_window = wid->hwnd();
-      while(GetParent(owner_window) != nullptr)
-        owner_window = GetParent(owner_window);
+      while(auto parent = GetParent(owner_window))
+        owner_window = parent;
     }
   }
   

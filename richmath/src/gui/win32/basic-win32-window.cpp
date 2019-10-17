@@ -1762,7 +1762,7 @@ static BOOL CALLBACK find_popup_callback(HWND hwnd, LPARAM lParam) {
   if(dynamic_cast<Win32Widget *>(BasicWin32Widget::from_hwnd(hwnd)))
     return TRUE;
 
-  if(GetWindow(hwnd, GW_OWNER) != 0) {
+  if(GetWindow(hwnd, GW_OWNER) != nullptr) {
     info->popup = hwnd;
     return FALSE;
   }
@@ -1863,14 +1863,14 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               HWND active_window    = GetActiveWindow();
               HWND own_popup_window = GetWindow(_hwnd, GW_ENABLEDPOPUP);
               if(own_popup_window == _hwnd)
-                own_popup_window = 0;
+                own_popup_window = nullptr;
 
               struct find_popup_info_t popup_info;
               popup_info.thread_id = GetWindowThreadProcessId(_hwnd, 0);
               popup_info.popup     = own_popup_window;
               EnumWindows(find_popup_callback, (LPARAM)&popup_info);
 
-              BasicWin32Window *last_higher = 0;
+              BasicWin32Window *last_higher = nullptr;
               for(auto win : CommonDocumentWindow::All) {
                 if(BasicWin32Window *next = dynamic_cast<BasicWin32Window*>(win)) {
                   if(next == this)
