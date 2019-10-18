@@ -3,8 +3,9 @@
 Document({
   SectionGroup({
     SectionGroup({Section("ControlActive", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(ControlActive::"usage"))), "Usage")}, 
-     All), SectionGroup({Section("Details and Options", "NotesSection"), 
+      Section(BoxData(TemplateBox({"ControlActive"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({
+      Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({{TemplateBox({"ControlActive"}, "ReferenceHyperlink"), "(", {
             StyleBox("act", "Arg"), ",", StyleBox("norm", "Arg")}, ")"}, 
@@ -105,8 +106,8 @@ Document({
              UnsavedVariables :> {}, DynamicLocalValues :> {{
                OwnRules(Global`x):= {HoldPattern(Global`x) :> 0}}})), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-         All), Section({"A reference to the modified variable ", {
-           StyleBox("x", "Arg")}, " triggers ", 
+         All), Section({"A reference to the modified variable ", 
+          StyleBox("x", "Arg"), " triggers ", 
           TemplateBox({"Dynamic"}, "ReferenceHyperlink"), " updates:"}, 
          "ExampleText"), SectionGroup({
           Section(BoxData({"DynamicLocal", "(", {

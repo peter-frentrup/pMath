@@ -3,8 +3,8 @@
 Document({
   SectionGroup({
     SectionGroup({Section("Table", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(Table::"usage"))), "Usage")}, All), 
-    SectionGroup({Section("Details", "NotesSection"), 
+      Section(BoxData(TemplateBox({"Table"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({TemplateBox({"Table"}, "ReferenceHyperlink"), "(", 
           StyleBox("expr", "Arg"), ", ", StyleBox("i", "Arg"), " \[Rule] ", 

@@ -3,8 +3,9 @@
 Document({
   SectionGroup({
     SectionGroup({Section("RadioButton", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(RadioButton::"usage"))), "Usage")}, 
-     All), SectionGroup({Section("Details and Options", "NotesSection"), 
+      Section(BoxData(TemplateBox({"RadioButton"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({
+      Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({{TemplateBox({"RadioButton"}, "ReferenceHyperlink"), "(", 
            ")"}, " is equivalent to ", {

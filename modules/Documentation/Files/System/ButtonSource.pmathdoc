@@ -3,8 +3,8 @@
 Document({
   SectionGroup({
     SectionGroup({Section("ButtonSource", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(ButtonSource::"usage"))), "Usage")}, 
-     All), SectionGroup({Section("Details", "NotesSection"), 
+      Section(BoxData(TemplateBox({"ButtonSource"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({"The default setting is ", 
           TemplateBox({"ButtonSource"}, "ReferenceHyperlink"), " \[Rule] ", 

@@ -3,8 +3,8 @@
 Document({
   SectionGroup({
     SectionGroup({Section("Cos", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(Cos::"usage"))), "Usage")}, All), 
-    SectionGroup({Section("Details", "NotesSection"), 
+      Section(BoxData(TemplateBox({"Cos"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section(
          "Mathematical function suitable for numeric and symbolic \

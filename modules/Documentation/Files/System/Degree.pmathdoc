@@ -3,8 +3,8 @@
 Document({
   SectionGroup({
     SectionGroup({Section("Degree", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(Degree::"usage"))), "Usage")}, All), 
-    SectionGroup({Section("Details", "NotesSection"), 
+      Section(BoxData(TemplateBox({"Degree"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({
           "You can convert from degrees to radians by multiplaying with ", 

@@ -3,8 +3,8 @@
 Document({
   SectionGroup({
     SectionGroup({Section("Slider", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(Slider::"usage"))), "Usage")}, All), 
-    SectionGroup({Section("Details and Options", "NotesSection"), 
+      Section(BoxData(TemplateBox({"Slider"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({{TemplateBox({"Slider"}, "ReferenceHyperlink"), "(", ")"}, 
           " is equivalent to ", {

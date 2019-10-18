@@ -5,6 +5,9 @@ FindSymbolDocumentation
 FindSymbolDocumentationByFullName
 FindSymbolDocumentationByNamespaceAndName
 
+PrepareUsageSection
+
+
 Begin("Documentation`Private`")
 
 
@@ -34,6 +37,26 @@ Function FindSymbolDocumentationByNamespaceAndName(~namespace:String, ~name:Stri
     } Else {
         First(files)
     }
+}
+
+
+PrepareUsageSection(~text)::= ToString(text)
+Function PrepareUsageSection(~text:String) {
+    Local(nesting:=0)
+    With(reflown:= text.StringReplace(
+            tok:("\n"|"("|")"|" ") :> 
+            Switch(tok) {
+                Case("\n") { nesting:=0; tok }
+                Case("(") { ++nesting; tok }
+                Case(")") { --nesting; tok }
+                Case(~) { If(nesting===0) { nesting:=Infinity; "\n\t" } Else { tok } }
+            }
+        ))
+    reflown.StringReplace({
+        s: ("\(" ++ Shortest(~~~) ++ "\)") :> s,
+        s: ("." ++ " "** ++ "A".."Z") :> s,
+        (WordBoundary ++ s: (("A".."Z"|"$") ++ (LetterCharacter|DigitCharacter)**) ++ WordBoundary
+        ) :> "\(" ++ ToString@InputForm@TemplateBox({s}, "ReferenceHyperlink") ++ "\)"})
 }
 
 

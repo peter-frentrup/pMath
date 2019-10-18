@@ -3,7 +3,7 @@
 Document({
   SectionGroup({
     SectionGroup({Section("Do", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(Do::"usage"))), "Usage")}, All), 
+      Section(BoxData(TemplateBox({"Do"}, "UsageReference")), "Usage")}, All), 
     SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({"An alternative syntax is ", {

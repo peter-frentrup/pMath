@@ -3,7 +3,7 @@
 Document({
   SectionGroup({
     SectionGroup({Section("SectionDingbat", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(SectionDingbat::"usage"))), 
+      Section(BoxData(TemplateBox({"SectionDingbat"}, "UsageReference")), 
        "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
         Section({"The default setting is ", 

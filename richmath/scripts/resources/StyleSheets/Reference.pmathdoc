@@ -94,6 +94,16 @@ Document({
                ShowSectionBracket -> Automatic)}, All)}, All)}, All)}, All), 
       SectionGroup({Section("Box styles", "Section"), 
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
+          Section(StyleData("UsageReference"), 
+           TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
+             With({FE`Private`name:= With({
+                 FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+                ReleaseHold(FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(
+                   #1, FE`Private`dyn))))}, 
+              Replace(MakeExpression(FE`Private`name, ParseSymbols -> False), 
+               HoldComplete(~FE`Private`sym:Symbol) :> 
+                Documentation`PrepareUsageSection(
+                FE`Private`sym::"usage")))) &)}), 
           SectionGroup({Section("Hyperlinks", "Subsubsection"), 
             Section(StyleData("ReferenceHyperlink"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(

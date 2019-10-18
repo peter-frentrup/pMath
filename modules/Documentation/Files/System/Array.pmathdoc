@@ -3,8 +3,8 @@
 Document({
   SectionGroup({
     SectionGroup({Section("Array", "ObjectName"), 
-      Section(BoxData(DynamicBox(ToBoxes(Array::"usage"))), "Usage")}, All), 
-    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      Section(BoxData(TemplateBox({"Array"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         SectionGroup({Section(BoxData({"Array", "(", {"f", ",", "5"}, ")"}), 
            "Input", SectionLabel -> "in [1]:"), 
