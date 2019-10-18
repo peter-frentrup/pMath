@@ -3080,7 +3080,12 @@ Box *MathSequence::move_logical(
       return this;
     }
     
-    if(jumping || *index < 0 || buf[*index] != PMATH_CHAR_BOX) {
+    if(*index < 0) {
+      *index = 0;
+      return this;
+    }
+    
+    if(jumping || buf[*index] != PMATH_CHAR_BOX) {
       if(jumping) {
         while(*index + 1 < len && !spans.is_token_end(*index))
           ++*index;
@@ -3116,6 +3121,11 @@ Box *MathSequence::move_logical(
       *index = _index + 1;
       return _parent->move_logical(LogicalDirection::Backward, true, index);
     }
+    return this;
+  }
+  
+  if(*index > len) {
+    *index = len;
     return this;
   }
   
