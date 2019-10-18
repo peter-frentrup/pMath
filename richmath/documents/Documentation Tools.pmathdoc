@@ -19,8 +19,11 @@ Document({
          BoxData({
            FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
               "KeyEvent"), BaseStyle -> "Paste")), 
-           FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-              "ControlKeyEvent"), BaseStyle -> "Paste"))}), "Text"), 
+           FillBox(ButtonBox(TemplateBox({}, "AliasDelimiterKeyEvent"), 
+             BaseStyle -> "Paste"))}), "Text"), 
+        Section(
+         BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+             "ControlKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
         Section(
          BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
              "ShiftKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
@@ -92,6 +95,9 @@ Document({
           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
             ComplexStringBox({"\"", #1, "\""}), "ControlStyle", 
             FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+         Section(StyleData("AliasDelimiterKeyEvent"), 
+          TemplateBoxOptions -> {DisplayFunction -> (TemplateBox({
+             " \[AliasIndicator] "}, "KeyEvent") &)}), 
          Section(StyleData("ControlKeyEvent"), 
           TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
              ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), "+", 

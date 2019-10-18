@@ -143,6 +143,9 @@ Document({
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
                ComplexStringBox({"\"", #1, "\""}), "ControlStyle", 
                FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+            Section(StyleData("AliasDelimiterKeyEvent"), 
+             TemplateBoxOptions -> {DisplayFunction -> (TemplateBox({
+                " \[AliasIndicator] "}, "KeyEvent") &)}), 
             Section(StyleData("ControlKeyEvent"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
                 ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 

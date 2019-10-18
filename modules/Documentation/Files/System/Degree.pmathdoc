@@ -12,10 +12,12 @@ Document({
            "30", TemplateBox({"Degree"}, "ReferenceHyperlink")}, 
           " represents 30\[Degree]."}, "Notes"), 
         Section({TemplateBox({"Degree"}, "ReferenceHyperlink"), 
-          " can be entered as \[Degree], \
-          \[AliasIndicator]deg\[AliasIndicator], or ", {
-           "\[AliasIndicator]", TemplateBox({"Degree"}, 
-            "NamedCharacterHyperlink"), "\[AliasIndicator]"}, "."}, "Notes"), 
+          " can be entered as \[Degree], ", 
+          TemplateBox({}, "AliasDelimiterKeyEvent"), "deg", 
+          TemplateBox({}, "AliasDelimiterKeyEvent"), ", or ", 
+          TemplateBox({}, "AliasDelimiterKeyEvent"), 
+          TemplateBox({"Degree"}, "NamedCharacterHyperlink"), 
+          TemplateBox({}, "AliasDelimiterKeyEvent"), "."}, "Notes"), 
         Section({TemplateBox({"Degree"}, "ReferenceHyperlink"), 
           " is printed as \[Degree]."}, "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
