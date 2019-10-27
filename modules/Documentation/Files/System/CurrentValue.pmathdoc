@@ -1,0 +1,202 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("CurrentValue", "ObjectName"), 
+      Section(BoxData(TemplateBox({"CurrentValue"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({
+      Section("Details and Options", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({TemplateBox({"ControlActive"}, "ReferenceHyperlink"), 
+          " by default refers to the location where it appears in the \
+          document."}, "Notes"), 
+        Section({TemplateBox({"ControlActive"}, "ReferenceHyperlink"), 
+          " may be used inside ", TemplateBox({"Dynamic"}, 
+           "ReferenceHyperlink"), "."}, "Notes"), 
+        Section({"Certain items can be reset with ", {
+           {TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), "(", 
+            StyleBox("item", "Arg"), ")"}, "\[Assign]", 
+           StyleBox("val", "Arg")}, ", or implicitly via ", 
+          TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "."}, "Notes"), 
+        Section({"Any document option can be accessed with ", {
+           TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), "(", 
+           StyleBox("opt", "Arg"), ")"}, "."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Get the current document file name", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"CurrentValue", "(", 
+             ComplexStringBox("\"DocumentFileName\""), ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(ComplexStringBox("\"CurrentValue.pmathdoc\"")), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Dynamically update the current value:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Dynamic", "(", {
+                "CurrentValue", "(", ComplexStringBox("\"MouseOver\""), ")"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(DynamicBox(ToBoxes(CurrentValue("MouseOver")))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        SectionGroup({Section("Options", "ExampleSubsection"), 
+          Section(
+           "Get the current value of an option for a document (rather than for \
+           the evaluation box):", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"CurrentValue", "(", {
+                {"EvaluationDocument", "(", ")"}, ",", "Editable"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("True"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             "Evaluate the effectively used font size at a document \
+             location:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Style", "(", {
+                  {{"Dynamic", "(", {"CurrentValue", "(", "FontSize", ")"}, 
+                    ")"}, "^", {"Dynamic", "(", {
+                     "CurrentValue", "(", "FontSize", ")"}, ")"}}, ",", {
+                   "FontSize", "\[Rule]", "24"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(StyleBox({DynamicBox(ToBoxes(CurrentValue(FontSize))), 
+                  SuperscriptBox(
+                   DynamicBox(ToBoxes(CurrentValue(FontSize))))}, 
+                 FontSize -> 24, StripOnInput -> False)), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("Font", "ExampleSubsection"), 
+          Section("Get the system\[HighNineQuote]s user interface font name:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"CurrentValue", "(", 
+               ComplexStringBox("\"ControlsFontFamily\""), ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(ComplexStringBox("\"Segoe UI\"")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("The system\[HighNineQuote]s user interface font size:", 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 ComplexStringBox("\"ControlsFontSize\""), ")"}), "Input", 
+               SectionLabel -> "in [1]:"), Section(BoxData("9"), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("The system\[HighNineQuote]s user interface font slant:", 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 ComplexStringBox("\"ControlsFontSlant\""), ")"}), "Input", 
+               SectionLabel -> "in [1]:"), Section(BoxData("Plain"), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("The system\[HighNineQuote]s user interface font weight:", 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 ComplexStringBox("\"ControlsFontWeight\""), ")"}), "Input", 
+               SectionLabel -> "in [1]:"), Section(BoxData("Plain"), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("Document", "ExampleSubsection"), 
+          Section(
+           "Explore menu commands by hovering menu item with the mouse:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Dynamic", "(", {
+                "CurrentValue", "(", ComplexStringBox(
+                 "\"SelectedMenuCommand\""), ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(DynamicBox(
+               ToBoxes(CurrentValue("SelectedMenuCommand")))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             "Get the owning document object of an embedded style definitions \
+             document:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 ComplexStringBox("\"StyleDefinitionsOwner\""), ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData("None"), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Obtain a document\[HighNineQuote]s directory:", 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 ComplexStringBox("\"DocumentDirectory\""), ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(ComplexStringBox(
+                 "\"D:\\\\User\\\\frentrup\\\\Programmieren\\\\pmath\\\\module\
+                 s\\\\Documentation\\\\Files\\\\System\"")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+            Section(
+             "Obtain a document\[HighNineQuote]s file name without directory \
+             path:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 ComplexStringBox("\"DocumentFileName\""), ")"}), "Input", 
+               SectionLabel -> "in [2]:"), 
+              Section(BoxData(ComplexStringBox("\"CurrentValue.pmathdoc\"")), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [2]:")}, All), 
+            Section("Obtain a document\[HighNineQuote]s full file path:", 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 ComplexStringBox("\"DocumentFullFileName\""), ")"}), "Input", 
+               SectionLabel -> "in [3]:"), 
+              Section(BoxData(ComplexStringBox(
+                 "\"D:\\\\User\\\\frentrup\\\\Programmieren\\\\pmath\\\\module\
+                 s\\\\Documentation\\\\Files\\\\System\\\\CurrentValue.pmathdo\
+                 c\"")), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [3]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Get the current window title:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"CurrentValue", "(", "WindowTitle", ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(ComplexStringBox("\"CurrentValue.pmathdoc\"")), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All), 
+            Section(
+             "In contrast, the window title option does not evaluate \
+             further:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Options", "(", {
+                  {"EvaluationDocument", "(", ")"}, ",", "WindowTitle"}, 
+                 ")"}), "Input", SectionLabel -> "in [2]:"), 
+              Section(BoxData({"{", {"WindowTitle", "\[Rule]", "Inherited"}, 
+                 "}"}), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [2]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             "Find out the resolution of the screen that displays a \
+             document:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"CurrentValue", "(", 
+                 ComplexStringBox("\"DocumentScreenDpi\""), ")"}), "Input", 
+               SectionLabel -> "in [1]:"), Section(BoxData("96"), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Options"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ControlActive"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

@@ -81,7 +81,7 @@ Document({
                DefaultNewSectionStyle -> "ExampleText", Evaluatable -> True, 
                FontSize -> 2, SectionFrame -> {Inherited, Inherited, 0.25`, 
                 Inherited}, SectionFrameColor -> GrayLevel(
-                0.70199999999999996`), SectionGroupPrecedence -> -35, 
+                0.70199999999999996`), SectionGroupPrecedence -> -25, 
                SectionMargins -> {35, Inherited, 8, 4}, SectionLabel -> "", 
                ShowSectionBracket -> Automatic), 
               Section(StyleData("SeeAlsoSection"), 
