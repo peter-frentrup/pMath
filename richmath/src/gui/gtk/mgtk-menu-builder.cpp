@@ -2,6 +2,7 @@
 
 #include <eval/application.h>
 #include <eval/binding.h>
+#include <eval/observable.h>
 
 #include <gui/gtk/mgtk-document-window.h>
 
@@ -69,6 +70,14 @@ namespace {
       static void inline_menu_list_data(GtkMenuItem *menu_item, Expr data);
       static Expr inline_menu_list_data(GtkWidget *menu_item);
       
+      static GtkMenuItem *selected_item() { return _selected_item; }
+      
+    private:
+      static void on_activate(GtkMenuItem *menu_item, void *doc_id_as_ptr);
+      static void on_select(GtkMenuItem *menu_item, void *doc_id_as_ptr);
+      static void on_deselect(GtkMenuItem *menu_item, void *doc_id_as_ptr);
+      static void on_destroy(GtkMenuItem *menu_item, void *doc_id_as_ptr);
+      
     private:
       static MenuItemType type_for_command(Expr cmd);
 
@@ -79,37 +88,11 @@ namespace {
       static void init_inline_menu(GtkMenuItem *menu_item, Expr item);
       
       static void destroy_inline_menu_list_data(void *data);
+    
+    private:
+      static const char *inline_menu_list_data_key;
+      static ObservableValue<GtkMenuItem*> _selected_item;
   };
-}
-
-static void on_menu_item_activate(GtkMenuItem *menuitem, void *doc_id_as_ptr) {
-  if(ignore_activate_signal)
-    return;
-  
-  FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(doc_id_as_ptr);
-  
-  const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menuitem);
-  if(!accel_path_str)
-    return;
-  
-  Expr cmd = accel_path_to_cmd[String(accel_path_str)];
-  if(!cmd.is_null()) {
-    if(auto doc = FrontEndObject::find_cast<Document>(id)) {
-      auto wid = dynamic_cast<BasicGtkWidget *>(doc->native());
-      while(wid) {
-        if(auto win = dynamic_cast<MathGtkDocumentWindow *>(wid)) {
-          win->run_menucommand(cmd);
-          return;
-        }
-        
-        wid = wid->parent();
-      }
-    }
-    
-    g_warning("no MathGtkDocumentWindow parent found.");
-    
-    Application::run_menucommand(cmd);
-  }
 }
 
 static void collect_container_children(GtkContainer *container, Array<GtkWidget*> &array) {
@@ -283,9 +266,30 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
   }
 }
 
+Expr MathGtkMenuBuilder::selected_item_command() {
+  GtkMenuItem *menu_item = MenuItemBuilder::selected_item();
+  if(!menu_item)
+    return Expr{};
+  
+  const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menu_item);
+  if(!accel_path_str)
+    return Expr{};
+  
+  Expr cmd = accel_path_to_cmd[String(accel_path_str)];
+  if(cmd.is_null()) 
+    return Expr{};
+  
+  return std::move(cmd);
+}
+
 //} ... class MathGtkMenuBuilder
 
 //{ class MenuItemBuilder ...
+
+const char *MenuItemBuilder::inline_menu_list_data_key = "richmath:inline_menu_list_data_key";
+
+ObservableValue<GtkMenuItem*> MenuItemBuilder::_selected_item { nullptr };
+
 
 MenuItemType MenuItemBuilder::type_for_command(Expr cmd) {
   if(cmd[0] == richmath_FE_ScopedCommand)
@@ -378,8 +382,26 @@ GtkWidget *MenuItemBuilder::create(MenuItemType type, FrontEndReference for_docu
   
   g_signal_connect(
     menu_item, 
+    "destroy", 
+    G_CALLBACK(MenuItemBuilder::on_destroy), 
+    FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
+  
+  g_signal_connect(
+    menu_item, 
     "activate", 
-    G_CALLBACK(on_menu_item_activate), 
+    G_CALLBACK(MenuItemBuilder::on_activate), 
+    FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
+  
+  g_signal_connect(
+    menu_item, 
+    "select", 
+    G_CALLBACK(MenuItemBuilder::on_select), 
+    FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
+  
+  g_signal_connect(
+    menu_item, 
+    "deselect", 
+    G_CALLBACK(MenuItemBuilder::on_deselect), 
     FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
   
   return menu_item;
@@ -404,8 +426,6 @@ void MenuItemBuilder::init(GtkMenuItem *menu_item, MenuItemType type, Expr item,
       break;
   }
 }
-
-static const char *inline_menu_list_data_key = "richmath:inline_menu_list_data_key";
 
 void MenuItemBuilder::inline_menu_list_data(GtkMenuItem *menu_item, Expr data) {
   if(data.is_pointer() && !data.is_null()) {
@@ -483,6 +503,50 @@ void MenuItemBuilder::init_inline_menu(GtkMenuItem *menu_item, Expr item) {
   gtk_widget_set_sensitive(GTK_WIDGET(menu_item), FALSE);
   
   inline_menu_list_data(menu_item, item[2]);
+}
+
+void MenuItemBuilder::on_activate(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
+  if(ignore_activate_signal)
+    return;
+  
+  FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(doc_id_as_ptr);
+  
+  const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menu_item);
+  if(!accel_path_str)
+    return;
+  
+  Expr cmd = accel_path_to_cmd[String(accel_path_str)];
+  if(!cmd.is_null()) {
+    if(auto doc = FrontEndObject::find_cast<Document>(id)) {
+      auto wid = dynamic_cast<BasicGtkWidget *>(doc->native());
+      while(wid) {
+        if(auto win = dynamic_cast<MathGtkDocumentWindow *>(wid)) {
+          win->run_menucommand(cmd);
+          return;
+        }
+        
+        wid = wid->parent();
+      }
+    }
+    
+    g_warning("no MathGtkDocumentWindow parent found.");
+    
+    Application::run_menucommand(cmd);
+  }
+}
+
+void MenuItemBuilder::on_select(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
+  _selected_item = menu_item;
+}
+
+void MenuItemBuilder::on_deselect(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
+  if(_selected_item.unobserved_equals(menu_item))
+    _selected_item = nullptr;
+}
+
+void MenuItemBuilder::on_destroy(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
+  if(_selected_item.unobserved_equals(menu_item))
+    _selected_item = nullptr;
 }
 
 //} ... class MenuItemBuilder

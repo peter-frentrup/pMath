@@ -28,6 +28,7 @@ namespace richmath {
       static void expand_inline_lists(GtkMenu *menu, FrontEndReference id);
       
       static void done();
+      static Expr selected_item_command();
       
     public:
       static MathGtkMenuBuilder main_menu;

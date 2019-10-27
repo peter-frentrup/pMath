@@ -2,6 +2,7 @@
 
 #include <eval/binding.h>
 #include <eval/application.h>
+#include <eval/observable.h>
 #include <resources.h>
 
 #include <util/array.h>
@@ -42,6 +43,9 @@ namespace {
       
     private:
       static DWORD next_id;
+      
+    public:
+      static ObservableValue<DWORD> selected_menu_item_id;
   };
 }
 
@@ -229,11 +233,109 @@ void Win32Menu::init_popupmenu(HMENU sub) {
 //  }
 }
 
+Expr Win32Menu::selected_item_command() {
+  return Win32Menu::id_to_command(MenuItemBuilder::selected_menu_item_id);
+}
+
+void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
+  HMENU menu = (HMENU)lParam;
+  UINT item_or_index = LOWORD(wParam);
+  UINT flags = HIWORD(wParam);
+  
+  static HWND previous_aero_peak = nullptr;
+  HWND aero_peak = nullptr;
+  
+  pmath_debug_print("[WM_MENUSELECT %p %d (%x)]\n", menu, item_or_index, flags);
+  
+  //MenuItemBuilder::selected_menu_item_id = item_or_index;
+  
+  if(flags == 0xFFFF) {
+    MenuItemBuilder::selected_menu_item_id = 0;
+  }
+  else if(!(flags & MF_POPUP)) {
+    MenuItemBuilder::selected_menu_item_id = item_or_index;
+//    Expr cmd = Win32Menu::id_to_command(item_or_index);
+//    pmath_debug_print_object("[WM_MENUSELECT ", cmd.get(), "]\n");
+//    
+//    if(cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+//      auto id = FrontEndReference::from_pmath(cmd[1]);
+//      auto doc = FrontEndObject::find_cast<Document>(id);
+//      if(doc) {
+//        Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
+//        if(wid) {
+//          aero_peak = wid->hwnd();
+//          while(auto parent = GetParent(aero_peak))
+//            aero_peak = parent;
+//        }
+//      }
+//    }
+  }
+  else {
+    // popup item selected
+    MenuItemBuilder::selected_menu_item_id = 0;
+  }
+        
+//  if(Win32Themes::has_areo_peak()) {
+//    if(aero_peak) {
+//      struct callback_data {
+//        HWND owner_window;
+//        DWORD process_id;
+//        DWORD thread_id;
+//      } data;
+//      data.owner_window = _window->hwnd();
+//      data.process_id = GetCurrentProcessId();
+//      data.thread_id = GetCurrentThreadId();
+//      
+//      EnumWindows(
+//        [](HWND wnd, LPARAM _data) {
+//          auto data = (callback_data*)_data;
+//          
+//          DWORD pid;
+//          DWORD tid = GetWindowThreadProcessId(wnd, &pid);
+//          
+//          if(pid != data->process_id || tid != data->thread_id)
+//            return TRUE;
+//          
+//          char class_name[20];
+//          const char MenuWindowClass[] = "#32768";
+//          if(GetClassNameA(wnd, class_name, sizeof(class_name)) > 0 && strcmp(MenuWindowClass, class_name) == 0) {
+//            BOOL disallow_peak = FALSE;
+//            BOOL excluded_from_peak = FALSE;
+//            Win32Themes::DwmGetWindowAttribute(wnd, Win32Themes::DWMWA_DISALLOW_PEEK,      &disallow_peak,      sizeof(disallow_peak));
+//            Win32Themes::DwmGetWindowAttribute(wnd, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
+//            
+//            pmath_debug_print("[menu window %p %s %s]", wnd, disallow_peak ? "disallow peak" : "", excluded_from_peak ? "exclude from peak" : "");
+//            
+//            excluded_from_peak = TRUE;
+//            Win32Themes::DwmSetWindowAttribute(wnd, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
+//          };
+//          return TRUE;
+//        },
+//        (LPARAM)&data
+//      );
+//      
+//      BOOL excluded_from_peak = TRUE;
+//      Win32Themes::DwmSetWindowAttribute(data.owner_window, Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
+//      
+//      Win32Themes::activate_aero_peak(true, aero_peak, data.owner_window, LivePreviewTrigger::TaskbarThumbnail);
+//      previous_aero_peak = aero_peak;
+//    }
+//    else if(previous_aero_peak /*&& (flags != 0xFFFF || menu != nullptr)*/) {
+//      previous_aero_peak = nullptr;
+//      Win32Themes::activate_aero_peak(false, nullptr, nullptr, LivePreviewTrigger::TaskbarThumbnail);
+//    
+//      BOOL excluded_from_peak = FALSE;
+//      Win32Themes::DwmSetWindowAttribute(_window->hwnd(), Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
+//    }
+//  }
+}
+
 //} ... class Win32Menu
 
 //{ class MenuItemBuilder ...
 
-DWORD MenuItemBuilder::next_id = 1000;
+DWORD                  MenuItemBuilder::next_id = 1000;
+ObservableValue<DWORD> MenuItemBuilder::selected_menu_item_id { 0 };
 
 void MenuItemBuilder::add_remove_menu(int delta) {
   static int num_menus = 0;

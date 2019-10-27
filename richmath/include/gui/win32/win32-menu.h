@@ -26,6 +26,9 @@ namespace richmath {
       HMENU hmenu() { return _hmenu; }
       
       static void init_popupmenu(HMENU sub);
+      static Expr selected_item_command();
+      
+      static void on_menuselect(WPARAM wParam, LPARAM lParam);
       
     public:
       static SharedPtr<Win32Menu>  main_menu;

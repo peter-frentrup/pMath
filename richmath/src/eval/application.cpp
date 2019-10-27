@@ -24,6 +24,7 @@
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-filedialog.h>
 #  include <gui/gtk/mgtk-document-window.h>
+#  include <gui/gtk/mgtk-menu-builder.h>
 #endif
 
 
@@ -698,6 +699,7 @@ static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr ite
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item);
 static bool set_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
+static Expr get_current_value_of_SelectedMenuCommand(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
 
@@ -711,6 +713,7 @@ static const char s_ControlsFontSlant[] = "ControlsFontSlant";
 static const char s_ControlsFontWeight[] = "ControlsFontWeight";
 static const char s_ControlsFontSize[] = "ControlsFontSize";
 static const char s_SectionGroupOpen[] = "SectionGroupOpen";
+static const char s_SelectedMenuCommand[] = "SelectedMenuCommand";
 static const char s_StyleDefinitionsOwner[] = "StyleDefinitionsOwner";
 
 void Application::init() {
@@ -737,6 +740,7 @@ void Application::init() {
   register_currentvalue_provider(String(s_ControlsFontWeight),        get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontSize),          get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_SectionGroupOpen),          get_current_value_of_SectionGroupOpen,      set_current_value_of_SectionGroupOpen);
+  register_currentvalue_provider(String(s_SelectedMenuCommand),       get_current_value_of_SelectedMenuCommand);
   register_currentvalue_provider(String(s_StyleDefinitionsOwner),     get_current_value_of_StyleDefinitionsOwner);
   register_currentvalue_provider(Symbol(richmath_System_WindowTitle), get_current_value_of_WindowTitle);
   
@@ -2148,6 +2152,20 @@ static bool set_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item
   }
   
   return false;
+}
+
+static Expr get_current_value_of_SelectedMenuCommand(FrontEndObject *obj, Expr item) {
+  #ifdef RICHMATH_USE_GTK_GUI
+  Expr cmd = MathGtkMenuBuilder::selected_item_command();
+  #endif
+  #ifdef RICHMATH_USE_WIN32_GUI
+  Expr cmd = Win32Menu::selected_item_command();
+  #endif
+  
+  if(cmd.is_null())
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  return Call(Symbol(PMATH_SYMBOL_HOLD), std::move(cmd));
 }
 
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item) {
