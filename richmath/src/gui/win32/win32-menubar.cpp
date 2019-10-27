@@ -291,8 +291,6 @@ void Win32Menubar::show_menu(int item) {
     UINT flags = TPM_RETURNCMD | align;
     if(!menu_animation)
       flags |= TPM_NOANIMATION;
-      
-    Application::delay_dynamic_updates(true);
     
     cmd = TrackPopupMenuEx(
             current_popup,
@@ -315,10 +313,6 @@ void Win32Menubar::show_menu(int item) {
         if(next_item > GetMenuItemCount(_menu->hmenu())) {
           next_item = 1;
         }
-        break;
-        
-      default:
-        Application::delay_dynamic_updates(false);
         break;
     }
     
@@ -374,8 +368,6 @@ void Win32Menubar::show_sysmenu() {
     UINT flags = TPM_RETURNCMD | align;
     if(!menu_animation)
       flags |= TPM_NOANIMATION;
-      
-    Application::delay_dynamic_updates(true);
     
     cmd = TrackPopupMenuEx(
             menu,
@@ -384,8 +376,6 @@ void Win32Menubar::show_sysmenu() {
             tpm.rcExclude.bottom,
             parent,
             &tpm);
-    
-    Application::delay_dynamic_updates(false);
   }
   
   if(cmd) {
@@ -414,8 +404,6 @@ void Win32Menubar::set_focus(int item) {
 //  if(_autohide){
   SetCursor(LoadCursor(0, IDC_ARROW));
   SetCapture(_hwnd);
-  Application::delay_dynamic_updates(true);
-  
 //  }
 }
 
@@ -434,7 +422,6 @@ void Win32Menubar::kill_focus() {
     _window->rearrange();
   }
   
-  Application::delay_dynamic_updates(false);
   if(GetCapture() == _hwnd) {
     ReleaseCapture();
   }

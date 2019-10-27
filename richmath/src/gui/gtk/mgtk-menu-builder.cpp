@@ -142,7 +142,6 @@ void MathGtkMenuBuilder::done() {
 
 gboolean MathGtkMenuBuilder::on_map_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr) {
   // todo: handle tearoff menus
-  Application::delay_dynamic_updates(true);
   
   FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(doc_id_as_ptr);
   expand_inline_lists(GTK_MENU(menu), id);
@@ -176,10 +175,6 @@ gboolean MathGtkMenuBuilder::on_map_menu(GtkWidget *menu, GdkEventAny *event, vo
 }
 
 gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr) {
-  Application::delay_dynamic_updates(false);
-  
-  //FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(doc_id_as_ptr);
-  
   gtk_container_foreach(
     GTK_CONTAINER(menu), 
     [](GtkWidget *item, void*) {      
