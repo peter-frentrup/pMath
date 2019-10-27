@@ -103,11 +103,11 @@ Document({
                StripOnInput -> False), ",", DynamicBox(ToBoxes(Global`x))}, 
              "}"}), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [2]:")}, All), 
-        Section(
-         "Note that the post-evaluation is not evaluated when canceling the \
-         mouse drag operation with the ESC key.", "ExampleText")}, 1), 
-      Section("", "SectionFooterSpacer")}, All), 
-    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+        Section({
+          "Note that the post-evaluation is not evaluated when canceling the \
+          mouse drag operation with the ", TemplateBox({"Esc"}, "KeyEvent"), 
+          " key."}, "ExampleText")}, 1), Section("", "SectionFooterSpacer")}, 
+     All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"ProgressIndicator"}, "ReferenceHyperlink")}, 
        "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
  Visible -> True)
