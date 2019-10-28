@@ -157,8 +157,8 @@ MathGtkWidget::MathGtkWidget(Document *doc)
     is_blinking(false),
     ignore_key_release(true),
     old_width(0),
-    _hadjustment(0),
-    _vadjustment(0),
+    _hadjustment(nullptr),
+    _vadjustment(nullptr),
     _im_context(gtk_im_multicontext_new())
 {
   add_remove_widget(+1);
@@ -169,8 +169,8 @@ MathGtkWidget::MathGtkWidget(Document *doc)
 }
 
 MathGtkWidget::~MathGtkWidget() {
-  hadjustment(0);
-  vadjustment(0);
+  hadjustment(nullptr);
+  vadjustment(nullptr);
   
   g_signal_handlers_disconnect_matched(
     _im_context,
@@ -179,7 +179,12 @@ MathGtkWidget::~MathGtkWidget() {
     this);
     
   g_object_unref(_im_context);
-  _im_context = 0;
+  _im_context = nullptr;
+  
+  if(_popup_menu) {
+    g_object_unref(_popup_menu);
+    _popup_menu = nullptr;
+  }
   
   add_remove_widget(-1);
 }
