@@ -4059,9 +4059,6 @@ void DocumentImpl::raw_select(Box *box, int start, int end) {
     if(box) {
       box->request_repaint_range(start, end);
     }
-    
-    if(box == &self)
-      pmath_debug_print("[select document %d .. %d]\n", start, end);
   }
   
   self.best_index_rel_x = 0;
