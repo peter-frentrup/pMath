@@ -204,6 +204,7 @@ namespace richmath {
       virtual bool on_key_release(GdkEvent *e);
       virtual bool on_button_press(GdkEvent *e);
       virtual bool on_button_release(GdkEvent *e);
+      virtual bool on_grab_broken(GdkEvent *e);
       virtual bool on_motion_notify(GdkEvent *e);
       virtual bool on_leave_notify(GdkEvent *e);
       virtual bool on_scroll(GdkEvent *e);

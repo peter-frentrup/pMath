@@ -207,6 +207,7 @@ void MathGtkWidget::after_construction() {
   
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_button_press>(  "button-press-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_button_release>("button-release-event");
+  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_grab_broken>(   "grab-broken-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_focus_in>(      "focus-in-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_focus_out>(     "focus-out-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_key_press>(     "key-press-event");
@@ -1363,6 +1364,13 @@ bool MathGtkWidget::on_button_release(GdkEvent *e) {
   
   document()->mouse_up(me);
   
+  return true;
+}
+
+bool MathGtkWidget::on_grab_broken(GdkEvent *e) {
+  GdkEventGrabBroken *event = (GdkEventGrabBroken *)e;
+  
+  document()->reset_mouse();
   return true;
 }
 
