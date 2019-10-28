@@ -1636,6 +1636,10 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             
           Application::run_menucommand(cmd);
         } return 0;
+        
+      case WM_MENUSELECT: {
+          Win32Menu::on_menuselect(wParam, lParam);
+        } break;
     }
   }
   
