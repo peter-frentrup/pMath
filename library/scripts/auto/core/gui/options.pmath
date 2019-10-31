@@ -77,6 +77,10 @@ Options(DynamicLocal):= Options(DynamicLocalBox):= {
     DynamicLocalValues -> Automatic,
     UnsavedVariables -> {}}
 
+Options(FillBox):= {
+    FillBoxWeight -> 1,
+    StripOnInput -> True}
+
 Options(Framed):= Options(FrameBox):= { 
     BaselinePosition -> Automatic,
     BorderRadius -> 0}
@@ -191,6 +195,9 @@ Options(Section):= {
     DockedSections -> Inherited,
     Editable -> True,
     Evaluatable -> False,
+    FillBoxOptions -> {
+        FillBoxWeight -> 1,
+        StripOnInput -> True},
     FontColor -> GrayLevel(0),
     FontFamily -> "Times",
     FontFeatures -> Inherited, % FontFeatures -> {"ssty" -> Automatic}

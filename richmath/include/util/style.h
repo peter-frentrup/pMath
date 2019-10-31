@@ -17,7 +17,8 @@ namespace richmath {
     ButtonBox     = 0x00100000,
     TemplateBox   = 0x00200000,
     InputFieldBox = 0x00300000,
-    PanelBox      = 0x00400000
+    PanelBox      = 0x00400000,
+    FillBox       = 0x00500000
   };
   
   enum AutoBoolValues {
@@ -73,6 +74,8 @@ namespace richmath {
     ButtonBoxDefaultButtonFrame  = ButtonFrame  + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonSource = ButtonSource + (int)DefaultStyleOptionOffsets::ButtonBox,
     
+    FillBoxDefaultStripOnInput = StripOnInput + (int)DefaultStyleOptionOffsets::FillBox,
+    
     InputFieldBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::InputFieldBox,
     
@@ -106,6 +109,8 @@ namespace richmath {
     AspectRatio,
     Magnification,
     
+    FillBoxWeight, // > 0
+    
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
     
@@ -133,7 +138,9 @@ namespace richmath {
     SectionFrameLabelMarginTop,    // not yet used
     SectionFrameLabelMarginBottom, // not yet used
     
-    SectionGroupPrecedence
+    SectionGroupPrecedence,
+    
+    FillBoxDefaultFillBoxWeight = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox
   };
   
   enum StringStyleOptionName {
@@ -181,6 +188,7 @@ namespace richmath {
     DockedSectionsBottom,
     DockedSectionsBottomGlass,
     
+    FillBoxOptions,
     InputFieldBoxOptions,
     PanelBoxOptions,
     

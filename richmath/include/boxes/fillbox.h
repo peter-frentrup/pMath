@@ -6,6 +6,7 @@
 
 namespace richmath {
   class FillBox: public OwnerBox {
+      using base = OwnerBox;
     public:
       explicit FillBox(MathSequence *content = nullptr);
       ~FillBox();
@@ -36,6 +37,11 @@ namespace richmath {
       virtual bool request_repaint(float x, float y, float w, float h) override;
       
       float weight() { return _weight; }
+    
+    protected:
+      virtual void resize_default_baseline(Context *context) override;
+      
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::FillBox; }
     
     private:
       float _weight;

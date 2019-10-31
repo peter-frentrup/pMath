@@ -44,6 +44,8 @@ extern pmath_symbol_t richmath_System_DockedSections;
 extern pmath_symbol_t richmath_System_Editable;
 extern pmath_symbol_t richmath_System_Enabled;
 extern pmath_symbol_t richmath_System_Evaluatable;
+extern pmath_symbol_t richmath_System_FillBoxOptions;
+extern pmath_symbol_t richmath_System_FillBoxWeight;
 extern pmath_symbol_t richmath_System_FontColor;
 extern pmath_symbol_t richmath_System_FontFamily;
 extern pmath_symbol_t richmath_System_FontFeatures;
@@ -289,8 +291,9 @@ namespace {
           
           add_ruleset_head(DockedSections,       Symbol( richmath_System_DockedSections));
           add_ruleset_head(ButtonBoxOptions,     Symbol( richmath_System_ButtonBoxOptions));
+          add_ruleset_head(FillBoxOptions,       Symbol( richmath_System_FillBoxOptions));
           add_ruleset_head(InputFieldBoxOptions, Symbol( richmath_System_InputFieldBoxOptions));
-          add_ruleset_head(PanelBoxOptions,      Symbol( richmath_System_InputFieldBoxOptions));
+          add_ruleset_head(PanelBoxOptions,      Symbol( richmath_System_PanelBoxOptions));
           add_ruleset_head(TemplateBoxOptions,   Symbol( richmath_System_TemplateBoxOptions));
           
           {
@@ -357,6 +360,7 @@ namespace {
           add(StyleTypeBool,            PanelBoxDefaultEnabled,           Rule(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_Enabled)));
           
           add(StyleTypeNumber,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
+          add(StyleTypeNumber,          FillBoxWeight,                    Symbol( richmath_System_FillBoxWeight));
           add(StyleTypeNumber,          FontSize,                         Symbol( richmath_System_FontSize));
           add(StyleTypeNumber,          GridBoxColumnSpacing,             Symbol( richmath_System_GridBoxColumnSpacing));
           add(StyleTypeNumber,          GridBoxRowSpacing,                Symbol( richmath_System_GridBoxRowSpacing));
@@ -383,6 +387,8 @@ namespace {
           // SectionFrameLabelMarginBottom
           add(StyleTypeNumber,          SectionGroupPrecedence,           Symbol( richmath_System_SectionGroupPrecedence));
           
+          add(StyleTypeNumber,          FillBoxDefaultFillBoxWeight,      Rule(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_FillBoxWeight)));
+          add(StyleTypeBool,            FillBoxDefaultStripOnInput,       Rule(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_StripOnInput)));
           
           add(StyleTypeString,          BaseStyleName,                    Symbol( richmath_System_BaseStyle));
           add(StyleTypeString,          Method,                           Symbol( richmath_System_Method));
@@ -2273,6 +2279,8 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Editable);
   impl.emit_definition(Enabled);
   impl.emit_definition(Evaluatable);
+  impl.emit_definition(FillBoxOptions);
+  impl.emit_definition(FillBoxWeight);
   impl.emit_definition(FontColor);
   impl.emit_definition(FontFamilies);
   impl.emit_definition(FontFeatures);

@@ -26,14 +26,21 @@ bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   if(expr.expr_length() < 1)
     return false;
-    
-  if(expr.expr_length() > 2)
+  
+  Expr options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+  if(options.is_null())
     return false;
     
   /* now success is guaranteed */
+  if(style) {
+    reset_style();
+    style->add_pmath(options);
+  }
+  else if(options != PMATH_UNDEFINED)
+    style = new Style(options);
   
   _content->load_from_object(expr[1], opts);
-  _weight = expr[2].to_double(1.0);
+  _weight = 1.0f; // loaded from style on resize
   
   finish_load_from_object(std::move(expr));
   return true;
@@ -69,19 +76,19 @@ Expr FillBox::to_pmath_symbol() {
 }
 
 Expr FillBox::to_pmath(BoxOutputFlags flags) {
-  if(has(flags, BoxOutputFlags::Parseable))
+  if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, true))
     return _content->to_pmath(flags);
-    
-  if(_weight == 1) {
-    return Call(
-             Symbol(richmath_System_FillBox),
-             _content->to_pmath(flags));
-  }
   
-  return Call(
-           Symbol(richmath_System_FillBox),
-           _content->to_pmath(flags),
-           Number(_weight));
+  if(!style)
+    return Call(Symbol(richmath_System_FillBox), _content->to_pmath(flags));
+  
+  Gather g;
+  g.emit(_content->to_pmath(flags));
+  style->emit_to_pmath(false);
+
+  Expr expr = g.end();
+  expr.set(0, Symbol(richmath_System_FillBox));
+  return std::move(expr);
 }
 
 Box *FillBox::move_vertical(
@@ -96,7 +103,7 @@ Box *FillBox::move_vertical(
     return _content->move_vertical(direction, index_rel_x, index, false);
   }
   
-  return OwnerBox::move_vertical(direction, index_rel_x, index, called_from_child);
+  return base::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
 Box *FillBox::mouse_selection(
@@ -125,8 +132,16 @@ bool FillBox::request_repaint(float x, float y, float w, float h) {
     h = _extents.height() + 0.1;
   }
   
-  
-  return OwnerBox::request_repaint(x, y, w, h);
+  return base::request_repaint(x, y, w, h);
 }
+
+void FillBox::resize_default_baseline(Context *context) {
+  _weight = get_own_style(FillBoxWeight, 1.0f);
+  if(!(_weight > 0.0))
+    _weight = 0.0;
+  
+  base::resize_default_baseline(context);
+}
+      
 
 //} ... class FillBox
