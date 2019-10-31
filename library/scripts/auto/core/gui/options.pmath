@@ -77,7 +77,7 @@ Options(DynamicLocal):= Options(DynamicLocalBox):= {
     DynamicLocalValues -> Automatic,
     UnsavedVariables -> {}}
 
-Options(FillBox):= {
+Options(FillBox):= Options(Filler):= {
     FillBoxWeight -> 1,
     StripOnInput -> True}
 

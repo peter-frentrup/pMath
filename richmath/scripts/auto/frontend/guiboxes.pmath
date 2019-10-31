@@ -23,6 +23,10 @@ toBeProtected:= Unprotect(
 	Dynamic,
 	DynamicBox,
 	DynamicSetting,
+	FillBox,
+	Filler,
+	InputField,
+	InputFieldBox,
 	Opener,
 	OpenerBox,
 	Panel,
@@ -70,6 +74,28 @@ MakeBoxes(Checkbox(~state, values:{~,~}, options:OptionsPattern()))::= CheckboxB
 MakeBoxes(Dynamic(~var, options:OptionsPattern())) ::= DynamicBox(ToBoxes(var), options) /? allowGuiBoxes
 
 MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting) /? allowGuiBoxes
+
+
+MakeBoxes(~x: Filler)::= makeFillBox(x) /? allowGuiBoxes
+Attributes(makeFillBox):= {HoldAllComplete}
+makeFillBox(Filler(~content, ~weight?isNumberOrDynamic, options:OptionsPattern()))::= 
+	If(hasHeldOption(HoldComplete(options), StripOnInput)) {
+		FillBox(makeNullBoxes(content), FillBoxWeight->weight, options)
+	} Else {
+		FillBox(makeNullBoxes(content), FillBoxWeight->weight, StripOnInput->False, options)
+	}
+makeFillBox(Filler(~content, options:OptionsPattern()))::= 
+	If(hasHeldOption(HoldComplete(options), StripOnInput)) {
+		FillBox(makeNullBoxes(content), options)
+	} Else {
+		FillBox(makeNullBoxes(content), StripOnInput->False, options)
+	}
+makeFillBox(~x)::= makeCallBoxes(x)
+
+hasHeldOption(HoldComplete({~~~, (Rule|RuleDelayed)(~lhs, ~), ~~~}), ~lhs)::= True
+hasHeldOption(HoldComplete(~~~, (Rule|RuleDelayed)(~lhs, ~), ~~~), ~lhs)::= True
+hasHeldOption(~,~)::= False
+
 
 MakeBoxes(InputField())::=                                                                                                   InputFieldBox(,      Expression) /? allowGuiBoxes
 MakeBoxes(InputField(~value,                                                                   options:OptionsPattern()))::= InputFieldBox(value, Expression, options) /? allowGuiBoxes
@@ -202,6 +228,21 @@ CheckboxBox/: MakeExpression(CheckboxBox(~state))::=                            
 CheckboxBox/: MakeExpression(CheckboxBox(~state, ~values, options:OptionsPattern()))::= HoldComplete(Checkbox(state, values, options))
 
 DynamicBox/: MakeExpression(DynamicBox(ToBoxes(~var), options:OptionsPattern()))::= HoldComplete(Dynamic(var, options))
+
+FillBox/: MakeExpression(FillBox(~contentBoxes, ~~~pre, (Rule|RuleDelayed)(FillBoxWeight, ~weight), ~~~post))::=
+	Local(head) {
+		With(content:= makeNullExpression(contentBoxes)) 
+		HoldComplete(Filler(head(content), weight, pre, post)).Replace(
+			{head(HoldComplete(~x)) :> x,
+			 head(~)                :> $Failed})
+	}
+FillBox/: MakeExpression(FillBox(~contentBoxes, ~~~opts))::=
+	Local(head) {
+		With(content:= makeNullExpression(contentBoxes)) 
+		HoldComplete(Filler(head(content), opts)).Replace(
+			{head(HoldComplete(~x)) :> x,
+			 head(~)                :> $Failed})
+	}
 
 InputFieldBox/: MakeExpression(InputFieldBox(~value, ~type, options:OptionsPattern()))::= HoldComplete(InputField(value, type, options))
 
