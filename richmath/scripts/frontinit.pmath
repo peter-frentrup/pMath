@@ -38,6 +38,7 @@ Options(FileOpenDialog):= Options(FileSaveDialog):= {WindowTitle -> Automatic}
 $MathShapers:= {
 	"Cambria Math", 
 	"Asana Math", 
+	"Fira Math",
 	"Neo Euler", 
 	/*"STIX Math", */"XITS Math", 
 	"Latin Modern Math", 
@@ -52,9 +53,7 @@ Protect($MathShapers)
 $FallbackFonts:= {"pMathFallback", "Asana Math", "Arial Unicode MS", "Unifont"}
 Protect($FallbackFonts)
 
-$PrivateStartupFontFiles:= {
-	$ApplicationFileName.DirectoryName.ToFileName("Asana-Math.otf"),
-	$ApplicationFileName.DirectoryName.ToFileName("pMathFallback.ttf")}
+$PrivateStartupFontFiles:= $ApplicationFileName.DirectoryName.FileNames({"*.otf", "*.ttf"})
 
 $Path:= Prepend($Path, $FrontEndDirectory)
 
