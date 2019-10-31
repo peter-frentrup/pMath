@@ -33,9 +33,6 @@ namespace richmath {
     protected:
       virtual void resize_default_baseline(Context *context) override;
       void paint_or_resize_no_baseline(Context *context, bool paint);
-      
-    private:
-      bool show_auto_styles;
   };
   
   class ExpandableAbstractStyleBox: public AbstractStyleBox {

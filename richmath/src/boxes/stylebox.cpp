@@ -15,22 +15,17 @@ extern pmath_symbol_t richmath_System_TagBox;
 //{ class AbstractStyleBox ...
 
 AbstractStyleBox::AbstractStyleBox(MathSequence *content)
-  : OwnerBox(content),
-  show_auto_styles(false)
+  : OwnerBox(content)
 {
 }
 
 void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint) {
-  show_auto_styles = context->show_auto_styles;
-  
   if(style) {
     float x, y;
     context->canvas->current_pos(&x, &y);
     
     ContextState cc(context);
     cc.begin(style);
-    
-    show_auto_styles = context->show_auto_styles;
     
     Color c;
     if(paint) {
@@ -84,19 +79,10 @@ void AbstractStyleBox::paint(Context *context) {
 }
 
 void AbstractStyleBox::colorize_scope(SyntaxState *state) {
-  if(show_auto_styles) {
-    if(get_own_style(FontColor).is_valid()) {
-      _content->ensure_spans_valid();
-      int i = 0;
-      while(i < _content->length() && !_content->span_array().is_token_end(i))
-        ++i;
-        
-      if(i + 1 >= _content->length())
-        return;
-    }
+  if(get_own_style(FontColor).is_valid()) 
+    return;
     
-    OwnerBox::colorize_scope(state);
-  }
+  OwnerBox::colorize_scope(state);
 }
 
 Box *AbstractStyleBox::move_logical(
