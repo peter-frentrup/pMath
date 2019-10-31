@@ -9,6 +9,8 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_PanelBox;
 
+static ContainerType parse_panel_appearance(Expr expr);
+
 //{ class PanelBox ...
 
 PanelBox::PanelBox(MathSequence *content)
@@ -40,6 +42,20 @@ bool PanelBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+ControlState PanelBox::calc_state(Context *context) {
+  if(!enabled())
+    return Disabled;
+  
+  if(selection_inside) {
+    if(mouse_inside)
+      return PressedHovered;
+      
+    return Pressed;
+  }
+  
+  return base::calc_state(context);
+}
+
 bool PanelBox::expand(const BoxSize &size) {
   _extents = size;
   cx = (_extents.width - _content->extents().width) / 2;
@@ -50,7 +66,9 @@ void PanelBox::resize_default_baseline(Context *context) {
 //  float old_width = context->width;
 //  context->width = HUGE_VAL;
   
-  ContainerWidgetBox::resize_default_baseline(context);
+  type = parse_panel_appearance(get_own_style(Appearance));
+  
+  base::resize_default_baseline(context);
   
 //  context->width = old_width;
   
@@ -89,4 +107,40 @@ void PanelBox::reset_style() {
   Style::reset(style, "Panel");
 }
 
+void PanelBox::on_enter() {
+  if(!ControlPainter::is_static_background(type))
+    request_repaint_all();
+  
+  base::on_enter();
+}
+
+void PanelBox::on_exit() {
+  if(!ControlPainter::is_static_background(type))
+    request_repaint_all();
+  
+  base::on_exit();
+}
+
 //} ... class PanelBox
+
+static ContainerType parse_panel_appearance(Expr expr) {
+  if(expr.is_string()) {
+    String s = std::move(expr);
+    
+    if(s.equals("Framed"))
+      return PanelControl;
+    
+    if(s.equals("Frameless"))
+      return NoContainerType;
+    
+    return PanelControl;
+  }
+  
+  if(expr == PMATH_SYMBOL_NONE)
+    return NoContainerType;
+    
+  if(expr == PMATH_SYMBOL_AUTOMATIC)
+    return PanelControl;
+  
+  return PanelControl;
+}

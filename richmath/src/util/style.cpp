@@ -15,6 +15,7 @@
     }}while(0)
 
 extern pmath_symbol_t richmath_System_Antialiasing;
+extern pmath_symbol_t richmath_System_Appearance;
 extern pmath_symbol_t richmath_System_AspectRatio;
 extern pmath_symbol_t richmath_System_AutoDelete;
 extern pmath_symbol_t richmath_System_AutoNumberFormating;
@@ -56,12 +57,14 @@ extern pmath_symbol_t richmath_System_GeneratedSectionStyles;
 extern pmath_symbol_t richmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t richmath_System_GridBoxRowSpacing;
 extern pmath_symbol_t richmath_System_ImageSize;
+extern pmath_symbol_t richmath_System_InputFieldBoxOptions;
 extern pmath_symbol_t richmath_System_InterpretationFunction;
 extern pmath_symbol_t richmath_System_LanguageCategory;
 extern pmath_symbol_t richmath_System_LineBreakWithin;
 extern pmath_symbol_t richmath_System_Magnification;
 extern pmath_symbol_t richmath_System_MathFontFamily;
 extern pmath_symbol_t richmath_System_Method;
+extern pmath_symbol_t richmath_System_PanelBoxOptions;
 extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_PlotRange;
 extern pmath_symbol_t richmath_System_ReturnCreatesNewSection;
@@ -283,9 +286,11 @@ namespace {
           _name_to_key.default_value = StyleOptionName{ -1};
           _key_to_type.default_value = StyleTypeNone;
           
-          add_ruleset_head(DockedSections,     Symbol( richmath_System_DockedSections));
-          add_ruleset_head(ButtonBoxOptions,   Symbol( richmath_System_ButtonBoxOptions));
-          add_ruleset_head(TemplateBoxOptions, Symbol( richmath_System_TemplateBoxOptions));
+          add_ruleset_head(DockedSections,       Symbol( richmath_System_DockedSections));
+          add_ruleset_head(ButtonBoxOptions,     Symbol( richmath_System_ButtonBoxOptions));
+          add_ruleset_head(InputFieldBoxOptions, Symbol( richmath_System_InputFieldBoxOptions));
+          add_ruleset_head(PanelBoxOptions,      Symbol( richmath_System_InputFieldBoxOptions));
+          add_ruleset_head(TemplateBoxOptions,   Symbol( richmath_System_TemplateBoxOptions));
           
           {
             SharedPtr<StyleEnumConverter> converter{new ButtonFrameStyleEnumConverter};
@@ -345,6 +350,11 @@ namespace {
           
           add(StyleTypeBoolAuto,        ButtonBoxDefaultEnabled,          Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
           
+          add(StyleTypeBool,            InputFieldBoxDefaultContinuousAction, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
+          add(StyleTypeBool,            InputFieldBoxDefaultEnabled,          Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
+          
+          add(StyleTypeBool,            PanelBoxDefaultEnabled,           Rule(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_Enabled)));
+          
           add(StyleTypeNumber,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
           add(StyleTypeNumber,          FontSize,                         Symbol( richmath_System_FontSize));
           add(StyleTypeNumber,          GridBoxColumnSpacing,             Symbol( richmath_System_GridBoxColumnSpacing));
@@ -381,6 +391,7 @@ namespace {
           
           add(StyleTypeString,          ButtonBoxDefaultMethod,           Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Method)));
           
+          add(StyleTypeAny,             Appearance,                       Symbol( richmath_System_Appearance));
           add(StyleTypeAny,             Axes,                             Symbol( richmath_System_Axes));
           add(StyleTypeAny,             Ticks,                            Symbol( richmath_System_Ticks));
           add(StyleTypeAny,             Frame,                            Symbol( richmath_System_Frame));
@@ -414,9 +425,16 @@ namespace {
           add(StyleTypeAny, DockedSectionsBottom,      Rule(Symbol(richmath_System_DockedSections), String("Bottom")));
           add(StyleTypeAny, DockedSectionsBottomGlass, Rule(Symbol(richmath_System_DockedSections), String("BottomGlass")));
           
+          add(StyleTypeAny, ButtonBoxDefaultAppearance,       Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Appearance)));
           add(StyleTypeAny, ButtonBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
           add(StyleTypeAny, ButtonBoxDefaultButtonData,       Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonData)));
           add(StyleTypeAny, ButtonBoxDefaultButtonFunction,   Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFunction)));
+          
+          add(StyleTypeAny, InputFieldBoxDefaultAppearance,       Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_Appearance)));
+          add(StyleTypeAny, InputFieldBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_BaselinePosition)));
+          
+          add(StyleTypeAny, PanelBoxDefaultAppearance,       Rule(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
+          add(StyleTypeAny, PanelBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_BaselinePosition)));
           
           add(StyleTypeAny, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
           add(StyleTypeAny, TemplateBoxDefaultInterpretationFunction, Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_InterpretationFunction)));
@@ -2224,6 +2242,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   
   register_observer();
   impl.emit_definition(Antialiasing);
+  impl.emit_definition(Appearance);
   impl.emit_definition(AspectRatio);
   impl.emit_definition(AutoDelete);
   impl.emit_definition(AutoNumberFormating);
@@ -2265,12 +2284,14 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(GridBoxColumnSpacing);
   impl.emit_definition(GridBoxRowSpacing);
   impl.emit_definition(ImageSizeCommon);
+  impl.emit_definition(InputFieldBoxOptions);
   impl.emit_definition(InterpretationFunction);
   impl.emit_definition(LanguageCategory);
   impl.emit_definition(LineBreakWithin);
   impl.emit_definition(Magnification);
   impl.emit_definition(MathFontFamily);
   impl.emit_definition(Method);
+  impl.emit_definition(PanelBoxOptions);
   impl.emit_definition(Placeholder);
   impl.emit_definition(PlotRange);
   impl.emit_definition(ReturnCreatesNewSection);

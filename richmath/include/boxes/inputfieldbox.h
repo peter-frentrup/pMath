@@ -57,11 +57,12 @@ namespace richmath {
       
     protected:
       virtual void resize_default_baseline(Context *context) override;
+
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::InputFieldBox; }
       
     protected:
       bool must_update;
       bool invalidated;
-      bool transparent;
       float frame_x;
       
     public:

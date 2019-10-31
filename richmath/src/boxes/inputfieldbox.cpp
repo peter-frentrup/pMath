@@ -11,14 +11,14 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_InputFieldBox;
 
+static ContainerType parse_inputfield_appearance(Expr expr);
+
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(MathSequence *content)
   : ContainerWidgetBox(InputField, content),
     must_update(true),
     invalidated(false),
-    transparent(false),
-//  autoscroll(false),
     frame_x(0)
 {
   dynamic.init(this, Expr());
@@ -77,6 +77,8 @@ void InputFieldBox::resize_default_baseline(Context *context) {
   float old_width        = context->width;
   context->math_spacing = false;
   context->width = HUGE_VAL;
+  
+  type = parse_inputfield_appearance(get_own_style(Appearance));
   
   float old_cx = cx;
   AbstractStyleBox::resize_default_baseline(context); // not ContainerWidgetBox::resize() !
@@ -313,7 +315,7 @@ Box *InputFieldBox::dynamic_to_literal(int *start, int *end) {
 }
 
 void InputFieldBox::invalidate() {
-  ContainerWidgetBox::invalidate();
+  base::invalidate();
   
   if(invalidated)
     return;
@@ -366,13 +368,15 @@ void InputFieldBox::on_mouse_up(MouseEvent &event) {
 }
 
 void InputFieldBox::on_enter() {
-  request_repaint_all();
+  if(!ControlPainter::is_static_background(type))
+    request_repaint_all();
   
   base::on_enter();
 }
 
 void InputFieldBox::on_exit() {
-  request_repaint_all();
+  if(!ControlPainter::is_static_background(type))
+    request_repaint_all();
   
   base::on_exit();
   
@@ -519,3 +523,24 @@ bool InputFieldBox::assign_dynamic() {
 
 //} ... class InputFieldBox
 
+static ContainerType parse_inputfield_appearance(Expr expr) {
+  if(expr.is_string()) {
+    String s = std::move(expr);
+    
+    if(s.equals("Frameless"))
+      return NoContainerType;
+    
+    if(s.equals("Framed"))
+      return InputField;
+    
+    return InputField;
+  }
+  
+  if(expr == PMATH_SYMBOL_NONE)
+    return NoContainerType;
+    
+  if(expr == PMATH_SYMBOL_AUTOMATIC)
+    return InputField;
+  
+  return InputField;
+}

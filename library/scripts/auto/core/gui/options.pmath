@@ -104,6 +104,7 @@ Options(GridBox):= {
     GridBoxRowSpacing -> Inherited}
 
 Options(InputField):= Options(InputFieldBox):= {
+    Appearance -> Automatic,
     BaselinePosition -> Automatic,
     BaseStyle -> "InputField",
     ContinuousAction -> False,
@@ -118,7 +119,8 @@ Options(InterpretationBox):= Options(Interpretation):= {
 Options(Opener):= Options(OpenerBox):= {
     Enabled -> Automatic }
 
-Options(Panel):= Options(PanelBox):= { 
+Options(Panel):= Options(PanelBox):= {
+    Appearance -> Automatic,
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel",
     Enabled -> Inherited}
@@ -198,10 +200,19 @@ Options(Section):= {
     GeneratedSectionStyles -> Inherited,
     GridBoxColumnSpacing -> 0.5,
     GridBoxRowSpacing -> 0.5,
+    InputFieldBoxOptions -> {
+        Appearance -> Automatic,
+        BaselinePosition -> Automatic,
+        ContinuousAction -> False,
+        Enabled -> Automatic},
     LanguageCategory -> Inherited,
     LineBreakWithin -> True,
     Magnification -> Automatic,  % only valid for StyleData-sections
     MathFontFamily -> Inherited,
+    PanelBoxOptions -> {
+        Appearance -> Automatic,
+        BaselinePosition -> Automatic,
+        Enabled -> Automatic},
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ReturnCreatesNewSection -> Inherited,
     Saveable -> Inherited,       % only valid for StyleData-sections

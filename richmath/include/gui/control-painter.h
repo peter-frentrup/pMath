@@ -25,7 +25,7 @@ namespace richmath {
     ListViewItemSelected,
     PanelControl,
     
-    // not realy a container:
+    // not really a container:
     SliderHorzChannel,
     SliderHorzThumb,
     ProgressIndicatorBackground,
@@ -94,6 +94,10 @@ namespace richmath {
         BoxRadius            *radii);
       
       virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state);
+      
+      static bool is_static_background(ContainerType type) {
+        return type == NoContainerType;
+      }
       
       virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state);
       

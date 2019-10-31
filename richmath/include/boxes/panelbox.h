@@ -6,10 +6,13 @@
 
 namespace richmath {
   class PanelBox: public ContainerWidgetBox {
+      using base = ContainerWidgetBox;
     public:
       explicit PanelBox(MathSequence *content = nullptr);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
+      
+      virtual ControlState calc_state(Context *context) override;
       
       virtual bool expand(const BoxSize &size) override;
       
@@ -19,9 +22,13 @@ namespace richmath {
       virtual void reset_style() override;
       
       virtual Box *mouse_sensitive() override { return Box::mouse_sensitive(); }
+      virtual void on_enter() override;
+      virtual void on_exit() override;
       
     protected:
       virtual void resize_default_baseline(Context *context) override;
+
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::PanelBox; }
   };
 }
 

@@ -14,8 +14,10 @@ namespace richmath {
   
   enum class DefaultStyleOptionOffsets {
     None = 0,
-    ButtonBox   = 0x00100000,
-    TemplateBox = 0x00200000,
+    ButtonBox     = 0x00100000,
+    TemplateBox   = 0x00200000,
+    InputFieldBox = 0x00300000,
+    PanelBox      = 0x00400000
   };
   
   enum AutoBoolValues {
@@ -69,7 +71,12 @@ namespace richmath {
     
     ButtonBoxDefaultEnabled      = Enabled      + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFrame  = ButtonFrame  + (int)DefaultStyleOptionOffsets::ButtonBox,
-    ButtonBoxDefaultButtonSource = ButtonSource + (int)DefaultStyleOptionOffsets::ButtonBox
+    ButtonBoxDefaultButtonSource = ButtonSource + (int)DefaultStyleOptionOffsets::ButtonBox,
+    
+    InputFieldBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    InputFieldBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    
+    PanelBoxDefaultEnabled = Enabled + (int)DefaultStyleOptionOffsets::PanelBox
   };
   
   enum {
@@ -174,6 +181,9 @@ namespace richmath {
     DockedSectionsBottom,
     DockedSectionsBottomGlass,
     
+    InputFieldBoxOptions,
+    PanelBoxOptions,
+    
     DisplayFunction,
     InterpretationFunction,
     SyntaxForm,
@@ -185,10 +195,18 @@ namespace richmath {
     GeneratedSectionStyles,
     
     SectionDingbat,
+    Appearance,
     
+    ButtonBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonData               = ButtonData             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFunction           = ButtonFunction         + (int)DefaultStyleOptionOffsets::ButtonBox,
+    
+    InputFieldBoxDefaultAppearance           = Appearance             + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    InputFieldBoxDefaultBaselinePosition     = BaselinePosition       + (int)DefaultStyleOptionOffsets::InputFieldBox,
+    
+    PanelBoxDefaultAppearance           = Appearance             + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultBaselinePosition     = BaselinePosition       + (int)DefaultStyleOptionOffsets::PanelBox,
     
     TemplateBoxDefaultDisplayFunction        = DisplayFunction        + (int)DefaultStyleOptionOffsets::TemplateBox,
     TemplateBoxDefaultInterpretationFunction = InterpretationFunction + (int)DefaultStyleOptionOffsets::TemplateBox,
