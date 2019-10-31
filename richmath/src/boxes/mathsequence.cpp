@@ -1742,8 +1742,8 @@ namespace richmath {
                 ++box;
                 
               auto fillbox = dynamic_cast<FillBox*>(self.boxes[box]);
-              if(fillbox && fillbox->weight > 0) {
-                total_fill_weight += fillbox->weight;
+              if(fillbox && fillbox->weight() > 0) {
+                total_fill_weight += fillbox->weight();
                 white += fillbox->extents().width;
               }
             }
@@ -1770,11 +1770,11 @@ namespace richmath {
                     ++box;
                     
                   auto fillbox = dynamic_cast<FillBox*>(self.boxes[box]);
-                  if(fillbox && fillbox->weight > 0) {
+                  if(fillbox && fillbox->weight() > 0) {
                     BoxSize size = fillbox->extents();
                     dx -= size.width;
                     
-                    size.width = white * fillbox->weight / total_fill_weight;
+                    size.width = white * fillbox->weight() / total_fill_weight;
                     fillbox->expand(size);
                     
                     dx += size.width;

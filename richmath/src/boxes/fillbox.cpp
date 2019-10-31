@@ -11,9 +11,9 @@ extern pmath_symbol_t richmath_System_FillBox;
 
 //{ class FillBox ...
 
-FillBox::FillBox(MathSequence *content, float _weight)
+FillBox::FillBox(MathSequence *content)
   : OwnerBox(content),
-  weight(_weight)
+  _weight(1.0f)
 {
 }
 
@@ -33,7 +33,7 @@ bool FillBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   
   _content->load_from_object(expr[1], opts);
-  weight = expr[2].to_double(1.0);
+  _weight = expr[2].to_double(1.0);
   
   finish_load_from_object(std::move(expr));
   return true;
@@ -72,7 +72,7 @@ Expr FillBox::to_pmath(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Parseable))
     return _content->to_pmath(flags);
     
-  if(weight == 1) {
+  if(_weight == 1) {
     return Call(
              Symbol(richmath_System_FillBox),
              _content->to_pmath(flags));
@@ -81,7 +81,7 @@ Expr FillBox::to_pmath(BoxOutputFlags flags) {
   return Call(
            Symbol(richmath_System_FillBox),
            _content->to_pmath(flags),
-           Number(weight));
+           Number(_weight));
 }
 
 Box *FillBox::move_vertical(

@@ -7,7 +7,7 @@
 namespace richmath {
   class FillBox: public OwnerBox {
     public:
-      explicit FillBox(MathSequence *content = 0, float _weight = 1);
+      explicit FillBox(MathSequence *content = nullptr);
       ~FillBox();
       
       // Box::try_create<FillBox>(expr, opts);
@@ -34,9 +34,11 @@ namespace richmath {
         
         
       virtual bool request_repaint(float x, float y, float w, float h) override;
-        
-    public:
-      float weight;
+      
+      float weight() { return _weight; }
+    
+    private:
+      float _weight;
   };
 }
 
