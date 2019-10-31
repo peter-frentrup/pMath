@@ -61,6 +61,7 @@ namespace richmath {
       GtkStyleContext *expander_arrow_context;
       GtkStyleContext *tool_button_context;
       GtkStyleContext *input_field_context;
+      GtkStyleContext *input_field_button_context;
       GtkStyleContext *slider_channel_context;
       GtkStyleContext *slider_thumb_context;
       GtkStyleContext *list_item_context;

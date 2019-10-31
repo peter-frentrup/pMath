@@ -20,6 +20,8 @@ namespace richmath {
     DefaultPushButton,
     PaletteButton,
     InputField,
+    AddressBandBackground,
+    AddressBandGoButton,
     TooltipWindow,
     ListViewItem,
     ListViewItemSelected,
@@ -96,7 +98,7 @@ namespace richmath {
       virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state);
       
       static bool is_static_background(ContainerType type) {
-        return type == NoContainerType;
+        return type == NoContainerType || type == PanelControl;
       }
       
       virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state);

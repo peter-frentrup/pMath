@@ -133,6 +133,9 @@ static ContainerType parse_panel_appearance(Expr expr) {
     if(s.equals("Frameless"))
       return NoContainerType;
     
+    if(s.equals("AddressBand"))
+      return AddressBandBackground;
+    
     return PanelControl;
   }
   

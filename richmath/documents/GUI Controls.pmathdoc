@@ -222,4 +222,27 @@ Document({
        SectionLabel -> "in [17]:"), 
       Section(BoxData(InputFieldBox("Hallo", String, Enabled -> False)), 
        "Output", SectionGenerated -> True, SectionLabel -> "out [17]:")}, 
-     All)}, All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+     All), SectionGroup({
+      Section(
+       BoxData({"Panel", "(", {
+          {"Grid", "(", {
+            "{", {
+             "{", {{"InputField", "(", {ComplexStringBox("\"abc\""), ",", 
+                "String", ",", {"Appearance", "\[Rule]", 
+                 ComplexStringBox("\"Frameless\"")}}, ")"}, ",", {
+               "Button", "(", {ComplexStringBox("\"Go\""), ",", "None", ",", {
+                 "ButtonFrame", "\[Rule]", 
+                 ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, "}"}, 
+           ")"}, ",", {"Appearance", "\[Rule]", 
+           ComplexStringBox("\"AddressBand\"")}}, ")"}), "Input", 
+       SectionLabel -> "in [1]:"), 
+      Section(
+       BoxData(
+        PanelBox(
+         TagBox(
+          GridBox({{InputFieldBox("abc", String, Appearance -> "Frameless"), 
+             ButtonBox(ComplexStringBox("\"Go\""), 
+              ButtonFrame -> "AddressBandGo")}}), "Grid"), 
+         Appearance -> "AddressBand")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [1]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

@@ -77,6 +77,7 @@ void ControlPainter::calc_container_size(
     case GenericButton:
     case PushButton:
     case PaletteButton:
+    case AddressBandGoButton:
     case TooltipWindow:
     case ListViewItem:
     case ListViewItemSelected: {
@@ -107,6 +108,12 @@ void ControlPainter::calc_container_size(
         extents->width +=   6.0;
         extents->ascent +=  3.0;
         extents->descent += 3.0;
+      } break;
+    
+    case AddressBandBackground: {
+        extents->width +=   3.0;
+        extents->ascent +=  0.75;
+        extents->descent += 0.75;
       } break;
       
     case PanelControl: {
@@ -291,6 +298,10 @@ void ControlPainter::draw_container(
     case PaletteButton:
       paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled);
       break;
+    
+    case AddressBandGoButton:
+      paint_frame(canvas, x, y + 0.75, width, height - 1.5, state == PressedHovered, state != Disabled);
+      break;
       
     case DefaultPushButton: {
     
@@ -323,6 +334,7 @@ void ControlPainter::draw_container(
       } break;
       
     case InputField:
+    case AddressBandBackground:
       paint_frame(canvas, x, y, width, height, true, state != Disabled, Color::White);
       break;
       
@@ -624,7 +636,8 @@ void ControlPainter::container_content_move(
     case GenericButton:
     case PaletteButton:
     case PushButton:
-    case DefaultPushButton: {
+    case DefaultPushButton:
+    case AddressBandGoButton: {
         if(state == PressedHovered) {
           *x += 0.75f;
           *y += 0.75f;

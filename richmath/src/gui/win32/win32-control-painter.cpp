@@ -79,6 +79,10 @@ static class Win32ControlPainterCache {
     }
   
   public:
+    HANDLE addressband_theme(int dpi) {
+      // TODO: ABComposited::ADRESSBAND
+      return get_theme_for_dpi(addressband_theme_for_dpi, L"AB::ADDRESSBAND", dpi);
+    }
     HANDLE button_theme(int dpi) {
       return get_theme_for_dpi(button_theme_for_dpi, L"BUTTON", dpi);
     }
@@ -112,8 +116,13 @@ static class Win32ControlPainterCache {
     HANDLE toolbar_theme(int dpi) {
       return get_theme_for_dpi(toolbar_theme_for_dpi, L"TOOLBAR", dpi);
     }
+    HANDLE toolbar_go_theme(int dpi) {
+      // TODO: "GoComposited::TOOLBAR"
+      return get_theme_for_dpi(toolbar_go_theme_for_dpi, L"Go::TOOLBAR", dpi);
+    }
     
     void clear() {
+      close_themes(addressband_theme_for_dpi);
       close_themes(button_theme_for_dpi);
       close_themes(edit_theme_for_dpi);
       close_themes(explorer_listview_theme_for_dpi);
@@ -125,6 +134,7 @@ static class Win32ControlPainterCache {
       close_themes(slider_theme_for_dpi);
       close_themes(tab_theme_for_dpi);
       close_themes(toolbar_theme_for_dpi);
+      close_themes(toolbar_go_theme_for_dpi);
     }
   
   private:
@@ -161,6 +171,7 @@ static class Win32ControlPainterCache {
     }
   
   private:
+    Hashtable<int, HANDLE> addressband_theme_for_dpi;
     Hashtable<int, HANDLE> button_theme_for_dpi;
     Hashtable<int, HANDLE> edit_theme_for_dpi;
     Hashtable<int, HANDLE> explorer_listview_theme_for_dpi;
@@ -172,6 +183,7 @@ static class Win32ControlPainterCache {
     Hashtable<int, HANDLE> slider_theme_for_dpi;
     Hashtable<int, HANDLE> tab_theme_for_dpi;
     Hashtable<int, HANDLE> toolbar_theme_for_dpi;
+    Hashtable<int, HANDLE> toolbar_go_theme_for_dpi;
 } w32cp_cache;
 
 Win32ControlPainter Win32ControlPainter::win32_painter;
@@ -214,7 +226,7 @@ void Win32ControlPainter::calc_container_size(
         extents->ascent +=  3;
         extents->descent += 2.25;
       } return;
-      
+    
     case ListViewItem:
     case ListViewItemSelected:
       ControlPainter::calc_container_size(context, canvas, type, extents);
@@ -344,7 +356,6 @@ void Win32ControlPainter::calc_container_size(
   ControlPainter::calc_container_size(context, canvas, type, extents);
 }
 
-
 void Win32ControlPainter::calc_container_radii(
   ControlContext *context,
   ContainerType   type,
@@ -371,6 +382,7 @@ void Win32ControlPainter::calc_container_radii(
   
   ControlPainter::calc_container_radii(context, type, radii);
 }
+
 Color Win32ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
   if(is_very_transparent(context, type, state))
     return Color::None;
@@ -403,12 +415,14 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
     case GenericButton:
       return ControlPainter::control_font_color(context, type, state);
       
+    case AddressBandGoButton:
     case PushButton:
     case DefaultPushButton:
     case PaletteButton:
     case PanelControl:
       return get_sys_color(COLOR_BTNTEXT);
       
+    case AddressBandBackground:
     case InputField:
     case ListViewItem:
       return get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
@@ -441,7 +455,8 @@ bool Win32ControlPainter::is_very_transparent(ControlContext *context, Container
     case GenericButton:
       return ControlPainter::is_very_transparent(context, type, state);
       
-    case PaletteButton: {
+    case PaletteButton:
+    case AddressBandGoButton: {
         if(!Win32Themes::GetThemeBool)
           return false;
           
@@ -518,83 +533,6 @@ void Win32ControlPainter::draw_container(
     width  = floor(width  + 0.5);
     height = floor(height + 0.5);
     canvas->device_to_user_dist(&width, &height);
-  }
-  
-  if( type == InputField           &&
-      Win32Themes::IsThemeActive   &&
-      Win32Themes::IsThemeActive() &&
-      Win32Themes::OpenThemeData   &&
-      Win32Themes::CloseThemeData  &&
-      Win32Themes::DrawThemeBackground)
-  {
-    canvas->save();
-    Color c = canvas->get_color();
-    
-    if(canvas->glass_background) {
-      cairo_pattern_t *pat;
-      
-      float x1, x2, x3, x4, y1, y2, y3, y4;
-      x1 = x4 = x;
-      x2 = x3 = x + width;
-      y1 = y2 = y;
-      y3 = y4 = y + height;
-      
-      canvas->align_point(&x1, &y1, true);
-      canvas->align_point(&x2, &y2, true);
-      canvas->align_point(&x3, &y3, true);
-      canvas->align_point(&x4, &y4, true);
-      
-      float r = 0.75;
-      canvas->move_to(x1, y1 + r);
-      canvas->arc(x1 + r, y1 + r, r,     M_PI,     3 * M_PI / 2, false);
-      canvas->arc(x2 - r, y2 + r, r, 3 * M_PI / 2, 2 * M_PI,     false);
-      canvas->arc(x3 - r, y3 - r, r,        0,         M_PI / 2, false);
-      canvas->arc(x4 + r, y4 - r, r,     M_PI / 2,     M_PI,     false);
-      canvas->close_path();
-      
-      pat = cairo_pattern_create_linear(x4, y4, x1, y1);
-      cairo_pattern_add_color_stop_rgba(pat, 0, 1, 1, 1, 0.7);
-      cairo_pattern_add_color_stop_rgba(pat, 1, 1, 1, 1, 0.4);
-      cairo_set_source(canvas->cairo(), pat);
-      cairo_pattern_destroy(pat);
-      
-      cairo_set_line_width(canvas->cairo(), 2);
-      canvas->stroke_preserve();
-      
-      if(state != Normal)
-        cairo_set_source_rgba(canvas->cairo(), 1, 1, 1, 0.9);
-      else
-        cairo_set_source_rgba(canvas->cairo(), 1, 1, 1, 0.7);
-      canvas->fill_preserve();
-      
-      pat = cairo_pattern_create_linear(x4, y4, x1, y1);
-      cairo_pattern_add_color_stop_rgba(pat, 0, 0, 0, 0, 0.55);
-      cairo_pattern_add_color_stop_rgba(pat, 1, 0, 0, 0, 0.75);
-      cairo_set_source(canvas->cairo(), pat);
-      cairo_pattern_destroy(pat);
-      cairo_set_line_width(canvas->cairo(), 0.75);
-      canvas->stroke();
-      
-    }
-    else {
-      canvas->pixrect(x, y, x + width, y + height, true);
-      if(blur_input_field && (state == PressedHovered || state == Pressed)) {
-        canvas->set_color(InputFieldBlurColor);
-        canvas->show_blur_stroke(4, true);
-      }
-      
-      Color col = get_sys_color(COLOR_WINDOW);
-            
-      canvas->set_color(col);
-      canvas->fill_preserve();
-      
-      canvas->set_color(Color::from_rgb24(0x808080));
-      canvas->hair_stroke();
-    }
-    
-    canvas->set_color(c);
-    canvas->restore();
-    return;
   }
   
   int dc_x = 0;
@@ -839,6 +777,7 @@ void Win32ControlPainter::draw_container(
       case FramelessButton:
         break;
         
+      case AddressBandGoButton:
       case PaletteButton: {
           FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
           
@@ -873,7 +812,8 @@ void Win32ControlPainter::draw_container(
 //          _state);
         } break;
         
-      case InputField: {
+      case InputField:
+      case AddressBandBackground: {
           FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
           
           DrawEdge(
@@ -1729,6 +1669,14 @@ HANDLE Win32ControlPainter::get_control_theme(
     case InputField: 
       theme = w32cp_cache.edit_theme(context->dpi());
       break;
+    
+    case AddressBandBackground:
+      theme = w32cp_cache.addressband_theme(context->dpi());
+      break;
+      
+    case AddressBandGoButton:
+      theme = w32cp_cache.toolbar_go_theme(context->dpi());
+      break;
       
     case ListViewItem:
     case ListViewItemSelected:
@@ -1773,6 +1721,7 @@ HANDLE Win32ControlPainter::get_control_theme(
     case GenericButton:
     case PushButton:
     case DefaultPushButton:
+    case AddressBandGoButton:
     case PaletteButton: {
         *theme_part = 1;//BP_PUSHBUTTON / TP_BUTTON
         
@@ -1810,7 +1759,20 @@ HANDLE Win32ControlPainter::get_control_theme(
           case Disabled:       *theme_state = 4; break;
         }
       } break;
-      
+    
+    case AddressBandBackground: {
+        *theme_part = 1; // ABBACKGROUND
+        
+        switch(state) {
+          case Normal:         *theme_state = 1; break;
+          case Hot:
+          case Hovered:        *theme_state = 2; break;
+          case Pressed:
+          case PressedHovered: *theme_state = 4; break; // = focused
+          case Disabled:       *theme_state = 3; break;
+        }
+      } break;
+    
     case ListViewItem: {
         *theme_part = 1;//LVP_LISTITEM
         

@@ -42,6 +42,7 @@ MathGtkControlPainter::MathGtkControlPainter()
   expander_arrow_context      = nullptr;
   tool_button_context         = nullptr;
   input_field_context         = nullptr;
+  input_field_button_context  = nullptr;
   slider_channel_context      = nullptr;
   slider_thumb_context        = nullptr;
   list_item_context           = nullptr;
@@ -83,6 +84,20 @@ void MathGtkControlPainter::calc_container_size(
         if(extents->descent < canvas->get_font_size() * 0.25f)
           extents->descent = canvas->get_font_size() * 0.25f;
         break;
+      
+      case AddressBandBackground: {
+          GtkBorder border;
+          //gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
+          //extents->ascent +=  0.75f * border.top;
+          //extents->descent += 0.75f * border.bottom;
+          //extents->width +=   0.75f * (border.left + border.right);
+          
+          gtk_style_context_get_border(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
+          extents->ascent +=  0.75f * border.top;
+          extents->descent += 0.75f * border.bottom;
+          extents->width +=   0.75f * (border.left + border.right);
+        } 
+        return;
         
       case CheckboxUnchecked:
       case CheckboxChecked:
@@ -499,7 +514,38 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
       }
       return tool_button_context;
       
+    case AddressBandGoButton:
+      if(!input_field_button_context) {
+        input_field_button_context = gtk_style_context_new();
+        
+        GtkWidgetPath *path;
+        
+        int pos;
+        path = gtk_widget_path_new();
+        gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+        //pos = gtk_widget_path_append_type(path, GTK_TYPE_TOOLBAR);
+        //gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_TOOLBAR);
+        
+        //pos = gtk_widget_path_append_type(path, GTK_TYPE_TOOL_BUTTON);
+        //gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_BUTTON);
+        
+        pos = gtk_widget_path_append_type(path, GTK_TYPE_ENTRY);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_ENTRY);
+        
+        pos = gtk_widget_path_append_type(path, GTK_TYPE_BUTTON);
+        gtk_widget_path_iter_add_class(path, pos, GTK_STYLE_CLASS_BUTTON);
+        
+        gtk_style_context_set_path(    input_field_button_context, path);
+        gtk_style_context_set_screen(  input_field_button_context, gdk_screen_get_default());
+        gtk_style_context_add_provider(input_field_button_context, GTK_STYLE_PROVIDER(gtk_settings_get_default()), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+        gtk_style_context_add_class(   input_field_button_context, GTK_STYLE_CLASS_ENTRY);
+        gtk_style_context_add_class(   input_field_button_context, GTK_STYLE_CLASS_BUTTON);
+        gtk_style_context_add_class(   input_field_button_context, GTK_STYLE_CLASS_FLAT);
+      }
+      return input_field_button_context;
+      
     case InputField:
+    case AddressBandBackground:
       if(!input_field_context) {
         input_field_context = gtk_style_context_new();
         
@@ -824,6 +870,7 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, Co
   
   switch(type) {
     case InputField:
+    case AddressBandBackground:
       result &= ~(int)GTK_STATE_FLAG_SELECTED;
       break;
       
@@ -852,6 +899,9 @@ void MathGtkControlPainter::clear_cache() {
     
   if(input_field_context)
     g_object_unref(input_field_context);
+    
+  if(input_field_button_context)
+    g_object_unref(input_field_button_context);
     
   if(slider_channel_context)
     g_object_unref(slider_channel_context);
@@ -888,6 +938,7 @@ void MathGtkControlPainter::clear_cache() {
   expander_arrow_context      = nullptr;
   tool_button_context         = nullptr;
   input_field_context         = nullptr;
+  input_field_button_context  = nullptr;
   slider_channel_context      = nullptr;
   slider_thumb_context        = nullptr;
   list_item_context           = nullptr;
