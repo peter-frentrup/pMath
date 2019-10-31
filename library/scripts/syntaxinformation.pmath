@@ -173,6 +173,7 @@
 {"FileNames", {"ArgumentCount" -> 0..2}},
 {"FileType", {"ArgumentCount" -> 1}},
 {"FillBox", {"ArgumentCount" -> 1}},
+{"Filler", {"ArgumentCount" -> 0..2}},
 {"FilterRules", {"ArgumentCount" -> 2}},
 {"Finally", {"ArgumentCount" -> 2}},
 {"Find", {"ArgumentCount" -> 2}},

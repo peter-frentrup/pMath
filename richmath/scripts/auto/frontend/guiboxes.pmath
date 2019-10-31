@@ -78,6 +78,7 @@ MakeBoxes(DynamicSetting(~expr))::= TagBox(MakeBoxes(expr), Setting) /? allowGui
 
 MakeBoxes(~x: Filler)::= makeFillBox(x) /? allowGuiBoxes
 Attributes(makeFillBox):= {HoldAllComplete}
+makeFillBox(Filler())::= FillBox("")
 makeFillBox(Filler(~content, ~weight?isNumberOrDynamic, options:OptionsPattern()))::= 
 	If(hasHeldOption(HoldComplete(options), StripOnInput)) {
 		FillBox(makeNullBoxes(content), FillBoxWeight->weight, options)
