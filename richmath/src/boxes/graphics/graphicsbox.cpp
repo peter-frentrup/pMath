@@ -204,7 +204,7 @@ bool GraphicsBox::expand(const BoxSize &size) {
       calculate_size(&size.width);
       
       if(old_size != _extents)
-        cached_bitmap = 0;
+        cached_bitmap = nullptr;
         
       return true;
     }
@@ -240,11 +240,6 @@ void GraphicsBox::resize(Context *context) {
   margin_bottom = 0;
   
   calculate_size();
-  
-  float height = _extents.height();
-  float ascent = Impl(*this).calculate_ascent_for_baseline_position(em, get_style(BaselinePosition));
-  _extents.ascent = ascent;
-  _extents.descent = height - ascent;
   
   is_currently_resizing = false;
 }
@@ -396,6 +391,9 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
   _extents.ascent  = h / 2 + 0.25 * em;
   _extents.descent = h - _extents.ascent;
   
+  float ascent = Impl(*this).calculate_ascent_for_baseline_position(em, get_style(BaselinePosition));
+  _extents.ascent = ascent;
+  _extents.descent = h - ascent;
   
   ticks[AxisIndexLeft ]->start_y            = h - margin_bottom;
   ticks[AxisIndexRight]->start_y            = h - margin_bottom;

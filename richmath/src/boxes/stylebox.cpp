@@ -169,18 +169,15 @@ bool ExpandableAbstractStyleBox::expand(const BoxSize &size) {
   size2.ascent -= t;
   size2.descent -= b;
   
-  cy -= _content->extents().ascent;
   if(_content->expand(size)) {
     _extents = _content->extents();
     _extents.width += r;
     _extents.ascent += t;
     _extents.descent += b;
     
-    cy += _content->extents().ascent;
     return true;
   }
   
-  cy += _content->extents().ascent;
   return false;
 }
 
