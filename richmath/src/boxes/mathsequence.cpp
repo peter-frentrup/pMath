@@ -1711,16 +1711,17 @@ namespace richmath {
       
       //{ horizontal stretching (variable width)
     public:
-      void hstretch_lines(
+      bool hstretch_lines( // return whether there was any height change
         float width,
         float window_width,
         float *unfilled_width
       ) {
+        bool has_any_height_change = false;
         *unfilled_width = -HUGE_VAL;
         
         if(width == HUGE_VAL) {
           if(window_width == HUGE_VAL)
-            return;
+            return has_any_height_change;
             
           width = window_width;
         }
@@ -1776,14 +1777,17 @@ namespace richmath {
                     
                     size.width = white * fillbox->weight() / total_fill_weight;
                     fillbox->expand(size);
+                    dx += fillbox->extents().width;
                     
-                    dx += size.width;
+                    auto fa = fillbox->extents().ascent;
+                    auto fd = fillbox->extents().descent;
+                    has_any_height_change = has_any_height_change || size.ascent != fa || size.descent != fd;
                     
-                    if(self.lines[line].ascent < fillbox->extents().ascent)
-                      self.lines[line].ascent = fillbox->extents().ascent;
+                    if(self.lines[line].ascent < fa) 
+                      self.lines[line].ascent = fa;
                       
-                    if(self.lines[line].descent < fillbox->extents().descent)
-                      self.lines[line].descent = fillbox->extents().descent;
+                    if(self.lines[line].descent < fd) 
+                      self.lines[line].descent = fd;
                   }
                 }
                 
@@ -1800,6 +1804,7 @@ namespace richmath {
             
           start = self.lines[line].end;
         }
+        return has_any_height_change;
       }
       
       //}
@@ -2330,6 +2335,100 @@ namespace richmath {
       
       //}
       
+      void calculate_line_heights(Context *context) {
+        const uint16_t *buf = self.str.buffer();
+        int line = 0;
+        int pos = 0;
+        int box = 0;
+        if(self.lines.length() > 1) {
+          self.lines[0].ascent  = 0.75f * self.em;
+          self.lines[0].descent = 0.25f * self.em;
+        }
+        while(pos < self.glyphs.length()) {
+          if(pos == self.lines[line].end) {
+            ++line;
+            self.lines[line].ascent  = 0.75f * self.em;
+            self.lines[line].descent = 0.25f * self.em;
+          }
+          
+          if(buf[pos] == PMATH_CHAR_BOX) {
+            self.boxes[box]->extents().bigger_y(&self.lines[line].ascent, &self.lines[line].descent);
+            ++box;
+          }
+          else if(self.glyphs[pos].is_normal_text) {
+            context->text_shaper->vertical_glyph_size(
+              context,
+              buf[pos],
+              self.glyphs[pos],
+              &self.lines[line].ascent,
+              &self.lines[line].descent);
+          }
+          else {
+            context->math_shaper->vertical_glyph_size(
+              context,
+              buf[pos],
+              self.glyphs[pos],
+              &self.lines[line].ascent,
+              &self.lines[line].descent);
+          }
+          
+          ++pos;
+        }
+        
+        if(line + 1 < self.lines.length()) {
+          ++line;
+          self.lines[line].ascent = 0.75f * self.em;
+          self.lines[line].descent = 0.25f * self.em;
+        }
+      }
+      
+      void calculate_total_extents_from_lines() {
+        int line = 0;
+        int pos = 0;
+        float x = 0.0f;
+        self._extents.width = 0.0f;
+        self._extents.ascent = 0.0f;
+        self._extents.descent = 0.0f;
+        while(pos < self.glyphs.length()) {
+          if(pos == self.lines[line].end) {
+            if(pos > 0) {
+              double indent = self.indention_width(self.lines[line].indent);
+              
+              if(self._extents.width < self.glyphs[pos - 1].right - x + indent)
+                self._extents.width  = self.glyphs[pos - 1].right - x + indent;
+              
+              x = self.glyphs[pos - 1].right;
+            }
+            
+            self._extents.descent += self.lines[line].ascent + self.lines[line].descent + self.line_spacing();
+            ++line;
+          }
+          
+          ++pos;
+        }
+        
+        if(pos > 0) {
+          double indent = self.indention_width(self.lines[line].indent);
+          
+          if(self._extents.width < self.glyphs[pos - 1].right - x + indent)
+            self._extents.width  = self.glyphs[pos - 1].right - x + indent;
+        }
+        
+        if(self._extents.width < 0.75 && self.lines.length() > 1) {
+          self._extents.width = 0.75;
+        }
+        
+        if(line + 1 < self.lines.length()) {
+          self._extents.descent += self.lines[line].ascent + self.lines[line].descent;
+          ++line;
+        }
+        self._extents.ascent = self.lines[0].ascent;
+        self._extents.descent += self.lines[line].ascent + self.lines[line].descent - self.lines[0].ascent;
+        
+        //// round ascent/descent to next multiple of 0.75pt (= 1px by default):
+        //self._extents.ascent  = ceilf(self._extents.ascent  / 0.75f ) * 0.75f;
+        //self._extents.descent = ceilf(self._extents.descent / 0.75f ) * 0.75f;
+      }
   };
   
   Array<int>    MathSequenceImpl::indention_array(0);
@@ -2403,11 +2502,11 @@ bool MathSequence::expand(const BoxSize &size) {
     float uw;
     float w = _extents.width;
     
-    MathSequenceImpl(*this).hstretch_lines(
-      size.width,
-      size.width,
-      &uw);
-      
+    bool height_changes = MathSequenceImpl(*this).hstretch_lines(size.width, size.width, &uw);
+    //if(height_changes)
+    //  MathSequenceImpl(*this).calculate_line_heights( ? context ? );
+    
+    MathSequenceImpl(*this).calculate_total_extents_from_lines();
     return w != _extents.width;
   }
   
@@ -2528,81 +2627,9 @@ void MathSequence::resize(Context *context) {
       &context->sequence_unfilled_width);
   }
   
-  const uint16_t *buf = str.buffer();
-  int line = 0;
-  pos = 0;
-  box = 0;
-  float x = 0;
-  _extents.descent = _extents.width = 0;
-  if(lines.length() > 1) {
-    lines[0].ascent  = 0.75f * em;
-    lines[0].descent = 0.25f * em;
-  }
-  while(pos < glyphs.length()) {
-    if(pos == lines[line].end) {
-      if(pos > 0) {
-        double indent = indention_width(lines[line].indent);
-        
-        if(_extents.width < glyphs[pos - 1].right - x + indent)
-          _extents.width  = glyphs[pos - 1].right - x + indent;
-        x = glyphs[pos - 1].right;
-      }
-      
-      _extents.descent += lines[line].ascent + lines[line].descent + line_spacing();
-      
-      ++line;
-      lines[line].ascent  = 0.75f * em;
-      lines[line].descent = 0.25f * em;
-    }
-    
-    if(buf[pos] == PMATH_CHAR_BOX) {
-      boxes[box]->extents().bigger_y(&lines[line].ascent, &lines[line].descent);
-      ++box;
-    }
-    else if(glyphs[pos].is_normal_text) {
-      context->text_shaper->vertical_glyph_size(
-        context,
-        buf[pos],
-        glyphs[pos],
-        &lines[line].ascent,
-        &lines[line].descent);
-    }
-    else {
-      context->math_shaper->vertical_glyph_size(
-        context,
-        buf[pos],
-        glyphs[pos],
-        &lines[line].ascent,
-        &lines[line].descent);
-    }
-    
-    ++pos;
-  }
+  MathSequenceImpl(*this).calculate_line_heights(context);
+  MathSequenceImpl(*this).calculate_total_extents_from_lines();
   
-  if(pos > 0) {
-    double indent = indention_width(lines[line].indent);
-    
-    if(_extents.width < glyphs[pos - 1].right - x + indent)
-      _extents.width  = glyphs[pos - 1].right - x + indent;
-  }
-  
-  if(line + 1 < lines.length()) {
-    _extents.descent += lines[line].ascent + lines[line].descent;
-    ++line;
-    lines[line].ascent = 0.75f * em;
-    lines[line].descent = 0.25f * em;
-  }
-  _extents.ascent = lines[0].ascent;
-  _extents.descent += lines[line].ascent + lines[line].descent - lines[0].ascent;
-  
-  if(_extents.width < 0.75 && lines.length() > 1) {
-    _extents.width = 0.75;
-  }
-  
-//  // round ascent/descent to next multiple of 0.75pt (= 1px by default):
-//  _extents.ascent  = ceilf(_extents.ascent  / 0.75f ) * 0.75f;
-//  _extents.descent = ceilf(_extents.descent / 0.75f ) * 0.75f;
-
   if(context->sequence_unfilled_width == -HUGE_VAL)
     context->sequence_unfilled_width = _extents.width;
 }
