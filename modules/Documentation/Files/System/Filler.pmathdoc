@@ -12,8 +12,27 @@ Document({
           "."}, "Notes"), Section({"To fill the available space, ", 
           TemplateBox({"Filler"}, "ReferenceHyperlink"), 
           " first tries to stretch its contents and then repeats it if \
-          necessary."}, "Notes")}, All), Section("", "SectionFooterSpacer")}, 
-     1), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+          necessary."}, "Notes"), 
+        Section({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+          " can stretch ", StyleBox("expr", "Arg"), " if it is e.g. a ", 
+          TemplateBox({"Button"}, "ReferenceHyperlink"), ", ", 
+          TemplateBox({"InputField"}, "ReferenceHyperlink"), ", or ", 
+          TemplateBox({"Graphics"}, "ReferenceHyperlink"), "."}, "Notes"), 
+        Section({"Only ", TemplateBox({"Graphics"}, "ReferenceHyperlink"), 
+          " with ", TemplateBox({"ImageSize"}, "ReferenceHyperlink"), 
+          " \[Rule] ", TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+          " will be stretched, expanding height and width such as to keep \
+          their ", TemplateBox({"AspectRatio"}, "ReferenceHyperlink"), 
+          " constant."}, "Notes"), 
+        Section({"If ", StyleBox("expr", "Arg"), " is a ", 
+          TemplateBox({"Row"}, "ReferenceHyperlink"), ", ", 
+          TemplateBox({"Style"}, "ReferenceHyperlink"), ", or ", 
+          TemplateBox({"Interpretation"}, "ReferenceHyperlink"), 
+          " that itself contains ", TemplateBox({"Filler"}, 
+           "ReferenceHyperlink"), " objects, ", StyleBox("expr", "Arg"), 
+          " may also be stretched."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section({"Make an ", TemplateBox({"InputField"}, 
            "ReferenceHyperlink"), " that stretches the whole line:"}, 
@@ -29,51 +48,66 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Fill a line with dots:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"{", {ComplexStringBox("\"Introduction\""), ",", {
-                 "Filler", "(", ComplexStringBox("\" . \""), ")"}, ",", 
-                ComplexStringBox("\"1\"")}, "}"}), "Input", 
-             SectionLabel -> "in [1]:"), 
-            Section(BoxData({"{", {ComplexStringBox("\"Introduction\""), ",", 
-                FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
-                ",", ComplexStringBox("\"1\"")}, "}"}), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All), SectionGroup({
-          Section(BoxData(InterpretationBox("", $Line:= 0;, 
-             Editable -> False)), "ExampleDelimiter"), 
-          Section("Stretch a line between words:", "ExampleText"), 
-          SectionGroup({
-            Section(BoxData({"{", {"1", ",", {"Filler", "(", ")"}, ",", "22", 
-                ",", {"Filler", "(", ")"}, ",", "33333"}, "}"}), "Input", 
+            Section(BoxData({"Filler", "(", {
+                "Row", "(", {"{", {ComplexStringBox("\"Introduction\""), ",", {
+                   "Filler", "(", ComplexStringBox("\" . \""), ")"}, ",", 
+                  ComplexStringBox("\"1\"")}, "}"}, ")"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
-             BoxData({"{", {"1", ",", FillBox("", StripOnInput -> False), ",", 
-                "22", ",", FillBox("", StripOnInput -> False), ",", "33333"}, 
-               "}"}), "Output", SectionGenerated -> True, 
+             BoxData(FillBox(InterpretationBox({
+                 ComplexStringBox("\"Introduction\""), 
+                 FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
+                 ComplexStringBox("\"1\"")}, Row({
+                 "Introduction", Filler(" . "), "1"}), Editable -> False), 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section("Multiple, differently stretched buttons:", "ExampleText"), 
+          Section("Stretch a line between words:", "ExampleText"), 
           SectionGroup({
-            Section(
-             BoxData({
-               "{", {
-                {"Filler", "(", {
-                  {"Button", "(", {ComplexStringBox("\"shorter\""), ",", 
-                    "None"}, ")"}, ",", "1"}, ")"}, ",", {
-                 "Filler", "(", {
-                  {"Button", "(", {ComplexStringBox("\"long\""), ",", "None"}, 
-                   ")"}, ",", "2"}, ")"}}, "}"}), "Input", 
+            Section(BoxData({"Filler", "(", {
+                "Row", "(", {"{", {ComplexStringBox("\"A\""), ",", {
+                   "Filler", "(", ")"}, ",", ComplexStringBox("\"few\""), ",", 
+                  {"Filler", "(", ")"}, ",", ComplexStringBox("\"more\""), 
+                  ",", {"Filler", "(", ")"}, ",", 
+                  ComplexStringBox("\"words.\"")}, "}"}, ")"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
-             BoxData({
-               "{", {FillBox(ButtonBox(ComplexStringBox("\"shorter\"")), 
-                 FillBoxWeight -> 1, StripOnInput -> False), ",", 
-                FillBox(ButtonBox(ComplexStringBox("\"long\"")), 
-                 FillBoxWeight -> 2, StripOnInput -> False)}, "}"}), "Output", 
+             BoxData(FillBox(InterpretationBox({
+                 ComplexStringBox("\"A\""), FillBox(""), 
+                 ComplexStringBox("\"few\""), FillBox(""), 
+                 ComplexStringBox("\"more\""), FillBox(""), 
+                 ComplexStringBox("\"words.\"")}, Row({
+                 "A", Filler(), "few", Filler(), "more", Filler(), "words."}), 
+                Editable -> False), StripOnInput -> False)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, All), SectionGroup({
-        Section("Properties & Relations", "ExampleSection"), 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Multiple, differently stretched buttons:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Filler", "(", {
+                "Row", "(", {
+                 "{", {
+                  {"Filler", "(", {
+                    {"Button", "(", {ComplexStringBox("\"shorter\""), ",", 
+                      "None"}, ")"}, ",", "1"}, ")"}, ",", {
+                   "Filler", "(", {
+                    {"Button", "(", {ComplexStringBox("\"long\""), ",", 
+                      "None"}, ")"}, ",", "2"}, ")"}}, "}"}, ")"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(FillBox(InterpretationBox({
+                 FillBox(ButtonBox(ComplexStringBox("\"shorter\"")), 
+                  FillBoxWeight -> 1, StripOnInput -> False), 
+                 FillBox(ButtonBox(ComplexStringBox("\"long\"")), 
+                  FillBoxWeight -> 2, StripOnInput -> False)}, Row({
+                 Filler(Button("shorter", None), 1), 
+                 Filler(Button("long", None), 2)}), Editable -> False), 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section({TemplateBox({"Grid"}, "ReferenceHyperlink"), 
           " also stretches certain items if possible:"}, "ExampleText"), 
         SectionGroup({
@@ -85,8 +119,8 @@ Document({
                    ComplexStringBox("\"c\""), ",", "None"}, ")"}}, "}"}, ",", {
                 "{", {ComplexStringBox("\"A rather long item\""), ",", 
                  "\[SpanFromAbove]"}, "}"}, ",", {
-                "{", {{"Filler", "(", ComplexStringBox("\" \[Dot] \""), ")"}, 
-                 ",", "\[SpanFromAbove]"}, "}"}}, "}"}, ")"}), "Input", 
+                "{", {{"Filler", "(", ComplexStringBox("\" + \""), ")"}, ",", 
+                 "\[SpanFromAbove]"}, "}"}}, "}"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(
            BoxData(
@@ -94,10 +128,44 @@ Document({
                 ButtonBox(ComplexStringBox("\"c\""))}, {
                 ComplexStringBox("\"A rather long item\""), 
                 "\[SpanFromAbove]"}, {
-                FillBox(ComplexStringBox("\" \[Dot] \""), 
-                 StripOnInput -> False), "\[SpanFromAbove]"}}), "Grid")), 
+                FillBox(ComplexStringBox("\" + \""), StripOnInput -> False), 
+                "\[SpanFromAbove]"}}), "Grid")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+          " may not expand to the whole line when it is wrapped in an ", 
+          TemplateBox({"InterpretationBox"}, "ReferenceHyperlink"), ", ", 
+          TemplateBox({"TagBox"}, "ReferenceHyperlink"), ", etc.:"}, 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Row", "(", {
+              "{", {ComplexStringBox("\"Introduction\""), ",", {
+                "Filler", "(", ComplexStringBox("\" . \""), ")"}, ",", 
+               ComplexStringBox("\"1\"")}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(InterpretationBox({
+              ComplexStringBox("\"Introduction\""), 
+              FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
+              ComplexStringBox("\"1\"")}, Row({
+              "Introduction", Filler(" . "), "1"}), Editable -> False)), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+         All), Section({"Wrap the outer box in ", 
+          TemplateBox({"Filler"}, "ReferenceHyperlink"), " too:"}, 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Filler", "(", {
+              "Row", "(", {"{", {ComplexStringBox("\"Introduction\""), ",", {
+                 "Filler", "(", ComplexStringBox("\" . \""), ")"}, ",", 
+                ComplexStringBox("\"1\"")}, "}"}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData(FillBox(InterpretationBox({
+               ComplexStringBox("\"Introduction\""), 
+               FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
+               ComplexStringBox("\"1\"")}, Row({
+               "Introduction", Filler(" . "), "1"}), Editable -> False), 
+             StripOnInput -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Grid"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Button"}, 
