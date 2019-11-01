@@ -1,11 +1,12 @@
 #ifndef RICHMATH__BOXES__INTERPRETATIONBOX_H__INCLUDED
 #define RICHMATH__BOXES__INTERPRETATIONBOX_H__INCLUDED
 
-#include <boxes/ownerbox.h>
+#include <boxes/stylebox.h>
 
 
 namespace richmath {
-  class InterpretationBox: public OwnerBox {
+  class InterpretationBox: public ExpandableAbstractStyleBox {
+      using base = ExpandableAbstractStyleBox;
     public:
       InterpretationBox();
       InterpretationBox(MathSequence *content);
