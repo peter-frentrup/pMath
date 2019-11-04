@@ -1,5 +1,6 @@
 #include <boxes/gridbox.h>
 
+#include <boxes/fillbox.h>
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
 
@@ -16,6 +17,7 @@
 #endif
 
 using namespace richmath;
+using namespace std;
 
 extern pmath_symbol_t richmath_System_Axis;
 extern pmath_symbol_t richmath_System_Baseline;
@@ -37,6 +39,9 @@ namespace richmath {
       
       float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
       void adjust_baseline(float em);
+      
+      bool has_any_fillbox();
+      static FillBox *as_fillbox(GridItem *gi);
     
     private:
       GridBox &self;
@@ -286,6 +291,75 @@ void GridBox::remove_cols(int xindex, int count) {
   ensure_valid_boxes();
     
   invalidate();
+}
+
+bool GridBox::expand(const BoxSize &size) {
+  if(size.width < _extents.width)
+    return false;
+    
+  if(!isfinite(size.width))
+    return false;
+  
+  if(!GridBoxImpl(*this).has_any_fillbox())
+    return false;
+  
+  Array<float> col_weights;
+  col_weights.length(cols(), 0.0f);
+  
+  int span_count = 0;
+  for(int x = cols() - 1; x >= 0; --x) {
+    for(int y = rows() - 1; y >= 0; --y) {
+      GridItem *gi = item(y, x);
+      if(FillBox *fillbox = GridBoxImpl::as_fillbox(gi)) {
+        float w = fillbox->weight() / (1.0f + gi->_span_right);
+        
+        for(int dx = 0; dx <= gi->_span_right; ++dx)
+          col_weights[x + dx] = max(col_weights[x + dx], w);
+      }
+      if(gi->_span_down || gi->_span_right)
+        span_count+= 1;
+    }
+  }
+  
+  float right = _extents.width;
+  float total_weight = 0.0f;
+  float total_fill_width = size.width - _extents.width;
+  for(int x = cols() - 1; x >= 0; --x) {
+    float dw = col_weights[x];
+    if(dw > 0) {
+      total_weight+= dw;
+      total_fill_width+= right - xpos[x];
+    }
+    right = xpos[x] - colspacing;
+  }
+  
+  if(!(total_weight > 0)) // should not happen; e.g. overflow
+    return false;
+  
+  for(int i = count() - 1; i >= 0; --i) {
+    GridItem *gi = items[i];
+    if(FillBox *fillbox = GridBoxImpl::as_fillbox(gi)) {
+      BoxSize new_item_size = gi->extents();
+      float new_width = total_fill_width * fillbox->weight() / total_weight + gi->_span_right * colspacing;
+      if(new_item_size.width < new_width) {
+        new_item_size.width = new_width;
+        gi->expand(new_item_size);
+      }
+      else {
+        // TODO: Cannot shrink box. Probably need to reduce total_fill_width for remaining FillBox'es
+      }
+    } 
+  }
+  
+  float em = 0.0f;
+  if(auto seq = dynamic_cast<MathSequence*>(parent()))
+    em = seq->font_size();
+  
+  GridBoxImpl(*this).simple_spacing(em);
+  GridBoxImpl(*this).expand_colspans(span_count);
+  GridBoxImpl(*this).expand_rowspans(span_count);
+  GridBoxImpl(*this).adjust_baseline(em);
+  return true;
 }
 
 void GridBox::resize(Context *context) {
@@ -804,6 +878,8 @@ void GridBox::ensure_valid_boxes() {
 
 //} ... class GridBox
 
+//{ class GridBoxImpl ...
+
 int GridBoxImpl::resize_items(Context *context) {
   int span_count = 0;
   
@@ -1173,3 +1249,20 @@ void GridBoxImpl::adjust_baseline(float em) {
   self._extents.descent = height - ascent;
 }
 
+bool GridBoxImpl::has_any_fillbox() {
+  for(int i = self.count() - 1; i >= 0; --i) 
+    if(as_fillbox(self.items[i])) 
+      return true;
+  
+  return false;
+}
+
+FillBox *GridBoxImpl::as_fillbox(GridItem *gi) {
+  auto seq = gi->content();
+  if(seq->length() != 1 || seq->count() != 1)
+    return nullptr;
+  
+  return dynamic_cast<FillBox*>(seq->item(0));
+}
+
+//} ... class GridBoxImpl

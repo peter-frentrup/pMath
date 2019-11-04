@@ -109,7 +109,6 @@ namespace richmath {
       int _span_down;
       bool _really_span_from_left;
       bool _really_span_from_above;
-      
   };
   
   class GridBox: public Box {
@@ -155,6 +154,7 @@ namespace richmath {
       void remove_rows(int yindex, int count);
       void remove_cols(int xindex, int count);
       
+      virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context *context) override;
       virtual void paint(Context *context) override;
       virtual void selection_path(Canvas *canvas, int start, int end) override;
