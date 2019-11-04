@@ -12,7 +12,7 @@ using namespace richmath;
 //{ class ContainerWidgetBox ...
 
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *content)
-  : AbstractStyleBox(content),
+  : ExpandableAbstractStyleBox(content),
     type(_type),
     old_state(Normal),
     mouse_inside(false),

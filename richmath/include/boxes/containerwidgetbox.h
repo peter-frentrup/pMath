@@ -6,8 +6,8 @@
 
 
 namespace richmath {
-  class ContainerWidgetBox: public AbstractStyleBox, public ControlContext {
-      using base = AbstractStyleBox;
+  class ContainerWidgetBox: public ExpandableAbstractStyleBox, public ControlContext {
+      using base = ExpandableAbstractStyleBox;
     public:
       explicit ContainerWidgetBox(ContainerType _type, MathSequence *content = nullptr);
       

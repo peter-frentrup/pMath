@@ -57,6 +57,7 @@ ControlState PanelBox::calc_state(Context *context) {
 }
 
 bool PanelBox::expand(const BoxSize &size) {
+  base::expand(size);
   _extents = size;
   cx = (_extents.width - _content->extents().width) / 2;
   return true;
