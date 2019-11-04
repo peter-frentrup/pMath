@@ -38,7 +38,7 @@ namespace richmath {
       Array(const Array &src)
         : _length(src._length),
         _capacity(best_capacity(src._length)),
-        _items(0)
+        _items(nullptr)
       {
         if(_length > 0)
           _items = new T[_capacity];
@@ -50,7 +50,7 @@ namespace richmath {
       explicit Array(int length = 0)
         : _length(length),
         _capacity(best_capacity(length)),
-        _items(0)
+        _items(nullptr)
       {
         ARRAY_ASSERT(_length >= 0);
         if(_length > 0)
@@ -60,7 +60,7 @@ namespace richmath {
       Array(int length, T *src)
         : _length(length),
         _capacity(best_capacity(length)),
-        _items(0)
+        _items(nullptr)
       {
         ARRAY_ASSERT(_length >= 0);
         if(_length > 0)
@@ -78,7 +78,7 @@ namespace richmath {
           
           _length   = src._length;
           _capacity = best_capacity(src._length);
-          _items    = 0;
+          _items    = nullptr;
           
           if(_length > 0)
             _items = new T[_capacity];
