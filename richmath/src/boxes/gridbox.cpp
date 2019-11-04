@@ -30,8 +30,11 @@ namespace richmath {
     public:
       GridBoxImpl(GridBox &_self) : self(_self) {}
       
-      void simple_spacing(float em);
       int resize_items(Context *context);
+      void simple_spacing(float em);
+      void expand_colspans(int span_count);
+      void expand_rowspans(int span_count);
+      
       float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
       void adjust_baseline(float em);
     
@@ -299,126 +302,9 @@ void GridBox::resize(Context *context) {
   context->width = w;
   
   GridBoxImpl(*this).simple_spacing(em);
+  GridBoxImpl(*this).expand_colspans(span_count);
+  GridBoxImpl(*this).expand_rowspans(span_count);
   
-  int spans = span_count;
-  int first_span = 0;
-  while(spans-- > 0 && first_span < count()) {
-    for(int x = 0; x < cols(); ++x) {
-      for(int y = 0; y < rows(); ++y) {
-        GridItem *gi = item(y, x);
-        
-        if(gi->_span_right) {
-          float w;
-          if(x + gi->_span_right + 1 < cols())
-            w = xpos[x + gi->_span_right + 1] - colspacing;
-          else
-            w = _extents.width;
-            
-          w -= xpos[x];
-          
-          if(w > gi->extents().width) {
-            BoxSize size = gi->extents();
-            size.width = w;
-            
-            gi->expand(size);
-          }
-          else if(gi->index() >= first_span &&
-                  w < gi->extents().width)
-          {
-            float delta = gi->extents().width - w;
-            
-            for(int x2 = x + gi->_span_right + 1; x2 < cols(); ++x2) {
-              xpos[x2] += delta;
-            }
-            _extents.width += delta;
-            
-            for(int y2 = 0; y2 < rows(); ++y2) {
-              GridItem *gi2 = item(y2, x + gi->_span_right);
-              
-              if( !gi2->_span_right            &&
-                  !gi2->_really_span_from_left &&
-                  !gi2->_really_span_from_above)
-              {
-                BoxSize size = gi2->extents();
-                size.width += delta;
-                
-                gi2->expand(size);
-              }
-            }
-            
-            first_span = gi->index();
-            goto NEXT_X_SPAN;
-          }
-        }
-      }
-    }
-    
-  NEXT_X_SPAN:
-    ;
-  }
-  
-  spans = span_count;
-  first_span = 0;
-  while(spans-- > 0 && first_span < count()) {
-    for(int y = 0; y < rows(); ++y) {
-      for(int x = 0; x < cols(); ++x) {
-        GridItem *gi = item(y, x);
-        
-        if(gi->_span_down) {
-          float h;
-          if(y + gi->_span_down + 1 < rows())
-            h = ypos[y + gi->_span_down + 1] - rowspacing;
-          else
-            h = _extents.height();
-            
-          h -= ypos[y];
-          
-          if(h > gi->extents().height()) {
-            float half = (h - gi->extents().height()) / 2;
-            BoxSize size = gi->extents();
-            size.ascent +=  half;
-            size.descent += half; // = h - size.ascent;
-            
-            gi->expand(size);
-          }
-          else if(gi->index() >= first_span &&
-                  h < gi->extents().height())
-          {
-            float delta = gi->extents().height() - h;
-            
-            for(int y2 = y + gi->_span_down + 1; y2 < rows(); ++y2) {
-              ypos[y2] += delta;
-            }
-            _extents.ascent +=  delta / 2;
-            _extents.descent += delta / 2;
-            
-            for(int x2 = 0; x2 < cols(); ++x2) {
-              GridItem *gi2 = item(y + gi->_span_down, x2);
-              
-              if( !gi2->_span_right            &&
-                  !gi2->_span_down             &&
-                  !gi2->_really_span_from_left &&
-                  !gi2->_really_span_from_above)
-              {
-                BoxSize size = gi2->extents();
-                size.ascent +=  delta / 2;
-                size.descent += delta / 2;
-                
-                gi2->expand(size);
-              }
-            }
-            
-            first_span = gi->index();
-            goto NEXT_Y_SPAN;
-          }
-        }
-      }
-    }
-    
-  NEXT_Y_SPAN:
-    ;
-  }
-
   GridBoxImpl(*this).adjust_baseline(em);
 }
 
@@ -918,6 +804,50 @@ void GridBox::ensure_valid_boxes() {
 
 //} ... class GridBox
 
+int GridBoxImpl::resize_items(Context *context) {
+  int span_count = 0;
+  
+  for(int i = 0; i < self.count(); ++i)
+    self.items[i]->resize(context);
+    
+  for(int y = 0; y < self.rows(); ++y) {
+    for(int x = 0; x < self.cols(); ++x) {
+      GridItem *gi = self.item(y, x);
+      
+      if(!gi->span_from_any()) {
+        gi->_span_right = 1;
+        while(x + gi->_span_right < self.cols() &&
+              self.item(y, x + gi->_span_right)->span_from_left())
+        {
+          self.item(y, x + gi->_span_right)->_really_span_from_left = true;
+          gi->_span_right++;
+        }
+        gi->_span_right--;
+        
+        gi->_span_down = 1;
+        while(y + gi->_span_down < self.rows() &&
+              self.item(y + gi->_span_down, x)->span_from_above())
+        {
+          for(int i = x + gi->_span_right; i > x; --i)
+            if(!self.item(y + gi->_span_down, i)->span_from_both())
+              goto END_DOWN;
+              
+          for(int i = x + gi->_span_right; i >= x; --i)
+            self.item(y + gi->_span_down, i)->_really_span_from_above = true;
+            
+          gi->_span_down++;
+        }
+        gi->_span_down--;
+        
+      END_DOWN:
+        if(gi->_span_right > 0 || gi->_span_down > 0)
+          ++span_count;
+      }
+    }
+  }
+  
+  return span_count;
+}
 
 void GridBoxImpl::simple_spacing(float em) {
   float right = 0;//colspacing / 2;
@@ -1021,49 +951,123 @@ void GridBoxImpl::simple_spacing(float em) {
   }
 }
 
-int GridBoxImpl::resize_items(Context *context) {
-  int span_count = 0;
-  
-  for(int i = 0; i < self.count(); ++i)
-    self.items[i]->resize(context);
-    
-  for(int y = 0; y < self.rows(); ++y) {
+void GridBoxImpl::expand_colspans(int span_count) {
+  int first_span = 0;
+  while(span_count-- > 0 && first_span < self.count()) {
     for(int x = 0; x < self.cols(); ++x) {
-      GridItem *gi = self.item(y, x);
-      
-      if(!gi->span_from_any()) {
-        gi->_span_right = 1;
-        while(x + gi->_span_right < self.cols() &&
-              self.item(y, x + gi->_span_right)->span_from_left())
-        {
-          self.item(y, x + gi->_span_right)->_really_span_from_left = true;
-          gi->_span_right++;
-        }
-        gi->_span_right--;
+      for(int y = 0; y < self.rows(); ++y) {
+        GridItem *gi = self.item(y, x);
         
-        gi->_span_down = 1;
-        while(y + gi->_span_down < self.rows() &&
-              self.item(y + gi->_span_down, x)->span_from_above())
-        {
-          for(int i = x + gi->_span_right; i > x; --i)
-            if(!self.item(y + gi->_span_down, i)->span_from_both())
-              goto END_DOWN;
-              
-          for(int i = x + gi->_span_right; i >= x; --i)
-            self.item(y + gi->_span_down, i)->_really_span_from_above = true;
+        if(gi->_span_right) {
+          float w;
+          if(x + gi->_span_right + 1 < self.cols())
+            w = self.xpos[x + gi->_span_right + 1] - self.colspacing;
+          else
+            w = self._extents.width;
             
-          gi->_span_down++;
+          w -= self.xpos[x];
+          
+          if(w > gi->extents().width) {
+            BoxSize size = gi->extents();
+            size.width = w;
+            
+            gi->expand(size);
+          }
+          else if(gi->index() >= first_span && w < gi->extents().width) {
+            float delta = gi->extents().width - w;
+            
+            for(int x2 = x + gi->_span_right + 1; x2 < self.cols(); ++x2) {
+              self.xpos[x2] += delta;
+            }
+            self._extents.width += delta;
+            
+            for(int y2 = 0; y2 < self.rows(); ++y2) {
+              GridItem *gi2 = self.item(y2, x + gi->_span_right);
+              
+              if( !gi2->_span_right            &&
+                  !gi2->_really_span_from_left &&
+                  !gi2->_really_span_from_above)
+              {
+                BoxSize size = gi2->extents();
+                size.width += delta;
+                
+                gi2->expand(size);
+              }
+            }
+            
+            first_span = gi->index();
+            goto NEXT_X_SPAN;
+          }
         }
-        gi->_span_down--;
-        
-      END_DOWN:
-        if(gi->_span_right > 0 || gi->_span_down > 0)
-          ++span_count;
       }
     }
+    
+  NEXT_X_SPAN:
+    ;
   }
-  
-  return span_count;
+}
+
+void GridBoxImpl::expand_rowspans(int span_count) {
+  int first_span = 0;
+  while(span_count-- > 0 && first_span < self.count()) {
+    for(int y = 0; y < self.rows(); ++y) {
+      for(int x = 0; x < self.cols(); ++x) {
+        GridItem *gi = self.item(y, x);
+        
+        if(gi->_span_down) {
+          float h;
+          if(y + gi->_span_down + 1 < self.rows())
+            h = self.ypos[y + gi->_span_down + 1] - self.rowspacing;
+          else
+            h = self._extents.height();
+            
+          h -= self.ypos[y];
+          
+          if(h > gi->extents().height()) {
+            float half = (h - gi->extents().height()) / 2;
+            BoxSize size = gi->extents();
+            size.ascent +=  half;
+            size.descent += half; // = h - size.ascent;
+            
+            gi->expand(size);
+          }
+          else if(gi->index() >= first_span &&
+                  h < gi->extents().height())
+          {
+            float delta = gi->extents().height() - h;
+            
+            for(int y2 = y + gi->_span_down + 1; y2 < self.rows(); ++y2) {
+              self.ypos[y2] += delta;
+            }
+            self._extents.ascent +=  delta / 2;
+            self._extents.descent += delta / 2;
+            
+            for(int x2 = 0; x2 < self.cols(); ++x2) {
+              GridItem *gi2 = self.item(y + gi->_span_down, x2);
+              
+              if( !gi2->_span_right            &&
+                  !gi2->_span_down             &&
+                  !gi2->_really_span_from_left &&
+                  !gi2->_really_span_from_above)
+              {
+                BoxSize size = gi2->extents();
+                size.ascent +=  delta / 2;
+                size.descent += delta / 2;
+                
+                gi2->expand(size);
+              }
+            }
+            
+            first_span = gi->index();
+            goto NEXT_Y_SPAN;
+          }
+        }
+      }
+    }
+    
+  NEXT_Y_SPAN:
+    ;
+  }
 }
 
 float GridBoxImpl::calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const {
