@@ -263,6 +263,7 @@ double Application::min_dynamic_update_interval = 0.05;
 String Application::application_filename;
 String Application::application_directory;
 String Application::stylesheet_path_base;
+Expr Application::palette_search_path;
 MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 
 Hashtable<Expr, Expr> Application::eval_cache;
@@ -741,6 +742,7 @@ void Application::init() {
   application_directory = FileSystem::get_directory_path(application_filename);
     
   stylesheet_path_base = String(Evaluate(Parse("FE`$StylesheetDirectory")));
+  palette_search_path = Evaluate(Parse("FE`$PaletteSearchPath"));
   
   total_time_waited_for_gui = 0.0;
 }
@@ -848,6 +850,7 @@ void Application::done() {
   application_filename = String();
   application_directory = String();
   stylesheet_path_base = String();
+  palette_search_path = Expr();
   main_message_queue = Expr();
 }
 

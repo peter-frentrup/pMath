@@ -149,6 +149,7 @@ namespace richmath {
       static String application_filename;
       static String application_directory; // without trailing (back)slash
       static String stylesheet_path_base; // includes trailing (back)slash
+      static Expr   palette_search_path;
       static MenuCommandScope menu_command_scope;
       
       static Hashtable<Expr, Expr> eval_cache;

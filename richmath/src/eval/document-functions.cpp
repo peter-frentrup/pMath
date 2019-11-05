@@ -47,6 +47,7 @@ namespace {
     private:
       static bool document_open_cmd(Expr cmd);
       
+      static Expr enum_palettes_menu(Expr name);
       static Expr enum_recent_documents_menu(Expr name);
 
       static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd);
@@ -398,6 +399,7 @@ void OpenDocumentMenuImpl::init() {
   
   Application::register_menucommand(Symbol(richmath_FrontEnd_DocumentOpen), document_open_cmd);
   
+  Application::register_dynamic_submenu(         String("MenuListPalettesMenu"),   enum_palettes_menu);
   Application::register_dynamic_submenu(               s_MenuListRecentDocuments,  enum_recent_documents_menu);
   Application::register_submenu_item_deleter(std::move(s_MenuListRecentDocuments), remove_recent_document);
 }
@@ -414,6 +416,38 @@ bool OpenDocumentMenuImpl::document_open_cmd(Expr cmd) {
   
   Expr result = richmath_eval_FrontEnd_DocumentOpen(std::move(cmd));
   return result != PMATH_SYMBOL_FAILED;
+}
+
+Expr OpenDocumentMenuImpl::enum_palettes_menu(Expr name) {
+  Expr list = Application::interrupt_wait_cached(
+                Call(
+                  Symbol(PMATH_SYMBOL_FILENAMES), 
+                  Application::palette_search_path, 
+                  String("*.pmathdoc")),
+                 Application::dynamic_timeout);
+  
+  if(list[0] == PMATH_SYMBOL_LIST) {
+    for(size_t i = 1; i <= list.expr_length(); ++i) {
+      String full = list[i];
+      String name = full;
+      FileSystem::extract_directory_path(&name);
+      
+      Expr item;
+      if(name.is_string()) {
+        int len = name.length();
+        if(name.part(len - 9).equals(".pmathdoc"))
+          name = name.part(0, len - 9);
+        
+        item = RecentDocuments::open_document_menu_item(std::move(name), std::move(full));
+      }
+      
+      list.set(i, std::move(item));
+    }
+    
+    return list;
+  }
+  
+  return List();
 }
 
 Expr OpenDocumentMenuImpl::enum_recent_documents_menu(Expr name) {

@@ -3,6 +3,7 @@ BeginPackage("FE`", "ExperimentalSyntax`")
 
 $FrontEndDirectory;
 $StylesheetDirectory;
+$PaletteSearchPath;
 $MathShapers;
 $FallbackFonts;
 $PrivateStartupFontFiles;
@@ -31,6 +32,9 @@ Protect($FrontEndDirectory)
 
 $StylesheetDirectory:= ToFileName({FE`$FrontEndDirectory, "resources", "StyleSheets"})
 Protect($StylesheetDirectory)
+
+$PaletteSearchPath:= {ToFileName({FE`$FrontEndDirectory, "resources", "Palettes"})}
+Protect($PaletteSearchPath)
 
 Options(FileOpenDialog):= Options(FileSaveDialog):= {WindowTitle -> Automatic}
 

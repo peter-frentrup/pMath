@@ -108,6 +108,9 @@ FE`Private`mainmenu:= Menu("pMath", {
 		Delimiter,
 		Item("&Convert Dynamic to Literal",           "DynamicToLiteral")
 		}),
+	Menu("&Palettes", {
+		Menu("Installed Palettes", "MenuListPalettesMenu")
+		}),
 	Menu("&Window", {
 		Menu("&Magnification", {
 			Item("&50%",                                ScopedCommand(Magnification->0.5, Document)),
@@ -119,7 +122,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Item("&300%",                               ScopedCommand(Magnification->3, Document))
 			}),
 		Delimiter,
-		Menu("open windows", "MenuListWindows")
+		Menu("Opened Windows", "MenuListWindows")
 		}),
 	Menu("&Help", {
 		Item("&Find Selected Function", "OpenSelectionHelp")
