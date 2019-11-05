@@ -111,6 +111,12 @@ void ControlPainter::calc_container_size(
         extents->descent += 3.0;
       } break;
     
+    case AddressBandInputField: {
+        extents->width +=   3.0;
+        extents->ascent +=  2.25;
+        extents->descent += 2.25;
+      } break;
+    
     case AddressBandBackground: {
         extents->width +=   3.0;
         extents->ascent +=  0.75;
@@ -201,6 +207,7 @@ Color ControlPainter::control_font_color(ControlContext *context, ContainerType 
 bool ControlPainter::is_very_transparent(ControlContext *context, ContainerType type, ControlState state) {
   return type == NoContainerType || 
          type == FramelessButton || 
+         type == AddressBandInputField || 
          type == OpenerTriangleClosed ||
          type == OpenerTriangleOpened;
 }

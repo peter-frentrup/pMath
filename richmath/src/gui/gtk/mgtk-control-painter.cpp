@@ -85,6 +85,20 @@ void MathGtkControlPainter::calc_container_size(
           extents->descent = canvas->get_font_size() * 0.25f;
         break;
       
+      case AddressBandInputField: {
+          GtkBorder border;
+          gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
+          extents->ascent +=  0.75f * border.top;
+          extents->descent += 0.75f * border.bottom;
+          extents->width +=   0.75f * (border.left + border.right);
+          
+          //gtk_style_context_get_border(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
+          //extents->ascent +=  0.75f * border.top;
+          //extents->descent += 0.75f * border.bottom;
+          //extents->width +=   0.75f * (border.left + border.right);
+        } 
+        return;
+        
       case AddressBandBackground: {
           GtkBorder border;
           //gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
@@ -253,9 +267,16 @@ void MathGtkControlPainter::draw_container(
   float           width,
   float           height
 ) {
-  if(type == PaletteButton && state == Normal)
-    return;
+  switch(type) {
+    case PaletteButton:
+      if(state == Normal)
+        return;
+      break;
     
+    case AddressBandInputField: return;
+    default: break;
+  }
+  
   if(GtkStyleContext *gsc = get_control_theme(context, type)) {
     canvas->save();
     gtk_style_context_save(gsc);
@@ -545,6 +566,7 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
       return input_field_button_context;
       
     case InputField:
+    case AddressBandInputField:
     case AddressBandBackground:
       if(!input_field_context) {
         input_field_context = gtk_style_context_new();
@@ -874,6 +896,7 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, Co
   
   switch(type) {
     case InputField:
+    case AddressBandInputField:
     case AddressBandBackground:
       result &= ~(int)GTK_STATE_FLAG_SELECTED;
       break;

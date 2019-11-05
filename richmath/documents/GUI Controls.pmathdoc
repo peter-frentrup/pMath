@@ -229,7 +229,7 @@ Document({
             "{", {
              "{", {{"InputField", "(", {ComplexStringBox("\"abc\""), ",", 
                 "String", ",", {"Appearance", "\[Rule]", 
-                 ComplexStringBox("\"Frameless\"")}}, ")"}, ",", {
+                 ComplexStringBox("\"AddressBand\"")}}, ")"}, ",", {
                "Button", "(", {ComplexStringBox("\"Go\""), ",", "None", ",", {
                  "ButtonFrame", "\[Rule]", 
                  ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, "}"}, 
@@ -240,7 +240,7 @@ Document({
        BoxData(
         PanelBox(
          TagBox(
-          GridBox({{InputFieldBox("abc", String, Appearance -> "Frameless"), 
+          GridBox({{InputFieldBox("abc", String, Appearance -> "AddressBand"), 
              ButtonBox(ComplexStringBox("\"Go\""), 
               ButtonFrame -> "AddressBandGo")}}), "Grid"), 
          Appearance -> "AddressBand")), "Output", SectionGenerated -> True, 

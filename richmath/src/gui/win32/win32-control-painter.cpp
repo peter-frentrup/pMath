@@ -215,18 +215,40 @@ void Win32ControlPainter::calc_container_size(
   
   switch(type) {
     case InputField: {
-        if(Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()) {
+        if(theme) {
           extents->width +=   3;
           extents->ascent +=  1.5;
           extents->descent += 1.5;
           return;
         }
         
-        extents->width +=   5.25;
+        extents->width +=   4.5;
         extents->ascent +=  3;
         extents->descent += 2.25;
       } return;
+      
+    case AddressBandInputField: {
+        if(theme) {
+          extents->width +=   1.5;
+          extents->ascent +=  0.75;
+          extents->descent += 0.75;
+          return;
+        }
+        
+        extents->width +=   3.0;
+        extents->ascent +=  2.25;
+        extents->descent += 1.5;
+      } return;
     
+    case AddressBandBackground: 
+      if(!theme) {
+        extents->width +=   1.5;
+        extents->ascent +=  0.75;
+        extents->descent += 0.75;
+        return;
+      } 
+      break;
+      
     case ListViewItem:
     case ListViewItemSelected:
       ControlPainter::calc_container_size(context, canvas, type, extents);
@@ -453,6 +475,7 @@ bool Win32ControlPainter::is_very_transparent(ControlContext *context, Container
     case NoContainerType:
     case FramelessButton:
     case GenericButton:
+    case AddressBandInputField:
       return ControlPainter::is_very_transparent(context, type, state);
       
     case PaletteButton:
@@ -776,6 +799,23 @@ void Win32ControlPainter::draw_container(
       case NoContainerType:
       case FramelessButton:
         break;
+      
+      default: 
+        if(state == Pressed) {
+          if(!context->is_focused_widget())
+            state = Normal;
+        }
+        else if(state == PressedHovered) {
+          if(!context->is_focused_widget())
+            state = Hovered;
+        }
+        break;
+    }
+    
+    switch(type) {
+      case NoContainerType:
+      case FramelessButton:
+        break;
         
       case AddressBandGoButton:
       case PaletteButton: {
@@ -812,14 +852,34 @@ void Win32ControlPainter::draw_container(
 //          _state);
         } break;
         
-      case InputField:
-      case AddressBandBackground: {
+      case InputField: {
           FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
           
           DrawEdge(
             dc,
             &rect,
             EDGE_SUNKEN,
+            BF_RECT);
+        } break;
+        
+      case AddressBandInputField: {
+          if(state == Pressed || state == PressedHovered) {
+            FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+            DrawEdge(
+              dc,
+              &rect,
+              BDR_SUNKENINNER,
+              BF_RECT);
+          }
+        } break;
+        
+      case AddressBandBackground: {
+          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          
+          DrawEdge(
+            dc,
+            &rect,
+            BDR_SUNKENOUTER,
             BF_RECT);
         } break;
         

@@ -533,6 +533,9 @@ static ContainerType parse_inputfield_appearance(Expr expr) {
     if(s.equals("Framed"))
       return InputField;
     
+    if(s.equals("AddressBand"))
+      return AddressBandInputField;
+    
     return InputField;
   }
   
