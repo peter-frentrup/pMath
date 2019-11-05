@@ -25,7 +25,32 @@ namespace {
       static Expr get_DocumentDirectory(FrontEndObject *obj, Expr item);
       static Expr get_DocumentFileName(FrontEndObject *obj, Expr item);
       static Expr get_DocumentFullFileName(FrontEndObject *obj, Expr item);
- };
+  };
+  
+  class SelectDocumentMenuImpl {
+    public:
+      static void init();
+      static void done();
+    
+    private:
+      static MenuCommandStatus can_set_selected_document(Expr cmd);
+      static bool set_selected_document_cmd(Expr cmd);
+      
+      static Expr enum_windows_menu(Expr name);
+  };
+  
+  class OpenDocumentMenuImpl {
+    public:
+      static void init();
+      static void done();
+    
+    private:
+      static bool document_open_cmd(Expr cmd);
+      
+      static Expr enum_recent_documents_menu(Expr name);
+
+      static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd);
+  };
 }
 
 static ObservableValue<FrontEndReference> current_document_id { FrontEndReference::None };
@@ -36,15 +61,7 @@ extern pmath_symbol_t richmath_Documentation_FindSymbolDocumentationByFullName;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
-static MenuCommandStatus can_set_selected_document(Expr cmd);
-static bool set_selected_document_cmd(Expr cmd);
-static bool document_open_cmd(Expr cmd);
 static bool open_selection_help_cmd(Expr cmd);
-
-static Expr menu_list_windows_enum(Expr name);
-static Expr menu_list_recent_documents_enum(Expr name);
-
-static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd);
 
 void richmath::set_current_document(Document *document) {
   FrontEndReference id = document ? document->id() : FrontEndReference::None;
@@ -154,13 +171,8 @@ Expr richmath_eval_FrontEnd_Documents(Expr expr) {
 bool richmath::impl::init_document_functions() {
   Application::register_menucommand(String("OpenSelectionHelp"),                   open_selection_help_cmd);
 
-  Application::register_menucommand(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
-  Application::register_menucommand(Symbol(richmath_FrontEnd_DocumentOpen),        document_open_cmd);
-  
-  Application::register_dynamic_submenu(     String("MenuListWindows"), menu_list_windows_enum);
-  Application::register_dynamic_submenu(     String("MenuListRecentDocuments"), menu_list_recent_documents_enum);
-  Application::register_submenu_item_deleter(String("MenuListRecentDocuments"), remove_recent_document);
-  
+  OpenDocumentMenuImpl::init();
+  SelectDocumentMenuImpl::init();
   DocumentCurrentValueProvider::init();
   
   return true;
@@ -168,77 +180,8 @@ bool richmath::impl::init_document_functions() {
 
 void richmath::impl::done_document_functions() {
   DocumentCurrentValueProvider::done();
-}
-
-static MenuCommandStatus can_set_selected_document(Expr cmd) {
-  if(cmd[0] != richmath_FrontEnd_SetSelectedDocument)
-    return MenuCommandStatus{ false };
-  
-  if(cmd.expr_length() != 1) 
-    return MenuCommandStatus{ false };
-  
-  Document *doc = get_current_document();
-  MenuCommandStatus status { true };
-  
-  FrontEndReference id = FrontEndReference::from_pmath(cmd[1]);
-  if(id)
-    status.checked = doc && doc->id() == id;
-  else
-    status.enabled = false;
-  
-  return status;
-}
-
-static bool set_selected_document_cmd(Expr cmd) {
-  if(cmd[0] != richmath_FrontEnd_SetSelectedDocument)
-    return false;
-  
-  if(cmd.expr_length() != 1) 
-    return false;
-  
-  FrontEndReference id = FrontEndReference::from_pmath(cmd[1]);
-  
-  return set_selected_document(id);
-}
-
-static bool document_open_cmd(Expr cmd) {
-  if(cmd[0] != richmath_FrontEnd_DocumentOpen)
-    return false;
-  
-  if(cmd.expr_length() != 1) 
-    return false;
-  
-  Expr result = richmath_eval_FrontEnd_DocumentOpen(std::move(cmd));
-  return result != PMATH_SYMBOL_FAILED;
-}
-
-static Expr menu_list_windows_enum(Expr name) {
-  Gather g;
-  int i = 1;
-  for(auto win : CommonDocumentWindow::All) {
-    g.emit(
-      Call(
-        Symbol(richmath_FE_Item), 
-        win->title(), 
-        //List(name, i)
-        Call(Symbol(richmath_FrontEnd_SetSelectedDocument),
-          win->content()->to_pmath_id())));
-    ++i;
-  }
-  return g.end();
-}
-
-static Expr menu_list_recent_documents_enum(Expr name) {
-  return RecentDocuments::as_menu_list();
-}
-
-static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd) {
-  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
-    String path{ item_cmd[1] };
-    if(path.length() > 0)
-      return RecentDocuments::remove(std::move(path));
-  }
-  return false;
+  SelectDocumentMenuImpl::done();
+  OpenDocumentMenuImpl::done();
 }
 
 static bool open_selection_help_cmd(Expr cmd) {
@@ -387,3 +330,103 @@ Expr DocumentCurrentValueProvider::get_DocumentFullFileName(FrontEndObject *obj,
 }
 
 //} ... class DocumentCurrentValueProvider
+
+//{ class SelectDocumentMenuImpl ...
+
+void SelectDocumentMenuImpl::init() {
+  Application::register_menucommand(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
+
+  Application::register_dynamic_submenu(String("MenuListWindows"), enum_windows_menu);
+}
+
+void SelectDocumentMenuImpl::done() {
+}
+
+MenuCommandStatus SelectDocumentMenuImpl::can_set_selected_document(Expr cmd) {
+  if(cmd[0] != richmath_FrontEnd_SetSelectedDocument)
+    return MenuCommandStatus{ false };
+  
+  if(cmd.expr_length() != 1) 
+    return MenuCommandStatus{ false };
+  
+  Document *doc = get_current_document();
+  MenuCommandStatus status { true };
+  
+  FrontEndReference id = FrontEndReference::from_pmath(cmd[1]);
+  if(id)
+    status.checked = doc && doc->id() == id;
+  else
+    status.enabled = false;
+  
+  return status;
+}
+
+bool SelectDocumentMenuImpl::set_selected_document_cmd(Expr cmd) {
+  if(cmd[0] != richmath_FrontEnd_SetSelectedDocument)
+    return false;
+  
+  if(cmd.expr_length() != 1) 
+    return false;
+  
+  FrontEndReference id = FrontEndReference::from_pmath(cmd[1]);
+  
+  return set_selected_document(id);
+}
+
+Expr SelectDocumentMenuImpl::enum_windows_menu(Expr name) {
+  Gather g;
+  int i = 1;
+  for(auto win : CommonDocumentWindow::All) {
+    g.emit(
+      Call(
+        Symbol(richmath_FE_Item), 
+        win->title(), 
+        //List(name, i)
+        Call(Symbol(richmath_FrontEnd_SetSelectedDocument),
+          win->content()->to_pmath_id())));
+    ++i;
+  }
+  return g.end();
+}
+
+//} ... class SelectDocumentMenuImpl
+
+//{ class OpenDocumentMenuImpl ...
+
+void OpenDocumentMenuImpl::init() {
+  String s_MenuListRecentDocuments {"MenuListRecentDocuments"};
+  
+  Application::register_menucommand(Symbol(richmath_FrontEnd_DocumentOpen), document_open_cmd);
+  
+  Application::register_dynamic_submenu(               s_MenuListRecentDocuments,  enum_recent_documents_menu);
+  Application::register_submenu_item_deleter(std::move(s_MenuListRecentDocuments), remove_recent_document);
+}
+
+void OpenDocumentMenuImpl::done() {
+}
+
+bool OpenDocumentMenuImpl::document_open_cmd(Expr cmd) {
+  if(cmd[0] != richmath_FrontEnd_DocumentOpen)
+    return false;
+  
+  if(cmd.expr_length() != 1) 
+    return false;
+  
+  Expr result = richmath_eval_FrontEnd_DocumentOpen(std::move(cmd));
+  return result != PMATH_SYMBOL_FAILED;
+}
+
+Expr OpenDocumentMenuImpl::enum_recent_documents_menu(Expr name) {
+  return RecentDocuments::as_menu_list();
+}
+
+bool OpenDocumentMenuImpl::remove_recent_document(Expr submenu_cmd, Expr item_cmd) {
+  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
+    String path{ item_cmd[1] };
+    if(path.length() > 0)
+      return RecentDocuments::remove(std::move(path));
+  }
+  return false;
+}
+
+//} ... class OpenDocumentMenuImpl
