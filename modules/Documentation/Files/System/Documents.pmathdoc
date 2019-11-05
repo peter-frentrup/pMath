@@ -1,0 +1,26 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Documents", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Documents"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({{TemplateBox({"Documents"}, "ReferenceHyperlink"), "(", ")"}, 
+          " returns a list of ", TemplateBox({"DocumentObject"}, 
+           "ReferenceHyperlink"), " constructs."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A dynamically updated list of all open documents:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Dynamic", "(", {"Documents", "(", ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(DynamicBox(ToBoxes(Documents()))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+       All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"DocumentOpen"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"CreateDocument"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

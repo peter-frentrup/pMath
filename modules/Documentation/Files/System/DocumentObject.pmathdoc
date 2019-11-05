@@ -1,0 +1,46 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("DocumentObject", "ObjectName"), 
+      Section(BoxData(TemplateBox({"DocumentObject"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({"A ", TemplateBox({"DocumentObject"}, "ReferenceHyperlink"), 
+          " construct is a volatile handle that only remains valid until the \
+          document is closed."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Get the current evaluation document:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"EvaluationDocument", "(", ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({FrontEndObject(2834), 
+              "DocumentObject.pmathdoc"}, "DocumentObject")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Create a new document:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"doc", "\[Assign]", {
+                "CreateDocument", "(", {
+                 "{", {{"Section", "(", {ComplexStringBox("\"Hello\""), ",", 
+                    ComplexStringBox("\"Title\"")}, ")"}, ",", {
+                   "Section", "(", {
+                    ComplexStringBox("\"To be or not to be ...\""), ",", 
+                    ComplexStringBox("\"Text\"")}, ")"}}, "}"}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({FrontEndObject(3068), "Untitled 1"}, 
+               "DocumentObject")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"CreateDocument"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"EvaluationDocument"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"SelectedDocument"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Documents"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

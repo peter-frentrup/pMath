@@ -1,0 +1,35 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("DocumentOpen", "ObjectName"), 
+      Section(BoxData(TemplateBox({"DocumentOpen"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({TemplateBox({"DocumentOpen"}, "ReferenceHyperlink"), 
+          " will show the document window on your screen."}, "Notes"), 
+        Section({"If the file is already open, ", 
+          TemplateBox({"DocumentObject"}, "ReferenceHyperlink"), 
+          " will bring the corresponding window to front instead of opening a \
+          copy."}, "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Open a document file in a specific directory:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"DocumentOpen", "(", {
+              "ToFileName", "(", {
+               {"{", {"FE`$FrontEndDirectory", ",", 
+                 ComplexStringBox("\"resources\""), ",", 
+                 ComplexStringBox("\"Palettes\"")}, "}"}, ",", 
+               ComplexStringBox("\"Math Input.pmathdoc\"")}, ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(TemplateBox({FrontEndObject(2253), "Math Input"}, 
+             "DocumentObject")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"CreateDocument"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"DocumentSave"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Documents"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
