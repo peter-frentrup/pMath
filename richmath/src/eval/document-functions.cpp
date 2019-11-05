@@ -8,6 +8,23 @@
 using namespace pmath;
 using namespace richmath;
 
+namespace {
+  class DocumentCurrentValueProvider {
+    public:
+      static void init();
+      static void done();
+      
+    private:
+      static String s_DocumentDirectory;
+      static String s_DocumentFileName;
+      static String s_DocumentFullFileName;
+      
+      static Expr get_DocumentDirectory(FrontEndObject *obj, Expr item);
+      static Expr get_DocumentFileName(FrontEndObject *obj, Expr item);
+      static Expr get_DocumentFullFileName(FrontEndObject *obj, Expr item);
+ };
+}
+
 static ObservableValue<FrontEndReference> current_document_id { FrontEndReference::None };
 
 
@@ -15,7 +32,6 @@ extern pmath_symbol_t richmath_Documentation_FindSymbolDocumentationByFullName;
 
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
-
 
 static MenuCommandStatus can_set_selected_document(Expr cmd);
 static bool set_selected_document_cmd(Expr cmd);
@@ -26,7 +42,6 @@ static Expr menu_list_windows_enum(Expr name);
 static Expr menu_list_recent_documents_enum(Expr name);
 
 static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd);
-
 
 void richmath::set_current_document(Document *document) {
   FrontEndReference id = document ? document->id() : FrontEndReference::None;
@@ -143,10 +158,13 @@ bool richmath::impl::init_document_functions() {
   Application::register_dynamic_submenu(     String("MenuListRecentDocuments"), menu_list_recent_documents_enum);
   Application::register_submenu_item_deleter(String("MenuListRecentDocuments"), remove_recent_document);
   
+  DocumentCurrentValueProvider::init();
+  
   return true;
 }
 
 void richmath::impl::done_document_functions() {
+  DocumentCurrentValueProvider::done();
 }
 
 static MenuCommandStatus can_set_selected_document(Expr cmd) {
@@ -305,3 +323,64 @@ static bool open_selection_help_cmd(Expr cmd) {
   return false;
 }
 
+//{ class DocumentCurrentValueProvider ...
+
+String DocumentCurrentValueProvider::s_DocumentDirectory;
+String DocumentCurrentValueProvider::s_DocumentFileName;
+String DocumentCurrentValueProvider::s_DocumentFullFileName;
+
+void DocumentCurrentValueProvider::init() {
+  s_DocumentDirectory    = String("DocumentDirectory");
+  s_DocumentFileName     = String("DocumentFileName");
+  s_DocumentFullFileName = String("DocumentFullFileName");
+  
+  Application::register_currentvalue_provider(s_DocumentDirectory,    get_DocumentDirectory);
+  Application::register_currentvalue_provider(s_DocumentFileName,     get_DocumentFileName);
+  Application::register_currentvalue_provider(s_DocumentFullFileName, get_DocumentFullFileName);
+  
+}
+
+void DocumentCurrentValueProvider::done() {
+  s_DocumentDirectory    = String {};
+  s_DocumentFileName     = String {};
+  s_DocumentFullFileName = String {};
+}
+
+Expr DocumentCurrentValueProvider::get_DocumentDirectory(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  String result = doc->native()->filename();
+  if(!result.is_valid())
+    return Symbol(PMATH_SYMBOL_NONE);
+  return Application::get_directory_path(std::move(result));
+}
+
+Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  String result = doc->native()->filename();
+  if(!result.is_valid())
+    return Symbol(PMATH_SYMBOL_NONE);
+  Application::extract_directory_path(&result);
+  return result;
+}
+
+Expr DocumentCurrentValueProvider::get_DocumentFullFileName(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  String result = doc->native()->filename();
+  if(!result.is_valid())
+    return Symbol(PMATH_SYMBOL_NONE);
+  return result;
+}
+
+//} ... class DocumentCurrentValueProvider

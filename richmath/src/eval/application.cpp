@@ -692,9 +692,6 @@ void Application::deactivated_all_controls() {
 }
 
 static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_DocumentDirectory(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_DocumentFileName(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_DocumentFullFileName(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item);
@@ -704,9 +701,6 @@ static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr
 static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
 
 static const char s_MouseOver[] = "MouseOver";
-static const char s_DocumentDirectory[] = "DocumentDirectory";
-static const char s_DocumentFileName[] = "DocumentFileName";
-static const char s_DocumentFullFileName[] = "DocumentFullFileName";
 static const char s_DocumentScreenDpi[] = "DocumentScreenDpi";
 static const char s_ControlsFontFamily[] = "ControlsFontFamily";
 static const char s_ControlsFontSlant[] = "ControlsFontSlant";
@@ -731,9 +725,6 @@ void Application::init() {
 #endif
   
   register_currentvalue_provider(String(s_MouseOver),                 get_current_value_of_MouseOver);
-  register_currentvalue_provider(String(s_DocumentDirectory),         get_current_value_of_DocumentDirectory);
-  register_currentvalue_provider(String(s_DocumentFileName),          get_current_value_of_DocumentFileName);
-  register_currentvalue_provider(String(s_DocumentFullFileName),      get_current_value_of_DocumentFullFileName);
   register_currentvalue_provider(String(s_DocumentScreenDpi),         get_current_value_of_DocumentScreenDpi);
   register_currentvalue_provider(String(s_ControlsFontFamily),        get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontSlant),         get_current_value_of_ControlFont_data);
@@ -2048,43 +2039,6 @@ static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item) {
   if(mo)
     return Symbol(PMATH_SYMBOL_TRUE);
   return Symbol(PMATH_SYMBOL_FALSE);
-}
-
-static Expr get_current_value_of_DocumentDirectory(FrontEndObject *obj, Expr item) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  String result = doc->native()->filename();
-  if(!result.is_valid())
-    return Symbol(PMATH_SYMBOL_NONE);
-  return Application::get_directory_path(std::move(result));
-}
-
-static Expr get_current_value_of_DocumentFileName(FrontEndObject *obj, Expr item) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  String result = doc->native()->filename();
-  if(!result.is_valid())
-    return Symbol(PMATH_SYMBOL_NONE);
-  Application::extract_directory_path(&result);
-  return result;
-}
-
-static Expr get_current_value_of_DocumentFullFileName(FrontEndObject *obj, Expr item) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  String result = doc->native()->filename();
-  if(!result.is_valid())
-    return Symbol(PMATH_SYMBOL_NONE);
-  return result;
 }
 
 static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr item) {
