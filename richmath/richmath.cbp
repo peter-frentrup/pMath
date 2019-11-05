@@ -1139,6 +1139,7 @@
 		<Unit filename="include/util/base.h" />
 		<Unit filename="include/util/concurrent-queue.h" />
 		<Unit filename="include/util/double-matrix.h" />
+		<Unit filename="include/util/filesystem.h" />
 		<Unit filename="include/util/frontendobject.h" />
 		<Unit filename="include/util/hashtable.h" />
 		<Unit filename="include/util/matrix.h" />
@@ -1596,6 +1597,7 @@
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/util/autocompletion.cpp" />
 		<Unit filename="src/util/base.cpp" />
+		<Unit filename="src/util/filesystem.cpp" />
 		<Unit filename="src/util/frontendobject.cpp" />
 		<Unit filename="src/util/pmath-extra.cpp" />
 		<Unit filename="src/util/selection-tracking.cpp" />

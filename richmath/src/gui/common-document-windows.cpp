@@ -4,6 +4,8 @@
 
 #include <eval/application.h>
 
+#include <util/filesystem.h>
+
 
 using namespace richmath;
 
@@ -72,7 +74,7 @@ void CommonDocumentWindow::filename(String new_filename) {
   _filename = new_filename;
   if(new_filename.is_valid()) {
     _default_title = new_filename;
-    Application::extract_directory_path(&_default_title);
+    FileSystem::extract_directory_path(&_default_title);
   }
   reset_title();
 }

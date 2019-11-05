@@ -1,9 +1,12 @@
 #include <eval/binding.h>
 #include <eval/observable.h>
+
 #include <gui/common-document-windows.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 #include <gui/recent-documents.h>
+
+#include <util/filesystem.h>
 
 using namespace pmath;
 using namespace richmath;
@@ -92,7 +95,7 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
   if(filename.is_null()) 
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  filename = Application::to_absolute_file_name(filename);
+  filename = FileSystem::to_absolute_file_name(filename);
   if(filename.is_null()) 
     return Symbol(PMATH_SYMBOL_FAILED);
   
@@ -355,7 +358,7 @@ Expr DocumentCurrentValueProvider::get_DocumentDirectory(FrontEndObject *obj, Ex
   String result = doc->native()->filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
-  return Application::get_directory_path(std::move(result));
+  return FileSystem::get_directory_path(std::move(result));
 }
 
 Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Expr item) {
@@ -367,7 +370,7 @@ Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Exp
   String result = doc->native()->filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
-  Application::extract_directory_path(&result);
+  FileSystem::extract_directory_path(&result);
   return result;
 }
 

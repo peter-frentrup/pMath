@@ -113,7 +113,7 @@ namespace richmath {
       static Document *create_document();
       static Document *create_document(Expr data);
       
-      // you should have normalized the filename with Application::to_absolute_file_name()
+      // you should have normalized the filename with FileSystem::to_absolute_file_name()
       static Document *find_open_document(String filename);
       static Document *open_new_document(String filename);
       
@@ -139,10 +139,6 @@ namespace richmath {
                     FrontEndReference box);
       
       static void delay_dynamic_updates(bool delay);
-      
-      static String to_absolute_file_name(String filename);
-      static String extract_directory_path(String *filename);
-      static String get_directory_path(String filename) { return extract_directory_path(&filename); }
       
     public:
       static double edit_interrupt_timeout;
