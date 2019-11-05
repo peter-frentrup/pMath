@@ -133,15 +133,20 @@ Document({
         Section(StyleData("DocumentObject"), 
          TemplateBoxOptions -> {DisplayFunction -> ({"DocumentObject", "(", 
            DynamicLocalBox({FE`Private`arg}, 
-            DynamicBox(ToBoxes(FE`Private`arg:= With({
-                FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-               ReleaseHold(FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(
-                  #1, FE`Private`dyn)))); Button(
-               Style(Panel(Dynamic(CurrentValue(FE`Private`arg, 
-                   WindowTitle))), FontColor -> Dynamic(
-                 If(CurrentValue("MouseOver") === True, Blue, Inherited))), 
-               SetSelectedDocument(FE`Private`arg), 
-               ButtonFrame -> "Frameless")))), ")"} &), 
+            DynamicBox(
+             ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+               FE`Private`arg:= ReleaseHold(
+                FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(#1, 
+                  FE`Private`dyn))); Button(
+                Style(
+                 Panel(Dynamic(Replace(CurrentValue(FE`Private`arg, 
+                     WindowTitle), $Failed :> ReleaseHold(
+                     FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(#2, 
+                       FE`Private`dyn)))))), FontColor -> Dynamic(
+                  If(CurrentValue(FE`Private`arg, WindowTitle) === $Failed, 
+                   Gray, If(CurrentValue("MouseOver") === True, Blue, 
+                    Inherited)))), SetSelectedDocument(FE`Private`arg), 
+                ButtonFrame -> "Frameless"))))), ")"} &), 
           InterpretationFunction -> ({"DocumentObject", "(", 
            InterpretationBox("", #1), ")"} &)}), 
         Section(StyleData("Det"), TemplateBoxOptions -> {

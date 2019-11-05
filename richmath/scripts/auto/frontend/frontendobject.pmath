@@ -1,9 +1,18 @@
+BeginPackage("FE`", {"ExperimentalSyntax`"})
+
 Begin("FE`Private`")
 
 allowGuiBoxes::= Refresh(System`BoxForm`$UseTextFormatting =!= True, None)
 Protect(allowGuiBoxes)
 
-MakeBoxes(DocumentObject(~feo:FrontEndObject))::= TemplateBox({feo}, "DocumentObject") /? allowGuiBoxes
+MakeBoxes(doc: DocumentObject(~feo:FrontEndObject))::= Block {
+    With(title:= CurrentValue(doc, WindowTitle))
+    If(title.IsString) {
+        TemplateBox({feo, title}, "DocumentObject")
+    } Else {
+        TemplateBox({feo, feo.ReplaceRepeated(FrontEndObject(~id) :> id)}, "DocumentObject")
+    }
+} /? allowGuiBoxes
 
 DocumentObject/: Options(~obj:DocumentObject, args:Repeated(~, 0..1))::= FE`CallFrontEnd(FrontEnd`Options(obj, args))
 FrontEndObject/: Options(~obj:FrontEndObject, args:Repeated(~, 0..1))::= FE`CallFrontEnd(FrontEnd`Options(obj, args))
@@ -12,3 +21,5 @@ DocumentObject/: SetOptions(~obj:DocumentObject, ~~args)::= FE`CallFrontEnd(Fron
 FrontEndObject/: SetOptions(~obj:FrontEndObject, ~~args)::= FE`CallFrontEnd(FrontEnd`SetOptions(obj, args))
 
 End()
+
+EndPackage()
