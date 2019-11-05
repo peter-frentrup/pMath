@@ -373,8 +373,10 @@ void load_documents_from_command_line() {
     if(!doc)
       doc = Application::open_new_document(path);
     
-    if(doc)
+    if(doc) {
+      RecentDocuments::add(path);
       doc->native()->bring_to_front();
+    }
   }
 }
 

@@ -104,14 +104,26 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
 
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
   /* FrontEnd`DocumentOpen(filename)
+     FrontEnd`DocumentOpen(filename, addtorecent)
   */
-  
-  if(expr.expr_length() != 1)
+  size_t exprlen = expr.expr_length();
+  if(exprlen < 1 || exprlen > 2)
     return Symbol(PMATH_SYMBOL_FAILED);
   
   String filename{expr[1]};
   if(filename.is_null()) 
     return Symbol(PMATH_SYMBOL_FAILED);
+  
+  bool add_to_recent_documents = true;
+  if(exprlen == 2) {
+    Expr obj = expr[2];
+    if(obj == PMATH_SYMBOL_TRUE)
+      add_to_recent_documents = true;
+    else if(obj == PMATH_SYMBOL_FALSE)
+      add_to_recent_documents = false;
+    else
+      return Symbol(PMATH_SYMBOL_FAILED);
+  }
   
   filename = FileSystem::to_absolute_file_name(filename);
   if(filename.is_null()) 
@@ -122,6 +134,9 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
     doc = Application::open_new_document(filename);
     if(!doc)
       return Symbol(PMATH_SYMBOL_FAILED);
+    
+    if(add_to_recent_documents)
+      RecentDocuments::add(filename);
   }
   doc->native()->bring_to_front();
   return doc->to_pmath_id();
@@ -411,7 +426,8 @@ bool OpenDocumentMenuImpl::document_open_cmd(Expr cmd) {
   if(cmd[0] != richmath_FrontEnd_DocumentOpen)
     return false;
   
-  if(cmd.expr_length() != 1) 
+  size_t exprlen = cmd.expr_length();
+  if(exprlen < 1 || exprlen > 2) 
     return false;
   
   Expr result = richmath_eval_FrontEnd_DocumentOpen(std::move(cmd));
@@ -438,7 +454,7 @@ Expr OpenDocumentMenuImpl::enum_palettes_menu(Expr name) {
         if(name.part(len - 9).equals(".pmathdoc"))
           name = name.part(0, len - 9);
         
-        item = RecentDocuments::open_document_menu_item(std::move(name), std::move(full));
+        item = RecentDocuments::open_document_menu_item(std::move(name), std::move(full), false);
       }
       
       list.set(i, std::move(item));

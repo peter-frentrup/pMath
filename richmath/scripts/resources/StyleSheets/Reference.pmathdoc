@@ -76,23 +76,23 @@ Document({
               Section(StyleData("ExampleText"), BaseStyle -> "Text", 
                DefaultNewSectionStyle -> "Input", 
                SectionMargins -> {Inherited, Inherited, 6, 4}, 
-               ShowSectionBracket -> Automatic)}, All), 
-            SectionGroup({Section(StyleData("ExampleDelimiter"), 
-               DefaultNewSectionStyle -> "ExampleText", Evaluatable -> True, 
-               FontSize -> 2, SectionFrame -> {Inherited, Inherited, 0.25`, 
-                Inherited}, SectionFrameColor -> GrayLevel(
-                0.70199999999999996`), SectionGroupPrecedence -> -25, 
-               SectionMargins -> {35, Inherited, 8, 4}, SectionLabel -> "", 
                ShowSectionBracket -> Automatic), 
-              Section(StyleData("SeeAlsoSection"), 
-               BaseStyle -> "CollapseSection", 
-               DefaultNewSectionStyle -> "SeeAlso", 
-               DefaultReturnCreatedSectionStyle -> "SeeAlso", 
-               ReturnCreatesNewSection -> True), 
-              Section(StyleData("SeeAlso"), BaseStyle -> "Text", 
-               SectionMargins -> {35, Inherited, 15, 15}, 
-               ShowSectionBracket -> Automatic)}, All)}, All)}, All)}, All), 
-      SectionGroup({Section("Box styles", "Section"), 
+              SectionGroup({Section(StyleData("ExampleDelimiter"), 
+                 DefaultNewSectionStyle -> "ExampleText", Evaluatable -> True, 
+                 FontSize -> 2, SectionFrame -> {Inherited, Inherited, 0.25`, 
+                  Inherited}, SectionFrameColor -> GrayLevel(
+                  0.70199999999999996`), SectionGroupPrecedence -> -25, 
+                 SectionMargins -> {35, Inherited, 8, 4}, SectionLabel -> "", 
+                 ShowSectionBracket -> Automatic), 
+                Section(StyleData("SeeAlsoSection"), 
+                 BaseStyle -> "CollapseSection", 
+                 DefaultNewSectionStyle -> "SeeAlso", 
+                 DefaultReturnCreatedSectionStyle -> "SeeAlso", 
+                 ReturnCreatesNewSection -> True), 
+                Section(StyleData("SeeAlso"), BaseStyle -> "Text", 
+                 SectionMargins -> {35, Inherited, 15, 15}, 
+                 ShowSectionBracket -> Automatic)}, All)}, All)}, All)}, 
+         All)}, All), SectionGroup({Section("Box styles", "Section"), 
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
           Section(StyleData("UsageReference"), 
            TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
@@ -113,8 +113,9 @@ Document({
                       FE`Private`file:= 
                        Documentation`FindSymbolDocumentationByFullName(
                        FE`Private`name)}, If(IsString(FE`Private`file), 
-                      DocumentOpen(FE`Private`file)))}, 0) &), 
-                  BaseStyle -> "Text", ButtonFrame -> "Frameless"), "\""}), 
+                      FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
+                        False))))}, 0) &), BaseStyle -> "Text", 
+                  ButtonFrame -> "Frameless"), "\""}), 
                FontColor -> Dynamic(
                 With({FE`Private`file:= With({
                     FE`Private`name:= With({

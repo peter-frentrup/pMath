@@ -1133,7 +1133,6 @@ Document *Application::open_new_document(String filename) {
     return nullptr;
     
   doc->native()->filename(filename);
-  RecentDocuments::add(filename);
   
   do {
     if(filename.part(filename.length() - 9).equals(".pmathdoc")) {

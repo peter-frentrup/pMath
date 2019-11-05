@@ -13,7 +13,17 @@ Expr RecentDocuments::open_document_menu_item(Expr label, Expr path) {
   return Call(
            Symbol(richmath_FE_Item), 
            std::move(label), 
-           Call(Symbol(richmath_FrontEnd_DocumentOpen), std::move(path)));
+           Call(
+             Symbol(richmath_FrontEnd_DocumentOpen), 
+             std::move(path)));
 }
 
-
+Expr RecentDocuments::open_document_menu_item(Expr label, Expr path, bool add_to_recent) {
+  return Call(
+           Symbol(richmath_FE_Item), 
+           std::move(label), 
+           Call(
+             Symbol(richmath_FrontEnd_DocumentOpen), 
+             std::move(path),
+             add_to_recent ? Symbol(PMATH_SYMBOL_TRUE) : Symbol(PMATH_SYMBOL_FALSE)));
+}

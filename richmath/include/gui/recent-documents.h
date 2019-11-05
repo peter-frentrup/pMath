@@ -20,6 +20,7 @@ namespace richmath {
   #endif
   {
     static Expr open_document_menu_item(Expr label, Expr path);
+    static Expr open_document_menu_item(Expr label, Expr path, bool add_to_recent);
   };
 }
 

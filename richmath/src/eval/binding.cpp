@@ -9,6 +9,7 @@
 #include <eval/job.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
+#include <gui/recent-documents.h>
 #include <util/spanexpr.h>
 #include <util/selection-tracking.h>
 
@@ -1141,6 +1142,8 @@ static bool open_cmd(Expr cmd) {
       doc = Application::open_new_document(filename);
       if(!doc)
         continue;
+      
+      RecentDocuments::add(filename);
     }
     
     doc->native()->bring_to_front();
