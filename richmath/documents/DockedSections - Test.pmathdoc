@@ -6,38 +6,51 @@ Document({
      BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
           "DockedSections", "\[Rule]", {
            "{", {ComplexStringBox("\"TopGlass\""), "\[Rule]", {
-             "Section", "(", {
-              {"BoxData", "@", {
-                "{", {"ComplexStringBox", "(", {
-                  ComplexStringBox("\"\\\"\""), ",", {
-                   "ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
-                     "ButtonFrame", "\[Rule]", 
-                     ComplexStringBox("\"NavigationBack\"")}}, ")"}, ",", {
-                   "\n", {"ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
+             "{", {"Section", "(", {
+               {"BoxData", "@", {
+                 "{", {"ComplexStringBox", "(", {
+                   ComplexStringBox("\"\\\"\""), ",", {
+                    "ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
                       "ButtonFrame", "\[Rule]", 
-                      ComplexStringBox("\"NavigationForward\"")}}, ")"}}, ",", 
-                  {"\n", ComplexStringBox("\" \"")}, ",", {
-                   "\n", {"FillBox", "(", {"InputFieldBox", "(", {
-                      {"Dynamic", "(", "searchString", ")"}, ",", "String"}, 
-                     ")"}, ")"}}, ",", {"ButtonBox", "(", {
-                    {"{", {
-                      {"StyleBox", "(", {ComplexStringBox("\"\\\"Go\\\"\""), 
-                        ",", {"FontWeight", "\[Rule]", "Bold"}}, ")"}, ",", {
-                       "GraphicsBox", "(", {{"{", "}"}, ",", {
-                         "ImageSize", "\[Rule]", {"{", {"1", ",", "12"}, 
-                          "}"}}}, ")"}}, "}"}, ",", {
-                     "ButtonFrame", "\[Rule]", 
-                     ComplexStringBox("\"Palette\"")}, ",", {
-                     "ButtonFunction", "\[Rule]", " ", {
-                      "(", {
-                       {"(", {"searchString", "\[Assign]", {
-                          "ToString", "@", {
-                           "{", {{"EvaluationDocument", "(", ")"}, ",", {
-                             "SelectedDocument", "(", ")"}}, "}"}}}, ")"}, 
-                       "&"}, ")"}}}, ")"}, ",", ComplexStringBox("\"\\\"\"")}, 
-                 ")"}, "}"}}, ",", ComplexStringBox("\"Docked\""), ",", {
-               "LineBreakWithin", "\[Rule]", "False"}}, ")"}}, "}"}}}, ")"}, 
-       ";"}), "Input", SectionLabel -> "in [1]:"), 
+                      ComplexStringBox("\"NavigationBack\"")}, ",", {
+                      "BaselinePosition", "\[Rule]", {
+                       "Center", "\[Rule]", "Axis"}}}, ")"}, ",", {
+                    "\n", {"ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
+                       "ButtonFrame", "\[Rule]", 
+                       ComplexStringBox("\"NavigationForward\"")}, ",", {
+                       "BaselinePosition", "\[Rule]", {
+                        "Center", "\[Rule]", "Axis"}}, ",", {
+                       "Enabled", "\[Rule]", "False"}}, ")"}}, ",", {
+                    "\n", ComplexStringBox("\" \"")}, ",", {
+                    "\n", {"FillBox", "(", {"PanelBox", "(", {
+                       {"GridBox", "(", {
+                         {"{", {
+                           "{", {{"FillBox", "(", {"InputFieldBox", "(", {
+                               {"Dynamic", "(", "searchString", ")"}, ",", 
+                               "String", ",", {"Appearance", "\[Rule]", 
+                                ComplexStringBox("\"AddressBand\"")}}, ")"}, 
+                             ")"}, ",", {"ButtonBox", "(", {
+                              ComplexStringBox("\"\\\" Go \\\"\""), ",", {
+                               "ButtonFunction", "\[Rule]", " ", {
+                                "(", {{"(", {"searchString", "\[Assign]", {
+                                    "ToString", "@", {
+                                     "{", {{"EvaluationDocument", "(", ")"}, 
+                                      ",", {"SelectedDocument", "(", ")"}}, 
+                                     "}"}}}, ")"}, "&"}, ")"}}, ",", {
+                               "ButtonFrame", "\[Rule]", 
+                               ComplexStringBox("\"AddressBandGo\"")}}, ")"}, 
+                            ",", {"ButtonBox", "(", {
+                              ComplexStringBox("\"\\\" \[Ellipsis] \\\"\""), 
+                              ",", {"ButtonFrame", "\[Rule]", 
+                               ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, 
+                           "}"}, "}"}, ",", {"GridBoxColumnSpacing", 
+                          "\[Rule]", "0"}}, ")"}, ",", {
+                        "Appearance", "\[Rule]", 
+                        ComplexStringBox("\"AddressBand\"")}}, ")"}, ")"}}, 
+                   ",", ComplexStringBox("\"\\\"\"")}, ")"}, "}"}}, ",", 
+               ComplexStringBox("\"Docked\""), ",", {
+                "LineBreakWithin", "\[Rule]", "False"}}, ")"}, "}"}}, "}"}}}, 
+        ")"}, ";"}), "Input", SectionLabel -> "in [1]:"), 
     SectionGroup({
       Section(BoxData({"Dynamic", "(", {"Framed", "(", "searchString", ")"}, 
          ")"}), "Input", SectionLabel -> "in [2]:"), 
@@ -91,14 +104,22 @@ Document({
         HoldPattern(Global`scale) :> Replace(
          Replace(Magnification, Options(EvaluationDocument(), Magnification)), 
          Inherited -> 1)}})}), "Docked"), 
-  "TopGlass" -> Section(
-   BoxData({
-     ComplexStringBox("\"", ButtonBox("", ButtonFrame -> "NavigationBack"), 
-      ButtonBox("", ButtonFrame -> "NavigationForward"), " ", 
-      FillBox(InputFieldBox(Dynamic(Global`searchString), String)), 
-      ButtonBox({StyleBox("\"Go\"", FontWeight -> Bold), 
-        GraphicsBox({}, ImageSize -> {1, 12})}, ButtonFrame -> "Palette", 
-       ButtonFunction -> ((Global`searchString:= ToString({
-         EvaluationDocument(), SelectedDocument()})) &)), "\"")}), "Docked", 
-   LineBreakWithin -> False), "Bottom" -> {}}, 
+  "TopGlass" -> {
+   Section(
+    BoxData({
+      ComplexStringBox("\"", ButtonBox("", ButtonFrame -> "NavigationBack", 
+        BaselinePosition -> Center -> Axis), 
+       ButtonBox("", ButtonFrame -> "NavigationForward", 
+        BaselinePosition -> Center -> Axis, Enabled -> False), " ", 
+       FillBox(
+        PanelBox(
+         GridBox({
+           {FillBox(InputFieldBox(Dynamic(Global`searchString), String, 
+              Appearance -> "AddressBand")), 
+            ButtonBox("\" Go \"", ButtonFunction -> ((Global`searchString:= 
+              ToString({EvaluationDocument(), SelectedDocument()})) &), 
+             ButtonFrame -> "AddressBandGo"), 
+            ButtonBox("\" \[Ellipsis] \"", ButtonFrame -> "AddressBandGo")}}, 
+          GridBoxColumnSpacing -> 0), Appearance -> "AddressBand")), "\"")}), 
+    "Docked", LineBreakWithin -> False)}, "Bottom" -> {}}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)
