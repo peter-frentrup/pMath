@@ -16,7 +16,7 @@ using namespace richmath;
 static const int SnapDistance = 4;
 
 class richmath::MathGtkWorkingArea: public MathGtkWidget {
-    typedef MathGtkWidget super_class;
+    using base = MathGtkWidget;
     friend class MathGtkDocumentWindow;
   public:
     MathGtkWorkingArea(MathGtkDocumentWindow *parent)
@@ -72,7 +72,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     virtual String window_title() override { return _parent->title(); }
     
     virtual void on_idle_after_edit() override { 
-      super_class::on_idle_after_edit();
+      base::on_idle_after_edit();
       _parent->on_idle_after_edit(this); 
     }
     virtual void on_saved() override { _parent->on_saved(); }
@@ -118,7 +118,7 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
 };
 
 class richmath::MathGtkDock: public MathGtkWidget {
-    typedef MathGtkWidget super_class;
+    typedef MathGtkWidget base;
     friend class MathGtkDocumentWindow;
   public:
     MathGtkDock(MathGtkDocumentWindow *parent)
@@ -193,7 +193,7 @@ class richmath::MathGtkDock: public MathGtkWidget {
     virtual String window_title() override { return _parent->title(); }
     
     virtual void on_idle_after_edit() override {
-      super_class::on_idle_after_edit();
+      base::on_idle_after_edit();
       _parent->on_idle_after_edit(this); 
     }
     virtual void on_saved() override {   _parent->on_saved(); }

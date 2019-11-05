@@ -64,6 +64,8 @@ namespace richmath {
       
       virtual void on_saved() override {}
       
+      virtual bool is_focused_widget() override { return _focused; }
+      
       GtkMenu *popup_menu();
       GtkAdjustment *hadjustment() { return _hadjustment; }
       GtkAdjustment *vadjustment() { return _vadjustment; }
@@ -80,11 +82,11 @@ namespace richmath {
       
     private:
       CursorType cursor;
-      bool mouse_moving;
-      
-      bool is_painting;
-      bool is_blinking;
-      bool ignore_key_release;
+      bool mouse_moving : 1;
+      bool is_painting : 1;
+      bool is_blinking : 1;
+      bool ignore_key_release : 1;
+      ObservableValue<bool> _focused;
       
       int old_width;
       

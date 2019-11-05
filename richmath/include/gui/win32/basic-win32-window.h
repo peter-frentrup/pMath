@@ -72,6 +72,7 @@ namespace richmath {
       int zorder_level() { return _zorder_level; }
       
       virtual bool is_foreground_window() override { return _active; }
+      virtual bool is_focused_widget() override { return _active; }
       virtual int dpi() override;
       
     protected:

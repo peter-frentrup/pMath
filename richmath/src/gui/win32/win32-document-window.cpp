@@ -26,7 +26,7 @@ using namespace richmath;
 
 
 class richmath::Win32WorkingArea: public Win32Widget {
-    typedef Win32Widget super_class;
+    using base = Win32Widget;
     friend class Win32DocumentWindow;
   public:
     Win32WorkingArea(
@@ -48,7 +48,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void page_size(float *w, float *h) override {
-      Win32Widget::page_size(w, h);
+      base::page_size(w, h);
       if(auto_size)
         *w = HUGE_VAL;
     }
@@ -78,12 +78,13 @@ class richmath::Win32WorkingArea: public Win32Widget {
     virtual String window_title() override { return _parent->title(); }
     
     virtual void on_idle_after_edit() override { 
-      super_class::on_idle_after_edit();
+      base::on_idle_after_edit();
       _parent->on_idle_after_edit(this);
     }
     virtual void on_saved() override { _parent->on_saved(); }
     
     virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
+    virtual bool is_focused_widget() override { return _parent->is_focused_widget() && base::is_focused_widget(); }
     
   private:
     Win32DocumentWindow *_parent;
@@ -97,7 +98,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
   protected:
     virtual void after_construction() override {
-      Win32Widget::after_construction();
+      base::after_construction();
       
       fprintf(stderr, "[Win32WorkingArea::after_construction, hwnd = %p]\n", hwnd());
       _overlay.init();
@@ -111,7 +112,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
       _overlay.handle_scrollbar_owner_callback(message, wParam, lParam);
-      return Win32Widget::callback(message, wParam, lParam);
+      return base::callback(message, wParam, lParam);
     }
     
     void rearrange() {
@@ -128,7 +129,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       if(auto_size && document()->count() == 0)
         return;
         
-      Win32Widget::set_cursor(type);
+      base::set_cursor(type);
     }
     
     virtual void paint_background(Canvas *canvas) override {
@@ -143,7 +144,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
       _overlay.clear();
-      Win32Widget::paint_canvas(canvas, resize_only);
+      base::paint_canvas(canvas, resize_only);
       
       _overlay.set_scale(scale_factor());
       if(Box *sel = document()->selection_box()) {
@@ -202,17 +203,17 @@ class richmath::Win32WorkingArea: public Win32Widget {
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint) override {
-      Win32Widget::on_paint(dc, from_wmpaint);
+      base::on_paint(dc, from_wmpaint);
       rearrange();
     }
 };
 
 class richmath::Win32Dock: public Win32Widget {
-    typedef Win32Widget super_class;
+    using base = Win32Widget;
     friend class Win32DocumentWindow;
   protected:
     virtual void after_construction() override {
-      Win32Widget::after_construction();
+      base::after_construction();
       
       assert(document()->style.is_valid());
       
@@ -287,7 +288,7 @@ class richmath::Win32Dock: public Win32Widget {
     virtual String window_title() override { return _parent->title(); }
     
     virtual void on_idle_after_edit() override { 
-      super_class::on_idle_after_edit();
+      base::on_idle_after_edit();
       _parent->on_idle_after_edit(this);
     }
     virtual void on_saved() override {   _parent->on_saved(); }
@@ -295,6 +296,7 @@ class richmath::Win32Dock: public Win32Widget {
     virtual Document *working_area_document() override { return _parent->working_area()->document(); }
     
     virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
+    virtual bool is_focused_widget() override { return _parent->is_focused_widget() && base::is_focused_widget(); }
     
     void resize() {
       HDC dc = GetDC(_hwnd);
@@ -363,7 +365,7 @@ class richmath::Win32Dock: public Win32Widget {
       bool bif = Win32ControlPainter::win32_painter.blur_input_field;
       Win32ControlPainter::win32_painter.blur_input_field = false;
       
-      Win32Widget::paint_canvas(canvas, resize_only);
+      base::paint_canvas(canvas, resize_only);
       
       Win32ControlPainter::win32_painter.blur_input_field = bif;
       paint_size_grip(canvas);
@@ -377,7 +379,7 @@ class richmath::Win32Dock: public Win32Widget {
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint) override {
-      Win32Widget::on_paint(dc, from_wmpaint);
+      base::on_paint(dc, from_wmpaint);
       rearrange();
     }
     
@@ -389,7 +391,7 @@ class richmath::Win32Dock: public Win32Widget {
       if(!initializing()) {
         switch(message) {
           case WM_MOUSEMOVE: {
-              Win32Widget::callback(message, wParam, lParam);
+              base::callback(message, wParam, lParam);
               
               if(have_size_grip()) {
                 int x = (int16_t) (lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
@@ -409,7 +411,7 @@ class richmath::Win32Dock: public Win32Widget {
             } return 0;
             
           case WM_LBUTTONDOWN: {
-              Win32Widget::callback(message, wParam, lParam);
+              base::callback(message, wParam, lParam);
               
               if(have_size_grip()) {
                 int x = (int16_t) (lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
@@ -432,7 +434,7 @@ class richmath::Win32Dock: public Win32Widget {
         }
       }
       
-      return Win32Widget::callback(message, wParam, lParam);
+      return base::callback(message, wParam, lParam);
     }
     
   protected:
@@ -441,9 +443,10 @@ class richmath::Win32Dock: public Win32Widget {
 };
 
 class richmath::Win32GlassDock: public richmath::Win32Dock {
+    using base = richmath::Win32Dock;
   protected:
     virtual void after_construction() override {
-      Win32Dock::after_construction();
+      base::after_construction();
       
       document()->style->set(Background, Color::None);
       
@@ -526,7 +529,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
       }
       
       set_textcolor();
-      Win32Dock::paint_background(canvas);
+      base::paint_background(canvas);
     }
     
     static Expr text_shadows_from_theme(HANDLE theme, int part, int state) {
@@ -578,7 +581,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
       else
         _image_format = CAIRO_FORMAT_RGB24;
         
-      Win32Dock::on_paint(dc, from_wmpaint);
+      base::on_paint(dc, from_wmpaint);
     }
     
     virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
@@ -589,7 +592,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
           } break;
           
           case WM_LBUTTONDOWN: {
-              if( Win32Dock::callback(message, wParam, lParam) == 0 &&
+              if( base::callback(message, wParam, lParam) == 0 &&
                   document()->clicked_box_id() == document()->id() &&
                   _parent->glass_enabled())
               {
@@ -600,7 +603,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
         }
       }
       
-      return Win32Dock::callback(message, wParam, lParam);
+      return base::callback(message, wParam, lParam);
     }
 };
 

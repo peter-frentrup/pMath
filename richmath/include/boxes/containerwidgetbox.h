@@ -29,6 +29,7 @@ namespace richmath {
       virtual void on_exit() override;
       
       virtual bool is_foreground_window() override;
+      virtual bool is_focused_widget() override;
       virtual int dpi() override;
     
     protected:

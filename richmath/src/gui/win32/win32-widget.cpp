@@ -98,6 +98,8 @@ Win32Widget::Win32Widget(
     _old_pixels(nullptr),
     is_painting(false),
     scrolling(false),
+    already_scrolled(false),
+    _focused(false),
     _width(0),
     _height(0),
     gesture_zoom_factor(1.0f),
@@ -1597,6 +1599,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
         
       case WM_SETFOCUS: {
+          _focused = true;
+          
           Box *box = document()->selection_box();
           if(!box)
             box = document();
@@ -1611,7 +1615,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
           }
         } return 0;
-        
+      
+      case WM_KILLFOCUS: {
+          _focused = false;
+        } break;
+      
       case WM_SYSKEYUP: {
           if( wParam == VK_F10                &&
               ( GetKeyState(VK_SHIFT)   & ~1) &&

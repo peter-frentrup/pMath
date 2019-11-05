@@ -240,6 +240,15 @@ bool ProgressIndicatorBox::is_foreground_window() {
   return doc->native()->is_foreground_window();
 }
 
+bool ProgressIndicatorBox::is_focused_widget() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return false;
+  
+  AutoResetCurrentEvaluationBox guard;
+  return doc->native()->is_focused_widget();
+}
+
 int ProgressIndicatorBox::dpi() {
   Document *doc = find_parent<Document>(false);
   if(!doc)

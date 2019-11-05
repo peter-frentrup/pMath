@@ -31,6 +31,7 @@ namespace {
   class DummyControlContext: public ControlContext {
     public:
       virtual bool is_foreground_window() override { return true; }
+      virtual bool is_focused_widget() override { return false; }
       virtual int dpi() override { return 96; }
   };
 }

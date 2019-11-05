@@ -119,6 +119,7 @@ namespace {
       virtual void on_saved() override {}
       
       virtual bool is_foreground_window() override { return false; }
+      virtual bool is_focused_widget() override { return false; }
   };
 }
 

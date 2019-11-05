@@ -246,6 +246,15 @@ bool ContainerWidgetBox::is_foreground_window() {
   return doc->native()->is_foreground_window();
 }
 
+bool ContainerWidgetBox::is_focused_widget() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return false;
+  
+  AutoResetCurrentEvaluationBox guard;
+  return doc->native()->is_focused_widget();
+}
+
 int ContainerWidgetBox::dpi() {
   Document *doc = find_parent<Document>(false);
   if(!doc)

@@ -851,11 +851,15 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, Co
       break;
       
     case Pressed:
-      result|= (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_FOCUSED;
+      result|= (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED;
+      if(context->is_focused_widget())
+        result|= (int)GTK_STATE_FLAG_FOCUSED;
       break;
       
     case PressedHovered:
-      result|= (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_FOCUSED | (int)GTK_STATE_FLAG_PRELIGHT;
+      result|= (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_PRELIGHT;
+      if(context->is_focused_widget())
+        result|= (int)GTK_STATE_FLAG_FOCUSED;
       break;
       
     case Disabled:

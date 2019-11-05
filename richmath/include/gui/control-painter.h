@@ -70,6 +70,7 @@ namespace richmath {
   class ControlContext {
     public:
       virtual bool is_foreground_window() = 0;
+      virtual bool is_focused_widget() = 0;
       virtual int dpi() = 0;
       
       static ControlContext *find(Box *box);

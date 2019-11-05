@@ -156,6 +156,7 @@ MathGtkWidget::MathGtkWidget(Document *doc)
     is_painting(false),
     is_blinking(false),
     ignore_key_release(true),
+    _focused(false),
     old_width(0),
     _hadjustment(nullptr),
     _vadjustment(nullptr),
@@ -1081,6 +1082,8 @@ bool MathGtkWidget::on_expose(GdkEvent *e) {
 }
 
 bool MathGtkWidget::on_focus_in(GdkEvent *e) {
+  _focused = true;
+  
   Box *box = document()->selection_box();
   if(!box)
     box = document();
@@ -1098,6 +1101,8 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e) {
 }
 
 bool MathGtkWidget::on_focus_out(GdkEvent *e) {
+  _focused = false;
+  
   if(_im_context)
     gtk_im_context_focus_out(_im_context);
     

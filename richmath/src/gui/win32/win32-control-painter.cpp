@@ -1716,7 +1716,16 @@ HANDLE Win32ControlPainter::get_control_theme(
   
   if(!theme)
     return nullptr;
-    
+  
+  if(state == Pressed) {
+    if(!context->is_focused_widget())
+      state = Normal;
+  }
+  else if(state == PressedHovered) {
+    if(!context->is_focused_widget())
+      state = Hovered;
+  }
+  
   switch(type) {
     case GenericButton:
     case PushButton:

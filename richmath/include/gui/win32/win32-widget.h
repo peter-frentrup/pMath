@@ -73,6 +73,8 @@ namespace richmath {
       
       virtual void on_saved() override {}
       
+      virtual bool is_focused_widget() override { return _focused; }
+      
     public:
       STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
       STDMETHODIMP DragLeave(void) override;
@@ -88,12 +90,11 @@ namespace richmath {
     private:
       cairo_surface_t *_old_pixels;
       CursorType cursor;
-      bool mouse_moving;
-      
-      bool is_painting;
-      
-      bool scrolling;
-      bool already_scrolled;
+      bool mouse_moving : 1;
+      bool is_painting : 1;
+      bool scrolling : 1;
+      bool already_scrolled : 1;
+      ObservableValue<bool> _focused;
       MouseEvent mouse_down_event; // coordinates in pixels, relative to widget top/left (no scrolling adjustment)
       
       int _width;
