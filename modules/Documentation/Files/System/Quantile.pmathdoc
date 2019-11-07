@@ -1,0 +1,220 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Quantile", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Quantile"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details and Options", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({TemplateBox({"Quantile"}, "ReferenceHyperlink"), "(", 
+          StyleBox("list", "Arg"), ", ", StyleBox("q", "Arg"), ") gives ", 
+          TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", 
+          StyleBox("list", "Arg"), ", ", 
+          TemplateBox({"Less"}, "ReferenceHyperlink"), ")[", 
+          TemplateBox({"Ceiling"}, "ReferenceHyperlink"), "(", 
+          StyleBox("q", "Arg"), " ", TemplateBox({"Length"}, 
+           "ReferenceHyperlink"), "(", StyleBox("list", "Arg"), "))]."}, 
+         "Notes"), Section({"For a ", StyleBox("list", "Arg"), " of length ", 
+          StyleBox("n", "Arg"), ", ", TemplateBox({"Quantile"}, 
+           "ReferenceHyperlink"), "(", StyleBox("list", "Arg"), ", ", 
+          StyleBox("q", "Arg"), ", {{", StyleBox("a", "Arg"), ", ", 
+          StyleBox("b", "Arg"), "}, {", StyleBox("c", "Arg"), ", ", 
+          StyleBox("d", "Arg"), "}}) gives ", {
+           StyleBox("left", "Arg"), "+", {
+            {"(", {StyleBox("c", "Arg"), "+", {
+               StyleBox("d", "Arg"), " ", {
+                TemplateBox({"FractionalPart"}, "ReferenceHyperlink"), "(", 
+                StyleBox("q", "Arg"), ")"}}}, ")"}, " ", {
+             "(", {StyleBox("right", "Arg"), "-", StyleBox("left", "Arg")}, 
+             ")"}}}, " where ", StyleBox("left", "Arg"), " equals ", {
+           {TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
+             StyleBox("list", "Arg"), ",", TemplateBox({"Less"}, 
+              "ReferenceHyperlink")}, ")"}, "[", {
+            TemplateBox({"Floor"}, "ReferenceHyperlink"), "(", {
+             StyleBox("a", "Arg"), "+", {
+              {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
+              StyleBox("q", "Arg")}}, ")"}, "]"}, " and ", 
+          StyleBox("right", "Arg"), " is  ", {
+           {TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
+             StyleBox("list", "Arg"), ",", TemplateBox({"Less"}, 
+              "ReferenceHyperlink")}, ")"}, "[", {
+            TemplateBox({"Ceiling"}, "ReferenceHyperlink"), "(", {
+             StyleBox("a", "Arg"), "+", {
+              {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
+              StyleBox("q", "Arg")}}, ")"}, "]"}, 
+          ", with indices clamped to the range 1 .. ", StyleBox("n", "Arg"), 
+          "."}, "Notes"), Section({"Typical values for {{", 
+          StyleBox("a", "Arg"), ", ", StyleBox("b", "Arg"), "}, {", 
+          StyleBox("c", "Arg"), ", ", StyleBox("d", "Arg"), "}} are:"}, 
+         "Notes"), 
+        Section({
+          ComplexStringBox("\"", 
+           GridBox({
+             {{"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
+                 "{", {"1", ",", " ", "0"}, "}"}}, "}"}, {
+               "inverse", " ", "empirical", " ", "CDF", " ", {
+                "(", "default", ")"}}}, {
+              {"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
+                 "{", {"0", ",", " ", "1"}, "}"}}, "}"}, {
+               "linear", " ", "interpolation"}}, {
+              {"{", {{"{", {{"1", "/", "2"}, ",", " ", "0"}, "}"}, ",", " ", {
+                 "{", {"0", ",", " ", "0"}, "}"}}, "}"}, {
+               "element", " ", "ranked", " ", "nearest", " ", "to", " ", 
+               StyleBox("q", "Arg"), " ", "n"}}}))}, "2ColumnTableNotes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Get the median of a list of values:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Quantile", "(", {
+              {"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5"}, "}"}, ",", {
+               "1", "/", "2"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("3"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Get the lower quartile and of a list of values:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Quantile", "(", {
+                {"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5"}, "}"}, 
+                ",", {"1", "/", "4"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("2"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Get lower and upper quartiles:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Quantile", "(", {
+                {"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5"}, "}"}, 
+                ",", {"{", {{"1", "/", "4"}, ",", {"3", "/", "4"}}, "}"}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"2", ",", "4"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section({"With default interpolation parameters, ", 
+          TemplateBox({"Quantile"}, "ReferenceHyperlink"), 
+          " gives the empirical cumulative distribution function:"}, 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Plot", "(", {
+              {"Quantile", "(", {
+                {"{", {"1", ",", "2", ",", "2", ",", "3", ",", "4", ",", "4", 
+                  ",", "4", ",", "5", ",", "5"}, "}"}, ",", "q"}, ")"}, ",", {
+               "q", "\[Rule]", {"0", "..", "1"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(GraphicsBox({
+              {RGBColor(0.75`, 0, 0), {
+                LineBox(CompressedData(
+                  "1:c$,hue@NVA90zdk,O1(nWQ>rAh=?m9A}gT[q9h,AV+(O6TSiD&WZQ};L#\
+                  jm,BBEyI4iPaCkwZjGMC6+[6BCjBYRF},o}!Xe&gPIYWQ?(OpZ6!epSRp!FZ\
+                  ?}3_xHKydymV?9rK(!;Ieb_j(=Vg,zTs=w4x^F_T^@0yS%Lb{}-8r14x7;nN\
+                  Qyv8Q4!SDsTYcN7M2V$ORn6zx*U{kVYm14$%nU5dc<*o)^diR6+ocQn5*a#{\
+                  dzm3V57S08dy-Dd0&fRt}W}Mk)Yd8#x7dhKd26wPKZk=d4&2;CU;i@PehB0l\
+                  a7_3NKkPg_nboq(Xi$@,J)FR!rg5pvSbrYXC{TD3I-54]nG[3hY@F-UR%ZS#\
+                  w9>Eql0Xz[xmL3WtM]h{6$j7KNh#eAf!^*yGm#3T?+?fFdha3n&hXMb83CtX\
+                  Ldy!iqHk-m_u[!24D#3HZQ@,G7JymVgiGjQuQ7PRA1Pu@y^C34B85bXwq3TH\
+                  _ai({xT[1S+ZNtUwj@m=ma,Q+Qb*Mk(_GwX}qT;4>QeP2dX[SrGV=VgX-KEF\
+                  d1Dncqd]Li99{,jBl&KBR%B3LuRkY6oc!S-oSB7Md!Aw1%u;5u,0-4Ua<-G*\
+                  t{]r-mvW)KI09rrw2gQA3q(YnZRnV^akxz0^>p&l(<6N!nDQO20KMQW>!HVw\
+                  FLamCQmVBKzEs%F]&#lPbgZT%{@_mQ})QYActkjD_sPs,xe)R]c71B4a8O*2\
+                  h<wq&+NwOj*N-$]5h]$_!1NfXvd)pM=a&!&1lvnks,_qK4&=E7ULwxk^)U$U\
+                  HSnKvLAuhb-,!Uldv7(+gRmhH1z$Pc4b8@SF07$SSY1EV4%DISpB-_ad4W+2\
+                  DqdP0m^o+2Sn7HfKR@QdTMCR*0@c$SzG)KyK62Daaje2-%]Cm5{sCunKaI8m\
+                  io<tTT,Yl%*1PbT2]c99@i%dPg@Sq,[eE2x)Xd![BW5j&4gxiwhdgsI*$vtV\
+                  )[$Jg1UybjfBU$F;lQR=KRwVGVy(>9nkrN}!ZEt8_cMiy=MMIjb7dYYoFHeb\
+                  y(UlB7LU>9>Yyl>uuQt$_?$!$b@+L=9^p!,3i*7BWH&<B(Bm*aR7)h6#vI4U\
+                  >>@YUo2Is9_p1Ne#n)icC>MA2Ll1)2kvg)G%vJWR[;tCNf8zBkLj;9Q}%=h+\
+                  N{V>mpY;Yg6Q^qhF+dMCLhtOC-fvkOkf!$Rh6sWQnFOLY8SN1zDk]MaU[eA!\
+                  JQu85;&!S9vIZe?c[V>l$Q[veqG6l%=vwQ-4El(v-?An<,b=rG_fEtzoUo9c\
+                  %ct%ARG_tK7A$CY5,Z^^MAXn,%*cVCmng#JwQBRb;=b^Mds6RO-DT>zqo1XX\
+                  ja^QRQ3)+Etou<qnk=mD8Dq->bCRR8pnQrhJuzO{G=Zt>HtJ4r>_MfOJwrl,\
+                  hK)Ux##4mP(Ij-}{A;*RyZ=2Bgok-,*Wa(z7>Z57O_^TW]{UfEpfx40,ldLW\
+                  U?S0vYz,{ep]8mJb=_scn%lY8d@j#OJ9Uk#TOgo00zjZAA5y"))}}}, 
+             AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+             Axes -> True, PlotRange -> NCache({0 .. 1, 1 .. 5}, {
+               0.0` .. 1.0`, 1.0` .. 5.0`}))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use linear interpolation instead:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Plot", "(", {
+                {"Quantile", "(", {
+                  {"{", {"1", ",", "2", ",", "2", ",", "3", ",", "4", ",", 
+                    "4", ",", "4", ",", "5", ",", "5"}, "}"}, ",", "q", ",", {
+                   "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                     "{", {"0", ",", "1"}, "}"}}, "}"}}, ")"}, ",", {
+                 "q", "\[Rule]", {"0", "..", "1"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                {RGBColor(0.75`, 0, 0), {
+                  LineBox(CompressedData(
+                    "1:c$,(34,,fs8OQJ5doQ#ui(A[+u62}di;9&ZrHG1GWXNu8Qra$bMx;m-\
+                    tGkj*LQpI22qC03#,Fv!w561ClsUFBN<C[Sl,]}QKfRQC#?bYxHOaD=WS5\
+                    X-F]lsr^Lc*v,@PTi7Xo{EKFjkwpZEQ[zvtK22]_om9jDT9x78f[RddTvV\
+                    #i)M-rV9;RJpEG6VN]UVkP2iQ[JYNlzuNoB>pLgUx9d]il<{9}3bV<#h+7\
+                    u@K=aG26?VSyc+Ug{0S9T*<%9,uTk+63Sj)R;B^DyPpNoR6]_2Z=m+CZOF\
+                    #7(-z8oR7=K3c9LIRA<oN]0cY_zkza(BKF#Z+sYQ*?g#mkC+P5Oyre6RFl\
+                    #lJ3IR(zkICuPO=,+459;@=Q2EB;O2Yru+s+xN;?@$dL,hphMkKY!MWe^<\
+                    p>ca-CN5#;!@D$csMIL;Ri$G_+IKhAN!2yy&5}9<8<&KDINe_oyo$NAzBj\
+                    =!Mdf1y8L;y7PC$?@;Y^J>z4?&A1Cc,h91i+vnF<o6$K()]v{e#GzJYtsF\
+                    n<9MAs$7bFC6336qdT7!8CxaCKf%M<1,[Z7*}IqJ0c2f5r3sd}@(tpC-=W\
+                    P@[CjFn%{ntK9@gGb7Nz;Ed#T%smwC>;AP4S<?,>y+seT(8hgZK0u-G2kc\
+                    e-7{aJG%cg#b1&By_>rK,i];c3D^fRW[U1?oJPq1H{E]q<A]D),@o>?Ke-\
+                    lhTA<IY?mzv%h}>!D+i0ZbjQWGEi1SOxGiLHUj5xoB_x+ak^@<VaH{eC_,\
+                    ]2TMrHJ!e=s&0XPf$D&1c96u_!EJ)AXLuj%6S6qLD<T2T49brM-cY1oObw\
+                    #KqsU+Zc?oiI2{CwoVNIcKvxj9t(?[_BG4U#eam<h3G{$RqxMKKNJ8<rDP\
+                    AJb3m$RpagISBc*M2G5QBb6l,^T,V{jHc;@V@0!Fll*h-;5k1{cI56W1Oa\
+                    3@(btU}f4_GPoqghfMK@3{p[&Yl@c,T$UOmrUv]Sa9#_-=7!*PF(0$Q8$s\
+                    Ci5WFQfaohrLi$]r9SK!fF;A#-IJ_Koa=1mB$!K1anbrFnO;08Qe3)]bz&\
+                    jJ[(CCvy1VZpT^7y,jo1X&S,okTDKf(Zm;Ab1Kv4g,[3Zi8S7!5t7xBgli\
+                    GhhPGChH(IsAecsQ7X-cA0PcZc;0[QMSmW;i9^mei2QY<O#y<eeV2ud?vv\
+                    {u%%%M4gc[(?B0E^fzf&$!<{RoyJ)d2)6D2QMc1Ybn32B{7rSO>vF2sS}Q\
+                    FoI1;bp*i{2wI>Bf)+?PlIkS{ZH@?9pxyBW_gkPtQXQ]Brz3(EIPLg?FIu\
+                    2WQXRBFx8n;QvOtgH3m&#WQap[WpjWzj$pU?j{]9R3ITh$HgXbw%9fLp8k\
+                    tWFCY#H!$P]aN<sRHN4<EW_-VsN1hzDUJiX23aJ1{cMno&o2qU]oxN9W$v\
+                    a8Kgw8fdLCW&fv0m#Ei!dH9sU(!lc@(=7$I-wP5mDH9tf!Z3JU#e!%jn)2\
+                    T9Qeu!YSP7Bh_qWK}$UY!<9Gq?(=j+*BY;,sq9@ntPYH;d*62-a&sx>+<o\
+                    Ak{IGs*>ji2sUUzx>+<oKrm(mckujxR0)%6FV7DUOlm>8Su{UDFl_{5JU<\
+                    {+U{a^b@caP5=%hI;2WftQpf_nwxdd{U>aJP4A(}iZe$d&*oM&B{AM)1Hu\
+                    Q_m5(EPx5}7F_UPV)n6Oqm*$G(X^VP7>%*SC7*Cz]a;9uv<m*1Me<@Mzwi\
+                    -n&t=IL;[5PQWAIo4=P1qxBAXNU<%uv)(^@fFa!5$U}M^8KwuU;GSk{)g[\
+                    @wm3{Gp0{[Px7k0Il+NnjB?-ZdUu1Pb7hH6BF*%ixjK9-}Caz$0rsN(5HL\
+                    V=1dW,WUQ%$FTOuFjyCl?Zet*g29G(R1a&91qPeqQ8TPPK4!2b9-kZ59vc\
+                    jb;_=k5_V}QBBIJAQ7[g#S8MK9b4+W@LeUU+X$oJT3JW32YLVmkDb-O7AI\
+                    z#^Z;r]S-@EFaHkZ=BZ3v@}w8+3<!^QSG)BVFyXKvKGT#sa<4Rjmd3q^mD\
+                    mpg-h]yFC^-8<LS]f%B3oYJm$P7_-1d5lma)k_ZMy5TryfX@SciIEvsk=x\
+                    PkX>mnGth2RYlOphaY3sU6]ybXdLf-4[ngy1R&24(=HL9iCVH4uy<xDH(<\
+                    5![G85Zr{WV($aUgkXo81u!Tt4((F_hOovQfGpPd4[cLgp9e68f(UXbh]R\
+                    bz{+WT,4lV,+d3=HhCLq-$f=O5<9)i1Na8FGl1oz6I#6SN=a38vwM(_Z-n\
+                    n5rHU0GlTQoWC07E)PYPEyrdU>*c5uqcA97AT0}s[@+6uG%fIB3+%bz^Zi\
+                    hI[5BysxAwxORC>nU_(;bU{eHbuq7TgD3$^LySAIb85&6nBwYWNDDY>>sX\
+                    $v9yh6qQz<]ab,XGaL*RP=fUntPw,W}N(aIp[BPS-D<)WwsonjccU&lKOT\
+                    =7$tNr;B@4YJQXfXGk&l0#8acKO}M!q[rqAhotgMsya14#G_<9URCo$Jfg\
+                    GOBd_KMc+6^#+91ylDE@&i9&>npxU$;k2&mUO#Ph?I)xI#Vk2n=PKU]?Vm\
+                    *(}3@e!UMuIyLq^ZI=CB+m]QcAo}P%y;qp0FUa0vPW_s&kq+i<OOp,<@w>\
+                    l4!58WMdx^aK=Jf]F22O,13aRO=E(Ut%@6R1eQ3_R)igga)raN_>t}?wph\
+                    rP_BnYIj-GceVO5hq6FPKlP1g^WX0n,,FCsqPC;0ZPq%qLa?HzCz=lWLtn\
+                    20aSq6Dxs1@HkO0pI8YDfk&h9C=$qmM,OW!VkIyF#p9-UiNF}m#0%yVD[f\
+                    w%#0%yVD[mdRDrHi=$KVcl#0%yVD[lUt48#lO6DxrU@yNur#}DE*@feI3%\
+                    qLa?ccu7{DgKbbJ@I(gcoZ4j7muv=s4g*hAgQuCRf7Uk;*m8T3e3oAA2#g\
+                    <0#DHV5J4NviQtF@=B2m}7Ny3h1q$LZW,Skd0B%,eMQ+Ks1y<$m<[I)W3(\
+                    f-Tu76-zvcLwc#3lrru;47P1zUy%im>1;kO<2TXMwh,tlee=?O[NhS,c)E\
+                    MX(h?XIM^TClQ<ui(mplS6Bp3A?Oan!3#l8SOilDk}3By&<lbdf<6$eT>{\
+                    V#f@uV2LC{+Ua2^B$D+2xx#p-W^"))}}}, 
+               AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+               Axes -> True, PlotRange -> NCache({0 .. 1, 1.0` .. 5.0`}, {
+                 0.0` .. 1.0`, 1.0` .. 5.0`}))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Sort"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Ordering"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
