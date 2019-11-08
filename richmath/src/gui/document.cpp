@@ -4820,57 +4820,34 @@ void DocumentImpl::handle_key_backspace(SpecialKeyEvent &event) {
   }
   
   if(event.ctrl || selbox != &self) {
-    auto old = self.context.selection.id;
-    MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
+    auto old_id = self.context.selection.id;
+    int old_sel_end = self.selection_end();
+    self.move_horizontal(LogicalDirection::Backward, event.ctrl, event.ctrl || event.shift);
     
-    if( seq &&
-        seq->text()[self.context.selection.start - 1] == PMATH_CHAR_BOX)
-    {
-      int boxi = 0;
-      while(seq->item(boxi)->index() < self.context.selection.start - 1)
-        ++boxi;
-        
-      if(seq->item(boxi)->length() == 0) {
-        self.move_horizontal(LogicalDirection::Backward, event.ctrl, true);
-        event.key = SpecialKey::Unknown;
-        return;
-      }
+    if(old_id == self.context.selection.id) {
+      if(self.selection_end() != old_sel_end)
+        self.select(selbox, self.selection_start(), old_sel_end);
       
-      int old_sel_end = self.selection_end();
-      self.move_horizontal(
-        LogicalDirection::Backward,
-        event.ctrl,
-        event.ctrl || event.shift);
-        
-      if( self.selection_length() == 0 &&
-          old == self.context.selection.id)
-      {
-        self.select(seq, self.selection_start(), old_sel_end);
-        event.key = SpecialKey::Unknown;
-        return;
-      }
-    }
-    else
-      self.move_horizontal(LogicalDirection::Backward, event.ctrl, true);
-      
-    if(!event.ctrl &&
-        seq &&
-        seq->text()[self.context.selection.start] == PMATH_CHAR_BOX)
-    {
-      event.key = SpecialKey::Unknown;
-      return;
-    }
-    
-    if(old == self.context.selection.id) {
       self.remove_selection(true);
       
       // reset sel_last:
       selbox = self.context.selection.get();
       self.select(selbox, self.context.selection.start, self.context.selection.end);
     }
+    else {
+      if(self.selection_length() == 0 && self.selection_start() > 0) {
+        if(AbstractSequence *seq = dynamic_cast<AbstractSequence*>(self.selection_box())) {
+          if(seq->is_placeholder(self.selection_start() - 1)) {
+            self.select(seq, self.selection_start() - 1, self.selection_end());
+          }
+        }
+      }
+      event.key = SpecialKey::Unknown;
+      return;
+    }
   }
   else
-    self. move_horizontal(LogicalDirection::Backward, event.ctrl);
+    self.move_horizontal(LogicalDirection::Backward, event.ctrl);
     
   event.key = SpecialKey::Unknown;
 }
