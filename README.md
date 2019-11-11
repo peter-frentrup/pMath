@@ -1,5 +1,7 @@
 # pMath #
 
+Copyright © Peter Frentrup, 2005-2019
+
 *pMath* is an experimental computer algebra system/programming language. Some concepts are similar to [Mathematica][] (usage of pattern matching, everything is an expression), but with improved syntax.
 
 ![screenshot](richmath/resources/images/screenshot.png)
