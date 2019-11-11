@@ -1,16 +1,16 @@
 # pMath #
 
-*pMath* is an experimental computer algebra system/programming language. Some concepts are similar to [Mathematica][] (usage of pattern matching, everything is an expression), but with different syntax.
-This document decribes the core library.
+*pMath* is an experimental computer algebra system/programming language. Some concepts are similar to [Mathematica][] (usage of pattern matching, everything is an expression), but with improved syntax.
 
+![screenshot](richmath/resources/images/screenshot.png)
 
 ## Build ##
 
 The [Code::Blocks][] IDE is used for development. Supported compilers are Visual C++ 2015 (Windows, recommended) and GCC (Windows, Unix).
 
 ### Prerequisites ###
-When opening `../pmath.workspace` for the first time, Code::Blocks will ask for many Global Variables. These correspond to required prebuild libraries. The variable names are of the form *name_32* or *name_64* for 32 and 64 bit flavors, respectively. You may choose to either only set the 32 bit versions or only the 64 bit versions or both. 
-The variables correspond to
+When opening `pmath.workspace` for the first time, Code::Blocks will ask for many Global Variables. These correspond to required prebuild libraries. The variable names are of the form *name_32* or *name_64* for 32 and 64 bit flavors, respectively. You may choose to either only set the 32 bit versions or only the 64 bit versions or both. 
+The relevant variables for the core *pMath* library are:
 
 * **gmp_32**/**gmp_64** points to the [MPIR][] (Multiple Precision Integers and Rationals) installation directory.
   
@@ -55,6 +55,7 @@ The variables correspond to
     Set *lib* to the library directory (containing zlib.lib or libzlib.a).  
     Set *bin* to the binary directory (containing zlib.dll).
 
+The graphical front-end *richmath* uses the [Cairo][] graphics library together with the Win32 API on Windows and Gtk on Linux.
 
 ### Building the required libraries from source on Windows ###
 It is recommended to use Visual C++ 2015 (MSVC for short) to build the libraries.
@@ -71,4 +72,4 @@ For MPIR and MPFR there are MSVC projects available at [http://www.github.com/Br
 [win_iconv]:    https://github.com/win-iconv/win-iconv
 [PCRE]:         http://www.pcre.org/
 [zlib]:         http://www.zlib.net/
-
+[cairo]:        https://www.cairographics.org
