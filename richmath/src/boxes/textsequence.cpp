@@ -731,7 +731,7 @@ int TextSequence::insert(int pos, Box *box) {
   int newpos = text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
   adopt(box, pos);
   int i = boxes.length();
-  while(i > 0 && boxes[i - 1]->index() > pos)
+  while(i > 0 && boxes[i - 1]->index() >= pos)
     --i;
   boxes.insert(i, 1, &box);
   invalidate();
