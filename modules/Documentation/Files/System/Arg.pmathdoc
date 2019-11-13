@@ -1,0 +1,47 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Arg", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Arg"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         "Mathematical function suitable for numeric and symbolic \
+         computations.", "Notes"), 
+        Section({"For certain special arguments, ", 
+          TemplateBox({"Arg"}, "ReferenceHyperlink"), 
+          " automatically evaluates to exact values."}, "Notes"), 
+        Section({TemplateBox({"Arg"}, "ReferenceHyperlink"), 
+          " can be evaluated to arbitrary numerical precision."}, "Notes"), 
+        Section({TemplateBox({"Arg"}, "ReferenceHyperlink"), 
+          " automatically threads over lists."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("The result is given in radians:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"Arg", "(", {"1", "+", "I"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(FractionBox("\[Pi]", "4")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"For real quantities, the result is either zero or ", 
+            TemplateBox({"Pi"}, "ReferenceHyperlink"), "."}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"{", {{"Arg", "(", {"-", SqrtBox("3")}, ")"}, 
+                ",", {"Arg", "(", "0", ")"}, ",", {"Arg", "(", "5", ")"}}, 
+               "}"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"\[Pi]", ",", "0", ",", "0"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"ArcTan"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Complex"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"I"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Abs"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Exp"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
