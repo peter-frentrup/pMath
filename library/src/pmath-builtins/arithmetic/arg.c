@@ -64,7 +64,10 @@ PMATH_PRIVATE pmath_t builtin_arg(pmath_expr_t expr) {
       if(re_sign == 0) {
         if(im_sign < 0)
           return TIMES(QUOT(-1, 2), pmath_ref(PMATH_SYMBOL_PI));
-        return TIMES(ONE_HALF, pmath_ref(PMATH_SYMBOL_PI));
+        else if(im_sign == 0)
+          return INT(0);
+        else
+          return TIMES(ONE_HALF, pmath_ref(PMATH_SYMBOL_PI));
       }
       return ARCTAN(DIV(im, re));
     }
